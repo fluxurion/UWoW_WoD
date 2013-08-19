@@ -185,7 +185,8 @@ ACE_Auto_Array_Ptr<uint8> BigNumber::AsByteArray(int32 minSize, bool littleEndia
     if (littleEndian)
         std::reverse(array, array + length);
 
-    return ACE_Auto_Array_Ptr<uint8>(array);
+    ACE_Auto_Array_Ptr<uint8> ret(array);
+    return ret;
 }
 
 const char *BigNumber::AsHexStr()
