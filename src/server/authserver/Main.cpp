@@ -147,8 +147,9 @@ int main(int argc, char** argv)
     sLog->SetRealmID(0);                                               // ensure we've set realm to 0 (authserver realmid)
 
     // Get the list of realms for the server
-    sRealmList->Initialize(ConfigMgr::GetIntDefault("RealmsStateUpdateDelay", 20));
-    if (sRealmList->size() == 0)
+    sRealmList.Initialize(ConfigMgr::GetIntDefault("RealmsStateUpdateDelay", 20));
+
+    if (sRealmList.size() == 0)
     {
         sLog->outError(LOG_FILTER_AUTHSERVER, "No valid realms specified.");
         return 1;
@@ -238,8 +239,8 @@ void SetProcessPriority()
 #if defined(_WIN32) || defined(__linux__)
 
     ///- Handle affinity for multiple processors and process priority
-    uint32 affinity = sConfigMgr->GetIntDefault("UseProcessors", 0);
-    bool highPriority = sConfigMgr->GetBoolDefault("ProcessPriority", false);
+    uint32 affinity = ConfigMgr::GetIntDefault("UseProcessors", 0);
+    bool highPriority = ConfigMgr::GetBoolDefault("ProcessPriority", false);
 
 #ifdef _WIN32 // Windows
 
@@ -255,20 +256,20 @@ void SetProcessPriority()
             ULONG_PTR currentAffinity = affinity & appAff;
 
             if (!currentAffinity)
-                TC_LOG_ERROR("server.authserver", "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the authserver. Accessible processors bitmask (hex): %x", affinity, appAff);
+                sLog->outError(LOG_FILTER_AUTHSERVER, "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the authserver. Accessible processors bitmask (hex): %x", affinity, appAff);
             else if (SetProcessAffinityMask(hProcess, currentAffinity))
-                TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %x", currentAffinity);
+                sLog->outInfo(LOG_FILTER_AUTHSERVER, "Using processors (bitmask, hex): %x", currentAffinity);
             else
-                TC_LOG_ERROR("server.authserver", "Can't set used processors (hex): %x", currentAffinity);
+                sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set used processors (hex): %x", currentAffinity);
         }
     }
 
     if (highPriority)
     {
         if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
-            TC_LOG_INFO("server.authserver", "authserver process priority class set to HIGH");
+            sLog->outInfo(LOG_FILTER_AUTHSERVER, "authserver process priority class set to HIGH");
         else
-            TC_LOG_ERROR("server.authserver", "Can't set authserver process priority class.");
+            sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set authserver process priority class.");
     }
 
 #else // Linux
@@ -283,21 +284,21 @@ void SetProcessPriority()
                 CPU_SET(i, &mask);
 
         if (sched_setaffinity(0, sizeof(mask), &mask))
-            TC_LOG_ERROR("server.authserver", "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
+            sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
         else
         {
             CPU_ZERO(&mask);
             sched_getaffinity(0, sizeof(mask), &mask);
-            TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %lx", *(__cpu_mask*)(&mask));
+            sLog->outInfo(LOG_FILTER_AUTHSERVER, "Using processors (bitmask, hex): %lx", *(__cpu_mask*)(&mask));
         }
     }
 
     if (highPriority)
     {
         if (setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
-            TC_LOG_ERROR("server.authserver", "Can't set authserver process priority class, error: %s", strerror(errno));
+            sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set authserver process priority class, error: %s", strerror(errno));
         else
-            TC_LOG_INFO("server.authserver", "authserver process priority class set to %i", getpriority(PRIO_PROCESS, 0));
+            sLog->outInfo(LOG_FILTER_AUTHSERVER, "authserver process priority class set to %i", getpriority(PRIO_PROCESS, 0));
     }
 
 #endif
