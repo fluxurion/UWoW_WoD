@@ -547,7 +547,8 @@ class Map : public GridRefManager<NGridType>
     protected:
         void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
 
-        ACE_Thread_Mutex Lock;
+        std::mutex _mapLock;
+        std::mutex _gridLock;
 
         MapEntry const* i_mapEntry;
         uint8 i_spawnMode;

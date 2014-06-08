@@ -100,7 +100,7 @@ Map* MapManager::CreateBaseMap(uint32 id)
 
     if (map == NULL)
     {
-        TRINITY_GUARD(ACE_Thread_Mutex, Lock);
+        std::lock_guard<std::mutex> lock(_mapsLock);
 
         MapEntry const* entry = sMapStore.LookupEntry(id);
         ASSERT(entry);
@@ -343,7 +343,7 @@ void MapManager::UnloadAll()
 
 uint32 MapManager::GetNumInstances()
 {
-    TRINITY_GUARD(ACE_Thread_Mutex, Lock);
+    std::lock_guard<std::mutex> lock(_mapsLock);
 
     uint32 ret = 0;
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
@@ -360,7 +360,7 @@ uint32 MapManager::GetNumInstances()
 
 uint32 MapManager::GetNumPlayersInInstances()
 {
-    TRINITY_GUARD(ACE_Thread_Mutex, Lock);
+    std::lock_guard<std::mutex> lock(_mapsLock);
 
     uint32 ret = 0;
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)

@@ -306,7 +306,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 
     bitsData.WriteBits(displaycount, 6);
 
-    TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
+    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+
     HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
