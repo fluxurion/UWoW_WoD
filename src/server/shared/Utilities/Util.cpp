@@ -21,40 +21,52 @@
 #include "Common.h"
 #include "utf8.h"
 #include "SFMT.h"
-#include <ace/TSS_T.h>
-#include <ace/INET_Addr.h>
+#include "Errors.h" // for ASSERT
+#include <boost/thread/tss.hpp>
 
-typedef ACE_TSS<SFMTRand> SFMTRandTSS;
-static SFMTRandTSS sfmtRand;
+static boost::thread_specific_ptr<SFMTRand> sfmtRand;
+
+static SFMTRand* GetRng()
+{
+    SFMTRand* rand = sfmtRand.get();
+
+    if (!rand)
+    {
+        rand = new SFMTRand();
+        sfmtRand.reset(rand);
+    }
+
+    return rand;
+}
 
 int32 irand(int32 min, int32 max)
 {
-    return int32(sfmtRand->IRandom(min, max));
+    return int32(GetRng()->IRandom(min, max));
 }
 
 uint32 urand(uint32 min, uint32 max)
 {
-    return sfmtRand->URandom(min, max);
+    return GetRng()->URandom(min, max);
 }
 
 float frand(float min, float max)
 {
-    return float(sfmtRand->Random() * (max - min) + min);
+    return float(GetRng()->Random() * (max - min) + min);
 }
 
 int32 rand32()
 {
-    return int32(sfmtRand->BRandom());
+    return int32(GetRng()->BRandom());
 }
 
 double rand_norm(void)
 {
-    return sfmtRand->Random();
+    return GetRng()->Random();
 }
 
 double rand_chance(void)
 {
-    return sfmtRand->Random() * 100.0;
+    return GetRng()->Random() * 100.0;
 }
 
 Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)

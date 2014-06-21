@@ -30,22 +30,8 @@
 #include <ace/Semaphore.h>
 #include <ace/Task.h>
 
-class TCSoapRunnable: public ACE_Based::Runnable
-{
-    public:
-        TCSoapRunnable() { }
-        void run();
-        void setListenArguments(std::string host, uint16 port)
-        {
-            m_host = host;
-            m_port = port;
-        }
-    private:
-        void process_message(ACE_Message_Block* mb);
-
-        std::string m_host;
-        uint16 m_port;
-};
+void process_message(ACE_Message_Block* mb);
+void TCSoapThread(const std::string& host, uint16 port);
 
 class SOAPCommand
 {
