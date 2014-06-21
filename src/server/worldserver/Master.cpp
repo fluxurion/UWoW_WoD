@@ -201,7 +201,8 @@ int Master::Run()
         cliThread = new ACE_Based::Thread(new CliRunnable);
     }
 
-    ACE_Based::Thread rar_thread(new RARunnable);
+    // TODO C++11/Boost
+    // std::thread rarThread(RemoteAccessThread);
 
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef _WIN32
