@@ -16,99 +16,104 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
+#include <mutex>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 #include "Config.h"
 #include <ace/Auto_Ptr.h>
 #include <ace/Configuration_Import_Export.h>
 #include <ace/Thread_Mutex.h>
 
-namespace ConfigMgr
-{
+using namespace boost::property_tree;
 
-namespace
+bool ConfigMgr::LoadInitial(char const* file)
 {
     typedef ACE_Thread_Mutex LockType;
     typedef ACE_Guard<LockType> GuardType;
 
-    std::string _filename;
-    ACE_Auto_Ptr<ACE_Configuration_Heap> _config;
-    LockType m_configLock;
+    std::lock_guard<std::mutex> lock(_configLock);
 
-    // Defined here as it must not be exposed to end-users.
-    bool GetValueHelper(const char* name, ACE_TString &result)
+    _filename = file;
+
+    try
     {
-        GuardType guard(m_configLock);
+        ptree temp;
+        boost::property_tree::ini_parser::read_ini(file, temp);
 
-        if (_config.get() == 0)
-            return false;
 
-        ACE_TString section_name;
-        ACE_Configuration_Section_Key section_key;
-        const ACE_Configuration_Section_Key &root_key = _config->root_section();
-
-        int i = 0;
-        while (_config->enumerate_sections(root_key, i, section_name) == 0)
+        for (auto bla : temp)
         {
-            _config->open_section(root_key, section_name.c_str(), 0, section_key);
-            if (_config->get_string_value(section_key, name, result) == 0)
-                return true;
-            ++i;
+            _config = bla.second;
+            break;
         }
-
+    }
+    catch (std::exception const&  /*ex*/)
+    {
         return false;
     }
+
+    return true;
 }
 
-bool Load(const char* file)
+bool ConfigMgr::Reload()
 {
-    GuardType guard(m_configLock);
-
-    if (file)
-        _filename = file;
-
-    _config.reset(new ACE_Configuration_Heap);
-    if (_config->open() == 0)
-    {
-        ACE_Ini_ImpExp config_importer(*_config.get());
-        if (config_importer.import_config(_filename.c_str()) == 0)
-            return true;
-    }
-    _config.reset();
-    return false;
+    return LoadInitial(_filename.c_str());
 }
 
-std::string GetStringDefault(const char* name, const std::string &def)
+std::string ConfigMgr::GetStringDefault(const char* name, const std::string &def)
 {
-    ACE_TString val;
-    return GetValueHelper(name, val) ? val.c_str() : def;
+    std::string value = _config.get<std::string>(ptree::path_type(name,'/'), def);
+
+    value.erase(std::remove(value.begin(), value.end(), '"'), value.end());
+
+    return value;
 }
 
 bool GetBoolDefault(const char* name, bool def)
 {
-    ACE_TString val;
-
-    if (!GetValueHelper(name, val))
+    try
+    {
+        std::string val = _config.get<std::string>(name);
+        val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
+        return (val == "true" || val == "TRUE" || val == "yes" || val == "YES" || val == "1");
+    }
+    catch (std::exception const&  /*ex*/)
+    {
         return def;
-
-    return (val == "true" || val == "TRUE" || val == "yes" || val == "YES" ||
-        val == "1");
+    }
 }
 
 int GetIntDefault(const char* name, int def)
 {
-    ACE_TString val;
-    return GetValueHelper(name, val) ? atoi(val.c_str()) : def;
+    return _config.get<int>(name, def);
 }
 
 float GetFloatDefault(const char* name, float def)
 {
-    ACE_TString val;
-    return GetValueHelper(name, val) ? (float)atof(val.c_str()) : def;
+    return _config.get<float>(name, def);
 }
 
 const std::string & GetFilename()
 {
-    GuardType guard(m_configLock);
+    std::lock_guard<std::mutex> lock(_configLock);
     return _filename;
 }
 
-} // namespace
+std::list<std::string> ConfigMgr::GetKeysByString(std::string const& name)
+{
+    std::lock_guard<std::mutex> lock(_configLock);
+
+    std::list<std::string> keys;
+
+    for (const ptree::value_type& child : _config)
+    {
+        if (child.first.compare(0, name.length(), name) == 0)
+        {
+            keys.push_back(child.first);
+        }
+    }
+   
+    return keys;
+}
+
