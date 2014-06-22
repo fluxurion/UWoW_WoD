@@ -24,22 +24,28 @@
 #include "LogWorker.h"
 #include "Logger.h"
 
-#include <ace/Singleton.h>
+#include <unordered_map>
+#include <string>
 
 #include <string>
 #include <set>
 
 class Log
 {
-    friend class ACE_Singleton<Log, ACE_Thread_Mutex>;
-
-    typedef std::map<uint8, Logger> LoggerMap;
+    typedef std::unordered_map<std::string, Logger> LoggerMap;
+    typedef std::unordered_map<std::string, Logger const*> CachedLoggerContainer;
 
     private:
         Log();
         ~Log();
 
     public:
+        static Log* instance()
+        {
+            static Log* instance = new Log();
+            return instance;
+        }
+
         void LoadFromConfig();
         void Close();
         bool ShouldLog(LogFilterType type, LogLevel level) const;
@@ -92,6 +98,6 @@ class Log
         LogWorker* worker;
 };
 
-#define sLog ACE_Singleton<Log, ACE_Thread_Mutex>::instance()
+#define sLog Log::instance()
 
 #endif
