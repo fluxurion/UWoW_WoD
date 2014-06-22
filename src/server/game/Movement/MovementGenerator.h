@@ -95,6 +95,5 @@ struct MovementGeneratorFactory : public SelectableMovement
 
 typedef FactoryHolder<MovementGenerator, MovementGeneratorType> MovementGeneratorCreator;
 typedef FactoryHolder<MovementGenerator, MovementGeneratorType>::FactoryHolderRegistry MovementGeneratorRegistry;
-typedef FactoryHolder<MovementGenerator, MovementGeneratorType>::FactoryHolderRepository MovementGeneratorRepository;
 #endif
 
