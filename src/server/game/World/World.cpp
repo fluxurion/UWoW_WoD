@@ -1944,8 +1944,10 @@ void World::SetInitialWorldSettings()
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
     //one second is 1000 -(tested on win system)
-    //TODO: Get rid of magic numbers
-    mail_timer = ((((localtime(&m_gameTime)->tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
+    /// @todo Get rid of magic numbers
+    tm localTm;
+    localtime_r(&m_gameTime, &localTm);
+    mail_timer = ((((localTm.tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
                                                             //1440
     mail_timer_expires = ((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Mail timer set to: " UI64FMTD ", mail return is called every " UI64FMTD " minutes", uint64(mail_timer), uint64(mail_timer_expires));
@@ -3015,7 +3017,8 @@ void World::InitDailyQuestResetTime()
     // client built-in time for reset is 6:00 AM
     // FIX ME: client not show day start time
     time_t curTime = time(NULL);
-    tm localTm = *localtime(&curTime);
+    tm localTm;
+    localtime_r(&curTime, &localTm);
     localTm.tm_hour = 6;
     localTm.tm_min  = 0;
     localTm.tm_sec  = 0;
@@ -3041,7 +3044,8 @@ void World::InitRandomBGResetTime()
 
     // generate time by config
     time_t curTime = time(NULL);
-    tm localTm = *localtime(&curTime);
+    tm localTm;
+    localtime_r(&curTime, &localTm);
     localTm.tm_hour = getIntConfig(CONFIG_RANDOM_BG_RESET_HOUR);
     localTm.tm_min = 0;
     localTm.tm_sec = 0;
@@ -3068,8 +3072,8 @@ void World::InitCurrencyResetTime()
 
     // generate time by config
     time_t curTime = time(NULL);
-    tm localTm = *localtime(&curTime);
-
+    tm localTm;
+    localtime_r(&curTime, &localTm);
     localTm.tm_wday = getIntConfig(CONFIG_CURRENCY_RESET_DAY);
     localTm.tm_hour = getIntConfig(CONFIG_CURRENCY_RESET_HOUR);
     localTm.tm_min = 0;
