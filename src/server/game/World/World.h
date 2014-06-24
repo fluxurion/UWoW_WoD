@@ -982,7 +982,7 @@ class World
         std::map<std::string, bool> nameMap;
 
         void ProcessQueryCallbacks();
-        ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
+        std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;
 };
 
 extern uint32 realmID;
