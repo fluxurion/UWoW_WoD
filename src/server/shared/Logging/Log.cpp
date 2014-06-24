@@ -293,7 +293,7 @@ void Log::write(LogMessage* msg)
     {
         msg->text.append("\n");
         Logger* logger = GetLoggerByType(msg->type);
-        worker->enqueue(new LogOperation(logger, msg));
+        worker->enqueue(*(new LogOperation(logger, msg)));
     }
     else
         delete msg;
