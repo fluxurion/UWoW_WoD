@@ -60,7 +60,6 @@ using boost::asio::ip::tcp;
 
 void SignalHandler(const boost::system::error_code& error, int signalNumber)
 {
-    sLog->outError(LOG_FILTER_AUTHSERVER, "SIGNAL HANDLER WORKING");
     if (!error)
     {
         switch (signalNumber)
