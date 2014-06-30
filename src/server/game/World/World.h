@@ -25,9 +25,7 @@
 
 #include "Common.h"
 #include "Timer.h"
-#include <ace/Singleton.h>
 #include <ace/Atomic_Op.h>
-#include <ace/Null_Mutex.h>
 #include "SharedDefines.h"
 #include "QueryResult.h"
 #include "Callback.h"
@@ -618,8 +616,11 @@ class World
     public:
         static volatile uint32 m_worldLoopCounter;
 
-        World();
-        ~World();
+        static World* instance()
+        {
+            static World* instance = new World();
+            return instance;
+        }
 
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession* s);
@@ -891,6 +892,9 @@ class World
         void InstanceHalfWeekResetTime();
         void InstanceWeeklyResetTime();
     private:
+        World();
+        ~World();
+
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
@@ -988,6 +992,6 @@ class World
 
 extern uint32 realmID;
 
-#define sWorld ACE_Singleton<World, ACE_Null_Mutex>::instance()
+#define sWorld World::instance()
 #endif
 /// @}

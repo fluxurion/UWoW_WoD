@@ -28,8 +28,6 @@
 #include "VMapDefinitions.h"
 #include "Log.h"
 #include <G3D/Vector3.h>
-#include <ace/Null_Mutex.h>
-#include <ace/Singleton.h>
 #include "DisableMgr.h"
 #include "DBCStores.h"
 

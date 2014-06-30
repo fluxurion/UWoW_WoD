@@ -19,9 +19,7 @@
 #ifndef QUERYRESULT_H
 #define QUERYRESULT_H
 
-#include "AutoPtr.h"
-#include <ace/Thread_Mutex.h>
-
+#include <memory>
 #include "Field.h"
 #include "Log.h"
 
@@ -58,7 +56,7 @@ class ResultSet
         MYSQL_FIELD* _fields;
 };
 
-typedef Trinity::AutoPtr<ResultSet, ACE_Thread_Mutex> QueryResult;
+typedef std::shared_ptr<ResultSet> QueryResult;
 
 class PreparedResultSet
 {
@@ -103,7 +101,7 @@ class PreparedResultSet
 
 };
 
-typedef Trinity::AutoPtr<PreparedResultSet, ACE_Thread_Mutex> PreparedQueryResult;
+typedef std::shared_ptr<PreparedResultSet> PreparedQueryResult;
 
 #endif
 

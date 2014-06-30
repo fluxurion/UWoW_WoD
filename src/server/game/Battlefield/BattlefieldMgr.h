@@ -20,7 +20,6 @@
 #define BATTLEFIELD_MGR_H_
 
 #include "Battlefield.h"
-#include "ace/Singleton.h"
 
 class Player;
 class GameObject;
@@ -31,9 +30,11 @@ struct GossipMenuItems;
 // class to handle player enter / leave / areatrigger / GO use events
 class BattlefieldMgr
 {
-  public:
+  private:
     // ctor
     BattlefieldMgr();
+  public:
+
     // dtor
     ~BattlefieldMgr();
 
@@ -51,6 +52,12 @@ class BattlefieldMgr
     Battlefield *GetBattlefieldToZoneId(uint32 zoneid);
     Battlefield *GetBattlefieldByBattleId(uint32 battleid);
     Battlefield *GetBattlefieldByGUID(uint64 guid);
+
+    static BattlefieldMgr* instance()
+    {
+        static BattlefieldMgr* instance = new BattlefieldMgr();
+        return instance;
+    }
 
     ZoneScript *GetZoneScript(uint32 zoneId);
 
@@ -77,6 +84,6 @@ class BattlefieldMgr
     uint32 m_UpdateTimer;
 };
 
-#define sBattlefieldMgr ACE_Singleton<BattlefieldMgr, ACE_Null_Mutex>::instance()
+#define sBattlefieldMgr BattlefieldMgr::instance()
 
 #endif

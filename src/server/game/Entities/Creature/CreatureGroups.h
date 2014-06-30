@@ -38,10 +38,17 @@ typedef UNORDERED_MAP<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInf
 
 class FormationMgr
 {
-    friend class ACE_Singleton<FormationMgr, ACE_Null_Mutex>;
-    public:
+    private:
         FormationMgr() { }
         ~FormationMgr();
+
+    public:
+        static FormationMgr* instance()
+        {
+            static FormationMgr* instance = new FormationMgr();
+            return instance;
+        }
+
         void AddCreatureToGroup(uint32 group_id, Creature* creature);
         void RemoveCreatureFromGroup(CreatureGroup* group, Creature* creature);
         void LoadCreatureFormations();
@@ -76,6 +83,6 @@ class CreatureGroup
         void MemberAttackStart(Creature* member, Unit* target);
 };
 
-#define sFormationMgr ACE_Singleton<FormationMgr, ACE_Null_Mutex>::instance()
+#define sFormationMgr FormationMgr::instance()
 
 #endif

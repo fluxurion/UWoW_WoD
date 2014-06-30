@@ -29,17 +29,23 @@
 class Master
 {
     public:
-        Master();
-        ~Master();
+        static Master* instance()
+        {
+            static Master* instance = new Master();
+            return instance;
+        }
+
         int Run();
 
     private:
+        Master();
+        ~Master();
         bool _StartDB();
         void _StopDB();
 
         void ClearOnlineAccounts();
 };
 
-#define sMaster ACE_Singleton<Master, ACE_Null_Mutex>::instance()
+#define sMaster Master::instance()
 #endif
 /// @}

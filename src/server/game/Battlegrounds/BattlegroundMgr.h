@@ -24,7 +24,6 @@
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
 #include "Object.h"
-#include <ace/Singleton.h>
 
 typedef std::map<uint32, Battleground*> BattlegroundSet;
 
@@ -75,14 +74,17 @@ struct QueueSchedulerItem
 
 class BattlegroundMgr
 {
-    friend class ACE_Singleton<BattlegroundMgr, ACE_Null_Mutex>;
-
     private:
         BattlegroundMgr();
         ~BattlegroundMgr();
 
     public:
-        
+        static BattlegroundMgr* instance()
+        {
+            static BattlegroundMgr* instance = new BattlegroundMgr();
+            return instance;
+        }
+
         void Update(uint32 diff);
 
         /* Packet Building */
@@ -174,6 +176,6 @@ class BattlegroundMgr
         uint32 holidayWS;       //currend Call to Arms
 };
 
-#define sBattlegroundMgr ACE_Singleton<BattlegroundMgr, ACE_Null_Mutex>::instance()
+#define sBattlegroundMgr BattlegroundMgr::instance()
 #endif
 

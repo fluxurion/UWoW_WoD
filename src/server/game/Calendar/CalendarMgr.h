@@ -18,17 +18,21 @@
 #ifndef TRINITY_CALENDARMGR_H
 #define TRINITY_CALENDARMGR_H
 
-#include <ace/Singleton.h>
 #include "Calendar.h"
 
 class CalendarMgr
 {
-        friend class ACE_Singleton<CalendarMgr, ACE_Null_Mutex>;
-
+    private:
         CalendarMgr();
         ~CalendarMgr();
 
     public:
+        static CalendarMgr* instance()
+        {
+            static CalendarMgr* instance = new CalendarMgr();
+            return instance;
+        }
+
         void LoadFromDB();
 
         CalendarInvite* GetInvite(uint64 inviteId);
@@ -77,6 +81,6 @@ class CalendarMgr
         uint64 _inviteNum;
 };
 
-#define sCalendarMgr ACE_Singleton<CalendarMgr, ACE_Null_Mutex>::instance()
+#define sCalendarMgr CalendarMgr::instance()
 
 #endif

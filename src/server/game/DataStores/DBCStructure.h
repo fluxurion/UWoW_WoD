@@ -596,7 +596,7 @@ struct AreaTableEntry
     {
         if (mapid == 609)
             return true;
-        return (flags & AREA_FLAG_SANCTUARY);
+        return (flags & AREA_FLAG_SANCTUARY) != 0;
     }
 };
 
