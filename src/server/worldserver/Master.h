@@ -23,6 +23,7 @@
 #ifndef _MASTER_H
 #define _MASTER_H
 
+#include <boost/asio.hpp>
 #include "Common.h"
 
 /// Start the server
@@ -44,6 +45,7 @@ class Master
         void _StopDB();
 
         void ClearOnlineAccounts();
+        void StartRaSocketAcceptor(boost::asio::io_service& ioService);
 };
 
 #define sMaster Master::instance()
