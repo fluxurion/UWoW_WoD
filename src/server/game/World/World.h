@@ -25,11 +25,11 @@
 
 #include "Common.h"
 #include "Timer.h"
-#include <ace/Atomic_Op.h>
 #include "SharedDefines.h"
 #include "QueryResult.h"
 #include "Callback.h"
 
+#include <atomic>
 #include <map>
 #include <set>
 #include <list>
@@ -614,7 +614,7 @@ struct CharacterNameData
 class World
 {
     public:
-        static volatile uint32 m_worldLoopCounter;
+        static std::atomic_uint32_t m_worldLoopCounter;
 
         static World* instance()
         {
@@ -735,7 +735,7 @@ class World
         void ShutdownMsg(bool show = false, Player* player = NULL);
         static uint8 GetExitCode() { return m_ExitCode; }
         static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
-        static bool IsStopped() { return m_stopEvent.value(); }
+        static bool IsStopped() { return m_stopEvent; }
 
         void Update(uint32 diff);
 
@@ -895,7 +895,7 @@ class World
         World();
         ~World();
 
-        static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
+        static std::atomic<bool> m_stopEvent;
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
         uint32 m_ShutdownMask;
