@@ -44,7 +44,7 @@ class MapUpdateRequest
         }
 };
 
-MapUpdater::MapUpdater(): pending_requests(0) { }
+MapUpdater::MapUpdater() : pending_requests(0), _cancelationToken(false) {}
 
 MapUpdater::~MapUpdater()
 {
@@ -61,6 +61,8 @@ void MapUpdater::activate(size_t num_threads)
 
 void MapUpdater::deactivate()
 {
+    _cancelationToken = true;
+
     wait();
 
     _queue.Cancel();
