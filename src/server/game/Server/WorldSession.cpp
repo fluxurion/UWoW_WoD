@@ -20,8 +20,8 @@
     \ingroup u2w
 */
 
-#include "WorldSocket.h"                                    // must be first to make ACE happy with ACE includes in it
 #include <zlib.h>
+#include "WorldTcpSession.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
@@ -91,7 +91,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, WorldTcpSession* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
 m_muteTime(mute_time), m_timeOutTime(0), _player(NULL), m_Socket(sock),
 _security(sec), _accountId(id), m_expansion(expansion), _logoutTime(0),
 m_inQueue(false), m_playerLoading(false), m_playerLogout(false),
@@ -118,8 +118,7 @@ playerLoginCounter(0)
 
     if (sock)
     {
-        m_Address = sock->GetRemoteAddress();
-        sock->AddReference();
+        m_Address = sock->GetRemoteIpAddress();
         ResetTimeOutTime();
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
@@ -151,7 +150,6 @@ WorldSession::~WorldSession()
     if (m_Socket)
     {
         m_Socket->CloseSocket();
-        m_Socket->RemoveReference();
         m_Socket = NULL;
     }
 
@@ -267,8 +265,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     }
 #endif                                                      // !TRINITY_DEBUG
 
-    if (m_Socket->SendPacket(packet) == -1)
-        m_Socket->CloseSocket();
+    m_Socket->AsyncWrite(*packet);
 }
 
 /// Add an incoming packet to the queue
@@ -340,9 +337,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //! loop caused by re-enqueueing the same packets over and over again, we stop updating this session
     //! and continue updating others. The re-enqueued packets will be handled in the next Update call for this session.
 
-    while (m_Socket && !m_Socket->IsClosed() &&
-            !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
-            _recvQueue.next(packet, updater))
+    while (m_Socket && !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket && _recvQueue.next(packet, updater))
     {
         const OpcodeHandler* opHandle = opcodeTable[CMSG][packet->GetOpcode()];
 
@@ -443,7 +438,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             delete packet;
     }
 
-    if (m_Socket && !m_Socket->IsClosed() && _warden)
+    if (m_Socket && m_Socket->IsOpen() && _warden)
         _warden->Update();
 
     ProcessQueryCallbacks();
@@ -461,7 +456,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             _warden->Update();
 
         ///- Cleanup socket pointer if need
-        if (m_Socket && m_Socket->IsClosed())
+        if (m_Socket && !m_Socket->IsOpen())
         {
             m_Socket->RemoveReference();
             m_Socket = NULL;
