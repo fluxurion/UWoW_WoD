@@ -27,7 +27,6 @@
 #include "SpellAuras.h"
 #include "TargetedMovementGenerator.h"
 #include "WeatherMgr.h"
-#include "ace/INET_Addr.h"
 #include "DB2Structure.h"
 #include "DB2Stores.h"
 #include <fstream>
