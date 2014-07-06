@@ -27,6 +27,11 @@
 
 using boost::asio::ip::tcp;
 
+WorldTcpSession::WorldTcpSession(tcp::socket socket)
+    : _socket(std::move(socket)), _authSeed(static_cast<uint32>(rand32())), _worldSession(nullptr)
+{
+}
+
 void WorldTcpSession::Start()
 {
     AsyncReadHeader();
@@ -53,7 +58,8 @@ void WorldTcpSession::HandleSendAuthSession()
 
 void WorldTcpSession::AsyncReadHeader()
 {
-    _socket.async_read_some(boost::asio::buffer(_readBuffer, sizeof(ClientPktHeader)), [this](boost::system::error_code error, size_t transferedBytes)
+    auto self(shared_from_this());
+    _socket.async_read_some(boost::asio::buffer(_readBuffer, sizeof(ClientPktHeader)), [this, self](boost::system::error_code error, size_t transferedBytes)
     {
         if (!error && transferedBytes == sizeof(ClientPktHeader))
         {
@@ -73,7 +79,8 @@ void WorldTcpSession::AsyncReadHeader()
 
 void WorldTcpSession::AsyncReadData(size_t dataSize)
 {
-    _socket.async_read_some(boost::asio::buffer(&_readBuffer[sizeof(ClientPktHeader)], dataSize), [this, dataSize](boost::system::error_code error, size_t transferedBytes)
+    auto self(shared_from_this());
+    _socket.async_read_some(boost::asio::buffer(&_readBuffer[sizeof(ClientPktHeader)], dataSize), [this, dataSize, self](boost::system::error_code error, size_t transferedBytes)
     {
         if (!error && transferedBytes == dataSize)
         {
@@ -103,12 +110,12 @@ void WorldTcpSession::AsyncReadData(size_t dataSize)
                         break;
                     }
 
-                    sScriptMgr->OnPacketReceive(this, packet);
+                    sScriptMgr->OnPacketReceive(shared_from_this(), packet);
                     HandleAuthSession(packet);
                     break;
                 case CMSG_KEEP_ALIVE:
                     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
-                    sScriptMgr->OnPacketReceive(this, packet);
+                    sScriptMgr->OnPacketReceive(shared_from_this(), packet);
                     break;
                 default:
                 {
@@ -365,7 +372,7 @@ void WorldTcpSession::HandleAuthSession(WorldPacket& recvPacket)
     LoginDatabase.Execute(stmt);
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    _worldSession = new WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter);
+    _worldSession = new WorldSession(id, shared_from_this(), AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter);
 
     _authCrypt.Init(&k);
 
