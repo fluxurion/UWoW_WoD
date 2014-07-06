@@ -21,6 +21,7 @@
 /// \file
 
 #include <boost/asio/io_service.hpp>
+#include <boost/asio/deadline_timer.hpp>
 
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -60,6 +61,11 @@ int m_ServiceStatus = -1;
 #endif
 
 boost::asio::io_service _ioService;
+boost::asio::deadline_timer _freezeCheckTimer(_ioService);
+uint32 _worldLoopCounter(0);
+uint32 _lastChangeMsTime(0);
+uint32 _maxCoreStuckTime(0);
+
 WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
@@ -67,7 +73,7 @@ uint32 realmID;                                             ///< Id of the realm
 
 void usage(const char* prog);
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
-void FreezeDetectorThread(uint32 delayTime, uint32 pid);
+void FreezeDetectorHandler(const boost::system::error_code& error);
 AsyncAcceptor<RASession>* StartRaSocketAcceptor(boost::asio::io_service& ioService);
 bool StartDB();
 void StopDB();
@@ -223,11 +229,6 @@ extern int main(int argc, char **argv)
         soapThread = new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878)));
     }
 
-    // Start up freeze catcher thread
-    std::thread* freezeDetectorThread = nullptr;
-    if (uint32 freezeDelay = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
-        freezeDetectorThread = new std::thread(FreezeDetectorThread, freezeDelay, pid);
-
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
@@ -238,6 +239,15 @@ extern int main(int argc, char **argv)
 
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
+
+    // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
+    std::thread* freezeDetectorThread = nullptr;
+    if (_maxCoreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
+    {
+        _freezeCheckTimer.expires_from_now(boost::posix_time::seconds(5));
+        _freezeCheckTimer.async_wait(FreezeDetectorHandler);
+        sLog->outInfo(LOG_FILTER_WORLDSERVER, "Starting up anti-freeze thread (%u seconds max stuck time)...", _maxCoreStuckTime);
+    }
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon) ready...", _FULLVERSION);
 
@@ -412,34 +422,28 @@ void SignalHandler(const boost::system::error_code& error, int signalNumber)
     }
 }
 
-void FreezeDetectorThread(uint32 delayTime, uint32 pid)
+void FreezeDetectorHandler(const boost::system::error_code& error)
 {
-    if (!delayTime)
-        return;
-
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Starting up anti-freeze thread (%u seconds max stuck time)...", delayTime / 1000);
-    uint32 loops = 0;
-    uint32 lastChange = 0;
-
-    while (!World::IsStopped())
+    if (!error)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         uint32 curtime = getMSTime();
-        // normal work
+
         uint32 worldLoopCounter = World::m_worldLoopCounter;
-        if (loops != worldLoopCounter)
+        if (_worldLoopCounter != worldLoopCounter)
         {
-            lastChange = curtime;
-            loops = worldLoopCounter;
+            _lastChangeMsTime = curtime;
+            _worldLoopCounter = worldLoopCounter;
         }
         // possible freeze
-        else if (getMSTimeDiff(lastChange, curtime) > delayTime)
+        else if (getMSTimeDiff(_lastChangeMsTime, curtime) > _maxCoreStuckTime)
         {
             sLog->outError(LOG_FILTER_WORLDSERVER, "World Thread hangs, kicking out server!");
             ASSERT(false);
         }
+
+        _freezeCheckTimer.expires_from_now(boost::posix_time::seconds(1));
+        _freezeCheckTimer.async_wait(FreezeDetectorHandler);
     }
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Anti-freeze thread exiting without problems.");
 }
 
 AsyncAcceptor<RASession>* StartRaSocketAcceptor(boost::asio::io_service& ioService)
