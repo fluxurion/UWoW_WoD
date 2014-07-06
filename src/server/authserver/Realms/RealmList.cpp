@@ -80,22 +80,30 @@ void RealmList::UpdateRealms(bool init)
     {
         do
         {
-            Field* fields = result->Fetch();
-            uint32 realmId             = fields[0].GetUInt32();
-            const std::string& name    = fields[1].GetString();
-            const std::string& address = fields[2].GetString();
-            uint16 port                = fields[3].GetUInt16();
-            uint8 icon                 = fields[4].GetUInt8();
-            RealmFlags flag            = RealmFlags(fields[5].GetUInt8());
-            uint8 timezone             = fields[6].GetUInt8();
-            uint8 allowedSecurityLevel = uint8(fields[7].GetFloat());
-            float pop                  = fields[8].GetFloat();
-            uint32 build               = fields[9].GetUInt32();
+            try
+            {
+                Field* fields = result->Fetch();
+                uint32 realmId             = fields[0].GetUInt32();
+                const std::string& name    = fields[1].GetString();
+                const std::string& address = fields[2].GetString();
+                uint16 port                = fields[3].GetUInt16();
+                uint8 icon                 = fields[4].GetUInt8();
+                RealmFlags flag            = RealmFlags(fields[5].GetUInt8());
+                uint8 timezone             = fields[6].GetUInt8();
+                uint8 allowedSecurityLevel = uint8(fields[7].GetFloat());
+                float pop                  = fields[8].GetFloat();
+                uint32 build               = fields[9].GetUInt32();
 
-            UpdateRealm(realmId, name, address, port, icon, flag, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
+                UpdateRealm(realmId, name, address, port, icon, flag, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
 
-            if (init)
-                sLog->outInfo(LOG_FILTER_AUTHSERVER, "Added realm \"%s\".", fields[1].GetCString());
+                if (init)
+                    sLog->outInfo(LOG_FILTER_AUTHSERVER, "Added realm \"%s\".", fields[1].GetCString());
+            }
+            catch (std::exception& ex)
+            {
+                TC_LOG_ERROR("server.authserver", "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
+                ASSERT(false);
+            }
         }
         while (result->NextRow());
     }
