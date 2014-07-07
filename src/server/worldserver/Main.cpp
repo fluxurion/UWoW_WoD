@@ -40,7 +40,7 @@
 #include "TCSoap.h"
 #include "CliRunnable.h"
 #include "SystemConfig.h"
-#include "WorldTcpSession.h"
+#include "WorldSocket.h"
 #include "OpenSSLCrypto.h"
 
 #define TRINITY_CORE_CONFIG  "worldserver.conf"
@@ -234,7 +234,7 @@ extern int main(int argc, char **argv)
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
     bool tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
 
-    AsyncAcceptor<WorldTcpSession> worldAcceptor(_ioService, worldListener, worldPort, tcpNoDelay);
+    AsyncAcceptor<WorldSocket> worldAcceptor(_ioService, worldListener, worldPort, tcpNoDelay);
 
     sScriptMgr->OnStartup();
 
