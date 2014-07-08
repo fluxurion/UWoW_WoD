@@ -146,6 +146,13 @@ extern int main(int argc, char **argv)
         printf("Verify that the file exists and has \'[worldserver]' written in the top of the file!");
         return 1;
     }
+
+    if (sConfigMgr->GetBoolDefault("Log.Async.Enable", false))
+    {
+        // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
+        Log::instance(&_ioService);
+    }
+
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using configuration file %s.", cfg_file);
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", _FULLVERSION);

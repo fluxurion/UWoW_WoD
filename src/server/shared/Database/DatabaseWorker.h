@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "SQLOperation.h"
+#include <thread>
 #include "ProducerConsumerQueue.h"
 
 class MySQLConnection;

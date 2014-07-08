@@ -30,7 +30,7 @@
 #include <cstdio>
 #include <sstream>
 
-Log::Log() : worker(NULL)
+Log::Log() : _ioService(nullptr), _strand(nullptr)
 {
     arenaLogFile = NULL;
     diffLogFile = NULL;
@@ -42,6 +42,7 @@ Log::Log() : worker(NULL)
 
 Log::~Log()
 {
+    delete _strand;
     Close();
 }
 
@@ -290,11 +291,14 @@ void Log::vlog(LogFilterType filter, LogLevel level, char const* str, va_list ar
 
 void Log::write(LogMessage* msg)
 {
-    if (worker)
+    if (_ioService)
     {
+        Logger const* logger = GetLoggerByType(msg->type);
         msg->text.append("\n");
-        Logger* logger = GetLoggerByType(msg->type);
-        worker->Enqueue(new LogOperation(logger, msg));
+
+        auto logOperation = std::shared_ptr<LogOperation>(new LogOperation(logger, msg));
+
+        _ioService->post(_strand->wrap([logOperation](){ logOperation->call(); }));
     }
     else
         delete msg;
@@ -498,8 +502,6 @@ void Log::Close()
         fclose(diffLogFile);
     diffLogFile = NULL;
 
-    delete worker;
-    worker = NULL;
     loggers.clear();
     for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
     {
@@ -513,7 +515,6 @@ void Log::LoadFromConfig()
 {
     Close();
     AppenderId = 0;
-    worker = new LogWorker();
     m_logsDir = sConfigMgr->GetStringDefault("LogsDir", "");
     if (!m_logsDir.empty())
         if ((m_logsDir.at(m_logsDir.length() - 1) != '/') && (m_logsDir.at(m_logsDir.length() - 1) != '\\'))
