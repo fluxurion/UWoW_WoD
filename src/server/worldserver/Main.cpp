@@ -172,6 +172,11 @@ extern int main(int argc, char **argv)
 
     OpenSSLCrypto::threadsSetup();
 
+    // Seed the OpenSSL's PRNG here.
+    // That way it won't auto-seed when calling BigNumber::SetRand and slow down the first world login
+    BigNumber seed;
+    seed.SetRand(16 * 8);
+
     /// worldserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
     uint32 pid = 0;
