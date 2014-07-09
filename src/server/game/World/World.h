@@ -610,7 +610,7 @@ struct CharacterNameData
 class World
 {
     public:
-        static std::atomic_uint32_t m_worldLoopCounter;
+        static std::atomic<uint32> m_worldLoopCounter;
         static uint64 SendSize[0x7FFF + 1];
         static uint64 SendCount[0x7FFF + 1];
 
