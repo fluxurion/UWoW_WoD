@@ -56,7 +56,9 @@ class MySQLConnection;
 class SQLOperation
 {
     public:
-        SQLOperation(): m_conn(NULL) {};
+        SQLOperation(): m_conn(NULL) { }
+        virtual ~SQLOperation() { }
+
         virtual int call()
         {
             Execute();
