@@ -17,7 +17,6 @@ add_definitions(-DNO_vsnprintf)
 
 include_directories(
   ${CMAKE_BINARY_DIR}
-  ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/dep/libmpq
   ${CMAKE_SOURCE_DIR}/dep/zlib
@@ -31,6 +30,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database/Implementation
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic/LinkedReference
@@ -52,7 +52,6 @@ add_executable(mmaps_generator ${sources})
 
 target_link_libraries(mmaps_generator
   ${MYSQL_LIBRARY}
-  ${ACE_LIBRARY}
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   Recast
