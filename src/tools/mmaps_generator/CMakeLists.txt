@@ -59,6 +59,7 @@ target_link_libraries(mmaps_generator
   collision
   g3dlib
   shared
+  ${Boost_LIBRARIES}
 )
 
 if( UNIX )
