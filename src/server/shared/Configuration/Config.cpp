@@ -24,7 +24,7 @@
 
 using namespace boost::property_tree;
 
-bool ConfigMgr::LoadInitial(char const* file)
+bool ConfigMgr::LoadInitial(std::string const& file)
 {
     std::lock_guard<std::mutex> lock(_configLock);
 
