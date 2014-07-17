@@ -827,11 +827,11 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 
         Item* item = _player->GetItemByGuid(itemGUID);
         if (item)
-            _player->DurabilityRepair(item->GetPos(), true, discountMod, guildBank);
+            _player->DurabilityRepair(item->GetPos(), true, discountMod, guildBank != 0);
     }
     else
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "ITEM: Repair all items, npcGUID = %u", GUID_LOPART(npcGUID));
-        _player->DurabilityRepairAll(true, discountMod, guildBank);
+        _player->DurabilityRepairAll(true, discountMod, guildBank != 0);
     }
 }

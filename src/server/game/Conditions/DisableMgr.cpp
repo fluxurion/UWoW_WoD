@@ -327,13 +327,13 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                     switch (targetDifficulty)
                     {
                         case REGULAR_DIFFICULTY:
-                            return disabledModes & DUNGEON_STATUSFLAG_NORMAL;
+                            return (disabledModes & DUNGEON_STATUSFLAG_NORMAL) != 0;
                         case HEROIC_DIFFICULTY:
-                            return disabledModes & DUNGEON_STATUSFLAG_HEROIC;
+                            return (disabledModes & DUNGEON_STATUSFLAG_HEROIC) != 0;
                         case MAN10_HEROIC_DIFFICULTY:
-                            return disabledModes & RAID_STATUSFLAG_10MAN_HEROIC;
+                            return (disabledModes & RAID_STATUSFLAG_10MAN_HEROIC) != 0;
                         case MAN25_HEROIC_DIFFICULTY:
-                            return disabledModes & RAID_STATUSFLAG_25MAN_HEROIC;
+                            return (disabledModes & RAID_STATUSFLAG_25MAN_HEROIC) != 0;
                     }*/
                     return true;
                 }
@@ -353,7 +353,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
             return true;
         case DISABLE_TYPE_VMAP:
-           return flags & itr->second.flags;
+           return (flags & itr->second.flags) != 0;
     }
 
     return false;

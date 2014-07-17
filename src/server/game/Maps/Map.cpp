@@ -1645,13 +1645,13 @@ inline bool IsOutdoorWMO(uint32 mogpFlags, int32 /*adtId*/, int32 /*rootId*/, in
             return false;
     }
 
-    outdoor = mogpFlags&0x8;
+    outdoor = (mogpFlags & 0x8) != 0;
 
     if (wmoEntry)
     {
         if (wmoEntry->Flags & 4)
             return true;
-        if ((wmoEntry->Flags & 2)!=0)
+        if (wmoEntry->Flags & 2)
             outdoor = false;
     }
     return outdoor;

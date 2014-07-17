@@ -26539,7 +26539,7 @@ uint32 Player::GetCorpseReclaimDelay(bool pvp) const
 
 void Player::UpdateCorpseReclaimDelay()
 {
-    bool pvp = m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH;
+    bool pvp = (m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) != 0;
 
     if ((pvp && !sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP)) ||
         (!pvp && !sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE)))
@@ -26569,7 +26569,7 @@ void Player::SendCorpseReclaimDelay(bool load)
     if (corpse)
         pvp = (corpse->GetType() == CORPSE_RESURRECTABLE_PVP);
     else
-        pvp = (m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH);
+        pvp = (m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) != 0;
 
     time_t delay;
     if (load)

@@ -1459,7 +1459,7 @@ bool SpellInfo::IsTargetingArea() const
 
 bool SpellInfo::NeedsExplicitUnitTarget() const
 {
-    return GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK;
+    return (GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK) != 0;
 }
 
 bool SpellInfo::NeedsToBeTriggeredByCaster() const
@@ -1480,7 +1480,7 @@ bool SpellInfo::NeedsToBeTriggeredByCaster() const
 
 bool SpellInfo::IsPassive() const
 {
-    return Attributes & SPELL_ATTR0_PASSIVE;
+    return (Attributes & SPELL_ATTR0_PASSIVE) != 0;
 }
 
 bool SpellInfo::IsAutocastable() const
@@ -1537,12 +1537,12 @@ bool SpellInfo::IsMultiSlotAura() const
 
 bool SpellInfo::IsDeathPersistent() const
 {
-    return AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT;
+    return (AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT) != 0;
 }
 
 bool SpellInfo::IsRequiringDeadTarget() const
 {
-    return AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS;
+    return (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS) != 0;
 }
 
 bool SpellInfo::IsAllowingDeadTarget() const
@@ -1579,12 +1579,12 @@ bool SpellInfo::IsPositiveEffect(uint8 effIndex, bool caster) const
 
 bool SpellInfo::IsChanneled() const
 {
-    return (AttributesEx & (SPELL_ATTR1_CHANNELED_1 | SPELL_ATTR1_CHANNELED_2));
+    return (AttributesEx & (SPELL_ATTR1_CHANNELED_1 | SPELL_ATTR1_CHANNELED_2)) != 0;
 }
 
 bool SpellInfo::NeedsComboPoints() const
 {
-    return (AttributesEx & (SPELL_ATTR1_REQ_COMBO_POINTS1 | SPELL_ATTR1_REQ_COMBO_POINTS2));
+    return (AttributesEx & (SPELL_ATTR1_REQ_COMBO_POINTS1 | SPELL_ATTR1_REQ_COMBO_POINTS2)) != 0;
 }
 
 bool SpellInfo::IsBreakingStealth() const
@@ -1600,7 +1600,7 @@ bool SpellInfo::IsRangedWeaponSpell() const
 
 bool SpellInfo::IsAutoRepeatRangedSpell() const
 {
-    return AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG;
+    return (AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG) != 0;
 }
 
 bool SpellInfo::IsAffectedBySpellMods() const

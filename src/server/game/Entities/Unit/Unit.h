@@ -1415,7 +1415,7 @@ class Unit : public WorldObject
         bool IsVisionObscured(Unit* victim);
 
         void AddUnitState(uint32 f) { m_state |= f; }
-        bool HasUnitState(const uint32 f) const { return (m_state & f); }
+        bool HasUnitState(const uint32 f) const { return (m_state & f) != 0; }
         void ClearUnitState(uint32 f) { m_state &= ~f; }
         bool CanFreeMove() const
         {
@@ -1423,16 +1423,16 @@ class Unit : public WorldObject
                 UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) && GetOwnerGUID() == 0;
         }
 
-        uint32 HasUnitTypeMask(uint32 mask) const { return mask & m_unitTypeMask; }
+        uint32 HasUnitTypeMask(uint32 mask) const { return (mask & m_unitTypeMask) != 0; }
         void AddUnitTypeMask(uint32 mask) { m_unitTypeMask |= mask; }
-        bool isSummon() const   { return m_unitTypeMask & UNIT_MASK_SUMMON; }
-        bool isGuardian() const { return m_unitTypeMask & UNIT_MASK_GUARDIAN; }
-        bool isPet() const      { return m_unitTypeMask & UNIT_MASK_PET; }
-        bool isHunterPet() const{ return m_unitTypeMask & UNIT_MASK_HUNTER_PET; }
-        bool isTotem() const    { return m_unitTypeMask & UNIT_MASK_TOTEM; }
-        bool IsVehicle() const  { return m_unitTypeMask & UNIT_MASK_VEHICLE; }
-        bool isMinion() const   { return m_unitTypeMask & UNIT_MASK_MINION; }
-        bool isAnySummons() const   { return m_unitTypeMask & (UNIT_MASK_SUMMON | UNIT_MASK_GUARDIAN | UNIT_MASK_PET | UNIT_MASK_HUNTER_PET | UNIT_MASK_TOTEM | UNIT_MASK_VEHICLE); }
+        bool isSummon() const   { return (m_unitTypeMask & UNIT_MASK_SUMMON) != 0; }
+        bool isGuardian() const { return (m_unitTypeMask & UNIT_MASK_GUARDIAN) != 0; }
+        bool isPet() const      { return (m_unitTypeMask & UNIT_MASK_PET) != 0; }
+        bool isHunterPet() const{ return (m_unitTypeMask & UNIT_MASK_HUNTER_PET) != 0; }
+        bool isTotem() const    { return (m_unitTypeMask & UNIT_MASK_TOTEM) != 0; }
+        bool IsVehicle() const  { return (m_unitTypeMask & UNIT_MASK_VEHICLE) != 0; }
+        bool isMinion() const   { return (m_unitTypeMask & UNIT_MASK_MINION) != 0; }
+        bool isAnySummons() const   { return (m_unitTypeMask & (UNIT_MASK_SUMMON | UNIT_MASK_GUARDIAN | UNIT_MASK_PET | UNIT_MASK_HUNTER_PET | UNIT_MASK_TOTEM | UNIT_MASK_VEHICLE)) != 0; }
 
         uint8 getLevel() const { return uint8(GetUInt32Value(UNIT_FIELD_LEVEL)); }
         uint8 getLevelForTarget(WorldObject const* /*target*/) const { return getLevel(); }

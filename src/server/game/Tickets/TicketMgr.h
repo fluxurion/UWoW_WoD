@@ -86,7 +86,7 @@ public:
     explicit GmTicket(Player* player, WorldPacket& recvData);
     ~GmTicket();
 
-    bool IsClosed() const { return _closedBy; }
+    bool IsClosed() const { return _closedBy != 0; }
     bool IsCompleted() const { return _completed; }
     bool IsFromPlayer(uint64 guid) const { return guid == _playerGuid; }
     bool IsAssigned() const { return _assignedTo != 0; }

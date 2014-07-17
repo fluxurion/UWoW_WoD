@@ -829,9 +829,9 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     if (pet->isPet())
         ((Pet*)pet)->ToggleAutocast(spellInfo, state);
     else
-        pet->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, state);
+        pet->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, state != 0);
 
-    charmInfo->SetSpellAutocast(spellInfo, state);
+    charmInfo->SetSpellAutocast(spellInfo, state != 0);
 }
 
 //! 5.4.1

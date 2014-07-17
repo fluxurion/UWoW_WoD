@@ -460,8 +460,8 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_CHEST:  return chest.consumable;
-            case GAMEOBJECT_TYPE_GOOBER: return goober.consumable || goober.cooldown;
+            case GAMEOBJECT_TYPE_CHEST:  return chest.consumable != 0;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.consumable != 0 || goober.cooldown != 0;
             default: return false;
         }
     }
@@ -489,12 +489,12 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune;
-            case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune;
-            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune;
-            case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune;
-            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.noDamageImmune;
-            case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.noDamageImmune;
+            case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.noDamageImmune != 0;
             default: return true;
         }
     }

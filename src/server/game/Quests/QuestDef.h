@@ -284,7 +284,7 @@ class Quest
         uint32 GetCompleteEmote() const { return EmoteOnComplete; }
         uint32 GetQuestStartScript() const { return StartScript; }
         uint32 GetQuestCompleteScript() const { return CompleteScript; }
-        bool   IsRepeatable() const { return SpecialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE; }
+        bool   IsRepeatable() const { return (SpecialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE) != 0; }
         bool   IsAutoAccept() const;
         bool   IsAutoComplete() const;
         uint32 GetFlags() const { return Flags; }
@@ -294,13 +294,13 @@ class Quest
         uint32 GetRewardReputationMask() const { return RewardReputationMask; }
         uint32 GetQuestGiverPortrait() const { return QuestGiverPortrait; }
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
-        bool   IsDaily() const { return Flags & QUEST_FLAGS_DAILY; }
-        bool   IsWeekly() const { return Flags & QUEST_FLAGS_WEEKLY; }
+        bool   IsDaily() const { return (Flags & QUEST_FLAGS_DAILY) != 0; }
+        bool   IsWeekly() const { return (Flags & QUEST_FLAGS_WEEKLY) != 0; }
         bool   IsSeasonal() const { return (ZoneOrSort == -QUEST_SORT_SEASONAL || ZoneOrSort == -QUEST_SORT_SPECIAL || ZoneOrSort == -QUEST_SORT_LUNAR_FESTIVAL || ZoneOrSort == -QUEST_SORT_MIDSUMMER || ZoneOrSort == -QUEST_SORT_BREWFEST || ZoneOrSort == -QUEST_SORT_LOVE_IS_IN_THE_AIR || ZoneOrSort == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
-        bool   IsDailyOrWeekly() const { return Flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY); }
+        bool   IsDailyOrWeekly() const { return (Flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY)) != 0; }
         bool   IsRaidQuest() const { return Type == QUEST_TYPE_RAID || Type == QUEST_TYPE_RAID_10 || Type == QUEST_TYPE_RAID_25 || Type == QUEST_TYPE_LEGENDARY; }
         bool   IsAllowedInRaid() const;
-        bool   IsDFQuest() const { return SpecialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST; }
+        bool   IsDFQuest() const { return (SpecialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
         uint32 CalculateHonorGain(uint8 level) const;
         uint32 GetItemFromPakage(uint32 itemId) const;
 
