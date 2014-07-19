@@ -76,7 +76,12 @@ void WorldSocket::AsyncReadHeader()
         }
         else
         {
-            _socket.close();
+            // _socket.is_open() till returns true even after calling close()
+            try
+            {
+                _socket.close();
+            }
+            catch (std::exception const&  /*ex*/) { }
         }
     });
 }
@@ -146,7 +151,12 @@ void WorldSocket::AsyncReadData(size_t dataSize)
         }
         else
         {
-            _socket.close();
+            // _socket.is_open() till returns true even after calling close()
+            try
+            {
+                _socket.close();
+            }
+            catch (std::exception const&  /*ex*/) {}
         }
     });
 }
