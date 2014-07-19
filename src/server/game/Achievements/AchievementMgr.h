@@ -304,8 +304,8 @@ class AchievementGlobalMgr
 
         static AchievementGlobalMgr* instance()
         {
-            static AchievementGlobalMgr* instance = new AchievementGlobalMgr();
-            return instance;
+            static AchievementGlobalMgr instance;
+            return &instance;
         }
 
         CriteriaTreeEntryList const& GetCriteriaTreeByType(AchievementCriteriaTypes type, bool guild = false) const

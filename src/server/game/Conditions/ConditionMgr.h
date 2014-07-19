@@ -241,8 +241,8 @@ class ConditionMgr
 
         static ConditionMgr* instance()
         {
-            static ConditionMgr* instance = new ConditionMgr();
-            return instance;
+            static ConditionMgr instance;
+            return &instance;
         }
 
         void LoadConditions(bool isReload = false);

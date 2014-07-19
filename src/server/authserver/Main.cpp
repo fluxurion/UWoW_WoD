@@ -108,9 +108,9 @@ int main(int argc, char** argv)
 
     // Get the list of realms for the server
     //sRealmList.Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
-    sRealmList.Initialize(sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
+    sRealmList->Initialize(sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
 
-    if (sRealmList.size() == 0)
+    if (sRealmList->size() == 0)
     {
         sLog->outError(LOG_FILTER_AUTHSERVER, "No valid realms specified.");
         return 1;

@@ -31,8 +31,8 @@ public:
 
     static GuildMgr* instance()
     {
-        static GuildMgr* instance = new GuildMgr();
-        return instance;
+        static GuildMgr instance;
+        return &instance;
     }
 
     Guild* GetGuildByLeader(uint64 guid) const;

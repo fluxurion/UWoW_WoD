@@ -617,8 +617,8 @@ class World
 
         static World* instance()
         {
-            static World* instance = new World();
-            return instance;
+            static World instance;
+            return &instance;
         }
 
         WorldSession* FindSession(uint32 id) const;

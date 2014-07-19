@@ -844,8 +844,8 @@ class ScriptMgr
     public: /* Initialization */
         static ScriptMgr* instance()
         {
-            static ScriptMgr* instance = new ScriptMgr();
-            return instance;
+            static ScriptMgr instance;
+            return &instance;
         }
 
         void Initialize();

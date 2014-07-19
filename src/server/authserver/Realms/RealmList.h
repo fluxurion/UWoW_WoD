@@ -55,10 +55,10 @@ public:
     typedef std::map<std::string, Realm> RealmMap;
     typedef std::vector<std::string> FirewallFarms;
 
-    static RealmList& instance()
+    static RealmList* instance()
     {
-        static RealmList *instance = new RealmList();
-        return *instance;
+        static RealmList instance;
+        return &instance;
     }
 
     void Initialize(uint32 updateInterval);

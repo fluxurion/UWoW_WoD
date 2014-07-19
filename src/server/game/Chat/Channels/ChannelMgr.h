@@ -35,8 +35,8 @@ class ChannelMgr
 
         static ChannelMgr* instance()
         {
-            static ChannelMgr* instance = new ChannelMgr();
-            return instance;
+            static ChannelMgr instance;
+            return &instance;
         }
 
         Channel* GetJoinChannel(std::string name, uint32 channel_id);

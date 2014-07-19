@@ -66,8 +66,8 @@ class SystemMgr
 
         static SystemMgr* instance()
         {
-            static SystemMgr* instance = new SystemMgr();
-            return instance;
+            static SystemMgr instance;
+            return &instance;
         }
 
         //Database

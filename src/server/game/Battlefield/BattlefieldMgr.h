@@ -55,8 +55,8 @@ class BattlefieldMgr
 
     static BattlefieldMgr* instance()
     {
-        static BattlefieldMgr* instance = new BattlefieldMgr();
-        return instance;
+        static BattlefieldMgr instance;
+        return &instance;
     }
 
     ZoneScript *GetZoneScript(uint32 zoneId);
