@@ -158,28 +158,40 @@ void WorldSocket::AsyncReadData(size_t dataSize)
 void WorldSocket::AsyncWrite(WorldPacket const& packet)
 {
     ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
-    _authCrypt.EncryptSend((uint8*)header.header, header.getHeaderLength());
 
-    auto data = new char[header.getHeaderLength() + packet.size()];
-    std::memcpy(data, (char*)header.header, header.getHeaderLength());
-    
+    std::vector<uint8> data(header.getHeaderLength() + packet.size());
+    std::memcpy(data.data(), header.header, header.getHeaderLength());
+
     if (!packet.empty())
-        std::memcpy(data + header.getHeaderLength(), (char const*)packet.contents(), packet.size());
-    
-    // Use a shared_ptr here to prevent leaking memory after the async operation has completed
-    std::shared_ptr<char> buffer(data, [=](char* _b)
-    {
-        delete[] _b; // Ensure that the data is deleted as an array
-    });
+        std::memcpy(&data[header.getHeaderLength()], packet.contents(), packet.size());
 
+    std::lock_guard<std::mutex> guard(_writeLock);
+
+    bool needsWriteStart = _writeQueue.empty();
+    _authCrypt.EncryptSend(data.data(), header.getHeaderLength());
+
+    _writeQueue.push(std::move(data));
+
+    if (needsWriteStart)
+        AsyncWrite(_writeQueue.front());
+}
+
+void WorldSocket::AsyncWrite(std::vector<uint8> const& data)
+{
     auto self(shared_from_this());
-
-    boost::asio::async_write(_socket, boost::asio::buffer(buffer.get(), header.getHeaderLength() + packet.size()), [this, self, buffer](boost::system::error_code error, std::size_t /*length*/)
+    boost::asio::async_write(_socket, boost::asio::buffer(data), [this, self](boost::system::error_code error, std::size_t /*length*/)
     {
-        if (error)
+        if (!error)
         {
-            _socket.close();
+            std::lock_guard<std::mutex> deleteGuard(_writeLock);
+
+            _writeQueue.pop();
+
+            if (!_writeQueue.empty())
+                AsyncWrite(_writeQueue.front());
         }
+        else
+            _socket.close();
     });
 }
 
