@@ -55,8 +55,8 @@ public:
     const std::string GetRemoteIpAddress() const { return _socket.remote_endpoint().address().to_string(); };
     unsigned short GetRemotePort() const { return _socket.remote_endpoint().port(); }
 
-    void CloseSocket() { _socket.close(); };
-    bool IsOpen() { return _socket.is_open(); };
+    void CloseSocket();
+    bool IsOpen() const { return _socket.is_open(); }
 
     void AsyncWrite(WorldPacket const& packet);
 

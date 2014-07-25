@@ -77,8 +77,7 @@ void WorldSocket::AsyncReadHeader()
         else
         {
             // _socket.is_open() till returns true even after calling close()
-            boost::system::error_code socketError;
-            _socket.close(socketError);
+            CloseSocket();
         }
     });
 }
@@ -149,8 +148,7 @@ void WorldSocket::AsyncReadData(size_t dataSize)
         else
         {
             // _socket.is_open() till returns true even after calling close()
-            boost::system::error_code socketError;
-            _socket.close(socketError);
+            CloseSocket();
         }
     });
 }
@@ -191,7 +189,7 @@ void WorldSocket::AsyncWrite(std::vector<uint8> const& data)
                 AsyncWrite(_writeQueue.front());
         }
         else
-            _socket.close();
+            CloseSocket();
     });
 }
 
@@ -464,7 +462,7 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
                     sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandlePing: %s kicked for over-speed pings (address: %s)",
                         _worldSession->GetPlayerName().c_str(), GetRemoteIpAddress().c_str());
 
-                    _socket.close();
+                    CloseSocket();
                     return;
                 }
             }
@@ -483,11 +481,21 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = %s",
             GetRemoteIpAddress().c_str());
 
-        _socket.close();
+        CloseSocket();
         return;
     }
 
     WorldPacket packet(SMSG_PONG, 4);
     packet << ping;
     return AsyncWrite(packet);
+}
+
+void WorldSocket::CloseSocket()
+{
+    boost::system::error_code socketError;
+    _socket.close(socketError);
+    if (socketError)
+        TC_LOG_DEBUG("network", "WorldSocket::CloseSocket: Player '%s' (%s) errored when closing socket: %i (%s)",
+            _worldSession ? _worldSession->GetPlayerInfo().c_str() : "unknown", GetRemoteIpAddress().c_str(),
+            socketError.value(), socketError.message());
 }
