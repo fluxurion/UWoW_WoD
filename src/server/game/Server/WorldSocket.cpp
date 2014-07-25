@@ -29,7 +29,7 @@
 using boost::asio::ip::tcp;
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
-    : _socket(std::move(socket)), _authSeed(static_cast<uint32>(rand32())), _OverSpeedPings(0), _worldSession(nullptr)
+    : _socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr)
 {
 }
 
