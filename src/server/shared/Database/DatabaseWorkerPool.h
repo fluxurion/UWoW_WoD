@@ -288,9 +288,10 @@ class DatabaseWorkerPool
         QueryResultFuture AsyncQuery(const char* sql)
         {
             BasicStatementTask* task = new BasicStatementTask(sql, true);
+            // Store future result before enqueueing - task might get already processed and deleted before returning from this method
             QueryResultFuture result = task->GetFuture();
             Enqueue(task);
-            return result;  //! Actual return value has no use yet
+            return result;
         }
 
         //! Enqueues a query in string format -with variable args- that will set the value of the QueryResultFuture return object as soon as the query is executed.
@@ -312,6 +313,7 @@ class DatabaseWorkerPool
         PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt)
         {
             PreparedStatementTask* task = new PreparedStatementTask(stmt, true);
+            // Store future result before enqueueing - task might get already processed and deleted before returning from this method
             PreparedQueryResultFuture result = task->GetFuture();
             Enqueue(task);
             return result;
@@ -324,6 +326,7 @@ class DatabaseWorkerPool
         QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder* holder)
         {
             SQLQueryHolderTask* task = new SQLQueryHolderTask(holder);
+            // Store future result before enqueueing - task might get already processed and deleted before returning from this method
             QueryResultHolderFuture result = task->GetFuture();
             Enqueue(task);
             return result;
