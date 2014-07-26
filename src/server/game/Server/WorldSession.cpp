@@ -118,7 +118,7 @@ playerLoginCounter(0)
 
     if (sock)
     {
-        m_Address = sock->GetRemoteIpAddress();
+        m_Address = sock->GetRemoteIpAddress().to_string();
         ResetTimeOutTime();
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
