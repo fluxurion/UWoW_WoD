@@ -16,8 +16,6 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/asio/write.hpp>
-#include <boost/asio/read_until.hpp>
 #include <memory>
 #include "WorldSocket.h"
 #include "ServerPktHeader.h"
