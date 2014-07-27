@@ -33,6 +33,8 @@
 #include <time.h>
 #include "Util.h"
 
+#include <math.h>
+#include <boost/asio/buffer.hpp>
 
 #define BITS_1 uint8 _1
 #define BITS_2 BITS_1, uint8 _2
@@ -919,5 +921,15 @@ inline void ByteBuffer::read_skip<std::string>()
     read_skip<char*>();
 }
 
-#endif
+namespace boost
+{
+    namespace asio
+    {
+        inline const_buffers_1 buffer(ByteBuffer const& packet)
+        {
+            return buffer(packet.contents(), packet.size());
+        }
+    }
+}
 
+#endif
