@@ -421,9 +421,10 @@ void World::LoadConfigSettings(bool reload)
 {
     if (reload)
     {
-        if (!sConfigMgr->Reload())
+        std::string configError;
+        if (!sConfigMgr->Reload(configError))
         {
-            sLog->outError(LOG_FILTER_GENERAL, "World settings reload fail: can't read settings from %s.", sConfigMgr->GetFilename().c_str());
+            sLog->outError(LOG_FILTER_GENERAL, "World settings reload fail: %s.", configError.c_str());
             return;
         }
         sLog->LoadFromConfig();
