@@ -33,23 +33,15 @@ class ChannelMgr
         typedef std::map<std::wstring, Channel*> ChannelMap;
         ~ChannelMgr();
 
-        static ChannelMgr* instance()
-        {
-            static ChannelMgr instance;
-            return &instance;
-        }
-
         Channel* GetJoinChannel(std::string name, uint32 channel_id);
         Channel* GetChannel(std::string name, Player* p, bool pkt = true);
         void LeftChannel(std::string name);
+
     private:
         ChannelMgr() { team = 0; }
         ChannelMap channels;
         void MakeNotOnPacket(WorldPacket* data, std::string name);
 };
-
-class AllianceChannelMgr : public ChannelMgr {};
-class HordeChannelMgr    : public ChannelMgr {};
 
 ChannelMgr* channelMgr(uint32 team);
 
