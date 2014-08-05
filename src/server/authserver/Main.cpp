@@ -113,6 +113,7 @@ int main(int argc, char** argv)
     if (sRealmList->size() == 0)
     {
         sLog->outError(LOG_FILTER_AUTHSERVER, "No valid realms specified.");
+        StopDB();
         return 1;
     }
 
@@ -121,6 +122,7 @@ int main(int argc, char** argv)
     if (port < 0 || port > 0xFFFF)
     {
         sLog->outError(LOG_FILTER_AUTHSERVER, "Specified port out of allowed range (1-65535)");
+        StopDB();
         return 1;
     }
 
