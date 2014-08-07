@@ -36,6 +36,8 @@
 #include <math.h>
 #include <boost/asio/buffer.hpp>
 
+class MessageBuffer;
+
 #define BITS_1 uint8 _1
 #define BITS_2 BITS_1, uint8 _2
 #define BITS_3 BITS_2, uint8 _3
@@ -170,6 +172,7 @@ class ByteBufferException
         size_t ValueSize;
 };
 
+// Root of ByteBuffer exception hierarchy
 class ByteBufferPositionException : public ByteBufferException
 {
     public:
@@ -218,6 +221,14 @@ class ByteBuffer
             _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf._storage)
         {
         }
+
+        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
+            _storage(std::move(buf._storage)) { }
+
+        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
+            _storage(right._storage) { }
+
+        ByteBuffer(MessageBuffer&& buffer);
 
         void clear()
         {
