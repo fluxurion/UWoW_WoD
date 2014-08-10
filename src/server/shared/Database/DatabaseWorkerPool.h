@@ -42,6 +42,14 @@ class PingOperation : public SQLOperation
 template <class T>
 class DatabaseWorkerPool
 {
+    private:
+        enum InternalIndex
+        {
+            IDX_ASYNC,
+            IDX_SYNCH,
+            IDX_SIZE
+        };
+
     public:
         /* Activity state */
         DatabaseWorkerPool()
@@ -70,32 +78,17 @@ class DatabaseWorkerPool
             sLog->outInfo(LOG_FILTER_SQL_DRIVER, "Opening DatabasePool '%s'. Asynchronous connections: %u, synchronous connections: %u.",
                 GetDatabaseName(), async_threads, synch_threads);
 
-            //! Open asynchronous connections (delayed operations)
-            _connections[IDX_ASYNC].resize(async_threads);
-            for (uint8 i = 0; i < async_threads; ++i)
-            {
-                T* t = new T(_queue, _connectionInfo);
-                res &= t->Open();
-                _connections[IDX_ASYNC][i] = t;
-                ++_connectionCount[IDX_ASYNC];
-            }
+            res = OpenConnections(IDX_ASYNC, async_threads);
 
-            //! Open synchronous connections (direct, blocking operations)
-            _connections[IDX_SYNCH].resize(synch_threads);
-            for (uint8 i = 0; i < synch_threads; ++i)
-            {
-                T* t = new T(_connectionInfo);
-                res &= t->Open();
-                _connections[IDX_SYNCH][i] = t;
-                ++_connectionCount[IDX_SYNCH];
-            }
+            if (!res)
+                return res;
+
+            res = OpenConnections(IDX_SYNCH, synch_threads);
 
             if (res)
                 sLog->outInfo(LOG_FILTER_SQL_DRIVER, "DatabasePool '%s' opened successfully. %u total connections running.", GetDatabaseName(),
                     (_connectionCount[IDX_SYNCH] + _connectionCount[IDX_ASYNC]));
-            else
-                sLog->outError(LOG_FILTER_SQL_DRIVER, "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
-                    "for specific errors.", GetDatabaseName());
+
             return res;
         }
 
@@ -106,8 +99,6 @@ class DatabaseWorkerPool
             for (uint8 i = 0; i < _connectionCount[IDX_ASYNC]; ++i)
             {
                 T* t = _connections[IDX_ASYNC][i];
-                DatabaseWorker* worker = t->m_worker;
-                delete worker;
                 t->Close();         //! Closes the actualy MySQL connection.
             }
 
@@ -433,7 +424,7 @@ class DatabaseWorkerPool
             if (str.empty())
                 return;
 
-            char* buf = new char[str.size()*2+1];
+            char* buf = new char[str.size() * 2 + 1];
             EscapeString(buf, str.c_str(), str.size());
             str = buf;
             delete[] buf;
@@ -466,6 +457,52 @@ class DatabaseWorkerPool
         }
 
     private:
+        bool OpenConnections(InternalIndex type, uint8 numConnections)
+        {
+            _connections[type].resize(numConnections);
+            for (uint8 i = 0; i < numConnections; ++i)
+            {
+                T* t;
+
+                if (type == IDX_ASYNC)
+                    t = new T(_queue, *_connectionInfo);
+                else if (type == IDX_SYNCH)
+                    t = new T(*_connectionInfo);
+
+                _connections[type][i] = t;
+                ++_connectionCount[type];
+
+                bool res = t->Open();
+
+                if (res)
+                {
+                    if (mysql_get_server_version(t->GetHandle()) < MIN_MYSQL_SERVER_VERSION)
+                    {
+                        TC_LOG_ERROR("sql.driver", "TrinityCore does not support MySQL versions below 5.1");
+                        res = false;
+                    }
+                }
+
+                // Failed to open a connection or invalid version, abort and cleanup
+                if (!res)
+                {
+                    TC_LOG_ERROR("sql.driver", "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
+                        "for specific errors. Read wiki at http://collab.kpsn.org/display/tc/TrinityCore+Home", GetDatabaseName());
+
+                    while (_connectionCount[type] != 0)
+                    {
+                        T* t = _connections[type][i--];
+                        delete t;
+                        --_connectionCount[type];
+                    }
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         unsigned long EscapeString(char *to, const char *from, unsigned long length)
         {
             if (!to || !from || !length)
@@ -499,12 +536,6 @@ class DatabaseWorkerPool
         }
 
     private:
-        enum _internalIndex
-        {
-            IDX_ASYNC,
-            IDX_SYNCH,
-            IDX_SIZE,
-        };
 
         ProducerConsumerQueue<SQLOperation*>* _queue;             //! Queue shared by async worker threads.
         std::vector< std::vector<T*> >        _connections;
