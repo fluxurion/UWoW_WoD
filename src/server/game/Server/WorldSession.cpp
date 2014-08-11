@@ -265,6 +265,8 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     }
 #endif                                                      // !TRINITY_DEBUG
 
+    sScriptMgr->OnPacketSend(this, *packet);
+
     m_Socket->AsyncWrite(*packet);
 }
 
@@ -412,7 +414,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     if (packet->GetOpcode() == CMSG_CHAR_ENUM)
                         m_playerRecentlyLogout = false;
 
-                    sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                    sScriptMgr->OnPacketReceive(this, *packet);
                     (this->*opHandle->handler)(*packet);
                     if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                         LogUnprocessedTail(packet);

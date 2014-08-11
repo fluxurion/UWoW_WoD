@@ -32,6 +32,7 @@ WorldSocket::WorldSocket(tcp::socket&& socket)
 
 void WorldSocket::Start()
 {
+    sScriptMgr->OnSocketOpen(shared_from_this());
     AsyncReadHeader();
     HandleSendAuthSession();
 }
@@ -93,12 +94,11 @@ void WorldSocket::ReadDataHandler()
                 break;
             }
 
-            sScriptMgr->OnPacketReceive(shared_from_this(), packet);
             HandleAuthSession(packet);
             break;
         case CMSG_KEEP_ALIVE:
             TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
-            sScriptMgr->OnPacketReceive(shared_from_this(), packet);
+            sScriptMgr->OnPacketReceive(_worldSession, packet);
             break;
         default:
         {
@@ -438,3 +438,9 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
     return AsyncWrite(packet);
 }
 
+void WorldSocket::CloseSocket()
+{
+    sScriptMgr->OnSocketClose(shared_from_this());
+
+    Socket::CloseSocket();
+}
