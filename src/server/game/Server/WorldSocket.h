@@ -49,7 +49,7 @@ struct ClientPktHeader
     uint16 size;
     uint32 cmd;
 
-    bool IsValid() const { return size >= 4 && size < 10240 && cmd < OPCODE_COUNT; }
+    bool IsValid() const { return size >= 4 && size < 10240 && (cmd < OPCODE_COUNT || (cmd >> 16) == 0x4C52); }
 };
 
 #pragma pack(pop)
