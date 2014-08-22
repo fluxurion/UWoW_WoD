@@ -27,16 +27,23 @@
 
 using boost::asio::ip::tcp;
 
-WorldSocket::WorldSocket(tcp::socket&& socket)
-    : Socket(std::move(socket), sizeof(ClientPktHeader)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr)
+std::string const WorldSocket::ServerConnectionInitialize("WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT");
+
+std::string const WorldSocket::ClientConnectionInitialize("WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER");
+
+WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket), sizeof(ClientPktHeader)),
+    _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _initialized(false)
 {
 }
 
 void WorldSocket::Start()
 {
     sScriptMgr->OnSocketOpen(shared_from_this());
-    AsyncReadHeader();
-    HandleSendAuthSession();
+
+    AsyncReadData(ClientConnectionInitialize.length() + 2 /*sizeof(ClientPktHeader::size)*/ + 1 /*null terminator*/);
+
+    _writeQueue.emplace(ServerConnectionInitialize);
+    AsyncWrite(_writeQueue.front());
 }
 
 void WorldSocket::HandleSendAuthSession()
@@ -88,54 +95,82 @@ void WorldSocket::ReadHeaderHandler()
 
 void WorldSocket::ReadDataHandler()
 {
-    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
-
-    Opcodes opcode = Opcodes(header->cmd);
-
-    std::string opcodeName = GetOpcodeNameForLogging(opcode, CMSG);
-
-    WorldPacket packet(opcode, MoveData());
-
-    //if (sPacketLog->CanLogPacket())
-    //    sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
-
-    sLog->outTrace(LOG_FILTER_OPCODES, "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
-
-    switch (opcode)
+    if (_initialized)
     {
-        case CMSG_PING:
-            HandlePing(packet);
-            break;
-        case CMSG_AUTH_SESSION:
-            if (_worldSession)
+        ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
+
+        std::string opcodeName = GetOpcodeNameForLogging(opcode, CMSG);
+
+        WorldPacket packet(opcode, MoveData());
+
+        //if (sPacketLog->CanLogPacket())
+        //    sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
+
+        sLog->outTrace(LOG_FILTER_OPCODES, "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
+
+        switch (opcode)
+        {
+            case CMSG_PING:
+                HandlePing(packet);
+                break;
+            case CMSG_AUTH_SESSION:
+                if (_worldSession)
+                {
+                    sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
+                    break;
+                }
+
+                HandleAuthSession(packet);
+                break;
+            case CMSG_KEEP_ALIVE:
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
+                sScriptMgr->OnPacketReceive(_worldSession, packet);
+                break;
+            /*case CMSG_LOG_DISCONNECT:
+                packet.rfinish();   // contains uint32 disconnectReason;
+                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+                sScriptMgr->OnPacketReceive(_worldSession, packet);
+                return;
+            case CMSG_ENABLE_NAGLE:
             {
-                sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerName().c_str());
+                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+                sScriptMgr->OnPacketReceive(_worldSession, packet);
+                if (_worldSession)
+                    _worldSession->HandleEnableNagleAlgorithm();
+                break;
+            }*/
+            default:
+            {
+                if (!_worldSession)
+                {
+                    sLog->outError(LOG_FILTER_OPCODES, "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
+                    CloseSocket();
+                    return;
+                }
+
+                // Our Idle timer will reset on any non PING opcodes.
+                // Catches people idling on the login screen and any lingering ingame connections.
+                _worldSession->ResetTimeOutTime();
+
+                // Copy the packet to the heap before enqueuing
+                _worldSession->QueuePacket(new WorldPacket(std::move(packet)));
                 break;
             }
-
-            HandleAuthSession(packet);
-            break;
-        case CMSG_KEEP_ALIVE:
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
-            sScriptMgr->OnPacketReceive(_worldSession, packet);
-            break;
-        default:
-        {
-            if (!_worldSession)
-            {
-                sLog->outError(LOG_FILTER_OPCODES, "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
-                CloseSocket();
-                return;
-            }
-
-            // Our Idle timer will reset on any non PING opcodes.
-            // Catches people idling on the login screen and any lingering ingame connections.
-            _worldSession->ResetTimeOutTime();
-
-            // Copy the packet to the heap before enqueuing
-            _worldSession->QueuePacket(new WorldPacket(std::move(packet)));
-            break;
         }
+    }
+    else
+    {
+        ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetDataBuffer());
+
+        std::string initializer(reinterpret_cast<char const*>(header) + sizeof(header->size));
+        if (initializer != ClientConnectionInitialize)
+        {
+            CloseSocket();
+            return;
+        }
+
+        _initialized = true;
+        HandleSendAuthSession();
     }
 
     AsyncReadHeader();
