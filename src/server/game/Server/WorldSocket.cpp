@@ -34,7 +34,7 @@ std::string const WorldSocket::ClientConnectionInitialize("WORLD OF WARCRAFT CON
 WorldSocket::WorldSocket(tcp::socket&& socket)
     : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _initialized(false)
 {
-    _headerBuffer.Resize(sizeof(ClientPktHeader));
+    _headerBuffer.Resize(2);
 }
 
 void WorldSocket::Start()
@@ -44,7 +44,7 @@ void WorldSocket::Start()
     MessageBuffer initializer;
     ServerPktHeader header(ServerConnectionInitialize.size(), 0);
     initializer.Write(header.header, header.getHeaderLength() - 2);
-    initializer.Write((void*)ServerConnectionInitialize.c_str(), ServerConnectionInitialize.length());
+    initializer.Write(ServerConnectionInitialize.c_str(), ServerConnectionInitialize.length());
 
     std::unique_lock<std::mutex> dummy(_writeLock, std::defer_lock);
     QueuePacket(std::move(initializer), dummy);
@@ -125,15 +125,17 @@ void WorldSocket::ReadHandler()
 
 bool WorldSocket::ReadHeaderHandler()
 {
-    ASSERT(_headerBuffer.GetActiveSize() == sizeof(ClientPktHeader));
+    ASSERT(_headerBuffer.GetActiveSize() == (_initialized ? sizeof(ClientPktHeader) : 2));
 
-    _authCrypt.DecryptRecv(_headerBuffer.GetReadPointer(), sizeof(ClientPktHeader));
+    _authCrypt.DecryptRecv(_headerBuffer.GetReadPointer(), _headerBuffer.GetActiveSize());
 
     ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
     EndianConvertReverse(header->size);
-    EndianConvert(header->cmd);
 
-    if (!header->IsValidSize() || !header->IsValidOpcode())
+    if (_initialized)
+        EndianConvert(header->cmd);
+
+    if (!header->IsValidSize() || (_initialized && !header->IsValidOpcode()))
     {
         if (_worldSession)
         {
@@ -149,7 +151,9 @@ bool WorldSocket::ReadHeaderHandler()
         return false;
     }
 
-    header->size -= sizeof(header->cmd);
+    if (_initialized)
+        header->size -= sizeof(header->cmd);
+
     _packetBuffer.Resize(header->size);
     return true;
 }
@@ -223,9 +227,7 @@ bool WorldSocket::ReadDataHandler()
     }
     else
     {
-        ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
-
-        std::string initializer(reinterpret_cast<char const*>(_packetBuffer.GetReadPointer()), header->size);
+        std::string initializer(reinterpret_cast<char const*>(_packetBuffer.GetReadPointer()), std::min(_packetBuffer.GetActiveSize(), ClientConnectionInitialize.length()));
         if (initializer != ClientConnectionInitialize)
         {
             CloseSocket();
@@ -233,6 +235,8 @@ bool WorldSocket::ReadDataHandler()
         }
 
         _initialized = true;
+        _headerBuffer.Resize(sizeof(ClientPktHeader));
+        _packetBuffer.Reset();
         HandleSendAuthSession();
     }
 
