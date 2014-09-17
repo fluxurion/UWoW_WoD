@@ -35,6 +35,7 @@
 using boost::asio::ip::tcp;
 
 #define READ_BLOCK_SIZE 4096
+#define TC_SOCKET_USE_IOCP BOOST_ASIO_HAS_IOCP
 
 template<class T>
 class Socket : public std::enable_shared_from_this<T>
@@ -59,11 +60,15 @@ public:
         if (!IsOpen())
             return false;
 
-#ifndef BOOST_ASIO_HAS_IOCP
+#ifndef TC_SOCKET_USE_IOCP
+        std::unique_lock<std::mutex> guard(_writeLock, std::try_to_lock);
+        if (!guard)
+            return true;
+
         if (_isWritingAsync || (!_writeBuffer.GetActiveSize() && _writeQueue.empty()))
             return true;
 
-        for (; WriteHandler(boost::system::error_code(), 0);)
+        for (; WriteHandler(guard);)
             ;
 #endif
 
@@ -114,7 +119,7 @@ public:
     {
         _writeQueue.push(std::move(buffer));
 
-#ifdef BOOST_ASIO_HAS_IOCP
+#ifdef TC_SOCKET_USE_IOCP
         AsyncProcessQueue(guard);
 #else
     (void)guard;
@@ -146,24 +151,25 @@ protected:
     bool AsyncProcessQueue(std::unique_lock<std::mutex>&)
     {
         if (_isWritingAsync)
-            return true;
+            return false;
 
         _isWritingAsync = true;
 
-#ifdef BOOST_ASIO_HAS_IOCP
+#ifdef TC_SOCKET_USE_IOCP
         MessageBuffer& buffer = _writeQueue.front();
         _socket.async_write_some(boost::asio::buffer(buffer.GetReadPointer(), buffer.GetActiveSize()), std::bind(&Socket<T>::WriteHandler,
             this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 #else
-        _socket.async_write_some(boost::asio::null_buffers(), std::bind(&Socket<T>::WriteHandler, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
+        _socket.async_write_some(boost::asio::null_buffers(), std::bind(&Socket<T>::WriteHandlerWrapper,
+            this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 #endif
 
-        return true;
+        return false;
     }
 
     std::mutex _writeLock;
     std::queue<MessageBuffer> _writeQueue;
-#ifndef BOOST_ASIO_HAS_IOCP
+#ifndef TC_SOCKET_USE_IOCP
     MessageBuffer _writeBuffer;
 #endif
 
@@ -180,7 +186,7 @@ private:
         ReadHandler();
     }
 
-#ifdef BOOST_ASIO_HAS_IOCP
+#ifdef TC_SOCKET_USE_IOCP
 
     void WriteHandler(boost::system::error_code error, std::size_t transferedBytes)
     {
@@ -204,12 +210,15 @@ private:
 
 #else
 
-    bool WriteHandler(boost::system::error_code /*error*/, std::size_t /*transferedBytes*/)
+    void WriteHandlerWrapper(boost::system::error_code /*error*/, std::size_t /*transferedBytes*/)
     {
-        std::unique_lock<std::mutex> guard(_writeLock, std::try_to_lock);
-        if (!guard)
-            return false;
+        std::unique_lock<std::mutex> guard(_writeLock);
+        _isWritingAsync = false;
+        WriteHandler(guard);
+    }
 
+    bool WriteHandler(std::unique_lock<std::mutex>& guard)
+    {
         if (!IsOpen())
             return false;
 
@@ -230,7 +239,7 @@ private:
         }
         else if (bytesWritten == 0)
             return false;
-        else if (bytesWritten < bytesToSend) //now n > 0
+        else if (bytesWritten < bytesToSend)
         {
             _writeBuffer.ReadCompleted(bytesWritten);
             _writeBuffer.Normalize();
@@ -246,10 +255,7 @@ private:
     bool HandleQueue(std::unique_lock<std::mutex>& guard)
     {
         if (_writeQueue.empty())
-        {
-            _isWritingAsync = false;
             return false;
-        }
 
         MessageBuffer& queuedMessage = _writeQueue.front();
 
@@ -278,13 +284,7 @@ private:
         }
 
         _writeQueue.pop();
-        if (_writeQueue.empty())
-        {
-            _isWritingAsync = false;
-            return false;
-        }
-
-        return true;
+        return !_writeQueue.empty();
     }
 
 #endif
