@@ -164,7 +164,7 @@ bool WorldSocket::ReadDataHandler()
     {
         ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
 
-        Opcodes opcode = PacketFilter::DropHighBytes(Opcodes(header->cmd));
+        Opcodes opcode(header->cmd);
 
         std::string opcodeName = GetOpcodeNameForLogging(opcode, CMSG);
 
