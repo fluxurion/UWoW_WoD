@@ -47,6 +47,7 @@ include(CheckPlatform)
 find_package(PCHSupport)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
+find_package(ZMQ REQUIRED)
 
 include(ConfigureBoost)
 

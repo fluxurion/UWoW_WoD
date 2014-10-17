@@ -99,6 +99,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
     // data for gm.log
     if (sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
+<<<<<<< HEAD
         uint32 bidder_security = 0;
         std::string bidder_name;
         if (bidder)
@@ -110,7 +111,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         else
         {
             bidder_accId = sObjectMgr->GetPlayerAccountIdByGUID(bidder_guid);
-            bidder_security = AccountMgr::GetSecurity(bidder_accId, realmID);
+            bidder_security = AccountMgr::GetSecurity(bidder_accId, realmHandle.Index);
 
             if (!AccountMgr::IsPlayerAccount(bidder_security)) // not do redundant DB requests
             {
