@@ -65,6 +65,13 @@ enum LoginResult
     LOGIN_LOCKED_ENFORCED                        = 0x10,
 };
 
+enum ExpansionFlags
+{
+    POST_BC_EXP_FLAG = 0x2,
+    PRE_BC_EXP_FLAG = 0x1,
+    NO_VALID_EXP_FLAG = 0x0
+};
+
 #define UWOWCORE_ACCEPTED_CLIENT_BUILD        {17538, 15595, 12340, 0}  // accept one Mists of Pandaria, Cataclysm and one Wrath of the Lich King build
 
 
