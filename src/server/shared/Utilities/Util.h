@@ -67,6 +67,8 @@ public:
 
 void stripLineInvisibleChars(std::string &src);
 
+std::tm localtime_r(const time_t& time);
+
 std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 uint32 TimeStringToSecs(const std::string& timestring);
 std::string TimeToTimestampStr(time_t t);
