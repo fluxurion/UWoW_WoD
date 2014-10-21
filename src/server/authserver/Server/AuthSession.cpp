@@ -732,18 +732,17 @@ bool AuthSession::_HandleReconnectProof()
 	}
 }
 
-ACE_INET_Addr const& GetAddressForClient(Realm const& realm, ACE_INET_Addr const& clientAddr)
+/*ACE_INET_Addr const& GetAddressForClient(Realm const& realm, ACE_INET_Addr const& clientAddr)
 {
 	// Attempt to send best address for client
 	if (clientAddr.is_loopback())
 	{
 		// Try guessing if realm is also connected locally
-		//if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
-		//	return clientAddr;
+		if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
+			return clientAddr;
 
 		// Assume that user connecting from the machine that authserver is located on
 		// has all realms available in his local network
-		//return realm.LocalAddress;
         return realm.LocalAddress;
 	}
 
@@ -753,8 +752,7 @@ ACE_INET_Addr const& GetAddressForClient(Realm const& realm, ACE_INET_Addr const
 
 	// Return external IP
 	return realm.ExternalAddress;
-}
-
+}*/
 
 bool AuthSession::_HandleRealmList()
 {
@@ -786,32 +784,26 @@ bool AuthSession::_HandleRealmList()
 	{
 		const Realm &realm = i->second;
 		// don't work with realms which not compatible with the client
-		bool okBuild = ((_expversion & POST_BC_EXP_FLAG) && realm.gamebuild == _build) || ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(realm.gamebuild));
+		//bool okBuild = ((_expversion & POST_BC_EXP_FLAG) && realm.gamebuild == _build) || ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(realm.gamebuild));
+        bool okBuild = (_expversion & POST_BC_EXP_FLAG) && realm.gamebuild == _build;
 
 		// No SQL injection. id of realm is controlled by the database.
 		uint32 flag = realm.flag;
-		RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm.gamebuild);
 		if (!okBuild)
 		{
-			if (!buildInfo)
-				continue;
-
-			flag |= REALM_FLAG_OFFLINE | REALM_FLAG_SPECIFYBUILD;   // tell the client what build the realm is for
+			flag |= REALM_FLAG_OFFLINE;   // tell the client what build the realm is for
 		}
-
-		if (!buildInfo)
-			flag &= ~REALM_FLAG_SPECIFYBUILD;
 
 		std::string name = i->first;
-		if (_expversion & PRE_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD)
+		/*if (_expversion & PRE_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD)
 		{
 			std::ostringstream ss;
-			ss << name << " (" << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << ')';
+			ss << name << " (" << realm.v << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << ')';
 			name = ss.str();
-		}
+		}*/
 
 		// We don't need the port number from which client connects with but the realm's port
-		ACE_INET_Addr clientAddr(realm.ExternalAddress.get_port_number(), GetRemoteIpAddress().c_str(), AF_INET);
+		//ACE_INET_Addr clientAddr(realm.ExternalAddress.get_port_number(), GetRemoteIpAddress().c_str(), AF_INET);
 
 		uint8 lock = (realm.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
 
@@ -827,8 +819,11 @@ bool AuthSession::_HandleRealmList()
 		if (_expversion & POST_BC_EXP_FLAG)                 // only 2.x and 3.x clients
 			pkt << lock;                                    // if 1, then realm locked
 		pkt << uint8(flag);                                 // RealmFlags
-		pkt << name;
-		pkt << GetAddressString(GetAddressForClient(realm, clientAddr));
+		pkt << realm.name;
+        std::string ip = sRealmList->firewallSize() ? sRealmList->GetRandomFirewall() : "localhost";
+        ip += ":";
+        ip += i->second.address;
+        pkt << ip;
 		pkt << realm.populationLevel;
 		pkt << AmountOfCharacters;
 		pkt << realm.timezone;                              // realm category
@@ -839,10 +834,10 @@ bool AuthSession::_HandleRealmList()
 
 		if (_expversion & POST_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD)
 		{
-			pkt << uint8(buildInfo->MajorVersion);
-			pkt << uint8(buildInfo->MinorVersion);
-			pkt << uint8(buildInfo->BugfixVersion);
-			pkt << uint16(buildInfo->Build);
+			pkt << uint8(3);
+			pkt << uint8(3);
+			pkt << uint8(5);
+			pkt << uint16(12340);
 		}
 
 		++RealmListSize;
@@ -905,8 +900,8 @@ void AuthSession::SetVSFields(const std::string& rI)
 
 	// No SQL injection (username escaped)
 	char *v_hex, *s_hex;
-	v_hex = v.AsHexStr();
-	s_hex = s.AsHexStr();
+	v_hex = const_cast<char*>(v.AsHexStr());
+	s_hex = const_cast<char*>(s.AsHexStr());
 
 	PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
 	stmt->setString(0, v_hex);

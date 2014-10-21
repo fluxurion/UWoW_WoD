@@ -77,7 +77,7 @@ void KeepDatabaseAliveHandler(const boost::system::error_code& error)
 {
 	if (!error)
 	{
-		TC_LOG_INFO("server.authserver", "Ping MySQL to keep connection alive");
+		sLog->outInfo(LOG_FILTER_AUTHSERVER, "Ping MySQL to keep connection alive");
 		LoginDatabase.KeepAlive();
 
 		_dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));
@@ -156,14 +156,14 @@ int main(int argc, char** argv)
 
     // Launch the listening network socket
 
-    int32 rmport = sConfigMgr->GetIntDefault("RealmServerPort", 3724);
-    if (rmport < 0 || port > 0xFFFF)
+    int32 port = ConfigMgr::GetIntDefault("RealmServerPort", 3724);
+    if (port < 0 || port > 0xFFFF)
     {
         sLog->outError(LOG_FILTER_AUTHSERVER, "Specified port out of allowed range (1-65535)");
         return 1;
     }
 
-    std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
+    std::string bindIp = ConfigMgr::GetStringDefault("BindIP", "0.0.0.0");
 
 	AuthServer authServer(_ioService, bindIp, port);
 
@@ -174,7 +174,7 @@ int main(int argc, char** argv)
 	SetProcessPriority();
 
 
-	_dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
+    _dbPingInterval = ConfigMgr::GetIntDefault("MaxPingTime", 30);
 
 	_dbPingTimer.expires_from_now(boost::posix_time::seconds(_dbPingInterval));
 	_dbPingTimer.async_wait(KeepDatabaseAliveHandler);
@@ -238,8 +238,8 @@ void SetProcessPriority()
 #if defined(_WIN32) || defined(__linux__)
 
 	///- Handle affinity for multiple processors and process priority
-	uint32 affinity = sConfigMgr->GetIntDefault("UseProcessors", 0);
-	bool highPriority = sConfigMgr->GetBoolDefault("ProcessPriority", false);
+    uint32 affinity = ConfigMgr::GetIntDefault("UseProcessors", 0);
+    bool highPriority = ConfigMgr::GetBoolDefault("ProcessPriority", false);
 
 #ifdef _WIN32 // Windows
 
@@ -257,7 +257,7 @@ void SetProcessPriority()
 			if (!currentAffinity)
 				sLog->outError(LOG_FILTER_AUTHSERVER, "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the authserver. Accessible processors bitmask (hex): %x", affinity, appAff);
 			else if (SetProcessAffinityMask(hProcess, currentAffinity))
-				TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %x", currentAffinity);
+				sLog->outInfo(LOG_FILTER_AUTHSERVER, "Using processors (bitmask, hex): %x", currentAffinity);
 			else
 				sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set used processors (hex): %x", currentAffinity);
 		}
@@ -266,7 +266,7 @@ void SetProcessPriority()
 	if (highPriority)
 	{
 		if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
-			TC_LOG_INFO("server.authserver", "authserver process priority class set to HIGH");
+			sLog->outInfo(LOG_FILTER_AUTHSERVER, "authserver process priority class set to HIGH");
 		else
 			sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set authserver process priority class.");
 	}
@@ -288,7 +288,7 @@ void SetProcessPriority()
 		{
 			CPU_ZERO(&mask);
 			sched_getaffinity(0, sizeof(mask), &mask);
-			TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %lx", *(__cpu_mask*)(&mask));
+			sLog->outInfo(LOG_FILTER_AUTHSERVER, "Using processors (bitmask, hex): %lx", *(__cpu_mask*)(&mask));
 		}
 	}
 
@@ -297,7 +297,7 @@ void SetProcessPriority()
 		if (setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
 			sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set authserver process priority class, error: %s", strerror(errno));
 		else
-			TC_LOG_INFO("server.authserver", "authserver process priority class set to %i", getpriority(PRIO_PROCESS, 0));
+			sLog->outInfo(LOG_FILTER_AUTHSERVER, "authserver process priority class set to %i", getpriority(PRIO_PROCESS, 0));
 	}
 
 #endif
