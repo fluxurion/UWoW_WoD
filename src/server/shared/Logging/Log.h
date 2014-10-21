@@ -23,7 +23,7 @@
 #include "Appender.h"
 #include "LogWorker.h"
 #include "Logger.h"
-#include <stdarg.h>
+
 #include <unordered_map>
 #include <string>
 
