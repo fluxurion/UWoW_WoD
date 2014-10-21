@@ -61,7 +61,7 @@ bool ConfigMgr::Reload()
     return LoadInitial(_filename.c_str());
 }
 
-std::string ConfigMgr::GetStringDefault(const char* name, const std::string &def)
+std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def)
 {
     std::string value = _config.get<std::string>(ptree::path_type(name,'/'), def);
 
@@ -70,11 +70,11 @@ std::string ConfigMgr::GetStringDefault(const char* name, const std::string &def
     return value;
 }
 
-bool GetBoolDefault(const char* name, bool def)
+bool ConfigMgr::GetBoolDefault(std::string const& name, bool def)
 {
     try
     {
-        std::string val = _config.get<std::string>(name);
+        std::string val = _config.get<std::string>(ptree::path_type(name, '/'));
         val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
         return (val == "true" || val == "TRUE" || val == "yes" || val == "YES" || val == "1");
     }
@@ -84,17 +84,17 @@ bool GetBoolDefault(const char* name, bool def)
     }
 }
 
-int GetIntDefault(const char* name, int def)
+int ConfigMgr::GetIntDefault(std::string const& name, int def)
 {
-    return _config.get<int>(name, def);
+    return _config.get<int>(ptree::path_type(name, '/'), def);
 }
 
-float GetFloatDefault(const char* name, float def)
+float ConfigMgr::GetFloatDefault(std::string const& name, float def)
 {
-    return _config.get<float>(name, def);
+    return _config.get<float>(ptree::path_type(name, '/'), def);
 }
 
-const std::string & GetFilename()
+std::string const& ConfigMgr::GetFilename()
 {
     std::lock_guard<std::mutex> lock(_configLock);
     return _filename;

@@ -32,8 +32,8 @@
 
 class Log
 {
-    typedef std::unordered_map<std::string, Logger> LoggerMap;
-    typedef std::unordered_map<std::string, Logger const*> CachedLoggerContainer;
+    typedef std::unordered_map<uint8, Logger> LoggerMap;
+    typedef std::unordered_map<uint8, Logger const*> CachedLoggerContainer;
 
     private:
         Log();

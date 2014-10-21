@@ -206,9 +206,9 @@ struct ArenaLog
     std::string str;
 };
 
-extern ACE_Based::LockedQueue<GmCommand*, ACE_Thread_Mutex> GmLogQueue;
-extern ACE_Based::LockedQueue<GmChat*,    ACE_Thread_Mutex> GmChatLogQueue;
-extern ACE_Based::LockedQueue<ArenaLog*,  ACE_Thread_Mutex> ArenaLogQueue;
+extern LockedQueue<GmCommand*> GmLogQueue;
+extern LockedQueue<GmChat*> GmChatLogQueue;
+extern LockedQueue<ArenaLog*> ArenaLogQueue;
 
 // we always use stdlibc++ std::max/std::min, undefine some not C++ standard defines (Win API and some other platforms)
 #ifdef max

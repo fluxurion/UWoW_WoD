@@ -176,7 +176,7 @@ class ByteBufferPositionException : public ByteBufferException
         {
             ACE_Stack_Trace trace;
 
-            sLog->outError(LOG_FILTER_GENERAL, "Attempted to %s value with size: " SIZEFMTD " in ByteBuffer (pos: " SIZEFMTD " size: " SIZEFMTD ")\n[Stack trace: %s]" ,
+            sLog->outError(LOG_FILTER_GENERAL, "Attempted to %s value with size: %zu in ByteBuffer (pos: %zu size: %zu)\n[Stack trace: %s]" ,
                 (_add ? "put" : "get"), ValueSize, Pos, Size, trace.c_str());
         }
 
@@ -194,7 +194,7 @@ class ByteBufferSourceException : public ByteBufferException
         {
             ACE_Stack_Trace trace;
 
-            sLog->outError(LOG_FILTER_GENERAL, "Attempted to put a %s in ByteBuffer (pos: " SIZEFMTD " size: " SIZEFMTD ")\n[Stack trace: %s]",
+            sLog->outError(LOG_FILTER_GENERAL, "Attempted to put a %s in ByteBuffer (pos: %zu size: %zu)\n[Stack trace: %s]",
                 (ValueSize > 0 ? "NULL-pointer" : "zero-sized value"), Pos, Size, trace.c_str());
         }
 };
@@ -735,8 +735,8 @@ class ByteBuffer
         void AppendPackedTime(time_t time)
         {
             tm lt;
-            ACE_OS::localtime_r(&time, &lt);
-            append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon  << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
+            localtime_r(&time, &lt);
+            append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
         }
 
         void appendPackGUID(uint64 guid)
@@ -756,13 +756,6 @@ class ByteBuffer
                 guid >>= 8;
             }
             append(packGUID, size);
-        }
-
-        void AppendPackedTime(time_t time)
-        {
-            tm lt;
-            localtime_r(&time, &lt);
-            append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon  << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
         }
 
         void put(size_t pos, const uint8 *src, size_t cnt)
