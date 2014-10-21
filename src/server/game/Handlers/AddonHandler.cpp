@@ -22,14 +22,6 @@
 #include "Opcodes.h"
 #include "Log.h"
 
-AddonHandler::AddonHandler()
-{
-}
-
-AddonHandler::~AddonHandler()
-{
-}
-
 bool AddonHandler::BuildAddonPacket(WorldPacket* Source, WorldPacket* Target)
 {
     ByteBuffer AddOnPacked;

@@ -21728,7 +21728,7 @@ void Player::_SaveMail(SQLTransaction& trans)
 
 void Player::_SaveQuestStatus(SQLTransaction& trans)
 {
-    bool isTransaction = !trans.null();
+    bool isTransaction = !trans;
     if (!isTransaction)
         trans = CharacterDatabase.BeginTransaction();
 

@@ -44,7 +44,7 @@ class DatabaseWorkerPool
 {
     public:
         /* Activity state */
-        DatabaseWorkerPool() : _connectionInfo(NULL)
+        DatabaseWorkerPool()
         {
             _queue = new ProducerConsumerQueue<SQLOperation*>();
             memset(_connectionCount, 0, sizeof(_connectionCount));
@@ -503,7 +503,7 @@ class DatabaseWorkerPool
         ProducerConsumerQueue<SQLOperation*>* _queue;             //! Queue shared by async worker threads.
         std::vector< std::vector<T*> >        _connections;
         uint32                                _connectionCount[2];       //! Counter of MySQL connections;
-        MySQLConnectionInfo*                  _connectionInfo;
+        MySQLConnectionInfo                   _connectionInfo;
 };
 
 #endif

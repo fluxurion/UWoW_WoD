@@ -19,6 +19,7 @@
 #define _WORKERTHREAD_H
 
 #include "Define.h"
+#include "SQLOperation.h"
 #include "ProducerConsumerQueue.h"
 
 class MySQLConnection;
