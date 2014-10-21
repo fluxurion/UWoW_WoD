@@ -32,7 +32,7 @@ void TCSoapThread(const std::string& host, uint16 port)
     soap.send_timeout = 5;
     if (!soap_valid_socket(soap_bind(&soap, host.c_str(), port, 100)))
     {
-        TC_LOG_ERROR("network.soap", "Couldn't bind to %s:%d", host.c_str(), port);
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Couldn't bind to %s:%d", host.c_str(), port);
         exit(-1);
     }
 

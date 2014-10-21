@@ -87,7 +87,7 @@ void FreezeDetectorThread(uint32 delayTime, uint32 fdpid)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         uint32 curtime = getMSTime();
         // normal work
-        uint32 worldLoopCounter = World::m_worldLoopCounter.value();
+        uint32 worldLoopCounter = World::m_worldLoopCounter;
         if (loops != worldLoopCounter)
         {
             lastChange = curtime;
@@ -97,7 +97,7 @@ void FreezeDetectorThread(uint32 delayTime, uint32 fdpid)
         // possible freeze
         else if (getMSTimeDiff(lastChange, curtime) > delayTime)
         {
-            TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
+            sLog->outError(LOG_FILTER_WORLDSERVER, "World Thread hangs, kicking out server!");
             if(fdpid)
             {
                 char buffer[20];
@@ -141,7 +141,7 @@ int Master::Run()
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "http://www.uwow.biz\n");
 
     /// worldserver PID file creation
-    std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");
+    std::string pidfile = sConfigMgr->GetStringDefault("PidFile", "");
     if (!pidfile.empty())
     {
         pid = CreatePIDFile(pidfile);
@@ -185,9 +185,9 @@ int Master::Run()
     std::thread* cliThread = nullptr;
 
 #ifdef _WIN32
-    if (ConfigMgr::GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
+    if (sConfigMgr->GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
 #else
-    if (ConfigMgr::GetBoolDefault("Console.Enable", true))
+    if (sConfigMgr->GetBoolDefault("Console.Enable", true))
 #endif
     {
         ///- Launch CliRunnable thread
@@ -196,18 +196,12 @@ int Master::Run()
 
     std::thread rarThread(RemoteAccessThread);
 
-#if defined(_WIN32) || defined(__linux__)
-    
-    ///- Handle affinity for multiple processors and process priority
-    uint32 affinity = ConfigMgr::GetIntDefault("UseProcessors", 0);
-    bool highPriority = ConfigMgr::GetBoolDefault("ProcessPriority", false);
-
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef _WIN32
     {
         HANDLE hProcess = GetCurrentProcess();
 
-        uint32 Aff = ConfigMgr::GetIntDefault("UseProcessors", 0);
+        uint32 Aff = sConfigMgr->GetIntDefault("UseProcessors", 0);
         if (Aff > 0)
         {
             ULONG_PTR appAff;
@@ -231,7 +225,7 @@ int Master::Run()
             }
         }
 
-        bool Prio = ConfigMgr::GetBoolDefault("ProcessPriority", false);
+        bool Prio = sConfigMgr->GetBoolDefault("ProcessPriority", false);
 
         //if (Prio && (m_ServiceStatus == -1)  /* need set to default process priority class in service mode*/)
         if (Prio)
@@ -246,7 +240,7 @@ int Master::Run()
     //Start soap serving thread
     std::thread* soapThread = nullptr;
 
-    if (ConfigMgr::GetBoolDefault("SOAP.Enabled", false))
+    if (sConfigMgr->GetBoolDefault("SOAP.Enabled", false))
     {
         soapThread = new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878)));
     }
@@ -254,14 +248,14 @@ int Master::Run()
     std::thread* freezeDetectorThread = nullptr;
 
     ///- Start up freeze catcher thread
-    if (uint32 freeze_delay = ConfigMgr::GetIntDefault("MaxCoreStuckTime", 0))
+    if (uint32 freeze_delay = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
     {
-        freezeDetectorThread = new std::thread(FreezeDetectorThread, freezeDelay, pid);
+        freezeDetectorThread = new std::thread(FreezeDetectorThread, freeze_delay, pid);
     }
 
     ///- Launch the world listener socket
     uint16 wsport = sWorld->getIntConfig(CONFIG_PORT_WORLD);
-    std::string bind_ip = ConfigMgr::GetStringDefault("BindIP", "0.0.0.0");
+    std::string bind_ip = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
     if (sWorldSocketMgr->StartNetwork(wsport, bind_ip.c_str()) == -1)
     {
@@ -360,14 +354,14 @@ bool Master::_StartDB()
     std::string dbstring;
     uint8 async_threads, synch_threads;
 
-    dbstring = ConfigMgr::GetStringDefault("WorldDatabaseInfo", "");
+    dbstring = sConfigMgr->GetStringDefault("WorldDatabaseInfo", "");
     if (dbstring.empty())
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "World database not specified in configuration file");
         return false;
     }
 
-    async_threads = ConfigMgr::GetIntDefault("WorldDatabase.WorkerThreads", 1);
+    async_threads = sConfigMgr->GetIntDefault("WorldDatabase.WorkerThreads", 1);
     if (async_threads < 1 || async_threads > 32)
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "World database: invalid number of worker threads specified. "
@@ -375,7 +369,7 @@ bool Master::_StartDB()
         return false;
     }
 
-    synch_threads = ConfigMgr::GetIntDefault("WorldDatabase.SynchThreads", 1);
+    synch_threads = sConfigMgr->GetIntDefault("WorldDatabase.SynchThreads", 1);
     ///- Initialise the world database
     if (!WorldDatabase.Open(dbstring, async_threads, synch_threads))
     {
@@ -384,14 +378,14 @@ bool Master::_StartDB()
     }
 
     ///- Get character database info from configuration file
-    dbstring = ConfigMgr::GetStringDefault("CharacterDatabaseInfo", "");
+    dbstring = sConfigMgr->GetStringDefault("CharacterDatabaseInfo", "");
     if (dbstring.empty())
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Character database not specified in configuration file");
         return false;
     }
 
-    async_threads = ConfigMgr::GetIntDefault("CharacterDatabase.WorkerThreads", 1);
+    async_threads = sConfigMgr->GetIntDefault("CharacterDatabase.WorkerThreads", 1);
     if (async_threads < 1 || async_threads > 32)
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Character database: invalid number of worker threads specified. "
@@ -399,7 +393,7 @@ bool Master::_StartDB()
         return false;
     }
 
-    synch_threads = ConfigMgr::GetIntDefault("CharacterDatabase.SynchThreads", 2);
+    synch_threads = sConfigMgr->GetIntDefault("CharacterDatabase.SynchThreads", 2);
 
     ///- Initialise the Character database
     if (!CharacterDatabase.Open(dbstring, async_threads, synch_threads))
@@ -409,14 +403,14 @@ bool Master::_StartDB()
     }
 
     ///- Get login database info from configuration file
-    dbstring = ConfigMgr::GetStringDefault("LoginDatabaseInfo", "");
+    dbstring = sConfigMgr->GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Login database not specified in configuration file");
         return false;
     }
 
-    async_threads = ConfigMgr::GetIntDefault("LoginDatabase.WorkerThreads", 1);
+    async_threads = sConfigMgr->GetIntDefault("LoginDatabase.WorkerThreads", 1);
     if (async_threads < 1 || async_threads > 32)
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Login database: invalid number of worker threads specified. "
@@ -424,7 +418,7 @@ bool Master::_StartDB()
         return false;
     }
 
-    synch_threads = ConfigMgr::GetIntDefault("LoginDatabase.SynchThreads", 1);
+    synch_threads = sConfigMgr->GetIntDefault("LoginDatabase.SynchThreads", 1);
     ///- Initialise the login database
     if (!LoginDatabase.Open(dbstring, async_threads, synch_threads))
     {
@@ -433,7 +427,7 @@ bool Master::_StartDB()
     }
 
     ///- Get the realm Id from the configuration file
-    realmID = ConfigMgr::GetIntDefault("RealmID", 0);
+    realmID = sConfigMgr->GetIntDefault("RealmID", 0);
     if (!realmID)
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Realm ID not defined in configuration file");

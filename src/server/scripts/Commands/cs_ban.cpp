@@ -490,7 +490,7 @@ public:
                             tm tmUnban;
                             localtime_r(&timeUnban, &tmUnban);
                             handler->PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|%02d-%02d-%02d %02d:%02d|%-15.15s|%-15.15s|",
-                                accountName.c_str(), tmBan->tm_year%100, tmBan->tm_mon+1, tmBan->tm_mday, tmBan->tm_hour, tmBan->tm_min,
+                                accountName.c_str(), tmBan.tm_year%100, tmBan.tm_mon+1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                                 tmUnban.tm_year%100, tmUnban.tm_mon+1, tmUnban.tm_mday, tmUnban.tm_hour, tmUnban.tm_min,
                                 fields2[2].GetCString(), fields2[3].GetCString());
                         }

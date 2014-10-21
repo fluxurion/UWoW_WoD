@@ -356,7 +356,7 @@ void Map::EnsureGridCreated(const GridCoord &p)
 {
     if (!getNGrid(p.x_coord, p.y_coord))
     {
-        TRINITY_GUARD(ACE_Thread_Mutex, Lock);
+        std::lock_guard<std::mutex> lock(_mapLock);
         if (!getNGrid(p.x_coord, p.y_coord))
         {
             #ifdef TRINITY_DEBUG

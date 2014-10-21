@@ -57,8 +57,8 @@ public:
 
         std::vector<Value> v;
         {
-            ACE_Thread_Mutex lock;
-            TRINITY_GUARD(ACE_Thread_Mutex, lock);
+            static std::mutex lock;
+            std::lock_guard<std::mutex> guard(lock);
 
             for (uint32 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
                 v.push_back(Value(i, SendCount[i] ? float(SendSize[i]) / SendCount[i] : 0));
@@ -89,8 +89,8 @@ public:
 
         std::vector<Value> v;
         {
-            ACE_Thread_Mutex lock;
-            TRINITY_GUARD(ACE_Thread_Mutex, lock);
+            static std::mutex lock;
+            std::lock_guard<std::mutex> guard(lock);
 
             for (uint32 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
                 v.push_back(Value(i, SendSize[i]));
@@ -121,8 +121,8 @@ public:
 
         std::vector<Value> v;
         {
-            ACE_Thread_Mutex lock;
-            TRINITY_GUARD(ACE_Thread_Mutex, lock);
+            static std::mutex lock;
+            std::lock_guard<std::mutex> guard(lock);
 
             for (uint32 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
                 v.push_back(Value(i, SendCount[i]));

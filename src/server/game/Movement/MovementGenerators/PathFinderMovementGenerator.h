@@ -148,7 +148,7 @@ class PathFinderMovementGenerator
         dtStatus findSmoothPath(const float* startPos, const float* endPos,
                               const dtPolyRef* polyPath, uint32 polyPathSize,
                               float* smoothPath, int* smoothPathSize, uint32 smoothPathMaxSize);
-        ACE_Thread_Mutex Lock;
+        std::mutex i_lock;
 };
 
 #endif

@@ -147,7 +147,7 @@ void CliThread()
     #endif
 #endif
 
-    if (ConfigMgr::GetBoolDefault("BeepAtStart", true))
+    if (sConfigMgr->GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
 
     // print this here the first time
