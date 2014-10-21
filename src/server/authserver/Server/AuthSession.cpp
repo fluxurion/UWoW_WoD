@@ -27,6 +27,7 @@
 #include "openssl/crypto.h"
 #include "Configuration/Config.h"
 #include "RealmList.h"
+#include <ace/INET_Addr.h>
 
 using boost::asio::ip::tcp;
 
@@ -592,7 +593,7 @@ bool AuthSession::_HandleLogonProof()
 		sLog->outDebug(LOG_FILTER_AUTHSERVER, "'%s:%d' [AuthChallenge] account %s tried to login with invalid password!",
 			GetRemoteIpAddress().c_str(), GetRemotePort(), _login.c_str());
 
-		uint32 MaxWrongPassCount = sConfigMgr->GetIntDefault("WrongPass.MaxCount", 0);
+        uint32 MaxWrongPassCount = ConfigMgr::GetIntDefault("WrongPass.MaxCount", 0);
 		if (MaxWrongPassCount > 0)
 		{
 			//Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
@@ -609,8 +610,8 @@ bool AuthSession::_HandleLogonProof()
 
 				if (failed_logins >= MaxWrongPassCount)
 				{
-					uint32 WrongPassBanTime = sConfigMgr->GetIntDefault("WrongPass.BanTime", 600);
-					bool WrongPassBanType = sConfigMgr->GetBoolDefault("WrongPass.BanType", false);
+                    uint32 WrongPassBanTime = ConfigMgr::GetIntDefault("WrongPass.BanTime", 600);
+                    bool WrongPassBanType = ConfigMgr::GetBoolDefault("WrongPass.BanType", false);
 
 					if (WrongPassBanType)
 					{
@@ -658,14 +659,15 @@ bool AuthSession::_HandleReconnectChallenge()
 	// Stop if the account is not found
 	if (!result)
 	{
-		TC_LOG_ERROR("server.authserver", "'%s:%d' [ERROR] user %s tried to login and we cannot find his session key in the database.",
+		sLog->outError(LOG_FILTER_AUTHSERVER, "'%s:%d' [ERROR] user %s tried to login and we cannot find his session key in the database.",
 			GetRemoteIpAddress().c_str(), GetRemotePort(), _login.c_str());
 		return false;
 	}
 
 	// Reinitialize build, expansion and the account securitylevel
 	_build = challenge->build;
-	_expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
+	//_expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
+    _expversion = uint8(AuthHelper::IsAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : NO_VALID_EXP_FLAG);
 	_os = (const char*)challenge->os;
 
 	if (_os.size() > 4)
@@ -724,7 +726,7 @@ bool AuthSession::_HandleReconnectProof()
 	}
 	else
 	{
-		TC_LOG_ERROR("server.authserver", "'%s:%d' [ERROR] user %s tried to login, but session is invalid.", GetRemoteIpAddress().c_str(),
+		sLog->outError(LOG_FILTER_AUTHSERVER, "'%s:%d' [ERROR] user %s tried to login, but session is invalid.", GetRemoteIpAddress().c_str(),
 			GetRemotePort(), _login.c_str());
 		return false;
 	}
@@ -736,12 +738,13 @@ ACE_INET_Addr const& GetAddressForClient(Realm const& realm, ACE_INET_Addr const
 	if (clientAddr.is_loopback())
 	{
 		// Try guessing if realm is also connected locally
-		if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
-			return clientAddr;
+		//if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
+		//	return clientAddr;
 
 		// Assume that user connecting from the machine that authserver is located on
 		// has all realms available in his local network
-		return realm.LocalAddress;
+		//return realm.LocalAddress;
+        return realm.LocalAddress;
 	}
 
 	// Check if connecting client is in the same network
@@ -764,7 +767,7 @@ bool AuthSession::_HandleRealmList()
 	PreparedQueryResult result = LoginDatabase.Query(stmt);
 	if (!result)
 	{
-		TC_LOG_ERROR("server.authserver", "'%s:%d' [ERROR] user %s tried to login but we cannot find him in the database.", GetRemoteIpAddress().c_str(),
+		sLog->outError(LOG_FILTER_AUTHSERVER, "'%s:%d' [ERROR] user %s tried to login but we cannot find him in the database.", GetRemoteIpAddress().c_str(),
 			GetRemotePort(), _login.c_str());
 		return false;
 	}

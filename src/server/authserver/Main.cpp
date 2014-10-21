@@ -60,7 +60,7 @@ using boost::asio::ip::tcp;
 
 void SignalHandler(const boost::system::error_code& error, int signalNumber)
 {
-	//TC_LOG_ERROR("server.authserver", "SIGNAL HANDLER WORKING");
+	//sLog->outError(LOG_FILTER_AUTHSERVER, "SIGNAL HANDLER WORKING");
 	if (!error)
 	{
 		switch (signalNumber)
@@ -255,11 +255,11 @@ void SetProcessPriority()
 			ULONG_PTR currentAffinity = affinity & appAff;
 
 			if (!currentAffinity)
-				TC_LOG_ERROR("server.authserver", "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the authserver. Accessible processors bitmask (hex): %x", affinity, appAff);
+				sLog->outError(LOG_FILTER_AUTHSERVER, "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the authserver. Accessible processors bitmask (hex): %x", affinity, appAff);
 			else if (SetProcessAffinityMask(hProcess, currentAffinity))
 				TC_LOG_INFO("server.authserver", "Using processors (bitmask, hex): %x", currentAffinity);
 			else
-				TC_LOG_ERROR("server.authserver", "Can't set used processors (hex): %x", currentAffinity);
+				sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set used processors (hex): %x", currentAffinity);
 		}
 	}
 
@@ -268,7 +268,7 @@ void SetProcessPriority()
 		if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
 			TC_LOG_INFO("server.authserver", "authserver process priority class set to HIGH");
 		else
-			TC_LOG_ERROR("server.authserver", "Can't set authserver process priority class.");
+			sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set authserver process priority class.");
 	}
 
 #else // Linux
@@ -283,7 +283,7 @@ void SetProcessPriority()
 				CPU_SET(i, &mask);
 
 		if (sched_setaffinity(0, sizeof(mask), &mask))
-			TC_LOG_ERROR("server.authserver", "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
+			sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
 		else
 		{
 			CPU_ZERO(&mask);
@@ -295,7 +295,7 @@ void SetProcessPriority()
 	if (highPriority)
 	{
 		if (setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
-			TC_LOG_ERROR("server.authserver", "Can't set authserver process priority class, error: %s", strerror(errno));
+			sLog->outError(LOG_FILTER_AUTHSERVER, "Can't set authserver process priority class, error: %s", strerror(errno));
 		else
 			TC_LOG_INFO("server.authserver", "authserver process priority class set to %i", getpriority(PRIO_PROCESS, 0));
 	}
