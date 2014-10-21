@@ -28,10 +28,22 @@ ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos, s
     PrintError();
 }
 
+void ByteBufferPositionException::PrintError() const
+{
+    sLog->outError(LOG_FILTER_GENERAL, "Attempted to %s value with size: %zu in ByteBuffer (pos: %zu size: %zu)",
+        (_add ? "put" : "get"), ValueSize, Pos, Size);
+}
+
 ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size, size_t valueSize)
     : ByteBufferException(pos, size, valueSize)
 {
     PrintError();
+}
+
+void ByteBufferSourceException::PrintError() const
+{
+    sLog->outError(LOG_FILTER_GENERAL, "Attempted to put a %s in ByteBuffer (pos: %zu size: %zu)",
+        (ValueSize > 0 ? "NULL-pointer" : "zero-sized value"), Pos, Size);
 }
 
 void ByteBuffer::print_storage() const

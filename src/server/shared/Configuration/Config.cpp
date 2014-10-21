@@ -21,17 +21,11 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include "Config.h"
-#include <ace/Auto_Ptr.h>
-#include <ace/Configuration_Import_Export.h>
-#include <ace/Thread_Mutex.h>
 
 using namespace boost::property_tree;
 
 bool ConfigMgr::LoadInitial(char const* file)
 {
-    typedef ACE_Thread_Mutex LockType;
-    typedef ACE_Guard<LockType> GuardType;
-
     std::lock_guard<std::mutex> lock(_configLock);
 
     _filename = file;

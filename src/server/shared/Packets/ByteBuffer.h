@@ -141,7 +141,9 @@ struct ObjectGuid
 
         bool IsEmpty() const
         {
-            return bool(_data.u64);
+            // AMARU TODO: dafuq?
+            //return bool(_data.u64);
+            return _data.u64 == 0;
         }
 
     private:
@@ -172,13 +174,7 @@ class ByteBufferPositionException : public ByteBufferException
         ByteBufferPositionException(bool add, size_t pos, size_t size, size_t valueSize);
 
     protected:
-        void PrintError() const
-        {
-            ACE_Stack_Trace trace;
-
-            sLog->outError(LOG_FILTER_GENERAL, "Attempted to %s value with size: %zu in ByteBuffer (pos: %zu size: %zu)\n[Stack trace: %s]" ,
-                (_add ? "put" : "get"), ValueSize, Pos, Size, trace.c_str());
-        }
+        void PrintError() const;
 
     private:
         bool _add;
@@ -190,13 +186,7 @@ class ByteBufferSourceException : public ByteBufferException
         ByteBufferSourceException(size_t pos, size_t size, size_t valueSize);
 
     protected:
-        void PrintError() const
-        {
-            ACE_Stack_Trace trace;
-
-            sLog->outError(LOG_FILTER_GENERAL, "Attempted to put a %s in ByteBuffer (pos: %zu size: %zu)\n[Stack trace: %s]",
-                (ValueSize > 0 ? "NULL-pointer" : "zero-sized value"), Pos, Size, trace.c_str());
-        }
+        void PrintError() const;
 };
 
 template<class T>
