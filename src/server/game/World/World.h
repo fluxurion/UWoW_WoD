@@ -41,10 +41,6 @@ class Player;
 class WorldSocket;
 class SystemMgr;
 
-
-extern uint64 SendSize[0x7FFF+1];
-extern uint64 SendCount[0x7FFF+1];
-
 // ServerMessages.dbc
 enum ServerMessageType
 {
@@ -615,6 +611,8 @@ class World
 {
     public:
         static std::atomic_uint32_t m_worldLoopCounter;
+        static uint64 SendSize[0x7FFF + 1];
+        static uint64 SendCount[0x7FFF + 1];
 
         static World* instance()
         {

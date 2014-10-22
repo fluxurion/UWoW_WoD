@@ -53,7 +53,7 @@ void TCSoapThread(const std::string& host, uint16 port)
 
 void process_message(struct soap* soap_message)
 {
-    TC_LOG_TRACE("network.soap", "SOAPWorkingThread::process_message");
+    sLog->outTrace(LOG_FILTER_NETWORKIO, "SOAPWorkingThread::process_message");
 
     soap_serve(soap_message);
     soap_destroy(soap_message); // dealloc C++ data

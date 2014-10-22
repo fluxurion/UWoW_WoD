@@ -31,6 +31,7 @@
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
 #include "Opcodes.h"
+#include "EventProcessor.h"
 
 class CalendarEvent;
 class CalendarInvite;
@@ -45,6 +46,7 @@ class Quest;
 class SpellCastTargets;
 class Unit;
 class Warden;
+class WorldObject;
 class WorldPacket;
 class WorldTcpSession;
 struct AreaTableEntry;

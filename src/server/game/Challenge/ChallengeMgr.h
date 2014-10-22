@@ -18,8 +18,6 @@
 #ifndef TRINITY_CHALLENGEMGR_H
 #define TRINITY_CHALLENGEMGR_H
 
-#include <ace/Singleton.h>
-
 struct ChallengeMember
 {
     uint64 guid;
@@ -51,12 +49,16 @@ typedef UNORDERED_MAP<uint16/*map*/, uint32/*QuestCredit*/> QuestCreditForMap;
 typedef UNORDERED_MAP<uint8/*medal*/, uint32/*curency count*/> CurencyRewardMap;
 class ChallengeMgr
 {
-        friend class ACE_Singleton<ChallengeMgr, ACE_Null_Mutex>;
-
-        ChallengeMgr() : challengeGUID(0){};
+        ChallengeMgr() : challengeGUID(0) { }
         ~ChallengeMgr();
 
     public:
+        static ChallengeMgr* instance()
+        {
+            static ChallengeMgr* instance = new ChallengeMgr();
+            return instance;
+        }
+
         void LoadFromDB();
         void SaveChallengeToDB(Challenge *c);
 
@@ -89,6 +91,6 @@ class ChallengeMgr
         CurencyRewardMap m_valorPoints;
 };
 
-#define sChallengeMgr ACE_Singleton<ChallengeMgr, ACE_Null_Mutex>::instance()
+#define sChallengeMgr ChallengeMgr::instance()
 
 #endif

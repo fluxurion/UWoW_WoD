@@ -10,11 +10,17 @@ uwow.biz
 
 class BracketMgr
 {
-    friend class ACE_Singleton<BracketMgr, ACE_Null_Mutex>;
-    BracketMgr() {};
-    ~BracketMgr();
+    private:
+        BracketMgr() { }
+        ~BracketMgr();
 
     public:
+        static BracketMgr* instance()
+        {
+            static BracketMgr* instance = new BracketMgr();
+            return instance;
+        }
+
         typedef UNORDERED_MAP<uint64, BracketList> BracketContainer;
 
         void LoadCharacterBrackets();
@@ -26,5 +32,5 @@ class BracketMgr
         BracketContainer m_conteiner;
 };
 
-#define sBracketMgr ACE_Singleton<BracketMgr, ACE_Null_Mutex>::instance()
+#define sBracketMgr BracketMgr::instance()
 #endif

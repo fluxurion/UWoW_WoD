@@ -24,7 +24,6 @@
 #include "Weather.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "AutoPtr.h"
 
 namespace WeatherMgr
 {

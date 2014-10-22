@@ -20,8 +20,6 @@
 /// @{
 /// \file
 
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>
 
 #include "Common.h"
@@ -29,7 +27,6 @@
 #include "AsyncAcceptor.h"
 #include "RASession.h"
 #include "Configuration/Config.h"
-#include "OpenSSLCrypto.h"
 #include "ProcessPriority.h"
 #include "BigNumber.h"
 #include "RealmList.h"
@@ -43,6 +40,7 @@
 #include "CliRunnable.h"
 #include "SystemConfig.h"
 #include "WorldTcpSession.h"
+#include "OpenSSLCrypto.h"
 
 #define TRINITY_CORE_CONFIG  "worldserver.conf"
 #define WORLD_SLEEP_CONST 50
@@ -144,32 +142,33 @@ extern int main(int argc, char **argv)
     }
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using configuration file %s.", cfg_file);
 
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon)", _FULLVERSION);
-    TC_LOG_INFO("server.worldserver", "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO("server.worldserver", " ______                       __");
-    TC_LOG_INFO("server.worldserver", "/\\__  _\\       __          __/\\ \\__");
-    TC_LOG_INFO("server.worldserver", "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
-    TC_LOG_INFO("server.worldserver", "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
-    TC_LOG_INFO("server.worldserver", "    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
-    TC_LOG_INFO("server.worldserver", "     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
-    TC_LOG_INFO("server.worldserver", "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
-    TC_LOG_INFO("server.worldserver", "                                 C O R E  /\\___/");
-    TC_LOG_INFO("server.worldserver", "http://TrinityCore.org                    \\/__/\n");
-    TC_LOG_INFO("server.worldserver", "Using configuration file %s.", cfg_file);
-    TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", _FULLVERSION);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, " ______                       __");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "/\\__  _\\       __          __/\\ \\__");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "                                 C O R E  /\\___/");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "http://TrinityCore.org                    \\/__/\n");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using configuration file %s.", cfg_file);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
     OpenSSLCrypto::threadsSetup();
 
     /// worldserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
+    uint32 pid = 0;
     if (!pidFile.empty())
     {
-        if (uint32 pid = CreatePIDFile(pidFile))
-            TC_LOG_INFO("server.worldserver", "Daemon PID: %u\n", pid);
+        if (pid = CreatePIDFile(pidFile))
+            sLog->outInfo(LOG_FILTER_WORLDSERVER, "Daemon PID: %u\n", pid);
         else
         {
-            TC_LOG_ERROR("server.worldserver", "Cannot create PID file %s.\n", pidFile.c_str());
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot create PID file %s.\n", pidFile.c_str());
             return 1;
         }
     }
@@ -240,7 +239,7 @@ extern int main(int argc, char **argv)
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
 
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", _FULLVERSION);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon) ready...", _FULLVERSION);
 
     WorldUpdateLoop();
 
@@ -284,7 +283,7 @@ extern int main(int argc, char **argv)
 
     StopDB();
 
-    TC_LOG_INFO("server.worldserver", "Halting process...");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Halting process...");
 
     if (cliThread != nullptr)
     {
@@ -413,12 +412,12 @@ void SignalHandler(const boost::system::error_code& error, int signalNumber)
     }
 }
 
-void FreezeDetectorThread(uint32 delayTime)
+void FreezeDetectorThread(uint32 delayTime, uint32 pid)
 {
     if (!delayTime)
         return;
 
-    TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", delayTime / 1000);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Starting up anti-freeze thread (%u seconds max stuck time)...", delayTime / 1000);
     uint32 loops = 0;
     uint32 lastChange = 0;
 
@@ -436,11 +435,11 @@ void FreezeDetectorThread(uint32 delayTime)
         // possible freeze
         else if (getMSTimeDiff(lastChange, curtime) > delayTime)
         {
-            TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
+            sLog->outError(LOG_FILTER_WORLDSERVER, "World Thread hangs, kicking out server!");
             ASSERT(false);
         }
     }
-    TC_LOG_INFO("server.worldserver", "Anti-freeze thread exiting without problems.");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Anti-freeze thread exiting without problems.");
 }
 
 AsyncAcceptor<RASession>* StartRaSocketAcceptor(boost::asio::io_service& ioService)
@@ -462,14 +461,14 @@ bool StartDB()
     dbString = sConfigMgr->GetStringDefault("WorldDatabaseInfo", "");
     if (dbString.empty())
     {
-        TC_LOG_ERROR("server.worldserver", "World database not specified in configuration file");
+        sLog->outError(LOG_FILTER_WORLDSERVER, "World database not specified in configuration file");
         return false;
     }
 
     asyncThreads = uint8(sConfigMgr->GetIntDefault("WorldDatabase.WorkerThreads", 1));
     if (asyncThreads < 1 || asyncThreads > 32)
     {
-        TC_LOG_ERROR("server.worldserver", "World database: invalid number of worker threads specified. "
+        sLog->outError(LOG_FILTER_WORLDSERVER, "World database: invalid number of worker threads specified. "
             "Please pick a value between 1 and 32.");
         return false;
     }
@@ -478,7 +477,7 @@ bool StartDB()
     ///- Initialize the world database
     if (!WorldDatabase.Open(dbString, asyncThreads, synchThreads))
     {
-        TC_LOG_ERROR("server.worldserver", "Cannot connect to world database %s", dbString.c_str());
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to world database %s", dbString.c_str());
         return false;
     }
 
@@ -486,14 +485,14 @@ bool StartDB()
     dbString = sConfigMgr->GetStringDefault("CharacterDatabaseInfo", "");
     if (dbString.empty())
     {
-        TC_LOG_ERROR("server.worldserver", "Character database not specified in configuration file");
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Character database not specified in configuration file");
         return false;
     }
 
     asyncThreads = uint8(sConfigMgr->GetIntDefault("CharacterDatabase.WorkerThreads", 1));
     if (asyncThreads < 1 || asyncThreads > 32)
     {
-        TC_LOG_ERROR("server.worldserver", "Character database: invalid number of worker threads specified. "
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Character database: invalid number of worker threads specified. "
             "Please pick a value between 1 and 32.");
         return false;
     }
@@ -503,7 +502,7 @@ bool StartDB()
     ///- Initialize the Character database
     if (!CharacterDatabase.Open(dbString, asyncThreads, synchThreads))
     {
-        TC_LOG_ERROR("server.worldserver", "Cannot connect to Character database %s", dbString.c_str());
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to Character database %s", dbString.c_str());
         return false;
     }
 
@@ -511,14 +510,14 @@ bool StartDB()
     dbString = sConfigMgr->GetStringDefault("LoginDatabaseInfo", "");
     if (dbString.empty())
     {
-        TC_LOG_ERROR("server.worldserver", "Login database not specified in configuration file");
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Login database not specified in configuration file");
         return false;
     }
 
     asyncThreads = uint8(sConfigMgr->GetIntDefault("LoginDatabase.WorkerThreads", 1));
     if (asyncThreads < 1 || asyncThreads > 32)
     {
-        TC_LOG_ERROR("server.worldserver", "Login database: invalid number of worker threads specified. "
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Login database: invalid number of worker threads specified. "
             "Please pick a value between 1 and 32.");
         return false;
     }
@@ -527,7 +526,7 @@ bool StartDB()
     ///- Initialise the login database
     if (!LoginDatabase.Open(dbString, asyncThreads, synchThreads))
     {
-        TC_LOG_ERROR("server.worldserver", "Cannot connect to login database %s", dbString.c_str());
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to login database %s", dbString.c_str());
         return false;
     }
 
@@ -535,10 +534,10 @@ bool StartDB()
     realmID = sConfigMgr->GetIntDefault("RealmID", 0);
     if (!realmID)
     {
-        TC_LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Realm ID not defined in configuration file");
         return false;
     }
-    TC_LOG_INFO("server.worldserver", "Realm running as realm ID %d", realmID);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Realm running as realm ID %d", realmID);
 
     ///- Clean the database before starting
     ClearOnlineAccounts();
@@ -548,7 +547,7 @@ bool StartDB()
 
     sWorld->LoadDBVersion();
 
-    TC_LOG_INFO("server.worldserver", "Using World DB: %s", sWorld->GetDBVersion());
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using World DB: %s", sWorld->GetDBVersion());
     return true;
 }
 
