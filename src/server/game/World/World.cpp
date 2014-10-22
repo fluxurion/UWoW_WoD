@@ -108,8 +108,8 @@ uint32 World::m_TeleportToPlaneAlarms = 50;
 uint32 World::m_MistimingAlarms = 400;
 uint32 World::m_MistimingDelta = 25000;
 
-uint64 World::SendSize[0x7FFF + 1] = { 0 };
-uint64 World::SendCount[0x7FFF + 1] = { 0 };
+uint64 World::SendSize[OPCODE_COUNT] = { 0 };
+uint64 World::SendCount[OPCODE_COUNT] = { 0 };
 
 /// World constructor
 World::World()

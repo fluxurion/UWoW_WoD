@@ -611,8 +611,8 @@ class World
 {
     public:
         static std::atomic<uint32> m_worldLoopCounter;
-        static uint64 SendSize[0x7FFF + 1];
-        static uint64 SendCount[0x7FFF + 1];
+        static uint64 SendSize[OPCODE_COUNT];
+        static uint64 SendCount[OPCODE_COUNT];
 
         static World* instance()
         {

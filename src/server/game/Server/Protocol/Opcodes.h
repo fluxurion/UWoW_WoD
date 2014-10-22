@@ -25,11 +25,13 @@
 
 #include "Common.h"
 
+#define MAX_OPCODE 0x7FFF
+#define OPCODE_COUNT (MAX_OPCODE + 1)
+
 /// List of Opcodes
 enum Opcodes
 {
-    NUM_OPCODE_HANDLERS                               = (0x7FFF+1),
-    UNKNOWN_OPCODE                                    = (0xFFFF+1),
+    UNKNOWN_OPCODE                                    = 0xFFFF,
     NULL_OPCODE                                       = 0,
     SMSG_COMPRESSED_OPCODE                            = 0x0855, // 5.4.1 17538
 
@@ -1519,40 +1521,39 @@ struct OpcodeHandler
     pOpcodeHandler handler;
 };
 
-extern OpcodeHandler* opcodeTable[MAX_PACKET_TYPE][NUM_OPCODE_HANDLERS];
+extern OpcodeHandler* opcodeTable[MAX_PACKET_TYPE][OPCODE_COUNT];
 void InitOpcodes();
 
 // Lookup opcode name for human understandable logging
-inline std::string GetOpcodeNameForLogging(Opcodes id, PacketType ptype = MAX_PACKET_TYPE)
+inline std::string GetOpcodeNameForLogging(uint32 opcode, PacketType ptype)
 {
-    // all cases should be defined
-    if (ptype == MAX_PACKET_TYPE)
-    {
-        if (opcodeTable[CMSG][uint32(id) & 0x7FFF] && opcodeTable[SMSG][uint32(id) & 0x7FFF])
-        {
-            // Should not happend! Try to do strict definitions.
-            std::ostringstream ss;
-            ss << "CMSG: " << GetOpcodeNameForLogging(id, CMSG);
-            ss << " SMSG " << GetOpcodeNameForLogging(id, SMSG);
-            return ss.str();
-        }
-
-        return GetOpcodeNameForLogging(id, opcodeTable[CMSG][uint32(id) & 0x7FFF] ? CMSG : SMSG);
-    }
-
-    uint32 opcode = uint32(id);
     std::ostringstream ss;
     ss << '[';
 
-    if (id < UNKNOWN_OPCODE)
+    if (opcode >= OPCODE_COUNT)
+        ss << "INVALID OPCODE";
+    else
     {
-        if (OpcodeHandler* handler = opcodeTable[ptype][uint32(id) & 0x7FFF])
+        // all cases should be defined
+        if (ptype == MAX_PACKET_TYPE)
+        {
+            if (opcodeTable[CMSG][opcode] && opcodeTable[SMSG][opcode])
+            {
+                // Should not happend! Try to do strict definitions.
+                std::ostringstream ss;
+                ss << "CMSG: " << GetOpcodeNameForLogging(opcode, CMSG);
+                ss << " SMSG " << GetOpcodeNameForLogging(opcode, SMSG);
+                return ss.str();
+            }
+
+            return GetOpcodeNameForLogging(opcode, opcodeTable[CMSG][opcode] != nullptr ? CMSG : SMSG);
+        }
+
+        if (OpcodeHandler* handler = opcodeTable[ptype][opcode])
             ss << handler->name;
         else
             ss << "UNKNOWN OPCODE";
     }
-    else
-        ss << "INVALID OPCODE";
 
     ss << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
     return ss.str();

@@ -19,12 +19,12 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 
-OpcodeHandler* opcodeTable[MAX_PACKET_TYPE][NUM_OPCODE_HANDLERS] = { };
+OpcodeHandler* opcodeTable[MAX_PACKET_TYPE][OPCODE_COUNT] = { };
 
 template<bool isInValidRange, bool isNonZero>
 inline void ValidateAndSetOpcode(uint16 /*opcode*/, char const* /*name*/, SessionStatus /*status*/, PacketProcessing /*processing*/, pOpcodeHandler /*handler*/, PacketType /*type*/)
 {
-    // if for some reason we are here, that means NUM_OPCODE_HANDLERS == 0 (or your compiler is broken)
+    // if for some reason we are here, that means OPCODE_COUNT == 0 (or your compiler is broken)
 }
 
 template<>
@@ -52,7 +52,7 @@ void ValidateAndSetOpcode<true, false>(uint16 /*opcode*/, char const* name, Sess
 }
 
 #define DEFINE_OPCODE_HANDLER(type, opcode, status, processing, handler)                                      \
-    ValidateAndSetOpcode<(opcode < NUM_OPCODE_HANDLERS), (opcode != 0)>(opcode, #opcode, status, processing, handler, type);
+    ValidateAndSetOpcode<(opcode < OPCODE_COUNT), (opcode != 0)>(opcode, #opcode, status, processing, handler, type);
 
 /// Correspondence between opcodes and their names
 void InitOpcodes()

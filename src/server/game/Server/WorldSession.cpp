@@ -282,14 +282,14 @@ void WorldSession::QueuePacket(WorldPacket* new_packet)
 void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received unexpected opcode %s Status: %s Reason: %s from %s",
-        GetOpcodeNameForLogging(packet->GetOpcode()).c_str(), status, reason, GetPlayerName(false).c_str());
+        GetOpcodeNameForLogging(packet->GetOpcode(), CMSG).c_str(), status, reason, GetPlayerName(false).c_str());
 }
 
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Unprocessed tail data (read stop at %u from %u) Opcode %s from %s",
-        uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(packet->GetOpcode()).c_str(), GetPlayerName(false).c_str());
+        uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(packet->GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
     packet->print_storage();
 }
 
@@ -418,12 +418,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         LogUnprocessedTail(packet);
                     break;
                 case STATUS_NEVER:
-                        sLog->outError(LOG_FILTER_OPCODES, "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
-                            , GetPlayerName(false).c_str());
+                        sLog->outError(LOG_FILTER_OPCODES, "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
                     break;
                 case STATUS_UNHANDLED:
-                        sLog->outError(LOG_FILTER_OPCODES, "Received not handled opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
-                            , GetPlayerName(false).c_str());
+                        sLog->outError(LOG_FILTER_OPCODES, "Received not handled opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
                     break;
             }
         }
@@ -703,26 +701,26 @@ const char *WorldSession::GetTrinityString(int32 entry) const
 
 void WorldSession::Handle_NULL(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_OPCODES, "Received unhandled opcode %s from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode()).c_str(), GetPlayerName(false).c_str());
+    sLog->outError(LOG_FILTER_OPCODES, "Received unhandled opcode %s from %s",
+        GetOpcodeNameForLogging(recvPacket.GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_OPCODES, "Received opcode %s that must be processed in WorldSocket::OnRead from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode()).c_str(), GetPlayerName(false).c_str());
+    sLog->outError(LOG_FILTER_OPCODES, "Received opcode %s that must be processed in WorldSocket::OnRead from %s",
+        GetOpcodeNameForLogging(recvPacket.GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_ServerSide(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_OPCODES, "Received server-side opcode %s from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode()).c_str(), GetPlayerName(false).c_str());
+    sLog->outError(LOG_FILTER_OPCODES, "Received server-side opcode %s from %s",
+        GetOpcodeNameForLogging(recvPacket.GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_OPCODES, "Received deprecated opcode %s from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode()).c_str(), GetPlayerName(false).c_str());
+    sLog->outError(LOG_FILTER_OPCODES, "Received deprecated opcode %s from %s",
+        GetOpcodeNameForLogging(recvPacket.GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::SendAuthWaitQue(uint32 position)

@@ -60,7 +60,7 @@ public:
             static std::mutex lock;
             std::lock_guard<std::mutex> guard(lock);
 
-            for (uint32 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
+            for (uint32 i = 0; i < OPCODE_COUNT; ++i)
                 v.push_back(Value(i, World::SendCount[i] ? float(World::SendSize[i]) / World::SendCount[i] : 0));
         }
 
@@ -92,7 +92,7 @@ public:
             static std::mutex lock;
             std::lock_guard<std::mutex> guard(lock);
 
-            for (uint32 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
+            for (uint32 i = 0; i < OPCODE_COUNT; ++i)
                 v.push_back(Value(i, World::SendSize[i]));
         }
 
@@ -124,7 +124,7 @@ public:
             static std::mutex lock;
             std::lock_guard<std::mutex> guard(lock);
 
-            for (uint32 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
+            for (uint32 i = 0; i < OPCODE_COUNT; ++i)
                 v.push_back(Value(i, World::SendCount[i]));
         }
 
