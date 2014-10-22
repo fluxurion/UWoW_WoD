@@ -527,9 +527,9 @@ class Map : public GridRefManager<NGridType>
         NGridType* getNGrid(uint32 x, uint32 y) const
         {
             if (x > MAX_NUMBER_OF_GRIDS)
-                return false;
+                return nullptr;
             if (y > MAX_NUMBER_OF_GRIDS)
-                return false;
+                return nullptr;
 
             return i_grids[x][y];
         }
