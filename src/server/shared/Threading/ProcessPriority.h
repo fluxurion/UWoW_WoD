@@ -26,7 +26,7 @@
 #define PROCESS_HIGH_PRIORITY -15 // [-20, 19], default is 0
 #endif
 
-void SetProcessPriority(const std::string logChannel)
+void SetProcessPriority(const std::string /*logChannel*/)
 {
 #if defined(_WIN32) || defined(__linux__)
 
@@ -48,20 +48,20 @@ void SetProcessPriority(const std::string logChannel)
             ULONG_PTR currentAffinity = affinity & appAff;
 
             if (!currentAffinity)
-                TC_LOG_ERROR(logChannel, "Processors marked in UseProcessors bitmask (hex) %x are not accessible. Accessible processors bitmask (hex): %x", affinity, appAff);
+                sLog->outError(LOG_FILTER_SERVER_LOADING, "Processors marked in UseProcessors bitmask (hex) %x are not accessible. Accessible processors bitmask (hex): %x", affinity, appAff);
             else if (SetProcessAffinityMask(hProcess, currentAffinity))
-                TC_LOG_INFO(logChannel, "Using processors (bitmask, hex): %x", currentAffinity);
+                sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Using processors (bitmask, hex): %x", currentAffinity);
             else
-                TC_LOG_ERROR(logChannel, "Can't set used processors (hex): %x", currentAffinity);
+                sLog->outError(LOG_FILTER_SERVER_LOADING, "Can't set used processors (hex): %x", currentAffinity);
         }
     }
 
     if (highPriority)
     {
         if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
-            TC_LOG_INFO(logChannel, "Process priority class set to HIGH");
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Process priority class set to HIGH");
         else
-            TC_LOG_ERROR(logChannel, "Can't set process priority class.");
+            sLog->outError(LOG_FILTER_SERVER_LOADING, "Can't set process priority class.");
     }
 
 #else // Linux

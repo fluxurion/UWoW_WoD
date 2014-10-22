@@ -214,7 +214,7 @@ void KeepDatabaseAliveHandler(const boost::system::error_code& error)
 {
     if (!error)
     {
-        TC_LOG_INFO("server.authserver", "Ping MySQL to keep connection alive");
+        sLog->outInfo(LOG_FILTER_AUTHSERVER, "Ping MySQL to keep connection alive");
         LoginDatabase.KeepAlive();
 
         _dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));
@@ -224,7 +224,7 @@ void KeepDatabaseAliveHandler(const boost::system::error_code& error)
 /// Print out the usage string for this program on the console.
 void usage(const char* prog)
 {
-    TC_LOG_INFO("server.authserver", "Usage: \n %s [<options>]\n"
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "Usage: \n %s [<options>]\n"
         "    -c config_file           use config_file as configuration file\n\r",
         prog);
 }

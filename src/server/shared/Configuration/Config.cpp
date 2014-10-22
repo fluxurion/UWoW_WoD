@@ -54,7 +54,7 @@ bool ConfigMgr::Reload()
     return LoadInitial(_filename.c_str());
 }
 
-std::string ConfigMgr::GetStringDefault(std::string const&, const std::string& def)
+std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def)
 {
     std::string value = _config.get<std::string>(ptree::path_type(name, '/'), def);
 

@@ -47,6 +47,7 @@ set(shared_STAT_SRCS
   ${sources_Threading}
   ${sources_Utilities}
   ${sources_localdir}
+  Debugging/Errors.cpp
   Debugging/Errors.h
 )
 
