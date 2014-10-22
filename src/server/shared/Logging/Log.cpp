@@ -293,7 +293,7 @@ void Log::write(LogMessage* msg)
 {
     if (_ioService)
     {
-        Logger const* logger = GetLoggerByType(msg->type);
+        Logger* logger = GetLoggerByType(msg->type);
         msg->text.append("\n");
 
         auto logOperation = std::shared_ptr<LogOperation>(new LogOperation(logger, msg));

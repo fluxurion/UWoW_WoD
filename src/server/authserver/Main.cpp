@@ -68,7 +68,7 @@ int main(int argc, char** argv)
     if (vm.count("help"))
         return 0;
 
-    if (!sConfigMgr->LoadInitial(cfg_file))
+    if (!sConfigMgr->LoadInitial(configFile))
     {
         printf("Invalid or missing configuration file : %s\n", configFile.c_str());
         printf("Verify that the file exists and has \'[authserver]\' written in the top of the file!\n");
@@ -101,7 +101,8 @@ int main(int argc, char** argv)
     sLog->SetRealmID(0);                                               // ensure we've set realm to 0 (authserver realmid)
 
     // Get the list of realms for the server
-    sRealmList.Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
+    //sRealmList.Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
+    sRealmList.Initialize(sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
 
     if (sRealmList.size() == 0)
     {

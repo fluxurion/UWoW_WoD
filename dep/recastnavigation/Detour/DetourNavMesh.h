@@ -20,9 +20,8 @@
 #define DETOURNAVMESH_H
 
 #include "DetourAlloc.h"
-#include <ace/Singleton.h>
-#include <ace/Thread_Mutex.h>
 #include "Common.h"
+#include <mutex>
 
 #ifdef WIN32
     typedef unsigned __int64   uint64;
@@ -437,7 +436,7 @@ private:
 	unsigned int m_tileBits;			// Number of tile bits in the tile ID.
 	unsigned int m_polyBits;			// Number of poly bits in the tile ID.
 
-    ACE_Thread_Mutex i_m_posLookupLock;
+    std::mutex i_m_posLookupLock;
 };
 
 // Helper function to allocate navmesh class using Detour allocator.

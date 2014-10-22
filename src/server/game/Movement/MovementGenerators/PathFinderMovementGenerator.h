@@ -19,8 +19,6 @@
 #ifndef _PATH_INFO_H
 #define _PATH_INFO_H
 
-#include <ace/RW_Thread_Mutex.h>
-#include <ace/Thread_Mutex.h>
 #include "SharedDefines.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"

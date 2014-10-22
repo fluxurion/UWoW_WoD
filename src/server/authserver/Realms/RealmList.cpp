@@ -101,7 +101,7 @@ void RealmList::UpdateRealms(bool init)
             }
             catch (std::exception& ex)
             {
-                TC_LOG_ERROR("server.authserver", "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
+                sLog->outError(LOG_FILTER_AUTHSERVER, "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
                 ASSERT(false);
             }
         }

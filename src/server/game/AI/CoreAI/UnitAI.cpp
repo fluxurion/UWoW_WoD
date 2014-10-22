@@ -158,8 +158,8 @@ void UnitAI::DoCast(uint32 spellId)
 
                 DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
                 if (!(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
-                    && targetSelector(me->GetVictim()))
-                    target = me->GetVictim();
+                    && targetSelector(me->getVictim()))
+                    target = me->getVictim();
                 else
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0, targetSelector);
             }

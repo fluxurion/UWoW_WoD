@@ -1,5 +1,5 @@
 #include "Common.h"
-#include "WorldTcpSession.h"
+#include "WorldSocket.h"
 #include "World.h"
 #include "Log.h"
 #include "Database/DatabaseEnv.h"

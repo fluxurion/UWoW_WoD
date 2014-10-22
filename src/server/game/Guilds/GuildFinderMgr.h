@@ -18,7 +18,6 @@
 #ifndef __TRINITY_GUILDFINDER_H
 #define __TRINITY_GUILDFINDER_H
 
-#include <ace/Singleton.h>
 #include "Common.h"
 #include "World.h"
 #include "GuildMgr.h"

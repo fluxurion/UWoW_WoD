@@ -60,6 +60,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include <math.h>
+#include <cwctype>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {

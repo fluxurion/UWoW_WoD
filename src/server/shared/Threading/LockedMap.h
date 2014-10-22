@@ -31,9 +31,10 @@ namespace ACE_Based
     {
         public:
 
-        typedef   ACE_RW_Thread_Mutex         LockType;
-        typedef   ACE_Read_Guard<LockType>     ReadGuard;
-        typedef   ACE_Write_Guard<LockType>    WriteGuard;
+        typedef std::mutex LockType;
+        typedef std::lock_guard<LockType> LockGuard;
+        typedef LockGuard ReadGuard;
+        typedef LockGuard WriteGuard;
 
         typedef typename std::map<Key, T, Compare, Allocator>::iterator               iterator;
         typedef typename std::map<Key, T, Compare, Allocator>::const_iterator         const_iterator;
@@ -305,9 +306,10 @@ namespace ACE_Based
     {
         public:
 
-        typedef   ACE_RW_Thread_Mutex          LockType;
-        typedef   ACE_Read_Guard<LockType>     ReadGuard;
-        typedef   ACE_Write_Guard<LockType>    WriteGuard;
+        typedef std::mutex LockType;
+        typedef std::lock_guard<LockType> LockGuard;
+        typedef LockGuard ReadGuard;
+        typedef LockGuard WriteGuard;
 
         typedef typename std::multimap<Key, T, Compare, Allocator>::iterator               iterator;
         typedef typename std::multimap<Key, T, Compare, Allocator>::const_iterator         const_iterator;

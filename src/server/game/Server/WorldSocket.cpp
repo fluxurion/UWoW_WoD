@@ -102,7 +102,7 @@ void WorldSocket::AsyncReadData(size_t dataSize)
             {
                 packet.resize(header->size);
 
-                std::memcpy(packet.contents(), &_readBuffer[sizeof(ClientPktHeader)], header->size);
+                std::memcpy(const_cast<uint8*>(packet.contents()), &_readBuffer[sizeof(ClientPktHeader)], header->size);
             }
 
             switch (opcode)
@@ -113,7 +113,7 @@ void WorldSocket::AsyncReadData(size_t dataSize)
                 case CMSG_AUTH_SESSION:
                     if (_worldSession)
                     {
-                        sLog->outError(LOG_FILTER_NETWORKIO "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
+                        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerName().c_str());
                         break;
                     }
 
@@ -443,10 +443,10 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
 
             if (maxAllowed && _OverSpeedPings > maxAllowed)
             {
-                if (_worldSession && !_worldSession->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_OVERSPEED_PING))
+                if (_worldSession)
                 {
-                    TC_LOG_ERROR("network", "WorldSocket::HandlePing: %s kicked for over-speed pings (address: %s)",
-                        _worldSession->GetPlayerInfo().c_str(), GetRemoteIpAddress().c_str());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandlePing: %s kicked for over-speed pings (address: %s)",
+                        _worldSession->GetPlayerName().c_str(), GetRemoteIpAddress().c_str());
 
                     _socket.close();
                     return;
@@ -460,11 +460,11 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
     if (_worldSession)
     {
         _worldSession->SetLatency(latency);
-        _worldSession->ResetClientTimeDelay();
+        //_worldSession->ResetClientTimeDelay();
     }
     else
     {
-        TC_LOG_ERROR("network", "WorldSocket::HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = %s",
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = %s",
             GetRemoteIpAddress().c_str());
 
         _socket.close();

@@ -34,9 +34,10 @@ namespace ACE_Based
     {
         public:
 
-        typedef   ACE_RW_Thread_Mutex          LockType;
-        typedef   ACE_Read_Guard<LockType>     ReadGuard;
-        typedef   ACE_Write_Guard<LockType>    WriteGuard;
+        typedef std::mutex LockType;
+        typedef std::lock_guard<LockType> LockGuard;
+        typedef LockGuard ReadGuard;
+        typedef LockGuard WriteGuard;
 
         typedef typename std::vector<T, Allocator>::iterator               iterator;
         typedef typename std::vector<T, Allocator>::const_iterator         const_iterator;
