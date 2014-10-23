@@ -194,4 +194,6 @@ void AppenderConsole::_write(LogMessage& message)
     }
     else
         utf8printf(stdout_stream ? stdout : stderr, "%s%s", message.prefix.c_str(), message.text.c_str());
+
+    //fflush(stdout_stream ? stdout : stderr);
 }

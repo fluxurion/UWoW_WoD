@@ -28,6 +28,7 @@
 #include "SharedDefines.h"
 #include "QueryResult.h"
 #include "Callback.h"
+#include "Opcodes.h"
 
 #include <atomic>
 #include <map>

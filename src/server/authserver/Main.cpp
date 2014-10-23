@@ -75,6 +75,12 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    //if (sConfigMgr->GetBoolDefault("Log.Async.Enable", false))
+    {
+        // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
+        Log::instance(&_ioService);
+    }
+
     sLog->outWarn(LOG_FILTER_AUTHSERVER, "%s (authserver)", _FULLVERSION);
     sLog->outWarn(LOG_FILTER_AUTHSERVER, "<Ctrl-C> to stop.\n");
     sLog->outWarn(LOG_FILTER_AUTHSERVER, "Using configuration file %s.", configFile.c_str());

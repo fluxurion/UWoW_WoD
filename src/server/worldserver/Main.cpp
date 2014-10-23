@@ -113,7 +113,7 @@ extern int main(int argc, char **argv)
         return 1;
     }
 
-    if (sConfigMgr->GetBoolDefault("Log.Async.Enable", false))
+    //if (sConfigMgr->GetBoolDefault("Log.Async.Enable", false))
     {
         // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
         Log::instance(&_ioService);
