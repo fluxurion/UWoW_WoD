@@ -230,7 +230,6 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     const_cast<WorldPacket*>(packet)->FlushBits();
 
-
 #ifdef TRINITY_DEBUG
     // Code for network use statistic
     static uint64 sendPacketCount = 0;
@@ -267,7 +266,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     sScriptMgr->OnPacketSend(this, *packet);
 
-    m_Socket->AsyncWrite(*packet);
+    m_Socket->AsyncWrite(*const_cast<WorldPacket*>(packet));
 }
 
 /// Add an incoming packet to the queue
@@ -368,7 +367,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     }
                     else if (_player->IsInWorld())
                     {
-                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(this, *packet);
                         (this->*opHandle->handler)(*packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
@@ -382,7 +381,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else
                     {
                         // not expected _player or must checked in packet hanlder
-                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(this, *packet);
                         (this->*opHandle->handler)(*packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
@@ -395,7 +394,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
                     else
                     {
-                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(this, *packet);
                         (this->*opHandle->handler)(*packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);

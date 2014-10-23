@@ -41,7 +41,7 @@ class WorldPacket : public ByteBuffer
         {
         }
 
-        WorldPacket(uint16 opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
+        WorldPacket(Opcodes opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
 
         ~WorldPacket()
         {

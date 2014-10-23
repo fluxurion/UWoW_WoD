@@ -69,11 +69,11 @@ void WorldSocket::ReadHeaderHandler()
         if (_worldSession)
         {
             Player* player = _worldSession->GetPlayer();
-            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
-                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName().c_str() : "<none>", header->size, header->cmd);
+            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
+                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName() : "<none>", header->size, header->cmd);
         }
         else
-            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
+            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
                 GetRemoteIpAddress().to_string().c_str(), header->size, header->cmd);
 
         CloseSocket();
@@ -87,16 +87,16 @@ void WorldSocket::ReadDataHandler()
 {
     ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
 
-    uint16 opcode = uint16(header->cmd);
+    Opcodes opcode = Opcodes(header->cmd);
 
-    std::string opcodeName = GetOpcodeNameForLogging(opcode);
+    std::string opcodeName = GetOpcodeNameForLogging(opcode, CMSG);
 
     WorldPacket packet(opcode, MoveData());
 
     //if (sPacketLog->CanLogPacket())
     //    sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
 
-    TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
+    sLog->outTrace(LOG_FILTER_OPCODES, "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
 
     switch (opcode)
     {
@@ -106,21 +106,21 @@ void WorldSocket::ReadDataHandler()
         case CMSG_AUTH_SESSION:
             if (_worldSession)
             {
-                TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
+                sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerName().c_str());
                 break;
             }
 
             HandleAuthSession(packet);
             break;
         case CMSG_KEEP_ALIVE:
-            TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
             sScriptMgr->OnPacketReceive(_worldSession, packet);
             break;
         default:
         {
             if (!_worldSession)
             {
-                TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
+                sLog->outError(LOG_FILTER_OPCODES, "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
                 CloseSocket();
                 return;
             }
@@ -144,9 +144,9 @@ void WorldSocket::AsyncWrite(WorldPacket& packet)
         return;
 
     if (sPacketLog->CanLogPacket())
-        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
+        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT);
 
-    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode()).c_str());
+    sLog->outTrace(LOG_FILTER_OPCODES, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode(), SMSG).c_str());
 
     ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
 
@@ -223,7 +223,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         expansion = world_expansion;
 
     // For hook purposes, we get Remoteaddress at this point.
-    std::string address = GetRemoteIpAddress();
+    std::string address = GetRemoteIpAddress().to_string();
 
     // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
     /*stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
@@ -246,7 +246,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (sWorld->IsClosed())
     {
         SendAuthResponseError(AUTH_REJECT);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: World closed, denying client (%s).", GetRemoteIpAddress().to_string().c_str());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: World closed, denying client (%s).", GetRemoteIpAddress().to_string().c_str());
         DelayedCloseSocket();
         return;
     }
@@ -254,7 +254,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (realmIndex != realmID)
     {
         SendAuthResponseError(REALM_LIST_REALM_NOT_FOUND);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (bad realm).");
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (bad realm).");
         DelayedCloseSocket();
         return;
     }
@@ -265,7 +265,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (wardenActive && os != "Win" && os != "OSX")
     {
         SendAuthResponseError(AUTH_REJECT);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", address.c_str(), os.c_str());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", address.c_str(), os.c_str());
         DelayedCloseSocket();
         return;
     }
@@ -283,7 +283,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (memcmp(sha.GetDigest(), digest, 20))
     {
         SendAuthResponseError(AUTH_FAILED);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
         DelayedCloseSocket();
         return;
     }
@@ -296,7 +296,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
             SendAuthResponseError(AUTH_FAILED);
             sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs. Original IP: %s, new IP: %s).", fields[2].GetCString(), address.c_str());
             // We could log on hook only instead of an additional db log, however action logger is config based. Better keep DB logging as well
-            sScriptMgr->OnFailedAccountLogin(id);
+            //sScriptMgr->OnFailedAccountLogin(id);
             DelayedCloseSocket();
             return;
         }
@@ -348,8 +348,8 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (banresult) // if account banned
     {
         SendAuthResponseError(AUTH_BANNED);
-        TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
-        sScriptMgr->OnFailedAccountLogin(id);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
+        //sScriptMgr->OnFailedAccountLogin(id);
         DelayedCloseSocket();
         return;
     }
@@ -360,8 +360,8 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     if (allowedAccountType > SEC_PLAYER && AccountTypes(security) < allowedAccountType)
     {
         SendAuthResponseError(AUTH_UNAVAILABLE);
-        TC_LOG_INFO("network", "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
-        sScriptMgr->OnFailedAccountLogin(id);
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
+        //sScriptMgr->OnFailedAccountLogin(id);
         DelayedCloseSocket();
         return;
     }
@@ -390,7 +390,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     LoginDatabase.Execute(stmt);
 
     // At this point, we can safely hook a successful login
-    sScriptMgr->OnAccountLogin(id);
+    //sScriptMgr->OnAccountLogin(id);
 
     _worldSession = new WorldSession(id, shared_from_this(), AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter);
     _worldSession->LoadGlobalAccountData();
@@ -445,7 +445,7 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
                 if (_worldSession)
                 {
                     sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandlePing: %s kicked for over-speed pings (address: %s)",
-                        _worldSession->GetPlayerInfo().c_str(), GetRemoteIpAddress().c_str());
+                        _worldSession->GetPlayerName().c_str(), GetRemoteIpAddress().to_string().c_str());
 
                     CloseSocket();
                     return;
@@ -464,7 +464,7 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
     else
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = %s",
-            GetRemoteIpAddress().c_str());
+            GetRemoteIpAddress().to_string().c_str());
 
         CloseSocket();
         return;

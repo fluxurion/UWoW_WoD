@@ -29,16 +29,17 @@
 class ChannelMgr
 {
     public:
+        ChannelMgr() { team = 0; }
+        ~ChannelMgr();
+
         uint32 team;
         typedef std::map<std::wstring, Channel*> ChannelMap;
-        ~ChannelMgr();
 
         Channel* GetJoinChannel(std::string name, uint32 channel_id);
         Channel* GetChannel(std::string name, Player* p, bool pkt = true);
         void LeftChannel(std::string name);
 
     private:
-        ChannelMgr() { team = 0; }
         ChannelMap channels;
         void MakeNotOnPacket(WorldPacket* data, std::string name);
 };
