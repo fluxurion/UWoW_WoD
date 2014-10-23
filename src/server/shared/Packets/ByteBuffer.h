@@ -223,10 +223,7 @@ class ByteBuffer
         }
 
         ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _storage(std::move(buf._storage)) { }
-
-        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
-            _storage(right._storage) { }
+            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(std::move(buf._storage)) { }
 
         ByteBuffer(MessageBuffer&& buffer);
 

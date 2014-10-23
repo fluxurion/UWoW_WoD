@@ -29,6 +29,9 @@
 #include "QueryHolder.h"
 #include "AdhocStatement.h"
 
+#define MIN_MYSQL_SERVER_VERSION 50100u
+#define MIN_MYSQL_CLIENT_VERSION 50100u
+
 class PingOperation : public SQLOperation
 {
     //! Operation for idle delaythreads
@@ -67,7 +70,7 @@ class DatabaseWorkerPool
 
             delete _queue;
 
-            delete _connectionInfo;
+            //delete _connectionInfo;
         }
 
         bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
@@ -465,9 +468,9 @@ class DatabaseWorkerPool
                 T* t;
 
                 if (type == IDX_ASYNC)
-                    t = new T(_queue, *_connectionInfo);
+                    t = new T(_queue, _connectionInfo);
                 else if (type == IDX_SYNCH)
-                    t = new T(*_connectionInfo);
+                    t = new T(_connectionInfo);
                 else
                     ASSERT(false);
 
@@ -480,7 +483,7 @@ class DatabaseWorkerPool
                 {
                     if (mysql_get_server_version(t->GetHandle()) < MIN_MYSQL_SERVER_VERSION)
                     {
-                        TC_LOG_ERROR("sql.driver", "TrinityCore does not support MySQL versions below 5.1");
+                        sLog->outError(LOG_FILTER_SQL_DRIVER, "TrinityCore does not support MySQL versions below 5.1");
                         res = false;
                     }
                 }
@@ -488,7 +491,7 @@ class DatabaseWorkerPool
                 // Failed to open a connection or invalid version, abort and cleanup
                 if (!res)
                 {
-                    TC_LOG_ERROR("sql.driver", "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
+                    sLog->outError(LOG_FILTER_SQL_DRIVER, "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
                         "for specific errors. Read wiki at http://collab.kpsn.org/display/tc/TrinityCore+Home", GetDatabaseName());
 
                     while (_connectionCount[type] != 0)

@@ -113,7 +113,7 @@ public:
 
         if (error || !_readDataBuffer.IsMessageReady())
         {
-            TC_LOG_DEBUG("network", "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(),
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(),
                 error.message().c_str());
 
             CloseSocket();
@@ -136,7 +136,7 @@ public:
         boost::system::error_code shutdownError;
         _socket.shutdown(boost::asio::socket_base::shutdown_send, shutdownError);
         if (shutdownError)
-            TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
                 shutdownError.value(), shutdownError.message().c_str());
     }
 
