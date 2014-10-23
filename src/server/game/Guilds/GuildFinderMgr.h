@@ -218,8 +218,8 @@ class GuildFinderMgr
     public:
         static GuildFinderMgr* instance()
         {
-            static GuildFinderMgr* instance = new GuildFinderMgr();
-            return instance;
+            static GuildFinderMgr instance;
+            return &instance;
         }
 
         void LoadFromDB();

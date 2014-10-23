@@ -55,8 +55,8 @@ class ChallengeMgr
     public:
         static ChallengeMgr* instance()
         {
-            static ChallengeMgr* instance = new ChallengeMgr();
-            return instance;
+            static ChallengeMgr instance;
+            return &instance;
         }
 
         void LoadFromDB();

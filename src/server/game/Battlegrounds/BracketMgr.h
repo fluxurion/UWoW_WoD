@@ -17,8 +17,8 @@ class BracketMgr
     public:
         static BracketMgr* instance()
         {
-            static BracketMgr* instance = new BracketMgr();
-            return instance;
+            static BracketMgr instance;
+            return &instance;
         }
 
         typedef UNORDERED_MAP<uint64, BracketList> BracketContainer;

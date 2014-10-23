@@ -30,8 +30,8 @@ class WordFilterMgr
     public:
         static WordFilterMgr* instance()
         {
-            static WordFilterMgr* instance = new WordFilterMgr();
-            return instance;
+            static WordFilterMgr instance;
+            return &instance;
         }
 
         /// Note for 0.6v : Will used std::map instead of UNORDERED_MAP, because of problems with cross-platform compilation.
