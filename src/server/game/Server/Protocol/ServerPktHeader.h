@@ -28,18 +28,21 @@ struct ServerPktHeader
     /**
      * size is the length of the payload _plus_ the length of the opcode
      */
-    ServerPktHeader(uint32 size, uint16 cmd) : size(size)
+    ServerPktHeader(uint32 size, uint16 cmd, bool earlyPacket) : size(size)
     {
-        uint64* data = reinterpret_cast<uint64*>(header);
-        *data = (size << 13) | cmd & 0x1FFF;
-        if (isLargePacket())
+        if (earlyPacket)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "initializing large server to client packet. Size: %u, cmd: %u", size, cmd);
-
-            // like on cata mark last bit.
-            // but in any way we should find compression method and find handler where 
-            *data |= 0x8000000000;
+            // Dynamic header size is not needed anymore, we are using not encrypted part for only the first few packets
+            memcpy(&header[0], &size, 2);
+            memcpy(&header[2], &cmd, 2);
+            return;
         }
+
+        uint64 data = (size << 13) | cmd & 0x1FFF;
+        if (isLargePacket())    // like on cata mark last bit.
+            // but in any way we should find compression method and find handler where 
+            data |= 0x8000000000;
+        memcpy(header, &data, getHeaderLength());
     }
 
     uint8 getHeaderLength()

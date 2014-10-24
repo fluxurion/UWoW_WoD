@@ -36,7 +36,29 @@ void WorldSocket::Start()
 {
     sScriptMgr->OnSocketOpen(shared_from_this());
     AsyncReadHeader(true);
+    SendHandshake();
+}
+
+void WorldSocket::SendHandshake()
+{
+    static char const* msg = "RLD OF WARCRAFT CONNECTION - SERVER TO CLIENT";
+
+    WorldPacket packet(MSG_VERIFY_CONNECTIVITY, strlen(msg) + 1);
+    packet << msg;
+
+    AsyncWrite(packet);
+}
+
+bool WorldSocket::HandleHandshake(WorldPacket& recvPacket)
+{
+    static char const* msg = "D OF WARCRAFT CONNECTION - CLIENT TO SERVER";
+    std::string str;
+    recvPacket >> str;
+    if (str != msg)
+        return false;
+
     HandleSendAuthSession();
+    return true;
 }
 
 void WorldSocket::HandleSendAuthSession()
@@ -68,8 +90,8 @@ void WorldSocket::ReadHeaderHandler(bool auth)
     if (auth)
     {
         auto header = reinterpret_cast<AuthClientPktHeader*>(GetHeaderBuffer(auth));
-        EndianConvertReverse(header->size);
-        EndianConvert(header->cmd);
+        //EndianConvertReverse(header->size);
+        //EndianConvert(header->cmd);
 
         size = header->size;
         cmd = header->cmd;
@@ -78,8 +100,8 @@ void WorldSocket::ReadHeaderHandler(bool auth)
     else
     {
         auto header = reinterpret_cast<WorldClientPktHeader*>(GetHeaderBuffer(auth));
-        EndianConvertReverse(header->size);
-        EndianConvert(header->cmd);
+        //EndianConvertReverse(header->size);
+        //EndianConvert(header->cmd);
 
         size = header->size;
         cmd = header->cmd;
@@ -139,6 +161,18 @@ void WorldSocket::ReadDataHandler(bool auth)
             sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
             sScriptMgr->OnPacketReceive(_worldSession, packet);
             break;
+        case MSG_VERIFY_CONNECTIVITY:
+        {
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
+            sScriptMgr->OnPacketReceive(_worldSession, packet);
+            if (!HandleHandshake(packet))
+            {
+                sLog->outError(LOG_FILTER_NETWORKIO, "Client <-> Server handshake failed. Closing socket.");
+                CloseSocket();
+                return;
+            }
+            break;
+        }
         default:
         {
             if (!_worldSession)
@@ -171,7 +205,7 @@ void WorldSocket::AsyncWrite(WorldPacket& packet)
 
     sLog->outTrace(LOG_FILTER_OPCODES, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode(), SMSG).c_str());
 
-    ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
+    ServerPktHeader header(packet.size() + 2, packet.GetOpcode(), !_authCrypt.IsInitialized());
 
     std::lock_guard<std::mutex> guard(_writeLock);
 
