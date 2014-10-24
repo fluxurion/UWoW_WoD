@@ -18,6 +18,7 @@
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
 
+#include "ByteBuffer.h"
 #include "MessageBuffer.h"
 #include "Log.h"
 #include <atomic>
