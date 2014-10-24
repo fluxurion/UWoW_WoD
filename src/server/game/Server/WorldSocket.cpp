@@ -28,64 +28,87 @@
 using boost::asio::ip::tcp;
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
-    : Socket(std::move(socket), sizeof(ClientPktHeader)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr)
+    : Socket(std::move(socket), sizeof(AuthClientPktHeader), sizeof(WorldClientPktHeader)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr)
 {
 }
 
 void WorldSocket::Start()
 {
     sScriptMgr->OnSocketOpen(shared_from_this());
-    AsyncReadHeader();
+    AsyncReadHeader(true);
     HandleSendAuthSession();
 }
 
 void WorldSocket::HandleSendAuthSession()
 {
     WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
+
+    packet << uint16(0);                                    // crap
     packet << uint32(1);                                    // 1...31
-    packet << uint32(_authSeed);
 
     BigNumber seed1;
     seed1.SetRand(16 * 8);
-    packet.append(seed1.AsByteArray(16).get(), 16);               // new encryption seeds
+    packet.append(seed1.AsByteArray(16).get(), 16);         // new encryption seeds
 
     BigNumber seed2;
     seed2.SetRand(16 * 8);
-    packet.append(seed2.AsByteArray(16).get(), 16);               // new encryption seeds
-    
+    packet.append(seed2.AsByteArray(16).get(), 16);         // new encryption seeds
+
+    packet << uint32(_authSeed);
+
     AsyncWrite(packet);
 }
 
-void WorldSocket::ReadHeaderHandler()
+void WorldSocket::ReadHeaderHandler(bool auth)
 {
-    _authCrypt.DecryptRecv(GetHeaderBuffer(), sizeof(ClientPktHeader));
+    _authCrypt.DecryptRecv(GetHeaderBuffer(auth), auth ? sizeof(AuthClientPktHeader) : sizeof(WorldClientPktHeader));
 
-    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
-    EndianConvertReverse(header->size);
-    EndianConvert(header->cmd);
+    uint32 size, cmd;
+    bool valid;
+    if (auth)
+    {
+        auto header = reinterpret_cast<AuthClientPktHeader*>(GetHeaderBuffer(auth));
+        EndianConvertReverse(header->size);
+        EndianConvert(header->cmd);
 
-    if (!header->IsValid())
+        size = header->size;
+        cmd = header->cmd;
+        valid = header->IsValid();
+    }
+    else
+    {
+        auto header = reinterpret_cast<WorldClientPktHeader*>(GetHeaderBuffer(auth));
+        EndianConvertReverse(header->size);
+        EndianConvert(header->cmd);
+
+        size = header->size;
+        cmd = header->cmd;
+        valid = header->IsValid();
+    }
+
+    if (!valid)
     {
         if (_worldSession)
         {
             Player* player = _worldSession->GetPlayer();
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
-                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName() : "<none>", header->size, header->cmd);
+                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName() : "<none>", size, cmd);
         }
         else
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
-                GetRemoteIpAddress().to_string().c_str(), header->size, header->cmd);
+            GetRemoteIpAddress().to_string().c_str(), size, cmd);
 
         CloseSocket();
         return;
     }
 
-    AsyncReadData(header->size - sizeof(header->cmd));
+    AsyncReadData(size - (auth ? 4 : 2), auth);
 }
 
-void WorldSocket::ReadDataHandler()
+void WorldSocket::ReadDataHandler(bool auth)
 {
-    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
+    // WorldClientPktHeader is smaller that AuthClientPktHeader
+    auto header = reinterpret_cast<WorldClientPktHeader*>(GetHeaderBuffer(auth));
 
     Opcodes opcode = Opcodes(header->cmd);
 
@@ -135,7 +158,7 @@ void WorldSocket::ReadDataHandler()
         }
     }
 
-    AsyncReadHeader();
+    AsyncReadHeader(!_authCrypt.IsInitialized());
 }
 
 void WorldSocket::AsyncWrite(WorldPacket& packet)
@@ -171,30 +194,61 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     std::string account;
     SHA1Hash sha;
     uint32 clientBuild;
-    uint32 serverId, loginServerType, region, battlegroup, realmIndex;
-    uint64 unk4;
+    //uint32 serverId, loginServerType, region, battlegroup, realmIndex;
+    //uint64 unk4;
     WorldPacket packet, SendAddonPacked;
     BigNumber k;
     bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);
 
     // Read the content of the packet
-    recvPacket >> clientBuild;
-    recvPacket >> serverId;                 // Used for GRUNT only
-    recvPacket >> account;
-    recvPacket >> loginServerType;          // 0 GRUNT, 1 Battle.net
+    recvPacket.read_skip<uint32>();
+    recvPacket >> digest[14];
+    recvPacket >> digest[8];
+    recvPacket.read_skip<uint32>();
+    recvPacket >> digest[10];
+    recvPacket >> digest[19];
+    recvPacket >> digest[16];
+    recvPacket >> digest[13];
+    recvPacket >> digest[4];
+    recvPacket.read_skip<uint8>();
+    recvPacket >> digest[9];
+    recvPacket >> digest[0];
     recvPacket >> clientSeed;
-    recvPacket >> region >> battlegroup;    // Used for Battle.net only
-    recvPacket >> realmIndex;               // realmId from auth_database.realmlist table
-    recvPacket >> unk4;
-    recvPacket.read(digest, 20);
+    recvPacket >> digest[5];
+    recvPacket >> digest[2];
+    recvPacket >> clientBuild;
+    recvPacket >> digest[12];
+    recvPacket.read_skip<uint32>();
+    recvPacket >> digest[18];
+    recvPacket >> digest[17];
+    recvPacket >> digest[11];
+    recvPacket.read_skip<uint64>();
+    recvPacket >> digest[7];
+    recvPacket >> digest[1];
+    recvPacket >> digest[3];
+    recvPacket.read_skip<uint8>();
+    recvPacket >> digest[6];
+    recvPacket.read_skip<uint32>();
+    recvPacket >> digest[15];
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: client %u, serverId %u, account %s, loginServerType %u, clientseed %u, realmIndex %u",
+    uint32 addonsSize;
+    WorldPacket addonsData;
+    recvPacket >> addonsSize;
+    addonsData.resize(addonsSize);
+    recvPacket.read((uint8*)addonsData.contents(), addonsSize);
+
+    uint32 accountNameLength = recvPacket.ReadBits(11);
+    account = recvPacket.ReadString(accountNameLength);
+
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: client %u, serverId %u, account %s, loginServerType %u, clientseed %u, realmIndex %u",
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: client %u, account %s, clientseed %u",
         clientBuild,
-        serverId,
+        //serverId,
         account.c_str(),
-        loginServerType,
-        clientSeed,
-        realmIndex);
+        //loginServerType,
+        clientSeed
+        //realmIndex
+        );
 
     // Get the account information from the realmd database
     //         0           1        2       3          4         5       6          7   8
@@ -217,7 +271,8 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     Field* fields = result->Fetch();
 
-    uint8 expansion = fields[4].GetUInt8();
+    //uint8 expansion = fields[4].GetUInt8();
+    uint8 expansion = 4;
     uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
     if (expansion > world_expansion)
         expansion = world_expansion;
@@ -251,15 +306,15 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         return;
     }
 
-    if (realmIndex != realmID)
+    /*if (realmIndex != realmID)
     {
         SendAuthResponseError(REALM_LIST_REALM_NOT_FOUND);
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (bad realm).");
         DelayedCloseSocket();
         return;
-    }
+    }*/
 
-    std::string os = fields[8].GetString();
+    std::string os = fields[10].GetString();
 
     // Must be done before WorldSession is created
     if (wardenActive && os != "Win" && os != "OSX")
@@ -302,7 +357,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         }
     }
 
-    int64 mutetime = fields[5].GetInt64();
+    int64 mutetime = fields[7].GetInt64();
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
@@ -316,11 +371,11 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         LoginDatabase.Execute(stmt);
     }
 
-    locale = LocaleConstant(fields[6].GetUInt8());
+    locale = LocaleConstant(fields[8].GetUInt8());
     if (locale >= TOTAL_LOCALES)
         locale = LOCALE_enUS;
 
-    uint32 recruiter = fields[7].GetUInt32();
+    uint32 recruiter = fields[9].GetUInt32();
     // Checks gmlevel per Realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
 
@@ -409,6 +464,9 @@ void WorldSocket::SendAuthResponseError(uint8 code)
 {
     WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
     packet << uint8(code);
+    packet.WriteBit(false); // not queued
+    packet.WriteBit(false); // no account data
+    packet.FlushBits();
 
     AsyncWrite(packet);
 }
@@ -419,8 +477,8 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
     uint32 latency;
 
     // Get the ping packet content
-    recvPacket >> ping;
     recvPacket >> latency;
+    recvPacket >> ping;
 
     if (_LastPingTime == steady_clock::time_point())
     {

@@ -44,12 +44,20 @@ using boost::asio::ip::tcp;
 
 #pragma pack(push, 1)
 
-struct ClientPktHeader
+struct AuthClientPktHeader
 {
     uint16 size;
     uint32 cmd;
 
-    bool IsValid() const { return size >= 4 && size < 10240 && cmd < OPCODE_COUNT; }
+    bool IsValid() const { return size >= 4 && size < 10240 && cmd < OPCODE_COUNT && cmd != 0x4C524F57; }
+};
+
+struct WorldClientPktHeader
+{
+    uint16 size;
+    uint16 cmd;
+
+    bool IsValid() const { return size >= 4 && size < 20240 && cmd < OPCODE_COUNT; }
 };
 
 #pragma pack(pop)
@@ -112,8 +120,8 @@ public:
     void AsyncWrite(WorldPacket& packet);
 
 protected:
-    void ReadHeaderHandler() override;
-    void ReadDataHandler() override;
+    void ReadHeaderHandler(bool auth) override;
+    void ReadDataHandler(bool auth) override;
 
 private:
     void HandleSendAuthSession();

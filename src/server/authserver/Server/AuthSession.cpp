@@ -135,9 +135,9 @@ std::unordered_map<uint8, AuthHandler> AuthSession::InitHandlers()
 
 std::unordered_map<uint8, AuthHandler> const Handlers = AuthSession::InitHandlers();
 
-void AuthSession::ReadHeaderHandler()
+void AuthSession::ReadHeaderHandler(bool auth)
 {
-    uint8 cmd = GetHeaderBuffer()[0];
+    uint8 cmd = GetHeaderBuffer(auth)[0];
     auto itr = Handlers.find(cmd);
     if (itr != Handlers.end())
     {
@@ -147,24 +147,24 @@ void AuthSession::ReadHeaderHandler()
             ReadData(sizeof(uint8) + sizeof(uint16)); //error + size
             sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetDataBuffer());
 
-            AsyncReadData(challenge->size);
+            AsyncReadData(challenge->size, auth);
         }
         else
-            AsyncReadData(itr->second.packetSize);
+            AsyncReadData(itr->second.packetSize, auth);
     }
     else
         CloseSocket();
 }
 
-void AuthSession::ReadDataHandler()
+void AuthSession::ReadDataHandler(bool auth)
 {
-    if (!(*this.*Handlers.at(GetHeaderBuffer()[0]).handler)())
+    if (!(*this.*Handlers.at(GetHeaderBuffer(auth)[0]).handler)())
     {
         CloseSocket();
         return;
     }
 
-    AsyncReadHeader();
+    AsyncReadHeader(auth);
 }
 
 void AuthSession::AsyncWrite(ByteBuffer& packet)

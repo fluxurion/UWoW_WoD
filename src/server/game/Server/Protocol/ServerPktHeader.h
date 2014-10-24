@@ -30,17 +30,16 @@ struct ServerPktHeader
      */
     ServerPktHeader(uint32 size, uint16 cmd) : size(size)
     {
-        uint8 headerIndex=0;
+        uint64* data = reinterpret_cast<uint64*>(header);
+        *data = (size << 13) | cmd & 0x1FFF;
         if (isLargePacket())
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "initializing large server to client packet. Size: %u, cmd: %u", size, cmd);
-            header[headerIndex++] = 0x80 | (0xFF & (size >> 16));
-        }
-        header[headerIndex++] = 0xFF &(size >> 8);
-        header[headerIndex++] = 0xFF & size;
 
-        header[headerIndex++] = 0xFF & cmd;
-        header[headerIndex++] = 0xFF & (cmd >> 8);
+            // like on cata mark last bit.
+            // but in any way we should find compression method and find handler where 
+            *data |= 0x8000000000;
+        }
     }
 
     uint8 getHeaderLength()
@@ -51,7 +50,7 @@ struct ServerPktHeader
 
     bool isLargePacket() const
     {
-        return size > 0x7FFF;
+        return size > 0x7FFFF;
     }
 
     const uint32 size;
