@@ -32,9 +32,6 @@
 #include <boost/asio/write.hpp>
 #include <boost/asio/read.hpp>
 
-
-#define GetHeaderByType(x) (x ? _authReadHeaderBuffer : _worldReadHeaderBuffer )
-
 using boost::asio::ip::tcp;
 
 #define READ_BLOCK_SIZE 4096
@@ -172,28 +169,14 @@ private:
     {
         auto& header = GetHeaderByType(auth);
 
-        try
-        {
-            _socket.async_read_some(boost::asio::buffer(header.GetWritePointer(), std::min<std::size_t>(READ_BLOCK_SIZE, header.GetMissingSize())),
-                std::bind(&Socket<T, PacketType>::ReadHeaderHandlerInternal, this->shared_from_this(), auth, std::placeholders::_1, std::placeholders::_2));
-        }
-        catch (std::exception const& e)
-        {
-
-        }
+        _socket.async_read_some(boost::asio::buffer(header.GetWritePointer(), std::min<std::size_t>(READ_BLOCK_SIZE, header.GetMissingSize())),
+            std::bind(&Socket<T, PacketType>::ReadHeaderHandlerInternal, this->shared_from_this(), auth, std::placeholders::_1, std::placeholders::_2));
     }
 
     void AsyncReadMissingData(bool auth)
     {
-        try
-        {
-            _socket.async_read_some(boost::asio::buffer(_readDataBuffer.GetWritePointer(), std::min<std::size_t>(READ_BLOCK_SIZE, _readDataBuffer.GetMissingSize())),
-                std::bind(&Socket<T, PacketType>::ReadDataHandlerInternal, this->shared_from_this(), auth, std::placeholders::_1, std::placeholders::_2));
-        }
-        catch (std::exception const& e)
-        {
-
-        }
+        _socket.async_read_some(boost::asio::buffer(_readDataBuffer.GetWritePointer(), std::min<std::size_t>(READ_BLOCK_SIZE, _readDataBuffer.GetMissingSize())),
+            std::bind(&Socket<T, PacketType>::ReadDataHandlerInternal, this->shared_from_this(), auth, std::placeholders::_1, std::placeholders::_2));
     }
 
     void ReadHeaderHandlerInternal(bool auth, boost::system::error_code error, size_t transferredBytes)
@@ -265,8 +248,8 @@ private:
     boost::asio::ip::address _remoteAddress;
     uint16 _remotePort;
 
-    //inline MessageBuffer& GetHeaderByType(bool auth) { return auth ? _authReadHeaderBuffer : _worldReadHeaderBuffer; }
-    //inline MessageBuffer const& GetHeaderByType(bool auth) const { return auth ? _authReadHeaderBuffer : _worldReadHeaderBuffer; }
+    inline MessageBuffer& GetHeaderByType(bool auth) { return auth ? _authReadHeaderBuffer : _worldReadHeaderBuffer; }
+    inline MessageBuffer const& GetHeaderByType(bool auth) const { return auth ? _authReadHeaderBuffer : _worldReadHeaderBuffer; }
 
     MessageBuffer _authReadHeaderBuffer;
     MessageBuffer _worldReadHeaderBuffer;
