@@ -151,7 +151,7 @@ public:
     uint8* GetHeaderBuffer(bool auth) { return GetHeaderByType(auth).Data(); }
     uint8* GetDataBuffer() { return _readDataBuffer.Data(); }
 
-    size_t GetHeaderSize(bool auth) const { return GetHeaderByType(auth).GetReadyDataSize(); }
+    size_t GetHeaderSize(auth) const { return GetHeaderByType(auth).GetReadyDataSize(); }
     size_t GetDataSize() const { return _readDataBuffer.GetReadyDataSize(); }
 
     MessageBuffer&& MoveHeader(bool auth) { return std::move(GetHeaderByType(auth)); }
