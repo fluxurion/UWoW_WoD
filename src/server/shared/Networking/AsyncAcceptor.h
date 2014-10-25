@@ -78,7 +78,7 @@ void AsyncAcceptor::AsyncAccept()
             }
             catch (boost::system::system_error const& err)
             {
-                TC_LOG_INFO("network", "Failed to retrieve client's remote address %s", err.what());
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "Failed to retrieve client's remote address %s", err.what());
             }
         }
 

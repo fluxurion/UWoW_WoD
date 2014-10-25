@@ -42,7 +42,7 @@ public:
 
         if (_threadCount <= 0)
         {
-            TC_LOG_ERROR("misc", "Network.Threads is wrong in your config file");
+            sLog->outError(LOG_FILTER_NETWORKIO, "Network.Threads is wrong in your config file");
             return false;
         }
 
@@ -90,7 +90,7 @@ public:
         }
         catch (boost::system::system_error const& err)
         {
-            TC_LOG_INFO("network", "Failed to retrieve client's remote address %s", err.what());
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "Failed to retrieve client's remote address %s", err.what());
         }
     }
 

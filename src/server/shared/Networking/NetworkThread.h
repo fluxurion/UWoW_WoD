@@ -112,7 +112,7 @@ protected:
 
     void Run()
     {
-        TC_LOG_DEBUG("misc", "Network Thread Starting");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Network Thread Starting");
 
         typename SocketSet::iterator i, t;
 
@@ -146,7 +146,7 @@ protected:
             sleepTime = diff > 10 ? 0 : 10 - diff;
         }
 
-        TC_LOG_DEBUG("misc", "Network Thread exits");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Network Thread exits");
     }
 
 private:

@@ -140,11 +140,11 @@ bool WorldSocket::ReadHeaderHandler()
         if (_worldSession)
         {
             Player* player = _worldSession->GetPlayer();
-            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
-                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName().c_str() : "<none>", header->size, header->cmd);
+            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
+                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName() : "<none>", header->size, header->cmd);
         }
         else
-            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
+            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
                 GetRemoteIpAddress().to_string().c_str(), header->size, header->cmd);
 
         CloseSocket();
@@ -166,14 +166,15 @@ bool WorldSocket::ReadDataHandler()
 
         Opcodes opcode = PacketFilter::DropHighBytes(Opcodes(header->cmd));
 
-        std::string opcodeName = GetOpcodeNameForLogging(opcode);
+        std::string opcodeName = GetOpcodeNameForLogging(opcode, CMSG);
 
         WorldPacket packet(opcode, std::move(_packetBuffer));
 
         if (sPacketLog->CanLogPacket())
-            sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
+            //sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
+            sPacketLog->LogPacket(packet, CLIENT_TO_SERVER);
 
-        TC_LOG_TRACE("network.opcode", "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
+        sLog->outTrace(LOG_FILTER_NETWORKIO, "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
 
         switch (opcode)
         {
@@ -183,24 +184,24 @@ bool WorldSocket::ReadDataHandler()
             case CMSG_AUTH_SESSION:
                 if (_worldSession)
                 {
-                    TC_LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerInfo().c_str());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerName().c_str());
                     break;
                 }
 
                 HandleAuthSession(packet);
                 break;
             case CMSG_KEEP_ALIVE:
-                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 break;
             case CMSG_LOG_DISCONNECT:
                 packet.rfinish();   // contains uint32 disconnectReason;
-                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 return true;
             case CMSG_ENABLE_NAGLE:
             {
-                TC_LOG_DEBUG("network", "%s", opcodeName.c_str());
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(_worldSession, packet);
                 if (_worldSession)
                     _worldSession->HandleEnableNagleAlgorithm();
@@ -210,7 +211,7 @@ bool WorldSocket::ReadDataHandler()
             {
                 if (!_worldSession)
                 {
-                    TC_LOG_ERROR("network.opcode", "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
+                    sLog->outError(LOG_FILTER_NETWORKIO, "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
                     CloseSocket();
                     return false;
                 }
@@ -249,12 +250,13 @@ void WorldSocket::SendPacket(WorldPacket& packet)
         return;
 
     if (sPacketLog->CanLogPacket())
-        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
+        //sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
+        sPacketLog->LogPacket(packet, SERVER_TO_CLIENT);
 
-    if (_worldSession && packet.size() > 0x400 && !packet.IsCompressed())
-        packet.Compress(_worldSession->GetCompressionStream());
+    //if (_worldSession && packet.size() > 0x400 && !packet.IsCompressed())
+    //    packet.Compress(_worldSession->GetCompressionStream());
 
-    TC_LOG_TRACE("network.opcode", "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode()).c_str());
+    sLog->outTrace(LOG_FILTER_NETWORKIO, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode(), SMSG).c_str());
 
     ServerPktHeader header(packet.size() + 2, packet.GetOpcode());
 

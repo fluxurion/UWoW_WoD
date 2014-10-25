@@ -20,7 +20,7 @@
 #define __WORLDSOCKET_H__
 
 #include "Common.h"
-#include "AuthCrypt.h"
+#include "WorldPacketCrypt.h"
 #include "ServerPktHeader.h"
 #include "Socket.h"
 #include "Util.h"
