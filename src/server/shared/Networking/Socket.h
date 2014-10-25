@@ -151,10 +151,10 @@ public:
     uint8* GetHeaderBuffer(bool auth) { return GetHeaderByType(auth).Data(); }
     uint8* GetDataBuffer() { return _readDataBuffer.Data(); }
 
-    size_t GetHeaderSize(auth) const { return GetHeaderByType(auth).GetReadyDataSize(); }
+    size_t GetHeaderSize() const { return GetHeaderByType(auth).GetReadyDataSize(); }
     size_t GetDataSize() const { return _readDataBuffer.GetReadyDataSize(); }
 
-    MessageBuffer&& MoveHeader(bool auth) { return std::move(GetHeaderByType(auth)); }
+    MessageBuffer&& MoveHeader() { return std::move(GetHeaderByType(auth)); }
     MessageBuffer&& MoveData() { return std::move(_readDataBuffer); }
 
 protected:
@@ -248,8 +248,8 @@ private:
     boost::asio::ip::address _remoteAddress;
     uint16 _remotePort;
 
-    inline MessageBuffer& GetHeaderByType(bool auth) { return auth ? _authReadHeaderBuffer : _worldReadHeaderBuffer; }
-    inline MessageBuffer const& GetHeaderByType(bool auth) const { return auth ? _authReadHeaderBuffer : _worldReadHeaderBuffer; }
+    MessageBuffer& GetHeaderByType(bool auth) { return auth ? _authReadHeaderBuffer : _worldReadHeaderBuffer; }
+    MessageBuffer const& GetHeaderByType(bool auth) const { return auth ? _authReadHeaderBuffer : _worldReadHeaderBuffer; }
 
     MessageBuffer _authReadHeaderBuffer;
     MessageBuffer _worldReadHeaderBuffer;

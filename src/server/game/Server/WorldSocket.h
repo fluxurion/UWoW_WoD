@@ -49,7 +49,7 @@ struct AuthClientPktHeader
     uint16 size;
     uint32 cmd;
 
-    bool IsValid() const { return size >= 4 && size < 10240 && (cmd < OPCODE_COUNT || cmd == 0x4C524F57); }
+    bool IsValid() const { return size >= 4 && size < 10240 && cmd < OPCODE_COUNT && cmd != 0x4C524F57; }
 };
 
 struct WorldClientPktHeader
@@ -124,8 +124,6 @@ protected:
     void ReadDataHandler(bool auth) override;
 
 private:
-    void SendHandshake();
-    bool HandleHandshake(WorldPacket& recvPacket);
     void HandleSendAuthSession();
     void HandleAuthSession(WorldPacket& recvPacket);
     void SendAuthResponseError(uint8 code);
