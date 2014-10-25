@@ -42,11 +42,10 @@ class Socket : public std::enable_shared_from_this<T>
     typedef typename std::conditional<std::is_pointer<PacketType>::value, PacketType, PacketType const&>::type WritePacketType;
 
 public:
-    Socket(tcp::socket&& socket, std::size_t const& authHeaderSize, std::size_t const& worldHeaderSize) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
-        _remotePort(_socket.remote_endpoint().port()), _authReadHeaderBuffer(), _worldReadHeaderBuffer(), _readDataBuffer(), _closed(false), _closing(false)
+    Socket(tcp::socket&& socket, std::size_t headerSize) : _socket(std::move(socket)), _remoteAddress(_socket.remote_endpoint().address()),
+        _remotePort(_socket.remote_endpoint().port()), _readHeaderBuffer(), _readDataBuffer(), _closed(false), _closing(false)
     {
-        _authReadHeaderBuffer.Grow(authHeaderSize);
-        _worldReadHeaderBuffer.Grow(worldHeaderSize);
+        _readHeaderBuffer.Grow(headerSize);
     }
 
     virtual ~Socket()
@@ -73,18 +72,18 @@ public:
         return _remotePort;
     }
 
-    void AsyncReadHeader(bool auth)
+    void AsyncReadHeader()
     {
         if (!IsOpen())
             return;
 
-        GetHeaderByType(auth).ResetWritePointer();
+        _readHeaderBuffer.ResetWritePointer();
         _readDataBuffer.Reset();
 
-        AsyncReadMissingHeaderData(auth);
+        AsyncReadMissingHeaderData();
     }
 
-    void AsyncReadData(std::size_t size, bool auth)
+    void AsyncReadData(std::size_t size)
     {
         if (!IsOpen())
             return;
@@ -92,12 +91,12 @@ public:
         if (!size)
         {
             // if this is a packet with 0 length body just invoke handler directly
-            ReadDataHandler(auth);
+            ReadDataHandler();
             return;
         }
 
         _readDataBuffer.Grow(size);
-        AsyncReadMissingData(auth);
+        AsyncReadMissingData();
     }
 
     void ReadData(std::size_t size)
@@ -145,41 +144,39 @@ public:
     /// Marks the socket for closing after write buffer becomes empty
     void DelayedCloseSocket() { _closing = true; }
 
-    virtual bool IsHeaderReady(bool auth) const { return GetHeaderByType(auth).IsMessageReady(); }
+    virtual bool IsHeaderReady() const { return _readHeaderBuffer.IsMessageReady(); }
     virtual bool IsDataReady() const { return _readDataBuffer.IsMessageReady(); }
 
-    uint8* GetHeaderBuffer(bool auth) { return GetHeaderByType(auth).Data(); }
+    uint8* GetHeaderBuffer() { return _readHeaderBuffer.Data(); }
     uint8* GetDataBuffer() { return _readDataBuffer.Data(); }
 
-    size_t GetHeaderSize() const { return GetHeaderByType(auth).GetReadyDataSize(); }
+    size_t GetHeaderSize() const { return _readHeaderBuffer.GetReadyDataSize(); }
     size_t GetDataSize() const { return _readDataBuffer.GetReadyDataSize(); }
 
-    MessageBuffer&& MoveHeader() { return std::move(GetHeaderByType(auth)); }
+    MessageBuffer&& MoveHeader() { return std::move(_readHeaderBuffer); }
     MessageBuffer&& MoveData() { return std::move(_readDataBuffer); }
 
 protected:
-    virtual void ReadHeaderHandler(bool auth) = 0;
-    virtual void ReadDataHandler(bool auth) = 0;
+    virtual void ReadHeaderHandler() = 0;
+    virtual void ReadDataHandler() = 0;
 
     std::mutex _writeLock;
     std::queue<PacketType> _writeQueue;
 
 private:
-    void AsyncReadMissingHeaderData(bool auth)
+    void AsyncReadMissingHeaderData()
     {
-        auto& header = GetHeaderByType(auth);
-
-        _socket.async_read_some(boost::asio::buffer(header.GetWritePointer(), std::min<std::size_t>(READ_BLOCK_SIZE, header.GetMissingSize())),
-            std::bind(&Socket<T, PacketType>::ReadHeaderHandlerInternal, this->shared_from_this(), auth, std::placeholders::_1, std::placeholders::_2));
+        _socket.async_read_some(boost::asio::buffer(_readHeaderBuffer.GetWritePointer(), std::min<std::size_t>(READ_BLOCK_SIZE, _readHeaderBuffer.GetMissingSize())),
+            std::bind(&Socket<T, PacketType>::ReadHeaderHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
-    void AsyncReadMissingData(bool auth)
+    void AsyncReadMissingData()
     {
         _socket.async_read_some(boost::asio::buffer(_readDataBuffer.GetWritePointer(), std::min<std::size_t>(READ_BLOCK_SIZE, _readDataBuffer.GetMissingSize())),
-            std::bind(&Socket<T, PacketType>::ReadDataHandlerInternal, this->shared_from_this(), auth, std::placeholders::_1, std::placeholders::_2));
+            std::bind(&Socket<T, PacketType>::ReadDataHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
-    void ReadHeaderHandlerInternal(bool auth, boost::system::error_code error, size_t transferredBytes)
+    void ReadHeaderHandlerInternal(boost::system::error_code error, size_t transferredBytes)
     {
         if (error)
         {
@@ -187,19 +184,18 @@ private:
             return;
         }
 
-        GetHeaderByType(auth).WriteCompleted(transferredBytes);
-
-        if (!IsHeaderReady(auth))
+        _readHeaderBuffer.WriteCompleted(transferredBytes);
+        if (!IsHeaderReady())
         {
             // incomplete, read more
-            AsyncReadMissingHeaderData(auth);
+            AsyncReadMissingHeaderData();
             return;
         }
 
-        ReadHeaderHandler(auth);
+        ReadHeaderHandler();
     }
 
-    void ReadDataHandlerInternal(bool auth, boost::system::error_code error, size_t transferredBytes)
+    void ReadDataHandlerInternal(boost::system::error_code error, size_t transferredBytes)
     {
         if (error)
         {
@@ -208,15 +204,14 @@ private:
         }
 
         _readDataBuffer.WriteCompleted(transferredBytes);
-
         if (!IsDataReady())
         {
             // incomplete, read more
-            AsyncReadMissingData(auth);
+            AsyncReadMissingData();
             return;
         }
 
-        ReadDataHandler(auth);
+        ReadDataHandler();
     }
 
     void WriteHandler(boost::system::error_code error, size_t /*transferedBytes*/)
@@ -248,11 +243,7 @@ private:
     boost::asio::ip::address _remoteAddress;
     uint16 _remotePort;
 
-    MessageBuffer& GetHeaderByType(bool auth) { return auth ? _authReadHeaderBuffer : _worldReadHeaderBuffer; }
-    MessageBuffer const& GetHeaderByType(bool auth) const { return auth ? _authReadHeaderBuffer : _worldReadHeaderBuffer; }
-
-    MessageBuffer _authReadHeaderBuffer;
-    MessageBuffer _worldReadHeaderBuffer;
+    MessageBuffer _readHeaderBuffer;
     MessageBuffer _readDataBuffer;
 
     std::atomic<bool> _closed;

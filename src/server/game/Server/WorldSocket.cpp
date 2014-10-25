@@ -28,14 +28,14 @@
 using boost::asio::ip::tcp;
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
-    : Socket(std::move(socket), sizeof(AuthClientPktHeader), sizeof(WorldClientPktHeader)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr)
+    : Socket(std::move(socket), sizeof(ClientPktHeader)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr)
 {
 }
 
 void WorldSocket::Start()
 {
     sScriptMgr->OnSocketOpen(shared_from_this());
-    AsyncReadHeader(true);
+    AsyncReadHeader();
     HandleSendAuthSession();
 }
 
@@ -59,56 +59,36 @@ void WorldSocket::HandleSendAuthSession()
     AsyncWrite(packet);
 }
 
-void WorldSocket::ReadHeaderHandler(bool auth)
+void WorldSocket::ReadHeaderHandler()
 {
-    _authCrypt.DecryptRecv(GetHeaderBuffer(auth), auth ? sizeof(AuthClientPktHeader) : sizeof(WorldClientPktHeader));
+    _authCrypt.DecryptRecv(GetHeaderBuffer(), sizeof(ClientPktHeader));
 
-    uint32 size, cmd;
-    bool valid;
-    if (auth)
-    {
-        auto header = reinterpret_cast<AuthClientPktHeader*>(GetHeaderBuffer(auth));
-        EndianConvertReverse(header->size);
-        EndianConvert(header->cmd);
+    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
+    EndianConvertReverse(header->size);
+    EndianConvert(header->cmd);
 
-        size = header->size;
-        cmd = header->cmd;
-        valid = header->IsValid();
-    }
-    else
-    {
-        auto header = reinterpret_cast<WorldClientPktHeader*>(GetHeaderBuffer(auth));
-        EndianConvertReverse(header->size);
-        EndianConvert(header->cmd);
-
-        size = header->size;
-        cmd = header->cmd;
-        valid = header->IsValid();
-    }
-
-    if (!valid)
+    if (!header->IsValid())
     {
         if (_worldSession)
         {
             Player* player = _worldSession->GetPlayer();
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
-                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName() : "<none>", size, cmd);
+                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName() : "<none>", header->size, header->cmd);
         }
         else
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
-            GetRemoteIpAddress().to_string().c_str(), size, cmd);
+                GetRemoteIpAddress().to_string().c_str(), header->size, header->cmd);
 
         CloseSocket();
         return;
     }
 
-    AsyncReadData(size - (auth ? 4 : 2), auth);
+    AsyncReadData(header->size - sizeof(header->cmd));
 }
 
-void WorldSocket::ReadDataHandler(bool auth)
+void WorldSocket::ReadDataHandler()
 {
-    // WorldClientPktHeader is smaller that AuthClientPktHeader
-    auto header = reinterpret_cast<WorldClientPktHeader*>(GetHeaderBuffer(auth));
+    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(GetHeaderBuffer());
 
     Opcodes opcode = Opcodes(header->cmd);
 
@@ -158,7 +138,7 @@ void WorldSocket::ReadDataHandler(bool auth)
         }
     }
 
-    AsyncReadHeader(!_authCrypt.IsInitialized());
+    AsyncReadHeader();
 }
 
 void WorldSocket::AsyncWrite(WorldPacket& packet)

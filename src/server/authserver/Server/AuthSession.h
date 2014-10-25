@@ -37,7 +37,7 @@ class AuthSession : public Socket<AuthSession, ByteBuffer>
 public:
     static std::unordered_map<uint8, AuthHandler> InitHandlers();
 
-    AuthSession(tcp::socket&& socket) : Socket(std::move(socket), 1, 1),
+    AuthSession(tcp::socket&& socket) : Socket(std::move(socket), 1),
         _isAuthenticated(false), _build(0), _expversion(0), _accountSecurityLevel(SEC_PLAYER)
     {
         N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
@@ -46,15 +46,15 @@ public:
 
     void Start() override
     {
-        AsyncReadHeader(true);
+        AsyncReadHeader();
     }
 
     using Base::AsyncWrite;
     void AsyncWrite(ByteBuffer& packet);
 
 protected:
-    void ReadHeaderHandler(bool auth) override;
-    void ReadDataHandler(bool auth) override;
+    void ReadHeaderHandler() override;
+    void ReadDataHandler() override;
 
 private:
     bool HandleLogonChallenge();
