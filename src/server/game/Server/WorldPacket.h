@@ -41,7 +41,22 @@ class WorldPacket : public ByteBuffer
         {
         }
 
-        WorldPacket(Opcodes opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
+        WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), compressed(NULL)
+        {
+        }
+
+        WorldPacket& operator=(WorldPacket const& right)
+        {
+            if (this != &right)
+            {
+                m_opcode = right.m_opcode;
+                ByteBuffer::operator =(right);
+            }
+
+            return *this;
+        }
+
+        WorldPacket(Opcodes opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode), compressed(NULL) {}
 
         ~WorldPacket()
         {

@@ -25,10 +25,17 @@ union ServerPktHeader
 {
     static uint32 const SizeOf[2];
 
+    ServerPktHeader() { memset(data, 0, sizeof(data)); }
+
+    char data[6];
     struct
     {
-        uint16 Size;
-        uint32 Command;
+        char raw[6];
+        void Set(uint32 size, uint32 cmd)
+        {
+            memcpy(raw, &size, 2);
+            memcpy(&raw[2], &cmd, 4);
+        }
     } Setup;
 
     struct

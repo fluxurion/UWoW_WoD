@@ -51,8 +51,8 @@ void WorldSocket::Start()
 
     MessageBuffer initializer;
     ServerPktHeader header;
-    header.Setup.Size = ServerConnectionInitialize.size();
-    initializer.Write(&header, sizeof(header.Setup.Size));
+    header.Setup.Set(ServerConnectionInitialize.size(), 0);
+    initializer.Write(&header, 2);
     initializer.Write(ServerConnectionInitialize.c_str(), ServerConnectionInitialize.length());
 
     std::unique_lock<std::mutex> dummy(_writeLock, std::defer_lock);
@@ -63,8 +63,7 @@ void WorldSocket::HandleSendAuthSession()
 {
     WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
 
-    packet << uint16(0);                                    // crap
-    packet << uint32(1);                                    // 1...31
+    packet << uint8(1);                                    // 1...31
 
     BigNumber seed1;
     seed1.SetRand(16 * 8);
@@ -268,7 +267,7 @@ bool WorldSocket::ReadDataHandler()
                 }
             }
         }
-        catch (ByteBufferException const& e)
+        catch (ByteBufferException const&)
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "ByteBufferException while processing %s (%u).",
                 GetOpcodeNameForLogging(opcode, CMSG), opcode);
@@ -320,8 +319,8 @@ void WorldSocket::SendPacket(WorldPacket& packet)
     }
     else
     {
-        header.Setup.Size = packet.size() + 4;
-        header.Setup.Command = packet.GetOpcode();
+        header.Setup.Set(packet.size() + 4,
+            packet.GetOpcode());
     }
 
 #ifndef TC_SOCKET_USE_IOCP
@@ -495,13 +494,25 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     sha.UpdateBigNumbers(&k, NULL);
     sha.Finalize();
 
+    /*auto ddd = sha.GetDigest();
+    std::cout << "====== orig =====" << std::endl;
+    for (auto i = 0; i < 20; ++i)
+        printf("%02X ", i);
+    std::cout << std::endl;
+    for (auto i = 0; i < 20; ++i)
+        printf("%02X ", ddd[i]);
+    std::cout << std::endl;
+    for (auto i = 0; i < 20; ++i)
+        printf("%02X ", digest[i]);
+    std::cout << std::endl;*/
+
     if (memcmp(sha.GetDigest(), digest, 20))
     {
         SendAuthResponseError(AUTH_FAILED);
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
         DelayedCloseSocket();
         return;
-    }
+    }*/
 
     ///- Re-check ip locking (same check as in auth).
     if (fields[3].GetUInt8() == 1) // if ip is locked
