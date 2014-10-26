@@ -166,7 +166,7 @@ bool WorldSocket::ReadHeaderHandler()
         {
             Player* player = _worldSession->GetPlayer();
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
-                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName().c_str() : "<none>", size, opcode);
+                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName() : "<none>", size, opcode);
         }
         else
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",
@@ -202,68 +202,78 @@ bool WorldSocket::ReadDataHandler()
 
         sLog->outTrace(LOG_FILTER_NETWORKIO, "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
 
-        switch (opcode)
+        try
         {
-            case CMSG_PING:
-                HandlePing(packet);
-                break;
-            case CMSG_AUTH_SESSION:
-                if (_worldSession)
+            switch (opcode)
+            {
+                case CMSG_PING:
+                    HandlePing(packet);
+                    break;
+                case CMSG_AUTH_SESSION:
+                    if (_worldSession)
+                    {
+                        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerName().c_str());
+                        break;
+                    }
+
+                    HandleAuthSession(packet);
+                    break;
+                case CMSG_KEEP_ALIVE:
+                    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
+                    sScriptMgr->OnPacketReceive(_worldSession, packet);
+                    break;
+                case CMSG_LOG_DISCONNECT:
+                    packet.rfinish();   // contains uint32 disconnectReason;
+                    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
+                    sScriptMgr->OnPacketReceive(_worldSession, packet);
+                    return true;
+                case CMSG_ENABLE_NAGLE:
                 {
-                    sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerName().c_str());
+                    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
+                    sScriptMgr->OnPacketReceive(_worldSession, packet);
+                    if (_worldSession)
+                        _worldSession->HandleEnableNagleAlgorithm();
                     break;
                 }
+                default:
+                {
+                    if (!_worldSession)
+                    {
+                        sLog->outError(LOG_FILTER_NETWORKIO, "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
+                        CloseSocket();
+                        return false;
+                    }
 
-                HandleAuthSession(packet);
-                break;
-            case CMSG_KEEP_ALIVE:
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
-                sScriptMgr->OnPacketReceive(_worldSession, packet);
-                break;
-            case CMSG_LOG_DISCONNECT:
-                packet.rfinish();   // contains uint32 disconnectReason;
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
-                sScriptMgr->OnPacketReceive(_worldSession, packet);
-                return true;
-            case CMSG_ENABLE_NAGLE:
-            {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
-                sScriptMgr->OnPacketReceive(_worldSession, packet);
-                if (_worldSession)
-                    _worldSession->HandleEnableNagleAlgorithm();
-                break;
+                    // prevent invalid memory access/crash with custom opcodes
+                    if (opcode >= OPCODE_COUNT)
+                    {
+                        CloseSocket();
+                        return false;
+                    }
+
+                    OpcodeHandler const* handler = opcodeTable[CMSG][opcode];
+                    if (!handler)
+                    {
+                        sLog->outError(LOG_FILTER_NETWORKIO, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(packet.GetOpcode(), CMSG).c_str(), _worldSession->GetPlayerName().c_str());
+                        return true;
+                    }
+
+                    // Our Idle timer will reset on any non PING opcodes.
+                    // Catches people idling on the login screen and any lingering ingame connections.
+                    _worldSession->ResetTimeOutTime();
+
+                    // Copy the packet to the heap before enqueuing
+                    _worldSession->QueuePacket(new WorldPacket(std::move(packet)));
+                    break;
+                }
             }
-            default:
-            {
-                if (!_worldSession)
-                {
-                    sLog->outError(LOG_FILTER_NETWORKIO, "ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
-                    CloseSocket();
-                    return false;
-                }
-
-                // prevent invalid memory access/crash with custom opcodes
-                if (opcode >= NUM_OPCODE_HANDLERS)
-                {
-                    CloseSocket();
-                    return false;
-                }
-
-                OpcodeHandler const* handler = opcodeTable[opcode];
-                if (!handler)
-                {
-                    TC_LOG_ERROR("network.opcode", "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(packet.GetOpcode()).c_str(), _worldSession->GetPlayerInfo().c_str());
-                    return true;
-                }
-
-                // Our Idle timer will reset on any non PING opcodes.
-                // Catches people idling on the login screen and any lingering ingame connections.
-                _worldSession->ResetTimeOutTime();
-
-                // Copy the packet to the heap before enqueuing
-                _worldSession->QueuePacket(new WorldPacket(std::move(packet)));
-                break;
-            }
+        }
+        catch (ByteBufferException const& e)
+        {
+            sLog->outError(LOG_FILTER_NETWORKIO, "ByteBufferException while processing %s (%u).",
+                GetOpcodeNameForLogging(opcode, CMSG), opcode);
+            CloseSocket();
+            return false;
         }
     }
     else
@@ -342,7 +352,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     LocaleConstant locale;
     std::string account;
     SHA1Hash sha;
-    uint32 clientBuild;
+    uint16 clientBuild;
     //uint32 serverId, loginServerType, region, battlegroup, realmIndex;
     //uint64 unk4;
     WorldPacket packet, SendAddonPacked;
@@ -445,7 +455,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     // even if auth credentials are bad, try using the session key we have - client cannot read auth response error without it
     _authCrypt.Init(&k);
-    _headerBuffer.Resize(ClientPktHeader::SizeOf[1][1]);
+    _headerBuffer.Resize(ClientPktHeader::SizeOf[_initialized][_authCrypt.IsInitialized()]);
 
     // First reject the connection if packet contains invalid data or realm state doesn't allow logging in
     if (sWorld->IsClosed())

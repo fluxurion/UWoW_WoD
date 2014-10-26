@@ -44,14 +44,21 @@ union ClientPktHeader
         uint32 Command;
     } Setup;
 
-    struct
+    // 6.x
+    /*struct
     {
         uint32 Command : 13;
         uint32 Size : 19;
+    } Normal;*/
+
+    struct
+    {
+        uint16 Size;
+        uint16 Command;
     } Normal;
 
     static bool IsValidSize(uint32 size) { return size < 10240; }
-    static bool IsValidOpcode(uint32 opcode) { return opcode < NUM_OPCODE_HANDLERS; }
+    static bool IsValidOpcode(uint32 opcode) { return opcode < OPCODE_COUNT; }
 };
 
 #pragma pack(pop)
