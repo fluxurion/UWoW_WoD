@@ -26,6 +26,9 @@
 #include "Configuration/Config.h"
 #include "RealmList.h"
 #include <boost/lexical_cast.hpp>
+#include <openssl/md5.h>
+
+#define ChunkSize 2048
 
 using boost::asio::ip::tcp;
 
@@ -49,7 +52,11 @@ enum eStatus
     STATUS_AUTHED
 };
 
+#if defined(__GNUC__)
+#pragma pack(1)
+#else
 #pragma pack(push, 1)
+#endif
 
 typedef struct AUTH_LOGON_CHALLENGE_C
 {
@@ -107,7 +114,27 @@ typedef struct AUTH_RECONNECT_PROOF_C
     uint8   number_of_keys;
 } sAuthReconnectProof_C;
 
+typedef struct XFER_INIT
+{
+    uint8 cmd;                                              // XFER_INITIATE
+    uint8 fileNameLen;                                      // strlen(fileName);
+    uint8 fileName[5];                                      // fileName[fileNameLen]
+    uint64 file_size;                                       // file size (bytes)
+    uint8 md5[MD5_DIGEST_LENGTH];                           // MD5
+} XFER_INIT;
+
+typedef struct XFER_DATA
+{
+    uint8 opcode;
+    uint16 data_size;
+    uint8 data[ChunkSize];
+} XFER_DATA_STRUCT;
+
+#if defined(__GNUC__)
+#pragma pack()
+#else
 #pragma pack(pop)
+#endif
 
 enum class BufferSizes : uint32
 {
@@ -130,9 +157,9 @@ std::unordered_map<uint8, AuthHandler> AuthSession::InitHandlers()
     handlers[AUTH_RECONNECT_CHALLENGE] = { STATUS_CONNECTED, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, &AuthSession::HandleReconnectChallenge };
     handlers[AUTH_RECONNECT_PROOF]     = { STATUS_CONNECTED, sizeof(AUTH_RECONNECT_PROOF_C),    &AuthSession::HandleReconnectProof };
     handlers[REALM_LIST]               = { STATUS_AUTHED,    REALM_LIST_PACKET_SIZE,            &AuthSession::HandleRealmList };
-    handlers[XFER_ACCEPT]              = { STATUS_AUTHED,    XFER_ACCEPT_SIZE,                  &AuthSession::HandleXferAccept };
-    handlers[XFER_RESUME]              = { STATUS_AUTHED,    XFER_RESUME_SIZE,                  &AuthSession::HandleXferResume };
-    handlers[XFER_CANCEL]              = { STATUS_AUTHED,    XFER_CANCEL_SIZE,                  &AuthSession::HandleXferCancel };
+    handlers[XFER_ACCEPT]              = { STATUS_CONNECTED, XFER_ACCEPT_SIZE,                  &AuthSession::HandleXferAccept };
+    handlers[XFER_RESUME]              = { STATUS_CONNECTED, XFER_RESUME_SIZE,                  &AuthSession::HandleXferResume };
+    handlers[XFER_CANCEL]              = { STATUS_CONNECTED, XFER_CANCEL_SIZE,                  &AuthSession::HandleXferCancel };
 
     return handlers;
 }
@@ -291,6 +318,7 @@ bool AuthSession::HandleLogonChallenge()
                     else
                         sLog->outDebug(LOG_FILTER_AUTHSERVER, "[AuthChallenge] IP2NATION Table empty");
                 }*/
+                sLog->outDebug(LOG_FILTER_AUTHSERVER, "[AuthChallenge] Account '%s' is not locked to ip", _login.c_str());
             }
 
             /*if (locked)
@@ -390,7 +418,7 @@ bool AuthSession::HandleLogonChallenge()
                     if (securityFlags & 0x04)               // Security token input
                         pkt << uint8(1);
 
-                    uint8 secLevel = fields[5].GetUInt8();
+                    uint8 secLevel = fields[4].GetUInt8();
                     _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
 
                     _localizationName.resize(4);
@@ -517,7 +545,19 @@ bool AuthSession::HandleLogonProof()
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
         stmt->setString(4, _login);
-        LoginDatabase.DirectExecute(stmt);
+        LoginDatabase.Execute(stmt);
+
+        QueryResult AccountIdResult = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", _login.c_str());
+
+        if (AccountIdResult)
+        {
+            uint32 accountid = (AccountIdResult->Fetch())[0].GetUInt32();
+
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG_IP);
+            stmt->setUInt32(0, accountid);
+            stmt->setString(1, GetRemoteIpAddress().to_string().c_str());
+            LoginDatabase.Execute(stmt);
+        }
 
         OPENSSL_free((void*)K_hex);
 
@@ -812,10 +852,11 @@ bool AuthSession::HandleRealmList()
             pkt << lock;                                    // if 1, then realm locked
         pkt << uint8(flag);                                 // RealmFlags
         pkt << realm.name;
-        std::string ip = sRealmList->firewallSize() ? sRealmList->GetRandomFirewall() : "localhost";
-        ip += ":";
-        ip += i->second.address;
-        pkt << ip;
+        //std::string ip = sRealmList->firewallSize() ? sRealmList->GetRandomFirewall() : "localhost";
+        //ip += ":";
+        //ip += i->second.address;
+        //pkt << ip;
+        pkt << realm.address;
         pkt << realm.populationLevel;
         pkt << AmountOfCharacters;
         pkt << realm.timezone;                              // realm category
@@ -911,9 +952,9 @@ void AuthSession::SetVSFields(const std::string& rI)
     v = g.ModExp(x, N);
 
     // No SQL injection (username escaped)
-    char *v_hex, *s_hex;
-    v_hex = const_cast<char*>(v.AsHexStr());
-    s_hex = const_cast<char*>(s.AsHexStr());
+    const char *v_hex, *s_hex;
+    v_hex = v.AsHexStr();
+    s_hex = s.AsHexStr();
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
     stmt->setString(0, v_hex);
@@ -921,6 +962,6 @@ void AuthSession::SetVSFields(const std::string& rI)
     stmt->setString(2, _login);
     LoginDatabase.Execute(stmt);
 
-    OPENSSL_free(v_hex);
-    OPENSSL_free(s_hex);
+    OPENSSL_free((void*)v_hex);
+    OPENSSL_free((void*)s_hex);
 }

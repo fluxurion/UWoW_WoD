@@ -315,7 +315,7 @@ void WorldSocket::SendPacket(WorldPacket& packet)
     {
         header.Normal.Size = packet.size();
         header.Normal.Command = packet.GetOpcode();
-        _authCrypt.EncryptSend((uint8*)&header, sizeOfHeader);
+        _authCrypt.EncryptSend(header.data, sizeOfHeader);
     }
     else
     {
@@ -326,7 +326,7 @@ void WorldSocket::SendPacket(WorldPacket& packet)
 #ifndef TC_SOCKET_USE_IOCP
     if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= sizeOfHeader + packet.size())
     {
-        _writeBuffer.Write((uint8*)&header, sizeOfHeader);
+        _writeBuffer.Write(header.data, sizeOfHeader);
         if (!packet.empty())
             _writeBuffer.Write(packet.contents(), packet.size());
     }
@@ -334,7 +334,7 @@ void WorldSocket::SendPacket(WorldPacket& packet)
 #endif
     {
         MessageBuffer buffer(sizeOfHeader + packet.size());
-        buffer.Write((uint8*)&header, sizeOfHeader);
+        buffer.Write(header.data, sizeOfHeader);
         if (!packet.empty())
             buffer.Write(packet.contents(), packet.size());
 
@@ -452,10 +452,6 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     k.SetHexStr(fields[1].GetCString());
 
-    // even if auth credentials are bad, try using the session key we have - client cannot read auth response error without it
-    _authCrypt.Init(&k);
-    _headerBuffer.Resize(ClientPktHeader::SizeOf[_initialized][_authCrypt.IsInitialized()]);
-
     // First reject the connection if packet contains invalid data or realm state doesn't allow logging in
     if (sWorld->IsClosed())
     {
@@ -486,13 +482,18 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     // Check that Key and account name are the same on client and server
     uint32 t = 0;
+    uint32 seed = _authSeed;
 
     sha.UpdateData(account);
     sha.UpdateData((uint8*)&t, 4);
     sha.UpdateData((uint8*)&clientSeed, 4);
-    sha.UpdateData((uint8*)&_authSeed, 4);
+    sha.UpdateData((uint8*)&seed, 4);
     sha.UpdateBigNumbers(&k, NULL);
     sha.Finalize();
+
+    // even if auth credentials are bad, try using the session key we have - client cannot read auth response error without it
+    _authCrypt.Init(&k);
+    _headerBuffer.Resize(ClientPktHeader::SizeOf[_initialized][_authCrypt.IsInitialized()]);
 
     /*auto ddd = sha.GetDigest();
     std::cout << "====== orig =====" << std::endl;
@@ -504,7 +505,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     std::cout << std::endl;
     for (auto i = 0; i < 20; ++i)
         printf("%02X ", digest[i]);
-    std::cout << std::endl;*/
+    std::cout << std::endl;
 
     if (memcmp(sha.GetDigest(), digest, 20))
     {
@@ -621,7 +622,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     _worldSession = new WorldSession(id, shared_from_this(), AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter);
     _worldSession->LoadGlobalAccountData();
     _worldSession->LoadTutorialsData();
-    _worldSession->ReadAddonsInfo(recvPacket);
+    _worldSession->ReadAddonsInfo(addonsData);
     //_worldSession->LoadPermissions();
 
     // Initialize Warden system only if it is enabled by config

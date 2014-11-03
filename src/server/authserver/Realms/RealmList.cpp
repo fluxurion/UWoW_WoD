@@ -47,9 +47,7 @@ void RealmList::UpdateRealm(uint32 ID, const std::string& name, const std::strin
     realm.populationLevel = popu;
 
     // Append port to IP address.
-    std::ostringstream ss;
-    ss << port;
-    realm.address = ss.str();
+    realm.address = address + ":" + std::to_string(port);
     realm.gamebuild = build;
 }
 
