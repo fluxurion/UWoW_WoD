@@ -93,4 +93,26 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_SET_DUMP, "INSERT INTO `transferts` (`account`, `perso_guid`, `from`, `to`, `state`, `dump`) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_UPD_DUMP, "UPDATE transferts SET dump = ? ,state = ? WHERE id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_ADD_TRANSFERTS_LOGS, "INSERT INTO transferts_logs (`id`, `account`, `perso_guid`, `from`, `to`, `dump`, `toacc`, `newguid`, `transferId`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_ACCOUNT_INFO, "SELECT sha_pass_hash, id, locked, lock_country, last_ip, v, s FROM battlenet_accounts WHERE email = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_DEL_BNET_EXPIRED_BANS, "UPDATE battlenet_account_bans SET active = 0 WHERE active = 1 AND unbandate <> bandate AND unbandate <= UNIX_TIMESTAMP()", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_ACTIVE_ACCOUNT_BAN, "SELECT bandate, unbandate FROM battlenet_account_bans WHERE id = ? AND active = 1", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_UPD_BNET_VS_FIELDS, "UPDATE battlenet_accounts SET v = ?, s = ? WHERE email = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_UPD_BNET_SESSION_KEY, "UPDATE battlenet_accounts SET sessionKey = ?, online = ? WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_RECONNECT_INFO, "SELECT ba.id, ba.sessionKey, a.id FROM battlenet_accounts ba LEFT JOIN account a ON ba.id = a.battlenet_account WHERE ba.email = ? AND a.username = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_GAME_ACCOUNTS, "SELECT a.id, a.username, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE battlenet_account = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_GAME_ACCOUNT, "SELECT a.id, a.username, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE username = ? AND battlenet_account = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_GAME_ACCOUNT_UNNAMED, "SELECT a.id, a.username, ab.bandate, ab.unbandate, ab.active FROM account a LEFT JOIN account_banned ab ON a.id = ab.id WHERE battlenet_index = ? AND battlenet_account = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_FAILED_LOGINS, "SELECT failed_logins FROM battlenet_accounts WHERE id = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_UPD_BNET_FAILED_LOGINS, "UPDATE battlenet_accounts SET failed_logins = failed_logins + 1 WHERE email = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_UPD_BNET_LAST_LOGIN_INFO, "UPDATE battlenet_accounts SET last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_CHARACTER_COUNTS, "SELECT rc.numchars, r.id, r.Region, r.Battlegroup, r.gamebuild FROM realmcharacters rc INNER JOIN realmlist r ON rc.realmid = r.id WHERE rc.acctid = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_INS_BNET_ACCOUNT, "INSERT INTO battlenet_accounts (`email`,`sha_pass_hash`) VALUES (?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_ACCOUNT_EMAIL_BY_ID, "SELECT email FROM battlenet_accounts WHERE id = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_ACCOUNT_ID_BY_EMAIL, "SELECT id FROM battlenet_accounts WHERE email = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_UPD_BNET_PASSWORD, "UPDATE battlenet_accounts SET v = '', s = '', sha_pass_hash = ? WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_CHECK_PASSWORD, "SELECT 1 FROM battlenet_accounts WHERE id = ? AND sha_pass_hash = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_UPD_BNET_ACCOUNT_LOCK, "UPDATE battlenet_accounts SET locked = ? WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY, "UPDATE battlenet_accounts SET lock_country = ? WHERE id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT, "SELECT battlenet_account FROM account WHERE id = ?", CONNECTION_SYNCH);
 }

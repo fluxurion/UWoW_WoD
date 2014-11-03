@@ -76,21 +76,21 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    TC_LOG_INFO("server.bnetserver", "%s (bnetserver)", _FULLVERSION);
-    TC_LOG_INFO("server.bnetserver", "<Ctrl-C> to stop.\n");
-    TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", configFile.c_str());
-    TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    TC_LOG_INFO("server.bnetserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+    sLog->outInfo(LOG_FILTER_BATTLENET, "%s (bnetserver)", _FULLVERSION);
+    sLog->outInfo(LOG_FILTER_BATTLENET, "<Ctrl-C> to stop.\n");
+    sLog->outInfo(LOG_FILTER_BATTLENET, "Using configuration file %s.", configFile.c_str());
+    sLog->outInfo(LOG_FILTER_BATTLENET, "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    sLog->outInfo(LOG_FILTER_BATTLENET, "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
     // bnetserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
     if (!pidFile.empty())
     {
         if (uint32 pid = CreatePIDFile(pidFile))
-            TC_LOG_INFO("server.bnetserver", "Daemon PID: %u\n", pid);
+            sLog->outInfo(LOG_FILTER_BATTLENET, "Daemon PID: %u\n", pid);
         else
         {
-            TC_LOG_ERROR("server.bnetserver", "Cannot create PID file %s.\n", pidFile.c_str());
+            sLog->outError(LOG_FILTER_BATTLENET, "Cannot create PID file %s.\n", pidFile.c_str());
             return 1;
         }
     }
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
     int32 worldListenPort = sConfigMgr->GetIntDefault("WorldserverListenPort", 1118);
     if (worldListenPort < 0 || worldListenPort > 0xFFFF)
     {
-        TC_LOG_ERROR("server.bnetserver", "Specified worldserver listen port (%d) out of allowed range (1-65535)", worldListenPort);
+        sLog->outError(LOG_FILTER_BATTLENET, "Specified worldserver listen port (%d) out of allowed range (1-65535)", worldListenPort);
         return 1;
     }
 
@@ -115,7 +115,7 @@ int main(int argc, char** argv)
     int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
     if (bnport < 0 || bnport > 0xFFFF)
     {
-        TC_LOG_ERROR("server.bnetserver", "Specified battle.net port (%d) out of allowed range (1-65535)", bnport);
+        sLog->outError(LOG_FILTER_BATTLENET, "Specified battle.net port (%d) out of allowed range (1-65535)", bnport);
         StopDB();
         return 1;
     }
@@ -152,7 +152,7 @@ int main(int argc, char** argv)
     // Close the Database Pool and library
     StopDB();
 
-    TC_LOG_INFO("server.bnetserver", "Halting process...");
+    sLog->outInfo(LOG_FILTER_BATTLENET, "Halting process...");
     return 0;
 }
 
@@ -165,32 +165,32 @@ bool StartDB()
     std::string dbstring = sConfigMgr->GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
-        TC_LOG_ERROR("server.bnetserver", "Database not specified");
+        sLog->outError(LOG_FILTER_BATTLENET, "Database not specified");
         return false;
     }
 
     int32 worker_threads = sConfigMgr->GetIntDefault("LoginDatabase.WorkerThreads", 1);
     if (worker_threads < 1 || worker_threads > 32)
     {
-        TC_LOG_ERROR("server.bnetserver", "Improper value specified for LoginDatabase.WorkerThreads, defaulting to 1.");
+        sLog->outError(LOG_FILTER_BATTLENET, "Improper value specified for LoginDatabase.WorkerThreads, defaulting to 1.");
         worker_threads = 1;
     }
 
     int32 synch_threads = sConfigMgr->GetIntDefault("LoginDatabase.SynchThreads", 1);
     if (synch_threads < 1 || synch_threads > 32)
     {
-        TC_LOG_ERROR("server.bnetserver", "Improper value specified for LoginDatabase.SynchThreads, defaulting to 1.");
+        sLog->outError(LOG_FILTER_BATTLENET, "Improper value specified for LoginDatabase.SynchThreads, defaulting to 1.");
         synch_threads = 1;
     }
 
     if (!LoginDatabase.Open(dbstring, uint8(worker_threads), uint8(synch_threads)))
     {
-        TC_LOG_ERROR("server.bnetserver", "Cannot connect to database");
+        sLog->outError(LOG_FILTER_BATTLENET, "Cannot connect to database");
         return false;
     }
 
-    TC_LOG_INFO("server.bnetserver", "Started auth database connection pool.");
-    sLog->SetRealmId(0); // Enables DB appenders when realm is set.
+    sLog->outInfo(LOG_FILTER_BATTLENET, "Started auth database connection pool.");
+    sLog->SetRealmID(0); // Enables DB appenders when realm is set.
     return true;
 }
 
@@ -211,7 +211,7 @@ void KeepDatabaseAliveHandler(const boost::system::error_code& error)
 {
     if (!error)
     {
-        TC_LOG_INFO("server.bnetserver", "Ping MySQL to keep connection alive");
+        sLog->outInfo(LOG_FILTER_BATTLENET, "Ping MySQL to keep connection alive");
         LoginDatabase.KeepAlive();
 
         _dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));

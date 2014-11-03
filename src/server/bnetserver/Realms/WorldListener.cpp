@@ -65,13 +65,13 @@ void WorldListener::HandleOpen()
 {
     _worldSocket->bind(std::string("tcp://*:") + std::to_string(_worldListenPort));
     _poller->add(*_worldSocket);
-    TC_LOG_INFO("server.ipc", "Listening on connections from worldservers...");
+    sLog->outInfo(LOG_FILTER_IPC, "Listening on connections from worldservers...");
 }
 
 void WorldListener::HandleClose()
 {
     _worldSocket->close();
-    TC_LOG_INFO("server.ipc", "Shutting down connections from worldservers...");
+    sLog->outInfo(LOG_FILTER_IPC, "Shutting down connections from worldservers...");
 }
 
 void WorldListener::Dispatch(zmqpp::message& msg) const

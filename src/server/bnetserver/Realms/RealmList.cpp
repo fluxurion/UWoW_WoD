@@ -134,7 +134,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     if (error)
         return;
 
-    TC_LOG_DEBUG("realmlist", "Updating Realm List...");
+    sLog->outDebug(LOG_FILTER_REALMLIST, "Updating Realm List...");
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -156,7 +156,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 boost::asio::ip::tcp::resolver::iterator endPoint = _resolver->resolve(externalAddressQuery, ec);
                 if (endPoint == end || ec)
                 {
-                    TC_LOG_ERROR("realmlist", "Could not resolve address %s", fields[2].GetString().c_str());
+                    sLog->outError(LOG_FILTER_REALMLIST, "Could not resolve address %s", fields[2].GetString().c_str());
                     continue;
                 }
 
@@ -166,7 +166,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 endPoint = _resolver->resolve(localAddressQuery, ec);
                 if (endPoint == end || ec)
                 {
-                    TC_LOG_ERROR("realmlist", "Could not resolve address %s", fields[3].GetString().c_str());
+                    sLog->outError(LOG_FILTER_REALMLIST, "Could not resolve address %s", fields[3].GetString().c_str());
                     continue;
                 }
 
@@ -176,7 +176,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 endPoint = _resolver->resolve(localSubmaskQuery, ec);
                 if (endPoint == end || ec)
                 {
-                    TC_LOG_ERROR("realmlist", "Could not resolve address %s", fields[4].GetString().c_str());
+                    sLog->outError(LOG_FILTER_REALMLIST, "Could not resolve address %s", fields[4].GetString().c_str());
                     continue;
                 }
 
@@ -198,11 +198,11 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 UpdateRealm(id, name, externalAddress, localAddress, localSubmask, port, icon, flag, timezone,
                     (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
 
-                TC_LOG_TRACE("realmlist", "Realm \"%s\" at %s:%u.", name.c_str(), externalAddress.to_string().c_str(), port);
+                sLog->outTrace(LOG_FILTER_REALMLIST, "Realm \"%s\" at %s:%u.", name.c_str(), externalAddress.to_string().c_str(), port);
             }
             catch (std::exception& ex)
             {
-                TC_LOG_ERROR("realmlist", "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
+                sLog->outError(LOG_FILTER_REALMLIST, "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
                 ASSERT(false);
             }
         }

@@ -33,7 +33,7 @@
 #include "WardenModuleWin.h"
 #include "WardenCheckMgr.h"
 #include "AccountMgr.h"
-#include "SHA2.h"
+#include "SHA256.h"
 
 WardenWin::WardenWin() : Warden()
 {

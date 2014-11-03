@@ -16,7 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SHA2.h"
+#include "SHA256.h"
 #include "BigNumber.h"
 #include <stdarg.h>
 
