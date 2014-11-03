@@ -155,6 +155,7 @@ endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
+if( SCRIPTS )
 target_link_libraries(worldserver
   game
   shared
@@ -173,6 +174,24 @@ target_link_libraries(worldserver
   ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
 )
+else()
+target_link_libraries(worldserver
+  game
+  shared
+  collision
+  g3dlib
+  gsoap
+  Detour
+  ${JEMALLOC_LIBRARY}
+  ${READLINE_LIBRARY}
+  ${TERMCAP_LIBRARY}
+  ${MYSQL_LIBRARY}
+  ${OPENSSL_LIBRARIES}
+  ${ZLIB_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
+  ${Boost_LIBRARIES}
+)
+endif()
 
 if( WIN32 )
   add_custom_command(TARGET worldserver

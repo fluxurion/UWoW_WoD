@@ -818,10 +818,10 @@ void AddSC_chat_log();
 void AddScripts()
 {
     AddExampleScripts();
-    AddSpellScripts();
     AddSC_SmartSCripts();
-    AddCommandScripts();
 #ifdef SCRIPTS
+    AddSpellScripts();
+    AddCommandScripts();
     AddWorldScripts();
     AddEasternKingdomsScripts();
     AddKalimdorScripts();
@@ -836,9 +836,12 @@ void AddScripts()
 
 void AddExampleScripts()
 {
+#ifdef SCRIPTS
     AddSC_custom_reward();
+#endif
 }
 
+#ifdef SCRIPTS
 void AddSpellScripts()
 {
     AddSC_deathknight_spell_scripts();
@@ -894,6 +897,7 @@ void AddCommandScripts()
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
 }
+#endif
 
 void AddWorldScripts()
 {
