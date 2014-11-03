@@ -73,14 +73,14 @@ void WorldSession::HandleChallengeModeRequestOpcode(WorldPacket& recvPacket)
         {
             ChallengeMember member = *itr;
             data.WriteGuidBytes<2>(member.guid);
-            data << uint32(realmID);
+            data << uint32(realmHandle.Index);
             data << uint32(member.specId);
             data.WriteGuidBytes<4, 7, 6, 3, 5, 1>(member.guid);
-            data << uint32(realmID);
+            data << uint32(realmHandle.Index);
             data.WriteGuidBytes<0>(member.guid);
         }
         data << uint32(bestServer->guildId);    // 246155
-        data << uint32(realmID);                // 50659408
+        data << uint32(realmHandle.Index);      // 50659408
         data << uint32(3);                      // seasonID
         data.AppendPackedTime(bestServer->date);
         data << uint32(bestServer->recordTime);  //recorde time on ms
@@ -95,15 +95,15 @@ void WorldSession::HandleChallengeModeRequestOpcode(WorldPacket& recvPacket)
             ChallengeMember member = *itr;
 
             data.WriteGuidBytes<7, 0>(member.guid);
-            data << uint32(realmID);
+            data << uint32(realmHandle.Index);
             data.WriteGuidBytes<4, 1, 3, 5, 2>(member.guid);
             data << uint32(member.specId);
-            data << uint32(realmID);
+            data << uint32(realmHandle.Index);
             data.WriteGuidBytes<6>(member.guid);
         }
         data.AppendPackedTime(bestServer->date);
-        data << uint32(realmID);                // 50659408
-        data << uint32(bestServer->recordTime);  //recorde time on ms
+        data << uint32(realmHandle.Index);      // 50659408
+        data << uint32(bestServer->recordTime); //recorde time on ms
     }
 
     data << uint32(getMSTime());

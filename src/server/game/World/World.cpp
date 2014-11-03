@@ -2053,7 +2053,7 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading realm name...");
 
     m_realmName = "Mist of Pandaria servers";
-    QueryResult realmResult = LoginDatabase.PQuery("SELECT name FROM realmlist WHERE id = %u", realmID);
+    QueryResult realmResult = LoginDatabase.PQuery("SELECT name FROM realmlist WHERE id = %u", realmHandle.Index);
     if (realmResult)
         m_realmName = (*realmResult)[0].GetString();
 
@@ -2282,7 +2282,7 @@ void World::Update(uint32 diff)
         LoginDatabase.Execute(stmt);
 
         if (!m_bool_configs[CONFIG_DISABLE_NEW_ONLINE])
-            LoginDatabase.PQuery("REPLACE INTO `online` (`realmID`, `online`, `diff`, `uptime`) VALUES ('%u', '%u', '%u', '%u')", realmID, GetActiveSessionCount(), GetUpdateTime(), GetUptime());
+            LoginDatabase.PQuery("REPLACE INTO `online` (`realmID`, `online`, `diff`, `uptime`) VALUES ('%u', '%u', '%u', '%u')", realmHandle.Index, GetActiveSessionCount(), GetUpdateTime(), GetUptime());
     }
 
     /// <li> Clean logs table
@@ -3694,8 +3694,8 @@ void World::Transfer()
     //state 2 error to many char on acc
     //state 3 dump char to waiting buy transfer
     //state 4 waiting buy transfer
-    QueryResult toDump = LoginDatabase.PQuery("SELECT `id`, `account`, `perso_guid`, `to`, `state` FROM transferts WHERE `from` = %u AND state IN (0,3)", realmID);
-    QueryResult toLoad = LoginDatabase.PQuery("SELECT `id`, `account`, `perso_guid`, `from`, `dump`, `toacc`, `transferId` FROM transferts WHERE `to` = %u AND state = 1", realmID);
+    QueryResult toDump = LoginDatabase.PQuery("SELECT `id`, `account`, `perso_guid`, `to`, `state` FROM transferts WHERE `from` = %u AND state IN (0,3)", realmHandle.Index);
+    QueryResult toLoad = LoginDatabase.PQuery("SELECT `id`, `account`, `perso_guid`, `from`, `dump`, `toacc`, `transferId` FROM transferts WHERE `to` = %u AND state = 1", realmHandle.Index);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "World::Transfer()");
 
@@ -3778,7 +3778,7 @@ void World::Transfer()
                     stmt->setUInt32(1, account);
                     stmt->setUInt32(2, guid);
                     stmt->setUInt32(3, from);
-                    stmt->setUInt32(4, realmID);
+                    stmt->setUInt32(4, realmHandle.Index);
                     stmt->setString(5, dump);
                     stmt->setUInt32(6, toacc);
                     stmt->setUInt32(7, newguid);

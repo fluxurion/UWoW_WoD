@@ -1385,7 +1385,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         data.WriteGuidBytes<6>(guid);
         data << uint8(member->GetClass());
         data << uint8(player ? player->getLevel() : member->GetLevel());
-        data << uint32(realmID);
+        data << uint32(realmHandle.Index);
         data << int32(member->GetTotalReputation());                                              // Guild rep
         data << float(player ? 0.0f : float(::time(NULL) - member->GetLogoutTime()) / DAY);
         data.WriteGuidBytes<2>(guid);
@@ -1432,7 +1432,7 @@ void Guild::HandleQuery(WorldSession* session)
 
     data << uint32(m_emblemInfo.GetStyle());
     data.WriteGuidBytes<2, 6, 4, 3>(guid);
-    data << uint32(realmID);
+    data << uint32(realmHandle.Index);
     for (uint32 i = 0; i < _GetRanksSize(); ++i)
     {
         data.WriteString(m_ranks[i].GetName());
@@ -1725,11 +1725,11 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     data << uint32(m_emblemInfo.GetBackgroundColor());
     data << uint32(m_emblemInfo.GetStyle());
     data << uint32(GetLevel());
-    data << uint32(realmID);
+    data << uint32(realmHandle.Index);
     data << uint32(m_emblemInfo.GetBorderStyle());
     data << uint32(m_emblemInfo.GetColor());
     data << uint32(m_emblemInfo.GetBorderColor());
-    data << uint32(realmID);
+    data << uint32(realmHandle.Index);
 
     data.WriteBits(strlen(player->GetName()), 6);
     data.WriteGuidMask<7, 2, 6, 3, 5>(newGuildGuid);
@@ -3593,7 +3593,7 @@ void Guild::SendGuildEventJoinMember(uint64 guid, std::string name)
     data.WriteGuidMask<5, 4, 7, 1, 3, 0, 6, 2>(guid);
 
     data.WriteGuidBytes<2, 6, 0, 1, 3, 4, 7>(guid);
-    data << uint32(realmID);
+    data << uint32(realmHandle.Index);
     data.WriteGuidBytes<5>(guid);
     data.WriteString(name);
 
@@ -3622,13 +3622,13 @@ void Guild::SendGuildEventRemoveMember(uint64 guid, std::string name, uint64 kic
     if (kicked)
     {
         data.WriteGuidBytes<1, 7, 3, 5, 0, 6, 2, 4>(kickerGuid);
-        data << uint32(realmID);
+        data << uint32(realmHandle.Index);
         data.WriteString(kickerName);
     }
     data.WriteGuidBytes<0, 7>(guid);
     data.WriteString(name);
     data.WriteGuidBytes<3, 1, 5, 2>(guid);
-    data << uint32(realmID);
+    data << uint32(realmHandle.Index);
     data.WriteGuidBytes<6, 4>(guid);
 
     BroadcastPacket(&data);
@@ -3664,8 +3664,8 @@ void Guild::SendGuildEventLeader(uint64 guid, std::string name, uint64 oldGuid, 
     data.WriteString(name);
     data.WriteGuidBytes<0, 3>(guid);
     data.WriteGuidBytes<4, 0>(oldGuid);
-    data << uint32(realmID);        // old leader realm id
-    data << uint32(realmID);        // new leader realm id
+    data << uint32(realmHandle.Index);      // old leader realm id
+    data << uint32(realmHandle.Index);      // new leader realm id
     data.WriteGuidBytes<4>(guid);
 
     BroadcastPacket(&data);
@@ -3703,7 +3703,7 @@ void Guild::SendGuildEventOnline(uint64 guid, std::string name, bool online, Wor
     data.WriteGuidMask<4, 3, 2, 5, 0>(guid);
 
     data.WriteGuidBytes<5, 0, 6, 4, 3>(guid);
-    data << uint32(realmID);
+    data << uint32(realmHandle.Index);
     data.WriteGuidBytes<2, 7>(guid);
     data.WriteString(name);
     data.WriteGuidBytes<1>(guid);

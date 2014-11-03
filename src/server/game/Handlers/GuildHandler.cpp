@@ -134,7 +134,7 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& recvPacket)
         WorldPacket data(SMSG_GUILD_DECLINE, 1 + name.size() + 4);
         data.WriteBits(name.size(), 6);
         data.WriteBit(recvPacket.GetOpcode() == CMSG_GUILD_AUTO_DECLINE);
-        data << uint32(realmID);
+        data << uint32(realmHandle.Index);
         data.WriteString(name);
         inviter->SendDirectMessage(&data);
     }

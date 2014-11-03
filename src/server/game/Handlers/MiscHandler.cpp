@@ -481,7 +481,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         bytesData.WriteByteSeq(accountId[6]);
         bytesData << uint32(pzoneid);
         bytesData.WriteByteSeq(guildGuid[0]);
-        bytesData << uint32(realmID);  //realmID
+        bytesData << uint32(realmHandle.Index);  //realmID
         bytesData.WriteByteSeq(playerGuid[1]);
         bytesData.WriteByteSeq(guildGuid[4]);
         bytesData << uint8(lvl);
@@ -1834,7 +1834,7 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
     uint32 realmId = recvData.read<uint32>();
 
     WorldPacket data(SMSG_REALM_QUERY_RESPONSE, 10 + 10 + 1 + 1 + 1 + 4);
-    if(realmId != realmID)  // Cheater ?
+    if (realmId != realmHandle.Index)  // Cheater ?
     {
         data << uint8(1);
         data << uint32(realmId);

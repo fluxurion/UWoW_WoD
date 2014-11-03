@@ -115,7 +115,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool hasAccountData, bool queued
         {
             packet.WriteString(realmName);
             packet.WriteString(trimmedName);
-            packet << uint32(realmID);
+            packet << uint32(realmHandle.Index);
         }
 
         packet << uint32(0);    //2957796664... 3495927968

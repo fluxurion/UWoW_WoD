@@ -919,7 +919,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     data.WriteBit(0);                                                       // quick ticket status
     data.WriteBit(0);                                                       // has item restoration button
     data.WriteBit(1);                                                       // byte2D
-    data << uint32(realmID);                                                // realm id?
+    data << uint32(realmHandle.Index);                                      // realm id?
     data << uint32(0);                                                      // sor dword44
     data << uint32(0);                                                      // sor remaining
     data << uint32(43);                                                     // dword50

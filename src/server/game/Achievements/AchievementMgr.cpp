@@ -1215,11 +1215,11 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
     data.WriteGuidMask<6>(firstPlayerOnAccountGuid);
 
     data.WriteGuidBytes<5>(thisPlayerGuid);
-    data << uint32(realmID);
+    data << uint32(realmHandle.Index);
     data.WriteGuidBytes<2>(firstPlayerOnAccountGuid);
     data.WriteGuidBytes<3>(thisPlayerGuid);
     data.WriteGuidBytes<4>(firstPlayerOnAccountGuid);
-    data << uint32(realmID);
+    data << uint32(realmHandle.Index);
     data.WriteGuidBytes<1, 0>(firstPlayerOnAccountGuid);
     data.WriteGuidBytes<7>(thisPlayerGuid);
     data << uint32(achievement->ID);
@@ -2424,9 +2424,9 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
         data.WriteByteSeq(firstAccountGuid[2]);
         data.WriteByteSeq(firstAccountGuid[3]);
         data.WriteByteSeq(firstAccountGuid[5]);
-        data << uint32(realmID);
+        data << uint32(realmHandle.Index);
         data.WriteByteSeq(firstAccountGuid[6]);
-        data << uint32(realmID);
+        data << uint32(realmHandle.Index);
         data.WriteByteSeq(firstAccountGuid[7]);
         data.WriteByteSeq(firstAccountGuid[1]);
     }

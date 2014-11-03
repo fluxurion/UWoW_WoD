@@ -1116,7 +1116,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         SetUInt64Value(PLAYER_FIELD_KNOWN_TITLES + i, 0);  // 0=disabled
     SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
 
-    SetUInt32Value(PLAYER_HOME_PLAYER_REALM, realmID);
+    SetUInt32Value(PLAYER_HOME_PLAYER_REALM, realmHandle.Index);
 
     SetUInt32Value(PLAYER_FIELD_KILLS, 0);
     SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 0);
@@ -9163,8 +9163,8 @@ void Player::DuelComplete(DuelCompleteType type)
     if (type != DUEL_INTERRUPTED)
     {
         WorldPacket data(SMSG_DUEL_WINNER, 25);
-        data << uint32(realmID);                            // winner or loser realmID
-        data << uint32(realmID);                            // winner or loser realmID
+        data << uint32(realmHandle.Index);                  // winner or loser realmID
+        data << uint32(realmHandle.Index);                  // winner or loser realmID
         data.WriteBit(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
         data.WriteBits(strlen(duel->opponent->GetName()), 6);
         data.WriteBits(strlen(GetName()), 6);
@@ -19219,7 +19219,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     SetUInt32Value(PLAYER_CHOSEN_TITLE, curTitle);
 
-    SetUInt32Value(PLAYER_HOME_PLAYER_REALM, realmID);
+    SetUInt32Value(PLAYER_HOME_PLAYER_REALM, realmHandle.Index);
 
     // has to be called after last Relocate() in Player::LoadFromDB
     SetFallInformation(0, GetPositionZ());

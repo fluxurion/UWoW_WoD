@@ -5579,7 +5579,7 @@ void Spell::SendResurrectRequest(Player* target)
     data.WriteBit(0);                                                       // use timer according to client symbols
     data.WriteGuidMask<7, 2, 4, 5, 3, 0, 6, 1>(guid);
     data.WriteGuidBytes<4>(guid);
-    data << uint32(realmID);
+    data << uint32(realmHandle.Index);
     data.WriteGuidBytes<0>(guid);
     data << uint32(0);                                                      // pet counter?
     data.WriteGuidBytes<3>(guid);
