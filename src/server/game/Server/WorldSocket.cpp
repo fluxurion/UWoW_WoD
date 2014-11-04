@@ -352,8 +352,9 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     std::string account;
     SHA1Hash sha;
     uint16 clientBuild;
-    //uint32 serverId, loginServerType, region, battlegroup, realmIndex;
+    //uint32 serverId, region, battlegroup, realmIndex;
     //uint64 unk4;
+    uint8 loginServerType;
     WorldPacket packet, SendAddonPacked;
     BigNumber k;
     bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);
@@ -368,7 +369,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     recvPacket >> digest[16];
     recvPacket >> digest[13];
     recvPacket >> digest[4];
-    recvPacket.read_skip<uint8>();
+    recvPacket >> loginServerType;
     recvPacket >> digest[9];
     recvPacket >> digest[0];
     recvPacket >> clientSeed;
@@ -399,18 +400,18 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     account = recvPacket.ReadString(accountNameLength);
 
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: client %u, serverId %u, account %s, loginServerType %u, clientseed %u, realmIndex %u",
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: client %u, account %s, clientseed %u",
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: client %u, account %s, clientseed %u, loginServerType %u",
         clientBuild,
         //serverId,
         account.c_str(),
-        //loginServerType,
-        clientSeed
+        clientSeed,
+        loginServerType
         //realmIndex
         );
 
     // Get the account information from the realmd database
-    //         0           1        2       3          4         5       6          7   8
-    // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
+    //         0           1        2       3          4         5       6          7   8  9
+    // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os, battlenet_account  FROM account WHERE username = ?
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
 
     stmt->setString(0, account);
@@ -548,6 +549,9 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         locale = LOCALE_enUS;
 
     uint32 recruiter = fields[9].GetUInt32();
+    uint32 battlenetAccountId = 0;
+    if (loginServerType == 1)
+        battlenetAccountId = fields[11].GetUInt32();
     // Checks gmlevel per Realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
 
@@ -619,7 +623,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // At this point, we can safely hook a successful login
     //sScriptMgr->OnAccountLogin(id);
 
-    _worldSession = new WorldSession(id, shared_from_this(), AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter);
+    _worldSession = new WorldSession(id, battlenetAccountId, shared_from_this(), AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter);
     _worldSession->LoadGlobalAccountData();
     _worldSession->LoadTutorialsData();
     _worldSession->ReadAddonsInfo(addonsData);

@@ -40,7 +40,7 @@ ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) cons
     if (clientAddr.is_loopback())
     {
         // Try guessing if realm is also connected locally
-        if (LocalAddress.is_loopback() || ExternalAddress.is_loopback())
+        if (LocalAddress.is_loopback()/* || ExternalAddress.is_loopback()*/)
             realmIp = clientAddr;
         else
         {
@@ -51,14 +51,14 @@ ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) cons
     }
     else
     {
-        if (clientAddr.is_v4() &&
+        /*if (clientAddr.is_v4() &&
             (clientAddr.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()) ==
-            (LocalAddress.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()))
+            (LocalAddress.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()))*/
         {
             realmIp = LocalAddress;
         }
-        else
-            realmIp = ExternalAddress;
+        /*else
+            realmIp = ExternalAddress;*/
     }
 
     ip::tcp::endpoint endpoint(realmIp, Port);
@@ -123,9 +123,9 @@ void RealmList::UpdateRealm(Battlenet::RealmId const& id, const std::string& nam
     UpdateField(realm.Timezone, timezone, realm.Updated);
     UpdateField(realm.AllowedSecurityLevel, allowedSecurityLevel, realm.Updated);
     UpdateField(realm.PopulationLevel, population, realm.Updated);
-    UpdateField(realm.ExternalAddress, address, realm.Updated);
+    //UpdateField(realm.ExternalAddress, address, realm.Updated);
     UpdateField(realm.LocalAddress, localAddr, realm.Updated);
-    UpdateField(realm.LocalSubnetMask, localSubmask, realm.Updated);
+    //UpdateField(realm.LocalSubnetMask, localSubmask, realm.Updated);
     UpdateField(realm.Port, port, realm.Updated);
 }
 
@@ -150,55 +150,56 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 
                 Field* fields = result->Fetch();
                 std::string name = fields[1].GetString();
-                boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
+                //boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
 
                 boost::system::error_code ec;
-                boost::asio::ip::tcp::resolver::iterator endPoint = _resolver->resolve(externalAddressQuery, ec);
+                /*boost::asio::ip::tcp::resolver::iterator endPoint = _resolver->resolve(externalAddressQuery, ec);
                 if (endPoint == end || ec)
                 {
                     sLog->outError(LOG_FILTER_REALMLIST, "Could not resolve address %s", fields[2].GetString().c_str());
                     continue;
                 }
 
-                ip::address externalAddress = (*endPoint).endpoint().address();
+                ip::address externalAddress = (*endPoint).endpoint().address();*/
 
-                boost::asio::ip::tcp::resolver::query localAddressQuery(ip::tcp::v4(), fields[3].GetString(), "");
-                endPoint = _resolver->resolve(localAddressQuery, ec);
-                if (endPoint == end || ec)
+                //boost::asio::ip::tcp::resolver::query localAddressQuery(ip::tcp::v4(), fields[3].GetString(), "");
+                boost::asio::ip::tcp::resolver::query localAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
+                boost::asio::ip::tcp::resolver::iterator endPoint2 = _resolver->resolve(localAddressQuery, ec);
+                if (endPoint2 == end || ec)
                 {
-                    sLog->outError(LOG_FILTER_REALMLIST, "Could not resolve address %s", fields[3].GetString().c_str());
+                    sLog->outError(LOG_FILTER_REALMLIST, "Could not resolve address %s", fields[2].GetString().c_str());
                     continue;
                 }
 
-                ip::address localAddress = (*endPoint).endpoint().address();
+                ip::address localAddress = (*endPoint2).endpoint().address();
 
-                boost::asio::ip::tcp::resolver::query localSubmaskQuery(ip::tcp::v4(), fields[4].GetString(), "");
+                /*boost::asio::ip::tcp::resolver::query localSubmaskQuery(ip::tcp::v4(), fields[4].GetString(), "");
                 endPoint = _resolver->resolve(localSubmaskQuery, ec);
                 if (endPoint == end || ec)
                 {
                     sLog->outError(LOG_FILTER_REALMLIST, "Could not resolve address %s", fields[4].GetString().c_str());
                     continue;
-                }
+                }*/
 
-                ip::address localSubmask = (*endPoint).endpoint().address();
+                ip::address localSubmask;// = (*endPoint).endpoint().address();
 
-                uint16 port = fields[5].GetUInt16();
-                uint8 icon = fields[6].GetUInt8();
-                RealmFlags flag = RealmFlags(fields[7].GetUInt8());
-                uint8 timezone = fields[8].GetUInt8();
-                uint8 allowedSecurityLevel = fields[9].GetUInt8();
-                float pop = fields[10].GetFloat();
+                uint16 port = fields[3].GetUInt16();
+                uint8 icon = fields[4].GetUInt8();
+                RealmFlags flag = RealmFlags(fields[5].GetUInt8());
+                uint8 timezone = fields[6].GetUInt8();
+                uint8 allowedSecurityLevel = fields[7].GetUInt8();
+                float pop = fields[8].GetFloat();
                 uint32 realmId = fields[0].GetUInt32();
-                uint32 build = fields[11].GetUInt32();
-                uint8 region = fields[12].GetUInt8();
-                uint8 battlegroup = fields[13].GetUInt8();
+                uint32 build = fields[9].GetUInt32();
+                uint8 region = fields[10].GetUInt8();
+                uint8 battlegroup = fields[11].GetUInt8();
 
                 Battlenet::RealmId id{ region, battlegroup, realmId, build };
 
-                UpdateRealm(id, name, externalAddress, localAddress, localSubmask, port, icon, flag, timezone,
+                UpdateRealm(id, name, localAddress, localAddress, localSubmask, port, icon, flag, timezone,
                     (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
 
-                sLog->outTrace(LOG_FILTER_REALMLIST, "Realm \"%s\" at %s:%u.", name.c_str(), externalAddress.to_string().c_str(), port);
+                sLog->outTrace(LOG_FILTER_REALMLIST, "Realm \"%s\" at %s:%u.", name.c_str(), localAddress.to_string().c_str(), port);
             }
             catch (std::exception& ex)
             {

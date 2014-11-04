@@ -377,7 +377,9 @@ bool AuthSession::HandleLogonChallenge()
                     unk3.SetRand(16 * 8);
 
                     // Fill the response packet with the result
-                    if (AuthHelper::IsAcceptedClientBuild(_build))
+                    if (fields[7].GetUInt32() && AuthHelper::IsBuildSupportingBattlenet(_build))
+                        pkt << uint8(WOW_FAIL_USE_BATTLENET);
+                    else if (AuthHelper::IsAcceptedClientBuild(_build))
                         pkt << uint8(WOW_SUCCESS);
                     else
                         pkt << uint8(WOW_FAIL_VERSION_INVALID);
@@ -763,28 +765,6 @@ bool AuthSession::HandleReconnectProof()
         return false;
     }
 }
-
-/*ACE_INET_Addr const& GetAddressForClient(Realm const& realm, ACE_INET_Addr const& clientAddr)
-{
-    // Attempt to send best address for client
-    if (clientAddr.is_loopback())
-    {
-        // Try guessing if realm is also connected locally
-        if (realm.LocalAddress.is_loopback() || realm.ExternalAddress.is_loopback())
-            return clientAddr;
-
-        // Assume that user connecting from the machine that authserver is located on
-        // has all realms available in his local network
-        return realm.LocalAddress;
-    }
-
-    // Check if connecting client is in the same network
-    if (IsIPAddrInNetwork(realm.LocalAddress, clientAddr, realm.LocalSubnetMask))
-        return realm.LocalAddress;
-
-    // Return external IP
-    return realm.ExternalAddress;
-}*/
 
 bool AuthSession::HandleRealmList()
 {

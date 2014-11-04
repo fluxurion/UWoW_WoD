@@ -523,7 +523,7 @@ bool StartDB()
     QueryResult realmIdQuery = LoginDatabase.PQuery("SELECT `Region`,`Battlegroup` FROM `realmlist` WHERE `id`=%u", realmHandle.Index);
     if (!realmIdQuery)
     {
-        TC_LOG_ERROR("server.worldserver", "Realm id %u not defined in realmlist table", realmHandle.Index);
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Realm id %u not defined in realmlist table", realmHandle.Index);
         return false;
     }
 

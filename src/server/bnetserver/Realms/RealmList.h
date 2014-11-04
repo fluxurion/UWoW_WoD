@@ -73,9 +73,9 @@ namespace Battlenet
 struct Realm
 {
     Battlenet::RealmId Id;
-    ip::address ExternalAddress;
+    //ip::address ExternalAddress;
     ip::address LocalAddress;
-    ip::address LocalSubnetMask;
+    //ip::address LocalSubnetMask;
     uint16 Port;
     std::string Name;
     uint8 Type;

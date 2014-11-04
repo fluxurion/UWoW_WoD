@@ -29,13 +29,13 @@ namespace AccountMgr
 AccountOpResult CreateAccount(std::string username, std::string password)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
-        return AOR_NAME_TOO_LONG;                           // username's too long
+        return AccountOpResult::AOR_NAME_TOO_LONG;          // username's too long
 
-    normalizeString(username);
-    normalizeString(password);
+    Utf8ToUpperOnlyLatin(username);
+    Utf8ToUpperOnlyLatin(password);
 
     if (GetId(username))
-        return AOR_NAME_ALREDY_EXIST;                       // username does already exist
+        return AccountOpResult::AOR_NAME_ALREADY_EXIST;     // username does already exist
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
 
@@ -48,7 +48,7 @@ AccountOpResult CreateAccount(std::string username, std::string password)
 
     LoginDatabase.Execute(stmt);
 
-    return AOR_OK;                                          // everything's fine
+    return AccountOpResult::AOR_OK;                         // everything's fine
 }
 
 AccountOpResult DeleteAccount(uint32 accountId)
@@ -59,7 +59,7 @@ AccountOpResult DeleteAccount(uint32 accountId)
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (!result)
-        return AOR_NAME_NOT_EXIST;
+        return AccountOpResult::AOR_NAME_NOT_EXIST;
 
     // Obtain accounts characters
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
@@ -120,7 +120,7 @@ AccountOpResult DeleteAccount(uint32 accountId)
 
     LoginDatabase.CommitTransaction(trans);
 
-    return AOR_OK;
+    return AccountOpResult::AOR_OK;
 }
 
 AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
@@ -131,16 +131,16 @@ AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::s
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (!result)
-        return AOR_NAME_NOT_EXIST;
+        return AccountOpResult::AOR_NAME_NOT_EXIST;
 
     if (utf8length(newUsername) > MAX_ACCOUNT_STR)
-        return AOR_NAME_TOO_LONG;
+        return AccountOpResult::AOR_NAME_TOO_LONG;
 
     if (utf8length(newPassword) > MAX_ACCOUNT_STR)
-        return AOR_PASS_TOO_LONG;
+        return AccountOpResult::AOR_PASS_TOO_LONG;
 
-    normalizeString(newUsername);
-    normalizeString(newPassword);
+    Utf8ToUpperOnlyLatin(newUsername);
+    Utf8ToUpperOnlyLatin(newPassword);
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_USERNAME);
 
@@ -150,7 +150,7 @@ AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::s
 
     LoginDatabase.Execute(stmt);
 
-    return AOR_OK;
+    return AccountOpResult::AOR_OK;
 }
 
 AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
@@ -158,13 +158,13 @@ AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
     std::string username;
 
     if (!GetName(accountId, username))
-        return AOR_NAME_NOT_EXIST;                          // account doesn't exist
+        return AccountOpResult::AOR_NAME_NOT_EXIST;     // account doesn't exist
 
     if (utf8length(newPassword) > MAX_ACCOUNT_STR)
-        return AOR_PASS_TOO_LONG;
+        return AccountOpResult::AOR_PASS_TOO_LONG;
 
-    normalizeString(username);
-    normalizeString(newPassword);
+    Utf8ToUpperOnlyLatin(username);
+    Utf8ToUpperOnlyLatin(newPassword);
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_PASSWORD);
 
@@ -173,7 +173,7 @@ AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
 
     LoginDatabase.Execute(stmt);
 
-    return AOR_OK;
+    return AccountOpResult::AOR_OK;
 }
 
 uint32 GetId(std::string username)
@@ -226,8 +226,8 @@ bool CheckPassword(uint32 accountId, std::string password)
     if (!GetName(accountId, username))
         return false;
 
-    normalizeString(username);
-    normalizeString(password);
+    Utf8ToUpperOnlyLatin(username);
+    Utf8ToUpperOnlyLatin(password);
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD);
     stmt->setUInt32(0, accountId);

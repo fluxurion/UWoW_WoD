@@ -462,7 +462,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        QueryResult result = LoginDatabase.PQuery("SELECT `to_realm`, `name` FROM realm_transfer WHERE from_realm = '%u';", realmID);
+        QueryResult result = LoginDatabase.PQuery("SELECT `to_realm`, `name` FROM realm_transfer WHERE from_realm = '%u';", realmHandle.Index);
         if (!result)
         {
             LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
@@ -500,7 +500,7 @@ public:
         {
             case GOSSIP_SENDER_MAIN:
             {
-                if(QueryResult check_wpe = LoginDatabase.PQuery("SELECT `name` FROM realm_transfer WHERE from_realm = '%u' AND to_realm = '%u';", realmID, action))
+                if(QueryResult check_wpe = LoginDatabase.PQuery("SELECT `name` FROM realm_transfer WHERE from_realm = '%u' AND to_realm = '%u';", realmHandle.Index, action))
                     player->SetTransferId(action);
                 else
                     return true;
@@ -556,7 +556,7 @@ public:
                     {
                         stmt->setUInt32(0, account_id);
                         stmt->setUInt32(1, guid);
-                        stmt->setUInt32(2, realmID);
+                        stmt->setUInt32(2, realmHandle.Index);
                         stmt->setUInt32(3, player->GetTransferId());
                         stmt->setUInt32(4, 1);
                         stmt->setString(5, dump);

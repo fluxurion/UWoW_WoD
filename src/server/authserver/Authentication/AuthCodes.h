@@ -78,6 +78,7 @@ enum ExpansionFlags
 namespace AuthHelper
 {
     bool IsAcceptedClientBuild(int build);
+    bool IsBuildSupportingBattlenet(int build);
 };
 
 #endif

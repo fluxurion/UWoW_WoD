@@ -31,29 +31,29 @@ public:
     {
         static ChatCommand accountSetCommandTable[] =
         {
-            { "password", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET_PASSWORD, true,  &HandleAccountSetPasswordCommand, "", NULL },
+            { "password", SEC_ADMINISTRATOR,                                 true,  &HandleAccountSetPasswordCommand, "", NULL },
             { NULL,       0,                                                 false, NULL,                             "", NULL }
         };
 
         static ChatCommand accountLockCommandTable[] =
         {
-            { "country", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LOCK_COUNTRY, true,  &HandleAccountLockCountryCommand, "", NULL },
-            { "ip",      rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_LOCK_IP,      true,  &HandleAccountLockIpCommand,      "", NULL },
+            //{ "country", SEC_ADMINISTRATOR,                                 true, &HandleAccountLockCountryCommand, "", NULL },
+            { "ip",      SEC_ADMINISTRATOR,                                 true, &HandleAccountLockIpCommand, "", NULL },
             { NULL,      0,                                                 false, NULL,                             "", NULL }
         };
 
         static ChatCommand accountCommandTable[] =
         {
-            { "create",     rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_CREATE,      true,  &HandleAccountCreateCommand,     "", NULL                    },
-            { "lock",       rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT,             false, NULL,                            "", accountLockCommandTable },
-            { "set",        rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_SET,         true,  NULL,                            "", accountSetCommandTable  },
-            { "password",   rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT_PASSWORD,    false, &HandleAccountPasswordCommand,   "", NULL                    },
+            { "create",     SEC_ADMINISTRATOR,                                true, &HandleAccountCreateCommand, "", NULL },
+            { "lock",       SEC_ADMINISTRATOR,                                false, NULL, "", accountLockCommandTable },
+            { "set",        SEC_ADMINISTRATOR,                                true, NULL, "", accountSetCommandTable },
+            { "password",   SEC_ADMINISTRATOR,                                false, &HandleAccountPasswordCommand, "", NULL },
             { NULL,         0,                                                false, NULL,                            "", NULL                    }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "battlenetaccount", rbac::RBAC_PERM_COMMAND_BNET_ACCOUNT, true,  NULL, "", accountCommandTable },
+            { "battlenetaccount", SEC_ADMINISTRATOR,                    true, NULL, "", accountCommandTable },
             { NULL,               0,                                    false, NULL, "", NULL                }
         };
 
@@ -87,9 +87,9 @@ public:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
                 if (handler->GetSession())
                 {
-                    TC_LOG_INFO("entities.player.character", "Battle.net account: %d (IP: %s) Character:[%s] (GUID: %u) created Account %s",
+                    sLog->outInfo(LOG_FILTER_CHARACTER, "Battle.net account: %d (IP: %s) Character:[%s] (GUID: %u) created Account %s",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                        handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(),
+                        handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUIDLow(),
                         accountName);
                 }
                 break;
@@ -127,7 +127,7 @@ public:
         {
             if (param == "on")
             {
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGON_COUNTRY);
+                /*PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGON_COUNTRY);
                 uint32 ip = inet_addr(handler->GetSession()->GetRemoteAddress().c_str());
                 EndianConvertReverse(ip);
                 stmt->setUInt32(0, ip);
@@ -146,15 +146,15 @@ public:
                 {
                     handler->PSendSysMessage("[IP2NATION] Table empty");
                     TC_LOG_DEBUG("server.authserver", "[IP2NATION] Table empty");
-                }
+                }*/
             }
             else if (param == "off")
             {
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
+                /*PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
                 stmt->setString(0, "00");
                 stmt->setUInt32(1, handler->GetSession()->GetBattlenetAccountId());
                 LoginDatabase.Execute(stmt);
-                handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
+                handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);*/
             }
             return true;
         }
@@ -230,9 +230,9 @@ public:
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             handler->SetSentErrorMessage(true);
-            TC_LOG_INFO("entities.player.character", "Battle.net account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but the provided old password is wrong.",
+            sLog->outInfo(LOG_FILTER_CHARACTER, "Battle.net account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but the provided old password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow());
+                handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUIDLow());
             return false;
         }
 
@@ -250,9 +250,9 @@ public:
         {
             case AccountOpResult::AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_PASSWORD);
-                TC_LOG_INFO("entities.player.character", "Battle.net account: %u (IP: %s) Character:[%s] (GUID: %u) Changed Password.",
+                sLog->outInfo(LOG_FILTER_CHARACTER, "Battle.net account: %u (IP: %s) Character:[%s] (GUID: %u) Changed Password.",
                     handler->GetSession()->GetBattlenetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                    handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow());
+                    handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUIDLow());
                 break;
             case AccountOpResult::AOR_PASS_TOO_LONG:
                 handler->SendSysMessage(LANG_PASSWORD_TOO_LONG);

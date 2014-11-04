@@ -180,20 +180,24 @@ target_link_libraries(worldserver
   ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
 )
-else()
+elseif()
 target_link_libraries(worldserver
   game
+  ipc
   shared
+  scripts
   collision
   g3dlib
   gsoap
   Detour
+  zmqpp
   ${JEMALLOC_LIBRARY}
   ${READLINE_LIBRARY}
   ${TERMCAP_LIBRARY}
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
   ${ZLIB_LIBRARIES}
+  ${ZMQ_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
   ${Boost_LIBRARIES}
 )

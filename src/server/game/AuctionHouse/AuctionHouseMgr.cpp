@@ -99,7 +99,6 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
     // data for gm.log
     if (sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
-<<<<<<< HEAD
         uint32 bidder_security = 0;
         std::string bidder_name;
         if (bidder)
