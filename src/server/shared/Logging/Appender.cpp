@@ -221,6 +221,12 @@ char const* Appender::getLogFilterTypeString(LogFilterType type)
             return "OPCODE";
         case LOG_FILTER_POWER:
             return "POWER";
+        case LOG_FILTER_BATTLENET:
+            return "BATTLENET";
+        case LOG_FILTER_IPC:
+            return "IPC";
+        case LOG_FILTER_BNET_SESSION:
+            return "BNET_SESSION";
         default:
             break;
     }

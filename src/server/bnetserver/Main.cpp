@@ -63,6 +63,8 @@ LoginDatabaseWorkerPool LoginDatabase;
 
 int main(int argc, char** argv)
 {
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
     std::string configFile = _TRINITY_BNET_CONFIG;
     auto vm = GetConsoleArguments(argc, argv, configFile);
     // exit if help is enabled
@@ -75,6 +77,8 @@ int main(int argc, char** argv)
         printf("Error in config file: %s\n", configError.c_str());
         return 1;
     }
+
+    Log::instance(&_ioService);
 
     sLog->outInfo(LOG_FILTER_BATTLENET, "%s (bnetserver)", _FULLVERSION);
     sLog->outInfo(LOG_FILTER_BATTLENET, "<Ctrl-C> to stop.\n");
