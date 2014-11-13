@@ -93,7 +93,7 @@ void Battlenet::Session::LogUnhandledPacket(PacketHeader const& header)
     sLog->outDebug(LOG_FILTER_BNET_SESSION, "%s Received unhandled packet %s", GetClientInfo().c_str(), sPacketManager.GetClientPacketName(header));
 }
 
-void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& logonRequest)
+void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest3 const& logonRequest)
 {
     // Verify that this IP is not in the ip_banned table
     LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
@@ -115,6 +115,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_INVALID_PROGRAM);
         AsyncWrite(logonResponse);
+        sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::LogonRequest] %s attempted to log in with game other than WoW (using %s)!", GetClientInfo().c_str(), logonRequest.Program.c_str());
         return;
     }
 
@@ -123,6 +124,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_INVALID_OS);
         AsyncWrite(logonResponse);
+        sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::LogonRequest] %s attempted to log in from an unsupported platform (using %s)!", GetClientInfo().c_str(), logonRequest.Platform.c_str());
         return;
     }
 
@@ -131,6 +133,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_UNSUPPORTED_LANGUAGE);
         AsyncWrite(logonResponse);
+        sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::LogonRequest] %s attempted to log in with unsupported locale (using %s)!", GetClientInfo().c_str(), logonRequest.Locale.c_str());
         return;
     }
 
@@ -140,15 +143,23 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
         {
             Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
             if (!sComponentMgr->HasProgram(component.Program))
+            {
                 logonResponse->SetAuthResult(AUTH_INVALID_PROGRAM);
+                sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::LogonRequest] %s is using unsupported component program %s!", GetClientInfo().c_str(), component.Program.c_str());
+            }
             else if (!sComponentMgr->HasPlatform(component.Platform))
+            {
                 logonResponse->SetAuthResult(AUTH_INVALID_OS);
+                sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::LogonRequest] %s is using unsupported component platform %s!", GetClientInfo().c_str(), component.Platform.c_str());
+            }
             else
             {
                 if (component.Program != "WoW" || AuthHelper::IsBuildSupportingBattlenet(component.Build))
                     logonResponse->SetAuthResult(AUTH_REGION_BAD_VERSION);
                 else
                     logonResponse->SetAuthResult(AUTH_USE_GRUNT_LOGON);
+
+                sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::LogonRequest] %s is using unsupported component version %u!", GetClientInfo().c_str(), component.Build);
             }
 
             AsyncWrite(logonResponse);
@@ -164,7 +175,6 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
     _os = logonRequest.Platform;
 
     Utf8ToUpperOnlyLatin(_accountName);
-
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
     stmt->setString(0, _accountName);
 
@@ -174,6 +184,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest const& 
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         AsyncWrite(logonResponse);
+        sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::LogonRequest] %s is trying to log in from unknown account!", GetClientInfo().c_str());
         return;
     }
 
@@ -435,14 +446,14 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
 {
     WoWRealm::JoinResponseV2* joinResponse = new WoWRealm::JoinResponseV2();
     Realm const* realm = sRealmList->GetRealm(joinRequest.Realm);
-    if (!realm || realm->Flags & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE))
+    if (!realm || realm->Flags & (REALM_FLAG_INVALID | REALM_FLAG_OFFLINE) || realm->Id.Build != _build)
     {
         joinResponse->Response = WoWRealm::JoinResponseV2::FAILURE;
         AsyncWrite(joinResponse);
         return;
     }
 
-    joinResponse->ServerSeed = uint32(rand32());
+    joinResponse->ServerSeed = rand32();
 
     uint8 sessionKey[40];
     HmacSha1 hmac(K.GetNumBytes(), K.AsByteArray().get());
@@ -466,7 +477,7 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
 
     joinResponse->IPv4.emplace_back(realm->LocalAddress, realm->Port);
     //if (realm->ExternalAddress != realm->LocalAddress)
-        //joinResponse->IPv4.emplace_back(realm->LocalAddress, realm->Port);
+    //    joinResponse->IPv4.emplace_back(realm->LocalAddress, realm->Port);
 
     AsyncWrite(joinResponse);
 }
@@ -519,12 +530,12 @@ void Battlenet::Session::ReadHandler()
             if (stream.Read<bool>(1))
                 header.Channel = stream.Read<int32>(4);
 
-            if (header.Channel != AUTHENTICATION && !_authed)
+            /*if (header.Channel != AUTHENTICATION && !_authed)
             {
                 sLog->outDebug(LOG_FILTER_BNET_SESSION, "%s Received not allowed %s. Client has not authed yet.", GetClientInfo().c_str(), header.ToString().c_str());
-                CloseSocket();
+                //CloseSocket();
                 return;
-            }
+            }*/
 
             if (ClientPacket* packet = sPacketManager.CreateClientPacket(header, stream))
             {
@@ -701,6 +712,7 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         ReplaceResponse(response, logonResponse);
+        sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::Password] %s attempted to log in with invalid password!", GetClientInfo().c_str());
         return false;
     }
 
@@ -716,6 +728,7 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
         Authentication::LogonResponse* logonResponse = new Authentication::LogonResponse();
         logonResponse->SetAuthResult(LOGIN_NO_GAME_ACCOUNT);
         ReplaceResponse(response, logonResponse);
+        sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::Password] %s does not have any linked game accounts!", GetClientInfo().c_str());
         return false;
     }
 
@@ -758,8 +771,9 @@ bool Battlenet::Session::HandlePasswordModule(BitStream* dataStream, ServerPacke
             fields = result->Fetch();
             std::ostringstream name;
             std::string originalName = fields[1].GetString();
-            if (originalName.find('#') != std::string::npos)
-                name << "WoW" << uint32(fields[0].GetUInt8());
+            std::size_t hashPos = originalName.find('#');
+            if (hashPos != std::string::npos)
+                name << "WoW" << originalName.substr(hashPos + 1);
             else
                 name << originalName;
 
@@ -846,6 +860,7 @@ bool Battlenet::Session::HandleSelectGameAccountModule(BitStream* dataStream, Se
         Authentication::LogonResponse* complete = new Authentication::LogonResponse();
         complete->SetAuthResult(LOGIN_NO_GAME_ACCOUNT);
         ReplaceResponse(response, complete);
+        sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::SelectGameAccount] %s attempted to log in with invalid game account name %s!", GetClientInfo().c_str(), account.c_str());
         return false;
     }
 
@@ -967,7 +982,7 @@ bool Battlenet::Session::HandleResumeModule(BitStream* dataStream, ServerPacket*
         stmt->setString(0, _accountName);
         LoginDatabase.Execute(stmt);
 
-        sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::Resume] Invalid proof!");
+        sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::Resume] %s attempted to reconnect with invalid password!", GetClientInfo().c_str());
         Authentication::ResumeResponse* resumeResponse = new Authentication::ResumeResponse();
         resumeResponse->SetAuthResult(AUTH_UNKNOWN_ACCOUNT);
         ReplaceResponse(response, resumeResponse);

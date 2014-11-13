@@ -79,9 +79,10 @@ Battlenet::PacketManager::PacketManager()
 
 void Battlenet::PacketManager::RegisterAuthenticationPackets()
 {
-    REGISTER_CLIENT_PACKET(PacketHeader(Authentication::CMSG_LOGON_REQUEST, AUTHENTICATION), Authentication::LogonRequest);
+    REGISTER_CLIENT_PACKET_NAME(PacketHeader(Authentication::CMSG_LOGON_REQUEST, AUTHENTICATION), "Authentication::LogonRequest");
     REGISTER_CLIENT_PACKET(PacketHeader(Authentication::CMSG_RESUME_REQUEST, AUTHENTICATION), Authentication::ResumeRequest);
     REGISTER_CLIENT_PACKET(PacketHeader(Authentication::CMSG_PROOF_RESPONSE, AUTHENTICATION), Authentication::ProofResponse);
+    REGISTER_CLIENT_PACKET(PacketHeader(Authentication::CMSG_LOGON_REQUEST_3, AUTHENTICATION), Authentication::LogonRequest3);
 
     REGISTER_SERVER_PACKET(PacketHeader(Authentication::SMSG_LOGON_RESPONSE, AUTHENTICATION), Authentication::LogonResponse);
     REGISTER_SERVER_PACKET(PacketHeader(Authentication::SMSG_RESUME_RESPONSE, AUTHENTICATION), Authentication::ResumeResponse);

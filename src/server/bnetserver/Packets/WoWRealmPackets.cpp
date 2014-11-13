@@ -42,10 +42,12 @@ void Battlenet::WoWRealm::ListUnsubscribe::CallHandler(Session* session)
 
 void Battlenet::WoWRealm::JoinRequestV2::Read()
 {
+    ClientSeed = _stream.Read<uint32>(32);
+    _stream.Read<uint32>(20);
+    Realm.Region = _stream.Read<uint8>(8);
+    _stream.Read<uint16>(12);
     Realm.Battlegroup = _stream.Read<uint8>(8);
     Realm.Index = _stream.Read<uint32>(32);
-    Realm.Region = _stream.Read<uint8>(8);
-    ClientSeed = _stream.Read<uint32>(32);
 }
 
 std::string Battlenet::WoWRealm::JoinRequestV2::ToString() const
@@ -74,9 +76,10 @@ void Battlenet::WoWRealm::ListSubscribeResponse::Write()
         _stream.Write(CharacterCounts.size(), 7);
         for (CharacterCountEntry const& entry : CharacterCounts)
         {
+            _stream.Write(entry.Realm.Region, 8);
+            _stream.Write(0, 12);
             _stream.Write(entry.Realm.Battlegroup, 8);
             _stream.Write(entry.Realm.Index, 32);
-            _stream.Write(entry.Realm.Region, 8);
             _stream.Write(entry.CharacterCount, 16);
         }
 
@@ -116,11 +119,12 @@ void Battlenet::WoWRealm::ListUpdate::Write()
     _stream.Write(UpdateState, 1);
     if (UpdateState == UPDATE)
     {
-        _stream.Write(Type + -std::numeric_limits<int32>::min(), 32);
-        _stream.WriteFloat(Population);
-        _stream.Write(Flags, 8);
-        _stream.Write(Lock, 8);
         _stream.Write(Timezone, 32);
+        _stream.WriteFloat(Population);
+        _stream.Write(Lock, 8);
+        _stream.Write(0, 19);
+        _stream.Write(Type + -std::numeric_limits<int32>::min(), 32);
+        _stream.WriteString(Name, 10);
         _stream.Write(!Version.empty(), 1);
         if (!Version.empty())
         {
@@ -137,12 +141,13 @@ void Battlenet::WoWRealm::ListUpdate::Write()
             _stream.WriteBytes(&port, 2);
         }
 
-        _stream.WriteString(Name, 10);
+        _stream.Write(Flags, 8);
     }
 
+    _stream.Write(Id.Region, 8);
+    _stream.Write(0, 12);
     _stream.Write(Id.Battlegroup, 8);
     _stream.Write(Id.Index, 32);
-    _stream.Write(Id.Region, 8);
 }
 
 std::string Battlenet::WoWRealm::ListUpdate::ToString() const
@@ -170,15 +175,13 @@ void Battlenet::WoWRealm::ToonReady::Write()
     uint32 realmAddress = ((Realm.Battlegroup << 16) & 0xFF0000) | uint16(Realm.Index);
     _stream.Write(realmAddress, 32);
     _stream.WriteString(Name, 7, -2);
-    _stream.WriteSkip(7);
-    _stream.Write(Guid, 64);
-    _stream.WriteFourCC(Game);
-    _stream.Write(Realm.Region, 8);
     _stream.WriteSkip(21);
-    _stream.Write(realmAddress, 32);
-    _stream.WriteSkip(9);
     _stream.Write(0, 64);   // Unknown
     _stream.Write(0, 32);   // Unknown
+    _stream.Write(Guid, 64);
+    _stream.Write(realmAddress, 32);
+    _stream.Write(Realm.Region, 8);
+    _stream.WriteFourCC(Game);
 }
 
 std::string Battlenet::WoWRealm::ToonReady::ToString() const
@@ -193,23 +196,10 @@ std::string Battlenet::WoWRealm::ToonReady::ToString() const
 
 void Battlenet::WoWRealm::JoinResponseV2::Write()
 {
-    _stream.Write(0, 27);
     _stream.Write(Response, 1);
     if (Response == SUCCESS)
     {
         _stream.Write(ServerSeed, 32);
-        _stream.Write(IPv6.size(), 5);
-        for (tcp::endpoint const& addr : IPv6)
-        {
-            boost::asio::ip::address_v6::bytes_type ip = addr.address().to_v6().to_bytes();
-            uint16 port = addr.port();
-
-            EndianConvertReverse(port);
-
-            _stream.WriteBytes(ip.data(), 16);
-            _stream.WriteBytes(&port, 2);
-        }
-
         _stream.Write(IPv4.size(), 5);
         for (tcp::endpoint const& addr : IPv4)
         {
@@ -219,6 +209,18 @@ void Battlenet::WoWRealm::JoinResponseV2::Write()
             EndianConvertReverse(port);
 
             _stream.WriteBytes(ip.data(), 4);
+            _stream.WriteBytes(&port, 2);
+        }
+
+        _stream.Write(IPv6.size(), 5);
+        for (tcp::endpoint const& addr : IPv6)
+        {
+            boost::asio::ip::address_v6::bytes_type ip = addr.address().to_v6().to_bytes();
+            uint16 port = addr.port();
+
+            EndianConvertReverse(port);
+
+            _stream.WriteBytes(ip.data(), 16);
             _stream.WriteBytes(&port, 2);
         }
     }

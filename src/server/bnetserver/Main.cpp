@@ -63,8 +63,6 @@ LoginDatabaseWorkerPool LoginDatabase;
 
 int main(int argc, char** argv)
 {
-    std::this_thread::sleep_for(std::chrono::seconds(5));
-
     std::string configFile = _TRINITY_BNET_CONFIG;
     auto vm = GetConsoleArguments(argc, argv, configFile);
     // exit if help is enabled

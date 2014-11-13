@@ -63,7 +63,7 @@ namespace Battlenet
         void LogUnhandledPacket(PacketHeader const& header);
 
         // Authentication
-        void HandleLogonRequest(Authentication::LogonRequest const& logonRequest);
+        void HandleLogonRequest(Authentication::LogonRequest3 const& logonRequest);
         void HandleResumeRequest(Authentication::ResumeRequest const& resumeRequest);
         void HandleProofResponse(Authentication::ProofResponse const& proofResponse);
 

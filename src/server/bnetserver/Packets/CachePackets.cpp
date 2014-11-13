@@ -21,20 +21,19 @@
 
 void Battlenet::Cache::GetStreamItemsRequest::Read()
 {
+    _stream.WriteSkip(31);
+    Index = _stream.Read<uint32>(32);
+    ReferenceTime = _stream.Read<int32>(32) - std::numeric_limits<int32>::min();
+    _stream.Read<bool>(1);  // StreamDirection
+    _stream.Read<uint8>(6); // Module count, always 0
+    Locale = _stream.ReadFourCC();
     if (_stream.Read<bool>(1))
     {
-        _stream.Read<uint16>(11);   // padding
         ItemName = _stream.ReadFourCC();
         Channel = _stream.ReadFourCC();
     }
     else
         _stream.Read<uint16>(16);
-
-    _stream.Read<bool>(1);  // StreamDirection
-    ReferenceTime = _stream.Read<int32>(32) - std::numeric_limits<int32>::min();
-    Locale = _stream.ReadFourCC();
-    Index = _stream.Read<uint32>(32);
-    _stream.Read<uint8>(6); // Module count, always 0
 }
 
 std::string Battlenet::Cache::GetStreamItemsRequest::ToString() const
@@ -59,19 +58,17 @@ Battlenet::Cache::GetStreamItemsResponse::~GetStreamItemsResponse()
 void Battlenet::Cache::GetStreamItemsResponse::Write()
 {
     _stream.Write(0, 16);
+    _stream.Write(1, 16);
+    _stream.Write(Index, 32);
     _stream.Write(Modules.size(), 6);
     for (ModuleInfo const* info : Modules)
     {
         _stream.WriteBytes(info->Type.c_str(), 4);
         _stream.WriteFourCC(info->Region);
         _stream.WriteBytes(info->ModuleId, 32);
+        _stream.WriteSkip(27);
         _stream.WriteBytes(info->Data, 4);
     }
-
-    _stream.Write(Index, 32);
-    _stream.Write(0, 17);   // padding
-    _stream.Write(1, 16);
-    _stream.Write(0, 2);
 }
 
 std::string Battlenet::Cache::GetStreamItemsResponse::ToString() const

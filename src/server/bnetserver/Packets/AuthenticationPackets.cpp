@@ -19,43 +19,6 @@
 #include "Session.h"
 #include "Util.h"
 
-void Battlenet::Authentication::LogonRequest::Read()
-{
-    Program = _stream.ReadFourCC();
-    Platform = _stream.ReadFourCC();
-    Locale = _stream.ReadFourCC();
-
-    Components.resize(_stream.Read<uint32>(6));
-    for (size_t i = 0; i < Components.size(); ++i)
-    {
-        Component& component = Components[i];
-        component.Program = _stream.ReadFourCC();
-        component.Platform = _stream.ReadFourCC();
-        component.Build = _stream.Read<uint32>(32);
-    }
-
-    if (_stream.Read<uint32>(1))
-        Login = _stream.ReadString(9, 3);
-}
-
-std::string Battlenet::Authentication::LogonRequest::ToString() const
-{
-    std::ostringstream stream;
-    stream << "Battlenet::Authentication::LogonRequest Program: " << Program << ", Platform: " << Platform << ", Locale: " << Locale;
-    for (Component const& component : Components)
-        stream << std::endl << "Battlenet::Component Program: " << component.Program << ", Platform: " << component.Platform << ", Build: " << component.Build;
-
-    if (!Login.empty())
-        stream << std::endl << "Battlenet::Authentication::LogonRequest Login: " << Login;
-
-    return stream.str();
-}
-
-void Battlenet::Authentication::LogonRequest::CallHandler(Session* session)
-{
-    session->HandleLogonRequest(*this);
-}
-
 void Battlenet::Authentication::ResumeRequest::Read()
 {
     Program = _stream.ReadFourCC();
@@ -72,6 +35,9 @@ void Battlenet::Authentication::ResumeRequest::Read()
     }
 
     Login = _stream.ReadString(9, 3);
+    auto pos = Login.find('#');
+    if (pos != std::string::npos)
+        Login = Login.substr(0, pos);
     Region = _stream.Read<uint8>(8);
     GameAccountName = _stream.ReadString(5, 1);
 }
@@ -159,6 +125,52 @@ void Battlenet::Authentication::ProofResponse::CallHandler(Session* session)
     session->HandleProofResponse(*this);
 }
 
+void Battlenet::Authentication::LogonRequest3::Read()
+{
+    Program = _stream.ReadFourCC();
+    Platform = _stream.ReadFourCC();
+    Locale = _stream.ReadFourCC();
+
+    Components.resize(_stream.Read<uint32>(6));
+    for (size_t i = 0; i < Components.size(); ++i)
+    {
+        Component& component = Components[i];
+        component.Program = _stream.ReadFourCC();
+        component.Platform = _stream.ReadFourCC();
+        component.Build = _stream.Read<uint32>(32);
+    }
+
+    if (_stream.Read<uint32>(1))
+    {
+        Login = _stream.ReadString(9, 3);
+        auto pos = Login.find('#');
+        if (pos != std::string::npos)
+            Login = Login.substr(0, pos);
+    }
+
+    Compatibility = _stream.Read<uint64>(64);
+}
+
+std::string Battlenet::Authentication::LogonRequest3::ToString() const
+{
+    std::ostringstream stream;
+    stream << "Battlenet::Authentication::LogonRequest3 Program: " << Program << ", Platform: " << Platform << ", Locale: " << Locale;
+    for (Component const& component : Components)
+        stream << std::endl << "Battlenet::Component Program: " << component.Program << ", Platform: " << component.Platform << ", Build: " << component.Build;
+
+    if (!Login.empty())
+        stream << std::endl << " Login: " << Login;
+
+    stream << " Compatibility: " << Compatibility;
+
+    return stream.str();
+}
+
+void Battlenet::Authentication::LogonRequest3::CallHandler(Session* session)
+{
+    session->HandleLogonRequest(*this);
+}
+
 Battlenet::Authentication::LogonResponse::~LogonResponse()
 {
     for (ModuleInfo* m : Modules)
@@ -205,6 +217,7 @@ void Battlenet::Authentication::LogonResponse::Write()
         _stream.Write(GameAccountFlags, 64);
 
         _stream.Write(FailedLogins, 32);
+        _stream.Write(false, 1);            // RaF
     }
     else
     {

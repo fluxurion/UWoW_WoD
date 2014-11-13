@@ -63,7 +63,20 @@ std::string Battlenet::Connection::DisconnectRequest::ToString() const
 
 void Battlenet::Connection::ConnectionClosing::Read()
 {
+    Packets.resize(_stream.Read<uint8>(6));
+    for (size_t i = 0; i < Packets.size(); ++i)
+    {
+        PacketInfo& info = Packets[i];
+        info.CommandName = _stream.ReadFourCC();
+        info.Timestamp = _stream.Read<uint32>(32);
+        info.Size = _stream.Read<uint32>(16);
+        info.Channel = _stream.ReadFourCC();
+        info.LayerId = _stream.Read<uint32>(16);
+    }
+
     Reason = _stream.Read<ClosingReason>(4);
+    _stream.ReadBytes(_stream.Read<uint8>(8)); // BadData
+
     if (_stream.Read<bool>(1))  // HasHeader
     {
         Header.Opcode = _stream.Read<uint32>(6);
@@ -72,18 +85,6 @@ void Battlenet::Connection::ConnectionClosing::Read()
     }
 
     Now = _stream.Read<time_t>(32);
-    _stream.Read<uint32>(25);
-    auto bytes = _stream.ReadBytes(_stream.Read<uint8>(8)); // BadData
-    Packets.resize(_stream.Read<uint8>(6));
-    for (size_t i = 0; i < Packets.size(); ++i)
-    {
-        PacketInfo& info = Packets[i];
-        info.CommandName = _stream.ReadFourCC();
-        info.LayerId = _stream.Read<uint32>(16);
-        info.Channel = _stream.ReadFourCC();
-        info.Timestamp = _stream.Read<uint32>(32);
-        info.Size = _stream.Read<uint32>(16);
-    }
 }
 
 std::string Battlenet::Connection::ConnectionClosing::ToString() const

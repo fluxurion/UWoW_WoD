@@ -38,15 +38,42 @@ CREATE TABLE `battlenet_components` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `battlenet_components` VALUES
-('Bnet','Cmp1',3),
+-- MoP
+('Bnet','Mc64',26487),
 ('Bnet','Win',26487),
 ('Bnet','Wn64',26487),
-('Tool','Win',2736),
-('WoW','base',15595),
-('WoW','enGB',15595),
-('WoW','enUS',15595),
-('WoW','Win',15595),
-('WoW','Wn64',15595);
+('WoW','base',17520),
+('WoW','deDE',0),
+('WoW','enGB',17520),
+('WoW','enUS',0),
+('WoW','esES',0),
+('WoW','esMX',0),
+('WoW','frFR',0),
+('WoW','koKR',0),
+('WoW','Mc64',17538),
+('WoW','ruRU',0),
+('WoW','Win',17538),
+('WoW','Wn64',17538),
+('WoW','zhCN',0),
+('WoW','zhTW',0),
+-- WoD
+('Bnet','Mc64',37165),
+('Bnet','Win',37165),
+('Bnet','Wn64',37165),
+('WoW','base',19057),
+('WoW','deDE',0),
+('WoW','enGB',19057),
+('WoW','enUS',0),
+('WoW','esES',0),
+('WoW','esMX',0),
+('WoW','frFR',0),
+('WoW','koKR',0),
+('WoW','Mc64',19116),
+('WoW','ruRU',0),
+('WoW','Win',19116),
+('WoW','Wn64',19116),
+('WoW','zhCN',0),
+('WoW','zhTW',0);
 
 DROP TABLE IF EXISTS `battlenet_modules`;
 CREATE TABLE `battlenet_modules` (
