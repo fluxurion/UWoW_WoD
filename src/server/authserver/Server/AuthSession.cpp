@@ -794,7 +794,7 @@ bool AuthSession::HandleRealmList()
     size_t RealmListSize = 0;
     for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
     {
-        const Realm &realm = i->second;
+        const RealmAuth &realm = i->second;
         // don't work with realms which not compatible with the client
         //bool okBuild = ((_expversion & POST_BC_EXP_FLAG) && realm.gamebuild == _build) || ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(realm.gamebuild));
         bool okBuild = (_expversion & POST_BC_EXP_FLAG) && realm.gamebuild == _build;

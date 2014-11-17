@@ -20,22 +20,10 @@
 #define _REALMLIST_H
 
 #include "Common.h"
-
-enum RealmFlags
-{
-    REALM_FLAG_NONE = 0x00,
-    REALM_FLAG_INVALID = 0x01,
-    REALM_FLAG_OFFLINE = 0x02,
-    REALM_FLAG_SPECIFYBUILD = 0x04,
-    REALM_FLAG_UNK1 = 0x08,
-    REALM_FLAG_UNK2 = 0x10,
-    REALM_FLAG_RECOMMENDED = 0x20,
-    REALM_FLAG_NEW = 0x40,
-    REALM_FLAG_FULL = 0x80
-};
+#include "Realm/Realm.h"
 
 // Storage object for a realm
-struct Realm
+struct RealmAuth
 {
     std::string address;
     std::string name;
@@ -52,7 +40,7 @@ struct Realm
 class RealmList
 {
 public:
-    typedef std::map<std::string, Realm> RealmMap;
+    typedef std::map<std::string, RealmAuth> RealmMap;
     typedef std::vector<std::string> FirewallFarms;
 
     static RealmList* instance()
@@ -65,7 +53,7 @@ public:
 
     void UpdateIfNeed();
 
-    void AddRealm(Realm NewRealm) {m_realms[NewRealm.name] = NewRealm;}
+    void AddRealm(RealmAuth NewRealm) { m_realms[NewRealm.name] = NewRealm; }
 
     RealmMap::const_iterator begin() const { return m_realms.begin(); }
     RealmMap::const_iterator end() const { return m_realms.end(); }

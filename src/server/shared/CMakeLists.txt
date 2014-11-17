@@ -45,6 +45,7 @@ set(shared_STAT_SRCS
   ${sources_Logging}
   ${sources_Networking}
   ${sources_Packets}
+  ${sources_Realm}
   ${sources_Threading}
   ${sources_Utilities}
   ${sources_localdir}
@@ -69,6 +70,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Logging
   ${CMAKE_CURRENT_SOURCE_DIR}/Networking
   ${CMAKE_CURRENT_SOURCE_DIR}/Packets
+  ${CMAKE_CURRENT_SOURCE_DIR}/Realm
   ${CMAKE_CURRENT_SOURCE_DIR}/Threading
   ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object

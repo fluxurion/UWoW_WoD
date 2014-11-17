@@ -341,14 +341,16 @@ endfunction()
 # Guesses Boost's compiler prefix used in built library names
 # Returns the guess by setting the variable pointed to by _ret
 function(_Boost_GUESS_COMPILER_PREFIX _ret)
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel"
-      OR "${CMAKE_CXX_COMPILER}" MATCHES "icl"
-      OR "${CMAKE_CXX_COMPILER}" MATCHES "icpc")
+  if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel"
+      OR ${CMAKE_CXX_COMPILER} MATCHES "icl"
+      OR ${CMAKE_CXX_COMPILER} MATCHES "icpc")
     if(WIN32)
       set (_boost_COMPILER "-iw")
     else()
       set (_boost_COMPILER "-il")
     endif()
+  elseif (MSVC14)
+    set(_boost_COMPILER "-vc140")
   elseif (MSVC12)
     set(_boost_COMPILER "-vc120")
   elseif (MSVC11)

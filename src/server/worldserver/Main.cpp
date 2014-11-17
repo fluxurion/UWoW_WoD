@@ -43,6 +43,7 @@
 #include "OpenSSLCrypto.h"
 #include "WorldSocketMgr.h"
 #include "BattlenetServerManager.h"
+#include "Realm/Realm.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>
