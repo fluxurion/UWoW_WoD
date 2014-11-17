@@ -73,9 +73,11 @@ enum LogFilterType
     LOG_FILTER_BATTLENET           = 45,
     LOG_FILTER_IPC                 = 46,
     LOG_FILTER_BNET_SESSION        = 47,
+    LOG_FILTER_PROC                = 48,
+    LOG_FILTER_MAX
 };
 
-const uint8 MaxLogFilter = uint8(LOG_FILTER_BNET_SESSION) + 1;
+const uint8 MaxLogFilter = uint8(LOG_FILTER_MAX);
 
 // Values assigned have their equivalent in enum ACE_Log_Priority
 enum LogLevel

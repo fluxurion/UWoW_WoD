@@ -3371,6 +3371,9 @@ class spell_dru_genesis : public SpellScriptLoader
                 {
                     if (Aura* aura = target->GetAura(774))
                     {
+                        if(aura->GetDuration() < 4000)
+                            return;
+
                         int32 tick = (aura->GetEffect(2)->GetTotalTicks() - aura->GetEffect(2)->GetTickNumber()) + 1;
                         int32 dur = tick * (aura->GetEffect(2)->GetAmplitude() / 4);
                         aura->SetDuration(dur);
@@ -3452,6 +3455,42 @@ class spell_dru_efflorescence_dumy : public SpellScriptLoader
         }
 };
 
+class spell_druid_dream_of_cenarius: public SpellScriptLoader
+{
+    public:
+        spell_druid_dream_of_cenarius() : SpellScriptLoader("spell_druid_dream_of_cenarius") { }
+
+        class spell_druid_dream_of_cenarius_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_druid_dream_of_cenarius_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                uint32 count = 2;
+
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
+                {
+                    if ((*itr)->ToUnit() && (*itr)->ToUnit()->GetHealthPct() != 100)
+                        ++itr;
+                    else
+                        targets.erase(itr++);
+                }
+                if (targets.size() > count)
+                    targets.resize(count);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_druid_dream_of_cenarius_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_druid_dream_of_cenarius_SpellScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_play_death();
@@ -3519,4 +3558,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_genesis();
     new spell_dru_glyph_of_hurricane();
     new spell_dru_efflorescence_dumy();
+    new spell_druid_dream_of_cenarius();
 }

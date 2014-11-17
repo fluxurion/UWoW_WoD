@@ -12,6 +12,8 @@
 enum globalSpells
 {
     SPELL_SHA_VORTEX                = 146024,
+    SPELL_TP_ORGRIMMAR_1            = 148032, //Horde
+    SPELL_TP_ORGRIMMAR_2            = 148034, //Aliance
 };
 
 enum eData
@@ -45,6 +47,7 @@ enum eCreatures
 {
     //Npc or summons
     NPC_LOREWALKER_CHO              = 73330,
+    NPC_LOREWALKER_CHO2             = 72872,
     NPC_LOREWALKER_CHO3             = 61348,
     NPC_CONTAMINATED_PUDDLE         = 71604,
     NPC_AQUEOUS_DEFENDER            = 73191,
@@ -88,16 +91,25 @@ enum eCreatures
     NPC_MANIFEST_OF_PRIDE           = 71946, //Manifestation of Pride
     NPC_SLG_GENERIC_MOP             = 68553, //SLG Generic MoP
     NPC_RIFT_OF_CORRUPTION          = 72846, //Rift of Corruption
+    NPC_SHA_OF_PRIDE_END_LADY_JAINA = 73598,
+    NPC_SHA_OF_PRIDE_END_THERON     = 73605,
+    NPC_PORTAL_TO_ORGRIMMAR         = 73536,
     //controller 68553?? Sha Vortex triger 146034
 
-    //  
-    NPC_NORUSHEN                    = 71967,
-    NPC_AMALGAM_OF_CORRUPTION       = 72276,
-    NPC_ESSENCE_OF_CORRUPTION       = 71976,
-    NPC_MANIFESTATION_OF_CORRUPTION = 72264,
-    NPC_TITANIC_CORRUPTION          = 72051,
-    NPC_GREATER_CORRUPTION          = 72001,
-    NPC_PURIFYING_LIGHT             = 72065,
+    //  Norushen
+    NPC_NORUSHEN                        = 71967,
+    NPC_AMALGAM_OF_CORRUPTION           = 72276,
+    NPC_ESSENCE_OF_CORRUPTION_C         = 71976,
+    NPC_ESSENCE_OF_CORRUPTION           = 72263, //released
+    NPC_MANIFESTATION_OF_CORRUPTION_C   = 71977,
+    NPC_MANIFESTATION_OF_CORRUPTION     = 72264, //FRAYED & release
+    NPC_TITANIC_CORRUPTION              = 72051,
+    NPC_GREATER_CORRUPTION              = 72001,
+    NPC_PURIFYING_LIGHT                 = 72065,
+    NPC_RESIDUAL_CORRUPTION             = 72550, // by spell 145522
+    NPC_NN_HEAL_EVENT_PROTECTOR_1       = 71996,
+    NPC_NN_HEAL_EVENT_PROTECTOR_2       = 72000,
+    NPC_NN_HEAL_EVENT_PROTECTOR_3       = 71995,
     //
     NPC_GALAKRAS                    = 72249,
     NPC_IRON_JUGGERNAUT             = 71466,
@@ -122,6 +134,9 @@ enum eCreatures
 
 enum eGameObjects
 {   
+    GO_SHIP_ALLIANCE                = 223459,
+    GO_SHIP_HORDE                   = 223464,
+
     //Immerseus
     GO_IMMERSEUS_EX_DOOR            = 221663,
 
@@ -164,10 +179,32 @@ enum eGameObjects
     GO_LIGTH_QUARANTINE_4           = 223145,
     GO_LIGTH_QUARANTINE_5           = 223146,
     GO_LIGTH_QUARANTINE_6           = 223147,
+    GO_LIGHT_RAY_01                 = 223192,
+    GO_LIGHT_RAY_02                 = 223020,
+    GO_LIGHT_RAY_03                 = 223019,
+    GO_LIGHT_RAY_04                 = 223018,
+    GO_LIGHT_RAY_05                 = 223017,
+    GO_LIGHT_RAY_06                 = 223016,
+    GO_LIGHT_RAY_07                 = 223015,
+    GO_LIGHT_RAY_08                 = 223014,
+    GO_LIGHT_RAY_09                 = 223013,
+    GO_LIGHT_RAY_10                 = 223012,
+    GO_LIGHT_RAY_11                 = 223011,
+    GO_LIGHT_RAY_12                 = 223010,
+    GO_LIGHT_RAY_13                 = 223009,
+    GO_LIGHT_RAY_14                 = 223008,
+    GO_LIGHT_RAY_15                 = 223007,
+    GO_LIGHT_RAY_16                 = 223021,
+
     GO_NORUSHEN_EX_DOOR             = 221447,
 
     //Sha of Pride
     GO_SHA_OF_PRIDE_ENT_DOOR        = 221446,
+};
+
+enum miscData
+{
+    TRANSPORT_PERIOD                = 98995,
 };
 
 static uint8 vehSlotForMeasures(uint32 entry)

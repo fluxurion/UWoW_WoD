@@ -221,7 +221,6 @@ struct SpellValue
     uint32    MaxAffectedTargets;
     float     RadiusMod;
     uint8     AuraStackAmount;
-    bool      addCustomBP;
 };
 
 enum SpellState
@@ -399,6 +398,7 @@ class Spell
         void EffectSummonRaidMarker(SpellEffIndex effIndex);
         void EffectRandomizeDigsites(SpellEffIndex effIndex);
         void EffectTeleportToDigsite(SpellEffIndex effIndex);
+        void EffectUncagePet(SpellEffIndex effIndex);
         void SendScene(SpellEffIndex effIndex);
 
         typedef std::set<Aura *> UsedSpellMods;
@@ -415,6 +415,7 @@ class Spell
         void SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitBetweenTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
+        void SelectImplicitGotoMoveTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
         void SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
@@ -465,7 +466,7 @@ class Spell
         SpellCastResult CheckCasterAuras() const;
         SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
 
-        int32 CalculateDamage(uint8 i, Unit const* target) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_CastItem, m_spellValue->addCustomBP); }
+        int32 CalculateDamage(uint8 i, Unit const* target) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_CastItem); }
 
         bool HaveTargetsForEffect(uint8 effect) const;
         void Delayed();
@@ -484,7 +485,6 @@ class Spell
         void SendCastResult(SpellCastResult result);
         void SendSpellStart();
         void SendSpellGo();
-        void SendSpellCreateVisual();
         void SendSpellPendingCast();
         void SendSpellActivationScene();
         void SendSpellCooldown();
@@ -503,6 +503,7 @@ class Spell
 
         void HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode);
         void HandleThreatSpells();
+        bool CheckEffFromDummy(Unit* target, uint32 eff);
 
         SpellInfo const* const m_spellInfo;
         Item* m_CastItem;
@@ -517,8 +518,26 @@ class Spell
         bool find_target;
         bool canHitTargetInLOS;
         uint32 m_count_dispeling; // Final count dispell auras
+        bool m_interupted;
 
         UsedSpellMods m_appliedMods;
+
+        uint32 AttributesCustom;
+        uint32 AttributesCustomEx;
+        uint32 AttributesCustomEx2;
+        uint32 AttributesCustomEx3;
+        uint32 AttributesCustomEx4;
+        uint32 AttributesCustomEx5;
+        uint32 AttributesCustomEx6;
+        uint32 AttributesCustomEx7;
+        uint32 AttributesCustomEx8;
+        uint32 AttributesCustomEx9;
+        uint32 AttributesCustomEx10;
+        uint32 AttributesCustomEx11;
+        uint32 AttributesCustomEx12;
+        uint32 AttributesCustomEx13;
+        uint32 AttributesCustomCu;
+        void LoadAttrDummy();
 
         int32 GetCastTime() const { return m_casttime; }
         bool IsAutoRepeat() const { return m_autoRepeat; }
@@ -553,10 +572,13 @@ class Spell
 
         void SetSpellValue(SpellValueMod mod, int32 value);
         uint32 GetCountDispel() const { return m_count_dispeling; }
+        bool GetInterupted() const { return m_interupted; }
         void WriteProjectile(uint8 &ammoInventoryType, uint32 &ammoDisplayID);
 
-        void SetSpellDynamicObject(DynamicObject* dynObj) { m_spellDynObj = dynObj;}
-        DynamicObject* GetSpellDynamicObject() const { return m_spellDynObj; }
+        void SetSpellDynamicObject(uint64 dynObj) { m_spellDynObjGuid = dynObj;}
+        uint64 GetSpellDynamicObject() const { return m_spellDynObjGuid; }
+        void SetEffectTargets (std::list<WorldObject*> targets) { m_effect_targets = targets; }
+        std::list<WorldObject*> GetEffectTargets() { return m_effect_targets; }
 
         uint32 GetTargetCount() const { return m_UniqueTargetInfo.size(); }
     protected:
@@ -616,9 +638,12 @@ class Spell
         GameObject* gameObjTarget;
         WorldLocation* destTarget;
         int32 damage;
+        bool damageCalculate[MAX_SPELL_EFFECTS];
+        int32 saveDamageCalculate[MAX_SPELL_EFFECTS];
         SpellEffectHandleMode effectHandleMode;
         // used in effects handlers
         Aura* m_spellAura;
+        std::list<WorldObject*> m_effect_targets;
 
         // this is set in Spell Hit, but used in Apply Aura handler
         DiminishingLevels m_diminishLevel;
@@ -626,12 +651,15 @@ class Spell
 
         // -------------------------------------------
         GameObject* focusObject;
-        DynamicObject* m_spellDynObj;
+        uint64 m_spellDynObjGuid;
 
         // Damage and healing in effects need just calculate
         int32 m_damage;           // Damge   in effects count here
         int32 m_healing;          // Healing in effects count here
         int32 m_final_damage;     // Final damage in effects count here
+        int32 m_absorb;           // Absorb
+        int32 m_resist;           // Resist
+        int32 m_blocked;          // Blocked
 
         // ******************************************
         // Spell trigger system

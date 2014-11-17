@@ -27,9 +27,6 @@ enum eEnums
     DATA_WHITEMANE                  = 3,
     DATA_DOOR_WHITEMANE             = 4,
 
-    DATA_HORSEMAN_EVENT             = 5,
-    GAMEOBJECT_PUMPKIN_SHRINE       = 6,
-
     DATA_VORREL                     = 7
 };
 #endif

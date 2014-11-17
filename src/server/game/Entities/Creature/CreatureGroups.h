@@ -53,6 +53,7 @@ class FormationMgr
         void RemoveCreatureFromGroup(CreatureGroup* group, Creature* creature);
         void LoadCreatureFormations();
         CreatureGroupInfoType CreatureGroupMap;
+        FormationInfo* CreateCustomFormation(Creature* c);
 };
 
 class CreatureGroup

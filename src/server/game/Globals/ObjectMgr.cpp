@@ -336,7 +336,7 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
     {
         Field* fields = result->Fetch();
 
-        uint16 menuId   = fields[0].GetUInt16();
+        uint32 menuId   = fields[0].GetUInt16();
         uint16 id       = fields[1].GetUInt16();
 
         GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, id)];
@@ -2284,7 +2284,7 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
 
             *disenchantID = disenchant->Id;
             *requiredDisenchantSkill = disenchant->RequiredDisenchantSkill;
-            return;
+            //return;
         }
     }
 }
@@ -3007,7 +3007,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                int32 amount   = fields[3].GetInt8();
+                int32 amount   = fields[3].GetUInt32();
 
                 if (!amount)
                 {
@@ -8290,7 +8290,7 @@ void ObjectMgr::LoadGossipMenu()
 
         GossipMenus gMenu;
 
-        gMenu.entry             = fields[0].GetUInt16();
+        gMenu.entry             = fields[0].GetUInt32();
         gMenu.text_id           = fields[1].GetUInt32();
 
         if (!GetGossipText(gMenu.text_id))
@@ -8336,7 +8336,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
         GossipMenuItems gMenuItem;
 
-        gMenuItem.MenuId                = fields[0].GetUInt16();
+        gMenuItem.MenuId                = fields[0].GetUInt32();
         gMenuItem.OptionIndex           = fields[1].GetUInt16();
         gMenuItem.OptionIcon            = fields[2].GetUInt32();
         gMenuItem.OptionText            = fields[3].GetString();
@@ -9073,29 +9073,6 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     return NULL;
 }
 
-void ObjectMgr::LoadSkipUpdateZone()
-{
-	skipData.clear();
-
-    _skipUpdateCount = sConfigMgr->GetIntDefault("ZoneSkipUpdate.count", 1);
-
-	QueryResult result = WorldDatabase.PQuery("SELECT zone FROM zone_skip_update");
-	if (!result)
-		return;
-
-	uint32 count = 0;
-
-	do
-	{
-		Field* fields = result->Fetch();
-		uint32 zoneId = fields[0].GetUInt32();
-		skipData[zoneId] = true;
-		count++;
-	} while (result->NextRow());
-
-	 sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u zone skip update.", count);
-}
-
 void ObjectMgr::RestructCreatureGUID(uint32 nbLigneToRestruct)
 {
     QueryResult result = WorldDatabase.PQuery("SELECT guid FROM creature ORDER BY guid DESC LIMIT %u;", nbLigneToRestruct);
@@ -9466,8 +9443,8 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
 {
     _areaTriggerData.clear();
 
-    //                                               0         1              2        3            4          5             6
-    QueryResult result = WorldDatabase.Query("SELECT entry, customVisualId, radius, radius2, activationDelay, updateDelay, maxCount FROM areatrigger_data");
+    //                                               0         1              2        3            4          5             6          7           8
+    QueryResult result = WorldDatabase.Query("SELECT entry, customVisualId, radius, radius2, activationDelay, updateDelay, maxCount, customEntry, isMoving FROM areatrigger_data");
     if (result)
     {
         uint32 counter = 0;
@@ -9484,6 +9461,8 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
             info.activationDelay = fields[i++].GetUInt32();
             info.updateDelay = fields[i++].GetUInt32();
             info.maxCount = fields[i++].GetUInt8();
+            info.customEntry = fields[i++].GetUInt32();
+            info.isMoving = fields[i++].GetBool();
             ++counter;
         }
         while (result->NextRow());

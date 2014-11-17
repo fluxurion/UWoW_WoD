@@ -337,13 +337,13 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 128 TARGET_UNK_128
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_NEAR_DEST, TARGET_SELECT_CATEGORY_BETWEEN, TARGET_CHECK_ENEMY, TARGET_DIR_FRONT},       // 129 TARGET_UNIT_ENEMY_BETWEEN_DEST
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_NEAR_DEST, TARGET_SELECT_CATEGORY_BETWEEN, TARGET_CHECK_ENEMY, TARGET_DIR_FRONT},       // 130 TARGET_UNIT_ENEMY_BETWEEN_DEST2
-    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 131 TARGET_DEST_RANDOM_CASTER_FRONT2
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ALLY,     TARGET_DIR_NONE},        // 132 TARGET_DEST_TARGET_FRIEND
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 131 TARGET_DEST_RANDOM_CASTER_FRONT
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ALLY,     TARGET_DIR_NONE},        // 132 TARGET_DEST_TARGET_FRIEND
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 133
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_BETWEEN, TARGET_CHECK_ENEMY,    TARGET_DIR_FRONT},       // 134 TARGET_UNIT_BETWEEN_ENEMY
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 135
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 136
-    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 137 TARGET_DEST_RANDOM_CASTER_FRONT
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_GOTOMOVE,TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 137 TARGET_DEST_RANDOM_CASTER_GOTOMOVE
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 138 TARGET_DEST_TARGET_SELECT
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 139
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 140
@@ -419,7 +419,7 @@ bool SpellEffectInfo::IsAreaAuraEffect() const
         Effect == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND   ||
         Effect == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY    ||
         Effect == SPELL_EFFECT_APPLY_AREA_AURA_PET      ||
-        Effect == SPELL_EFFECT_APPLY_AURA_ON_PET      ||
+        Effect == SPELL_EFFECT_APPLY_AURA_ON_PET_OR_SELF      ||
         Effect == SPELL_EFFECT_APPLY_AREA_AURA_OWNER)
         return true;
     return false;
@@ -444,177 +444,90 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* target, Item* m_castItem, bool addCustomBP) const
+int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* target, Item* m_castItem) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
-    int32 customBP = bp ? bp[0]: 0;
-    int32 basePoints = BasePoints;
+    int32 basePoints = bp ? *bp : BasePoints;
     float comboDamage = PointsPerComboPoint;
 
-    if (customBP && !addCustomBP)
+    // base amount modification based on spell lvl vs caster lvl
+    if (ScalingMultiplier != 0.0f && !(_spellInfo->Attributes & SPELL_ATTR0_TRADESPELL) && !(_spellInfo->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS) && _spellInfo->Id != 79638)
     {
-        basePoints = customBP;
+        if (caster)
+        {
+            int32 level = caster->getLevel();
+            if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
+                level = target->getLevel();
+
+            if(SpellScalingEntry const* _scaling = _spellInfo->GetSpellScaling())
+                if(_scaling->MaxScalingLevel && level > _scaling->MaxScalingLevel)
+                    level = _scaling->MaxScalingLevel;
+
+            uint32 _gtscalingId = 0;
+            if(_spellInfo->ScalingClass > -1)
+                _gtscalingId = (_spellInfo->ScalingClass - 1) * 100 + level - 1;
+            else
+                _gtscalingId = (MAX_CLASSES - (_spellInfo->ScalingClass + 2)) * 100 + level - 1;
+
+            //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellEffectInfo::CalcValue Id %u, ScalingClass %i, level %i, basePoints %i, basePointsPerLevel %f, _gtscalingId %i",
+            //_spellInfo->Id, _spellInfo->ScalingClass, level, basePoints, basePointsPerLevel, _gtscalingId);
+
+            if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry(_gtscalingId))
+            {
+                float multiplier = gtScaling->value;
+                if (_spellInfo->CastTimeMax > 0 && _spellInfo->CastTimeMaxLevel > level)
+                    multiplier *= float(_spellInfo->CastTimeMin + (level - 1) * (_spellInfo->CastTimeMax - _spellInfo->CastTimeMin) / (_spellInfo->CastTimeMaxLevel - 1)) / float(_spellInfo->CastTimeMax);
+                if (_spellInfo->CoefLevelBase > level)
+                    multiplier *= (1.0f - _spellInfo->CoefBase) * (float)(level - 1) / (float)(_spellInfo->CoefLevelBase - 1) + _spellInfo->CoefBase;
+                if((_spellInfo->AttributesEx11 & SPELL_ATTR11_SEND_ITEM_LEVEL) && m_castItem)
+                    multiplier = GenerateRandPropPoints(m_castItem->GetTemplate(), m_castItem->GetLevel());
+
+                float preciseBasePoints = ScalingMultiplier * multiplier;
+
+                if (DeltaScalingMultiplier)
+                {
+                    float delta = DeltaScalingMultiplier * ScalingMultiplier * multiplier * 0.5f;
+                    preciseBasePoints += frand(-delta, delta);
+                }
+
+                basePoints = int32(preciseBasePoints);
+
+                if (ComboScalingMultiplier)
+                    comboDamage = ComboScalingMultiplier * multiplier;
+            }
+        }
     }
     else
     {
-        // base amount modification based on spell lvl vs caster lvl
-        if (ScalingMultiplier != 0.0f)
+        if (caster)
         {
-            if (caster && _spellInfo->Id != 113344) // Hack Fix Bloodbath
-            {
-                int32 level = caster->getLevel();
-                int32 Reqlvl = 0;
-
-                if (target && _spellInfo->IsPositiveEffect(_effIndex) && (Effect == SPELL_EFFECT_APPLY_AURA))
-                    level = target->getLevel();
-
-                if (m_castItem)                                     
-                {
-                    Reqlvl = m_castItem->GetTemplate()->RequiredLevel;
-
-                    if (Reqlvl != 1)
-                        level = Reqlvl ? Reqlvl: 1;
-                }
-
-                if (GtSpellScalingEntry const* gtScaling = sGtSpellScalingStore.LookupEntry(_spellInfo->ScalingClass != -1 ? (_spellInfo->ScalingClass - 1) * 100 + level - 1 : (MAX_CLASSES - 1) * 100 + level - 1))
-                {
-                    float multiplier = gtScaling->value;
-                    if (_spellInfo->CastTimeMax > 0 && _spellInfo->CastTimeMaxLevel > level)
-                        multiplier *= float(_spellInfo->CastTimeMin + (level - 1) * (_spellInfo->CastTimeMax - _spellInfo->CastTimeMin) / (_spellInfo->CastTimeMaxLevel - 1)) / float(_spellInfo->CastTimeMax);
-                    if (_spellInfo->CoefLevelBase > level)
-                        multiplier *= (1.0f - _spellInfo->CoefBase) * (float)(level - 1) / (float)(_spellInfo->CoefLevelBase - 1) + _spellInfo->CoefBase;
-
-                    float preciseBasePoints = ScalingMultiplier * multiplier;
-
-                    if (DeltaScalingMultiplier)
-                    {
-                        float delta = DeltaScalingMultiplier * ScalingMultiplier * multiplier * 0.5f;
-                        preciseBasePoints += frand(-delta, delta);
-                    }
-
-                    bool isEnchant = false;
-
-                    for (uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
-                        if (Spell* spell = caster->GetCurrentSpell(i))
-                            if (SpellInfo const* _spellinfo = spell->GetSpellInfo())
-                                if (_spellinfo->HasEffect(SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY))
-                                    isEnchant = true;
-
-                    if (m_castItem && !isEnchant)
-                    {
-                        float cof = 0.0f;
-
-                        switch (m_castItem->GetLevel())
-                        {
-                            case 580: cof = 197.482f; break;
-                            case 576: cof = 186.605f; break;
-                            case 574: cof = 181.334f; break;
-                            case 572: cof = 176.140f; break;
-                            case 570: cof = 171.046f; break;
-                            case 567: cof = 163.552f; break;
-                            case 566: cof = 161.094f; break;
-                            case 563: cof = 153.914f; break;
-                            case 561: cof = 149.233f; break;
-                            case 559: cof = 144.611f; break;
-                            case 557: cof = 140.106f; break;
-                            case 553: cof = 131.334f; break;
-                            case 549: cof = 122.863f; break;
-                            case 548: cof = 120.810f; break;
-                            case 545: cof = 114.732f; break;
-                            case 544: cof = 112.746f; break;
-                            case 543: cof = 110.755f; break;
-                            case 541: cof = 106.838f; break;
-                            case 540: cof = 104.971f; break;
-                            case 539: cof = 103.037f; break;
-                            case 536: cof =  97.423f; break;
-                            case 535: cof =  95.610f; break;
-                            case 532: cof =  90.233f; break;
-                            case 530: cof =  86.724f; break;
-                            case 528: cof =  83.270f; break;
-                            case 526: cof =  79.882f; break;
-                            case 522: cof =  73.273f; break;
-                            case 517: cof =  65.426f; break;
-                            case 513: cof =  59.342f; break;
-                            case 510: cof =  54.970f; break;
-                            case 509: cof =  53.495f; break;
-                            case 506: cof =  49.296f; break;
-                            case 504: cof =  46.545f; break;
-                            case 502: cof =  43.858f; break;
-                            case 500: cof =  41.170f; break;
-                            case 498: cof =  38.600f; break;
-                            case 497: cof =  37.338f; break;
-                            case 496: cof =  36.023f; break;
-                            case 493: cof =  32.296f; break;
-                            case 491: cof =  29.809f; break;
-                            case 489: cof =  27.452f; break;
-                            case 487: cof =  25.084f; break;
-                            case 484: cof =  21.641f; break;
-                            case 483: cof =  20.516f; break;
-                            case 480: cof =  17.188f; break;
-                            case 478: cof =  15.034f; break;
-                            case 476: cof =  12.863f; break;
-                            case 474: cof =  10.823f; break;
-                            case 470: cof =   6.730f; break;
-                            default:
-                                break;
-                        }
-
-                        if (cof)
-                            AddPct(preciseBasePoints, cof);
-                    }
-
-                    if (Reqlvl != 1 || isEnchant)
-                    {
-                        basePoints = int32(preciseBasePoints);
-                        float rounding = preciseBasePoints - basePoints;
-
-                        if (rounding >= 0.444445f)
-                            basePoints++;
-
-                        if ((_spellInfo->AttributesEx2 & SPELL_ATTR2_FOOD_BUFF) && basePoints > BasePoints) 
-                            basePoints = BasePoints;
-                    }
-
-                    if (ComboScalingMultiplier)
-                        comboDamage = ComboScalingMultiplier * multiplier;
-                }
-            }
+            int32 level = int32(caster->getLevel());
+            if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
+                level = int32(_spellInfo->MaxLevel);
+            else if (level < int32(_spellInfo->BaseLevel))
+                level = int32(_spellInfo->BaseLevel);
+            level -= int32(_spellInfo->SpellLevel);
+            basePoints += int32(level * basePointsPerLevel);
         }
-        else
+
+        // roll in a range <1;EffectDieSides> as of patch 3.3.3
+        int32 randomPoints = int32(DieSides);
+        switch (randomPoints)
         {
-            if (caster)
+            case 0: break;
+            case 1: basePoints += 1; break;                     // range 1..1
+            default:
             {
-                int32 level = int32(caster->getLevel());
-                if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
-                    level = int32(_spellInfo->MaxLevel);
-                else if (level < int32(_spellInfo->BaseLevel))
-                    level = int32(_spellInfo->BaseLevel);
-                level -= int32(_spellInfo->SpellLevel);
-                basePoints += int32(level * basePointsPerLevel);
-            }
+                // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
+                int32 randvalue = (randomPoints >= 1)
+                    ? irand(1, randomPoints)
+                    : irand(randomPoints, 1);
 
-            // roll in a range <1;EffectDieSides> as of patch 3.3.3
-            int32 randomPoints = int32(DieSides);
-            switch (randomPoints)
-            {
-                case 0: break;
-                case 1: basePoints += 1; break;                     // range 1..1
-                default:
-                {
-                    // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
-                    int32 randvalue = (randomPoints >= 1)
-                        ? irand(1, randomPoints)
-                        : irand(randomPoints, 1);
-
-                    basePoints += randvalue;
-                    break;
-                }
+                basePoints += randvalue;
+                break;
             }
         }
     }
-
-    if (addCustomBP)
-        basePoints += customBP;
 
     float value = float(basePoints);
 
@@ -906,7 +819,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 171 SPELL_EFFECT_171
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 172 SPELL_EFFECT_RESURRECT_WITH_AURA
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 174 SPELL_EFFECT_APPLY_AURA_ON_PET
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 174 SPELL_EFFECT_APPLY_AURA_ON_PET_OR_SELF
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 175 SPELL_EFFECT_175
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_UNIT}, // 176 SPELL_EFFECT_SANCTUARY_2
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 177 SPELL_EFFECT_177
@@ -1069,21 +982,25 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     SpellLevel = _levels ? _levels->spellLevel : 0;
 
     // SpellPowerEntry
+    PowerType = POWER_NULL;
     PowerCost =  0;
     PowerPerSecond = 0;
     PowerCostPercentage = 0.0f;
     PowerPerSecondPercentage = 0.0f;
-    PowerType = POWER_NULL;
+    PowerRequestId = 0;
+    PowerGetPercentHp = 0.0f;
 
     for (uint8 i = 0; i < MAX_POWERS_FOR_SPELL; ++i)
     {
+        spellPower[i].Id = 0;
+        spellPower[i].SpellId = Id;
+        spellPower[i].powerType = POWER_NULL;
         spellPower[i].powerCost = 0;
+        spellPower[i].powerPerSecond = 0;
         spellPower[i].powerCostPercentage = 0.0f;
         spellPower[i].powerPerSecondPercentage = 0.0f;
-        spellPower[i].powerPerSecond = 0;
-        spellPower[i].SpellId = Id;
-        spellPower[i].powerType = POWER_MANA;
-        spellPower[i].Id = 0;
+        spellPower[i].spellRequestId = 0;
+        spellPower[i].getpercentHp = 0.0f;
     }
 
     // SpellMiscEntry
@@ -2178,7 +2095,7 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
     uint32 neededTargets = GetExplicitTargetMask();
     if (!target)
     {
-        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK) && Id != 6544)
+        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK))
             if (!(neededTargets & TARGET_FLAG_GAMEOBJECT_ITEM) || !itemTarget)
                 return SPELL_FAILED_BAD_TARGETS;
         return SPELL_CAST_OK;
@@ -2308,6 +2225,24 @@ uint32 SpellInfo::GetSimilarEffectsMiscValueMask(SpellEffects effectName, Unit* 
 uint32 SpellInfo::GetExplicitTargetMask() const
 {
     return ExplicitTargetMask;
+}
+
+uint32 SpellInfo::GetSpellTypeMask() const
+{
+    uint32 mask = 0;
+    uint32 range_type = RangeEntry ? RangeEntry->type : 0;
+
+    if(range_type == SPELL_RANGE_MELEE)
+        mask |= SPELL_TYPE_MELEE;
+    if(range_type == SPELL_RANGE_RANGED)
+        mask |= SPELL_TYPE_RANGE;
+    if(IsAutoRepeatRangedSpell())
+        mask |= SPELL_TYPE_AUTOREPEATE;
+    if(IsChanneled())
+        mask |= SPELL_TYPE_CHANELED;
+    if(IsTargetingArea())
+        mask |= SPELL_TYPE_AOE;
+    return mask;
 }
 
 AuraStateType SpellInfo::GetAuraState() const
@@ -3411,21 +3346,6 @@ bool SpellInfo::IsAfflictionPeriodicDamage() const
     }
 }
 
-bool SpellInfo::IsReducingCastTime() const
-{
-    switch (Id)
-    {
-        case 5760:  // Mind-Numbing
-        case 73975: // Necrotic Strike
-        case 109466:// Curse of Enfeeblement
-        case 109468:// Curse of Enfeeblement (Soulburn)
-        case 116198:// Enfeeblement Aura (Metamorphosis)
-            return true;
-    }
-
-    return false;
-}
-
 bool SpellInfo::CanTriggerBladeFlurry() const
 {
     switch (Id)
@@ -3475,11 +3395,13 @@ bool SpellInfo::AddPowerData(SpellPowerEntry const *power)
             continue;
 
         spellPower[i].Id = power->Id;
-        spellPower[i].powerCost = power->powerCost;
-        spellPower[i].powerCostPercentage = power->powerCostPercentage;
-        spellPower[i].powerPerSecond = power->powerPerSecond;
         spellPower[i].powerType = power->powerType;
+        spellPower[i].powerCost = power->powerCost;
+        spellPower[i].powerPerSecond = power->powerPerSecond;
+        spellPower[i].powerCostPercentage = power->powerCostPercentage;
+        spellPower[i].powerPerSecondPercentage = power->powerPerSecondPercentage;
         spellPower[i].spellRequestId = power->spellRequestId;
+        spellPower[i].getpercentHp = power->getpercentHp;
         return true;
     }
 
@@ -3488,7 +3410,7 @@ bool SpellInfo::AddPowerData(SpellPowerEntry const *power)
 
 bool SpellInfo::IsPowerActive(uint8 powerIndex) const
 {
-    return GetPowerInfo(powerIndex).Id;
+    return GetPowerInfo(powerIndex).Id != 0;
 }
 
 SpellPowerEntry const SpellInfo::GetPowerInfo(uint8 powerIndex) const
@@ -3527,11 +3449,13 @@ bool SpellInfo::GetSpellPowerByCasterPower(Unit const * caster, SpellPowerEntry 
     if (spellPower[index].Id)
     {
         power.Id = spellPower[index].Id;
+        power.powerType = spellPower[index].powerType;
         power.powerCost = spellPower[index].powerCost;
+        power.powerPerSecond = spellPower[index].powerPerSecond;
         power.powerCostPercentage = spellPower[index].powerCostPercentage;
         power.powerPerSecondPercentage = spellPower[index].powerPerSecondPercentage;
-        power.powerPerSecond = spellPower[index].powerPerSecond;
-        power.powerType = spellPower[index].powerType;
+        power.spellRequestId = spellPower[index].spellRequestId;
+        power.getpercentHp = spellPower[index].getpercentHp;
         return true;
     }
 

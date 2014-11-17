@@ -359,7 +359,9 @@ void StartFlyShip(Transport* t)
         {
             UpdateData transData(pPlayer->GetMapId());
             t->BuildCreateUpdateBlockForPlayer(&transData, pPlayer);
-            transData.SendTo(pPlayer);
+            WorldPacket packet;
+            transData.BuildPacket(&packet);
+            pPlayer->SendDirectMessage(&packet);
         }
     }
 }
@@ -417,7 +419,9 @@ void StopFlyShip(Transport* t)
         {
             UpdateData transData(pPlayer->GetMapId());
             t->BuildCreateUpdateBlockForPlayer(&transData, pPlayer);
-            transData.SendTo(pPlayer);
+            WorldPacket packet;
+            transData.BuildPacket(&packet);
+            pPlayer->SendDirectMessage(&packet);
         }
     }
 }
@@ -1956,7 +1960,7 @@ class npc_zafod_boombox : public CreatureScript
                 if (msg == EQUIP_ERR_OK)
                 {
                     Item* item = player->StoreNewItem(dest, 49278, true);
-                    player->SendNewItem(item, 1, true, false);
+                    player->SendNewItem(item, NULL, 1, true, false);
                 }
                 else
                 {

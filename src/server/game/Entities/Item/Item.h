@@ -26,10 +26,12 @@
 #include "DatabaseEnv.h"
 
 #define MIN_ITEM_LEVEL_CUP  463
+#define ITEM_BATTLE_PET_CAGE_ID 82800
 
 class SpellInfo;
 class Bag;
 class Unit;
+class BattlePetMgr;
 
 struct ItemSetEffect
 {
@@ -379,9 +381,13 @@ class Item : public Object
         uint32 GetReforge() const;
         void SetTransmogrification(uint32 value);
         uint32 GetTransmogrification() const;
-        void UpdateDynamicValues();
+        void UpdateDynamicValues(bool battlePet);
         void SetUpgradeId(uint32 value);
         uint32 GetUpgradeId() const;
+        // item battle pet
+        bool isBattlePet() { return GetEntry() == ITEM_BATTLE_PET_CAGE_ID; }
+        void SetBattlePet(uint32 speciesID, uint32 data, uint32 level);
+        uint32 GetBattlePetData(ItemDynamicModifiersOffset off);
 
         uint32 m_dynamicModInfo[ITEM_DYN_MOD_END];
         void AppendDynamicInfo(ByteBuffer& buff) const;
@@ -391,6 +397,7 @@ class Item : public Object
         std::string m_text;
         uint8 m_slot;
         Bag* m_container;
+        //PetInfo* m_battlePetData;
         ItemUpdateState uState;
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window

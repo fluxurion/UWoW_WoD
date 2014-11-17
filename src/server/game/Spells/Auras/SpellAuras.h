@@ -33,6 +33,7 @@ struct SpellProcEntry;
 class AuraEffect;
 class Aura;
 class DynamicObject;
+class AreaTrigger;
 class AuraScript;
 class ProcInfo;
 
@@ -99,6 +100,7 @@ class Aura
         explicit Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, uint64 casterGUID, uint16 stackAmount = 0);
         void _InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
         virtual ~Aura();
+        static uint32 CalculateEffMaskFromDummy(Unit* caster, WorldObject* target, uint32 effMask, SpellInfo const* spellproto);
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const{ return GetSpellInfo()->Id; }
@@ -110,8 +112,10 @@ class Aura
         WorldObject* ChangeOwner(WorldObject* owner) { return m_owner = owner; }
         Unit* GetUnitOwner() const { if(GetType() == UNIT_AURA_TYPE) return (Unit*)m_owner; else return NULL; }
         DynamicObject* GetDynobjOwner() const { ASSERT(GetType() == DYNOBJ_AURA_TYPE); return (DynamicObject*)m_owner; }
-        void SetSpellDynamicObject(DynamicObject* dynObj) { m_spellDynObj = dynObj;}
-        DynamicObject* GetSpellDynamicObject() const { return m_spellDynObj; }
+        void SetSpellDynamicObject(uint64 dynObj) { m_spellDynObjGuid = dynObj;}
+        uint64 GetSpellDynamicObject() const { return m_spellDynObjGuid; }
+        void SetSpellAreaTrigger(uint64 areaTr) { m_spellAreaTrGuid = areaTr;}
+        uint64 GetSpellAreaTrigger() const { return m_spellAreaTrGuid; }
 
         AuraObjectType GetType() const;
 
@@ -136,6 +140,7 @@ class Aura
         int32 CalcMaxDuration() { return CalcMaxDuration(GetCaster()); }
         int32 CalcMaxDuration(Unit* caster);
         int32 GetDuration() const { return m_duration; }
+        int32 GetAllDuration() const { return m_allDuration; }
         void SetDuration(int32 duration, bool withMods = false);
         void RefreshDuration(bool recalculate = true);
         void RefreshTimers();
@@ -180,6 +185,8 @@ class Aura
         uint32 GetEffectMask() const { uint32 effMask = 0; for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i) if (m_effects[i]) effMask |= 1<<i; return effMask; }
         void RecalculateAmountOfEffects();
         void HandleAllEffects(AuraApplication * aurApp, uint8 mode, bool apply);
+        void SetEffectTargets (std::list<WorldObject*> targets) { m_effect_targets = targets; }
+        std::list<WorldObject*> GetEffectTargets() { return m_effect_targets; }
 
         // Helpers for targets
         ApplicationMap const & GetApplicationMap() {return m_applications;}
@@ -252,10 +259,12 @@ class Aura
         uint64 const m_castItemGuid;                        // it is NOT safe to keep a pointer to the item because it may get deleted
         time_t const m_applyTime;
         WorldObject* m_owner;
-        DynamicObject* m_spellDynObj;
+        uint64 m_spellDynObjGuid;
+        uint64 m_spellAreaTrGuid;
 
         int32 m_maxDuration;                                // Max aura duration
         int32 m_duration;                                   // Current time
+        int32 m_allDuration;                                // Duration from apply aura
         int32 m_timeCla;                                    // Timer for power per sec calcultion
         int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect
 
@@ -266,6 +275,7 @@ class Aura
 
         AuraEffect* m_effects[MAX_SPELL_EFFECTS];
         ApplicationMap m_applications;
+        std::list<WorldObject*> m_effect_targets;
 
         bool m_isRemoved:1;
         bool m_isSingleTarget:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example

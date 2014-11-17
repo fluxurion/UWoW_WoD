@@ -28,6 +28,8 @@ void AddSC_bracket_commandscript();
 void AddSC_multi_vendor();
 void AddSC_traffic_commandscript();
 void AddSC_custom_reward();
+void AddSC_command_donate();
+void AddSC_command_arena();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -226,13 +228,14 @@ void AddSC_the_scarlet_enclave_c5();
 void AddSC_boss_arcanist_doan();             //Scarlet Monastery
 void AddSC_boss_azshir_the_sleepless();
 void AddSC_boss_bloodmage_thalnos();
-void AddSC_boss_headless_horseman();
 void AddSC_boss_herod();
 void AddSC_boss_high_inquisitor_fairbanks();
 void AddSC_boss_houndmaster_loksey();
 void AddSC_boss_interrogator_vishas();
 void AddSC_boss_scorn();
-void AddSC_instance_scarlet_monastery();
+void AddSC_instance_scarlet_monasteryOld();
+void AddSC_instance_scarlet_monastery();     //Scarlet Monastery MoP 1004 ID
+void AddSC_boss_headless_horseman();
 void AddSC_boss_mograine_and_whitemane();
 void AddSC_instance_scholomance();           // Update in Mist of Pandaria
 void AddSC_boss_instructor_chillheart();
@@ -839,6 +842,8 @@ void AddExampleScripts()
 {
 #ifdef SCRIPTS
     AddSC_custom_reward();
+    AddSC_command_donate();
+    AddSC_command_arena();
 #endif
 }
 
@@ -1045,13 +1050,14 @@ void AddEasternKingdomsScripts()
     AddSC_boss_arcanist_doan();             //Scarlet Monastery
     AddSC_boss_azshir_the_sleepless();
     AddSC_boss_bloodmage_thalnos();
-    AddSC_boss_headless_horseman();
     AddSC_boss_herod();
     AddSC_boss_high_inquisitor_fairbanks();
     AddSC_boss_houndmaster_loksey();
     AddSC_boss_interrogator_vishas();
     AddSC_boss_scorn();
-    AddSC_instance_scarlet_monastery();
+    AddSC_instance_scarlet_monasteryOld();
+    AddSC_instance_scarlet_monastery();     ////Scarlet Monastery NEW MOP 1004
+    AddSC_boss_headless_horseman();
     AddSC_boss_mograine_and_whitemane();
     AddSC_instance_scholomance();
     AddSC_boss_instructor_chillheart();     

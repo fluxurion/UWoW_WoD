@@ -299,24 +299,15 @@ void Object::SendUpdateToPlayer(Player* player)
 {
     // send create update to player
     UpdateData upd(player->GetMapId());
-    std::list<WorldPacket*> packets;
+    WorldPacket packet;
 
     BuildCreateUpdateBlockForPlayer(&upd, player);
-    upd.SendTo(player);
+    upd.BuildPacket(&packet);
+    player->GetSession()->SendPacket(&packet);
 }
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const
 {
-    // hack
-    if (target->isBeingLoaded())
-    {
-        BuildCreateUpdateBlockForPlayer(data, target);
-        return;
-    }
-
-    //if (!isType(TYPEMASK_ITEM) && !target->HaveAtClient((WorldObject*)this))
-    //    return;
-
     ByteBuffer buf(500);
 
     buf << uint8(UPDATETYPE_VALUES);
@@ -415,13 +406,13 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         data->WriteBit(0);              //byte20C
         data->WriteBit(0);              //byte210
         data->WriteBit(t->GetVisualScale());//byte23C
-        data->WriteBit(0);              //byte298 areatrigger movement
+        data->WriteBit(t->isMoving());  //byte298 areatrigger movement
         data->WriteBit(0);              //byte20F
         data->WriteBit(0);              //byte20E
         data->WriteBit(0);              //byte218
         data->WriteBit(0);              //byte220
-        //if (byte298)
-        //    dword288 = p.ReadBits(20); // count areatrigger movement point
+        if (t->isMoving())
+            data->WriteBits(t->GetObjectMovementParts(), 20); // count areatrigger movement point dword288
         data->WriteBit(0);              //byte228
         data->WriteBit(0);              //byte20D
         data->WriteBit(0);              //byte230
@@ -527,11 +518,15 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     {
         AreaTrigger const* t = ToAreaTrigger();
         ASSERT(t);
-        if (t->GetVisualScale())   //byte23C
+        if (t->GetVisualScale())                //byte23C
         {          
             *data << t->GetVisualScale(true);
             *data << t->GetVisualScale();
         }
+
+        if (t->isMoving())                      //byte298
+            t->PutObjectUpdateMovement(data);  //dword288
+
         *data << uint32(1);
     }
 
@@ -1584,6 +1579,40 @@ float Position::GetDegreesAngel(float x, float y, bool relative) const
     return NormalizeOrientation(angel) * M_RAD;
 }
 
+Position Position::GetRandPointBetween(const Position &B) const
+{
+    float Lambda = urand(0.0f, 100.0f) / 100.0f;
+    float X = (B.GetPositionX() + Lambda * GetPositionX()) / (1 + Lambda);
+    float Y = (B.GetPositionY() + Lambda * GetPositionY()) / (1 + Lambda);
+    //Z should be updated by Vmap
+    float Z = (B.GetPositionZ() + Lambda * GetPositionZ()) / (1 + Lambda);
+
+    Position result;
+    result.Relocate(X, Y, Z);
+    return result;
+}
+
+void Position::SimplePosXYRelocationByAngle(Position &pos, float dist, float angle) const
+{
+    angle += GetOrientation();
+
+    pos.m_positionX = m_positionX + dist * std::cos(angle);
+    pos.m_positionY = m_positionY + dist * std::sin(angle);
+    pos.m_positionZ = m_positionZ;
+
+    // Prevent invalid coordinates here, position is unchanged
+    if (!Trinity::IsValidMapCoord(pos.m_positionX, pos.m_positionY))
+    {
+        pos.Relocate(this);
+        sLog->outFatal(LOG_FILTER_GENERAL, "Position::SimplePosXYRelocationByAngle invalid coordinates X: %f and Y: %f were passed!", pos.m_positionX, pos.m_positionY);
+        return;
+    }
+
+    Trinity::NormalizeMapCoord(pos.m_positionX);
+    Trinity::NormalizeMapCoord(pos.m_positionY);
+    pos.SetOrientation(GetOrientation());
+}
+
 std::string Position::ToString() const
 {
     std::stringstream sstr;
@@ -1655,7 +1684,7 @@ void MovementInfo::OutDebug()
 WorldObject::WorldObject(bool isWorldObject): WorldLocation(),
 m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(NULL),
 m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
-m_phaseMask(PHASEMASK_NORMAL)
+m_phaseMask(PHASEMASK_NORMAL), m_phaseId(0), m_ignorePhaseIdCheck(false)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
     m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
@@ -2173,22 +2202,20 @@ float WorldObject::GetSightRange(const WorldObject* target) const
     return 0.0f;
 }
 
+void WorldObject::SetVisible(bool x)
+{
+    if (!x)
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_GAMEMASTER);
+    else
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
+
+    UpdateObjectVisibility();
+}
+
 bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, bool distanceCheck) const
 {
     if (this == obj)
         return true;
-
-    //summoned creature to summoner
-    if (Unit const* thisUnit = ToUnit())
-        if (TempSummon const* sum = thisUnit->ToTempSummon())
-            if (obj->GetGUID() == sum->GetSummonerGUID())
-                return true;
-
-    //summoner to summoned creature
-    if (Unit const* target = obj->ToUnit())
-        if (TempSummon const* sum = target->ToTempSummon())
-            if (GetGUID() == sum->GetSummonerGUID())
-                return true;
 
     if (obj->MustBeVisibleOnlyForSomePlayers() && IS_PLAYER_GUID(GetGUID()))
     {

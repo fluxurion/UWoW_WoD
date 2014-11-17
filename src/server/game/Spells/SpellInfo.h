@@ -80,6 +80,7 @@ enum SpellTargetSelectionCategories
     TARGET_SELECT_CATEGORY_CONE,
     TARGET_SELECT_CATEGORY_AREA,
     TARGET_SELECT_CATEGORY_BETWEEN,
+    TARGET_SELECT_CATEGORY_GOTOMOVE,
 };
 
 enum SpellTargetReferenceTypes
@@ -198,6 +199,15 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2,
 };
 
+enum SpellTypes
+{
+    SPELL_TYPE_MELEE                       = 0x00000001,
+    SPELL_TYPE_RANGE                       = 0x00000002,
+    SPELL_TYPE_AOE                         = 0x00000004,
+    SPELL_TYPE_CHANELED                    = 0x00000008,
+    SPELL_TYPE_AUTOREPEATE                 = 0x00000010,
+};
+
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType);
 
 class SpellImplicitTargetInfo
@@ -275,7 +285,7 @@ public:
     bool IsFarDestTargetEffect() const;
     bool IsUnitOwnedAuraEffect() const;
 
-    int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL, Item* m_castitem = NULL, bool addCustomBP = false) const;
+    int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL, Item* m_castitem = NULL) const;
     int32 CalcBaseValue(int32 value) const;
     float CalcValueMultiplier(Unit* caster, Spell* spell = NULL) const;
     float CalcDamageMultiplier(Unit* caster, Spell* spell = NULL) const;
@@ -323,6 +333,7 @@ public:
     uint32 AttributesEx10;
     uint32 AttributesEx11;
     uint32 AttributesEx12;
+    uint32 AttributesEx13;
     uint32 AttributesCu;
     uint32 Stances;
     uint32 StancesNot;
@@ -361,6 +372,8 @@ public:
     uint32 PowerPerSecond;
     float PowerPerSecondPercentage;
     float PowerCostPercentage;
+    uint32 PowerRequestId;
+    float PowerGetPercentHp;
     uint32 RuneCostID;
     SpellRangeEntry const* RangeEntry;
     float  Speed;
@@ -519,6 +532,7 @@ public:
     static uint32 GetDispelMask(DispelType type);
     uint32 GetSimilarEffectsMiscValueMask(SpellEffects effectName, Unit* caster = NULL) const;
     uint32 GetExplicitTargetMask() const;
+    uint32 GetSpellTypeMask() const;
 
     AuraStateType GetAuraState() const;
     SpellSpecificType GetSpellSpecific() const;
@@ -555,7 +569,6 @@ public:
     // helpers for breaking by damage spells
     bool IsBreakingCamouflage() const;
     bool IsBreakingCamouflageAfterHit() const;
-    bool IsReducingCastTime() const;
     bool CanTriggerBladeFlurry() const;
 
     // loading helpers

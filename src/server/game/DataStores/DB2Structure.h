@@ -158,7 +158,7 @@ struct ItemExtendedCostEntry
             return 0;
 
         // start from ITEM_EXTENDED_COST_FLAG_SEASON_IN_INDEX_0
-        return flags & 1 << (i + 1);
+        return flags & (1 << (i + 1));
     }
 };
 
@@ -217,15 +217,6 @@ struct BattlePetSpeciesEntry
     uint32 flags;               // 6
     //string                    // 7
     //string                    // 8
-};
-
-enum BattlePetSpeciesFlags
-{
-    SPECIES_FLAG_CAPTURABLE = 0x08,
-    SPECIES_FLAG_TRADEABLE  = 0x10,
-    SPECIES_FLAG_OBTAINABLE = 0x20,
-    SPECIES_FLAG_UNIQUE     = 0x40,
-    SPECIES_FLAG_CAN_BATTLE = 0x80,
 };
 
 struct QuestPackageItem
