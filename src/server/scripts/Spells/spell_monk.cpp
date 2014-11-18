@@ -1043,9 +1043,9 @@ class spell_monk_jade_serpent_statue : public SpellScriptLoader
                     if (!summon)
                         return;
 
-                    summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, player->GetGUID());
+                    summon->SetUInt64Value(UNIT_FIELD_SUMMONED_BY, player->GetGUID());
                     summon->setFaction(player->getFaction());
-                    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                    summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     summon->SetMaxHealth(player->CountPctFromMaxHealth(50));
                     summon->SetHealth(summon->GetMaxHealth());
                 }
@@ -1204,7 +1204,7 @@ class spell_monk_mana_tea_stacks : public SpellScriptLoader
 
                     if (Unit* caster = GetCaster())
                     {
-                        float critChance = caster->ToPlayer()->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                        float critChance = caster->ToPlayer()->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
                         bool crit = roll_chance_f(critChance);
                         caster->CastSpell(caster, SPELL_MONK_MANA_TEA_STACKS, true);
                         if(crit)

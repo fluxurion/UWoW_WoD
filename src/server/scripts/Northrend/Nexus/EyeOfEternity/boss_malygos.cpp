@@ -192,7 +192,7 @@ public:
                 return;
 
             if (GameObject* portal = me->FindNearestGameObject(193908, 100.0f))
-                portal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                portal->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
             _Reset();
             me->SetReactState(REACT_DEFENSIVE);
             events.SetPhase(PHASE_NULL);
@@ -284,7 +284,7 @@ public:
                 case 6:
                     SendLightOverride(LIGHT_OBSCURE_ARCANE_RUNES, 1000);
                     if (GameObject* platform = me->FindNearestGameObject(193070, 80.0f))
-                        platform->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                        platform->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                     events.ScheduleEvent(EVENT_CALL_DRAKE, 1500, 0, PHASE_THREE);
                     break;
                 }
@@ -337,7 +337,7 @@ public:
            {               
                if (GameObject* platform = me->FindNearestGameObject(193070, 80.0f))
                {
-                   platform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                   platform->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                    platform->Respawn();
                }
            }
@@ -353,7 +353,7 @@ public:
                 return;
 
             if (GameObject* portal = me->FindNearestGameObject(193908, 100.0f))
-                portal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                portal->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
             _EnterCombat();
             Talk(SAY_AGGRO_P_ONE);
             phase = PHASE_ONE;
@@ -388,7 +388,7 @@ public:
         void JustDied(Unit* killer)
         {
             if (GameObject* portal = me->FindNearestGameObject(193908, 100.0f))
-                portal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                portal->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
             SendLightOverride(LIGHT_GET_DEFAULT_FOR_MAP, 1000);
             Talk(SAY_DEATH);
             _JustDied();

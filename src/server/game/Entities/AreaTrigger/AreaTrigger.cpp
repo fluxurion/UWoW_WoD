@@ -125,11 +125,11 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     if (!find && atInfo.radius)
         _radius = atInfo.radius;
 
-    SetUInt64Value(AREATRIGGER_CASTER, caster->GetGUID());
-    SetUInt32Value(AREATRIGGER_SPELLID, info->Id);
-    SetUInt32Value(AREATRIGGER_SPELLVISUALID, info->SpellVisual[0] ? info->SpellVisual[0] : info->SpellVisual[1]);
-    SetUInt32Value(AREATRIGGER_DURATION, duration);
-    SetFloatValue(AREATRIGGER_EXPLICIT_SCALE, 1);
+    SetUInt64Value(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, info->Id);
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, info->SpellVisual[0] ? info->SpellVisual[0] : info->SpellVisual[1]);
+    SetUInt32Value(AREATRIGGER_FIELD_DURATION, duration);
+    SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, 1);
     SetTargetGuid(targetGuid);
 
     // culculate destination point
@@ -173,7 +173,7 @@ void AreaTrigger::FillCustiomData()
 {
     //custom visual case.
     if (GetCustomVisualId())
-        SetUInt32Value(AREATRIGGER_SPELLVISUALID, GetCustomVisualId());
+        SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, GetCustomVisualId());
 
     if (GetCustomEntry())
         SetEntry(GetCustomEntry());

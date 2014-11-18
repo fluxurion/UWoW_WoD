@@ -65,10 +65,10 @@ void Totem::InitStats(uint32 duration)
 
         // Totemic Encirclement
         if (m_owner->HasAura(58057)
-            && GetUInt32Value(UNIT_CREATED_BY_SPELL) != 120214
-            && GetUInt32Value(UNIT_CREATED_BY_SPELL) != 120217
-            && GetUInt32Value(UNIT_CREATED_BY_SPELL) != 120218
-            && GetUInt32Value(UNIT_CREATED_BY_SPELL) != 120219)
+            && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120214
+            && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120217
+            && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120218
+            && GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != 120219)
         {
             for (int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
             {
@@ -146,7 +146,7 @@ void Totem::UnSummon(uint32 msTime)
                 pct = 50.0f;
 
             Player* _player = m_owner->ToPlayer();
-            uint32 spellId = GetUInt32Value(UNIT_CREATED_BY_SPELL);
+            uint32 spellId = GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
             if (_player && spellId)
             {
                 if (_player->HasSpellCooldown(spellId))
@@ -185,7 +185,7 @@ void Totem::UnSummon(uint32 msTime)
     {
         owner->SendAutoRepeatCancel(this);
 
-        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_CREATED_BY_SPELL)))
+        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL)))
             owner->SendCooldownEvent(spell, 0, NULL, false);
 
         if (Group* group = owner->GetGroup())

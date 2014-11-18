@@ -85,7 +85,7 @@ bool Player::OnSurvey(uint32& entry, float& x, float& y, float& z, float &orient
 
     uint8 i = 0;
     for(; i < MAX_RESEARCH_SITES; ++i)
-        if (GetDynamicUInt32Value(PLAYER_DYNAMIC_RESEARCH_SITES, i) == site_id)
+        if (GetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_RESEARCH_SITES, i) == site_id)
             break;
 
     if(i > MAX_RESEARCH_SITES)
@@ -309,7 +309,7 @@ void Player::ShowResearchSites()
         if (!rs || CanResearchWithSkillLevel(rs->ID) == 2)
             id = 0;
 
-        SetDynamicUInt32Value(PLAYER_DYNAMIC_RESEARCH_SITES, count++, id);
+        SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_RESEARCH_SITES, count++, id);
     }
 }
 
@@ -454,7 +454,7 @@ void Player::GenerateResearchProjects()
         return;
 
     for (uint32 i = 0; i < MAX_RESEARCH_PROJECTS / 2; ++i)
-        SetUInt32Value(PLAYER_FIELD_RESEARCHING_1 + i, 0);
+        SetUInt32Value(PLAYER_FIELD_RESEARCHING + i, 0);
 
     typedef std::map<uint32, ResearchProjectSet> ProjectsByBranch;
     ProjectsByBranch tempProjects;
@@ -494,7 +494,7 @@ void Player::GenerateResearchProjects()
 bool Player::HasResearchProject(uint32 id) const
 {
     for (uint32 i = 0; i < MAX_RESEARCH_PROJECTS; ++i)
-        if (GetUInt16Value(PLAYER_FIELD_RESEARCHING_1 + i / 2, i % 2) == id)
+        if (GetUInt16Value(PLAYER_FIELD_RESEARCHING + i / 2, i % 2) == id)
             return true;
 
     return false;
@@ -503,7 +503,7 @@ bool Player::HasResearchProject(uint32 id) const
 bool Player::HasResearchProjectOfBranch(uint32 id) const
 {
     for (uint32 i = 0; i < MAX_RESEARCH_PROJECTS; ++i)
-        if (uint16 val = GetUInt16Value(PLAYER_FIELD_RESEARCHING_1 + i / 2, i % 2))
+        if (uint16 val = GetUInt16Value(PLAYER_FIELD_RESEARCHING + i / 2, i % 2))
         {
             ResearchProjectEntry const* rp = sResearchProjectStore.LookupEntry(val);
             if (!rp)
@@ -519,9 +519,9 @@ bool Player::HasResearchProjectOfBranch(uint32 id) const
 void Player::ReplaceResearchProject(uint32 oldId, uint32 newId)
 {
     for (uint32 i = 0; i < MAX_RESEARCH_PROJECTS; ++i)
-        if (GetUInt16Value(PLAYER_FIELD_RESEARCHING_1 + i / 2, i % 2) == oldId)
+        if (GetUInt16Value(PLAYER_FIELD_RESEARCHING + i / 2, i % 2) == oldId)
         {
-            SetUInt16Value(PLAYER_FIELD_RESEARCHING_1 + i / 2, i % 2, newId);
+            SetUInt16Value(PLAYER_FIELD_RESEARCHING + i / 2, i % 2, newId);
             return;
         }
 }
@@ -698,7 +698,7 @@ void Player::_SaveArchaeology(SQLTransaction& trans)
     stmt->setString(index++, ss.str());
     ss.str("");
     for (uint32 i = 0; i < MAX_RESEARCH_PROJECTS; ++i)
-        if (uint16 val = GetUInt16Value(PLAYER_FIELD_RESEARCHING_1 + i / 2, i % 2))
+        if (uint16 val = GetUInt16Value(PLAYER_FIELD_RESEARCHING + i / 2, i % 2))
             ss << val << " ";
     stmt->setString(index++, ss.str());
     trans->Append(stmt);

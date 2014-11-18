@@ -212,9 +212,9 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
 
     SetObjectScale(goinfo->size);
 
-    SetUInt32Value(GAMEOBJECT_FACTION, goinfo->faction);
-    SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
-    SetUInt32Value(GAMEOBJECT_LEVEL, m_period);
+    SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, goinfo->faction);
+    SetUInt32Value(GAMEOBJECT_FIELD_FLAGS, goinfo->flags);
+    SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, m_period);
     SetEntry(goinfo->entry);
 
     SetDisplayId(goinfo->displayId);
@@ -512,7 +512,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
         Player* player = *itr;
         ++itr;
 
-        if (player->isDead() && !player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+        if (player->isDead() && !player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
             player->ResurrectPlayer(1.0f);
 
         player->TeleportTo(newMapid, x, y, z, GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
@@ -647,14 +647,14 @@ void Transport::DoEventIfAny(WayPointMap::value_type const& node, bool departure
 
 void Transport::BuildStartMovePacket(Map const* targetMap)
 {
-    SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+    SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
     SetGoState(GO_STATE_ACTIVE);
     UpdateForMap(targetMap);
 }
 
 void Transport::BuildStopMovePacket(Map const* targetMap)
 {
-    RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+    RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
     SetGoState(GO_STATE_READY);
     UpdateForMap(targetMap);
 }
@@ -676,7 +676,7 @@ Creature * Transport::AddNPCPassengerCreature(uint32 tguid, uint32 entry, float 
     pCreature->m_movementInfo.t_pos.Relocate(x, y, z, o);
 
     if (anim)
-        pCreature->SetUInt32Value(UNIT_NPC_EMOTESTATE, anim);
+        pCreature->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, anim);
 
     pCreature->Relocate(
         GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + float(M_PI))),
@@ -727,7 +727,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
     creature->m_movementInfo.t_pos.Relocate(x, y, z, o);
 
     if (anim)
-        creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, anim);
+        creature->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, anim);
 
     creature->Relocate(
         GetPositionX() + (x * std::cos(GetOrientation()) + y * std::sin(GetOrientation() + float(M_PI))),

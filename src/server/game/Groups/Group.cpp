@@ -2605,7 +2605,7 @@ void Group::BroadcastGroupUpdate(void)
         if (pp && pp->IsInWorld())
         {
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
-            pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
+            pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTION_TEMPLATE);
             sLog->outDebug(LOG_FILTER_GENERAL, "-- Forced group value update for '%s'", pp->GetName());
         }
     }

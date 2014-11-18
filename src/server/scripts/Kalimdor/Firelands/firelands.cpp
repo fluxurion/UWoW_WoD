@@ -1036,8 +1036,8 @@ class npc_firelands_volcanus : public CreatureScript
 
             void Reset()
             {
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 7);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 7);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 7);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 7);
                 events.Reset();
             }
 

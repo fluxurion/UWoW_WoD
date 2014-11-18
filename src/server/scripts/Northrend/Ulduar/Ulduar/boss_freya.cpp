@@ -1006,7 +1006,7 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED);
             fScale = 0.2f;
-            me->SetFloatValue(OBJECT_FIELD_SCALE_X, fScale);
+            me->SetFloatValue(OBJECT_FIELD_SCALE, fScale);
             uiScaleTimer = 200;
             uiLifebindersGiftTimer = 12000;
             DoCast(me, SPELL_PHEROMONES, true);
@@ -1031,7 +1031,7 @@ public:
             if (uiLifebindersGiftTimer <= diff)
             {
                 DoCast(me, SPELL_LIFEBINDERS_GIFT, true);
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, 0);
+                me->SetFloatValue(OBJECT_FIELD_SCALE, 0);
                 me->DespawnOrUnsummon(1000);
                 uiLifebindersGiftTimer = 12000;
             }
@@ -1040,7 +1040,7 @@ public:
             if (uiScaleTimer <= diff)
             {
                 fScale += 0.025f;
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, fScale);
+                me->SetFloatValue(OBJECT_FIELD_SCALE, fScale);
             }
             else uiScaleTimer -= diff;
         }

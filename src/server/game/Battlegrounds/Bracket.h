@@ -57,7 +57,7 @@ private:
     int16 WonAgainst(uint16 opponents_mmv);
     int16 LostAgainst(uint16 opponents_mmv);
 
-    uint32 values[BRACKET_END];                 //used for store data from Player::PLAYER_FIELD_ARENA_TEAM_INFO_1_1
+    uint32 values[BRACKET_END];                 //used for store data from Player::PLAYER_FIELD_PVP_INFO
 
     uint16 m_rating;
     int16 m_ratingLastChange;

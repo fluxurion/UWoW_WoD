@@ -85,8 +85,8 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
         return;
     }
 
-    pGameObj->SetUInt32Value(GAMEOBJECT_FACTION, caster->getFaction());
-    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, caster->getLevel()+1);
+    pGameObj->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, caster->getFaction());
+    pGameObj->SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, caster->getLevel()+1);
     pGameObj->SetRespawnTime(0);
 
     caster->AddGameObject(pGameObj);
@@ -137,8 +137,8 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
     duel2->isMounted  = 0;//(GetSpellInfo()->Id == 62875); // Mounted Duel
     target->duel      = duel2;
 
-    caster->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
-    target->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
+    caster->SetUInt64Value(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
+    target->SetUInt64Value(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
 
     sScriptMgr->OnPlayerDuelRequest(target, caster);*/
 }

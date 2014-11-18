@@ -255,7 +255,7 @@ public:
     {
         if (!*args)
         {
-            if (handler->GetSession()->GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
+            if (handler->GetSession()->GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
                 handler->GetSession()->SendNotification(LANG_DEV_ON);
             else
                 handler->GetSession()->SendNotification(LANG_DEV_OFF);
@@ -266,14 +266,14 @@ public:
 
         if (argstr == "on")
         {
-            handler->GetSession()->GetPlayer()->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
+            handler->GetSession()->GetPlayer()->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
             handler->GetSession()->SendNotification(LANG_DEV_ON);
             return true;
         }
 
         if (argstr == "off")
         {
-            handler->GetSession()->GetPlayer()->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
+            handler->GetSession()->GetPlayer()->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
             handler->GetSession()->SendNotification(LANG_DEV_OFF);
             return true;
         }
@@ -1153,7 +1153,7 @@ public:
             return false;
         }
 
-        if (player->isDead() || player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+        if (player->isDead() || player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         {
             // if player is dead and stuck, send ghost to graveyard
             player->RepopAtGraveyard();
@@ -1308,8 +1308,8 @@ public:
             return false;
         }
 
-        uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
-        playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields | val)));
+        uint32 currFields = playerTarget->GetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset);
+        playerTarget->SetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset, uint32((currFields | val)));
 
         handler->SendSysMessage(LANG_EXPLORE_AREA);
         return true;
@@ -1339,8 +1339,8 @@ public:
             return false;
         }
 
-        uint32 currFields = playerTarget->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset);
-        playerTarget->SetUInt32Value(PLAYER_EXPLORED_ZONES_1 + offset, uint32((currFields ^ val)));
+        uint32 currFields = playerTarget->GetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset);
+        playerTarget->SetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset, uint32((currFields ^ val)));
 
         handler->SendSysMessage(LANG_UNEXPLORE_AREA);
         return true;
@@ -2634,8 +2634,8 @@ public:
         creatureTarget->RemoveCorpse();
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
-        pet->SetUInt64Value(UNIT_FIELD_CREATEDBY, player->GetGUID());
-        pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
+        pet->SetUInt64Value(UNIT_FIELD_CREATED_BY, player->GetGUID());
+        pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, player->getFaction());
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
         {
@@ -3056,7 +3056,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_16_ENTRYID, newItem, 15))
+        if (pl->HandleChangeSlotModel(newItem, EQUIPMENT_SLOT_MAINHAND))
         {
             pl->m_vis->m_visMainhand = newItem;
             return true;
@@ -3079,7 +3079,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_1_ENTRYID, newItem, 0))
+        if (pl->HandleChangeSlotModel(newItem, EQUIPMENT_SLOT_HEAD))
         {
             pl->m_vis->m_visHead = newItem;
             return true;
@@ -3102,7 +3102,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_3_ENTRYID, newItem, 2))
+        if (pl->HandleChangeSlotModel(newItem, EQUIPMENT_SLOT_SHOULDERS))
         {
             pl->m_vis->m_visShoulders = newItem;
             return true;
@@ -3125,7 +3125,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_5_ENTRYID, newItem, 4))
+        if (pl->HandleChangeSlotModel(newItem, EQUIPMENT_SLOT_CHEST))
         {
             pl->m_vis->m_visChest = newItem;
             return true;
@@ -3148,7 +3148,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_6_ENTRYID, newItem, 5))
+        if (pl->HandleChangeSlotModel(newItem, 5))
         {
             pl->m_vis->m_visWaist = newItem;
             return true;
@@ -3171,7 +3171,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_7_ENTRYID, newItem, 6))
+        if (pl->HandleChangeSlotModel(newItem, 6))
         {
             pl->m_vis->m_visLegs = newItem;
             return true;
@@ -3194,7 +3194,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_8_ENTRYID, newItem, 7))
+        if (pl->HandleChangeSlotModel(newItem, 7))
         {
             pl->m_vis->m_visFeet = newItem;
             return true;
@@ -3217,7 +3217,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_9_ENTRYID, newItem, 8))
+        if (pl->HandleChangeSlotModel(newItem, 8))
         {
             pl->m_vis->m_visWrists = newItem;
             return true;
@@ -3240,7 +3240,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_10_ENTRYID, newItem, 9))
+        if (pl->HandleChangeSlotModel(newItem, 9))
         {
             pl->m_vis->m_visHands = newItem;
             return true;
@@ -3263,7 +3263,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_15_ENTRYID, newItem, 14))
+        if (pl->HandleChangeSlotModel(newItem, 14))
         {
             pl->m_vis->m_visBack = newItem;
             return true;
@@ -3286,7 +3286,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_17_ENTRYID, newItem, 16))
+        if (pl->HandleChangeSlotModel(newItem, 16))
         {
             pl->m_vis->m_visOffhand = newItem;
             return true;
@@ -3309,7 +3309,7 @@ public:
         if (!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_18_ENTRYID, newItem, 17))
+        if (pl->HandleChangeSlotModel(newItem, 17))
         {
             pl->m_vis->m_visRanged = newItem;
             return true;

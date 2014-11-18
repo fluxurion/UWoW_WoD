@@ -364,22 +364,22 @@ public:
             case GO_ARAC_PORTAL:
                 m_uiAracPortalGUID = pGo->GetGUID();
                 if (GetBossState(BOSS_MAEXXNA) == DONE)
-                    pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
+                    pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS,GO_FLAG_NOT_SELECTABLE);
                 break;
             case GO_PLAG_PORTAL:
                 m_uiPlagPortalGUID = pGo->GetGUID();
                 if (GetBossState(BOSS_LOATHEB) == DONE)
-                    pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
+                    pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS,GO_FLAG_NOT_SELECTABLE);
                 break;
             case GO_MILI_PORTAL:
                 m_uiMiliPortalGUID = pGo->GetGUID();
                 if (GetBossState(BOSS_HORSEMEN) == DONE)
-                    pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
+                    pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS,GO_FLAG_NOT_SELECTABLE);
                 break;
             case GO_CONS_PORTAL:
                 m_uiConsPortalGUID = pGo->GetGUID();
                 if (GetBossState(BOSS_THADDIUS) == DONE)
-                    pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
+                    pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS,GO_FLAG_NOT_SELECTABLE);
                 break;
             case GO_THADDIUS_TESLA05:
                 tesla05Guid = pGo->GetGUID();
@@ -522,7 +522,7 @@ public:
                         if (GameObject* go = instance->GetGameObject(m_uiAracEyeRampGUID))
                             go->SetGoState(GO_STATE_ACTIVE);
                         if (GameObject* pPortal = instance->GetGameObject(m_uiAracPortalGUID))
-                            pPortal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            pPortal->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
                 case BOSS_HORSEMEN:
@@ -539,14 +539,14 @@ public:
                     if (GameObject *pHorsemenChest = instance->GetGameObject(HorsemenChestGUID))
                     {
                         pHorsemenChest->SetRespawnTime(pHorsemenChest->GetRespawnDelay());
-                        pHorsemenChest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        pHorsemenChest->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     if (GameObject* go = instance->GetGameObject(m_uiMiliEyeBossGUID))
                         go->SetGoState(GO_STATE_ACTIVE);
                     if (GameObject* go = instance->GetGameObject(m_uiMiliEyeRampGUID))
                         go->SetGoState(GO_STATE_ACTIVE);
                     if (GameObject* pPortal = instance->GetGameObject(m_uiMiliPortalGUID))
-                        pPortal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        pPortal->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case BOSS_THADDIUS:
                   /*  if (bfewer)
@@ -571,7 +571,7 @@ public:
                     if (GameObject* go = instance->GetGameObject(m_uiConsEyeRampGUID))
                         go->SetGoState(GO_STATE_ACTIVE);
                     if (GameObject* pPortal = instance->GetGameObject(m_uiConsPortalGUID))
-                        pPortal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        pPortal->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case BOSS_LOATHEB:
                     if (Creature* pLoatheb = instance->GetCreature(uiLoatheb))
@@ -589,7 +589,7 @@ public:
                     if (GameObject* go = instance->GetGameObject(m_uiPlagEyeRampGUID))
                         go->SetGoState(GO_STATE_ACTIVE);
                     if (GameObject* pPortal = instance->GetGameObject(m_uiPlagPortalGUID))
-                        pPortal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        pPortal->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 default:
                     break;

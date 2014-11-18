@@ -196,8 +196,8 @@ public:
                     offfinaldmg += me->GetModifierValue(UNIT_MOD_DAMAGE_OFFHAND, TOTAL_VALUE);
                     offfinaldmg *= me->GetModifierValue(UNIT_MOD_DAMAGE_OFFHAND, TOTAL_PCT);
 
-                    me->SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, offfinaldmg);
-                    me->SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, offfinaldmg);
+                    me->SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, offfinaldmg);
+                    me->SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, offfinaldmg);
                 }
 
                 finaldmg = (finaldmg + me->GetTotalAttackPowerValue(BASE_ATTACK) / 14.0f) * mainattackspeed;
@@ -205,8 +205,8 @@ public:
                 finaldmg += me->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_VALUE);
                 finaldmg *= me->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
 
-                me->SetStatFloatValue(UNIT_FIELD_MINDAMAGE, finaldmg);
-                me->SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, finaldmg);
+                me->SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, finaldmg);
+                me->SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, finaldmg);
             }
         }
 
@@ -237,9 +237,9 @@ public:
                 ApplyPercentModFloatVar(offattackspeed, amount, false);
 
                 if (entryId != 69792)
-                    me->SetFloatValue(UNIT_FIELD_BASEATTACKTIME+OFF_ATTACK, offattackspeed ? offattackspeed: mainattackspeed);
+                    me->SetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME+OFF_ATTACK, offattackspeed ? offattackspeed: mainattackspeed);
 
-                me->SetFloatValue(UNIT_FIELD_BASEATTACKTIME+BASE_ATTACK, mainattackspeed);
+                me->SetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME+BASE_ATTACK, mainattackspeed);
             }
         }
 
@@ -278,7 +278,7 @@ public:
 
                 if (Player* plr = owner->ToPlayer())
                 {
-                    me->countCrit = plr->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                    me->countCrit = plr->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
                     me->m_modMeleeHitChance = plr->m_modMeleeHitChance;
                 }
             }
@@ -626,7 +626,7 @@ class npc_chicken_cluck : public CreatureScript
             {
                 ResetFlagTimer = 120000;
                 me->setFaction(FACTION_CHICKEN);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             }
 
             void EnterCombat(Unit* /*who*/) {}
@@ -634,7 +634,7 @@ class npc_chicken_cluck : public CreatureScript
             void UpdateAI(uint32 diff)
             {
                 // Reset flags after a certain time has passed so that the next player has to start the 'event' again
-                if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
+                if (me->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
                 {
                     if (ResetFlagTimer <= diff)
                     {
@@ -656,7 +656,7 @@ class npc_chicken_cluck : public CreatureScript
                     case TEXT_EMOTE_CHICKEN:
                         if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand() % 30 == 1)
                         {
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                             me->setFaction(FACTION_FRIENDLY);
                             DoScriptText(EMOTE_HELLO, me);
                         }
@@ -664,7 +664,7 @@ class npc_chicken_cluck : public CreatureScript
                     case TEXT_EMOTE_CHEER:
                         if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE)
                         {
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                             me->setFaction(FACTION_FRIENDLY);
                             DoScriptText(EMOTE_CLUCK_TEXT, me);
                         }
@@ -2202,7 +2202,7 @@ class npc_snake_trap : public CreatureScript
                 me->SetMaxHealth(uint32(107 * (me->getLevel() - 40) * 0.025f));
                 //Add delta to make them not all hit the same time
                 uint32 delta = (rand() % 7) * 100;
-                me->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, float(Info->baseattacktime + delta));
+                me->SetStatFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME, float(Info->baseattacktime + delta));
                 me->SetInt32Value(UNIT_FIELD_ATTACK_POWER, int32(Info->attackpower));
 
                 // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
@@ -2625,7 +2625,7 @@ class npc_lightwell_mop : public CreatureScript
                         me->SetMaxHealth(CalculatePct(owner->GetMaxHealth(), 50));
                         me->SetFullHealth();
                         me->SetMaxPower(POWER_RAGE, 0);
-                        me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+                        me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 10);
                     }
 
                 DoCast(me, 126138, true);
@@ -3198,7 +3198,7 @@ class npc_experience : public CreatureScript
         bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
         {
             player->PlayerTalkClass->ClearMenus();
-            bool noXPGain = player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+            bool noXPGain = player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
             bool doSwitch = false;
 
             switch (action)
@@ -3223,12 +3223,12 @@ class npc_experience : public CreatureScript
                 else if (noXPGain)
                 {
                     player->ModifyMoney(-int64(EXP_COST));
-                    player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+                    player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
                 }
                 else if (!noXPGain)
                 {
                     player->ModifyMoney(-EXP_COST);
-                    player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+                    player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
                 }
             }
             player->PlayerTalkClass->SendCloseGossip();
@@ -4047,8 +4047,8 @@ class npc_guardian_of_ancient_kings : public CreatureScript
                 {
                     if (me->GetOwner())
                     {
-                        float mindmg = me->GetOwner()->GetFloatValue(UNIT_FIELD_MINDAMAGE);
-                        float maxdmg = me->GetOwner()->GetFloatValue(UNIT_FIELD_MAXDAMAGE);
+                        float mindmg = me->GetOwner()->GetFloatValue(UNIT_FIELD_MIN_DAMAGE);
+                        float maxdmg = me->GetOwner()->GetFloatValue(UNIT_FIELD_MAX_DAMAGE);
                         me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, mindmg);
                         me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, maxdmg);
 

@@ -176,9 +176,9 @@ public:
                                 pInstance->GetBossState(BOSS_FREYA) == DONE &&
                                 pInstance->GetBossState(BOSS_HODIR) == DONE &&
                                 pInstance->GetBossState(BOSS_THORIM) == DONE)
-                                pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                                pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                             else
-                                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                                pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                         }
                     }
                     break;
@@ -539,7 +539,7 @@ public:
                     if (GameObject* HodirRareChest = instance->GetGameObject(HodirRareChestGUID))
                     {
                         if (value == GO_STATE_READY)
-                            HodirRareChest->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
+                            HodirRareChest->RemoveFlag(GAMEOBJECT_FIELD_FLAGS,GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
                 case DATA_UNBROKEN:
@@ -591,7 +591,7 @@ public:
                     if (GameObject* pThorimLever = instance->GetGameObject(ThorimLeverGUID))
                     {
                         if (state == IN_PROGRESS)
-                            pThorimLever->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
+                            pThorimLever->RemoveFlag(GAMEOBJECT_FIELD_FLAGS,GO_FLAG_NOT_SELECTABLE);
                     }
                     CheckKeepersState();
                     break;
@@ -660,9 +660,9 @@ public:
                         pInstance->GetBossState(BOSS_FREYA) == DONE &&
                         pInstance->GetBossState(BOSS_HODIR) == DONE &&
                         pInstance->GetBossState(BOSS_THORIM) == DONE)
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                     else
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                 }
             }
         }

@@ -201,10 +201,10 @@ const Position LichKingMoveAwayPos   = {5400.069824f, 2102.7131689f, 707.69525f,
 //Function start motion of the ship
 void StartFly(Transport* t)
 {
-    t->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+    t->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
     t->SetGoState(GO_STATE_ACTIVE);
     t->SetUInt32Value(GAMEOBJECT_DYNAMIC, 0x10830010); // Seen in sniffs
-    t->SetFloatValue(GAMEOBJECT_PARENTROTATION + 3, 1.0f);
+    t->SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION + 3, 1.0f);
 
     Map* map = t->GetMap();
     std::set<uint32> mapsUsed;
@@ -231,7 +231,7 @@ void StopFly(Transport* t)
     Map* map = t->GetMap();
     t->m_WayPoints.clear();
     //RelocateTransport(t);
-    t->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+    t->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
     t->SetGoState(GO_STATE_READY);
 
     for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
@@ -275,8 +275,8 @@ public:
             case GOSSIP_ACTION_INFO_DEF+1:
                 if (creature->AI())
                     creature->AI()->DoAction(ACTION_START_INTRO);
-                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                 player->CLOSE_GOSSIP_MENU();
                 break;
         }
@@ -307,8 +307,8 @@ public:
 
         void Reset()
         {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             events.Reset();
 
             uiUther = 0;
@@ -372,14 +372,14 @@ public:
 
                 case EVENT_INTRO_H2_1:
                         DoScriptText(SAY_SYLVANAS_INTRO_1, me);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     break;
 
                 case EVENT_PREINTRO_2:
                         DoScriptText(SAY_JAINA_INTRO_2, me);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     break;
 
                 case EVENT_START_INTRO:
@@ -589,7 +589,7 @@ public:
 
                     if (Creature* pUther = me->GetCreature(*me, uiUther))
                     {
-                        pUther->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);                        
+                        pUther->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_COWER);                        
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             DoScriptText(SAY_UTHER_INTRO_A2_9, pUther);
                         else
@@ -1499,8 +1499,8 @@ public:
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
                 ((npc_jaina_and_sylvana_hor_part2AI*)creature->AI())->Start(false,true);
-                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
                 creature->setActive(true);
 
@@ -1578,14 +1578,14 @@ public:
             Step = 0;
             StepTimer = 500;
             Fight = true;
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             m_uipWallTargetGUID = 0;
 
             if(me->GetEntry() == NPC_JAINA_OUTRO)
             {
                 me->CastSpell(me, SPELL_ICE_BARRIER, false);
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2HL);
             }
             if(m_pInstance->GetData(DATA_LICHKING_EVENT) == DONE)
                 me->SetVisible(false);
@@ -1756,9 +1756,9 @@ public:
                     }
                     SetEscortPaused(true);
                     if(me->GetEntry() == NPC_JAINA_OUTRO)
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2HL);
                     if(me->GetEntry() == NPC_SYLVANA_OUTRO)
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY1H);
                     break;
             }
         }
@@ -1896,7 +1896,7 @@ public:
                         pLichKing->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
 
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
                     me->AttackStop();
 
                     if(me->GetEntry() == NPC_JAINA_OUTRO)
@@ -1926,7 +1926,7 @@ public:
                         me->SetUInt64Value(UNIT_FIELD_TARGET, pLichKing->GetGUID());
                     }
                     me->RemoveAllAuras();
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     Count = 1;
                     JumpNextStep(100);
                     break;
@@ -1951,7 +1951,7 @@ public:
                     if(GameObject* pCave = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_CAVE)))
                     {
                         Creature* pCaveTarget = me->SummonCreature(NPC_ICE_WALL,pCave->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation(),TEMPSUMMON_MANUAL_DESPAWN,720000);
-                        pCaveTarget->SetFloatValue(OBJECT_FIELD_SCALE_X, 4);
+                        pCaveTarget->SetFloatValue(OBJECT_FIELD_SCALE, 4);
 
                         for(int8 i = 0; i<4; i++)
                         {
@@ -1966,7 +1966,7 @@ public:
                     JumpNextStep(4000);
                     break;
                 case 13:
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
                     if(GameObject* pCave = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_CAVE)))
                         pCave->SetGoState(GO_STATE_READY);
                     me->RemoveAllAuras();
@@ -1987,8 +1987,8 @@ public:
                     break;
                 case 16:
                     me->SetOrientation(0.68f);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     JumpNextStep(5000);
                     break;
             }
@@ -2335,7 +2335,7 @@ public:
                     me->RemoveAurasDueToSpell(70300);
                     me->SetReactState(REACT_AGGRESSIVE);
                         if (Uther)
-                            Uther->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SIT);
+                            Uther->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_SIT);
                     if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST,0, 100.0f, true))
                     {
                         AttackStart(target);

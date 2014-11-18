@@ -210,7 +210,7 @@ class spell_hun_stampede : public SpellScriptLoader
                             if(Pet* pet = _player->SummonPet(0, x, y, z, _player->GetOrientation(), SUMMON_PET, _player->CalcSpellDuration(GetSpellInfo()), slot, true))
                             {
                                 pet->SetReactState(REACT_AGGRESSIVE);
-                                pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                                pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                                 ++count;
                                 if (count >= STAMPED_COUNT)
                                     break;

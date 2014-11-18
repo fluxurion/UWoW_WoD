@@ -289,7 +289,7 @@ class boss_immerseus : public CreatureScript
             void Reset()
             {
                 _Reset();
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+                me->SetFloatValue(OBJECT_FIELD_SCALE, 1.0f);
                 me->SetReactState(REACT_DEFENSIVE);
                 me->RemoveAurasDueToSpell(SPELL_SHA_POOL);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
@@ -331,8 +331,8 @@ class boss_immerseus : public CreatureScript
             {
                 if (spell->Id == 143460 && target->ToPlayer())
                 {
-                    if (me->GetFloatValue(OBJECT_FIELD_SCALE_X) >= 1.3f)
-                        me->SetFloatValue(OBJECT_FIELD_SCALE_X, me->GetFloatValue(OBJECT_FIELD_SCALE_X) - 0.3f);
+                    if (me->GetFloatValue(OBJECT_FIELD_SCALE) >= 1.3f)
+                        me->SetFloatValue(OBJECT_FIELD_SCALE, me->GetFloatValue(OBJECT_FIELD_SCALE) - 0.3f);
                 }
             }
 
@@ -621,7 +621,7 @@ class npc_sha_pool : public CreatureScript
 
             void Reset()
             {
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
+                me->SetFloatValue(OBJECT_FIELD_SCALE, 2.0f);
                 me->AddAura(SPELL_SHA_POOL, me);
             }
 
@@ -684,7 +684,7 @@ void CalcPuddle(InstanceScript* instance, Creature* caller, uint32 callerEntry, 
 
             if (i->AI()->GetData(DATA_SEND_F_P_COUNT) >= 25)
             {
-                i->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+                i->SetFloatValue(OBJECT_FIELD_SCALE, 1.0f);
                 i->AI()->DoAction(ACTION_INTRO_PHASE_ONE);
             }
         }
@@ -1105,7 +1105,7 @@ class spell_sha_pool : public SpellScriptLoader
 
             void ScaleRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 20.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 20.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE)));
             }
 
             void Register()
@@ -1132,7 +1132,7 @@ class spell_sha_pool_p_s : public SpellScriptLoader
 
             void ScaleRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 20.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 20.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE)));
             }
 
             void HitHandler()
@@ -1142,7 +1142,7 @@ class spell_sha_pool_p_s : public SpellScriptLoader
                     if (GetHitUnit()->GetEntry() == NPC_SHA_PUDDLE || GetHitUnit()->GetEntry() == NPC_CONTAMINATED_PUDDLE)
                     {
                         GetHitUnit()->AddAura(SPELL_SHA_SPLASH_DUMMY, GetHitUnit());
-                        GetCaster()->SetFloatValue(OBJECT_FIELD_SCALE_X, GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X) + 0.1f);
+                        GetCaster()->SetFloatValue(OBJECT_FIELD_SCALE, GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE) + 0.1f);
                     }
                 }
             }

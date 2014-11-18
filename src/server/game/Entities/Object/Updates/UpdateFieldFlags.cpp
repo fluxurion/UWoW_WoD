@@ -2928,7 +2928,7 @@ uint32 UnitUpdateFieldFlags[PLAYER_END] =
     UF_FLAG_PRIVATE, // PLAYER_FIELD_INSERT_ITEMS_LEFT_TO_RIGHT
 };
 
-uint32 GameObjectUpdateFieldFlags[GAME_OBJECT_END] =
+uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END] =
 {
     UF_FLAG_PUBLIC, // OBJECT_FIELD_GUID
     UF_FLAG_PUBLIC, // OBJECT_FIELD_GUID+1
@@ -3038,7 +3038,7 @@ uint32 CorpseUpdateFieldFlags[CORPSE_END] =
     UF_FLAG_PUBLIC, // CORPSE_FIELD_FACTION_TEMPLATE
 };
 
-uint32 AreaTriggerUpdateFieldFlags[AREA_TRIGGER_END] =
+uint32 AreaTriggerUpdateFieldFlags[AREATRIGGER_END] =
 {
     UF_FLAG_PUBLIC, // OBJECT_FIELD_GUID
     UF_FLAG_PUBLIC, // OBJECT_FIELD_GUID+1
@@ -3062,7 +3062,7 @@ uint32 AreaTriggerUpdateFieldFlags[AREA_TRIGGER_END] =
     UF_FLAG_PUBLIC | UF_FLAG_URGENT, // AREA_TRIGGER_FIELD_EXPLICIT_SCALE
 };
 
-uint32 SceneObjectUpdateFieldFlags[SCENE_OBJECT_END] =
+uint32 SceneObjectUpdateFieldFlags[SCENEOBJECT_END] =
 {
     UF_FLAG_PUBLIC, // OBJECT_FIELD_GUID
     UF_FLAG_PUBLIC, // OBJECT_FIELD_GUID+1

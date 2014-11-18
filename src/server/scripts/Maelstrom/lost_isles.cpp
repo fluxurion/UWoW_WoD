@@ -354,7 +354,7 @@ class npc_doc_zapnnozzle : public CreatureScript
                         events.ScheduleEvent(++eventId, 2000);
                         break;
                     case EVENT_THE_VERY_BEGINING_11:
-                        me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         if (Player* target = sObjectAccessor->FindPlayer(plrGUID))
                             target->RemoveAura(SPELL_NEAR_DEATH);
                         me->RemoveAura(SPELL_INVISIBLE_INRO_DUMMY);   
@@ -542,7 +542,7 @@ public:
         {
             if (pointId == EVENT_POINT_MINE)
             {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_FIND_MINING);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_FIND_MINING);
                 events.ScheduleEvent(EVENT_GENERIC_1, 10000);
                 return;
             }
@@ -603,7 +603,7 @@ public:
                             case 14: text = TEXT_MINER_3; break;
                             case 17: text = TEXT_MINER_4; break;
                         }
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                         SetEscortPaused(false);
                         if (text)
                             sCreatureTextMgr->SendChat(me, text, plrGUID);
@@ -1623,7 +1623,7 @@ class npc_vashjelan_siren : public CreatureScript
             for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
             {
                 Creature* c = *itr;
-                c->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                c->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 c->GetMotionMaster()->MovePoint(EVENT_GENERIC_1, killer->m_positionX, killer->m_positionY, killer->m_positionZ);
                 c->AI()->SetGUID(killer->GetGUID(), EVENT_GENERIC_1);
             }
@@ -1708,7 +1708,7 @@ class npc_naga_hatchling : public CreatureScript
         {
             events.Reset();
             plrGUID = 0;
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
         void SetGUID(uint64 guid, int32 id)
@@ -1723,7 +1723,7 @@ class npc_naga_hatchling : public CreatureScript
                 return;
 
             clicker->CastSpell(clicker, sum_hat[urand(0, 3)], true);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             me->PlayDistanceSound(SOUND_HATCHLING);
             me->HandleEmoteCommand(EMOTE_HATCHLING);
             clicker->ToPlayer()->KilledMonsterCredit(NPC_NAGA_KILL_CREDIT);
@@ -1740,7 +1740,7 @@ class npc_naga_hatchling : public CreatureScript
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who->HasAura(SPELL_PONNY_AURA) || me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
+            if (!who->HasAura(SPELL_PONNY_AURA) || me->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
                 return;
 
             Player *player = who->ToPlayer();
@@ -1753,7 +1753,7 @@ class npc_naga_hatchling : public CreatureScript
             if (me->FindNearestCreature(NPC_NAGA_PROTECTOR_HATCHLING, 25.0f, true))
                 return;
 
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             me->GetMotionMaster()->MovePoint(EVENT_GENERIC_1, who->m_positionX, who->m_positionY, who->m_positionZ);
             SetGUID(who->GetGUID(), EVENT_GENERIC_1);
         }
@@ -1767,7 +1767,7 @@ class npc_naga_hatchling : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_GENERIC_1:
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                         break;
                     default:
                         break;
@@ -2290,7 +2290,7 @@ public:
                 case NPC_MB_KEZAN_CITIZEN2:
                     sCreatureTextMgr->SendChat(target->ToCreature(), TEXT_GENERIC_0, caster->GetGUID());
                     caster->ToPlayer()->KilledMonsterCredit(NPC_MB_KEZAN_CITIZEN2);
-                    target->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                    target->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
                     target->GetMotionMaster()->MoveFollow(caster, 1.0f, 0);
                     target->ToCreature()->DespawnOrUnsummon(5000);
                     break;

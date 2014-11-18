@@ -126,7 +126,7 @@ class npc_pheromones_trail : public CreatureScript
 
             void Reset()
             {
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, 0.4f); //Base Scale - 0.4f.(this is currect scale = 1.0)
+                me->SetFloatValue(OBJECT_FIELD_SCALE, 0.4f); //Base Scale - 0.4f.(this is currect scale = 1.0)
                 me->AddAura(SPELL_PHEROMONES_TRAIL, me);
                 unsummon = 30000;
             }

@@ -171,7 +171,7 @@ void TempSummon::InitStats(uint32 duration)
 
     m_timer = duration;
     m_lifetime = duration;
-    uint32 spellid = GetUInt32Value(UNIT_CREATED_BY_SPELL);
+    uint32 spellid = GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
 
     if (m_type == TEMPSUMMON_MANUAL_DESPAWN)
         m_type = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
@@ -371,8 +371,8 @@ bool TempSummon::InitBaseStat(uint32 creatureId, bool& damageSet)
         if(pStats->damage && owner)
         {
             damageSet = true;
-            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(owner->GetFloatValue(UNIT_FIELD_MINDAMAGE) * pStats->damage));
-            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(owner->GetFloatValue(UNIT_FIELD_MINDAMAGE) * pStats->damage));
+            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(owner->GetFloatValue(UNIT_FIELD_MIN_DAMAGE) * pStats->damage));
+            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(owner->GetFloatValue(UNIT_FIELD_MIN_DAMAGE) * pStats->damage));
         }
         if(pStats->type)
             SetCasterPet(true);
@@ -421,7 +421,7 @@ void TempSummon::UnSummon(uint32 msTime)
         if (sBattlePetSpeciesBySpellId.find(GetEntry()) != sBattlePetSpeciesBySpellId.end())
         {
             owner->SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
-            owner->SetUInt32Value(PLAYER_CURRENT_BATTLE_PET_BREED_QUALITY, 0);
+            owner->SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, 0);
         }
     }
     if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)

@@ -282,7 +282,7 @@ public:
 
         void Reset()
         {
-            me->SetFloatValue(OBJECT_FIELD_SCALE_X, 0.4f);
+            me->SetFloatValue(OBJECT_FIELD_SCALE, 0.4f);
             me->AddAura(SPELL_CINDERS_AURA_DMG, me);
             despawn = 60000;
         }

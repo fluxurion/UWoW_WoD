@@ -2375,16 +2375,16 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
         switch (attType)
         {
             case RANGED_ATTACK:
-                min_damage = GetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE);
-                max_damage = GetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE);
+                min_damage = GetFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE);
+                max_damage = GetFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE);
                 break;
             case BASE_ATTACK:
-                min_damage = GetFloatValue(UNIT_FIELD_MINDAMAGE);
-                max_damage = GetFloatValue(UNIT_FIELD_MAXDAMAGE);
+                min_damage = GetFloatValue(UNIT_FIELD_MIN_DAMAGE);
+                max_damage = GetFloatValue(UNIT_FIELD_MAX_DAMAGE);
                 break;
             case OFF_ATTACK:
-                min_damage = GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE);
-                max_damage = GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE);
+                min_damage = GetFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE);
+                max_damage = GetFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE);
                 break;
                 // Just for good manner
             default:
@@ -2921,7 +2921,7 @@ float Unit::GetUnitDodgeChance() const
         return 0.0f;
 
     if (GetTypeId() == TYPEID_PLAYER)
-        return GetFloatValue(PLAYER_DODGE_PERCENTAGE);
+        return GetFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE);
     else
     {
         if (ToCreature()->isTotem())
@@ -2951,7 +2951,7 @@ float Unit::GetUnitParryChance() const
                 tmpitem = player->GetWeaponForAttack(OFF_ATTACK, true);
 
             if (tmpitem)
-                chance = GetFloatValue(PLAYER_PARRY_PERCENTAGE);
+                chance = GetFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE);
         }
     }
     else if (GetTypeId() == TYPEID_UNIT)
@@ -2990,7 +2990,7 @@ float Unit::GetUnitBlockChance() const
         {
             Item* tmpitem = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
             if (tmpitem && !tmpitem->IsBroken())
-                return GetFloatValue(PLAYER_BLOCK_PERCENTAGE);
+                return GetFloatValue(PLAYER_FIELD_BLOCK_PERCENTAGE);
         }
         // is player but has no block ability or no not broken shield equipped
         return 0.0f;
@@ -3017,13 +3017,13 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victi
         switch (attackType)
         {
             case BASE_ATTACK:
-                crit = GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                crit = GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
                 break;
             case OFF_ATTACK:
-                crit = GetFloatValue(PLAYER_OFFHAND_CRIT_PERCENTAGE);
+                crit = GetFloatValue(PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE);
                 break;
             case RANGED_ATTACK:
-                crit = GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE);
+                crit = GetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE);
                 break;
                 // Just for good manner
             default:
@@ -6306,9 +6306,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                 case 96976: // Matrix Restabilizer (384)
                 {
 
-                    uint32 crit = this->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_CRIT_MELEE);
-                    uint32 mastery = this->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_MASTERY);
-                    uint32 haste = this->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_MELEE);
+                    uint32 crit = this->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_CRIT_MELEE);
+                    uint32 mastery = this->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY);
+                    uint32 haste = this->ToPlayer()->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE);
                     
                     bool isheroic = (dummySpell->Id == 97138);
                     if (crit > mastery && crit > haste)
@@ -9691,7 +9691,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
         {
             if(Player* player = ToPlayer())
             {
-                int32 CRraiting = player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_PARRY) + player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_DODGE);
+                int32 CRraiting = player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_PARRY) + player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_DODGE);
                 basepoints0 = int32(CRraiting * triggerAmount / 100);
             }
             break;
@@ -10517,7 +10517,7 @@ ReputationRank Unit::GetReactionTo(Unit const* target) const
                             {
                                 // check contested flags
                                 if (targetFactionTemplateEntry->factionFlags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD
-                                    && selfPlayerOwner->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
+                                    && selfPlayerOwner->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
                                     return REP_HOSTILE;
 
                                 // if faction has reputation, hostile state depends only from AtWar state
@@ -10549,7 +10549,7 @@ ReputationRank Unit::GetFactionReactionTo(FactionTemplateEntry const* factionTem
     {
         // check contested flags
         if (factionTemplateEntry->factionFlags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD
-            && targetPlayerOwner->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
+            && targetPlayerOwner->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
             return REP_HOSTILE;
         if (ReputationRank const* repRank = targetPlayerOwner->GetReputationMgr().GetForcedRankIfAny(factionTemplateEntry))
             return *repRank;
@@ -10813,9 +10813,9 @@ void Unit::ModifyAuraState(AuraStateType flag, bool apply)
 {
     if (apply)
     {
-        if (!HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1)))
+        if (!HasFlag(UNIT_FIELD_AURA_STATE, 1<<(flag-1)))
         {
-            SetFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
+            SetFlag(UNIT_FIELD_AURA_STATE, 1<<(flag-1));
             if (GetTypeId() == TYPEID_PLAYER)
             {
                 PlayerSpellMap const& sp_list = ToPlayer()->GetSpellMap();
@@ -10847,9 +10847,9 @@ void Unit::ModifyAuraState(AuraStateType flag, bool apply)
     }
     else
     {
-        if (HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1)))
+        if (HasFlag(UNIT_FIELD_AURA_STATE, 1<<(flag-1)))
         {
-            RemoveFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
+            RemoveFlag(UNIT_FIELD_AURA_STATE, 1<<(flag-1));
 
             Unit::AuraApplicationMap& tAuras = GetAppliedAuras();
             for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
@@ -10866,7 +10866,7 @@ void Unit::ModifyAuraState(AuraStateType flag, bool apply)
 
 uint32 Unit::BuildAuraStateUpdateForTarget(Unit* target) const
 {
-    uint32 auraStates = GetUInt32Value(UNIT_FIELD_AURASTATE) &~(PER_CASTER_AURA_STATE_MASK);
+    uint32 auraStates = GetUInt32Value(UNIT_FIELD_AURA_STATE) &~(PER_CASTER_AURA_STATE_MASK);
     for (AuraStateAurasMap::const_iterator itr = m_auraStateAuras.begin(); itr != m_auraStateAuras.end(); ++itr)
         if ((1<<(itr->first-1)) & PER_CASTER_AURA_STATE_MASK)
             if (itr->second->GetBase()->GetCasterGUID() == target->GetGUID())
@@ -10901,7 +10901,7 @@ bool Unit::HasAuraState(AuraStateType flag, SpellInfo const* spellProto, Unit co
         }
     }
 
-    return HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
+    return HasFlag(UNIT_FIELD_AURA_STATE, 1<<(flag-1));
 }
 
 void Unit::SetOwnerGUID(uint64 owner)
@@ -10909,7 +10909,7 @@ void Unit::SetOwnerGUID(uint64 owner)
     if (GetOwnerGUID() == owner)
         return;
 
-    SetUInt64Value(UNIT_FIELD_SUMMONEDBY, owner);
+    SetUInt64Value(UNIT_FIELD_SUMMONED_BY, owner);
     if (!owner)
         return;
 
@@ -11103,7 +11103,7 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
         if (GetTypeId() == TYPEID_PLAYER)
         {
             // Send infinity cooldown - client does that automatically but after relog cooldown needs to be set again
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(minion->GetUInt32Value(UNIT_CREATED_BY_SPELL));
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(minion->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
 
             if (spellInfo && (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE))
                 ToPlayer()->AddSpellAndCategoryCooldowns(spellInfo, 0, NULL, true);
@@ -11152,7 +11152,7 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(minion->GetUInt32Value(UNIT_CREATED_BY_SPELL));
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(minion->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
             // Remove infinity cooldown
             if (spellInfo && (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE))
                 ToPlayer()->SendCooldownEvent(spellInfo);
@@ -11257,7 +11257,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
         // PvP, FFAPvP
         charm->SetByteValue(UNIT_FIELD_BYTES_2, 1, GetByteValue(UNIT_FIELD_BYTES_2, 1));
 
-        if (!charm->AddUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
+        if (!charm->AddUInt64Value(UNIT_FIELD_CHARMED_BY, GetGUID()))
             sLog->outFatal(LOG_FILTER_UNITS, "Unit %u is being charmed, but it already has a charmer " UI64FMTD "", charm->GetEntry(), charm->GetCharmerGUID());
 
         _isWalkingBeforeCharm = charm->IsWalking();
@@ -11277,7 +11277,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
                 sLog->outFatal(LOG_FILTER_UNITS, "Player %s is trying to uncharm unit %u, but it has another charmed unit " UI64FMTD "", GetName(), charm->GetEntry(), GetCharmGUID());
         }
 
-        if (!charm->RemoveUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
+        if (!charm->RemoveUInt64Value(UNIT_FIELD_CHARMED_BY, GetGUID()))
             sLog->outFatal(LOG_FILTER_UNITS, "Unit %u is being uncharmed, but it has another charmer " UI64FMTD "", charm->GetEntry(), charm->GetCharmerGUID());
 
         if (charm->GetTypeId() == TYPEID_PLAYER)
@@ -11694,7 +11694,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 116858 || spellProto->Id == 6353 || spellProto->Id == 104027))
         {
             float crit_chance;
-            crit_chance = GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
+            crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
             AddPct(DoneTotalMod, crit_chance);
         }
 
@@ -12276,7 +12276,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                 crit_chance = 0.0f;
             // For other schools
             else if (GetTypeId() == TYPEID_PLAYER)
-                crit_chance = GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + GetFirstSchoolInMask(schoolMask));
+                crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(schoolMask));
             else if(!isAnySummons() || !owner)
             {
                 crit_chance = (float)m_baseSpellCritChance;
@@ -12903,7 +12903,7 @@ float Unit::CalcPvPPower(Unit* target, float amount, bool isHeal)
 
     if (Player* plr = caster->ToPlayer())
     {
-        float PowerPvP = plr->GetFloatValue(isHeal ? PLAYER_PVP_POWER_HEALING: PLAYER_PVP_POWER_DAMAGE);
+        float PowerPvP = plr->GetFloatValue(isHeal ? PLAYER_FIELD_PVP_POWER_HEALING: PLAYER_FIELD_PVP_POWER_DAMAGE);
         AddPct(amount, PowerPvP);
     }
 
@@ -13489,7 +13489,7 @@ float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellInfo* spe
 void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
 {
     if (mount)
-        SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, mount);
+        SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, mount);
 
     m_onMount = true;
 
@@ -13530,7 +13530,7 @@ void Unit::Dismount()
     if (!IsMounted())
         return;
 
-    SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
+    SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 0);
     m_onMount = false;
 
     if (Player* thisPlayer = ToPlayer())
@@ -13973,7 +13973,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
 
     if (Player const* playerAttacker = ToPlayer())
     {
-        if (playerAttacker->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_UBER))
+        if (playerAttacker->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_UBER))
             return false;
     }
 
@@ -14424,7 +14424,7 @@ int32 Unit::ModifyPower(Powers power, int32 dVal, bool set)
         if(set)
             SetPower(power, GetMinPower(power));
         else
-            SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, GetMinPower(power));
+            SetInt32Value(UNIT_FIELD_POWER + powerIndex, GetMinPower(power));
         if (power == POWER_ECLIPSE)
             TriggerEclipse(curPower);
         return -curPower;
@@ -14443,7 +14443,7 @@ int32 Unit::ModifyPower(Powers power, int32 dVal, bool set)
         if(set)
             SetPower(power, val);
         else
-            SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
+            SetInt32Value(UNIT_FIELD_POWER + powerIndex, val);
         gain = val - curPower;
     }
     else if (curPower != maxPower)
@@ -14451,7 +14451,7 @@ int32 Unit::ModifyPower(Powers power, int32 dVal, bool set)
         if(set)
             SetPower(power, maxPower);
         else
-            SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, maxPower);
+            SetInt32Value(UNIT_FIELD_POWER + powerIndex, maxPower);
         gain = maxPower - curPower;
     }
 
@@ -15441,7 +15441,7 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime, spell);
 
     if (!(spellProto->Attributes & (SPELL_ATTR0_ABILITY|SPELL_ATTR0_TRADESPELL)) && ((GetTypeId() == TYPEID_PLAYER && spellProto->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
-        castTime = int32(float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
+        castTime = int32(float(castTime) * GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
     else if (spellProto->Attributes & SPELL_ATTR0_REQ_AMMO && !(spellProto->AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG))
         castTime = int32(float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
     else if (spellProto->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
@@ -15901,7 +15901,7 @@ void Unit::SetMaxHealth(uint32 val)
         val = 1;
 
     uint32 health = GetHealth();
-    SetUInt32Value(UNIT_FIELD_MAXHEALTH, val);
+    SetUInt32Value(UNIT_FIELD_MAX_HEALTH, val);
 
     // group update
     if (GetTypeId() == TYPEID_PLAYER)
@@ -15964,7 +15964,7 @@ int32 Unit::GetPower(Powers power) const
     if (powerIndex == MAX_POWERS)
         return 0;
 
-    return GetInt32Value(UNIT_FIELD_POWER1 + powerIndex);
+    return GetInt32Value(UNIT_FIELD_POWER + powerIndex);
 }
 
 int32 Unit::GetMaxPower(Powers power) const
@@ -15973,7 +15973,7 @@ int32 Unit::GetMaxPower(Powers power) const
     if (powerIndex == MAX_POWERS)
         return 0;
 
-    return GetInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex);
+    return GetInt32Value(UNIT_FIELD_MAX_POWER + powerIndex);
 }
 
 int32 Unit::GetPowerForReset(Powers power, bool maxpower) const
@@ -16058,11 +16058,11 @@ void Unit::InitialPowers(bool maxpower)
             int32 createval = GetCreatePowers(power);
             if(maxpower)
             {
-                SetInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex, createval);
-                SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, curval);
+                SetInt32Value(UNIT_FIELD_MAX_POWER + powerIndex, createval);
+                SetInt32Value(UNIT_FIELD_POWER + powerIndex, curval);
             }
             else
-                SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, curval);
+                SetInt32Value(UNIT_FIELD_POWER + powerIndex, curval);
         }
 
         powerIndex++;
@@ -16092,7 +16092,7 @@ void Unit::SetPower(Powers power, int32 val, bool send)
     //Visualization for power
     VisualForPower(power, val);
 
-    SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
+    SetInt32Value(UNIT_FIELD_POWER + powerIndex, val);
 
     if (IsInWorld() && send)
     {
@@ -16156,7 +16156,7 @@ void Unit::SetMaxPower(Powers power, int32 val)
         return;
 
     int32 cur_power = GetPower(power);
-    SetInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex, val);
+    SetInt32Value(UNIT_FIELD_MAX_POWER + powerIndex, val);
 
     // group update
     if (GetTypeId() == TYPEID_PLAYER)
@@ -16558,9 +16558,9 @@ void CharmInfo::SetPetNumber(uint32 petnumber, bool statwindow)
 {
     m_petnumber = petnumber;
     if (statwindow)
-        m_unit->SetUInt32Value(UNIT_FIELD_PETNUMBER, m_petnumber);
+        m_unit->SetUInt32Value(UNIT_FIELD_PET_NUMBER, m_petnumber);
     else
-        m_unit->SetUInt32Value(UNIT_FIELD_PETNUMBER, 0);
+        m_unit->SetUInt32Value(UNIT_FIELD_PET_NUMBER, 0);
 }
 
 void CharmInfo::LoadPetActionBar(const std::string& data)
@@ -17573,7 +17573,7 @@ bool Unit::IsPolymorphed() const
 
 void Unit::SetDisplayId(uint32 modelId)
 {
-    SetUInt32Value(UNIT_FIELD_DISPLAYID, modelId);
+    SetUInt32Value(UNIT_FIELD_DISPLAY_ID, modelId);
 
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->isPet())
     {
@@ -17798,12 +17798,12 @@ void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply
     if (val > 0)
     {
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], val, !apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att, val, !apply);
+        ApplyPercentModFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME+att, val, !apply);
     }
     else
     {
         ApplyPercentModFloatVar(m_modAttackSpeedPct[att], -val, apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att, -val, apply);
+        ApplyPercentModFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME+att, -val, apply);
     }
 
     if (val && isPet())
@@ -17989,7 +17989,7 @@ void Unit::SetContestedPvP(Player* attackedPlayer)
     if (!player->HasUnitState(UNIT_STATE_ATTACK_PLAYER))
     {
         player->AddUnitState(UNIT_STATE_ATTACK_PLAYER);
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP);
+        player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP);
         // call MoveInLineOfSight for nearby contested guards
         UpdateObjectVisibility();
     }
@@ -18045,7 +18045,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
 {
     pet->SetCreatorGUID(GetGUID());
     pet->setFaction(getFaction());
-    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, spell_id);
+    pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, spell_id);
 
     if (GetTypeId() == TYPEID_PLAYER)
         pet->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
@@ -19607,13 +19607,13 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
         if(AuraEffect const* aurEff = victim->GetAuraEffect(20711, 0))
         {
             // save value before aura remove
-            uint32 ressSpellId = victim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
+            uint32 ressSpellId = victim->GetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL);
             if (!ressSpellId)
                 ressSpellId = victim->ToPlayer()->GetResurrectionSpellId();
             // Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
             victim->RemoveAllAurasOnDeath();
             // restore for use at real death
-            victim->SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
+            victim->SetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL, ressSpellId);
 
             // FORM_SPIRITOFREDEMPTION and related auras
             victim->CastSpell(victim, 27827, true, NULL, aurEff);
@@ -20336,8 +20336,8 @@ void Unit::RemoveVehicleKit()
 
     m_updateFlag &= ~UPDATEFLAG_VEHICLE;
     m_unitTypeMask &= ~UNIT_MASK_VEHICLE;
-    RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-    RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+    RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+    RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
 }
 
 Unit* Unit::GetVehicleBase() const
@@ -20876,9 +20876,9 @@ uint32 Unit::GetCombatRatingDamageReduction(CombatRating cr, float cap, uint32 d
     {
         if (Player* pl = GetCharmerOrOwnerPlayerOrPlayerItself())
         {
-            float auraPercent = pl->GetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PCT);
+            float auraPercent = pl->GetFloatValue(PLAYER_FIELD_MOD_RESILIENCE_PERCENT);
             float scalar      = pl->GetRatingMultiplier(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN) * 93.225806452f;
-            uint32 resRating  = float(pl->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_RESILIENCE_PLAYER_DAMAGE_TAKEN));
+            uint32 resRating  = float(pl->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_RESILIENCE_PLAYER_DAMAGE_TAKEN));
 
             percent = ((scalar * 0.72f) + resRating) / (scalar + resRating) * 100.0f - 72.0f - auraPercent;
         }
@@ -20911,7 +20911,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
+                uint8 hairColor = GetByteValue(PLAYER_FIELD_BYTES, 3);
                 switch (hairColor)
                 {
                     case 7: // Violet
@@ -20939,7 +20939,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
+                uint8 hairColor = GetByteValue(PLAYER_FIELD_BYTES, 3);
                 switch (hairColor)
                 {
                     case 0: // Red
@@ -20970,7 +20970,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 }
 
                 // Based on Skin color
-                uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
+                uint8 skinColor = GetByteValue(PLAYER_FIELD_BYTES, 0);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -21022,7 +21022,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
+                uint8 skinColor = GetByteValue(PLAYER_FIELD_BYTES, 0);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -21097,7 +21097,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
+                uint8 hairColor = GetByteValue(PLAYER_FIELD_BYTES, 3);
                 switch (hairColor)
                 {
                     case 0: // Green
@@ -21124,7 +21124,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
+                uint8 hairColor = GetByteValue(PLAYER_FIELD_BYTES, 3);
                 switch (hairColor)
                 {
                     case 0: // Red
@@ -21156,7 +21156,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 }
 
                 // Based on Skin color
-                uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
+                uint8 skinColor = GetByteValue(PLAYER_FIELD_BYTES, 0);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -21208,7 +21208,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
+                uint8 skinColor = GetByteValue(PLAYER_FIELD_BYTES, 0);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -22331,13 +22331,13 @@ bool Unit::SetHover(bool enable)
     {
         //! No need to check height on ascent
         AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        if (float hh = GetFloatValue(UNIT_FIELD_HOVERHEIGHT))
+        if (float hh = GetFloatValue(UNIT_FIELD_HOVER_HEIGHT))
             UpdateHeight(GetPositionZ() + hh);
     }
     else
     {
         RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        if (float hh = GetFloatValue(UNIT_FIELD_HOVERHEIGHT))
+        if (float hh = GetFloatValue(UNIT_FIELD_HOVER_HEIGHT))
         {
             float newZ = GetPositionZ() - hh;
             UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), newZ);

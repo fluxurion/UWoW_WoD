@@ -1070,7 +1070,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);  // We're not in BG.
         // reset destination bg team
         player->SetBGTeam(0);
-        player->SetByteValue(PLAYER_BYTES_3, 3, 0);
+        player->SetByteValue(PLAYER_FIELD_BYTES_3, 3, 0);
         player->RemoveBattlegroundQueueJoinTime(bgTypeId);
 
         if (Transport)
@@ -1130,7 +1130,7 @@ void Battleground::StartBattleground()
 void Battleground::AddPlayer(Player* player)
 {
     // remove afk from player
-    if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
+    if (player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AFK))
         player->ToggleAFK();
 
     // score struct must be created in inherited class
@@ -1220,7 +1220,7 @@ void Battleground::AddPlayer(Player* player)
         }
 
         // Set arena faction client-side to display arena unit frame
-        player->SetByteValue(PLAYER_BYTES_3, 3, player->GetBGTeam() == HORDE ? 0 : 1);
+        player->SetByteValue(PLAYER_FIELD_BYTES_3, 3, player->GetBGTeam() == HORDE ? 0 : 1);
 
         Pet* pet = player->GetPet();
         uint64 petGUID = pet ? pet->GetGUID() : 0;
@@ -1730,10 +1730,10 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
         // TODO: Fix display here
         // creature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
         // casting visual effect
-        creature->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
+        creature->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
         // correct cast speed
-        creature->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
-        creature->SetFloatValue(UNIT_MOD_CAST_HASTE, 1.0f);
+        creature->SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
+        creature->SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
         //creature->CastSpell(creature, SPELL_SPIRIT_HEAL_CHANNEL, true);
         return true;
     }

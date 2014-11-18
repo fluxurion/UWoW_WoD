@@ -362,8 +362,8 @@ public:
         {
             if (((Pet*)creature)->getPetType() == HUNTER_PET)
             {
-                creature->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, sObjectMgr->GetXPForLevel(lvl)/4);
-                creature->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
+                creature->SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, sObjectMgr->GetXPForLevel(lvl)/4);
+                creature->SetUInt32Value(UNIT_FIELD_PET_EXPERIENCE, 0);
             }
             ((Pet*)creature)->GivePetLevel(lvl);
         }
@@ -518,7 +518,7 @@ public:
             return false;
         }
 
-        creature->SetUInt32Value(UNIT_NPC_FLAGS, npcFlags);
+        creature->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, npcFlags);
 
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_NPCFLAG);
 
@@ -597,8 +597,8 @@ public:
         }
 
         uint32 faction = target->getFaction();
-        uint32 npcflags = target->GetUInt32Value(UNIT_NPC_FLAGS);
-        uint32 npcflags2 = target->GetUInt32Value(UNIT_NPC_FLAGS2);
+        uint32 npcflags = target->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
+        uint32 npcflags2 = target->GetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1);
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();
         uint32 Entry = target->GetEntry();
@@ -747,7 +747,7 @@ public:
             WorldDatabase.Execute(stmt);
         }
 
-        target->SetUInt32Value(UNIT_NPC_EMOTESTATE, emote);
+        target->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, emote);
 
         return true;
     }
@@ -1455,7 +1455,7 @@ public:
 
         creature->SetName(args);
         uint32 idname = sObjectMgr->AddCreatureTemplate(creature->GetName());
-        creature->SetUInt32Value(OBJECT_FIELD_ENTRY, idname);
+        creature->SetUInt32Value(OBJECT_FIELD_ENTRY_ID, idname);
 
         creature->SaveToDB();
         */
@@ -1500,8 +1500,8 @@ public:
             return true;
         }
 
-        uint32 idname = sObjectMgr->AddCreatureSubName(creature->GetName(), args, creature->GetUInt32Value(UNIT_FIELD_DISPLAYID));
-        creature->SetUInt32Value(OBJECT_FIELD_ENTRY, idname);
+        uint32 idname = sObjectMgr->AddCreatureSubName(creature->GetName(), args, creature->GetUInt32Value(UNIT_FIELD_DISPLAY_ID));
+        creature->SetUInt32Value(OBJECT_FIELD_ENTRY_ID, idname);
 
         creature->SaveToDB();
         */

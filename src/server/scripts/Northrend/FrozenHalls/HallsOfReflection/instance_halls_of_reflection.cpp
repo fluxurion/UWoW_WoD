@@ -177,21 +177,21 @@ public:
             {
                 case GO_FROSTMOURNE:
                     uiFrostmourne = go->GetGUID();
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                     HandleGameObject(0, false, go);
                     break;
                 case GO_FROSTMOURNE_ALTAR:
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                     HandleGameObject(0, true, go);
                     break;
                 case GO_FRONT_DOOR:
                     uiFrontDoor = go->GetGUID();
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                     OpenDoor(uiFrontDoor);
                     break;
                 case GO_FROSTWORN_DOOR:
                     uiFrostwornDoor = go->GetGUID();
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
 
                     if (uiEncounter[1] == DONE)
                         OpenDoor(uiFrostwornDoor);

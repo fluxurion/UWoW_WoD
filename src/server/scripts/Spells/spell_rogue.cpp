@@ -1141,7 +1141,7 @@ class spell_rog_distract : public SpellScriptLoader
                         if (!summon)
                             return;
 
-                        summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
+                        summon->SetUInt64Value(UNIT_FIELD_SUMMONED_BY, caster->GetGUID());
                         summon->AddAura(31366, summon);
                         //summon->SetMaxHealth(caster->CountPctFromMaxHealth(50));
                         //summon->SetHealth(summon->GetMaxHealth());

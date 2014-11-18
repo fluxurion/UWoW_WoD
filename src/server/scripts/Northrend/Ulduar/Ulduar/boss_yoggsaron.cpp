@@ -1422,7 +1422,7 @@ class npc_descend_into_madness : public CreatureScript
 
         void OnSpellClick(Unit* /*clicker*/)
         {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             me->DespawnOrUnsummon();
             
         }

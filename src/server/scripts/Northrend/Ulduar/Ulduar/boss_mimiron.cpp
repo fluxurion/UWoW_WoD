@@ -235,7 +235,7 @@ public:
         {
             _Reset();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_USE_STANDING);
             me->SetVisible(true);
             me->ExitVehicle();
             me->GetMotionMaster()->MoveTargetedHome();
@@ -420,12 +420,12 @@ public:
                             break;
                         case 4:
                             me->ChangeSeat(5);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
                             JumpToNextStep(2500);
                             break;
                         case 5:
                             DoScriptText(SAY_MKII_ACTIVATE, me);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_TALK);
                             JumpToNextStep(6000);
                             break;
                         case 6:
@@ -437,7 +437,7 @@ public:
                             {
                                 if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
                                 {
-                                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
                                     pLeviathan->AI()->DoAction(DO_START_ENCOUNTER);
                                     phase = PHASE_COMBAT;
                                 }
@@ -489,13 +489,13 @@ public:
                             JumpToNextStep(3500);
                             break;
                         case 6:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_TALK);
                             DoScriptText(SAY_VX001_ACTIVATE, me);
                             JumpToNextStep(10000);
                             break;
                         case 7:
                             me->ChangeSeat(1);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SIT);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_SIT);
                             JumpToNextStep(2000);
                             break;
                         case 8:
@@ -531,16 +531,16 @@ public:
                     {
                         case 1:
                             me->ChangeSeat(4);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
                             JumpToNextStep(2500);
                             break;
                         case 2:
                             DoScriptText(SAY_VX001_DEATH, me);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_TALK);
                             JumpToNextStep(5000);
                             break;
                         case 3:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
                             if (instance)
                                 me->SummonCreature(NPC_AERIAL_UNIT, 2744.65f, 2569.46f, 380, 3.14159f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             JumpToNextStep(5000);
@@ -551,12 +551,12 @@ public:
                             JumpToNextStep(2000);
                             break;
                         case 5:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_TALK);
                             DoScriptText(SAY_AERIAL_ACTIVATE, me);
                             JumpToNextStep(8000);
                             break;
                         case 6:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
                             me->SetVisible(false);
                             if (instance)
                             {

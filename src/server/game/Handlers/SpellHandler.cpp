@@ -396,7 +396,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     }
 
     // Verify that the bag is an actual bag or wrapped item that can be used "normally"
-    if (!(proto->Flags & ITEM_PROTO_FLAG_OPENABLE) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
+    if (!(proto->Flags & ITEM_PROTO_FLAG_OPENABLE) && !item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED))
     {
         pUser->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
         sLog->outError(LOG_FILTER_NETWORKIO, "Possible hacking attempt: Player %s [guid: %u] tried to open item [guid: %u, entry: %u] which is not openable!",
@@ -425,7 +425,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
         }
     }
 
-    if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))// wrapped?
+    if (item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED))// wrapped?
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
 
@@ -439,9 +439,9 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
             uint32 entry = fields[0].GetUInt32();
             uint32 flags = fields[1].GetUInt32();
 
-            item->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, 0);
+            item->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, 0);
             item->SetEntry(entry);
-            item->SetUInt32Value(ITEM_FIELD_FLAGS, flags);
+            item->SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, flags);
             item->SetState(ITEM_CHANGED, pUser);
         }
         else
@@ -1254,7 +1254,7 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
 
     if(Creature* summon = GetPlayer()->GetMap()->GetCreature(_player->m_SummonSlot[slotId]))
     {
-        if(uint32 spellId = summon->GetUInt32Value(UNIT_CREATED_BY_SPELL))
+        if(uint32 spellId = summon->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL))
             if(AreaTrigger* arTrigger = _player->GetAreaObject(spellId))
                 arTrigger->SetDuration(0);
         summon->DespawnOrUnsummon();
@@ -1268,13 +1268,13 @@ void WorldSession::HandleSelfResOpcode(WorldPacket& /*recvData*/)
     if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         return; // silent return, client should display error by itself and not send this opcode
 
-    if (_player->GetUInt32Value(PLAYER_SELF_RES_SPELL))
+    if (_player->GetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL))
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_player->GetUInt32Value(PLAYER_SELF_RES_SPELL));
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_player->GetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL));
         if (spellInfo)
             _player->CastSpell(_player, spellInfo, false, 0);
 
-        _player->SetUInt32Value(PLAYER_SELF_RES_SPELL, 0);
+        _player->SetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL, 0);
     }
 }
 
@@ -1365,14 +1365,14 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     data.WriteGuidMask<2>(guid);
     data.WriteGuidMask<0>(guildGuid);
 
-    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 1) : 0);   // face
+    data << uint8(player ? player->GetByteValue(PLAYER_FIELD_BYTES, 1) : 0);   // face
     data.WriteGuidBytes<2, 7>(guid);
     data.WriteGuidBytes<6, 1>(guildGuid);
     data << uint8(creator->getGender());
     data << uint8(creator->getClass());
     data.WriteGuidBytes<1>(guid);
     data.WriteGuidBytes<0>(guildGuid);
-    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 2) : 0);   // hair
+    data << uint8(player ? player->GetByteValue(PLAYER_FIELD_BYTES, 2) : 0);   // hair
     data.WriteGuidBytes<5, 0>(guid);
     data.WriteGuidBytes<4, 2>(guildGuid);
 
@@ -1397,9 +1397,9 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     {
         if (!player)
             data << uint32(0);
-        else if (*itr == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
+        else if (*itr == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
             data << uint32(0);
-        else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
+        else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
             data << uint32(0);
         else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
             data << uint32(item->GetTemplate()->DisplayInfoID);
@@ -1411,13 +1411,13 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     data << uint8(creator->getRace());
     data.WriteGuidBytes<4>(guid);
     data.WriteGuidBytes<7>(guildGuid);
-    data << uint8(player ? player->GetByteValue(PLAYER_BYTES_2, 0) : 0); // facialhair
+    data << uint8(player ? player->GetByteValue(PLAYER_FIELD_BYTES_2, 0) : 0); // facialhair
     data.WriteGuidBytes<6>(guid);
     data << uint32(creator->GetDisplayId());
-    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 0) : 0);   // skin
+    data << uint8(player ? player->GetByteValue(PLAYER_FIELD_BYTES, 0) : 0);   // skin
     data.WriteGuidBytes<3>(guid);
     data.WriteGuidBytes<3>(guildGuid);
-    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 3) : 0);   // haircolor
+    data << uint8(player ? player->GetByteValue(PLAYER_FIELD_BYTES, 3) : 0);   // haircolor
     data.WriteGuidBytes<5>(guildGuid);
 
     data.PutBits<uint32>(bitpos, slotCount, 22);

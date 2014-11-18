@@ -342,10 +342,10 @@ Player* SelectRandomPlayerInTheMaps(Map* pMap)
 //Function start motion of the ship
 void StartFlyShip(Transport* t)
 {
-    t->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+    t->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
     t->SetGoState(GO_STATE_ACTIVE);
     t->SetUInt32Value(GAMEOBJECT_DYNAMIC, 0x10830010); // Seen in sniffs
-    t->SetFloatValue(GAMEOBJECT_PARENTROTATION + 3, 1.0f);
+    t->SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION + 3, 1.0f);
 
     Map* map = t->GetMap();
     std::set<uint32> mapsUsed;
@@ -410,7 +410,7 @@ void StopFlyShip(Transport* t)
     Map* map = t->GetMap();
     t->m_WayPoints.clear();
     RelocateTransport(t);
-    t->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+    t->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
     t->SetGoState(GO_STATE_READY);
 
     for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
@@ -447,7 +447,7 @@ void TeleportPlayers(Map* map, uint64 TeamInInstance)
             {
                 if (Player* pPlayer = itr->getSource())
                 {
-                    if (pPlayer->isDead() && !pPlayer->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+                    if (pPlayer->isDead() && !pPlayer->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
                         pPlayer->ResurrectPlayer(1.0f);
 
                     if(TeamInInstance == ALLIANCE)
@@ -787,7 +787,7 @@ class npc_muradin_gunship : public CreatureScript
             if (action == 1001)
             {
                 pCreature->AI()->DoAction(ACTION_INTRO_START);
-                pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
             return true;
         }
@@ -818,7 +818,7 @@ class npc_muradin_gunship : public CreatureScript
                 RiflCount = RAID_MODE(4, 6, 4, 6);
                 RocketerDieCount = 0;
                 RiflDieCount = 0;
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 EventScheduled = false;
             }
 
@@ -2018,7 +2018,7 @@ class npc_saurfang_gunship : public CreatureScript
             if (action == 1001)
             {
                 pCreature->AI()->DoAction(ACTION_INTRO_START);
-                pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
             return true;
         }

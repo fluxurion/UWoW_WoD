@@ -325,7 +325,7 @@ public:
             me->TauntApply(who);
             DoCast(who, SPELL_SNOBOLLED, true);
             if (who->GetTypeId() == TYPEID_PLAYER)
-                who->SetFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY);
+                who->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY);
         }
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
@@ -355,7 +355,7 @@ public:
                     target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
 
                 if (target->GetTypeId() == TYPEID_PLAYER)
-                    target->RemoveFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY);
+                    target->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY);
             }
         }
 

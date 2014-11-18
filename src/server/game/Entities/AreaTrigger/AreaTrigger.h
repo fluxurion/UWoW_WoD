@@ -120,9 +120,9 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void Update(uint32 p_time);
         void UpdateAffectedList(uint32 p_time, AreaTriggerActionMoment actionM);
         void Remove(bool duration = true);
-        uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
-        void SetSpellId(uint32 spell) { return SetUInt32Value(AREATRIGGER_SPELLID, spell); }
-        uint64 GetCasterGUID() const { return GetUInt64Value(AREATRIGGER_CASTER); }
+        uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_FIELD_SPELL_ID); }
+        void SetSpellId(uint32 spell) { return SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, spell); }
+        uint64 GetCasterGUID() const { return GetUInt64Value(AREATRIGGER_FIELD_CASTER); }
         Unit* GetCaster() const;
         void SetTargetGuid(uint64 targetGuid) { _targetGuid = targetGuid; }
         uint64 GetTargetGuid() { return _targetGuid; }

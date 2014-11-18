@@ -87,10 +87,10 @@ class npc_defiant_troll : public CreatureScript
                     me->CastSpell(me, SPELL_SLEEP, true);
                     break;
                 case 1:
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 412);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 412);
                     break;
                 default:
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 10);
+                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 10);
                     break;
             }
         }
@@ -117,7 +117,7 @@ class npc_defiant_troll : public CreatureScript
                 workTimer = WORK_TIMER;
 
                 // set working animation
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 467);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 467);
                 SetEquipmentSlots(false, urand(0, 1) == 0 ? 2202 : 2704);
             }
         }
@@ -922,7 +922,7 @@ class npc_steamwheedle_shark : public CreatureScript
                 {
                     case EVENT_START_SHARK:
                     {
-                        switch(me->GetUInt32Value(UNIT_CREATED_BY_SPELL))
+                        switch(me->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL))
                         {
                             case SPELL_SUMMON:      _ID = 0; break;
                             case SPELL_SUMMON_2:    _ID = 1; break;

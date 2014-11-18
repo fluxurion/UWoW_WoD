@@ -1815,7 +1815,7 @@ class spell_halion_fiery_combustion : public SpellScriptLoader
                         if (GetCaster())
 							if (Creature * combust = GetCaster()->SummonCreature(40001, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), pTarget->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000))
                             {
-                                combust->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f * mark->GetStackAmount());
+                                combust->SetFloatValue(OBJECT_FIELD_SCALE, 1.0f * mark->GetStackAmount());
                                 if (pTarget->GetMap()->IsHeroic())
                                     combust->CastCustomSpell(pTarget, SPELL_COMBUSTION_EXPLODE, &bp, 0, 0, true);
                             }
@@ -1864,7 +1864,7 @@ class spell_combustion : public SpellScriptLoader
 
             void ScaleRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 7.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 7.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE)));
             }
 
             void Register()
@@ -1891,7 +1891,7 @@ class spell_consumption : public SpellScriptLoader
 
             void ScaleRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 7.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 7.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE)));
             }
 
             void Register()
@@ -1951,7 +1951,7 @@ class spell_halion_soul_consumption : public SpellScriptLoader
                         if (GetCaster())
                             if (Creature * comsumpt = GetCaster()->SummonCreature(40135, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), pTarget->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000))
                             {
-                                comsumpt->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f * mark->GetStackAmount());
+                                comsumpt->SetFloatValue(OBJECT_FIELD_SCALE, 1.0f * mark->GetStackAmount());
                                 if (pTarget->GetMap()->IsHeroic())
                                     comsumpt->CastCustomSpell(pTarget, SPELL_CONSUMPTION_EXPLODE, &bp, 0, 0, true);
                             }

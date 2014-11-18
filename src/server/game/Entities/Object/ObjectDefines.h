@@ -75,7 +75,7 @@ enum HighGuid
 #define IS_AREATRIGGER_GUID(GUID)    (GUID_HIPART(Guid) == HIGHGUID_AREATRIGGER)
 
 // l - OBJECT_FIELD_GUID
-// e - OBJECT_FIELD_ENTRY for GO (except GAMEOBJECT_TYPE_MO_TRANSPORT) and creatures or UNIT_FIELD_PETNUMBER for pets
+// e - OBJECT_FIELD_ENTRY_ID for GO (except GAMEOBJECT_TYPE_MO_TRANSPORT) and creatures or UNIT_FIELD_PET_NUMBER for pets
 // h - OBJECT_FIELD_GUID + 1
 inline uint64 MAKE_NEW_GUID(uint64 l, uint64 e, uint64 h)
 {

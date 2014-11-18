@@ -584,7 +584,7 @@ public:
             uiChargeTimer = 7000;
             uiShieldBreakerTimer = 10000;
             uiDefendTimer = 10000;
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
         void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
@@ -601,7 +601,7 @@ public:
                         pDoneBy->CastSpell(pDoneBy, 62724, true);
 
                     me->setFaction(35);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     EnterEvadeMode();
                 }
             }
@@ -615,7 +615,7 @@ public:
 
         void DoAction()
         {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->setFaction(14);
             me->setActive(true);
@@ -1565,8 +1565,8 @@ class npc_tg_tirion_fordring : public CreatureScript
             void Reset()
             {
                 SetEquipmentSlots(false, 0, 0, 0);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 LichKingGUID = 0;
                 MograineGUID = 0;
                 EscortGUID[0] = 0;
@@ -1587,8 +1587,8 @@ class npc_tg_tirion_fordring : public CreatureScript
                 {
                     case ACTION_START_ESCORT:
                         {
-                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             Talk(SAY_TIRION_01);
 
@@ -1787,7 +1787,7 @@ class npc_tg_tirion_fordring : public CreatureScript
                             {
                                 LichKing->SetFacingToObject(me);
                                 LichKing->AI()->Talk(SAY_LICH_KING_01);
-                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_ASHBRINGER));
+                                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, uint32(EQUIP_ASHBRINGER));
                                 me->GetMotionMaster()->MovePoint(0, 6167.601f, 2757.219f, 573.914f);
                             }
                             Events.ScheduleEvent(EVENT_MOVE_08, 2000);
@@ -1881,19 +1881,19 @@ class npc_tg_tirion_fordring : public CreatureScript
                             if (Creature* Escort = me->GetCreature(*me, EscortGUID[0]))
                             {
                                 Escort->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                Escort->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_ESCORT));
+                                Escort->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, uint32(EQUIP_ESCORT));
                                 Escort->GetMotionMaster()->MovePoint(0, 6137.778f, 2759.621f, 573.914f);
                             }
                             if (Creature* Escort = me->GetCreature(*me, EscortGUID[1]))
                             {
                                 Escort->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                Escort->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_ESCORT));
+                                Escort->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, uint32(EQUIP_ESCORT));
                                 Escort->GetMotionMaster()->MovePoint(0, 6128.400f, 2757.948f, 573.914f);
                             }
                             if (Creature* Escort = me->GetCreature(*me, EscortGUID[2]))
                             {
                                 Escort->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                Escort->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_ESCORT));
+                                Escort->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, uint32(EQUIP_ESCORT));
                                 Escort->GetMotionMaster()->MovePoint(0, 6132.821f, 2765.189f, 573.914f);
                             }
                             Events.ScheduleEvent(EVENT_ESCORT_DEFEND_2, 5000);
@@ -1905,17 +1905,17 @@ class npc_tg_tirion_fordring : public CreatureScript
                                 {
                                     Escort->SetFacingToObject(LichKing);
                                     Escort->AI()->Talk(SAY_CRUASDER_01);
-                                    Escort->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                                    Escort->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2H);
                                 }
                                 if (Creature* Escort = me->GetCreature(*me, EscortGUID[1]))
                                 {
                                     Escort->SetFacingToObject(LichKing);
-                                    Escort->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                                    Escort->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2H);
                                 }
                                 if (Creature* Escort = me->GetCreature(*me, EscortGUID[2]))
                                 {
                                     Escort->SetFacingToObject(LichKing);
-                                    Escort->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
+                                    Escort->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2H);
                                 }
                             }
                             Events.ScheduleEvent(EVENT_TALK_9, 3000);
@@ -1937,7 +1937,7 @@ class npc_tg_tirion_fordring : public CreatureScript
                                 (*itr)->SetStandState(UNIT_STAND_STATE_STAND);
                                 (*itr)->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                 (*itr)->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
-                                (*itr)->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_READYUNARMED);
+                                (*itr)->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_READYUNARMED);
                             }
                             Events.ScheduleEvent(EVENT_SPAWN_KNIGHTS, 6000);
                             }
@@ -1978,7 +1978,7 @@ class npc_tg_tirion_fordring : public CreatureScript
                             {
                                 Mograine->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                 Mograine->GetMotionMaster()->MovePoint(0, 6133.930f, 2758.642f, 573.914f);
-                                Mograine->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                                Mograine->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY1H);
                             }
                             Events.ScheduleEvent(EVENT_DARION_TALK, 4000);
                             break;
@@ -2024,8 +2024,8 @@ class npc_tg_tirion_fordring : public CreatureScript
                                 if (Creature* Escort = me->GetCreature(*me, EscortGUID[i]))
                                 {
                                     Escort->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                    Escort->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(0));
-                                    Escort->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                                    Escort->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, uint32(0));
+                                    Escort->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
                                     Escort->DespawnOrUnsummon();
                                 }
                             }

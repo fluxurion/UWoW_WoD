@@ -485,7 +485,7 @@ struct BfTBGameObjectBuilding
         m_Build->Refresh();
         //Updating worldstate
         m_State = BATTLEFIELD_TB_OBJECTSTATE_ALLIANCE_INTACT-(m_Team*3);
-        m_Build->SetUInt32Value(GAMEOBJECT_FACTION,TolBaradFaction[m_Team]);
+        m_Build->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE,TolBaradFaction[m_Team]);
     }
 
     //Called when associate gameobject is damaged
@@ -568,15 +568,15 @@ struct BfTBGameObjectBuilding
             case BATTLEFIELD_TB_OBJECTSTATE_ALLIANCE_DESTROY:
             case BATTLEFIELD_TB_OBJECTSTATE_HORDE_DESTROY:
                 if(m_Build){
-                    m_Build->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
-                    m_Build->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                    m_Build->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DAMAGED);
+                    m_Build->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                     m_Build->SetDisplayId(m_Build->GetGOInfo()->building.destroyedDisplayId);
                 }
                 break;
             case BATTLEFIELD_TB_OBJECTSTATE_ALLIANCE_DAMAGE:
             case BATTLEFIELD_TB_OBJECTSTATE_HORDE_DAMAGE:
                 if(m_Build){
-                    m_Build->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
+                    m_Build->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DAMAGED);
                     m_Build->SetDisplayId(m_Build->GetGOInfo()->building.damagedDisplayId);
                 }
                 break;

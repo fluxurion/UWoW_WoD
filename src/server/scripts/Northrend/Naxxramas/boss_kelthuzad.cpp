@@ -310,7 +310,7 @@ public:
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* charmed = Unit::GetPlayer(*me, (*itr).first))
-                    charmed->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
+                    charmed->SetFloatValue(OBJECT_FIELD_SCALE, (*itr).second);
             }
 
             chained.clear();
@@ -355,7 +355,7 @@ public:
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* pPlayer = Unit::GetPlayer(*me, (*itr).first))
-                    pPlayer->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
+                    pPlayer->SetFloatValue(OBJECT_FIELD_SCALE, (*itr).second);
             }
             chained.clear();
 
@@ -379,8 +379,8 @@ public:
             DoScriptText(SAY_SUMMON_MINIONS, me);
             Phase = 1;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-        //    me->SetFloatValue(UNIT_FIELD_COMBATREACH, 4);
-       //     me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 4);
+        //    me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 4);
+       //     me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 4);
             events.ScheduleEvent(EVENT_TRIGGER, 5000);
             events.ScheduleEvent(EVENT_WASTE, 15000);
             events.ScheduleEvent(EVENT_ABOMIN, 30000);
@@ -493,7 +493,7 @@ public:
                     {
                         if (Creature* pGuardian = DoSummon(NPC_ICECROWN, Pos[RAND(2,5,8,11)]))
                         {
-                            pGuardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
+                            pGuardian->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 2);
                             DoScriptText(EMOTE_GUARDIAN, me);
                         }
                         ++nGuardiansOfIcecrownCount;
@@ -530,9 +530,9 @@ public:
                                 if (pTarget && !pTarget->isCharmed() && (chained.find(pTarget->GetGUID()) == chained.end()))
                                 {
                                     DoCast(pTarget, SPELL_CHAINS_OF_KELTHUZAD);
-                                    float scale = pTarget->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                                    float scale = pTarget->GetFloatValue(OBJECT_FIELD_SCALE);
                                     chained.insert(std::make_pair(pTarget->GetGUID(), scale));
-                                    pTarget->SetFloatValue(OBJECT_FIELD_SCALE_X, scale * 2);
+                                    pTarget->SetFloatValue(OBJECT_FIELD_SCALE, scale * 2);
                                     events.ScheduleEvent(EVENT_CHAINED_SPELL, 2000); //core has 2000ms to set unit flag charm
                                 }
                             }
@@ -550,7 +550,7 @@ public:
                                 {
                                     if (!player->isCharmed())
                                     {
-                                        player->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
+                                        player->SetFloatValue(OBJECT_FIELD_SCALE, (*itr).second);
                                         std::map<uint64, float>::iterator next = itr;
                                         ++next;
                                         chained.erase(itr);

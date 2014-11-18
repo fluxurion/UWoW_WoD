@@ -624,7 +624,7 @@ public:
                     me->Relocate(x, y, z, me->GetOrientation());
                     DoCast(SPELL_PERMAFROST_VISUAL);
                     DoCast(SPELL_PERMAFROST);
-                    me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
+                    me->SetFloatValue(OBJECT_FIELD_SCALE, 2.0f);
                     break;
                 }
             }

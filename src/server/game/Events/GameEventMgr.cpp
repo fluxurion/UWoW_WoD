@@ -1116,7 +1116,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
                 uint32 npcflag = GetNPCFlag(cr);
                 if (const CreatureTemplate* ci = cr->GetCreatureTemplate())
                     npcflag |= ci->npcflag;
-                cr->SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
+                cr->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, npcflag);
                 // reset gossip options, since the flag change might have added / removed some
                 //cr->ResetGossipOptions();
             }
@@ -1307,8 +1307,8 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                     {
                         creature->SetDisplayId(itr->second.modelid);
                         creature->SetNativeDisplayId(itr->second.modelid);
-                        creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius);
-                        creature->SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach);
+                        creature->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, minfo->bounding_radius);
+                        creature->SetFloatValue(UNIT_FIELD_COMBAT_REACH, minfo->combat_reach);
                     }
                 }
             }
@@ -1322,8 +1322,8 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                     {
                         creature->SetDisplayId(itr->second.modelid_prev);
                         creature->SetNativeDisplayId(itr->second.modelid_prev);
-                        creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, minfo->bounding_radius);
-                        creature->SetFloatValue(UNIT_FIELD_COMBATREACH, minfo->combat_reach);
+                        creature->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, minfo->bounding_radius);
+                        creature->SetFloatValue(UNIT_FIELD_COMBAT_REACH, minfo->combat_reach);
                     }
                 }
             }

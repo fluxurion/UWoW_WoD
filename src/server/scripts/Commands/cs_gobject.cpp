@@ -695,7 +695,7 @@ public:
         int32 objectState = atoi(state);
 
         if (objectType < 4)
-            object->SetByteValue(GAMEOBJECT_BYTES_1, objectType, objectState);
+            object->SetByteValue(GAMEOBJECT_FIELD_BYTES_1, objectType, objectState);
         else if (objectType == 4)
             object->SendCustomAnim(objectState);
         handler->PSendSysMessage("Set gobject type %d state %d", objectType, objectState);

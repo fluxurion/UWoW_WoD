@@ -222,7 +222,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     }
 
     setFaction(owner->getFaction());
-    SetUInt32Value(UNIT_CREATED_BY_SPELL, summon_spell_id);
+    SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, summon_spell_id);
 
     CreatureTemplate const* cinfo = GetCreatureTemplate();
     if (cinfo->type == CREATURE_TYPE_CRITTER)
@@ -236,12 +236,12 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     SetDisplayId(fields[3].GetUInt32());
     SetNativeDisplayId(fields[3].GetUInt32());
     uint32 petlevel = fields[4].GetUInt16();
-    SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+    SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
     SetName(fields[7].GetString());
 
     // ignore model info data for 
-    SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 0.0f);
-    SetFloatValue(UNIT_FIELD_COMBATREACH, ATTACK_DISTANCE);
+    SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 0.0f);
+    SetFloatValue(UNIT_FIELD_COMBAT_REACH, ATTACK_DISTANCE);
 
     switch (getPetType())
     {
@@ -280,7 +280,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         SetReactState(REACT_DEFENSIVE);
 
     InitStatsForLevel(petlevel);
-    SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
+    SetUInt32Value(UNIT_FIELD_PET_EXPERIENCE, fields[5].GetUInt32());
 
     SynchronizeLevelWithOwner();
     SetCanModifyStats(true);
@@ -377,7 +377,7 @@ void Pet::SavePetToDB(PetSlot mode)
     if (!isControlled())
         return;
 
-    if (GetUInt32Value(UNIT_CREATED_BY_SPELL) == 121818)
+    if (GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) == 121818)
         return;
 
     // not save not player pets
@@ -457,7 +457,7 @@ void Pet::SavePetToDB(PetSlot mode)
         stmt->setUInt32(index++, ownerLowGUID);
         stmt->setUInt32(index++, GetNativeDisplayId());
         stmt->setUInt32(index++, getLevel());
-        stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
+        stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_PET_EXPERIENCE));
         stmt->setUInt8(index++, GetReactState());
         stmt->setString(index++, GetName());
         stmt->setUInt8(index++, HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1);
@@ -474,7 +474,7 @@ void Pet::SavePetToDB(PetSlot mode)
         stmt->setString(index++, ss.str());
 
         stmt->setUInt32(index++, time(NULL));
-        stmt->setUInt32(index++, GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
         stmt->setUInt8(index++, getPetType());
         stmt->setUInt32(index++, GetSpecializationId());
 
@@ -710,11 +710,11 @@ void Creature::Regenerate(Powers power)
 
     if ((saveCur != maxValue && curValue == maxValue) || m_regenTimerCount >= uint32(isAnySummons() ? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL))
     {
-        SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, curValue);
+        SetInt32Value(UNIT_FIELD_POWER + powerIndex, curValue);
         m_regenTimerCount -= (isAnySummons() ? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL);
     }
     else
-        UpdateInt32Value(UNIT_FIELD_POWER1 + powerIndex, curValue);
+        UpdateInt32Value(UNIT_FIELD_POWER + powerIndex, curValue);
 
     m_petregenTimer = 0;
 }
@@ -742,8 +742,8 @@ void Pet::GivePetXP(uint32 xp)
     if (petlevel >= maxlevel)
        return;
 
-    uint32 nextLvlXP = GetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP);
-    uint32 curXP = GetUInt32Value(UNIT_FIELD_PETEXPERIENCE);
+    uint32 nextLvlXP = GetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE);
+    uint32 curXP = GetUInt32Value(UNIT_FIELD_PET_EXPERIENCE);
     uint32 newXP = curXP + xp;
 
     // Check how much XP the pet should receive, and hand off have any left from previous levelups
@@ -755,10 +755,10 @@ void Pet::GivePetXP(uint32 xp)
 
         GivePetLevel(petlevel);
 
-        nextLvlXP = GetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP);
+        nextLvlXP = GetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE);
     }
     // Not affected by special conditions - give it new XP
-    SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, petlevel < maxlevel ? newXP : 0);
+    SetUInt32Value(UNIT_FIELD_PET_EXPERIENCE, petlevel < maxlevel ? newXP : 0);
 }
 
 void Pet::GivePetLevel(uint8 level)
@@ -768,8 +768,8 @@ void Pet::GivePetLevel(uint8 level)
 
     if (getPetType()==HUNTER_PET)
     {
-        SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
-        SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(level)*PET_XP_FACTOR));
+        SetUInt32Value(UNIT_FIELD_PET_EXPERIENCE, 0);
+        SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(level)*PET_XP_FACTOR));
     }
 
     InitStatsForLevel(level);
@@ -832,9 +832,9 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phas
 
     setPowerType(POWER_FOCUS);
     SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, 0);
-    SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
-    SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(getLevel()+1)*PET_XP_FACTOR));
-    SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+    SetUInt32Value(UNIT_FIELD_PET_EXPERIENCE, 0);
+    SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(getLevel()+1)*PET_XP_FACTOR));
+    SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
     if (cinfo->type == CREATURE_TYPE_BEAST)
     {
@@ -872,8 +872,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     SetAttackTime(OFF_ATTACK, BASE_ATTACK_TIME);
     SetAttackTime(RANGED_ATTACK, BASE_ATTACK_TIME);
 
-    SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
-    SetFloatValue(UNIT_MOD_CAST_HASTE, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
+    SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
     SetUInt32Value(UNIT_FIELD_FLAGS_2, cinfo->unit_flags2);
 
     // Resistance
@@ -918,12 +918,12 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     if (petType == HUNTER_PET)
     {
-        SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(petlevel)*PET_XP_FACTOR));
+        SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(petlevel)*PET_XP_FACTOR));
         if (m_owner->ToPlayer())
             ApplyAttackTimePercentMod(BASE_ATTACK, m_owner->ToPlayer()->GetRatingBonusValue(CR_HASTE_RANGED), true);
     }
     else
-        SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
+        SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, 1000);
 
     SetFullHealth();
     return true;

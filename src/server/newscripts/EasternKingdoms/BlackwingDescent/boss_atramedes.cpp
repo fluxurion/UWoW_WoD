@@ -204,8 +204,8 @@ public:
             for (uint8 i = 0; i < 8; i++)
                 _shields[i] = me->SummonCreature(42949, dwarvenshieldsPos[i]);
 
-            me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 15);
-            me->SetFloatValue(UNIT_FIELD_COMBATREACH, 15);
+            me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 15);
+            me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 15);
 
             stage = 0;
             nextspell = 0;
@@ -604,7 +604,7 @@ public:
             return true;
         if(Creature* atramedes = pCreature->FindNearestCreature(NPC_ATRAMEDES, 200.0f))
         {
-            pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             atramedesShield = pCreature;
             atramedesTarget = pPlayer;
             atramedes->AI()->DoAction(ACTION_SHIELD);

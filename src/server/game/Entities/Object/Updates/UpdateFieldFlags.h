@@ -39,10 +39,10 @@ enum UpdatefieldFlags
 
 extern uint32 ItemUpdateFieldFlags[CONTAINER_END];
 extern uint32 UnitUpdateFieldFlags[PLAYER_END];
-extern uint32 GameObjectUpdateFieldFlags[GAME_OBJECT_END];
-extern uint32 DynamicObjectUpdateFieldFlags[DYNAMIC_OBJECT_END];
+extern uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END];
+extern uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END];
 extern uint32 CorpseUpdateFieldFlags[CORPSE_END];
-extern uint32 AreaTriggerUpdateFieldFlags[AREA_TRIGGER_END];
+extern uint32 AreaTriggerUpdateFieldFlags[AREATRIGGER_END];
 extern uint32 ConversationUpdateFieldFlags[CONVERSATION_END];
 
 extern uint32 UnitDynamicFieldFlags[PLAYER_DYNAMIC_END];

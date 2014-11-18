@@ -124,10 +124,10 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
     if (!charter)
         return;
 
-    // ITEM_FIELD_ENCHANTMENT_1_1 is guild id 
-    // ITEM_FIELD_ENCHANTMENT_1_1+1 is current signatures count (showed on item)
-    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1, charter->GetGUIDLow());
-    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1+1, 0);
+    // ITEM_FIELD_ENCHANTMENT is guild id 
+    // ITEM_FIELD_ENCHANTMENT+1 is current signatures count (showed on item)
+    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT, charter->GetGUIDLow());
+    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT+1, 0);
     charter->SetState(ITEM_CHANGED, _player);
     _player->SendNewItem(charter, NULL, 1, true, false);
 
@@ -515,7 +515,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
     {
         // update signs count on charter
         if (Item* item = owner->GetItemByGuid(petitionGuid))
-            item->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1+1, signs);
+            item->SetUInt32Value(ITEM_FIELD_ENCHANTMENT+1, signs);
 
         // update sign result for owner
         owner->GetSession()->SendPetitionSignResult(_player->GetGUID(), petitionGuid, PETITION_SIGN_OK);

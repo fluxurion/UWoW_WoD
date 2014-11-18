@@ -226,12 +226,12 @@ class boss_norushen : public CreatureScript
 
             void Reset()
             {
-                //me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
+                //me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 1);
             }
 
             void DoAction(int32 const action)
             {
-                me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+                me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
                 //continue from EVENT_13
                 uint32 t = 0;
                 events.ScheduleEvent(EVENT_1, t += 0);          //18:23:14.000
@@ -383,7 +383,7 @@ public:
                         break;
                     case EVENT_14:
                         if (Creature* norush = instance->instance->GetCreature(norushGUID))
-                            norush->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            norush->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
                 }
             }
@@ -643,7 +643,7 @@ public:
 
         void Reset()
         {
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
         void OnSpellClick(Unit* clicker)

@@ -694,12 +694,12 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                 IsActivateToQuest = true;
 
             if (((GameObject*)this)->GetGoArtKit())
-                updateMask->SetBit(GAMEOBJECT_BYTES_1);
+                updateMask->SetBit(GAMEOBJECT_FIELD_BYTES_1);
         }
         else if (isType(TYPEMASK_UNIT))
         {
-            if (((Unit*)this)->HasFlag(UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK))
-                updateMask->SetBit(UNIT_FIELD_AURASTATE);
+            if (((Unit*)this)->HasFlag(UNIT_FIELD_AURA_STATE, PER_CASTER_AURA_STATE_MASK))
+                updateMask->SetBit(UNIT_FIELD_AURA_STATE);
         }
     }
     else                                                    // case UPDATETYPE_VALUES
@@ -709,16 +709,16 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
             if (((GameObject*)this)->ActivateToQuest(target))
                 IsActivateToQuest = true;
 
-            updateMask->SetBit(GAMEOBJECT_BYTES_1);
+            updateMask->SetBit(GAMEOBJECT_FIELD_BYTES_1);
 
             if (ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_CHEST && ToGameObject()->GetGOInfo()->chest.groupLootRules &&
                 ToGameObject()->HasLootRecipient())
-                updateMask->SetBit(GAMEOBJECT_FLAGS);
+                updateMask->SetBit(GAMEOBJECT_FIELD_FLAGS);
         }
         else if (isType(TYPEMASK_UNIT))
         {
-            if (((Unit*)this)->HasFlag(UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK))
-                updateMask->SetBit(UNIT_FIELD_AURASTATE);
+            if (((Unit*)this)->HasFlag(UNIT_FIELD_AURA_STATE, PER_CASTER_AURA_STATE_MASK))
+                updateMask->SetBit(UNIT_FIELD_AURA_STATE);
         }
     }
 
@@ -738,7 +738,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
         {
             if (updateMask->GetBit(index))
             {
-                if (index == UNIT_NPC_FLAGS)
+                if (index == UNIT_FIELD_NPC_FLAGS)
                 {
                     // remove custom flag before sending
                     uint32 appendValue = m_uint32Values[index];
@@ -757,26 +757,26 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
 
                     *data << uint32(appendValue);
                 }
-                else if (index == UNIT_FIELD_AURASTATE)
+                else if (index == UNIT_FIELD_AURA_STATE)
                 {
                     // Check per caster aura states to not enable using a pell in client if specified aura is not by target
                     *data << ((Unit*)this)->BuildAuraStateUpdateForTarget(target);
                 }
-                else if (index == UNIT_FIELD_MAXDAMAGE || index == UNIT_FIELD_MINDAMAGE || index == UNIT_FIELD_MINOFFHANDDAMAGE || index == UNIT_FIELD_MAXOFFHANDDAMAGE)
+                else if (index == UNIT_FIELD_MAX_DAMAGE || index == UNIT_FIELD_MIN_DAMAGE || index == UNIT_FIELD_MIN_OFF_HAND_DAMAGE || index == UNIT_FIELD_MAX_OFF_HAND_DAMAGE)
                 {
                     *data << (m_floatValues[index] + CalculatePct(m_floatValues[index], ((Unit*)this)->GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE)));
                 }
                 // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
-                else if (index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
+                else if (index >= UNIT_FIELD_ATTACK_ROUND_BASE_TIME && index <= UNIT_FIELD_RANGED_ATTACK_ROUND_BASE_TIME)
                 {
                     // convert from float to uint32 and send
                     *data << uint32(m_floatValues[index] < 0 ? 0 : m_floatValues[index]);
                 }
                 // there are some float values which may be negative or can't get negative due to other checks
-                else if ((index >= UNIT_FIELD_NEGSTAT0 && index <= UNIT_FIELD_NEGSTAT0+4) ||
-                    (index >= UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE && index <= (UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 6)) ||
-                    (index >= UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE && index <= (UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 6)) ||
-                    (index >= UNIT_FIELD_POSSTAT0 && index <= UNIT_FIELD_POSSTAT0 + 4))
+                else if ((index >= UNIT_FIELD_STAT_NEG_BUFF && index <= UNIT_FIELD_STAT_NEG_BUFF+4) ||
+                    (index >= UNIT_FIELD_RESISTANCE_BUFF_MODS_POSITIVE && index <= (UNIT_FIELD_RESISTANCE_BUFF_MODS_POSITIVE + 6)) ||
+                    (index >= UNIT_FIELD_RESISTANCE_BUFF_MODS_NEGATIVE && index <= (UNIT_FIELD_RESISTANCE_BUFF_MODS_NEGATIVE + 6)) ||
+                    (index >= UNIT_FIELD_STAT_POS_BUFF && index <= UNIT_FIELD_STAT_POS_BUFF + 4))
                 {
                     *data << uint32(m_floatValues[index]);
                 }
@@ -789,7 +789,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                         *data << m_uint32Values[index];
                 }
                 // use modelid_a if not gm, _h if gm for CREATURE_FLAG_EXTRA_TRIGGER creatures
-                else if (index == UNIT_FIELD_DISPLAYID)
+                else if (index == UNIT_FIELD_DISPLAY_ID)
                 {
                     if (GetTypeId() == TYPEID_UNIT)
                     {
@@ -868,7 +868,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                     *data << dynamicFlags;
                 }
                 // FG: pretend that OTHER players in own group are friendly ("blue")
-                else if (index == UNIT_FIELD_BYTES_2 || index == UNIT_FIELD_FACTIONTEMPLATE)
+                else if (index == UNIT_FIELD_BYTES_2 || index == UNIT_FIELD_FACTION_TEMPLATE)
                 {
                     Unit const* unit = ToUnit();
                     if (!unit->HasAura(119626) && unit->IsControlledByPlayer() && target != this && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && unit->IsInRaidWith(target))
@@ -940,7 +940,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
 
                     *data << uint16(-1);
                 }
-                else if (index == GAMEOBJECT_FLAGS)
+                else if (index == GAMEOBJECT_FIELD_FLAGS)
                 {
                     uint32 flags = m_uint32Values[index];
                     if (ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_CHEST)
@@ -949,7 +949,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
 
                     *data << flags;
                 }
-                else if (index == GAMEOBJECT_BYTES_1)
+                else if (index == GAMEOBJECT_FIELD_BYTES_1)
                 {
                     if (((GameObject*)this)->GetGOInfo()->type == GAMEOBJECT_TYPE_TRANSPORT)
                         *data << uint32(m_uint32Values[index] | GO_STATE_TRANSPORT_SPEC);
@@ -967,7 +967,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
         {
             if (updateMask->GetBit(index))
             {
-                if (index == DYNAMICOBJECT_BYTES)
+                if (index == DYNAMICOBJECT_FIELD_BYTES)
                 {
                     uint32 visualId = ((DynamicObject*)this)->GetVisualId();
                     DynamicObjectType dynType = ((DynamicObject*)this)->GetType();
@@ -989,7 +989,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
         {
             if (updateMask->GetBit(index))
             {
-                if (index == AREATRIGGER_SPELLVISUALID)
+                if (index == AREATRIGGER_FIELD_SPELL_VISUAL_ID)
                 {
                     uint32 visualId = m_uint32Values[index];
                     Unit* caster = ((AreaTrigger*)this)->GetCaster();
@@ -1151,7 +1151,7 @@ void Object::GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOw
             break;
         case TYPEID_AREATRIGGER:
             flags = AreaTriggerUpdateFieldFlags;
-            isOwner = ToAreaTrigger()->GetUInt64Value(AREATRIGGER_CASTER) == target->GetGUID();
+            isOwner = ToAreaTrigger()->GetUInt64Value(AREATRIGGER_FIELD_CASTER) == target->GetGUID();
             break;
         case TYPEID_OBJECT:
             break;
@@ -2837,7 +2837,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         return NULL;
     }
 
-    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
+    summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, spellId);
     if (summoner)
         summon->SetUInt32Value(UNIT_FIELD_DEMON_CREATOR, summoner->GetGUID());
 
@@ -2982,8 +2982,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     }
 
     pet->SetCreatorGUID(GetGUID());
-    pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, getFaction());
-    pet->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+    pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, getFaction());
+    pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
     pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
 
     switch (petType)
@@ -3760,7 +3760,7 @@ struct WorldObjectChangeAccumulator
             {
                 //Caster may be NULL if DynObj is in removelist
                 if (Player* caster = ObjectAccessor::FindPlayer(guid))
-                    if (caster->GetUInt64Value(PLAYER_FARSIGHT) == source->GetGUID())
+                    if (caster->GetUInt64Value(PLAYER_FIELD_FARSIGHT_OBJECT) == source->GetGUID())
                         BuildPacket(caster);
             }
         }

@@ -342,8 +342,8 @@ class boss_arcanotron : public CreatureScript
                 
                 stage = 0;
 
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 5);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 5);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 5);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 5);
 
                 instance->SetData(DATA_HEALTH_OMNOTRON_SHARED, me->GetMaxHealth());
                 me->setPowerType(POWER_ENERGY);
@@ -559,8 +559,8 @@ class boss_electron : public CreatureScript
                 
                 stage = 0;
 
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 5);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 5);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 5);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 5);
 
                 instance->SetData(DATA_HEALTH_OMNOTRON_SHARED, me->GetMaxHealth());
                 me->setPowerType(POWER_ENERGY);
@@ -734,8 +734,8 @@ class boss_magmatron : public CreatureScript
 
                 stage = 0;
 
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 5);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 5);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 5);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 5);
 
                 instance->SetData(DATA_HEALTH_OMNOTRON_SHARED, me->GetMaxHealth());
                 me->setPowerType(POWER_ENERGY);
@@ -919,8 +919,8 @@ class boss_toxitron : public CreatureScript
 
                 stage = 0;
 
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 5);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 5);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 5);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 5);
 
                 instance->SetData(DATA_HEALTH_OMNOTRON_SHARED, me->GetMaxHealth());
                 me->setPowerType(POWER_ENERGY);
@@ -1209,7 +1209,7 @@ class npc_power_generator : public CreatureScript
                         if (radius < 8)
                         {
                             radius++;
-                            me->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE_X, (float)(radius*2.5), true);
+                            me->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE, (float)(radius*2.5), true);
                             events.ScheduleEvent(EVENT_OVERCHARGED, 1000);
                         }
                         else

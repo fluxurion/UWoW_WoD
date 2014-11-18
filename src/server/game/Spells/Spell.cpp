@@ -3080,7 +3080,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                             int32 origDuration = duration;
                             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                                 if (AuraEffect const* eff = m_spellAura->GetEffect(i))
-                                    if (int32 amplitude = eff->GetAmplitude())  // amplitude is hastened by UNIT_MOD_CAST_SPEED
+                                    if (int32 amplitude = eff->GetAmplitude())  // amplitude is hastened by UNIT_FIELD_MOD_CASTING_SPEED
                                     {
                                         int32 gettotalticks = origDuration / amplitude;
                                         int32 rest = origDuration - (gettotalticks * amplitude);
@@ -4138,7 +4138,7 @@ void Spell::finish(bool ok)
         if (Unit* charm = m_caster->GetCharm())
             if (charm->GetTypeId() == TYPEID_UNIT
                 && charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET)
-                && charm->GetUInt32Value(UNIT_CREATED_BY_SPELL) == m_spellInfo->Id)
+                && charm->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) == m_spellInfo->Id)
                 ((Puppet*)charm)->UnSummon();
     }
 
@@ -4151,7 +4151,7 @@ void Spell::finish(bool ok)
     if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isSummon())
     {
         // Unsummon statue
-        uint32 spell = m_caster->GetUInt32Value(UNIT_CREATED_BY_SPELL);
+        uint32 spell = m_caster->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
         if (spellInfo && spellInfo->SpellIconID == 2056)
         {
@@ -5509,7 +5509,7 @@ void Spell::SendChannelUpdate(uint32 time)
     if (time == 0)
     {
         m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, 0);
-        m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, 0);
+        m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
     }
 
     //! 5.4.1
@@ -5555,7 +5555,7 @@ void Spell::SendChannelStart(uint32 duration)
         m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, channelTarget);
 
     if (m_spellInfo->Id != 101546)
-        m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);
+        m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, m_spellInfo->Id);
 }
 
 void Spell::SendResurrectRequest(Player* target)
@@ -6253,7 +6253,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_caster->GetTypeId() == TYPEID_PLAYER && !(AttributesCustom & SPELL_ATTR0_PASSIVE))
     {
         //can cast triggered (by aura only?) spells while have this flag
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && m_caster->HasFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY))
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && m_caster->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY))
         {
             bool allow = false;
             Unit::AuraEffectList const& auras = m_caster->GetAuraEffectsByType(SPELL_AURA_ALLOW_ONLY_ABILITY);
@@ -9166,7 +9166,7 @@ void Spell::TriggerGlobalCooldown()
         if(gcd <= 0)
             return;
 
-        uint16 index = m_caster->HasAura(25956) ? UNIT_MOD_HASTE: UNIT_MOD_CAST_SPEED;
+        uint16 index = m_caster->HasAura(25956) ? UNIT_FIELD_MOD_HASTE: UNIT_FIELD_MOD_CASTING_SPEED;
 
         // Apply haste rating
         gcd = int32(float(gcd) * m_caster->GetFloatValue(index));
@@ -9359,7 +9359,7 @@ void Spell::WriteProjectile(uint8 &ammoInventoryType, uint32 &ammoDisplayID)
 
     for (uint8 i = 0; i < 3; ++i)
     {
-        if (uint32 item_id = m_caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + i))
+        if (uint32 item_id = m_caster->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + i))
        {
             if (ItemEntry const* itemEntry = sItemStore.LookupEntry(item_id))
             {

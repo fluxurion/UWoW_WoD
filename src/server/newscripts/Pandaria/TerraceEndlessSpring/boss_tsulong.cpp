@@ -342,7 +342,7 @@ class npc_sunbeam : public CreatureScript
                 hitval = 0;
                 maxhitval = 0;
                 SetMaxHitVal();
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
+                me->SetFloatValue(OBJECT_FIELD_SCALE, 2.0f);
                 me->AddAura(SPELL_SUNBEAM, me);
             }
 

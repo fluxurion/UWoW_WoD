@@ -1720,11 +1720,11 @@ public:
             return false;
 
         int32 Value = (int32)atoi(cval);
-        player->SetStatFloatValue(PLAYER_CRIT_PERCENTAGE, Value);
-        player->SetStatFloatValue(PLAYER_OFFHAND_CRIT_PERCENTAGE, Value);
-        player->SetStatFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE, Value);
+        player->SetStatFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, Value);
+        player->SetStatFloatValue(PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE, Value);
+        player->SetStatFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, Value);
         for (int school = SPELL_SCHOOL_NORMAL; school != MAX_SPELL_SCHOOL; ++school)
-            player->SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1+school, Value);
+            player->SetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE+school, Value);
         return true;
     }
     static bool HandleDebugModifyHasteCommand(ChatHandler* handler, const char* args)

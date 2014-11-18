@@ -71,7 +71,7 @@ class boss_gatewatcher_gyrokill : public CreatureScript
                 if (instance)
                 {
                     if (GameObject* cache = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CHAHCE_LEGION)))
-                        cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        cache->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                 }
             }
 

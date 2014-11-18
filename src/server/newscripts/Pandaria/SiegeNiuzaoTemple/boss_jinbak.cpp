@@ -125,7 +125,7 @@ class npc_puddle : public CreatureScript
 
             void Reset()
             {
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, 0.4f); //Base Scale 0.4f
+                me->SetFloatValue(OBJECT_FIELD_SCALE, 0.4f); //Base Scale 0.4f
                 me->AddAura(119939, me);
                 modradius = 0;
             }
@@ -134,10 +134,10 @@ class npc_puddle : public CreatureScript
             {
                 if (spell->Id == 119941 && target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (me->GetFloatValue(OBJECT_FIELD_SCALE_X) >= 0.7f)
-                        me->SetFloatValue(OBJECT_FIELD_SCALE_X, me->GetFloatValue(OBJECT_FIELD_SCALE_X) - 0.3f);
+                    if (me->GetFloatValue(OBJECT_FIELD_SCALE) >= 0.7f)
+                        me->SetFloatValue(OBJECT_FIELD_SCALE, me->GetFloatValue(OBJECT_FIELD_SCALE) - 0.3f);
                     else
-                        me->SetFloatValue(OBJECT_FIELD_SCALE_X, 0.4f);
+                        me->SetFloatValue(OBJECT_FIELD_SCALE, 0.4f);
 
                     me->CastSpell(target, 120593);
                 }
@@ -152,15 +152,15 @@ class npc_puddle : public CreatureScript
                     break;
                 case ACTION_EVADE:
                     modradius = 0;
-                    me->SetFloatValue(OBJECT_FIELD_SCALE_X, 0.4f);
+                    me->SetFloatValue(OBJECT_FIELD_SCALE, 0.4f);
                     break;
                 case ACTION_EXPLOSE:
                     {
                         int32 dmg = 0; 
-                        if (me->GetFloatValue(OBJECT_FIELD_SCALE_X) == 0.4f)
+                        if (me->GetFloatValue(OBJECT_FIELD_SCALE) == 0.4f)
                             dmg = 40000;
-                        else if (me->GetFloatValue(OBJECT_FIELD_SCALE_X) > 0.4f)
-                            dmg = (me->GetFloatValue(OBJECT_FIELD_SCALE_X) - 0.4f)*10*40000;
+                        else if (me->GetFloatValue(OBJECT_FIELD_SCALE) > 0.4f)
+                            dmg = (me->GetFloatValue(OBJECT_FIELD_SCALE) - 0.4f)*10*40000;
                         
                         if (dmg)
                             me->CastCustomSpell(120002, SPELLVALUE_BASE_POINT0, dmg);
@@ -183,7 +183,7 @@ class npc_puddle : public CreatureScript
                 {
                     if (modradius <= diff)
                     { 
-                        me->SetFloatValue(OBJECT_FIELD_SCALE_X, me->GetFloatValue(OBJECT_FIELD_SCALE_X) + 0.1f);
+                        me->SetFloatValue(OBJECT_FIELD_SCALE, me->GetFloatValue(OBJECT_FIELD_SCALE) + 0.1f);
                         modradius = 5000;
                     }
                     else 
@@ -224,7 +224,7 @@ class spell_sap_puddle : public SpellScriptLoader
 
             void ScaleRange(std::list<WorldObject*>&targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 16.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 16.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE)));
             }
 
             void Register()

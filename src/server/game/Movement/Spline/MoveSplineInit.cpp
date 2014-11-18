@@ -111,8 +111,8 @@ namespace Movement
         //blizz-hack.
         //on retail if creature has loop emote and start run we remove emote, else client crash at getting object create.
         //ToDo: more reseach.
-        if(unit.GetUInt32Value(UNIT_NPC_EMOTESTATE))
-            unit.SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+        if(unit.GetUInt32Value(UNIT_FIELD_EMOTE_STATE))
+            unit.SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
 
         return move_spline.Duration();
     }
