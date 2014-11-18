@@ -77,9 +77,9 @@ enum VehicleSpells
 
 struct VehicleSeat
 {
-    explicit VehicleSeat(VehicleSeatEntry const* seatInfo) : SeatInfo(seatInfo), Passenger(0) {}
+    explicit VehicleSeat(VehicleSeatEntry const* seatInfo) : SeatInfo(seatInfo), Passenger(ObjectGuid::Empty) {}
     VehicleSeatEntry const* SeatInfo;
-    uint64 Passenger;
+    ObjectGuid Passenger;
 };
 
 struct VehicleAccessory

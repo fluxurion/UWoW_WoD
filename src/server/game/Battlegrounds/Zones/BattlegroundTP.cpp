@@ -110,9 +110,9 @@ void BattlegroundTP::PostUpdateImpl(uint32 diff)
                         if (GameObject* obj = GetBgMap()->GetGameObject(_droppedFlagGUID[team]))
                                 obj->Delete();
                             else
-                                sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundTP: An error has occurred in PostUpdateImpl: Unknown dropped flag GUID: %u", GUID_LOPART(_droppedFlagGUID[team]));
+                                sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundTP: An error has occurred in PostUpdateImpl: Unknown dropped flag GUID: %u", _droppedFlagGUID[team].GetCounter());
 
-                        _droppedFlagGUID[team] = 0;
+                        _droppedFlagGUID[team].Clear();
 
                         /// If both flags are kept and 1 of cariers dies and no one clicked on flag set _bothflagskept = false
                         if (_bothFlagsKept)
@@ -274,8 +274,8 @@ void BattlegroundTP::Reset()
     for (uint8 team = TEAM_ALLIANCE; team <= TEAM_HORDE; ++team)
     {
         /// Unbind all flag stuff
-        _flagKeepers[team] = 0;
-        _droppedFlagGUID[team] = 0;
+        _flagKeepers[team].Clear();
+        _droppedFlagGUID[team].Clear();
         _flagsDropTimer[team] = 0;
         _flagState[team] = BG_TP_FLAG_STATE_ON_BASE;
 
@@ -480,11 +480,11 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player* source)
     uint8 team = source->GetTeamId();
 
     /// Mainly used when a player captures the flag, it prevents spawn the flag on ground
-    if (!_flagKeepers[team ^ 1])
+    if (_flagKeepers[team ^ 1].IsEmpty())
         return;
 
     /// Most probably useless - If a GM applies the aura on a player
-    if (!_flagKeepers[team ^ 1] == source->GetGUID())
+    if (_flagKeepers[team ^ 1] != source->GetGUID())
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundTP: An error have occured in EventPlayerDroppedFlag, player: %u who carried the flag is not the flag keeper: %u.", source->GetGUID(), _flagKeepers[team ^ 1]);
         return;
@@ -540,7 +540,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* source, GameObject* target
                     // source->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, TEAM_ALLIANCE ? BG_TP_SPELL_HORDE_FLAG_PICKED : BG_TP_SPELL_ALLIANCE_FLAG_PICKED);
 
                     /// Verify if both flag are carried
-                    if (_flagKeepers[team])
+                    if (!_flagKeepers[team].IsEmpty())
                         _bothFlagsKept = true;
 
                     /// Send message to all players + Play sound
@@ -651,7 +651,7 @@ void BattlegroundTP::EventPlayerCapturedFlag(Player* source)
     SendFlagsPositionsUpdate(FLAGS_UPDATE);
 }
 
-void BattlegroundTP::RemovePlayer(Player* player, uint64 guid, uint32 /* team */)
+void BattlegroundTP::RemovePlayer(Player* player, ObjectGuid guid, uint32 /* team */)
 {
     if (!player)
         return;
@@ -710,7 +710,7 @@ void BattlegroundTP::RespawnFlag(uint32 team, bool captured)
     UpdateFlagState(team, BG_TP_FLAG_STATE_ON_BASE);
 }
 
-void BattlegroundTP::UpdateFlagState(uint32 team, uint32 value, uint64 flagKeeperGUID)
+void BattlegroundTP::UpdateFlagState(uint32 team, uint32 value, ObjectGuid flagKeeperGUID)
 {
     switch (value)
     {

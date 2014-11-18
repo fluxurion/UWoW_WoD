@@ -194,7 +194,7 @@ class npc_gizmo : public CreatureScript
         }
 
         EventMap events;
-        std::set<uint64> m_player_for_event;
+        GuidSet m_player_for_event;
         void Reset()
         {
             m_player_for_event.clear();
@@ -225,7 +225,7 @@ class npc_gizmo : public CreatureScript
                 if (who->ToPlayer()->isWatchingMovie())
                     return;
 
-                std::set<uint64>::iterator itr = m_player_for_event.find(who->GetGUID());
+                GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
                 if (itr == m_player_for_event.end())
                 {
                     m_player_for_event.insert(who->GetGUID());
@@ -861,17 +861,17 @@ public:
                 //    summon->CastSpell(caster, 68217, true);
                 //}
                 WorldPacket data(SMSG_FORCE_SET_VEHICLE_REC_ID, 16);
-                data.WriteGuidMask<1, 5, 0, 6, 4, 3, 7, 2>(caster->GetObjectGuid());
-                data.WriteGuidBytes<7, 2, 5, 6, 4>(caster->GetObjectGuid());
+                data.WriteGuidMask<1, 5, 0, 6, 4, 3, 7, 2>(caster->GetGUID());
+                data.WriteGuidBytes<7, 2, 5, 6, 4>(caster->GetGUID());
                 data << uint32(493);
-                data.WriteGuidBytes<3, 1, 0>(caster->GetObjectGuid());
+                data.WriteGuidBytes<3, 1, 0>(caster->GetGUID());
                 data << uint32(534);          //unk
                 caster->SendMessageToSet(&data, true);
 
                 data.Initialize(SMSG_PLAYER_VEHICLE_DATA, 8 + 1 + 4);
                 data << uint32(493);
-                data.WriteGuidMask<5, 3, 6, 2, 1, 4, 0, 7>(caster->GetObjectGuid());
-                data.WriteGuidBytes<6, 0, 1, 3, 5, 7, 2, 4>(caster->GetObjectGuid());
+                data.WriteGuidMask<5, 3, 6, 2, 1, 4, 0, 7>(caster->GetGUID());
+                data.WriteGuidBytes<6, 0, 1, 3, 5, 7, 2, 4>(caster->GetGUID());
                 caster->SendMessageToSet(&data, true);*/
 
                 caster->CastSpell(caster, SPELL_WEED_WHACKER, true);
@@ -2101,7 +2101,7 @@ class npc_sassy_hardwrench : public CreatureScript
 
         }
 
-        std::set<uint64> m_player_for_event;
+        GuidSet m_player_for_event;
         void Reset()
         {
             m_player_for_event.clear();
@@ -2112,7 +2112,7 @@ class npc_sassy_hardwrench : public CreatureScript
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            std::set<uint64>::iterator itr = m_player_for_event.find(who->GetGUID());
+            GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
             if (itr != m_player_for_event.end())
                 return;
             m_player_for_event.insert(who->GetGUID());

@@ -214,7 +214,7 @@ void BattlegroundBFG::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
 }
 
-void BattlegroundBFG::RemovePlayer(Player* /*player*/, uint64 /*guid*/) { }
+void BattlegroundBFG::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/) { }
 void BattlegroundBFG::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
 {
     // this is  wrong way to implement these things. On official it done by gameobject spell cast.
@@ -366,11 +366,11 @@ void BattlegroundBFG::_NodeDeOccupied(uint8 node)
         DelCreature(node+5);                    // NULL checks are in DelCreature! 0-5 spirit guides
 
     // Players waiting to resurrect at this node are sent to closest owned graveyard
-    std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[node]];
+    std::vector<ObjectGuid> ghost_list = m_ReviveQueue[BgCreatures[node]];
     if (!ghost_list.empty())
     {
         WorldSafeLocsEntry const *ClosestGrave = NULL;
-        for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
+        for (std::vector<ObjectGuid>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
             Player* player = ObjectAccessor::FindPlayer(*itr);
             if (!player)
@@ -384,7 +384,7 @@ void BattlegroundBFG::_NodeDeOccupied(uint8 node)
         }
     }
 
-    if (BgCreatures[node])
+    if (!BgCreatures[node].IsEmpty())
         DelCreature(node);
 
     // Buff object is not removed
@@ -594,7 +594,7 @@ void BattlegroundBFG::Reset()
     }
 
     for (uint8 i = 0; i < GILNEAS_BG_ALL_NODES_COUNT + 3; ++i)// +3 for aura triggers
-        if (BgCreatures[i])
+        if (!BgCreatures[i].IsEmpty())
             DelCreature(i);
 }
 

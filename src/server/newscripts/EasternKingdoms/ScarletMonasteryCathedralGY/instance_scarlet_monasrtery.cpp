@@ -49,7 +49,7 @@ public:
         uint64 PumpkinShrineGUID;
         uint64 HorsemanGUID;
         uint64 HeadGUID;
-        std::set<uint64> HorsemanAdds;
+        GuidSet HorsemanAdds;
 
         uint32 encounter[MAX_ENCOUNTER];
 
@@ -94,7 +94,7 @@ public:
                 encounter[0] = data;
                 if (data == DONE)
                 {
-                    for (std::set<uint64>::const_iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
+                    for (GuidSet::const_iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
                     {
                         Creature* add = instance->GetCreature(*itr);
                         if (add && add->isAlive())

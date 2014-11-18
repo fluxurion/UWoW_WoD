@@ -36,7 +36,7 @@ enum BracketState
 class Bracket
 {
 public:
-    Bracket(uint64 guid, BracketType type);
+    Bracket(ObjectGuid guid, BracketType type);
     ~Bracket() {};
 
     void InitStats(uint16 rating, uint16 mmr, uint32 games, uint32 wins, uint32 week_games, uint32 week_wins, uint16 best_week, uint16 best);
@@ -65,7 +65,7 @@ private:
     int16 m_mmr_lastChage;
     BracketType m_Type;
 
-    uint64 m_owner;
+    ObjectGuid m_owner;
     uint8 m_state;
 };
 

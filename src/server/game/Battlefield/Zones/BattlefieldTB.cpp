@@ -24,8 +24,10 @@ bool BattlefieldTB::SetupBattlefield()
     m_ZoneId = 5095;                                                                     // Tol Barad
     m_MapId = 732;                                                                       // Map X
 
-    m_Guid = MAKE_NEW_GUID(m_TypeId, 0, HIGHGUID_TYPE_BATTLEGROUND);
-    m_Guid |= 0x20000; // BATTLEFIELD_TYPE_WORLD_PVP 5.0.5
+    //Mop
+    //m_Guid = MAKE_NEW_GUID(m_TypeId, 0, HIGHGUID_TYPE_BATTLEGROUND);
+    //m_Guid |= 0x20000; // BATTLEFIELD_TYPE_WORLD_PVP 5.0.5
+    InitGUID();
 
     m_MaxPlayer = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MAX);
     m_IsEnabled = sWorld->getBoolConfig(CONFIG_TOL_BARAD_ENABLE);
@@ -93,7 +95,7 @@ bool BattlefieldTB::SetupBattlefield()
         if (Creature* creature = SpawnCreature(TBDestroyMachineNPC[i].entrya, TBDestroyMachineNPC[i].x, TBDestroyMachineNPC[i].y, TBDestroyMachineNPC[i].z, TBDestroyMachineNPC[i].o, GetAttackerTeam()))
         {
             HideNpc(creature);
-            Vehicles.insert(creature->GetObjectGuid());
+            Vehicles.insert(creature->GetGUID());
         }
 
     //Spawning Buiding
@@ -112,14 +114,14 @@ bool BattlefieldTB::SetupBattlefield()
         {
             HideNpc(creature);
             creature->setFaction(TolBaradFaction[TEAM_ALLIANCE]);
-            questgiversA.insert(creature->GetObjectGuid());
+            questgiversA.insert(creature->GetGUID());
         }
 
         if (Creature* creature = SpawnCreature(QuestGivers[i].entryh, QuestGivers[i].x, QuestGivers[i].y, QuestGivers[i].z, QuestGivers[i].o, TEAM_HORDE))
         {
             HideNpc(creature);
             creature->setFaction(TolBaradFaction[TEAM_HORDE]);
-            questgiversH.insert(creature->GetObjectGuid());
+            questgiversH.insert(creature->GetGUID());
         }
     }
 
@@ -146,7 +148,7 @@ bool BattlefieldTB::SetupBattlefield()
         {
             go->SetLootState(GO_READY);
             go->UseDoorOrButton();
-            goDoors.insert(go->GetObjectGuid());
+            goDoors.insert(go->GetGUID());
         }
 
     return true;
@@ -216,7 +218,7 @@ bool BattlefieldTB::Update(uint32 diff)
                     if (plr->GetDistance2d(graveyard->x, graveyard->y) > 10.0f)
                     {
                         plr->RemoveAurasDueToSpell(SPELL_TB_SPIRITUAL_IMMUNITY);
-                        m_PlayersIsSpellImu.erase(plr->GetObjectGuid());
+                        m_PlayersIsSpellImu.erase(plr->GetGUID());
                     }
                 }
             }
@@ -286,7 +288,7 @@ void BattlefieldTB::AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid pl
             if (!plr->HasAura(SPELL_TB_SPIRITUAL_IMMUNITY))
             {
                 plr->CastSpell(plr, SPELL_TB_SPIRITUAL_IMMUNITY, true);
-                m_PlayersIsSpellImu.insert(plr->GetObjectGuid());
+                m_PlayersIsSpellImu.insert(plr->GetGUID());
             }
         }
     }

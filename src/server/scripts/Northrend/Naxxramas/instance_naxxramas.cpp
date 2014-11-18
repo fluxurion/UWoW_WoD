@@ -154,7 +154,7 @@ public:
             LoadMinionData(minionData);
         }
 
-    std::set<uint64> HeiganEruptionGUID[4];
+    GuidSet HeiganEruptionGUID[4];
     uint64 GothikGateGUID;
     uint64 HorsemenChestGUID;
     uint64 SapphironGUID;
@@ -639,7 +639,7 @@ public:
             if (i == section)
                 continue;
 
-            for (std::set<uint64>::const_iterator itr = HeiganEruptionGUID[i].begin(); itr != HeiganEruptionGUID[i].end(); ++itr)
+            for (GuidSet::const_iterator itr = HeiganEruptionGUID[i].begin(); itr != HeiganEruptionGUID[i].end(); ++itr)
             {
                 if (GameObject *pHeiganEruption = instance->GetGameObject(*itr))
                 {

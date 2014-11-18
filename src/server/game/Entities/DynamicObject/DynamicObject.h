@@ -61,11 +61,11 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         DynamicObjectType GetType() const { return DynamicObjectType(GetByteValue(DYNAMICOBJECT_BYTES, 3) >> 4); }
         uint32 GetVisualId() const { return GetUInt32Value(DYNAMICOBJECT_BYTES) & 0xFFFFFFF; }
 
-        void Say(int32 textId, uint32 language, uint64 targetGuid) { MonsterSay(textId, language, targetGuid); }
-        void Yell(int32 textId, uint32 language, uint64 targetGuid) { MonsterYell(textId, language, targetGuid); }
-        void TextEmote(int32 textId, uint64 targetGuid) { MonsterTextEmote(textId, targetGuid); }
-        void Whisper(int32 textId, uint64 receiver) { MonsterWhisper(textId, receiver); }
-        void YellToZone(int32 textId, uint32 language, uint64 targetGuid) { MonsterYellToZone(textId, language, targetGuid); }
+        void Say(int32 textId, uint32 language, ObjectGuid targetGuid) { MonsterSay(textId, language, targetGuid); }
+        void Yell(int32 textId, uint32 language, ObjectGuid targetGuid) { MonsterYell(textId, language, targetGuid); }
+        void TextEmote(int32 textId, ObjectGuid targetGuid) { MonsterTextEmote(textId, targetGuid); }
+        void Whisper(int32 textId, ObjectGuid receiver) { MonsterWhisper(textId, receiver); }
+        void YellToZone(int32 textId, uint32 language, ObjectGuid targetGuid) { MonsterYellToZone(textId, language, targetGuid); }
 
     protected:
         Aura* _aura;

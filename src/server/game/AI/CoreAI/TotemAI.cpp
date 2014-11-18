@@ -35,7 +35,7 @@ int TotemAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* c) : CreatureAI(c), i_victimGuid(0)
+TotemAI::TotemAI(Creature* c) : CreatureAI(c), i_victimGuid(ObjectGuid::Empty)
 {
     ASSERT(c->isTotem());
 }
@@ -73,7 +73,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
         return;
 
     // pointer to appropriate target if found any
-    Unit* victim = i_victimGuid ? ObjectAccessor::GetUnit(*me, i_victimGuid) : NULL;
+    Unit* victim = i_victimGuid.IsEmpty() ? ObjectAccessor::GetUnit(*me, i_victimGuid) : NULL;
 
     if (me->IsNonMeleeSpellCasted(false))
     {
@@ -115,7 +115,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
         me->CastSpell(victim, me->ToTotem()->GetSpell(), false);
     }
     else
-        i_victimGuid = 0;
+        i_victimGuid = ObjectGuid::Empty;
 }
 
 void TotemAI::AttackStart(Unit* /*victim*/)
@@ -123,7 +123,7 @@ void TotemAI::AttackStart(Unit* /*victim*/)
     // Sentry totem sends ping on attack
     if (me->GetEntry() == SENTRY_TOTEM_ENTRY && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
     {
-        ObjectGuid guid = me->GetObjectGuid();
+        /*ObjectGuid guid = me->GetGUID();
 
         //! 5.4.1
         WorldPacket data(SMSG_MINIMAP_PING, (8+4+4));
@@ -132,5 +132,6 @@ void TotemAI::AttackStart(Unit* /*victim*/)
         data.WriteGuidMask<7, 6, 0, 5, 3, 2, 1, 4>(guid);
         data.WriteGuidBytes<1, 6, 3, 0, 2, 4, 5, 7>(guid);
         ((Player*)me->GetOwner())->GetSession()->SendPacket(&data);
+        */
     }
 }

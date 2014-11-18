@@ -109,7 +109,7 @@ void BattlegroundRV::AddPlayer(Player* player)
     UpdateWorldState(BG_RV_WORLD_STATE_H, GetAlivePlayersCountByTeam(HORDE));
 }
 
-void BattlegroundRV::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundRV::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
@@ -238,8 +238,8 @@ void BattlegroundRV::TogglePillarCollision()
             }
 
             for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-                if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
-                    gob->SendUpdateToPlayer(player);
+                if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+                        gob->SendUpdateToPlayer(player);
         }
     }
 

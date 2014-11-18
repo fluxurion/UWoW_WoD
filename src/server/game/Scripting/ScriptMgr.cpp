@@ -184,7 +184,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* target)
 
     if (iTextEntry >= 0)
     {
-        sLog->outError(LOG_FILTER_TSCR, "DoScriptText with source entry %u (TypeId=%u, guid=%u) attempts to process text entry %i, but text entry must be negative.", pSource->GetEntry(), pSource->GetTypeId(), pSource->GetGUIDLow(), iTextEntry);
+        sLog->outError(LOG_FILTER_TSCR, "DoScriptText with source entry %u (TypeId=%u, guid=%u) attempts to process text entry %i, but text entry must be negative.", pSource->GetEntry(), pSource->GetTypeId(), pSource->GetGUID().GetCounter(), iTextEntry);
         return;
     }
 
@@ -192,7 +192,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* target)
 
     if (!pData)
     {
-        sLog->outError(LOG_FILTER_TSCR, "DoScriptText with source entry %u (TypeId=%u, guid=%u) could not find text entry %i.", pSource->GetEntry(), pSource->GetTypeId(), pSource->GetGUIDLow(), iTextEntry);
+        sLog->outError(LOG_FILTER_TSCR, "DoScriptText with source entry %u (TypeId=%u, guid=%u) could not find text entry %i.", pSource->GetEntry(), pSource->GetTypeId(), pSource->GetGUID().GetCounter(), iTextEntry);
         return;
     }
 

@@ -94,14 +94,14 @@ class npc_panda_announcer : public CreatureScript
 
         uint32 text;
         uint32 targetGUID;
-        std::set<uint64> m_player_for_event;
+        GuidSet m_player_for_event;
         EventMap events;
         void MoveInLineOfSight(Unit* who)
         {
             if (who->GetTypeId() != TYPEID_PLAYER || who->IsOnVehicle())
                 return;
 
-            std::set<uint64>::iterator itr = m_player_for_event.find(who->GetGUID());
+            GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
             if (itr != m_player_for_event.end())
                 return;
 
@@ -508,9 +508,9 @@ public:
     struct mob_min_dimwindAI : public ScriptedAI
     {
         EventMap events;
-        std::set<uint64> guidMob;
+        GuidSet guidMob;
         uint64 plrGUID;
-        std::set<uint64> m_player_for_event;
+        GuidSet m_player_for_event;
         bool mt;
 
         mob_min_dimwindAI(Creature* creature) : ScriptedAI(creature)
@@ -529,7 +529,7 @@ public:
             if (who->GetTypeId() != TYPEID_PLAYER || who->ToPlayer()->GetQuestStatus(QUEST_MISSING_DRIVER) != QUEST_STATUS_INCOMPLETE)
                 return;
             
-            std::set<uint64>::iterator itr = m_player_for_event.find(who->GetGUID());
+            GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
             if (itr != m_player_for_event.end())
                 return;
 
@@ -576,7 +576,7 @@ public:
         void InitMobs(Unit* who)
         {
             me->HandleEmoteCommand(EMOTE_STATE_READY2H);
-            for(std::set<uint64>::iterator itr = guidMob.begin(); itr != guidMob.end(); ++itr)
+            for(GuidSet::iterator itr = guidMob.begin(); itr != guidMob.end(); ++itr)
                 if (Creature* c = me->GetMap()->GetCreature(*itr))
                     c->DespawnOrUnsummon(1000);
             guidMob.clear();
@@ -2220,7 +2220,7 @@ class mob_master_shang_xi_temple : public CreatureScript
         {}
 
         uint64 playerGuid;
-        std::set<uint64> m_player_for_event;
+        GuidSet m_player_for_event;
         EventMap events;
 
         enum events
@@ -2234,7 +2234,7 @@ class mob_master_shang_xi_temple : public CreatureScript
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            std::set<uint64>::iterator itr = m_player_for_event.find(who->GetGUID());
+            GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
             if (itr != m_player_for_event.end())
                 return;
 
@@ -3371,7 +3371,7 @@ class mob_aisa_pre_balon_event : public CreatureScript
 
         bool justSpeaking;
         EventMap _events;
-        std::set<uint64> m_player_for_event;
+        GuidSet m_player_for_event;
 
         enum events
         {
@@ -3392,7 +3392,7 @@ class mob_aisa_pre_balon_event : public CreatureScript
             if (justSpeaking || who->GetTypeId() != TYPEID_PLAYER || who->IsOnVehicle())
                 return;
 
-            std::set<uint64>::iterator itr = m_player_for_event.find(who->GetGUID());
+            GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
             if (itr != m_player_for_event.end())
                 return;
 
@@ -4371,7 +4371,7 @@ public:
 
         EventMap events;
         uint64 bossGUID;
-        std::set<uint64> m_player_for_event;
+        GuidSet m_player_for_event;
 
         void Reset()
         {
@@ -4386,7 +4386,7 @@ public:
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            std::set<uint64>::iterator itr = m_player_for_event.find(who->GetGUID());
+            GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
             if (itr != m_player_for_event.end())
                 return;
 
@@ -4704,7 +4704,7 @@ public:
         uint8      ennemiesCount;
         uint16     actualPower;
 
-        std::set<uint64> m_player_for_event;
+        GuidSet m_player_for_event;
 
         void Reset()
         {
@@ -4730,7 +4730,7 @@ public:
             if (player->GetQuestStatus(QUEST_HEALING_SHEN) != QUEST_STATUS_INCOMPLETE)
                 return;
 
-            std::set<uint64>::iterator itr = m_player_for_event.find(who->GetGUID());
+            GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
             if (itr != m_player_for_event.end())
                 return;
 
@@ -4756,14 +4756,14 @@ public:
 
         void UpdateState()
         {
-            for (std::set<uint64>::iterator itr = m_player_for_event.begin(); itr != m_player_for_event.end(); ++itr)
+            for (GuidSet::iterator itr = m_player_for_event.begin(); itr != m_player_for_event.end(); ++itr)
                 if (Player* player = sObjectAccessor->FindPlayer(*itr))
                     player->SendUpdateWorldState(WS_HEALER_COUNT, healerCount);
         }
 
         bool CheckPlayers()
         {
-            for (std::set<uint64>::iterator itr = m_player_for_event.begin(); itr != m_player_for_event.end(); ++itr)
+            for (GuidSet::iterator itr = m_player_for_event.begin(); itr != m_player_for_event.end(); ++itr)
                 if (Player* player = sObjectAccessor->FindPlayer(*itr))
                     if (player->isAlive())
                         return true;
@@ -4774,7 +4774,7 @@ public:
         void UpdatePower()
         {
             actualPower = (actualPower + healerCount <= 700) ? actualPower + healerCount: 700;
-            for (std::set<uint64>::iterator itr = m_player_for_event.begin(); itr != m_player_for_event.end(); ++itr)
+            for (GuidSet::iterator itr = m_player_for_event.begin(); itr != m_player_for_event.end(); ++itr)
                 if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 {
                     if (player->isAlive())

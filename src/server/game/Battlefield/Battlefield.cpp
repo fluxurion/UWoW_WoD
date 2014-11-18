@@ -57,7 +57,7 @@ Battlefield::Battlefield()
     m_LastResurectTimer = 30 * IN_MILLISECONDS;
     m_StartGroupingTimer = 0;
     m_StartGrouping = false;
-    StalkerGuid = 0;
+    StalkerGuid.Clear();
 }
 
 Battlefield::~Battlefield()
@@ -331,7 +331,7 @@ void Battlefield::KickAfkPlayers()
         }
 }
 
-void Battlefield::KickPlayerFromBattlefield(uint64 guid)
+void Battlefield::KickPlayerFromBattlefield(ObjectGuid guid)
 {
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
@@ -400,12 +400,12 @@ void Battlefield::EndBattle(bool endByTimer)
 //! 5.4.1
 void Battlefield::DoPlaySoundToAll(uint32 SoundID)
 {
-    ObjectGuid guid = 0;
+    ObjectGuid guid = ObjectGuid::Empty;
     WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data.WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(guid);
+    /*data.WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(guid);
     data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(guid);
     data << uint32(SoundID);
-    data.WriteGuidBytes<7>(guid);
+    data.WriteGuidBytes<7>(guid);*/
 
     for (int team = 0; team < BG_TEAMS_COUNT; team++)
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
@@ -516,7 +516,7 @@ void Battlefield::SendWarningToAllInZone(uint32 entry)
     if (Unit* unit = ObjectAccessor::FindUnit(StalkerGuid))
         if (Creature* stalker = unit->ToCreature())
             // FIXME: replaced CHAT_TYPE_END with CHAT_MSG_BG_SYSTEM_NEUTRAL to fix compile, it's a guessed change :/
-            sCreatureTextMgr->SendChat(stalker, (uint8) entry, 0, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_ADDON, TEXT_RANGE_ZONE);
+            sCreatureTextMgr->SendChat(stalker, (uint8)entry, ObjectGuid::Empty, CHAT_MSG_BG_SYSTEM_NEUTRAL, LANG_ADDON, TEXT_RANGE_ZONE);
 }
 
 /*void Battlefield::SendWarningToAllInWar(int32 entry,...)
@@ -593,7 +593,7 @@ Group* Battlefield::GetFreeBfRaid(TeamId TeamId)
     return NULL;
 }
 
-Group* Battlefield::GetGroupPlayer(uint64 guid, TeamId TeamId)
+Group* Battlefield::GetGroupPlayer(ObjectGuid guid, TeamId TeamId)
 {
     for (GuidSet::const_iterator itr = m_Groups[TeamId].begin(); itr != m_Groups[TeamId].end(); ++itr)
         if (Group* group = sGroupMgr->GetGroupByGUID(*itr))
@@ -637,7 +637,7 @@ void Battlefield::OnPlayerLeaveWar(Player* player)
 {
     if (Group *group = GetGroupPlayer(player->GetGUID(), player->GetTeamId()))
     {
-        uint64 gGUID = group->GetGUID();
+        ObjectGuid gGUID = group->GetGUID();
         if (!group->RemoveMember(player->GetGUID()))                // group was disbanded
             m_Groups[player->GetTeamId()].erase(gGUID);
     }
@@ -688,7 +688,7 @@ WorldSafeLocsEntry const * Battlefield::GetClosestGraveYard(Player* player)
     return NULL;
 }
 
-void Battlefield::AddPlayerToResurrectQueue(uint64 npcGuid, uint64 playerGuid)
+void Battlefield::AddPlayerToResurrectQueue(ObjectGuid npcGuid, ObjectGuid playerGuid)
 {
     for (GraveyardVect::iterator itr = m_GraveyardList.begin(); itr != m_GraveyardList.end(); ++itr)
     {
@@ -703,7 +703,7 @@ void Battlefield::AddPlayerToResurrectQueue(uint64 npcGuid, uint64 playerGuid)
     }
 }
 
-void Battlefield::RemovePlayerFromResurrectQueue(uint64 playerGuid)
+void Battlefield::RemovePlayerFromResurrectQueue(ObjectGuid playerGuid)
 {
     for (GraveyardVect::iterator itr = m_GraveyardList.begin(); itr != m_GraveyardList.end(); ++itr)
     {
@@ -718,15 +718,15 @@ void Battlefield::RemovePlayerFromResurrectQueue(uint64 playerGuid)
     }
 }
 
-void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, const uint64 &guid)
+void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, const ObjectGuid &guid)
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
     uint32 time = m_LastResurectTimer;  // resurrect every 30 seconds
 
-    data.WriteGuidMask<6, 5, 4, 2, 7, 0, 3, 1>(guid);
+    /*data.WriteGuidMask<6, 5, 4, 2, 7, 0, 3, 1>(guid);
     data.WriteGuidBytes<4, 5, 7, 3, 1>(guid);
     data << uint32(time);
-    data.WriteGuidBytes<0, 2, 6>(guid);
+    data.WriteGuidBytes<0, 2, 6>(guid);*/
 
     ASSERT(player && player->GetSession());
     player->GetSession()->SendPacket(&data);
@@ -740,8 +740,8 @@ BfGraveyard::BfGraveyard(Battlefield* battlefield)
     m_Bf = battlefield;
     m_GraveyardId = 0;
     m_ControlTeam = TEAM_NEUTRAL;
-    m_SpiritGuide[0] = 0;
-    m_SpiritGuide[1] = 0;
+    m_SpiritGuide[0].Clear();
+    m_SpiritGuide[1].Clear();
     m_ResurrectQueue.clear();
 }
 
@@ -770,7 +770,7 @@ float BfGraveyard::GetDistance(Player* player)
     return player->GetDistance2d(safeLoc->x, safeLoc->y);
 }
 
-void BfGraveyard::AddPlayer(uint64 playerGuid)
+void BfGraveyard::AddPlayer(ObjectGuid playerGuid)
 {
     if (!m_ResurrectQueue.count(playerGuid))
     {
@@ -781,7 +781,7 @@ void BfGraveyard::AddPlayer(uint64 playerGuid)
     }
 }
 
-void BfGraveyard::RemovePlayer(uint64 playerGuid)
+void BfGraveyard::RemovePlayer(ObjectGuid playerGuid)
 {
     m_ResurrectQueue.erase(m_ResurrectQueue.find(playerGuid));
 
@@ -876,7 +876,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
     }
 
     Creature* creature = new Creature;
-    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, team, x, y, z, o))
+    if (!creature->Create(sObjectMgr->GetGenerator<HighGuid::Creature>()->Generate(), map, PHASEMASK_NORMAL, entry, 0, team, x, y, z, o))
     {
         sLog->outError(LOG_FILTER_BATTLEFIELD, "Battlefield::SpawnCreature: Can't create creature entry: %u", entry);
         delete creature;
@@ -913,7 +913,7 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, float x, float y, float z
 
     // Create gameobject
     GameObject* go = new GameObject;
-    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, PHASEMASK_NORMAL, x, y, z, o, 0, 0, 0, 0, 100, GO_STATE_READY))
+    if (!go->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), entry, map, PHASEMASK_NORMAL, x, y, z, o, 0, 0, 0, 0, 100, GO_STATE_READY))
     {
         sLog->outError(LOG_FILTER_BATTLEFIELD, "Battlefield::SpawnGameObject: Gameobject template %u not found in database! Battlefield not created!", entry);
         sLog->outError(LOG_FILTER_BATTLEFIELD, "Battlefield::SpawnGameObject: Cannot create gameobject template %u! Battlefield not created!", entry);
@@ -959,17 +959,17 @@ bool Battlefield::IncrementQuest(Player *player, uint32 quest, bool complete)
             int32 creature = pQuest->RequiredNpcOrGo[i];
             if (uint32 spell_id = pQuest->GetRequiredSpell())
             {
-                player->CastedCreatureOrGO(creature, 0, spell_id);
+                player->CastedCreatureOrGO(creature, ObjectGuid::Empty, spell_id);
                 return true;
             }
             else if (creature > 0)
             {
-                player->KilledMonsterCredit(creature, 0);
+                player->KilledMonsterCredit(creature);
                 return true;
             }
             else if (creature < 0)
             {
-                player->CastedCreatureOrGO(creature, 0, 0);
+                player->CastedCreatureOrGO(creature, ObjectGuid::Empty, 0);
                 return true;
             }
             return true;
@@ -1219,7 +1219,7 @@ void BfCapturePoint::SendUpdateWorldState(uint32 field, uint32 value)
                 player->SendUpdateWorldState(field, value);
 }
 
-void BfCapturePoint::SendObjectiveComplete(uint32 id, uint64 guid)
+void BfCapturePoint::SendObjectiveComplete(uint32 id, ObjectGuid guid)
 {
     uint8 team;
     switch (m_State)

@@ -9,7 +9,7 @@ class npc_profession : public CreatureScript
                 void CreatureWhisperBasedOnBool(const char *text, Creature *_creature, Player *pPlayer, bool value)
                 {
                         if (value)
-                                _creature->MonsterWhisper(text, pPlayer->GetGUIDLow());
+                                _creature->MonsterWhisper(text, pPlayer->GetGUID().GetCounter());
                 }
 
                 uint32 PlayerMaxLevel() const
@@ -130,11 +130,11 @@ class npc_profession : public CreatureScript
                 void CompleteLearnProfession(Player *pPlayer, Creature *pCreature, SkillType skill)
                 {
                         if (PlayerAlreadyHasTwoProfessions(pPlayer) && !IsSecondarySkill(skill))
-                                pCreature->MonsterWhisper("Вы уже изучили две профессии!", pPlayer->GetGUIDLow());
+                                pCreature->MonsterWhisper("Вы уже изучили две профессии!", pPlayer->GetGUID().GetCounter());
                         else
                         {
                                 if (!LearnAllRecipesInProfession(pPlayer, skill))
-                                        pCreature->MonsterWhisper("Внутренняя ошибка!", pPlayer->GetGUIDLow());
+                                        pCreature->MonsterWhisper("Внутренняя ошибка!", pPlayer->GetGUID().GetCounter());
                         }
                 }
         
@@ -174,7 +174,7 @@ class npc_profession : public CreatureScript
                                         case 1:
                                                 if(pPlayer->HasSkill(SKILL_ALCHEMY))
                                                 {
-                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                         pPlayer->PlayerTalkClass->SendCloseGossip();
                                                         break;
                                                 }
@@ -185,7 +185,7 @@ class npc_profession : public CreatureScript
                                         case 2:
                                                 if(pPlayer->HasSkill(SKILL_BLACKSMITHING))
                                                 {
-                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                         pPlayer->PlayerTalkClass->SendCloseGossip();
                                                         break;
                                                 }
@@ -195,7 +195,7 @@ class npc_profession : public CreatureScript
                                         case 3:
                                                 if(pPlayer->HasSkill(SKILL_LEATHERWORKING))
                                                 {
-                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                         pPlayer->PlayerTalkClass->SendCloseGossip();
                                                         break;
                                                 }
@@ -205,7 +205,7 @@ class npc_profession : public CreatureScript
                                         case 4:
                                                 if(pPlayer->HasSkill(SKILL_TAILORING))
                                                 {
-                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                         pPlayer->PlayerTalkClass->SendCloseGossip();
                                                         break;
                                                 }
@@ -215,7 +215,7 @@ class npc_profession : public CreatureScript
                                         case 5:
                                                 if(pPlayer->HasSkill(SKILL_ENGINEERING))
                                                 {
-                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                         pPlayer->PlayerTalkClass->SendCloseGossip();
                                                         break;
                                                 }
@@ -225,7 +225,7 @@ class npc_profession : public CreatureScript
                                         case 6:
                                                 if(pPlayer->HasSkill(SKILL_ENCHANTING))
                                                 {
-                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                         pPlayer->PlayerTalkClass->SendCloseGossip();
                                                         break;
                                                 }
@@ -235,7 +235,7 @@ class npc_profession : public CreatureScript
                                         case 7:
                                                 if(pPlayer->HasSkill(SKILL_JEWELCRAFTING))
                                                 {
-                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                         pPlayer->PlayerTalkClass->SendCloseGossip();
                                                         break;
                                                 }
@@ -245,7 +245,7 @@ class npc_profession : public CreatureScript
                                         case 8:
                                                 if(pPlayer->HasSkill(SKILL_INSCRIPTION))
                                                 {
-                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                         pPlayer->PlayerTalkClass->SendCloseGossip();
                                                         break;
                                                 }
@@ -255,7 +255,7 @@ class npc_profession : public CreatureScript
                                         case 9:
                                                 if(pPlayer->HasSkill(SKILL_COOKING))
                                                 {    
-                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                         pPlayer->PlayerTalkClass->SendCloseGossip();
                                                         break;
                                                 }
@@ -265,7 +265,7 @@ class npc_profession : public CreatureScript
                                         case 10:
                                                 if(pPlayer->HasSkill(SKILL_FIRST_AID))
                                                 {
-                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                        _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                         pPlayer->PlayerTalkClass->SendCloseGossip();
                                                         break;
                                                 }
@@ -275,7 +275,7 @@ class npc_profession : public CreatureScript
                                         case 11:
                                             if(pPlayer->HasSkill(SKILL_HERBALISM))
                                             {
-                                                _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                 pPlayer->PlayerTalkClass->SendCloseGossip();
                                                 break;
                                             }
@@ -286,7 +286,7 @@ class npc_profession : public CreatureScript
                                         case 12:
                                             if(pPlayer->HasSkill(SKILL_SKINNING))
                                             {
-                                                _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                 pPlayer->PlayerTalkClass->SendCloseGossip();
                                                 break;
                                             }
@@ -297,7 +297,7 @@ class npc_profession : public CreatureScript
                                         case 13:
                                             if(pPlayer->HasSkill(SKILL_MINING))
                                             {
-                                                _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUIDLow());
+                                                _creature->MonsterWhisper("Вы уже освоили эту профессию!", pPlayer->GetGUID().GetCounter());
                                                 pPlayer->PlayerTalkClass->SendCloseGossip();
                                                 break;
                                             }

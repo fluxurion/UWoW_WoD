@@ -68,7 +68,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     }
 
     sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u",
-    _player->GetGUIDLow(), items_count, money, COD, stationery, package);
+    _player->GetGUID().GetCounter(), items_count, money, COD, stationery, package);
 
     ObjectGuid itemGUIDs[MAX_MAIL_ITEMS];
 
@@ -136,12 +136,12 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     if (!rc)
     {
         sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: not existed!) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u",
-            player->GetGUIDLow(), receiver.c_str(), subject.c_str(), body.c_str(), items_count, money, COD, stationery, package);
+            player->GetGUID().GetCounter(), receiver.c_str(), subject.c_str(), body.c_str(), items_count, money, COD, stationery, package);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u", player->GetGUIDLow(), receiver.c_str(), GUID_LOPART(rc), subject.c_str(), body.c_str(), items_count, money, COD, stationery, package);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u", player->GetGUID().GetCounter(), receiver.c_str(), GUID_LOPART(rc), subject.c_str(), body.c_str(), items_count, money, COD, stationery, package);
 
     if (player->GetGUID() == rc)
     {
@@ -544,7 +544,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
         m->COD = 0;
         m->state = MAIL_STATE_CHANGED;
         player->m_mailsUpdated = true;
-        player->RemoveMItem(item->GetGUIDLow());
+        player->RemoveMItem(item->GetGUID().GetCounter());
 
         uint32 count = item->GetCount();                      // save counts before store and possible merge with deleting
         item->SetState(ITEM_UNCHANGED);                       // need to set this state, otherwise item cannot be removed later, if neccessary
@@ -704,7 +704,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
             data << uint32(4);
             data << uint32(0);
             //
-            data << uint32((item ? item->GetGUIDLow() : 0));
+            data << uint32((item ? item->GetGUID().GetCounter() : 0));
             data << uint32((item ? item->GetItemSuffixFactor() : 0));
             data << uint32((item ? item->GetEntry() : 0));
 
@@ -778,7 +778,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     }
 
     Item* bodyItem = new Item;                              // This is not bag and then can be used new Item.
-    if (!bodyItem->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), MAIL_BODY_ITEM_TEMPLATE, player))
+    if (!bodyItem->Create(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), MAIL_BODY_ITEM_TEMPLATE, player))
     {
         delete bodyItem;
         return;

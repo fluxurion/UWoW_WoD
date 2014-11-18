@@ -26,7 +26,7 @@ void WorldSession::HandleGuildFinderAddRecruit(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_ADD_RECRUIT");
 
-    if (sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUIDLow()).size() == 10)
+    if (sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUID().GetCounter()).size() == 10)
         return;
 
     uint32 classRoles = 0;
@@ -65,7 +65,7 @@ void WorldSession::HandleGuildFinderAddRecruit(WorldPacket& recvPacket)
     if (!(guildInterests & ALL_INTERESTS) || guildInterests > ALL_INTERESTS)
         return;
 
-    MembershipRequest request = MembershipRequest(GetPlayer()->GetGUIDLow(), guildLowGuid, availability, classRoles, guildInterests, comment, time(NULL));
+    MembershipRequest request = MembershipRequest(GetPlayer()->GetGUID().GetCounter(), guildLowGuid, availability, classRoles, guildInterests, comment, time(NULL));
     sGuildFinderMgr->AddMembershipRequest(guildLowGuid, request);
 }
 
@@ -90,7 +90,7 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
 
     Player* player = GetPlayer();
 
-    LFGuildPlayer settings(player->GetGUIDLow(), classRoles, availability, guildInterests, ANY_FINDER_LEVEL);
+    LFGuildPlayer settings(player->GetGUID().GetCounter(), classRoles, availability, guildInterests, ANY_FINDER_LEVEL);
     LFGuildStore guildList = sGuildFinderMgr->GetGuildsMatchingSetting(settings, player->GetTeamId());
     uint32 guildCount = guildList.size();
 
@@ -131,7 +131,7 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
         bufferData.WriteByteSeq(guildGUID[2]);
         bufferData << int32(guild->GetEmblemInfo().GetBorderColor());
         bufferData << int32(0); // guild->GetAchievementMgr().GetAchievementPoints()
-        bufferData << uint8(sGuildFinderMgr->HasRequest(player->GetGUIDLow(), guild->GetGUID())); // Request pending
+        bufferData << uint8(sGuildFinderMgr->HasRequest(player->GetGUID().GetCounter(), guild->GetGUID())); // Request pending
         bufferData << int32(guild->GetEmblemInfo().GetBorderStyle()); // Guessed
         bufferData.WriteByteSeq(guildGUID[0]);
         bufferData << uint32(guildSettings.GetAvailability());
@@ -178,10 +178,10 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_GET_APPLICATIONS"); // Empty opcode
 
-    std::list<MembershipRequest> applicatedGuilds = sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUIDLow());
+    std::list<MembershipRequest> applicatedGuilds = sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUID().GetCounter());
     uint32 applicationsCount = applicatedGuilds.size();
     WorldPacket data(SMSG_LF_GUILD_MEMBERSHIP_LIST_UPDATED, 7 + 54 * applicationsCount);
-    data << uint32(10 - sGuildFinderMgr->CountRequestsFromPlayer(GetPlayer()->GetGUIDLow())); // Applications count left
+    data << uint32(10 - sGuildFinderMgr->CountRequestsFromPlayer(GetPlayer()->GetGUID().GetCounter())); // Applications count left
     data.WriteBits(applicationsCount, 20);
 
     if (applicationsCount > 0)
@@ -350,7 +350,7 @@ void WorldSession::HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket)
     if (!IS_GUILD_GUID(guildGuid))
         return;
 
-    sGuildFinderMgr->RemoveMembershipRequest(GetPlayer()->GetGUIDLow(), GUID_LOPART(guildGuid));
+    sGuildFinderMgr->RemoveMembershipRequest(GetPlayer()->GetGUID().GetCounter(), GUID_LOPART(guildGuid));
 }
 
 // Sent any time a guild master sets an option in the interface and when listing / unlisting his guild

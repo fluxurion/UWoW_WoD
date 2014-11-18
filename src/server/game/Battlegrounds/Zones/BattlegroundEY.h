@@ -344,15 +344,14 @@ class BattlegroundEY : public Battleground
         virtual void StartingEventOpenDoors();
 
         /* BG Flags */
-        uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const    { return m_FlagKeeper; }
-        void SetFlagPicker(uint64 guid)     { m_FlagKeeper = guid; }
-        bool IsFlagPickedup() const         { return m_FlagKeeper != 0; }
+        ObjectGuid GetFlagPickerGUID(int32 /*team*/ = -1) const    { return m_FlagKeeper; }
+        void SetFlagPicker(ObjectGuid guid)     { m_FlagKeeper = guid; }
+        bool IsFlagPickedup() const         { return !m_FlagKeeper.IsEmpty(); }
         uint8 GetFlagState() const          { return m_FlagState; }
         void RespawnFlag(bool send_message);
         void RespawnFlagAfterDrop();
 
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
-        void HandleBuffUse(uint64 buff_guid);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         void HandleKillPlayer(Player* player, Player* killer);
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
@@ -362,8 +361,8 @@ class BattlegroundEY : public Battleground
         void EndBattleground(uint32 winner);
         void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
         virtual void FillInitialWorldStates(WorldPacket& data);
-        void SetDroppedFlagGUID(uint64 guid)       { m_DroppedFlagGUID = guid;}
-        uint64 GetDroppedFlagGUID() const          { return m_DroppedFlagGUID;}
+        void SetDroppedFlagGUID(ObjectGuid guid)       { m_DroppedFlagGUID = guid; }
+        ObjectGuid GetDroppedFlagGUID() const          { return m_DroppedFlagGUID; }
 
         /* Battleground Events */
         virtual void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
@@ -397,8 +396,8 @@ class BattlegroundEY : public Battleground
 
         uint32 m_Points_Trigger[EY_POINTS_MAX];
 
-        uint64 m_FlagKeeper;                                // keepers guid
-        uint64 m_DroppedFlagGUID;
+        ObjectGuid m_FlagKeeper;                                // keepers guid
+        ObjectGuid m_DroppedFlagGUID;
         uint32 m_FlagCapturedBgObjectType;                  // type that should be despawned when flag is captured
         uint8 m_FlagState;                                  // for checking flag state
         int32 m_FlagsTimer;
@@ -407,7 +406,7 @@ class BattlegroundEY : public Battleground
         uint32 m_PointOwnedByTeam[EY_POINTS_MAX];
         uint8 m_PointState[EY_POINTS_MAX];
         int32 m_PointBarStatus[EY_POINTS_MAX];
-        typedef std::vector<uint64> PlayersNearPointType;
+        typedef std::vector<ObjectGuid> PlayersNearPointType;
         PlayersNearPointType m_PlayersNearPoint[EY_POINTS_MAX + 1];
         uint8 m_CurrentPointPlayersCount[2*EY_POINTS_MAX];
 

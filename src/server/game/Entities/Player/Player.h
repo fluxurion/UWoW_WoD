@@ -1201,12 +1201,12 @@ class TradeData
         uint32     m_spell;                                 // m_player apply spell to non-traded slot item
         uint64     m_spellCastItem;                         // applied spell casted by item use
 
-        uint64     m_items[TRADE_SLOT_COUNT];               // traded items from m_player side including non-traded slot
+        ObjectGuid m_items[TRADE_SLOT_COUNT];               // traded items from m_player side including non-traded slot
 };
 
 struct ResurrectionData
 {
-    uint64 GUID;
+    ObjectGuid GUID;
     WorldLocation Location;
     uint32 Health;
     uint32 Mana;
@@ -1866,11 +1866,11 @@ class Player : public Unit, public GridObject<Player>
         void GroupEventHappens(uint32 questId, WorldObject const* pEventObject);
         void ItemAddedQuestCheck(uint32 entry, uint32 count);
         void ItemRemovedQuestCheck(uint32 entry, uint32 count);
-        void KilledMonster(CreatureTemplate const* cInfo, uint64 guid);
-        void KilledMonsterCredit(uint32 entry, uint64 guid = 0);
+        void KilledMonster(CreatureTemplate const* cInfo, ObjectGuid guid);
+        void KilledMonsterCredit(uint32 entry, ObjectGuid guid = ObjectGuid::Empty);
         void KilledPlayerCredit();
-        void CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id);
-        void TalkedToCreature(uint32 entry, uint64 guid);
+        void CastedCreatureOrGO(uint32 entry, ObjectGuid guid, uint32 spell_id);
+        void TalkedToCreature(uint32 entry, ObjectGuid guid);
         void MoneyChanged(uint32 value);
         void ReputationChanged(FactionEntry const* factionEntry);
         void ReputationChanged2(FactionEntry const* factionEntry);
@@ -1935,7 +1935,7 @@ class Player : public Unit, public GridObject<Player>
         static void Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair);
         static void SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, uint64 guid);
 
-        static void DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
+        static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
         static void DeleteOldCharacters();
         static void DeleteOldCharacters(uint32 keepDays);
 
@@ -1979,10 +1979,10 @@ class Player : public Unit, public GridObject<Player>
             return m_RewardedQuests.find(quest_id) != m_RewardedQuests.end();
         }
 
-        uint64 GetSelection() const { return m_curSelection; }
+        ObjectGuid GetSelection() const { return m_curSelection; }
         Unit* GetSelectedUnit() const;
         Player* GetSelectedPlayer() const;
-        void SetSelection(uint64 guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
+        void SetSelection(ObjectGuid guid) { m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() const { return m_comboPoints; }
         uint64 GetComboTarget() const { return m_comboTarget; }
@@ -2029,7 +2029,7 @@ class Player : public Unit, public GridObject<Player>
         {
             ASSERT(it);
             //ASSERT deleted, because items can be added before loading
-            mMitems[it->GetGUIDLow()] = it;
+            mMitems[it->GetGUID().GetCounter()] = it;
         }
 
         bool RemoveMItem(uint32 id)
@@ -2237,7 +2237,7 @@ class Player : public Unit, public GridObject<Player>
             delete _resurrectionData;
             _resurrectionData = NULL;
         }
-        bool IsRessurectRequestedBy(uint64 guid) const
+        bool IsRessurectRequestedBy(ObjectGuid guid) const
         {
             if (!IsRessurectRequested())
                 return false;
@@ -2304,7 +2304,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsInSameGroupWith(Player const* p) const;
         bool IsInSameRaidWith(Player const* p) const { return p == this || (GetGroup() != NULL && GetGroup() == p->GetGroup()); }
         void UninviteFromGroup();
-        static void RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, uint64 kicker = 0, const char* reason = NULL);
+        static void RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = NULL);
         void RemoveFromGroup(RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT) { RemoveFromGroup(GetGroup(), GetGUID(), method); }
         void SendUpdateToOutOfRangeGroupMembers();
 
@@ -2863,9 +2863,8 @@ class Player : public Unit, public GridObject<Player>
 
         bool CanSummonPet(uint32 entry) const;
         // currently visible objects at player client
-        typedef std::set<uint64> ClientGUIDs;
-        ClientGUIDs m_clientGUIDs;
-        ClientGUIDs m_extraLookList;
+        GuidSet m_clientGUIDs;
+        GuidSet m_extraLookList;
 
         bool HaveAtClient(WorldObject const* u) const { return u == this || m_clientGUIDs.find(u->GetGUID()) != m_clientGUIDs.end(); }
         void AddClient(WorldObject *u) { m_clientGUIDs.insert(u->GetGUID()); } 
@@ -2873,7 +2872,7 @@ class Player : public Unit, public GridObject<Player>
         ///! Extra look method not alow remove some creatures from player visibility by grid VisibleNotifier
         void AddToExtraLook(WorldObject *u) { m_extraLookList.insert(u->GetGUID()); } 
         void RemoveFromExtraLook(WorldObject *u) { m_extraLookList.erase(u->GetGUID()); } 
-        bool HaveExtraLook(uint64 guid) const { return m_extraLookList.find(guid) != m_extraLookList.end(); }
+        bool HaveExtraLook(ObjectGuid guid) const { return m_extraLookList.find(guid) != m_extraLookList.end(); }
 
         bool IsNeverVisible() const;
 
@@ -3294,7 +3293,7 @@ class Player : public Unit, public GridObject<Player>
         bool m_itemUpdateQueueBlocked;
 
         uint32 m_ExtraFlags;
-        uint64 m_curSelection;
+        ObjectGuid m_curSelection;
         DigSiteInfo m_digsite;
 
         uint64 m_comboTarget;

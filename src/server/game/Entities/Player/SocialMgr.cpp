@@ -175,7 +175,7 @@ void PlayerSocial::SendSocialList(Player* player)
     {
         sSocialMgr->GetFriendInfo(player, itr->first, itr->second);
 
-        data << uint64(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));  // player guid
+        //data << uint64(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));  // player guid
         data << uint32(realmHandle.Index);
         data << uint32(realmHandle.Index);
         data << uint32(itr->second.Flags);                  // player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
@@ -311,7 +311,7 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
 
     uint32 team = player->GetTeam();
     AccountTypes security = player->GetSession()->GetSecurity();
-    uint32 guid = player->GetGUIDLow();
+    uint32 guid = player->GetGUID().GetCounter();
     AccountTypes gmLevelInWhoList = AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST));
     bool allowTwoSideWhoList = sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
 

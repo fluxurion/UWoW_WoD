@@ -33,10 +33,10 @@
 //Param2:(ZoneId) the zone where the battle is (4197 for wg)
 //Param3:(time) Time in second that the player have for accept
 //! 5.4.1
-void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 pTime)
+void WorldSession::SendBfInvitePlayerToWar(ObjectGuid guid, uint32 zoneId, uint32 pTime)
 {
     //Send packet
-    ObjectGuid guidBytes = guid;
+    ObjectGuidSteam guidBytes = 0/*guid*/;
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE);
 
     data << uint32(time(NULL) + pTime); // Invite lasts until
@@ -45,15 +45,15 @@ void WorldSession::SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 pT
     data.WriteGuidBytes<5, 4, 6, 1, 3, 7, 0, 2>(guidBytes);
 
     //Sending the packet to player
-    SendPacket(&data);
+    SendPacket(&data);*/
 }
 
 //This send invitation to player to join the queue
 //Param1:(guid) the guid of Bf
 //! 5.4.1
-void WorldSession::SendBfInvitePlayerToQueue(uint64 guid)
+void WorldSession::SendBfInvitePlayerToQueue(ObjectGuid guid)
 {
-    ObjectGuid guidBytes = guid;
+    ObjectGuidSteam guidBytes = 0/*guid*/;
     bool warmup = true;
 
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_INVITE);
@@ -99,10 +99,10 @@ void WorldSession::SendBfInvitePlayerToQueue(uint64 guid)
 //Param3:(CanQueue) if able to queue
 //Param4:(Full) on log in is full
 //! 5.4.1
-void WorldSession::SendBfQueueInviteResponse(uint64 guid,uint32 ZoneId, bool CanQueue, bool Full)
+void WorldSession::SendBfQueueInviteResponse(ObjectGuid guid,uint32 ZoneId, bool CanQueue, bool Full)
 {
     bool hasSecondGuid = false;
-    ObjectGuid bgGuid = guid;
+    ObjectGuidSteam bgGuid = 0/*guid*/;
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE);
     data.WriteGuidMask<6, 2, 4>(bgGuid);
     data.WriteBit((Full ? 0 : 1)); // //Logging In        //0 wg full                 //1 queue for upcoming (we may need to swap it)
@@ -126,9 +126,9 @@ void WorldSession::SendBfQueueInviteResponse(uint64 guid,uint32 ZoneId, bool Can
 //This is call when player accept to join war
 //Param1:(guid) the guid of Bf
 //! 5.4.1
-void WorldSession::SendBfEntered(uint64 guid)
+void WorldSession::SendBfEntered(ObjectGuid guid)
 {
-    ObjectGuid bgGuid = guid;
+    ObjectGuidSteam bgGuid = 0/*guid*/;
 //    m_PlayerInWar[player->GetTeamId()].insert(player->GetGUID());
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERED);
     data.WriteGuidMask<6>(bgGuid);
@@ -143,9 +143,9 @@ void WorldSession::SendBfEntered(uint64 guid)
 }
 
 //! 5.4.1
-void WorldSession::SendBfLeaveMessage(uint64 guid, BFLeaveReason reason)
+void WorldSession::SendBfLeaveMessage(ObjectGuid guid, BFLeaveReason reason)
 {
-    ObjectGuid bgGuid = guid;
+    ObjectGuidSteam bgGuid = 0/*guid*/;
     WorldPacket data(SMSG_BATTLEFIELD_MGR_EJECTED);
     data << uint8(2); // byte BattleStatus
     data << uint8(reason); // byte Reason
@@ -168,11 +168,11 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
     uint8 accepted;
     ObjectGuid guid;
 
-    recvData.ReadGuidMask<6, 5, 1, 0>(guid);
+    /*recvData.ReadGuidMask<6, 5, 1, 0>(guid);
     accepted = recvData.ReadBit();
     recvData.ReadGuidMask<3, 7, 4, 2>(guid);
 
-    recvData.ReadGuidBytes< 2, 3, 6, 1, 5, 0, 4, 7>(guid);
+    recvData.ReadGuidBytes< 2, 3, 6, 1, 5, 0, 4, 7>(guid);*/
     sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:" UI64FMTD " Accepted:%u", (uint64)guid, accepted);
 
     if(!accepted)
@@ -197,11 +197,11 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recvData)
 {
     uint8 accepted;
     ObjectGuid guid;
-    recvData.ReadGuidMask<4, 7, 6, 2, 3, 1, 0>(guid);
+    /*recvData.ReadGuidMask<4, 7, 6, 2, 3, 1, 0>(guid);
     accepted = recvData.ReadBit();
     recvData.ReadGuidMask<5>(guid);
 
-    recvData.ReadGuidBytes<7, 1, 0, 6, 2, 4, 3, 5>(guid);
+    recvData.ReadGuidBytes<7, 1, 0, 6, 2, 4, 3, 5>(guid);*/
 
     sLog->outError(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: GUID:" UI64FMTD " Accepted:%u", uint64(guid), accepted);
 
@@ -221,8 +221,8 @@ void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    recvData.ReadGuidMask<6, 3, 1, 2, 0, 4, 7, 5>(guid);
-    recvData.ReadGuidBytes<4, 3, 0, 1, 6, 5, 2, 7>(guid);
+    /*recvData.ReadGuidMask<6, 3, 1, 2, 0, 4, 7, 5>(guid);
+    recvData.ReadGuidBytes<4, 3, 0, 1, 6, 5, 2, 7>(guid);*/
 
     sLog->outError(LOG_FILTER_GENERAL, "HandleBfQueueRequest: GUID:" UI64FMTD " ", (uint64)guid);
 
@@ -244,8 +244,8 @@ void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
 void WorldSession::HandleBfExitQueueRequest(WorldPacket & recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<0, 7, 5, 2, 4, 1, 6, 3>(guid);
-    recvData.ReadGuidBytes<7, 1, 2, 5, 0, 6, 4, 3>(guid);
+    /*recvData.ReadGuidMask<0, 7, 5, 2, 4, 1, 6, 3>(guid);
+    recvData.ReadGuidBytes<7, 1, 2, 5, 0, 6, 4, 3>(guid);*/
 
     sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitQueueRequest: GUID:" UI64FMTD " ", (uint64)guid);
 
@@ -272,8 +272,8 @@ void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
 void WorldSession::HandleReportPvPAFK(WorldPacket & recvData)
 {
     ObjectGuid playerGuid;
-    recvData.ReadGuidMask<5, 3, 7, 0, 4, 2, 6, 1>(playerGuid);
-    recvData.ReadGuidBytes<5, 7, 3, 0, 2, 6, 4, 1>(playerGuid);
+    /*recvData.ReadGuidMask<5, 3, 7, 0, 4, 2, 6, 1>(playerGuid);
+    recvData.ReadGuidBytes<5, 7, 3, 0, 2, 6, 4, 1>(playerGuid);*/
     Player* reportedPlayer = ObjectAccessor::FindPlayer(playerGuid);
 
     if (!reportedPlayer)

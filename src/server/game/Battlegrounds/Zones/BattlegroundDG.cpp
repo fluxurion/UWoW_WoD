@@ -132,7 +132,7 @@ void BattlegroundDG::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
 }
 
-void BattlegroundDG::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundDG::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
@@ -183,12 +183,12 @@ void BattlegroundDG::EventPlayerDroppedFlag(Player *Source)
             m_carts[i]->CartDropped();
 }
 
-uint64 BattlegroundDG::GetFlagPickerGUID(int32 team) const
+ObjectGuid BattlegroundDG::GetFlagPickerGUID(int32 team) const
 {
     if (Player* player = m_carts[team == TEAM_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE]->ControlledBy())
         return player->GetGUID();
 
-    return 0;
+    return ObjectGuid::Empty;
 }
 
 void BattlegroundDG::UpdatePointsCountPerTeam()
@@ -292,8 +292,8 @@ void BattlegroundDG::FillInitialWorldStates(WorldPacket &data)
     FillInitialWorldState(data, 7938, 1);
     FillInitialWorldState(data, 7935, 1);
 
-    FillInitialWorldState(data, 7904, (m_carts[TEAM_HORDE] && m_carts[TEAM_HORDE]->ControlledByPlayerWithGuid() ? 2 : 1));
-    FillInitialWorldState(data, 7887, (m_carts[TEAM_ALLIANCE] && m_carts[TEAM_ALLIANCE]->ControlledByPlayerWithGuid() ? 2 : 1));
+    FillInitialWorldState(data, 7904, (m_carts[TEAM_HORDE] && !m_carts[TEAM_HORDE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
+    FillInitialWorldState(data, 7887, (m_carts[TEAM_ALLIANCE] && !m_carts[TEAM_ALLIANCE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
 
     FillInitialWorldState(data, 7880, m_gold[TEAM_ALLIANCE]);
     FillInitialWorldState(data, 7881, m_gold[TEAM_HORDE]);
@@ -626,16 +626,16 @@ void BattlegroundDG::MiddlePoint::UpdateState(PointStates state)
 
 BattlegroundDG::Cart::Cart(BattlegroundDG *bg) : m_bg(bg)
 {
-    m_controlledBy = 0;
+    m_controlledBy.Clear();
     m_team = 0;
     m_goCart = 0;
-    m_playerDroppedCart = 0;
+    m_playerDroppedCart.Clear();
     m_stolenGold = 0;
 }
 
 void BattlegroundDG::Cart::ToggleCaptured(Player *player)
 {
-    if (m_controlledBy)
+    if (!m_controlledBy.IsEmpty())
         return;
 
     uint32 summonSpellId;
@@ -743,7 +743,7 @@ void BattlegroundDG::Cart::UnbindCartFromPlayer()
 
         GetBg()->SpawnBGObject(m_goBgId, 0);
 
-        m_controlledBy = 0;
+        m_controlledBy.Clear();
 
         uint32 statefield = (player->GetBGTeamId() == TEAM_ALLIANCE) ? 7904 : 7887;
         GetBg()->UpdateWorldState(statefield, 1);

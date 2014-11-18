@@ -34,6 +34,7 @@
 #include "Util.h"
 
 #include <math.h>
+#include <type_traits>
 #include <boost/asio/buffer.hpp>
 
 class MessageBuffer;
@@ -57,7 +58,7 @@ class MessageBuffer;
 #define BIT_VALS_8 BIT_VALS_7, _8
 
 #define DEFINE_READGUIDMASK(T1, T2) template <T1> \
-    void ReadGuidMask(ObjectGuid& guid) \
+    void ReadGuidMask(ObjectGuidSteam& guid) \
     { \
         uint8 maskArr[] = { T2 }; \
         for (uint8 i = 0; i < sizeof(maskArr) / sizeof(maskArr[0]) ; ++i) \
@@ -65,7 +66,7 @@ class MessageBuffer;
     }
 
 #define DEFINE_WRITEGUIDMASK(T1, T2) template <T1> \
-    void WriteGuidMask(ObjectGuid guid) \
+    void WriteGuidMask(ObjectGuidSteam guid) \
     { \
         uint8 maskArr[] = { T2 }; \
         for (uint8 i = 0; i < sizeof(maskArr) / sizeof(maskArr[0]); ++i) \
@@ -73,7 +74,7 @@ class MessageBuffer;
     }
 
 #define DEFINE_READGUIDBYTES(T1, T2) template <T1> \
-    void ReadGuidBytes(ObjectGuid& guid) \
+    void ReadGuidBytes(ObjectGuidSteam& guid) \
     { \
         uint8 maskArr[] = { T2 }; \
         for (uint8 i = 0; i < sizeof(maskArr) / sizeof(maskArr[0]); ++i) \
@@ -82,7 +83,7 @@ class MessageBuffer;
     }
 
 #define DEFINE_WRITEGUIDBYTES(T1, T2) template <T1> \
-    void WriteGuidBytes(ObjectGuid guid) \
+    void WriteGuidBytes(ObjectGuidSteam guid) \
     { \
         uint8 maskArr[] = { T2 }; \
         for (uint8 i = 0; i < sizeof(maskArr) / sizeof(maskArr[0]); ++i) \
@@ -91,13 +92,13 @@ class MessageBuffer;
     }
 
 //! Structure to ease conversions from single 64 bit integer guid into individual bytes, for packet sending purposes
-//! Nuke this out when porting ObjectGuid from MaNGOS, but preserve the per-byte storage
-struct ObjectGuid
+//! Nuke this out when porting ObjectGuidSteam from MaNGOS, but preserve the per-byte storage
+struct ObjectGuidSteam
 {
     public:
-        ObjectGuid() { _data.u64 = 0LL; }
-        ObjectGuid(uint64 guid) { _data.u64 = guid; }
-        ObjectGuid(ObjectGuid const& other) { _data.u64 = other._data.u64; }
+        ObjectGuidSteam() { _data.u64 = 0LL; }
+        ObjectGuidSteam(uint64 guid) { _data.u64 = guid; }
+        ObjectGuidSteam(ObjectGuidSteam const& other) { _data.u64 = other._data.u64; }
 
         uint8& operator[](uint32 index)
         {
@@ -126,13 +127,13 @@ struct ObjectGuid
             return _data.u64;
         }
 
-        ObjectGuid& operator=(uint64 guid)
+        ObjectGuidSteam& operator=(uint64 guid)
         {
             _data.u64 = guid;
             return *this;
         }
 
-        ObjectGuid& operator=(ObjectGuid const& other)
+        ObjectGuidSteam& operator=(ObjectGuidSteam const& other)
         {
             _data.u64 = other._data.u64;
             return *this;
@@ -238,6 +239,7 @@ class ByteBuffer
 
         template <typename T> void append(T value)
         {
+            static_assert(std::is_fundamental<T>::value, "append(compound)");
             FlushBits();
             EndianConvert(value);
             append((uint8 *)&value, sizeof(value));
@@ -262,7 +264,7 @@ class ByteBuffer
             _bitpos = 8;
         }
 
-        void WriteBitInOrder(ObjectGuid guid, uint8 order[8])
+        void WriteBitInOrder(ObjectGuidSteam guid, uint8 order[8])
         {
             for (uint8 i = 0; i < 8; ++i)
                 WriteBit(guid[order[i]]);
@@ -284,7 +286,7 @@ class ByteBuffer
             return (bit != 0);
         }
 
-        void ReadBitInOrder(ObjectGuid& guid, uint8 order[8])
+        void ReadBitInOrder(ObjectGuidSteam& guid, uint8 order[8])
         {
             for (uint8 i = 0; i < 8; ++i)
                 guid[order[i]] = ReadBit();
@@ -318,7 +320,7 @@ class ByteBuffer
             return value;
         }
 
-        void ReadBytesSeq(ObjectGuid& guid, uint8 order[8])
+        void ReadBytesSeq(ObjectGuidSteam& guid, uint8 order[8])
         {
             for (uint8 i = 0; i < 8; ++i)
                 ReadByteSeq(guid[order[i]]);
@@ -331,7 +333,7 @@ class ByteBuffer
                 b ^= read<uint8>();
         }
 
-        void WriteBytesSeq(ObjectGuid guid, uint8 order[8])
+        void WriteBytesSeq(ObjectGuidSteam guid, uint8 order[8])
         {
             for (uint8 i = 0; i < 8; ++i)
                 WriteByteSeq(guid[order[i]]);
@@ -345,6 +347,7 @@ class ByteBuffer
 
         template <typename T> void put(size_t pos, T value)
         {
+            static_assert(std::is_fundamental<T>::value, "append(compound)");
             EndianConvert(value);
             put(pos, (uint8 *)&value, sizeof(value));
         }
@@ -652,6 +655,19 @@ class ByteBuffer
             }
         }
 
+        void ReadPackedUInt64(uint64& guid)
+        {
+            guid = 0;
+            ReadPackedUInt64(read<uint8>(), guid);
+        }
+
+        void ReadPackedUInt64(uint8 mask, uint64& value)
+        {
+            for (uint32 i = 0; i < 8; ++i)
+                if (mask & (uint8(1) << i))
+                    value |= (uint64(read<uint8>()) << (i * 8));
+        }
+
         std::string ReadString(uint32 length)
         {
             if (!length)
@@ -731,6 +747,39 @@ class ByteBuffer
             packed |= ((int)(y / 0.25f) & 0x7FF) << 11;
             packed |= ((int)(z / 0.25f) & 0x3FF) << 22;
             *this << packed;
+        }
+
+        void AppendPackedUInt64(uint64 guid)
+        {
+            uint8 mask = 0;
+            size_t pos = wpos();
+            *this << uint8(mask);
+
+            uint8 packed[8];
+            if (size_t packedSize = PackUInt64(guid, &mask, packed))
+                append(packed, packedSize);
+
+            put<uint8>(pos, mask);
+        }
+
+        size_t PackUInt64(uint64 value, uint8* mask, uint8* result) const
+        {
+            size_t resultSize = 0;
+            *mask = 0;
+            memset(result, 0, 8);
+
+            for (uint8 i = 0; value != 0; ++i)
+            {
+                if (value & 0xFF)
+                {
+                    *mask |= uint8(1 << i);
+                    result[resultSize++] = uint8(value & 0xFF);
+                }
+
+                value >>= 8;
+            }
+
+            return resultSize;
         }
 
         void AppendPackedTime(time_t time)

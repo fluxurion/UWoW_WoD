@@ -111,14 +111,14 @@ public:
         //Evade or Respawn
         void Reset()
         {
-            if (me->GetGUIDLow() == 3486400)
+            if (me->GetGUID().GetCounter() == 3486400)
                 tSay = DELAY_SAY_GILNEAS_CITY_GUARD_GATE; //Reset timer
         }
 
         void UpdateAI(uint32 diff)
         {
             //Out of combat and
-            if (me->GetGUIDLow() == 3486400)
+            if (me->GetGUID().GetCounter() == 3486400)
             {
                 //Timed say
                 if (tSay <= diff)

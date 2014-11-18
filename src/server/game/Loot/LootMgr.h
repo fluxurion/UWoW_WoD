@@ -412,7 +412,7 @@ struct LootView
     uint8 _loot_type;
     uint8 pool;
     ObjectGuid _guid;
-    LootView(Loot &_loot, Player* _viewer, uint8 loot_type, uint64 guid, PermissionTypes _permission = ALL_PERMISSION, ItemQualities t = ITEM_QUALITY_POOR, uint8 _pool = 1)
+    LootView(Loot &_loot, Player* _viewer, uint8 loot_type, ObjectGuid guid, PermissionTypes _permission = ALL_PERMISSION, ItemQualities t = ITEM_QUALITY_POOR, uint8 _pool = 1)
         : loot(_loot), viewer(_viewer), _loot_type(loot_type), _guid(ObjectGuid(guid)), permission(_permission), threshold(t), pool(_pool) {}
 };
 

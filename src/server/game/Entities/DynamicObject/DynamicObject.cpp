@@ -160,7 +160,7 @@ void DynamicObject::Update(uint32 p_time)
         if (GetType() == DYNAMIC_OBJECT_RAID_MARKER)
         {
             Group* group = sGroupMgr->GetGroupByGUID(GetCasterGUID());
-            if (!group || !group->HasRaidMarker(GetObjectGuid()))
+            if (!group || !group->HasRaidMarker(GetGUID()))
                 expired = true;
         }
     }

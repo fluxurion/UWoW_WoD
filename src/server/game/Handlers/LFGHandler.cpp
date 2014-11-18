@@ -391,7 +391,7 @@ void WorldSession::SendLfgUpdateParty(lfg::LfgUpdateData const& updateData)
 void WorldSession::SendLfgRoleChosen(uint64 guid, uint8 roles)
 {
     sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_ROLE_CHOSEN %s guid: %u roles: %u",
-        GetPlayerName().c_str(), GUID_LOPART(guid), roles);
+        GetPlayerName().c_str(), guid.GetCounter(), roles);
 
     WorldPacket data(SMSG_LFG_ROLE_CHOSEN, 8 + 1 + 1 + 4);
     data.WriteGuidMask<0, 6, 1, 4, 7, 3>(guid);
@@ -418,7 +418,7 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
     sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_ROLE_CHECK_UPDATE %s", GetPlayerName().c_str());
 
     ByteBuffer buff;
-    ObjectGuid guid = _player->GetObjectGuid();
+    ObjectGuid guid = _player->GetGUID();
     WorldPacket data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + dungeons.size() * 4 + 1 + roleCheck.roles.size() * (8 + 1 + 4 + 1));
     data.WriteBit(roleCheck.state == lfg::LFG_ROLECHECK_INITIALITING);
     data.WriteGuidMask<0>(guid);
@@ -491,7 +491,7 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
 
     sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_JOIN_RESULT %s checkResult: %u checkValue: %u",
         GetPlayerName().c_str(), joinData.result, joinData.state);
-    ObjectGuid guid = GetPlayer()->GetObjectGuid();
+    ObjectGuid guid = GetPlayer()->GetGUID();
     lfg::LfgLockPartyMap const& lockMap = joinData.lockmap;
 
     WorldPacket data(SMSG_LFG_JOIN_RESULT, 3 + 4 * 3 + 8 + 1 + 1 + size);

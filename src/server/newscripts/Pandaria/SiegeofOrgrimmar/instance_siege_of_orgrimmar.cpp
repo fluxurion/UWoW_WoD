@@ -46,7 +46,7 @@ public:
         std::vector<uint64> lightqGUIDs;
         
         //Creature
-        std::set<uint64> shaSlgGUID;
+        GuidSet shaSlgGUID;
         uint64 LorewalkerChoGUIDtmp;
         uint64 fpGUID[3];
 
@@ -406,7 +406,7 @@ public:
                 }
             }else if (type == DATA_SHA_PRE_EVENT)
             {
-                for(std::set<uint64>::iterator itr =  shaSlgGUID.begin(); itr != shaSlgGUID.end(); ++itr)
+                for(GuidSet::iterator itr =  shaSlgGUID.begin(); itr != shaSlgGUID.end(); ++itr)
                 {
                     if (Creature* slg = instance->GetCreature(*itr))
                     {
@@ -596,7 +596,7 @@ public:
                 float o = 1;
 
                 // creates the Gameobject
-                if (!t->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_MO_TRANSPORT), goEntry, mapid, x, y, z, o, 255, 0))
+                if (!t->Create(sObjectMgr->GetGenerator<HighGuid::Transport>()->Generate(), goEntry, mapid, x, y, z, o, 255, 0))
                 {
                     delete t;
                     return NULL;

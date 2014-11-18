@@ -47,7 +47,7 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
     Player* target = unitTarget->ToPlayer();
 
     // caster or target already have requested duel
-    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUIDLow()))
+    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUID().GetCounter()))
         return;
 
     // create duel flag visual
@@ -74,7 +74,7 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
     uint32 gameobject_id = 21680;//m_spellInfo->Effects[effIndex].MiscValue;
 
     Map* map = caster->GetMap();
-    if (!pGameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id,
+    if (!pGameObj->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), gameobject_id,
         map, caster->GetPhaseMask(),
         caster->GetPositionX()+(unitTarget->GetPositionX()-caster->GetPositionX())/2,
         caster->GetPositionY()+(unitTarget->GetPositionY()-caster->GetPositionY())/2,
@@ -169,8 +169,8 @@ void WorldSession::HandleDuelAcceptResultOpcode(WorldPacket& recvPacket)
             return;
 
         //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_DUEL_ACCEPTED");
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName());
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUID().GetCounter(), player->GetName());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUID().GetCounter(), plTarget->GetName());
 
         time_t now = time(NULL);
         player->duel->startTimer = now;

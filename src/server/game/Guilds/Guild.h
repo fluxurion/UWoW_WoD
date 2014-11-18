@@ -372,7 +372,7 @@ private:
         };
 
     public:
-        Member(uint32 guildId, uint64 guid, uint32 rankId):
+        Member(uint32 guildId, ObjectGuid guid, uint32 rankId) :
             m_guildId(guildId),
             m_guid(guid),
             m_zoneId(0),
@@ -416,7 +416,7 @@ private:
         bool LoadFromDB(Field* fields);
         void SaveToDB(SQLTransaction& trans) const;
 
-        uint64 GetGUID() const { return m_guid; }
+        ObjectGuid GetGUID() const { return m_guid; }
         std::string const& GetName() const { return m_name; }
         uint32 GetAccountId() const { return m_accountId; }
         uint32 GetRankId() const { return m_rankId; }
@@ -442,7 +442,7 @@ private:
         inline void UpdateLogoutTime() { m_logoutTime = ::time(NULL); }
         inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
         inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
-        inline bool IsSamePlayer(uint64 guid) const { return m_guid == guid; }
+        inline bool IsSamePlayer(ObjectGuid guid) const { return m_guid == guid; }
 
         void UpdateBankWithdrawValue(SQLTransaction& trans, uint8 tabId, uint32 amount);
         int32 GetBankWithdrawValue(uint8 tabId) const;
@@ -461,7 +461,7 @@ private:
     private:
         uint32 m_guildId;
         // Fields from characters table
-        uint64 m_guid;
+        ObjectGuid m_guid;
         std::string m_name;
         uint32 m_zoneId;
         uint8 m_level;
@@ -494,7 +494,7 @@ private:
         void LoadFromDB(PreparedQueryResult result);
         void BuildNewsData(WorldPacket& data);
         void BuildNewsData(uint32 id, GuildNewsEntry& guildNew, WorldPacket& data);
-        void AddNewEvent(GuildNews eventType, time_t date, uint64 playerGuid, uint32 flags, uint32 data);
+        void AddNewEvent(GuildNews eventType, time_t date, ObjectGuid playerGuid, uint32 flags, uint32 data);
         GuildNewsEntry* GetNewsById(uint32 id)
         {
             GuildNewsLogMap::iterator itr = _newsLog.find(id);
@@ -785,7 +785,7 @@ private:
         void CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count);
     };
 
-    typedef UNORDERED_MAP<uint32, Member*> Members;
+    typedef UNORDERED_MAP<ObjectGuid, Member*> Members;
     typedef std::vector<RankInfo> Ranks;
     typedef std::vector<BankTab*> BankTabs;
 
@@ -805,8 +805,8 @@ public:
 
     // Getters
     uint32 GetId() const { return m_id; }
-    uint64 GetGUID() const { return MAKE_NEW_GUID(m_id, 0, HIGHGUID_GUILD); }
-    uint64 GetLeaderGUID() const { return m_leaderGuid; }
+    ObjectGuid GetGUID() const { return ObjectGuid::Create<HighGuid::Guild>(m_id); }
+    ObjectGuid GetLeaderGUID() const { return m_leaderGuid; }
     const std::string& GetName() const { return m_name; }
     const std::string& GetMOTD() const { return m_motd; }
     const std::string& GetInfo() const { return m_info; }
@@ -879,10 +879,10 @@ public:
 
     // Members
     // Adds member to guild. If rankId == GUILD_RANK_NONE, lowest rank is assigned.
-    bool AddMember(uint64 guid, uint8 rankId = GUILD_RANK_NONE);
-    void DeleteMember(uint64 guid, bool isDisbanding = false, bool isKicked = false);
-    bool ChangeMemberRank(uint64 guid, uint8 newRank);
-    bool IsMember(uint64 guid);
+    bool AddMember(ObjectGuid guid, uint8 rankId = GUILD_RANK_NONE);
+    void DeleteMember(ObjectGuid guid, bool isDisbanding = false, bool isKicked = false);
+    bool ChangeMemberRank(ObjectGuid guid, uint8 newRank);
+    bool IsMember(ObjectGuid guid);
     uint32 GetMembersCount() { return m_members.size(); }
 
     // Bank
@@ -928,7 +928,7 @@ public:
 protected:
     uint32 m_id;
     std::string m_name;
-    uint64 m_leaderGuid;
+    ObjectGuid m_leaderGuid;
     std::string m_motd;
     std::string m_info;
     time_t m_createdDate;
@@ -963,14 +963,14 @@ private:
     inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
     inline const BankTab* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
 
-    inline const Member* GetMember(uint64 guid) const
+    inline const Member* GetMember(ObjectGuid guid) const
     {
-        Members::const_iterator itr = m_members.find(GUID_LOPART(guid));
+        Members::const_iterator itr = m_members.find(guid);
         return itr != m_members.end() ? itr->second : NULL;
     }
-    inline Member* GetMember(uint64 guid)
+    inline Member* GetMember(ObjectGuid guid)
     {
-        Members::iterator itr = m_members.find(GUID_LOPART(guid));
+        Members::iterator itr = m_members.find(guid);
         return itr != m_members.end() ? itr->second : NULL;
     }
     inline Member* GetMember(WorldSession* session, const std::string& name)
@@ -982,7 +982,7 @@ private:
         SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD_S, name);
         return NULL;
     }
-    inline void _DeleteMemberFromDB(uint32 lowguid) const
+    inline void _DeleteMemberFromDB(ObjectGuid::LowType lowguid) const
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER);
         stmt->setUInt32(0, lowguid);

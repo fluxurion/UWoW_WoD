@@ -204,7 +204,7 @@ void BattlegroundAB::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
 }
 
-void BattlegroundAB::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundAB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
 {
 
 }
@@ -372,7 +372,7 @@ void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
 
     if (node >= BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
         return;
-    Creature* trigger = BgCreatures[node+7] ? GetBGCreature(node+7) : NULL;//0-6 spirit guides
+    Creature* trigger = !BgCreatures[node+7].IsEmpty() ? GetBGCreature(node+7) : NULL;//0-6 spirit guides
     if (!trigger)
         trigger = AddCreature(WORLD_TRIGGER, node+7, team, BG_AB_NodePositions[node][0], BG_AB_NodePositions[node][1], BG_AB_NodePositions[node][2], BG_AB_NodePositions[node][3]);
 
@@ -396,11 +396,11 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
         DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
 
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-    std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[node]];
+    std::vector<ObjectGuid> ghost_list = m_ReviveQueue[BgCreatures[node]];
     if (!ghost_list.empty())
     {
         WorldSafeLocsEntry const* ClosestGrave = NULL;
-        for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
+        for (std::vector<ObjectGuid>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
             Player* player = ObjectAccessor::FindPlayer(*itr);
             if (!player)
@@ -414,7 +414,7 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
         }
     }
 
-    if (BgCreatures[node])
+    if (!BgCreatures[node].IsEmpty())
         DelCreature(node);
 
     // buff object isn't despawned
@@ -615,7 +615,7 @@ void BattlegroundAB::Reset()
     }
 
     for (uint8 i = 0; i < BG_AB_ALL_NODES_COUNT + 5; ++i)//+5 for aura triggers
-        if (BgCreatures[i])
+        if (!BgCreatures[i].IsEmpty())
             DelCreature(i);
 }
 

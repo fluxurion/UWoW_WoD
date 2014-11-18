@@ -214,7 +214,7 @@ public:
 
         QueryResult result;
         if(target)
-            result = CharacterDatabase.PQuery("SELECT * FROM character_rename WHERE guid = %u", target->GetGUIDLow());
+            result = CharacterDatabase.PQuery("SELECT * FROM character_rename WHERE guid = %u", target->GetGUID().GetCounter());
         else if(target_guid)
             result = CharacterDatabase.PQuery("SELECT * FROM character_rename WHERE guid = %u", target_guid);
         else

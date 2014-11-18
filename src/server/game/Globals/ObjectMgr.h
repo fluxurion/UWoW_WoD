@@ -685,10 +685,10 @@ class ObjectMgr
 
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
-        uint64 GetPlayerGUIDByName(std::string name) const;
-        bool GetPlayerNameByGUID(uint64 guid, std::string &name) const;
-        uint32 GetPlayerTeamByGUID(uint64 guid) const;
-        uint32 GetPlayerAccountIdByGUID(uint64 guid) const;
+        ObjectGuid GetPlayerGUIDByName(std::string name) const;
+        bool GetPlayerNameByGUID(ObjectGuid guid, std::string &name) const;
+        uint32 GetPlayerTeamByGUID(ObjectGuid guid) const;
+        uint32 GetPlayerAccountIdByGUID(ObjectGuid guid) const;
         uint32 GetPlayerAccountIdByPlayerName(const std::string& name) const;
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
@@ -931,7 +931,6 @@ class ObjectMgr
         void LoadExplorationBaseXP();
         void LoadPetNames();
         void LoadPetNumber();
-        void LoadBattlePetGuid();
         void LoadCorpses();
         void LoadFishingBaseSkillLevel();
 
@@ -994,7 +993,8 @@ class ObjectMgr
         CreatureBaseStats const* GetCreatureBaseStats(uint8 level, uint8 unitClass);
 
         void SetHighestGuids();
-        uint32 GenerateLowGuid(HighGuid guidhigh);
+        template<HighGuid type>
+        ObjectGuidGenerator<type>* GetGenerator();
         uint32 GenerateAuctionID();
         uint64 GenerateEquipmentSetGuid();
         uint32 GenerateMailID();
@@ -1320,18 +1320,17 @@ class ObjectMgr
         uint64 _voidItemId;
 
         // first free low guid for selected guid type
-        uint32 _hiCharGuid;
-        uint32 _hiCreatureGuid;
-        uint32 _hiPetGuid;
-        uint32 _hiVehicleGuid;
-        uint32 _hiItemGuid;
-        uint32 _hiGoGuid;
-        uint32 _hiDoGuid;
-        uint32 _hiCorpseGuid;
-        uint32 _hiAreaTriggerGuid;
-        uint32 _hiMoTransGuid;
-
-        uint64 _hiBattlePetGuid;
+        ObjectGuidGenerator<HighGuid::Player> _playerGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Creature> _creatureGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Pet> _petGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Vehicle> _vehicleGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Item> _itemGuidGenerator;
+        ObjectGuidGenerator<HighGuid::GameObject> _gameObjectGuidGenerator;
+        ObjectGuidGenerator<HighGuid::DynamicObject> _dynamicObjectGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Corpse> _corpseGuidGenerator;
+        ObjectGuidGenerator<HighGuid::AreaTrigger> _areaTriggerGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Transport> _moTransportGuidGenerator;
+        ObjectGuidGenerator<HighGuid::BattlePet> _BattlePetGuidGenerator;
 
         QuestMap _questTemplates;
 

@@ -384,7 +384,7 @@ class Battleground
         /* Battleground */
         // Get methods:
         char const* GetName() const         { return m_Name; }
-        uint64 GetGUID() const { return m_Guid; }
+        ObjectGuid GetGUID() const { return m_Guid; }
         BattlegroundTypeId GetTypeID(bool GetRandom = false) const { return GetRandom ? m_RandomTypeID : m_TypeID; }
         BattlegroundBracketId GetBracketId() const { return m_BracketId; }
         uint32 GetInstanceID() const        { return m_InstanceID; }
@@ -411,9 +411,9 @@ class Battleground
         bool IsRandom() const { return m_IsRandom; }
 
         // Set methods:
-        void SetName(char const* Name)      { m_Name = Name; }
+        void SetName(char const* Name)      { m_Name = Name; } 
         void SetTypeID(BattlegroundTypeId TypeID) { m_TypeID = TypeID; }
-        void InitGUID() {m_Guid = MAKE_NEW_GUID(m_TypeID, 0, 0x01F1); }
+        void InitGUID() { m_Guid = ObjectGuid::Create<HighGuid::PVPQueueGroup>(m_TypeID); }
         void SetRandomTypeID(BattlegroundTypeId TypeID) { m_RandomTypeID = TypeID; }
         //here we can count minlevel and maxlevel for players
         void SetBracket(PvPDifficultyEntry const* bracketEntry);
@@ -455,16 +455,16 @@ class Battleground
         bool IsRBG()          const { return m_IsRBG; }
         bool isRated() const        { return m_IsRated; }
 
-        typedef std::map<uint64, BattlegroundPlayer> BattlegroundPlayerMap;
+        typedef std::map<ObjectGuid, BattlegroundPlayer> BattlegroundPlayerMap;
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
         uint32 GetPlayersSize() const { return m_Players.size(); }
 
-        typedef std::map<uint64, BattlegroundScore*> BattlegroundScoreMap;
+        typedef std::map<ObjectGuid, BattlegroundScore*> BattlegroundScoreMap;
         BattlegroundScoreMap::const_iterator GetPlayerScoresBegin() const { return PlayerScores.begin(); }
         BattlegroundScoreMap::const_iterator GetPlayerScoresEnd() const { return PlayerScores.end(); }
         uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
 
-        void AddPlayerScore(uint64 guid, BattlegroundScore* s)
+        void AddPlayerScore(ObjectGuid guid, BattlegroundScore* s)
         {
             BattlegroundScoreMap::const_iterator itr =  PlayerScores.find(guid);
             if (itr != PlayerScores.end())
@@ -477,8 +477,8 @@ class Battleground
 
         uint32 GetReviveQueueSize() const { return m_ReviveQueue.size(); }
 
-        void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
-        void RemovePlayerFromResurrectQueue(uint64 player_guid);
+        void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
+        void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);
 
         void StartBattleground();
 
@@ -581,7 +581,7 @@ class Battleground
         virtual void EventPlayerUsedGO(Player* /*player*/, GameObject* /*go*/){}
 
         // this function can be used by spell to interact with the BG map
-        virtual void DoAction(uint32 /*action*/, uint64 /*var*/) {}
+        virtual void DoAction(uint32 /*action*/, ObjectGuid /*var*/) {}
 
         virtual void HandlePlayerResurrect(Player* /*player*/) {}
 
@@ -592,15 +592,15 @@ class Battleground
 
         void AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team);
 
-        virtual void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket);
+        virtual void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket);
                                                             // can be extended in in BG subclass
 
-        void HandleTriggerBuff(uint64 go_guid);
+        void HandleTriggerBuff(ObjectGuid go_guid);
         void SetHoliday(bool is_holiday);
 
         // TODO: make this protected:
-        typedef std::vector<uint64> BGObjects;
-        typedef std::vector<uint64> BGCreatures;
+        typedef std::vector<ObjectGuid> BGObjects;
+        typedef std::vector<ObjectGuid> BGCreatures;
         BGObjects BgObjects;
         BGCreatures BgCreatures;
         void SpawnBGObject(uint32 type, uint32 respawntime);
@@ -609,7 +609,7 @@ class Battleground
         bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
         bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team);
-        int32 GetObjectType(uint64 guid);
+        int32 GetObjectType(ObjectGuid guid);
 
         void DoorOpen(uint32 type);
         void DoorClose(uint32 type);
@@ -619,9 +619,9 @@ class Battleground
         virtual bool HandlePlayerUnderMap(Player* /*player*/) { return false; }
 
         // since arenas can be AvA or Hvh, we have to get the "temporary" team of a player
-        uint32 GetPlayerTeam(uint64 guid) const;
+        uint32 GetPlayerTeam(ObjectGuid guid) const;
         uint32 GetOtherTeam(uint32 teamId) const;
-        bool IsPlayerInBattleground(uint64 guid) const;
+        bool IsPlayerInBattleground(ObjectGuid guid) const;
 
         bool ToBeDeleted() const { return m_SetDeleteThis; }
         void SetDeleteThis() { m_SetDeleteThis = true; }
@@ -632,7 +632,7 @@ class Battleground
         void RewardXPAtKill(Player* killer, Player* victim);
         bool CanAwardArenaPoints() const { return m_LevelMin >= BG_AWARD_ARENA_POINTS_MIN_LEVEL; }
 
-        virtual uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const { return 0; }
+        virtual ObjectGuid GetFlagPickerGUID(int32 /*team*/ = -1) const { return ObjectGuid::Empty; }
         
         void SetRBG(bool enable) { m_IsRBG = enable; }
 
@@ -644,7 +644,7 @@ class Battleground
         void EndNow();
         void PlayerAddedToBGCheckIfBGIsRunning(Player* player);
 
-        Player* _GetPlayer(uint64 guid, bool offlineRemove, const char* context) const;
+        Player* _GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const;
         Player* _GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context);
         Player* _GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const;
         Player* _GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const;
@@ -658,12 +658,12 @@ class Battleground
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
         // must be implemented in BG subclass
-        virtual void RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/) {}
+        virtual void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) {}
 
         // Player lists, those need to be accessible by inherited classes
         BattlegroundPlayerMap  m_Players;
         // Spirit Guide guid + Player list GUIDS
-        std::map<uint64, std::vector<uint64> >  m_ReviveQueue;
+        std::map<ObjectGuid, std::vector<ObjectGuid> >  m_ReviveQueue;
 
         // these are important variables used for starting messages
         uint8 m_Events;
@@ -699,7 +699,7 @@ class Battleground
         bool   m_PrematureCountDown;
         uint32 m_PrematureCountDownTimer;
         char const* m_Name;
-        uint64 m_Guid;
+        ObjectGuid m_Guid;
 
         uint32 m_sameBgTeamId;
 
@@ -734,8 +734,8 @@ class Battleground
         virtual void PostUpdateImpl(uint32 /* diff */) { };
 
         // Player lists
-        std::vector<uint64> m_ResurrectQueue;               // Player GUID
-        std::deque<uint64> m_OfflineQueue;                  // Player GUID
+        std::vector<ObjectGuid> m_ResurrectQueue;               // Player GUID
+        std::deque<ObjectGuid> m_OfflineQueue;                  // Player GUID
 
         // Invited counters are useful for player invitation to BG - do not allow, if BG is started to one faction to have 2 more players than another faction
         // Invited counters will be changed only when removing already invited player from queue, removing player from battleground and inviting player to BG

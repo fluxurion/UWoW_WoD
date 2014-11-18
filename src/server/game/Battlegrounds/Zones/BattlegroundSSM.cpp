@@ -209,7 +209,7 @@ void BattlegroundSSM::CheckSomeoneLeftPoint()
                 Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[i][j]);
                 if (!player)
                 {
-                    sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundSSM:CheckSomeoneLeftPoint Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[i][j]));
+                    sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundSSM:CheckSomeoneLeftPoint Player (GUID: %u) not found!", m_PlayersNearPoint[i][j].GetCounter());
                     //move not existed player to "free space" - this will cause many error showing in log, but it is a very important bug
                     m_PlayersNearPoint[SSM_POINTS_MAX].push_back(m_PlayersNearPoint[i][j]);
                     m_PlayersNearPoint[i].erase(m_PlayersNearPoint[i].begin() + j);
@@ -426,7 +426,7 @@ void BattlegroundSSM::StartingEventOpenDoors()
     DoorOpen(BG_DOOR_4);
 }
 
-void BattlegroundSSM::RemovePlayer(Player* player, uint64 guid, uint32 /*team*/)
+void BattlegroundSSM::RemovePlayer(Player* player, ObjectGuid guid, uint32 /*team*/)
 {
     for (int j = SSM_POINTS_MAX; j >= 0; --j)
     {

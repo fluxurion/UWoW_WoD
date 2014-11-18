@@ -1743,7 +1743,7 @@ LfgLockMap const LFGMgr::GetLockedDungeons(uint64 guid)
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player)
     {
-        sLog->outDebug(LOG_FILTER_LFG, "Player: %u not ingame while retrieving his LockedDungeons.", GUID_LOPART(guid));
+        sLog->outDebug(LOG_FILTER_LFG, "Player: %u not ingame while retrieving his LockedDungeons.", guid.GetCounter());
         return lock;
     }
 

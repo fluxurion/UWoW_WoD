@@ -333,7 +333,7 @@ public:
             targetGuid = (*resultCharacter)[0].GetUInt32();
         }
         else
-            targetGuid = target->GetGUIDLow();
+            targetGuid = target->GetGUID().GetCounter();
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BANINFO);
         stmt->setUInt32(0, targetGuid);

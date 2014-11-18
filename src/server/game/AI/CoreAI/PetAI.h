@@ -54,7 +54,7 @@ class PetAI : public CreatureAI
 
         TimeTracker i_tracker;
         bool inCombat;
-        std::set<uint64> m_AllySet;
+        GuidSet m_AllySet;
         uint32 m_updateAlliesTimer;
 
         Unit* SelectNextTarget();

@@ -32,8 +32,7 @@ void BracketMgr::LoadCharacterBrackets()
         Field* fields = result->Fetch();
 
         BracketType bType = (BracketType)fields[0].GetUInt8();
-        uint64 owner = fields[9].GetUInt64();
-
+        ObjectGuid owner = ObjectGuid::Create<HighGuid::Player>(fields[9].GetUInt64());
         Bracket * bracket = TryGetOrCreateBracket(owner, bType);
 
         uint16 rating = fields[1].GetUInt16();
@@ -52,7 +51,7 @@ void BracketMgr::LoadCharacterBrackets()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u brackets data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-Bracket* BracketMgr::TryGetOrCreateBracket(uint64 guid, BracketType bType)
+Bracket* BracketMgr::TryGetOrCreateBracket(ObjectGuid guid, BracketType bType)
 {
     BracketContainer::iterator itr = m_conteiner.find(guid);
     if (itr == m_conteiner.end())
@@ -74,7 +73,7 @@ Bracket* BracketMgr::TryGetOrCreateBracket(uint64 guid, BracketType bType)
     return m_conteiner[guid][bType];
 }
 
-void BracketMgr::DeleteBracketInfo(uint64 guid)
+void BracketMgr::DeleteBracketInfo(ObjectGuid guid)
 {
     BracketContainer::iterator itr = m_conteiner.find(guid);
     if (itr == m_conteiner.end())

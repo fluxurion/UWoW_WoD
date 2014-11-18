@@ -104,7 +104,7 @@ void GameObject::RemoveFromOwner()
         ownerType = "pet";
 
     sLog->outFatal(LOG_FILTER_GENERAL, "Delete GameObject (GUID: %u Entry: %u SpellId %u LinkedGO %u) that lost references to owner (GUID %u Type '%s') GO list. Crash possible later.",
-        GetGUIDLow(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), GUID_LOPART(ownerGUID), ownerType);
+        GetGUID().GetCounter(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), GUID_LOPART(ownerGUID), ownerType);
     SetOwnerGUID(0);
 }
 
@@ -516,7 +516,7 @@ void GameObject::Update(uint32 diff)
 
                 if (spellId)
                 {
-                    for (std::set<uint64>::const_iterator it = m_unique_users.begin(); it != m_unique_users.end(); ++it)
+                    for (GuidSet::const_iterator it = m_unique_users.begin(); it != m_unique_users.end(); ++it)
                         // m_unique_users can contain only player GUIDs
                         if (Player* owner = ObjectAccessor::GetPlayer(*this, *it))
                             owner->CastSpell(owner, spellId, false);
@@ -660,7 +660,7 @@ void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
         return;
 
     if (!m_DBTableGuid)
-        m_DBTableGuid = GetGUIDLow();
+        m_DBTableGuid = GetGUID().GetCounter();
     // update in loaded data (changing data only in this place)
     GameObjectData& data = sObjectMgr->NewGOData(m_DBTableGuid);
 
@@ -750,7 +750,7 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
     uint32 artKit = data->artKit;
 
     m_DBTableGuid = guid;
-    if (map->GetInstanceId() != 0) guid = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    if (map->GetInstanceId() != 0) guid = sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate();
 
     if (!Create(guid, entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
         return false;
@@ -1279,7 +1279,7 @@ void GameObject::Use(Unit* user)
 
                 if (info->goober.pageId)                    // show page...
                 {
-                    ObjectGuid guid = GetObjectGuid();
+                    ObjectGuid guid = GetGUID();
                     WorldPacket data(SMSG_GAMEOBJECT_PAGETEXT, 8 + 1);
                     data.WriteGuidMask<5, 7, 2, 6, 1, 3, 4, 0>(guid);
                     data.WriteGuidBytes<3, 0, 2, 7, 1, 4, 5, 6>(guid);
@@ -1711,7 +1711,7 @@ void GameObject::Use(Unit* user)
         default:
             if (GetGoType() >= MAX_GAMEOBJECT_TYPE)
                 sLog->outError(LOG_FILTER_GENERAL, "GameObject::Use(): unit (type: %u, guid: %u, name: %s) tries to use object (guid: %u, entry: %u, name: %s) of unknown type (%u)",
-                    user->GetTypeId(), user->GetGUIDLow(), user->GetName(), GetGUIDLow(), GetEntry(), GetGOInfo()->name.c_str(), GetGoType());
+                    user->GetTypeId(), user->GetGUID().GetCounter(), user->GetName(), GetGUID().GetCounter(), GetEntry(), GetGOInfo()->name.c_str(), GetGoType());
             break;
     }
 
@@ -1802,7 +1802,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
 
 void GameObject::SendCustomAnim(uint32 anim)
 {
-    ObjectGuid guid = GetObjectGuid();
+    ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8 + 1 + 4 + 1);
     data.WriteGuidMask<0, 4>(guid);

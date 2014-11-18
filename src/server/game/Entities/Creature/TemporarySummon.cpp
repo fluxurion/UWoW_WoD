@@ -27,7 +27,7 @@ Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESP
 m_timer(0), m_lifetime(0), onUnload(false)
 {
     m_Stampeded = false;
-    m_summonerGUID = owner ? owner->GetGUID() : 0;
+    m_summonerGUID = owner ? owner->GetGUID() : ObjectGuid::Empty;
     m_unitTypeMask |= UNIT_MASK_SUMMON;
 }
 

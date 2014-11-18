@@ -54,7 +54,7 @@ public:
         uint64 Prince_TaldaramPlatform;
         uint64 Prince_TaldaramGate;
 
-        std::set<uint64> InitiandGUIDs;
+        GuidSet InitiandGUIDs;
         uint64 JedogaSacrifices;
         uint64 JedogaTarget;
 
@@ -176,7 +176,7 @@ public:
                 {
                     std::vector<uint64> vInitiands;
                     vInitiands.clear();
-                    for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                    for (GuidSet::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                     {
                         Creature* cr = instance->GetCreature(*itr);
                         if (cr && cr->isAlive())
@@ -209,7 +209,7 @@ public:
                     m_auiEncounter[2] = data;
                     if (data == DONE)
                     {
-                        for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                        for (GuidSet::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                         {
                             Creature* cr = instance->GetCreature(*itr);
                             if (cr && cr->isAlive())
@@ -237,7 +237,7 @@ public:
                     switchtrigger = data;
                     break;
                 case DATA_JEDOGA_RESET_INITIANDS:
-                    for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                    for (GuidSet::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                     {
                         Creature* cr = instance->GetCreature(*itr);
                         if (cr)
@@ -264,7 +264,7 @@ public:
                 case DATA_SPHERE1_EVENT:                return spheres[0];
                 case DATA_SPHERE2_EVENT:                return spheres[1];
                 case DATA_ALL_INITIAND_DEAD:
-                    for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                    for (GuidSet::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                     {
                         Creature* cr = instance->GetCreature(*itr);
                         if (!cr || (cr && cr->isAlive()))

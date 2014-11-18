@@ -1951,7 +1951,7 @@ class npc_zafod_boombox : public CreatureScript
                 uint32 curItemCount = player->GetItemCount(49278, false);
                 if (curItemCount >= 1)
                 {
-                    pCreature->MonsterWhisper("You already have my rocket pack!", player->GetGUIDLow());
+                    pCreature->MonsterWhisper("You already have my rocket pack!", player->GetGUID().GetCounter());
                     return false;
                 }
 
@@ -1964,7 +1964,7 @@ class npc_zafod_boombox : public CreatureScript
                 }
                 else
                 {
-                    pCreature->MonsterWhisper("You don't have any empty space for my rocket pack!", player->GetGUIDLow());
+                    pCreature->MonsterWhisper("You don't have any empty space for my rocket pack!", player->GetGUID().GetCounter());
                     return false;
                 }
             }

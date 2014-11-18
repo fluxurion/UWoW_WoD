@@ -386,7 +386,7 @@ public:
 
                 if (killer->GetGUID() == legoso->GetGUID() ||
                     (group && group->IsMember(killer->GetGUID())) ||
-                    killer->GetGUIDLow() == legoso->AI()->GetData(DATA_EVENT_STARTER_GUID))
+                    killer->GetGUID().GetCounter() == legoso->AI()->GetData(DATA_EVENT_STARTER_GUID))
                     legoso->AI()->DoAction(ACTION_LEGOSO_SIRONAS_KILLED);
             }
         }
@@ -471,7 +471,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_ENDING_THEIR_WORLD)
         {
-            creature->AI()->SetData(DATA_EVENT_STARTER_GUID, player->GetGUIDLow());
+            creature->AI()->SetData(DATA_EVENT_STARTER_GUID, player->GetGUID().GetCounter());
             CAST_AI(npc_demolitionist_legoso::npc_demolitionist_legosoAI, creature->AI())->Start(true, true, player->GetGUID(), quest);
         }
 

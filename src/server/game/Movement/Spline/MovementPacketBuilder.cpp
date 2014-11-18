@@ -45,7 +45,7 @@ namespace Movement
 
     void PacketBuilder::WriteStopMovement(Vector3 const& pos, WorldPacket& data, Unit& unit)
     {
-        ObjectGuid guid = unit.GetObjectGuid();
+        ObjectGuid guid = unit.GetGUID();
         ObjectGuid transportGuid = unit.GetTransGUID();
         MoveSplineFlag splineFlags = unit.movespline->splineflags;
 
@@ -153,7 +153,7 @@ namespace Movement
     {
         MoveSplineFlag splineflags = move_spline.splineflags;
         ObjectGuid transportGuid = unit.GetTransGUID();
-        ObjectGuid guid = unit.GetObjectGuid();
+        ObjectGuid guid = unit.GetGUID();
         const Spline<int32>& spline = move_spline.spline;
 
         MonsterMoveType type;

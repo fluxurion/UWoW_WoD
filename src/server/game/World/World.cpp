@@ -1750,9 +1750,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading the max pet number...");
     sObjectMgr->LoadPetNumber();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading the max batlpet number...");
-    sObjectMgr->LoadBattlePetGuid();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pet level stats...");
     sObjectMgr->LoadPetStats();
 
@@ -2722,7 +2719,7 @@ BanReturn World::BanCharacter(std::string name, std::string duration, std::strin
         guid = (*resultCharacter)[0].GetUInt32();
     }
     else
-        guid = pBanned->GetGUIDLow();
+        guid = pBanned->GetGUID().GetCounter();
 
     // make sure there is only one active ban
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
@@ -2761,7 +2758,7 @@ bool World::RemoveBanCharacter(std::string name)
         guid = (*resultCharacter)[0].GetUInt32();
     }
     else
-        guid = pBanned->GetGUIDLow();
+        guid = pBanned->GetGUID().GetCounter();
 
     if (!guid)
         return false;
@@ -3591,9 +3588,9 @@ void World::ProcessMailboxQueue()
          
                     if(attachment != NULL)
                     {
-                        trans->PAppend("INSERT INTO mail_items (mail_id,item_guid,receiver) VALUES ('%u', '%u', '%u')", mailId, attachment->GetGUIDLow(), receiver_guid);
+                        trans->PAppend("INSERT INTO mail_items (mail_id,item_guid,receiver) VALUES ('%u', '%u', '%u')", mailId, attachment->GetGUID().GetCounter(), receiver_guid);
                         if(forefir)
-                            trans->PAppend("REPLACE INTO character_donate (`owner_guid`, `itemguid`, `itemEntry`, `efircount`, `count`) VALUES ('%u', '%u', '%u', '%u', '%u')", receiver_guid, attachment->GetGUIDLow(), itemid, forefir, itemcount);
+                            trans->PAppend("REPLACE INTO character_donate (`owner_guid`, `itemguid`, `itemEntry`, `efircount`, `count`) VALUES ('%u', '%u', '%u', '%u', '%u')", receiver_guid, attachment->GetGUID().GetCounter(), itemid, forefir, itemcount);
                     }
                     sLog->outError(LOG_FILTER_REMOTECOMMAND,"Sending mail to %u, Item:%u , ItemCount:%u, %s", receiver_guid, itemid,itemcount,body.c_str());
 
@@ -3612,12 +3609,12 @@ void World::ProcessMailboxQueue()
                             m->stationery = stationery;
                             m->mailTemplateId = 0;
                             m->sender = sender_guid;
-                            m->receiver = receiver->GetGUIDLow();
+                            m->receiver = receiver->GetGUID().GetCounter();
                             m->subject = subject;
                             m->body = body;
 
                             if(attachment)
-                                m->AddItem(attachment->GetGUIDLow(),attachment->GetEntry());
+                                m->AddItem(attachment->GetGUID().GetCounter(),attachment->GetEntry());
 
                             m->expire_time = expire_time;
                             m->deliver_time = deliver_time;

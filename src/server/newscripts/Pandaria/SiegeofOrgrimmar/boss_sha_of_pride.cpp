@@ -417,7 +417,7 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        std::set<uint64> _gift;
+        GuidSet _gift;
         InstanceScript* instance;
         EventMap events;
         bool start;
@@ -474,7 +474,7 @@ public:
             }else if (id == EVENT_SPELL_GIFT_OF_THE_TITANS)
             {
                 bool good = _gift.size() == value;
-                for(std::set<uint64>::iterator itr = _gift.begin(); itr != _gift.end(); ++itr)
+                for(GuidSet::iterator itr = _gift.begin(); itr != _gift.end(); ++itr)
                 {
                     Player* target = ObjectAccessor::FindPlayer(*itr);
                     if (!target)
@@ -594,9 +594,9 @@ public:
                     events.ScheduleEvent(EVENT_15, t+= 20000); //19:35:24.000
                     
                     if (Creature * c = instance->instance->SummonCreature(NPC_SHA_OF_PRIDE_END_LADY_JAINA, Sha_of_pride_finish_jaina))
-                        c->GetMotionMaster()->MovePoint(c->GetGUIDLow(), 756.9792f, 1093.34f, 356.0723f);
+                        c->GetMotionMaster()->MovePoint(c->GetGUID().GetCounter(), 756.9792f, 1093.34f, 356.0723f);
                     if (Creature * c = instance->instance->SummonCreature(NPC_SHA_OF_PRIDE_END_THERON, Sha_of_pride_finish_teron))
-                        c->GetMotionMaster()->MovePoint(c->GetGUIDLow(), 739.9184f, 1129.293f, 356.0723f);
+                        c->GetMotionMaster()->MovePoint(c->GetGUID().GetCounter(), 739.9184f, 1129.293f, 356.0723f);
                     break;
             }            
         }
@@ -683,7 +683,7 @@ public:
                         break;
                     case EVENT_9:
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
-                            jaina->GetMotionMaster()->MovePoint(jaina->GetGUIDLow(), 748.8203f, 1130.096f, 356.0723f);
+                            jaina->GetMotionMaster()->MovePoint(jaina->GetGUID().GetCounter(), 748.8203f, 1130.096f, 356.0723f);
                         if (Creature* teron = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_THERON)))
                             teron->AI()->ZoneTalk(TEXT_GENERIC_0, 0);
                         break;
@@ -699,7 +699,7 @@ public:
                         if (Creature* teron = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_THERON)))
                             teron->AI()->ZoneTalk(TEXT_GENERIC_2, 0);
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
-                            jaina->GetMotionMaster()->MovePoint(jaina->GetGUIDLow(), 748.5174f, 1131.481f, 356.0723f);
+                            jaina->GetMotionMaster()->MovePoint(jaina->GetGUID().GetCounter(), 748.5174f, 1131.481f, 356.0723f);
                         break;
                     case EVENT_13:
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
@@ -720,11 +720,11 @@ public:
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                         {
                             jaina->AI()->ZoneTalk(TEXT_GENERIC_4, 0);
-                            jaina->GetMotionMaster()->MovePoint(jaina->GetGUIDLow(), 783.2882f, 1167.352f, 356.0717f);
+                            jaina->GetMotionMaster()->MovePoint(jaina->GetGUID().GetCounter(), 783.2882f, 1167.352f, 356.0717f);
                         }
                         if (Creature* teron = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_THERON)))
                         {
-                            teron->GetMotionMaster()->MovePoint(teron->GetGUIDLow(), 692.4531f, 1149.196f, 356.0718f);
+                            teron->GetMotionMaster()->MovePoint(teron->GetGUID().GetCounter(), 692.4531f, 1149.196f, 356.0718f);
                         }
                         break;
                     case EVENT_15:
@@ -1230,7 +1230,7 @@ class spell_sha_of_pride_self_reflection : public SpellScriptLoader
         class spell_sha_of_pride_self_reflection_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_sha_of_pride_self_reflection_AuraScript);
-            std::set<uint64> alreadyHitGUID;
+            GuidSet alreadyHitGUID;
 
             void OnTick(AuraEffect const* aurEff)
             {

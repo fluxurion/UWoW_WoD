@@ -43,7 +43,7 @@ class AnyPetAI : public CreatureAI
         void UpdateAI(uint32);
         static int Permissible(const Creature*);
         void UpdateAllies();
-        std::set<uint64> m_AllySet;
+        GuidSet m_AllySet;
         uint32 m_updateAlliesTimer;
 };
 

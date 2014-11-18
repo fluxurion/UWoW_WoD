@@ -183,7 +183,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
         StatusID = STATUS_NONE;
 
     ObjectGuid guidBytes1 = pPlayer->GetGUID();
-    ObjectGuid guidBytes2 = bg ? bg->GetGUID() : 0;
+    ObjectGuid guidBytes2 = bg ? bg->GetGUID() : ObjectGuid::Empty;
 
     switch (StatusID)
     {
@@ -192,7 +192,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             //! 5.4.1
             data->Initialize(SMSG_BATTLEFIELD_STATUS);
 
-            data->WriteGuidMask<2, 0, 3, 6, 1, 5, 4, 7>(guidBytes1);
+            /*data->WriteGuidMask<2, 0, 3, 6, 1, 5, 4, 7>(guidBytes1);
             data->WriteGuidBytes<7, 3, 2, 6, 4>(guidBytes1);
             *data << uint32(Time1);                                                                      // Join Time. Posible status.
             data->WriteGuidBytes<5>(guidBytes1);
@@ -202,7 +202,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
                 *data << uint32((bg->isArena() || bg->IsRBG()) ? arenatype : 1);                         // unk, always 1
             else
                 *data << uint32(1);
-            data->WriteGuidBytes<0>(guidBytes1);
+            data->WriteGuidBytes<0>(guidBytes1);*/
             break;
         }
         case STATUS_WAIT_QUEUE:
@@ -210,7 +210,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             //! 5.4.1
             data->Initialize(SMSG_BATTLEFIELD_STATUS_QUEUED);
 
-            data->WriteGuidMask<7>(guidBytes1);
+            /*data->WriteGuidMask<7>(guidBytes1);
             data->WriteGuidMask<0>(guidBytes2);
             data->WriteGuidMask<1, 0, 6, 2, 3>(guidBytes1);
             data->WriteGuidMask<5, 7>(guidBytes2);
@@ -248,7 +248,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteGuidBytes<2, 6, 3, 5>(guidBytes2);
             data->WriteGuidBytes<7, 0>(guidBytes1);
             data->WriteGuidBytes<4>(guidBytes2);
-            data->WriteGuidBytes<5>(guidBytes1);
+            data->WriteGuidBytes<5>(guidBytes1);*/
             break;
         }
         case STATUS_WAIT_JOIN:
@@ -256,7 +256,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             //! 5.4.1
             data->Initialize(SMSG_BATTLEFIELD_STATUS_NEEDCONFIRMATION, 44);
 
-            data->WriteBit(1);                              //!byte44
+            /*data->WriteBit(1);                              //!byte44
             data->WriteGuidMask<2>(guidBytes2);
             data->WriteGuidMask<1, 7>(guidBytes1);
             data->WriteGuidMask<5, 3, 7>(guidBytes2);
@@ -288,7 +288,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint32(Time2);
             data->WriteGuidBytes<5>(guidBytes1);
             data->WriteGuidBytes<4, 5>(guidBytes2);
-            data->WriteGuidBytes<1>(guidBytes1);
+            data->WriteGuidBytes<1>(guidBytes1);*/
             
             break;
         }
@@ -297,7 +297,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             //! 5.4.1
             data->Initialize(SMSG_BATTLEFIELD_STATUS_ACTIVE, 49);
 
-            data->WriteBit(bg->isRated());
+            /*data->WriteBit(bg->isRated());
             data->WriteGuidMask<5, 2>(guidBytes1);
             data->WriteGuidMask<0, 7>(guidBytes2);
             data->WriteGuidMask<7, 6>(guidBytes1);
@@ -333,14 +333,14 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint32(Time2);
             data->WriteGuidBytes<1>(guidBytes2);
             data->WriteGuidBytes<2>(guidBytes1);
-            *data << uint8(bg->GetMinLevel());          // Min Level
+            *data << uint8(bg->GetMinLevel());          // Min Level*/
             break;
         }
         case STATUS_WAIT_LEAVE:
         {
             data->Initialize(SMSG_BATTLEFIELD_STATUS_WAITFORGROUPS, 48);
             
-			*data << uint8(bg->GetMinLevel());
+			/**data << uint8(bg->GetMinLevel());
 			*data << uint8(0);          // byte3A
 			*data << uint32(bg->GetStatus());
 			*data << uint32(bg->GetClientInstanceID());
@@ -372,7 +372,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
 			data->WriteGuidBytes<7, 2, 4, 6>(guidBytes1);
 			data->WriteGuidBytes<5, 4, 2, 1>(guidBytes2);
 			data->WriteGuidBytes<5, 1, 0, 3>(guidBytes1);
-			data->WriteGuidBytes<3, 0, 6, 7>(guidBytes2);            
+			data->WriteGuidBytes<3, 0, 6, 7>(guidBytes2);*/
             break;
         }
     }
@@ -397,7 +397,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
     ByteBuffer buff;
     Player* player = NULL;
     Bracket* bracket = NULL;
-    ObjectGuid guid = 0;
+    ObjectGuidSteam guid = 0;
     Battleground::BattlegroundScoreMap::const_iterator itr2 = bg->GetPlayerScoresBegin();
     for (Battleground::BattlegroundScoreMap::const_iterator itr = itr2; itr != bg->GetPlayerScoresEnd();)
     {
@@ -411,7 +411,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             continue;
         }
 
-        guid = itr2->first;
+        guid = 0/*itr2->first*/;
         player = ObjectAccessor::FindPlayer(itr2->first);
 
         if (isRated)    //bracket used only on rated bg, no need find it for non ranked
@@ -616,9 +616,9 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
 
 void BattlegroundMgr::BuildStatusFailedPacket(WorldPacket* data, Battleground* bg, Player* player, uint8 QueueSlot, GroupJoinBattlegroundResult result)
 {
-    ObjectGuid guidBytes1 = player->GetGUID(); // player who caused the error
-    ObjectGuid guidBytes2 = bg->GetGUID();
-    ObjectGuid unkGuid3 = 0;
+    ObjectGuidSteam guidBytes1 = 0/*player->GetGUID()*/; // player who caused the error
+    ObjectGuidSteam guidBytes2 = 0/*bg->GetGUID()*/;
+    ObjectGuidSteam unkGuid3 = 0;
 
     //! 5.4.1
     data->Initialize(SMSG_BATTLEFIELD_STATUS_FAILED);
@@ -678,7 +678,7 @@ void BattlegroundMgr::BuildUpdateWorldStatePacket(WorldPacket* data, uint32 fiel
 //! 5.4.1
 void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
 {
-    ObjectGuid guid = 0;
+    ObjectGuidSteam guid = 0;
 
     data->Initialize(SMSG_PLAY_SOUND, 10);
     data->WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(guid);
@@ -688,9 +688,9 @@ void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
 }
 
 //! 5.4.1
-void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, uint64 guid)
+void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, ObjectGuid guid)
 {
-    ObjectGuid guidBytes = guid;
+    ObjectGuidSteam guidBytes = 0/*guid*/;
 
     data->Initialize(SMSG_BATTLEGROUND_PLAYER_LEFT, 8 + 1);
     data->WriteGuidMask<7, 6, 2, 5, 0, 3, 1, 4>(guidBytes);
@@ -698,9 +698,9 @@ void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, uint6
 }
 
 //! 5.4.1
-void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, uint64 guid)
+void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, ObjectGuid guid)
 {
-    ObjectGuid guidBytes = guid;
+    ObjectGuidSteam guidBytes = 0/*guid*/;
 
     data->Initialize(SMSG_BATTLEGROUND_PLAYER_JOINED, 8);
     data->WriteGuidMask<5, 1, 7, 6, 3, 0, 2, 4>(guidBytes);
@@ -1107,7 +1107,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlegrounds in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid guid, Player* player, BattlegroundTypeId bgTypeId)
+void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid _guid, Player* player, BattlegroundTypeId bgTypeId)
 {
     if (!player)
         return;
@@ -1117,6 +1117,8 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     uint32 loser_honor = (player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST) / 100;
 
     ByteBuffer dataBuffer;
+
+    ObjectGuidSteam guid = 0/*_guid*/; //TMP
 
     data->Initialize(SMSG_BATTLEFIELD_LIST, 83);
     *data << uint32(winner_honor);              // holiday
@@ -1185,13 +1187,13 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     }
     else
     {
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "player %u is trying to port to non-existent bg instance %u", player->GetGUIDLow(), instanceId);
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "player %u is trying to port to non-existent bg instance %u", player->GetGUID().GetCounter(), instanceId);
     }
 }
 
-void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, uint64 guid)
+void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, ObjectGuid guid)
 {
-    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+    /*WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
     uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
     if (time_ == uint32(-1))
         time_ = 0;
@@ -1199,7 +1201,7 @@ void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battlegrou
     data.WriteGuidBytes<4, 5, 7, 3, 1>(guid);
     data << uint32(time_);
     data.WriteGuidBytes<0, 2, 6>(guid);
-    player->GetSession()->SendPacket(&data);
+    player->GetSession()->SendPacket(&data);*/
 }
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)

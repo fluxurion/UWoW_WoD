@@ -85,8 +85,8 @@ class instance_stratholme : public InstanceMapScript
 
             uint64 baronGUID;
             uint64 ysidaTriggerGUID;
-            std::set<uint64> crystalsGUID;
-            std::set<uint64> abomnationGUID;
+            GuidSet crystalsGUID;
+            GuidSet abomnationGUID;
             EventMap events;
 
             void Initialize()
@@ -287,7 +287,7 @@ class instance_stratholme : public InstanceMapScript
                             HandleGameObject(portGauntletGUID, false);
 
                             uint32 count = abomnationGUID.size();
-                            for (std::set<uint64>::const_iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
+                            for (GuidSet::const_iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
                             {
                                 if (Creature* pAbom = instance->GetCreature(*i))
                                     if (!pAbom->isAlive())

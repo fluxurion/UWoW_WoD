@@ -21,7 +21,7 @@ enum ePoints
 };
 
 FollowerAI::FollowerAI(Creature* creature) : ScriptedAI(creature),
-    m_uiLeaderGUID(0),
+    m_uiLeaderGUID(ObjectGuid::Empty),
     m_uiUpdateFollowTimer(2500),
     m_uiFollowState(STATE_FOLLOW_NONE),
     m_pQuestForFollow(NULL)
@@ -118,7 +118,7 @@ void FollowerAI::MoveInLineOfSight(Unit* who)
 
 void FollowerAI::JustDied(Unit* /*pKiller*/)
 {
-    if (!HasFollowState(STATE_FOLLOW_INPROGRESS) || !m_uiLeaderGUID || !m_pQuestForFollow)
+    if (!HasFollowState(STATE_FOLLOW_INPROGRESS) || m_uiLeaderGUID.IsEmpty() || !m_pQuestForFollow)
         return;
 
     //TODO: need a better check for quests with time limit.
@@ -305,7 +305,7 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, const Qu
 
     me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-    sLog->outDebug(LOG_FILTER_TSCR, "FollowerAI start follow %s (GUID " UI64FMTD ")", player->GetName(), m_uiLeaderGUID);
+    sLog->outDebug(LOG_FILTER_TSCR, "FollowerAI start follow %s (GUID %s)", player->GetName(), m_uiLeaderGUID.ToString().c_str());
 }
 
 Player* FollowerAI::GetLeaderForFollower()

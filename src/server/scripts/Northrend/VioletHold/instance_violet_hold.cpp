@@ -142,7 +142,7 @@ public:
         uint32 uiCyanigosaEventTimer;
         uint32 uiDoorSpellTimer;
 
-        std::set<uint64> trashMobs; // to kill with crystal
+        GuidSet trashMobs; // to kill with crystal
 
         uint8 uiWaveCount;
         uint8 uiLocation;
@@ -695,7 +695,7 @@ public:
                 if (GameObject* crystal = instance->GetGameObject(uiActivationCrystal[i]))
                     crystal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
-            for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
+            for (GuidSet::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
             {
                 if (Creature* creature = instance->GetCreature(*itr))
                     if (creature && creature->isAlive())
@@ -809,7 +809,7 @@ public:
             trigger->CastSpell(trigger, spellInfoLightning, true, 0, 0, trigger->GetGUID());
 
             // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
-            for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
+            for (GuidSet::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
             {
                 Creature* creature = instance->GetCreature(*itr);
                 if (creature && creature->isAlive())

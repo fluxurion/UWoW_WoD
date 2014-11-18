@@ -94,7 +94,7 @@ public:
 
         uint8 uiPhase;
 
-        std::set<uint64> lWrappedPlayers;
+        GuidSet lWrappedPlayers;
         SummonList lSummons;
 
         InstanceScript* instance;

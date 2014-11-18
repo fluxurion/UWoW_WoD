@@ -505,8 +505,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 return Trinity::Containers::SelectRandomContainerElement(tempTargets);
             }
 
-            std::set<uint64> _vampires;
-            std::set<uint64> _bloodboltedPlayers;
+            GuidSet _vampires;
+            GuidSet _bloodboltedPlayers;
             uint64 _offtank;
             bool _creditBloodQuickening;
             bool _killMinchar;

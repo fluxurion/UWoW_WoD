@@ -35,7 +35,7 @@
 void WorldSession::SendNameQueryOpcode(uint64 guid)
 {
     Player* player = ObjectAccessor::FindPlayer(guid);
-    CharacterNameData const* nameData = sWorld->GetCharacterNameData(GUID_LOPART(guid));
+    CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid.GetCounter());
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE);
     data.WriteGuidMask<3, 2, 6, 0, 4, 1, 5, 7>(guid);
@@ -281,7 +281,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recvData)
     else
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (GUID: %u, ENTRY: %u)",
-            GUID_LOPART(guid), entry);
+            guid.GetCounter(), entry);
 
         WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 4 + 4 + 1);
         data << uint32(entry);

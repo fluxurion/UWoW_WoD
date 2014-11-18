@@ -20,7 +20,7 @@
 #include "Bracket.h"
 #include "DatabaseEnv.h"
 
-Bracket::Bracket(uint64 guid, BracketType type) :
+Bracket::Bracket(ObjectGuid guid, BracketType type) :
     m_owner(guid), m_Type(type), m_rating(0), m_state(BRACKET_NEW), m_ratingLastChange(0), m_mmr_lastChage(0)
 {
     m_mmv    = sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
@@ -114,7 +114,7 @@ void Bracket::SaveStats(SQLTransaction* trans)
     {
         case BRACKET_NEW:
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHARACTER_BRACKETS_STATS);
-            stmt->setUInt32(index++, GUID_LOPART(m_owner));
+            stmt->setUInt32(index++, m_owner.GetCounter());
             stmt->setUInt8(index++, m_Type);
             stmt->setUInt16(index++, m_rating);
             stmt->setUInt16(index++, values[BRACKET_BEST]);
@@ -135,7 +135,7 @@ void Bracket::SaveStats(SQLTransaction* trans)
             stmt->setUInt32(index++, values[BRACKET_SEASON_WIN]);
             stmt->setUInt32(index++, values[BRACKET_WEEK_GAMES]);
             stmt->setUInt32(index++, values[BRACKET_WEEK_WIN]);
-            stmt->setUInt32(index++, GUID_LOPART(m_owner));
+            stmt->setUInt32(index++, m_owner.GetCounter());
             stmt->setUInt8(index++, m_Type);
             break;
         default:

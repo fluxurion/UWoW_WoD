@@ -180,7 +180,7 @@ class SmartScript
         void OnReset();
         void ResetBaseObject()
         {
-            if (meOrigGUID)
+            if (!meOrigGUID.IsEmpty())
             {
                 if (Creature* m = HashMapHolder<Creature>::Find(meOrigGUID))
                 {
@@ -188,7 +188,7 @@ class SmartScript
                     go = NULL;
                 }
             }
-            if (goOrigGUID)
+            if (!goOrigGUID.IsEmpty())
             {
                 if (GameObject* o = HashMapHolder<GameObject>::Find(goOrigGUID))
                 {
@@ -196,14 +196,14 @@ class SmartScript
                     go = o;
                 }
             }
-            goOrigGUID = 0;
-            meOrigGUID = 0;
+            goOrigGUID = ObjectGuid::Empty;
+            meOrigGUID = ObjectGuid::Empty;
         }
 
         //TIMED_ACTIONLIST (script type 9 aka script9)
         void SetScript9(SmartScriptHolder& e, uint32 entry);
         Unit* GetLastInvoker();
-        uint64 mLastInvoker;
+        ObjectGuid mLastInvoker;
 
     private:
         void IncPhase(int32 p = 1)
@@ -222,9 +222,9 @@ class SmartScript
         SmartAIEventList mInstallEvents;
         SmartAIEventList mTimedActionList;
         Creature* me;
-        uint64 meOrigGUID;
+        ObjectGuid meOrigGUID;
         GameObject* go;
-        uint64 goOrigGUID;
+        ObjectGuid goOrigGUID;
         AreaTriggerEntry const* trigger;
         SmartScriptType mScriptType;
         uint32 mEventPhase;
@@ -236,7 +236,7 @@ class SmartScript
 
         uint32 mTextTimer;
         uint32 mLastTextID;
-        uint64 mTextGUID;
+        ObjectGuid mTextGUID;
         uint32 mTalkerEntry;
         bool mUseTextTimer;
 

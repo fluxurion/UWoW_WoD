@@ -4155,7 +4155,7 @@ void Spell::finish(bool ok)
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
         if (spellInfo && spellInfo->SpellIconID == 2056)
         {
-            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Statue %d is unsummoned in spell %d finish", m_caster->GetGUIDLow(), m_spellInfo->Id);
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Statue %d is unsummoned in spell %d finish", m_caster->GetGUID().GetCounter(), m_spellInfo->Id);
             m_caster->setDeathState(JUST_DIED);
             return;
         }
@@ -4481,8 +4481,8 @@ void Spell::SendSpellStart()
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SMSG_SPELL_START, castCount: %u, spellId: %u, castFlags: %u", m_cast_count, m_spellInfo->Id, castFlags);
 
     ObjectGuid guid1A0 = ObjectGuid();
-    ObjectGuid casterGuid = m_caster->GetObjectGuid();
-    ObjectGuid itemCasterGuid = m_CastItem ? m_CastItem->GetObjectGuid() : casterGuid;
+    ObjectGuid casterGuid = m_caster->GetGUID();
+    ObjectGuid itemCasterGuid = m_CastItem ? m_CastItem->GetGUID() : casterGuid;
     ObjectGuid targetGuid;
     ObjectGuid itemTargetGuid;
 
@@ -4673,12 +4673,12 @@ void Spell::SendSpellStart()
             powertype = (Powers)power.powerType;
 
         data << uint32(m_caster->GetHealth());
-        data.WriteGuidBytes<7, 2>(m_caster->GetObjectGuid());
+        data.WriteGuidBytes<7, 2>(m_caster->GetGUID());
         data << uint32(m_caster->GetPower(powertype));
         data << uint32(powertype);
         data << uint32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
         data << uint32(m_caster->GetSpellPowerDamage());
-        data.WriteGuidBytes<6, 4, 5, 0, 1, 3>(m_caster->GetObjectGuid());
+        data.WriteGuidBytes<6, 4, 5, 0, 1, 3>(m_caster->GetGUID());
     }
 
     data.WriteGuidBytes<2>(itemCasterGuid);
@@ -4807,7 +4807,7 @@ void Spell::SendSpellActivationScene()
             case SPELL_EFFECT_ACTIVATE_SCENE2:
             case SPELL_EFFECT_ACTIVATE_SCENE3:
             {
-                ObjectGuid casterGuid = m_caster->GetObjectGuid();
+                ObjectGuid casterGuid = m_caster->GetGUID();
 
                 bool hasMValue = true;
                 bool hasUnk = false;
@@ -4886,8 +4886,8 @@ void Spell::SendSpellGo()
         castFlags |= CAST_FLAG_ADJUST_MISSILE;
 
     ObjectGuid guid1A0;
-    ObjectGuid casterGuid = m_caster->GetObjectGuid();
-    ObjectGuid itemCasterGuid = m_CastItem ? m_CastItem->GetObjectGuid() : casterGuid;
+    ObjectGuid casterGuid = m_caster->GetGUID();
+    ObjectGuid itemCasterGuid = m_CastItem ? m_CastItem->GetGUID() : casterGuid;
     ObjectGuid targetGuid;
     ObjectGuid itemTargetGuid;
 
@@ -5003,7 +5003,7 @@ void Spell::SendSpellGo()
 
     if (hasPowerUnit)
     {
-        ObjectGuid powerGuid = m_caster->GetObjectGuid();
+        ObjectGuid powerGuid = m_caster->GetGUID();
 
         data.WriteGuidMask<5>(powerGuid);
         data.WriteBits(1, 21);                                  // power count
@@ -5147,7 +5147,7 @@ void Spell::SendSpellGo()
 
     if (hasPowerUnit)
     {
-        ObjectGuid powerGuid = m_caster->GetObjectGuid();
+        ObjectGuid powerGuid = m_caster->GetGUID();
         Powers powertype = POWER_MANA;
         SpellPowerEntry power;
         if (GetSpellInfo()->GetSpellPowerByCasterPower(m_caster, power))
@@ -5249,7 +5249,7 @@ void Spell::SendSpellGo()
 
 void Spell::SendLogExecute()
 {
-    ObjectGuid casterGuid = m_caster->GetObjectGuid();
+    ObjectGuid casterGuid = m_caster->GetGUID();
 
     WorldPacket data(SMSG_SPELLLOGEXECUTE, 8 + 4 + 4 + 4 + 4 + 8);
     data.WriteGuidMask<7, 0, 6, 3, 1, 5>(casterGuid);
@@ -5531,7 +5531,7 @@ void Spell::SendChannelStart(uint32 duration)
             if (!m_UniqueTargetInfo.empty())
                 channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
 
-    ObjectGuid casterGuid = m_caster->GetObjectGuid();
+    ObjectGuid casterGuid = m_caster->GetGUID();
     WorldPacket data(SMSG_CHANNEL_START, (8+4+4));
     data.WriteGuidMask<7, 5, 2>(casterGuid);
     data.WriteBit(0);                   // not has heal prediction
@@ -5564,7 +5564,7 @@ void Spell::SendResurrectRequest(Player* target)
     // for player resurrections the name is looked up by guid
     std::string resurrectorName = m_caster->GetTypeId() == TYPEID_PLAYER ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex());
 
-    ObjectGuid guid = m_caster->GetObjectGuid();
+    ObjectGuid guid = m_caster->GetGUID();
     WorldPacket data(SMSG_RESURRECT_REQUEST, 8 + 1 + 1 + 4 + 4 + 4 + resurrectorName.size());
     data.WriteBits(resurrectorName.size(), 6);
     data.WriteBit(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1);          // "you'll be afflicted with resurrection sickness"
@@ -5600,7 +5600,7 @@ void Spell::TakeCastItem()
     {
         // This code is to avoid a crash
         // I'm not sure, if this is really an error, but I guess every item needs a prototype
-        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Cast item has no item prototype highId=%d, lowId=%d", m_CastItem->GetGUIDHigh(), m_CastItem->GetGUIDLow());
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Cast item has no item prototype highId=%d, lowId=%d", m_CastItem->GetGUID().GetHigh(), m_CastItem->GetGUID().GetCounter());
         return;
     }
 
@@ -8460,7 +8460,7 @@ SpellEvent::~SpellEvent()
     else
     {
         sLog->outError(LOG_FILTER_SPELLS_AURAS, "~SpellEvent: %s %u tried to delete non-deletable spell %u. Was not deleted, causes memory leak.",
-            (m_Spell->GetCaster()->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), m_Spell->GetCaster()->GetGUIDLow(), m_Spell->m_spellInfo->Id);
+            (m_Spell->GetCaster()->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), m_Spell->GetCaster()->GetGUID().GetCounter(), m_Spell->m_spellInfo->Id);
         //ASSERT(false);
     }
 }

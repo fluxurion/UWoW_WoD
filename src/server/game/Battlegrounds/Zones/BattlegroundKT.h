@@ -214,7 +214,7 @@ class BattlegroundKT : public Battleground
         virtual void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj) { EventPlayerClickedOnOrb(source, target_obj); }
         void EventPlayerClickedOnOrb(Player* source, GameObject* target_obj);
 
-        void RemovePlayer(Player* player, uint64 guid, uint32);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32);
         void HandleAreaTrigger(Player* source, uint32 trigger);
         void HandleKillPlayer(Player* player, Player* killer);
         bool SetupBattleground();
@@ -237,8 +237,8 @@ class BattlegroundKT : public Battleground
         void AccumulateScore(uint32 team, BG_KT_ZONE zone);
     private:
 
-        uint64 m_OrbKeepers[MAX_ORBS];
-        std::map<uint64, BG_KT_ZONE> m_playersZone;
+        ObjectGuid m_OrbKeepers[MAX_ORBS];
+        std::map<ObjectGuid, BG_KT_ZONE> m_playersZone;
 
         uint32 m_ReputationCapture;
         uint32 m_HonorWinKills;

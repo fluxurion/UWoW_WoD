@@ -82,7 +82,7 @@ public:
         GOState uiBridgeState;
         GOState uiCollisionState;
 
-        std::set<uint64> DwellerGUIDs;
+        GuidSet DwellerGUIDs;
 
         std::string str_data;
 

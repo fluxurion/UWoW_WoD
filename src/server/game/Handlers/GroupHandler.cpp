@@ -171,7 +171,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
         return;
     }
 
-    if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
+    if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID().GetCounter()))
     {
         SendPartyResult(PARTY_OP_INVITE, memberName, ERR_IGNORING_YOU_S);
         return;
@@ -266,7 +266,7 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
 
         if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
             return;
         }
 
@@ -342,7 +342,7 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket& recvData)
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteGuidOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteGuidOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
         return;
     }
 
@@ -392,7 +392,7 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recvData)
     // can't uninvite yourself
     if (GetPlayer()->GetName() == membername)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
         return;
     }
 
@@ -788,7 +788,7 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
     /** error handling **/
     /********************/
 
-    ObjectGuid guid = GetPlayer()->GetObjectGuid();
+    ObjectGuid guid = GetPlayer()->GetGUID();
 
     // everything's fine, do it
     //! 5.4.1
@@ -824,7 +824,7 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "ROLL: MIN: %u, MAX: %u, ROLL: %u", minimum, maximum, roll);
 
     WorldPacket data(SMSG_RANDOM_ROLL, 4+4+4+8);
-    ObjectGuid guid = GetPlayer()->GetObjectGuid();
+    ObjectGuid guid = GetPlayer()->GetGUID();
     data << uint32(roll);
     data << uint32(minimum);
     data << uint32(maximum);

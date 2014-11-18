@@ -33,7 +33,7 @@
 
 class InstanceScript;
 
-class SummonList : public std::list<uint64>
+class SummonList : public std::list<ObjectGuid>
 {
     public:
         explicit SummonList(Creature* creature) : me(creature) {}
@@ -66,7 +66,7 @@ class EntryCheckPredicate
 {
     public:
         EntryCheckPredicate(uint32 entry) : _entry(entry) {}
-        bool operator()(uint64 guid) { return GUID_ENPART(guid) == _entry; }
+        bool operator()(ObjectGuid guid) { return guid.GetEntry() == _entry; }
 
     private:
         uint32 _entry;
@@ -75,7 +75,7 @@ class EntryCheckPredicate
 class DummyEntryCheckPredicate
 {
     public:
-        bool operator()(uint64) { return true; }
+        bool operator()(ObjectGuid) { return true; }
 };
 
 struct ScriptedAI : public CreatureAI
