@@ -66,7 +66,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
 
     if (!info)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (entry %u) caster %s no spellInfo", triggerEntry, caster->GetString().c_str());
+        sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (entry %u) caster %s no spellInfo", triggerEntry, caster->ToString().c_str());
         return false;
     }
 
@@ -76,7 +76,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
 
     if (!caster->isAlive())
     {
-        sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (spell %u) caster %s is dead ", info->Id, caster->GetString().c_str());
+        sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (spell %u) caster %s is dead ", info->Id, caster->ToString().c_str());
         return false;
     }
 
@@ -148,7 +148,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
         return false;
 
     #ifdef WIN32
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::Create AreaTrigger caster %s spellID %u spell rage %f dist %f dest - X:%f,Y:%f,Z:%f", caster->GetString().c_str(), info->Id, _radius, GetSpellInfo()->GetMaxRange(), _destPosition.GetPositionX(), _destPosition.GetPositionY(), _destPosition.GetPositionZ());
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::Create AreaTrigger caster %s spellID %u spell rage %f dist %f dest - X:%f,Y:%f,Z:%f", caster->ToString().c_str(), info->Id, _radius, GetSpellInfo()->GetMaxRange(), _destPosition.GetPositionX(), _destPosition.GetPositionY(), _destPosition.GetPositionZ());
     #endif
 
     if (atInfo.maxCount)

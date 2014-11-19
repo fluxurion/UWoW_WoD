@@ -121,7 +121,7 @@ template<class Do>
 void Battleground::BroadcastWorker(Do& _do)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
+    if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             _do(player);
 }
 
@@ -1835,7 +1835,7 @@ void Battleground::HandleTriggerBuff(ObjectGuid go_guid)
     if (index < 0)
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::HandleTriggerBuff: cannot find buff gameobject (GUID: %u, entry: %u, type: %u) in internal data for BG (map: %u, instance id: %u)!",
-            GUID_LOPART(go_guid), obj->GetEntry(), obj->GetGoType(), m_MapId, m_InstanceID);
+            go_guid.GetCounter(), obj->GetEntry(), obj->GetGoType(), m_MapId, m_InstanceID);
         return;
     }
 
@@ -2043,7 +2043,8 @@ void Battleground::SendFlagsPositionsUpdate(uint32 diff)
     for(uint8 i = 0; i < 2; ++i)
     {
         FlagCarrier[i] = NULL;
-        if (uint64 guid = GetFlagPickerGUID(i))
+        ObjectGuid guid = GetFlagPickerGUID(i);
+        if (!guid.IsEmpty())
         {
             FlagCarrier[TEAM_ALLIANCE] = ObjectAccessor::FindPlayer(guid);
             if (FlagCarrier[i])
@@ -2054,14 +2055,14 @@ void Battleground::SendFlagsPositionsUpdate(uint32 diff)
     WorldPacket packet(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
     packet.WriteBits(flagCarrierCount, 20);
 
-    ObjectGuid guids[2];
+    ObjectGuidSteam guids[2];
     for (uint8 i = 0; i < 2; ++i)
     {
         Player* player = FlagCarrier[i];
         if (!player)
             continue;
 
-        guids[i] = player->GetGUID();
+        //guids[i] = player->GetGUID();
         packet.WriteGuidMask<6, 5, 4, 0, 2, 3, 7, 1>(guids[i]);
     }
 
@@ -2095,9 +2096,9 @@ void Battleground::SendOponentSpecialization(uint32 team)
         if (Player* opponent = _GetPlayerForTeam(team, itr, "SemdOponentSpecialization"))
         {
             ++opCoun;
-            spec.WriteGuidMask<7, 1, 2, 3, 5, 4, 6, 0>(opponent->GetGUID());
+            //spec.WriteGuidMask<7, 1, 2, 3, 5, 4, 6, 0>(opponent->GetGUID());
             dataBuffer << uint32(opponent->GetSpecializationId(opponent->GetActiveSpec()));
-            dataBuffer.WriteGuidBytes<6, 7, 0, 1, 3, 2, 4, 5>(opponent->GetGUID());
+            //dataBuffer.WriteGuidBytes<6, 7, 0, 1, 3, 2, 4, 5>(opponent->GetGUID());
         }
 
     spec.FlushBits();

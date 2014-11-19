@@ -26,7 +26,7 @@
 #include <cwctype>
 
 Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
- : m_announce(true), m_ownership(true), m_name(name), m_password(""), m_flags(0), m_channelId(channel_id), m_ownerGUID(0), m_Team(Team), _special(false)
+ : m_announce(true), m_ownership(true), m_name(name), m_password(""), m_flags(0), m_channelId(channel_id), m_ownerGUID(), m_Team(Team), _special(false)
 {
     m_IsSaved = false;
 
@@ -83,10 +83,10 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
                     Tokenizer::const_iterator iter;
                     for (iter = tokens.begin(); iter != tokens.end(); ++iter)
                     {
-                        uint64 banned_guid = atol(*iter);
-                        if (banned_guid)
+                        ObjectGuid banned_guid = ObjectGuid::Create<HighGuid::Player>(atol(*iter));
+                        if (!banned_guid.IsEmpty())
                         {
-                            sLog->outDebug(LOG_FILTER_CHATSYS, "Channel(%s) loaded banned guid:" UI64FMTD "", name.c_str(), banned_guid);
+                            sLog->outDebug(LOG_FILTER_CHATSYS, "Channel(%s) loaded banned guid: %s", name.c_str(), banned_guid.ToString().c_str());
                             banned.insert(banned_guid);
                         }
                     }
@@ -164,7 +164,7 @@ void Channel::CleanOldChannelsInDB()
     }
 }
 
-void Channel::Join(uint64 p, const char *pass)
+void Channel::Join(ObjectGuid p, const char *pass)
 {
     WorldPacket data;
     if (IsOn(p))
@@ -240,7 +240,7 @@ void Channel::Join(uint64 p, const char *pass)
     }
 }
 
-void Channel::Leave(uint64 p, bool send)
+void Channel::Leave(ObjectGuid p, bool send)
 {
     if (!IsOn(p))
     {
@@ -285,7 +285,7 @@ void Channel::Leave(uint64 p, bool send)
             // If the channel owner left and there are still players inside, pick a new owner
             if (changeowner && m_ownership && !players.empty())
             {
-                uint64 newowner = players.begin()->second.player;
+                ObjectGuid newowner = players.begin()->second.player;
                 players[newowner].SetModerator(true);
                 SetOwner(newowner);
             }
@@ -293,7 +293,7 @@ void Channel::Leave(uint64 p, bool send)
     }
 }
 
-void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
+void Channel::KickOrBan(ObjectGuid good, const char *badname, bool ban)
 {
     AccountTypes sec = SEC_PLAYER;
     Player* gplr = ObjectAccessor::FindPlayer(good);
@@ -353,7 +353,7 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
 
             if (changeowner && m_ownership && !players.empty())
             {
-                uint64 newowner = good;
+                ObjectGuid newowner = good;
                 players[newowner].SetModerator(true);
                 SetOwner(newowner);
             }
@@ -361,7 +361,7 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
     }
 }
 
-void Channel::UnBan(uint64 good, const char *badname)
+void Channel::UnBan(ObjectGuid good, const char *badname)
 {
     uint32 sec = 0;
     Player* gplr = ObjectAccessor::FindPlayer(good);
@@ -402,7 +402,7 @@ void Channel::UnBan(uint64 good, const char *badname)
     }
 }
 
-void Channel::Password(uint64 p, const char *pass)
+void Channel::Password(ObjectGuid p, const char *pass)
 {
     uint32 sec = 0;
     Player* player = ObjectAccessor::FindPlayer(p);
@@ -441,7 +441,7 @@ void Channel::Password(uint64 p, const char *pass)
     }
 }
 
-void Channel::SetMode(uint64 p, const char *p2n, bool mod, bool set)
+void Channel::SetMode(ObjectGuid p, const char *p2n, bool mod, bool set)
 {
     Player* player = ObjectAccessor::FindPlayer(p);
     if (!player)
@@ -509,7 +509,7 @@ void Channel::SetMode(uint64 p, const char *p2n, bool mod, bool set)
     }
 }
 
-void Channel::SetOwner(uint64 p, const char *newname)
+void Channel::SetOwner(ObjectGuid p, const char *newname)
 {
     Player* player = ObjectAccessor::FindPlayer(p);
     if (!player)
@@ -554,7 +554,7 @@ void Channel::SetOwner(uint64 p, const char *newname)
     SetOwner(newp->GetGUID());
 }
 
-void Channel::SendWhoOwner(uint64 p)
+void Channel::SendWhoOwner(ObjectGuid p)
 {
     if (!IsOn(p))
     {
@@ -572,7 +572,7 @@ void Channel::SendWhoOwner(uint64 p)
 
 void Channel::List(Player* player)
 {
-    uint64 p = player->GetGUID();
+    ObjectGuid p = player->GetGUID();
 
     if (!IsOn(p))
     {
@@ -602,7 +602,7 @@ void Channel::List(Player* player)
             if (member && (!AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) || member->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
                 member->IsVisibleGloballyFor(player))
             {
-                data << uint64(i->first);
+                data << i->first;
                 data << uint8(i->second.flags);             // flags seems to be changed...
                 ++count;
             }
@@ -614,7 +614,7 @@ void Channel::List(Player* player)
     }
 }
 
-void Channel::Announce(uint64 p)
+void Channel::Announce(ObjectGuid p)
 {
     uint32 sec = 0;
     Player* player = ObjectAccessor::FindPlayer(p);
@@ -648,7 +648,7 @@ void Channel::Announce(uint64 p)
     }
 }
 
-void Channel::Say(uint64 p, const char *what, uint32 lang)
+void Channel::Say(ObjectGuid p, const char *what, uint32 lang)
 {
     if (!what)
         return;
@@ -687,11 +687,11 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
         WorldPacket data;
         Trinity::BuildChatPacket(data, c);
 
-        SendToAll(&data, !players[p].IsModerator() ? p : false);
+        SendToAll(&data, !players[p].IsModerator() ? p : ObjectGuid::Empty);
     }
 }
 
-void Channel::Invite(uint64 p, const char *newname)
+void Channel::Invite(ObjectGuid p, const char *newname)
 {
     if (!IsOn(p))
     {
@@ -739,7 +739,7 @@ void Channel::Invite(uint64 p, const char *newname)
     }
 
     WorldPacket data;
-    if (!newp->GetSocial()->HasIgnore(GUID_LOPART(p)))
+    if (!newp->GetSocial()->HasIgnore(p.GetCounter()))
     {
         MakeInvite(&data, p);
         SendToOne(&data, newp->GetGUID());
@@ -749,9 +749,9 @@ void Channel::Invite(uint64 p, const char *newname)
     SendToOne(&data, p);
 }
 
-void Channel::SetOwner(uint64 guid, bool exclaim)
+void Channel::SetOwner(ObjectGuid guid, bool exclaim)
 {
-    if (m_ownerGUID)
+    if (!m_ownerGUID.IsEmpty())
     {
         // [] will re-add player after it possible removed
         PlayerList::iterator p_itr = players.find(m_ownerGUID);
@@ -760,7 +760,7 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
     }
 
     m_ownerGUID = guid;
-    if (m_ownerGUID)
+    if (!m_ownerGUID.IsEmpty())
     {
         uint8 oldFlag = GetPlayerFlags(m_ownerGUID);
         players[m_ownerGUID].SetModerator(true);
@@ -780,20 +780,20 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
     }
 }
 
-void Channel::SendToAll(WorldPacket* data, uint64 p)
+void Channel::SendToAll(WorldPacket* data, ObjectGuid p)
 {
     for (PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
     {
         Player* player = ObjectAccessor::FindPlayer(i->first);
         if (player)
         {
-            if (!p || !player->GetSocial()->HasIgnore(GUID_LOPART(p)))
+            if (!p || !player->GetSocial()->HasIgnore(p.GetCounter()))
                 player->GetSession()->SendPacket(data);
         }
     }
 }
 
-void Channel::SendToAllButOne(WorldPacket* data, uint64 who)
+void Channel::SendToAllButOne(WorldPacket* data, ObjectGuid who)
 {
     for (PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
     {
@@ -806,19 +806,19 @@ void Channel::SendToAllButOne(WorldPacket* data, uint64 who)
     }
 }
 
-void Channel::SendToOne(WorldPacket* data, uint64 who)
+void Channel::SendToOne(WorldPacket* data, ObjectGuid who)
 {
     Player* player = ObjectAccessor::FindPlayer(who);
     if (player)
         player->GetSession()->SendPacket(data);
 }
 
-void Channel::Voice(uint64 /*guid1*/, uint64 /*guid2*/)
+void Channel::Voice(ObjectGuid /*guid1*/, ObjectGuid /*guid2*/)
 {
 
 }
 
-void Channel::DeVoice(uint64 /*guid1*/, uint64 /*guid2*/)
+void Channel::DeVoice(ObjectGuid /*guid1*/, ObjectGuid /*guid2*/)
 {
 
 }
@@ -832,17 +832,17 @@ void Channel::MakeNotifyPacket(WorldPacket* data, uint8 notify_type)
 }
 
 // done 0x00
-void Channel::MakeJoined(WorldPacket* data, uint64 guid)
+void Channel::MakeJoined(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_JOINED_NOTICE);
-    *data << uint64(guid);
+    *data << guid;
 }
 
 // done 0x01
-void Channel::MakeLeft(WorldPacket* data, uint64 guid)
+void Channel::MakeLeft(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_LEFT_NOTICE);
-    *data << uint64(guid);
+    *data << guid;
 }
 
 // done 0x02
@@ -881,17 +881,17 @@ void Channel::MakeNotModerator(WorldPacket* data)
 }
 
 // done 0x07
-void Channel::MakePasswordChanged(WorldPacket* data, uint64 guid)
+void Channel::MakePasswordChanged(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_PASSWORD_CHANGED_NOTICE);
-    *data << uint64(guid);
+    *data << guid;
 }
 
 // done 0x08
-void Channel::MakeOwnerChanged(WorldPacket* data, uint64 guid)
+void Channel::MakeOwnerChanged(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_OWNER_CHANGED_NOTICE);
-    *data << uint64(guid);
+    *data << guid;
 }
 
 // done 0x09
@@ -920,26 +920,26 @@ void Channel::MakeChannelOwner(WorldPacket* data)
 }
 
 // done 0x0C
-void Channel::MakeModeChange(WorldPacket* data, uint64 guid, uint8 oldflags)
+void Channel::MakeModeChange(WorldPacket* data, ObjectGuid guid, uint8 oldflags)
 {
     MakeNotifyPacket(data, CHAT_MODE_CHANGE_NOTICE);
-    *data << uint64(guid);
+    *data << guid;
     *data << uint8(oldflags);
     *data << uint8(GetPlayerFlags(guid));
 }
 
 // done 0x0D
-void Channel::MakeAnnouncementsOn(WorldPacket* data, uint64 guid)
+void Channel::MakeAnnouncementsOn(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_ANNOUNCEMENTS_ON_NOTICE);
-    *data << uint64(guid);
+    *data << guid;
 }
 
 // done 0x0E
-void Channel::MakeAnnouncementsOff(WorldPacket* data, uint64 guid)
+void Channel::MakeAnnouncementsOff(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_ANNOUNCEMENTS_OFF_NOTICE);
-    *data << uint64(guid);
+    *data << guid;
 }
 
 // done 0x11
@@ -949,11 +949,11 @@ void Channel::MakeMuted(WorldPacket* data)
 }
 
 // done 0x12
-void Channel::MakePlayerKicked(WorldPacket* data, uint64 bad, uint64 good)
+void Channel::MakePlayerKicked(WorldPacket* data, ObjectGuid bad, ObjectGuid good)
 {
     MakeNotifyPacket(data, CHAT_PLAYER_KICKED_NOTICE);
-    *data << uint64(bad);
-    *data << uint64(good);
+    *data << bad;
+    *data << good;
 }
 
 // done 0x13
@@ -963,19 +963,19 @@ void Channel::MakeBanned(WorldPacket* data)
 }
 
 // done 0x14
-void Channel::MakePlayerBanned(WorldPacket* data, uint64 bad, uint64 good)
+void Channel::MakePlayerBanned(WorldPacket* data, ObjectGuid bad, ObjectGuid good)
 {
     MakeNotifyPacket(data, CHAT_PLAYER_BANNED_NOTICE);
-    *data << uint64(bad);
-    *data << uint64(good);
+    *data << bad;
+    *data << good;
 }
 
 // done 0x15
-void Channel::MakePlayerUnbanned(WorldPacket* data, uint64 bad, uint64 good)
+void Channel::MakePlayerUnbanned(WorldPacket* data, ObjectGuid bad, ObjectGuid good)
 {
     MakeNotifyPacket(data, CHAT_PLAYER_UNBANNED_NOTICE);
-    *data << uint64(bad);
-    *data << uint64(good);
+    *data << bad;
+    *data << good;
 }
 
 // done 0x16
@@ -986,17 +986,17 @@ void Channel::MakePlayerNotBanned(WorldPacket* data, const std::string &name)
 }
 
 // done 0x17
-void Channel::MakePlayerAlreadyMember(WorldPacket* data, uint64 guid)
+void Channel::MakePlayerAlreadyMember(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_PLAYER_ALREADY_MEMBER_NOTICE);
-    *data << uint64(guid);
+    *data << guid;
 }
 
 // done 0x18
-void Channel::MakeInvite(WorldPacket* data, uint64 guid)
+void Channel::MakeInvite(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_INVITE_NOTICE);
-    *data << uint64(guid);
+    *data << guid;
 }
 
 // done 0x19
@@ -1056,20 +1056,20 @@ void Channel::MakeNotInLfg(WorldPacket* data)
 }
 
 // done 0x22
-void Channel::MakeVoiceOn(WorldPacket* data, uint64 guid)
+void Channel::MakeVoiceOn(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_VOICE_ON_NOTICE);
-    *data << uint64(guid);
+    *data << guid;
 }
 
 // done 0x23
-void Channel::MakeVoiceOff(WorldPacket* data, uint64 guid)
+void Channel::MakeVoiceOff(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_VOICE_OFF_NOTICE);
-    *data << uint64(guid);
+    *data << guid;
 }
 
-void Channel::JoinNotify(uint64 guid)
+void Channel::JoinNotify(ObjectGuid guid)
 {
     WorldPacket data;
 
@@ -1078,7 +1078,7 @@ void Channel::JoinNotify(uint64 guid)
     //else
         data.Initialize(SMSG_USERLIST_UPDATE, 8+1+1+4+GetName().size()+1);
 
-    data << uint64(guid);
+    data << guid;
     data << uint8(GetPlayerFlags(guid));
     data << uint8(GetFlags());
     data << uint32(GetNumPlayers());
@@ -1090,10 +1090,10 @@ void Channel::JoinNotify(uint64 guid)
         SendToAll(&data);
 }
 
-void Channel::LeaveNotify(uint64 guid)
+void Channel::LeaveNotify(ObjectGuid guid)
 {
     WorldPacket data(SMSG_USERLIST_REMOVE, 8+1+4+GetName().size()+1);
-    data << uint64(guid);
+    data << guid;
     data << uint8(GetFlags());
     data << uint32(GetNumPlayers());
     data << GetName();

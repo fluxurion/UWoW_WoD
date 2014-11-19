@@ -128,14 +128,14 @@ bool ChatHandler::isAvailable(ChatCommand const& cmd) const
     return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
 }
 
-bool ChatHandler::HasLowerSecurity(Player* target, uint64 guid, bool strong)
+bool ChatHandler::HasLowerSecurity(Player* target, ObjectGuid guid, bool strong)
 {
     WorldSession* target_session = NULL;
     uint32 target_account = 0;
 
     if (target)
         target_session = target->GetSession();
-    else if (guid)
+    else if (!guid.IsEmpty())
         target_account = sObjectMgr->GetPlayerAccountIdByGUID(guid);
 
     if (!target_session && !target_account)
@@ -349,11 +349,11 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
                 if (m_session)
                 {
                     Player* p = m_session->GetPlayer();
-                    uint64 sel_guid = p->GetSelection();
+                    ObjectGuid sel_guid = p->GetSelection();
 
                     sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Account: %u) X: %f Y: %f Z: %f Map: %u Selected %s: %s (GUID: %u)]",
                         fullcmd.c_str(), p->GetName(), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(),
-                        sel_guid.GetTypeName(), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName() : "", GUID_LOPART(sel_guid));
+                        sel_guid.GetTypeName(), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName() : "", sel_guid.GetCounter());
                 }
             }
         }
@@ -623,7 +623,7 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
 }
 
 //Note: target_guid used only in CHAT_MSG_WHISPER_INFORM mode (in this case channelName ignored)
-void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker, const char* addonPrefix /*= NULL*/)
+void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, ObjectGuid target_guid, const char *message, Unit* speaker, const char* addonPrefix /*= NULL*/)
 {
     ASSERT(type != CHAT_MSG_CHANNEL || channelName);
     ASSERT(type != CHAT_MSG_ADDON || addonPrefix);
@@ -650,14 +650,14 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
         case CHAT_MSG_INSTANCE_LEADER:
             if (session && session->GetPlayer()->GetGroup())
                 c.groupGuid = session->GetPlayer()->GetGroup()->GetGUID();
-            c.targetGuid = session ? session->GetPlayer()->GetGUID() : 0;
+            c.targetGuid = session ? session->GetPlayer()->GetGUID() : ObjectGuid::Empty;
             c.sourceGuid = c.targetGuid;
             break;
         case CHAT_MSG_GUILD:
         case CHAT_MSG_OFFICER:
             if (session)
-                c.guildGuid = session->GetPlayer()->GetUInt64Value(OBJECT_FIELD_DATA);
-            c.targetGuid = session ? session->GetPlayer()->GetGUID() : 0;
+                c.guildGuid = session->GetPlayer()->GetGuidValue(OBJECT_FIELD_DATA);
+            c.targetGuid = session ? session->GetPlayer()->GetGUID() : ObjectGuid::Empty;
             c.sourceGuid = c.targetGuid;
             break;
         case CHAT_MSG_SAY:
@@ -667,7 +667,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
         case CHAT_MSG_BG_SYSTEM_NEUTRAL:
         case CHAT_MSG_BG_SYSTEM_ALLIANCE:
         case CHAT_MSG_BG_SYSTEM_HORDE:
-            c.targetGuid = session ? session->GetPlayer()->GetGUID() : 0;
+            c.targetGuid = session ? session->GetPlayer()->GetGUID() : ObjectGuid::Empty;
             break;
         case CHAT_MSG_MONSTER_SAY:
         case CHAT_MSG_MONSTER_PARTY:
@@ -684,7 +684,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
         }
         default:
             if (type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_IGNORED && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
-                c.targetGuid = 0;                           // only for CHAT_MSG_WHISPER_INFORM used original value target_guid
+                c.targetGuid = ObjectGuid::Empty;               // only for CHAT_MSG_WHISPER_INFORM used original value target_guid
             break;
     }
 
@@ -699,9 +699,9 @@ Player* ChatHandler::getSelectedPlayer()
     if (!m_session)
         return NULL;
 
-    uint64 guid  = m_session->GetPlayer()->GetSelection();
+    ObjectGuid guid  = m_session->GetPlayer()->GetSelection();
 
-    if (guid == 0)
+    if (guid.IsEmpty())
         return m_session->GetPlayer();
 
     return ObjectAccessor::FindPlayer(guid);
@@ -712,9 +712,9 @@ Unit* ChatHandler::getSelectedUnit()
     if (!m_session)
         return NULL;
 
-    uint64 guid = m_session->GetPlayer()->GetSelection();
+    ObjectGuid guid = m_session->GetPlayer()->GetSelection();
 
-    if (guid == 0)
+    if (guid.IsEmpty())
         return m_session->GetPlayer();
 
     return ObjectAccessor::GetUnit(*m_session->GetPlayer(), guid);
@@ -725,9 +725,9 @@ WorldObject* ChatHandler::getSelectedObject()
     if (!m_session)
         return NULL;
 
-    uint64 guid = m_session->GetPlayer()->GetSelection();
+    ObjectGuid guid = m_session->GetPlayer()->GetSelection();
 
-    if (guid == 0)
+    if (guid.IsEmpty())
         return GetNearbyGameObject();
 
     return ObjectAccessor::GetUnit(*m_session->GetPlayer(), guid);
@@ -873,7 +873,7 @@ GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid
 
     Player* pl = m_session->GetPlayer();
 
-    GameObject* obj = pl->GetMap()->GetGameObject(MAKE_NEW_GUID(lowguid, entry, HIGHGUID_GAMEOBJECT));
+    GameObject* obj = pl->GetMap()->GetGameObject(ObjectGuid::Create<HighGuid::GameObject>(pl->GetMapId(), entry, lowguid));
 
     if (!obj && sObjectMgr->GetGOData(lowguid))                   // guid is DB guid of object
     {
@@ -994,7 +994,7 @@ static char const* const guidKeys[] =
     0
 };
 
-uint64 ChatHandler::extractGuidFromLink(char* text)
+ObjectGuid ChatHandler::extractGuidFromLink(char* text)
 {
     int type = 0;
 
@@ -1003,7 +1003,7 @@ uint64 ChatHandler::extractGuidFromLink(char* text)
     // |color|Hplayer:name|h[name]|h|r
     char* idS = extractKeyFromLink(text, guidKeys, &type);
     if (!idS)
-        return 0;
+        return ObjectGuid::Empty;
 
     switch (type)
     {
@@ -1011,38 +1011,35 @@ uint64 ChatHandler::extractGuidFromLink(char* text)
         {
             std::string name = idS;
             if (!normalizePlayerName(name))
-                return 0;
+                return ObjectGuid::Empty;
 
             if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
                 return player->GetGUID();
 
-            if (uint64 guid = sObjectMgr->GetPlayerGUIDByName(name))
-                return guid;
-
-            return 0;
+            return sObjectMgr->GetPlayerGUIDByName(name);
         }
         case SPELL_LINK_CREATURE:
         {
-            uint32 lowguid = (uint32)atol(idS);
+            ObjectGuid::LowType lowguid = (uint32)atol(idS);
 
             if (CreatureData const* data = sObjectMgr->GetCreatureData(lowguid))
-                return MAKE_NEW_GUID(lowguid, data->id, HIGHGUID_UNIT);
+                return ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, lowguid);
             else
-                return 0;
+                return ObjectGuid::Empty;
         }
         case SPELL_LINK_GAMEOBJECT:
         {
-            uint32 lowguid = (uint32)atol(idS);
+            ObjectGuid::LowType lowguid = (uint32)atol(idS);
 
             if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
-                return MAKE_NEW_GUID(lowguid, data->id, HIGHGUID_GAMEOBJECT);
+                return ObjectGuid::Create<HighGuid::GameObject>(data->mapid, data->id, lowguid);
             else
-                return 0;
+                return ObjectGuid::Empty;
         }
     }
 
     // unknown type?
-    return 0;
+    return ObjectGuid::Empty;
 }
 
 std::string ChatHandler::extractPlayerNameFromLink(char* text)
@@ -1059,7 +1056,7 @@ std::string ChatHandler::extractPlayerNameFromLink(char* text)
     return name;
 }
 
-bool ChatHandler::extractPlayerTarget(char* args, Player** player, uint64* player_guid /*=NULL*/, std::string* player_name /*= NULL*/)
+bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid /*=NULL*/, std::string* player_name /*= NULL*/)
 {
     if (args && *args)
     {
@@ -1078,14 +1075,14 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, uint64* playe
             *player = pl;
 
         // if need guid value from DB (in name case for check player existence)
-        uint64 guid = !pl && (player_guid || player_name) ? sObjectMgr->GetPlayerGUIDByName(name) : 0;
+        ObjectGuid guid = !pl && (player_guid || player_name) ? sObjectMgr->GetPlayerGUIDByName(name) : ObjectGuid::Empty;
 
         // if allowed player guid (if no then only online players allowed)
         if (player_guid)
             *player_guid = pl ? pl->GetGUID() : guid;
 
         if (player_name)
-            *player_name = pl || guid ? name : "";
+            *player_name = pl || !guid.IsEmpty() ? name : "";
     }
     else
     {
@@ -1095,7 +1092,7 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, uint64* playe
             *player = pl;
         // if allowed player guid (if no then only online players allowed)
         if (player_guid)
-            *player_guid = pl ? pl->GetGUID() : 0;
+            *player_guid = pl ? pl->GetGUID() : ObjectGuid::Empty;
 
         if (player_name)
             *player_name = pl ? pl->GetName() : "";
@@ -1189,10 +1186,10 @@ bool CliHandler::needReportToTarget(Player* /*chr*/) const
     return true;
 }
 
-bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &player, Group* &group, uint64 &guid, bool offline)
+bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &player, Group* &group, ObjectGuid &guid, bool offline)
 {
     player  = NULL;
-    guid = 0;
+    guid = ObjectGuid::Empty;
 
     if (cname)
     {

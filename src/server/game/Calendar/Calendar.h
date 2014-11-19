@@ -40,11 +40,11 @@ class CalendarInvite
         void SetEventId(uint64 eventId) { _eventId = eventId; }
         uint64 GetEventId() const { return _eventId; }
 
-        void SetSenderGUID(uint64 guid) { _senderGUID = guid; }
-        uint64 GetSenderGUID() const { return _senderGUID; }
+        void SetSenderGUID(ObjectGuid guid) { _senderGUID = guid; }
+        ObjectGuid GetSenderGUID() const { return _senderGUID; }
 
-        void SetInvitee(uint64 guid) { _invitee = guid; }
-        uint64 GetInvitee() const { return _invitee; }
+        void SetInvitee(ObjectGuid guid) { _invitee = guid; }
+        ObjectGuid GetInvitee() const { return _invitee; }
 
         void SetStatusTime(uint32 statusTime) { _statusTime = statusTime; }
         uint32 GetStatusTime() const { return _statusTime; }
@@ -65,8 +65,8 @@ class CalendarInvite
 
         uint64 _inviteId;
         uint64 _eventId;
-        uint64 _invitee;
-        uint64 _senderGUID;
+        ObjectGuid _invitee;
+        ObjectGuid _senderGUID;
         uint32 _statusTime;
         CalendarInviteStatus _status;
         CalendarModerationRank _rank;
@@ -86,8 +86,8 @@ class CalendarEvent
         void SetEventId(uint64 eventId) { _eventId = eventId; }
         uint64 GetEventId() const { return _eventId; }
 
-        void SetCreatorGUID(uint64 guid) { _creatorGUID = guid; }
-        uint64 GetCreatorGUID() const { return _creatorGUID; }
+        void SetCreatorGUID(ObjectGuid guid) { _creatorGUID = guid; }
+        ObjectGuid GetCreatorGUID() const { return _creatorGUID; }
 
         void SetGuildId(uint32 guildId) { _guildId = guildId; }
         uint32 GetGuildId() const { return _guildId; }
@@ -137,7 +137,7 @@ class CalendarEvent
         void Init();
 
         uint64 _eventId;
-        uint64 _creatorGUID;
+        ObjectGuid _creatorGUID;
         uint32 _guildId;
         CalendarEventType _type;
         int32 _dungeonId;
@@ -152,8 +152,8 @@ class CalendarEvent
 };
 
 typedef std::set<uint64> CalendarEventIdList;
-typedef std::map<uint64, CalendarInviteIdList> CalendarPlayerInviteIdMap;
-typedef std::map<uint64, CalendarEventIdList> CalendarPlayerEventIdMap;
+typedef std::map<ObjectGuid, CalendarInviteIdList> CalendarPlayerInviteIdMap;
+typedef std::map<ObjectGuid, CalendarEventIdList> CalendarPlayerEventIdMap;
 typedef std::map<uint64, CalendarInvite> CalendarInviteMap;
 typedef std::map<uint64, CalendarEvent> CalendarEventMap;
 typedef std::set<CalendarInvite> CalendarInveteMap;

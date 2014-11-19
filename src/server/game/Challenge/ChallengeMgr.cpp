@@ -48,7 +48,7 @@ void ChallengeMgr::CheckBestGuildMapId(Challenge *c)
         m_GuildBest[c->guildId][c->mapID] = c;
 }
 
-void ChallengeMgr::CheckBestMemberMapId(uint64 guid, Challenge *c)
+void ChallengeMgr::CheckBestMemberMapId(ObjectGuid guid, Challenge *c)
 {
     if (!m_ChallengesOfMember[guid][c->mapID] || m_ChallengesOfMember[guid][c->mapID]->recordTime > c->recordTime)
         m_ChallengesOfMember[guid][c->mapID] = c;
@@ -71,7 +71,7 @@ void ChallengeMgr::SaveChallengeToDB(Challenge *c)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHALLENGE_MEMBER);
         stmt->setUInt32(0, c->Id);
-        stmt->setUInt64(1, (*itr).guid);
+        stmt->setUInt64(1, (*itr).guid.GetCounter());
         stmt->setUInt16(2, (*itr).specId);
         trans->Append(stmt);
     }
@@ -115,7 +115,7 @@ void ChallengeMgr::LoadFromDB()
         {
             Field* fields = result->Fetch();
             ChallengeMember member;
-            member.guid = fields[1].GetUInt64();
+            member.guid = ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt64());
             member.specId = fields[2].GetUInt16();
 
             ChallengeMap::iterator itr = m_ChallengeMap.find(fields[0].GetUInt32());
@@ -186,7 +186,7 @@ void ChallengeMgr::GroupReward(Map *instance, uint32 recordTime, ChallengeMode m
 
             /// @quest reward for finish challenge. daily
             if (npcRewardCredit)    //should never happend
-                player->KilledMonsterCredit(npcRewardCredit, 0);
+                player->KilledMonsterCredit(npcRewardCredit, ObjectGuid::Empty);
 
             /// @reward for get medal
             if (valorReward)

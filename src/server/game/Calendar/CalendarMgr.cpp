@@ -62,7 +62,7 @@ CalendarMgr::~CalendarMgr()
 {
 }
 
-uint32 CalendarMgr::GetPlayerNumPending(uint64 guid)
+uint32 CalendarMgr::GetPlayerNumPending(ObjectGuid guid)
 {
     if (!guid)
         return 0;
@@ -83,12 +83,12 @@ uint32 CalendarMgr::GetPlayerNumPending(uint64 guid)
     return pendingNum;
 }
 
-CalendarInviteIdList const& CalendarMgr::GetPlayerInvites(uint64 guid)
+CalendarInviteIdList const& CalendarMgr::GetPlayerInvites(ObjectGuid guid)
 {
     return _playerInvites[guid];
 }
 
-CalendarEventIdList const& CalendarMgr::GetPlayerEvents(uint64 guid)
+CalendarEventIdList const& CalendarMgr::GetPlayerEvents(ObjectGuid guid)
 {
     return _playerEvents[guid];
 }
@@ -179,7 +179,7 @@ void CalendarMgr::LoadFromDB()
     sLog->outInfo(LOG_FILTER_CALENDAR, ">> Loaded %u calendar Invites", count);
     */
 }
-CalendarInvite* CalendarMgr::GetInviterFromEvent(uint64 plrGuid, CalendarEvent* calendarEvent)
+CalendarInvite* CalendarMgr::GetInviterFromEvent(ObjectGuid plrGuid, CalendarEvent* calendarEvent)
 {
     if (!calendarEvent)
         return NULL;
@@ -441,7 +441,8 @@ void CalendarMgr::AddAction(CalendarAction const& action, uint64 eventId)
                 return;
             }
 
-            if (uint64 invitee = RemoveInvite(invite->GetInviteId()))
+            ObjectGuid invitee = RemoveInvite(invite->GetInviteId());
+            if (!invitee.IsEmpty())
             {
                 SendCalendarEventInviteRemoveAlert(invitee, *calendarEvent, CALENDAR_STATUS_9);
                 SendCalendarEventInviteRemove(action.GetPlayer()->GetGUID(), *invite, calendarEvent->GetFlags());
@@ -485,7 +486,8 @@ bool CalendarMgr::RemoveEvent(uint64 eventId)
         if (!invite || !RemovePlayerEvent(invite->GetInvitee(), eventId))
             val = false;
 
-        if (uint64 invitee = RemoveInvite(*itrInvites))
+        ObjectGuid invitee = RemoveInvite(*itrInvites);
+        if (!invitee.IsEmpty())
             SendCalendarEventRemovedAlert(invitee, itr->second);
     }
 
@@ -494,13 +496,13 @@ bool CalendarMgr::RemoveEvent(uint64 eventId)
     return val;
 }
 
-bool CalendarMgr::AddPlayerEvent(uint64 guid, uint64 eventId)
+bool CalendarMgr::AddPlayerEvent(ObjectGuid guid, uint64 eventId)
 {
     _playerEvents[guid].insert(eventId);
     return true;
 }
 
-bool CalendarMgr::RemovePlayerEvent(uint64 guid, uint64 eventId)
+bool CalendarMgr::RemovePlayerEvent(ObjectGuid guid, uint64 eventId)
 {
     _playerEvents[guid].erase(eventId);
     return true;
@@ -535,34 +537,34 @@ bool CalendarMgr::AddInvite(CalendarInvite const& newInvite)
     }
 
     _invites[inviteId] = newInvite;
-    uint64 guid = newInvite.GetInvitee();
+    ObjectGuid guid = newInvite.GetInvitee();
     bool inviteAdded = AddPlayerInvite(guid, inviteId);
     bool eventAdded = AddPlayerEvent(guid, newInvite.GetEventId());
     return eventAdded && inviteAdded;
 }
 
-uint64 CalendarMgr::RemoveInvite(uint64 inviteId)
+ObjectGuid CalendarMgr::RemoveInvite(uint64 inviteId)
 {
     CalendarInviteMap::iterator itr = _invites.find(inviteId);
     if (itr == _invites.end())
     {
         sLog->outError(LOG_FILTER_CALENDAR, "CalendarMgr::RemoveInvite: Invite [" UI64FMTD "] does not exist", inviteId);
-        return 0;
+        return ObjectGuid::Empty;
     }
 
-    uint64 invitee = itr->second.GetInvitee();
+    ObjectGuid invitee = itr->second.GetInvitee();
     _invites.erase(itr);
 
-    return RemovePlayerInvite(invitee, inviteId) ? invitee : 0;
+    return RemovePlayerInvite(invitee, inviteId) ? invitee : ObjectGuid::Empty;
 }
 
-bool CalendarMgr::AddPlayerInvite(uint64 guid, uint64 inviteId)
+bool CalendarMgr::AddPlayerInvite(ObjectGuid guid, uint64 inviteId)
 {
     _playerInvites[guid].insert(inviteId);
     return true;
 }
 
-bool CalendarMgr::RemovePlayerInvite(uint64 guid, uint64 inviteId)
+bool CalendarMgr::RemovePlayerInvite(ObjectGuid guid, uint64 inviteId)
 {
     _playerInvites[guid].erase(inviteId);
     return true;
@@ -586,31 +588,31 @@ void CalendarMgr::SendCalendarEventInviteAlert(CalendarEvent const& calendarEven
         player->GetSession()->SendCalendarEventInviteAlert(calendarEvent, invite);
 }
 
-void CalendarMgr::SendCalendarEventUpdateAlert(uint64 guid, CalendarEvent const& calendarEvent, CalendarSendEventType type)
+void CalendarMgr::SendCalendarEventUpdateAlert(ObjectGuid guid, CalendarEvent const& calendarEvent, CalendarSendEventType type)
 {
     if (Player* player = ObjectAccessor::FindPlayer(guid))
         player->GetSession()->SendCalendarEventUpdateAlert(calendarEvent, type);
 }
 
-void CalendarMgr::SendCalendarEventStatus(uint64 guid, CalendarEvent const& calendarEvent, CalendarInvite const& invite)
+void CalendarMgr::SendCalendarEventStatus(ObjectGuid guid, CalendarEvent const& calendarEvent, CalendarInvite const& invite)
 {
     if (Player* player = ObjectAccessor::FindPlayer(guid))
         player->GetSession()->SendCalendarEventStatus(calendarEvent, invite);
 }
 
-void CalendarMgr::SendCalendarEventRemovedAlert(uint64 guid, CalendarEvent const& calendarEvent)
+void CalendarMgr::SendCalendarEventRemovedAlert(ObjectGuid guid, CalendarEvent const& calendarEvent)
 {
     if (Player* player = ObjectAccessor::FindPlayer(guid))
         player->GetSession()->SendCalendarEventRemovedAlert(calendarEvent);
 }
 
-void CalendarMgr::SendCalendarEventInviteRemoveAlert(uint64 guid, CalendarEvent const& calendarEvent, CalendarInviteStatus status)
+void CalendarMgr::SendCalendarEventInviteRemoveAlert(ObjectGuid guid, CalendarEvent const& calendarEvent, CalendarInviteStatus status)
 {
     if (Player* player = ObjectAccessor::FindPlayer(guid))
         player->GetSession()->SendCalendarEventInviteRemoveAlert(calendarEvent, status);
 }
 
-void CalendarMgr::SendCalendarEventInviteRemove(uint64 guid, CalendarInvite const& invite, uint32 flags)
+void CalendarMgr::SendCalendarEventInviteRemove(ObjectGuid guid, CalendarInvite const& invite, uint32 flags)
 {
     if (Player* player = ObjectAccessor::FindPlayer(guid))
         player->GetSession()->SendCalendarEventInviteRemove(invite, flags);

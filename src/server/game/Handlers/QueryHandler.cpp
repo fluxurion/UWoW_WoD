@@ -32,15 +32,15 @@
 #include "MapManager.h"
 #include "GossipDef.h"
 
-void WorldSession::SendNameQueryOpcode(uint64 guid)
+void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindPlayer(guid);
     CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid.GetCounter());
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE);
-    data.WriteGuidMask<3, 2, 6, 0, 4, 1, 5, 7>(guid);
+//    data.WriteGuidMask<3, 2, 6, 0, 4, 1, 5, 7>(guid);
 
-    data.WriteGuidBytes<7, 1, 2, 6, 3, 5>(guid);
+  //  data.WriteGuidBytes<7, 1, 2, 6, 3, 5>(guid);
     data << uint8(nameData ? 0 : 1);
     if (nameData)
     {
@@ -51,46 +51,46 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
         data << uint8(nameData->m_race);
         data << uint32(0);
     }
-    data.WriteGuidBytes<4, 0>(guid);
+    //data.WriteGuidBytes<4, 0>(guid);
 
     ObjectGuid guid28 = 0;
     ObjectGuid guid30 = guid;
 
     if (nameData)
     {
-        data.WriteGuidMask<5>(guid30);
-        data.WriteGuidMask<1, 6, 2>(guid28);
-        data.WriteGuidMask<3, 7, 0, 6>(guid30);
-        data.WriteGuidMask<0, 7>(guid28);
-        data.WriteGuidMask<1>(guid30);
-        data.WriteGuidMask<5>(guid28);
+        //data.WriteGuidMask<5>(guid30);
+        //data.WriteGuidMask<1, 6, 2>(guid28);
+        //data.WriteGuidMask<3, 7, 0, 6>(guid30);
+        //data.WriteGuidMask<0, 7>(guid28);
+        //data.WriteGuidMask<1>(guid30);
+        //data.WriteGuidMask<5>(guid28);
 
         DeclinedName const* names = player ? player->GetDeclinedNames() : NULL;
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             data.WriteBits(names ? names->name[i].length() : 0, 7);
 
-        data.WriteGuidMask<2>(guid30);
+        //data.WriteGuidMask<2>(guid30);
         data.WriteBit(0);       // byte20
-        data.WriteGuidMask<4>(guid30);
-        data.WriteGuidMask<4>(guid28);
+        //data.WriteGuidMask<4>(guid30);
+        //data.WriteGuidMask<4>(guid28);
         data.WriteBits(nameData->m_name.size(), 6);
-        data.WriteGuidMask<3>(guid28);
+        //data.WriteGuidMask<3>(guid28);
 
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             data.WriteString(names ? names->name[i] : "");
 
-        data.WriteGuidBytes<3>(guid28);
-        data.WriteGuidBytes<0>(guid30);
-        data.WriteGuidBytes<5, 1>(guid28);
-        data.WriteGuidBytes<7, 5>(guid30);
-        data.WriteGuidBytes<3, 6>(guid28);
-        data.WriteGuidBytes<2>(guid30);
-        data.WriteGuidBytes<2>(guid28);
-        data.WriteString(nameData->m_name);
-        data.WriteGuidBytes<4, 1>(guid30);
-        data.WriteGuidBytes<0>(guid28);
-        data.WriteGuidBytes<3, 6>(guid30);
-        data.WriteGuidBytes<7>(guid28);
+        //data.WriteGuidBytes<3>(guid28);
+        //data.WriteGuidBytes<0>(guid30);
+        //data.WriteGuidBytes<5, 1>(guid28);
+        //data.WriteGuidBytes<7, 5>(guid30);
+        //data.WriteGuidBytes<3, 6>(guid28);
+        //data.WriteGuidBytes<2>(guid30);
+        //data.WriteGuidBytes<2>(guid28);
+        //data.WriteString(nameData->m_name);
+        //data.WriteGuidBytes<4, 1>(guid30);
+        //data.WriteGuidBytes<0>(guid28);
+        //data.WriteGuidBytes<3, 6>(guid30);
+        //data.WriteGuidBytes<7>(guid28);
     }
 
     SendPacket(&data);

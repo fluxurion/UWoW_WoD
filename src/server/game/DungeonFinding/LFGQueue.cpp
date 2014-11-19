@@ -36,20 +36,20 @@ namespace lfg
    @param[in]     check list of guids
    @returns Concatenated string
 */
-std::string ConcatenateGuids(LfgGuidList const& check)
+std::string ConcatenateGuids(GuidList const& check)
 {
     if (check.empty())
         return "";
 
     // need the guids in order to avoid duplicates
-    LfgGuidSet guids(check.begin(), check.end());
+    GuidSet guids(check.begin(), check.end());
 
     std::ostringstream o;
 
-    LfgGuidSet::const_iterator it = guids.begin();
-    o << (*it);
+    GuidSet::const_iterator it = guids.begin();
+    o << *it;
     for (++it; it != guids.end(); ++it)
-        o << '|' << (*it);
+        o << '|' << *it;
 
     return o.str();
 }
@@ -83,19 +83,19 @@ char const* GetCompatibleString(LfgCompatibility compatibles)
     }
 }
 
-void LFGQueue::AddToQueue(uint64 guid)
+void LFGQueue::AddToQueue(ObjectGuid guid)
 {
     LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(guid);
     if (itQueue == QueueDataStore.end())
     {
-        sLog->outError(LOG_FILTER_LFG, "LFGQueue::AddToQueue: Queue data not found for [" UI64FMTD "]", guid);
+        sLog->outError(LOG_FILTER_LFG, "LFGQueue::AddToQueue: Queue data not found for %s", guid.ToString().c_str());
         return;
     }
 
     AddToNewQueue(guid);
 }
 
-void LFGQueue::RemoveFromQueue(uint64 guid)
+void LFGQueue::RemoveFromQueue(ObjectGuid guid)
 {
     RemoveFromNewQueue(guid);
     RemoveFromCurrentQueue(guid);
@@ -122,33 +122,33 @@ void LFGQueue::RemoveFromQueue(uint64 guid)
         QueueDataStore.erase(itDelete);
 }
 
-void LFGQueue::AddToNewQueue(uint64 guid)
+void LFGQueue::AddToNewQueue(ObjectGuid guid)
 {
     newToQueueStore.push_back(guid);
 }
 
-void LFGQueue::RemoveFromNewQueue(uint64 guid)
+void LFGQueue::RemoveFromNewQueue(ObjectGuid guid)
 {
     newToQueueStore.remove(guid);
 }
 
-void LFGQueue::AddToCurrentQueue(uint64 guid)
+void LFGQueue::AddToCurrentQueue(ObjectGuid guid)
 {
     currentQueueStore.push_back(guid);
 }
 
-void LFGQueue::RemoveFromCurrentQueue(uint64 guid)
+void LFGQueue::RemoveFromCurrentQueue(ObjectGuid guid)
 {
     currentQueueStore.remove(guid);
 }
 
-void LFGQueue::AddQueueData(uint64 guid, time_t joinTime, LfgDungeonSet const& dungeons, LfgRolesMap const& rolesMap)
+void LFGQueue::AddQueueData(ObjectGuid guid, time_t joinTime, LfgDungeonSet const& dungeons, LfgRolesMap const& rolesMap)
 {
     QueueDataStore[guid] = LfgQueueData(joinTime, dungeons, rolesMap);
     AddToQueue(guid);
 }
 
-void LFGQueue::RemoveQueueData(uint64 guid)
+void LFGQueue::RemoveQueueData(ObjectGuid guid)
 {
     LfgQueueDataContainer::iterator it = QueueDataStore.find(guid);
     if (it != QueueDataStore.end())
@@ -188,13 +188,13 @@ void LFGQueue::UpdateWaitTimeDps(int32 waitTime, uint32 dungeonId)
 
    @param[in]     guid Guid to remove from compatible cache
 */
-void LFGQueue::RemoveFromCompatibles(uint64 guid)
+void LFGQueue::RemoveFromCompatibles(ObjectGuid guid)
 {
     std::stringstream out;
     out << guid;
     std::string strGuid = out.str();
 
-    sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::RemoveFromCompatibles: Removing [" UI64FMTD "]", guid);
+    sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::RemoveFromCompatibles: Removing %s", guid.ToString().c_str());
     for (LfgCompatibleContainer::iterator itNext = CompatibleMapStore.begin(); itNext != CompatibleMapStore.end();)
     {
         LfgCompatibleContainer::iterator it = itNext++;
@@ -247,16 +247,16 @@ LfgCompatibilityData* LFGQueue::GetCompatibilityData(std::string const& key)
 uint8 LFGQueue::FindGroups()
 {
     uint8 proposals = 0;
-    LfgGuidList firstNew;
+    GuidList firstNew;
     while (!newToQueueStore.empty())
     {
-        uint64 frontguid = newToQueueStore.front();
-        sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::FindGroups: checking [" UI64FMTD "] newToQueue(%u), currentQueue(%u)", frontguid, uint32(newToQueueStore.size()), uint32(currentQueueStore.size()));
+        ObjectGuid frontguid = newToQueueStore.front();
+        sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::FindGroups: checking %s newToQueue(%u), currentQueue(%u)", frontguid.ToString().c_str(), uint32(newToQueueStore.size()), uint32(currentQueueStore.size()));
         firstNew.clear();
         firstNew.push_back(frontguid);
         RemoveFromNewQueue(frontguid);
 
-        LfgGuidList temporalList = currentQueueStore;
+        GuidList temporalList = currentQueueStore;
         LfgCompatibility compatibles = FindNewGroups(firstNew, temporalList);
 
         if (compatibles == LFG_COMPATIBLES_MATCH)
@@ -274,7 +274,7 @@ uint8 LFGQueue::FindGroups()
    @param[in]     all List of all other guids in main queue to match against
    @return LfgCompatibility type of compatibility between groups
 */
-LfgCompatibility LFGQueue::FindNewGroups(LfgGuidList& check, LfgGuidList& all)
+LfgCompatibility LFGQueue::FindNewGroups(GuidList& check, GuidList& all)
 {
     std::string strGuids = ConcatenateGuids(check);
     LfgCompatibility compatibles = GetCompatibles(strGuids);
@@ -312,7 +312,7 @@ LfgCompatibility LFGQueue::FindNewGroups(LfgGuidList& check, LfgGuidList& all)
    @param[in]     check List of guids to check compatibilities
    @return LfgCompatibility type of compatibility
 */
-LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
+LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
 {
     std::string strGuids = ConcatenateGuids(check);
     LfgProposal proposal;
@@ -345,7 +345,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
     // Check all-but-new compatiblitity
     if (check.size() > 2)
     {
-        uint64 frontGuid = check.front();
+        ObjectGuid frontGuid = check.front();
         check.pop_front();
 
         // Check all-but-new compatibilities (New, A, B, C, D) --> check(A, B, C, D)
@@ -362,20 +362,20 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
     // Check if more than one LFG group and number of players joining
     uint8 numPlayers = 0;
     uint8 numLfgGroups = 0;
-    for (LfgGuidList::const_iterator it = check.begin(); it != check.end() && numLfgGroups < 2 && numPlayers <= maxGroupSize; ++it)
+    for (GuidList::const_iterator it = check.begin(); it != check.end() && numLfgGroups < 2 && numPlayers <= maxGroupSize; ++it)
     {
-        uint64 guid = (*it);
+        ObjectGuid guid = (*it);
         LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(guid);
         if (itQueue == QueueDataStore.end())
         {
-            sLog->outError(LOG_FILTER_LFG, "LFGQueue::CheckCompatibility: [" UI64FMTD "] is not queued but listed as queued!", guid);
+            sLog->outError(LOG_FILTER_LFG, "LFGQueue::CheckCompatibility: %s is not queued but listed as queued!", guid.ToString().c_str());
             RemoveFromQueue(guid);
             return LFG_COMPATIBILITY_PENDING;
         }
 
         // Store group so we don't need to call Mgr to get it later (if it's player group will be 0 otherwise would have joined as group)
         for (LfgRolesMap::const_iterator it2 = itQueue->second.roles.begin(); it2 != itQueue->second.roles.end(); ++it2)
-            proposalGroups[it2->first] = IS_GROUP(itQueue->first) ? itQueue->first : 0;
+            proposalGroups[it2->first] = itQueue->first.IsParty() ? itQueue->first : ObjectGuid::Empty;
 
         numPlayers += itQueue->second.roles.size();
 
@@ -387,7 +387,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
         }
     }
 
-    uint64 gguid = *check.begin();
+    ObjectGuid gguid = *check.begin();
     proposal.isNew = numLfgGroups != 1 || sLFGMgr->GetOldState(gguid) != LFG_STATE_DUNGEON;
 
     // Group with less that MAXGROUPSIZE members always compatible
@@ -422,7 +422,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
     // If it's single group no need to check for duplicate players, ignores, bad roles or bad dungeons as it's been checked before joining
     if (check.size() > 1)
     {
-        for (LfgGuidList::const_iterator it = check.begin(); it != check.end(); ++it)
+        for (GuidList::const_iterator it = check.begin(); it != check.end(); ++it)
         {
             if (QueueDataStore.find(*it) == QueueDataStore.end())
                 sLog->outError(LOG_FILTER_LFG, "LFGQueue::CheckCompatibility: ERROR! player queue data not found! 1");
@@ -434,7 +434,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
                 for (itPlayer = proposalRoles.begin(); itPlayer != proposalRoles.end(); ++itPlayer)
                 {
                     if (itRoles->first == itPlayer->first)
-                        sLog->outError(LOG_FILTER_LFG, "LFGQueue::CheckCompatibility: ERROR! Player multiple times in queue! [" UI64FMTD "]", itRoles->first);
+                        sLog->outError(LOG_FILTER_LFG, "LFGQueue::CheckCompatibility: ERROR! Player multiple times in queue! %s", itRoles->first.ToString().c_str());
                     else if (sLFGMgr->HasIgnore(itRoles->first, itPlayer->first))
                         break;
                 }
@@ -450,7 +450,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
             return LFG_INCOMPATIBLES_HAS_IGNORES;
         }
 
-        LfgGuidList::iterator itguid = check.begin();
+        GuidList::iterator itguid = check.begin();
         if (QueueDataStore.find(*itguid) == QueueDataStore.end())
             sLog->outError(LOG_FILTER_LFG, "LFGQueue::CheckCompatibility: ERROR! player queue data not found! 2");
 
@@ -487,7 +487,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
     }
     else
     {
-        uint64 gguid = *check.begin();
+        ObjectGuid gguid = *check.begin();
         const LfgQueueData &queue = QueueDataStore[gguid];
         proposalDungeons = queue.dungeons;
         proposalRoles = queue.roles;
@@ -502,7 +502,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
         LfgCompatibilityData data(LFG_COMPATIBLES_WITH_LESS_PLAYERS);
         data.roles = proposalRoles;
 
-        for (LfgGuidList::const_iterator itr = check.begin(); itr != check.end(); ++itr)
+        for (GuidList::const_iterator itr = check.begin(); itr != check.end(); ++itr)
             UpdateBestCompatibleInQueue(QueueDataStore.find(*itr), strGuids, data.roles);
 
         SetCompatibilityData(strGuids, data);
@@ -520,7 +520,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
 
     // Create a new proposal
     proposal.cancelTime = time(NULL) + LFG_TIME_PROPOSAL;
-    proposal.leader = 0;
+    proposal.leader.Clear();
     proposal.dungeonId = Trinity::Containers::SelectRandomContainerElement(proposalDungeons);
 
     bool leader = false;
@@ -541,7 +541,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
         LfgProposalPlayer &data = proposal.players[itRoles->first];
         data.role = itRoles->second;
         data.group = proposalGroups.find(itRoles->first)->second;
-        if (!proposal.isNew && data.group && data.group == proposal.group) // Player from existing group, autoaccept
+        if (!proposal.isNew && !data.group.IsEmpty() && data.group == proposal.group) // Player from existing group, autoaccept
             data.accept = LFG_ANSWER_AGREE;
 
         allAccepted &= data.accept == LFG_ANSWER_AGREE;
@@ -553,9 +553,9 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
         proposal.state = LFG_PROPOSAL_INITIATING;
 
     // Mark proposal members as not queued (but not remove queue data)
-    for (LfgGuidList::const_iterator itQueue = proposal.queues.begin(); itQueue != proposal.queues.end(); ++itQueue)
+    for (GuidList::const_iterator itQueue = proposal.queues.begin(); itQueue != proposal.queues.end(); ++itQueue)
     {
-        uint64 guid = (*itQueue);
+        ObjectGuid guid = (*itQueue);
         RemoveFromNewQueue(guid);
         RemoveFromCurrentQueue(guid);
     }
@@ -577,7 +577,7 @@ void LFGQueue::UpdateQueueTimers(time_t currTime)
             continue;
 
         uint32 dungeonId = (*queueinfo.dungeons.begin());
-        if (!IS_GROUP(itQueue->first))
+        if (!itQueue->first.IsParty())
         {
             LfgDungeonSet const& dungeons = sLFGMgr->GetSelectedDungeons(itQueue->first);
             if (!dungeons.empty())
@@ -632,31 +632,31 @@ void LFGQueue::UpdateQueueTimers(time_t currTime)
         LfgQueueStatusData queueData(dungeonId, waitTime, wtAvg, wtTank, wtHealer, wtDps, queuedTime, &queueinfo);
         for (LfgRolesMap::const_iterator itPlayer = queueinfo.roles.begin(); itPlayer != queueinfo.roles.end(); ++itPlayer)
         {
-            uint64 pguid = itPlayer->first;
+            ObjectGuid pguid = itPlayer->first;
             LFGMgr::SendLfgQueueStatus(pguid, queueData);
         }
     }
 }
 
-LfgQueueData const* LFGQueue::GetQueueData(uint64 guid)
+LfgQueueData const* LFGQueue::GetQueueData(ObjectGuid guid)
 {
     LfgQueueDataContainer::const_iterator itr = QueueDataStore.find(guid);
     return itr != QueueDataStore.end() ? &itr->second : NULL;
 }
 
-time_t LFGQueue::GetJoinTime(uint64 guid)
+time_t LFGQueue::GetJoinTime(ObjectGuid guid)
 {
     LfgQueueDataContainer::const_iterator itr = QueueDataStore.find(guid);
     return itr != QueueDataStore.end() ? itr->second.joinTime : time(NULL);
 }
 
-uint8 LFGQueue::GetQueueType(uint64 guid)
+uint8 LFGQueue::GetQueueType(ObjectGuid guid)
 {
     LfgQueueDataContainer::const_iterator itr = QueueDataStore.find(guid);
     return itr != QueueDataStore.end() ? itr->second.type : LFG_TYPE_DUNGEON;
 }
 
-uint8 LFGQueue::GetQueueSubType(uint64 guid)
+uint8 LFGQueue::GetQueueSubType(ObjectGuid guid)
 {
     LfgQueueDataContainer::const_iterator itr = QueueDataStore.find(guid);
     return itr != QueueDataStore.end() ? itr->second.subType : LFG_SUBTYPE_DUNGEON;
@@ -700,11 +700,11 @@ std::string LFGQueue::DumpQueueInfo() const
 
     for (uint8 i = 0; i < 2; ++i)
     {
-        LfgGuidList const& queue = i ? newToQueueStore : currentQueueStore;
-        for (LfgGuidList::const_iterator it = queue.begin(); it != queue.end(); ++it)
+        GuidList const& queue = i ? newToQueueStore : currentQueueStore;
+        for (GuidList::const_iterator it = queue.begin(); it != queue.end(); ++it)
         {
-            uint64 guid = *it;
-            if (IS_GROUP(guid))
+            ObjectGuid guid = *it;
+            if (guid.IsParty())
             {
                 groups++;
                 playersInGroup += sLFGMgr->GetPlayerCount(guid);
@@ -731,7 +731,7 @@ std::string LFGQueue::DumpCompatibleInfo(bool full /* = false */) const
 
 void LFGQueue::FindBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueue)
 {
-    sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::FindBestCompatibleInQueue: " UI64FMTD, itrQueue->first);
+    sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::FindBestCompatibleInQueue: %s", itrQueue->first.ToString().c_str());
     std::ostringstream o;
     o << itrQueue->first;
     std::string sguid = o.str();
@@ -756,8 +756,8 @@ void LFGQueue::UpdateBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQu
     if (size <= storedSize)
         return;
 
-    sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::UpdateBestCompatibleInQueue: Changed (%s) to (%s) as best compatible group for " UI64FMTD,
-        queueData.bestCompatible.c_str(), key.c_str(), itrQueue->first);
+    sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::UpdateBestCompatibleInQueue: Changed (%s) to (%s) as best compatible group for %s",
+        queueData.bestCompatible.c_str(), key.c_str(), itrQueue->first.ToString().c_str());
 
     queueData.bestCompatible = key;
     queueData.tanks = queueData.tanksNeeded;

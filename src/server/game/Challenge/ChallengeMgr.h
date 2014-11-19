@@ -20,11 +20,11 @@
 
 struct ChallengeMember
 {
-    uint64 guid;
+    ObjectGuid guid;
     uint16 specId;
 
-    bool operator < (const ChallengeMember& i) const { return guid > i.guid; }
-    bool operator == (const ChallengeMember& i) const { return guid == i.guid; }
+    bool operator < (const ChallengeMember& i) const { return guid.GetCounter() > i.guid.GetCounter(); }
+    bool operator == (const ChallengeMember& i) const { return guid.GetCounter() == i.guid.GetCounter(); }
 };
 
 typedef std::set<ChallengeMember> ChallengeMemberList;
@@ -43,7 +43,7 @@ struct Challenge
 
 typedef UNORDERED_MAP<uint16/*map*/, Challenge *> ChallengeByMap;
 typedef UNORDERED_MAP<uint32/*id*/, Challenge *> ChallengeMap;
-typedef UNORDERED_MAP<uint64/*MemberGUID*/, ChallengeByMap> ChallengesOfMember;
+typedef UNORDERED_MAP<ObjectGuid/*MemberGUID*/, ChallengeByMap> ChallengesOfMember;
 typedef UNORDERED_MAP<uint32/*guild*/, ChallengeByMap> GuildBestRecord;
 typedef UNORDERED_MAP<uint16/*map*/, uint32/*QuestCredit*/> QuestCreditForMap;
 typedef UNORDERED_MAP<uint8/*medal*/, uint32/*curency count*/> CurencyRewardMap;
@@ -65,13 +65,13 @@ class ChallengeMgr
         uint32 GenerateChallengeID() { return ++challengeGUID; }
         void CheckBestMapId(Challenge *c);
         void CheckBestGuildMapId(Challenge *c);
-        void CheckBestMemberMapId(uint64 guid, Challenge *c);
+        void CheckBestMemberMapId(ObjectGuid guid, Challenge *c);
 
         void GroupReward(Map *instance, uint32 recordTime, ChallengeMode medal);
 
         Challenge * BestServerChallenge(uint16 map);
         Challenge * BestGuildChallenge(uint32 guildId, uint16 map);
-        ChallengeByMap * BestForMember(uint64 guid)
+        ChallengeByMap * BestForMember(ObjectGuid guid)
         {
             ChallengesOfMember::iterator itr = m_ChallengesOfMember.find(guid);
             if (itr == m_ChallengesOfMember.end())

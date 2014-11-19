@@ -576,7 +576,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* source, GameObject* target
                     // source->StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, TEAM_ALLIANCE ? BG_WS_SPELL_HORDE_FLAG_PICKED : BG_WS_SPELL_ALLIANCE_FLAG_PICKED);
 
                     /// Verify if both flag are carried
-                    if (_flagKeepers[team])
+                    if (!_flagKeepers[team].IsEmpty())
                         _bothFlagsKept = true;
 
                     /// Send message to all players + Play sound

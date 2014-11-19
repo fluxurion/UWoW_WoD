@@ -231,6 +231,7 @@ class ObjectGuid
 
             return _low < guid._low;
         }
+        operator bool() const { return !IsEmpty(); }
 
         static char const* GetTypeName(HighGuid high);
         char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }

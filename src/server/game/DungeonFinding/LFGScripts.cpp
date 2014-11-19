@@ -51,16 +51,16 @@ void LFGPlayerScript::OnLogin(Player* player)
         return;
 
     // Temporal: Trying to determine when group data and LFG data gets desynched
-    uint64 guid = player->GetGUID();
-    uint64 gguid = sLFGMgr->GetGroup(guid);
+    ObjectGuid guid = player->GetGUID();
+    ObjectGuid gguid = sLFGMgr->GetGroup(guid);
 
     if (Group const* group = player->GetGroup())
     {
-        uint64 gguid2 = group->GetGUID();
+        ObjectGuid gguid2 = group->GetGUID();
         if (gguid != gguid2)
         {
             sLog->outError(LOG_FILTER_LFG, "%s on group %u but LFG has group %u saved... Fixing.",
-                player->GetSession()->GetPlayerName().c_str(), GUID_LOPART(gguid2), GUID_LOPART(gguid));
+                player->GetSession()->GetPlayerName().c_str(), gguid2.GetCounter(), gguid.GetCounter());
             sLFGMgr->SetupGroupMember(guid, group->GetGUID());
         }
     }
@@ -103,24 +103,24 @@ void LFGPlayerScript::OnMapChanged(Player* player)
 
 LFGGroupScript::LFGGroupScript() : GroupScript("LFGGroupScript") { }
 
-void LFGGroupScript::OnAddMember(Group* group, uint64 guid)
+void LFGGroupScript::OnAddMember(Group* group, ObjectGuid guid)
 {
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
-    uint64 gguid = group->GetGUID();
-    uint64 leader = group->GetLeaderGUID();
+    ObjectGuid gguid = group->GetGUID();
+    ObjectGuid leader = group->GetLeaderGUID();
 
     if (leader == guid)
     {
-        sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnAddMember [" UI64FMTD "]: added [" UI64FMTD "] leader " UI64FMTD "]", gguid, guid, leader);
+        sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnAddMember [%s]: added [%s] leader [%s]", gguid.ToString().c_str(), guid.ToString().c_str(), leader.ToString().c_str());
         sLFGMgr->SetLeader(gguid, guid);
     }
     else
     {
         LfgState gstate = sLFGMgr->GetState(gguid);
         LfgState state = sLFGMgr->GetState(guid);
-        sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnAddMember [" UI64FMTD "]: added [" UI64FMTD "] leader " UI64FMTD "] gstate: %u, state: %u", gguid, guid, leader, gstate, state);
+        sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnAddMember [%s]: added [%s] leader [%s] gstate: %u, state: %u", gguid.ToString().c_str(), guid.ToString().c_str(), leader.ToString().c_str(), gstate, state);
 
         if (state == LFG_STATE_QUEUED)
             sLFGMgr->LeaveLfg(guid);
@@ -133,14 +133,14 @@ void LFGGroupScript::OnAddMember(Group* group, uint64 guid)
     sLFGMgr->AddPlayerToGroup(gguid, guid);
 }
 
-void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, char const* reason)
+void LFGGroupScript::OnRemoveMember(Group* group, ObjectGuid guid, RemoveMethod method, ObjectGuid kicker, char const* reason)
 {
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
-    uint64 gguid = group->GetGUID();
+    ObjectGuid gguid = group->GetGUID();
 
-    sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnRemoveMember [" UI64FMTD "]: remove [" UI64FMTD "] Method: %d Kicker: [" UI64FMTD "] Reason: %s", gguid, guid, method, kicker, (reason ? reason : ""));
+    sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnRemoveMember [%s]: remove [%s] Method: %d Kicker: [%s] Reason: %s", gguid.ToString().c_str(), guid.ToString().c_str(), method, kicker.ToString().c_str(), (reason ? reason : ""));
 
     bool isLFG = group->isLFGGroup();
 
@@ -160,13 +160,13 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
     if (state == LFG_STATE_PROPOSAL && method == GROUP_REMOVEMETHOD_DEFAULT)
     {
         // LfgData: Remove player from group
-        sLFGMgr->SetGroup(guid, 0);
+        sLFGMgr->SetGroup(guid, ObjectGuid::Empty);
         sLFGMgr->RemovePlayerFromGroup(gguid, guid);
         return;
     }
 
     sLFGMgr->LeaveLfg(guid);
-    sLFGMgr->SetGroup(guid, 0);
+    sLFGMgr->SetGroup(guid, ObjectGuid::Empty);
     uint8 players = sLFGMgr->RemovePlayerFromGroup(gguid, guid);
 
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -192,35 +192,35 @@ void LFGGroupScript::OnDisband(Group* group)
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
-    uint64 gguid = group->GetGUID();
-    sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnDisband [" UI64FMTD "]", gguid);
+    ObjectGuid gguid = group->GetGUID();
+    sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnDisband %s", gguid.ToString().c_str());
 
     sLFGMgr->RemoveGroupData(gguid);
 }
 
-void LFGGroupScript::OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
+void LFGGroupScript::OnChangeLeader(Group* group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid)
 {
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
-    uint64 gguid = group->GetGUID();
+    ObjectGuid gguid = group->GetGUID();
 
-    sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnChangeLeader [" UI64FMTD "]: old [" UI64FMTD "] new [" UI64FMTD "]", gguid, newLeaderGuid, oldLeaderGuid);
+    sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnChangeLeader %s: old %s new %s", gguid.ToString().c_str(), newLeaderGuid.ToString().c_str(), oldLeaderGuid.ToString().c_str());
     sLFGMgr->SetLeader(gguid, newLeaderGuid);
 }
 
-void LFGGroupScript::OnInviteMember(Group* group, uint64 guid)
+void LFGGroupScript::OnInviteMember(Group* group, ObjectGuid guid)
 {
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
-    uint64 gguid = group->GetGUID();
-    uint64 leader = group->GetLeaderGUID();
-    sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnInviteMember [" UI64FMTD "]: invite [" UI64FMTD "] leader [" UI64FMTD "]", gguid, guid, leader);
+    ObjectGuid gguid = group->GetGUID();
+    ObjectGuid leader = group->GetLeaderGUID();
+    sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnInviteMember %s: invite %s leader %s", gguid.ToString().c_str(), guid.ToString().c_str(), leader.ToString().c_str());
     // No gguid ==  new group being formed
     // No leader == after group creation first invite is new leader
     // leader and no gguid == first invite after leader is added to new group (this is the real invite)
-    if (leader && !gguid)
+    if (!leader.IsEmpty() && gguid.IsEmpty())
         sLFGMgr->LeaveLfg(leader);
 }
 
