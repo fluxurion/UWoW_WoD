@@ -734,7 +734,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void SetRespawnRadius(float dist) { m_respawnradius = dist; }
 
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
-        uint32 lootingGroupLowGUID;                         // used to find group which is looting corpse
+        ObjectGuid lootingGroupLowGUID;                     // used to find group which is looting corpse
 
         void SendZoneUnderAttackMessage(Player* attacker);
 
@@ -817,7 +817,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
     protected:
         bool m_onVehicleAccessory;
 
-        bool CreateFromProto(ObjectGuid guidlow, uint32 Entry, int32 vehId, uint32 team, const CreatureData* data = NULL);
+        bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 Entry, int32 vehId, uint32 team, const CreatureData* data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
 
         // vendor items
@@ -827,7 +827,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         ObjectGuid m_lootRecipient;
         ObjectGuid m_LootOtherRecipient;                        // Pet lotter for example
-        uint32 m_lootRecipientGroup;
+        ObjectGuid m_lootRecipientGroup;
 
         /// Timers
         time_t m_corpseRemoveTime;                          // (msecs)timer for death or corpse disappearance
@@ -887,7 +887,7 @@ class AssistDelayEvent : public BasicEvent
     public:
         AssistDelayEvent(ObjectGuid victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
 
-        bool Execute(ObjectGuid e_time, uint32 p_time);
+        bool Execute(uint64 e_time, uint32 p_time);
         void AddAssistant(ObjectGuid guid) { m_assistants.push_back(guid); }
     private:
         AssistDelayEvent();

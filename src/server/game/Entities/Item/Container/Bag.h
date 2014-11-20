@@ -35,7 +35,7 @@ class Bag : public Item
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
+        bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner);
 
         void Clear();
         void StoreItem(uint8 slot, Item* pItem, bool update);
@@ -54,7 +54,7 @@ class Bag : public Item
         // overwrite virtual Item::SaveToDB
         void SaveToDB(SQLTransaction& trans);
         // overwrite virtual Item::LoadFromDB
-        bool LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry);
+        bool LoadFromDB(ObjectGuid::LowType guid, uint64 owner_guid, Field* fields, uint32 entry);
         // overwrite virtual Item::DeleteFromDB
         void DeleteFromDB(SQLTransaction& trans);
 

@@ -155,8 +155,8 @@ bool SetImuneDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 }
 
 Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapCreature(),
-lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(0),
-m_PlayerDamageReq(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_LootOtherRecipient(0), m_corpseRemoveTime(0), m_respawnTime(0),
+lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(),
+m_PlayerDamageReq(0), m_lootRecipient(), m_lootRecipientGroup(), m_LootOtherRecipient(), m_corpseRemoveTime(0), m_respawnTime(0),
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
@@ -539,11 +539,11 @@ void Creature::Update(uint32 diff)
             {
                 if (m_groupLootTimer <= diff)
                 {
-                    Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID);
-                    if (group)
+                    if (Group* group = sGroupMgr->GetGroupByGUID(lootingGroupLowGUID))
                         group->EndRoll(&loot);
+
                     m_groupLootTimer = 0;
-                    lootingGroupLowGUID = 0;
+                    lootingGroupLowGUID.Clear();
                 }
                 else m_groupLootTimer -= diff;
             }
@@ -573,7 +573,7 @@ void Creature::Update(uint32 diff)
                     if (Unit* charmer = ObjectAccessor::GetUnit(*this, LastCharmerGUID))
                         i_AI->AttackStart(charmer);
 
-                LastCharmerGUID = 0;
+                LastCharmerGUID.Clear();
             }
 
             if (!IsInEvadeMode() && IsAIEnabled)
@@ -1026,8 +1026,8 @@ void Creature::SetLootRecipient(Unit* unit)
 
     if (!unit)
     {
-        m_lootRecipient = 0;
-        m_lootRecipientGroup = 0;
+        m_lootRecipient.Clear();
+        m_lootRecipientGroup.Clear();
         RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE|UNIT_DYNFLAG_TAPPED);
         return;
     }
@@ -1041,7 +1041,7 @@ void Creature::SetLootRecipient(Unit* unit)
 
     m_lootRecipient = player->GetGUID();
     if (Group* group = player->GetGroup())
-        m_lootRecipientGroup = group->GetLowGUID();
+        m_lootRecipientGroup = group->GetGUID();
 
     SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED);
 }
@@ -1327,7 +1327,7 @@ float Creature::GetSpellDamageMod(int32 Rank)
     }
 }
 
-bool Creature::CreateFromProto(ObjectGuid guidlow, uint32 Entry, int32 vehId, uint32 team, const CreatureData* data)
+bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 Entry, int32 vehId, uint32 team, const CreatureData* data)
 {
     SetZoneScript();
     if (m_zoneScript && data)
@@ -1351,7 +1351,10 @@ bool Creature::CreateFromProto(ObjectGuid guidlow, uint32 Entry, int32 vehId, ui
     if (vehId <= 0)
         vehId = cinfo->VehicleId;
 
-    Object::_Create(guidlow, Entry, vehId ? HighGuid::Vehicle : HighGuid::Creature);
+    if (vehId || cinfo->VehicleId)
+        Object::_Create(ObjectGuid::Create<HighGuid::Vehicle>(GetMapId(), entry, guidlow));
+    else
+        Object::_Create(ObjectGuid::Create<HighGuid::Creature>(GetMapId(), entry, guidlow));
 
     if (!UpdateEntry(Entry, team, data))
         return false;

@@ -2348,7 +2348,7 @@ class Unit : public WorldObject
 
         friend class VehicleJoinEvent;
         bool IsAIEnabled, NeedChangeAI;
-        uint64 LastCharmerGUID;
+        ObjectGuid LastCharmerGUID;
         bool CreateVehicleKit(uint32 id, uint32 creatureEntry, uint32 RecAura = 0);
         void RemoveVehicleKit();
         Vehicle* GetVehicleKit()const { return m_vehicleKit; }
