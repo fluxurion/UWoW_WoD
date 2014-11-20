@@ -82,7 +82,7 @@ void DynamicObject::RemoveFromWorld()
     }
 }
 
-bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type)
+bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type)
 {
     SetMap(caster->GetMap());
     Relocate(pos);
@@ -92,7 +92,8 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spe
         return false;
     }
 
-    WorldObject::_Create(guidlow, HIGHGUID_DYNAMICOBJECT, caster->GetPhaseMask());
+    WorldObject::_Create(ObjectGuid::Create<HighGuid::DynamicObject>(GetMapId(), spellId, guidlow));
+    SetPhaseMask(caster->GetPhaseMask(), false);
 
     SetEntry(spellId);
     SetObjectScale(1.0f);
@@ -100,12 +101,12 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spe
     {
         ASSERT(caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetGroup()
             && "DYNAMIC_OBJECT_RAID_MARKER must only be created by players that are in group.");
-        SetUInt64Value(DYNAMICOBJECT_CASTER, caster->ToPlayer()->GetGroup()->GetGUID());
+        SetGuidValue(DYNAMICOBJECT_CASTER, caster->ToPlayer()->GetGroup()->GetGUID());
 
         AddPlayerInPersonnalVisibilityList(GetCasterGUID());
     }
     else
-        SetUInt64Value(DYNAMICOBJECT_CASTER, caster->GetGUID());
+        SetGuidValue(DYNAMICOBJECT_CASTER, caster->GetGUID());
 
     // The lower word of DYNAMICOBJECT_BYTES must be 0x0001. This value means that the visual radius will be overriden
     // by client for most of the "ground patch" visual effect spells and a few "skyfall" ones like Hurricane.

@@ -512,13 +512,13 @@ void Creature::Update(uint32 diff)
                 if (!allowed)                                               // Will be rechecked on next Update call
                     break;
 
-                uint64 dbtableHighGuid = MAKE_NEW_GUID(m_DBTableGuid, GetEntry(), HIGHGUID_UNIT);
+                ObjectGuid dbtableHighGuid = ObjectGuid::Create<HighGuid::Creature>(GetMapId(), GetEntry(), m_DBTableGuid);
                 time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
                 if (!linkedRespawntime)             // Can respawn
                     Respawn();
                 else                                // the master is dead
                 {
-                    uint64 targetGuid = sObjectMgr->GetLinkedRespawnGuid(dbtableHighGuid);
+                    ObjectGuid targetGuid = sObjectMgr->GetLinkedRespawnGuid(dbtableHighGuid);
                     if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
                         SetRespawnTime(DAY);
                     else
@@ -733,7 +733,7 @@ void Creature::Motion_Initialize()
         i_motionMaster.Initialize();
 }
 
-bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, int32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data)
+bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 Entry, int32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data)
 {
     ASSERT(map);
     SetMap(map);
@@ -1013,7 +1013,7 @@ Unit* Creature::GetOtherRecipient() const
     return ObjectAccessor::GetUnit(*this, m_LootOtherRecipient);
 }
 
-void Creature::SetOtherLootRecipient(uint64 guid)
+void Creature::SetOtherLootRecipient(ObjectGuid guid)
 {
     m_LootOtherRecipient = guid;
 }
@@ -1327,7 +1327,7 @@ float Creature::GetSpellDamageMod(int32 Rank)
     }
 }
 
-bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, int32 vehId, uint32 team, const CreatureData* data)
+bool Creature::CreateFromProto(ObjectGuid guidlow, uint32 Entry, int32 vehId, uint32 team, const CreatureData* data)
 {
     SetZoneScript();
     if (m_zoneScript && data)
@@ -1362,7 +1362,7 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, int32 vehId, uint32
     return true;
 }
 
-bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
+bool Creature::LoadCreatureFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap)
 {
     CreatureData const* data = sObjectMgr->GetCreatureData(guid);
 
@@ -1375,7 +1375,7 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
     m_DBTableGuid = guid;
     if (map->GetInstanceId() == 0)
     {
-        if (map->GetCreature(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT)))
+        if (map->GetCreature(ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, guid)))
             return false;
     }
     else

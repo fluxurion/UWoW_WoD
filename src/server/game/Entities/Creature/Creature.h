@@ -196,7 +196,7 @@ struct CreatureDifficultyStat
 };
 
 // Benchmarked: Faster than std::map (insert/find)
-typedef UNORDERED_MAP<uint32, CreatureTemplate> CreatureTemplateContainer;
+typedef UNORDERED_MAP<ObjectGuid::LowType, CreatureTemplate> CreatureTemplateContainer;
 typedef UNORDERED_MAP<uint32, std::vector<CreatureDifficultyStat> > CreatureDifficultyStatContainer;
 
 // Defines base stats for creatures (used to calculate HP/mana/armor).
@@ -536,12 +536,12 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         void DisappearAndDie();
 
-        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, int32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
+        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 Entry, int32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
         bool LoadCreaturesAddon(bool reload = false);
         void SelectLevel(const CreatureTemplate* cinfo);
         void LoadEquipment(uint32 equip_entry, bool force=false);
 
-        uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
+        ObjectGuid::LowType GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
         void Update(uint32 time);                         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
@@ -664,8 +664,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         void setDeathState(DeathState s);                   // override virtual Unit::setDeathState
 
-        bool LoadFromDB(uint32 guid, Map* map) { return LoadCreatureFromDB(guid, map, false); }
-        bool LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap = true);
+        bool LoadFromDB(ObjectGuid::LowType guid, Map* map) { return LoadCreatureFromDB(guid, map, false); }
+        bool LoadCreatureFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap = true);
         void SaveToDB();
                                                             // overriden in Pet
         virtual void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
@@ -681,7 +681,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
 
         void SetLootRecipient (Unit* unit);
-        void SetOtherLootRecipient(uint64 guid);
+        void SetOtherLootRecipient(ObjectGuid guid);
         void AllLootRemovedFromCorpse();
 
         SpellInfo const* reachWithSpellAttack(Unit* victim);
@@ -817,7 +817,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
     protected:
         bool m_onVehicleAccessory;
 
-        bool CreateFromProto(uint32 guidlow, uint32 Entry, int32 vehId, uint32 team, const CreatureData* data = NULL);
+        bool CreateFromProto(ObjectGuid guidlow, uint32 Entry, int32 vehId, uint32 team, const CreatureData* data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
 
         // vendor items
@@ -825,8 +825,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         static float _GetHealthMod(int32 Rank);
 
-        uint64 m_lootRecipient;
-        uint64 m_LootOtherRecipient;                        // Pet lotter for example
+        ObjectGuid m_lootRecipient;
+        ObjectGuid m_LootOtherRecipient;                        // Pet lotter for example
         uint32 m_lootRecipientGroup;
 
         /// Timers
@@ -843,7 +843,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint32 m_regenTimerCount;
         uint32 m_petregenTimer;
         MovementGeneratorType m_defaultMovementType;
-        uint32 m_DBTableGuid;                               ///< For new or temporary creatures is 0 for saved it is lowguid
+        ObjectGuid::LowType m_DBTableGuid;                  ///< For new or temporary creatures is 0 for saved it is lowguid
         uint32 m_equipmentId;
 
         bool m_AlreadyCallAssistance;
@@ -885,16 +885,16 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 class AssistDelayEvent : public BasicEvent
 {
     public:
-        AssistDelayEvent(uint64 victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
+        AssistDelayEvent(ObjectGuid victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
 
-        bool Execute(uint64 e_time, uint32 p_time);
-        void AddAssistant(uint64 guid) { m_assistants.push_back(guid); }
+        bool Execute(ObjectGuid e_time, uint32 p_time);
+        void AddAssistant(ObjectGuid guid) { m_assistants.push_back(guid); }
     private:
         AssistDelayEvent();
 
-        uint64            m_victim;
-        std::list<uint64> m_assistants;
-        Unit&             m_owner;
+        ObjectGuid            m_victim;
+        GuidList              m_assistants;
+        Unit&                 m_owner;
 };
 
 class ForcedDespawnDelayEvent : public BasicEvent

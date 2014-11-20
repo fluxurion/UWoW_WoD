@@ -42,7 +42,7 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type);
+        bool CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type);
         void Update(uint32 p_time);
         void Remove();
         void SetDuration(int32 newDuration);
@@ -56,7 +56,7 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         void BindToCaster();
         void UnbindFromCaster();
         uint32 GetSpellId() const {  return GetUInt32Value(DYNAMICOBJECT_SPELLID); }
-        uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_CASTER); }
+        ObjectGuid GetCasterGUID() const { return GetGuidValue(DYNAMICOBJECT_CASTER); }
         float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_RADIUS); }
         DynamicObjectType GetType() const { return DynamicObjectType(GetByteValue(DYNAMICOBJECT_BYTES, 3) >> 4); }
         uint32 GetVisualId() const { return GetUInt32Value(DYNAMICOBJECT_BYTES) & 0xFFFFFFF; }
