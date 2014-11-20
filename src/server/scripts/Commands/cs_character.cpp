@@ -875,7 +875,7 @@ public:
         uint64 guid;
         // character name can't start from number
         if (isNumeric(playerStr))
-            guid = MAKE_NEW_GUID(atoi(playerStr), 0, HIGHGUID_PLAYER);
+            guid = MAKE_NEW_GUID(atoi(playerStr), 0, HighGuid::Player);
         else
         {
             std::string name = handler->extractPlayerNameFromLink(playerStr);

@@ -1351,7 +1351,7 @@ bool Creature::CreateFromProto(ObjectGuid guidlow, uint32 Entry, int32 vehId, ui
     if (vehId <= 0)
         vehId = cinfo->VehicleId;
 
-    Object::_Create(guidlow, Entry, vehId ? HIGHGUID_VEHICLE : HIGHGUID_UNIT);
+    Object::_Create(guidlow, Entry, vehId ? HighGuid::Vehicle : HighGuid::Creature);
 
     if (!UpdateEntry(Entry, team, data))
         return false;

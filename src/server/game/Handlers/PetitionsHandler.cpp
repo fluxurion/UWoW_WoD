@@ -231,7 +231,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     {
         Field* fields2 = result->Fetch();
         uint32 lowGuid = fields2[0].GetUInt32();
-        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);
+        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player);
 
         //data.WriteGuidMask<2, 0, 3, 6, 4, 5, 7, 1>(plSignGuid);
     }
@@ -243,7 +243,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     {
         Field* fields2 = result->Fetch();
         uint32 lowGuid = fields2[0].GetUInt32();
-        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);
+        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player);
 
         //data.WriteGuidBytes<6, 3, 0, 4, 7, 5, 1, 2>(plSignGuid);
         data << uint32(0);
@@ -295,7 +295,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     if (result)
     {
         Field* fields = result->Fetch();
-        ownerguid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+        ownerguid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player);
         name      = fields[1].GetString();
         type      = fields[2].GetUInt8();
     }
@@ -445,7 +445,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
     }
 
     fields = result->Fetch();
-    uint64 ownerGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+    uint64 ownerGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player);
     uint64 signs = fields[1].GetUInt64();
     uint8 type = fields[2].GetUInt8();
 
@@ -573,7 +573,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recvData)
         return;
 
     Field* fields = result->Fetch();
-    ownerguid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+    ownerguid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player);
 
     /*Player* owner = ObjectAccessor::FindPlayer(ownerguid);
     if (owner)                                               // petition owner online
@@ -662,7 +662,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
         {
             Field* fields1 = result->Fetch();
             uint32 lowGuid = fields1[0].GetUInt32();
-            ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);
+            ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player);
 
             if (player->GetGUID() == plSignGuid)
             {
@@ -694,7 +694,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
     {
         Field* fields2 = result->Fetch();
         uint32 lowGuid = fields2[0].GetUInt32();
-        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);
+        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player);
 
         //data.WriteGuidMask<2, 0, 3, 6, 4, 5, 7, 1>(plSignGuid);
     }
@@ -706,7 +706,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
     {
         Field* fields2 = result->Fetch();
         uint32 lowGuid = fields2[0].GetUInt32();
-        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);
+        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player);
 
         //data.WriteGuidBytes<6, 3, 0, 4, 7, 5, 1, 2>(plSignGuid);
         data << uint32(0);
@@ -833,7 +833,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
     for (uint8 i = 0; i < signatures; ++i)
     {
         Field* fields = result->Fetch();
-        guild->AddMember(MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER));
+        guild->AddMember(MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player));
         result->NextRow();
     }
 

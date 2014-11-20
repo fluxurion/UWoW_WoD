@@ -298,29 +298,29 @@ void Map::ScriptsProcess()
         Object* source = NULL;
         if (step.sourceGUID)
         {
-            switch (GUID_HIPART(step.sourceGUID))
+            switch (step.sourceGUID.GetHigh())
             {
-                case HIGHGUID_ITEM: // as well as HIGHGUID_CONTAINER
+                case HighGuid::Item: // as well as HIGHGUID_CONTAINER
                     if (Player* player = HashMapHolder<Player>::Find(step.ownerGUID))
                         source = player->GetItemByGuid(step.sourceGUID);
                     break;
-                case HIGHGUID_UNIT:
-                case HIGHGUID_VEHICLE:
+                case HighGuid::Creature:
+                case HighGuid::Vehicle:
                     source = HashMapHolder<Creature>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_PET:
+                case HighGuid::Pet:
                     source = HashMapHolder<Pet>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_PLAYER:
+                case HighGuid::Player:
                     source = HashMapHolder<Player>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_GAMEOBJECT:
+                case HighGuid::GameObject:
                     source = HashMapHolder<GameObject>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_CORPSE:
+                case HighGuid::Corpse:
                     source = HashMapHolder<Corpse>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_MO_TRANSPORT:
+                case HighGuid::Transport:
                     for (MapManager::TransportSet::iterator itr2 = sMapMgr->m_Transports.begin(); itr2 != sMapMgr->m_Transports.end(); ++itr2)
                     {
                         if ((*itr2)->GetGUID() == step.sourceGUID)
@@ -340,22 +340,22 @@ void Map::ScriptsProcess()
         Object* target = NULL;
         if (step.targetGUID)
         {
-            switch (GUID_HIPART(step.targetGUID))
+            switch (step.targetGUID.GetHigh())
             {
-                case HIGHGUID_UNIT:
-                case HIGHGUID_VEHICLE:
+                case HighGuid::Creature:
+                case HighGuid::Vehicle:
                     target = HashMapHolder<Creature>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_PET:
+                case HighGuid::Pet:
                     target = HashMapHolder<Pet>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_PLAYER:                       // empty GUID case also
+                case HighGuid::Player:                       // empty GUID case also
                     target = HashMapHolder<Player>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_GAMEOBJECT:
+                case HighGuid::GameObject:
                     target = HashMapHolder<GameObject>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_CORPSE:
+                case HighGuid::Corpse:
                     target = HashMapHolder<Corpse>::Find(step.targetGUID);
                     break;
                 default:
@@ -395,8 +395,8 @@ void Map::ScriptsProcess()
                             case CHAT_TYPE_WHISPER:
                             case CHAT_MSG_RAID_BOSS_WHISPER:
                             {
-                                uint64 targetGUID = target ? target->GetGUID() : 0;
-                                if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
+                                ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
+                                if (!targetGUID || !targetGUID.IsPlayer())
                                     sLog->outError(LOG_FILTER_TSCR, "%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
                                     player->Whisper(text, LANG_UNIVERSAL, targetGUID);
@@ -412,7 +412,7 @@ void Map::ScriptsProcess()
                     // Source or target must be Creature.
                     if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script))
                     {
-                        uint64 targetGUID = target ? target->GetGUID() : 0;
+                        ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
                         switch (step.script->Talk.ChatType)
                         {
                             case CHAT_TYPE_SAY:
@@ -428,13 +428,13 @@ void Map::ScriptsProcess()
                                 cSource->MonsterTextEmote(step.script->Talk.TextID, targetGUID, true);
                                 break;
                             case CHAT_TYPE_WHISPER:
-                                if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
+                                if (!targetGUID || !targetGUID.IsPlayer())
                                     sLog->outError(LOG_FILTER_TSCR, "%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
                                     cSource->Whisper(step.script->Talk.TextID, targetGUID);
                                 break;
                             case CHAT_MSG_RAID_BOSS_WHISPER:
-                                if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
+                                if (!targetGUID || !targetGUID.IsPlayer())
                                     sLog->outError(LOG_FILTER_TSCR, "%s attempt to raidbosswhisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
                                     cSource->MonsterWhisper(step.script->Talk.TextID, targetGUID, true);
@@ -849,7 +849,7 @@ void Map::ScriptsProcess()
                 else //check hashmap holders
                 {
                     if (CreatureData const* data = sObjectMgr->GetCreatureData(step.script->CallScript.CreatureEntry))
-                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, MAKE_NEW_GUID(step.script->CallScript.CreatureEntry, data->id, HIGHGUID_UNIT), cTarget);
+                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, MAKE_NEW_GUID(step.script->CallScript.CreatureEntry, data->id, HighGuid::Creature), cTarget);
                 }
 
                 if (!cTarget)

@@ -367,7 +367,7 @@ public:
             return false;
         }
 
-        GameObject* target = handler->GetSession()->GetPlayer()->GetMap()->GetGameObject(MAKE_NEW_GUID(guidLow, id, HIGHGUID_GAMEOBJECT));
+        GameObject* target = handler->GetSession()->GetPlayer()->GetMap()->GetGameObject(MAKE_NEW_GUID(guidLow, id, HighGuid::GameObject));
 
         handler->PSendSysMessage(LANG_GAMEOBJECT_DETAIL, guidLow, objectInfo->name.c_str(), guidLow, id, x, y, z, mapId, o, phase);
         player->SetLastTargetedGO(guidLow);

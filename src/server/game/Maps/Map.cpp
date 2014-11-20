@@ -2916,9 +2916,9 @@ time_t Map::GetLinkedRespawnTime(uint64 guid) const
     uint64 linkedGuid = sObjectMgr->GetLinkedRespawnGuid(guid);
     switch (GUID_HIPART(linkedGuid))
     {
-        case HIGHGUID_UNIT:
+        case HighGuid::Creature:
             return GetCreatureRespawnTime(GUID_LOPART(linkedGuid));
-        case HIGHGUID_GAMEOBJECT:
+        case HighGuid::GameObject:
             return GetGORespawnTime(GUID_LOPART(linkedGuid));
         default:
             break;

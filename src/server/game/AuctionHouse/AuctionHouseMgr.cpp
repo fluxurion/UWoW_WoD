@@ -862,7 +862,7 @@ std::string AuctionEntry::BuildAuctionMailBody(uint32 lowGuid, uint64 bid, uint6
 {
     std::ostringstream strm;
     strm.width(16);
-    strm << std::right << std::hex << ObjectGuid::Create<HighGuid::Player>(lowGuid);   // HIGHGUID_PLAYER always present, even for empty guids
+    strm << std::right << std::hex << ObjectGuid::Create<HighGuid::Player>(lowGuid);   // HighGuid::Player always present, even for empty guids
     strm << std::dec << ':' << bid << ':' << buyout;
     strm << ':' << deposit << ':' << cut;
     return strm.str();

@@ -1043,7 +1043,7 @@ public:
 
         Map* map = handler->GetSession()->GetPlayer()->GetMap();
 
-        if (!v->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_VEHICLE), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, id, handler->GetSession()->GetPlayer()->GetTeam(), x, y, z, o))
+        if (!v->Create(sObjectMgr->GenerateLowGuid(HighGuid::Vehicle), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, id, handler->GetSession()->GetPlayer()->GetTeam(), x, y, z, o))
         {
             delete v;
             return false;
@@ -1105,7 +1105,7 @@ public:
         uint32 guid = (uint32)atoi(e);
         uint32 index = (uint32)atoi(f);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HighGuid::Item));
 
         if (!i)
             return false;
@@ -1136,7 +1136,7 @@ public:
         uint32 index = (uint32)atoi(f);
         uint32 value = (uint32)atoi(g);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HighGuid::Item));
 
         if (!i)
             return false;
@@ -1160,7 +1160,7 @@ public:
 
         uint32 guid = (uint32)atoi(e);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HighGuid::Item));
 
         if (!i)
             return false;

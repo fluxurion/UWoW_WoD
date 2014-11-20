@@ -504,7 +504,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 
         if (m->COD > 0)                                     //if there is COD, take COD money from player and send them to sender by mail
         {
-            uint64 sender_guid = MAKE_NEW_GUID(m->sender, 0, HIGHGUID_PLAYER);
+            uint64 sender_guid = MAKE_NEW_GUID(m->sender, 0, HighGuid::Player);
             Player* receive = ObjectAccessor::FindPlayer(sender_guid);
 
             uint32 sender_accId = 0;
@@ -662,7 +662,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 
         if (normalMail)
         {
-            ObjectGuid plSender = MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER);
+            ObjectGuid plSender = MAKE_NEW_GUID((*itr)->sender, 0, HighGuid::Player);
             //data.WriteGuidMask<2, 0, 3, 7, 1, 4, 5, 6>(plSender);
         }
 
@@ -726,7 +726,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 
         if (normalMail)
         {
-            ObjectGuid plSender = MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER);
+            ObjectGuid plSender = MAKE_NEW_GUID((*itr)->sender, 0, HighGuid::Player);
             //data.WriteGuidBytes<2, 6, 0, 5, 4, 7, 3, 1>(plSender);
         }
 

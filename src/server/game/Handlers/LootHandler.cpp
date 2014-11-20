@@ -146,7 +146,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
         switch (GUID_HIPART(lootguid))
         {
-            case HIGHGUID_GAMEOBJECT:
+            case HighGuid::GameObject:
             {
                 GameObject* go = GetPlayer()->GetMap()->GetGameObject(lootguid);
 
@@ -156,7 +156,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
                 break;
             }
-            case HIGHGUID_CORPSE:                               // remove insignia ONLY in BG
+            case HighGuid::Corpse:                               // remove insignia ONLY in BG
             {
                 Corpse* bones = ObjectAccessor::GetCorpse(*player, lootguid);
 
@@ -168,7 +168,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
                 break;
             }
-            case HIGHGUID_ITEM:
+            case HighGuid::Item:
             {
                 if (Item* item = player->GetItemByGuid(lootguid))
                 {
@@ -177,8 +177,8 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 }
                 break;
             }
-            case HIGHGUID_UNIT:
-            case HIGHGUID_VEHICLE:
+            case HighGuid::Creature:
+            case HighGuid::Vehicle:
             {
                 Creature* creature = player->GetMap()->GetCreature(lootguid);
                 bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);

@@ -1207,8 +1207,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_UNIT);
-                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_UNIT);
+                guid = MAKE_NEW_GUID(guidLow, slave->id, HighGuid::Creature);
+                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HighGuid::Creature);
                 break;
             }
             case CREATURE_TO_GO:
@@ -1244,8 +1244,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_UNIT);
-                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_GAMEOBJECT);
+                guid = MAKE_NEW_GUID(guidLow, slave->id, HighGuid::Creature);
+                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HighGuid::GameObject);
                 break;
             }
             case GO_TO_GO:
@@ -1281,8 +1281,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_GAMEOBJECT);
-                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_GAMEOBJECT);
+                guid = MAKE_NEW_GUID(guidLow, slave->id, HighGuid::GameObject);
+                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HighGuid::GameObject);
                 break;
             }
             case GO_TO_CREATURE:
@@ -1318,8 +1318,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_GAMEOBJECT);
-                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_UNIT);
+                guid = MAKE_NEW_GUID(guidLow, slave->id, HighGuid::GameObject);
+                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HighGuid::Creature);
                 break;
             }
         }
@@ -1338,7 +1338,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
         return false;
 
     const CreatureData* master = GetCreatureData(guidLow);
-    uint64 guid = MAKE_NEW_GUID(guidLow, master->id, HIGHGUID_UNIT);
+    uint64 guid = MAKE_NEW_GUID(guidLow, master->id, HighGuid::Creature);
 
     if (!linkedGuidLow) // we're removing the linking
     {
@@ -1364,7 +1364,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
         return false;
     }
 
-    uint64 linkedGuid = MAKE_NEW_GUID(linkedGuidLow, slave->id, HIGHGUID_UNIT);
+    uint64 linkedGuid = MAKE_NEW_GUID(linkedGuidLow, slave->id, HighGuid::Creature);
 
     _linkedRespawnStore[guid] = linkedGuid;
     PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
@@ -1636,7 +1636,7 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     if (!map)
         return 0;
 
-    uint32 guid = GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    uint32 guid = GenerateLowGuid(HighGuid::GameObject);
     GameObjectData& data = NewGOData(guid);
     data.id             = entry;
     data.mapid          = mapId;
@@ -1718,7 +1718,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
     uint32 level = cInfo->minlevel == cInfo->maxlevel ? cInfo->minlevel : urand(cInfo->minlevel, cInfo->maxlevel); // Only used for extracting creature base stats
     CreatureBaseStats const* stats = GetCreatureBaseStats(level, cInfo->unit_class);
 
-    uint32 guid = GenerateLowGuid(HIGHGUID_UNIT);
+    uint32 guid = GenerateLowGuid(HighGuid::Creature);
     CreatureData& data = NewOrExistCreatureData(guid);
     data.id = entry;
     data.mapid = mapId;

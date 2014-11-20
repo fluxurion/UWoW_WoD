@@ -129,7 +129,7 @@ void GuildFinderMgr::AddMembershipRequest(uint32 guildGuid, MembershipRequest co
     CharacterDatabase.CommitTransaction(trans);
 
     // Notify the applicant his submittion has been added
-    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HIGHGUID_PLAYER)))
+    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HighGuid::Player)))
         SendMembershipRequestListUpdate(*player);
 
     // Notify the guild master and officers the list changed
@@ -187,7 +187,7 @@ void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
     _membershipRequests[guildId].erase(itr);
 
     // Notify the applicant his submittion has been removed
-    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(playerId, 0, HIGHGUID_PLAYER)))
+    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(playerId, 0, HighGuid::Player)))
         SendMembershipRequestListUpdate(*player);
 
     // Notify the guild master and officers the list changed
@@ -306,7 +306,7 @@ void GuildFinderMgr::DeleteGuild(uint32 guildId)
         _membershipRequests[guildId].erase(itr);
 
         // Notify the applicant his submition has been removed
-        if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(applicant, 0, HIGHGUID_PLAYER)))
+        if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(applicant, 0, HighGuid::Player)))
             SendMembershipRequestListUpdate(*player);
     }
 
@@ -330,7 +330,7 @@ void GuildFinderMgr::SendApplicantListUpdate(Guild& guild)
     for (std::vector<MembershipRequest>::const_iterator itr = recruitsList.begin(); itr != recruitsList.end(); ++itr)
     {
         MembershipRequest request = *itr;
-        ObjectGuid playerGuid(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HIGHGUID_PLAYER));
+        ObjectGuid playerGuid(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HighGuid::Player));
         
         data.WriteBit(playerGuid[1]);
         data.WriteBit(playerGuid[4]);
@@ -384,7 +384,7 @@ void GuildFinderMgr::SendMembershipRequestListUpdate(Player& player)
     for (std::vector<MembershipRequest>::const_iterator itr = recruitsList.begin(); itr != recruitsList.end(); ++itr)
     {
         MembershipRequest request = *itr;
-        ObjectGuid playerGuid(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HIGHGUID_PLAYER));
+        ObjectGuid playerGuid(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HighGuid::Player));
         
         data.WriteBit(playerGuid[1]);
         data.WriteBit(playerGuid[4]);

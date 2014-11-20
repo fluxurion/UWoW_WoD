@@ -1633,7 +1633,7 @@ public:
         uint64 targetGuid;
         std::string targetName;
 
-        uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
+        uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HighGuid::Player);
 
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
         {

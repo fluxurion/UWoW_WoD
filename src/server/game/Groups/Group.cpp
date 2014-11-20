@@ -166,14 +166,14 @@ void Group::LoadGroupFromDB(Field* fields)
 {
     m_dbStoreId = fields[15].GetUInt32();
     m_guid = MAKE_NEW_GUID(sGroupMgr->GenerateGroupId(), 0, HIGHGUID_GROUP);
-    m_leaderGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+    m_leaderGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player);
 
     // group leader not exist
     if (!sObjectMgr->GetPlayerNameByGUID(fields[0].GetUInt32(), m_leaderName))
         return;
 
     m_lootMethod = LootMethod(fields[1].GetUInt8());
-    m_looterGuid = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
+    m_looterGuid = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HighGuid::Player);
     m_lootThreshold = ItemQualities(fields[3].GetUInt8());
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
@@ -202,7 +202,7 @@ void Group::LoadGroupFromDB(Field* fields)
 void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
 {
     MemberSlot member;
-    member.guid = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
+    member.guid = MAKE_NEW_GUID(guidLow, 0, HighGuid::Player);
 
     // skip non-existed member
     if (!sObjectMgr->GetPlayerNameByGUID(member.guid, member.name))
@@ -1151,7 +1151,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         //roll for over-threshold item if it's one-player loot
         if (item->Quality >= uint32(m_lootThreshold))
         {
-            uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), 0, HIGHGUID_ITEM);
+            uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), 0, HighGuid::Item);
             Roll* r = new Roll(newitemGUID, *i);
             r->lootedGUID = pLootedObject->GetGUID();
 
@@ -1237,7 +1237,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
             continue;
         }
 
-        uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), 0, HIGHGUID_ITEM);
+        uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), 0, HighGuid::Item);
         Roll* r = new Roll(newitemGUID, *i);
         r->lootedGUID = pLootedObject->GetGUID();
 
@@ -1300,7 +1300,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
         //roll for over-threshold item if it's one-player loot
         if (item->Quality >= uint32(m_lootThreshold))
         {
-            uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), 0, HIGHGUID_ITEM);
+            uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), 0, HighGuid::Item);
             Roll* r = new Roll(newitemGUID, *i);
             r->lootedGUID = lootedObject->GetGUID();
 
@@ -1378,7 +1378,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
             continue;
 
         item = sObjectMgr->GetItemTemplate(i->itemid);
-        uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), 0, HIGHGUID_ITEM);
+        uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), 0, HighGuid::Item);
         Roll* r = new Roll(newitemGUID, *i);
         r->lootedGUID = lootedObject->GetGUID();
 
@@ -1457,7 +1457,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
         if (looter->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
         {
             //HardHack! Plr should have off-like hiGuid
-            ObjectGuid guid = MAKE_NEW_GUID(looter->GetGUID().GetCounter(), 0, HIGHGUID_PLAYER_MOP);
+            ObjectGuid guid = MAKE_NEW_GUID(looter->GetGUID().GetCounter(), 0, HighGuid::Player_MOP);
 
             //data.WriteGuidMask<0, 6, 3, 1, 5, 7, 4, 2>(guid);
             dataBuffer.WriteGuidBytes<6, 7, 2, 0, 5, 3, 1, 4>(guid);
@@ -1486,7 +1486,7 @@ void Group::DoRollForAllMembers(ObjectGuid guid, uint8 slot, uint32 mapid, Loot*
         if ((*iter)->itemSlot == slot && loot == (*iter)->getLoot() && (*iter)->isValid())
             return;
 
-    uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), 0, HIGHGUID_ITEM);
+    uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), 0, HighGuid::Item);
     Roll* r = new Roll(newitemGUID, item);
     r->lootedGUID = guid;
     WorldObject* pLootedObject = NULL;

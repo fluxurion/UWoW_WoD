@@ -175,7 +175,7 @@ void PlayerSocial::SendSocialList(Player* player)
     {
         sSocialMgr->GetFriendInfo(player, itr->first, itr->second);
 
-        //data << uint64(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));  // player guid
+        //data << uint64(MAKE_NEW_GUID(itr->first, 0, HighGuid::Player));  // player guid
         data << uint32(realmHandle.Index);
         data << uint32(realmHandle.Index);
         data << uint32(itr->second.Flags);                  // player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
@@ -230,7 +230,7 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
     friendInfo.Level = 0;
     friendInfo.Class = 0;
 
-    Player* pFriend = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(friendGUID, 0, HIGHGUID_PLAYER));
+    Player* pFriend = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(friendGUID, 0, HighGuid::Player));
     if (!pFriend)
         return;
 
@@ -265,7 +265,7 @@ void SocialMgr::MakeFriendStatusPacket(FriendsResult result, uint32 guid, WorldP
 {
     data->Initialize(SMSG_FRIEND_STATUS, 5);
     *data << uint8(result);
-    *data << uint64(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
+    *data << uint64(MAKE_NEW_GUID(guid, 0, HighGuid::Player));
 }
 
 void SocialMgr::SendFriendStatus(Player* player, FriendsResult result, uint32 friend_guid, bool broadcast)
@@ -320,7 +320,7 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
         PlayerSocialMap::const_iterator itr2 = itr->second.m_playerSocialMap.find(guid);
         if (itr2 != itr->second.m_playerSocialMap.end() && (itr2->second.Flags & SOCIAL_FLAG_FRIEND))
         {
-            Player* pFriend = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
+            Player* pFriend = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HighGuid::Player));
 
             // PLAYER see his team only and PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
             // MODERATOR, GAME MASTER, ADMINISTRATOR can see all

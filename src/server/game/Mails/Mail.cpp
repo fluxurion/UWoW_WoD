@@ -138,11 +138,11 @@ void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/
 
 void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32 receiver_guid, SQLTransaction& trans)
 {
-    Player* receiver = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(receiver_guid, 0, HIGHGUID_PLAYER));
+    Player* receiver = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(receiver_guid, 0, HighGuid::Player));
 
     uint32 rc_account = 0;
     if (!receiver)
-        rc_account = sObjectMgr->GetPlayerAccountIdByGUID(MAKE_NEW_GUID(receiver_guid, 0, HIGHGUID_PLAYER));
+        rc_account = sObjectMgr->GetPlayerAccountIdByGUID(MAKE_NEW_GUID(receiver_guid, 0, HighGuid::Player));
 
     if (!receiver && !rc_account)                            // sender not exist
     {

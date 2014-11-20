@@ -1346,7 +1346,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
     uint32 guidLow      = fields[0].GetUInt32();
     std::string oldName = fields[1].GetString();
 
-    uint64 guid = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
+    uint64 guid = MAKE_NEW_GUID(guidLow, 0, HighGuid::Player);
 
     // Update name and at_login flag in the db
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME);
@@ -2244,7 +2244,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
             if (result)
                 if (Guild* guild = sGuildMgr->GetGuildById((result->Fetch()[0]).GetUInt32()))
-                    guild->DeleteMember(MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER));
+                    guild->DeleteMember(MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player));
         }
 
         if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND))

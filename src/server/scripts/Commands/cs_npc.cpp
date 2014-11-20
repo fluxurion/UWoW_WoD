@@ -247,7 +247,7 @@ public:
 
         /* FIXME: impossible without entry
         if (lowguid)
-            creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HIGHGUID_UNIT));
+            creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HighGuid::Creature));
         */
 
         // attempt check creature existence by DB data
@@ -394,7 +394,7 @@ public:
                 return false;
 
             if (CreatureData const* cr_data = sObjectMgr->GetCreatureData(lowguid))
-                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(lowguid, cr_data->id, HIGHGUID_UNIT));
+                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(lowguid, cr_data->id, HighGuid::Creature));
         }
         else
             unit = handler->getSelectedCreature();
@@ -652,7 +652,7 @@ public:
 
             /* FIXME: impossible without entry
             if (lowguid)
-                creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HIGHGUID_UNIT));
+                creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HighGuid::Creature));
             */
 
             // Attempting creature load from DB data
@@ -856,7 +856,7 @@ public:
 
             /* impossible without entry
             if (lowguid)
-                creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HIGHGUID_UNIT));
+                creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HighGuid::Creature));
             */
 
             // attempt check creature existence by DB data
@@ -1524,7 +1524,7 @@ public:
                 return false;
 
             if (CreatureData const* cr_data = sObjectMgr->GetCreatureData(lowguid))
-                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(lowguid, cr_data->id, HIGHGUID_UNIT));
+                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(lowguid, cr_data->id, HighGuid::Creature));
         }
         else
             unit = handler->getSelectedCreature();

@@ -176,7 +176,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     m_goInfo = goinfo;
 
-    Object::_Create(guidlow, IsTransport() ? 0 : goinfo->entry, IsTransport() ? HIGHGUID_MO_TRANSPORT : HIGHGUID_GAMEOBJECT);
+    Object::_Create(guidlow, IsTransport() ? 0 : goinfo->entry, IsTransport() ? HighGuid::Transport : HighGuid::GameObject);
 
     if (goinfo->type >= MAX_GAMEOBJECT_TYPE)
     {
@@ -320,7 +320,7 @@ void GameObject::Update(uint32 diff)
                 time_t now = time(NULL);
                 if (m_respawnTime <= now)            // timer expired
                 {
-                    uint64 dbtableHighGuid = MAKE_NEW_GUID(m_DBTableGuid, GetEntry(), HIGHGUID_GAMEOBJECT);
+                    uint64 dbtableHighGuid = MAKE_NEW_GUID(m_DBTableGuid, GetEntry(), HighGuid::GameObject);
                     time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
                     if (linkedRespawntime)             // Can't respawn, the master is dead
                     {

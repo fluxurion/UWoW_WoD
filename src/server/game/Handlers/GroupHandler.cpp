@@ -627,7 +627,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     target_playerguid = GUID_LOPART(target_playerguid); //WARNING! TMP! plr should have off-like hi-guid, as server not suport it  - cut.
 
-    Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(target_playerguid, 0, HIGHGUID_PLAYER));
+    Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(target_playerguid, 0, HighGuid::Player));
     if (!target)
         return;
 

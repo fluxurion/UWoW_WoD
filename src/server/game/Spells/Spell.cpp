@@ -109,10 +109,10 @@ uint64 SpellCastTargets::GetUnitTargetGUID() const
 {
     switch (GUID_HIPART(m_objectTargetGUID))
     {
-        case HIGHGUID_PLAYER:
-        case HIGHGUID_VEHICLE:
-        case HIGHGUID_UNIT:
-        case HIGHGUID_PET:
+        case HighGuid::Player:
+        case HighGuid::Vehicle:
+        case HighGuid::Creature:
+        case HighGuid::Pet:
             return m_objectTargetGUID;
         default:
             return 0LL;
@@ -140,9 +140,8 @@ uint64 SpellCastTargets::GetGOTargetGUID() const
 {
     switch (GUID_HIPART(m_objectTargetGUID))
     {
-        case HIGHGUID_TRANSPORT:
-        case HIGHGUID_MO_TRANSPORT:
-        case HIGHGUID_GAMEOBJECT:
+        case HighGuid::Transport:
+        case HighGuid::GameObject:
             return m_objectTargetGUID;
         default:
             return 0LL;
@@ -171,7 +170,7 @@ uint64 SpellCastTargets::GetCorpseTargetGUID() const
 {
     switch (GUID_HIPART(m_objectTargetGUID))
     {
-        case HIGHGUID_CORPSE:
+        case HighGuid::Corpse:
             return m_objectTargetGUID;
         default:
             return 0LL;

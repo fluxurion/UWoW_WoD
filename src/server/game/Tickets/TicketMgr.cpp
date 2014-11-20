@@ -64,7 +64,7 @@ bool GmTicket::LoadFromDB(Field* fields)
     // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, completed, escalated, viewed
     uint8 index = 0;
     _id                 = fields[  index].GetUInt32();
-    _playerGuid         = MAKE_NEW_GUID(fields[++index].GetUInt32(), 0, HIGHGUID_PLAYER);
+    _playerGuid         = MAKE_NEW_GUID(fields[++index].GetUInt32(), 0, HighGuid::Player);
     _playerName         = fields[++index].GetString();
     _message            = fields[++index].GetString();
     _createTime         = fields[++index].GetUInt32();
@@ -74,7 +74,7 @@ bool GmTicket::LoadFromDB(Field* fields)
     _posZ               = fields[++index].GetFloat();
     _lastModifiedTime   = fields[++index].GetUInt32();
     _closedBy           = fields[++index].GetInt32();
-    _assignedTo         = MAKE_NEW_GUID(fields[++index].GetUInt32(), 0, HIGHGUID_PLAYER);
+    _assignedTo         = MAKE_NEW_GUID(fields[++index].GetUInt32(), 0, HighGuid::Player);
     _comment            = fields[++index].GetString();
     _completed          = fields[++index].GetBool();
     _escalatedStatus    = GMTicketEscalationStatus(fields[++index].GetUInt8());

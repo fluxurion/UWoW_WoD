@@ -146,8 +146,8 @@ void Guild::EventLogEntry::SaveToDB(SQLTransaction& trans) const
 
 void Guild::EventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& content) const
 {
-    ObjectGuid guid1 = MAKE_NEW_GUID(m_playerGuid1, 0, HIGHGUID_PLAYER);
-    ObjectGuid guid2 = MAKE_NEW_GUID(m_playerGuid2, 0, HIGHGUID_PLAYER);
+    ObjectGuid guid1 = MAKE_NEW_GUID(m_playerGuid1, 0, HighGuid::Player);
+    ObjectGuid guid2 = MAKE_NEW_GUID(m_playerGuid2, 0, HighGuid::Player);
 
     //data.WriteGuidMask<2>(guid1);
     //data.WriteGuidMask<4>(guid2);
@@ -204,7 +204,7 @@ void Guild::BankEventLogEntry::SaveToDB(SQLTransaction& trans) const
 
 void Guild::BankEventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& content) const
 {
-    ObjectGuid logGuid = MAKE_NEW_GUID(m_playerGuid, 0, HIGHGUID_PLAYER);
+    ObjectGuid logGuid = MAKE_NEW_GUID(m_playerGuid, 0, HighGuid::Player);
 
     bool hasItem = m_eventType == GUILD_BANK_LOG_DEPOSIT_ITEM || m_eventType == GUILD_BANK_LOG_WITHDRAW_ITEM ||
                    m_eventType == GUILD_BANK_LOG_MOVE_ITEM || m_eventType == GUILD_BANK_LOG_MOVE_ITEM2;
@@ -2318,7 +2318,7 @@ bool Guild::LoadFromDB(Field* fields)
 {
     m_id            = fields[0].GetUInt32();
     m_name          = fields[1].GetString();
-    m_leaderGuid    = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
+    m_leaderGuid    = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HighGuid::Player);
     m_emblemInfo.LoadFromDB(fields);
     m_info          = fields[8].GetString();
     m_motd          = fields[9].GetString();
@@ -2352,7 +2352,7 @@ void Guild::LoadRankFromDB(Field* fields)
 bool Guild::LoadMemberFromDB(Field* fields)
 {
     uint32 lowguid = fields[1].GetUInt32();
-    Member *member = new Member(m_id, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER), fields[2].GetUInt8());
+    Member *member = new Member(m_id, MAKE_NEW_GUID(lowguid, 0, HighGuid::Player), fields[2].GetUInt8());
     if (!member->LoadFromDB(fields))
     {
         _DeleteMemberFromDB(lowguid);
@@ -3522,7 +3522,7 @@ void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewsEntry& guildNew, Wor
     data.Initialize(SMSG_GUILD_NEWS_UPDATE, (21 + _newsLog.size() * (26 + 8)) / 8 + (8 + 6 * 4) * _newsLog.size());
     data.WriteBits(1, 19);
 
-    ObjectGuid guid = MAKE_NEW_GUID(guildNew.PlayerGuid, 0, HIGHGUID_PLAYER);
+    ObjectGuid guid = MAKE_NEW_GUID(guildNew.PlayerGuid, 0, HighGuid::Player);
 
     //data.WriteGuidMask<5, 2, 0, 3>(guid);
     data.WriteBits(0, 24); // Not yet implemented used for guild achievements
@@ -3547,7 +3547,7 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
 
     for (GuildNewsLogMap::const_iterator it = _newsLog.begin(); it != _newsLog.end(); it++)
     {
-        ObjectGuid guid = MAKE_NEW_GUID(it->second.PlayerGuid, 0, HIGHGUID_PLAYER);
+        ObjectGuid guid = MAKE_NEW_GUID(it->second.PlayerGuid, 0, HighGuid::Player);
 
         //data.WriteGuidMask<5, 2, 0, 3>(guid);
         data.WriteBits(0, 24); // Not yet implemented used for guild achievements
@@ -3556,7 +3556,7 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
 
     for (GuildNewsLogMap::const_iterator it = _newsLog.begin(); it != _newsLog.end(); it++)
     {
-        ObjectGuid guid = MAKE_NEW_GUID(it->second.PlayerGuid, 0, HIGHGUID_PLAYER);
+        ObjectGuid guid = MAKE_NEW_GUID(it->second.PlayerGuid, 0, HighGuid::Player);
 
         data << uint32(secsToTimeBitFields(it->second.Date));
         //data.WriteGuidBytes<1>(guid);

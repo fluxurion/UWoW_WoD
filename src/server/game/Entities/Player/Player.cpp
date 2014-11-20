@@ -1035,7 +1035,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     // should check that skin, face, hair* are valid via DBC per race/class
     // also do it in Player::BuildEnumData, Player::LoadFromDB
 
-    Object::_Create(guidlow, 0, HIGHGUID_PLAYER);
+    Object::_Create(guidlow, 0, HighGuid::Player);
 
     m_name = createInfo->Name;
 
@@ -2169,7 +2169,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
 
     Field* fields = result->Fetch();
 
-    ObjectGuid guid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+    ObjectGuid guid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player);
     std::string name = fields[1].GetString();
     uint8 plrRace = fields[2].GetUInt8();
     uint8 plrClass = fields[3].GetUInt8();
@@ -2625,7 +2625,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
 
-            if (m_transport && GUID_HIPART(m_transport->GetGUID()) == HIGHGUID_MO_TRANSPORT)
+            if (m_transport && GUID_HIPART(m_transport->GetGUID()) == HighGuid::Transport)
             {
                 final_x = m_movementInfo.t_pos.GetPositionX();
                 final_y = m_movementInfo.t_pos.GetPositionY();
@@ -5876,7 +5876,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                                 }
 
                                 Item* pItem = NewItemOrBag(itemProto);
-                                if (!pItem->LoadFromDB(item_guidlow, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER), itemFields, item_template))
+                                if (!pItem->LoadFromDB(item_guidlow, MAKE_NEW_GUID(guid, 0, HighGuid::Player), itemFields, item_template))
                                 {
                                     pItem->FSetState(ITEM_REMOVED);
                                     pItem->SaveToDB(trans);              // it also deletes item object!
@@ -5893,7 +5893,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     stmt->setUInt32(0, mail_id);
                     trans->Append(stmt);
 
-                    uint32 pl_account = sObjectMgr->GetPlayerAccountIdByGUID(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
+                    uint32 pl_account = sObjectMgr->GetPlayerAccountIdByGUID(MAKE_NEW_GUID(guid, 0, HighGuid::Player));
 
                     draft.AddMoney(money).SendReturnToSender(pl_account, guid, sender, trans);
                 }
@@ -5924,7 +5924,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             {
                 do
                 {
-                    if (Player* pFriend = ObjectAccessor::FindPlayer(MAKE_NEW_GUID((*resultFriends)[0].GetUInt32(), 0, HIGHGUID_PLAYER)))
+                    if (Player* pFriend = ObjectAccessor::FindPlayer(MAKE_NEW_GUID((*resultFriends)[0].GetUInt32(), 0, HighGuid::Player)))
                     {
                         if (pFriend->IsInWorld())
                         {
@@ -18530,7 +18530,7 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint
 
 void Player::Initialize(uint32 guid)
 {
-    Object::_Create(guid, 0, HIGHGUID_PLAYER);
+    Object::_Create(guid, 0, HighGuid::Player);
 }
 
 void Player::_LoadDeclinedNames(PreparedQueryResult result)
@@ -18695,7 +18695,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         return false;
     }
 
-    Object::_Create(guid, 0, HIGHGUID_PLAYER);
+    Object::_Create(guid, 0, HighGuid::Player);
 
     m_name = fields[2].GetString();
 
@@ -18714,7 +18714,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     }
 
     // overwrite possible wrong/corrupted guid
-    SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
+    SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HighGuid::Player));
 
     uint8 Gender = fields[5].GetUInt8();
     if (!IsValidGender(Gender))
@@ -18913,7 +18913,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // currently we do not support transport in bg
     else if (transGUID)
     {
-        m_movementInfo.t_guid = MAKE_NEW_GUID(transGUID, 0, HIGHGUID_MO_TRANSPORT);
+        m_movementInfo.t_guid = MAKE_NEW_GUID(transGUID, 0, HighGuid::Transport);
         m_movementInfo.t_pos.Relocate(fields[27].GetFloat(), fields[28].GetFloat(), fields[29].GetFloat(), fields[30].GetFloat());
 
         if (!Trinity::IsValidMapCoord(
@@ -20012,7 +20012,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        if (!item->LoadFromDB(itemGuid, MAKE_NEW_GUID(fields[16].GetUInt32(), 0, HIGHGUID_PLAYER), fields, itemTemplate))
+        if (!item->LoadFromDB(itemGuid, MAKE_NEW_GUID(fields[16].GetUInt32(), 0, HighGuid::Player), fields, itemTemplate))
         {
             sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, itemGuid);
 
@@ -21553,7 +21553,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
         i_next = itr;
         ++i_next;
 
-        Item* iPtr = GetItemByGuid(MAKE_NEW_GUID(*itr, 0, HIGHGUID_ITEM));
+        Item* iPtr = GetItemByGuid(MAKE_NEW_GUID(*itr, 0, HighGuid::Item));
         if (iPtr)
         {
             iPtr->UpdatePlayedTime(this);
@@ -23313,8 +23313,8 @@ void Player::RemovePetitionsAndSigns(uint64 guid, uint32 type)
         do                                                  // this part effectively does nothing, since the deletion / modification only takes place _after_ the PetitionQuery. Though I don't know if the result remains intact if I execute the delete query beforehand.
         {                                                   // and SendPetitionQueryOpcode reads data from the DB
             Field* fields = result->Fetch();
-            uint64 ownerguid   = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-            uint64 petitionguid = MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_ITEM);
+            uint64 ownerguid   = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player);
+            uint64 petitionguid = MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HighGuid::Item);
 
             // send update if charter owner in game
             Player* owner = ObjectAccessor::FindPlayer(ownerguid);
@@ -28117,8 +28117,8 @@ void Player::SendEquipmentSetList()
 
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         {
-            itemGuid = set.IgnoreMask & (1 << i) ? 1 : MAKE_NEW_GUID(set.Items[i], 0, HIGHGUID_ITEM);
-            // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HIGHGUID_ITEM
+            itemGuid = set.IgnoreMask & (1 << i) ? 1 : MAKE_NEW_GUID(set.Items[i], 0, HighGuid::Item);
+            // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HighGuid::Item
             //data.WriteGuidMask<2, 6, 3, 1, 4, 7, 5, 0>(itemGuid);
             dataBuf.WriteGuidBytes<3, 5, 1, 2, 0, 7, 6, 4>(itemGuid);
         }

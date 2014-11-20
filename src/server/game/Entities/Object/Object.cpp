@@ -175,18 +175,18 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     switch (GetGUID().GetHigh())
     {
-        case HIGHGUID_PLAYER:
-        case HIGHGUID_PET:
-        case HIGHGUID_CORPSE:
+        case HighGuid::Player:
+        case HighGuid::Pet:
+        case HighGuid::Corpse:
         case HIGHGUID_DYNAMICOBJECT:
         case HIGHGUID_AREATRIGGER:
             updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
-        case HIGHGUID_UNIT:
+        case HighGuid::Creature:
             if (ToUnit()->ToTempSummon() && IS_PLAYER_GUID(ToUnit()->ToTempSummon()->GetSummonerGUID()))
                 updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
-        case HIGHGUID_GAMEOBJECT:
+        case HighGuid::GameObject:
             if (IS_PLAYER_GUID(ToGameObject()->GetOwnerGUID()))
                 updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
