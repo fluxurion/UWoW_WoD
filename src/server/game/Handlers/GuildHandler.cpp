@@ -74,10 +74,10 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
     else
     {
         WorldPacket data(SMSG_GUILD_QUERY_RESPONSE, 8 + 1 + 1);
-        data.WriteGuidMask<5, 0, 3, 4, 7, 1>(guildGuid);
+        //data.WriteGuidMask<5, 0, 3, 4, 7, 1>(guildGuid);
         data.WriteBit(0);   // no data
-        data.WriteGuidMask<2, 6>(guildGuid);
-        data.WriteGuidBytes<3, 0, 5, 2, 7, 1, 6, 4>(guildGuid);
+        //data.WriteGuidMask<2, 6>(guildGuid);
+        //data.WriteGuidBytes<3, 0, 5, 2, 7, 1, 6, 4>(guildGuid);
         SendPacket(&data);
     }
 

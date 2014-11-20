@@ -129,8 +129,8 @@ void TotemAI::AttackStart(Unit* /*victim*/)
         WorldPacket data(SMSG_MINIMAP_PING, (8+4+4));
         data << me->GetPositionX();
         data << me->GetPositionY();
-        data.WriteGuidMask<7, 6, 0, 5, 3, 2, 1, 4>(guid);
-        data.WriteGuidBytes<1, 6, 3, 0, 2, 4, 5, 7>(guid);
+        //data.WriteGuidMask<7, 6, 0, 5, 3, 2, 1, 4>(guid);
+        //data.WriteGuidBytes<1, 6, 3, 0, 2, 4, 5, 7>(guid);
         ((Player*)me->GetOwner())->GetSession()->SendPacket(&data);
         */
     }

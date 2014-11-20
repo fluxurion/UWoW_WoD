@@ -663,7 +663,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         if (normalMail)
         {
             ObjectGuid plSender = MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER);
-            data.WriteGuidMask<2, 0, 3, 7, 1, 4, 5, 6>(plSender);
+            //data.WriteGuidMask<2, 0, 3, 7, 1, 4, 5, 6>(plSender);
         }
 
         data.WriteBits((*itr)->body.size(), 13);                 // mail body size
@@ -727,7 +727,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         if (normalMail)
         {
             ObjectGuid plSender = MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER);
-            data.WriteGuidBytes<2, 6, 0, 5, 4, 7, 3, 1>(plSender);
+            //data.WriteGuidBytes<2, 6, 0, 5, 4, 7, 3, 1>(plSender);
         }
 
         data.WriteString((*itr)->body);                          // mail body

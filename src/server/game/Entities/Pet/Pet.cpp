@@ -1030,14 +1030,14 @@ void Pet::_LoadSpellCooldowns()
         //! 5.4.1
         WorldPacket data(SMSG_SPELL_COOLDOWN, size_t(8+1+result->GetRowCount()*8));
 
-        data.WriteGuidMask<4, 7, 6>(guid);
+        //data.WriteGuidMask<4, 7, 6>(guid);
         size_t count_pos = data.bitwpos();
         data.WriteBits(0, 21);
-        data.WriteGuidMask<2, 3, 1, 0>(guid);
+        //data.WriteGuidMask<2, 3, 1, 0>(guid);
         data.WriteBit(1);
-        data.WriteGuidMask<5>(guid);
+        //data.WriteGuidMask<5>(guid);
 
-        data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
+        //data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
 
         do
         {

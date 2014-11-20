@@ -440,8 +440,8 @@ void AchievementMgr<Guild>::RemoveCriteriaProgress(const CriteriaTreeEntry* entr
 
     WorldPacket data(SMSG_GUILD_CRITERIA_DELETED, 4 + 8 + 1);
     data << uint32(entry->criteria);
-    data.WriteGuidMask<0, 3, 5, 6, 4, 1, 7, 2>(guid);
-    data.WriteGuidBytes<7, 0, 3, 5, 6, 2, 4, 1>(guid);
+    //data.WriteGuidMask<0, 3, 5, 6, 4, 1, 7, 2>(guid);
+    //data.WriteGuidBytes<7, 0, 3, 5, 6, 2, 4, 1>(guid);
 
     SendPacket(&data);*/
 
@@ -1126,13 +1126,13 @@ void AchievementMgr<Guild>::Reset()
     for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
     {
         /*WorldPacket data(SMSG_GUILD_ACHIEVEMENT_DELETED, 4 + 4 + 8 + 1);
-        data.WriteGuidMask<1, 3, 4, 2, 0, 5, 7, 6>(guid);
+        //data.WriteGuidMask<1, 3, 4, 2, 0, 5, 7, 6>(guid);
 
-        data.WriteGuidBytes<0>(guid);
+        //data.WriteGuidBytes<0>(guid);
         data << uint32(iter->first);
-        data.WriteGuidBytes<3, 4, 7, 1, 2>(guid);
+        //data.WriteGuidBytes<3, 4, 7, 1, 2>(guid);
         data << uint32(secsToTimeBitFields(iter->second.date));
-        data.WriteGuidBytes<5, 6>(guid);
+        //data.WriteGuidBytes<5, 6>(guid);
         SendPacket(&data);*/
     }
 
@@ -1170,13 +1170,13 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
         ObjectGuidSteam guid = 0/*GetOwner()->GetGUID()*/;
         std::string name = GetOwner()->GetName();
         WorldPacket data(SMSG_SERVER_FIRST_ACHIEVEMENT, strlen(GetOwner()->GetName()) + 1 + 8 + 4 + 4);
-        data.WriteGuidMask<6, 4, 0, 1, 3, 7, 5>(guid);
+        //data.WriteGuidMask<6, 4, 0, 1, 3, 7, 5>(guid);
         data.WriteBits(name.size(), 7);
         data.WriteBit(1);                                   // 0=link supplied string as player name, 1=display plain string
-        data.WriteGuidMask<2>(guid);
-        data.WriteGuidBytes<6, 1, 5>(guid);
+        //data.WriteGuidMask<2>(guid);
+        //data.WriteGuidBytes<6, 1, 5>(guid);
         data.WriteString(name);
-        data.WriteGuidBytes<3, 7, 4, 0, 2>(guid);
+        //data.WriteGuidBytes<3, 7, 4, 0, 2>(guid);
         data << uint32(achievement->ID);
 
         sWorld->SendGlobalMessage(&data);
@@ -1204,33 +1204,33 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
     if (HasAccountAchieved(achievement->ID))
         firstPlayerOnAccountGuid = GetFirstAchievedCharacterOnAccount(achievement->ID);
 
-    data.WriteGuidMask<5, 1>(thisPlayerGuid);
-    data.WriteGuidMask<1, 5, 7>(firstPlayerOnAccountGuid);
-    data.WriteGuidMask<0, 6, 2>(thisPlayerGuid);
-    data.WriteGuidMask<0>(firstPlayerOnAccountGuid);
-    data.WriteGuidMask<7>(thisPlayerGuid);
-    data.WriteGuidMask<3, 4, 2>(firstPlayerOnAccountGuid);
+    //data.WriteGuidMask<5, 1>(thisPlayerGuid);
+    //data.WriteGuidMask<1, 5, 7>(firstPlayerOnAccountGuid);
+    //data.WriteGuidMask<0, 6, 2>(thisPlayerGuid);
+    //data.WriteGuidMask<0>(firstPlayerOnAccountGuid);
+    //data.WriteGuidMask<7>(thisPlayerGuid);
+    //data.WriteGuidMask<3, 4, 2>(firstPlayerOnAccountGuid);
     data.WriteBit(0);
-    data.WriteGuidMask<4, 3>(thisPlayerGuid);
-    data.WriteGuidMask<6>(firstPlayerOnAccountGuid);
+    //data.WriteGuidMask<4, 3>(thisPlayerGuid);
+    //data.WriteGuidMask<6>(firstPlayerOnAccountGuid);
 
-    data.WriteGuidBytes<5>(thisPlayerGuid);
+    //data.WriteGuidBytes<5>(thisPlayerGuid);
     data << uint32(realmHandle.Index);
-    data.WriteGuidBytes<2>(firstPlayerOnAccountGuid);
-    data.WriteGuidBytes<3>(thisPlayerGuid);
-    data.WriteGuidBytes<4>(firstPlayerOnAccountGuid);
+    //data.WriteGuidBytes<2>(firstPlayerOnAccountGuid);
+    //data.WriteGuidBytes<3>(thisPlayerGuid);
+    //data.WriteGuidBytes<4>(firstPlayerOnAccountGuid);
     data << uint32(realmHandle.Index);
-    data.WriteGuidBytes<1, 0>(firstPlayerOnAccountGuid);
-    data.WriteGuidBytes<7>(thisPlayerGuid);
+    //data.WriteGuidBytes<1, 0>(firstPlayerOnAccountGuid);
+    //data.WriteGuidBytes<7>(thisPlayerGuid);
     data << uint32(achievement->ID);
-    data.WriteGuidBytes<2>(thisPlayerGuid);
-    data.WriteGuidBytes<5>(firstPlayerOnAccountGuid);
+    //data.WriteGuidBytes<2>(thisPlayerGuid);
+    //data.WriteGuidBytes<5>(firstPlayerOnAccountGuid);
     data << uint32(secsToTimeBitFields(time(NULL)));
-    data.WriteGuidBytes<4>(thisPlayerGuid);
-    data.WriteGuidBytes<7>(firstPlayerOnAccountGuid);
-    data.WriteGuidBytes<0>(thisPlayerGuid);
-    data.WriteGuidBytes<6, 3>(firstPlayerOnAccountGuid);
-    data.WriteGuidBytes<1, 6>(thisPlayerGuid);
+    //data.WriteGuidBytes<4>(thisPlayerGuid);
+    //data.WriteGuidBytes<7>(firstPlayerOnAccountGuid);
+    //data.WriteGuidBytes<0>(thisPlayerGuid);
+    //data.WriteGuidBytes<6, 3>(firstPlayerOnAccountGuid);
+    //data.WriteGuidBytes<1, 6>(thisPlayerGuid);
 
     GetOwner()->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
@@ -1241,11 +1241,11 @@ void AchievementMgr<Guild>::SendAchievementEarned(AchievementEntry const* achiev
     ObjectGuid guid = GetOwner()->GetGUID();
 
     /*WorldPacket data(SMSG_GUILD_ACHIEVEMENT_EARNED, 8 + 4 + 4 + 1);
-    data.WriteGuidMask<6, 2, 7, 0, 1, 3, 5, 4>(guid);
+    //data.WriteGuidMask<6, 2, 7, 0, 1, 3, 5, 4>(guid);
 
-    data.WriteGuidBytes<5, 2, 0, 6, 3>(guid);
+    //data.WriteGuidBytes<5, 2, 0, 6, 3>(guid);
     data << uint32(achievement->ID);
-    data.WriteGuidBytes<1, 7, 4>(guid);
+    //data.WriteGuidBytes<1, 7, 4>(guid);
     data << uint32(secsToTimeBitFields(time(NULL)));
 
     SendPacket(&data);*/
@@ -1275,8 +1275,8 @@ void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* 
     data << uint32(timeElapsed);                    // Time elapsed in seconds
 
     /*ObjectGuid guid = GetOwner()->GetGUID();
-    data.WriteGuidMask<3, 0, 7, 6, 2, 1, 4, 5>(guid);
-    data.WriteGuidBytes<4, 7, 1, 2, 6, 0, 5, 3>(guid);*/
+    //data.WriteGuidMask<3, 0, 7, 6, 2, 1, 4, 5>(guid);
+    //data.WriteGuidBytes<4, 7, 1, 2, 6, 0, 5, 3>(guid);*/
 
     SendPacket(&data);
 }
@@ -1291,34 +1291,34 @@ void AchievementMgr<Guild>::SendCriteriaUpdate(AchievementCriteriaEntry const* e
     ObjectGuid guid = progress->CompletedGUID;
 
 /*    data.WriteBits(1, 19);
-    data.WriteGuidMask<4, 2, 6>(counter);
-    data.WriteGuidMask<1, 5>(guid);
-    data.WriteGuidMask<3>(counter);
-    data.WriteGuidMask<2>(guid);
-    data.WriteGuidMask<0, 5>(counter);
-    data.WriteGuidMask<3>(guid);
-    data.WriteGuidMask<1>(counter);
-    data.WriteGuidMask<7>(guid);
-    data.WriteGuidMask<7>(counter);
-    data.WriteGuidMask<0, 6, 4>(guid);
+    //data.WriteGuidMask<4, 2, 6>(counter);
+    //data.WriteGuidMask<1, 5>(guid);
+    //data.WriteGuidMask<3>(counter);
+    //data.WriteGuidMask<2>(guid);
+    //data.WriteGuidMask<0, 5>(counter);
+    //data.WriteGuidMask<3>(guid);
+    //data.WriteGuidMask<1>(counter);
+    //data.WriteGuidMask<7>(guid);
+    //data.WriteGuidMask<7>(counter);
+    //data.WriteGuidMask<0, 6, 4>(guid);
 
-    data.WriteGuidBytes<0>(guid);
+    //data.WriteGuidBytes<0>(guid);
     data << uint32(secsToTimeBitFields(progress->date));
-    data.WriteGuidBytes<2>(counter);
-    data.WriteGuidBytes<1>(guid);
+    //data.WriteGuidBytes<2>(counter);
+    //data.WriteGuidBytes<1>(guid);
     data << uint32(0);                      // flags?
-    data.WriteGuidBytes<7, 6>(guid);
-    data.WriteGuidBytes<0>(counter);
+    //data.WriteGuidBytes<7, 6>(guid);
+    //data.WriteGuidBytes<0>(counter);
     data << uint32(progress->date);         // unknown date
-    data.WriteGuidBytes<6, 7>(counter);
-    data.WriteGuidBytes<4>(guid);
-    data.WriteGuidBytes<5>(counter);
+    //data.WriteGuidBytes<6, 7>(counter);
+    //data.WriteGuidBytes<4>(guid);
+    //data.WriteGuidBytes<5>(counter);
     data << uint32(entry->ID);
-    data.WriteGuidBytes<4, 1>(counter);
+    //data.WriteGuidBytes<4, 1>(counter);
     data << uint32(::time(NULL) - progress->date);
-    data.WriteGuidBytes<5, 2>(guid);
-    data.WriteGuidBytes<3>(counter);
-    data.WriteGuidBytes<3>(guid);
+    //data.WriteGuidBytes<5, 2>(guid);
+    //data.WriteGuidBytes<3>(counter);
+    //data.WriteGuidBytes<3>(guid);
 
     SendPacket(&data);*/
 }
@@ -2405,7 +2405,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
         if (!isVisible(*itr))
             continue;
 
-        data.WriteGuidMask<3, 0, 6, 5, 2, 7, 4, 1>(itr->second.first_guid);
+        //data.WriteGuidMask<3, 0, 6, 5, 2, 7, 4, 1>(itr->second.first_guid);
     }
 
     data.FlushBits();
@@ -2649,15 +2649,15 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
         ObjectGuid guid = progress->CompletedGUID;
 
         /*data.WriteGuidMask<4, 2, 6>(counter);
-        data.WriteGuidMask<1, 5>(guid);
-        data.WriteGuidMask<3>(counter);
-        data.WriteGuidMask<2>(guid);
-        data.WriteGuidMask<0, 5>(counter);
-        data.WriteGuidMask<3>(guid);
-        data.WriteGuidMask<1>(counter);
-        data.WriteGuidMask<7>(guid);
-        data.WriteGuidMask<7>(counter);
-        data.WriteGuidMask<0, 6, 4>(guid);
+        //data.WriteGuidMask<1, 5>(guid);
+        //data.WriteGuidMask<3>(counter);
+        //data.WriteGuidMask<2>(guid);
+        //data.WriteGuidMask<0, 5>(counter);
+        //data.WriteGuidMask<3>(guid);
+        //data.WriteGuidMask<1>(counter);
+        //data.WriteGuidMask<7>(guid);
+        //data.WriteGuidMask<7>(counter);
+        //data.WriteGuidMask<0, 6, 4>(guid);
 
         criteriaData.WriteGuidBytes<0>(guid);
         criteriaData << uint32(secsToTimeBitFields(progress->date));

@@ -1058,7 +1058,7 @@ namespace Trinity
     class AreaTriggerWithEntryInObjectRangeCheck
     {
         public:
-            AreaTriggerWithEntryInObjectRangeCheck(WorldObject const* obj, uint32 entry, uint64 casterGuid, float range) : i_obj(obj), i_entry(entry), i_casterGuid(casterGuid), i_range(range) {}
+            AreaTriggerWithEntryInObjectRangeCheck(WorldObject const* obj, uint32 entry, ObjectGuid casterGuid, float range) : i_obj(obj), i_entry(entry), i_casterGuid(casterGuid), i_range(range) {}
             bool operator()(AreaTrigger* at)
             {
                 if (i_obj->IsWithinDistInMap(at, i_range) && i_entry == at->GetEntry() && (!i_casterGuid || i_casterGuid == at->GetCasterGUID()))
@@ -1070,7 +1070,7 @@ namespace Trinity
             WorldObject const* i_obj;
             float i_range;
             uint32 i_entry;
-            uint64 i_casterGuid;
+            ObjectGuid i_casterGuid;
     };
 
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)

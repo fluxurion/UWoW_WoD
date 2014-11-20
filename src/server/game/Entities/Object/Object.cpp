@@ -116,12 +116,11 @@ void Object::_InitValues()
     m_objectUpdated = false;
 }
 
-void Object::_Create(uint32 guidlow, uint32 entry, HighGuid guidhigh)
+void Object::_Create(ObjectGuid const& guid)
 {
     if (!m_uint32Values) _InitValues();
 
-    uint64 guid = MAKE_NEW_GUID(guidlow, entry, guidhigh);
-    SetUInt64Value(OBJECT_FIELD_GUID, guid);
+    SetGuidValue(OBJECT_FIELD_GUID, guid);
     SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
     m_PackGUID.Set(guid);
 }
@@ -277,12 +276,12 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
     ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_DESTROY_OBJECT, 8 + 1);
-    data.WriteGuidMask<7, 2, 6, 3, 1, 4>(guid);
+    //data.WriteGuidMask<7, 2, 6, 3, 1, 4>(guid);
     //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
     //! OnDeath() does for eg trigger death animation and interrupts certain spells/missiles/auras/sounds...
     data.WriteBit(onDeath);
-    data.WriteGuidMask<5, 0>(guid);
-    data.WriteGuidBytes<4, 3, 2, 7, 0, 1, 6, 5>(guid);
+    //data.WriteGuidMask<5, 0>(guid);
+    //data.WriteGuidBytes<4, 3, 2, 7, 0, 1, 6, 5>(guid);
     target->GetSession()->SendPacket(&data);
 }
 
@@ -1714,12 +1713,6 @@ void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
         RemoveFromWorld();
 }
 
-void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
-{
-    Object::_Create(guidlow, 0, guidhigh);
-    m_phaseMask = phaseMask;
-}
-
 uint32 WorldObject::GetZoneId() const
 {
     return GetBaseMap()->GetZoneId(m_positionX, m_positionY, m_positionZ);
@@ -2424,10 +2417,10 @@ void WorldObject::SendPlaySound(uint32 Sound, bool OnlySelf)
     ObjectGuid source = GetGUID();
 
     WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data.WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(source);
-    data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(source);
+    //data.WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(source);
+    //data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(source);
     data << uint32(Sound);
-    data.WriteGuidBytes<7>(source);
+    //data.WriteGuidBytes<7>(source);
 
     if (OnlySelf && GetTypeId() == TYPEID_PLAYER)
         this->ToPlayer()->GetSession()->SendPacket(&data);
@@ -2641,8 +2634,8 @@ void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr
 void WorldObject::SendObjectDeSpawnAnim(ObjectGuid guid)
 {
     /*WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8 + 1);
-    data.WriteGuidMask<6, 5, 0, 1, 3, 2, 7, 4>(guid);
-    data.WriteGuidBytes<2, 4, 1, 3, 0, 7, 5, 6>(guid);
+    //data.WriteGuidMask<6, 5, 0, 1, 3, 2, 7, 4>(guid);
+    //data.WriteGuidBytes<2, 4, 1, 3, 0, 7, 5, 6>(guid);
     SendMessageToSet(&data, true);*/
 }
 
@@ -3591,29 +3584,29 @@ void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
     ObjectGuid obj_guid = target ? target->GetGUID() : 0;
     
     WorldPacket data(SMSG_PLAY_OBJECT_SOUND, 10);
-    data.WriteGuidMask<5, 3>(obj_guid);
-    data.WriteGuidMask<6, 5>(guid);
-    data.WriteGuidMask<6>(obj_guid);
-    data.WriteGuidMask<0, 2>(guid);
-    data.WriteGuidMask<1>(obj_guid);
-    data.WriteGuidMask<7>(guid);
-    data.WriteGuidMask<2>(obj_guid);
-    data.WriteGuidMask<4, 3>(guid);
-    data.WriteGuidMask<4>(obj_guid);
-    data.WriteGuidMask<1>(guid);
-    data.WriteGuidMask<7, 0>(obj_guid);
+    //data.WriteGuidMask<5, 3>(obj_guid);
+    //data.WriteGuidMask<6, 5>(guid);
+    //data.WriteGuidMask<6>(obj_guid);
+    //data.WriteGuidMask<0, 2>(guid);
+    //data.WriteGuidMask<1>(obj_guid);
+    //data.WriteGuidMask<7>(guid);
+    //data.WriteGuidMask<2>(obj_guid);
+    //data.WriteGuidMask<4, 3>(guid);
+    //data.WriteGuidMask<4>(obj_guid);
+    //data.WriteGuidMask<1>(guid);
+    //data.WriteGuidMask<7, 0>(obj_guid);
 
-    data.WriteGuidBytes<0>(guid);
-    data.WriteGuidBytes<2, 7>(obj_guid);
-    data.WriteGuidBytes<5>(guid);
-    data.WriteGuidBytes<5>(obj_guid);
-    data.WriteGuidBytes<3>(guid);
-    data.WriteGuidBytes<0, 4>(obj_guid);
-    data.WriteGuidBytes<4, 1, 6, 7>(guid);
-    data.WriteGuidBytes<3, 6>(obj_guid);
+    //data.WriteGuidBytes<0>(guid);
+    //data.WriteGuidBytes<2, 7>(obj_guid);
+    //data.WriteGuidBytes<5>(guid);
+    //data.WriteGuidBytes<5>(obj_guid);
+    //data.WriteGuidBytes<3>(guid);
+    //data.WriteGuidBytes<0, 4>(obj_guid);
+    //data.WriteGuidBytes<4, 1, 6, 7>(guid);
+    //data.WriteGuidBytes<3, 6>(obj_guid);
     data << uint32(sound_id);
-    data.WriteGuidBytes<1>(obj_guid);
-    data.WriteGuidBytes<2>(guid);
+    //data.WriteGuidBytes<1>(obj_guid);
+    //data.WriteGuidBytes<2>(guid);
 
     if (target)
         target->SendDirectMessage(&data);
@@ -3626,10 +3619,10 @@ void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= NULL*/)
 {
     ObjectGuid source = GetGUID();
     WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data.WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(source);
-    data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(source);
+    //data.WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(source);
+    //data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(source);
     data << uint32(sound_id);
-    data.WriteGuidBytes<7>(source);
+    //data.WriteGuidBytes<7>(source);
 
     if (target)
         target->SendDirectMessage(&data);

@@ -1233,18 +1233,18 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
     WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA, 8+4+4+4+destSize);
 
     data.WriteBits(type, 3);                                // type (0-7)
-    data.WriteGuidMask<2, 6, 0, 5, 7, 1, 3, 4>(playerGuid);
+    //data.WriteGuidMask<2, 6, 0, 5, 7, 1, 3, 4>(playerGuid);
 
     data.FlushBits();
 
-    data.WriteGuidBytes<3, 2, 7>(playerGuid);
+    //data.WriteGuidBytes<3, 2, 7>(playerGuid);
     data << uint32(adata->Time);                            // unix time
-    data.WriteGuidBytes<1>(playerGuid);
+    //data.WriteGuidBytes<1>(playerGuid);
     data << uint32(dest.size());                            // compressed length
     data.append(dest);                                      // compressed data
-    data.WriteGuidBytes<0>(playerGuid);  
+    //data.WriteGuidBytes<0>(playerGuid);  
     data << uint32(size);                                   // decompressed length
-    data.WriteGuidBytes<5, 4, 6>(playerGuid); 
+    //data.WriteGuidBytes<5, 4, 6>(playerGuid); 
     SendPacket(&data);
 
 }
@@ -1478,8 +1478,8 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     data.WriteBits(talentCount, 23);
     data.WriteBit(guild != NULL);
     if (guild)
-        data.WriteGuidMask<6, 7, 4, 0, 2, 5, 1, 3>(guild->GetGUID());
-    data.WriteGuidMask<6, 5, 3>(playerGuid);
+        //data.WriteGuidMask<6, 7, 4, 0, 2, 5, 1, 3>(guild->GetGUID());
+    //data.WriteGuidMask<6, 5, 3>(playerGuid);
 
     uint32 equipmentCount = 0;
     size_t equipmentPos = data.bitwpos();
@@ -1492,7 +1492,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 
         ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR);
 
-        data.WriteGuidMask<4, 0, 1, 7>(itemCreator);
+        //data.WriteGuidMask<4, 0, 1, 7>(itemCreator);
         uint32 enchantmentCount = 0;
         for (uint32 j = 0; j < MAX_ENCHANTMENT_SLOT; ++j)
         {
@@ -1503,24 +1503,24 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
             ++enchantmentCount;
         }
         data.WriteBits(enchantmentCount, 21);
-        data.WriteGuidMask<2>(itemCreator);
+        //data.WriteGuidMask<2>(itemCreator);
         data.WriteBit(0);
-        data.WriteGuidMask<3>(itemCreator);
+        //data.WriteGuidMask<3>(itemCreator);
         data.WriteBit(1);
-        data.WriteGuidMask<6>(itemCreator);
+        //data.WriteGuidMask<6>(itemCreator);
         data.WriteBit(0);
-        data.WriteGuidMask<5>(itemCreator);
+        //data.WriteGuidMask<5>(itemCreator);
 
         ++equipmentCount;
     }
 
-    data.WriteGuidMask<0, 7, 4, 1>(playerGuid);
+    //data.WriteGuidMask<0, 7, 4, 1>(playerGuid);
 
     uint32 glyphCount = 0;
     size_t glyphPos = data.bitwpos();
     data.WriteBits(glyphCount, 23);
 
-    data.WriteGuidMask<2>(playerGuid);
+    //data.WriteGuidMask<2>(playerGuid);
 
     PlayerTalentMap* Talents = player->GetTalentMap(activeSpec);
     for (PlayerTalentMap::iterator itr = Talents->begin(); itr != Talents->end(); ++itr)
@@ -1537,13 +1537,13 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     {
         ObjectGuid guildGuid = guild->GetGUID();
 
-        data.WriteGuidBytes<3>(guildGuid);
+        //data.WriteGuidBytes<3>(guildGuid);
         data << uint32(guild->GetMembersCount());
-        data.WriteGuidBytes<4, 2>(guildGuid);
+        //data.WriteGuidBytes<4, 2>(guildGuid);
         data << uint32(guild->GetLevel());
-        data.WriteGuidBytes<5, 1, 6>(guildGuid);
+        //data.WriteGuidBytes<5, 1, 6>(guildGuid);
         data << uint64(guild->GetExperience());
-        data.WriteGuidBytes<7, 0>(guildGuid);
+        //data.WriteGuidBytes<7, 0>(guildGuid);
     }
 
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
@@ -1554,7 +1554,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 
         ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR); // item creator
 
-        data.WriteGuidBytes<1, 5, 7, 6>(itemCreator);
+        //data.WriteGuidBytes<1, 5, 7, 6>(itemCreator);
         for (uint32 j = 0; j < MAX_ENCHANTMENT_SLOT; ++j)
         {
             uint32 enchId = item->GetEnchantmentId(EnchantmentSlot(j));
@@ -1564,15 +1564,15 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
             data << uint8(j);
             data << uint32(enchId);
         }
-        data.WriteGuidBytes<3>(itemCreator);
+        //data.WriteGuidBytes<3>(itemCreator);
         item->AppendDynamicInfo(data);
-        data.WriteGuidBytes<0>(itemCreator);
+        //data.WriteGuidBytes<0>(itemCreator);
         data << uint8(i);
         data << uint32(item->GetEntry());
-        data.WriteGuidBytes<2, 4>(itemCreator);
+        //data.WriteGuidBytes<2, 4>(itemCreator);
     }
 
-    data.WriteGuidBytes<0, 5, 2, 3>(playerGuid);
+    //data.WriteGuidBytes<0, 5, 2, 3>(playerGuid);
 
     for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
     {
@@ -1586,7 +1586,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 
     data << uint32(player->GetSpecializationId(activeSpec));
 
-    data.WriteGuidBytes<1, 6, 7, 4>(playerGuid);
+    //data.WriteGuidBytes<1, 6, 7, 4>(playerGuid);
 
     data.PutBits<uint32>(talentPos, talentCount, 23);
     data.PutBits<uint32>(glyphPos, glyphCount, 23);
@@ -1611,13 +1611,13 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
     }
 
     WorldPacket data(SMSG_INSPECT_HONOR_STATS, 8+1+4+4);
-    data.WriteGuidMask<7, 3, 2, 6, 5, 1, 4, 0>(guid);
-    data.WriteGuidBytes<6>(guid);
+    //data.WriteGuidMask<7, 3, 2, 6, 5, 1, 4, 0>(guid);
+    //data.WriteGuidBytes<6>(guid);
     data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 1));
-    data.WriteGuidBytes<3, 0, 4, 5>(guid);
+    //data.WriteGuidBytes<3, 0, 4, 5>(guid);
     data << uint8(0);                                               // rank?
     data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 0));
-    data.WriteGuidBytes<2, 7, 1>(guid);
+    //data.WriteGuidBytes<2, 7, 1>(guid);
     data << uint32(player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));  //lifetime
     SendPacket(&data);
 }
@@ -1638,10 +1638,10 @@ void WorldSession::HandleInspectRatedBGStats(WorldPacket &recvData)
 
     uint8 count = 0;
     WorldPacket data(SMSG_PVP_BRACKET_DATA);
-    data.WriteGuidMask<0, 6, 3, 7, 4, 2>(playerGuid);
+    //data.WriteGuidMask<0, 6, 3, 7, 4, 2>(playerGuid);
     uint32 bpos = data.bitwpos();                       //placeholder
     data.WriteBits(count, 3);                           //Arena brackets count data, 3 - rated bg
-    data.WriteGuidMask<5, 1>(playerGuid);
+    //data.WriteGuidMask<5, 1>(playerGuid);
 
     data.FlushBits();
 
@@ -1663,7 +1663,7 @@ void WorldSession::HandleInspectRatedBGStats(WorldPacket &recvData)
     }
 
     data.PutBits<uint32>(bpos, count, 3);
-    data.WriteGuidBytes<0, 2, 5, 7, 3, 6, 1, 4>(playerGuid);
+    //data.WriteGuidBytes<0, 2, 5, 7, 3, 6, 1, 4>(playerGuid);
     SendPacket(&data);
 }
 
@@ -2130,9 +2130,9 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     ObjectGuid guid = _player->GetGUID();
 
     WorldPacket data(SMSG_SET_PHASE_SHIFT, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
-    data.WriteGuidMask<6, 5, 2, 0, 3, 4, 7, 1>(guid);
+    //data.WriteGuidMask<6, 5, 2, 0, 3, 4, 7, 1>(guid);
 
-    data.WriteGuidBytes<4, 1, 3>(guid);
+    //data.WriteGuidBytes<4, 1, 3>(guid);
     // 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
     data << uint32(!flag ? 0x1F : flag); // flags, 0x18 most of time on retail sniff
 
@@ -2144,19 +2144,19 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
         data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
 
-    data.WriteGuidBytes<0>(guid);
+    //data.WriteGuidBytes<0>(guid);
 
     data << uint32(0);                          // Inactive terrain swaps
     //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
     //    data << uint16(0);
 
-    data.WriteGuidBytes<6, 5>(guid);
+    //data.WriteGuidBytes<6, 5>(guid);
 
     data << uint32(worldMapAreaIds.size()) * 2;    // WorldMapAreaIds
     for (std::set<uint32>::const_iterator itr = worldMapAreaIds.begin(); itr != worldMapAreaIds.end(); ++itr)
         data << uint16(*itr);
 
-    data.WriteGuidBytes<7, 2>(guid);
+    //data.WriteGuidBytes<7, 2>(guid);
 
     SendPacket(&data);
 }

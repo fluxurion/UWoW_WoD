@@ -1349,32 +1349,32 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             guildGuid = guild->GetGUID();
 
     WorldPacket data(SMSG_MIRRORIMAGE_DATA, 80);
-    data.WriteGuidMask<5>(guildGuid);
-    data.WriteGuidMask<0, 5>(guid);
-    data.WriteGuidMask<4>(guildGuid);
-    data.WriteGuidMask<7, 1, 4>(guid);
-    data.WriteGuidMask<3, 7, 2>(guildGuid);
-    data.WriteGuidMask<6>(guid);
-    data.WriteGuidMask<1, 6>(guildGuid);
-    data.WriteGuidMask<3>(guid);
+    //data.WriteGuidMask<5>(guildGuid);
+    //data.WriteGuidMask<0, 5>(guid);
+    //data.WriteGuidMask<4>(guildGuid);
+    //data.WriteGuidMask<7, 1, 4>(guid);
+    //data.WriteGuidMask<3, 7, 2>(guildGuid);
+    //data.WriteGuidMask<6>(guid);
+    //data.WriteGuidMask<1, 6>(guildGuid);
+    //data.WriteGuidMask<3>(guid);
 
     uint32 slotCount = 0;
     uint32 bitpos = data.bitwpos();
     data.WriteBits(slotCount, 22);
 
-    data.WriteGuidMask<2>(guid);
-    data.WriteGuidMask<0>(guildGuid);
+    //data.WriteGuidMask<2>(guid);
+    //data.WriteGuidMask<0>(guildGuid);
 
     data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 1) : 0);   // face
-    data.WriteGuidBytes<2, 7>(guid);
-    data.WriteGuidBytes<6, 1>(guildGuid);
+    //data.WriteGuidBytes<2, 7>(guid);
+    //data.WriteGuidBytes<6, 1>(guildGuid);
     data << uint8(creator->getGender());
     data << uint8(creator->getClass());
-    data.WriteGuidBytes<1>(guid);
-    data.WriteGuidBytes<0>(guildGuid);
+    //data.WriteGuidBytes<1>(guid);
+    //data.WriteGuidBytes<0>(guildGuid);
     data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 2) : 0);   // hair
-    data.WriteGuidBytes<5, 0>(guid);
-    data.WriteGuidBytes<4, 2>(guildGuid);
+    //data.WriteGuidBytes<5, 0>(guid);
+    //data.WriteGuidBytes<4, 2>(guildGuid);
 
     static EquipmentSlots const itemSlots[] =
     {
@@ -1409,16 +1409,16 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     }
 
     data << uint8(creator->getRace());
-    data.WriteGuidBytes<4>(guid);
-    data.WriteGuidBytes<7>(guildGuid);
+    //data.WriteGuidBytes<4>(guid);
+    //data.WriteGuidBytes<7>(guildGuid);
     data << uint8(player ? player->GetByteValue(PLAYER_BYTES_2, 0) : 0); // facialhair
-    data.WriteGuidBytes<6>(guid);
+    //data.WriteGuidBytes<6>(guid);
     data << uint32(creator->GetDisplayId());
     data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 0) : 0);   // skin
-    data.WriteGuidBytes<3>(guid);
-    data.WriteGuidBytes<3>(guildGuid);
+    //data.WriteGuidBytes<3>(guid);
+    //data.WriteGuidBytes<3>(guildGuid);
     data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 3) : 0);   // haircolor
-    data.WriteGuidBytes<5>(guildGuid);
+    //data.WriteGuidBytes<5>(guildGuid);
 
     data.PutBits<uint32>(bitpos, slotCount, 22);
 

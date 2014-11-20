@@ -192,7 +192,7 @@ void AuraApplication::BuildBitUpdatePacket(ByteBuffer& data, bool remove) const
         flags |= AFLAG_DURATION;
 
     if (data.WriteBit(!(flags & AFLAG_CASTER)))
-        data.WriteGuidMask<2, 3, 4, 0, 1, 6, 7, 5>(aura->GetCasterGUID());
+        //data.WriteGuidMask<2, 3, 4, 0, 1, 6, 7, 5>(aura->GetCasterGUID());
     uint32 count = 0;
     bool sendEffect = false;
     bool nosendEffect = false;
@@ -300,7 +300,7 @@ void AuraApplication::BuildByteUpdatePacket(ByteBuffer& data, bool remove, uint3
 
     data << uint16(aura->GetCasterLevel());
     if (!(flags & AFLAG_CASTER))
-        data.WriteGuidBytes<0, 6, 1, 4, 5, 3, 2, 7>(aura->GetCasterGUID());
+        //data.WriteGuidBytes<0, 6, 1, 4, 5, 3, 2, 7>(aura->GetCasterGUID());
     data << uint8(flags);
     if (flags & AFLAG_DURATION)
         data << uint32(aura->GetMaxDuration());
@@ -340,16 +340,16 @@ void AuraApplication::ClientUpdate(bool remove)
     ObjectGuid targetGuid = GetTarget()->GetGUID();
 
     WorldPacket data(SMSG_AURA_UPDATE);
-    data.WriteGuidMask<0>(targetGuid);
+    //data.WriteGuidMask<0>(targetGuid);
     data.WriteBit(0);   // has power unit
     data.WriteBit(0);   // full update
-    data.WriteGuidMask<6>(targetGuid);
+    //data.WriteGuidMask<6>(targetGuid);
     /*
     if (hasPowerData) { }
     */
-    data.WriteGuidMask<4, 7, 3>(targetGuid);
+    //data.WriteGuidMask<4, 7, 3>(targetGuid);
     data.WriteBits(1, 24);
-    data.WriteGuidMask<1, 5, 2>(targetGuid);
+    //data.WriteGuidMask<1, 5, 2>(targetGuid);
 
     BuildBitUpdatePacket(data, remove);
     BuildByteUpdatePacket(data, remove);
@@ -358,7 +358,7 @@ void AuraApplication::ClientUpdate(bool remove)
     if (hasPowerData) { }
     */
 
-    data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
+    //data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
 
     _target->SendMessageToSet(&data, true);
 }
@@ -371,16 +371,16 @@ void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
     ObjectGuid targetGuid = GetTarget()->GetGUID();
 
     WorldPacket data(SMSG_AURA_UPDATE);
-    data.WriteGuidMask<0>(targetGuid);
+    //data.WriteGuidMask<0>(targetGuid);
     data.WriteBit(0);   // has power unit
     data.WriteBit(0);   // full update
-    data.WriteGuidMask<6>(targetGuid);
+    //data.WriteGuidMask<6>(targetGuid);
     /*
     if (hasPowerData) { }
     */
-    data.WriteGuidMask<4, 7, 3>(targetGuid);
+    //data.WriteGuidMask<4, 7, 3>(targetGuid);
     data.WriteBits(1, 24);
-    data.WriteGuidMask<1, 5, 2>(targetGuid);
+    //data.WriteGuidMask<1, 5, 2>(targetGuid);
 
     BuildBitUpdatePacket(data, remove);
     BuildByteUpdatePacket(data, remove, auraId);
@@ -389,7 +389,7 @@ void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
     if (hasPowerData) { }
     */
 
-    data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
+    //data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
 
     _target->SendMessageToSet(&data, true);
  }

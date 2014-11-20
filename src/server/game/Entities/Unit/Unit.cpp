@@ -1621,31 +1621,31 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 
             WorldPacket data(SMSG_SPELLDAMAGESHIELD, 8 + 8 + 4 + 4 + 4 + 4 + 4);
 
-            data.WriteGuidMask<3>(sourceGuid);
+            //data.WriteGuidMask<3>(sourceGuid);
             data.WriteBit(0);       // not has power data
-            data.WriteGuidMask<1>(victimGuid);
-            data.WriteGuidMask<1>(sourceGuid);
+            //data.WriteGuidMask<1>(victimGuid);
+            //data.WriteGuidMask<1>(sourceGuid);
 
-            data.WriteGuidMask<3, 5, 0>(victimGuid);
-            data.WriteGuidMask<4>(sourceGuid);
-            data.WriteGuidMask<7, 6, 2, 4>(victimGuid);
-            data.WriteGuidMask<2, 7, 5, 0, 6>(sourceGuid);
+            //data.WriteGuidMask<3, 5, 0>(victimGuid);
+            //data.WriteGuidMask<4>(sourceGuid);
+            //data.WriteGuidMask<7, 6, 2, 4>(victimGuid);
+            //data.WriteGuidMask<2, 7, 5, 0, 6>(sourceGuid);
 
-            data.WriteGuidBytes<1>(sourceGuid);
+            //data.WriteGuidBytes<1>(sourceGuid);
 
-            data.WriteGuidBytes<7>(victimGuid);
-            data.WriteGuidBytes<6, 7>(sourceGuid);
-            data.WriteGuidBytes<5, 6, 3, 1, 0>(victimGuid);
-            data.WriteGuidBytes<5, 2>(sourceGuid);
+            //data.WriteGuidBytes<7>(victimGuid);
+            //data.WriteGuidBytes<6, 7>(sourceGuid);
+            //data.WriteGuidBytes<5, 6, 3, 1, 0>(victimGuid);
+            //data.WriteGuidBytes<5, 2>(sourceGuid);
             data << uint32(overkill > 0 ? overkill : 0);    // Overkill
             data << uint32(damage);                         // Damage
-            data.WriteGuidBytes<4>(victimGuid);
+            //data.WriteGuidBytes<4>(victimGuid);
             data << uint32(-1);                             // FIX ME: Send resisted damage, both fully resisted and partly resisted
             data << uint32(i_spellProto->SchoolMask);
-            data.WriteGuidBytes<0>(sourceGuid);
+            //data.WriteGuidBytes<0>(sourceGuid);
             data << uint32(i_spellProto->Id);
-            data.WriteGuidBytes<2>(victimGuid);
-            data.WriteGuidBytes<3, 4>(sourceGuid);
+            //data.WriteGuidBytes<2>(victimGuid);
+            //data.WriteGuidBytes<3, 4>(sourceGuid);
             victim->SendMessageToSet(&data, true);
 
             victim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, i_spellProto->GetSchoolMask(), i_spellProto, true);
@@ -5429,47 +5429,47 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
     int32 overkill = newDamage - log->target->GetHealth();
 
     WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, 8 + 8 + 1 + 1 + 1 + 7 * 4 + 1);
-    data.WriteGuidMask<1, 6, 0>(targetGuid);
-    data.WriteGuidMask<3>(casterGuid);
+    //data.WriteGuidMask<1, 6, 0>(targetGuid);
+    //data.WriteGuidMask<3>(casterGuid);
 
     data.WriteBit(0);                               // unk
-    data.WriteGuidMask<4>(casterGuid);
-    data.WriteGuidMask<3>(targetGuid);
+    //data.WriteGuidMask<4>(casterGuid);
+    //data.WriteGuidMask<3>(targetGuid);
     data.WriteBit(log->physicalLog);                // if 1, then client show spell name (example: %s's ranged shot hit %s for %u school or %s suffers %u school damage from %s's spell_name
-    data.WriteGuidMask<2>(targetGuid);
-    data.WriteGuidMask<7, 2>(casterGuid);
+    //data.WriteGuidMask<2>(targetGuid);
+    //data.WriteGuidMask<7, 2>(casterGuid);
     data.WriteBit(0);                               // not has power data
-    data.WriteGuidMask<7>(targetGuid);
+    //data.WriteGuidMask<7>(targetGuid);
 
-    data.WriteGuidMask<1, 5>(casterGuid);
+    //data.WriteGuidMask<1, 5>(casterGuid);
 
     data.WriteBit(0);                               // not has floats (extended data)
 
-    data.WriteGuidMask<5, 4>(targetGuid);
-    data.WriteGuidMask<0, 6>(casterGuid);
+    //data.WriteGuidMask<5, 4>(targetGuid);
+    //data.WriteGuidMask<0, 6>(casterGuid);
 
-    data.WriteGuidBytes<7>(targetGuid);
+    //data.WriteGuidBytes<7>(targetGuid);
     data << uint32(newDamage);                      // damage amount
-    data.WriteGuidBytes<4, 6>(targetGuid);
+    //data.WriteGuidBytes<4, 6>(targetGuid);
     data << uint32(log->absorb);                    // AbsorbedDamage
-    data.WriteGuidBytes<4>(casterGuid);
-    data.WriteGuidBytes<2>(targetGuid);
+    //data.WriteGuidBytes<4>(casterGuid);
+    //data.WriteGuidBytes<2>(targetGuid);
     data << uint32(log->blocked);                   // blocked
     data << uint32(log->SpellID);
-    data.WriteGuidBytes<1>(targetGuid);
-    data.WriteGuidBytes<3>(casterGuid);
+    //data.WriteGuidBytes<1>(targetGuid);
+    //data.WriteGuidBytes<3>(casterGuid);
     data << uint8 (log->schoolMask);                // damage school
-    data.WriteGuidBytes<7>(casterGuid);
+    //data.WriteGuidBytes<7>(casterGuid);
     data << uint32(log->HitInfo);
-    data.WriteGuidBytes<0>(targetGuid);
-    data.WriteGuidBytes<0>(casterGuid);
-    data.WriteGuidBytes<5>(targetGuid);
-    data.WriteGuidBytes<6>(casterGuid);
+    //data.WriteGuidBytes<0>(targetGuid);
+    //data.WriteGuidBytes<0>(casterGuid);
+    //data.WriteGuidBytes<5>(targetGuid);
+    //data.WriteGuidBytes<6>(casterGuid);
     data << uint32(log->resist);                    // resist
-    data.WriteGuidBytes<3>(targetGuid);
-    data.WriteGuidBytes<5>(casterGuid);
+    //data.WriteGuidBytes<3>(targetGuid);
+    //data.WriteGuidBytes<5>(casterGuid);
     data << uint32(overkill > 0 ? overkill : -1);   // overkill
-    data.WriteGuidBytes<2, 1>(casterGuid);
+    //data.WriteGuidBytes<2, 1>(casterGuid);
 
     SendMessageToSet(&data, true);
 }
@@ -5509,9 +5509,9 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
     data.WriteBit(0);                   // not has power data
 
     data.WriteBits(1, 21);              // aura count
-    data.WriteGuidMask<1, 6, 2, 5>(casterGuid);
-    data.WriteGuidMask<5>(targetGuid);
-    data.WriteGuidMask<4>(casterGuid);
+    //data.WriteGuidMask<1, 6, 2, 5>(casterGuid);
+    //data.WriteGuidMask<5>(targetGuid);
+    //data.WriteGuidMask<4>(casterGuid);
 
     ByteBuffer buff;
     //for (var i = 0; i < count; ++i)
@@ -5593,13 +5593,13 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
         }
     }
 
-    data.WriteGuidMask<6, 1>(targetGuid);
-    data.WriteGuidMask<0>(casterGuid);
-    data.WriteGuidMask<2, 4>(targetGuid);
-    data.WriteGuidMask<3>(casterGuid);
-    data.WriteGuidMask<3, 0>(targetGuid);
-    data.WriteGuidMask<7>(casterGuid);
-    data.WriteGuidMask<7>(targetGuid);
+    //data.WriteGuidMask<6, 1>(targetGuid);
+    //data.WriteGuidMask<0>(casterGuid);
+    //data.WriteGuidMask<2, 4>(targetGuid);
+    //data.WriteGuidMask<3>(casterGuid);
+    //data.WriteGuidMask<3, 0>(targetGuid);
+    //data.WriteGuidMask<7>(casterGuid);
+    //data.WriteGuidMask<7>(targetGuid);
 
     if (!buff.empty())
     {
@@ -5607,17 +5607,17 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
         data.append(buff);
     }
 
-    data.WriteGuidBytes<1>(targetGuid);
+    //data.WriteGuidBytes<1>(targetGuid);
 
     data << uint32(aura->GetId());                          // spellId
 
-    data.WriteGuidBytes<2>(targetGuid);
-    data.WriteGuidBytes<4, 7, 5, 0, 2, 3>(casterGuid);
-    data.WriteGuidBytes<4, 6, 0>(targetGuid);
-    data.WriteGuidBytes<1>(casterGuid);
-    data.WriteGuidBytes<7>(targetGuid);
-    data.WriteGuidBytes<6>(casterGuid);
-    data.WriteGuidBytes<3, 5>(targetGuid);
+    //data.WriteGuidBytes<2>(targetGuid);
+    //data.WriteGuidBytes<4, 7, 5, 0, 2, 3>(casterGuid);
+    //data.WriteGuidBytes<4, 6, 0>(targetGuid);
+    //data.WriteGuidBytes<1>(casterGuid);
+    //data.WriteGuidBytes<7>(targetGuid);
+    //data.WriteGuidBytes<6>(casterGuid);
+    //data.WriteGuidBytes<3, 5>(targetGuid);
 
     SendMessageToSet(&data, true);
 }
@@ -5628,27 +5628,27 @@ void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
     ObjectGuid targetGuid = target->GetGUID();
 
     WorldPacket data(SMSG_SPELLLOGMISS, 8 + 8 + 1 + 1 + 1 + 3 + 4);
-    data.WriteGuidMask<5, 2, 4>(casterGuid);
+    //data.WriteGuidMask<5, 2, 4>(casterGuid);
     data.WriteBit(0);           // not has power data
-    data.WriteGuidMask<1>(casterGuid);
+    //data.WriteGuidMask<1>(casterGuid);
 
     data.WriteBits(1, 23);      // miss count
     //for (var i = 0; i < missCount; ++i)
     {
         data.WriteBit(0);       // not has floats
-        data.WriteGuidMask<1, 0, 3, 4, 5, 7, 2, 6>(targetGuid);
+        //data.WriteGuidMask<1, 0, 3, 4, 5, 7, 2, 6>(targetGuid);
     }
 
-    data.WriteGuidMask<0, 6, 3, 7>(casterGuid);
+    //data.WriteGuidMask<0, 6, 3, 7>(casterGuid);
 
     //for (var i = 0; i < missCount; ++i)
     {
-        data.WriteGuidBytes<4, 0, 1, 7, 6, 3, 5>(targetGuid);
+        //data.WriteGuidBytes<4, 0, 1, 7, 6, 3, 5>(targetGuid);
         data << uint8(missInfo);
-        data.WriteGuidBytes<2>(targetGuid);
+        //data.WriteGuidBytes<2>(targetGuid);
     }
 
-    data.WriteGuidBytes<3, 6, 4, 2, 1, 7, 5, 0>(casterGuid);
+    //data.WriteGuidBytes<3, 6, 4, 2, 1, 7, 5, 0>(casterGuid);
     data << uint32(spellID);
 
     SendMessageToSet(&data, true);
@@ -5670,27 +5670,27 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
     ObjectGuid targetGuid = target->GetGUID();
 
     WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8 + 8 + 4 + 1 + 1 + 1);
-    data.WriteGuidMask<3, 1>(targetGuid);
-    data.WriteGuidMask<1, 5>(casterGuid);
+    //data.WriteGuidMask<3, 1>(targetGuid);
+    //data.WriteGuidMask<1, 5>(casterGuid);
     data.WriteBit(1);       // 1 - spell immmune, 0 - damage? (1 seen only)
-    data.WriteGuidMask<7>(targetGuid);
-    data.WriteGuidMask<7, 2>(casterGuid);
-    data.WriteGuidMask<5>(targetGuid);
-    data.WriteGuidMask<3, 0>(casterGuid);
+    //data.WriteGuidMask<7>(targetGuid);
+    //data.WriteGuidMask<7, 2>(casterGuid);
+    //data.WriteGuidMask<5>(targetGuid);
+    //data.WriteGuidMask<3, 0>(casterGuid);
     data.WriteBit(0);       // not has power data
-    data.WriteGuidMask<4>(casterGuid);
-    data.WriteGuidMask<0>(targetGuid);
-    data.WriteGuidMask<6>(casterGuid);
-    data.WriteGuidMask<6>(targetGuid);
+    //data.WriteGuidMask<4>(casterGuid);
+    //data.WriteGuidMask<0>(targetGuid);
+    //data.WriteGuidMask<6>(casterGuid);
+    //data.WriteGuidMask<6>(targetGuid);
 
-    data.WriteGuidMask<2, 4>(targetGuid);
-    data.WriteGuidBytes<1, 4, 2>(casterGuid);
-    data.WriteGuidBytes<4, 5>(targetGuid);
-    data.WriteGuidBytes<0, 6>(casterGuid);
-    data.WriteGuidBytes<2, 6>(targetGuid);
-    data.WriteGuidBytes<7, 3, 5>(casterGuid);
+    //data.WriteGuidMask<2, 4>(targetGuid);
+    //data.WriteGuidBytes<1, 4, 2>(casterGuid);
+    //data.WriteGuidBytes<4, 5>(targetGuid);
+    //data.WriteGuidBytes<0, 6>(casterGuid);
+    //data.WriteGuidBytes<2, 6>(targetGuid);
+    //data.WriteGuidBytes<7, 3, 5>(casterGuid);
     data << uint32(spellId);
-    data.WriteGuidBytes<0, 7, 1, 3>(targetGuid);
+    //data.WriteGuidBytes<0, 7, 1, 3>(targetGuid);
 
     SendMessageToSet(&data, true);
 }
@@ -11554,36 +11554,36 @@ void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 
 
     WorldPacket data(SMSG_SPELLHEALLOG, 4 * 4 + 8 + 8 + 1 + 1 + 1);
 
-    data.WriteGuidMask<4>(casterGuid);
-    data.WriteGuidMask<5, 3>(targetGuid);
+    //data.WriteGuidMask<4>(casterGuid);
+    //data.WriteGuidMask<5, 3>(targetGuid);
     data.WriteBit(0);       // not has float
-    data.WriteGuidMask<3>(casterGuid);
-    data.WriteGuidMask<7>(targetGuid);
-    data.WriteGuidMask<0, 5>(casterGuid);
-    data.WriteGuidMask<0>(targetGuid);
-    data.WriteGuidMask<7, 1>(casterGuid);
+    //data.WriteGuidMask<3>(casterGuid);
+    //data.WriteGuidMask<7>(targetGuid);
+    //data.WriteGuidMask<0, 5>(casterGuid);
+    //data.WriteGuidMask<0>(targetGuid);
+    //data.WriteGuidMask<7, 1>(casterGuid);
     data.WriteBit(critical);
-    data.WriteGuidMask<6>(casterGuid);
-    data.WriteGuidMask<1, 6, 2>(targetGuid);
-    data.WriteGuidMask<2>(casterGuid);
+    //data.WriteGuidMask<6>(casterGuid);
+    //data.WriteGuidMask<1, 6, 2>(targetGuid);
+    //data.WriteGuidMask<2>(casterGuid);
     data.WriteBit(0);       // not has float
-    data.WriteGuidMask<4>(targetGuid);
+    //data.WriteGuidMask<4>(targetGuid);
     data.WriteBit(0);       // not has power data
 
     data << uint32(Damage);
-    data.WriteGuidBytes<1>(targetGuid);
-    data.WriteGuidBytes<7>(casterGuid);
-    data.WriteGuidBytes<7>(targetGuid);
-    data.WriteGuidBytes<3, 6, 5>(casterGuid);
-    data.WriteGuidBytes<2>(targetGuid);
+    //data.WriteGuidBytes<1>(targetGuid);
+    //data.WriteGuidBytes<7>(casterGuid);
+    //data.WriteGuidBytes<7>(targetGuid);
+    //data.WriteGuidBytes<3, 6, 5>(casterGuid);
+    //data.WriteGuidBytes<2>(targetGuid);
     data << uint32(OverHeal);
-    data.WriteGuidBytes<0, 6>(targetGuid);
-    data.WriteGuidBytes<4>(casterGuid);
-    data.WriteGuidBytes<5>(targetGuid);
-    data.WriteGuidBytes<4, 3>(targetGuid);
+    //data.WriteGuidBytes<0, 6>(targetGuid);
+    //data.WriteGuidBytes<4>(casterGuid);
+    //data.WriteGuidBytes<5>(targetGuid);
+    //data.WriteGuidBytes<4, 3>(targetGuid);
     data << uint32(SpellID);
     data << uint32(Absorb); // Absorb amount
-    data.WriteGuidBytes<2, 1, 0>(casterGuid);
+    //data.WriteGuidBytes<2, 1, 0>(casterGuid);
 
     SendMessageToSet(&data, true);
 }
@@ -11613,33 +11613,33 @@ void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, uint32 damage, Pow
     ObjectGuid targetGuid = victim->GetGUID();
     ObjectGuid sourceGuid = GetGUID();
 
-    data.WriteGuidMask<2>(targetGuid);
-    data.WriteGuidMask<1>(sourceGuid);
-    data.WriteGuidMask<1>(targetGuid);
+    //data.WriteGuidMask<2>(targetGuid);
+    //data.WriteGuidMask<1>(sourceGuid);
+    //data.WriteGuidMask<1>(targetGuid);
 
     data.WriteBit(0);       // not has power data
 
-    data.WriteGuidMask<3, 0>(targetGuid);
-    data.WriteGuidMask<5, 3>(sourceGuid);
-    data.WriteGuidMask<5, 6>(targetGuid);
-    data.WriteGuidMask<4>(sourceGuid);
-    data.WriteGuidMask<7>(targetGuid);
-    data.WriteGuidMask<6>(sourceGuid);
-    data.WriteGuidMask<4>(targetGuid);
-    data.WriteGuidMask<7, 0, 2>(sourceGuid);
+    //data.WriteGuidMask<3, 0>(targetGuid);
+    //data.WriteGuidMask<5, 3>(sourceGuid);
+    //data.WriteGuidMask<5, 6>(targetGuid);
+    //data.WriteGuidMask<4>(sourceGuid);
+    //data.WriteGuidMask<7>(targetGuid);
+    //data.WriteGuidMask<6>(sourceGuid);
+    //data.WriteGuidMask<4>(targetGuid);
+    //data.WriteGuidMask<7, 0, 2>(sourceGuid);
 
-    data.WriteGuidBytes<1>(sourceGuid);
-    data.WriteGuidBytes<3>(targetGuid);
+    //data.WriteGuidBytes<1>(sourceGuid);
+    //data.WriteGuidBytes<3>(targetGuid);
 
-    data.WriteGuidBytes<5>(sourceGuid);
-    data.WriteGuidBytes<7, 1, 6, 2, 0, 4>(targetGuid);
+    //data.WriteGuidBytes<5>(sourceGuid);
+    //data.WriteGuidBytes<7, 1, 6, 2, 0, 4>(targetGuid);
     data << uint32(powerType);
-    data.WriteGuidBytes<2>(sourceGuid);
+    //data.WriteGuidBytes<2>(sourceGuid);
     data << uint32(damage);
-    data.WriteGuidBytes<7, 0, 3>(sourceGuid);
-    data.WriteGuidBytes<5>(targetGuid);
+    //data.WriteGuidBytes<7, 0, 3>(sourceGuid);
+    //data.WriteGuidBytes<5>(targetGuid);
     data << uint32(spellID);
-    data.WriteGuidBytes<4, 6>(sourceGuid);
+    //data.WriteGuidBytes<4, 6>(sourceGuid);
 
     SendMessageToSet(&data, true);
 }
@@ -13503,8 +13503,8 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 // Send others that we now have a vehicle
                 WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, 8 + 1 + 4);
                 data << uint32(VehicleId);
-                data.WriteGuidMask<5, 3, 6, 2, 1, 4, 0, 7>(GetGUID());
-                data.WriteGuidBytes<6, 0, 1, 3, 5, 7, 2, 4>(GetGUID());
+                //data.WriteGuidMask<5, 3, 6, 2, 1, 4, 0, 7>(GetGUID());
+                //data.WriteGuidBytes<6, 0, 1, 3, 5, 7, 2, 4>(GetGUID());
                 SendMessageToSet(&data, true);
 
                 data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
@@ -13537,8 +13537,8 @@ void Unit::Dismount()
         thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
 
     WorldPacket data(SMSG_DISMOUNT, 8 + 1);
-    data.WriteGuidMask<2, 3, 7, 1, 6, 4, 0, 5>(GetGUID());
-    data.WriteGuidBytes<5, 7, 2, 0, 3, 1, 4, 6>(GetGUID());
+    //data.WriteGuidMask<2, 3, 7, 1, 6, 4, 0, 5>(GetGUID());
+    //data.WriteGuidBytes<5, 7, 2, 0, 3, 1, 4, 6>(GetGUID());
     SendMessageToSet(&data, true);
 
     // dismount as a vehicle
@@ -13547,8 +13547,8 @@ void Unit::Dismount()
         // Send other players that we are no longer a vehicle
         data.Initialize(SMSG_PLAYER_VEHICLE_DATA, 8 + 4 + 1);
         data << uint32(0);
-        data.WriteGuidMask<5, 3, 6, 2, 1, 4, 0, 7>(GetGUID());
-        data.WriteGuidBytes<6, 0, 1, 3, 5, 7, 2, 4>(GetGUID());
+        //data.WriteGuidMask<5, 3, 6, 2, 1, 4, 0, 7>(GetGUID());
+        //data.WriteGuidBytes<6, 0, 1, 3, 5, 7, 2, 4>(GetGUID());
         ToPlayer()->SendMessageToSet(&data, true);
         // Remove vehicle from player
         RemoveVehicleKit();
@@ -14711,9 +14711,9 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_SPLINE_MOVE_SET_WALK_SPEED, 8+4+1);
     
-                data.WriteGuidMask<2, 0, 6, 3, 7, 5, 1, 4>(guid);
+                //data.WriteGuidMask<2, 0, 6, 3, 7, 5, 1, 4>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<3, 1, 4, 2, 6, 0, 5, 7>(guid);
+                //data.WriteGuidBytes<3, 1, 4, 2, 6, 0, 5, 7>(guid);
                 break;
             }
             case MOVE_RUN:
@@ -14721,10 +14721,10 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 1 + 8 + 4);
     
-                data.WriteGuidMask<7, 0, 4, 6, 1, 2, 3, 5>(guid);
-                data.WriteGuidBytes<2, 4, 6>(guid);
+                //data.WriteGuidMask<7, 0, 4, 6, 1, 2, 3, 5>(guid);
+                //data.WriteGuidBytes<2, 4, 6>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes< 0, 3, 7, 1, 5>(guid);
+                //data.WriteGuidBytes< 0, 3, 7, 1, 5>(guid);
                 break;
             }
             case MOVE_RUN_BACK:
@@ -14732,10 +14732,10 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4);
     
-                data.WriteGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guid);               
-                data.WriteGuidBytes<4, 7, 6, 0, 2, 3>(guid);
+                //data.WriteGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guid);               
+                //data.WriteGuidBytes<4, 7, 6, 0, 2, 3>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<5, 1>(guid);
+                //data.WriteGuidBytes<5, 1>(guid);
                 break;
             }
             case MOVE_SWIM:
@@ -14743,10 +14743,10 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_SPEED, 1 + 8 + 4);
     
-                data.WriteGuidMask<3, 2, 6, 1, 7, 0, 4, 5>(guid);                
-                data.WriteGuidBytes<3>(guid);
+                //data.WriteGuidMask<3, 2, 6, 1, 7, 0, 4, 5>(guid);                
+                //data.WriteGuidBytes<3>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<4, 1, 2, 7, 0, 5, 6>(guid);
+                //data.WriteGuidBytes<4, 1, 2, 7, 0, 5, 6>(guid);
                 break;
             }
             case MOVE_SWIM_BACK:
@@ -14754,10 +14754,10 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4);
     
-                data.WriteGuidMask<6, 0, 1, 3, 7, 2, 4, 5>(guid);                
-                data.WriteGuidBytes<2, 5, 6, 4, 3, 1, 0>(guid);
+                //data.WriteGuidMask<6, 0, 1, 3, 7, 2, 4, 5>(guid);                
+                //data.WriteGuidBytes<2, 5, 6, 4, 3, 1, 0>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<7>(guid);
+                //data.WriteGuidBytes<7>(guid);
                 break;
             }
             case MOVE_TURN_RATE:
@@ -14765,10 +14765,10 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_SPLINE_MOVE_SET_TURN_RATE, 1 + 8 + 4);
     
-                data.WriteGuidMask<5, 1, 7, 2, 0, 6, 3, 4>(guid);               
-                data.WriteGuidBytes<4, 0, 3, 7, 5, 2>(guid);
+                //data.WriteGuidMask<5, 1, 7, 2, 0, 6, 3, 4>(guid);               
+                //data.WriteGuidBytes<4, 0, 3, 7, 5, 2>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<1, 6>(guid);
+                //data.WriteGuidBytes<1, 6>(guid);
                 break;
             }
             case MOVE_FLIGHT:
@@ -14776,9 +14776,9 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4);
     
-                data.WriteGuidMask<2, 6, 0, 3, 4, 1, 5, 7>(guid);
+                //data.WriteGuidMask<2, 6, 0, 3, 4, 1, 5, 7>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<7, 2, 3, 0, 5, 1, 4, 6>(guid);
+                //data.WriteGuidBytes<7, 2, 3, 0, 5, 1, 4, 6>(guid);
                 break;
             }
             case MOVE_FLIGHT_BACK:
@@ -14786,9 +14786,9 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4);
     
-                data.WriteGuidMask<6, 7, 1, 5, 2, 4, 3, 0>(guid);
+                //data.WriteGuidMask<6, 7, 1, 5, 2, 4, 3, 0>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<4, 3, 6, 5, 0, 2, 1, 7>(guid);
+                //data.WriteGuidBytes<4, 3, 6, 5, 0, 2, 1, 7>(guid);
                 break;
             }
             case MOVE_PITCH_RATE:
@@ -14796,8 +14796,8 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_SPLINE_MOVE_SET_PITCH_RATE, 1 + 8 + 4);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidMask<4, 0, 5, 7, 2, 3, 6, 1>(guid);
-                data.WriteGuidBytes<0, 3, 7, 4, 1, 2, 6, 5>(guid);
+                //data.WriteGuidMask<4, 0, 5, 7, 2, 3, 6, 1>(guid);
+                //data.WriteGuidBytes<0, 3, 7, 4, 1, 2, 6, 5>(guid);
                 break;
             }
             default:
@@ -14829,8 +14829,8 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
    
                 data << float(GetSpeed(mtype));
                 data << uint32(0); // Unk Int32
-                data.WriteGuidMask<5, 4, 3, 1, 0, 7, 2, 6>(guid);                
-                data.WriteGuidBytes<7, 5, 3, 2, 4, 1, 6, 0>(guid);
+                //data.WriteGuidMask<5, 4, 3, 1, 0, 7, 2, 6>(guid);                
+                //data.WriteGuidBytes<7, 5, 3, 2, 4, 1, 6, 0>(guid);
                 break;
             }
             case MOVE_RUN:
@@ -14838,10 +14838,10 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_MOVE_SET_RUN_SPEED, 1 + 8 + 4 + 4);
 
-                data.WriteGuidMask<3, 6, 7, 1, 4, 0, 2, 5>(guid);
-                data.WriteGuidBytes<7, 5>(guid);
+                //data.WriteGuidMask<3, 6, 7, 1, 4, 0, 2, 5>(guid);
+                //data.WriteGuidBytes<7, 5>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<6, 2, 0, 3, 1, 4>(guid);
+                //data.WriteGuidBytes<6, 2, 0, 3, 1, 4>(guid);
                 data << uint32(0); // Unk Int32
                 break;
             }
@@ -14849,12 +14849,12 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
             {
                 //! 5.4.1
                 data.Initialize(SMSG_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4 + 4);
-                data.WriteGuidMask<1, 0, 5, 2, 4, 6, 7, 3>(guid);
-                data.WriteGuidBytes<3, 0, 7>(guid);
+                //data.WriteGuidMask<1, 0, 5, 2, 4, 6, 7, 3>(guid);
+                //data.WriteGuidBytes<3, 0, 7>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<2, 4>(guid);
+                //data.WriteGuidBytes<2, 4>(guid);
                 data << uint32(0); // Unk Int32
-                data.WriteGuidBytes<6, 1, 5>(guid);
+                //data.WriteGuidBytes<6, 1, 5>(guid);
                 break;
             }
             case MOVE_SWIM:
@@ -14862,12 +14862,12 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 1 + 8 + 4 + 4);
     
-                data.WriteGuidMask<6, 3, 1, 2, 0, 4, 7, 5>(guid);
-                data.WriteGuidBytes<2>(guid);
+                //data.WriteGuidMask<6, 3, 1, 2, 0, 4, 7, 5>(guid);
+                //data.WriteGuidBytes<2>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<1, 6>(guid);
+                //data.WriteGuidBytes<1, 6>(guid);
                 data << uint32(0); // Unk Int32
-                data.WriteGuidBytes<3, 4, 0, 7, 5>(guid);
+                //data.WriteGuidBytes<3, 4, 0, 7, 5>(guid);
                 break;
             }
             case MOVE_SWIM_BACK:
@@ -14875,12 +14875,12 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4 + 4);
     
-                data.WriteGuidMask<0, 6, 5, 2, 1, 7, 4, 3>(guid);
-                data.WriteGuidBytes<0, 3, 6>(guid);
+                //data.WriteGuidMask<0, 6, 5, 2, 1, 7, 4, 3>(guid);
+                //data.WriteGuidBytes<0, 3, 6>(guid);
                 data << uint32(0); // Unk Int32
-                data.WriteGuidBytes<5>(guid);
+                //data.WriteGuidBytes<5>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<2, 1, 7, 4>(guid);
+                //data.WriteGuidBytes<2, 1, 7, 4>(guid);
                 break;
             }
             case MOVE_TURN_RATE:
@@ -14888,9 +14888,9 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_MOVE_SET_TURN_RATE, 1 + 8 + 4 + 4);
                 
-                data.WriteGuidMask<1, 7, 3, 0, 5, 4, 6, 2>(guid);
+                //data.WriteGuidMask<1, 7, 3, 0, 5, 4, 6, 2>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<2, 7, 1, 5, 6, 0, 4, 3>(guid);
+                //data.WriteGuidBytes<2, 7, 1, 5, 6, 0, 4, 3>(guid);
                 data << uint32(0); // Unk Int32
                 break;
             }
@@ -14899,12 +14899,12 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4 + 4);
     
-                data.WriteGuidMask<3, 0, 2, 4, 6, 1, 5, 7>(guid);
-                data.WriteGuidBytes<2, 7, 1>(guid);
+                //data.WriteGuidMask<3, 0, 2, 4, 6, 1, 5, 7>(guid);
+                //data.WriteGuidBytes<2, 7, 1>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<0, 4, 5>(guid);
+                //data.WriteGuidBytes<0, 4, 5>(guid);
                 data << uint32(0); // Unk Int32
-                data.WriteGuidBytes<6, 3>(guid);
+                //data.WriteGuidBytes<6, 3>(guid);
                 break;
             }
             case MOVE_FLIGHT_BACK:
@@ -14912,9 +14912,9 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4 + 4);
     
-                data.WriteGuidMask<1, 0, 7, 2, 3, 5, 4, 6>(guid);
+                //data.WriteGuidMask<1, 0, 7, 2, 3, 5, 4, 6>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<1, 4, 0, 3, 6, 7, 2, 5>(guid);
+                //data.WriteGuidBytes<1, 4, 0, 3, 6, 7, 2, 5>(guid);
                 data << uint32(0); // Unk Int32
                 break;
             }
@@ -14923,12 +14923,12 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 //! 5.4.1
                 data.Initialize(SMSG_MOVE_SET_PITCH_RATE, 1 + 8 + 4 + 4);
                 
-                data.WriteGuidMask<7, 5, 2, 6, 1, 3, 0, 4>(guid);
-                data.WriteGuidBytes<2, 6>(guid);
+                //data.WriteGuidMask<7, 5, 2, 6, 1, 3, 0, 4>(guid);
+                //data.WriteGuidBytes<2, 6>(guid);
                 data << float(GetSpeed(mtype));
-                data.WriteGuidBytes<3, 1, 5, 4, 0>(guid);
+                //data.WriteGuidBytes<3, 1, 5, 4, 0>(guid);
                 data << uint32(0); // Unk Int32
-                data.WriteGuidBytes<7>(guid);
+                //data.WriteGuidBytes<7>(guid);
                 break;
             }
             default:
@@ -16034,11 +16034,11 @@ void Unit::InitialPowers(bool maxpower)
 
     WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
     ObjectGuid guid = GetGUID();
-    data.WriteGuidMask<1>(guid);
+    //data.WriteGuidMask<1>(guid);
     data.WriteBits(count, 21);
-    data.WriteGuidMask<3, 6, 0, 4, 2, 5, 7>(guid);
+    //data.WriteGuidMask<3, 6, 0, 4, 2, 5, 7>(guid);
     data.FlushBits();
-    data.WriteGuidBytes<1, 2, 0>(guid);
+    //data.WriteGuidBytes<1, 2, 0>(guid);
 
     int32 powerIndex = 0;
     for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
@@ -16075,7 +16075,7 @@ void Unit::InitialPowers(bool maxpower)
 
     }
 
-    data.WriteGuidBytes<7, 4, 5, 6, 3>(guid);
+    //data.WriteGuidBytes<7, 4, 5, 6, 3>(guid);
     SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
 }
 
@@ -16100,17 +16100,17 @@ void Unit::SetPower(Powers power, int32 val, bool send)
         WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
         ObjectGuid guid = GetGUID();
 
-        data.WriteGuidMask<1>(guid);
+        //data.WriteGuidMask<1>(guid);
         int powerCounter = 1;
         data.WriteBits(powerCounter, 21);
-        data.WriteGuidMask<3, 6, 0, 4, 2, 5, 7>(guid);
+        //data.WriteGuidMask<3, 6, 0, 4, 2, 5, 7>(guid);
         
         data.FlushBits();
         
-        data.WriteGuidBytes<1, 2, 0>(guid);
+        //data.WriteGuidBytes<1, 2, 0>(guid);
         data << uint8(power);
         data << int32(val);
-        data.WriteGuidBytes<7, 4, 5, 6, 3>(guid);
+        //data.WriteGuidBytes<7, 4, 5, 6, 3>(guid);
         SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
     }
     
@@ -17476,8 +17476,8 @@ void Unit::SendPetTalk(uint32 pettalk)
     //! 5.4.1
     WorldPacket data(SMSG_PET_ACTION_SOUND, 8 + 4);
     data << uint32(pettalk);
-    data.WriteGuidMask<2, 3, 1, 4, 5, 6, 0, 7>(Guid);
-    data.WriteGuidBytes<6, 2, 7, 1, 3, 4, 5, 0>(Guid);
+    //data.WriteGuidMask<2, 3, 1, 4, 5, 6, 0, 7>(Guid);
+    //data.WriteGuidBytes<6, 2, 7, 1, 3, 4, 5, 0>(Guid);
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -17491,8 +17491,8 @@ void Unit::SendPetAIReaction(uint64 guid)
 
     //! 5.4.1
     WorldPacket data(SMSG_AI_REACTION, 8 + 4);
-    data.WriteGuidMask<1, 5, 4, 3, 7, 6, 0, 2>(guidd);
-    data.WriteGuidBytes<0, 5, 6, 2, 7, 3, 1, 4>(guidd);
+    //data.WriteGuidMask<1, 5, 4, 3, 7, 6, 0, 2>(guidd);
+    //data.WriteGuidBytes<0, 5, 6, 2, 7, 3, 1, 4>(guidd);
     data << uint32(AI_REACTION_HOSTILE);
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
@@ -19461,10 +19461,10 @@ void Unit::PlayOneShotAnimKit(uint32 id)
     ObjectGuid guidd(GetGUID());
 
     WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7 + 2);
-    data.WriteGuidMask<2, 5, 7, 4, 0, 1, 6, 3>(guidd);
-    data.WriteGuidBytes<3, 0, 7, 6, 5, 1, 4>(guidd);
+    //data.WriteGuidMask<2, 5, 7, 4, 0, 1, 6, 3>(guidd);
+    //data.WriteGuidBytes<3, 0, 7, 6, 5, 1, 4>(guidd);
     data << uint16(id);
-    data.WriteGuidBytes<2>(guidd);
+    //data.WriteGuidBytes<2>(guidd);
     SendMessageToSet(&data, true);
 }
 
@@ -19501,28 +19501,28 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
         //! 5.4.1
         WorldPacket data(SMSG_PARTYKILLLOG, (8+8)); // send event PARTY_KILL
         data.WriteBit(0);
-        data.WriteGuidMask<1>(guid);
-        data.WriteGuidMask<4>(vGuid);
-        data.WriteGuidMask<6, 0, 7, 3, 2, 4>(guid);
-        data.WriteGuidMask<5, 7, 0, 2, 6>(vGuid);
-        data.WriteGuidMask<5>(guid);
-        data.WriteGuidMask<3, 1>(vGuid);
+        //data.WriteGuidMask<1>(guid);
+        //data.WriteGuidMask<4>(vGuid);
+        //data.WriteGuidMask<6, 0, 7, 3, 2, 4>(guid);
+        //data.WriteGuidMask<5, 7, 0, 2, 6>(vGuid);
+        //data.WriteGuidMask<5>(guid);
+        //data.WriteGuidMask<3, 1>(vGuid);
 
         data.FlushBits();
 
-        data.WriteGuidBytes<7>(guid);
-        data.WriteGuidBytes<5>(vGuid);
-        data.WriteGuidBytes<4>(guid);
-        data.WriteGuidBytes<0>(vGuid);
-        data.WriteGuidBytes<5>(guid);
-        data.WriteGuidBytes<4, 2>(vGuid);
-        data.WriteGuidBytes<1>(guid);
-        data.WriteGuidBytes<6>(vGuid);
-        data.WriteGuidBytes<6>(guid);
-        data.WriteGuidBytes<3, 1>(vGuid);
-        data.WriteGuidBytes<0, 3>(guid);
-        data.WriteGuidBytes<7>(vGuid);
-        data.WriteGuidBytes<2>(guid);
+        //data.WriteGuidBytes<7>(guid);
+        //data.WriteGuidBytes<5>(vGuid);
+        //data.WriteGuidBytes<4>(guid);
+        //data.WriteGuidBytes<0>(vGuid);
+        //data.WriteGuidBytes<5>(guid);
+        //data.WriteGuidBytes<4, 2>(vGuid);
+        //data.WriteGuidBytes<1>(guid);
+        //data.WriteGuidBytes<6>(vGuid);
+        //data.WriteGuidBytes<6>(guid);
+        //data.WriteGuidBytes<3, 1>(vGuid);
+        //data.WriteGuidBytes<0, 3>(guid);
+        //data.WriteGuidBytes<7>(vGuid);
+        //data.WriteGuidBytes<2>(guid);
 
         Player* looter = player;
 
@@ -19847,9 +19847,9 @@ void Unit::SendMoveRoot(uint32 value)
 
     //! 5.4.1
     WorldPacket data(SMSG_MOVE_ROOT, 1 + 8 + 4);
-    data.WriteGuidMask<7, 1, 2, 6, 4, 3, 0, 5>(guid);
+    //data.WriteGuidMask<7, 1, 2, 6, 4, 3, 0, 5>(guid);
     data << uint32(value);
-    data.WriteGuidBytes<5, 7, 2, 0, 4, 1, 6, 3>(guid);
+    //data.WriteGuidBytes<5, 7, 2, 0, 4, 1, 6, 3>(guid);
 
     SendMessageToSet(&data, true);
 }
@@ -19860,10 +19860,10 @@ void Unit::SendMoveUnroot(uint32 value)
 
     //! 5.4.1
     WorldPacket data(SMSG_MOVE_UNROOT, 1 + 8 + 4);
-    data.WriteGuidMask<2, 0, 3, 6, 1, 5, 4, 7>(guid);
-    data.WriteGuidBytes<1, 5, 2, 6, 4>(guid);
+    //data.WriteGuidMask<2, 0, 3, 6, 1, 5, 4, 7>(guid);
+    //data.WriteGuidBytes<1, 5, 2, 6, 4>(guid);
     data << uint32(value);
-    data.WriteGuidBytes<7, 0, 3>(guid);
+    //data.WriteGuidBytes<7, 0, 3>(guid);
 
     SendMessageToSet(&data, true);
 }
@@ -19930,8 +19930,8 @@ void Unit::SetRooted(bool apply)
             //! 5.4.1
             WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
    
-            data.WriteGuidMask<0, 5, 2, 1, 4, 6, 3, 7>(guid);
-            data.WriteGuidBytes<2, 7, 3, 0, 4, 6, 1, 5>(guid);
+            //data.WriteGuidMask<0, 5, 2, 1, 4, 6, 3, 7>(guid);
+            //data.WriteGuidBytes<2, 7, 3, 0, 4, 6, 1, 5>(guid);
             SendMessageToSet(&data, true);
             StopMoving();
         }
@@ -19948,8 +19948,8 @@ void Unit::SetRooted(bool apply)
                 //! 5.4.1
                 WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
                     
-                data.WriteGuidMask<1, 0, 2, 6, 5, 4, 7>(guid);
-                data.WriteGuidBytes<2, 4, 7, 3, 6, 5, 1, 0>(guid);
+                //data.WriteGuidMask<1, 0, 2, 6, 5, 4, 7>(guid);
+                //data.WriteGuidBytes<2, 4, 7, 3, 6, 5, 1, 0>(guid);
                 SendMessageToSet(&data, true);
             }
 
@@ -20521,8 +20521,8 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
     data << uint32(unkParam);
     data << uint32(id); // SpellVisualKit.db2 index
 
-    data.WriteGuidMask<5, 4, 6, 0, 1, 7, 3, 2>(guid);
-    data.WriteGuidBytes<1, 7, 0, 3, 5, 4, 6, 2>(guid);
+    //data.WriteGuidMask<5, 4, 6, 0, 1, 7, 3, 2>(guid);
+    //data.WriteGuidBytes<1, 7, 0, 3, 5, 4, 6, 2>(guid);
 
     SendMessageToSet(&data, false);
 }
@@ -20828,8 +20828,8 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     data << uint32(0);
     data << float(vsin);
     
-    data.WriteGuidMask<7, 2, 4, 3, 0, 6, 1, 5>(guid);
-    data.WriteGuidBytes<1, 4, 0, 2, 3, 5, 7, 6>(guid);
+    //data.WriteGuidMask<7, 2, 4, 3, 0, 6, 1, 5>(guid);
+    //data.WriteGuidBytes<1, 4, 0, 2, 3, 5, 7, 6>(guid);
 
     player->GetSession()->SendPacket(&data);
 }
@@ -21703,8 +21703,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
         ObjectGuid guid = GetGUID();
     
-        data.WriteGuidMask<1, 0, 2, 6, 5, 4, 7>(guid);
-        data.WriteGuidBytes<2, 4, 7, 3, 6, 5, 1, 0>(guid);
+        //data.WriteGuidMask<1, 0, 2, 6, 5, 4, 7>(guid);
+        //data.WriteGuidBytes<2, 4, 7, 3, 6, 5, 1, 0>(guid);
         SendMessageToSet(&data, false);
     }
 
@@ -21910,23 +21910,23 @@ void Unit::SendThreatListUpdate()
 
         //! 5.4.1
         WorldPacket data(SMSG_THREAT_UPDATE);
-        data.WriteGuidMask<3, 2, 1>(guid);
+        //data.WriteGuidMask<3, 2, 1>(guid);
         data.WriteBits(count, 21);
-        data.WriteGuidMask<0>(guid);
+        //data.WriteGuidMask<0>(guid);
         std::list<HostileReference*>& tlist = getThreatManager().getThreatList();
         for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
             hostileGUID = (*itr)->getUnitGuid();
-            data.WriteGuidMask<2, 4, 6, 1, 5, 3, 0, 7>(hostileGUID);
+            //data.WriteGuidMask<2, 4, 6, 1, 5, 3, 0, 7>(hostileGUID);
 
             dataBuffer << uint32((*itr)->getThreat() * 100);
             dataBuffer.WriteGuidBytes<0, 2, 5, 1, 4, 3, 6, 7>(hostileGUID);
         }
-        data.WriteGuidMask<4, 7, 5, 6>(guid);
+        //data.WriteGuidMask<4, 7, 5, 6>(guid);
         data.FlushBits();
-        data.WriteGuidBytes<0, 2>(guid);
+        //data.WriteGuidBytes<0, 2>(guid);
         data.append(dataBuffer);
-        data.WriteGuidBytes<4, 7, 5, 6, 1, 3>(guid);
+        //data.WriteGuidBytes<4, 7, 5, 6, 1, 3>(guid);
 
         SendMessageToSet(&data, false);
     }
@@ -21947,14 +21947,14 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 
         //! 5.4.1
         WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE);
-        data.WriteGuidMask<2>(guid);
-        data.WriteGuidMask<5>(HostileReferenceGUID);
-        data.WriteGuidMask<5>(guid);
-        data.WriteGuidMask<7>(HostileReferenceGUID);
-        data.WriteGuidMask<7>(guid);
-        data.WriteGuidMask<2>(HostileReferenceGUID);
-        data.WriteGuidMask<6, 1, 4>(guid);
-        data.WriteGuidMask<6, 1>(HostileReferenceGUID);
+        //data.WriteGuidMask<2>(guid);
+        //data.WriteGuidMask<5>(HostileReferenceGUID);
+        //data.WriteGuidMask<5>(guid);
+        //data.WriteGuidMask<7>(HostileReferenceGUID);
+        //data.WriteGuidMask<7>(guid);
+        //data.WriteGuidMask<2>(HostileReferenceGUID);
+        //data.WriteGuidMask<6, 1, 4>(guid);
+        //data.WriteGuidMask<6, 1>(HostileReferenceGUID);
         data.WriteBits(count, 21);
 
         std::list<HostileReference*>& tlist = getThreatManager().getThreatList();
@@ -21962,28 +21962,28 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
         {
             hostileGUID = (*itr)->getUnitGuid();
 
-            data.WriteGuidMask<5, 4, 7, 6, 2, 0, 1, 3>(hostileGUID);
+            //data.WriteGuidMask<5, 4, 7, 6, 2, 0, 1, 3>(hostileGUID);
 
             dataBuffer.WriteGuidBytes<2, 1, 5, 4, 3>(hostileGUID);
             dataBuffer << uint32((*itr)->getThreat());
             dataBuffer.WriteGuidBytes<0, 6, 7>(hostileGUID);
         }
-        data.WriteGuidMask<0, 4>(HostileReferenceGUID);
-        data.WriteGuidMask<3>(guid);
-        data.WriteGuidMask<3>(HostileReferenceGUID);
-        data.WriteGuidMask<0>(guid);
+        //data.WriteGuidMask<0, 4>(HostileReferenceGUID);
+        //data.WriteGuidMask<3>(guid);
+        //data.WriteGuidMask<3>(HostileReferenceGUID);
+        //data.WriteGuidMask<0>(guid);
 
         data.FlushBits();
 
         data.append(dataBuffer);
-        data.WriteGuidBytes<5>(guid);
-        data.WriteGuidBytes<1>(HostileReferenceGUID);
-        data.WriteGuidBytes<6, 4, 7>(guid);
-        data.WriteGuidBytes<0>(HostileReferenceGUID);
-        data.WriteGuidBytes<3>(guid);
-        data.WriteGuidBytes<7>(HostileReferenceGUID);
-        data.WriteGuidBytes<1, 0, 2>(guid);
-        data.WriteGuidBytes<5, 2, 6, 4, 3>(HostileReferenceGUID);
+        //data.WriteGuidBytes<5>(guid);
+        //data.WriteGuidBytes<1>(HostileReferenceGUID);
+        //data.WriteGuidBytes<6, 4, 7>(guid);
+        //data.WriteGuidBytes<0>(HostileReferenceGUID);
+        //data.WriteGuidBytes<3>(guid);
+        //data.WriteGuidBytes<7>(HostileReferenceGUID);
+        //data.WriteGuidBytes<1, 0, 2>(guid);
+        //data.WriteGuidBytes<5, 2, 6, 4, 3>(HostileReferenceGUID);
 
         SendMessageToSet(&data, false);
     }
@@ -21997,8 +21997,8 @@ void Unit::SendClearThreatListOpcode()
 
     //! 5.4.1
     WorldPacket data(SMSG_THREAT_CLEAR, 8);
-    data.WriteGuidMask<0, 2, 5, 3, 1, 4, 6, 7>(guid);
-    data.WriteGuidBytes<1, 2, 3, 7, 6, 0, 4, 5>(guid);
+    //data.WriteGuidMask<0, 2, 5, 3, 1, 4, 6, 7>(guid);
+    //data.WriteGuidBytes<1, 2, 3, 7, 6, 0, 4, 5>(guid);
     SendMessageToSet(&data, false);
 }
 
@@ -22011,22 +22011,22 @@ void Unit::SendRemoveFromThreatListOpcode(HostileReference* pHostileReference)
 
     //! 5.4.1
     WorldPacket data(SMSG_THREAT_REMOVE, 8 + 8);
-    data.WriteGuidMask<3>(guid);
-    data.WriteGuidMask<5, 1, 3, 0>(RefGUID);
-    data.WriteGuidMask<5>(guid);
-    data.WriteGuidMask<2, 7>(RefGUID);
-    data.WriteGuidMask<2, 6>(guid);
-    data.WriteGuidMask<4>(RefGUID);
-    data.WriteGuidMask<0, 7, 1, 4>(guid);
-    data.WriteGuidMask<6>(RefGUID);
+    //data.WriteGuidMask<3>(guid);
+    //data.WriteGuidMask<5, 1, 3, 0>(RefGUID);
+    //data.WriteGuidMask<5>(guid);
+    //data.WriteGuidMask<2, 7>(RefGUID);
+    //data.WriteGuidMask<2, 6>(guid);
+    //data.WriteGuidMask<4>(RefGUID);
+    //data.WriteGuidMask<0, 7, 1, 4>(guid);
+    //data.WriteGuidMask<6>(RefGUID);
 
-    data.WriteGuidBytes<0, 5>(guid);
-    data.WriteGuidBytes<4>(RefGUID);
-    data.WriteGuidBytes<4, 7>(guid);
-    data.WriteGuidBytes<0, 1>(RefGUID);
-    data.WriteGuidBytes<3, 1>(guid);
-    data.WriteGuidBytes<6, 7, 2, 3, 5>(RefGUID);
-    data.WriteGuidBytes<2, 6>(guid);
+    //data.WriteGuidBytes<0, 5>(guid);
+    //data.WriteGuidBytes<4>(RefGUID);
+    //data.WriteGuidBytes<4, 7>(guid);
+    //data.WriteGuidBytes<0, 1>(RefGUID);
+    //data.WriteGuidBytes<3, 1>(guid);
+    //data.WriteGuidBytes<6, 7, 2, 3, 5>(RefGUID);
+    //data.WriteGuidBytes<2, 6>(guid);
 
     SendMessageToSet(&data, false);
 }
@@ -22154,8 +22154,8 @@ uint32 Unit::GetRemainingPeriodicAmount(uint64 caster, uint32 spellId, AuraType 
 void Unit::SendClearTarget()
 {
     WorldPacket data(SMSG_BREAK_TARGET, 8 + 1);
-    data.WriteGuidMask<5, 6, 7, 3, 2, 0, 4, 1>(GetGUID());
-    data.WriteGuidBytes<1, 6, 2, 4, 5, 3, 7, 0>(GetGUID());
+    //data.WriteGuidMask<5, 6, 7, 3, 2, 0, 4, 1>(GetGUID());
+    //data.WriteGuidBytes<1, 6, 2, 4, 5, 3, 7, 0>(GetGUID());
     SendMessageToSet(&data, false);
 }
 
@@ -22488,22 +22488,22 @@ void Unit::SendTeleportPacket(Position &destPos)
     ObjectGuid transGuid = GetTransGUID();
 
     WorldPacket data(SMSG_MOVE_TELEPORT, 38);
-    data.WriteGuidMask<7>(guid);
+    //data.WriteGuidMask<7>(guid);
     data.WriteBit(0);       // byte33
-    data.WriteGuidMask<2, 0>(guid);
+    //data.WriteGuidMask<2, 0>(guid);
     data.WriteBit(transGuid != 0);
     if (transGuid)
-        data.WriteGuidMask<4, 3, 5, 7, 0, 2, 6, 1>(transGuid);
-    data.WriteGuidMask<5, 1, 3, 6, 4>(guid);
+        //data.WriteGuidMask<4, 3, 5, 7, 0, 2, 6, 1>(transGuid);
+    //data.WriteGuidMask<5, 1, 3, 6, 4>(guid);
 
-    data.WriteGuidBytes<0>(guid);
+    //data.WriteGuidBytes<0>(guid);
     if (transGuid)
-        data.WriteGuidBytes<7, 6, 0, 2, 3, 1, 5, 4>(transGuid);
-    data.WriteGuidBytes<6, 1>(guid);
+        //data.WriteGuidBytes<7, 6, 0, 2, 3, 1, 5, 4>(transGuid);
+    //data.WriteGuidBytes<6, 1>(guid);
     data << uint32(0);  // counter
-    data.WriteGuidBytes<7, 5>(guid);
+    //data.WriteGuidBytes<7, 5>(guid);
     data << float(destPos.GetPositionX());
-    data.WriteGuidBytes<4, 3, 2>(guid);
+    //data.WriteGuidBytes<4, 3, 2>(guid);
     data << float(destPos.GetPositionY());
     data << float(NormalizeOrientation(destPos.GetOrientation()));
     data << float(destPos.GetPositionZ());//oldPos.GetPositionZMinusOffset()
@@ -22687,7 +22687,7 @@ void Trinity::BuildChatPacket(WorldPacket& data, ChatData& c, bool coded, bool e
     data.WriteBit(!c.sourceName.size());
 
     data.WriteBit(!c.groupGuid);
-    data.WriteGuidMask<3, 7, 2, 6, 0, 4, 5, 1>(c.groupGuid);
+    //data.WriteGuidMask<3, 7, 2, 6, 0, 4, 5, 1>(c.groupGuid);
 
     data.WriteBit(!c.achievementId);
     data.WriteBit(c.byte1495);
@@ -22695,10 +22695,10 @@ void Trinity::BuildChatPacket(WorldPacket& data, ChatData& c, bool coded, bool e
 
     data.WriteBit(!c.guildGuid);
     data.WriteBit(!c.targetName.size());
-    data.WriteGuidMask<1, 6, 0, 5, 2, 4, 7, 3>(c.guildGuid);
+    //data.WriteGuidMask<1, 6, 0, 5, 2, 4, 7, 3>(c.guildGuid);
 
     data.WriteBit(!c.targetGuid);
-    data.WriteGuidMask<6, 1, 3, 5, 4, 2, 7, 0>(c.targetGuid);
+    //data.WriteGuidMask<6, 1, 3, 5, 4, 2, 7, 0>(c.targetGuid);
 
     if (uint32 len = c.sourceName.size())
         data.WriteBits(len, 11);
@@ -22719,7 +22719,7 @@ void Trinity::BuildChatPacket(WorldPacket& data, ChatData& c, bool coded, bool e
         data.WriteBits(len, 12);
 
     data.WriteBit(!c.sourceGuid);
-    data.WriteGuidMask<4, 1, 3, 6, 2, 5, 0, 7>(c.sourceGuid);
+    //data.WriteGuidMask<4, 1, 3, 6, 2, 5, 0, 7>(c.sourceGuid);
 
     data.WriteBit(!c.chatTag);
     if (c.chatTag)
@@ -22730,18 +22730,18 @@ void Trinity::BuildChatPacket(WorldPacket& data, ChatData& c, bool coded, bool e
 
     data.WriteString(c.addonPrefix);
 
-    data.WriteGuidBytes<4, 2, 7, 3, 6, 1, 5, 0>(c.groupGuid);
+    //data.WriteGuidBytes<4, 2, 7, 3, 6, 1, 5, 0>(c.groupGuid);
 
     data.WriteString(c.sourceName);
 
-    data.WriteGuidBytes<7, 4, 1, 3, 0, 6, 5, 2>(c.targetGuid);
+    //data.WriteGuidBytes<7, 4, 1, 3, 0, 6, 5, 2>(c.targetGuid);
 
-    data.WriteGuidBytes<5, 7, 3, 0, 4, 6, 1, 2>(c.guildGuid);
+    //data.WriteGuidBytes<5, 7, 3, 0, 4, 6, 1, 2>(c.guildGuid);
 
     if (langId)
         data << uint8(langId);
 
-    data.WriteGuidBytes<7, 4, 0, 6, 3, 2, 5, 1>(c.sourceGuid);
+    //data.WriteGuidBytes<7, 4, 0, 6, 3, 2, 5, 1>(c.sourceGuid);
 
     data.WriteString(c.channelName);
 
@@ -22818,31 +22818,31 @@ void Unit::SendDispelFailed(uint64 targetGuid, uint32 spellId, std::list<uint32>
     ObjectGuid sourceGuid = GetGUID();
 
     WorldPacket data(SMSG_DISPEL_FAILED, spellList.size() * 4 + 8 + 8 + 1 + 1 + 3);
-    data.WriteGuidMask<6>(targetGuid);
+    //data.WriteGuidMask<6>(targetGuid);
     data.WriteBit(0);       // not has power data
-    data.WriteGuidMask<3>(sourceGuid);
+    //data.WriteGuidMask<3>(sourceGuid);
 
-    data.WriteGuidMask<6>(sourceGuid);
+    //data.WriteGuidMask<6>(sourceGuid);
     data.WriteBits(spellList.size(), 22);
-    data.WriteGuidMask<0>(sourceGuid);
-    data.WriteGuidMask<2>(targetGuid);
-    data.WriteGuidMask<2, 4>(sourceGuid);
-    data.WriteGuidMask<1>(targetGuid);
-    data.WriteGuidMask<1, 5>(sourceGuid);
-    data.WriteGuidMask<7, 3, 4, 0>(targetGuid);
-    data.WriteGuidMask<7>(sourceGuid);
-    data.WriteGuidMask<5>(targetGuid);
+    //data.WriteGuidMask<0>(sourceGuid);
+    //data.WriteGuidMask<2>(targetGuid);
+    //data.WriteGuidMask<2, 4>(sourceGuid);
+    //data.WriteGuidMask<1>(targetGuid);
+    //data.WriteGuidMask<1, 5>(sourceGuid);
+    //data.WriteGuidMask<7, 3, 4, 0>(targetGuid);
+    //data.WriteGuidMask<7>(sourceGuid);
+    //data.WriteGuidMask<5>(targetGuid);
 
-    data.WriteGuidBytes<4>(targetGuid);
-    data.WriteGuidBytes<4, 2>(sourceGuid);
-    data.WriteGuidBytes<2, 3, 7>(targetGuid);
-    data.WriteGuidBytes<5>(sourceGuid);
-    data.WriteGuidBytes<1>(targetGuid);
-    data.WriteGuidBytes<7, 0>(sourceGuid);
-    data.WriteGuidBytes<6>(targetGuid);
-    data.WriteGuidBytes<1, 3>(sourceGuid);
-    data.WriteGuidBytes<0, 5>(targetGuid);
-    data.WriteGuidBytes<6>(sourceGuid);
+    //data.WriteGuidBytes<4>(targetGuid);
+    //data.WriteGuidBytes<4, 2>(sourceGuid);
+    //data.WriteGuidBytes<2, 3, 7>(targetGuid);
+    //data.WriteGuidBytes<5>(sourceGuid);
+    //data.WriteGuidBytes<1>(targetGuid);
+    //data.WriteGuidBytes<7, 0>(sourceGuid);
+    //data.WriteGuidBytes<6>(targetGuid);
+    //data.WriteGuidBytes<1, 3>(sourceGuid);
+    //data.WriteGuidBytes<0, 5>(targetGuid);
+    //data.WriteGuidBytes<6>(sourceGuid);
 
     for (std::list<uint32>::const_iterator itr = spellList.begin(); itr != spellList.end(); ++itr)
         data << uint32(*itr);
@@ -22857,12 +22857,12 @@ void Unit::SendDispelLog(uint64 unitTargetGuid, uint32 spellId, std::list<uint32
     ObjectGuid casterGuid = GetGUID();
 
     WorldPacket data(SMSG_SPELLDISPELLOG, 4 + 4 + spellList.size() * 5 + 3 + 1);
-    data.WriteGuidMask<1>(casterGuid);
+    //data.WriteGuidMask<1>(casterGuid);
     data.WriteBit(stolen);      // used in dispel, 0 - dispeled, 1 - stolen
-    data.WriteGuidMask<7, 2>(casterGuid);
+    //data.WriteGuidMask<7, 2>(casterGuid);
     data.WriteBit(broke);       // 0 - dispel, 1 - break
-    data.WriteGuidMask<0>(casterGuid);
-    data.WriteGuidMask<3>(unitTargetGuid);
+    //data.WriteGuidMask<0>(casterGuid);
+    //data.WriteGuidMask<3>(unitTargetGuid);
 
     data.WriteBits(spellList.size(), 22);
     for (uint32 i = 0; i < spellList.size(); ++i)
@@ -22872,31 +22872,31 @@ void Unit::SendDispelLog(uint64 unitTargetGuid, uint32 spellId, std::list<uint32
         data.WriteBit(0);
     }
 
-    data.WriteGuidMask<2, 0>(unitTargetGuid);
+    //data.WriteGuidMask<2, 0>(unitTargetGuid);
     data.WriteBit(0);           // not has power data
-    data.WriteGuidMask<3>(casterGuid);
+    //data.WriteGuidMask<3>(casterGuid);
 
-    data.WriteGuidMask<5, 4>(casterGuid);
-    data.WriteGuidMask<1, 7, 4, 5, 6>(unitTargetGuid);
-    data.WriteGuidMask<6>(casterGuid);
+    //data.WriteGuidMask<5, 4>(casterGuid);
+    //data.WriteGuidMask<1, 7, 4, 5, 6>(unitTargetGuid);
+    //data.WriteGuidMask<6>(casterGuid);
 
-    data.WriteGuidBytes<5>(unitTargetGuid);
+    //data.WriteGuidBytes<5>(unitTargetGuid);
     data << uint32(spellId);
 
     for (std::list<uint32>::const_iterator itr = spellList.begin(); itr != spellList.end(); ++itr)
         data << uint32(*itr);
 
-    data.WriteGuidBytes<3>(casterGuid);
-    data.WriteGuidBytes<7, 2>(unitTargetGuid);
-    data.WriteGuidBytes<1, 0>(casterGuid);
-    data.WriteGuidBytes<3>(unitTargetGuid);
-    data.WriteGuidBytes<7>(casterGuid);
-    data.WriteGuidBytes<0, 4>(unitTargetGuid);
-    data.WriteGuidBytes<2, 6>(casterGuid);
-    data.WriteGuidBytes<1>(unitTargetGuid);
-    data.WriteGuidBytes<4>(casterGuid);
-    data.WriteGuidBytes<6>(unitTargetGuid);
-    data.WriteGuidBytes<5>(casterGuid);
+    //data.WriteGuidBytes<3>(casterGuid);
+    //data.WriteGuidBytes<7, 2>(unitTargetGuid);
+    //data.WriteGuidBytes<1, 0>(casterGuid);
+    //data.WriteGuidBytes<3>(unitTargetGuid);
+    //data.WriteGuidBytes<7>(casterGuid);
+    //data.WriteGuidBytes<0, 4>(unitTargetGuid);
+    //data.WriteGuidBytes<2, 6>(casterGuid);
+    //data.WriteGuidBytes<1>(unitTargetGuid);
+    //data.WriteGuidBytes<4>(casterGuid);
+    //data.WriteGuidBytes<6>(unitTargetGuid);
+    //data.WriteGuidBytes<5>(casterGuid);
 
     SendMessageToSet(&data, true);
 }
@@ -22911,17 +22911,17 @@ void Unit::SendMoveflag2_0x1000_Update(bool on)
     {
         WorldPacket data(SMSG_SET_MOVEFLAG2_0x1000, 8 + 1 + 4);
         data << uint32(0);
-        data.WriteGuidMask<5, 1, 3, 0, 2, 6, 7, 4>(guid);
-        data.WriteGuidBytes<3, 1, 2, 7, 6, 0, 5, 4>(guid);
+        //data.WriteGuidMask<5, 1, 3, 0, 2, 6, 7, 4>(guid);
+        //data.WriteGuidBytes<3, 1, 2, 7, 6, 0, 5, 4>(guid);
         ToPlayer()->SendDirectMessage(&data);
     }
     else
     {
         WorldPacket data(SMSG_UNSET_MOVEFLAG2_0x1000, 8 + 1 + 4);
-        data.WriteGuidMask<5, 0, 3, 4, 7, 1, 2, 6>(guid);
-        data.WriteGuidBytes<7>(guid);
+        //data.WriteGuidMask<5, 0, 3, 4, 7, 1, 2, 6>(guid);
+        //data.WriteGuidBytes<7>(guid);
         data << uint32(0);
-        data.WriteGuidBytes<3, 4, 2, 0, 1, 5, 6>(guid);
+        //data.WriteGuidBytes<3, 4, 2, 0, 1, 5, 6>(guid);
         ToPlayer()->SendDirectMessage(&data);
     }
 }
@@ -23037,36 +23037,36 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Unit* target)
     ObjectGuid casterGuid = GetGUID();
     ObjectGuid targetGuid = target ? target->GetGUID() : NULL;
     WorldPacket data(SMSG_SPELL_CREATE_VISUAL, 50);
-    data.WriteGuidMask<3, 0>(targetGuid);
-    data.WriteGuidMask<2, 0>(casterGuid);
-    data.WriteGuidMask<4>(targetGuid);
-    data.WriteGuidMask<4, 3>(casterGuid);
-    data.WriteGuidMask<7>(targetGuid);
-    data.WriteGuidMask<6>(casterGuid);
-    data.WriteGuidMask<5>(targetGuid);
+    //data.WriteGuidMask<3, 0>(targetGuid);
+    //data.WriteGuidMask<2, 0>(casterGuid);
+    //data.WriteGuidMask<4>(targetGuid);
+    //data.WriteGuidMask<4, 3>(casterGuid);
+    //data.WriteGuidMask<7>(targetGuid);
+    //data.WriteGuidMask<6>(casterGuid);
+    //data.WriteGuidMask<5>(targetGuid);
     data.WriteBit(position);            // hasPosition
-    data.WriteGuidMask<5>(casterGuid);
-    data.WriteGuidMask<2, 6, 1>(targetGuid);
-    data.WriteGuidMask<7, 1>(casterGuid);
+    //data.WriteGuidMask<5>(casterGuid);
+    //data.WriteGuidMask<2, 6, 1>(targetGuid);
+    //data.WriteGuidMask<7, 1>(casterGuid);
 
-    data.WriteGuidBytes<3, 6>(casterGuid);
-    data.WriteGuidBytes<5>(targetGuid);
-    data.WriteGuidBytes<2>(casterGuid);
-    data.WriteGuidBytes<4>(targetGuid);
+    //data.WriteGuidBytes<3, 6>(casterGuid);
+    //data.WriteGuidBytes<5>(targetGuid);
+    //data.WriteGuidBytes<2>(casterGuid);
+    //data.WriteGuidBytes<4>(targetGuid);
     data << uint16(unk1);               // word10
-    data.WriteGuidBytes<1>(casterGuid);
-    data.WriteGuidBytes<0>(targetGuid);
+    //data.WriteGuidBytes<1>(casterGuid);
+    //data.WriteGuidBytes<0>(targetGuid);
     data << uint32(visual);             //Spell Visual dword14
     data << float(positionZ);           // z
     data << float(speed);               // speed
-    data.WriteGuidBytes<3, 2>(targetGuid);
+    //data.WriteGuidBytes<3, 2>(targetGuid);
     data << uint16(unk2);               // word34
-    data.WriteGuidBytes<0>(casterGuid);
-    data.WriteGuidBytes<1, 7>(targetGuid);
+    //data.WriteGuidBytes<0>(casterGuid);
+    //data.WriteGuidBytes<1, 7>(targetGuid);
     data << float(positionX);           // x
-    data.WriteGuidBytes<6>(targetGuid);
-    data.WriteGuidBytes<7, 4>(casterGuid);
+    //data.WriteGuidBytes<6>(targetGuid);
+    //data.WriteGuidBytes<7, 4>(casterGuid);
     data << float(positionY);           // y
-    data.WriteGuidBytes<5>(casterGuid);
+    //data.WriteGuidBytes<5>(casterGuid);
     SendMessageToSet(&data, true);
 }

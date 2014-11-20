@@ -116,16 +116,16 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* info, Position const& pos, Spell* spell = NULL, uint64 targetGuid = 0);
+        bool CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* info, Position const& pos, Spell* spell = NULL, ObjectGuid targetGuid = ObjectGuid::Empty);
         void Update(uint32 p_time);
         void UpdateAffectedList(uint32 p_time, AreaTriggerActionMoment actionM);
         void Remove(bool duration = true);
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
         void SetSpellId(uint32 spell) { return SetUInt32Value(AREATRIGGER_SPELLID, spell); }
-        uint64 GetCasterGUID() const { return GetUInt64Value(AREATRIGGER_CASTER); }
+        ObjectGuid GetCasterGUID() const { return GetGuidValue(AREATRIGGER_CASTER); }
         Unit* GetCaster() const;
-        void SetTargetGuid(uint64 targetGuid) { _targetGuid = targetGuid; }
-        uint64 GetTargetGuid() { return _targetGuid; }
+        void SetTargetGuid(ObjectGuid targetGuid) { _targetGuid = targetGuid; }
+        ObjectGuid GetTargetGuid() { return _targetGuid; }
         int32 GetDuration() const { return _duration; }
         void SetDuration(int32 newDuration) { _duration = newDuration; }
         void Delay(int32 delaytime) { SetDuration(GetDuration() - delaytime); }
@@ -134,7 +134,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         float GetCustomVisualId() const { return atInfo.visualId; }
         uint32 GetCustomEntry() const { return atInfo.customEntry; }
         uint32 GetRealEntry() const { return _realEntry; }
-        bool IsUnitAffected(uint64 guid) const;
+        bool IsUnitAffected(ObjectGuid guid) const;
         void AffectUnit(Unit* unit, AreaTriggerActionMoment actionM);
         void AffectOwner(AreaTriggerActionMoment actionM);
         void UpdateOnUnit(Unit* unit, uint32 p_time);
@@ -160,11 +160,11 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
 
     protected:
         Unit* _caster;
-        uint64 _targetGuid;
+        ObjectGuid _targetGuid;
         int32 _duration;
         uint32 _activationDelay;
         uint32 _updateDelay;
-        std::list<uint64> affectedPlayers;
+        GuidList affectedPlayers;
         float _radius;
         AreaTriggerInfo atInfo;
         ActionInfoMap _actionInfo;

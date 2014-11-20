@@ -1102,9 +1102,9 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     else
         data << uint8(vendor->isArmorer());
 
-    data.WriteGuidMask<1, 5, 0, 2>(guid);
+    //data.WriteGuidMask<1, 5, 0, 2>(guid);
     data.WriteBits(realCount, 18); // item count
-    data.WriteGuidMask<4>(guid);
+    //data.WriteGuidMask<4>(guid);
 
     for (uint32 i = 0; i < realCount; ++i)
     {
@@ -1113,7 +1113,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         data.WriteBit(0);                           // unknown
     }
 
-    data.WriteGuidMask<3, 6, 7>(guid);
+    //data.WriteGuidMask<3, 6, 7>(guid);
 
     if (!itemsData.empty())
     {
@@ -1121,7 +1121,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         data.append(itemsData);
     }
 
-    data.WriteGuidBytes<0, 2, 1, 3, 5, 7, 4, 6>(guid);
+    //data.WriteGuidBytes<0, 2, 1, 3, 5, 7, 4, 6>(guid);
     SendPacket(&data);
 }
 
@@ -1363,31 +1363,31 @@ void WorldSession::SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid,
 {
     WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, 8 + 8 + 1 + 1 + 4 + 4);
 
-    data.WriteGuidMask<0, 3>(Itemguid);
-    data.WriteGuidMask<6, 7>(Playerguid);
-    data.WriteGuidMask<2>(Itemguid);
-    data.WriteGuidMask<3, 5>(Playerguid);
-    data.WriteGuidMask<5>(Itemguid);
-    data.WriteGuidMask<4>(Playerguid);
-    data.WriteGuidMask<6, 7, 1>(Itemguid);
-    data.WriteGuidMask<2, 1>(Playerguid);
-    data.WriteGuidMask<4>(Itemguid);
-    data.WriteGuidMask<0>(Playerguid);
+    //data.WriteGuidMask<0, 3>(Itemguid);
+    //data.WriteGuidMask<6, 7>(Playerguid);
+    //data.WriteGuidMask<2>(Itemguid);
+    //data.WriteGuidMask<3, 5>(Playerguid);
+    //data.WriteGuidMask<5>(Itemguid);
+    //data.WriteGuidMask<4>(Playerguid);
+    //data.WriteGuidMask<6, 7, 1>(Itemguid);
+    //data.WriteGuidMask<2, 1>(Playerguid);
+    //data.WriteGuidMask<4>(Itemguid);
+    //data.WriteGuidMask<0>(Playerguid);
 
-    data.WriteGuidBytes<3>(Playerguid);
-    data.WriteGuidBytes<6>(Itemguid);
-    data.WriteGuidBytes<5, 4>(Playerguid);
-    data.WriteGuidBytes<0, 3>(Itemguid);
-    data.WriteGuidBytes<2>(Playerguid);
+    //data.WriteGuidBytes<3>(Playerguid);
+    //data.WriteGuidBytes<6>(Itemguid);
+    //data.WriteGuidBytes<5, 4>(Playerguid);
+    //data.WriteGuidBytes<0, 3>(Itemguid);
+    //data.WriteGuidBytes<2>(Playerguid);
     data << uint32(Duration);
-    data.WriteGuidBytes<1>(Itemguid);
+    //data.WriteGuidBytes<1>(Itemguid);
     data << uint32(slot);
-    data.WriteGuidBytes<1, 0>(Playerguid);
-    data.WriteGuidBytes<7, 5>(Itemguid);
-    data.WriteGuidBytes<6>(Playerguid);
-    data.WriteGuidBytes<2>(Itemguid);
-    data.WriteGuidBytes<7>(Playerguid);
-    data.WriteGuidBytes<4>(Itemguid);
+    //data.WriteGuidBytes<1, 0>(Playerguid);
+    //data.WriteGuidBytes<7, 5>(Itemguid);
+    //data.WriteGuidBytes<6>(Playerguid);
+    //data.WriteGuidBytes<2>(Itemguid);
+    //data.WriteGuidBytes<7>(Playerguid);
+    //data.WriteGuidBytes<4>(Itemguid);
 
     SendPacket(&data);
 }

@@ -201,20 +201,20 @@ void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
 
     WorldPacket data(SMSG_PLAYER_RECIPES, 4 + 3 * 4 + relatedSkills.size() * 4 * 3 + profSpells.size() * 4);
     data.WriteBits(relatedSkills.size(), 22);
-    data.WriteGuidMask<3, 7>(guid);
+    //data.WriteGuidMask<3, 7>(guid);
     data.WriteBits(relatedSkills.size(), 22);
     data.WriteBits(profSpells.size(), 22);
     data.WriteBits(relatedSkills.size(), 22);
-    data.WriteGuidMask<0, 4, 6, 2, 5, 1>(guid);
+    //data.WriteGuidMask<0, 4, 6, 2, 5, 1>(guid);
 
     data << uint32(spellId);
-    data.WriteGuidBytes<3, 1, 0, 7, 5>(guid);
+    //data.WriteGuidBytes<3, 1, 0, 7, 5>(guid);
     for (std::set<uint32>::const_iterator itr = profSpells.begin(); itr != profSpells.end(); ++itr)
         data << uint32(*itr);
-    data.WriteGuidBytes<2, 6>(guid);
+    //data.WriteGuidBytes<2, 6>(guid);
     for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)
         data << uint32(player->GetMaxSkillValue(*itr));
-    data.WriteGuidBytes<4>(guid);
+    //data.WriteGuidBytes<4>(guid);
     for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)
         data << uint32(player->GetSkillValue(*itr));
     for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)

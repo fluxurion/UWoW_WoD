@@ -715,26 +715,26 @@ namespace Trinity
                 ObjectGuid sourceGuid = i_player.GetGUID();
 
                 data.Initialize(SMSG_TEXT_EMOTE, 4 + 4 + 8 + 8 + 1 + 1);
-                data.WriteGuidMask<2>(targetGuid);
-                data.WriteGuidMask<1, 3, 6, 7>(sourceGuid);
-                data.WriteGuidMask<5, 7>(targetGuid);
-                data.WriteGuidMask<5>(sourceGuid);
-                data.WriteGuidMask<1>(targetGuid);
-                data.WriteGuidMask<2, 0>(sourceGuid);
-                data.WriteGuidMask<6>(targetGuid);
-                data.WriteGuidMask<4>(sourceGuid);
-                data.WriteGuidMask<3, 4, 0>(targetGuid);
+                //data.WriteGuidMask<2>(targetGuid);
+                //data.WriteGuidMask<1, 3, 6, 7>(sourceGuid);
+                //data.WriteGuidMask<5, 7>(targetGuid);
+                //data.WriteGuidMask<5>(sourceGuid);
+                //data.WriteGuidMask<1>(targetGuid);
+                //data.WriteGuidMask<2, 0>(sourceGuid);
+                //data.WriteGuidMask<6>(targetGuid);
+                //data.WriteGuidMask<4>(sourceGuid);
+                //data.WriteGuidMask<3, 4, 0>(targetGuid);
 
-                data.WriteGuidBytes<2>(sourceGuid);
-                data.WriteGuidBytes<1>(targetGuid);
-                data.WriteGuidBytes<7, 3, 6>(sourceGuid);
+                //data.WriteGuidBytes<2>(sourceGuid);
+                //data.WriteGuidBytes<1>(targetGuid);
+                //data.WriteGuidBytes<7, 3, 6>(sourceGuid);
                 data << uint32(i_text_emote);
-                data.WriteGuidBytes<6, 5>(targetGuid);
-                data.WriteGuidBytes<5, 4>(sourceGuid);
-                data.WriteGuidBytes<4, 2, 7, 0, 3>(targetGuid);
-                data.WriteGuidBytes<0>(sourceGuid);
+                //data.WriteGuidBytes<6, 5>(targetGuid);
+                //data.WriteGuidBytes<5, 4>(sourceGuid);
+                //data.WriteGuidBytes<4, 2, 7, 0, 3>(targetGuid);
+                //data.WriteGuidBytes<0>(sourceGuid);
                 data << uint32(i_emote_num);
-                data.WriteGuidBytes<1>(sourceGuid);
+                //data.WriteGuidBytes<1>(sourceGuid);
             }
 
         private:

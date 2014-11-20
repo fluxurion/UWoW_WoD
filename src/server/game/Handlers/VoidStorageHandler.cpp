@@ -116,14 +116,14 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         ObjectGuid itemId = item->ItemId;
         ObjectGuid creatorGuid = item->CreatorGuid;
 
-        data.WriteGuidMask<3>(creatorGuid);
-        data.WriteGuidMask<3, 5>(itemId);
-        data.WriteGuidMask<1>(creatorGuid);
-        data.WriteGuidMask<0, 7, 2>(itemId);
-        data.WriteGuidMask<0>(creatorGuid);
-        data.WriteGuidMask<6>(itemId);
-        data.WriteGuidMask<4, 5, 2, 7, 6>(creatorGuid);
-        data.WriteGuidMask<4, 1>(itemId);
+        //data.WriteGuidMask<3>(creatorGuid);
+        //data.WriteGuidMask<3, 5>(itemId);
+        //data.WriteGuidMask<1>(creatorGuid);
+        //data.WriteGuidMask<0, 7, 2>(itemId);
+        //data.WriteGuidMask<0>(creatorGuid);
+        //data.WriteGuidMask<6>(itemId);
+        //data.WriteGuidMask<4, 5, 2, 7, 6>(creatorGuid);
+        //data.WriteGuidMask<4, 1>(itemId);
 
 
         itemData.WriteGuidBytes<3>(creatorGuid);
@@ -321,15 +321,15 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         itemId = depositItems[i].first.ItemId;
         creatorGuid = depositItems[i].first.CreatorGuid;
 
-        data.WriteGuidMask<3, 0>(creatorGuid);
-        data.WriteGuidMask<2>(itemId);
-        data.WriteGuidMask<6, 2>(creatorGuid);
-        data.WriteGuidMask<6>(itemId);
-        data.WriteGuidMask<7>(creatorGuid);
-        data.WriteGuidMask<7, 1, 4>(itemId);
-        data.WriteGuidMask<1>(creatorGuid);
-        data.WriteGuidMask<0, 5, 3>(itemId);
-        data.WriteGuidMask<5, 4>(creatorGuid);
+        //data.WriteGuidMask<3, 0>(creatorGuid);
+        //data.WriteGuidMask<2>(itemId);
+        //data.WriteGuidMask<6, 2>(creatorGuid);
+        //data.WriteGuidMask<6>(itemId);
+        //data.WriteGuidMask<7>(creatorGuid);
+        //data.WriteGuidMask<7, 1, 4>(itemId);
+        //data.WriteGuidMask<1>(creatorGuid);
+        //data.WriteGuidMask<0, 5, 3>(itemId);
+        //data.WriteGuidMask<5, 4>(creatorGuid);
     }
 
     data.WriteBits(withdrawCount, 4);
@@ -337,7 +337,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
         itemId = withdrawItems[i].ItemId;
-        data.WriteGuidMask<3, 7, 1, 6, 4, 0, 5, 2>(itemId);
+        //data.WriteGuidMask<3, 7, 1, 6, 4, 0, 5, 2>(itemId);
     }
 
     data.FlushBits();
@@ -345,7 +345,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
         ObjectGuid itemId = withdrawItems[i].ItemId;
-        data.WriteGuidBytes<3, 7, 6, 0, 4, 1, 5, 2>(itemId);
+        //data.WriteGuidBytes<3, 7, 6, 0, 4, 1, 5, 2>(itemId);
     }
 
     for (uint8 i = 0; i < depositCount; ++i)
@@ -353,23 +353,23 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         itemId = depositItems[i].first.ItemId;
         creatorGuid = depositItems[i].first.CreatorGuid;
 
-        data.WriteGuidBytes<3>(itemId);
-        data.WriteGuidBytes<6, 3, 2>(creatorGuid);
-        data.WriteGuidBytes<2>(itemId);
+        //data.WriteGuidBytes<3>(itemId);
+        //data.WriteGuidBytes<6, 3, 2>(creatorGuid);
+        //data.WriteGuidBytes<2>(itemId);
         data << uint32(depositItems[i].first.ItemEntry);
-        data.WriteGuidBytes<0>(creatorGuid);
-        data.WriteGuidBytes<5>(itemId);
+        //data.WriteGuidBytes<0>(creatorGuid);
+        //data.WriteGuidBytes<5>(itemId);
         data << uint32(depositItems[i].first.ItemRandomPropertyId);
-        data.WriteGuidBytes<0>(itemId);
-        data.WriteGuidBytes<7, 1>(creatorGuid);
+        //data.WriteGuidBytes<0>(itemId);
+        //data.WriteGuidBytes<7, 1>(creatorGuid);
         data << uint32(0);                      //unk new on 5.4.x
-        data.WriteGuidBytes<4>(creatorGuid);
-        data.WriteGuidBytes<4>(itemId);
+        //data.WriteGuidBytes<4>(creatorGuid);
+        //data.WriteGuidBytes<4>(itemId);
         data << uint32(depositItems[i].first.ItemSuffixFactor);
-        data.WriteGuidBytes<5>(creatorGuid);
-        data.WriteGuidBytes<6, 1>(itemId);
+        //data.WriteGuidBytes<5>(creatorGuid);
+        //data.WriteGuidBytes<6, 1>(itemId);
         data << uint32(depositItems[i].second); // slot
-        data.WriteGuidBytes<7>(itemId);
+        //data.WriteGuidBytes<7>(itemId);
     }
 
     SendPacket(&data);
@@ -439,15 +439,15 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     
     data.WriteBit(!usedSrcSlot);
     data.WriteBit(!itemIdDest);
-    data.WriteGuidMask<2, 5, 4, 1, 7, 6, 0, 3>(itemIdDest);
+    //data.WriteGuidMask<2, 5, 4, 1, 7, 6, 0, 3>(itemIdDest);
     data.WriteBit(!itemId);
     data.WriteBit(!usedDestSlot);
-    data.WriteGuidMask<6, 1, 4, 3, 0, 7, 2, 5>(itemId);
+    //data.WriteGuidMask<6, 1, 4, 3, 0, 7, 2, 5>(itemId);
 
     data.FlushBits();
 
-    data.WriteGuidBytes<7, 2, 6, 1, 0, 4, 3, 5>(itemId);
-    data.WriteGuidBytes<5, 6, 7, 0, 2, 4, 1, 3>(itemIdDest);
+    //data.WriteGuidBytes<7, 2, 6, 1, 0, 4, 3, 5>(itemId);
+    //data.WriteGuidBytes<5, 6, 7, 0, 2, 4, 1, 3>(itemIdDest);
     
     if (usedSrcSlot)
         data << uint32(newSlot);

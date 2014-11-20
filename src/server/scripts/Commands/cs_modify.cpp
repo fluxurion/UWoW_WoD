@@ -971,20 +971,20 @@ public:
 
         WorldPacket data(SMSG_MOVE_SET_RUN_SPEED, (8+4+1+4));
         ObjectGuid guid = target->GetGUID();
-        data.WriteGuidMask<3, 6, 7, 1, 4, 0, 2, 5>(guid);
-        data.WriteGuidBytes<7, 5>(guid);
+        //data.WriteGuidMask<3, 6, 7, 1, 4, 0, 2, 5>(guid);
+        //data.WriteGuidBytes<7, 5>(guid);
         data << float(speed);
-        data.WriteGuidBytes<6, 2, 0, 3, 1, 4>(guid);
+        //data.WriteGuidBytes<6, 2, 0, 3, 1, 4>(guid);
         data << uint32(0); // Unk Int32
         target->SendMessageToSet(&data, true);
 
         data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, (8+4+4));
-        data.WriteGuidMask<6, 3, 1, 2, 0, 4, 7, 5>(guid);
-        data.WriteGuidBytes<2>(guid);
+        //data.WriteGuidMask<6, 3, 1, 2, 0, 4, 7, 5>(guid);
+        //data.WriteGuidBytes<2>(guid);
         data << float(speed);
-        data.WriteGuidBytes<1, 6>(guid);
+        //data.WriteGuidBytes<1, 6>(guid);
         data << uint32(0); // Unk Int32
-        data.WriteGuidBytes<3, 4, 0, 7, 5>(guid);
+        //data.WriteGuidBytes<3, 4, 0, 7, 5>(guid);
         target->SendMessageToSet(&data, true);
 
         return true;

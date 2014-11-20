@@ -301,8 +301,8 @@ void WorldSession::HandleBattlePetPutInCage(WorldPacket& recvData)
 
         // send visual to client
         /*WorldPacket data(SMSG_BATTLE_PET_DELETED);
-        data.WriteGuidMask<5, 6, 4, 0, 1, 2, 7, 4>(guid);
-        data.WriteGuidBytes<1, 0, 6, 5, 2, 4, 3, 7>(guid);
+        //data.WriteGuidMask<5, 6, 4, 0, 1, 2, 7, 4>(guid);
+        //data.WriteGuidBytes<1, 0, 6, 5, 2, 4, 3, 7>(guid);
 
         // send packet twice? (sniff data)
         SendPacket(&data);
@@ -1230,15 +1230,15 @@ void BattlePetMgr::SendUpdatePets()
         data.WriteBits(len, 7);                         // custom name length
         data.WriteBit(!pet->second->flags);             // !hasFlags
         data.WriteBit(1);                               // !hasUnk
-        data.WriteGuidMask<2>(guid);
+        //data.WriteGuidMask<2>(guid);
         data.WriteBit(!pet->second->breedID);           // !hasBreed
         data.WriteBit(!pet->second->quality);           // !hasQuality
-        data.WriteGuidMask<1, 6, 3, 7, 0, 4, 5>(guid);
+        //data.WriteGuidMask<1, 6, 3, 7, 0, 4, 5>(guid);
         data.WriteBit(0);                               // hasGuid
 
         /*if (hasGuid)
         {
-            data.WriteGuidMask<7, 0, 6, 2, 1, 3, 5, 4>(petGuid2);
+            //data.WriteGuidMask<7, 0, 6, 2, 1, 3, 5, 4>(petGuid2);
         }*/
     }
 
@@ -1253,7 +1253,7 @@ void BattlePetMgr::SendUpdatePets()
         /*if (hasGuid)
         {
             data << uint32(0); // unk
-            data.WriteGuidBytes<0, 1, 2, 3, 4, 5, 7, 6>(petGuid2);
+            //data.WriteGuidBytes<0, 1, 2, 3, 4, 5, 7, 6>(petGuid2);
             data << uint32(0); // unk1
         }*/
 
@@ -1263,7 +1263,7 @@ void BattlePetMgr::SendUpdatePets()
             data << uint16(pet->second->flags);              // flags
         if (pet->second->quality)
             data << uint8(pet->second->quality);             // quality
-        data.WriteGuidBytes<3>(guid);
+        //data.WriteGuidBytes<3>(guid);
         data << uint32(pet->second->creatureEntry);          // creature ID
         data << uint32(pet->second->speed);                  // speed
         if (pet->second->breedID)
@@ -1273,11 +1273,11 @@ void BattlePetMgr::SendUpdatePets()
         data << uint32(pet->second->displayID);              // display ID
         if (len > 0)
             data.WriteString(pet->second->customName);       // custom name
-        data.WriteGuidBytes<5, 4, 7>(guid);
+        //data.WriteGuidBytes<5, 4, 7>(guid);
         data << uint32(pet->second->speciesID);              // species ID
-        data.WriteGuidBytes<2, 6>(guid);
+        //data.WriteGuidBytes<2, 6>(guid);
         data << uint16(pet->second->xp);                     // experience
-        data.WriteGuidBytes<0, 1>(guid);
+        //data.WriteGuidBytes<0, 1>(guid);
         data << uint32(pet->second->power);                  // power
 
         count++;

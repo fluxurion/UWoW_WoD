@@ -75,8 +75,8 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
 void WorldSession::SendTabardVendorActivate(uint64 guid)
 {
     WorldPacket data(SMSG_TABARDVENDOR_ACTIVATE, 8 + 1);
-    data.WriteGuidMask<4, 2, 1, 3, 0, 6, 7, 5>(guid);
-    data.WriteGuidBytes<4, 6, 5, 0, 7, 1, 2, 3>(guid);
+    //data.WriteGuidMask<4, 2, 1, 3, 0, 6, 7, 5>(guid);
+    //data.WriteGuidBytes<4, 6, 5, 0, 7, 1, 2, 3>(guid);
     SendPacket(&data);
 }
 
@@ -105,8 +105,8 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 void WorldSession::SendShowBank(uint64 guid)
 {
     WorldPacket data(SMSG_SHOW_BANK, 8 + 1);
-    data.WriteGuidMask<6, 0, 4, 3, 2, 1, 7, 5>(guid);
-    data.WriteGuidBytes<7, 2, 0, 1, 6, 5, 3, 4>(guid);
+    //data.WriteGuidMask<6, 0, 4, 3, 2, 1, 7, 5>(guid);
+    //data.WriteGuidBytes<7, 2, 0, 1, 6, 5, 3, 4>(guid);
     SendPacket(&data);
 }
 
@@ -234,20 +234,20 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
         ++count;
     }
 
-    data.WriteGuidMask<4, 0>(guid);
+    //data.WriteGuidMask<4, 0>(guid);
     data.WriteBits(count, 19);
-    data.WriteGuidMask<3, 7>(guid);
+    //data.WriteGuidMask<3, 7>(guid);
     data.WriteBits(strTitle.size(), 11);
-    data.WriteGuidMask<5, 6, 2, 1>(guid);
+    //data.WriteGuidMask<5, 6, 2, 1>(guid);
     data.FlushBits();
     if (!buff.empty())
         data.append(buff);
 
-    data.WriteGuidBytes<4, 3, 2, 5, 1, 6>(guid);
+    //data.WriteGuidBytes<4, 3, 2, 5, 1, 6>(guid);
     data << uint32(trainer_spells->trainerType);
     data.WriteString(strTitle);
     data << uint32(1); // different value for each trainer, also found in CMSG_TRAINER_BUY_SPELL
-    data.WriteGuidBytes<7, 0>(guid);
+    //data.WriteGuidBytes<7, 0>(guid);
 
     SendPacket(&data);
 }
@@ -331,9 +331,9 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)
 void WorldSession::SendTrainerService(uint64 guid, uint32 spellId, uint32 result)
 { 
     WorldPacket data(SMSG_TRAINER_SERVICE, 16);
-    data.WriteGuidMask<5, 3, 4, 2, 0, 6, 7, 1>(guid);
+    //data.WriteGuidMask<5, 3, 4, 2, 0, 6, 7, 1>(guid);
     data << uint32(spellId);        // should be same as in packet from client
-    data.WriteGuidBytes<7, 4, 6, 5, 0, 1, 2, 3>(guid);
+    //data.WriteGuidBytes<7, 4, 6, 5, 0, 1, 2, 3>(guid);
     data << uint32(result);         // 2 == Success. 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
     SendPacket(&data);
 }
@@ -636,12 +636,12 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid
     data.WriteBits(num, 19);
     for (uint32 i = 0; i < num; ++i)
         data.WriteBits(nameLen[i], 8);
-    data.WriteGuidMask<2, 5, 6, 7, 3, 0, 4, 1>(guid);
+    //data.WriteGuidMask<2, 5, 6, 7, 3, 0, 4, 1>(guid);
     data.FlushBits();
-    data.WriteGuidBytes<0>(guid);
+    //data.WriteGuidBytes<0>(guid);
     if (!buf.empty())
         data.append(buf);
-    data.WriteGuidBytes<6, 2, 7, 3, 4, 5, 1>(guid);
+    //data.WriteGuidBytes<6, 2, 7, 3, 4, 5, 1>(guid);
 
     //send only for hunter
     if (GetPlayer()->getClass() == CLASS_HUNTER)

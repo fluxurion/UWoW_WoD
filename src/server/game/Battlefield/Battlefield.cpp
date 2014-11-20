@@ -403,9 +403,9 @@ void Battlefield::DoPlaySoundToAll(uint32 SoundID)
     ObjectGuid guid = ObjectGuid::Empty;
     WorldPacket data(SMSG_PLAY_SOUND, 12);
     /*data.WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(guid);
-    data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(guid);
+    //data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(guid);
     data << uint32(SoundID);
-    data.WriteGuidBytes<7>(guid);*/
+    //data.WriteGuidBytes<7>(guid);*/
 
     for (int team = 0; team < BG_TEAMS_COUNT; team++)
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
@@ -724,9 +724,9 @@ void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, const ObjectGu
     uint32 time = m_LastResurectTimer;  // resurrect every 30 seconds
 
     /*data.WriteGuidMask<6, 5, 4, 2, 7, 0, 3, 1>(guid);
-    data.WriteGuidBytes<4, 5, 7, 3, 1>(guid);
+    //data.WriteGuidBytes<4, 5, 7, 3, 1>(guid);
     data << uint32(time);
-    data.WriteGuidBytes<0, 2, 6>(guid);*/
+    //data.WriteGuidBytes<0, 2, 6>(guid);*/
 
     ASSERT(player && player->GetSession());
     player->GetSession()->SendPacket(&data);

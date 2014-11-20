@@ -928,10 +928,10 @@ class boss_kaelthas : public CreatureScript
                                                 //Using packet workaround
                                                 WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
                                                 ObjectGuid guid = unit->GetGUID();
-                                                data.WriteGuidMask<6, 2, 4, 1, 0, 5, 7, 3>(guid);
-                                                data.WriteGuidBytes<7, 6, 4>(guid);
+                                                //data.WriteGuidMask<6, 2, 4, 1, 0, 5, 7, 3>(guid);
+                                                //data.WriteGuidBytes<7, 6, 4>(guid);
                                                 data << uint32(0);          //! movement counter
-                                                data.WriteGuidBytes<2, 3, 1, 0, 5>(guid);
+                                                //data.WriteGuidBytes<2, 3, 1, 0, 5>(guid);
                                                 unit->SendMessageToSet(&data, true);
                                             }
                                         }
@@ -957,10 +957,10 @@ class boss_kaelthas : public CreatureScript
                                                 //Using packet workaround
                                                 WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
                                                 ObjectGuid guid = unit->GetGUID();
-                                                data.WriteGuidMask<7, 6, 5, 1, 2, 4, 3, 0>(guid);
-                                                data.WriteGuidBytes<0, 6, 3, 7, 2, 1, 5>(guid);
+                                                //data.WriteGuidMask<7, 6, 5, 1, 2, 4, 3, 0>(guid);
+                                                //data.WriteGuidBytes<0, 6, 3, 7, 2, 1, 5>(guid);
                                                 data << uint32(0);          //! movement counter
-                                                data.WriteGuidBytes<4>(guid);
+                                                //data.WriteGuidBytes<4>(guid);
                                                 unit->SendMessageToSet(&data, true);
                                             }
                                         }

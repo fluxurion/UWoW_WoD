@@ -1293,11 +1293,11 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1+8+(newName.size()+1));
         data.WriteBit(1);
-        data.WriteGuidMask<5, 2, 7, 0, 6, 1, 3, 4>(guid);
+        //data.WriteGuidMask<5, 2, 7, 0, 6, 1, 3, 4>(guid);
         data.WriteBit(0);
         data.WriteBits(newName.length(), 6);
         data.WriteString(newName);
-        data.WriteGuidBytes<1, 3, 4, 6, 0, 7, 2, 5>(guid);
+        //data.WriteGuidBytes<1, 3, 4, 6, 0, 7, 2, 5>(guid);
         data << uint8(res);
         SendPacket(&data);
         return;
@@ -1377,11 +1377,11 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 
     WorldPacket data(SMSG_CHAR_RENAME, 1+8+(newName.size()+1));
     data.WriteBit(1);
-    data.WriteGuidMask<5, 2, 7, 0, 6, 1, 3, 4>(guid);
+    //data.WriteGuidMask<5, 2, 7, 0, 6, 1, 3, 4>(guid);
     data.WriteBit(0);
     data.WriteBits(newName.length(), 6);
     data.WriteString(newName);
-    data.WriteGuidBytes<1, 3, 4, 6, 0, 7, 2, 5>(guid);
+    //data.WriteGuidBytes<1, 3, 4, 6, 0, 7, 2, 5>(guid);
     data << uint8(RESPONSE_SUCCESS);
     SendPacket(&data);
 
@@ -1430,9 +1430,9 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
         WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
         data << uint32(1);
         data.WriteBit(guid);
-        data.WriteGuidMask<0, 1, 3, 7, 5, 4, 2, 6>(guid);
+        //data.WriteGuidMask<0, 1, 3, 7, 5, 4, 2, 6>(guid);
         data.FlushBits();
-        data.WriteGuidBytes<6, 4, 5, 0, 2, 7, 1, 3>(guid);
+        //data.WriteGuidBytes<6, 4, 5, 0, 2, 7, 1, 3>(guid);
         SendPacket(&data);
         return;
     }
@@ -1445,9 +1445,9 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
         WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
         data << uint32(1);
         data.WriteBit(guid);
-        data.WriteGuidMask<0, 1, 3, 7, 5, 4, 2, 6>(guid);
+        //data.WriteGuidMask<0, 1, 3, 7, 5, 4, 2, 6>(guid);
         data.FlushBits();
-        data.WriteGuidBytes<6, 4, 5, 0, 2, 7, 1, 3>(guid);
+        //data.WriteGuidBytes<6, 4, 5, 0, 2, 7, 1, 3>(guid);
         SendPacket(&data);
         return;
     }
@@ -1459,9 +1459,9 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
         WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
         data << uint32(1);
         data.WriteBit(guid);
-        data.WriteGuidMask<0, 1, 3, 7, 5, 4, 2, 6>(guid);
+        //data.WriteGuidMask<0, 1, 3, 7, 5, 4, 2, 6>(guid);
         data.FlushBits();
-        data.WriteGuidBytes<6, 4, 5, 0, 2, 7, 1, 3>(guid);
+        //data.WriteGuidBytes<6, 4, 5, 0, 2, 7, 1, 3>(guid);
         SendPacket(&data);
         return;
     }
@@ -1472,9 +1472,9 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
         WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
         data << uint32(1);
         data.WriteBit(guid);
-        data.WriteGuidMask<0, 1, 3, 7, 5, 4, 2, 6>(guid);
+        //data.WriteGuidMask<0, 1, 3, 7, 5, 4, 2, 6>(guid);
         data.FlushBits();
-        data.WriteGuidBytes<6, 4, 5, 0, 2, 7, 1, 3>(guid);
+        //data.WriteGuidBytes<6, 4, 5, 0, 2, 7, 1, 3>(guid);
         SendPacket(&data);
         return;
     }
@@ -1715,8 +1715,8 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     sWorld->UpdateCharacterNameData(guid.GetCounter(), newName, gender);
 
     WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1+8+(newName.size()+1)+6);
-    data.WriteGuidMask<5, 4, 2, 3, 1, 7, 0, 6>(guid);
-    data.WriteGuidBytes<0, 4, 5>(guid);
+    //data.WriteGuidMask<5, 4, 2, 3, 1, 7, 0, 6>(guid);
+    //data.WriteGuidBytes<0, 4, 5>(guid);
     data << uint8(RESPONSE_SUCCESS);
     data << uint8(skin);
     data << uint8(hairStyle);
@@ -1724,7 +1724,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     data << uint8(facialHair);
     data << uint8(gender);
     data << uint8(hairColor);
-    data.WriteGuidBytes<6, 3, 2, 1, 7>(guid);
+    //data.WriteGuidBytes<6, 3, 2, 1, 7>(guid);
     data.WriteBits(newName.length(), 6);
     data.WriteString(newName);
     SendPacket(&data);

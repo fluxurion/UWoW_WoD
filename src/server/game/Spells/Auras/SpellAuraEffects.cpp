@@ -6884,10 +6884,10 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
     {
         //send before init vehicle
         WorldPacket data(SMSG_FORCE_SET_VEHICLE_REC_ID, 16);
-        data.WriteGuidMask<1, 5, 0, 6, 4, 3, 7, 2>(target->GetGUID());
-        data.WriteGuidBytes<7, 2, 5, 6, 4>(target->GetGUID());
+        //data.WriteGuidMask<1, 5, 0, 6, 4, 3, 7, 2>(target->GetGUID());
+        //data.WriteGuidBytes<7, 2, 5, 6, 4>(target->GetGUID());
         data << uint32(vehicleId);
-        data.WriteGuidBytes<3, 1, 0>(target->GetGUID());
+        //data.WriteGuidBytes<3, 1, 0>(target->GetGUID());
         data << uint32(target->ToPlayer()->GetTimeSync()+1);          //CMSG_TIME_SYNC_RESP incremenet counter
         target->ToPlayer()->GetSession()->SendPacket(&data);
 

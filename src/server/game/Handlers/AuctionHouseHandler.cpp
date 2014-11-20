@@ -67,10 +67,10 @@ void WorldSession::SendAuctionHello(uint64 guid, Creature* unit)
         return;
 
     WorldPacket data(SMSG_AUCTION_HELLO, 12);
-    data.WriteGuidMask<2, 1>(guid);
+    //data.WriteGuidMask<2, 1>(guid);
     data.WriteBit(1);                                   // 3.3.3: 1 - AH enabled, 0 - AH disabled
-    data.WriteGuidMask<4, 6, 0, 5, 3, 7>(guid);
-    data.WriteGuidBytes<2, 0, 7, 6, 5, 1, 3, 4>(guid);
+    //data.WriteGuidMask<4, 6, 0, 5, 3, 7>(guid);
+    //data.WriteGuidBytes<2, 0, 7, 6, 5, 1, 3, 4>(guid);
     data << uint32(ahEntry->houseId);
     
     SendPacket(&data);
@@ -90,9 +90,9 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
     data.WriteBit(1);                                     // bit_1, related to auction error or action
     data.WriteBit(1);                                     // bit_2, related to auction error or action
 
-    data.WriteGuidMask<7, 0, 1, 6, 3, 4, 5, 2>(bidderGUID);
+    //data.WriteGuidMask<7, 0, 1, 6, 3, 4, 5, 2>(bidderGUID);
     data.WriteBit(1);                                     // bit_3, related to auction error or action
-    data.WriteGuidBytes<2, 7, 3, 1, 5, 0, 6, 4>(bidderGUID);
+    //data.WriteGuidBytes<2, 7, 3, 1, 5, 0, 6, 4>(bidderGUID);
 
     SendPacket(&data);
 }
@@ -101,15 +101,15 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
 void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auctionId, ObjectGuid bidder, uint32 bidSum, uint32 diff, uint32 itemEntry)
 {
     /*WorldPacket data(SMSG_AUCTION_BIDDER_NOTIFICATION);
-    data.WriteGuidMask<4, 5, 0, 7, 2, 3, 1, 6>(bidder);
-    data.WriteGuidBytes<2, 7, 5, 0>(bidder);
+    //data.WriteGuidMask<4, 5, 0, 7, 2, 3, 1, 6>(bidder);
+    //data.WriteGuidBytes<2, 7, 5, 0>(bidder);
     data << uint32(0);
-    data.WriteGuidBytes<3>(bidder);
+    //data.WriteGuidBytes<3>(bidder);
     data << uint32(location);
     data << uint32(auctionId);
     data << uint32(itemEntry);
     data << uint32(0);
-    data.WriteGuidBytes<1, 4, 6>(bidder);
+    //data.WriteGuidBytes<1, 4, 6>(bidder);
     SendPacket(&data);*/
 }
 

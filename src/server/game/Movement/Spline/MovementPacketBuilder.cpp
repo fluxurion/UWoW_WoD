@@ -50,19 +50,19 @@ namespace Movement
         MoveSplineFlag splineFlags = unit.movespline->splineflags;
 
         data.WriteBit(0);
-        data.WriteGuidMask<0>(guid);
+        //data.WriteGuidMask<0>(guid);
         data.WriteBit(1);
         data.WriteBit(1);
         data.WriteBit(1);
 
         data.WriteBit(!transportGuid);
-        data.WriteGuidMask<1, 5, 6, 2, 3, 7, 4, 0>(transportGuid);
-        data.WriteGuidMask<4>(guid);
+        //data.WriteGuidMask<1, 5, 6, 2, 3, 7, 4, 0>(transportGuid);
+        //data.WriteGuidMask<4>(guid);
         data.WriteBit(1);
         data.WriteBits(0, 22);
-        data.WriteGuidMask<3, 7, 6, 5>(guid);
+        //data.WriteGuidMask<3, 7, 6, 5>(guid);
         data.WriteBit(0);
-        data.WriteGuidMask<1, 2>(guid);
+        //data.WriteGuidMask<1, 2>(guid);
         data.WriteBit(1);
         data.WriteBit(!splineFlags.raw());
         data.WriteBit(1);
@@ -75,32 +75,32 @@ namespace Movement
 
         data << uint32(unit.movespline->GetId());
 
-        data.WriteGuidBytes<1, 7, 4, 6, 0, 2, 5, 3>(transportGuid);
+        //data.WriteGuidBytes<1, 7, 4, 6, 0, 2, 5, 3>(transportGuid);
 
         data << float(0.0f);
         data << float(0.0f);
 
-        data.WriteGuidBytes<0>(guid);
+        //data.WriteGuidBytes<0>(guid);
         if (splineFlags.raw())
         {
             MoveSplineFlag splineflags2 = splineFlags;
             splineflags2 &= ~MoveSplineFlag::Mask_No_Monster_Move;
             data << uint32(unit.movespline->splineflags.raw());
         }
-        data.WriteGuidBytes<5, 6>(guid);
+        //data.WriteGuidBytes<5, 6>(guid);
 
         data << float(0.0f);
 
-        data.WriteGuidBytes<4, 2>(guid);
+        //data.WriteGuidBytes<4, 2>(guid);
 
         data << pos.y;
         data << pos.z;
 
-        data.WriteGuidBytes<3, 7>(guid);
+        //data.WriteGuidBytes<3, 7>(guid);
 
         data << pos.x;
 
-        data.WriteGuidBytes<1>(guid);
+        //data.WriteGuidBytes<1>(guid);
         if (transportGuid)
             data << uint8(unit.GetTransSeat());
     }
@@ -174,14 +174,14 @@ namespace Movement
         }
 
         data.WriteBit(0);                                       // sets/unsets MOVEMENTFLAG2_UNK7 (0x40)
-        data.WriteGuidMask<0>(guid);
+        //data.WriteGuidMask<0>(guid);
         data.WriteBit(!transportGuid);                          // has transport seat
         data.WriteBit(!splineflags.animation);
         data.WriteBit(1);                                       // !byte64
 
         data.WriteBit(!transportGuid);                          // transport guid marker
-        data.WriteGuidMask<1, 5, 6, 2, 3, 7, 4, 0>(transportGuid);
-        data.WriteGuidMask<4>(guid);
+        //data.WriteGuidMask<1, 5, 6, 2, 3, 7, 4, 0>(transportGuid);
+        //data.WriteGuidMask<4>(guid);
         data.WriteBit(!move_spline.Duration());
 
         // compressed wp count
@@ -193,9 +193,9 @@ namespace Movement
             data.WriteBits(cnt > 0 ? cnt : 0, 22);
         }
 
-        data.WriteGuidMask<3, 7, 6, 5>(guid);
+        //data.WriteGuidMask<3, 7, 6, 5>(guid);
         data.WriteBit(0);                                       // byteA8
-        data.WriteGuidMask<1, 2>(guid);
+        //data.WriteGuidMask<1, 2>(guid);
         data.WriteBit(!splineflags.parabolic);
         data.WriteBit(!splineflags.raw());
 
@@ -215,13 +215,13 @@ namespace Movement
         data.WriteBits(type, 3);
 
         if (type == MonsterMoveFacingTarget)
-            data.WriteGuidMask<0, 5, 7, 1, 2, 4, 6, 3>(move_spline.facing.target);
+            //data.WriteGuidMask<0, 5, 7, 1, 2, 4, 6, 3>(move_spline.facing.target);
 
         data.WriteBit(1);                                       // byte65
         data.WriteBit(1);                                       // dword40
 
         if (type == MonsterMoveFacingTarget)
-            data.WriteGuidBytes<0, 1, 3, 7, 6, 5, 4, 2>(move_spline.facing.target);
+            //data.WriteGuidBytes<0, 1, 3, 7, 6, 5, 4, 2>(move_spline.facing.target);
 
         if (move_spline.splineflags & MoveSplineFlag::UncompressedPath)
         {
@@ -238,7 +238,7 @@ namespace Movement
 
         data << uint32(unit.movespline->GetId());
 
-        data.WriteGuidBytes<1, 7, 4, 6, 0, 2, 5, 3>(transportGuid);
+        //data.WriteGuidBytes<1, 7, 4, 6, 0, 2, 5, 3>(transportGuid);
 
         if (type == MonsterMoveFacingSpot)
         {
@@ -256,7 +256,7 @@ namespace Movement
 
         data << float(0.0f);                                    // float28
 
-        data.WriteGuidBytes<0>(guid);
+        //data.WriteGuidBytes<0>(guid);
 
         if (splineflags.raw())
         {
@@ -265,7 +265,7 @@ namespace Movement
             splineflags2 &= ~MoveSplineFlag::Mask_No_Monster_Move;
             data << uint32(splineflags2.raw());
         }
-        data.WriteGuidBytes<5, 6>(guid);
+        //data.WriteGuidBytes<5, 6>(guid);
 
         if (type == MonsterMoveFacingAngle)
             data << float(Position::NormalizeOrientation(move_spline.facing.angle));
@@ -275,18 +275,18 @@ namespace Movement
         data << float(0.0f);
         if (move_spline.Duration())
             data << uint32(move_spline.Duration());
-        data.WriteGuidBytes<4, 2>(guid);
+        //data.WriteGuidBytes<4, 2>(guid);
         data << float(pos.y);
         data << float(pos.z);
-        data.WriteGuidBytes<3>(guid);
+        //data.WriteGuidBytes<3>(guid);
         if (splineflags.parabolic)
             data << float(move_spline.vertical_acceleration);
 
-        data.WriteGuidBytes<7>(guid);
+        //data.WriteGuidBytes<7>(guid);
         if (splineflags.animation)
             data << uint8(splineflags.getAnimationId());
         data << float(pos.x);
-        data.WriteGuidBytes<1>(guid);
+        //data.WriteGuidBytes<1>(guid);
         if (transportGuid)
             data << uint8(unit.GetTransSeat());
     }
@@ -375,7 +375,7 @@ namespace Movement
             return;
 
         ObjectGuid facingGuid = moveSpline.facing.target;
-        data.WriteGuidMask<5, 3, 6, 2, 7, 0, 1, 4>(facingGuid);
-        data.WriteGuidBytes<7, 0, 1, 4, 2, 5, 3, 6>(facingGuid);
+        //data.WriteGuidMask<5, 3, 6, 2, 7, 0, 1, 4>(facingGuid);
+        //data.WriteGuidBytes<7, 0, 1, 4, 2, 5, 3, 6>(facingGuid);
     }
 }

@@ -349,27 +349,27 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     ObjectGuid casterGuid = m_caster->GetGUID();
 
     WorldPacket data(SMSG_SPELLINSTAKILLLOG, 8+8+4);
-    data.WriteGuidMask<1, 3>(targetGuid);
-    data.WriteGuidMask<5, 4>(casterGuid);
-    data.WriteGuidMask<7>(targetGuid);
-    data.WriteGuidMask<1, 0, 6>(casterGuid);
-    data.WriteGuidMask<0, 5>(targetGuid);
-    data.WriteGuidMask<2, 7>(casterGuid);
-    data.WriteGuidMask<6>(targetGuid);
-    data.WriteGuidMask<3>(casterGuid);
-    data.WriteGuidMask<2>(targetGuid);
+    //data.WriteGuidMask<1, 3>(targetGuid);
+    //data.WriteGuidMask<5, 4>(casterGuid);
+    //data.WriteGuidMask<7>(targetGuid);
+    //data.WriteGuidMask<1, 0, 6>(casterGuid);
+    //data.WriteGuidMask<0, 5>(targetGuid);
+    //data.WriteGuidMask<2, 7>(casterGuid);
+    //data.WriteGuidMask<6>(targetGuid);
+    //data.WriteGuidMask<3>(casterGuid);
+    //data.WriteGuidMask<2>(targetGuid);
     data.WriteBit(0);       // not has power data
-    data.WriteGuidMask<4>(targetGuid);
-    data.WriteGuidBytes<5>(casterGuid);
-    data.WriteGuidBytes<4>(targetGuid);
-    data.WriteGuidBytes<3, 0>(casterGuid);
-    data.WriteGuidBytes<0, 1, 5>(targetGuid);
-    data.WriteGuidBytes<2>(casterGuid);
-    data.WriteGuidBytes<7>(targetGuid);
-    data.WriteGuidBytes<1, 4, 6>(casterGuid);
-    data.WriteGuidBytes<2>(targetGuid);
-    data.WriteGuidBytes<7>(casterGuid);
-    data.WriteGuidBytes<6, 3>(targetGuid);
+    //data.WriteGuidMask<4>(targetGuid);
+    //data.WriteGuidBytes<5>(casterGuid);
+    //data.WriteGuidBytes<4>(targetGuid);
+    //data.WriteGuidBytes<3, 0>(casterGuid);
+    //data.WriteGuidBytes<0, 1, 5>(targetGuid);
+    //data.WriteGuidBytes<2>(casterGuid);
+    //data.WriteGuidBytes<7>(targetGuid);
+    //data.WriteGuidBytes<1, 4, 6>(casterGuid);
+    //data.WriteGuidBytes<2>(targetGuid);
+    //data.WriteGuidBytes<7>(casterGuid);
+    //data.WriteGuidBytes<6, 3>(targetGuid);
     data << uint32(m_spellInfo->Id);
 
     m_caster->SendMessageToSet(&data, true);
@@ -1144,13 +1144,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             {
                                 ObjectGuid guid = _player->GetGUID();
                                 WorldPacket data(SMSG_SPELL_COOLDOWN, 8 + 1 + 3 + 4 + 4); //visual cd
-                                data.WriteGuidMask<4, 7, 6>(guid);
+                                //data.WriteGuidMask<4, 7, 6>(guid);
                                 data.WriteBits(1, 21);
-                                data.WriteGuidMask<2, 3, 1, 0>(guid);
+                                //data.WriteGuidMask<2, 3, 1, 0>(guid);
                                 data.WriteBit(1);
-                                data.WriteGuidMask<5>(guid);
+                                //data.WriteGuidMask<5>(guid);
 
-                                data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
+                                //data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
                                 data << uint32(spellInfo->RecoveryTime);
                                 data << uint32(m_spellInfo->Id);
                                 _player->GetSession()->SendPacket(&data);
@@ -1189,13 +1189,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                             {
                                 ObjectGuid guid = _player->GetGUID();
                                 WorldPacket data(SMSG_SPELL_COOLDOWN, 8 + 1 + 3 + 4 + 4); //visual cd
-                                data.WriteGuidMask<4, 7, 6>(guid);
+                                //data.WriteGuidMask<4, 7, 6>(guid);
                                 data.WriteBits(1, 21);
-                                data.WriteGuidMask<2, 3, 1, 0>(guid);
+                                //data.WriteGuidMask<2, 3, 1, 0>(guid);
                                 data.WriteBit(1);
-                                data.WriteGuidMask<5>(guid);
+                                //data.WriteGuidMask<5>(guid);
 
-                                data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
+                                //data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
                                 data << uint32(spellInfo->RecoveryTime);
                                 data << uint32(m_spellInfo->Id);
                                 _player->GetSession()->SendPacket(&data);
@@ -5981,25 +5981,25 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     ObjectGuid goGuid = pGameObj->GetGUID();
     ObjectGuid playerGuid = caster->GetGUID();
     WorldPacket data(SMSG_DUEL_REQUESTED, 8 + 8 + 1 + 1);
-    data.WriteGuidMask<5>(goGuid);
-    data.WriteGuidMask<5, 2>(playerGuid);
-    data.WriteGuidMask<7>(goGuid);
-    data.WriteGuidMask<7>(playerGuid);
-    data.WriteGuidMask<2, 0, 6, 1, 3>(goGuid);
-    data.WriteGuidMask<6, 4, 3, 0>(playerGuid);
-    data.WriteGuidMask<4>(goGuid);
-    data.WriteGuidMask<1>(playerGuid);
+    //data.WriteGuidMask<5>(goGuid);
+    //data.WriteGuidMask<5, 2>(playerGuid);
+    //data.WriteGuidMask<7>(goGuid);
+    //data.WriteGuidMask<7>(playerGuid);
+    //data.WriteGuidMask<2, 0, 6, 1, 3>(goGuid);
+    //data.WriteGuidMask<6, 4, 3, 0>(playerGuid);
+    //data.WriteGuidMask<4>(goGuid);
+    //data.WriteGuidMask<1>(playerGuid);
 
-    data.WriteGuidBytes<1, 4>(playerGuid);
-    data.WriteGuidBytes<0>(goGuid);
-    data.WriteGuidBytes<6, 7>(playerGuid);
-    data.WriteGuidBytes<7, 5>(goGuid);
-    data.WriteGuidBytes<3>(playerGuid);
-    data.WriteGuidBytes<6>(goGuid);
-    data.WriteGuidBytes<2>(playerGuid);
-    data.WriteGuidBytes<3>(goGuid);
-    data.WriteGuidBytes<0, 5>(playerGuid);
-    data.WriteGuidBytes<2, 4, 1>(goGuid);
+    //data.WriteGuidBytes<1, 4>(playerGuid);
+    //data.WriteGuidBytes<0>(goGuid);
+    //data.WriteGuidBytes<6, 7>(playerGuid);
+    //data.WriteGuidBytes<7, 5>(goGuid);
+    //data.WriteGuidBytes<3>(playerGuid);
+    //data.WriteGuidBytes<6>(goGuid);
+    //data.WriteGuidBytes<2>(playerGuid);
+    //data.WriteGuidBytes<3>(goGuid);
+    //data.WriteGuidBytes<0, 5>(playerGuid);
+    //data.WriteGuidBytes<2, 4, 1>(goGuid);
     caster->GetSession()->SendPacket(&data);
     target->GetSession()->SendPacket(&data);
 
@@ -6077,10 +6077,10 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
 
     ObjectGuid guid = m_caster->GetGUID();
     WorldPacket data(SMSG_SUMMON_REQUEST, 8 + 4 + 4 + 1);
-    data.WriteGuidMask<5, 6, 0, 2, 7, 3, 1, 4>(guid);
-    data.WriteGuidBytes<4, 2>(guid);
+    //data.WriteGuidMask<5, 6, 0, 2, 7, 3, 1, 4>(guid);
+    //data.WriteGuidBytes<4, 2>(guid);
     data << uint32(m_caster->GetZoneId());                  // summoner zone
-    data.WriteGuidBytes<0, 1, 5, 7, 6, 3>(guid);
+    //data.WriteGuidBytes<0, 1, 5, 7, 6, 3>(guid);
     data << uint32(realmHandle.Index);
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
@@ -6627,8 +6627,8 @@ void Spell::EffectForceDeselect(SpellEffIndex /*effIndex*/)
 
     ObjectGuid guid = m_caster->GetGUID();
     WorldPacket data(SMSG_CLEAR_TARGET, 8 + 1);
-    data.WriteGuidMask<3, 4, 2, 5, 1, 7, 0, 6>(guid);
-    data.WriteGuidBytes<4, 5, 2, 6, 7, 3, 1, 0>(guid);
+    //data.WriteGuidMask<3, 4, 2, 5, 1, 7, 0, 6>(guid);
+    //data.WriteGuidBytes<4, 5, 2, 6, 7, 3, 1, 0>(guid);
     m_caster->SendMessageToSet(&data, true);
 }
 
@@ -8035,10 +8035,10 @@ void Spell::EffectBind(SpellEffIndex effIndex)
     // zone update
     ObjectGuid guid = player->GetGUID();
     data.Initialize(SMSG_PLAYERBOUND, 8 + 4 + 1);
-    data.WriteGuidMask<1, 3, 4, 2, 0, 5, 7, 6>(guid);
-    data.WriteGuidBytes<5>(guid);
+    //data.WriteGuidMask<1, 3, 4, 2, 0, 5, 7, 6>(guid);
+    //data.WriteGuidBytes<5>(guid);
     data << uint32(area_id);
-    data.WriteGuidBytes<4, 2, 6, 7, 0, 3, 1>(guid);
+    //data.WriteGuidBytes<4, 2, 6, 7, 0, 3, 1>(guid);
 
     player->SendDirectMessage(&data);
 }
@@ -8469,8 +8469,8 @@ void Spell::SendScene(SpellEffIndex effIndex)
     data.WriteBit(!bit28);
     data.WriteBit(!bit16);
 
-    data.WriteGuidMask<0, 5, 1, 7, 4, 2, 6, 3>(casterGuid);
-    data.WriteGuidBytes<1, 2, 5, 6, 0, 7, 3, 4>(casterGuid);
+    //data.WriteGuidMask<0, 5, 1, 7, 4, 2, 6, 3>(casterGuid);
+    //data.WriteGuidBytes<1, 2, 5, 6, 0, 7, 3, 4>(casterGuid);
 
     data << float(m_caster->GetPositionY());            // Y
 

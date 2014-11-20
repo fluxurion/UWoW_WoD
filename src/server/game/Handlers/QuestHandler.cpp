@@ -701,10 +701,10 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
         return;
 
     WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8+1));
-    data.WriteGuidMask<7, 0, 4, 6, 1, 2, 3, 5>(guid);
-    data.WriteGuidBytes<2, 4, 6>(guid);
+    //data.WriteGuidMask<7, 0, 4, 6, 1, 2, 3, 5>(guid);
+    //data.WriteGuidBytes<2, 4, 6>(guid);
     data << uint8(msg);
-    data.WriteGuidBytes<0, 3, 7, 1, 5>(guid);
+    //data.WriteGuidBytes<0, 3, 7, 1, 5>(guid);
     player->GetSession()->SendPacket(&data);
     _player->SetDivider(0);
 }
@@ -844,7 +844,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
             if (questStatus > 6)
                 questStatus = getDialogStatus(_player, questgiver, defstatus);
 
-            data.WriteGuidMask<6, 1, 2, 5, 0, 7, 3, 4>(questgiver->GetGUID());
+            //data.WriteGuidMask<6, 1, 2, 5, 0, 7, 3, 4>(questgiver->GetGUID());
 
             buff.WriteGuidBytes<4, 1, 7, 0, 2, 3>(questgiver->GetGUID());
             buff << uint32(questStatus);
@@ -862,7 +862,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
             if (questStatus > 6)
                 questStatus = getDialogStatus(_player, questgiver, defstatus);
 
-            data.WriteGuidMask<6, 1, 2, 5, 0, 7, 3, 4>(questgiver->GetGUID());
+            //data.WriteGuidMask<6, 1, 2, 5, 0, 7, 3, 4>(questgiver->GetGUID());
 
             buff.WriteGuidBytes<4, 1, 7, 0, 2, 3>(questgiver->GetGUID());
             buff << uint32(questStatus);

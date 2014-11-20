@@ -345,7 +345,7 @@ class Object
         Object();
 
         void _InitValues();
-        void _Create(uint32 guidlow, uint32 entry, HighGuid guidhigh);
+        void _Create(ObjectGuid const& guid);
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
         void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
 
@@ -694,8 +694,6 @@ class WorldObject : public Object, public WorldLocation
         virtual ~WorldObject();
 
         virtual void Update (uint32 /*time_diff*/) { }
-
-        void _Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask);
 
         virtual void RemoveFromWorld()
         {

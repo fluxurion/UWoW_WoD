@@ -38,9 +38,9 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid.GetCounter());
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE);
-//    data.WriteGuidMask<3, 2, 6, 0, 4, 1, 5, 7>(guid);
+//    //data.WriteGuidMask<3, 2, 6, 0, 4, 1, 5, 7>(guid);
 
-  //  data.WriteGuidBytes<7, 1, 2, 6, 3, 5>(guid);
+  //  //data.WriteGuidBytes<7, 1, 2, 6, 3, 5>(guid);
     data << uint8(nameData ? 0 : 1);
     if (nameData)
     {
@@ -343,18 +343,18 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
 
     //! 5.4.1
     WorldPacket data(SMSG_CORPSE_QUERY);
-    data.WriteGuidMask<1, 0, 3, 7, 4, 6, 5, 2>(guid);
+    //data.WriteGuidMask<1, 0, 3, 7, 4, 6, 5, 2>(guid);
     data.WriteBit(1);               // corpse found
 
     data.FlushBits();
 
     data << float(y);
-    data.WriteGuidBytes<6>(guid);
+    //data.WriteGuidBytes<6>(guid);
     data << float(x);
     data << int32(mapid);
-    data.WriteGuidBytes<0, 7, 2, 4>(guid);
+    //data.WriteGuidBytes<0, 7, 2, 4>(guid);
     data << float(z);
-    data.WriteGuidBytes<1, 5, 3>(guid);
+    //data.WriteGuidBytes<1, 5, 3>(guid);
     data << int32(corpsemapid);
 
     SendPacket(&data);

@@ -91,15 +91,15 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 
         tmpGUID = calendarEvent->GetCreatorGUID();
 
-        data.WriteGuidMask<5, 4, 6>(tmpGUID2); //guild
-        data.WriteGuidMask<0, 3>(tmpGUID); //creator
-        data.WriteGuidMask<2, 3>(tmpGUID2);
-        data.WriteGuidMask<4, 1, 7>(tmpGUID);
-        data.WriteGuidMask<7>(tmpGUID2);
+        //data.WriteGuidMask<5, 4, 6>(tmpGUID2); //guild
+        //data.WriteGuidMask<0, 3>(tmpGUID); //creator
+        //data.WriteGuidMask<2, 3>(tmpGUID2);
+        //data.WriteGuidMask<4, 1, 7>(tmpGUID);
+        //data.WriteGuidMask<7>(tmpGUID2);
         data.WriteBits(calendarEvent->GetTitle().size(), 8);
-        data.WriteGuidMask<5, 2>(tmpGUID);
-        data.WriteGuidMask<1, 0>(tmpGUID2);
-        data.WriteGuidMask<6>(tmpGUID);
+        //data.WriteGuidMask<5, 2>(tmpGUID);
+        //data.WriteGuidMask<1, 0>(tmpGUID2);
+        //data.WriteGuidMask<6>(tmpGUID);
 
         eventBuffer.WriteGuidBytes<6>(tmpGUID2);
         eventBuffer.WriteGuidBytes<2>(tmpGUID);
@@ -129,7 +129,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
             {
                 InstanceSave* save = itr->second.save;
                 tmpGUID = save->GetInstanceId();    // instance save id as unique instance copy id
-                data.WriteGuidMask<5, 4, 1, 6, 2, 0, 7, 3>(tmpGUID);
+                //data.WriteGuidMask<5, 4, 1, 6, 2, 0, 7, 3>(tmpGUID);
 
                 instanceBuffer.WriteGuidBytes<5, 2, 1>(tmpGUID);
                 instanceBuffer << uint32(save->GetDifficulty());
@@ -154,7 +154,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         }
 
         tmpGUID = calendarEvent->GetCreatorGUID();
-        data.WriteGuidMask<7, 0, 5, 4, 1, 6, 3, 2>(tmpGUID);
+        //data.WriteGuidMask<7, 0, 5, 4, 1, 6, 3, 2>(tmpGUID);
 
         inviteBuffer.WriteGuidBytes<3, 4>(tmpGUID);
         inviteBuffer << uint8(0);

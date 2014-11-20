@@ -108,16 +108,16 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
         ObjectGuid creatorGuid = item->GetUInt64Value(ITEM_FIELD_CREATOR);
         bool notWrapped = !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED);
 
-        data.WriteGuidMask<0, 6>(giftCreatorGuid);
+        //data.WriteGuidMask<0, 6>(giftCreatorGuid);
         data.WriteBit(notWrapped);
 
         itemData.WriteGuidBytes<4>(giftCreatorGuid);
 
         if (notWrapped)
         {
-            data.WriteGuidMask<0, 3, 1>(creatorGuid);
+            //data.WriteGuidMask<0, 3, 1>(creatorGuid);
             data.WriteBit(item->GetTemplate()->LockID != 0);
-            data.WriteGuidMask<6, 5, 2, 4, 7>(creatorGuid);
+            //data.WriteGuidMask<6, 5, 2, 4, 7>(creatorGuid);
 
             itemData << uint32(item->GetItemRandomPropertyId());
 
@@ -136,7 +136,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             itemData.WriteGuidBytes<2, 5>(creatorGuid);
         }
 
-        data.WriteGuidMask<7, 1, 5, 4, 3, 2>(giftCreatorGuid);
+        //data.WriteGuidMask<7, 1, 5, 4, 3, 2>(giftCreatorGuid);
 
         itemData << uint32(item->GetCount());
         itemData.WriteGuidBytes<6, 3>(giftCreatorGuid);
@@ -683,8 +683,8 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
     WorldPacket data(SMSG_TRADE_STATUS, 1 + 8 + 1);
     data.WriteBit(0);
     data.WriteBits(TRADE_STATUS_BEGIN_TRADE, 5);
-    data.WriteGuidMask<0, 1, 3, 6, 2, 7, 4, 5>(playerGuid);
-    data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0, 7>(playerGuid);
+    //data.WriteGuidMask<0, 1, 3, 6, 2, 7, 4, 5>(playerGuid);
+    //data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0, 7>(playerGuid);
 
     pOther->GetSession()->SendPacket(&data);
 }

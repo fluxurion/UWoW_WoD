@@ -58,11 +58,11 @@ void WorldSession::SendTaxiStatus(uint64 guid)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: current location %u ", curloc);
 
     WorldPacket data(SMSG_TAXINODE_STATUS, 9);
-    data.WriteGuidMask<1>(guid);
+    //data.WriteGuidMask<1>(guid);
     data.WriteBits(GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? 1 : 0, 2);
-    data.WriteGuidMask<7, 4, 0, 5, 3, 2, 6>(guid);
+    //data.WriteGuidMask<7, 4, 0, 5, 3, 2, 6>(guid);
 
-    data.WriteGuidBytes<1, 3, 4, 2, 5, 0, 6, 7>(guid);
+    //data.WriteGuidBytes<1, 3, 4, 2, 5, 0, 6, 7>(guid);
     SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_TAXINODE_STATUS");
 }
@@ -112,11 +112,11 @@ void WorldSession::SendTaxiMenu(Creature* unit)
     WorldPacket data(SMSG_SHOWTAXINODES, (4 + 8 + 4 + 8 * 4));
     data.WriteBits(TaxiMaskSize, 24);
     data.WriteBit(1);       // has data
-    data.WriteGuidMask<0, 4, 3, 1, 5, 7, 2, 6>(guid);
+    //data.WriteGuidMask<0, 4, 3, 1, 5, 7, 2, 6>(guid);
 
-    data.WriteGuidBytes<4, 0>(guid);
+    //data.WriteGuidBytes<4, 0>(guid);
     data << uint32(curloc);
-    data.WriteGuidBytes<5, 7, 6, 3, 1, 2>(guid);
+    //data.WriteGuidBytes<5, 7, 6, 3, 1, 2>(guid);
     GetPlayer()->m_taxi.AppendTaximaskTo(data, GetPlayer()->isTaxiCheater());
     SendPacket(&data);
 
