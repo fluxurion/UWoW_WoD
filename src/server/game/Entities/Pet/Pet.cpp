@@ -119,7 +119,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     }
 
     m_Stampeded = stampeded;
-    uint32 ownerid = owner->GetGUID().GetCounter();
+    ObjectGuid::LowType ownerid = owner->GetGUID().GetCounter();
 
     // find number
     if (!petnumber && !petentry)
@@ -381,7 +381,7 @@ void Pet::SavePetToDB(PetSlot mode)
         return;
 
     // not save not player pets
-    if (!IS_PLAYER_GUID(GetOwnerGUID()))
+    if (!GetOwnerGUID().IsPlayer())
         return;
 
     Player* owner = (Player*)GetOwner();
@@ -445,7 +445,7 @@ void Pet::SavePetToDB(PetSlot mode)
     // current/stable/not_in_slot
     if (mode >= PET_SLOT_HUNTER_FIRST && mode <= PET_SLOT_OTHER_PET)
     {
-        uint32 ownerLowGUID = GUID_LOPART(GetOwnerGUID());
+        ObjectGuid::LowType ownerLowGUID = GetOwnerGUID().GetCounter();
 
         // save pet
         uint8 index = 0;
@@ -454,7 +454,7 @@ void Pet::SavePetToDB(PetSlot mode)
         PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET);
         stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
         stmt->setUInt32(index++, GetEntry());
-        stmt->setUInt32(index++, ownerLowGUID);
+        stmt->setUInt64(index++, ownerLowGUID);
         stmt->setUInt32(index++, GetNativeDisplayId());
         stmt->setUInt32(index++, getLevel());
         stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
@@ -1201,7 +1201,7 @@ void Pet::_LoadAuras(uint32 timediff)
             int32 baseDamage[32];
             Field* fields = result->Fetch();
             uint8 slot = fields[0].GetUInt8();
-            uint64 caster_guid = fields[1].GetUInt64();
+            caster_guid.SetRawValue(fields[1].GetBinary());
             // NULL guid stored - pet is the caster of the spell - see Pet::_SaveAuras
             if (!caster_guid)
                 caster_guid = GetGUID();
@@ -1319,14 +1319,13 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         }
 
         // don't save guid of caster in case we are caster of the spell - guid for pet is generated every pet load, so it won't match saved guid anyways
-        uint64 casterGUID = (itr->second->GetCasterGUID() == GetGUID()) ? 0 : itr->second->GetCasterGUID();
+        ObjectGuid casterGUID = (itr->second->GetCasterGUID() == GetGUID()) ? ObjectGuid::Empty : itr->second->GetCasterGUID();
 
-       
         index = 0;
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA);
         stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
         stmt->setUInt8(index++, foundAura->GetSlot());
-        stmt->setUInt64(index++, casterGUID);
+        stmt->setBinary(index++, casterGUID.GetRawValue());
         stmt->setUInt32(index++, itr->second->GetId());
         stmt->setUInt8(index++, effMask);
         stmt->setUInt8(index++, recalculateMask);
@@ -1666,13 +1665,13 @@ bool Pet::IsPermanentPetFor(Player* owner)
     }
 }
 
-bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
+bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
 {
     ASSERT(map);
     SetMap(map);
 
     SetPhaseMask(phaseMask, false);
-    Object::_Create(guidlow, pet_number, HighGuid::Pet);
+    Object::_Create(ObjectGuid::Create<HighGuid::Pet>(map->GetId(), Entry, guidlow));
 
     m_DBTableGuid = guidlow;
     m_originalEntry = Entry;

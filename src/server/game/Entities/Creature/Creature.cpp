@@ -293,7 +293,7 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
 
     SetEntry(entry);                                        // normal entry always
     m_creatureInfo = cinfo;                                 // map mode related always
-    m_creatureDiffData = sObjectMgr->GetCreatureDifficultyStat(cinfo-Entry, difficulty);                                 // map mode related always
+    m_creatureDiffData = sObjectMgr->GetCreatureDifficultyStat(cinfo->Entry, difficulty);                                 // map mode related always
 
     // equal to player Race field, but creature does not have race
     SetByteValue(UNIT_FIELD_BYTES_0, 0, 0);

@@ -8750,7 +8750,7 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
         target->GetPosition(&pos);
 
         AreaTrigger* areaTrigger = new AreaTrigger;
-        if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), triggerEntry, GetCaster(), GetSpellInfo(), pos, NULL, target->GetGUID()))
+        if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HighGuid::AreaTrigger), triggerEntry, GetCaster(), GetSpellInfo(), pos, NULL, target->GetGUID()))
         {
             delete areaTrigger;
             return;

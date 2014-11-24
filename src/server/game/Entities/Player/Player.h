@@ -2421,15 +2421,15 @@ class Player : public Unit, public GridObject<Player>
             return 0;
         }
 
-        uint64 GetLootGUID() const { return m_lootGuid; }
-        void SetLootGUID(uint64 guid) { m_lootGuid = guid; }
+        ObjectGuid GetLootGUID() const { return m_lootGuid; }
+        void SetLootGUID(ObjectGuid guid) { m_lootGuid = guid; }
         void ClearAoeLootList() { m_AoelootGuidList.clear(); }
-        void AddAoeLootList(uint64 guid) { m_AoelootGuidList.push_back(guid); }
-        std::list<uint64>* GetAoeLootList() { return &m_AoelootGuidList; }
-        void DelAoeLootList(uint64 guid) { m_AoelootGuidList.remove(guid); }
-        bool IsInAoeLootList(uint64 guid)
+        void AddAoeLootList(ObjectGuid guid) { m_AoelootGuidList.push_back(guid); }
+        GuidList* GetAoeLootList() { return &m_AoelootGuidList; }
+        void DelAoeLootList(ObjectGuid guid) { m_AoelootGuidList.remove(guid); }
+        bool IsInAoeLootList(ObjectGuid guid)
         {
-            for (std::list<uint64>::const_iterator itr = m_AoelootGuidList.begin(); itr != m_AoelootGuidList.end(); ++itr)
+            for (GuidList::const_iterator itr = m_AoelootGuidList.begin(); itr != m_AoelootGuidList.end(); ++itr)
             {
                 if (*itr == guid)
                     return true;
@@ -3268,8 +3268,8 @@ class Player : public Unit, public GridObject<Player>
         time_t m_lastHonorUpdateTime;
 
         void outDebugValues() const;
-        uint64 m_lootGuid;
-        std::list<uint64> m_AoelootGuidList;
+        ObjectGuid m_lootGuid;
+        GuidList m_AoelootGuidList;
 
         uint32 m_team;
         uint32 m_nextSave;

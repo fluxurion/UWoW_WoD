@@ -8126,7 +8126,7 @@ void Spell::EffectCreateAreaTrigger(SpellEffIndex effIndex)
         return;
 
     AreaTrigger * areaTrigger = new AreaTrigger;
-    if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), triggerEntry, GetCaster(), GetSpellInfo(), pos, this))
+    if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HighGuid::AreaTrigger), triggerEntry, GetCaster(), GetSpellInfo(), pos, this))
         delete areaTrigger;
 }
 

@@ -123,10 +123,10 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
 
     Player* player = GetPlayer();
-    uint64 guid = player->GetLootGUID();
-    std::list<uint64>* listloot = player->GetAoeLootList();
-    std::list<uint64>* temploot;
-    std::list<uint64> templootguid;
+    ObjectGuid guid = player->GetLootGUID();
+    GuidList* listloot = player->GetAoeLootList();
+    GuidList* temploot;
+    GuidList templootguid;
     if (!guid && listloot->empty())
         return;
 
@@ -138,13 +138,13 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
         temploot = &templootguid;
     }
 
-    for (std::list<uint64>::const_iterator itr = temploot->begin(); itr != temploot->end(); ++itr)
+    for (GuidList::const_iterator itr = temploot->begin(); itr != temploot->end(); ++itr)
     {
         Loot* loot = NULL;
         bool shareMoney = true;
         uint64 lootguid = *itr;
 
-        switch (GUID_HIPART(lootguid))
+        switch (lootguid.GetHigh())
         {
             case HighGuid::GameObject:
             {

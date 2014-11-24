@@ -178,16 +178,16 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         case HighGuid::Player:
         case HighGuid::Pet:
         case HighGuid::Corpse:
-        case HIGHGUID_DYNAMICOBJECT:
-        case HIGHGUID_AREATRIGGER:
+        case HighGuid::DynamicObject:
+        case HighGuid::AreaTrigger:
             updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
         case HighGuid::Creature:
-            if (ToUnit()->ToTempSummon() && IS_PLAYER_GUID(ToUnit()->ToTempSummon()->GetSummonerGUID()))
+            if (ToUnit()->ToTempSummon() && ToUnit()->ToTempSummon()->GetSummonerGUID().IsPlayer())
                 updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
         case HighGuid::GameObject:
-            if (IS_PLAYER_GUID(ToGameObject()->GetOwnerGUID()))
+            if (ToGameObject()->GetOwnerGUID().IsPlayer())
                 updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
     }
