@@ -2398,7 +2398,7 @@ bool Guild::LoadBankEventLogFromDB(Field* fields)
         LogHolder* pLog = m_bankEventLog[tabId];
         if (pLog->CanInsert())
         {
-            uint32 guid = fields[2].GetUInt32();
+            ObjectGuid::LowType guid = fields[2].GetUInt32();
             GuildBankEventLogTypes eventType = GuildBankEventLogTypes(fields[3].GetUInt8());
             if (BankEventLogEntry::IsMoneyEvent(eventType))
             {

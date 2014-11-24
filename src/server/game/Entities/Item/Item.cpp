@@ -336,7 +336,7 @@ void Item::SaveToDB(SQLTransaction& trans)
     if (!isInTransaction)
         trans = CharacterDatabase.BeginTransaction();
 
-    uint32 guid = GetGUID().GetCounter();
+    ObjectGuid::LowType guid = GetGUID().GetCounter();
     switch (uState)
     {
         case ITEM_NEW:

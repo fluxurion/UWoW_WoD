@@ -144,7 +144,7 @@ class SmartScript
             return NULL;
         }
 
-        GameObject* FindGameObjectNear(WorldObject* searchObject, uint32 guid) const
+        GameObject* FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
         {
             GameObject* gameObject = NULL;
 
@@ -160,7 +160,7 @@ class SmartScript
             return gameObject;
         }
 
-        Creature* FindCreatureNear(WorldObject* searchObject, uint32 guid) const
+        Creature* FindCreatureNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
         {
             Creature* creature = NULL;
             CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));

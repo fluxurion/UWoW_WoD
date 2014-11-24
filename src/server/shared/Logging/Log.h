@@ -71,7 +71,7 @@ class Log
         void outSpamm( const char * str, ... )               ATTR_PRINTF(2, 3);
         void outDiff( const char * str, ... )                ATTR_PRINTF(2, 3);
         void outCommand(uint32 account, const char * str, ...) ATTR_PRINTF(3, 4);
-        void outCharDump(char const* str, uint32 account_id, uint32 guid, char const* name);
+        void outCharDump(char const* str, uint32 account_id, uint64 guid, char const* name);
 
         void EnableDBAppenders();
         static std::string GetTimestampStr();

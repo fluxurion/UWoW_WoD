@@ -573,7 +573,7 @@ class Map : public GridRefManager<NGridType>
         Creature* _GetScriptCreature(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const;
         WorldObject* _GetScriptWorldObject(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const;
         void _ScriptProcessDoor(Object* source, Object* target, const ScriptInfo* scriptInfo) const;
-        GameObject* _FindGameObject(WorldObject* pWorldObject, uint32 guid) const;
+        GameObject* _FindGameObject(WorldObject* pWorldObject, ObjectGuid::LowType guid) const;
 
         time_t i_gridExpiry;
 

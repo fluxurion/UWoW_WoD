@@ -129,7 +129,7 @@ struct LFGuildPlayer
             _level = 0;
         }
 
-        LFGuildPlayer(uint32 guid, uint8 role, uint8 availability, uint8 interests, uint8 level)
+        LFGuildPlayer(ObjectGuid::LowType guid, uint8 role, uint8 availability, uint8 interests, uint8 level)
         {
             _guid = guid;
             _roles = role;
@@ -138,7 +138,7 @@ struct LFGuildPlayer
             _level = level;
         }
 
-        LFGuildPlayer(uint32 guid, uint8 role, uint8 availability, uint8 interests, uint8 level, std::string& comment) : _comment(comment)
+        LFGuildPlayer(ObjectGuid::LowType guid, uint8 role, uint8 availability, uint8 interests, uint8 level, std::string& comment) : _comment(comment)
         {
             _guid = guid;
             _roles = role;
@@ -180,10 +180,10 @@ struct LFGuildSettings : public LFGuildPlayer
 
         LFGuildSettings(bool listed, TeamId team) : LFGuildPlayer(), _listed(listed), _team(team) {}
 
-        LFGuildSettings(bool listed, TeamId team, uint32 guid, uint8 role, uint8 availability, uint8 interests, uint8 level) : _listed(listed),
+        LFGuildSettings(bool listed, TeamId team, ObjectGuid::LowType guid, uint8 role, uint8 availability, uint8 interests, uint8 level) : _listed(listed),
             LFGuildPlayer(guid, role, availability, interests, level), _team(team) {}
 
-        LFGuildSettings(bool listed, TeamId team, uint32 guid, uint8 role, uint8 availability, uint8 interests, uint8 level, std::string& comment) : _listed(listed),
+        LFGuildSettings(bool listed, TeamId team, ObjectGuid::LowType guid, uint8 role, uint8 availability, uint8 interests, uint8 level, std::string& comment) : _listed(listed),
             LFGuildPlayer(guid, role, availability, interests, level, comment), _team(team) {}
 
         LFGuildSettings(LFGuildSettings const& settings) : _listed(settings.IsListed()), _team(settings.GetTeam()),

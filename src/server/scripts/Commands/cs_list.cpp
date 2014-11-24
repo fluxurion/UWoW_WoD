@@ -107,7 +107,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid     = fields[0].GetUInt32();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
@@ -396,7 +396,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid     = fields[0].GetUInt32();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();

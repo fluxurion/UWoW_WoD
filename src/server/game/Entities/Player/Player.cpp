@@ -18528,7 +18528,7 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint
 /***                   LOAD SYSTEM                     ***/
 /*********************************************************/
 
-void Player::Initialize(uint32 guid)
+void Player::Initialize(ObjectGuid::LowType guid)
 {
     Object::_Create(guid, 0, HighGuid::Player);
 }
@@ -18655,7 +18655,7 @@ float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
     return result;
 }
 
-bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
+bool Player::LoadFromDB(ObjectGuid::LowType guid, SQLQueryHolder *holder)
 {
     ////                                                     0     1        2     3     4        5      6    7      8     9           10              11
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, "

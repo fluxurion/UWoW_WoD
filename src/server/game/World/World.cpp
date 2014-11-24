@@ -2702,7 +2702,7 @@ bool World::RemoveBanAccount(BanMode mode, std::string nameOrIP)
 BanReturn World::BanCharacter(std::string name, std::string duration, std::string reason, std::string author)
 {
     Player* pBanned = sObjectAccessor->FindPlayerByName(name.c_str());
-    uint32 guid = 0;
+    ObjectGuid::LowType guid = 0;
 
     uint32 duration_secs = TimeStringToSecs(duration);
 
@@ -2743,7 +2743,7 @@ BanReturn World::BanCharacter(std::string name, std::string duration, std::strin
 bool World::RemoveBanCharacter(std::string name)
 {
     Player* pBanned = sObjectAccessor->FindPlayerByName(name.c_str());
-    uint32 guid = 0;
+    ObjectGuid::LowType guid = 0;
 
     /// Pick a player to ban if not online
     if (!pBanned)
@@ -3470,7 +3470,7 @@ void World::LoadCharacterNameData()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters", count);
 }
 
-void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+void World::AddCharacterNameData(ObjectGuid::LowType guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
 {
     CharacterNameData& data = _characterNameDataMap[guid];
     data.m_name = name;
@@ -3480,7 +3480,7 @@ void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gen
     data.m_level = level;
 }
 
-void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
+void World::UpdateCharacterNameData(ObjectGuid::LowType guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
 {
     std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
@@ -3495,7 +3495,7 @@ void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 
         itr->second.m_race = race;
 }
 
-void World::UpdateCharacterNameDataLevel(uint32 guid, uint8 level)
+void World::UpdateCharacterNameDataLevel(ObjectGuid::LowType guid, uint8 level)
 {
     std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
@@ -3504,7 +3504,7 @@ void World::UpdateCharacterNameDataLevel(uint32 guid, uint8 level)
     itr->second.m_level = level;
 }
 
-CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
+CharacterNameData const* World::GetCharacterNameData(ObjectGuid::LowType guid) const
 {
     std::map<uint32, CharacterNameData>::const_iterator itr = _characterNameDataMap.find(guid);
     if (itr != _characterNameDataMap.end())
@@ -3703,7 +3703,7 @@ void World::Transfer()
             Field* field = toDump->Fetch();
             uint32 transaction = field[0].GetUInt32();
             uint32 account = field[1].GetUInt32();
-            uint32 guid = field[2].GetUInt32();
+            ObjectGuid::LowType guid = field[2].GetUInt32();
             uint32 to = field[3].GetUInt32();
             uint32 state = field[4].GetUInt32();
 
@@ -3752,7 +3752,7 @@ void World::Transfer()
             Field* field = toLoad->Fetch();
             uint32 transaction = field[0].GetUInt32();
             uint32 account = field[1].GetUInt32();
-            uint32 guid = field[2].GetUInt32();
+            ObjectGuid::LowType guid = field[2].GetUInt32();
             uint32 from = field[3].GetUInt32();
             std::string dump = field[4].GetString();
             uint32 toacc = field[5].GetUInt32();

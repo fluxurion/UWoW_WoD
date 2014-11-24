@@ -80,8 +80,8 @@ bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner
     SetEntry(itemid);
     SetObjectScale(1.0f);
 
-    SetUInt64Value(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
-    SetUInt64Value(ITEM_FIELD_CONTAINED, owner ? owner->GetGUID() : 0);
+    SetGuidValue(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
+    SetGuidValue(ITEM_FIELD_CONTAINED, owner ? owner->GetGUID() : 0);
 
     SetUInt32Value(ITEM_FIELD_MAXDURABILITY, itemProto->MaxDurability);
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
@@ -95,7 +95,7 @@ bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner
     // Cleaning 20 slots
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
     {
-        SetUInt64Value(CONTAINER_FIELD_SLOT_1 + (i*2), 0);
+        SetGuidValue(CONTAINER_FIELD_SLOT_1 + (i*2), ObjectGuid::Empty);
         m_bagslot[i] = NULL;
     }
 
@@ -107,7 +107,7 @@ void Bag::SaveToDB(SQLTransaction& trans)
     Item::SaveToDB(trans);
 }
 
-bool Bag::LoadFromDB(ObjectGuid::LowType guid, uint64 owner_guid, Field* fields, uint32 entry)
+bool Bag::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
 {
     if (!Item::LoadFromDB(guid, owner_guid, fields, entry))
         return false;
@@ -117,7 +117,7 @@ bool Bag::LoadFromDB(ObjectGuid::LowType guid, uint64 owner_guid, Field* fields,
     // cleanup bag content related item value fields (its will be filled correctly from `character_inventory`)
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
     {
-        SetUInt64Value(CONTAINER_FIELD_SLOT_1 + (i*2), 0);
+        SetGuidValue(CONTAINER_FIELD_SLOT_1 + (i*2), ObjectGuid::Empty);
         delete m_bagslot[i];
         m_bagslot[i] = NULL;
     }
@@ -152,7 +152,7 @@ void Bag::RemoveItem(uint8 slot, bool /*update*/)
         m_bagslot[slot]->SetContainer(NULL);
 
     m_bagslot[slot] = NULL;
-    SetUInt64Value(CONTAINER_FIELD_SLOT_1 + (slot * 2), 0);
+    SetGuidValue(CONTAINER_FIELD_SLOT_1 + (slot * 2), ObjectGuid::Empty);
 }
 
 void Bag::StoreItem(uint8 slot, Item* pItem, bool /*update*/)
@@ -226,7 +226,7 @@ uint32 Bag::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem) 
     return count;
 }
 
-uint8 Bag::GetSlotByItemGUID(uint64 guid) const
+uint8 Bag::GetSlotByItemGUID(ObjectGuid guid) const
 {
     for (uint32 i = 0; i < GetBagSize(); ++i)
         if (m_bagslot[i] != 0)

@@ -797,7 +797,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         float m_SightDistance, m_CombatDistance;
 
-        void SetGUIDTransport(uint32 guid) { guid_transport=guid; }
+        void SetGUIDTransport(ObjectGuid::LowType guid) { guid_transport=guid; }
         uint32 GetGUIDTransport() { return guid_transport; }
 
         void FarTeleportTo(Map* map, float X, float Y, float Z, float O);

@@ -447,7 +447,7 @@ void Log::outFatal(LogFilterType filter, const char * str, ...)
     va_end(ap);
 }
 
-void Log::outCharDump(char const* str, uint32 accountId, uint32 guid, char const* name)
+void Log::outCharDump(char const* str, uint32 accountId, uint64 guid, char const* name)
 {
     if (!str || !ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO))
         return;

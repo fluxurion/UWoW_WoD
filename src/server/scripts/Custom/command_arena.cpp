@@ -225,7 +225,7 @@ public:
             do
             {
                 Field * fetch = result->Fetch();
-                uint32 guid = fetch[0].GetUInt32();
+                ObjectGuid::LowType guid = fetch[0].GetUInt32();
                 uint32 account = fetch[1].GetUInt32();
                 std::string newname = fetch[2].GetString();
                 std::string oldname = fetch[3].GetString();

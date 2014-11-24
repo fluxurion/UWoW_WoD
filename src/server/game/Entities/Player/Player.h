@@ -1908,10 +1908,10 @@ class Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        bool LoadFromDB(uint32 guid, SQLQueryHolder *holder);
+        bool LoadFromDB(ObjectGuid::LowType guid, SQLQueryHolder *holder);
         bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
 
-        void Initialize(uint32 guid);
+        void Initialize(ObjectGuid::LowType guid);
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
         static float  GetFloatValueFromArray(Tokenizer const& data, uint16 index);
         static uint32 GetZoneIdFromDB(uint64 guid);

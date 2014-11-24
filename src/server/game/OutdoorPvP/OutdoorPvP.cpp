@@ -73,7 +73,7 @@ void OPvPCapturePoint::SendChangePhase()
     SendUpdateWorldState(m_capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
 }
 
-void OPvPCapturePoint::AddGO(uint32 type, uint32 guid, uint32 entry)
+void OPvPCapturePoint::AddGO(uint32 type, ObjectGuid::LowType guid, uint32 entry)
 {
     if (!entry)
     {
@@ -86,7 +86,7 @@ void OPvPCapturePoint::AddGO(uint32 type, uint32 guid, uint32 entry)
     m_ObjectTypes[m_Objects[type]]=type;
 }
 
-void OPvPCapturePoint::AddCre(uint32 type, uint32 guid, uint32 entry)
+void OPvPCapturePoint::AddCre(uint32 type, ObjectGuid::LowType guid, uint32 entry)
 {
     if (!entry)
     {
@@ -101,7 +101,7 @@ void OPvPCapturePoint::AddCre(uint32 type, uint32 guid, uint32 entry)
 
 bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3)
 {
-    if (uint32 guid = sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3))
+    if (ObjectGuid::LowType guid = sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3))
     {
         AddGO(type, guid, entry);
         return true;
@@ -112,7 +112,7 @@ bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x,
 
 bool OPvPCapturePoint::AddCreature(uint32 type, uint32 entry, uint32 team, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay)
 {
-    if (uint32 guid = sObjectMgr->AddCreData(entry, team, map, x, y, z, o, spawntimedelay))
+    if (ObjectGuid::LowType guid = sObjectMgr->AddCreData(entry, team, map, x, y, z, o, spawntimedelay))
     {
         AddCre(type, guid, entry);
         return true;
@@ -162,7 +162,7 @@ bool OPvPCapturePoint::DelCreature(uint32 type)
         return false;
     }
     sLog->outDebug(LOG_FILTER_OUTDOORPVP, "deleting opvp creature type %u", type);
-    uint32 guid = cr->GetDBTableGUIDLow();
+    ObjectGuid::LowType guid = cr->GetDBTableGUIDLow();
     // Don't save respawn time
     cr->SetRespawnTime(0);
     cr->RemoveCorpse();
@@ -196,7 +196,7 @@ bool OPvPCapturePoint::DelObject(uint32 type)
         m_Objects[type] = 0;
         return false;
     }
-    uint32 guid = obj->GetDBTableGUIDLow();
+    ObjectGuid::LowType guid = obj->GetDBTableGUIDLow();
     obj->SetRespawnTime(0);                                 // not save respawn time
     obj->Delete();
     sObjectMgr->DeleteGOData(guid);

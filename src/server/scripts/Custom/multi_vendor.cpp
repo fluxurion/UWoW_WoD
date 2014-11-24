@@ -159,7 +159,7 @@ public:
                             {
                                 Field* fields = result->Fetch();
                                 std::string playerName  = fields[0].GetString();
-                                uint32 guid             = fields[1].GetUInt32();
+                                ObjectGuid::LowType guid             = fields[1].GetUInt32();
 
                                 char chardata[50]; // Max length: name(12) + guid(11) + _.log (5) + \0
                                 sprintf(chardata, "%s", playerName.c_str());
@@ -186,7 +186,7 @@ public:
                             {
                                 Field* fields = result->Fetch();
                                 std::string playerName  = fields[0].GetString();
-                                uint32 guid             = fields[1].GetUInt32();
+                                ObjectGuid::LowType guid             = fields[1].GetUInt32();
                                 uint8 level             = fields[2].GetUInt8();
                                 uint8 pclass            = fields[3].GetUInt8();
                                 uint32 deleteDate       = fields[4].GetUInt32();
@@ -519,7 +519,7 @@ public:
                     do
                     {
                         Field* fields = result->Fetch();
-                        uint32 guid = fields[0].GetUInt32();
+                        ObjectGuid::LowType guid = fields[0].GetUInt32();
                         std::string name = fields[1].GetString();
 
                         player->ADD_GOSSIP_ITEM(0, name, GOSSIP_SENDER_INN_INFO, guid);
@@ -539,7 +539,7 @@ public:
                     }
 
                     Field* fields = result->Fetch();
-                    uint32 guid = fields[0].GetUInt32();
+                    ObjectGuid::LowType guid = fields[0].GetUInt32();
                     std::string name = fields[1].GetString();
                     uint32 account_id = player->GetSession()->GetAccountId();
                     std::string dump;

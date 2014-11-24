@@ -215,7 +215,7 @@ std::string CreateDumpString(char const* tableName, QueryResult result, char con
     return ss.str();
 }
 
-std::string PlayerDumpWriter::GenerateWhereStr(char const* field, uint32 guid)
+std::string PlayerDumpWriter::GenerateWhereStr(char const* field, ObjectGuid::LowType guid)
 {
     std::ostringstream wherestr;
     wherestr << field << " = '" << guid << '\'';
@@ -247,7 +247,7 @@ std::string PlayerDumpWriter::GenerateWhereStr(char const* field, GUIDs const& g
 void StoreGUID(QueryResult result, uint32 field, std::set<uint32>& guids)
 {
     Field* fields = result->Fetch();
-    uint32 guid = fields[field].GetUInt32();
+    ObjectGuid::LowType guid = fields[field].GetUInt32();
     if (guid)
         guids.insert(guid);
 }
@@ -256,13 +256,13 @@ void StoreGUID(QueryResult result, uint32 data, uint32 field, std::set<uint32>& 
 {
     Field* fields = result->Fetch();
     std::string dataStr = fields[data].GetString();
-    uint32 guid = atoi(gettoknth(dataStr, field).c_str());
+    ObjectGuid::LowType guid = atoi(gettoknth(dataStr, field).c_str());
     if (guid)
         guids.insert(guid);
 }
 
 // Writing - High-level functions
-bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tableFrom, char const*tableTo, DumpTableType type, char const*tableSelect)
+bool PlayerDumpWriter::DumpTable(std::string& dump, ObjectGuid::LowType guid, char const*tableFrom, char const*tableTo, DumpTableType type, char const*tableSelect)
 {
     GUIDs const* guids = NULL;
     char const* fieldname = NULL;
@@ -331,7 +331,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
     return true;
 }
 
-bool PlayerDumpWriter::GetDump(uint32 guid, std::string &dump)
+bool PlayerDumpWriter::GetDump(ObjectGuid::LowType guid, std::string &dump)
 {
     dump = "";
 
@@ -348,7 +348,7 @@ bool PlayerDumpWriter::GetDump(uint32 guid, std::string &dump)
     return true;
 }
 
-DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid)
+DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, ObjectGuid::LowType guid)
 {
     FILE *fout = fopen(file.c_str(), "w");
     if (!fout)
@@ -364,7 +364,7 @@ DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid)
     return ret;
 }
 
-DumpReturn PlayerDumpWriter::WriteDump(uint32 guid, std::string& dump)
+DumpReturn PlayerDumpWriter::WriteDump(ObjectGuid::LowType guid, std::string& dump)
 {
     if (!GetDump(guid, dump))
         return DUMP_CHARACTER_DELETED;
@@ -385,7 +385,7 @@ void fixNULLfields(std::string &line)
     }
 }
 
-DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, std::string name, uint32 guid)
+DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, std::string name, ObjectGuid::LowType guid)
 {
     uint32 charcount = AccountMgr::GetCharactersCount(account);
     if (charcount >= 10)

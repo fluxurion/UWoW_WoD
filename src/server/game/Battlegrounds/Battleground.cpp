@@ -1532,7 +1532,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
         return false;
     }
 /*
-    uint32 guid = go->GetGUID().GetCounter();
+    ObjectGuid::LowType guid = go->GetGUID().GetCounter();
 
     // without this, UseButtonOrDoor caused the crash, since it tried to get go info from godata
     // iirc that was changed, so adding to go data map is no longer required if that was the only function using godata from GameObject without checking if it existed

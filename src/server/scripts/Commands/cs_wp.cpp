@@ -1072,7 +1072,7 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guid = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt32();
                 Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(guid, VISUAL_WAYPOINT, HighGuid::Creature));
                 if (!creature)
                 {

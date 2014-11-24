@@ -45,7 +45,7 @@ class Bag : public Item
         uint32 GetItemCount(uint32 item, Item* eItem = NULL) const;
         uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = NULL) const;
 
-        uint8 GetSlotByItemGUID(uint64 guid) const;
+        uint8 GetSlotByItemGUID(ObjectGuid guid) const;
         bool IsEmpty() const;
         uint32 GetFreeSlots() const;
         uint32 GetBagSize() const { return GetUInt32Value(CONTAINER_FIELD_NUM_SLOTS); }
@@ -54,7 +54,7 @@ class Bag : public Item
         // overwrite virtual Item::SaveToDB
         void SaveToDB(SQLTransaction& trans);
         // overwrite virtual Item::LoadFromDB
-        bool LoadFromDB(ObjectGuid::LowType guid, uint64 owner_guid, Field* fields, uint32 entry);
+        bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
         // overwrite virtual Item::DeleteFromDB
         void DeleteFromDB(SQLTransaction& trans);
 

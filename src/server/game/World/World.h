@@ -25,6 +25,7 @@
 
 #include "Common.h"
 #include "Commands.h"
+#include "ObjectGuid.h"
 #include "Timer.h"
 #include "SharedDefines.h"
 #include "QueryResult.h"
@@ -846,11 +847,11 @@ class World
 
         bool isEventKillStart;
 
-        CharacterNameData const* GetCharacterNameData(uint32 guid) const;
-        void AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
-        void UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
-        void UpdateCharacterNameDataLevel(uint32 guid, uint8 level);
-        void DeleteCharacterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
+        CharacterNameData const* GetCharacterNameData(ObjectGuid::LowType guid) const;
+        void AddCharacterNameData(ObjectGuid::LowType guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
+        void UpdateCharacterNameData(ObjectGuid::LowType guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
+        void UpdateCharacterNameDataLevel(ObjectGuid::LowType guid, uint8 level);
+        void DeleteCharacterNameData(ObjectGuid::LowType guid) { _characterNameDataMap.erase(guid); }
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }

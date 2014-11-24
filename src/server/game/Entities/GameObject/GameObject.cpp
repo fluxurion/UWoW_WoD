@@ -86,7 +86,7 @@ void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 
 void GameObject::RemoveFromOwner()
 {
-    uint64 ownerGUID = GetOwnerGUID();
+    ObjectGuid ownerGUID = GetOwnerGUID();
     if (!ownerGUID)
         return;
 
@@ -105,7 +105,7 @@ void GameObject::RemoveFromOwner()
 
     sLog->outFatal(LOG_FILTER_GENERAL, "Delete GameObject (GUID: %u Entry: %u SpellId %u LinkedGO %u) that lost references to owner (GUID %u Type '%s') GO list. Crash possible later.",
         GetGUID().GetCounter(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), GUID_LOPART(ownerGUID), ownerType);
-    SetOwnerGUID(0);
+    SetOwnerGUID(ObjectGuid::Empty);
 }
 
 void GameObject::AddToWorld()
@@ -145,7 +145,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
+bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
 {
     ASSERT(map);
     SetMap(map);
@@ -176,7 +176,11 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     m_goInfo = goinfo;
 
-    Object::_Create(guidlow, IsTransport() ? 0 : goinfo->entry, IsTransport() ? HighGuid::Transport : HighGuid::GameObject);
+    if (IsTransport())
+        Object::_Create(ObjectGuid::Create<HighGuid::Transport>(map->GetId(), goinfo->entry, guidlow));
+    else
+        Object::_Create(ObjectGuid::Create<HighGuid::GameObject>(map->GetId(), goinfo->entry, guidlow));
+
 
     if (goinfo->type >= MAX_GAMEOBJECT_TYPE)
     {
@@ -320,11 +324,11 @@ void GameObject::Update(uint32 diff)
                 time_t now = time(NULL);
                 if (m_respawnTime <= now)            // timer expired
                 {
-                    uint64 dbtableHighGuid = MAKE_NEW_GUID(m_DBTableGuid, GetEntry(), HighGuid::GameObject);
+                    ObjectGuid dbtableHighGuid = ObjectGuid::Create<HighGuid::GameObject>(GetMapId(), GetEntry(), m_DBTableGuid);
                     time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
                     if (linkedRespawntime)             // Can't respawn, the master is dead
                     {
-                        uint64 targetGuid = sObjectMgr->GetLinkedRespawnGuid(dbtableHighGuid);
+                        ObjectGuid targetGuid = sObjectMgr->GetLinkedRespawnGuid(dbtableHighGuid);
                         if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
                             SetRespawnTime(DAY);
                         else
@@ -722,7 +726,7 @@ void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     WorldDatabase.CommitTransaction(trans);
 }
 
-bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
+bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap)
 {
     GameObjectData const* data = sObjectMgr->GetGOData(guid);
 
@@ -1074,7 +1078,7 @@ void GameObject::SetGoArtKit(uint8 kit)
         data->artKit = kit;
 }
 
-void GameObject::SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid)
+void GameObject::SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid)
 {
     const GameObjectData* data = NULL;
     if (go)

@@ -196,7 +196,7 @@ Creature::~Creature()
     i_AI = NULL;
 
     //if (m_uint32Values)
-    //    sLog->outError(LOG_FILTER_UNITS, "Deconstruct Creature Entry = %u", GetEntry());
+    //    sLog->outError(LOG_FILTER_UNITS, "Deconstruct Creature entry = %u", GetEntry());
 }
 
 void Creature::AddToWorld()
@@ -279,21 +279,21 @@ void Creature::RemoveCorpse(bool setSpawnTime)
 /**
  * change the entry of creature until respawn
  */
-bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data)
+bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data)
 {
-    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(Entry);
+    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
     {
-        sLog->outError(LOG_FILTER_SQL, "Creature::InitEntry creature entry %u does not exist.", Entry);
+        sLog->outError(LOG_FILTER_SQL, "Creature::InitEntry creature entry %u does not exist.", entry);
         return false;
     }
 
     // get difficulty 1 mode entry
     difficulty = sObjectMgr->GetDiffFromSpawn(GetMap()->GetSpawnMode());
 
-    SetEntry(Entry);                                        // normal entry always
+    SetEntry(entry);                                        // normal entry always
     m_creatureInfo = cinfo;                                 // map mode related always
-    m_creatureDiffData = sObjectMgr->GetCreatureDifficultyStat(cinfo->Entry, difficulty);                                 // map mode related always
+    m_creatureDiffData = sObjectMgr->GetCreatureDifficultyStat(cinfo->entry, difficulty);                                 // map mode related always
 
     // equal to player Race field, but creature does not have race
     SetByteValue(UNIT_FIELD_BYTES_0, 0, 0);
@@ -304,7 +304,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
     // Cancel load if no model defined
     if (!(cinfo->GetFirstValidModelId()))
     {
-        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has no model defined in table `creature_template`, can't load. ", Entry);
+        sLog->outError(LOG_FILTER_SQL, "Creature (entry: %u) has no model defined in table `creature_template`, can't load. ", entry);
         return false;
     }
 
@@ -312,7 +312,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
     if (!minfo)                                             // Cancel load if no model defined
     {
-        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has no model defined in table `creature_template`, can't load. ", Entry);
+        sLog->outError(LOG_FILTER_SQL, "Creature (entry: %u) has no model defined in table `creature_template`, can't load. ", entry);
         return false;
     }
 
@@ -354,9 +354,9 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
     return true;
 }
 
-bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
+bool Creature::UpdateEntry(uint32 entry, uint32 team, const CreatureData* data)
 {
-    if (!InitEntry(Entry, team, data))
+    if (!InitEntry(entry, team, data))
         return false;
 
     CreatureTemplate const* cInfo = GetCreatureTemplate();
@@ -497,11 +497,11 @@ void Creature::Update(uint32 diff)
     {
         case JUST_RESPAWNED:
             // Must not be called, see Creature::setDeathState JUST_RESPAWNED -> ALIVE promoting.
-            sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u Entry: %u) in wrong state: JUST_RESPAWNED (4)", GetGUID().GetCounter(), GetEntry());
+            sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u entry: %u) in wrong state: JUST_RESPAWNED (4)", GetGUID().GetCounter(), GetEntry());
             break;
         case JUST_DIED:
             // Must not be called, see Creature::setDeathState JUST_DIED -> CORPSE promoting.
-            sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u Entry: %u) in wrong state: JUST_DEAD (1)", GetGUID().GetCounter(), GetEntry());
+            sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u entry: %u) in wrong state: JUST_DEAD (1)", GetGUID().GetCounter(), GetEntry());
             break;
         case DEAD:
         {
@@ -733,16 +733,16 @@ void Creature::Motion_Initialize()
         i_motionMaster.Initialize();
 }
 
-bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 Entry, int32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data)
+bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, int32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data)
 {
     ASSERT(map);
     SetMap(map);
     SetPhaseMask(phaseMask, false);
 
-    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(Entry);
+    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
     {
-        sLog->outError(LOG_FILTER_SQL, "Creature::Create(): creature template (guidlow: %u, entry: %u) does not exist.", guidlow, Entry);
+        sLog->outError(LOG_FILTER_SQL, "Creature::Create(): creature template (guidlow: %u, entry: %u) does not exist.", guidlow, entry);
         return false;
     }
 
@@ -751,12 +751,12 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     Relocate(x, y, z, ang);
 
     //oX = x;     oY = y;    dX = x;    dY = y;    m_moveTime = 0;    m_startMove = 0;
-    if (!CreateFromProto(guidlow, Entry, vehId, team, data))
+    if (!CreateFromProto(guidlow, entry, vehId, team, data))
         return false;
 
     if (!IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_UNITS, "Creature::Create(): given coordinates for creature (guidlow %d, entry %d) are not valid (X: %f, Y: %f, Z: %f, O: %f)", guidlow, Entry, x, y, z, ang);
+        sLog->outError(LOG_FILTER_UNITS, "Creature::Create(): given coordinates for creature (guidlow %d, entry %d) are not valid (X: %f, Y: %f, Z: %f, O: %f)", guidlow, entry, x, y, z, ang);
         return false;
     }
 
@@ -806,7 +806,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
         Relocate(x, y, z, ang);
     }
 
-    if(CreatureAIInstance const* aiinstdata = sObjectMgr->GetCreatureAIInstaceData(Entry))
+    if(CreatureAIInstance const* aiinstdata = sObjectMgr->GetCreatureAIInstaceData(entry))
         bossid = aiinstdata->bossid;
 
     uint32 displayID = GetNativeDisplayId();
@@ -827,7 +827,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
         m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
     }
 
-    if (Entry == VISUAL_WAYPOINT)
+    if (entry == VISUAL_WAYPOINT)
         SetVisible(false);
 
     //Hast default
@@ -850,7 +850,7 @@ bool Creature::isCanTrainingOf(Player* player, bool msg) const
 
     if ((!trainer_spells || trainer_spells->spellList.empty()) && GetCreatureTemplate()->trainer_type != TRAINER_TYPE_PETS)
     {
-        //sLog->outError(LOG_FILTER_SQL, "Creature %u (Entry: %u) have UNIT_NPC_FLAG_TRAINER but have empty trainer spell list.",
+        //sLog->outError(LOG_FILTER_SQL, "Creature %u (entry: %u) have UNIT_NPC_FLAG_TRAINER but have empty trainer spell list.",
             //GetGUID().GetCounter(), GetEntry());
         return false;
     }
@@ -1327,24 +1327,24 @@ float Creature::GetSpellDamageMod(int32 Rank)
     }
 }
 
-bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 Entry, int32 vehId, uint32 team, const CreatureData* data)
+bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, int32 vehId, uint32 team, const CreatureData* data)
 {
     SetZoneScript();
     if (m_zoneScript && data)
     {
-        Entry = m_zoneScript->GetCreatureEntry(guidlow, data);
-        if (!Entry)
+        entry = m_zoneScript->GetCreatureEntry(guidlow, data);
+        if (!entry)
             return false;
     }
 
-    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(Entry);
+    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
     {
-        sLog->outError(LOG_FILTER_SQL, "Creature::CreateFromProto(): creature template (guidlow: %u, entry: %u) does not exist.", guidlow, Entry);
+        sLog->outError(LOG_FILTER_SQL, "Creature::CreateFromProto(): creature template (guidlow: %u, entry: %u) does not exist.", guidlow, entry);
         return false;
     }
 
-    SetOriginalEntry(Entry);
+    SetOriginalEntry(entry);
 
     //Privent setup own accessory if we are part of accessory enother vehicle.. do it after enter.
     m_onVehicleAccessory = vehId == -1;
@@ -1356,11 +1356,11 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 Entry, int32 
     else
         Object::_Create(ObjectGuid::Create<HighGuid::Creature>(GetMapId(), entry, guidlow));
 
-    if (!UpdateEntry(Entry, team, data))
+    if (!UpdateEntry(entry, team, data))
         return false;
 
     if (vehId)
-        CreateVehicleKit(vehId, Entry);
+        CreateVehicleKit(vehId, entry);
 
     return true;
 }
@@ -1521,7 +1521,7 @@ void Creature::DeleteFromDB()
 {
     if (!m_DBTableGuid)
     {
-        sLog->outError(LOG_FILTER_UNITS, "Trying to delete not saved creature! LowGUID: %u, Entry: %u", GetGUID().GetCounter(), GetEntry());
+        sLog->outError(LOG_FILTER_UNITS, "Trying to delete not saved creature! LowGUID: %u, entry: %u", GetGUID().GetCounter(), GetEntry());
         return;
     }
 
@@ -1746,7 +1746,7 @@ void Creature::Respawn(bool force)
         if (m_DBTableGuid)
             GetMap()->RemoveCreatureRespawnTime(m_DBTableGuid);
 
-        sLog->outDebug(LOG_FILTER_UNITS, "Respawning creature %s (GuidLow: %u, Full GUID: " UI64FMTD " Entry: %u)", GetName(), GetGUID().GetCounter(), GetGUID(), GetEntry());
+        sLog->outDebug(LOG_FILTER_UNITS, "Respawning creature %s (GuidLow: %u, Full GUID: " UI64FMTD " entry: %u)", GetName(), GetGUID().GetCounter(), GetGUID(), GetEntry());
         m_respawnTime = 0;
         lootForPickPocketed = false;
         lootForBody         = false;
@@ -2013,7 +2013,7 @@ Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
 
     if (dist > MAX_VISIBILITY_DISTANCE)
     {
-        sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u Entry: %u) SelectNearestTargetInAttackDistance called with dist > MAX_VISIBILITY_DISTANCE. Distance set to ATTACK_DISTANCE.", GetGUID().GetCounter(), GetEntry());
+        sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u entry: %u) SelectNearestTargetInAttackDistance called with dist > MAX_VISIBILITY_DISTANCE. Distance set to ATTACK_DISTANCE.", GetGUID().GetCounter(), GetEntry());
         dist = ATTACK_DISTANCE;
     }
 
@@ -2247,7 +2247,7 @@ CreatureAddon const* Creature::GetCreatureAddon() const
     }
 
     // dependent from difficulty mode entry
-    return sObjectMgr->GetCreatureTemplateAddon(GetCreatureTemplate()->Entry);
+    return sObjectMgr->GetCreatureTemplateAddon(GetCreatureTemplate()->entry);
 }
 
 //creature_addon table
@@ -2309,7 +2309,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(*itr);
             if (!AdditionalSpellInfo)
             {
-                sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u Entry: %u) has wrong spell %u defined in `auras` field.", GetGUID().GetCounter(), GetEntry(), *itr);
+                sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u entry: %u) has wrong spell %u defined in `auras` field.", GetGUID().GetCounter(), GetEntry(), *itr);
                 continue;
             }
 
@@ -2317,13 +2317,13 @@ bool Creature::LoadCreaturesAddon(bool reload)
             if (HasAura(*itr))
             {
                 if (!reload)
-                    sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u Entry: %u) has duplicate aura (spell %u) in `auras` field.", GetGUID().GetCounter(), GetEntry(), *itr);
+                    sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u entry: %u) has duplicate aura (spell %u) in `auras` field.", GetGUID().GetCounter(), GetEntry(), *itr);
 
                 continue;
             }
 
             AddAura(*itr, this);
-            sLog->outDebug(LOG_FILTER_UNITS, "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUID().GetCounter(), GetEntry());
+            sLog->outDebug(LOG_FILTER_UNITS, "Spell: %u added to creature (GUID: %u entry: %u)", *itr, GetGUID().GetCounter(), GetEntry());
         }
     }
 

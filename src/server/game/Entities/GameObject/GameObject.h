@@ -735,9 +735,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>
                 ASSERT(false);
             }
             m_spawnedByDefault = false;                     // all object with owner is despawned after delay
-            SetUInt64Value(GAMEOBJECT_FIELD_CREATED_BY, owner);
+            SetGuidValue(GAMEOBJECT_FIELD_CREATED_BY, owner);
         }
-        ObjectGuid GetOwnerGUID() const { return GetUInt64Value(GAMEOBJECT_FIELD_CREATED_BY); }
+        ObjectGuid GetOwnerGUID() const { return GetGuidValue(GAMEOBJECT_FIELD_CREATED_BY); }
         Unit* GetOwner() const;
 
         void SetSpellId(uint32 id)
@@ -801,14 +801,10 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         // Note: unit is only used when s = GO_ACTIVATED
         void SetLootState(LootState s, Unit* unit = NULL);
 
-        void AddToSkillupList(uint32 PlayerGuidLow) { m_SkillupList.push_back(PlayerGuidLow); }
-        bool IsInSkillupList(uint32 PlayerGuidLow) const
+        void AddToSkillupList(ObjectGuid const& PlayerGuidLow) { m_SkillupList.insert(PlayerGuidLow); }
+        bool IsInSkillupList(ObjectGuid const& playerGuid) const
         {
-            for (std::list<uint32>::const_iterator i = m_SkillupList.begin(); i != m_SkillupList.end(); ++i)
-                if (*i == PlayerGuidLow)
-                    return true;
-
-            return false;
+            return m_SkillupList.count(playerGuid) > 0;
         }
         void ClearSkillupList() { m_SkillupList.clear(); }
 
@@ -828,7 +824,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool IsLootAllowedFor(Player const* player) const;
         bool HasLootRecipient() const { return m_lootRecipient || m_lootRecipientGroup; }
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
-        uint32 lootingGroupLowGUID;                         // used to find group which is looting
+        ObjectGuid lootingGroupLowGUID;                     // used to find group which is looting
 
         bool hasQuest(uint32 quest_id) const;
         bool hasInvolvedQuest(uint32 quest_id) const;
@@ -894,24 +890,24 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool        m_spawnedByDefault;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
-        std::list<uint32> m_SkillupList;
+        GuidSet m_SkillupList;
 
         Player* m_ritualOwner;                              // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
         std::set<uint64> m_unique_users;
         uint32 m_usetimes;
 
-        typedef std::map<uint32, uint64> ChairSlotAndUser;
+        typedef std::map<uint32, ObjectGuid> ChairSlotAndUser;
         ChairSlotAndUser ChairListSlots;
 
-        uint32 m_DBTableGuid;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
+        ObjectGuid::LowType m_DBTableGuid;                   ///< For new or temporary gameobjects is 0 for saved it is lowguid
         GameObjectTemplate const* m_goInfo;
         GameObjectData const* m_goData;
         GameObjectValue * const m_goValue;
 
         uint64 m_rotation;
 
-        uint64 m_lootRecipient;
-        uint32 m_lootRecipientGroup;
+        ObjectGuid m_lootRecipient;
+        ObjectGuid m_lootRecipientGroup;
         bool   m_manual_anim;
         bool   m_isDynActive;
         bool   m_onUse;

@@ -112,7 +112,7 @@ void MapManager::LoadTransports()
         {
             Field* fields = result->Fetch();
 
-            uint32 guid  = fields[0].GetUInt32();
+            ObjectGuid::LowType guid  = fields[0].GetUInt32();
             uint32 entry = fields[1].GetUInt32();
             std::string name = fields[2].GetString();
             sLog->outError(LOG_FILTER_SQL, "Transport %u '%s' have record (GUID: %u) in `gameobject`. Transports must not have any records in `gameobject` or its behavior will be unpredictable/bugged.", entry, name.c_str(), guid);
@@ -141,7 +141,7 @@ void MapManager::LoadTransportNPCs()
     do
     {
         Field* fields = result->Fetch();
-        uint32 guid = fields[0].GetInt32();
+        ObjectGuid::LowType guid = fields[0].GetInt32();
         uint32 entry = fields[1].GetInt32();
         uint32 transportEntry = fields[2].GetInt32();
         float tX = fields[3].GetFloat();

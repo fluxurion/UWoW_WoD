@@ -382,7 +382,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint32 guid    = fields[0].GetUInt32();
+                ObjectGuid::LowType guid    = fields[0].GetUInt32();
                 int16 event_id = fields[1].GetInt8();
 
                 int32 internal_event_id = mGameEvent.size() + event_id - 1;
@@ -425,7 +425,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint32 guid    = fields[0].GetUInt32();
+                ObjectGuid::LowType guid    = fields[0].GetUInt32();
                 int16 event_id = fields[1].GetInt8();
 
                 int32 internal_event_id = mGameEvent.size() + event_id - 1;
@@ -466,7 +466,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid     = fields[0].GetUInt32();
                 uint16 event_id = fields[1].GetUInt8();
 
                 if (event_id >= mGameEventModelEquip.size())
@@ -725,7 +725,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid     = fields[0].GetUInt32();
                 uint16 event_id = fields[1].GetUInt8();
                 uint32 npcflag  = fields[2].GetUInt32();
 
@@ -813,7 +813,7 @@ void GameEventMgr::LoadFromDB()
 
                 NPCVendorList& vendors = mGameEventVendors[event_id];
                 NPCVendorEntry newEntry;
-                uint32 guid = fields[1].GetUInt32();
+                ObjectGuid::LowType guid = fields[1].GetUInt32();
                 newEntry.item = fields[2].GetUInt32();
                 newEntry.maxcount = fields[3].GetUInt32();
                 newEntry.incrtime = fields[4].GetUInt32();
@@ -901,7 +901,7 @@ void GameEventMgr::LoadFromDB()
 uint32 GameEventMgr::GetNPCFlag(Creature* cr)
 {
     uint32 mask = 0;
-    uint32 guid = cr->GetDBTableGUIDLow();
+    ObjectGuid::LowType guid = cr->GetDBTableGUIDLow();
 
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {

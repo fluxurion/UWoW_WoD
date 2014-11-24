@@ -434,7 +434,7 @@ class boss_amalgam_of_corruption : public CreatureScript
                     --challengeCounter[uint32(guid)];
             }
 
-            uint32 GetData(uint32 guid)
+            uint32 GetData(ObjectGuid::LowType guid)
             {  
                 return challengeCounter[guid];
             }

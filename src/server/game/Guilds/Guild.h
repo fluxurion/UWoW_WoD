@@ -515,8 +515,8 @@ private:
     class LogEntry
     {
     public:
-        LogEntry(uint32 guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(::time(NULL)) { }
-        LogEntry(uint32 guildId, uint32 guid, time_t timestamp) : m_guildId(guildId), m_guid(guid), m_timestamp(timestamp) { }
+        LogEntry(uint32 guildId, ObjectGuid::LowType guid) : m_guildId(guildId), m_guid(guid), m_timestamp(::time(NULL)) { }
+        LogEntry(uint32 guildId, ObjectGuid::LowType guid, time_t timestamp) : m_guildId(guildId), m_guid(guid), m_timestamp(timestamp) { }
         virtual ~LogEntry() { }
 
         uint32 GetGUID() const { return m_guid; }
@@ -534,10 +534,10 @@ private:
     class EventLogEntry : public LogEntry
     {
     public:
-        EventLogEntry(uint32 guildId, uint32 guid, GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank) :
+        EventLogEntry(uint32 guildId, ObjectGuid::LowType guid, GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank) :
             LogEntry(guildId, guid), m_eventType(eventType), m_playerGuid1(playerGuid1), m_playerGuid2(playerGuid2), m_newRank(newRank) { }
 
-        EventLogEntry(uint32 guildId, uint32 guid, time_t timestamp, GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank) :
+        EventLogEntry(uint32 guildId, ObjectGuid::LowType guid, time_t timestamp, GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank) :
             LogEntry(guildId, guid, timestamp), m_eventType(eventType), m_playerGuid1(playerGuid1), m_playerGuid2(playerGuid2), m_newRank(newRank) { }
 
         ~EventLogEntry() { }
@@ -570,11 +570,11 @@ private:
             return IsMoneyEvent(m_eventType);
         }
 
-        BankEventLogEntry(uint32 guildId, uint32 guid, GuildBankEventLogTypes eventType, uint8 tabId, uint32 playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId) :
+        BankEventLogEntry(uint32 guildId, ObjectGuid::LowType guid, GuildBankEventLogTypes eventType, uint8 tabId, uint32 playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId) :
             LogEntry(guildId, guid), m_eventType(eventType), m_bankTabId(tabId), m_playerGuid(playerGuid),
             m_itemOrMoney(itemOrMoney), m_itemStackCount(itemStackCount), m_destTabId(destTabId) { }
 
-        BankEventLogEntry(uint32 guildId, uint32 guid, time_t timestamp, uint8 tabId, GuildBankEventLogTypes eventType, uint32 playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId) :
+        BankEventLogEntry(uint32 guildId, ObjectGuid::LowType guid, time_t timestamp, uint8 tabId, GuildBankEventLogTypes eventType, uint32 playerGuid, uint64 itemOrMoney, uint16 itemStackCount, uint8 destTabId) :
             LogEntry(guildId, guid, timestamp), m_eventType(eventType), m_bankTabId(tabId), m_playerGuid(playerGuid),
             m_itemOrMoney(itemOrMoney), m_itemStackCount(itemStackCount), m_destTabId(destTabId) { }
 

@@ -105,7 +105,7 @@ public:
                 case NPC_ARCHERY_TARGET:    archeryTargetGuids.push_back(creature->GetGUID());  return;
                 case NPC_SNOWDRIFT_POSITION:
                 {
-                    uint32 guid = creature->GetDBTableGUIDLow();
+                    ObjectGuid::LowType guid = creature->GetDBTableGUIDLow();
 
                     if (creature->GetDistance(snowdriftCenterPos) > 5.0f && creature->GetDistance(snowdriftCenterPos) < 15.0f)
                     {

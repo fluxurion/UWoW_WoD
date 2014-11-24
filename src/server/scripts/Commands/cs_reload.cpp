@@ -1314,7 +1314,7 @@ public:
         {
             Field* fields = result->Fetch();
 
-            uint32 guid  = fields[0].GetUInt32();
+            ObjectGuid::LowType guid  = fields[0].GetUInt32();
             uint32 mapId = fields[1].GetUInt32();
             float  posX  = fields[2].GetFloat();
             float  poxY  = fields[3].GetFloat();

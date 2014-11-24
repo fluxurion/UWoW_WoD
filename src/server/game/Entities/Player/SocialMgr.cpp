@@ -261,7 +261,7 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
     }
 }
 
-void SocialMgr::MakeFriendStatusPacket(FriendsResult result, uint32 guid, WorldPacket* data)
+void SocialMgr::MakeFriendStatusPacket(FriendsResult result, ObjectGuid::LowType guid, WorldPacket* data)
 {
     data->Initialize(SMSG_FRIEND_STATUS, 5);
     *data << uint8(result);
@@ -311,7 +311,7 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
 
     uint32 team = player->GetTeam();
     AccountTypes security = player->GetSession()->GetSecurity();
-    uint32 guid = player->GetGUID().GetCounter();
+    ObjectGuid::LowType guid = player->GetGUID().GetCounter();
     AccountTypes gmLevelInWhoList = AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST));
     bool allowTwoSideWhoList = sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
 
@@ -335,7 +335,7 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
     }
 }
 
-PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
+PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, ObjectGuid::LowType guid)
 {
     PlayerSocial *social = &m_socialMap[guid];
     social->SetPlayerGUID(guid);
