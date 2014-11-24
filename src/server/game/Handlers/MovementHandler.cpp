@@ -911,11 +911,11 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     ObjectGuid summonerGuid;
     bool agree;
 
-    recvData.ReadGuidMask<0, 7, 3, 1, 6, 2, 4>(summonerGuid);
+    //recvData.ReadGuidMask<0, 7, 3, 1, 6, 2, 4>(summonerGuid);
     agree = recvData.ReadBit();
-    recvData.ReadGuidMask<5>(summonerGuid);
+    //recvData.ReadGuidMask<5>(summonerGuid);
 
-    recvData.ReadGuidBytes<2, 0, 4, 5, 7, 1, 3, 6>(summonerGuid);
+    //recvData.ReadGuidBytes<2, 0, 4, 5, 7, 1, 3, 6>(summonerGuid);
 
     _player->SummonIfPossible(agree);
 }

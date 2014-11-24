@@ -50,11 +50,11 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
     ObjectGuid guidNPC;
     std::string name;
 
-    recvData.ReadGuidMask<3, 5, 4, 0, 6, 2, 1, 7>(guidNPC);
+    //recvData.ReadGuidMask<3, 5, 4, 0, 6, 2, 1, 7>(guidNPC);
     uint32 strLen = recvData.ReadBits(7);
-    recvData.ReadGuidBytes<6, 2, 1, 4, 0, 5>(guidNPC);
+    //recvData.ReadGuidBytes<6, 2, 1, 4, 0, 5>(guidNPC);
     name = recvData.ReadString(strLen);
-    recvData.ReadGuidBytes<3, 7>(guidNPC);
+    //recvData.ReadGuidBytes<3, 7>(guidNPC);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(guidNPC), name.c_str());
 
@@ -175,8 +175,8 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 
     uint8 signs = 0;
     ObjectGuid petitionguid;
-    recvData.ReadGuidMask<0, 5, 2, 1, 4, 6, 3, 7>(petitionguid);
-    recvData.ReadGuidBytes<2, 7, 3, 0, 4, 6, 1, 5>(petitionguid);
+    //recvData.ReadGuidMask<0, 5, 2, 1, 4, 6, 3, 7>(petitionguid);
+    //recvData.ReadGuidBytes<2, 7, 3, 0, 4, 6, 1, 5>(petitionguid);
 
     // solve (possible) some strange compile problems with explicit use GUID_LOPART(petitionguid) at some GCC versions (wrong code optimization in compiler?)
     uint32 petitionGuidLow = GUID_LOPART(petitionguid);
@@ -272,8 +272,8 @@ void WorldSession::HandlePetitionQueryOpcode(WorldPacket & recvData)
     uint32 guildguid;
     ObjectGuid petitionguid;
     recvData >> guildguid;                                 // in Trinity always same as GUID_LOPART(petitionguid)
-    recvData.ReadGuidMask<4, 7, 0, 2, 3, 6, 1, 5>(petitionguid);
-    recvData.ReadGuidBytes<4, 6, 7, 5, 3, 0, 1, 2>(petitionguid);
+    //recvData.ReadGuidMask<4, 7, 0, 2, 3, 6, 1, 5>(petitionguid);
+    //recvData.ReadGuidBytes<4, 6, 7, 5, 3, 0, 1, 2>(petitionguid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(petitionguid), guildguid);
 
@@ -361,12 +361,12 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
     uint32 type;
     std::string newName;
 
-    recvData.ReadGuidMask<4, 7, 5, 1, 2, 6>(petitionGuid);
+    //recvData.ReadGuidMask<4, 7, 5, 1, 2, 6>(petitionGuid);
     uint32 strLen = recvData.ReadBits(7);
-    recvData.ReadGuidMask<3, 0>(petitionGuid);
-    recvData.ReadGuidBytes<0, 1, 5, 2, 7>(petitionGuid);
+    //recvData.ReadGuidMask<3, 0>(petitionGuid);
+    //recvData.ReadGuidBytes<0, 1, 5, 2, 7>(petitionGuid);
     newName = recvData.ReadString(strLen);
-    recvData.ReadGuidBytes<4, 6, 3>(petitionGuid);
+    //recvData.ReadGuidBytes<4, 6, 3>(petitionGuid);
 
     Item* item = _player->GetItemByGuid(petitionGuid);
     if (!item)
@@ -428,8 +428,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
     ObjectGuid petitionGuid;
     uint8 unk;
     recvData >> unk;
-    recvData.ReadGuidMask<1, 7, 4, 5, 3, 6, 0, 2>(petitionGuid);
-    recvData.ReadGuidBytes<4, 6, 7, 2, 5, 3, 1, 0>(petitionGuid);
+    //recvData.ReadGuidMask<1, 7, 4, 5, 3, 6, 0, 2>(petitionGuid);
+    //recvData.ReadGuidBytes<4, 6, 7, 2, 5, 3, 1, 0>(petitionGuid);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURES);
 
@@ -559,8 +559,8 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recvData)
 
     ObjectGuid petitionguid;
     uint64 ownerguid;
-    recvData.ReadGuidMask<7, 3, 5, 1, 0, 6, 2, 4>(petitionguid);
-    recvData.ReadGuidBytes<6, 0, 3, 5, 2, 1, 7, 4>(petitionguid);
+    //recvData.ReadGuidMask<7, 3, 5, 1, 0, 6, 2, 4>(petitionguid);
+    //recvData.ReadGuidBytes<6, 0, 3, 5, 2, 1, 7, 4>(petitionguid);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition %u declined by %u", GUID_LOPART(petitionguid), _player->GetGUID().GetCounter());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_OWNER_BY_GUID);
@@ -593,23 +593,23 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
     uint32 type, unk;
     Player* player;
     recvData >> unk;
-    recvData.ReadGuidMask<4>(petitionguid);
-    recvData.ReadGuidMask<0>(plguid);
-    recvData.ReadGuidMask<2>(petitionguid);
-    recvData.ReadGuidMask<6>(plguid);
-    recvData.ReadGuidMask<5>(petitionguid);
-    recvData.ReadGuidMask<2>(plguid);
-    recvData.ReadGuidMask<1, 7, 6>(petitionguid);
-    recvData.ReadGuidMask<4, 3>(plguid);
-    recvData.ReadGuidMask<3, 0>(petitionguid);
-    recvData.ReadGuidMask<1, 7, 5>(plguid);
+    //recvData.ReadGuidMask<4>(petitionguid);
+    //recvData.ReadGuidMask<0>(plguid);
+    //recvData.ReadGuidMask<2>(petitionguid);
+    //recvData.ReadGuidMask<6>(plguid);
+    //recvData.ReadGuidMask<5>(petitionguid);
+    //recvData.ReadGuidMask<2>(plguid);
+    //recvData.ReadGuidMask<1, 7, 6>(petitionguid);
+    //recvData.ReadGuidMask<4, 3>(plguid);
+    //recvData.ReadGuidMask<3, 0>(petitionguid);
+    //recvData.ReadGuidMask<1, 7, 5>(plguid);
 
-    recvData.ReadGuidBytes<7, 6>(plguid);
-    recvData.ReadGuidBytes<3>(petitionguid);
-    recvData.ReadGuidBytes<0, 2, 5>(plguid);
-    recvData.ReadGuidBytes<4, 2, 0, 6, 5, 1>(petitionguid);
-    recvData.ReadGuidBytes<3, 4, 1>(plguid);
-    recvData.ReadGuidBytes<7>(petitionguid);
+    //recvData.ReadGuidBytes<7, 6>(plguid);
+    //recvData.ReadGuidBytes<3>(petitionguid);
+    //recvData.ReadGuidBytes<0, 2, 5>(plguid);
+    //recvData.ReadGuidBytes<4, 2, 0, 6, 5, 1>(petitionguid);
+    //recvData.ReadGuidBytes<3, 4, 1>(plguid);
+    //recvData.ReadGuidBytes<7>(petitionguid);
 
     player = ObjectAccessor::FindPlayer(plguid);
     if (!player)
@@ -736,8 +736,8 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
     WorldPacket data;
     ObjectGuid petitionGuid;
 
-    recvData.ReadGuidMask<6, 5, 7, 4, 3, 0, 1, 2>(petitionGuid);
-    recvData.ReadGuidBytes<3, 5, 4, 2, 7, 0, 1, 6>(petitionGuid);
+    //recvData.ReadGuidMask<6, 5, 7, 4, 3, 0, 1, 2>(petitionGuid);
+    //recvData.ReadGuidBytes<3, 5, 4, 2, 7, 0, 1, 6>(petitionGuid);
 
     // Check if player really has the required petition charter
     Item* item = _player->GetItemByGuid(petitionGuid);
@@ -862,8 +862,8 @@ void WorldSession::HandlePetitionShowListOpcode(WorldPacket & recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received CMSG_PETITION_SHOWLIST");
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<1, 3, 0, 6, 7, 2, 5, 4>(guid);
-    recvData.ReadGuidBytes<1, 7, 4, 2, 3, 5, 6, 0>(guid);
+    //recvData.ReadGuidMask<1, 3, 0, 6, 7, 2, 5, 4>(guid);
+    //recvData.ReadGuidBytes<1, 7, 4, 2, 3, 5, 6, 0>(guid);
 
     SendPetitionShowList(guid);
 }

@@ -33,8 +33,8 @@ void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TAXINODE_STATUS_QUERY");
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<0, 7, 6, 5, 4, 1, 3, 2>(guid);
-    recvData.ReadGuidBytes<7, 0, 5, 2, 3, 4, 1, 6>(guid);
+    //recvData.ReadGuidMask<0, 7, 6, 5, 4, 1, 3, 2>(guid);
+    //recvData.ReadGuidBytes<7, 0, 5, 2, 3, 4, 1, 6>(guid);
 
     SendTaxiStatus(guid);
 }
@@ -72,8 +72,8 @@ void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TAXIQUERYAVAILABLENODES");
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<7, 6, 2, 5, 0, 3, 1, 4>(guid);
-    recvData.ReadGuidBytes<5, 1, 7, 6, 3, 2, 0, 4>(guid);
+    //recvData.ReadGuidMask<7, 6, 2, 5, 0, 3, 1, 4>(guid);
+    //recvData.ReadGuidBytes<5, 1, 7, 6, 3, 2, 0, 4>(guid);
 
     // cheating checks
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);
@@ -186,8 +186,8 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket & recvData)
     uint32 node_count;
 
     node_count = recvData.ReadBits(22);
-    recvData.ReadGuidMask<3, 2, 5, 4, 0, 7, 1, 6>(guid);
-    recvData.ReadGuidBytes<7, 2, 4, 3, 5, 1, 6>(guid);
+    //recvData.ReadGuidMask<3, 2, 5, 4, 0, 7, 1, 6>(guid);
+    //recvData.ReadGuidBytes<7, 2, 4, 3, 5, 1, 6>(guid);
 
     std::vector<uint32> nodes;
     for (uint32 i = 0; i < node_count; ++i)
@@ -197,7 +197,7 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket & recvData)
         nodes.push_back(node);
     }
 
-    recvData.ReadGuidBytes<0>(guid);
+    //recvData.ReadGuidBytes<0>(guid);
 
     Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);
     if (!npc)
@@ -294,8 +294,8 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket & recvData)
     nodes.resize(2);
 
     recvData >> nodes[0] >> nodes[1];
-    recvData.ReadGuidMask<3, 7, 0, 2, 1, 4, 6, 5>(guid);
-    recvData.ReadGuidBytes<1, 2, 4, 5, 6, 3, 7, 0>(guid);
+    //recvData.ReadGuidMask<3, 7, 0, 2, 1, 4, 6, 5>(guid);
+    //recvData.ReadGuidBytes<1, 2, 4, 5, 6, 3, 7, 0>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXI from %d to %d", nodes[0], nodes[1]);
     Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);

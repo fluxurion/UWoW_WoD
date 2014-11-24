@@ -82,10 +82,10 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
 
     if (recvData.ReadBit())
         instanceId = 8;
-    recvData.ReadGuidMask<2, 4, 0, 3, 7, 1>(guid);
+    //recvData.ReadGuidMask<2, 4, 0, 3, 7, 1>(guid);
     bool joinAsGroup = recvData.ReadBit();
-    recvData.ReadGuidMask<5, 6>(guid);
-    recvData.ReadGuidBytes<0, 1, 7, 2, 4, 6, 5, 3>(guid);
+    //recvData.ReadGuidMask<5, 6>(guid);
+    //recvData.ReadGuidBytes<0, 1, 7, 2, 4, 6, 5, 3>(guid);
     if (instanceId != 8)
         recvData >> instanceId;
 
@@ -362,8 +362,8 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     recvData >> time;
     recvData >> unk;
    
-    recvData.ReadGuidMask<5, 0, 4, 2, 6, 1, 3, 7>(guid);
-    recvData.ReadGuidBytes<2, 5, 4, 6, 3, 0, 7, 1>(guid);
+    //recvData.ReadGuidMask<5, 0, 4, 2, 6, 1, 3, 7>(guid);
+    //recvData.ReadGuidBytes<2, 5, 4, 6, 3, 0, 7, 1>(guid);
 
 	WorldPacket data;
 

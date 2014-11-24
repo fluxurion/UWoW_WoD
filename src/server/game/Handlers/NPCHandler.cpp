@@ -55,8 +55,8 @@ enum StableResultCode
 void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<7, 2, 6, 0, 3, 1, 4, 5>(guid);
-    recvData.ReadGuidBytes<6, 3, 7, 0, 4, 1, 2, 5>(guid);
+    //recvData.ReadGuidMask<7, 2, 6, 0, 3, 1, 4, 5>(guid);
+    //recvData.ReadGuidBytes<6, 3, 7, 0, 4, 1, 2, 5>(guid);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TABARDDESIGNER);
     if (!unit)
@@ -83,8 +83,8 @@ void WorldSession::SendTabardVendorActivate(uint64 guid)
 void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<1, 4, 2, 7, 5, 0, 3, 6>(guid);
-    recvData.ReadGuidBytes<4, 2, 5, 7, 0, 6, 3, 1>(guid);
+    //recvData.ReadGuidMask<1, 4, 2, 7, 5, 0, 3, 6>(guid);
+    //recvData.ReadGuidBytes<4, 2, 5, 7, 0, 6, 3, 1>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
 
@@ -113,8 +113,8 @@ void WorldSession::SendShowBank(uint64 guid)
 void WorldSession::HandleTrainerListOpcode(WorldPacket & recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<7, 0, 6, 3, 1, 5, 4, 2>(guid);
-    recvData.ReadGuidBytes<5, 0, 1, 4, 6, 7, 3, 2>(guid);
+    //recvData.ReadGuidMask<7, 0, 6, 3, 1, 5, 4, 2>(guid);
+    //recvData.ReadGuidBytes<5, 0, 1, 4, 6, 7, 3, 2>(guid);
 
     SendTrainerList(guid);
 }
@@ -259,8 +259,8 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)
     int32 trainerId;
 
     recvData >> trainerId >> spellId;
-    recvData.ReadGuidMask<3, 7, 1, 6, 2, 4, 5, 0>(guid);
-    recvData.ReadGuidBytes<1, 3, 7, 0, 6, 4, 2, 5>(guid);
+    //recvData.ReadGuidMask<3, 7, 1, 6, 2, 4, 5, 0>(guid);
+    //recvData.ReadGuidBytes<1, 3, 7, 0, 6, 4, 2, 5>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", uint32(guid.GetCounter()), spellId);
 
@@ -343,8 +343,8 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GOSSIP_HELLO");
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<2, 0, 1, 5, 7, 6, 4, 3>(guid);
-    recvData.ReadGuidBytes<6, 3, 2, 0, 5, 1, 7, 4>(guid);
+    //recvData.ReadGuidMask<2, 0, 1, 5, 7, 6, 4, 3>(guid);
+    //recvData.ReadGuidBytes<6, 3, 2, 0, 5, 1, 7, 4>(guid);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
     if (!unit)
@@ -434,8 +434,8 @@ void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket & recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<1, 7, 6, 2, 3, 5, 4, 0>(guid);
-    recvData.ReadGuidBytes<7, 6, 1, 5, 4, 3, 2, 0>(guid);
+    //recvData.ReadGuidMask<1, 7, 6, 2, 3, 5, 4, 0>(guid);
+    //recvData.ReadGuidBytes<7, 6, 1, 5, 4, 3, 2, 0>(guid);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_SPIRITHEALER);
     if (!unit)
@@ -487,8 +487,8 @@ void WorldSession::SendSpiritResurrect()
 void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
 {
     ObjectGuid npcGUID;
-    recvData.ReadGuidMask<3, 5, 4, 7, 0, 6, 2, 1>(npcGUID);
-    recvData.ReadGuidBytes<3, 2, 6, 5, 1, 7, 0, 4>(npcGUID);
+    //recvData.ReadGuidMask<3, 5, 4, 7, 0, 6, 2, 1>(npcGUID);
+    //recvData.ReadGuidBytes<3, 2, 6, 5, 1, 7, 0, 4>(npcGUID);
 
     if (!GetPlayer()->IsInWorld() || !GetPlayer()->isAlive())
         return;
@@ -553,8 +553,8 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_LIST_STABLED_PETS");
 
     ObjectGuid npcGUID;
-    recvData.ReadGuidMask<1, 3, 4, 2, 0, 5, 7, 6>(npcGUID);
-    recvData.ReadGuidBytes<0, 6, 1, 2, 5, 3, 7, 4>(npcGUID);
+    //recvData.ReadGuidMask<1, 3, 4, 2, 0, 5, 7, 6>(npcGUID);
+    //recvData.ReadGuidBytes<0, 6, 1, 2, 5, 3, 7, 4>(npcGUID);
 
     if (!CheckStableMaster(npcGUID))
     {
@@ -793,27 +793,27 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     ObjectGuid npcGUID, itemGUID;
     bool guildBank;                                         // new in 2.3.2, bool that means from guild bank money
 
-    recvData.ReadGuidMask<4>(npcGUID);
-    recvData.ReadGuidMask<0>(itemGUID);
-    recvData.ReadGuidMask<7>(npcGUID);
-    recvData.ReadGuidMask<2, 1>(itemGUID);
-    recvData.ReadGuidMask<5>(npcGUID);
-    recvData.ReadGuidMask<3>(itemGUID);
-    recvData.ReadGuidMask<2>(npcGUID);
+    //recvData.ReadGuidMask<4>(npcGUID);
+    //recvData.ReadGuidMask<0>(itemGUID);
+    //recvData.ReadGuidMask<7>(npcGUID);
+    //recvData.ReadGuidMask<2, 1>(itemGUID);
+    //recvData.ReadGuidMask<5>(npcGUID);
+    //recvData.ReadGuidMask<3>(itemGUID);
+    //recvData.ReadGuidMask<2>(npcGUID);
     guildBank = recvData.ReadBit();
-    recvData.ReadGuidMask<3, 0>(npcGUID);
-    recvData.ReadGuidMask<7, 4>(itemGUID);
-    recvData.ReadGuidMask<6, 1>(npcGUID);
-    recvData.ReadGuidMask<6, 5>(itemGUID);
+    //recvData.ReadGuidMask<3, 0>(npcGUID);
+    //recvData.ReadGuidMask<7, 4>(itemGUID);
+    //recvData.ReadGuidMask<6, 1>(npcGUID);
+    //recvData.ReadGuidMask<6, 5>(itemGUID);
 
-    recvData.ReadGuidBytes<2>(npcGUID);
-    recvData.ReadGuidBytes<6, 5, 2>(itemGUID);
-    recvData.ReadGuidBytes<1, 7>(npcGUID);
-    recvData.ReadGuidBytes<4, 7>(itemGUID);
-    recvData.ReadGuidBytes<5, 4>(npcGUID);
-    recvData.ReadGuidBytes<1>(itemGUID);
-    recvData.ReadGuidBytes<3, 6, 0>(npcGUID);
-    recvData.ReadGuidBytes<0, 3>(itemGUID);
+    //recvData.ReadGuidBytes<2>(npcGUID);
+    //recvData.ReadGuidBytes<6, 5, 2>(itemGUID);
+    //recvData.ReadGuidBytes<1, 7>(npcGUID);
+    //recvData.ReadGuidBytes<4, 7>(itemGUID);
+    //recvData.ReadGuidBytes<5, 4>(npcGUID);
+    //recvData.ReadGuidBytes<1>(itemGUID);
+    //recvData.ReadGuidBytes<3, 6, 0>(npcGUID);
+    //recvData.ReadGuidBytes<0, 3>(itemGUID);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_REPAIR);
     if (!unit)

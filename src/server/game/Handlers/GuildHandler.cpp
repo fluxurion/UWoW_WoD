@@ -267,8 +267,8 @@ void WorldSession::HandleGuildQueryRanksOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_QUERY_RANKS");
 
     ObjectGuid guildGuid;
-    recvData.ReadGuidMask<5, 7, 2, 0, 4, 3, 6, 1>(guildGuid);
-    recvData.ReadGuidBytes<2, 3, 5, 7, 6, 4, 1, 0>(guildGuid);
+    //recvData.ReadGuidMask<5, 7, 2, 0, 4, 3, 6, 1>(guildGuid);
+    //recvData.ReadGuidBytes<2, 3, 5, 7, 6, 4, 1, 0>(guildGuid);
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         if (guild->IsMember(_player->GetGUID()))
@@ -372,11 +372,11 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANKER_ACTIVATE)");
 
     ObjectGuid GoGuid;
-    recvData.ReadGuidMask<5, 2, 1, 0, 4>(GoGuid);
+    //recvData.ReadGuidMask<5, 2, 1, 0, 4>(GoGuid);
     bool fullSlotList = recvData.ReadBit();
-    recvData.ReadGuidMask<6, 3, 7>(GoGuid);
+    //recvData.ReadGuidMask<6, 3, 7>(GoGuid);
 
-    recvData.ReadGuidBytes<3, 6, 1, 7, 0, 5, 2, 4>(GoGuid);
+    //recvData.ReadGuidBytes<3, 6, 1, 7, 0, 5, 2, 4>(GoGuid);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
     {
@@ -396,11 +396,11 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket & recvData)
     uint8 tabId;
 
     recvData >> tabId;
-    recvData.ReadGuidMask<6>(GoGuid);
+    //recvData.ReadGuidMask<6>(GoGuid);
     bool fullSlotList = recvData.ReadBit(); // 0 = only slots updated in last operation are shown. 1 = all slots updated
-    recvData.ReadGuidMask<5, 2, 1, 0, 4, 7, 3>(GoGuid);
+    //recvData.ReadGuidMask<5, 2, 1, 0, 4, 7, 3>(GoGuid);
 
-    recvData.ReadGuidBytes<4, 6, 7, 3, 5, 0, 1, 2>(GoGuid);
+    //recvData.ReadGuidBytes<4, 6, 7, 3, 5, 0, 1, 2>(GoGuid);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
@@ -415,8 +415,8 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recvData)
     uint64 money;
 
     recvData >> money;
-    recvData.ReadGuidMask<0, 1, 4, 3, 7, 5, 2, 6>(goGuid);
-    recvData.ReadGuidBytes<1, 5, 4, 0, 3, 6, 7, 2>(goGuid);
+    //recvData.ReadGuidMask<0, 1, 4, 3, 7, 5, 2, 6>(goGuid);
+    //recvData.ReadGuidBytes<1, 5, 4, 0, 3, 6, 7, 2>(goGuid);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(goGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (money && GetPlayer()->HasEnoughMoney(money))
@@ -432,8 +432,8 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & recvData)
     uint64 money;
 
     recvData >> money;
-    recvData.ReadGuidMask<0, 6, 1, 3, 2, 5, 7, 4>(GoGuid);
-    recvData.ReadGuidBytes<1, 4, 6, 7, 0, 5, 2, 3>(GoGuid);
+    //recvData.ReadGuidMask<0, 6, 1, 3, 2, 5, 7, 4>(GoGuid);
+    //recvData.ReadGuidBytes<1, 4, 6, 7, 0, 5, 2, 3>(GoGuid);
 
     if (money)
         if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
@@ -462,17 +462,17 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recvData)
 
     autoStore = recvData.ReadBit();
     bankToBank = recvData.ReadBit();
-    recvData.ReadGuidMask<2, 6, 0, 5, 7>(GoGuid);
+    //recvData.ReadGuidMask<2, 6, 0, 5, 7>(GoGuid);
     bool hasPlayerSlotId = !recvData.ReadBit();
-    recvData.ReadGuidMask<4, 1>(GoGuid);
+    //recvData.ReadGuidMask<4, 1>(GoGuid);
     bool hasPlayerBag = !recvData.ReadBit();
     bool hasItemEntry = !recvData.ReadBit();
     bool hasTabId = !recvData.ReadBit();
     bool hasSlotId = !recvData.ReadBit();
-    recvData.ReadGuidMask<3>(GoGuid);
+    //recvData.ReadGuidMask<3>(GoGuid);
     bool hasAutoStoreCount = !recvData.ReadBit();
 
-    recvData.ReadGuidBytes<7, 5, 6, 1, 0, 4, 2, 3>(GoGuid);
+    //recvData.ReadGuidBytes<7, 5, 6, 1, 0, 4, 2, 3>(GoGuid);
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
     {
@@ -516,8 +516,8 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket & recvData)
     ObjectGuid GoGuid;
     uint8 tabId;
     recvData >> tabId;
-    recvData.ReadGuidMask<7, 3, 4, 0, 2, 1, 5, 6>(GoGuid);
-    recvData.ReadGuidBytes<5, 0, 1, 4, 7, 6, 3, 2>(GoGuid);
+    //recvData.ReadGuidMask<7, 3, 4, 0, 2, 1, 5, 6>(GoGuid);
+    //recvData.ReadGuidBytes<5, 0, 1, 4, 7, 6, 3, 2>(GoGuid);
 
     if (!GoGuid || GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
@@ -532,15 +532,15 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPacket & recvData)
     uint8 tabId;
     recvData >> tabId;
     uint32 nameLen = recvData.ReadBits(7);
-    recvData.ReadGuidMask<6, 5, 7>(GoGuid);
+    //recvData.ReadGuidMask<6, 5, 7>(GoGuid);
     uint32 iconLen = recvData.ReadBits(9);
-    recvData.ReadGuidMask<3, 2, 1, 4, 0>(GoGuid);
+    //recvData.ReadGuidMask<3, 2, 1, 4, 0>(GoGuid);
 
-    recvData.ReadGuidBytes<4, 0, 7, 3, 2>(GoGuid);
+    //recvData.ReadGuidBytes<4, 0, 7, 3, 2>(GoGuid);
     std::string name = recvData.ReadString(nameLen);
-    recvData.ReadGuidBytes<1, 5>(GoGuid);
+    //recvData.ReadGuidBytes<1, 5>(GoGuid);
     std::string icon = recvData.ReadString(iconLen);
-    recvData.ReadGuidBytes<6>(GoGuid);
+    //recvData.ReadGuidBytes<6>(GoGuid);
 
     if (!name.empty() && !icon.empty())
         if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
@@ -642,8 +642,8 @@ void WorldSession::HandleGuildRequestPartyState(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REQUEST_PARTY_STATE");
 
     ObjectGuid guildGuid;
-    recvData.ReadGuidMask<0, 6, 5, 3, 4, 7, 2, 1>(guildGuid);
-    recvData.ReadGuidBytes<1, 2, 3, 5, 4, 0, 6, 7>(guildGuid);
+    //recvData.ReadGuidMask<0, 6, 5, 3, 4, 7, 2, 1>(guildGuid);
+    //recvData.ReadGuidBytes<1, 2, 3, 5, 4, 0, 6, 7>(guildGuid);
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         guild->HandleGuildPartyRequest(this);

@@ -51,8 +51,8 @@ void WorldSession::HandleVoidStorageUnlock(WorldPacket& recvData)
     Player* player = GetPlayer();
 
     ObjectGuid npcGuid;
-    recvData.ReadGuidMask<3, 2, 0, 1, 5, 6, 7, 4>(npcGuid);
-    recvData.ReadGuidBytes<7, 1, 4, 6, 2, 3, 5, 0>(npcGuid);
+    //recvData.ReadGuidMask<3, 2, 0, 1, 5, 6, 7, 4>(npcGuid);
+    //recvData.ReadGuidBytes<7, 1, 4, 6, 2, 3, 5, 0>(npcGuid);
 
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
@@ -78,8 +78,8 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
     Player* player = GetPlayer();
 
     ObjectGuid npcGuid;
-    recvData.ReadGuidMask<1, 2, 4, 7, 3, 5, 6, 0 >(npcGuid);
-    recvData.ReadGuidBytes<5, 2, 7, 3, 4, 0, 1, 6>(npcGuid);
+    //recvData.ReadGuidMask<1, 2, 4, 7, 3, 5, 6, 0 >(npcGuid);
+    //recvData.ReadGuidBytes<5, 2, 7, 3, 4, 0, 1, 6>(npcGuid);
 
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
@@ -161,7 +161,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     // Read everything
 
     ObjectGuid npcGuid;
-    recvData.ReadGuidMask<7>(npcGuid);
+    //recvData.ReadGuidMask<7>(npcGuid);
     uint32 countDeposit = recvData.ReadBits(24);
     std::vector<ObjectGuid> itemGuids(countDeposit);
 
@@ -172,12 +172,12 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     }
 
     for (uint32 i = 0; i < countDeposit; ++i)
-        recvData.ReadGuidMask<4, 3, 1, 2, 0, 7, 5, 6>(itemGuids[i]);
+        //recvData.ReadGuidMask<4, 3, 1, 2, 0, 7, 5, 6>(itemGuids[i]);
 
     uint32 countWithdraw = recvData.ReadBits(24);
     std::vector<ObjectGuid> itemIds(countWithdraw);
     
-    recvData.ReadGuidMask<5, 0>(npcGuid);
+    //recvData.ReadGuidMask<5, 0>(npcGuid);
 
     if (countWithdraw > 9)
     {
@@ -186,19 +186,19 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     }
 
     for (uint32 i = 0; i < countWithdraw; ++i)
-        recvData.ReadGuidMask<3, 7, 6, 1, 4, 0, 2, 5>(itemIds[i]);
+        //recvData.ReadGuidMask<3, 7, 6, 1, 4, 0, 2, 5>(itemIds[i]);
     
-    recvData.ReadGuidMask<2, 4, 6, 1, 3>(npcGuid);
+    //recvData.ReadGuidMask<2, 4, 6, 1, 3>(npcGuid);
 
     for (uint32 i = 0; i < countWithdraw; ++i)
-        recvData.ReadGuidBytes<5, 3, 1, 7, 2, 4, 6, 0>(itemIds[i]);
+        //recvData.ReadGuidBytes<5, 3, 1, 7, 2, 4, 6, 0>(itemIds[i]);
 
-    recvData.ReadGuidBytes<7>(npcGuid);
+    //recvData.ReadGuidBytes<7>(npcGuid);
 
     for (uint32 i = 0; i < countDeposit; ++i)
-        recvData.ReadGuidBytes<3, 7, 5, 1, 6, 0, 4, 2>(itemGuids[i]);
+        //recvData.ReadGuidBytes<3, 7, 5, 1, 6, 0, 4, 2>(itemGuids[i]);
 
-    recvData.ReadGuidBytes<2, 0, 6, 4, 1, 3, 5>(npcGuid);
+    //recvData.ReadGuidBytes<2, 0, 6, 4, 1, 3, 5>(npcGuid);
     
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
@@ -388,20 +388,20 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     ObjectGuid itemId;
 
     recvData >> newSlot;
-    recvData.ReadGuidMask<2, 3, 5, 7>(npcGuid);
-    recvData.ReadGuidMask<0, 2>(itemId);
-    recvData.ReadGuidMask<6>(npcGuid);
-    recvData.ReadGuidMask<4, 1, 6, 5>(itemId);
-    recvData.ReadGuidMask<4, 1>(npcGuid);
-    recvData.ReadGuidMask<7, 3>(itemId);
-    recvData.ReadGuidMask<0>(npcGuid);
+    //recvData.ReadGuidMask<2, 3, 5, 7>(npcGuid);
+    //recvData.ReadGuidMask<0, 2>(itemId);
+    //recvData.ReadGuidMask<6>(npcGuid);
+    //recvData.ReadGuidMask<4, 1, 6, 5>(itemId);
+    //recvData.ReadGuidMask<4, 1>(npcGuid);
+    //recvData.ReadGuidMask<7, 3>(itemId);
+    //recvData.ReadGuidMask<0>(npcGuid);
 
-    recvData.ReadGuidBytes<0>(itemId);
-    recvData.ReadGuidBytes<0, 1, 2, 7, 4>(npcGuid);
-    recvData.ReadGuidBytes<7, 1, 5>(itemId);
-    recvData.ReadGuidBytes<3, 5>(npcGuid);
-    recvData.ReadGuidBytes<6, 4, 3, 2>(itemId);
-    recvData.ReadGuidBytes<6>(npcGuid);
+    //recvData.ReadGuidBytes<0>(itemId);
+    //recvData.ReadGuidBytes<0, 1, 2, 7, 4>(npcGuid);
+    //recvData.ReadGuidBytes<7, 1, 5>(itemId);
+    //recvData.ReadGuidBytes<3, 5>(npcGuid);
+    //recvData.ReadGuidBytes<6, 4, 3, 2>(itemId);
+    //recvData.ReadGuidBytes<6>(npcGuid);
 
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)

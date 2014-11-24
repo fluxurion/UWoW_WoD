@@ -113,8 +113,8 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
             int8 seatId;
             recvData >> seatId;
 
-            recvData.ReadGuidMask<7, 0, 1, 6, 2, 4, 5, 3>(guid);
-            recvData.ReadGuidBytes<6, 1, 3, 7, 2, 4, 5, 0>(guid);
+            //recvData.ReadGuidMask<7, 0, 1, 6, 2, 4, 5, 3>(guid);
+            //recvData.ReadGuidBytes<6, 1, 3, 7, 2, 4, 5, 0>(guid);
 
             if (vehicle_base->GetGUID() == guid)
                 GetPlayer()->ChangeSeat(seatId);
@@ -134,8 +134,8 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket& recvData)
     // Read guid
     ObjectGuid guid;
 
-    recvData.ReadGuidMask<3, 7, 2, 1, 0, 5, 6, 4>(guid);
-    recvData.ReadGuidBytes<6, 5, 0, 7, 4, 2, 1, 3>(guid);
+    //recvData.ReadGuidMask<3, 7, 2, 1, 0, 5, 6, 4>(guid);
+    //recvData.ReadGuidBytes<6, 5, 0, 7, 4, 2, 1, 3>(guid);
 
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {

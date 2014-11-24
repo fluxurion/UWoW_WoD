@@ -464,8 +464,8 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<6, 2, 0, 5, 7, 4, 1, 3>(guid);
-    recvData.ReadGuidBytes<4, 1, 5, 2, 3, 7, 6, 0>(guid);
+    //recvData.ReadGuidMask<6, 2, 0, 5, 7, 4, 1, 3>(guid);
+    //recvData.ReadGuidBytes<4, 1, 5, 2, 3, 7, 6, 0>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJ_USE Message [guid=%u]", guid.GetCounter());
 
@@ -1290,11 +1290,11 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
        timeLastHandleSpellClick = now;
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<1, 7, 2, 5, 0, 6>(guid);
+    //recvData.ReadGuidMask<1, 7, 2, 5, 0, 6>(guid);
     recvData.ReadBit();
-    recvData.ReadGuidMask<3, 4>(guid);
+    //recvData.ReadGuidMask<3, 4>(guid);
 
-    recvData.ReadGuidBytes<2, 3, 6, 5, 4, 1, 0, 7>(guid);
+    //recvData.ReadGuidBytes<2, 3, 6, 5, 4, 1, 0, 7>(guid);
 
     // this will get something not in world. crash
     Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
@@ -1323,8 +1323,8 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     uint32 displayId;
 
     recvData >> displayId;
-    recvData.ReadGuidMask<0, 2, 5, 6, 4, 3, 1, 7>(guid);
-    recvData.ReadGuidBytes<2, 0, 1, 3, 7, 6, 5, 4>(guid);
+    //recvData.ReadGuidMask<0, 2, 5, 6, 4, 3, 1, 7>(guid);
+    //recvData.ReadGuidBytes<2, 0, 1, 3, 7, 6, 5, 4>(guid);
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);

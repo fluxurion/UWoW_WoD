@@ -763,8 +763,8 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
     recvData >> text_emote;
     recvData >> emoteNum;
 
-    recvData.ReadGuidMask<5, 7, 2, 3, 1, 0, 6, 4>(guid);
-    recvData.ReadGuidBytes<7, 0, 6, 2, 3, 5, 1, 4>(guid);
+    //recvData.ReadGuidMask<5, 7, 2, 3, 1, 0, 6, 4>(guid);
+    //recvData.ReadGuidBytes<7, 0, 6, 2, 3, 5, 1, 4>(guid);
 
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), text_emote, emoteNum, guid);
 
@@ -817,8 +817,8 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 
     recvData >> unk;                                       // probably related to spam reporting
 
-    recvData.ReadGuidMask<0, 6, 7, 3, 2, 1, 4, 5>(guid);
-    recvData.ReadGuidBytes<7, 5, 2, 6, 0, 1, 3, 4>(guid);
+    //recvData.ReadGuidMask<0, 6, 7, 3, 2, 1, 4, 5>(guid);
+    //recvData.ReadGuidBytes<7, 5, 2, 6, 0, 1, 3, 4>(guid);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player || !player->GetSession())

@@ -100,13 +100,13 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    recvData.ReadGuidMask<1, 3, 6, 7, 2, 5>(guid);
+    //recvData.ReadGuidMask<1, 3, 6, 7, 2, 5>(guid);
     bool bit14 = recvData.ReadBit();
-    recvData.ReadGuidMask<0>(guid);
+    //recvData.ReadGuidMask<0>(guid);
     bool bit1C = recvData.ReadBit();
-    recvData.ReadGuidMask<4>(guid);
+    //recvData.ReadGuidMask<4>(guid);
 
-    recvData.ReadGuidBytes<4, 6, 7, 1, 2, 5, 0, 3>(guid);
+    //recvData.ReadGuidBytes<4, 6, 7, 1, 2, 5, 0, 3>(guid);
     if (bit14)
         recvData.read_skip<uint32>();   // realm id 1
     if (bit1C)
@@ -222,8 +222,8 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recvData)
     uint32 entry;
     recvData >> entry;
     ObjectGuid guid;
-    recvData.ReadGuidMask<6, 3, 1, 2, 0, 7, 5, 4>(guid);
-    recvData.ReadGuidBytes<5, 0, 6, 7, 3, 4, 2, 1>(guid);
+    //recvData.ReadGuidMask<6, 3, 1, 2, 0, 7, 5, 4>(guid);
+    //recvData.ReadGuidBytes<5, 0, 6, 7, 3, 4, 2, 1>(guid);
 
     const GameObjectTemplate* info = sObjectMgr->GetGameObjectTemplate(entry);
     if (info)
@@ -368,8 +368,8 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
     recvData >> textID;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
 
-    recvData.ReadGuidMask<4, 7, 2, 5, 3, 0, 1, 6>(guid);
-    recvData.ReadGuidBytes<6, 4, 1, 3, 2, 5, 7, 0>(guid);
+    //recvData.ReadGuidMask<4, 7, 2, 5, 3, 0, 1, 6>(guid);
+    //recvData.ReadGuidBytes<6, 4, 1, 3, 2, 5, 7, 0>(guid);
     GetPlayer()->SetSelection(guid);
 
     GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
@@ -528,8 +528,8 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
     ObjectGuid itemGuid;
     uint32 pageID;
     recvData >> pageID;
-    recvData.ReadGuidMask<3, 2, 5, 1, 4, 7, 6, 0>(itemGuid);
-    recvData.ReadGuidBytes<4, 6, 1, 5, 7, 3, 2, 0>(itemGuid);
+    //recvData.ReadGuidMask<3, 2, 5, 1, 4, 7, 6, 0>(itemGuid);
+    //recvData.ReadGuidBytes<4, 6, 1, 5, 7, 3, 2, 0>(itemGuid);
 
     while (pageID)
     {

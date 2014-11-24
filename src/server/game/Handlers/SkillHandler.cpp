@@ -94,8 +94,8 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 
     uint8 specializationReset = recvData.read<uint8>();
     ObjectGuid guid;
-    recvData.ReadGuidMask<7, 4, 0, 5, 2, 6, 3, 1>(guid);
-    recvData.ReadGuidBytes<5, 1, 7, 0, 3, 6, 4, 2>(guid);
+    //recvData.ReadGuidMask<7, 4, 0, 5, 2, 6, 3, 1>(guid);
+    //recvData.ReadGuidBytes<5, 1, 7, 0, 3, 6, 4, 2>(guid);
 
     // Hack
     if (GetPlayer()->HasAura(33786))

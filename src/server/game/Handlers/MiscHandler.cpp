@@ -99,13 +99,13 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 
     recvData >> gossipListId >> menuId;
 
-    recvData.ReadGuidMask<4, 0, 6, 3, 2, 7, 1>(guid);
+    //recvData.ReadGuidMask<4, 0, 6, 3, 2, 7, 1>(guid);
     boxTextLength = recvData.ReadBits(8);
-    recvData.ReadGuidMask<5>(guid);
+    //recvData.ReadGuidMask<5>(guid);
 
-    recvData.ReadGuidBytes<5, 6, 3, 0, 1>(guid);
+    //recvData.ReadGuidBytes<5, 6, 3, 0, 1>(guid);
     code = recvData.ReadString(boxTextLength);
-    recvData.ReadGuidBytes<2, 7, 4>(guid);
+    //recvData.ReadGuidBytes<2, 7, 4>(guid);
 
     Creature* unit = NULL;
     GameObject* go = NULL;
@@ -676,8 +676,8 @@ void WorldSession::HandleReturnToGraveyard(WorldPacket& /*recvPacket*/)
 void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<4, 3, 2, 0, 5, 7, 6, 1>(guid);
-    recvData.ReadGuidBytes<1, 2, 3, 0, 7, 5, 4, 6>(guid);
+    //recvData.ReadGuidMask<4, 3, 2, 0, 5, 7, 6, 1>(guid);
+    //recvData.ReadGuidBytes<1, 2, 3, 0, 7, 5, 4, 6>(guid);
 
     _player->SetSelection(guid);
 }
@@ -925,8 +925,8 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RECLAIM_CORPSE");
 
     ObjectGuid corpseGuid;
-    recvData.ReadGuidMask<7, 2, 6, 0, 3, 1, 4, 5>(corpseGuid);
-    recvData.ReadGuidBytes<6, 3, 7, 0, 4, 1, 2, 5>(corpseGuid);
+    //recvData.ReadGuidMask<7, 2, 6, 0, 3, 1, 4, 5>(corpseGuid);
+    //recvData.ReadGuidBytes<6, 3, 7, 0, 4, 1, 2, 5>(corpseGuid);
 
     if (GetPlayer()->isAlive())
         return;
@@ -967,8 +967,8 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
     uint32 status;
 
     recvData >> status;
-    recvData.ReadGuidMask<7, 5, 3, 2, 6, 1, 4, 0>(guid);
-    recvData.ReadGuidBytes<5, 4, 3, 6, 1, 0, 2, 7>(guid);
+    //recvData.ReadGuidMask<7, 5, 3, 2, 6, 1, 4, 0>(guid);
+    //recvData.ReadGuidBytes<5, 4, 3, 6, 1, 0, 2, 7>(guid);
 
     if (GetPlayer()->isAlive())
         return;
@@ -1263,8 +1263,8 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
     uint8 button;
     ObjectGuid packedData;
     recvData >> button;
-    recvData.ReadGuidMask<4, 7, 5, 6, 1, 3, 0, 2>(packedData);
-    recvData.ReadGuidBytes<3, 4, 6, 7, 1, 2, 0, 5>(packedData);
+    //recvData.ReadGuidMask<4, 7, 5, 6, 1, 3, 0, 2>(packedData);
+    //recvData.ReadGuidBytes<3, 4, 6, 7, 1, 2, 0, 5>(packedData);
 
     uint32 action = uint32(packedData & 0xFFFFFFFF);
     uint8  type = uint8(packedData >> 56);
@@ -1452,8 +1452,8 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    recvData.ReadGuidMask<5, 4, 0, 6, 2, 7, 3, 1>(guid);
-    recvData.ReadGuidBytes<6, 1, 5, 0, 3, 7, 4, 2>(guid);
+    //recvData.ReadGuidMask<5, 4, 0, 6, 2, 7, 3, 1>(guid);
+    //recvData.ReadGuidBytes<6, 1, 5, 0, 3, 7, 4, 2>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_INSPECT");
 
@@ -1599,8 +1599,8 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
 void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<2, 0, 3, 6, 1, 5, 4, 7>(guid);
-    recvData.ReadGuidBytes<3, 4, 7, 0, 5, 2, 6, 1>(guid);
+    //recvData.ReadGuidMask<2, 0, 3, 6, 1, 5, 4, 7>(guid);
+    //recvData.ReadGuidBytes<3, 4, 7, 0, 5, 2, 6, 1>(guid);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
 
@@ -1629,8 +1629,8 @@ void WorldSession::HandleInspectRatedBGStats(WorldPacket &recvData)
     uint32 RealmID;
 
     recvData >> RealmID;
-    recvData.ReadGuidMask<3, 4, 6, 5, 0, 7, 2, 1>(playerGuid);
-    recvData.ReadGuidBytes<6, 1, 7, 4, 2, 0, 5, 3>(playerGuid);
+    //recvData.ReadGuidMask<3, 4, 6, 5, 0, 7, 2, 1>(playerGuid);
+    //recvData.ReadGuidBytes<6, 1, 7, 4, 2, 0, 5, 3>(playerGuid);
 
     Player* player = ObjectAccessor::FindPlayer(playerGuid);
     if (!player)
@@ -1683,8 +1683,8 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
     recvData >> PositionY;
     recvData >> Orientation;                // o (3.141593 = 180 degrees)
     
-    recvData.ReadGuidMask<7, 5, 0, 6, 1, 3, 4, 2>(guid);
-    recvData.ReadGuidBytes<3, 6, 1, 2, 0, 7, 5, 4>(guid);
+    //recvData.ReadGuidMask<7, 5, 0, 6, 1, 3, 4, 2>(guid);
+    //recvData.ReadGuidBytes<3, 6, 1, 2, 0, 7, 5, 4>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_WORLD_TELEPORT");
 
@@ -2326,8 +2326,8 @@ void WorldSession::HandleObjectUpdateFailedOpcode(WorldPacket& recvData)
     recvData.rfinish();
     /*ObjectGuid guid;
 
-    recvData.ReadGuidMask<2, 3, 5, 0, 4, 7, 6, 1>(guid);
-    recvData.ReadGuidBytes<1, 2, 5, 0, 3, 4, 6, 7>(guid);
+    //recvData.ReadGuidMask<2, 3, 5, 0, 4, 7, 6, 1>(guid);
+    //recvData.ReadGuidBytes<1, 2, 5, 0, 3, 4, 6, 7>(guid);
 
     WorldObject* obj = ObjectAccessor::GetWorldObject(*GetPlayer(), guid);
     if(obj)

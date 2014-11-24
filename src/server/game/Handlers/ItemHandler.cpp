@@ -116,7 +116,7 @@ void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
 
     recvData >> dstslot;
     uint32 count = recvData.ReadBits(2);
-    recvData.ReadGuidMask<0>(itemguid);
+    //recvData.ReadGuidMask<0>(itemguid);
 
     std::vector<bool> bits[2];
     for (uint32 i = 0; i < count; ++i)
@@ -125,9 +125,9 @@ void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
         bits[0].push_back(!recvData.ReadBit());
     }
 
-    recvData.ReadGuidMask<4, 3, 1, 6, 2, 5, 7>(itemguid);
+    //recvData.ReadGuidMask<4, 3, 1, 6, 2, 5, 7>(itemguid);
 
-    recvData.ReadGuidBytes<4, 6, 1, 3, 0, 2, 7, 5>(itemguid);
+    //recvData.ReadGuidBytes<4, 6, 1, 3, 0, 2, 7, 5>(itemguid);
 
     for (uint32 i = 0; i < count; ++i)
     {
@@ -618,21 +618,21 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recvData)
     uint32 count;
 
     recvData >> count;
-    recvData.ReadGuidMask<2>(itemguid);
-    recvData.ReadGuidMask<1, 7>(vendorguid);
-    recvData.ReadGuidMask<5, 3, 7>(itemguid);
-    recvData.ReadGuidMask<6, 2, 0, 4, 3>(vendorguid);
-    recvData.ReadGuidMask<1, 0>(itemguid);
-    recvData.ReadGuidMask<5>(vendorguid);
-    recvData.ReadGuidMask<4, 6>(itemguid);
+    //recvData.ReadGuidMask<2>(itemguid);
+    //recvData.ReadGuidMask<1, 7>(vendorguid);
+    //recvData.ReadGuidMask<5, 3, 7>(itemguid);
+    //recvData.ReadGuidMask<6, 2, 0, 4, 3>(vendorguid);
+    //recvData.ReadGuidMask<1, 0>(itemguid);
+    //recvData.ReadGuidMask<5>(vendorguid);
+    //recvData.ReadGuidMask<4, 6>(itemguid);
 
-    recvData.ReadGuidBytes<5>(itemguid);
-    recvData.ReadGuidBytes<3, 0, 4>(vendorguid);
-    recvData.ReadGuidBytes<3>(itemguid);
-    recvData.ReadGuidBytes<1, 6, 5, 7>(vendorguid);
-    recvData.ReadGuidBytes<1, 4, 0, 2>(itemguid);
-    recvData.ReadGuidBytes<2>(vendorguid);
-    recvData.ReadGuidBytes<7, 6>(itemguid);
+    //recvData.ReadGuidBytes<5>(itemguid);
+    //recvData.ReadGuidBytes<3, 0, 4>(vendorguid);
+    //recvData.ReadGuidBytes<3>(itemguid);
+    //recvData.ReadGuidBytes<1, 6, 5, 7>(vendorguid);
+    //recvData.ReadGuidBytes<1, 4, 0, 2>(itemguid);
+    //recvData.ReadGuidBytes<2>(vendorguid);
+    //recvData.ReadGuidBytes<7, 6>(itemguid);
 
     if (!itemguid)
     {
@@ -752,8 +752,8 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
     uint32 slot;
 
     recvData >> slot;
-    recvData.ReadGuidMask<7, 1, 2, 6, 4, 3, 0, 5>(vendorguid);
-    recvData.ReadGuidBytes<7, 1, 6, 5, 3, 2, 4, 0>(vendorguid);
+    //recvData.ReadGuidMask<7, 1, 2, 6, 4, 3, 0, 5>(vendorguid);
+    //recvData.ReadGuidBytes<7, 1, 6, 5, 3, 2, 4, 0>(vendorguid);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
@@ -837,29 +837,29 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
 
     recvData >> bagSlot >> count >> item >> slot;
 
-    recvData.ReadGuidMask<4>(vendorguid);
-    recvData.ReadGuidMask<5>(bagGuid);
-    recvData.ReadGuidMask<5>(vendorguid);
-    recvData.ReadGuidMask<6>(bagGuid);
-    recvData.ReadGuidMask<6, 1, 3, 7>(vendorguid);
+    //recvData.ReadGuidMask<4>(vendorguid);
+    //recvData.ReadGuidMask<5>(bagGuid);
+    //recvData.ReadGuidMask<5>(vendorguid);
+    //recvData.ReadGuidMask<6>(bagGuid);
+    //recvData.ReadGuidMask<6, 1, 3, 7>(vendorguid);
     itemType = recvData.ReadBits(2);
-    recvData.ReadGuidMask<0>(vendorguid);
-    recvData.ReadGuidMask<7, 4>(bagGuid);
-    recvData.ReadGuidMask<2>(vendorguid);
-    recvData.ReadGuidMask<1, 2, 3, 0>(bagGuid);
+    //recvData.ReadGuidMask<0>(vendorguid);
+    //recvData.ReadGuidMask<7, 4>(bagGuid);
+    //recvData.ReadGuidMask<2>(vendorguid);
+    //recvData.ReadGuidMask<1, 2, 3, 0>(bagGuid);
 
-    recvData.ReadGuidBytes<5>(bagGuid);
-    recvData.ReadGuidBytes<1>(vendorguid);
-    recvData.ReadGuidBytes<1, 6>(bagGuid);
-    recvData.ReadGuidBytes<3>(vendorguid);
-    recvData.ReadGuidBytes<2>(bagGuid);
-    recvData.ReadGuidBytes<0>(vendorguid);
-    recvData.ReadGuidBytes<0>(bagGuid);
-    recvData.ReadGuidBytes<5, 2>(vendorguid);
-    recvData.ReadGuidBytes<4, 7>(bagGuid);
-    recvData.ReadGuidBytes<4, 6>(vendorguid);
-    recvData.ReadGuidBytes<3>(bagGuid);
-    recvData.ReadGuidBytes<7>(vendorguid);
+    //recvData.ReadGuidBytes<5>(bagGuid);
+    //recvData.ReadGuidBytes<1>(vendorguid);
+    //recvData.ReadGuidBytes<1, 6>(bagGuid);
+    //recvData.ReadGuidBytes<3>(vendorguid);
+    //recvData.ReadGuidBytes<2>(bagGuid);
+    //recvData.ReadGuidBytes<0>(vendorguid);
+    //recvData.ReadGuidBytes<0>(bagGuid);
+    //recvData.ReadGuidBytes<5, 2>(vendorguid);
+    //recvData.ReadGuidBytes<4, 7>(bagGuid);
+    //recvData.ReadGuidBytes<4, 6>(vendorguid);
+    //recvData.ReadGuidBytes<3>(bagGuid);
+    //recvData.ReadGuidBytes<7>(vendorguid);
 
     // client expects count starting at 1, and we send vendorslot+1 to client already
     if (slot > 0)
@@ -892,8 +892,8 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket & recvData)
 {
     ObjectGuid guid;
 
-    recvData.ReadGuidMask<1, 3, 7, 6, 5, 2, 0, 4>(guid);
-    recvData.ReadGuidBytes<5, 6, 4, 1, 7, 3, 2, 0>(guid);
+    //recvData.ReadGuidMask<1, 3, 7, 6, 5, 2, 0, 4>(guid);
+    //recvData.ReadGuidBytes<5, 6, 4, 1, 7, 3, 2, 0>(guid);
 
     if (!GetPlayer()->isAlive())
         return;
@@ -1531,42 +1531,42 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     ObjectGuid gem_guids[MAX_GEM_SOCKETS];
 
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidMask<2>(gem_guids[i]);
+        //recvData.ReadGuidMask<2>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidMask<1>(gem_guids[i]);
+        //recvData.ReadGuidMask<1>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidMask<4>(gem_guids[i]);
+        //recvData.ReadGuidMask<4>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidMask<7>(gem_guids[i]);
+        //recvData.ReadGuidMask<7>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidMask<5>(gem_guids[i]);
+        //recvData.ReadGuidMask<5>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidMask<6>(gem_guids[i]);
+        //recvData.ReadGuidMask<6>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidMask<0>(gem_guids[i]);
+        //recvData.ReadGuidMask<0>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidMask<3>(gem_guids[i]);
+        //recvData.ReadGuidMask<3>(gem_guids[i]);
 
-    recvData.ReadGuidMask<0, 4, 3, 7, 1, 5, 6, 2>(item_guid);
+    //recvData.ReadGuidMask<0, 4, 3, 7, 1, 5, 6, 2>(item_guid);
 
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidBytes<2>(gem_guids[i]);
+        //recvData.ReadGuidBytes<2>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidBytes<1>(gem_guids[i]);
+        //recvData.ReadGuidBytes<1>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidBytes<4>(gem_guids[i]);
+        //recvData.ReadGuidBytes<4>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidBytes<7>(gem_guids[i]);
+        //recvData.ReadGuidBytes<7>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidBytes<6>(gem_guids[i]);
+        //recvData.ReadGuidBytes<6>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidBytes<3>(gem_guids[i]);
+        //recvData.ReadGuidBytes<3>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidBytes<0>(gem_guids[i]);
+        //recvData.ReadGuidBytes<0>(gem_guids[i]);
     for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        recvData.ReadGuidBytes<5>(gem_guids[i]);
+        //recvData.ReadGuidBytes<5>(gem_guids[i]);
 
-    recvData.ReadGuidBytes<6, 0, 4, 2, 5, 3, 1, 7>(item_guid);
+    //recvData.ReadGuidBytes<6, 0, 4, 2, 5, 3, 1, 7>(item_guid);
 
     if (!item_guid)
         return;
@@ -1797,8 +1797,8 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_REFUND_INFO");
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<2, 0, 5, 3, 1, 6, 4, 7>(guid);
-    recvData.ReadGuidBytes<0, 5, 7, 2, 6, 1, 3, 4>(guid);
+    //recvData.ReadGuidMask<2, 0, 5, 3, 1, 6, 4, 7>(guid);
+    //recvData.ReadGuidBytes<0, 5, 7, 2, 6, 1, 3, 4>(guid);
 
     Item* item = _player->GetItemByGuid(guid);
     if (!item)
@@ -1815,8 +1815,8 @@ void WorldSession::HandleItemRefund(WorldPacket &recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_REFUND");
     ObjectGuid guid;
 
-    recvData.ReadGuidMask<4, 0, 7, 3, 6, 5, 1, 2>(guid);
-    recvData.ReadGuidBytes<5, 1, 0, 3, 7, 6, 4, 2>(guid);
+    //recvData.ReadGuidMask<4, 0, 7, 3, 6, 5, 1, 2>(guid);
+    //recvData.ReadGuidBytes<5, 1, 0, 3, 7, 6, 4, 2>(guid);
 
     Item* item = _player->GetItemByGuid(guid);
     if (!item)
@@ -1884,16 +1884,16 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         HasItemGuid[i] = recvData.ReadBit();
     }
 
-    recvData.ReadGuidMask<0, 2, 7, 1, 4, 6, 5, 3>(npcGuid);
+    //recvData.ReadGuidMask<0, 2, 7, 1, 4, 6, 5, 3>(npcGuid);
 
 
     for (uint32 i = 0; i < count; ++i)
     {
         if (HasItemGuid10[i])
-            recvData.ReadGuidMask<0, 2, 7, 1, 4, 6, 5, 3>(itemGuids10[i]);
+            //recvData.ReadGuidMask<0, 2, 7, 1, 4, 6, 5, 3>(itemGuids10[i]);
 
         if (HasItemGuid[i])
-            recvData.ReadGuidMask<4, 5, 0, 1, 6, 2, 3, 7>(itemGuids[i]);
+            //recvData.ReadGuidMask<4, 5, 0, 1, 6, 2, 3, 7>(itemGuids[i]);
     }
 
     //
@@ -1904,15 +1904,15 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         recvData >> slots[i];
     }
 
-    recvData.ReadGuidBytes<7, 4, 3, 0, 5, 6, 2, 1>(npcGuid);
+    //recvData.ReadGuidBytes<7, 4, 3, 0, 5, 6, 2, 1>(npcGuid);
 
     for (uint32 i = 0; i < count; ++i)
     {
         if (HasItemGuid[i])
-            recvData.ReadGuidBytes<6, 7, 3, 0, 5, 2, 4, 1>(itemGuids[i]);
+            //recvData.ReadGuidBytes<6, 7, 3, 0, 5, 2, 4, 1>(itemGuids[i]);
 
         if (HasItemGuid10[i])
-            recvData.ReadGuidBytes<2, 3, 5, 0, 6, 7, 4, 1>(itemGuids10[i]);
+            //recvData.ReadGuidBytes<2, 3, 5, 0, 6, 7, 4, 1>(itemGuids10[i]);
     }
 
     // Validate
@@ -2049,8 +2049,8 @@ void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
     Player* player = GetPlayer();
 
     recvData >> bag >> reforgeEntry >> slot;
-    recvData.ReadGuidMask<1, 0, 5, 7, 2, 4, 6, 3>(guid);
-    recvData.ReadGuidBytes<5, 6, 2, 7, 3, 4, 1, 0>(guid);
+    //recvData.ReadGuidMask<1, 0, 5, 7, 2, 4, 6, 3>(guid);
+    //recvData.ReadGuidBytes<5, 6, 2, 7, 3, 4, 1, 0>(guid);
 
     if (!player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_REFORGER))
     {
@@ -2147,26 +2147,26 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPGRADE_ITEM upgradeId %u, unk1 %u, unk2 %u", upgradeId, unk1, unk2);
 
-    recvData.ReadGuidMask<4, 3>(itemGuid);
-    recvData.ReadGuidMask<4, 6, 7, 3>(npcGuid);
-    recvData.ReadGuidMask<7>(itemGuid);
-    recvData.ReadGuidMask<1, 0>(npcGuid);
-    recvData.ReadGuidMask<0>(itemGuid);
-    recvData.ReadGuidMask<5>(npcGuid);
-    recvData.ReadGuidMask<6, 2, 5>(itemGuid);
-    recvData.ReadGuidMask<2>(npcGuid);
-    recvData.ReadGuidMask<1>(itemGuid);
+    //recvData.ReadGuidMask<4, 3>(itemGuid);
+    //recvData.ReadGuidMask<4, 6, 7, 3>(npcGuid);
+    //recvData.ReadGuidMask<7>(itemGuid);
+    //recvData.ReadGuidMask<1, 0>(npcGuid);
+    //recvData.ReadGuidMask<0>(itemGuid);
+    //recvData.ReadGuidMask<5>(npcGuid);
+    //recvData.ReadGuidMask<6, 2, 5>(itemGuid);
+    //recvData.ReadGuidMask<2>(npcGuid);
+    //recvData.ReadGuidMask<1>(itemGuid);
 
-    recvData.ReadGuidBytes<0>(itemGuid);
-    recvData.ReadGuidBytes<2, 3>(npcGuid);
-    recvData.ReadGuidBytes<5, 3>(itemGuid);
-    recvData.ReadGuidBytes<5>(npcGuid);
-    recvData.ReadGuidBytes<2, 7>(itemGuid);
-    recvData.ReadGuidBytes<1, 6>(npcGuid);
-    recvData.ReadGuidBytes<4>(itemGuid);
-    recvData.ReadGuidBytes<7>(npcGuid);
-    recvData.ReadGuidBytes<1, 6>(itemGuid);
-    recvData.ReadGuidBytes<0, 4>(npcGuid);
+    //recvData.ReadGuidBytes<0>(itemGuid);
+    //recvData.ReadGuidBytes<2, 3>(npcGuid);
+    //recvData.ReadGuidBytes<5, 3>(itemGuid);
+    //recvData.ReadGuidBytes<5>(npcGuid);
+    //recvData.ReadGuidBytes<2, 7>(itemGuid);
+    //recvData.ReadGuidBytes<1, 6>(npcGuid);
+    //recvData.ReadGuidBytes<4>(itemGuid);
+    //recvData.ReadGuidBytes<7>(npcGuid);
+    //recvData.ReadGuidBytes<1, 6>(itemGuid);
+    //recvData.ReadGuidBytes<0, 4>(npcGuid);
 
     if (!player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_UPGRADE_MASTER))
     {

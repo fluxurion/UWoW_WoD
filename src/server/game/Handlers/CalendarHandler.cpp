@@ -297,7 +297,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
 
     std::map<uint32, ObjectGuid> inviteCountGuid;
     for(uint32 i = 0; i < inviteCount; ++i)
-        recvData.ReadGuidMask<1, 7, 2, 3, 4, 0, 6, 5>(inviteCountGuid[i]);
+        //recvData.ReadGuidMask<1, 7, 2, 3, 4, 0, 6, 5>(inviteCountGuid[i]);
 
     uint16 titleLen = recvData.ReadBits(5);
     uint16 descrLen = recvData.ReadBits(11);
@@ -311,11 +311,11 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
 
     for(uint32 i = 0; i < inviteCount; ++i)
     {
-        recvData.ReadGuidBytes<2>(inviteCountGuid[i]);
+        //recvData.ReadGuidBytes<2>(inviteCountGuid[i]);
         recvData >> status;
-        recvData.ReadGuidBytes<5, 3>(inviteCountGuid[i]);
+        //recvData.ReadGuidBytes<5, 3>(inviteCountGuid[i]);
         recvData >> rank;
-        recvData.ReadGuidBytes<1, 7, 0, 4, 6>(inviteCountGuid[i]);
+        //recvData.ReadGuidBytes<1, 7, 0, 4, 6>(inviteCountGuid[i]);
 
         inviteId = sCalendarMgr->GetFreeInviteId();
 

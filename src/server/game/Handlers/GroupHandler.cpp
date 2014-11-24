@@ -118,15 +118,15 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
     
     std::string realmName, memberName;
 
-    recvData.ReadGuidMask<2>(crossRealmGuid);
+    //recvData.ReadGuidMask<2>(crossRealmGuid);
     uint8 realmLen = recvData.ReadBits(9);
-    recvData.ReadGuidMask<0, 3, 4, 6, 7, 5, 1>(crossRealmGuid);
+    //recvData.ReadGuidMask<0, 3, 4, 6, 7, 5, 1>(crossRealmGuid);
     uint8 nameLen = recvData.ReadBits(9);
 
-    recvData.ReadGuidBytes<5>(crossRealmGuid);
+    //recvData.ReadGuidBytes<5>(crossRealmGuid);
     realmName = recvData.ReadString(realmLen); // unused
     memberName = recvData.ReadString(nameLen);
-    recvData.ReadGuidBytes<4, 0, 3, 6, 1, 2, 7>(crossRealmGuid);
+    //recvData.ReadGuidBytes<4, 0, 3, 6, 1, 2, 7>(crossRealmGuid);
 
     // attempt add selected player
 
@@ -332,12 +332,12 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket& recvData)
 
     recvData.read_skip<uint8>(); // unk 0x00
 
-    recvData.ReadGuidMask<3>(guid);
+    //recvData.ReadGuidMask<3>(guid);
     uint8 stringSize = recvData.ReadBits(8);
-    recvData.ReadGuidMask<5, 2, 0, 4, 1, 6, 7>(guid);
-    recvData.ReadGuidBytes<0, 4>(guid);
+    //recvData.ReadGuidMask<5, 2, 0, 4, 1, 6, 7>(guid);
+    //recvData.ReadGuidBytes<0, 4>(guid);
     unkstring = recvData.ReadString(stringSize);
-    recvData.ReadGuidBytes<5, 7, 2, 3, 1, 6>(guid);
+    //recvData.ReadGuidBytes<5, 7, 2, 3, 1, 6>(guid);
 
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
@@ -430,8 +430,8 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData.read_skip<uint8>();
 
-    recvData.ReadGuidMask<6, 7, 0, 3, 2, 5, 4, 1>(guid);
-    recvData.ReadGuidBytes<5, 7, 1, 6, 2, 4, 0, 3>(guid);
+    //recvData.ReadGuidMask<6, 7, 0, 3, 2, 5, 4, 1>(guid);
+    //recvData.ReadGuidBytes<5, 7, 1, 6, 2, 4, 0, 3>(guid);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
     Group* group = GetPlayer()->GetGroup();
@@ -468,8 +468,8 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
     recvData >> unk;
     recvData >> newRole;
 
-    recvData.ReadGuidMask<4, 0, 2, 7, 5, 6, 1, 3>(guid2);
-    recvData.ReadGuidBytes<4, 6, 2, 5, 3, 7, 0, 1>(guid2);
+    //recvData.ReadGuidMask<4, 0, 2, 7, 5, 6, 1, 3>(guid2);
+    //recvData.ReadGuidBytes<4, 6, 2, 5, 3, 7, 0, 1>(guid2);
 
     //! 5.4.1
     WorldPacket data(SMSG_GROUP_SET_ROLE, 24);
@@ -543,8 +543,8 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
     uint8 slot = 0;
 
     recvData >> slot;
-    recvData.ReadGuidMask<0, 4, 2, 1, 5, 3, 7, 6>(guid);
-    recvData.ReadGuidBytes<4, 7, 6, 0, 5, 1, 2, 3>(guid);
+    //recvData.ReadGuidMask<0, 4, 2, 1, 5, 3, 7, 6>(guid);
+    //recvData.ReadGuidBytes<4, 7, 6, 0, 5, 1, 2, 3>(guid);
 
     if (!_player->GetGroup() || _player->GetGroup()->GetLooterGuid() != _player->GetGUID())
     {
@@ -594,7 +594,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     std::vector<ObjectGuid> guids(count);
     std::vector<uint8> types(count);
 
-    recvData.ReadGuidMask<6, 2>(target_playerguid);
+    //recvData.ReadGuidMask<6, 2>(target_playerguid);
     
     if (count > 100)
     {
@@ -603,20 +603,20 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     }
 
     for (uint32 i = 0; i < count; ++i)
-        recvData.ReadGuidMask<1, 0, 5, 2, 3, 6, 7, 4>(guids[i]);
+        //recvData.ReadGuidMask<1, 0, 5, 2, 3, 6, 7, 4>(guids[i]);
 
     ///
 
-    recvData.ReadGuidMask<5, 7, 0, 3, 1, 4>(target_playerguid);
+    //recvData.ReadGuidMask<5, 7, 0, 3, 1, 4>(target_playerguid);
 
     for (uint32 i = 0; i < count; ++i)
     {
-        recvData.ReadGuidBytes<5, 2, 3, 0, 6, 7>(guids[i]);
+        //recvData.ReadGuidBytes<5, 2, 3, 0, 6, 7>(guids[i]);
         recvData >> types[i];
-        recvData.ReadGuidBytes<1, 4>(guids[i]);
+        //recvData.ReadGuidBytes<1, 4>(guids[i]);
     }
 
-    recvData.ReadGuidBytes<5, 3, 6, 7, 1, 2, 0, 4>(target_playerguid);
+    //recvData.ReadGuidBytes<5, 3, 6, 7, 1, 2, 0, 4>(target_playerguid);
 
     Group* group = _player->GetGroup();
     if (!group || group->isLFGGroup() || group->GetLooterGuid() != _player->GetGUID())
@@ -722,8 +722,8 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
     recvData >> lootMethod;
     recvData >> lootThreshold;
 
-    recvData.ReadGuidMask<4, 0, 7, 3, 2, 6, 5, 1>(lootMaster);
-    recvData.ReadGuidBytes<4, 7, 6, 3, 5, 1, 2, 0>(lootMaster);
+    //recvData.ReadGuidMask<4, 0, 7, 3, 2, 6, 5, 1>(lootMaster);
+    //recvData.ReadGuidBytes<4, 7, 6, 3, 5, 1, 2, 0>(lootMaster);
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -751,8 +751,8 @@ void WorldSession::HandleLootRoll(WorldPacket& recvData)
     recvData >> rollType;              // 0: pass, 1: need, 2: greed
     recvData >> itemSlot;              // always 0
 
-    recvData.ReadGuidMask<7, 1, 2, 4, 5, 6, 3, 0>(guid);
-    recvData.ReadGuidBytes<0, 7, 1, 3, 4, 6, 2, 5>(guid);
+    //recvData.ReadGuidMask<7, 1, 2, 4, 5, 6, 3, 0>(guid);
+    //recvData.ReadGuidBytes<0, 7, 1, 3, 4, 6, 2, 5>(guid);
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -852,8 +852,8 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
     recvData >> x;
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<2, 5, 6, 4, 7, 1, 0, 3>(guid);
-    recvData.ReadGuidBytes<2, 6, 4, 3, 5, 7, 1, 0>(guid);
+    //recvData.ReadGuidMask<2, 5, 6, 4, 7, 1, 0, 3>(guid);
+    //recvData.ReadGuidBytes<2, 6, 4, 3, 5, 7, 1, 0>(guid);
 
     /** error handling **/
     /********************/
@@ -924,8 +924,8 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     uint8 unk;
     recvData >> unk >> groupNr;
 
-    recvData.ReadGuidMask<0, 1, 7, 6, 3, 5, 4, 2>(guid);
-    recvData.ReadGuidBytes<6, 3, 7, 5, 1, 4, 2, 0>(guid);
+    //recvData.ReadGuidMask<0, 1, 7, 6, 3, 5, 4, 2>(guid);
+    //recvData.ReadGuidBytes<6, 3, 7, 5, 1, 4, 2, 0>(guid);
 
     if (groupNr >= MAX_RAID_SUBGROUPS)
         return;
@@ -1023,10 +1023,10 @@ void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket & recvData)
     uint8 unk = 0;
     recvData >> unk;
 
-    recvData.ReadGuidMask<0, 3, 6, 5>(guid);
+    //recvData.ReadGuidMask<0, 3, 6, 5>(guid);
     apply = recvData.ReadBit();
-    recvData.ReadGuidMask<7, 2, 4, 1>(guid);
-    recvData.ReadGuidBytes<1, 2, 7, 3, 4, 5, 0, 6>(guid);
+    //recvData.ReadGuidMask<7, 2, 4, 1>(guid);
+    //recvData.ReadGuidBytes<1, 2, 7, 3, 4, 5, 0, 6>(guid);
 
     group->SetGroupMemberFlag(guid, apply, MEMBER_FLAG_ASSISTANT);
 
@@ -1053,10 +1053,10 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
 
     recvData >> unk >> assignment;
 
-    recvData.ReadGuidMask<3, 5>(guid);
+    //recvData.ReadGuidMask<3, 5>(guid);
     apply = recvData.ReadBit();
-    recvData.ReadGuidMask<0, 7, 2, 6, 4, 1>(guid);
-    recvData.ReadGuidBytes<4, 1, 0, 6, 5, 3, 7, 2>(guid);
+    //recvData.ReadGuidMask<0, 7, 2, 6, 4, 1>(guid);
+    //recvData.ReadGuidBytes<4, 1, 0, 6, 5, 3, 7, 2>(guid);
 
     switch (assignment)
     {
@@ -1450,8 +1450,8 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     ObjectGuid Guid;
     recvData.read_skip<uint8>();
 
-    recvData.ReadGuidMask<4, 0, 1, 3, 6, 2, 7, 5>(Guid);
-    recvData.ReadGuidBytes<0, 4, 6, 3, 1, 5, 2, 7>(Guid);
+    //recvData.ReadGuidMask<4, 0, 1, 3, 6, 2, 7, 5>(Guid);
+    //recvData.ReadGuidBytes<0, 4, 6, 3, 1, 5, 2, 7>(Guid);
 
     Player* player = HashMapHolder<Player>::Find(Guid);
     if (!player)

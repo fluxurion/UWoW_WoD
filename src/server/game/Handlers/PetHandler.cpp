@@ -36,8 +36,8 @@
 void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<6, 2, 3, 7, 0, 4, 1, 5>(guid);
-    recvData.ReadGuidBytes<5, 3, 1, 6, 4, 7, 0, 2>(guid);
+    //recvData.ReadGuidMask<6, 2, 3, 7, 0, 4, 1, 5>(guid);
+    //recvData.ReadGuidBytes<5, 3, 1, 6, 4, 7, 0, 2>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DISMISS_CRITTER for GUID " UI64FMTD, uint64(guid));
 
@@ -153,8 +153,8 @@ void WorldSession::HandlePetAction(WorldPacket & recvData)
 void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<3, 2, 0, 6, 1, 4, 5, 7>(guid);
-    recvData.ReadGuidBytes<3, 1, 2, 6, 5, 4, 0, 7>(guid);
+    //recvData.ReadGuidMask<3, 2, 0, 6, 1, 4, 5, 7>(guid);
+    //recvData.ReadGuidBytes<3, 1, 2, 6, 5, 4, 0, 7>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PET_STOP_ATTACK for GUID %u", uint32(guid.GetCounter()));
 
@@ -458,24 +458,24 @@ void WorldSession::HandlePetNameQuery(WorldPacket & recvData)
     ObjectGuid petGuid;
     ObjectGuid petNumber;
 
-    recvData.ReadGuidMask<0>(petGuid);
-    recvData.ReadGuidMask<0, 5, 2>(petNumber);
-    recvData.ReadGuidMask<6, 4>(petGuid);
-    recvData.ReadGuidMask<6>(petNumber);
-    recvData.ReadGuidMask<5>(petGuid);
-    recvData.ReadGuidMask<1>(petNumber);
-    recvData.ReadGuidMask<1, 2, 3>(petGuid);
-    recvData.ReadGuidMask<7, 4>(petNumber);
-    recvData.ReadGuidMask<7>(petGuid);
-    recvData.ReadGuidMask<3>(petNumber);
+    //recvData.ReadGuidMask<0>(petGuid);
+    //recvData.ReadGuidMask<0, 5, 2>(petNumber);
+    //recvData.ReadGuidMask<6, 4>(petGuid);
+    //recvData.ReadGuidMask<6>(petNumber);
+    //recvData.ReadGuidMask<5>(petGuid);
+    //recvData.ReadGuidMask<1>(petNumber);
+    //recvData.ReadGuidMask<1, 2, 3>(petGuid);
+    //recvData.ReadGuidMask<7, 4>(petNumber);
+    //recvData.ReadGuidMask<7>(petGuid);
+    //recvData.ReadGuidMask<3>(petNumber);
 
-    recvData.ReadGuidBytes<0, 5>(petNumber);
-    recvData.ReadGuidBytes<6>(petGuid);
-    recvData.ReadGuidBytes<4, 7, 6, 2>(petNumber);
-    recvData.ReadGuidBytes<3, 7, 1, 0, 2, 5>(petGuid);
-    recvData.ReadGuidBytes<3>(petNumber);
-    recvData.ReadGuidBytes<4>(petGuid);
-    recvData.ReadGuidBytes<1>(petNumber);
+    //recvData.ReadGuidBytes<0, 5>(petNumber);
+    //recvData.ReadGuidBytes<6>(petGuid);
+    //recvData.ReadGuidBytes<4, 7, 6, 2>(petNumber);
+    //recvData.ReadGuidBytes<3, 7, 1, 0, 2, 5>(petGuid);
+    //recvData.ReadGuidBytes<3>(petNumber);
+    //recvData.ReadGuidBytes<4>(petGuid);
+    //recvData.ReadGuidBytes<1>(petNumber);
 
     SendPetNameQuery(petGuid, petNumber);
 }
@@ -569,8 +569,8 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
 
     recvData >> position >> data;
 
-    recvData.ReadGuidMask<3, 4, 5, 7, 1, 0, 2, 6>(petguid);
-    recvData.ReadGuidBytes<2, 5, 6, 4, 3, 0, 7, 1>(petguid);
+    //recvData.ReadGuidMask<3, 4, 5, 7, 1, 0, 2, 6>(petguid);
+    //recvData.ReadGuidBytes<2, 5, 6, 4, 3, 0, 7, 1>(petguid);
 
     Unit* pet = ObjectAccessor::GetUnit(*_player, petguid);
 
@@ -770,8 +770,8 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
 
     ObjectGuid guid;
 
-    recvData.ReadGuidMask<6, 5, 2, 0, 3, 4, 7, 1>(guid);
-    recvData.ReadGuidBytes<1, 2, 4, 3, 7, 5, 6, 0>(guid);
+    //recvData.ReadGuidMask<6, 5, 2, 0, 3, 4, 7, 1>(guid);
+    //recvData.ReadGuidBytes<1, 2, 4, 3, 7, 5, 6, 0>(guid);
 
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetAbandon. CMSG_PET_ABANDON pet guid is %u", guid.GetCounter());
 

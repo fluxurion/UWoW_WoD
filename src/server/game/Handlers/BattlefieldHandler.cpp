@@ -168,11 +168,11 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
     uint8 accepted;
     ObjectGuid guid;
 
-    /*recvData.ReadGuidMask<6, 5, 1, 0>(guid);
+    /*//recvData.ReadGuidMask<6, 5, 1, 0>(guid);
     accepted = recvData.ReadBit();
-    recvData.ReadGuidMask<3, 7, 4, 2>(guid);
+    //recvData.ReadGuidMask<3, 7, 4, 2>(guid);
 
-    recvData.ReadGuidBytes< 2, 3, 6, 1, 5, 0, 4, 7>(guid);*/
+    //recvData.ReadGuidBytes< 2, 3, 6, 1, 5, 0, 4, 7>(guid);*/
     sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:" UI64FMTD " Accepted:%u", (uint64)guid, accepted);
 
     if(!accepted)
@@ -197,11 +197,11 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recvData)
 {
     uint8 accepted;
     ObjectGuid guid;
-    /*recvData.ReadGuidMask<4, 7, 6, 2, 3, 1, 0>(guid);
+    /*//recvData.ReadGuidMask<4, 7, 6, 2, 3, 1, 0>(guid);
     accepted = recvData.ReadBit();
-    recvData.ReadGuidMask<5>(guid);
+    //recvData.ReadGuidMask<5>(guid);
 
-    recvData.ReadGuidBytes<7, 1, 0, 6, 2, 4, 3, 5>(guid);*/
+    //recvData.ReadGuidBytes<7, 1, 0, 6, 2, 4, 3, 5>(guid);*/
 
     sLog->outError(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: GUID:" UI64FMTD " Accepted:%u", uint64(guid), accepted);
 
@@ -221,8 +221,8 @@ void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    /*recvData.ReadGuidMask<6, 3, 1, 2, 0, 4, 7, 5>(guid);
-    recvData.ReadGuidBytes<4, 3, 0, 1, 6, 5, 2, 7>(guid);*/
+    /*//recvData.ReadGuidMask<6, 3, 1, 2, 0, 4, 7, 5>(guid);
+    //recvData.ReadGuidBytes<4, 3, 0, 1, 6, 5, 2, 7>(guid);*/
 
     sLog->outError(LOG_FILTER_GENERAL, "HandleBfQueueRequest: GUID:" UI64FMTD " ", (uint64)guid);
 
@@ -244,8 +244,8 @@ void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
 void WorldSession::HandleBfExitQueueRequest(WorldPacket & recvData)
 {
     ObjectGuid guid;
-    /*recvData.ReadGuidMask<0, 7, 5, 2, 4, 1, 6, 3>(guid);
-    recvData.ReadGuidBytes<7, 1, 2, 5, 0, 6, 4, 3>(guid);*/
+    /*//recvData.ReadGuidMask<0, 7, 5, 2, 4, 1, 6, 3>(guid);
+    //recvData.ReadGuidBytes<7, 1, 2, 5, 0, 6, 4, 3>(guid);*/
 
     sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitQueueRequest: GUID:" UI64FMTD " ", (uint64)guid);
 
@@ -272,8 +272,8 @@ void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
 void WorldSession::HandleReportPvPAFK(WorldPacket & recvData)
 {
     ObjectGuid playerGuid;
-    /*recvData.ReadGuidMask<5, 3, 7, 0, 4, 2, 6, 1>(playerGuid);
-    recvData.ReadGuidBytes<5, 7, 3, 0, 2, 6, 4, 1>(playerGuid);*/
+    /*//recvData.ReadGuidMask<5, 3, 7, 0, 4, 2, 6, 1>(playerGuid);
+    //recvData.ReadGuidBytes<5, 7, 3, 0, 2, 6, 4, 1>(playerGuid);*/
     Player* reportedPlayer = ObjectAccessor::FindPlayer(playerGuid);
 
     if (!reportedPlayer)

@@ -43,13 +43,13 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
     std::vector<ObjectGuid> guids(count);
 
     for (uint32 i = 0; i < count; ++i)
-        recvData.ReadGuidMask<4, 7, 0, 3, 5, 6, 2, 1>(guids[i]);
+        //recvData.ReadGuidMask<4, 7, 0, 3, 5, 6, 2, 1>(guids[i]);
 
     for (uint32 i = 0; i < count; ++i)
     {
         recvData >> lootSlot;
 
-        recvData.ReadGuidBytes<2, 0, 5, 4, 6, 1, 3, 7>(guids[i]);
+        //recvData.ReadGuidBytes<2, 0, 5, 4, 6, 1, 3, 7>(guids[i]);
 
         lguid = guids[i];
 
@@ -264,8 +264,8 @@ void WorldSession::HandleLootOpcode(WorldPacket & recvData)
 
     ObjectGuid guid;
     
-    recvData.ReadGuidMask<7, 5, 4, 2, 0, 1, 6, 3>(guid);
-    recvData.ReadGuidBytes<0, 2, 1, 3, 6, 5, 4, 7>(guid);
+    //recvData.ReadGuidMask<7, 5, 4, 2, 0, 1, 6, 3>(guid);
+    //recvData.ReadGuidBytes<0, 2, 1, 3, 6, 5, 4, 7>(guid);
 
     LootCorps(guid);
 }
@@ -320,8 +320,8 @@ void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
     // use internal stored guid
     ObjectGuid guid;
 
-    recvData.ReadGuidMask<4, 6, 2, 0, 1, 3, 5, 7>(guid);
-    recvData.ReadGuidBytes<1, 2, 6, 5, 3, 4, 7, 0>(guid);
+    //recvData.ReadGuidMask<4, 6, 2, 0, 1, 3, 5, 7>(guid);
+    //recvData.ReadGuidBytes<1, 2, 6, 5, 3, 4, 7, 0>(guid);
 
     DoLootRelease(guid);
 }

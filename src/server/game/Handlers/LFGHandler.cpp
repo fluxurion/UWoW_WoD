@@ -115,21 +115,21 @@ void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
     ObjectGuid playerGuid;
     ObjectGuid instanceGuid;
 
-    recvData.ReadGuidMask<0, 7, 5, 1>(instanceGuid);
-    recvData.ReadGuidMask<2, 6, 0, 5, 7, 1>(playerGuid);
-    recvData.ReadGuidMask<2>(instanceGuid);
-    recvData.ReadGuidMask<3>(playerGuid);
-    recvData.ReadGuidMask<6, 3, 4>(instanceGuid);
-    recvData.ReadGuidMask<4>(playerGuid);
+    //recvData.ReadGuidMask<0, 7, 5, 1>(instanceGuid);
+    //recvData.ReadGuidMask<2, 6, 0, 5, 7, 1>(playerGuid);
+    //recvData.ReadGuidMask<2>(instanceGuid);
+    //recvData.ReadGuidMask<3>(playerGuid);
+    //recvData.ReadGuidMask<6, 3, 4>(instanceGuid);
+    //recvData.ReadGuidMask<4>(playerGuid);
     accept = recvData.ReadBit();
 
-    recvData.ReadGuidBytes<6, 1, 2, 4>(instanceGuid);
-    recvData.ReadGuidBytes<0, 5, 1>(playerGuid);
-    recvData.ReadGuidBytes<3>(instanceGuid);
-    recvData.ReadGuidBytes<7, 6, 4, 2>(playerGuid);
-    recvData.ReadGuidBytes<7, 5>(instanceGuid);
-    recvData.ReadGuidBytes<3>(playerGuid);
-    recvData.ReadGuidBytes<0>(instanceGuid);
+    //recvData.ReadGuidBytes<6, 1, 2, 4>(instanceGuid);
+    //recvData.ReadGuidBytes<0, 5, 1>(playerGuid);
+    //recvData.ReadGuidBytes<3>(instanceGuid);
+    //recvData.ReadGuidBytes<7, 6, 4, 2>(playerGuid);
+    //recvData.ReadGuidBytes<7, 5>(instanceGuid);
+    //recvData.ReadGuidBytes<3>(playerGuid);
+    //recvData.ReadGuidBytes<0>(instanceGuid);
 
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_PROPOSAL_RESULT %s proposal: %u accept: %u",
         GetPlayerName().c_str(), proposalId, accept ? 1 : 0);
@@ -163,13 +163,13 @@ void WorldSession::HandleLfgSetCommentOpcode(WorldPacket&  recvData)
     recvData.read_skip<uint32>();
     recvData.read_skip<uint32>();
     recvData.read_skip<uint32>();
-    recvData.ReadGuidMask<1, 4, 3>(guid);
+    //recvData.ReadGuidMask<1, 4, 3>(guid);
     uint32 len = recvData.ReadBits(8);
-    recvData.ReadGuidMask<6, 2, 5, 0, 7>(guid);
+    //recvData.ReadGuidMask<6, 2, 5, 0, 7>(guid);
 
-    recvData.ReadGuidBytes<3, 7>(guid);
+    //recvData.ReadGuidBytes<3, 7>(guid);
     std::string comment = recvData.ReadString(len);
-    recvData.ReadGuidBytes<0, 5, 4, 6, 1, 2>(guid);
+    //recvData.ReadGuidBytes<0, 5, 4, 6, 1, 2>(guid);
 
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_SET_COMMENT %s comment: %s",
         GetPlayerName().c_str(), comment.c_str());
