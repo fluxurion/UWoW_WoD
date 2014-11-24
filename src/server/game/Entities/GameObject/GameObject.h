@@ -699,7 +699,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time);
-        static GameObject* GetGameObject(WorldObject& object, uint64 guid);
+        static GameObject* GetGameObject(WorldObject& object, ObjectGuid guid);
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectData const* GetGOData() const { return m_goData; }
         GameObjectValue * GetGOValue() const { return m_goValue; }
@@ -784,7 +784,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoArtKit(uint8 artkit);
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
-        static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
+        static void SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid = 0);
 
         void SetPhaseMask(uint32 newPhaseMask, bool update);
         void SetManualAnim(bool apply)
@@ -893,7 +893,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         GuidSet m_SkillupList;
 
         Player* m_ritualOwner;                              // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
-        std::set<uint64> m_unique_users;
+        GuidSet m_unique_users;
         uint32 m_usetimes;
 
         typedef std::map<uint32, ObjectGuid> ChairSlotAndUser;

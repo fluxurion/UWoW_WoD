@@ -253,7 +253,7 @@ Item::Item() : ItemLevelBeforeCap(0)
     mb_in_trade = false;
     m_lastPlayedTimeUpdate = time(NULL);
 
-    m_refundRecipient = 0;
+    m_refundRecipient.Clear();
     m_paidMoney = 0;
     m_paidExtendedCost = 0;
 
@@ -345,9 +345,9 @@ void Item::SaveToDB(SQLTransaction& trans)
             uint8 index = 0;
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(uState == ITEM_NEW ? CHAR_REP_ITEM_INSTANCE : CHAR_UPD_ITEM_INSTANCE);
             stmt->setUInt32(  index, GetEntry());
-            stmt->setUInt32(++index, GUID_LOPART(GetOwnerGUID()));
-            stmt->setUInt32(++index, GUID_LOPART(GetUInt64Value(ITEM_FIELD_CREATOR)));
-            stmt->setUInt32(++index, GUID_LOPART(GetUInt64Value(ITEM_FIELD_GIFTCREATOR)));
+            stmt->setUInt64(++index, GetOwnerGUID().GetCounter());
+            stmt->setUInt64(++index, GetGuidValue(ITEM_FIELD_CREATOR).GetCounter());
+            stmt->setUInt64(++index, GetGuidValue(ITEM_FIELD_GIFTCREATOR).GetCounter());
             stmt->setUInt32(++index, GetCount());
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_DURATION));
 
@@ -382,7 +382,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             if ((uState == ITEM_CHANGED) && HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GIFT_OWNER);
-                stmt->setUInt32(0, GUID_LOPART(GetOwnerGUID()));
+                stmt->setUInt64(0, GetOwnerGUID().GetCounter());
                 stmt->setUInt32(1, guid);
                 trans->Append(stmt);
             }
@@ -775,7 +775,7 @@ void Item::AddToUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUID().GetCounter());
+        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
         return;
     }
 
@@ -795,7 +795,7 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUID().GetCounter());
+        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
         return;
     }
 

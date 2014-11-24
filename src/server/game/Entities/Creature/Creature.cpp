@@ -293,7 +293,7 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
 
     SetEntry(entry);                                        // normal entry always
     m_creatureInfo = cinfo;                                 // map mode related always
-    m_creatureDiffData = sObjectMgr->GetCreatureDifficultyStat(cinfo->entry, difficulty);                                 // map mode related always
+    m_creatureDiffData = sObjectMgr->GetCreatureDifficultyStat(cinfo-Entry, difficulty);                                 // map mode related always
 
     // equal to player Race field, but creature does not have race
     SetByteValue(UNIT_FIELD_BYTES_0, 0, 0);
@@ -1674,7 +1674,7 @@ void Creature::setDeathState(DeathState s)
         if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
             SaveRespawnTime();
 
-        SetTarget(0);                // remove target selection in any cases (can be set at aura remove in Unit::setDeathState)
+        SetTarget(ObjectGuid::Empty);                // remove target selection in any cases (can be set at aura remove in Unit::setDeathState)
         SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
         setActive(false);
@@ -2247,7 +2247,7 @@ CreatureAddon const* Creature::GetCreatureAddon() const
     }
 
     // dependent from difficulty mode entry
-    return sObjectMgr->GetCreatureTemplateAddon(GetCreatureTemplate()->entry);
+    return sObjectMgr->GetCreatureTemplateAddon(GetCreatureTemplate()->Entry);
 }
 
 //creature_addon table

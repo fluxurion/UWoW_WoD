@@ -56,7 +56,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
     name = recvData.ReadString(strLen);
     //recvData.ReadGuidBytes<3, 7>(guidNPC);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(guidNPC), name.c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petitioner with GUID %u tried sell petition: name %s", guidNPC.GetCounter(), name.c_str());
 
     // prevent cheating
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guidNPC, UNIT_NPC_FLAG_PETITIONER);

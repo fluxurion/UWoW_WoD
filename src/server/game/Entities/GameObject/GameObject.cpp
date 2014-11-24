@@ -37,8 +37,8 @@
 GameObject::GameObject() : WorldObject(false), m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL), 
     m_manual_anim(false), m_respawnTime(0), m_respawnDelayTime(300),
     m_lootState(GO_NOT_READY), m_spawnedByDefault(true), m_usetimes(0), m_spellId(0), m_cooldownTime(0), 
-    m_goInfo(NULL), m_ritualOwner(NULL), m_goData(NULL), m_DBTableGuid(0), m_rotation(0), m_lootRecipient(0),
-    m_lootRecipientGroup(0), m_groupLootTimer(0), lootingGroupLowGUID(0), m_isDynActive(false)
+    m_goInfo(NULL), m_ritualOwner(NULL), m_goData(NULL), m_DBTableGuid(0), m_rotation(0), m_lootRecipient(),
+    m_lootRecipientGroup(), m_groupLootTimer(0), lootingGroupLowGUID(), m_isDynActive(false)
 {
     m_valuesCount = GAMEOBJECT_END;
     m_objectType |= TYPEMASK_GAMEOBJECT;
@@ -98,13 +98,13 @@ void GameObject::RemoveFromOwner()
     }
 
     const char * ownerType = "creature";
-    if (IS_PLAYER_GUID(ownerGUID))
+    if (ownerGUID.IsPlayer())
         ownerType = "player";
-    else if (IS_PET_GUID(ownerGUID))
+    else if (ownerGUID.IsPet())
         ownerType = "pet";
 
     sLog->outFatal(LOG_FILTER_GENERAL, "Delete GameObject (GUID: %u Entry: %u SpellId %u LinkedGO %u) that lost references to owner (GUID %u Type '%s') GO list. Crash possible later.",
-        GetGUID().GetCounter(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), GUID_LOPART(ownerGUID), ownerType);
+        GetGUID().GetCounter(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), ownerGUID.GetCounter(), ownerType);
     SetOwnerGUID(ObjectGuid::Empty);
 }
 
@@ -259,7 +259,7 @@ void GameObject::Update(uint32 diff)
     } else
         AI()->UpdateAI(diff);
 
-    if (IS_MO_TRANSPORT(GetGUID()))
+    if (GetGUID().IsMOTransport())
     {
         //((Transport*)this)->Update(p_time);
         return;
@@ -502,7 +502,7 @@ void GameObject::Update(uint32 diff)
                             if (group)
                                 group->EndRoll(&loot);
                             m_groupLootTimer = 0;
-                            lootingGroupLowGUID = 0;
+                            lootingGroupLowGUID.Clear();
                         }
                         else m_groupLootTimer -= diff;
                     }
@@ -817,7 +817,7 @@ void GameObject::DeleteFromDB()
     WorldDatabase.Execute(stmt);
 }
 
-GameObject* GameObject::GetGameObject(WorldObject& object, uint64 guid)
+GameObject* GameObject::GetGameObject(WorldObject& object, ObjectGuid guid)
 {
     return object.GetMap()->GetGameObject(guid);
 }
@@ -905,7 +905,7 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
     }
 
     // Always seen by owner and friendly units
-    if (uint64 guid = GetOwnerGUID())
+    if (ObjectGuid guid = GetOwnerGUID())
     {
         if (seer->GetGUID() == guid)
             return true;
@@ -1196,9 +1196,9 @@ void GameObject::Use(Unit* user)
             {
                 if (info->chair.slots > 0)     // sometimes chairs in DB have error in fields and we dont know number of slots
                     for (uint32 i = 0; i < info->chair.slots; ++i)
-                        ChairListSlots[i] = 0; // Last user of current slot set to 0 (none sit here yet)
+                        ChairListSlots[i].Clear(); // Last user of current slot set to 0 (none sit here yet)
                 else
-                    ChairListSlots[0] = 0;     // error in DB, make one default slot
+                    ChairListSlots[0].Clear();     // error in DB, make one default slot
             }
 
             Player* player = user->ToPlayer();
@@ -1230,9 +1230,9 @@ void GameObject::Use(Unit* user)
                         if (ChairUser->IsSitState() && ChairUser->getStandState() != UNIT_STAND_STATE_SIT && ChairUser->GetExactDist2d(x_i, y_i) < 0.1f)
                             continue;        // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser->getStandState() != UNIT_STAND_STATE_SIT check is required.
                         else
-                            itr->second = 0; // This seat is unoccupied.
+                            itr->second.Clear(); // This seat is unoccupied.
                     else
-                        itr->second = 0;     // The seat may of had an occupant, but they're offline.
+                        itr->second.Clear();     // The seat may of had an occupant, but they're offline.
                 }
 
                 found_free_slot = true;
@@ -1800,7 +1800,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
         trigger->setFaction(14);
         // Set owner guid for target if no owner available - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
-        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, NULL, target ? target->GetGUID() : 0);
+        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, NULL, target ? target->GetGUID() : ObjectGuid::Empty);
     }
 }
 
@@ -2217,8 +2217,8 @@ void GameObject::SetLootRecipient(Unit* unit)
 
     if (!unit)
     {
-        m_lootRecipient = 0;
-        m_lootRecipientGroup = 0;
+        m_lootRecipient.Clear();
+        m_lootRecipientGroup.Clear();
         return;
     }
 
@@ -2231,7 +2231,7 @@ void GameObject::SetLootRecipient(Unit* unit)
 
     m_lootRecipient = player->GetGUID();
     if (Group* group = player->GetGroup())
-        m_lootRecipientGroup = group->GetLowGUID();
+        m_lootRecipientGroup = group->GetGUID();
 }
 
 bool GameObject::IsLootAllowedFor(Player const* player) const
