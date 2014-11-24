@@ -268,9 +268,9 @@ Item::Item() : ItemLevelBeforeCap(0)
     memset(m_dynamicModInfo, 0, sizeof(uint32) * ITEM_DYN_MOD_END);
 }
 
-bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
+bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner)
 {
-    Object::_Create(guidlow, 0, HighGuid::Item);
+    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
 
     SetEntry(itemid);
     SetObjectScale(1.0f);
@@ -418,7 +418,7 @@ void Item::SaveToDB(SQLTransaction& trans)
         CharacterDatabase.CommitTransaction(trans);
 }
 
-bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry)
+bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
 {
     // WARNING! WARNING! WARNING! IF CHANGE FIELD ORDER - DO IT ON GuildMgr::LoadGuilds FOR GB Loading Items
     //                                                    0                1      2         3        4      5             6                 7          8               9      10        11          12        13
@@ -426,7 +426,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
-    Object::_Create(guid, 0, HighGuid::Item);
+    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guid));
 
     // Set entry, MUST be before proto check
     SetEntry(entry);
@@ -441,8 +441,8 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
         SetOwnerGUID(owner_guid);
 
     bool need_save = false;                                 // need explicit save data at load fixes
-    SetUInt64Value(ITEM_FIELD_CREATOR, MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player));
-    SetUInt64Value(ITEM_FIELD_GIFTCREATOR, MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HighGuid::Player));
+    SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()));
+    SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt64()));
     SetCount(fields[2].GetUInt32());
 
     uint32 duration = fields[3].GetUInt32();
@@ -551,10 +551,10 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 }
 
 /*static*/
-void Item::DeleteFromDB(SQLTransaction& trans, uint32 itemGuid)
+void Item::DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-    stmt->setUInt32(0, itemGuid);
+    stmt->setUInt64(0, itemGuid);
     trans->Append(stmt);
     CharacterDatabase.PExecute("UPDATE character_donate SET state = 1, deletedate = '%s' WHERE itemguid = '%u'", TimeToTimestampStr(time(NULL)).c_str(), itemGuid);
 }
@@ -565,10 +565,10 @@ void Item::DeleteFromDB(SQLTransaction& trans)
 }
 
 /*static*/
-void Item::DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid)
+void Item::DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
-    stmt->setUInt32(0, itemGuid);
+    stmt->setUInt64(0, itemGuid);
     trans->Append(stmt);
 }
 
@@ -1206,7 +1206,7 @@ void Item::SetNotRefundable(Player* owner, bool changestate /*=true*/, SQLTransa
     if (changestate)
         SetState(ITEM_CHANGED, owner);
 
-    SetRefundRecipient(0);
+    SetRefundRecipient(ObjectGuid::Empty);
     SetPaidMoney(0);
     SetPaidExtendedCost(0);
     DeleteRefundDataFromDB(trans);

@@ -227,12 +227,12 @@ class Item : public Object
 
         Item();
 
-        virtual bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
+        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner);
 
         ItemTemplate const* GetTemplate() const;
 
-        uint64 GetOwnerGUID()    const { return GetUInt64Value(ITEM_FIELD_OWNER); }
-        void SetOwnerGUID(uint64 guid) { SetUInt64Value(ITEM_FIELD_OWNER, guid); }
+        ObjectGuid GetOwnerGUID()    const { return GetGuidValue(ITEM_FIELD_OWNER); }
+        void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner()const;
 
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_SOULBOUND, val); }
@@ -241,10 +241,10 @@ class Item : public Object
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
-        virtual bool LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry);
-        static void DeleteFromDB(SQLTransaction& trans, uint32 itemGuid);
+        virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
+        static void DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
         virtual void DeleteFromDB(SQLTransaction& trans);
-        static void DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid);
+        static void DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
         void DeleteFromInventoryDB(SQLTransaction& trans);
         void SaveRefundDataToDB();
         void DeleteRefundDataFromDB(SQLTransaction* trans);
@@ -340,10 +340,10 @@ class Item : public Object
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);
-        void SetRefundRecipient(uint32 pGuidLow) { m_refundRecipient = pGuidLow; }
+        void SetRefundRecipient(ObjectGuid pGuidLow) { m_refundRecipient = pGuidLow; }
         void SetPaidMoney(uint32 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
-        uint32 GetRefundRecipient() { return m_refundRecipient; }
+        ObjectGuid GetRefundRecipient() { return m_refundRecipient; }
         uint32 GetPaidMoney() { return m_paidMoney; }
         uint32 GetPaidExtendedCost() { return m_paidExtendedCost; }
 
@@ -402,7 +402,7 @@ class Item : public Object
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window
         time_t m_lastPlayedTimeUpdate;
-        uint32 m_refundRecipient;
+        ObjectGuid m_refundRecipient;
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
         AllowedLooterSet allowedGUIDs;

@@ -283,7 +283,7 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         Field* fields = result->Fetch();
 
-        uint32 item_guid    = fields[14].GetUInt32();
+        ObjectGuid::LowType item_guid = fields[14].GetUInt64();
         uint32 itemEntry    = fields[15].GetUInt32();
 
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
@@ -294,7 +294,7 @@ void AuctionHouseMgr::LoadAuctionItems()
         }
 
         Item* item = NewItemOrBag(proto);
-        if (!item->LoadFromDB(item_guid, 0, fields, itemEntry))
+        if (!item->LoadFromDB(item_guid, ObjectGuid::Empty, fields, itemEntry))
         {
             delete item;
             continue;

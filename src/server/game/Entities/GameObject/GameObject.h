@@ -697,7 +697,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void RemoveFromWorld();
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
-        bool Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time);
         static GameObject* GetGameObject(WorldObject& object, uint64 guid);
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
@@ -708,7 +708,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool IsDynTransport() const;
         bool IsDestructibleBuilding() const;
 
-        uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
+        ObjectGuid::LowType GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
         void UpdateRotationFields(float rotation2 = 0.0f, float rotation3 = 0.0f);
 
@@ -723,11 +723,11 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         void SaveToDB();
         void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
-        bool LoadFromDB(uint32 guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
-        bool LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap = true);
+        bool LoadFromDB(ObjectGuid::LowType guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
+        bool LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap = true);
         void DeleteFromDB();
 
-        void SetOwnerGUID(uint64 owner)
+        void SetOwnerGUID(ObjectGuid owner)
         {
             // Owner already found and different than expected owner - remove object from old owner
             if (owner && GetOwnerGUID() && GetOwnerGUID() != owner)
@@ -737,7 +737,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
             m_spawnedByDefault = false;                     // all object with owner is despawned after delay
             SetUInt64Value(GAMEOBJECT_FIELD_CREATED_BY, owner);
         }
-        uint64 GetOwnerGUID() const { return GetUInt64Value(GAMEOBJECT_FIELD_CREATED_BY); }
+        ObjectGuid GetOwnerGUID() const { return GetUInt64Value(GAMEOBJECT_FIELD_CREATED_BY); }
         Unit* GetOwner() const;
 
         void SetSpellId(uint32 id)
