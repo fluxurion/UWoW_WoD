@@ -192,17 +192,17 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             //! 5.4.1
             data->Initialize(SMSG_BATTLEFIELD_STATUS);
 
-            /*data->WriteGuidMask<2, 0, 3, 6, 1, 5, 4, 7>(guidBytes1);
-            data->WriteGuidBytes<7, 3, 2, 6, 4>(guidBytes1);
+            /*//data->WriteGuidMask<2, 0, 3, 6, 1, 5, 4, 7>(guidBytes1);
+            //data->WriteGuidBytes<7, 3, 2, 6, 4>(guidBytes1);
             *data << uint32(Time1);                                                                      // Join Time. Posible status.
-            data->WriteGuidBytes<5>(guidBytes1);
+            //data->WriteGuidBytes<5>(guidBytes1);
             *data << uint32(QueueSlot);                                                                  // Queue slot
-            data->WriteGuidBytes<1>(guidBytes1);
+            //data->WriteGuidBytes<1>(guidBytes1);
             if (bg)
                 *data << uint32((bg->isArena() || bg->IsRBG()) ? arenatype : 1);                         // unk, always 1
             else
                 *data << uint32(1);
-            data->WriteGuidBytes<0>(guidBytes1);*/
+            //data->WriteGuidBytes<0>(guidBytes1);*/
             break;
         }
         case STATUS_WAIT_QUEUE:
@@ -210,45 +210,45 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             //! 5.4.1
             data->Initialize(SMSG_BATTLEFIELD_STATUS_QUEUED);
 
-            /*data->WriteGuidMask<7>(guidBytes1);
-            data->WriteGuidMask<0>(guidBytes2);
-            data->WriteGuidMask<1, 0, 6, 2, 3>(guidBytes1);
-            data->WriteGuidMask<5, 7>(guidBytes2);
-            data->WriteGuidMask<5>(guidBytes1);
-            data->WriteGuidMask<2>(guidBytes2);
-            data->WriteGuidMask<4>(guidBytes1);
-            data->WriteGuidMask<1>(guidBytes2);
+            /*//data->WriteGuidMask<7>(guidBytes1);
+            //data->WriteGuidMask<0>(guidBytes2);
+            //data->WriteGuidMask<1, 0, 6, 2, 3>(guidBytes1);
+            //data->WriteGuidMask<5, 7>(guidBytes2);
+            //data->WriteGuidMask<5>(guidBytes1);
+            //data->WriteGuidMask<2>(guidBytes2);
+            //data->WriteGuidMask<4>(guidBytes1);
+            //data->WriteGuidMask<1>(guidBytes2);
             data->WriteBit(bg->isRated());
             data->WriteBit(0);   // Join Failed, 1 when it's arena ...
-            data->WriteGuidMask<4>(guidBytes2);
+            //data->WriteGuidMask<4>(guidBytes2);
             data->WriteBit(1); // // Eligible In Queue
-            data->WriteGuidMask<3>(guidBytes2);
+            //data->WriteGuidMask<3>(guidBytes2);
             data->WriteBit(0);  // Waiting On Other Activity // JoinAsGroup
-            data->WriteGuidMask<6>(guidBytes2);
+            //data->WriteGuidMask<6>(guidBytes2);
 
             data->FlushBits();
 
             *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
             *data << uint8(0);
             *data << uint32(Time1);             //Time of the join
-            data->WriteGuidBytes<3>(guidBytes1);
-            data->WriteGuidBytes<1>(guidBytes2);
-            data->WriteGuidBytes<2>(guidBytes1);
+            //data->WriteGuidBytes<3>(guidBytes1);
+            //data->WriteGuidBytes<1>(guidBytes2);
+            //data->WriteGuidBytes<2>(guidBytes1);
             *data << uint32((bg->isArena() || bg->IsRBG()) ? arenatype : 1);    //should be max 
             *data << uint32(Time2);                     // Estimated Wait Time
-            data->WriteGuidBytes<7>(guidBytes2);
-            data->WriteGuidBytes<4>(guidBytes1);
-            data->WriteGuidBytes<0>(guidBytes2);
-            data->WriteGuidBytes<6>(guidBytes1);
+            //data->WriteGuidBytes<7>(guidBytes2);
+            //data->WriteGuidBytes<4>(guidBytes1);
+            //data->WriteGuidBytes<0>(guidBytes2);
+            //data->WriteGuidBytes<6>(guidBytes1);
             *data << uint32(GetMSTimeDiffToNow(Time2));
             *data << uint8(bg->GetMinLevel()); //BG Min level. ToDo: for arena basic template has always 10 min.lvl.
             *data << uint32(QueueSlot);
             *data << uint8(0);
-            data->WriteGuidBytes<1>(guidBytes1);
-            data->WriteGuidBytes<2, 6, 3, 5>(guidBytes2);
-            data->WriteGuidBytes<7, 0>(guidBytes1);
-            data->WriteGuidBytes<4>(guidBytes2);
-            data->WriteGuidBytes<5>(guidBytes1);*/
+            //data->WriteGuidBytes<1>(guidBytes1);
+            //data->WriteGuidBytes<2, 6, 3, 5>(guidBytes2);
+            //data->WriteGuidBytes<7, 0>(guidBytes1);
+            //data->WriteGuidBytes<4>(guidBytes2);
+            //data->WriteGuidBytes<5>(guidBytes1);*/
             break;
         }
         case STATUS_WAIT_JOIN:
@@ -257,38 +257,38 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->Initialize(SMSG_BATTLEFIELD_STATUS_NEEDCONFIRMATION, 44);
 
             /*data->WriteBit(1);                              //!byte44
-            data->WriteGuidMask<2>(guidBytes2);
-            data->WriteGuidMask<1, 7>(guidBytes1);
-            data->WriteGuidMask<5, 3, 7>(guidBytes2);
-            data->WriteGuidMask<6, 2, 0, 4, 3>(guidBytes1);
-            data->WriteGuidMask<1, 0>(guidBytes2);
+            //data->WriteGuidMask<2>(guidBytes2);
+            //data->WriteGuidMask<1, 7>(guidBytes1);
+            //data->WriteGuidMask<5, 3, 7>(guidBytes2);
+            //data->WriteGuidMask<6, 2, 0, 4, 3>(guidBytes1);
+            //data->WriteGuidMask<1, 0>(guidBytes2);
             data->WriteBit(bg->isRated());                  // Is Rated
-            data->WriteGuidMask<5>(guidBytes1);
-            data->WriteGuidMask<4, 6>(guidBytes2);
+            //data->WriteGuidMask<5>(guidBytes1);
+            //data->WriteGuidMask<4, 6>(guidBytes2);
 
             data->FlushBits();
 
             *data << uint8(0);
             *data << uint32(Time1);                     // Time until closed
-            data->WriteGuidBytes<6>(guidBytes2);
+            //data->WriteGuidBytes<6>(guidBytes2);
             *data << uint8(bg->GetMinLevel());
-            data->WriteGuidBytes<3>(guidBytes1);
+            //data->WriteGuidBytes<3>(guidBytes1);
             *data << uint8(0);                          // bool. hide exit on sub invite.
-            data->WriteGuidBytes< 6, 4>(guidBytes1);
-            data->WriteGuidBytes<0, 1, 2, 3>(guidBytes2);
-            data->WriteGuidBytes<7>(guidBytes1);
+            //data->WriteGuidBytes< 6, 4>(guidBytes1);
+            //data->WriteGuidBytes<0, 1, 2, 3>(guidBytes2);
+            //data->WriteGuidBytes<7>(guidBytes1);
             *data << uint32(bg->GetClientInstanceID());
             //if (byte44)
             //   p.ReadByte("byte44");
             *data << uint32(QueueSlot);
-            data->WriteGuidBytes<7>(guidBytes2);
+            //data->WriteGuidBytes<7>(guidBytes2);
             *data << uint32(bg->GetMapId());
             *data << uint32((bg->isArena() || bg->IsRBG()) ? arenatype : 1);
-            data->WriteGuidBytes<0, 2>(guidBytes1);
+            //data->WriteGuidBytes<0, 2>(guidBytes1);
             *data << uint32(Time2);
-            data->WriteGuidBytes<5>(guidBytes1);
-            data->WriteGuidBytes<4, 5>(guidBytes2);
-            data->WriteGuidBytes<1>(guidBytes1);*/
+            //data->WriteGuidBytes<5>(guidBytes1);
+            //data->WriteGuidBytes<4, 5>(guidBytes2);
+            //data->WriteGuidBytes<1>(guidBytes1);*/
             
             break;
         }
@@ -298,41 +298,41 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->Initialize(SMSG_BATTLEFIELD_STATUS_ACTIVE, 49);
 
             /*data->WriteBit(bg->isRated());
-            data->WriteGuidMask<5, 2>(guidBytes1);
-            data->WriteGuidMask<0, 7>(guidBytes2);
-            data->WriteGuidMask<7, 6>(guidBytes1);
-            data->WriteGuidMask<1, 2>(guidBytes2);
-            data->WriteGuidMask<1, 4>(guidBytes1);
+            //data->WriteGuidMask<5, 2>(guidBytes1);
+            //data->WriteGuidMask<0, 7>(guidBytes2);
+            //data->WriteGuidMask<7, 6>(guidBytes1);
+            //data->WriteGuidMask<1, 2>(guidBytes2);
+            //data->WriteGuidMask<1, 4>(guidBytes1);
             data->WriteBit(bg->isRated() && bg->GetStatus() != STATUS_WAIT_LEAVE);  // Block
-            data->WriteGuidMask<3>(guidBytes2);
-            data->WriteGuidMask<0, 3>(guidBytes1);
-            data->WriteGuidMask<6, 5, 4>(guidBytes2);
+            //data->WriteGuidMask<3>(guidBytes2);
+            //data->WriteGuidMask<0, 3>(guidBytes1);
+            //data->WriteGuidMask<6, 5, 4>(guidBytes2);
             data->WriteBit(pPlayer->GetBGTeam() == HORDE ? 0 : 1);      // Battlefield Faction ( 0 horde, 1 alliance )
 
             data->FlushBits();
 
-            data->WriteGuidBytes<7>(guidBytes2);
-            data->WriteGuidBytes<5, 4>(guidBytes1);
-            data->WriteGuidBytes<6>(guidBytes2);
+            //data->WriteGuidBytes<7>(guidBytes2);
+            //data->WriteGuidBytes<5, 4>(guidBytes1);
+            //data->WriteGuidBytes<6>(guidBytes2);
             *data << uint32(Time1);                                    // Time
-            data->WriteGuidBytes<5>(guidBytes2);
-            data->WriteGuidBytes<6>(guidBytes1);
-            data->WriteGuidBytes<3>(guidBytes2);
+            //data->WriteGuidBytes<5>(guidBytes2);
+            //data->WriteGuidBytes<6>(guidBytes1);
+            //data->WriteGuidBytes<3>(guidBytes2);
             *data << uint32((bg->isArena() || bg->IsRBG()) ? arenatype : 1);
             *data << uint32(bg->GetMapId());            // Map Id
-            data->WriteGuidBytes<3>(guidBytes1);
+            //data->WriteGuidBytes<3>(guidBytes1);
             *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
-            data->WriteGuidBytes<1, 7>(guidBytes1);
+            //data->WriteGuidBytes<1, 7>(guidBytes1);
             *data << uint32(bg->GetRemainingTime());                     // Time until closed
-            data->WriteGuidBytes<0>(guidBytes1);
-            data->WriteGuidBytes<4>(guidBytes2);
+            //data->WriteGuidBytes<0>(guidBytes1);
+            //data->WriteGuidBytes<4>(guidBytes2);
             *data << uint8(0);                          // unk
             *data << uint32(QueueSlot);                 // Queue slot
-            data->WriteGuidBytes<0, 2>(guidBytes2);
+            //data->WriteGuidBytes<0, 2>(guidBytes2);
             *data << uint8(0);                          // unk
             *data << uint32(Time2);
-            data->WriteGuidBytes<1>(guidBytes2);
-            data->WriteGuidBytes<2>(guidBytes1);
+            //data->WriteGuidBytes<1>(guidBytes2);
+            //data->WriteGuidBytes<2>(guidBytes1);
             *data << uint8(bg->GetMinLevel());          // Min Level*/
             break;
         }
@@ -354,25 +354,25 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint32(QueueSlot);
 			*data << uint8(0);          // byte4A      
 
-			data->WriteGuidMask<5, 4>(guidBytes2);
-			data->WriteGuidMask<2>(guidBytes1);
-			data->WriteGuidMask<7>(guidBytes2);
-			data->WriteGuidMask<0>(guidBytes1);
+			//data->WriteGuidMask<5, 4>(guidBytes2);
+			//data->WriteGuidMask<2>(guidBytes1);
+			//data->WriteGuidMask<7>(guidBytes2);
+			//data->WriteGuidMask<0>(guidBytes1);
 			data->WriteBit(bg->isRated());
-			data->WriteGuidMask<7>(guidBytes1);
-			data->WriteGuidMask<0, 1>(guidBytes2);
-			data->WriteGuidMask<3, 5, 1>(guidBytes1);
-			data->WriteGuidMask<2>(guidBytes2);
-			data->WriteGuidMask<4>(guidBytes1);
-			data->WriteGuidMask<6, 3>(guidBytes2);
-			data->WriteGuidMask<6>(guidBytes1);
+			//data->WriteGuidMask<7>(guidBytes1);
+			//data->WriteGuidMask<0, 1>(guidBytes2);
+			//data->WriteGuidMask<3, 5, 1>(guidBytes1);
+			//data->WriteGuidMask<2>(guidBytes2);
+			//data->WriteGuidMask<4>(guidBytes1);
+			//data->WriteGuidMask<6, 3>(guidBytes2);
+			//data->WriteGuidMask<6>(guidBytes1);
 
             data->FlushBits();
 
-			data->WriteGuidBytes<7, 2, 4, 6>(guidBytes1);
-			data->WriteGuidBytes<5, 4, 2, 1>(guidBytes2);
-			data->WriteGuidBytes<5, 1, 0, 3>(guidBytes1);
-			data->WriteGuidBytes<3, 0, 6, 7>(guidBytes2);*/
+			//data->WriteGuidBytes<7, 2, 4, 6>(guidBytes1);
+			//data->WriteGuidBytes<5, 4, 2, 1>(guidBytes2);
+			//data->WriteGuidBytes<5, 1, 0, 3>(guidBytes1);
+			//data->WriteGuidBytes<3, 0, 6, 7>(guidBytes2);*/
             break;
         }
     }
@@ -558,17 +558,17 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 break;
         }
 
-        data->WriteGuidMask<2, 4, 6, 7>(guid);
+        //data->WriteGuidMask<2, 4, 6, 7>(guid);
         data->WriteBit(isArena);
-        data->WriteGuidMask<5>(guid);
+        //data->WriteGuidMask<5>(guid);
         data->WriteBit(isRated);                                    // Has Plr rating
         data->WriteBit(team == ALLIANCE);                           // Reversed team
         data->WriteBit(isRated);                                    // Pre-match mmr
         data->WriteBit(isRated);                                    // rating changed
-        data->WriteGuidMask<3, 1>(guid);
+        //data->WriteGuidMask<3, 1>(guid);
         data->WriteBit(isRated);                                    // Has MMR Change
         data->WriteBit(!isArena);                                   // Unk 3 -- Prolly if (bg)
-        data->WriteGuidMask<0>(guid);
+        //data->WriteGuidMask<0>(guid);
 
         //byte part
         buff << uint32(itr2->second->KillingBlows);
@@ -628,43 +628,43 @@ void BattlegroundMgr::BuildStatusFailedPacket(WorldPacket* data, Battleground* b
     *data << uint32(player->GetBattlegroundQueueJoinTime(bg->GetTypeID()));                  // Join Time RANDOM
     *data << uint32(result);
 
-    data->WriteGuidMask<0>(guidBytes1);
-    data->WriteGuidMask<4>(guidBytes2);
-    data->WriteGuidMask<4>(guidBytes1);
-    data->WriteGuidMask<7>(unkGuid3);
-    data->WriteGuidMask<1>(guidBytes2);
-    data->WriteGuidMask<1>(guidBytes1);
-    data->WriteGuidMask<2>(unkGuid3);
-    data->WriteGuidMask<2>(guidBytes1);
-    data->WriteGuidMask<3>(guidBytes2);
-    data->WriteGuidMask<4, 3>(unkGuid3);
-    data->WriteGuidMask<5>(guidBytes2);
-    data->WriteGuidMask<6>(guidBytes1);
-    data->WriteGuidMask<6>(unkGuid3);
-    data->WriteGuidMask<0, 6, 7>(guidBytes2);
-    data->WriteGuidMask<5, 0>(unkGuid3);
-    data->WriteGuidMask<2>(guidBytes2);
-    data->WriteGuidMask<7, 3, 5>(guidBytes1);
-    data->WriteGuidMask<1>(unkGuid3);
+    //data->WriteGuidMask<0>(guidBytes1);
+    //data->WriteGuidMask<4>(guidBytes2);
+    //data->WriteGuidMask<4>(guidBytes1);
+    //data->WriteGuidMask<7>(unkGuid3);
+    //data->WriteGuidMask<1>(guidBytes2);
+    //data->WriteGuidMask<1>(guidBytes1);
+    //data->WriteGuidMask<2>(unkGuid3);
+    //data->WriteGuidMask<2>(guidBytes1);
+    //data->WriteGuidMask<3>(guidBytes2);
+    //data->WriteGuidMask<4, 3>(unkGuid3);
+    //data->WriteGuidMask<5>(guidBytes2);
+    //data->WriteGuidMask<6>(guidBytes1);
+    //data->WriteGuidMask<6>(unkGuid3);
+    //data->WriteGuidMask<0, 6, 7>(guidBytes2);
+    //data->WriteGuidMask<5, 0>(unkGuid3);
+    //data->WriteGuidMask<2>(guidBytes2);
+    //data->WriteGuidMask<7, 3, 5>(guidBytes1);
+    //data->WriteGuidMask<1>(unkGuid3);
             
     data->FlushBits();
             
-    data->WriteGuidBytes<6>(unkGuid3);
-    data->WriteGuidBytes<5>(guidBytes1);
-    data->WriteGuidBytes<6>(guidBytes2);
-    data->WriteGuidBytes<4>(guidBytes1);
-    data->WriteGuidBytes<3>(guidBytes2);
-    data->WriteGuidBytes<1>(guidBytes1);
-    data->WriteGuidBytes<3, 1>(unkGuid3);
-    data->WriteGuidBytes<0>(guidBytes2);
-    data->WriteGuidBytes<6>(guidBytes1);
-    data->WriteGuidBytes<4, 5>(guidBytes2);
-    data->WriteGuidBytes<2, 7, 0>(unkGuid3);
-    data->WriteGuidBytes<7>(guidBytes2);
-    data->WriteGuidBytes<5, 4>(unkGuid3);
-    data->WriteGuidBytes<1>(guidBytes2);
-    data->WriteGuidBytes<3, 0, 2, 7>(guidBytes1);
-    data->WriteGuidBytes<2>(guidBytes2);
+    //data->WriteGuidBytes<6>(unkGuid3);
+    //data->WriteGuidBytes<5>(guidBytes1);
+    //data->WriteGuidBytes<6>(guidBytes2);
+    //data->WriteGuidBytes<4>(guidBytes1);
+    //data->WriteGuidBytes<3>(guidBytes2);
+    //data->WriteGuidBytes<1>(guidBytes1);
+    //data->WriteGuidBytes<3, 1>(unkGuid3);
+    //data->WriteGuidBytes<0>(guidBytes2);
+    //data->WriteGuidBytes<6>(guidBytes1);
+    //data->WriteGuidBytes<4, 5>(guidBytes2);
+    //data->WriteGuidBytes<2, 7, 0>(unkGuid3);
+    //data->WriteGuidBytes<7>(guidBytes2);
+    //data->WriteGuidBytes<5, 4>(unkGuid3);
+    //data->WriteGuidBytes<1>(guidBytes2);
+    //data->WriteGuidBytes<3, 0, 2, 7>(guidBytes1);
+    //data->WriteGuidBytes<2>(guidBytes2);
 }
 
 void BattlegroundMgr::BuildUpdateWorldStatePacket(WorldPacket* data, uint32 field, uint32 value)
@@ -681,10 +681,10 @@ void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
     ObjectGuidSteam guid = 0;
 
     data->Initialize(SMSG_PLAY_SOUND, 10);
-    data->WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(guid);
-    data->WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(guid);
+    //data->WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(guid);
+    //data->WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(guid);
     *data << uint32(soundid);
-    data->WriteGuidBytes<7>(guid);
+    //data->WriteGuidBytes<7>(guid);
 }
 
 //! 5.4.1
@@ -693,8 +693,8 @@ void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, Objec
     ObjectGuidSteam guidBytes = 0/*guid*/;
 
     data->Initialize(SMSG_BATTLEGROUND_PLAYER_LEFT, 8 + 1);
-    data->WriteGuidMask<7, 6, 2, 5, 0, 3, 1, 4>(guidBytes);
-    data->WriteGuidBytes<5, 1, 7, 6, 3, 2, 0, 4>(guidBytes);
+    //data->WriteGuidMask<7, 6, 2, 5, 0, 3, 1, 4>(guidBytes);
+    //data->WriteGuidBytes<5, 1, 7, 6, 3, 2, 0, 4>(guidBytes);
 }
 
 //! 5.4.1
@@ -703,8 +703,8 @@ void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, Obj
     ObjectGuidSteam guidBytes = 0/*guid*/;
 
     data->Initialize(SMSG_BATTLEGROUND_PLAYER_JOINED, 8);
-    data->WriteGuidMask<5, 1, 7, 6, 3, 0, 2, 4>(guidBytes);
-    data->WriteGuidBytes<4, 6, 2, 7, 0, 3, 1, 5>(guidBytes);
+    //data->WriteGuidMask<5, 1, 7, 6, 3, 0, 2, 4>(guidBytes);
+    //data->WriteGuidBytes<4, 6, 2, 7, 0, 3, 1, 5>(guidBytes);
 }
 
 Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId)
@@ -1131,9 +1131,9 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     *data << uint32(winner_conquest);           // random
     *data << uint32(loser_honor);               // holiday
 
-    data->WriteGuidMask<1>(guid);
+    //data->WriteGuidMask<1>(guid);
     data->WriteBit(!guid);                      // from where
-    data->WriteGuidMask<4>(guid);
+    //data->WriteGuidMask<4>(guid);
 
     if (bgTypeId == BATTLEGROUND_AA)            // arena
         data->WriteBits(0, 22);                 // instance count
@@ -1156,18 +1156,18 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
         data->WriteBits(count, 22);
     }
 
-    data->WriteGuidMask<0, 6>(guid);
+    //data->WriteGuidMask<0, 6>(guid);
     data->WriteBit(player->GetRandomWinner());  // holiday
-    data->WriteGuidMask<5>(guid);
+    //data->WriteGuidMask<5>(guid);
     data->WriteBit(1);                          // unk
-    data->WriteGuidMask<2, 3, 7>(guid);
+    //data->WriteGuidMask<2, 3, 7>(guid);
     data->WriteBit(player->GetRandomWinner());  // random
     data->FlushBits();
 
-    data->WriteGuidBytes<2, 5, 7>(guid);
+    //data->WriteGuidBytes<2, 5, 7>(guid);
     if (!dataBuffer.empty())
         data->append(dataBuffer);
-    data->WriteGuidBytes<1, 3, 6, 4, 0>(guid);
+    //data->WriteGuidBytes<1, 3, 6, 4, 0>(guid);
 }
 
 void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, BattlegroundTypeId bgTypeId)

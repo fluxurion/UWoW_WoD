@@ -1213,10 +1213,10 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
             mask |= (GROUP_UPDATE_FLAG_PET_CUR_POWER | GROUP_UPDATE_FLAG_PET_MAX_POWER);
     }
 
-    data->WriteGuidMask<5, 6, 4>(guid);
+    //data->WriteGuidMask<5, 6, 4>(guid);
     data->WriteBit(0);
     data->WriteBit(full);
-    data->WriteGuidMask<1, 7, 3, 2, 0>(guid);
+    //data->WriteGuidMask<1, 7, 3, 2, 0>(guid);
     data->FlushBits();
 
     if (mask & GROUP_UPDATE_FLAG_STATUS)
@@ -1437,9 +1437,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     *data << uint32(buffer.wpos());
     data->append(buffer);
 
-    data->WriteGuidBytes<2, 1, 7>(guid);
+    //data->WriteGuidBytes<2, 1, 7>(guid);
     *data << uint32(mask);
-    data->WriteGuidBytes<4, 3, 5, 0, 6>(guid);
+    //data->WriteGuidBytes<4, 3, 5, 0, 6>(guid);
 }
 
 //! 5.4.1

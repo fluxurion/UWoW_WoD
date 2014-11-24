@@ -76,14 +76,14 @@ void BattlePetMgr::BuildPetJournal(WorldPacket *data)
         uint8 len = pet->second->customName == "" ? 0 : pet->second->customName.length();
 
         data->WriteBit(!pet->second->breedID);    // hasBreed, inverse
-        data->WriteGuidMask<1, 5, 3>(guid);
+        //data->WriteGuidMask<1, 5, 3>(guid);
         data->WriteBit(0);                        // has guid
         data->WriteBit(!pet->second->quality);    // hasQuality, inverse
-        data->WriteGuidMask<6, 7>(guid);
+        //data->WriteGuidMask<6, 7>(guid);
         data->WriteBit(!pet->second->flags);      // has flags, inverse
-        data->WriteGuidMask<0, 4>(guid);
+        //data->WriteGuidMask<0, 4>(guid);
         data->WriteBits(len, 7);                  // custom name length
-        data->WriteGuidMask<2>(guid);
+        //data->WriteGuidMask<2>(guid);
         data->WriteBit(1);                        // hasUnk, inverse
     }
 
@@ -94,7 +94,7 @@ void BattlePetMgr::BuildPetJournal(WorldPacket *data)
         data->WriteBit(!i);                                          // unk bit, related to Int8 (slot ID?)
         data->WriteBit(1);                                           // unk bit, related to Int32 (hasCustomAbility?)
         data->WriteBit(1);                                           // empty slot, inverse
-        data->WriteGuidMask<7, 1, 3, 2, 5, 0, 4, 6>(placeholderPet); // pet guid in slot
+        //data->WriteGuidMask<7, 1, 3, 2, 5, 0, 4, 6>(placeholderPet); // pet guid in slot
         data->WriteBit(1);                                           // locked slot
     }
 
@@ -104,7 +104,7 @@ void BattlePetMgr::BuildPetJournal(WorldPacket *data)
     {
         //if (!bit)
             //*data << uint32(0);
-        data->WriteGuidBytes<3, 7, 5, 1, 4, 0, 6, 2>(placeholderPet);
+        //data->WriteGuidBytes<3, 7, 5, 1, 4, 0, 6, 2>(placeholderPet);
         if (i)
             *data << uint8(i);
     }
@@ -122,11 +122,11 @@ void BattlePetMgr::BuildPetJournal(WorldPacket *data)
             *data << uint16(pet->second->breedID);            // breedID
         *data << uint32(pet->second->speciesID);              // speciesID
         *data << uint32(pet->second->speed);                  // speed
-        data->WriteGuidBytes<1, 6, 4>(guid);
+        //data->WriteGuidBytes<1, 6, 4>(guid);
         *data << uint32(pet->second->displayID);
         *data << uint32(pet->second->maxHealth);              // max health
         *data << uint32(pet->second->power);                  // power
-        data->WriteGuidBytes<2>(guid);
+        //data->WriteGuidBytes<2>(guid);
         *data << uint32(pet->second->creatureEntry);          // Creature ID
         *data << uint16(pet->second->level);                  // level
         if (len > 0)
@@ -135,10 +135,10 @@ void BattlePetMgr::BuildPetJournal(WorldPacket *data)
         *data << uint16(pet->second->xp);                     // xp
         if (pet->second->quality)
             *data << uint8(pet->second->quality);             // quality
-        data->WriteGuidBytes<3, 7, 0>(guid);
+        //data->WriteGuidBytes<3, 7, 0>(guid);
         if (pet->second->flags)
             *data << uint16(pet->second->flags);              // flags
-        data->WriteGuidBytes<5>(guid);
+        //data->WriteGuidBytes<5>(guid);
 
         count++;
     }
