@@ -3425,7 +3425,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     // set timer base at cast time
     ReSetTimer();
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare: spell id %u source %u caster %d customCastFlags %u mask %u target %s", m_spellInfo->Id, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask(), m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->GetString().c_str() : "-");
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare: spell id %u source %u caster %d customCastFlags %u mask %u target %s", m_spellInfo->Id, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask(), m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->ToString().c_str() : "-");
 
     //Containers for channeled spells have to be set
     //TODO:Apply this to all casted spells if needed
@@ -9414,7 +9414,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
     if (res != SPELL_CAST_OK)
     {
         #ifdef WIN32
-        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::WorldObjectSpellTargetCheck::checkcast fail. spell id %u res %u caster %s target %s ", _spellInfo->Id, res, _caster->GetString().c_str(), target->GetString().c_str());
+        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::WorldObjectSpellTargetCheck::checkcast fail. spell id %u res %u caster %s target %s ", _spellInfo->Id, res, _caster->ToString().c_str(), target->ToString().c_str());
         #endif
         return false;
     }

@@ -396,7 +396,7 @@ void AreaTrigger::DoAction(Unit* unit, ActionInfo& action)
     Unit* caster = _caster;
 
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::DoAction caster %s unit %s type %u spellID %u, moment %u, targetFlags %u",
-    //caster->GetString().c_str(), unit->GetString().c_str(), action.action->actionType, action.action->spellId, action.action->moment, action.action->targetFlags);
+    //caster->ToString().c_str(), unit->ToString().c_str(), action.action->actionType, action.action->spellId, action.action->moment, action.action->targetFlags);
 
     if (action.action->targetFlags & AT_TARGET_FLAG_FRIENDLY)
         if (!caster || !caster->IsFriendlyTo(unit))

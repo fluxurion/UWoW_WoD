@@ -1193,6 +1193,7 @@ void Pet::_LoadAuras(uint32 timediff)
         while (resultEffect->NextRow());
     }
 
+    ObjectGuid caster_guid;
     if (result)
     {
         do

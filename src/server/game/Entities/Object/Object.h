@@ -180,11 +180,7 @@ class Object
                 return uint16(0);
         }
 
-        ObjectGuid const& GetGuidValue(uint16 index) const
-        {
-            ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, false));
-            return *((ObjectGuid*)&(m_uint32Values[index]));
-        }
+        ObjectGuid const& GetGuidValue(uint16 index) const;
 
         void SetInt32Value(uint16 index, int32 value);
         void UpdateInt32Value(uint16 index, int32 value);
@@ -914,9 +910,9 @@ class WorldObject : public Object, public WorldLocation
         void SetZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
-        TempSummon* SummonCreature(uint32 id, const Position &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, int32 vehId = 0, uint64 viewerGuid = 0, std::list<uint64>* viewersList = NULL) const;
-        TempSummon* SummonCreature(uint32 id, const Position &pos, uint64 targetGuid, TempSummonType spwtype, uint32 despwtime, uint32 spellId = 0, SummonPropertiesEntry const* properties = NULL) const;
-        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint64 viewerGuid = 0, std::list<uint64>* viewersList = NULL)
+        TempSummon* SummonCreature(uint32 id, const Position &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, int32 vehId = 0, ObjectGuid viewerGuid = ObjectGuid::Empty, GuidList* viewersList = NULL) const;
+        TempSummon* SummonCreature(uint32 id, const Position &pos, ObjectGuid targetGuid, TempSummonType spwtype, uint32 despwtime, uint32 spellId = 0, SummonPropertiesEntry const* properties = NULL) const;
+        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, ObjectGuid viewerGuid = ObjectGuid::Empty, GuidList* viewersList = NULL)
         {
             if (!x && !y && !z)
             {
@@ -927,7 +923,7 @@ class WorldObject : public Object, public WorldLocation
             pos.Relocate(x, y, z, ang);
             return SummonCreature(id, pos, spwtype, despwtime, 0, viewerGuid, viewersList);
         }
-        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid = 0, std::list<uint64>* viewersList = NULL);
+        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, ObjectGuid viewerGuid = ObjectGuid::Empty, GuidList* viewersList = NULL);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
 
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
@@ -984,13 +980,13 @@ class WorldObject : public Object, public WorldLocation
 
         // Personal visibility system
         bool MustBeVisibleOnlyForSomePlayers() const { return !_visibilityPlayerList.empty(); }
-        void GetMustBeVisibleForPlayersList(std::list<uint64/* guid*/>& playerList) { playerList = _visibilityPlayerList; }
+        void GetMustBeVisibleForPlayersList(GuidList& playerList) { playerList = _visibilityPlayerList; }
 
-        bool IsPlayerInPersonnalVisibilityList(uint64 guid) const;
-        bool IsGroupInPersonnalVisibilityList(uint64 guid) const;
-        void AddPlayerInPersonnalVisibilityList(uint64 guid) { _visibilityPlayerList.push_back(guid); }
-        void AddPlayersInPersonnalVisibilityList(std::list<uint64> viewerList);
-        void RemovePlayerFromPersonnalVisibilityList(uint64 guid) { _visibilityPlayerList.remove(guid); }
+        bool IsPlayerInPersonnalVisibilityList(ObjectGuid guid) const;
+        bool IsGroupInPersonnalVisibilityList(ObjectGuid guid) const;
+        void AddPlayerInPersonnalVisibilityList(ObjectGuid guid) { _visibilityPlayerList.push_back(guid); }
+        void AddPlayersInPersonnalVisibilityList(GuidList viewerList);
+        void RemovePlayerFromPersonnalVisibilityList(ObjectGuid guid) { _visibilityPlayerList.remove(guid); }
 
     protected:
         std::string m_name;
@@ -1022,7 +1018,7 @@ class WorldObject : public Object, public WorldLocation
         uint32 m_phaseId;                                   // special phase. It's new generation phase, when we should check id.
         bool m_ignorePhaseIdCheck;                          // like gm mode.
 
-        std::list<uint64/* guid*/> _visibilityPlayerList;
+        GuidList _visibilityPlayerList;
 
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
 

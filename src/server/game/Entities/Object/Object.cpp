@@ -957,7 +957,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
 void Object::_BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer *data, Player* target) const
 {
     // Crashfix, prevent use of bag with dynamic field
-    if (isType(TYPEMAST_BAG) || 
+    if (/*isType(TYPEMAST_BAG) || */
         (updatetype == UPDATETYPE_VALUES && GetTypeId() == TYPEID_PLAYER && this != target))
     {
         *data << uint8(0);
@@ -1088,7 +1088,7 @@ void Object::GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOw
             break;
         case TYPEID_AREATRIGGER:
             flags = AreaTriggerUpdateFieldFlags;
-            isOwner = ToAreaTrigger()->GetUInt64Value(AREATRIGGER_CASTER) == target->GetGUID();
+            isOwner = ToAreaTrigger()->GetCasterGUID() == target->GetGUID();
             break;
         case TYPEID_OBJECT:
             break;
@@ -1338,8 +1338,8 @@ void Object::SetGuidValue(uint16 index, ObjectGuid const& value)
     if (*((ObjectGuid*)&(m_uint32Values[index])) != value)
     {
         *((ObjectGuid*)&(m_uint32Values[index])) = value;
-        _changesMask.SetBit(index);
-        _changesMask.SetBit(index + 1);
+        _changedFields[index] = true;
+        _changedFields[index + 1] = true;
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -2171,7 +2171,7 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (this == obj)
         return true;
 
-    if (obj->MustBeVisibleOnlyForSomePlayers() && IS_PLAYER_GUID(GetGUID()))
+    if (obj->MustBeVisibleOnlyForSomePlayers() && GetGUID().IsPlayer())
     {
         Player const* thisPlayer = ToPlayer();
 
@@ -2376,35 +2376,35 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
     return true;
 }
 
-bool WorldObject::IsPlayerInPersonnalVisibilityList(uint64 guid) const
+bool WorldObject::IsPlayerInPersonnalVisibilityList(ObjectGuid guid) const
 {
-    if (!IS_PLAYER_GUID(guid))
+    if (!guid.IsPlayer())
         return false;
 
-    for (std::list<uint64>::const_iterator itr = _visibilityPlayerList.begin(); itr != _visibilityPlayerList.end(); ++itr)
+    for (GuidList::const_iterator itr = _visibilityPlayerList.begin(); itr != _visibilityPlayerList.end(); ++itr)
         if ((*itr) == guid)
             return true;
 
     return false;
 }
 
-bool WorldObject::IsGroupInPersonnalVisibilityList(uint64 guid) const
+bool WorldObject::IsGroupInPersonnalVisibilityList(ObjectGuid guid) const
 {
-    if (!IS_GROUP(guid))
+    if (!guid.IsParty())
         return false;
 
-    for (std::list<uint64>::const_iterator itr = _visibilityPlayerList.begin(); itr != _visibilityPlayerList.end(); ++itr)
+    for (GuidList::const_iterator itr = _visibilityPlayerList.begin(); itr != _visibilityPlayerList.end(); ++itr)
         if ((*itr) == guid)
             return true;
 
     return false;
 }
 
-void WorldObject::AddPlayersInPersonnalVisibilityList(std::list<uint64> viewerList)
+void WorldObject::AddPlayersInPersonnalVisibilityList(GuidList viewerList)
 {
-    for (std::list<uint64>::const_iterator guid = viewerList.begin(); guid != viewerList.end(); ++guid)
+    for (GuidList::const_iterator guid = viewerList.begin(); guid != viewerList.end(); ++guid)
     {
-        if (!IS_PLAYER_GUID(*guid))
+        if (!(*guid).IsPlayer())
             continue;
 
         _visibilityPlayerList.push_back(*guid);
@@ -2442,7 +2442,7 @@ namespace Trinity
     class MonsterChatBuilder
     {
         public:
-            MonsterChatBuilder(WorldObject const& obj, ChatMsg msgtype, int32 textId, uint32 language, uint64 targetGUID)
+            MonsterChatBuilder(WorldObject const& obj, ChatMsg msgtype, int32 textId, uint32 language, ObjectGuid targetGUID)
                 : i_object(obj), i_msgtype(msgtype), i_textId(textId), i_language(language), i_targetGUID(targetGUID) {}
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
@@ -2457,13 +2457,13 @@ namespace Trinity
             ChatMsg i_msgtype;
             int32 i_textId;
             uint32 i_language;
-            uint64 i_targetGUID;
+            ObjectGuid i_targetGUID;
     };
 
     class MonsterCustomChatBuilder
     {
         public:
-            MonsterCustomChatBuilder(WorldObject const& obj, ChatMsg msgtype, const char* text, uint32 language, uint64 targetGUID)
+            MonsterCustomChatBuilder(WorldObject const& obj, ChatMsg msgtype, const char* text, uint32 language, ObjectGuid targetGUID)
                 : i_object(obj), i_msgtype(msgtype), i_text(text), i_language(language), i_targetGUID(targetGUID) {}
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
@@ -2476,7 +2476,7 @@ namespace Trinity
             ChatMsg i_msgtype;
             const char* i_text;
             uint32 i_language;
-            uint64 i_targetGUID;
+            ObjectGuid i_targetGUID;
     };
 }                                                           // namespace Trinity
 
@@ -2688,7 +2688,7 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= NULL*/, uint32 duration /*= 0*/, Unit* summoner /*= NULL*/, uint64 targetGuid /*= 0*/, uint32 spellId /*= 0*/, int32 vehId /*= 0*/, uint64 viewerGuid /*= 0*/, std::list<uint64>* viewersList /*= NULL*/)
+TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= NULL*/, uint32 duration /*= 0*/, Unit* summoner /*= NULL*/, ObjectGuid targetGuid /*= 0*/, uint32 spellId /*= 0*/, int32 vehId /*= 0*/, ObjectGuid viewerGuid /*= 0*/, GuidList* viewersList /*= NULL*/)
 {
     if(summoner)
     {
@@ -2836,7 +2836,7 @@ void WorldObject::SetZoneScript()
     }
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, uint64 targetGuid, TempSummonType spwtype, uint32 duration, uint32 spellId /*= 0*/, SummonPropertiesEntry const* properties /*= NULL*/) const
+TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, ObjectGuid targetGuid, TempSummonType spwtype, uint32 duration, uint32 spellId /*= 0*/, SummonPropertiesEntry const* properties /*= NULL*/) const
 {
     if (Map* map = FindMap())
     {
@@ -2857,7 +2857,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, uint6
     return NULL;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempSummonType spwtype, uint32 duration, int32 vehId, uint64 viewerGuid, std::list<uint64>* viewersList) const
+TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempSummonType spwtype, uint32 duration, int32 vehId, ObjectGuid viewerGuid, GuidList* viewersList) const
 {
     if (Map* map = FindMap())
     {

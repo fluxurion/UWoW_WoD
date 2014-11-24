@@ -739,7 +739,7 @@ void Channel::Invite(ObjectGuid p, const char *newname)
     }
 
     WorldPacket data;
-    if (!newp->GetSocial()->HasIgnore(p.GetCounter()))
+    if (!newp->GetSocial()->HasIgnore(p))
     {
         MakeInvite(&data, p);
         SendToOne(&data, newp->GetGUID());
@@ -787,7 +787,7 @@ void Channel::SendToAll(WorldPacket* data, ObjectGuid p)
         Player* player = ObjectAccessor::FindPlayer(i->first);
         if (player)
         {
-            if (!p || !player->GetSocial()->HasIgnore(p.GetCounter()))
+            if (!p || !player->GetSocial()->HasIgnore(p))
                 player->GetSession()->SendPacket(data);
         }
     }
