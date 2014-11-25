@@ -300,7 +300,7 @@ void Vehicle::RemoveAllPassengers()
             if (Unit* passenger = ObjectAccessor::FindUnit(itr->second.Passenger))
                 passenger->_ExitVehicle();
 
-            itr->second.Passenger = 0;
+            itr->second.Passenger.Clear();
         }
     }
 }
@@ -427,7 +427,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         return;
 
     // For correct initialization accessory should set owner 
-    TempSummon* accessory = map->SummonCreature(entry, *_me, NULL, summonTime, _me, 0, 0, GetRecAura() ? 0 : -1);
+    TempSummon* accessory = map->SummonCreature(entry, *_me, NULL, summonTime, _me, ObjectGuid::Empty, 0, GetRecAura() ? 0 : -1);
 
     //ASSERT(accessory);
     if(!accessory)
@@ -568,7 +568,7 @@ void Vehicle::RemovePassenger(Unit* unit)
     sLog->outDebug(LOG_FILTER_VEHICLES, "Unit %s exit vehicle entry %u id %u dbguid %u seat %d", 
         unit->GetName(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID().GetCounter(), (int32)seat->first);
 
-    seat->second.Passenger = 0;
+    seat->second.Passenger.Clear();
     if (seat->second.SeatInfo->CanEnterOrExit() && ++UsableSeatNum)
         _me->SetFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
 

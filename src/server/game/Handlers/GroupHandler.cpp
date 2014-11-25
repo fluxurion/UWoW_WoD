@@ -690,7 +690,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         // ToDo: check for already rolled items. This could posible on packet spaming (special tools should be writen, no so important now)
 
         // list of players allowed to receive this item in trade
-        AllowedLooterSet looters = item.GetAllowedLooters();
+        GuidSet looters = item.GetAllowedLooters();
 
         // not move item from loot to target inventory
         Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, looters);

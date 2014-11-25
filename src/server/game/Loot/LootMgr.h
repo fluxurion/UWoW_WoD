@@ -151,8 +151,6 @@ struct CurrencyLoot
     }
 };
 
-typedef std::set<uint32> AllowedLooterSet;
-
 struct LootItem
 {
     uint32  itemid;
@@ -161,7 +159,7 @@ struct LootItem
     int32   randomPropertyId;
     ItemQualities quality;
     std::list<Condition*> conditions;                               // additional loot condition
-    AllowedLooterSet allowedGUIDs;
+    GuidSet allowedGUIDs;
     uint32  count;
     bool    currency          : 1;
     bool    is_looted         : 1;
@@ -180,7 +178,7 @@ struct LootItem
     bool AllowedForPlayer(Player const* player) const;
 
     void AddAllowedLooter(Player const* player);
-    const AllowedLooterSet & GetAllowedLooters() const { return allowedGUIDs; }
+    const GuidSet & GetAllowedLooters() const { return allowedGUIDs; }
 };
 
 struct QuestItem

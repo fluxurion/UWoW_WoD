@@ -352,7 +352,7 @@ class Item : public Object
         bool IsRefundExpired();
 
         // Soulbound trade system
-        void SetSoulboundTradeable(AllowedLooterSet& allowedLooters);
+        void SetSoulboundTradeable(GuidSet& allowedLooters);
         void ClearSoulboundTradeable(Player* currentOwner);
         bool CheckSoulboundTradeExpire();
 
@@ -405,7 +405,7 @@ class Item : public Object
         ObjectGuid m_refundRecipient;
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
-        AllowedLooterSet allowedGUIDs;
+        GuidSet allowedGUIDs;
         uint32 ItemLevel;
         uint32 ItemLevelBeforeCap;
 };

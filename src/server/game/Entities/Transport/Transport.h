@@ -32,7 +32,7 @@ class Transport : public GameObject, public TransportBase
         Transport(uint32 period, uint32 script);
         ~Transport();
 
-        bool Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags);
+        bool Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags);
         void AddToWorld();
         void RemoveFromWorld();
         bool GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids);
@@ -47,8 +47,8 @@ class Transport : public GameObject, public TransportBase
 
         typedef std::set<Creature*> CreatureSet;
         CreatureSet m_NPCPassengerSet;
-        Creature * AddNPCPassengerCreature(uint32 tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
-        uint32 AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
+        Creature * AddNPCPassengerCreature(ObjectGuid::LowType tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
+        uint32 AddNPCPassenger(ObjectGuid::LowType tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
         void UpdatePosition(MovementInfo* mi);
         void UpdateNPCPositions();
 
@@ -108,7 +108,7 @@ class Transport : public GameObject, public TransportBase
 
         PlayerSet m_passengers;
 
-        uint32 currenttguid;
+        ObjectGuid::LowType currenttguid;
         uint32 m_period;
         uint32 ScriptId;
     public:

@@ -154,7 +154,7 @@ class MailDraft
 
 struct MailItemInfo
 {
-    uint32 item_guid;
+    ObjectGuid::LowType item_guid;
     uint32 item_template;
 };
 typedef std::vector<MailItemInfo> MailItemInfoVec;
@@ -170,7 +170,7 @@ struct Mail
     std::string subject;
     std::string body;
     std::vector<MailItemInfo> items;
-    std::vector<uint32> removedItems;
+    std::vector<ObjectGuid::LowType> removedItems;
     time_t expire_time;
     time_t deliver_time;
     uint64 money;

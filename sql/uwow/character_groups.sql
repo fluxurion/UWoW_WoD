@@ -1,13 +1,9 @@
-ALTER TABLE `groups`
-  MODIFY `icon1` BIGINT(20) UNSIGNED NOT NULL,
-  MODIFY `icon2` BIGINT(20) UNSIGNED NOT NULL,
-  MODIFY `icon3` BIGINT(20) UNSIGNED NOT NULL,
-  MODIFY `icon4` BIGINT(20) UNSIGNED NOT NULL,
-  MODIFY `icon5` BIGINT(20) UNSIGNED NOT NULL,
-  MODIFY `icon6` BIGINT(20) UNSIGNED NOT NULL,
-  MODIFY `icon7` BIGINT(20) UNSIGNED NOT NULL,
-  MODIFY `icon8` BIGINT(20) UNSIGNED NOT NULL;
-  
+TRUNCATE `character_aura`;
+TRUNCATE `pet_aura`;
+TRUNCATE `group_instance`;
+TRUNCATE `group_member`;
+TRUNCATE `groups`;
+--
 ALTER TABLE `item_instance` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `item_instance` CHANGE `owner_guid` `owner_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `item_instance` CHANGE `creatorGuid` `creatorGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
@@ -35,3 +31,16 @@ ALTER TABLE `calendar_invites` CHANGE `sender` `sender` BIGINT(20) UNSIGNED NOT 
 ALTER TABLE `character_pet` CHANGE `owner` `owner` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `creature_respawn` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `gameobject_respawn` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+
+--
+ALTER TABLE `character_aura` CHANGE `caster_guid` `caster_guid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier';
+ALTER TABLE `character_aura` CHANGE `item_guid` `item_guid` binary(16) NOT NULL;
+ALTER TABLE `pet_aura` CHANGE `caster_guid` `caster_guid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier';
+ALTER TABLE `groups` CHANGE `icon1` `icon1` binary(16) NOT NULL;
+ALTER TABLE `groups` CHANGE `icon2` `icon2` binary(16) NOT NULL;
+ALTER TABLE `groups` CHANGE `icon3` `icon3` binary(16) NOT NULL;
+ALTER TABLE `groups` CHANGE `icon4` `icon4` binary(16) NOT NULL;
+ALTER TABLE `groups` CHANGE `icon5` `icon5` binary(16) NOT NULL;
+ALTER TABLE `groups` CHANGE `icon6` `icon6` binary(16) NOT NULL;
+ALTER TABLE `groups` CHANGE `icon7` `icon7` binary(16) NOT NULL;
+ALTER TABLE `groups` CHANGE `icon8` `icon8` binary(16) NOT NULL;
