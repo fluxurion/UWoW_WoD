@@ -745,7 +745,7 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
     {
         // pretend the item never existed
         RemoveFromUpdateQueueOf(forplayer);
-        forplayer->DeleteRefundReference(GetGUID().GetCounter());
+        forplayer->DeleteRefundReference(GetGUID());
         delete this;
         return;
     }
@@ -1150,7 +1150,7 @@ bool Item::IsBindedNotWith(Player const* player) const
         return false;
 
     if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
-        if (allowedGUIDs.find(player->GetGUID().GetCounter()) != allowedGUIDs.end())
+        if (allowedGUIDs.find(player->GetGUID()) != allowedGUIDs.end())
             return false;
 
     // BOA item case
@@ -1211,7 +1211,7 @@ void Item::SetNotRefundable(Player* owner, bool changestate /*=true*/, SQLTransa
     SetPaidExtendedCost(0);
     DeleteRefundDataFromDB(trans);
 
-    owner->DeleteRefundReference(GetGUID().GetCounter());
+    owner->DeleteRefundReference(GetGUID());
 }
 
 void Item::UpdatePlayedTime(Player* owner)

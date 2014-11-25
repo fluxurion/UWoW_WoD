@@ -11083,7 +11083,7 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
         }
 
         if (minion->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
-            AddUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID());
+            SetGuidValue(UNIT_FIELD_SUMMON, minion->GetGUID());
 
         if (minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
             SetCritterGUID(minion->GetGUID());
@@ -11160,7 +11160,7 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
 
         //if (minion->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
         {
-            if (RemoveUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
+            if (RemoveGuidValue(UNIT_FIELD_SUMMON, minion->GetGUID()))
             {
                 // Check if there is another minion
                 for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
@@ -11182,7 +11182,7 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
                     if (!(*itr)->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
                         continue;
 
-                    if (AddUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID()))
+                    if (AddGuidValue(UNIT_FIELD_SUMMON, (*itr)->GetGUID()))
                     {
                         // show another pet bar if there is no charm bar
                         if (GetTypeId() == TYPEID_PLAYER && !GetCharmGUID())
@@ -17237,7 +17237,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                             {
                                 std::list<uint32> auras;
                                 auras.push_back(i->aura->GetId());
-                                SendDispelLog(target ? target->GetGUID() : 0, procSpell ? procSpell->Id : 0, auras, true, false);
+                                SendDispelLog(target ? target->GetGUID() : ObjectGuid::Empty, procSpell ? procSpell->Id : 0, auras, true, false);
 
                                 i->aura->Remove();
                             }
@@ -20494,7 +20494,7 @@ Aura* Unit::AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target, It
             effMask &= ~(1<<i);
     }
 
-    Aura* aura = Aura::TryRefreshStackOrCreate(spellInfo, effMask, target, this, NULL, castItem, NULL, NULL, stackAmount);
+    Aura* aura = Aura::TryRefreshStackOrCreate(spellInfo, effMask, target, this, NULL, castItem, ObjectGuid::Empty, NULL, stackAmount);
     if (aura != NULL)
     {
         aura->ApplyForTargets();
@@ -21904,7 +21904,7 @@ void Unit::SendThreatListUpdate()
 
         sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message");
 
-        ObjectGuid hostileGUID = 0;
+        ObjectGuid hostileGUID;
         ObjectGuid guid = GetGUID(); 
         ByteBuffer dataBuffer;
 
@@ -21920,7 +21920,7 @@ void Unit::SendThreatListUpdate()
             //data.WriteGuidMask<2, 4, 6, 1, 5, 3, 0, 7>(hostileGUID);
 
             dataBuffer << uint32((*itr)->getThreat() * 100);
-            dataBuffer.WriteGuidBytes<0, 2, 5, 1, 4, 3, 6, 7>(hostileGUID);
+            //dataBuffer.WriteGuidBytes<0, 2, 5, 1, 4, 3, 6, 7>(hostileGUID);
         }
         //data.WriteGuidMask<4, 7, 5, 6>(guid);
         data.FlushBits();
@@ -21940,7 +21940,7 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 
         sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
 
-        ObjectGuid hostileGUID = 0;
+        ObjectGuid hostileGUID;
         ObjectGuid HostileReferenceGUID = pHostileReference->getUnitGuid();
         ObjectGuid guid = GetGUID(); 
         ByteBuffer dataBuffer;
@@ -21964,9 +21964,9 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 
             //data.WriteGuidMask<5, 4, 7, 6, 2, 0, 1, 3>(hostileGUID);
 
-            dataBuffer.WriteGuidBytes<2, 1, 5, 4, 3>(hostileGUID);
-            dataBuffer << uint32((*itr)->getThreat());
-            dataBuffer.WriteGuidBytes<0, 6, 7>(hostileGUID);
+            //dataBuffer.WriteGuidBytes<2, 1, 5, 4, 3>(hostileGUID);
+            //dataBuffer << uint32((*itr)->getThreat());
+            //dataBuffer.WriteGuidBytes<0, 6, 7>(hostileGUID);
         }
         //data.WriteGuidMask<0, 4>(HostileReferenceGUID);
         //data.WriteGuidMask<3>(guid);
@@ -22359,14 +22359,14 @@ void Unit::SendMovementHover()
     SendMessageToSet(&data, false);
 }
 
-void Unit::FocusTarget(Spell const* focusSpell, uint64 target)
+void Unit::FocusTarget(Spell const* focusSpell, ObjectGuid target)
 {
 
     // already focused
     if (_focusSpell)
         return;
     _focusSpell = focusSpell;
-    SetUInt64Value(UNIT_FIELD_TARGET, target);
+    SetGuidValue(UNIT_FIELD_TARGET, target);
     if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         AddUnitState(UNIT_STATE_ROTATING);
 }
@@ -22377,9 +22377,9 @@ void Unit::ReleaseFocus(Spell const* focusSpell)
         return;
     _focusSpell = NULL;
     if (Unit* victim = getVictim())
-        SetUInt64Value(UNIT_FIELD_TARGET, victim->GetGUID());
+        SetGuidValue(UNIT_FIELD_TARGET, victim->GetGUID());
     else
-        SetUInt64Value(UNIT_FIELD_TARGET, 0);
+        SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty);
     if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         ClearUnitState(UNIT_STATE_ROTATING);
 }
@@ -22813,7 +22813,7 @@ std::string Trinity::CodeChatMessage(std::string text, uint32 lang_id)
     return convertedMessage;
 }
 
-void Unit::SendDispelFailed(uint64 targetGuid, uint32 spellId, std::list<uint32>& spellList)
+void Unit::SendDispelFailed(ObjectGuid targetGuid, uint32 spellId, std::list<uint32>& spellList)
 {
     ObjectGuid sourceGuid = GetGUID();
 
@@ -22852,7 +22852,7 @@ void Unit::SendDispelFailed(uint64 targetGuid, uint32 spellId, std::list<uint32>
     SendMessageToSet(&data, true);
 }
 
-void Unit::SendDispelLog(uint64 unitTargetGuid, uint32 spellId, std::list<uint32>& spellList, bool broke, bool stolen)
+void Unit::SendDispelLog(ObjectGuid unitTargetGuid, uint32 spellId, std::list<uint32>& spellList, bool broke, bool stolen)
 {
     ObjectGuid casterGuid = GetGUID();
 
@@ -23035,7 +23035,7 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Unit* target)
     }
 
     ObjectGuid casterGuid = GetGUID();
-    ObjectGuid targetGuid = target ? target->GetGUID() : NULL;
+    ObjectGuid targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
     WorldPacket data(SMSG_SPELL_CREATE_VISUAL, 50);
     //data.WriteGuidMask<3, 0>(targetGuid);
     //data.WriteGuidMask<2, 0>(casterGuid);

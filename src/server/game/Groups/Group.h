@@ -233,7 +233,7 @@ class Group
         uint32 GetLowGUID() const;
         const char * GetLeaderName() const;
         LootMethod GetLootMethod() const;
-        uint64 GetLooterGuid() const;
+        ObjectGuid GetLooterGuid() const;
         ItemQualities GetLootThreshold() const;
 
         uint32 GetDbStoreId() const { return m_dbStoreId; };
@@ -384,7 +384,7 @@ class Group
         ObjectGuid          m_raidMarkers[RAID_MARKER_COUNT];
         LootMethod          m_lootMethod;
         ItemQualities       m_lootThreshold;
-        uint64              m_looterGuid;
+        ObjectGuid          m_looterGuid;
         Rolls               RollId;
         BoundInstancesMap   m_boundInstances[MAX_DIFFICULTY];
         uint8*              m_subGroupsCounts;

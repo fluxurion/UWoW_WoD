@@ -254,7 +254,7 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
 
         // build mapid*cellid -> guid_set map
         CellCoord cellCoord = Trinity::ComputeCellCoord(corpse->GetPositionX(), corpse->GetPositionY());
-        sObjectMgr->DeleteCorpseCellData(corpse->GetMapId(), cellCoord.GetId(), GUID_LOPART(corpse->GetOwnerGUID()));
+        sObjectMgr->DeleteCorpseCellData(corpse->GetMapId(), cellCoord.GetId(), corpse->GetOwnerGUID());
 
         i_player2corpse.erase(iter);
     }
@@ -273,7 +273,7 @@ void ObjectAccessor::AddCorpse(Corpse* corpse)
 
         // build mapid*cellid -> guid_set map
         CellCoord cellCoord = Trinity::ComputeCellCoord(corpse->GetPositionX(), corpse->GetPositionY());
-        sObjectMgr->AddCorpseCellData(corpse->GetMapId(), cellCoord.GetId(), GUID_LOPART(corpse->GetOwnerGUID()), corpse->GetInstanceId());
+        sObjectMgr->AddCorpseCellData(corpse->GetMapId(), cellCoord.GetId(), corpse->GetOwnerGUID(), corpse->GetInstanceId());
     }
 }
 
@@ -301,7 +301,7 @@ void ObjectAccessor::AddCorpsesToGrid(GridCoord const& gridpair, GridType& grid,
     }
 }
 
-Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia /*=false*/)
+Corpse* ObjectAccessor::ConvertCorpseForPlayer(ObjectGuid player_guid, bool insignia /*=false*/)
 {
     Corpse* corpse = GetCorpseForPlayerGUID(player_guid);
     if (!corpse)

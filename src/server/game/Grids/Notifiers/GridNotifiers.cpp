@@ -47,7 +47,7 @@ void VisibleNotifier::SendToSelf()
             }
         }
 
-    for (Player::ClientGUIDs::const_iterator it = vis_guids.begin();it != vis_guids.end(); ++it)
+        for (GuidSet::const_iterator it = vis_guids.begin(); it != vis_guids.end(); ++it)
     {
         //extralook shouldn't be removed by missing creature in grid where is curently player
         if (i_player.HaveExtraLook(*it))
@@ -56,7 +56,7 @@ void VisibleNotifier::SendToSelf()
         i_player.m_clientGUIDs.erase(*it);
         i_data.AddOutOfRangeGUID(*it);
 
-        if (IS_PLAYER_GUID(*it))
+        if ((*it).IsPlayer())
         {
             Player* player = ObjectAccessor::FindPlayer(*it);
             if (player && player->IsInWorld() && !player->onVisibleUpdate())
@@ -120,7 +120,7 @@ void VisibleChangesNotifier::Visit(CreatureMapType &m)
 void VisibleChangesNotifier::Visit(DynamicObjectMapType &m)
 {
     for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
+        if (iter->getSource()->GetCasterGUID().IsPlayer())
             if (Player* caster = (Player*)iter->getSource()->GetCaster())
                 if (caster->m_seer == iter->getSource())
                     caster->UpdateVisibilityOf(&i_object);
@@ -129,7 +129,7 @@ void VisibleChangesNotifier::Visit(DynamicObjectMapType &m)
 void VisibleChangesNotifier::Visit(AreaTriggerMapType &m)
 {
     for (AreaTriggerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
+        if (iter->getSource()->GetCasterGUID().IsPlayer())
             if (Player* caster = (Player*)iter->getSource()->GetCaster())
                 if (caster->m_seer == iter->getSource())
                     caster->UpdateVisibilityOf(&i_object);
@@ -215,7 +215,7 @@ void MessageDistDeliverer::Visit(DynamicObjectMapType &m)
         if (target->GetExactDist2dSq(i_source) > i_distSq)
             continue;
 
-        if (IS_PLAYER_GUID(target->GetCasterGUID()))
+        if (target->GetCasterGUID().IsPlayer())
         {
             // Send packet back to the caster if the caster has vision of dynamic object
             Player* caster = (Player*)target->GetCaster();
@@ -283,7 +283,7 @@ void ChatMessageDistDeliverer::Visit(DynamicObjectMapType &m)
         if (target->GetExactDist2dSq(i_source) > i_distSq)
             continue;
 
-        if (IS_PLAYER_GUID(target->GetCasterGUID()))
+        if (target->GetCasterGUID().IsPlayer())
         {
             // Send packet back to the caster if the caster has vision of dynamic object
             Player* caster = (Player*)target->GetCaster();

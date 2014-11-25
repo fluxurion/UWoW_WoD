@@ -314,17 +314,17 @@ struct Loot
     std::vector<LootItem> quest_items;
     uint32 gold;
     uint8 unlootedCount;
-    uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
+    ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
 
     uint32 objEntry;
-    uint64 objGuid;
+    ObjectGuid objGuid;
     uint8 objType;
     uint8 spawnMode;
     uint32 specId;
     uint32 itemLevel;
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), spawnMode(0), m_lootOwner(NULL), objType(0), specId(0), itemLevel(0), objGuid(0), objEntry(0)  {}
+    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), spawnMode(0), m_lootOwner(NULL), objType(0), specId(0), itemLevel(0), objGuid(), objEntry(0)  {}
     ~Loot() { clear(); }
 
     // if loot becomes invalid this reference is used to inform the listener
@@ -357,7 +357,7 @@ struct Loot
         quest_items.clear();
         gold = 0;
         unlootedCount = 0;
-        roundRobinPlayer = 0;
+        roundRobinPlayer.Clear();
         i_LootValidatorRefManager.clearReferences();
     }
 

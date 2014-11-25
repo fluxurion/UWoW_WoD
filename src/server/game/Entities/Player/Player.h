@@ -1072,12 +1072,12 @@ struct VoidStorageItem
     {
         ItemId = 0;
         ItemEntry = 0;
-        CreatorGuid = 0;
+        CreatorGuid.Clear();
         ItemRandomPropertyId = 0;
         ItemSuffixFactor = 0;
     }
 
-    VoidStorageItem(uint64 id, uint32 entry, uint32 creator, uint32 randomPropertyId, uint32 suffixFactor)
+    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid creator, uint32 randomPropertyId, uint32 suffixFactor)
     {
         ItemId = id;
         ItemEntry = entry;
@@ -1088,7 +1088,7 @@ struct VoidStorageItem
 
     uint64 ItemId;
     uint32 ItemEntry;
-    uint32 CreatorGuid;
+    ObjectGuid CreatorGuid;
     uint32 ItemRandomPropertyId;
     uint32 ItemSuffixFactor;
 };
@@ -1504,7 +1504,7 @@ class Player : public Unit, public GridObject<Player>
         void Say(const std::string& text, const uint32 language);
         void Yell(const std::string& text, const uint32 language);
         void TextEmote(const std::string& text);
-        void Whisper(const std::string& text, const uint32 language, uint64 receiver);
+        void Whisper(const std::string& text, const uint32 language, ObjectGuid receiver);
         void WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver);
         void BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix = NULL) const;
         void BuildPlayerChatData(Trinity::ChatData& c, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix = NULL) const;
@@ -1930,7 +1930,7 @@ class Player : public Unit, public GridObject<Player>
 
         static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
         static void SetFloatValueInArray(Tokenizer& data, uint16 index, float value);
-        static void Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair);
+        static void Customize(ObjectGuid guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair);
         static void SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, ObjectGuid guid);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
@@ -2306,18 +2306,18 @@ class Player : public Unit, public GridObject<Player>
         void RemoveFromGroup(RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT) { RemoveFromGroup(GetGroup(), GetGUID(), method); }
         void SendUpdateToOutOfRangeGroupMembers();
 
-        void SetInGuild(uint32 guildId);
+        void SetInGuild(ObjectGuid::LowType guildId);
         void SetRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
         uint32 GetRank() { return GetUInt32Value(PLAYER_GUILDRANK); }
         void SetGuildLevel(uint32 level) { SetUInt32Value(PLAYER_GUILDLEVEL, level); }
         uint32 GetGuildLevel() { return GetUInt32Value(PLAYER_GUILDLEVEL); }
-        void SetGuildIdInvited(uint32 GuildId, uint64 guid = 0) { m_GuildIdInvited = GuildId; m_GuildInviterGuid = guid; }
+        void SetGuildIdInvited(uint32 GuildId, ObjectGuid guid = ObjectGuid::Empty) { m_GuildIdInvited = GuildId; m_GuildInviterGuid = guid; }
         uint64 GetGuildInviterGuid() const { return m_GuildInviterGuid; }
         uint32 GetGuildId() const { return GetUInt32Value(OBJECT_FIELD_DATA); /* return only lower part */ }
-        static uint32 GetGuildIdFromDB(uint64 guid);
-        static uint8 GetRankFromDB(uint64 guid);
+        static ObjectGuid::LowType GetGuildIdFromDB(ObjectGuid guid);
+        static uint8 GetRankFromDB(ObjectGuid guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }
-        static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
+        static void RemovePetitionsAndSigns(ObjectGuid guid, uint32 type);
 
 
         // Bracket System

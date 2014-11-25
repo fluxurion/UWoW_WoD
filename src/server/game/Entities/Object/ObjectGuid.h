@@ -182,6 +182,7 @@ class ObjectGuid
         bool IsVehicle()           const { return GetHigh() == HighGuid::Vehicle; }
         bool IsCreatureOrPet()     const { return IsCreature() || IsPet(); }
         bool IsCreatureOrVehicle() const { return IsCreature() || IsVehicle(); }
+        bool IsCreatureOrPetOrVehicle() const { return IsCreature() || IsVehicle() || IsPet(); }
         bool IsAnyTypeCreature()   const { return IsCreature() || IsPet() || IsVehicle(); }
         bool IsPlayer()            const { return !IsEmpty() && GetHigh() == HighGuid::Player; }
         bool IsUnit()              const { return IsAnyTypeCreature() || IsPlayer(); }

@@ -59,14 +59,14 @@ Loot* Roll::getLoot()
     return getTarget();
 }
 
-Group::Group() : m_leaderGuid(0), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
+Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
     m_dungeonDifficulty(REGULAR_DIFFICULTY), m_raidDifficulty(MAN10_DIFFICULTY),
-    m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
-    m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0), m_readyCheck(false),
+    m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
+    m_subGroupsCounts(NULL), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0), m_readyCheck(false),
     m_aoe_slots(0)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
-        m_targetIcons[i] = 0;
+        m_targetIcons[i].Clear();
 }
 
 Group::~Group()
@@ -133,9 +133,9 @@ bool Group::Create(Player* leader)
         uint8 index = 0;
 
         stmt->setUInt32(index++, m_dbStoreId);
-        stmt->setUInt32(index++, GUID_LOPART(m_leaderGuid));
+        stmt->setUInt64(index++, m_leaderGuid.GetCounter());
         stmt->setUInt8(index++, uint8(m_lootMethod));
-        stmt->setUInt32(index++, GUID_LOPART(m_looterGuid));
+        stmt->setUInt64(index++, m_looterGuid.GetCounter());
         stmt->setUInt8(index++, uint8(m_lootThreshold));
         stmt->setUInt32(index++, uint32(m_targetIcons[0]));
         stmt->setUInt32(index++, uint32(m_targetIcons[1]));
@@ -173,7 +173,7 @@ void Group::LoadGroupFromDB(Field* fields)
         return;
 
     m_lootMethod = LootMethod(fields[1].GetUInt8());
-    m_looterGuid = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HighGuid::Player);
+    m_looterGuid = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt64());
     m_lootThreshold = ItemQualities(fields[3].GetUInt8());
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
@@ -2214,7 +2214,7 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
         break;
     }
 
-    uint64 oldLooterGUID = GetLooterGuid();
+    ObjectGuid oldLooterGUID = GetLooterGuid();
     member_citerator guid_itr = _getMemberCSlot(oldLooterGUID);
     if (guid_itr != m_memberSlots.end())
     {
@@ -2706,7 +2706,7 @@ LootMethod Group::GetLootMethod() const
     return m_lootMethod;
 }
 
-uint64 Group::GetLooterGuid() const
+ObjectGuid Group::GetLooterGuid() const
 {
     return m_looterGuid;
 }
