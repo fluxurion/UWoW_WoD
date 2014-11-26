@@ -431,7 +431,7 @@ bool Group::AddMember(Player* player)
     if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
     {
         for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
-            m_targetIcons[i] = 0;
+            m_targetIcons[i].Clear();
     }
 
     // insert into the table if we're not a battleground group
@@ -2691,11 +2691,6 @@ ObjectGuid Group::GetGUID() const
     return m_guid;
 }
 
-uint32 Group::GetLowGUID() const
-{
-    return GUID_LOPART(m_guid);
-}
-
 const char * Group::GetLeaderName() const
 {
     return m_leaderName.c_str();
@@ -2731,7 +2726,7 @@ ObjectGuid Group::GetMemberGUID(const std::string& name)
     for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
         if (itr->name == name)
             return itr->guid;
-    return 0;
+        return ObjectGuid::Empty;
 }
 
 bool Group::IsAssistant(ObjectGuid guid) const
@@ -2963,7 +2958,7 @@ void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
         slot->flags &= ~flag;
 }
 
-bool Group::IsGuildGroup(uint32 guildId, bool AllInSameMap, bool AllInSameInstanceId)
+bool Group::IsGuildGroup(ObjectGuid const& guildId, bool AllInSameMap, bool AllInSameInstanceId)
 {
     uint32 mapId = 0;
     uint32 InstanceId = 0;

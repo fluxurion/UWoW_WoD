@@ -1287,7 +1287,7 @@ void Guild::Disband()
 
     CharacterDatabase.CommitTransaction(trans);
 
-    sGuildFinderMgr->DeleteGuild(m_id);
+    sGuildFinderMgr->DeleteGuild(GetGUID());
 
     sGuildMgr->RemoveGuild(m_id);
 }
@@ -1776,7 +1776,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
     {
         _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, player->GetGUID().GetCounter());
         SendGuildEventJoinMember(player->GetGUID(), player->GetName());
-        sGuildFinderMgr->RemoveMembershipRequest(player->GetGUID().GetCounter(), this->GetGUID().GetCounter());
+        sGuildFinderMgr->RemoveMembershipRequest(player->GetGUID(), this->GetGUID());
         UpdateGuildRecipes();
     }
 }

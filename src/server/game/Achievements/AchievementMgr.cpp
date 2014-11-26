@@ -2332,13 +2332,13 @@ void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achieve
 
     if (achievement->flags & ACHIEVEMENT_FLAG_SHOW_GUILD_MEMBERS)
     {
-        if (referencePlayer->GetGuildId() == GetOwner()->GetId())
+        if (referencePlayer->GetGuildId() == GetOwner()->GetGUID())
             ca.guids.insert(referencePlayer->GetGUID());
 
         if (Group const* group = referencePlayer->GetGroup())
             for (GroupReference const* ref = group->GetFirstMember(); ref != NULL; ref = ref->next())
                 if (Player const* groupMember = ref->getSource())
-                    if (groupMember->GetGuildId() == GetOwner()->GetId())
+                    if (groupMember->GetGuildId() == GetOwner()->GetGUID())
                         ca.guids.insert(groupMember->GetGUID());
     }
 

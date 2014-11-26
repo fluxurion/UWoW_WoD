@@ -230,7 +230,6 @@ class Group
         inline bool IsHomeGroup() const { return !isLFGGroup() && (!isBGGroup() || isArenaGroup()) && !isBFGroup(); }
         ObjectGuid GetLeaderGUID() const;
         ObjectGuid GetGUID() const;
-        uint32 GetLowGUID() const;
         const char * GetLeaderName() const;
         LootMethod GetLootMethod() const;
         ObjectGuid GetLooterGuid() const;
@@ -243,7 +242,7 @@ class Group
         bool IsLeader(ObjectGuid guid) const;
         ObjectGuid GetMemberGUID(const std::string& name);
         bool IsAssistant(ObjectGuid guid) const;
-        bool IsGuildGroup(uint32 guildId, bool AllInSameMap = false, bool AllInSameInstanceId = false);
+        bool IsGuildGroup(ObjectGuid const& guildId, bool AllInSameMap = false, bool AllInSameInstanceId = false);
         void UpdateGuildAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1, uint32 miscValue2, uint32 miscValue3, Unit* unit, WorldObject* rewardSource);
 
         Player* GetInvited(ObjectGuid guid) const;

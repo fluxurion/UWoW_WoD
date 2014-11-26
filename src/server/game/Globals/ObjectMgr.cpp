@@ -1961,7 +1961,7 @@ ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string name) const
     return ObjectGuid::Empty;
 }
 
-bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name)
+bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name) const
 {
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -1972,7 +1972,7 @@ bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME);
 
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -1985,7 +1985,7 @@ bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name)
     return false;
 }
 
-uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid)
+uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid) const
 {
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -1995,7 +1995,7 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
 
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -2008,7 +2008,7 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid)
     return 0;
 }
 
-uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid const& guid)
+uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid const& guid) const
 {
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -2018,7 +2018,7 @@ uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid const& guid)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_GUID);
 
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -2031,7 +2031,7 @@ uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid const& guid)
     return 0;
 }
 
-uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(std::string const& name)
+uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(std::string const& name) const
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_NAME);
 

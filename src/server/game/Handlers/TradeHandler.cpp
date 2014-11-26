@@ -104,14 +104,14 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
         if (!item)
             continue;
 
-        ObjectGuid giftCreatorGuid = item->GetUInt64Value(ITEM_FIELD_GIFTCREATOR);
-        ObjectGuid creatorGuid = item->GetUInt64Value(ITEM_FIELD_CREATOR);
+        ObjectGuid giftCreatorGuid = item->GetGuidValue(ITEM_FIELD_GIFTCREATOR);
+        ObjectGuid creatorGuid = item->GetGuidValue(ITEM_FIELD_CREATOR);
         bool notWrapped = !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED);
 
         //data.WriteGuidMask<0, 6>(giftCreatorGuid);
         data.WriteBit(notWrapped);
 
-        itemData.WriteGuidBytes<4>(giftCreatorGuid);
+        //itemData.WriteGuidBytes<4>(giftCreatorGuid);
 
         if (notWrapped)
         {
@@ -130,20 +130,20 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
                 itemData << uint32(item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
             itemData << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
             itemData << uint32(item->GetItemSuffixFactor());
-            itemData.WriteGuidBytes<4, 1, 6, 7, 0, 3>(creatorGuid);
+            //itemData.WriteGuidBytes<4, 1, 6, 7, 0, 3>(creatorGuid);
             itemData << uint32(item->GetUInt32Value(ITEM_FIELD_DURABILITY));
             itemData << uint32(item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));
-            itemData.WriteGuidBytes<2, 5>(creatorGuid);
+            //itemData.WriteGuidBytes<2, 5>(creatorGuid);
         }
 
         //data.WriteGuidMask<7, 1, 5, 4, 3, 2>(giftCreatorGuid);
 
         itemData << uint32(item->GetCount());
-        itemData.WriteGuidBytes<6, 3>(giftCreatorGuid);
+        //itemData.WriteGuidBytes<6, 3>(giftCreatorGuid);
         itemData << uint32(item->GetTemplate()->ItemId);
-        itemData.WriteGuidBytes<1, 5, 2>(giftCreatorGuid);
+        //itemData.WriteGuidBytes<1, 5, 2>(giftCreatorGuid);
         itemData << uint8(i);
-        itemData.WriteGuidBytes<7, 0>(giftCreatorGuid);
+        //itemData.WriteGuidBytes<7, 0>(giftCreatorGuid);
     }
 
     if (!itemData.empty())

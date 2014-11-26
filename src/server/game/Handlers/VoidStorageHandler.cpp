@@ -313,8 +313,8 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     data.WriteBits(depositCount, 4);
 
-    ObjectGuid itemId = 0;
-    ObjectGuid creatorGuid = 0;
+    ObjectGuidSteam itemId;
+    ObjectGuidSteam creatorGuid;
 
     for (uint8 i = 0; i < depositCount; ++i)
     {
@@ -344,7 +344,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
-        ObjectGuid itemId = withdrawItems[i].ItemId;
+        ObjectGuidSteam itemId = withdrawItems[i].ItemId;
         //data.WriteGuidBytes<3, 7, 6, 0, 4, 1, 5, 2>(itemId);
     }
 

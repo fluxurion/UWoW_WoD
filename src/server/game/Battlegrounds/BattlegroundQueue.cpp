@@ -133,7 +133,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
 
     // create new ginfo
     GroupQueueInfo* ginfo            = new GroupQueueInfo;
-    ginfo->GroupId                   = grp ? grp->GetLowGUID() : 0;
+    ginfo->GroupId                   = grp ? grp->GetGUID() : 0;
     ginfo->BgTypeId                  = BgTypeId;
     ginfo->JoinType                  = JoinType;
     ginfo->IsRated                   = isRated;

@@ -45,7 +45,7 @@ void WorldSession::SendBfInvitePlayerToWar(ObjectGuid guid, uint32 zoneId, uint3
     //data.WriteGuidBytes<5, 4, 6, 1, 3, 7, 0, 2>(guidBytes);
 
     //Sending the packet to player
-    SendPacket(&data);*/
+    SendPacket(&data);
 }
 
 //This send invitation to player to join the queue

@@ -54,7 +54,7 @@ void GuildFinderMgr::LoadGuildSettings()
     do
     {
         Field* fields = result->Fetch();
-        uint32 guildId      = fields[0].GetUInt32();
+        ObjectGuid guildId = ObjectGuid::Create<HighGuid::Guild>(fields[0].GetUInt64());
         uint8  availability = fields[1].GetUInt8();
         uint8  classRoles   = fields[2].GetUInt8();
         uint8  interests    = fields[3].GetUInt8();
@@ -94,8 +94,8 @@ void GuildFinderMgr::LoadMembershipRequests()
     do
     {
         Field* fields = result->Fetch();
-        uint32 guildId      = fields[0].GetUInt32();
-        uint32 playerId     = fields[1].GetUInt32();
+        ObjectGuid guildId = ObjectGuid::Create<HighGuid::Guild>(fields[0].GetUInt64());
+        ObjectGuid playerId = ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt64());
         uint8  availability = fields[2].GetUInt8();
         uint8  classRoles   = fields[3].GetUInt8();
         uint8  interests    = fields[4].GetUInt8();
@@ -112,14 +112,14 @@ void GuildFinderMgr::LoadMembershipRequests()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild finder membership requests in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void GuildFinderMgr::AddMembershipRequest(uint32 guildGuid, MembershipRequest const& request)
+void GuildFinderMgr::AddMembershipRequest(ObjectGuid const& guildGuid, MembershipRequest const& request)
 {
     _membershipRequests[guildGuid].push_back(request);
     
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GUILD_FINDER_APPLICANT);
-    stmt->setUInt32(0, request.GetGuildId());
-    stmt->setUInt32(1, request.GetPlayerGUID());
+    stmt->setUInt64(0, request.GetGuildGuid().GetCounter());
+    stmt->setUInt64(1, request.GetPlayerGUID().GetCounter());
     stmt->setUInt8(2, request.GetAvailability());
     stmt->setUInt8(3, request.GetClassRoles());
     stmt->setUInt8(4, request.GetInterests());
@@ -129,7 +129,7 @@ void GuildFinderMgr::AddMembershipRequest(uint32 guildGuid, MembershipRequest co
     CharacterDatabase.CommitTransaction(trans);
 
     // Notify the applicant his submittion has been added
-    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HighGuid::Player)))
+    if (Player* player = ObjectAccessor::FindPlayer(request.GetPlayerGUID()))
         SendMembershipRequestListUpdate(*player);
 
     // Notify the guild master and officers the list changed
@@ -137,7 +137,7 @@ void GuildFinderMgr::AddMembershipRequest(uint32 guildGuid, MembershipRequest co
         SendApplicantListUpdate(*guild);
 }
 
-void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(uint32 playerId)
+void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(ObjectGuid const& playerId)
 {
     for (MembershipRequestStore::iterator itr = _membershipRequests.begin(); itr != _membershipRequests.end(); ++itr)
     {
@@ -152,8 +152,8 @@ void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(uint32 playerId)
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
-        stmt->setUInt32(0, itr2->GetGuildId());
-        stmt->setUInt32(1, itr2->GetPlayerGUID());
+        stmt->setUInt64(0, itr2->GetGuildGuid().GetCounter());
+        stmt->setUInt64(1, itr2->GetPlayerGUID().GetCounter());
         trans->Append(stmt);
 
         CharacterDatabase.CommitTransaction(trans);
@@ -165,7 +165,7 @@ void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(uint32 playerId)
     }
 }
 
-void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
+void GuildFinderMgr::RemoveMembershipRequest(ObjectGuid const& playerId, ObjectGuid const& guildId)
 {
     std::vector<MembershipRequest>::iterator itr = _membershipRequests[guildId].begin();
     for(; itr != _membershipRequests[guildId].end(); ++itr)
@@ -178,8 +178,8 @@ void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
-    stmt->setUInt32(0, itr->GetGuildId());
-    stmt->setUInt32(1, itr->GetPlayerGUID());
+    stmt->setUInt64(0, itr->GetGuildGuid().GetCounter());
+    stmt->setUInt64(1, itr->GetPlayerGUID().GetCounter());
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -187,7 +187,7 @@ void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
     _membershipRequests[guildId].erase(itr);
 
     // Notify the applicant his submittion has been removed
-    if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(playerId, 0, HighGuid::Player)))
+    if (Player* player = ObjectAccessor::FindPlayer(playerId))
         SendMembershipRequestListUpdate(*player);
 
     // Notify the guild master and officers the list changed
@@ -195,7 +195,7 @@ void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
         SendApplicantListUpdate(*guild);
 }
 
-std::list<MembershipRequest> GuildFinderMgr::GetAllMembershipRequestsForPlayer(uint32 playerGuid)
+std::list<MembershipRequest> GuildFinderMgr::GetAllMembershipRequestsForPlayer(ObjectGuid const& playerGuid)
 {
     std::list<MembershipRequest> resultSet;
     for (MembershipRequestStore::const_iterator itr = _membershipRequests.begin(); itr != _membershipRequests.end(); ++itr)
@@ -213,7 +213,7 @@ std::list<MembershipRequest> GuildFinderMgr::GetAllMembershipRequestsForPlayer(u
     return resultSet;
 }
 
-uint8 GuildFinderMgr::CountRequestsFromPlayer(uint32 playerId)
+uint8 GuildFinderMgr::CountRequestsFromPlayer(ObjectGuid const& playerId)
 {
     uint8 result = 0;
     for (MembershipRequestStore::const_iterator itr = _membershipRequests.begin(); itr != _membershipRequests.end(); ++itr)
@@ -257,7 +257,7 @@ LFGuildStore GuildFinderMgr::GetGuildsMatchingSetting(LFGuildPlayer& settings, T
     return resultSet;
 }
 
-bool GuildFinderMgr::HasRequest(uint32 playerId, uint32 guildId)
+bool GuildFinderMgr::HasRequest(ObjectGuid const& playerId, ObjectGuid const& guildId)
 {
     for (std::vector<MembershipRequest>::const_iterator itr = _membershipRequests[guildId].begin(); itr != _membershipRequests[guildId].end(); ++itr)
         if (itr->GetPlayerGUID() == playerId)
@@ -265,14 +265,14 @@ bool GuildFinderMgr::HasRequest(uint32 playerId, uint32 guildId)
     return false;
 }
 
-void GuildFinderMgr::SetGuildSettings(uint32 guildGuid, LFGuildSettings const& settings)
+void GuildFinderMgr::SetGuildSettings(ObjectGuid const& guildGuid, LFGuildSettings const& settings)
 {
     _guildSettings[guildGuid] = settings;
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GUILD_FINDER_GUILD_SETTINGS);
-    stmt->setUInt32(0, settings.GetGUID());
+    stmt->setUInt64(0, settings.GetGUID().GetCounter());
     stmt->setUInt8(1, settings.GetAvailability());
     stmt->setUInt8(2, settings.GetClassRoles());
     stmt->setUInt8(3, settings.GetInterests());
@@ -284,29 +284,29 @@ void GuildFinderMgr::SetGuildSettings(uint32 guildGuid, LFGuildSettings const& s
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void GuildFinderMgr::DeleteGuild(uint32 guildId)
+void GuildFinderMgr::DeleteGuild(ObjectGuid const& guildId)
 {
     std::vector<MembershipRequest>::iterator itr = _membershipRequests[guildId].begin();
     while (itr != _membershipRequests[guildId].end())
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        uint32 applicant = itr->GetPlayerGUID();
+        ObjectGuid applicant = itr->GetPlayerGUID();
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
-        stmt->setUInt32(0, itr->GetGuildId());
-        stmt->setUInt32(1, applicant);
+        stmt->setUInt64(0, itr->GetGuildGuid().GetCounter());
+        stmt->setUInt64(1, applicant.GetCounter());
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_GUILD_SETTINGS);
-        stmt->setUInt32(0, itr->GetGuildId());
+        stmt->setUInt64(0, itr->GetGuildGuid().GetCounter());
         trans->Append(stmt);
             
         CharacterDatabase.CommitTransaction(trans);
         _membershipRequests[guildId].erase(itr);
 
         // Notify the applicant his submition has been removed
-        if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(applicant, 0, HighGuid::Player)))
+        if (Player* player = ObjectAccessor::FindPlayer(applicant))
             SendMembershipRequestListUpdate(*player);
     }
 
@@ -320,7 +320,7 @@ void GuildFinderMgr::DeleteGuild(uint32 guildId)
 
 void GuildFinderMgr::SendApplicantListUpdate(Guild& guild)
 {
-    std::vector<MembershipRequest> recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(guild.GetId());
+    std::vector<MembershipRequest> recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(guild.GetGUID());
     uint32 recruitCount = recruitsList.size();
 
     ByteBuffer dataBuffer(53 * recruitCount);
@@ -330,37 +330,37 @@ void GuildFinderMgr::SendApplicantListUpdate(Guild& guild)
     for (std::vector<MembershipRequest>::const_iterator itr = recruitsList.begin(); itr != recruitsList.end(); ++itr)
     {
         MembershipRequest request = *itr;
-        ObjectGuid playerGuid(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HighGuid::Player));
+        ObjectGuid playerGuid = request.GetPlayerGUID();
         
-        data.WriteBit(playerGuid[1]);
-        data.WriteBit(playerGuid[4]);
-        data.WriteBit(playerGuid[2]);
-        data.WriteBit(playerGuid[6]);
-        data.WriteBits(request.GetName().size(), 7);
-        data.WriteBit(playerGuid[3]);
-        data.WriteBit(playerGuid[7]);
-        data.WriteBit(playerGuid[5]);
-        data.WriteBits(request.GetComment().size(), 11);
-        data.WriteBit(playerGuid[0]);
-        
-        dataBuffer << int32(request.GetAvailability());
-        dataBuffer.WriteByteSeq(playerGuid[1]);
-        dataBuffer << int32(time(NULL) <= request.GetExpiryTime());
-        dataBuffer << int32(request.GetInterests());
-        dataBuffer << int32(request.GetClassRoles());
-        dataBuffer << int32(time(NULL) - request.GetSubmitTime()); // Time in seconds since application submitted.
-        dataBuffer.WriteString(request.GetName());
-        dataBuffer.WriteByteSeq(playerGuid[4]);
-        dataBuffer.WriteByteSeq(playerGuid[6]);
-        dataBuffer.WriteByteSeq(playerGuid[3]);
-        dataBuffer.WriteByteSeq(playerGuid[7]);
-        dataBuffer.WriteString(request.GetComment());
-        dataBuffer << int32(request.GetLevel());
-        dataBuffer << int32(request.GetExpiryTime() - time(NULL)); // TIme in seconds until application expires.
-        dataBuffer.WriteByteSeq(playerGuid[2]);
-        dataBuffer.WriteByteSeq(playerGuid[0]);
-        dataBuffer << int32(request.GetClass());
-        dataBuffer.WriteByteSeq(playerGuid[5]);
+        //data.WriteBit(playerGuid[1]);
+        //data.WriteBit(playerGuid[4]);
+        //data.WriteBit(playerGuid[2]);
+        //data.WriteBit(playerGuid[6]);
+        //data.WriteBits(request.GetName().size(), 7);
+        //data.WriteBit(playerGuid[3]);
+        //data.WriteBit(playerGuid[7]);
+        //data.WriteBit(playerGuid[5]);
+        //data.WriteBits(request.GetComment().size(), 11);
+        //data.WriteBit(playerGuid[0]);
+        //
+        //dataBuffer << int32(request.GetAvailability());
+        //dataBuffer.WriteByteSeq(playerGuid[1]);
+        //dataBuffer << int32(time(NULL) <= request.GetExpiryTime());
+        //dataBuffer << int32(request.GetInterests());
+        //dataBuffer << int32(request.GetClassRoles());
+        //dataBuffer << int32(time(NULL) - request.GetSubmitTime()); // Time in seconds since application submitted.
+        //dataBuffer.WriteString(request.GetName());
+        //dataBuffer.WriteByteSeq(playerGuid[4]);
+        //dataBuffer.WriteByteSeq(playerGuid[6]);
+        //dataBuffer.WriteByteSeq(playerGuid[3]);
+        //dataBuffer.WriteByteSeq(playerGuid[7]);
+        //dataBuffer.WriteString(request.GetComment());
+        //dataBuffer << int32(request.GetLevel());
+        //dataBuffer << int32(request.GetExpiryTime() - time(NULL)); // TIme in seconds until application expires.
+        //dataBuffer.WriteByteSeq(playerGuid[2]);
+        //dataBuffer.WriteByteSeq(playerGuid[0]);
+        //dataBuffer << int32(request.GetClass());
+        //dataBuffer.WriteByteSeq(playerGuid[5]);
     }
 
     data.FlushBits();
@@ -384,37 +384,37 @@ void GuildFinderMgr::SendMembershipRequestListUpdate(Player& player)
     for (std::vector<MembershipRequest>::const_iterator itr = recruitsList.begin(); itr != recruitsList.end(); ++itr)
     {
         MembershipRequest request = *itr;
-        ObjectGuid playerGuid(MAKE_NEW_GUID(request.GetPlayerGUID(), 0, HighGuid::Player));
+        ObjectGuid playerGuid = request.GetPlayerGUID();
         
-        data.WriteBit(playerGuid[1]);
-        data.WriteBit(playerGuid[4]);
-        data.WriteBit(playerGuid[2]);
-        data.WriteBit(playerGuid[6]);
-        data.WriteBits(request.GetName().size(), 7);
-        data.WriteBit(playerGuid[3]);
-        data.WriteBit(playerGuid[7]);
-        data.WriteBit(playerGuid[5]);
-        data.WriteBits(request.GetComment().size(), 11);
-        data.WriteBit(playerGuid[0]);
-        
-        dataBuffer << int32(request.GetAvailability());
-        dataBuffer.WriteByteSeq(playerGuid[1]);
-        dataBuffer << int32(time(NULL) <= request.GetExpiryTime());
-        dataBuffer << int32(request.GetInterests());
-        dataBuffer << int32(request.GetClassRoles());
-        dataBuffer << int32(time(NULL) - request.GetSubmitTime()); // Time in seconds since application submitted.
-        dataBuffer.WriteString(request.GetName());
-        dataBuffer.WriteByteSeq(playerGuid[4]);
-        dataBuffer.WriteByteSeq(playerGuid[6]);
-        dataBuffer.WriteByteSeq(playerGuid[3]);
-        dataBuffer.WriteByteSeq(playerGuid[7]);
-        dataBuffer.WriteString(request.GetComment());
-        dataBuffer << int32(request.GetLevel());
-        dataBuffer << int32(request.GetExpiryTime() - time(NULL)); // TIme in seconds until application expires.
-        dataBuffer.WriteByteSeq(playerGuid[2]);
-        dataBuffer.WriteByteSeq(playerGuid[0]);
-        dataBuffer << int32(request.GetClass());
-        dataBuffer.WriteByteSeq(playerGuid[5]);
+        //data.WriteBit(playerGuid[1]);
+        //data.WriteBit(playerGuid[4]);
+        //data.WriteBit(playerGuid[2]);
+        //data.WriteBit(playerGuid[6]);
+        //data.WriteBits(request.GetName().size(), 7);
+        //data.WriteBit(playerGuid[3]);
+        //data.WriteBit(playerGuid[7]);
+        //data.WriteBit(playerGuid[5]);
+        //data.WriteBits(request.GetComment().size(), 11);
+        //data.WriteBit(playerGuid[0]);
+        //
+        //dataBuffer << int32(request.GetAvailability());
+        //dataBuffer.WriteByteSeq(playerGuid[1]);
+        //dataBuffer << int32(time(NULL) <= request.GetExpiryTime());
+        //dataBuffer << int32(request.GetInterests());
+        //dataBuffer << int32(request.GetClassRoles());
+        //dataBuffer << int32(time(NULL) - request.GetSubmitTime()); // Time in seconds since application submitted.
+        //dataBuffer.WriteString(request.GetName());
+        //dataBuffer.WriteByteSeq(playerGuid[4]);
+        //dataBuffer.WriteByteSeq(playerGuid[6]);
+        //dataBuffer.WriteByteSeq(playerGuid[3]);
+        //dataBuffer.WriteByteSeq(playerGuid[7]);
+        //dataBuffer.WriteString(request.GetComment());
+        //dataBuffer << int32(request.GetLevel());
+        //dataBuffer << int32(request.GetExpiryTime() - time(NULL)); // TIme in seconds until application expires.
+        //dataBuffer.WriteByteSeq(playerGuid[2]);
+        //dataBuffer.WriteByteSeq(playerGuid[0]);
+        //dataBuffer << int32(request.GetClass());
+        //dataBuffer.WriteByteSeq(playerGuid[5]);
     }
 
     data.FlushBits();

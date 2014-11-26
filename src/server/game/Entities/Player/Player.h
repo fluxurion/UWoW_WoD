@@ -2313,7 +2313,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetGuildLevel() { return GetUInt32Value(PLAYER_GUILDLEVEL); }
         void SetGuildIdInvited(uint32 GuildId, ObjectGuid guid = ObjectGuid::Empty) { m_GuildIdInvited = GuildId; m_GuildInviterGuid = guid; }
         uint64 GetGuildInviterGuid() const { return m_GuildInviterGuid; }
-        uint32 GetGuildId() const { return GetUInt32Value(OBJECT_FIELD_DATA); /* return only lower part */ }
+        ObjectGuid GetGuildId() const { return GetGuidValue(OBJECT_FIELD_DATA); /* return only lower part */ }
         static ObjectGuid::LowType GetGuildIdFromDB(ObjectGuid guid);
         static uint8 GetRankFromDB(ObjectGuid guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }

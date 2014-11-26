@@ -539,7 +539,7 @@ void WorldSession::HandleGroupDisbandOpcode(WorldPacket& recvData)
 //! 5.4.1
 void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
 {
-    ObjectGuid guid = 0;
+    ObjectGuid guid;
     uint8 slot = 0;
 
     recvData >> slot;
@@ -554,7 +554,7 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
 
     Loot* loot = NULL;
 
-    if (IS_CRE_OR_VEH_GUID(guid))
+    if (guid.IsCreatureOrVehicle())
     {
         Creature* creature = GetPlayer()->GetMap()->GetCreature(guid);
         if (!creature)
@@ -562,7 +562,7 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
 
         loot = &creature->loot;
     }
-    else if (IS_GAMEOBJECT_GUID(guid))
+    else if (guid.IsGameObject())
     {
         GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(guid);
         if (!pGO)
@@ -588,7 +588,7 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
 //! 5.4.1
 void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 {
-    ObjectGuid target_playerguid = 0;
+    ObjectGuid target_playerguid;
 
     uint32 count = recvData.ReadBits(23);
     std::vector<ObjectGuid> guids(count);
@@ -625,9 +625,9 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         return;
     }
 
-    target_playerguid = GUID_LOPART(target_playerguid); //WARNING! TMP! plr should have off-like hi-guid, as server not suport it  - cut.
+    //target_playerguid = GUID_LOPART(target_playerguid); //WARNING! TMP! plr should have off-like hi-guid, as server not suport it  - cut.
 
-    Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(target_playerguid, 0, HighGuid::Player));
+    Player* target = ObjectAccessor::FindPlayer(target_playerguid);
     if (!target)
         return;
 
@@ -639,7 +639,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         uint8 slotid = types[i];
         Loot* loot = NULL;
 
-        if (IS_CRE_OR_VEH_GUID(lootguid))
+        if (lootguid.IsCreatureOrVehicle())
         {
             Creature* creature = GetPlayer()->GetMap()->GetCreature(lootguid);
             if (!creature)
@@ -647,7 +647,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
             loot = &creature->loot;
         }
-        else if (IS_GAMEOBJECT_GUID(lootguid))
+        else if (lootguid.IsGameObject())
         {
             GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(lootguid);
             if (!pGO)
