@@ -78,7 +78,7 @@ class PoolGroup
         bool CheckPool() const;
         PoolObject* RollOne(ActivePoolData& spawns, uint32 triggerFrom);
         void DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType guid=0);
-        void Despawn1Object(ObjectGuid::LowType guid);
+        void Despawn1Object(uint64 guid);
         void SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom);
 
         void Spawn1Object(PoolObject* obj);
