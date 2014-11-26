@@ -54,7 +54,7 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
 }
 
 //this void causes that auction window is opened
-void WorldSession::SendAuctionHello(uint64 guid, Creature* unit)
+void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
 {
     if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_AUCTION_LEVEL_REQ))
     {
@@ -79,7 +79,7 @@ void WorldSession::SendAuctionHello(uint64 guid, Creature* unit)
 //call this method when player bids, creates, or deletes auction
 void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action, uint32 errorCode, uint32 bidError)
 {
-    ObjectGuid bidderGUID = auction ? auction->bidder : 0;
+    ObjectGuidSteam bidderGUID = auction ? auction->bidder : 0;
 
     WorldPacket data(SMSG_AUCTION_COMMAND_RESULT);
     data << uint32(40);                                   // inventoryErrorCode???, if exists, default 40
@@ -183,14 +183,14 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneerGUID, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionSellItem - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(auctioneerGUID));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionSellItem - Unit (GUID: %u) not found or you can't interact with him.", auctioneerGUID.GetCounter());
         return;
     }
 
     AuctionHouseEntry const* auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(creature->getFaction());
     if (!auctionHouseEntry)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionSellItem - Unit (GUID: %u) has wrong faction.", GUID_LOPART(auctioneerGUID));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionSellItem - Unit (GUID: %u) has wrong faction.", auctioneerGUID.GetCounter());
         return;
     }
 
@@ -280,7 +280,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
         if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
             AH->auctioneer = 174444;
         else
-            AH->auctioneer = GUID_LOPART(auctioneerGUID);
+            AH->auctioneer = auctioneerGUID.GetCounter();
 
         ASSERT(sObjectMgr->GetCreatureData(AH->auctioneer)); // Tentative de vendre un item a un pnj qui n'existe pas, mieux vaut crash ici sinon l'item en question risque de disparaitre tout simplement
 
@@ -411,7 +411,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneerGUID, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionPlaceBid - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(auctioneerGUID)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionPlaceBid - Unit (GUID: %u) not found or you can't interact with him.", uint32(auctioneerGUID.GetCounter()));
         return;
     }
 
@@ -536,7 +536,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneerGUID, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionRemoveItem - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(auctioneerGUID)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionRemoveItem - Unit (GUID: %u) not found or you can't interact with him.", uint32(auctioneerGUID.GetCounter()));
         return;
     }
 
@@ -631,7 +631,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneerGUID, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionListBidderItems - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(auctioneerGUID)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionListBidderItems - Unit (GUID: %u) not found or you can't interact with him.", uint32(auctioneerGUID.GetCounter()));
         recvData.rfinish();
         return;
     }

@@ -35,7 +35,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
-    uint64 lguid = player->GetLootGUID();
+    ObjectGuid lguid = player->GetLootGUID();
     Loot* loot = NULL;
     uint8 lootSlot = 0;
 
@@ -53,7 +53,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
 
         lguid = guids[i];
 
-        if (IS_GAMEOBJECT_GUID(lguid))
+        if (lguid.IsGameObject())
         {
             GameObject* go = player->GetMap()->GetGameObject(lguid);
 
@@ -66,7 +66,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
 
             loot = &go->loot;
         }
-        else if (IS_ITEM_GUID(lguid))
+        else if (lguid.IsItem())
         {
             Item* pItem = player->GetItemByGuid(lguid);
 
@@ -78,7 +78,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
 
             loot = &pItem->loot;
         }
-        else if (IS_CORPSE_GUID(lguid))
+        else if (lguid.IsCorpse())
         {
             Corpse* bones = ObjectAccessor::GetCorpse(*player, lguid);
             if (!bones)
@@ -142,7 +142,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
     {
         Loot* loot = NULL;
         bool shareMoney = true;
-        uint64 lootguid = *itr;
+        ObjectGuid lootguid = *itr;
 
         switch (lootguid.GetHigh())
         {

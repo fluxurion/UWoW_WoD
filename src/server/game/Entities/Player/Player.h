@@ -2312,7 +2312,7 @@ class Player : public Unit, public GridObject<Player>
         void SetGuildLevel(uint32 level) { SetUInt32Value(PLAYER_GUILDLEVEL, level); }
         uint32 GetGuildLevel() { return GetUInt32Value(PLAYER_GUILDLEVEL); }
         void SetGuildIdInvited(uint32 GuildId, ObjectGuid guid = ObjectGuid::Empty) { m_GuildIdInvited = GuildId; m_GuildInviterGuid = guid; }
-        uint64 GetGuildInviterGuid() const { return m_GuildInviterGuid; }
+        ObjectGuid GetGuildInviterGuid() const { return m_GuildInviterGuid; }
         ObjectGuid GetGuildId() const { return GetGuidValue(OBJECT_FIELD_DATA); /* return only lower part */ }
         static ObjectGuid::LowType GetGuildIdFromDB(ObjectGuid guid);
         static uint8 GetRankFromDB(ObjectGuid guid);
@@ -3306,7 +3306,7 @@ class Player : public Unit, public GridObject<Player>
         SkillStatusMap mSkillStatus;
 
         ObjectGuid::LowType m_GuildIdInvited;
-        uint64 m_GuildInviterGuid;
+        ObjectGuid m_GuildInviterGuid;
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;

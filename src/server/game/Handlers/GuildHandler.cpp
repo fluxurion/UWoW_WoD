@@ -338,7 +338,7 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
     {
         // "That's not an emblem vendor!"
         Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_INVALIDVENDOR);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSaveGuildEmblemOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(vendorGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSaveGuildEmblemOpcode - Unit (GUID: %u) not found or you can't interact with him.", vendorGuid.GetCounter());
     }
 }
 
@@ -654,10 +654,10 @@ void WorldSession::HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket)
     ObjectGuid guildGuid;
 
     uint8 bitOrder[8] = {2, 5, 3, 7, 4, 1, 0, 6};
-    recvPacket.ReadBitInOrder(guildGuid, bitOrder);
+    //recvPacket.ReadBitInOrder(guildGuid, bitOrder);
 
     uint8 byteOrder[8] = {7, 3, 2, 1, 0, 5, 6, 4};
-    recvPacket.ReadBytesSeq(guildGuid, byteOrder);
+    //recvPacket.ReadBytesSeq(guildGuid, byteOrder);
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
     {

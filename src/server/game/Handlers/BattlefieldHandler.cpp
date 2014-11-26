@@ -173,7 +173,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
     //recvData.ReadGuidMask<3, 7, 4, 2>(guid);
 
     //recvData.ReadGuidBytes< 2, 3, 6, 1, 5, 0, 4, 7>(guid);*/
-    sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:" UI64FMTD " Accepted:%u", (uint64)guid, accepted);
+    sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:" UI64FMTD " Accepted:%u", guid.GetCounter(), accepted);
 
     if(!accepted)
         return;
@@ -263,7 +263,7 @@ void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
     if (!bf)
         return;
 
-    SendBfLeaveMessage(bf->GetBattleId());
+    //SendBfLeaveMessage(bf->GetBattleId());
     bf->AskToLeaveQueue(_player);
     bf->KickPlayerFromBattlefield(_player->GetGUID());
 }

@@ -36,9 +36,9 @@
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     recvData >> guid;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_HELLO Message from (GUID: %u TypeId:%u)", guid.GetCounter(), GuidHigh2TypeId(GUID_HIPART(guid)));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_HELLO Message from (GUID: %u TypeId:%u)", guid.GetCounter(), guid.GetHigh());
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
@@ -62,7 +62,7 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recvData)
     SendBattleGroundList(guid, bgTypeId);
 }
 
-void WorldSession::SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId)
+void WorldSession::SendBattleGroundList(ObjectGuid guid, BattlegroundTypeId bgTypeId)
 {
     WorldPacket data;
     sBattlegroundMgr->BuildBattlegroundListPacket(&data, guid, _player, bgTypeId);
@@ -105,7 +105,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
 
     BattlegroundTypeId bgTypeId = BattlegroundTypeId(bgTypeId_);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from (GUID: %u TypeId:%u)", guid.GetCounter(), GuidHigh2TypeId(GUID_HIPART(guid)));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from (GUID: %u TypeId:%u)", guid.GetCounter(), guid.GetHigh());
 
     // can do this, since it's battleground, not arena
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, 0);
@@ -269,14 +269,14 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
     Player* allianceFlagCarrier = NULL;
     Player* hordeFlagCarrier = NULL;
 
-    if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_ALLIANCE))
+    if (ObjectGuid guid = bg->GetFlagPickerGUID(BG_TEAM_ALLIANCE))
     {
         allianceFlagCarrier = ObjectAccessor::FindPlayer(guid);
          if (allianceFlagCarrier)
             ++flagCarrierCount;
     }
 
-    if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_HORDE))
+    if (ObjectGuid guid = bg->GetFlagPickerGUID(BG_TEAM_HORDE))
     {
         hordeFlagCarrier = ObjectAccessor::FindPlayer(guid);
         if (hordeFlagCarrier)
@@ -291,14 +291,14 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvDa
         data << guid << posx << posy;
     */
     {
-        data << uint64(allianceFlagCarrier->GetGUID());
+        data << allianceFlagCarrier->GetGUID();
         data << float(allianceFlagCarrier->GetPositionX());
         data << float(allianceFlagCarrier->GetPositionY());
     }
 
     if (hordeFlagCarrier)
     {
-        data << uint64(hordeFlagCarrier->GetGUID());
+        data << hordeFlagCarrier->GetGUID();
         data << float(hordeFlagCarrier->GetPositionX());
         data << float(hordeFlagCarrier->GetPositionY());
     }
@@ -340,7 +340,7 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
     }
 
     WorldPacket data;
-    sBattlegroundMgr->BuildBattlegroundListPacket(&data, 0, _player, BattlegroundTypeId(bgTypeId));
+    sBattlegroundMgr->BuildBattlegroundListPacket(&data, ObjectGuid::Empty, _player, BattlegroundTypeId(bgTypeId));
     SendPacket(&data);
 }
 

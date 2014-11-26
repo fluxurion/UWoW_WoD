@@ -91,8 +91,8 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket&  recvData)
     recvData.rfinish();
 
     Group* group = GetPlayer()->GetGroup();
-    uint64 guid = GetPlayer()->GetGUID();
-    uint64 gguid = group ? group->GetGUID() : guid;
+    ObjectGuid guid = GetPlayer()->GetGUID();
+    ObjectGuid gguid = group ? group->GetGUID() : guid;
 
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_LEAVE %s in group: %u",
         GetPlayerName().c_str(), group ? 1 : 0);
@@ -143,7 +143,7 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
     recvData >> roles;                                    // Player Group Roles
     recvData >> unk;
 
-    uint64 guid = GetPlayer()->GetGUID();
+    ObjectGuid guid = GetPlayer()->GetGUID();
     Group* group = GetPlayer()->GetGroup();
     if (!group)
     {
@@ -151,9 +151,9 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
             GetPlayerName().c_str());
         return;
     }
-    uint64 gguid = group->GetGUID();
+    ObjectGuid gguid = group->GetGUID();
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_SET_ROLES: Group %u, Player %s, Roles: %u",
-        GUID_LOPART(gguid), GetPlayerName().c_str(), roles);
+        gguid.GetCounter(), GetPlayerName().c_str(), roles);
     sLFGMgr->UpdateRoleCheck(gguid, guid, roles);
 }
 
@@ -181,7 +181,7 @@ void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket& recvData)
 {
     bool agree = recvData.ReadBit();                            // Agree to kick player
 
-    uint64 guid = GetPlayer()->GetGUID();
+    ObjectGuid guid = GetPlayer()->GetGUID();
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_SET_BOOT_VOTE %s agree: %u",
         GetPlayerName().c_str(), agree ? 1 : 0);
     sLFGMgr->UpdateBoot(guid, agree);
@@ -199,7 +199,7 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
 void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recvData)
 {
     recvData.rfinish();
-    uint64 guid = GetPlayer()->GetGUID();
+    ObjectGuid guid = GetPlayer()->GetGUID();
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_PLAYER_LOCK_INFO_REQUEST %s",
         GetPlayerName().c_str());
 
@@ -354,7 +354,7 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
 {
-    uint64 guid = GetPlayer()->GetGUID();
+    ObjectGuid guid = GetPlayer()->GetGUID();
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_GET_STATUS %s", GetPlayerName().c_str());
 
     sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_GET_STATUS %s", GetPlayerName().c_str());
@@ -388,7 +388,7 @@ void WorldSession::SendLfgUpdateParty(lfg::LfgUpdateData const& updateData)
     sLFGMgr->SendUpdateStatus(GetPlayer(), updateData, true);
 }
 
-void WorldSession::SendLfgRoleChosen(uint64 guid, uint8 roles)
+void WorldSession::SendLfgRoleChosen(ObjectGuid guid, uint8 roles)
 {
     sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_ROLE_CHOSEN %s guid: %u roles: %u",
         GetPlayerName().c_str(), guid.GetCounter(), roles);
@@ -435,11 +435,11 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
         data.WriteBit(roles != 0);
         //data.WriteGuidMask<5, 6, 0, 7, 2, 1, 4, 3>(guid);
 
-        buff.WriteGuidBytes<4, 6, 3, 0>(guid);
+        //buff.WriteGuidBytes<4, 6, 3, 0>(guid);
         buff << uint32(roles);                                      // Roles
-        buff.WriteGuidBytes<5, 1, 2>(guid);
+        //buff.WriteGuidBytes<5, 1, 2>(guid);
         buff << uint8(player ? player->getLevel() : 0);             // Level
-        buff.WriteGuidBytes<7>(guid);
+        //buff.WriteGuidBytes<7>(guid);
 
         for (lfg::LfgRolesMap::const_reverse_iterator it = roleCheck.roles.rbegin(); it != roleCheck.roles.rend(); ++it)
         {
@@ -453,11 +453,11 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
             data.WriteBit(roles != 0);
             //data.WriteGuidMask<5, 6, 0, 7, 2, 1, 4, 3>(guid);
 
-            buff.WriteGuidBytes<4, 6, 3, 0>(guid);
+            //buff.WriteGuidBytes<4, 6, 3, 0>(guid);
             buff << uint32(roles);                                      // Roles
-            buff.WriteGuidBytes<5, 1, 2>(guid);
+            //buff.WriteGuidBytes<5, 1, 2>(guid);
             buff << uint8(player ? player->getLevel() : 0);             // Level
-            buff.WriteGuidBytes<7>(guid);
+            //buff.WriteGuidBytes<7>(guid);
         }
     }
 
@@ -648,7 +648,7 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
 
 void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
 {
-    uint64 guid = GetPlayer()->GetGUID();
+    ObjectGuid guid = GetPlayer()->GetGUID();
     lfg::LfgAnswer playerVote = boot.votes.find(guid)->second;
     uint8 votesNum = 0;
     uint8 agreeNum = 0;
@@ -666,7 +666,7 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
         "didVote: %u - agree: %u - victim: %u votes: %u - agrees: %u - left: %u - "
         "needed: %u - reason %s",
         GetPlayerName().c_str(), uint8(boot.inProgress), uint8(playerVote != lfg::LFG_ANSWER_PENDING),
-        uint8(playerVote == lfg::LFG_ANSWER_AGREE), GUID_LOPART(boot.victim), votesNum, agreeNum,
+        uint8(playerVote == lfg::LFG_ANSWER_AGREE), boot.victim.GetCounter(), votesNum, agreeNum,
         secsleft, boot.votesNeeded, boot.reason.c_str());
 
     ObjectGuid victimGuid = boot.victim;
@@ -702,8 +702,8 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
 
 void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
 {
-    uint64 guid = GetPlayer()->GetGUID();
-    uint64 gguid = proposal.players.find(guid)->second.group;
+    ObjectGuid guid = GetPlayer()->GetGUID();
+    ObjectGuid gguid = proposal.players.find(guid)->second.group;
     bool silent = !proposal.isNew && gguid == proposal.group;
     uint32 dungeonEntry = proposal.dungeonId;
 
@@ -721,7 +721,7 @@ void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
     dungeonEntry = sLFGMgr->GetLFGDungeonEntry(dungeonEntry);
 
     ObjectGuid playerGUID = guid;
-    ObjectGuid InstanceSaveGUID = MAKE_NEW_GUID(dungeonEntry, 0, HIGHGUID_INSTANCE_SAVE);
+    //ObjectGuid InstanceSaveGUID = MAKE_NEW_GUID(dungeonEntry, 0, HIGHGUID_INSTANCE_SAVE);
 
     WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + proposal.players.size() * (4 + 1 + 1 + 1 + 1 +1));
     data << uint32(dungeonEntry);                           // Dungeon

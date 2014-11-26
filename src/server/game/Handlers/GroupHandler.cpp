@@ -171,7 +171,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
         return;
     }
 
-    if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID().GetCounter()))
+    if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
     {
         SendPartyResult(PARTY_OP_INVITE, memberName, ERR_IGNORING_YOU_S);
         return;
@@ -407,7 +407,7 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recvData)
     if (!grp)
         return;
 
-    if (uint64 guid = grp->GetMemberGUID(membername))
+    if (ObjectGuid guid = grp->GetMemberGUID(membername))
     {
         Player::RemoveFromGroup(grp, guid, GROUP_REMOVEMETHOD_KICK, GetPlayer()->GetGUID());
         return;
@@ -930,7 +930,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     if (groupNr >= MAX_RAID_SUBGROUPS)
         return;
 
-    uint64 senderGuid = GetPlayer()->GetGUID();
+    ObjectGuid senderGuid = GetPlayer()->GetGUID();
     if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid) && !(group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
         return;
 
@@ -1042,7 +1042,7 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
     if (!group)
         return;
 
-    uint64 senderGuid = GetPlayer()->GetGUID();
+    ObjectGuid senderGuid = GetPlayer()->GetGUID();
     if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid) && !(group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
         return;
 
@@ -1556,5 +1556,5 @@ void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& recv_data)
         return;
 
     if (group->IsAssistant(_player->GetGUID()) || group->IsLeader(_player->GetGUID()))
-        group->SetRaidMarker(id, _player, 0);
+        group->SetRaidMarker(id, _player, ObjectGuid::Empty);
 }

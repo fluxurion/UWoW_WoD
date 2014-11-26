@@ -19,6 +19,7 @@
 #define TRINITY_CALENDARMGR_H
 
 #include "Calendar.h"
+#include "ObjectGuid.h"
 
 class CalendarMgr
 {

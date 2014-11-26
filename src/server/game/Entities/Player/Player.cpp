@@ -25430,7 +25430,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendInitWorldTimers();
 
     SendDeathRuneUpdate();
-    GetSession()->SendStablePet(0);
+    GetSession()->SendStablePet(ObjectGuid::Empty);
 
     SetMover(this);
 }

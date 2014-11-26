@@ -643,7 +643,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorguid)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", vendorguid.GetCounter());
         _player->SendSellError(SELL_ERR_VENDOR_HATES_YOU, NULL, itemguid);
         return;
     }
@@ -758,8 +758,8 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBuybackItem - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorguid)));
-        _player->SendSellError(SELL_ERR_VENDOR_HATES_YOU, NULL, 0);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBuybackItem - Unit (GUID: %u) not found or you can not interact with him.", vendorguid.GetCounter());
+        _player->SendSellError(SELL_ERR_VENDOR_HATES_YOU, NULL, ObjectGuid::Empty);
         return;
     }
 
@@ -798,7 +798,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
 void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM_IN_SLOT");
-    uint64 vendorguid, bagguid;
+    ObjectGuid vendorguid, bagguid;
     uint32 item, slot, count;
     uint8 bagslot;
 
@@ -903,15 +903,15 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket & recvData)
     SendListInventory(guid);
 }
 
-void WorldSession::SendListInventory(uint64 vendorGuid)
+void WorldSession::SendListInventory(ObjectGuid vendorGuid)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LIST_INVENTORY");
 
     Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!vendor)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorGuid)));
-        _player->SendSellError(SELL_ERR_VENDOR_HATES_YOU, NULL, 0);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", vendorGuid.GetCounter());
+        _player->SendSellError(SELL_ERR_VENDOR_HATES_YOU, NULL, ObjectGuid::Empty);
         return;
     }
 
@@ -1490,8 +1490,8 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GIFT);
-    stmt->setUInt32(0, GUID_LOPART(item->GetOwnerGUID()));
-    stmt->setUInt32(1, item->GetGUID().GetCounter());
+    stmt->setUInt32(0, item->GetOwnerGUID().GetCounter());
+    stmt->setUInt64(1, item->GetGUID().GetCounter());
     stmt->setUInt32(2, item->GetEntry());
     stmt->setUInt32(3, item->GetUInt32Value(ITEM_FIELD_FLAGS));
     trans->Append(stmt);
@@ -1835,10 +1835,10 @@ void WorldSession::HandleItemRefund(WorldPacket &recvData)
  */
 void WorldSession::HandleItemTextQuery(WorldPacket & recvData )
 {
-    uint64 itemGuid;
+    ObjectGuid itemGuid;
     recvData >> itemGuid;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ITEM_TEXT_QUERY item guid: %u", GUID_LOPART(itemGuid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ITEM_TEXT_QUERY item guid: %u", itemGuid.GetCounter());
 
     WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, 14);    // guess size
 
@@ -1871,8 +1871,8 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         return;
     }
 
-    std::vector<ObjectGuid> itemGuids(count, ObjectGuid(0));
-    std::vector<ObjectGuid> itemGuids10(count, ObjectGuid(0));
+    std::vector<ObjectGuid> itemGuids(count, ObjectGuid());
+    std::vector<ObjectGuid> itemGuids10(count, ObjectGuid());
     std::vector<uint32> newEntries(count, 0);
     std::vector<uint32> slots(count, 0);
     std::vector<bool> HasItemGuid(count, 0);
@@ -1889,10 +1889,10 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
     for (uint32 i = 0; i < count; ++i)
     {
-        if (HasItemGuid10[i])
+        //if (HasItemGuid10[i])
             //recvData.ReadGuidMask<0, 2, 7, 1, 4, 6, 5, 3>(itemGuids10[i]);
 
-        if (HasItemGuid[i])
+        //if (HasItemGuid[i])
             //recvData.ReadGuidMask<4, 5, 0, 1, 6, 2, 3, 7>(itemGuids[i]);
     }
 
@@ -1908,10 +1908,10 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
     for (uint32 i = 0; i < count; ++i)
     {
-        if (HasItemGuid[i])
+        //if (HasItemGuid[i])
             //recvData.ReadGuidBytes<6, 7, 3, 0, 5, 2, 4, 1>(itemGuids[i]);
 
-        if (HasItemGuid10[i])
+        //if (HasItemGuid10[i])
             //recvData.ReadGuidBytes<2, 3, 5, 0, 6, 7, 4, 1>(itemGuids10[i]);
     }
 
@@ -1919,7 +1919,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 
     if (!player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_TRANSMOGRIFIER))
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
         return;
     }
 
@@ -1929,7 +1929,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         // slot of the transmogrified item
         if (slots[i] < EQUIPMENT_SLOT_START || slots[i] >= EQUIPMENT_SLOT_END)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an item (lowguid: %u) with a wrong slot (%u) when transmogrifying items.", player->GetGUID().GetCounter(), player->GetName(), GUID_LOPART(itemGuids[i]), slots[i]);
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an item (lowguid: %u) with a wrong slot (%u) when transmogrifying items.", player->GetGUID().GetCounter(), player->GetName(), itemGuids[i].GetCounter(), slots[i]);
             return;
         }
 
@@ -1954,7 +1954,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             itemTransmogrifier = player->GetItemByGuid(itemGuids[i]);
             if (!itemTransmogrifier)
             {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUID().GetCounter(), player->GetName(), GUID_LOPART(itemGuids[i]));
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUID().GetCounter(), player->GetName(), itemGuids[i].GetCounter());
                 return;
             }
             if(itemTransmogrifier->GetEntry() != newEntries[i])
@@ -2170,21 +2170,21 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
 
     if (!player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_UPGRADE_MASTER))
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
         return;
     }
 
     Item* item = player->GetItemByGuid(itemGuid);
     if (!item)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Can't find item (GUID: %u).", GUID_LOPART(itemGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Can't find item (GUID: %u).", itemGuid.GetCounter());
         return;
     }
 
     ItemUpgradeData const* upgradeData = GetItemUpgradeData(item->GetEntry());
     if (!upgradeData)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Can't find item (GUID: %u).", GUID_LOPART(itemGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Can't find item (GUID: %u).", itemGuid.GetCounter());
         return;
     }
 
@@ -2205,14 +2205,14 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
     if (!newUpgrade)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Can't find upgrade id %u for item %u (GUID: %u).",
-            upgradeId, item->GetEntry(), GUID_LOPART(itemGuid));
+            upgradeId, item->GetEntry(), itemGuid.GetCounter());
         return;
     }
 
     if (item->GetUpgradeId() != newUpgrade->prevUpgradeId)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Previous item upgrade id mismatch: %u should be %u. Item id %u (GUID: %u).",
-            item->GetUpgradeId(), newUpgrade->prevUpgradeId, item->GetEntry(), GUID_LOPART(itemGuid));
+            item->GetUpgradeId(), newUpgrade->prevUpgradeId, item->GetEntry(), itemGuid.GetCounter());
         return;
     }
 
@@ -2222,7 +2222,7 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
         if (!player->HasCurrency(reqCur, newUpgrade->currencyReqAmt))
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - insufficient currency: upgrade id %u Item id %u (GUID: %u).",
-                upgradeId, item->GetEntry(), GUID_LOPART(itemGuid));
+                upgradeId, item->GetEntry(), itemGuid.GetCounter());
             player->SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
             return;
         }
