@@ -6636,7 +6636,7 @@ uint32 ObjectMgr::GeneratePetNumber()
     return ++_hiPetNumber;
 }
 
-ObjectGuid::LowType ObjectMgr::GenerateVoidStorageItemId()
+uint64 ObjectMgr::GenerateVoidStorageItemId()
 {
     return ++_voidItemId;
 }

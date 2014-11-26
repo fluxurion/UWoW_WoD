@@ -82,14 +82,14 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     bool hasSpeed = !recvPacket.ReadBit();
 
     //recvPacket.ReadGuidMask<0, 2, 5, 3, 4, 1, 6, 7>(targetGuid);
-    if (hasSrc)
+    //if (hasSrc)
         //recvPacket.ReadGuidMask<0, 5, 2, 4, 1, 7, 3, 6>(srcTransportGuid);
 
     if (strTargetLen)
         strTargetLen = recvPacket.ReadBits(7);
 
     //recvPacket.ReadGuidMask<6, 2, 0, 4, 3, 7, 5, 1>(guid38);
-    if (hasDst)
+    //if (hasDst)
         //recvPacket.ReadGuidMask<5, 2, 3, 1, 7, 4, 6, 0>(dstTransportGuid);
 
     bool dword1A0 = false;
@@ -541,7 +541,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     if (stringTargetLen)
         stringTargetLen = recvPacket.ReadBits(7);
 
-    if (hasDst)
+    //if (hasDst)
         //recvPacket.ReadGuidMask<3, 5, 1, 7, 0, 6, 2, 4>(dstTransportGuid);
 
     bool dword198 = false;
@@ -1161,7 +1161,7 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
         return;
 
     // maybe should only remove one buff when there are multiple?
-    _player->RemoveOwnedAura(spellId, 0, 0, AURA_REMOVE_BY_CANCEL);
+    _player->RemoveOwnedAura(spellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
 }
 
 //! 5.4.1
@@ -1172,8 +1172,8 @@ void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
 
     recvPacket >> spellId;
 
-    recvPacket.WriteGuidMask<7, 2, 6, 4, 1, 5, 0, 3>(guid);
-    recvPacket.WriteGuidBytes<0, 2, 3, 7, 4, 1, 6, 5>(guid);
+    //recvPacket.WriteGuidMask<7, 2, 6, 4, 1, 5, 0, 3>(guid);
+    //recvPacket.WriteGuidBytes<0, 2, 3, 7, 4, 1, 6, 5>(guid);
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -1202,7 +1202,7 @@ void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    pet->RemoveOwnedAura(spellId, 0, 0, AURA_REMOVE_BY_CANCEL);
+    pet->RemoveOwnedAura(spellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
 
     pet->AddCreatureSpellCooldown(spellId);
 }
@@ -1429,7 +1429,7 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_UPDATE_PROJECTILE_POSITION");
 
-    uint64 casterGuid;
+    ObjectGuid casterGuid;
     uint32 spellId;
     uint8 castCount;
     float x, y, z;    // Position of missile hit
@@ -1466,7 +1466,7 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_UPDATE_MISSILE_TRAJECTORY");
 
-    uint64 guid;
+    ObjectGuid guid;
     uint32 spellId;
     float elevation, speed;
     float curX, curY, curZ;

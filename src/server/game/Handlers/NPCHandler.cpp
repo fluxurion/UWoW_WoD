@@ -693,8 +693,8 @@ void WorldSession::HandleStableChangeSlot(WorldPacket & recv_data)
 
     recv_data >> pet_number >> new_slot;
 
-    //recv_data.ReadGuidMask<4, 1, 5, 3, 0, 6, 7, 2>(npcGUID);
-    //recv_data.ReadGuidBytes<5, 1, 4, 6, 3, 7, 2, 0>(npcGUID);
+    ////recv_data.ReadGuidMask<4, 1, 5, 3, 0, 6, 7, 2>(npcGUID);
+    ////recv_data.ReadGuidBytes<5, 1, 4, 6, 3, 7, 2, 0>(npcGUID);
 
     if (!CheckStableMaster(npcGUID))
     {

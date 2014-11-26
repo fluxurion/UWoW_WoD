@@ -706,7 +706,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
     data << uint8(msg);
     //data.WriteGuidBytes<0, 3, 7, 1, 5>(guid);
     player->GetSession()->SendPacket(&data);
-    _player->SetDivider(0);
+    _player->SetDivider(ObjectGuid::Empty);
 }
 
 uint32 WorldSession::getDialogStatus(Player* player, Object* questgiver, uint32 defstatus)

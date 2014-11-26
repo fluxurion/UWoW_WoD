@@ -452,7 +452,7 @@ bool LootItem::AllowedForPlayer(Player const* player) const
 
 void LootItem::AddAllowedLooter(const Player* player)
 {
-    allowedGUIDs.insert(player->GetGUID().GetCounter());
+    allowedGUIDs.insert(player->GetGUID());
 }
 
 //
@@ -943,13 +943,13 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     // not off-like, should have HIGHGUID_LOOT.
     ObjectGuid GUID48 = lv._guid;                                                       //lootGUID
 
-    bitBuffer.WriteGuidMask<7, 1>(GUID48);
+    //bitBuffer.WriteGuidMask<7, 1>(GUID48);
     bitBuffer.WriteBit(lv.permission != NONE_PERMISSION);                               //permishin if 0 cannot loot
-    bitBuffer.WriteGuidMask<6>(GUID48);
+    //bitBuffer.WriteGuidMask<6>(GUID48);
     bitBuffer.WriteBit(!l.gold);
     size_t count_pos = bitBuffer.bitwpos();                                             // Placeholder
     bitBuffer.WriteBits(itemsShown, 19); 
-    bitBuffer.WriteGuidMask<1>(lv._guid);
+    //bitBuffer.WriteGuidMask<1>(lv._guid);
 
     switch (lv.permission)
     {
@@ -1215,24 +1215,24 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     }
 
     bitBuffer.PutBits(count_pos, itemsShown, 19);
-    bitBuffer.WriteGuidMask<3>(lv._guid);
-    bitBuffer.WriteGuidMask<3>(GUID48);
+    //bitBuffer.WriteGuidMask<3>(lv._guid);
+    //bitBuffer.WriteGuidMask<3>(GUID48);
     bitBuffer.WriteBit(!byte34);
-    bitBuffer.WriteGuidMask<5>(GUID48);
+    //bitBuffer.WriteGuidMask<5>(GUID48);
     bitBuffer.WriteBit(!byte52);
-    bitBuffer.WriteGuidMask<6>(lv._guid);
+    //bitBuffer.WriteGuidMask<6>(lv._guid);
     bitBuffer.WriteBit(lv.pool);                            //1 not stack item in aoe
-    bitBuffer.WriteGuidMask<5>(lv._guid);
+    //bitBuffer.WriteGuidMask<5>(lv._guid);
     bitBuffer.WriteBit(!lv._loot_type);
-    bitBuffer.WriteGuidMask<7, 4>(lv._guid);
-    bitBuffer.WriteGuidMask<0>(GUID48);
+    //bitBuffer.WriteGuidMask<7, 4>(lv._guid);
+    //bitBuffer.WriteGuidMask<0>(GUID48);
     bitBuffer.WriteBit(!byte50);
-    bitBuffer.WriteGuidMask<4>(GUID48);
-    bitBuffer.WriteGuidMask<0>(lv._guid);
-    bitBuffer.WriteGuidMask<2>(GUID48);
+    //bitBuffer.WriteGuidMask<4>(GUID48);
+    //bitBuffer.WriteGuidMask<0>(lv._guid);
+    //bitBuffer.WriteGuidMask<2>(GUID48);
     uint32 currencyPos = bitBuffer.bitwpos();
     bitBuffer.WriteBits(currenciesShown, 20);
-    bitBuffer.WriteGuidMask<2>(lv._guid);
+    //bitBuffer.WriteGuidMask<2>(lv._guid);
 
     QuestItemMap const& lootPlayerCurrencies = l.GetPlayerCurrencies();
     QuestItemMap::const_iterator currency_itr = lootPlayerCurrencies.find(lv.viewer->GetGUID().GetCounter());
@@ -1261,29 +1261,29 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     bitBuffer.PutBits<uint32>(currencyPos, currenciesShown, 20);
     b.append(bitBuffer);
 
-    b.WriteGuidBytes<2, 1>(lv._guid);
-    b.WriteGuidBytes<5>(GUID48);
+    //b.WriteGuidBytes<2, 1>(lv._guid);
+    //b.WriteGuidBytes<5>(GUID48);
 
     b.append(dataBuffer);
 
-    b.WriteGuidBytes<5>(lv._guid);
-    b.WriteGuidBytes<1>(GUID48);
-    b.WriteGuidBytes<7>(lv._guid);
-    b.WriteGuidBytes<2>(GUID48);
+    //b.WriteGuidBytes<5>(lv._guid);
+    //b.WriteGuidBytes<1>(GUID48);
+    //b.WriteGuidBytes<7>(lv._guid);
+    //b.WriteGuidBytes<2>(GUID48);
 
     if (byte50)
         b << uint8(lv.permission);
 
-    b.WriteGuidBytes<7>(GUID48);
+    //b.WriteGuidBytes<7>(GUID48);
 
     if (lv._loot_type)
         b << uint8(lv._loot_type);
 
-    b.WriteGuidBytes<4>(lv._guid);
-    b.WriteGuidBytes<6, 4>(GUID48);
-    b.WriteGuidBytes<3>(lv._guid);
-    b.WriteGuidBytes<3, 0>(GUID48);
-    b.WriteGuidBytes<6>(lv._guid);
+    //b.WriteGuidBytes<4>(lv._guid);
+    //b.WriteGuidBytes<6, 4>(GUID48);
+    //b.WriteGuidBytes<3>(lv._guid);
+    //b.WriteGuidBytes<3, 0>(GUID48);
+    //b.WriteGuidBytes<6>(lv._guid);
 
     if(byte52)
         b << uint8(22);                     // always 17
@@ -1291,7 +1291,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     if (l.gold)
         b << uint32(l.gold);
 
-    b.WriteGuidBytes<0>(lv._guid);
+    //b.WriteGuidBytes<0>(lv._guid);
 
     if(byte34)
         b << uint8(2);                      // if exist always 2

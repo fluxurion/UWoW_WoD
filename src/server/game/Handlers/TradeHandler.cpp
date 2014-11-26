@@ -650,7 +650,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUID().GetCounter()))
+    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
     {
         SendTradeStatus(TRADE_STATUS_IGNORE_YOU);
         return;
@@ -732,10 +732,8 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    uint64 iGUID = item->GetGUID();
-
     // prevent place single item into many trade slots using cheating and client bugs
-    if (my_trade->HasItem(iGUID))
+    if (my_trade->HasItem(item->GetGUID()))
     {
         // cheating attempt
         SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);

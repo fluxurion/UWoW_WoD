@@ -93,7 +93,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
             recvData >> y;
             recvData >> x;
             
-            uint64 accessory;        // accessory vehicle guid
+            ObjectGuid accessory;        // accessory vehicle guid
             recvData >> accessory;
 
             if (!accessory)
@@ -175,10 +175,10 @@ void WorldSession::HandleEjectPassenger(WorldPacket& data)
         return;
     }
 
-    uint64 guid;
+    ObjectGuid guid;
     data >> guid;
 
-    if (IS_PLAYER_GUID(guid))
+    if (guid.IsPlayer())
     {
         Player* player = ObjectAccessor::FindPlayer(guid);
         if (!player)
@@ -201,7 +201,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket& data)
             sLog->outError(LOG_FILTER_NETWORKIO, "Player %u attempted to eject player %u from non-ejectable seat.", GetPlayer()->GetGUID().GetCounter(), guid.GetCounter());
     }
 
-    else if (IS_CREATURE_GUID(guid))
+    else if (guid.IsCreature())
     {
         Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
         if (!unit) // creatures can be ejected too from player mounts

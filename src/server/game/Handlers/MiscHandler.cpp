@@ -531,7 +531,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LOGOUT_REQUEST Message, security - %u", GetSecurity());
 
-    if (uint64 lguid = GetPlayer()->GetLootGUID())
+    if (ObjectGuid lguid = GetPlayer()->GetLootGUID())
         DoLootRelease(lguid);
     GetPlayer()->ClearAoeLootList();
 
@@ -736,19 +736,18 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
     if (!GetPlayer())
         return;
 
-    uint64 friendGuid;
+    ObjectGuid friendGuid;
     uint32 friendAccountId;
     uint32 team;
     FriendsResult friendResult;
 
     friendResult = FRIEND_NOT_FOUND;
-    friendGuid = 0;
 
     if (result)
     {
         Field* fields = result->Fetch();
 
-        friendGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player);
+        friendGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32());
         team = Player::TeamForRace(fields[1].GetUInt8());
         friendAccountId = fields[2].GetUInt32();
 
@@ -760,7 +759,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
                     friendResult = FRIEND_SELF;
                 else if (GetPlayer()->GetTeam() != team && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && AccountMgr::IsPlayerAccount(GetSecurity()))
                     friendResult = FRIEND_ENEMY;
-                else if (GetPlayer()->GetSocial()->HasFriend(GUID_LOPART(friendGuid)))
+                else if (GetPlayer()->GetSocial()->HasFriend(friendGuid))
                     friendResult = FRIEND_ALREADY;
                 else
                 {
@@ -769,33 +768,33 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
                         friendResult = FRIEND_ADDED_ONLINE;
                     else
                         friendResult = FRIEND_ADDED_OFFLINE;
-                    if (!GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(friendGuid), false))
+                    if (!GetPlayer()->GetSocial()->AddToSocialList(friendGuid, false))
                     {
                         friendResult = FRIEND_LIST_FULL;
                         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s's friend list is full.", GetPlayer()->GetName());
                     }
                 }
-                GetPlayer()->GetSocial()->SetFriendNote(GUID_LOPART(friendGuid), friendNote);
+                GetPlayer()->GetSocial()->SetFriendNote(friendGuid, friendNote);
             }
         }
     }
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), friendResult, GUID_LOPART(friendGuid), false);
+    sSocialMgr->SendFriendStatus(GetPlayer(), friendResult, friendGuid, false);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_FRIEND_STATUS)");
 }
 
 void WorldSession::HandleDelFriendOpcode(WorldPacket& recvData)
 {
-    uint64 FriendGUID;
+    ObjectGuid FriendGUID;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DEL_FRIEND");
 
     recvData >> FriendGUID;
 
-    _player->GetSocial()->RemoveFromSocialList(GUID_LOPART(FriendGUID), false);
+    _player->GetSocial()->RemoveFromSocialList(FriendGUID, false);
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, GUID_LOPART(FriendGUID), false);
+    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, FriendGUID, false);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_FRIEND_STATUS)");
 }
@@ -835,49 +834,48 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
     if (!GetPlayer())
         return;
 
-    uint64 IgnoreGuid;
+    ObjectGuid IgnoreGuid;
     FriendsResult ignoreResult;
 
     ignoreResult = FRIEND_IGNORE_NOT_FOUND;
-    IgnoreGuid = 0;
 
     if (result)
     {
-        IgnoreGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HighGuid::Player);
+        IgnoreGuid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt32());
 
         if (IgnoreGuid)
         {
             if (IgnoreGuid == GetPlayer()->GetGUID())              //not add yourself
                 ignoreResult = FRIEND_IGNORE_SELF;
-            else if (GetPlayer()->GetSocial()->HasIgnore(GUID_LOPART(IgnoreGuid)))
+            else if (GetPlayer()->GetSocial()->HasIgnore(IgnoreGuid))
                 ignoreResult = FRIEND_IGNORE_ALREADY_S;
             else
             {
                 ignoreResult = FRIEND_IGNORE_ADDED_S;
 
                 // ignore list full
-                if (!GetPlayer()->GetSocial()->AddToSocialList(GUID_LOPART(IgnoreGuid), true))
+                if (!GetPlayer()->GetSocial()->AddToSocialList(IgnoreGuid, true))
                     ignoreResult = FRIEND_IGNORE_FULL;
             }
         }
     }
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, GUID_LOPART(IgnoreGuid), false);
+    sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, IgnoreGuid, false);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_FRIEND_STATUS)");
 }
 
 void WorldSession::HandleDelIgnoreOpcode(WorldPacket& recvData)
 {
-    uint64 IgnoreGUID;
+    ObjectGuid IgnoreGUID;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DEL_IGNORE");
 
     recvData >> IgnoreGUID;
 
-    _player->GetSocial()->RemoveFromSocialList(GUID_LOPART(IgnoreGUID), true);
+    _player->GetSocial()->RemoveFromSocialList(IgnoreGUID, true);
 
-    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_IGNORE_REMOVED, GUID_LOPART(IgnoreGUID), false);
+    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_IGNORE_REMOVED, IgnoreGUID, false);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_FRIEND_STATUS)");
 }
@@ -886,10 +884,10 @@ void WorldSession::HandleDelIgnoreOpcode(WorldPacket& recvData)
 void WorldSession::HandleSetContactNotesOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_CONTACT_NOTES");
-    uint64 guid;
+    ObjectGuid guid;
     std::string note;
     recvData >> guid >> note;
-    _player->GetSocial()->SetFriendNote(guid.GetCounter(), note);
+    _player->GetSocial()->SetFriendNote(guid, note);
 }
 
 //! 5.4.1
@@ -1228,7 +1226,7 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
 
     dest.resize(destSize);
 
-    ObjectGuid playerGuid = _player ? _player->GetGUID() : 0;
+    ObjectGuid playerGuid = _player ? _player->GetGUID() : ObjectGuid::Empty;
 
     //! 5.4.1
     WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA, 8+4+4+4+destSize);
@@ -1262,7 +1260,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_ACTION_BUTTON");
 
     uint8 button;
-    ObjectGuid packedData;
+    ObjectGuidSteam packedData;
     recvData >> button;
     //recvData.ReadGuidMask<4, 7, 5, 6, 1, 3, 0, 2>(packedData);
     //recvData.ReadGuidBytes<3, 4, 6, 7, 1, 2, 0, 5>(packedData);
@@ -1337,10 +1335,10 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
     recvData >> time;
 
     uint8 bitOrder[8] = {7, 1, 2, 6, 3, 4, 5, 0};
-    recvData.ReadBitInOrder(guid, bitOrder);
+    //recvData.ReadBitInOrder(guid, bitOrder);
 
     uint8 byteOrder[8] = {1, 4, 2, 7, 0, 5, 6, 3};
-    recvData.ReadBytesSeq(guid, byteOrder);
+    //recvData.ReadBytesSeq(guid, byteOrder);
 
     if (_player && _player->m_mover->m_movementInfo.flags & MOVEMENTFLAG_WALKING)
         _player->m_anti_MistiCount = 1;
@@ -1478,7 +1476,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     uint32 talentCount = 0;
     data.WriteBits(talentCount, 23);
     data.WriteBit(guild != NULL);
-    if (guild)
+    //if (guild)
         //data.WriteGuidMask<6, 7, 4, 0, 2, 5, 1, 3>(guild->GetGUID());
     //data.WriteGuidMask<6, 5, 3>(playerGuid);
 
@@ -1491,7 +1489,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         if (!item)
             continue;
 
-        ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR);
+        ObjectGuid itemCreator = item->GetGuidValue(ITEM_FIELD_CREATOR);
 
         //data.WriteGuidMask<4, 0, 1, 7>(itemCreator);
         uint32 enchantmentCount = 0;
@@ -1553,7 +1551,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         if (!item)
             continue;
 
-        ObjectGuid itemCreator = item->GetUInt64Value(ITEM_FIELD_CREATOR); // item creator
+        ObjectGuid itemCreator = item->GetGuidValue(ITEM_FIELD_CREATOR); // item creator
 
         //data.WriteGuidBytes<1, 5, 7, 6>(itemCreator);
         for (uint32 j = 0; j < MAX_ENCHANTMENT_SLOT; ++j)
@@ -1801,7 +1799,7 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
     data << uint8(0); // value 0xC generates a "CalendarError" in client.
     SendPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "REPORT SPAM: type %u, guid %u, unk1 %u, unk2 %u, unk3 %u, unk4 %u, message %s", spam_type, GUID_LOPART(spammer_guid), unk1, unk2, unk3, unk4, description.c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "REPORT SPAM: type %u, guid %u, unk1 %u, unk2 %u, unk3 %u, unk4 %u, message %s", spam_type, spammer_guid.GetCounter(), unk1, unk2, unk3, unk4, description.c_str());
 }
 
 void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
@@ -2170,8 +2168,8 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recv_data)
     Battleground* bg = _player->GetBattleground();
 
     ObjectGuid guid;
-    recv_data.ReadGuidMask<0, 6, 2, 4, 5, 7, 1, 3>(guid);
-    recv_data.ReadGuidBytes<6, 2, 5, 7, 3, 4, 0, 1>(guid);
+    //recv_data.ReadGuidMask<0, 6, 2, 4, 5, 7, 1, 3>(guid);
+    //recv_data.ReadGuidBytes<6, 2, 5, 7, 3, 4, 0, 1>(guid);
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
@@ -2194,8 +2192,8 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recv_data)
     Battleground* bg = _player->GetBattleground();
 
     ObjectGuid guid;
-    recv_data.ReadGuidMask<4, 1, 7, 0, 5, 6, 2, 3>(guid);
-    recv_data.ReadGuidBytes<5, 7, 1, 2, 6, 0, 3, 4>(guid);
+    //recv_data.ReadGuidMask<4, 1, 7, 0, 5, 6, 2, 3>(guid);
+    //recv_data.ReadGuidBytes<5, 7, 1, 2, 6, 0, 3, 4>(guid);
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
@@ -2260,7 +2258,7 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
 
     ObjectGuid* guids = new ObjectGuid[count];
 
-    for (uint32 i = 0; i < count; ++i)
+    //for (uint32 i = 0; i < count; ++i)
         //recvPacket.ReadGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guids[i]);
 
     uint32 entry;
@@ -2322,7 +2320,7 @@ void WorldSession::HandleViolenceLevel(WorldPacket& recvPacket)
 
 void WorldSession::HandleObjectUpdateFailedOpcode(WorldPacket& recvData)
 {
-    sLog->outError(LOG_FILTER_NETWORKIO, "Received CMSG_OBJECT_UPDATE_FAILED from player %s (%u). Not patched client - kick him", GetPlayerName().c_str(), GetGUID().GetCounter());
+    sLog->outError(LOG_FILTER_NETWORKIO, "Received CMSG_OBJECT_UPDATE_FAILED from player %s (%u). Not patched client - kick him", GetPlayerName().c_str(), GetPlayer()->GetGUID().GetCounter());
     //KickPlayer();
     recvData.rfinish();
     /*ObjectGuid guid;

@@ -39,13 +39,13 @@ void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvData)
     SendTaxiStatus(guid);
 }
 
-void WorldSession::SendTaxiStatus(uint64 guid)
+void WorldSession::SendTaxiStatus(ObjectGuid guid)
 {
     // cheating checks
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::SendTaxiStatus - Unit (GUID: %u) not found.", uint32(guid.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::SendTaxiStatus - Unit (GUID: %u) not found.", guid.GetCounter());
         return;
     }
 
@@ -156,11 +156,11 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
         ObjectGuid guid = unit->GetGUID();
 
         WorldPacket update(SMSG_TAXINODE_STATUS, 9);
-        update.WriteGuidMask<1>(guid);
+        //update.WriteGuidMask<1>(guid);
         update.WriteBits(1, 2);
-        update.WriteGuidMask<7, 4, 0, 5, 3, 2, 6>(guid);
+        //update.WriteGuidMask<7, 4, 0, 5, 3, 2, 6>(guid);
 
-        update.WriteGuidBytes<1, 3, 4, 2, 5, 0, 6, 7>(guid);
+        //update.WriteGuidBytes<1, 3, 4, 2, 5, 0, 6, 7>(guid);
         SendPacket(&update);
 
         return true;

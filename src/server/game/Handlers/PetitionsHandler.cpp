@@ -385,7 +385,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY failed for petition (GUID: %u)", GUID_LOPART(petitionGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY failed for petition (GUID: %u)", petitionGuid.GetCounter());
         return;
     }
 
@@ -440,7 +440,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Petition %u is not found for player %u %s", GUID_LOPART(petitionGuid), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "Petition %u is not found for player %u %s", petitionGuid.GetCounter(), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName());
         return;
     }
 
@@ -451,7 +451,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
 
     if (type != GUILD_CHARTER_TYPE)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Petition %u of player %u %s has not supported type %u", GUID_LOPART(petitionGuid), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName(), type);
+        sLog->outError(LOG_FILTER_NETWORKIO, "Petition %u of player %u %s has not supported type %u", petitionGuid.GetCounter(), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName(), type);
         return;
     }
 
@@ -506,7 +506,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
 
     CharacterDatabase.Execute(stmt);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u)", GUID_LOPART(petitionGuid), _player->GetName(), playerGuid, GetAccountId());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u)", petitionGuid.GetCounter(), _player->GetName(), playerGuid, GetAccountId());
 
     // close at signer side
     SendPetitionSignResult(_player->GetGUID(), petitionGuid, PETITION_SIGN_OK);
@@ -764,7 +764,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
     }
     else
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (guid: %u) tried to turn in petition (guid: %u) that is not present in the database", _player->GetName(), _player->GetGUID().GetCounter(), GUID_LOPART(petitionGuid));
+        sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (guid: %u) tried to turn in petition (guid: %u) that is not present in the database", _player->GetName(), _player->GetGUID().GetCounter(), petitionGuid.GetCounter());
         return;
     }
 

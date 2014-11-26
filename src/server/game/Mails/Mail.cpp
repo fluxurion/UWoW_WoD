@@ -139,10 +139,11 @@ void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/
 void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, SQLTransaction& trans)
 {
     ObjectGuid receiverGuid = ObjectGuid::Create<HighGuid::Player>(receiver_guid);
+    Player* receiver = ObjectAccessor::FindPlayer(receiverGuid);
 
     uint32 rc_account = 0;
     if (!receiver)
-        rc_account = sObjectMgr->GetPlayerAccountIdByGUID(MAKE_NEW_GUID(receiver_guid, 0, HighGuid::Player));
+        rc_account = sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid::Create<HighGuid::Player>(receiver_guid));
 
     if (!receiver && !rc_account)                            // sender not exist
     {
@@ -165,7 +166,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
             item->SaveToDB(trans);                      // item not in inventory and can be save standalone
             // owner in data will set at mail receive and item extracting
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
-            stmt->setUInt64(0, receiver_guid.GetCounter());
+            stmt->setUInt64(0, receiver_guid);
             stmt->setUInt64(1, item->GetGUID().GetCounter());
             trans->Append(stmt);
         }

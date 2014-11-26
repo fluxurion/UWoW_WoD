@@ -103,7 +103,7 @@ class MailReceiver
     public:                                                 // Constructors
         explicit MailReceiver(ObjectGuid::LowType receiver_lowguid) : m_receiver(NULL), m_receiver_lowguid(receiver_lowguid) {}
         MailReceiver(Player* receiver);
-        MailReceiver(Player* receiver, uint32 receiver_lowguid);
+        MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid);
     public:                                                 // Accessors
         Player* GetPlayer() const { return m_receiver; }
         ObjectGuid::LowType  GetPlayerGUIDLow() const { return m_receiver_lowguid; }
@@ -135,7 +135,7 @@ class MailDraft
         MailDraft& AddCOD(uint64 COD) { m_COD = COD; return *this; }
 
     public:                                                 // finishers
-        void SendReturnToSender(ObjectGuid::LowType sender_acc, ObjectGuid::LowType sender_guid, uint32 receiver_guid, SQLTransaction& trans);
+        void SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, SQLTransaction& trans);
         void SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked = MAIL_CHECK_MASK_NONE, uint32 deliver_delay = 0);
 
     private:

@@ -57,7 +57,7 @@ void WorldSession::HandleVoidStorageUnlock(WorldPacket& recvData)
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageUnlock - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageUnlock - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
         return;
     }
 
@@ -85,7 +85,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
     if (!unit)
     {
         SendVoidStorageFailed(true);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageQuery - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageQuery - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
         return;
     }
 
@@ -113,7 +113,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         if (!item)
             continue;
 
-        ObjectGuid itemId = item->ItemId;
+        ObjectGuidSteam itemId = item->ItemId;
         ObjectGuid creatorGuid = item->CreatorGuid;
 
         //data.WriteGuidMask<3>(creatorGuid);
@@ -126,23 +126,23 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         //data.WriteGuidMask<4, 1>(itemId);
 
 
-        itemData.WriteGuidBytes<3>(creatorGuid);
-        itemData.WriteGuidBytes<6>(itemId);
-        itemData.WriteGuidBytes<6>(creatorGuid);
+        //itemData.WriteGuidBytes<3>(creatorGuid);
+        //itemData.WriteGuidBytes<6>(itemId);
+        //itemData.WriteGuidBytes<6>(creatorGuid);
         itemData << uint32(0);                      //unk
-        itemData.WriteGuidBytes<7, 4>(itemId);
-        itemData.WriteGuidBytes<7>(creatorGuid);
+        //itemData.WriteGuidBytes<7, 4>(itemId);
+        //itemData.WriteGuidBytes<7>(creatorGuid);
         itemData << uint32(item->ItemEntry);
         itemData << uint32(item->ItemSuffixFactor);
-        itemData.WriteGuidBytes<4>(creatorGuid);
-        itemData.WriteGuidBytes<0, 1>(itemId);
-        itemData.WriteGuidBytes<1>(creatorGuid);
+        //itemData.WriteGuidBytes<4>(creatorGuid);
+        //itemData.WriteGuidBytes<0, 1>(itemId);
+        //itemData.WriteGuidBytes<1>(creatorGuid);
         itemData << uint32(i);
-        itemData.WriteGuidBytes<5, 2>(creatorGuid);
-        itemData.WriteGuidBytes<5, 3>(itemId);
-        itemData.WriteGuidBytes<0>(creatorGuid);
+        //itemData.WriteGuidBytes<5, 2>(creatorGuid);
+        //itemData.WriteGuidBytes<5, 3>(itemId);
+        //itemData.WriteGuidBytes<0>(creatorGuid);
         itemData << uint32(item->ItemRandomPropertyId);
-        itemData.WriteGuidBytes<2>(itemId);
+        //itemData.WriteGuidBytes<2>(itemId);
     }
 
     data.FlushBits();
@@ -171,7 +171,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         return;
     }
 
-    for (uint32 i = 0; i < countDeposit; ++i)
+    //for (uint32 i = 0; i < countDeposit; ++i)
         //recvData.ReadGuidMask<4, 3, 1, 2, 0, 7, 5, 6>(itemGuids[i]);
 
     uint32 countWithdraw = recvData.ReadBits(24);
@@ -185,17 +185,17 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         return;
     }
 
-    for (uint32 i = 0; i < countWithdraw; ++i)
+    //for (uint32 i = 0; i < countWithdraw; ++i)
         //recvData.ReadGuidMask<3, 7, 6, 1, 4, 0, 2, 5>(itemIds[i]);
     
     //recvData.ReadGuidMask<2, 4, 6, 1, 3>(npcGuid);
 
-    for (uint32 i = 0; i < countWithdraw; ++i)
+    //for (uint32 i = 0; i < countWithdraw; ++i)
         //recvData.ReadGuidBytes<5, 3, 1, 7, 2, 4, 6, 0>(itemIds[i]);
 
     //recvData.ReadGuidBytes<7>(npcGuid);
 
-    for (uint32 i = 0; i < countDeposit; ++i)
+    //for (uint32 i = 0; i < countDeposit; ++i)
         //recvData.ReadGuidBytes<3, 7, 5, 1, 6, 0, 4, 2>(itemGuids[i]);
 
     //recvData.ReadGuidBytes<2, 0, 6, 4, 1, 3, 5>(npcGuid);
@@ -203,7 +203,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
         return;
     }
 
@@ -258,7 +258,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
             continue;
         }
 
-        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetUInt64Value(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor());
+        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor());
 
         uint8 slot = player->AddVoidStorageItem(itemVS);
 
@@ -406,7 +406,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidSwapItem - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(npcGuid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidSwapItem - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
         return;
     }
 
@@ -425,7 +425,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
 
     bool usedSrcSlot = player->GetVoidStorageItem(oldSlot) != NULL; // should be always true
     bool usedDestSlot = player->GetVoidStorageItem(newSlot) != NULL;
-    ObjectGuid itemIdDest;
+    ObjectGuidSteam itemIdDest;
     if (usedDestSlot)
         itemIdDest = player->GetVoidStorageItem(newSlot)->ItemId;
 

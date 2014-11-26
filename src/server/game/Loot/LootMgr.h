@@ -367,8 +367,8 @@ struct Loot
     void NotifyItemRemoved(uint8 lootIndex);
     void NotifyQuestItemRemoved(uint8 questIndex);
     void NotifyMoneyRemoved(uint64);
-    void AddLooter(uint64 GUID) { PlayersLooting.insert(GUID); }
-    void RemoveLooter(uint64 GUID) { PlayersLooting.erase(GUID); }
+    void AddLooter(ObjectGuid GUID) { PlayersLooting.insert(GUID); }
+    void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false);
@@ -389,7 +389,7 @@ struct Loot
         QuestItemList* FillQuestLoot(Player* player);
         QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
 
-        std::set<uint64> PlayersLooting;
+        GuidSet PlayersLooting;
         QuestItemMap PlayerCurrencies;
         QuestItemMap PlayerQuestItems;
         QuestItemMap PlayerFFAItems;
