@@ -141,20 +141,20 @@ enum GroupUpdateFlags
 class Roll : public LootValidatorRef
 {
     public:
-        Roll(uint64 _guid, LootItem const& li);
+        Roll(ObjectGuid _guid, LootItem const& li);
         ~Roll();
         void setLoot(Loot* pLoot);
         Loot* getLoot();
         void targetObjectBuildLink();
         uint8 TotalEmited() const { return totalNeed + totalGreed + totalPass; }
 
-        uint64 itemGUID;
+        ObjectGuid itemGUID;
         uint32 itemid;
         int32  itemRandomPropId;
         uint32 itemRandomSuffix;
         uint8 itemCount;
-        uint64 lootedGUID;
-        typedef std::map<uint64, RollVote> PlayerVote;
+        ObjectGuid lootedGUID;
+        typedef std::map<ObjectGuid, RollVote> PlayerVote;
         PlayerVote playerVote;                              //vote position correspond with player position (in group)
         uint8 totalPlayersRolling;
         uint8 totalNeed;
@@ -181,7 +181,7 @@ class Group
     public:
         struct MemberSlot
         {
-            uint64      guid;
+            ObjectGuid  guid;
             std::string name;
             uint8       group;
             uint8       flags;
@@ -204,7 +204,7 @@ class Group
         // group manipulation methods
         bool   Create(Player* leader);
         void   LoadGroupFromDB(Field* field);
-        void   LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles);
+        void   LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles);
         bool   AddInvite(Player* player);
         void   RemoveInvite(Player* player);
         void   RemoveAllInvites();
@@ -217,7 +217,7 @@ class Group
         void   UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed = false);
         void   SetLootThreshold(ItemQualities threshold);
         void   Disband(bool hideDestroy=false);
-        void   SetLfgRoles(uint64 guid, const uint8 roles);
+        void   SetLfgRoles(ObjectGuid guid, const uint8 roles);
 
         // properties accessories
         bool IsFull() const;
@@ -241,12 +241,12 @@ class Group
         // member manipulation methods
         bool IsMember(ObjectGuid guid) const;
         bool IsLeader(ObjectGuid guid) const;
-        uint64 GetMemberGUID(const std::string& name);
+        ObjectGuid GetMemberGUID(const std::string& name);
         bool IsAssistant(ObjectGuid guid) const;
         bool IsGuildGroup(uint32 guildId, bool AllInSameMap = false, bool AllInSameInstanceId = false);
         void UpdateGuildAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1, uint32 miscValue2, uint32 miscValue3, Unit* unit, WorldObject* rewardSource);
 
-        Player* GetInvited(uint64 guid) const;
+        Player* GetInvited(ObjectGuid guid) const;
         Player* GetInvited(const std::string& name) const;
 
         bool SameSubGroup(ObjectGuid guid1, ObjectGuid guid2) const;
@@ -295,8 +295,8 @@ class Group
 
         void UpdatePlayerOutOfRange(Player* player);
                                                             // ignore: GUID of player that will be ignored
-        void BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group = -1, uint64 ignore = 0);
-        void BroadcastAddonMessagePacket(WorldPacket* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group = -1, uint64 ignore = 0);
+        void BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid::Empty);
+        void BroadcastAddonMessagePacket(WorldPacket* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid::Empty);
         void BroadcastReadyCheck(WorldPacket* packet);
         void OfflineReadyCheck();
         bool leaderInstanceCheckFail();
@@ -340,7 +340,7 @@ class Group
         void ResetMaxEnchantingLevel();
 
         void LinkMember(GroupReference* pRef);
-        void DelinkMember(uint64 guid);
+        void DelinkMember(ObjectGuid guid);
 
         InstanceGroupBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);
         void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);
@@ -360,12 +360,12 @@ class Group
         ItemQualities GetThreshold() const { return m_lootThreshold; }
 
     protected:
-        bool _setMembersGroup(uint64 guid, uint8 group);
+        bool _setMembersGroup(ObjectGuid guid, uint8 group);
         void _homebindIfInstance(Player* player);
 
         void _initRaidSubGroupsCounter();
-        member_citerator _getMemberCSlot(uint64 Guid) const;
-        member_witerator _getMemberWSlot(uint64 Guid);
+        member_citerator _getMemberCSlot(ObjectGuid Guid) const;
+        member_witerator _getMemberWSlot(ObjectGuid Guid);
         void SubGroupCounterIncrease(uint8 subgroup);
         void SubGroupCounterDecrease(uint8 subgroup);
         void ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply);

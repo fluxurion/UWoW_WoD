@@ -212,8 +212,8 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
     uint32 flags, time;
     recvPacket >> flags >> time;
 
-    recvPacket.ReadGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guid);
-    recvPacket.ReadGuidBytes<1, 5, 4, 3, 0, 7, 6, 2>(guid);
+    //recvPacket.ReadGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guid);
+    //recvPacket.ReadGuidBytes<1, 5, 4, 3, 0, 7, 6, 2>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, uint64(guid));
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Flags %u, time %u", flags, time/IN_MILLISECONDS);
@@ -831,8 +831,8 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
     ObjectGuid guid;
 
     recvPacket.ReadBit(); //unk
-    //recvPacket.ReadGuidMask<4, 7, 0, 1, 5, 6, 2, 3>(guid);
-    //recvPacket.ReadGuidBytes<6, 5, 4, 3, 1, 0, 7, 2>(guid);
+    ////recvPacket.ReadGuidMask<4, 7, 0, 1, 5, 6, 2, 3>(guid);
+    ////recvPacket.ReadGuidBytes<6, 5, 4, 3, 1, 0, 7, 2>(guid);
 
     if (GetPlayer()->IsInWorld())
     {

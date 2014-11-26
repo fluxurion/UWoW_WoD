@@ -387,7 +387,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, uint8(type), lang, NULL, 0, msg.c_str(), NULL);
+            ChatHandler::FillMessageData(&data, this, uint8(type), lang, NULL, ObjectGuid::Empty, msg.c_str(), NULL);
             group->BroadcastPacket(&data, false, group->GetMemberGroup(GetPlayer()->GetGUID()));
             break;
         }
@@ -434,7 +434,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, uint8(type), lang, "", 0, msg.c_str(), NULL);
+            ChatHandler::FillMessageData(&data, this, uint8(type), lang, "", ObjectGuid::Empty, msg.c_str(), NULL);
             group->BroadcastPacket(&data, false);
             break;
         }
@@ -448,7 +448,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             WorldPacket data;
             //in battleground, raid warning is sent only to players in battleground - code is ok
-            ChatHandler::FillMessageData(&data, this, CHAT_MSG_RAID_WARNING, lang, "", 0, msg.c_str(), NULL);
+            ChatHandler::FillMessageData(&data, this, CHAT_MSG_RAID_WARNING, lang, "", ObjectGuid::Empty, msg.c_str(), NULL);
             group->BroadcastPacket(&data, false);
             break;
         }
@@ -466,7 +466,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, uint8(type), lang, "", 0, msg.c_str(), NULL);
+            ChatHandler::FillMessageData(&data, this, uint8(type), lang, "", ObjectGuid::Empty, msg.c_str(), NULL);
             group->BroadcastPacket(&data, false);
             break;
         }
@@ -645,7 +645,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
                 return;
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", 0, message.c_str(), NULL, prefix.c_str());
+            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", ObjectGuid::Empty, message.c_str(), NULL, prefix.c_str());
             group->BroadcastAddonMessagePacket(&data, prefix, false);
             break;
         }
@@ -678,8 +678,8 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
                 break;
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", 0, message.c_str(), NULL, prefix.c_str());
-            group->BroadcastAddonMessagePacket(&data, prefix, true, -1, group->GetMemberGroup(sender->GetGUID()));
+            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", ObjectGuid::Empty, message.c_str(), NULL, prefix.c_str());
+            group->BroadcastAddonMessagePacket(&data, prefix, true, -1, sender->GetGUID());
             break;
         }
         default:
@@ -711,7 +711,7 @@ namespace Trinity
 
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
-                ObjectGuid targetGuid = i_target ? i_target->GetGUID() : 0;
+                ObjectGuid targetGuid = i_target ? i_target->GetGUID() : ObjectGuid::Empty;
                 ObjectGuid sourceGuid = i_player.GetGUID();
 
                 data.Initialize(SMSG_TEXT_EMOTE, 4 + 4 + 8 + 8 + 1 + 1);

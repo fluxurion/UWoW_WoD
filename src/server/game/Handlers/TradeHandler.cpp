@@ -576,8 +576,8 @@ void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
 void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
-    recvPacket.ReadGuidMask<4, 7, 3, 0, 6, 1, 5, 2>(guid);
-    recvPacket.ReadGuidBytes<6, 3, 1, 5, 7, 2, 4, 0>(guid);
+    //recvPacket.ReadGuidMask<4, 7, 3, 0, 6, 1, 5, 2>(guid);
+    //recvPacket.ReadGuidBytes<6, 3, 1, 5, 7, 2, 4, 0>(guid);
 
     if (GetPlayer()->m_trade)
         return;

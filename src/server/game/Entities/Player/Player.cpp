@@ -4405,7 +4405,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                         ObjectGuid petguid = GetBattlePetMgr()->GetPetGUIDBySpell(spellInfo->Id);
                         if (!petguid)
                         {
-                            petguid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GenerateBattlePetGuid());
+                            petguid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>()->Generate());
                             GetBattlePetMgr()->AddPetInJournal(petguid, spEntry->ID, petEntry, 1, creature->Modelid1, 10, 5, 100, 100, 2, 0, 0, spellInfo->Id);
                         }
                     }

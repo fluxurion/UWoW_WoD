@@ -46,23 +46,23 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 
     ObjectGuid guildGuid, playerGuid;
 
-    recvPacket.ReadGuidMask<5>(guildGuid);
-    recvPacket.ReadGuidMask<7, 6>(playerGuid);
-    recvPacket.ReadGuidMask<4, 3>(guildGuid);
-    recvPacket.ReadGuidMask<2>(playerGuid);
-    recvPacket.ReadGuidMask<2>(guildGuid);
-    recvPacket.ReadGuidMask<3>(playerGuid);
-    recvPacket.ReadGuidMask<7, 0, 6>(guildGuid);
-    recvPacket.ReadGuidMask<1, 0, 4>(playerGuid);
-    recvPacket.ReadGuidMask<1>(guildGuid);
-    recvPacket.ReadGuidMask<5>(playerGuid);
+    //recvPacket.ReadGuidMask<5>(guildGuid);
+    //recvPacket.ReadGuidMask<7, 6>(playerGuid);
+    //recvPacket.ReadGuidMask<4, 3>(guildGuid);
+    //recvPacket.ReadGuidMask<2>(playerGuid);
+    //recvPacket.ReadGuidMask<2>(guildGuid);
+    //recvPacket.ReadGuidMask<3>(playerGuid);
+    //recvPacket.ReadGuidMask<7, 0, 6>(guildGuid);
+    //recvPacket.ReadGuidMask<1, 0, 4>(playerGuid);
+    //recvPacket.ReadGuidMask<1>(guildGuid);
+    //recvPacket.ReadGuidMask<5>(playerGuid);
 
-    recvPacket.ReadGuidBytes<4, 6>(playerGuid);
-    recvPacket.ReadGuidBytes<0>(guildGuid);
-    recvPacket.ReadGuidBytes<5, 3, 0>(playerGuid);
-    recvPacket.ReadGuidBytes<2, 6, 3, 4, 7, 5>(guildGuid);
-    recvPacket.ReadGuidBytes<7, 1, 2>(playerGuid);
-    recvPacket.ReadGuidBytes<1>(guildGuid);
+    //recvPacket.ReadGuidBytes<4, 6>(playerGuid);
+    //recvPacket.ReadGuidBytes<0>(guildGuid);
+    //recvPacket.ReadGuidBytes<5, 3, 0>(playerGuid);
+    //recvPacket.ReadGuidBytes<2, 6, 3, 4, 7, 5>(guildGuid);
+    //recvPacket.ReadGuidBytes<7, 1, 2>(playerGuid);
+    //recvPacket.ReadGuidBytes<1>(guildGuid);
 
     // If guild doesn't exist or player is not part of the guild send error
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
@@ -107,8 +107,8 @@ void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REMOVE");
 
     ObjectGuid playerGuid;
-    recvPacket.ReadGuidMask<6, 5, 2, 0, 3, 4, 7, 1>(playerGuid);
-    recvPacket.ReadGuidBytes<1, 2, 4, 3, 7, 5, 6, 0>(playerGuid);
+    //recvPacket.ReadGuidMask<6, 5, 2, 0, 3, 4, 7, 1>(playerGuid);
+    //recvPacket.ReadGuidBytes<1, 2, 4, 3, 7, 5, 6, 0>(playerGuid);
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleRemoveMember(this, playerGuid);
@@ -158,8 +158,8 @@ void WorldSession::HandleGuildPromoteOpcode(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_PROMOTE");
 
     ObjectGuid targetGuid;
-    recvPacket.ReadGuidMask<4, 7, 6, 2, 3, 1, 0, 5>(targetGuid);
-    recvPacket.ReadGuidBytes<0, 7, 1, 5, 3, 6, 2, 4>(targetGuid);
+    //recvPacket.ReadGuidMask<4, 7, 6, 2, 3, 1, 0, 5>(targetGuid);
+    //recvPacket.ReadGuidBytes<0, 7, 1, 5, 3, 6, 2, 4>(targetGuid);
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleUpdateMemberRank(this, targetGuid, false);
@@ -170,8 +170,8 @@ void WorldSession::HandleGuildDemoteOpcode(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DEMOTE");
 
     ObjectGuid targetGuid;
-    recvPacket.ReadGuidMask<2, 3, 7, 5, 0, 6, 4, 1>(targetGuid);
-    recvPacket.ReadGuidBytes<2, 6, 7, 0, 5, 3, 4, 1>(targetGuid);
+    //recvPacket.ReadGuidMask<2, 3, 7, 5, 0, 6, 4, 1>(targetGuid);
+    //recvPacket.ReadGuidBytes<2, 6, 7, 0, 5, 3, 4, 1>(targetGuid);
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleUpdateMemberRank(this, targetGuid, true);
@@ -185,8 +185,8 @@ void WorldSession::HandleGuildAssignRankOpcode(WorldPacket& recvPacket)
 
     uint32 rankId;
     recvPacket >> rankId;
-    recvPacket.ReadGuidMask<6, 4, 1, 3, 0, 5, 7, 2>(targetGuid);
-    recvPacket.ReadGuidBytes<0, 2, 1, 4, 6, 5, 3, 7>(targetGuid);
+    //recvPacket.ReadGuidMask<6, 4, 1, 3, 0, 5, 7, 2>(targetGuid);
+    //recvPacket.ReadGuidBytes<0, 2, 1, 4, 6, 5, 3, 7>(targetGuid);
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleSetMemberRank(this, targetGuid, GetPlayer()->GetGUID(), rankId);
@@ -247,13 +247,13 @@ void WorldSession::HandleGuildSetNoteOpcode(WorldPacket& recvPacket)
 
     ObjectGuid playerGuid;
 
-    recvPacket.ReadGuidMask<3, 7, 1>(playerGuid);
+    //recvPacket.ReadGuidMask<3, 7, 1>(playerGuid);
     bool type = recvPacket.ReadBit();      // 0 == Officer, 1 == Public
-    recvPacket.ReadGuidMask<6, 0, 4, 2>(playerGuid);
+    //recvPacket.ReadGuidMask<6, 0, 4, 2>(playerGuid);
     uint32 noteLength = recvPacket.ReadBits(8);
-    recvPacket.ReadGuidMask<5>(playerGuid);
+    //recvPacket.ReadGuidMask<5>(playerGuid);
 
-    recvPacket.ReadGuidBytes<1, 2, 4, 7, 0, 5, 3, 6>(playerGuid);
+    //recvPacket.ReadGuidBytes<1, 2, 4, 7, 0, 5, 3, 6>(playerGuid);
     std::string note = recvPacket.ReadString(noteLength);
 
     if (Guild* guild = _GetPlayerGuild(this, true))
@@ -319,8 +319,8 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
 
     emblemInfo.ReadPacket(recvPacket);
 
-    recvPacket.ReadGuidMask<2, 4, 1, 5, 7, 3, 6, 0>(vendorGuid);
-    recvPacket.ReadGuidBytes<2, 0, 3, 7, 1, 6, 4, 5>(vendorGuid);
+    //recvPacket.ReadGuidMask<2, 4, 1, 5, 7, 3, 6, 0>(vendorGuid);
+    //recvPacket.ReadGuidBytes<2, 0, 3, 7, 1, 6, 4, 5>(vendorGuid);
 
     if (GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_TABARDDESIGNER))
     {
@@ -588,8 +588,8 @@ void WorldSession::HandleGuildQueryXPOpcode(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_GUILD_XP");
 
     ObjectGuid guildGuid;
-    recvPacket.ReadGuidMask<7, 0, 6, 3, 2, 1, 4, 5>(guildGuid);
-    recvPacket.ReadGuidBytes<6, 5, 2, 0, 7, 1, 3, 4>(guildGuid);
+    //recvPacket.ReadGuidMask<7, 0, 6, 3, 2, 1, 4, 5>(guildGuid);
+    //recvPacket.ReadGuidBytes<6, 5, 2, 0, 7, 1, 3, 4>(guildGuid);
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         if (guild->IsMember(_player->GetGUID()))
@@ -721,10 +721,10 @@ void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
     ObjectGuid guid;
 
     recvPacket >> newsId;
-    recvPacket.ReadGuidMask<6, 7>(guid);
+    //recvPacket.ReadGuidMask<6, 7>(guid);
     bool sticky = recvPacket.ReadBit();
-    recvPacket.ReadGuidMask<1, 5, 2, 4, 3, 0>(guid);
-    recvPacket.ReadGuidBytes<7, 6, 0, 1, 4, 3, 2, 5>(guid);
+    //recvPacket.ReadGuidMask<1, 5, 2, 4, 3, 0>(guid);
+    //recvPacket.ReadGuidBytes<7, 6, 0, 1, 4, 3, 2, 5>(guid);
 
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
     {
@@ -744,8 +744,8 @@ void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
 void WorldSession::HandleGuildQueryGuildRecipesOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid guildGuid;
-    recvPacket.ReadGuidMask<6, 7, 1, 2, 5, 0, 3, 4>(guildGuid);
-    recvPacket.ReadGuidBytes<1, 6, 5, 4, 0, 7, 3, 2>(guildGuid);
+    //recvPacket.ReadGuidMask<6, 7, 1, 2, 5, 0, 3, 4>(guildGuid);
+    //recvPacket.ReadGuidBytes<1, 6, 5, 4, 0, 7, 3, 2>(guildGuid);
 
     Guild* guild = _player->GetGuild();
     if (!guild)
@@ -783,8 +783,8 @@ void WorldSession::HandleGuildQueryGuildMembersForRecipe(WorldPacket& recvPacket
     recvPacket >> skillId;
     recvPacket >> spellId;
 
-    recvPacket.ReadGuidMask<1, 4, 3, 7, 2, 0, 5, 6>(guildGuid);
-    recvPacket.ReadGuidBytes<4, 1, 6, 2, 3, 0, 5, 7>(guildGuid);
+    //recvPacket.ReadGuidMask<1, 4, 3, 7, 2, 0, 5, 6>(guildGuid);
+    //recvPacket.ReadGuidBytes<4, 1, 6, 2, 3, 0, 5, 7>(guildGuid);
 
     if (Guild* guild = _player->GetGuild())
         guild->SendGuildMembersForRecipeResponse(this, skillId, spellId);
@@ -796,23 +796,23 @@ void WorldSession::HandleGuildQueryGuildMembersRecipes(WorldPacket& recvPacket)
     uint32 skillId;
 
     recvPacket >> skillId;
-    recvPacket.ReadGuidMask<0, 4>(guildGuid);
-    recvPacket.ReadGuidMask<4, 0>(playerGuid);
-    recvPacket.ReadGuidMask<6, 5, 1>(guildGuid);
-    recvPacket.ReadGuidMask<5, 1, 3, 2>(playerGuid);
-    recvPacket.ReadGuidMask<2, 7, 3>(guildGuid);
-    recvPacket.ReadGuidMask<7, 6>(playerGuid);
+    //recvPacket.ReadGuidMask<0, 4>(guildGuid);
+    //recvPacket.ReadGuidMask<4, 0>(playerGuid);
+    //recvPacket.ReadGuidMask<6, 5, 1>(guildGuid);
+    //recvPacket.ReadGuidMask<5, 1, 3, 2>(playerGuid);
+    //recvPacket.ReadGuidMask<2, 7, 3>(guildGuid);
+    //recvPacket.ReadGuidMask<7, 6>(playerGuid);
 
-    recvPacket.ReadGuidBytes<2>(guildGuid);
-    recvPacket.ReadGuidBytes<0>(playerGuid);
-    recvPacket.ReadGuidBytes<1>(guildGuid);
-    recvPacket.ReadGuidBytes<7, 5>(playerGuid);
-    recvPacket.ReadGuidBytes<4, 5, 7, 3>(guildGuid);
-    recvPacket.ReadGuidBytes<4>(playerGuid);
-    recvPacket.ReadGuidBytes<6>(guildGuid);
-    recvPacket.ReadGuidBytes<3>(playerGuid);
-    recvPacket.ReadGuidBytes<0>(guildGuid);
-    recvPacket.ReadGuidBytes<2, 6, 1>(playerGuid);
+    //recvPacket.ReadGuidBytes<2>(guildGuid);
+    //recvPacket.ReadGuidBytes<0>(playerGuid);
+    //recvPacket.ReadGuidBytes<1>(guildGuid);
+    //recvPacket.ReadGuidBytes<7, 5>(playerGuid);
+    //recvPacket.ReadGuidBytes<4, 5, 7, 3>(guildGuid);
+    //recvPacket.ReadGuidBytes<4>(playerGuid);
+    //recvPacket.ReadGuidBytes<6>(guildGuid);
+    //recvPacket.ReadGuidBytes<3>(playerGuid);
+    //recvPacket.ReadGuidBytes<0>(guildGuid);
+    //recvPacket.ReadGuidBytes<2, 6, 1>(playerGuid);
 
     Guild* guild = _player->GetGuild();
     if (!guild || !guild->IsMember(playerGuid))

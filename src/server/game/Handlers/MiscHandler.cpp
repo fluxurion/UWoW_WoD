@@ -2260,15 +2260,15 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
     ObjectGuid* guids = new ObjectGuid[count];
 
     for (uint32 i = 0; i < count; ++i)
-        recvPacket.ReadGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guids[i]);
+        //recvPacket.ReadGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guids[i]);
 
     uint32 entry;
     bool needBreak = false;
     for (uint32 i = 0; i < count; ++i)
     {
-        recvPacket.ReadGuidBytes<4, 7, 6, 0, 2, 3>(guids[i]);
+        //recvPacket.ReadGuidBytes<4, 7, 6, 0, 2, 3>(guids[i]);
         recvPacket >> entry;
-        recvPacket.ReadGuidBytes<5, 1>(guids[i]);
+        //recvPacket.ReadGuidBytes<5, 1>(guids[i]);
 
         switch (type)
         {

@@ -101,23 +101,23 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         //data.WriteGuidMask<1, 0>(tmpGUID2);
         //data.WriteGuidMask<6>(tmpGUID);
 
-        eventBuffer.WriteGuidBytes<6>(tmpGUID2);
-        eventBuffer.WriteGuidBytes<2>(tmpGUID);
-        eventBuffer.WriteGuidBytes<7>(tmpGUID2);
-        eventBuffer << uint64(*it);
-        eventBuffer << uint32(calendarEvent->GetType());
-        eventBuffer.WriteString(calendarEvent->GetTitle().c_str());
-        eventBuffer.WriteGuidBytes<7, 1>(tmpGUID);
-        eventBuffer.WriteGuidBytes<0>(tmpGUID2);
-        eventBuffer.WriteGuidBytes<6>(tmpGUID);
-        eventBuffer << uint32(calendarEvent->GetDungeonId());
-        eventBuffer.WriteGuidBytes<3>(tmpGUID);
-        eventBuffer << uint32(calendarEvent->GetTime());
-        eventBuffer.WriteGuidBytes<5>(tmpGUID);
-        eventBuffer << uint32(calendarEvent->GetFlags());
-        eventBuffer.WriteGuidBytes<0>(tmpGUID);
-        eventBuffer.WriteGuidBytes<5, 1, 2, 3, 4>(tmpGUID2);
-        eventBuffer.WriteGuidBytes<4>(tmpGUID);
+        //eventBuffer.WriteGuidBytes<6>(tmpGUID2);
+        //eventBuffer.WriteGuidBytes<2>(tmpGUID);
+        //eventBuffer.WriteGuidBytes<7>(tmpGUID2);
+        //eventBuffer << uint64(*it);
+        //eventBuffer << uint32(calendarEvent->GetType());
+        //eventBuffer.WriteString(calendarEvent->GetTitle().c_str());
+        //eventBuffer.WriteGuidBytes<7, 1>(tmpGUID);
+        //eventBuffer.WriteGuidBytes<0>(tmpGUID2);
+        //eventBuffer.WriteGuidBytes<6>(tmpGUID);
+        //eventBuffer << uint32(calendarEvent->GetDungeonId());
+        //eventBuffer.WriteGuidBytes<3>(tmpGUID);
+        //eventBuffer << uint32(calendarEvent->GetTime());
+        //eventBuffer.WriteGuidBytes<5>(tmpGUID);
+        //eventBuffer << uint32(calendarEvent->GetFlags());
+        //eventBuffer.WriteGuidBytes<0>(tmpGUID);
+        //eventBuffer.WriteGuidBytes<5, 1, 2, 3, 4>(tmpGUID2);
+        //eventBuffer.WriteGuidBytes<4>(tmpGUID);
         ++p1;
     }
 
@@ -131,12 +131,12 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
                 tmpGUID = save->GetInstanceId();    // instance save id as unique instance copy id
                 //data.WriteGuidMask<5, 4, 1, 6, 2, 0, 7, 3>(tmpGUID);
 
-                instanceBuffer.WriteGuidBytes<5, 2, 1>(tmpGUID);
-                instanceBuffer << uint32(save->GetDifficulty());
-                instanceBuffer.WriteGuidBytes<7>(tmpGUID);
-                instanceBuffer << uint32(save->GetResetTime() - cur_time);
-                instanceBuffer.WriteGuidBytes<4, 3, 6, 0>(tmpGUID);
-                instanceBuffer << uint32(save->GetMapId());
+                //instanceBuffer.WriteGuidBytes<5, 2, 1>(tmpGUID);
+                //instanceBuffer << uint32(save->GetDifficulty());
+                //instanceBuffer.WriteGuidBytes<7>(tmpGUID);
+                //instanceBuffer << uint32(save->GetResetTime() - cur_time);
+                //instanceBuffer.WriteGuidBytes<4, 3, 6, 0>(tmpGUID);
+                //instanceBuffer << uint32(save->GetMapId());
                 ++p2;
             }
 
@@ -156,15 +156,15 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         tmpGUID = calendarEvent->GetCreatorGUID();
         //data.WriteGuidMask<7, 0, 5, 4, 1, 6, 3, 2>(tmpGUID);
 
-        inviteBuffer.WriteGuidBytes<3, 4>(tmpGUID);
-        inviteBuffer << uint8(0);
-        inviteBuffer.WriteGuidBytes<5>(tmpGUID);
-        inviteBuffer << uint64(invite->GetEventId());
-        inviteBuffer << uint8(0);
-        inviteBuffer << uint8(0);
-        inviteBuffer.WriteGuidBytes<2, 0>(tmpGUID);
-        inviteBuffer << uint64(invite->GetInviteId());
-        inviteBuffer.WriteGuidBytes<7, 1, 6>(tmpGUID);
+        //inviteBuffer.WriteGuidBytes<3, 4>(tmpGUID);
+        //inviteBuffer << uint8(0);
+        //inviteBuffer.WriteGuidBytes<5>(tmpGUID);
+        //inviteBuffer << uint64(invite->GetEventId());
+        //inviteBuffer << uint8(0);
+        //inviteBuffer << uint8(0);
+        //inviteBuffer.WriteGuidBytes<2, 0>(tmpGUID);
+        //inviteBuffer << uint64(invite->GetInviteId());
+        //inviteBuffer.WriteGuidBytes<7, 1, 6>(tmpGUID);
         
         //eventBuffer << uint8(invite->GetStatus());
         //eventBuffer << uint8(invite->GetRank());

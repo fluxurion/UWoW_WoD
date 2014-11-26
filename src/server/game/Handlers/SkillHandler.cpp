@@ -145,8 +145,8 @@ void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
     ObjectGuid guid;
 
     recvPacket >> spellId >> skillId;
-    recvPacket.ReadGuidMask<6, 0, 2, 3, 5, 7, 1, 4>(guid);
-    recvPacket.ReadGuidBytes<5, 6, 1, 3, 4, 0, 7, 2>(guid);
+    //recvPacket.ReadGuidMask<6, 0, 2, 3, 5, 7, 1, 4>(guid);
+    //recvPacket.ReadGuidBytes<5, 6, 1, 3, 4, 0, 7, 2>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PLAYER_RECIPES player: %s spell: %u skill: %u guid: %u", _player->GetName(), spellId, skillId, (uint64)guid);
 

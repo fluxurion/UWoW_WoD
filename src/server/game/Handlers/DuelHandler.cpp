@@ -33,8 +33,8 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
 
-    recvPacket.ReadGuidMask<5, 4, 0, 1, 7, 2, 3, 6>(guid);
-    recvPacket.ReadGuidBytes<2, 7, 4, 3, 6, 1, 5, 0>(guid);
+    //recvPacket.ReadGuidMask<5, 4, 0, 1, 7, 2, 3, 6>(guid);
+    //recvPacket.ReadGuidBytes<2, 7, 4, 3, 6, 1, 5, 0>(guid);
 
     Player* caster = GetPlayer();
     Unit* unitTarget = NULL;
@@ -148,10 +148,10 @@ void WorldSession::HandleDuelAcceptResultOpcode(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DUEL_ACCEPT_RESULT");
 
     ObjectGuid guid;
-    recvPacket.ReadGuidMask<3, 5, 2, 4, 0, 6>(guid);
+    //recvPacket.ReadGuidMask<3, 5, 2, 4, 0, 6>(guid);
     bool accepted = recvPacket.ReadBit();
-    recvPacket.ReadGuidMask<1, 7>(guid);
-    recvPacket.ReadGuidBytes<1, 7, 6, 3, 4, 5, 2, 0>(guid);
+    //recvPacket.ReadGuidMask<1, 7>(guid);
+    //recvPacket.ReadGuidBytes<1, 7, 6, 3, 4, 5, 2, 0>(guid);
 
     // no duel requested
     if (!GetPlayer()->duel)

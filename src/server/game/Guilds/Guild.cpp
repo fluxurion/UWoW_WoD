@@ -3386,7 +3386,7 @@ void Guild::GiveXP(uint32 xp, Player* source)
             }
         }
     
-        GetNewsLog().AddNewEvent(GUILD_NEWS_LEVEL_UP, time(NULL), 0, 0, _level);
+        GetNewsLog().AddNewEvent(GUILD_NEWS_LEVEL_UP, time(NULL), ObjectGuid::Empty, 0, _level);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL, GetLevel(), 0, NULL, source);
 
         ++oldLevel;
@@ -3469,7 +3469,7 @@ void Guild::GuildNewsLog::AddNewEvent(GuildNews eventType, time_t date, ObjectGu
     uint32 id = GetNewId();
     GuildNewsEntry& log = _newsLog[id];
     log.EventType = eventType;
-    log.PlayerGuid = playerGuid.GetCounter();
+    log.PlayerGuid = playerGuid;
     log.Data = data;
     log.Flags = flags;
     log.Date = date;
@@ -3499,7 +3499,7 @@ void Guild::GuildNewsLog::LoadFromDB(PreparedQueryResult result)
         uint32 id = fields[0].GetInt32();
         GuildNewsEntry& log = _newsLog[id];
         log.EventType = GuildNews(fields[1].GetInt32());
-        log.PlayerGuid = fields[2].GetInt32();
+        log.PlayerGuid = ObjectGuid::Create<HighGuid::Player>(fields[2].GetInt64());
         log.Data = fields[3].GetInt32();
         log.Flags = fields[4].GetInt32();
         log.Date = time_t(fields[5].GetInt32());

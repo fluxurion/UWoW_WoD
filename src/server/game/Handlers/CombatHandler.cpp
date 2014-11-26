@@ -32,7 +32,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
     //recvData.ReadGuidMask<0, 1, 2, 4, 5, 7, 6, 3>(guid);
     //recvData.ReadGuidBytes<4, 7, 2, 1, 5, 6, 0, 3>(guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", guid.GetCounter(), GUID_HIPART(guid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", guid.GetCounter(), guid.GetHigh());
 
     Unit* pEnemy = ObjectAccessor::GetUnit(*_player, guid);
 

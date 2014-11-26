@@ -688,8 +688,8 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
     uint8 msg;
 
     recvPacket >> msg >> Unused<uint32>();
-    recvPacket.ReadGuidMask<5, 0, 1, 2, 6, 4, 3, 7>(guid);
-    recvPacket.ReadGuidBytes<5, 3, 0, 6, 7, 1, 2, 4>(guid);
+    //recvPacket.ReadGuidMask<5, 0, 1, 2, 6, 4, 3, 7>(guid);
+    //recvPacket.ReadGuidBytes<5, 3, 0, 6, 7, 1, 2, 4>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_PUSH_RESULT");
 

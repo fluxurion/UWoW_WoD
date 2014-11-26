@@ -1196,8 +1196,8 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BUY_BANK_SLOT");
 
     ObjectGuid guid;
-    recvPacket.ReadGuidMask<0, 6, 5, 2, 4, 1, 7, 3>(guid);
-    recvPacket.ReadGuidBytes<7, 5, 2, 6, 1, 4, 0, 3>(guid);
+    //recvPacket.ReadGuidMask<0, 6, 5, 2, 4, 1, 7, 3>(guid);
+    //recvPacket.ReadGuidBytes<7, 5, 2, 6, 1, 4, 0, 3>(guid);
 
     // cheating protection
     /* not critical if "cheated", and check skip allow by slots in bank windows open by .bank command.

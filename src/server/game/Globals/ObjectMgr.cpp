@@ -247,6 +247,7 @@ template<> ObjectGuidGenerator<HighGuid::DynamicObject>* ObjectMgr::GetGenerator
 template<> ObjectGuidGenerator<HighGuid::Corpse>* ObjectMgr::GetGenerator() { return &_corpseGuidGenerator; }
 template<> ObjectGuidGenerator<HighGuid::AreaTrigger>* ObjectMgr::GetGenerator() { return &_areaTriggerGuidGenerator; }
 template<> ObjectGuidGenerator<HighGuid::Transport>* ObjectMgr::GetGenerator() { return &_moTransportGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::BattlePet>* ObjectMgr::GetGenerator() { return &_BattlePetGuidGenerator; }
 
 template<HighGuid type>
 ObjectGuidGenerator<type>* ObjectMgr::GetGenerator()
@@ -256,7 +257,7 @@ ObjectGuidGenerator<type>* ObjectMgr::GetGenerator()
 
 ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
     _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), 
-    _hiBattlePetGuid(1), _skipUpdateCount(1)
+    _skipUpdateCount(1)
 {}
 
 ObjectMgr::~ObjectMgr()
@@ -6635,12 +6636,7 @@ uint32 ObjectMgr::GeneratePetNumber()
     return ++_hiPetNumber;
 }
 
-uint64 ObjectMgr::GenerateBattlePetGuid()
-{
-    return ++_hiBattlePetGuid;
-}
-
-uint64 ObjectMgr::GenerateVoidStorageItemId()
+ObjectGuid::LowType ObjectMgr::GenerateVoidStorageItemId()
 {
     return ++_voidItemId;
 }
