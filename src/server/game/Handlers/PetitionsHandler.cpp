@@ -62,7 +62,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guidNPC, UNIT_NPC_FLAG_PETITIONER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionBuyOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(guidNPC));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionBuyOpcode - Unit (GUID: %u) not found or you can't interact with him.", guidNPC.GetCounter());
         return;
     }
 
@@ -179,17 +179,17 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     //recvData.ReadGuidBytes<2, 7, 3, 0, 4, 6, 1, 5>(petitionguid);
 
     // solve (possible) some strange compile problems with explicit use GUID_LOPART(petitionguid) at some GCC versions (wrong code optimization in compiler?)
-    uint32 petitionGuidLow = GUID_LOPART(petitionguid);
+    ObjectGuid::LowType petitionGuidLow = petitionguid.GetCounter();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_TYPE);
 
-    stmt->setUInt32(0, petitionGuidLow);
+    stmt->setUInt64(0, petitionGuidLow);
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Petition %u is not found for player %u %s", GUID_LOPART(petitionguid), GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName());
+        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Petition %u is not found for player %u %s", petitionGuidLow, GetPlayer()->GetGUID().GetCounter(), GetPlayer()->GetName());
         return;
     }
     Field* fields = result->Fetch();
@@ -200,7 +200,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
         return;
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURE);
-    stmt->setUInt32(0, petitionGuidLow);
+    stmt->setUInt64(0, petitionGuidLow);
 
     result = CharacterDatabase.Query(stmt);
 
@@ -230,8 +230,8 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     for (uint8 i = 0; i < signs; i++)
     {
         Field* fields2 = result->Fetch();
-        uint32 lowGuid = fields2[0].GetUInt32();
-        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player);
+        ObjectGuid::LowType lowGuid = fields2[0].GetUInt64();
+        ObjectGuid plSignGuid = ObjectGuid::Create<HighGuid::Player>(lowGuid);
 
         //data.WriteGuidMask<2, 0, 3, 6, 4, 5, 7, 1>(plSignGuid);
     }
@@ -242,8 +242,8 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     for (uint8 i = 0; i < signs; i++)
     {
         Field* fields2 = result->Fetch();
-        uint32 lowGuid = fields2[0].GetUInt32();
-        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player);
+        ObjectGuid::LowType lowGuid = fields2[0].GetUInt64();
+        ObjectGuid plSignGuid = ObjectGuid::Create<HighGuid::Player>(lowGuid);
 
         //data.WriteGuidBytes<6, 3, 0, 4, 7, 5, 1, 2>(plSignGuid);
         data << uint32(0);
@@ -275,12 +275,12 @@ void WorldSession::HandlePetitionQueryOpcode(WorldPacket & recvData)
     //recvData.ReadGuidMask<4, 7, 0, 2, 3, 6, 1, 5>(petitionguid);
     //recvData.ReadGuidBytes<4, 6, 7, 5, 3, 0, 1, 2>(petitionguid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(petitionguid), guildguid);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", petitionguid.GetCounter(), guildguid);
 
     SendPetitionQueryOpcode(petitionguid);
 }
 
-void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
+void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
 {
     ObjectGuid ownerguid;
     uint32 type;
@@ -288,20 +288,20 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION);
 
-    stmt->setUInt32(0, GUID_LOPART(petitionguid));
+    stmt->setUInt64(0, petitionguid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
     {
         Field* fields = result->Fetch();
-        ownerguid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player);
+        ownerguid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
         name      = fields[1].GetString();
         type      = fields[2].GetUInt8();
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY failed for petition (GUID: %u)", GUID_LOPART(petitionguid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY failed for petition (GUID: %u)", petitionguid.GetCounter());
         return;
     }
 
@@ -321,7 +321,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
         //data.WriteGuidMask<2, 7, 4>(ownerguid);
 
         //data.WriteGuidBytes<0>(ownerguid);
-        data << uint32(GUID_LOPART(petitionguid));   // petition low guid
+        data << uint64(petitionguid.GetCounter());   // petition low guid
         data << uint32(0);
         data << uint32(GUILD_CHARTER_TYPE);          // unk number 4 in sniffs, type?
         data.WriteString("");                        // unk string 1
@@ -348,7 +348,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
         data << uint32(0);
     }
 
-    data << uint32(GUID_LOPART(petitionguid));        // petition low guid
+    data << uint64(petitionguid.GetCounter());        // petition low guid
 
     SendPacket(&data);
 }
@@ -374,7 +374,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_TYPE);
 
-    stmt->setUInt32(0, GUID_LOPART(petitionGuid));
+    stmt->setUInt64(0, petitionGuid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -404,11 +404,11 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PETITION_NAME);
 
     stmt->setString(0, newName);
-    stmt->setUInt32(1, GUID_LOPART(petitionGuid));
+    stmt->setUInt64(1, petitionGuid.GetCounter());
 
     CharacterDatabase.Execute(stmt);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition (GUID: %u) renamed to '%s'", GUID_LOPART(petitionGuid), newName.c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition (GUID: %u) renamed to '%s'", petitionGuid.GetCounter(), newName.c_str());
 
     WorldPacket data(SMSG_PETITION_RENAME, (8+newName.size()+1));
     //data.WriteGuidMask<1, 0>(petitionGuid);
@@ -433,8 +433,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURES);
 
-    stmt->setUInt32(0, GUID_LOPART(petitionGuid));
-    stmt->setUInt32(1, GUID_LOPART(petitionGuid));
+    stmt->setUInt64(0, petitionGuid.GetCounter());
+    stmt->setUInt64(1, petitionGuid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -445,7 +445,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
     }
 
     fields = result->Fetch();
-    uint64 ownerGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player);
+    ObjectGuid ownerGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32());
     uint64 signs = fields[1].GetUInt64();
     uint8 type = fields[2].GetUInt8();
 
@@ -455,8 +455,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
         return;
     }
 
-    uint32 playerGuid = _player->GetGUID().GetCounter();
-    if (GUID_LOPART(ownerGuid) == playerGuid)
+    ObjectGuid playerGuid = _player->GetGUID();
+    if (playerGuid == playerGuid)
         return;
 
     // not let enemies sign guild charter
@@ -486,7 +486,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIG_BY_ACCOUNT);
 
     stmt->setUInt32(0, GetAccountId());
-    stmt->setUInt32(1, GUID_LOPART(petitionGuid));
+    stmt->setUInt64(1, petitionGuid.GetCounter());
 
     result = CharacterDatabase.Query(stmt);
 
@@ -499,8 +499,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION_SIGNATURE);
 
-    stmt->setUInt32(0, GUID_LOPART(ownerGuid));
-    stmt->setUInt32(1, GUID_LOPART(petitionGuid));
+    stmt->setUInt64(0, ownerGuid.GetCounter());
+    stmt->setUInt64(1, petitionGuid.GetCounter());
     stmt->setUInt32(2, playerGuid);
     stmt->setUInt32(3, GetAccountId());
 
@@ -558,14 +558,14 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode MSG_PETITION_DECLINE");  // ok
 
     ObjectGuid petitionguid;
-    uint64 ownerguid;
+    ObjectGuid ownerguid;
     //recvData.ReadGuidMask<7, 3, 5, 1, 0, 6, 2, 4>(petitionguid);
     //recvData.ReadGuidBytes<6, 0, 3, 5, 2, 1, 7, 4>(petitionguid);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition %u declined by %u", GUID_LOPART(petitionguid), _player->GetGUID().GetCounter());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition %u declined by %u", petitionguid.GetCounter(), _player->GetGUID().GetCounter());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_OWNER_BY_GUID);
 
-    stmt->setUInt32(0, GUID_LOPART(petitionguid));
+    stmt->setUInt64(0, petitionguid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -573,7 +573,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recvData)
         return;
 
     Field* fields = result->Fetch();
-    ownerguid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player);
+    ownerguid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
 
     /*Player* owner = ObjectAccessor::FindPlayer(ownerguid);
     if (owner)                                               // petition owner online
@@ -617,7 +617,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_TYPE);
 
-    stmt->setUInt32(0, GUID_LOPART(petitionguid));
+    stmt->setUInt64(0, petitionguid.GetCounter());
 
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -627,7 +627,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
     Field* fields = result->Fetch();
     type = fields[0].GetUInt8();
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "OFFER PETITION: type %u, GUID1 %u, to player id: %u", type, GUID_LOPART(petitionguid), GUID_LOPART(plguid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "OFFER PETITION: type %u, GUID1 %u, to player id: %u", type, petitionguid.GetCounter(), plguid.GetCounter());
 
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeam() != player->GetTeam())
     {
@@ -648,7 +648,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
     }
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURE);
-    stmt->setUInt32(0, GUID_LOPART(petitionguid));
+    stmt->setUInt64(0, petitionguid.GetCounter());
 
     result = CharacterDatabase.Query(stmt);
 
@@ -661,8 +661,8 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
         for (uint8 i = 0; i < signs; i++)
         {
             Field* fields1 = result->Fetch();
-            uint32 lowGuid = fields1[0].GetUInt32();
-            ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player);
+            ObjectGuid::LowType lowGuid = fields1[0].GetUInt64();
+            ObjectGuid plSignGuid = ObjectGuid::Create<HighGuid::Player>(lowGuid);
 
             if (player->GetGUID() == plSignGuid)
             {
@@ -693,8 +693,8 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
     for (uint8 i = 0; i < signs; i++)
     {
         Field* fields2 = result->Fetch();
-        uint32 lowGuid = fields2[0].GetUInt32();
-        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player);
+        ObjectGuid::LowType lowGuid = fields2[0].GetUInt64();
+        ObjectGuid plSignGuid = ObjectGuid::Create<HighGuid::Player>(lowGuid);
 
         //data.WriteGuidMask<2, 0, 3, 6, 4, 5, 7, 1>(plSignGuid);
     }
@@ -705,8 +705,8 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
     for (uint8 i = 0; i < signs; i++)
     {
         Field* fields2 = result->Fetch();
-        uint32 lowGuid = fields2[0].GetUInt32();
-        ObjectGuid plSignGuid = MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player);
+        ObjectGuid::LowType lowGuid = fields2[0].GetUInt32();
+        ObjectGuid plSignGuid = ObjectGuid::Create<HighGuid::Player>(lowGuid);
 
         //data.WriteGuidBytes<6, 3, 0, 4, 7, 5, 1, 2>(plSignGuid);
         data << uint32(0);
@@ -717,7 +717,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
     //data.WriteGuidBytes<0>(playerGUID);
     //data.WriteGuidBytes<6>(petitionguid);
 
-    data << uint32(GUID_LOPART(petitionguid));        // CGPetitionInfo__m_petitionID
+    data << uint64(petitionguid.GetCounter());        // CGPetitionInfo__m_petitionID
 
     //data.WriteGuidBytes<5, 1>(playerGUID);
     //data.WriteGuidBytes<7>(petitionguid);
@@ -744,21 +744,21 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
     if (!item)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition %u turned in by %u", GUID_LOPART(petitionGuid), _player->GetGUID().GetCounter());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition %u turned in by %u", petitionGuid.GetCounter(), _player->GetGUID().GetCounter());
 
     // Get petition data from db
-    uint32 ownerguidlo;
+    ObjectGuid::LowType ownerguidlo;
     uint32 type;
     std::string name;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION);
-    stmt->setUInt32(0, GUID_LOPART(petitionGuid));
+    stmt->setUInt64(0, petitionGuid.GetCounter());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
     {
         Field* fields = result->Fetch();
-        ownerguidlo = fields[0].GetUInt32();
+        ownerguidlo = fields[0].GetUInt64();
         name = fields[1].GetString();
         type = fields[2].GetUInt8();
     }
@@ -792,7 +792,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
     uint8 signatures;
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURE);
-    stmt->setUInt32(0, GUID_LOPART(petitionGuid));
+    stmt->setUInt64(0, petitionGuid.GetCounter());
     result = CharacterDatabase.Query(stmt);
 
     if (result)
@@ -833,24 +833,24 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
     for (uint8 i = 0; i < signatures; ++i)
     {
         Field* fields = result->Fetch();
-        guild->AddMember(MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HighGuid::Player));
+        guild->AddMember(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()));
         result->NextRow();
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_GUID);
-    stmt->setUInt32(0, GUID_LOPART(petitionGuid));
+    stmt->setUInt64(0, petitionGuid.GetCounter());
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE_BY_GUID);
-    stmt->setUInt32(0, GUID_LOPART(petitionGuid));
+    stmt->setUInt64(0, petitionGuid.GetCounter());
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
 
     // created
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "TURN IN PETITION GUID %u", GUID_LOPART(petitionGuid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "TURN IN PETITION GUID %u", petitionGuid.GetCounter());
 
     data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 1);
     data.WriteBits(PETITION_TURN_OK, 4);
@@ -868,7 +868,7 @@ void WorldSession::HandlePetitionShowListOpcode(WorldPacket & recvData)
     SendPetitionShowList(guid);
 }
 
-void WorldSession::SendPetitionShowList(uint64 guid)
+void WorldSession::SendPetitionShowList(ObjectGuid guid)
 {
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
     if (!creature)

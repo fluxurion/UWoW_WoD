@@ -71,7 +71,7 @@ MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_
 {
 }
 
-MailReceiver::MailReceiver(Player* receiver, uint32 receiver_lowguid) : m_receiver(receiver), m_receiver_lowguid(receiver_lowguid)
+MailReceiver::MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid) : m_receiver(receiver), m_receiver_lowguid(receiver_lowguid)
 {
     ASSERT(!receiver || receiver->GetGUID().GetCounter() == receiver_lowguid);
 }
@@ -83,10 +83,10 @@ MailDraft& MailDraft::AddItem(Item* item)
         // just for disable error log and possible something else.
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
         stmt->setUInt32(0, 0);
-        stmt->setUInt32(1, item->GetGUID().GetCounter());
+        stmt->setUInt64(1, item->GetGUID().GetCounter());
         CharacterDatabase.Execute(stmt);
 
-        item->SetOwnerGUID(0);
+        item->SetOwnerGUID(ObjectGuid::Empty);
     }
     m_items[item->GetGUID().GetCounter()] = item; return *this;
 }
@@ -126,7 +126,7 @@ void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/
         if (inDB)
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-            stmt->setUInt32(0, item->GetGUID().GetCounter());
+            stmt->setUInt64(0, item->GetGUID().GetCounter());
             trans->Append(stmt);
         }
 
@@ -136,9 +136,9 @@ void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/
     m_items.clear();
 }
 
-void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32 receiver_guid, SQLTransaction& trans)
+void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, SQLTransaction& trans)
 {
-    Player* receiver = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(receiver_guid, 0, HighGuid::Player));
+    ObjectGuid receiverGuid = ObjectGuid::Create<HighGuid::Player>(receiver_guid);
 
     uint32 rc_account = 0;
     if (!receiver)
@@ -165,8 +165,8 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32
             item->SaveToDB(trans);                      // item not in inventory and can be save standalone
             // owner in data will set at mail receive and item extracting
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
-            stmt->setUInt32(0, receiver_guid);
-            stmt->setUInt32(1, item->GetGUID().GetCounter());
+            stmt->setUInt64(0, receiver_guid.GetCounter());
+            stmt->setUInt64(1, item->GetGUID().GetCounter());
             trans->Append(stmt);
         }
     }
@@ -215,8 +215,8 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
     stmt->setUInt8 (index++, uint8(sender.GetMailMessageType()));
     stmt->setInt8  (index++, int8(sender.GetStationery()));
     stmt->setUInt16(index++, GetMailTemplateId());
-    stmt->setUInt32(index++, sender.GetSenderId());
-    stmt->setUInt32(index++, receiver.GetPlayerGUIDLow());
+    stmt->setUInt64(index++, sender.GetSenderId());
+    stmt->setUInt64(index++, receiver.GetPlayerGUIDLow());
     stmt->setString(index++, GetSubject());
     stmt->setString(index++, GetBody());
     stmt->setBool  (index++, !m_items.empty());
@@ -232,8 +232,8 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
         Item* pItem = mailItemIter->second;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
         stmt->setUInt32(0, mailId);
-        stmt->setUInt32(1, pItem->GetGUID().GetCounter());
-        stmt->setUInt32(2, receiver.GetPlayerGUIDLow());
+        stmt->setUInt64(1, pItem->GetGUID().GetCounter());
+        stmt->setUInt64(2, receiver.GetPlayerGUIDLow());
         trans->Append(stmt);
     }
 

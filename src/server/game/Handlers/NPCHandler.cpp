@@ -72,7 +72,7 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
     SendTabardVendorActivate(guid);
 }
 
-void WorldSession::SendTabardVendorActivate(uint64 guid)
+void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
 {
     WorldPacket data(SMSG_TABARDVENDOR_ACTIVATE, 8 + 1);
     //data.WriteGuidMask<4, 2, 1, 3, 0, 6, 7, 5>(guid);
@@ -102,7 +102,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
     SendShowBank(guid);
 }
 
-void WorldSession::SendShowBank(uint64 guid)
+void WorldSession::SendShowBank(ObjectGuid guid)
 {
     WorldPacket data(SMSG_SHOW_BANK, 8 + 1);
     //data.WriteGuidMask<6, 0, 4, 3, 2, 1, 7, 5>(guid);
@@ -119,13 +119,13 @@ void WorldSession::HandleTrainerListOpcode(WorldPacket & recvData)
     SendTrainerList(guid);
 }
 
-void WorldSession::SendTrainerList(uint64 guid)
+void WorldSession::SendTrainerList(ObjectGuid guid)
 {
     std::string str = GetTrinityString(LANG_NPC_TAINER_HELLO);
     SendTrainerList(guid, str);
 }
 
-void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
+void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList");
 
@@ -328,7 +328,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)
     SendTrainerService(guid, spellId, 2);
 }
 
-void WorldSession::SendTrainerService(uint64 guid, uint32 spellId, uint32 result)
+void WorldSession::SendTrainerService(ObjectGuid guid, uint32 spellId, uint32 result)
 { 
     WorldPacket data(SMSG_TRAINER_SERVICE, 16);
     //data.WriteGuidMask<5, 3, 4, 2, 0, 6, 7, 1>(guid);
@@ -496,7 +496,7 @@ void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_INNKEEPER);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBinderActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBinderActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", npcGUID.GetCounter());
         return;
     }
 
@@ -573,7 +573,7 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recvData)
     SendStablePet(npcGUID);
 }
 
-void WorldSession::SendStablePet(uint64 guid)
+void WorldSession::SendStablePet(ObjectGuid guid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DETAIL);
 
@@ -583,7 +583,7 @@ void WorldSession::SendStablePet(uint64 guid)
     _sendStabledPetCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid)
+void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid guid)
 {
     if (!GetPlayer())
         return;
@@ -693,8 +693,8 @@ void WorldSession::HandleStableChangeSlot(WorldPacket & recv_data)
 
     recv_data >> pet_number >> new_slot;
 
-    recv_data.ReadGuidMask<4, 1, 5, 3, 0, 6, 7, 2>(npcGUID);
-    recv_data.ReadGuidBytes<5, 1, 4, 6, 3, 7, 2, 0>(npcGUID);
+    //recv_data.ReadGuidMask<4, 1, 5, 3, 0, 6, 7, 2>(npcGUID);
+    //recv_data.ReadGuidBytes<5, 1, 4, 6, 3, 7, 2, 0>(npcGUID);
 
     if (!CheckStableMaster(npcGUID))
     {
@@ -726,7 +726,7 @@ void WorldSession::HandleStableChangeSlot(WorldPacket & recv_data)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_BY_ID);
 
-    stmt->setUInt32(0, _player->GetGUID().GetCounter());
+    stmt->setUInt64(0, _player->GetGUID().GetCounter());
     stmt->setUInt32(1, pet_number);
 
     _stableChangeSlotCallback.SetParam(new_slot);
@@ -818,7 +818,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_REPAIR);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleRepairItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleRepairItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", npcGUID.GetCounter());
         return;
     }
 
@@ -831,7 +831,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 
     if (itemGUID)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ITEM: Repair item, itemGUID = %u, npcGUID = %u", GUID_LOPART(itemGUID), GUID_LOPART(npcGUID));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "ITEM: Repair item, itemGUID = %u, npcGUID = %u", itemGUID.GetCounter(), npcGUID.GetCounter());
 
         Item* item = _player->GetItemByGuid(itemGUID);
         if (item)
@@ -839,7 +839,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ITEM: Repair all items, npcGUID = %u", GUID_LOPART(npcGUID));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "ITEM: Repair all items, npcGUID = %u", npcGUID.GetCounter());
         _player->DurabilityRepairAll(true, discountMod, guildBank != 0);
     }
 }

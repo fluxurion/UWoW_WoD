@@ -399,7 +399,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         {
             GameObject* go = mover->GetMap()->GetGameObject(movementInfo.t_guid);
             if (!go || go->GetGoType() != GAMEOBJECT_TYPE_TRANSPORT)
-                movementInfo.t_guid = 0;
+                movementInfo.t_guid.Clear();
         }
     }
     else if (plrMover && (plrMover->m_transport || plrMover->m_temp_transport))                // if we were on a transport, leave
@@ -767,11 +767,11 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     uint32 opcode = recvData.GetOpcode();
 
     /* extract packet */
-    uint64 guid;
+    ObjectGuid guid;
     uint32 unk1;
     float  newspeed;
 
-    recvData.readPackGUID(guid);
+    recvData >> guid;
 
     // now can skip not our packet
     if (_player->GetGUID() != guid)
@@ -845,8 +845,8 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
 
-    uint64 old_mover_guid;
-    recvData.readPackGUID(old_mover_guid);
+    ObjectGuid old_mover_guid;
+    recvData >> old_mover_guid;
 
     MovementInfo mi;
     ReadMovementInfo(recvData, &mi);

@@ -129,7 +129,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
     }
 
-    uint64 rc = 0;
+    ObjectGuid rc;
     if (normalizePlayerName(receiver))
         rc = sObjectMgr->GetPlayerGUIDByName(receiver);
 
@@ -141,7 +141,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         return;
     }
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u", player->GetGUID().GetCounter(), receiver.c_str(), GUID_LOPART(rc), subject.c_str(), body.c_str(), items_count, money, COD, stationery, package);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u", player->GetGUID().GetCounter(), receiver.c_str(), rc.GetCounter(), subject.c_str(), body.c_str(), items_count, money, COD, stationery, package);
 
     if (player->GetGUID() == rc)
     {
@@ -177,7 +177,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
 
-        stmt->setUInt32(0, GUID_LOPART(rc));
+        stmt->setUInt64(0, rc.GetCounter());
 
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -189,7 +189,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
 
-        stmt->setUInt32(0, GUID_LOPART(rc));
+        stmt->setUInt64(0, rc.GetCounter());
 
         result = CharacterDatabase.Query(stmt);
 
@@ -342,7 +342,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     draft
         .AddMoney(money)
         .AddCOD(COD)
-        .SendMailTo(trans, MailReceiver(receive, GUID_LOPART(rc)), MailSender(player), body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
+        .SendMailTo(trans, MailReceiver(receive, rc), MailSender(player), body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
 
     player->SaveInventoryAndGoldToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
@@ -504,7 +504,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 
         if (m->COD > 0)                                     //if there is COD, take COD money from player and send them to sender by mail
         {
-            uint64 sender_guid = MAKE_NEW_GUID(m->sender, 0, HighGuid::Player);
+            ObjectGuid sender_guid = ObjectGuid::Create<HighGuid::Player>(m->sender);
             Player* receive = ObjectAccessor::FindPlayer(sender_guid);
 
             uint32 sender_accId = 0;
@@ -662,7 +662,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 
         if (normalMail)
         {
-            ObjectGuid plSender = MAKE_NEW_GUID((*itr)->sender, 0, HighGuid::Player);
+            ObjectGuid plSender = ObjectGuid::Create<HighGuid::Player>((*itr)->sender);
             //data.WriteGuidMask<2, 0, 3, 7, 1, 4, 5, 6>(plSender);
         }
 
@@ -726,7 +726,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 
         if (normalMail)
         {
-            ObjectGuid plSender = MAKE_NEW_GUID((*itr)->sender, 0, HighGuid::Player);
+            ObjectGuid plSender = ObjectGuid::Create<HighGuid::Player>((*itr)->sender);
             //data.WriteGuidBytes<2, 6, 0, 5, 4, 7, 3, 1>(plSender);
         }
 

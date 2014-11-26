@@ -775,7 +775,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     duel = NULL;
 
     m_GuildIdInvited = 0;
-    m_GuildInviterGuid = 0;
+    m_GuildInviterGuid.Clear();
 
     m_atLoginFlags = AT_LOGIN_NONE;
 

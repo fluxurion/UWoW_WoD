@@ -53,7 +53,7 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     }
     //data.WriteGuidBytes<4, 0>(guid);
 
-    ObjectGuid guid28 = 0;
+    ObjectGuid guid28;
     ObjectGuid guid30 = guid;
 
     if (nameData)

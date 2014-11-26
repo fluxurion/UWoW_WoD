@@ -847,7 +847,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 
     if (!CharCanLogin(playerGuid.GetCounter()))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Account (%u) can't login with that character (%u).", GetAccountId(), GUID_LOPART(playerGuid));
+        sLog->outError(LOG_FILTER_NETWORKIO, "Account (%u) can't login with that character (%u).", GetAccountId(), playerGuid.GetCounter());
         KickPlayer();
         return;
     }
@@ -874,14 +874,14 @@ void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 {
-    uint64 playerGuid = holder->GetGuid();
+    ObjectGuid playerGuid = holder->GetGuid();
 
     Player* pCurrChar = new Player(this);
      // for send server info and strings (config)
     ChatHandler chH = ChatHandler(pCurrChar);
 
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
-    if (!pCurrChar->LoadFromDB(GUID_LOPART(playerGuid), holder))
+    if (!pCurrChar->LoadFromDB(playerGuid, holder))
     {
         SetPlayer(NULL);
         KickPlayer();                                       // disconnect client, player no set to session and it will not deleted or saved at kick
@@ -1079,7 +1079,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
 
     // friend status
-    sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUID().GetCounter(), true);
+    sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUID(), true);
 
     // Place character in world (and load zone) before some object loading
     pCurrChar->LoadCorpse();
@@ -1343,17 +1343,17 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 
     Field* fields = result->Fetch();
 
-    uint32 guidLow      = fields[0].GetUInt32();
+    ObjectGuid::LowType guidLow = fields[0].GetUInt64();
     std::string oldName = fields[1].GetString();
 
-    uint64 guid = MAKE_NEW_GUID(guidLow, 0, HighGuid::Player);
+    ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(guidLow);
 
     // Update name and at_login flag in the db
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME);
 
     stmt->setString(0, newName);
     stmt->setUInt16(1, AT_LOGIN_RENAME);
-    stmt->setUInt32(2, guidLow);
+    stmt->setUInt64(2, guidLow);
 
     CharacterDatabase.Execute(stmt);
 
@@ -1367,7 +1367,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
     // Logging
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME_LOG);
 
-    stmt->setUInt32(0, guidLow);
+    stmt->setUInt64(0, guidLow);
     stmt->setString(1, oldName);
     stmt->setString(2, newName);
 
@@ -1674,7 +1674,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(newName))
+    if (ObjectGuid newguid = sObjectMgr->GetPlayerGUIDByName(newName))
     {
         if (newguid != guid)
         {
@@ -1687,7 +1687,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     result = CharacterDatabase.Query(stmt);
 
     if (result)
@@ -1702,13 +1702,13 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 
     stmt->setString(0, newName);
     stmt->setUInt16(1, uint16(AT_LOGIN_CUSTOMIZE));
-    stmt->setUInt32(2, guid.GetCounter());
+    stmt->setUInt64(2, guid.GetCounter());
 
     CharacterDatabase.Execute(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
 
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
 
     CharacterDatabase.Execute(stmt);
 
@@ -1747,7 +1747,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 
     ObjectGuid setGuid;
     ObjectGuid itemGuids[EQUIPMENT_SLOT_END];
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    //for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         //recvData.ReadGuidMask<1, 5, 2, 0, 3, 6, 4, 7>(itemGuids[i]);
 
     //recvData.ReadGuidMask<3, 7, 4, 6, 5>(setGuid);
@@ -1778,7 +1778,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
         if (item && item->GetGUID() != itemGuids[i])        // cheating check 2
             return;
 
-        eqSet.Items[i] = GUID_LOPART(itemGuids[i]);
+        eqSet.Items[i] = itemGuids[i];
     }
 
     //recvData.ReadGuidBytes<0, 4, 1>(setGuid);
@@ -1807,10 +1807,10 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 
     ObjectGuid itemGuid[EQUIPMENT_SLOT_END];
 
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    //for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         recvData >> Unused<uint8>() >> Unused<uint8>();     // bag, slot
 
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    //for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         //recvData.ReadGuidMask<3, 0, 5, 1, 7, 2, 4, 6>(itemGuid[i]);
 
     uint32 dword10 = recvData.ReadBits(2);
@@ -1902,7 +1902,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     skin = byte15 ? recvData.read<uint8>() : 0;
     hairStyle = byte11 ? recvData.read<uint8>() : 0;
 
-    uint32 lowGuid = guid.GetCounter();
+    ObjectGuid::LowType lowGuid = guid.GetCounter();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CLASS_LVL_AT_LOGIN);
 
@@ -2017,7 +2017,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(newname))
+    if (ObjectGuid newguid = sObjectMgr->GetPlayerGUIDByName(newname))
     {
         if (newguid != guid)
         {
@@ -2244,7 +2244,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
             if (result)
                 if (Guild* guild = sGuildMgr->GetGuildById((result->Fetch()[0]).GetUInt32()))
-                    guild->DeleteMember(MAKE_NEW_GUID(lowGuid, 0, HighGuid::Player));
+                    guild->DeleteMember(ObjectGuid::Create<HighGuid::Player>(lowGuid));
         }
 
         if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND))
@@ -2274,7 +2274,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             stmt->setFloat (3, -8867.68f);
             stmt->setFloat (4, 673.373f);
             stmt->setFloat (5, 97.9034f);
-            Player::SavePositionInDB(0, -8867.68f, 673.373f, 97.9034f, 0.0f, 1519, lowGuid);
+            Player::SavePositionInDB(0, -8867.68f, 673.373f, 97.9034f, 0.0f, 1519, guid);
         }
         else
         {
@@ -2283,7 +2283,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             stmt->setFloat (3, 1633.33f);
             stmt->setFloat (4, -4439.11f);
             stmt->setFloat (5, 15.7588f);
-            Player::SavePositionInDB(1, 1633.33f, -4439.11f, 15.7588f, 0.0f, 1637, lowGuid);
+            Player::SavePositionInDB(1, 1633.33f, -4439.11f, 15.7588f, 0.0f, 1637, guid);
         }
         trans->Append(stmt);
 
@@ -2295,13 +2295,13 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
             stmt->setUInt16(0, uint16(team == BG_TEAM_ALLIANCE ? achiev_alliance : achiev_horde));
-            stmt->setUInt32(1, lowGuid);
+            stmt->setUInt64(1, lowGuid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACHIEVEMENT);
             stmt->setUInt16(0, uint16(team == BG_TEAM_ALLIANCE ? achiev_alliance : achiev_horde));
             stmt->setUInt16(1, uint16(team == BG_TEAM_ALLIANCE ? achiev_horde : achiev_alliance));
-            stmt->setUInt32(2, lowGuid);
+            stmt->setUInt64(2, lowGuid);
             trans->Append(stmt);
         }
 
@@ -2314,7 +2314,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INVENTORY_FACTION_CHANGE);
             stmt->setUInt32(0, (team == BG_TEAM_ALLIANCE ? item_alliance : item_horde));
             stmt->setUInt32(1, (team == BG_TEAM_ALLIANCE ? item_horde : item_alliance));
-            stmt->setUInt32(2, guid);
+            stmt->setUInt64(2, lowGuid);
             trans->Append(stmt);
         }
 
@@ -2326,13 +2326,13 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
             stmt->setUInt32(0, (team == BG_TEAM_ALLIANCE ? spell_alliance : spell_horde));
-            stmt->setUInt32(1, lowGuid);
+            stmt->setUInt64(1, lowGuid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_SPELL_FACTION_CHANGE);
             stmt->setUInt32(0, (team == BG_TEAM_ALLIANCE ? spell_alliance : spell_horde));
             stmt->setUInt32(1, (team == BG_TEAM_ALLIANCE ? spell_horde : spell_alliance));
-            stmt->setUInt32(2, lowGuid);
+            stmt->setUInt64(2, lowGuid);
             trans->Append(stmt);
         }
 
@@ -2344,13 +2344,13 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REP_BY_FACTION);
             stmt->setUInt32(0, uint16(team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
-            stmt->setUInt32(1, lowGuid);
+            stmt->setUInt64(1, lowGuid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_REP_FACTION_CHANGE);
             stmt->setUInt16(0, uint16(team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
             stmt->setUInt16(1, uint16(team == BG_TEAM_ALLIANCE ? reputation_horde : reputation_alliance));
-            stmt->setUInt32(2, lowGuid);
+            stmt->setUInt64(2, lowGuid);
             trans->Append(stmt);
         }
         // Title conversion
@@ -2407,7 +2407,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
                 stmt->setString(0, ss.str().c_str());
-                stmt->setUInt32(1, lowGuid);
+                stmt->setUInt64(1, lowGuid);
                 trans->Append(stmt);
 
                 // unset any currently chosen title
@@ -2474,7 +2474,7 @@ void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
     std::vector<ObjectGuid> guids(charactersCount);
     uint8 position;
 
-    for (uint8 i = 0; i < charactersCount; ++i)
+    //for (uint8 i = 0; i < charactersCount; ++i)
         //recvData.ReadGuidMask<6, 2, 7, 0, 4, 3, 5, 1>(guids[i]);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -2487,7 +2487,7 @@ void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
         //! WARNING!!!
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_LIST_SLOT);
         stmt->setUInt8(0, position);
-        stmt->setUInt32(1, GUID_LOPART(guids[i]));
+        stmt->setUInt64(1, guids[i].GetCounter());
         trans->Append(stmt);
     }
 

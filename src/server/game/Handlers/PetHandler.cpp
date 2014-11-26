@@ -109,17 +109,17 @@ void WorldSession::HandlePetAction(WorldPacket & recvData)
 
     // used also for charmed creature
     Unit* pet= ObjectAccessor::GetUnit(*_player, guid1);
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet %u - flag: %u, spellid: %u, target: %u.", uint32(GUID_LOPART(guid1)), uint32(flag), spellid, uint32(GUID_LOPART(guid2)));
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet %u - flag: %u, spellid: %u, target: %u.", guid1.GetCounter(), uint32(flag), spellid, guid2.GetCounter());
 
     if (!pet)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) doesn't exist for player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) doesn't exist for player '%s'", guid1.GetCounter(), GetPlayer()->GetName());
         return;
     }
 
     if (pet != GetPlayer()->GetFirstControlled())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) does not belong to player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) does not belong to player '%s'", guid1.GetCounter(), GetPlayer()->GetName());
         return;
     }
 
@@ -178,7 +178,7 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
     pet->AttackStop();
 }
 
-void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid, uint16 flag, uint64 guid2, float x, float y, float z)
+void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z)
 {
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
@@ -480,7 +480,7 @@ void WorldSession::HandlePetNameQuery(WorldPacket & recvData)
     SendPetNameQuery(petGuid, petNumber);
 }
 
-void WorldSession::SendPetNameQuery(uint64 petguid, uint32 petnumber)
+void WorldSession::SendPetNameQuery(ObjectGuid petguid, uint32 petnumber)
 {
     Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, petguid);
     if (!pet)
@@ -535,7 +535,7 @@ void WorldSession::SendPetNameQuery(uint64 petguid, uint32 petnumber)
     _player->GetSession()->SendPacket(&data);
 }
 
-bool WorldSession::CheckStableMaster(uint64 guid)
+bool WorldSession::CheckStableMaster(ObjectGuid guid)
 {
     // spell case or GM
     if (guid == GetPlayer()->GetGUID())
@@ -576,7 +576,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
 
     if (!pet || pet != _player->GetFirstControlled())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetSetAction: Unknown pet (GUID: %u) or pet owner (GUID: %u)", GUID_LOPART(petguid), _player->GetGUID().GetCounter());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetSetAction: Unknown pet (GUID: %u) or pet owner (GUID: %u)", petguid.GetCounter(), _player->GetGUID().GetCounter());
         return;
     }
 
@@ -785,7 +785,7 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
         if (pet->isPet())
         {
             _player->RemovePet((Pet*)pet, PET_SLOT_DELETED);
-            _player->GetSession()->SendStablePet(0);
+            _player->GetSession()->SendStablePet(ObjectGuid::Empty);
         }
         else if (pet->GetGUID() == _player->GetCharmGUID())
             _player->StopCastingCharm();
@@ -795,7 +795,7 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
 void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_PET_SPELL_AUTOCAST");
-    uint64 guid;
+    ObjectGuid guid;
     uint32 spellid;
     uint32  state;                                           //1 for on, 0 for off
     recvPacket >> guid >> spellid >> state;
@@ -844,19 +844,19 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     uint32 spellId = 0;
     uint32 glyphIndex = 0;
     uint32 targetStringLength = 0;
-    ObjectGuid CasterGUID = 0;
-    ObjectGuid targetGuid = 0;
-    ObjectGuid itemTargetGuid = 0;
-    ObjectGuid destTransportGuid = 0;
-    ObjectGuid srcTransportGuid = 0;
+    ObjectGuid CasterGUID;
+    ObjectGuid targetGuid;
+    ObjectGuid itemTargetGuid;
+    ObjectGuid destTransportGuid;
+    ObjectGuid srcTransportGuid;
 
     // client provided targets
     SpellCastTargets targets;
 
     // Movement data
     MovementInfo movementInfo;
-    ObjectGuid movementTransportGuid = 0;
-    ObjectGuid movementGuid = 0;
+    ObjectGuid movementTransportGuid;
+    ObjectGuid movementGuid;
     bool hasTransport = false;
     bool hasTransportTime2 = false;
     bool hasTransportTime3 = false;
@@ -1144,7 +1144,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     if (!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharm()))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(CasterGUID)), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", CasterGUID.GetCounter(), GetPlayer()->GetName());
         return;
     }
 

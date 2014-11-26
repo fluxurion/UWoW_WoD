@@ -135,7 +135,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         (object->GetTypeId() == TYPEID_PLAYER && object != _player && !object->ToPlayer()->CanShareQuest(questId)))
     {
         _player->PlayerTalkClass->SendCloseGossip();
-        _player->SetDivider(0);
+        _player->SetDivider(ObjectGuid::Empty);
         return;
     }
 
@@ -152,7 +152,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         if (!GetPlayer()->CanTakeQuest(quest, true))
         {
             _player->PlayerTalkClass->SendCloseGossip();
-            _player->SetDivider(0);
+            _player->SetDivider(ObjectGuid::Empty);
             return;
         }
 
@@ -164,7 +164,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
             if (!player)
             {
-                _player->SetDivider(0);
+                _player->SetDivider(ObjectGuid::Empty);
                 return;
             }
             if (player)
@@ -172,11 +172,11 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                 if (!player->CanShareQuest(questId))
                 {
                     player->SendPushToPartyResponse(_player, QUEST_PARTY_MSG_CANT_TAKE_QUEST);
-                    _player->SetDivider(0);
+                    _player->SetDivider(ObjectGuid::Empty);
                     return;
                 }
                 player->SendPushToPartyResponse(_player, QUEST_PARTY_MSG_ACCEPT_QUEST);
-                _player->SetDivider(0);
+                _player->SetDivider(ObjectGuid::Empty);
             }
         }
 
@@ -550,7 +550,7 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
         if (_player->CanAddQuest(quest, true))
             _player->AddQuest(quest, NULL);                // NULL, this prevent DB script from duplicate running
 
-        _player->SetDivider(0);
+        _player->SetDivider(ObjectGuid::Empty);
     }
 }
 
@@ -567,7 +567,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
     //recvData.ReadGuidMask<1>(playerGuid);
     //recvData.ReadGuidBytes<2, 3, 1, 0, 5, 7, 6, 4>(playerGuid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %u, questId = %u", uint32(GUID_LOPART(playerGuid)), questId);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %u, questId = %u", playerGuid.GetCounter(), questId);
 
     if (autoCompleteMode == 0)
     {
@@ -827,12 +827,12 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
     data.WriteBits(0, 21);
 
     ByteBuffer buff;
-    for (Player::ClientGUIDs::const_iterator itr = _player->m_clientGUIDs.begin(); itr != _player->m_clientGUIDs.end(); ++itr)
+    for (GuidSet::const_iterator itr = _player->m_clientGUIDs.begin(); itr != _player->m_clientGUIDs.end(); ++itr)
     {
         uint32 questStatus = DIALOG_STATUS_NONE;
         uint32 defstatus = DIALOG_STATUS_NONE;
 
-        if (IS_CRE_OR_VEH_OR_PET_GUID(*itr))
+        if ((*itr).IsCreatureOrPetOrVehicle())
         {
             // need also pet quests case support
             Creature* questgiver = ObjectAccessor::GetCreatureOrPetOrVehicle(*GetPlayer(), *itr);
@@ -846,12 +846,12 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
 
             //data.WriteGuidMask<6, 1, 2, 5, 0, 7, 3, 4>(questgiver->GetGUID());
 
-            buff.WriteGuidBytes<4, 1, 7, 0, 2, 3>(questgiver->GetGUID());
+            //buff.WriteGuidBytes<4, 1, 7, 0, 2, 3>(questgiver->GetGUID());
             buff << uint32(questStatus);
-            buff.WriteGuidBytes<5, 6>(questgiver->GetGUID());
+            //buff.WriteGuidBytes<5, 6>(questgiver->GetGUID());
             ++count;
         }
-        else if (IS_GAMEOBJECT_GUID(*itr))
+        else if ((*itr).IsGameObject())
         {
             GameObject* questgiver = GetPlayer()->GetMap()->GetGameObject(*itr);
             if (!questgiver)
@@ -864,9 +864,9 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
 
             //data.WriteGuidMask<6, 1, 2, 5, 0, 7, 3, 4>(questgiver->GetGUID());
 
-            buff.WriteGuidBytes<4, 1, 7, 0, 2, 3>(questgiver->GetGUID());
+            //buff.WriteGuidBytes<4, 1, 7, 0, 2, 3>(questgiver->GetGUID());
             buff << uint32(questStatus);
-            buff.WriteGuidBytes<5, 6>(questgiver->GetGUID());
+            //buff.WriteGuidBytes<5, 6>(questgiver->GetGUID());
             ++count;
         }
     }

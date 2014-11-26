@@ -109,7 +109,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 
     Creature* unit = NULL;
     GameObject* go = NULL;
-    if (IS_CRE_OR_VEH_GUID(guid))
+    if (guid.IsCreatureOrVehicle())
     {
         unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
         if (!unit)
@@ -118,7 +118,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
             return;
         }
     }
-    else if (IS_GAMEOBJECT_GUID(guid))
+    else if (guid.IsGameObject())
     {
         go = _player->GetMap()->GetGameObject(guid);
         if (!go)
@@ -129,7 +129,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOptionOpcode - unsupported GUID type for highguid %u. lowpart %u.", uint32(GUID_HIPART(guid)), uint32(guid.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOptionOpcode - unsupported GUID type for highguid %u. lowpart %u.", guid.GetHigh(), guid.GetCounter());
         return;
     }
 
@@ -294,9 +294,9 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     ByteBuffer bitsData;
     ByteBuffer bytesData;
 
-    ObjectGuid playerGuid = NULL;
-    ObjectGuid accountId = NULL;
-    ObjectGuid guildGuid = NULL;
+    ObjectGuid playerGuid;
+    ObjectGuid accountId;
+    ObjectGuid guildGuid;
 
     Player* target = NULL;
 
@@ -416,8 +416,9 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         }
 
         playerGuid = itr->second->GetGUID();
-        accountId = NULL;
-        guildGuid = target->GetGuildId() ? MAKE_NEW_GUID(target->GetGuildId(), 0, HIGHGUID_GUILD) : NULL;
+        accountId.Clear();
+        if (target->GetGuildId())
+            guildGuid =  ObjectGuid::Create<HighGuid::Guild>(target->GetGuildId());
 
         bitsData.WriteBit(playerGuid[5]); //guid2
         bitsData.WriteBit(guildGuid[4]); //guid1

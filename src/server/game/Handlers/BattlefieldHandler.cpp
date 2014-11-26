@@ -168,11 +168,11 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
     uint8 accepted;
     ObjectGuid guid;
 
-    /*//recvData.ReadGuidMask<6, 5, 1, 0>(guid);
+    //recvData.ReadGuidMask<6, 5, 1, 0>(guid);
     accepted = recvData.ReadBit();
     //recvData.ReadGuidMask<3, 7, 4, 2>(guid);
 
-    //recvData.ReadGuidBytes< 2, 3, 6, 1, 5, 0, 4, 7>(guid);*/
+    //recvData.ReadGuidBytes< 2, 3, 6, 1, 5, 0, 4, 7>(guid);
     sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:" UI64FMTD " Accepted:%u", guid.GetCounter(), accepted);
 
     if(!accepted)
@@ -197,13 +197,13 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recvData)
 {
     uint8 accepted;
     ObjectGuid guid;
-    /*//recvData.ReadGuidMask<4, 7, 6, 2, 3, 1, 0>(guid);
+    //recvData.ReadGuidMask<4, 7, 6, 2, 3, 1, 0>(guid);
     accepted = recvData.ReadBit();
     //recvData.ReadGuidMask<5>(guid);
 
-    //recvData.ReadGuidBytes<7, 1, 0, 6, 2, 4, 3, 5>(guid);*/
+    //recvData.ReadGuidBytes<7, 1, 0, 6, 2, 4, 3, 5>(guid);
 
-    sLog->outError(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: GUID:" UI64FMTD " Accepted:%u", uint64(guid), accepted);
+    sLog->outError(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: GUID:" UI64FMTD " Accepted:%u", guid.GetCounter(), accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)

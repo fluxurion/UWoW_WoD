@@ -341,7 +341,7 @@ class WorldSession
         void SendUpdateTrade(bool trader_data = true);
         void SendCancelTrade();
 
-        void SendPetitionQueryOpcode(uint64 petitionguid);
+        void SendPetitionQueryOpcode(ObjectGuid petitionguid);
 
         // Pet
         void SendPetNameQuery(ObjectGuid guid, uint32 petnumber);
@@ -398,7 +398,7 @@ class WorldSession
 
         void BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket* data, bool full = false);
 
-        void DoLootRelease(uint64 lguid);
+        void DoLootRelease(ObjectGuid lguid);
 
         // Account mute time
         time_t m_muteTime;
@@ -1059,7 +1059,7 @@ class WorldSession
         void HandleChallengeModeRequestCompletionInfoOpcode(WorldPacket& recvPacket);
         void HandleChallengeModeRequestOpcode(WorldPacket& recvPacket);
 
-        void LootCorps(uint64 corpsGUID, WorldObject* lootedBy = NULL);
+        void LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy = NULL);
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
