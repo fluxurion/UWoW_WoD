@@ -39,9 +39,9 @@ void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, O
         return;
 
     // prepare static data
-    uint64 sourceGUID = source ? source->GetGUID() : uint64(0); //some script commands doesn't have source
-    uint64 targetGUID = target ? target->GetGUID() : uint64(0);
-    uint64 ownerGUID  = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : uint64(0);
+    ObjectGuid sourceGUID = source ? source->GetGUID() : ObjectGuid::Empty; //some script commands doesn't have source
+    ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid ownerGUID = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : ObjectGuid::Empty;
 
     ///- Schedule script execution for all scripts in the script map
     ScriptMap const* s2 = &(s->second);
@@ -74,9 +74,9 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
     // NOTE: script record _must_ exist until command executed
 
     // prepare static data
-    uint64 sourceGUID = source ? source->GetGUID() : uint64(0);
-    uint64 targetGUID = target ? target->GetGUID() : uint64(0);
-    uint64 ownerGUID  = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : uint64(0);
+    ObjectGuid sourceGUID = source ? source->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid ownerGUID = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : ObjectGuid::Empty;
 
     ScriptAction sa;
     sa.sourceGUID = sourceGUID;
@@ -332,7 +332,7 @@ void Map::ScriptsProcess()
                     break;
                 default:
                     sLog->outError(LOG_FILTER_TSCR, "%s source with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
-                        step.script->GetDebugInfo().c_str(), step.sourceGUID, GUID_HIPART(step.sourceGUID));
+                        step.script->GetDebugInfo().c_str(), step.sourceGUID, step.sourceGUID.GetHigh());
                     break;
             }
         }
@@ -360,7 +360,7 @@ void Map::ScriptsProcess()
                     break;
                 default:
                     sLog->outError(LOG_FILTER_TSCR, "%s target with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
-                        step.script->GetDebugInfo().c_str(), step.targetGUID, GUID_HIPART(step.targetGUID));
+                        step.script->GetDebugInfo().c_str(), step.targetGUID, step.targetGUID.GetHigh());
                     break;
             }
         }
@@ -594,7 +594,7 @@ void Map::ScriptsProcess()
                     if (step.script->KillCredit.Flags & SF_KILLCREDIT_REWARD_GROUP)
                         player->RewardPlayerAndGroupAtEvent(step.script->KillCredit.CreatureEntry, player);
                     else
-                        player->KilledMonsterCredit(step.script->KillCredit.CreatureEntry, 0);
+                        player->KilledMonsterCredit(step.script->KillCredit.CreatureEntry, ObjectGuid::Empty);
                 }
                 break;
 
@@ -849,7 +849,7 @@ void Map::ScriptsProcess()
                 else //check hashmap holders
                 {
                     if (CreatureData const* data = sObjectMgr->GetCreatureData(step.script->CallScript.CreatureEntry))
-                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, MAKE_NEW_GUID(step.script->CallScript.CreatureEntry, data->id, HighGuid::Creature), cTarget);
+                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, uint64(step.script->CallScript.CreatureEntry)), cTarget);
                 }
 
                 if (!cTarget)

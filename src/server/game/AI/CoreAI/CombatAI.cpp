@@ -445,7 +445,7 @@ void AnyPetAI::UpdateAI(uint32 diff)
                         continue;
                 }
 
-                Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, 0);
+                Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty);
                 bool spellUsed = false;
 
                 if (target)
@@ -483,7 +483,7 @@ void AnyPetAI::UpdateAI(uint32 diff)
             }
             else if (target && me->IsWithinMeleeRange(target, me->GetAttackDist()) && spellInfo->CanBeUsedInCombat())
             {
-                Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, 0);
+                Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty);
                 if (spell->CanAutoCast(target))
                     targetSpellStore.push_back(std::make_pair(target, spell));
                 else

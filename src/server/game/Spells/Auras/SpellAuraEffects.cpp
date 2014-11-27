@@ -539,7 +539,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
     int32 amount;
     Item* castItem = NULL;
 
-    if (uint64 itemGUID = GetBase()->GetCastItemGUID())
+    if (ObjectGuid itemGUID = GetBase()->GetCastItemGUID())
         if (Player* playerCaster = caster->ToPlayer())
             castItem = playerCaster->GetItemByGuid(itemGUID);
 
@@ -1954,7 +1954,7 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
         case SPELLMOD_EFFECT4:
         case SPELLMOD_EFFECT5:
         {
-            uint64 guid = target->GetGUID();
+            ObjectGuid guid = target->GetGUID();
             Unit::AuraApplicationMap & auras = target->GetAppliedAuras();
             for (Unit::AuraApplicationMap::iterator iter = auras.begin(); iter != auras.end(); ++iter)
             {
@@ -2865,7 +2865,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         }
 
         // remove other shapeshift before applying a new one
-        target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT, 0, GetBase());
+        target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT, ObjectGuid::Empty, GetBase());
 
         // stop handling the effect if it was removed by linked event
         if (aurApp->GetRemoveMode())
@@ -3169,7 +3169,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
         {
             // for players, start regeneration after 1s (in polymorph fast regeneration case)
             // only if caster is Player (after patch 2.4.2)
-            if (IS_PLAYER_GUID(GetCasterGUID()))
+            if (GetCasterGUID().IsPlayer())
                 target->ToPlayer()->setRegenTimerCount(1*IN_MILLISECONDS);
 
             //dismount polymorphed target (after patch 2.4.2)
@@ -4608,7 +4608,7 @@ void AuraEffect::HandleAuraModStateImmunity(AuraApplication const* aurApp, uint8
     target->ApplySpellImmune(GetId(), IMMUNITY_STATE, GetMiscValue(), apply);
 
     if (apply && GetSpellInfo()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
-        target->RemoveAurasByType(AuraType(GetMiscValue()), 0, GetBase());
+        target->RemoveAurasByType(AuraType(GetMiscValue()), ObjectGuid::Empty, GetBase());
 }
 
 void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -6179,11 +6179,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     switch (GetId())
                     {
                         case 59628: //Tricks of the trade buff on rogue (6sec duration)
-                            target->SetReducedThreatPercent(0,0);
+                            target->SetReducedThreatPercent(0, ObjectGuid::Empty);
                             break;
                         case 57934: //Tricks of the trade buff on rogue (30sec duration)
                             if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || !caster->GetMisdirectionTarget())
-                                target->SetReducedThreatPercent(0,0);
+                                target->SetReducedThreatPercent(0, ObjectGuid::Empty);
                             else
                                 target->SetReducedThreatPercent(0,caster->GetMisdirectionTarget()->GetGUID());
                             break;
@@ -6432,7 +6432,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
             {
                 if (apply)
                 {
-                    if (uint64 guid = caster->m_SummonSlot[4])
+                    if (ObjectGuid guid = caster->m_SummonSlot[4])
                     {
                         if (Creature* totem = caster->GetMap()->GetCreature(guid))
                             if (totem->isTotem())
@@ -6756,13 +6756,13 @@ void AuraEffect::HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, boo
         }
         else
         {
-            uint64 casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? GetCasterGUID() : target->GetGUID();
-            target->RemoveAura(triggeredSpellId, casterGUID, 0, aurApp->GetRemoveMode());
+            ObjectGuid casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? GetCasterGUID() : target->GetGUID();
+            target->RemoveAura(triggeredSpellId, casterGUID, 9, aurApp->GetRemoveMode());
         }
     }
     else if (mode & AURA_EFFECT_HANDLE_REAPPLY && apply)
     {
-        uint64 casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? GetCasterGUID() : target->GetGUID();
+        ObjectGuid casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? GetCasterGUID() : target->GetGUID();
         // change the stack amount to be equal to stack amount of our aura
         Aura* triggeredAura = target->GetAura(triggeredSpellId, casterGUID);
         if (triggeredAura != NULL)
@@ -7192,11 +7192,11 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
     if(caster && trigger_spell_id)
     {
         //if (DynamicObject* dynObj = caster->GetDynObject(GetId()))
-        if(uint64 dynObjGuid = GetBase()->GetSpellDynamicObject())
+        if (ObjectGuid dynObjGuid = GetBase()->GetSpellDynamicObject())
         {
             Unit* owner = caster->GetAnyOwner();
             if(DynamicObject* dynObj = ObjectAccessor::GetDynamicObject(*caster, dynObjGuid))
-                caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), trigger_spell_id, true, NULL, this, owner ? owner->GetGUID() : 0);
+                caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), trigger_spell_id, true, NULL, this, owner ? owner->GetGUID() : ObjectGuid::Empty);
         }
         else if(target)
             caster->CastSpell(target, trigger_spell_id, true, NULL, this);
@@ -7534,11 +7534,11 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
         if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? caster : target)
         {
             //if (DynamicObject* dynObj = triggerCaster->GetDynObject(GetId()))
-            if(uint64 dynObjGuid = GetBase()->GetSpellDynamicObject())
+            if (ObjectGuid dynObjGuid = GetBase()->GetSpellDynamicObject())
             {
                 Unit* owner = triggerCaster->GetAnyOwner();
                 if(DynamicObject* dynObj = ObjectAccessor::GetDynamicObject(*triggerCaster, dynObjGuid))
-                    triggerCaster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), triggerSpellId, true, NULL, this, owner ? owner->GetGUID() : 0);
+                    triggerCaster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), triggerSpellId, true, NULL, this, owner ? owner->GetGUID() : ObjectGuid::Empty);
                 else
                     triggerCaster->CastSpell(target, triggeredSpellInfo, true, NULL, this);
             }
@@ -7773,7 +7773,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
     damage = dmg;
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) attacked %u (TypeId: %u) for %u dmg inflicted by %u abs is %u",
-        GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), target->GetGUID().GetCounter(), target->GetTypeId(), damage, GetId(), absorb);
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), damage, GetId(), absorb);
 
     caster->DealDamageMods(target, damage, &absorb);
 
@@ -7864,7 +7864,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster, S
         damage = uint32(target->GetHealth());
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) health leech of %u (TypeId: %u) for %u dmg inflicted by %u abs is %u",
-        GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), target->GetGUID().GetCounter(), target->GetTypeId(), damage, GetId(), absorb);
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), damage, GetId(), absorb);
 
     caster->SendSpellNonMeleeDamageLog(target, GetId(), damage, GetSpellInfo()->GetSchoolMask(), absorb, resist, false, 0, crit);
 
@@ -8030,7 +8030,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster, SpellEf
     }
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) heal of %u (TypeId: %u) for %u health inflicted by %u",
-        GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), target->GetGUID().GetCounter(), target->GetTypeId(), damage, GetId());
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), damage, GetId());
 
     GetBase()->CallScriptEffectChangeTickDamageHandlers(const_cast<AuraEffect const*>(this), damage, target);
 
@@ -8103,7 +8103,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster, Spe
     GetBase()->CallScriptEffectChangeTickDamageHandlers(const_cast<AuraEffect const*>(this), drainAmount, target);
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) power leech of %u (TypeId: %u) for %u dmg inflicted by %u",
-        GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), target->GetGUID().GetCounter(), target->GetTypeId(), drainAmount, GetId());
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), drainAmount, GetId());
 
     int32 drainedAmount = -target->ModifyPower(powerType, -drainAmount, true);
 
@@ -8163,7 +8163,7 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster, SpellEffI
     GetBase()->CallScriptEffectChangeTickDamageHandlers(const_cast<AuraEffect const*>(this), amount, target);
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
-        GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), target->GetGUID().GetCounter(), target->GetTypeId(), amount, GetId());
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), amount, GetId());
 
     SpellPeriodicAuraLogInfo pInfo(this, amount, 0, 0, 0, 0.0f, false);
     target->SendPeriodicAuraLog(&pInfo);
@@ -8203,7 +8203,7 @@ void AuraEffect::HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster, Spel
     target->SendPeriodicAuraLog(&pInfo);
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
-        GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), target->GetGUID().GetCounter(), target->GetTypeId(), amount, GetId());
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), amount, GetId());
 
     int32 gain = target->ModifyPower(powerType, amount);
 
@@ -8750,7 +8750,7 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
         target->GetPosition(&pos);
 
         AreaTrigger* areaTrigger = new AreaTrigger;
-        if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HighGuid::AreaTrigger), triggerEntry, GetCaster(), GetSpellInfo(), pos, NULL, target->GetGUID()))
+        if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), triggerEntry, GetCaster(), GetSpellInfo(), pos, NULL, target->GetGUID()))
         {
             delete areaTrigger;
             return;
@@ -8760,7 +8760,7 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
     }
     else if(!apply)
     {
-        if(uint64 areaTriggerGuid = GetBase()->GetSpellAreaTrigger())
+        if (ObjectGuid areaTriggerGuid = GetBase()->GetSpellAreaTrigger())
             if(AreaTrigger* areaTrigger = ObjectAccessor::GetAreaTrigger(*GetCaster(), areaTriggerGuid))
                 areaTrigger->SetDuration(0);
     }

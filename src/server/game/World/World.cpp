@@ -2529,7 +2529,7 @@ void World::SendGlobalText(const char* text, WorldSession* self)
 
     while (char* line = ChatHandler::LineFromMessage(pos))
     {
-        ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, line, NULL);
+        ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, ObjectGuid::Empty, line, NULL);
         SendGlobalMessage(&data, self);
     }
 
@@ -2558,7 +2558,7 @@ void World::SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self
 void World::SendZoneText(uint32 zone, const char* text, WorldSession* self, uint32 team)
 {
     WorldPacket data;
-    ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, text, NULL);
+    ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, ObjectGuid::Empty, text, NULL);
     SendZoneMessage(zone, &data, self, team);
 }
 
@@ -3550,7 +3550,7 @@ void World::ProcessMailboxQueue()
                     uint32 messageType = f[i++].GetUInt32();
                     uint32 stationery = f[i++].GetUInt32();
                     uint32 sender_guid = f[i++].GetUInt32();
-                    uint32 receiver_guid = f[i++].GetUInt32();
+                    ObjectGuid receiver_guid = ObjectGuid::Create<HighGuid::Player>(f[i++].GetUInt64());
                     std::string subject = f[i++].GetCString();
                     std::string body = f[i++].GetCString();
                     uint32 money = f[i++].GetUInt32();

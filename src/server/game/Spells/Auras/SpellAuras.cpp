@@ -191,7 +191,7 @@ void AuraApplication::BuildBitUpdatePacket(ByteBuffer& data, bool remove) const
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         flags |= AFLAG_DURATION;
 
-    if (data.WriteBit(!(flags & AFLAG_CASTER)))
+    //if (data.WriteBit(!(flags & AFLAG_CASTER)))
         //data.WriteGuidMask<2, 3, 4, 0, 1, 6, 7, 5>(aura->GetCasterGUID());
     uint32 count = 0;
     bool sendEffect = false;
@@ -590,13 +590,13 @@ uint32 Aura::CalculateEffMaskFromDummy(Unit* caster, WorldObject* target, uint32
     return effMask;
 }
 
-Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, uint64 casterGUID, uint16 stackAmount) :
+Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, uint16 stackAmount) :
 m_spellInfo(spellproto), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()),
-m_castItemGuid(castItem ? castItem->GetGUID() : 0), m_applyTime(time(NULL)),
+m_castItemGuid(castItem ? castItem->GetGUID() : ObjectGuid::Empty), m_applyTime(time(NULL)),
 m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(stackAmount ? stackAmount: 1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_fromAreatrigger(false), m_aura_amount(0),
-m_diffMode(caster ? caster->GetSpawnMode() : 0), m_spellDynObjGuid(0), m_spellAreaTrGuid(0)
+m_diffMode(caster ? caster->GetSpawnMode() : 0), m_spellDynObjGuid(), m_spellAreaTrGuid()
 {
     SpellPowerEntry power;
     if (!GetSpellInfo()->GetSpellPowerByCasterPower(GetCaster(), power))
@@ -1940,7 +1940,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // Glyph of Blind
                         if (caster && caster->HasAura(91299))
                         {
-                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409));
+                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(32409));
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                         }
@@ -1959,7 +1959,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // Glyph of Solace
                         if (caster && caster->HasAura(119407))
                         {
-                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409));
+                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(32409));
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                         }
@@ -2165,7 +2165,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (apply)
                         target->CastSpell(caster, 59665, true, 0, NULL, caster->GetGUID());
                     else
-                        target->SetReducedThreatPercent(0, 0);
+                        target->SetReducedThreatPercent(0, ObjectGuid::Empty);
                     break;
             }
             break;

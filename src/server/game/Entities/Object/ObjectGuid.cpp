@@ -126,7 +126,7 @@ ObjectGuid::LowType ObjectGuidGenerator<high>::Generate()
 {
     if (_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
     {
-        TC_LOG_ERROR("", "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(high));
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(high));
         World::StopNow(ERROR_EXIT_CODE);
     }
     return _nextGuid++;

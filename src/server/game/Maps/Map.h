@@ -55,9 +55,9 @@ namespace Trinity { struct ObjectUpdater; }
 
 struct ScriptAction
 {
-    uint64 sourceGUID;
-    uint64 targetGUID;
-    uint64 ownerGUID;                                       // owner of source if source is item
+    ObjectGuid sourceGUID;
+    ObjectGuid targetGUID;
+    ObjectGuid ownerGUID;                                       // owner of source if source is item
     ScriptInfo const* script;                               // pointer to static script data
 };
 

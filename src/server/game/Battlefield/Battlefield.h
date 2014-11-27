@@ -240,7 +240,7 @@ class Battlefield : public ZoneScript
         /// Called when a Unit is kill in battlefield zone
         virtual void HandleKill(Player* /*killer*/, Unit* /*killed*/) {};
 
-        void InitGUID() { m_Guid = ObjectGuid::Create<HighGuid::PVPQueueGroup>(m_TypeId); }
+        void InitGUID();
 
         uint32 GetTypeId()       { return m_TypeId; }
         uint32 GetZoneId()       { return m_ZoneId; }

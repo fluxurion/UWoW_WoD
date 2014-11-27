@@ -1954,7 +1954,7 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     DelayCastEvent *delayCast = NULL;
     //Perfome trigger spell at jumping.
     if (uint32 triggered_spell_id = m_spellInfo->GetEffect(effIndex, m_diffMode).TriggerSpell)
-        delayCast = new DelayCastEvent(0, unitTarget->GetGUID(), triggered_spell_id);
+        delayCast = new DelayCastEvent(ObjectGuid::Empty, unitTarget->GetGUID(), triggered_spell_id);
 
     float x, y, z;
     unitTarget->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
@@ -1980,7 +1980,7 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
     if (uint32 triggered_spell_id = m_spellInfo->GetEffect(effIndex, m_diffMode).TriggerSpell)
     {
         Unit* pTarget = m_targets.GetUnitTarget();
-        delayCast = new DelayCastEvent(0, pTarget ? pTarget->GetGUID() : 0, triggered_spell_id);
+        delayCast = new DelayCastEvent(ObjectGuid::Empty, pTarget ? pTarget->GetGUID() : ObjectGuid::Empty, triggered_spell_id);
     }
 
     // Init dest coordinates
@@ -3165,7 +3165,7 @@ void Spell::EffectEnergizePct(SpellEffIndex effIndex)
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, gain, power);
 }
 
-void Spell::SendLoot(uint64 guid, LootType loottype)
+void Spell::SendLoot(ObjectGuid const& guid, LootType loottype)
 {
     Player* player = m_caster->ToPlayer();
     if (!player)
@@ -3248,7 +3248,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     Player* player = m_caster->ToPlayer();
 
     uint32 lockId = 0;
-    uint64 guid = 0;
+    ObjectGuid guid;
 
     // Get lockId
     if (gameObjTarget)
@@ -3326,10 +3326,10 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
             if (gameObjTarget)
             {
                 // Allow one skill-up until respawned
-                if (!gameObjTarget->IsInSkillupList(player->GetGUID().GetCounter()) &&
+                if (!gameObjTarget->IsInSkillupList(player->GetGUID()) &&
                     player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue))
                 {
-                    gameObjTarget->AddToSkillupList(player->GetGUID().GetCounter());
+                    gameObjTarget->AddToSkillupList(player->GetGUID());
 
                     // Update player XP
                     // Patch 4.0.1 (2010-10-12): Gathering herbs and Mining will give XP
@@ -3641,7 +3641,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
                     if (m_caster->GetTypeId() == TYPEID_PLAYER && sBattlePetSpeciesBySpellId.find(summon->GetEntry()) != sBattlePetSpeciesBySpellId.end())
                     {
-                        uint64 battlePetGUID = m_caster->ToPlayer()->GetBattlePetMgr()->GetPetGUIDBySpell(m_spellInfo->Id);
+                        ObjectGuid battlePetGUID = m_caster->ToPlayer()->GetBattlePetMgr()->GetPetGUIDBySpell(m_spellInfo->Id);
                         if (battlePetGUID)
                         {
                             if (PetInfo * pet = m_caster->ToPlayer()->GetBattlePetMgr()->GetPetInfoByPetGUID(battlePetGUID))
@@ -3803,7 +3803,7 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell: Player %u has learned spell %u from NpcGUID=%u", player->GetGUID().GetCounter(), spellToLearn, m_caster->GetGUID().GetCounter());
 }
 
-typedef std::list< std::pair<uint32, uint64> > DispelList;
+typedef std::list< std::pair<uint32, ObjectGuid> > DispelList;
 void Spell::EffectDispel(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -4021,7 +4021,7 @@ void Spell::EffectUntrainTalents(SpellEffIndex /*effIndex*/)
     if (!unitTarget || m_caster->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    if (uint64 guid = m_caster->GetGUID()) // the trainer is the caster
+    if (ObjectGuid guid = m_caster->GetGUID()) // the trainer is the caster
         unitTarget->ToPlayer()->SendTalentWipeConfirm(guid, false);
 }
 
@@ -4361,7 +4361,7 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     {
         pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT);
         m_caster->ToPlayer()->PetSpellInitialize();
-        m_caster->ToPlayer()->GetSession()->SendStablePet(0);
+        m_caster->ToPlayer()->GetSession()->SendStablePet(ObjectGuid::Empty);
     }
 }
 
@@ -5460,7 +5460,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (m_caster->getGender() > 0)
                         gender = "her";
                     sprintf(buf, "%s rubs %s [Decahedral Dwarven Dice] between %s hands and rolls. One %u and one %u.", m_caster->GetName(), gender, gender, urand(1, 10), urand(1, 10));
-                    m_caster->MonsterTextEmote(buf, 0);
+                    m_caster->MonsterTextEmote(buf, ObjectGuid::Empty);
                     break;
                 }
                 // Roll 'dem Bones - Worn Troll Dice
@@ -5471,7 +5471,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (m_caster->getGender() > 0)
                         gender = "her";
                     sprintf(buf, "%s causually tosses %s [Worn Troll Dice]. One %u and one %u.", m_caster->GetName(), gender, urand(1, 6), urand(1, 6));
-                    m_caster->MonsterTextEmote(buf, 0);
+                    m_caster->MonsterTextEmote(buf, ObjectGuid::Empty);
                     break;
                 }
                 // Vigilance
@@ -5898,7 +5898,7 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
 
     if (m_spellInfo->Id == 51723)
     {
-        if (uint64 combotarget = m_caster->m_movedPlayer->GetComboTarget())
+        if (ObjectGuid const& combotarget = m_caster->m_movedPlayer->GetComboTarget())
         {
             if (unitTarget->GetGUID() != combotarget)
                 return;
@@ -5930,7 +5930,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     Player* target = unitTarget->ToPlayer();
 
     // caster or target already have requested duel
-    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUID().GetCounter()))
+    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUID()))
         return;
 
     // Players can only fight a duel in zones with this flag
@@ -6320,7 +6320,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     uint32 go_id = m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue;
     float x, y, z, o;
 
-    uint64 guid = m_caster->m_ObjectSlot[slot];
+    ObjectGuid guid = m_caster->m_ObjectSlot[slot];
     if (guid != 0)
     {
         GameObject* obj = NULL;
@@ -6334,7 +6334,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
                 obj->SetSpellId(0);
             m_caster->RemoveGameObject(obj, true);
         }
-        m_caster->m_ObjectSlot[slot] = 0;
+        m_caster->m_ObjectSlot[slot].Clear();
     }
 
     GameObject* pGameObj = new GameObject;
@@ -6408,8 +6408,7 @@ void Spell::EffectSurvey(SpellEffIndex effIndex)
         return;
     }
 
-    uint64 guid = m_caster->m_ObjectSlot[slot];
-    if (guid != 0)
+    if (ObjectGuid const& guid = m_caster->m_ObjectSlot[slot])
     {
         GameObject* obj = NULL;
         if (m_caster)
@@ -6422,7 +6421,7 @@ void Spell::EffectSurvey(SpellEffIndex effIndex)
                 obj->SetSpellId(0);
             m_caster->RemoveGameObject(obj, true);
         }
-        m_caster->m_ObjectSlot[slot] = 0;
+        m_caster->m_ObjectSlot[slot].Clear();
     }
 
     GameObject* pGameObj = new GameObject;
@@ -6949,7 +6948,7 @@ void Spell::EffectDispelMechanic(SpellEffIndex effIndex)
     uint32 mechanic = m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue;
     uint32 allEffectDispelMask = m_spellInfo->GetSimilarEffectsMiscValueMask(SPELL_EFFECT_DISPEL_MECHANIC, m_caster);
 
-    std::queue < std::pair < uint32, uint64 > > dispel_list;
+    std::queue < std::pair < uint32, ObjectGuid > > dispel_list;
 
     Unit::AuraMap const& auras = unitTarget->GetOwnedAuras();
     for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
@@ -7464,7 +7463,7 @@ void Spell::EffectKillCreditPersonal(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->KilledMonsterCredit(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue, 0);
+    unitTarget->ToPlayer()->KilledMonsterCredit(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue, ObjectGuid::Empty);
 }
 
 void Spell::EffectKillCredit(SpellEffIndex effIndex)
@@ -7580,7 +7579,7 @@ void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)
     pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT);
     unitTarget->ToPlayer()->PetSpellInitialize();
 
-    unitTarget->ToPlayer()->GetSession()->SendStablePet(0);
+    unitTarget->ToPlayer()->GetSession()->SendStablePet(ObjectGuid::Empty);
 }
 
 void Spell::EffectDiscoverTaxi(SpellEffIndex effIndex)
@@ -7868,7 +7867,7 @@ void Spell::EffectPlaySound(SpellEffIndex effIndex)
         return;
     }
 
-    unitTarget->ToPlayer()->SendSound(soundId, NULL);
+    unitTarget->ToPlayer()->SendSound(soundId, ObjectGuid::Empty);
 }
 
 void Spell::EffectRemoveAura(SpellEffIndex effIndex)
@@ -8126,7 +8125,7 @@ void Spell::EffectCreateAreaTrigger(SpellEffIndex effIndex)
         return;
 
     AreaTrigger * areaTrigger = new AreaTrigger;
-    if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HighGuid::AreaTrigger), triggerEntry, GetCaster(), GetSpellInfo(), pos, this))
+    if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), triggerEntry, GetCaster(), GetSpellInfo(), pos, this))
         delete areaTrigger;
 }
 
@@ -8416,7 +8415,7 @@ void Spell::EffectUncagePet(SpellEffIndex effIndex)
         if (player->HasActiveSpell(bp->spellId))
             return;
         // create new pet guid
-        uint64 petguid = sObjectMgr->GenerateBattlePetGuid();
+        ObjectGuid petguid = ObjectGuid::Create<HighGuid::AreaTrigger>(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate());
         // add pet
         if (CreatureTemplate const* creature = sObjectMgr->GetCreatureTemplate(bp->CreatureEntry))
             player->GetBattlePetMgr()->AddPetInJournal(petguid, bp->ID, bp->CreatureEntry, level, creature->Modelid1, 10, 5, 100, 100, quality, 0, 0, bp->spellId, "", breedID, true);
@@ -8446,7 +8445,7 @@ void Spell::SendScene(SpellEffIndex effIndex)
     if (!player)
         return;
 
-    ObjectGuid casterGuid = /*m_caster->GetGUID()*/0; // not caster something else??? wrong val. could break scean.
+    ObjectGuid casterGuid = m_caster->GetGUID(); // not caster something else??? wrong val. could break scean.
 
     bool hasMValue = true;
     bool hasUnk = true;    //disabeling not find any change

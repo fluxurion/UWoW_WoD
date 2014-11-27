@@ -31,7 +31,7 @@ inline float GetAge(uint64 t) { return float(time(NULL) - t) / DAY; }
 // GM ticket
 GmTicket::GmTicket() { }
 
-GmTicket::GmTicket(Player* player, WorldPacket& recvData) : _createTime(time(NULL)), _lastModifiedTime(time(NULL)), _closedBy(0), _assignedTo(0), _completed(false), _escalatedStatus(TICKET_UNASSIGNED)
+GmTicket::GmTicket(Player* player, WorldPacket& recvData) : _createTime(time(NULL)), _lastModifiedTime(time(NULL)), _closedBy(0), _assignedTo(), _completed(false), _escalatedStatus(TICKET_UNASSIGNED)
 {
     _id = sTicketMgr->GenerateTicketId();
     _playerName = player->GetName();
@@ -64,7 +64,7 @@ bool GmTicket::LoadFromDB(Field* fields)
     // ticketId, guid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, completed, escalated, viewed
     uint8 index = 0;
     _id                 = fields[  index].GetUInt32();
-    _playerGuid         = MAKE_NEW_GUID(fields[++index].GetUInt32(), 0, HighGuid::Player);
+    _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetUInt64());
     _playerName         = fields[++index].GetString();
     _message            = fields[++index].GetString();
     _createTime         = fields[++index].GetUInt32();
@@ -73,8 +73,8 @@ bool GmTicket::LoadFromDB(Field* fields)
     _posY               = fields[++index].GetFloat();
     _posZ               = fields[++index].GetFloat();
     _lastModifiedTime   = fields[++index].GetUInt32();
-    _closedBy           = fields[++index].GetInt32();
-    _assignedTo         = MAKE_NEW_GUID(fields[++index].GetUInt32(), 0, HighGuid::Player);
+    _closedBy           = fields[++index].GetInt64();
+    _assignedTo         = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetUInt64());
     _comment            = fields[++index].GetString();
     _completed          = fields[++index].GetBool();
     _escalatedStatus    = GMTicketEscalationStatus(fields[++index].GetUInt8());
@@ -89,7 +89,7 @@ void GmTicket::SaveToDB(SQLTransaction& trans) const
     uint8 index = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
     stmt->setUInt32(  index, _id);
-    stmt->setUInt32(++index, GUID_LOPART(_playerGuid));
+    stmt->setUInt64(++index, _playerGuid.GetCounter());
     stmt->setString(++index, _playerName);
     stmt->setString(++index, _message);
     stmt->setUInt32(++index, uint32(_createTime));
@@ -98,8 +98,8 @@ void GmTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setFloat (++index, _posY);
     stmt->setFloat (++index, _posZ);
     stmt->setUInt32(++index, uint32(_lastModifiedTime));
-    stmt->setInt32 (++index, GUID_LOPART(_closedBy));
-    stmt->setUInt32(++index, GUID_LOPART(_assignedTo));
+    stmt->setInt64 (++index, _closedBy);
+    stmt->setUInt64(++index, _assignedTo.GetCounter());
     stmt->setString(++index, _comment);
     stmt->setBool  (++index, _completed);
     stmt->setUInt8 (++index, uint8(_escalatedStatus));
@@ -201,7 +201,7 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, const char* szCl
 
 void GmTicket::SetUnassigned()
 {
-    _assignedTo = 0;
+    _assignedTo.Clear();
     switch (_escalatedStatus)
     {
         case TICKET_ASSIGNED: _escalatedStatus = TICKET_UNASSIGNED; break;

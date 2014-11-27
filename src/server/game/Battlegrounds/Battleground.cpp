@@ -2107,3 +2107,8 @@ void Battleground::SendOponentSpecialization(uint32 team)
 
     SendPacketToTeam(GetOtherTeam(team), &spec);
 }
+
+void Battleground::InitGUID()
+{ 
+    m_Guid = ObjectGuid::Create<HighGuid::PVPQueueGroup>(m_TypeID);
+}

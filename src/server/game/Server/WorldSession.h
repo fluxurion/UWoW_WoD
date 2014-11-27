@@ -1069,7 +1069,7 @@ class WorldSession
         PreparedQueryResultFuture _stablePetCallback;
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
-        QueryCallback<PreparedQueryResult, uint64> _sendStabledPetCallback;
+        QueryCallback<PreparedQueryResult, ObjectGuid> _sendStabledPetCallback;
         QueryCallback<PreparedQueryResult, uint32> _stableChangeSlotCallback;
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
         QueryResultHolderFuture _charLoginCallback;

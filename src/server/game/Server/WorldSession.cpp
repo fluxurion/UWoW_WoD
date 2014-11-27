@@ -509,7 +509,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (_player)
     {
-        if (uint64 lguid = _player->GetLootGUID())
+        if (ObjectGuid lguid = _player->GetLootGUID())
             DoLootRelease(lguid);
         _player->ClearAoeLootList();
 
@@ -640,8 +640,8 @@ void WorldSession::LogoutPlayer(bool Save)
         }
 
         //! Broadcast a logout message to the player's friends
-        sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUID().GetCounter(), true);
-        sSocialMgr->RemovePlayerSocial(_player->GetGUID().GetCounter());
+        sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUID(), true);
+        sSocialMgr->RemovePlayerSocial(_player->GetGUID());
 
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
@@ -1453,7 +1453,7 @@ void WorldSession::ProcessQueryCallbacks()
     //- SendStabledPet
     if (_sendStabledPetCallback.IsReady())
     {
-        uint64 param = _sendStabledPetCallback.GetParam();
+        ObjectGuid param = _sendStabledPetCallback.GetParam();
         _sendStabledPetCallback.GetResult(result);
         SendStablePetCallback(result, param);
         _sendStabledPetCallback.FreeResult();

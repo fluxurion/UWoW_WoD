@@ -87,7 +87,7 @@ struct SpellDestination
     SpellDestination(WorldObject const& wObj);
 
     WorldLocation _position;
-    uint64 _transportGUID;
+    ObjectGuid _transportGUID;
     Position _transportOffset;
 };
 
@@ -136,28 +136,28 @@ class SpellCastTargets
 
         void SetTargetFlag(SpellCastTargetFlags flag) { m_targetMask |= flag; }
 
-        uint64 GetUnitTargetGUID() const;
+        ObjectGuid GetUnitTargetGUID() const;
         Unit* GetUnitTarget() const;
         void SetUnitTarget(Unit* target);
 
-        uint64 GetGOTargetGUID() const;
+        ObjectGuid GetGOTargetGUID() const;
         GameObject* GetGOTarget() const;
         void SetGOTarget(GameObject* target);
 
-        uint64 GetCorpseTargetGUID() const;
+        ObjectGuid GetCorpseTargetGUID() const;
         Corpse* GetCorpseTarget() const;
 
         WorldObject* GetObjectTarget() const;
-        uint64 GetObjectTargetGUID() const;
+        ObjectGuid GetObjectTargetGUID() const;
         void RemoveObjectTarget();
 
-        uint64 GetItemTargetGUID() const { return m_itemTargetGUID; }
+        ObjectGuid GetItemTargetGUID() const { return m_itemTargetGUID; }
         Item* GetItemTarget() const { return m_itemTarget; }
         uint32 GetItemTargetEntry() const { return m_itemTargetEntry; }
         void SetItemTarget(Item* item);
         void SetTradeItemTarget(Player* caster);
         void UpdateTradeSlotItem();
-
+        uint8 GetItemTargetSlot() const { return m_itemTargetSlot; }
         SpellDestination const* GetSrc() const;
         Position const* GetSrcPos() const;
         void SetSrc(float x, float y, float z);
@@ -201,8 +201,9 @@ class SpellCastTargets
         Item* m_itemTarget;
 
         // object GUID/etc, can be used always
-        uint64 m_objectTargetGUID;
-        uint64 m_itemTargetGUID;
+        ObjectGuid m_objectTargetGUID;
+        ObjectGuid m_itemTargetGUID;
+        uint8 m_itemTargetSlot;
         uint32 m_itemTargetEntry;
 
         SpellDestination m_src;
@@ -403,7 +404,7 @@ class Spell
 
         typedef std::set<Aura *> UsedSpellMods;
 
-        Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID = 0, bool skipCheck = false);
+        Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = ObjectGuid::Empty, bool skipCheck = false);
         ~Spell();
 
         void InitExplicitTargets(SpellCastTargets const& targets);
@@ -489,10 +490,10 @@ class Spell
         void SendSpellActivationScene();
         void SendSpellCooldown();
         void SendLogExecute();
-        void ExecuteLogEffectGeneric(uint8 effIndex, uint64 guid);
-        void ExecuteLogEffectPowerDrain(uint8 effIndex, uint64 guid, uint32 powerType, uint32 powerTaken, float gainMultiplier);
-        void ExecuteLogEffectExtraAttacks(uint8 effIndex, uint64 guid, uint32 attCount);
-        void ExecuteLogEffectDurabilityDamage(uint8 effIndex, uint64 guid, uint32 itemslot, uint32 damage);
+        void ExecuteLogEffectGeneric(uint8 effIndex, ObjectGuid const& guid);
+        void ExecuteLogEffectPowerDrain(uint8 effIndex, ObjectGuid const& guid, uint32 powerType, uint32 powerTaken, float gainMultiplier);
+        void ExecuteLogEffectExtraAttacks(uint8 effIndex, ObjectGuid const& guid, uint32 attCount);
+        void ExecuteLogEffectDurabilityDamage(uint8 effIndex, ObjectGuid const& guid, uint32 itemslot, uint32 damage);
         void ExecuteLogEffectTradeSkillItem(uint8 effIndex, uint32 entry);
         void ExecuteLogEffectFeedPet(uint8 effIndex, uint32 entry);
 
@@ -507,7 +508,7 @@ class Spell
 
         SpellInfo const* const m_spellInfo;
         Item* m_CastItem;
-        uint64 m_castItemGUID;
+        ObjectGuid m_castItemGUID;
         uint8 m_cast_count;
         uint32 m_glyphIndex;
         uint32 m_preCastSpell;
@@ -575,8 +576,8 @@ class Spell
         bool GetInterupted() const { return m_interupted; }
         void WriteProjectile(uint8 &ammoInventoryType, uint32 &ammoDisplayID);
 
-        void SetSpellDynamicObject(uint64 dynObj) { m_spellDynObjGuid = dynObj;}
-        uint64 GetSpellDynamicObject() const { return m_spellDynObjGuid; }
+        void SetSpellDynamicObject(ObjectGuid const& dynObj) { m_spellDynObjGuid = dynObj;}
+        ObjectGuid const& GetSpellDynamicObject() const { return m_spellDynObjGuid; }
         void SetEffectTargets (std::list<WorldObject*> targets) { m_effect_targets = targets; }
         std::list<WorldObject*> GetEffectTargets() { return m_effect_targets; }
 
@@ -587,13 +588,13 @@ class Spell
         void CancelGlobalCooldown();
         int32 GetGlobalCooldown();
 
-        void SendLoot(uint64 guid, LootType loottype);
+        void SendLoot(ObjectGuid const& guid, LootType loottype);
 
         Unit* const m_caster;
 
         SpellValue* m_spellValue;
 
-        uint64 m_originalCasterGUID;                        // real source of cast (aura caster/etc), used for spell targets selection
+        ObjectGuid m_originalCasterGUID;                        // real source of cast (aura caster/etc), used for spell targets selection
                                                             // e.g. damage around area spell trigered by victim aura and damage enemies of aura caster
         Unit* m_originalCaster;                             // cached pointer for m_originalCaster, updated at Spell::UpdatePointers()
         Unit* m_originalTarget;
@@ -651,7 +652,7 @@ class Spell
 
         // -------------------------------------------
         GameObject* focusObject;
-        uint64 m_spellDynObjGuid;
+        ObjectGuid m_spellDynObjGuid;
 
         // Damage and healing in effects need just calculate
         int32 m_damage;           // Damge   in effects count here
@@ -677,7 +678,7 @@ class Spell
         // Targets store structures and data
         struct TargetInfo
         {
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint64 timeDelay;
             SpellMissInfo missCondition:8;
             SpellMissInfo reflectResult:8;
@@ -693,7 +694,7 @@ class Spell
 
         struct GOTargetInfo
         {
-            uint64 targetGUID;
+            ObjectGuid targetGUID;
             uint64 timeDelay;
             uint32  effectMask:32;
             bool   processed:1;

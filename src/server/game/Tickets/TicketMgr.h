@@ -99,7 +99,7 @@ public:
     std::string const& GetMessage() const { return _message; }
     std::string const& GetResponse() const { return _response; }
     Player* GetAssignedPlayer() const { return ObjectAccessor::FindPlayer(_assignedTo); }
-    uint64 GetAssignedToGUID() const { return _assignedTo; }
+    ObjectGuid GetAssignedToGUID() const { return _assignedTo; }
     std::string GetAssignedToName() const
     {
         std::string name;

@@ -27,7 +27,7 @@
 class CreatureTextBuilder
 {
     public:
-        CreatureTextBuilder(WorldObject* obj, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, uint64 targetGUID)
+        CreatureTextBuilder(WorldObject* obj, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, ObjectGuid targetGUID)
             : _source(obj), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _targetGUID(targetGUID)
         {
         }
@@ -53,7 +53,7 @@ class CreatureTextBuilder
         uint8 _textGroup;
         uint32 _textId;
         uint32 _language;
-        uint64 _targetGUID;
+        ObjectGuid _targetGUID;
 };
 
 void CreatureTextMgr::LoadCreatureTexts()
@@ -280,7 +280,7 @@ float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
 }
 
 //! 5.4.1
-void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly)
+void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, ObjectGuid whisperGuid, TextRange range, Team team, bool gmOnly)
 {
     if (!sound || !source)
         return;

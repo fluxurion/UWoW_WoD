@@ -63,21 +63,21 @@ extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 SpellDestination::SpellDestination()
 {
     _position.Relocate(0, 0, 0, 0);
-    _transportGUID = 0;
+    _transportGUID.Clear();
     _transportOffset.Relocate(0, 0, 0, 0);
 }
 
 SpellDestination::SpellDestination(float x, float y, float z, float orientation, uint32 mapId)
 {
     _position.Relocate(x, y, z, orientation);
-    _transportGUID = 0;
+    _transportGUID.Clear();
     _position.m_mapId = mapId;
 }
 
 SpellDestination::SpellDestination(Position const& pos)
 {
     _position.Relocate(pos);
-    _transportGUID = 0;
+    _transportGUID.Clear();
 }
 
 SpellDestination::SpellDestination(WorldObject const& wObj)
@@ -89,25 +89,18 @@ SpellDestination::SpellDestination(WorldObject const& wObj)
 }
 
 
-SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
+SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget(), m_itemTargetSlot(), m_itemTargetEntry(0),
+    m_targetMask(0), m_objectTarget(NULL), m_itemTarget(NULL), m_objectTargetGUID(), m_itemTargetGUID()
 {
-    m_objectTarget = NULL;
-    m_itemTarget = NULL;
-
-    m_objectTargetGUID   = 0;
-    m_itemTargetGUID   = 0;
-    m_itemTargetEntry  = 0;
-
-    m_targetMask = 0;
 }
 
 SpellCastTargets::~SpellCastTargets()
 {
 }
 
-uint64 SpellCastTargets::GetUnitTargetGUID() const
+ObjectGuid SpellCastTargets::GetUnitTargetGUID() const
 {
-    switch (GUID_HIPART(m_objectTargetGUID))
+    switch (m_objectTargetGUID.GetHigh())
     {
         case HighGuid::Player:
         case HighGuid::Vehicle:
@@ -115,7 +108,7 @@ uint64 SpellCastTargets::GetUnitTargetGUID() const
         case HighGuid::Pet:
             return m_objectTargetGUID;
         default:
-            return 0LL;
+            return ObjectGuid::Empty;
     }
 }
 
@@ -136,15 +129,15 @@ void SpellCastTargets::SetUnitTarget(Unit* target)
     m_targetMask |= TARGET_FLAG_UNIT;
 }
 
-uint64 SpellCastTargets::GetGOTargetGUID() const
+ObjectGuid SpellCastTargets::GetGOTargetGUID() const
 {
-    switch (GUID_HIPART(m_objectTargetGUID))
+    switch (m_objectTargetGUID.GetHigh())
     {
         case HighGuid::Transport:
         case HighGuid::GameObject:
             return m_objectTargetGUID;
         default:
-            return 0LL;
+            return ObjectGuid::Empty;
     }
 }
 
@@ -166,14 +159,14 @@ void SpellCastTargets::SetGOTarget(GameObject* target)
     m_targetMask |= TARGET_FLAG_GAMEOBJECT;
 }
 
-uint64 SpellCastTargets::GetCorpseTargetGUID() const
+ObjectGuid SpellCastTargets::GetCorpseTargetGUID() const
 {
-    switch (GUID_HIPART(m_objectTargetGUID))
+    switch (m_objectTargetGUID.GetHigh())
     {
         case HighGuid::Corpse:
             return m_objectTargetGUID;
         default:
-            return 0LL;
+            return ObjectGuid::Empty;
     }
 }
 
@@ -189,7 +182,7 @@ WorldObject* SpellCastTargets::GetObjectTarget() const
     return m_objectTarget;
 }
 
-uint64 SpellCastTargets::GetObjectTargetGUID() const
+ObjectGuid SpellCastTargets::GetObjectTargetGUID() const
 {
     return m_objectTargetGUID;
 }
@@ -197,7 +190,7 @@ uint64 SpellCastTargets::GetObjectTargetGUID() const
 void SpellCastTargets::RemoveObjectTarget()
 {
     m_objectTarget = NULL;
-    m_objectTargetGUID = 0LL;
+    m_objectTargetGUID.Clear();
     m_targetMask &= ~(TARGET_FLAG_UNIT_MASK | TARGET_FLAG_CORPSE_MASK | TARGET_FLAG_GAMEOBJECT_MASK);
 }
 
@@ -207,6 +200,7 @@ void SpellCastTargets::SetItemTarget(Item* item)
         return;
 
     m_itemTarget = item;
+    m_itemTargetSlot = 0;
     m_itemTargetGUID = item->GetGUID();
     m_itemTargetEntry = item->GetEntry();
     m_targetMask |= TARGET_FLAG_ITEM;
@@ -214,7 +208,7 @@ void SpellCastTargets::SetItemTarget(Item* item)
 
 void SpellCastTargets::SetTradeItemTarget(Player* caster)
 {
-    m_itemTargetGUID = uint64(TRADE_SLOT_NONTRADED);
+    m_itemTargetSlot = TRADE_SLOT_NONTRADED;
     m_itemTargetEntry = 0;
     m_targetMask |= TARGET_FLAG_TRADE_ITEM;
 
@@ -339,7 +333,7 @@ void SpellCastTargets::Update(Unit* caster)
         if (m_targetMask & TARGET_FLAG_ITEM)
             m_itemTarget = player->GetItemByGuid(m_itemTargetGUID);
         else if (m_targetMask & TARGET_FLAG_TRADE_ITEM)
-            if (m_itemTargetGUID == TRADE_SLOT_NONTRADED) // here it is not guid but slot. Also prevents hacking slots
+            if (m_itemTargetSlot == TRADE_SLOT_NONTRADED) // here it is not guid but slot. Also prevents hacking slots
                 if (TradeData* pTrade = player->GetTradeData())
                     m_itemTarget = pTrade->GetTraderData()->GetItem(TRADE_SLOT_NONTRADED);
 
@@ -398,13 +392,13 @@ SpellValue::SpellValue(SpellInfo const* proto, uint8 diff)
     AuraStackAmount = 1;
 }
 
-Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID, bool skipCheck) :
+Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID, bool skipCheck) :
 m_spellInfo(info),
 m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster),
-m_customError(SPELL_CUSTOM_ERROR_NONE), m_skipCheck(skipCheck), m_spellMissMask(0), m_selfContainer(NULL), m_spellDynObjGuid(NULL),
+m_customError(SPELL_CUSTOM_ERROR_NONE), m_skipCheck(skipCheck), m_spellMissMask(0), m_selfContainer(NULL), m_spellDynObjGuid(),
 m_referencedFromCurrentSpell(false), m_executedCurrently(false), m_needComboPoints(info->NeedsComboPoints()), hasPredictedDispel(NULL),
 m_comboPointGain(0), m_delayStart(0), m_delayAtDamageCount(0), m_count_dispeling(0), m_applyMultiplierMask(0), m_auraScaleMask(0),
-m_CastItem(NULL), m_castItemGUID(0), unitTarget(NULL), m_originalTarget(NULL), itemTarget(NULL), gameObjTarget(NULL), focusObject(NULL),
+m_CastItem(NULL), m_castItemGUID(), unitTarget(NULL), m_originalTarget(NULL), itemTarget(NULL), gameObjTarget(NULL), focusObject(NULL),
 m_cast_count(0), m_glyphIndex(0), m_preCastSpell(0), m_triggeredByAuraSpell(NULL), m_spellAura(NULL), find_target(false), m_spellState(SPELL_STATE_NULL),
 m_runesState(0), m_powerCost(0), m_casttime(0), m_timer(0), m_channelTargetEffectMask(0), _triggeredCastFlags(triggerFlags), m_spellValue(NULL), m_currentExecutedEffect(SPELL_EFFECT_NONE),
 m_absorb(0), m_resist(0), m_blocked(0), m_interupted(false), m_effect_targets(NULL)
@@ -845,7 +839,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
     {
         case TARGET_UNIT_CHANNEL_TARGET:
         {
-            WorldObject* target = ObjectAccessor::GetUnit(*m_caster, m_originalCaster->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT));
+            WorldObject* target = ObjectAccessor::GetUnit(*m_caster, m_originalCaster->GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT));
             CallScriptObjectTargetSelectHandlers(target, effIndex);
             // unit target may be no longer avalible - teleported out of map for example
             if (target && target->ToUnit())
@@ -857,7 +851,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
         case TARGET_DEST_CHANNEL_TARGET:
             if (channeledSpell->m_targets.HasDst())
                 m_targets.SetDst(channeledSpell->m_targets);
-            else if (WorldObject* target = ObjectAccessor::GetWorldObject(*m_caster, m_originalCaster->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT)))
+            else if (WorldObject* target = ObjectAccessor::GetWorldObject(*m_caster, m_originalCaster->GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT)))
             {
                 CallScriptObjectTargetSelectHandlers(target, effIndex);
                 if (target)
@@ -2353,7 +2347,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         if (target->IsImmunedToSpellEffect(m_spellInfo, effIndex))
             effectMask &= ~(1 << effIndex);
 
-    uint64 targetGUID = target->GetGUID();
+    ObjectGuid targetGUID = target->GetGUID();
 
     // Lookup target in already in list
     for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
@@ -2490,7 +2484,7 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
     if (!effectMask)
         return;
 
-    uint64 targetGUID = go->GetGUID();
+    ObjectGuid targetGUID = go->GetGUID();
 
     // Lookup target in already in list
     for (std::list<GOTargetInfo>::iterator ihit = m_UniqueGOTargetInfo.begin(); ihit != m_UniqueGOTargetInfo.end(); ++ihit)
@@ -3028,7 +3022,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         {
             bool refresh = false;
             m_spellAura = Aura::TryRefreshStackOrCreate(aurSpellInfo, effectMask, unit,
-                m_originalCaster, (aurSpellInfo == m_spellInfo)? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, 0, &refresh);
+                m_originalCaster, (aurSpellInfo == m_spellInfo) ? &m_spellValue->EffectBasePoints[0] : &basePoints[0], m_CastItem, ObjectGuid::Empty, &refresh);
             if (m_spellAura)
             {
                 // Set aura stack amount to desired value
@@ -3120,7 +3114,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     }
                     m_spellAura->_RegisterForTargets();
                     m_spellAura->SetEffectTargets(GetEffectTargets());
-                    if(uint64 dynObjGuid = GetSpellDynamicObject())
+                    if(ObjectGuid dynObjGuid = GetSpellDynamicObject())
                         m_spellAura->SetSpellDynamicObject(dynObjGuid);
                 }
             }
@@ -3312,7 +3306,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     if (m_CastItem)
         m_castItemGUID = m_CastItem->GetGUID();
     else
-        m_castItemGUID = 0;
+        m_castItemGUID.Clear();
 
     InitExplicitTargets(*targets);
 
@@ -4084,7 +4078,7 @@ void Spell::update(uint32 difftime)
                         for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                         {
                             TargetInfo* target = &*ihit;
-                            if (!IS_CRE_OR_VEH_GUID(target->targetGUID))
+                            if (!target->targetGUID.IsCreatureOrVehicle())
                                 continue;
 
                             Unit* unit = m_caster->GetGUID() == target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target->targetGUID);
@@ -5430,14 +5424,14 @@ void Spell::SendLogExecute()
     m_caster->SendMessageToSet(&data, true);
 }
 
-void Spell::ExecuteLogEffectGeneric(uint8 effIndex, uint64 guid)
+void Spell::ExecuteLogEffectGeneric(uint8 effIndex, ObjectGuid const& guid)
 {
     InitEffectExecuteData(effIndex);
 
     m_effectExecuteData[effIndex]->guids.push_back(guid);
 }
 
-void Spell::ExecuteLogEffectPowerDrain(uint8 effIndex, uint64 guid, uint32 powerType, uint32 powerTaken, float gainMultiplier)
+void Spell::ExecuteLogEffectPowerDrain(uint8 effIndex, ObjectGuid const& guid, uint32 powerType, uint32 powerTaken, float gainMultiplier)
 {
     InitEffectExecuteData(effIndex);
 
@@ -5447,7 +5441,7 @@ void Spell::ExecuteLogEffectPowerDrain(uint8 effIndex, uint64 guid, uint32 power
     m_effectExecuteData[effIndex]->floatParam.push_back(gainMultiplier);
 }
 
-void Spell::ExecuteLogEffectExtraAttacks(uint8 effIndex, uint64 guid, uint32 attCount)
+void Spell::ExecuteLogEffectExtraAttacks(uint8 effIndex, ObjectGuid const& guid, uint32 attCount)
 {
     InitEffectExecuteData(effIndex);
 
@@ -5455,7 +5449,7 @@ void Spell::ExecuteLogEffectExtraAttacks(uint8 effIndex, uint64 guid, uint32 att
     m_effectExecuteData[effIndex]->param1.push_back(attCount);
 }
 
-void Spell::ExecuteLogEffectDurabilityDamage(uint8 effIndex, uint64 guid, uint32 /*itemslot*/, uint32 damage)
+void Spell::ExecuteLogEffectDurabilityDamage(uint8 effIndex, ObjectGuid const& guid, uint32 /*itemslot*/, uint32 damage)
 {
     InitEffectExecuteData(effIndex);
 
@@ -5507,7 +5501,7 @@ void Spell::SendChannelUpdate(uint32 time)
 {
     if (time == 0)
     {
-        m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, 0);
+        m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, ObjectGuid::Empty);
         m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, 0);
     }
 
@@ -5523,7 +5517,7 @@ void Spell::SendChannelUpdate(uint32 time)
 
 void Spell::SendChannelStart(uint32 duration)
 {
-    uint64 channelTarget = m_targets.GetObjectTargetGUID();
+    ObjectGuid channelTarget = m_targets.GetObjectTargetGUID();
 
     if (!channelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
         if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)   // this is for TARGET_SELECT_CATEGORY_NEARBY
@@ -5551,7 +5545,7 @@ void Spell::SendChannelStart(uint32 duration)
 
     m_timer = duration;
     if (channelTarget)
-        m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, channelTarget);
+        m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, channelTarget);
 
     if (m_spellInfo->Id != 101546)
         m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);
@@ -5667,7 +5661,7 @@ void Spell::TakePower()
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (uint64 targetGUID = m_targets.GetUnitTargetGUID())
+        if (ObjectGuid targetGUID = m_targets.GetUnitTargetGUID())
             for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                 if (ihit->targetGUID == targetGUID)
                 {
@@ -6917,7 +6911,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_targets.GetTargetMask() & TARGET_FLAG_TRADE_ITEM)
                 {
                     if (TradeData* pTrade = m_caster->ToPlayer()->GetTradeData())
-                        pTempItem = pTrade->GetTraderData()->GetItem(TradeSlots(m_targets.GetItemTargetGUID()));
+                        pTempItem = pTrade->GetTraderData()->GetItem(TradeSlots(m_targets.GetItemTargetSlot()));
                 }
                 else if (m_targets.GetTargetMask() & TARGET_FLAG_ITEM)
                     pTempItem = m_caster->ToPlayer()->GetItemByGuid(m_targets.GetItemTargetGUID());
@@ -7299,7 +7293,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (!my_trade)
             return SPELL_FAILED_NOT_TRADING;
 
-        TradeSlots slot = TradeSlots(m_targets.GetItemTargetGUID());
+        TradeSlots slot = TradeSlots(m_targets.GetItemTargetSlot());
         if (slot != TRADE_SLOT_NONTRADED)
             return SPELL_FAILED_BAD_TARGETS;
 
@@ -7570,7 +7564,7 @@ SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
 
 bool Spell::CanAutoCast(Unit* target)
 {
-    uint64 targetguid = target->GetGUID();
+    ObjectGuid targetguid = target->GetGUID();
 
     for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
@@ -8396,7 +8390,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
         default:                                            // normal case
             // Get GO cast coordinates if original caster -> GO
             WorldObject* caster = NULL;
-            if (IS_GAMEOBJECT_GUID(m_originalCasterGUID))
+            if (m_originalCasterGUID.IsGameObject())
                 caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
             if (!caster)
                 caster = m_caster;

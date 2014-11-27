@@ -217,16 +217,16 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* target)
     switch (pData->uiType)
     {
         case CHAT_TYPE_SAY:
-            pSource->MonsterSay(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
+            pSource->MonsterSay(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : ObjectGuid::Empty);
             break;
         case CHAT_TYPE_YELL:
-            pSource->MonsterYell(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
+            pSource->MonsterYell(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : ObjectGuid::Empty);
             break;
         case CHAT_TYPE_TEXT_EMOTE:
-            pSource->MonsterTextEmote(iTextEntry, target ? target->GetGUID() : 0);
+            pSource->MonsterTextEmote(iTextEntry, target ? target->GetGUID() : ObjectGuid::Empty);
             break;
         case CHAT_TYPE_BOSS_EMOTE:
-            pSource->MonsterTextEmote(iTextEntry, target ? target->GetGUID() : 0, true);
+            pSource->MonsterTextEmote(iTextEntry, target ? target->GetGUID() : ObjectGuid::Empty, true);
             break;
         case CHAT_TYPE_WHISPER:
         {
@@ -247,7 +247,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* target)
             break;
         }
         case CHAT_TYPE_ZONE_YELL:
-            pSource->MonsterYellToZone(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : 0);
+            pSource->MonsterYellToZone(iTextEntry, pData->uiLanguage, target ? target->GetGUID() : ObjectGuid::Empty);
             break;
     }
 }

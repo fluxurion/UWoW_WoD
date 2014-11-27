@@ -1066,11 +1066,11 @@ DumpReturn PlayerDumpReader::LoadDump(uint32 account, std::string& dump, std::st
     // in case of name conflict player has to rename at login anyway
     sWorld->AddCharacterNameData(guid, name, gender, race, playerClass, level);
 
-    sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed() += items.size();
+    sObjectMgr->GetGenerator<HighGuid::Item>()->Set(sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed() + items.size());
     sObjectMgr->_mailId     += mails.size();
 
     if (incHighest)
-        ++sObjectMgr->GetGenerator<HighGuid::Player>()->GetNextAfterMaxUsed();
+        sObjectMgr->GetGenerator<HighGuid::Player>()->Generate();
 
     return DUMP_SUCCESS;
 }
