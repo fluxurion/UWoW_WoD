@@ -62,7 +62,7 @@ class boss_high_botanist_freywinn : public CreatureScript
         {
             boss_high_botanist_freywinnAI(Creature* creature) : ScriptedAI(creature) {}
 
-            std::list<uint64> Adds_List;
+            GuidList Adds_List;
 
             uint32 SummonSeedling_Timer;
             uint32 TreeForm_Timer;
@@ -145,7 +145,7 @@ class boss_high_botanist_freywinn : public CreatureScript
                     {
                         if (!Adds_List.empty())
                         {
-                            for (std::list<uint64>::iterator itr = Adds_List.begin(); itr != Adds_List.end(); ++itr)
+                            for (GuidList::iterator itr = Adds_List.begin(); itr != Adds_List.end(); ++itr)
                             {
                                 if (Unit* temp = Unit::GetUnit(*me, *itr))
                                 {

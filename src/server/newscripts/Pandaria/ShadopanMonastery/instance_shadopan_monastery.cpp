@@ -42,18 +42,18 @@ public:
         uint64 shaEntranceGuid;
         uint64 shaExitGuid;
         
-        std::list<uint64> minibossPositionsGuid;
-        std::list<uint64> minibossPositionsGuidSave;
+        GuidList minibossPositionsGuid;
+        GuidList minibossPositionsGuidSave;
 
-        std::list<uint64> firstDefeatedNovicePositionsGuid;
-        std::list<uint64> firstDefeatedNovicePositionsGuidSave;
+        GuidList firstDefeatedNovicePositionsGuid;
+        GuidList firstDefeatedNovicePositionsGuidSave;
 
-        std::list<uint64> secondDefeatedNovicePositionsGuid;
-        std::list<uint64> secondDefeatedNovicePositionsGuidSave;
+        GuidList secondDefeatedNovicePositionsGuid;
+        GuidList secondDefeatedNovicePositionsGuidSave;
         
-        std::list<uint64> firstArcherySet;
-        std::list<uint64> secondArcherySet;
-        std::list<uint64> archeryTargetGuids;
+        GuidList firstArcherySet;
+        GuidList secondArcherySet;
+        GuidList archeryTargetGuids;
 
         uint32 dataStorage[MAX_DATA];
 

@@ -306,7 +306,7 @@ public:
             };
         }
 
-        std::list<uint64> addsAtBase, movedadds;
+        GuidList addsAtBase, movedadds;
 
         void MoveNPCIfAlive(uint32 entry, float x, float y, float z, float o)
         {
@@ -337,7 +337,7 @@ public:
 
         bool IsWaveAllDead()
         {
-            for (std::list<uint64>::iterator itr = addsAtBase.begin(); itr != addsAtBase.end(); ++itr)
+            for (GuidList::iterator itr = addsAtBase.begin(); itr != addsAtBase.end(); ++itr)
             {
                 if (Creature* add = instance->GetCreature((*itr)))
                 {
@@ -345,7 +345,7 @@ public:
                         return false;
                 }
             }
-            for (std::list<uint64>::iterator itr = movedadds.begin(); itr != movedadds.end(); ++itr)
+            for (GuidList::iterator itr = movedadds.begin(); itr != movedadds.end(); ++itr)
             {
                 if (Creature* add = instance->GetCreature(((*itr))))
                 {

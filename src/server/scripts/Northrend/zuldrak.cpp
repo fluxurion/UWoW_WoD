@@ -1039,7 +1039,7 @@ public:
     {
         npc_elemental_lordAI(Creature* creature) : ScriptedAI(creature) {}
 
-        std::list<uint64> SummonList;
+        GuidList SummonList;
 
         uint32 uiElementalSpellTimer;
 
@@ -1087,7 +1087,7 @@ public:
         void EnterCombat(Unit* unit)
         {
             if (!SummonList.empty())
-                for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+                for (GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                 {
                     if (Creature* temp = Unit::GetCreature(*me, *itr))
                     {
@@ -1130,7 +1130,7 @@ public:
             if (!bAddAttack && !HealthAbovePct(20))
             {
                 if (!SummonList.empty())
-                    for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+                    for (GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                     {
                         if (Creature* temp = Unit::GetCreature(*me, *itr))
                         {
@@ -1151,7 +1151,7 @@ public:
         void JustDied(Unit* killer)
         {
             if (!SummonList.empty())
-                for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+                for (GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                     if (Creature* temp = Unit::GetCreature(*me, *itr))
                         temp->DespawnOrUnsummon();
 

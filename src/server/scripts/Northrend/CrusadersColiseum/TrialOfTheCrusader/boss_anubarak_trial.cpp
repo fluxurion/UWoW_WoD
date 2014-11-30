@@ -148,7 +148,7 @@ public:
         InstanceScript* m_pInstance;
 
         SummonList Summons;
-        std::list<uint64> m_vBurrowGUID;
+        GuidList m_vBurrowGUID;
         uint64 m_aSphereGUID[6];
 
         uint32 m_uiFreezeSlashTimer;
@@ -336,7 +336,7 @@ public:
                         /* WORKAROUND
                          * - The correct implementation is more likely the comment below but it needs spell knowledge
                          */
-                        std::list<uint64>::iterator i = m_vBurrowGUID.begin();
+                        GuidList::iterator i = m_vBurrowGUID.begin();
                         uint32 at = urand(0, m_vBurrowGUID.size()-1);
                         for (uint32 k = 0; k < at; k++)
                             ++i;

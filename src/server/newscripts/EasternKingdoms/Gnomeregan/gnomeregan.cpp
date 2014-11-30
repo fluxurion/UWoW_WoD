@@ -139,8 +139,8 @@ public:
         uint8 uiPhase;
         uint32 uiTimer;
 
-        std::list<uint64> SummonList;
-        std::list<uint64> GoSummonList;
+        GuidList SummonList;
+        GuidList GoSummonList;
 
         void Reset()
         {
@@ -170,7 +170,7 @@ public:
             if (GoSummonList.empty())
                 return;
 
-            for (std::list<uint64>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
+            for (GuidList::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
             {
                if (GameObject* go = GameObject::GetGameObject(*me, *itr))
                {
@@ -225,14 +225,14 @@ public:
                 instance->HandleGameObject(0, false, go);
 
             if (!GoSummonList.empty())
-                for (std::list<uint64>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
+                for (GuidList::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
                 {
                     if (GameObject* go = GameObject::GetGameObject(*me, *itr))
                         go->RemoveFromWorld();
                 }
 
             if (!SummonList.empty())
-                for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+                for (GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                 {
                     if (Creature* summon = Unit::GetCreature(*me, *itr))
                     {

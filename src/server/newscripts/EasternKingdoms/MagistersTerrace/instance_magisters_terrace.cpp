@@ -72,8 +72,8 @@ public:
         uint32 Encounter[MAX_ENCOUNTER];
         uint32 DelrissaDeathCount;
 
-        std::list<uint64> FelCrystals;
-        std::list<uint64>::const_iterator CrystalItr;
+        GuidList FelCrystals;
+        GuidList::const_iterator CrystalItr;
 
         uint64 SelinGUID;
         uint64 DelrissaGUID;

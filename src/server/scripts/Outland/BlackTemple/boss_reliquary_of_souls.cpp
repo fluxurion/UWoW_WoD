@@ -635,7 +635,7 @@ public:
         uint32 SoulScreamTimer;
         uint32 SpiteTimer;
 
-        std::list<uint64> SpiteTargetGUID;
+        GuidList SpiteTargetGUID;
 
         bool CheckedAggro;
 

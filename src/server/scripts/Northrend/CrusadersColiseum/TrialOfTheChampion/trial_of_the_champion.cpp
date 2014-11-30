@@ -349,9 +349,9 @@ public:
 
         uint64 uiGrandChampionBoss1;
 
-        std::list<uint64> Champion1List;
-        std::list<uint64> Champion2List;
-        std::list<uint64> Champion3List;
+        GuidList Champion1List;
+        GuidList Champion2List;
+        GuidList Champion3List;
 
         void NextStep(uint32 uiTimerStep,bool bNextStep = true,uint8 uiPhaseStep = 0)
         {
@@ -386,7 +386,7 @@ public:
                 case DATA_LESSER_CHAMPIONS_DEFEATED:
                 {
                     ++uiLesserChampions;
-                    std::list<uint64> TempList;
+                    GuidList TempList;
                     if (uiLesserChampions == 3 || uiLesserChampions == 6)
                     {
                         switch(uiLesserChampions)
@@ -399,7 +399,7 @@ public:
                                 break;
                         }
 
-                        for (std::list<uint64>::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
+                        for (GuidList::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
                             if (Creature* pSummon = Unit::GetCreature(*me, *itr))
                                 AggroAllPlayers(pSummon);
                     }else if (uiLesserChampions == 9)
@@ -718,7 +718,7 @@ public:
                     case 3:
                         if (!Champion1List.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
+                            for (GuidList::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
                                 if (Creature* pSummon = Unit::GetCreature(*me, *itr))
                                     AggroAllPlayers(pSummon);
                             NextStep(0,false);

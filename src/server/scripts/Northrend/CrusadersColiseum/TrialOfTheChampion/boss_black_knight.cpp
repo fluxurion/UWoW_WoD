@@ -124,7 +124,7 @@ public:
         }
 
         InstanceScript* pInstance;
-        std::list<uint64> SummonList;
+        GuidList SummonList;
 
         bool bEventInProgress;
         bool bEvent;
@@ -204,7 +204,7 @@ public:
             if (SummonList.empty())
                 return;
 
-            for(std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+            for(GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                 if (Creature* pTemp = Unit::GetCreature(*me, *itr))
                     if (pTemp)
                         pTemp->DisappearAndDie();

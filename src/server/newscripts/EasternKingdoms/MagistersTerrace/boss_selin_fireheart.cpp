@@ -84,7 +84,7 @@ public:
 
         InstanceScript* instance;
 
-        std::list<uint64> Crystals;
+        GuidList Crystals;
 
         uint32 DrainLifeTimer;
         uint32 DrainManaTimer;
@@ -102,7 +102,7 @@ public:
             if (instance)
             {
                 //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-                for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+                for (GuidList::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
                 {
                     //Unit* unit = Unit::GetUnit(*me, FelCrystals[i]);
                     Unit* unit = Unit::GetUnit(*me, *itr);
@@ -147,7 +147,7 @@ public:
             Unit* pCrystal = NULL;
             Unit* CrystalChosen = NULL;
             //for (uint8 i =  0; i < CRYSTALS_NUMBER; ++i)
-            for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+            for (GuidList::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
             {
                 pCrystal = NULL;
                 //pCrystal = Unit::GetUnit(*me, FelCrystals[i]);
@@ -184,7 +184,7 @@ public:
                 return;
 
             //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-            for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+            for (GuidList::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
             {
                 //Creature* pCrystal = (Unit::GetCreature(*me, FelCrystals[i]));
                 Creature* pCrystal = Unit::GetCreature(*me, *itr);

@@ -86,7 +86,7 @@ public:
 
         SummonList lSummons;
 
-        std::list<uint64> luiCrystals;
+        GuidList luiCrystals;
 
         CombatPhase Phase;
 
@@ -113,7 +113,7 @@ public:
                 instance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
                 for (uint8 n = 0; n < 4; ++n)
                     luiCrystals.push_back(instance->GetData64(DATA_NOVOS_CRYSTAL_1 + n));
-                for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
+                for (GuidList::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
                 {
                     if (GameObject* temp = instance->instance->GetGameObject(*itr))
                         temp->SetGoState(GO_STATE_READY);
@@ -130,7 +130,7 @@ public:
             DoCast(SPELL_ARCANE_FIELD);
             if (instance)
             {
-                for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
+                for (GuidList::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
                 {
                     if (GameObject* temp = instance->instance->GetGameObject(*itr))
                         temp->SetGoState(GO_STATE_ACTIVE);

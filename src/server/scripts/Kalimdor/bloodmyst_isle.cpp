@@ -442,7 +442,7 @@ public:
                 case ACTION_SIRONAS_CHANNEL_STOP:
                 {
                     me->InterruptNonMeleeSpells(true, SPELL_SIRONAS_CHANNELING);
-                    for (std::list<uint64>::const_iterator itr = _beamGuidList.begin(); itr != _beamGuidList.end(); ++itr)
+                    for (GuidList::const_iterator itr = _beamGuidList.begin(); itr != _beamGuidList.end(); ++itr)
                         if (Creature* beam = ObjectAccessor::GetCreature(*me, *itr))
                             beam->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
                     break;
@@ -453,7 +453,7 @@ public:
         }
 
     private:
-        std::list<uint64> _beamGuidList;
+        GuidList _beamGuidList;
         EventMap _events;
     };
 };

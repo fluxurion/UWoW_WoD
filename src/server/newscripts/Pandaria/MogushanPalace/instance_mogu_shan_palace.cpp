@@ -27,9 +27,9 @@ public:
         uint64 kuai_guid;
         uint64 ming_guid;
         uint64 haiyan_guid;
-        std::list<uint64> scrappers;
-        std::list<uint64> adepts;
-        std::list<uint64> grunts;
+        GuidList scrappers;
+        GuidList adepts;
+        GuidList grunts;
         /*
         ** End of the trial of the king.
         */
@@ -47,18 +47,18 @@ public:
         /*
         ** Xin the weaponmaster.
         */
-        std::list<uint64> animated_staffs;
-        std::list<uint64> animated_axes;
-        std::list<uint64> swordLauncherGuids;
+        GuidList animated_staffs;
+        GuidList animated_axes;
+        GuidList swordLauncherGuids;
         /*
         ** End of Xin the weaponmaster.
         */
 
-        uint64 doorBeforeTrialGuid;
-        uint64 trialChestGuid;
-        uint64 doorAfterTrialGuid;
-        uint64 doorBeforeKingGuid;
-        uint64 secretdoorGuid;
+        ObjectGuid doorBeforeTrialGuid;
+        ObjectGuid trialChestGuid;
+        ObjectGuid doorAfterTrialGuid;
+        ObjectGuid doorBeforeKingGuid;
+        ObjectGuid secretdoorGuid;
 
         instance_mogu_shan_palace_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
@@ -69,11 +69,11 @@ public:
             ming_guid = 0;
             haiyan_guid = 0;
 
-            doorBeforeTrialGuid = 0;
-            trialChestGuid = 0;
-            doorAfterTrialGuid = 0;
-            doorBeforeKingGuid = 0;
-            secretdoorGuid     = 0;
+            doorBeforeTrialGuid.Clear();
+            trialChestGuid.Clear();
+            doorAfterTrialGuid.Clear();
+            doorBeforeKingGuid.Clear();
+            secretdoorGuid.Clear();
 
             gekkan = 0;
             glintrok_ironhide = 0;
@@ -214,7 +214,7 @@ public:
                 }
                 case TYPE_ACTIVATE_ANIMATED_AXE:
                 {
-					for (std::list<uint64>::iterator guid = animated_axes.begin(); guid != animated_axes.end(); ++guid)
+					for (GuidList::iterator guid = animated_axes.begin(); guid != animated_axes.end(); ++guid)
                     {
                         if (Creature* creature = instance->GetCreature(*guid))
                         {
@@ -250,7 +250,7 @@ public:
                        ***********
                            +         */
 
-					for (std::list<uint64>::iterator guid = swordLauncherGuids.begin(); guid != swordLauncherGuids.end(); ++guid)
+					for (GuidList::iterator guid = swordLauncherGuids.begin(); guid != swordLauncherGuids.end(); ++guid)
                     {
                         bool mustActivate = false;
 
@@ -400,7 +400,7 @@ public:
                     switch (data)
                     {
                     case 0:
-						for (std::list<uint64>::iterator guid = adepts.begin(); guid != adepts.end(); ++guid)
+						for (GuidList::iterator guid = adepts.begin(); guid != adepts.end(); ++guid)
                         {
                             Creature* creature = instance->GetCreature(*guid);
                             if (!creature)
@@ -412,7 +412,7 @@ public:
                         }
                         break;
                     case 1:
-						for (std::list<uint64>::iterator guid = scrappers.begin(); guid != scrappers.end(); ++guid)
+						for (GuidList::iterator guid = scrappers.begin(); guid != scrappers.end(); ++guid)
                         {
                             Creature* creature = instance->GetCreature(*guid);
                             if (!creature)
@@ -424,7 +424,7 @@ public:
                         }
                         break;
                     case 2:
-						for (std::list<uint64>::iterator guid = grunts.begin(); guid != grunts.end(); ++guid)
+						for (GuidList::iterator guid = grunts.begin(); guid != grunts.end(); ++guid)
                         {
                             Creature* creature = instance->GetCreature(*guid);
                             if (!creature)
@@ -441,7 +441,7 @@ public:
             case TYPE_MING_ATTACK:
                 {
                     //Move the adepts
-					for (std::list<uint64>::iterator guid = adepts.begin(); guid != adepts.end(); ++guid)
+					for (GuidList::iterator guid = adepts.begin(); guid != adepts.end(); ++guid)
                     {
                         Creature* creature = instance->GetCreature(*guid);
 
@@ -459,7 +459,7 @@ public:
             case TYPE_KUAI_ATTACK:
                 {
                     //Move the scrappers
-					for (std::list<uint64>::iterator guid = scrappers.begin(); guid != scrappers.end(); ++guid)
+					for (GuidList::iterator guid = scrappers.begin(); guid != scrappers.end(); ++guid)
                     {
                         Creature* creature = instance->GetCreature(*guid);
 
@@ -477,7 +477,7 @@ public:
             case TYPE_HAIYAN_ATTACK:
                 {
                     //Move the scrappers
-					for (std::list<uint64>::iterator guid = grunts.begin(); guid != grunts.end(); ++guid)
+					for (GuidList::iterator guid = grunts.begin(); guid != grunts.end(); ++guid)
                     {
                         Creature* creature = instance->GetCreature(*guid);
 
@@ -494,42 +494,42 @@ public:
                 break;
             case TYPE_ALL_ATTACK:
                 {
-					for (std::list<uint64>::iterator guid = adepts.begin(); guid != adepts.end(); ++guid)
+					for (GuidList::iterator guid = adepts.begin(); guid != adepts.end(); ++guid)
                     {
                         Creature* creature = instance->GetCreature(*guid);
 
                         if (creature && creature->GetAI())
                             creature->GetAI()->DoAction(2); //ACTION_ATTACK
                         
-                        std::list<uint64>::iterator itr = grunts.begin();
+                        GuidList::iterator itr = grunts.begin();
                         std::advance(itr, urand(0, grunts.size() - 1));
 
                         Creature* grunt = instance->GetCreature(*itr);
                         if (creature && grunt)
                             creature->Attack(grunt, true);
                     }
-					for (std::list<uint64>::iterator guid = grunts.begin(); guid != grunts.end(); ++guid)
+					for (GuidList::iterator guid = grunts.begin(); guid != grunts.end(); ++guid)
                     {
                         Creature* creature = instance->GetCreature(*guid);
 
                         if (creature && creature->GetAI())
                             creature->GetAI()->DoAction(2); //ACTION_ATTACK
 
-                        std::list<uint64>::iterator itr = scrappers.begin();
+                        GuidList::iterator itr = scrappers.begin();
                         std::advance(itr, urand(0, scrappers.size() - 1));
 
                         Creature* scrapper = instance->GetCreature(*itr);
                         if (creature && scrapper)
                             creature->Attack(scrapper, true);
                     }
-					for (std::list<uint64>::iterator guid = scrappers.begin(); guid != scrappers.end(); ++guid)
+					for (GuidList::iterator guid = scrappers.begin(); guid != scrappers.end(); ++guid)
                     {
                         Creature* creature = instance->GetCreature(*guid);
 
                         if (creature && creature->GetAI())
                             creature->GetAI()->DoAction(2); //ACTION_ATTACK
 
-                        std::list<uint64>::iterator itr = adepts.begin();
+                        GuidList::iterator itr = adepts.begin();
                         std::advance(itr, urand(0, adepts.size() - 1));
 
                         Creature* adept = instance->GetCreature(*itr);
@@ -542,7 +542,7 @@ public:
                 break;
             case TYPE_MING_RETIRED:
                 //Retire the adepts
-				for (std::list<uint64>::iterator guid = adepts.begin(); guid != adepts.end(); ++guid)
+				for (GuidList::iterator guid = adepts.begin(); guid != adepts.end(); ++guid)
                 {
                     Creature* creature = instance->GetCreature(*guid);
 
@@ -552,7 +552,7 @@ public:
                 break;
             case TYPE_KUAI_RETIRED:
                 //Retire the adepts
-				for (std::list<uint64>::iterator guid = scrappers.begin(); guid != scrappers.end(); ++guid)
+				for (GuidList::iterator guid = scrappers.begin(); guid != scrappers.end(); ++guid)
                 {
                     Creature* creature = instance->GetCreature(*guid);
 
@@ -562,7 +562,7 @@ public:
                 break;
             case TYPE_HAIYAN_RETIRED:
                 //Retire the adepts
-				for (std::list<uint64>::iterator guid = grunts.begin(); guid != grunts.end(); ++guid)
+				for (GuidList::iterator guid = grunts.begin(); guid != grunts.end(); ++guid)
                 {
                     Creature* creature = instance->GetCreature(*guid);
 

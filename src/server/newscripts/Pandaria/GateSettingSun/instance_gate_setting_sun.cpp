@@ -46,12 +46,12 @@ public:
         uint32 cinematicTimer;
         uint8 cinematicEventProgress;
 
-        std::list<uint64> bombarderGuids;
-        std::list<uint64> bombStalkerGuids;
-        std::list<uint64> mantidBombsGUIDs;
-        std::list<uint64> rimokAddGenetarorsGUIDs;
-        std::list<uint64> artilleryGUIDs;
-        std::list<uint64> secondaryDoorGUIDs;
+        GuidList bombarderGuids;
+        GuidList bombStalkerGuids;
+        GuidList mantidBombsGUIDs;
+        GuidList rimokAddGenetarorsGUIDs;
+        GuidList artilleryGUIDs;
+        GuidList secondaryDoorGUIDs;
 
         uint32 dataStorage[MAX_DATA];
 
@@ -127,7 +127,7 @@ public:
             switch (creature->GetEntry())
             {
                 case NPC_KRITHUK_BOMBARDER:
-                    for (std::list<uint64>::iterator it = bombarderGuids.begin(); it != bombarderGuids.end(); ++it)
+                    for (GuidList::iterator it = bombarderGuids.begin(); it != bombarderGuids.end(); ++it)
                     {
                         if (*it == creature->GetGUID())
                         {
@@ -184,7 +184,7 @@ public:
                 case DATA_KIPTILAK:
                 {
                     if (state == DONE)
-						for (std::list<uint64>::iterator itr = mantidBombsGUIDs.begin(); itr != mantidBombsGUIDs.end(); ++itr)
+						for (GuidList::iterator itr = mantidBombsGUIDs.begin(); itr != mantidBombsGUIDs.end(); ++itr)
                             if (GameObject* bomb = instance->GetGameObject(*itr))
                                 bomb->SetPhaseMask(32768, true); // Set Invisible
                     break;
@@ -199,10 +199,10 @@ public:
                 {
                     uint8 generatorsCount = 0;
 
-                    for (std::list<uint64>::iterator itr = secondaryDoorGUIDs.begin(); itr != secondaryDoorGUIDs.end(); ++itr)
+                    for (GuidList::iterator itr = secondaryDoorGUIDs.begin(); itr != secondaryDoorGUIDs.end(); ++itr)
                         HandleGameObject(*itr, state != DONE);
 
-                    for (std::list<uint64>::iterator itr = rimokAddGenetarorsGUIDs.begin(); itr != rimokAddGenetarorsGUIDs.end(); ++itr)
+                    for (GuidList::iterator itr = rimokAddGenetarorsGUIDs.begin(); itr != rimokAddGenetarorsGUIDs.end(); ++itr)
                     {
                         if (Creature* generator = instance->GetCreature(*itr))
                         {
@@ -220,7 +220,7 @@ public:
                 }
                 case DATA_RAIGONN:
                 {
-                    for (std::list<uint64>::iterator itr = artilleryGUIDs.begin(); itr != artilleryGUIDs.end(); ++itr)
+                    for (GuidList::iterator itr = artilleryGUIDs.begin(); itr != artilleryGUIDs.end(); ++itr)
                     {
                         if (Creature* artillery = instance->GetCreature(*itr))
                         {

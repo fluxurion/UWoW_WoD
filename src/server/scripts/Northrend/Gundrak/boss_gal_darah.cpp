@@ -88,7 +88,7 @@ public:
         uint32 uiImpalingChargeTimer;
         uint32 uiStompTimer;
         uint32 uiTransformationTimer;
-        std::list<uint64> impaledList;
+        GuidList impaledList;
         uint8 shareTheLove;
 
         CombatPhase Phase;
@@ -248,7 +248,7 @@ public:
         void CheckAchievement(uint64 guid)
         {
             bool playerExists = false;
-            for (std::list<uint64>::iterator itr = impaledList.begin(); itr != impaledList.end(); ++itr)
+            for (GuidList::iterator itr = impaledList.begin(); itr != impaledList.end(); ++itr)
                 if (guid != *itr)
                     playerExists = true;
 

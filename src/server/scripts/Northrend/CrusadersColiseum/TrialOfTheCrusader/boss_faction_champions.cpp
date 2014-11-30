@@ -198,7 +198,7 @@ public:
                     SummonChampions((Team)uiData);
                     break;
                 case 1:
-                    for (std::list<uint64>::iterator i = Summons.begin(); i != Summons.end(); ++i)
+                    for (GuidList::iterator i = Summons.begin(); i != Summons.end(); ++i)
                     {
                         if (Creature* pTemp = Unit::GetCreature(*me, *i))
                         {

@@ -869,7 +869,7 @@ class npc_doctor : public CreatureScript
 
             bool Event;
 
-            std::list<uint64> Patients;
+            GuidList Patients;
             std::vector<Location*> Coordinates;
 
             void Reset()
@@ -951,7 +951,7 @@ class npc_doctor : public CreatureScript
                         {
                             if (!Patients.empty())
                             {
-                                std::list<uint64>::const_iterator itr;
+                                GuidList::const_iterator itr;
                                 for (itr = Patients.begin(); itr != Patients.end(); ++itr)
                                 {
                                     if (Creature* patient = Unit::GetCreature((*me), *itr))

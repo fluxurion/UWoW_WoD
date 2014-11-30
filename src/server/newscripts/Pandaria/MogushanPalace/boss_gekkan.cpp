@@ -48,7 +48,7 @@ class boss_gekkan : public CreatureScript
             boss_gekkan_AI(Creature* creature) : BossAI(creature, DATA_GEKKAN)
             {
             }
-            std::list<uint64> entourage;
+            GuidList entourage;
 
             void EnterCombat(Unit* who)
             {
@@ -65,7 +65,7 @@ class boss_gekkan : public CreatureScript
 
             void JustDied(Unit* who)
             {
-                for (std::list<uint64>::iterator itr = entourage.begin(); itr != entourage.end(); ++itr)
+                for (GuidList::iterator itr = entourage.begin(); itr != entourage.end(); ++itr)
                 {
                     Creature* c = me->GetMap()->GetCreature(*itr);
                     if (!c)
@@ -89,7 +89,7 @@ class boss_gekkan : public CreatureScript
                     {
                         //Delete the guid of the list if one dies.
                         uint64 dead_entourage = 0;
-						for (std::list<uint64>::iterator itr = entourage.begin(); itr != entourage.end(); ++itr)
+						for (GuidList::iterator itr = entourage.begin(); itr != entourage.end(); ++itr)
                         {
                             Creature* c = me->GetMap()->GetCreature(*itr);
                             if (!c)
@@ -125,7 +125,7 @@ class boss_gekkan : public CreatureScript
                     case EVENT_RECKLESS_INSPIRATION:
                         {
                             //Cast on a random entourage the inspiration.
-                            std::list<uint64>::iterator itr = entourage.begin();
+                            GuidList::iterator itr = entourage.begin();
                             std::advance(itr, urand(0, entourage.size() - 1));
                             uint64 guid = *itr;
                             Creature* c = me->GetMap()->GetCreature(guid);

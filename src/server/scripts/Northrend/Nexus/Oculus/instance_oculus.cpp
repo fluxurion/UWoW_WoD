@@ -212,7 +212,7 @@ public:
             if (gameObjectList.empty())
                 return;
 
-            for (std::list<uint64>::const_iterator itr = gameObjectList.begin(); itr != gameObjectList.end(); ++itr)
+            for (GuidList::const_iterator itr = gameObjectList.begin(); itr != gameObjectList.end(); ++itr)
             {
                 if (GameObject* go = instance->GetGameObject(*itr))
                     go->SetGoState(GO_STATE_ACTIVE);
@@ -274,8 +274,8 @@ public:
 
             std::string str_data;
 
-            std::list<uint64> gameObjectList;
-            std::list<uint64> azureDragonsList;
+            GuidList gameObjectList;
+            GuidList azureDragonsList;
     };
 
 };

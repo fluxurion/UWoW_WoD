@@ -70,7 +70,7 @@ public:
         uint64 uiChampionLootGUID;
         uint64 uiArgentChampionGUID;
 
-        std::list<uint64> VehicleList;
+        GuidList VehicleList;
 
         std::string str_data;
 
@@ -328,7 +328,7 @@ public:
                 m_auiEncounter[0] = uiData;
                 if (uiData == IN_PROGRESS)
                 {
-                    for (std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                    for (GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                         if (Creature* pSummon = instance->GetCreature(*itr))
                             pSummon->RemoveFromWorld();
                 }
@@ -351,7 +351,7 @@ public:
                 uiArgentSoldierDeaths = uiData;
                 if (uiArgentSoldierDeaths == 9)
                 {
-                    for(std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                    for(GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                         if (Creature* pSummon = instance->GetCreature(*itr))
                         {
                             pSummon->RemoveFromWorld();
@@ -373,7 +373,7 @@ public:
                 m_auiEncounter[1] = uiData;
                 if (uiData == IN_PROGRESS)
                 {
-                    for(std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                    for(GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                         if (Creature* pSummon = instance->GetCreature(*itr))
                             pSummon->RemoveFromWorld();
                 }else if (uiData == DONE)                
@@ -390,7 +390,7 @@ public:
                 m_auiEncounter[2] = uiData;
                 if (uiData == IN_PROGRESS)
                 {
-                    for(std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                    for(GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                         if (Creature* pSummon = instance->GetCreature(*itr))
                             pSummon->RemoveFromWorld();
                 }else if (uiData == DONE)                

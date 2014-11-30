@@ -59,7 +59,7 @@ public:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
 
-        std::list<uint64> m_uiAncientGemGUID;
+        GuidList m_uiAncientGemGUID;
 
         uint64 RageWinterchill;
         uint64 Anetheron;
@@ -242,7 +242,7 @@ public:
                     {
                         if (!m_uiAncientGemGUID.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
+                            for (GuidList::const_iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
                             {
                                 //don't know how long it expected
                                 DoRespawnGameObject(*itr, DAY);

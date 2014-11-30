@@ -60,7 +60,7 @@ public:
         uint32 LevitatedTarget_Timer;
         bool InAir;
         uint32 check_Timer;
-        std::list<uint64> Striders;
+        GuidList Striders;
 
         void Reset()
         {
@@ -91,7 +91,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            for (std::list<uint64>::const_iterator i = Striders.begin(); i != Striders.end(); ++i)
+            for (GuidList::const_iterator i = Striders.begin(); i != Striders.end(); ++i)
                 if (Creature* strider = Unit::GetCreature(*me, *i))
                     strider->DisappearAndDie();
         }

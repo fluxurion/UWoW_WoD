@@ -164,11 +164,11 @@ public:
         uint32 eventStatus_lorewalkter_stonestep;
         uint32 eventStatus_numberSunDefeated;
         uint32 wipeTimer;
-        std::list<uint64> creatures_corrupted;
-        std::list<uint64> sunfires;
-        std::list<uint64> suns;
-        std::list<uint64> sun_triggers;
-        std::list<uint64> sha_summoned;
+        GuidList creatures_corrupted;
+        GuidList sunfires;
+        GuidList suns;
+        GuidList sun_triggers;
+        GuidList sha_summoned;
         /*
         ** End of Lorewalker Stonestep script.
         */
@@ -180,7 +180,7 @@ public:
         uint64 liuGuid;
         uint64 doorLiu;
         uint64 doorLiu_2;
-        std::list<uint64> mobs_liu;
+        GuidList mobs_liu;
         /*
         ** End of Liu Flameheart script.
         */
@@ -558,7 +558,7 @@ public:
             case TYPE_SET_SUNS_SELECTABLE:
                 if (eventChoosen !=  EVENT_LOREWALKER_STONESTEP_SUNS)
                     return;
-                for (std::list<uint64>::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
+                for (GuidList::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
                 {
                     Creature* creature = instance->GetCreature(*guid);
                     if (!creature)
@@ -568,7 +568,7 @@ public:
                     if (creature->GetAI())
                         creature->GetAI()->DoAction(TYPE_SET_SUNS_SELECTABLE);
                 }
-                for (std::list<uint64>::const_iterator guid = sun_triggers.begin(); guid != sun_triggers.end(); ++guid)
+                for (GuidList::const_iterator guid = sun_triggers.begin(); guid != sun_triggers.end(); ++guid)
                 {
                     Creature* creature = instance->GetCreature(*guid);
                     if (!creature)
@@ -599,7 +599,7 @@ public:
                     if (!zao)
                         return;
 
-                    for (std::list<uint64>::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
+                    for (GuidList::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
                     {
                         Creature* creature = instance->GetCreature(*guid);
                         if (!creature)
@@ -610,7 +610,7 @@ public:
                         creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     }
                     //Stop the fire tornados.
-                    for (std::list<uint64>::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
+                    for (GuidList::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
                     {
                         Creature* creature = instance->GetCreature(*guid);
                         if (!creature)
@@ -816,7 +816,7 @@ public:
                     eventStatus_lorewalkter_stonestep = STATUS_LOREWALKER_STONESTEP_SPAWN_SUNS;
 
                     //Then draw all the corrupted units and summon the suns.
-                    for (std::list<uint64>::const_iterator guid = creatures_corrupted.begin(); guid != creatures_corrupted.end(); ++guid)
+                    for (GuidList::const_iterator guid = creatures_corrupted.begin(); guid != creatures_corrupted.end(); ++guid)
                     {
                         if (*guid == lorewalkter_stonestep)
                             continue;
@@ -852,7 +852,7 @@ public:
                         return;
                     sum->SetFacingTo(4.450f);
 
-                    for (std::list<uint64>::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
+                    for (GuidList::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
                     {
                         Creature* c = instance->GetCreature(*guid);
                         if (c == NULL)
@@ -910,7 +910,7 @@ public:
             }
             eventStatus_lorewalkter_stonestep = STATUS_LOREWALKER_STONESTEP_NONE;
             eventStatus_numberSunDefeated = 0;
-            for (std::list<uint64>::const_iterator guid = creatures_corrupted.begin(); guid != creatures_corrupted.end(); ++guid)
+            for (GuidList::const_iterator guid = creatures_corrupted.begin(); guid != creatures_corrupted.end(); ++guid)
             {
                 creature = instance->GetCreature(*guid);
                 if (creature)
@@ -920,7 +920,7 @@ public:
                         creature->GetAI()->Reset();
                 }
             }
-            for (std::list<uint64>::const_iterator guid = suns.begin(); guid != suns.end(); ++guid)
+            for (GuidList::const_iterator guid = suns.begin(); guid != suns.end(); ++guid)
             {
                 creature = instance->GetCreature(*guid);
                 if (creature)
@@ -929,7 +929,7 @@ public:
                 }
             }
             suns.clear();
-            for (std::list<uint64>::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
+            for (GuidList::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
             {
                 creature = instance->GetCreature(*guid);
                 if (creature)
@@ -938,7 +938,7 @@ public:
                 }
             }
             sha_summoned.clear();
-            for (std::list<uint64>::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
+            for (GuidList::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
             {
                 Creature* c = instance->GetCreature(*guid);
                 if (c == NULL)

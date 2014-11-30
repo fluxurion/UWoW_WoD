@@ -68,7 +68,7 @@ public:
 
         InstanceScript* instance;
 
-        std::list<uint64> intenseColdList;
+        GuidList intenseColdList;
         uint64 auiContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
         uint32 uiCrystalfireBreathTimer;
         uint32 uiCrystalChainsCrystalizeTimer;
@@ -270,9 +270,9 @@ class achievement_intense_cold : public AchievementCriteriaScript
             if (!target)
                 return false;
 
-            std::list<uint64> intenseColdList = CAST_AI(boss_keristrasza::boss_keristraszaAI, target->ToCreature()->AI())->intenseColdList;
+            GuidList intenseColdList = CAST_AI(boss_keristrasza::boss_keristraszaAI, target->ToCreature()->AI())->intenseColdList;
             if (!intenseColdList.empty())
-                for (std::list<uint64>::iterator itr = intenseColdList.begin(); itr != intenseColdList.end(); ++itr)
+                for (GuidList::iterator itr = intenseColdList.begin(); itr != intenseColdList.end(); ++itr)
                     if (player->GetGUID() == *itr)
                         return false;
 

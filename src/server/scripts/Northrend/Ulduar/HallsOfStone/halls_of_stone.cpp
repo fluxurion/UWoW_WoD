@@ -160,7 +160,7 @@ public:
         bool bMarnakActivated;
         bool bAbedneumActivated;
 
-        std::list<uint64> KaddrakGUIDList;
+        GuidList KaddrakGUIDList;
 
         void Reset()
         {
@@ -217,7 +217,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         if (!KaddrakGUIDList.empty())
-                            for (std::list<uint64>::const_iterator itr = KaddrakGUIDList.begin(); itr != KaddrakGUIDList.end(); ++itr)
+                            for (GuidList::const_iterator itr = KaddrakGUIDList.begin(); itr != KaddrakGUIDList.end(); ++itr)
                             {
                                 if (Creature* pKaddrak = Unit::GetCreature(*me, *itr))
                                 {
@@ -309,7 +309,7 @@ public:
         uint32 uiPhaseTimer;
 
         uint64 uiControllerGUID;
-        std::list<uint64> lDwarfGUIDList;
+        GuidList lDwarfGUIDList;
 
         InstanceScript* instance;
 
@@ -339,7 +339,7 @@ public:
         {
             if (lDwarfGUIDList.empty())
                 return;
-            for (std::list<uint64>::const_iterator itr = lDwarfGUIDList.begin(); itr != lDwarfGUIDList.end(); ++itr)
+            for (GuidList::const_iterator itr = lDwarfGUIDList.begin(); itr != lDwarfGUIDList.end(); ++itr)
             {
                 Creature* temp = Unit::GetCreature(*me, instance ? (*itr) : 0);
                 if (temp && temp->isAlive())

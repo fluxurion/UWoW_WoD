@@ -39,7 +39,7 @@ public:
         uint32 spawn;
         bool phaseone;
 
-        std::list<uint64> targetedDominationPlayerGuids;
+        GuidList targetedDominationPlayerGuids;
 
         void Reset()
         {

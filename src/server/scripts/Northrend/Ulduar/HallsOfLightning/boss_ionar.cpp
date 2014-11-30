@@ -167,7 +167,7 @@ public:
             Position pos;
             me->GetPosition(&pos);
 
-            for (std::list<uint64>::const_iterator itr = lSparkList.begin(); itr != lSparkList.end(); ++itr)
+            for (GuidList::const_iterator itr = lSparkList.begin(); itr != lSparkList.end(); ++itr)
             {
                 if (Creature* pSpark = Unit::GetCreature(*me, *itr))
                 {

@@ -352,7 +352,7 @@ class mob_zao : public CreatureScript
                 isCorrupted = false;
                 me->AddUnitState(UNIT_STATE_ROOT);
             }
-            std::list<uint64> suns;
+            GuidList suns;
 
             bool isCorrupted;
 
@@ -430,7 +430,7 @@ class mob_zao : public CreatureScript
                                 uint32 rand = urand(0, suns.size());
                                 uint64 guid_target = 0;
                                 Creature* target = NULL;
-                                for (std::list<uint64>::const_iterator guid = suns.begin(); guid != suns.end(); ++guid)
+                                for (GuidList::const_iterator guid = suns.begin(); guid != suns.end(); ++guid)
                                 {
                                     if (rand == 0)
                                     {

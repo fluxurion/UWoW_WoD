@@ -221,8 +221,8 @@ public:
 
         InstanceScript* instance;
 
-        std::list<uint64> Channelers;
-        std::list<uint64> Sorcerers;
+        GuidList Channelers;
+        GuidList Sorcerers;
         uint64 AkamaGUID;
 
         uint32 SorcererCount;
@@ -305,7 +305,7 @@ public:
 
                 if (!Channelers.empty())
                 {
-                    for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+                    for (GuidList::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
                     {
                         Creature* Channeler = (Unit::GetCreature(*me, *itr));
                         if (Channeler)
@@ -412,7 +412,7 @@ public:
                 return;
             }
 
-            for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+            for (GuidList::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
                 if (Creature* Channeler = (Unit::GetCreature(*me, *itr)))
                     Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
@@ -615,7 +615,7 @@ public:
         uint32 WayPointId;
         uint32 BrokenSummonIndex;
 
-        std::list<uint64> BrokenList;
+        GuidList BrokenList;
 
         bool EventBegun;
         bool ShadeHasDied;
@@ -832,7 +832,7 @@ public:
                         if (!BrokenList.empty())
                         {
                             bool Yelled = false;
-                            for (std::list<uint64>::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                            for (GuidList::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                                 if (Creature* unit = Unit::GetCreature(*me, *itr))
                                 {
                                     if (!Yelled)
@@ -849,7 +849,7 @@ public:
                     case 3:
                         if (!BrokenList.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                            for (GuidList::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                                 if (Creature* unit = Unit::GetCreature(*me, *itr))
                                     // This is the incorrect spell, but can't seem to find the right one.
                                     unit->CastSpell(unit, 39656, true);
@@ -860,7 +860,7 @@ public:
                     case 4:
                         if (!BrokenList.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                            for (GuidList::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                                 if (Creature* unit = Unit::GetCreature((*me), *itr))
                                     unit->MonsterYell(SAY_BROKEN_FREE_02, LANG_UNIVERSAL, 0);
                         }
