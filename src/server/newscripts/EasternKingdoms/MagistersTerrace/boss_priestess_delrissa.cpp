@@ -367,7 +367,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         ResetThreatTimer = urand(5000, 20000);
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
-        if (Creature* pDelrissa = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_DELRISSA) : 0))
+        if (Creature* pDelrissa = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_DELRISSA) : 0))
         {
             if (!pDelrissa->isAlive())
                 pDelrissa->Respawn();
@@ -393,7 +393,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                 }
             }
 
-            if (Creature* pDelrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
+            if (Creature* pDelrissa = Unit::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
             {
                 if (pDelrissa->isAlive() && !pDelrissa->getVictim())
                 {
@@ -409,7 +409,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (!instance)
             return;
 
-        Creature* pDelrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA));
+        Creature* pDelrissa = Unit::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA));
         uint32 uiLackeyDeathCount = instance->GetData(DATA_DELRISSA_DEATH_COUNT);
 
         if (!pDelrissa)
@@ -441,7 +441,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (!instance)
             return;
 
-        if (Creature* Delrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
+        if (Creature* Delrissa = Unit::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
             Delrissa->AI()->KilledUnit(victim);
     }
 
@@ -450,7 +450,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (!instance)
             return;
 
-        if (Creature* Delrissa = (Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA))))
+        if (Creature* Delrissa = (Unit::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA))))
         {
             for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
                 m_auiLackeyGUIDs[i] = CAST_AI(boss_priestess_delrissa::boss_priestess_delrissaAI, Delrissa->AI())->m_auiLackeyGUID[i];

@@ -169,7 +169,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 type)
+        uint64 GetGuidData(uint32 type)
         {
             switch (type)
             {

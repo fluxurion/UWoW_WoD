@@ -98,7 +98,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data)
+        uint64 GetGuidData(uint32 data)
         {
             if (data == DATA_NARALEX)return NaralexGUID;
             return 0;

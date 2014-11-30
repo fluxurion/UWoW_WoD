@@ -364,7 +364,7 @@ public:
             if (me->HasAura(SPELL_BRITTLE) && damage >= 5000)
             {
                 DoCastAOE(SPELL_SHATTER, true);
-                if (Creature *pIgnis = me->GetCreature(*me, pInstance->GetData64(DATA_IGNIS)))
+                if (Creature *pIgnis = me->GetCreature(*me, pInstance->GetGuidData(DATA_IGNIS)))
                         pIgnis->AI()->DoAction(ACTION_REMOVE_BUFF);
                 me->DespawnOrUnsummon(1000);
             }

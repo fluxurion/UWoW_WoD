@@ -89,7 +89,7 @@ public:
 
         void OnDestroy(InstanceMap* pMap)
         {
-            if (Creature* weakSpot = instance->GetCreature(GetData64(NPC_WEAK_SPOT)))
+            if (Creature* weakSpot = instance->GetCreature(GetGuidData(NPC_WEAK_SPOT)))
                 weakSpot->_ExitVehicle();
         }
 
@@ -338,7 +338,7 @@ public:
             return 0;
         }
 
-        void SetData64(uint32 type, uint64 value)
+        void SetGuidData(uint32 type, uint64 value)
         {
             switch (type)
             {
@@ -347,7 +347,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type)
+        uint64 GetGuidData(uint32 type)
         {
             switch (type)
             {

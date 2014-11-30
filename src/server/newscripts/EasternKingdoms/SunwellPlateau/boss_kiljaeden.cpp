@@ -282,13 +282,13 @@ public:
             switch (index)
             {
                 case 0:
-                    return instance->instance->GetGameObject(instance->GetData64(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_1));
+                    return instance->instance->GetGameObject(instance->GetGuidData(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_1));
                 case 1:
-                    return instance->instance->GetGameObject(instance->GetData64(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_2));
+                    return instance->instance->GetGameObject(instance->GetGuidData(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_2));
                 case 2:
-                    return instance->instance->GetGameObject(instance->GetData64(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_3));
+                    return instance->instance->GetGameObject(instance->GetGuidData(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_3));
                 case 3:
-                    return instance->instance->GetGameObject(instance->GetData64(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_4));
+                    return instance->instance->GetGameObject(instance->GetGuidData(DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_4));
             }
 
             return NULL;
@@ -384,7 +384,7 @@ public:
             player->CastSpell(player, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, false);
             go->SetUInt32Value(GAMEOBJECT_FACTION, 0);
 
-            if (Creature* pKalec = Unit::GetCreature(*player, instance->GetData64(DATA_KALECGOS_KJ)))
+            if (Creature* pKalec = Unit::GetCreature(*player, instance->GetGuidData(DATA_KALECGOS_KJ)))
                 CAST_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalec->AI())->SetRingOfBlueFlames();
 
             go->Refresh();
@@ -436,7 +436,7 @@ public:
             phase = PHASE_DECEIVERS;
 
             if (instance)
-                if (Creature* pKalecKJ = Unit::GetCreature((*me), instance->GetData64(DATA_KALECGOS_KJ)))
+                if (Creature* pKalecKJ = Unit::GetCreature((*me), instance->GetGuidData(DATA_KALECGOS_KJ)))
                     CAST_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalecKJ->AI())->ResetOrbs();
             deceiverDeathCount = 0;
             bSummonedDeceivers = false;
@@ -571,7 +571,7 @@ public:
 
             if (instance)
             {
-                if (Creature* pKalec = Unit::GetCreature(*me, instance->GetData64(DATA_KALECGOS_KJ)))
+                if (Creature* pKalec = Unit::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_KJ)))
                     pKalec->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
             }
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 12);
@@ -635,7 +635,7 @@ public:
             // Reset the controller
             if (instance)
             {
-                if (Creature* pControl = Unit::GetCreature(*me, instance->GetData64(DATA_KILJAEDEN_CONTROLLER)))
+                if (Creature* pControl = Unit::GetCreature(*me, instance->GetGuidData(DATA_KILJAEDEN_CONTROLLER)))
                     CAST_AI(mob_kiljaeden_controller::mob_kiljaeden_controllerAI, pControl->AI())->Reset();
             }
         }
@@ -719,10 +719,10 @@ public:
                             {
                                 SpeechTimer = 0;
                                 if (instance)
-                                    if (Creature* pSpeechCreature = Unit::GetCreature(*me, instance->GetData64(Speeches[speechCount].creature)))
+                                    if (Creature* pSpeechCreature = Unit::GetCreature(*me, instance->GetGuidData(Speeches[speechCount].creature)))
                                         DoScriptText(Speeches[speechCount].textid, pSpeechCreature);
                                 if (speechCount == 12)
-                                    if (Creature* pAnveena =  Unit::GetCreature(*me, instance->GetData64(DATA_ANVEENA)))
+                                    if (Creature* pAnveena =  Unit::GetCreature(*me, instance->GetGuidData(DATA_ANVEENA)))
                                         pAnveena->CastSpell(me, SPELL_SACRIFICE_OF_ANVEENA, false);
                                         //   ChangeTimers(true, 10000); // Kil should do an emote while screaming without attacking for 10 seconds
                                 if (speechCount == speechPhaseEnd)
@@ -822,7 +822,7 @@ public:
                             break;
                         case TIMER_ORBS_EMPOWER: //Phase 3
                             if (instance)
-                                if (Creature* pKalec = Unit::GetCreature(*me, instance->GetData64(DATA_KALECGOS_KJ)))
+                                if (Creature* pKalec = Unit::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_KJ)))
                                 {
                                     switch (Phase)
                                     {
@@ -946,7 +946,7 @@ public:
             if (instance)
             {
                 instance->SetData(DATA_KILJAEDEN_EVENT, IN_PROGRESS);
-                if (Creature* pControl = Unit::GetCreature(*me, instance->GetData64(DATA_KILJAEDEN_CONTROLLER)))
+                if (Creature* pControl = Unit::GetCreature(*me, instance->GetGuidData(DATA_KILJAEDEN_CONTROLLER)))
                     pControl->AddThreat(who, 1.0f);
             }
             me->InterruptNonMeleeSpells(true);
@@ -957,7 +957,7 @@ public:
             if (!instance)
                 return;
 
-            if (Creature* pControl = Unit::GetCreature(*me, instance->GetData64(DATA_KILJAEDEN_CONTROLLER)))
+            if (Creature* pControl = Unit::GetCreature(*me, instance->GetGuidData(DATA_KILJAEDEN_CONTROLLER)))
                 ++(CAST_AI(mob_kiljaeden_controller::mob_kiljaeden_controllerAI, pControl->AI())->deceiverDeathCount);
         }
 
@@ -1233,7 +1233,7 @@ public:
 
             if (uiTimer <= diff)
             {
-                if (Unit* random = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_PLAYER_GUID) : 0))
+                if (Unit* random = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_PLAYER_GUID) : 0))
                     DoCast(random, SPELL_SHADOW_BOLT, false);
                 uiTimer = urand(500, 1000);
             } else uiTimer -= diff;

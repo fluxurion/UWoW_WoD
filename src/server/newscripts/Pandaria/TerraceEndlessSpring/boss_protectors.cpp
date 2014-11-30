@@ -56,7 +56,7 @@ void ResetBosses(InstanceScript* instance, Creature* caller, uint32 callerEntry)
     {
         for (uint8 n = 0; n < 3; n++)
         {
-            if (Creature* protector = caller->GetCreature(*caller, instance->GetData64(protectorsEntry[n])))
+            if (Creature* protector = caller->GetCreature(*caller, instance->GetGuidData(protectorsEntry[n])))
             {
                 if (protector->GetEntry() != callerEntry)
                 {
@@ -79,7 +79,7 @@ void CallBosses(InstanceScript* instance, Creature* caller, uint32 callerEntry)
     {
         for (uint8 n = 0; n < 3; n++)
         {
-            if (Creature* protector = caller->GetCreature(*caller, instance->GetData64(protectorsEntry[n])))
+            if (Creature* protector = caller->GetCreature(*caller, instance->GetGuidData(protectorsEntry[n])))
             {
                 if (protector->GetEntry() != callerEntry)
                 {
@@ -97,7 +97,7 @@ void CallDieControl(InstanceScript* instance, Creature* caller, uint32 callerEnt
     {
         for (uint8 n = 0; n < 3; n++)
         {
-            if (Creature* protector = caller->GetCreature(*caller, instance->GetData64(protectorsEntry[n])))
+            if (Creature* protector = caller->GetCreature(*caller, instance->GetGuidData(protectorsEntry[n])))
             {
                 if (protector->GetEntry() != callerEntry)
                 {
@@ -122,7 +122,7 @@ uint8 CalcAliveBosses(InstanceScript* instance, Creature* caller)
     {
         for (uint8 n = 0; n < 3; n++)
         {
-            if (Creature* protector = caller->GetCreature(*caller, instance->GetData64(protectorsEntry[n])))
+            if (Creature* protector = caller->GetCreature(*caller, instance->GetGuidData(protectorsEntry[n])))
             {
                 if (protector->isAlive())
                     abossval++;
@@ -250,7 +250,7 @@ class boss_protectors : public CreatureScript
                       }
                   }
                   
-                  if (Creature* tsulong = me->GetCreature(*me, instance->GetData64(NPC_TSULONG)))
+                  if (Creature* tsulong = me->GetCreature(*me, instance->GetGuidData(NPC_TSULONG)))
                   {
                       tsulong->SetVisible(true);
                       tsulong->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);

@@ -326,7 +326,7 @@ public:
                 case EVENT_GRIP:
                     if (right && instance)
                     {
-                        if (Creature* RightArm = me->GetCreature(*me, instance->GetData64(DATA_RIGHT_ARM)))
+                        if (Creature* RightArm = me->GetCreature(*me, instance->GetGuidData(DATA_RIGHT_ARM)))
                         {
                             me->MonsterTextEmote(EMOTE_STONE, 0, true);
                             DoScriptText(SAY_GRAB_PLAYER, me);
@@ -378,7 +378,7 @@ public:
                     events.RescheduleEvent(EVENT_EYEBEAM, 20000);
                     break;
                 case EVENT_LEFT:
-                    if (Creature* La = me->GetCreature(*me, instance->GetData64(DATA_LEFT_ARM)))
+                    if (Creature* La = me->GetCreature(*me, instance->GetGuidData(DATA_LEFT_ARM)))
                     {
                         La->ToCreature()->AI()->DoAction(ACTION_REMOVE_LEFT);
                         me->CastSpell(La, SPELL_ARM_RESPAWN, true);
@@ -388,7 +388,7 @@ public:
                     events.CancelEvent(EVENT_LEFT);
                     break;                
                 case EVENT_RIGHT:
-                    if (Creature* Ra = me->GetCreature(*me, instance->GetData64(DATA_RIGHT_ARM)))
+                    if (Creature* Ra = me->GetCreature(*me, instance->GetGuidData(DATA_RIGHT_ARM)))
                     {
                         Ra->ToCreature()->AI()->DoAction(ACTIOM_REMOVE_RIGHT);
                         me->CastSpell(Ra, SPELL_ARM_RESPAWN, true);
@@ -506,7 +506,7 @@ public:
             if (target->GetTypeId() == TYPEID_PLAYER && (spell->Id == SPELL_FOCUSED_EYEBEAM_DAMAGE_HELPER && Beam))
             {
                 Beam = false;
-                if (Creature* Kologarn = me->GetCreature(*me, Instance->GetData64(DATA_KOLOGARN)))
+                if (Creature* Kologarn = me->GetCreature(*me, Instance->GetGuidData(DATA_KOLOGARN)))
                     Kologarn->ToCreature()->AI()->DoAction(ACTION_FAIL_ACHIV);
             }
         }
@@ -581,7 +581,7 @@ public:
                 me->SetVisible(false);
 
                 if (pInstance)
-                    if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetData64(DATA_KOLOGARN)))
+                    if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetGuidData(DATA_KOLOGARN)))
                         pKologarn->AI()->DoAction(ACTION_RESPAWN_LEFT);
                 
                 for (uint8 i = 0; i < 5; ++i)
@@ -752,7 +752,7 @@ public:
                         me->SummonCreature(NPC_RUBBLE, RubbleRight, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
 
                 if (pInstance)
-                    if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetData64(DATA_KOLOGARN)))
+                    if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetGuidData(DATA_KOLOGARN)))
                         pKologarn->AI()->DoAction(ACTION_RESPAWN_RIGHT);
             }
             else if (damage >= me->GetHealth() && !Gripped && !BrokenRight)
@@ -769,7 +769,7 @@ public:
                     me->SummonCreature(NPC_RUBBLE, RubbleRight, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
                 
                 if (pInstance)
-                    if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetData64(DATA_KOLOGARN)))
+                    if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetGuidData(DATA_KOLOGARN)))
                         pKologarn->AI()->DoAction(ACTION_RESPAWN_RIGHT);
             }
             else if (ArmDamage && damage >= ArmDamage && Gripped && !BrokenRight)

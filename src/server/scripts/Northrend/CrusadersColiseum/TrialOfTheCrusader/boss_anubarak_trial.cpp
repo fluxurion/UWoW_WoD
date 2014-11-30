@@ -716,7 +716,7 @@ public:
         
         uint64 GetRandomPlayerGUID()
         {
-            if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
+            if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetGuidData(NPC_ANUBARAK)))
             {
                 std::list<HostileReference*> t_list = pAnubarak->getThreatManager().getThreatList();
                 std::vector<uint64> targets;

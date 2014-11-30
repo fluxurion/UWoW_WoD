@@ -167,9 +167,9 @@ public:
             bDeathArmyDone = false;
             bFight = false;
 
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
                 pInstance->HandleGameObject(pGO->GetGUID(),true);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
                 pInstance->HandleGameObject(pGO->GetGUID(),false);
 
             if (bEventInBattle)
@@ -366,9 +366,9 @@ public:
             bEventInBattle = true;
             DoScriptText(SAY_AGGRO_2, me);
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
             pInstance->HandleGameObject(pGO->GetGUID(),false);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
             pInstance->HandleGameObject(pGO->GetGUID(),false);
         }
 
@@ -404,7 +404,7 @@ public:
         void JustDied(Unit* pKiller)
         {
             DoScriptText(SAY_DEATH_3, me);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
                 pInstance->HandleGameObject(pGO->GetGUID(),true);
 
             DoCast(me, SPELL_KILL_CREDIT);

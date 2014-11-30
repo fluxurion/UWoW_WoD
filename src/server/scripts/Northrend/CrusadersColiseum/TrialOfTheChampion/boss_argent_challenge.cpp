@@ -177,9 +177,9 @@ public:
                 DoScriptText(SAY_START_8, me);
                 me->setFaction(35);
                 bDone = true;
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),true);    
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
                         pInstance->HandleGameObject(pGO->GetGUID(),true);        
                         if (pInstance)
                 pInstance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
@@ -205,7 +205,7 @@ public:
             {
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
                 bDone = false;
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),true);
             } else uiResetTimer -= uiDiff;
 
@@ -313,9 +313,9 @@ public:
                 DoScriptText(SAY_START_7, me);
                 me->setFaction(35);
                 bDone = true;
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),true);    
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
                         pInstance->HandleGameObject(pGO->GetGUID(),true);        
                 pInstance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
             }
@@ -357,7 +357,7 @@ public:
             {
                 me->GetMotionMaster()->MovePoint(0,746.843f, 695.68f, 412.339f);
                 bDone = false;
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),true);    
             } else uiResetTimer -= uiDiff;
 
@@ -591,7 +591,7 @@ public:
             me->SetReactState(REACT_DEFENSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),true);
                         
             SetDespawnAtEnd(false);
@@ -659,7 +659,7 @@ public:
                         me->SetOrientation(3.39f);
                         me->SetReactState(REACT_AGGRESSIVE);                    
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),false);                    
                         break;
                 

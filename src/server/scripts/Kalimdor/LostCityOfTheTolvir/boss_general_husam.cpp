@@ -406,7 +406,7 @@ public:
             summoned->AddAura(SPELL_SHOCKWAVE_STALKER_VISUAL, summoned);
 
             if (instance)
-                if (Creature* husam = Unit::GetCreature(*me, instance->GetData64(DATA_GENERAL_HUSAM)))
+                if (Creature* husam = Unit::GetCreature(*me, instance->GetGuidData(DATA_GENERAL_HUSAM)))
                     husam->AI()->JustSummoned(summoned);
 
             if (uint64 uiGUID = summoned->GetGUID())

@@ -349,7 +349,7 @@ public:
             {
                 if (instance)
                 {
-                    Creature* pIonar = instance->instance->GetCreature(instance->GetData64(DATA_IONAR));
+                    Creature* pIonar = instance->instance->GetCreature(instance->GetGuidData(DATA_IONAR));
                     if (pIonar && pIonar->isAlive())
                     {
                         if (me->GetDistance(pIonar) > DATA_MAX_SPARK_DISTANCE)

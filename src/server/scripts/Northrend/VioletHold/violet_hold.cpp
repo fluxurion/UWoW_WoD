@@ -536,7 +536,7 @@ public:
         {
             me->CastSpell(me, SABOTEUR_SHIELD_DISRUPTION, false);
             me->DisappearAndDie();
-            Creature* pSaboPort = ObjectAccessor::GetCreature((*me), instance->GetData64(DATA_SABOTEUR_PORTAL));
+            Creature* pSaboPort = ObjectAccessor::GetCreature((*me), instance->GetGuidData(DATA_SABOTEUR_PORTAL));
             if (pSaboPort)
                 pSaboPort->DisappearAndDie();
             instance->SetData(DATA_START_BOSS_ENCOUNTER, 1);
@@ -668,14 +668,14 @@ public:
         {
             listOfMobs.Summon(summoned);
             if (summoned)
-                instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
+                instance->SetGuidData(DATA_ADD_TRASH_MOB, summoned->GetGUID());
         }
 
         void SummonedCreatureDies(Creature* summoned/*, Unit* killer*/)
         {
             listOfMobs.Despawn(summoned);
             if (summoned)
-                instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
+                instance->SetGuidData(DATA_DEL_TRASH_MOB, summoned->GetGUID());
         }
     };
 
@@ -807,7 +807,7 @@ struct violet_hold_trashAI : public npc_escortAI
     {
         if (instance)
         {
-            if (Creature* portal = Unit::GetCreature((*me), instance->GetData64(DATA_TELEPORTATION_PORTAL)))
+            if (Creature* portal = Unit::GetCreature((*me), instance->GetGuidData(DATA_TELEPORTATION_PORTAL)))
                 CAST_AI(npc_teleportation_portal_vh::npc_teleportation_portalAI, portal->AI())->SummonedCreatureDies(me);
         }
     }

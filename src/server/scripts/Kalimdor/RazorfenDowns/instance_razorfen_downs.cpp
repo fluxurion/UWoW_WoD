@@ -196,7 +196,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiType)
+        uint64 GetGuidData(uint32 uiType)
         {
             switch (uiType)
             {

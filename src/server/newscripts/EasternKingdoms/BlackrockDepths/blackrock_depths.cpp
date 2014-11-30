@@ -36,10 +36,10 @@ public:
             else
                 instance->SetData(TYPE_LYCEUM, IN_PROGRESS);
             // If used brazier open linked doors (North or South)
-            if (go->GetGUID() == instance->GetData64(DATA_SF_BRAZIER_N))
-                instance->HandleGameObject(instance->GetData64(DATA_GOLEM_DOOR_N), true);
-            else if (go->GetGUID() == instance->GetData64(DATA_SF_BRAZIER_S))
-                instance->HandleGameObject(instance->GetData64(DATA_GOLEM_DOOR_S), true);
+            if (go->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N))
+                instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
+            else if (go->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S))
+                instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
         }
         return false;
     }
@@ -217,7 +217,7 @@ public:
 
         void HandleGameObject(uint32 id, bool open)
         {
-            instance->HandleGameObject(instance->GetData64(id), open);
+            instance->HandleGameObject(instance->GetGuidData(id), open);
         }
 
         void UpdateAI(uint32 diff)
@@ -1252,7 +1252,7 @@ public:
 
         void DoGo(uint32 id, uint32 state)
         {
-            if (GameObject* go = instance->instance->GetGameObject(instance->GetData64(id)))
+            if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(id)))
                 go->SetGoState((GOState)state);
         }
 
@@ -1305,7 +1305,7 @@ public:
                     DoGo(DATA_GO_BAR_KEG_TRAP, 0);               //doesn't work very well, leaving code here for future
                     //spell by trap has effect61, this indicate the bar go hostile
 
-                    if (Unit* tmp = Unit::GetUnit(*me, instance->GetData64(DATA_PHALANX)))
+                    if (Unit* tmp = Unit::GetUnit(*me, instance->GetGuidData(DATA_PHALANX)))
                         tmp->setFaction(14);
 
                     //for later, this event(s) has alot more to it.

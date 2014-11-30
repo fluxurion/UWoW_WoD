@@ -85,7 +85,7 @@ public:
                 return;
 
             //Any other Actions to do with vorrel? setStandState?
-            if (Unit* vorrel = Unit::GetUnit(*me, instance->GetData64(DATA_VORREL)))
+            if (Unit* vorrel = Unit::GetUnit(*me, instance->GetGuidData(DATA_VORREL)))
                 DoScriptText(SAY_TRIGGER_VORREL, vorrel);
         }
 

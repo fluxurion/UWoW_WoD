@@ -312,7 +312,7 @@ class npc_drahga_valiona : public CreatureScript
                         me->GetVehicleKit()->RemoveAllPassengers();
                     me->SetCanFly(true);
                     me->GetMotionMaster()->MovePoint(1002, drahgavalionaPos[0]);
-                    if (Creature* drahga = Unit::GetCreature(*me, pInstance->GetData64(DATA_DRAHGA_SHADOWBURNER)))
+                    if (Creature* drahga = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_DRAHGA_SHADOWBURNER)))
                         drahga->RemoveAurasDueToSpell(SPELL_TWILIGHT_PROTECTION);
                     Talk(SAY_LEAVE);
                     return;
@@ -376,7 +376,7 @@ class npc_invocation_of_flame_stalker : public CreatureScript
                 switch (summon->GetEntry())
                 {
                 case NPC_INVOKED_FLAMING_SPIRIT:
-                    if (Creature* drahga = Unit::GetCreature(*me, pInstance->GetData64(DATA_DRAHGA_SHADOWBURNER)))
+                    if (Creature* drahga = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_DRAHGA_SHADOWBURNER)))
                         if (Unit* target = drahga->GetAI()->SelectTarget(SELECT_TARGET_RANDOM))
                             summon->AI()->AttackStart(target);
                     break;

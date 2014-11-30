@@ -155,10 +155,10 @@ public:
         {
             if (InstanceScript* instance = me->GetInstanceScript())
             {
-                Council[0] = instance->GetData64(DATA_GATHIOSTHESHATTERER);
-                Council[1] = instance->GetData64(DATA_VERASDARKSHADOW);
-                Council[2] = instance->GetData64(DATA_LADYMALANDE);
-                Council[3] = instance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
+                Council[0] = instance->GetGuidData(DATA_GATHIOSTHESHATTERER);
+                Council[1] = instance->GetGuidData(DATA_VERASDARKSHADOW);
+                Council[2] = instance->GetGuidData(DATA_LADYMALANDE);
+                Council[3] = instance->GetGuidData(DATA_HIGHNETHERMANCERZEREVOR);
             } else sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
         }
 
@@ -263,7 +263,7 @@ public:
             if (instance)
             {
                 instance->SetData(DATA_ILLIDARICOUNCILEVENT, NOT_STARTED);
-                if (Creature* VoiceTrigger = (Unit::GetCreature(*me, instance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
+                if (Creature* VoiceTrigger = (Unit::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                     VoiceTrigger->AI()->EnterEvadeMode();
             }
 
@@ -285,13 +285,13 @@ public:
 
             if (target && target->isAlive())
             {
-                Council[0] = instance->GetData64(DATA_GATHIOSTHESHATTERER);
-                Council[1] = instance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
-                Council[2] = instance->GetData64(DATA_LADYMALANDE);
-                Council[3] = instance->GetData64(DATA_VERASDARKSHADOW);
+                Council[0] = instance->GetGuidData(DATA_GATHIOSTHESHATTERER);
+                Council[1] = instance->GetGuidData(DATA_HIGHNETHERMANCERZEREVOR);
+                Council[2] = instance->GetGuidData(DATA_LADYMALANDE);
+                Council[3] = instance->GetGuidData(DATA_VERASDARKSHADOW);
 
                 // Start the event for the Voice Trigger
-                if (Creature* VoiceTrigger = (Unit::GetCreature(*me, instance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
+                if (Creature* VoiceTrigger = (Unit::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                 {
                     CAST_AI(mob_blood_elf_council_voice_trigger::mob_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->LoadCouncilGUIDs();
                     CAST_AI(mob_blood_elf_council_voice_trigger::mob_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->EventStarted = true;
@@ -327,7 +327,7 @@ public:
                     {
                         if (instance)
                         {
-                            if (Creature* VoiceTrigger = (Unit::GetCreature(*me, instance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
+                            if (Creature* VoiceTrigger = (Unit::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                                 VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                             instance->SetData(DATA_ILLIDARICOUNCILEVENT, DONE);
                             //me->SummonCreature(AKAMAID, 746.466980f, 304.394989f, 311.90208f, 6.272870f, TEMPSUMMON_DEAD_DESPAWN, 0);
@@ -400,7 +400,7 @@ struct boss_illidari_councilAI : public ScriptedAI
     {
         if (instance)
         {
-            Creature* Controller = (Unit::GetCreature(*me, instance->GetData64(DATA_ILLIDARICOUNCIL)));
+            Creature* Controller = (Unit::GetCreature(*me, instance->GetGuidData(DATA_ILLIDARICOUNCIL)));
             if (Controller)
                 CAST_AI(mob_illidari_council::mob_illidari_councilAI, Controller->AI())->StartEvent(who);
         }
@@ -458,10 +458,10 @@ struct boss_illidari_councilAI : public ScriptedAI
             return;
         }
 
-        Council[0] = instance->GetData64(DATA_LADYMALANDE);
-        Council[1] = instance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
-        Council[2] = instance->GetData64(DATA_GATHIOSTHESHATTERER);
-        Council[3] = instance->GetData64(DATA_VERASDARKSHADOW);
+        Council[0] = instance->GetGuidData(DATA_LADYMALANDE);
+        Council[1] = instance->GetGuidData(DATA_HIGHNETHERMANCERZEREVOR);
+        Council[2] = instance->GetGuidData(DATA_GATHIOSTHESHATTERER);
+        Council[3] = instance->GetGuidData(DATA_VERASDARKSHADOW);
 
         LoadedGUIDs = true;
     }

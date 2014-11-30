@@ -278,7 +278,7 @@ class boss_drakkari_elemental : public CreatureScript
 
                 if (instance)
                 {
-                    if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                    if (Creature* colossus = Unit::GetCreature(*me, instance->GetGuidData(DATA_DRAKKARI_COLOSSUS)))
                         killer->Kill(colossus);
                 }
             }
@@ -317,7 +317,7 @@ class boss_drakkari_elemental : public CreatureScript
                         DoCast(SPELL_SURGE_VISUAL);
                         if (instance)
                         {
-                            if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                            if (Creature* colossus = Unit::GetCreature(*me, instance->GetGuidData(DATA_DRAKKARI_COLOSSUS)))
                                 // what if the elemental is more than 80 yards from drakkari colossus ?
                                 DoCast(colossus, SPELL_MERGE, true);
                         }
@@ -329,7 +329,7 @@ class boss_drakkari_elemental : public CreatureScript
             {
                 if (HealthBelowPct(50) && instance)
                 {
-                    if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                    if (Creature* colossus = Unit::GetCreature(*me, instance->GetGuidData(DATA_DRAKKARI_COLOSSUS)))
                     {
                         if (colossus->AI()->GetData(DATA_COLOSSUS_PHASE) ==  COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
                         {
@@ -427,7 +427,7 @@ public:
 
             if (id == 1)
             {
-                if (Creature* colossus = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+                if (Creature* colossus = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_DRAKKARI_COLOSSUS) : 0))
                 {
                     colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
                     if (!colossus->AI()->GetData(DATA_INTRO_DONE))
@@ -444,7 +444,7 @@ public:
                 return;
 
             // we do this checks to see if the creature is one of the creatures that sorround the boss
-            if (Creature* colossus = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+            if (Creature* colossus = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_DRAKKARI_COLOSSUS) : 0))
             {
                 Position homePosition;
                 me->GetHomePosition().GetPosition(&homePosition);

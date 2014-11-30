@@ -570,7 +570,7 @@ public:
             instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, DONE); // Completed
 
             for (uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
-                instance->HandleGameObject(instance->GetData64(i), true);
+                instance->HandleGameObject(instance->GetGuidData(i), true);
         }
 
         void KilledUnit(Unit* victim)
@@ -1418,10 +1418,10 @@ public:
             {
                 instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
 
-                IllidanGUID = instance->GetData64(DATA_ILLIDANSTORMRAGE);
-                GateGUID = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE);
-                DoorGUID[0] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
-                DoorGUID[1] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
+                IllidanGUID = instance->GetGuidData(DATA_ILLIDANSTORMRAGE);
+                GateGUID = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_GATE);
+                DoorGUID[0] = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
+                DoorGUID[1] = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
 
                 if (JustCreated) // close all doors at create
                 {
@@ -2073,7 +2073,7 @@ public:
                         DespawnTimer = 5000;
                         if (who->HasAura(SPELL_ENRAGE))
                             who->RemoveAurasDueToSpell(SPELL_ENRAGE); // Dispel his enrage
-                        // if (GameObject* CageTrap = instance->instance->GetGameObject(instance->GetData64(CageTrapGUID)))
+                        // if (GameObject* CageTrap = instance->instance->GetGameObject(instance->GetGuidData(CageTrapGUID)))
 
                         //    CageTrap->SetLootState(GO_JUST_DEACTIVATED);
                     }
@@ -2222,7 +2222,7 @@ public:
         void Reset()
         {
             if (instance)
-                IllidanGUID = instance->GetData64(DATA_ILLIDANSTORMRAGE);
+                IllidanGUID = instance->GetGuidData(DATA_ILLIDANSTORMRAGE);
             else
                 IllidanGUID = 0;
 

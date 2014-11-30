@@ -371,7 +371,7 @@ public:
                         Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, Floor, check);
                         me->VisitNearbyGridObject(30, searcher);
                         if (instance && Floor)
-                            instance->SetData64(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
+                            instance->SetGuidData(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
                         BellowingRoarTimer = 30000;
                     }
                     else

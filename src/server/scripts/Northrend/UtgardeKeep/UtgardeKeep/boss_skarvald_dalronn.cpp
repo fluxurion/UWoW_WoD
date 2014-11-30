@@ -94,7 +94,7 @@ public:
             ghost = (me->GetEntry() == MOB_SKARVALD_GHOST);
             if (!ghost && instance)
             {
-                Unit* dalronn = Unit::GetUnit(*me, instance->GetData64(DATA_DALRONN));
+                Unit* dalronn = Unit::GetUnit(*me, instance->GetGuidData(DATA_DALRONN));
                 if (dalronn && dalronn->isDead())
                     CAST_CRE(dalronn)->Respawn();
 
@@ -108,7 +108,7 @@ public:
             {
                 DoScriptText(YELL_SKARVALD_AGGRO, me);
 
-                Unit* dalronn = Unit::GetUnit(*me, instance->GetData64(DATA_DALRONN));
+                Unit* dalronn = Unit::GetUnit(*me, instance->GetGuidData(DATA_DALRONN));
                 if (dalronn && dalronn->isAlive() && !dalronn->getVictim())
                     dalronn->getThreatManager().addThreat(who, 0.0f);
 
@@ -120,7 +120,7 @@ public:
         {
             if (!ghost && instance)
             {
-                Unit* dalronn = Unit::GetUnit(*me, instance->GetData64(DATA_DALRONN));
+                Unit* dalronn = Unit::GetUnit(*me, instance->GetGuidData(DATA_DALRONN));
                 if (dalronn)
                 {
                     if (dalronn->isDead())
@@ -172,7 +172,7 @@ public:
                     if (Check_Timer <= diff)
                     {
                         Check_Timer = 5000;
-                        Unit* dalronn = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_DALRONN) : 0);
+                        Unit* dalronn = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_DALRONN) : 0);
                         if (dalronn && dalronn->isDead())
                         {
                             Dalronn_isDead = true;
@@ -251,7 +251,7 @@ public:
             ghost = me->GetEntry() == MOB_DALRONN_GHOST;
             if (!ghost && instance)
             {
-                Unit* skarvald = Unit::GetUnit(*me, instance->GetData64(DATA_SKARVALD));
+                Unit* skarvald = Unit::GetUnit(*me, instance->GetGuidData(DATA_SKARVALD));
                 if (skarvald && skarvald->isDead())
                     CAST_CRE(skarvald)->Respawn();
 
@@ -263,7 +263,7 @@ public:
         {
             if (!ghost && instance)
             {
-                Unit* skarvald = Unit::GetUnit(*me, instance->GetData64(DATA_SKARVALD));
+                Unit* skarvald = Unit::GetUnit(*me, instance->GetGuidData(DATA_SKARVALD));
                 if (skarvald && skarvald->isAlive() && !skarvald->getVictim())
                     skarvald->getThreatManager().addThreat(who, 0.0f);
 
@@ -278,7 +278,7 @@ public:
         {
             if (!ghost && instance)
             {
-                Unit* skarvald = Unit::GetUnit(*me, instance->GetData64(DATA_SKARVALD));
+                Unit* skarvald = Unit::GetUnit(*me, instance->GetGuidData(DATA_SKARVALD));
                 if (skarvald)
                 {
                     if (skarvald->isDead())
@@ -341,7 +341,7 @@ public:
                     if (Check_Timer <= diff)
                     {
                         Check_Timer = 5000;
-                        Unit* skarvald = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_SKARVALD) : 0);
+                        Unit* skarvald = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_SKARVALD) : 0);
                         if (skarvald && skarvald->isDead())
                         {
                             Skarvald_isDead = true;

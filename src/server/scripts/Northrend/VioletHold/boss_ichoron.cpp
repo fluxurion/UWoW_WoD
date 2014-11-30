@@ -127,7 +127,7 @@ public:
 
             if (instance)
             {
-                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_ICHORON_CELL)))
+                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_ICHORON_CELL)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();
@@ -311,7 +311,7 @@ public:
                 summoned->SetSpeed(MOVE_RUN, 0.3f);
                 summoned->GetMotionMaster()->MoveFollow(me, 0, 0);
                 m_waterElements.Summon(summoned);
-                instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
+                instance->SetGuidData(DATA_ADD_TRASH_MOB, summoned->GetGUID());
             }
         }
 
@@ -320,7 +320,7 @@ public:
             if (summoned)
             {
                 m_waterElements.Despawn(summoned);
-                instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
+                instance->SetGuidData(DATA_DEL_TRASH_MOB, summoned->GetGUID());
             }
         }
 
@@ -371,7 +371,7 @@ public:
         {
             if (uiRangeCheck_Timer < uiDiff)
             {
-                if (Creature* pIchoron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
+                if (Creature* pIchoron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ICHORON)))
                 {
                     if (me->IsWithinDist(pIchoron, 2.0f, false))
                     {
@@ -388,7 +388,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             DoCast(me, SPELL_SPLASH);
-            if (Creature* pIchoron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
+            if (Creature* pIchoron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ICHORON)))
                 if (pIchoron->AI())
                     pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_KILLED);
         }

@@ -175,16 +175,16 @@ class boss_feng : public CreatureScript
                 for (uint8 i = 0; i < 4; ++i)
                     me->RemoveAurasDueToSpell(fengVisualId[i]);
 
-                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[actualPhase - 1])))
+                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetGuidData(statueEntryInOrder[actualPhase - 1])))
                 {
                     oldStatue->SetLootState(GO_READY);
                     oldStatue->UseDoorOrButton();
                 }
 
-                if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_INVERSION)))
+                if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_INVERSION)))
                     inversionGob->Respawn();
 
-                if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_CANCEL)))
+                if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_CANCEL)))
                     cancelGob->Respawn();
             }
 
@@ -222,10 +222,10 @@ class boss_feng : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(115811);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(115972);
 
-                if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_INVERSION)))
+                if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_INVERSION)))
                     inversionGob->Delete();
 
-                if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_CANCEL)))
+                if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_CANCEL)))
                     cancelGob->Delete();
             }
 
@@ -261,13 +261,13 @@ class boss_feng : public CreatureScript
                 }
 
                 // Desactivate old statue and enable the new one
-                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[actualPhase - 1])))
+                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetGuidData(statueEntryInOrder[actualPhase - 1])))
                 {
                     oldStatue->SetLootState(GO_READY);
                     oldStatue->UseDoorOrButton();
                 }
 
-                if (GameObject* newStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[newPhase - 1])))
+                if (GameObject* newStatue = pInstance->instance->GetGameObject(pInstance->GetGuidData(statueEntryInOrder[newPhase - 1])))
                 {
                     newStatue->SetLootState(GO_READY);
                     newStatue->UseDoorOrButton();
@@ -569,7 +569,7 @@ class mob_wild_spark : public CreatureScript
 
                 if (id == 1)
                     if (InstanceScript* pInstance = me->GetInstanceScript())
-                        if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
+                        if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_FENG)))
                         {
                             feng->AI()->DoAction(ACTION_SPARK);
                             me->DespawnOrUnsummon();

@@ -757,7 +757,7 @@ struct npc_norushenChallengeAI : public ScriptedAI
         if (challenge)
         {
             events.RescheduleEvent(EVENT_1, 60000);
-            if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+            if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
                 amalgam->AI()->SetGUID(summoner->GetGUID(), 1);
         }
         AttackStart(summoner);
@@ -765,7 +765,7 @@ struct npc_norushenChallengeAI : public ScriptedAI
 
     void EnterEvadeMode()
     {
-        if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+        if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
         {
             summonInRealWorld(amalgam);
 
@@ -790,7 +790,7 @@ struct npc_norushenChallengeAI : public ScriptedAI
             plr->CastSpell(plr, cleanseSpellID, false);
         CheckCorruptionForCleanse(plr);
 
-        if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+        if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
         {
             summonInRealWorld(amalgam);
             amalgam->AI()->SetGUID(plr->GetGUID(), -1);
@@ -820,7 +820,7 @@ struct npc_norushenChallengeAI : public ScriptedAI
         switch(_event)
         {
             case EVENT_1:
-                if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+                if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
                     summonInRealWorld(amalgam);
                 me->DespawnOrUnsummon();
                 break;
@@ -1062,7 +1062,7 @@ public:
             me->CastSpell(me, SPELL_UNLEASHED, false);          //18:38:25.000 
             me->CastSpell(me, SPELL_STEALTH_DETECTION, false);
 
-            if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+            if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
                 me->SetFacingToObject(amalgam);
 
             me->CastSpell(me, SPELL_EXPEL_CORRUPTION, true);
@@ -1078,7 +1078,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_1:
-                        if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+                        if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
                             me->SetFacingToObject(amalgam);
                          me->CastSpell(me, SPELL_EXPEL_CORRUPTION, false);
                         events.RescheduleEvent(EVENT_1, 6*IN_MILLISECONDS);
@@ -1574,7 +1574,7 @@ class spell_norushen_blind_hatred_prock : public SpellScriptLoader
                     return;
                 }
 
-                Creature *bh = instance->instance->GetCreature(instance->GetData64(NPC_BLIND_HATRED));
+                Creature *bh = instance->instance->GetCreature(instance->GetGuidData(NPC_BLIND_HATRED));
                 if (!bh)
                 {
                     unitList.clear();
@@ -1743,7 +1743,7 @@ class spell_norushen_challenge : public SpellScriptLoader
                 //enter phase
                 target->CastSpell(target, getPhaseSpell(), true);
 
-                if (Creature* norush = instance->instance->GetCreature(instance->GetData64(NPC_NORUSHEN)))
+                if (Creature* norush = instance->instance->GetCreature(instance->GetGuidData(NPC_NORUSHEN)))
                     norush->AI()->ZoneTalk(TEXT_GENERIC_10, target->GetGUID());
 
                 target->SetPhaseId(target->GetGUID(), true);

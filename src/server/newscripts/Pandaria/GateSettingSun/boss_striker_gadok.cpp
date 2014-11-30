@@ -601,7 +601,7 @@ public:
             {
                 for (uint8 i = 0; i < 5; ++i)
                 {
-                    if (Creature* bombarder = pInstance->instance->GetCreature(pInstance->GetData64(DATA_RANDOM_BOMBARDER)))
+                    if (Creature* bombarder = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_RANDOM_BOMBARDER)))
                     {
                         me->CastSpell(bombarder, 116553, true);
                         bombarder->GetMotionMaster()->MoveFall();

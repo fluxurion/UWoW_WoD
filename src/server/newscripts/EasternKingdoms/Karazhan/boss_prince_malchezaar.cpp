@@ -240,7 +240,7 @@ public:
             phase = 1;
 
             if (instance)
-                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -261,7 +261,7 @@ public:
                 positions.push_back(&InfernalPoints[i]);
 
             if (instance)
-                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -269,7 +269,7 @@ public:
             DoScriptText(SAY_AGGRO, me);
 
             if (instance)
-                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
         }
 
         void InfernalCleanup()

@@ -404,7 +404,7 @@ public:
                 case EVENT_INTRO_A2_3:
                     DoCast(me, SPELL_CAST_VISUAL);
                     me->CastSpell(me, SPELL_FROSTMOURNE_SOUNDS, true);
-                    pInstance->HandleGameObject(pInstance->GetData64(DATA_FROSTMOURNE), true);
+                    pInstance->HandleGameObject(pInstance->GetGuidData(DATA_FROSTMOURNE), true);
                     events.ScheduleEvent(EVENT_INTRO_A2_4, 10000);
                     break;
                 case EVENT_INTRO_A2_4:
@@ -499,7 +499,7 @@ public:
                 case EVENT_INTRO_H2_3:
                     DoScriptText(SAY_SYLVANAS_INTRO_3, me);
                     DoCast(me, SPELL_CAST_VISUAL);
-                    pInstance->HandleGameObject(pInstance->GetData64(DATA_FROSTMOURNE), true);
+                    pInstance->HandleGameObject(pInstance->GetGuidData(DATA_FROSTMOURNE), true);
                     me->CastSpell(me, SPELL_FROSTMOURNE_SOUNDS, true);
                     events.ScheduleEvent(EVENT_INTRO_H2_4, 6000);
                     break;
@@ -580,7 +580,7 @@ public:
                         uiLichKing = pLichKing->GetGUID();
                         pLichKing->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                        if(GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_FROSTWORN_DOOR)))
+                        if(GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetGuidData(DATA_FROSTWORN_DOOR)))
                              pGate->SetGoState(GO_STATE_ACTIVE);
 
                         me->SetUInt64Value(UNIT_FIELD_TARGET, uiLichKing);
@@ -602,7 +602,7 @@ public:
                 case EVENT_INTRO_LK_2:
                      if (Creature* pLichKing = me->GetCreature(*me, uiLichKing))
                          DoScriptText(SAY_LK_INTRO_1, pLichKing);
-                    if(GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_FROSTWORN_DOOR)))
+                    if(GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetGuidData(DATA_FROSTWORN_DOOR)))
                         pGate->SetGoState(GO_STATE_READY);
                      events.ScheduleEvent(EVENT_INTRO_LK_3, 2000);
                      break;
@@ -638,13 +638,13 @@ public:
 
                 case EVENT_INTRO_LK_5:
                     // summon Falric and Marwyn. then go back to the door
-                    if (Creature* pFalric = me->GetCreature(*me, pInstance->GetData64(DATA_FALRIC)))
+                    if (Creature* pFalric = me->GetCreature(*me, pInstance->GetGuidData(DATA_FALRIC)))
                     {
                         pFalric->CastSpell(pFalric, SPELL_BOSS_SPAWN_AURA, true);
                         pFalric->SetVisible(true);
                         pFalric->GetMotionMaster()->MovePoint(0, 5283.309f, 2031.173f, 709.319f);
                     }
-                    if (Creature* pMarwyn = me->GetCreature(*me, pInstance->GetData64(DATA_MARWYN)))
+                    if (Creature* pMarwyn = me->GetCreature(*me, pInstance->GetGuidData(DATA_MARWYN)))
                     {
                         pMarwyn->CastSpell(pMarwyn, SPELL_BOSS_SPAWN_AURA, true);
                         pMarwyn->SetVisible(true);
@@ -658,19 +658,19 @@ public:
                     break;
 
                 case EVENT_INTRO_LK_6:
-                    if (Creature* pFalric = me->GetCreature(*me, pInstance->GetData64(DATA_FALRIC)))
+                    if (Creature* pFalric = me->GetCreature(*me, pInstance->GetGuidData(DATA_FALRIC)))
                         DoScriptText(SAY_FALRIC_INTRO_1, pFalric);
 
                     events.ScheduleEvent(EVENT_INTRO_LK_7, 2000);
                     break;
 
                 case EVENT_INTRO_LK_7:
-                    if (Creature* pMarwyn = me->GetCreature(*me, pInstance->GetData64(DATA_MARWYN)))
+                    if (Creature* pMarwyn = me->GetCreature(*me, pInstance->GetGuidData(DATA_MARWYN)))
                         DoScriptText(SAY_MARWYN_INTRO_1, pMarwyn);
 
                     if (Creature* pLichKing = me->GetCreature(*me, uiLichKing))
                     {
-                        if(GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_FROSTWORN_DOOR)))
+                        if(GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetGuidData(DATA_FROSTWORN_DOOR)))
                             pGate->SetGoState(GO_STATE_ACTIVE);
                         pLichKing->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                         pLichKing->GetMotionMaster()->MovePoint(0, LichKingMoveAwayPos);
@@ -680,7 +680,7 @@ public:
                     break;
 
                 case EVENT_INTRO_LK_8:
-                    if (Creature* pFalric = me->GetCreature(*me, pInstance->GetData64(DATA_FALRIC)))
+                    if (Creature* pFalric = me->GetCreature(*me, pInstance->GetGuidData(DATA_FALRIC)))
                     {
                         pInstance->SetData(DATA_FALRIC_EVENT, SPECIAL);
                         DoScriptText(SAY_FALRIC_INTRO_2, pFalric);
@@ -724,10 +724,10 @@ public:
                         pInstance->SetData(DATA_WAVE_COUNT, SPECIAL);   // start first wave
                     }
 
-                    if(GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_FROSTWORN_DOOR)))
+                    if(GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetGuidData(DATA_FROSTWORN_DOOR)))
                         pGate->SetGoState(GO_STATE_READY);
 
-                    if(GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_FRONT_DOOR)))
+                    if(GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetGuidData(DATA_FRONT_DOOR)))
                         pGate->SetGoState(GO_STATE_READY);
 
                     // Loralen or Koreln disappearAndDie()
@@ -1506,7 +1506,7 @@ public:
 
                 if(m_pInstance)
                 {
-                    m_pInstance->SetData64(DATA_ESCAPE_LIDER, creature->GetGUID());
+                    m_pInstance->SetGuidData(DATA_ESCAPE_LIDER, creature->GetGUID());
                     m_pInstance->SetData(DATA_LICHKING_EVENT, IN_PROGRESS);
                 }
                 return true;
@@ -1620,7 +1620,7 @@ public:
             {
                 case 3:
                     m_pInstance->SetData(DATA_ICE_WALL_1, IN_PROGRESS);
-                    if(GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ICE_WALL_1)))
+                    if(GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetGuidData(GO_ICE_WALL_1)))
                     {
                         pGate->SetGoState(GO_STATE_READY);
                         m_uiIceWallGUID = pGate->GetGUID();
@@ -1820,7 +1820,7 @@ public:
             {
                 case 0:
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                    m_uiLichKingGUID = m_pInstance->GetData64(DATA_LICHKING);
+                    m_uiLichKingGUID = m_pInstance->GetGuidData(DATA_LICHKING);
                     pLichKing = m_pInstance->instance->GetCreature(m_uiLichKingGUID);
                     me->SetUInt64Value(UNIT_FIELD_TARGET, pLichKing->GetGUID());
                     JumpNextStep(100);
@@ -1941,14 +1941,14 @@ public:
                     JumpNextStep(5000);
                     break;
                 case 11:
-                    if (Creature* pCaptain = ObjectAccessor::GetCreature(*me, m_pInstance->GetData64(DATA_CAPTAIN)))
+                    if (Creature* pCaptain = ObjectAccessor::GetCreature(*me, m_pInstance->GetGuidData(DATA_CAPTAIN)))
                     {
                         pCaptain->AI()->DoAction(ACTION_START_FLY);
                     }
                     JumpNextStep(10000);
                     break;
                 case 12:
-                    if(GameObject* pCave = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_CAVE)))
+                    if(GameObject* pCave = m_pInstance->instance->GetGameObject(m_pInstance->GetGuidData(GO_CAVE)))
                     {
                         Creature* pCaveTarget = me->SummonCreature(NPC_ICE_WALL,pCave->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation(),TEMPSUMMON_MANUAL_DESPAWN,720000);
                         pCaveTarget->SetFloatValue(OBJECT_FIELD_SCALE_X, 4);
@@ -1967,7 +1967,7 @@ public:
                     break;
                 case 13:
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
-                    if(GameObject* pCave = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_CAVE)))
+                    if(GameObject* pCave = m_pInstance->instance->GetGameObject(m_pInstance->GetGuidData(GO_CAVE)))
                         pCave->SetGoState(GO_STATE_READY);
                     me->RemoveAllAuras();
 
@@ -2058,7 +2058,7 @@ public:
                 switch(Count)
                 {
                     case 2:
-                        if(GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ICE_WALL_2)))
+                        if(GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetGuidData(GO_ICE_WALL_2)))
                         {
                             pGate->SetGoState(GO_STATE_READY);
                             if(pLichKing && pLichKing->isAlive())
@@ -2067,7 +2067,7 @@ public:
                         }
                         break;
                     case 3:
-                        if(GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ICE_WALL_3)))
+                        if(GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetGuidData(GO_ICE_WALL_3)))
                         {
                             pGate->SetGoState(GO_STATE_READY);
                             if(pLichKing && pLichKing->isAlive())
@@ -2076,7 +2076,7 @@ public:
                         }
                         break;
                     case 4:
-                        if(GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ICE_WALL_4)))
+                        if(GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetGuidData(GO_ICE_WALL_4)))
                         {
                             pGate->SetGoState(GO_STATE_READY);
                             if(pLichKing && pLichKing->isAlive())
@@ -2125,12 +2125,12 @@ class at_hor_waves_restarter : public AreaTriggerScript
             {
                 pInstance->SetData(DATA_WAVE_COUNT, SPECIAL);
 
-                if (Creature* pFalric = player->GetCreature(*player, pInstance->GetData64(DATA_FALRIC)))
+                if (Creature* pFalric = player->GetCreature(*player, pInstance->GetGuidData(DATA_FALRIC)))
                 {
                     pFalric->CastSpell(pFalric, SPELL_BOSS_SPAWN_AURA, true);
                     pFalric->SetVisible(true);
                 }
-                if (Creature* pMarwyn = player->GetCreature(*player, pInstance->GetData64(DATA_MARWYN)))
+                if (Creature* pMarwyn = player->GetCreature(*player, pInstance->GetGuidData(DATA_MARWYN)))
                 {
                     pMarwyn->CastSpell(pMarwyn, SPELL_BOSS_SPAWN_AURA, true);
                     pMarwyn->SetVisible(true);

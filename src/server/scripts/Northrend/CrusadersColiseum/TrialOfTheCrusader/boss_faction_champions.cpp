@@ -273,7 +273,7 @@ struct boss_faction_championsAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, FAIL);
         me->DespawnOrUnsummon();
     }
@@ -316,7 +316,7 @@ struct boss_faction_championsAI : public ScriptedAI
     {
         if (mAIType != AI_PET)
             if (m_pInstance)
-                if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+                if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
                     pChampionController->AI()->SetData(2, DONE);
     }
 
@@ -325,7 +325,7 @@ struct boss_faction_championsAI : public ScriptedAI
         DoCast(me, SPELL_ANTI_AOE, true);
         me->SetInCombatWithZone();
         if (m_pInstance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
@@ -344,7 +344,7 @@ struct boss_faction_championsAI : public ScriptedAI
             {
                 if (TeamInInstance == ALLIANCE)
                 {
-                    if (Creature* pTemp = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_VARIAN)))
+                    if (Creature* pTemp = Unit::GetCreature(*me, m_pInstance->GetGuidData(NPC_VARIAN)))
                         DoScriptText(SAY_VARIAN_KILL_HORDE_PLAYER4+urand(0, 3), pTemp); // + cause we are on negative
                 }
                 else

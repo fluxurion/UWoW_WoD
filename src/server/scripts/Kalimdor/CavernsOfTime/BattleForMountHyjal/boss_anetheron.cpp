@@ -92,7 +92,7 @@ public:
         {
             if (waypointId == 7 && instance)
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_JAINAPROUDMOORE));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                 if (target && target->isAlive())
                     me->AddThreat(target, 0.0f);
             }
@@ -188,7 +188,7 @@ public:
         {
             instance = creature->GetInstanceScript();
             if (instance)
-                AnetheronGUID = instance->GetData64(DATA_ANETHERON);
+                AnetheronGUID = instance->GetGuidData(DATA_ANETHERON);
         }
 
         uint32 ImmolationTimer;

@@ -315,7 +315,7 @@ class boss_immerseus : public CreatureScript
                 if (intro || who->GetTypeId() != TYPEID_PLAYER || !me->IsWithinDistInMap(who, 60.0f))
                     return;
                 intro = true;
-                if (Creature* cho = instance->instance->GetCreature(instance->GetData64(NPC_LOREWALKER_CHO)))
+                if (Creature* cho = instance->instance->GetCreature(instance->GetGuidData(NPC_LOREWALKER_CHO)))
                     cho->AI()->SetData(DATA_IMMERSEUS, IN_PROGRESS);
             }
 
@@ -663,7 +663,7 @@ void CalcPuddle(InstanceScript* instance, Creature* caller, uint32 callerEntry, 
 {
     if (caller && instance)
     {
-        if (Creature* i = caller->GetCreature(*caller, instance->GetData64(NPC_IMMERSEUS)))
+        if (Creature* i = caller->GetCreature(*caller, instance->GetGuidData(NPC_IMMERSEUS)))
         {
             if (done)
             {
@@ -772,7 +772,7 @@ class npc_sha_puddle : public CreatureScript
                     case EVENT_START_MOVING:
                         if (instance)
                         {
-                            if (Creature* pp = me->GetCreature(*me, instance->GetData64(NPC_PUDDLE_POINT)))
+                            if (Creature* pp = me->GetCreature(*me, instance->GetGuidData(NPC_PUDDLE_POINT)))
                             {
                                 me->GetMotionMaster()->MoveFollow(pp, 10.0f, 0.0f);
                                 events.ScheduleEvent(EVENT_CHECK_DIST, 1000);
@@ -782,7 +782,7 @@ class npc_sha_puddle : public CreatureScript
                     case EVENT_CHECK_DIST:
                         if (instance)
                         {
-                            if (Creature* pp = me->GetCreature(*me, instance->GetData64(NPC_PUDDLE_POINT)))
+                            if (Creature* pp = me->GetCreature(*me, instance->GetGuidData(NPC_PUDDLE_POINT)))
                             {
                                 if (me->GetDistance(pp) <= 18.0f && !finish)
                                 {
@@ -943,7 +943,7 @@ class npc_contaminated_puddle : public CreatureScript
                     case EVENT_START_MOVING:
                         if (instance)
                         {
-                            if (Creature* pp = me->GetCreature(*me, instance->GetData64(NPC_PUDDLE_POINT)))
+                            if (Creature* pp = me->GetCreature(*me, instance->GetGuidData(NPC_PUDDLE_POINT)))
                             {
                                 me->GetMotionMaster()->MoveFollow(pp, 10.0f, 0.0f);
                                 events.ScheduleEvent(EVENT_CHECK_DIST, 1000);
@@ -953,7 +953,7 @@ class npc_contaminated_puddle : public CreatureScript
                     case EVENT_CHECK_DIST:
                         if (instance)
                         {
-                            if (Creature* pp = me->GetCreature(*me, instance->GetData64(NPC_PUDDLE_POINT)))
+                            if (Creature* pp = me->GetCreature(*me, instance->GetGuidData(NPC_PUDDLE_POINT)))
                             {
                                 if (me->GetDistance(pp) <= 18.0f && !finish)
                                 {

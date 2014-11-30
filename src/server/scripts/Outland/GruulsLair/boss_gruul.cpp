@@ -118,7 +118,7 @@ public:
             if (instance)
             {
                 instance->SetData(DATA_GRUULEVENT, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GRUULDOOR), true);         // Open the encounter door
+                instance->HandleGameObject(instance->GetGuidData(DATA_GRUULDOOR), true);         // Open the encounter door
             }
         }
 

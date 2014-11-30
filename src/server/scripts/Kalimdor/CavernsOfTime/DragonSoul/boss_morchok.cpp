@@ -264,7 +264,7 @@ class boss_morchok: public CreatureScript
                         case EVENT_UPDATE_HEALTH:
                             if (me->isAlive())
                             {
-                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KOHCROM)))
+                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KOHCROM)))
                                 {
                                     if (!pKohcrom->isAlive())
                                         break;
@@ -301,7 +301,7 @@ class boss_morchok: public CreatureScript
                             events.ScheduleEvent(EVENT_STOMP, urand(12000, 14000));
                             if (bKohcrom && !bFirstStomp)
                             {
-                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KOHCROM)))
+                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KOHCROM)))
                                     pKohcrom->AI()->DoAction(ACTION_KOHCROM_STOMP);
                             }
                             bFirstStomp = false;
@@ -320,7 +320,7 @@ class boss_morchok: public CreatureScript
                             events.ScheduleEvent(EVENT_RESONATING_CRYSTAL, urand(12000, 14000));
                             if (bKohcrom && !bFirstCrystal)
                             {
-                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KOHCROM)))
+                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KOHCROM)))
                                     pKohcrom->AI()->DoAction(ACTION_KOHCROM_RESONATING_CRYSTAL);
                             }
                             bFirstCrystal = false;
@@ -339,7 +339,7 @@ class boss_morchok: public CreatureScript
                             DoCast(me, SPELL_EARTHS_VENGEANCE);
                             
                             if (bKohcrom)
-                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KOHCROM)))
+                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KOHCROM)))
                                     pKohcrom->AI()->DoAction(ACTION_KOHCROM_EARTHEN_VORTEX);
 
                             events.ScheduleEvent(EVENT_BLACK_BLOOD, 5000);

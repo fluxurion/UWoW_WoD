@@ -192,7 +192,7 @@ class boss_spirit_kings_controler : public CreatureScript
 
             void RestartEvent()
             {   // Qiang always first
-                if (Creature* qiang = me->GetCreature(*me, pInstance->GetData64(NPC_QIANG)))
+                if (Creature* qiang = me->GetCreature(*me, pInstance->GetGuidData(NPC_QIANG)))
                 {
                     if (!qiang->isAlive())
                         qiang->Respawn();
@@ -202,14 +202,14 @@ class boss_spirit_kings_controler : public CreatureScript
 
                 for (uint8 n = 0; n < 3; n++)
                 {
-                    if (Creature* kings = me->GetCreature(*me, pInstance->GetData64(spiritkings[n])))
+                    if (Creature* kings = me->GetCreature(*me, pInstance->GetGuidData(spiritkings[n])))
                     {
                         if (!kings->isAlive())
                             kings->Respawn();
                     }
                 }
 
-                if (Creature* nspirit = me->GetCreature(*me, pInstance->GetData64(spiritkings[0])))
+                if (Creature* nspirit = me->GetCreature(*me, pInstance->GetGuidData(spiritkings[0])))
                         nspirit->AddAura(SPELL_NEXT_SPIRIT_VISUAL, nspirit);
             }
 
@@ -230,12 +230,12 @@ class boss_spirit_kings_controler : public CreatureScript
                                 nextspirit = spiritkings[n];
                                 if (nextspirit == spiritkings[2])
                                 {
-                                    if (Creature* sp = me->GetCreature(*me, pInstance->GetData64(nextspirit)))
+                                    if (Creature* sp = me->GetCreature(*me, pInstance->GetGuidData(nextspirit)))
                                         sp->AI()->DoAction(ACTION_SPIRIT_LOW_HEALTH);
                                 }
                                 else
                                 {
-                                    if (Creature* nspirit = me->GetCreature(*me, pInstance->GetData64(spiritkings[n+1])))
+                                    if (Creature* nspirit = me->GetCreature(*me, pInstance->GetGuidData(spiritkings[n+1])))
                                         nspirit->AddAura(SPELL_NEXT_SPIRIT_VISUAL, nspirit);
                                 }
                                 spiritkings[n] = 0;
@@ -245,7 +245,7 @@ class boss_spirit_kings_controler : public CreatureScript
                     
                         if (nextspirit)
                         {
-                            if (Creature* king = me->GetCreature(*me, pInstance->GetData64(nextspirit)))
+                            if (Creature* king = me->GetCreature(*me, pInstance->GetGuidData(nextspirit)))
                                 king->AI()->DoAction(ACTION_START_FIGHT);
                         }                   
                     }
@@ -253,7 +253,7 @@ class boss_spirit_kings_controler : public CreatureScript
                 case ACTION_SPIRIT_DONE:
                     for (uint8 i = 0; i < 3; i++)
                     {
-                        if (Creature* king = me->GetCreature(*me, pInstance->GetData64(spiritkingsvirtual[i])))
+                        if (Creature* king = me->GetCreature(*me, pInstance->GetGuidData(spiritkingsvirtual[i])))
                         {
                             if (king->isAlive())
                                 me->Kill(king, true);
@@ -282,7 +282,7 @@ class boss_spirit_kings_controler : public CreatureScript
                                 {
                                     for (uint8 n = 0; n < 4; n++)
                                     {
-                                        if (Creature* king = me->GetCreature(*me, pInstance->GetData64(spiritKingsEntry[n])))
+                                        if (Creature* king = me->GetCreature(*me, pInstance->GetGuidData(spiritKingsEntry[n])))
                                         {
                                             if (king->isAlive() && king->HasAura(SPELL_NEXT_SPIRIT_VISUAL))
                                                 king->RemoveAurasDueToSpell(SPELL_NEXT_SPIRIT_VISUAL);
@@ -342,7 +342,7 @@ class boss_spirit_kings : public CreatureScript
 
             Creature* GetControler()
             {
-                if (pInstance) return pInstance->instance->GetCreature(pInstance->GetData64(NPC_SPIRIT_GUID_CONTROLER)); else return NULL;
+                if (pInstance) return pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_SPIRIT_GUID_CONTROLER)); else return NULL;
             }
 
             void EnterCombat(Unit* attacker)

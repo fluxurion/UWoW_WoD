@@ -269,7 +269,7 @@ void CallRaDenAndUseSphere(InstanceScript* instance, Creature* caller, uint32 ca
                         switch (callerEntry)
                         {
                         case NPC_CORRUPTED_ANIMA:
-                            if (Creature* cv = caller->GetCreature(*caller, instance->GetData64(NPC_CORRUPTED_VITA)))
+                            if (Creature* cv = caller->GetCreature(*caller, instance->GetGuidData(NPC_CORRUPTED_VITA)))
                             {
                                 if (cv->isAlive())
                                 {
@@ -281,7 +281,7 @@ void CallRaDenAndUseSphere(InstanceScript* instance, Creature* caller, uint32 ca
                             }
                             break;
                         case NPC_CORRUPTED_VITA:
-                            if (Creature* ca = caller->GetCreature(*caller, instance->GetData64(NPC_CORRUPTED_ANIMA)))
+                            if (Creature* ca = caller->GetCreature(*caller, instance->GetGuidData(NPC_CORRUPTED_ANIMA)))
                             {
                                 if (ca->isAlive())
                                 {

@@ -119,10 +119,10 @@ public:
 
             DoScriptText(YELL_DIED, me);
 
-            if (Creature* npc = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_VALEERA)))
+            if (Creature* npc = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_VALEERA)))
                 npc->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            if (Creature* npc = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_EIENDORMI)))
+            if (Creature* npc = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_EIENDORMI)))
                 npc->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 

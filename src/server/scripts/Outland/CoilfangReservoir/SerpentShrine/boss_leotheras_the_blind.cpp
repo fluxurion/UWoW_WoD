@@ -320,10 +320,10 @@ public:
                 // and reseting equipment
                 me->LoadEquipment(me->GetEquipmentId());
 
-                if (instance && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+                if (instance && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
                 {
                     Unit* victim = NULL;
-                    victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                    victim = Unit::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
                         me->getThreatManager().addThreat(victim, 1);
                     StartEvent();
@@ -714,7 +714,7 @@ public:
 
             if (instance)
             {
-                instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, 0);
+                instance->SetGuidData(DATA_LEOTHERAS_EVENT_STARTER, 0);
                 Creature* leotheras = Unit::GetCreature(*me, leotherasGUID);
                 if (leotheras && leotheras->isAlive())
                     CAST_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
@@ -725,7 +725,7 @@ public:
         {
             me->InterruptNonMeleeSpells(false);
             if (instance)
-                instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
+                instance->SetGuidData(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
         }
 
         void JustRespawned()
@@ -752,12 +752,12 @@ public:
             if (instance)
             {
                 if (!leotherasGUID)
-                    leotherasGUID = instance->GetData64(DATA_LEOTHERAS);
+                    leotherasGUID = instance->GetGuidData(DATA_LEOTHERAS);
 
-                if (!me->isInCombat() && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+                if (!me->isInCombat() && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
                 {
                     Unit* victim = NULL;
-                    victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                    victim = Unit::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
                         AttackStart(victim);
                 }
@@ -769,7 +769,7 @@ public:
                 return;
             }
 
-            if (instance && !instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+            if (instance && !instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
             {
                 EnterEvadeMode();
                 return;

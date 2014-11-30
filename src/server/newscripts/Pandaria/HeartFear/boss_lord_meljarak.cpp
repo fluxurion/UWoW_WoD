@@ -125,7 +125,7 @@ void SendDamageSoldiers(InstanceScript* instance, Creature* caller, uint32 calle
         case NPC_SRATHIK:
             for (uint32 n = NPC_SRATHIK_1; n <= NPC_SRATHIK_3; n++)
             {
-                if (Creature* soldier = caller->GetCreature(*caller, instance->GetData64(n)))
+                if (Creature* soldier = caller->GetCreature(*caller, instance->GetGuidData(n)))
                 {
                     if (soldier->GetGUID() != callerGuid && soldier->isAlive())
                         soldier->SetHealth(soldier->GetHealth() - damage);
@@ -135,7 +135,7 @@ void SendDamageSoldiers(InstanceScript* instance, Creature* caller, uint32 calle
         case NPC_ZARTHIK:
             for (uint32 n = NPC_ZARTHIK_1; n <= NPC_ZARTHIK_3; n++)
             {
-                if (Creature* soldier = caller->GetCreature(*caller, instance->GetData64(n)))
+                if (Creature* soldier = caller->GetCreature(*caller, instance->GetGuidData(n)))
                 {
                     if (soldier->GetGUID() != callerGuid && soldier->isAlive())
                         soldier->SetHealth(soldier->GetHealth() - damage);
@@ -145,7 +145,7 @@ void SendDamageSoldiers(InstanceScript* instance, Creature* caller, uint32 calle
         case NPC_KORTHIK:
             for (uint32 n = NPC_KORTHIK_1; n <= NPC_KORTHIK_3; n++)
             {
-                if (Creature* soldier = caller->GetCreature(*caller, instance->GetData64(n)))
+                if (Creature* soldier = caller->GetCreature(*caller, instance->GetGuidData(n)))
                 {
                     if (soldier->GetGUID() != callerGuid && soldier->isAlive())
                         soldier->SetHealth(soldier->GetHealth() - damage);
@@ -165,7 +165,7 @@ void SendDiedSoldiers(InstanceScript* instance, Creature* caller, uint32 callerE
         case NPC_SRATHIK:
             for (uint32 n = NPC_SRATHIK_1; n <= NPC_SRATHIK_3; n++)
             {
-                if (Creature* soldier = caller->GetCreature(*caller, instance->GetData64(n)))
+                if (Creature* soldier = caller->GetCreature(*caller, instance->GetGuidData(n)))
                 {
                     if (soldier->GetGUID() != callerGuid && soldier->isAlive())
                         soldier->Kill(soldier, true);
@@ -175,7 +175,7 @@ void SendDiedSoldiers(InstanceScript* instance, Creature* caller, uint32 callerE
         case NPC_ZARTHIK:
             for (uint32 n = NPC_ZARTHIK_1; n <= NPC_ZARTHIK_3; n++)
             {
-                if (Creature* soldier = caller->GetCreature(*caller, instance->GetData64(n)))
+                if (Creature* soldier = caller->GetCreature(*caller, instance->GetGuidData(n)))
                 {
                     if (soldier->GetGUID() != callerGuid && soldier->isAlive())
                         soldier->Kill(soldier, true);
@@ -185,7 +185,7 @@ void SendDiedSoldiers(InstanceScript* instance, Creature* caller, uint32 callerE
         case NPC_KORTHIK:
             for (uint32 n = NPC_KORTHIK_1; n <= NPC_KORTHIK_3; n++)
             {
-                if (Creature* soldier = caller->GetCreature(*caller, instance->GetData64(n)))
+                if (Creature* soldier = caller->GetCreature(*caller, instance->GetGuidData(n)))
                 {
                     if (soldier->GetGUID() != callerGuid && soldier->isAlive())
                         soldier->Kill(soldier, true);
@@ -194,7 +194,7 @@ void SendDiedSoldiers(InstanceScript* instance, Creature* caller, uint32 callerE
             break;
         }
 
-        if (Creature* meljarak = caller->GetCreature(*caller, instance->GetData64(NPC_MELJARAK)))
+        if (Creature* meljarak = caller->GetCreature(*caller, instance->GetGuidData(NPC_MELJARAK)))
         {
             if (meljarak->isAlive())
                 meljarak->AddAura(SPELL_RECKLESSNESS, meljarak);
@@ -211,7 +211,7 @@ void SendHealSoldiers(InstanceScript* instance, Creature* caller, uint32 callerE
         case NPC_SRATHIK:
             for (uint32 n = NPC_SRATHIK_1; n <= NPC_SRATHIK_3; n++)
             {
-                if (Creature* soldier = caller->GetCreature(*caller, instance->GetData64(n)))
+                if (Creature* soldier = caller->GetCreature(*caller, instance->GetGuidData(n)))
                 {
                     if (soldier->GetGUID() != callerGuid && soldier->isAlive())
                         soldier->SetHealth(soldier->GetHealth() + modhealth);
@@ -221,7 +221,7 @@ void SendHealSoldiers(InstanceScript* instance, Creature* caller, uint32 callerE
         case NPC_ZARTHIK:
             for (uint32 n = NPC_ZARTHIK_1; n <= NPC_ZARTHIK_3; n++)
             {
-                if (Creature* soldier = caller->GetCreature(*caller, instance->GetData64(n)))
+                if (Creature* soldier = caller->GetCreature(*caller, instance->GetGuidData(n)))
                 {
                     if (soldier->GetGUID() != callerGuid && soldier->isAlive())
                         soldier->SetHealth(soldier->GetHealth() + modhealth);
@@ -231,7 +231,7 @@ void SendHealSoldiers(InstanceScript* instance, Creature* caller, uint32 callerE
         case NPC_KORTHIK:
             for (uint32 n = NPC_KORTHIK_1; n <= NPC_KORTHIK_3; n++)
             {
-                if (Creature* soldier = caller->GetCreature(*caller, instance->GetData64(n)))
+                if (Creature* soldier = caller->GetCreature(*caller, instance->GetGuidData(n)))
                 {
                     if (soldier->GetGUID() != callerGuid && soldier->isAlive())
                         soldier->SetHealth(soldier->GetHealth() + modhealth);
@@ -267,7 +267,7 @@ class npc_generic_soldier : public CreatureScript
             {
                 if (pInstance)
                 {
-                    if (Creature* meljarak = me->GetCreature(*me, pInstance->GetData64(NPC_MELJARAK)))
+                    if (Creature* meljarak = me->GetCreature(*me, pInstance->GetGuidData(NPC_MELJARAK)))
                     {
                         if (meljarak->isAlive() && !meljarak->isInCombat())
                             meljarak->AI()->AttackStart(attacker);
@@ -320,7 +320,7 @@ class npc_generic_soldier : public CreatureScript
                 {
                     for (uint32 n = NPC_SRATHIK_1; n <= NPC_KORTHIK_3; n++)
                     {
-                        if (Creature* soldier = me->GetCreature(*me, pInstance->GetData64(n)))
+                        if (Creature* soldier = me->GetCreature(*me, pInstance->GetGuidData(n)))
                         {
                             if (soldier->GetGUID() != me->GetGUID())
                             {

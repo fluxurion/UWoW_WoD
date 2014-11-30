@@ -380,7 +380,7 @@ public:
                     RushTimer = 42000;
                     RessTimer = 30000;
                     if (pInstance)
-                        if (Creature *pAuriaya = me->GetCreature(*me, pInstance->GetData64(DATA_AURIAYA)))
+                        if (Creature *pAuriaya = me->GetCreature(*me, pInstance->GetGuidData(DATA_AURIAYA)))
                             pAuriaya->AI()->DoAction(ACTION_NINE_LIVES);
                 }
             }
@@ -474,7 +474,7 @@ public:
         void JustDied(Unit* /*victim*/)
         {
             if (pInstance)
-                if (Creature *pAuriaya = me->GetCreature(*me, pInstance->GetData64(DATA_AURIAYA)))
+                if (Creature *pAuriaya = me->GetCreature(*me, pInstance->GetGuidData(DATA_AURIAYA)))
                     pAuriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
         }
     };

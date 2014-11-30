@@ -126,7 +126,7 @@ public:
         {
             for (uint8 n = DATA_TSULONG; n <= DATA_LEI_SHI; n++)
             {
-                if (Creature* boss = instance->GetCreature(GetData64(n)))
+                if (Creature* boss = instance->GetCreature(GetGuidData(n)))
                 {
                     if (!boss->isAlive())
                         SetDoorState(n);
@@ -224,7 +224,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 type)
+        uint64 GetGuidData(uint32 type)
         {
             switch (type)
             {

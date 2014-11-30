@@ -213,7 +213,7 @@ public:
         boss_shade_of_akamaAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
             instance = creature->GetInstanceScript();
-            AkamaGUID = instance ? instance->GetData64(DATA_AKAMA_SHADE) : 0;
+            AkamaGUID = instance ? instance->GetGuidData(DATA_AKAMA_SHADE) : 0;
             me->setActive(true);//if view distance is too low
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
@@ -586,7 +586,7 @@ public:
             StartCombat = false;
             instance = creature->GetInstanceScript();
             if (instance)
-                ShadeGUID = instance->GetData64(DATA_SHADEOFAKAMA);
+                ShadeGUID = instance->GetGuidData(DATA_SHADEOFAKAMA);
             else
                 ShadeGUID = NOT_STARTED;
             me->setActive(true);
@@ -655,7 +655,7 @@ public:
             if (!instance)
                 return;
 
-            ShadeGUID = instance->GetData64(DATA_SHADEOFAKAMA);
+            ShadeGUID = instance->GetGuidData(DATA_SHADEOFAKAMA);
             if (!ShadeGUID)
                 return;
 

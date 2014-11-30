@@ -202,25 +202,25 @@ public:
                         sCreatureTextMgr->SendChat(me, TEXT_GENERIC_10, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_4:
-                        if (Creature* rook = instance->instance->GetCreature(instance->GetData64(NPC_ROOK_STONETOE)))
+                        if (Creature* rook = instance->instance->GetCreature(instance->GetGuidData(NPC_ROOK_STONETOE)))
                             sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_0, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_5:
                         sCreatureTextMgr->SendChat(me, TEXT_GENERIC_11, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_6:
-                        if (Creature* rook = instance->instance->GetCreature(instance->GetData64(NPC_ROOK_STONETOE)))
+                        if (Creature* rook = instance->instance->GetCreature(instance->GetGuidData(NPC_ROOK_STONETOE)))
                             sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_1, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_7:
-                        if (Creature* rook = instance->instance->GetCreature(instance->GetData64(NPC_SUN_TENDERHEART)))
+                        if (Creature* rook = instance->instance->GetCreature(instance->GetGuidData(NPC_SUN_TENDERHEART)))
                             sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_0, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_8:
                         sCreatureTextMgr->SendChat(me, TEXT_GENERIC_12, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_9:
-                        if (Creature* rook = instance->instance->GetCreature(instance->GetData64(NPC_ROOK_STONETOE)))
+                        if (Creature* rook = instance->instance->GetCreature(instance->GetGuidData(NPC_ROOK_STONETOE)))
                             sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_2, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_10:

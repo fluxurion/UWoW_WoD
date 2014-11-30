@@ -390,7 +390,7 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            void SetData64(uint32 type, uint64 data)
+            void SetGuidData(uint32 type, uint64 data)
             {
                 // Archaedas
                 if (type == 0)
@@ -466,7 +466,7 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier)
+            uint64 GetGuidData(uint32 identifier)
             {
                 if (identifier == 0) return uiWhoWokeuiArchaedasGUID;
                 if (identifier == 1) return vVaultWalker[0];    // VaultWalker1
@@ -482,7 +482,7 @@ class instance_uldaman : public InstanceMapScript
                 if (identifier == 10) return vEarthenGuardian[5];
 
                 return 0;
-            } // end GetData64
+            } // end GetGuidData
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

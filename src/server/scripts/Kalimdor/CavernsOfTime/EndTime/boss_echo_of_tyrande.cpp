@@ -568,7 +568,7 @@ class at_et_tyrande : public AreaTriggerScript
                 if (pInstance->GetData(DATA_TYRANDE_EVENT) != IN_PROGRESS && 
                     pInstance->GetData(DATA_TYRANDE_EVENT) != DONE)
                 {
-                    if (Creature* pTyrande = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetData64(DATA_ECHO_OF_TYRANDE)))
+                    if (Creature* pTyrande = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetGuidData(DATA_ECHO_OF_TYRANDE)))
                     {
                         pTyrande->AI()->Talk(SAY_INTRO_1);
                         pTyrande->AI()->DoAction(ACTION_START_EVENT);

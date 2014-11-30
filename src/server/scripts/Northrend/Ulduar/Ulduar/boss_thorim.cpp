@@ -292,7 +292,7 @@ public:
         
             // Respawn Mini Bosses
             for (uint8 i = DATA_RUNIC_COLOSSUS; i <= DATA_RUNE_GIANT; i++)
-                if (Creature* pMiniBoss = me->GetCreature(*me, instance->GetData64(i)))
+                if (Creature* pMiniBoss = me->GetCreature(*me, instance->GetGuidData(i)))
                     pMiniBoss->Respawn(true);
 
             // Spawn Pre-Phase Adds
@@ -520,9 +520,9 @@ public:
         {
             if (phase == PHASE_1 && pKiller && instance)
             {
-                if (Creature* pRunicColossus = me->GetCreature(*me, instance->GetData64(DATA_RUNIC_COLOSSUS)))
+                if (Creature* pRunicColossus = me->GetCreature(*me, instance->GetGuidData(DATA_RUNIC_COLOSSUS)))
                     if (pRunicColossus->isDead())
-                        if (Creature* pRuneGiant = me->GetCreature(*me, instance->GetData64(DATA_RUNE_GIANT)))
+                        if (Creature* pRuneGiant = me->GetCreature(*me, instance->GetGuidData(DATA_RUNE_GIANT)))
                             if (pRuneGiant->isDead())
                                 if (me->IsWithinDistInMap(pKiller, 20.0f) && pKiller->ToPlayer())
                                 {
@@ -590,7 +590,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* pThorim = me->GetCreature(*me, pInstance->GetData64(DATA_THORIM)))
+            if (Creature* pThorim = me->GetCreature(*me, pInstance->GetGuidData(DATA_THORIM)))
                 pThorim->AI()->DoAction(INCREASE_PREADDS_COUNT);
         }
 

@@ -591,7 +591,7 @@ public:
             }
 
             if (instance)
-                VashjGUID = instance->GetData64(DATA_LADYVASHJ);
+                VashjGUID = instance->GetGuidData(DATA_LADYVASHJ);
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -667,7 +667,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (instance)
-                if (Creature* vashj = Unit::GetCreature((*me), instance->GetData64(DATA_LADYVASHJ)))
+                if (Creature* vashj = Unit::GetCreature((*me), instance->GetGuidData(DATA_LADYVASHJ)))
                     CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->EventTaintedElementalDeath();
         }
 
@@ -784,7 +784,7 @@ public:
                 if (instance)
                 {
                     // check if vashj is death
-                    Unit* Vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
+                    Unit* Vashj = Unit::GetUnit(*me, instance->GetGuidData(DATA_LADYVASHJ));
                     if (!Vashj || (Vashj && !Vashj->isAlive()) || (Vashj && CAST_AI(boss_lady_vashj::boss_lady_vashjAI, CAST_CRE(Vashj)->AI())->Phase != 3))
                     {
                         // remove
@@ -840,7 +840,7 @@ public:
 
             if (CheckTimer <= diff)
             {
-                Unit* vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
+                Unit* vashj = Unit::GetUnit(*me, instance->GetGuidData(DATA_LADYVASHJ));
 
                 if (vashj && vashj->isAlive())
                 {
@@ -872,7 +872,7 @@ public:
             return true;
         }
 
-        Creature* vashj = Unit::GetCreature((*player), instance->GetData64(DATA_LADYVASHJ));
+        Creature* vashj = Unit::GetCreature((*player), instance->GetGuidData(DATA_LADYVASHJ));
         if (vashj && (CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase == 2))
         {
             if (GameObject* gObj = targets.GetGOTarget())

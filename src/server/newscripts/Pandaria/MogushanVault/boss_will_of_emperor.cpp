@@ -261,7 +261,7 @@ void SendDied(InstanceScript* pInstance, Creature* caller, uint32 callerentry)
     {
         for (uint8 n = 0; n < 2; n++)
         {
-            if (Creature* imperator = caller->GetCreature(*caller, pInstance->GetData64(imperators[n])))
+            if (Creature* imperator = caller->GetCreature(*caller, pInstance->GetGuidData(imperators[n])))
             {
                 if (imperator->isAlive() && imperator->GetEntry() != callerentry)
                 {
@@ -270,7 +270,7 @@ void SendDied(InstanceScript* pInstance, Creature* caller, uint32 callerentry)
                 }
             }
         }
-        if (Creature* controller = caller->GetCreature(*caller, pInstance->GetData64(NPC_WOI_CONTROLLER)))
+        if (Creature* controller = caller->GetCreature(*caller, pInstance->GetGuidData(NPC_WOI_CONTROLLER)))
             controller->AI()->DoAction(ACTION_DONE);
     }
 }
@@ -281,7 +281,7 @@ void SendDamage(InstanceScript* pInstance, Creature* caller, uint32 callerentry,
     {
         for (uint8 n = 0; n < 2; n++)
         {
-            if (Creature* imperator = caller->GetCreature(*caller, pInstance->GetData64(imperators[n])))
+            if (Creature* imperator = caller->GetCreature(*caller, pInstance->GetGuidData(imperators[n])))
             {
                 if (imperator->isAlive() && imperator->GetEntry() != callerentry)
                     imperator->SetHealth(imperator->GetHealth() - damage);
@@ -435,7 +435,7 @@ class mob_woi_add_generic : public CreatureScript
                         break;
                     case NPC_COURAGE:
                         focusspell = SPELL_FOCALISED_DEFENSE;
-                        if (Unit* randomBoss = pInstance->instance->GetCreature(pInstance->GetData64(urand(0, 1) ? NPC_QIN_XI: NPC_JAN_XI)))
+                        if (Unit* randomBoss = pInstance->instance->GetCreature(pInstance->GetGuidData(urand(0, 1) ? NPC_QIN_XI: NPC_JAN_XI)))
                         {
                             if (Unit* tank = randomBoss->getVictim())
                             {
@@ -515,7 +515,7 @@ class mob_woi_add_generic : public CreatureScript
                                     }
                                     break;
                                 case NPC_COURAGE:
-                                    if (Unit* randomBoss = pInstance->instance->GetCreature(pInstance->GetData64(urand(0, 1) ? NPC_QIN_XI: NPC_JAN_XI)))
+                                    if (Unit* randomBoss = pInstance->instance->GetCreature(pInstance->GetGuidData(urand(0, 1) ? NPC_QIN_XI: NPC_JAN_XI)))
                                     {
                                         if (Unit* tank = randomBoss->getVictim())
                                         {

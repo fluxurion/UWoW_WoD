@@ -63,14 +63,14 @@ class boss_jinbak : public CreatureScript
             {
                 _Reset();
                 me->GetMotionMaster()->MovePoint(0, 1536.54f, 5170.002f, 158.89f);
-                if (Creature* puddle = me->GetCreature(*me, instance->GetData64(NPC_PUDDLE)))
+                if (Creature* puddle = me->GetCreature(*me, instance->GetGuidData(NPC_PUDDLE)))
                     puddle->AI()->DoAction(ACTION_EVADE);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                if (Creature* puddle = me->GetCreature(*me, instance->GetData64(NPC_PUDDLE)))
+                if (Creature* puddle = me->GetCreature(*me, instance->GetGuidData(NPC_PUDDLE)))
                     puddle->AI()->DoAction(ACTION_COMBAT);
                 ExploseTimer = 60000;
             }
@@ -82,7 +82,7 @@ class boss_jinbak : public CreatureScript
 
                 if (ExploseTimer <= diff)
                 {
-                    if (Creature* puddle = me->GetCreature(*me, instance->GetData64(NPC_PUDDLE)))
+                    if (Creature* puddle = me->GetCreature(*me, instance->GetGuidData(NPC_PUDDLE)))
                         puddle->AI()->DoAction(ACTION_EXPLOSE);
                     ExploseTimer = 60000;
                 }
@@ -95,7 +95,7 @@ class boss_jinbak : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
-                if (Creature* puddle = me->GetCreature(*me, instance->GetData64(NPC_PUDDLE)))
+                if (Creature* puddle = me->GetCreature(*me, instance->GetGuidData(NPC_PUDDLE)))
                     puddle->AI()->DoAction(ACTION_DONE);
             }
         };

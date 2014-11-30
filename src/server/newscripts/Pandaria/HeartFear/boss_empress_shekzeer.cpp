@@ -350,7 +350,7 @@ class npc_generic_royal_sentinel : public CreatureScript
             {
                 if (pInstance)
                 {
-                    if (Creature* shekzeer = me->GetCreature(*me, pInstance->GetData64(NPC_SHEKZEER)))
+                    if (Creature* shekzeer = me->GetCreature(*me, pInstance->GetGuidData(NPC_SHEKZEER)))
                         shekzeer->AI()->DoAction(ACTION_SENTINEL_DIED);
                 }
             }

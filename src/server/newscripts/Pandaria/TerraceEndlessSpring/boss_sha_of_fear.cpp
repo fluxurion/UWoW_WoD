@@ -55,7 +55,7 @@ bool CheckLeiShi(InstanceScript* instance, Creature* caller)
 {
     if (instance && caller)
     {
-        if (Creature* ls = caller->GetCreature(*caller, instance->GetData64(NPC_LEI_SHI)))
+        if (Creature* ls = caller->GetCreature(*caller, instance->GetGuidData(NPC_LEI_SHI)))
         {
             if (ls->isAlive())
                 return true;

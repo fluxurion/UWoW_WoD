@@ -228,7 +228,7 @@ class mob_ahnkahar_nerubian : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
-                    if (Creature* Nadox = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ELDER_NADOX)))
+                    if (Creature* Nadox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ELDER_NADOX)))
                         Nadox->AI()->DoAction(ACTION_AHNKAHAR_GUARDIAN_DEAD);
             }
 

@@ -482,7 +482,7 @@ class mob_haunting_sha : public CreatureScript
                 if (action != 0)
                     return;
 
-                uint64 guid = me->GetInstanceScript()->GetData64(CREATURE_ZAO_SUNSEEKER);
+                uint64 guid = me->GetInstanceScript()->GetGuidData(CREATURE_ZAO_SUNSEEKER);
                 if (guid != 0)
                 {
                     Creature* zao = me->GetMap()->GetCreature(guid);

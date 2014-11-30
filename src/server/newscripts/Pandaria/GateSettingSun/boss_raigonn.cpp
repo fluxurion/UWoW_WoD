@@ -138,7 +138,7 @@ class boss_raigonn : public CreatureScript
                         weakSpot->_EnterVehicle(meVehicle, 1);
 
                         if (pInstance)
-                            pInstance->SetData64(NPC_WEAK_SPOT, weakSpot->GetGUID());
+                            pInstance->SetGuidData(NPC_WEAK_SPOT, weakSpot->GetGUID());
 
                         if (Vehicle* vehicleWeakSpot = weakSpot->GetVehicleKit())
                             vehicleWeakSpot->SetCanBeCastedByPassengers(true);
@@ -176,7 +176,7 @@ class boss_raigonn : public CreatureScript
 
                 pInstance->SetBossState(DATA_RAIGONN, IN_PROGRESS);
 
-                if (Creature* weakPoint = pInstance->instance->GetCreature(pInstance->GetData64(NPC_WEAK_SPOT)))
+                if (Creature* weakPoint = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_WEAK_SPOT)))
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, weakPoint);
                     weakPoint->setFaction(16);
@@ -239,7 +239,7 @@ class boss_raigonn : public CreatureScript
 
           /*  void RemoveWeakSpotPassengers()
             {
-                if (Creature* weakPoint = pInstance->instance->GetCreature(pInstance->GetData64(NPC_WEAK_SPOT)))
+                if (Creature* weakPoint = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_WEAK_SPOT)))
                 {
                     if (Vehicle* weakVehicle = weakPoint->GetVehicleKit())
                     {
@@ -439,7 +439,7 @@ class npc_raigonn_weak_spot : public CreatureScript
             {
                 if (damage >= me->GetHealth())
                     if (pInstance)
-                        if (Creature* Raigonn = pInstance->instance->GetCreature(pInstance->GetData64(NPC_RAIGONN)))
+                        if (Creature* Raigonn = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_RAIGONN)))
                             if (Raigonn->AI())
                                 Raigonn->AI()->DoAction(ACTION_WEAK_SPOT_DEAD);
             }
@@ -609,7 +609,7 @@ class vehicle_artillery : public VehicleScript
 
                 if (launchEventTimer <= diff)
                 {
-                    if (Creature* weakSpot = pInstance->instance->GetCreature(pInstance->GetData64(NPC_WEAK_SPOT)))
+                    if (Creature* weakSpot = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_WEAK_SPOT)))
                     {
                         if (weakSpot->GetVehicleKit())
                         {

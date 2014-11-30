@@ -345,7 +345,7 @@ class at_sulfuron_keep : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*enter*/)
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (!ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_RAGNAROS)))
+                if (!ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_RAGNAROS)))
                     player->SummonCreature(NPC_RAGNAROS, RagnarosSummonPosition, TEMPSUMMON_MANUAL_DESPAWN, 0);
             return true;
         }

@@ -330,7 +330,7 @@ public:
                 me->GetMotionMaster()->MovementExpired();
                 DoScriptText(-1666108, me);
                 DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
-                if (GameObject* pGoPortal = pInstance->instance->GetGameObject(pInstance->GetData64(GO_HALION_PORTAL_1)))
+                if (GameObject* pGoPortal = pInstance->instance->GetGameObject(pInstance->GetGuidData(GO_HALION_PORTAL_1)))
                 {
                     pGoPortal->SetPhaseMask(31,true);
                     me->SetDisplayId(11686);
@@ -354,7 +354,7 @@ public:
 
             Rdmg += damage;
 
-            Creature * pHalionTwilight = me->GetCreature(*me, pInstance->GetData64(NPC_HALION_TWILIGHT));
+            Creature * pHalionTwilight = me->GetCreature(*me, pInstance->GetGuidData(NPC_HALION_TWILIGHT));
             
             if (!pHalionTwilight)
                 return;
@@ -459,7 +459,7 @@ public:
                 EnterEvadeMode();
             else if (!UpdateVictim() && phase == PHASE_THREE && !HealingTimer)
             {
-                if (Creature* THalion = me->GetCreature(*me, pInstance->GetData64(NPC_HALION_TWILIGHT)))
+                if (Creature* THalion = me->GetCreature(*me, pInstance->GetGuidData(NPC_HALION_TWILIGHT)))
                 {
                     if (THalion && THalion->isAlive())
                     {
@@ -487,7 +487,7 @@ public:
                 {
                     if (!me->getVictim())
                     {
-                        if (Creature* Thalion = me->GetCreature(*me, pInstance->GetData64(NPC_HALION_TWILIGHT)))
+                        if (Creature* Thalion = me->GetCreature(*me, pInstance->GetGuidData(NPC_HALION_TWILIGHT)))
                         {
                             if (Thalion && Thalion->isAlive())
                             {
@@ -623,7 +623,7 @@ public:
             DoCast(me, 75476);
             Tdmg = 0;
             
-            Creature* pFocus = me->GetMap()->GetCreature(pInstance->GetData64(NPC_ORB_ROTATION_FOCUS));
+            Creature* pFocus = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_ORB_ROTATION_FOCUS));
             if (!pFocus )
                 pFocus = me->SummonCreature(NPC_ORB_ROTATION_FOCUS, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, 0, TEMPSUMMON_MANUAL_DESPAWN);
             else if (!pFocus->isAlive())
@@ -710,7 +710,7 @@ public:
                 return;
 
             Tdmg += damage;
-            Creature * pHalionReal = me->GetCreature(*me, pInstance->GetData64(NPC_HALION_REAL));
+            Creature * pHalionReal = me->GetCreature(*me, pInstance->GetGuidData(NPC_HALION_REAL));
 
             if (!pHalionReal)
                 return;
@@ -1046,7 +1046,7 @@ public:
                 Tdmg = 0;
                 Rdmg = 0;
                 
-                if (Creature* pHalionReal = me->GetCreature(*me, pInstance->GetData64(NPC_HALION_REAL)))
+                if (Creature* pHalionReal = me->GetCreature(*me, pInstance->GetGuidData(NPC_HALION_REAL)))
                 {
                     if (pHalionReal && pHalionReal->isAlive())
                     {
@@ -1056,7 +1056,7 @@ public:
                         m_lastBuffReal = Buff[buffnum].real;
                     }
                 }
-                if (Creature* pHalionTwilight = me->GetCreature(*me, pInstance->GetData64(NPC_HALION_TWILIGHT)))
+                if (Creature* pHalionTwilight = me->GetCreature(*me, pInstance->GetGuidData(NPC_HALION_TWILIGHT)))
                 {
                     if (pHalionTwilight && pHalionTwilight->isAlive())
                     {
@@ -1124,7 +1124,7 @@ public:
             m_warning = false;
 			m_raysActive = false;
 
-            Creature* pPulsar1 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_N));
+            Creature* pPulsar1 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_N));
             if (!pPulsar1 )
             {
                 float x,y;
@@ -1134,7 +1134,7 @@ public:
 			else if (!pPulsar1->isAlive())
 				pPulsar1->Respawn();
 
-            Creature* pPulsar2 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_S));
+            Creature* pPulsar2 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_S));
             if (!pPulsar2)
             {
                 float x,y;
@@ -1146,7 +1146,7 @@ public:
 
             if (me->GetMap()->IsHeroic())
             {
-                 Creature* pPulsar3 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_I));
+                 Creature* pPulsar3 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_I));
                  if (!pPulsar3)
                  {
                      float x,y;
@@ -1156,7 +1156,7 @@ public:
                  else if (!pPulsar3->isAlive())
                      pPulsar3->Respawn();
                  
-                 Creature* pPulsar4 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_W));
+                 Creature* pPulsar4 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_W));
                  if (!pPulsar4)
                  {
                      float x,y;
@@ -1175,10 +1175,10 @@ public:
             Map* pMap = me->GetMap();
             if (pMap && pMap->IsDungeon())
             {
-				Creature* pPulsar1 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_N));
-				Creature* pPulsar2 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_S));
-                Creature* pPulsar3 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_I));
-                Creature* pPulsar4 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_W));
+				Creature* pPulsar1 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_N));
+				Creature* pPulsar2 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_S));
+                Creature* pPulsar3 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_I));
+                Creature* pPulsar4 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_W));
 
                 Map::PlayerList const &PlayerList = pMap->GetPlayers();
                 if (!PlayerList.isEmpty())
@@ -1296,10 +1296,10 @@ public:
 			{
 				if (m_launchPulsarTimer <= uiDiff)
 				{
-					Creature* pPulsar1 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_N));
-					Creature* pPulsar2 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_S));
-                    Creature* pPulsar3 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_I));
-                    Creature* pPulsar4 = me->GetMap()->GetCreature(pInstance->GetData64(NPC_SHADOW_PULSAR_W));
+					Creature* pPulsar1 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_N));
+					Creature* pPulsar2 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_S));
+                    Creature* pPulsar3 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_I));
+                    Creature* pPulsar4 = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_SHADOW_PULSAR_W));
 
 					if (pPulsar1 && pPulsar2)
 					{
@@ -1456,7 +1456,7 @@ public:
             m_direction = ((float)pInstance->GetData(DATA_ORB_DIRECTION)/1000 + m_delta);
             if (m_direction > 2.0f*M_PI)
                 m_direction = m_direction - 2.0f*M_PI;
-            if (focus = me->GetMap()->GetCreature(pInstance->GetData64(NPC_ORB_ROTATION_FOCUS)))
+            if (focus = me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_ORB_ROTATION_FOCUS)))
             {
                 focus->GetNearPoint2D(x, y, FR_RADIUS, m_direction);
                 me->GetMotionMaster()->Clear();

@@ -142,11 +142,11 @@ public:
             // Moreover, the adds may not yet be spawn. So just track down the status if mob is spawn
             // and each mob will send its status at reset (meaning that it is alive)
             checkFeugenAlive = false;
-            if (Creature *pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+            if (Creature *pFeugen = me->GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 checkFeugenAlive = pFeugen->isAlive();
 
             checkStalaggAlive = false;
-            if (Creature *pStalagg = me->GetCreature(*me, instance->GetData64(DATA_STALAGG)))
+            if (Creature *pStalagg = me->GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
                 checkStalaggAlive = pStalagg->isAlive();
 
             if (!checkFeugenAlive && !checkStalaggAlive)
@@ -243,12 +243,12 @@ public:
       {
           _EnterEvadeMode();
           Reset();
-          if (Creature *pStalagg = me->GetCreature(*me, instance->GetData64(DATA_STALAGG)))
+          if (Creature *pStalagg = me->GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
           {
               pStalagg->Respawn();
               pStalagg->GetMotionMaster()->MovePoint(0, pStalagg->GetHomePosition());
           }
-          if (Creature *pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+          if (Creature *pFeugen = me->GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
           {
               pFeugen->Respawn();
               pFeugen->GetMotionMaster()->MovePoint(0, pFeugen->GetHomePosition());
@@ -273,7 +273,7 @@ public:
                     if (!checkStalaggAlive)
                     {
                         if (instance)
-                            if (Creature *pStalagg = me->GetCreature(*me, instance->GetData64(DATA_STALAGG)))
+                            if (Creature *pStalagg = me->GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
                             {
                                 pStalagg->Respawn();
                                 pStalagg->GetMotionMaster()->MovePoint(0, pStalagg->GetHomePosition());
@@ -282,7 +282,7 @@ public:
                     else
                     {
                         if (instance)
-                            if (Creature *pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
+                            if (Creature *pFeugen = me->GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                             {
                                 pFeugen->Respawn();
                                 pFeugen->GetMotionMaster()->MovePoint(0, pFeugen->GetHomePosition());
@@ -308,9 +308,9 @@ public:
                             DoScriptText(EMOTE_TESLA_OVERLOAD, pTesla);
                         if (instance)
                         {
-                            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_THADDIUS_TESLA05)))
+                            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_THADDIUS_TESLA05)))
                                 go->UseDoorOrButton();
-                            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_THADDIUS_TESLA06)))
+                            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_THADDIUS_TESLA06)))
                                 go->UseDoorOrButton();
                         }
                         break;
@@ -371,11 +371,11 @@ public:
         {
             if (pInstance)
             {
-                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
+                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
 
-                if (GameObject* go = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_THADDIUS_TESLA06)))
+                if (GameObject* go = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_THADDIUS_TESLA06)))
                     go->ResetDoorOrButton();
             }
             powerSurgeTimer = urand(20000, 25000);
@@ -392,7 +392,7 @@ public:
         void JustDied(Unit * /*killer*/)
         {
             if (pInstance)
-                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
+                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
         }
@@ -418,7 +418,7 @@ public:
 
             if (magneticPullTimer <= uiDiff)
             {
-                if (Creature *pFeugen = me->GetCreature(*me, pInstance->GetData64(DATA_FEUGEN)))
+                if (Creature *pFeugen = me->GetCreature(*me, pInstance->GetGuidData(DATA_FEUGEN)))
                 {
                     Unit* pStalaggVictim = me->getVictim();
                     Unit* pFeugenVictim = pFeugen->getVictim();
@@ -457,7 +457,7 @@ public:
             if (bSwitch)
                 if (uiIdleTimer <= uiDiff)
                 {
-                    if (Creature *pFeugen = me->GetCreature(*me, pInstance->GetData64(DATA_FEUGEN)))
+                    if (Creature *pFeugen = me->GetCreature(*me, pInstance->GetGuidData(DATA_FEUGEN)))
                         pFeugen->SetReactState(REACT_AGGRESSIVE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     bSwitch = false;
@@ -516,11 +516,11 @@ public:
         {
             if (pInstance)
             {
-                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
+                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
 
-                if (GameObject* go = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_THADDIUS_TESLA05)))
+                if (GameObject* go = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_THADDIUS_TESLA05)))
                     go->ResetDoorOrButton();
             }
             staticFieldTimer = 5000;
@@ -534,7 +534,7 @@ public:
         void JustDied(Unit * /*killer*/)
         {
             if (pInstance)
-                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
+                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
         }
@@ -597,7 +597,7 @@ public:
         {
             if (Unit * pCaster = GetCaster())
                if (InstanceScript* pInstance = pCaster->GetInstanceScript())
-                    if (Creature* pThadius = CAST_CRE(Unit::GetUnit(*pCaster, pInstance->GetData64(DATA_THADDIUS))))
+                    if (Creature* pThadius = CAST_CRE(Unit::GetUnit(*pCaster, pInstance->GetGuidData(DATA_THADDIUS))))
                        if (boss_thaddius::boss_thaddiusAI* pThadiusAI = CAST_AI(boss_thaddius::boss_thaddiusAI, pThadius->AI()))
                             if (Unit* target = GetHitUnit())
                             {

@@ -125,7 +125,7 @@ class boss_stone_guard_controler : public CreatureScript
             {
                 for (uint8 n = 0; n < 4; n++)
                 {
-                    if (Creature* guardian = me->GetCreature(*me, pInstance->GetData64(guardiansEntry[n])))
+                    if (Creature* guardian = me->GetCreature(*me, pInstance->GetGuidData(guardiansEntry[n])))
                     {
                         if (!guardian->isAlive())
                             guardian->Respawn(true);
@@ -139,7 +139,7 @@ class boss_stone_guard_controler : public CreatureScript
                     {
                         if (n == randomdespawn)
                         {
-                            if (Creature* guardian = me->GetCreature(*me, pInstance->GetData64(guardiansEntry[n])))
+                            if (Creature* guardian = me->GetCreature(*me, pInstance->GetGuidData(guardiansEntry[n])))
                             {
                                 guardian->DespawnOrUnsummon();
                                 break;
@@ -157,7 +157,7 @@ class boss_stone_guard_controler : public CreatureScript
                     {
                         for (uint8 i = 0; i < 4; ++i)\
                         {
-                            if (Creature* gardian = me->GetMap()->GetCreature(pInstance->GetData64(guardiansEntry[i])))
+                            if (Creature* gardian = me->GetMap()->GetCreature(pInstance->GetGuidData(guardiansEntry[i])))
                             {
                                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, gardian);
                                 if (gardian->isAlive() && !gardian->isInCombat())
@@ -176,7 +176,7 @@ class boss_stone_guard_controler : public CreatureScript
                             RemovePlayerBar();
                             for (uint8 i = 0; i < 4; ++i)
                             {
-                                if (Creature* gardian = me->GetMap()->GetCreature(pInstance->GetData64(guardiansEntry[i])))
+                                if (Creature* gardian = me->GetMap()->GetCreature(pInstance->GetGuidData(guardiansEntry[i])))
                                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, gardian);
                             }
                             
@@ -224,7 +224,7 @@ class boss_stone_guard_controler : public CreatureScript
                                         me->Kill(player);
 
                             for (uint8 i = 0; i < 4; ++i)
-                                if (Creature* gardian = me->GetMap()->GetCreature(pInstance->GetData64(guardiansEntry[i])))
+                                if (Creature* gardian = me->GetMap()->GetCreature(pInstance->GetGuidData(guardiansEntry[i])))
                                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, gardian);
 
                             events.Reset();
@@ -240,7 +240,7 @@ class boss_stone_guard_controler : public CreatureScript
                             bool alreadyOnePetrificationInProgress = false;
 
                             for (uint8 i = 0; i < 4; ++i)
-                                if (uint64 stoneGuardGuid = pInstance->GetData64(guardiansEntry[i]))
+                                if (uint64 stoneGuardGuid = pInstance->GetGuidData(guardiansEntry[i]))
                                     if (Creature* stoneGuard = pInstance->instance->GetCreature(stoneGuardGuid))
                                         if (stoneGuard->HasAura(SPELL_JASPER_PETRIFICATION)   || stoneGuard->HasAura(SPELL_JADE_PETRIFICATION) ||
                                             stoneGuard->HasAura(SPELL_AMETHYST_PETRIFICATION) || stoneGuard->HasAura(SPELL_COBALT_PETRIFICATION))
@@ -262,7 +262,7 @@ class boss_stone_guard_controler : public CreatureScript
                             }
                             while (nextPetrifierEntry == lastPetrifierEntry);
 
-                            if (uint64 stoneGuardGuid = pInstance->GetData64(nextPetrifierEntry))
+                            if (uint64 stoneGuardGuid = pInstance->GetGuidData(nextPetrifierEntry))
                             {
                                 if (Creature* stoneGuard = pInstance->instance->GetCreature(stoneGuardGuid))
                                 {
@@ -299,7 +299,7 @@ void DiedManager(InstanceScript* pInstance, Creature* caller, uint32 callerEntry
     {
         for (uint8 n = 0; n < 4; n++)
         {
-            if (Creature* guardian = caller->GetCreature(*caller, pInstance->GetData64(guardiansEntry[n])))
+            if (Creature* guardian = caller->GetCreature(*caller, pInstance->GetGuidData(guardiansEntry[n])))
             {
                 if (guardian->isAlive() && guardian->GetEntry() != callerEntry)
                 {
@@ -308,7 +308,7 @@ void DiedManager(InstanceScript* pInstance, Creature* caller, uint32 callerEntry
                 }
             }
         }
-        if (Creature* controller = caller->GetCreature(*caller, pInstance->GetData64(NPC_STONE_GUARD_CONTROLER)))
+        if (Creature* controller = caller->GetCreature(*caller, pInstance->GetGuidData(NPC_STONE_GUARD_CONTROLER)))
             controller->AI()->DoAction(ACTION_GUARDIAN_DIED);
     }
 }
@@ -319,7 +319,7 @@ void DamageManager(InstanceScript* pInstance, Creature* caller, uint32 callerEnt
     {
         for (uint8 n = 0; n < 4; n++)
         {
-            if (Creature* guardian = caller->GetCreature(*caller, pInstance->GetData64(guardiansEntry[n])))
+            if (Creature* guardian = caller->GetCreature(*caller, pInstance->GetGuidData(guardiansEntry[n])))
             {
                 if (guardian->isAlive() && guardian->GetEntry() != callerEntry)
                     guardian->SetHealth(guardian->GetHealth() - damage);
@@ -352,7 +352,7 @@ class boss_generic_guardian : public CreatureScript
 
             Creature* GetController()
             {
-                if (pInstance) return me->GetMap()->GetCreature(pInstance->GetData64(NPC_STONE_GUARD_CONTROLER)); else return NULL;
+                if (pInstance) return me->GetMap()->GetCreature(pInstance->GetGuidData(NPC_STONE_GUARD_CONTROLER)); else return NULL;
             }
 
             void Reset()

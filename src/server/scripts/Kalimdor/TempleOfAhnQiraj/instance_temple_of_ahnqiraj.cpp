@@ -118,7 +118,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 identifier)
+        uint64 GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -134,7 +134,7 @@ public:
                     return VeknilashGUID;
             }
             return 0;
-        }                                                       // end GetData64
+        }                                                       // end GetGuidData
 
         void SetData(uint32 type, uint32 data)
         {

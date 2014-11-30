@@ -413,7 +413,7 @@ class boss_theralion : public CreatureScript
                     break;
                 case ACTION_THERALION_FLY_STOP:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    if(Creature* pValiona = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VALIONA)))
+                    if(Creature* pValiona = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALIONA)))
                         pValiona->AI()->DoAction(ACTION_VALIONA_FLY_START);
                     me->GetMotionMaster()->MovePoint(POINT_LAND, valionatheralionflightPos);
                     break;
@@ -444,7 +444,7 @@ class boss_theralion : public CreatureScript
                 //DoCast(me, SPELL_TWILIGHT_SHIFT_BUFF);
                 events.ScheduleEvent(EVENT_BERSERK, IsHeroic()? 10*MINUTE*IN_MILLISECONDS: 6*MINUTE*IN_MILLISECONDS);
                 DoAction(ACTION_THERALION_FLY_START);
-                if (Creature* pValiona = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VALIONA)))
+                if (Creature* pValiona = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALIONA)))
                     if (!pValiona->isInCombat())
                         pValiona->SetInCombatWithZone();
                 instance->SetBossState(DATA_VALIONA_THERALION, IN_PROGRESS);
@@ -471,7 +471,7 @@ class boss_theralion : public CreatureScript
                 summons.DespawnAll();
                 Talk(SAY_THERALION_DEATH);
                 instance->SetData(DATA_HEALTH_VALIONA_THERALION, 0);
-                if (Creature* pValiona = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VALIONA)))
+                if (Creature* pValiona = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALIONA)))
                     Killer->Kill(pValiona);
             }
             
@@ -724,7 +724,7 @@ class boss_valiona : public CreatureScript
                 summons.DespawnAll();
                 Talk(SAY_VALIONA_DEATH);
                 instance->SetData(DATA_HEALTH_VALIONA_THERALION, 0);
-                if (Creature* pTheralion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THERALION)))
+                if (Creature* pTheralion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THERALION)))
                     Killer->Kill(pTheralion);
             }
             
@@ -758,7 +758,7 @@ class boss_valiona : public CreatureScript
                     break;
                 case ACTION_VALIONA_FLY_STOP:
                     //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    if(Creature* pTheralion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THERALION)))
+                    if(Creature* pTheralion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THERALION)))
                         pTheralion->AI()->DoAction(ACTION_THERALION_FLY_START);
                     me->GetMotionMaster()->MovePoint(POINT_LAND, valionatheralionlandPos);
                     break;
@@ -783,7 +783,7 @@ class boss_valiona : public CreatureScript
                     events.ScheduleEvent(EVENT_TWILIGHT_SHIFT_STACK, urand(10000, 20000));
                 }
                 
-                if (Creature* pTheralion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_THERALION)))
+                if (Creature* pTheralion = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THERALION)))
                     pTheralion->SetInCombatWithZone();
                 for (uint8 i = 0; i < 10; i++)
                     if (Creature* pUnstableTwilight = me->SummonCreature(NPC_UNSTABLE_TWILIGHT, unstabletwilightPos[i]))

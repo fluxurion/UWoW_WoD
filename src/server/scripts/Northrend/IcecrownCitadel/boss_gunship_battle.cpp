@@ -429,7 +429,7 @@ void StopFlyShip(Transport* t)
 //Find Unfriendy transport
 Transport* CheckUnfriendlyShip(Creature* me, InstanceScript* instance, uint32 data)
 {
-    if(Creature* pCapitan = ObjectAccessor::GetCreature(*me, instance->GetData64(data)))
+    if(Creature* pCapitan = ObjectAccessor::GetCreature(*me, instance->GetGuidData(data)))
         return pCapitan->GetTransport();
     else
         return NULL;
@@ -867,8 +867,8 @@ class npc_muradin_gunship : public CreatureScript
                         if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             events.ScheduleEvent(EVENT_WIPE_CHECK, 5000);
 
-                        Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SKYBREAKER_BOSS));
-                        Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORGRIMMAR_HAMMER_BOSS));
+                        Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKYBREAKER_BOSS));
+                        Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ORGRIMMAR_HAMMER_BOSS));
 
                         if (pHordeBoss && pAllianceBoss)
                         {
@@ -888,11 +888,11 @@ class npc_muradin_gunship : public CreatureScript
                         break;
                     }
                     case ACTION_DONE:
-                        if (Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SKYBREAKER_BOSS)))
+                        if (Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKYBREAKER_BOSS)))
                         {
                             _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, pAllianceBoss);
                         }
-                        if (Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORGRIMMAR_HAMMER_BOSS)))
+                        if (Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ORGRIMMAR_HAMMER_BOSS)))
                         {
                             _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, pHordeBoss);
                         }
@@ -912,11 +912,11 @@ class npc_muradin_gunship : public CreatureScript
                     case ACTION_FAIL:
                         events.CancelEvent(EVENT_WIPE_CHECK);
                         Talk(SAY_ALLIANCE_DEFEAT);
-                        if (Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SKYBREAKER_BOSS)))
+                        if (Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKYBREAKER_BOSS)))
                         {
                             _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, pAllianceBoss);
                         }
-                        if (Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORGRIMMAR_HAMMER_BOSS)))
+                        if (Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ORGRIMMAR_HAMMER_BOSS)))
                         {
                             _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, pHordeBoss);
                         }
@@ -1024,7 +1024,7 @@ class npc_muradin_gunship : public CreatureScript
                             me->AI()->DoAction(ACTION_BATTLE_EVENT);
                             break;
                         case EVENT_INTRO_ALLIANCE_7:
-                            if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HIGH_OVERLORD_SAURFANG_NOT_VISUAL)))
+                            if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HIGH_OVERLORD_SAURFANG_NOT_VISUAL)))
                             {
                                 pSaurfang->AI()->Talk(SAY_HIGH_OVERLORD_SAURFANG_NOT_VISUAL);
                                 pSaurfang->SetReactState(REACT_PASSIVE);
@@ -1059,7 +1059,7 @@ class npc_muradin_gunship : public CreatureScript
                             break;
                         case EVENT_BOARDING_GUNSHIP:
                             me->SetReactState(REACT_AGGRESSIVE);
-                            if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HIGH_OVERLORD_SAURFANG_NOT_VISUAL)))
+                            if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HIGH_OVERLORD_SAURFANG_NOT_VISUAL)))
                             {
                                 pSaurfang->AI()->Talk(SAY_BOARDING_SKYBREAKER_SAURFANG);
                             }
@@ -1217,13 +1217,13 @@ class npc_gunship_skybreaker : public CreatureScript
 
                 if(_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                 {
-                    if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GB_MURADIN_BRONZEBEARD)))
+                    if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GB_MURADIN_BRONZEBEARD)))
                         pMuradin->AI()->DoAction(ACTION_FAIL);
                 }
 
                 else if(_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                 {
-                    if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GB_HIGH_OVERLORD_SAURFANG)))
+                    if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GB_HIGH_OVERLORD_SAURFANG)))
                         pSaurfang->AI()->DoAction(ACTION_DONE);
                 }
             }
@@ -1279,13 +1279,13 @@ class npc_gunship_orgrimmar : public CreatureScript
 
                 if(_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                 {
-                    if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GB_MURADIN_BRONZEBEARD)))
+                    if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GB_MURADIN_BRONZEBEARD)))
                         pMuradin->AI()->DoAction(ACTION_DONE);
                 }
 
                 else if(_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                 {
-                    if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GB_HIGH_OVERLORD_SAURFANG)))
+                    if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GB_HIGH_OVERLORD_SAURFANG)))
                         pSaurfang->AI()->DoAction(ACTION_FAIL);
                 }
             }
@@ -1345,13 +1345,13 @@ class npc_korkron_axethrower_rifleman : public CreatureScript
             {
                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                 {
-                    if (Creature* pSaurfangBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GB_HIGH_OVERLORD_SAURFANG)))
+                    if (Creature* pSaurfangBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GB_HIGH_OVERLORD_SAURFANG)))
                         pSaurfangBoss->AI()->DoAction(ACTION_AXES_RIFL_DIE);
                 }
 
                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                 {
-                    if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GB_MURADIN_BRONZEBEARD)))
+                    if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GB_MURADIN_BRONZEBEARD)))
                         pMuradin->AI()->DoAction(ACTION_AXES_RIFL_DIE);
                 }
             }
@@ -1719,18 +1719,18 @@ class npc_gunship_mage : public CreatureScript
             {
                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                 {
-                    if (me->GetGUID() == _instance->GetData64(DATA_GB_BATTLE_MAGE))
+                    if (me->GetGUID() == _instance->GetGuidData(DATA_GB_BATTLE_MAGE))
                     {
-                        if (Creature* pSaurfangBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GB_HIGH_OVERLORD_SAURFANG)))
+                        if (Creature* pSaurfangBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GB_HIGH_OVERLORD_SAURFANG)))
                             pSaurfangBoss->AI()->DoAction(ACTION_MAGE_DIE);
                     }
                  }
 
                  if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                  {
-                     if (me->GetGUID() == _instance->GetData64(DATA_GB_BATTLE_MAGE))
+                     if (me->GetGUID() == _instance->GetGuidData(DATA_GB_BATTLE_MAGE))
                      {
-                         if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GB_MURADIN_BRONZEBEARD)))
+                         if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GB_MURADIN_BRONZEBEARD)))
                              pMuradin->AI()->DoAction(ACTION_MAGE_DIE);
                      }
                  }
@@ -1744,7 +1744,7 @@ class npc_gunship_mage : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (me->GetGUID() == _instance->GetData64(DATA_GB_BATTLE_MAGE))
+                if (me->GetGUID() == _instance->GetGuidData(DATA_GB_BATTLE_MAGE))
                 {
                     if( timer_BelowZero <= diff)
                     {
@@ -1796,13 +1796,13 @@ class npc_gunship_cannon : public CreatureScript
             {
                 if(me->GetEntry() == NPC_GB_ALLIANCE_CANON)
                 {
-                    if (Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData64(DATA_SKYBREAKER_BOSS)))
+                    if (Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_SKYBREAKER_BOSS)))
                         attacker->DealDamage(pAllianceBoss, damage);
                 }
 
                 if(me->GetEntry() == NPC_GB_HORDE_CANON)
                 {
-                    if (Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData64(DATA_ORGRIMMAR_HAMMER_BOSS)))
+                    if (Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_ORGRIMMAR_HAMMER_BOSS)))
                         attacker->DealDamage(pHordeBoss, damage);
                 }
             }
@@ -1859,12 +1859,12 @@ class npc_mortar_soldier_or_rocketeer : public CreatureScript
             {
                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                 {
-                    if (Creature* pSaurfangBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GB_HIGH_OVERLORD_SAURFANG)))
+                    if (Creature* pSaurfangBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GB_HIGH_OVERLORD_SAURFANG)))
                         pSaurfangBoss->AI()->DoAction(ACTION_ROCK_DIE);
                 }
                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                 {
-                    if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_GB_MURADIN_BRONZEBEARD)))
+                    if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_GB_MURADIN_BRONZEBEARD)))
                         pMuradin->AI()->DoAction(ACTION_ROCK_DIE);
                 }
             }
@@ -2093,8 +2093,8 @@ class npc_saurfang_gunship : public CreatureScript
                          if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                              events.ScheduleEvent(EVENT_WIPE_CHECK, 5000);
 
-                         Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORGRIMMAR_HAMMER_BOSS));
-                         Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SKYBREAKER_BOSS));
+                         Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ORGRIMMAR_HAMMER_BOSS));
+                         Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKYBREAKER_BOSS));
 
                          if (pHordeBoss && pAllianceBoss)
                          {
@@ -2114,11 +2114,11 @@ class npc_saurfang_gunship : public CreatureScript
                          break;
                      }
                      case ACTION_DONE:
-                         if (Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SKYBREAKER_BOSS)))
+                         if (Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKYBREAKER_BOSS)))
                          {
                              _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, pAllianceBoss);
                          }
-                         if (Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORGRIMMAR_HAMMER_BOSS)))
+                         if (Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ORGRIMMAR_HAMMER_BOSS)))
                          {
                              _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, pHordeBoss);
                          }
@@ -2138,11 +2138,11 @@ class npc_saurfang_gunship : public CreatureScript
                      case ACTION_FAIL:
                          events.CancelEvent(EVENT_WIPE_CHECK);
                          Talk(SAY_HORDE_DEFEAT);
-                         if (Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORGRIMMAR_HAMMER_BOSS)))
+                         if (Creature* pHordeBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ORGRIMMAR_HAMMER_BOSS)))
                          {
                              _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, pHordeBoss);
                          }
-                         if (Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SKYBREAKER_BOSS)))
+                         if (Creature* pAllianceBoss = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SKYBREAKER_BOSS)))
                          {
                              _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, pAllianceBoss);
                          }
@@ -2247,7 +2247,7 @@ class npc_saurfang_gunship : public CreatureScript
                         case EVENT_INTRO_HORDE_4:
                             SendMusicToPlayers(17289);
                             me->AI()->DoAction(ACTION_BATTLE_EVENT);
-                            if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MURADIN_BRONZEBEARD_NOT_VISUAL)))
+                            if (Creature* pMuradin = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MURADIN_BRONZEBEARD_NOT_VISUAL)))
                             {
                                 pMuradin->AI()->Talk(SAY_MURADIN_BRONZEBEARD_NOT_VISUAL);
                                 pMuradin->SetReactState(REACT_PASSIVE);
@@ -2269,7 +2269,7 @@ class npc_saurfang_gunship : public CreatureScript
                         case EVENT_BOARDING_GUNSHIP:
                              count = 0;
                             me->SetReactState(REACT_AGGRESSIVE);
-                             if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MURADIN_BRONZEBEARD_NOT_VISUAL)))
+                             if (Creature* pSaurfang = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MURADIN_BRONZEBEARD_NOT_VISUAL)))
                              {
                                  pSaurfang->AI()->Talk(SAY_BOARDING_SKYBREAKER_MURADIN);
                              }

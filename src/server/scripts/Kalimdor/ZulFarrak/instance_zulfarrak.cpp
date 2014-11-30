@@ -189,7 +189,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data)
+        uint64 GetGuidData(uint32 data)
         {
             switch (data)
             {
@@ -310,7 +310,7 @@ public:
 
         void MoveNPCIfAlive(uint32 entry, float x, float y, float z, float o)
         {
-           if (Creature* npc = instance->GetCreature(GetData64(entry)))
+           if (Creature* npc = instance->GetCreature(GetGuidData(entry)))
            {
                if (npc->isAlive())
                {

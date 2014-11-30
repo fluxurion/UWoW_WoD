@@ -98,7 +98,7 @@ public:
         {
             if (waypointId == 7 && instance)
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_THRALL));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
                 if (target && target->isAlive())
                     me->AddThreat(target, 0.0f);
             }
@@ -195,7 +195,7 @@ public:
         {
             instance = creature->GetInstanceScript();
             if (instance)
-                AzgalorGUID = instance->GetData64(DATA_AZGALOR);
+                AzgalorGUID = instance->GetGuidData(DATA_AZGALOR);
         }
 
         uint32 CrippleTimer;

@@ -92,12 +92,12 @@ class boss_vizier_zorlok : public CreatureScript
                 {
                     if (state)
                     {
-                        if (Creature* gc = me->GetCreature(*me, instance->GetData64(NPC_GAS_CONTROLLER)))
+                        if (Creature* gc = me->GetCreature(*me, instance->GetGuidData(NPC_GAS_CONTROLLER)))
                             gc->AI()->DoAction(ACTION_GAS_ON);
                     }
                     else
                     {
-                        if (Creature* gc = me->GetCreature(*me, instance->GetData64(NPC_GAS_CONTROLLER)))
+                        if (Creature* gc = me->GetCreature(*me, instance->GetGuidData(NPC_GAS_CONTROLLER)))
                             gc->AI()->DoAction(ACTION_GAS_OFF);
                     }
                 }

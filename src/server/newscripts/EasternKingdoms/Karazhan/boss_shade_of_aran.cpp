@@ -153,7 +153,7 @@ public:
             {
                 // Not in progress
                 instance->SetData(TYPE_ARAN, NOT_STARTED);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
             }
         }
 
@@ -169,7 +169,7 @@ public:
             if (instance)
             {
                 instance->SetData(TYPE_ARAN, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), true);
             }
         }
 
@@ -180,7 +180,7 @@ public:
             if (instance)
             {
                 instance->SetData(TYPE_ARAN, IN_PROGRESS);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), false);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), false);
             }
         }
 
@@ -230,7 +230,7 @@ public:
                 {
                     if (instance)
                     {
-                        instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), false);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_GO_LIBRARY_DOOR), false);
                         CloseDoorTimer = 0;
                     }
                 } else CloseDoorTimer -= diff;

@@ -211,7 +211,7 @@ class npc_azure_ring_captain : public CreatureScript
                    case ACTION_CALL_DRAGON_EVENT:
                         if (instance)
                         {
-                            if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_VAROS)))
+                            if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VAROS)))
                             {
                                 if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {

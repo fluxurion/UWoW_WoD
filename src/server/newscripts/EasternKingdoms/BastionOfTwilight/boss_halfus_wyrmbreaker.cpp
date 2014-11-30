@@ -179,7 +179,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 bWhelps = false;
                 events.Reset();
                 summons.DespawnAll();
-                if (GameObject* pGo = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_WHELP_CAGE)))
+                if (GameObject* pGo = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_WHELP_CAGE)))
                 {
                     pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                     pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
@@ -315,7 +315,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                     timewarden->GetAI()->DoAction(ACTION_ACTIVE_GOSSIP);
 
                 if (bWhelps)
-                    if (GameObject* pGo = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_WHELP_CAGE)))
+                    if (GameObject* pGo = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_WHELP_CAGE)))
                         pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
 
                 if (me->HasAura(SPELL_SHADOW_WARPED))
@@ -640,7 +640,7 @@ public:
         if (!pInstance)
             return false;
 
-        if (Creature* halfus = ObjectAccessor::GetCreature(*pGo, pInstance->GetData64(DATA_HALFUS)))
+        if (Creature* halfus = ObjectAccessor::GetCreature(*pGo, pInstance->GetGuidData(DATA_HALFUS)))
         {
             halfus->AI()->DoAction(ACTION_WHELPS_RELEASE);
             pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
@@ -680,7 +680,7 @@ class npc_halfus_dragon : public CreatureScript{
             switch (uiAction)
             {
             case GOSSIP_ACTION_INFO_DEF+1:
-                if (Creature * Halfus = Unit::GetCreature(*creature,pInstance->GetData64(DATA_HALFUS)))
+                if (Creature * Halfus = Unit::GetCreature(*creature,pInstance->GetGuidData(DATA_HALFUS)))
                 {
                     switch (creature->GetEntry())
                     {
@@ -766,7 +766,7 @@ class npc_halfus_dragon : public CreatureScript{
                 if (!pInstance)
                     return;
 
-                if (Creature* Halfus = Unit::GetCreature(*me, pInstance->GetData64(DATA_HALFUS)))
+                if (Creature* Halfus = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_HALFUS)))
                 {
                     if(Aura* aura = Halfus->GetAura(SPELL_DRAGON_VENGEANCE))
                         aura->SetStackAmount(aura->GetStackAmount() + 1);
@@ -832,7 +832,7 @@ class spell_halfus_fireball_barrage : public SpellScriptLoader
                     _spell = SPELL_FIREBALL_BARRAGE_M1;
                 else
                     _spell = SPELL_FIREBALL_BARRAGE_M0;
-                if (Creature* pHalfus = ObjectAccessor::GetCreature(*GetCaster(), pInstance->GetData64(DATA_HALFUS)))
+                if (Creature* pHalfus = ObjectAccessor::GetCreature(*GetCaster(), pInstance->GetGuidData(DATA_HALFUS)))
                     if (Unit* pTarget = pHalfus->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         GetCaster()->CastSpell(pTarget, _spell, true);
 

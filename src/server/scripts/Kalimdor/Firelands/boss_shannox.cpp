@@ -363,12 +363,12 @@ class boss_shannox : public CreatureScript
 
             Creature* GetRiplimb()
             {
-                return ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIPLIMB));
+                return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIPLIMB));
             }
 
             Creature* GetRageface()
             {
-                return ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGEFACE));
+                return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGEFACE));
             }
         };
 };
@@ -420,7 +420,7 @@ class npc_shannox_riplimb : public CreatureScript
                     DoCast(me, SPELL_FEEDING_FRENZY, true);
 
                 if (pInstance)
-                    if (Unit* pShannox = ObjectAccessor::GetUnit(*me, pInstance->GetData64(DATA_SHANNOX)))
+                    if (Unit* pShannox = ObjectAccessor::GetUnit(*me, pInstance->GetGuidData(DATA_SHANNOX)))
                         me->GetMotionMaster()->MoveFollow(pShannox, 5.0f, static_cast<float>(M_PI/2));
             }
 
@@ -556,7 +556,7 @@ class npc_shannox_riplimb : public CreatureScript
                             me->SetHealth(me->GetMaxHealth());
                             me->GetMotionMaster()->MoveChase(me->getVictim());
                             if (pInstance)
-                                if (Unit* pShannox = ObjectAccessor::GetUnit(*me, pInstance->GetData64(DATA_SHANNOX)))
+                                if (Unit* pShannox = ObjectAccessor::GetUnit(*me, pInstance->GetGuidData(DATA_SHANNOX)))
                                     pShannox->GetAI()->DoAction(ACTION_RESURRECT);
                             break;
                     }
@@ -566,12 +566,12 @@ class npc_shannox_riplimb : public CreatureScript
 
             Creature* GetRageface()
             {
-                return ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_RAGEFACE));
+                return ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_RAGEFACE));
             }
 
             Creature* GetShannox()
             {
-                return ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SHANNOX));
+                return ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SHANNOX));
             }
         };
 };
@@ -619,7 +619,7 @@ class npc_shannox_rageface : public CreatureScript
                     DoCast(me, SPELL_FEEDING_FRENZY, true);
 
                 if (pInstance)
-                    if (Unit* pShannox = ObjectAccessor::GetUnit(*me, pInstance->GetData64(DATA_SHANNOX)))
+                    if (Unit* pShannox = ObjectAccessor::GetUnit(*me, pInstance->GetGuidData(DATA_SHANNOX)))
                         me->GetMotionMaster()->MoveFollow(pShannox, 5.0f, static_cast<float>(-M_PI/2));
             }
 
@@ -690,7 +690,7 @@ class npc_shannox_rageface : public CreatureScript
                             break;
                         case EVENT_FACE_RAGE:
                             if (pInstance)
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SHANNOX)))
                                     pShannox->AI()->Talk(SAY_DOG);
                             DoCastVictim(SPELL_FACE_RAGE);
                             break;
@@ -698,7 +698,7 @@ class npc_shannox_rageface : public CreatureScript
                             if (pInstance && !(me->getVictim() && me->getVictim()->HasAura(SPELL_RAGE)) && !me->HasAura(SPELL_FACE_RAGE_DUMMY))
                             {
                                 DoResetThreat();
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SHANNOX)))
                                 {
                                     if (Unit* pTarget = pShannox->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                     {
@@ -725,12 +725,12 @@ class npc_shannox_rageface : public CreatureScript
 
             Creature* GetRiplimb()
             {
-                return ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_RIPLIMB));
+                return ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_RIPLIMB));
             }
 
             Creature* GetShannox()
             {
-                return ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SHANNOX));
+                return ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SHANNOX));
             }
         };
 };
@@ -770,7 +770,7 @@ class npc_shannox_spear_of_shannox : public CreatureScript
 
                     if (pInstance)
                     {
-                        if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SHANNOX)))
+                        if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SHANNOX)))
                         {
                             // There will be a spiral, 3 "circles", 20 points per circle
                             Position pos;

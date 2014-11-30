@@ -918,7 +918,7 @@ public:
         {
             if (me->isSummon())
             {
-                if (Creature* pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN)))
+                if (Creature* pLeviathan = me->GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN)))
                     pLeviathan->AI()->DoAction(ACTION_COLOSSUS_COUNT);
             }
         }
@@ -1217,7 +1217,7 @@ public:
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
                 pPlayer->CLOSE_GOSSIP_MENU();
-                if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(DATA_LEVIATHAN)))
+                if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetGuidData(DATA_LEVIATHAN)))
                 {
                     pLeviathan->AI()->DoAction(0);  // enable hard mode activating the 4 additional events spawning additional vehicles
                     pCreature->AI()->DoAction(0);   // spawn the vehicles

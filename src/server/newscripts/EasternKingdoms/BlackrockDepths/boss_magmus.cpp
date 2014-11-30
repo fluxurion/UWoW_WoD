@@ -84,7 +84,7 @@ public:
         void JustDied(Unit* killer)
         {
             if (InstanceScript* instance = killer->GetInstanceScript())
-                instance->HandleGameObject(instance->GetData64(DATA_THRONE_DOOR), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_THRONE_DOOR), true);
         }
     };
 };

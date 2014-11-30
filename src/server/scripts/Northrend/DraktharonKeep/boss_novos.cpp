@@ -112,7 +112,7 @@ public:
             {
                 instance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
                 for (uint8 n = 0; n < 4; ++n)
-                    luiCrystals.push_back(instance->GetData64(DATA_NOVOS_CRYSTAL_1 + n));
+                    luiCrystals.push_back(instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + n));
                 for (GuidList::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
                 {
                     if (GameObject* temp = instance->instance->GetGameObject(*itr))
@@ -277,7 +277,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Creature* pNovos = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NOVOS) : 0))
+            if (Creature* pNovos = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NOVOS) : 0))
                 CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->RemoveCrystal();
         }
 
@@ -299,7 +299,7 @@ public:
         {
             if (type != POINT_MOTION_TYPE || id != 0)
                 return;
-            if (Creature* pNovos = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NOVOS) : 0))
+            if (Creature* pNovos = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NOVOS) : 0))
                 if (Unit* target = CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->GetRandomTarget())
                     AttackStart(target);
         }
@@ -329,7 +329,7 @@ public:
         {
             if (type != POINT_MOTION_TYPE || id !=0)
                 return;
-            if (Creature* Novos = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_NOVOS) : 0))
+            if (Creature* Novos = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_NOVOS) : 0))
             {
                 Novos->AI()->DoAction(ACTION_MINION_REACHED);
                 if (Unit* target = CAST_AI(boss_novos::boss_novosAI, Novos->AI())->GetRandomTarget())

@@ -419,7 +419,7 @@ class npc_vicious_mindslasher : public CreatureScript
             void KilledUnit(Unit* victim)
             {
                 if (pInstance)
-                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_NEPTULON)))
+                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_NEPTULON)))
                         pNeptulon->AI()->Talk(SAY_KILL);
             }
 
@@ -484,7 +484,7 @@ class npc_unyielding_behemoth : public CreatureScript
             void KilledUnit(Unit* victim)
             {
                 if (pInstance)
-                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_NEPTULON)))
+                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_NEPTULON)))
                         pNeptulon->AI()->Talk(SAY_KILL);
             }
 
@@ -599,7 +599,7 @@ class at_tott_ozumat : public AreaTriggerScript
                     && pInstance->GetBossState(DATA_OZUMAT) != DONE)
 			    {
                     pInstance->SetData(DATA_NEPTULON_EVENT, DONE);
-                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetData64(DATA_NEPTULON)))
+                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetGuidData(DATA_NEPTULON)))
                     {
                         pNeptulon->AI()->DoAction(ACTION_NEPTULON_START_EVENT);
                     }

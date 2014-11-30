@@ -426,7 +426,7 @@ class boss_sara : public CreatureScript
                 // Reset Yogg-Saron
                 for (uint8 data = DATA_YOGGSARON_BRAIN; data <= DATA_YOGGSARON; ++data)
                 {
-                    if (Creature *pCreature = Creature::GetCreature((*me), pInstance->GetData64(data)))
+                    if (Creature *pCreature = Creature::GetCreature((*me), pInstance->GetGuidData(data)))
                         pCreature->AI()->EnterEvadeMode();
                 }
                 Map::PlayerList const &players = pInstance->instance->GetPlayers();
@@ -781,7 +781,7 @@ class boss_yoggsaron : public CreatureScript
         {
             for (uint8 data = DATA_YS_FREYA; data <= DATA_YS_HODIR; data++)
             {
-                if (Creature * pCreature = me->GetCreature(*me, pInstance->GetData64(data)))
+                if (Creature * pCreature = me->GetCreature(*me, pInstance->GetGuidData(data)))
                     if (pCreature->HasAura(SPELL_KEEPER_ACTIVE))
                         keepersval++;
             }
@@ -955,7 +955,7 @@ class boss_yoggsaron : public CreatureScript
                 switch (illusion)
                 {
                     case 0: // Chamber of the Aspects Illusion
-                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetData64(DATA_YOGGSARON_BRAIN)))
+                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetGuidData(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_CHAMBER_ILLUSION);
@@ -964,7 +964,7 @@ class boss_yoggsaron : public CreatureScript
                         }
                         break;
                     case 1: // Icecrown Illusion
-                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetData64(DATA_YOGGSARON_BRAIN)))
+                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetGuidData(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_ICECROWN_ILLUSION);
@@ -974,7 +974,7 @@ class boss_yoggsaron : public CreatureScript
                         }
                         break;
                     case 2: // Stormwind Illusion
-                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetData64(DATA_YOGGSARON_BRAIN)))
+                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetGuidData(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_STORMWIND_ILLUSION);
@@ -1734,25 +1734,25 @@ class keeper_image : public CreatureScript
             case NPC_IMAGE_OF_FREYA:
                 DoScriptText(SAY_FREYA_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pFreya = pCreature->GetCreature(*pCreature, pInstance->GetData64(DATA_YS_FREYA)))
+                if (Creature *pFreya = pCreature->GetCreature(*pCreature, pInstance->GetGuidData(DATA_YS_FREYA)))
                     pFreya->AddAura(SPELL_KEEPER_ACTIVE, pFreya);
                 break;
             case NPC_IMAGE_OF_THORIM:
                 DoScriptText(SAY_THORIM_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pThorim = pCreature->GetCreature(*pCreature, pInstance->GetData64(DATA_YS_THORIM)))
+                if (Creature *pThorim = pCreature->GetCreature(*pCreature, pInstance->GetGuidData(DATA_YS_THORIM)))
                     pThorim->AddAura(SPELL_KEEPER_ACTIVE, pThorim);
                 break;
             case NPC_IMAGE_OF_MIMIRON:
                 DoScriptText(SAY_MIMIRON_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pMimiron = pCreature->GetCreature(*pCreature, pInstance->GetData64(DATA_YS_MIMIRON)))
+                if (Creature *pMimiron = pCreature->GetCreature(*pCreature, pInstance->GetGuidData(DATA_YS_MIMIRON)))
                     pMimiron->AddAura(SPELL_KEEPER_ACTIVE, pMimiron);
                 break;
             case NPC_IMAGE_OF_HODIR:
                 DoScriptText(SAY_HODIR_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pHodir = pCreature->GetCreature(*pCreature, pInstance->GetData64(DATA_YS_HODIR)))
+                if (Creature *pHodir = pCreature->GetCreature(*pCreature, pInstance->GetGuidData(DATA_YS_HODIR)))
                     pHodir->AddAura(SPELL_KEEPER_ACTIVE, pHodir);
                 break;
             }
@@ -1809,7 +1809,7 @@ class npc_ys_freya : public CreatureScript
         {
             if (!applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         DoCast(me, SPELL_RESILIENCE_OF_NATURE, true);
@@ -1820,7 +1820,7 @@ class npc_ys_freya : public CreatureScript
             }
             else if (applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && !Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         me->RemoveAura(SPELL_RESILIENCE_OF_NATURE, 0);
@@ -1925,7 +1925,7 @@ class npc_ys_thorim : public CreatureScript
         {
             if (!applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         DoCast(me, SPELL_FURY_OF_THE_STORMS, true);
@@ -1935,7 +1935,7 @@ class npc_ys_thorim : public CreatureScript
             }
             else if (applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && !Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         me->RemoveAura(SPELL_FURY_OF_THE_STORMS, 0);
@@ -1983,7 +1983,7 @@ class npc_ys_mimiron : public CreatureScript
         {
             if (!applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         DoCast(me, SPELL_SPEED_OF_INVENTION , true);
@@ -1995,7 +1995,7 @@ class npc_ys_mimiron : public CreatureScript
             }
             else if (applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && !Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         me->RemoveAura(SPELL_SPEED_OF_INVENTION, 0);
@@ -2052,7 +2052,7 @@ class npc_ys_hodir : public CreatureScript
         {
              if (!applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         DoCast(me, SPELL_FORTITUDE_OF_FROST , true);
@@ -2062,7 +2062,7 @@ class npc_ys_hodir : public CreatureScript
             }
             else if (applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && !Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         me->RemoveAura(SPELL_FORTITUDE_OF_FROST, 0);

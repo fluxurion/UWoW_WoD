@@ -111,13 +111,13 @@ public:
             }
         }
 
-        void SetData64(uint32 type, uint64 data)
+        void SetGuidData(uint32 type, uint64 data)
         {
             if (type == DATA_MAULGAREVENT_TANK)
                 MaulgarEvent_Tank = data;
         }
 
-        uint64 GetData64(uint32 identifier)
+        uint64 GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {

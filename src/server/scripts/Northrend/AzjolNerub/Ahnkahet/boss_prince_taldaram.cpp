@@ -289,8 +289,8 @@ public:
                 return false;
 
             uint64 uiSphereGuids[2];
-            uiSphereGuids[0] = instance->GetData64(DATA_SPHERE1);
-            uiSphereGuids[1] = instance->GetData64(DATA_SPHERE2);
+            uiSphereGuids[0] = instance->GetGuidData(DATA_SPHERE1);
+            uiSphereGuids[1] = instance->GetGuidData(DATA_SPHERE2);
 
             for (uint8 i=0; i < 2; ++i)
             {
@@ -323,7 +323,7 @@ public:
             me->SetDisableGravity(false);
             me->GetMotionMaster()->MovePoint(0, me->GetHomePosition());
             Talk(SAY_WARNING);
-            uint64 prison_GUID = instance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
+            uint64 prison_GUID = instance->GetGuidData(DATA_PRINCE_TALDARAM_PLATFORM);
             instance->HandleGameObject(prison_GUID, true);
         }
     };
@@ -396,7 +396,7 @@ public:
         if (!instance)
             return true;
 
-        Creature* pPrinceTaldaram = Unit::GetCreature(*go, instance->GetData64(DATA_PRINCE_TALDARAM));
+        Creature* pPrinceTaldaram = Unit::GetCreature(*go, instance->GetGuidData(DATA_PRINCE_TALDARAM));
         if (pPrinceTaldaram && pPrinceTaldaram->isAlive())
         {
             // maybe these are hacks :(

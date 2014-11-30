@@ -191,7 +191,7 @@ public:
             return false;
         }
 
-        uint64 GetData64(uint32 identifier)
+        uint64 GetGuidData(uint32 identifier)
         {
             if (identifier == DATA_GRANDMASTERVORPIL)
                 return m_uiGrandmasterVorpil;

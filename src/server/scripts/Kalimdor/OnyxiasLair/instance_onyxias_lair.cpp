@@ -177,7 +177,7 @@ public:
                 SaveToDB();
         }
 
-        void SetData64(uint32 Type, uint64 Data)
+        void SetGuidData(uint32 Type, uint64 Data)
         {
             switch (Type)
             {
@@ -200,7 +200,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 Data)
+        uint64 GetGuidData(uint32 Data)
         {
             switch (Data)
             {

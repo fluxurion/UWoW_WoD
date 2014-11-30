@@ -148,7 +148,7 @@ class boss_ragnaros : public CreatureScript
                         case EVENT_INTRO_4:
                             DoScriptText(SAY_ARRIVAL5_RAG, me);
                             if (instance)
-                                if (Creature* executus = Unit::GetCreature(*me, instance->GetData64(BOSS_MAJORDOMO_EXECUTUS)))
+                                if (Creature* executus = Unit::GetCreature(*me, instance->GetGuidData(BOSS_MAJORDOMO_EXECUTUS)))
                                     me->Kill(executus);
                             break;
                         case EVENT_INTRO_5:

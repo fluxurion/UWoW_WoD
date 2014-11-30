@@ -408,7 +408,7 @@ public:
         void JustSummoned(Creature* summoned)
         {
             if (instance)
-                if (Player* Target = Unit::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
+                if (Player* Target = Unit::GetPlayer(*me, instance->GetGuidData(DATA_PLAYER_GUID)))
                     summoned->AI()->AttackStart(Target);
 
             Summons.Summon(summoned);
@@ -608,7 +608,7 @@ public:
         {
             if (SpellTimer <= diff)
             {
-                Unit* Victim = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_PLAYER_GUID) : 0);
+                Unit* Victim = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_PLAYER_GUID) : 0);
                 switch (NeedForAHack)
                 {
                     case 0:

@@ -149,7 +149,7 @@ public:
         {
             if (instance)
             {
-                SathGUID = instance->GetData64(DATA_SATHROVARR);
+                SathGUID = instance->GetGuidData(DATA_SATHROVARR);
                 instance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
             }
 
@@ -465,7 +465,7 @@ public:
         void Reset()
         {
             if (instance)
-                SathGUID = instance->GetData64(DATA_SATHROVARR);
+                SathGUID = instance->GetGuidData(DATA_SATHROVARR);
 
             RevitalizeTimer = 5000;
             HeroicStrikeTimer = 3000;
@@ -603,7 +603,7 @@ public:
             me->setActive(true);
             if (instance)
             {
-                KalecgosGUID = instance->GetData64(DATA_KALECGOS_DRAGON);
+                KalecgosGUID = instance->GetGuidData(DATA_KALECGOS_DRAGON);
                 instance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
             }
             if (KalecGUID)

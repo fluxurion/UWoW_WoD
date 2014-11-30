@@ -100,7 +100,7 @@ public:
         {
             if (instance)
             {
-                uint64 TerestianGUID = instance->GetData64(DATA_TERESTIAN);
+                uint64 TerestianGUID = instance->GetGuidData(DATA_TERESTIAN);
                 if (TerestianGUID)
                 {
                     Unit* Terestian = Unit::GetUnit(*me, TerestianGUID);

@@ -216,7 +216,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 uiIdentifier)
+        uint64 GetGuidData(uint32 uiIdentifier)
         {
             switch (uiIdentifier)
             {

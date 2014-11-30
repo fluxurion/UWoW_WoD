@@ -123,7 +123,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type)
+            uint64 GetGuidData(uint32 type)
             {
                 switch (type)
                 {

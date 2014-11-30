@@ -741,7 +741,7 @@ class npc_suppresser : public CreatureScript
 
                 if (m_uiCheckTimer <= diff)
                 {
-                    if (Creature* pValithria = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_VALITHRIA_DREAMWALKER)))
+                    if (Creature* pValithria = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)))
                         me->CastSpell(pValithria, SPELL_SUPRESSION, true, 0, 0, 0);
                     m_uiCheckTimer = 100000;
                 } else m_uiCheckTimer -= diff;
@@ -784,7 +784,7 @@ class npc_gluttonous_abomination : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                Creature* pValithria = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_VALITHRIA_DREAMWALKER));
+                Creature* pValithria = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
                 for (uint8 i = 1; i < 5; i++)
                 {
                     if(pValithria)
@@ -951,7 +951,7 @@ class npc_dream_cloud : public CreatureScript
                         case EVENT_EXPLODE:
                             me->GetMotionMaster()->MoveIdle();
                             // must use originalCaster the same for all clouds to allow stacking
-                            me->CastSpell(me, EMERALD_VIGOR, false, NULL, NULL, _instance->GetData64(DATA_VALITHRIA_DREAMWALKER));
+                            me->CastSpell(me, EMERALD_VIGOR, false, NULL, NULL, _instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
                             me->DespawnOrUnsummon(100);
                             break;
                         default:
@@ -1072,7 +1072,7 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, GetCaster()->GetInstanceScript()->GetData64(DATA_VALITHRIA_LICH_KING));
+                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
             }
 
             void Register()
@@ -1151,7 +1151,7 @@ class spell_dreamwalker_summon_suppresser_effect : public SpellScriptLoader
                 if (!GetHitUnit())
                     return;
 
-                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, GetCaster()->GetInstanceScript()->GetData64(DATA_VALITHRIA_LICH_KING));
+                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
             }
 
             void Register()
@@ -1280,7 +1280,7 @@ class spell_dreamwalker_twisted_nightmares : public SpellScriptLoader
                 //    return;
 
                 if (InstanceScript* instance = GetHitUnit()->GetInstanceScript())
-                    GetHitUnit()->CastSpell((Unit*)NULL, GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, instance->GetData64(DATA_VALITHRIA_DREAMWALKER));
+                    GetHitUnit()->CastSpell((Unit*)NULL, GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
             }
 
             void Register()

@@ -90,12 +90,12 @@ public:
 
        void OpenDoors(bool Boss_Killed)
        {
-           if (GameObject* door1 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_IN)))
+           if (GameObject* door1 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_IN)))
                door1->SetGoState(GO_STATE_ACTIVE);
-           if (GameObject* door2 = me->GetMap()->GetGameObject(instance->GetData64(GO_DOORS)))
+           if (GameObject* door2 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_DOORS)))
                door2->SetGoState(GO_STATE_ACTIVE);
            if (Boss_Killed)
-               if (GameObject* door3 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_OUT)))
+               if (GameObject* door3 = me->GetMap()->GetGameObject(instance->GetGuidData(GO_EMBERSEER_OUT)))
                     door3->SetGoState(GO_STATE_ACTIVE);
        }
 

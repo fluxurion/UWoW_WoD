@@ -261,7 +261,7 @@ class boss_tyrannus : public CreatureScript
 
             Creature* GetRimefang()
             {
-                return ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIMEFANG));
+                return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIMEFANG));
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -631,7 +631,7 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
                     return;
 
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                    if (Creature* rimefang = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_RIMEFANG)))
+                    if (Creature* rimefang = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_RIMEFANG)))
                         rimefang->AI()->SetGUID(GetTarget()->GetGUID(), GUID_HOARFROST);
             }
 
@@ -659,7 +659,7 @@ class at_tyrannus_event_starter : public AreaTriggerScript
                 return false;
 
             if (instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_TYRANNUS) != DONE)
-                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_TYRANNUS)))
+                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS)))
                 {
                     tyrannus->AI()->DoAction(ACTION_START_INTRO);
                     return true;
@@ -680,7 +680,7 @@ class at_tyrannus_gauntlet_starter : public AreaTriggerScript
             if (!instance)
                 return false;
             if (instance->GetData(DATA_GAUNTLET) != DONE && instance->GetData(DATA_GAUNTLET) != IN_PROGRESS && instance->GetBossState(DATA_ICK) != IN_PROGRESS && instance->GetBossState(DATA_ICK) != NOT_STARTED && instance->GetBossState(DATA_GARFROST) != IN_PROGRESS && instance->GetBossState(DATA_GARFROST) != NOT_STARTED && instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_TYRANNUS) != DONE)
-                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_TYRANNUS)))
+                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS)))
                 {
                     instance->SetData(DATA_GAUNTLET, IN_PROGRESS);
                     return true;

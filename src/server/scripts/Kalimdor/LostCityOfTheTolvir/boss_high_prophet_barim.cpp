@@ -138,7 +138,7 @@ public:
 
             if (instance)
             {
-                if (Creature* blaze = Unit::GetCreature(*me, instance->GetData64(DATA_BLAZE)))
+                if (Creature* blaze = Unit::GetCreature(*me, instance->GetGuidData(DATA_BLAZE)))
                     blaze->AI()->EnterEvadeMode();
             }
         }
@@ -148,7 +148,7 @@ public:
             if (me->isInCombat())
             {
                 if (instance)
-                    if (Creature* blaze = Unit::GetCreature(*me, instance->GetData64(DATA_BLAZE)))
+                    if (Creature* blaze = Unit::GetCreature(*me, instance->GetGuidData(DATA_BLAZE)))
                         blaze->AI()->DoAction(ACTION_REPENTANCE_START);
 
                 DoScriptText(SAY_KNEEL_DOWN, me);
@@ -183,7 +183,7 @@ public:
             events.Reset();
 
             if (instance)
-                if (Creature* blaze = Unit::GetCreature(*me, instance->GetData64(DATA_BLAZE)))
+                if (Creature* blaze = Unit::GetCreature(*me, instance->GetGuidData(DATA_BLAZE)))
                     blaze->AI()->EnterEvadeMode();
             _JustDied();
         }
@@ -281,7 +281,7 @@ public:
                                         events.ScheduleEvent(EVENT_PLAGUE_OF_AGES, 6000, 0, PHASE_BARIM);
 
                                         if (instance)
-                                            if (Creature* blaze = Unit::GetCreature(*me, instance->GetData64(DATA_BLAZE)))
+                                            if (Creature* blaze = Unit::GetCreature(*me, instance->GetGuidData(DATA_BLAZE)))
                                                 blaze->AI()->DoAction(ACTION_REPENTANCE_DONE);
                                     }
                                     break;
@@ -372,7 +372,7 @@ public:
             Birth = true;
 
             if (instance)
-                instance->SetData64(DATA_BLAZE, me->GetGUID());
+                instance->SetGuidData(DATA_BLAZE, me->GetGUID());
         }
 
         InstanceScript* instance;
@@ -422,7 +422,7 @@ public:
         void EnterEvadeMode()
         {
             if (instance)
-                instance->SetData64(DATA_BLAZE, 0);
+                instance->SetGuidData(DATA_BLAZE, 0);
 
             lSummons.DespawnAll();
             me->DespawnOrUnsummon();
@@ -634,7 +634,7 @@ public:
             Birth = true;
 
             if (instance)
-                instance->SetData64(DATA_HARBINGER, me->GetGUID());
+                instance->SetGuidData(DATA_HARBINGER, me->GetGUID());
         }
 
         InstanceScript* instance;
@@ -652,9 +652,9 @@ public:
 
         void EnterEvadeMode()
         {
-            instance->SetData64(DATA_HARBINGER, 0);
+            instance->SetGuidData(DATA_HARBINGER, 0);
 
-            if (Creature* barim = Unit::GetCreature(*me, instance->GetData64(DATA_HIGH_PROPHET_BARIM)))
+            if (Creature* barim = Unit::GetCreature(*me, instance->GetGuidData(DATA_HIGH_PROPHET_BARIM)))
                 barim->AI()->EnterEvadeMode();
         }
 
@@ -668,7 +668,7 @@ public:
                 {
                     if (instance)
                     {
-                        instance->SetData64(DATA_HARBINGER, 0);
+                        instance->SetGuidData(DATA_HARBINGER, 0);
 
                         if (Creature* barim = me->FindNearestCreature(BOSS_HIGH_PROPHET_BARIM, 300.0f))
                             barim->AI()->DoAction(ACTION_REPENTANCE_DONE);
@@ -776,7 +776,7 @@ public:
         void Reset()
         {
             if (instance)
-                if (!instance->GetData64(DATA_HARBINGER))
+                if (!instance->GetGuidData(DATA_HARBINGER))
                 {
                     me->DespawnOrUnsummon();
                     return;
@@ -861,7 +861,7 @@ public:
             Unit* target = NULL;
 
             if (instance)
-                target = Unit::GetCreature(*me, instance->GetData64(DATA_HARBINGER));
+                target = Unit::GetCreature(*me, instance->GetGuidData(DATA_HARBINGER));
 
             if (!target || !target->isAlive())
                 return false;
@@ -911,7 +911,7 @@ public:
                 return;
 
             if (instance)
-                if (Creature* harbinger = Unit::GetCreature(*me, instance->GetData64(DATA_HARBINGER)))
+                if (Creature* harbinger = Unit::GetCreature(*me, instance->GetGuidData(DATA_HARBINGER)))
                 {
                     Cast = true;
                     me->CastSpell(harbinger, SPELL_MERGED_SOULS, false, NULL, NULL, harbinger->GetGUID());

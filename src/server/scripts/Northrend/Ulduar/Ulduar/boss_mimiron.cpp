@@ -245,7 +245,7 @@ public:
                 
                 for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
                 {
-                    if (Creature *pCreature = me->GetCreature(*me, instance->GetData64(data)))
+                    if (Creature *pCreature = me->GetCreature(*me, instance->GetGuidData(data)))
                     {
                         if (pCreature->isAlive())
                         {
@@ -333,7 +333,7 @@ public:
                 DoScriptText(SAY_BERSERK, me);
                 for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
                 {
-                    if (Creature *pCreature = me->GetCreature(*me, instance->GetData64(data)))
+                    if (Creature *pCreature = me->GetCreature(*me, instance->GetGuidData(data)))
                         pCreature->AI()->DoAction(DO_ENTER_ENRAGE);
                 }
                 Enraged = true;
@@ -361,20 +361,20 @@ public:
                 uiBotTimer += diff;
                 if (uiBotTimer > 15000)
                 {
-                    if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                    if (Creature *pLeviathan = me->GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II)))
                         pLeviathan->AI()->DoAction(DO_LEVIATHAN_ASSEMBLED);
-                    if (Creature *pVX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                    if (Creature *pVX_001 = me->GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
                         pVX_001->AI()->DoAction(DO_VX001_ASSEMBLED);
-                    if (Creature *pAerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                    if (Creature *pAerialUnit = me->GetCreature(*me, instance->GetGuidData(DATA_AERIAL_UNIT)))
                         pAerialUnit->AI()->DoAction(DO_AERIAL_ASSEMBLED);
 
                     checkBotAlive = true;
                 }
                 else
                 {
-                    if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
-                        if (Creature *pVX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
-                            if (Creature *pAerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                    if (Creature *pLeviathan = me->GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II)))
+                        if (Creature *pVX_001 = me->GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
+                            if (Creature *pAerialUnit = me->GetCreature(*me, instance->GetGuidData(DATA_AERIAL_UNIT)))
                                 if (pLeviathan->getStandState() == UNIT_STAND_STATE_DEAD)
                                     if (pVX_001->getStandState() == UNIT_STAND_STATE_DEAD)
                                         if (pAerialUnit->getStandState() == UNIT_STAND_STATE_DEAD)
@@ -409,7 +409,7 @@ public:
                         case 2:
                             if (instance)
                             {
-                                if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                if (Creature *pLeviathan = me->GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II)))
                                     me->EnterVehicle(pLeviathan, 4);
                             }
                             JumpToNextStep(2000);
@@ -435,7 +435,7 @@ public:
                         case 7:
                             if (instance)
                             {
-                                if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                if (Creature *pLeviathan = me->GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II)))
                                 {
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                                     pLeviathan->AI()->DoAction(DO_START_ENCOUNTER);
@@ -483,7 +483,7 @@ public:
                         case 5:
                             if (instance)
                             {
-                                if (Creature *pVX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                if (Creature *pVX_001 = me->GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
                                     me->EnterVehicle(pVX_001, 0);
                             }
                             JumpToNextStep(3500);
@@ -501,14 +501,14 @@ public:
                         case 8:
                             if (instance)
                             {
-                                if (Creature *pVX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                if (Creature *pVX_001 = me->GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
                                     pVX_001->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
                             }
                             JumpToNextStep(3500);
                             break;
                         case 9:
                             if (instance)
-                                if (Creature *pVX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                if (Creature *pVX_001 = me->GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
                                 {
                                     pVX_001->AddAura(SPELL_HOVER, pVX_001); // Hover
                                     pVX_001->AI()->DoAction(DO_START_VX001);
@@ -560,7 +560,7 @@ public:
                             me->SetVisible(false);
                             if (instance)
                             {
-                                if (Creature *pAerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                if (Creature *pAerialUnit = me->GetCreature(*me, instance->GetGuidData(DATA_AERIAL_UNIT)))
                                 {
                                     pAerialUnit->AI()->DoAction(DO_START_AERIAL);
                                     phase = PHASE_COMBAT;
@@ -585,8 +585,8 @@ public:
                             if (instance)
                             {
                                 DoScriptText(SAY_AERIAL_DEATH, me);
-                                if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
-                                    if (Creature *pVX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                if (Creature *pLeviathan = me->GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II)))
+                                    if (Creature *pVX_001 = me->GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
                                     {
                                         pLeviathan->GetMotionMaster()->MoveTargetedHome();
                                         pVX_001->SetStandState(UNIT_STAND_STATE_STAND);
@@ -598,8 +598,8 @@ public:
                             break;
                         case 2:
                             if (instance)
-                                if (Creature *pVX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
-                                    if (Creature *pAerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                if (Creature *pVX_001 = me->GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
+                                    if (Creature *pAerialUnit = me->GetCreature(*me, instance->GetGuidData(DATA_AERIAL_UNIT)))
                                     {
                                         DoScriptText(SAY_V07TRON_ACTIVATE, me);
                                         pAerialUnit->SetCanFly(false);
@@ -611,11 +611,11 @@ public:
                         case 3:
                             if (instance)
                             {
-                                if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                if (Creature *pLeviathan = me->GetCreature(*me, instance->GetGuidData(DATA_LEVIATHAN_MK_II)))
                                     pLeviathan->AI()->DoAction(DO_LEVIATHAN_ASSEMBLED);
-                                if (Creature *pVX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                if (Creature *pVX_001 = me->GetCreature(*me, instance->GetGuidData(DATA_VX_001)))
                                     pVX_001->AI()->DoAction(DO_VX001_ASSEMBLED);
-                                if (Creature *pAerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                if (Creature *pAerialUnit = me->GetCreature(*me, instance->GetGuidData(DATA_AERIAL_UNIT)))
                                     pAerialUnit->AI()->DoAction(DO_AERIAL_ASSEMBLED);
                                 phase = PHASE_COMBAT;
                             }
@@ -740,7 +740,7 @@ public:
         {
             if (!(rand()%5))
                 if (instance)
-                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
+                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                     {
                         if (phase == PHASE_LEVIATHAN_SOLO)
                             DoScriptText(RAND(SAY_MKII_SLAY_1, SAY_MKII_SLAY_2), pMimiron);
@@ -762,7 +762,7 @@ public:
                     me->SetHealth(me->GetMaxHealth());
                     events.SetPhase(PHASE_NULL);
                     phase = PHASE_NULL;
-                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
+                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                         pMimiron->AI()->DoAction(DO_ACTIVATE_VX001);
                     if (Creature *turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
                         turret->Kill(turret, false);
@@ -781,7 +781,7 @@ public:
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     events.SetPhase(PHASE_NULL);
                     phase = PHASE_NULL;
-                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
+                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                         pMimiron->AI()->DoAction(DO_ACTIVATE_DEATH_TIMER);
                 }
         }
@@ -962,7 +962,7 @@ public:
             {
                 DoCastAOE(SPELL_EXPLOSION);
                 Boom = true;
-                if (Creature* Mimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
+                if (Creature* Mimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                 {
                     Mimiron->AI()->DoAction(ACTION_MINE_FAIL);
                     me->DespawnOrUnsummon(1000);
@@ -1030,7 +1030,7 @@ public:
         {
             if (!(rand()%5))
                 if (instance)
-                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
+                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                     {
                         if (phase == PHASE_VX001_SOLO)
                             DoScriptText(RAND(SAY_VX001_SLAY_1, SAY_VX001_SLAY_2), pMimiron);
@@ -1102,7 +1102,7 @@ public:
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     phase = PHASE_NULL;
                     events.SetPhase(PHASE_NULL);
-                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
+                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                         pMimiron->AI()->DoAction(DO_ACTIVATE_AERIAL);
                 }
                 
@@ -1116,7 +1116,7 @@ public:
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     events.SetPhase(PHASE_NULL);
                     phase = PHASE_NULL;
-                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
+                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                         pMimiron->AI()->DoAction(DO_ACTIVATE_DEATH_TIMER);
                 }
         }
@@ -1216,7 +1216,7 @@ public:
         void SpellHitTarget(Unit* target, SpellInfo const* spell)
         {
             if (spell->Id == 63041 && target->GetTypeId() == TYPEID_PLAYER)
-                if (Creature* Mimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
+                if (Creature* Mimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                     Mimiron->AI()->DoAction(ACTION_ROCKET_FAIL);
             
         }
@@ -1271,7 +1271,7 @@ public:
         {
             if (!(rand()%5))
                 if (instance)
-                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
+                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                     {
                         if (phase == PHASE_AERIAL_SOLO)
                             DoScriptText(RAND(SAY_AERIAL_SLAY_1, SAY_AERIAL_SLAY_2), pMimiron);
@@ -1306,7 +1306,7 @@ public:
                     me->GetMotionMaster()->Clear(true);
                     DoCast(me, SPELL_MAGNETIC_CORE);
                     DoCast(me, SPELL_MAGNETIC_CORE_VISUAL);
-                    if (Creature *pMagneticCore = me->GetCreature(*me, instance->GetData64(DATA_MAGNETIC_CORE)))
+                    if (Creature *pMagneticCore = me->GetCreature(*me, instance->GetGuidData(DATA_MAGNETIC_CORE)))
                         if (pMagneticCore->isAlive())
                             me->NearTeleportTo(pMagneticCore->GetPositionX(), pMagneticCore->GetPositionY(), 368.965f, 0, false);
                     events.RescheduleEvent(EVENT_PLASMA_BALL, 22000, 0, PHASE_AERIAL_SOLO);
@@ -1439,7 +1439,7 @@ public:
                     events.CancelEvent(EVENT_SUMMON_BOTS);
                     phase = PHASE_NULL;
                     events.SetPhase(PHASE_NULL);
-                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
+                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                         pMimiron->AI()->DoAction(DO_ACTIVATE_V0L7R0N);
                 }
                 
@@ -1454,7 +1454,7 @@ public:
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     events.SetPhase(PHASE_NULL);
                     phase = PHASE_NULL;
-                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
+                    if (Creature *pMimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                         pMimiron->AI()->DoAction(DO_ACTIVATE_DEATH_TIMER);
                 }
         }
@@ -1606,7 +1606,7 @@ public:
             return false;
 
         if (pInstance->GetBossState(BOSS_MIMIRON) == NOT_STARTED && pPlayer)
-            if (Creature *pMimiron = pPlayer->GetCreature(*pPlayer, pInstance->GetData64(DATA_MIMIRON)))
+            if (Creature *pMimiron = pPlayer->GetCreature(*pPlayer, pInstance->GetGuidData(DATA_MIMIRON)))
                 pMimiron->AI()->DoAction(DO_ACTIVATE_HARD_MODE);
 
         return true;
@@ -1766,7 +1766,7 @@ public:
         void SpellHitTarget(Unit*target, SpellInfo const* spell)
         {
             if (spell->Id == 63801 && target->GetTypeId() == TYPEID_PLAYER && pInstance)
-                if (Creature* Mimiron = me->GetCreature(*me, pInstance->GetData64(DATA_MIMIRON)))
+                if (Creature* Mimiron = me->GetCreature(*me, pInstance->GetGuidData(DATA_MIMIRON)))
                     Mimiron->AI()->DoAction(ACTION_BOOM_FAIL);
         }
     };

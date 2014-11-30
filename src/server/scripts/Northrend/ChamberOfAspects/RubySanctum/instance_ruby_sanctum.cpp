@@ -380,7 +380,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiData)
+        uint64 GetGuidData(uint32 uiData)
         {
             switch(uiData)
             {

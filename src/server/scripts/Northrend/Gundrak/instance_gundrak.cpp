@@ -305,7 +305,7 @@ public:
                 SaveToDB();
         }
 
-        void SetData64(uint32 type, uint64 data)
+        void SetGuidData(uint32 type, uint64 data)
         {
             if (type == DATA_RUIN_DWELLER_DIED)
                 DwellerGUIDs.erase(data);
@@ -338,7 +338,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 type)
+        uint64 GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -497,7 +497,7 @@ public:
                      toActivate = 0;
 
                      if (phase == 3)
-                         SetData64(DATA_STATUE_ACTIVATE, uiBridge);
+                         SetGuidData(DATA_STATUE_ACTIVATE, uiBridge);
                      else
                          SaveToDB(); // Don't save in between last statue and bridge turning in case of crash leading to stuck instance
                 }
@@ -534,19 +534,19 @@ public:
             switch (go->GetEntry())
             {
                 case 192518:
-                    uiStatue = instance->GetData64(DATA_SLAD_RAN_STATUE);
+                    uiStatue = instance->GetGuidData(DATA_SLAD_RAN_STATUE);
                     break;
                 case 192519:
-                    uiStatue = instance->GetData64(DATA_MOORABI_STATUE);
+                    uiStatue = instance->GetGuidData(DATA_MOORABI_STATUE);
                     break;
                 case 192520:
-                    uiStatue = instance->GetData64(DATA_DRAKKARI_COLOSSUS_STATUE);
+                    uiStatue = instance->GetGuidData(DATA_DRAKKARI_COLOSSUS_STATUE);
                     break;
             }
 
-            if (!instance->GetData64(DATA_STATUE_ACTIVATE))
+            if (!instance->GetGuidData(DATA_STATUE_ACTIVATE))
             {
-                instance->SetData64(DATA_STATUE_ACTIVATE, uiStatue);
+                instance->SetGuidData(DATA_STATUE_ACTIVATE, uiStatue);
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 go->SetGoState(GO_STATE_ACTIVE);
             }

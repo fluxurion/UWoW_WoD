@@ -135,7 +135,7 @@ public:
                     SetEscortPaused(true);
                     pInstance->SetData(DATA_LICHKING_EVENT, SPECIAL);
                     DoScriptText(SAY_LICH_KING_END_DUN, me);
-                    if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LIDER))))
+                    if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), pInstance->GetGuidData(DATA_ESCAPE_LIDER))))
                         me->CastSpell(pLider, SPELL_HARVEST_SOUL, false);
                     me->setActive(false);
                     break;
@@ -165,7 +165,7 @@ public:
             summoned->setActive(true);
 
             pInstance->SetData(DATA_SUMMONS, 1);
-            if (Unit* pLider = Unit::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LIDER)))
+            if (Unit* pLider = Unit::GetUnit((*me), pInstance->GetGuidData(DATA_ESCAPE_LIDER)))
             {
                 summoned->GetMotionMaster()->MoveChase(pLider);
                 summoned->AddThreat(pLider, 100.0f);
@@ -332,7 +332,7 @@ public:
             }
 
             // Leader caught, wipe
-            if (Creature* pLider = ((Creature*)Unit::GetUnit((*me), pInstance->GetData64(DATA_ESCAPE_LIDER))))
+            if (Creature* pLider = ((Creature*)Unit::GetUnit((*me), pInstance->GetGuidData(DATA_ESCAPE_LIDER))))
             {
                 if (pLider->IsWithinDistInMap(me, 2.0f) && pInstance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
                 {
@@ -435,7 +435,7 @@ public:
 
             if(pInstance->GetData(DATA_LICHKING_EVENT) == IN_PROGRESS)
             {
-                uiLiderGUID = pInstance->GetData64(DATA_ESCAPE_LIDER);
+                uiLiderGUID = pInstance->GetGuidData(DATA_ESCAPE_LIDER);
                 Creature* pLider = ((Creature*)Unit::GetUnit((*me), uiLiderGUID));
 
                 if(Emerge != true)
@@ -444,7 +444,7 @@ public:
                     {
                         //me->RemoveFlag(SPLINEFLAG_WALKING | MOVEMENTFLAG_WALKING, true);
                         Emerge = true;
-                        uiLiderGUID = pInstance->GetData64(DATA_ESCAPE_LIDER);
+                        uiLiderGUID = pInstance->GetGuidData(DATA_ESCAPE_LIDER);
                         if(pLider)
                         {
                             DoResetThreat();
@@ -544,7 +544,7 @@ public:
                     if(EmergeTimer < diff)
                     {
                         Emerge = true;
-                        uiLiderGUID = pInstance->GetData64(DATA_ESCAPE_LIDER);
+                        uiLiderGUID = pInstance->GetGuidData(DATA_ESCAPE_LIDER);
                         if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), uiLiderGUID)))
                         {
                             DoResetThreat();
@@ -629,7 +629,7 @@ public:
                 if(Walk != true)
                 {
                     Walk = true;
-                    uiLiderGUID = pInstance->GetData64(DATA_ESCAPE_LIDER);
+                    uiLiderGUID = pInstance->GetGuidData(DATA_ESCAPE_LIDER);
                     if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), uiLiderGUID)))
                     {
                         DoResetThreat();

@@ -139,7 +139,7 @@ struct boss_fallen_protectors : public BossAI
             if (me->GetEntry() == protectors[i])
                 continue;
 
-            if (Creature* prot = ObjectAccessor::GetCreature(*me, instance->GetData64(protectors[i])))
+            if (Creature* prot = ObjectAccessor::GetCreature(*me, instance->GetGuidData(protectors[i])))
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, prot);
                 DoZoneInCombat(prot, 150.0f);
@@ -167,7 +167,7 @@ struct boss_fallen_protectors : public BossAI
     {
         for (int32 i = 0; i < 3; ++i)
         {
-            if (Creature* prot = ObjectAccessor::GetCreature(*me, instance->GetData64(protectors[i])))
+            if (Creature* prot = ObjectAccessor::GetCreature(*me, instance->GetGuidData(protectors[i])))
             {
                 if (prot->GetHealth() != 1)
                     return false;
@@ -200,7 +200,7 @@ struct boss_fallen_protectors : public BossAI
                     if (me->GetEntry() == protectors[i])
                         continue;
 
-                    if (Creature* prot = ObjectAccessor::GetCreature(*me, instance->GetData64(protectors[i])))
+                    if (Creature* prot = ObjectAccessor::GetCreature(*me, instance->GetGuidData(protectors[i])))
                         attacker->Kill(prot, true);
                 }
             }
@@ -232,7 +232,7 @@ struct boss_fallen_protectors : public BossAI
 
     void summonDesperation()
     {
-        Creature* lotos = instance->instance->GetCreature(instance->GetData64(measureVeh));
+        Creature* lotos = instance->instance->GetCreature(instance->GetGuidData(measureVeh));
         if (!lotos)
         {
             sLog->outError(LOG_FILTER_GENERAL, " >> Script boss_fallen_protectors::summonDesperation con't get %u for %u", measureVeh, me->GetEntry());
@@ -649,7 +649,7 @@ class boss_sun_tenderheart : public CreatureScript
                             events.RescheduleEvent(EVENT_CALAMITY, urand(60*IN_MILLISECONDS, 70*IN_MILLISECONDS), 0, PHASE_BATTLE);
                             break;
                         case EVENT_DESPERATE_MEASURES:
-                            if (Creature* lotos = instance->instance->GetCreature(instance->GetData64(NPC_GOLD_LOTOS_MAIN)))
+                            if (Creature* lotos = instance->instance->GetCreature(instance->GetGuidData(NPC_GOLD_LOTOS_MAIN)))
                                 DoCast(lotos, SPELL_DARK_MEDITATION_JUMP, true);
                             sCreatureTextMgr->SendChat(me, TEXT_GENERIC_4, me->GetGUID());
                             break;
@@ -727,7 +727,7 @@ public:
         {
             if (apply)
             {
-                if (Creature* mover = instance->instance->GetCreature(instance->GetData64(NPC_GOLD_LOTOS_MOVER)))
+                if (Creature* mover = instance->instance->GetCreature(instance->GetGuidData(NPC_GOLD_LOTOS_MOVER)))
                 {
                     who->CastSpell(mover, SPELL_FACE_CHANNEL, true);
                     if (!me->HasAura(SPELL_FACE_CHANNEL))
@@ -811,7 +811,7 @@ class vehicle_golden_lotus_conteiner : public VehicleScript
             if (!instance)
                 return;
 
-            Creature* lotos = instance->instance->GetCreature(instance->GetData64(NPC_GOLD_LOTOS_MAIN));
+            Creature* lotos = instance->instance->GetCreature(instance->GetGuidData(NPC_GOLD_LOTOS_MAIN));
             if (!lotos)
                 return;
 
@@ -859,12 +859,12 @@ struct npc_measure : public ScriptedAI
         summons.DespawnAll();
         me->CastSpell(me, SPELL_DESPAWN_AT, true);
 
-        if (Creature* owner = instance->instance->GetCreature(instance->GetData64(ownSummoner)))
+        if (Creature* owner = instance->instance->GetCreature(instance->GetGuidData(ownSummoner)))
             owner->AI()->DoAction(me->GetEntry());
         else
             sLog->outError(LOG_FILTER_GENERAL, " >> Script boss_fallen_protectors::npc_measure can't find owner %u", ownSummoner);
 
-        if (Creature* lotos = instance->instance->GetCreature(instance->GetData64(ownVehicle)))
+        if (Creature* lotos = instance->instance->GetCreature(instance->GetGuidData(ownVehicle)))
         {
             me->CastSpell(me, SPELL_CLEAR_ALL_DEBUFS, true);
             me->CastSpell(me, SPELL_FULL_HEALTH, true);
@@ -971,7 +971,7 @@ public:
                     case EVENT_1:
                         _spell = me->GetEntry() == NPC_EMBODIED_DESPERATION_OF_SUN ? SPELL_MANIFEST_DESPERATION : SPELL_MANIFEST_DESPAIR;
                         DoCast(me, _spell, true);
-                        if (Creature* lotos = instance->instance->GetCreature(instance->GetData64(NPC_GOLD_LOTOS_MAIN)))
+                        if (Creature* lotos = instance->instance->GetCreature(instance->GetGuidData(NPC_GOLD_LOTOS_MAIN)))
                             me->SetFacingToObject(lotos);
                         events.ScheduleEvent(EVENT_2, 4000);
                         break;
@@ -1031,7 +1031,7 @@ public:
             _target = guid;
             if (Unit* target = ObjectAccessor::FindUnit(guid))
             {
-                if (Creature* owner = instance->instance->GetCreature(instance->GetData64(ownSummoner)))
+                if (Creature* owner = instance->instance->GetCreature(instance->GetGuidData(ownSummoner)))
                     sCreatureTextMgr->SendChat(owner, TEXT_GENERIC_0, 0);
 
                 me->CastSpell(target, SPELL_MARK_OF_ANGUISH_JUMP, true);
@@ -1524,7 +1524,7 @@ class spell_fallen_protectors_mark_of_anguish_transfer : public SpellScriptLoade
                 if (!target)
                     return;
 
-                Creature* mesOfHe = instance->instance->GetCreature(instance->GetData64(NPC_EMBODIED_ANGUISH_OF_HE));
+                Creature* mesOfHe = instance->instance->GetCreature(instance->GetGuidData(NPC_EMBODIED_ANGUISH_OF_HE));
                 if (!mesOfHe)
                     return;
 

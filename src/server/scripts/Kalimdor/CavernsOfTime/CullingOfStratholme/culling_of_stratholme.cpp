@@ -539,7 +539,7 @@ public:
                     break;
                 case 36:
                     if (instance)
-                        if (GameObject* pGate = instance->instance->GetGameObject(instance->GetData64(DATA_SHKAF_GATE)))
+                        if (GameObject* pGate = instance->instance->GetGameObject(instance->GetGuidData(DATA_SHKAF_GATE)))
                             pGate->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case 45:
@@ -1138,7 +1138,7 @@ public:
                                 pMalganis->SetReactState(REACT_PASSIVE);
                             }
                             if (instance)
-                                if (GameObject* pGate = instance->instance->GetGameObject(instance->GetData64(DATA_MAL_GANIS_GATE_1)))
+                                if (GameObject* pGate = instance->instance->GetGameObject(instance->GetGuidData(DATA_MAL_GANIS_GATE_1)))
                                     pGate->SetGoState(GO_STATE_ACTIVE);
                             SetHoldState(false);
                             bStepping = false;
@@ -1183,7 +1183,7 @@ public:
                             if (instance)
                             {
                                 instance->SetData(DATA_ARTHAS_EVENT, DONE); //Rewards: Achiev & Chest ;D
-                                me->SetTarget(instance->GetData64(DATA_MAL_GANIS_GATE_2)); //Look behind
+                                me->SetTarget(instance->GetGuidData(DATA_MAL_GANIS_GATE_2)); //Look behind
                             }
                             DoScriptText(SAY_PHASE504, me);
                             bStepping = false;

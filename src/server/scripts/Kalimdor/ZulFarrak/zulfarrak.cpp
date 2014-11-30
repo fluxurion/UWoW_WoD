@@ -133,7 +133,7 @@ public:
                     {
                         case 1:
                             //weegli doesn't fight - he goes & blows up the door
-                            if (Creature* pWeegli = instance->instance->GetCreature(instance->GetData64(ENTRY_WEEGLI)))
+                            if (Creature* pWeegli = instance->instance->GetCreature(instance->GetGuidData(ENTRY_WEEGLI)))
                                 pWeegli->AI()->DoAction(0);
                             Talk(SAY_1);
                             Text_Timer = 5000;
@@ -189,7 +189,7 @@ public:
 
         void switchFactionIfAlive(InstanceScript* instance, uint32 entry)
         {
-           if (Creature* crew = instance->instance->GetCreature(instance->GetData64(entry)))
+           if (Creature* crew = instance->instance->GetCreature(instance->GetGuidData(entry)))
                if (crew->isAlive())
                    crew->setFaction(FACTION_HOSTILE);
         }
@@ -224,7 +224,7 @@ public:
 private:
     void initBlyCrewMember(InstanceScript* instance, uint32 entry, float x, float y, float z)
     {
-        if (Creature* crew = instance->instance->GetCreature(instance->GetData64(entry)))
+        if (Creature* crew = instance->instance->GetCreature(instance->GetGuidData(entry)))
         {
             crew->SetReactState(REACT_AGGRESSIVE);
             crew->SetWalk(true);
@@ -368,7 +368,7 @@ public:
                 else
                     if (destroyingDoor)
                     {
-                        instance->DoUseDoorOrButton(instance->GetData64(GO_END_DOOR));
+                        instance->DoUseDoorOrButton(instance->GetGuidData(GO_END_DOOR));
                         //TODO: leave the area...
                         me->DespawnOrUnsummon();
                     };

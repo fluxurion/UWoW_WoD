@@ -362,7 +362,7 @@ public:
                     case DONE:
                         for (std::vector<uint64>::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
                             HandleGameObject(*guid, true);
-                        if (Creature* norush = instance->GetCreature(GetData64(NPC_NORUSHEN)))
+                        if (Creature* norush = instance->GetCreature(GetGuidData(NPC_NORUSHEN)))
                             norush->DespawnOrUnsummon();
                         if (Creature* bq = instance->GetCreature(LorewalkerChoGUIDtmp))
                             bq->DespawnOrUnsummon();
@@ -391,7 +391,7 @@ public:
                 ++EventfieldOfSha;
                 if (EventfieldOfSha >= 3)
                 {
-                    HandleGameObject(GetData64(GO_SHA_ENERGY_WALL), true);
+                    HandleGameObject(GetGuidData(GO_SHA_ENERGY_WALL), true);
                     SaveToDB();
                 }
             }else if (type == DATA_FP_EVADE)
@@ -422,7 +422,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 type)
+        uint64 GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -462,7 +462,7 @@ public:
                     --lingering_corruption_count;
                     if (!lingering_corruption_count)
                     {
-                        if (Creature* Norushen = instance->GetCreature(GetData64(NPC_SHA_NORUSHEN)))
+                        if (Creature* Norushen = instance->GetCreature(GetGuidData(NPC_SHA_NORUSHEN)))
                             Norushen->AI()->SetData(NPC_LINGERING_CORRUPTION, DONE);
                     }
                     break;

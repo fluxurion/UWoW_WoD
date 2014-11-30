@@ -550,7 +550,7 @@ class achievement_watch_him_die : public AchievementCriteriaScript
 
             for (uint8 n = 0; n < 3; ++n)
             {
-                Watcher[n] = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_WATCHER_GASHRA + n));
+                Watcher[n] = ObjectAccessor::GetCreature(*target, instance->GetGuidData(DATA_WATCHER_GASHRA + n));
                 if (Watcher[n] && !Watcher[n]->isAlive())
                     return false;
             }

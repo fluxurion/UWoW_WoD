@@ -238,7 +238,7 @@ public:
             {
                 for (uint8 data = DATA_BRIGHTLEAF; data <= DATA_STONEBARK; ++data)
                 {
-                    if (Creature *pCreature = Creature::GetCreature((*me), instance->GetData64(data)))
+                    if (Creature *pCreature = Creature::GetCreature((*me), instance->GetGuidData(data)))
                     {
                         if (pCreature->isAlive())
                             pCreature->AI()->EnterEvadeMode();
@@ -325,7 +325,7 @@ public:
             if (instance)
             {
                 // Freya hard mode can be triggered simply by letting the elders alive
-                if (Creature* Brightleaf = me->GetCreature(*me, instance->GetData64(DATA_BRIGHTLEAF)))
+                if (Creature* Brightleaf = me->GetCreature(*me, instance->GetGuidData(DATA_BRIGHTLEAF)))
                     if (Brightleaf && Brightleaf->isAlive())
                     {
                         EldersCount++;
@@ -335,7 +335,7 @@ public:
                         events.ScheduleEvent(EVENT_BRIGHTLEAF, urand(15000, 30000));
                     }
             
-                if (Creature* Ironbranch = me->GetCreature(*me, instance->GetData64(DATA_IRONBRANCH)))
+                if (Creature* Ironbranch = me->GetCreature(*me, instance->GetGuidData(DATA_IRONBRANCH)))
                     if (Ironbranch && Ironbranch->isAlive())
                     {
                         EldersCount++;
@@ -345,7 +345,7 @@ public:
                         events.ScheduleEvent(EVENT_IRONBRANCH, urand(45000, 60000));
                     }
             
-                if (Creature* Stonebark = me->GetCreature(*me, instance->GetData64(DATA_STONEBARK)))
+                if (Creature* Stonebark = me->GetCreature(*me, instance->GetGuidData(DATA_STONEBARK)))
                     if (Stonebark && Stonebark->isAlive())
                     {
                         EldersCount++;
@@ -422,7 +422,7 @@ public:
                                 for (uint32 i = 0; i < 3; i++)
                                     Elemental[i]->DespawnOrUnsummon(3000);
                                 
-                                if (Creature* Freya = me->GetCreature(*me, instance->GetData64(DATA_FREYA)))
+                                if (Creature* Freya = me->GetCreature(*me, instance->GetGuidData(DATA_FREYA)))
                                     Freya->AI()->DoAction(ACTION_ELEMENTAL);
                             }
                 }
@@ -670,8 +670,8 @@ public:
             if (pInstance)
             {
                 pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, 21686);
-                if (Creature* IR = me->GetCreature(*me, pInstance->GetData64(DATA_IRONBRANCH)))
-                    if (Creature* ST = me->GetCreature(*me, pInstance->GetData64(DATA_STONEBARK)))
+                if (Creature* IR = me->GetCreature(*me, pInstance->GetGuidData(DATA_IRONBRANCH)))
+                    if (Creature* ST = me->GetCreature(*me, pInstance->GetGuidData(DATA_STONEBARK)))
                         if (!IR->isAlive()) 
                             if (!ST->isAlive())
                                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
@@ -821,8 +821,8 @@ public:
             if (pInstance)
             {
                 pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, 21686);
-                if (Creature* BR = me->GetCreature(*me, pInstance->GetData64(DATA_BRIGHTLEAF)))
-                    if (Creature* ST = me->GetCreature(*me, pInstance->GetData64(DATA_STONEBARK)))
+                if (Creature* BR = me->GetCreature(*me, pInstance->GetGuidData(DATA_BRIGHTLEAF)))
+                    if (Creature* ST = me->GetCreature(*me, pInstance->GetGuidData(DATA_STONEBARK)))
                         if (!BR->isAlive())
                             if (!ST->isAlive())
                                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
@@ -946,8 +946,8 @@ public:
             if (pInstance)
             {
                 pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, 21686);
-                if (Creature* BR = me->GetCreature(*me, pInstance->GetData64(DATA_BRIGHTLEAF)))
-                    if (Creature* IR = me->GetCreature(*me, pInstance->GetData64(DATA_IRONBRANCH)))
+                if (Creature* BR = me->GetCreature(*me, pInstance->GetGuidData(DATA_BRIGHTLEAF)))
+                    if (Creature* IR = me->GetCreature(*me, pInstance->GetGuidData(DATA_IRONBRANCH)))
                         if (!BR->isAlive())
                             if (!IR->isAlive())
                                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
@@ -1011,13 +1011,13 @@ public:
             uiLifebindersGiftTimer = 12000;
             DoCast(me, SPELL_PHEROMONES, true);
             DoCast(me, SPELL_EONAR_VISUAL, true);
-            if (Unit *pfreya = Unit::GetUnit((*me), instance->GetData64(DATA_FREYA)))
+            if (Unit *pfreya = Unit::GetUnit((*me), instance->GetGuidData(DATA_FREYA)))
                 pfreya->CastSpell(pfreya, SPELL_TOUCH_OF_EONAR, true);
         }
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Unit *pfreya = Unit::GetUnit((*me), instance->GetData64(DATA_FREYA)))
+            if (Unit *pfreya = Unit::GetUnit((*me), instance->GetGuidData(DATA_FREYA)))
                 pfreya->RemoveAurasDueToSpell(SPELL_TOUCH_OF_EONAR);
         }
 
@@ -1143,7 +1143,7 @@ public:
             DoCast(me, SPELL_DETONATE);
 
             if(pInstance)
-                if (Creature* Freya = me->GetCreature(*me, pInstance->GetData64(DATA_FREYA)))
+                if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
                     Freya->AI()->DoAction(ACTION_LASHER);
         }
     };
@@ -1231,7 +1231,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetData64(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_ANCIENT);
         }
     };
@@ -1324,7 +1324,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetData64(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_STORM_DEAD);
         }
     };
@@ -1354,7 +1354,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetData64(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_SNAP_DEAD);
         }
     };
@@ -1403,7 +1403,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetData64(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_WATER_DEAD);
         }
     };

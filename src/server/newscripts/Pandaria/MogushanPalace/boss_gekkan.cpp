@@ -55,7 +55,7 @@ class boss_gekkan : public CreatureScript
                 //Get the four adds.
                 if (me->GetInstanceScript())
                     for (int i = 0; i < 4; ++i)
-                        entourage.push_back(me->GetInstanceScript()->GetData64(TYPE_GET_ENTOURAGE + i));
+                        entourage.push_back(me->GetInstanceScript()->GetGuidData(TYPE_GET_ENTOURAGE + i));
                 events.ScheduleEvent(EVENT_RECKLESS_INSPIRATION, 3000);
                 Talk(TALK_AGGRO);
 

@@ -233,7 +233,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                     return;
 
                 instance->SetData(TYPE_NETHEKURSE, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_NETHEKURSE_DOOR), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_NETHEKURSE_DOOR), true);
             }
 
             void UpdateAI(uint32 diff)
@@ -341,9 +341,9 @@ class mob_fel_orc_convert : public CreatureScript
             {
                 if (instance)
                 {
-                    if (instance->GetData64(DATA_NETHEKURSE))
+                    if (instance->GetGuidData(DATA_NETHEKURSE))
                     {
-                        Creature* pKurse = Unit::GetCreature(*me, instance->GetData64(DATA_NETHEKURSE));
+                        Creature* pKurse = Unit::GetCreature(*me, instance->GetGuidData(DATA_NETHEKURSE));
                         if (pKurse && me->IsWithinDist(pKurse, 45.0f))
                         {
                             CAST_AI(boss_grand_warlock_nethekurse::boss_grand_warlock_nethekurseAI, pKurse->AI())->DoYellForPeonAggro();
@@ -363,8 +363,8 @@ class mob_fel_orc_convert : public CreatureScript
                 {
                     if (instance->GetData(TYPE_NETHEKURSE) != IN_PROGRESS)
                         return;
-                    if (instance->GetData64(DATA_NETHEKURSE))
-                        if (Creature* pKurse = Unit::GetCreature(*me, instance->GetData64(DATA_NETHEKURSE)))
+                    if (instance->GetGuidData(DATA_NETHEKURSE))
+                        if (Creature* pKurse = Unit::GetCreature(*me, instance->GetGuidData(DATA_NETHEKURSE)))
                             CAST_AI(boss_grand_warlock_nethekurse::boss_grand_warlock_nethekurseAI, pKurse->AI())->DoYellForPeonDeath();
                 }
             }

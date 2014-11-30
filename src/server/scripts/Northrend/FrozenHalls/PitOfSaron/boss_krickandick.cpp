@@ -158,7 +158,7 @@ class boss_ick : public CreatureScript
 
             Creature* GetKrick()
             {
-                return ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KRICK));
+                return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KRICK));
             }
 
             void EnterCombat(Unit * /*who*/)
@@ -317,7 +317,7 @@ class boss_krick : public CreatureScript
 
             Creature* GetIck()
             {
-                return ObjectAccessor::GetCreature(*me, _instanceScript->GetData64(DATA_ICK));
+                return ObjectAccessor::GetCreature(*me, _instanceScript->GetGuidData(DATA_ICK));
             }
 
             void KilledUnit(Unit* victim)
@@ -371,7 +371,7 @@ class boss_krick : public CreatureScript
                     {
                         case EVENT_OUTRO_1:
                         {
-                            if (Creature* temp = me->GetCreature(*me, _instanceScript->GetData64(DATA_JAINA_SYLVANAS_1)))
+                            if (Creature* temp = me->GetCreature(*me, _instanceScript->GetGuidData(DATA_JAINA_SYLVANAS_1)))
                                 temp->DespawnOrUnsummon();
 
                             Creature* jainaOrSylvanas = NULL;

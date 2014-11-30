@@ -171,7 +171,7 @@ public:
             case NPC_MAGMUS:
                 MagmusGUID = creature->GetGUID();
                 if (!creature->isAlive())
-                    HandleGameObject(GetData64(DATA_THRONE_DOOR), true); // if Magmus is dead open door to last boss
+                    HandleGameObject(GetGuidData(DATA_THRONE_DOOR), true); // if Magmus is dead open door to last boss
                 break;
             }
         }
@@ -210,9 +210,9 @@ public:
             }
         }
 
-        void SetData64(uint32 type, uint64 data)
+        void SetGuidData(uint32 type, uint64 data)
         {
-            sLog->outDebug(LOG_FILTER_TSCR, "Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
+            sLog->outDebug(LOG_FILTER_TSCR, "Instance Blackrock Depths: SetGuidData update (Type: %u Data " UI64FMTD ")", type, data);
 
             switch (type)
             {
@@ -298,7 +298,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data)
+        uint64 GetGuidData(uint32 data)
         {
             switch (data)
             {

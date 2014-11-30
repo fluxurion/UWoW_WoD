@@ -405,7 +405,7 @@ public:
             }
         }
 
-        void SetData64(uint32 type, uint64 data)
+        void SetGuidData(uint32 type, uint64 data)
         {
             switch (type)
             {
@@ -439,7 +439,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 identifier)
+        uint64 GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -808,7 +808,7 @@ public:
             // visuals
             trigger->CastSpell(trigger, spellInfoLightning, true, 0, 0, trigger->GetGUID());
 
-            // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
+            // Kill all mobs registered with SetGuidData(ADD_TRASH_MOB)
             for (GuidSet::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
             {
                 Creature* creature = instance->GetCreature(*itr);

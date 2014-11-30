@@ -146,7 +146,7 @@ public:
             }
         }
 
-        void SetData64(uint32 idx, uint64 guid)
+        void SetGuidData(uint32 idx, uint64 guid)
         {
             switch (idx)
             {
@@ -160,7 +160,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 identifier)
+        uint64 GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {

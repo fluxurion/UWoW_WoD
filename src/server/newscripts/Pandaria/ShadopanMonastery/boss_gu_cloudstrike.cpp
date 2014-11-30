@@ -94,7 +94,7 @@ class boss_gu_cloudstrike : public CreatureScript
 
             Creature* GetAzureSerpent()
             {
-                return pInstance->instance->GetCreature(pInstance->GetData64(NPC_AZURE_SERPENT));
+                return pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_AZURE_SERPENT));
             }
 
             void DamageTaken(Unit* attacker, uint32& damage)
@@ -278,7 +278,7 @@ class AreaTrigger_at_gu_intro : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (InstanceScript* pInstance = player->GetInstanceScript())
-                if (Creature* gu = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GU_CLOUDSTRIKE)))
+                if (Creature* gu = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_GU_CLOUDSTRIKE)))
                     if (gu->AI())
                         gu->AI()->DoAction(ACTION_INTRO);
 

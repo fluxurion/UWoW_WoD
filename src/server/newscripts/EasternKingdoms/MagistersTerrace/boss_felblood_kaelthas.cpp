@@ -142,7 +142,7 @@ public:
             if (instance)
             {
                 instance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
-                instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_KAEL_DOOR), true);
                // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
                // Small door opened after event are expected to be closed by default
             }
@@ -156,10 +156,10 @@ public:
                 return;
 
             // Open the encounter door
-            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_KAEL_DOOR), true);
 
             // Enable the Translocation Orb Exit
-            if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ESCAPE_ORB)))
+            if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ESCAPE_ORB)))
                     escapeOrb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
@@ -175,7 +175,7 @@ public:
                 return;
 
             //Close the encounter door, open it in JustDied/Reset
-            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), false);
+            instance->HandleGameObject(instance->GetGuidData(DATA_KAEL_DOOR), false);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -372,8 +372,8 @@ public:
 
                                     if (instance)
                                     {
-                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_LEFT), true);
-                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_RIGHT), true);
+                                        instance->HandleGameObject(instance->GetGuidData(DATA_KAEL_STATUE_LEFT), true);
+                                        instance->HandleGameObject(instance->GetGuidData(DATA_KAEL_STATUE_RIGHT), true);
                                     }
                                 }else
                                 {

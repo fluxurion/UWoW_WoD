@@ -69,14 +69,14 @@ void CheckDone(InstanceScript* instance, Creature* caller, uint32 callerEntry)
 {
     if (caller && instance)
     {
-        if (Creature* council = caller->GetCreature(*caller, instance->GetData64(callerEntry)))
+        if (Creature* council = caller->GetCreature(*caller, instance->GetGuidData(callerEntry)))
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, council);
     }
 
     uint8 donecount = 0;
     for (uint8 n = 0; n < 4; n++)
     {
-        if (Creature* pcouncil = caller->GetCreature(*caller, instance->GetData64(councilentry[n])))
+        if (Creature* pcouncil = caller->GetCreature(*caller, instance->GetGuidData(councilentry[n])))
         {
             if (!pcouncil->isAlive())
                 donecount++;

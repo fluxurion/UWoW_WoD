@@ -425,7 +425,7 @@ class instance_stratholme : public InstanceMapScript
                   return 0;
             }
 
-            uint64 GetData64(uint32 data)
+            uint64 GetGuidData(uint32 data)
             {
                 switch (data)
                 {

@@ -60,7 +60,7 @@ void ResetMegaeraHeads(InstanceScript* instance, Creature* caller, uint32 caller
     {
         for (uint8 n = 0; n < 3; n++)
         {
-            if (Creature* mh = caller->GetCreature(*caller, instance->GetData64(megaera_entry[n])))
+            if (Creature* mh = caller->GetCreature(*caller, instance->GetGuidData(megaera_entry[n])))
             {
                 if (mh->GetEntry() != callerEntry)
                 {
@@ -83,7 +83,7 @@ void CallMegaeraHeads(InstanceScript* instance, Creature* caller, uint32 callerE
     {
         for (uint8 n = 0; n < 3; n++)
         {
-            if (Creature* mh = caller->GetCreature(*caller, instance->GetData64(megaera_entry[n])))
+            if (Creature* mh = caller->GetCreature(*caller, instance->GetGuidData(megaera_entry[n])))
             {
                 if (mh->GetEntry() != callerEntry)
                 {
@@ -102,7 +102,7 @@ void CheckMegaeraHeads(InstanceScript* instance, Creature* caller, uint32 caller
         uint8 donecount = 0;
         for (uint8 n = 0; n < 3; n++)
         {
-            if (Creature* mh = caller->GetCreature(*caller, instance->GetData64(megaera_entry[n])))
+            if (Creature* mh = caller->GetCreature(*caller, instance->GetGuidData(megaera_entry[n])))
             {
                 if (!mh->isAlive())
                     donecount++;
@@ -122,7 +122,7 @@ void CheckMegaeraHeads(InstanceScript* instance, Creature* caller, uint32 caller
         
         if (callerEntry == NPC_FROZEN_HEAD || callerEntry == NPC_VENOMOUS_HEAD)
         {
-            if (Creature* fl_h = caller->GetCreature(*caller, instance->GetData64(NPC_FLAMING_HEAD)))
+            if (Creature* fl_h = caller->GetCreature(*caller, instance->GetGuidData(NPC_FLAMING_HEAD)))
             {
                 if (fl_h->isAlive() && fl_h->isInCombat())
                 {

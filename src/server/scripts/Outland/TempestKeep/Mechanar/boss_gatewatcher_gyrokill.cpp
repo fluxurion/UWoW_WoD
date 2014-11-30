@@ -70,7 +70,7 @@ class boss_gatewatcher_gyrokill : public CreatureScript
                 Talk(SAY_DEATH);
                 if (instance)
                 {
-                    if (GameObject* cache = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CHAHCE_LEGION)))
+                    if (GameObject* cache = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CHAHCE_LEGION)))
                         cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
                 }
             }

@@ -627,7 +627,7 @@ class npc_chogall_fire_elemental : public CreatureScript
                 if (!pInstance)
                     return;
                 bNear = false;
-                pChogall = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_CHOGALL));
+                pChogall = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_CHOGALL));
                 if (!pChogall)
                     me->DespawnOrUnsummon();
                 DoCast(me, SPELL_FIRE_SHELL);
@@ -698,7 +698,7 @@ class npc_chogall_shadow_lord : public CreatureScript
                 if (!pInstance)
                     return;
                 bNear = false;
-                pChogall = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_CHOGALL));
+                pChogall = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_CHOGALL));
                 if (!pChogall)
                     me->DespawnOrUnsummon();
                 DoCast(me, SPELL_SHADOW_SHELL);

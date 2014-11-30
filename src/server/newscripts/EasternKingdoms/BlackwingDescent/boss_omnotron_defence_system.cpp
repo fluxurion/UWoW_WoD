@@ -224,25 +224,25 @@ class boss_omnotron : public CreatureScript
 
                 current = 0;
 
-                if (Creature* arcanotron = Unit::GetCreature(*me, pInstance->GetData64(DATA_ARCANOTRON)))
+                if (Creature* arcanotron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_ARCANOTRON)))
                 {
                     m_uiGuids[0] = arcanotron->GetGUID();
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, arcanotron); 
                     DoZoneInCombat(arcanotron);
                 }
-                if (Creature*  electron = Unit::GetCreature(*me, pInstance->GetData64(DATA_ELECTRON)))
+                if (Creature*  electron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_ELECTRON)))
                 {
                     m_uiGuids[1] = electron->GetGUID();
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, electron); 
                     DoZoneInCombat(electron);
                 }
-                if (Creature* magmatron = Unit::GetCreature(*me, pInstance->GetData64(DATA_MAGMATRON)))
+                if (Creature* magmatron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMATRON)))
                 {
                     m_uiGuids[2] = magmatron->GetGUID();
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, magmatron); 
                     DoZoneInCombat(magmatron);
                 }
-                if (Creature* toxitron = Unit::GetCreature(*me, pInstance->GetData64(DATA_TOXITRON)))
+                if (Creature* toxitron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_TOXITRON)))
                 {
                     m_uiGuids[3] = toxitron->GetGUID();
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, toxitron); 
@@ -289,16 +289,16 @@ class boss_omnotron : public CreatureScript
 
                 void EvadeAll()
                 {
-                    if (Creature*  arcanotron = Unit::GetCreature(*me, pInstance->GetData64(DATA_ARCANOTRON)))
+                    if (Creature*  arcanotron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_ARCANOTRON)))
                         if (arcanotron->IsAIEnabled)
                             arcanotron->AI()->EnterEvadeMode();
-                    if (Creature*  electron = Unit::GetCreature(*me, pInstance->GetData64(DATA_ELECTRON)))
+                    if (Creature*  electron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_ELECTRON)))
                         if (electron->IsAIEnabled)
                             electron->AI()->EnterEvadeMode();
-                    if (Creature* magmatron = Unit::GetCreature(*me, pInstance->GetData64(DATA_MAGMATRON)))
+                    if (Creature* magmatron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMATRON)))
                         if (magmatron->IsAIEnabled)
                             magmatron->AI()->EnterEvadeMode();
-                    if (Creature* toxitron = Unit::GetCreature(*me, pInstance->GetData64(DATA_TOXITRON)))
+                    if (Creature* toxitron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_TOXITRON)))
                         if (toxitron->IsAIEnabled)
                             toxitron->AI()->EnterEvadeMode();
                     EnterEvadeMode();
@@ -396,7 +396,7 @@ class boss_arcanotron : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (Creature* omnotron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                if (Creature* omnotron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                     DoZoneInCombat(omnotron);
 
                 events.ScheduleEvent(EVENT_POWER_GENERATOR, 15000);
@@ -415,13 +415,13 @@ class boss_arcanotron : public CreatureScript
                 _JustDied();
                 instance->SetData(DATA_HEALTH_OMNOTRON_SHARED, 0);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                if (Creature*  electron = Unit::GetCreature(*me, instance->GetData64(DATA_ELECTRON)))
+                if (Creature*  electron = Unit::GetCreature(*me, instance->GetGuidData(DATA_ELECTRON)))
                     me->Kill(electron);
-                if (Creature* magmatron = Unit::GetCreature(*me, instance->GetData64(DATA_MAGMATRON)))
+                if (Creature* magmatron = Unit::GetCreature(*me, instance->GetGuidData(DATA_MAGMATRON)))
                     me->Kill(magmatron);
-                if (Creature* toxitron = Unit::GetCreature(*me, instance->GetData64(DATA_TOXITRON)))
+                if (Creature* toxitron = Unit::GetCreature(*me, instance->GetGuidData(DATA_TOXITRON)))
                     me->Kill(toxitron);
-                if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                 {
                     omnotroncontroller->Kill(omnotroncontroller);
                     omnotroncontroller->AI()->Talk(SAY_DEATH);
@@ -445,7 +445,7 @@ class boss_arcanotron : public CreatureScript
                 if (me->GetPower(POWER_ENERGY) <= 50 && stage == 1)
                 {
                     stage = 2;
-                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                         if (omnotroncontroller->IsAIEnabled)
                             omnotroncontroller->GetAI()->DoAction(ACTION_NEXT);
                     return;
@@ -454,7 +454,7 @@ class boss_arcanotron : public CreatureScript
                 {
                     stage = 3;
                     DoCast(me, SPELL_POWER_CONVERSION, true);
-                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                         if (omnotroncontroller->IsAIEnabled)
                             omnotroncontroller->AI()->Talk(SAY_ARCANOTRON_SHIELD);
                     return;
@@ -465,7 +465,7 @@ class boss_arcanotron : public CreatureScript
                     stage = 0;
                     me->RemoveAurasDueToSpell(SPELL_ACTIVE);
                     DoCast(me, SPELL_INACTIVE);
-                    if (Creature* omnotron = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotron = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                     {
                         omnotron->CastSpell(me, SPELL_RECHARGE_PURPLE, true);
                         omnotron->ClearUnitState(UNIT_STATE_CASTING);
@@ -507,13 +507,13 @@ class boss_arcanotron : public CreatureScript
             private:
                 Creature* GetFriendlyTarget()
                 {
-                    if (Creature* electron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ELECTRON)))    
+                    if (Creature* electron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ELECTRON)))    
                         if (!electron->HasAura(SPELL_INACTIVE_AURA))
                             return electron;
-                    if (Creature* magmatron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_MAGMATRON)))
+                    if (Creature* magmatron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMATRON)))
                         if (!magmatron->HasAura(SPELL_INACTIVE_AURA))
                             return magmatron;
-                    if (Creature* toxitron = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TOXITRON)))
+                    if (Creature* toxitron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TOXITRON)))
                         if (!toxitron->HasAura(SPELL_INACTIVE_AURA))
                             return toxitron;
                     return 0;
@@ -612,13 +612,13 @@ class boss_electron : public CreatureScript
                 _JustDied();
                 instance->SetData(DATA_HEALTH_OMNOTRON_SHARED, 0);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                if (Creature* arcanotron = Unit::GetCreature(*me, instance->GetData64(DATA_ARCANOTRON)))
+                if (Creature* arcanotron = Unit::GetCreature(*me, instance->GetGuidData(DATA_ARCANOTRON)))
                     me->Kill(arcanotron);
-                if (Creature* magmatron = Unit::GetCreature(*me, instance->GetData64(DATA_MAGMATRON)))
+                if (Creature* magmatron = Unit::GetCreature(*me, instance->GetGuidData(DATA_MAGMATRON)))
                     me->Kill(magmatron);
-                if (Creature* toxitron = Unit::GetCreature(*me, instance->GetData64(DATA_TOXITRON)))
+                if (Creature* toxitron = Unit::GetCreature(*me, instance->GetGuidData(DATA_TOXITRON)))
                     me->Kill(toxitron);
-                if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                     omnotroncontroller->Kill(omnotroncontroller);
             }
 
@@ -638,7 +638,7 @@ class boss_electron : public CreatureScript
                 if (me->GetPower(POWER_ENERGY) <= 50 && stage == 1)
                 {
                     stage = 2;
-                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                         if (omnotroncontroller->IsAIEnabled)
                             omnotroncontroller->GetAI()->DoAction(ACTION_NEXT);
                     return;
@@ -647,7 +647,7 @@ class boss_electron : public CreatureScript
                 {
                     stage = 3;
                     DoCast(me, SPELL_UNSTABLE_SHIELD);
-                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                         if (omnotroncontroller->IsAIEnabled)
                             omnotroncontroller->AI()->Talk(SAY_ELECTRON_SHIELD);
                     return;
@@ -658,7 +658,7 @@ class boss_electron : public CreatureScript
                     stage = 0;
                     me->RemoveAurasDueToSpell(SPELL_ACTIVE);
                     DoCast(me, SPELL_INACTIVE);
-                    if (Creature* omnotron = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotron = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                     {
                         omnotron->CastSpell(me, SPELL_RECHARGE_BLUE, true);
                         omnotron->ClearUnitState(UNIT_STATE_CASTING);
@@ -787,13 +787,13 @@ class boss_magmatron : public CreatureScript
                 _JustDied();
                 instance->SetData(DATA_HEALTH_OMNOTRON_SHARED, 0);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                if (Creature* arcanotron = Unit::GetCreature(*me, instance->GetData64(DATA_ARCANOTRON)))
+                if (Creature* arcanotron = Unit::GetCreature(*me, instance->GetGuidData(DATA_ARCANOTRON)))
                     me->Kill(arcanotron);
-                if (Creature*  electron = Unit::GetCreature(*me, instance->GetData64(DATA_ELECTRON)))
+                if (Creature*  electron = Unit::GetCreature(*me, instance->GetGuidData(DATA_ELECTRON)))
                     me->Kill(electron);
-                if (Creature* toxitron = Unit::GetCreature(*me, instance->GetData64(DATA_TOXITRON)))
+                if (Creature* toxitron = Unit::GetCreature(*me, instance->GetGuidData(DATA_TOXITRON)))
                     me->Kill(toxitron);
-                if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                     omnotroncontroller->Kill(omnotroncontroller);
             }
 
@@ -813,7 +813,7 @@ class boss_magmatron : public CreatureScript
                 if (me->GetPower(POWER_ENERGY) <= 50 && stage == 1)
                 {
                     stage = 2;
-                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                         if (omnotroncontroller->IsAIEnabled)
                             omnotroncontroller->GetAI()->DoAction(ACTION_NEXT);
                     return;
@@ -822,7 +822,7 @@ class boss_magmatron : public CreatureScript
                 {
                     stage = 3;
                     DoCast(me, SPELL_BARRIER);
-                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                         if (omnotroncontroller->IsAIEnabled)
                             omnotroncontroller->AI()->Talk(SAY_MAGMATRON_SHIELD);
                     return;
@@ -833,7 +833,7 @@ class boss_magmatron : public CreatureScript
                     stage = 0;
                     me->RemoveAurasDueToSpell(SPELL_ACTIVE);
                     DoCast(me, SPELL_INACTIVE);
-                    if (Creature* omnotron = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotron = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                     {
                         omnotron->CastSpell(me, SPELL_RECHARGE_ORANGE, true);
                         omnotron->ClearUnitState(UNIT_STATE_CASTING);
@@ -864,7 +864,7 @@ class boss_magmatron : public CreatureScript
                                     if (Creature* pNefarius = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS_HEROIC, 100.0f))
                                         if (pNefarius->IsAIEnabled)
                                             pNefarius->AI()->DoAction(ACTION_ENCASING_SHADOWS);
-                                if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                                if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                                     if (omnotroncontroller->IsAIEnabled)
                                         omnotroncontroller->AI()->Talk(SAY_MAGMATRON_FLAMETHROWER);
                             }
@@ -987,13 +987,13 @@ class boss_toxitron : public CreatureScript
                 _JustDied();
                 instance->SetData(DATA_HEALTH_OMNOTRON_SHARED, 0);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                if (Creature* arcanotron = Unit::GetCreature(*me, instance->GetData64(DATA_ARCANOTRON)))
+                if (Creature* arcanotron = Unit::GetCreature(*me, instance->GetGuidData(DATA_ARCANOTRON)))
                     me->Kill(arcanotron);
-                if (Creature*  electron = Unit::GetCreature(*me, instance->GetData64(DATA_ELECTRON)))
+                if (Creature*  electron = Unit::GetCreature(*me, instance->GetGuidData(DATA_ELECTRON)))
                     me->Kill(electron);
-                if (Creature* magmatron = Unit::GetCreature(*me, instance->GetData64(DATA_MAGMATRON)))
+                if (Creature* magmatron = Unit::GetCreature(*me, instance->GetGuidData(DATA_MAGMATRON)))
                     me->Kill(magmatron);
-                if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                     omnotroncontroller->Kill(omnotroncontroller);
             }
 
@@ -1013,7 +1013,7 @@ class boss_toxitron : public CreatureScript
                 if (me->GetPower(POWER_ENERGY) <= 50 && stage == 1)
                 {
                     stage = 2;
-                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                         if (omnotroncontroller->IsAIEnabled)
                             omnotroncontroller->GetAI()->DoAction(ACTION_NEXT);
                     return;
@@ -1022,7 +1022,7 @@ class boss_toxitron : public CreatureScript
                 {
                     stage = 3;
                     DoCast(me, SPELL_POISON_SOAKED_SHELL);
-                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotroncontroller = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                         if (omnotroncontroller->IsAIEnabled)
                             omnotroncontroller->AI()->Talk(SAY_TOXITRON_SHIELD);
                     return;
@@ -1033,7 +1033,7 @@ class boss_toxitron : public CreatureScript
                     stage = 0;
                     me->RemoveAurasDueToSpell(SPELL_ACTIVE);
                     DoCast(me, SPELL_INACTIVE);
-                    if (Creature* omnotron = Unit::GetCreature(*me, instance->GetData64(DATA_OMNOTRON)))
+                    if (Creature* omnotron = Unit::GetCreature(*me, instance->GetGuidData(DATA_OMNOTRON)))
                     {
                         omnotron->CastSpell(me, SPELL_RECHARGE_GREEN, true);
                         omnotron->ClearUnitState(UNIT_STATE_CASTING);

@@ -331,7 +331,7 @@ class boss_sha_of_pride : public CreatureScript
                             SelectTargetList(targetList, count, SELECT_TARGET_RANDOM, 0.0f, true);
                             for(std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                             {
-                                if (GameObject* prisonGo = instance->instance->GetGameObject(instance->GetData64(prison[i])))
+                                if (GameObject* prisonGo = instance->instance->GetGameObject(instance->GetGuidData(prison[i])))
                                 {
                                     me->CastSpell(prisonGo->GetPositionX(), prisonGo->GetPositionY(), prisonGo->GetPositionZ(), SPELL_CORRUPTED_PRISON_KNOCK);
                                     prisonGo->AI()->SetGUID((*itr)->GetGUID(), false);
@@ -364,7 +364,7 @@ class boss_sha_of_pride : public CreatureScript
                         }
                         case EVENT_SPELL_UNLEASHED:
                         {
-                            if (Creature* nor = instance->instance->GetCreature(instance->GetData64(NPC_SHA_NORUSHEN)))
+                            if (Creature* nor = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_NORUSHEN)))
                             {
                                 ZoneTalk(TEXT_GENERIC_8, 0);
                                 DoCast(nor, SPELL_UNLEASHED, false);
@@ -374,7 +374,7 @@ class boss_sha_of_pride : public CreatureScript
                         }
                         case EVENT_SPELL_GIFT_OF_THE_TITANS:
                         {
-                            if (Creature* nor = instance->instance->GetCreature(instance->GetData64(NPC_SHA_NORUSHEN)))
+                            if (Creature* nor = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_NORUSHEN)))
                                 nor->AI()->SetData(SPELL_GIFT_OF_THE_TITANS, 0);
 
                             events.RescheduleEvent(EVENT_SPELL_GIFT_OF_THE_TITANS, 25000, 0, PHASE_BATTLE);
@@ -496,12 +496,12 @@ public:
                     SetEscortPaused(true);
                     DoCast(me, SPELL_DOOR_CHANNEL, false);
                     //
-                    if (GameObject* door = instance->instance->GetGameObject(instance->GetData64(GO_NORUSHEN_EX_DOOR)))
+                    if (GameObject* door = instance->instance->GetGameObject(instance->GetGuidData(GO_NORUSHEN_EX_DOOR)))
                         door->SetGoState(GO_STATE_ACTIVE);
                     events.ScheduleEvent(EVENT_1, 2000);
                     break;
                 case 5:
-                    if (Creature* lo = instance->instance->GetCreature(instance->GetData64(NPC_LOREWALKER_CHO3)))
+                    if (Creature* lo = instance->instance->GetCreature(instance->GetGuidData(NPC_LOREWALKER_CHO3)))
                         lo->AI()->DoAction(EVENT_1);
                     SetEscortPaused(true);
                     ZoneTalk(TEXT_GENERIC_1, me->GetGUID());
@@ -530,7 +530,7 @@ public:
                         SetEscortPaused(false);
                         break;
                     case EVENT_2:
-                        if (Creature* sha = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE)))
+                        if (Creature* sha = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE)))
                         {
                             
                             sha->AI()->SetData(NPC_LINGERING_CORRUPTION, DONE); 
@@ -631,7 +631,7 @@ public:
                     break;
                 }
                 case 16:
-                    if (Creature* taran = instance->instance->GetCreature(instance->GetData64(NPC_SHA_TARAN_ZHU)))
+                    if (Creature* taran = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_TARAN_ZHU)))
                     {
                         if (CreatureGroup* f = me->GetFormation())
                         {
@@ -657,18 +657,18 @@ public:
                 {
                     case EVENT_1:
                     case EVENT_2:
-                        if (Creature* taran = instance->instance->GetCreature(instance->GetData64(NPC_SHA_TARAN_ZHU)))
+                        if (Creature* taran = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_TARAN_ZHU)))
                             taran->AI()->ZoneTalk(eventId - 1, me->GetGUID());
                         break;
                     case EVENT_3:
                     case EVENT_4:
                     case EVENT_5:
-                        if (Creature* taran = instance->instance->GetCreature(instance->GetData64(NPC_SHA_TARAN_ZHU)))
+                        if (Creature* taran = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_TARAN_ZHU)))
                             ZoneTalk(eventId - 3, taran->GetGUID());
                         break;
                     case EVENT_6:
                         me->SetWalk(true);
-                        if (Creature* taran = instance->instance->GetCreature(instance->GetData64(NPC_SHA_TARAN_ZHU)))
+                        if (Creature* taran = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_TARAN_ZHU)))
                             if (CreatureGroup* f = me->GetFormation())
                                 f->AddMember(taran, group_member);
                         SetEscortPaused(false);
@@ -678,35 +678,35 @@ public:
                         //me->DespawnOrUnsummon(60000);
                         break;
                     case EVENT_8:
-                        if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
+                        if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                             jaina->AI()->ZoneTalk(TEXT_GENERIC_0, 0);
                         break;
                     case EVENT_9:
-                        if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
+                        if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                             jaina->GetMotionMaster()->MovePoint(jaina->GetGUID().GetCounter(), 748.8203f, 1130.096f, 356.0723f);
-                        if (Creature* teron = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_THERON)))
+                        if (Creature* teron = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_THERON)))
                             teron->AI()->ZoneTalk(TEXT_GENERIC_0, 0);
                         break;
                     case EVENT_10:
-                        if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
+                        if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                             jaina->AI()->ZoneTalk(TEXT_GENERIC_1, 0);
                         break;
                     case EVENT_11:
-                        if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
+                        if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                             jaina->AI()->ZoneTalk(TEXT_GENERIC_2, 0);
                         break;
                     case EVENT_12:
-                        if (Creature* teron = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_THERON)))
+                        if (Creature* teron = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_THERON)))
                             teron->AI()->ZoneTalk(TEXT_GENERIC_2, 0);
-                        if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
+                        if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                             jaina->GetMotionMaster()->MovePoint(jaina->GetGUID().GetCounter(), 748.5174f, 1131.481f, 356.0723f);
                         break;
                     case EVENT_13:
-                        if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
+                        if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                             jaina->AI()->ZoneTalk(TEXT_GENERIC_3, 0);
                         break;
                     case EVENT_17:
-                        if (Creature* teron = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_THERON)))
+                        if (Creature* teron = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_THERON)))
                             teron->AI()->ZoneTalk(TEXT_GENERIC_3, 0);
                         break;
                     case EVENT_14:
@@ -717,23 +717,23 @@ public:
                                 c->SetDisplayId(51795);
                             }
                             
-                        if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
+                        if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                         {
                             jaina->AI()->ZoneTalk(TEXT_GENERIC_4, 0);
                             jaina->GetMotionMaster()->MovePoint(jaina->GetGUID().GetCounter(), 783.2882f, 1167.352f, 356.0717f);
                         }
-                        if (Creature* teron = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_THERON)))
+                        if (Creature* teron = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_THERON)))
                         {
                             teron->GetMotionMaster()->MovePoint(teron->GetGUID().GetCounter(), 692.4531f, 1149.196f, 356.0718f);
                         }
                         break;
                     case EVENT_15:
-                        if (Creature* jaina = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
+                        if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                         {
                             jaina->CastSpell(jaina, 51347, true);
                             jaina->DespawnOrUnsummon(5000);
                         }
-                        if (Creature* teron = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_THERON)))
+                        if (Creature* teron = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_THERON)))
                         {
                             teron->CastSpell(teron, 51347, true);
                             teron->DespawnOrUnsummon(5000);
@@ -741,7 +741,7 @@ public:
                         me->DespawnOrUnsummon(5000);
                         break;
                     case EVENT_16:
-                        if (Creature* teron = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE_END_THERON)))
+                        if (Creature* teron = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_THERON)))
                             teron->AI()->ZoneTalk(TEXT_GENERIC_1, 0);
                         break;
                 }
@@ -800,11 +800,11 @@ class go_sha_of_pride_corupted_prison : public GameObjectScript
                 go->EnableOrDisableGo(true, false);
                 for(uint8 i = 0; i < 2; ++i)
                 {
-                    if (GameObject* buttons = instance->instance->GetGameObject(instance->GetData64(_key[i])))
+                    if (GameObject* buttons = instance->instance->GetGameObject(instance->GetGuidData(_key[i])))
                         buttons->AI()->DoAction(ACTION_CORUPTED_PRISON_ACTIVATE_KEY);
                 }
                 //last one should be activated
-                if (GameObject* buttons = instance->instance->GetGameObject(instance->GetData64(_key[2])))
+                if (GameObject* buttons = instance->instance->GetGameObject(instance->GetGuidData(_key[2])))
                     buttons->AI()->DoAction(ACTION_CORUPTED_PRISON_ENABLE);
             }
 
@@ -830,7 +830,7 @@ class go_sha_of_pride_corupted_prison : public GameObjectScript
                                 go->EnableOrDisableGo(false, false);
                                 for(uint8 i = 0; i < 3; ++i)
                                 {
-                                    if (GameObject* buttons = instance->instance->GetGameObject(instance->GetData64(_key[i])))
+                                    if (GameObject* buttons = instance->instance->GetGameObject(instance->GetGuidData(_key[i])))
                                         buttons->AI()->DoAction(ACTION_CORUPTED_PRISON_DEACTIVATE_KEY);
                                 }
                             }
@@ -906,7 +906,7 @@ class go_sha_of_pride_corupted_prison_button : public GameObjectScript
                         if (go->GetGoState() == GO_STATE_ACTIVE_ALTERNATIVE)
                         {
                             go->EnableOrDisableGo(false, false);
-                            if (GameObject* pris = instance->instance->GetGameObject(instance->GetData64(ownerEntry)))
+                            if (GameObject* pris = instance->instance->GetGameObject(instance->GetGuidData(ownerEntry)))
                                 pris->AI()->DoAction(ACTION_CORUPTED_PRISON_ACTIVATE_KEY);
                             return;
                         }
@@ -942,13 +942,13 @@ class go_sha_of_pride_corupted_prison_button : public GameObjectScript
                         if (go->GetGoState() == GO_STATE_ACTIVE_ALTERNATIVE)
                         {
                             go->EnableOrDisableGo(false, false);
-                            if (GameObject* pris = instance->instance->GetGameObject(instance->GetData64(ownerEntry)))
+                            if (GameObject* pris = instance->instance->GetGameObject(instance->GetGuidData(ownerEntry)))
                                 pris->AI()->DoAction(ACTION_CORUPTED_PRISON_ACTIVATE_KEY);
                         }
                     }else if (go->GetGoState() == GO_STATE_READY)
                     {
                         go->EnableOrDisableGo(true, true);
-                        if (GameObject* pris = instance->instance->GetGameObject(instance->GetData64(ownerEntry)))
+                        if (GameObject* pris = instance->instance->GetGameObject(instance->GetGuidData(ownerEntry)))
                             pris->AI()->DoAction(ACTION_CORUPTED_PRISON_DEACTIVATE_KEY);
                     }
                 }
@@ -1171,7 +1171,7 @@ public:
                         me->CastSpell(me, SPELL_RIFT_OF_CORRUPTION_AT, true);
                         break;
                     case EVENT_SPELL_RIFT_OF_CORRUPTION_DMG:
-                        if (Creature * sha = instance->instance->GetCreature(instance->GetData64(NPC_SHA_OF_PRIDE)))
+                        if (Creature * sha = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE)))
                         {
                             if (Unit* target = sha->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 me->CastSpell(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), SPELL_RIFT_OF_CORRUPTION_DMG);
@@ -1430,7 +1430,7 @@ class spell_sha_of_pride_gift_of_titans_ckecker : public SpellScriptLoader
                     if (caster->GetDistance(*itr) <= 8.0f)
                         ++c;
                 }
-                if (Creature * norush = instance->instance->GetCreature(instance->GetData64(NPC_SHA_NORUSHEN)))
+                if (Creature * norush = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_NORUSHEN)))
                     norush->AI()->SetData(EVENT_SPELL_GIFT_OF_THE_TITANS, c);
             }
 

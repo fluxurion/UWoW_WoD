@@ -289,9 +289,9 @@ public:
             // Drakes respawning system
             if (instance)
             {
-                Creature* pTenebron = Unit::GetCreature(*me, instance->GetData64(DATA_TENEBRON));
-                Creature* pShadron = Unit::GetCreature(*me, instance->GetData64(DATA_SHADRON));
-                Creature* pVesperon = Unit::GetCreature(*me, instance->GetData64(DATA_VESPERON));
+                Creature* pTenebron = Unit::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON));
+                Creature* pShadron = Unit::GetCreature(*me, instance->GetGuidData(DATA_SHADRON));
+                Creature* pVesperon = Unit::GetCreature(*me, instance->GetGuidData(DATA_VESPERON));
                 if (pTenebron)
                 {
                     pTenebron->SetHomePosition(3239.07f, 657.235f, 86.8775f, 4.74729f);
@@ -373,9 +373,9 @@ public:
 
             if (instance)
             {
-                Creature* pTenebron = Unit::GetCreature(*me, instance->GetData64(DATA_TENEBRON));
-                Creature* pShadron = Unit::GetCreature(*me, instance->GetData64(DATA_SHADRON));
-                Creature* pVesperon = Unit::GetCreature(*me, instance->GetData64(DATA_VESPERON));
+                Creature* pTenebron = Unit::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON));
+                Creature* pShadron = Unit::GetCreature(*me, instance->GetGuidData(DATA_SHADRON));
+                Creature* pVesperon = Unit::GetCreature(*me, instance->GetGuidData(DATA_VESPERON));
                 if (pTenebron && pTenebron->isAlive())
                     pTenebron->DisappearAndDie();
                 if (pShadron && pShadron->isAlive())
@@ -407,9 +407,9 @@ public:
 
             drakeCount = 0;
 
-            Creature* pFetchTene = Unit::GetCreature(*me, instance->GetData64(DATA_TENEBRON));
-            Creature* pFetchShad = Unit::GetCreature(*me, instance->GetData64(DATA_SHADRON));
-            Creature* pFetchVesp = Unit::GetCreature(*me, instance->GetData64(DATA_VESPERON));
+            Creature* pFetchTene = Unit::GetCreature(*me, instance->GetGuidData(DATA_TENEBRON));
+            Creature* pFetchShad = Unit::GetCreature(*me, instance->GetGuidData(DATA_SHADRON));
+            Creature* pFetchVesp = Unit::GetCreature(*me, instance->GetGuidData(DATA_VESPERON));
 
             //if at least one of the dragons are alive and are being called
             bool bCanUseWill = false;
@@ -464,7 +464,7 @@ public:
         {
             if (instance)
             {
-                if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(uiDataId)))
+                if (Creature* temp = Unit::GetCreature(*me, instance->GetGuidData(uiDataId)))
                 {
                     if (temp->isAlive() && !temp->getVictim())
                     {
@@ -542,9 +542,9 @@ public:
             if (!UpdateVictim())
                 return;
 
-            Unit* pTene = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_TENEBRON) : 0);
-            Unit* pShad = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_SHADRON) : 0);
-            Unit* pVesp = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_VESPERON) : 0);
+            Unit* pTene = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_TENEBRON) : 0);
+            Unit* pShad = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_SHADRON) : 0);
+            Unit* pVesp = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_VESPERON) : 0);
 
             //spell will target dragons, if they are still alive at 35%
             if (!m_bIsBerserk && !HealthAbovePct(35)
@@ -940,7 +940,7 @@ struct dummy_dragonAI : public ScriptedAI
                 return;
 
             // Twilight Revenge to main boss
-            if (Unit* pSartharion = Unit::GetUnit(*me, instance->GetData64(DATA_SARTHARION)))
+            if (Unit* pSartharion = Unit::GetUnit(*me, instance->GetGuidData(DATA_SARTHARION)))
                 if (pSartharion->isAlive())
                 {
                     pSartharion->RemoveAurasDueToSpell(uiSpellId);
@@ -1289,13 +1289,13 @@ public:
                 //if not solo figth, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
                 if (instance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                 {
-                    target = Unit::GetCreature((*me), instance->GetData64(DATA_SARTHARION));
+                    target = Unit::GetCreature((*me), instance->GetGuidData(DATA_SARTHARION));
                     if (target)
                         target->AddAura(SPELL_GIFT_OF_TWILIGTH_SAR, target);
                 }
                 else
                 {
-                    target = Unit::GetCreature((*me), instance->GetData64(DATA_SHADRON));
+                    target = Unit::GetCreature((*me), instance->GetGuidData(DATA_SHADRON));
                     if (target)
                         target->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, target);
                 }
@@ -1308,7 +1308,7 @@ public:
         {
             if (instance)
             {
-                Creature* Shadron = instance->instance->GetCreature(instance->GetData64(DATA_SHADRON));
+                Creature* Shadron = instance->instance->GetCreature(instance->GetGuidData(DATA_SHADRON));
                 if (Shadron)
                 {
                     (CAST_AI(mob_shadron::mob_shadronAI, Shadron->AI()))->m_bHasPortalOpen = false;
@@ -1336,12 +1336,12 @@ public:
                 }
 
                 //not solo fight, so main boss has deduff
-                pDebuffTarget = instance->instance->GetCreature(instance->GetData64(DATA_SARTHARION));
+                pDebuffTarget = instance->instance->GetCreature(instance->GetGuidData(DATA_SARTHARION));
                 if (pDebuffTarget && pDebuffTarget->isAlive() && pDebuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SAR))
                     pDebuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SAR);
 
                 //event not in progress, then solo fight and must remove debuff mini-boss
-                pDebuffTarget = instance->instance->GetCreature(instance->GetData64(DATA_SHADRON));
+                pDebuffTarget = instance->instance->GetCreature(instance->GetGuidData(DATA_SHADRON));
                 if (pDebuffTarget && pDebuffTarget->isAlive() && pDebuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
                     pDebuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
             }
@@ -1407,7 +1407,7 @@ public:
             // remove twilight torment on Vesperon
             if (instance)
             {
-                Creature* pVesperon = instance->instance->GetCreature(instance->GetData64(DATA_VESPERON));
+                Creature* pVesperon = instance->instance->GetCreature(instance->GetGuidData(DATA_VESPERON));
                 if (pVesperon)
                     (CAST_AI(mob_vesperon::mob_vesperonAI, pVesperon->AI()))->m_bHasPortalOpen = false;
 
@@ -1517,7 +1517,7 @@ public:
         {
             if (m_uiHatchEggTimer <= uiDiff)
             {
-                Creature* Tenebron = instance->instance->GetCreature(instance->GetData64(DATA_TENEBRON));
+                Creature* Tenebron = instance->instance->GetCreature(instance->GetGuidData(DATA_TENEBRON));
                 if (Tenebron)
                     (CAST_AI(mob_tenebron::mob_tenebronAI, Tenebron->AI()))->m_bHasPortalOpen = false;
                 SpawnWhelps();

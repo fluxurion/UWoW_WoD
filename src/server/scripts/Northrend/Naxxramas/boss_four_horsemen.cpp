@@ -136,10 +136,10 @@ public:
             if (!instance)
                 return false;
 
-            Creature* Thane = Unit::GetCreature(*me, instance->GetData64(DATA_THANE));
-            Creature* Lady = Unit::GetCreature(*me, instance->GetData64(DATA_LADY));
-            Creature* Baron = Unit::GetCreature(*me, instance->GetData64(DATA_BARON));
-            Creature* Sir = Unit::GetCreature(*me, instance->GetData64(DATA_SIR));
+            Creature* Thane = Unit::GetCreature(*me, instance->GetGuidData(DATA_THANE));
+            Creature* Lady = Unit::GetCreature(*me, instance->GetGuidData(DATA_LADY));
+            Creature* Baron = Unit::GetCreature(*me, instance->GetGuidData(DATA_BARON));
+            Creature* Sir = Unit::GetCreature(*me, instance->GetGuidData(DATA_SIR));
 
             if (Thane && Lady && Baron && Sir)
             {

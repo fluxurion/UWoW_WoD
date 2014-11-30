@@ -426,7 +426,7 @@ public:
         return 0;
     }
 
-    uint64 GetData64(uint32 uiData)
+    uint64 GetGuidData(uint32 uiData)
     {
         switch(uiData)
         {
@@ -444,7 +444,7 @@ public:
         return 0;
     }
 
-    void SetData64(uint32 uiType, uint64 uiData)
+    void SetGuidData(uint32 uiType, uint64 uiData)
     {
         switch(uiType)
         {

@@ -390,11 +390,11 @@ public:
 
         void FindGameObjects()
         {
-            PortalsGUID[0] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL01) : 0;
-            PortalsGUID[1] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL02) : 0;
-            PortalsGUID[2] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL03) : 0;
-            PortalsGUID[3] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL04) : 0;
-            KTTriggerGUID = instance ? instance->GetData64(DATA_KELTHUZAD_TRIGGER) : 0;
+            PortalsGUID[0] = instance ? instance->GetGuidData(DATA_KELTHUZAD_PORTAL01) : 0;
+            PortalsGUID[1] = instance ? instance->GetGuidData(DATA_KELTHUZAD_PORTAL02) : 0;
+            PortalsGUID[2] = instance ? instance->GetGuidData(DATA_KELTHUZAD_PORTAL03) : 0;
+            PortalsGUID[3] = instance ? instance->GetGuidData(DATA_KELTHUZAD_PORTAL04) : 0;
+            KTTriggerGUID = instance ? instance->GetGuidData(DATA_KELTHUZAD_TRIGGER) : 0;
         }
 
         void UpdateAI(uint32 diff)
@@ -690,7 +690,7 @@ public:
         if (!pInstance || pInstance->IsEncounterInProgress() || pInstance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*pPlayer, pInstance->GetData64(DATA_KELTHUZAD)));
+        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*pPlayer, pInstance->GetGuidData(DATA_KELTHUZAD)));
         if (!pKelthuzad)
             return false;
 
@@ -701,7 +701,7 @@ public:
         pKelthuzadAI->EnterCombat(pPlayer);
         pKelthuzadAI->AttackStart(pPlayer);
 
-        if (GameObject* trigger = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+        if (GameObject* trigger = pInstance->instance->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_TRIGGER)))
         {
             if (trigger->getLootState() == GO_READY)
                 trigger->UseDoorOrButton();
@@ -773,7 +773,7 @@ public:
         void JustDied(Unit *killer)
         {
             if (InstanceScript* pInstance = me->GetInstanceScript())
-                if (Creature* pKelthuzad = Creature::GetCreature(*me, pInstance->GetData64(DATA_KELTHUZAD)))
+                if (Creature* pKelthuzad = Creature::GetCreature(*me, pInstance->GetGuidData(DATA_KELTHUZAD)))
                     pKelthuzad->AI()->DoAction(0);
         }
 

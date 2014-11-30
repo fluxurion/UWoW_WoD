@@ -695,7 +695,7 @@ class npc_cult_fanatic : public CreatureScript
                             Events.ScheduleEvent(EVENT_FANATIC_VAMPIRIC_MIGHT, urand(20000, 27000));
                             break;
                         case EVENT_CULTIST_DARK_MARTYRDOM:
-                            if (Creature* lady = me->GetCreature(*me, Instance->GetData64(DATA_LADY_DEATHWHISPER)))
+                            if (Creature* lady = me->GetCreature(*me, Instance->GetGuidData(DATA_LADY_DEATHWHISPER)))
                                 if (boss_lady_deathwhisper::boss_lady_deathwhisperAI* ladyAI = CAST_AI(boss_lady_deathwhisper::boss_lady_deathwhisperAI, lady->AI()))
                                     if (ladyAI->Istransform())
                                     {
@@ -795,7 +795,7 @@ class npc_cult_adherent : public CreatureScript
                             Events.ScheduleEvent(EVENT_ADHERENT_SHORUD_OF_THE_OCCULT, urand(27000, 32000));
                             break;
                         case EVENT_CULTIST_DARK_MARTYRDOM:
-                            if (Creature* lady = me->GetCreature(*me, Instance->GetData64(DATA_LADY_DEATHWHISPER)))
+                            if (Creature* lady = me->GetCreature(*me, Instance->GetGuidData(DATA_LADY_DEATHWHISPER)))
                                 if (boss_lady_deathwhisper::boss_lady_deathwhisperAI* ladyAI = CAST_AI(boss_lady_deathwhisper::boss_lady_deathwhisperAI, lady->AI()))
                                     if (ladyAI->Istransform())
                                     {

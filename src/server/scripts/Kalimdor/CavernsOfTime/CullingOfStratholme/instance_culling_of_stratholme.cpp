@@ -215,7 +215,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 identifier)
+            uint64 GetGuidData(uint32 identifier)
             {
                 switch (identifier)
                 {

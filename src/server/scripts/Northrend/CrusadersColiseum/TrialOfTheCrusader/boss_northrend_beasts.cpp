@@ -151,7 +151,7 @@ public:
 
         void EnterEvadeMode()
         {
-            m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+            m_instance->DoUseDoorOrButton(m_instance->GetGuidData(GO_MAIN_GATE_DOOR));
             ScriptedAI::EnterEvadeMode();
         }
 
@@ -162,7 +162,7 @@ public:
             switch (uiId)
             {
                 case 0:
-                    m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+                    m_instance->DoUseDoorOrButton(m_instance->GetGuidData(GO_MAIN_GATE_DOOR));
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
@@ -204,7 +204,7 @@ public:
         {
             if (m_instance)
             {
-                m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+                m_instance->DoUseDoorOrButton(m_instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 m_instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
             }
             me->DespawnOrUnsummon();
@@ -308,14 +308,14 @@ public:
             m_uiTargetGUID = 0;
             m_bTargetDied = false;
             if (m_instance)
-                m_uiBossGUID = m_instance->GetData64(NPC_GORMOK);
+                m_uiBossGUID = m_instance->GetGuidData(NPC_GORMOK);
             //Workaround for Snobold
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void EnterEvadeMode()
         {
-            m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+            m_instance->DoUseDoorOrButton(m_instance->GetGuidData(GO_MAIN_GATE_DOOR));
             ScriptedAI::EnterEvadeMode();
         }
 
@@ -422,7 +422,7 @@ struct boss_jormungarAI : public ScriptedAI
     {
         if (instanceScript)
         {
-            if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(otherWormEntry)))
+            if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetGuidData(otherWormEntry)))
             {
                 if (!otherWorm->isAlive())
                 {
@@ -641,7 +641,7 @@ class boss_acidmaw : public CreatureScript
 
         void EnterEvadeMode()
         {
-            //instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+            //instanceScript->DoUseDoorOrButton(instanceScript->GetGuidData(GO_MAIN_GATE_DOOR));
             //boss_jormungarAI::EnterEvadeMode();
             me->SetReactState(REACT_AGGRESSIVE);
             me->SetInCombatWithZone();
@@ -655,7 +655,7 @@ class boss_acidmaw : public CreatureScript
         void JustReachedHome()
         {
             //if (instanceScript)
-                //instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+                //instanceScript->DoUseDoorOrButton(instanceScript->GetGuidData(GO_MAIN_GATE_DOOR));
 
             //boss_jormungarAI::JustReachedHome();
             me->SetReactState(REACT_AGGRESSIVE);
@@ -711,11 +711,11 @@ public:
             switch (uiId)
             {
                 case 0:
-                    instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+                    instanceScript->DoUseDoorOrButton(instanceScript->GetGuidData(GO_MAIN_GATE_DOOR));
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
-                    if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(otherWormEntry)))
+                    if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetGuidData(otherWormEntry)))
                     {
                         otherWorm->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                         otherWorm->SetReactState(REACT_AGGRESSIVE);
@@ -728,7 +728,7 @@ public:
 
         void EnterEvadeMode()
         {
-            //instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+            //instanceScript->DoUseDoorOrButton(instanceScript->GetGuidData(GO_MAIN_GATE_DOOR));
             //boss_jormungarAI::EnterEvadeMode();
             me->SetReactState(REACT_AGGRESSIVE);
             me->SetInCombatWithZone();
@@ -742,7 +742,7 @@ public:
         void JustReachedHome()
         {
             //if (instanceScript)
-                //instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+                //instanceScript->DoUseDoorOrButton(instanceScript->GetGuidData(GO_MAIN_GATE_DOOR));
 
             //boss_jormungarAI::JustReachedHome();
             me->SetReactState(REACT_AGGRESSIVE);
@@ -884,7 +884,7 @@ public:
                     m_bMovementFinish = true;
                     break;
                 case 2:
-                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                    instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
@@ -894,7 +894,7 @@ public:
 
         void EnterEvadeMode()
         {
-            instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+            instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
             ScriptedAI::EnterEvadeMode();
         }
 
@@ -902,7 +902,7 @@ public:
         {
             if (instance)
             {
-                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
             }
             me->DespawnOrUnsummon();

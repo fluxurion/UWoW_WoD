@@ -607,7 +607,7 @@ public:
 
         if (instance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS)
             return true;
-        Creature* Magtheridon =Unit::GetCreature(*go, instance->GetData64(DATA_MAGTHERIDON));
+        Creature* Magtheridon =Unit::GetCreature(*go, instance->GetGuidData(DATA_MAGTHERIDON));
         if (!Magtheridon || !Magtheridon->isAlive())
             return true;
 

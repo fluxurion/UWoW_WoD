@@ -275,7 +275,7 @@ public:
                             me->NearTeleportTo(586.966f, -175.534f, 391.517f, 1.692f);
                             me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);DoCast(me, SPELL_STUN, true);
-                            if (Creature *pCommander = me->GetCreature(*me, instance->GetData64(DATA_EXP_COMMANDER)))
+                            if (Creature *pCommander = me->GetCreature(*me, instance->GetGuidData(DATA_EXP_COMMANDER)))
                                 pCommander->AI()->DoAction(ACTION_GROUND_PHASE);
                             //events.ScheduleEvent(EVENT_HARPOON, 0, 0, PHASE_GROUND);
                             events.ScheduleEvent(EVENT_BREATH, 32000, 0, PHASE_GROUND);
@@ -564,7 +564,7 @@ public:
                         uiPhase = 5;
                         break;
                     case 5:
-                        if (Creature *pRazorscale = me->GetCreature(*me, pInstance->GetData64(DATA_RAZORSCALE)))
+                        if (Creature *pRazorscale = me->GetCreature(*me, pInstance->GetGuidData(DATA_RAZORSCALE)))
                             pRazorscale->AI()->DoAction(ACTION_EVENT_START);
                         engineer[0]->MonsterYell(SAY_AGGRO_1, LANG_UNIVERSAL, 0);
                         uiPhase = 0;

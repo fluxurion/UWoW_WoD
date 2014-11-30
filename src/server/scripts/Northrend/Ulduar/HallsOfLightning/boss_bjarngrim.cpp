@@ -404,7 +404,7 @@ public:
         {
             if (instance)
             {
-                if (Creature* pBjarngrim = instance->instance->GetCreature(instance->GetData64(DATA_BJARNGRIM)))
+                if (Creature* pBjarngrim = instance->instance->GetCreature(instance->GetGuidData(DATA_BJARNGRIM)))
                 {
                     if (pBjarngrim->isAlive() && !pBjarngrim->getVictim())
                         pBjarngrim->AI()->AttackStart(who);
@@ -430,7 +430,7 @@ public:
             {
                 if (instance)
                 {
-                    if (Creature* pBjarngrim = instance->instance->GetCreature(instance->GetData64(DATA_BJARNGRIM)))
+                    if (Creature* pBjarngrim = instance->instance->GetCreature(instance->GetGuidData(DATA_BJARNGRIM)))
                     {
                         if (pBjarngrim->isAlive())
                             DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);
