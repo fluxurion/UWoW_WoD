@@ -258,7 +258,7 @@ public:
             if (!instance)
                 return;
 
-            uint64 opfer = instance->GetGuidData(DATA_ADD_JEDOGA_INITIAND);
+            ObjectGuid opfer = instance->GetGuidData(DATA_ADD_JEDOGA_INITIAND);
 
             if (opfer)
             {

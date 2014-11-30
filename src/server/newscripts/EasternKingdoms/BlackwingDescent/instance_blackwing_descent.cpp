@@ -121,7 +121,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 }
             }
 
-            uint64 GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -294,18 +294,18 @@ class instance_blackwing_descent : public InstanceMapScript
                 uint32 omnotronHealth;
                 uint32 uiAberCount;
                 uint32 uiBileotron800Active;
-                uint64 uiMagmawGUID;
-                uint64 uiMagmawHeadGUID;
-                uint64 uiMaloriakGUID;
-                uint64 m_uiOmnotronGUID[4];
-                uint64 uiOmnotronControllerGUID;
-                uint64 uiChimaeronGUID;
-                uint64 uiBileotron800GUID;
-                uint64 uiAtramedesGUID;
-                uint64 uiInnerChamberDoorGUID;
-                uint64 uiNefarianGUID;
-                uint64 uiOnyxiaGUID;
-                uint64 uiNefarianFloorGUID;
+                ObjectGuid uiMagmawGUID;
+                ObjectGuid uiMagmawHeadGUID;
+                ObjectGuid uiMaloriakGUID;
+                ObjectGuid m_uiOmnotronGUID[4];
+                ObjectGuid uiOmnotronControllerGUID;
+                ObjectGuid uiChimaeronGUID;
+                ObjectGuid uiBileotron800GUID;
+                ObjectGuid uiAtramedesGUID;
+                ObjectGuid uiInnerChamberDoorGUID;
+                ObjectGuid uiNefarianGUID;
+                ObjectGuid uiOnyxiaGUID;
+                ObjectGuid uiNefarianFloorGUID;
                 uint32 uiTeamInInstance;
         };
 };

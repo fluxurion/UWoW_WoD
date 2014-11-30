@@ -55,30 +55,30 @@ public:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
         /** Creatures **/
-        uint64 Kalecgos_Dragon;
-        uint64 Kalecgos_Human;
-        uint64 Sathrovarr;
-        uint64 Brutallus;
-        uint64 Madrigosa;
-        uint64 Felmyst;
-        uint64 Alythess;
-        uint64 Sacrolash;
-        uint64 Muru;
-        uint64 KilJaeden;
-        uint64 KilJaedenController;
-        uint64 Anveena;
-        uint64 KalecgosKJ;
+        ObjectGuid Kalecgos_Dragon;
+        ObjectGuid Kalecgos_Human;
+        ObjectGuid Sathrovarr;
+        ObjectGuid Brutallus;
+        ObjectGuid Madrigosa;
+        ObjectGuid Felmyst;
+        ObjectGuid Alythess;
+        ObjectGuid Sacrolash;
+        ObjectGuid Muru;
+        ObjectGuid KilJaeden;
+        ObjectGuid KilJaedenController;
+        ObjectGuid Anveena;
+        ObjectGuid KalecgosKJ;
         uint32 SpectralPlayers;
 
         /** GameObjects **/
-        uint64 ForceField;                                      // Kalecgos Encounter
-        uint64 KalecgosWall[2];
-        uint64 FireBarrier;                                     // Felmysts Encounter
-        uint64 MurusGate[2];                                    // Murus Encounter
+        ObjectGuid ForceField;                                      // Kalecgos Encounter
+        ObjectGuid KalecgosWall[2];
+        ObjectGuid FireBarrier;                                     // Felmysts Encounter
+        ObjectGuid MurusGate[2];                                    // Murus Encounter
 
         /*** Misc ***/
         uint32 SpectralRealmTimer;
-        std::vector<uint64> SpectralRealmList;
+        GuidVector SpectralRealmList;
 
         void Initialize()
         {
@@ -168,13 +168,13 @@ public:
                 case 188524: KalecgosWall[0] = go->GetGUID(); break;
                 case 188075:
                     if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     FireBarrier = go->GetGUID();
                     break;
                 case 187990: MurusGate[0]   = go->GetGUID(); break;
                 case 188118:
                     if (m_auiEncounter[4] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     MurusGate[1]= go->GetGUID();
                     break;
             }
@@ -194,7 +194,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 id)
+        ObjectGuid GetGuidData(uint32 id)
         {
             switch (id)
             {

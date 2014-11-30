@@ -114,7 +114,7 @@ public:
 
         uint32 HellfireTimer;
         uint32 CleanupTimer;
-        uint64 malchezaar;
+        ObjectGuid malchezaar;
         InfernalPoint *point;
 
         void Reset() {}
@@ -202,11 +202,11 @@ public:
         uint32 AxesTargetSwitchTimer;
         uint32 InfernalCleanupTimer;
 
-        std::vector<uint64> infernals;
+        GuidVector infernals;
         std::vector<InfernalPoint*> positions;
 
-        uint64 axes[2];
-        uint64 enfeeble_targets[5];
+        ObjectGuid axes[2];
+        ObjectGuid enfeeble_targets[5];
         uint32 enfeeble_health[5];
 
         uint32 phase;
@@ -275,7 +275,7 @@ public:
         void InfernalCleanup()
         {
             //Infernal Cleanup
-            for (std::vector<uint64>::const_iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
+            for (GuidVector::const_iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
                 if (Unit* pInfernal = Unit::GetUnit(*me, *itr))
                     if (pInfernal->isAlive())
                     {
@@ -590,7 +590,7 @@ public:
 
         void Cleanup(Creature* infernal, InfernalPoint *point)
         {
-            for (std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
+            for (GuidVector::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
                 if (*itr == infernal->GetGUID())
             {
                 infernals.erase(itr);

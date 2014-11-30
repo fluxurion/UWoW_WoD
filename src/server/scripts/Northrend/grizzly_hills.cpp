@@ -62,8 +62,8 @@ public:
 
         uint32 m_uiChatTimer;
 
-        uint64 RWORGGUID;
-        uint64 MrfloppyGUID;
+        ObjectGuid RWORGGUID;
+        ObjectGuid MrfloppyGUID;
 
         bool Completed;
 
@@ -233,9 +233,9 @@ public:
     {
         npc_mrfloppyAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 EmilyGUID;
-        uint64 RWORGGUID;
-        uint64 HWORGGUID;
+        ObjectGuid EmilyGUID;
+        ObjectGuid RWORGGUID;
+        ObjectGuid HWORGGUID;
 
         void Reset() {}
 
@@ -476,7 +476,7 @@ public:
     {
         npc_wounded_skirmisherAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
 
         uint32 DespawnTimer;
 
@@ -612,7 +612,7 @@ class npc_venture_co_straggler : public CreatureScript
         {
             npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 uiPlayerGUID;
+            ObjectGuid uiPlayerGUID;
             uint32 uiRunAwayTimer;
             uint32 uiTimer;
             uint32 uiChopTimer;

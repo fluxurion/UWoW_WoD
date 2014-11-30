@@ -52,7 +52,7 @@ class boss_lord_tayak : public CreatureScript
             }
 
             InstanceScript* instance;
-            uint64 striketarget;
+            ObjectGuid striketarget;
             bool lastphase;
 
             void Reset()

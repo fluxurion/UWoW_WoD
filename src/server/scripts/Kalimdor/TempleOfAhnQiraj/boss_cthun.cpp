@@ -501,7 +501,7 @@ public:
         //-------------------
 
         //Phase transition
-        uint64 HoldPlayer;
+        ObjectGuid HoldPlayer;
 
         //Body Phase
         uint32 EyeTentacleTimer;
@@ -511,10 +511,10 @@ public:
         uint32 StomachAcidTimer;
         uint32 StomachEnterTimer;
         uint32 StomachEnterVisTimer;
-        uint64 StomachEnterTarget;
+        ObjectGuid StomachEnterTarget;
 
         //Stomach map, bool = true then in stomach
-        UNORDERED_MAP<uint64, bool> Stomach_Map;
+        UNORDERED_MAP<ObjectGuid, bool> Stomach_Map;
 
         void Reset()
         {
@@ -568,7 +568,7 @@ public:
             if (Stomach_Map.empty())
                 return NULL;
 
-            UNORDERED_MAP<uint64, bool>::const_iterator i = Stomach_Map.begin();
+            UNORDERED_MAP<ObjectGuid, bool>::const_iterator i = Stomach_Map.begin();
 
             std::list<Unit*> temp;
             std::list<Unit*>::const_iterator j;
@@ -716,7 +716,7 @@ public:
 
                         DoCast(me, SPELL_PURPLE_COLORATION, true);
 
-                        UNORDERED_MAP<uint64, bool>::iterator i = Stomach_Map.begin();
+                        UNORDERED_MAP<ObjectGuid, bool>::iterator i = Stomach_Map.begin();
 
                         //Kick all players out of stomach
                         while (i != Stomach_Map.end())
@@ -748,7 +748,7 @@ public:
                     if (StomachAcidTimer <= diff)
                     {
                         //Apply aura to all players in stomach
-                        UNORDERED_MAP<uint64, bool>::iterator i = Stomach_Map.begin();
+                        UNORDERED_MAP<ObjectGuid, bool>::iterator i = Stomach_Map.begin();
 
                         while (i != Stomach_Map.end())
                         {
@@ -948,7 +948,7 @@ public:
 
         uint32 MindflayTimer;
         uint32 KillSelfTimer;
-        uint64 Portal;
+        ObjectGuid Portal;
 
         void JustDied(Unit* /*killer*/)
         {
@@ -1024,7 +1024,7 @@ public:
         uint32 GroundRuptureTimer;
         uint32 HamstringTimer;
         uint32 EvadeTimer;
-        uint64 Portal;
+        ObjectGuid Portal;
 
         void JustDied(Unit* /*killer*/)
         {
@@ -1135,7 +1135,7 @@ public:
         uint32 ThrashTimer;
         uint32 HamstringTimer;
         uint32 EvadeTimer;
-        uint64 Portal;
+        ObjectGuid Portal;
 
         void JustDied(Unit* /*killer*/)
         {
@@ -1251,7 +1251,7 @@ public:
         }
 
         uint32 BeamTimer;
-        uint64 Portal;
+        ObjectGuid Portal;
 
         void JustDied(Unit* /*killer*/)
         {

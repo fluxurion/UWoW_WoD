@@ -227,7 +227,7 @@ class npc_mandokir_chained_spirit : public CreatureScript
             }
             
             InstanceScript* pInstance;
-            uint64 playerGUID;
+            ObjectGuid playerGUID;
             uint32 despawnTimer;
             bool res;
 
@@ -238,7 +238,7 @@ class npc_mandokir_chained_spirit : public CreatureScript
                 despawnTimer = 5000;
             }
 
-            void SetGUID(uint64 guid, int32 data)
+            void SetGUID(ObjectGuid const& guid, int32 data)
             {
                 if (playerGUID)
                     return;
@@ -301,7 +301,7 @@ class npc_mandokir_ohgan : public CreatureScript
             {
             }
 
-            void SetGUID(uint64 guid, int32 data)
+            void SetGUID(ObjectGuid const& guid, int32 data)
             {
             }
 

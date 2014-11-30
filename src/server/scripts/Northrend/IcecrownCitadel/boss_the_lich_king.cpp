@@ -1612,7 +1612,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 guid, int32 /* = 0*/)
+            void SetGUID(ObjectGuid const& guid, int32 /* = 0*/)
             {
                 _grabbedPlayer = guid;
             }
@@ -1657,7 +1657,7 @@ class npc_valkyr_shadowguard : public CreatureScript
         private:
             EventMap _events;
             Position _dropPoint;
-            uint64 _grabbedPlayer;
+            ObjectGuid _grabbedPlayer;
             InstanceScript* _instance;
         };
 

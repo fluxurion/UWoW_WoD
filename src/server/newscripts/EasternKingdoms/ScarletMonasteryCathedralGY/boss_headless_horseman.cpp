@@ -231,7 +231,7 @@ public:
     {
         mob_headAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 bodyGUID;
+        ObjectGuid bodyGUID;
 
         uint32 Phase;
         uint32 laugh;
@@ -381,8 +381,8 @@ public:
 
         InstanceScript* instance;
 
-        uint64 headGUID;
-        uint64 PlayerGUID;
+        ObjectGuid headGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 Phase;
         uint32 id;
@@ -782,7 +782,7 @@ public:
         mob_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool sprouted;
-        uint64 debuffGUID;
+        ObjectGuid debuffGUID;
 
         void Reset()
         {

@@ -52,7 +52,7 @@ public:
     {
         npc_warmage_violetstandAI(Creature* creature) : Scripted_NoMovementAI(creature){}
 
-        uint64 uiTargetGUID;
+        ObjectGuid uiTargetGUID;
 
         void Reset()
         {

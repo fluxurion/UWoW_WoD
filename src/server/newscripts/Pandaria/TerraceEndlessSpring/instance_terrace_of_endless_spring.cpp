@@ -21,16 +21,16 @@ public:
         instance_terrace_of_endless_spring_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         //GameObjects
-        std::vector<uint64> leishientdoorGuids;
-        std::vector<uint64> leishiexdoorGuids;
+        GuidVector leishientdoorGuids;
+        GuidVector leishiexdoorGuids;
 
         //Creature
-        uint64 kaolanGuid;
-        uint64 regailGuid;
-        uint64 asaniGuid;
-        uint64 tsulongGuid;
-        uint64 leishiGuid;
-        uint64 shaGuid;
+        ObjectGuid kaolanGuid;
+        ObjectGuid regailGuid;
+        ObjectGuid asaniGuid;
+        ObjectGuid tsulongGuid;
+        ObjectGuid leishiGuid;
+        ObjectGuid shaGuid;
 
         //special timer for load door state
         uint32 door_state_timer;
@@ -139,14 +139,14 @@ public:
             switch (bossId)
             {
             case DATA_TSULONG:
-                for (std::vector<uint64>::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
+                for (GuidVector::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
                     HandleGameObject(*guid, true);
                 break;
             case DATA_LEI_SHI:
-                for (std::vector<uint64>::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
+                for (GuidVector::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
                     HandleGameObject(*guid, true);
                 
-                for (std::vector<uint64>::const_iterator guid = leishiexdoorGuids.begin(); guid != leishiexdoorGuids.end(); guid++)
+                for (GuidVector::const_iterator guid = leishiexdoorGuids.begin(); guid != leishiexdoorGuids.end(); guid++)
                     HandleGameObject(*guid, true);
                 break;
             default:
@@ -170,7 +170,7 @@ public:
                     case IN_PROGRESS:
                         break;
                     case DONE:
-                        for (std::vector<uint64>::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
                             HandleGameObject(*guid, true);
                         break;
                     }
@@ -181,18 +181,18 @@ public:
                     switch (state)
                     {
                     case NOT_STARTED:
-                        for (std::vector<uint64>::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
                             HandleGameObject(*guid, true);
                         break;
                     case IN_PROGRESS:
-                        for (std::vector<uint64>::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
                             HandleGameObject(*guid, false);
                         break;
                     case DONE:
-                        for (std::vector<uint64>::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = leishientdoorGuids.begin(); guid != leishientdoorGuids.end(); guid++)
                             HandleGameObject(*guid, true);
 
-                        for (std::vector<uint64>::const_iterator guid = leishiexdoorGuids.begin(); guid != leishiexdoorGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = leishiexdoorGuids.begin(); guid != leishiexdoorGuids.end(); guid++)
                             HandleGameObject(*guid, true);
                         break;
                     }
@@ -204,11 +204,11 @@ public:
                     {
                     case NOT_STARTED:
                     case DONE:
-                        for (std::vector<uint64>::const_iterator guid = leishiexdoorGuids.begin(); guid != leishiexdoorGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = leishiexdoorGuids.begin(); guid != leishiexdoorGuids.end(); guid++)
                             HandleGameObject(*guid, true);
                         break;
                     case IN_PROGRESS:
-                        for (std::vector<uint64>::const_iterator guid = leishiexdoorGuids.begin(); guid != leishiexdoorGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = leishiexdoorGuids.begin(); guid != leishiexdoorGuids.end(); guid++)
                             HandleGameObject(*guid, false);
                         break;
                     }
@@ -224,7 +224,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {

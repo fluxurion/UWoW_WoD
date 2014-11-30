@@ -57,18 +57,18 @@ public:
         uint16 uiGrandChampionsDeaths;
         uint8 uiArgentSoldierDeaths;
 
-        uint64 uiAnnouncerGUID;
-        uint64 uiBlackKnightGUID;
-        uint64 uiMainGateGUID;
-        uint64 uiMainGate1GUID;
-        uint64 uiGrandChampionVehicle1GUID;
-        uint64 uiGrandChampionVehicle2GUID;
-        uint64 uiGrandChampionVehicle3GUID;
-        uint64 uiGrandChampion1GUID;
-        uint64 uiGrandChampion2GUID;
-        uint64 uiGrandChampion3GUID;
-        uint64 uiChampionLootGUID;
-        uint64 uiArgentChampionGUID;
+        ObjectGuid uiAnnouncerGUID;
+        ObjectGuid uiBlackKnightGUID;
+        ObjectGuid uiMainGateGUID;
+        ObjectGuid uiMainGate1GUID;
+        ObjectGuid uiGrandChampionVehicle1GUID;
+        ObjectGuid uiGrandChampionVehicle2GUID;
+        ObjectGuid uiGrandChampionVehicle3GUID;
+        ObjectGuid uiGrandChampion1GUID;
+        ObjectGuid uiGrandChampion2GUID;
+        ObjectGuid uiGrandChampion3GUID;
+        ObjectGuid uiChampionLootGUID;
+        ObjectGuid uiArgentChampionGUID;
 
         GuidList VehicleList;
 
@@ -426,7 +426,7 @@ public:
         return 0;
     }
 
-    uint64 GetGuidData(uint32 uiData)
+    ObjectGuid GetGuidData(uint32 uiData)
     {
         switch(uiData)
         {
@@ -444,7 +444,7 @@ public:
         return 0;
     }
 
-    void SetGuidData(uint32 uiType, uint64 uiData)
+    void SetGuidData(uint32 uiType, ObjectGuid uiData)
     {
         switch(uiType)
         {

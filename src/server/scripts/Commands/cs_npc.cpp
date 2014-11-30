@@ -1134,7 +1134,7 @@ public:
         char* receiver_str = strtok((char*)args, " ");
         char* text = strtok(NULL, "");
 
-        uint64 guid = handler->GetSession()->GetPlayer()->GetSelection();
+        ObjectGuid guid = handler->GetSession()->GetPlayer()->GetSelection();
         Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(guid);
 
         if (!creature || !receiver_str || !text)
@@ -1142,10 +1142,10 @@ public:
             return false;
         }
 
-        uint64 receiver_guid= atol(receiver_str);
+        ObjectGuid::LowType receiver_guid= atol(receiver_str);
 
         // check online security
-        if (handler->HasLowerSecurity(ObjectAccessor::FindPlayer(receiver_guid), 0))
+        if (handler->HasLowerSecurity(ObjectAccessor::FindPlayer(ObjectGuid::Create<ObjectGuid::Player>(receiver_guid), 0))
             return false;
 
         creature->MonsterWhisper(text, receiver_guid);
@@ -1353,7 +1353,7 @@ public:
         /*if (!*args)
             return false;
 
-        uint64 guid = handler->GetSession()->GetPlayer()->GetSelection();
+        ObjectGuid guid = handler->GetSession()->GetPlayer()->GetSelection();
         if (guid == 0)
         {
             handler->SendSysMessage(LANG_NO_SELECTION);
@@ -1437,7 +1437,7 @@ public:
             }
         }
 
-        uint64 guid;
+        ObjectGuid guid;
         guid = handler->GetSession()->GetPlayer()->GetSelection();
         if (guid == 0)
         {
@@ -1484,7 +1484,7 @@ public:
                 return false;
             }
         }
-        uint64 guid;
+        ObjectGuid guid;
         guid = handler->GetSession()->GetPlayer()->GetSelection();
         if (guid == 0)
         {

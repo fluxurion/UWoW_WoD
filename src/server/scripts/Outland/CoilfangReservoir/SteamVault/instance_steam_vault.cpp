@@ -78,13 +78,13 @@ public:
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        uint64 ThespiaGUID;
-        uint64 MekgineerGUID;
-        uint64 KalithreshGUID;
+        ObjectGuid ThespiaGUID;
+        ObjectGuid MekgineerGUID;
+        ObjectGuid KalithreshGUID;
 
-        uint64 MainChambersDoor;
-        uint64 AccessPanelHydro;
-        uint64 AccessPanelMek;
+        ObjectGuid MainChambersDoor;
+        ObjectGuid AccessPanelHydro;
+        ObjectGuid AccessPanelMek;
 
         void Initialize()
         {
@@ -183,7 +183,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 data)
+        ObjectGuid GetGuidData(uint32 data)
         {
             switch (data)
             {

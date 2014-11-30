@@ -746,7 +746,7 @@ class spell_monk_touch_of_karma : public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_touch_of_karma_AuraScript);
 
-            uint64 eff1Target;
+            ObjectGuid eff1Target;
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

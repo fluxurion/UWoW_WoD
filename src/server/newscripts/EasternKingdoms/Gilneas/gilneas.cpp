@@ -1755,7 +1755,7 @@ public:
         npc_josiah_avery_triggerAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Phase, tEvent;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void Reset()
         {
@@ -1864,7 +1864,7 @@ public:
         npc_josiah_avery_p2AI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 tSay, tPlayerCheck;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         bool Talk;
 
         void Reset()

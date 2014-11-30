@@ -215,7 +215,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch(type)
             {
@@ -326,24 +326,24 @@ public:
         }
 
         private:
-            uint64 uiLadyNazjarGUID;
-            uint64 uiCommanderUlthokGUID;
-            uint64 uiErunakStonespeakerGUID;
-            uint64 uiMindbenderGhurshaGUID;
-            uint64 uiOzumatGUID;
-            uint64 uiNeptulonGUID;
-            uint64 uiLadyNazjarEventGUID;
-            uint64 uiCoralesGUID;
-            uint64 uiLadyNazjarDoorGUID;
-            uint64 uiCommanderUlthokDoorGUID;
-            uint64 uiMindebenderGhurshaDoorGUID;
-            uint64 uiOzumatDoorGUID;
-            uint64 uiControlSystemGUID;
-            uint64 uiTentacleRightGUID;
-            uint64 uiTentacleLeftGUID;
-            uint64 uiInvisibleDoor1GUID;
-            uint64 uiInvisibleDoor2GUID;
-            uint64 uiNeptulonCache;
+            ObjectGuid uiLadyNazjarGUID;
+            ObjectGuid uiCommanderUlthokGUID;
+            ObjectGuid uiErunakStonespeakerGUID;
+            ObjectGuid uiMindbenderGhurshaGUID;
+            ObjectGuid uiOzumatGUID;
+            ObjectGuid uiNeptulonGUID;
+            ObjectGuid uiLadyNazjarEventGUID;
+            ObjectGuid uiCoralesGUID;
+            ObjectGuid uiLadyNazjarDoorGUID;
+            ObjectGuid uiCommanderUlthokDoorGUID;
+            ObjectGuid uiMindebenderGhurshaDoorGUID;
+            ObjectGuid uiOzumatDoorGUID;
+            ObjectGuid uiControlSystemGUID;
+            ObjectGuid uiTentacleRightGUID;
+            ObjectGuid uiTentacleLeftGUID;
+            ObjectGuid uiInvisibleDoor1GUID;
+            ObjectGuid uiInvisibleDoor2GUID;
+            ObjectGuid uiNeptulonCache;
             uint32 uiTeamInInstance;
             uint32 m_uiEvents[3];
     };

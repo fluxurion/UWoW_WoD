@@ -386,7 +386,7 @@ public:
 
         uint32 FlameBlastTimer;
         uint32 CheckTimer;
-        uint64 GlaiveGUID;
+        ObjectGuid GlaiveGUID;
 
         void Reset()
         {
@@ -436,7 +436,7 @@ public:
             }
         }
 
-        void SetGlaiveGUID(uint64 guid)
+        void SetGlaiveGUID(ObjectGuid guid)
         {
             GlaiveGUID = guid;
         }
@@ -498,10 +498,10 @@ public:
 
         uint32 HoverPoint;
 
-        uint64 AkamaGUID;
-        uint64 MaievGUID;
-        uint64 FlameGUID[2];
-        uint64 GlaiveGUID[2];
+        ObjectGuid AkamaGUID;
+        ObjectGuid MaievGUID;
+        ObjectGuid FlameGUID[2];
+        ObjectGuid GlaiveGUID[2];
 
         SummonList Summons;
 
@@ -612,7 +612,7 @@ public:
             }
         }
 
-        void DeleteFromThreatList(uint64 TargetGUID)
+        void DeleteFromThreatList(ObjectGuid TargetGUID)
         {
             for (std::list<HostileReference*>::const_iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
             {
@@ -1171,7 +1171,7 @@ public:
     {
         boss_maievAI(Creature* creature) : ScriptedAI(creature) {};
 
-        uint64 IllidanGUID;
+        ObjectGuid IllidanGUID;
 
         PhaseIllidan Phase;
         EventMaiev Event;
@@ -1194,7 +1194,7 @@ public:
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterEvadeMode() {}
 
-        void GetIllidanGUID(uint64 guid)
+        void GetIllidanGUID(ObjectGuid guid)
         {
             IllidanGUID = guid;
         }
@@ -1400,11 +1400,11 @@ public:
         bool Event;
         uint32 Timer;
 
-        uint64 IllidanGUID;
-        uint64 ChannelGUID;
-        uint64 SpiritGUID[2];
-        uint64 GateGUID;
-        uint64 DoorGUID[2];
+        ObjectGuid IllidanGUID;
+        ObjectGuid ChannelGUID;
+        ObjectGuid SpiritGUID[2];
+        ObjectGuid GateGUID;
+        ObjectGuid DoorGUID[2];
 
         uint32 ChannelCount;
         uint32 WalkCount;
@@ -2037,7 +2037,7 @@ public:
     {
         cage_trap_triggerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 IllidanGUID;
+        ObjectGuid IllidanGUID;
         uint32 DespawnTimer;
 
         bool Active;
@@ -2133,7 +2133,7 @@ public:
     {
         shadow_demonAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 TargetGUID;
+        ObjectGuid TargetGUID;
 
         void EnterCombat(Unit* /*who*/)
         {
@@ -2216,7 +2216,7 @@ public:
         }
 
         InstanceScript* instance;
-        uint64 IllidanGUID;
+        ObjectGuid IllidanGUID;
         uint32 CheckTimer;
 
         void Reset()

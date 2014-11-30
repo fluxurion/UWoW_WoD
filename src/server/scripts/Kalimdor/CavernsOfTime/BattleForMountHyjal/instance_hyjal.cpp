@@ -61,16 +61,16 @@ public:
 
         GuidList m_uiAncientGemGUID;
 
-        uint64 RageWinterchill;
-        uint64 Anetheron;
-        uint64 Kazrogal;
-        uint64 Azgalor;
-        uint64 Archimonde;
-        uint64 JainaProudmoore;
-        uint64 Thrall;
-        uint64 TyrandeWhisperwind;
-        uint64 HordeGate;
-        uint64 ElfGate;
+        ObjectGuid RageWinterchill;
+        ObjectGuid Anetheron;
+        ObjectGuid Kazrogal;
+        ObjectGuid Azgalor;
+        ObjectGuid Archimonde;
+        ObjectGuid JainaProudmoore;
+        ObjectGuid Thrall;
+        ObjectGuid TyrandeWhisperwind;
+        ObjectGuid HordeGate;
+        ObjectGuid ElfGate;
 
         uint32 Trash;
 
@@ -124,16 +124,16 @@ public:
                 case 182060:
                     HordeGate = go->GetGUID();
                     if (allianceRetreat)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     else
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case 182061:
                     ElfGate = go->GetGUID();
                     if (hordeRetreat)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     else
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_ANCIENT_GEM:
                     m_uiAncientGemGUID.push_back(go->GetGUID());
@@ -156,7 +156,7 @@ public:
             }
         }
 
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {

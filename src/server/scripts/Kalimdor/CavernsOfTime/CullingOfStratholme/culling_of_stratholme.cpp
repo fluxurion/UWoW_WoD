@@ -344,17 +344,17 @@ public:
         uint32 uiBossEvent;
         uint32 uiWave;
 
-        uint64 uiUtherGUID;
-        uint64 uiJainaGUID;
-        uint64 uiCitymenGUID[2];
-        uint64 uiWaveGUID[ENCOUNTER_WAVES_MAX_SPAWNS];
-        uint64 uiInfiniteDraconianGUID[ENCOUNTER_DRACONIAN_NUMBER];
-        uint64 uiStalkerGUID;
+        ObjectGuid uiUtherGUID;
+        ObjectGuid uiJainaGUID;
+        ObjectGuid uiCitymenGUID[2];
+        ObjectGuid uiWaveGUID[ENCOUNTER_WAVES_MAX_SPAWNS];
+        ObjectGuid uiInfiniteDraconianGUID[ENCOUNTER_DRACONIAN_NUMBER];
+        ObjectGuid uiStalkerGUID;
 
-        uint64 uiBossGUID; //uiMeathookGUID || uiSalrammGUID
-        uint64 uiEpochGUID;
-        uint64 uiMalganisGUID;
-        uint64 uiInfiniteGUID;
+        ObjectGuid uiBossGUID; //uiMeathookGUID || uiSalrammGUID
+        ObjectGuid uiEpochGUID;
+        ObjectGuid uiMalganisGUID;
+        ObjectGuid uiInfiniteGUID;
 
         uint32 uiExorcismTimer;
 
@@ -407,7 +407,7 @@ public:
                 instance->SetData(DATA_ARTHAS_EVENT, FAIL);
         }
 
-        void SpawnTimeRift(uint32 timeRiftID, uint64* guidVector)
+        void SpawnTimeRift(uint32 timeRiftID, ObjectGuid* guidVector)
         {
             me->SummonCreature((uint32)RiftAndSpawnsLocations[timeRiftID][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_DESPAWN, 11000);
 
@@ -426,7 +426,7 @@ public:
             }
         }
 
-        void SpawnWaveGroup(uint32 waveID, uint64* guidVector)
+        void SpawnWaveGroup(uint32 waveID, ObjectGuid* guidVector)
         {
             for (uint32 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
             {

@@ -424,7 +424,7 @@ public:
         return true;
     }
 
-    Item* GetItemByGuid(uint64 guid, Player* player) const
+    Item* GetItemByGuid(ObjectGuid guid, Player* player) const
     {
         for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
             if (Item *pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))

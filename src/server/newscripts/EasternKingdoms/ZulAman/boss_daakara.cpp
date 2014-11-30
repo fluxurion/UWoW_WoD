@@ -119,7 +119,7 @@ class boss_daakara : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
 
-            uint64 ClawTargetGUID;
+            ObjectGuid ClawTargetGUID;
             bool bEnrage;
             uint8 phase;
 
@@ -346,13 +346,13 @@ class npc_daakara_vortex : public CreatureScript
             bool bStart;
             uint32 startTimer;
 
-            uint64 victimGUID;
+            ObjectGuid victimGUID;
 
             void Reset()
             {
             }
             
-            void SetGUID(uint64 guid, uint32 data)
+            void SetGUID(ObjectGuid const& guid, uint32 data)
             {
                 victimGUID = guid;
             }

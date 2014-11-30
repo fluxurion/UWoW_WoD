@@ -171,7 +171,7 @@ class instance_firelands : public InstanceMapScript
 			    return 0;
             }
 
-            uint64 GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -277,16 +277,16 @@ class instance_firelands : public InstanceMapScript
                 uint32 uiEvent;
                 uint32 uiTimer;
                 bool bEvent;
-                uint64 uiShannoxGUID;
-                uint64 uiRiplimbGUID;
-                uint64 uiRagefaceGUID;
-                uint64 uiRagnarosGUID;
-                uint64 uiRhyolithGUID;
-                uint64 uiRagnarosFloor;
-                uint64 uiRagnarosCache10;
-                uint64 uiRagnarosCache25;
-                uint64 uiRagnarosCache10h;
-                uint64 uiRagnarosCache25h;
+                ObjectGuid uiShannoxGUID;
+                ObjectGuid uiRiplimbGUID;
+                ObjectGuid uiRagefaceGUID;
+                ObjectGuid uiRagnarosGUID;
+                ObjectGuid uiRhyolithGUID;
+                ObjectGuid uiRagnarosFloor;
+                ObjectGuid uiRagnarosCache10;
+                ObjectGuid uiRagnarosCache25;
+                ObjectGuid uiRagnarosCache10h;
+                ObjectGuid uiRagnarosCache25h;
                 std::list<GameObject*> gameobjectPortals;
                 std::list<Creature*> creaturePortals;
         };

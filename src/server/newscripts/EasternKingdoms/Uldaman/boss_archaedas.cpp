@@ -95,7 +95,7 @@ class boss_archaedas : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            void ActivateMinion(uint64 uiGuid, bool flag)
+            void ActivateMinion(ObjectGuid uiGuid, bool flag)
             {
                 Unit* minion = Unit::GetUnit(*me, uiGuid);
 

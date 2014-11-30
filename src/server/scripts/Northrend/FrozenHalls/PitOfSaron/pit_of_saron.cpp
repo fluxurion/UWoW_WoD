@@ -406,16 +406,16 @@ public:
         {
         }
             uint32 m_uiSpeech_TimerAlliance;
-            uint64 m_uiTyrannusGuid;
-            uint64 m_uiMageLeaftGuid;
-            uint64 m_uiMageRightGuid;
-            uint64 m_uiSkeletGuid[12];
-            uint64 muiCastNpcStart;
-            uint64 m_uiDeathGuid;
+            ObjectGuid m_uiTyrannusGuid;
+            ObjectGuid m_uiMageLeaftGuid;
+            ObjectGuid m_uiMageRightGuid;
+            ObjectGuid m_uiSkeletGuid[12];
+            ObjectGuid muiCastNpcStart;
+            ObjectGuid m_uiDeathGuid;
             uint8 m_uiIntro_Phase;
             bool m_bIsIntro;
             bool m_bIsIntroEnd;
-            uint64 m_uiChampAlianceGuid[12];
+            ObjectGuid m_uiChampAlianceGuid[12];
             uint32 creatureEntry;
     
 
@@ -1344,16 +1344,16 @@ public:
         {
         }
             uint32 m_uiSpeech_Timer;
-            uint64 m_uiTyrannusGuid;
-            uint64 m_uiMageLeaftGuid;
-            uint64 m_uiMageRightGuid;
-            uint64 m_uiSkeletGuid[12];
-            uint64 muiCastNpcStart;
-            uint64 m_uiDeathGuid;
+            ObjectGuid m_uiTyrannusGuid;
+            ObjectGuid m_uiMageLeaftGuid;
+            ObjectGuid m_uiMageRightGuid;
+            ObjectGuid m_uiSkeletGuid[12];
+            ObjectGuid muiCastNpcStart;
+            ObjectGuid m_uiDeathGuid;
             uint8 m_uiIntro_Phase;
             bool m_bIsIntro;
             bool m_bIsIntroEnd;
-            uint64 m_uiChampHordeGuid[12];
+            ObjectGuid m_uiChampHordeGuid[12];
             uint32 creatureEntry;
     
 

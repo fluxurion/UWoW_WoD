@@ -58,9 +58,9 @@ class instance_magtheridons_lair : public InstanceMapScript
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-            uint64 MagtheridonGUID;
+            ObjectGuid MagtheridonGUID;
             GuidSet ChannelerGUID;
-            uint64 DoorGUID;
+            ObjectGuid DoorGUID;
             GuidSet ColumnGUID;
 
             uint32 CageTimer;
@@ -123,7 +123,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                 }
             }
 
-            uint64 GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {

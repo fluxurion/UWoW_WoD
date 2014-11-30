@@ -313,7 +313,7 @@ public:
     private:
         uint32 exileTimer;
         uint32 banishTimer;
-        uint64 playerGUID;
+        ObjectGuid playerGUID;
         bool canTeleport;
     };
 
@@ -377,7 +377,7 @@ public:
     private:
         uint32 exileTimer;
         uint32 banishTimer;
-        uint64 playerGUID;
+        ObjectGuid playerGUID;
         bool canTeleport;
     };
 

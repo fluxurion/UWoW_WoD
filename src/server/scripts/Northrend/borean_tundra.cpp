@@ -65,7 +65,7 @@ public:
 
         uint32 uiPhaseTimer;
         uint8  Phase;
-        uint64 casterGuid;
+        ObjectGuid casterGuid;
 
         void Reset()
         {
@@ -578,7 +578,7 @@ public:
     {
         npc_nesingwary_trapperAI(Creature* creature) : ScriptedAI(creature) { creature->SetVisible(false); }
 
-        uint64 go_caribouGUID;
+        ObjectGuid go_caribouGUID;
         uint8  Phase;
         uint32 uiPhaseTimer;
 
@@ -878,10 +878,10 @@ public:
         {
         }
 
-        uint64 uiArthas;
-        uint64 uiTalbot;
-        uint64 uiLeryssa;
-        uint64 uiArlos;
+        ObjectGuid uiArthas;
+        ObjectGuid uiTalbot;
+        ObjectGuid uiLeryssa;
+        ObjectGuid uiArlos;
 
         bool bArthasInPosition;
         bool bArlosInPosition;
@@ -1258,8 +1258,8 @@ public:
             creature->RestoreFaction();
         }
 
-        uint64 LeryssaGUID;
-        uint64 ArlosGUID;
+        ObjectGuid LeryssaGUID;
+        ObjectGuid ArlosGUID;
 
         bool bCheck;
 
@@ -1587,7 +1587,7 @@ public:
     {
         npc_imprisoned_beryl_sorcererAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 CasterGUID;
+        ObjectGuid CasterGUID;
 
         uint32 rebuff;
     
@@ -1634,7 +1634,7 @@ public:
             }
         }
 
-        void GotStinged(uint64 casterGUID)
+        void GotStinged(ObjectGuid const& casterGUID)
         {
             if(Player* caster = Player::GetPlayer(*me, casterGUID))
             {
@@ -2279,7 +2279,7 @@ public:
         uint32 uiEventTimer;
         uint8 uiEventPhase;
 
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
 
         void Reset()
         {
@@ -2312,7 +2312,7 @@ public:
             uiEventPhase = 1;
         }
 
-        void SetGUID(uint64 uiGuid, int32 /*iId*/)
+        void SetGUID(ObjectGuid const& uiGuid, int32 /*iId*/)
         {
             uiPlayerGUID = uiGuid;
         }

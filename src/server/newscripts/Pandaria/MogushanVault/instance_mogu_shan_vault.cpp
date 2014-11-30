@@ -32,36 +32,36 @@ public:
         instance_mogu_shan_vault_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         //GameObject
-        uint64 stoneexitdoorGuid;
-        uint64 stoneentrdoorGuid;
-        uint64 fengexitdoorGuid;
-        uint64 garajalexitdoorGuid;
-        uint64 spiritexitdoorGuid;
-        uint64 elegonentdoorGuid;
-        uint64 elegonceldoorGuid;
-        uint64 elegonplatformGuid;
-        uint64 imperatorentdoorGuid;
+        ObjectGuid stoneexitdoorGuid;
+        ObjectGuid stoneentrdoorGuid;
+        ObjectGuid fengexitdoorGuid;
+        ObjectGuid garajalexitdoorGuid;
+        ObjectGuid spiritexitdoorGuid;
+        ObjectGuid elegonentdoorGuid;
+        ObjectGuid elegonceldoorGuid;
+        ObjectGuid elegonplatformGuid;
+        ObjectGuid imperatorentdoorGuid;
 
         //Creature
-        uint64 stoneGuardControlerGuid;
-        uint64 fengGuid;
-        uint64 inversionGobGuid;
-        uint64 cancelGobGuid;
-        uint64 spiritKingsControlerGuid;
-        uint64 qiangGuid;
-        uint64 subetaiGuid;
-        uint64 zianGuid;
-        uint64 mengGuid;
-        uint64 janxiGuid;
-        uint64 qinxiGuid;
-        uint64 woicontrollerGuid;
+        ObjectGuid stoneGuardControlerGuid;
+        ObjectGuid fengGuid;
+        ObjectGuid inversionGobGuid;
+        ObjectGuid cancelGobGuid;
+        ObjectGuid spiritKingsControlerGuid;
+        ObjectGuid qiangGuid;
+        ObjectGuid subetaiGuid;
+        ObjectGuid zianGuid;
+        ObjectGuid mengGuid;
+        ObjectGuid janxiGuid;
+        ObjectGuid qinxiGuid;
+        ObjectGuid woicontrollerGuid;
 
         //Arrays
-        std::vector<uint64> stoneGuardGUIDs;
-        std::vector<uint64> fengdoorGUIDs;
-        std::vector<uint64> garajaldoorGUIDs;
-        std::vector<uint64> fengStatuesGUIDs;
-        std::vector<uint64> kingsdoorGUIDs;
+        GuidVector stoneGuardGUIDs;
+        GuidVector fengdoorGUIDs;
+        GuidVector garajaldoorGUIDs;
+        GuidVector fengStatuesGUIDs;
+        GuidVector kingsdoorGUIDs;
 
         void Initialize()
         {
@@ -218,7 +218,7 @@ public:
                     {
                         case FAIL:
                         {
-                            for (std::vector<uint64>::const_iterator guid = stoneGuardGUIDs.begin(); guid != stoneGuardGUIDs.end(); ++guid)
+                            for (GuidVector::const_iterator guid = stoneGuardGUIDs.begin(); guid != stoneGuardGUIDs.end(); ++guid)
                                 if (Creature* stoneGuard = instance->GetCreature(*guid))
                                     stoneGuard->AI()->DoAction(ACTION_FAIL);
 
@@ -240,16 +240,16 @@ public:
                         switch (state)
                         {
                         case NOT_STARTED:
-                            for (std::vector<uint64>::const_iterator guid = fengdoorGUIDs.begin(); guid != fengdoorGUIDs.end(); guid++)
+                            for (GuidVector::const_iterator guid = fengdoorGUIDs.begin(); guid != fengdoorGUIDs.end(); guid++)
                                 HandleGameObject(*guid, true);
                             break;
                         case DONE:
-                            for (std::vector<uint64>::const_iterator guid = fengdoorGUIDs.begin(); guid != fengdoorGUIDs.end(); guid++)
+                            for (GuidVector::const_iterator guid = fengdoorGUIDs.begin(); guid != fengdoorGUIDs.end(); guid++)
                                 HandleGameObject(*guid, true);
                             HandleGameObject(fengexitdoorGuid, true);
                             break;
                         case IN_PROGRESS:
-                            for (std::vector<uint64>::const_iterator guid = fengdoorGUIDs.begin(); guid != fengdoorGUIDs.end(); guid++)
+                            for (GuidVector::const_iterator guid = fengdoorGUIDs.begin(); guid != fengdoorGUIDs.end(); guid++)
                                 HandleGameObject(*guid, false);
                             break;
                         }
@@ -260,15 +260,15 @@ public:
                         switch (state)
                         {
                         case NOT_STARTED:
-                            for (std::vector<uint64>::const_iterator guid = garajaldoorGUIDs.begin(); guid != garajaldoorGUIDs.end(); guid++)
+                            for (GuidVector::const_iterator guid = garajaldoorGUIDs.begin(); guid != garajaldoorGUIDs.end(); guid++)
                                 HandleGameObject(*guid, true);
                             break;
                         case IN_PROGRESS:
-                            for (std::vector<uint64>::const_iterator guid = garajaldoorGUIDs.begin(); guid != garajaldoorGUIDs.end(); guid++)
+                            for (GuidVector::const_iterator guid = garajaldoorGUIDs.begin(); guid != garajaldoorGUIDs.end(); guid++)
                                 HandleGameObject(*guid, false);
                             break;
                         case DONE:
-                            for (std::vector<uint64>::const_iterator guid = garajaldoorGUIDs.begin(); guid != garajaldoorGUIDs.end(); guid++)
+                            for (GuidVector::const_iterator guid = garajaldoorGUIDs.begin(); guid != garajaldoorGUIDs.end(); guid++)
                                 HandleGameObject(*guid, true);
                             HandleGameObject(garajalexitdoorGuid, true);
                             break;
@@ -280,15 +280,15 @@ public:
                         switch (state)
                         {
                         case NOT_STARTED:
-                            for (std::vector<uint64>::const_iterator guid = kingsdoorGUIDs.begin(); guid != kingsdoorGUIDs.end(); guid++)
+                            for (GuidVector::const_iterator guid = kingsdoorGUIDs.begin(); guid != kingsdoorGUIDs.end(); guid++)
                                 HandleGameObject(*guid, true);
                             break;
                         case IN_PROGRESS:
-                            for (std::vector<uint64>::const_iterator guid = kingsdoorGUIDs.begin(); guid != kingsdoorGUIDs.end(); guid++)
+                            for (GuidVector::const_iterator guid = kingsdoorGUIDs.begin(); guid != kingsdoorGUIDs.end(); guid++)
                                 HandleGameObject(*guid, false);
                             break;
                         case DONE:
-                            for (std::vector<uint64>::const_iterator guid = kingsdoorGUIDs.begin(); guid != kingsdoorGUIDs.end(); guid++)
+                            for (GuidVector::const_iterator guid = kingsdoorGUIDs.begin(); guid != kingsdoorGUIDs.end(); guid++)
                                 HandleGameObject(*guid, true);
                             HandleGameObject(spiritexitdoorGuid, true);
                             HandleGameObject(elegonentdoorGuid, true);
@@ -340,7 +340,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -351,7 +351,7 @@ public:
                 case NPC_AMETHYST:
                 case NPC_COBALT:
                 {
-                    for (std::vector<uint64>::const_iterator guid = stoneGuardGUIDs.begin(); guid != stoneGuardGUIDs.end(); ++guid)
+                    for (GuidVector::const_iterator guid = stoneGuardGUIDs.begin(); guid != stoneGuardGUIDs.end(); ++guid)
                         if (Creature* stoneGuard = instance->GetCreature(*guid))
                             if (stoneGuard->GetEntry() == type)
                                 return *guid;
@@ -364,7 +364,7 @@ public:
                 case GOB_SHIELD_STATUE:
                 case GOB_STAFF_STATUE:
                 {
-                    for (std::vector<uint64>::const_iterator guid = fengStatuesGUIDs.begin(); guid != fengStatuesGUIDs.end(); ++guid)
+                    for (GuidVector::const_iterator guid = fengStatuesGUIDs.begin(); guid != fengStatuesGUIDs.end(); ++guid)
                         if (GameObject* fengStatue = instance->GetGameObject(*guid))
                             if (fengStatue->GetEntry() == type)
                                 return *guid;

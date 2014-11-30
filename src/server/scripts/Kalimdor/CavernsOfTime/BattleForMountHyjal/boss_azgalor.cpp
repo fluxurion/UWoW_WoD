@@ -201,7 +201,7 @@ public:
         uint32 CrippleTimer;
         uint32 WarstompTimer;
         uint32 CheckTimer;
-        uint64 AzgalorGUID;
+        ObjectGuid AzgalorGUID;
         InstanceScript* instance;
 
         void Reset()

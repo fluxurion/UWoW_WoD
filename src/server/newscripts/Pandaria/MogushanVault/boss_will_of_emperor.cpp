@@ -413,7 +413,7 @@ class mob_woi_add_generic : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
             uint32 focusspell;
-            uint64 targetguid;
+            ObjectGuid targetguid;
 
             void Reset()
             {

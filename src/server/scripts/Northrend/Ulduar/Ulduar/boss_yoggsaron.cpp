@@ -675,7 +675,7 @@ class boss_sara : public CreatureScript
             }
         }
 
-        uint64 GetTarget(int8 index)
+        ObjectGuid GetTarget(int8 index)
         {
             return PsTarget[index];
         }

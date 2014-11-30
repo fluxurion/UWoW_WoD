@@ -102,7 +102,7 @@ public:
 
         uint32 LamentEventTimer;
         bool LamentEvent;
-        uint64 targetGUID;
+        ObjectGuid targetGUID;
 
         uint32 FadeTimer;
         uint32 SummonSkeletonTimer;

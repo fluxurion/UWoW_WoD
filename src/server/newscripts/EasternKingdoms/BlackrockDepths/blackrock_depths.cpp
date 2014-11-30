@@ -135,8 +135,8 @@ public:
         uint8 MobCount;
         uint32 MobDeath_Timer;
 
-        uint64 RingMobGUID[4];
-        uint64 RingBossGUID;
+        ObjectGuid RingMobGUID[4];
+        ObjectGuid RingBossGUID;
 
         bool CanWalk;
 

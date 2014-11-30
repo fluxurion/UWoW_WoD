@@ -131,7 +131,7 @@ public:
                 Council[i] = 0;
         }
 
-        uint64 Council[4];
+        ObjectGuid Council[4];
 
         uint32 EnrageTimer;
         uint32 AggroYellTimer;
@@ -229,7 +229,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 Council[4];
+        ObjectGuid Council[4];
 
         uint32 CheckTimer;
         uint32 EndEventTimer;
@@ -390,7 +390,7 @@ struct boss_illidari_councilAI : public ScriptedAI
         LoadedGUIDs = false;
     }
 
-    uint64 Council[4];
+    ObjectGuid Council[4];
 
     InstanceScript* instance;
 
@@ -795,7 +795,7 @@ public:
     {
         boss_veras_darkshadowAI(Creature* creature) : boss_illidari_councilAI(creature) {}
 
-        uint64 EnvenomTargetGUID;
+        ObjectGuid EnvenomTargetGUID;
 
         uint32 DeadlyPoisonTimer;
         uint32 VanishTimer;

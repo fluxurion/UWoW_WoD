@@ -75,7 +75,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 TargetGUID;
+        ObjectGuid TargetGUID;
 
         float TargetThreat;
 
@@ -184,7 +184,7 @@ public:
             }*/
         }
 
-        void RevertThreatOnTarget(uint64 guid)
+        void RevertThreatOnTarget(ObjectGuid guid)
         {
             Unit* unit = NULL;
             unit = Unit::GetUnit(*me, guid);

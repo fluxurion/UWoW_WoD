@@ -439,9 +439,9 @@ public:
                 parsedStream >> val3;
                 data << val3;
             }
-            else if (type == "uint64")
+            else if (type == "ObjectGuid")
             {
-                uint64 val4;
+                ObjectGuid val4;
                 parsedStream >> val4;
                 data << val4;
             }
@@ -487,15 +487,15 @@ public:
                     ifs.close();
                     return false;
                 }
-                data << uint64(obj->GetGUID());
+                data << ObjectGuid(obj->GetGUID());
             }
             else if (type == "myguid")
             {
-                data << uint64(player->GetGUID());
+                data << ObjectGuid(player->GetGUID());
             }
             else if (type == "itsguid")
             {
-                data << uint64(unit->GetGUID());
+                data << ObjectGuid(unit->GetGUID());
             }
             else if (type == "itspos")
             {
@@ -1239,7 +1239,7 @@ public:
             return false;
         }
 
-        uint64 guid = target->GetGUID();
+        ObjectGuid guid = target->GetGUID();
 
         uint32 field = (uint32)atoi(x);
         if (field >= target->GetValuesCount())
@@ -1288,7 +1288,7 @@ public:
             return false;
         }
 
-        uint64 guid = target->GetGUID();
+        ObjectGuid guid = target->GetGUID();
 
         uint32 opcode = (uint32)atoi(x);
         if (opcode >= target->GetDynamicValuesCount())
@@ -1330,7 +1330,7 @@ public:
             return false;
         }
 
-        uint64 guid = target->GetGUID();
+        ObjectGuid guid = target->GetGUID();
 
         uint32 opcode = (uint32)atoi(x);
         if (opcode >= target->GetValuesCount())
@@ -1376,7 +1376,7 @@ public:
             return false;
         }
 
-        uint64 guid = target->GetGUID();
+        ObjectGuid guid = target->GetGUID();
 
         uint32 opcode = (uint32)atoi(x);
         if (opcode >= target->GetDynamicValuesCount())

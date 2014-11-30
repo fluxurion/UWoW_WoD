@@ -531,7 +531,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                         if (GameObject* teleporter = GameObject::GetGameObject(*me, instance->GetGuidData(GO_SCOURGE_TRANSPORTER_SAURFANG)))
                         {
-                            instance->HandleGameObject(0, false, teleporter);
+                            instance->HandleGameObject(ObjectGuid::Empty, false, teleporter);
                             teleporter->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                         }
 

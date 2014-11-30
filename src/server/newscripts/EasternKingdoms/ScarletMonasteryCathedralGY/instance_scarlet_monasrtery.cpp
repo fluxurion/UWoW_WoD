@@ -46,9 +46,9 @@ public:
     {
         instance_scarlet_monastery_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        uint64 PumpkinShrineGUID;
-        uint64 HorsemanGUID;
-        uint64 HeadGUID;
+        ObjectGuid PumpkinShrineGUID;
+        ObjectGuid HorsemanGUID;
+        ObjectGuid HeadGUID;
         GuidSet HorsemanAdds;
 
         uint32 encounter[MAX_ENCOUNTER];
@@ -107,7 +107,7 @@ public:
             }
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {

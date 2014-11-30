@@ -93,9 +93,9 @@ public:
         uint32 NetherbreathTimer;
         uint32 EmpowermentTimer;
         uint32 PortalTimer; // timer for beam checking
-        uint64 PortalGUID[3]; // guid's of portals
-        uint64 BeamerGUID[3]; // guid's of auxiliary beaming portals
-        uint64 BeamTarget[3]; // guid's of portals' current targets
+        ObjectGuid PortalGUID[3]; // guid's of portals
+        ObjectGuid BeamerGUID[3]; // guid's of auxiliary beaming portals
+        ObjectGuid BeamTarget[3]; // guid's of portals' current targets
 
         bool IsBetween(WorldObject* u1, WorldObject* target, WorldObject* u2) // the in-line checker
         {

@@ -70,7 +70,7 @@ public:
             ResetTimer = 0;
         }
 
-        uint64 Midnight;
+        ObjectGuid Midnight;
         uint8 Phase;
         uint32 CleaveTimer;
         uint32 CurseTimer;
@@ -128,7 +128,7 @@ public:
     {
         boss_midnightAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 Attumen;
+        ObjectGuid Attumen;
         uint8 Phase;
         uint32 Mount_Timer;
 
@@ -227,7 +227,7 @@ public:
             Mount_Timer = 1000;
         }
 
-        void SetMidnight(Creature* pAttumen, uint64 value)
+        void SetMidnight(Creature* pAttumen, ObjectGuid value)
         {
             CAST_AI(boss_attumen::boss_attumenAI, pAttumen->AI())->Midnight = value;
         }

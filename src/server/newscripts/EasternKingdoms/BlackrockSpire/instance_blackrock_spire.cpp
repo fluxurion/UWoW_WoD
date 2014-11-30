@@ -35,24 +35,24 @@ public:
 
         uint32 encounter[MAX_ENCOUNTER];
         std::string m_strInstData;
-        uint64 HighlordOmokk;
-        uint64 ShadowHunterVoshgajin;
-        uint64 WarMasterVoone;
-        uint64 MotherSmolderweb;
-        uint64 UrokDoomhowl;
-        uint64 QuartermasterZigris;
-        uint64 GizrultheSlavener;
-        uint64 Halycon;
-        uint64 OverlordWyrmthalak;
-        uint64 PyroguardEmberseer;
-        uint64 WarchiefRendBlackhand;
-        uint64 Gyth;
-        uint64 TheBeast;
-        uint64 GeneralDrakkisath;
-        uint64 go_emberseerin;
-        uint64 go_doors;
-        uint64 go_emberseerout;
-        uint64 go_roomrunes[MAX_DRAGONSPIRE_HALL_RUNES];
+        ObjectGuid HighlordOmokk;
+        ObjectGuid ShadowHunterVoshgajin;
+        ObjectGuid WarMasterVoone;
+        ObjectGuid MotherSmolderweb;
+        ObjectGuid UrokDoomhowl;
+        ObjectGuid QuartermasterZigris;
+        ObjectGuid GizrultheSlavener;
+        ObjectGuid Halycon;
+        ObjectGuid OverlordWyrmthalak;
+        ObjectGuid PyroguardEmberseer;
+        ObjectGuid WarchiefRendBlackhand;
+        ObjectGuid Gyth;
+        ObjectGuid TheBeast;
+        ObjectGuid GeneralDrakkisath;
+        ObjectGuid go_emberseerin;
+        ObjectGuid go_doors;
+        ObjectGuid go_emberseerout;
+        ObjectGuid go_roomrunes[MAX_DRAGONSPIRE_HALL_RUNES];
         uint8 Runemaxprotectors[MAX_DRAGONSPIRE_HALL_RUNES];
         uint8 Runeprotectorsdead[MAX_DRAGONSPIRE_HALL_RUNES];
 
@@ -222,7 +222,7 @@ public:
             }
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {

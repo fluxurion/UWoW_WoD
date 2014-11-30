@@ -1145,7 +1145,7 @@ public:
     {
         npc_dying_soldierAI(Creature *pCreature) : ScriptedAI(pCreature) { }
 
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
         uint32 uiTalkTimer;
         uint32 uiStep;
         bool bTalkTime;
@@ -1241,7 +1241,7 @@ public:
             Npc_Entry = pCreature->GetEntry();
         }
 
-        uint64 Npc_Entry;
+        ObjectGuid Npc_Entry;
         uint32 ResetTimer;
         uint32 DespawnTimer;
         uint32 ShielTimer;
@@ -2041,12 +2041,12 @@ class npc_tg_tirion_fordring : public CreatureScript
 
         private:
             EventMap Events;
-            uint64 gofhGuid;
-            uint64 goepGuid;
-            uint64 EscortGUID[3];
-            uint64 AcylteGUID[3];
-            uint64 LichKingGUID;
-            uint64 MograineGUID;
+            ObjectGuid gofhGuid;
+            ObjectGuid goepGuid;
+            ObjectGuid EscortGUID[3];
+            ObjectGuid AcylteGUID[3];
+            ObjectGuid LichKingGUID;
+            ObjectGuid MograineGUID;
             bool isHorde;
         };
 

@@ -509,7 +509,7 @@ public:
     {
         EventMap events;
         GuidSet guidMob;
-        uint64 plrGUID;
+        ObjectGuid plrGUID;
         GuidSet m_player_for_event;
         bool mt;
 
@@ -547,7 +547,7 @@ public:
                 uiDamage = 0;
         }
         
-        void SetGUID(uint64 guid, int32 /*id*/ = 0)
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/ = 0)
         {
             plrGUID = guid;
         }
@@ -615,7 +615,7 @@ public:
         npc_min_dimwind_outroAI(Creature* creature) : npc_escortAI(creature) {}
 
         EventMap events;
-        uint64 playerGUID;
+        ObjectGuid playerGUID;
 
         enum eEvents
         {
@@ -628,7 +628,7 @@ public:
             playerGUID = 0;
         }
 
-        void SetGUID(uint64 guid, int32 id)
+        void SetGUID(ObjectGuid const& guid, int32 id)
         {
             playerGUID = guid;
             events.ScheduleEvent(EVENT_1, 1000);
@@ -767,7 +767,7 @@ public:
     {
     	EventMap events;
         std::list<Player*> playersInvolved;
-        uint64 lifeiGUID;
+        ObjectGuid lifeiGUID;
         bool inCombat;
         uint32 timer;
         
@@ -1054,7 +1054,7 @@ public:
     {
         EventMap events;
         std::list<Player*> playersInvolved;
-        uint64 playerGuid;
+        ObjectGuid playerGuid;
 
         boss_li_fei_fightAI(Creature* creature) : ScriptedAI(creature)
         {}
@@ -1082,7 +1082,7 @@ public:
             events.ScheduleEvent(EVENT_SHADOW_KICK,  1000);
         }
 
-        void SetGUID(uint64 guid, int32 /*type*/)
+        void SetGUID(ObjectGuid const& guid, int32 /*type*/)
         {
             playerGuid = guid;
         }
@@ -1266,9 +1266,9 @@ public:
         };
         
         EventMap events;
-        uint64 plrGUID;
+        ObjectGuid plrGUID;
 
-        void SetGUID(uint64 guid, int32 /*id*/ = 0)
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/ = 0)
         {
             plrGUID = guid;
         }
@@ -1449,7 +1449,7 @@ public:
             NPC_VEH         =   54993,
         };
 
-        uint64 vehGUID;
+        ObjectGuid vehGUID;
         EventMap events;
 
         void Reset()
@@ -1637,7 +1637,7 @@ public:
         EventMap _events;
         uint8 actualPlace;
 
-        uint64 waterSpoutGUID;
+        ObjectGuid waterSpoutGUID;
 
         enum eShuSpells
         {
@@ -1818,7 +1818,7 @@ public:
         {}
 
         EventMap _events;
-        uint64 plrGUID;
+        ObjectGuid plrGUID;
         enum eEvents
         {
             EVENT_1          = 1,
@@ -1832,7 +1832,7 @@ public:
             _events.Reset();
         }
 
-        void SetGUID(uint64 guid, int32 /*id*/ = 0)
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/ = 0)
         {
             plrGUID = guid;
             _events.ScheduleEvent(EVENT_1, 1000);
@@ -1945,7 +1945,7 @@ public:
                 IntroTimer = 0;
         }
 
-        void SetGUID(uint64 guid, int32 /*id*/ = 0)
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/ = 0)
         {
             SetFollowerGUID(guid);
         }
@@ -2087,7 +2087,7 @@ public:
         npc_water_spirit_dailoAI(Creature* creature) : ScriptedAI(creature)
         {}
 
-        uint64 playerGuid;
+        ObjectGuid playerGuid;
         uint16 eventTimer;
         uint8  eventProgress;
 
@@ -2098,7 +2098,7 @@ public:
             playerGuid = 0;
         }
 
-        void SetGUID(uint64 guid, int32 /*type*/)
+        void SetGUID(ObjectGuid const& guid, int32 /*type*/)
         {
             playerGuid = guid;
             eventTimer = 2500;
@@ -2219,7 +2219,7 @@ class mob_master_shang_xi_temple : public CreatureScript
         mob_master_shang_xi_templeAI(Creature* creature) : ScriptedAI(creature)
         {}
 
-        uint64 playerGuid;
+        ObjectGuid playerGuid;
         GuidSet m_player_for_event;
         EventMap events;
 
@@ -2756,7 +2756,7 @@ class mob_aysa_wind_temple_escort : public CreatureScript
         mob_aysa_wind_temple_escortAI(Creature* creature) : npc_escortAI(creature)
         {}
         
-        uint64 playerGuid;
+        ObjectGuid playerGuid;
         EventMap events;
 
         enum events
@@ -2771,7 +2771,7 @@ class mob_aysa_wind_temple_escort : public CreatureScript
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void SetGUID(uint64 guid, int32)
+        void SetGUID(ObjectGuid const& guid, int32)
         {
             playerGuid = guid;
         }
@@ -2855,7 +2855,7 @@ public:
         {}
 
         uint32 tornadeTimer;
-        uint64 goWinder;
+        ObjectGuid goWinder;
         enum Spells
         {
             SPELL_TORNADE    = 104333,
@@ -3175,7 +3175,7 @@ class mob_master_shang_xi_after_zhao_escort : public CreatureScript
         
         uint32 IntroTimer;
 
-        uint64 playerGuid;
+        ObjectGuid playerGuid;
 
         void Reset()
         {
@@ -3253,7 +3253,7 @@ class mob_master_shang_xi_thousand_staff : public CreatureScript
         {}
 
         EventMap _events;
-        uint64 playerGuid;
+        ObjectGuid playerGuid;
         enum events
         {
             EVENT_DESPAWN   = 1,
@@ -3448,11 +3448,11 @@ class mop_air_balloon : public VehicleScript
         mop_air_balloonAI(Creature* creature) : npc_escortAI(creature)
         {}
         
-        uint64 playerGuid;
-        uint64 aisaGUID;
-        uint64 firepawGUID;
-        uint64 shenZiGUID;
-        uint64 headGUID;
+        ObjectGuid playerGuid;
+        ObjectGuid aisaGUID;
+        ObjectGuid firepawGUID;
+        ObjectGuid shenZiGUID;
+        ObjectGuid headGUID;
         EventMap events;
 
         void Reset()
@@ -3866,10 +3866,10 @@ class mob_mandori_escort : public CreatureScript
         };
         
         EventMap events;
-        uint64 playerGuid;
+        ObjectGuid playerGuid;
         
-        uint64 mandoriDoorGuid;
-        uint64 peiwuDoorGuid;
+        ObjectGuid mandoriDoorGuid;
+        ObjectGuid peiwuDoorGuid;
 
         void Reset()
         {
@@ -4370,7 +4370,7 @@ public:
         };
 
         EventMap events;
-        uint64 bossGUID;
+        ObjectGuid bossGUID;
         GuidSet m_player_for_event;
 
         void Reset()
@@ -4479,8 +4479,8 @@ public:
         {}
 
         EventMap events;
-        uint64 playerGuid;
-        uint64 jiGuid;
+        ObjectGuid playerGuid;
+        ObjectGuid jiGuid;
 
         enum escortEntry
         {
@@ -4745,7 +4745,7 @@ public:
             data << uint32(5833);                                   // area id
             data << uint32(860);                                    // mapid
 
-            data.WriteBits(2, 21);                                  // count of uint64 blocks
+            data.WriteBits(2, 21);                                  // count of ObjectGuid blocks
             data.FlushBits();
 
             FillInitialWorldState(data, WS_ENABLE, enable);
@@ -5002,7 +5002,7 @@ class npc_shang_xi_choose_faction : public CreatureScript
         {}
 
         EventMap events;
-        uint64 playerGuid;
+        ObjectGuid playerGuid;
         enum ev
         {
             EVENT_0        = 1, 
@@ -5013,7 +5013,7 @@ class npc_shang_xi_choose_faction : public CreatureScript
             EVENT_5        = 6,
         };
 
-        void SetGUID(uint64 guid, int32 id)
+        void SetGUID(ObjectGuid const& guid, int32 id)
         {
             playerGuid = guid;
             uint32 t = 0;
@@ -5077,8 +5077,8 @@ public:
         {}
 
         EventMap events;
-        uint64 playerGuid;
-        uint64 CziGUID;
+        ObjectGuid playerGuid;
+        ObjectGuid CziGUID;
 
         enum dataType
         {

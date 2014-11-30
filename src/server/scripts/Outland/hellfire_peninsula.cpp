@@ -462,7 +462,7 @@ public:
         npc_fel_guard_houndAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiCheckTimer;
-        uint64 uiHelboarGUID;
+        ObjectGuid uiHelboarGUID;
 
         void Reset()
         {

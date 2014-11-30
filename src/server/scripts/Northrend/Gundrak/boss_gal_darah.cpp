@@ -245,7 +245,7 @@ public:
         }
 
         // 5 UNIQUE party members
-        void CheckAchievement(uint64 guid)
+        void CheckAchievement(ObjectGuid guid)
         {
             bool playerExists = false;
             for (GuidList::iterator itr = impaledList.begin(); itr != impaledList.end(); ++itr)

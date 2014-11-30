@@ -194,7 +194,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -262,15 +262,15 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
         private:
-            uint64 drakosGUID;
-            uint64 varosGUID;
-            uint64 uromGUID;
-            uint64 eregosGUID;
+            ObjectGuid drakosGUID;
+            ObjectGuid varosGUID;
+            ObjectGuid uromGUID;
+            ObjectGuid eregosGUID;
 
             uint8 platformUrom;
             uint8 centrifugueConstructCounter;
 
-            uint64 eregosCacheGUID;
+            ObjectGuid eregosCacheGUID;
 
             std::string str_data;
 

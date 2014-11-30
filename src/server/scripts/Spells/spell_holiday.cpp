@@ -173,10 +173,10 @@ public:
         }
 
         EventMap events;
-        uint64 emberGUID;
-        uint64 playerGUID;
+        ObjectGuid emberGUID;
+        ObjectGuid playerGUID;
 
-        void SetGUID(const uint64& guid, int32 /*id = 0 */)
+        void SetGUID(ObjectGuid const& guid, int32 /*id = 0 */)
         {
             if (playerGUID)
                 return;

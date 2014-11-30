@@ -233,7 +233,7 @@ class boss_tyrannus : public CreatureScript
             uint8 m_uiAtackPhase;
             uint32 m_uiMobsDied;
             uint32 m_uiAddEntry;
-            uint64 m_uiRimefangGuid;
+            ObjectGuid m_uiRimefangGuid;
             float angle, homeX, homeY;
             void Reset()
             {
@@ -477,7 +477,7 @@ class boss_rimefang : public CreatureScript
             }
             
             
-                    void SetGUID(const uint64& guid, int32 type)
+                    void SetGUID(ObjectGuid const& guid, int32 type)
         {
             if (type == GUID_HOARFROST)
             {
@@ -523,7 +523,7 @@ class boss_rimefang : public CreatureScript
             }
             private:
          Vehicle* _vehicle;
-        uint64 _hoarfrostTargetGUID;
+        ObjectGuid _hoarfrostTargetGUID;
         EventMap _events;
         uint8 _currentWaypoint;
 
@@ -543,7 +543,7 @@ class player_overlord_brandAI : public PlayerAI
             tyrannus = NULL;
         }
 
-        void SetGUID(const uint64& guid, int32 /*type*/)
+        void SetGUID(ObjectGuid const& guid, int32 /*type*/)
         {
             tyrannus = ObjectAccessor::GetCreature(*me, guid);
             if (!tyrannus)

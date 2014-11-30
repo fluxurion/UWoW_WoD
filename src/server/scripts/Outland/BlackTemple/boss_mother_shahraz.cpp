@@ -98,7 +98,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 TargetGUID[3];
+        ObjectGuid TargetGUID[3];
         uint32 BeamTimer;
         uint32 BeamCount;
         uint32 CurrentBeam;

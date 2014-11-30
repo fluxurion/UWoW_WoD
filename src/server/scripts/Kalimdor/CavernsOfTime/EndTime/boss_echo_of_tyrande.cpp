@@ -417,7 +417,7 @@ class boss_echo_of_tyrande : public CreatureScript
             }
         private:
             uint8 phase; 
-            uint64 moonlanceGUID;
+            ObjectGuid moonlanceGUID;
             uint8 eventphase;
             Unit* curPool;
         };

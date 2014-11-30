@@ -124,7 +124,7 @@ class boss_lorewalker_stonestep : public CreatureScript
             }
 
             bool event_go;
-            uint64 scrollGUID;
+            ObjectGuid scrollGUID;
 
             void Reset()
             {
@@ -428,7 +428,7 @@ class mob_zao : public CreatureScript
                             if (!suns.empty())
                             {
                                 uint32 rand = urand(0, suns.size());
-                                uint64 guid_target = 0;
+                                ObjectGuid guid_target = 0;
                                 Creature* target = NULL;
                                 for (GuidList::const_iterator guid = suns.begin(); guid != suns.end(); ++guid)
                                 {
@@ -482,7 +482,7 @@ class mob_haunting_sha : public CreatureScript
                 if (action != 0)
                     return;
 
-                uint64 guid = me->GetInstanceScript()->GetGuidData(CREATURE_ZAO_SUNSEEKER);
+                ObjectGuid guid = me->GetInstanceScript()->GetGuidData(CREATURE_ZAO_SUNSEEKER);
                 if (guid != 0)
                 {
                     Creature* zao = me->GetMap()->GetCreature(guid);

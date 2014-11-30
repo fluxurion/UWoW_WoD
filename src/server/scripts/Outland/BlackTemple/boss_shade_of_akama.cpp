@@ -128,7 +128,7 @@ public:
             ShadeGUID = 0;
         }
 
-        uint64 ShadeGUID;
+        ObjectGuid ShadeGUID;
 
         void Reset() {}
         void JustDied(Unit* /*killer*/);
@@ -157,7 +157,7 @@ public:
             ShadeGUID = 0;
         }
 
-        uint64 ShadeGUID;
+        ObjectGuid ShadeGUID;
         uint32 CheckTimer;
         bool StartBanishing;
 
@@ -223,7 +223,7 @@ public:
 
         GuidList Channelers;
         GuidList Sorcerers;
-        uint64 AkamaGUID;
+        ObjectGuid AkamaGUID;
 
         uint32 SorcererCount;
         uint32 DeathCount;
@@ -335,7 +335,7 @@ public:
                 DoStartMovement(who);
         }
 
-        void IncrementDeathCount(uint64 guid = 0)               // If guid is set, will remove it from list of sorcerer
+        void IncrementDeathCount(ObjectGuid guid.Clear())               // If guid is set, will remove it from list of sorcerer
         {
             if (reseting)
                 return;
@@ -417,7 +417,7 @@ public:
                     Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void SetAkamaGUID(uint64 guid) { AkamaGUID = guid; }
+        void SetAkamaGUID(ObjectGuid guid) { AkamaGUID = guid; }
 
         void UpdateAI(uint32 diff)
         {
@@ -603,7 +603,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 ShadeGUID;
+        ObjectGuid ShadeGUID;
 
         uint32 DestructivePoisonTimer;
         uint32 LightningBoltTimer;

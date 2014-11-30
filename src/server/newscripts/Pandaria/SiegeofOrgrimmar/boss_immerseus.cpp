@@ -281,7 +281,7 @@ class boss_immerseus : public CreatureScript
             InstanceScript* instance;
             uint32 lasthp, berserk;
             uint8 donecp, donesp, maxpcount;
-            std::vector<uint64> shapoollist;
+            GuidVector shapoollist;
             float lasthppct;
             bool phase_two;
             bool intro;
@@ -445,7 +445,7 @@ class boss_immerseus : public CreatureScript
                     me->SetFullHealth();
                     if (!shapoollist.empty())
                     {
-                        for (std::vector<uint64>::const_iterator guid = shapoollist.begin(); guid != shapoollist.end(); guid++)
+                        for (GuidVector::const_iterator guid = shapoollist.begin(); guid != shapoollist.end(); guid++)
                         {
                             if (Creature* sp = me->GetCreature(*me, *guid))
                                 sp->AI()->DoAction(ACTION_MOVE);
@@ -545,7 +545,7 @@ class boss_immerseus : public CreatureScript
                     case EVENT_CORROSIVE_BLAST:
                         if (me->getVictim())
                         {
-                            uint64 vG = me->getVictim()->GetGUID();
+                            ObjectGuid vG = me->getVictim()->GetGUID();
                             me->AttackStop();
                             me->SetReactState(REACT_PASSIVE);
                             if (Unit* target = me->GetUnit(*me, vG))

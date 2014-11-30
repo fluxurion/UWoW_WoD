@@ -468,7 +468,7 @@ public:
     static bool HandleListMailCommand(ChatHandler* handler, char const* args)
     {
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string targetName;
 
         if (!*args)

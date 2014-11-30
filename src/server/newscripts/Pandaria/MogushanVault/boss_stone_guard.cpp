@@ -240,7 +240,7 @@ class boss_stone_guard_controler : public CreatureScript
                             bool alreadyOnePetrificationInProgress = false;
 
                             for (uint8 i = 0; i < 4; ++i)
-                                if (uint64 stoneGuardGuid = pInstance->GetGuidData(guardiansEntry[i]))
+                                if (ObjectGuid stoneGuardGuid = pInstance->GetGuidData(guardiansEntry[i]))
                                     if (Creature* stoneGuard = pInstance->instance->GetCreature(stoneGuardGuid))
                                         if (stoneGuard->HasAura(SPELL_JASPER_PETRIFICATION)   || stoneGuard->HasAura(SPELL_JADE_PETRIFICATION) ||
                                             stoneGuard->HasAura(SPELL_AMETHYST_PETRIFICATION) || stoneGuard->HasAura(SPELL_COBALT_PETRIFICATION))
@@ -262,7 +262,7 @@ class boss_stone_guard_controler : public CreatureScript
                             }
                             while (nextPetrifierEntry == lastPetrifierEntry);
 
-                            if (uint64 stoneGuardGuid = pInstance->GetGuidData(nextPetrifierEntry))
+                            if (ObjectGuid stoneGuardGuid = pInstance->GetGuidData(nextPetrifierEntry))
                             {
                                 if (Creature* stoneGuard = pInstance->instance->GetCreature(stoneGuardGuid))
                                 {
@@ -734,7 +734,7 @@ class spell_jasper_chains : public SpellScriptLoader
         class spell_jasper_chains_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_jasper_chains_AuraScript);
-            uint64 playerLinkedGuid;
+            ObjectGuid playerLinkedGuid;
 
             bool Load()
             {
@@ -742,7 +742,8 @@ class spell_jasper_chains : public SpellScriptLoader
                 return true;
             }
 
-            void SetGuid(uint32 type, uint64 guid)
+            //Cyberbrest:: WHERE IT'S USED?
+            void SetGUID(ObjectGuid const& guid, int32 type)
             {
                 playerLinkedGuid = guid;
             }

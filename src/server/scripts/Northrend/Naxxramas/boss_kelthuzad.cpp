@@ -284,10 +284,10 @@ public:
         uint8  nAbomination;
         uint8  nWeaver;
 
-        std::map<uint64, float> chained;
+        std::map<ObjectGuid, float> chained;
 
-        uint64 PortalsGUID[4];
-        uint64 KTTriggerGUID;
+        ObjectGuid PortalsGUID[4];
+        ObjectGuid KTTriggerGUID;
 
         SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
 
@@ -306,7 +306,7 @@ public:
 
             me->setFaction(35);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-            std::map<uint64, float>::const_iterator itr;
+            std::map<ObjectGuid, float>::const_iterator itr;
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* charmed = Unit::GetPlayer(*me, (*itr).first))
@@ -351,7 +351,7 @@ public:
             _JustDied();
             DoScriptText(SAY_DEATH, me);
 
-            std::map<uint64, float>::const_iterator itr;
+            std::map<ObjectGuid, float>::const_iterator itr;
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* pPlayer = Unit::GetPlayer(*me, (*itr).first))
@@ -543,7 +543,7 @@ public:
                         }
                         case EVENT_CHAINED_SPELL:
                         {
-                            std::map<uint64, float>::iterator itr;
+                            std::map<ObjectGuid, float>::iterator itr;
                             for (itr = chained.begin(); itr != chained.end();)
                             {
                                 if (Unit* player = Unit::GetPlayer(*me, (*itr).first))
@@ -551,7 +551,7 @@ public:
                                     if (!player->isCharmed())
                                     {
                                         player->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
-                                        std::map<uint64, float>::iterator next = itr;
+                                        std::map<ObjectGuid, float>::iterator next = itr;
                                         ++next;
                                         chained.erase(itr);
                                         itr = next;

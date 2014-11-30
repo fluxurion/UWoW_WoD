@@ -169,7 +169,7 @@ public:
         }
 
         uint32 soulmodel;
-        uint64 soulholder;
+        ObjectGuid soulholder;
         uint8 soulclass;
 
         uint32 Fear_timer;

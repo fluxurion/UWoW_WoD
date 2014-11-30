@@ -46,10 +46,10 @@ public:
     {
         instance_scarlet_monastery_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        uint64 MograineGUID;
-        uint64 WhitemaneGUID;
-        uint64 VorrelGUID;
-        uint64 DoorHighInquisitorGUID;
+        ObjectGuid MograineGUID;
+        ObjectGuid WhitemaneGUID;
+        ObjectGuid VorrelGUID;
+        ObjectGuid DoorHighInquisitorGUID;
 
         uint32 encounter[MAX_ENCOUNTER];
 
@@ -96,7 +96,7 @@ public:
             }
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {

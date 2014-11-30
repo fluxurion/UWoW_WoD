@@ -169,8 +169,8 @@ public:
         bool phaseTwo;
         bool thirtyPercentReached;
 
-        std::vector<uint64> LiveTriggerGUID;
-        std::vector<uint64> DeadTriggerGUID;
+        GuidVector LiveTriggerGUID;
+        GuidVector DeadTriggerGUID;
 
         void Reset()
         {

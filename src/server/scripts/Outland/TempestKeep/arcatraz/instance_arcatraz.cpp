@@ -64,16 +64,16 @@ class instance_arcatraz : public InstanceMapScript
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-            uint64 Containment_Core_Security_Field_AlphaGUID;
-            uint64 Containment_Core_Security_Field_BetaGUID;
-            uint64 Pod_AlphaGUID;
-            uint64 Pod_GammaGUID;
-            uint64 Pod_BetaGUID;
-            uint64 Pod_DeltaGUID;
-            uint64 Pod_OmegaGUID;
-            uint64 Wardens_ShieldGUID;
-            uint64 GoSphereGUID;
-            uint64 MellicharGUID;
+            ObjectGuid Containment_Core_Security_Field_AlphaGUID;
+            ObjectGuid Containment_Core_Security_Field_BetaGUID;
+            ObjectGuid Pod_AlphaGUID;
+            ObjectGuid Pod_GammaGUID;
+            ObjectGuid Pod_BetaGUID;
+            ObjectGuid Pod_DeltaGUID;
+            ObjectGuid Pod_OmegaGUID;
+            ObjectGuid Wardens_ShieldGUID;
+            ObjectGuid GoSphereGUID;
+            ObjectGuid MellicharGUID;
 
             void Initialize()
             {
@@ -244,7 +244,7 @@ class instance_arcatraz : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetGuidData(uint32 data)
+            ObjectGuid GetGuidData(uint32 data)
             {
                 switch (data)
                 {

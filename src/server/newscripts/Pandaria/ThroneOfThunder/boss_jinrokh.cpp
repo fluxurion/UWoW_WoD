@@ -131,7 +131,7 @@ public:
         }
 
         InstanceScript* pInstance;
-        uint64 pl_guid;
+        ObjectGuid pl_guid;
         uint32 CheckDist;
         bool explose;
 
@@ -139,7 +139,7 @@ public:
 
         void EnterEvadeMode(){}
         
-        void SetGUID(uint64 plguid, int32 id)
+        void SetGUID(ObjectGuid const& plguid, int32 id)
         {
             if (Player* pl = me->GetPlayer(*me, plguid))
             {

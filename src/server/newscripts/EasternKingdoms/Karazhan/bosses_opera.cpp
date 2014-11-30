@@ -233,7 +233,7 @@ public:
     {
         mob_titoAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 DorotheeGUID;
+        ObjectGuid DorotheeGUID;
         uint32 YipTimer;
 
         void Reset()
@@ -818,7 +818,7 @@ public:
         uint32 FearTimer;
         uint32 SwipeTimer;
 
-        uint64 HoodGUID;
+        ObjectGuid HoodGUID;
         float TempThreat;
 
         bool IsChasing;
@@ -1019,7 +1019,7 @@ public:
         uint32 EntryYellTimer;
         uint32 AggroYellTimer;
 
-        uint64 RomuloGUID;
+        ObjectGuid RomuloGUID;
 
         uint32 Phase;
 
@@ -1138,7 +1138,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 JulianneGUID;
+        ObjectGuid JulianneGUID;
         uint32 Phase;
 
         uint32 EntryYellTimer;

@@ -217,7 +217,7 @@ public:
         uint32 ResetTimer;
         uint32 DrakType1;
         uint32 DrakType2;
-        uint64 NefarianGUID;
+        ObjectGuid NefarianGUID;
         uint32 NefCheckTime;
 
         void Reset()

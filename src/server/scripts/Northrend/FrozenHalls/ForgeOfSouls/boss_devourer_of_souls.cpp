@@ -358,7 +358,7 @@ class boss_devourer_of_souls : public CreatureScript
             float beamAngleDiff;
             int8 wailingSoulTick;
 
-            uint64 mirroredSoulTarget;
+            ObjectGuid mirroredSoulTarget;
         };
 
         CreatureAI* GetAI(Creature* creature) const

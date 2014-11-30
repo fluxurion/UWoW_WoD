@@ -75,7 +75,7 @@ public:
                 uint32 size = instance->GetData(DATA_FEL_CRYSTAL_SIZE);
                 for (uint8 i = 0; i < size; ++i)
                 {
-                    uint64 guid = instance->GetGuidData(DATA_FEL_CRYSTAL);
+                    ObjectGuid guid = instance->GetGuidData(DATA_FEL_CRYSTAL);
                     sLog->outDebug(LOG_FILTER_TSCR, "Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
                     Crystals.push_back(guid);
                 }
@@ -95,7 +95,7 @@ public:
         bool IsDraining;
         bool DrainingCrystal;
 
-        uint64 CrystalGUID;                                     // This will help us create a pointer to the crystal we are draining. We store GUIDs, never units in case unit is deleted/offline (offline if player of course).
+        ObjectGuid CrystalGUID;                                     // This will help us create a pointer to the crystal we are draining. We store GUIDs, never units in case unit is deleted/offline (offline if player of course).
 
         void Reset()
         {

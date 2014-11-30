@@ -1168,7 +1168,7 @@ class npc_hack_bank_controller : public CreatureScript
 
         EventMap events;
         uint32 _select;
-        uint64 _playerGUID;
+        ObjectGuid _playerGUID;
 
         void Reset()
         { 

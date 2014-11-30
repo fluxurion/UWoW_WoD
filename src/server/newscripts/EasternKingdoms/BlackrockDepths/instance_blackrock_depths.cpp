@@ -79,37 +79,37 @@ public:
         uint32 encounter[MAX_ENCOUNTER];
         std::string str_data;
 
-        uint64 EmperorGUID;
-        uint64 PhalanxGUID;
-        uint64 MagmusGUID;
-        uint64 MoiraGUID;
+        ObjectGuid EmperorGUID;
+        ObjectGuid PhalanxGUID;
+        ObjectGuid MagmusGUID;
+        ObjectGuid MoiraGUID;
 
-        uint64 GoArena1GUID;
-        uint64 GoArena2GUID;
-        uint64 GoArena3GUID;
-        uint64 GoArena4GUID;
-        uint64 GoShadowLockGUID;
-        uint64 GoShadowMechGUID;
-        uint64 GoShadowGiantGUID;
-        uint64 GoShadowDummyGUID;
-        uint64 GoBarKegGUID;
-        uint64 GoBarKegTrapGUID;
-        uint64 GoBarDoorGUID;
-        uint64 GoTombEnterGUID;
-        uint64 GoTombExitGUID;
-        uint64 GoLyceumGUID;
-        uint64 GoSFSGUID;
-        uint64 GoSFNGUID;
-        uint64 GoGolemNGUID;
-        uint64 GoGolemSGUID;
-        uint64 GoThroneGUID;
-        uint64 GoChestGUID;
-        uint64 GoSpectralChaliceGUID;
+        ObjectGuid GoArena1GUID;
+        ObjectGuid GoArena2GUID;
+        ObjectGuid GoArena3GUID;
+        ObjectGuid GoArena4GUID;
+        ObjectGuid GoShadowLockGUID;
+        ObjectGuid GoShadowMechGUID;
+        ObjectGuid GoShadowGiantGUID;
+        ObjectGuid GoShadowDummyGUID;
+        ObjectGuid GoBarKegGUID;
+        ObjectGuid GoBarKegTrapGUID;
+        ObjectGuid GoBarDoorGUID;
+        ObjectGuid GoTombEnterGUID;
+        ObjectGuid GoTombExitGUID;
+        ObjectGuid GoLyceumGUID;
+        ObjectGuid GoSFSGUID;
+        ObjectGuid GoSFNGUID;
+        ObjectGuid GoGolemNGUID;
+        ObjectGuid GoGolemSGUID;
+        ObjectGuid GoThroneGUID;
+        ObjectGuid GoChestGUID;
+        ObjectGuid GoSpectralChaliceGUID;
 
         uint32 BarAleCount;
         uint32 GhostKillCount;
-        uint64 TombBossGUIDs[7];
-        uint64 TombEventStarterGUID;
+        ObjectGuid TombBossGUIDs[7];
+        ObjectGuid TombEventStarterGUID;
         uint32 TombTimer;
         uint32 TombEventCounter;
 
@@ -195,9 +195,9 @@ public:
             case GO_TOMB_EXIT:
                 GoTombExitGUID = go->GetGUID();
                 if (GhostKillCount >= 7)
-                    HandleGameObject(0, true, go);
+                    HandleGameObject(ObjectGuid::Empty, true, go);
                 else
-                    HandleGameObject(0, false, go);
+                    HandleGameObject(ObjectGuid::Empty, false, go);
                 break;
             case GO_LYCEUM: GoLyceumGUID = go->GetGUID(); break;
             case GO_SF_S: GoSFSGUID = go->GetGUID(); break;
@@ -210,7 +210,7 @@ public:
             }
         }
 
-        void SetGuidData(uint32 type, uint64 data)
+        void SetGuidData(uint32 type, ObjectGuid data)
         {
             sLog->outDebug(LOG_FILTER_TSCR, "Instance Blackrock Depths: SetGuidData update (Type: %u Data " UI64FMTD ")", type, data);
 
@@ -298,7 +298,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 data)
+        ObjectGuid GetGuidData(uint32 data)
         {
             switch (data)
             {

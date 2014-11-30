@@ -48,25 +48,25 @@ public:
     {
         instance_halls_of_reflection_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {};
 
-        uint64 uiFalric;
-        uint64 uiMarwyn;
-        uint64 uiLichKing;
-        uint64 uiJainaPart1;
-        uint64 uiSylvanasPart1;
-        uint64 uiLider;
-        uint64 uiCaptain;
+        ObjectGuid uiFalric;
+        ObjectGuid uiMarwyn;
+        ObjectGuid uiLichKing;
+        ObjectGuid uiJainaPart1;
+        ObjectGuid uiSylvanasPart1;
+        ObjectGuid uiLider;
+        ObjectGuid uiCaptain;
 
-        uint64 uiChest;
-        uint64 uiPortal;
+        ObjectGuid uiChest;
+        ObjectGuid uiPortal;
 
-        uint64 uiFrostmourne;
-        uint64 uiFrontDoor;
-        uint64 uiFrostwornDoor;
-        uint64 uiArthasDoor;
-        uint64 uiRunDoor;
-        uint64 uiWall[4];
-        uint64 uiWallID[4];
-        uint64 uiCaveDoor;
+        ObjectGuid uiFrostmourne;
+        ObjectGuid uiFrontDoor;
+        ObjectGuid uiFrostwornDoor;
+        ObjectGuid uiArthasDoor;
+        ObjectGuid uiRunDoor;
+        ObjectGuid uiWall[4];
+        ObjectGuid uiWallID[4];
+        ObjectGuid uiCaveDoor;
 
         uint32 uiEncounter[MAX_ENCOUNTER];
         uint32 uiTeamInInstance;
@@ -110,14 +110,14 @@ public:
                 uiEncounter[i] = NOT_STARTED;
         }
 
-        void OpenDoor(uint64 guid)
+        void OpenDoor(ObjectGuid const& guid)
         {
             if(!guid) return;
             GameObject* go = instance->GetGameObject(guid);
             if(go) go->SetGoState(GO_STATE_ACTIVE);
         }
 
-        void CloseDoor(uint64 guid)
+        void CloseDoor(ObjectGuid const& guid)
         {
             if(!guid) return;
             GameObject* go = instance->GetGameObject(guid);
@@ -178,11 +178,11 @@ public:
                 case GO_FROSTMOURNE:
                     uiFrostmourne = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                    HandleGameObject(0, false, go);
+                    HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_FROSTMOURNE_ALTAR:
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                    HandleGameObject(0, true, go);
+                    HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_FRONT_DOOR:
                     uiFrontDoor = go->GetGUID();
@@ -371,7 +371,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch(identifier)
             {

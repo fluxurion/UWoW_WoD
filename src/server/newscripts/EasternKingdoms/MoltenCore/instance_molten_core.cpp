@@ -121,7 +121,7 @@ class instance_molten_core : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -235,9 +235,9 @@ class instance_molten_core : public InstanceMapScript
             }
 
         private:
-            uint64 _golemaggTheIncineratorGUID;
-            uint64 _majordomoExecutusGUID;
-            uint64 _cacheOfTheFirelordGUID;
+            ObjectGuid _golemaggTheIncineratorGUID;
+            ObjectGuid _majordomoExecutusGUID;
+            ObjectGuid _cacheOfTheFirelordGUID;
             bool _executusSchedule;
             uint8 _deadBossCount;
             uint8 _ragnarosAddDeaths;

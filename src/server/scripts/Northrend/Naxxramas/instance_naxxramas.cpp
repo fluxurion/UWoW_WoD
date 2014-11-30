@@ -155,43 +155,43 @@ public:
         }
 
     GuidSet HeiganEruptionGUID[4];
-    uint64 GothikGateGUID;
-    uint64 HorsemenChestGUID;
-    uint64 SapphironGUID;
-    uint64 uiFaerlina;
-    uint64 uiThane;
-    uint64 uiLady;
-    uint64 uiBaron;
-    uint64 uiSir;
+    ObjectGuid GothikGateGUID;
+    ObjectGuid HorsemenChestGUID;
+    ObjectGuid SapphironGUID;
+    ObjectGuid uiFaerlina;
+    ObjectGuid uiThane;
+    ObjectGuid uiLady;
+    ObjectGuid uiBaron;
+    ObjectGuid uiSir;
 
-    uint64 uiMaexxna;
-    uint64 uiLoatheb;
+    ObjectGuid uiMaexxna;
+    ObjectGuid uiLoatheb;
 
-    uint64 uiThaddius;
-    uint64 uiFeugen;
-    uint64 uiStalagg;
+    ObjectGuid uiThaddius;
+    ObjectGuid uiFeugen;
+    ObjectGuid uiStalagg;
 
-    uint64 uiKelthuzad;
-    uint64 uiKelthuzadTrigger;
-    uint64 uiPortals[4];
+    ObjectGuid uiKelthuzad;
+    ObjectGuid uiKelthuzadTrigger;
+    ObjectGuid uiPortals[4];
 
-    uint64 m_uiAracEyeRampGUID;
-    uint64 m_uiPlagEyeRampGUID;
-    uint64 m_uiMiliEyeRampGUID;
-    uint64 m_uiConsEyeRampGUID;
+    ObjectGuid m_uiAracEyeRampGUID;
+    ObjectGuid m_uiPlagEyeRampGUID;
+    ObjectGuid m_uiMiliEyeRampGUID;
+    ObjectGuid m_uiConsEyeRampGUID;
 
-    uint64 m_uiAracPortalGUID;
-    uint64 m_uiPlagPortalGUID;
-    uint64 m_uiMiliPortalGUID;
-    uint64 m_uiConsPortalGUID;
+    ObjectGuid m_uiAracPortalGUID;
+    ObjectGuid m_uiPlagPortalGUID;
+    ObjectGuid m_uiMiliPortalGUID;
+    ObjectGuid m_uiConsPortalGUID;
 
-    uint64 m_uiAracEyeBossGUID;
-    uint64 m_uiPlagEyeBossGUID;
-    uint64 m_uiMiliEyeBossGUID;
-    uint64 m_uiConsEyeBossGUID;
+    ObjectGuid m_uiAracEyeBossGUID;
+    ObjectGuid m_uiPlagEyeBossGUID;
+    ObjectGuid m_uiMiliEyeBossGUID;
+    ObjectGuid m_uiConsEyeBossGUID;
 
-    uint64 tesla05Guid;
-    uint64 tesla06Guid;
+    ObjectGuid tesla05Guid;
+    ObjectGuid tesla06Guid;
 
     GOState gothikDoorState;
 
@@ -456,7 +456,7 @@ public:
         }
     }
 
-    uint64 GetGuidData(uint32 id)
+    ObjectGuid GetGuidData(uint32 id)
     {
         switch(id)
         {

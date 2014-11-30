@@ -103,13 +103,13 @@ public:
         instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 GahzRillaEncounter;
-        uint64 ZumrahGUID;
-        uint64 BlyGUID;
-        uint64 WeegliGUID;
-        uint64 OroGUID;
-        uint64 RavenGUID;
-        uint64 MurtaGUID;
-        uint64 EndDoorGUID;
+        ObjectGuid ZumrahGUID;
+        ObjectGuid BlyGUID;
+        ObjectGuid WeegliGUID;
+        ObjectGuid OroGUID;
+        ObjectGuid RavenGUID;
+        ObjectGuid MurtaGUID;
+        ObjectGuid EndDoorGUID;
         uint32 PyramidPhase;
         uint32 major_wave_Timer;
         uint32 minor_wave_Timer;
@@ -189,7 +189,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 data)
+        ObjectGuid GetGuidData(uint32 data)
         {
             switch (data)
             {

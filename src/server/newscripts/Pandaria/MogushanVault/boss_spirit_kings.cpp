@@ -545,7 +545,7 @@ class mob_pinning_arrow : public CreatureScript
             }
 
             InstanceScript* pInstance;
-            uint64 playerGuid;
+            ObjectGuid playerGuid;
 
             void Reset()
             {
@@ -553,7 +553,7 @@ class mob_pinning_arrow : public CreatureScript
                 playerGuid = 0;
             }
 
-            void SetGUID(uint64 guid, int32 /*id*/ = 0)
+            void SetGUID(ObjectGuid const& guid, int32 /*id*/ = 0)
             {
                 playerGuid = guid;
 

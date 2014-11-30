@@ -114,29 +114,29 @@ public:
     {
         instance_violet_hold_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        uint64 uiMoragg;
-        uint64 uiErekem;
-        uint64 uiErekemGuard[2];
-        uint64 uiIchoron;
-        uint64 uiLavanthor;
-        uint64 uiXevozz;
-        uint64 uiZuramat;
-        uint64 uiCyanigosa;
-        uint64 uiSinclari;
+        ObjectGuid uiMoragg;
+        ObjectGuid uiErekem;
+        ObjectGuid uiErekemGuard[2];
+        ObjectGuid uiIchoron;
+        ObjectGuid uiLavanthor;
+        ObjectGuid uiXevozz;
+        ObjectGuid uiZuramat;
+        ObjectGuid uiCyanigosa;
+        ObjectGuid uiSinclari;
 
-        uint64 uiMoraggCell;
-        uint64 uiErekemCell;
-        uint64 uiErekemLeftGuardCell;
-        uint64 uiErekemRightGuardCell;
-        uint64 uiIchoronCell;
-        uint64 uiLavanthorCell;
-        uint64 uiXevozzCell;
-        uint64 uiZuramatCell;
-        uint64 uiMainDoor;
-        uint64 uiTeleportationPortal;
-        uint64 uiSaboteurPortal;
+        ObjectGuid uiMoraggCell;
+        ObjectGuid uiErekemCell;
+        ObjectGuid uiErekemLeftGuardCell;
+        ObjectGuid uiErekemRightGuardCell;
+        ObjectGuid uiIchoronCell;
+        ObjectGuid uiLavanthorCell;
+        ObjectGuid uiXevozzCell;
+        ObjectGuid uiZuramatCell;
+        ObjectGuid uiMainDoor;
+        ObjectGuid uiTeleportationPortal;
+        ObjectGuid uiSaboteurPortal;
 
-        uint64 uiActivationCrystal[4];
+        ObjectGuid uiActivationCrystal[4];
 
         uint32 uiActivationTimer;
         uint32 uiCyanigosaEventTimer;
@@ -405,7 +405,7 @@ public:
             }
         }
 
-        void SetGuidData(uint32 type, uint64 data)
+        void SetGuidData(uint32 type, ObjectGuid data)
         {
             switch (type)
             {
@@ -439,7 +439,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {

@@ -116,7 +116,7 @@ enum Spells
 
             void HandleDummyLaunchTarget(SpellEffIndex /*effIndex*//*)
             {
-                uint64 targetGUID = 0;
+                ObjectGuid targetGUID = 0;
                 if (Unit* unitTarget = GetHitUnit())
                     targetGUID = unitTarget->GetGUID();
                 // we're handling SPELL_EFFECT_DUMMY in effIndex 0 here

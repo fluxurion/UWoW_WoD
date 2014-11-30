@@ -116,7 +116,7 @@ public:
     {
         npc_enslaved_soulAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 ReliquaryGUID;
+        ObjectGuid ReliquaryGUID;
 
         void Reset() {ReliquaryGUID = 0;}
 
@@ -151,7 +151,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 EssenceGUID;
+        ObjectGuid EssenceGUID;
 
         uint32 Phase;
         uint32 Counter;
@@ -399,7 +399,7 @@ public:
     {
         boss_essence_of_sufferingAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 StatAuraGUID;
+        ObjectGuid StatAuraGUID;
 
         uint32 AggroYellTimer;
         uint32 FixateTimer;
@@ -629,7 +629,7 @@ public:
     {
         boss_essence_of_angerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 AggroTargetGUID;
+        ObjectGuid AggroTargetGUID;
 
         uint32 CheckTankTimer;
         uint32 SoulScreamTimer;

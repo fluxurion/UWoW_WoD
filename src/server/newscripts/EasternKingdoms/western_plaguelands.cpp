@@ -313,8 +313,8 @@ public:
 
         uint32 m_uiChatTimer;
 
-        uint64 UghostGUID;
-        uint64 TheldanisGUID;
+        ObjectGuid UghostGUID;
+        ObjectGuid TheldanisGUID;
 
         Creature* Ughost;
         Creature* Theldanis;

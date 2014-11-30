@@ -951,7 +951,7 @@ class npc_shannox_crystal_prison : public CreatureScript
                 bDog = false;
             }
 
-            uint64 trappedUnit;
+            ObjectGuid trappedUnit;
             uint32 existenceCheckTimer;
             bool bDog;
             uint32 dogTimer;
@@ -961,7 +961,7 @@ class npc_shannox_crystal_prison : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(ObjectGuid const& guid, int32 type)
             {
                 trappedUnit = guid;
                 existenceCheckTimer = 1000;

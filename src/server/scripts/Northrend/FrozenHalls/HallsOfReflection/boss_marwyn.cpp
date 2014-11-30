@@ -77,7 +77,7 @@ public:
        uint32 m_uiSummonTimer;
 
        uint32 m_uiLocNo;
-       uint64 m_uiSummonGUID[16];
+       ObjectGuid m_uiSummonGUID[16];
        uint32 m_uiCheckSummon;
 
        uint8 SummonCount;

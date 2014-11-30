@@ -121,7 +121,7 @@ class instance_deadmines : public InstanceMapScript
                 }
             }
 
-            uint64 GetGuidData(uint32 data)
+            ObjectGuid GetGuidData(uint32 data)
             {
                 switch (data)
                 {
@@ -192,22 +192,22 @@ class instance_deadmines : public InstanceMapScript
             }
 
         private:
-            uint64 uiGlubtokGUID;
-            uint64 uiHelixGUID;
-            uint64 uiOafGUID;
-            uint64 uiFoereaperGUID;
-			uint64 uiAdmiralGUID;
-			uint64 uiCaptainGUID;
+            ObjectGuid uiGlubtokGUID;
+            ObjectGuid uiHelixGUID;
+            ObjectGuid uiOafGUID;
+            ObjectGuid uiFoereaperGUID;
+			ObjectGuid uiAdmiralGUID;
+			ObjectGuid uiCaptainGUID;
 
-            uint64 FactoryDoorGUID;
-            uint64 FoundryDoorGUID;
-            uint64 MastRoomDoorGUID;
-            uint64 IronCladDoorGUID;
-            uint64 DefiasCannonGUID;
-            uint64 DoorLeverGUID;
-            uint64 DefiasPirate1GUID;
-            uint64 DefiasPirate2GUID;
-            uint64 DefiasCompanionGUID;
+            ObjectGuid FactoryDoorGUID;
+            ObjectGuid FoundryDoorGUID;
+            ObjectGuid MastRoomDoorGUID;
+            ObjectGuid IronCladDoorGUID;
+            ObjectGuid DefiasCannonGUID;
+            ObjectGuid DoorLeverGUID;
+            ObjectGuid DefiasPirate1GUID;
+            ObjectGuid DefiasPirate2GUID;
+            ObjectGuid DefiasCompanionGUID;
 
             uint32 State;
 

@@ -89,7 +89,7 @@ public:
         uint32 ShadowBolt_Timer;
 
         uint32 Link_Timer;
-        uint64 victimGUID;
+        ObjectGuid victimGUID;
 
         void Reset()
         {
@@ -97,13 +97,13 @@ public:
             Link_Timer = 1000;
         }
 
-        void SetGUID(uint64 guid, int32 id/* = 0 */)
+        void SetGUID(ObjectGuid const& guid, int32 id/* = 0 */)
         {
             if (id == INNER_DEMON_VICTIM)
                 victimGUID = guid;
         }
 
-        uint64 GetGUID(int32 id/* = 0 */)
+        ObjectGuid GetGUID(int32 id/* = 0 */)
         {
             if (id == INNER_DEMON_VICTIM)
                 return victimGUID;
@@ -214,10 +214,10 @@ public:
         bool EnrageUsed;
         float x, y, z;
 
-        uint64 InnderDemon[5];
+        ObjectGuid InnderDemon[5];
         uint32 InnerDemon_Count;
-        uint64 Demon;
-        uint64 SpellBinderGUID[3];
+        ObjectGuid Demon;
+        ObjectGuid SpellBinderGUID[3];
 
         void Reset()
         {
@@ -700,7 +700,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 leotherasGUID;
+        ObjectGuid leotherasGUID;
 
         uint32 Mindblast_Timer;
         uint32 Earthshock_Timer;

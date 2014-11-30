@@ -69,7 +69,7 @@ enum Events
     EVENT_BIRTH,
 };
 
-typedef std::map<uint64, uint64> IceBlockMap;
+typedef std::map<ObjectGuid, ObjectGuid> IceBlockMap;
 
 class boss_sapphiron : public CreatureScript
 {

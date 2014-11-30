@@ -50,16 +50,16 @@ public:
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        uint64 m_uiGeneralBjarngrimGUID;
-        uint64 m_uiIonarGUID;
-        uint64 m_uiLokenGUID;
-        uint64 m_uiVolkhanGUID;
+        ObjectGuid m_uiGeneralBjarngrimGUID;
+        ObjectGuid m_uiIonarGUID;
+        ObjectGuid m_uiLokenGUID;
+        ObjectGuid m_uiVolkhanGUID;
 
-        uint64 m_uiBjarngrimDoorGUID;
-        uint64 m_uiVolkhanDoorGUID;
-        uint64 m_uiIonarDoorGUID;
-        uint64 m_uiLokenDoorGUID;
-        uint64 m_uiLokenGlobeGUID;
+        ObjectGuid m_uiBjarngrimDoorGUID;
+        ObjectGuid m_uiVolkhanDoorGUID;
+        ObjectGuid m_uiIonarDoorGUID;
+        ObjectGuid m_uiLokenDoorGUID;
+        ObjectGuid m_uiLokenGlobeGUID;
 
         void Initialize()
         {
@@ -190,7 +190,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 uiData)
+        ObjectGuid GetGuidData(uint32 uiData)
         {
             switch (uiData)
             {

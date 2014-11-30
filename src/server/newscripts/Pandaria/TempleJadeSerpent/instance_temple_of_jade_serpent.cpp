@@ -145,8 +145,8 @@ public:
         */
         Position roomCenter;
         uint32 waterDamageTimer;
-        uint64 doorWiseMari;
-        uint64 wiseMariGUID;
+        ObjectGuid doorWiseMari;
+        ObjectGuid wiseMariGUID;
         /*
         ** End of Wise Mari script
         */
@@ -155,12 +155,12 @@ public:
         ** LoreWalkter Stonestep script.
         */
         uint8 eventChoosen;
-        uint64 lorewalkter_stonestep;
-        uint64 zao_sunseeker;
-        uint64 scroll;
-        uint64 door_lorewalker;
-        uint64 guidPeril;
-        uint64 guidStrife;
+        ObjectGuid lorewalkter_stonestep;
+        ObjectGuid zao_sunseeker;
+        ObjectGuid scroll;
+        ObjectGuid door_lorewalker;
+        ObjectGuid guidPeril;
+        ObjectGuid guidStrife;
         uint32 eventStatus_lorewalkter_stonestep;
         uint32 eventStatus_numberSunDefeated;
         uint32 wipeTimer;
@@ -177,9 +177,9 @@ public:
         ** Liu Flameheart script.
         */
         uint32 countMinionDeads;
-        uint64 liuGuid;
-        uint64 doorLiu;
-        uint64 doorLiu_2;
+        ObjectGuid liuGuid;
+        ObjectGuid doorLiu;
+        ObjectGuid doorLiu_2;
         GuidList mobs_liu;
         /*
         ** End of Liu Flameheart script.
@@ -188,7 +188,7 @@ public:
         /*
         ** Sha of Doubt script.
         */
-        uint64 sha_of_doubt_guid;
+        ObjectGuid sha_of_doubt_guid;
         uint8 countDps;
         uint8 countHeal;
         uint8 countTank;
@@ -200,20 +200,20 @@ public:
         instance_temple_of_jade_serpent_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             // Wise Mari script
-            doorWiseMari = 0;
+            doorWiseMari.Clear();
             roomCenter.m_positionX = 1046.941f;
             roomCenter.m_positionY = -2560.606f;
             roomCenter.m_positionZ = 174.9552f;
             roomCenter.m_orientation = 4.33f;
             waterDamageTimer = 250;
-            wiseMariGUID = 0;
+            wiseMariGUID.Clear();
 
             //LoreWalkter Stonestep script.
-            lorewalkter_stonestep = 0;
-            zao_sunseeker = 0;
-            scroll = 0;
-            guidPeril = 0;
-            guidStrife = 0;
+            lorewalkter_stonestep.Clear();
+            zao_sunseeker.Clear();
+            scroll.Clear();
+            guidPeril.Clear();
+            guidStrife.Clear();
             eventStatus_lorewalkter_stonestep = STATUS_LOREWALKER_STONESTEP_NONE;
             eventStatus_numberSunDefeated = 0;
             eventChoosen = 0;
@@ -221,12 +221,12 @@ public:
 
             //Liu Flameheart script.
             countMinionDeads = 0;
-            liuGuid = 0;
-            doorLiu = 0;
-            doorLiu_2 = 0;
+            liuGuid.Clear();
+            doorLiu.Clear();
+            doorLiu_2.Clear();
 
             //Sha of doubt script.
-            sha_of_doubt_guid = 0;
+            sha_of_doubt_guid.Clear();
             countDps = 0;
             countTank = 0;
             countHeal = 0;
@@ -379,7 +379,7 @@ public:
             }
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -388,7 +388,7 @@ public:
             case CREATURE_SHA_OF_DOUBT:
                 return sha_of_doubt_guid;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void OnUnitDeath_wise_mari(Unit* unit)

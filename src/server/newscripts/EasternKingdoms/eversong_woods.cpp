@@ -112,7 +112,7 @@ public:
 
         uint32 timer;
         uint8  questPhase;
-        uint64 summonerGuid;
+        ObjectGuid summonerGuid;
 
         bool spellFlashLight;
         bool spellJustice;
@@ -236,7 +236,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void Activate(uint64 summonerguid)
+        void Activate(ObjectGuid summonerguid)
         {
             questPhase = 1;
             summonerGuid = summonerguid;
@@ -301,7 +301,7 @@ public:
         uint8  paladinPhase;
         uint32 timer;
 
-        uint64 paladinGuid[4];
+        ObjectGuid paladinGuid[4];
 
         void Reset()
         {
@@ -462,7 +462,7 @@ public:
         npc_apprentice_mirvedaAI(Creature* creature) : ScriptedAI(creature), Summons(me) {}
 
         uint32 KillCount;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         bool Summon;
         SummonList Summons;
 
@@ -555,7 +555,7 @@ public:
         uint32 WaveTimer;
         bool Completed;
         bool Progress;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void Reset()
         {

@@ -399,7 +399,7 @@ public:
         uint32 EmergeTimer;
         bool Emerge;
         bool Jumped;
-        uint64 uiLiderGUID;
+        ObjectGuid uiLiderGUID;
 
         void Reset()
         {
@@ -497,7 +497,7 @@ public:
         InstanceScript* pInstance;
         uint32 EmergeTimer;
         bool Emerge;
-        uint64 uiLiderGUID;
+        ObjectGuid uiLiderGUID;
         uint32 uiBoltTimer;
         uint32 uiBoltVolleyTimer;
         uint32 uiCurseTimer;
@@ -608,7 +608,7 @@ public:
         }
 
         InstanceScript* pInstance;
-        uint64 uiLiderGUID;
+        ObjectGuid uiLiderGUID;
         bool Walk;
         uint32 uiStrikeTimer;
         uint32 uiVomitTimer;

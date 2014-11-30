@@ -21,16 +21,16 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
             instance_lost_city_of_the_tolvir_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { Initialize(); }
 
             uint32 Encounter[MAX_ENCOUNTER];
-            uint64 uiTunnelGUID[6];
+            ObjectGuid uiTunnelGUID[6];
             uint8 uiTunnelFlag;
-            uint64 uiHusamGUID;
-            uint64 uiLockmawGUID;
-            uint64 uiAughGUID;
-            uint64 uiBarimGUID;
-            uint64 uiBlazeGUID;
-            uint64 uiHarbingerGUID;
-            uint64 uiSiamatGUID;
-            uint64 uiSiamatPlatformGUID;
+            ObjectGuid uiHusamGUID;
+            ObjectGuid uiLockmawGUID;
+            ObjectGuid uiAughGUID;
+            ObjectGuid uiBarimGUID;
+            ObjectGuid uiBlazeGUID;
+            ObjectGuid uiHarbingerGUID;
+            ObjectGuid uiSiamatGUID;
+            ObjectGuid uiSiamatPlatformGUID;
             uint32 uiUpdateTimer;
             bool BarimIsDone;
 
@@ -131,7 +131,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 }
             }
 
-            uint64 GetGuidData(uint32 type) const
+            ObjectGuid GetGuidData(uint32 type) const
             {
                 switch (type)
                 {
@@ -151,7 +151,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 return Encounter[type];
             }
 
-            void SetGuidData(uint32 type, uint64 data)
+            void SetGuidData(uint32 type, ObjectGuid data)
             {
                 switch (type)
                 {

@@ -576,9 +576,9 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
         private:
             EventMap _events;
             InstanceScript* const _instance;
-            uint64 _theLichKing;
-            uint64 _bolvarFordragon;
-            uint64 _factionNPC;
+            ObjectGuid _theLichKing;
+            ObjectGuid _bolvarFordragon;
+            ObjectGuid _factionNPC;
             uint16 _damnedKills;
         };
 
@@ -758,7 +758,7 @@ class boss_sister_svalna : public CreatureScript
                 _JustDied();
                 Talk(SAY_SVALNA_DEATH);
 
-                uint64 delay = 1;
+                ObjectGuid delay = 1;
                 for (uint32 i = 0; i < 4; ++i)
                 {
                     if (Creature* crusader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CAPTAIN_ARNATH + i)))
@@ -995,7 +995,7 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 guid, int32 type/* = 0*/)
+            void SetGUID(ObjectGuid const& guid, int32 type/* = 0*/)
             {
                 if (type == ACTION_VRYKUL_DEATH)
                 {

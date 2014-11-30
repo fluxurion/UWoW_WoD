@@ -548,7 +548,7 @@ class npc_maloriak_flash_freeze : public CreatureScript
                 trappedPlayer = 0;
             }
 
-            uint64 trappedPlayer;
+            ObjectGuid trappedPlayer;
             uint32 existenceCheckTimer;
 
             void Reset()
@@ -556,7 +556,7 @@ class npc_maloriak_flash_freeze : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(ObjectGuid const& guid, int32 type)
             {
                 if (type == DATA_TRAPPED_PLAYER)
                 {

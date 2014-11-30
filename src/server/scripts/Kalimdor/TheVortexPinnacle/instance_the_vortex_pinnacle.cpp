@@ -17,9 +17,9 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
         {
             instance_the_vortex_pinnacle_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
 
-            uint64 uiGrandVizierErtanGUID;
-            uint64 uiAltairusGUID;
-            uint64 uiAsaadGUID;
+            ObjectGuid uiGrandVizierErtanGUID;
+            ObjectGuid uiAltairusGUID;
+            ObjectGuid uiAsaadGUID;
 
             void Initialize()
             {
@@ -46,7 +46,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                 
             }
 
-            uint64 GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier)
             {
                 switch(identifier)
                 {

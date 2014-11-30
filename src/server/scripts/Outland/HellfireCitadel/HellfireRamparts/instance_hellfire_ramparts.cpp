@@ -40,8 +40,8 @@ class instance_ramparts : public InstanceMapScript
             instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
-            uint64 m_uiChestNGUID;
-            uint64 m_uiChestHGUID;
+            ObjectGuid m_uiChestNGUID;
+            ObjectGuid m_uiChestHGUID;
             bool spawned;
 
             void Initialize()

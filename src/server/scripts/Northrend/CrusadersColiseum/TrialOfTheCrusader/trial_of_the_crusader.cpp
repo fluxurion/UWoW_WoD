@@ -361,8 +361,8 @@ class npc_fizzlebang_toc : public CreatureScript
             InstanceScript* m_pInstance;
             SummonList Summons;
             uint32 m_uiUpdateTimer;
-            uint64 m_uiPortalGUID;
-            uint64 m_uiTriggerGUID;
+            ObjectGuid m_uiPortalGUID;
+            ObjectGuid m_uiTriggerGUID;
 
             void JustDied(Unit* pKiller)
             {

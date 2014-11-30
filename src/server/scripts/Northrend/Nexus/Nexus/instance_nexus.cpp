@@ -42,12 +42,12 @@ public:
 
         uint32 m_auiEncounter[NUMBER_OF_ENCOUNTERS];
 
-        uint64 Anomalus;
-        uint64 Keristrasza;
+        ObjectGuid Anomalus;
+        ObjectGuid Keristrasza;
 
-        uint64 AnomalusContainmentSphere;
-        uint64 OrmoroksContainmentSphere;
-        uint64 TelestrasContainmentSphere;
+        ObjectGuid AnomalusContainmentSphere;
+        ObjectGuid OrmoroksContainmentSphere;
+        ObjectGuid TelestrasContainmentSphere;
 
         std::string strInstData;
 
@@ -216,7 +216,7 @@ public:
             }
         }
 
-        uint64 GetGuidData(uint32 uiIdentifier)
+        ObjectGuid GetGuidData(uint32 uiIdentifier)
         {
             switch (uiIdentifier)
             {

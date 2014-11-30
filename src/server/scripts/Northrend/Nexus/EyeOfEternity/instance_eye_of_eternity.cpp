@@ -150,11 +150,11 @@ public:
         }
 
         private:
-            uint64 malygosGUID;
-            uint64 platformGUID;
-            uint64 exitPortalGUID;
-            uint64 chestGUID;
-            uint64 magicchestGUID;
+            ObjectGuid malygosGUID;
+            ObjectGuid platformGUID;
+            ObjectGuid exitPortalGUID;
+            ObjectGuid chestGUID;
+            ObjectGuid magicchestGUID;
     };
 };
 

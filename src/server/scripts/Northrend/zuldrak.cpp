@@ -44,7 +44,7 @@ public:
     {
         npc_drakuru_shacklesAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 RageclawGUID;
+        ObjectGuid RageclawGUID;
 
         void Reset()
         {
@@ -335,8 +335,8 @@ public:
     {
         npc_gurgthockAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 SummonGUID;
-        uint64 uiPlayerGUID;
+        ObjectGuid SummonGUID;
+        ObjectGuid uiPlayerGUID;
 
         uint32 uiTimer;
         uint32 uiPhase;
@@ -362,7 +362,7 @@ public:
             bRemoveFlag = false;
         }
 
-        void SetGUID(uint64 guid, int32 /*id*/)
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/)
         {
             uiPlayerGUID = guid;
         }
@@ -598,8 +598,8 @@ public:
         uint32 uiBattleShoutTimer;
         uint32 uiFishyScentTimer;
 
-        uint64 AffectedGUID;
-        uint64 uiWhisker;
+        ObjectGuid AffectedGUID;
+        ObjectGuid uiWhisker;
 
         void Reset()
         {

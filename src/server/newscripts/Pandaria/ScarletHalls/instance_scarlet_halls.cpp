@@ -39,7 +39,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
 
             return 0;

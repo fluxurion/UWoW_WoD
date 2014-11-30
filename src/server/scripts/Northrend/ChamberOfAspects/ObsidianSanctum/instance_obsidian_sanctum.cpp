@@ -40,10 +40,10 @@ public:
         instance_obsidian_sanctum_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
-        uint64 m_uiSartharionGUID;
-        uint64 m_uiTenebronGUID;
-        uint64 m_uiShadronGUID;
-        uint64 m_uiVesperonGUID;
+        ObjectGuid m_uiSartharionGUID;
+        ObjectGuid m_uiTenebronGUID;
+        ObjectGuid m_uiShadronGUID;
+        ObjectGuid m_uiVesperonGUID;
 
         bool m_bTenebronKilled;
         bool m_bShadronKilled;
@@ -122,7 +122,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 uiData)
+        ObjectGuid GetGuidData(uint32 uiData)
         {
             switch (uiData)
             {

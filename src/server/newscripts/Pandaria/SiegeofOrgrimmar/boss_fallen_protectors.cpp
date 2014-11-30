@@ -1025,8 +1025,8 @@ public:
             _target = 0;
         }
 
-        uint64 _target;
-        void SetGUID(uint64 guid, int32 /*id*/ = 0)
+        ObjectGuid _target;
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/ = 0)
         {
             _target = guid;
             if (Unit* target = ObjectAccessor::FindUnit(guid))

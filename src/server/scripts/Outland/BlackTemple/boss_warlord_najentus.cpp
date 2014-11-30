@@ -81,7 +81,7 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        uint64 SpineTargetGUID;
+        ObjectGuid SpineTargetGUID;
 
         void Reset()
         {

@@ -69,7 +69,7 @@ public:
     static bool HandleArenaSliverCommand(ChatHandler* handler, const char* args)
     {
         Player* target;
-        uint64 target_guid;
+        ObjectGuid target_guid;
         std::string target_name;
         if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
             return false;
@@ -83,7 +83,7 @@ public:
     static bool HandleUnArenaSliverCommand(ChatHandler* handler, const char* args)
     {
         Player* target;
-        uint64 target_guid;
+        ObjectGuid target_guid;
         std::string target_name;
         if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
             return false;
@@ -97,7 +97,7 @@ public:
     static bool HandleUnLootCleanIdCommand(ChatHandler* handler, const char* args)
     {
         Player* target;
-        uint64 target_guid;
+        ObjectGuid target_guid;
         std::string target_name;
         if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
             return false;
@@ -132,7 +132,7 @@ public:
     static bool HandleLootCleanIdCommand(ChatHandler* handler, const char* args)
     {
         Player* target;
-        uint64 target_guid;
+        ObjectGuid target_guid;
         std::string target_name;
         if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
             return false;
@@ -172,7 +172,7 @@ public:
     static bool HandleUnRecoveryItemCommand(ChatHandler* handler, const char* args)
     {
         Player* target;
-        uint64 target_guid;
+        ObjectGuid target_guid;
         std::string target_name;
         if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
             return false;
@@ -207,7 +207,7 @@ public:
     static bool HandleListChangeName(ChatHandler* handler, const char* args)
     {
         Player* target;
-        uint64 target_guid;
+        ObjectGuid target_guid;
         std::string target_name;
         if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
             return false;
@@ -242,7 +242,7 @@ public:
     static bool HandleRecoveryItemCommand(ChatHandler* handler, const char* args)
     {
         Player* target;
-        uint64 target_guid;
+        ObjectGuid target_guid;
         std::string target_name;
         if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
             return false;
@@ -282,7 +282,7 @@ public:
     static bool DelTeam(ChatHandler* handler, const char* args, uint8 type)
     {
         Player* target;
-        uint64 target_guid;
+        ObjectGuid target_guid;
         std::string target_name;
         if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
             return false;
@@ -318,7 +318,7 @@ public:
                 do
                 {
                     Field* Fields = teamResult->Fetch();
-                    uint64 guid = Fields[0].GetUInt64();
+                    ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(Fields[0].GetUInt64());
                     std::string name = Fields[1].GetString();
                     uint32 wins = Fields[2].GetUInt32();
                     uint32 games = Fields[3].GetUInt32();
@@ -367,7 +367,7 @@ public:
                 do
                 {
                     Field* Fields = arenaWinner->Fetch();
-                    uint64 guid = Fields[0].GetUInt64();
+                    ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(Fields[0].GetUInt64());
                     std::string name = Fields[1].GetString();
                     uint32 wins = Fields[2].GetUInt32();
                     uint32 games = Fields[3].GetUInt32();
@@ -472,7 +472,7 @@ public:
                 do
                 {
                     Field* Fields = arenaWinner->Fetch();
-                    uint64 guid = Fields[0].GetUInt64();
+                    ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(Fields[0].GetUInt64());
                     std::string name = Fields[1].GetString();
                     uint32 wins = Fields[2].GetUInt32();
                     uint32 games = Fields[3].GetUInt32();
@@ -561,7 +561,7 @@ public:
                 do
                 {
                     Field* Fields = arenaWinner->Fetch();
-                    uint64 guid = Fields[0].GetUInt64();
+                    ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(Fields[0].GetUInt64());
                     std::string name = Fields[1].GetString();
                     uint32 wins = Fields[2].GetUInt32();
                     uint32 games = Fields[3].GetUInt32();

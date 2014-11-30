@@ -142,8 +142,8 @@ public:
         bool isBanished;
         bool bJustReset;
 
-        uint64 SathGUID;
-        uint64 DoorGUID;
+        ObjectGuid SathGUID;
+        ObjectGuid DoorGUID;
 
         void Reset()
         {
@@ -453,7 +453,7 @@ public:
         uint32 YellTimer;
         uint32 YellSequence;
 
-        uint64 SathGUID;
+        ObjectGuid SathGUID;
 
         bool isEnraged; // if demon is enraged
 
@@ -591,8 +591,8 @@ public:
         uint32 CheckTimer;
         uint32 ResetThreat;
 
-        uint64 KalecGUID;
-        uint64 KalecgosGUID;
+        ObjectGuid KalecGUID;
+        ObjectGuid KalecgosGUID;
 
         bool isEnraged;
         bool isBanished;

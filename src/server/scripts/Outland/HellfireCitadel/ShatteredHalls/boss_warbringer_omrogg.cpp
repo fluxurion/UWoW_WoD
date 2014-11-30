@@ -170,8 +170,8 @@ class boss_warbringer_omrogg : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 LeftHeadGUID;
-            uint64 RightHeadGUID;
+            ObjectGuid LeftHeadGUID;
+            ObjectGuid RightHeadGUID;
             int iaggro;
             int ithreat;
             int ikilling;

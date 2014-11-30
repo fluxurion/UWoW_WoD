@@ -341,7 +341,7 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
             }
 
             EventMap events;
-            uint64 _guid;
+            ObjectGuid _guid;
 
             void Reset()
             {
@@ -368,13 +368,13 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
                 events.ScheduleEvent(EVENT_MOVE_GHOUL, 2000);
             }
             
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(ObjectGuid const& guid, int32 type)
             {
                 if (type == DATA_GUID)
                     _guid = guid;
             }
 
-            uint64 GetGUID(int32 type)
+            ObjectGuid GetGUID(int32 type)
             {
                 if (type == DATA_GUID)
                     return _guid;
@@ -437,7 +437,7 @@ class spell_echo_of_sylvanas_wracking_pain_dmg : public SpellScriptLoader
                     return;
                 }
 
-                uint64 _guid = GetCaster()->GetAI()->GetGUID(DATA_GUID);
+                ObjectGuid _guid = GetCaster()->GetAI()->GetGUID(DATA_GUID);
                 if (Creature* pTarget = ObjectAccessor::GetCreature(*GetCaster(), _guid))
                 {
                     if (pTarget->isAlive())

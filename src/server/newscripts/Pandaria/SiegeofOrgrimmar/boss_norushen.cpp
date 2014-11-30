@@ -299,7 +299,7 @@ public:
 
         InstanceScript* instance;
         EventMap events;
-        uint64 norushGUID;
+        ObjectGuid norushGUID;
 
         void Reset()
         {
@@ -426,7 +426,7 @@ class boss_amalgam_of_corruption : public CreatureScript
             }
 
             //
-            void SetGUID(uint64 guid, int32 id)
+            void SetGUID(ObjectGuid const& guid, int32 id)
             {
                 if (id > 0)
                     ++challengeCounter[uint32(guid)];
@@ -1712,7 +1712,7 @@ class spell_norushen_challenge : public SpellScriptLoader
         {
             PrepareAuraScript(spell_norushen_challenge_AuraScript);
 
-            uint64 eventGUID;
+            ObjectGuid eventGUID;
 
             uint32 getPhaseSpell()
             {

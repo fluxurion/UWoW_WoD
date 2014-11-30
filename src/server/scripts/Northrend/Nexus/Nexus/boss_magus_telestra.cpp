@@ -74,9 +74,9 @@ public:
 
         InstanceScript* instance;
 
-        uint64 uiFireMagusGUID;
-        uint64 uiFrostMagusGUID;
-        uint64 uiArcaneMagusGUID;
+        ObjectGuid uiFireMagusGUID;
+        ObjectGuid uiFrostMagusGUID;
+        ObjectGuid uiArcaneMagusGUID;
 
         bool Split;
         bool bFireMagusDead;
@@ -171,7 +171,7 @@ public:
            return CheckPersonal;
        }
 
-        uint64 SplitPersonality(uint32 entry)
+        ObjectGuid SplitPersonality(uint32 entry)
         {
             if (Creature* Summoned = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILLISECONDS))
             {

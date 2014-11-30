@@ -19,12 +19,12 @@ public:
 
         uint32 m_uiEncounter[ENCOUNTERS];
 
-        uint64 uiRomoggGUID;
-        uint64 uiCorlaGUID;
-        uint64 uiKarshGUID;
-        uint64 uiBeautyGUID;
-        uint64 uiLordObsidiusGUID;
-		uint64 m_uiPortalGUID[4];
+        ObjectGuid uiRomoggGUID;
+        ObjectGuid uiCorlaGUID;
+        ObjectGuid uiKarshGUID;
+        ObjectGuid uiBeautyGUID;
+        ObjectGuid uiLordObsidiusGUID;
+		ObjectGuid m_uiPortalGUID[4];
 
         void Initialize()
         {
@@ -93,7 +93,7 @@ public:
             }
         }
 
-        uint64 GetGuidData(uint32 data)
+        ObjectGuid GetGuidData(uint32 data)
         {
             switch(data)
             {

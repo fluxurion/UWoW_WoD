@@ -192,11 +192,11 @@ public:
            {
                 if (instance)
                     if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_RIGHT)))
-                        instance->HandleGameObject(0, false, go);
+                        instance->HandleGameObject(ObjectGuid::Empty, false, go);
            }else
                 if (instance)
                     if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_LEFT)))
-                        instance->HandleGameObject(0, false, go);
+                        instance->HandleGameObject(ObjectGuid::Empty, false, go);
         }
 
         void SetInFace(bool bBool)
@@ -219,10 +219,10 @@ public:
                 return;
 
             if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_RIGHT)))
-                instance->HandleGameObject(0, false, go);
+                instance->HandleGameObject(ObjectGuid::Empty, false, go);
 
             if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_LEFT)))
-                instance->HandleGameObject(0, false, go);
+                instance->HandleGameObject(ObjectGuid::Empty, false, go);
 
             if (!GoSummonList.empty())
                 for (GuidList::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
@@ -448,7 +448,7 @@ public:
                             Summon(1);
                             if (instance)
                                 if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_RIGHT)))
-                                    instance->HandleGameObject(0, true, go);
+                                    instance->HandleGameObject(ObjectGuid::Empty, true, go);
                             NextStep(3000, true);
                             break;
                         case 7:
@@ -494,7 +494,7 @@ public:
                             SetInFace(false);
                             if (instance)
                                 if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_GO_CAVE_IN_LEFT)))
-                                    instance->HandleGameObject(0, true, go);
+                                    instance->HandleGameObject(ObjectGuid::Empty, true, go);
                             NextStep(2000, true);
                             break;
                         case 17:

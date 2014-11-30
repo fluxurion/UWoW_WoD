@@ -48,13 +48,13 @@ class instance_the_eye : public InstanceMapScript
         {
             instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-            uint64 ThaladredTheDarkener;
-            uint64 LordSanguinar;
-            uint64 GrandAstromancerCapernian;
-            uint64 MasterEngineerTelonicus;
-            uint64 Kaelthas;
-            uint64 Astromancer;
-            uint64 Alar;
+            ObjectGuid ThaladredTheDarkener;
+            ObjectGuid LordSanguinar;
+            ObjectGuid GrandAstromancerCapernian;
+            ObjectGuid MasterEngineerTelonicus;
+            ObjectGuid Kaelthas;
+            ObjectGuid Astromancer;
+            ObjectGuid Alar;
             uint8 KaelthasEventPhase;
             uint8 AlarEventPhase;
 
@@ -113,7 +113,7 @@ class instance_the_eye : public InstanceMapScript
                 }
             }
 
-            uint64 GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier)
             {
                 switch (identifier)
                 {

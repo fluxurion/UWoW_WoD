@@ -110,7 +110,7 @@ public:
         InstanceScript* instance;
 
         std::vector<uint32> LackeyEntryList;
-        uint64 m_auiLackeyGUID[MAX_ACTIVE_LACKEY];
+        ObjectGuid m_auiLackeyGUID[MAX_ACTIVE_LACKEY];
 
         uint8 PlayersKilled;
 
@@ -351,7 +351,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     InstanceScript* instance;
 
-    uint64 m_auiLackeyGUIDs[MAX_ACTIVE_LACKEY];
+    ObjectGuid m_auiLackeyGUIDs[MAX_ACTIVE_LACKEY];
     uint32 ResetThreatTimer;
 
     bool UsedPotion;
@@ -1012,7 +1012,7 @@ public:
             m_uiPetGUID = 0;
         }
 
-        uint64 m_uiPetGUID;
+        ObjectGuid m_uiPetGUID;
 
         uint32 Aimed_Shot_Timer;
         uint32 Shoot_Timer;
@@ -1188,7 +1188,7 @@ public:
             if (Healing_Wave_Timer <= diff)
             {
                 // std::vector<Add*>::const_iterator itr = Group.begin() + rand()%Group.size();
-                // uint64 guid = (*itr)->guid;
+                // ObjectGuid guid = (*itr)->guid;
                 // if (guid)
                 // {
                 //   Unit* pAdd = Unit::GetUnit(*me, (*itr)->guid);

@@ -120,7 +120,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 m_uiSpotlightGUID;
+        ObjectGuid m_uiSpotlightGUID;
 
         uint32 TalkCount;
         uint32 TalkTimer;
@@ -483,7 +483,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 ArcanagosGUID;
+        ObjectGuid ArcanagosGUID;
 
         uint32 YellTimer;
         uint32 Step;

@@ -73,7 +73,7 @@ class boss_omor_the_unscarred : public CreatureScript
             uint32 Shadowbolt_Timer;
             uint32 Summon_Timer;
             uint32 SummonedCount;
-            uint64 PlayerGUID;
+            ObjectGuid PlayerGUID;
             bool CanPullBack;
 
             void Reset()

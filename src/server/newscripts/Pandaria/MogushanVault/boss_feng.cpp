@@ -156,7 +156,7 @@ class boss_feng : public CreatureScript
             uint8 newphase;
             uint8 actualPhase;
             uint32 dotSpellId, checkvictim;
-            uint64 targetGuid;
+            ObjectGuid targetGuid;
 
             void Reset()
             {
@@ -491,7 +491,7 @@ class mob_lightning_fist : public CreatureScript
                 unsummon = 6000;
             }
 
-            void SetGUID(uint64 plguid, int32 type/* = 0 */)
+            void SetGUID(ObjectGuid const& plguid, int32 type/* = 0 */)
             {
                 if (plguid)
                 {

@@ -94,7 +94,7 @@ public:
         }
 
         InstanceScript* instance;
-        uint64 ArchimondeGUID;
+        ObjectGuid ArchimondeGUID;
         uint32 CheckTimer;
 
         void Reset()
@@ -176,7 +176,7 @@ public:
     {
         mob_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 TargetGUID;
+        ObjectGuid TargetGUID;
         uint32 ChangeTargetTimer;
 
         void Reset()
@@ -250,8 +250,8 @@ public:
 
         InstanceScript* instance;
 
-        uint64 DoomfireSpiritGUID;
-        uint64 WorldTreeGUID;
+        ObjectGuid DoomfireSpiritGUID;
+        ObjectGuid WorldTreeGUID;
 
         uint32 DrainNordrassilTimer;
         uint32 FearTimer;

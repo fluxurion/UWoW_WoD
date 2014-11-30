@@ -31,17 +31,17 @@ public:
 
     struct instance_gate_setting_sun_InstanceMapScript : public InstanceScript
     {
-        uint64 kiptilakGuid;
-        uint64 gadokGuid;
-        uint64 rimokGuid;
-        uint64 raigonnGuid;
-        uint64 raigonWeakGuid;
+        ObjectGuid kiptilakGuid;
+        ObjectGuid gadokGuid;
+        ObjectGuid rimokGuid;
+        ObjectGuid raigonnGuid;
+        ObjectGuid raigonWeakGuid;
 
-        uint64 firstDoorGuid;
-        uint64 fireSignalGuid;
+        ObjectGuid firstDoorGuid;
+        ObjectGuid fireSignalGuid;
 
-        uint64 wallCGuid;
-        uint64 portalTempGadokGuid;
+        ObjectGuid wallCGuid;
+        ObjectGuid portalTempGadokGuid;
 
         uint32 cinematicTimer;
         uint8 cinematicEventProgress;
@@ -63,19 +63,19 @@ public:
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
 
-            kiptilakGuid            = 0;
-            gadokGuid               = 0;
-            rimokGuid               = 0;
-            raigonnGuid             = 0;
-            raigonWeakGuid          = 0;
+            kiptilakGuid.Clear();
+            gadokGuid.Clear();
+            rimokGuid.Clear();
+            raigonnGuid.Clear();
+            raigonWeakGuid.Clear();
             
-            firstDoorGuid           = 0;
+            firstDoorGuid.Clear();
 
             cinematicTimer          = 0;
             cinematicEventProgress  = 0;
 
-            wallCGuid               = 0;
-            portalTempGadokGuid     = 0;
+            wallCGuid.Clear();
+            portalTempGadokGuid.Clear();
 
             memset(dataStorage, 0, MAX_DATA * sizeof(uint32));
 
@@ -338,7 +338,7 @@ public:
             return 0;
         }
 
-        void SetGuidData(uint32 type, uint64 value)
+        void SetGuidData(uint32 type, ObjectGuid value)
         {
             switch (type)
             {
@@ -347,7 +347,7 @@ public:
             }
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -360,7 +360,7 @@ public:
                 case DATA_RANDOM_BOMB_STALKER:  return Trinity::Containers::SelectRandomContainerElement(bombStalkerGuids);
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void doEventCinematic()

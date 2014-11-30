@@ -37,7 +37,7 @@ public:
         {
         }
 
-        uint64 uiGongGUID;
+        ObjectGuid uiGongGUID;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -196,7 +196,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 uiType)
+        ObjectGuid GetGuidData(uint32 uiType)
         {
             switch (uiType)
             {

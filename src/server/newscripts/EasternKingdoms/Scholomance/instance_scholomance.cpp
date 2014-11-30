@@ -53,21 +53,21 @@ public:
         instance_scholomance_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         //Creature
-        uint64 chillheartGuid;
-        uint64 barovGuid;
-        uint64 rattlegoreGuid;
-        uint64 lilianGuid;
-        uint64 darkmasterGuid;
+        ObjectGuid chillheartGuid;
+        ObjectGuid barovGuid;
+        ObjectGuid rattlegoreGuid;
+        ObjectGuid lilianGuid;
+        ObjectGuid darkmasterGuid;
 
         //GameObject
-        uint64 doorGuid;
-        uint64 door2Guid;
-        uint64 door3Guid;
-        uint64 door4Guid;
-        uint64 door5Guid;
-        uint64 door6Guid;
-        uint64 door7Guid;
-        uint64 lastdoorGuid;
+        ObjectGuid doorGuid;
+        ObjectGuid door2Guid;
+        ObjectGuid door3Guid;
+        ObjectGuid door4Guid;
+        ObjectGuid door5Guid;
+        ObjectGuid door6Guid;
+        ObjectGuid door7Guid;
+        ObjectGuid lastdoorGuid;
 
         void Initialize()
         {
@@ -245,7 +245,7 @@ public:
             return true;
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {

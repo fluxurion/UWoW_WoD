@@ -48,7 +48,7 @@ class boss_general_pavalak : public CreatureScript
             uint32 bladeprepare;
             uint32 bladeprogress;
             uint32 tempest;
-            uint64 bladeguid;
+            ObjectGuid bladeguid;
 
             void Reset()
             {

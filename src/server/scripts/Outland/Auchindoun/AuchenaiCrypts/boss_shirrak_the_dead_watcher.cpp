@@ -62,7 +62,7 @@ public:
         uint32 Carnivorousbite_Timer;
         uint32 FocusFire_Timer;
 
-        uint64 FocusedTargetGUID;
+        ObjectGuid FocusedTargetGUID;
 
         void Reset()
         {

@@ -342,12 +342,12 @@ public:
         uint32 uiPhase;
         uint32 uiTimer;
 
-        uint64 uiBlackKnightGUID;
-        uint64 uiVehicle1GUID;
-        uint64 uiVehicle2GUID;
-        uint64 uiVehicle3GUID;
+        ObjectGuid uiBlackKnightGUID;
+        ObjectGuid uiVehicle1GUID;
+        ObjectGuid uiVehicle2GUID;
+        ObjectGuid uiVehicle3GUID;
 
-        uint64 uiGrandChampionBoss1;
+        ObjectGuid uiGrandChampionBoss1;
 
         GuidList Champion1List;
         GuidList Champion2List;
@@ -474,7 +474,7 @@ public:
                     case 1:
                     {
                         uiVehicle1GUID = pBoss->GetGUID();
-                        uint64 uiGrandChampionBoss1 = 0;
+                        ObjectGuid uiGrandChampionBoss1 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle1GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
@@ -490,7 +490,7 @@ public:
                     case 2:
                     {
                         uiVehicle2GUID = pBoss->GetGUID();
-                        uint64 uiGrandChampionBoss2 = 0;
+                        ObjectGuid uiGrandChampionBoss2 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle2GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
@@ -506,7 +506,7 @@ public:
                     case 3:                    
                     {
                         uiVehicle3GUID = pBoss->GetGUID();
-                        uint64 uiGrandChampionBoss3 = 0;
+                        ObjectGuid uiGrandChampionBoss3 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle3GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))

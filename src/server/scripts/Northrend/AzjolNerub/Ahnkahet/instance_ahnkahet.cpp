@@ -44,19 +44,19 @@ public:
     {
         instance_ahnkahet_InstanceScript(Map* map) : InstanceScript(map) {}
 
-        uint64 Elder_Nadox;
-        uint64 Prince_Taldaram;
-        uint64 Jedoga_Shadowseeker;
-        uint64 Herald_Volazj;
-        uint64 Amanitar;
+        ObjectGuid Elder_Nadox;
+        ObjectGuid Prince_Taldaram;
+        ObjectGuid Jedoga_Shadowseeker;
+        ObjectGuid Herald_Volazj;
+        ObjectGuid Amanitar;
 
-        uint64 Prince_TaldaramSpheres[2];
-        uint64 Prince_TaldaramPlatform;
-        uint64 Prince_TaldaramGate;
+        ObjectGuid Prince_TaldaramSpheres[2];
+        ObjectGuid Prince_TaldaramPlatform;
+        ObjectGuid Prince_TaldaramGate;
 
         GuidSet InitiandGUIDs;
-        uint64 JedogaSacrifices;
-        uint64 JedogaTarget;
+        ObjectGuid JedogaSacrifices;
+        ObjectGuid JedogaTarget;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         uint32 spheres[2];
@@ -115,7 +115,7 @@ public:
                 case 193564:
                     Prince_TaldaramPlatform = go->GetGUID();
                     if (m_auiEncounter[1] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
 
                 case 193093:
@@ -141,12 +141,12 @@ public:
                 case 192236:
                     Prince_TaldaramGate = go->GetGUID(); // Web gate past Prince Taldaram
                     if (m_auiEncounter[1] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
             }
         }
 
-        void SetGuidData(uint32 idx, uint64 guid)
+        void SetGuidData(uint32 idx, ObjectGuid guid)
         {
             switch (idx)
             {
@@ -160,7 +160,7 @@ public:
             }
         }
 
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -174,7 +174,7 @@ public:
                 case DATA_PRINCE_TALDARAM_PLATFORM:   return Prince_TaldaramPlatform;
                 case DATA_ADD_JEDOGA_INITIAND:
                 {
-                    std::vector<uint64> vInitiands;
+                    GuidVector vInitiands;
                     vInitiands.clear();
                     for (GuidSet::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                     {

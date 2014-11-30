@@ -140,7 +140,7 @@ public:
         uint8 sacrePhase;
 
         TempSummon* arthas;
-        uint64 arthasGUID;
+        ObjectGuid arthasGUID;
 
         uint32 sinsterStrikeTimer;
         uint32 callFlamesTimer;

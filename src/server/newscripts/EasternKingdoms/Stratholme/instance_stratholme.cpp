@@ -72,19 +72,19 @@ class instance_stratholme : public InstanceMapScript
 
             bool IsSilverHandDead[5];
 
-            uint64 serviceEntranceGUID;
-            uint64 gauntletGate1GUID;
-            uint64 ziggurat1GUID;
-            uint64 ziggurat2GUID;
-            uint64 ziggurat3GUID;
-            uint64 ziggurat4GUID;
-            uint64 ziggurat5GUID;
-            uint64 portGauntletGUID;
-            uint64 portSlaugtherGUID;
-            uint64 portElderGUID;
+            ObjectGuid serviceEntranceGUID;
+            ObjectGuid gauntletGate1GUID;
+            ObjectGuid ziggurat1GUID;
+            ObjectGuid ziggurat2GUID;
+            ObjectGuid ziggurat3GUID;
+            ObjectGuid ziggurat4GUID;
+            ObjectGuid ziggurat5GUID;
+            ObjectGuid portGauntletGUID;
+            ObjectGuid portSlaugtherGUID;
+            ObjectGuid portElderGUID;
 
-            uint64 baronGUID;
-            uint64 ysidaTriggerGUID;
+            ObjectGuid baronGUID;
+            ObjectGuid ysidaTriggerGUID;
             GuidSet crystalsGUID;
             GuidSet abomnationGUID;
             EventMap events;
@@ -129,7 +129,7 @@ class instance_stratholme : public InstanceMapScript
             }
 
             //if withRestoreTime true, then newState will be ignored and GO should be restored to original state after 10 seconds
-            void UpdateGoState(uint64 goGuid, uint32 newState, bool withRestoreTime)
+            void UpdateGoState(ObjectGuid const& goGuid, uint32 newState, bool withRestoreTime)
             {
                 if (!goGuid)
                     return;
@@ -192,37 +192,37 @@ class instance_stratholme : public InstanceMapScript
                     case GO_ZIGGURAT1:
                         ziggurat1GUID = go->GetGUID();
                         if (GetData(TYPE_BARONESS) == IN_PROGRESS)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_ZIGGURAT2:
                         ziggurat2GUID = go->GetGUID();
                         if (GetData(TYPE_NERUB) == IN_PROGRESS)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_ZIGGURAT3:
                         ziggurat3GUID = go->GetGUID();
                         if (GetData(TYPE_PALLID) == IN_PROGRESS)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_ZIGGURAT4:
                         ziggurat4GUID = go->GetGUID();
                         if (GetData(TYPE_BARON) == DONE || GetData(TYPE_RAMSTEIN) == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_ZIGGURAT5:
                         ziggurat5GUID = go->GetGUID();
                         if (GetData(TYPE_BARON) == DONE || GetData(TYPE_RAMSTEIN) == DONE)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_PORT_GAUNTLET:
                         portGauntletGUID = go->GetGUID();
                         if (GetData(TYPE_BARONESS) == IN_PROGRESS && GetData(TYPE_NERUB) == IN_PROGRESS && GetData(TYPE_PALLID) == IN_PROGRESS)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_PORT_SLAUGTHER:
                         portSlaugtherGUID = go->GetGUID();
                         if (GetData(TYPE_BARONESS) == IN_PROGRESS && GetData(TYPE_NERUB) == IN_PROGRESS && GetData(TYPE_PALLID) == IN_PROGRESS)
-                            HandleGameObject(0, true, go);
+                            HandleGameObject(ObjectGuid::Empty, true, go);
                         break;
                     case GO_PORT_ELDERS:
                         portElderGUID = go->GetGUID();
@@ -425,7 +425,7 @@ class instance_stratholme : public InstanceMapScript
                   return 0;
             }
 
-            uint64 GetGuidData(uint32 data)
+            ObjectGuid GetGuidData(uint32 data)
             {
                 switch (data)
                 {

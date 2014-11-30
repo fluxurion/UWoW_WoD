@@ -259,7 +259,7 @@ struct boss_faction_championsAI : public ScriptedAI
 
     InstanceScript* m_pInstance;
 
-    uint64 championControllerGUID;
+    ObjectGuid championControllerGUID;
     uint32 mAIType;
     uint32 ThreatTimer;
     

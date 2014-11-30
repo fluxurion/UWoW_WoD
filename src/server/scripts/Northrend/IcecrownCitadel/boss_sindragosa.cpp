@@ -181,7 +181,7 @@ class FrostwyrmLandEvent : public BasicEvent
 class FrostBombExplosion : public BasicEvent
 {
     public:
-        FrostBombExplosion(Creature* owner, uint64 sindragosaGUID) : _owner(owner), _sindragosaGUID(sindragosaGUID) { }
+        FrostBombExplosion(Creature* owner, ObjectGuid sindragosaGUID) : _owner(owner), _sindragosaGUID(sindragosaGUID) { }
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
         {
@@ -192,7 +192,7 @@ class FrostBombExplosion : public BasicEvent
 
     private:
         Creature* _owner;
-        uint64 _sindragosaGUID;
+        ObjectGuid _sindragosaGUID;
 };
 
 class boss_sindragosa : public CreatureScript
@@ -621,7 +621,7 @@ class npc_ice_tomb : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(uint64 guid, int32 type/* = 0 */)
+            void SetGUID(ObjectGuid const& guid, int32 type/* = 0 */)
             {
                 if (type == DATA_TRAPPED_PLAYER)
                 {
@@ -671,7 +671,7 @@ class npc_ice_tomb : public CreatureScript
             }
 
         private:
-            uint64 _trappedPlayerGUID;
+            ObjectGuid _trappedPlayerGUID;
             uint32 _existenceCheckTimer;
         };
 

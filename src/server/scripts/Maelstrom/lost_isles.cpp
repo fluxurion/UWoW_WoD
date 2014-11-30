@@ -211,7 +211,7 @@ class npc_gizmo : public CreatureScript
 
         // Remove from conteiner for posibility repeat it.
         // If plr disconect or not finish quest.
-        void SetGUID(uint64 guid, int32 id)
+        void SetGUID(ObjectGuid const& guid, int32 id)
         {
             m_player_for_event.erase(guid);
         }
@@ -285,8 +285,8 @@ class npc_doc_zapnnozzle : public CreatureScript
             creature->m_invisibilityDetect.AddValue(INVISIBILITY_UNK7, 100000);
         }
 
-        uint64 plrGUID;
-        uint64 gizmoGUID;
+        ObjectGuid plrGUID;
+        ObjectGuid gizmoGUID;
         EventMap events;
 
         void Reset()
@@ -296,7 +296,7 @@ class npc_doc_zapnnozzle : public CreatureScript
             events.Reset();
         }
 
-        void SetGUID(uint64 guid, int32 id)
+        void SetGUID(ObjectGuid const& guid, int32 id)
         {
             switch(id)
             {
@@ -409,7 +409,7 @@ class npc_foreman_dampwick : public CreatureScript
 
         }
 
-        uint64 guidMiner;
+        ObjectGuid guidMiner;
 
         void Reset()
         {
@@ -475,9 +475,9 @@ public:
     {
         npc_frightened_minerAI(Creature* creature) : npc_escortAI(creature) {}
 
-        uint64 plrGUID;
-        uint64 cartGUID;
-        uint64 mineGUID;
+        ObjectGuid plrGUID;
+        ObjectGuid cartGUID;
+        ObjectGuid mineGUID;
         EventMap events;
         uint32 wpMine;
 
@@ -491,7 +491,7 @@ public:
             
         }
 
-        void SetGUID(uint64 guid, int32 id)
+        void SetGUID(ObjectGuid const& guid, int32 id)
         {
             plrGUID = guid;
             Start(true, false, guid);
@@ -1703,7 +1703,7 @@ class npc_naga_hatchling : public CreatureScript
     {
         npc_naga_hatchlingAI(Creature* creature) : ScriptedAI(creature){}
         EventMap events;
-        uint64 plrGUID;
+        ObjectGuid plrGUID;
         void Reset()
         {
             events.Reset();
@@ -1711,7 +1711,7 @@ class npc_naga_hatchling : public CreatureScript
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
-        void SetGUID(uint64 guid, int32 id)
+        void SetGUID(ObjectGuid const& guid, int32 id)
         {
             events.ScheduleEvent(EVENT_GENERIC_1, 20000);
             plrGUID = guid;
@@ -1799,7 +1799,7 @@ class npc_faceless_of_the_deep : public CreatureScript
     {
         npc_faceless_of_the_deepAI(Creature* creature) : ScriptedAI(creature){}
         EventMap events;
-        uint64 playerGUID;
+        ObjectGuid playerGUID;
         void Reset()
         {
             events.Reset();
@@ -2018,7 +2018,7 @@ public:
     {
         npc_goblin_captiveAI(Creature* creature) : npc_escortAI(creature) {}
         EventMap events;
-        uint64 sharMan;
+        ObjectGuid sharMan;
         void Reset()
         {
             sharMan = 0;
@@ -2454,7 +2454,7 @@ class npc_trade_prince_gallywix_final : public CreatureScript
     {
         npc_trade_prince_gallywix_finalAI(Creature* creature) : ScriptedAI(creature){}
         EventMap events;
-        uint64 playerGUID;
+        ObjectGuid playerGUID;
         void Reset()
         {
             playerGUID = 0;

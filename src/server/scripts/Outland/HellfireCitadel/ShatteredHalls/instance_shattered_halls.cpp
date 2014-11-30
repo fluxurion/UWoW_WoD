@@ -43,8 +43,8 @@ class instance_shattered_halls : public InstanceMapScript
             instance_shattered_halls_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
-            uint64 nethekurseGUID;
-            uint64 nethekurseDoorGUID;
+            ObjectGuid nethekurseGUID;
+            ObjectGuid nethekurseDoorGUID;
 
             void Initialize()
             {
@@ -99,7 +99,7 @@ class instance_shattered_halls : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetGuidData(uint32 data)
+            ObjectGuid GetGuidData(uint32 data)
             {
                 switch (data)
                 {

@@ -66,14 +66,14 @@ public:
     {
         instance_blackfathom_deeps_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        uint64 twilightLordKelrisGUID;
-        uint64 shrine1GUID;
-        uint64 shrine2GUID;
-        uint64 shrine3GUID;
-        uint64 shrine4GUID;
-        uint64 shrineOfGelihastGUID;
-        uint64 altarOfTheDeepsGUID;
-        uint64 mainDoorGUID;
+        ObjectGuid twilightLordKelrisGUID;
+        ObjectGuid shrine1GUID;
+        ObjectGuid shrine2GUID;
+        ObjectGuid shrine3GUID;
+        ObjectGuid shrine4GUID;
+        ObjectGuid shrineOfGelihastGUID;
+        ObjectGuid altarOfTheDeepsGUID;
+        ObjectGuid mainDoorGUID;
 
         uint8 encounter[MAX_ENCOUNTER];
         uint8 countFires;
@@ -136,7 +136,7 @@ public:
                     break;
                 case GO_AKU_MAI_DOOR:
                     if (encounter[2] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     mainDoorGUID = go->GetGUID();
                     break;
             }
@@ -233,7 +233,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 data)
+        ObjectGuid GetGuidData(uint32 data)
         {
             switch (data)
             {

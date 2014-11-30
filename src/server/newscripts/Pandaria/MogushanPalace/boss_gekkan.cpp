@@ -88,7 +88,7 @@ class boss_gekkan : public CreatureScript
                 case ACTION_ENTOURAGE_DIED:
                     {
                         //Delete the guid of the list if one dies.
-                        uint64 dead_entourage = 0;
+                        ObjectGuid dead_entourage;
 						for (GuidList::iterator itr = entourage.begin(); itr != entourage.end(); ++itr)
                         {
                             Creature* c = me->GetMap()->GetCreature(*itr);
@@ -127,7 +127,7 @@ class boss_gekkan : public CreatureScript
                             //Cast on a random entourage the inspiration.
                             GuidList::iterator itr = entourage.begin();
                             std::advance(itr, urand(0, entourage.size() - 1));
-                            uint64 guid = *itr;
+                            ObjectGuid guid = *itr;
                             Creature* c = me->GetMap()->GetCreature(guid);
                             if (c)
                             {

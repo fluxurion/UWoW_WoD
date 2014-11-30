@@ -1120,7 +1120,7 @@ class npc_ragnaros_firelands_lava_wave : public CreatureScript
                 destGUID = 0;
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/)
+            void SetGUID(ObjectGuid const& guid, int32 /*type*/)
             {
                 bDest = true;
                 destGUID = guid;
@@ -1152,7 +1152,7 @@ class npc_ragnaros_firelands_lava_wave : public CreatureScript
             EventMap events;
             bool bDest;
             bool bDespawn;
-            uint64 destGUID;
+            ObjectGuid destGUID;
         };
 };
 
@@ -1496,7 +1496,7 @@ class npc_ragnaros_firelands_lava_scion : public CreatureScript
                             std::list<Creature*> lavascions;
                             GetCreatureListWithEntryInGrid(lavascions, me, NPC_LAVA_SCION, 500.0f);
 
-                            std::vector<uint64> guids;
+                            GuidVector guids;
 
                             if (!lavascions.empty())
                             {
@@ -1524,7 +1524,7 @@ class npc_ragnaros_firelands_lava_scion : public CreatureScript
             {
                 public:
                     
-                    BlazingHeatSelector(std::vector<uint64> _guids) : tankGUIDs(_guids) {}
+                    BlazingHeatSelector(GuidVector _guids) : tankGUIDs(_guids) {}
 
                     bool operator()(Unit const* target) const
                     {
@@ -1535,7 +1535,7 @@ class npc_ragnaros_firelands_lava_scion : public CreatureScript
                             return false;
 
                         if (!tankGUIDs.empty())
-                            for (std::vector<uint64>::const_iterator itr = tankGUIDs.begin(); itr != tankGUIDs.end(); ++itr)
+                            for (GuidVector::const_iterator itr = tankGUIDs.begin(); itr != tankGUIDs.end(); ++itr)
                                 if (target->GetGUID() == (*itr))
                                     return false;
                                
@@ -1543,7 +1543,7 @@ class npc_ragnaros_firelands_lava_scion : public CreatureScript
                         return true;
                     }
             private:
-                std::vector<uint64> tankGUIDs;
+                GuidVector tankGUIDs;
             };
         };
 };

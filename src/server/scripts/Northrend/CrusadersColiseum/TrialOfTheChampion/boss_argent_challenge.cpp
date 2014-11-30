@@ -271,7 +271,7 @@ public:
         InstanceScript* pInstance;
 
         Creature* pMemory;
-        uint64 MemoryGUID;
+        ObjectGuid MemoryGUID;
 
         bool bHealth;
         bool bDone;

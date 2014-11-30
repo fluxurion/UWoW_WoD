@@ -169,7 +169,7 @@ class boss_morchok: public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SAFE);
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(ObjectGuid const& guid, int32 type)
             {
                 if (type == DATA_GUID_1)
                     _stompguid1 = guid;
@@ -177,7 +177,7 @@ class boss_morchok: public CreatureScript
                     _stompguid2 = guid;
             }
 
-            uint64 GetGUID(int32 type)
+            ObjectGuid GetGUID(int32 type)
             {
                 if (type == DATA_GUID_1)
                     return _stompguid1;
@@ -372,8 +372,8 @@ class boss_morchok: public CreatureScript
             }
         private:
 
-            uint64 _stompguid1;
-            uint64 _stompguid2;
+            ObjectGuid _stompguid1;
+            ObjectGuid _stompguid2;
             bool bEnrage;
             bool bKohcrom;
             bool bAchieve;
@@ -423,7 +423,7 @@ class npc_morchok_kohcrom: public CreatureScript
                 bEnrage = false;
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(ObjectGuid const& guid, int32 type)
             {
                 if (type == DATA_GUID_1)
                     _stompguid1 = guid;
@@ -431,7 +431,7 @@ class npc_morchok_kohcrom: public CreatureScript
                     _stompguid2 = guid;
             }
 
-            uint64 GetGUID(int32 type)
+            ObjectGuid GetGUID(int32 type)
             {
                 if (type == DATA_GUID_1)
                     return _stompguid1;
@@ -535,8 +535,8 @@ class npc_morchok_kohcrom: public CreatureScript
             EventMap events;
             SummonList summons;
             InstanceScript* pInstance;
-            uint64 _stompguid1;
-            uint64 _stompguid2;
+            ObjectGuid _stompguid1;
+            ObjectGuid _stompguid2;
             bool bEnrage;
         };
 };

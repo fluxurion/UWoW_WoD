@@ -36,15 +36,15 @@ public:
     {
         instance_azjol_nerub_InstanceScript(Map* map) : InstanceScript(map) {}
 
-        uint64 uiKrikthir;
-        uint64 uiHadronox;
-        uint64 uiAnubarak;
-        uint64 uiWatcherGashra;
-        uint64 uiWatcherSilthik;
-        uint64 uiWatcherNarjil;
-        uint64 uiAnubarakDoor[3];
+        ObjectGuid uiKrikthir;
+        ObjectGuid uiHadronox;
+        ObjectGuid uiAnubarak;
+        ObjectGuid uiWatcherGashra;
+        ObjectGuid uiWatcherSilthik;
+        ObjectGuid uiWatcherNarjil;
+        ObjectGuid uiAnubarakDoor[3];
 
-        uint64 uiKrikthirDoor;
+        ObjectGuid uiKrikthirDoor;
 
         uint32 auiEncounter[MAX_ENCOUNTER];
 
@@ -91,7 +91,7 @@ public:
                 case 192395:
                     uiKrikthirDoor = go->GetGUID();
                     if (auiEncounter[0] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case 192396:
                     uiAnubarakDoor[0] = go->GetGUID();
@@ -105,7 +105,7 @@ public:
             }
         }
 
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {

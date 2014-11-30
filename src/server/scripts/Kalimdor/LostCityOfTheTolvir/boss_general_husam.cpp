@@ -409,7 +409,7 @@ public:
                 if (Creature* husam = Unit::GetCreature(*me, instance->GetGuidData(DATA_GENERAL_HUSAM)))
                     husam->AI()->JustSummoned(summoned);
 
-            if (uint64 uiGUID = summoned->GetGUID())
+            if (ObjectGuid uiGUID = summoned->GetGUID())
                 lSummonedGUID.push_back(uiGUID);
         }
 

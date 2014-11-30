@@ -75,15 +75,15 @@ public:
         GuidList FelCrystals;
         GuidList::const_iterator CrystalItr;
 
-        uint64 SelinGUID;
-        uint64 DelrissaGUID;
-        uint64 VexallusDoorGUID;
-        uint64 SelinDoorGUID;
-        uint64 SelinEncounterDoorGUID;
-        uint64 DelrissaDoorGUID;
-        uint64 KaelDoorGUID;
-        uint64 KaelStatue[2];
-        uint64 EscapeOrbGUID;
+        ObjectGuid SelinGUID;
+        ObjectGuid DelrissaGUID;
+        ObjectGuid VexallusDoorGUID;
+        ObjectGuid SelinDoorGUID;
+        ObjectGuid SelinEncounterDoorGUID;
+        ObjectGuid DelrissaDoorGUID;
+        ObjectGuid KaelDoorGUID;
+        ObjectGuid KaelStatue[2];
+        ObjectGuid EscapeOrbGUID;
 
         bool InitializedItr;
 
@@ -215,7 +215,7 @@ public:
             }
         }
 
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -254,7 +254,7 @@ public:
                         InitializedItr = true;
                     }
 
-                    uint64 guid = *CrystalItr;
+                    ObjectGuid guid = *CrystalItr;
                     ++CrystalItr;
                     return guid;
                 }

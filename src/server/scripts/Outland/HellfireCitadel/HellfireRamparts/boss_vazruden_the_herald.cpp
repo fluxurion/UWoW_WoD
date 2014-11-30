@@ -95,7 +95,7 @@ class boss_nazan : public CreatureScript
             uint32 Fly_Timer;
             uint32 Turn_Timer;
             bool flight;
-            uint64 VazrudenGUID;
+            ObjectGuid VazrudenGUID;
             SpellInfo* liquid_fire;
 
             void Reset()
@@ -303,8 +303,8 @@ class boss_vazruden_the_herald : public CreatureScript
             uint32 waypoint;
             uint32 check;
             bool sentryDown;
-            uint64 NazanGUID;
-            uint64 VazrudenGUID;
+            ObjectGuid NazanGUID;
+            ObjectGuid VazrudenGUID;
             bool summoned;
             bool lootSpawned;
 

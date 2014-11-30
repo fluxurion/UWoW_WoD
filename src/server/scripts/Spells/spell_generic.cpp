@@ -3837,7 +3837,7 @@ class spell_gen_battle_guild_standart : public SpellScriptLoader
             class GuildCheck
             {
                 public:
-                    GuildCheck(uint64 casterGUID, uint32 guildId) : _casterGUID(casterGUID),_guildId(guildId) {}
+                    GuildCheck(ObjectGuid casterGUID, uint32 guildId) : _casterGUID(casterGUID),_guildId(guildId) {}
 
                     bool operator()(WorldObject* unit)
                     {
@@ -3862,7 +3862,7 @@ class spell_gen_battle_guild_standart : public SpellScriptLoader
                     }
 
                 private:
-                    uint64 _casterGUID;
+                    ObjectGuid _casterGUID;
                     uint32 _guildId;
             };
         };

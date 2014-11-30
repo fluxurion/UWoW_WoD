@@ -188,7 +188,7 @@ public:
 
 struct SlipstreamPlayer
 {
-    uint64 uiPlayerGUID;
+    ObjectGuid uiPlayerGUID;
     uint32 uiPersonalTimer;
 };
 

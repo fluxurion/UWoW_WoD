@@ -188,7 +188,7 @@ class instance_end_time : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -335,17 +335,17 @@ class instance_end_time : public InstanceMapScript
                 uint32 second_encounter;
                 uint32 tyrande_event;
                 uint32 nozdormu_dialog[4];
-                uint64 uiMurozondCacheGUID;
-                uint64 uiTyrandeGUID;
-                uint64 uiJainaGUID;
-                uint64 uiPlatform1GUID;
-                uint64 uiPlatform2GUID;
-                uint64 uiPlatform3GUID;
-                uint64 uiPlatform4GUID;
-                uint64 uiImageOfNozdormuGUID;
-                uint64 uiMurozondGUID;
-                uint64 uiHourglassGUID;
-                uint64 uiNozdormuGUID;
+                ObjectGuid uiMurozondCacheGUID;
+                ObjectGuid uiTyrandeGUID;
+                ObjectGuid uiJainaGUID;
+                ObjectGuid uiPlatform1GUID;
+                ObjectGuid uiPlatform2GUID;
+                ObjectGuid uiPlatform3GUID;
+                ObjectGuid uiPlatform4GUID;
+                ObjectGuid uiImageOfNozdormuGUID;
+                ObjectGuid uiMurozondGUID;
+                ObjectGuid uiHourglassGUID;
+                ObjectGuid uiNozdormuGUID;
                
         };
 };

@@ -84,7 +84,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -141,8 +141,8 @@ class instance_forge_of_souls : public InstanceMapScript
             }
 
         private:
-            uint64 bronjahm;
-            uint64 devourerOfSouls;
+            ObjectGuid bronjahm;
+            ObjectGuid devourerOfSouls;
 
             uint32 teamInInstance;
         };

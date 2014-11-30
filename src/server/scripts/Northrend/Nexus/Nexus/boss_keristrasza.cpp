@@ -69,7 +69,7 @@ public:
         InstanceScript* instance;
 
         GuidList intenseColdList;
-        uint64 auiContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
+        ObjectGuid auiContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
         uint32 uiCrystalfireBreathTimer;
         uint32 uiCrystalChainsCrystalizeTimer;
         uint32 uiTailSweepTimer;
@@ -157,7 +157,7 @@ public:
             }
         }
 
-        void SetGUID(uint64 guid, int32 id/* = 0 */)
+        void SetGUID(ObjectGuid const& guid, int32 id/* = 0 */)
         {
             if (id == DATA_INTENSE_COLD)
                 intenseColdList.push_back(guid);

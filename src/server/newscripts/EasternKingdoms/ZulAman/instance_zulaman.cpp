@@ -60,15 +60,15 @@ class instance_zulaman : public InstanceMapScript
                 uiVendor2 = 0;
             }
 
-            uint64 HarkorsSatchelGUID;
-            uint64 TanzarsTrunkGUID;
-            uint64 AshlisBagGUID;
-            uint64 KrazsPackageGUID;
+            ObjectGuid HarkorsSatchelGUID;
+            ObjectGuid TanzarsTrunkGUID;
+            ObjectGuid AshlisBagGUID;
+            ObjectGuid KrazsPackageGUID;
 
-            uint64 HexLordGateGUID;
-            uint64 MainGateGUID;
-            uint64 StrangeGongGUID;
-            uint64 AmanishiTempestGUID;
+            ObjectGuid HexLordGateGUID;
+            ObjectGuid MainGateGUID;
+            ObjectGuid StrangeGongGUID;
+            ObjectGuid AmanishiTempestGUID;
 
             uint32 uiMainGate;
             uint32 uiVendor1;

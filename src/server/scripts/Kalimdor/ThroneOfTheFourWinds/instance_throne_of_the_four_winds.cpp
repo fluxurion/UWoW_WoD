@@ -45,11 +45,11 @@ public:
 
 		uint32 Encounter[ENCOUNTERS];
 
-		uint64 Anshal;
-		uint64 Nezir;
-		uint64 Rohash;
+		ObjectGuid Anshal;
+		ObjectGuid Nezir;
+		ObjectGuid Rohash;
 
-		uint64 Alakir;
+		ObjectGuid Alakir;
 
 		void Initialize()
 		{
@@ -99,7 +99,7 @@ public:
 			}
 		}
 
-		uint64 GetGuidData(uint32 identifier)
+		ObjectGuid GetGuidData(uint32 identifier)
 		{
 			switch (identifier)
 			{

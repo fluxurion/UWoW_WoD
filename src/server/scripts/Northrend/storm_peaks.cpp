@@ -531,7 +531,7 @@ public:
     {
         npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 drakeGUID;
+        ObjectGuid drakeGUID;
         uint16 enter_timer;
         bool hasEmptySeats;
 

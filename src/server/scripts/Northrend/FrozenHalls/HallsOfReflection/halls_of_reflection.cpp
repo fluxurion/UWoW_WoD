@@ -300,8 +300,8 @@ public:
         }
 
         InstanceScript* pInstance;
-        uint64 uiUther;
-        uint64 uiLichKing;
+        ObjectGuid uiUther;
+        ObjectGuid uiLichKing;
         bool start;
         EventMap events;
 
@@ -1559,11 +1559,11 @@ public:
         bool Event;
         bool PreFight;
         bool WallCast;
-        uint64 m_uiLichKingGUID;
-        uint64 m_uiLiderGUID;
-        uint64 m_uiIceWallGUID;
-        uint64 m_uipWallTargetGUID;
-        uint64 uiCaptain;
+        ObjectGuid m_uiLichKingGUID;
+        ObjectGuid m_uiLiderGUID;
+        ObjectGuid m_uiIceWallGUID;
+        ObjectGuid m_uipWallTargetGUID;
+        ObjectGuid uiCaptain;
         Creature* pLichKing;
         uint32 m_chestID;
 

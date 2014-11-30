@@ -39,10 +39,10 @@ public:
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        uint64 uiCaveInLeftGUID;
-        uint64 uiCaveInRightGUID;
+        ObjectGuid uiCaveInLeftGUID;
+        ObjectGuid uiCaveInRightGUID;
 
-        uint64 uiBastmasterEmiShortfuseGUID;
+        ObjectGuid uiBastmasterEmiShortfuseGUID;
 
         void Initialize()
         {
@@ -91,12 +91,12 @@ public:
                 case GO_CAVE_IN_LEFT:
                     uiCaveInLeftGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_CAVE_IN_RIGHT:
                     uiCaveInRightGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
             }
         }
@@ -122,7 +122,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 uiType)
+        ObjectGuid GetGuidData(uint32 uiType)
         {
             switch (uiType)
             {

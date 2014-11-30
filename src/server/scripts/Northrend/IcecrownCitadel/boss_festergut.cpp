@@ -256,7 +256,7 @@ class boss_festergut : public CreatureScript
             }
 
         private:
-            uint64 _gasDummyGUID;
+            ObjectGuid _gasDummyGUID;
             uint32 _maxInoculatedStack;
             uint32 _inhaleCounter;
         };

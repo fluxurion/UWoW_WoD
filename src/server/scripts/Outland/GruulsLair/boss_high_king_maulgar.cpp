@@ -73,11 +73,11 @@ bool CheckAllBossDied(InstanceScript* instance, Creature* me)
     if (!instance || !me)
         return false;
 
-    uint64 MaulgarGUID = 0;
-    uint64 KigglerGUID = 0;
-    uint64 BlindeyeGUID = 0;
-    uint64 OlmGUID = 0;
-    uint64 KroshGUID = 0;
+    ObjectGuid MaulgarGUID = 0;
+    ObjectGuid KigglerGUID = 0;
+    ObjectGuid BlindeyeGUID = 0;
+    ObjectGuid OlmGUID = 0;
+    ObjectGuid KroshGUID = 0;
 
     Creature* Maulgar = NULL;
     Creature* Kiggler = NULL;
@@ -136,7 +136,7 @@ public:
 
         bool Phase2;
 
-        uint64 Council[4];
+        ObjectGuid Council[4];
 
         void Reset()
         {

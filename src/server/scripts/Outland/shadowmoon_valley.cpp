@@ -81,7 +81,7 @@ public:
     {
         mob_mature_netherwing_drakeAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
 
         bool bCanEat;
         bool bIsEating;
@@ -217,7 +217,7 @@ public:
             Reset();
         }
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         uint32 FlyTimer;
         bool Tapped;
 
@@ -343,7 +343,7 @@ public:
     {
         mob_dragonmaw_peonAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         bool Tapped;
         uint32 PoisonTimer;
 
@@ -719,8 +719,8 @@ public:
     {
         npc_overlord_morghorAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 PlayerGUID;
-        uint64 IllidanGUID;
+        ObjectGuid PlayerGUID;
+        ObjectGuid IllidanGUID;
 
         uint32 ConversationTimer;
         uint32 Step;
@@ -1246,8 +1246,8 @@ public:
 
         uint8 AnimationCount;
 
-        uint64 LordIllidanGUID;
-        uint64 AggroTargetGUID;
+        ObjectGuid LordIllidanGUID;
+        ObjectGuid AggroTargetGUID;
 
         bool Timers;
 
@@ -1402,7 +1402,7 @@ public:
     {
         npc_lord_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 WaveTimer;
         uint32 AnnounceTimer;
@@ -1547,7 +1547,7 @@ public:
     {
         mob_illidari_spawnAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 LordIllidanGUID;
+        ObjectGuid LordIllidanGUID;
         uint32 SpellTimer1, SpellTimer2, SpellTimer3;
         bool Timers;
 
@@ -1980,7 +1980,7 @@ public:
         }
     private:
         bool tapped;
-        uint64 tuberGUID;
+        ObjectGuid tuberGUID;
         uint32 resetTimer;
     };
 

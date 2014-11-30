@@ -96,7 +96,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 beams[2];
+        ObjectGuid beams[2];
         uint32 PosCheck_Timer;
         uint32 MarkOfHydross_Timer;
         uint32 MarkOfCorruption_Timer;

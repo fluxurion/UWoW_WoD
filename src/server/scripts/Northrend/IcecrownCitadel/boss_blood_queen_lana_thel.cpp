@@ -270,7 +270,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     _offtank = 0;
             }
 
-            void SetGUID(uint64 guid, int32 type = 0)
+            void SetGUID(ObjectGuid const& guid, int32 type = 0)
             {
                 switch (type)
                 {
@@ -362,7 +362,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             // victim can be NULL when this is processed in the same update tick as EVENT_AIR_PHASE
                             if (me->getVictim())
                             {
-                                uint64 newOfftank = 0;
+                                ObjectGuid newOfftank = 0;
                                 if (Player * target = SelectRandomTarget(true))
                                 {
                                     if (target)
@@ -462,12 +462,12 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            bool WasVampire(uint64 guid)
+            bool WasVampire(ObjectGuid guid)
             {
                 return _vampires.count(guid) != 0;
             }
 
-            bool WasBloodbolted(uint64 guid)
+            bool WasBloodbolted(ObjectGuid guid)
             {
                 return _bloodboltedPlayers.count(guid) != 0;
             }
@@ -507,7 +507,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             GuidSet _vampires;
             GuidSet _bloodboltedPlayers;
-            uint64 _offtank;
+            ObjectGuid _offtank;
             bool _creditBloodQuickening;
             bool _killMinchar;
         };

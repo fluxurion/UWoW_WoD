@@ -111,7 +111,7 @@ public:
     {
         npc_greengill_slaveAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void EnterCombat(Unit* /*who*/){}
 

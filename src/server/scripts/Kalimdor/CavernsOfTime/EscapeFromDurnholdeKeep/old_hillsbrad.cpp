@@ -293,7 +293,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 TarethaGUID;
+        ObjectGuid TarethaGUID;
 
         bool LowHp;
         bool HadMount;
@@ -413,7 +413,7 @@ public:
                     me->SummonCreature(MOB_ENTRY_INN_GUARDSMAN, 2656.39f, 659.77f, 61.93f, 2.61f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     break;
                 case 94:
-                    if (uint64 TarethaGUID = instance->GetGuidData(DATA_TARETHA))
+                    if (ObjectGuid TarethaGUID = instance->GetGuidData(DATA_TARETHA))
                     {
                         if (Unit* Taretha = Unit::GetUnit(*me, TarethaGUID))
                             DoScriptText(SAY_TA_ESCAPED, Taretha, me);
@@ -601,7 +601,7 @@ public:
                 if (instance->GetGuidData(DATA_EPOCH) == 0)
                      creature->SummonCreature(ENTRY_EPOCH, 2639.13f, 698.55f, 65.43f, 4.59f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
 
-                 if (uint64 ThrallGUID = instance->GetGuidData(DATA_THRALL))
+                 if (ObjectGuid ThrallGUID = instance->GetGuidData(DATA_THRALL))
                  {
                      Creature* Thrall = (Unit::GetCreature((*creature), ThrallGUID));
                      if (Thrall)

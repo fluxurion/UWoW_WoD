@@ -100,7 +100,7 @@ public:
 
         bool EventActive;
         bool IsMovingToLunch;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         uint32 EventTimer;
         uint8 EventPhase;
 

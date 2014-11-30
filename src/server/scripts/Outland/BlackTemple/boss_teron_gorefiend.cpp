@@ -68,7 +68,7 @@ public:
 
         uint32 CheckTeronTimer;
         uint32 ShadowBoltTimer;
-        uint64 TeronGUID;
+        ObjectGuid TeronGUID;
 
         void Reset()
         {
@@ -113,7 +113,7 @@ public:
             return;
         }
 
-        void SetTeronGUID(uint64 guid)
+        void SetTeronGUID(ObjectGuid guid)
         {
             TeronGUID = guid;
         }
@@ -134,8 +134,8 @@ public:
     {
         mob_shadowy_constructAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 GhostGUID;
-        uint64 TeronGUID;
+        ObjectGuid GhostGUID;
+        ObjectGuid TeronGUID;
 
         uint32 CheckPlayerTimer;
         uint32 CheckTeronTimer;
@@ -238,8 +238,8 @@ public:
         uint32 RandomYellTimer;
         uint32 AggroTimer;
 
-        uint64 AggroTargetGUID;
-        uint64 GhostGUID;                                       // Player that gets killed by Shadow of Death and gets turned into a ghost
+        ObjectGuid AggroTargetGUID;
+        ObjectGuid GhostGUID;                                       // Player that gets killed by Shadow of Death and gets turned into a ghost
 
         bool Intro;
         bool Done;

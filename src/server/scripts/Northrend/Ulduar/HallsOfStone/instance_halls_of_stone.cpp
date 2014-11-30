@@ -42,24 +42,24 @@ public:
     {
         instance_halls_of_stone_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        uint64 uiMaidenOfGrief;
-        uint64 uiKrystallus;
-        uint64 uiSjonnir;
+        ObjectGuid uiMaidenOfGrief;
+        ObjectGuid uiKrystallus;
+        ObjectGuid uiSjonnir;
 
-        uint64 uiKaddrak;
-        uint64 uiAbedneum;
-        uint64 uiMarnak;
-        uint64 uiBrann;
+        ObjectGuid uiKaddrak;
+        ObjectGuid uiAbedneum;
+        ObjectGuid uiMarnak;
+        ObjectGuid uiBrann;
 
-        uint64 uiMaidenOfGriefDoor;
-        uint64 uiSjonnirDoor;
-        uint64 uiBrannDoor;
-        uint64 uiTribunalConsole;
-        uint64 uiTribunalChest;
-        uint64 uiTribunalSkyFloor;
-        uint64 uiKaddrakGo;
-        uint64 uiAbedneumGo;
-        uint64 uiMarnakGo;
+        ObjectGuid uiMaidenOfGriefDoor;
+        ObjectGuid uiSjonnirDoor;
+        ObjectGuid uiBrannDoor;
+        ObjectGuid uiTribunalConsole;
+        ObjectGuid uiTribunalChest;
+        ObjectGuid uiTribunalSkyFloor;
+        ObjectGuid uiKaddrakGo;
+        ObjectGuid uiAbedneumGo;
+        ObjectGuid uiMarnakGo;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -199,7 +199,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {

@@ -156,7 +156,7 @@ struct advisorbase_ai : public ScriptedAI
     bool FakeDeath;
     bool m_bDoubled_Health;
     uint32 DelayRes_Timer;
-    uint64 DelayRes_Target;
+    ObjectGuid DelayRes_Target;
 
     void Reset()
     {
@@ -308,7 +308,7 @@ class boss_kaelthas : public CreatureScript
 
             SummonList summons;
 
-            uint64 m_auiAdvisorGuid[MAX_ADVISORS];
+            ObjectGuid m_auiAdvisorGuid[MAX_ADVISORS];
 
             void Reset()
             {

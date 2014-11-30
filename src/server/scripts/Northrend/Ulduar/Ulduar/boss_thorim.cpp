@@ -269,7 +269,7 @@ public:
         uint8 PreAddsCount;
         uint8 spawnedAdds;
         uint32 EncounterTime;
-        uint64 TargetPillar;
+        ObjectGuid TargetPillar;
         bool bWipe;
         bool HardMode;
         bool AchivDontStand;
@@ -281,7 +281,7 @@ public:
             
             _Reset();
 
-            uint64 TargetPillar = 0;
+            ObjectGuid TargetPillar = 0;
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
             bWipe = false;

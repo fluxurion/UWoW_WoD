@@ -56,10 +56,10 @@ public:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
 
-        uint64 m_uiRefectoryDoorGUID;
-        uint64 m_uiScreamingHallDoorGUID;
+        ObjectGuid m_uiRefectoryDoorGUID;
+        ObjectGuid m_uiScreamingHallDoorGUID;
 
-        uint64 m_uiGrandmasterVorpil;
+        ObjectGuid m_uiGrandmasterVorpil;
         uint32 m_uiFelOverseerCount;
 
         void Initialize()
@@ -191,7 +191,7 @@ public:
             return false;
         }
 
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             if (identifier == DATA_GRANDMASTERVORPIL)
                 return m_uiGrandmasterVorpil;

@@ -124,7 +124,7 @@ public:
 
         bool BlessingOfTides;
 
-        uint64 Advisors[MAX_ADVISORS];
+        ObjectGuid Advisors[MAX_ADVISORS];
 
         void Reset()
         {
@@ -136,7 +136,7 @@ public:
 
             if (instance)
             {
-                uint64 RAdvisors[MAX_ADVISORS];
+                ObjectGuid RAdvisors[MAX_ADVISORS];
                 RAdvisors[0] = instance->GetGuidData(DATA_SHARKKIS);
                 RAdvisors[1] = instance->GetGuidData(DATA_TIDALVESS);
                 RAdvisors[2] = instance->GetGuidData(DATA_CARIBDIS);
@@ -332,7 +332,7 @@ public:
 
         bool pet;
 
-        uint64 SummonedPet;
+        ObjectGuid SummonedPet;
 
         void Reset()
         {

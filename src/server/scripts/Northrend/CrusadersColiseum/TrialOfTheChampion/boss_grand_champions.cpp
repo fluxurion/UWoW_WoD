@@ -780,7 +780,7 @@ public:
         uint32 uiMultiShotTimer;
         uint32 uiLightningArrowsTimer;
 
-        uint64 uiTargetGUID;
+        ObjectGuid uiTargetGUID;
 
         bool bShoot;
         bool bDone;

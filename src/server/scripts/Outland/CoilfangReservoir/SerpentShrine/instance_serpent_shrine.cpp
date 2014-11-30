@@ -234,7 +234,7 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
             }
 
-            void SetGuidData(uint32 type, uint64 data)
+            void SetGuidData(uint32 type, ObjectGuid data)
             {
                 if (type == DATA_KARATHRESSEVENT_STARTER)
                     KarathressEvent_Starter = data;
@@ -242,7 +242,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     LeotherasEventStarter = data;
             }
 
-            uint64 GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier)
             {
                 switch (identifier)
                 {
@@ -411,18 +411,18 @@ class instance_serpent_shrine : public InstanceMapScript
             }
 
         private:
-            uint64 LurkerBelow;
-            uint64 Sharkkis;
-            uint64 Tidalvess;
-            uint64 Caribdis;
-            uint64 LadyVashj;
-            uint64 Karathress;
-            uint64 KarathressEvent_Starter;
-            uint64 LeotherasTheBlind;
-            uint64 LeotherasEventStarter;
+            ObjectGuid LurkerBelow;
+            ObjectGuid Sharkkis;
+            ObjectGuid Tidalvess;
+            ObjectGuid Caribdis;
+            ObjectGuid LadyVashj;
+            ObjectGuid Karathress;
+            ObjectGuid KarathressEvent_Starter;
+            ObjectGuid LeotherasTheBlind;
+            ObjectGuid LeotherasEventStarter;
 
-            uint64 ControlConsole;
-            uint64 BridgePart[3];
+            ObjectGuid ControlConsole;
+            ObjectGuid BridgePart[3];
             uint32 StrangePool;
             uint32 FishingTimer;
             uint32 WaterCheckTimer;

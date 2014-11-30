@@ -454,7 +454,7 @@ public:
             _gift.insert(target->GetGUID());
         }
 
-        void SetGUID(uint64 guid, int32 /*id*/ = 0)
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/ = 0)
         {
             _gift.erase(guid);
         }
@@ -793,7 +793,7 @@ class go_sha_of_pride_corupted_prison : public GameObjectScript
                 }
             }
 
-            void SetGUID(const uint64& guid, int32 /*id = 0 */)
+            void SetGUID(ObjectGuid const& guid, int32 /*id = 0 */)
             {
                 _enableKeyCount = 0;
                 _plrPrisonerGUID =guid;
@@ -841,7 +841,7 @@ class go_sha_of_pride_corupted_prison : public GameObjectScript
 
         private:
             InstanceScript* instance;
-            uint64 _plrPrisonerGUID;
+            ObjectGuid _plrPrisonerGUID;
             uint32 _enableKeyCount;
             uint32 _key[3];
         };

@@ -61,7 +61,7 @@ public:
 
         uint32 uiSpeech_timer;
         uint32 uiSpeech_counter;
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
 
         void Reset()
         {
@@ -356,7 +356,7 @@ public:
     private:
         uint8 wave;
         uint32 waveTimer;
-        uint64 valrothGUID;
+        ObjectGuid valrothGUID;
 
     };
     
@@ -621,7 +621,7 @@ public:
 
         uint32 ExecuteSpeech_Timer;
         uint32 ExecuteSpeech_Counter;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void Reset()
         {

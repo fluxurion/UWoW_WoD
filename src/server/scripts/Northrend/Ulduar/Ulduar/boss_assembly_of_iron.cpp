@@ -137,7 +137,7 @@ bool IsEncounterComplete(InstanceScript* pInstance, Creature* me)
 
     for (uint8 i = 0; i < 3; ++i)
     {
-        uint64 guid = pInstance->GetGuidData(DATA_STEELBREAKER+i);
+        ObjectGuid guid = pInstance->GetGuidData(DATA_STEELBREAKER+i);
 
         if (!guid)
             return false;
@@ -153,7 +153,7 @@ bool IsEncounterComplete(InstanceScript* pInstance, Creature* me)
     return true;
 }
 
-void RespawnBosses(InstanceScript* pInstance, uint64 caller, Creature* creature)
+void RespawnBosses(InstanceScript* pInstance, ObjectGuid caller, Creature* creature)
 {
     for (uint32 data = DATA_STEELBREAKER; data < DATA_KOLOGARN; data++)
     {
@@ -174,7 +174,7 @@ void RespawnBosses(InstanceScript* pInstance, uint64 caller, Creature* creature)
     pInstance->SetBossState(BOSS_ASSEMBLY, NOT_STARTED); 
 }
 
-void CallBosses(InstanceScript* pInstance, uint64 caller, Unit* who)
+void CallBosses(InstanceScript* pInstance, ObjectGuid caller, Unit* who)
 {
     for (uint32 data = DATA_STEELBREAKER; data < DATA_KOLOGARN; data++)
     {

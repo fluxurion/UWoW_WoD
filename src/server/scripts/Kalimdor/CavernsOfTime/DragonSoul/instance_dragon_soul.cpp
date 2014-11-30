@@ -64,7 +64,7 @@ class instance_dragon_soul : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -85,7 +85,7 @@ class instance_dragon_soul : public InstanceMapScript
                 if (state == IN_PROGRESS)
                 {
                     if (!teleportGUIDs.empty())
-                        for (std::vector<uint64>::const_iterator itr = teleportGUIDs.begin(); itr != teleportGUIDs.end(); ++itr)
+                        for (GuidVector::const_iterator itr = teleportGUIDs.begin(); itr != teleportGUIDs.end(); ++itr)
                             if (Creature* pTeleport = instance->GetCreature((*itr)))
                             {
                                 pTeleport->RemoveAura(SPELL_TELEPORT_VISUAL_ACTIVE);
@@ -95,7 +95,7 @@ class instance_dragon_soul : public InstanceMapScript
                 else
                 {
                     if (!teleportGUIDs.empty())
-                        for (std::vector<uint64>::const_iterator itr = teleportGUIDs.begin(); itr != teleportGUIDs.end(); ++itr)
+                        for (GuidVector::const_iterator itr = teleportGUIDs.begin(); itr != teleportGUIDs.end(); ++itr)
                             if (Creature* pTeleport = instance->GetCreature((*itr)))
                             {
                                 pTeleport->RemoveAura(SPELL_TELEPORT_VISUAL_DISABLED);
@@ -154,12 +154,12 @@ class instance_dragon_soul : public InstanceMapScript
             private:
                 uint32 uiTeamInInstance;
 
-                uint64 uiMorchokGUID;
-                uint64 uiKohcromGUID;
-                uint64 uiValeeraGUID;
-                uint64 uiEiendormiGUID;
+                ObjectGuid uiMorchokGUID;
+                ObjectGuid uiKohcromGUID;
+                ObjectGuid uiValeeraGUID;
+                ObjectGuid uiEiendormiGUID;
 
-                std::vector<uint64> teleportGUIDs;
+                GuidVector teleportGUIDs;
                
         };
 };

@@ -77,7 +77,7 @@ class boss_akilzon : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
             
-            uint64 Eagles[8];
+            ObjectGuid Eagles[8];
 
             void Reset()
             {

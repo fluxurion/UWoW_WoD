@@ -51,27 +51,27 @@ public:
 
         uint32 timer;
         uint32 phase;
-        uint64 toActivate;
+        ObjectGuid toActivate;
 
-        uint64 uiSladRan;
-        uint64 uiMoorabi;
-        uint64 uiDrakkariColossus;
-        uint64 uiGalDarah;
-        uint64 uiEckTheFerocious;
+        ObjectGuid uiSladRan;
+        ObjectGuid uiMoorabi;
+        ObjectGuid uiDrakkariColossus;
+        ObjectGuid uiGalDarah;
+        ObjectGuid uiEckTheFerocious;
 
-        uint64 uiSladRanAltar;
-        uint64 uiMoorabiAltar;
-        uint64 uiDrakkariColossusAltar;
-        uint64 uiSladRanStatue;
-        uint64 uiMoorabiStatue;
-        uint64 uiDrakkariColossusStatue;
-        uint64 uiGalDarahStatue;
-        uint64 uiEckTheFerociousDoor;
-        uint64 uiEckTheFerociousDoorBehind;
-        uint64 uiGalDarahDoor1;
-        uint64 uiGalDarahDoor2;
-        uint64 uiBridge;
-        uint64 uiCollision;
+        ObjectGuid uiSladRanAltar;
+        ObjectGuid uiMoorabiAltar;
+        ObjectGuid uiDrakkariColossusAltar;
+        ObjectGuid uiSladRanStatue;
+        ObjectGuid uiMoorabiStatue;
+        ObjectGuid uiDrakkariColossusStatue;
+        ObjectGuid uiGalDarahStatue;
+        ObjectGuid uiEckTheFerociousDoor;
+        ObjectGuid uiEckTheFerociousDoorBehind;
+        ObjectGuid uiGalDarahDoor1;
+        ObjectGuid uiGalDarahDoor2;
+        ObjectGuid uiBridge;
+        ObjectGuid uiCollision;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -222,21 +222,21 @@ public:
                 case 192632:
                     uiEckTheFerociousDoor = go->GetGUID();
                     if (bHeroicMode && m_auiEncounter[1] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case 192569:
                     uiEckTheFerociousDoorBehind = go->GetGUID();
                     if (bHeroicMode && m_auiEncounter[4] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                 case 193208:
                     uiGalDarahDoor1 = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case 193209:
                     uiGalDarahDoor2 = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case 193188:
                     uiBridge = go->GetGUID();
@@ -305,7 +305,7 @@ public:
                 SaveToDB();
         }
 
-        void SetGuidData(uint32 type, uint64 data)
+        void SetGuidData(uint32 type, ObjectGuid data)
         {
             if (type == DATA_RUIN_DWELLER_DIED)
                 DwellerGUIDs.erase(data);
@@ -338,7 +338,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -506,7 +506,7 @@ public:
                 timer -= diff;
         }
 
-         GOState GetObjState(uint64 guid)
+         GOState GetObjState(ObjectGuid guid)
          {
              if (GameObject* go = instance->GetGameObject(guid))
                  return go->GetGoState();
@@ -524,7 +524,7 @@ public:
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
         InstanceScript* instance = go->GetInstanceScript();
-        uint64 uiStatue = 0;
+        ObjectGuid uiStatue = 0;
 
         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         go->SetGoState(GO_STATE_ACTIVE);

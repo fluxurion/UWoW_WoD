@@ -173,9 +173,9 @@ public:
     {
         mob_webwrapAI(Creature *c) : NullCreatureAI(c), victimGUID(0) {}
 
-        uint64 victimGUID;
+        ObjectGuid victimGUID;
 
-        void SetGUID(uint64 &guid, int32 /*param*/)
+        void SetGUID(ObjectGuid &guid, int32 /*param*/)
         {
             victimGUID = guid;
             if (me->m_spells[0] && victimGUID)

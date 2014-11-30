@@ -247,7 +247,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -319,16 +319,16 @@ class instance_pit_of_saron : public InstanceMapScript
             }
 
         private:
-            uint64 _garfrostGUID;
-            uint64 _krickGUID;
-            uint64 _ickGUID;
-            uint64 _tyrannusGUID;
-            uint64 _rimefangGUID;
+            ObjectGuid _garfrostGUID;
+            ObjectGuid _krickGUID;
+            ObjectGuid _ickGUID;
+            ObjectGuid _tyrannusGUID;
+            ObjectGuid _rimefangGUID;
 
-            uint64 _tyrannusEventGUID;
-            uint64 _jainaOrSylvanas1GUID;
-            uint64 _jainaOrSylvanas2GUID;
-            uint64 uiIceWall;
+            ObjectGuid _tyrannusEventGUID;
+            ObjectGuid _jainaOrSylvanas1GUID;
+            ObjectGuid _jainaOrSylvanas2GUID;
+            ObjectGuid uiIceWall;
             uint32 _teamInInstance;
         };
 

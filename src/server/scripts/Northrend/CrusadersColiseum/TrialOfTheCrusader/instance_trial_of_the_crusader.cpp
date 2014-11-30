@@ -48,30 +48,30 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             uint32 FjolaCasting;
             uint32 EydisCasting;
 
-            uint64 BarrentGUID;
-            uint64 TirionGUID;
-            uint64 FizzlebangGUID;
-            uint64 GarroshGUID;
-            uint64 VarianGUID;
+            ObjectGuid BarrentGUID;
+            ObjectGuid TirionGUID;
+            ObjectGuid FizzlebangGUID;
+            ObjectGuid GarroshGUID;
+            ObjectGuid VarianGUID;
 
-            uint64 GormokGUID;
-            uint64 AcidmawGUID;
-            uint64 DreadscaleGUID;
-            uint64 IcehowlGUID;
-            uint64 JaraxxusGUID;
-            uint64 ChampionsControllerGUID;
-            uint64 DarkbaneGUID;
-            uint64 LightbaneGUID;
-            uint64 AnubarakGUID;
+            ObjectGuid GormokGUID;
+            ObjectGuid AcidmawGUID;
+            ObjectGuid DreadscaleGUID;
+            ObjectGuid IcehowlGUID;
+            ObjectGuid JaraxxusGUID;
+            ObjectGuid ChampionsControllerGUID;
+            ObjectGuid DarkbaneGUID;
+            ObjectGuid LightbaneGUID;
+            ObjectGuid AnubarakGUID;
 
-            uint64 CrusadersCacheGUID;
-            uint64 FloorGUID;
+            ObjectGuid CrusadersCacheGUID;
+            ObjectGuid FloorGUID;
 
-            uint64 TributeChestGUID;
+            ObjectGuid TributeChestGUID;
 
-            uint64 MainGateDoorGUID;
-            uint64 EastPortcullisGUID;
-            uint64 WebDoorGUID;
+            ObjectGuid MainGateDoorGUID;
+            ObjectGuid EastPortcullisGUID;
+            ObjectGuid WebDoorGUID;
 
             // Achievement stuff
             uint32 NotOneButTwoJormungarsTimer;
@@ -125,7 +125,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
-            void OpenDoor(uint64 guid)
+            void OpenDoor(ObjectGuid const& guid)
             {
                 if (!guid)
                     return;
@@ -133,7 +133,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
             }
 
-            void CloseDoor(uint64 guid)
+            void CloseDoor(ObjectGuid const& guid)
             {
                 if (!guid)
                     return;
@@ -421,7 +421,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
-            uint64 GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {

@@ -78,52 +78,52 @@ public:
             count = 0;
         }
 
-        uint64 uiLeviathan;
-        uint64 uiNorgannon;
-        uint64 uiIgnis;
-        uint64 uiRazorscale;
-        uint64 uiExpCommander;
-        uint64 uiXT002;
-        uint64 uiSteelbreaker;
-        uint64 uiMolgeim;
-        uint64 uiBrundir;
-        uint64 uiKologarn;
-        uint64 uiKologarnleftarm;
-        uint64 uiKologarnrightarm;
-        uint64 uiKologarnBridge;
-        uint64 uiAuriaya;
-        uint64 uiBrightleaf;
-        uint64 uiIronbranch;
-        uint64 uiStonebark;
-        uint64 uiFreya;
-        uint64 uiThorim;
-        uint64 uiRunicColossus;
-        uint64 uiRuneGiant;
-        uint64 uiMimiron;
-        uint64 uiLeviathanMKII;
-        uint64 uiVX001;
-        uint64 uiAerialUnit;
-        uint64 uiMagneticCore;
-        uint64 KeepersGateGUID;
-        uint64 uiVezax;
-        uint64 uiFreyaImage;
-        uint64 uiThorimImage;
-        uint64 uiMimironImage;
-        uint64 uiHodirImage;
-        uint64 uiFreyaYS;
-        uint64 uiThorimYS;
-        uint64 uiMimironYS;
-        uint64 uiHodirYS;
-        uint64 uiYoggSaronBrain;
-        uint64 uiYoggSaron;
-        uint64 LeviathanDoorGUID;
-        uint64 HodirRareChestGUID;
-        uint64 RunicDoorGUID;
-        uint64 StoneDoorGUID;
-        uint64 ThorimLeverGUID;
-        uint64 MimironTramGUID;
-        uint64 MimironElevatorGUID;
-        uint64 Sara;
+        ObjectGuid uiLeviathan;
+        ObjectGuid uiNorgannon;
+        ObjectGuid uiIgnis;
+        ObjectGuid uiRazorscale;
+        ObjectGuid uiExpCommander;
+        ObjectGuid uiXT002;
+        ObjectGuid uiSteelbreaker;
+        ObjectGuid uiMolgeim;
+        ObjectGuid uiBrundir;
+        ObjectGuid uiKologarn;
+        ObjectGuid uiKologarnleftarm;
+        ObjectGuid uiKologarnrightarm;
+        ObjectGuid uiKologarnBridge;
+        ObjectGuid uiAuriaya;
+        ObjectGuid uiBrightleaf;
+        ObjectGuid uiIronbranch;
+        ObjectGuid uiStonebark;
+        ObjectGuid uiFreya;
+        ObjectGuid uiThorim;
+        ObjectGuid uiRunicColossus;
+        ObjectGuid uiRuneGiant;
+        ObjectGuid uiMimiron;
+        ObjectGuid uiLeviathanMKII;
+        ObjectGuid uiVX001;
+        ObjectGuid uiAerialUnit;
+        ObjectGuid uiMagneticCore;
+        ObjectGuid KeepersGateGUID;
+        ObjectGuid uiVezax;
+        ObjectGuid uiFreyaImage;
+        ObjectGuid uiThorimImage;
+        ObjectGuid uiMimironImage;
+        ObjectGuid uiHodirImage;
+        ObjectGuid uiFreyaYS;
+        ObjectGuid uiThorimYS;
+        ObjectGuid uiMimironYS;
+        ObjectGuid uiHodirYS;
+        ObjectGuid uiYoggSaronBrain;
+        ObjectGuid uiYoggSaron;
+        ObjectGuid LeviathanDoorGUID;
+        ObjectGuid HodirRareChestGUID;
+        ObjectGuid RunicDoorGUID;
+        ObjectGuid StoneDoorGUID;
+        ObjectGuid ThorimLeverGUID;
+        ObjectGuid MimironTramGUID;
+        ObjectGuid MimironElevatorGUID;
+        ObjectGuid Sara;
 
         uint8 count;
         uint32 ironDefTimer;
@@ -405,7 +405,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 id)
+        ObjectGuid GetGuidData(uint32 id)
         {
             switch(id)
             {

@@ -123,7 +123,7 @@ public:
         uint32 m_uiMortalStrike_Timer;
         uint32 m_uiSlam_Timer;
 
-        uint64 m_auiStormforgedLieutenantGUID[2];
+        ObjectGuid m_auiStormforgedLieutenantGUID[2];
 
         void Reset()
         {

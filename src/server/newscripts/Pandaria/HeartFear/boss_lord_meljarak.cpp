@@ -116,7 +116,7 @@ class boss_lord_meljarak : public CreatureScript
         }
 };
 
-void SendDamageSoldiers(InstanceScript* instance, Creature* caller, uint32 callerEntry, uint64 callerGuid, uint32 damage)
+void SendDamageSoldiers(InstanceScript* instance, Creature* caller, uint32 callerEntry, ObjectGuid callerGuid, uint32 damage)
 {
     if (caller && instance)
     {
@@ -156,7 +156,7 @@ void SendDamageSoldiers(InstanceScript* instance, Creature* caller, uint32 calle
     }
 }
 
-void SendDiedSoldiers(InstanceScript* instance, Creature* caller, uint32 callerEntry, uint64 callerGuid)
+void SendDiedSoldiers(InstanceScript* instance, Creature* caller, uint32 callerEntry, ObjectGuid callerGuid)
 {
     if (caller && instance)
     {
@@ -202,7 +202,7 @@ void SendDiedSoldiers(InstanceScript* instance, Creature* caller, uint32 callerE
     }
 }
 
-void SendHealSoldiers(InstanceScript* instance, Creature* caller, uint32 callerEntry, uint64 callerGuid, uint32 modhealth)
+void SendHealSoldiers(InstanceScript* instance, Creature* caller, uint32 callerEntry, ObjectGuid callerGuid, uint32 modhealth)
 {
     if (caller && instance)
     {

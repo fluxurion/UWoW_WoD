@@ -23,24 +23,24 @@ public:
         uint8 aliveNoviceCount;
         uint8 aliveMinibossCount;
 
-        uint64 guCloudstikeGuid;
-        uint64 masterSnowdriftGuid;
-        uint64 shaViolenceGuid;
-        uint64 taranZhuGuid;
+        ObjectGuid guCloudstikeGuid;
+        ObjectGuid masterSnowdriftGuid;
+        ObjectGuid shaViolenceGuid;
+        ObjectGuid taranZhuGuid;
 
-        uint64 azureSerpentGuid;
+        ObjectGuid azureSerpentGuid;
 
-        uint64 cloudstikeEntranceGuid;
-        uint64 cloudstikeExitGuid;
-        uint64 snowdriftEntranceGuid;
-        uint64 snowdriftPossessionsGuid;
-        uint64 zhuchestGuid;
-        uint64 snowdriftFirewallGuid;
-        uint64 snowdriftDojoDoorGuid;
-        uint64 snowdriftExitGuid;
+        ObjectGuid cloudstikeEntranceGuid;
+        ObjectGuid cloudstikeExitGuid;
+        ObjectGuid snowdriftEntranceGuid;
+        ObjectGuid snowdriftPossessionsGuid;
+        ObjectGuid zhuchestGuid;
+        ObjectGuid snowdriftFirewallGuid;
+        ObjectGuid snowdriftDojoDoorGuid;
+        ObjectGuid snowdriftExitGuid;
         
-        uint64 shaEntranceGuid;
-        uint64 shaExitGuid;
+        ObjectGuid shaEntranceGuid;
+        ObjectGuid shaExitGuid;
         
         GuidList minibossPositionsGuid;
         GuidList minibossPositionsGuidSave;
@@ -67,25 +67,25 @@ public:
             aliveNoviceCount            = MAX_NOVICE;
             aliveMinibossCount          = 2;
 
-            guCloudstikeGuid            = 0;
-            masterSnowdriftGuid         = 0;
-            shaViolenceGuid             = 0;
-            taranZhuGuid                = 0;
+            guCloudstikeGuid.Clear();
+            masterSnowdriftGuid.Clear();
+            shaViolenceGuid.Clear();
+            taranZhuGuid.Clear();
 
-            azureSerpentGuid            = 0;
+            azureSerpentGuid.Clear();
 
-            cloudstikeEntranceGuid      = 0;
-            cloudstikeExitGuid          = 0;
-            snowdriftEntranceGuid       = 0;
-            snowdriftEntranceGuid       = 0;
-            snowdriftPossessionsGuid    = 0;
-            zhuchestGuid                = 0,
-            snowdriftFirewallGuid       = 0;
-            snowdriftDojoDoorGuid       = 0;
-            snowdriftExitGuid           = 0;
+            cloudstikeEntranceGuid.Clear();
+            cloudstikeExitGuid.Clear();
+            snowdriftEntranceGuid.Clear();
+            snowdriftEntranceGuid.Clear();
+            snowdriftPossessionsGuid.Clear();
+            zhuchestGuid.Clear();
+            snowdriftFirewallGuid.Clear();
+            snowdriftDojoDoorGuid.Clear();
+            snowdriftExitGuid.Clear();
 
-            shaEntranceGuid             = 0;
-            shaExitGuid                 = 0;
+            shaEntranceGuid.Clear();
+            shaExitGuid.Clear();
             
             firstArcherySet.clear();
             secondArcherySet.clear();
@@ -133,14 +133,14 @@ public:
             {
                 case GO_CLOUDSTRIKE_ENTRANCE:
                     cloudstikeEntranceGuid = go->GetGUID();
-                    HandleGameObject(0, true, go);
+                    HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_CLOUDSTRIKE_EXIT:
                     cloudstikeExitGuid = go->GetGUID();
                     break;
                 case GO_SNOWDRIFT_ENTRANCE:
                     snowdriftEntranceGuid = go->GetGUID();
-                    HandleGameObject(0, true, go);
+                    HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_SNOWDRIFT_POSSESSIONS:
                 case GO_SNOWDRIFT_POSSESSIONS2:
@@ -161,7 +161,7 @@ public:
                     break;
                 case GO_SHA_ENTRANCE:
                     shaEntranceGuid = go->GetGUID();
-                    HandleGameObject(0, true, go);
+                    HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_SHA_EXIT:
                     shaExitGuid = go->GetGUID();
@@ -340,7 +340,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -355,7 +355,7 @@ public:
                     if (firstDefeatedNovicePositionsGuid.empty())
                         return 0;
 
-                    uint64 guid = Trinity::Containers::SelectRandomContainerElement(firstDefeatedNovicePositionsGuid);
+                    ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(firstDefeatedNovicePositionsGuid);
                     firstDefeatedNovicePositionsGuid.remove(guid);
                     return guid;
                 }
@@ -364,7 +364,7 @@ public:
                     if (secondDefeatedNovicePositionsGuid.empty())
                         return 0;
 
-                    uint64 guid = Trinity::Containers::SelectRandomContainerElement(secondDefeatedNovicePositionsGuid);
+                    ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(secondDefeatedNovicePositionsGuid);
                     secondDefeatedNovicePositionsGuid.remove(guid);
                     return guid;
                 }
@@ -373,7 +373,7 @@ public:
                     if (minibossPositionsGuid.empty())
                         return 0;
 
-                    uint64 guid = Trinity::Containers::SelectRandomContainerElement(minibossPositionsGuid);
+                    ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(minibossPositionsGuid);
                     minibossPositionsGuid.remove(guid);
                     return guid;
                 }

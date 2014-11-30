@@ -43,7 +43,7 @@ public:
     {
         instance_razorfen_kraul_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        uint64 DoorWardGUID;
+        ObjectGuid DoorWardGUID;
         int WardKeeperDeath;
 
         void Initialize()

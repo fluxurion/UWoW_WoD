@@ -51,7 +51,7 @@ public:
     {
         npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 RebuffTimer;
         bool work;

@@ -23,10 +23,10 @@ public:
         /*
         ** Trial of the king.
         */
-        uint64 xin_guid;
-        uint64 kuai_guid;
-        uint64 ming_guid;
-        uint64 haiyan_guid;
+        ObjectGuid xin_guid;
+        ObjectGuid kuai_guid;
+        ObjectGuid ming_guid;
+        ObjectGuid haiyan_guid;
         GuidList scrappers;
         GuidList adepts;
         GuidList grunts;
@@ -36,11 +36,11 @@ public:
         /*
         ** Gekkan.
         */
-        uint64 gekkan;
-        uint64 glintrok_ironhide;
-        uint64 glintrok_skulker;
-        uint64 glintrok_oracle;
-        uint64 glintrok_hexxer;
+        ObjectGuid gekkan;
+        ObjectGuid glintrok_ironhide;
+        ObjectGuid glintrok_skulker;
+        ObjectGuid glintrok_oracle;
+        ObjectGuid glintrok_hexxer;
         /*
         ** End of Gekkan.
         */
@@ -64,10 +64,10 @@ public:
 
         void Initialize()
         {
-            xin_guid = 0;
-            kuai_guid = 0;
-            ming_guid = 0;
-            haiyan_guid = 0;
+            xin_guid.Clear();
+            kuai_guid.Clear();
+            ming_guid.Clear();
+            haiyan_guid.Clear();
 
             doorBeforeTrialGuid.Clear();
             trialChestGuid.Clear();
@@ -75,11 +75,11 @@ public:
             doorBeforeKingGuid.Clear();
             secretdoorGuid.Clear();
 
-            gekkan = 0;
-            glintrok_ironhide = 0;
-            glintrok_skulker = 0;
-            glintrok_oracle = 0;
-            glintrok_hexxer = 0;
+            gekkan.Clear();
+            glintrok_ironhide.Clear();
+            glintrok_skulker.Clear();
+            glintrok_oracle.Clear();
+            glintrok_hexxer.Clear();
         }
 
         bool SetBossState(uint32 id, EncounterState state)
@@ -169,7 +169,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -182,7 +182,7 @@ public:
             case TYPE_GET_ENTOURAGE_3:
                 return glintrok_skulker;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         bool isWipe()

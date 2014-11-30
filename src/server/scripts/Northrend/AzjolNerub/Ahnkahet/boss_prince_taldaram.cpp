@@ -94,7 +94,7 @@ public:
         uint32 uiFlamesphereTimer;
         uint32 uiPhaseTimer;
 
-        uint64 uiEmbraceTarget;
+        ObjectGuid uiEmbraceTarget;
 
         CombatPhase Phase;
 
@@ -288,7 +288,7 @@ public:
             if (!instance)
                 return false;
 
-            uint64 uiSphereGuids[2];
+            ObjectGuid uiSphereGuids[2];
             uiSphereGuids[0] = instance->GetGuidData(DATA_SPHERE1);
             uiSphereGuids[1] = instance->GetGuidData(DATA_SPHERE2);
 
@@ -323,7 +323,7 @@ public:
             me->SetDisableGravity(false);
             me->GetMotionMaster()->MovePoint(0, me->GetHomePosition());
             Talk(SAY_WARNING);
-            uint64 prison_GUID = instance->GetGuidData(DATA_PRINCE_TALDARAM_PLATFORM);
+            ObjectGuid prison_GUID = instance->GetGuidData(DATA_PRINCE_TALDARAM_PLATFORM);
             instance->HandleGameObject(prison_GUID, true);
         }
     };

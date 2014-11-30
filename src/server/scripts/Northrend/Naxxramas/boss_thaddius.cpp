@@ -360,7 +360,7 @@ public:
         uint32 magneticPullTimer;
         uint32 uiIdleTimer;
         uint32 uiShockTimer;
-        uint64 uiTeslaGuid;
+        ObjectGuid uiTeslaGuid;
         uint32 uiChainTimer;
         bool bChainReset;
         bool bShock;
@@ -506,7 +506,7 @@ public:
 
         uint32 staticFieldTimer;
         uint32 uiShockTimer;
-        uint64 uiTeslaGuid;
+        ObjectGuid uiTeslaGuid;
         uint32 uiChainTimer;
         bool bChainReset;
         bool bShock;

@@ -45,11 +45,11 @@ public:
         bool IsBossDied[3];
 
         //Storing Skeram, Vem and Kri.
-        uint64 SkeramGUID;
-        uint64 VemGUID;
-        uint64 KriGUID;
-        uint64 VeklorGUID;
-        uint64 VeknilashGUID;
+        ObjectGuid SkeramGUID;
+        ObjectGuid VemGUID;
+        ObjectGuid KriGUID;
+        ObjectGuid VeklorGUID;
+        ObjectGuid VeknilashGUID;
 
         uint32 BugTrioDeathCount;
 
@@ -118,7 +118,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {

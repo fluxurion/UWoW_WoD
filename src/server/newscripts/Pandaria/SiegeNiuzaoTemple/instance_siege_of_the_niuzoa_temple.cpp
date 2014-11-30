@@ -18,11 +18,11 @@ public:
 
     struct instance_siege_of_the_niuzoa_temple_InstanceMapScript : public InstanceScript
     {
-        uint64 jinbakGuid;
-        uint64 vojakGuid;
-        uint64 pavalakGuid;
-        uint64 neronokGuid;
-        uint64 puddleGuid;
+        ObjectGuid jinbakGuid;
+        ObjectGuid vojakGuid;
+        ObjectGuid pavalakGuid;
+        ObjectGuid neronokGuid;
+        ObjectGuid puddleGuid;
 
         instance_siege_of_the_niuzoa_temple_InstanceMapScript(Map* map) : InstanceScript(map)
         {}
@@ -66,7 +66,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {

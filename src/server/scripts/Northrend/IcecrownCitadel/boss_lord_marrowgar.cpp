@@ -248,14 +248,14 @@ class boss_lord_marrowgar : public CreatureScript
                 return &_coldflameLastPos;
             }
 
-            uint64 GetGUID(int32 type/* = 0 */)
+            ObjectGuid GetGUID(int32 type/* = 0 */)
             {
                 if (type == DATA_COLDFLAME_GUID)
                     return _coldflameTarget;
                 return 0LL;
             }
 
-            void SetGUID(uint64 guid, int32 type/* = 0 */)
+            void SetGUID(ObjectGuid const& guid, int32 type/* = 0 */)
             {
                 if (type != DATA_COLDFLAME_GUID)
                     return;
@@ -265,7 +265,7 @@ class boss_lord_marrowgar : public CreatureScript
 
         private:
             Position _coldflameLastPos;
-            uint64 _coldflameTarget;
+            ObjectGuid _coldflameTarget;
             uint32 _boneStormDuration;
             float _baseSpeed;
             bool _introDone;

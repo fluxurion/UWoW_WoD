@@ -46,34 +46,34 @@ public:
         uint32 m_auiOrbIState;
         uint32 m_auiOrbWState;
 
-        uint64 m_uiHalion_pGUID;
-        uint64 m_uiHalion_tGUID;
-        uint64 m_uiHalionControlGUID;
-        uint64 m_uiRagefireGUID;
-        uint64 m_uiZarithianGUID;
-        uint64 m_uiBaltharusGUID;
-        uint64 m_uiCloneGUID;
-        uint64 m_uiXerestraszaGUID;
+        ObjectGuid m_uiHalion_pGUID;
+        ObjectGuid m_uiHalion_tGUID;
+        ObjectGuid m_uiHalionControlGUID;
+        ObjectGuid m_uiRagefireGUID;
+        ObjectGuid m_uiZarithianGUID;
+        ObjectGuid m_uiBaltharusGUID;
+        ObjectGuid m_uiCloneGUID;
+        ObjectGuid m_uiXerestraszaGUID;
 
-        uint64 m_uiOrbNGUID;
-        uint64 m_uiOrbSGUID;
-        uint64 m_uiOrbIGUID;
-        uint64 m_uiOrbWGUID;
-        uint64 m_uiOrbFocusGUID;
-        uint64 m_uiOrbCarrierGUID;
+        ObjectGuid m_uiOrbNGUID;
+        ObjectGuid m_uiOrbSGUID;
+        ObjectGuid m_uiOrbIGUID;
+        ObjectGuid m_uiOrbWGUID;
+        ObjectGuid m_uiOrbFocusGUID;
+        ObjectGuid m_uiOrbCarrierGUID;
 
         //object GUID
-        uint64 m_uiHalionPortal1GUID;
-        uint64 m_uiHalionPortal2GUID;
-        uint64 m_uiHalionPortal3GUID;
-        uint64 m_uiHalionFireWallSGUID;
-        uint64 m_uiHalionFireWallMGUID;
-        uint64 m_uiHalionFireWallLGUID;
-        uint64 m_uiBaltharusTargetGUID;
+        ObjectGuid m_uiHalionPortal1GUID;
+        ObjectGuid m_uiHalionPortal2GUID;
+        ObjectGuid m_uiHalionPortal3GUID;
+        ObjectGuid m_uiHalionFireWallSGUID;
+        ObjectGuid m_uiHalionFireWallMGUID;
+        ObjectGuid m_uiHalionFireWallLGUID;
+        ObjectGuid m_uiBaltharusTargetGUID;
 
-        uint64 m_uiFireFieldGUID;
-        uint64 m_uiFlameWallsGUID;
-        uint64 m_uiFlameRingGUID;
+        ObjectGuid m_uiFireFieldGUID;
+        ObjectGuid m_uiFlameWallsGUID;
+        ObjectGuid m_uiFlameRingGUID;
 
         bool intro;
 
@@ -118,7 +118,7 @@ public:
             return false;
         }
 
-        void OpenDoor(uint64 guid)
+        void OpenDoor(ObjectGuid const& guid)
         {
             if(!guid)
                 return;
@@ -128,7 +128,7 @@ public:
                 pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
         }
 
-        void CloseDoor(uint64 guid)
+        void CloseDoor(ObjectGuid const& guid)
         {
             if(!guid)
                 return;
@@ -380,7 +380,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 uiData)
+        ObjectGuid GetGuidData(uint32 uiData)
         {
             switch(uiData)
             {

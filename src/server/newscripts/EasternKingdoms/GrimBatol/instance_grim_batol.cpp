@@ -18,10 +18,10 @@ public:
             SetBossNumber(MAX_ENCOUNTER);
         }
         
-        uint64 uiGeneralUmbrissGUID;
-        uint64 uiForgemasterThrongusGUID;
-        uint64 uiDrahgaShadowburnerGUID;
-        uint64 uiErudaxGUID;
+        ObjectGuid uiGeneralUmbrissGUID;
+        ObjectGuid uiForgemasterThrongusGUID;
+        ObjectGuid uiDrahgaShadowburnerGUID;
+        ObjectGuid uiErudaxGUID;
         
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         
@@ -103,7 +103,7 @@ public:
             return 0;
         }
         
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch(identifier)
             {

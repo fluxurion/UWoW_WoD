@@ -208,7 +208,7 @@ class boss_omnotron : public CreatureScript
             }
             
             InstanceScript* pInstance;
-            uint64 m_uiGuids[4];
+            ObjectGuid m_uiGuids[4];
             uint8 current;
 
             void EnterCombat(Unit* who)

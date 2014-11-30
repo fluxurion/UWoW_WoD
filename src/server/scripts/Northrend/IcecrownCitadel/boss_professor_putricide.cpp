@@ -661,7 +661,7 @@ class boss_professor_putricide : public CreatureScript
                 events.SetPhase(newPhase);
             }
 
-            uint64 _oozeFloodDummyGUIDs[4];
+            ObjectGuid _oozeFloodDummyGUIDs[4];
             Phases _phase;          // external of EventMap because event phase gets reset on evade
             float const _baseSpeed;
             uint8 _oozeFloodStage;
@@ -688,7 +688,7 @@ class npc_volatile_ooze : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 m_uiTargetGUID;
+            ObjectGuid m_uiTargetGUID;
             uint32 m_uiSearchTargetTimer;
             uint32 m_uiGetTargetTimer;
             uint32 m_uiApplyTargetTimer;
@@ -706,7 +706,7 @@ class npc_volatile_ooze : public CreatureScript
                 DoCast(me, SPELL_OOZE_HIT, true);
             }
 
-            void SetTarget(uint64 guid)
+            void SetTarget(ObjectGuid guid)
             {
                 m_uiTargetGUID = guid;
                 
@@ -784,12 +784,12 @@ class npc_volatile_ooze : public CreatureScript
                 }
             }
             
-            uint64 GetRandomPlayerGUID()
+            ObjectGuid GetRandomPlayerGUID()
             {
                 if (Creature* professor = Unit::GetCreature((*me), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                 {
                     std::list<HostileReference*> t_list = professor->getThreatManager().getThreatList();
-                    std::vector<uint64> targets;
+                    GuidVector targets;
                     
                     if (t_list.empty())
                         return 0;
@@ -805,7 +805,7 @@ class npc_volatile_ooze : public CreatureScript
                         if (targets.empty())
                             return 0;
                         
-                        std::vector<uint64>::iterator itr = targets.begin();
+                        GuidVector::iterator itr = targets.begin();
                         std::advance(itr, urand(0, targets.size() - 1));
 
                     return *itr;
@@ -837,7 +837,7 @@ class npc_gas_cloud : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 m_uiTargetGUID;
+            ObjectGuid m_uiTargetGUID;
             uint32 m_uiSearchTargetTimer;
             uint32 m_uiGetTargetTimer;
             uint32 m_uiApplyTargetTimer;
@@ -855,7 +855,7 @@ class npc_gas_cloud : public CreatureScript
                 DoCast(me, SPELL_OOZE_HIT, true);
             }
 
-            void SetTarget(uint64 guid)
+            void SetTarget(ObjectGuid guid)
             {
                 m_uiTargetGUID = guid;
                 
@@ -936,12 +936,12 @@ class npc_gas_cloud : public CreatureScript
                 }
             }
             
-            uint64 GetRandomPlayerGUID()
+            ObjectGuid GetRandomPlayerGUID()
             {
                 if (Creature* professor = Unit::GetCreature((*me), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                 {
                     std::list<HostileReference*> t_list = professor->getThreatManager().getThreatList();
-                    std::vector<uint64> targets;
+                    GuidVector targets;
                     
                     if (t_list.empty())
                         return 0;
@@ -957,7 +957,7 @@ class npc_gas_cloud : public CreatureScript
                     if (targets.empty())
                         return 0;
                         
-                    std::vector<uint64>::iterator itr = targets.begin();
+                    GuidVector::iterator itr = targets.begin();
                     std::advance(itr, urand(0, targets.size() - 1));
 
                     return *itr;
@@ -1108,7 +1108,7 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
                     return;
 
                 uint32 stage = GetCaster()->ToCreature()->AI()->GetData(DATA_EXPERIMENT_STAGE);
-                uint64 targetGUID = (stage == 0) ? instance->GetGuidData(DATA_GREEN_TRIGGER) : instance->GetGuidData(DATA_ORANGE_TRIGGER);
+                ObjectGuid targetGUID = (stage == 0) ? instance->GetGuidData(DATA_GREEN_TRIGGER) : instance->GetGuidData(DATA_ORANGE_TRIGGER);
                 Creature * target = ObjectAccessor::GetCreature(*GetCaster(), targetGUID);
 
                 if (target)

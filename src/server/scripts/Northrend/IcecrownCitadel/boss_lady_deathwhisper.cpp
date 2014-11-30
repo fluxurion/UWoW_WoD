@@ -553,7 +553,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     summon->AI()->DoCast(summon, SPELL_TELEPORT_VISUAL);
             }
 
-            void SetGUID(uint64 guid, int32 id/* = 0*/)
+            void SetGUID(ObjectGuid const& guid, int32 id/* = 0*/)
             {
                 if (id != GUID_CULTIST)
                     return;
@@ -567,7 +567,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (_reanimationQueue.empty())
                     return;
 
-                uint64 cultistGUID = _reanimationQueue.front();
+                ObjectGuid cultistGUID = _reanimationQueue.front();
                 Creature* cultist = ObjectAccessor::GetCreature(*me, cultistGUID);
                 _reanimationQueue.pop_front();
                 if (!cultist)
@@ -611,9 +611,9 @@ class boss_lady_deathwhisper : public CreatureScript
             }
 
         private:
-            uint64 _nextVengefulShadeTargetGUID;
-            uint64 _darnavanGUID;
-            std::deque<uint64> _reanimationQueue;
+            ObjectGuid _nextVengefulShadeTargetGUID;
+            ObjectGuid _darnavanGUID;
+            GuidDeque _reanimationQueue;
             uint32 _waveCounter;
             uint8 const _dominateMindCount;
             bool _introDone;

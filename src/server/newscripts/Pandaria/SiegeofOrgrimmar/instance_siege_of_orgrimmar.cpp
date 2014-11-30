@@ -34,21 +34,21 @@ public:
     {
         instance_siege_of_orgrimmar_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        std::map<uint32, uint64> easyGUIDconteiner;
+        std::map<uint32, ObjectGuid> easyGUIDconteiner;
         //Misc
         uint32 TeamInInstance;
         uint32 EventfieldOfSha;
         uint32 lingering_corruption_count;
 
         //GameObjects
-        uint64 immerseusexdoorGUID;
-        uint64 chestShaVaultOfForbiddenTreasures;
-        std::vector<uint64> lightqGUIDs;
+        ObjectGuid immerseusexdoorGUID;
+        ObjectGuid chestShaVaultOfForbiddenTreasures;
+        GuidVector lightqGUIDs;
         
         //Creature
         GuidSet shaSlgGUID;
-        uint64 LorewalkerChoGUIDtmp;
-        uint64 fpGUID[3];
+        ObjectGuid LorewalkerChoGUIDtmp;
+        ObjectGuid fpGUID[3];
 
         EventMap Events;
 
@@ -76,7 +76,7 @@ public:
            
             //Creature
             LorewalkerChoGUIDtmp    = 0;
-            memset(fpGUID, 0, 3 * sizeof(uint64));
+            //memset(fpGUID, 0, 3 * sizeof(ObjectGuid));
             EventfieldOfSha     = 0;
 
             onInitEnterState = false;
@@ -352,15 +352,15 @@ public:
                     switch (state)
                     {
                     case NOT_STARTED:
-                        for (std::vector<uint64>::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
+                        for (GuidVector::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
                             HandleGameObject(*guid, true);
                         break;
                     case IN_PROGRESS:
-                        for (std::vector<uint64>::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
+                        for (GuidVector::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
                             HandleGameObject(*guid, false);
                         break;
                     case DONE:
-                        for (std::vector<uint64>::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
+                        for (GuidVector::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
                             HandleGameObject(*guid, true);
                         if (Creature* norush = instance->GetCreature(GetGuidData(NPC_NORUSHEN)))
                             norush->DespawnOrUnsummon();
@@ -422,7 +422,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -442,7 +442,7 @@ public:
                     return LorewalkerChoGUIDtmp;
             }
 
-            std::map<uint32, uint64>::iterator itr = easyGUIDconteiner.find(type);
+            std::map<uint32, ObjectGuid>::iterator itr = easyGUIDconteiner.find(type);
             if (itr != easyGUIDconteiner.end())
                 return itr->second;
 

@@ -49,23 +49,23 @@ public:
     {
         instance_pinnacle(Map* map) : InstanceScript(map) {}
 
-        uint64 uiSvalaSorrowgrave;
-        uint64 uiGortokPalehoof;
-        uint64 uiSkadiTheRuthless;
-        uint64 uiKingYmiron;
+        ObjectGuid uiSvalaSorrowgrave;
+        ObjectGuid uiGortokPalehoof;
+        ObjectGuid uiSkadiTheRuthless;
+        ObjectGuid uiKingYmiron;
 
-        uint64 uiSkadiTheRuthlessDoor;
-        uint64 uiKingYmironDoor;
-        uint64 uiGortokPalehoofSphere;
+        ObjectGuid uiSkadiTheRuthlessDoor;
+        ObjectGuid uiKingYmironDoor;
+        ObjectGuid uiGortokPalehoofSphere;
 
-        uint64 uiFrenziedWorgen;
-        uint64 uiRavenousFurbolg;
-        uint64 uiFerociousRhino;
-        uint64 uiMassiveJormungar;
-        uint64 uiPalehoofOrb;
+        ObjectGuid uiFrenziedWorgen;
+        ObjectGuid uiRavenousFurbolg;
+        ObjectGuid uiFerociousRhino;
+        ObjectGuid uiMassiveJormungar;
+        ObjectGuid uiPalehoofOrb;
 
-        uint64 uiSvala;
-        uint64 uiSacrificedPlayer;
+        ObjectGuid uiSvala;
+        ObjectGuid uiSacrificedPlayer;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -127,17 +127,17 @@ public:
             {
                 case ENTRY_SKADI_THE_RUTHLESS_DOOR:
                     uiSkadiTheRuthlessDoor = go->GetGUID();
-                    if (m_auiEncounter[2] == DONE) HandleGameObject(0, true, go);
+                    if (m_auiEncounter[2] == DONE) HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case ENTRY_KING_YMIRON_DOOR:
                     uiKingYmironDoor = go->GetGUID();
-                    if (m_auiEncounter[3] == DONE) HandleGameObject(0, true, go);
+                    if (m_auiEncounter[3] == DONE) HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case ENTRY_GORK_PALEHOOF_SPHERE:
                     uiGortokPalehoofSphere = go->GetGUID();
                     if (m_auiEncounter[1] == DONE)
                     {
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
@@ -170,7 +170,7 @@ public:
                 SaveToDB();
         }
 
-        void SetGuidData(uint32 type, uint64 data)
+        void SetGuidData(uint32 type, ObjectGuid data)
         {
             switch (type)
             {
@@ -192,7 +192,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {

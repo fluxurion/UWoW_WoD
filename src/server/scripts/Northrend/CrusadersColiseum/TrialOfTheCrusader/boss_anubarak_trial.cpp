@@ -149,7 +149,7 @@ public:
 
         SummonList Summons;
         GuidList m_vBurrowGUID;
-        uint64 m_aSphereGUID[6];
+        ObjectGuid m_aSphereGUID[6];
 
         uint32 m_uiFreezeSlashTimer;
         uint32 m_uiPenetratingColdTimer;
@@ -164,7 +164,7 @@ public:
         uint8  m_uiStage;
         bool   m_bIntro;
         bool   m_bReachedPhase3;
-        uint64 m_uiTargetGUID;
+        ObjectGuid m_uiTargetGUID;
         uint8  m_uiScarabSummoned;
 
         void Reset()
@@ -660,7 +660,7 @@ public:
         InstanceScript* m_pInstance;
 
         uint32 SearchTargetTimer;
-        uint64 TargetGUID;
+        ObjectGuid TargetGUID;
         bool notstartpursuit;
 
         void Reset()
@@ -671,7 +671,7 @@ public:
             TargetGUID = 0;
         }
 
-        void SetGUID(uint64 guid)
+        void SetGUID(ObjectGuid const& guid)
         {
             TargetGUID = guid;
         
@@ -714,12 +714,12 @@ public:
             else SearchTargetTimer -= uiDiff;
         }
         
-        uint64 GetRandomPlayerGUID()
+        ObjectGuid GetRandomPlayerGUID()
         {
             if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetGuidData(NPC_ANUBARAK)))
             {
                 std::list<HostileReference*> t_list = pAnubarak->getThreatManager().getThreatList();
-                std::vector<uint64> targets;
+                GuidVector targets;
 
                 if (t_list.empty())
                     return 0;
@@ -734,7 +734,7 @@ public:
                 if (targets.empty())
                     return 0;
                 
-                std::vector<uint64>::iterator itr = targets.begin();
+                GuidVector::iterator itr = targets.begin();
                 std::advance(itr, urand(0, targets.size() - 1));
 
                 return *itr;

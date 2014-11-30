@@ -110,7 +110,7 @@ public:
 
         uint32 FlameWreathTimer;
         uint32 FlameWreathCheckTime;
-        uint64 FlameWreathTarget[3];
+        ObjectGuid FlameWreathTarget[3];
         float FWTargPosX[3];
         float FWTargPosY[3];
 

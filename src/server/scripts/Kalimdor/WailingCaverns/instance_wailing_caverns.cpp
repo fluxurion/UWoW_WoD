@@ -46,7 +46,7 @@ public:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
         bool yelled;
-        uint64 NaralexGUID;
+        ObjectGuid NaralexGUID;
 
         void Initialize()
         {
@@ -98,7 +98,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 data)
+        ObjectGuid GetGuidData(uint32 data)
         {
             if (data == DATA_NARALEX)return NaralexGUID;
             return 0;

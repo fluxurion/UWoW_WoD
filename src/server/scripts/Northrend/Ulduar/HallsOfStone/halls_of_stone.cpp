@@ -308,7 +308,7 @@ public:
         uint32 uiStep;
         uint32 uiPhaseTimer;
 
-        uint64 uiControllerGUID;
+        ObjectGuid uiControllerGUID;
         GuidList lDwarfGUIDList;
 
         InstanceScript* instance;

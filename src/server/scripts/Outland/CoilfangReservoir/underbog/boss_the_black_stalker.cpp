@@ -56,7 +56,7 @@ public:
         uint32 Levitate_Timer;
         uint32 ChainLightning_Timer;
         uint32 StaticCharge_Timer;
-        uint64 LevitatedTarget;
+        ObjectGuid LevitatedTarget;
         uint32 LevitatedTarget_Timer;
         bool InAir;
         uint32 check_Timer;

@@ -215,7 +215,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier)
             {
                 switch (identifier)
                 {
@@ -293,18 +293,18 @@ class instance_culling_of_stratholme : public InstanceMapScript
             }
 
         private:
-            uint64 _arthasGUID;
-            uint64 _meathookGUID;
-            uint64 _salrammGUID;
-            uint64 _epochGUID;
-            uint64 _malGanisGUID;
-            uint64 _infiniteGUID;
-            uint64 _shkafGateGUID;
-            uint64 _malGanisGate1GUID;
-            uint64 _malGanisGate2GUID;
-            uint64 _exitGateGUID;
-            uint64 _malGanisChestGUID;
-            uint64 _genericBunnyGUID;
+            ObjectGuid _arthasGUID;
+            ObjectGuid _meathookGUID;
+            ObjectGuid _salrammGUID;
+            ObjectGuid _epochGUID;
+            ObjectGuid _malGanisGUID;
+            ObjectGuid _infiniteGUID;
+            ObjectGuid _shkafGateGUID;
+            ObjectGuid _malGanisGate1GUID;
+            ObjectGuid _malGanisGate2GUID;
+            ObjectGuid _exitGateGUID;
+            ObjectGuid _malGanisChestGUID;
+            ObjectGuid _genericBunnyGUID;
             uint32 _encounterState[MAX_ENCOUNTER];
             uint32 _crateCount;
         };

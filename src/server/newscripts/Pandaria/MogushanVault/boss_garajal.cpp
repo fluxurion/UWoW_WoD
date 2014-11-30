@@ -80,7 +80,7 @@ class boss_garajal : public CreatureScript
             }
 
             InstanceScript* pInstance;
-            uint64 voodooTargets[4];
+            ObjectGuid voodooTargets[4];
             uint32 checkvictim;
 
             void Reset()
@@ -250,7 +250,7 @@ class boss_garajal : public CreatureScript
                                 me->AddAura(SPELL_SOUL_CUT_DAMAGE,  target);
 
                                 Difficulty difficulty = me->GetMap()->GetDifficulty();
-                                uint64 viewerGuid = difficulty != RAID_TOOL_DIFFICULTY ? target->GetGUID(): 0;
+                                ObjectGuid viewerGuid = difficulty != RAID_TOOL_DIFFICULTY ? target->GetGUID(): 0;
                                 uint8  mobCount   = IsHeroic() ? 3: 1;
 
                                 for (uint8 i = 0; i < mobCount; ++i)
@@ -364,7 +364,7 @@ class mob_shadowy_minion : public CreatureScript
 
             InstanceScript* pInstance;
 
-            uint64 spiritGuid;
+            ObjectGuid spiritGuid;
             EventMap events;
 
             void Reset()

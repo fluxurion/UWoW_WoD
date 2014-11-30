@@ -87,7 +87,7 @@ public:
 
         uint32 NextPortal_Timer;
 
-        uint64 MedivhGUID;
+        ObjectGuid MedivhGUID;
         uint8 CurrentRiftId;
 
         void Initialize()
@@ -252,7 +252,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 data)
+        ObjectGuid GetGuidData(uint32 data)
         {
             if (data == DATA_MEDIVH)
                 return MedivhGUID;

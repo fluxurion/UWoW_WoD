@@ -62,7 +62,7 @@ class instance_archavon : public InstanceMapScript
                 }
             }
 
-            uint64 GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier)
             {
                 switch (identifier)
                 {
@@ -129,8 +129,8 @@ class instance_archavon : public InstanceMapScript
             }
 
         private:
-            uint64 EmalonGUID;
-            uint64 ToravonGUID;
+            ObjectGuid EmalonGUID;
+            ObjectGuid ToravonGUID;
             time_t ArchavonDeath;
             time_t EmalonDeath;
             time_t KoralonDeath;

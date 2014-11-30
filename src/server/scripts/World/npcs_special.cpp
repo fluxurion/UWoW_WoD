@@ -132,7 +132,7 @@ public:
         bool startattack;
         uint32 jump;
         uint32 entryId;
-        uint64 firsttarget;
+        ObjectGuid firsttarget;
         Unit *owner;
         float oldHast;
 
@@ -445,7 +445,7 @@ class npc_air_force_bots : public CreatureScript
             }
 
             SpawnAssociation* SpawnAssoc;
-            uint64 SpawnedGUID;
+            ObjectGuid SpawnedGUID;
 
             void Reset() {}
 
@@ -860,7 +860,7 @@ class npc_doctor : public CreatureScript
         {
             npc_doctorAI(Creature* creature) : ScriptedAI(creature) {}
 
-            uint64 PlayerGUID;
+            ObjectGuid PlayerGUID;
 
             uint32 SummonPatientTimer;
             uint32 SummonPatientCount;
@@ -1005,7 +1005,7 @@ class npc_injured_patient : public CreatureScript
         {
             npc_injured_patientAI(Creature* creature) : ScriptedAI(creature) {}
 
-            uint64 DoctorGUID;
+            ObjectGuid DoctorGUID;
             Location* Coord;
 
             void Reset()
@@ -1207,7 +1207,7 @@ class npc_garments_of_quests : public CreatureScript
         {
             npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature) {Reset();}
 
-            uint64 CasterGUID;
+            ObjectGuid CasterGUID;
 
             bool IsHealed;
             bool CanRun;
@@ -2307,7 +2307,7 @@ class mob_mojo : public CreatureScript
         {
             mob_mojoAI(Creature* creature) : ScriptedAI(creature) {Reset();}
             uint32 hearts;
-            uint64 victimGUID;
+            ObjectGuid victimGUID;
             void Reset()
             {
                 victimGUID = 0;
@@ -2499,7 +2499,7 @@ class npc_ebon_gargoyle : public CreatureScript
             void InitializeAI()
             {
                 CasterAI::InitializeAI();
-                uint64 ownerGuid = me->GetOwnerGUID();
+                ObjectGuid ownerGuid = me->GetOwnerGUID();
                 if (!ownerGuid)
                     return;
                 // Not needed to be despawned now
@@ -3547,7 +3547,7 @@ class npc_spring_rabbit : public CreatureScript
             uint32 jumpTimer;
             uint32 bunnyTimer;
             uint32 searchTimer;
-            uint64 rabbitGUID;
+            ObjectGuid rabbitGUID;
 
             void Reset()
             {

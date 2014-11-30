@@ -48,7 +48,7 @@ public:
         instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 AnzuEncounter;
-        uint64 m_uiIkissDoorGUID;
+        ObjectGuid m_uiIkissDoorGUID;
 
         void Initialize()
         {

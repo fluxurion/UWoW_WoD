@@ -46,10 +46,10 @@ public:
 
         //Eruption is a BFS graph problem
         //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
-        std::map<uint64, uint32> FloorEruptionGUID[2];
-        std::queue<uint64> FloorEruptionGUIDQueue;
+        std::map<ObjectGuid, uint32> FloorEruptionGUID[2];
+        GuidDeque FloorEruptionGUIDQueue;
 
-        uint64 OnyxiasGUID;
+        ObjectGuid OnyxiasGUID;
         uint32 OnyxiaLiftoffTimer;
         uint32 ManyWhelpsCounter;
         uint32 EruptTimer;
@@ -113,7 +113,7 @@ public:
             }
         }
 
-        void FloorEruption(uint64 floorEruptedGUID)
+        void FloorEruption(ObjectGuid floorEruptedGUID)
         {
             if (GameObject* pFloorEruption = instance->GetGameObject(floorEruptedGUID))
             {
@@ -132,7 +132,7 @@ public:
                 {
                     if (((*itr)->GetGOInfo()->displayId == 4392 || (*itr)->GetGOInfo()->displayId == 4472) && (*itr)->GetGOInfo()->trap.spellId == 17731)
                     {
-                        uint64 nearFloorGUID = (*itr)->GetGUID();
+                        ObjectGuid nearFloorGUID = (*itr)->GetGUID();
                         if (FloorEruptionGUID[1].find(nearFloorGUID) != FloorEruptionGUID[1].end() && (*FloorEruptionGUID[1].find(nearFloorGUID)).second == 0)
                         {
                             (*FloorEruptionGUID[1].find(nearFloorGUID)).second = (*FloorEruptionGUID[1].find(floorEruptedGUID)).second+1;
@@ -177,7 +177,7 @@ public:
                 SaveToDB();
         }
 
-        void SetGuidData(uint32 Type, uint64 Data)
+        void SetGuidData(uint32 Type, ObjectGuid Data)
         {
             switch (Type)
             {
@@ -200,7 +200,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 Data)
+        ObjectGuid GetGuidData(uint32 Data)
         {
             switch (Data)
             {

@@ -295,8 +295,8 @@ public:
         uint32 m_uiFireBombTimer;
         uint32 m_uiBatterTimer;
         uint32 m_uiHeadCrackTimer;
-        uint64 m_uiBossGUID;
-        uint64 m_uiTargetGUID;
+        ObjectGuid m_uiBossGUID;
+        ObjectGuid m_uiTargetGUID;
         bool   m_bTargetDied;
 
         void Reset()
@@ -347,7 +347,7 @@ public:
             }
         }
         
-        void RemoveSnoboldFromPlayer(uint64 guid)
+        void RemoveSnoboldFromPlayer(ObjectGuid guid)
         {
             if (Unit* target = Unit::GetPlayer(*me, guid))
             {
@@ -822,7 +822,7 @@ public:
         uint32 m_uiMassiveCrashTimer;
         uint32 m_uiTrampleTimer;
         float  m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ;
-        uint64 m_uiTrampleTargetGUID;
+        ObjectGuid m_uiTrampleTargetGUID;
         bool   m_bMovementStarted;
         bool   m_bMovementFinish;
         bool   m_bTrampleCasted;

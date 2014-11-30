@@ -324,12 +324,12 @@ class boss_blood_council_controller : public CreatureScript
         private:
             struct InvocationData
             {
-                uint64 guid;
+                ObjectGuid guid;
                 uint32 spellId;
                 uint32 textId;
                 uint32 visualSpell;
 
-                InvocationData(uint64 _guid, uint32 _spellId, uint32 _textId, uint32 _visualSpell)
+                InvocationData(ObjectGuid _guid, uint32 _spellId, uint32 _textId, uint32 _visualSpell)
                 {
                     guid = _guid;
                     spellId = _spellId;
@@ -1163,7 +1163,7 @@ class npc_ball_of_flame : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 guid, int32 /*type*/)
+            void SetGUID(ObjectGuid const& guid, int32 /*type*/)
             {
                 _chaseGUID = guid;
             }
@@ -1204,7 +1204,7 @@ class npc_ball_of_flame : public CreatureScript
             }
 
         private:
-            uint64 _chaseGUID;
+            ObjectGuid _chaseGUID;
             InstanceScript* _instance;
             uint32 _despawnTimer;
         };

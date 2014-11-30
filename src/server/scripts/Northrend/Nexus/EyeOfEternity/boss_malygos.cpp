@@ -496,7 +496,7 @@ public:
                         break;
                     case EVENT_SURGE_POWER_PHASE_3:
                         {
-                            uint64 lasttarget = 0;
+                            ObjectGuid lasttarget = 0;
 
                             Map* pMap = me->GetMap();
                             if (pMap && pMap->IsDungeon())

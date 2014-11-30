@@ -71,7 +71,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -136,12 +136,12 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             }
 
         private:
-            uint64 _kurinaxxGUID;
-            uint64 _rajaxxGUID;
-            uint64 _moamGUID;
-            uint64 _buruGUID;
-            uint64 _ayamissGUID;
-            uint64 _ossirianGUID;
+            ObjectGuid _kurinaxxGUID;
+            ObjectGuid _rajaxxGUID;
+            ObjectGuid _moamGUID;
+            ObjectGuid _buruGUID;
+            ObjectGuid _ayamissGUID;
+            ObjectGuid _ossirianGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

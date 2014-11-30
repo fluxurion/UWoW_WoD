@@ -76,7 +76,7 @@ class boss_kelidan_the_breaker : public CreatureScript
             uint32 check_Timer;
             bool Firenova;
             bool addYell;
-            uint64 Channelers[5];
+            ObjectGuid Channelers[5];
 
             void Reset()
             {
@@ -138,7 +138,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                     AttackStart(killer);
             }
 
-            uint64 GetChanneled(Creature* channeler1)
+            ObjectGuid GetChanneled(Creature* channeler1)
             {
                 SummonChannelers();
                 if (!channeler1)
@@ -312,7 +312,7 @@ class npc_shadowmoon_channeler : public CreatureScript
                         if (!me->IsNonMeleeSpellCasted(false))
                             if (Creature* Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
                             {
-                                uint64 channeler = CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(me);
+                                ObjectGuid channeler = CAST_AI(boss_kelidan_the_breaker::boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(me);
                                 if (Unit* channeled = ObjectAccessor::GetUnit(*me, channeler))
                                     DoCast(channeled, SPELL_CHANNELING);
                             }

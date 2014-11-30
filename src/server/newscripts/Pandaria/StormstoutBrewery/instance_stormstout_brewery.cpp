@@ -18,16 +18,16 @@ public:
 
     struct instance_stormstout_brewery_InstanceMapScript : public InstanceScript
     {
-        uint64 ookookGuid;
-        uint64 hoptallusGuid;
-        uint64 yanzhuGuid;
-        uint64 ookexitdoorGuid;
-        uint64 doorGuid;
-        uint64 door2Guid;
-        uint64 door3Guid;
-        uint64 door4Guid;
-        uint64 lastdoorGuid;
-        uint64 carrotdoorGuid;
+        ObjectGuid ookookGuid;
+        ObjectGuid hoptallusGuid;
+        ObjectGuid yanzhuGuid;
+        ObjectGuid ookexitdoorGuid;
+        ObjectGuid doorGuid;
+        ObjectGuid door2Guid;
+        ObjectGuid door3Guid;
+        ObjectGuid door4Guid;
+        ObjectGuid lastdoorGuid;
+        ObjectGuid carrotdoorGuid;
 
         instance_stormstout_brewery_InstanceMapScript(Map* map) : InstanceScript(map)
         {}
@@ -35,16 +35,16 @@ public:
         void Initialize()
         {
             SetBossNumber(3);
-            ookookGuid      = 0;
-            hoptallusGuid   = 0;
-            yanzhuGuid      = 0;
-            ookexitdoorGuid = 0;
-            doorGuid = 0;
-            door2Guid = 0;
-            door3Guid = 0;
-            door4Guid = 0;
-            lastdoorGuid = 0;
-            carrotdoorGuid = 0;
+            ookookGuid.Clear();
+            hoptallusGuid.Clear();
+            yanzhuGuid.Clear();
+            ookexitdoorGuid.Clear();
+            doorGuid.Clear();
+            door2Guid.Clear();
+            door3Guid.Clear();
+            door4Guid.Clear();
+            lastdoorGuid.Clear();
+            carrotdoorGuid.Clear();
         }
 
         void OnGameObjectCreate(GameObject* go)
@@ -156,7 +156,7 @@ public:
             return 0;
         }
 
-        uint64 GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -168,7 +168,7 @@ public:
                     return yanzhuGuid;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Update(uint32 diff) 

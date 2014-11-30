@@ -124,7 +124,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            uint64 GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier)
             {
                 switch(identifier)
                 {
@@ -239,21 +239,21 @@ class instance_halls_of_origination : public InstanceMapScript
 
             private:
                 uint32 uiTeamInInstance;
-                uint64 uiTempleGuardianAnhuurGUID;
-                uint64 uiEarthragerPtahGUID;
-                uint64 uiAnraphetGUID;
-                uint64 uiIsisetGUID;
-                uint64 uiAmmunaeGUID;
-                uint64 uiSeteshGUID;
-                uint64 uiRajhGUID;
-                uint64 uiBrannGUID;
+                ObjectGuid uiTempleGuardianAnhuurGUID;
+                ObjectGuid uiEarthragerPtahGUID;
+                ObjectGuid uiAnraphetGUID;
+                ObjectGuid uiIsisetGUID;
+                ObjectGuid uiAmmunaeGUID;
+                ObjectGuid uiSeteshGUID;
+                ObjectGuid uiRajhGUID;
+                ObjectGuid uiBrannGUID;
 
                 uint32 uiWardensDone;
 
-                uint64 uiOriginationElevatorGUID;
-                uint64 uiAnhuurBridgeGUID;
-                uint64 uiAnraphetEntranceDoorGUID;
-                uint64 uiAnraphetBossDoorGUID;
+                ObjectGuid uiOriginationElevatorGUID;
+                ObjectGuid uiAnhuurBridgeGUID;
+                ObjectGuid uiAnraphetEntranceDoorGUID;
+                ObjectGuid uiAnraphetBossDoorGUID;
 
         };
 };

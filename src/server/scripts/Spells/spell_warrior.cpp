@@ -1117,7 +1117,7 @@ class spell_warr_raging_blow_remove : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_raging_blow_remove_SpellScript);
 
-            uint64 tar;
+            ObjectGuid tar;
             
             void HandleOnCast()
             {                

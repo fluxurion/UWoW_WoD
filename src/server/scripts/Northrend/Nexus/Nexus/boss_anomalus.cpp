@@ -79,7 +79,7 @@ class boss_anomalus : public CreatureScript
             uint8 Phase;
             uint32 uiSparkTimer;
             uint32 uiCreateRiftTimer;
-            uint64 uiChaoticRiftGUID;
+            ObjectGuid uiChaoticRiftGUID;
             bool chaosTheory;
 
             void Reset()

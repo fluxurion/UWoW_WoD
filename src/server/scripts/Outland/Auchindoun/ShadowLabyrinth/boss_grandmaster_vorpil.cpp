@@ -79,7 +79,7 @@ public:
         {
         }
 
-        uint64 VorpilGUID;
+        ObjectGuid VorpilGUID;
         uint32 move;
         bool sacrificed;
 
@@ -162,7 +162,7 @@ public:
         uint32 DrawShadows_Timer;
         uint32 summonTraveler_Timer;
         uint32 banish_Timer;
-        uint64 PortalsGuid[5];
+        ObjectGuid PortalsGuid[5];
 
         void Reset()
         {

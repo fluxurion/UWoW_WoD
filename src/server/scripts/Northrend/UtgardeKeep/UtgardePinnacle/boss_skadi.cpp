@@ -177,8 +177,8 @@ public:
 
         InstanceScript* instance;
         SummonList Summons;
-        uint64 m_uiGraufGUID;
-        std::vector<uint64> triggersGUID;
+        ObjectGuid m_uiGraufGUID;
+        GuidVector triggersGUID;
 
         uint32 m_uiCrushTimer;
         uint32 m_uiPoisonedSpearTimer;

@@ -86,8 +86,8 @@ public:
         uint32 Wave_Timer;
         uint32 Phase;
         bool Wave;
-        uint64 someplayer;
-        uint64 goConsole;
+        ObjectGuid someplayer;
+        ObjectGuid goConsole;
         Creature* add;
 
         void Reset()
@@ -398,9 +398,9 @@ public:
     {
         npc_commander_dawnforgeAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
 
-        uint64 PlayerGUID;
-        uint64 ardonisGUID;
-        uint64 pathaleonGUID;
+        ObjectGuid PlayerGUID;
+        ObjectGuid ardonisGUID;
+        ObjectGuid pathaleonGUID;
 
         uint32 Phase;
         uint32 PhaseSubphase;
@@ -754,7 +754,7 @@ public:
         uint8 WeakPercent;
 
         Player* player;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 ManaBurnTimer;
 

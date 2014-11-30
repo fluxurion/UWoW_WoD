@@ -407,7 +407,7 @@ public:
             return false;
         }
 
-        uint64 ownerGuid = object->GetOwnerGUID();
+        ObjectGuid ownerGuid = object->GetOwnerGUID();
         if (ownerGuid)
         {
             Unit* owner = ObjectAccessor::GetUnit(*handler->GetSession()->GetPlayer(), ownerGuid);
