@@ -8415,7 +8415,7 @@ void Spell::EffectUncagePet(SpellEffIndex effIndex)
         if (player->HasActiveSpell(bp->spellId))
             return;
         // create new pet guid
-        ObjectGuid petguid = ObjectGuid::Create<HighGuid::AreaTrigger>(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate());
+        ObjectGuid petguid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>()->Generate());
         // add pet
         if (CreatureTemplate const* creature = sObjectMgr->GetCreatureTemplate(bp->CreatureEntry))
             player->GetBattlePetMgr()->AddPetInJournal(petguid, bp->ID, bp->CreatureEntry, level, creature->Modelid1, 10, 5, 100, 100, quality, 0, 0, bp->spellId, "", breedID, true);

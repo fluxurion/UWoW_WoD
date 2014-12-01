@@ -177,7 +177,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     m_goInfo = goinfo;
 
     if (IsTransport())
-        Object::_Create(ObjectGuid::Create<HighGuid::Transport>(map->GetId(), goinfo->entry, guidlow));
+        Object::_Create(ObjectGuid::Create<HighGuid::Transport>(guidlow));
     else
         Object::_Create(ObjectGuid::Create<HighGuid::GameObject>(map->GetId(), goinfo->entry, guidlow));
 

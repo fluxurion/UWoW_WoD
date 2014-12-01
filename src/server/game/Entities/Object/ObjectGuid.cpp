@@ -252,3 +252,4 @@ template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::DynamicObject>::Gener
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Corpse>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::AreaTrigger>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Transport>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::BattlePet>::Generate();
