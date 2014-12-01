@@ -1056,7 +1056,7 @@ class go_captain_tyralius_prison : public GameObjectScript
             {
                 go->UseDoorOrButton();
 
-                player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, 0);
+                player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, ObjectGuid::Empty);
 
                 tyralius->AI()->Talk(SAY_FREE);
                 tyralius->DespawnOrUnsummon(8000);

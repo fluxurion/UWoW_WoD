@@ -210,7 +210,7 @@ public:
                 case DATA_SACRIFICED_PLAYER:      return uiSacrificedPlayer;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

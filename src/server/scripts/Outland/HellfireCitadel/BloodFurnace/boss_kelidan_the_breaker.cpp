@@ -66,7 +66,7 @@ class boss_kelidan_the_breaker : public CreatureScript
             boss_kelidan_the_breakerAI(Creature* creature) : BossAI(creature, DATA_KELIDAN_THE_BREAKER)
             {
                 for (uint8 i = 0; i < 5; ++i)
-                    Channelers[i] = 0;
+                    Channelers[i].Clear();
             }
 
             uint32 ShadowVolley_Timer;
@@ -142,7 +142,7 @@ class boss_kelidan_the_breaker : public CreatureScript
             {
                 SummonChannelers();
                 if (!channeler1)
-                    return 0;
+                    return ObjectGuid::Empty;
 
                 uint8 i;
                 for (i=0; i<5; ++i)
@@ -164,7 +164,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                     if (channeler)
                         Channelers[i] = channeler->GetGUID();
                     else
-                        Channelers[i] = 0;
+                        Channelers[i].Clear();
                 }
             }
 

@@ -207,10 +207,10 @@ public:
 
             if (instance)
                 instance->SetData(DATA_LADYVASHJEVENT, NOT_STARTED);
-            ShieldGeneratorChannel[0] = 0;
-            ShieldGeneratorChannel[1] = 0;
-            ShieldGeneratorChannel[2] = 0;
-            ShieldGeneratorChannel[3] = 0;
+            ShieldGeneratorChannel[0].Clear();
+            ShieldGeneratorChannel[1].Clear();
+            ShieldGeneratorChannel[2].Clear();
+            ShieldGeneratorChannel[3].Clear();
 
             me->SetCorpseDelay(1000*60*60);
         }
@@ -573,7 +573,7 @@ public:
             Move = 0;
             Phase = 1;
 
-            VashjGUID = 0;
+            VashjGUID.Clear();
 
             X = ElementWPPos[0][0];
             Y = ElementWPPos[0][1];

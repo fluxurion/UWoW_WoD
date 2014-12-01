@@ -380,7 +380,7 @@ public:
                 Heart->ToCreature()->AI()->DoAction(0);
 
             DoScriptText(SAY_HEART_OPENED, me);
-            me->MonsterTextEmote(EMOTE_HEART, 0, true);
+            me->MonsterTextEmote(EMOTE_HEART, ObjectGuid::Empty, true);
             me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
             SpawnAdds();
         }
@@ -572,7 +572,7 @@ public:
             {
                 if (!repaired && me->GetDistance2d(pXT002) <= 0.5)
                 {
-                    me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
+                    me->MonsterTextEmote(EMOTE_REPAIR, ObjectGuid::Empty, true);
                    
                     pXT002->CastSpell(me, SPELL_REPAIR, true);
                     repaired = true;

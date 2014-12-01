@@ -82,20 +82,20 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                LurkerBelow = 0;
-                Sharkkis = 0;
-                Tidalvess = 0;
-                Caribdis = 0;
-                LadyVashj = 0;
-                Karathress = 0;
-                KarathressEvent_Starter = 0;
-                LeotherasTheBlind = 0;
-                LeotherasEventStarter = 0;
+                LurkerBelow.Clear();
+                Sharkkis.Clear();
+                Tidalvess.Clear();
+                Caribdis.Clear();
+                LadyVashj.Clear();
+                Karathress.Clear();
+                KarathressEvent_Starter.Clear();
+                LeotherasTheBlind.Clear();
+                LeotherasEventStarter.Clear();
 
-                ControlConsole = 0;
-                BridgePart[0] = 0;
-                BridgePart[1] = 0;
-                BridgePart[2] = 0;
+                ControlConsole.Clear();
+                BridgePart[0].Clear();
+                BridgePart[1].Clear();
+                BridgePart[2].Clear();
                 StrangePool = 0;
                 Water = WATERSTATE_FRENZY;
 
@@ -267,7 +267,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     default:
                         break;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data)
@@ -284,7 +284,7 @@ class instance_serpent_shrine : public InstanceMapScript
                             HandleGameObject(BridgePart[0], true);
                             HandleGameObject(BridgePart[0], true);
                         }
-                        ControlConsole = data;
+                        //ControlConsole = data;
                         break;
                     case DATA_TRASH:
                         if (data == 1 && TrashCount < MIN_KILLS)

@@ -29,21 +29,21 @@ class instance_halls_of_origination : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
-                uiTempleGuardianAnhuurGUID = 0;
-                uiEarthragerPtahGUID = 0;
-                uiAnraphetGUID = 0;
-                uiIsisetGUID = 0;
-                uiAmmunaeGUID = 0;
-                uiSeteshGUID = 0;
-                uiRajhGUID = 0;
-                uiBrannGUID = 0;
+                uiTempleGuardianAnhuurGUID.Clear();
+                uiEarthragerPtahGUID.Clear();
+                uiAnraphetGUID.Clear();
+                uiIsisetGUID.Clear();
+                uiAmmunaeGUID.Clear();
+                uiSeteshGUID.Clear();
+                uiRajhGUID.Clear();
+                uiBrannGUID.Clear();
 
                 uiWardensDone = 0;
 
-                uiOriginationElevatorGUID = 0;
-                uiAnhuurBridgeGUID = 0;
-                uiAnraphetEntranceDoorGUID = 0;
-                uiAnraphetBossDoorGUID = 0;
+                uiOriginationElevatorGUID.Clear();
+                uiAnhuurBridgeGUID.Clear();
+                uiAnraphetEntranceDoorGUID.Clear();
+                uiAnraphetBossDoorGUID.Clear();
             }
 
             void OnPlayerEnter(Player* player)
@@ -149,7 +149,7 @@ class instance_halls_of_origination : public InstanceMapScript
                     case DATA_ANRAPHET_BOSS_DOOR:
                         return uiAnraphetBossDoorGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state)

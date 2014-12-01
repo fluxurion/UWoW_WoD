@@ -422,7 +422,7 @@ public:
         void EnterEvadeMode()
         {
             if (instance)
-                instance->SetGuidData(DATA_BLAZE, 0);
+                instance->SetGuidData(DATA_BLAZE, ObjectGuid::Empty);
 
             lSummons.DespawnAll();
             me->DespawnOrUnsummon();
@@ -652,7 +652,7 @@ public:
 
         void EnterEvadeMode()
         {
-            instance->SetGuidData(DATA_HARBINGER, 0);
+            instance->SetGuidData(DATA_HARBINGER, ObjectGuid::Empty);
 
             if (Creature* barim = Unit::GetCreature(*me, instance->GetGuidData(DATA_HIGH_PROPHET_BARIM)))
                 barim->AI()->EnterEvadeMode();
@@ -668,7 +668,7 @@ public:
                 {
                     if (instance)
                     {
-                        instance->SetGuidData(DATA_HARBINGER, 0);
+                        instance->SetGuidData(DATA_HARBINGER, ObjectGuid::Empty);
 
                         if (Creature* barim = me->FindNearestCreature(BOSS_HIGH_PROPHET_BARIM, 300.0f))
                             barim->AI()->DoAction(ACTION_REPENTANCE_DONE);

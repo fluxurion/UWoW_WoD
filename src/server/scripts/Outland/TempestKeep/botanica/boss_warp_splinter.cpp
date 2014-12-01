@@ -76,7 +76,7 @@ class mob_warp_splinter_treant : public CreatureScript
         {
             mob_warp_splinter_treantAI (Creature* creature) : ScriptedAI(creature)
             {
-                WarpGuid = 0;
+                WarpGuid.Clear();
             }
 
             ObjectGuid WarpGuid;

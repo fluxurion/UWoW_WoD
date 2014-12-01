@@ -758,7 +758,7 @@ class boss_sister_svalna : public CreatureScript
                 _JustDied();
                 Talk(SAY_SVALNA_DEATH);
 
-                ObjectGuid delay = 1;
+                uint32 delay = 1;
                 for (uint32 i = 0; i < 4; ++i)
                 {
                     if (Creature* crusader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CAPTAIN_ARNATH + i)))

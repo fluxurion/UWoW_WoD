@@ -87,7 +87,7 @@ public:
         {
             events.Reset();
 
-            SpineTargetGUID = 0;
+            SpineTargetGUID.Clear();
 
             if (instance)
                 instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, NOT_STARTED);
@@ -137,7 +137,7 @@ public:
             Unit* target = Unit::GetUnit(*me, SpineTargetGUID);
             if (target && target->HasAura(SPELL_IMPALING_SPINE))
                 target->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);
-            SpineTargetGUID=0;
+            SpineTargetGUID.Clear();
             return true;
         }
 

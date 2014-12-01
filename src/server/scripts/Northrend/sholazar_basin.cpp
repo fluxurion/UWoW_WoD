@@ -371,9 +371,9 @@ public:
                     {
                         switch (me->GetEntry())
                         {
-                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_1, LANG_UNIVERSAL, 0);   break;
-                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_1, LANG_UNIVERSAL, 0); break;
-                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_1, LANG_UNIVERSAL, 0);  break;
+                        case NPC_HEMET:   me->MonsterSay(SAY_HEMET_1, LANG_UNIVERSAL, ObjectGuid::Empty);   break;
+                        case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_1, LANG_UNIVERSAL, ObjectGuid::Empty); break;
+                        case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_1, LANG_UNIVERSAL, ObjectGuid::Empty);  break;
                         }
                         sayTimer = 3000;
                         sayStep++;
@@ -383,9 +383,9 @@ public:
                     {
                         switch (me->GetEntry())
                         {
-                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_2, LANG_UNIVERSAL, 0);   break;
-                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_2, LANG_UNIVERSAL, 0); break;
-                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_2, LANG_UNIVERSAL, 0);  break;
+                        case NPC_HEMET:   me->MonsterSay(SAY_HEMET_2, LANG_UNIVERSAL, ObjectGuid::Empty);   break;
+                        case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_2, LANG_UNIVERSAL, ObjectGuid::Empty); break;
+                        case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_2, LANG_UNIVERSAL, ObjectGuid::Empty);  break;
                         }
                         sayTimer = 3000;
                         sayStep++;
@@ -395,9 +395,9 @@ public:
                     {
                         switch (me->GetEntry())
                         {
-                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_3, LANG_UNIVERSAL, 0);   break;
-                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_3, LANG_UNIVERSAL, 0); break;
-                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_3, LANG_UNIVERSAL, 0);  break;
+                        case NPC_HEMET:   me->MonsterSay(SAY_HEMET_3, LANG_UNIVERSAL, ObjectGuid::Empty);   break;
+                        case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_3, LANG_UNIVERSAL, ObjectGuid::Empty); break;
+                        case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_3, LANG_UNIVERSAL, ObjectGuid::Empty);  break;
                         }
                         sayTimer = 3000;
                         sayStep = 0;
@@ -445,7 +445,7 @@ public:
                 if (itr->second.CreatureOrGOCount[i] != 0)
                     continue;
 
-                caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), 0);
+                caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), ObjectGuid::Empty);
                 caster->ToPlayer()->Say(SAY_OFFER, LANG_UNIVERSAL);
                 sayStep = 0;
                 break;
@@ -715,7 +715,7 @@ public:
                     apple->CastSpell(apple, SPELL_APPLE_FALL);
                     wilhelm->AI()->Talk(SAY_WILHELM_HIT);
                     if (Player* player = shooter->ToPlayer())
-                        player->KilledMonsterCredit(NPC_APPLE, 0);
+                        player->KilledMonsterCredit(NPC_APPLE, ObjectGuid::Empty);
                     apple->DespawnOrUnsummon();
 
                     break;

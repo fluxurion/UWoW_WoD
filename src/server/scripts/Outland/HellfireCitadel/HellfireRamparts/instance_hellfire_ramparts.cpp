@@ -48,8 +48,8 @@ class instance_ramparts : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                m_uiChestNGUID = 0;
-                m_uiChestHGUID = 0;
+                m_uiChestNGUID.Clear();
+                m_uiChestHGUID.Clear();
             }
 
             void OnGameObjectCreate(GameObject* go)

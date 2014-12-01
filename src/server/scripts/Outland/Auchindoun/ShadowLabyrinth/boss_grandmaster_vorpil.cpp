@@ -85,7 +85,7 @@ public:
 
         void Reset()
         {
-            VorpilGUID = 0;
+            VorpilGUID.Clear();
             move = 0;
             sacrificed = false;
         }
@@ -104,7 +104,7 @@ public:
                 Creature* Vorpil = Unit::GetCreature(*me, VorpilGUID);
                 if (!Vorpil)
                 {
-                    VorpilGUID = 0;
+                    VorpilGUID.Clear();
                     return;
                 }
 
@@ -206,7 +206,7 @@ public:
                     Unit* Portal = Unit::GetUnit(*me, PortalsGuid[i]);
                     if (Portal && Portal->isAlive())
                         Portal->DealDamage(Portal, Portal->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    PortalsGuid[i] = 0;
+                    PortalsGuid[i].Clear();
                 }
                 sumportals = false;
             }

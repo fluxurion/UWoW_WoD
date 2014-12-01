@@ -364,7 +364,7 @@ class boss_algalon_the_observer : public CreatureScript
                     case ACTION_BLACK_HOLE_VAL:
                         instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, 21697);
                         instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65312);
-                        me->MonsterTextEmote("BlackHole Despawn", 0, true);
+                        me->MonsterTextEmote("BlackHole Despawn", ObjectGuid::Empty, true);
                         break;
 
 

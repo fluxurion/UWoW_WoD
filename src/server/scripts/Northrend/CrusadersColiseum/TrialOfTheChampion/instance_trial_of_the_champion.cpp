@@ -438,10 +438,10 @@ public:
             case DATA_GRAND_CHAMPION_1: return uiGrandChampion1GUID;
             case DATA_GRAND_CHAMPION_2: return uiGrandChampion2GUID;
             case DATA_GRAND_CHAMPION_3: return uiGrandChampion3GUID;
-            default:                        return 0;
+            default:                        return ObjectGuid::Empty;
         }
 
-        return 0;
+        return ObjectGuid::Empty;
     }
 
     void SetGuidData(uint32 uiType, ObjectGuid uiData)

@@ -84,7 +84,7 @@ public:
 
         void Reset()
         {
-            pCaster = 0;
+            pCaster.Clear();
 
             SayThanksTimer = 0;
             RunAwayTimer = 0;

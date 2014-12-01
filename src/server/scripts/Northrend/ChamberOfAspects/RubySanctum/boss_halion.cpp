@@ -472,7 +472,7 @@ public:
             if (HealthBelowPct(76) && phase == PHASE_ONE && !introphasetwo)
             {
                 introphasetwo = true;
-                me->MonsterTextEmote("Phase 2", 0, true);
+                me->MonsterTextEmote("Phase 2", ObjectGuid::Empty, true);
                 phase = PHASE_INTRO_TWO;
                 events.SetPhase(PHASE_INTRO_TWO);
                 DoAction(ACTION_INTRO_TWO_PHASE);
@@ -806,7 +806,7 @@ public:
             if (HealthBelowPct(51) && phase == PHASE_TWO && !introthreephase)
             {
                 introthreephase = true;
-                me->MonsterTextEmote("Phase 3", 0, true);
+                me->MonsterTextEmote("Phase 3", ObjectGuid::Empty, true);
                 DoScriptText(-1666109, me);
                 events.SetPhase(PHASE_THREE);
                 phase = PHASE_THREE;
@@ -828,7 +828,7 @@ public:
                         for (int32 i = 0; i < 2; i++)
                         {
                             summoner->SummonGameObject(GO_HALION_PORTAL_3, portalpos[i].m_positionX, portalpos[i].m_positionY, portalpos[i].m_positionZ, 4.47206f, 0, 0, 0.786772f, -0.617243f, DAY);
-                            if (GameObject* portal = pInstance->instance->GetGameObject(GO_HALION_PORTAL_3))
+                            if (GameObject* portal = pInstance->instance->GetGameObject(pInstance->GetGuidData(GO_HALION_PORTAL_3)))
                                 portal->SetPhaseMask(32, true);
                             
                         }

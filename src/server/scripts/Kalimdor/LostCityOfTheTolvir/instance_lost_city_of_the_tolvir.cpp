@@ -39,14 +39,14 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 memset(&Encounter, 0, sizeof(Encounter));
                 memset(&uiTunnelGUID, 0, sizeof(uiTunnelGUID));
                 uiTunnelFlag = 0;
-                uiHusamGUID = 0;
-                uiLockmawGUID = 0;
-                uiAughGUID = 0;
-                uiBarimGUID = 0;
-                uiBlazeGUID = 0;
-                uiSiamatGUID = 0;
-                uiHarbingerGUID = 0;
-                uiSiamatPlatformGUID = 0;
+                uiHusamGUID.Clear();
+                uiLockmawGUID.Clear();
+                uiAughGUID.Clear();
+                uiBarimGUID.Clear();
+                uiBlazeGUID.Clear();
+                uiSiamatGUID.Clear();
+                uiHarbingerGUID.Clear();
+                uiSiamatPlatformGUID.Clear();
                 uiUpdateTimer = 7000;
                 BarimIsDone = false;
             }
@@ -143,7 +143,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                     case DATA_HARBINGER:          return uiHarbingerGUID;
                     case DATA_SIAMAT:             return uiSiamatGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             uint32 GetData(uint32 type) const

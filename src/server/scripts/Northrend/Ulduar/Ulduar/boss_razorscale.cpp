@@ -289,7 +289,7 @@ public:
                             events.ScheduleEvent(EVENT_HARPOON, 1500, 0, PHASE_GROUND);
                             return;
                         case EVENT_BREATH:
-                            me->MonsterTextEmote(EMOTE_BREATH, 0, true);
+                            me->MonsterTextEmote(EMOTE_BREATH, ObjectGuid::Empty, true);
                             DoCastAOE(SPELL_FLAMEBREATH);
                             //events.CancelEvent(EVENT_HARPOON);
                             events.CancelEvent(EVENT_BREATH);
@@ -316,7 +316,7 @@ public:
                             events.ScheduleEvent(EVENT_FLAME, 10000, 0, PHASE_PERMAGROUND);
                             return;
                         case EVENT_BREATH:
-                            me->MonsterTextEmote(EMOTE_BREATH, 0, true);
+                            me->MonsterTextEmote(EMOTE_BREATH, ObjectGuid::Empty, true);
                             DoCastVictim(SPELL_FLAMEBREATH);
                             events.ScheduleEvent(EVENT_BREATH, 20000, 0, PHASE_PERMAGROUND);
                             return;
@@ -378,7 +378,7 @@ public:
 
         void EnterPermaGround()
         {
-            me->MonsterTextEmote(EMOTE_PERMA, 0, true);
+            me->MonsterTextEmote(EMOTE_PERMA, ObjectGuid::Empty, true);
             phase = PHASE_PERMAGROUND;
             events.SetPhase(PHASE_PERMAGROUND);
             me->NearTeleportTo(586.966f, -175.534f, 391.517f, 1.692f);
@@ -540,7 +540,7 @@ public:
                             engineer[n]->SetHomePosition(PosEngRepair[n]);
                             engineer[n]->GetMotionMaster()->MoveTargetedHome();
                         }
-                        engineer[0]->MonsterYell(SAY_AGGRO_3, LANG_UNIVERSAL, 0);
+                        engineer[0]->MonsterYell(SAY_AGGRO_3, LANG_UNIVERSAL, ObjectGuid::Empty);
                         uiPhase = 3;
                         uiTimer = 14000;
                         break;
@@ -559,14 +559,14 @@ public:
                             engineer[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                         for (uint8 n = 0; n < 4; ++n)
                             defender[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
-                        me->MonsterYell(SAY_AGGRO_2, LANG_UNIVERSAL, 0);
+                        me->MonsterYell(SAY_AGGRO_2, LANG_UNIVERSAL, ObjectGuid::Empty);
                         uiTimer = 16000;
                         uiPhase = 5;
                         break;
                     case 5:
                         if (Creature *pRazorscale = me->GetCreature(*me, pInstance->GetGuidData(DATA_RAZORSCALE)))
                             pRazorscale->AI()->DoAction(ACTION_EVENT_START);
-                        engineer[0]->MonsterYell(SAY_AGGRO_1, LANG_UNIVERSAL, 0);
+                        engineer[0]->MonsterYell(SAY_AGGRO_1, LANG_UNIVERSAL, ObjectGuid::Empty);
                         uiPhase = 0;
                         break;
                 }

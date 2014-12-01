@@ -171,7 +171,7 @@ public:
 
     struct mob_webwrapAI : public NullCreatureAI
     {
-        mob_webwrapAI(Creature *c) : NullCreatureAI(c), victimGUID(0) {}
+        mob_webwrapAI(Creature *c) : NullCreatureAI(c), victimGUID() {}
 
         ObjectGuid victimGUID;
 

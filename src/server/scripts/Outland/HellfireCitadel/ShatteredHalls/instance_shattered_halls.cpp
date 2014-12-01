@@ -50,8 +50,8 @@ class instance_shattered_halls : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                nethekurseGUID = 0;
-                nethekurseDoorGUID = 0;
+                nethekurseGUID.Clear();
+                nethekurseDoorGUID.Clear();
             }
 
             void OnGameObjectCreate(GameObject* go)
@@ -108,7 +108,7 @@ class instance_shattered_halls : public InstanceMapScript
                     case DATA_NETHEKURSE_DOOR:
                         return nethekurseDoorGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
         };
 

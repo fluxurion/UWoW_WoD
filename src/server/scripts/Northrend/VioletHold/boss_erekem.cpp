@@ -172,7 +172,7 @@ public:
 
             if (uiChainHealTimer <= diff)
             {
-                if (ObjectGuid TargetGUID = GetChainHealTargetGUID())
+                if (ObjectGuid const& TargetGUID = GetChainHealTargetGUID())
                 {
                     if (Creature* target = ObjectAccessor::GetCreature(*me, TargetGUID))
                         DoCast(target, SPELL_CHAIN_HEAL);
@@ -233,7 +233,7 @@ public:
             Talk(SAY_SLAY);
         }
 
-        ObjectGuid GetChainHealTargetGUID()
+        ObjectGuid const& GetChainHealTargetGUID()
         {
             if (HealthBelowPct(85))
                 return me->GetGUID();
@@ -246,7 +246,7 @@ public:
             if (pGuard2 && pGuard2->isAlive() && !pGuard2->HealthAbovePct(75))
                 return pGuard2->GetGUID();
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

@@ -70,9 +70,9 @@ class instance_magtheridons_lair : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                MagtheridonGUID = 0;
+                MagtheridonGUID.Clear();
                 ChannelerGUID.clear();
-                DoorGUID = 0;
+                DoorGUID.Clear();
                 ColumnGUID.clear();
 
                 CageTimer = 0;
@@ -130,7 +130,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                 case DATA_MAGTHERIDON:
                     return MagtheridonGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data)
@@ -180,7 +180,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                             Creature* Magtheridon = instance->GetCreature(MagtheridonGUID);
                             if (Magtheridon && Magtheridon->isAlive())
                             {
-                                Magtheridon->MonsterTextEmote(EMOTE_BONDS_WEAKEN, 0);
+                                Magtheridon->MonsterTextEmote(EMOTE_BONDS_WEAKEN, ObjectGuid::Empty);
                                 CageTimer = 120000;
                             }
                             HandleGameObject(DoorGUID, false);

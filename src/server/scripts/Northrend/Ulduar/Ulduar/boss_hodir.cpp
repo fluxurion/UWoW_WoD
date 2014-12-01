@@ -252,7 +252,7 @@ public:
                         Aura *AuraIntenseCold = pTarget->GetAura(SPELL_BITING_COLD_TRIGGERED);
                         if (AuraIntenseCold && AuraIntenseCold->GetStackAmount() > 2)
                         {
-                            me->MonsterTextEmote("Achievement: getting cold in here - Fail", 0, true);
+                            me->MonsterTextEmote("Achievement: getting cold in here - Fail", ObjectGuid::Empty, true);
                             bMoreThanTwoIntenseCold = false;
                         }
                     }
@@ -280,7 +280,7 @@ public:
                         break;
                     case EVENT_FLASH_CAST:
                         DoScriptText(SAY_FLASH_FREEZE, me);
-                        me->MonsterTextEmote(EMOTE_FREEZE, 0, true);
+                        me->MonsterTextEmote(EMOTE_FREEZE, ObjectGuid::Empty, true);
                         for (uint8 i = 0; i < RAID_MODE(2,3); ++i)
                         {
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -300,7 +300,7 @@ public:
                         break;
                     case EVENT_BLOWS:
                         DoScriptText(SAY_STALACTITE, me);
-                        me->MonsterTextEmote(EMOTE_BLOWS, 0, true);
+                        me->MonsterTextEmote(EMOTE_BLOWS, ObjectGuid::Empty, true);
                         DoCast(me, SPELL_FROZEN_BLOWS);
                         events.ScheduleEvent(EVENT_BLOWS, urand(60000, 65000));
                         break;
@@ -376,7 +376,7 @@ public:
                 case ACTION_FAILED_COOLEST_FRIENDS:
                     if (CoolestFriends)
                     {
-                        me->MonsterTextEmote("Achievement:I have the coolest friends - Fail", 0, true);
+                        me->MonsterTextEmote("Achievement:I have the coolest friends - Fail", ObjectGuid::Empty, true);
                         CoolestFriends = false;
                     }
                     break;

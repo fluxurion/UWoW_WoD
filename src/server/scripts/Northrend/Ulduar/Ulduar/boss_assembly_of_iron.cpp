@@ -723,7 +723,7 @@ public:
                         events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(6000, 12000));
                         break;
                     case EVENT_OVERLOAD:
-                        me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
+                        me->MonsterTextEmote(EMOTE_OVERLOAD, ObjectGuid::Empty, true);
                         DoScriptText(SAY_BRUNDIR_SPECIAL, me);
                         me->GetMotionMaster()->Initialize();
                         DoCast(SPELL_OVERLOAD);

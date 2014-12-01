@@ -206,7 +206,7 @@ class npc_gizmo : public CreatureScript
             if (!quest || quest->GetQuestId() != QUEST_GOBLIN_ESCAPE_PODS)
                 return;
 
-            sCreatureTextMgr->SendChat(me, TEXT_GIZMO_QUEST, player ? player->GetGUID(): 0);
+            sCreatureTextMgr->SendChat(me, TEXT_GIZMO_QUEST, player ? player->GetGUID() : ObjectGuid::Empty);
         }
 
         // Remove from conteiner for posibility repeat it.
@@ -291,8 +291,8 @@ class npc_doc_zapnnozzle : public CreatureScript
 
         void Reset()
         {
-            plrGUID = 0;
-            gizmoGUID = 0;
+            plrGUID.Clear();
+            gizmoGUID.Clear();
             events.Reset();
         }
 
@@ -413,7 +413,7 @@ class npc_foreman_dampwick : public CreatureScript
 
         void Reset()
         {
-            guidMiner = 0;
+            guidMiner.Clear();
         }
 
         void OnStartQuest(Player* player, Quest const* quest)   
@@ -483,9 +483,9 @@ public:
 
         void Reset()
         {
-            plrGUID = 0;
-            cartGUID = 0;
-            mineGUID = 0;
+            plrGUID.Clear();
+            cartGUID.Clear();
+            mineGUID.Clear();
             wpMine = 0;
             events.Reset();
             
@@ -1707,7 +1707,7 @@ class npc_naga_hatchling : public CreatureScript
         void Reset()
         {
             events.Reset();
-            plrGUID = 0;
+            plrGUID.Clear();
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
@@ -1803,7 +1803,7 @@ class npc_faceless_of_the_deep : public CreatureScript
         void Reset()
         {
             events.Reset();
-            playerGUID = 0;
+            playerGUID.Clear();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
@@ -1937,7 +1937,7 @@ public:
             Start(false, false);
             if (me->GetPositionY() < 2285.0f)
             {
-                switch(me->GetGUID()%3)
+                switch(me->GetGUID().GetCounter()%3)
                 {
                     case 0:
                         SetNextWaypoint(urand(0, 15), true, false);
@@ -2021,7 +2021,7 @@ public:
         ObjectGuid sharMan;
         void Reset()
         {
-            sharMan = 0;
+            sharMan.Clear();
 
             events.Reset();
 
@@ -2457,7 +2457,7 @@ class npc_trade_prince_gallywix_final : public CreatureScript
         ObjectGuid playerGUID;
         void Reset()
         {
-            playerGUID = 0;
+            playerGUID.Clear();
             events.Reset();
             me->SetCreateHealth(98260);
             me->SetMaxHealth(98260);

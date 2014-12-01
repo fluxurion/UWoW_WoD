@@ -83,7 +83,7 @@ public:
     {
         mob_inner_demonAI(Creature* creature) : ScriptedAI(creature)
         {
-            victimGUID = 0;
+            victimGUID.Clear();
         }
 
         uint32 ShadowBolt_Timer;
@@ -107,7 +107,7 @@ public:
         {
             if (id == INNER_DEMON_VICTIM)
                 return victimGUID;
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void JustDied(Unit* /*killer*/)
@@ -191,10 +191,10 @@ public:
         {
             creature->GetPosition(x, y, z);
             instance = creature->GetInstanceScript();
-            Demon = 0;
+            Demon.Clear();
 
             for (uint8 i = 0; i < 3; ++i)//clear guids
-                SpellBinderGUID[i] = 0;
+                SpellBinderGUID[i].Clear();
         }
 
         InstanceScript* instance;
@@ -358,7 +358,7 @@ public:
                         {
                             creature->DespawnOrUnsummon();
                         }
-                        InnderDemon[i] = 0;
+                        InnderDemon[i].Clear();
                 }
             }
 
@@ -369,7 +369,7 @@ public:
         {
             for (uint8 i=0; i<5; ++i)
             {
-                if (InnderDemon[i] > 0)
+                if (InnderDemon[i])
                 {
                     Creature* unit = Unit::GetCreature((*me), InnderDemon[i]);
                     if (unit && unit->isAlive())
@@ -492,7 +492,7 @@ public:
                     if (SwitchToDemon_Timer <= diff)
                     {
                         //switch to demon form
-                        me->RemoveAurasDueToSpell(SPELL_WHIRLWIND, 0);
+                        me->RemoveAurasDueToSpell(SPELL_WHIRLWIND, ObjectGuid::Empty);
                         me->SetDisplayId(MODEL_DEMON);
                         DoScriptText(SAY_SWITCH_TO_DEMON, me);
                         me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
@@ -694,7 +694,7 @@ public:
         mob_greyheart_spellbinderAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            leotherasGUID = 0;
+            leotherasGUID.Clear();
             AddedBanish = false;
         }
 
@@ -714,7 +714,7 @@ public:
 
             if (instance)
             {
-                instance->SetGuidData(DATA_LEOTHERAS_EVENT_STARTER, 0);
+                instance->SetGuidData(DATA_LEOTHERAS_EVENT_STARTER, ObjectGuid::Empty);
                 Creature* leotheras = Unit::GetCreature(*me, leotherasGUID);
                 if (leotheras && leotheras->isAlive())
                     CAST_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);

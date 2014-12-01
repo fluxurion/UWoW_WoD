@@ -218,7 +218,7 @@ public:
                 case DATA_MAIDEN_DOOR:                     return uiMaidenOfGriefDoor;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

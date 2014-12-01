@@ -88,32 +88,32 @@ public:
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            Najentus = 0;
-            Akama = 0;
-            Akama_Shade = 0;
-            ShadeOfAkama = 0;
-            Supremus = 0;
-            LadyMalande = 0;
-            GathiosTheShatterer = 0;
-            HighNethermancerZerevor = 0;
-            VerasDarkshadow = 0;
-            IllidariCouncil = 0;
-            BloodElfCouncilVoice = 0;
-            IllidanStormrage = 0;
+            Najentus.Clear();
+            Akama.Clear();
+            Akama_Shade.Clear();
+            ShadeOfAkama.Clear();
+            Supremus.Clear();
+            LadyMalande.Clear();
+            GathiosTheShatterer.Clear();
+            HighNethermancerZerevor.Clear();
+            VerasDarkshadow.Clear();
+            IllidariCouncil.Clear();
+            BloodElfCouncilVoice.Clear();
+            IllidanStormrage.Clear();
 
-            NajentusGate    = 0;
-            MainTempleDoors = 0;
-            ShadeOfAkamaDoor= 0;
-            CommonDoor              = 0;//teron
-            TeronDoor               = 0;
-            GuurtogDoor             = 0;
-            MotherDoor              = 0;
-            TempleDoor              = 0;
-            SimpleDoor              = 0;//Bycouncil
-            CouncilDoor             = 0;
-            IllidanGate     = 0;
-            IllidanDoor[0]  = 0;
-            IllidanDoor[1]  = 0;
+            NajentusGate.Clear();
+            MainTempleDoors.Clear();
+            ShadeOfAkamaDoor.Clear();
+            CommonDoor.Clear();//teron
+            TeronDoor.Clear();
+            GuurtogDoor.Clear();
+            MotherDoor.Clear();
+            TempleDoor.Clear();
+            SimpleDoor.Clear();//Bycouncil
+            CouncilDoor.Clear();
+            IllidanGate.Clear();
+            IllidanDoor[0].Clear();
+            IllidanDoor[1].Clear();
         }
 
         bool IsEncounterInProgress() const
@@ -260,7 +260,7 @@ public:
             case DATA_BLOOD_ELF_COUNCIL_VOICE:     return BloodElfCouncilVoice;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

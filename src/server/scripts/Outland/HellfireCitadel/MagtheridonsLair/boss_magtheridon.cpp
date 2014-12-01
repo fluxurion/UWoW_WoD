@@ -298,7 +298,7 @@ class boss_magtheridon : public CreatureScript
                     if (!clicker || !clicker->HasAura(SPELL_SHADOW_GRASP))
                     {
                         DebuffClicker(clicker);
-                        (*i).second = 0;
+                        (*i).second.Clear();
                     }
                     else
                         ++ClickerNum;

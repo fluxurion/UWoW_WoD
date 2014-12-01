@@ -409,7 +409,7 @@ public:
                 case NPC_ORB_ROTATION_FOCUS: return m_uiOrbFocusGUID;
                 case NPC_ORB_CARRIER: return m_uiOrbCarrierGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Load(const char* chrIn)

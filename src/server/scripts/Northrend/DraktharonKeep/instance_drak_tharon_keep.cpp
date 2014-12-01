@@ -143,7 +143,7 @@ public:
                 case DATA_NOVOS_CRYSTAL_4:    return uiNovosCrystal4;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

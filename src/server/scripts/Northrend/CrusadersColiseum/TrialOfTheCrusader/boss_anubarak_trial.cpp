@@ -722,7 +722,7 @@ public:
                 GuidVector targets;
 
                 if (t_list.empty())
-                    return 0;
+                    return ObjectGuid::Empty;
 
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
@@ -732,7 +732,7 @@ public:
                 }
 
                 if (targets.empty())
-                    return 0;
+                    return ObjectGuid::Empty;
                 
                 GuidVector::iterator itr = targets.begin();
                 std::advance(itr, urand(0, targets.size() - 1));
@@ -740,7 +740,7 @@ public:
                 return *itr;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

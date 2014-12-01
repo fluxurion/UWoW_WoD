@@ -339,7 +339,7 @@ public:
             {
             case ACTION_MEMORY_DEATH:
                 MemoryGUID = 0;
-                me->RemoveAura(SPELL_SHIELD, 0);
+                me->RemoveAura(SPELL_SHIELD, ObjectGuid::Empty);
                 break;
             }
 
@@ -723,7 +723,7 @@ public:
                     break;
             }
 
-            Start(false,true,0);
+            Start(false, true, ObjectGuid::Empty);
             uiWaypoint = uiType;
         }
 

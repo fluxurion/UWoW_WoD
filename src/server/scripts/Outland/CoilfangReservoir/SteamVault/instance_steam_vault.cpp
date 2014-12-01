@@ -90,12 +90,12 @@ public:
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            ThespiaGUID = 0;
-            MekgineerGUID = 0;
-            KalithreshGUID = 0;
-            MainChambersDoor = 0;
-            AccessPanelHydro = 0;
-            AccessPanelMek = 0;
+            ThespiaGUID.Clear();
+            MekgineerGUID.Clear();
+            KalithreshGUID.Clear();
+            MainChambersDoor.Clear();
+            AccessPanelHydro.Clear();
+            AccessPanelMek.Clear();
         }
 
         bool IsEncounterInProgress() const
@@ -194,7 +194,7 @@ public:
                 case DATA_KALITRESH:
                     return KalithreshGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

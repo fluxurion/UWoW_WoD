@@ -108,7 +108,7 @@ enum Yells
 #define SPELL_FOCUSED_EYEBEAM_HELPER            RAID_MODE(63347, 63977) 
 #define SPELL_FOCUSED_EYEBEAM_DAMAGE_HELPER     RAID_MODE(63346, 63976)
 
-uint32 GripTargetGUID[3];
+ObjectGuid GripTargetGUID[3];
 
 const Position Lefteye      = {1788.8652f, -26.1113f, 470.4144f, 3.401f};
 const Position Righteye     = {1788.8874f, -23.0051f, 470.4144f, 3.401f};
@@ -254,7 +254,7 @@ public:
             RubbleCount = 0;
             Gripped = false;
             for (int32 n = 0; n < RAID_MODE(1, 3); ++n)
-                GripTargetGUID[n] = NULL;
+                GripTargetGUID[n].Clear();
             
             for (int32 n = 0; n < 2; ++n)
             {
@@ -328,7 +328,7 @@ public:
                     {
                         if (Creature* RightArm = me->GetCreature(*me, instance->GetGuidData(DATA_RIGHT_ARM)))
                         {
-                            me->MonsterTextEmote(EMOTE_STONE, 0, true);
+                            me->MonsterTextEmote(EMOTE_STONE, ObjectGuid::Empty, true);
                             DoScriptText(SAY_GRAB_PLAYER, me);
                             // Grip up to 3 players
                             for (int32 n = 0; n < RAID_MODE(1, 3); ++n)
@@ -383,7 +383,7 @@ public:
                         La->ToCreature()->AI()->DoAction(ACTION_REMOVE_LEFT);
                         me->CastSpell(La, SPELL_ARM_RESPAWN, true);
                     }
-                    me->MonsterTextEmote(EMOTE_LEFT, 0, true);
+                    me->MonsterTextEmote(EMOTE_LEFT, ObjectGuid::Empty, true);
                     left = true;
                     events.CancelEvent(EVENT_LEFT);
                     break;                
@@ -393,7 +393,7 @@ public:
                         Ra->ToCreature()->AI()->DoAction(ACTIOM_REMOVE_RIGHT);
                         me->CastSpell(Ra, SPELL_ARM_RESPAWN, true);
                     }
-                    me->MonsterTextEmote(EMOTE_RIGHT, 0, true);
+                    me->MonsterTextEmote(EMOTE_RIGHT, ObjectGuid::Empty, true);
                     right = true;
                     events.CancelEvent(EVENT_RIGHT);
                     break;
@@ -714,7 +714,7 @@ public:
                             {
                                 GripTarget->EnterVehicle(me, n);
                                 me->AddAura(SPELL_STONE_GRIP_STUN, GripTarget);
-                                GripTargetGUID[n] = NULL;
+                                GripTargetGUID[n].Clear();
                             }
                         }
                     }

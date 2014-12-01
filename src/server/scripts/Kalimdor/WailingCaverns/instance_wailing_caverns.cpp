@@ -53,7 +53,7 @@ public:
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
             yelled = false;
-            NaralexGUID = 0;
+            NaralexGUID.Clear();
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -101,7 +101,7 @@ public:
         ObjectGuid GetGuidData(uint32 data)
         {
             if (data == DATA_NARALEX)return NaralexGUID;
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

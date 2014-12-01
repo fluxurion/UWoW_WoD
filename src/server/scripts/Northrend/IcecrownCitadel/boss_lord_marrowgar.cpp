@@ -252,7 +252,7 @@ class boss_lord_marrowgar : public CreatureScript
             {
                 if (type == DATA_COLDFLAME_GUID)
                     return _coldflameTarget;
-                return 0LL;
+                return ObjectGuid::Empty;
             }
 
             void SetGUID(ObjectGuid const& guid, int32 type/* = 0 */)

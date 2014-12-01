@@ -97,7 +97,9 @@ public:
 
         void ClearBuddyList()
         {
-            NearbyGUID[0] = NearbyGUID[1] = NearbyGUID[2] = 0;
+            NearbyGUID[0].Clear();
+            NearbyGUID[1].Clear();
+            NearbyGUID[2].Clear();
         }
 
         void AddBuddyToList(ObjectGuid CreatureGUID)

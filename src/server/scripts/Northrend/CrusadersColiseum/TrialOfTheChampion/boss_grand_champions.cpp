@@ -224,7 +224,7 @@ public:
             }
 
             if (uiType <= 3)
-                Start(false,true,0,NULL);
+                Start(false, true, ObjectGuid::Empty, NULL);
         }
 
         void WaypointReached(uint32 i)

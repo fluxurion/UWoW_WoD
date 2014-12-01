@@ -24,9 +24,9 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
             void Initialize()
             {
                 SetBossNumber(MAX_ENCOUNTER);
-                uiGrandVizierErtanGUID = 0;
-                uiAltairusGUID = 0;
-                uiAsaadGUID = 0;
+                uiGrandVizierErtanGUID.Clear();
+                uiAltairusGUID.Clear();
+                uiAsaadGUID.Clear();
             }
 
             void OnCreatureCreate(Creature* pCreature)
@@ -57,7 +57,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                     case DATA_ASAAD:
                         return uiAsaadGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()

@@ -53,10 +53,10 @@ public:
 
 		void Initialize()
 		{
-			Anshal = 0;
-			Nezir = 0;
-			Rohash = 0;
-			Alakir = 0;
+			Anshal.Clear();
+			Nezir.Clear();
+			Rohash.Clear();
+			Alakir.Clear();
 
 			for (uint8 i = 0 ; i<ENCOUNTERS; ++i)
 				Encounter[i] = NOT_STARTED;
@@ -112,7 +112,7 @@ public:
 			case DATA_ALAKIR:
 				return Alakir;
 			}
-			return 0;
+            return ObjectGuid::Empty;
 		}
 
 		void SetData(uint32 type, uint32 data)

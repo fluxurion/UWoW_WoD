@@ -66,7 +66,7 @@ class instance_mechanar : public InstanceMapScript
                     case DATA_GO_CHAHCE_LEGION:
                         return chahcelegionGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
                         
             void OnGameObjectRemove(GameObject* gameObject)

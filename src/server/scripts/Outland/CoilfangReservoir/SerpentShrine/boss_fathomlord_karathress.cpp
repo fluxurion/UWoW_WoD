@@ -111,9 +111,9 @@ public:
         boss_fathomlord_karathressAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            Advisors[0] = 0;
-            Advisors[1] = 0;
-            Advisors[2] = 0;
+            Advisors[0].Clear();
+            Advisors[1].Clear();
+            Advisors[2].Clear();
         }
 
         InstanceScript* instance;
@@ -294,7 +294,7 @@ public:
                 if (continueTriggering)
                 {
                     DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
-                    me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL, 0);
+                    me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL, ObjectGuid::Empty);
                     DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
                 }
             }
@@ -349,7 +349,7 @@ public:
                 Pet->DealDamage(Pet, Pet->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }
 
-            SummonedPet = 0;
+            SummonedPet.Clear();
 
             if (instance)
                 instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
@@ -558,11 +558,12 @@ public:
             if (Spitfire_Timer <= diff)
             {
                 DoCast(me, SPELL_SPITFIRE_TOTEM);
-                Unit* SpitfireTotem = Unit::GetUnit(*me, CREATURE_SPITFIRE_TOTEM);
-                if (SpitfireTotem)
-                {
-                    CAST_CRE(SpitfireTotem)->AI()->AttackStart(me->getVictim());
-                }
+                //ToDo: CREATURE_SPITFIRE_TOTEM is not guid get from instance
+                //Unit* SpitfireTotem = Unit::GetUnit(*me, CREATURE_SPITFIRE_TOTEM);
+                //if (SpitfireTotem)
+                //{
+                //    CAST_CRE(SpitfireTotem)->AI()->AttackStart(me->getVictim());
+                //}
                 Spitfire_Timer = 60000;
             } else Spitfire_Timer -= diff;
 

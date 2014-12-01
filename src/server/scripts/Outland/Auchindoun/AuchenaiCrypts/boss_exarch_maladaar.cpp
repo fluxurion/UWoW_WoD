@@ -182,7 +182,7 @@ public:
         void Reset()
         {
             soulmodel = 0;
-            soulholder = 0;
+            soulholder.Clear();
             soulclass = 0;
 
             Fear_timer = 15000 + rand()% 5000;

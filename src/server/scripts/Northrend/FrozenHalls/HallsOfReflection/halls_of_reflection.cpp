@@ -2000,7 +2000,7 @@ public:
             {
                 Map::PlayerList const &PlayerList = m_pInstance->instance->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    i->getSource()->KilledMonsterCredit(killCredit, 0);
+                    i->getSource()->KilledMonsterCredit(killCredit, ObjectGuid::Empty);
             }
         }
 
@@ -2281,7 +2281,7 @@ public:
                 return;
             }
         
-            pWho->ToPlayer()->KilledMonsterCredit(37158, 0);
+            pWho->ToPlayer()->KilledMonsterCredit(37158, ObjectGuid::Empty);
             me->SetVisible(true);
             events.ScheduleEvent(EVENT_QUEST_QUEL_1, 100);
             StartEvent = true;

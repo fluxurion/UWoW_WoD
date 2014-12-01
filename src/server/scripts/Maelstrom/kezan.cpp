@@ -462,7 +462,7 @@ class npc_roling_friends_guard : public CreatureScript
             if(!player || !player->m_movementInfo.t_guid)
                 return;
 
-            player->KilledMonsterCredit(me->GetEntry(), 0);
+            player->KilledMonsterCredit(me->GetEntry(), ObjectGuid::Empty);
             if (Unit* veh = player->GetVehicleBase())
             {
                 uint8 seatID = 0;
@@ -972,7 +972,7 @@ public:
             target = me->SelectNearestTarget(5.0f);
             if (target && target->GetTypeId() == TYPEID_PLAYER)
                 if (target->ToPlayer()->GetQuestStatus(28414) == QUEST_STATUS_INCOMPLETE)
-                    target->ToPlayer()->KilledMonsterCredit(37203, 0);
+                    target->ToPlayer()->KilledMonsterCredit(37203, ObjectGuid::Empty);
         }
     };
 
@@ -1174,7 +1174,7 @@ class npc_hack_bank_controller : public CreatureScript
         { 
             events.Reset();
             _select = 0;
-            _playerGUID = 0;
+            _playerGUID.Clear();
         }
 
         void generate()

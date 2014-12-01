@@ -784,7 +784,7 @@ class npc_volatile_ooze : public CreatureScript
                 }
             }
             
-            ObjectGuid GetRandomPlayerGUID()
+            ObjectGuid const& GetRandomPlayerGUID()
             {
                 if (Creature* professor = Unit::GetCreature((*me), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                 {
@@ -792,7 +792,7 @@ class npc_volatile_ooze : public CreatureScript
                     GuidVector targets;
                     
                     if (t_list.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
                     
                     for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
@@ -803,7 +803,7 @@ class npc_volatile_ooze : public CreatureScript
                     }
                         
                         if (targets.empty())
-                            return 0;
+                            return ObjectGuid::Empty;
                         
                         GuidVector::iterator itr = targets.begin();
                         std::advance(itr, urand(0, targets.size() - 1));
@@ -811,7 +811,7 @@ class npc_volatile_ooze : public CreatureScript
                     return *itr;
                 }
                 
-                return 0;
+                return ObjectGuid::Empty;
 
             }
         
@@ -936,7 +936,7 @@ class npc_gas_cloud : public CreatureScript
                 }
             }
             
-            ObjectGuid GetRandomPlayerGUID()
+            ObjectGuid const& GetRandomPlayerGUID()
             {
                 if (Creature* professor = Unit::GetCreature((*me), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                 {
@@ -944,7 +944,7 @@ class npc_gas_cloud : public CreatureScript
                     GuidVector targets;
                     
                     if (t_list.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
                     
                     for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
@@ -955,7 +955,7 @@ class npc_gas_cloud : public CreatureScript
                     }
                         
                     if (targets.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
                         
                     GuidVector::iterator itr = targets.begin();
                     std::advance(itr, urand(0, targets.size() - 1));
@@ -963,7 +963,7 @@ class npc_gas_cloud : public CreatureScript
                     return *itr;
                 }
                 
-                return 0;
+                return ObjectGuid::Empty;
 
             }
 

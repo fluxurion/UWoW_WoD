@@ -3842,7 +3842,6 @@ class spell_gen_battle_guild_standart : public SpellScriptLoader
                 }
                 else
                     targets.clear();
-
             }
 
             void Register()

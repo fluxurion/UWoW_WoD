@@ -168,7 +168,7 @@ public:
             if (instance)
             {
                 instance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, NOT_STARTED);
-                instance->SetGuidData(DATA_SACRIFICED_PLAYER, 0);
+                instance->SetGuidData(DATA_SACRIFICED_PLAYER, ObjectGuid::Empty);
             }
         }
 

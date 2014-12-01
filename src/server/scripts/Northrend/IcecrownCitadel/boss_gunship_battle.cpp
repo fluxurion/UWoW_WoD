@@ -1951,7 +1951,7 @@ class npc_zafod_boombox : public CreatureScript
                 uint32 curItemCount = player->GetItemCount(49278, false);
                 if (curItemCount >= 1)
                 {
-                    pCreature->MonsterWhisper("You already have my rocket pack!", player->GetGUID().GetCounter());
+                    pCreature->MonsterWhisper("You already have my rocket pack!", player->GetGUID());
                     return false;
                 }
 

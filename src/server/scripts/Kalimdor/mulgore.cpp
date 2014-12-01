@@ -108,7 +108,7 @@ public:
         {
             EventActive = false;
             IsMovingToLunch = false;
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             EventTimer = 5000;
             EventPhase = 0;
 

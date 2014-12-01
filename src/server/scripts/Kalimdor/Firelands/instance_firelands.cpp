@@ -31,17 +31,17 @@ class instance_firelands : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 //LoadDoorData(doordata);
-                uiShannoxGUID = 0;
-                uiRiplimbGUID = 0;
-                uiRagefaceGUID = 0;
-                uiRhyolithGUID = 0;
-                uiRagnarosGUID = 0;
+                uiShannoxGUID.Clear();
+                uiRiplimbGUID.Clear();
+                uiRagefaceGUID.Clear();
+                uiRhyolithGUID.Clear();
+                uiRagnarosGUID.Clear();
                 uiRhyolithHealth = 0;
-                uiRagnarosFloor = 0;
-                uiRagnarosCache10 = 0;
-                uiRagnarosCache25 = 0;
-                uiRagnarosCache10h = 0;
-                uiRagnarosCache25h = 0;
+                uiRagnarosFloor.Clear();
+                uiRagnarosCache10.Clear();
+                uiRagnarosCache25.Clear();
+                uiRagnarosCache10h.Clear();
+                uiRagnarosCache25h.Clear();
                 uiTimer = 0;
                 bEvent = false;
                 creaturePortals.clear();
@@ -183,9 +183,9 @@ class instance_firelands : public InstanceMapScript
                     case DATA_RAGNAROS_FLOOR: return uiRagnarosFloor;
                     case DATA_RAGNAROS_CACHE_10: return uiRagnarosCache10;
                     case DATA_RAGNAROS_CACHE_25: return uiRagnarosCache25;
-                    default: return 0;
+                    default: return ObjectGuid::Empty;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state)

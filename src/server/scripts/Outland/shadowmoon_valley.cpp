@@ -91,7 +91,7 @@ public:
 
         void Reset()
         {
-            uiPlayerGUID = 0;
+            uiPlayerGUID.Clear();
 
             bCanEat = false;
             bIsEating = false;
@@ -155,7 +155,7 @@ public:
 
                         if (Player* pPlr = Unit::GetPlayer(*me, uiPlayerGUID))
                         {
-                            pPlr->KilledMonsterCredit(NPC_EVENT_PINGER, 0);
+                            pPlr->KilledMonsterCredit(NPC_EVENT_PINGER, ObjectGuid::Empty);
 
                             if (GameObject* go = pPlr->FindNearestGameObject(GO_CARCASS, 10))
                                 go->Delete();
@@ -394,7 +394,7 @@ public:
                     {
                         Player* player = Unit::GetPlayer(*me, PlayerGUID);
                         if (player && player->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
-                            player->KilledMonsterCredit(23209, 0);
+                            player->KilledMonsterCredit(23209, ObjectGuid::Empty);
                     }
                     PoisonTimer = 0;
                     me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -915,7 +915,7 @@ public:
                     {
                         Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
                         if (Yarzill)
-                            Yarzill->SetTarget(0);
+                            Yarzill->SetTarget(ObjectGuid::Empty);
                         return 5000;
                     }
                     break;
@@ -1261,7 +1261,7 @@ public:
 
             me->AddUnitState(UNIT_STATE_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetTarget(0);
+            me->SetTarget(ObjectGuid::Empty);
         }
 
         void EnterCombat(Unit* /*who*/){}
@@ -1854,7 +1854,7 @@ public:
                      Unit* Owner = totemOspirits->GetOwner();
                      if (Owner && Owner->GetTypeId() == TYPEID_PLAYER)
                          // DoCast(Owner, credit); -- not working!
-                         CAST_PLR(Owner)->KilledMonsterCredit(credit, 0);
+                         CAST_PLR(Owner)->KilledMonsterCredit(credit, ObjectGuid::Empty);
                      DoCast(totemOspirits, SPELL_SOUL_CAPTURED);
                  }
             }

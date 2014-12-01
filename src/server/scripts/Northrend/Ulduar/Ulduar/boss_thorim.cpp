@@ -281,7 +281,7 @@ public:
             
             _Reset();
 
-            ObjectGuid TargetPillar = 0;
+            ObjectGuid TargetPillar;
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
             bWipe = false;
@@ -321,7 +321,7 @@ public:
             if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_LIGHTNING_RELEASE)
                 if (AchivDontStand)
                 {
-                    me->MonsterTextEmote("Achievement Don't Stand in the Lightning - Fail", 0, true); 
+                    me->MonsterTextEmote("Achievement Don't Stand in the Lightning - Fail", ObjectGuid::Empty, true);
                     AchivDontStand = false;
                 }
         }
@@ -452,7 +452,7 @@ public:
                             }
                         case EVENT_RELEASE_ENERGY:
                             {
-                                me->MonsterTextEmote("Warning Lightning Charge", 0, true);
+                                                     me->MonsterTextEmote("Warning Lightning Charge", ObjectGuid::Empty, true);
 
                                 std::list<Creature*> orbs;
                                 me->GetCreatureListWithEntryInGrid(orbs, 33378, 200.0f);
@@ -802,7 +802,7 @@ public:
             
             if (BarrierTimer <= diff)
             {
-                me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
+                me->MonsterTextEmote(EMOTE_MIGHT, ObjectGuid::Empty, true);
                 DoCast(me, SPELL_RUNIC_BARRIER);
                 BarrierTimer = urand(35000, 45000);
             }
@@ -879,7 +879,7 @@ public:
 
         void EnterCombat(Unit* /*pWho*/)
         {
-            me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
+            me->MonsterTextEmote(EMOTE_MIGHT, ObjectGuid::Empty, true);
         }
 
         void JustDied(Unit* /*victim*/)

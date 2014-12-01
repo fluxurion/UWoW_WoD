@@ -119,7 +119,7 @@ public:
                 case 19:
                     if (Creature* Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
                     {
-                        if (Mrfloppy->HasAura(SPELL_MRFLOPPY, 0))
+                        if (Mrfloppy->HasAura(SPELL_MRFLOPPY, ObjectGuid::Empty))
                         {
                             if (Creature* RWORG = Unit::GetCreature(*me, RWORGGUID))
                                 Mrfloppy->EnterVehicle(RWORG);
@@ -497,7 +497,7 @@ public:
             if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
                 && caster->ToPlayer()->GetQuestStatus(12288) == QUEST_STATUS_INCOMPLETE)
             {
-                caster->ToPlayer()->KilledMonsterCredit(CREDIT_NPC, 0);
+                caster->ToPlayer()->KilledMonsterCredit(CREDIT_NPC, ObjectGuid::Empty);
                 DoScriptText(RAND(RANDOM_SAY_1, RANDOM_SAY_2, RANDOM_SAY_3), caster);
                 if (me->IsStandState())
                     me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());
@@ -581,7 +581,7 @@ public:
                 {
                     if (killer->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_A) == QUEST_STATUS_INCOMPLETE ||
                         killer->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_H) == QUEST_STATUS_INCOMPLETE)
-                        killer->ToPlayer()->KilledMonsterCredit(NPC_WAR_GOLEM, 0);
+                        killer->ToPlayer()->KilledMonsterCredit(NPC_WAR_GOLEM, ObjectGuid::Empty);
                 }
             }
         }

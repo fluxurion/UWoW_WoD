@@ -360,7 +360,7 @@ public:
                     return toActivate;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()
@@ -524,7 +524,7 @@ public:
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
         InstanceScript* instance = go->GetInstanceScript();
-        ObjectGuid uiStatue = 0;
+        ObjectGuid uiStatue;
 
         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         go->SetGoState(GO_STATE_ACTIVE);

@@ -623,7 +623,7 @@ public:
                     {
                         // not working rider->CastSpell(rider, SPELL_KILL_CREDIT_DRAKE, true);
                         if (rider->ToPlayer())
-                            rider->ToPlayer()->KilledMonsterCredit(29709, 0);
+                            rider->ToPlayer()->KilledMonsterCredit(29709, ObjectGuid::Empty);
 
                         drake->DespawnOrUnsummon(0);
                     }

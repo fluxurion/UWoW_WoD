@@ -135,7 +135,7 @@ public:
                 case DATA_VESPERON:
                     return m_uiVesperonGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

@@ -175,7 +175,7 @@ public:
                 case DATA_INGVAR:                 return Ingvar;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

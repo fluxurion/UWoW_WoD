@@ -368,7 +368,7 @@ public:
                 if (uiRand < 25)
                 {
                     player->CastSpell(me, 45532, true);
-                    player->KilledMonsterCredit(WARSONG_PEON, 0);
+                    player->KilledMonsterCredit(WARSONG_PEON, ObjectGuid::Empty);
                 }
                 else if (uiRand < 75)
                     player->CastSpell(me, nerubarVictims[urand(0, 2)], true);
@@ -1527,7 +1527,7 @@ public:
                 DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
 
                 if (Player* player = pCaster->ToPlayer())
-                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, 0);
+                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, ObjectGuid::Empty);
 
                 bEnslaved = true;
             }
@@ -1671,7 +1671,7 @@ public:
 
                 case 7:
                     DoScriptText(SAY_IMPRISIONED_BERYL_7, me);
-                    caster->KilledMonsterCredit(25478, 0);
+                    caster->KilledMonsterCredit(25478, ObjectGuid::Empty);
                     break;
                 }
             }
@@ -2012,7 +2012,7 @@ public:
             {
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
                 if (qInfo)
-                    player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], 0);
+                    player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], ObjectGuid::Empty);
             }
         }
     };

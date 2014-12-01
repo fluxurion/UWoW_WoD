@@ -858,7 +858,7 @@ public:
                             events.RescheduleEvent(EVENT_PROXIMITY_MINE, 35000);
                             break;
                         case EVENT_PLASMA_BLAST:
-                            me->MonsterTextEmote(EMOTE_LEVIATHAN, 0, true);
+                            me->MonsterTextEmote(EMOTE_LEVIATHAN, ObjectGuid::Empty, true);
                             DoCast(SPELL_PLASMA_BLAST);
                             events.RescheduleEvent(EVENT_PLASMA_BLAST, urand(30000, 35000), 0, PHASE_LEVIATHAN_SOLO);
                             events.RescheduleEvent(EVENT_SHOCK_BLAST, urand(6000, 10000));
@@ -1138,7 +1138,7 @@ public:
                     switch(eventId)
                     {
                         case EVENT_RAPID_BURST: //Not Work Spell
-                            me->MonsterTextEmote("Warning Rapid Burst", 0, true);
+                            me->MonsterTextEmote("Warning Rapid Burst", ObjectGuid::Empty, true);
                             if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             {
                                 pTarget->ToCreature();
@@ -1148,7 +1148,7 @@ public:
                             events.RescheduleEvent(EVENT_RAPID_BURST, 6000, 0, PHASE_VX001_SOLO);
                             break;
                         case EVENT_PRE_LASER_BARRAGE:
-                            me->MonsterTextEmote("Warning Laser Barrage", 0, true);
+                            me->MonsterTextEmote("Warning Laser Barrage", ObjectGuid::Empty, true);
                             me->GetMotionMaster()->MoveRotate(15000, rand()%2 ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
                             DoCastAOE(SPELL_SPINNING_UP, true);
                             me->ClearUnitState(UNIT_STATE_CASTING);

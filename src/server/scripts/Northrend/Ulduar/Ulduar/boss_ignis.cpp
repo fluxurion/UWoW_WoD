@@ -138,7 +138,7 @@ public:
         Vehicle* vehicle;
         std::vector<Creature *> construct_list;
     
-        uint32 SlagPotGUID;
+        ObjectGuid SlagPotGUID;
         uint32 ConstructTimer;
         uint8 ConstructVal;
         bool Shattered;
@@ -229,7 +229,7 @@ public:
                 switch(eventId)
                 {
                     case EVENT_JET:
-                        me->MonsterTextEmote(EMOTE_JETS, 0, true);
+                        me->MonsterTextEmote(EMOTE_JETS, ObjectGuid::Empty, true);
                         DoCastAOE(SPELL_FLAME_JETS);
                         events.ScheduleEvent(EVENT_JET, urand(35000,40000));
                         break;

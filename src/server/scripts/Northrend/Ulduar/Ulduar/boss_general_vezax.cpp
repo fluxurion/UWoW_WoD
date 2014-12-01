@@ -159,7 +159,7 @@ public:
             if (spell->Id == 62659 && pTarget->GetTypeId() == TYPEID_PLAYER)
                 if (Dodged)
                 {
-                    me->MonsterTextEmote("Achievement Shadowdodger Fail", 0, true);
+                    me->MonsterTextEmote("Achievement Shadowdodger Fail", ObjectGuid::Empty, true);
                     Dodged = false;
                 }
         }
@@ -221,7 +221,7 @@ public:
                                 if(Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                                 if (me->GetDistance(pTarget) > 15.0f && pTarget->GetTypeId() == TYPEID_PLAYER)
                                 {
-                                    me->MonsterTextEmote("Warning Shadow Crash", 0 , true);
+                                    me->MonsterTextEmote("Warning Shadow Crash", ObjectGuid::Empty, true);
                                     DoCast(pTarget, SPELL_SHADOW_CRASH);
                                     break;
                                 }
@@ -234,7 +234,7 @@ public:
                         events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(10000,20000));
                         break;
                     case EVENT_DARKNESS:
-                        me->MonsterTextEmote(EMOTE_DARKNESS, 0, true);
+                        me->MonsterTextEmote(EMOTE_DARKNESS, ObjectGuid::Empty, true);
                         DoScriptText(SAY_KITE, me);
                         DoCast(me, SPELL_SURGE_OF_DARKNESS);
                         events.ScheduleEvent(EVENT_DARKNESS, urand(60000, 70000));
@@ -262,15 +262,15 @@ public:
                             break;
                         }
                     case EVENT_SARONITE_VAPORS:
-                        me->MonsterTextEmote(EMOTE_VAPORS, 0, true);
+                        me->MonsterTextEmote(EMOTE_VAPORS, ObjectGuid::Empty, true);
                         DoSummon(NPC_SARONITE_VAPORS, VaporPos[rand()%6], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                         events.ScheduleEvent(EVENT_SARONITE_VAPORS, 30000);
                         VaporsCount++;
                         if (VaporsCount == 6 && HardMode)
                         {
-                            me->MonsterTextEmote(EMOTE_ANIMUS, 0, true);
+                            me->MonsterTextEmote(EMOTE_ANIMUS, ObjectGuid::Empty, true);
                             DoScriptText(SAY_HARDMODE_ON, me);
-                            me->MonsterTextEmote(EMOTE_BARRIER, 0, true);
+                            me->MonsterTextEmote(EMOTE_BARRIER, ObjectGuid::Empty, true);
                             DoCast(SPELL_SARONITE_BARRIER);
                             DoCast(SPELL_SUMMON_SARONITE_ANIMUS);
                             DespawnCreatures(NPC_SARONITE_VAPORS, 100);

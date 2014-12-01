@@ -232,7 +232,7 @@ public:
         {
             DoScriptText(SAY_MORRIDUNE_1, creature);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            Start(false, false, 0);
+            Start(false, false);
         }
 
         void WaypointReached(uint32 waypointId)

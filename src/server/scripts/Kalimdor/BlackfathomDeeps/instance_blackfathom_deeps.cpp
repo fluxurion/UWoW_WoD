@@ -83,14 +83,14 @@ public:
         {
             memset(&encounter, 0, sizeof(encounter));
 
-            twilightLordKelrisGUID = 0;
-            shrine1GUID = 0;
-            shrine2GUID = 0;
-            shrine3GUID = 0;
-            shrine4GUID = 0;
-            shrineOfGelihastGUID = 0;
-            altarOfTheDeepsGUID = 0;
-            mainDoorGUID = 0;
+            twilightLordKelrisGUID.Clear();
+            shrine1GUID.Clear();
+            shrine2GUID.Clear();
+            shrine3GUID.Clear();
+            shrine4GUID.Clear();
+            shrineOfGelihastGUID.Clear();
+            altarOfTheDeepsGUID.Clear();
+            mainDoorGUID.Clear();
             countFires = 0;
             deathTimes = 0;
         }
@@ -253,7 +253,7 @@ public:
                     return mainDoorGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 };

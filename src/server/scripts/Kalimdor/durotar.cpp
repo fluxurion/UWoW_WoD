@@ -58,7 +58,7 @@ public:
 
         void Reset()
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             RebuffTimer = 0;
             work = false;
         }

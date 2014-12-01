@@ -1014,7 +1014,7 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                     me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ+2, 42, 1);
                     SetCombatMovement(true);
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
                     m_uiStage = 5;
                     break;
                 case 5:

@@ -79,16 +79,16 @@ class instance_arcatraz : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                Containment_Core_Security_Field_AlphaGUID = 0;
-                Containment_Core_Security_Field_BetaGUID = 0;
-                Pod_AlphaGUID = 0;
-                        Pod_GammaGUID = 0;
-                        Pod_BetaGUID = 0;
-                        Pod_DeltaGUID = 0;
-                        Pod_OmegaGUID = 0;
-                        Wardens_ShieldGUID = 0;
-                        GoSphereGUID = 0;
-                        MellicharGUID = 0;
+                Containment_Core_Security_Field_AlphaGUID.Clear();
+                Containment_Core_Security_Field_BetaGUID.Clear();
+                Pod_AlphaGUID.Clear();
+                Pod_GammaGUID.Clear();
+                Pod_BetaGUID.Clear();
+                Pod_DeltaGUID.Clear();
+                Pod_OmegaGUID.Clear();
+                Wardens_ShieldGUID.Clear();
+                GoSphereGUID.Clear();
+                MellicharGUID.Clear();
             }
 
             bool IsEncounterInProgress() const
@@ -251,7 +251,7 @@ class instance_arcatraz : public InstanceMapScript
                 case DATA_MELLICHAR:        return MellicharGUID;
                 case DATA_SPHERE_SHIELD:    return GoSphereGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
         };
 

@@ -107,9 +107,9 @@ public:
                 if (!bFirstTime)
                     instance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, FAIL);
 
-                instance->SetGuidData(DATA_PL_JEDOGA_TARGET, 0);
-                instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, 0);
-                instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
+                instance->SetGuidData(DATA_PL_JEDOGA_TARGET, ObjectGuid::Empty);
+                instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, ObjectGuid::Empty);
+                instance->SetData(DATA_JEDOGA_RESET_INITIANDS, ObjectGuid::Empty);
             }
             MoveUp();
 

@@ -226,7 +226,7 @@ public:
                 case ORMOROKS_CONTAINMET_SPHERE:    return OrmoroksContainmentSphere;
                 case TELESTRAS_CONTAINMET_SPHERE:   return TelestrasContainmentSphere;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

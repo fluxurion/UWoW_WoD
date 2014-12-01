@@ -58,7 +58,7 @@ class instance_pit_of_saron : public InstanceMapScript
             case GO_ICE_WALL:
                 uiIceWall = go->GetGUID();
                 if(GetBossState(DATA_GARFROST) == DONE && GetBossState(DATA_ICK) == DONE)
-                    HandleGameObject(NULL,true,go);
+                    HandleGameObject(ObjectGuid::Empty, true, go);
                 break;
             }
         }
@@ -271,7 +271,7 @@ class instance_pit_of_saron : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()

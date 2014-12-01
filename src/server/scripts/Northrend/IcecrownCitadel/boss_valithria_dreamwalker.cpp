@@ -742,7 +742,7 @@ class npc_suppresser : public CreatureScript
                 if (m_uiCheckTimer <= diff)
                 {
                     if (Creature* pValithria = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)))
-                        me->CastSpell(pValithria, SPELL_SUPRESSION, true, 0, 0, 0);
+                        me->CastSpell(pValithria, SPELL_SUPRESSION, true);
                     m_uiCheckTimer = 100000;
                 } else m_uiCheckTimer -= diff;
             }

@@ -395,7 +395,7 @@ public:
                 case GO_CAPTAIN_CHEST_4:        return uiChest;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

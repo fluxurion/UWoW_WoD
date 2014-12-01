@@ -362,7 +362,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             // victim can be NULL when this is processed in the same update tick as EVENT_AIR_PHASE
                             if (me->getVictim())
                             {
-                                ObjectGuid newOfftank = 0;
+                                ObjectGuid newOfftank;
                                 if (Player * target = SelectRandomTarget(true))
                                 {
                                     if (target)
@@ -558,7 +558,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
                     return;
 
                 uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_FRENZIED_BLOODTHIRST, GetCaster());
-                GetCaster()->RemoveAura(spellId, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                GetCaster()->RemoveAura(spellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 GetCaster()->CastSpell(GetCaster(), SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR, true);
                 // Presence of the Darkfallen buff on Blood-Queen
                 if (GetCaster()->GetMap()->IsHeroic())

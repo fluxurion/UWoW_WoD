@@ -49,7 +49,7 @@ public:
         void Initialize()
         {
             WardKeeperDeath = 0;
-            DoorWardGUID = 0;
+            DoorWardGUID.Clear();
         }
 
         Player* GetPlayerInMap()

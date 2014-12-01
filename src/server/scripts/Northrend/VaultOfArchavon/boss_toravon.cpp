@@ -252,7 +252,7 @@ class mob_frozen_orb_stalker : public CreatureScript
                     return;
 
                 spawned = true;
-                Unit* toravon = me->GetCreature(*me, instance ? instance->GetGuidData(DATA_TORAVON) : 0);
+                Unit* toravon = me->GetCreature(*me, instance ? instance->GetGuidData(DATA_TORAVON) : ObjectGuid::Empty);
                 if (!toravon)
                     return;
 

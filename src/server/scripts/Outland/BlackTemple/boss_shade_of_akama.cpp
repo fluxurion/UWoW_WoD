@@ -125,7 +125,7 @@ public:
     {
         mob_ashtongue_channelerAI(Creature* creature) : ScriptedAI(creature)
         {
-            ShadeGUID = 0;
+            ShadeGUID.Clear();
         }
 
         ObjectGuid ShadeGUID;
@@ -154,7 +154,7 @@ public:
     {
         mob_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature)
         {
-            ShadeGUID = 0;
+            ShadeGUID.Clear();
         }
 
         ObjectGuid ShadeGUID;
@@ -213,7 +213,7 @@ public:
         boss_shade_of_akamaAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
             instance = creature->GetInstanceScript();
-            AkamaGUID = instance ? instance->GetGuidData(DATA_AKAMA_SHADE) : 0;
+            AkamaGUID = instance ? instance->GetGuidData(DATA_AKAMA_SHADE) : ObjectGuid::Empty;
             me->setActive(true);//if view distance is too low
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
@@ -588,7 +588,7 @@ public:
             if (instance)
                 ShadeGUID = instance->GetGuidData(DATA_SHADEOFAKAMA);
             else
-                ShadeGUID = NOT_STARTED;
+                ShadeGUID.Clear();
             me->setActive(true);
             EventBegun = false;
             CastSoulRetrieveTimer = 0;
@@ -862,7 +862,7 @@ public:
                         {
                             for (GuidList::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                                 if (Creature* unit = Unit::GetCreature((*me), *itr))
-                                    unit->MonsterYell(SAY_BROKEN_FREE_02, LANG_UNIVERSAL, 0);
+                                    unit->MonsterYell(SAY_BROKEN_FREE_02, LANG_UNIVERSAL, ObjectGuid::Empty);
                         }
                         SoulRetrieveTimer = 0;
                         break;

@@ -476,7 +476,7 @@ public:
                 case DATA_SARA:
                     return Sara;
             }
-            return NULL;
+            return ObjectGuid::Empty;
         }
     
         void SetData(uint32 id, uint32 value)

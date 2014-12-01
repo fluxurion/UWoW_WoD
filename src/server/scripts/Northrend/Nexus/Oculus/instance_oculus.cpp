@@ -204,7 +204,7 @@ public:
                 case DATA_EREGOS:                 return eregosGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void OpenCageDoors()

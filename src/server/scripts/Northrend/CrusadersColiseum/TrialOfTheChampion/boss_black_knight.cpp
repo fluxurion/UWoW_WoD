@@ -470,7 +470,7 @@ public:
     {
         npc_black_knight_skeletal_gryphonAI(Creature* pCreature) : npc_escortAI(pCreature)
         {
-            Start(false,true,0,NULL);
+            Start(false, true, ObjectGuid::Empty, NULL);
             pInstance = (InstanceScript*)pCreature->GetInstanceScript();    
         }
         InstanceScript* pInstance;

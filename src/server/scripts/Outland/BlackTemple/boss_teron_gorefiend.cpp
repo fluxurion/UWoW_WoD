@@ -74,7 +74,7 @@ public:
         {
             CheckTeronTimer = 5000;
             ShadowBoltTimer = 12000;
-            TeronGUID = 0;
+            TeronGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) { }
@@ -142,8 +142,8 @@ public:
 
         void Reset()
         {
-            GhostGUID = 0;
-            TeronGUID = 0;
+            GhostGUID.Clear();
+            TeronGUID.Clear();
 
             CheckPlayerTimer = 2000;
             CheckTeronTimer = 5000;
@@ -261,7 +261,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             AggroTimer = 20000;
-            AggroTargetGUID = 0;
+            AggroTargetGUID.Clear();
             Intro = false;
             Done = false;
         }

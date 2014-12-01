@@ -128,7 +128,7 @@ public:
         mob_blood_elf_council_voice_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
             for (uint8 i = 0; i < 4; ++i)
-                Council[i] = 0;
+                Council[i].Clear();
         }
 
         ObjectGuid Council[4];
@@ -224,7 +224,7 @@ public:
         {
             instance = creature->GetInstanceScript();
             for (uint8 i = 0; i < 4; ++i)
-                Council[i] = 0;
+                Council[i].Clear();
         }
 
         InstanceScript* instance;
@@ -386,7 +386,7 @@ struct boss_illidari_councilAI : public ScriptedAI
     {
         instance = creature->GetInstanceScript();
         for (uint8 i = 0; i < 4; ++i)
-            Council[i] = 0;
+            Council[i].Clear();
         LoadedGUIDs = false;
     }
 
@@ -805,7 +805,7 @@ public:
 
         void Reset()
         {
-            EnvenomTargetGUID = 0;
+            EnvenomTargetGUID.Clear();
 
             DeadlyPoisonTimer = 20000;
             VanishTimer = urand(60, 121) * 1000;

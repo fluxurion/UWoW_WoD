@@ -97,7 +97,7 @@ public:
             if (instance)
                 instance->SetData(DATA_GURTOGGBLOODBOILEVENT, NOT_STARTED);
 
-            TargetGUID = 0;
+            TargetGUID.Clear();
 
             TargetThreat = 0;
 
@@ -311,7 +311,7 @@ public:
                 {
                     if (TargetGUID)
                         RevertThreatOnTarget(TargetGUID);
-                    TargetGUID = 0;
+                    TargetGUID.Clear();
                     Phase1 = true;
                     BloodboilTimer = 10000;
                     BloodboilCount = 0;

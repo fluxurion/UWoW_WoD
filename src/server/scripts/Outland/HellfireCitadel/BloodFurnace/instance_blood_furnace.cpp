@@ -43,12 +43,12 @@ class instance_blood_furnace : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                TheMakerGUID            = 0;
-                BroggokGUID             = 0;
-                KelidanTheBreakerGUID   = 0;
+                TheMakerGUID.Clear();
+                BroggokGUID.Clear();
+                KelidanTheBreakerGUID.Clear();
 
-                BroggokLeverGUID        = 0;
-                PrisonDoor4GUID         = 0;
+                BroggokLeverGUID.Clear();
+                PrisonDoor4GUID.Clear();
 
                 //memset(PrisonCellGUIDs, 0, 8 * sizeof(ObjectGuid));
 
@@ -167,7 +167,7 @@ class instance_blood_furnace : public InstanceMapScript
                         return BroggokLeverGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state)

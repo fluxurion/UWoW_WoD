@@ -71,7 +71,7 @@ public:
                 case 0:
                     spawnCreatureID = 17681;
                     if (Player* player = killer->ToPlayer())
-                        player->KilledMonsterCredit(spawnCreatureID, 0);
+                        player->KilledMonsterCredit(spawnCreatureID, ObjectGuid::Empty);
                     break;
                 case 1:
                 case 2:
@@ -176,7 +176,7 @@ public:
         {
             go->SetGoState(GO_STATE_ACTIVE);
             stillpine->GetMotionMaster()->MovePoint(1, go->GetPositionX(), go->GetPositionY()-15, go->GetPositionZ());
-            player->CastedCreatureOrGO(NPC_PRINCESS_STILLPINE, 0, SPELL_OPENING_PRINCESS_STILLPINE_CREDIT);
+            player->CastedCreatureOrGO(NPC_PRINCESS_STILLPINE, ObjectGuid::Empty, SPELL_OPENING_PRINCESS_STILLPINE_CREDIT);
         }
         return true;
     }

@@ -53,7 +53,7 @@ public:
         void Initialize()
         {
             AnzuEncounter = NOT_STARTED;
-            m_uiIkissDoorGUID = 0;
+            m_uiIkissDoorGUID.Clear();
         }
 
         void OnCreatureCreate(Creature* creature)

@@ -117,7 +117,7 @@ public:
                 case DATA_WATCHER_NARJIL:               return uiWatcherNarjil;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

@@ -61,11 +61,11 @@ public:
             IsBossDied[1] = false;
             IsBossDied[2] = false;
 
-            SkeramGUID = 0;
-            VemGUID = 0;
-            KriGUID = 0;
-            VeklorGUID = 0;
-            VeknilashGUID = 0;
+            SkeramGUID.Clear();
+            VemGUID.Clear();
+            KriGUID.Clear();
+            VeklorGUID.Clear();
+            VeknilashGUID.Clear();
 
             BugTrioDeathCount = 0;
 
@@ -133,7 +133,7 @@ public:
                 case DATA_VEKNILASH:
                     return VeknilashGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }                                                       // end GetGuidData
 
         void SetData(uint32 type, uint32 data)

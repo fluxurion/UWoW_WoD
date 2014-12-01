@@ -64,13 +64,13 @@ class instance_the_eye : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                ThaladredTheDarkener = 0;
-                LordSanguinar = 0;
-                GrandAstromancerCapernian = 0;
-                MasterEngineerTelonicus = 0;
-                Kaelthas = 0;
-                Astromancer = 0;
-                Alar = 0;
+                ThaladredTheDarkener.Clear();
+                LordSanguinar.Clear();
+                GrandAstromancerCapernian.Clear();
+                MasterEngineerTelonicus.Clear();
+                Kaelthas.Clear();
+                Astromancer.Clear();
+                Alar.Clear();
 
                 KaelthasEventPhase = 0;
                 AlarEventPhase = 0;
@@ -125,7 +125,7 @@ class instance_the_eye : public InstanceMapScript
                 case DATA_ASTROMANCER:                  return Astromancer;
                 case DATA_ALAR:                         return Alar;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void SetData(uint32 type, uint32 data)

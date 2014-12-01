@@ -341,7 +341,7 @@ public:
                 return;
             for (GuidList::const_iterator itr = lDwarfGUIDList.begin(); itr != lDwarfGUIDList.end(); ++itr)
             {
-                Creature* temp = Unit::GetCreature(*me, instance ? (*itr) : 0);
+                Creature* temp = Unit::GetCreature(*me, instance ? (*itr) : ObjectGuid::Empty);
                 if (temp && temp->isAlive())
                     temp->DespawnOrUnsummon();
             }

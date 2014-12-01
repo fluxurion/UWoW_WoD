@@ -239,9 +239,9 @@ public:
                     uiDamage = 0;
 
                     if(pDoneBy->GetOwner())
-                        (pDoneBy->GetOwner())->ToPlayer()->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT,0);
+                        (pDoneBy->GetOwner())->ToPlayer()->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT, ObjectGuid::Empty);
                     if(pDoneBy->GetTypeId() == TYPEID_PLAYER)
-                        pDoneBy->ToPlayer()->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT,0);
+                        pDoneBy->ToPlayer()->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT, ObjectGuid::Empty);
 
                     me->setFaction(35);
                     me->DespawnOrUnsummon(5000);
@@ -391,7 +391,7 @@ public:
                 {
                     if (who->HasAura(SPELL_SUBDUED_LITHE_STALKER))
                         {
-                            owner->ToPlayer()->KilledMonsterCredit(NPC_GEIST_RETURN_BUNNY_KC, 0);
+                        owner->ToPlayer()->KilledMonsterCredit(NPC_GEIST_RETURN_BUNNY_KC, ObjectGuid::Empty);
                             who->ToCreature()->DisappearAndDie();
 
                     }
@@ -979,9 +979,9 @@ public:
                     uiDamage = 0;
 
                     if(pDoneBy->GetOwner())
-                        (pDoneBy->GetOwner())->ToPlayer()->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT,0);
+                        (pDoneBy->GetOwner())->ToPlayer()->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT, ObjectGuid::Empty);
                     if(pDoneBy->GetTypeId() == TYPEID_PLAYER)
-                        pDoneBy->ToPlayer()->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT,0);
+                        pDoneBy->ToPlayer()->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT, ObjectGuid::Empty);
 
                     me->setFaction(35);
                     me->DespawnOrUnsummon(5000);
@@ -1119,7 +1119,7 @@ public:
         {
             pPlayer->CLOSE_GOSSIP_MENU();
             if (pPlayer->GetQuestStatus(QUEST_FINISH_ME) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->KilledMonsterCredit(CREATURE_DYING_SOLDIER_KC, 0);
+                pPlayer->KilledMonsterCredit(CREATURE_DYING_SOLDIER_KC, ObjectGuid::Empty);
             pCreature->Kill(pCreature);
             DoScriptText(RAND(SAY_KILL_QUEST1, SAY_KILL_QUEST2, SAY_KILL_QUEST3, SAY_KILL_QUEST4, SAY_KILL_QUEST5), pCreature);
         }
@@ -1193,7 +1193,7 @@ public:
                         case 5:
                             DoScriptText(SAY_QUEST_SOLDIER7, me);
                             if (pPlayer->GetQuestStatus(QUEST_THE_BROKEN_FRONT_A) == QUEST_STATUS_INCOMPLETE)
-                                pPlayer->KilledMonsterCredit(CREATURE_DYING_SOLDIER_KC, 0);
+                                pPlayer->KilledMonsterCredit(CREATURE_DYING_SOLDIER_KC, ObjectGuid::Empty);
                             bTalkTime = false;
                             uiStep = 0;
                             break;
@@ -1241,7 +1241,7 @@ public:
             Npc_Entry = pCreature->GetEntry();
         }
 
-        ObjectGuid Npc_Entry;
+        uint32 Npc_Entry;
         uint32 ResetTimer;
         uint32 DespawnTimer;
         uint32 ShielTimer;
@@ -2004,7 +2004,7 @@ class npc_tg_tirion_fordring : public CreatureScript
                                 if (Creature* Thassarian = me->FindNearestCreature(NPC_THASSARIAN, 50.0f, true))
                                     Thassarian->AI()->Talk(SAY_THASSARIAN_02);
                             if (Creature* Mograine = me->GetCreature(*me, MograineGUID))
-                                Mograine->AI()->Talk(SAY_DARION_02, 8000);
+                                Mograine->AI()->Talk(SAY_DARION_02);
                             
                             DoCast(SPELL_QUEST_CREDIT);
                             Events.ScheduleEvent(EVENT_LICH_KING_S_FURY, 16000);

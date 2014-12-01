@@ -63,7 +63,7 @@ public:
         {
             memset(&Encounter, 0, sizeof(Encounter));
 
-            OnyxiasGUID = 0;
+            OnyxiasGUID.Clear();
             OnyxiaLiftoffTimer = 0;
             ManyWhelpsCounter = 0;
             AchievManyWhelpsHandleIt = false;
@@ -208,7 +208,7 @@ public:
                     return OnyxiasGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Update(uint32 Diff)

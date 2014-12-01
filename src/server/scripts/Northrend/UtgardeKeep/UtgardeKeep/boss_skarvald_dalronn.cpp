@@ -172,7 +172,7 @@ public:
                     if (Check_Timer <= diff)
                     {
                         Check_Timer = 5000;
-                        Unit* dalronn = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_DALRONN) : 0);
+                        Unit* dalronn = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_DALRONN) : ObjectGuid::Empty);
                         if (dalronn && dalronn->isDead())
                         {
                             Dalronn_isDead = true;
@@ -341,7 +341,7 @@ public:
                     if (Check_Timer <= diff)
                     {
                         Check_Timer = 5000;
-                        Unit* skarvald = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_SKARVALD) : 0);
+                        Unit* skarvald = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_SKARVALD) : ObjectGuid::Empty);
                         if (skarvald && skarvald->isDead())
                         {
                             Skarvald_isDead = true;

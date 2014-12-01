@@ -378,14 +378,14 @@ public:
                 {
                     if (SnapVal >= 2 && WaterVal >= 2 && StormVal >= 2)
                     {
-                        me->MonsterTextEmote("Deforestation is Done", 0, true);
+                        me->MonsterTextEmote("Deforestation is Done", ObjectGuid::Empty, true);
                         DeforesTimer = 0;
                         instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 65015, 0, me);
                         instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65015, 0, me);
                     }
                     else
                     {
-                        me->MonsterTextEmote("Deforestation is Fail", 0, true);
+                        me->MonsterTextEmote("Deforestation is Fail", ObjectGuid::Empty, true);
                         SnapVal = 0;
                         WaterVal = 0;
                         StormVal = 0;
@@ -450,12 +450,12 @@ public:
                         events.ScheduleEvent(EVENT_SUNBEAM, urand(10000, 15000));
                         break;
                     case EVENT_EONAR_GIFT:
-                        me->MonsterTextEmote(EMOTE_GIFT, 0, true);
+                        me->MonsterTextEmote(EMOTE_GIFT, ObjectGuid::Empty, true);
                         DoCast(SPELL_EONAR_GIFT);
                         events.ScheduleEvent(EVENT_EONAR_GIFT, urand(35000, 45000));
                         break;
                     case EVENT_SUMMON_ALLIES:
-                        me->MonsterTextEmote(EMOTE_ALLIES, 0, true);
+                        me->MonsterTextEmote(EMOTE_ALLIES, ObjectGuid::Empty, true);
                         DoCast(me, SPELL_SUMMON_ALLIES);
                         spawnAdd();
                         events.ScheduleEvent(EVENT_SUMMON_ALLIES, 60000);
@@ -576,22 +576,22 @@ public:
             {
                 case ACTION_LASHER:
                     for (uint32 i = 0; i < 2; ++i)
-                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, 0, AURA_REMOVE_BY_DEFAULT);
+                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, ObjectGuid::Empty, AURA_REMOVE_BY_DEFAULT);
                     break;
                 case ACTION_ELEMENTAL:
                     checkElementalAlive = true;
                     for (uint32 i = 0; i < 30; ++i)
-                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, 0, AURA_REMOVE_BY_DEFAULT);
+                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, ObjectGuid::Empty, AURA_REMOVE_BY_DEFAULT);
                     break;
                 case ACTION_ANCIENT:
                     for (uint32 i = 0; i < 25; ++i)
-                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, 0, AURA_REMOVE_BY_DEFAULT);
+                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, ObjectGuid::Empty, AURA_REMOVE_BY_DEFAULT);
                     break;
                 case ACTION_SNAP_DEAD:
                         SnapVal++;
                         if (!DeforesTimer)
                         {
-                            me->MonsterTextEmote("Deforestation timer start", 0,true);
+                            me->MonsterTextEmote("Deforestation timer start", ObjectGuid::Empty, true);
                             DeforesTimer = 10000;
                         }
                         checkElementalAlive = false;
@@ -600,7 +600,7 @@ public:
                         WaterVal++;
                         if (!DeforesTimer)
                         {
-                            me->MonsterTextEmote("Deforestation timer start", 0,true);
+                            me->MonsterTextEmote("Deforestation timer start", ObjectGuid::Empty, true);
                             DeforesTimer = 10000;
                         }
                         checkElementalAlive = false;
@@ -609,7 +609,7 @@ public:
                         StormVal++;
                         if (!DeforesTimer)
                         {
-                            me->MonsterTextEmote("Deforestation timer start", 0,true);
+                            me->MonsterTextEmote("Deforestation timer start", ObjectGuid::Empty, true);
                             DeforesTimer = 10000;
                         }
                         checkElementalAlive = false;

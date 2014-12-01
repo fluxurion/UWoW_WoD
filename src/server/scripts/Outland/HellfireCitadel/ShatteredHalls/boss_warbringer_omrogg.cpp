@@ -163,8 +163,8 @@ class boss_warbringer_omrogg : public CreatureScript
         {
             boss_warbringer_omroggAI(Creature* creature) : ScriptedAI(creature)
             {
-                LeftHeadGUID  = 0;
-                RightHeadGUID = 0;
+                LeftHeadGUID.Clear();
+                RightHeadGUID.Clear();
                 instance = creature->GetInstanceScript();
             }
 
@@ -194,13 +194,13 @@ class boss_warbringer_omrogg : public CreatureScript
                 if (Unit* pLeftHead  = Unit::GetUnit(*me, LeftHeadGUID))
                 {
                     pLeftHead->setDeathState(JUST_DIED);
-                    LeftHeadGUID = 0;
+                    LeftHeadGUID.Clear();
                 }
 
                 if (Unit* pRightHead  = Unit::GetUnit(*me, RightHeadGUID))
                 {
                     pRightHead->setDeathState(JUST_DIED);
-                    RightHeadGUID = 0;
+                    RightHeadGUID.Clear();
                 }
 
                 AggroYell = false;

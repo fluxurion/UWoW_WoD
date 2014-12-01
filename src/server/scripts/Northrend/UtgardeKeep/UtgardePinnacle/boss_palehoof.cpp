@@ -184,7 +184,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            Creature* temp = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_ORB) : 0);
+            Creature* temp = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_ORB) : ObjectGuid::Empty);
             if (temp && temp->isAlive())
                 temp->DisappearAndDie();
 
@@ -215,7 +215,7 @@ public:
             DoScriptText(SAY_DEATH, me);
             if (instance)
                 instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, DONE);
-            Creature* temp = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_ORB) : 0);
+            Creature* temp = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_ORB) : ObjectGuid::Empty);
             if (temp && temp->isAlive())
                 temp->DisappearAndDie();
         }
@@ -257,7 +257,7 @@ public:
                 move = (Phase)(move % 4);
             }
             //send orb to summon spot
-            Creature* pOrb = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_ORB) : 0);
+            Creature* pOrb = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_ORB) : ObjectGuid::Empty);
             if (pOrb && pOrb->isAlive())
             {
                 if (currentPhase == PHASE_NONE)
@@ -320,7 +320,7 @@ public:
             if (instance)
                 if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
                 {
-                    Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : 0);
+                    Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                     if (pPalehoof && pPalehoof->isAlive())
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                 }
@@ -374,7 +374,7 @@ public:
         {
             if (instance)
             {
-                Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : 0);
+                Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                 if (pPalehoof)
                     CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
             }
@@ -433,7 +433,7 @@ public:
             if (instance)
                 if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
                 {
-                    Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : 0);
+                    Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                     if (pPalehoof && pPalehoof->isAlive())
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                 }
@@ -549,7 +549,7 @@ public:
             if (instance)
                 if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
                 {
-                    Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : 0);
+                    Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                     if (pPalehoof && pPalehoof->isAlive())
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                 }
@@ -604,7 +604,7 @@ public:
         {
             if (instance)
             {
-                Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : 0);
+                Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                 if (pPalehoof)
                     CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
             }
@@ -669,7 +669,7 @@ public:
             if (instance)
                 if (instance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
                 {
-                    Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : 0);
+                    Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                     if (pPalehoof && pPalehoof->isAlive())
                         CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->Reset();
                 }
@@ -725,7 +725,7 @@ public:
         {
             if (instance)
             {
-                Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : 0);
+                Creature* pPalehoof = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
                 if (pPalehoof)
                     CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
             }
@@ -784,11 +784,11 @@ public:
                    Creature* pNext = NULL;
                    switch (currentPhase)
                    {
-                        case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_FRENZIED_WORGEN) : 0); break;
-                        case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_RAVENOUS_FURBOLG) : 0); break;
-                        case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_MASSIVE_JORMUNGAR) : 0); break;
-                        case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
-                        case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : 0); break;
+                   case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_FRENZIED_WORGEN) : ObjectGuid::Empty); break;
+                   case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_RAVENOUS_FURBOLG) : ObjectGuid::Empty); break;
+                   case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_MASSIVE_JORMUNGAR) : ObjectGuid::Empty); break;
+                   case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_FEROCIOUS_RHINO) : ObjectGuid::Empty); break;
+                   case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty); break;
                         default: break;
                    }
 
@@ -815,11 +815,11 @@ public:
             Creature* pNext = NULL;
             switch (id)
             {
-                case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_FRENZIED_WORGEN) : 0); break;
-                case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_RAVENOUS_FURBOLG) : 0); break;
-                case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_MASSIVE_JORMUNGAR) : 0); break;
-                case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
-                case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : 0); break;
+            case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_FRENZIED_WORGEN) : ObjectGuid::Empty); break;
+            case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_RAVENOUS_FURBOLG) : ObjectGuid::Empty); break;
+            case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_MASSIVE_JORMUNGAR) : ObjectGuid::Empty); break;
+            case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_MOB_FEROCIOUS_RHINO) : ObjectGuid::Empty); break;
+            case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*me), instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty); break;
                 default: break;
             }
             if (pNext)
@@ -840,7 +840,7 @@ public:
     {
         InstanceScript* instance = go->GetInstanceScript();
 
-        Creature* pPalehoof = Unit::GetCreature(*go, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : 0);
+        Creature* pPalehoof = Unit::GetCreature(*go, instance ? instance->GetGuidData(DATA_GORTOK_PALEHOOF) : ObjectGuid::Empty);
         if (pPalehoof && pPalehoof->isAlive())
         {
             go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);

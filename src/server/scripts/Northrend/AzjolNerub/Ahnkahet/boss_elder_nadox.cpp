@@ -173,7 +173,7 @@ class boss_elder_nadox : public CreatureScript
 
                 if (uiEnrageTimer <= diff)
                 {
-                    if (me->HasAura(SPELL_ENRAGE, 0))
+                    if (me->HasAura(SPELL_ENRAGE, ObjectGuid::Empty))
                         return;
 
                     float x, y, z, o;

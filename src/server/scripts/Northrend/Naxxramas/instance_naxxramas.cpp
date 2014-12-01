@@ -495,7 +495,7 @@ public:
         case DATA_THADDIUS_TESLA06:
             return tesla06Guid;
         }
-        return 0;
+        return ObjectGuid::Empty;
     }
 
     bool SetBossState(uint32 id, EncounterState state)

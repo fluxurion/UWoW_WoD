@@ -464,7 +464,7 @@ public:
 
         void Reset()
         {
-            OgreGUID = 0;
+            OgreGUID.Clear();
         }
 
         void UpdateAI(uint32 /*uiDiff*/) {}
@@ -493,7 +493,7 @@ public:
 
         void Reset()
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
         }
 
         void MoveInLineOfSight(Unit* who)

@@ -183,14 +183,14 @@ public:
                             vInitiands.push_back(*itr);
                     }
                     if (vInitiands.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
                     uint8 j = urand(0, vInitiands.size() -1);
                     return vInitiands[j];
                 }
                 case DATA_ADD_JEDOGA_OPFER: return JedogaSacrifices;
                 case DATA_PL_JEDOGA_TARGET: return JedogaTarget;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

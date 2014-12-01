@@ -69,7 +69,7 @@ public:
             StaticCharge_Timer = 10000;
             SporeStriders_Timer = 10000+rand()%5000;
             check_Timer = 5000;
-            LevitatedTarget = 0;
+            LevitatedTarget.Clear();
             LevitatedTarget_Timer = 0;
             Striders.clear();
         }
@@ -130,13 +130,13 @@ public:
                     {
                         if (!target->HasAura(SPELL_LEVITATE))
                         {
-                            LevitatedTarget = 0;
+                            LevitatedTarget.Clear();
                             return;
                         }
                         if (InAir)
                         {
                             target->AddAura(SPELL_SUSPENSION, target);
-                            LevitatedTarget = 0;
+                            LevitatedTarget.Clear();
                         }
                         else
                         {
@@ -146,7 +146,7 @@ public:
                         }
                     }
                     else
-                        LevitatedTarget = 0;
+                        LevitatedTarget.Clear();
                 } else LevitatedTarget_Timer -= diff;
             }
             if (Levitate_Timer <= diff)

@@ -96,7 +96,7 @@ class instance_forge_of_souls : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()

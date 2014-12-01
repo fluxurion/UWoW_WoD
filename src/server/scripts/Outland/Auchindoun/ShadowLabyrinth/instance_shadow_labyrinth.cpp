@@ -66,10 +66,10 @@ public:
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            m_uiRefectoryDoorGUID = 0;
-            m_uiScreamingHallDoorGUID = 0;
+            m_uiRefectoryDoorGUID.Clear();
+            m_uiScreamingHallDoorGUID.Clear();
 
-            m_uiGrandmasterVorpil = 0;
+            m_uiGrandmasterVorpil.Clear();
             m_uiFelOverseerCount = 0;
         }
 
@@ -196,7 +196,7 @@ public:
             if (identifier == DATA_GRANDMASTERVORPIL)
                 return m_uiGrandmasterVorpil;
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

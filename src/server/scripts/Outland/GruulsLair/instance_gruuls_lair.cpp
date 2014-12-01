@@ -64,15 +64,15 @@ public:
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            MaulgarEvent_Tank = 0;
-            KigglerTheCrazed = 0;
-            BlindeyeTheSeer = 0;
-            OlmTheSummoner = 0;
-            KroshFirehand = 0;
-            Maulgar = 0;
+            MaulgarEvent_Tank.Clear();
+            KigglerTheCrazed.Clear();
+            BlindeyeTheSeer.Clear();
+            OlmTheSummoner.Clear();
+            KroshFirehand.Clear();
+            Maulgar.Clear();
 
-            MaulgarDoor = 0;
-            GruulDoor = 0;
+            MaulgarDoor.Clear();
+            GruulDoor.Clear();
         }
 
         bool IsEncounterInProgress() const
@@ -130,7 +130,7 @@ public:
                 case DATA_GRUULDOOR:            return GruulDoor;
                 case DATA_MAULGAR:              return Maulgar;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

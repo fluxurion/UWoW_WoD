@@ -70,7 +70,7 @@ public:
             Attractmagic_Timer = 28000;
             Carnivorousbite_Timer = 10000;
             FocusFire_Timer = 17000;
-            FocusedTargetGUID = 0;
+            FocusedTargetGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -148,7 +148,7 @@ public:
                     std::string emote(EMOTE_FOCUSES_ON);
                     emote.append(target->GetName());
                     emote.push_back('!');
-                    me->MonsterTextEmote(emote.c_str(), 0, true);
+                    me->MonsterTextEmote(emote.c_str(), ObjectGuid::Empty, true);
                 }
                 FocusFire_Timer = 15000+(rand()%5000);
             } else FocusFire_Timer -= diff;

@@ -203,7 +203,7 @@ public:
                 case DATA_LOKEN:
                     return m_uiLokenGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

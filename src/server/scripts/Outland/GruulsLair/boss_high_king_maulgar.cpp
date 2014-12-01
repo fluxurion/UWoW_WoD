@@ -73,11 +73,11 @@ bool CheckAllBossDied(InstanceScript* instance, Creature* me)
     if (!instance || !me)
         return false;
 
-    ObjectGuid MaulgarGUID = 0;
-    ObjectGuid KigglerGUID = 0;
-    ObjectGuid BlindeyeGUID = 0;
-    ObjectGuid OlmGUID = 0;
-    ObjectGuid KroshGUID = 0;
+    ObjectGuid MaulgarGUID;
+    ObjectGuid KigglerGUID;
+    ObjectGuid BlindeyeGUID;
+    ObjectGuid OlmGUID;
+    ObjectGuid KroshGUID;
 
     Creature* Maulgar = NULL;
     Creature* Kiggler = NULL;
@@ -123,7 +123,7 @@ public:
         {
             instance = creature->GetInstanceScript();
             for (uint8 i = 0; i < 4; ++i)
-                Council[i] = 0;
+                Council[i].Clear();
         }
 
         InstanceScript* instance;

@@ -212,7 +212,7 @@ public:
     {
         InstanceScript* instance = go->GetInstanceScript();
 
-        Creature* pKeristrasza = Unit::GetCreature(*go, instance ? instance->GetGuidData(DATA_KERISTRASZA) : 0);
+        Creature* pKeristrasza = Unit::GetCreature(*go, instance ? instance->GetGuidData(DATA_KERISTRASZA) : ObjectGuid::Empty);
         if (pKeristrasza && pKeristrasza->isAlive())
         {
             // maybe these are hacks :(

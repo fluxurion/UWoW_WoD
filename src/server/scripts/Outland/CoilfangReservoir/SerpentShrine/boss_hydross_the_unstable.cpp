@@ -112,8 +112,8 @@ public:
         void Reset()
         {
             DeSummonBeams();
-            beams[0] = 0;
-            beams[1] = 0;
+            beams[0].Clear();
+            beams[1].Clear();
             PosCheck_Timer = 2500;
             MarkOfHydross_Timer = 15000;
             MarkOfCorruption_Timer = 15000;
