@@ -246,9 +246,9 @@ class boss_lord_rhyolith : public CreatureScript
                         break;
                     case ACTION_REMOVE_OBSIDIAN_ARMOR:
                         if (pLeftFoot)
-                            pLeftFoot->RemoveAuraFromStack(SPELL_OBSIDIAN_ARMOR, 0, AURA_REMOVE_BY_DEFAULT, 10);
+                            pLeftFoot->RemoveAuraFromStack(SPELL_OBSIDIAN_ARMOR, ObjectGuid::Empty, AURA_REMOVE_BY_DEFAULT, 10);
                         if (pRightFoot)
-                            pRightFoot->RemoveAuraFromStack(SPELL_OBSIDIAN_ARMOR, 0, AURA_REMOVE_BY_DEFAULT, 10);
+                            pRightFoot->RemoveAuraFromStack(SPELL_OBSIDIAN_ARMOR, ObjectGuid::Empty, AURA_REMOVE_BY_DEFAULT, 10);
                         break;
                 }
             }

@@ -119,8 +119,8 @@ public:
         boss_kalecgosAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            SathGUID = 0;
-            DoorGUID = 0;
+            SathGUID.Clear();
+            DoorGUID.Clear();
             bJustReset = false;
             me->setActive(true);
         }
@@ -579,8 +579,8 @@ public:
         boss_sathrovarrAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            KalecGUID = 0;
-            KalecgosGUID = 0;
+            KalecGUID.Clear();
+            KalecgosGUID.Clear();
         }
 
         InstanceScript* instance;
@@ -610,7 +610,7 @@ public:
             {
                 if (Creature* Kalec = Unit::GetCreature(*me, KalecGUID))
                     Kalec->setDeathState(JUST_DIED);
-                KalecGUID = 0;
+                KalecGUID.Clear();
             }
 
             ShadowBoltTimer = urand(7, 10) * 1000;
@@ -751,7 +751,7 @@ public:
                     }
                     else
                     {
-                        me->MonsterTextEmote(EMOTE_UNABLE_TO_FIND, 0);
+                        me->MonsterTextEmote(EMOTE_UNABLE_TO_FIND, ObjectGuid::Empty);
                         EnterEvadeMode();
                         return;
                     }

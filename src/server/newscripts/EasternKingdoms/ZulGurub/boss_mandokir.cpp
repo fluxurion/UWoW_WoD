@@ -233,7 +233,7 @@ class npc_mandokir_chained_spirit : public CreatureScript
 
             void Reset()
             {
-                playerGUID = 0;
+                playerGUID.Clear();
                 res = false;
                 despawnTimer = 5000;
             }

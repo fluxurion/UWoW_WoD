@@ -51,18 +51,18 @@ class instance_culling_of_stratholme : public InstanceMapScript
         {
             instance_culling_of_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                _arthasGUID = 0;
-                _meathookGUID = 0;
-                _salrammGUID = 0;
-                _epochGUID = 0;
-                _malGanisGUID = 0;
-                _infiniteGUID = 0;
-                _shkafGateGUID = 0;
-                _malGanisGate1GUID = 0;
-                _malGanisGate2GUID = 0;
-                _exitGateGUID = 0;
-                _malGanisChestGUID = 0;
-                _genericBunnyGUID = 0;
+                _arthasGUID.Clear();
+                _meathookGUID.Clear();
+                _salrammGUID.Clear();
+                _epochGUID.Clear();
+                _malGanisGUID.Clear();
+                _infiniteGUID.Clear();
+                _shkafGateGUID.Clear();
+                _malGanisGate1GUID.Clear();
+                _malGanisGate2GUID.Clear();
+                _exitGateGUID.Clear();
+                _malGanisChestGUID.Clear();
+                _genericBunnyGUID.Clear();
                 memset(&_encounterState[0], 0, sizeof(uint32) * MAX_ENCOUNTER);
                 _crateCount = 0;
             }
@@ -242,7 +242,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     case DATA_MAL_GANIS_CHEST:
                         return _malGanisChestGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()

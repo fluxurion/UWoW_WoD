@@ -794,7 +794,7 @@ class spell_gen_animal_blood : public SpellScriptLoader
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // Remove all auras with spell id 46221, except the one currently being applied
-                while (Aura* aur = GetUnitOwner()->GetOwnedAura(SPELL_ANIMAL_BLOOD, 0, 0, 0, GetAura()))
+                while (Aura* aur = GetUnitOwner()->GetOwnedAura(SPELL_ANIMAL_BLOOD, ObjectGuid::Empty, ObjectGuid::Empty, 0, GetAura()))
                     GetUnitOwner()->RemoveOwnedAura(aur);
             }
 
@@ -2988,7 +2988,7 @@ class spell_gen_mount : public SpellScriptLoader
                 if (Player* target = GetHitPlayer())
                 {
                     // Prevent stacking of mounts and client crashes upon dismounting
-                    target->RemoveAurasByType(SPELL_AURA_MOUNTED, 0, GetHitAura());
+                    target->RemoveAurasByType(SPELL_AURA_MOUNTED, ObjectGuid::Empty, GetHitAura());
 
                     // Triggered spell id dependent on riding skill and zone
                     bool canFly = false;
@@ -3814,12 +3814,31 @@ class spell_gen_battle_guild_standart : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
+                //Updated by CyberBrest
                 if (Creature* pStandart = GetCaster()->ToCreature())
                 {
-                    if (uint32 guildId = pStandart->AI()->GetData(0))
-                        targets.remove_if(GuildCheck(pStandart->GetGUID(), guildId));
-                    else
+                    Unit* owner = pStandart->GetOwner();
+                    if (!owner)
+                    {
                         targets.clear();
+                        return;
+                    }
+
+                    Player* player = owner->ToPlayer();
+                    if (!player)
+                    {
+                        targets.clear();
+                        return;
+                    }
+
+                    ObjectGuid guildID = player->GetGuildId();
+                    if (!guildID)
+                    {
+                        targets.clear();
+                        return;
+                    }
+
+                    targets.remove_if(GuildCheck(pStandart->GetGUID(), guildID));
                 }
                 else
                     targets.clear();
@@ -3837,7 +3856,7 @@ class spell_gen_battle_guild_standart : public SpellScriptLoader
             class GuildCheck
             {
                 public:
-                    GuildCheck(ObjectGuid casterGUID, uint32 guildId) : _casterGUID(casterGUID),_guildId(guildId) {}
+                    GuildCheck(ObjectGuid casterGUID, ObjectGuid guildId) : _casterGUID(casterGUID), _guildId(guildId) {}
 
                     bool operator()(WorldObject* unit)
                     {
@@ -3863,7 +3882,7 @@ class spell_gen_battle_guild_standart : public SpellScriptLoader
 
                 private:
                     ObjectGuid _casterGUID;
-                    uint32 _guildId;
+                    ObjectGuid _guildId;
             };
         };
 

@@ -217,7 +217,7 @@ public:
         target->LoadPath(pathid);
         target->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
         target->GetMotionMaster()->Initialize();
-        target->MonsterSay("Path loaded.", 0, 0);
+        target->MonsterSay("Path loaded.", 0, ObjectGuid::Empty);
 
         return true;
     }
@@ -273,7 +273,7 @@ public:
                 target->SetDefaultMovementType(IDLE_MOTION_TYPE);
                 target->GetMotionMaster()->MoveTargetedHome();
                 target->GetMotionMaster()->Initialize();
-                target->MonsterSay("Path unloaded.", 0, 0);
+                target->MonsterSay("Path unloaded.", 0, ObjectGuid::Empty);
                 return true;
             }
             handler->PSendSysMessage("%s%s|r", "|cffff33ff", "Target have no loaded path.");
@@ -578,7 +578,7 @@ public:
         // -> variable lowguid is filled with the GUID of the NPC
         uint32 pathid = 0;
         uint32 point = 0;
-        uint32 wpGuid = 0;
+        ObjectGuid::LowType wpGuid = 0;
         Creature* target = handler->getSelectedCreature();
 
         if (!target || target->GetEntry() != VISUAL_WAYPOINT)
@@ -594,7 +594,7 @@ public:
 
         // Check the creature
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_WPGUID);
-        stmt->setUInt32(0, wpGuid);
+        stmt->setUInt64(0, wpGuid);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
         if (!result)
@@ -648,8 +648,7 @@ public:
             handler->PSendSysMessage("|cff00ff00DEBUG: wp modify del, PathID: |r|cff00ffff%u|r", pathid);
 
             if (wpGuid != 0)
-            
-                if (Creature* wpCreature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(wpGuid, VISUAL_WAYPOINT, HighGuid::Creature)))
+                if (Creature* wpCreature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid::Create<HighGuid::Creature>(target->GetMapId(), VISUAL_WAYPOINT, wpGuid)))
                 {
                     wpCreature->CombatStop();
                     wpCreature->DeleteFromDB();
@@ -687,7 +686,7 @@ public:
                 // Respawn the owner of the waypoints
                 if (wpGuid != 0)
                 {
-                    if (Creature* wpCreature = map->GetCreature(MAKE_NEW_GUID(wpGuid, VISUAL_WAYPOINT, HighGuid::Creature)))
+                    if (Creature* wpCreature = map->GetCreature(ObjectGuid::Create<HighGuid::Creature>(target->GetMapId(), VISUAL_WAYPOINT, wpGuid)))
                     {
                         wpCreature->CombatStop();
                         wpCreature->DeleteFromDB();
@@ -810,7 +809,7 @@ public:
 
             PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
 
-            stmt->setUInt32(0, target->GetGUID().GetCounter());
+            stmt->setUInt64(0, target->GetGUID().GetCounter());
 
             PreparedQueryResult result = WorldDatabase.Query(stmt);
 
@@ -872,8 +871,10 @@ public:
                 do
                 {
                     Field* fields = result2->Fetch();
-                    uint32 wpguid = fields[0].GetUInt32();
-                    Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(wpguid, VISUAL_WAYPOINT, HighGuid::Creature));
+                    ObjectGuid::LowType wpguid = fields[0].GetUInt64();
+                    Player* chr = handler->GetSession()->GetPlayer();
+
+                    Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid::Create<HighGuid::Creature>(chr->GetMapId(), VISUAL_WAYPOINT, wpguid));
 
                     if (!creature)
                     {
@@ -882,7 +883,7 @@ public:
 
                         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
 
-                        stmt->setUInt32(0, wpguid);
+                        stmt->setUInt64(0, wpguid);
 
                         WorldDatabase.Execute(stmt);
                     }
@@ -1072,8 +1073,9 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                ObjectGuid::LowType guid = fields[0].GetUInt32();
-                Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(guid, VISUAL_WAYPOINT, HighGuid::Creature));
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
+                Player* chr = handler->GetSession()->GetPlayer();
+                Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid::Create<HighGuid::Creature>(chr->GetMapId(), VISUAL_WAYPOINT, guid));
                 if (!creature)
                 {
                     handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, guid);

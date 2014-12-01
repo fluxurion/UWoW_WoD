@@ -30,15 +30,15 @@ class instance_zulgurub : public InstanceMapScript
             {
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doordata);
-                venoxisGUID     = 0;
-                mandokirGUID    = 0;
-                kilnaraGUID     = 0;
-                zanzilGUID      = 0;
-                jindoGUID       = 0;
-                hazzarahGUID    = 0;
-                renatakiGUID    = 0;
-                wushoolayGUID   = 0;
-                grilekGUID      = 0;
+                venoxisGUID.Clear();
+                mandokirGUID.Clear();
+                kilnaraGUID.Clear();
+                zanzilGUID.Clear();
+                jindoGUID.Clear();
+                hazzarahGUID.Clear();
+                renatakiGUID.Clear();
+                wushoolayGUID.Clear();
+                grilekGUID.Clear();
                 uiBosses        = 0;
             }
     
@@ -142,7 +142,7 @@ class instance_zulgurub : public InstanceMapScript
 
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()

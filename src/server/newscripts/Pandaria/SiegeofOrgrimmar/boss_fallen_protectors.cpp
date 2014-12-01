@@ -643,8 +643,8 @@ class boss_sun_tenderheart : public CreatureScript
                             events.RescheduleEvent(EVENT_SHADOW_WORD_BANE, urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS), 0, PHASE_BATTLE);
                             break;
                         case EVENT_CALAMITY:
-                            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_2, 0);
-                            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_3, 0);
+                            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_2, ObjectGuid::Empty);
+                            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_3, ObjectGuid::Empty);
                             DoCastVictim(SPELL_CALAMITY);
                             events.RescheduleEvent(EVENT_CALAMITY, urand(60*IN_MILLISECONDS, 70*IN_MILLISECONDS), 0, PHASE_BATTLE);
                             break;
@@ -1022,7 +1022,7 @@ public:
         {
             ownVehicle = NPC_GOLD_LOTOS_HE;
             ownSummoner = NPC_HE_SOFTFOOT;
-            _target = 0;
+            _target.Clear();
         }
 
         ObjectGuid _target;
@@ -1032,7 +1032,7 @@ public:
             if (Unit* target = ObjectAccessor::FindUnit(guid))
             {
                 if (Creature* owner = instance->instance->GetCreature(instance->GetGuidData(ownSummoner)))
-                    sCreatureTextMgr->SendChat(owner, TEXT_GENERIC_0, 0);
+                    sCreatureTextMgr->SendChat(owner, TEXT_GENERIC_0, ObjectGuid::Empty);
 
                 me->CastSpell(target, SPELL_MARK_OF_ANGUISH_JUMP, true);
                 target->CastSpell(target, SPELL_DEBILITATION, true);
@@ -1607,7 +1607,7 @@ class spell_fallen_protectors_defile_ground : public SpellScriptLoader
                     return;
 
                 AreaTrigger * areaTrigger = new AreaTrigger;
-                if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HighGuid::AreaTrigger), AT_ENTRY, caster, GetSpellInfo(), *target, GetSpell()))
+                if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), AT_ENTRY, caster, GetSpellInfo(), *target, GetSpell()))
                 {
 
                     delete areaTrigger;

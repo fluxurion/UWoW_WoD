@@ -45,8 +45,8 @@ class SummonList : public std::list<ObjectGuid>
         template <class Predicate> void DoAction(int32 info, Predicate& predicate, uint16 max = 0)
         {
             // We need to use a copy of SummonList here, otherwise original SummonList would be modified
-            std::list<uint64> listCopy = *this;
-            Trinity::Containers::RandomResizeList<uint64, Predicate>(listCopy, predicate, max);
+            GuidList listCopy = *this;
+            Trinity::Containers::RandomResizeList<ObjectGuid, Predicate>(listCopy, predicate, max);
             for (iterator i = listCopy.begin(); i != listCopy.end(); )
             {
                 Creature* summon = Unit::GetCreature(*me, *i++);

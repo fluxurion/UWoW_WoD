@@ -410,7 +410,7 @@ public:
                     case 100:
                     case 8921:
                     {
-                        player->KilledMonsterCredit(44175, 0);
+                        player->KilledMonsterCredit(44175, ObjectGuid::Empty);
                         break;
                     }
                     default:
@@ -515,7 +515,7 @@ public:
             {
                 if (me->GetHealthPct() <= 30 && willCastEnrage)
                 {
-                    me->MonsterTextEmote(-106, 0);
+                    me->MonsterTextEmote(-106, ObjectGuid::Empty);
                     DoCast(me, SPELL_ENRAGE);
                     tEnrage = CD_ENRAGE;
                 }
@@ -591,7 +591,7 @@ public:
                 opened = 0;
                 
                 if(aPlayer)
-                    aPlayer->KilledMonsterCredit(35830, 0);
+                    aPlayer->KilledMonsterCredit(35830, ObjectGuid::Empty);
                 
                 if (spawnKind == 3)
                 {
@@ -855,7 +855,7 @@ public:
 
             if (tEnrage <= diff && willCastEnrage && me->GetHealthPct() <= 30)
             {
-                me->MonsterTextEmote(-106, 0);
+                me->MonsterTextEmote(-106, ObjectGuid::Empty);
                 DoCast(me, SPELL_ENRAGE);
                 tEnrage = CD_ENRAGE;
             }
@@ -1324,7 +1324,7 @@ public:
                 {
                     if (me->GetHealthPct() <= 30 && willCastEnrage)
                     {
-                        me->MonsterTextEmote(-106, 0);
+                        me->MonsterTextEmote(-106, ObjectGuid::Empty);
                         DoCast(me, SPELL_ENRAGE);
                         tEnrage = CD_ENRAGE;
                     }
@@ -1454,7 +1454,7 @@ public:
                 {
                     if (me->GetHealthPct() <= 30 && willCastEnrage)
                     {
-                        me->MonsterTextEmote(-106, 0);
+                        me->MonsterTextEmote(-106, ObjectGuid::Empty);
                         DoCast(me, SPELL_ENRAGE);
                         tEnrage = CD_ENRAGE;
                     }
@@ -1584,7 +1584,7 @@ public:
                 {
                     if (me->GetHealthPct() <= 30 && willCastEnrage)
                     {
-                        me->MonsterTextEmote(-106, 0);
+                        me->MonsterTextEmote(-106, ObjectGuid::Empty);
                         DoCast(me, SPELL_ENRAGE);
                         tEnrage = CD_ENRAGE;
                     }
@@ -1700,7 +1700,7 @@ public:
                 {
                     if (me->GetHealthPct() <= 30 && willCastEnrage)
                     {
-                        me->MonsterTextEmote(-106, 0);
+                        me->MonsterTextEmote(-106, ObjectGuid::Empty);
                         DoCast(me, SPELL_ENRAGE);
                         tEnrage = CD_ENRAGE;
                     }
@@ -1760,7 +1760,7 @@ public:
         void Reset()
         {
             Phase       = 0;
-            PlayerGUID  = 0;
+            PlayerGUID.Clear();
             tEvent      = 0;
         }
 
@@ -1870,7 +1870,7 @@ public:
         void Reset()
         {
             tSay        = urand(2000, 4000);
-            PlayerGUID  = 0;
+            PlayerGUID.Clear();
             tPlayerCheck= 500;
             Talk        = false;
         }
@@ -1963,7 +1963,7 @@ public:
 
             if (Player* player = rider->ToPlayer())
             {
-                player->KilledMonsterCredit(NPC_MOUNTAICE_HOURCE_CREDIT, 0);
+                player->KilledMonsterCredit(NPC_MOUNTAICE_HOURCE_CREDIT, ObjectGuid::Empty);
                 who->ToCreature()->DespawnOrUnsummon(1000);
             }
         }
@@ -2088,7 +2088,7 @@ public:
 
             if (tEnrage <= diff && willCastEnrage && me->GetHealthPct() <= 30)
             {
-                me->MonsterTextEmote(-106, 0);
+                me->MonsterTextEmote(-106, ObjectGuid::Empty);
                 DoCast(me, SPELL_ENRAGE);
                 tEnrage = CD_ENRAGE;
             }
@@ -2301,7 +2301,7 @@ public:
 
             if (tEnrage <= diff && willCastEnrage && me->GetHealthPct() <= 30)
             {
-                me->MonsterTextEmote(-106, 0);
+                me->MonsterTextEmote(-106, ObjectGuid::Empty);
                 DoCast(me, SPELL_ENRAGE);
                 tEnrage = CD_ENRAGE;
             }
@@ -2726,7 +2726,7 @@ class spell_keg_placed : public SpellScriptLoader
                         if (caster->GetTypeId() != TYPEID_PLAYER)
                             return;
 
-                        caster->ToPlayer()->KilledMonsterCredit(36233, 0);
+                        caster->ToPlayer()->KilledMonsterCredit(36233, ObjectGuid::Empty);
                         if (Unit* target = GetTarget())
                             target->Kill(target);
                     }
@@ -2938,7 +2938,7 @@ public:
             {
                 if (me->GetHealthPct() <= 30)
                 {
-                    me->MonsterTextEmote(-106, 0);
+                    me->MonsterTextEmote(-106, ObjectGuid::Empty);
                     DoCast(me, SPELL_ENRAGE);
                     tEnrage = CD_ENRAGE;
                 }
@@ -2993,7 +2993,7 @@ public:
 
                 if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetQuestStatus(QUEST_SACRIFICES) == QUEST_STATUS_INCOMPLETE)
                 {
-                    caster->ToPlayer()->KilledMonsterCredit(NPC_BLOODFANG_STALKER_CREDIT, 0);
+                    caster->ToPlayer()->KilledMonsterCredit(NPC_BLOODFANG_STALKER_CREDIT, ObjectGuid::Empty);
                 }
             }
         }

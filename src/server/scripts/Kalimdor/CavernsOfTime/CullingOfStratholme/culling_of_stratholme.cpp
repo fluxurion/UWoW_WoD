@@ -360,23 +360,23 @@ public:
 
         void Reset()
         {
-            uiUtherGUID = 0;
-            uiJainaGUID = 0;
+            uiUtherGUID.Clear();
+            uiJainaGUID.Clear();
 
             for (uint8 i = 0; i < 2; ++i)
-                uiCitymenGUID[i] = 0;
+                uiCitymenGUID[i].Clear();
 
             for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
-                uiWaveGUID[i] = 0;
+                uiWaveGUID[i].Clear();
 
             for (uint8 i = 0; i < ENCOUNTER_DRACONIAN_NUMBER; ++i)
-                uiInfiniteDraconianGUID[i] = 0;
+                uiInfiniteDraconianGUID[i].Clear();
 
-            uiStalkerGUID = 0;
-            uiBossGUID = 0;
-            uiEpochGUID = 0;
-            uiMalganisGUID = 0;
-            uiInfiniteGUID = 0;
+            uiStalkerGUID.Clear();
+            uiBossGUID.Clear();
+            uiEpochGUID.Clear();
+            uiMalganisGUID.Clear();
+            uiInfiniteGUID.Clear();
 
             if (instance) {
                 instance->SetData(DATA_ARTHAS_EVENT, NOT_STARTED);
@@ -709,7 +709,7 @@ public:
                         case 21:
                             SetEscortPaused(false);
                             bStepping = false;
-                            me->SetTarget(0);
+                            me->SetTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After waypoint 3
@@ -729,7 +729,7 @@ public:
                             if (Creature* pUther = Unit::GetCreature(*me, uiUtherGUID))
                                 pUther->DisappearAndDie();
 
-                            me->SetTarget(0);
+                            me->SetTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After Gossip 1 (waypoint 8)
@@ -749,7 +749,7 @@ public:
                             SetEscortPaused(false);
                             bStepping = false;
                             SetRun(false);
-                            me->SetTarget(0);
+                            me->SetTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After waypoint 9

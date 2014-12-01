@@ -164,7 +164,7 @@ public:
                         return;
                     }
 
-                    if (Creature* pArthas = me->GetCreature(*me, instance ? instance->GetGuidData(DATA_ARTHAS) : 0))
+                    if (Creature* pArthas = me->GetCreature(*me, instance ? instance->GetGuidData(DATA_ARTHAS) : ObjectGuid::Empty))
                         if (pArthas->isDead())
                         {
                             EnterEvadeMode();
@@ -214,7 +214,7 @@ public:
                                 uiOutroTimer = 8000;
                                 break;
                             case 2:
-                                me->SetTarget(instance ? instance->GetGuidData(DATA_ARTHAS) : 0);
+                                me->SetTarget(instance ? instance->GetGuidData(DATA_ARTHAS) : ObjectGuid::Empty);
                                 me->HandleEmoteCommand(29);
                                 DoScriptText(SAY_ESCAPE_SPEECH_2, me);
                                 ++uiOutroStep;

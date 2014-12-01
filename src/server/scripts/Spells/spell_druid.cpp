@@ -2668,7 +2668,7 @@ class spell_druid_rejuvenation : public SpellScriptLoader
                     if (caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    caster->ToPlayer()->KilledMonsterCredit(44175, 0);
+                    caster->ToPlayer()->KilledMonsterCredit(44175, ObjectGuid::Empty);
                 }
             }
 

@@ -738,7 +738,7 @@ class spell_jasper_chains : public SpellScriptLoader
 
             bool Load()
             {
-                playerLinkedGuid = 0;
+                playerLinkedGuid.Clear();
                 return true;
             }
 

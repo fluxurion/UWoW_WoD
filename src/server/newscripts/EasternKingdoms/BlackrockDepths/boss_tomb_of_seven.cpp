@@ -192,7 +192,7 @@ public:
                 me->GetMotionMaster()->MoveTargetedHome();
             me->SetLootRecipient(NULL);
             if (instance)
-                instance->SetGuidData(DATA_EVENSTARTER, 0);
+                instance->SetGuidData(DATA_EVENSTARTER, ObjectGuid::Empty);
         }
 
         void JustDied(Unit* /*killer*/)

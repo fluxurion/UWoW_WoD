@@ -85,28 +85,28 @@ public:
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
             /*** Creatures ***/
-            Kalecgos_Dragon         = 0;
-            Kalecgos_Human          = 0;
-            Sathrovarr              = 0;
-            Brutallus               = 0;
-            Madrigosa               = 0;
-            Felmyst                 = 0;
-            Alythess                = 0;
-            Sacrolash               = 0;
-            Muru                    = 0;
-            KilJaeden               = 0;
-            KilJaedenController     = 0;
-            Anveena                 = 0;
-            KalecgosKJ              = 0;
-            SpectralPlayers         = 0;
+            Kalecgos_Dragon.Clear();
+            Kalecgos_Human.Clear();
+            Sathrovarr.Clear();
+            Brutallus.Clear();
+            Madrigosa.Clear();
+            Felmyst.Clear();
+            Alythess.Clear();
+            Sacrolash.Clear();
+            Muru.Clear();
+            KilJaeden.Clear();
+            KilJaedenController.Clear();
+            Anveena.Clear();
+            KalecgosKJ.Clear();
+            SpectralPlayers = 0;
 
             /*** GameObjects ***/
-            ForceField  = 0;
-            FireBarrier = 0;
-            MurusGate[0] = 0;
-            MurusGate[1] = 0;
-            KalecgosWall[0] = 0;
-            KalecgosWall[1] = 0;
+            ForceField.Clear();
+            FireBarrier.Clear();
+            MurusGate[0].Clear();
+            MurusGate[1].Clear();
+            KalecgosWall[0].Clear();
+            KalecgosWall[1].Clear();
 
             /*** Misc ***/
             SpectralRealmTimer = 5000;
@@ -130,7 +130,7 @@ public:
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     Player* player = itr->getSource();
-                    if (player && !player->HasAura(45839, 0))
+                    if (player && !player->HasAura(45839, ObjectGuid::Empty))
                             return player;
                 }
             }
@@ -216,7 +216,7 @@ public:
                     if(Player* Target = GetPlayerInMap())
                         return Target->GetGUID();
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 id, uint32 data)

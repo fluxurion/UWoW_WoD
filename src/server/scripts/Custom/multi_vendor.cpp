@@ -220,7 +220,8 @@ public:
                 }
                 else
                 {
-                    Player* receiver = ObjectAccessor::FindPlayer(action);
+                    //WARNING!!! action is not good way to send player guid as we should have uint64 size.
+                    Player* receiver = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(ObjectGuid::LowType(action)));
                     uint32 transcount = CalculatePct(countefirs, 85);
                     player->DestroyItemCount(EFIRALS, countefirs, true);
                     // from console show not existed sendermail
@@ -234,7 +235,7 @@ public:
                         player->SaveInventoryAndGoldToDB(trans);
                         item->SaveToDB(trans);                           // save for prevent lost at next mail load, if send fail then item will deleted
                         draft.AddItem(item);
-                        draft.SendMailTo(trans, MailReceiver(receiver, GUID_LOPART(action)), sendermail);
+                        draft.SendMailTo(trans, MailReceiver(receiver, receiver->GetGUID().GetCounter()), sendermail);
                         CharacterDatabase.CommitTransaction(trans);
                         chH.PSendSysMessage(20019, transcount);
                     }
@@ -378,7 +379,7 @@ public:
             }
 
             Field* fields = result->Fetch();
-            uint32 owner_guid = fields[0].GetUInt32();
+            ObjectGuid::LowType owner_guid = fields[0].GetUInt64();
             uint32 entry = fields[1].GetUInt32();
             uint32 efircount = fields[2].GetUInt32();
             uint32 count = fields[3].GetUInt32();
@@ -410,7 +411,8 @@ public:
                 player->CLOSE_GOSSIP_MENU(); return true;
             }
 
-            if(Item *item = GetItemByGuid(action, player))
+            //Warning!! action should be uint64
+            if (Item *item = GetItemByGuid(ObjectGuid::Create<HighGuid::Item>(action), player))
             {
                 player->DestroyItemCount(item, count, true);
                 player->AddItem(EFIRALS, uint32(efircount * 0.8));
@@ -424,32 +426,31 @@ public:
         return true;
     }
 
-    Item* GetItemByGuid(ObjectGuid guid, Player* player) const
+    Item* GetItemByGuid(ObjectGuid const& guid, Player* player) const
     {
         for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
             if (Item *pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                if (pItem->GetGUID().GetCounter() == guid)
+                if (pItem->GetGUID() == guid)
                     return pItem;
 
         for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
             if (Item *pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                if (pItem->GetGUID().GetCounter() == guid)
+                if (pItem->GetGUID() == guid)
                     return pItem;
 
         for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
             if (Bag *pBag = player->GetBagByPos(i))
                 for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
                     if (Item* pItem = pBag->GetItemByPos(j))
-                        if (pItem->GetGUID().GetCounter() == guid)
+                        if (pItem->GetGUID() == guid)
                             return pItem;
 
         for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
             if (Bag *pBag = player->GetBagByPos(i))
                 for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
                     if (Item* pItem = pBag->GetItemByPos(j))
-                        if (pItem->GetGUID().GetCounter() == guid)
+                        if (pItem->GetGUID() == guid)
                             return pItem;
-
         return NULL;
     }
 };
@@ -519,7 +520,7 @@ public:
                     do
                     {
                         Field* fields = result->Fetch();
-                        ObjectGuid::LowType guid = fields[0].GetUInt32();
+                        ObjectGuid::LowType guid = fields[0].GetUInt64();
                         std::string name = fields[1].GetString();
 
                         player->ADD_GOSSIP_ITEM(0, name, GOSSIP_SENDER_INN_INFO, guid);

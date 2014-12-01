@@ -199,7 +199,7 @@ public:
 
         if (param == "on")
         {
-            if (player->HasAura(VISUAL_AURA, 0))
+            if (player->HasAura(VISUAL_AURA, ObjectGuid::Empty))
                 player->RemoveAurasDueToSpell(VISUAL_AURA);
 
             player->SetGMVisible(true);

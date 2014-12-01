@@ -254,7 +254,7 @@ OPvPCapturePointZM_GraveYard::OPvPCapturePointZM_GraveYard(OutdoorPvP* pvp)
 {
     m_BothControllingFaction = 0;
     m_GraveYardState = ZM_GRAVEYARD_N;
-    m_FlagCarrierGUID = 0;
+    m_FlagCarrierGUID.Clear();
     // add field scouts here
     AddCreature(ZM_ALLIANCE_FIELD_SCOUT, ZM_AllianceFieldScout.entry, ZM_AllianceFieldScout.teamval, ZM_AllianceFieldScout.map, ZM_AllianceFieldScout.x, ZM_AllianceFieldScout.y, ZM_AllianceFieldScout.z, ZM_AllianceFieldScout.o);
     AddCreature(ZM_HORDE_FIELD_SCOUT, ZM_HordeFieldScout.entry, ZM_HordeFieldScout.teamval, ZM_HordeFieldScout.map, ZM_HordeFieldScout.x, ZM_HordeFieldScout.y, ZM_HordeFieldScout.z, ZM_HordeFieldScout.o);
@@ -322,7 +322,7 @@ void OPvPCapturePointZM_GraveYard::SetBeaconState(uint32 controlling_faction)
                    p->RemoveAurasDueToSpell(ZM_BATTLE_STANDARD_A);
                    p->RemoveAurasDueToSpell(ZM_BATTLE_STANDARD_H);
                 }
-                m_FlagCarrierGUID = 0;
+                m_FlagCarrierGUID.Clear();
             }
         }
         break;
@@ -377,12 +377,10 @@ bool OPvPCapturePointZM_GraveYard::HandleDropFlag(Player* /*player*/, uint32 spe
 {
     switch (spellId)
     {
-    case ZM_BATTLE_STANDARD_A:
-        m_FlagCarrierGUID = 0;
-        return true;
-    case ZM_BATTLE_STANDARD_H:
-        m_FlagCarrierGUID = 0;
-        return true;
+        case ZM_BATTLE_STANDARD_A:
+        case ZM_BATTLE_STANDARD_H:
+            m_FlagCarrierGUID.Clear();
+            return true;
     }
     return false;
 }

@@ -95,16 +95,16 @@ public:
 
             DelrissaDeathCount = 0;
 
-            SelinGUID = 0;
-            DelrissaGUID = 0;
-            VexallusDoorGUID = 0;
-            SelinDoorGUID = 0;
-            SelinEncounterDoorGUID = 0;
-            DelrissaDoorGUID = 0;
-            KaelDoorGUID = 0;
-            KaelStatue[0] = 0;
-            KaelStatue[1] = 0;
-            EscapeOrbGUID = 0;
+            SelinGUID.Clear();
+            DelrissaGUID.Clear();
+            VexallusDoorGUID.Clear();
+            SelinDoorGUID.Clear();
+            SelinEncounterDoorGUID.Clear();
+            DelrissaDoorGUID.Clear();
+            KaelDoorGUID.Clear();
+            KaelStatue[0].Clear();
+            KaelStatue[1].Clear();
+            EscapeOrbGUID.Clear();
 
             InitializedItr = false;
         }
@@ -245,7 +245,7 @@ public:
                     if (FelCrystals.empty())
                     {
                         sLog->outError(LOG_FILTER_TSCR, "Magisters Terrace: No Fel Crystals loaded in Inst Data");
-                        return 0;
+                        return ObjectGuid::Empty;
                     }
 
                     if (!InitializedItr)
@@ -259,7 +259,7 @@ public:
                     return guid;
                 }
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

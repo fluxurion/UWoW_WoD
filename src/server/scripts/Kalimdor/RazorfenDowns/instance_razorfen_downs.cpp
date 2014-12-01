@@ -47,7 +47,7 @@ public:
 
         void Initialize()
         {
-            uiGongGUID = 0;
+            uiGongGUID.Clear();
 
             uiGongWaves = 0;
 
@@ -203,7 +203,7 @@ public:
                 case DATA_GONG: return uiGongGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

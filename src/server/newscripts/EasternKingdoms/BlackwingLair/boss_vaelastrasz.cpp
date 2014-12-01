@@ -110,7 +110,7 @@ public:
 
         void Reset()
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             SpeechTimer = 0;
             SpeechNum = 0;
             Cleave_Timer = 8000;                                // These times are probably wrong

@@ -545,7 +545,7 @@ class npc_maloriak_flash_freeze : public CreatureScript
         {
             npc_maloriak_flash_freezeAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                trappedPlayer = 0;
+                trappedPlayer.Clear();
             }
 
             ObjectGuid trappedPlayer;
@@ -569,7 +569,7 @@ class npc_maloriak_flash_freeze : public CreatureScript
             {
                 if (Player* player = ObjectAccessor::GetPlayer(*me, trappedPlayer))
                 {
-                    trappedPlayer = 0;
+                    trappedPlayer.Clear();
                     player->RemoveAurasDueToSpell(SPELL_FLASH_FREEZE);
                 }
                 DoCast(me, SPELL_SHATTER);

@@ -148,7 +148,7 @@ class npc_shadopan_archery : public CreatureScript
                 
                 if (fireTimer <= diff)
                 {
-                    ObjectGuid targetGuid = 0;
+                    ObjectGuid targetGuid;
 
                     if (pInstance->GetData(DATA_ARCHERY) == 1 && me->GetEntry() == NPC_ARCHERY_FIRST)
                     {

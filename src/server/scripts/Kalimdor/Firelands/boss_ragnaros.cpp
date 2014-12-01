@@ -572,7 +572,7 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
                     events.SetPhase(PHASE_SUBMERGED);
                     events.ScheduleEvent(EVENT_SUBMERGE, 12000, 0, PHASE_SUBMERGED);
                     events.ScheduleEvent(EVENT_EMERGE, 47000, 0, PHASE_SUBMERGED);
@@ -633,7 +633,7 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
                     events.SetPhase(PHASE_SUBMERGED);
                     events.ScheduleEvent(EVENT_SUBMERGE, 12000, 0, PHASE_SUBMERGED);
                     events.ScheduleEvent(EVENT_EMERGE, 47000, 0, PHASE_SUBMERGED);

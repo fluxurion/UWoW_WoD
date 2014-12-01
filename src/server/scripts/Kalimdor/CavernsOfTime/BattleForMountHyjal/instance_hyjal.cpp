@@ -89,16 +89,16 @@ public:
 
             m_uiAncientGemGUID.clear();
 
-            RageWinterchill = 0;
-            Anetheron = 0;
-            Kazrogal = 0;
-            Azgalor = 0;
-            Archimonde = 0;
-            JainaProudmoore = 0;
-            Thrall = 0;
-            TyrandeWhisperwind = 0;
-            HordeGate = 0;
-            ElfGate = 0;
+            RageWinterchill.Clear();
+            Anetheron.Clear();
+            Kazrogal.Clear();
+            Azgalor.Clear();
+            Archimonde.Clear();
+            JainaProudmoore.Clear();
+            Thrall.Clear();
+            TyrandeWhisperwind.Clear();
+            HordeGate.Clear();
+            ElfGate.Clear();
             ArchiYell = false;
             RaidDamage = 0;
 
@@ -170,7 +170,7 @@ public:
                 case DATA_TYRANDEWHISPERWIND: return TyrandeWhisperwind;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

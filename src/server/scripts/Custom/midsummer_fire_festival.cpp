@@ -305,7 +305,7 @@ public:
                     switch (spell->Id)
                     {
                         case 40160:
-                            pPlayer->KilledMonsterCredit(23118,0);
+                            pPlayer->KilledMonsterCredit(23118, ObjectGuid::Empty);
                             me->DespawnOrUnsummon(3000);
                             return;
                     }

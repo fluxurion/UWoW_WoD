@@ -132,7 +132,7 @@ public:
 
         void Reset()
         {
-            m_uiSpotlightGUID = 0;
+            m_uiSpotlightGUID.Clear();
 
             TalkCount = 0;
             TalkTimer = 2000;
@@ -494,7 +494,7 @@ public:
 
         void Reset()
         {
-            ArcanagosGUID = 0;
+            ArcanagosGUID.Clear();
 
             if (instance && instance->GetGuidData(DATA_IMAGE_OF_MEDIVH) == 0)
             {
@@ -544,25 +544,25 @@ public:
             {
             case 0: return 9999999;
             case 1:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL, ObjectGuid::Empty);
                 return 10000;
             case 2:
                 if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL, 0);
+                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL, ObjectGuid::Empty);
                 return 20000;
             case 3:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL, ObjectGuid::Empty);
                 return 10000;
             case 4:
                 if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, 0);
+                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, ObjectGuid::Empty);
                 return 20000;
             case 5:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, ObjectGuid::Empty);
                 return 20000;
             case 6:
                 if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, 0);
+                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, ObjectGuid::Empty);
                 return 10000;
             case 7:
                 FireArcanagosTimer = 500;
@@ -572,7 +572,7 @@ public:
                 DoCast(me, SPELL_MANA_SHIELD);
                 return 10000;
             case 9:
-                me->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, 0, false);
+                me->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, ObjectGuid::Empty, false);
                 return 10000;
             case 10:
                 if (arca)
@@ -580,7 +580,7 @@ public:
                 return 1000;
             case 11:
                 if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, 0);
+                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, ObjectGuid::Empty);
                 return 5000;
             case 12:
                 arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
@@ -589,7 +589,7 @@ public:
                 arca->SetSpeed(MOVE_FLIGHT, 2.0f);
                 return 10000;
             case 13:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, ObjectGuid::Empty);
                 return 10000;
             case 14:
                 me->SetVisible(false);

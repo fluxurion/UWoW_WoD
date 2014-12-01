@@ -289,7 +289,7 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                 if (!target)
-                    target = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_PLAYER_GUID) : 0);
+                    target = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_PLAYER_GUID) : ObjectGuid::Empty);
 
                 if (!target)
                 {
@@ -316,7 +316,7 @@ public:
 
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                 if (!target)
-                    target = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_PLAYER_GUID) : 0);
+                    target = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_PLAYER_GUID) : ObjectGuid::Empty);
 
                 if (!target)
                 {
@@ -346,7 +346,7 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                 if (!target)
-                    target = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_PLAYER_GUID) : 0);
+                    target = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_PLAYER_GUID) : ObjectGuid::Empty);
 
                 if (!target)
                 {

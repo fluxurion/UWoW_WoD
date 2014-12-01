@@ -32,10 +32,10 @@ public:
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 m_auiEncounter[i] = NOT_STARTED;
                 
-            uiGeneralUmbrissGUID = 0;
-            uiForgemasterThrongusGUID = 0;
-            uiDrahgaShadowburnerGUID = 0;
-            uiErudaxGUID = 0;
+            uiGeneralUmbrissGUID.Clear();
+            uiForgemasterThrongusGUID.Clear();
+            uiDrahgaShadowburnerGUID.Clear();
+            uiErudaxGUID.Clear();
         }
         
         bool IsEncounterInProgress() const
@@ -116,7 +116,7 @@ public:
                 case DATA_ERUDAX:
                     return uiErudaxGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
         
         std::string GetSaveData()

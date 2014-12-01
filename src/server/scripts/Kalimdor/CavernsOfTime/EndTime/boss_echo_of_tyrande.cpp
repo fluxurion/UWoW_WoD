@@ -150,7 +150,7 @@ class boss_echo_of_tyrande : public CreatureScript
             {
                 _Reset();
 
-                moonlanceGUID = 0LL;
+                moonlanceGUID.Clear();
                 phase = 0;
 
                 if (instance->GetData(DATA_TYRANDE_EVENT) == DONE)

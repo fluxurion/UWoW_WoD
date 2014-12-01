@@ -110,7 +110,7 @@ public:
     struct netherspite_infernalAI : public ScriptedAI
     {
         netherspite_infernalAI(Creature* creature) : ScriptedAI(creature),
-            HellfireTimer(0), CleanupTimer(0), malchezaar(0), point(NULL) {}
+            HellfireTimer(0), CleanupTimer(0), point(NULL) {}
 
         uint32 HellfireTimer;
         uint32 CleanupTimer;
@@ -220,7 +220,7 @@ public:
 
             for (uint8 i = 0; i < 5; ++i)
             {
-                enfeeble_targets[i] = 0;
+                enfeeble_targets[i].Clear();
                 enfeeble_health[i] = 0;
             }
 
@@ -293,7 +293,7 @@ public:
                 Unit* axe = Unit::GetUnit(*me, axes[i]);
                 if (axe && axe->isAlive())
                     axe->Kill(axe);
-                axes[i] = 0;
+                axes[i].Clear();
             }
         }
 
@@ -351,7 +351,7 @@ public:
                 Unit* target = Unit::GetUnit(*me, enfeeble_targets[i]);
                 if (target && target->isAlive())
                     target->SetHealth(enfeeble_health[i]);
-                enfeeble_targets[i] = 0;
+                enfeeble_targets[i].Clear();
                 enfeeble_health[i] = 0;
             }
         }
@@ -399,7 +399,7 @@ public:
             if (me->HasUnitState(UNIT_STATE_STUNNED))      // While shifting to phase 2 malchezaar stuns himself
                 return;
 
-            if (me->GetUInt64Value(UNIT_FIELD_TARGET) != me->getVictim()->GetGUID())
+            if (me->GetGuidValue(UNIT_FIELD_TARGET) != me->getVictim()->GetGUID())
                 me->SetTarget(me->getVictim()->GetGUID());
 
             if (phase == 1)

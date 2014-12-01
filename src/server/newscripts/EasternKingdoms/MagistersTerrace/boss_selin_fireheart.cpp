@@ -134,7 +134,7 @@ public:
 
             IsDraining = false;
             DrainingCrystal = false;
-            CrystalGUID = 0;
+            CrystalGUID.Clear();
         }
 
         void SelectNearestCrystal()
@@ -143,7 +143,7 @@ public:
                 return;
 
             //float ShortestDistance = 0;
-            CrystalGUID = 0;
+            CrystalGUID.Clear();
             Unit* pCrystal = NULL;
             Unit* CrystalChosen = NULL;
             //for (uint8 i =  0; i < CRYSTALS_NUMBER; ++i)
@@ -308,7 +308,7 @@ public:
                             // Use Deal Damage to kill it, not setDeathState.
                             CrystalChosen->Kill(CrystalChosen);
 
-                        CrystalGUID = 0;
+                        CrystalGUID.Clear();
 
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveChase(me->getVictim());

@@ -28,12 +28,13 @@ public:
 
         void Initialize()
         {
-             uiRomoggGUID = 0;
-             uiCorlaGUID = 0;
-             uiKarshGUID = 0;
-             uiBeautyGUID = 0;
-             uiLordObsidiusGUID = 0;
-			 memset(&m_uiPortalGUID[4], 0, sizeof(m_uiPortalGUID[4]));
+             uiRomoggGUID.Clear();
+             uiCorlaGUID.Clear();
+             uiKarshGUID.Clear();
+             uiBeautyGUID.Clear();
+             uiLordObsidiusGUID.Clear();
+             for (int32 i = 0; i < 4; ++i)
+                 m_uiPortalGUID[i].Clear();
         }
 
         void OnCreatureCreate(Creature* pCreature)
@@ -108,7 +109,7 @@ public:
                 case DATA_ASCENDANT_LORD_OBSIDIUS:
                     return uiLordObsidiusGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

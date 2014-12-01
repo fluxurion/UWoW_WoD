@@ -88,24 +88,24 @@ public:
             m_uiOperaEvent      = urand(1, 3);
             m_uiOzDeathCount    = 0;
 
-            m_uiCurtainGUID         = 0;
-            m_uiStageDoorLeftGUID   = 0;
-            m_uiStageDoorRightGUID  = 0;
+            m_uiCurtainGUID.Clear();
+            m_uiStageDoorLeftGUID.Clear();
+            m_uiStageDoorRightGUID.Clear();
 
-            m_uiKilrekGUID      = 0;
-            m_uiTerestianGUID   = 0;
-            m_uiMoroesGUID      = 0;
+            m_uiKilrekGUID.Clear();
+            m_uiTerestianGUID.Clear();
+            m_uiMoroesGUID.Clear();
 
-            m_uiLibraryDoor         = 0;
-            m_uiMassiveDoor         = 0;
-            m_uiSideEntranceDoor    = 0;
-            m_uiGamesmansDoor       = 0;
-            m_uiGamesmansExitDoor   = 0;
-            m_uiNetherspaceDoor     = 0;
-            MastersTerraceDoor[0]= 0;
-            MastersTerraceDoor[1]= 0;
-            ImageGUID = 0;
-            DustCoveredChest    = 0;
+            m_uiLibraryDoor.Clear();
+            m_uiMassiveDoor.Clear();
+            m_uiSideEntranceDoor.Clear();
+            m_uiGamesmansDoor.Clear();
+            m_uiGamesmansExitDoor.Clear();
+            m_uiNetherspaceDoor.Clear();
+            MastersTerraceDoor[0].Clear();
+            MastersTerraceDoor[1].Clear();
+            ImageGUID.Clear();
+            DustCoveredChest.Clear();
         }
 
         bool IsEncounterInProgress() const
@@ -285,7 +285,7 @@ public:
                 case DATA_IMAGE_OF_MEDIVH:          return ImageGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Load(const char* chrIn)

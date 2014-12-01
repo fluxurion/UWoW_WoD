@@ -415,7 +415,7 @@ class npc_air_force_bots : public CreatureScript
             npc_air_force_botsAI(Creature* creature) : ScriptedAI(creature)
             {
                 SpawnAssoc = NULL;
-                SpawnedGUID = 0;
+                SpawnedGUID.Clear();
 
                 // find the correct spawnhandling
                 static uint32 entryCount = sizeof(spawnAssociations) / sizeof(SpawnAssociation);
@@ -494,7 +494,7 @@ class npc_air_force_bots : public CreatureScript
 
                     // prevent calling Unit::GetUnit at next MoveInLineOfSight call - speedup
                     if (!lastSpawnedGuard)
-                        SpawnedGUID = 0;
+                        SpawnedGUID.Clear();
 
                     switch (SpawnAssoc->spawnType)
                     {
@@ -874,7 +874,7 @@ class npc_doctor : public CreatureScript
 
             void Reset()
             {
-                PlayerGUID = 0;
+                PlayerGUID.Clear();
 
                 SummonPatientTimer = 10000;
                 SummonPatientCount = 0;
@@ -1010,7 +1010,7 @@ class npc_injured_patient : public CreatureScript
 
             void Reset()
             {
-                DoctorGUID = 0;
+                DoctorGUID.Clear();
                 Coord = NULL;
 
                 //no select
@@ -1216,7 +1216,7 @@ class npc_garments_of_quests : public CreatureScript
 
             void Reset()
             {
-                CasterGUID = 0;
+                CasterGUID.Clear();
 
                 IsHealed = false;
                 CanRun = false;
@@ -1372,7 +1372,7 @@ class npc_garments_of_quests : public CreatureScript
                                     break;
                             }
 
-                            Start(false, true, true);
+                            Start(false, true);
                         }
                         else
                             EnterEvadeMode();                       //something went wrong
@@ -1922,7 +1922,7 @@ public:
                 || pPlayer->GetQuestStatus(BARK_FOR_TCHALIS_VOODOO_BREWERY) == QUEST_STATUS_INCOMPLETE
                 || pPlayer->GetQuestStatus(BARK_FOR_THE_BARLEYBREWS) == QUEST_STATUS_INCOMPLETE
                 || pPlayer->GetQuestStatus(BARK_FOR_DROHNS_DISTILLERY) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->KilledMonsterCredit(me->GetEntry(),0);
+                pPlayer->KilledMonsterCredit(me->GetEntry(), ObjectGuid::Empty);
         }
     };
 
@@ -2041,7 +2041,7 @@ public:
                 }
                 else
                 {
-                    pPlayer->KilledMonsterCredit(NPC_BREWFEST_DELIVERY_BUNNY,0);
+                    pPlayer->KilledMonsterCredit(NPC_BREWFEST_DELIVERY_BUNNY, ObjectGuid::Empty);
                     if (pPlayer->GetQuestStatus(QUEST_THERE_AND_BACK_AGAIN_A) == QUEST_STATUS_INCOMPLETE) 
                         pPlayer->AreaExploredOrEventHappens(QUEST_THERE_AND_BACK_AGAIN_A);
                     if (pPlayer->GetQuestStatus(QUEST_THERE_AND_BACK_AGAIN_H) == QUEST_STATUS_INCOMPLETE) 
@@ -2310,7 +2310,7 @@ class mob_mojo : public CreatureScript
             ObjectGuid victimGUID;
             void Reset()
             {
-                victimGUID = 0;
+                victimGUID.Clear();
                 hearts = 15000;
                 if (Unit* own = me->GetOwner())
                     me->GetMotionMaster()->MoveFollow(own, 0, 0);
@@ -2699,7 +2699,7 @@ class npc_training_dummy : public CreatureScript
                         case 100787:
                         case 118215:
                         {
-                            player->KilledMonsterCredit(44175, 0);
+                            player->KilledMonsterCredit(44175, ObjectGuid::Empty);
                             break;
                         }
                         default:
@@ -3552,7 +3552,7 @@ class npc_spring_rabbit : public CreatureScript
             void Reset()
             {
                 inLove = false;
-                rabbitGUID = 0;
+                rabbitGUID.Clear();
                 jumpTimer = urand(5000, 10000);
                 bunnyTimer = urand(10000, 20000);
                 searchTimer = urand(5000, 10000);
@@ -4154,7 +4154,7 @@ class npc_demonic_gateway : public CreatureScript
 
                         for (int32 i = 0; i < MAX_SUMMON_SLOT; ++i)
                         {
-                            if (GUID_ENPART(owner->m_SummonSlot[i]) != DestEntry[gate])
+                            if (owner->m_SummonSlot[i].GetEntry() != DestEntry[gate])
                                 continue;
                             if(Unit* uGate = ObjectAccessor::GetUnit(*me, owner->m_SummonSlot[i]))
                             {

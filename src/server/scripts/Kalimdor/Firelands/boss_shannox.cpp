@@ -947,7 +947,7 @@ class npc_shannox_crystal_prison : public CreatureScript
         {
             npc_shannox_crystal_prisonAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                trappedUnit = 0;
+                trappedUnit.Clear();
                 bDog = false;
             }
 
@@ -978,7 +978,7 @@ class npc_shannox_crystal_prison : public CreatureScript
                 bDog = false;
                 if (Unit* unit = ObjectAccessor::GetUnit(*me, trappedUnit))
                 {
-                    trappedUnit = 0;
+                    trappedUnit.Clear();
                     unit->RemoveAurasDueToSpell(SPELL_CRYSTAL_PRISON_TRAP);
                 }
                 me->DespawnOrUnsummon(800);

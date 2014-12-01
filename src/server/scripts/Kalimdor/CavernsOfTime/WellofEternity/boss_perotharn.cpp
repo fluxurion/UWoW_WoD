@@ -210,7 +210,7 @@ class boss_illidan_woe : public CreatureScript
 
             void Reset()
             {
-                Start(true, true, 0, 0);
+                Start(true, true, ObjectGuid::Empty, 0);
             }
 
             void WaypointReached(uint32 uiPointId)

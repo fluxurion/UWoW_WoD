@@ -434,7 +434,7 @@ public:
             return false;
 
         // Detect target's GUID
-        ObjectGuid guid.Clear();
+        ObjectGuid guid;
         if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
             guid = player->GetGUID();
         else

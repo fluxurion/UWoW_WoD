@@ -1563,8 +1563,8 @@ class spell_mage_frost_nova : public SpellScriptLoader
                 {
                     if (caster->GetTypeId() == TYPEID_PLAYER)
                     {
-                        caster->ToPlayer()->KilledMonsterCredit(44175, 0);
-                        caster->ToPlayer()->KilledMonsterCredit(44548, 0);
+                        caster->ToPlayer()->KilledMonsterCredit(44175, ObjectGuid::Empty);
+                        caster->ToPlayer()->KilledMonsterCredit(44548, ObjectGuid::Empty);
                     }
                 }
             }

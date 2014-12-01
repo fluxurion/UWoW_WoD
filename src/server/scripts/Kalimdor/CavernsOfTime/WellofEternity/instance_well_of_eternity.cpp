@@ -55,7 +55,7 @@ public:
 
         ObjectGuid GetGuidData(uint32 type)
         {
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         bool SetBossState(uint32 type, EncounterState state)

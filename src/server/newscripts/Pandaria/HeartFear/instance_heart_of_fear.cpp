@@ -67,34 +67,34 @@ public:
             LoadDoorData(doorData);
 
             //GameObject
-            vizierentdoorGuid   = 0;
-            vizierexdoorGuid    = 0;
-            tayakexdoorGuid     = 0;
-            garalonentdoorGuid  = 0;
-            meljarakexdoorGuid  = 0;
-            unsokendoorGuid     = 0;
-            unsokexdoorGuid     = 0;
-            empresscocoonGuid   = 0;
+            vizierentdoorGuid.Clear();
+            vizierexdoorGuid.Clear();
+            tayakexdoorGuid.Clear();
+            garalonentdoorGuid.Clear();
+            meljarakexdoorGuid.Clear();
+            unsokendoorGuid.Clear();
+            unsokexdoorGuid.Clear();
+            empresscocoonGuid.Clear();
 
             vizierarenadoorGuids.clear();
             garaloncdoorGuids.clear();
             garalonexdoorGuids.clear();
 
             //Creature
-            zorlokGuid          = 0;
-            gascontrollerGuid   = 0;
-            tayakGuid           = 0;
-            garalonGuid         = 0;
-            meljarakGuid        = 0;
-            unsokGuid           = 0;
-            ambermonsterGuid    = 0;
-            shekzeerGuid        = 0;
+            zorlokGuid.Clear();
+            gascontrollerGuid.Clear();
+            tayakGuid.Clear();
+            garalonGuid.Clear();
+            meljarakGuid.Clear();
+            unsokGuid.Clear();
+            ambermonsterGuid.Clear();
+            shekzeerGuid.Clear();
 
             for (uint8 n = 0; n < 3; n++)
             {
-                srathik[n] = 0;
-                zarthik[n] = 0;
-                korthik[n] = 0;
+                srathik[n].Clear();
+                zarthik[n].Clear();
+                korthik[n].Clear();
             }
         }
 
@@ -406,7 +406,7 @@ public:
                 case GO_EMPRESS_COCOON:
                     return empresscocoonGuid;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         bool IsWipe()

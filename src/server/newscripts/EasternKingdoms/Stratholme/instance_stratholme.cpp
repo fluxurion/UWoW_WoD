@@ -97,19 +97,19 @@ class instance_stratholme : public InstanceMapScript
                 for (uint8 i = 0; i < 5; ++i)
                     IsSilverHandDead[i] = false;
 
-                serviceEntranceGUID = 0;
-                gauntletGate1GUID = 0;
-                ziggurat1GUID = 0;
-                ziggurat2GUID = 0;
-                ziggurat3GUID = 0;
-                ziggurat4GUID = 0;
-                ziggurat5GUID = 0;
-                portGauntletGUID = 0;
-                portSlaugtherGUID = 0;
-                portElderGUID = 0;
+                serviceEntranceGUID.Clear();
+                gauntletGate1GUID.Clear();
+                ziggurat1GUID.Clear();
+                ziggurat2GUID.Clear();
+                ziggurat3GUID.Clear();
+                ziggurat4GUID.Clear();
+                ziggurat5GUID.Clear();
+                portGauntletGUID.Clear();
+                portSlaugtherGUID.Clear();
+                portElderGUID.Clear();
 
-                baronGUID = 0;
-                ysidaTriggerGUID = 0;
+                baronGUID.Clear();
+                ysidaTriggerGUID.Clear();
                 crystalsGUID.clear();
                 abomnationGUID.clear();
             }
@@ -434,7 +434,7 @@ class instance_stratholme : public InstanceMapScript
                     case DATA_YSIDA_TRIGGER:
                         return ysidaTriggerGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void Update(uint32 diff)

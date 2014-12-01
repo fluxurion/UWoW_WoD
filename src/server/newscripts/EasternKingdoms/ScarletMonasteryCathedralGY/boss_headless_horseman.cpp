@@ -243,7 +243,7 @@ public:
         void Reset()
         {
             Phase = 0;
-            bodyGUID = 0;
+            bodyGUID.Clear();
             die = false;
             withbody = true;
             wait = 1000;
@@ -340,7 +340,7 @@ public:
                     Creature* speaker = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000);
                     if (speaker)
                         speaker->CastSpell(speaker, SPELL_HEAD_SPEAKS, false);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, 0);
+                    me->MonsterTextEmote(EMOTE_LAUGHS, ObjectGuid::Empty);
                 }
                 else laugh -= diff;
             }
@@ -425,7 +425,7 @@ public:
                 if (Creature* Head = Unit::GetCreature((*me), headGUID))
                     Head->DisappearAndDie();
 
-                headGUID = 0;
+                headGUID.Clear();
             }
 
             //if (instance)
@@ -711,7 +711,7 @@ public:
                 if (laugh <= diff)
                 {
                     laugh = urand(11000, 22000);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, 0);
+                    me->MonsterTextEmote(EMOTE_LAUGHS, ObjectGuid::Empty);
                     DoPlaySoundToSet(me, RandomLaugh[rand()%3]);
                 }
                 else laugh -= diff;
@@ -828,7 +828,7 @@ public:
             if (debuff)
             {
                 debuff->SetVisible(false);
-                debuffGUID = 0;
+                debuffGUID.Clear();
             }
         }
 

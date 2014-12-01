@@ -92,7 +92,7 @@ public:
 
         void Initialize()
         {
-            MedivhGUID          = 0;
+            MedivhGUID.Clear();
             Clear();
         }
 
@@ -257,7 +257,7 @@ public:
             if (data == DATA_MEDIVH)
                 return MedivhGUID;
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         Creature* SummonedPortalBoss(Creature* me)

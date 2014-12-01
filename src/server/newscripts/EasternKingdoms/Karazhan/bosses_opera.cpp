@@ -238,7 +238,7 @@ public:
 
         void Reset()
         {
-            DorotheeGUID = 0;
+            DorotheeGUID.Clear();
             YipTimer = 10000;
         }
 
@@ -829,7 +829,7 @@ public:
             FearTimer = urand(25000, 35000);
             SwipeTimer = 5000;
 
-            HoodGUID = 0;
+            HoodGUID.Clear();
             TempThreat = 0;
 
             IsChasing = false;
@@ -890,7 +890,7 @@ public:
 
                     if (Unit* target = Unit::GetUnit(*me, HoodGUID))
                     {
-                        HoodGUID = 0;
+                        HoodGUID.Clear();
                         if (DoGetThreat(target))
                             DoModifyThreatPercent(target, -100);
                         me->AddThreat(target, TempThreat);
@@ -1038,7 +1038,7 @@ public:
 
         void Reset()
         {
-            RomuloGUID = 0;
+            RomuloGUID.Clear();
             Phase = PHASE_JULIANNE;
 
             BlindingPassionTimer = 30000;
@@ -1154,7 +1154,7 @@ public:
 
         void Reset()
         {
-            JulianneGUID = 0;
+            JulianneGUID.Clear();
             Phase = PHASE_ROMULO;
 
             BackwardLungeTimer = 15000;

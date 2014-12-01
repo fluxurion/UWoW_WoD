@@ -73,21 +73,21 @@ public:
         {
             SetBossNumber(5);
             //Creature
-            chillheartGuid = 0;
-            barovGuid = 0;
-            rattlegoreGuid = 0 ;
-            lilianGuid = 0;
-            darkmasterGuid = 0;
+            chillheartGuid.Clear();
+            barovGuid.Clear();
+            rattlegoreGuid.Clear();
+            lilianGuid.Clear();
+            darkmasterGuid.Clear();
             
             //GameObject
-            doorGuid = 0;
-            door2Guid = 0;
-            door3Guid = 0;
-            door4Guid = 0;
-            door5Guid = 0;
-            door6Guid = 0;
-            door7Guid = 0;
-            lastdoorGuid = 0;
+            doorGuid.Clear();
+            door2Guid.Clear();
+            door3Guid.Clear();
+            door4Guid.Clear();
+            door5Guid.Clear();
+            door6Guid.Clear();
+            door7Guid.Clear();
+            lastdoorGuid.Clear();
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -261,7 +261,7 @@ public:
                     return darkmasterGuid;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data){}

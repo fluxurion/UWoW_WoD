@@ -1064,8 +1064,8 @@ class spell_rog_eviscerate : public SpellScriptLoader
                 {
                     if (caster->GetTypeId() == TYPEID_PLAYER)
                     {
-                        caster->ToPlayer()->KilledMonsterCredit(44175, 0);
-                        caster->ToPlayer()->KilledMonsterCredit(44548, 0);
+                        caster->ToPlayer()->KilledMonsterCredit(44175, ObjectGuid::Empty);
+                        caster->ToPlayer()->KilledMonsterCredit(44548, ObjectGuid::Empty);
                     }
                     if (target && caster->HasAura(14171) || caster->HasAura(14172))
                     {

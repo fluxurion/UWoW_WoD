@@ -353,7 +353,7 @@ public:
                 case DATA_RANDOM_FIRST_POS:
                 {
                     if (firstDefeatedNovicePositionsGuid.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
 
                     ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(firstDefeatedNovicePositionsGuid);
                     firstDefeatedNovicePositionsGuid.remove(guid);
@@ -362,7 +362,7 @@ public:
                 case DATA_RANDOM_SECOND_POS:
                 {
                     if (secondDefeatedNovicePositionsGuid.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
 
                     ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(secondDefeatedNovicePositionsGuid);
                     secondDefeatedNovicePositionsGuid.remove(guid);
@@ -371,7 +371,7 @@ public:
                 case DATA_RANDOM_MINIBOSS_POS:
                 {
                     if (minibossPositionsGuid.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
 
                     ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(minibossPositionsGuid);
                     minibossPositionsGuid.remove(guid);
@@ -379,7 +379,7 @@ public:
                 }
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Update(uint32 diff) 

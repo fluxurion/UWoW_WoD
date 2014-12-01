@@ -1195,7 +1195,7 @@ class spell_hun_steady_shot : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit *caster = GetCaster())
-                    caster->ToPlayer()->KilledMonsterCredit(44175, 0);
+                    caster->ToPlayer()->KilledMonsterCredit(44175, ObjectGuid::Empty);
             }
 
             void Register()
@@ -1612,7 +1612,7 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetCaster())
-                    GetCaster()->SetReducedThreatPercent(0, 0);
+                    GetCaster()->SetReducedThreatPercent(0, ObjectGuid::Empty);
             }
 
             void Register()

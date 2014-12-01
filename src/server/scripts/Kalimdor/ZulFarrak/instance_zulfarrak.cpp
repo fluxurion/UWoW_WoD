@@ -119,13 +119,13 @@ public:
         void Initialize()
         {
             GahzRillaEncounter = NOT_STARTED;
-            ZumrahGUID = 0;
-            BlyGUID = 0;
-            WeegliGUID = 0;
-            OroGUID = 0;
-            RavenGUID = 0;
-            MurtaGUID = 0;
-            EndDoorGUID = 0;
+            ZumrahGUID.Clear();
+            BlyGUID.Clear();
+            WeegliGUID.Clear();
+            OroGUID.Clear();
+            RavenGUID.Clear();
+            MurtaGUID.Clear();
+            EndDoorGUID.Clear();
             PyramidPhase = 0;
             major_wave_Timer = 0;
             minor_wave_Timer = 0;
@@ -208,7 +208,7 @@ public:
                 case GO_END_DOOR:
                     return EndDoorGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

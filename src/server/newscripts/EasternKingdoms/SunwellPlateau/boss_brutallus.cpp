@@ -156,7 +156,7 @@ public:
         {
             if (!Intro || IsIntro)
                 return;
-            Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_MADRIGOSA) : 0);
+            Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_MADRIGOSA) : ObjectGuid::Empty);
             if (Madrigosa)
             {
                 Madrigosa->Respawn();
@@ -192,7 +192,7 @@ public:
 
         void DoIntro()
         {
-            Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_MADRIGOSA) : 0);
+            Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_MADRIGOSA) : ObjectGuid::Empty);
             if (!Madrigosa)
                 return;
 
@@ -293,7 +293,7 @@ public:
                 {
                     if (IntroFrostBoltTimer <= diff)
                     {
-                        if (Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_MADRIGOSA) : 0))
+                        if (Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_MADRIGOSA) : ObjectGuid::Empty))
                         {
                             Madrigosa->CastSpell(me, SPELL_INTRO_FROSTBOLT, true);
                             IntroFrostBoltTimer = 2000;

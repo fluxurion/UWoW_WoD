@@ -142,7 +142,7 @@ public:
 
         void Reset()
         {
-            Tagger = 0;
+            Tagger.Clear();
             Die_Timer = 5000;
             Tagged = false;
         }

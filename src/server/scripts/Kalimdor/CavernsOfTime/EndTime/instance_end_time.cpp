@@ -25,16 +25,16 @@ class instance_end_time : public InstanceMapScript
                 first_encounter = 0;
                 second_encounter = 0;
                 tyrande_event = 0;
-                uiMurozondCacheGUID = 0;
-                uiTyrandeGUID = 0;
-                uiJainaGUID = 0;
-                uiPlatform1GUID = 0;
-                uiPlatform2GUID = 0;
-                uiPlatform3GUID = 0;
-                uiPlatform4GUID = 0;
-                uiImageOfNozdormuGUID = 0;
-                uiMurozondGUID = 0;
-                uiHourglassGUID = 0;
+                uiMurozondCacheGUID.Clear();
+                uiTyrandeGUID.Clear();
+                uiJainaGUID.Clear();
+                uiPlatform1GUID.Clear();
+                uiPlatform2GUID.Clear();
+                uiPlatform3GUID.Clear();
+                uiPlatform4GUID.Clear();
+                uiImageOfNozdormuGUID.Clear();
+                uiMurozondGUID.Clear();
+                uiHourglassGUID.Clear();
                 memset(nozdormu_dialog, 0, sizeof(nozdormu_dialog));
             }
 
@@ -198,9 +198,9 @@ class instance_end_time : public InstanceMapScript
                     case DATA_NOZDORMU: return uiNozdormuGUID;
                     case DATA_MUROZOND: return uiMurozondGUID;
                     case DATA_HOURGLASS: return uiHourglassGUID;
-                    default: return 0;
+                    default: return ObjectGuid::Empty;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state)

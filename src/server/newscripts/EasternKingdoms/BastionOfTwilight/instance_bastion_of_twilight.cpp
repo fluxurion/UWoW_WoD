@@ -33,18 +33,18 @@ public:
         {
             SetBossNumber(MAX_ENCOUNTER);
             LoadDoorData(doordata);
-            uiWyrmbreakerGUID = 0;
-            uiValionaGUID = 0;
-            uiTheralionGUID = 0;
-            uiFeludiusGUID = 0;
-            uiArionGUID = 0;
-            uiIgnaciousGUID = 0;
-            uiTerrastraGUID = 0;
-            uiMonstrosityGUID = 0;
-            uiWhelpCageGUID = 0;
+            uiWyrmbreakerGUID.Clear();
+            uiValionaGUID.Clear();
+            uiTheralionGUID.Clear();
+            uiFeludiusGUID.Clear();
+            uiArionGUID.Clear();
+            uiIgnaciousGUID.Clear();
+            uiTerrastraGUID.Clear();
+            uiMonstrosityGUID.Clear();
+            uiWhelpCageGUID.Clear();
             uiValionaTheralionHealth = 0;
-            uiChogallGUID = 0;
-            uiChogallFloorGUID = 0;
+            uiChogallGUID.Clear();
+            uiChogallFloorGUID.Clear();
             memset(m_uiDialogs, 0, sizeof(m_uiDialogs));
         }
 
@@ -166,7 +166,7 @@ public:
             case DATA_CHOGALL:
                 return uiChogallGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         uint32 GetData(uint32 type)

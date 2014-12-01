@@ -452,7 +452,7 @@ public:
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             {
                                 if (Player* player = itr->getSource())
-                                    player->KilledMonsterCredit(20156, 0);
+                                    player->KilledMonsterCredit(20156, ObjectGuid::Empty);
                             }
                         }
 

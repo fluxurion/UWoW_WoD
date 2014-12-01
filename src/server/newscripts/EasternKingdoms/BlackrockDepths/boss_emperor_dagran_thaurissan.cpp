@@ -74,7 +74,10 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Creature* Moira = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_MOIRA) : 0))
+            if (!instance)
+                return;
+
+            if (Creature* Moira = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MOIRA)))
             {
                 Moira->AI()->EnterEvadeMode();
                 Moira->setFaction(35);

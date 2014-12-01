@@ -69,27 +69,27 @@ public:
             LoadDoorData(doorData);
 
             //GameObject
-            stoneexitdoorGuid               = 0;
-            stoneentrdoorGuid               = 0;
-            fengexitdoorGuid                = 0;
-            garajalexitdoorGuid             = 0;
-            spiritexitdoorGuid              = 0;
-            elegonentdoorGuid               = 0;
-            elegonceldoorGuid               = 0;
-            elegonplatformGuid              = 0;
-            imperatorentdoorGuid            = 0;
+            stoneexitdoorGuid.Clear();
+            stoneentrdoorGuid.Clear();
+            fengexitdoorGuid.Clear();
+            garajalexitdoorGuid.Clear();
+            spiritexitdoorGuid.Clear();
+            elegonentdoorGuid.Clear();
+            elegonceldoorGuid.Clear();
+            elegonplatformGuid.Clear();
+            imperatorentdoorGuid.Clear();
 
             //Creature
-            stoneGuardControlerGuid         = 0;
-            fengGuid                        = 0;
-            inversionGobGuid                = 0;
-            cancelGobGuid                   = 0;
-            spiritKingsControlerGuid        = 0;
-            qiangGuid                       = 0;
-            subetaiGuid                     = 0;
-            zianGuid                        = 0;
-            mengGuid                        = 0;
-            woicontrollerGuid               = 0;
+            stoneGuardControlerGuid.Clear();
+            fengGuid.Clear();
+            inversionGobGuid.Clear();
+            cancelGobGuid.Clear();
+            spiritKingsControlerGuid.Clear();
+            qiangGuid.Clear();
+            subetaiGuid.Clear();
+            zianGuid.Clear();
+            mengGuid.Clear();
+            woicontrollerGuid.Clear();
 
             //Arrays
             stoneGuardGUIDs.clear();
@@ -393,7 +393,7 @@ public:
                 case NPC_WOI_CONTROLLER:
                     return woicontrollerGuid;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         bool IsWipe()

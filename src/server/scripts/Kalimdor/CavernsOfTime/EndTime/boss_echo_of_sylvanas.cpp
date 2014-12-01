@@ -346,7 +346,7 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                _guid = 0;
+                _guid.Clear();
                 me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 5.0f);
                 me->SetFloatValue(UNIT_FIELD_COMBATREACH, 5.0f);
             }
@@ -356,7 +356,7 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
                 me->RemoveAura(SPELL_WRACKING_PAIN_ANY);
                 if (Creature* pTarget = ObjectAccessor::GetCreature(*me, _guid))
                     pTarget->RemoveAura(SPELL_WRACKING_PAIN_ANY);
-                _guid = 0;
+                _guid.Clear();
                 if (Creature* pSylvanas = me->FindNearestCreature(NPC_ECHO_OF_SYLVANAS, 300.0f))
                     pSylvanas->GetAI()->DoAction(ACTION_KILL_GHOUL);
                 me->DespawnOrUnsummon(500);
@@ -378,7 +378,7 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
             {
                 if (type == DATA_GUID)
                     return _guid;
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void MovementInform(uint32 type, uint32 data)

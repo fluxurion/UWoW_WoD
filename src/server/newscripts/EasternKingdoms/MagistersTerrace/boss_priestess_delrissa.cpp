@@ -366,8 +366,11 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         // We reset their threat frequently as an alternative until such a system exist
         ResetThreatTimer = urand(5000, 20000);
 
+        if (!instance)
+            return;
+
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
-        if (Creature* pDelrissa = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_DELRISSA) : 0))
+        if (Creature* pDelrissa = Unit::GetCreature(*me, instance->GetGuidData(DATA_DELRISSA)))
         {
             if (!pDelrissa->isAlive())
                 pDelrissa->Respawn();
@@ -1009,7 +1012,7 @@ public:
         //Hunter
         boss_garaxxasAI(Creature* creature) : boss_priestess_lackey_commonAI(creature)
         {
-            m_uiPetGUID = 0;
+            m_uiPetGUID.Clear();
         }
 
         ObjectGuid m_uiPetGUID;

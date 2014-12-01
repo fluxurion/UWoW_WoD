@@ -114,7 +114,7 @@ public:
         {
             LamentEventTimer = 5000;
             LamentEvent = false;
-            targetGUID = 0;
+            targetGUID.Clear();
 
             FadeTimer = 30000;
             SummonSkeletonTimer = 20000;

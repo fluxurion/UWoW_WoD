@@ -47,7 +47,7 @@ public:
         //Eruption is a BFS graph problem
         //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
         std::map<ObjectGuid, uint32> FloorEruptionGUID[2];
-        GuidDeque FloorEruptionGUIDQueue;
+        std::queue<ObjectGuid> FloorEruptionGUIDQueue;
 
         ObjectGuid OnyxiasGUID;
         uint32 OnyxiaLiftoffTimer;

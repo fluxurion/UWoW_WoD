@@ -525,7 +525,7 @@ public:
 
         uint32 IntroStep(uint32 step)
         {
-            Creature* Sacrolash = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_SACROLASH) : 0);
+            Creature* Sacrolash = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_SACROLASH) : ObjectGuid::Empty);
             switch (step)
             {
             case 0: return 0;

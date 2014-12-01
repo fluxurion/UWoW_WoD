@@ -1728,7 +1728,7 @@ class npc_twilight_wyrmcaller : public CreatureScript
                     switch (eventId)
                     {
                     case EVENT_CALL_WYRM:
-                        me->MonsterYell(SAY_CALL_WYRM, 0, 0);
+                        me->MonsterYell(SAY_CALL_WYRM, 0, ObjectGuid::Empty);
                         if (Creature* _wyrm = me->SummonCreature(NPC_TWILIGHT_DRAKE_1, 
                             me->GetPositionX(),
                             me->GetPositionY(),

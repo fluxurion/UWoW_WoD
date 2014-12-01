@@ -415,7 +415,7 @@ class npc_bile_o_tron_800 : public CreatureScript
                 switch(action)
                 {
                 case ACTION_BILE_O_TRON_START:
-                    me->MonsterTextEmote(SAY_BILE_O_TRON_START, 0, false);
+                    me->MonsterTextEmote(SAY_BILE_O_TRON_START, ObjectGuid::Empty, false);
                     DoCast(me, SPELL_FINKLES_MIXTURE_VISUAL, true);
                     me->GetMotionMaster()->MovePoint(1, bilePos[0]);
                     break;

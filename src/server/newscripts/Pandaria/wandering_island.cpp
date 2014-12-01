@@ -82,7 +82,7 @@ class npc_panda_announcer : public CreatureScript
         void Reset()
         {
             text = TEXT_GENERIC_0;
-            targetGUID = 0;
+            targetGUID.Clear();
         }
 
         enum events
@@ -93,7 +93,7 @@ class npc_panda_announcer : public CreatureScript
         };
 
         uint32 text;
-        uint32 targetGUID;
+        ObjectGuid targetGUID;
         GuidSet m_player_for_event;
         EventMap events;
         void MoveInLineOfSight(Unit* who)
@@ -220,7 +220,7 @@ class mob_tushui_trainee : public CreatureScript
                 if (me->HealthBelowPctDamaged(5, damage))
                 {
                     if(attacker && attacker->GetTypeId() == TYPEID_PLAYER)
-                        attacker->ToPlayer()->KilledMonsterCredit(54586, 0);
+                        attacker->ToPlayer()->KilledMonsterCredit(54586, ObjectGuid::Empty);
                     //me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                     sCreatureTextMgr->SendChat(me, TEXT_GENERIC_0, attacker->GetGUID());
                     me->CombatStop();
@@ -405,7 +405,7 @@ public:
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 10.0f);
                 for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-                    (*itr)->KilledMonsterCredit(me->GetEntry(), 0);
+                    (*itr)->KilledMonsterCredit(me->GetEntry(), ObjectGuid::Empty);
 
                 me->CombatStop();
                 attacker->DeleteFromThreatList(me);
@@ -561,7 +561,7 @@ public:
                 me->HandleEmoteCommand(EMOTE_STATE_STAND);
                 if (Player* target = sObjectAccessor->FindPlayer(plrGUID))
                 {
-                    target->KilledMonsterCredit(54855, 0);
+                    target->KilledMonsterCredit(54855, ObjectGuid::Empty);
                     // by spell 106205
                     if(TempSummon* mind = target->SummonCreature(NPC_MIN_DIMWIND_OUTRO, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
                     {
@@ -625,7 +625,7 @@ public:
 
         void Reset()
         {
-            playerGUID = 0;
+            playerGUID.Clear();
         }
 
         void SetGUID(ObjectGuid const& guid, int32 id)
@@ -776,7 +776,7 @@ public:
             events.ScheduleEvent(1, 600); //Begin script
             inCombat = false;
             timer = 0;
-            lifeiGUID = 0;
+            lifeiGUID.Clear();
             me->SetReactState(REACT_DEFENSIVE);
             me->setFaction(2263);
         }
@@ -807,7 +807,7 @@ public:
                 if (Creature* lifei = me->GetMap()->GetCreature(lifeiGUID))
                 {
                     lifei->DespawnOrUnsummon(0);
-                    lifeiGUID = NULL;
+                    lifeiGUID.Clear();
                     timer = 0;
                 }
                 
@@ -917,7 +917,7 @@ public:
                                 if(timer == 85)
                                 {
                                     lifei->DespawnOrUnsummon(0);
-                                    lifeiGUID = 0;
+                                    lifeiGUID.Clear();
                                 }
                             }
                         }
@@ -941,7 +941,7 @@ public:
                         if (Creature* lifei = me->GetMap()->GetCreature(lifeiGUID))
                         {
                             lifei->DespawnOrUnsummon(0);
-                            lifeiGUID = 0;
+                            lifeiGUID.Clear();
                             timer = 0;
                         }
                         events.ScheduleEvent(EVENT_START, 10000);
@@ -953,7 +953,7 @@ public:
                         for (std::list<Player*>::const_iterator itr = playersInvolved.begin(); itr != playersInvolved.end(); ++itr)
                         {
                             Player* player = *itr;
-                            player->KilledMonsterCredit(NPC_MASTER_LI_FAI, 0);
+                            player->KilledMonsterCredit(NPC_MASTER_LI_FAI, ObjectGuid::Empty);
                             player->RemoveAura(116421);
                         }
                         break;
@@ -1073,7 +1073,7 @@ public:
             if (me->GetAreaId() != 5849) // Cavern areaid
                 return;
 
-            playerGuid = 0;
+            playerGuid.Clear();
             me->SetReactState(REACT_AGGRESSIVE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             me->setFaction(16);
@@ -1099,7 +1099,7 @@ public:
 
                 if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                 {
-                    player->KilledMonsterCredit(54734, 0);
+                    player->KilledMonsterCredit(54734, ObjectGuid::Empty);
                     player->RemoveAurasDueToSpell(108150);
                 }
                 if (Creature* owner = me->GetMap()->GetCreature(me->ToTempSummon()->GetSummonerGUID()))
@@ -1134,14 +1134,14 @@ public:
                         if (!player || !player->isAlive())
                         {
                             me->DespawnOrUnsummon(1000);
-                            playerGuid = 0;
+                            playerGuid.Clear();
                             break;
                         }
                         
                         if (player->GetQuestStatus(QUEST_PARCHEMIN_VOLANT) != QUEST_STATUS_INCOMPLETE)
                         {
                             me->DespawnOrUnsummon(1000);
-                            playerGuid = 0;
+                            playerGuid.Clear();
                             break;
                         }
 
@@ -1183,7 +1183,7 @@ class AreaTrigger_at_temple_entrance : public AreaTriggerScript
         {
             if (player->GetQuestStatus(QUEST_PASSION_OF_SHEN) == QUEST_STATUS_INCOMPLETE)
             {
-                player->KilledMonsterCredit(61128, 0);
+                player->KilledMonsterCredit(61128, ObjectGuid::Empty);
 
                 std::list<Creature*> huoList;
                 GetCreatureListWithEntryInGrid(huoList, player, 54958, 20.0f);
@@ -1275,7 +1275,7 @@ public:
 
         void Reset()
         {
-            plrGUID = 0;
+            plrGUID.Clear();
             events.ScheduleEvent(EVENT_DESPOWN, 60000);
 
             if (me->GetEntry() == NPC_EAST_CHILDREN_CAI)
@@ -1455,7 +1455,7 @@ public:
         void Reset()
         {
             events.ScheduleEvent(1, 1000);
-            vehGUID = 0;
+            vehGUID.Clear();
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1479,7 +1479,7 @@ public:
 
                 me->StopMoving();
 
-                if (Creature * c = me->GetMap()->SummonCreature(NPC_VEH, *me, NULL, 0, NULL, 0, 0, 1749))
+                if (Creature * c = me->GetMap()->SummonCreature(NPC_VEH, *me, NULL, 0, NULL, ObjectGuid::Empty, 0, 1749))
                 {
                     c->SetDisplayId(39004);
                     me->EnterVehicle(c);
@@ -1660,7 +1660,7 @@ public:
         {
             _events.Reset();
             actualPlace = 0;
-            waterSpoutGUID = 0;
+            waterSpoutGUID.Clear();
 
             _events.ScheduleEvent(EVENT_CHANGE_PLACE, 5000);
         }
@@ -1710,7 +1710,7 @@ public:
                 {
                     float x = 0.0f, y = 0.0f;
                     GetPositionWithDistInOrientation(me, 5.0f, me->GetOrientation() + frand(-M_PI, M_PI), x, y);
-                    waterSpoutGUID = 0;
+                    waterSpoutGUID.Clear();
 
                     if (Creature* waterSpout = me->SummonCreature(60488, x, y, 92.189629f))
                         waterSpoutGUID = waterSpout->GetGUID();
@@ -1745,7 +1745,7 @@ public:
                     if (Creature* waterSpout = getWaterSpout())
                         waterSpout->DespawnOrUnsummon();
 
-                    waterSpoutGUID = 0;
+                    waterSpoutGUID.Clear();
 
                     _events.ScheduleEvent(EVENT_CHANGE_PLACE, 2000);
                     break;
@@ -1828,7 +1828,7 @@ public:
 
         void Reset()
         {
-            plrGUID = 0;
+            plrGUID.Clear();
             _events.Reset();
         }
 
@@ -2095,7 +2095,7 @@ public:
         {
             eventTimer = 0;
             eventProgress = 0;
-            playerGuid = 0;
+            playerGuid.Clear();
         }
 
         void SetGUID(ObjectGuid const& guid, int32 /*type*/)
@@ -2247,7 +2247,7 @@ class mob_master_shang_xi_temple : public CreatureScript
 
         void Reset()
         {
-            playerGuid = 0;
+            playerGuid.Clear();
         }
 
         void UpdateAI(uint32 diff)
@@ -3268,7 +3268,7 @@ class mob_master_shang_xi_thousand_staff : public CreatureScript
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetWalk(true);
-            playerGuid = 0;
+            playerGuid.Clear();
         }
 
         void IsSummonedBy(Unit* summoner)
@@ -3460,11 +3460,11 @@ class mop_air_balloon : public VehicleScript
             me->SetWalk(false);
             //me->SetSpeed(MOVE_FLIGHT, 8.0f, false);
 
-            playerGuid = 0;
-            aisaGUID = 0;
-            firepawGUID = 0;
-            shenZiGUID = 0;
-            headGUID = 0;
+            playerGuid.Clear();
+            aisaGUID.Clear();
+            firepawGUID.Clear();
+            shenZiGUID.Clear();
+            headGUID.Clear();
             me->setActive(true);
             me->SetReactState(REACT_PASSIVE);
             me->m_invisibilityDetect.AddFlag(INVISIBILITY_UNK5);
@@ -3873,9 +3873,9 @@ class mob_mandori_escort : public CreatureScript
 
         void Reset()
         {
-            playerGuid      = 0;
-            mandoriDoorGuid = 0;
-            peiwuDoorGuid   = 0;
+            playerGuid.Clear();
+            mandoriDoorGuid.Clear();
+            peiwuDoorGuid.Clear();
 
             me->SetReactState(REACT_PASSIVE);
         }
@@ -3890,7 +3890,7 @@ class mob_mandori_escort : public CreatureScript
             Player *player = summoner->ToPlayer();
             if (!player)
             {
-                me->MonsterSay("SCRIPT::mob_mandori_escort summoner is not player", LANG_UNIVERSAL, 0);
+                me->MonsterSay("SCRIPT::mob_mandori_escort summoner is not player", LANG_UNIVERSAL, ObjectGuid::Empty);
                 return;
             }
 
@@ -4359,7 +4359,7 @@ public:
 
     struct npc_aysa_cloudsinger_AI : public ScriptedAI
     {
-        npc_aysa_cloudsinger_AI(Creature* creature) : ScriptedAI(creature) { bossGUID = 0; }
+        npc_aysa_cloudsinger_AI(Creature* creature) : ScriptedAI(creature) { bossGUID.Clear(); }
         
         enum eEvents
         {
@@ -4413,7 +4413,7 @@ public:
             if (bossGUID)
             {
                 sCreatureTextMgr->SendChat(me, TEXT_GENERIC_4);
-                bossGUID = 0;
+                bossGUID.Clear();
             }
         }
 
@@ -4505,8 +4505,8 @@ public:
 
         void Reset()
         {
-            playerGuid      = 0;
-            jiGuid          = 0;
+            playerGuid.Clear();
+            jiGuid.Clear();
         }
 
         void IsSummonedBy(Unit* summoner)
@@ -4514,7 +4514,7 @@ public:
             Player *player = summoner->ToPlayer();
             if (!player)
             {
-                me->MonsterSay("SCRIPT::mob_aysa_gunship_crash_escort summoner is not player", LANG_UNIVERSAL, 0);
+                me->MonsterSay("SCRIPT::mob_aysa_gunship_crash_escort summoner is not player", LANG_UNIVERSAL, ObjectGuid::Empty);
                 return;
             }
 
@@ -4849,7 +4849,7 @@ public:
             uint32 i = 0;
             for(SummonList::iterator itr = _summons.begin(); itr != _summons.end(); ++itr)
             {
-                if (GUID_ENPART(*itr) == NPC_HEALER_A || GUID_ENPART(*itr) == NPC_HEALER_H)
+                if ((*itr).GetEntry() == NPC_HEALER_A || (*itr).GetEntry() == NPC_HEALER_H)
                 {
                     if (Creature* healer = me->GetMap()->GetCreature(*itr))
                     {
@@ -5027,7 +5027,7 @@ class npc_shang_xi_choose_faction : public CreatureScript
 
         void Reset()
         {
-            playerGuid      = 0;
+            playerGuid.Clear();
             events.Reset();
         }
 
@@ -5116,8 +5116,8 @@ public:
         void Reset()
         {
             me->SetWalk(true);
-            playerGuid      = 0;
-            CziGUID         = 0;
+            playerGuid.Clear();
+            CziGUID.Clear();
         }
 
         void IsSummonedBy(Unit* summoner)
@@ -5125,7 +5125,7 @@ public:
             Player *player = summoner->ToPlayer();
             if (!player)
             {
-                me->MonsterSay("SCRIPT::mob_garosh_hord_way summoner is not player", LANG_UNIVERSAL, 0);
+                me->MonsterSay("SCRIPT::mob_garosh_hord_way summoner is not player", LANG_UNIVERSAL, ObjectGuid::Empty);
                 return;
             }
 
@@ -5268,7 +5268,7 @@ public:
                         sCreatureTextMgr->SendChat(me, TEXT_GENERIC_16, playerGuid);
                         SetEscortPaused(false);
                         if (Player* plr = sObjectAccessor->FindPlayer(playerGuid))
-                            plr->KilledMonsterCredit(NPC_CREDIT, 0);
+                            plr->KilledMonsterCredit(NPC_CREDIT, ObjectGuid::Empty);
                         break;
                     case EVENT_20:
                         me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 17719);

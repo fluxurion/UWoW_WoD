@@ -417,7 +417,7 @@ class mob_woi_add_generic : public CreatureScript
 
             void Reset()
             {
-                targetguid = 0;
+                targetguid.Clear();
                 focusspell = 0;
                 DoZoneInCombat(me, 150.0f);
                 switch (me->GetEntry())

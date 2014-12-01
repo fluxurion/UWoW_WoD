@@ -57,9 +57,9 @@ public:
         {
             memset(&encounter, 0, sizeof(encounter));
 
-            PumpkinShrineGUID  = 0;
-            HorsemanGUID = 0;
-            HeadGUID = 0;
+            PumpkinShrineGUID.Clear();
+            HorsemanGUID.Clear();
+            HeadGUID.Clear();
             HorsemanAdds.clear();
         }
 
@@ -115,7 +115,7 @@ public:
                 case ENTRY_HORSEMAN:              return HorsemanGUID;
                 case ENTRY_HEAD:                  return HeadGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         uint32 GetData(uint32 type)

@@ -125,7 +125,7 @@ public:
 
         void Reset()
         {
-            anchorGUID = 0;
+            anchorGUID.Clear();
             phase = PHASE_CHAINED;
             events.Reset();
             me->setFaction(7);
@@ -297,7 +297,7 @@ public:
 
     struct npc_unworthy_initiate_anchorAI : public PassiveAI
     {
-        npc_unworthy_initiate_anchorAI(Creature* creature) : PassiveAI(creature), prisonerGUID(0) {}
+        npc_unworthy_initiate_anchorAI(Creature* creature) : PassiveAI(creature), prisonerGUID() {}
 
         ObjectGuid prisonerGUID;
 
@@ -437,7 +437,7 @@ public:
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
-            m_uiDuelerGUID = 0;
+            m_uiDuelerGUID.Clear();
             m_uiDuelTimer = 5000;
             m_bIsDuelInProgress = false;
         }
@@ -549,7 +549,7 @@ public:
             PhaseTimer = 4000;
             Phase = 0;
             Intro = false;
-            TargetGUID = 0;
+            TargetGUID.Clear();
         }
 
         void UpdateAI(uint32 diff)
@@ -562,7 +562,7 @@ public:
                 switch (Phase)
                 {
                    case 0:
-                        me->MonsterSay(SAY_DARK_RIDER, LANG_UNIVERSAL, 0);
+                        me->MonsterSay(SAY_DARK_RIDER, LANG_UNIVERSAL, ObjectGuid::Empty);
                         PhaseTimer = 5000;
                         Phase = 1;
                         break;
@@ -882,7 +882,7 @@ public:
 
     struct npc_scarlet_miner_cartAI : public PassiveAI
     {
-        npc_scarlet_miner_cartAI(Creature* creature) : PassiveAI(creature), minerGUID(0)
+        npc_scarlet_miner_cartAI(Creature* creature) : PassiveAI(creature), minerGUID()
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetDisplayId(me->GetCreatureTemplate()->Modelid1); // Modelid2 is a horse.
@@ -953,7 +953,7 @@ public:
 
         void Reset()
         {
-            carGUID = 0;
+            carGUID.Clear();
             IntroTimer = 0;
             IntroPhase = 0;
         }
@@ -1009,7 +1009,7 @@ public:
                         me->SetInFront(car);
                         me->SendMovementFlagUpdate();
                     }
-                    me->MonsterSay(SAY_SCARLET_MINER1, LANG_UNIVERSAL, 0);
+                    me->MonsterSay(SAY_SCARLET_MINER1, LANG_UNIVERSAL, ObjectGuid::Empty);
                     SetRun(true);
                     IntroTimer = 4000;
                     IntroPhase = 1;
@@ -1025,7 +1025,7 @@ public:
                         car->GetPlayer(*me, car->GetCreatorGUID())->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                          car->GetPlayer(*me, car->GetCreatorGUID())->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                     }
-                    me->MonsterSay(SAY_SCARLET_MINER2, LANG_UNIVERSAL, 0);
+                    me->MonsterSay(SAY_SCARLET_MINER2, LANG_UNIVERSAL, ObjectGuid::Empty);
                     break;
                 default:
                     break;

@@ -189,47 +189,47 @@ public:
                     case EVENT_IMMEREUS_END_1:
                     case EVENT_IMMEREUS_END_2:
                     case EVENT_IMMEREUS_END_3:
-                        sCreatureTextMgr->SendChat(me, eventId -1, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                        sCreatureTextMgr->SendChat(me, eventId - 1, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_1:
                         SetNextWaypoint(10, false, false);
-                        Start(false, false, 0, NULL, false, false, false);
+                        Start(false, false, ObjectGuid::Empty, NULL, false, false, false);
                         break;
                     case EVENT_FC_2:
-                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_9, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_9, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_3:
-                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_10, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_10, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_4:
                         if (Creature* rook = instance->instance->GetCreature(instance->GetGuidData(NPC_ROOK_STONETOE)))
-                            sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_0, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                            sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_0, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_5:
-                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_11, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_11, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_6:
                         if (Creature* rook = instance->instance->GetCreature(instance->GetGuidData(NPC_ROOK_STONETOE)))
-                            sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_1, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                            sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_1, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_7:
                         if (Creature* rook = instance->instance->GetCreature(instance->GetGuidData(NPC_SUN_TENDERHEART)))
-                            sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_0, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                            sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_0, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_8:
-                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_12, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_12, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_9:
                         if (Creature* rook = instance->instance->GetCreature(instance->GetGuidData(NPC_ROOK_STONETOE)))
-                            sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_2, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                            sCreatureTextMgr->SendChat(rook, TEXT_GENERIC_2, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     case EVENT_FC_10:
-                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_13, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_13, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         me->DespawnOrUnsummon(60000);
                         break;
                     case EVENT_FC_OUTRO_1:
                     case EVENT_FC_OUTRO_2:
-                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_14+(eventId - TEXT_GENERIC_14), 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_14 + (eventId - TEXT_GENERIC_14), ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
                         break;
                     default:
                         break;

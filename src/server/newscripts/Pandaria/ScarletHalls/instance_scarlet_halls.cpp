@@ -42,7 +42,7 @@ public:
         ObjectGuid GetGuidData(uint32 type)
         {
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Update(uint32 diff) 

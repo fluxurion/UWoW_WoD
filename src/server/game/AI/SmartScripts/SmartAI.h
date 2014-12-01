@@ -162,10 +162,10 @@ class SmartAI : public CreatureAI
         void SetData(uint32 id, uint32 value);
 
         // Used in scripts to share variables
-        void SetGUID(uint64 guid, int32 id = 0);
+        void SetGUID(ObjectGuid guid, int32 id = 0);
 
         // Used in scripts to share variables
-        uint64 GetGUID(int32 id = 0);
+        ObjectGuid GetGUID(int32 id = 0);
 
         //core related
         static int Permissible(const Creature*);

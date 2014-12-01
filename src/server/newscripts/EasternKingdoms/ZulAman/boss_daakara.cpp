@@ -340,7 +340,7 @@ class npc_daakara_vortex : public CreatureScript
                 DoCast(me, SPELL_FEATHER_VORTEX_VISUAL, true);
                 me->SetReactState(REACT_PASSIVE);
                 startTimer = 2000;
-                victimGUID = 0;
+                victimGUID.Clear();
             }
 
             bool bStart;

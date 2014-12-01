@@ -303,7 +303,7 @@ public:
 
         void Reset()
         {
-            norushGUID = 0;
+            norushGUID.Clear();
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -1682,7 +1682,7 @@ class spell_norushen_residual_corruption : public SpellScriptLoader
                     return;
 
                 AreaTrigger * areaTrigger = new AreaTrigger;
-                if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HighGuid::AreaTrigger), 5022, caster, GetSpellInfo(), *caster))
+                if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), 5022, caster, GetSpellInfo(), *caster))
                 {
                     delete areaTrigger;
                     return;

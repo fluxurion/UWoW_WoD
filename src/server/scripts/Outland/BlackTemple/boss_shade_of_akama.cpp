@@ -335,7 +335,7 @@ public:
                 DoStartMovement(who);
         }
 
-        void IncrementDeathCount(ObjectGuid guid.Clear())               // If guid is set, will remove it from list of sorcerer
+        void IncrementDeathCount(ObjectGuid const& guid = ObjectGuid::Empty)               // If guid is set, will remove it from list of sorcerer
         {
             if (reseting)
                 return;

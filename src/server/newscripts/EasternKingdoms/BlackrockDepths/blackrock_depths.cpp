@@ -151,9 +151,9 @@ public:
             MobDeath_Timer = 0;
 
             for (uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
-                RingMobGUID[i] = 0;
+                RingMobGUID[i].Clear();
 
-            RingBossGUID = 0;
+            RingBossGUID.Clear();
 
             CanWalk = false;
         }
@@ -236,7 +236,7 @@ public:
                         Creature* boss = Unit::GetCreature(*me, RingBossGUID);
                         if (boss && !boss->isAlive() && boss->isDead())
                         {
-                            RingBossGUID = 0;
+                            RingBossGUID.Clear();
                             Event_Timer = 5000;
                             MobDeath_Timer = 0;
                             return;
@@ -249,7 +249,7 @@ public:
                         Creature* mob = Unit::GetCreature(*me, RingMobGUID[i]);
                         if (mob && !mob->isAlive() && mob->isDead())
                         {
-                            RingMobGUID[i] = 0;
+                            RingMobGUID[i].Clear();
                             --MobCount;
 
                             //seems all are gone, so set timer to continue and discontinue this

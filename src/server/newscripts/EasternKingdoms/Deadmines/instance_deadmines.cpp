@@ -28,16 +28,16 @@ class instance_deadmines : public InstanceMapScript
 				SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
                 
-                uiGlubtokGUID = 0;
-                uiHelixGUID = 0;
-                uiOafGUID = 0;
-                uiFoereaperGUID = 0;
-				uiAdmiralGUID = 0;
-				uiCaptainGUID = 0;
+                uiGlubtokGUID.Clear();
+                uiHelixGUID.Clear();
+                uiOafGUID.Clear();
+                uiFoereaperGUID.Clear();
+                uiAdmiralGUID.Clear();
+                uiCaptainGUID.Clear();
 
-                IronCladDoorGUID = 0;
-                DefiasCannonGUID = 0;
-                DoorLeverGUID = 0;
+                IronCladDoorGUID.Clear();
+                DefiasCannonGUID.Clear();
+                DoorLeverGUID.Clear();
 
                 State = CANNON_NOT_USED;
 			};
@@ -136,7 +136,7 @@ class instance_deadmines : public InstanceMapScript
 					case DATA_ADMIRAL:
 						return uiAdmiralGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()

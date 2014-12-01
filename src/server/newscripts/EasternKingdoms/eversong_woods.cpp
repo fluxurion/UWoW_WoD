@@ -128,7 +128,7 @@ public:
         {
           timer = 2000;
           questPhase = 0;
-          summonerGuid = 0;
+          summonerGuid.Clear();
 
           me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_KNEEL);
           me->setFaction(FACTION_FRIENDLY);
@@ -309,7 +309,7 @@ public:
             timer = 60000;
             paladinPhase = 0;
             for (uint8 i = 0; i < 4; ++i)
-                paladinGuid[i] = 0;
+                paladinGuid[i].Clear();
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -469,7 +469,7 @@ public:
         void Reset()
         {
             KillCount = 0;
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             Summons.DespawnAll();
             Summon = false;
         }
@@ -562,7 +562,7 @@ public:
             EndTimer = 0;
             Completed = false;
             Progress = false;
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             WaveTimer = 0;
         }
 

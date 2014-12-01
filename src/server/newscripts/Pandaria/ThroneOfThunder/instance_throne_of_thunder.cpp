@@ -105,61 +105,61 @@ public:
             LoadDoorData(doorData);
 
             //GameObject
-            jinrokhentdoorGuid    = 0;
-            mogufont_sr_Guid      = 0;
-            mogufont_nr_Guid      = 0;
-            mogufont_nl_Guid      = 0;
-            mogufont_sl_Guid      = 0;
-            jinrokhexdoorGuid     = 0;
-            horridonpredoorGuid   = 0;
-            horridonentdoorGuid   = 0;
-            horridonexdoorGuid    = 0;
-            councilexdoorGuid     = 0;
-            councilex2doorGuid    = 0;
-            tortosexdoorGuid      = 0;
-            tortosex2doorGuid     = 0;
-            megaeraexdoorGuid     = 0;
-            jikunexdoorGuid       = 0;
-            durumuexdoorGuid      = 0;
-            primordiusentdoorGuid = 0;
-            secretradendoorGuid   = 0;
-            primordiusexdoorGuid  = 0;
-            danimusentdoorGuid    = 0;
-            danimusexdoorGuid     = 0;
-            ironqonentdoorGuid    = 0;
-            ironqonexdoorGuid     = 0;
-            twinentdoorGuid       = 0;
-            twinexdoorGuid        = 0;
-            radenentdoorGuid      = 0;
+            jinrokhentdoorGuid.Clear();
+            mogufont_sr_Guid.Clear();
+            mogufont_nr_Guid.Clear();
+            mogufont_nl_Guid.Clear();
+            mogufont_sl_Guid.Clear();
+            jinrokhexdoorGuid.Clear();
+            horridonpredoorGuid.Clear();
+            horridonentdoorGuid.Clear();
+            horridonexdoorGuid.Clear();
+            councilexdoorGuid.Clear();
+            councilex2doorGuid.Clear();
+            tortosexdoorGuid.Clear();
+            tortosex2doorGuid.Clear();
+            megaeraexdoorGuid.Clear();
+            jikunexdoorGuid.Clear();
+            durumuexdoorGuid.Clear();
+            primordiusentdoorGuid.Clear();
+            secretradendoorGuid.Clear();
+            primordiusexdoorGuid.Clear();
+            danimusentdoorGuid.Clear();
+            danimusexdoorGuid.Clear();
+            ironqonentdoorGuid.Clear();
+            ironqonexdoorGuid.Clear();
+            twinentdoorGuid.Clear();
+            twinexdoorGuid.Clear();
+            radenentdoorGuid.Clear();
            
             //Creature
-            stormcallerGuid       = 0;
-            jinrokhGuid           = 0;
-            stormbringerGuid      = 0;
-            horridonGuid          = 0;
-            jalakGuid             = 0;
-            mallakGuid            = 0;
-            marliGuid             = 0;
-            kazrajinGuid          = 0;
-            sulGuid               = 0;
-            tortosGuid            = 0;
-            flameheadGuid         = 0;
-            frozenheadGuid        = 0;
-            venousheadGuid        = 0;
-            jikunGuid             = 0;
-            durumuGuid            = 0;
-            primordiusGuid        = 0;
-            darkanimusGuid        = 0;
-            ironqonGuid           = 0;
-            roshakGuid            = 0;
-            quetzalGuid           = 0;
-            damrenGuid            = 0;
-            sulinGuid             = 0;
-            lulinGuid             = 0;
-            leishenGuid           = 0;
-            radenGuid             = 0;
-            canimaGuid            = 0;
-            cvitaGuid             = 0;
+            stormcallerGuid.Clear();
+            jinrokhGuid.Clear();
+            stormbringerGuid.Clear();
+            horridonGuid.Clear();
+            jalakGuid.Clear();
+            mallakGuid.Clear();
+            marliGuid.Clear();
+            kazrajinGuid.Clear();
+            sulGuid.Clear();
+            tortosGuid.Clear();
+            flameheadGuid.Clear();
+            frozenheadGuid.Clear();
+            venousheadGuid.Clear();
+            jikunGuid.Clear();
+            durumuGuid.Clear();
+            primordiusGuid.Clear();
+            darkanimusGuid.Clear();
+            ironqonGuid.Clear();
+            roshakGuid.Clear();
+            quetzalGuid.Clear();
+            damrenGuid.Clear();
+            sulinGuid.Clear();
+            lulinGuid.Clear();
+            leishenGuid.Clear();
+            radenGuid.Clear();
+            canimaGuid.Clear();
+            cvitaGuid.Clear();
 
             councilGuids.clear();
             mogufontsGuids.clear();
@@ -745,7 +745,7 @@ public:
             case NPC_CORRUPTED_VITA:
                 return cvitaGuid;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
         
         bool IsWipe()

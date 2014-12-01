@@ -389,12 +389,12 @@ public:
             if (!cId)
                 return false;
 
-            uint32 lowguid = atoi(cId);
+            ObjectGuid::LowType lowguid = atoi(cId);
             if (!lowguid)
                 return false;
 
             if (CreatureData const* cr_data = sObjectMgr->GetCreatureData(lowguid))
-                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(lowguid, cr_data->id, HighGuid::Creature));
+                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid::Create<HighGuid::Creature>(cr_data->mapid, cr_data->id, lowguid));
         }
         else
             unit = handler->getSelectedCreature();
@@ -1054,7 +1054,7 @@ public:
             return false;
         }
 
-        creature->MonsterSay(args, LANG_UNIVERSAL, 0);
+        creature->MonsterSay(args, LANG_UNIVERSAL, ObjectGuid::Empty);
 
         // make some emotes
         char lastchar = args[strlen(args) - 1];
@@ -1083,7 +1083,7 @@ public:
             return false;
         }
 
-        creature->MonsterTextEmote(args, 0);
+        creature->MonsterTextEmote(args, ObjectGuid::Empty);
 
         return true;
     }
@@ -1142,10 +1142,10 @@ public:
             return false;
         }
 
-        ObjectGuid::LowType receiver_guid= atol(receiver_str);
+        ObjectGuid receiver_guid = ObjectGuid::Create<HighGuid::Player>(atol(receiver_str));
 
         // check online security
-        if (handler->HasLowerSecurity(ObjectAccessor::FindPlayer(ObjectGuid::Create<ObjectGuid::Player>(receiver_guid), 0))
+        if (handler->HasLowerSecurity(ObjectAccessor::FindPlayer(receiver_guid), ObjectGuid::Empty))
             return false;
 
         creature->MonsterWhisper(text, receiver_guid);
@@ -1166,7 +1166,7 @@ public:
             return false;
         }
 
-        creature->MonsterYell(args, LANG_UNIVERSAL, 0);
+        creature->MonsterYell(args, LANG_UNIVERSAL, ObjectGuid::Empty);
 
         // make an emote
         creature->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
@@ -1519,12 +1519,12 @@ public:
             if (!cId)
                 return false;
 
-            uint32 lowguid = atoi(cId);
+            ObjectGuid::LowType lowguid = atoi(cId);
             if (!lowguid)
                 return false;
 
             if (CreatureData const* cr_data = sObjectMgr->GetCreatureData(lowguid))
-                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(lowguid, cr_data->id, HighGuid::Creature));
+                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid::Create<HighGuid::Creature>(cr_data->mapid, cr_data->id, lowguid));
         }
         else
             unit = handler->getSelectedCreature();

@@ -186,7 +186,7 @@ public:
 
             if (doneBy->HasAura(SPELL_AUTORITE))
                 if (doneBy->ToPlayer())
-                    doneBy->ToPlayer()->KilledMonsterCredit(44175, 0);
+                    doneBy->ToPlayer()->KilledMonsterCredit(44175, ObjectGuid::Empty);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -209,7 +209,7 @@ public:
                 case SPELL_CORRUPTION_3:
                 case SPELL_PAUME_TIGRE:
                     if (Caster->ToPlayer())
-                        Caster->ToPlayer()->KilledMonsterCredit(44175, 0);
+                        Caster->ToPlayer()->KilledMonsterCredit(44175, ObjectGuid::Empty);
                     break;
                 default:
                     break;
@@ -258,7 +258,7 @@ class spell_quest_fear_no_evil : public SpellScriptLoader
             {
                 if (GetCaster())
                     if (GetCaster()->ToPlayer())
-                        GetCaster()->ToPlayer()->KilledMonsterCredit(50047, 0);
+                        GetCaster()->ToPlayer()->KilledMonsterCredit(50047, ObjectGuid::Empty);
             }
 
             void Register()
@@ -302,7 +302,7 @@ class spell_quest_extincteur : public SpellScriptLoader
                 if (Creature* fire = GetCaster()->FindNearestCreature(42940, 5.0f, true))
                 {
                     if (Player* player = GetCaster()->ToPlayer())
-                        player->KilledMonsterCredit(42940, 0);
+                        player->KilledMonsterCredit(42940, ObjectGuid::Empty);
 
                     fire->ForcedDespawn();
                 }

@@ -122,8 +122,8 @@ class boss_morchok: public CreatureScript
 
                 me->LowerPlayerDamageReq(me->GetHealth());
 
-                _stompguid1 = 0;
-                _stompguid2 = 0;
+                _stompguid1.Clear();
+                _stompguid2.Clear();
                 bEnrage = false;
                 bKohcrom = false;
                 bAchieve = true;
@@ -142,8 +142,8 @@ class boss_morchok: public CreatureScript
                 if (!IsHeroic())
                     events.ScheduleEvent(EVENT_CRUSH_ARMOR, urand(6000, 12000));
 
-                _stompguid1 = 0;
-                _stompguid2 = 0;
+                _stompguid1.Clear();
+                _stompguid2.Clear();
                 bEnrage = false;
                 bKohcrom = false;
                 bAchieve = true;
@@ -184,7 +184,7 @@ class boss_morchok: public CreatureScript
                 else if (type == DATA_GUID_2)
                     return _stompguid2;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void JustSummoned(Creature* summon)
@@ -290,8 +290,8 @@ class boss_morchok: public CreatureScript
                             break;
                         case EVENT_STOMP:
                         {
-                            _stompguid1 = 0;
-                            _stompguid2 = 0;
+                            _stompguid1.Clear();
+                            _stompguid2.Clear();
 
                             int32 tim = int32(events.GetNextEventTime(EVENT_EARTHEN_VORTEX)) - int32(events.GetTimer());
                             if (tim <= 7000)
@@ -418,8 +418,8 @@ class npc_morchok_kohcrom: public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
-                _stompguid1 = 0;
-                _stompguid2 = 0;
+                _stompguid1.Clear();
+                _stompguid2.Clear();
                 bEnrage = false;
             }
 
@@ -438,7 +438,7 @@ class npc_morchok_kohcrom: public CreatureScript
                 else if (type == DATA_GUID_2)
                     return _stompguid2;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void IsSummonedBy(Unit* /*owner*/)
@@ -497,8 +497,8 @@ class npc_morchok_kohcrom: public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_STOMP:
-                            _stompguid1 = 0;
-                            _stompguid2 = 0;
+                            _stompguid1.Clear();
+                            _stompguid2.Clear();
                             DoCast(me, SPELL_STOMP);
                             break;
                         case EVENT_RESONATING_CRYSTAL:

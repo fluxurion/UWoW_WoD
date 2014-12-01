@@ -70,12 +70,12 @@ public:
             lingering_corruption_count = 0;
 
             //GameObject
-            immerseusexdoorGUID     = 0;
-            chestShaVaultOfForbiddenTreasures = 0;
+            immerseusexdoorGUID.Clear();
+            chestShaVaultOfForbiddenTreasures.Clear();
             lightqGUIDs.clear();
            
             //Creature
-            LorewalkerChoGUIDtmp    = 0;
+            LorewalkerChoGUIDtmp.Clear();
             //memset(fpGUID, 0, 3 * sizeof(ObjectGuid));
             EventfieldOfSha     = 0;
 
@@ -446,7 +446,7 @@ public:
             if (itr != easyGUIDconteiner.end())
                 return itr->second;
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void CreatureDies(Creature* creature, Unit* /*killer*/)

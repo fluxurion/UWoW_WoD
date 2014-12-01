@@ -20,18 +20,19 @@ class instance_blackwing_descent : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 omnotronHealth = 0;
                 uiBileotron800Active = 0;
-                uiMagmawGUID = 0;
-                uiMagmawHeadGUID = 0;
-                uiMaloriakGUID = 0;
+                uiMagmawGUID.Clear();
+                uiMagmawHeadGUID.Clear();
+                uiMaloriakGUID.Clear();
                 uiAberCount = 18;
-                uiChimaeronGUID = 0;
-                uiBileotron800GUID = 0;
-                uiAtramedesGUID = 0;
-                uiInnerChamberDoorGUID = 0;
-                uiNefarianGUID = 0;
-                uiOnyxiaGUID = 0;
-                uiNefarianFloorGUID = 0;
-                memset(&m_uiOmnotronGUID, 0, sizeof(m_uiOmnotronGUID));
+                uiChimaeronGUID.Clear();
+                uiBileotron800GUID.Clear();
+                uiAtramedesGUID.Clear();
+                uiInnerChamberDoorGUID.Clear();
+                uiNefarianGUID.Clear();
+                uiOnyxiaGUID.Clear();
+                uiNefarianFloorGUID.Clear();
+                for (int32 i = 0; i < 4; ++i)
+                    m_uiOmnotronGUID[i].Clear();
             }
 
             void OnPlayerEnter(Player* player)
@@ -101,7 +102,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 case GO_INNER_CHAMBER_DOOR:
                     uiInnerChamberDoorGUID = go->GetGUID();
                     if (GetBossState(DATA_OMNOTRON) == DONE && GetBossState(DATA_MAGMAW) == DONE)
-                        HandleGameObject(NULL, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_NEFARIAN_FLOOR:
                     uiNefarianFloorGUID = go->GetGUID();
@@ -156,7 +157,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 case DATA_NEFARIAN_FLOOR:
                     return uiNefarianFloorGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             uint32 GetData(uint32 type)

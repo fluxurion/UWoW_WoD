@@ -202,18 +202,18 @@ public:
             if (uint32 spell_id = quest->RequiredSpellCast[i])
             {
                 for (uint16 z = 0; z < creaturecount; ++z)
-                    player->CastedCreatureOrGO(creature, 0, spell_id);
+                    player->CastedCreatureOrGO(creature, ObjectGuid::Empty, spell_id);
             }
             else if (creature > 0)
             {
                 if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
                     for (uint16 z = 0; z < creaturecount; ++z)
-                        player->KilledMonster(cInfo, 0);
+                        player->KilledMonster(cInfo, ObjectGuid::Empty);
             }
             else if (creature < 0)
             {
                 for (uint16 z = 0; z < creaturecount; ++z)
-                    player->CastedCreatureOrGO(creature, 0, 0);
+                    player->CastedCreatureOrGO(creature, ObjectGuid::Empty, 0);
             }
         }
 

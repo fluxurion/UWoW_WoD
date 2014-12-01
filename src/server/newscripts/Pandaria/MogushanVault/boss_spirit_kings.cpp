@@ -550,7 +550,7 @@ class mob_pinning_arrow : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
-                playerGuid = 0;
+                playerGuid.Clear();
             }
 
             void SetGUID(ObjectGuid const& guid, int32 /*id*/ = 0)

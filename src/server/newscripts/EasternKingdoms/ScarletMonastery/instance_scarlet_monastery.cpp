@@ -57,10 +57,10 @@ public:
         {
             memset(&encounter, 0, sizeof(encounter));
 
-            MograineGUID = 0;
-            WhitemaneGUID = 0;
-            VorrelGUID = 0;
-            DoorHighInquisitorGUID = 0;
+            MograineGUID.Clear();
+            WhitemaneGUID.Clear();
+            VorrelGUID.Clear();
+            DoorHighInquisitorGUID.Clear();
         }
 
         void OnGameObjectCreate(GameObject* go)
@@ -105,7 +105,7 @@ public:
                 case DATA_VORREL:               return VorrelGUID;
                 case DATA_DOOR_WHITEMANE:       return DoorHighInquisitorGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         uint32 GetData(uint32 type)

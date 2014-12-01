@@ -324,7 +324,7 @@ struct boss_moroes_guestAI : public ScriptedAI
     boss_moroes_guestAI(Creature* creature) : ScriptedAI(creature)
     {
         for (uint8 i = 0; i < 4; ++i)
-            GuestGUID[i] = 0;
+            GuestGUID[i].Clear();
 
         instance = creature->GetInstanceScript();
     }

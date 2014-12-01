@@ -710,7 +710,7 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                 {
                     caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
-                    caster->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
+                    caster->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, ObjectGuid::Empty);
                     target->DespawnOrUnsummon();
                 }
             }
@@ -841,7 +841,7 @@ class spell_q12659_ahunaes_knife : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                 {
                     target->DespawnOrUnsummon();
-                    caster->KilledMonsterCredit(NPC_SCALPS_KC_BUNNY, 0);
+                    caster->KilledMonsterCredit(NPC_SCALPS_KC_BUNNY, ObjectGuid::Empty);
                 }
             }
 
@@ -885,7 +885,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                     if (target && target->HasAura(SPELL_FLAMES))
                     {
-                        caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT, 0);
+                        caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT, ObjectGuid::Empty);
                         target->CastSpell(target, SPELL_FLAMES, true);
                         target->DespawnOrUnsummon(60000);
                     }
@@ -929,7 +929,7 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
                 {
-                    caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT, 0);
+                    caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT, ObjectGuid::Empty);
                     target->CastSpell(target, uint32(GetEffectValue()), true);
                     target->DespawnOrUnsummon(2000);
                 }
@@ -972,7 +972,7 @@ class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (caster->IsVehicle())
                     if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
-                         player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC, 0);
+                        player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC, ObjectGuid::Empty);
             }
 
             void Register()
@@ -1091,7 +1091,7 @@ public:
             if (Player* target = GetTarget()->ToPlayer())
             {
                 target->MonsterWhisper(SAY_1, target->GetGUID(), true);
-                target->KilledMonsterCredit(NPC_KILLCREDIT, 0);
+                target->KilledMonsterCredit(NPC_KILLCREDIT, ObjectGuid::Empty);
                 target->MonsterWhisper(SAY_2, target->GetGUID(), true);
             }
         }
@@ -1303,7 +1303,7 @@ public:
                     if (Vehicle* vehicle = caster->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(0))
                             if (Player* player = passenger->ToPlayer())
-                                player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT, 0);
+                                player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT, ObjectGuid::Empty);
             }
         }
 
@@ -1629,13 +1629,13 @@ class spell_q27421_rayne_seed : public SpellScriptLoader
                             (*itr)->CastSpell(*itr, 84961, true);
 
                         if (caster->GetPositionX() > 2536) //Necropolis Flower Controller NE
-                            caster->KilledMonsterCredit(45487, 0);
+                            caster->KilledMonsterCredit(45487, ObjectGuid::Empty);
                     
                         else if (caster->GetPositionX() <= 2536 && GetCaster()->GetPositionX() >= 2487) //Necropolis Flower Controller SE
-                            caster->KilledMonsterCredit(45488, 0);
+                            caster->KilledMonsterCredit(45488, ObjectGuid::Empty);
 
                         else if (caster->GetPositionX() < 2487) //Necropolis Flower Controller W
-                            caster->KilledMonsterCredit(45486, 0);
+                            caster->KilledMonsterCredit(45486, ObjectGuid::Empty);
                     }
                 }
             }
@@ -1670,13 +1670,13 @@ class spell_q12512_resuscitate: public SpellScriptLoader
                     if (Player* caster = GetCaster()->ToPlayer())
                     {
                         if (GetHitUnit()->GetEntry() == 28136) //Crusader Jonathan
-                            caster->KilledMonsterCredit(28136, 0);
+                            caster->KilledMonsterCredit(28136, ObjectGuid::Empty);
                     
                         else if (GetHitUnit()->GetEntry() == 28142) //Crusader Lamoof
-                            caster->KilledMonsterCredit(28142, 0);
+                            caster->KilledMonsterCredit(28142, ObjectGuid::Empty);
 
                         else if (GetHitUnit()->GetEntry() == 28148) //Crusader Josephine
-                            caster->KilledMonsterCredit(28148, 0);
+                            caster->KilledMonsterCredit(28148, ObjectGuid::Empty);
                     }
                 }
             }

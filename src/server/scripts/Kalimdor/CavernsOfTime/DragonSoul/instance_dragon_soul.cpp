@@ -19,10 +19,10 @@ class instance_dragon_soul : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
 
-                uiMorchokGUID = 0;
-                uiKohcromGUID = 0;
-                uiValeeraGUID = 0;
-                uiEiendormiGUID = 0;
+                uiMorchokGUID.Clear();
+                uiKohcromGUID.Clear();
+                uiValeeraGUID.Clear();
+                uiEiendormiGUID.Clear();
             }
 
             void OnPlayerEnter(Player* pPlayer)
@@ -72,9 +72,9 @@ class instance_dragon_soul : public InstanceMapScript
                     case DATA_KOHCROM: return uiKohcromGUID;
                     case NPC_VALEERA: return uiValeeraGUID;
                     case NPC_EIENDORMI: return uiEiendormiGUID;
-                    default: return 0;
+                    default: return ObjectGuid::Empty;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state)

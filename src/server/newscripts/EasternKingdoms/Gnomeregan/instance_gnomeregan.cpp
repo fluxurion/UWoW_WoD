@@ -48,10 +48,10 @@ public:
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            uiCaveInLeftGUID                = 0;
-            uiCaveInRightGUID               = 0;
+            uiCaveInLeftGUID.Clear();
+            uiCaveInRightGUID.Clear();
 
-            uiBastmasterEmiShortfuseGUID    = 0;
+            uiBastmasterEmiShortfuseGUID.Clear();
         }
 
         void Load(const char* in)
@@ -131,7 +131,7 @@ public:
                 case DATA_NPC_BASTMASTER_EMI_SHORTFUSE: return uiBastmasterEmiShortfuseGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

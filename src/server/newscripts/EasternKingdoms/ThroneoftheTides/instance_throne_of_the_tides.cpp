@@ -29,25 +29,25 @@ public:
         {
             SetBossNumber(MAX_ENCOUNTER);
             LoadDoorData(doordata);
-            uiLadyNazjarGUID = 0;
-            uiCommanderUlthokGUID = 0;
-            uiErunakStonespeakerGUID = 0;
-            uiMindbenderGhurshaGUID = 0;
-            uiOzumatGUID = 0;
-            uiNeptulonGUID = 0;
-            uiLadyNazjarEventGUID = 0;
+            uiLadyNazjarGUID.Clear();
+            uiCommanderUlthokGUID.Clear();
+            uiErunakStonespeakerGUID.Clear();
+            uiMindbenderGhurshaGUID.Clear();
+            uiOzumatGUID.Clear();
+            uiNeptulonGUID.Clear();
+            uiLadyNazjarEventGUID.Clear();
 
-            uiCoralesGUID = 0,
-            uiLadyNazjarDoorGUID = 0;
-            uiCommanderUlthokDoorGUID = 0;
-            uiMindebenderGhurshaDoorGUID = 0;
-            uiOzumatDoorGUID = 0;
-            uiControlSystemGUID = 0;
-            uiTentacleRightGUID = 0;
-            uiTentacleLeftGUID = 0;
-            uiInvisibleDoor1GUID = 0;
-            uiInvisibleDoor2GUID = 0;
-            uiNeptulonCache = 0;
+            uiCoralesGUID.Clear(),
+            uiLadyNazjarDoorGUID.Clear();
+            uiCommanderUlthokDoorGUID.Clear();
+            uiMindebenderGhurshaDoorGUID.Clear();
+            uiOzumatDoorGUID.Clear();
+            uiControlSystemGUID.Clear();
+            uiTentacleRightGUID.Clear();
+            uiTentacleLeftGUID.Clear();
+            uiInvisibleDoor1GUID.Clear();
+            uiInvisibleDoor2GUID.Clear();
+            uiNeptulonCache.Clear();
 
             memset(m_uiEvents, 0, sizeof(m_uiEvents));
         }
@@ -236,7 +236,7 @@ public:
             case DATA_CORALES:
                 return uiCoralesGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         bool SetBossState(uint32 type, EncounterState state)

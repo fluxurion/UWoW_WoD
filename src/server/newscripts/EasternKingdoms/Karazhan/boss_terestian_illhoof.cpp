@@ -83,7 +83,7 @@ public:
 
         void Reset()
         {
-            TerestianGUID = 0;
+            TerestianGUID.Clear();
             AmplifyTimer = 2000;
         }
 
@@ -148,7 +148,7 @@ public:
 
         void Reset()
         {
-            SacrificeGUID = 0;
+            SacrificeGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -263,7 +263,7 @@ public:
         boss_terestianAI(Creature* creature) : ScriptedAI(creature)
         {
             for (uint8 i = 0; i < 2; ++i)
-                PortalGUID[i] = 0;
+                PortalGUID[i].Clear();
             instance = creature->GetInstanceScript();
         }
 
@@ -292,7 +292,7 @@ public:
                         pPortal->DespawnOrUnsummon();
                     }
 
-                    PortalGUID[i] = 0;
+                    PortalGUID[i].Clear();
                 }
             }
 
@@ -355,7 +355,7 @@ public:
                     if (Creature* pPortal = Unit::GetCreature((*me), PortalGUID[i]))
                         pPortal->DespawnOrUnsummon();
 
-                    PortalGUID[i] = 0;
+                    PortalGUID[i].Clear();
                 }
             }
 

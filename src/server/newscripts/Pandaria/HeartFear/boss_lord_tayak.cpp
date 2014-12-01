@@ -59,7 +59,7 @@ class boss_lord_tayak : public CreatureScript
             {
                 _Reset();
                 lastphase = false;
-                striketarget = 0;
+                striketarget.Clear();
                 me->SetReactState(REACT_DEFENSIVE);
                 me->RemoveAurasDueToSpell(SPELL_INTENSIFY);
                 me->RemoveAurasDueToSpell(SPELL_INTENSIFY_TRIGGER_EF);
@@ -111,7 +111,7 @@ class boss_lord_tayak : public CreatureScript
 
             void PrepareStrike()
             {
-                striketarget = 0;
+                striketarget.Clear();
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f, true))
                 {
                     striketarget = target->GetGUID();

@@ -748,7 +748,7 @@ public:
                                 for (uint8 z = 0; z < 6; ++z)
                                 {
                                     pRandomPlayer = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                                    if (!pRandomPlayer || !pRandomPlayer->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, 0))
+                                    if (!pRandomPlayer || !pRandomPlayer->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, ObjectGuid::Empty))
                                         break;
                                 }
 
@@ -842,7 +842,7 @@ public:
                             for (uint8 z = 0; z < 6; ++z)
                             {
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                                if (!target || !target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, 0)) break;
+                                if (!target || !target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, ObjectGuid::Empty)) break;
                             }
                             if (target)
                             {
@@ -970,7 +970,7 @@ public:
                 return;
 
             // Gain Shadow Infusion at 20% health
-            if (HealthBelowPct(20) && !me->HasAura(SPELL_SHADOW_INFUSION, 0))
+            if (HealthBelowPct(20) && !me->HasAura(SPELL_SHADOW_INFUSION, ObjectGuid::Empty))
                 DoCast(me, SPELL_SHADOW_INFUSION, true);
 
             // Shadow Bolt Volley - Shoots Shadow Bolts at all enemies within 30 yards, for ~2k Shadow damage.
@@ -1233,7 +1233,7 @@ public:
 
             if (uiTimer <= diff)
             {
-                if (Unit* random = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_PLAYER_GUID) : 0))
+                if (Unit* random = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_PLAYER_GUID) : ObjectGuid::Empty))
                     DoCast(random, SPELL_SHADOW_BOLT, false);
                 uiTimer = urand(500, 1000);
             } else uiTimer -= diff;

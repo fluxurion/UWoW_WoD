@@ -54,7 +54,7 @@ class boss_general_pavalak : public CreatureScript
             {
                 _Reset();
                 tempest = 0;
-                bladeguid = 0;
+                bladeguid.Clear();
                 bladeprepare = 0;
                 bladeprogress = 0;
             }
@@ -85,7 +85,7 @@ class boss_general_pavalak : public CreatureScript
                         me->RemoveAura(SPELL_DISARM);
                     }
                     me->SetReactState(REACT_AGGRESSIVE);
-                    bladeguid = 0;
+                    bladeguid.Clear();
                     tempest = 3000;
                     bladeprepare = 15000;
                 }

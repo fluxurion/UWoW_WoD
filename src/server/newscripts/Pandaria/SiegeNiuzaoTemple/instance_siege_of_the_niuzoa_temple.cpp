@@ -29,11 +29,11 @@ public:
 
         void Initialize()
         {
-            jinbakGuid  = 0;
-            vojakGuid   = 0;
-            pavalakGuid = 0;
-            neronokGuid = 0;
-            puddleGuid  = 0;
+            jinbakGuid.Clear();
+            vojakGuid.Clear();
+            pavalakGuid.Clear();
+            neronokGuid.Clear();
+            puddleGuid.Clear();
         }
         
         void OnCreatureCreate(Creature* creature)
@@ -77,7 +77,7 @@ public:
                 case NPC_PUDDLE:    return puddleGuid;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void Update(uint32 diff) 

@@ -44,12 +44,12 @@ public:
             leishiexdoorGuids.clear();
            
             //Creature
-            kaolanGuid    = 0;
-            regailGuid    = 0;
-            asaniGuid     = 0;
-            tsulongGuid   = 0;
-            leishiGuid    = 0;
-            shaGuid       = 0;
+            kaolanGuid.Clear();
+            regailGuid.Clear();
+            asaniGuid.Clear();
+            tsulongGuid.Clear();
+            leishiGuid.Clear();
+            shaGuid.Clear();
 
             door_state_timer = 5000;
         }
@@ -245,7 +245,7 @@ public:
             case NPC_SHA_OF_FEAR:
                 return shaGuid;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         bool IsWipe()

@@ -75,13 +75,13 @@ public:
 
         void Initialize()
         {
-            GOAtalaiStatue1 = 0;
-            GOAtalaiStatue2 = 0;
-            GOAtalaiStatue3 = 0;
-            GOAtalaiStatue4 = 0;
-            GOAtalaiStatue5 = 0;
-            GOAtalaiStatue6 = 0;
-            GOAtalaiIdol = 0;
+            GOAtalaiStatue1.Clear();
+            GOAtalaiStatue2.Clear();
+            GOAtalaiStatue3.Clear();
+            GOAtalaiStatue4.Clear();
+            GOAtalaiStatue5.Clear();
+            GOAtalaiStatue6.Clear();
+            GOAtalaiIdol.Clear();
 
             State = 0;
 

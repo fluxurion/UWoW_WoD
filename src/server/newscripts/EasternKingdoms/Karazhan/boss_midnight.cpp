@@ -135,7 +135,7 @@ public:
         void Reset()
         {
             Phase = 1;
-            Attumen = 0;
+            Attumen.Clear();
             Mount_Timer = 0;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -248,7 +248,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
                 pMidnight->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pMidnight->SetVisible(true);
             }
-            Midnight = 0;
+            Midnight.Clear();
             me->SetVisible(false);
             me->Kill(me);
         } else ResetTimer -= diff;

@@ -117,7 +117,7 @@ public:
 
         void Reset()
         {
-        PlayerGUID = 0;
+            PlayerGUID.Clear();
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)

@@ -263,7 +263,7 @@ class boss_lorewalker_stonestep : public CreatureScript
                                 temp->Attack(SelectTarget(SELECT_TARGET_RANDOM), true);
                                 temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 temp->SetFacingTo(1.239f);
-                                sCreatureTextMgr->SendChat(temp, 0, 0);
+                                sCreatureTextMgr->SendChat(temp, 0, ObjectGuid::Empty);
                             }
                             break;
                         case EVENT_STRIFE_4:
@@ -428,7 +428,7 @@ class mob_zao : public CreatureScript
                             if (!suns.empty())
                             {
                                 uint32 rand = urand(0, suns.size());
-                                ObjectGuid guid_target = 0;
+                                ObjectGuid guid_target;
                                 Creature* target = NULL;
                                 for (GuidList::const_iterator guid = suns.begin(); guid != suns.end(); ++guid)
                                 {

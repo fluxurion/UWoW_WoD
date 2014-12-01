@@ -88,13 +88,13 @@ public:
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            uiAshGUID = 0;
-            uiAdaGUID = 0;
-            uiArchmageArugalGUID = 0;
+            uiAshGUID.Clear();
+            uiAdaGUID.Clear();
+            uiArchmageArugalGUID.Clear();
 
-            DoorCourtyardGUID = 0;
-            DoorSorcererGUID = 0;
-            DoorArugalGUID = 0;
+            DoorCourtyardGUID.Clear();
+            DoorSorcererGUID.Clear();
+            DoorArugalGUID.Clear();
 
             uiPhase = 0;
             uiTimer = 0;

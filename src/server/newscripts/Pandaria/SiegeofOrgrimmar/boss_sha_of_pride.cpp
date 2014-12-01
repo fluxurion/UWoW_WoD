@@ -184,7 +184,7 @@ class boss_sha_of_pride : public CreatureScript
                 //event after killing all NPC_LINGERING_CORRUPTION. Appear of Sha.
                 if (id == NPC_LINGERING_CORRUPTION)
                 {
-                    ZoneTalk(TEXT_GENERIC_0, 0);
+                    ZoneTalk(TEXT_GENERIC_0, ObjectGuid::Empty);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     SetCombatMovement(false);
@@ -198,14 +198,14 @@ class boss_sha_of_pride : public CreatureScript
             }
             void KilledUnit(Unit* /*victim*/) 
             {
-                ZoneTalk(urand(TEXT_GENERIC_9, TEXT_GENERIC_10), 0);
+                ZoneTalk(urand(TEXT_GENERIC_9, TEXT_GENERIC_10), ObjectGuid::Empty);
             }
             void EnterCombat(Unit* who)
             {
                 _EnterCombat();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-                ZoneTalk(TEXT_GENERIC_1, 0);
+                ZoneTalk(TEXT_GENERIC_1, ObjectGuid::Empty);
                 events.SetPhase(PHASE_BATTLE);
                 uint32 t = 0;
                 
@@ -304,8 +304,8 @@ class boss_sha_of_pride : public CreatureScript
                             me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) + 5);
                             if (me->GetPower(POWER_ENERGY) == 100)
                             {
-                                ZoneTalk(TEXT_GENERIC_12, 0);
-                                ZoneTalk(urand(TEXT_GENERIC_5, TEXT_GENERIC_6), 0);
+                                ZoneTalk(TEXT_GENERIC_12, ObjectGuid::Empty);
+                                ZoneTalk(urand(TEXT_GENERIC_5, TEXT_GENERIC_6), ObjectGuid::Empty);
                                 DoCast(me, SPELL_SWELLING_PRIDE, false);
                             }
                             events.RescheduleEvent(EVENT_PRIDE_GENERATION, 4000);
@@ -315,14 +315,14 @@ class boss_sha_of_pride : public CreatureScript
                             events.RescheduleEvent(EVENT_SPELL_WOUNDED_PRIDE, 30*IN_MILLISECONDS, 0, PHASE_BATTLE);
                             break;
                         case EVENT_SPELL_SELF_REFLECTION:
-                            ZoneTalk(TEXT_GENERIC_4, 0);
+                            ZoneTalk(TEXT_GENERIC_4, ObjectGuid::Empty);
                             DoCast(me, SPELL_SELF_REFLECTION, false);
                             events.RescheduleEvent(EVENT_SPELL_SELF_REFLECTION, 78*IN_MILLISECONDS, 0, PHASE_BATTLE);
                             break;
                         case EVENT_SPELL_CORRUPTED_PRISON:
                         {
-                            ZoneTalk(TEXT_GENERIC_11, 0);
-                            ZoneTalk(TEXT_GENERIC_3, 0);
+                            ZoneTalk(TEXT_GENERIC_11, ObjectGuid::Empty);
+                            ZoneTalk(TEXT_GENERIC_3, ObjectGuid::Empty);
                             //Should be done by casting this spell, but this half-hack better check targets and cast spells by order.
                             DoCast(me, SPELL_IMPRISON, true);
                             uint8 count = Is25ManRaid() ? 4 : 2;
@@ -366,7 +366,7 @@ class boss_sha_of_pride : public CreatureScript
                         {
                             if (Creature* nor = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_NORUSHEN)))
                             {
-                                ZoneTalk(TEXT_GENERIC_8, 0);
+                                ZoneTalk(TEXT_GENERIC_8, ObjectGuid::Empty);
                                 DoCast(nor, SPELL_UNLEASHED, false);
                                 events.CancelEvent(EVENT_SPELL_GIFT_OF_THE_TITANS);
                             }
@@ -442,7 +442,7 @@ public:
             if (spell->Id == SPELL_UNLEASHED)
             {
                 DoCast(me, SPELL_FINAL_GIFT, false);
-                ZoneTalk(TEXT_GENERIC_4, 0);
+                ZoneTalk(TEXT_GENERIC_4, ObjectGuid::Empty);
             }
         }
 
@@ -465,11 +465,11 @@ public:
             if (id == NPC_LINGERING_CORRUPTION)
             {
                 instance->SetData(DATA_SHA_PRE_EVENT, DONE);
-                ZoneTalk(TEXT_GENERIC_2, 0);             //18:47:21.000 
+                ZoneTalk(TEXT_GENERIC_2, ObjectGuid::Empty);             //18:47:21.000 
                 events.ScheduleEvent(EVENT_2, 11000);    //18:47:32.000
             }else if (id == SPELL_GIFT_OF_THE_TITANS)
             {
-                ZoneTalk(TEXT_GENERIC_3, 0);
+                ZoneTalk(TEXT_GENERIC_3, ObjectGuid::Empty);
                 me->CastSpell(me, SPELL_GIFT_OF_THE_TITANS, true);
             }else if (id == EVENT_SPELL_GIFT_OF_THE_TITANS)
             {
@@ -674,40 +674,40 @@ public:
                         SetEscortPaused(false);
                         break;
                     case EVENT_7:
-                        ZoneTalk(TEXT_GENERIC_3, 0);
+                        ZoneTalk(TEXT_GENERIC_3, ObjectGuid::Empty);
                         //me->DespawnOrUnsummon(60000);
                         break;
                     case EVENT_8:
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
-                            jaina->AI()->ZoneTalk(TEXT_GENERIC_0, 0);
+                            jaina->AI()->ZoneTalk(TEXT_GENERIC_0, ObjectGuid::Empty);
                         break;
                     case EVENT_9:
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                             jaina->GetMotionMaster()->MovePoint(jaina->GetGUID().GetCounter(), 748.8203f, 1130.096f, 356.0723f);
                         if (Creature* teron = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_THERON)))
-                            teron->AI()->ZoneTalk(TEXT_GENERIC_0, 0);
+                            teron->AI()->ZoneTalk(TEXT_GENERIC_0, ObjectGuid::Empty);
                         break;
                     case EVENT_10:
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
-                            jaina->AI()->ZoneTalk(TEXT_GENERIC_1, 0);
+                            jaina->AI()->ZoneTalk(TEXT_GENERIC_1, ObjectGuid::Empty);
                         break;
                     case EVENT_11:
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
-                            jaina->AI()->ZoneTalk(TEXT_GENERIC_2, 0);
+                            jaina->AI()->ZoneTalk(TEXT_GENERIC_2, ObjectGuid::Empty);
                         break;
                     case EVENT_12:
                         if (Creature* teron = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_THERON)))
-                            teron->AI()->ZoneTalk(TEXT_GENERIC_2, 0);
+                            teron->AI()->ZoneTalk(TEXT_GENERIC_2, ObjectGuid::Empty);
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                             jaina->GetMotionMaster()->MovePoint(jaina->GetGUID().GetCounter(), 748.5174f, 1131.481f, 356.0723f);
                         break;
                     case EVENT_13:
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
-                            jaina->AI()->ZoneTalk(TEXT_GENERIC_3, 0);
+                            jaina->AI()->ZoneTalk(TEXT_GENERIC_3, ObjectGuid::Empty);
                         break;
                     case EVENT_17:
                         if (Creature* teron = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_THERON)))
-                            teron->AI()->ZoneTalk(TEXT_GENERIC_3, 0);
+                            teron->AI()->ZoneTalk(TEXT_GENERIC_3, ObjectGuid::Empty);
                         break;
                     case EVENT_14:
                         for(uint32 i = 0; i < 2; ++i)
@@ -719,7 +719,7 @@ public:
                             
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                         {
-                            jaina->AI()->ZoneTalk(TEXT_GENERIC_4, 0);
+                            jaina->AI()->ZoneTalk(TEXT_GENERIC_4, ObjectGuid::Empty);
                             jaina->GetMotionMaster()->MovePoint(jaina->GetGUID().GetCounter(), 783.2882f, 1167.352f, 356.0717f);
                         }
                         if (Creature* teron = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_THERON)))
@@ -742,7 +742,7 @@ public:
                         break;
                     case EVENT_16:
                         if (Creature* teron = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_THERON)))
-                            teron->AI()->ZoneTalk(TEXT_GENERIC_1, 0);
+                            teron->AI()->ZoneTalk(TEXT_GENERIC_1, ObjectGuid::Empty);
                         break;
                 }
             }
@@ -765,7 +765,7 @@ class go_sha_of_pride_corupted_prison : public GameObjectScript
         struct go_sha_of_pride_corupted_prisonAI : public GameObjectAI
         {
             go_sha_of_pride_corupted_prisonAI(GameObject* go) : 
-                GameObjectAI(go), _enableKeyCount(0), _plrPrisonerGUID(0)
+                GameObjectAI(go), _enableKeyCount(0), _plrPrisonerGUID()
             {
                 instance = go->GetInstanceScript();
                 switch(go->GetEntry())
@@ -821,7 +821,7 @@ class go_sha_of_pride_corupted_prison : public GameObjectScript
                         {
                             if (Player* player = ObjectAccessor::FindPlayer(_plrPrisonerGUID))
                             {
-                                _plrPrisonerGUID = 0;
+                                _plrPrisonerGUID.Clear();
 
                                 player->RemoveAurasDueToSpell(SPELL_CORRUPTED_PRISON_WEST);
                                 player->RemoveAurasDueToSpell(SPELL_CORRUPTED_PRISON_EAST);

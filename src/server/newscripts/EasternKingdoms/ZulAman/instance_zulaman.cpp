@@ -44,14 +44,14 @@ class instance_zulaman : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
 
-                HarkorsSatchelGUID = 0;
-                TanzarsTrunkGUID = 0;
-                AshlisBagGUID = 0;
-                KrazsPackageGUID = 0;
+                HarkorsSatchelGUID.Clear();
+                TanzarsTrunkGUID.Clear();
+                AshlisBagGUID.Clear();
+                KrazsPackageGUID.Clear();
 
-                HexLordGateGUID = 0;
-                MainGateGUID    = 0;
-                StrangeGongGUID = 0;
+                HexLordGateGUID.Clear();
+                MainGateGUID.Clear();
+                StrangeGongGUID.Clear();
 
                 QuestTimer = 0;
                 QuestMinute = 21;

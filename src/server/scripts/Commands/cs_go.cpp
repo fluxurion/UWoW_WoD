@@ -133,11 +133,11 @@ public:
         float z = fields[2].GetFloat();
         float ort = fields[3].GetFloat();
         int mapId = fields[4].GetUInt16();
-        ObjectGuid::LowType guid = fields[5].GetUInt32();
+        ObjectGuid::LowType guid = fields[5].GetUInt64();
         uint32 id = fields[6].GetUInt32();
 
         // if creature is in same map with caster go at its current location
-        if (Creature* creature = sObjectAccessor->GetCreature(*player, MAKE_NEW_GUID(guid, id, HighGuid::Creature)))
+        if (Creature* creature = sObjectAccessor->GetCreature(*player, ObjectGuid::Create<HighGuid::Creature>(mapId, id, guid)))
         {
             x = creature->GetPositionX();
             y = creature->GetPositionY();

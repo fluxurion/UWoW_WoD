@@ -117,41 +117,41 @@ public:
         {
             memset(&encounter, 0, sizeof(encounter));
 
-            EmperorGUID = 0;
-            PhalanxGUID = 0;
-            MagmusGUID = 0;
-            MoiraGUID = 0;
+            EmperorGUID.Clear();
+            PhalanxGUID.Clear();
+            MagmusGUID.Clear();
+            MoiraGUID.Clear();
 
-            GoArena1GUID = 0;
-            GoArena2GUID = 0;
-            GoArena3GUID = 0;
-            GoArena4GUID = 0;
-            GoShadowLockGUID = 0;
-            GoShadowMechGUID = 0;
-            GoShadowGiantGUID = 0;
-            GoShadowDummyGUID = 0;
-            GoBarKegGUID = 0;
-            GoBarKegTrapGUID = 0;
-            GoBarDoorGUID = 0;
-            GoTombEnterGUID = 0;
-            GoTombExitGUID = 0;
-            GoLyceumGUID = 0;
-            GoSFSGUID = 0;
-            GoSFNGUID = 0;
-            GoGolemNGUID = 0;
-            GoGolemSGUID = 0;
-            GoThroneGUID = 0;
-            GoChestGUID = 0;
-            GoSpectralChaliceGUID = 0;
+            GoArena1GUID.Clear();
+            GoArena2GUID.Clear();
+            GoArena3GUID.Clear();
+            GoArena4GUID.Clear();
+            GoShadowLockGUID.Clear();
+            GoShadowMechGUID.Clear();
+            GoShadowGiantGUID.Clear();
+            GoShadowDummyGUID.Clear();
+            GoBarKegGUID.Clear();
+            GoBarKegTrapGUID.Clear();
+            GoBarDoorGUID.Clear();
+            GoTombEnterGUID.Clear();
+            GoTombExitGUID.Clear();
+            GoLyceumGUID.Clear();
+            GoSFSGUID.Clear();
+            GoSFNGUID.Clear();
+            GoGolemNGUID.Clear();
+            GoGolemSGUID.Clear();
+            GoThroneGUID.Clear();
+            GoChestGUID.Clear();
+            GoSpectralChaliceGUID.Clear();
 
             BarAleCount = 0;
             GhostKillCount = 0;
-            TombEventStarterGUID = 0;
+            TombEventStarterGUID.Clear();
             TombTimer = TIMER_TOMBOFTHESEVEN;
             TombEventCounter = 0;
 
             for (uint8 i = 0; i < 7; ++i)
-                TombBossGUIDs[i] = 0;
+                TombBossGUIDs[i].Clear();
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -337,7 +337,7 @@ public:
             case DATA_GO_CHALICE:
                 return GoSpectralChaliceGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()
@@ -406,7 +406,7 @@ public:
                 }
             }
             GhostKillCount = 0;
-            TombEventStarterGUID = 0;
+            TombEventStarterGUID.Clear();
             TombEventCounter = 0;
             TombTimer = TIMER_TOMBOFTHESEVEN;
             SetData(TYPE_TOMB_OF_SEVEN, NOT_STARTED);
@@ -424,7 +424,7 @@ public:
             DoRespawnGameObject(GoChestGUID, DAY);
             HandleGameObject(GoTombExitGUID, true);//event done, open exit door
             HandleGameObject(GoTombEnterGUID, true);//event done, open entrance door
-            TombEventStarterGUID = 0;
+            TombEventStarterGUID.Clear();
             SetData(TYPE_TOMB_OF_SEVEN, DONE);
         }
         void Update(uint32 diff)

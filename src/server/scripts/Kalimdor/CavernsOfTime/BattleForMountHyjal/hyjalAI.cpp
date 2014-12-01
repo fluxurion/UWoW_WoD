@@ -321,7 +321,7 @@ hyjalAI::hyjalAI(Creature* creature) : npc_escortAI(creature), Summons(me)
     VeinsSpawned[0] = false;
     VeinsSpawned[1] = false;
     for (uint8 i=0; i<14; ++i)
-        VeinGUID[i] = 0;
+        VeinGUID[i].Clear();
     InfernalCount = 0;
     TeleportTimer = 1000;
     Overrun = false;
@@ -352,9 +352,9 @@ void hyjalAI::Reset()
     IsDummy = false;
     me->setActive(true);
     // GUIDs
-    PlayerGUID = 0;
-    BossGUID[0] = 0;
-    BossGUID[1] = 0;
+    PlayerGUID.Clear();
+    BossGUID[0].Clear();
+    BossGUID[1].Clear();
 
     // Timers
     NextWaveTimer = 10000;
@@ -876,7 +876,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     EventBegun = false;
                     CheckTimer = 0;
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    BossGUID[i] = 0;
+                    BossGUID[i].Clear();
                     if (instance)
                         instance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
                 }
@@ -989,7 +989,7 @@ void hyjalAI::WaypointReached(uint32 waypointId)
 {
     if (waypointId == 1 || (waypointId == 0 && me->GetEntry() == THRALL))
     {
-        me->MonsterYell(YELL_HURRY, 0, 0);
+        me->MonsterYell(YELL_HURRY, 0, ObjectGuid::Empty);
         WaitForTeleport = true;
         TeleportTimer = 20000;
         if (me->GetEntry() == JAINA)

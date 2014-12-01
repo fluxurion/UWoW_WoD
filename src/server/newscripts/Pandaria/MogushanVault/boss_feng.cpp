@@ -168,7 +168,7 @@ class boss_feng : public CreatureScript
                 newphase = 0;
                 actualPhase = PHASE_NONE;
                 dotSpellId = 0;
-                targetGuid = 0;
+                targetGuid.Clear();
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(115811);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(115972);
 
@@ -359,7 +359,7 @@ class boss_feng : public CreatureScript
                     if (Unit* pl = me->GetPlayer(*me, targetGuid))
                     {
                         sum->AI()->SetGUID(targetGuid); 
-                        targetGuid = 0;
+                        targetGuid.Clear();
                     }
                 }
             }
@@ -414,7 +414,7 @@ class boss_feng : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
                         {
                             if (targetGuid)
-                                targetGuid = 0;
+                                targetGuid.Clear();
                             targetGuid = target->GetGUID();
                             DoCast(target, SPELL_LIGHTNING_FISTS);
                         }

@@ -123,7 +123,7 @@ public:
     {
         boss_victor_nefariusAI(Creature* creature) : ScriptedAI(creature)
         {
-            NefarianGUID = 0;
+            NefarianGUID.Clear();
             switch (urand(0, 19))
             {
                 case 0:
@@ -227,7 +227,7 @@ public:
             ShadowBoltTimer = 5000;
             FearTimer = 8000;
             ResetTimer = 900000;                                // On official it takes him 15 minutes(900 seconds) to reset. We are only doing 1 minute to make testing easier
-            NefarianGUID = 0;
+            NefarianGUID.Clear();
             NefCheckTime = 2000;
 
             me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
@@ -380,7 +380,7 @@ public:
                     //and cannot repeat the event
                     if (!Nefarian || !Nefarian->isAlive())
                     {
-                        NefarianGUID = 0;
+                        NefarianGUID.Clear();
                         me->DespawnOrUnsummon();
                     }
 

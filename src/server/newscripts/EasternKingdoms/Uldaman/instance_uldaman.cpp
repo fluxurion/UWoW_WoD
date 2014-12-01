@@ -51,17 +51,17 @@ class instance_uldaman : public InstanceMapScript
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                uiArchaedasGUID = 0;
-                uiIronayaGUID = 0;
-                uiWhoWokeuiArchaedasGUID = 0;
+                uiArchaedasGUID.Clear();
+                uiIronayaGUID.Clear();
+                uiWhoWokeuiArchaedasGUID.Clear();
 
-                uiAltarOfTheKeeperTempleDoor = 0;
-                uiArchaedasTempleDoor = 0;
-                uiAncientVaultDoor = 0;
+                uiAltarOfTheKeeperTempleDoor.Clear();
+                uiArchaedasTempleDoor.Clear();
+                uiAncientVaultDoor.Clear();
 
-                uiIronayaSealDoor = 0;
+                uiIronayaSealDoor.Clear();
 
-                uiKeystoneGUID = 0;
+                uiKeystoneGUID.Clear();
 
                 uiIronayaSealDoorTimer = 27000; //animation time
                 bKeystoneCheck = false;
@@ -481,7 +481,7 @@ class instance_uldaman : public InstanceMapScript
                 if (identifier == 9) return vEarthenGuardian[4];
                 if (identifier == 10) return vEarthenGuardian[5];
 
-                return 0;
+                return ObjectGuid::Empty;
             } // end GetGuidData
         };
 

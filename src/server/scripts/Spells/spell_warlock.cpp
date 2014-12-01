@@ -1056,12 +1056,12 @@ class spell_warl_demonic_gateway_charges : public SpellScriptLoader
                 {
                     for (int32 i = 0; i < MAX_SUMMON_SLOT; ++i)
                     {
-                        if (GUID_ENPART(_player->m_SummonSlot[i]) == NPC_PURGE_GATE ||
-                            GUID_ENPART(_player->m_SummonSlot[i]) == NPC_GREEN_GATE)
+                        if (_player->m_SummonSlot[i].GetEntry() == NPC_PURGE_GATE ||
+                            _player->m_SummonSlot[i].GetEntry() == NPC_GREEN_GATE)
                         {
                             if (Creature* gate = _player->GetMap()->GetCreature(_player->m_SummonSlot[i]))
                             {
-                                uint8 g = GUID_ENPART(_player->m_SummonSlot[i]) == NPC_PURGE_GATE;
+                                uint8 g = _player->m_SummonSlot[i].GetEntry() == NPC_PURGE_GATE;
                                 for(int32 j = 0; j < aurEff->GetAmount(); ++j)
                                     if (!gate->HasAura(gw[g][j]))
                                         gate->CastSpell(gate, gw[g][j], true);
