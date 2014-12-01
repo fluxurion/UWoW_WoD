@@ -76,23 +76,23 @@ public:
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                m_auiEncounter[i] = NOT_STARTED;
 
-            uiSvalaSorrowgrave = 0;
-            uiGortokPalehoof = 0;
-            uiSkadiTheRuthless = 0;
-            uiKingYmiron = 0;
+            uiSvalaSorrowgrave.Clear();
+            uiGortokPalehoof.Clear();
+            uiSkadiTheRuthless.Clear();
+            uiKingYmiron.Clear();
 
-            uiSkadiTheRuthlessDoor = 0;
-            uiKingYmironDoor = 0;
-            uiGortokPalehoofSphere = 0;
+            uiSkadiTheRuthlessDoor.Clear();
+            uiKingYmironDoor.Clear();
+            uiGortokPalehoofSphere.Clear();
 
-            uiFrenziedWorgen = 0;
-            uiRavenousFurbolg = 0;
-            uiFerociousRhino = 0;
-            uiMassiveJormungar = 0;
-            uiPalehoofOrb = 0;
+            uiFrenziedWorgen.Clear();
+            uiRavenousFurbolg.Clear();
+            uiFerociousRhino.Clear();
+            uiMassiveJormungar.Clear();
+            uiPalehoofOrb.Clear();
 
-            uiSvala = 0;
-            uiSacrificedPlayer = 0;
+            uiSvala.Clear();
+            uiSacrificedPlayer.Clear();
         }
 
         bool IsEncounterInProgress() const

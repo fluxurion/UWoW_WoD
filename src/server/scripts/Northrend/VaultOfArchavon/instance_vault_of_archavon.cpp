@@ -40,8 +40,8 @@ class instance_archavon : public InstanceMapScript
 
             void Initialize()
             {
-                EmalonGUID = 0;
-                ToravonGUID = 0;
+                EmalonGUID.Clear();
+                ToravonGUID.Clear();
                 ArchavonDeath = 0;
                 EmalonDeath = 0;
                 KoralonDeath = 0;

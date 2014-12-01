@@ -163,7 +163,7 @@ public:
 
             introTimer = 1 * IN_MILLISECONDS;
             introPhase = 0;
-            arthasGUID = 0;
+            arthasGUID.Clear();
 
             if (instance)
             {
@@ -349,7 +349,7 @@ public:
                                 mirror->SetGoState(GO_STATE_ACTIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             arthas->DespawnOrUnsummon();
-                            arthasGUID = 0;
+                            arthasGUID.Clear();
                             Phase = NORMAL;
                             break;
                     }

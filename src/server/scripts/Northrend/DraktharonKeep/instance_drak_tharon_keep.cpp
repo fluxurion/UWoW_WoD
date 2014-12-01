@@ -71,14 +71,14 @@ public:
         void Initialize()
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-            uiTrollgore = 0;
-            uiNovos = 0;
-            uiDred = 0;
-            uiTharonJa = 0;
-            uiNovosCrystal1 = 0;
-            uiNovosCrystal2 = 0;
-            uiNovosCrystal3 = 0;
-            uiNovosCrystal4 = 0;
+            uiTrollgore.Clear();
+            uiNovos.Clear();
+            uiDred.Clear();
+            uiTharonJa.Clear();
+            uiNovosCrystal1.Clear();
+            uiNovosCrystal2.Clear();
+            uiNovosCrystal3.Clear();
+            uiNovosCrystal4.Clear();
             uiDredAchievCounter = 0;
         }
 

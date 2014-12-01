@@ -311,8 +311,8 @@ public:
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             events.Reset();
 
-            uiUther = 0;
-            uiLichKing = 0;                
+            uiUther.Clear();
+            uiLichKing.Clear();
             me->SetStandState(UNIT_STAND_STATE_STAND);
             me->SetVisible(true);
             start = false;
@@ -613,7 +613,7 @@ public:
                      {
                          pUther->CastSpell(pUther, SPELL_UTHER_DESPAWN, true);
                          pUther->DisappearAndDie();
-                         uiUther = 0;
+                         uiUther.Clear();
                      }
                      events.ScheduleEvent(EVENT_INTRO_LK_4, 5000);
                      break;
@@ -1580,7 +1580,7 @@ public:
             Fight = true;
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            m_uipWallTargetGUID = 0;
+            m_uipWallTargetGUID.Clear();
 
             if(me->GetEntry() == NPC_JAINA_OUTRO)
             {
@@ -1650,7 +1650,7 @@ public:
                         if(pWallTarget->isAlive())
                         {
                             pWallTarget->DespawnOrUnsummon();
-                            m_uipWallTargetGUID = 0;
+                            m_uipWallTargetGUID.Clear();
                         }
                     }
                     break;
@@ -1684,7 +1684,7 @@ public:
                         if(pWallTarget->isAlive())
                         {
                             pWallTarget->DespawnOrUnsummon();
-                            m_uipWallTargetGUID = 0;
+                            m_uipWallTargetGUID.Clear();
                         }
                     }
                     break;
@@ -1718,7 +1718,7 @@ public:
                         if(pWallTarget->isAlive())
                         {
                             pWallTarget->DespawnOrUnsummon();
-                            m_uipWallTargetGUID = 0;
+                            m_uipWallTargetGUID.Clear();
                         }
                     }
                     break;
@@ -1751,7 +1751,7 @@ public:
                         if(pWallTarget->isAlive())
                         {
                             pWallTarget->DespawnOrUnsummon();
-                            m_uipWallTargetGUID = 0;
+                            m_uipWallTargetGUID.Clear();
                         }
                     }
                     SetEscortPaused(true);

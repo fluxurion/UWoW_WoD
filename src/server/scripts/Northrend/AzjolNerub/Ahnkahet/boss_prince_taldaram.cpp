@@ -109,7 +109,7 @@ public:
             uiEmbraceTakenDamage = 0;
             Phase = NORMAL;
             uiPhaseTimer = 0;
-            uiEmbraceTarget = 0;
+            uiEmbraceTarget.Clear();
             if (instance)
                 instance->SetData(DATA_PRINCE_TALDARAM_EVENT, NOT_STARTED);
         }
@@ -191,7 +191,7 @@ public:
                     case FEEDING:
                         Phase = NORMAL;
                         uiPhaseTimer = 0;
-                        uiEmbraceTarget = 0;
+                        uiEmbraceTarget.Clear();
                         break;
                     case NORMAL:
                         if (uiBloodthirstTimer <= diff)
@@ -254,7 +254,7 @@ public:
               {
                   Phase = NORMAL;
                   uiPhaseTimer = 0;
-                  uiEmbraceTarget = 0;
+                  uiEmbraceTarget.Clear();
                   me->CastStop();
               }
             }
@@ -278,7 +278,7 @@ public:
             {
                 Phase = NORMAL;
                 uiPhaseTimer = 0;
-                uiEmbraceTarget = 0;
+                uiEmbraceTarget.Clear();
             }
             Talk(SAY_SLAY);
         }

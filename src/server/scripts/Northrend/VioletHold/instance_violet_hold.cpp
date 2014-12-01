@@ -170,26 +170,26 @@ public:
 
         void Initialize()
         {
-            uiMoragg = 0;
-            uiErekem = 0;
-            uiIchoron = 0;
-            uiLavanthor = 0;
-            uiXevozz = 0;
-            uiZuramat = 0;
-            uiCyanigosa = 0;
-            uiSinclari = 0;
+            uiMoragg.Clear();
+            uiErekem.Clear();
+            uiIchoron.Clear();
+            uiLavanthor.Clear();
+            uiXevozz.Clear();
+            uiZuramat.Clear();
+            uiCyanigosa.Clear();
+            uiSinclari.Clear();
 
-            uiMoraggCell = 0;
-            uiErekemCell = 0;
-            uiErekemGuard[0] = 0;
-            uiErekemGuard[1] = 0;
-            uiIchoronCell = 0;
-            uiLavanthorCell = 0;
-            uiXevozzCell = 0;
-            uiZuramatCell = 0;
-            uiMainDoor = 0;
-            uiTeleportationPortal = 0;
-            uiSaboteurPortal = 0;
+            uiMoraggCell.Clear();
+            uiErekemCell.Clear();
+            uiErekemGuard[0].Clear();
+            uiErekemGuard[1].Clear();
+            uiIchoronCell.Clear();
+            uiLavanthorCell.Clear();
+            uiXevozzCell.Clear();
+            uiZuramatCell.Clear();
+            uiMainDoor.Clear();
+            uiTeleportationPortal.Clear();
+            uiSaboteurPortal.Clear();
 
             trashMobs.clear();
 
@@ -265,10 +265,11 @@ public:
                     break;
             }
 
-            if (creature->GetGUID() == uiFirstBoss || creature->GetGUID() == uiSecondBoss)
-            {
-                creature->AllLootRemovedFromCorpse();
-            }
+            //CyberBrest:: WTF???
+            //if (creature->GetGUID() == uiFirstBoss || creature->GetGUID() == uiSecondBoss)
+            //{
+            //    creature->AllLootRemovedFromCorpse();
+            //}
         }
 
         void OnGameObjectCreate(GameObject* go)
@@ -466,7 +467,7 @@ public:
                 case DATA_SABOTEUR_PORTAL:          return uiSaboteurPortal;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SpawnPortal()

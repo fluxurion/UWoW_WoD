@@ -1154,12 +1154,13 @@ class npc_ball_of_flame : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id)
             {
-                if (type == CHASE_MOTION_TYPE && id == GUID_LOPART(_chaseGUID) && _chaseGUID)
+                //CyberBrest:: Where we send in motion guid?? And it should be uint64
+                if (type == CHASE_MOTION_TYPE /*&& id == _chaseGUID.GetCounter()*/ && _chaseGUID)
                 {
                     me->RemoveAurasDueToSpell(SPELL_BALL_OF_FLAMES_PERIODIC);
                     DoCast(me, SPELL_FLAMES);
                     _despawnTimer = 1000;
-                    _chaseGUID = 0;
+                    _chaseGUID.Clear();
                 }
             }
 

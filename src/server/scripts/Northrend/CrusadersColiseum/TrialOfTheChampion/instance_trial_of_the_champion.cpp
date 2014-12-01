@@ -83,18 +83,18 @@ public:
             uiGrandChampionsDeaths = 0;
             uiArgentSoldierDeaths = 0;
 
-            uiBlackKnightGUID      = 0;
-            uiAnnouncerGUID        = 0;
-            uiMainGateGUID         = 0;
-            uiMainGate1GUID        = 0;
-            uiGrandChampionVehicle1GUID   = 0;
-            uiGrandChampionVehicle2GUID   = 0;
-            uiGrandChampionVehicle3GUID   = 0;
-            uiGrandChampion1GUID          = 0;
-            uiGrandChampion2GUID          = 0;
-            uiGrandChampion3GUID          = 0;
-            uiChampionLootGUID            = 0;
-            uiArgentChampionGUID          = 0;
+            uiBlackKnightGUID.Clear();
+            uiAnnouncerGUID.Clear();
+            uiMainGateGUID.Clear();
+            uiMainGate1GUID.Clear();
+            uiGrandChampionVehicle1GUID.Clear();
+            uiGrandChampionVehicle2GUID.Clear();
+            uiGrandChampionVehicle3GUID.Clear();
+            uiGrandChampion1GUID.Clear();
+            uiGrandChampion2GUID.Clear();
+            uiGrandChampion3GUID.Clear();
+            uiChampionLootGUID.Clear();
+            uiArgentChampionGUID.Clear();
 
             bDone = false;
 

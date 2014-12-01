@@ -71,19 +71,19 @@ public:
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
             InitiandGUIDs.clear();
 
-            Elder_Nadox =0;
-            Prince_Taldaram =0;
-            Jedoga_Shadowseeker =0;
-            Herald_Volazj =0;
-            Amanitar =0;
+            Elder_Nadox.Clear();
+            Prince_Taldaram.Clear();
+            Jedoga_Shadowseeker.Clear();
+            Herald_Volazj.Clear();
+            Amanitar.Clear();
 
             spheres[0] = NOT_STARTED;
             spheres[1] = NOT_STARTED;
 
             InitiandCnt = 0;
             switchtrigger = 0;
-            JedogaSacrifices = 0;
-            JedogaTarget = 0;
+            JedogaSacrifices.Clear();
+            JedogaTarget.Clear();
         }
 
         bool IsEncounterInProgress() const

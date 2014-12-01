@@ -92,30 +92,30 @@ public:
 
             timer = 0;
             phase = 0;
-            toActivate = 0;
+            toActivate.Clear();
 
-            uiSladRan = 0;
-            uiMoorabi = 0;
-            uiDrakkariColossus = 0;
-            uiGalDarah = 0;
-            uiEckTheFerocious = 0;
+            uiSladRan.Clear();
+            uiMoorabi.Clear();
+            uiDrakkariColossus.Clear();
+            uiGalDarah.Clear();
+            uiEckTheFerocious.Clear();
 
-            uiSladRanAltar = 0;
-            uiMoorabiAltar = 0;
-            uiDrakkariColossusAltar = 0;
+            uiSladRanAltar.Clear();
+            uiMoorabiAltar.Clear();
+            uiDrakkariColossusAltar.Clear();
 
-            uiSladRanStatue = 0;
-            uiMoorabiStatue = 0;
-            uiDrakkariColossusStatue = 0;
-            uiGalDarahStatue = 0;
+            uiSladRanStatue.Clear();
+            uiMoorabiStatue.Clear();
+            uiDrakkariColossusStatue.Clear();
+            uiGalDarahStatue.Clear();
 
-            uiEckTheFerociousDoor = 0;
-            uiEckTheFerociousDoorBehind = 0;
-            uiGalDarahDoor1 = 0;
-            uiGalDarahDoor2 = 0;
+            uiEckTheFerociousDoor.Clear();
+            uiEckTheFerociousDoorBehind.Clear();
+            uiGalDarahDoor1.Clear();
+            uiGalDarahDoor2.Clear();
 
-            uiBridge = 0;
-            uiCollision = 0;
+            uiBridge.Clear();
+            uiCollision.Clear();
 
             uiSladRanStatueState = GO_STATE_ACTIVE;
             uiMoorabiStatueState = GO_STATE_ACTIVE;
@@ -445,7 +445,7 @@ public:
                      GameObject* pDrakkariColossusStatue = instance->GetGameObject(uiDrakkariColossusStatue);
                      GameObject* pGalDarahStatue = instance->GetGameObject(uiGalDarahStatue);
 
-                     toActivate = 0;
+                     toActivate.Clear();
 
                      if (pBridge && pCollision && pSladRanStatue && pMoorabiStatue && pDrakkariColossusStatue && pGalDarahStatue)
                      {
@@ -494,7 +494,7 @@ public:
                      if (GameObject* statueGO = instance->GetGameObject(toActivate))
                          statueGO->SetGoState(GO_STATE_READY);
 
-                     toActivate = 0;
+                     toActivate.Clear();
 
                      if (phase == 3)
                          SetGuidData(DATA_STATUE_ACTIVATE, uiBridge);

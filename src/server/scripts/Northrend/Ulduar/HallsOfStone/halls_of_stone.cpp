@@ -325,7 +325,7 @@ public:
                 bIsBattle = false;
                 uiStep = 0;
                 uiPhaseTimer = 0;
-                uiControllerGUID = 0;
+                uiControllerGUID.Clear();
                 brannSparklinNews = true;
 
                 DespawnDwarf();

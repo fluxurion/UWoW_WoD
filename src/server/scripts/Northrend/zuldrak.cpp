@@ -48,7 +48,7 @@ public:
 
         void Reset()
         {
-            RageclawGUID = 0;
+            RageclawGUID.Clear();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
             float x, y, z;
@@ -348,8 +348,8 @@ public:
 
         void Reset()
         {
-            SummonGUID = 0;
-            uiPlayerGUID = 0;
+            SummonGUID.Clear();
+            uiPlayerGUID.Clear();
 
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             uiTimer = 0;
@@ -438,7 +438,7 @@ public:
                             if (Creature* summon = Unit::GetCreature(*me, SummonGUID))
                                 summon->GetMotionMaster()->MoveJump(5776.319824f, -2981.005371f, 273.100037f, 10.0f, 20.0f);
                             uiPhase = 0;
-                            SummonGUID = 0;
+                            SummonGUID.Clear();
                             break;
                         case 3:
                             DoScriptText(SAY_QUEST_ACCEPT_KORRAK_2, me);
@@ -608,8 +608,8 @@ public:
             bFishyScent         = false;
             uiBattleShoutTimer  = 0;
             uiFishyScentTimer   = 20000;
-            uiWhisker           = 0;
-            AffectedGUID        = 0;
+            uiWhisker.Clear();
+            AffectedGUID.Clear();
         }
 
         void EnterEvadeMode()

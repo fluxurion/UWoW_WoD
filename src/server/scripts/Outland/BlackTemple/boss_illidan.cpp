@@ -2045,7 +2045,7 @@ public:
 
         void Reset()
         {
-            IllidanGUID = 0;
+            IllidanGUID.Clear();
 
             Active = false;
             SummonedBeams = false;

@@ -122,8 +122,8 @@ public:
                 m_uiActiveOrder[r] = temp;
             }
 
-            m_uiActivedCreatureGUID = 0;
-            m_uiOrbGUID = 0;
+            m_uiActivedCreatureGUID.Clear();
+            m_uiOrbGUID.Clear();
         }
 
         bool m_bIsWalking;
@@ -389,7 +389,7 @@ public:
                 if (Creature* temp = Unit::GetCreature(*me, m_uiCreatureGUID))
                     temp->DisappearAndDie();
 
-            m_uiCreatureGUID = 0;
+            m_uiCreatureGUID.Clear();
         }
     };
 

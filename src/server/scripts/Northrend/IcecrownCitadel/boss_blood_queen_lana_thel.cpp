@@ -151,7 +151,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + uint32(Is25ManRaid() ? 3000 : 0));
                 CleanAuras();
                 me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
-                _offtank = 0;
+                _offtank.Clear();
                 _vampires.clear();
                 _creditBloodQuickening = false;
                 _killMinchar = false;
@@ -267,7 +267,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     Talk(SAY_KILL);
 
                 if (who->GetGUID() == _offtank)
-                    _offtank = 0;
+                    _offtank.Clear();
             }
 
             void SetGUID(ObjectGuid const& guid, int32 type = 0)

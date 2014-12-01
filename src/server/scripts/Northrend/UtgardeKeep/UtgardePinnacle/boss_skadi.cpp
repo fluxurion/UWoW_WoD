@@ -172,7 +172,7 @@ public:
         boss_skadiAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             instance = creature->GetInstanceScript();
-            m_uiGraufGUID = 0;
+            m_uiGraufGUID.Clear();
         }
 
         InstanceScript* instance;
@@ -274,7 +274,7 @@ public:
         void SummonedCreatureDespawn(Creature* summoned)
         {
             if (summoned->GetEntry() == CREATURE_GRAUF)
-                m_uiGraufGUID = 0;
+                m_uiGraufGUID.Clear();
             Summons.Despawn(summoned);
         }
 

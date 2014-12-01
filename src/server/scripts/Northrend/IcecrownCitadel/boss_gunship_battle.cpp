@@ -1964,7 +1964,7 @@ class npc_zafod_boombox : public CreatureScript
                 }
                 else
                 {
-                    pCreature->MonsterWhisper("You don't have any empty space for my rocket pack!", player->GetGUID().GetCounter());
+                    pCreature->MonsterWhisper("You don't have any empty space for my rocket pack!", player->GetGUID());
                     return false;
                 }
             }

@@ -308,8 +308,8 @@ class boss_krick : public CreatureScript
             {
                 _events.Reset();
                 _phase = PHASE_COMBAT;
-                _outroNpcGUID = 0;
-                _tyrannusGUID = 0;
+                _outroNpcGUID.Clear();
+                _tyrannusGUID.Clear();
 
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

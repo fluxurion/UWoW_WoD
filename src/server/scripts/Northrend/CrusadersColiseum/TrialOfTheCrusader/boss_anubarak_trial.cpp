@@ -185,7 +185,7 @@ public:
             m_uiScarabSummoned = 0;
             m_bIntro = true;
             m_bReachedPhase3 = false;
-            m_uiTargetGUID = 0;
+            m_uiTargetGUID.Clear();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             Summons.DespawnAll();
             m_vBurrowGUID.clear();
@@ -668,7 +668,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             notstartpursuit = true;
             SearchTargetTimer = 0;
-            TargetGUID = 0;
+            TargetGUID.Clear();
         }
 
         void SetGUID(ObjectGuid const& guid)

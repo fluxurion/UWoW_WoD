@@ -170,7 +170,7 @@ class boss_lord_marrowgar : public CreatureScript
                             break;
                         case EVENT_COLDFLAME:
                             _coldflameLastPos.Relocate(me);
-                            _coldflameTarget = 0LL;
+                            _coldflameTarget.Clear();
                             if (!me->HasAura(SPELL_BONE_STORM))
                                 DoCastAOE(SPELL_COLDFLAME_NORMAL);
                             else

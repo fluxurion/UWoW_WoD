@@ -53,10 +53,10 @@ public:
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            m_uiSartharionGUID = 0;
-            m_uiTenebronGUID   = 0;
-            m_uiShadronGUID    = 0;
-            m_uiVesperonGUID   = 0;
+            m_uiSartharionGUID.Clear();
+            m_uiTenebronGUID.Clear();
+            m_uiShadronGUID.Clear();
+            m_uiVesperonGUID.Clear();
 
             m_bTenebronKilled = false;
             m_bShadronKilled = false;

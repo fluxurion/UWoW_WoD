@@ -185,8 +185,8 @@ public:
         void Reset()
         {
             m_uiChatTimer = 4000;
-            MrfloppyGUID = 0;
-            RWORGGUID = 0;
+            MrfloppyGUID.Clear();
+            RWORGGUID.Clear();
         }
 
         void UpdateAI(uint32 uiDiff)
@@ -483,7 +483,7 @@ public:
         void Reset()
         {
             DespawnTimer = 5000;
-            uiPlayerGUID = 0;
+            uiPlayerGUID.Clear();
         }
 
         void MovementInform(uint32, uint32 id)
@@ -619,7 +619,7 @@ class npc_venture_co_straggler : public CreatureScript
 
             void Reset()
             {
-                uiPlayerGUID = 0;
+                uiPlayerGUID.Clear();
                 uiTimer = 0;
                 uiRunAwayTimer = 0;
                 uiChopTimer = urand(10000, 12500);

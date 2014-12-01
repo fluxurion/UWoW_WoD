@@ -44,15 +44,15 @@ public:
         {
             SetBossNumber(MAX_ENCOUNTER);
 
-            drakosGUID = 0;
-            varosGUID = 0;
-            uromGUID = 0;
-            eregosGUID = 0;
+            drakosGUID.Clear();
+            varosGUID.Clear();
+            uromGUID.Clear();
+            eregosGUID.Clear();
 
             platformUrom = 0;
             centrifugueConstructCounter = 0;
 
-            eregosCacheGUID = 0;
+            eregosCacheGUID.Clear();
 
             azureDragonsList.clear();
             gameObjectList.clear();

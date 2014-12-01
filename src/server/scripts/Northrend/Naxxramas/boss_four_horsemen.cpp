@@ -119,7 +119,7 @@ public:
                 instance->SetData(DATA_HORSEMEN0 + id, NOT_STARTED);
 
             me->SetReactState(REACT_AGGRESSIVE);
-            uiEventStarterGUID = 0;
+            uiEventStarterGUID.Clear();
             nextWP = 0;
             punishTimer = 10000;
             nextMovementStarted = false;

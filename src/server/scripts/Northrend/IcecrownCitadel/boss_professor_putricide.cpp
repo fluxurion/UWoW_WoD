@@ -702,7 +702,7 @@ class npc_volatile_ooze : public CreatureScript
                 m_uiGetTargetTimer = 0;
                 me->SetReactState(REACT_PASSIVE);
                 m_uiSearchTargetTimer = 90000;
-                m_uiTargetGUID = 0;
+                m_uiTargetGUID.Clear();
                 DoCast(me, SPELL_OOZE_HIT, true);
             }
 
@@ -851,7 +851,7 @@ class npc_gas_cloud : public CreatureScript
                 m_uiGetTargetTimer = 0;
                 me->SetReactState(REACT_PASSIVE);
                 m_uiSearchTargetTimer = 90000;
-                m_uiTargetGUID = 0;
+                m_uiTargetGUID.Clear();
                 DoCast(me, SPELL_OOZE_HIT, true);
             }
 
@@ -1508,7 +1508,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
 
                 Position pos;
                 caster->GetPosition(&pos);
-                TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id);
+                TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, ObjectGuid::Empty, GetSpellInfo()->Id);
                 if (!summon || !summon->IsVehicle())
                     return;
 

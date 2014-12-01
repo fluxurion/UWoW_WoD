@@ -35,8 +35,8 @@ class instance_forge_of_souls : public InstanceMapScript
             instance_forge_of_souls_InstanceScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(MAX_ENCOUNTER);
-                bronjahm = 0;
-                devourerOfSouls = 0;
+                bronjahm.Clear();
+                devourerOfSouls.Clear();
 
                 teamInInstance = 0;
             }

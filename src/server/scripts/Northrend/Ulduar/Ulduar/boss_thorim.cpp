@@ -445,7 +445,7 @@ public:
                                 if (Creature* orb = me->GetCreature(*me,TargetPillar))
                                 {
                                     DoCast(orb, SPELL_LIGHTNING_RELEASE);
-                                    TargetPillar = 0;
+                                    TargetPillar.Clear();
                                 }
                                 events.ScheduleEvent(EVENT_RELEASE_ENERGY, 12000, 0, PHASE_2);
                                 break;

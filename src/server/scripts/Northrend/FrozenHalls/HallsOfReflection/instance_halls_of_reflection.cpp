@@ -64,7 +64,7 @@ public:
         ObjectGuid uiFrostwornDoor;
         ObjectGuid uiArthasDoor;
         ObjectGuid uiRunDoor;
-        ObjectGuid uiWall[4];
+        uint32 uiWall[4];
         ObjectGuid uiWallID[4];
         ObjectGuid uiCaveDoor;
 
@@ -81,21 +81,21 @@ public:
         {
             events.Reset();
 
-            uiFalric = 0;
-            uiMarwyn = 0;
-            uiLichKing = 0;
-            uiJainaPart1 = 0;
-            uiSylvanasPart1 = 0;
-            uiLider = 0;
-            uiCaptain = 0;
-            uiChest = 0;
-            uiPortal = 0;
+            uiFalric.Clear();
+            uiMarwyn.Clear();
+            uiLichKing.Clear();
+            uiJainaPart1.Clear();
+            uiSylvanasPart1.Clear();
+            uiLider.Clear();
+            uiCaptain.Clear();
+            uiChest.Clear();
+            uiPortal.Clear();
 
-            uiFrostmourne = 0;
-            uiArthasDoor = 0;
-            uiFrostwornDoor = 0;
-            uiFrontDoor = 0;
-            uiCaveDoor = 0;
+            uiFrostmourne.Clear();
+            uiArthasDoor.Clear();
+            uiFrostwornDoor.Clear();
+            uiFrontDoor.Clear();
+            uiCaveDoor.Clear();
             uiTeamInInstance = 0;
             uiIntroDone = 0;
             isLoaded = false;
@@ -103,7 +103,7 @@ public:
             for (uint8 i = 0; i < 4; ++i)
             {
                 uiWall[i] = 0;
-                uiWallID[i] = 0;
+                uiWallID[i].Clear();
             }
 
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)

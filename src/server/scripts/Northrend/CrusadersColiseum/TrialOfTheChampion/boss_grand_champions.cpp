@@ -793,7 +793,7 @@ public:
             uiLightningArrowsTimer = 7000;
             uiDisengageCooldown = 10000;
 
-            uiTargetGUID = 0;
+            uiTargetGUID.Clear();
 
             bShoot = false;
         }

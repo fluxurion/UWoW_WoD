@@ -71,7 +71,7 @@ public:
         {
             uiPhaseTimer = 500;
             Phase = 0;
-            casterGuid = 0;
+            casterGuid.Clear();
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
@@ -587,7 +587,7 @@ public:
             me->SetVisible(false);
             uiPhaseTimer = 2500;
             Phase = 1;
-            go_caribouGUID = 0;
+            go_caribouGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -602,7 +602,7 @@ public:
                 if (summon->isSummon())
                     if (Unit* temp = summon->GetSummoner())
                         if (temp->GetTypeId() == TYPEID_PLAYER)
-                            CAST_PLR(temp)->KilledMonsterCredit(me->GetEntry(), 0);
+                            CAST_PLR(temp)->KilledMonsterCredit(me->GetEntry(), ObjectGuid::Empty);
 
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
                 go_caribou->SetGoState(GO_STATE_READY);
@@ -896,10 +896,10 @@ public:
             me->RestoreFaction();
             me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
 
-            uiArthas = 0;
-            uiTalbot = 0;
-            uiLeryssa = 0;
-            uiArlos = 0;
+            uiArthas.Clear();
+            uiTalbot.Clear();
+            uiLeryssa.Clear();
+            uiArlos.Clear();
 
             bArthasInPosition           = false;
             bArlosInPosition            = false;
@@ -1269,8 +1269,8 @@ public:
 
         void Reset()
         {
-            LeryssaGUID         = 0;
-            ArlosGUID           = 0;
+            LeryssaGUID.Clear();
+            ArlosGUID.Clear();
             bCheck              = false;
             uiShadowBoltTimer   = urand(5000, 12000);
             uiDeflectionTimer   = urand(20000, 25000);
@@ -2292,7 +2292,7 @@ public:
             uiEventTimer = 0;
             uiEventPhase = 0;
 
-            uiPlayerGUID = 0;
+            uiPlayerGUID.Clear();
 
             DoCast(SPELL_SHROUD_OF_THE_DEATH_CULTIST);
 

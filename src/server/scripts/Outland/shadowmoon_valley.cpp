@@ -212,7 +212,7 @@ public:
     {
         mob_enslaved_netherwing_drakeAI(Creature* creature) : ScriptedAI(creature)
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             Tapped = false;
             Reset();
         }
@@ -270,7 +270,7 @@ public:
                     if (player)
                         DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
 
-                    PlayerGUID = 0;
+                    PlayerGUID.Clear();
                 }
                 me->SetVisible(false);
                 me->SetDisableGravity(false);
@@ -349,7 +349,7 @@ public:
 
         void Reset()
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             Tapped = false;
             PoisonTimer = 0;
         }
@@ -729,8 +729,8 @@ public:
 
         void Reset()
         {
-            PlayerGUID = 0;
-            IllidanGUID = 0;
+            PlayerGUID.Clear();
+            IllidanGUID.Clear();
 
             ConversationTimer = 0;
             Step = 0;
@@ -1255,8 +1255,8 @@ public:
         {
             AnimationTimer = 4000;
             AnimationCount = 0;
-            LordIllidanGUID = 0;
-            AggroTargetGUID = 0;
+            LordIllidanGUID.Clear();
+            AggroTargetGUID.Clear();
             Timers = false;
 
             me->AddUnitState(UNIT_STATE_ROOT);
@@ -1416,7 +1416,7 @@ public:
 
         void Reset()
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
 
             WaveTimer = 10000;
             AnnounceTimer = 7000;
@@ -1553,7 +1553,7 @@ public:
 
         void Reset()
         {
-            LordIllidanGUID = 0;
+            LordIllidanGUID.Clear();
             Timers = false;
         }
 
@@ -1925,7 +1925,7 @@ public:
         void Reset()
         {
             tapped = false;
-            tuberGUID = 0;
+            tuberGUID.Clear();
             resetTimer = 60000;
         }
 

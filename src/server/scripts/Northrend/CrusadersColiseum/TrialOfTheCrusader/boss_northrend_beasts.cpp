@@ -305,7 +305,7 @@ public:
             m_uiBatterTimer = 5000;
             m_uiHeadCrackTimer = 25000;
 
-            m_uiTargetGUID = 0;
+            m_uiTargetGUID.Clear();
             m_bTargetDied = false;
             if (m_instance)
                 m_uiBossGUID = m_instance->GetGuidData(NPC_GORMOK);
@@ -839,7 +839,7 @@ public:
             m_bMovementStarted = false;
             m_bMovementFinish = false;
             m_bTrampleCasted = false;
-            m_uiTrampleTargetGUID = 0;
+            m_uiTrampleTargetGUID.Clear();
             m_fTrampleTargetX = 0;
             m_fTrampleTargetY = 0;
             m_fTrampleTargetZ = 0;

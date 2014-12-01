@@ -96,8 +96,8 @@ public:
             Wave_Timer = 0;
             Phase = 1;
             Wave = false;
-            someplayer = 0;
-            goConsole = 0;
+            someplayer.Clear();
+            goConsole.Clear();
             add = NULL;
         }
 
@@ -412,9 +412,9 @@ public:
 
         void Reset()
         {
-            PlayerGUID = 0;
-            ardonisGUID = 0;
-            pathaleonGUID = 0;
+            PlayerGUID.Clear();
+            ardonisGUID.Clear();
+            pathaleonGUID.Clear();
 
             Phase = 1;
             PhaseSubphase = 0;
@@ -765,7 +765,7 @@ public:
             Drained = false;
             WeakPercent = 25 + (rand() % 16); // 25-40
 
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
 
             ManaBurnTimer = 5000 + (rand() % 3 * 1000); // 5-8 sec cd
 

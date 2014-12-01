@@ -53,13 +53,13 @@ public:
             memset(&auiEncounter, 0, sizeof(auiEncounter));
             memset(&uiAnubarakDoor, 0, sizeof(uiAnubarakDoor));
 
-            uiKrikthir = 0;
-            uiHadronox = 0;
-            uiAnubarak = 0;
-            uiWatcherGashra = 0;
-            uiWatcherSilthik = 0;
-            uiWatcherNarjil = 0;
-            uiKrikthirDoor = 0;
+            uiKrikthir.Clear();
+            uiHadronox.Clear();
+            uiAnubarak.Clear();
+            uiWatcherGashra.Clear();
+            uiWatcherSilthik.Clear();
+            uiWatcherNarjil.Clear();
+            uiKrikthirDoor.Clear();
         }
 
         bool IsEncounterInProgress() const

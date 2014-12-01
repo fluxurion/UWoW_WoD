@@ -391,9 +391,9 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                _theLichKing = 0;
-                _bolvarFordragon = 0;
-                _factionNPC = 0;
+                _theLichKing.Clear();
+                _bolvarFordragon.Clear();
+                _factionNPC.Clear();
                 _damnedKills = 0;
             }
 

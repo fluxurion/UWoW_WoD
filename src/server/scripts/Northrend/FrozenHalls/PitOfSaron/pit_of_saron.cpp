@@ -424,39 +424,20 @@ public:
         InstanceScript* pInstance = me->GetInstanceScript();
         m_uiIntro_Phase     = 0;
         m_uiSpeech_TimerAlliance    = 1000;
-        m_uiTyrannusGuid = 0;
-        m_uiMageLeaftGuid = 0;
-        m_uiMageRightGuid = 0;
-        muiCastNpcStart = 0;
-        m_uiDeathGuid     = 0;
+        m_uiTyrannusGuid.Clear();
+        m_uiMageLeaftGuid.Clear();
+        m_uiMageRightGuid.Clear();
+        muiCastNpcStart.Clear();
+        m_uiDeathGuid.Clear();
         m_bIsIntro = false;
         m_bIsIntroEnd = false;
-        m_uiChampAlianceGuid[0]    = 0;
-        m_uiChampAlianceGuid[1]    = 0;
-        m_uiChampAlianceGuid[2]    = 0;
-        m_uiChampAlianceGuid[3]    = 0;
-        m_uiChampAlianceGuid[4]    = 0;
-        m_uiChampAlianceGuid[5]    = 0;
-        m_uiChampAlianceGuid[6]    = 0;
-        m_uiChampAlianceGuid[7]    = 0;
-        m_uiChampAlianceGuid[8]    = 0;
-        m_uiChampAlianceGuid[9]    = 0;
-        m_uiChampAlianceGuid[10]    = 0;
-        m_uiChampAlianceGuid[11]    = 0;
-        m_uiChampAlianceGuid[12]    = 0;
-        m_uiSkeletGuid[0]    = 0;
-        m_uiSkeletGuid[1]    = 0;
-        m_uiSkeletGuid[2]    = 0;
-        m_uiSkeletGuid[3]    = 0;
-        m_uiSkeletGuid[4]    = 0;
-        m_uiSkeletGuid[5]    = 0;
-        m_uiSkeletGuid[6]    = 0;
-        m_uiSkeletGuid[7]    = 0;
-        m_uiSkeletGuid[8]    = 0;
-        m_uiSkeletGuid[9]    = 0;
-        m_uiSkeletGuid[10]    = 0;
-        m_uiSkeletGuid[11]    = 0;
-        m_uiSkeletGuid[12]    = 0;
+
+        for (int32 i = 0; i < 13; ++i)
+        {
+            m_uiChampAlianceGuid[i].Clear();
+            m_uiSkeletGuid[i].Clear();
+        }
+
         creatureEntry = me->GetEntry();
         }
 
@@ -1359,43 +1340,24 @@ public:
 
         void Reset()
         {
-        InstanceScript* pInstance = me->GetInstanceScript();
-        m_uiIntro_Phase     = 0;
-        m_uiSpeech_Timer    = 1000;
-        m_uiTyrannusGuid = 0;
-        m_uiMageLeaftGuid = 0;
-        m_uiMageRightGuid = 0;
-        muiCastNpcStart = 0;
-        m_uiDeathGuid     = 0;
-        m_bIsIntro = false;
-        m_bIsIntroEnd = false;
-        m_uiChampHordeGuid[0]    = 0;
-        m_uiChampHordeGuid[1]    = 0;
-        m_uiChampHordeGuid[2]    = 0;
-        m_uiChampHordeGuid[3]    = 0;
-        m_uiChampHordeGuid[4]    = 0;
-        m_uiChampHordeGuid[5]    = 0;
-        m_uiChampHordeGuid[6]    = 0;
-        m_uiChampHordeGuid[7]    = 0;
-        m_uiChampHordeGuid[8]    = 0;
-        m_uiChampHordeGuid[9]    = 0;
-        m_uiChampHordeGuid[10]    = 0;
-        m_uiChampHordeGuid[11]    = 0;
-        m_uiChampHordeGuid[12]    = 0;
-        m_uiSkeletGuid[0]    = 0;
-        m_uiSkeletGuid[1]    = 0;
-        m_uiSkeletGuid[2]    = 0;
-        m_uiSkeletGuid[3]    = 0;
-        m_uiSkeletGuid[4]    = 0;
-        m_uiSkeletGuid[5]    = 0;
-        m_uiSkeletGuid[6]    = 0;
-        m_uiSkeletGuid[7]    = 0;
-        m_uiSkeletGuid[8]    = 0;
-        m_uiSkeletGuid[9]    = 0;
-        m_uiSkeletGuid[10]    = 0;
-        m_uiSkeletGuid[11]    = 0;
-        m_uiSkeletGuid[12]    = 0;
-        creatureEntry = me->GetEntry();
+            InstanceScript* pInstance = me->GetInstanceScript();
+            m_uiIntro_Phase     = 0;
+            m_uiSpeech_Timer    = 1000;
+            m_uiTyrannusGuid.Clear();
+            m_uiMageLeaftGuid.Clear();
+            m_uiMageRightGuid.Clear();
+            muiCastNpcStart.Clear();
+            m_uiDeathGuid.Clear();
+            m_bIsIntro = false;
+            m_bIsIntroEnd = false;
+
+            for (int32 i = 0; i < 13; ++i)
+            {
+                m_uiChampHordeGuid[i].Clear();
+                m_uiSkeletGuid[i].Clear();
+            }
+
+            creatureEntry = me->GetEntry();
         }
         
         void SummonHordeChampions01()

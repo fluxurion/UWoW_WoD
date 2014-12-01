@@ -65,16 +65,16 @@ public:
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            m_uiGeneralBjarngrimGUID = 0;
-            m_uiVolkhanGUID          = 0;
-            m_uiIonarGUID            = 0;
-            m_uiLokenGUID            = 0;
+            m_uiGeneralBjarngrimGUID.Clear();
+            m_uiVolkhanGUID.Clear();
+            m_uiIonarGUID.Clear();
+            m_uiLokenGUID.Clear();
 
-            m_uiBjarngrimDoorGUID    = 0;
-            m_uiVolkhanDoorGUID      = 0;
-            m_uiIonarDoorGUID        = 0;
-            m_uiLokenDoorGUID        = 0;
-            m_uiLokenGlobeGUID       = 0;
+            m_uiBjarngrimDoorGUID.Clear();
+            m_uiVolkhanDoorGUID.Clear();
+            m_uiIonarDoorGUID.Clear();
+            m_uiLokenDoorGUID.Clear();
+            m_uiLokenGlobeGUID.Clear();
         }
 
         void OnCreatureCreate(Creature* creature)

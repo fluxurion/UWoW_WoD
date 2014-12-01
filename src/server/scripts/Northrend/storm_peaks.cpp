@@ -539,7 +539,7 @@ public:
         {
             me->CastSpell(me, SPELL_ICE_PRISON, true);
             enter_timer = 0;
-            drakeGUID = 0;
+            drakeGUID.Clear();
             hasEmptySeats = false;
         }
 
@@ -552,7 +552,7 @@ public:
             Creature* drake = Unit::GetCreature(*me, drakeGUID);
             if (!drake)
             {
-                drakeGUID = 0;
+                drakeGUID.Clear();
                 return;
             }
 
@@ -583,7 +583,7 @@ public:
             Creature* drake = Unit::GetCreature(*me, drakeGUID);
             if (!drake)
             {
-                drakeGUID = 0;
+                drakeGUID.Clear();
                 return;
             }
 

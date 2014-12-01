@@ -613,7 +613,7 @@ class npc_ice_tomb : public CreatureScript
         {
             npc_ice_tombAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                _trappedPlayerGUID = 0;
+                _trappedPlayerGUID.Clear();
             }
 
             void Reset()
@@ -643,7 +643,7 @@ class npc_ice_tomb : public CreatureScript
 
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
                 {
-                    _trappedPlayerGUID = 0;
+                    _trappedPlayerGUID.Clear();
                     player->RemoveAurasDueToSpell(SPELL_ICE_TOMB_DAMAGE);
                     player->RemoveAurasDueToSpell(SPELL_ASPHYXIATION);
                 }

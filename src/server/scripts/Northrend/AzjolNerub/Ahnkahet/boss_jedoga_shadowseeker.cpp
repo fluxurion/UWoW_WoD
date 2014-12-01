@@ -399,7 +399,7 @@ public:
                         boss->AI()->DoAction(ACTION_INITIAND_KILLED);
                 }
 
-                instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, 0);
+                instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, ObjectGuid::Empty);
 
                 bWalking = false;
             }

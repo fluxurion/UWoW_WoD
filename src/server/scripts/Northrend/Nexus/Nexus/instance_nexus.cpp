@@ -55,8 +55,8 @@ public:
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            Anomalus = 0;
-            Keristrasza = 0;
+            Anomalus.Clear();
+            Keristrasza.Clear();
         }
 
         void OnCreatureCreate(Creature* creature)

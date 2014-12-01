@@ -277,7 +277,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Creature* pNovos = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NOVOS) : 0))
+            if (Creature* pNovos = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NOVOS) : ObjectGuid::Empty))
                 CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->RemoveCrystal();
         }
 
@@ -299,7 +299,7 @@ public:
         {
             if (type != POINT_MOTION_TYPE || id != 0)
                 return;
-            if (Creature* pNovos = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NOVOS) : 0))
+            if (Creature* pNovos = Unit::GetCreature(*me, instance ? instance->GetGuidData(DATA_NOVOS) : ObjectGuid::Empty))
                 if (Unit* target = CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->GetRandomTarget())
                     AttackStart(target);
         }
@@ -329,7 +329,7 @@ public:
         {
             if (type != POINT_MOTION_TYPE || id !=0)
                 return;
-            if (Creature* Novos = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_NOVOS) : 0))
+            if (Creature* Novos = ObjectAccessor::GetCreature(*me, instance ? instance->GetGuidData(DATA_NOVOS) : ObjectGuid::Empty))
             {
                 Novos->AI()->DoAction(ACTION_MINION_REACHED);
                 if (Unit* target = CAST_AI(boss_novos::boss_novosAI, Novos->AI())->GetRandomTarget())

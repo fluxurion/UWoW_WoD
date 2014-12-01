@@ -1152,7 +1152,7 @@ public:
 
         void Reset()
         {
-            uiPlayerGUID = 0;
+            uiPlayerGUID.Clear();
             bTalkTime = false;
             uiStep = 0;
         }
@@ -1567,17 +1567,17 @@ class npc_tg_tirion_fordring : public CreatureScript
                 SetEquipmentSlots(false, 0, 0, 0);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                LichKingGUID = 0;
-                MograineGUID = 0;
-                EscortGUID[0] = 0;
-                EscortGUID[1] = 0;
-                EscortGUID[2] = 0;
-                AcylteGUID[0] = 0;
-                AcylteGUID[1] = 0;
-                AcylteGUID[2] = 0;
+                LichKingGUID.Clear();
+                MograineGUID.Clear();
+                EscortGUID[0].Clear();
+                EscortGUID[1].Clear();
+                EscortGUID[2].Clear();
+                AcylteGUID[0].Clear();
+                AcylteGUID[1].Clear();
+                AcylteGUID[2].Clear();
                 isHorde = false;
-                gofhGuid = 0;
-                goepGuid = 0;
+                gofhGuid.Clear();
+                goepGuid.Clear();
                 Events.Reset();
             }
 

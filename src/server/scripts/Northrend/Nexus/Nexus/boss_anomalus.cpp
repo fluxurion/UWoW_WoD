@@ -86,7 +86,7 @@ class boss_anomalus : public CreatureScript
             {
                 Phase = 0;
                 uiSparkTimer = 5000;
-                uiChaoticRiftGUID = 0;
+                uiChaoticRiftGUID.Clear();
                 chaosTheory = true;
 
                 if (instance)
@@ -143,13 +143,13 @@ class boss_anomalus : public CreatureScript
                         if (Rift && Rift->isDead())
                         {
                             me->RemoveAurasDueToSpell(SPELL_RIFT_SHIELD);
-                            uiChaoticRiftGUID = 0;
+                            uiChaoticRiftGUID.Clear();
                         }
                         return;
                     }
                 }
                 else
-                    uiChaoticRiftGUID = 0;
+                    uiChaoticRiftGUID.Clear();
 
                 if ((Phase == 0) && HealthBelowPct(50))
                 {

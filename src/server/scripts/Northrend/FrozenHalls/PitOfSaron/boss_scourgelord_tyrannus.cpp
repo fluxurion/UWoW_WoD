@@ -249,7 +249,7 @@ class boss_tyrannus : public CreatureScript
                 m_startPhaseIntroTyr      = false;
                 m_uiMobsDied        = 0;
                 m_uiAddEntry        = 0;
-                m_uiRimefangGuid    = 0;
+                m_uiRimefangGuid.Clear();
                 m_uiAtackPhase = 0;
                 angle = 0; 
                 homeX = 0; 
@@ -512,7 +512,7 @@ class boss_rimefang : public CreatureScript
                     if (Unit* target = me->GetUnit(*me, _hoarfrostTargetGUID))
                     {
                         DoCast(target, SPELL_HOARFROST);
-                        _hoarfrostTargetGUID = 0;
+                        _hoarfrostTargetGUID.Clear();
                     }
                     break;
                 default:

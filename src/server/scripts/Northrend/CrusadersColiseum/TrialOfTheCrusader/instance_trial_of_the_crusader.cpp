@@ -88,12 +88,12 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 TrialCounter = 50;
                 EventStage = 0;
 
-                TributeChestGUID = 0;
+                TributeChestGUID.Clear();
                 DataDamageTwin = 0;
 
-                MainGateDoorGUID = 0;
-                EastPortcullisGUID = 0;
-                WebDoorGUID = 0;
+                MainGateDoorGUID.Clear();
+                EastPortcullisGUID.Clear();
+                WebDoorGUID.Clear();
 
                 NorthrendBeasts = NOT_STARTED;
 

@@ -154,7 +154,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 480000);
             me->SetReactState(REACT_DEFENSIVE);
             ConstructVal = 0;
-            SlagPotGUID = 0;
+            SlagPotGUID.Clear();
             ConstructTimer = 0;
             Shattered = false;
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -264,7 +264,7 @@ public:
                         {
                             SlagPotTarget->ExitVehicle();
                             SlagPotTarget = NULL;
-                            SlagPotGUID = NULL;
+                            SlagPotGUID.Clear();
                         }
                         break;
                     case EVENT_SCORCH:

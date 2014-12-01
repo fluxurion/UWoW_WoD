@@ -312,9 +312,9 @@ public:
             uiPhase = 0;
             uiTimer = 0;
 
-            uiVehicle1GUID = 0;
-            uiVehicle2GUID = 0;
-            uiVehicle3GUID = 0;
+            uiVehicle1GUID.Clear();
+            uiVehicle2GUID.Clear();
+            uiVehicle3GUID.Clear();
 
             Champion1List.clear();
             Champion2List.clear();
@@ -652,7 +652,7 @@ public:
         
         void Reset()
         {
-            uiBlackKnightGUID = 0;
+            uiBlackKnightGUID.Clear();
         }
 
         void AggroAllPlayers(Creature* pTemp)

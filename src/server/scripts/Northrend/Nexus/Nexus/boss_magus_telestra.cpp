@@ -105,9 +105,9 @@ public:
             uiCooldown = 0;
             CheckPersonal = 0;
 
-            uiFireMagusGUID = 0;
-            uiFrostMagusGUID = 0;
-            uiArcaneMagusGUID = 0;
+            uiFireMagusGUID.Clear();
+            uiFrostMagusGUID.Clear();
+            uiArcaneMagusGUID.Clear();
 
             for (uint8 n = 0; n < 3; ++n)
                 time[n] = 0;
@@ -197,7 +197,7 @@ public:
                     Summoned->AI()->AttackStart(target);
                 return Summoned->GetGUID();
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SummonedCreatureDespawn(Creature* summon)
@@ -274,9 +274,9 @@ public:
                         Phase = 2;
                     if (Phase == 3)
                         Phase = 4;
-                    uiFireMagusGUID = 0;
-                    uiFrostMagusGUID = 0;
-                    uiArcaneMagusGUID = 0;
+                    uiFireMagusGUID.Clear();
+                    uiFrostMagusGUID.Clear();
+                    uiArcaneMagusGUID.Clear();
                     bIsWaitingToAppear = true;
                     uiIsWaitingToAppearTimer = 4*IN_MILLISECONDS;
                     DoScriptText(SAY_MERGE, me);

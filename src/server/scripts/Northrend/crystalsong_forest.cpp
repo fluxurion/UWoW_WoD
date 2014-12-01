@@ -56,7 +56,7 @@ public:
 
         void Reset()
         {
-            uiTargetGUID = 0;
+            uiTargetGUID.Clear();
         }
 
         void UpdateAI(uint32 /*uiDiff*/)

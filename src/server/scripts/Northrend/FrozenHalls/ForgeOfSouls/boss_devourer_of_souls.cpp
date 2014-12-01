@@ -139,7 +139,7 @@ class boss_devourer_of_souls : public CreatureScript
                 summons.DespawnAll();
 
                 threeFaced = true;
-                mirroredSoulTarget = 0;
+                mirroredSoulTarget.Clear();
 
                 instance->SetData(DATA_DEVOURER_EVENT, NOT_STARTED);
             }
@@ -171,7 +171,7 @@ class boss_devourer_of_souls : public CreatureScript
                             me->CastCustomSpell(player, 69034, &mirrorDamage, 0, 0, true);
                         }
                         else
-                            mirroredSoulTarget = 0;
+                            mirroredSoulTarget.Clear();
                     }
                 }
             }

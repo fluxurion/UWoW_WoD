@@ -299,9 +299,9 @@ public:
         void Reset()
         {
             _Reset();
-
-            PortalsGUID[0] = PortalsGUID[1] = PortalsGUID[2] = PortalsGUID[3] = 0;
-            KTTriggerGUID = 0;
+            for (int32 i = 0; i < 4; ++i)
+                PortalsGUID[i].Clear();
+            KTTriggerGUID.Clear();
             uiAbominationCounter = 0;
 
             me->setFaction(35);
@@ -390,11 +390,14 @@ public:
 
         void FindGameObjects()
         {
-            PortalsGUID[0] = instance ? instance->GetGuidData(DATA_KELTHUZAD_PORTAL01) : 0;
-            PortalsGUID[1] = instance ? instance->GetGuidData(DATA_KELTHUZAD_PORTAL02) : 0;
-            PortalsGUID[2] = instance ? instance->GetGuidData(DATA_KELTHUZAD_PORTAL03) : 0;
-            PortalsGUID[3] = instance ? instance->GetGuidData(DATA_KELTHUZAD_PORTAL04) : 0;
-            KTTriggerGUID = instance ? instance->GetGuidData(DATA_KELTHUZAD_TRIGGER) : 0;
+            if (!instance)
+                return;
+
+            PortalsGUID[0] = instance->GetGuidData(DATA_KELTHUZAD_PORTAL01);
+            PortalsGUID[1] = instance->GetGuidData(DATA_KELTHUZAD_PORTAL02);
+            PortalsGUID[2] = instance->GetGuidData(DATA_KELTHUZAD_PORTAL03);
+            PortalsGUID[3] = instance->GetGuidData(DATA_KELTHUZAD_PORTAL04);
+            KTTriggerGUID = instance->GetGuidData(DATA_KELTHUZAD_TRIGGER);
         }
 
         void UpdateAI(uint32 diff)

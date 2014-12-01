@@ -167,7 +167,7 @@ class npc_azure_ring_captain : public CreatureScript
 
             void Reset()
             {
-                targetGUID = 0;
+                targetGUID.Clear();
 
                 me->SetWalk(true);
                 //! HACK: Creature's can't have MOVEMENTFLAG_FLYING

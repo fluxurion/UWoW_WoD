@@ -67,24 +67,24 @@ public:
 
         void Initialize()
         {
-            uiMaidenOfGrief = 0;
-            uiKrystallus = 0;
-            uiSjonnir = 0;
+            uiMaidenOfGrief.Clear();
+            uiKrystallus.Clear();
+            uiSjonnir.Clear();
 
-            uiKaddrak = 0;
-            uiMarnak = 0;
-            uiAbedneum = 0;
-            uiBrann = 0;
+            uiKaddrak.Clear();
+            uiMarnak.Clear();
+            uiAbedneum.Clear();
+            uiBrann.Clear();
 
-            uiMaidenOfGriefDoor = 0;
-            uiSjonnirDoor = 0;
-            uiBrannDoor = 0;
-            uiKaddrakGo = 0;
-            uiMarnakGo = 0;
-            uiAbedneumGo = 0;
-            uiTribunalConsole = 0;
-            uiTribunalChest = 0;
-            uiTribunalSkyFloor = 0;
+            uiMaidenOfGriefDoor.Clear();
+            uiSjonnirDoor.Clear();
+            uiBrannDoor.Clear();
+            uiKaddrakGo.Clear();
+            uiMarnakGo.Clear();
+            uiAbedneumGo.Clear();
+            uiTribunalConsole.Clear();
+            uiTribunalChest.Clear();
+            uiTribunalSkyFloor.Clear();
 
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 m_auiEncounter[i] = NOT_STARTED;

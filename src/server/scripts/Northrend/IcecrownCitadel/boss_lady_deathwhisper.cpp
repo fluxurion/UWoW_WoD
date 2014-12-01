@@ -231,8 +231,8 @@ class boss_lady_deathwhisper : public CreatureScript
                 events.SetPhase(PHASE_ONE);
                 _waveCounter = 0;
                 transform = true;
-                _nextVengefulShadeTargetGUID = 0;
-                _darnavanGUID = 0;
+                _nextVengefulShadeTargetGUID.Clear();
+                _darnavanGUID.Clear();
                 DoCast(me, SPELL_SHADOW_CHANNELING);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
@@ -347,7 +347,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (Creature* darnavan = ObjectAccessor::GetCreature(*me, _darnavanGUID))
                 {
                     darnavan->DespawnOrUnsummon();
-                    _darnavanGUID = 0;
+                    _darnavanGUID.Clear();
                 }
             }
 
@@ -395,7 +395,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (summon->GetEntry() == NPC_VENGEFUL_SHADE)
                 {
                     target = ObjectAccessor::GetUnit(*me, _nextVengefulShadeTargetGUID);   // Vengeful Shade
-                    _nextVengefulShadeTargetGUID = 0;
+                    _nextVengefulShadeTargetGUID.Clear();
                 }
                 else
                     target = SelectTarget(SELECT_TARGET_RANDOM);                        // Wave adds

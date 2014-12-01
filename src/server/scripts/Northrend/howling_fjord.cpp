@@ -175,7 +175,7 @@ public:
 
         void Reset()
         {
-            ObjectGuid summonerGUID = 0;
+            ObjectGuid summonerGUID;
 
             if (me->isSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
@@ -372,7 +372,7 @@ public:
         void Reset()
         {
             bEventInProgress = false;
-            uiPlayerGUID = 0;
+            uiPlayerGUID.Clear();
         }
 
         void StartEvent(ObjectGuid uiGUID)

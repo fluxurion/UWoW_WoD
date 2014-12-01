@@ -81,21 +81,21 @@ public:
        {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            Keleseth = 0;
-            Skarvald = 0;
-            Dalronn = 0;
-            Ingvar = 0;
+            Keleseth.Clear();
+            Skarvald.Clear();
+            Dalronn.Clear();
+            Ingvar.Clear();
 
             for (uint8 i = 0; i < 3; ++i)
             {
-                forge_bellow[i] = 0;
-                forge_fire[i] = 0;
-                forge_anvil[i] = 0;
+                forge_bellow[i].Clear();
+                forge_fire[i].Clear();
+                forge_anvil[i].Clear();
                 forge_event[i] = NOT_STARTED;
             }
 
-            portcullis[0] = 0;
-            portcullis[1] = 0;
+            portcullis[0].Clear();
+            portcullis[1].Clear();
         }
 
         bool IsEncounterInProgress() const

@@ -299,7 +299,7 @@ public:
 
             bHealth = false;
             bDone = false;
-            MemoryGUID = 0;
+            MemoryGUID.Clear();
         }
 
         void DamageTaken(Unit *done_by, uint32 &damage)
@@ -338,7 +338,7 @@ public:
             switch(action)
             {
             case ACTION_MEMORY_DEATH:
-                MemoryGUID = 0;
+                MemoryGUID.Clear();
                 me->RemoveAura(SPELL_SHIELD, ObjectGuid::Empty);
                 break;
             }

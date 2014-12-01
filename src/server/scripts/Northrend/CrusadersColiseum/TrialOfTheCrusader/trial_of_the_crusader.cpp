@@ -379,7 +379,7 @@ class npc_fizzlebang_toc : public CreatureScript
             void Reset()
             {
                 me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                m_uiPortalGUID = 0;
+                m_uiPortalGUID.Clear();
                 me->GetMotionMaster()->MovePoint(1, ToCCommonLoc[10].GetPositionX(), ToCCommonLoc[10].GetPositionY()-60, ToCCommonLoc[10].GetPositionZ());
             }
 

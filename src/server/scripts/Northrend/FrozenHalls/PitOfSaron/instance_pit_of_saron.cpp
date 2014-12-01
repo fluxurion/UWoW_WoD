@@ -35,13 +35,13 @@ class instance_pit_of_saron : public InstanceMapScript
             instance_pit_of_saron_InstanceScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(MAX_ENCOUNTER);
-                _garfrostGUID = 0;
-                _krickGUID = 0;
-                _ickGUID = 0;
-                _tyrannusGUID = 0;
-                _rimefangGUID = 0;
-                _jainaOrSylvanas1GUID = 0;
-                _jainaOrSylvanas2GUID = 0;
+                _garfrostGUID.Clear();
+                _krickGUID.Clear();
+                _ickGUID.Clear();
+                _tyrannusGUID.Clear();
+                _rimefangGUID.Clear();
+                _jainaOrSylvanas1GUID.Clear();
+                _jainaOrSylvanas2GUID.Clear();
                 _teamInInstance = 0;
             }
 

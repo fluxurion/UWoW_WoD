@@ -265,7 +265,7 @@ struct boss_faction_championsAI : public ScriptedAI
     
     void Reset()
     {
-        championControllerGUID = 0;
+        championControllerGUID.Clear();
         ThreatTimer = 5000;
         
     }

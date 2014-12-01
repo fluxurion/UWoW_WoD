@@ -84,7 +84,7 @@ class boss_festergut : public CreatureScript
             {
                 _maxInoculatedStack = 0;
                 _inhaleCounter = 0;
-                _gasDummyGUID = 0;
+                _gasDummyGUID.Clear();
             }
 
             void Reset()

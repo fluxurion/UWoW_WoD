@@ -34,11 +34,11 @@ public:
         {
             SetBossNumber(MAX_ENCOUNTER);
 
-            malygosGUID = 0;
-            platformGUID = 0;
-            exitPortalGUID = 0;
-            chestGUID = 0;
-            magicchestGUID = 0;
+            malygosGUID.Clear();
+            platformGUID.Clear();
+            exitPortalGUID.Clear();
+            chestGUID.Clear();
+            magicchestGUID.Clear();
         };
 
         bool SetBossState(uint32 id, EncounterState state)
