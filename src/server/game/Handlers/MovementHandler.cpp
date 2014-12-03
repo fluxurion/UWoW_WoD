@@ -893,7 +893,7 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_HOVER_ACK");
 
     uint64 guid;                                            // guid - unused
-    recvData.readPackGUID(guid);
+    recvData.ReadPackedUInt64(guid);
 
     recvData.read_skip<uint32>();                          // unk
 

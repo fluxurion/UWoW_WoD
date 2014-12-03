@@ -31,7 +31,7 @@ inline float GetAge(uint64 t) { return float(time(NULL) - t) / DAY; }
 // GM ticket
 GmTicket::GmTicket() { }
 
-GmTicket::GmTicket(Player* player, WorldPacket& recvData) : _createTime(time(NULL)), _lastModifiedTime(time(NULL)), _closedBy(0), _assignedTo(), _completed(false), _escalatedStatus(TICKET_UNASSIGNED)
+GmTicket::GmTicket(Player* player, WorldPacket& recvData) : _createTime(time(NULL)), _lastModifiedTime(time(NULL)), _assignedTo(), _completed(false), _escalatedStatus(TICKET_UNASSIGNED)
 {
     _id = sTicketMgr->GenerateTicketId();
     _playerName = player->GetName();
@@ -73,7 +73,11 @@ bool GmTicket::LoadFromDB(Field* fields)
     _posY               = fields[++index].GetFloat();
     _posZ               = fields[++index].GetFloat();
     _lastModifiedTime   = fields[++index].GetUInt32();
-    _closedBy           = fields[++index].GetInt64();
+    int64 closedBy = fields[++index].GetInt64();
+    if (closedBy < 0)
+        _closedBy.SetRawValue(0, uint64(closedBy));
+    else
+        _closedBy = ObjectGuid::Create<HighGuid::Player>(uint64(closedBy));
     _assignedTo         = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetUInt64());
     _comment            = fields[++index].GetString();
     _completed          = fields[++index].GetBool();
@@ -98,7 +102,7 @@ void GmTicket::SaveToDB(SQLTransaction& trans) const
     stmt->setFloat (++index, _posY);
     stmt->setFloat (++index, _posZ);
     stmt->setUInt32(++index, uint32(_lastModifiedTime));
-    stmt->setInt64 (++index, _closedBy);
+    stmt->setInt64 (++index, int64(_closedBy.GetCounter()));
     stmt->setUInt64(++index, _assignedTo.GetCounter());
     stmt->setString(++index, _comment);
     stmt->setBool  (++index, _completed);
@@ -311,13 +315,13 @@ void TicketMgr::AddTicket(GmTicket* ticket)
     ticket->SaveToDB(trans);
 }
 
-void TicketMgr::CloseTicket(uint32 ticketId, int64 source)
+void TicketMgr::CloseTicket(uint32 ticketId, ObjectGuid source)
 {
     if (GmTicket* ticket = GetTicket(ticketId))
     {
         SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetClosedBy(source);
-        if (source)
+        if (!source.IsEmpty())
             --_openTicketCount;
         ticket->SaveToDB(trans);
     }

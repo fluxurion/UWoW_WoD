@@ -1747,6 +1747,9 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 
     ObjectGuid setGuid;
     ObjectGuid itemGuids[EQUIPMENT_SLOT_END];
+    ObjectGuid ignoredItemGuid;
+    ignoredItemGuid.SetRawValue(0, 1);
+
     //for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         //recvData.ReadGuidMask<1, 5, 2, 0, 3, 6, 4, 7>(itemGuids[i]);
 
@@ -1763,7 +1766,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
         //recvData.ReadGuidBytes<1, 3, 7, 2, 0, 5, 4, 6>(itemGuids[i]);
 
         // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (itemGuids[i] == 1)
+        if (itemGuids[i] == ignoredItemGuid)
         {
             // ignored slots saved as bit mask because we have no free special values for Items[i]
             eqSet.IgnoreMask |= 1 << i;
@@ -1825,6 +1828,9 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 
     recvData.rfinish();
 
+    ObjectGuid ignoredItemGuid;
+    ignoredItemGuid.SetRawValue(0, 1);
+
     EquipmentSlots startSlot = _player->isInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
@@ -1834,7 +1840,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item " UI64FMTD ": srcbag %u, srcslot %u", (uint64)itemGuid[i]);
 
         // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (itemGuid[i] == 1)
+        if (itemGuid[i] == ignoredItemGuid)
             continue;
 
         Item* item = _player->GetItemByGuid(itemGuid[i]);

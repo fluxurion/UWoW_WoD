@@ -1265,7 +1265,7 @@ void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* 
     data << uint32(secsToTimeBitFields(progress->date));
     data << uint32(timeElapsed);                    // Unk timeElapsed 2??
     // The counter is packed like a packed Guid
-    //data.appendPackGUID(progress->counter);
+    data.AppendPackedUInt64(progress->counter);
     data << uint64(progress->counter);
 
     if (!entry->timeLimit)

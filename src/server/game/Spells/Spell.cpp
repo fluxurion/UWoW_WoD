@@ -89,7 +89,7 @@ SpellDestination::SpellDestination(WorldObject const& wObj)
 }
 
 
-SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget(), m_itemTargetSlot(), m_itemTargetEntry(0),
+SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget(), m_itemTargetEntry(0),
     m_targetMask(0), m_objectTarget(NULL), m_itemTarget(NULL), m_objectTargetGUID(), m_itemTargetGUID()
 {
 }
@@ -200,7 +200,6 @@ void SpellCastTargets::SetItemTarget(Item* item)
         return;
 
     m_itemTarget = item;
-    m_itemTargetSlot = 0;
     m_itemTargetGUID = item->GetGUID();
     m_itemTargetEntry = item->GetEntry();
     m_targetMask |= TARGET_FLAG_ITEM;
@@ -208,7 +207,7 @@ void SpellCastTargets::SetItemTarget(Item* item)
 
 void SpellCastTargets::SetTradeItemTarget(Player* caster)
 {
-    m_itemTargetSlot = TRADE_SLOT_NONTRADED;
+    m_itemTargetGUID.SetRawValue({ uint8(TRADE_SLOT_NONTRADED), 0, 0, 0, 0, 0, 0, 0 });
     m_itemTargetEntry = 0;
     m_targetMask |= TARGET_FLAG_TRADE_ITEM;
 
@@ -333,9 +332,13 @@ void SpellCastTargets::Update(Unit* caster)
         if (m_targetMask & TARGET_FLAG_ITEM)
             m_itemTarget = player->GetItemByGuid(m_itemTargetGUID);
         else if (m_targetMask & TARGET_FLAG_TRADE_ITEM)
-            if (m_itemTargetSlot == TRADE_SLOT_NONTRADED) // here it is not guid but slot. Also prevents hacking slots
+        {
+            ObjectGuid nonTradedGuid;
+            nonTradedGuid.SetRawValue(uint64(0), uint64(TRADE_SLOT_NONTRADED));
+            if (m_itemTargetGUID == nonTradedGuid) // here it is not guid but slot. Also prevents hacking slots
                 if (TradeData* pTrade = player->GetTradeData())
                     m_itemTarget = pTrade->GetTraderData()->GetItem(TRADE_SLOT_NONTRADED);
+        }
 
         if (m_itemTarget)
             m_itemTargetEntry = m_itemTarget->GetEntry();
@@ -6911,7 +6914,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_targets.GetTargetMask() & TARGET_FLAG_TRADE_ITEM)
                 {
                     if (TradeData* pTrade = m_caster->ToPlayer()->GetTradeData())
-                        pTempItem = pTrade->GetTraderData()->GetItem(TradeSlots(m_targets.GetItemTargetSlot()));
+                        pTempItem = pTrade->GetTraderData()->GetItem(TradeSlots(m_targets.GetItemTargetGUID().GetRawValue().at(0)));  // at this point item target guid contains the trade slot
                 }
                 else if (m_targets.GetTargetMask() & TARGET_FLAG_ITEM)
                     pTempItem = m_caster->ToPlayer()->GetItemByGuid(m_targets.GetItemTargetGUID());
@@ -7293,7 +7296,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (!my_trade)
             return SPELL_FAILED_NOT_TRADING;
 
-        TradeSlots slot = TradeSlots(m_targets.GetItemTargetSlot());
+        TradeSlots slot = TradeSlots(m_targets.GetItemTargetGUID().GetRawValue().at(0));
         if (slot != TRADE_SLOT_NONTRADED)
             return SPELL_FAILED_BAD_TARGETS;
 

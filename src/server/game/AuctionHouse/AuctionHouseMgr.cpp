@@ -138,8 +138,8 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         // set owner to bidder (to prevent delete item with sender char deleting)
         // owner in `data` will set at mail receive and item extracting
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
-        stmt->setUInt32(0, auction->bidder);
-        stmt->setUInt32(1, pItem->GetGUID().GetCounter());
+        stmt->setUInt64(0, auction->bidder);
+        stmt->setUInt64(1, pItem->GetGUID().GetCounter());
         trans->Append(stmt);
 
         if (bidder)
@@ -207,8 +207,8 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
     if (owner || owner_accId)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
-        stmt->setUInt32(0, auction->owner);
-        stmt->setUInt32(1, pItem->GetGUID().GetCounter());
+        stmt->setUInt64(0, auction->owner);
+        stmt->setUInt64(1, pItem->GetGUID().GetCounter());
         trans->Append(stmt);
 
         if (owner)
@@ -221,7 +221,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
 }
 
 //this function sends mail to old bidder
-void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint64 newPrice, Player* newBidder, SQLTransaction& trans)
+void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint64 const& newPrice, Player* newBidder, SQLTransaction& trans)
 {
     ObjectGuid oldBidder_guid = ObjectGuid::Create<HighGuid::Player>(auction->bidder);
     Player* oldBidder = ObjectAccessor::FindPlayer(oldBidder_guid);
@@ -355,7 +355,7 @@ void AuctionHouseMgr::AddAItem(Item* it)
     mAitems[it->GetGUID().GetCounter()] = it;
 }
 
-bool AuctionHouseMgr::RemoveAItem(uint32 id)
+bool AuctionHouseMgr::RemoveAItem(ObjectGuid::LowType const& id)
 {
     ItemMap::iterator i = mAitems.find(id);
     if (i == mAitems.end())
@@ -672,12 +672,12 @@ void AuctionEntry::SaveToDB(SQLTransaction& trans) const
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AUCTION);
     stmt->setUInt32(0, Id);
-    stmt->setUInt32(1, auctioneer);
-    stmt->setUInt32(2, itemGUIDLow);
-    stmt->setUInt32(3, owner);
+    stmt->setUInt64(1, auctioneer);
+    stmt->setUInt64(2, itemGUIDLow);
+    stmt->setUInt64(3, owner);
     stmt->setInt64 (4, int64(buyout));
     stmt->setUInt64(5, int64(expire_time));
-    stmt->setUInt32(6, bidder);
+    stmt->setUInt64(6, bidder);
     stmt->setInt64 (7, int64(bid));
     stmt->setInt64 (8, int64(startbid));
     stmt->setInt64 (9, int64(deposit));
@@ -689,14 +689,14 @@ bool AuctionEntry::LoadFromDB(Field* fields)
     uint8 index = 0;
 
     Id          = fields[index++].GetUInt32();
-    auctioneer  = fields[index++].GetUInt32();
-    itemGUIDLow = fields[index++].GetUInt32();
+    auctioneer  = fields[index++].GetUInt64();
+    itemGUIDLow = fields[index++].GetUInt64();
     itemEntry   = fields[index++].GetUInt32();
     itemCount   = fields[index++].GetUInt32();
-    owner       = fields[index++].GetUInt32();
+    owner       = fields[index++].GetUInt64();
     buyout      = fields[index++].GetUInt64();
     expire_time = fields[index++].GetUInt32();
-    bidder      = fields[index++].GetUInt32();
+    bidder      = fields[index++].GetUInt64();
     bid         = fields[index++].GetUInt64();
     startbid    = fields[index++].GetUInt64();
     deposit     = fields[index++].GetUInt64();

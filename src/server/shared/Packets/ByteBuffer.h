@@ -631,30 +631,6 @@ class ByteBuffer
             _rpos += len;
         }
 
-        void readPackGUID(uint64& guid)
-        {
-            if (rpos() + 1 > size())
-                throw ByteBufferPositionException(false, _rpos, 1, size());
-
-            guid = 0;
-
-            uint8 guidmark = 0;
-            (*this) >> guidmark;
-
-            for (int i = 0; i < 8; ++i)
-            {
-                if (guidmark & (uint8(1) << i))
-                {
-                    if (rpos() + 1 > size())
-                        throw ByteBufferPositionException(false, _rpos, 1, size());
-
-                    uint8 bit;
-                    (*this) >> bit;
-                    guid |= (uint64(bit) << (i * 8));
-                }
-            }
-        }
-
         void ReadPackedUInt64(uint64& guid)
         {
             guid = 0;

@@ -152,8 +152,13 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_TICKETCANNOTCLOSE, ticket->GetId());
             return true;
         }
+        ObjectGuid closedByGuid;
+        if (player)
+            closedByGuid = player->GetGUID();
+        else
+            closedByGuid.SetRawValue(0, uint64(-1));
 
-        sTicketMgr->CloseTicket(ticket->GetId(), player ? player->GetGUID() : -1);
+        sTicketMgr->CloseTicket(ticket->GetId(), closedByGuid);
         sTicketMgr->UpdateLastChange();
 
         std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName() : "Console", NULL, NULL, NULL);

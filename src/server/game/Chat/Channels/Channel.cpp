@@ -83,7 +83,10 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
                     Tokenizer::const_iterator iter;
                     for (iter = tokens.begin(); iter != tokens.end(); ++iter)
                     {
-                        ObjectGuid banned_guid = ObjectGuid::Create<HighGuid::Player>(atol(*iter));
+                        std::string bannedGuidStr(*iter);
+                        ObjectGuid banned_guid;
+                        banned_guid.SetRawValue(uint64(strtoull(bannedGuidStr.substr(0, 16).c_str(), NULL, 16)), uint64(strtoull(bannedGuidStr.substr(16).c_str(), NULL, 16)));
+
                         if (!banned_guid.IsEmpty())
                         {
                             sLog->outDebug(LOG_FILTER_CHATSYS, "Channel(%s) loaded banned guid: %s", name.c_str(), banned_guid.ToString().c_str());

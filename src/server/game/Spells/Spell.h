@@ -157,7 +157,6 @@ class SpellCastTargets
         void SetItemTarget(Item* item);
         void SetTradeItemTarget(Player* caster);
         void UpdateTradeSlotItem();
-        uint8 GetItemTargetSlot() const { return m_itemTargetSlot; }
         SpellDestination const* GetSrc() const;
         Position const* GetSrcPos() const;
         void SetSrc(float x, float y, float z);
@@ -203,7 +202,6 @@ class SpellCastTargets
         // object GUID/etc, can be used always
         ObjectGuid m_objectTargetGUID;
         ObjectGuid m_itemTargetGUID;
-        uint8 m_itemTargetSlot;
         uint32 m_itemTargetEntry;
 
         SpellDestination m_src;
