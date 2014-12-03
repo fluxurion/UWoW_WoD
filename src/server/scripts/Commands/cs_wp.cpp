@@ -153,7 +153,7 @@ public:
             path_number = strtok((char*)args, " ");
 
         uint32 pathid = 0;
-        uint32 guidLow = 0;
+        ObjectGuid::LowType guidLow = 0;
         Creature* target = handler->getSelectedCreature();
 
         // Did player provide a path_id?
@@ -186,7 +186,7 @@ public:
 
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_ADDON_BY_GUID);
 
-        stmt->setUInt32(0, guidLow);
+        stmt->setUInt64(0, guidLow);
 
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
@@ -195,13 +195,13 @@ public:
             stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_ADDON_PATH);
 
             stmt->setUInt32(0, pathid);
-            stmt->setUInt32(1, guidLow);
+            stmt->setUInt64(1, guidLow);
         }
         else
         {
             stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_ADDON);
 
-            stmt->setUInt32(0, guidLow);
+            stmt->setUInt64(0, guidLow);
             stmt->setUInt32(1, pathid);
         }
 
@@ -210,7 +210,7 @@ public:
         stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
 
         stmt->setUInt8(0, uint8(WAYPOINT_MOTION_TYPE));
-        stmt->setUInt32(1, guidLow);
+        stmt->setUInt64(1, guidLow);
 
         WorldDatabase.Execute(stmt);
 
@@ -248,7 +248,7 @@ public:
             return true;
         }
 
-        uint32 guildLow = target->GetDBTableGUIDLow();
+        ObjectGuid::LowType guildLow = target->GetDBTableGUIDLow();
 
         if (target->GetCreatureAddon())
         {
@@ -256,7 +256,7 @@ public:
             {
                 PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE_ADDON);
 
-                stmt->setUInt32(0, guildLow);
+                stmt->setUInt64(0, guildLow);
 
                 WorldDatabase.Execute(stmt);
 
@@ -265,7 +265,7 @@ public:
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
 
                 stmt->setUInt8(0, uint8(IDLE_MOTION_TYPE));
-                stmt->setUInt32(1, guildLow);
+                stmt->setUInt64(1, guildLow);
 
                 WorldDatabase.Execute(stmt);
 
@@ -930,7 +930,7 @@ public:
                 // Set "wpguid" column to the visual waypoint
                 PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
 
-                stmt->setInt32(0, int32(wpCreature->GetGUID().GetCounter()));
+                stmt->setInt64(0, int32(wpCreature->GetGUID().GetCounter()));
                 stmt->setUInt32(1, pathid);
                 stmt->setUInt32(2, point);
 
@@ -1083,7 +1083,7 @@ public:
 
                     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
 
-                    stmt->setUInt32(0, guid);
+                    stmt->setUInt64(0, guid);
 
                     WorldDatabase.Execute(stmt);
                 }

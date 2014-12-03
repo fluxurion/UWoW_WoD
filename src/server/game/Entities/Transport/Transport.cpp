@@ -709,7 +709,7 @@ Creature * Transport::AddNPCPassengerCreature(ObjectGuid::LowType tguid, uint32 
     return pCreature;
 }
 
-uint32 Transport::AddNPCPassenger(ObjectGuid::LowType tguid, uint32 entry, float x, float y, float z, float o, uint32 anim)
+ObjectGuid::LowType Transport::AddNPCPassenger(ObjectGuid::LowType tguid, uint32 entry, float x, float y, float z, float o, uint32 anim)
 {
     Map* map = GetMap();
     //make it world object so it will not be unloaded with grid

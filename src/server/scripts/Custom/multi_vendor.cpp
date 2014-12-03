@@ -540,7 +540,7 @@ public:
                     }
 
                     Field* fields = result->Fetch();
-                    ObjectGuid::LowType guid = fields[0].GetUInt32();
+                    ObjectGuid::LowType guid = fields[0].GetUInt64();
                     std::string name = fields[1].GetString();
                     uint32 account_id = player->GetSession()->GetAccountId();
                     std::string dump;
@@ -556,7 +556,7 @@ public:
                     if(stmt)
                     {
                         stmt->setUInt32(0, account_id);
-                        stmt->setUInt32(1, guid);
+                        stmt->setUInt64(1, guid);
                         stmt->setUInt32(2, realmHandle.Index);
                         stmt->setUInt32(3, player->GetTransferId());
                         stmt->setUInt32(4, 1);

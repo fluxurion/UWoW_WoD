@@ -932,10 +932,10 @@ public:
             if (!PlayerGuid)
                 return false;
 
-            QueryResult result = CharacterDatabase.PQuery("SELECT * FROM log_rename WHERE guid = '%u'", PlayerGuid);
+            QueryResult result = CharacterDatabase.PQuery("SELECT * FROM log_rename WHERE guid = '%u'", PlayerGuid.GetCounter());
             if (!result)
             {
-                handler->PSendSysMessage("Aucun rename pour le personnage de guid '%u'", PlayerGuid);
+                handler->PSendSysMessage("Aucun rename pour le personnage de guid '%u'", PlayerGuid.GetCounter());
                 return true;
             }
             else

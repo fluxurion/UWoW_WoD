@@ -48,7 +48,7 @@ class Transport : public GameObject, public TransportBase
         typedef std::set<Creature*> CreatureSet;
         CreatureSet m_NPCPassengerSet;
         Creature * AddNPCPassengerCreature(ObjectGuid::LowType tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
-        uint32 AddNPCPassenger(ObjectGuid::LowType tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
+        ObjectGuid::LowType AddNPCPassenger(ObjectGuid::LowType tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
         void UpdatePosition(MovementInfo* mi);
         void UpdateNPCPositions();
 

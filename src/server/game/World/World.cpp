@@ -3703,7 +3703,7 @@ void World::Transfer()
             Field* field = toDump->Fetch();
             uint32 transaction = field[0].GetUInt32();
             uint32 account = field[1].GetUInt32();
-            ObjectGuid::LowType guid = field[2].GetUInt32();
+            ObjectGuid::LowType guid = field[2].GetUInt64();
             uint32 to = field[3].GetUInt32();
             uint32 state = field[4].GetUInt32();
 
@@ -3723,7 +3723,7 @@ void World::Transfer()
 
             if (dumpState == DUMP_SUCCESS)
             {
-                CharacterDatabase.PExecute("UPDATE `characters` SET `at_login` = '512', `deleteInfos_Name` = `name`, `deleteInfos_Account` = `account`, `deleteDate` ='" UI64FMTD "', `name` = '', `account` = 0, `transfer` = '%u' WHERE `guid` = '%u'", uint64(time(NULL)), to, guid);
+                CharacterDatabase.PExecute("UPDATE `characters` SET `at_login` = '512', `deleteInfos_Name` = `name`, `deleteInfos_Account` = `account`, `deleteDate` ='" UI64FMTD "', `name` = '', `account` = 0, `transfer` = '%u' WHERE `guid` = '" UI64FMTD "'", uint64(time(NULL)), to, guid);
                 PreparedStatement * stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_DUMP);
                 if(stmt)
                 {
@@ -3752,7 +3752,7 @@ void World::Transfer()
             Field* field = toLoad->Fetch();
             uint32 transaction = field[0].GetUInt32();
             uint32 account = field[1].GetUInt32();
-            ObjectGuid::LowType guid = field[2].GetUInt32();
+            ObjectGuid::LowType guid = field[2].GetUInt64();
             uint32 from = field[3].GetUInt32();
             std::string dump = field[4].GetString();
             uint32 toacc = field[5].GetUInt32();
@@ -3773,7 +3773,7 @@ void World::Transfer()
                 {
                     stmt->setUInt32(0, transaction);
                     stmt->setUInt32(1, account);
-                    stmt->setUInt32(2, guid);
+                    stmt->setUInt64(2, guid);
                     stmt->setUInt32(3, from);
                     stmt->setUInt32(4, realmHandle.Index);
                     stmt->setString(5, dump);

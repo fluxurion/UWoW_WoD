@@ -101,9 +101,9 @@ class MailSender
 class MailReceiver
 {
     public:                                                 // Constructors
-        explicit MailReceiver(ObjectGuid::LowType receiver_lowguid) : m_receiver(NULL), m_receiver_lowguid(receiver_lowguid) {}
+        explicit MailReceiver(ObjectGuid::LowType const& receiver_lowguid) : m_receiver(NULL), m_receiver_lowguid(receiver_lowguid) {}
         MailReceiver(Player* receiver);
-        MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid);
+        MailReceiver(Player* receiver, ObjectGuid::LowType const& receiver_lowguid);
     public:                                                 // Accessors
         Player* GetPlayer() const { return m_receiver; }
         ObjectGuid::LowType  GetPlayerGUIDLow() const { return m_receiver_lowguid; }
