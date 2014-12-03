@@ -446,7 +446,7 @@ void GuildMgr::LoadGuilds()
          for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
          {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_NEWS);
-            stmt->setInt32(0, itr->first);
+            stmt->setIn64(0, itr->first);
             itr->second->GetNewsLog().LoadFromDB(CharacterDatabase.Query(stmt));
          }
     }

@@ -32,7 +32,7 @@ typedef std::set<ChallengeMember> ChallengeMemberList;
 struct Challenge
 {
     uint32 Id;              // challenge id
-    uint32 guildId;            // is it guild group
+    ObjectGuid guildId;     // is it guild group
     uint16 mapID;
     uint32 recordTime;      // time taken for complite challenge
     uint32 date;            // time when recorde done

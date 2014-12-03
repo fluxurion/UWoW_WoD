@@ -825,7 +825,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
     }
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(index);
-    stmt->setUInt32(0, id);
+    stmt->setUInt64(0, id);
     stmt->setUInt8 (1, type);
     stmt->setUInt32(2, uint32(tm));
     stmt->setString(3, data);

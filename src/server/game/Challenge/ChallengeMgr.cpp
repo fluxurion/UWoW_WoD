@@ -60,7 +60,7 @@ void ChallengeMgr::SaveChallengeToDB(Challenge *c)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHALLENGE);
     stmt->setUInt32(0, c->Id);
-    stmt->setUInt32(1, c->guildId);
+    stmt->setUInt64(1, c->guildId.GetCounter());
     stmt->setUInt16(2, c->mapID);
     stmt->setUInt32(3, c->recordTime);
     stmt->setUInt32(4, c->date);
@@ -92,7 +92,7 @@ void ChallengeMgr::LoadFromDB()
 
             Challenge *c = new Challenge;
             c->Id = fields[0].GetUInt32();
-            c->guildId = fields[1].GetUInt32();
+            c->guildId = ObjectGuid::Create<HighGuid::Guild>(fields[1].GetUInt64());
             c->mapID = fields[2].GetUInt16();
             c->recordTime = fields[3].GetUInt32();
             c->date = fields[4].GetUInt32();
@@ -167,7 +167,7 @@ void ChallengeMgr::GroupReward(Map *instance, uint32 recordTime, ChallengeMode m
     uint32 npcRewardCredit = m_reward[instance->GetId()];
     uint32 valorReward = m_valorPoints[medal];
 
-    std::map<uint32/*guild*/, uint32> guildCounter;
+    std::map<ObjectGuid/*guild*/, uint32> guildCounter;
     for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
         if (Player* player = i->getSource())
         {
@@ -201,7 +201,7 @@ void ChallengeMgr::GroupReward(Map *instance, uint32 recordTime, ChallengeMode m
     }
 
     // Stupid group guild check.
-    for(std::map<uint32/*guild*/, uint32>::const_iterator itr = guildCounter.begin(); itr != guildCounter.end(); ++itr)
+    for(std::map<ObjectGuid/*guild*/, uint32>::const_iterator itr = guildCounter.begin(); itr != guildCounter.end(); ++itr)
     {
         //only full guild group could be defined
         if(itr->second == 5)

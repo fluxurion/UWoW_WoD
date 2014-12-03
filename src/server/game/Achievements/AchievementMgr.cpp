@@ -499,7 +499,7 @@ void AchievementMgr<Player>::DeleteFromDB(ObjectGuid guid, uint32 accountId)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -511,11 +511,11 @@ void AchievementMgr<Guild>::DeleteFromDB(ObjectGuid guid, uint32 accountId)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GUILD_ACHIEVEMENTS);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GUILD_ACHIEVEMENT_CRITERIA);
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt64(0, guid.GetCounter());
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -623,7 +623,7 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
         std::ostringstream ssCharins;
 
         
-        uint64 guid      = GetOwner()->GetGUID().GetCounter();
+        ObjectGuid::LowType guid      = GetOwner()->GetGUID().GetCounter();
         uint32 accountId = GetOwner()->GetSession()->GetAccountId();
 
         for (CriteriaProgressMap::iterator iter = progressMap->begin(); iter != progressMap->end(); ++iter)
@@ -769,12 +769,12 @@ void AchievementMgr<Guild>::SaveToDB(SQLTransaction& trans)
             continue;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_ACHIEVEMENT);
-        stmt->setUInt32(0, GetOwner()->GetId());
+        stmt->setUInt64(0, GetOwner()->GetId());
         stmt->setUInt32(1, itr->first);
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_ACHIEVEMENT);
-        stmt->setUInt32(0, GetOwner()->GetId());
+        stmt->setUInt64(0, GetOwner()->GetId());
         stmt->setUInt32(1, itr->first);
         stmt->setUInt32(2, itr->second.date);
         for (GuidSet::const_iterator gItr = itr->second.guids.begin(); gItr != itr->second.guids.end(); ++gItr)
@@ -797,16 +797,16 @@ void AchievementMgr<Guild>::SaveToDB(SQLTransaction& trans)
             continue;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_ACHIEVEMENT_CRITERIA);
-        stmt->setUInt32(0, GetOwner()->GetId());
+        stmt->setUInt64(0, GetOwner()->GetId());
         stmt->setUInt32(1, itr->first);
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_ACHIEVEMENT_CRITERIA);
-        stmt->setUInt32(0, GetOwner()->GetId());
+        stmt->setUInt64(0, GetOwner()->GetId());
         stmt->setUInt32(1, itr->first);
         stmt->setUInt32(2, itr->second.counter);
         stmt->setUInt32(3, itr->second.date);
-        stmt->setUInt32(4, itr->second.CompletedGUID.GetCounter());
+        stmt->setUInt64(4, itr->second.CompletedGUID.GetCounter());
         trans->Append(stmt);
     }
 }
@@ -1038,7 +1038,7 @@ void AchievementMgr<Guild>::LoadFromDB(PreparedQueryResult achievementResult, Pr
             Field* fields = criteriaResult->Fetch();
             uint32 guild_criteria_id      = fields[0].GetUInt32();
             time_t date                   = time_t(fields[2].GetUInt32());
-            uint64 guid                   = fields[3].GetUInt32();
+            ObjectGuid::LowType guid      = fields[3].GetUInt64();
 
             CriteriaTreeEntry const* criteriaTree = sAchievementMgr->GetAchievementCriteriaTree(guild_criteria_id);
             if (!criteriaTree)

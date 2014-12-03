@@ -768,7 +768,7 @@ struct KillInfo
     KillInfo() : count(0), state(KILL_NEW) {}
 };
 
-typedef std::map<uint32, KillInfo> KillInfoMap;
+typedef std::map<ObjectGuid::LowType, KillInfo> KillInfoMap;
 
 enum RestType
 {

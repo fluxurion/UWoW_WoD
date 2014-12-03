@@ -1092,7 +1092,7 @@ class WorldSession
         // characters who failed on Player::BuildEnumData shouldn't login
         std::set<ObjectGuid::LowType> _allowedCharsToLogin;
 
-        uint32 m_GUIDLow;                                   // set loggined or recently logout player (while m_playerRecentlyLogout set)
+        ObjectGuid::LowType m_GUIDLow;                                   // set loggined or recently logout player (while m_playerRecentlyLogout set)
         Player* _player;
         std::shared_ptr<WorldSocket> m_Socket;
         std::string m_Address;
