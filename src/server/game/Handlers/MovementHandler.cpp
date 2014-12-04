@@ -215,7 +215,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
     //recvPacket.ReadGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guid);
     //recvPacket.ReadGuidBytes<1, 5, 4, 3, 0, 7, 6, 2>(guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, uint64(guid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, guid.GetCounter());
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
     Player* plMover = _player->m_mover->ToPlayer();
@@ -1216,7 +1216,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi, Unit* 
     bool hasMovementFlags2 = mi->GetExtraMovementFlags() != 0;
     bool hasTimestamp = mi->time != 0;
     bool hasOrientation = !G3D::fuzzyEq(mi->pos.GetOrientation(), 0.0f);
-    bool hasTransportData = mi->t_guid != 0;
+    bool hasTransportData = mi->t_guid;
 
     MovementStatusElements* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
     if (!sequence)

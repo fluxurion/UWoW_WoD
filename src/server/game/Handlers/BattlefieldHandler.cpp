@@ -224,7 +224,7 @@ void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
     /*//recvData.ReadGuidMask<6, 3, 1, 2, 0, 4, 7, 5>(guid);
     //recvData.ReadGuidBytes<4, 3, 0, 1, 6, 5, 2, 7>(guid);*/
 
-    sLog->outError(LOG_FILTER_GENERAL, "HandleBfQueueRequest: GUID:" UI64FMTD " ", (uint64)guid);
+    sLog->outError(LOG_FILTER_GENERAL, "HandleBfQueueRequest: GUID:" UI64FMTD " ", guid.GetCounter());
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid))
     {
@@ -247,7 +247,7 @@ void WorldSession::HandleBfExitQueueRequest(WorldPacket & recvData)
     /*//recvData.ReadGuidMask<0, 7, 5, 2, 4, 1, 6, 3>(guid);
     //recvData.ReadGuidBytes<7, 1, 2, 5, 0, 6, 4, 3>(guid);*/
 
-    sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitQueueRequest: GUID:" UI64FMTD " ", (uint64)guid);
+    sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitQueueRequest: GUID:" UI64FMTD " ", guid.GetCounter());
 
     SendBfLeaveMessage(guid);
 

@@ -613,7 +613,7 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod &method /*= GROUP_R
 
             roll->playerVote.erase(itr2);
 
-            CountRollVote(guid, roll->itemGUID, MAX_ROLL_TYPE);
+            CountRollVote(guid, roll->aoeSlot, MAX_ROLL_TYPE);
         }
 
         // Update subgroups
@@ -1103,9 +1103,9 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
     //! 5.4.1
     WorldPacket data(SMSG_LOOT_LIST, (25));
 
-    data.WriteBit(guid28);
+    data.WriteBit(bool(guid28));
     //data.WriteGuidMask<4>(guid);
-    data.WriteBit(gGroupLooter);
+    data.WriteBit(bool(gGroupLooter));
 
     if (gGroupLooter)
         //data.WriteGuidMask<4, 5, 3, 6, 1, 0, 2, 7>(gGroupLooter);
@@ -1728,7 +1728,7 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
         return;
 
     // clean other icons
-    if (targetGuid != 0)
+    if (targetGuid)
         for (int i=0; i<TARGETICONCOUNT; ++i)
             if (m_targetIcons[i] == targetGuid)
                 SetTargetIcon(i, ObjectGuid::Empty, ObjectGuid::Empty);
@@ -1776,7 +1776,7 @@ void Group::SendTargetIconList(WorldSession* session)
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
     {
-        if (m_targetIcons[i] == 0)
+        if (!m_targetIcons[i])
             continue;
         ObjectGuid guid = m_targetIcons[i];
     
@@ -2020,7 +2020,7 @@ void Group::BroadcastAddonMessagePacket(WorldPacket* packet, const std::string& 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* player = itr->getSource();
-        if (!player || (ignore != 0 && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
+        if (!player || (ignore && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
             continue;
 
         if (WorldSession* session = player->GetSession())
@@ -2035,7 +2035,7 @@ void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* player = itr->getSource();
-        if (!player || (ignore != 0 && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
+        if (!player || (ignore && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
             continue;
 
         if (player->GetSession() && (group == -1 || itr->getSubGroup() == group))
@@ -2967,7 +2967,7 @@ bool Group::IsGuildGroup(ObjectGuid const& guildId, bool AllInSameMap, bool AllI
     // First we populate the array
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next()) // Loop trought all members
         if (Player *player = itr->getSource())
-            if (player->GetGuildId() == guildId) // Check if it has a guild
+            if (player->GetGuildId() == guildId.GetCounter()) // Check if it has a guild
                 members.push_back(player);
 
     bool ret = false;

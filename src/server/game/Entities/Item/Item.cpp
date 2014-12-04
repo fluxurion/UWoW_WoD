@@ -268,15 +268,18 @@ Item::Item() : ItemLevelBeforeCap(0)
     memset(m_dynamicModInfo, 0, sizeof(uint32) * ITEM_DYN_MOD_END);
 }
 
-bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner)
+bool Item::Create(ObjectGuid::LowType const& guidlow, uint32 itemid, Player const* owner)
 {
     Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
 
     SetEntry(itemid);
     SetObjectScale(1.0f);
 
-    SetUInt64Value(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
-    SetUInt64Value(ITEM_FIELD_CONTAINED, owner ? owner->GetGUID() : 0);
+    if (owner)
+    {
+        SetGuidValue(ITEM_FIELD_OWNER, owner->GetGUID());
+        SetGuidValue(ITEM_FIELD_CONTAINED, owner->GetGUID());
+    }
 
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemid);
     if (!itemProto)
@@ -375,7 +378,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             //stmt->setString(++index, m_text);
             stmt->setString(++index, "");
-            stmt->setUInt32(++index, guid);
+            stmt->setUInt64(++index, guid);
 
             trans->Append(stmt);
 
@@ -383,7 +386,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GIFT_OWNER);
                 stmt->setUInt64(0, GetOwnerGUID().GetCounter());
-                stmt->setUInt32(1, guid);
+                stmt->setUInt64(1, guid);
                 trans->Append(stmt);
             }
             break;
@@ -391,13 +394,13 @@ void Item::SaveToDB(SQLTransaction& trans)
         case ITEM_REMOVED:
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-            stmt->setUInt32(0, guid);
+            stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
             if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
-                stmt->setUInt32(0, guid);
+                stmt->setUInt64(0, guid);
                 trans->Append(stmt);
             }
 
@@ -418,7 +421,7 @@ void Item::SaveToDB(SQLTransaction& trans)
         CharacterDatabase.CommitTransaction(trans);
 }
 
-bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
+bool Item::LoadFromDB(ObjectGuid::LowType const& guid, ObjectGuid const& owner_guid, Field* fields, uint32 entry)
 {
     // WARNING! WARNING! WARNING! IF CHANGE FIELD ORDER - DO IT ON GuildMgr::LoadGuilds FOR GB Loading Items
     //                                                    0                1      2         3        4      5             6                 7          8               9      10        11          12        13
@@ -437,7 +440,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         return false;
 
     // set owner (not if item is only loaded for gbank/auction/mail
-    if (owner_guid != 0)
+    if (owner_guid)
         SetOwnerGUID(owner_guid);
 
     bool need_save = false;                                 // need explicit save data at load fixes
@@ -543,7 +546,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         stmt->setUInt32(0, GetUInt32Value(ITEM_FIELD_DURATION));
         stmt->setUInt32(1, GetUInt32Value(ITEM_FIELD_FLAGS));
         stmt->setUInt32(2, GetUInt32Value(ITEM_FIELD_DURABILITY));
-        stmt->setUInt32(3, guid);
+        stmt->setUInt64(3, guid);
         CharacterDatabase.Execute(stmt);
     }
 
@@ -1124,8 +1127,8 @@ Item* Item::CloneItem(uint32 count, Player const* player) const
     if (!newItem)
         return NULL;
 
-    newItem->SetUInt32Value(ITEM_FIELD_CREATOR,      GetUInt32Value(ITEM_FIELD_CREATOR));
-    newItem->SetUInt32Value(ITEM_FIELD_GIFTCREATOR,  GetUInt32Value(ITEM_FIELD_GIFTCREATOR));
+    newItem->SetGuidValue(ITEM_FIELD_CREATOR,        GetGuidValue(ITEM_FIELD_CREATOR));
+    newItem->SetGuidValue(ITEM_FIELD_GIFTCREATOR,    GetGuidValue(ITEM_FIELD_GIFTCREATOR));
     newItem->SetUInt32Value(ITEM_FIELD_FLAGS,        GetUInt32Value(ITEM_FIELD_FLAGS));
     newItem->SetUInt32Value(ITEM_FIELD_DURATION,     GetUInt32Value(ITEM_FIELD_DURATION));
     newItem->SetLevel(ItemLevel);
@@ -1172,12 +1175,12 @@ void Item::SaveRefundDataToDB()
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
-    stmt->setUInt32(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_REFUND_INSTANCE);
-    stmt->setUInt32(0, GetGUID().GetCounter());
-    stmt->setUInt32(1, GetRefundRecipient());
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(1, GetRefundRecipient().GetCounter());
     stmt->setUInt32(2, GetPaidMoney());
     stmt->setUInt16(3, uint16(GetPaidExtendedCost()));
     trans->Append(stmt);
@@ -1190,7 +1193,7 @@ void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
     if (trans)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
-        stmt->setUInt32(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, GetGUID().GetCounter());
         (*trans)->Append(stmt);
 
     }
@@ -1269,7 +1272,7 @@ void Item::ClearSoulboundTradeable(Player* currentOwner)
     allowedGUIDs.clear();
     SetState(ITEM_CHANGED, currentOwner);
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_BOP_TRADE);
-    stmt->setUInt32(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUID().GetCounter());
     CharacterDatabase.Execute(stmt);
 }
 

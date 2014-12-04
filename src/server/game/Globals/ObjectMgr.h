@@ -641,7 +641,7 @@ class ObjectMgr
         typedef std::list<CurrencyLoot> CurrencysLoot;
         std::list<CurrencyLoot> GetCurrencyLoot(uint32 entry, uint8 type, uint8 spawnMode);
 
-        Player* GetPlayerByLowGUID(ObjectGuid::LowType lowguid) const;
+        Player* GetPlayerByLowGUID(ObjectGuid::LowType const& lowguid) const;
 
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);
         GameObjectTemplateContainer const* GetGameObjectTemplates() const { return &_gameObjectTemplateStore; }
@@ -660,7 +660,7 @@ class ObjectMgr
         static uint32 ChooseDisplayId(uint32 team, const CreatureTemplate* cinfo, const CreatureData* data = NULL);
         static void ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& npcflag2, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data = NULL);
         EquipmentInfo const* GetEquipmentInfo(uint32 entry);
-        CreatureAddon const* GetCreatureAddon(ObjectGuid::LowType lowguid);
+        CreatureAddon const* GetCreatureAddon(ObjectGuid::LowType const& lowguid);
         CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
         ItemTemplate const* GetItemTemplate(uint32 entry);
         ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
@@ -906,7 +906,7 @@ class ObjectMgr
         void LoadCreatures();
         void LoadCreatureAIInstance();
         void LoadLinkedRespawn();
-        bool SetCreatureLinkedRespawn(ObjectGuid::LowType guid, ObjectGuid::LowType linkedGuid);
+        bool SetCreatureLinkedRespawn(ObjectGuid::LowType const& guid, ObjectGuid::LowType const& linkedGuid);
         void LoadCreatureAddons();
         void LoadCreatureModelInfo();
         void LoadEquipmentTemplates();
@@ -1035,7 +1035,7 @@ class ObjectMgr
             return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)][cell_id];
         }
 
-        CreatureData const* GetCreatureData(ObjectGuid::LowType guid) const
+        CreatureData const* GetCreatureData(ObjectGuid::LowType const& guid) const
         {
             CreatureDataContainer::const_iterator itr = _creatureDataStore.find(guid);
             if (itr == _creatureDataStore.end()) return NULL;
@@ -1061,9 +1061,9 @@ class ObjectMgr
             return itr != _creatureAIInstanceGo.end() ? &(itr->second) : NULL;
         }
 
-        CreatureData& NewOrExistCreatureData(ObjectGuid::LowType guid) { return _creatureDataStore[guid]; }
-        void DeleteCreatureData(ObjectGuid::LowType guid);
-        ObjectGuid GetLinkedRespawnGuid(ObjectGuid guid) const
+        CreatureData& NewOrExistCreatureData(ObjectGuid::LowType const& guid) { return _creatureDataStore[guid]; }
+        void DeleteCreatureData(ObjectGuid::LowType const& guid);
+        ObjectGuid GetLinkedRespawnGuid(ObjectGuid const& guid) const
         {
             LinkedRespawnContainer::const_iterator itr = _linkedRespawnStore.find(guid);
             if (itr == _linkedRespawnStore.end()) return ObjectGuid::Empty;
@@ -1118,14 +1118,14 @@ class ObjectMgr
             return &itr->second;
         }
 
-        GameObjectData const* GetGOData(ObjectGuid::LowType guid) const
+        GameObjectData const* GetGOData(ObjectGuid::LowType const& guid) const
         {
             GameObjectDataContainer::const_iterator itr = _gameObjectDataStore.find(guid);
             if (itr == _gameObjectDataStore.end()) return NULL;
             return &itr->second;
         }
-        GameObjectData& NewGOData(ObjectGuid::LowType guid) { return _gameObjectDataStore[guid]; }
-        void DeleteGOData(ObjectGuid::LowType guid);
+        GameObjectData& NewGOData(ObjectGuid::LowType const& guid) { return _gameObjectDataStore[guid]; }
+        void DeleteGOData(ObjectGuid::LowType const& guid);
 
         TrinityStringLocale const* GetTrinityStringLocale(int32 entry) const
         {

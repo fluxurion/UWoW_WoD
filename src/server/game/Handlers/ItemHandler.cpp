@@ -1347,11 +1347,11 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID)
+void WorldSession::SendEnchantmentLog(ObjectGuid const& Target, ObjectGuid const& Caster, uint32 ItemID, uint32 SpellID)
 {
     WorldPacket data(SMSG_ENCHANTMENTLOG, (8+8+8+4+4+4+1));     // last check 4.3.4
-    data.appendPackGUID(Target);
-    data.appendPackGUID(Caster);
+    data << Target.WriteAsPacked();
+    data << Caster.WriteAsPacked();
     data.appendPackGUID(0);
     data << uint32(ItemID);
     data << uint32(SpellID);
@@ -1359,7 +1359,7 @@ void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemI
     SendPacket(&data);
 }
 
-void WorldSession::SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration)
+void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid const& Playerguid, ObjectGuid const& Itemguid, uint32 slot, uint32 Duration)
 {
     WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, 8 + 8 + 1 + 1 + 4 + 4);
 
@@ -1507,7 +1507,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         case 17307: item->SetEntry(17308); break;
         case 21830: item->SetEntry(21831); break;
     }
-    item->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
+    item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
     item->SetUInt32Value(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED);
     item->SetState(ITEM_CHANGED, _player);
 
@@ -1845,7 +1845,7 @@ void WorldSession::HandleItemTextQuery(WorldPacket & recvData )
     if (Item* item = _player->GetItemByGuid(itemGuid))
     {
         data << uint8(0);                                       // has text
-        data << uint64(itemGuid);                               // item guid
+        data << itemGuid;                                       // item guid
         data << item->GetText();
     }
     else

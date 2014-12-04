@@ -207,7 +207,7 @@ bool OPvPCapturePoint::DelObject(uint32 type)
 
 bool OPvPCapturePoint::DelCapturePoint()
 {
-    sObjectMgr->DeleteGOData(m_capturePointGUID);
+    sObjectMgr->DeleteGOData(m_capturePointGUID.GetCounter());
     m_capturePointGUID.Clear();
 
     if (m_capturePoint)

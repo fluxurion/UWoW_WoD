@@ -1242,7 +1242,7 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
     recvPacket >> slotId;
     //recvPacket.ReadGuidMask<3, 5, 2, 0, 4, 1, 6, 7>(guid);
     //recvPacket.ReadGuidBytes<4, 1, 5, 2, 3, 6, 7, 0>(guid);
-    uint64 logGuid = guid;
+    ObjectGuid::LowType logGuid = guid.GetCounter();
 
     ++slotId;
 
@@ -1454,7 +1454,7 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
     spell->m_targets.ModDst(pos);
 
     WorldPacket data(SMSG_SET_PROJECTILE_POSITION, 21);
-    data << uint64(casterGuid);
+    data << casterGuid;
     data << uint8(castCount);
     data << float(x);
     data << float(y);

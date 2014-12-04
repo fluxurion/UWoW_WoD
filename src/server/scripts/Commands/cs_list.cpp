@@ -478,7 +478,7 @@ public:
 
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
         {
-            target = sObjectMgr->GetPlayerByLowGUID(parseGUID);
+            target = sObjectMgr->GetPlayerByLowGUID(parseGUID.GetCounter());
             targetGuid = parseGUID;
         }
         else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))

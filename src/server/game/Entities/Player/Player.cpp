@@ -2186,7 +2186,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
     float x = fields[10].GetFloat();
     float y = fields[11].GetFloat();
     float z = fields[12].GetFloat();
-    uint32 guildId = fields[13].GetUInt32();
+    ObjectGuid::LowType guildId = fields[13].GetUInt64();
     if (guildId)
         guildGuid = ObjectGuid::Create<HighGuid::Guild>(guildId);
     uint32 playerFlags = fields[14].GetUInt32();
@@ -4036,11 +4036,11 @@ void Player::RemoveMail(uint32 id)
     }
 }
 
-void Player::SafeRemoveMailFromIgnored(uint32 ignoredPlayerGuid)
+void Player::SafeRemoveMailFromIgnored(ObjectGuid const& ignoredPlayerGuid)
 {
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
     {
-        if ((*itr)->sender == ignoredPlayerGuid)
+        if ((*itr)->sender == ignoredPlayerGuid.GetCounter())
             (*itr)->state = MAIL_STATE_DELETED;
     }
 
@@ -14944,7 +14944,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         uint32 etime = uint32(base - m_logintime + (30 * 3600));
         uint32 eslot = slot - BUYBACK_SLOT_START;
 
-        SetUInt64Value(PLAYER_FIELD_VENDORBUYBACK_SLOT_1 + (eslot * 2), pItem->GetGUID());
+        SetGuidValue(PLAYER_FIELD_VENDORBUYBACK_SLOT_1 + (eslot * 2), pItem->GetGUID());
         if (ItemTemplate const* proto = pItem->GetTemplate())
             SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, proto->SellPrice * pItem->GetCount());
         else
@@ -19475,7 +19475,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
             // may only loot if the player is the loot roundrobin player
             // or item over threshold (so roll(s) can be launched)
             // or if there are free/quest/conditional item for the player
-            if (loot->roundRobinPlayer == 0 || loot->roundRobinPlayer == GetGUID())
+            if (!loot->roundRobinPlayer || loot->roundRobinPlayer == GetGUID())
                 return true;
 
             if (loot->hasOverThresholdItem())
@@ -19678,7 +19678,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
         {
             Field* fields = result->Fetch();
 
-            ObjectGuid itemGuid  = ObjectGuid::Create<HighGuid::Item>(fields[16].GetUInt64());
+            ObjectGuid::LowType itemGuid = fields[16].GetUInt64();
 
             //item on auction
             if (sAuctionMgr->GetAItem(itemGuid))
@@ -19693,7 +19693,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                 // Item is not in bag
                 if (!bagGuid)
                 {
-                    uint32 iGUIDfromInv = fields[18].GetUInt32();
+                    ObjectGuid::LowType iGUIDfromInv = fields[18].GetUInt64();
 
                     item->SetContainer(NULL);
                     item->SetSlot(slot);
@@ -19844,7 +19844,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
             continue;
         }
 
-        if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid))
+        if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid.GetCounter()))
         {
             sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creatorGuid: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry, creatorGuid);
             creatorGuid.Clear();
@@ -21072,7 +21072,6 @@ void Player::SaveToDB(bool create /*=false*/)
 
         stmt->setString(index++, ss.str());
 
-
         stmt->setUInt32(index++, m_grantableLevels);
     }
     else
@@ -21981,7 +21980,7 @@ void Player::_SaveSpells(SQLTransaction& trans)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACC_SPELL_BY_SPELL);
                 stmt->setUInt32(0, itr->first);
-                stmt->setUInt64(1, GetSession()->GetAccountId());
+                stmt->setUInt32(1, GetSession()->GetAccountId());
                 trans->Append(stmt);
             }
             else
@@ -22075,14 +22074,14 @@ void Player::_SaveBattlePets(SQLTransaction& trans)
         if (pet->second->deleteMeLater)
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BATTLE_PET_JOURNAL);
-            stmt->setUInt64(0, pet->first);
+            stmt->setUInt64(0, pet->first.GetCounter());
             stmt->setUInt32(1, GetSession()->GetAccountId());
             trans->Append(stmt);
             continue;
         }
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SAVE_BATTLE_PET_JOURNAL);
-        stmt->setUInt64(0, pet->first);
+        stmt->setUInt64(0, pet->first.GetCounter());
         stmt->setUInt32(1, GetSession()->GetAccountId());
         stmt->setString(2, pet->second->customName);
         stmt->setUInt32(3, pet->second->creatureEntry);

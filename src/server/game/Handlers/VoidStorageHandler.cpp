@@ -254,7 +254,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         item = player->GetItemByGuid(*itr);
         if (!item)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to deposit an invalid item (item guid: " UI64FMTD ").", player->GetGUID().GetCounter(), player->GetName(), uint64(*itr));
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to deposit an invalid item (item guid: " UI64FMTD ").", player->GetGUID().GetCounter(), player->GetName(), (*itr).GetCounter());
             continue;
         }
 
@@ -281,10 +281,10 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (std::vector<ObjectGuid>::iterator itr = itemIds.begin(); itr != itemIds.end(); ++itr)
     {
-        itemVS = player->GetVoidStorageItem(*itr, slot);
+        itemVS = player->GetVoidStorageItem(itr->GetCounter(), slot);
         if (!itemVS)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) tried to withdraw an invalid item (id: " UI64FMTD ")", player->GetGUID().GetCounter(), player->GetName(), uint64(*itr));
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) tried to withdraw an invalid item (id: " UI64FMTD ")", player->GetGUID().GetCounter(), player->GetName(), itr->GetCounter());
             continue;
         }
      
@@ -294,12 +294,12 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         if (msg != EQUIP_ERR_OK)
         {
             SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INVENTORY_FULL);
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) couldn't withdraw item id " UI64FMTD " because inventory was full.", player->GetGUID().GetCounter(), player->GetName(), uint64(*itr));
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) couldn't withdraw item id " UI64FMTD " because inventory was full.", player->GetGUID().GetCounter(), player->GetName(), itr->GetCounter());
             return;
         }
 
         item = player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->ItemRandomPropertyId);
-        item->SetUInt64Value(ITEM_FIELD_CREATOR, uint64(itemVS->CreatorGuid));
+        item->SetGuidValue(ITEM_FIELD_CREATOR, itemVS->CreatorGuid);
         item->SetBinding(true);
         player->SendNewItem(item, NULL, 1, false, false, false);
 
@@ -319,7 +319,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     for (uint8 i = 0; i < depositCount; ++i)
     {
         itemId = depositItems[i].first.ItemId;
-        creatorGuid = depositItems[i].first.CreatorGuid;
+        //creatorGuid = depositItems[i].first.CreatorGuid;
 
         //data.WriteGuidMask<3, 0>(creatorGuid);
         //data.WriteGuidMask<2>(itemId);
@@ -351,7 +351,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     for (uint8 i = 0; i < depositCount; ++i)
     {
         itemId = depositItems[i].first.ItemId;
-        creatorGuid = depositItems[i].first.CreatorGuid;
+        //creatorGuid = depositItems[i].first.CreatorGuid;
 
         //data.WriteGuidBytes<3>(itemId);
         //data.WriteGuidBytes<6, 3, 2>(creatorGuid);
@@ -417,9 +417,9 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     }
 
     uint8 oldSlot;
-    if (!player->GetVoidStorageItem(itemId, oldSlot))
+    if (!player->GetVoidStorageItem(itemId.GetCounter(), oldSlot))
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidSwapItem - Player (GUID: %u, name: %s) requested swapping an invalid item (slot: %u, itemid: " UI64FMTD ").", player->GetGUID().GetCounter(), player->GetName(), newSlot, uint64(itemId));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidSwapItem - Player (GUID: %u, name: %s) requested swapping an invalid item (slot: %u, itemid: " UI64FMTD ").", player->GetGUID().GetCounter(), player->GetName(), newSlot, itemId.GetCounter());
         return;
     }
 

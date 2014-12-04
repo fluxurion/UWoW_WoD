@@ -45,7 +45,7 @@ void MapManager::LoadTransports()
     {
 
         Field* fields = result->Fetch();
-        uint32 lowguid = fields[0].GetUInt32();
+        ObjectGuid::LowType lowguid = fields[0].GetUInt64();
         uint32 entry = fields[1].GetUInt32();
         std::string name = fields[2].GetString();
         uint32 period = fields[3].GetUInt32();
@@ -112,7 +112,7 @@ void MapManager::LoadTransports()
         {
             Field* fields = result->Fetch();
 
-            ObjectGuid::LowType guid  = fields[0].GetUInt32();
+            ObjectGuid::LowType guid  = fields[0].GetUInt64();
             uint32 entry = fields[1].GetUInt32();
             std::string name = fields[2].GetString();
             sLog->outError(LOG_FILTER_SQL, "Transport %u '%s' have record (GUID: %u) in `gameobject`. Transports must not have any records in `gameobject` or its behavior will be unpredictable/bugged.", entry, name.c_str(), guid);
@@ -141,7 +141,7 @@ void MapManager::LoadTransportNPCs()
     do
     {
         Field* fields = result->Fetch();
-        ObjectGuid::LowType guid = fields[0].GetInt32();
+        ObjectGuid::LowType guid = fields[0].GetInt64();
         uint32 entry = fields[1].GetInt32();
         uint32 transportEntry = fields[2].GetInt32();
         float tX = fields[3].GetFloat();
@@ -186,7 +186,7 @@ Transport::~Transport()
     m_passengers.clear();
 }
 
-bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags)
+bool Transport::Create(ObjectGuid::LowType const& guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags)
 {
     Relocate(x, y, z, ang);
     // instance id and phaseMask isn't set to values different from std.

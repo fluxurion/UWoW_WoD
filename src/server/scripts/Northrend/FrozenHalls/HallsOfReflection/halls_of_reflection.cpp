@@ -414,8 +414,8 @@ public:
                         pUther->GetMotionMaster()->MoveIdle();
                         pUther->SetReactState(REACT_PASSIVE); // be sure he will not aggro arthas
                         uiUther = pUther->GetGUID();
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, uiUther);
-                        pUther->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                        me->SetGuidValue(UNIT_FIELD_TARGET, uiUther);
+                        pUther->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                     }
                     events.ScheduleEvent(EVENT_INTRO_A2_5, 2000);
                     break;
@@ -510,8 +510,8 @@ public:
                         pUther->GetMotionMaster()->MoveIdle();
                         pUther->SetReactState(REACT_PASSIVE); // be sure he will not aggro arthas
                         uiUther = pUther->GetGUID();
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, uiUther);
-                        pUther->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                        me->SetGuidValue(UNIT_FIELD_TARGET, uiUther);
+                        pUther->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                     }
                     events.ScheduleEvent(EVENT_INTRO_H2_5, 2000);
                     break;
@@ -583,8 +583,8 @@ public:
                         if(GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetGuidData(DATA_FROSTWORN_DOOR)))
                              pGate->SetGoState(GO_STATE_ACTIVE);
 
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, uiLichKing);
-                        pLichKing->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                        me->SetGuidValue(UNIT_FIELD_TARGET, uiLichKing);
+                        pLichKing->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                     }
 
                     if (Creature* pUther = me->GetCreature(*me, uiUther))
@@ -745,8 +745,8 @@ public:
                         pLichKing->GetMotionMaster()->MovePoint(0, LichKingMoveThronePos);
                         pLichKing->SetReactState(REACT_PASSIVE);
                         uiLichKing = pLichKing->GetGUID();
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, uiLichKing);
-                        pLichKing->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                        me->SetGuidValue(UNIT_FIELD_TARGET, uiLichKing);
+                        pLichKing->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                     }
 
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -1822,7 +1822,7 @@ public:
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     m_uiLichKingGUID = m_pInstance->GetGuidData(DATA_LICHKING);
                     pLichKing = m_pInstance->instance->GetCreature(m_uiLichKingGUID);
-                    me->SetUInt64Value(UNIT_FIELD_TARGET, pLichKing->GetGUID());
+                    me->SetGuidValue(UNIT_FIELD_TARGET, pLichKing->GetGUID());
                     JumpNextStep(100);
                     break;
                 case 1:
@@ -1915,7 +1915,7 @@ public:
                     if(pLichKing && !pLichKing->HasAura(SPELL_ICE_PRISON_VISUAL))
                     {
                         pLichKing->AddAura(me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON_VISUAL : SPELL_DARK_ARROW, pLichKing);
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, pLichKing->GetGUID());
+                        me->SetGuidValue(UNIT_FIELD_TARGET, pLichKing->GetGUID());
                     }
                     JumpNextStep(10000);
                     break;
@@ -1923,7 +1923,7 @@ public:
                     if(pLichKing && (!pLichKing->HasAura(SPELL_ICE_PRISON_VISUAL) || !pLichKing->HasAura(SPELL_DARK_ARROW)))
                     {
                         pLichKing->AddAura(me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON_VISUAL : SPELL_DARK_ARROW, pLichKing);
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, pLichKing->GetGUID());
+                        me->SetGuidValue(UNIT_FIELD_TARGET, pLichKing->GetGUID());
                     }
                     me->RemoveAllAuras();
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);

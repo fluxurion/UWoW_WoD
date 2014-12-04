@@ -330,7 +330,7 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket&  /*recvData*/)
 {
-    uint64 guid = GetPlayer()->GetGUID();
+    ObjectGuid guid = GetPlayer()->GetGUID();
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_PARTY_LOCK_INFO_REQUEST %s", GetPlayerName().c_str());
 }
 
@@ -542,7 +542,7 @@ void WorldSession::SendLfgQueueStatus(lfg::LfgQueueStatusData const& queueData)
     lfg::LfgQueueData* queueInfo = queueData.queueInfo;
 
     Player* player = GetPlayer();
-    uint64 guid = player->GetGUID();
+    ObjectGuid guid = player->GetGUID();
     sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_QUEUE_STATUS %s dungeon: %u, waitTime: %d, "
         "avgWaitTime: %d, waitTimeTanks: %d, waitTimeHealer: %d, waitTimeDps: %d, "
         "queuedTime: %u, tanks: %u, healers: %u, dps: %u",

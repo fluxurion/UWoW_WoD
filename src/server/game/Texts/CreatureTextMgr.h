@@ -97,7 +97,7 @@ typedef std::map<CreatureTextId, CreatureTextLocale> LocaleCreatureTextMap;
 //used for handling non-repeatable random texts
 typedef std::vector<uint8> CreatureTextRepeatIds;
 typedef UNORDERED_MAP<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
-typedef UNORDERED_MAP<uint64, CreatureTextRepeatGroup> CreatureTextRepeatMap;//guid based
+typedef UNORDERED_MAP<ObjectGuid::LowType, CreatureTextRepeatGroup> CreatureTextRepeatMap;//guid based
 
 class CreatureTextMgr
 {

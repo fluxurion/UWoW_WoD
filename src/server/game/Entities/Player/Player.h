@@ -673,7 +673,7 @@ enum EquipmentSetUpdateState
 
 struct EquipmentSet
 {
-    EquipmentSet() : Guid(0), IgnoreMask(0), state(EQUIPMENT_SET_NEW)
+    EquipmentSet() : Guid(), IgnoreMask(0), state(EQUIPMENT_SET_NEW)
     {
         for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
             Items[i] = 0;
@@ -1171,7 +1171,7 @@ class TradeData
         void SetSpell(uint32 spell_id, Item* castItem = NULL);
 
         Item*  GetSpellCastItem() const;
-        bool HasSpellCastItem() const { return m_spellCastItem != 0; }
+        bool HasSpellCastItem() const { return m_spellCastItem; }
 
         uint64 GetMoney() const { return m_money; }
         void SetMoney(uint64 money);
@@ -1997,7 +1997,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsMailsLoaded() const { return m_mailsLoaded; }
 
         void RemoveMail(uint32 id);
-        void SafeRemoveMailFromIgnored(uint32 ignoredPlayerGuid);
+        void SafeRemoveMailFromIgnored(ObjectGuid const& ignoredPlayerGuid);
 
         void AddMail(Mail* mail) { m_mail.push_front(mail);}// for call from WorldSession::SendMailTo
         uint32 GetMailSize() { return m_mail.size();}
@@ -2313,7 +2313,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetGuildLevel() { return GetUInt32Value(PLAYER_GUILDLEVEL); }
         void SetGuildIdInvited(uint32 GuildId, ObjectGuid guid = ObjectGuid::Empty) { m_GuildIdInvited = GuildId; m_GuildInviterGuid = guid; }
         ObjectGuid GetGuildInviterGuid() const { return m_GuildInviterGuid; }
-        ObjectGuid GetGuildId() const { return GetGuidValue(OBJECT_FIELD_DATA); /* return only lower part */ }
+        ObjectGuid::LowType GetGuildId() const { return GetGuidValue(OBJECT_FIELD_DATA).GetCounter(); /* return only lower part */ }
+        ObjectGuid GetGuildGUID() const { return GetGuidValue(OBJECT_FIELD_DATA); }
         static ObjectGuid::LowType GetGuildIdFromDB(ObjectGuid guid);
         static uint8 GetRankFromDB(ObjectGuid guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }

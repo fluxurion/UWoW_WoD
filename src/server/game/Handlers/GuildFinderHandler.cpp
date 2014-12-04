@@ -106,9 +106,9 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
     for (LFGuildStore::const_iterator itr = guildList.begin(); itr != guildList.end(); ++itr)
     {
         LFGuildSettings guildSettings = itr->second;
-        Guild* guild = sGuildMgr->GetGuildById(itr->first);
+        Guild* guild = sGuildMgr->GetGuildById(itr->first.GetCounter());
 
-        ObjectGuid guildGUID = ObjectGuid(guild->GetGUID());
+        ObjectGuid guildGUID = guild->GetGUID();
         
         data.WriteBit(guildGUID[3]);
         data.WriteBits(guild->GetName().size(), 8);
@@ -169,7 +169,7 @@ void WorldSession::HandleGuildFinderDeclineRecruit(WorldPacket& recvPacket)
     if (!playerGuid.IsPlayer())
         return;
 
-    sGuildFinderMgr->RemoveMembershipRequest(playerGuid, GetPlayer()->GetGuildId());
+    sGuildFinderMgr->RemoveMembershipRequest(playerGuid, ObjectGuid::Create<HighGuid::Guild>(GetPlayer()->GetGuildId()));
 }
 
 void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
@@ -187,7 +187,7 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
         ByteBuffer bufferData(54 * applicationsCount);
         for (std::list<MembershipRequest>::const_iterator itr = applicatedGuilds.begin(); itr != applicatedGuilds.end(); ++itr)
         {
-            Guild* guild = sGuildMgr->GetGuildById(itr->GetGuildGuid());
+            Guild* guild = sGuildMgr->GetGuildById(itr->GetGuildGuid().GetCounter());
 
             if (!guild)
                 continue;
@@ -245,7 +245,7 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
     if (!player->GetGuildId())
         return;
 
-    std::vector<MembershipRequest> recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(player->GetGuildId());
+    std::vector<MembershipRequest> recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(ObjectGuid::Create<HighGuid::Guild>(player->GetGuildId()));
     uint32 recruitCount = recruitsList.size();
 
     ByteBuffer dataBuffer(53 * recruitCount);
@@ -310,7 +310,7 @@ void WorldSession::HandleGuildFinderPostRequest(WorldPacket& recvPacket)
         if (guild->GetLeaderGUID() != player->GetGUID())
             isGuildMaster = false;
 
-    LFGuildSettings settings = sGuildFinderMgr->GetGuildSettings(player->GetGuildId());
+    LFGuildSettings settings = sGuildFinderMgr->GetGuildSettings(ObjectGuid::Create<HighGuid::Guild>(player->GetGuildId()));
 
     WorldPacket data(SMSG_LF_GUILD_POST_UPDATED, 35);
     data.WriteBit(isGuildMaster); // Guessed
@@ -388,6 +388,7 @@ void WorldSession::HandleGuildFinderSetGuildPost(WorldPacket& recvPacket)
         if (guild->GetLeaderGUID() != player->GetGUID())
             return;
 
-    LFGuildSettings settings(listed, player->GetTeamId(), player->GetGuildId(), classRoles, availability, guildInterests, level, comment);
-    sGuildFinderMgr->SetGuildSettings(player->GetGuildId(), settings);
+    ObjectGuid guildGuid = ObjectGuid::Create<HighGuid::Guild>(player->GetGuildId());
+    LFGuildSettings settings(listed, player->GetTeamId(), guildGuid, classRoles, availability, guildInterests, level, comment);
+    sGuildFinderMgr->SetGuildSettings(guildGuid, settings);
 }

@@ -3831,7 +3831,7 @@ class spell_gen_battle_guild_standart : public SpellScriptLoader
                         return;
                     }
 
-                    ObjectGuid guildID = player->GetGuildId();
+                    ObjectGuid guildID = player->GetGuildGUID();
                     if (!guildID)
                     {
                         targets.clear();
@@ -3865,7 +3865,7 @@ class spell_gen_battle_guild_standart : public SpellScriptLoader
                         if (unit->GetTypeId() != TYPEID_PLAYER)
                             return true;
 
-                        if (unit->ToPlayer()->GetGuildId() != _guildId)
+                        if (unit->ToPlayer()->GetGuildGUID() != _guildId)
                             return true;
 
                         if (Aura* const aur = unit->ToPlayer()->GetAura(90216))

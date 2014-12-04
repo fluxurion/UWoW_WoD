@@ -162,9 +162,9 @@ void Bag::StoreItem(uint8 slot, Item* pItem, bool /*update*/)
     if (pItem && pItem->GetGUID() != this->GetGUID())
     {
         m_bagslot[slot] = pItem;
-        SetUInt64Value(CONTAINER_FIELD_SLOT_1 + (slot * 2), pItem->GetGUID());
-        pItem->SetUInt64Value(ITEM_FIELD_CONTAINED, GetGUID());
-        pItem->SetUInt64Value(ITEM_FIELD_OWNER, GetOwnerGUID());
+        SetGuidValue(CONTAINER_FIELD_SLOT_1 + (slot * 2), pItem->GetGUID());
+        pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetGUID());
+        pItem->SetGuidValue(ITEM_FIELD_OWNER, GetOwnerGUID());
         pItem->SetContainer(this);
         pItem->SetSlot(slot);
     }

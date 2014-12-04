@@ -372,7 +372,7 @@ private:
         };
 
     public:
-        Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint32 rankId) :
+        Member(ObjectGuid::LowType const& guildId, ObjectGuid guid, uint32 rankId) :
             m_guildId(guildId),
             m_guid(guid),
             m_zoneId(0),
@@ -669,7 +669,7 @@ private:
     class BankTab
     {
     public:
-        BankTab(ObjectGuid::LowType guildId, uint8 tabId) : m_guildId(guildId), m_tabId(tabId)
+        BankTab(ObjectGuid::LowType const& guildId, uint8 tabId) : m_guildId(guildId), m_tabId(tabId)
         {
             memset(m_items, 0, GUILD_BANK_MAX_SLOTS * sizeof(Item*));
         }
@@ -910,12 +910,12 @@ public:
     inline uint8 GetPurchasedTabsSize() const { return uint8(m_bankTabs.size()); }
 
     void SendMotd(WorldSession* session = NULL);
-    void SendGuildEventJoinMember(ObjectGuid guid, std::string name);
-    void SendGuildEventRemoveMember(ObjectGuid guid, std::string name, ObjectGuid kickerGuid = ObjectGuid::Empty, std::string kickerName = "");
-    void SendGuildEventLeader(ObjectGuid guid, std::string name, ObjectGuid oldGuid, std::string oldName);
+    void SendGuildEventJoinMember(ObjectGuid const& guid, std::string name);
+    void SendGuildEventRemoveMember(ObjectGuid const& guid, std::string name, ObjectGuid kickerGuid = ObjectGuid::Empty, std::string kickerName = "");
+    void SendGuildEventLeader(ObjectGuid const& guid, std::string name, ObjectGuid const& oldGuid, std::string oldName);
     void SendGuildEventDisbanded();
     void SendGuildEventRankUpdate(uint32 rankId = 0);
-    void SendGuildEventOnline(ObjectGuid guid, std::string name, bool online, WorldSession* session = NULL);
+    void SendGuildEventOnline(ObjectGuid const& guid, std::string name, bool online, WorldSession* session = NULL);
     void SendGuildEventTabTextChanged(uint32 tabId, WorldSession* session = NULL);
     void SendGuildEventBankSlotChanged();
 
@@ -1030,6 +1030,6 @@ private:
 
     void SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank);
 
-    void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
+    void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid const& guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
 };
 #endif

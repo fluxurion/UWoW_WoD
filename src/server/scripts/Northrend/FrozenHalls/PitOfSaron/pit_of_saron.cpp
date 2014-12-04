@@ -1029,7 +1029,7 @@ public:
                 if(Creature* pTyrannus = me->SummonCreature(NPC_TYRANNUS_INTRO, 526.501f, 237.639f, 543.686f, 3.431f, TEMPSUMMON_MANUAL_DESPAWN))
                 {
                 pTyrannus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                pTyrannus->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                pTyrannus->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                 pTyrannus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pTyrannus->SetUInt32Value(UNIT_FIELD_BYTES_0, 50331648);
                 pTyrannus->SetUInt32Value(UNIT_FIELD_BYTES_1, 50331648);
@@ -1915,7 +1915,7 @@ public:
                 if(Creature* pTyrannus = me->SummonCreature(NPC_TYRANNUS_INTRO, 526.501f, 237.639f, 543.686f, 3.431f, TEMPSUMMON_MANUAL_DESPAWN))
                 {
                 pTyrannus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                pTyrannus->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                pTyrannus->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                 pTyrannus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pTyrannus->SetUInt32Value(UNIT_FIELD_BYTES_0, 50331648);
                 pTyrannus->SetUInt32Value(UNIT_FIELD_BYTES_1, 50331648);

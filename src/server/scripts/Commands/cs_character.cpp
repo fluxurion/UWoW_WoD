@@ -835,7 +835,7 @@ public:
             }
         }
 
-        switch (PlayerDumpReader().LoadDump(fileStr, accountId, name, guid))
+        switch (PlayerDumpReader().LoadDump(fileStr, accountId, name, guid.GetCounter()))
         {
             case DUMP_SUCCESS:
                 handler->PSendSysMessage(LANG_COMMAND_IMPORT_SUCCESS);
@@ -896,7 +896,7 @@ public:
             return false;
         }
 
-        switch (PlayerDumpWriter().WriteDump(fileStr, uint32(guid)))
+        switch (PlayerDumpWriter().WriteDump(fileStr, guid.GetCounter()))
         {
             case DUMP_SUCCESS:
                 handler->PSendSysMessage(LANG_COMMAND_EXPORT_SUCCESS);

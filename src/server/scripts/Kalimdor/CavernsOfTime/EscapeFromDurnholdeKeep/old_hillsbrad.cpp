@@ -598,7 +598,7 @@ public:
             if (instance && instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
             {
                 instance->SetData(TYPE_THRALL_PART4, IN_PROGRESS);
-                if (instance->GetGuidData(DATA_EPOCH) == 0)
+                if (!instance->GetGuidData(DATA_EPOCH))
                      creature->SummonCreature(ENTRY_EPOCH, 2639.13f, 698.55f, 65.43f, 4.59f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
 
                  if (ObjectGuid ThrallGUID = instance->GetGuidData(DATA_THRALL))

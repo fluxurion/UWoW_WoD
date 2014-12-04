@@ -89,7 +89,7 @@ public:
     bool IsClosed() const { return !_closedBy.IsEmpty(); }
     bool IsCompleted() const { return _completed; }
     bool IsFromPlayer(ObjectGuid const& guid) const { return guid == _playerGuid; }
-    bool IsAssigned() const { return _assignedTo != 0; }
+    bool IsAssigned() const { return _assignedTo; }
     bool IsAssignedTo(ObjectGuid const& guid) const { return guid == _assignedTo; }
     bool IsAssignedNotTo(ObjectGuid guid) const { return IsAssigned() && !IsAssignedTo(guid); }
 

@@ -1043,7 +1043,7 @@ class spell_monk_jade_serpent_statue : public SpellScriptLoader
                     if (!summon)
                         return;
 
-                    summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, player->GetGUID());
+                    summon->SetGuidValue(UNIT_FIELD_SUMMONEDBY, player->GetGUID());
                     summon->setFaction(player->getFaction());
                     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     summon->SetMaxHealth(player->CountPctFromMaxHealth(50));

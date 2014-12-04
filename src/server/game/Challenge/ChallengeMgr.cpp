@@ -48,7 +48,7 @@ void ChallengeMgr::CheckBestGuildMapId(Challenge *c)
         m_GuildBest[c->guildId][c->mapID] = c;
 }
 
-void ChallengeMgr::CheckBestMemberMapId(ObjectGuid guid, Challenge *c)
+void ChallengeMgr::CheckBestMemberMapId(ObjectGuid const& guid, Challenge *c)
 {
     if (!m_ChallengesOfMember[guid][c->mapID] || m_ChallengesOfMember[guid][c->mapID]->recordTime > c->recordTime)
         m_ChallengesOfMember[guid][c->mapID] = c;
@@ -60,7 +60,7 @@ void ChallengeMgr::SaveChallengeToDB(Challenge *c)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHALLENGE);
     stmt->setUInt32(0, c->Id);
-    stmt->setUInt64(1, c->guildId.GetCounter());
+    stmt->setUInt64(1, c->guildId);
     stmt->setUInt16(2, c->mapID);
     stmt->setUInt32(3, c->recordTime);
     stmt->setUInt32(4, c->date);
@@ -92,7 +92,7 @@ void ChallengeMgr::LoadFromDB()
 
             Challenge *c = new Challenge;
             c->Id = fields[0].GetUInt32();
-            c->guildId = ObjectGuid::Create<HighGuid::Guild>(fields[1].GetUInt64());
+            c->guildId = fields[1].GetUInt64();
             c->mapID = fields[2].GetUInt16();
             c->recordTime = fields[3].GetUInt32();
             c->date = fields[4].GetUInt32();
@@ -167,7 +167,7 @@ void ChallengeMgr::GroupReward(Map *instance, uint32 recordTime, ChallengeMode m
     uint32 npcRewardCredit = m_reward[instance->GetId()];
     uint32 valorReward = m_valorPoints[medal];
 
-    std::map<ObjectGuid/*guild*/, uint32> guildCounter;
+    std::map<ObjectGuid::LowType/*guild*/, uint32> guildCounter;
     for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
         if (Player* player = i->getSource())
         {
@@ -201,7 +201,7 @@ void ChallengeMgr::GroupReward(Map *instance, uint32 recordTime, ChallengeMode m
     }
 
     // Stupid group guild check.
-    for(std::map<ObjectGuid/*guild*/, uint32>::const_iterator itr = guildCounter.begin(); itr != guildCounter.end(); ++itr)
+    for(std::map<ObjectGuid::LowType/*guild*/, uint32>::const_iterator itr = guildCounter.begin(); itr != guildCounter.end(); ++itr)
     {
         //only full guild group could be defined
         if(itr->second == 5)
@@ -225,7 +225,7 @@ Challenge * ChallengeMgr::BestServerChallenge(uint16 map)
     return itr->second;
 }
 
-Challenge * ChallengeMgr::BestGuildChallenge(uint32 guildId, uint16 map)
+Challenge * ChallengeMgr::BestGuildChallenge(ObjectGuid::LowType const& guildId, uint16 map)
 {
     if (!guildId)
         return NULL;

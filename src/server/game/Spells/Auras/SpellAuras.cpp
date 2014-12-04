@@ -3188,7 +3188,7 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* /*caster
     }
 }
 
-void Aura::SetAuraTimer(int32 time, uint64 guid)
+void Aura::SetAuraTimer(int32 time, ObjectGuid guid)
 {
     if(GetDuration() == -1 || GetDuration() > time)
     {

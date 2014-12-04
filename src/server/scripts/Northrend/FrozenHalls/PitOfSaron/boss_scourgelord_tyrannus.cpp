@@ -1540,7 +1540,7 @@ public:
                     break;
                 case 3:
                         me->GetMotionMaster()->MoveIdle();
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                        me->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetUInt32Value(UNIT_FIELD_BYTES_0, 50331648);

@@ -342,7 +342,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     draft
         .AddMoney(money)
         .AddCOD(COD)
-        .SendMailTo(trans, MailReceiver(receive, rc), MailSender(player), body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
+        .SendMailTo(trans, MailReceiver(receive, rc.GetCounter()), MailSender(player), body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
 
     player->SaveInventoryAndGoldToDB(trans);
     CharacterDatabase.CommitTransaction(trans);

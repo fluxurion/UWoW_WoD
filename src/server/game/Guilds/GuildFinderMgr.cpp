@@ -133,7 +133,7 @@ void GuildFinderMgr::AddMembershipRequest(ObjectGuid const& guildGuid, Membershi
         SendMembershipRequestListUpdate(*player);
 
     // Notify the guild master and officers the list changed
-    if (Guild* guild = sGuildMgr->GetGuildById(guildGuid))
+    if (Guild* guild = sGuildMgr->GetGuildById(guildGuid.GetCounter()))
         SendApplicantListUpdate(*guild);
 }
 
@@ -160,7 +160,7 @@ void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(ObjectGuid const& pla
         itr->second.erase(itr2);
 
         // Notify the guild master and officers the list changed
-        if (Guild* guild = sGuildMgr->GetGuildById(itr->first))
+        if (Guild* guild = sGuildMgr->GetGuildById(itr->first.GetCounter()))
             SendApplicantListUpdate(*guild);
     }
 }
@@ -191,7 +191,7 @@ void GuildFinderMgr::RemoveMembershipRequest(ObjectGuid const& playerId, ObjectG
         SendMembershipRequestListUpdate(*player);
 
     // Notify the guild master and officers the list changed
-    if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+    if (Guild* guild = sGuildMgr->GetGuildById(guildId.GetCounter()))
         SendApplicantListUpdate(*guild);
 }
 
@@ -314,7 +314,7 @@ void GuildFinderMgr::DeleteGuild(ObjectGuid const& guildId)
     _guildSettings.erase(guildId);
 
     // Notify the guild master the list changed (even if he's not a GM any more, not sure if needed)
-    if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+    if (Guild* guild = sGuildMgr->GetGuildById(guildId.GetCounter()))
         SendApplicantListUpdate(*guild);
 }
 
@@ -374,7 +374,7 @@ void GuildFinderMgr::SendApplicantListUpdate(Guild& guild)
 
 void GuildFinderMgr::SendMembershipRequestListUpdate(Player& player)
 {
-    std::vector<MembershipRequest> recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(player.GetGuildId());
+    std::vector<MembershipRequest> recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(ObjectGuid::Create<HighGuid::Guild>(player.GetGuildId()));
     uint32 recruitCount = recruitsList.size();
 
     ByteBuffer dataBuffer(53 * recruitCount);

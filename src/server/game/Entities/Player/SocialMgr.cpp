@@ -65,7 +65,7 @@ bool PlayerSocial::AddToSocialList(ObjectGuid const& friendGuid, bool ignore)
     if (ignore)
     {
         // remove mail from ignored
-        if (Player * player = sObjectMgr->GetPlayerByLowGUID(GetPlayerGUID()))
+        if (Player * player = sObjectMgr->GetPlayerByLowGUID(GetPlayerGUID().GetCounter()))
             player->SafeRemoveMailFromIgnored(friendGuid);
         // set ignored flag
         flag = SOCIAL_FLAG_IGNORED;
@@ -77,7 +77,7 @@ bool PlayerSocial::AddToSocialList(ObjectGuid const& friendGuid, bool ignore)
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_CHARACTER_SOCIAL_FLAGS);
 
         stmt->setUInt8(0, flag);
-        stmt->setUInt32(1, GetPlayerGUID());
+        stmt->setUInt64(1, GetPlayerGUID().GetCounter());
         stmt->setUInt64(2, friendGuid.GetCounter());
 
         CharacterDatabase.Execute(stmt);
@@ -88,7 +88,7 @@ bool PlayerSocial::AddToSocialList(ObjectGuid const& friendGuid, bool ignore)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SOCIAL);
 
-        stmt->setUInt32(0, GetPlayerGUID());
+        stmt->setUInt64(0, GetPlayerGUID().GetCounter());
         stmt->setUInt64(1, friendGuid.GetCounter());
         stmt->setUInt8(2, flag);
 
@@ -111,7 +111,7 @@ void PlayerSocial::RemoveFromSocialList(ObjectGuid const& friendGuid, bool ignor
     if (ignore)
     {
         // remove mail from ignored
-        if (Player * player = sObjectMgr->GetPlayerByLowGUID(GetPlayerGUID()))
+        if (Player * player = sObjectMgr->GetPlayerByLowGUID(GetPlayerGUID().GetCounter()))
             player->SafeRemoveMailFromIgnored(friendGuid);
         // set ignored flag
         flag = SOCIAL_FLAG_IGNORED;
@@ -122,7 +122,7 @@ void PlayerSocial::RemoveFromSocialList(ObjectGuid const& friendGuid, bool ignor
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SOCIAL);
 
-        stmt->setUInt32(0, GetPlayerGUID());
+        stmt->setUInt64(0, GetPlayerGUID().GetCounter());
         stmt->setUInt64(1, friendGuid.GetCounter());
 
         CharacterDatabase.Execute(stmt);
@@ -134,7 +134,7 @@ void PlayerSocial::RemoveFromSocialList(ObjectGuid const& friendGuid, bool ignor
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_REM_CHARACTER_SOCIAL_FLAGS);
 
         stmt->setUInt8(0, flag);
-        stmt->setUInt32(1, GetPlayerGUID());
+        stmt->setUInt64(1, GetPlayerGUID().GetCounter());
         stmt->setUInt64(2, friendGuid.GetCounter());
 
         CharacterDatabase.Execute(stmt);
@@ -152,7 +152,7 @@ void PlayerSocial::SetFriendNote(ObjectGuid const& friendGuid, std::string note)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_SOCIAL_NOTE);
 
     stmt->setString(0, note);
-    stmt->setUInt32(1, GetPlayerGUID());
+    stmt->setUInt64(1, GetPlayerGUID().GetCounter());
     stmt->setUInt64(2, friendGuid.GetCounter());
 
     CharacterDatabase.Execute(stmt);

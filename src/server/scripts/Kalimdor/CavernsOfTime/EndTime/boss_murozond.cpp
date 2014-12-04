@@ -203,7 +203,7 @@ class boss_murozond : public CreatureScript
                         {
                             if (Player* pPlayer = i->getSource())
                                 if (Group* pGroup = pPlayer->GetGroup())
-                                    if (pPlayer->GetGuildId() && pGroup->IsGuildGroup(pPlayer->GetGuildId(), true, true))
+                                    if (pPlayer->GetGuildId() && pGroup->IsGuildGroup(pPlayer->GetGuildGUID(), true, true))
                                     {
                                         pGroup->UpdateGuildAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_MUROZOND, 0, 0, NULL, me);
                                         break;

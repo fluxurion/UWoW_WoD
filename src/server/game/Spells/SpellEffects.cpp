@@ -3647,8 +3647,8 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             if (PetInfo * pet = m_caster->ToPlayer()->GetBattlePetMgr()->GetPetInfoByPetGUID(battlePetGUID))
                             {
                                 // set guids
-                                m_caster->SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, battlePetGUID);
-                                summon->SetUInt64Value(UNIT_FIELD_BATTLE_PET_COMPANION_GUID, battlePetGUID);
+                                m_caster->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, battlePetGUID);
+                                summon->SetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID, battlePetGUID);
                                 // timestamp for custom name cache
                                 if (pet->customName != "")
                                     summon->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, time(NULL));
@@ -6020,8 +6020,8 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
     target->duel      = duel2;
 
-    caster->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
-    target->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
+    caster->SetGuidValue(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
+    target->SetGuidValue(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
 
     sScriptMgr->OnPlayerDuelRequest(target, caster);
 }
@@ -6321,7 +6321,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     float x, y, z, o;
 
     ObjectGuid guid = m_caster->m_ObjectSlot[slot];
-    if (guid != 0)
+    if (guid)
     {
         GameObject* obj = NULL;
         if (m_caster)
@@ -7190,7 +7190,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     {
         case GAMEOBJECT_TYPE_FISHINGNODE:
         {
-            m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, pGameObj->GetGUID());
+            m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, pGameObj->GetGUID());
             m_caster->AddGameObject(pGameObj);              // will removed at spell cancel
 
             // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))

@@ -406,7 +406,7 @@ class boss_amalgam_of_corruption : public CreatureScript
 
             InstanceScript* instance;
             uint8 FrayedCounter;
-            std::map<uint32, uint32> challengeCounter;
+            std::map<ObjectGuid::LowType, uint64> challengeCounter;
 
             void Reset()
             {
@@ -429,12 +429,12 @@ class boss_amalgam_of_corruption : public CreatureScript
             void SetGUID(ObjectGuid const& guid, int32 id)
             {
                 if (id > 0)
-                    ++challengeCounter[uint32(guid)];
+                    ++challengeCounter[guid.GetCounter()];
                 else
-                    --challengeCounter[uint32(guid)];
+                    --challengeCounter[guid.GetCounter()];
             }
 
-            uint32 GetData(ObjectGuid::LowType guid)
+            uint64 GetData64(uint64 guid)
             {  
                 return challengeCounter[guid];
             }
@@ -751,7 +751,7 @@ struct npc_norushenChallengeAI : public ScriptedAI
         if (!instance)
             return;
 
-        me->SetPhaseId(summoner->GetGUID(), true);
+        me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
         me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
 
         if (challenge)
@@ -794,7 +794,7 @@ struct npc_norushenChallengeAI : public ScriptedAI
         {
             summonInRealWorld(amalgam);
             amalgam->AI()->SetGUID(plr->GetGUID(), -1);
-            if (!amalgam->AI()->GetData(plr->GetGUID()))
+            if (!amalgam->AI()->GetData64(plr->GetGUID().GetCounter()))
                 plr->RemoveAurasDueToSpell(SPELL_TEST_OF_SERENITY);
         }
         me->DespawnOrUnsummon();
@@ -1129,7 +1129,7 @@ public:
             if (!instance)
                 return;
 
-            me->SetPhaseId(summoner->GetGUID(), true);
+            me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
             me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
             me->DespawnOrUnsummon(60000);
             me->SetInCombatWithZone();
@@ -1231,7 +1231,7 @@ public:
 
         void IsSummonedBy(Unit* summoner)
         {
-            me->SetPhaseId(summoner->GetGUID(), true);
+            me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
             me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
         }
 
@@ -1354,7 +1354,7 @@ struct npc_norushen_heal_chAI : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner)
     {
-        me->SetPhaseId(summoner->GetGUID(), true);
+        me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
         me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
         if (Creature* corruption = me->FindNearestCreature(NPC_GREATER_CORRUPTION, 50.0f, true))
         {
@@ -1746,7 +1746,7 @@ class spell_norushen_challenge : public SpellScriptLoader
                 if (Creature* norush = instance->instance->GetCreature(instance->GetGuidData(NPC_NORUSHEN)))
                     norush->AI()->ZoneTalk(TEXT_GENERIC_10, target->GetGUID());
 
-                target->SetPhaseId(target->GetGUID(), true);
+                target->SetPhaseId(target->GetGUID().GetCounter(), true);
 
                 //target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_ONLY_OWN_TEMP_CREATRES, ONLY_OWN_TEMP_CREATRES_VISIBILITY_TYPE);
 

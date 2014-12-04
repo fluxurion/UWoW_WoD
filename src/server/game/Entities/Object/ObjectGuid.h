@@ -232,8 +232,37 @@ class ObjectGuid
 
             return _low < guid._low;
         }
-        operator bool() const { return !IsEmpty(); }
 
+        bool operator<= (ObjectGuid const& guid) const
+        {
+            if (_high < guid._high)         return true;
+            else if (_high > guid._high)    return false;
+
+            return _low <= guid._low;
+        }
+
+        bool operator> (ObjectGuid const& guid) const
+        {
+            if (_high > guid._high)        return false;
+            else if (_high < guid._high)   return true;
+
+            return _low > guid._low;
+        }
+
+        bool operator>= (ObjectGuid const& guid) const
+        {
+            if (_high > guid._high)        return true;
+            else if (_high < guid._high)   return false;
+
+            return _low >= guid._low;
+        }
+
+        operator bool() const { return !IsEmpty(); }
+        operator int() const
+        {
+            //static_assert(false, "ooo");
+            return _low;
+        }
         static char const* GetTypeName(HighGuid high);
         char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
         std::string ToString() const;

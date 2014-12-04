@@ -916,7 +916,7 @@ public:
     {
         ObjectGuid guid = handler->GetSession()->GetPlayer()->GetSelection();
 
-        if (guid == 0)
+        if (!guid)
         {
             handler->SendSysMessage(LANG_NO_SELECTION);
             handler->SetSentErrorMessage(true);
@@ -1637,7 +1637,7 @@ public:
 
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
         {
-            target = sObjectMgr->GetPlayerByLowGUID(parseGUID);
+            target = sObjectMgr->GetPlayerByLowGUID(parseGUID.GetCounter());
             targetGuid = parseGUID;
         }
         else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
@@ -2394,7 +2394,7 @@ public:
         //- TODO: Fix poor design
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(subject, text)
-            .SendMailTo(trans, MailReceiver(target, targetGuid), sender);
+            .SendMailTo(trans, MailReceiver(target, targetGuid.GetCounter()), sender);
 
         CharacterDatabase.CommitTransaction(trans);
 
@@ -2634,7 +2634,7 @@ public:
         creatureTarget->RemoveCorpse();
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
-        pet->SetUInt64Value(UNIT_FIELD_CREATEDBY, player->GetGUID());
+        pet->SetGuidValue(UNIT_FIELD_CREATEDBY, player->GetGUID());
         pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))

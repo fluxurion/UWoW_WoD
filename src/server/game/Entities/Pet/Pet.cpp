@@ -341,7 +341,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (getPetType() == HUNTER_PET)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
-        stmt->setUInt32(0, owner->GetGUID().GetCounter());
+        stmt->setUInt64(0, owner->GetGUID().GetCounter());
         stmt->setUInt32(1, GetCharmInfo()->GetPetNumber());
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -1666,7 +1666,7 @@ bool Pet::IsPermanentPetFor(Player* owner)
     }
 }
 
-bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
+bool Pet::Create(ObjectGuid::LowType const& guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
 {
     ASSERT(map);
     SetMap(map);

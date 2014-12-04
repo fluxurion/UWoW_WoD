@@ -30,7 +30,7 @@ FormationMgr::~FormationMgr()
         delete itr->second;
 }
 
-void FormationMgr::AddCreatureToGroup(uint32 groupId, Creature* member)
+void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType const& groupId, Creature* member)
 {
     Map* map = member->FindMap();
     if (!map)
@@ -98,8 +98,8 @@ void FormationMgr::LoadCreatureFormations()
 
         //Load group member data
         group_member                        = new FormationInfo();
-        group_member->leaderGUID            = fields[0].GetUInt32();
-        uint32 memberGUID                   = fields[1].GetUInt32();
+        group_member->leaderGUID            = fields[0].GetUInt64();
+        ObjectGuid::LowType memberGUID      = fields[1].GetUInt64();
         group_member->groupAI               = fields[4].GetUInt32();
         //If creature is group leader we may skip loading of dist/angle
         if (group_member->leaderGUID != memberGUID)

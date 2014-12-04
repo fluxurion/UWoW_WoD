@@ -1461,7 +1461,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_INSPECT: No player found from GUID: " UI64FMTD, uint64(guid));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_INSPECT: No player found from GUID: " UI64FMTD, guid.GetCounter());
         return;
     }
 

@@ -1302,9 +1302,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_GUID)
     {
         if (pet)
-            buffer << uint64(pet->GetGUID());
+            buffer << pet->GetGUID();
         else
-            buffer << uint64(0);
+            buffer << ObjectGuid::Empty;
     }
 
     if (mask & GROUP_UPDATE_FLAG_PET_NAME)

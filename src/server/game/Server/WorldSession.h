@@ -383,8 +383,8 @@ class WorldSession
         void SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId);
 
         //Item Enchantment
-        void SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID);
-        void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration);
+        void SendEnchantmentLog(ObjectGuid const& Target, ObjectGuid const& Caster, uint32 ItemID, uint32 SpellID);
+        void SendItemEnchantTimeUpdate(ObjectGuid const& Playerguid, ObjectGuid const& Itemguid, uint32 slot, uint32 Duration);
 
         //Taxi
         void SendTaxiStatus(ObjectGuid guid);
@@ -604,7 +604,7 @@ class WorldSession
         void HandlePetitionQueryOpcode(WorldPacket& recvData);
         void HandlePetitionRenameOpcode(WorldPacket& recvData);
         void HandlePetitionSignOpcode(WorldPacket& recvData);
-        void SendPetitionSignResult(uint64 playerGuid, uint64 petitionGuid, uint8 result);
+        void SendPetitionSignResult(ObjectGuid const& playerGuid, ObjectGuid const& petitionGuid, uint8 result);
         void HandlePetitionDeclineOpcode(WorldPacket& recvData);
         void HandleOfferPetitionOpcode(WorldPacket& recvData);
         void HandleTurnInPetitionOpcode(WorldPacket& recvData);

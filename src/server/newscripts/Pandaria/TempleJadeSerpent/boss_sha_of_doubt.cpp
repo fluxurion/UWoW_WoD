@@ -257,8 +257,7 @@ class mob_figment_of_doubt : public CreatureScript
 
                             me->ForcedDespawn(5000);
 
-                            ObjectGuid guid_sha_of_doubt = me->GetInstanceScript()->GetGuidData(CREATURE_SHA_OF_DOUBT);
-                            if (guid_sha_of_doubt != 0)
+                            if (ObjectGuid guid_sha_of_doubt = me->GetInstanceScript()->GetGuidData(CREATURE_SHA_OF_DOUBT))
                             {
                                 Creature* creature = me->GetMap()->GetCreature(guid_sha_of_doubt);
                                 if (!creature)

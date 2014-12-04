@@ -120,7 +120,7 @@ public:
             case NPC_SRATHIK:
                 for (uint8 n = 0; n < 3; n++)
                 {
-                    if (srathik[n] == 0)
+                    if (!srathik[n])
                     {
                         srathik[n] = creature->GetGUID();
                         meljaraksoldiersGuids.push_back(srathik[n]);
@@ -131,7 +131,7 @@ public:
             case NPC_ZARTHIK:
                 for (uint8 n = 0; n < 3; n++)
                 {
-                    if (zarthik[n] == 0)
+                    if (!zarthik[n])
                     {
                         zarthik[n] = creature->GetGUID();
                         meljaraksoldiersGuids.push_back(zarthik[n]);
@@ -142,7 +142,7 @@ public:
             case NPC_KORTHIK:
                 for (uint8 n = 0; n < 3; n++)
                 {
-                    if (korthik[n] == 0)
+                    if (!korthik[n])
                     {
                         korthik[n] = creature->GetGUID();
                         meljaraksoldiersGuids.push_back(korthik[n]);

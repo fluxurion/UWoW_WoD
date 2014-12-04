@@ -39,7 +39,7 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     //recvData.ReadGuidMask<6, 2, 3, 7, 0, 4, 1, 5>(guid);
     //recvData.ReadGuidBytes<5, 3, 1, 6, 4, 7, 0, 2>(guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DISMISS_CRITTER for GUID " UI64FMTD, uint64(guid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DISMISS_CRITTER for GUID " UI64FMTD, guid.GetCounter());
 
     Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
 
@@ -477,7 +477,7 @@ void WorldSession::HandlePetNameQuery(WorldPacket & recvData)
     //recvData.ReadGuidBytes<4>(petGuid);
     //recvData.ReadGuidBytes<1>(petNumber);
 
-    SendPetNameQuery(petGuid, petNumber);
+    //SendPetNameQuery(petGuid, petNumber);
 }
 
 void WorldSession::SendPetNameQuery(ObjectGuid petguid, uint32 petnumber)

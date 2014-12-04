@@ -32,7 +32,7 @@ class Transport : public GameObject, public TransportBase
         Transport(uint32 period, uint32 script);
         ~Transport();
 
-        bool Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags);
+        bool Create(ObjectGuid::LowType const& guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags);
         void AddToWorld();
         void RemoveFromWorld();
         bool GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids);

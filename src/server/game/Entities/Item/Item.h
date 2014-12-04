@@ -227,7 +227,7 @@ class Item : public Object
 
         Item();
 
-        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner);
+        virtual bool Create(ObjectGuid::LowType const& guidlow, uint32 itemid, Player const* owner);
 
         ItemTemplate const* GetTemplate() const;
 
@@ -241,7 +241,7 @@ class Item : public Object
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
-        virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
+        virtual bool LoadFromDB(ObjectGuid::LowType const& guid, ObjectGuid const& owner_guid, Field* fields, uint32 entry);
         static void DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
         virtual void DeleteFromDB(SQLTransaction& trans);
         static void DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
@@ -340,7 +340,7 @@ class Item : public Object
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);
-        void SetRefundRecipient(ObjectGuid pGuidLow) { m_refundRecipient = pGuidLow; }
+        void SetRefundRecipient(ObjectGuid const& pGuidLow) { m_refundRecipient = pGuidLow; }
         void SetPaidMoney(uint32 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
         ObjectGuid GetRefundRecipient() { return m_refundRecipient; }

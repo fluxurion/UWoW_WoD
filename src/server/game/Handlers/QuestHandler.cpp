@@ -159,7 +159,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         if (object && object->GetTypeId() == TYPEID_PLAYER && !quest->HasFlag(QUEST_FLAGS_SHARABLE))
             return;
 
-        if (_player->GetDivider() != 0)
+        if (_player->GetDivider())
         {
             Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
             if (!player)
@@ -669,7 +669,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
                     continue;
                 }
 
-                if (player->GetDivider() != 0)
+                if (player->GetDivider())
                 {
                     _player->SendPushToPartyResponse(player, QUEST_PARTY_MSG_BUSY);
                     continue;
@@ -693,7 +693,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_PUSH_RESULT");
 
-    if (_player->GetDivider() == 0)
+    if (!_player->GetDivider())
         return;
 
     Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());

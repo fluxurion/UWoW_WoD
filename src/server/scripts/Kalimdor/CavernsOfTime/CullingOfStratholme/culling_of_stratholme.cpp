@@ -903,7 +903,7 @@ public:
                                 uint32 deadCounter = 0;
                                 for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
                                 {
-                                    if (uiWaveGUID[i] == 0)
+                                    if (!uiWaveGUID[i])
                                         break;
                                     ++mobCounter;
                                     Unit* temp = Unit::GetCreature(*me, uiWaveGUID[i]);

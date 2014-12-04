@@ -635,8 +635,8 @@ public:
                     {
                         uiBlackKnightGUID = pBlackKnight->GetGUID();
                         pBlackKnight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pBlackKnight->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, uiBlackKnightGUID);
+                        pBlackKnight->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
+                        me->SetGuidValue(UNIT_FIELD_TARGET, uiBlackKnightGUID);
                         if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                             pInstance->HandleGameObject(pGO->GetGUID(),false);
                     }

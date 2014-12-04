@@ -89,7 +89,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
             continue;
         }
 
-        tmpGUID = calendarEvent->GetCreatorGUID();
+        //tmpGUID = calendarEvent->GetCreatorGUID();
 
         //data.WriteGuidMask<5, 4, 6>(tmpGUID2); //guild
         //data.WriteGuidMask<0, 3>(tmpGUID); //creator
@@ -153,7 +153,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
             continue;
         }
 
-        tmpGUID = calendarEvent->GetCreatorGUID();
+        //tmpGUID = calendarEvent->GetCreatorGUID();
         //data.WriteGuidMask<7, 0, 5, 4, 1, 6, 3, 2>(tmpGUID);
 
         //inviteBuffer.WriteGuidBytes<3, 4>(tmpGUID);
@@ -359,7 +359,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
 
 void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
 {
-    uint64 guid = _player->GetGUID();
+    ObjectGuid guid = _player->GetGUID();
     uint64 eventId;
     uint64 inviteId;
     std::string title;
@@ -403,7 +403,7 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
 
 void WorldSession::HandleCalendarRemoveEvent(WorldPacket& recvData)
 {
-    uint64 guid = _player->GetGUID();
+    ObjectGuid guid = _player->GetGUID();
     uint64 eventId;
     uint64 inviteId;
     uint32 flags;
@@ -424,7 +424,7 @@ void WorldSession::HandleCalendarRemoveEvent(WorldPacket& recvData)
 
 void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
 {
-    uint64 guid = _player->GetGUID();
+    ObjectGuid guid = _player->GetGUID();
     uint64 eventId;
     uint64 inviteId;
     uint32 time;
@@ -519,7 +519,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
 
 void WorldSession::HandleCalendarEventSignup(WorldPacket& recvData)
 {
-    uint64 guid = _player->GetGUID();
+    ObjectGuid guid = _player->GetGUID();
     uint64 eventId;
     uint8 status;
 
@@ -538,7 +538,7 @@ void WorldSession::HandleCalendarEventSignup(WorldPacket& recvData)
 
 void WorldSession::HandleCalendarEventRsvp(WorldPacket& recvData)
 {
-    uint64 guid = _player->GetGUID();
+    ObjectGuid guid = _player->GetGUID();
     uint64 eventId;
     uint64 inviteId;
     uint8 status;
@@ -721,7 +721,7 @@ void WorldSession::SendCalendarEvent(CalendarEvent const& calendarEvent, Calenda
         }
         else
         {
-            data.appendPackGUID(_player->GetGUID());
+            data << _player->GetGUID().WriteAsPacked();
             data << uint8(0) << uint8(0) << uint8(0) << uint8(0)
                 << uint64(0) << uint32(0) << uint8(0);
 

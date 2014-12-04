@@ -119,7 +119,7 @@ class PlayerSocial
         // Misc
         bool HasFriend(ObjectGuid const& friend_guid);
         bool HasIgnore(ObjectGuid const& ignore_guid);
-        ObjectGuid const& GetPlayerGUID() const { return m_playerGUID; }
+        ObjectGuid GetPlayerGUID() const { return m_playerGUID; }
         void SetPlayerGUID(ObjectGuid const& guid) { m_playerGUID = guid; }
         uint32 GetNumberOfSocialsWithFlag(SocialFlag flag);
     private:

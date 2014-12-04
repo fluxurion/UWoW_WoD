@@ -923,7 +923,7 @@ void ObjectMgr::LoadCreatureAddons()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-CreatureAddon const* ObjectMgr::GetCreatureAddon(ObjectGuid::LowType lowguid)
+CreatureAddon const* ObjectMgr::GetCreatureAddon(ObjectGuid::LowType const& lowguid)
 {
     CreatureAddonContainer::const_iterator itr = _creatureAddonStore.find(lowguid);
     if (itr != _creatureAddonStore.end())
@@ -1333,7 +1333,7 @@ void ObjectMgr::LoadLinkedRespawn()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded " UI64FMTD " linked respawns in %u ms", uint64(_linkedRespawnStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
-bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid::LowType linkedGuidLow)
+bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType const& guidLow, ObjectGuid::LowType const& linkedGuidLow)
 {
     if (!guidLow)
         return false;
@@ -1345,7 +1345,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
     {
         _linkedRespawnStore.erase(guid);
         PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CRELINKED_RESPAWN);
-        stmt->setUInt32(0, guidLow);
+        stmt->setUInt64(0, guidLow);
         WorldDatabase.Execute(stmt);
         return true;
     }
@@ -1369,8 +1369,8 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
 
     _linkedRespawnStore[guid] = linkedGuid;
     PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
-    stmt->setUInt32(0, guidLow);
-    stmt->setUInt32(1, linkedGuidLow);
+    stmt->setUInt64(0, guidLow);
+    stmt->setUInt64(1, linkedGuidLow);
     WorldDatabase.Execute(stmt);
     return true;
 }
@@ -1941,7 +1941,7 @@ void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectDat
     }
 }
 
-Player* ObjectMgr::GetPlayerByLowGUID(ObjectGuid::LowType lowguid) const
+Player* ObjectMgr::GetPlayerByLowGUID(ObjectGuid::LowType const& lowguid) const
 {
     return ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(lowguid));
 }
@@ -7156,7 +7156,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spellclick definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::DeleteCreatureData(ObjectGuid::LowType guid)
+void ObjectMgr::DeleteCreatureData(ObjectGuid::LowType const& guid)
 {
     // remove mapid*cellid -> guid_set map
     CreatureData const* data = GetCreatureData(guid);
@@ -7166,7 +7166,7 @@ void ObjectMgr::DeleteCreatureData(ObjectGuid::LowType guid)
     _creatureDataStore.erase(guid);
 }
 
-void ObjectMgr::DeleteGOData(ObjectGuid::LowType guid)
+void ObjectMgr::DeleteGOData(ObjectGuid::LowType const& guid)
 {
     // remove mapid*cellid -> guid_set map
     GameObjectData const* data = GetGOData(guid);

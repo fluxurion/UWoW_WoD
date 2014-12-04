@@ -41,8 +41,8 @@ class GameObjectAI
 
         // Pass parameters between AI
         virtual void DoAction(const int32 /*param = 0 */) {}
-        virtual void SetGUID(const uint64& /*guid*/, int32 /*id = 0 */) {}
-        virtual uint64 GetGUID(int32 /*id = 0 */) { return 0; }
+        virtual void SetGUID(ObjectGuid const& /*guid*/, int32 /*id = 0 */) {}
+        virtual ObjectGuid GetGUID(int32 /*id = 0 */) { return ObjectGuid::Empty; }
 
         static int Permissible(GameObject const* go);
 

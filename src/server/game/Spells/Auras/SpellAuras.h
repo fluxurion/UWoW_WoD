@@ -90,8 +90,8 @@ class Aura
 {
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID);
     public:
-        void SetAuraTimer(int32 time, uint64 guid = 0);
-        typedef std::map<uint64, AuraApplication *> ApplicationMap;
+        void SetAuraTimer(int32 time, ObjectGuid guid = ObjectGuid::Empty);
+        typedef std::map<ObjectGuid, AuraApplication *> ApplicationMap;
 
         static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibleEffectMask, WorldObject* owner);
         static Aura* TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount = NULL, Item* castItem = NULL, ObjectGuid casterGUID = ObjectGuid::Empty, bool* refresh = NULL, uint16 stackAmount = NULL);
@@ -191,9 +191,9 @@ class Aura
         // Helpers for targets
         ApplicationMap const & GetApplicationMap() {return m_applications;}
         void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
-        const AuraApplication * GetApplicationOfTarget (uint64 guid) const { ApplicationMap::const_iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return NULL; }
-        AuraApplication * GetApplicationOfTarget (uint64 guid) { ApplicationMap::iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return NULL; }
-        bool IsAppliedOnTarget(uint64 guid) const { return m_applications.find(guid) != m_applications.end(); }
+        const AuraApplication * GetApplicationOfTarget (ObjectGuid const& guid) const { ApplicationMap::const_iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return NULL; }
+        AuraApplication * GetApplicationOfTarget (ObjectGuid const& guid) { ApplicationMap::iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return NULL; }
+        bool IsAppliedOnTarget(ObjectGuid const& guid) const { return m_applications.find(guid) != m_applications.end(); }
 
         void SetNeedClientUpdateForTargets() const;
         void HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, bool apply, bool onReapply);

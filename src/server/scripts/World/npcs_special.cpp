@@ -490,7 +490,7 @@ class npc_air_force_bots : public CreatureScript
                     if (!playerTarget->isAlive())
                         return;
 
-                    Creature* lastSpawnedGuard = SpawnedGUID == 0 ? NULL : GetSummonedGuard();
+                    Creature* lastSpawnedGuard = !SpawnedGUID ? NULL : GetSummonedGuard();
 
                     // prevent calling Unit::GetUnit at next MoveInLineOfSight call - speedup
                     if (!lastSpawnedGuard)

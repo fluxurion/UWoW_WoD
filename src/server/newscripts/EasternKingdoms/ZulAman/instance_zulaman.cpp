@@ -293,10 +293,6 @@ class instance_zulaman : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_MAIN_GATE:
-                        return MainGateGUID;
-                    case DATA_TEMPEST:
-                        return AmanishiTempestGUID;
                     case DATA_VENDOR_1:
                         return uiVendor1;
                     case DATA_VENDOR_2:

@@ -32,7 +32,7 @@ typedef std::set<ChallengeMember> ChallengeMemberList;
 struct Challenge
 {
     uint32 Id;              // challenge id
-    ObjectGuid guildId;     // is it guild group
+    ObjectGuid::LowType guildId; // is it guild group
     uint16 mapID;
     uint32 recordTime;      // time taken for complite challenge
     uint32 date;            // time when recorde done
@@ -44,7 +44,7 @@ struct Challenge
 typedef UNORDERED_MAP<uint16/*map*/, Challenge *> ChallengeByMap;
 typedef UNORDERED_MAP<uint32/*id*/, Challenge *> ChallengeMap;
 typedef UNORDERED_MAP<ObjectGuid/*MemberGUID*/, ChallengeByMap> ChallengesOfMember;
-typedef UNORDERED_MAP<uint32/*guild*/, ChallengeByMap> GuildBestRecord;
+typedef UNORDERED_MAP<ObjectGuid::LowType/*guild*/, ChallengeByMap> GuildBestRecord;
 typedef UNORDERED_MAP<uint16/*map*/, uint32/*QuestCredit*/> QuestCreditForMap;
 typedef UNORDERED_MAP<uint8/*medal*/, uint32/*curency count*/> CurencyRewardMap;
 class ChallengeMgr
@@ -65,13 +65,13 @@ class ChallengeMgr
         uint32 GenerateChallengeID() { return ++challengeGUID; }
         void CheckBestMapId(Challenge *c);
         void CheckBestGuildMapId(Challenge *c);
-        void CheckBestMemberMapId(ObjectGuid guid, Challenge *c);
+        void CheckBestMemberMapId(ObjectGuid const& guid, Challenge *c);
 
         void GroupReward(Map *instance, uint32 recordTime, ChallengeMode medal);
 
         Challenge * BestServerChallenge(uint16 map);
-        Challenge * BestGuildChallenge(uint32 guildId, uint16 map);
-        ChallengeByMap * BestForMember(ObjectGuid guid)
+        Challenge * BestGuildChallenge(ObjectGuid::LowType const& guildId, uint16 map);
+        ChallengeByMap * BestForMember(ObjectGuid const& guid)
         {
             ChallengesOfMember::iterator itr = m_ChallengesOfMember.find(guid);
             if (itr == m_ChallengesOfMember.end())

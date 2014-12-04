@@ -501,7 +501,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
 
     stmt->setUInt64(0, ownerGuid.GetCounter());
     stmt->setUInt64(1, petitionGuid.GetCounter());
-    stmt->setUInt32(2, playerGuid);
+    stmt->setUInt64(2, playerGuid.GetCounter());
     stmt->setUInt32(3, GetAccountId());
 
     CharacterDatabase.Execute(stmt);
@@ -522,7 +522,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
     }
 }
 
-void WorldSession::SendPetitionSignResult(uint64 playerGuid, uint64 petitionGuid, uint8 result)
+void WorldSession::SendPetitionSignResult(ObjectGuid const& playerGuid, ObjectGuid const& petitionGuid, uint8 result)
 {
     WorldPacket data(SMSG_PETITION_SIGN_RESULTS, 8 + 8 + 1 + 1 + 1);
 

@@ -1352,7 +1352,7 @@ void ScriptMgr::OnPlayerEmote(Player* player, uint32 emote)
     FOREACH_SCRIPT(PlayerScript)->OnEmote(player, emote);
 }
 
-void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid)
+void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, ObjectGuid const& guid)
 {
     FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, textEmote, emoteNum, guid);
 }
@@ -1377,7 +1377,7 @@ void ScriptMgr::OnPlayerCreate(Player* player)
     FOREACH_SCRIPT(PlayerScript)->OnCreate(player);
 }
 
-void ScriptMgr::OnPlayerDelete(uint64 guid)
+void ScriptMgr::OnPlayerDelete(ObjectGuid const& guid)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDelete(guid);
 }
@@ -1450,25 +1450,25 @@ void ScriptMgr::OnGuildBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uin
 }
 
 // Group
-void ScriptMgr::OnGroupAddMember(Group* group, uint64 guid)
+void ScriptMgr::OnGroupAddMember(Group* group, ObjectGuid const& guid)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnAddMember(group, guid);
 }
 
-void ScriptMgr::OnGroupInviteMember(Group* group, uint64 guid)
+void ScriptMgr::OnGroupInviteMember(Group* group, ObjectGuid const& guid)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnInviteMember(group, guid);
 }
 
-void ScriptMgr::OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason)
+void ScriptMgr::OnGroupRemoveMember(Group* group, ObjectGuid const& guid, RemoveMethod method, ObjectGuid const& kicker, const char* reason)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnRemoveMember(group, guid, method, kicker, reason);
 }
 
-void ScriptMgr::OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
+void ScriptMgr::OnGroupChangeLeader(Group* group, ObjectGuid const& newLeaderGuid, ObjectGuid const& oldLeaderGuid)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnChangeLeader(group, newLeaderGuid, oldLeaderGuid);

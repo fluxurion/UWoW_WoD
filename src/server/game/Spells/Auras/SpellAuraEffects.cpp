@@ -8047,7 +8047,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster, SpellEf
 
     target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellInfo());
 
-    bool haveCastItem = GetBase()->GetCastItemGUID() != 0;
+    bool haveCastItem = GetBase()->GetCastItemGUID();
 
     // Health Funnel
     // damage caster for heal amount

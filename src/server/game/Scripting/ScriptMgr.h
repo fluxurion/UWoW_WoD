@@ -745,7 +745,7 @@ class PlayerScript : public ScriptObject
         // Both of the below are called on emote opcodes.
         virtual void OnEmote(Player* /*player*/, uint32 /*emote*/) { }
 
-        virtual void OnTextEmote(Player* /*player*/, uint32 /*textEmote*/, uint32 /*emoteNum*/, uint64 /*guid*/) { }
+        virtual void OnTextEmote(Player* /*player*/, uint32 /*textEmote*/, uint32 /*emoteNum*/, ObjectGuid const& /*guid*/) { }
 
         // Called in Spell::Cast.
         virtual void OnSpellCast(Player* /*player*/, Spell* /*spell*/, bool /*skipCheck*/) { }
@@ -760,7 +760,7 @@ class PlayerScript : public ScriptObject
         virtual void OnCreate(Player* /*player*/) { }
 
         // Called when a player is deleted.
-        virtual void OnDelete(uint64 /*guid*/) { }
+        virtual void OnDelete(ObjectGuid const& /*guid*/) { }
 
         // Called when a player is bound to an instance
         virtual void OnBindToInstance(Player* /*player*/, Difficulty /*difficulty*/, uint32 /*mapId*/, bool /*permanent*/) { }
@@ -826,16 +826,16 @@ class GroupScript : public ScriptObject
         bool IsDatabaseBound() const { return false; }
 
         // Called when a member is added to a group.
-        virtual void OnAddMember(Group* /*group*/, uint64 /*guid*/) { }
+        virtual void OnAddMember(Group* /*group*/, ObjectGuid const& /*guid*/) { }
 
         // Called when a member is invited to join a group.
-        virtual void OnInviteMember(Group* /*group*/, uint64 /*guid*/) { }
+        virtual void OnInviteMember(Group* /*group*/, ObjectGuid const& /*guid*/) { }
 
         // Called when a member is removed from a group.
-        virtual void OnRemoveMember(Group* /*group*/, uint64 /*guid*/, RemoveMethod /*method*/, uint64 /*kicker*/, const char* /*reason*/) { }
+        virtual void OnRemoveMember(Group* /*group*/, ObjectGuid const& /*guid*/, RemoveMethod /*method*/, ObjectGuid const& /*kicker*/, const char* /*reason*/) { }
 
         // Called when the leader of a group is changed.
-        virtual void OnChangeLeader(Group* /*group*/, uint64 /*newLeaderGuid*/, uint64 /*oldLeaderGuid*/) { }
+        virtual void OnChangeLeader(Group* /*group*/, ObjectGuid const& /*newLeaderGuid*/, ObjectGuid const& /*oldLeaderGuid*/) { }
 
         // Called when a group is disbanded.
         virtual void OnDisband(Group* /*group*/) { }
@@ -1043,12 +1043,12 @@ class ScriptMgr
         void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild);
         void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel);
         void OnPlayerEmote(Player* player, uint32 emote);
-        void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid);
+        void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, ObjectGuid const& guid);
         void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck);
         void OnPlayerLogin(Player* player);
         void OnPlayerLogout(Player* player);
         void OnPlayerCreate(Player* player);
-        void OnPlayerDelete(uint64 guid);
+        void OnPlayerDelete(ObjectGuid const& guid);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
 
@@ -1069,10 +1069,10 @@ class ScriptMgr
 
     public: /* GroupScript */
 
-        void OnGroupAddMember(Group* group, uint64 guid);
-        void OnGroupInviteMember(Group* group, uint64 guid);
-        void OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason);
-        void OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
+        void OnGroupAddMember(Group* group, ObjectGuid const& guid);
+        void OnGroupInviteMember(Group* group, ObjectGuid const& guid);
+        void OnGroupRemoveMember(Group* group, ObjectGuid const& guid, RemoveMethod method, ObjectGuid const& kicker, const char* reason);
+        void OnGroupChangeLeader(Group* group, ObjectGuid const& newLeaderGuid, ObjectGuid const& oldLeaderGuid);
         void OnGroupDisband(Group* group);
 
     public: /* Scheduled scripts */

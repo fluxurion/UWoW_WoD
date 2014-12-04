@@ -1790,7 +1790,7 @@ public:
                             {
                                 BadAvery->SetOrientation(BadAvery->GetAngle(player)); // Face Player
                                 BadAvery->CastSpell(player, 69873, true); // Do Cosmetic Attack
-                                player->GetMotionMaster()->MoveJump(-1791.94f, 1427.29f, 12.4584f, 22.0f, 8.0f, PlayerGUID);
+                                player->GetMotionMaster()->MoveJump(-1791.94f, 1427.29f, 12.4584f, 22.0f, 8.0f);
                                 BadAvery->getThreatManager().resetAllAggro();
                                 tEvent = 1200;
                                 Phase++;

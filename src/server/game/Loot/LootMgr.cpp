@@ -965,7 +965,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
 
                     if (l.items[i].is_blocked)
                         slot_type = LOOT_SLOT_TYPE_ROLL_ONGOING;
-                    else if (l.roundRobinPlayer == 0 || !l.items[i].is_underthreshold || lv.viewer->GetGUID() == l.roundRobinPlayer)
+                    else if (!l.roundRobinPlayer || !l.items[i].is_underthreshold || lv.viewer->GetGUID() == l.roundRobinPlayer)
                     {
                         // no round robin owner or he has released the loot
                         // or it IS the round robin group owner
@@ -1002,7 +1002,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             {
                 if (!l.items[i].is_looted && !l.items[i].freeforall && !l.items[i].currency && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
                 {
-                    if (l.roundRobinPlayer != 0 && lv.viewer->GetGUID() != l.roundRobinPlayer)
+                    if (l.roundRobinPlayer && lv.viewer->GetGUID() != l.roundRobinPlayer)
                         // item shall not be displayed.
                         continue;
 

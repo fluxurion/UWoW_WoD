@@ -191,7 +191,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, ObjectGuid w
 
     if (tempGroup.empty())
     {
-        CreatureTextRepeatMap::iterator mapItr = mTextRepeatMap.find(source->GetGUID());
+        CreatureTextRepeatMap::iterator mapItr = mTextRepeatMap.find(source->GetGUID().GetCounter());
         if (mapItr != mTextRepeatMap.end())
         {
             CreatureTextRepeatGroup::iterator groupItr = mapItr->second.find(textGroup);
@@ -375,7 +375,7 @@ void CreatureTextMgr::SetRepeatId(Creature* source, uint8 textGroup, uint8 id)
     if (!source)
         return;
 
-    CreatureTextRepeatIds& repeats = mTextRepeatMap[source->GetGUID()][textGroup];
+    CreatureTextRepeatIds& repeats = mTextRepeatMap[source->GetGUID().GetCounter()][textGroup];
     if (std::find(repeats.begin(), repeats.end(), id) == repeats.end())
         repeats.push_back(id);
     else
@@ -387,7 +387,7 @@ CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 te
     ASSERT(source);//should never happen
     CreatureTextRepeatIds ids;
 
-    CreatureTextRepeatMap::const_iterator mapItr = mTextRepeatMap.find(source->GetGUID());
+    CreatureTextRepeatMap::const_iterator mapItr = mTextRepeatMap.find(source->GetGUID().GetCounter());
     if (mapItr != mTextRepeatMap.end())
     {
         CreatureTextRepeatGroup::const_iterator groupItr = (*mapItr).second.find(textGroup);

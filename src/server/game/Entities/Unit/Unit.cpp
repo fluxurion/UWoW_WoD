@@ -1657,7 +1657,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 {
     WorldPacket data(SMSG_EMOTE, 4 + 8);
     data << uint32(anim_id);
-    data << uint64(GetGUID());
+    data << GetGUID();
     SendMessageToSet(&data, true);
 }
 
@@ -5657,8 +5657,8 @@ void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
 void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 {
     WorldPacket data(SMSG_PROCRESIST, 8+8+4+1);
-    data << uint64(GetGUID());
-    data << uint64(target->GetGUID());
+    data << GetGUID();
+    data << target->GetGUID();
     data << uint32(spellId);
     data << uint8(0); // bool - log format: 0-default, 1-debug
     SendMessageToSet(&data, true);
@@ -21744,7 +21744,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     *data << GetPositionZMinusOffset();
     *data << GetOrientation();
 
-    bool onTransport = m_movementInfo.t_guid != 0;
+    bool onTransport = m_movementInfo.t_guid;
     bool hasInterpolatedMovement = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT;
     bool time3 = false;
     bool swimming = ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
@@ -21773,7 +21773,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
 
     data->FlushBits(); // reset bit stream
 
-    *data << uint64(GetGUID());
+    *data << GetGUID();
     *data << uint32(getMSTime());
     *data << float(GetPositionX());
     *data << float(GetPositionY());
@@ -21783,11 +21783,11 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     if (onTransport)
     {
         if (m_vehicle)
-            *data << uint64(m_vehicle->GetBase()->GetGUID());
+            *data << m_vehicle->GetBase()->GetGUID();
         else if (GetTransport())
-            *data << uint64(GetTransport()->GetGUID());
+            *data << GetTransport()->GetGUID();
         else // probably should never happen
-            *data << (uint64)0;
+            *data << ObjectGuid::Empty;
 
         *data << float (GetTransOffsetX());
         *data << float (GetTransOffsetY());
@@ -22491,7 +22491,7 @@ void Unit::SendTeleportPacket(Position &destPos)
     //data.WriteGuidMask<7>(guid);
     data.WriteBit(0);       // byte33
     //data.WriteGuidMask<2, 0>(guid);
-    data.WriteBit(transGuid != 0);
+    data.WriteBit(bool(transGuid));
     if (transGuid)
         //data.WriteGuidMask<4, 3, 5, 7, 0, 2, 6, 1>(transGuid);
     //data.WriteGuidMask<5, 1, 3, 6, 4>(guid);

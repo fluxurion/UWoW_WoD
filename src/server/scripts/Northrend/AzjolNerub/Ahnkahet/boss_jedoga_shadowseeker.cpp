@@ -109,7 +109,7 @@ public:
 
                 instance->SetGuidData(DATA_PL_JEDOGA_TARGET, ObjectGuid::Empty);
                 instance->SetGuidData(DATA_ADD_JEDOGA_OPFER, ObjectGuid::Empty);
-                instance->SetData(DATA_JEDOGA_RESET_INITIANDS, ObjectGuid::Empty);
+                instance->SetData(DATA_JEDOGA_RESET_INITIANDS, 0);
             }
             MoveUp();
 

@@ -401,7 +401,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         //data->WriteGuidMask<2>(guid);
         data->WriteBit(0);                          // !hasTimeStamp
         //data->WriteGuidMask<0>(guid);
-        data->WriteBit(transGuid);                  // has transport data
+        //data->WriteBit(transGuid);                  // has transport data
 
         if (transGuid)
         {
@@ -2792,7 +2792,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
     if (summoner)
-        summon->SetUInt32Value(UNIT_FIELD_DEMON_CREATOR, summoner->GetGUID());
+        summon->SetGuidValue(UNIT_FIELD_DEMON_CREATOR, summoner->GetGUID());
 
     summon->SetTargetGUID(targetGuid);
 
