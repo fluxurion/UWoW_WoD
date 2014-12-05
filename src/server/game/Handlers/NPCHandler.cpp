@@ -522,7 +522,7 @@ void WorldSession::SendBindPoint(Creature* npc)
     stmt->setFloat (2, _player->GetPositionX());
     stmt->setFloat (3, _player->GetPositionY());
     stmt->setFloat (4, _player->GetPositionZ());
-    stmt->setUInt32(5, _player->GetGUID().GetCounter());
+    stmt->setUInt64(5, _player->GetGUID().GetCounter());
     CharacterDatabase.Execute(stmt);
 
     _player->m_homebindMapId = _player->GetMapId();
@@ -577,7 +577,7 @@ void WorldSession::SendStablePet(ObjectGuid guid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DETAIL);
 
-    stmt->setUInt32(0, _player->GetGUID().GetCounter());
+    stmt->setUInt64(0, _player->GetGUID().GetCounter());
 
     _sendStabledPetCallback.SetParam(guid);
     _sendStabledPetCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));

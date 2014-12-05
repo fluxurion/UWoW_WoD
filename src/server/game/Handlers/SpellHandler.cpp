@@ -429,7 +429,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
 
-        stmt->setUInt32(0, item->GetGUID().GetCounter());
+        stmt->setUInt64(0, item->GetGUID().GetCounter());
 
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -439,7 +439,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
             uint32 entry = fields[0].GetUInt32();
             uint32 flags = fields[1].GetUInt32();
 
-            item->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, 0);
+            item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, 0);
             item->SetEntry(entry);
             item->SetUInt32Value(ITEM_FIELD_FLAGS, flags);
             item->SetState(ITEM_CHANGED, pUser);
@@ -453,7 +453,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
 
-        stmt->setUInt32(0, item->GetGUID().GetCounter());
+        stmt->setUInt64(0, item->GetGUID().GetCounter());
 
         CharacterDatabase.Execute(stmt);
     }

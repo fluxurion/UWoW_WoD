@@ -877,6 +877,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_FINDS       = 40,
     PLAYER_LOGIN_QUERY_LOAD_PERSONAL_RATE           = 41,
     PLAYER_LOGIN_QUERY_LOAD_VISUAL                  = 42,
+    PLAYER_LOGIN_QUERY_HONOR                        = 43,
 
     MAX_PLAYER_LOGIN_QUERY
 };
@@ -3222,7 +3223,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadArchaelogy(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
         void _LoadBattlePets(PreparedQueryResult result);
-        void _LoadHonor();
+        void _LoadHonor(PreparedQueryResult resultUnread);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/

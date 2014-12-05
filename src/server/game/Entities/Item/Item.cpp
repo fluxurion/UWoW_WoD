@@ -407,7 +407,13 @@ void Item::SaveToDB(SQLTransaction& trans)
             if (!isInTransaction)
                 CharacterDatabase.CommitTransaction(trans);
 
-            CharacterDatabase.PExecute("UPDATE character_donate SET state = 1, deletedate = '%s' WHERE itemguid = '%u'", TimeToTimestampStr(time(NULL)).c_str(), guid);
+            //CharacterDatabase.PExecute("UPDATE character_donate SET state = 1, deletedate = '%s' WHERE itemguid = '%u'", TimeToTimestampStr(time(NULL)).c_str(), guid);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_ITEM_DONATE_SET_STATE);
+            stmt->setUInt32(0, 1);
+            stmt->setString(1, TimeToTimestampStr(time(NULL)).c_str());
+            stmt->setUInt64(2, guid);
+            trans->Append(stmt);
+
             delete this;
             return;
         }
@@ -559,7 +565,12 @@ void Item::DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
     stmt->setUInt64(0, itemGuid);
     trans->Append(stmt);
-    CharacterDatabase.PExecute("UPDATE character_donate SET state = 1, deletedate = '%s' WHERE itemguid = '%u'", TimeToTimestampStr(time(NULL)).c_str(), itemGuid);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_ITEM_DONATE_SET_STATE);
+    stmt->setUInt32(0, 1);
+    stmt->setString(1, TimeToTimestampStr(time(NULL)).c_str());
+    stmt->setUInt64(2, itemGuid);
+    trans->Append(stmt);
 }
 
 void Item::DeleteFromDB(SQLTransaction& trans)

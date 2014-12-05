@@ -19252,7 +19252,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetFallInformation(0, GetPositionZ());
 
     _LoadSpellCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS));
-    _LoadHonor();
+    _LoadHonor(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_HONOR));
 
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
     // Do now before stats re-calculation cleanup for ghost state unexpected auras
@@ -28211,7 +28211,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 stmt->setString(j++, eqset.IconName.c_str());
                 stmt->setUInt32(j++, eqset.IgnoreMask);
                 for (uint8 i=0; i<EQUIPMENT_SLOT_END; ++i)
-                    stmt->setUInt32(j++, eqset.Items[i]);
+                    stmt->setUInt64(j++, eqset.Items[i]);
                 stmt->setUInt64(j++, GetGUID().GetCounter());
                 stmt->setUInt64(j++, eqset.Guid);
                 stmt->setUInt32(j, index);
@@ -28228,7 +28228,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 stmt->setString(j++, eqset.IconName.c_str());
                 stmt->setUInt32(j++, eqset.IgnoreMask);
                 for (uint8 i=0; i<EQUIPMENT_SLOT_END; ++i)
-                    stmt->setUInt32(j++, eqset.Items[i]);
+                    stmt->setUInt64(j++, eqset.Items[i]);
                 trans->Append(stmt);
                 eqset.state = EQUIPMENT_SET_UNCHANGED;
                 ++itr;
@@ -29693,11 +29693,11 @@ void Player::SendSoundToAll(uint32 soundId, ObjectGuid source)
     }
 }
 
-void Player::_LoadHonor()
+void Player::_LoadHonor(PreparedQueryResult result)
 {
     // kills in the DB are for one day always
     // so if the last was today then they all were
-    QueryResult result = CharacterDatabase.PQuery("SELECT victim_guid, count FROM character_kill WHERE guid='%u'", GetGUID().GetCounter());
+    //QueryResult result = CharacterDatabase.PQuery("SELECT victim_guid, count FROM character_kill WHERE guid='%u'", GetGUID().GetCounter());
     if (result)
     {
         do
@@ -29720,10 +29720,14 @@ void Player::_SaveHonor()
 //    if(!sWorld.getConfig(CONFIG_HONOR_KILL_LIMIT))
 //        return;
 
+    PreparedStatement* stmt;
     // flush all kills from the DB at midnight
     if(m_flushKills)
     {
-        CharacterDatabase.PExecute("DELETE FROM character_kill WHERE guid = '%u'", GetGUID().GetCounter());
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_KILL);
+        stmt->setUInt64(0, GetGUID().GetCounter());
+        CharacterDatabase.Execute(stmt);
+
         m_flushKills = false;
     }
 
@@ -29735,11 +29739,18 @@ void Player::_SaveHonor()
             switch(itr->second.state)
             {
                 case KILL_NEW:
-                    CharacterDatabase.PExecute("DELETE FROM character_kill WHERE guid = '%u' AND victim_guid = '%u'", GetGUID().GetCounter(), itr->first);
-                    CharacterDatabase.PExecute("REPLACE INTO character_kill VALUES ('%u','%u','%u')", GetGUID().GetCounter(), itr->first, itr->second.count);
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_KILL);
+                    stmt->setUInt64(0, GetGUID().GetCounter());
+                    stmt->setUInt64(1, itr->first);
+                    stmt->setUInt32(1, itr->second.count);
+                    CharacterDatabase.Execute(stmt);
                     break;
                 case KILL_CHANGED:
-                    CharacterDatabase.PExecute("UPDATE character_kill SET count='%u' WHERE guid = '%u' AND victim_guid = '%u'", itr->second.count, GetGUID().GetCounter(), itr->first);
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_KILL);
+                    stmt->setUInt32(0, itr->second.count);
+                    stmt->setUInt64(1, GetGUID().GetCounter());
+                    stmt->setUInt64(1, itr->first);
+                    CharacterDatabase.Execute(stmt);
                     break;
             }
             itr->second.state = KILL_UNCHANGED;

@@ -28,7 +28,7 @@ public:
     {
         if(!player)
             return;
-        uint32 owner_guid = player->GetGUID().GetCounter();
+        ObjectGuid::LowType owner_guid = player->GetGUID().GetCounter();
         ChatHandler chH = ChatHandler(player);
 
         //type:
