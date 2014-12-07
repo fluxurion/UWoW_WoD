@@ -50,7 +50,7 @@ void BattlegroundRB::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
 }
 
-void BattlegroundRB::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundRB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
 {
 }
 
@@ -63,7 +63,7 @@ void BattlegroundRB::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
 
 void BattlegroundRB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
-    std::map<uint64, BattlegroundScore*>::iterator itr = PlayerScores.find(Source->GetGUID());
+    std::map<ObjectGuid, BattlegroundScore*>::iterator itr = PlayerScores.find(Source->GetGUID());
 
     if (itr == PlayerScores.end())                         // player not found...
         return;

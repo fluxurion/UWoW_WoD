@@ -315,7 +315,7 @@ public:
                 if (!LightningCharge)
                 {
                     if (instance)
-                        me->CastSpell(me, SPELL_LIGHTNING_CHARGE, false, NULL, NULL, instance->GetData64(DATA_SIAMAT));
+                        me->CastSpell(me, SPELL_LIGHTNING_CHARGE, false, NULL, NULL, instance->GetGuidData(DATA_SIAMAT));
 
                     LightningCharge = true;
                     me->SetReactState(REACT_PASSIVE);
@@ -405,7 +405,7 @@ public:
                 InstanceScript* instance = me->GetInstanceScript();
 
                 if (instance)
-                    if (Creature* siamat = Unit::GetCreature(*me, instance->GetData64(DATA_SIAMAT)))
+                    if (Creature* siamat = Unit::GetCreature(*me, instance->GetGuidData(DATA_SIAMAT)))
                         siamat->AI()->JustSummoned(summoned);
             }
         }

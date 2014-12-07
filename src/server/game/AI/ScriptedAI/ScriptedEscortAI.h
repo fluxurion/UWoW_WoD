@@ -81,7 +81,7 @@ struct npc_escortAI : public ScriptedAI
         virtual void LastWaypointReached() {}
         virtual void WaypointStart(uint32 /*pointId*/) {}
 
-        void Start(bool isActiveAttacker = true, bool run = false, uint64 playerGUID = 0, Quest const* quest = NULL, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true);
+        void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = ObjectGuid::Empty, Quest const* quest = NULL, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true);
 
         void SetRun(bool on = true);
         void SetEscortPaused(bool on);
@@ -96,11 +96,11 @@ struct npc_escortAI : public ScriptedAI
         void SetDespawnAtFar(bool despawn) { DespawnAtFar = despawn; }
         bool GetAttack() { return m_bIsActiveAttacker; }//used in EnterEvadeMode override
         void SetCanAttack(bool attack) { m_bIsActiveAttacker = attack; }
-        uint64 GetEventStarterGUID() { return m_uiPlayerGUID; }
+        ObjectGuid GetEventStarterGUID() { return m_uiPlayerGUID; }
         void SetCurentWP(uint32 id);
         uint32 GetCurentWP() { return CurrentWP->id; }
 
-        void SetFollowerGUID(uint64 guid) { m_uifollowerGUID = guid; } // add follower guid
+        void SetFollowerGUID(ObjectGuid guid) { m_uifollowerGUID = guid; } // add follower guid
     protected:
         Player* GetPlayerForEscort() { return (Player*)Unit::GetUnit(*me, m_uiPlayerGUID); }
 
@@ -112,8 +112,8 @@ struct npc_escortAI : public ScriptedAI
         void AddEscortState(uint32 escortState) { m_uiEscortState |= escortState; }
         void RemoveEscortState(uint32 escortState) { m_uiEscortState &= ~escortState; }
 
-        uint64 m_uifollowerGUID;
-        uint64 m_uiPlayerGUID;
+        ObjectGuid m_uifollowerGUID;
+        ObjectGuid m_uiPlayerGUID;
         uint32 m_uiWPWaitTimer;
         uint32 m_uiPlayerCheckTimer;
         uint32 m_uiEscortState;

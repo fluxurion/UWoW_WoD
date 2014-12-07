@@ -299,11 +299,11 @@ public:
 
         InstanceScript* instance;
         EventMap events;
-        uint64 norushGUID;
+        ObjectGuid norushGUID;
 
         void Reset()
         {
-            norushGUID = 0;
+            norushGUID.Clear();
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -406,7 +406,7 @@ class boss_amalgam_of_corruption : public CreatureScript
 
             InstanceScript* instance;
             uint8 FrayedCounter;
-            std::map<uint32, uint32> challengeCounter;
+            std::map<ObjectGuid::LowType, uint64> challengeCounter;
 
             void Reset()
             {
@@ -426,15 +426,15 @@ class boss_amalgam_of_corruption : public CreatureScript
             }
 
             //
-            void SetGUID(uint64 guid, int32 id)
+            void SetGUID(ObjectGuid const& guid, int32 id)
             {
                 if (id > 0)
-                    ++challengeCounter[uint32(guid)];
+                    ++challengeCounter[guid.GetCounter()];
                 else
-                    --challengeCounter[uint32(guid)];
+                    --challengeCounter[guid.GetCounter()];
             }
 
-            uint32 GetData(uint32 guid)
+            uint64 GetData64(uint64 guid)
             {  
                 return challengeCounter[guid];
             }
@@ -751,13 +751,13 @@ struct npc_norushenChallengeAI : public ScriptedAI
         if (!instance)
             return;
 
-        me->SetPhaseId(summoner->GetGUID(), true);
+        me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
         me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
 
         if (challenge)
         {
             events.RescheduleEvent(EVENT_1, 60000);
-            if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+            if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
                 amalgam->AI()->SetGUID(summoner->GetGUID(), 1);
         }
         AttackStart(summoner);
@@ -765,7 +765,7 @@ struct npc_norushenChallengeAI : public ScriptedAI
 
     void EnterEvadeMode()
     {
-        if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+        if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
         {
             summonInRealWorld(amalgam);
 
@@ -790,11 +790,11 @@ struct npc_norushenChallengeAI : public ScriptedAI
             plr->CastSpell(plr, cleanseSpellID, false);
         CheckCorruptionForCleanse(plr);
 
-        if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+        if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
         {
             summonInRealWorld(amalgam);
             amalgam->AI()->SetGUID(plr->GetGUID(), -1);
-            if (!amalgam->AI()->GetData(plr->GetGUID()))
+            if (!amalgam->AI()->GetData64(plr->GetGUID().GetCounter()))
                 plr->RemoveAurasDueToSpell(SPELL_TEST_OF_SERENITY);
         }
         me->DespawnOrUnsummon();
@@ -820,7 +820,7 @@ struct npc_norushenChallengeAI : public ScriptedAI
         switch(_event)
         {
             case EVENT_1:
-                if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+                if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
                     summonInRealWorld(amalgam);
                 me->DespawnOrUnsummon();
                 break;
@@ -1062,7 +1062,7 @@ public:
             me->CastSpell(me, SPELL_UNLEASHED, false);          //18:38:25.000 
             me->CastSpell(me, SPELL_STEALTH_DETECTION, false);
 
-            if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+            if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
                 me->SetFacingToObject(amalgam);
 
             me->CastSpell(me, SPELL_EXPEL_CORRUPTION, true);
@@ -1078,7 +1078,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_1:
-                        if (Creature* amalgam = instance->instance->GetCreature(instance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+                        if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
                             me->SetFacingToObject(amalgam);
                          me->CastSpell(me, SPELL_EXPEL_CORRUPTION, false);
                         events.RescheduleEvent(EVENT_1, 6*IN_MILLISECONDS);
@@ -1129,7 +1129,7 @@ public:
             if (!instance)
                 return;
 
-            me->SetPhaseId(summoner->GetGUID(), true);
+            me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
             me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
             me->DespawnOrUnsummon(60000);
             me->SetInCombatWithZone();
@@ -1231,7 +1231,7 @@ public:
 
         void IsSummonedBy(Unit* summoner)
         {
-            me->SetPhaseId(summoner->GetGUID(), true);
+            me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
             me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
         }
 
@@ -1354,7 +1354,7 @@ struct npc_norushen_heal_chAI : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner)
     {
-        me->SetPhaseId(summoner->GetGUID(), true);
+        me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
         me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
         if (Creature* corruption = me->FindNearestCreature(NPC_GREATER_CORRUPTION, 50.0f, true))
         {
@@ -1574,7 +1574,7 @@ class spell_norushen_blind_hatred_prock : public SpellScriptLoader
                     return;
                 }
 
-                Creature *bh = instance->instance->GetCreature(instance->GetData64(NPC_BLIND_HATRED));
+                Creature *bh = instance->instance->GetCreature(instance->GetGuidData(NPC_BLIND_HATRED));
                 if (!bh)
                 {
                     unitList.clear();
@@ -1682,7 +1682,7 @@ class spell_norushen_residual_corruption : public SpellScriptLoader
                     return;
 
                 AreaTrigger * areaTrigger = new AreaTrigger;
-                if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), 5022, caster, GetSpellInfo(), *caster))
+                if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), 5022, caster, GetSpellInfo(), *caster))
                 {
                     delete areaTrigger;
                     return;
@@ -1712,7 +1712,7 @@ class spell_norushen_challenge : public SpellScriptLoader
         {
             PrepareAuraScript(spell_norushen_challenge_AuraScript);
 
-            uint64 eventGUID;
+            ObjectGuid eventGUID;
 
             uint32 getPhaseSpell()
             {
@@ -1743,10 +1743,10 @@ class spell_norushen_challenge : public SpellScriptLoader
                 //enter phase
                 target->CastSpell(target, getPhaseSpell(), true);
 
-                if (Creature* norush = instance->instance->GetCreature(instance->GetData64(NPC_NORUSHEN)))
+                if (Creature* norush = instance->instance->GetCreature(instance->GetGuidData(NPC_NORUSHEN)))
                     norush->AI()->ZoneTalk(TEXT_GENERIC_10, target->GetGUID());
 
-                target->SetPhaseId(target->GetGUID(), true);
+                target->SetPhaseId(target->GetGUID().GetCounter(), true);
 
                 //target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_ONLY_OWN_TEMP_CREATRES, ONLY_OWN_TEMP_CREATRES_VISIBILITY_TYPE);
 

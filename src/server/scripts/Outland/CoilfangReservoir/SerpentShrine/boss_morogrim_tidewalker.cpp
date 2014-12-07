@@ -213,8 +213,8 @@ public:
                 {
                     //Teleport 4 players under the waterfalls
                     Unit* target;
-                    std::set<uint64> list;
-                    std::set<uint64>::const_iterator itr;
+                    GuidSet list;
+                    GuidSet::const_iterator itr;
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         counter = 0;
@@ -251,8 +251,8 @@ public:
                 if (WateryGlobules_Timer <= diff)
                 {
                     Unit* pGlobuleTarget;
-                    std::set<uint64> globulelist;
-                    std::set<uint64>::const_iterator itr;
+                    GuidSet globulelist;
+                    GuidSet::const_iterator itr;
                     for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                     {
                         counter = 0;

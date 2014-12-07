@@ -73,7 +73,8 @@ namespace Movement
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
         // this also allows calculate spline position and update map position in much greater intervals
         // Don't compute for transport movement if the unit is in a motion between two transports
-        if (!move_spline.Finalized() && move_spline.onTransport == (unit.GetTransGUID() != 0))
+        const bool onTransport = unit.GetTransGUID();
+        if (!move_spline.Finalized() && move_spline.onTransport == onTransport)
             real_position = move_spline.ComputePosition();
 
         // should i do the things that user should do? - no.
@@ -83,7 +84,7 @@ namespace Movement
         // correct first vertex
         args.path[0] = real_position;
         args.initialOrientation = real_position.orientation;
-        move_spline.onTransport = (unit.GetTransGUID() != 0);
+        move_spline.onTransport = onTransport;
 
         uint32 moveFlags = unit.m_movementInfo.GetMovementFlags();
         if (args.flags.walkmode)

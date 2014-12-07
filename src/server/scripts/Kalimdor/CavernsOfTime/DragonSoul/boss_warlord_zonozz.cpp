@@ -227,7 +227,7 @@ public:
             if (!IsHeroic())
                 me->SetReactState(REACT_PASSIVE);
             me->AttackStop();
-            me->SetTarget(0);
+            me->SetTarget(ObjectGuid::Empty);
             events.SetPhase(PHASE_2);
             me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
         }

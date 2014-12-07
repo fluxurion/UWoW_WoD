@@ -59,7 +59,7 @@ void TwinsReset(InstanceScript* instance, Creature* caller, uint32 callerEntry)
     {
          for (uint8 n = 0; n < 2; n++)
          {
-             if (Creature* twin = caller->GetCreature(*caller, instance->GetData64(twinEntry[n])))
+             if (Creature* twin = caller->GetCreature(*caller, instance->GetGuidData(twinEntry[n])))
              {
                  if (callerEntry != twinEntry[n])
                  {
@@ -89,7 +89,7 @@ void TwinsEnterCombat(InstanceScript* instance, Creature* caller, uint32 callerE
                 caller->AttackStop();
                 if (caller->IsVisible())
                     caller->SetVisible(false);
-                if (Creature* l = caller->GetCreature(*caller, instance->GetData64(NPC_LULIN)))
+                if (Creature* l = caller->GetCreature(*caller, instance->GetGuidData(NPC_LULIN)))
                 {
                     if (l->isAlive() && !l->isInCombat())
                         l->AI()->DoZoneInCombat(l, 150.0f);
@@ -98,7 +98,7 @@ void TwinsEnterCombat(InstanceScript* instance, Creature* caller, uint32 callerE
             break;
         case NPC_LULIN:
             {
-                if (Creature* s = caller->GetCreature(*caller, instance->GetData64(NPC_SULIN)))
+                if (Creature* s = caller->GetCreature(*caller, instance->GetGuidData(NPC_SULIN)))
                 {
                     if (s->isAlive() && !s->isInCombat())
                     {
@@ -122,7 +122,7 @@ void TwinsDoneCheck(InstanceScript* instance, Creature* caller, uint32 callerEnt
         uint8 donecount = 0;
         for (uint8 n = 0; n < 2; n++)
         {
-            if (Creature* twin = caller->GetCreature(*caller, instance->GetData64(twinEntry[n])))
+            if (Creature* twin = caller->GetCreature(*caller, instance->GetGuidData(twinEntry[n])))
             {
                 if (!twin->isAlive())
                     donecount++;
@@ -235,7 +235,7 @@ class boss_twin_consorts : public CreatureScript
                     case EVENT_INTRO_DAY:
                         if (instance)
                         {
-                            if (Creature* s = me->GetCreature(*me, instance->GetData64(NPC_SULIN)))
+                            if (Creature* s = me->GetCreature(*me, instance->GetGuidData(NPC_SULIN)))
                             {
                                 if (s->isAlive())
                                 {

@@ -33,8 +33,8 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
 
-    recvPacket.ReadGuidMask<5, 4, 0, 1, 7, 2, 3, 6>(guid);
-    recvPacket.ReadGuidBytes<2, 7, 4, 3, 6, 1, 5, 0>(guid);
+    //recvPacket.ReadGuidMask<5, 4, 0, 1, 7, 2, 3, 6>(guid);
+    //recvPacket.ReadGuidBytes<2, 7, 4, 3, 6, 1, 5, 0>(guid);
 
     Player* caster = GetPlayer();
     Unit* unitTarget = NULL;
@@ -47,7 +47,7 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
     Player* target = unitTarget->ToPlayer();
 
     // caster or target already have requested duel
-    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUIDLow()))
+    if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUID()))
         return;
 
     // create duel flag visual
@@ -74,7 +74,7 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
     uint32 gameobject_id = 21680;//m_spellInfo->Effects[effIndex].MiscValue;
 
     Map* map = caster->GetMap();
-    if (!pGameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id,
+    if (!pGameObj->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), gameobject_id,
         map, caster->GetPhaseMask(),
         caster->GetPositionX()+(unitTarget->GetPositionX()-caster->GetPositionX())/2,
         caster->GetPositionY()+(unitTarget->GetPositionY()-caster->GetPositionY())/2,
@@ -97,25 +97,25 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
     ObjectGuid playerGuid = caster->GetGUID();
     ObjectGuid goGuid = pGameObj->GetGUID();
     WorldPacket data(SMSG_DUEL_REQUESTED);
-    data.WriteGuidMask<5>(goGuid);
-    data.WriteGuidMask<5, 2>(playerGuid);
-    data.WriteGuidMask<7>(goGuid);
-    data.WriteGuidMask<7>(playerGuid);
-    data.WriteGuidMask<2, 0, 6, 1, 3>(goGuid);
-    data.WriteGuidMask<6, 4, 3, 0>(playerGuid);
-    data.WriteGuidMask<4>(goGuid);
-    data.WriteGuidMask<1>(playerGuid);
+    //data.WriteGuidMask<5>(goGuid);
+    //data.WriteGuidMask<5, 2>(playerGuid);
+    //data.WriteGuidMask<7>(goGuid);
+    //data.WriteGuidMask<7>(playerGuid);
+    //data.WriteGuidMask<2, 0, 6, 1, 3>(goGuid);
+    //data.WriteGuidMask<6, 4, 3, 0>(playerGuid);
+    //data.WriteGuidMask<4>(goGuid);
+    //data.WriteGuidMask<1>(playerGuid);
 
-    data.WriteGuidBytes<1, 4>(playerGuid);
-    data.WriteGuidBytes<0>(goGuid);
-    data.WriteGuidBytes<6, 7>(playerGuid);
-    data.WriteGuidBytes<7, 5>(goGuid);
-    data.WriteGuidBytes<3>(playerGuid);
-    data.WriteGuidBytes<6>(goGuid);
-    data.WriteGuidBytes<2>(playerGuid);
-    data.WriteGuidBytes<3>(goGuid);
-    data.WriteGuidBytes<0, 5>(playerGuid);
-    data.WriteGuidBytes<2, 4, 1>(goGuid);
+    //data.WriteGuidBytes<1, 4>(playerGuid);
+    //data.WriteGuidBytes<0>(goGuid);
+    //data.WriteGuidBytes<6, 7>(playerGuid);
+    //data.WriteGuidBytes<7, 5>(goGuid);
+    //data.WriteGuidBytes<3>(playerGuid);
+    //data.WriteGuidBytes<6>(goGuid);
+    //data.WriteGuidBytes<2>(playerGuid);
+    //data.WriteGuidBytes<3>(goGuid);
+    //data.WriteGuidBytes<0, 5>(playerGuid);
+    //data.WriteGuidBytes<2, 4, 1>(goGuid);
 
     caster->GetSession()->SendPacket(&data);
     target->GetSession()->SendPacket(&data);
@@ -148,10 +148,10 @@ void WorldSession::HandleDuelAcceptResultOpcode(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DUEL_ACCEPT_RESULT");
 
     ObjectGuid guid;
-    recvPacket.ReadGuidMask<3, 5, 2, 4, 0, 6>(guid);
+    //recvPacket.ReadGuidMask<3, 5, 2, 4, 0, 6>(guid);
     bool accepted = recvPacket.ReadBit();
-    recvPacket.ReadGuidMask<1, 7>(guid);
-    recvPacket.ReadGuidBytes<1, 7, 6, 3, 4, 5, 2, 0>(guid);
+    //recvPacket.ReadGuidMask<1, 7>(guid);
+    //recvPacket.ReadGuidBytes<1, 7, 6, 3, 4, 5, 2, 0>(guid);
 
     // no duel requested
     if (!GetPlayer()->duel)
@@ -169,8 +169,8 @@ void WorldSession::HandleDuelAcceptResultOpcode(WorldPacket& recvPacket)
             return;
 
         //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_DUEL_ACCEPTED");
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName());
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUID().GetCounter(), player->GetName());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUID().GetCounter(), plTarget->GetName());
 
         time_t now = time(NULL);
         player->duel->startTimer = now;

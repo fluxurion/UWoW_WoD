@@ -268,7 +268,7 @@ HostileReference* ThreatContainer::getReferenceByTarget(Unit* victim)
     if (!victim)
         return NULL;
 
-    uint64 guid = victim->GetGUID();
+    ObjectGuid guid = victim->GetGUID();
     for (std::list<HostileReference*>::const_iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
         if ((*i) && (*i)->getUnitGuid() == guid)
             return (*i);

@@ -233,7 +233,7 @@ class boss_tyrannus : public CreatureScript
             uint8 m_uiAtackPhase;
             uint32 m_uiMobsDied;
             uint32 m_uiAddEntry;
-            uint64 m_uiRimefangGuid;
+            ObjectGuid m_uiRimefangGuid;
             float angle, homeX, homeY;
             void Reset()
             {
@@ -249,7 +249,7 @@ class boss_tyrannus : public CreatureScript
                 m_startPhaseIntroTyr      = false;
                 m_uiMobsDied        = 0;
                 m_uiAddEntry        = 0;
-                m_uiRimefangGuid    = 0;
+                m_uiRimefangGuid.Clear();
                 m_uiAtackPhase = 0;
                 angle = 0; 
                 homeX = 0; 
@@ -261,7 +261,7 @@ class boss_tyrannus : public CreatureScript
 
             Creature* GetRimefang()
             {
-                return ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIMEFANG));
+                return ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIMEFANG));
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -477,7 +477,7 @@ class boss_rimefang : public CreatureScript
             }
             
             
-                    void SetGUID(const uint64& guid, int32 type)
+                    void SetGUID(ObjectGuid const& guid, int32 type)
         {
             if (type == GUID_HOARFROST)
             {
@@ -512,7 +512,7 @@ class boss_rimefang : public CreatureScript
                     if (Unit* target = me->GetUnit(*me, _hoarfrostTargetGUID))
                     {
                         DoCast(target, SPELL_HOARFROST);
-                        _hoarfrostTargetGUID = 0;
+                        _hoarfrostTargetGUID.Clear();
                     }
                     break;
                 default:
@@ -523,7 +523,7 @@ class boss_rimefang : public CreatureScript
             }
             private:
          Vehicle* _vehicle;
-        uint64 _hoarfrostTargetGUID;
+        ObjectGuid _hoarfrostTargetGUID;
         EventMap _events;
         uint8 _currentWaypoint;
 
@@ -543,7 +543,7 @@ class player_overlord_brandAI : public PlayerAI
             tyrannus = NULL;
         }
 
-        void SetGUID(const uint64& guid, int32 /*type*/)
+        void SetGUID(ObjectGuid const& guid, int32 /*type*/)
         {
             tyrannus = ObjectAccessor::GetCreature(*me, guid);
             if (!tyrannus)
@@ -631,7 +631,7 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
                     return;
 
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                    if (Creature* rimefang = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_RIMEFANG)))
+                    if (Creature* rimefang = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_RIMEFANG)))
                         rimefang->AI()->SetGUID(GetTarget()->GetGUID(), GUID_HOARFROST);
             }
 
@@ -659,7 +659,7 @@ class at_tyrannus_event_starter : public AreaTriggerScript
                 return false;
 
             if (instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_TYRANNUS) != DONE)
-                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_TYRANNUS)))
+                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS)))
                 {
                     tyrannus->AI()->DoAction(ACTION_START_INTRO);
                     return true;
@@ -680,7 +680,7 @@ class at_tyrannus_gauntlet_starter : public AreaTriggerScript
             if (!instance)
                 return false;
             if (instance->GetData(DATA_GAUNTLET) != DONE && instance->GetData(DATA_GAUNTLET) != IN_PROGRESS && instance->GetBossState(DATA_ICK) != IN_PROGRESS && instance->GetBossState(DATA_ICK) != NOT_STARTED && instance->GetBossState(DATA_GARFROST) != IN_PROGRESS && instance->GetBossState(DATA_GARFROST) != NOT_STARTED && instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_TYRANNUS) != DONE)
-                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_TYRANNUS)))
+                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS)))
                 {
                     instance->SetData(DATA_GAUNTLET, IN_PROGRESS);
                     return true;
@@ -1540,7 +1540,7 @@ public:
                     break;
                 case 3:
                         me->GetMotionMaster()->MoveIdle();
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                        me->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetUInt32Value(UNIT_FIELD_BYTES_0, 50331648);

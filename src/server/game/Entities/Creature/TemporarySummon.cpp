@@ -27,7 +27,7 @@ Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESP
 m_timer(0), m_lifetime(0), onUnload(false)
 {
     m_Stampeded = false;
-    m_summonerGUID = owner ? owner->GetGUID() : 0;
+    m_summonerGUID = owner ? owner->GetGUID() : ObjectGuid::Empty;
     m_unitTypeMask |= UNIT_MASK_SUMMON;
 }
 
@@ -290,8 +290,8 @@ void TempSummon::InitStats(uint32 duration)
                     data << uint32(duration);
                     data << uint32(spellid);
                     data << uint8(slot - 1);
-                    data.WriteGuidMask<6, 0, 5, 2, 1, 3, 7, 4>(guid);
-                    data.WriteGuidBytes<0, 2, 1, 3, 5, 4, 6, 7>(guid);
+                    //data.WriteGuidMask<6, 0, 5, 2, 1, 3, 7, 4>(guid);
+                    //data.WriteGuidBytes<0, 2, 1, 3, 5, 4, 6, 7>(guid);
                     player->SendDirectMessage(&data);
                 }
             }
@@ -450,7 +450,7 @@ void TempSummon::RemoveFromWorld()
 
             if (Unit* owner = GetSummoner())
                 if (owner->m_SummonSlot[slot] == GetGUID())
-                    owner->m_SummonSlot[slot] = 0;
+                    owner->m_SummonSlot[slot].Clear();
         }
 
     //if (GetOwnerGUID())

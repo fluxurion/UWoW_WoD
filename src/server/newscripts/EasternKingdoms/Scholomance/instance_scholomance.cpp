@@ -53,41 +53,41 @@ public:
         instance_scholomance_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         //Creature
-        uint64 chillheartGuid;
-        uint64 barovGuid;
-        uint64 rattlegoreGuid;
-        uint64 lilianGuid;
-        uint64 darkmasterGuid;
+        ObjectGuid chillheartGuid;
+        ObjectGuid barovGuid;
+        ObjectGuid rattlegoreGuid;
+        ObjectGuid lilianGuid;
+        ObjectGuid darkmasterGuid;
 
         //GameObject
-        uint64 doorGuid;
-        uint64 door2Guid;
-        uint64 door3Guid;
-        uint64 door4Guid;
-        uint64 door5Guid;
-        uint64 door6Guid;
-        uint64 door7Guid;
-        uint64 lastdoorGuid;
+        ObjectGuid doorGuid;
+        ObjectGuid door2Guid;
+        ObjectGuid door3Guid;
+        ObjectGuid door4Guid;
+        ObjectGuid door5Guid;
+        ObjectGuid door6Guid;
+        ObjectGuid door7Guid;
+        ObjectGuid lastdoorGuid;
 
         void Initialize()
         {
             SetBossNumber(5);
             //Creature
-            chillheartGuid = 0;
-            barovGuid = 0;
-            rattlegoreGuid = 0 ;
-            lilianGuid = 0;
-            darkmasterGuid = 0;
+            chillheartGuid.Clear();
+            barovGuid.Clear();
+            rattlegoreGuid.Clear();
+            lilianGuid.Clear();
+            darkmasterGuid.Clear();
             
             //GameObject
-            doorGuid = 0;
-            door2Guid = 0;
-            door3Guid = 0;
-            door4Guid = 0;
-            door5Guid = 0;
-            door6Guid = 0;
-            door7Guid = 0;
-            lastdoorGuid = 0;
+            doorGuid.Clear();
+            door2Guid.Clear();
+            door3Guid.Clear();
+            door4Guid.Clear();
+            door5Guid.Clear();
+            door6Guid.Clear();
+            door7Guid.Clear();
+            lastdoorGuid.Clear();
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -245,7 +245,7 @@ public:
             return true;
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -261,7 +261,7 @@ public:
                     return darkmasterGuid;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data){}

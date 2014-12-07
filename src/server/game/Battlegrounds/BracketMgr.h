@@ -21,12 +21,12 @@ class BracketMgr
             return &instance;
         }
 
-        typedef UNORDERED_MAP<uint64, BracketList> BracketContainer;
+        typedef UNORDERED_MAP<ObjectGuid, BracketList> BracketContainer;
 
         void LoadCharacterBrackets();
 
-        Bracket* TryGetOrCreateBracket(uint64 guid, BracketType bType);
-        void DeleteBracketInfo(uint64 guid);
+        Bracket* TryGetOrCreateBracket(ObjectGuid guid, BracketType bType);
+        void DeleteBracketInfo(ObjectGuid guid);
 
     private:
         BracketContainer m_conteiner;

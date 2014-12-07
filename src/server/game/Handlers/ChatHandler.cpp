@@ -54,7 +54,7 @@ bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg
                 && !ChatHandler(this).isValidChatMessage(msg.c_str()))
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) sent a chatmessage with an invalid link: %s", GetPlayer()->GetName(),
-                    GetPlayer()->GetGUIDLow(), msg.c_str());
+                    GetPlayer()->GetGUID().GetCounter(), msg.c_str());
             if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
                 KickPlayer();
             return false;
@@ -387,7 +387,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, uint8(type), lang, NULL, 0, msg.c_str(), NULL);
+            ChatHandler::FillMessageData(&data, this, uint8(type), lang, NULL, ObjectGuid::Empty, msg.c_str(), NULL);
             group->BroadcastPacket(&data, false, group->GetMemberGroup(GetPlayer()->GetGUID()));
             break;
         }
@@ -434,7 +434,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, uint8(type), lang, "", 0, msg.c_str(), NULL);
+            ChatHandler::FillMessageData(&data, this, uint8(type), lang, "", ObjectGuid::Empty, msg.c_str(), NULL);
             group->BroadcastPacket(&data, false);
             break;
         }
@@ -448,7 +448,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             WorldPacket data;
             //in battleground, raid warning is sent only to players in battleground - code is ok
-            ChatHandler::FillMessageData(&data, this, CHAT_MSG_RAID_WARNING, lang, "", 0, msg.c_str(), NULL);
+            ChatHandler::FillMessageData(&data, this, CHAT_MSG_RAID_WARNING, lang, "", ObjectGuid::Empty, msg.c_str(), NULL);
             group->BroadcastPacket(&data, false);
             break;
         }
@@ -466,7 +466,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, uint8(type), lang, "", 0, msg.c_str(), NULL);
+            ChatHandler::FillMessageData(&data, this, uint8(type), lang, "", ObjectGuid::Empty, msg.c_str(), NULL);
             group->BroadcastPacket(&data, false);
             break;
         }
@@ -645,7 +645,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
                 return;
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", 0, message.c_str(), NULL, prefix.c_str());
+            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", ObjectGuid::Empty, message.c_str(), NULL, prefix.c_str());
             group->BroadcastAddonMessagePacket(&data, prefix, false);
             break;
         }
@@ -678,8 +678,8 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
                 break;
 
             WorldPacket data;
-            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", 0, message.c_str(), NULL, prefix.c_str());
-            group->BroadcastAddonMessagePacket(&data, prefix, true, -1, group->GetMemberGroup(sender->GetGUID()));
+            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", ObjectGuid::Empty, message.c_str(), NULL, prefix.c_str());
+            group->BroadcastAddonMessagePacket(&data, prefix, true, -1, sender->GetGUID());
             break;
         }
         default:
@@ -711,30 +711,30 @@ namespace Trinity
 
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
-                ObjectGuid targetGuid = i_target ? i_target->GetGUID() : 0;
+                ObjectGuid targetGuid = i_target ? i_target->GetGUID() : ObjectGuid::Empty;
                 ObjectGuid sourceGuid = i_player.GetGUID();
 
                 data.Initialize(SMSG_TEXT_EMOTE, 4 + 4 + 8 + 8 + 1 + 1);
-                data.WriteGuidMask<2>(targetGuid);
-                data.WriteGuidMask<1, 3, 6, 7>(sourceGuid);
-                data.WriteGuidMask<5, 7>(targetGuid);
-                data.WriteGuidMask<5>(sourceGuid);
-                data.WriteGuidMask<1>(targetGuid);
-                data.WriteGuidMask<2, 0>(sourceGuid);
-                data.WriteGuidMask<6>(targetGuid);
-                data.WriteGuidMask<4>(sourceGuid);
-                data.WriteGuidMask<3, 4, 0>(targetGuid);
+                //data.WriteGuidMask<2>(targetGuid);
+                //data.WriteGuidMask<1, 3, 6, 7>(sourceGuid);
+                //data.WriteGuidMask<5, 7>(targetGuid);
+                //data.WriteGuidMask<5>(sourceGuid);
+                //data.WriteGuidMask<1>(targetGuid);
+                //data.WriteGuidMask<2, 0>(sourceGuid);
+                //data.WriteGuidMask<6>(targetGuid);
+                //data.WriteGuidMask<4>(sourceGuid);
+                //data.WriteGuidMask<3, 4, 0>(targetGuid);
 
-                data.WriteGuidBytes<2>(sourceGuid);
-                data.WriteGuidBytes<1>(targetGuid);
-                data.WriteGuidBytes<7, 3, 6>(sourceGuid);
+                //data.WriteGuidBytes<2>(sourceGuid);
+                //data.WriteGuidBytes<1>(targetGuid);
+                //data.WriteGuidBytes<7, 3, 6>(sourceGuid);
                 data << uint32(i_text_emote);
-                data.WriteGuidBytes<6, 5>(targetGuid);
-                data.WriteGuidBytes<5, 4>(sourceGuid);
-                data.WriteGuidBytes<4, 2, 7, 0, 3>(targetGuid);
-                data.WriteGuidBytes<0>(sourceGuid);
+                //data.WriteGuidBytes<6, 5>(targetGuid);
+                //data.WriteGuidBytes<5, 4>(sourceGuid);
+                //data.WriteGuidBytes<4, 2, 7, 0, 3>(targetGuid);
+                //data.WriteGuidBytes<0>(sourceGuid);
                 data << uint32(i_emote_num);
-                data.WriteGuidBytes<1>(sourceGuid);
+                //data.WriteGuidBytes<1>(sourceGuid);
             }
 
         private:
@@ -763,8 +763,8 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recvData)
     recvData >> text_emote;
     recvData >> emoteNum;
 
-    recvData.ReadGuidMask<5, 7, 2, 3, 1, 0, 6, 4>(guid);
-    recvData.ReadGuidBytes<7, 0, 6, 2, 3, 5, 1, 4>(guid);
+    //recvData.ReadGuidMask<5, 7, 2, 3, 1, 0, 6, 4>(guid);
+    //recvData.ReadGuidBytes<7, 0, 6, 2, 3, 5, 1, 4>(guid);
 
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), text_emote, emoteNum, guid);
 
@@ -817,8 +817,8 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 
     recvData >> unk;                                       // probably related to spam reporting
 
-    recvData.ReadGuidMask<0, 6, 7, 3, 2, 1, 4, 5>(guid);
-    recvData.ReadGuidBytes<7, 5, 2, 6, 0, 1, 3, 4>(guid);
+    //recvData.ReadGuidMask<0, 6, 7, 3, 2, 1, 4, 5>(guid);
+    //recvData.ReadGuidBytes<7, 5, 2, 6, 0, 1, 3, 4>(guid);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player || !player->GetSession())

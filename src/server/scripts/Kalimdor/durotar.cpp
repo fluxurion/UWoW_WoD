@@ -51,14 +51,14 @@ public:
     {
         npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 RebuffTimer;
         bool work;
 
         void Reset()
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             RebuffTimer = 0;
             work = false;
         }

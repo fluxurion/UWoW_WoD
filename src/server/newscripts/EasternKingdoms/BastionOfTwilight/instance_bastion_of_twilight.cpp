@@ -33,18 +33,18 @@ public:
         {
             SetBossNumber(MAX_ENCOUNTER);
             LoadDoorData(doordata);
-            uiWyrmbreakerGUID = 0;
-            uiValionaGUID = 0;
-            uiTheralionGUID = 0;
-            uiFeludiusGUID = 0;
-            uiArionGUID = 0;
-            uiIgnaciousGUID = 0;
-            uiTerrastraGUID = 0;
-            uiMonstrosityGUID = 0;
-            uiWhelpCageGUID = 0;
+            uiWyrmbreakerGUID.Clear();
+            uiValionaGUID.Clear();
+            uiTheralionGUID.Clear();
+            uiFeludiusGUID.Clear();
+            uiArionGUID.Clear();
+            uiIgnaciousGUID.Clear();
+            uiTerrastraGUID.Clear();
+            uiMonstrosityGUID.Clear();
+            uiWhelpCageGUID.Clear();
             uiValionaTheralionHealth = 0;
-            uiChogallGUID = 0;
-            uiChogallFloorGUID = 0;
+            uiChogallGUID.Clear();
+            uiChogallFloorGUID.Clear();
             memset(m_uiDialogs, 0, sizeof(m_uiDialogs));
         }
 
@@ -141,7 +141,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -166,7 +166,7 @@ public:
             case DATA_CHOGALL:
                 return uiChogallGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         uint32 GetData(uint32 type)
@@ -351,28 +351,28 @@ public:
         }
 
         private:
-            uint64 uiWyrmbreakerGUID;
+            ObjectGuid uiWyrmbreakerGUID;
             uint32 uiTeamInInstance;
             uint32 m_uiEncounter[MAX_ENCOUNTER];
             uint32 m_uiDialogs[8];
-            uint64 uiValionaGUID;
-            uint64 uiTheralionGUID;
-            uint64 uiFeludiusGUID;
-            uint64 uiArionGUID;
-            uint64 uiIgnaciousGUID;
-            uint64 uiTerrastraGUID;
-            uint64 uiMonstrosityGUID;
+            ObjectGuid uiValionaGUID;
+            ObjectGuid uiTheralionGUID;
+            ObjectGuid uiFeludiusGUID;
+            ObjectGuid uiArionGUID;
+            ObjectGuid uiIgnaciousGUID;
+            ObjectGuid uiTerrastraGUID;
+            ObjectGuid uiMonstrosityGUID;
             uint32 uiValionaTheralionHealth;
-            uint64 uiChogallGUID;
-            uint64 uiWhelpCageGUID;
-            uint64 uiDoorHalfusEntranceGUID;
-            uint64 uiDoorHalfusExitGUID;
-            uint64 uiDoorTherEntranceGUID;
-            uint64 uiDoorTherExitGUID;
-            uint64 uiDoorCouncilEntranceGUID;
-            uint64 uiDoorCouncilExitGUID;
-            uint64 uiDoorChogallEntranceGUID;
-            uint64 uiChogallFloorGUID;
+            ObjectGuid uiChogallGUID;
+            ObjectGuid uiWhelpCageGUID;
+            ObjectGuid uiDoorHalfusEntranceGUID;
+            ObjectGuid uiDoorHalfusExitGUID;
+            ObjectGuid uiDoorTherEntranceGUID;
+            ObjectGuid uiDoorTherExitGUID;
+            ObjectGuid uiDoorCouncilEntranceGUID;
+            ObjectGuid uiDoorCouncilExitGUID;
+            ObjectGuid uiDoorChogallEntranceGUID;
+            ObjectGuid uiChogallFloorGUID;
     };
 };
 void AddSC_instance_bastion_of_twilight()

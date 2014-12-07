@@ -142,7 +142,7 @@ public:
             if (instance)
             {
                 instance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
-                instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_KAEL_DOOR), true);
                // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
                // Small door opened after event are expected to be closed by default
             }
@@ -156,10 +156,10 @@ public:
                 return;
 
             // Open the encounter door
-            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
+            instance->HandleGameObject(instance->GetGuidData(DATA_KAEL_DOOR), true);
 
             // Enable the Translocation Orb Exit
-            if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ESCAPE_ORB)))
+            if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ESCAPE_ORB)))
                     escapeOrb->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
@@ -175,7 +175,7 @@ public:
                 return;
 
             //Close the encounter door, open it in JustDied/Reset
-            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), false);
+            instance->HandleGameObject(instance->GetGuidData(DATA_KAEL_DOOR), false);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -248,10 +248,10 @@ public:
                     // Use packet hack
                     WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
                     ObjectGuid guid = unit->GetGUID();
-                    data.WriteGuidMask<6, 2, 4, 1, 0, 5, 7, 3>(guid);
-                    data.WriteGuidBytes<7, 6, 4>(guid);
+                    //data.WriteGuidMask<6, 2, 4, 1, 0, 5, 7, 3>(guid);
+                    //data.WriteGuidBytes<7, 6, 4>(guid);
                     data << uint32(0);          //! movement counter
-                    data.WriteGuidBytes<2, 3, 1, 0, 5>(guid);
+                    //data.WriteGuidBytes<2, 3, 1, 0, 5>(guid);
                     unit->SendMessageToSet(&data, true);
                 }
             }
@@ -270,10 +270,10 @@ public:
 
                     WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
                     ObjectGuid guid = unit->GetGUID();
-                    data.WriteGuidMask<7, 6, 5, 1, 2, 4, 3, 0>(guid);
-                    data.WriteGuidBytes<0, 6, 3, 7, 2, 1, 5>(guid);
+                    //data.WriteGuidMask<7, 6, 5, 1, 2, 4, 3, 0>(guid);
+                    //data.WriteGuidBytes<0, 6, 3, 7, 2, 1, 5>(guid);
                     data << uint32(0);          //! movement counter
-                    data.WriteGuidBytes<4>(guid);
+                    //data.WriteGuidBytes<4>(guid);
                     unit->SendMessageToSet(&data, true);
                 }
             }
@@ -372,8 +372,8 @@ public:
 
                                     if (instance)
                                     {
-                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_LEFT), true);
-                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_RIGHT), true);
+                                        instance->HandleGameObject(instance->GetGuidData(DATA_KAEL_STATUE_LEFT), true);
+                                        instance->HandleGameObject(instance->GetGuidData(DATA_KAEL_STATUE_RIGHT), true);
                                     }
                                 }else
                                 {
@@ -544,7 +544,7 @@ public:
                 me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->ClearAllReactives();
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
                 me->SetStandState(UNIT_STAND_STATE_DEAD);

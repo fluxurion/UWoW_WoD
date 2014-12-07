@@ -185,7 +185,7 @@ public:
                         events.ScheduleEvent(EVENT_SCREECH, 25000);
                         break;
                     case EVENT_TERRIFYING:
-                        me->MonsterTextEmote(EMOTE_FEAR, 0, true);
+                        me->MonsterTextEmote(EMOTE_FEAR, ObjectGuid::Empty, true);
                         DoCast(SPELL_TERRIFYING_SCREECH);
                         events.ScheduleEvent(EVENT_TERRIFYING, 35000);
                         break;
@@ -194,7 +194,7 @@ public:
                         events.ScheduleEvent(EVENT_BLAST, 35000);
                         break;
                     case EVENT_DEFENDER:
-                        me->MonsterTextEmote(EMOTE_DEFENDER, 0, true);
+                        me->MonsterTextEmote(EMOTE_DEFENDER, ObjectGuid::Empty, true);
                         DoCast(SPELL_DEFENDER_TRIGGER);
                         DoCast(SPELL_ACTIVATE_DEFENDER);
                         events.CancelEvent(EVENT_DEFENDER);
@@ -380,7 +380,7 @@ public:
                     RushTimer = 42000;
                     RessTimer = 30000;
                     if (pInstance)
-                        if (Creature *pAuriaya = me->GetCreature(*me, pInstance->GetData64(DATA_AURIAYA)))
+                        if (Creature *pAuriaya = me->GetCreature(*me, pInstance->GetGuidData(DATA_AURIAYA)))
                             pAuriaya->AI()->DoAction(ACTION_NINE_LIVES);
                 }
             }
@@ -474,7 +474,7 @@ public:
         void JustDied(Unit* /*victim*/)
         {
             if (pInstance)
-                if (Creature *pAuriaya = me->GetCreature(*me, pInstance->GetData64(DATA_AURIAYA)))
+                if (Creature *pAuriaya = me->GetCreature(*me, pInstance->GetGuidData(DATA_AURIAYA)))
                     pAuriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
         }
     };

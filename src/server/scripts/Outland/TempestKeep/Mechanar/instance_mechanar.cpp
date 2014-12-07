@@ -35,7 +35,7 @@ class instance_mechanar : public InstanceMapScript
 
         struct instance_mechanar_InstanceMapScript : public InstanceScript
         {
-            uint64 chahcelegionGUID;
+            ObjectGuid chahcelegionGUID;
             
             instance_mechanar_InstanceMapScript(Map* map) : InstanceScript(map)
             {
@@ -59,14 +59,14 @@ class instance_mechanar : public InstanceMapScript
                         break;
                 }
             }
-            uint64 GetData64(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier)
             {
                 switch (identifier)
                 {
                     case DATA_GO_CHAHCE_LEGION:
                         return chahcelegionGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
                         
             void OnGameObjectRemove(GameObject* gameObject)

@@ -62,13 +62,13 @@ struct PetInfo
 
 struct PetBattleSlot
 {
-    PetBattleSlot(uint64 _guid, bool _locked): petGUID(_guid), locked(_locked) {}
+    PetBattleSlot(ObjectGuid _guid, bool _locked): petGUID(_guid), locked(_locked) {}
 
-    uint64 petGUID;
+    ObjectGuid petGUID;
     bool locked;
 };
 
-typedef std::map<uint64, PetInfo*> PetJournal;
+typedef std::map<ObjectGuid, PetInfo*> PetJournal;
 
 enum BattlePetFlags
 {
@@ -122,8 +122,8 @@ public:
 
     void BuildPetJournal(WorldPacket *data);
 
-    void AddPetInJournal(uint64 guid, uint32 speciesID, uint32 creatureEntry, uint8 level, uint32 display, uint16 power, uint16 speed, uint32 health, uint32 maxHealth, uint8 quality, uint16 xp, uint16 flags, uint32 spellID, std::string customName = "", int16 breedID = 0, bool update = false);
-    void AddPetBattleSlot(uint64 guid, uint8 slotID, bool locked = true);
+    void AddPetInJournal(ObjectGuid guid, uint32 speciesID, uint32 creatureEntry, uint8 level, uint32 display, uint16 power, uint16 speed, uint32 health, uint32 maxHealth, uint8 quality, uint16 xp, uint16 flags, uint32 spellID, std::string customName = "", int16 breedID = 0, bool update = false);
+    void AddPetBattleSlot(ObjectGuid guid, uint8 slotID, bool locked = true);
 
     void SendClosePetBattle();
     void SendUpdatePets();
@@ -131,7 +131,7 @@ public:
     void GiveXP();
 
     Player* GetPlayer() const { return m_player; }
-    PetInfo* GetPetInfoByPetGUID(uint64 guid)
+    PetInfo* GetPetInfoByPetGUID(ObjectGuid guid)
     {
         PetJournal::const_iterator pet = m_PetJournal.find(guid);
         if (pet != m_PetJournal.end())
@@ -140,7 +140,7 @@ public:
         return NULL;
     }
 
-    void DeletePetByPetGUID(uint64 guid)
+    void DeletePetByPetGUID(ObjectGuid guid)
     {
         PetJournal::const_iterator pet = m_PetJournal.find(guid);
         if (pet == m_PetJournal.end())
@@ -149,7 +149,7 @@ public:
         pet->second->deleteMeLater = true;
     }
 
-    uint64 GetPetGUIDBySpell(uint32 spell)
+    ObjectGuid GetPetGUIDBySpell(uint32 spell)
     {
         for (PetJournal::const_iterator pet = m_PetJournal.begin(); pet != m_PetJournal.end(); ++pet)
         {
@@ -159,10 +159,10 @@ public:
                 return pet->first;
         }
 
-        return 0;
+        return ObjectGuid::Empty;
     }
 
-    bool HasPet(uint64 guid)
+    bool HasPet(ObjectGuid guid)
     {
         PetJournal::const_iterator pet = m_PetJournal.find(guid);
         if (pet != m_PetJournal.end())

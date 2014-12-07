@@ -40,8 +40,8 @@ class instance_archavon : public InstanceMapScript
 
             void Initialize()
             {
-                EmalonGUID = 0;
-                ToravonGUID = 0;
+                EmalonGUID.Clear();
+                ToravonGUID.Clear();
                 ArchavonDeath = 0;
                 EmalonDeath = 0;
                 KoralonDeath = 0;
@@ -62,7 +62,7 @@ class instance_archavon : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier)
             {
                 switch (identifier)
                 {
@@ -74,7 +74,7 @@ class instance_archavon : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state)
@@ -129,8 +129,8 @@ class instance_archavon : public InstanceMapScript
             }
 
         private:
-            uint64 EmalonGUID;
-            uint64 ToravonGUID;
+            ObjectGuid EmalonGUID;
+            ObjectGuid ToravonGUID;
             time_t ArchavonDeath;
             time_t EmalonDeath;
             time_t KoralonDeath;

@@ -119,7 +119,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     }
 
     m_Stampeded = stampeded;
-    uint32 ownerid = owner->GetGUIDLow();
+    ObjectGuid::LowType ownerid = owner->GetGUID().GetCounter();
 
     // find number
     if (!petnumber && !petentry)
@@ -206,7 +206,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     }
 
     Map* map = owner->GetMap();
-    uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
+    ObjectGuid::LowType guid = sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate();
     if (!Create(guid, map, owner->GetPhaseMask(), petentry, pet_number))
         return false;
 
@@ -217,7 +217,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (!IsPositionValid())
     {
         sLog->outError(LOG_FILTER_PETS, "Pet (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
-            GetGUIDLow(), GetEntry(), GetPositionX(), GetPositionY());
+            GetGUID().GetCounter(), GetEntry(), GetPositionX(), GetPositionY());
         return false;
     }
 
@@ -331,7 +331,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         owner->PetSpellInitialize();
     }
 
-    sLog->outDebug(LOG_FILTER_PETS, "New Pet has guid %u", GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_PETS, "New Pet has guid %u", GetGUID().GetCounter());
 
     if (owner->GetGroup())
         owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
@@ -341,7 +341,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (getPetType() == HUNTER_PET)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
-        stmt->setUInt32(0, owner->GetGUIDLow());
+        stmt->setUInt64(0, owner->GetGUID().GetCounter());
         stmt->setUInt32(1, GetCharmInfo()->GetPetNumber());
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -381,7 +381,7 @@ void Pet::SavePetToDB(PetSlot mode)
         return;
 
     // not save not player pets
-    if (!IS_PLAYER_GUID(GetOwnerGUID()))
+    if (!GetOwnerGUID().IsPlayer())
         return;
 
     Player* owner = (Player*)GetOwner();
@@ -445,7 +445,7 @@ void Pet::SavePetToDB(PetSlot mode)
     // current/stable/not_in_slot
     if (mode >= PET_SLOT_HUNTER_FIRST && mode <= PET_SLOT_OTHER_PET)
     {
-        uint32 ownerLowGUID = GUID_LOPART(GetOwnerGUID());
+        ObjectGuid::LowType ownerLowGUID = GetOwnerGUID().GetCounter();
 
         // save pet
         uint8 index = 0;
@@ -454,7 +454,7 @@ void Pet::SavePetToDB(PetSlot mode)
         PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET);
         stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
         stmt->setUInt32(index++, GetEntry());
-        stmt->setUInt32(index++, ownerLowGUID);
+        stmt->setUInt64(index++, ownerLowGUID);
         stmt->setUInt32(index++, GetNativeDisplayId());
         stmt->setUInt32(index++, getLevel());
         stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_PET_EXPERIENCE));
@@ -788,7 +788,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     if (!IsPositionValid())
     {
         sLog->outError(LOG_FILTER_PETS, "Pet (guidlow %d, entry %d) not created base at creature. Suggested coordinates isn't valid (X: %f Y: %f)",
-            GetGUIDLow(), GetEntry(), GetPositionX(), GetPositionY());
+            GetGUID().GetCounter(), GetEntry(), GetPositionX(), GetPositionY());
         return false;
     }
 
@@ -825,7 +825,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
 {
     sLog->outDebug(LOG_FILTER_PETS, "Pet::CreateBaseForTamed");
-    uint32 guid=sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
+    ObjectGuid::LowType guid=sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate();
     uint32 pet_number = sObjectMgr->GeneratePetNumber();
     if (!Create(guid, map, phaseMask, cinfo->Entry, pet_number))
         return false;
@@ -1030,14 +1030,14 @@ void Pet::_LoadSpellCooldowns()
         //! 5.4.1
         WorldPacket data(SMSG_SPELL_COOLDOWN, size_t(8+1+result->GetRowCount()*8));
 
-        data.WriteGuidMask<4, 7, 6>(guid);
+        //data.WriteGuidMask<4, 7, 6>(guid);
         size_t count_pos = data.bitwpos();
         data.WriteBits(0, 21);
-        data.WriteGuidMask<2, 3, 1, 0>(guid);
+        //data.WriteGuidMask<2, 3, 1, 0>(guid);
         data.WriteBit(1);
-        data.WriteGuidMask<5>(guid);
+        //data.WriteGuidMask<5>(guid);
 
-        data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
+        //data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
 
         do
         {
@@ -1168,7 +1168,7 @@ void Pet::_SaveSpells(SQLTransaction& trans)
 
 void Pet::_LoadAuras(uint32 timediff)
 {
-    sLog->outDebug(LOG_FILTER_PETS, "Loading auras for pet %u", GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_PETS, "Loading auras for pet %u", GetGUID().GetCounter());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_AURA);
     stmt->setUInt32(0, m_charmInfo->GetPetNumber());
@@ -1193,6 +1193,7 @@ void Pet::_LoadAuras(uint32 timediff)
         while (resultEffect->NextRow());
     }
 
+    ObjectGuid caster_guid;
     if (result)
     {
         do
@@ -1201,7 +1202,7 @@ void Pet::_LoadAuras(uint32 timediff)
             int32 baseDamage[32];
             Field* fields = result->Fetch();
             uint8 slot = fields[0].GetUInt8();
-            uint64 caster_guid = fields[1].GetUInt64();
+            caster_guid.SetRawValue(fields[1].GetBinary());
             // NULL guid stored - pet is the caster of the spell - see Pet::_SaveAuras
             if (!caster_guid)
                 caster_guid = GetGUID();
@@ -1319,14 +1320,13 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         }
 
         // don't save guid of caster in case we are caster of the spell - guid for pet is generated every pet load, so it won't match saved guid anyways
-        uint64 casterGUID = (itr->second->GetCasterGUID() == GetGUID()) ? 0 : itr->second->GetCasterGUID();
+        ObjectGuid casterGUID = (itr->second->GetCasterGUID() == GetGUID()) ? ObjectGuid::Empty : itr->second->GetCasterGUID();
 
-       
         index = 0;
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA);
         stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
         stmt->setUInt8(index++, foundAura->GetSlot());
-        stmt->setUInt64(index++, casterGUID);
+        stmt->setBinary(index++, casterGUID.GetRawValue());
         stmt->setUInt32(index++, itr->second->GetId());
         stmt->setUInt8(index++, effMask);
         stmt->setUInt8(index++, recalculateMask);
@@ -1666,13 +1666,13 @@ bool Pet::IsPermanentPetFor(Player* owner)
     }
 }
 
-bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
+bool Pet::Create(ObjectGuid::LowType const& guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
 {
     ASSERT(map);
     SetMap(map);
 
     SetPhaseMask(phaseMask, false);
-    Object::_Create(guidlow, pet_number, HIGHGUID_PET);
+    Object::_Create(ObjectGuid::Create<HighGuid::Pet>(map->GetId(), Entry, guidlow));
 
     m_DBTableGuid = guidlow;
     m_originalEntry = Entry;
@@ -1718,7 +1718,7 @@ void TempSummon::CastPetAuras(bool apply, uint32 spellId)
     if(m_Stampeded)
         return;
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Pet::CastPetAuras guid %u, apply %u, GetEntry() %u", GetGUIDLow(), apply, GetEntry());
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Pet::CastPetAuras guid %u, apply %u, GetEntry() %u", GetGUID().GetCounter(), apply, GetEntry());
 
     Unit* owner = GetAnyOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)

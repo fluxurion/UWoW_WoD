@@ -151,8 +151,6 @@ struct CurrencyLoot
     }
 };
 
-typedef std::set<uint32> AllowedLooterSet;
-
 struct LootItem
 {
     uint32  itemid;
@@ -161,7 +159,7 @@ struct LootItem
     int32   randomPropertyId;
     ItemQualities quality;
     std::list<Condition*> conditions;                               // additional loot condition
-    AllowedLooterSet allowedGUIDs;
+    GuidSet allowedGUIDs;
     uint32  count;
     bool    currency          : 1;
     bool    is_looted         : 1;
@@ -180,7 +178,7 @@ struct LootItem
     bool AllowedForPlayer(Player const* player) const;
 
     void AddAllowedLooter(Player const* player);
-    const AllowedLooterSet & GetAllowedLooters() const { return allowedGUIDs; }
+    const GuidSet & GetAllowedLooters() const { return allowedGUIDs; }
 };
 
 struct QuestItem
@@ -316,17 +314,17 @@ struct Loot
     std::vector<LootItem> quest_items;
     uint32 gold;
     uint8 unlootedCount;
-    uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
+    ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
 
     uint32 objEntry;
-    uint64 objGuid;
+    ObjectGuid objGuid;
     uint8 objType;
     uint8 spawnMode;
     uint32 specId;
     uint32 itemLevel;
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), spawnMode(0), m_lootOwner(NULL), objType(0), specId(0), itemLevel(0), objGuid(0), objEntry(0)  {}
+    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), spawnMode(0), m_lootOwner(NULL), objType(0), specId(0), itemLevel(0), objGuid(), objEntry(0)  {}
     ~Loot() { clear(); }
 
     // if loot becomes invalid this reference is used to inform the listener
@@ -359,7 +357,7 @@ struct Loot
         quest_items.clear();
         gold = 0;
         unlootedCount = 0;
-        roundRobinPlayer = 0;
+        roundRobinPlayer.Clear();
         i_LootValidatorRefManager.clearReferences();
     }
 
@@ -369,8 +367,8 @@ struct Loot
     void NotifyItemRemoved(uint8 lootIndex);
     void NotifyQuestItemRemoved(uint8 questIndex);
     void NotifyMoneyRemoved(uint64);
-    void AddLooter(uint64 GUID) { PlayersLooting.insert(GUID); }
-    void RemoveLooter(uint64 GUID) { PlayersLooting.erase(GUID); }
+    void AddLooter(ObjectGuid GUID) { PlayersLooting.insert(GUID); }
+    void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false);
@@ -391,7 +389,7 @@ struct Loot
         QuestItemList* FillQuestLoot(Player* player);
         QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
 
-        std::set<uint64> PlayersLooting;
+        GuidSet PlayersLooting;
         QuestItemMap PlayerCurrencies;
         QuestItemMap PlayerQuestItems;
         QuestItemMap PlayerFFAItems;
@@ -412,7 +410,7 @@ struct LootView
     uint8 _loot_type;
     uint8 pool;
     ObjectGuid _guid;
-    LootView(Loot &_loot, Player* _viewer, uint8 loot_type, uint64 guid, PermissionTypes _permission = ALL_PERMISSION, ItemQualities t = ITEM_QUALITY_POOR, uint8 _pool = 1)
+    LootView(Loot &_loot, Player* _viewer, uint8 loot_type, ObjectGuid guid, PermissionTypes _permission = ALL_PERMISSION, ItemQualities t = ITEM_QUALITY_POOR, uint8 _pool = 1)
         : loot(_loot), viewer(_viewer), _loot_type(loot_type), _guid(ObjectGuid(guid)), permission(_permission), threshold(t), pool(_pool) {}
 };
 

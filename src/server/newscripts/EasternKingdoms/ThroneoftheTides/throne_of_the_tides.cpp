@@ -80,7 +80,7 @@ public:
                 && pInstance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE)
 			{
                 pInstance->SetData(DATA_LADY_NAZJAR_EVENT, DONE);
-                if (Creature* pLadyNazjarEvent = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetData64(DATA_LADY_NAZJAR_EVENT)))
+                if (Creature* pLadyNazjarEvent = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetGuidData(DATA_LADY_NAZJAR_EVENT)))
                     pLadyNazjarEvent->AI()->DoAction(ACTION_LADY_NAZJAR_START_EVENT);
 			}
 		}

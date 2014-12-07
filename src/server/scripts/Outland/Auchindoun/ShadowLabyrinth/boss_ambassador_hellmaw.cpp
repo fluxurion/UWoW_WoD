@@ -120,7 +120,7 @@ public:
                 if (instance->GetData(TYPE_HELLMAW) != FAIL)
                 {
                     DoScriptText(SAY_INTRO, me);
-                    Start(true, false, 0, NULL, false, true);
+                    Start(true, false, ObjectGuid::Empty, NULL, false, true);
                 }
 
                 instance->SetData(TYPE_HELLMAW, IN_PROGRESS);
@@ -174,7 +174,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->HasAura(SPELL_BANISH, 0))
+            if (me->HasAura(SPELL_BANISH, ObjectGuid::Empty))
             {
                 EnterEvadeMode();
                 return;

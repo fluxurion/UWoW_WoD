@@ -122,8 +122,8 @@ class boss_morchok: public CreatureScript
 
                 me->LowerPlayerDamageReq(me->GetHealth());
 
-                _stompguid1 = 0;
-                _stompguid2 = 0;
+                _stompguid1.Clear();
+                _stompguid2.Clear();
                 bEnrage = false;
                 bKohcrom = false;
                 bAchieve = true;
@@ -142,8 +142,8 @@ class boss_morchok: public CreatureScript
                 if (!IsHeroic())
                     events.ScheduleEvent(EVENT_CRUSH_ARMOR, urand(6000, 12000));
 
-                _stompguid1 = 0;
-                _stompguid2 = 0;
+                _stompguid1.Clear();
+                _stompguid2.Clear();
                 bEnrage = false;
                 bKohcrom = false;
                 bAchieve = true;
@@ -169,7 +169,7 @@ class boss_morchok: public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SAFE);
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(ObjectGuid const& guid, int32 type)
             {
                 if (type == DATA_GUID_1)
                     _stompguid1 = guid;
@@ -177,14 +177,14 @@ class boss_morchok: public CreatureScript
                     _stompguid2 = guid;
             }
 
-            uint64 GetGUID(int32 type)
+            ObjectGuid GetGUID(int32 type)
             {
                 if (type == DATA_GUID_1)
                     return _stompguid1;
                 else if (type == DATA_GUID_2)
                     return _stompguid2;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void JustSummoned(Creature* summon)
@@ -264,7 +264,7 @@ class boss_morchok: public CreatureScript
                         case EVENT_UPDATE_HEALTH:
                             if (me->isAlive())
                             {
-                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KOHCROM)))
+                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KOHCROM)))
                                 {
                                     if (!pKohcrom->isAlive())
                                         break;
@@ -290,8 +290,8 @@ class boss_morchok: public CreatureScript
                             break;
                         case EVENT_STOMP:
                         {
-                            _stompguid1 = 0;
-                            _stompguid2 = 0;
+                            _stompguid1.Clear();
+                            _stompguid2.Clear();
 
                             int32 tim = int32(events.GetNextEventTime(EVENT_EARTHEN_VORTEX)) - int32(events.GetTimer());
                             if (tim <= 7000)
@@ -301,7 +301,7 @@ class boss_morchok: public CreatureScript
                             events.ScheduleEvent(EVENT_STOMP, urand(12000, 14000));
                             if (bKohcrom && !bFirstStomp)
                             {
-                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KOHCROM)))
+                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KOHCROM)))
                                     pKohcrom->AI()->DoAction(ACTION_KOHCROM_STOMP);
                             }
                             bFirstStomp = false;
@@ -320,7 +320,7 @@ class boss_morchok: public CreatureScript
                             events.ScheduleEvent(EVENT_RESONATING_CRYSTAL, urand(12000, 14000));
                             if (bKohcrom && !bFirstCrystal)
                             {
-                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KOHCROM)))
+                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KOHCROM)))
                                     pKohcrom->AI()->DoAction(ACTION_KOHCROM_RESONATING_CRYSTAL);
                             }
                             bFirstCrystal = false;
@@ -339,7 +339,7 @@ class boss_morchok: public CreatureScript
                             DoCast(me, SPELL_EARTHS_VENGEANCE);
                             
                             if (bKohcrom)
-                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_KOHCROM)))
+                                if (Creature* pKohcrom = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KOHCROM)))
                                     pKohcrom->AI()->DoAction(ACTION_KOHCROM_EARTHEN_VORTEX);
 
                             events.ScheduleEvent(EVENT_BLACK_BLOOD, 5000);
@@ -372,8 +372,8 @@ class boss_morchok: public CreatureScript
             }
         private:
 
-            uint64 _stompguid1;
-            uint64 _stompguid2;
+            ObjectGuid _stompguid1;
+            ObjectGuid _stompguid2;
             bool bEnrage;
             bool bKohcrom;
             bool bAchieve;
@@ -418,12 +418,12 @@ class npc_morchok_kohcrom: public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
-                _stompguid1 = 0;
-                _stompguid2 = 0;
+                _stompguid1.Clear();
+                _stompguid2.Clear();
                 bEnrage = false;
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(ObjectGuid const& guid, int32 type)
             {
                 if (type == DATA_GUID_1)
                     _stompguid1 = guid;
@@ -431,14 +431,14 @@ class npc_morchok_kohcrom: public CreatureScript
                     _stompguid2 = guid;
             }
 
-            uint64 GetGUID(int32 type)
+            ObjectGuid GetGUID(int32 type)
             {
                 if (type == DATA_GUID_1)
                     return _stompguid1;
                 else if (type == DATA_GUID_2)
                     return _stompguid2;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void IsSummonedBy(Unit* /*owner*/)
@@ -497,8 +497,8 @@ class npc_morchok_kohcrom: public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_STOMP:
-                            _stompguid1 = 0;
-                            _stompguid2 = 0;
+                            _stompguid1.Clear();
+                            _stompguid2.Clear();
                             DoCast(me, SPELL_STOMP);
                             break;
                         case EVENT_RESONATING_CRYSTAL:
@@ -535,8 +535,8 @@ class npc_morchok_kohcrom: public CreatureScript
             EventMap events;
             SummonList summons;
             InstanceScript* pInstance;
-            uint64 _stompguid1;
-            uint64 _stompguid2;
+            ObjectGuid _stompguid1;
+            ObjectGuid _stompguid2;
             bool bEnrage;
         };
 };

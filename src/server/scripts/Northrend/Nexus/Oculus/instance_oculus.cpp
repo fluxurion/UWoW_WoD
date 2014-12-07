@@ -44,15 +44,15 @@ public:
         {
             SetBossNumber(MAX_ENCOUNTER);
 
-            drakosGUID = 0;
-            varosGUID = 0;
-            uromGUID = 0;
-            eregosGUID = 0;
+            drakosGUID.Clear();
+            varosGUID.Clear();
+            uromGUID.Clear();
+            eregosGUID.Clear();
 
             platformUrom = 0;
             centrifugueConstructCounter = 0;
 
-            eregosCacheGUID = 0;
+            eregosCacheGUID.Clear();
 
             azureDragonsList.clear();
             gameObjectList.clear();
@@ -194,7 +194,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -204,7 +204,7 @@ public:
                 case DATA_EREGOS:                 return eregosGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void OpenCageDoors()
@@ -212,7 +212,7 @@ public:
             if (gameObjectList.empty())
                 return;
 
-            for (std::list<uint64>::const_iterator itr = gameObjectList.begin(); itr != gameObjectList.end(); ++itr)
+            for (GuidList::const_iterator itr = gameObjectList.begin(); itr != gameObjectList.end(); ++itr)
             {
                 if (GameObject* go = instance->GetGameObject(*itr))
                     go->SetGoState(GO_STATE_ACTIVE);
@@ -262,20 +262,20 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
         private:
-            uint64 drakosGUID;
-            uint64 varosGUID;
-            uint64 uromGUID;
-            uint64 eregosGUID;
+            ObjectGuid drakosGUID;
+            ObjectGuid varosGUID;
+            ObjectGuid uromGUID;
+            ObjectGuid eregosGUID;
 
             uint8 platformUrom;
             uint8 centrifugueConstructCounter;
 
-            uint64 eregosCacheGUID;
+            ObjectGuid eregosCacheGUID;
 
             std::string str_data;
 
-            std::list<uint64> gameObjectList;
-            std::list<uint64> azureDragonsList;
+            GuidList gameObjectList;
+            GuidList azureDragonsList;
     };
 
 };

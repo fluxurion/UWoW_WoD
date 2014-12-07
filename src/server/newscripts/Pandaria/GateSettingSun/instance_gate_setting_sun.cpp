@@ -31,27 +31,27 @@ public:
 
     struct instance_gate_setting_sun_InstanceMapScript : public InstanceScript
     {
-        uint64 kiptilakGuid;
-        uint64 gadokGuid;
-        uint64 rimokGuid;
-        uint64 raigonnGuid;
-        uint64 raigonWeakGuid;
+        ObjectGuid kiptilakGuid;
+        ObjectGuid gadokGuid;
+        ObjectGuid rimokGuid;
+        ObjectGuid raigonnGuid;
+        ObjectGuid raigonWeakGuid;
 
-        uint64 firstDoorGuid;
-        uint64 fireSignalGuid;
+        ObjectGuid firstDoorGuid;
+        ObjectGuid fireSignalGuid;
 
-        uint64 wallCGuid;
-        uint64 portalTempGadokGuid;
+        ObjectGuid wallCGuid;
+        ObjectGuid portalTempGadokGuid;
 
         uint32 cinematicTimer;
         uint8 cinematicEventProgress;
 
-        std::list<uint64> bombarderGuids;
-        std::list<uint64> bombStalkerGuids;
-        std::list<uint64> mantidBombsGUIDs;
-        std::list<uint64> rimokAddGenetarorsGUIDs;
-        std::list<uint64> artilleryGUIDs;
-        std::list<uint64> secondaryDoorGUIDs;
+        GuidList bombarderGuids;
+        GuidList bombStalkerGuids;
+        GuidList mantidBombsGUIDs;
+        GuidList rimokAddGenetarorsGUIDs;
+        GuidList artilleryGUIDs;
+        GuidList secondaryDoorGUIDs;
 
         uint32 dataStorage[MAX_DATA];
 
@@ -63,19 +63,19 @@ public:
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
 
-            kiptilakGuid            = 0;
-            gadokGuid               = 0;
-            rimokGuid               = 0;
-            raigonnGuid             = 0;
-            raigonWeakGuid          = 0;
+            kiptilakGuid.Clear();
+            gadokGuid.Clear();
+            rimokGuid.Clear();
+            raigonnGuid.Clear();
+            raigonWeakGuid.Clear();
             
-            firstDoorGuid           = 0;
+            firstDoorGuid.Clear();
 
             cinematicTimer          = 0;
             cinematicEventProgress  = 0;
 
-            wallCGuid               = 0;
-            portalTempGadokGuid     = 0;
+            wallCGuid.Clear();
+            portalTempGadokGuid.Clear();
 
             memset(dataStorage, 0, MAX_DATA * sizeof(uint32));
 
@@ -89,7 +89,7 @@ public:
 
         void OnDestroy(InstanceMap* pMap)
         {
-            if (Creature* weakSpot = instance->GetCreature(GetData64(NPC_WEAK_SPOT)))
+            if (Creature* weakSpot = instance->GetCreature(GetGuidData(NPC_WEAK_SPOT)))
                 weakSpot->_ExitVehicle();
         }
 
@@ -127,7 +127,7 @@ public:
             switch (creature->GetEntry())
             {
                 case NPC_KRITHUK_BOMBARDER:
-                    for (std::list<uint64>::iterator it = bombarderGuids.begin(); it != bombarderGuids.end(); ++it)
+                    for (GuidList::iterator it = bombarderGuids.begin(); it != bombarderGuids.end(); ++it)
                     {
                         if (*it == creature->GetGUID())
                         {
@@ -184,7 +184,7 @@ public:
                 case DATA_KIPTILAK:
                 {
                     if (state == DONE)
-						for (std::list<uint64>::iterator itr = mantidBombsGUIDs.begin(); itr != mantidBombsGUIDs.end(); ++itr)
+						for (GuidList::iterator itr = mantidBombsGUIDs.begin(); itr != mantidBombsGUIDs.end(); ++itr)
                             if (GameObject* bomb = instance->GetGameObject(*itr))
                                 bomb->SetPhaseMask(32768, true); // Set Invisible
                     break;
@@ -199,10 +199,10 @@ public:
                 {
                     uint8 generatorsCount = 0;
 
-                    for (std::list<uint64>::iterator itr = secondaryDoorGUIDs.begin(); itr != secondaryDoorGUIDs.end(); ++itr)
+                    for (GuidList::iterator itr = secondaryDoorGUIDs.begin(); itr != secondaryDoorGUIDs.end(); ++itr)
                         HandleGameObject(*itr, state != DONE);
 
-                    for (std::list<uint64>::iterator itr = rimokAddGenetarorsGUIDs.begin(); itr != rimokAddGenetarorsGUIDs.end(); ++itr)
+                    for (GuidList::iterator itr = rimokAddGenetarorsGUIDs.begin(); itr != rimokAddGenetarorsGUIDs.end(); ++itr)
                     {
                         if (Creature* generator = instance->GetCreature(*itr))
                         {
@@ -220,7 +220,7 @@ public:
                 }
                 case DATA_RAIGONN:
                 {
-                    for (std::list<uint64>::iterator itr = artilleryGUIDs.begin(); itr != artilleryGUIDs.end(); ++itr)
+                    for (GuidList::iterator itr = artilleryGUIDs.begin(); itr != artilleryGUIDs.end(); ++itr)
                     {
                         if (Creature* artillery = instance->GetCreature(*itr))
                         {
@@ -338,7 +338,7 @@ public:
             return 0;
         }
 
-        void SetData64(uint32 type, uint64 value)
+        void SetGuidData(uint32 type, ObjectGuid value)
         {
             switch (type)
             {
@@ -347,7 +347,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -360,7 +360,7 @@ public:
                 case DATA_RANDOM_BOMB_STALKER:  return Trinity::Containers::SelectRandomContainerElement(bombStalkerGuids);
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void doEventCinematic()

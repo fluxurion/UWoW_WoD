@@ -98,7 +98,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 TargetGUID[3];
+        ObjectGuid TargetGUID[3];
         uint32 BeamTimer;
         uint32 BeamCount;
         uint32 CurrentBeam;
@@ -119,7 +119,7 @@ public:
                 instance->SetData(DATA_MOTHERSHAHRAZEVENT, NOT_STARTED);
 
             for (uint8 i = 0; i<3; ++i)
-                TargetGUID[i] = 0;
+                TargetGUID[i].Clear();
 
             BeamTimer = 20000; // Timers may be incorrect
             BeamCount = 0;
@@ -252,7 +252,7 @@ public:
                         {
                             if (Unit* unit = Unit::GetUnit(*me, TargetGUID[i]))
                                 unit->CastSpell(unit, SPELL_ATTRACTION, true);
-                            TargetGUID[i] = 0;
+                            TargetGUID[i].Clear();
                         }
                     }
 

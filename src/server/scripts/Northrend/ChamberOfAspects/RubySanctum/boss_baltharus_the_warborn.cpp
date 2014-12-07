@@ -274,7 +274,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 Talk(SAY_DEATH);
                 if (instance)
                     instance->SetData(TYPE_BALTHARUS, DONE);
-                if (Creature* pXerestrasza = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_XERESTRASZA)))
+                if (Creature* pXerestrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_XERESTRASZA)))
                         CAST_AI(npc_xerestrasza::npc_xerestraszaAI, pXerestrasza->AI())->DoAction(ACTION_START_EVENT);
                 _JustDied();
             }
@@ -403,10 +403,10 @@ class at_baltharus_plateau : public AreaTriggerScript
             // Only trigger once
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_XERESTRASZA)))
+                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_XERESTRASZA)))
                     xerestrasza->AI()->DoAction(ACTION_INTRO_BALTHARUS);
 
-                if (Creature* baltharus = ObjectAccessor::GetCreature(*player, instance->GetData64(NPC_BALTHARUS)))
+                if (Creature* baltharus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_BALTHARUS)))
                     baltharus->AI()->DoAction(ACTION_INTRO_BALTHARUS);
             }
 

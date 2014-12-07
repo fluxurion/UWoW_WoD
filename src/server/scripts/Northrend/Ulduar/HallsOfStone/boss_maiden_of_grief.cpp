@@ -98,7 +98,7 @@ public:
 
             if (instance)
             {
-                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_MAIDEN_DOOR)))
+                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_MAIDEN_DOOR)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();

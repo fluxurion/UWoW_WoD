@@ -168,15 +168,15 @@ public:
     {
         go_hallow_wickermanAI(GameObject* go) : GameObjectAI(go)
         {
-            emberGUID = 0;
-            playerGUID = 0;
+            emberGUID.Clear();
+            playerGUID.Clear();
         }
 
         EventMap events;
-        uint64 emberGUID;
-        uint64 playerGUID;
+        ObjectGuid emberGUID;
+        ObjectGuid playerGUID;
 
-        void SetGUID(const uint64& guid, int32 /*id = 0 */)
+        void SetGUID(ObjectGuid const& guid, int32 /*id = 0 */)
         {
             if (playerGUID)
                 return;
@@ -214,13 +214,13 @@ public:
                     }
                     case ENABLE_WICKERMAN:
                     {
-                        playerGUID = 0;
+                        playerGUID.Clear();
                         go->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
                         go->UpdateObjectVisibility();
                         if (GameObject* e = ObjectAccessor::GetGameObject(*go, emberGUID))
                         {
                             e->Delete();
-                            emberGUID = 0;
+                            emberGUID.Clear();
                         }
                         break;
                     }

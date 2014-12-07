@@ -125,10 +125,10 @@ public:
     {
         mob_ashtongue_channelerAI(Creature* creature) : ScriptedAI(creature)
         {
-            ShadeGUID = 0;
+            ShadeGUID.Clear();
         }
 
-        uint64 ShadeGUID;
+        ObjectGuid ShadeGUID;
 
         void Reset() {}
         void JustDied(Unit* /*killer*/);
@@ -154,10 +154,10 @@ public:
     {
         mob_ashtongue_sorcererAI(Creature* creature) : ScriptedAI(creature)
         {
-            ShadeGUID = 0;
+            ShadeGUID.Clear();
         }
 
-        uint64 ShadeGUID;
+        ObjectGuid ShadeGUID;
         uint32 CheckTimer;
         bool StartBanishing;
 
@@ -213,7 +213,7 @@ public:
         boss_shade_of_akamaAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
             instance = creature->GetInstanceScript();
-            AkamaGUID = instance ? instance->GetData64(DATA_AKAMA_SHADE) : 0;
+            AkamaGUID = instance ? instance->GetGuidData(DATA_AKAMA_SHADE) : ObjectGuid::Empty;
             me->setActive(true);//if view distance is too low
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
@@ -221,9 +221,9 @@ public:
 
         InstanceScript* instance;
 
-        std::list<uint64> Channelers;
-        std::list<uint64> Sorcerers;
-        uint64 AkamaGUID;
+        GuidList Channelers;
+        GuidList Sorcerers;
+        ObjectGuid AkamaGUID;
 
         uint32 SorcererCount;
         uint32 DeathCount;
@@ -305,7 +305,7 @@ public:
 
                 if (!Channelers.empty())
                 {
-                    for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+                    for (GuidList::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
                     {
                         Creature* Channeler = (Unit::GetCreature(*me, *itr));
                         if (Channeler)
@@ -335,7 +335,7 @@ public:
                 DoStartMovement(who);
         }
 
-        void IncrementDeathCount(uint64 guid = 0)               // If guid is set, will remove it from list of sorcerer
+        void IncrementDeathCount(ObjectGuid const& guid = ObjectGuid::Empty)               // If guid is set, will remove it from list of sorcerer
         {
             if (reseting)
                 return;
@@ -412,12 +412,12 @@ public:
                 return;
             }
 
-            for (std::list<uint64>::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+            for (GuidList::const_iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
                 if (Creature* Channeler = (Unit::GetCreature(*me, *itr)))
                     Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void SetAkamaGUID(uint64 guid) { AkamaGUID = guid; }
+        void SetAkamaGUID(ObjectGuid guid) { AkamaGUID = guid; }
 
         void UpdateAI(uint32 diff)
         {
@@ -586,9 +586,9 @@ public:
             StartCombat = false;
             instance = creature->GetInstanceScript();
             if (instance)
-                ShadeGUID = instance->GetData64(DATA_SHADEOFAKAMA);
+                ShadeGUID = instance->GetGuidData(DATA_SHADEOFAKAMA);
             else
-                ShadeGUID = NOT_STARTED;
+                ShadeGUID.Clear();
             me->setActive(true);
             EventBegun = false;
             CastSoulRetrieveTimer = 0;
@@ -603,7 +603,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 ShadeGUID;
+        ObjectGuid ShadeGUID;
 
         uint32 DestructivePoisonTimer;
         uint32 LightningBoltTimer;
@@ -615,7 +615,7 @@ public:
         uint32 WayPointId;
         uint32 BrokenSummonIndex;
 
-        std::list<uint64> BrokenList;
+        GuidList BrokenList;
 
         bool EventBegun;
         bool ShadeHasDied;
@@ -655,7 +655,7 @@ public:
             if (!instance)
                 return;
 
-            ShadeGUID = instance->GetData64(DATA_SHADEOFAKAMA);
+            ShadeGUID = instance->GetGuidData(DATA_SHADEOFAKAMA);
             if (!ShadeGUID)
                 return;
 
@@ -832,7 +832,7 @@ public:
                         if (!BrokenList.empty())
                         {
                             bool Yelled = false;
-                            for (std::list<uint64>::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                            for (GuidList::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                                 if (Creature* unit = Unit::GetCreature(*me, *itr))
                                 {
                                     if (!Yelled)
@@ -849,7 +849,7 @@ public:
                     case 3:
                         if (!BrokenList.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                            for (GuidList::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                                 if (Creature* unit = Unit::GetCreature(*me, *itr))
                                     // This is the incorrect spell, but can't seem to find the right one.
                                     unit->CastSpell(unit, 39656, true);
@@ -860,9 +860,9 @@ public:
                     case 4:
                         if (!BrokenList.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                            for (GuidList::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                                 if (Creature* unit = Unit::GetCreature((*me), *itr))
-                                    unit->MonsterYell(SAY_BROKEN_FREE_02, LANG_UNIVERSAL, 0);
+                                    unit->MonsterYell(SAY_BROKEN_FREE_02, LANG_UNIVERSAL, ObjectGuid::Empty);
                         }
                         SoulRetrieveTimer = 0;
                         break;

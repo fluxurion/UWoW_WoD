@@ -233,12 +233,12 @@ public:
     {
         mob_titoAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 DorotheeGUID;
+        ObjectGuid DorotheeGUID;
         uint32 YipTimer;
 
         void Reset()
         {
-            DorotheeGUID = 0;
+            DorotheeGUID.Clear();
             YipTimer = 10000;
         }
 
@@ -667,10 +667,10 @@ public:
             if (instance)
             {
                 instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                     pSideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
             }
         }
@@ -818,7 +818,7 @@ public:
         uint32 FearTimer;
         uint32 SwipeTimer;
 
-        uint64 HoodGUID;
+        ObjectGuid HoodGUID;
         float TempThreat;
 
         bool IsChasing;
@@ -829,7 +829,7 @@ public:
             FearTimer = urand(25000, 35000);
             SwipeTimer = 5000;
 
-            HoodGUID = 0;
+            HoodGUID.Clear();
             TempThreat = 0;
 
             IsChasing = false;
@@ -852,10 +852,10 @@ public:
             if (instance)
             {
                 instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                     pSideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
             }
         }
@@ -890,7 +890,7 @@ public:
 
                     if (Unit* target = Unit::GetUnit(*me, HoodGUID))
                     {
-                        HoodGUID = 0;
+                        HoodGUID.Clear();
                         if (DoGetThreat(target))
                             DoModifyThreatPercent(target, -100);
                         me->AddThreat(target, TempThreat);
@@ -1019,7 +1019,7 @@ public:
         uint32 EntryYellTimer;
         uint32 AggroYellTimer;
 
-        uint64 RomuloGUID;
+        ObjectGuid RomuloGUID;
 
         uint32 Phase;
 
@@ -1038,7 +1038,7 @@ public:
 
         void Reset()
         {
-            RomuloGUID = 0;
+            RomuloGUID.Clear();
             Phase = PHASE_JULIANNE;
 
             BlindingPassionTimer = 30000;
@@ -1100,9 +1100,9 @@ public:
             if (instance)
             {
                 instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
+                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                     pSideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
             }
         }
@@ -1138,7 +1138,7 @@ public:
 
         InstanceScript* instance;
 
-        uint64 JulianneGUID;
+        ObjectGuid JulianneGUID;
         uint32 Phase;
 
         uint32 EntryYellTimer;
@@ -1154,7 +1154,7 @@ public:
 
         void Reset()
         {
-            JulianneGUID = 0;
+            JulianneGUID.Clear();
             Phase = PHASE_ROMULO;
 
             BackwardLungeTimer = 15000;
@@ -1255,10 +1255,10 @@ public:
             if (instance)
             {
                 instance->SetData(TYPE_OPERA, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORLEFT), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetGuidData(DATA_GO_SIDE_ENTRANCE_DOOR)))
                     pSideEntrance->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
             }
         }

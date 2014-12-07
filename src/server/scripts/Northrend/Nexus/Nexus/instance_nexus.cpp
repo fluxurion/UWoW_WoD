@@ -42,12 +42,12 @@ public:
 
         uint32 m_auiEncounter[NUMBER_OF_ENCOUNTERS];
 
-        uint64 Anomalus;
-        uint64 Keristrasza;
+        ObjectGuid Anomalus;
+        ObjectGuid Keristrasza;
 
-        uint64 AnomalusContainmentSphere;
-        uint64 OrmoroksContainmentSphere;
-        uint64 TelestrasContainmentSphere;
+        ObjectGuid AnomalusContainmentSphere;
+        ObjectGuid OrmoroksContainmentSphere;
+        ObjectGuid TelestrasContainmentSphere;
 
         std::string strInstData;
 
@@ -55,8 +55,8 @@ public:
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            Anomalus = 0;
-            Keristrasza = 0;
+            Anomalus.Clear();
+            Keristrasza.Clear();
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -216,7 +216,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 uiIdentifier)
+        ObjectGuid GetGuidData(uint32 uiIdentifier)
         {
             switch (uiIdentifier)
             {
@@ -226,7 +226,7 @@ public:
                 case ORMOROKS_CONTAINMET_SPHERE:    return OrmoroksContainmentSphere;
                 case TELESTRAS_CONTAINMET_SPHERE:   return TelestrasContainmentSphere;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

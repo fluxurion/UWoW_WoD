@@ -28,16 +28,16 @@ class instance_deadmines : public InstanceMapScript
 				SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
                 
-                uiGlubtokGUID = 0;
-                uiHelixGUID = 0;
-                uiOafGUID = 0;
-                uiFoereaperGUID = 0;
-				uiAdmiralGUID = 0;
-				uiCaptainGUID = 0;
+                uiGlubtokGUID.Clear();
+                uiHelixGUID.Clear();
+                uiOafGUID.Clear();
+                uiFoereaperGUID.Clear();
+                uiAdmiralGUID.Clear();
+                uiCaptainGUID.Clear();
 
-                IronCladDoorGUID = 0;
-                DefiasCannonGUID = 0;
-                DoorLeverGUID = 0;
+                IronCladDoorGUID.Clear();
+                DefiasCannonGUID.Clear();
+                DoorLeverGUID.Clear();
 
                 State = CANNON_NOT_USED;
 			};
@@ -121,7 +121,7 @@ class instance_deadmines : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 data)
+            ObjectGuid GetGuidData(uint32 data)
             {
                 switch (data)
                 {
@@ -136,7 +136,7 @@ class instance_deadmines : public InstanceMapScript
 					case DATA_ADMIRAL:
 						return uiAdmiralGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()
@@ -192,22 +192,22 @@ class instance_deadmines : public InstanceMapScript
             }
 
         private:
-            uint64 uiGlubtokGUID;
-            uint64 uiHelixGUID;
-            uint64 uiOafGUID;
-            uint64 uiFoereaperGUID;
-			uint64 uiAdmiralGUID;
-			uint64 uiCaptainGUID;
+            ObjectGuid uiGlubtokGUID;
+            ObjectGuid uiHelixGUID;
+            ObjectGuid uiOafGUID;
+            ObjectGuid uiFoereaperGUID;
+			ObjectGuid uiAdmiralGUID;
+			ObjectGuid uiCaptainGUID;
 
-            uint64 FactoryDoorGUID;
-            uint64 FoundryDoorGUID;
-            uint64 MastRoomDoorGUID;
-            uint64 IronCladDoorGUID;
-            uint64 DefiasCannonGUID;
-            uint64 DoorLeverGUID;
-            uint64 DefiasPirate1GUID;
-            uint64 DefiasPirate2GUID;
-            uint64 DefiasCompanionGUID;
+            ObjectGuid FactoryDoorGUID;
+            ObjectGuid FoundryDoorGUID;
+            ObjectGuid MastRoomDoorGUID;
+            ObjectGuid IronCladDoorGUID;
+            ObjectGuid DefiasCannonGUID;
+            ObjectGuid DoorLeverGUID;
+            ObjectGuid DefiasPirate1GUID;
+            ObjectGuid DefiasPirate2GUID;
+            ObjectGuid DefiasCompanionGUID;
 
             uint32 State;
 

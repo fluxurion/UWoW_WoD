@@ -51,16 +51,16 @@ class ChatHandler
         explicit ChatHandler(Player* player) : m_session(player->GetSession()), sentErrorMessage(false) {}
         virtual ~ChatHandler() {}
 
-        static void FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker, const char* addonPrefix = NULL);
+        static void FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, ObjectGuid target_guid, const char *message, Unit* speaker, const char* addonPrefix = NULL);
 
-        void FillMessageData(WorldPacket* data, uint8 type, uint32 language, uint64 target_guid, const char* message)
+        void FillMessageData(WorldPacket* data, uint8 type, uint32 language, ObjectGuid target_guid, const char* message)
         {
             FillMessageData(data, m_session, type, language, NULL, target_guid, message, NULL);
         }
 
         void FillSystemMessageData(WorldPacket* data, const char* message)
         {
-            FillMessageData(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, 0, message);
+            FillMessageData(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, ObjectGuid::Empty, message);
         }
 
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = NULL; return start; }
@@ -90,7 +90,7 @@ class ChatHandler
         virtual LocaleConstant GetSessionDbcLocale() const;
         virtual int GetSessionDbLocaleIndex() const;
 
-        bool HasLowerSecurity(Player* target, uint64 guid, bool strong = false);
+        bool HasLowerSecurity(Player* target, ObjectGuid guid, bool strong = false);
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
         void SendGlobalGMSysMessage(const char *str);
@@ -107,12 +107,12 @@ class ChatHandler
         char*     extractQuotedArg(char* args);
 
         uint32    extractSpellIdFromLink(char* text);
-        uint64    extractGuidFromLink(char* text);
+        ObjectGuid    extractGuidFromLink(char* text);
         GameTele const* extractGameTeleFromLink(char* text);
-        bool GetPlayerGroupAndGUIDByName(const char* cname, Player* &player, Group* &group, uint64 &guid, bool offline = false);
+        bool GetPlayerGroupAndGUIDByName(const char* cname, Player* &player, Group* &group, ObjectGuid &guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
         // select by arg (name/link) or in-game selection online/offline player
-        bool extractPlayerTarget(char* args, Player** player, uint64* player_guid = NULL, std::string* player_name = NULL);
+        bool extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid = NULL, std::string* player_name = NULL);
 
         std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
         std::string GetNameLink(Player* chr) const { return playerLink(chr->GetName()); }

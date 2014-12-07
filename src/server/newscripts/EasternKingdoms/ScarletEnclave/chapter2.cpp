@@ -61,13 +61,13 @@ public:
 
         uint32 uiSpeech_timer;
         uint32 uiSpeech_counter;
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
 
         void Reset()
         {
             uiSpeech_timer = 0;
             uiSpeech_counter = 0;
-            uiPlayerGUID = 0;
+            uiPlayerGUID.Clear();
             me->SetReactState(REACT_AGGRESSIVE);
             me->RestoreFaction();
         }
@@ -229,7 +229,7 @@ public:
             {
                 wave = 0;
                 waveTimer = 3000;
-                valrothGUID = 0;
+                valrothGUID.Clear();
                 me->LoadEquipment(0, true);
                 me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
                 me->RemoveAurasDueToSpell(SPELL_KOLTIRA_TRANSFORM);
@@ -356,7 +356,7 @@ public:
     private:
         uint8 wave;
         uint32 waveTimer;
-        uint64 valrothGUID;
+        ObjectGuid valrothGUID;
 
     };
     
@@ -621,13 +621,13 @@ public:
 
         uint32 ExecuteSpeech_Timer;
         uint32 ExecuteSpeech_Counter;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void Reset()
         {
             ExecuteSpeech_Timer = 0;
             ExecuteSpeech_Counter = 0;
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }

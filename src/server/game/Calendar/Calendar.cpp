@@ -38,8 +38,8 @@ std::string CalendarInvite::GetDebugString() const
 void CalendarInvite::Init()
 {
     _eventId = 0;
-    _invitee = 0;
-    _senderGUID = 0;
+    _invitee.Clear();
+    _senderGUID.Clear();
     _statusTime = 0;
     _status = CALENDAR_STATUS_INVITED; // default (0)?
     _rank = CALENDAR_RANK_PLAYER;
@@ -69,7 +69,7 @@ std::string CalendarEvent::GetDebugString() const
 
 void CalendarEvent::Init()
 {
-    _creatorGUID = 0;
+    _creatorGUID.Clear();
     _guildId = 0;
     _type = CALENDAR_TYPE_OTHER;
     _dungeonId = -1;

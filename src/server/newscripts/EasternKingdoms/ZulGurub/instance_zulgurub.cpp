@@ -30,15 +30,15 @@ class instance_zulgurub : public InstanceMapScript
             {
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doordata);
-                venoxisGUID     = 0;
-                mandokirGUID    = 0;
-                kilnaraGUID     = 0;
-                zanzilGUID      = 0;
-                jindoGUID       = 0;
-                hazzarahGUID    = 0;
-                renatakiGUID    = 0;
-                wushoolayGUID   = 0;
-                grilekGUID      = 0;
+                venoxisGUID.Clear();
+                mandokirGUID.Clear();
+                kilnaraGUID.Clear();
+                zanzilGUID.Clear();
+                jindoGUID.Clear();
+                hazzarahGUID.Clear();
+                renatakiGUID.Clear();
+                wushoolayGUID.Clear();
+                grilekGUID.Clear();
                 uiBosses        = 0;
             }
     
@@ -115,7 +115,7 @@ class instance_zulgurub : public InstanceMapScript
                     return uiBosses;
                 return 0;
             }
-            uint64 GetData64(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -142,7 +142,7 @@ class instance_zulgurub : public InstanceMapScript
 
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()
@@ -193,15 +193,15 @@ class instance_zulgurub : public InstanceMapScript
             }
 
         protected:
-             uint64 venoxisGUID;
-             uint64 mandokirGUID;
-             uint64 kilnaraGUID;
-             uint64 zanzilGUID;
-             uint64 jindoGUID;
-             uint64 hazzarahGUID;
-             uint64 renatakiGUID;
-             uint64 wushoolayGUID;
-             uint64 grilekGUID;
+             ObjectGuid venoxisGUID;
+             ObjectGuid mandokirGUID;
+             ObjectGuid kilnaraGUID;
+             ObjectGuid zanzilGUID;
+             ObjectGuid jindoGUID;
+             ObjectGuid hazzarahGUID;
+             ObjectGuid renatakiGUID;
+             ObjectGuid wushoolayGUID;
+             ObjectGuid grilekGUID;
              uint32 uiBosses; 
         };
 };

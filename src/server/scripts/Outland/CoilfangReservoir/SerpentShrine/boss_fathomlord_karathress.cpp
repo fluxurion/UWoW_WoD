@@ -111,9 +111,9 @@ public:
         boss_fathomlord_karathressAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            Advisors[0] = 0;
-            Advisors[1] = 0;
-            Advisors[2] = 0;
+            Advisors[0].Clear();
+            Advisors[1].Clear();
+            Advisors[2].Clear();
         }
 
         InstanceScript* instance;
@@ -124,7 +124,7 @@ public:
 
         bool BlessingOfTides;
 
-        uint64 Advisors[MAX_ADVISORS];
+        ObjectGuid Advisors[MAX_ADVISORS];
 
         void Reset()
         {
@@ -136,10 +136,10 @@ public:
 
             if (instance)
             {
-                uint64 RAdvisors[MAX_ADVISORS];
-                RAdvisors[0] = instance->GetData64(DATA_SHARKKIS);
-                RAdvisors[1] = instance->GetData64(DATA_TIDALVESS);
-                RAdvisors[2] = instance->GetData64(DATA_CARIBDIS);
+                ObjectGuid RAdvisors[MAX_ADVISORS];
+                RAdvisors[0] = instance->GetGuidData(DATA_SHARKKIS);
+                RAdvisors[1] = instance->GetGuidData(DATA_TIDALVESS);
+                RAdvisors[2] = instance->GetGuidData(DATA_CARIBDIS);
                 //Respawn of the 3 Advisors
                 Creature* pAdvisor = NULL;
                 for (int i=0; i<MAX_ADVISORS; ++i)
@@ -181,9 +181,9 @@ public:
             if (!instance)
                 return;
 
-            Advisors[0] = instance->GetData64(DATA_SHARKKIS);
-            Advisors[1] = instance->GetData64(DATA_TIDALVESS);
-            Advisors[2] = instance->GetData64(DATA_CARIBDIS);
+            Advisors[0] = instance->GetGuidData(DATA_SHARKKIS);
+            Advisors[1] = instance->GetGuidData(DATA_TIDALVESS);
+            Advisors[2] = instance->GetGuidData(DATA_CARIBDIS);
         }
 
         void StartEvent(Unit* who)
@@ -196,7 +196,7 @@ public:
             DoScriptText(SAY_AGGRO, me);
             DoZoneInCombat();
 
-            instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
+            instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
         }
 
@@ -226,7 +226,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -294,7 +294,7 @@ public:
                 if (continueTriggering)
                 {
                     DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
-                    me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL, 0);
+                    me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL, ObjectGuid::Empty);
                     DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
                 }
             }
@@ -332,7 +332,7 @@ public:
 
         bool pet;
 
-        uint64 SummonedPet;
+        ObjectGuid SummonedPet;
 
         void Reset()
         {
@@ -349,7 +349,7 @@ public:
                 Pet->DealDamage(Pet, Pet->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }
 
-            SummonedPet = 0;
+            SummonedPet.Clear();
 
             if (instance)
                 instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
@@ -360,7 +360,7 @@ public:
             if (instance)
             {
                 Creature* Karathress = NULL;
-                Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)));
+                Karathress = (Unit::GetCreature((*me), instance->GetGuidData(DATA_KARATHRESS)));
 
                 if (Karathress)
                     if (!me->isAlive() && Karathress)
@@ -372,7 +372,7 @@ public:
         {
             if (instance)
             {
-                instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
+                instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
                 instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
             }
         }
@@ -382,7 +382,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -500,7 +500,7 @@ public:
             if (instance)
             {
                 Creature* Karathress = NULL;
-                Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)));
+                Karathress = (Unit::GetCreature((*me), instance->GetGuidData(DATA_KARATHRESS)));
 
                 if (Karathress)
                     if (!me->isAlive() && Karathress)
@@ -512,7 +512,7 @@ public:
         {
             if (instance)
             {
-                instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
+                instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
                 instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
             }
             DoCast(me, SPELL_WINDFURY_WEAPON);
@@ -523,7 +523,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -558,11 +558,12 @@ public:
             if (Spitfire_Timer <= diff)
             {
                 DoCast(me, SPELL_SPITFIRE_TOTEM);
-                Unit* SpitfireTotem = Unit::GetUnit(*me, CREATURE_SPITFIRE_TOTEM);
-                if (SpitfireTotem)
-                {
-                    CAST_CRE(SpitfireTotem)->AI()->AttackStart(me->getVictim());
-                }
+                //ToDo: CREATURE_SPITFIRE_TOTEM is not guid get from instance
+                //Unit* SpitfireTotem = Unit::GetUnit(*me, CREATURE_SPITFIRE_TOTEM);
+                //if (SpitfireTotem)
+                //{
+                //    CAST_CRE(SpitfireTotem)->AI()->AttackStart(me->getVictim());
+                //}
                 Spitfire_Timer = 60000;
             } else Spitfire_Timer -= diff;
 
@@ -627,7 +628,7 @@ public:
             if (instance)
             {
                 Creature* Karathress = NULL;
-                Karathress = (Unit::GetCreature((*me), instance->GetData64(DATA_KARATHRESS)));
+                Karathress = (Unit::GetCreature((*me), instance->GetGuidData(DATA_KARATHRESS)));
 
                 if (Karathress)
                     if (!me->isAlive() && Karathress)
@@ -639,7 +640,7 @@ public:
         {
             if (instance)
             {
-                instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
+                instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
                 instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
             }
         }
@@ -649,7 +650,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_KARATHRESSEVENT))
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESSEVENT_STARTER));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESSEVENT_STARTER));
 
                 if (target)
                 {
@@ -734,13 +735,13 @@ public:
                 switch (rand()%4)
                 {
                 case 0:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_KARATHRESS));
+                    unit = Unit::GetUnit(*me, instance->GetGuidData(DATA_KARATHRESS));
                     break;
                 case 1:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_SHARKKIS));
+                    unit = Unit::GetUnit(*me, instance->GetGuidData(DATA_SHARKKIS));
                     break;
                 case 2:
-                    unit = Unit::GetUnit(*me, instance->GetData64(DATA_TIDALVESS));
+                    unit = Unit::GetUnit(*me, instance->GetGuidData(DATA_TIDALVESS));
                     break;
                 case 3:
                     unit = me;

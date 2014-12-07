@@ -53,8 +53,10 @@ bool BattlefieldWG::SetupBattlefield()
     m_ZoneId = BATTLEFIELD_WG_ZONEID;
     m_MapId = BATTLEFIELD_WG_MAPID;
 
-    m_Guid = MAKE_NEW_GUID(m_TypeId, 0, HIGHGUID_TYPE_BATTLEGROUND);
-    m_Guid |= 0x20000; // BATTLEFIELD_TYPE_WORLD_PVP 5.0.5
+    //Mop
+    //m_Guid = MAKE_NEW_GUID(m_TypeId, 0, HIGHGUID_TYPE_BATTLEGROUND);
+    //m_Guid |= 0x20000; // BATTLEFIELD_TYPE_WORLD_PVP 5.0.5
+    InitGUID();
 
     m_MaxPlayer = sWorld->getIntConfig(CONFIG_WINTERGRASP_PLR_MAX);
     m_IsEnabled = sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE);
@@ -610,7 +612,7 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
             case NPC_WINTERGRASP_CATAPULT:
             case NPC_WINTERGRASP_DEMOLISHER:
             {
-                if (!creature->ToTempSummon()->GetSummonerGUID() || !sObjectAccessor->FindPlayer(creature->ToTempSummon()->GetSummonerGUID()))
+                if (creature->ToTempSummon()->GetSummonerGUID().IsEmpty() || !sObjectAccessor->FindPlayer(creature->ToTempSummon()->GetSummonerGUID()))
                 {
                     creature->setDeathState(DEAD);
                     creature->RemoveFromWorld();

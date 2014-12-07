@@ -32,7 +32,7 @@ PathFinderMovementGenerator::PathFinderMovementGenerator(const Unit* owner) :
     m_useStraightPath(false), m_forceDestination(false), m_pointPathLimit(MAX_POINT_PATH_LENGTH),
     m_sourceUnit(owner), m_navMesh(NULL), m_navMeshQuery(NULL)
 {
-    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::PathFinderMovementGenerator for %u \n", m_sourceUnit->GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::PathFinderMovementGenerator for %u \n", m_sourceUnit->GetGUID().GetCounter());
 
     uint32 mapId = m_sourceUnit->GetMapId();
     if (MMAP::MMapFactory::IsPathfindingEnabled(mapId))
@@ -47,7 +47,7 @@ PathFinderMovementGenerator::PathFinderMovementGenerator(const Unit* owner) :
 
 PathFinderMovementGenerator::~PathFinderMovementGenerator()
 {
-    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::~PathFinderMovementGenerator() for %u \n", m_sourceUnit->GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::~PathFinderMovementGenerator() for %u \n", m_sourceUnit->GetGUID().GetCounter());
 }
 
 bool PathFinderMovementGenerator::calculate(float destX, float destY, float destZ, bool forceDest)
@@ -67,7 +67,7 @@ bool PathFinderMovementGenerator::calculate(float destX, float destY, float dest
 
     m_forceDestination = forceDest;
 
-    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::calculate() for %u \n", m_sourceUnit->GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_MAPS, "++ PathFinderMovementGenerator::calculate() for %u \n", m_sourceUnit->GetGUID().GetCounter());
 
     // make sure navMesh works - we can run on map w/o mmap
     // check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
@@ -350,7 +350,7 @@ void PathFinderMovementGenerator::BuildPolyPath(const Vector3 &startPos, const V
             // this is probably an error state, but we'll leave it
             // and hopefully recover on the next Update
             // we still need to copy our preffix
-            sLog->outError(LOG_FILTER_GENERAL, "%u's Path Build failed: 0 length path", m_sourceUnit->GetGUIDLow());
+            sLog->outError(LOG_FILTER_GENERAL, "%u's Path Build failed: 0 length path", m_sourceUnit->GetGUID().GetCounter());
         }
 
         sLog->outDebug(LOG_FILTER_MAPS, "++  m_polyLength=%u prefixPolyLength=%u suffixPolyLength=%u \n",m_polyLength, prefixPolyLength, suffixPolyLength);
@@ -382,7 +382,7 @@ void PathFinderMovementGenerator::BuildPolyPath(const Vector3 &startPos, const V
         if (!m_polyLength || dtResult != DT_SUCCESS)
         {
             // only happens if we passed bad data to findPath(), or navmesh is messed up
-            sLog->outError(LOG_FILTER_GENERAL, "%u's Path Build failed: 0 length path", m_sourceUnit->GetGUIDLow());
+            sLog->outError(LOG_FILTER_GENERAL, "%u's Path Build failed: 0 length path", m_sourceUnit->GetGUID().GetCounter());
             BuildShortcut();
             m_type = PATHFIND_NOPATH;
             return;

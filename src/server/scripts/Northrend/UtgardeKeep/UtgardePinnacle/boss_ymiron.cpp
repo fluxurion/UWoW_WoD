@@ -122,8 +122,8 @@ public:
                 m_uiActiveOrder[r] = temp;
             }
 
-            m_uiActivedCreatureGUID = 0;
-            m_uiOrbGUID = 0;
+            m_uiActivedCreatureGUID.Clear();
+            m_uiOrbGUID.Clear();
         }
 
         bool m_bIsWalking;
@@ -151,8 +151,8 @@ public:
         uint32 m_uiHealthAmountModifier;
         uint32 m_uiHealthAmountMultipler;
 
-        uint64 m_uiActivedCreatureGUID;
-        uint64 m_uiOrbGUID;
+        ObjectGuid m_uiActivedCreatureGUID;
+        ObjectGuid m_uiOrbGUID;
 
         InstanceScript* instance;
 
@@ -383,13 +383,13 @@ public:
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3, SAY_SLAY_4), me);
         }
 
-        void DespawnBoatGhosts(uint64 m_uiCreatureGUID)
+        void DespawnBoatGhosts(ObjectGuid m_uiCreatureGUID)
         {
             if (m_uiCreatureGUID)
                 if (Creature* temp = Unit::GetCreature(*me, m_uiCreatureGUID))
                     temp->DisappearAndDie();
 
-            m_uiCreatureGUID = 0;
+            m_uiCreatureGUID.Clear();
         }
     };
 

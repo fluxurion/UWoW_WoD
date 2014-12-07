@@ -85,7 +85,7 @@ class boss_nazan : public CreatureScript
         {
             boss_nazanAI(Creature* creature) : ScriptedAI(creature)
             {
-                VazrudenGUID = 0;
+                VazrudenGUID.Clear();
                 flight = true;
             }
 
@@ -95,7 +95,7 @@ class boss_nazan : public CreatureScript
             uint32 Fly_Timer;
             uint32 Turn_Timer;
             bool flight;
-            uint64 VazrudenGUID;
+            ObjectGuid VazrudenGUID;
             SpellInfo* liquid_fire;
 
             void Reset()
@@ -295,16 +295,16 @@ class boss_vazruden_the_herald : public CreatureScript
                 summoned = false;
                 sentryDown = false;
                 lootSpawned = false;
-                NazanGUID = 0;
-                VazrudenGUID = 0;
+                NazanGUID.Clear();
+                VazrudenGUID.Clear();
             }
 
             uint32 phase;
             uint32 waypoint;
             uint32 check;
             bool sentryDown;
-            uint64 NazanGUID;
-            uint64 VazrudenGUID;
+            ObjectGuid NazanGUID;
+            ObjectGuid VazrudenGUID;
             bool summoned;
             bool lootSpawned;
 
@@ -326,7 +326,7 @@ class boss_vazruden_the_herald : public CreatureScript
                     if (Nazan)
                     {
                         Nazan->DisappearAndDie();
-                        NazanGUID = 0;
+                        NazanGUID.Clear();
                     }
 
                     Creature* Vazruden = Unit::GetCreature(*me, VazrudenGUID);
@@ -335,7 +335,7 @@ class boss_vazruden_the_herald : public CreatureScript
                     if (Vazruden)
                     {
                         Vazruden->DisappearAndDie();
-                        VazrudenGUID = 0;
+                        VazrudenGUID.Clear();
                     }
                     summoned = false;
                     me->ClearUnitState(UNIT_STATE_ROOT);

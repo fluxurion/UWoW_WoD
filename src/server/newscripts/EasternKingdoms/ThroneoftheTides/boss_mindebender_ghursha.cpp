@@ -110,7 +110,7 @@ class boss_erunak_stonespeaker : public CreatureScript
                     if (pInstance->GetBossState(DATA_MINDBENDER_GHURSHA) == DONE || bPhase)
                         me->setFaction(35);
 
-                    if (Creature* pOzuma = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_OZUMAT)))
+                    if (Creature* pOzuma = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_OZUMAT)))
                         pOzuma->AI()->DoAction(ACTION_RESET);
                 }
             }
@@ -118,7 +118,7 @@ class boss_erunak_stonespeaker : public CreatureScript
             void KilledUnit(Unit* victim)
             {
                 if (pInstance)
-                    if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_MINDBENDER_GHURSHA)))
+                    if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MINDBENDER_GHURSHA)))
                         pGhursha->AI()->Talk(SAY_KILL);
             }
 
@@ -166,7 +166,7 @@ class boss_erunak_stonespeaker : public CreatureScript
                     EnterEvadeMode();
                     if (pInstance)
                     {
-                        if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_MINDBENDER_GHURSHA)))
+                        if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MINDBENDER_GHURSHA)))
                             pGhursha->AI()->DoAction(ACTION_GHURSHA_START);
                     }
                     return;
@@ -242,7 +242,7 @@ class boss_mindbender_ghursha : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 events.Reset();
-                if (Creature* pErunak = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ERUNAK_STONESPEAKER)))
+                if (Creature* pErunak = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ERUNAK_STONESPEAKER)))
                     pErunak->AI()->EnterEvadeMode();
             }
 
@@ -312,7 +312,7 @@ class boss_mindbender_ghursha : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                if (Creature* pErunak = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ERUNAK_STONESPEAKER)))
+                if (Creature* pErunak = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ERUNAK_STONESPEAKER)))
                 {
                     //pErunak->AI()->EnterEvadeMode();
                     pErunak->AI()->Talk(SAY_VICTORY);

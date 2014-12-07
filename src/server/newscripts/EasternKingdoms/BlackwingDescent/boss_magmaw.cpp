@@ -270,12 +270,12 @@ public:
                 {
                 /*case EVENT_HEAD_START:
                     SetGrounded(true, 0);
-                    if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_MAGMAW_HEAD)))
+                    if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW_HEAD)))
                         pMagmawhead->AI()->DoAction(ACTION_HEAD_START);
                     events.ScheduleEvent(EVENT_HEAD_END, 20000);
                     break;
                 case EVENT_HEAD_END:
-                    if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_MAGMAW_HEAD)))
+                    if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW_HEAD)))
                         pMagmawhead->AI()->DoAction(ACTION_HEAD_END);
                     SetGrounded(false, 0);
                     events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
@@ -432,7 +432,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->ClearUnitState(UNIT_STATE_ONVEHICLE);
-                if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_MAGMAW)))
+                if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW)))
                 {
                     me->SetMaxHealth(pMagmaw->GetMaxHealth());
                     me->SetHealth(pMagmaw->GetHealth());
@@ -454,7 +454,7 @@ public:
             if (!pInstance)
                 return;
 
-            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_MAGMAW)))
+            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW)))
             {
                 if (me->GetHealth() > damage && pMagmaw->GetHealth() > damage)
                     pMagmaw->SetHealth(pMagmaw->GetHealth() - damage);
@@ -558,7 +558,7 @@ public:
             if (!pInstance)
                 return;
 
-            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_MAGMAW)))
+            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW)))
                 if (pMagmaw->isInCombat())
                     summon->SetInCombatWithZone();
         }

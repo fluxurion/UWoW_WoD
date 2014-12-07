@@ -37,8 +37,8 @@
 GameObject::GameObject() : WorldObject(false), m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL), 
     m_manual_anim(false), m_respawnTime(0), m_respawnDelayTime(300),
     m_lootState(GO_NOT_READY), m_spawnedByDefault(true), m_usetimes(0), m_spellId(0), m_cooldownTime(0), 
-    m_goInfo(NULL), m_ritualOwner(NULL), m_goData(NULL), m_DBTableGuid(0), m_rotation(0), m_lootRecipient(0),
-    m_lootRecipientGroup(0), m_groupLootTimer(0), lootingGroupLowGUID(0), m_isDynActive(false)
+    m_goInfo(NULL), m_ritualOwner(NULL), m_goData(NULL), m_DBTableGuid(0), m_rotation(0), m_lootRecipient(),
+    m_lootRecipientGroup(), m_groupLootTimer(0), lootingGroupLowGUID(), m_isDynActive(false)
 {
     m_valuesCount = GAMEOBJECT_END;
     m_objectType |= TYPEMASK_GAMEOBJECT;
@@ -86,7 +86,7 @@ void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 
 void GameObject::RemoveFromOwner()
 {
-    uint64 ownerGUID = GetOwnerGUID();
+    ObjectGuid ownerGUID = GetOwnerGUID();
     if (!ownerGUID)
         return;
 
@@ -98,14 +98,14 @@ void GameObject::RemoveFromOwner()
     }
 
     const char * ownerType = "creature";
-    if (IS_PLAYER_GUID(ownerGUID))
+    if (ownerGUID.IsPlayer())
         ownerType = "player";
-    else if (IS_PET_GUID(ownerGUID))
+    else if (ownerGUID.IsPet())
         ownerType = "pet";
 
     sLog->outFatal(LOG_FILTER_GENERAL, "Delete GameObject (GUID: %u Entry: %u SpellId %u LinkedGO %u) that lost references to owner (GUID %u Type '%s') GO list. Crash possible later.",
-        GetGUIDLow(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), GUID_LOPART(ownerGUID), ownerType);
-    SetOwnerGUID(0);
+        GetGUID().GetCounter(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), ownerGUID.GetCounter(), ownerType);
+    SetOwnerGUID(ObjectGuid::Empty);
 }
 
 void GameObject::AddToWorld()
@@ -145,7 +145,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
+bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
 {
     ASSERT(map);
     SetMap(map);
@@ -176,7 +176,11 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     m_goInfo = goinfo;
 
-    Object::_Create(guidlow, IsTransport() ? 0 : goinfo->entry, IsTransport() ? HIGHGUID_MO_TRANSPORT : HIGHGUID_GAMEOBJECT);
+    if (IsTransport())
+        Object::_Create(ObjectGuid::Create<HighGuid::Transport>(guidlow));
+    else
+        Object::_Create(ObjectGuid::Create<HighGuid::GameObject>(map->GetId(), goinfo->entry, guidlow));
+
 
     if (goinfo->type >= MAX_GAMEOBJECT_TYPE)
     {
@@ -255,7 +259,7 @@ void GameObject::Update(uint32 diff)
     } else
         AI()->UpdateAI(diff);
 
-    if (IS_MO_TRANSPORT(GetGUID()))
+    if (GetGUID().IsMOTransport())
     {
         //((Transport*)this)->Update(p_time);
         return;
@@ -320,11 +324,11 @@ void GameObject::Update(uint32 diff)
                 time_t now = time(NULL);
                 if (m_respawnTime <= now)            // timer expired
                 {
-                    uint64 dbtableHighGuid = MAKE_NEW_GUID(m_DBTableGuid, GetEntry(), HIGHGUID_GAMEOBJECT);
+                    ObjectGuid dbtableHighGuid = ObjectGuid::Create<HighGuid::GameObject>(GetMapId(), GetEntry(), m_DBTableGuid);
                     time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
                     if (linkedRespawntime)             // Can't respawn, the master is dead
                     {
-                        uint64 targetGuid = sObjectMgr->GetLinkedRespawnGuid(dbtableHighGuid);
+                        ObjectGuid targetGuid = sObjectMgr->GetLinkedRespawnGuid(dbtableHighGuid);
                         if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
                             SetRespawnTime(DAY);
                         else
@@ -498,7 +502,7 @@ void GameObject::Update(uint32 diff)
                             if (group)
                                 group->EndRoll(&loot);
                             m_groupLootTimer = 0;
-                            lootingGroupLowGUID = 0;
+                            lootingGroupLowGUID.Clear();
                         }
                         else m_groupLootTimer -= diff;
                     }
@@ -516,7 +520,7 @@ void GameObject::Update(uint32 diff)
 
                 if (spellId)
                 {
-                    for (std::set<uint64>::const_iterator it = m_unique_users.begin(); it != m_unique_users.end(); ++it)
+                    for (GuidSet::const_iterator it = m_unique_users.begin(); it != m_unique_users.end(); ++it)
                         // m_unique_users can contain only player GUIDs
                         if (Player* owner = ObjectAccessor::GetPlayer(*this, *it))
                             owner->CastSpell(owner, spellId, false);
@@ -660,7 +664,7 @@ void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
         return;
 
     if (!m_DBTableGuid)
-        m_DBTableGuid = GetGUIDLow();
+        m_DBTableGuid = GetGUID().GetCounter();
     // update in loaded data (changing data only in this place)
     GameObjectData& data = sObjectMgr->NewGOData(m_DBTableGuid);
 
@@ -722,7 +726,7 @@ void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     WorldDatabase.CommitTransaction(trans);
 }
 
-bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
+bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap)
 {
     GameObjectData const* data = sObjectMgr->GetGOData(guid);
 
@@ -750,7 +754,7 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
     uint32 artKit = data->artKit;
 
     m_DBTableGuid = guid;
-    if (map->GetInstanceId() != 0) guid = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    if (map->GetInstanceId() != 0) guid = sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate();
 
     if (!Create(guid, entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
         return false;
@@ -813,7 +817,7 @@ void GameObject::DeleteFromDB()
     WorldDatabase.Execute(stmt);
 }
 
-GameObject* GameObject::GetGameObject(WorldObject& object, uint64 guid)
+GameObject* GameObject::GetGameObject(WorldObject& object, ObjectGuid guid)
 {
     return object.GetMap()->GetGameObject(guid);
 }
@@ -901,7 +905,7 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
     }
 
     // Always seen by owner and friendly units
-    if (uint64 guid = GetOwnerGUID())
+    if (ObjectGuid guid = GetOwnerGUID())
     {
         if (seer->GetGUID() == guid)
             return true;
@@ -1074,7 +1078,7 @@ void GameObject::SetGoArtKit(uint8 kit)
         data->artKit = kit;
 }
 
-void GameObject::SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid)
+void GameObject::SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid)
 {
     const GameObjectData* data = NULL;
     if (go)
@@ -1192,9 +1196,9 @@ void GameObject::Use(Unit* user)
             {
                 if (info->chair.slots > 0)     // sometimes chairs in DB have error in fields and we dont know number of slots
                     for (uint32 i = 0; i < info->chair.slots; ++i)
-                        ChairListSlots[i] = 0; // Last user of current slot set to 0 (none sit here yet)
+                        ChairListSlots[i].Clear(); // Last user of current slot set to 0 (none sit here yet)
                 else
-                    ChairListSlots[0] = 0;     // error in DB, make one default slot
+                    ChairListSlots[0].Clear();     // error in DB, make one default slot
             }
 
             Player* player = user->ToPlayer();
@@ -1226,9 +1230,9 @@ void GameObject::Use(Unit* user)
                         if (ChairUser->IsSitState() && ChairUser->getStandState() != UNIT_STAND_STATE_SIT && ChairUser->GetExactDist2d(x_i, y_i) < 0.1f)
                             continue;        // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser->getStandState() != UNIT_STAND_STATE_SIT check is required.
                         else
-                            itr->second = 0; // This seat is unoccupied.
+                            itr->second.Clear(); // This seat is unoccupied.
                     else
-                        itr->second = 0;     // The seat may of had an occupant, but they're offline.
+                        itr->second.Clear();     // The seat may of had an occupant, but they're offline.
                 }
 
                 found_free_slot = true;
@@ -1279,10 +1283,10 @@ void GameObject::Use(Unit* user)
 
                 if (info->goober.pageId)                    // show page...
                 {
-                    ObjectGuid guid = GetObjectGuid();
+                    ObjectGuid guid = GetGUID();
                     WorldPacket data(SMSG_GAMEOBJECT_PAGETEXT, 8 + 1);
-                    data.WriteGuidMask<5, 7, 2, 6, 1, 3, 4, 0>(guid);
-                    data.WriteGuidBytes<3, 0, 2, 7, 1, 4, 5, 6>(guid);
+                    //data.WriteGuidMask<5, 7, 2, 6, 1, 3, 4, 0>(guid);
+                    //data.WriteGuidBytes<3, 0, 2, 7, 1, 4, 5, 6>(guid);
                     player->GetSession()->SendPacket(&data);
                 }
                 else if (info->goober.gossipID)
@@ -1711,7 +1715,7 @@ void GameObject::Use(Unit* user)
         default:
             if (GetGoType() >= MAX_GAMEOBJECT_TYPE)
                 sLog->outError(LOG_FILTER_GENERAL, "GameObject::Use(): unit (type: %u, guid: %u, name: %s) tries to use object (guid: %u, entry: %u, name: %s) of unknown type (%u)",
-                    user->GetTypeId(), user->GetGUIDLow(), user->GetName(), GetGUIDLow(), GetEntry(), GetGOInfo()->name.c_str(), GetGoType());
+                    user->GetTypeId(), user->GetGUID().GetCounter(), user->GetName(), GetGUID().GetCounter(), GetEntry(), GetGOInfo()->name.c_str(), GetGoType());
             break;
     }
 
@@ -1786,7 +1790,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     {
         trigger->setFaction(owner->getFaction());
         // needed for GO casts for proper target validation checks
-        trigger->SetUInt64Value(UNIT_FIELD_SUMMONED_BY, owner->GetGUID());
+        trigger->SetGuidValue(UNIT_FIELD_SUMMONED_BY, owner->GetGUID());
         trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, NULL, owner->GetGUID());
     }
     else
@@ -1796,25 +1800,25 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
         trigger->setFaction(14);
         // Set owner guid for target if no owner available - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
-        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, NULL, target ? target->GetGUID() : 0);
+        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, NULL, target ? target->GetGUID() : ObjectGuid::Empty);
     }
 }
 
 void GameObject::SendCustomAnim(uint32 anim)
 {
-    ObjectGuid guid = GetObjectGuid();
+    ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8 + 1 + 4 + 1);
-    data.WriteGuidMask<0, 4>(guid);
+    //data.WriteGuidMask<0, 4>(guid);
     data.WriteBit(0);
-    data.WriteGuidMask<3, 6>(guid);
+    //data.WriteGuidMask<3, 6>(guid);
     data.WriteBit(!anim);
-    data.WriteGuidMask<1, 7, 2, 5>(guid);
+    //data.WriteGuidMask<1, 7, 2, 5>(guid);
 
-    data.WriteGuidBytes<5>(guid);
+    //data.WriteGuidBytes<5>(guid);
     if (anim)
         data << uint32(anim);
-    data.WriteGuidBytes<6, 7, 3, 1, 0, 2, 4>(guid);
+    //data.WriteGuidBytes<6, 7, 3, 1, 0, 2, 4>(guid);
 
     SendMessageToSet(&data, true);
 }
@@ -1927,41 +1931,41 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
     if (change < 0 && player)
     {
         WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE);
-        data.WriteGuidMask<0, 7, 2, 6>(attackerOrHealer->GetGUID());
-        data.WriteGuidMask<0>(player->GetGUID());
-        data.WriteGuidMask<4>(attackerOrHealer->GetGUID());
-        data.WriteGuidMask<7>(player->GetGUID());
-        data.WriteGuidMask<5>(attackerOrHealer->GetGUID());
-        data.WriteGuidMask<4>(player->GetGUID());
-        data.WriteGuidMask<1>(attackerOrHealer->GetGUID());
-        data.WriteGuidMask<3>(player->GetGUID());
-        data.WriteGuidMask<0>(GetGUID());
-        data.WriteGuidMask<3>(attackerOrHealer->GetGUID());
+        //data.WriteGuidMask<0, 7, 2, 6>(attackerOrHealer->GetGUID());
+        //data.WriteGuidMask<0>(player->GetGUID());
+        //data.WriteGuidMask<4>(attackerOrHealer->GetGUID());
+        //data.WriteGuidMask<7>(player->GetGUID());
+        //data.WriteGuidMask<5>(attackerOrHealer->GetGUID());
+        //data.WriteGuidMask<4>(player->GetGUID());
+        //data.WriteGuidMask<1>(attackerOrHealer->GetGUID());
+        //data.WriteGuidMask<3>(player->GetGUID());
+        //data.WriteGuidMask<0>(GetGUID());
+        //data.WriteGuidMask<3>(attackerOrHealer->GetGUID());
         data.WriteBit(0);                                         // unk bit, bool unk
-        data.WriteGuidMask<1, 7, 3>(GetGUID());
+        //data.WriteGuidMask<1, 7, 3>(GetGUID());
         /*uint64 unkGuid = 0;
         if (unk)
         {
-            data.WriteGuidMask<1>(unkGuid);
+            //data.WriteGuidMask<1>(unkGuid);
             data.WriteBits(0, 21);                                // unk counter
-            data.WriteGuidMask<4, 5, 2, 0, 6, 7, 3>(unkGuid);
+            //data.WriteGuidMask<4, 5, 2, 0, 6, 7, 3>(unkGuid);
         }*/
-        data.WriteGuidMask<6>(GetGUID());
-        data.WriteGuidMask<5>(player->GetGUID());
-        data.WriteGuidMask<5>(GetGUID());
-        data.WriteGuidMask<6>(player->GetGUID());
-        data.WriteGuidMask<2>(GetGUID());
-        data.WriteGuidMask<1, 2>(player->GetGUID());
-        data.WriteGuidMask<4>(GetGUID());
+        //data.WriteGuidMask<6>(GetGUID());
+        //data.WriteGuidMask<5>(player->GetGUID());
+        //data.WriteGuidMask<5>(GetGUID());
+        //data.WriteGuidMask<6>(player->GetGUID());
+        //data.WriteGuidMask<2>(GetGUID());
+        //data.WriteGuidMask<1, 2>(player->GetGUID());
+        //data.WriteGuidMask<4>(GetGUID());
 
         data << uint32(spellId);
 
         /*if (unk)
         {
-            data.WriteGuidBytes<3, 6>(unkGuid);
+            //data.WriteGuidBytes<3, 6>(unkGuid);
             data << uint32(0);
             data << uint32(0);
-            data.WriteGuidBytes<5, 2, 4>(unkGuid);
+            //data.WriteGuidBytes<5, 2, 4>(unkGuid);
 
             if (unk_counter)
             {
@@ -1972,30 +1976,30 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
                 }
             }
 
-            data.WriteGuidBytes<0, 7, 1>(unkGuid);
+            //data.WriteGuidBytes<0, 7, 1>(unkGuid);
             data << uint32(0);
         }*/
-        data.WriteGuidBytes<0>(player->GetGUID());
-        data.WriteGuidBytes<7>(GetGUID());
-        data.WriteGuidBytes<6>(attackerOrHealer->GetGUID());
-        data.WriteGuidBytes<4>(GetGUID());
-        data.WriteGuidBytes<6>(player->GetGUID());
-        data.WriteGuidBytes<5, 2, 3>(attackerOrHealer->GetGUID());
-        data.WriteGuidBytes<0, 1>(GetGUID());
-        data.WriteGuidBytes<4>(player->GetGUID());
-        data.WriteGuidBytes<6>(GetGUID());
-        data.WriteGuidBytes<1>(player->GetGUID());
-        data.WriteGuidBytes<3>(GetGUID());
-        data.WriteGuidBytes<0>(attackerOrHealer->GetGUID());
-        data.WriteGuidBytes<5, 2>(player->GetGUID());
-        data.WriteGuidBytes<4, 1>(attackerOrHealer->GetGUID());
-        data.WriteGuidBytes<7>(player->GetGUID());
+        //data.WriteGuidBytes<0>(player->GetGUID());
+        //data.WriteGuidBytes<7>(GetGUID());
+        //data.WriteGuidBytes<6>(attackerOrHealer->GetGUID());
+        //data.WriteGuidBytes<4>(GetGUID());
+        //data.WriteGuidBytes<6>(player->GetGUID());
+        //data.WriteGuidBytes<5, 2, 3>(attackerOrHealer->GetGUID());
+        //data.WriteGuidBytes<0, 1>(GetGUID());
+        //data.WriteGuidBytes<4>(player->GetGUID());
+        //data.WriteGuidBytes<6>(GetGUID());
+        //data.WriteGuidBytes<1>(player->GetGUID());
+        //data.WriteGuidBytes<3>(GetGUID());
+        //data.WriteGuidBytes<0>(attackerOrHealer->GetGUID());
+        //data.WriteGuidBytes<5, 2>(player->GetGUID());
+        //data.WriteGuidBytes<4, 1>(attackerOrHealer->GetGUID());
+        //data.WriteGuidBytes<7>(player->GetGUID());
 
         data << uint32(-change);
 
-        data.WriteGuidBytes<7>(attackerOrHealer->GetGUID());
-        data.WriteGuidBytes<3>(player->GetGUID());
-        data.WriteGuidBytes<5, 2>(GetGUID());
+        //data.WriteGuidBytes<7>(attackerOrHealer->GetGUID());
+        //data.WriteGuidBytes<3>(player->GetGUID());
+        //data.WriteGuidBytes<5, 2>(GetGUID());
 
         player->GetSession()->SendPacket(&data);
     }
@@ -2213,8 +2217,8 @@ void GameObject::SetLootRecipient(Unit* unit)
 
     if (!unit)
     {
-        m_lootRecipient = 0;
-        m_lootRecipientGroup = 0;
+        m_lootRecipient.Clear();
+        m_lootRecipientGroup.Clear();
         return;
     }
 
@@ -2227,7 +2231,7 @@ void GameObject::SetLootRecipient(Unit* unit)
 
     m_lootRecipient = player->GetGUID();
     if (Group* group = player->GetGroup())
-        m_lootRecipientGroup = group->GetLowGUID();
+        m_lootRecipientGroup = group->GetGUID();
 }
 
 bool GameObject::IsLootAllowedFor(Player const* player) const

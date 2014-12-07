@@ -80,7 +80,7 @@ class boss_garajal : public CreatureScript
             }
 
             InstanceScript* pInstance;
-            uint64 voodooTargets[4];
+            ObjectGuid voodooTargets[4];
             uint32 checkvictim;
 
             void Reset()
@@ -92,7 +92,7 @@ class boss_garajal : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
 
                 for (uint8 n = 0; n < 4; n++) 
-                    voodooTargets[n] = 0;
+                    voodooTargets[n].Clear();
             }
 
             void JustReachedHome()
@@ -237,7 +237,7 @@ class boss_garajal : public CreatureScript
                             }
 
                             for (uint8 n = 0; n < 4; n++)
-                                voodooTargets[n] = 0;
+                                voodooTargets[n].Clear();
 
                             break;
                         }
@@ -250,12 +250,14 @@ class boss_garajal : public CreatureScript
                                 me->AddAura(SPELL_SOUL_CUT_DAMAGE,  target);
 
                                 Difficulty difficulty = me->GetMap()->GetDifficulty();
-                                uint64 viewerGuid = difficulty != RAID_TOOL_DIFFICULTY ? target->GetGUID(): 0;
+                                ObjectGuid viewerGuid;
+                                if (difficulty != RAID_TOOL_DIFFICULTY)
+                                    viewerGuid = target->GetGUID();
                                 uint8  mobCount   = IsHeroic() ? 3: 1;
 
                                 for (uint8 i = 0; i < mobCount; ++i)
                                 {
-                                    if (Creature* soulCutter = me->SummonCreature(NPC_SOUL_CUTTER, target->GetPositionX() + 2.0f, target->GetPositionY() + 2.0f, target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000, i == 0 ? viewerGuid: 0))
+                                    if (Creature* soulCutter = me->SummonCreature(NPC_SOUL_CUTTER, target->GetPositionX() + 2.0f, target->GetPositionY() + 2.0f, target->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000, i == 0 ? viewerGuid : ObjectGuid::Empty))
                                     {
                                         soulCutter->SetPhaseMask(2, true);
                                         soulCutter->AI()->AttackStart(target);
@@ -364,13 +366,13 @@ class mob_shadowy_minion : public CreatureScript
 
             InstanceScript* pInstance;
 
-            uint64 spiritGuid;
+            ObjectGuid spiritGuid;
             EventMap events;
 
             void Reset()
             {
                 events.Reset();
-                spiritGuid = 0;
+                spiritGuid.Clear();
 
                 if (me->GetEntry() == NPC_SHADOWY_MINION_REAL)
                 {
@@ -461,10 +463,10 @@ class mob_soul_cutter : public CreatureScript
 
             void JustDied(Unit* attacker)
             {
-                std::list<uint64> playerList;
+                GuidList playerList;
                 me->GetMustBeVisibleForPlayersList(playerList);
 
-				for (std::list<uint64>::iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+				for (GuidList::iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                 {
                     if (Player* player = ObjectAccessor::FindPlayer(*itr))
                     {

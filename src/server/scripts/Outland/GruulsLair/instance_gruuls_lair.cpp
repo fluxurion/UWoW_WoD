@@ -50,29 +50,29 @@ public:
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        uint64 MaulgarEvent_Tank;
-        uint64 KigglerTheCrazed;
-        uint64 BlindeyeTheSeer;
-        uint64 OlmTheSummoner;
-        uint64 KroshFirehand;
-        uint64 Maulgar;
+        ObjectGuid MaulgarEvent_Tank;
+        ObjectGuid KigglerTheCrazed;
+        ObjectGuid BlindeyeTheSeer;
+        ObjectGuid OlmTheSummoner;
+        ObjectGuid KroshFirehand;
+        ObjectGuid Maulgar;
 
-        uint64 MaulgarDoor;
-        uint64 GruulDoor;
+        ObjectGuid MaulgarDoor;
+        ObjectGuid GruulDoor;
 
         void Initialize()
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            MaulgarEvent_Tank = 0;
-            KigglerTheCrazed = 0;
-            BlindeyeTheSeer = 0;
-            OlmTheSummoner = 0;
-            KroshFirehand = 0;
-            Maulgar = 0;
+            MaulgarEvent_Tank.Clear();
+            KigglerTheCrazed.Clear();
+            BlindeyeTheSeer.Clear();
+            OlmTheSummoner.Clear();
+            KroshFirehand.Clear();
+            Maulgar.Clear();
 
-            MaulgarDoor = 0;
-            GruulDoor = 0;
+            MaulgarDoor.Clear();
+            GruulDoor.Clear();
         }
 
         bool IsEncounterInProgress() const
@@ -103,7 +103,7 @@ public:
                 case 184468:
                     MaulgarDoor = go->GetGUID();
                     if (m_auiEncounter[0] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case 184662:
                     GruulDoor = go->GetGUID();
@@ -111,13 +111,13 @@ public:
             }
         }
 
-        void SetData64(uint32 type, uint64 data)
+        void SetGuidData(uint32 type, ObjectGuid data)
         {
             if (type == DATA_MAULGAREVENT_TANK)
                 MaulgarEvent_Tank = data;
         }
 
-        uint64 GetData64(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -130,7 +130,7 @@ public:
                 case DATA_GRUULDOOR:            return GruulDoor;
                 case DATA_MAULGAR:              return Maulgar;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

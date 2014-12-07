@@ -111,7 +111,7 @@ class BattlegroundRV : public Battleground
         virtual void Reset();
         virtual void FillInitialWorldStates(WorldPacket &d);
 
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void HandleKillPlayer(Player* player, Player* killer);

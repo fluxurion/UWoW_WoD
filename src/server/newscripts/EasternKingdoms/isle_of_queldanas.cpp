@@ -111,13 +111,13 @@ public:
     {
         npc_greengill_slaveAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void EnterCombat(Unit* /*who*/){}
 
         void Reset()
         {
-        PlayerGUID = 0;
+            PlayerGUID.Clear();
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)

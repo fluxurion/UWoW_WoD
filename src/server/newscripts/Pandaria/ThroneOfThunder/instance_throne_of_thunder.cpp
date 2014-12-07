@@ -35,69 +35,69 @@ public:
         instance_throne_of_thunder_InstanceMapScript(Map* map) : InstanceScript(map) {}
         
         //GameObjects
-        uint64 jinrokhpredoorGuid;
-        uint64 jinrokhentdoorGuid;
-        uint64 mogufont_sr_Guid;
-        uint64 mogufont_nr_Guid;
-        uint64 mogufont_nl_Guid;
-        uint64 mogufont_sl_Guid;
-        uint64 jinrokhexdoorGuid;
-        uint64 horridonpredoorGuid;
-        uint64 horridonentdoorGuid;
-        uint64 horridonexdoorGuid;
-        uint64 councilexdoorGuid;
-        uint64 councilex2doorGuid;
-        uint64 tortosexdoorGuid;
-        uint64 tortosex2doorGuid;
-        uint64 megaeraexdoorGuid;
-        uint64 jikunexdoorGuid;
-        uint64 durumuexdoorGuid;
-        uint64 primordiusentdoorGuid;
-        uint64 secretradendoorGuid;
-        uint64 primordiusexdoorGuid;
-        uint64 danimusentdoorGuid;
-        uint64 danimusexdoorGuid;
-        uint64 ironqonentdoorGuid;
-        uint64 ironqonexdoorGuid;
-        uint64 twinentdoorGuid;
-        uint64 twinexdoorGuid;
-        uint64 radenentdoorGuid;
+        ObjectGuid jinrokhpredoorGuid;
+        ObjectGuid jinrokhentdoorGuid;
+        ObjectGuid mogufont_sr_Guid;
+        ObjectGuid mogufont_nr_Guid;
+        ObjectGuid mogufont_nl_Guid;
+        ObjectGuid mogufont_sl_Guid;
+        ObjectGuid jinrokhexdoorGuid;
+        ObjectGuid horridonpredoorGuid;
+        ObjectGuid horridonentdoorGuid;
+        ObjectGuid horridonexdoorGuid;
+        ObjectGuid councilexdoorGuid;
+        ObjectGuid councilex2doorGuid;
+        ObjectGuid tortosexdoorGuid;
+        ObjectGuid tortosex2doorGuid;
+        ObjectGuid megaeraexdoorGuid;
+        ObjectGuid jikunexdoorGuid;
+        ObjectGuid durumuexdoorGuid;
+        ObjectGuid primordiusentdoorGuid;
+        ObjectGuid secretradendoorGuid;
+        ObjectGuid primordiusexdoorGuid;
+        ObjectGuid danimusentdoorGuid;
+        ObjectGuid danimusexdoorGuid;
+        ObjectGuid ironqonentdoorGuid;
+        ObjectGuid ironqonexdoorGuid;
+        ObjectGuid twinentdoorGuid;
+        ObjectGuid twinexdoorGuid;
+        ObjectGuid radenentdoorGuid;
         
         //Creature
-        uint64 stormcallerGuid;
-        uint64 jinrokhGuid;
-        uint64 stormbringerGuid;
-        uint64 horridonGuid;
-        uint64 jalakGuid;
-        uint64 mallakGuid;
-        uint64 marliGuid;
-        uint64 kazrajinGuid;
-        uint64 sulGuid;
-        uint64 tortosGuid;
-        uint64 flameheadGuid;
-        uint64 frozenheadGuid;
-        uint64 venousheadGuid;
-        uint64 jikunGuid;
-        uint64 durumuGuid;
-        uint64 primordiusGuid;
-        uint64 darkanimusGuid;
-        uint64 ironqonGuid;
-        uint64 roshakGuid;
-        uint64 quetzalGuid;
-        uint64 damrenGuid;
-        uint64 sulinGuid;
-        uint64 lulinGuid;
-        uint64 leishenGuid;
-        uint64 radenGuid;
-        uint64 canimaGuid;
-        uint64 cvitaGuid;
+        ObjectGuid stormcallerGuid;
+        ObjectGuid jinrokhGuid;
+        ObjectGuid stormbringerGuid;
+        ObjectGuid horridonGuid;
+        ObjectGuid jalakGuid;
+        ObjectGuid mallakGuid;
+        ObjectGuid marliGuid;
+        ObjectGuid kazrajinGuid;
+        ObjectGuid sulGuid;
+        ObjectGuid tortosGuid;
+        ObjectGuid flameheadGuid;
+        ObjectGuid frozenheadGuid;
+        ObjectGuid venousheadGuid;
+        ObjectGuid jikunGuid;
+        ObjectGuid durumuGuid;
+        ObjectGuid primordiusGuid;
+        ObjectGuid darkanimusGuid;
+        ObjectGuid ironqonGuid;
+        ObjectGuid roshakGuid;
+        ObjectGuid quetzalGuid;
+        ObjectGuid damrenGuid;
+        ObjectGuid sulinGuid;
+        ObjectGuid lulinGuid;
+        ObjectGuid leishenGuid;
+        ObjectGuid radenGuid;
+        ObjectGuid canimaGuid;
+        ObjectGuid cvitaGuid;
 
-        std::vector <uint64> councilGuids;
-        std::vector <uint64> mogufontsGuids;
-        std::vector <uint64> councilentdoorGuids;
-        std::vector <uint64> jikunfeatherGuids;
-        std::vector <uint64> massiveanimagolemGuids;
-        std::vector <uint64> twinfencedoorGuids;
+        GuidVector councilGuids;
+        GuidVector mogufontsGuids;
+        GuidVector councilentdoorGuids;
+        GuidVector jikunfeatherGuids;
+        GuidVector massiveanimagolemGuids;
+        GuidVector twinfencedoorGuids;
         
         void Initialize()
         {
@@ -105,61 +105,61 @@ public:
             LoadDoorData(doorData);
 
             //GameObject
-            jinrokhentdoorGuid    = 0;
-            mogufont_sr_Guid      = 0;
-            mogufont_nr_Guid      = 0;
-            mogufont_nl_Guid      = 0;
-            mogufont_sl_Guid      = 0;
-            jinrokhexdoorGuid     = 0;
-            horridonpredoorGuid   = 0;
-            horridonentdoorGuid   = 0;
-            horridonexdoorGuid    = 0;
-            councilexdoorGuid     = 0;
-            councilex2doorGuid    = 0;
-            tortosexdoorGuid      = 0;
-            tortosex2doorGuid     = 0;
-            megaeraexdoorGuid     = 0;
-            jikunexdoorGuid       = 0;
-            durumuexdoorGuid      = 0;
-            primordiusentdoorGuid = 0;
-            secretradendoorGuid   = 0;
-            primordiusexdoorGuid  = 0;
-            danimusentdoorGuid    = 0;
-            danimusexdoorGuid     = 0;
-            ironqonentdoorGuid    = 0;
-            ironqonexdoorGuid     = 0;
-            twinentdoorGuid       = 0;
-            twinexdoorGuid        = 0;
-            radenentdoorGuid      = 0;
+            jinrokhentdoorGuid.Clear();
+            mogufont_sr_Guid.Clear();
+            mogufont_nr_Guid.Clear();
+            mogufont_nl_Guid.Clear();
+            mogufont_sl_Guid.Clear();
+            jinrokhexdoorGuid.Clear();
+            horridonpredoorGuid.Clear();
+            horridonentdoorGuid.Clear();
+            horridonexdoorGuid.Clear();
+            councilexdoorGuid.Clear();
+            councilex2doorGuid.Clear();
+            tortosexdoorGuid.Clear();
+            tortosex2doorGuid.Clear();
+            megaeraexdoorGuid.Clear();
+            jikunexdoorGuid.Clear();
+            durumuexdoorGuid.Clear();
+            primordiusentdoorGuid.Clear();
+            secretradendoorGuid.Clear();
+            primordiusexdoorGuid.Clear();
+            danimusentdoorGuid.Clear();
+            danimusexdoorGuid.Clear();
+            ironqonentdoorGuid.Clear();
+            ironqonexdoorGuid.Clear();
+            twinentdoorGuid.Clear();
+            twinexdoorGuid.Clear();
+            radenentdoorGuid.Clear();
            
             //Creature
-            stormcallerGuid       = 0;
-            jinrokhGuid           = 0;
-            stormbringerGuid      = 0;
-            horridonGuid          = 0;
-            jalakGuid             = 0;
-            mallakGuid            = 0;
-            marliGuid             = 0;
-            kazrajinGuid          = 0;
-            sulGuid               = 0;
-            tortosGuid            = 0;
-            flameheadGuid         = 0;
-            frozenheadGuid        = 0;
-            venousheadGuid        = 0;
-            jikunGuid             = 0;
-            durumuGuid            = 0;
-            primordiusGuid        = 0;
-            darkanimusGuid        = 0;
-            ironqonGuid           = 0;
-            roshakGuid            = 0;
-            quetzalGuid           = 0;
-            damrenGuid            = 0;
-            sulinGuid             = 0;
-            lulinGuid             = 0;
-            leishenGuid           = 0;
-            radenGuid             = 0;
-            canimaGuid            = 0;
-            cvitaGuid             = 0;
+            stormcallerGuid.Clear();
+            jinrokhGuid.Clear();
+            stormbringerGuid.Clear();
+            horridonGuid.Clear();
+            jalakGuid.Clear();
+            mallakGuid.Clear();
+            marliGuid.Clear();
+            kazrajinGuid.Clear();
+            sulGuid.Clear();
+            tortosGuid.Clear();
+            flameheadGuid.Clear();
+            frozenheadGuid.Clear();
+            venousheadGuid.Clear();
+            jikunGuid.Clear();
+            durumuGuid.Clear();
+            primordiusGuid.Clear();
+            darkanimusGuid.Clear();
+            ironqonGuid.Clear();
+            roshakGuid.Clear();
+            quetzalGuid.Clear();
+            damrenGuid.Clear();
+            sulinGuid.Clear();
+            lulinGuid.Clear();
+            leishenGuid.Clear();
+            radenGuid.Clear();
+            canimaGuid.Clear();
+            cvitaGuid.Clear();
 
             councilGuids.clear();
             mogufontsGuids.clear();
@@ -412,7 +412,7 @@ public:
                     switch (state)
                     {
                     case NOT_STARTED:
-                        for (std::vector<uint64>::const_iterator guid = mogufontsGuids.begin(); guid != mogufontsGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = mogufontsGuids.begin(); guid != mogufontsGuids.end(); guid++)
                             HandleGameObject(*guid, false);
                         HandleGameObject(jinrokhentdoorGuid, true);
                         break;
@@ -453,7 +453,7 @@ public:
                     {
                     case NOT_STARTED:
                         //Reset all council
-                        for (std::vector<uint64>::const_iterator guid = councilGuids.begin(); guid != councilGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = councilGuids.begin(); guid != councilGuids.end(); guid++)
                         {
                             if (Creature* council = instance->GetCreature(*guid))
                             {
@@ -468,12 +468,12 @@ public:
                             }
                         }
 
-                        for (std::vector <uint64>::const_iterator guids = councilentdoorGuids.begin(); guids != councilentdoorGuids.end(); guids++)
+                        for (GuidVector::const_iterator guids = councilentdoorGuids.begin(); guids != councilentdoorGuids.end(); guids++)
                             HandleGameObject(*guids, true);
                         break;
                     case IN_PROGRESS:
                         //Call all council 
-                        for (std::vector<uint64>::const_iterator guid = councilGuids.begin(); guid != councilGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = councilGuids.begin(); guid != councilGuids.end(); guid++)
                         {
                             if (Creature* council = instance->GetCreature(*guid))
                             {
@@ -483,11 +483,11 @@ public:
                             }
                         }
 
-                        for (std::vector <uint64>::const_iterator guids = councilentdoorGuids.begin(); guids != councilentdoorGuids.end(); guids++)
+                        for (GuidVector::const_iterator guids = councilentdoorGuids.begin(); guids != councilentdoorGuids.end(); guids++)
                             HandleGameObject(*guids, false);
                         break;
                     case DONE:
-                        for (std::vector <uint64>::const_iterator guids = councilentdoorGuids.begin(); guids != councilentdoorGuids.end(); guids++)
+                        for (GuidVector::const_iterator guids = councilentdoorGuids.begin(); guids != councilentdoorGuids.end(); guids++)
                             HandleGameObject(*guids, true);
                         HandleGameObject(councilexdoorGuid, true);
                         HandleGameObject(councilex2doorGuid, true);
@@ -514,13 +514,13 @@ public:
                     case DONE:
                         HandleGameObject(megaeraexdoorGuid, true);
                         HandleGameObject(jikunexdoorGuid, true);
-                        for (std::vector <uint64>::const_iterator guid = jikunfeatherGuids.begin(); guid != jikunfeatherGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = jikunfeatherGuids.begin(); guid != jikunfeatherGuids.end(); guid++)
                             if (GameObject* feather = instance->GetGameObject(*guid))
                                 feather->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case IN_PROGRESS:
                         HandleGameObject(megaeraexdoorGuid, false);
-                        for (std::vector <uint64>::const_iterator guid = jikunfeatherGuids.begin(); guid != jikunfeatherGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = jikunfeatherGuids.begin(); guid != jikunfeatherGuids.end(); guid++)
                             if (GameObject* feather = instance->GetGameObject(*guid))
                                 feather->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
@@ -553,7 +553,7 @@ public:
                     switch (state)
                     {
                     case NOT_STARTED:
-                        for (std::vector<uint64>::const_iterator guid = massiveanimagolemGuids.begin(); guid != massiveanimagolemGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = massiveanimagolemGuids.begin(); guid != massiveanimagolemGuids.end(); guid++)
                         {
                             if (Creature* mag = instance->GetCreature(*guid))
                             {
@@ -575,7 +575,7 @@ public:
                                 animus->AI()->DoZoneInCombat(animus, 150.0f);
                         }
 
-                        for (std::vector<uint64>::const_iterator guid = massiveanimagolemGuids.begin(); guid != massiveanimagolemGuids.end(); guid++)
+                        for (GuidVector::const_iterator guid = massiveanimagolemGuids.begin(); guid != massiveanimagolemGuids.end(); guid++)
                         {
                             if (Creature* mag = instance->GetCreature(*guid))
                             {
@@ -614,17 +614,17 @@ public:
                     switch (state)
                     {
                         case NOT_STARTED:
-                            for (std::vector<uint64>::const_iterator guid = twinfencedoorGuids.begin(); guid != twinfencedoorGuids.end(); guid++)
+                            for (GuidVector::const_iterator guid = twinfencedoorGuids.begin(); guid != twinfencedoorGuids.end(); guid++)
                                 HandleGameObject(*guid, true);
                             HandleGameObject(twinentdoorGuid, true);
                             break;
                         case IN_PROGRESS:
-                            for (std::vector<uint64>::const_iterator guid = twinfencedoorGuids.begin(); guid != twinfencedoorGuids.end(); guid++)
+                            for (GuidVector::const_iterator guid = twinfencedoorGuids.begin(); guid != twinfencedoorGuids.end(); guid++)
                                 HandleGameObject(*guid, false);
                             HandleGameObject(twinentdoorGuid, false);
                             break;
                         case DONE:
-                            for (std::vector<uint64>::const_iterator guid = twinfencedoorGuids.begin(); guid != twinfencedoorGuids.end(); guid++)
+                            for (GuidVector::const_iterator guid = twinfencedoorGuids.begin(); guid != twinfencedoorGuids.end(); guid++)
                                 HandleGameObject(*guid, true);
                             HandleGameObject(twinentdoorGuid, true);
                             HandleGameObject(twinexdoorGuid, true);
@@ -682,7 +682,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -745,7 +745,7 @@ public:
             case NPC_CORRUPTED_VITA:
                 return cvitaGuid;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
         
         bool IsWipe()

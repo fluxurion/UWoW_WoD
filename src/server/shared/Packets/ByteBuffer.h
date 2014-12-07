@@ -34,6 +34,7 @@
 #include "Util.h"
 
 #include <math.h>
+#include <type_traits>
 #include <boost/asio/buffer.hpp>
 
 class MessageBuffer;
@@ -57,7 +58,7 @@ class MessageBuffer;
 #define BIT_VALS_8 BIT_VALS_7, _8
 
 #define DEFINE_READGUIDMASK(T1, T2) template <T1> \
-    void ReadGuidMask(ObjectGuid& guid) \
+    void ReadGuidMask(ObjectGuidSteam& guid) \
     { \
         uint8 maskArr[] = { T2 }; \
         for (uint8 i = 0; i < sizeof(maskArr) / sizeof(maskArr[0]) ; ++i) \
@@ -65,7 +66,7 @@ class MessageBuffer;
     }
 
 #define DEFINE_WRITEGUIDMASK(T1, T2) template <T1> \
-    void WriteGuidMask(ObjectGuid guid) \
+    void WriteGuidMask(ObjectGuidSteam guid) \
     { \
         uint8 maskArr[] = { T2 }; \
         for (uint8 i = 0; i < sizeof(maskArr) / sizeof(maskArr[0]); ++i) \
@@ -73,7 +74,7 @@ class MessageBuffer;
     }
 
 #define DEFINE_READGUIDBYTES(T1, T2) template <T1> \
-    void ReadGuidBytes(ObjectGuid& guid) \
+    void ReadGuidBytes(ObjectGuidSteam& guid) \
     { \
         uint8 maskArr[] = { T2 }; \
         for (uint8 i = 0; i < sizeof(maskArr) / sizeof(maskArr[0]); ++i) \
@@ -82,7 +83,7 @@ class MessageBuffer;
     }
 
 #define DEFINE_WRITEGUIDBYTES(T1, T2) template <T1> \
-    void WriteGuidBytes(ObjectGuid guid) \
+    void WriteGuidBytes(ObjectGuidSteam guid) \
     { \
         uint8 maskArr[] = { T2 }; \
         for (uint8 i = 0; i < sizeof(maskArr) / sizeof(maskArr[0]); ++i) \
@@ -91,13 +92,13 @@ class MessageBuffer;
     }
 
 //! Structure to ease conversions from single 64 bit integer guid into individual bytes, for packet sending purposes
-//! Nuke this out when porting ObjectGuid from MaNGOS, but preserve the per-byte storage
-struct ObjectGuid
+//! Nuke this out when porting ObjectGuidSteam from MaNGOS, but preserve the per-byte storage
+struct ObjectGuidSteam
 {
     public:
-        ObjectGuid() { _data.u64 = 0LL; }
-        ObjectGuid(uint64 guid) { _data.u64 = guid; }
-        ObjectGuid(ObjectGuid const& other) { _data.u64 = other._data.u64; }
+        ObjectGuidSteam() { _data.u64 = 0LL; }
+        ObjectGuidSteam(uint64 guid) { _data.u64 = guid; }
+        ObjectGuidSteam(ObjectGuidSteam const& other) { _data.u64 = other._data.u64; }
 
         uint8& operator[](uint32 index)
         {
@@ -126,13 +127,13 @@ struct ObjectGuid
             return _data.u64;
         }
 
-        ObjectGuid& operator=(uint64 guid)
+        ObjectGuidSteam& operator=(uint64 guid)
         {
             _data.u64 = guid;
             return *this;
         }
 
-        ObjectGuid& operator=(ObjectGuid const& other)
+        ObjectGuidSteam& operator=(ObjectGuidSteam const& other)
         {
             _data.u64 = other._data.u64;
             return *this;
@@ -238,6 +239,7 @@ class ByteBuffer
 
         template <typename T> void append(T value)
         {
+            static_assert(std::is_fundamental<T>::value, "append(compound)");
             FlushBits();
             EndianConvert(value);
             append((uint8 *)&value, sizeof(value));
@@ -253,6 +255,15 @@ class ByteBuffer
             _bitpos = 8;
         }
 
+        void ResetBitPos()
+        {
+            if (_bitpos > 7)
+                return;
+
+            _bitpos = 8;
+            _curbitval = 0;
+        }
+
         void ResetBitReader()
         {
             if (_bitpos == 8)
@@ -262,7 +273,7 @@ class ByteBuffer
             _bitpos = 8;
         }
 
-        void WriteBitInOrder(ObjectGuid guid, uint8 order[8])
+        void WriteBitInOrder(ObjectGuidSteam guid, uint8 order[8])
         {
             for (uint8 i = 0; i < 8; ++i)
                 WriteBit(guid[order[i]]);
@@ -284,7 +295,7 @@ class ByteBuffer
             return (bit != 0);
         }
 
-        void ReadBitInOrder(ObjectGuid& guid, uint8 order[8])
+        void ReadBitInOrder(ObjectGuidSteam& guid, uint8 order[8])
         {
             for (uint8 i = 0; i < 8; ++i)
                 guid[order[i]] = ReadBit();
@@ -295,8 +306,8 @@ class ByteBuffer
             ++_bitpos;
             if (_bitpos > 7)
             {
-                _bitpos = 0;
                 _curbitval = read<uint8>();
+                _bitpos = 0;
             }
 
             return ((_curbitval >> (7-_bitpos)) & 1) != 0;
@@ -318,7 +329,7 @@ class ByteBuffer
             return value;
         }
 
-        void ReadBytesSeq(ObjectGuid& guid, uint8 order[8])
+        void ReadBytesSeq(ObjectGuidSteam& guid, uint8 order[8])
         {
             for (uint8 i = 0; i < 8; ++i)
                 ReadByteSeq(guid[order[i]]);
@@ -331,7 +342,7 @@ class ByteBuffer
                 b ^= read<uint8>();
         }
 
-        void WriteBytesSeq(ObjectGuid guid, uint8 order[8])
+        void WriteBytesSeq(ObjectGuidSteam guid, uint8 order[8])
         {
             for (uint8 i = 0; i < 8; ++i)
                 WriteByteSeq(guid[order[i]]);
@@ -345,6 +356,7 @@ class ByteBuffer
 
         template <typename T> void put(size_t pos, T value)
         {
+            static_assert(std::is_fundamental<T>::value, "append(compound)");
             EndianConvert(value);
             put(pos, (uint8 *)&value, sizeof(value));
         }
@@ -601,11 +613,14 @@ class ByteBuffer
         {
             if (_rpos + skip > size())
                 throw ByteBufferPositionException(false, _rpos, skip, size());
+
+            ResetBitPos();
             _rpos += skip;
         }
 
         template <typename T> T read()
         {
+            ResetBitPos();
             T r = read<T>(_rpos);
             _rpos += sizeof(T);
             return r;
@@ -624,44 +639,37 @@ class ByteBuffer
         {
             if (_rpos  + len > size())
                throw ByteBufferPositionException(false, _rpos, len, size());
+
+            ResetBitPos();
             memcpy(dest, &_storage[_rpos], len);
             _rpos += len;
         }
 
-        void readPackGUID(uint64& guid)
+        void ReadPackedUInt64(uint64& guid)
         {
-            if (rpos() + 1 > size())
-                throw ByteBufferPositionException(false, _rpos, 1, size());
-
             guid = 0;
+            ReadPackedUInt64(read<uint8>(), guid);
+        }
 
-            uint8 guidmark = 0;
-            (*this) >> guidmark;
-
-            for (int i = 0; i < 8; ++i)
-            {
-                if (guidmark & (uint8(1) << i))
-                {
-                    if (rpos() + 1 > size())
-                        throw ByteBufferPositionException(false, _rpos, 1, size());
-
-                    uint8 bit;
-                    (*this) >> bit;
-                    guid |= (uint64(bit) << (i * 8));
-                }
-            }
+        void ReadPackedUInt64(uint8 mask, uint64& value)
+        {
+            for (uint32 i = 0; i < 8; ++i)
+                if (mask & (uint8(1) << i))
+                    value |= (uint64(read<uint8>()) << (i * 8));
         }
 
         std::string ReadString(uint32 length)
         {
+            if (_rpos + length > size())
+                throw ByteBufferPositionException(false, _rpos, length, size());
+
             if (!length)
                 return std::string();
-            char* buffer = new char[length + 1];
-            memset(buffer, 0, length + 1);
-            read((uint8*)buffer, length);
-            std::string retval = buffer;
-            delete[] buffer;
-            return retval;
+
+            ResetBitPos();
+            std::string str((char const*)&_storage[_rpos], length);
+            _rpos += length;
+            return str;
         }
 
         //! Method for writing strings that have their length sent separately in packet
@@ -731,6 +739,39 @@ class ByteBuffer
             packed |= ((int)(y / 0.25f) & 0x7FF) << 11;
             packed |= ((int)(z / 0.25f) & 0x3FF) << 22;
             *this << packed;
+        }
+
+        void AppendPackedUInt64(uint64 guid)
+        {
+            uint8 mask = 0;
+            size_t pos = wpos();
+            *this << uint8(mask);
+
+            uint8 packed[8];
+            if (size_t packedSize = PackUInt64(guid, &mask, packed))
+                append(packed, packedSize);
+
+            put<uint8>(pos, mask);
+        }
+
+        size_t PackUInt64(uint64 value, uint8* mask, uint8* result) const
+        {
+            size_t resultSize = 0;
+            *mask = 0;
+            memset(result, 0, 8);
+
+            for (uint8 i = 0; value != 0; ++i)
+            {
+                if (value & 0xFF)
+                {
+                    *mask |= uint8(1 << i);
+                    result[resultSize++] = uint8(value & 0xFF);
+                }
+
+                value >>= 8;
+            }
+
+            return resultSize;
         }
 
         void AppendPackedTime(time_t time)

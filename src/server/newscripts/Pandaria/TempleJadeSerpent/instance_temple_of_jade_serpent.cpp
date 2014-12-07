@@ -145,8 +145,8 @@ public:
         */
         Position roomCenter;
         uint32 waterDamageTimer;
-        uint64 doorWiseMari;
-        uint64 wiseMariGUID;
+        ObjectGuid doorWiseMari;
+        ObjectGuid wiseMariGUID;
         /*
         ** End of Wise Mari script
         */
@@ -155,20 +155,20 @@ public:
         ** LoreWalkter Stonestep script.
         */
         uint8 eventChoosen;
-        uint64 lorewalkter_stonestep;
-        uint64 zao_sunseeker;
-        uint64 scroll;
-        uint64 door_lorewalker;
-        uint64 guidPeril;
-        uint64 guidStrife;
+        ObjectGuid lorewalkter_stonestep;
+        ObjectGuid zao_sunseeker;
+        ObjectGuid scroll;
+        ObjectGuid door_lorewalker;
+        ObjectGuid guidPeril;
+        ObjectGuid guidStrife;
         uint32 eventStatus_lorewalkter_stonestep;
         uint32 eventStatus_numberSunDefeated;
         uint32 wipeTimer;
-        std::list<uint64> creatures_corrupted;
-        std::list<uint64> sunfires;
-        std::list<uint64> suns;
-        std::list<uint64> sun_triggers;
-        std::list<uint64> sha_summoned;
+        GuidList creatures_corrupted;
+        GuidList sunfires;
+        GuidList suns;
+        GuidList sun_triggers;
+        GuidList sha_summoned;
         /*
         ** End of Lorewalker Stonestep script.
         */
@@ -177,10 +177,10 @@ public:
         ** Liu Flameheart script.
         */
         uint32 countMinionDeads;
-        uint64 liuGuid;
-        uint64 doorLiu;
-        uint64 doorLiu_2;
-        std::list<uint64> mobs_liu;
+        ObjectGuid liuGuid;
+        ObjectGuid doorLiu;
+        ObjectGuid doorLiu_2;
+        GuidList mobs_liu;
         /*
         ** End of Liu Flameheart script.
         */
@@ -188,7 +188,7 @@ public:
         /*
         ** Sha of Doubt script.
         */
-        uint64 sha_of_doubt_guid;
+        ObjectGuid sha_of_doubt_guid;
         uint8 countDps;
         uint8 countHeal;
         uint8 countTank;
@@ -200,20 +200,20 @@ public:
         instance_temple_of_jade_serpent_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             // Wise Mari script
-            doorWiseMari = 0;
+            doorWiseMari.Clear();
             roomCenter.m_positionX = 1046.941f;
             roomCenter.m_positionY = -2560.606f;
             roomCenter.m_positionZ = 174.9552f;
             roomCenter.m_orientation = 4.33f;
             waterDamageTimer = 250;
-            wiseMariGUID = 0;
+            wiseMariGUID.Clear();
 
             //LoreWalkter Stonestep script.
-            lorewalkter_stonestep = 0;
-            zao_sunseeker = 0;
-            scroll = 0;
-            guidPeril = 0;
-            guidStrife = 0;
+            lorewalkter_stonestep.Clear();
+            zao_sunseeker.Clear();
+            scroll.Clear();
+            guidPeril.Clear();
+            guidStrife.Clear();
             eventStatus_lorewalkter_stonestep = STATUS_LOREWALKER_STONESTEP_NONE;
             eventStatus_numberSunDefeated = 0;
             eventChoosen = 0;
@@ -221,12 +221,12 @@ public:
 
             //Liu Flameheart script.
             countMinionDeads = 0;
-            liuGuid = 0;
-            doorLiu = 0;
-            doorLiu_2 = 0;
+            liuGuid.Clear();
+            doorLiu.Clear();
+            doorLiu_2.Clear();
 
             //Sha of doubt script.
-            sha_of_doubt_guid = 0;
+            sha_of_doubt_guid.Clear();
             countDps = 0;
             countTank = 0;
             countHeal = 0;
@@ -379,7 +379,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -388,7 +388,7 @@ public:
             case CREATURE_SHA_OF_DOUBT:
                 return sha_of_doubt_guid;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void OnUnitDeath_wise_mari(Unit* unit)
@@ -558,7 +558,7 @@ public:
             case TYPE_SET_SUNS_SELECTABLE:
                 if (eventChoosen !=  EVENT_LOREWALKER_STONESTEP_SUNS)
                     return;
-                for (std::list<uint64>::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
+                for (GuidList::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
                 {
                     Creature* creature = instance->GetCreature(*guid);
                     if (!creature)
@@ -568,7 +568,7 @@ public:
                     if (creature->GetAI())
                         creature->GetAI()->DoAction(TYPE_SET_SUNS_SELECTABLE);
                 }
-                for (std::list<uint64>::const_iterator guid = sun_triggers.begin(); guid != sun_triggers.end(); ++guid)
+                for (GuidList::const_iterator guid = sun_triggers.begin(); guid != sun_triggers.end(); ++guid)
                 {
                     Creature* creature = instance->GetCreature(*guid);
                     if (!creature)
@@ -599,7 +599,7 @@ public:
                     if (!zao)
                         return;
 
-                    for (std::list<uint64>::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
+                    for (GuidList::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
                     {
                         Creature* creature = instance->GetCreature(*guid);
                         if (!creature)
@@ -610,7 +610,7 @@ public:
                         creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     }
                     //Stop the fire tornados.
-                    for (std::list<uint64>::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
+                    for (GuidList::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
                     {
                         Creature* creature = instance->GetCreature(*guid);
                         if (!creature)
@@ -816,7 +816,7 @@ public:
                     eventStatus_lorewalkter_stonestep = STATUS_LOREWALKER_STONESTEP_SPAWN_SUNS;
 
                     //Then draw all the corrupted units and summon the suns.
-                    for (std::list<uint64>::const_iterator guid = creatures_corrupted.begin(); guid != creatures_corrupted.end(); ++guid)
+                    for (GuidList::const_iterator guid = creatures_corrupted.begin(); guid != creatures_corrupted.end(); ++guid)
                     {
                         if (*guid == lorewalkter_stonestep)
                             continue;
@@ -827,7 +827,7 @@ public:
                         unit->AddAura(SPELL_DRAW_SHA_2, c);
                         unit->AddAura(SPELL_DRAW_SHA_2, c);
                         c->CastSpell(unit, SPELL_DRAW_SHA_3, false);
-                        c->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, scroll);
+                        c->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, scroll);
                         c->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 42808);
                         c->ForcedDespawn(2000);
                     }
@@ -852,7 +852,7 @@ public:
                         return;
                     sum->SetFacingTo(4.450f);
 
-                    for (std::list<uint64>::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
+                    for (GuidList::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
                     {
                         Creature* c = instance->GetCreature(*guid);
                         if (c == NULL)
@@ -910,7 +910,7 @@ public:
             }
             eventStatus_lorewalkter_stonestep = STATUS_LOREWALKER_STONESTEP_NONE;
             eventStatus_numberSunDefeated = 0;
-            for (std::list<uint64>::const_iterator guid = creatures_corrupted.begin(); guid != creatures_corrupted.end(); ++guid)
+            for (GuidList::const_iterator guid = creatures_corrupted.begin(); guid != creatures_corrupted.end(); ++guid)
             {
                 creature = instance->GetCreature(*guid);
                 if (creature)
@@ -920,7 +920,7 @@ public:
                         creature->GetAI()->Reset();
                 }
             }
-            for (std::list<uint64>::const_iterator guid = suns.begin(); guid != suns.end(); ++guid)
+            for (GuidList::const_iterator guid = suns.begin(); guid != suns.end(); ++guid)
             {
                 creature = instance->GetCreature(*guid);
                 if (creature)
@@ -929,7 +929,7 @@ public:
                 }
             }
             suns.clear();
-            for (std::list<uint64>::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
+            for (GuidList::const_iterator guid = sha_summoned.begin(); guid != sha_summoned.end(); ++guid)
             {
                 creature = instance->GetCreature(*guid);
                 if (creature)
@@ -938,7 +938,7 @@ public:
                 }
             }
             sha_summoned.clear();
-            for (std::list<uint64>::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
+            for (GuidList::const_iterator guid = sunfires.begin(); guid != sunfires.end(); ++guid)
             {
                 Creature* c = instance->GetCreature(*guid);
                 if (c == NULL)

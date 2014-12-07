@@ -46,7 +46,7 @@ bool CheckTsulong(InstanceScript* instance, Creature* caller)
 {
     if (instance && caller)
     {
-        if (Creature* ts = caller->GetCreature(*caller, instance->GetData64(NPC_TSULONG)))
+        if (Creature* ts = caller->GetCreature(*caller, instance->GetGuidData(NPC_TSULONG)))
         {
             if (ts->isAlive())
                 return true;
@@ -153,7 +153,7 @@ class boss_lei_shi : public CreatureScript
                 if (instance)
                 {
                     _JustDied();
-                    if (Creature* sha = me->GetCreature(*me, instance->GetData64(NPC_SHA_OF_FEAR)))
+                    if (Creature* sha = me->GetCreature(*me, instance->GetGuidData(NPC_SHA_OF_FEAR)))
                     {
                         sha->SetVisible(true);
                         sha->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);

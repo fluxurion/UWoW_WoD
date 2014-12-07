@@ -27,7 +27,7 @@
 class CreatureTextBuilder
 {
     public:
-        CreatureTextBuilder(WorldObject* obj, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, uint64 targetGUID)
+        CreatureTextBuilder(WorldObject* obj, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, ObjectGuid targetGUID)
             : _source(obj), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _targetGUID(targetGUID)
         {
         }
@@ -53,7 +53,7 @@ class CreatureTextBuilder
         uint8 _textGroup;
         uint32 _textId;
         uint32 _language;
-        uint64 _targetGUID;
+        ObjectGuid _targetGUID;
 };
 
 void CreatureTextMgr::LoadCreatureTexts()
@@ -161,7 +161,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
 
 }
 
-uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid /*= 0*/, ChatMsg msgType /*= CHAT_MSG_ADDON*/, Language language /*= LANG_ADDON*/, TextRange range /*= TEXT_RANGE_NORMAL*/, uint32 sound /*= 0*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/, Player* srcPlr /*= NULL*/)
+uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, ObjectGuid whisperGuid /*= 0*/, ChatMsg msgType /*= CHAT_MSG_ADDON*/, Language language /*= LANG_ADDON*/, TextRange range /*= TEXT_RANGE_NORMAL*/, uint32 sound /*= 0*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/, Player* srcPlr /*= NULL*/)
 {
     if (!source)
         return 0;
@@ -177,7 +177,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
     CreatureTextHolder::const_iterator itr = textHolder.find(textGroup);
     if (itr == textHolder.end())
     {
-        sLog->outError(LOG_FILTER_SQL, "CreatureTextMgr: Could not find TextGroup %u for Creature(%s) GuidLow %u Entry %u. Ignoring.", uint32(textGroup), source->GetName(), source->GetGUIDLow(), source->GetEntry());
+        sLog->outError(LOG_FILTER_SQL, "CreatureTextMgr: Could not find TextGroup %u for Creature(%s) GuidLow %u Entry %u. Ignoring.", uint32(textGroup), source->GetName(), source->GetGUID().GetCounter(), source->GetEntry());
         return 0;
     }
 
@@ -191,7 +191,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
 
     if (tempGroup.empty())
     {
-        CreatureTextRepeatMap::iterator mapItr = mTextRepeatMap.find(source->GetGUID());
+        CreatureTextRepeatMap::iterator mapItr = mTextRepeatMap.find(source->GetGUID().GetCounter());
         if (mapItr != mTextRepeatMap.end())
         {
             CreatureTextRepeatGroup::iterator groupItr = mapItr->second.find(textGroup);
@@ -280,21 +280,21 @@ float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
 }
 
 //! 5.4.1
-void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly)
+void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, ObjectGuid whisperGuid, TextRange range, Team team, bool gmOnly)
 {
     if (!sound || !source)
         return;
 
     ObjectGuid guid = source->GetGUID();
     WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data.WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(guid);
-    data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(guid);
+    //data.WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(guid);
+    //data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(guid);
     data << uint32(sound);
-    data.WriteGuidBytes<7>(guid);
+    //data.WriteGuidBytes<7>(guid);
     SendNonChatPacket(source, &data, msgType, whisperGuid, range, team, gmOnly);
 }
 
-void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const
+void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, ObjectGuid whisperGuid, TextRange range, Team team, bool gmOnly) const
 {
     float dist = GetRangeForChatType(msgType);
 
@@ -375,11 +375,11 @@ void CreatureTextMgr::SetRepeatId(Creature* source, uint8 textGroup, uint8 id)
     if (!source)
         return;
 
-    CreatureTextRepeatIds& repeats = mTextRepeatMap[source->GetGUID()][textGroup];
+    CreatureTextRepeatIds& repeats = mTextRepeatMap[source->GetGUID().GetCounter()][textGroup];
     if (std::find(repeats.begin(), repeats.end(), id) == repeats.end())
         repeats.push_back(id);
     else
-        sLog->outError(LOG_FILTER_SQL, "CreatureTextMgr: TextGroup %u for Creature(%s) GuidLow %u Entry %u, id %u already added", uint32(textGroup), source->GetName(), source->GetGUIDLow(), source->GetEntry(), uint32(id));
+        sLog->outError(LOG_FILTER_SQL, "CreatureTextMgr: TextGroup %u for Creature(%s) GuidLow %u Entry %u, id %u already added", uint32(textGroup), source->GetName(), source->GetGUID().GetCounter(), source->GetEntry(), uint32(id));
 }
 
 CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 textGroup)
@@ -387,7 +387,7 @@ CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 te
     ASSERT(source);//should never happen
     CreatureTextRepeatIds ids;
 
-    CreatureTextRepeatMap::const_iterator mapItr = mTextRepeatMap.find(source->GetGUID());
+    CreatureTextRepeatMap::const_iterator mapItr = mTextRepeatMap.find(source->GetGUID().GetCounter());
     if (mapItr != mTextRepeatMap.end())
     {
         CreatureTextRepeatGroup::const_iterator groupItr = (*mapItr).second.find(textGroup);

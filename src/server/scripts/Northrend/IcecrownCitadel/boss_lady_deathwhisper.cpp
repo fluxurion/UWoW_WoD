@@ -231,8 +231,8 @@ class boss_lady_deathwhisper : public CreatureScript
                 events.SetPhase(PHASE_ONE);
                 _waveCounter = 0;
                 transform = true;
-                _nextVengefulShadeTargetGUID = 0;
-                _darnavanGUID = 0;
+                _nextVengefulShadeTargetGUID.Clear();
+                _darnavanGUID.Clear();
                 DoCast(me, SPELL_SHADOW_CHANNELING);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
@@ -327,10 +327,10 @@ class boss_lady_deathwhisper : public CreatureScript
                             {
                                 for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                                     if (Player* member = itr->getSource())
-                                        member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT, 0);
+                                        member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT, ObjectGuid::Empty);
                             }
                             else
-                                owner->KilledMonsterCredit(NPC_DARNAVAN_CREDIT, 0);
+                                owner->KilledMonsterCredit(NPC_DARNAVAN_CREDIT, ObjectGuid::Empty);
                         }
                     }
                 }
@@ -347,7 +347,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (Creature* darnavan = ObjectAccessor::GetCreature(*me, _darnavanGUID))
                 {
                     darnavan->DespawnOrUnsummon();
-                    _darnavanGUID = 0;
+                    _darnavanGUID.Clear();
                 }
             }
 
@@ -395,7 +395,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (summon->GetEntry() == NPC_VENGEFUL_SHADE)
                 {
                     target = ObjectAccessor::GetUnit(*me, _nextVengefulShadeTargetGUID);   // Vengeful Shade
-                    _nextVengefulShadeTargetGUID = 0;
+                    _nextVengefulShadeTargetGUID.Clear();
                 }
                 else
                     target = SelectTarget(SELECT_TARGET_RANDOM);                        // Wave adds
@@ -553,7 +553,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     summon->AI()->DoCast(summon, SPELL_TELEPORT_VISUAL);
             }
 
-            void SetGUID(uint64 guid, int32 id/* = 0*/)
+            void SetGUID(ObjectGuid const& guid, int32 id/* = 0*/)
             {
                 if (id != GUID_CULTIST)
                     return;
@@ -567,7 +567,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (_reanimationQueue.empty())
                     return;
 
-                uint64 cultistGUID = _reanimationQueue.front();
+                ObjectGuid cultistGUID = _reanimationQueue.front();
                 Creature* cultist = ObjectAccessor::GetCreature(*me, cultistGUID);
                 _reanimationQueue.pop_front();
                 if (!cultist)
@@ -611,9 +611,9 @@ class boss_lady_deathwhisper : public CreatureScript
             }
 
         private:
-            uint64 _nextVengefulShadeTargetGUID;
-            uint64 _darnavanGUID;
-            std::deque<uint64> _reanimationQueue;
+            ObjectGuid _nextVengefulShadeTargetGUID;
+            ObjectGuid _darnavanGUID;
+            GuidDeque _reanimationQueue;
             uint32 _waveCounter;
             uint8 const _dominateMindCount;
             bool _introDone;
@@ -695,7 +695,7 @@ class npc_cult_fanatic : public CreatureScript
                             Events.ScheduleEvent(EVENT_FANATIC_VAMPIRIC_MIGHT, urand(20000, 27000));
                             break;
                         case EVENT_CULTIST_DARK_MARTYRDOM:
-                            if (Creature* lady = me->GetCreature(*me, Instance->GetData64(DATA_LADY_DEATHWHISPER)))
+                            if (Creature* lady = me->GetCreature(*me, Instance->GetGuidData(DATA_LADY_DEATHWHISPER)))
                                 if (boss_lady_deathwhisper::boss_lady_deathwhisperAI* ladyAI = CAST_AI(boss_lady_deathwhisper::boss_lady_deathwhisperAI, lady->AI()))
                                     if (ladyAI->Istransform())
                                     {
@@ -795,7 +795,7 @@ class npc_cult_adherent : public CreatureScript
                             Events.ScheduleEvent(EVENT_ADHERENT_SHORUD_OF_THE_OCCULT, urand(27000, 32000));
                             break;
                         case EVENT_CULTIST_DARK_MARTYRDOM:
-                            if (Creature* lady = me->GetCreature(*me, Instance->GetData64(DATA_LADY_DEATHWHISPER)))
+                            if (Creature* lady = me->GetCreature(*me, Instance->GetGuidData(DATA_LADY_DEATHWHISPER)))
                                 if (boss_lady_deathwhisper::boss_lady_deathwhisperAI* ladyAI = CAST_AI(boss_lady_deathwhisper::boss_lady_deathwhisperAI, lady->AI()))
                                     if (ladyAI->Istransform())
                                     {

@@ -17,16 +17,16 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
         {
             instance_the_vortex_pinnacle_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
 
-            uint64 uiGrandVizierErtanGUID;
-            uint64 uiAltairusGUID;
-            uint64 uiAsaadGUID;
+            ObjectGuid uiGrandVizierErtanGUID;
+            ObjectGuid uiAltairusGUID;
+            ObjectGuid uiAsaadGUID;
 
             void Initialize()
             {
                 SetBossNumber(MAX_ENCOUNTER);
-                uiGrandVizierErtanGUID = 0;
-                uiAltairusGUID = 0;
-                uiAsaadGUID = 0;
+                uiGrandVizierErtanGUID.Clear();
+                uiAltairusGUID.Clear();
+                uiAsaadGUID.Clear();
             }
 
             void OnCreatureCreate(Creature* pCreature)
@@ -46,7 +46,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                 
             }
 
-            uint64 GetData64(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier)
             {
                 switch(identifier)
                 {
@@ -57,7 +57,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                     case DATA_ASAAD:
                         return uiAsaadGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()

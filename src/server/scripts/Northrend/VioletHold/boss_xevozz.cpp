@@ -139,7 +139,7 @@ public:
             Talk(SAY_AGGRO);
             if (instance)
             {
-                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_XEVOZZ_CELL)))
+                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetGuidData(DATA_XEVOZZ_CELL)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();
@@ -263,7 +263,7 @@ public:
 
             if (uiRangeCheck_Timer < uiDiff)
             {
-                if (Creature* pXevozz = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XEVOZZ)))
+                if (Creature* pXevozz = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_XEVOZZ)))
                 {
                     float fDistance = me->GetDistance2d(pXevozz);
                     if (fDistance <= 3)

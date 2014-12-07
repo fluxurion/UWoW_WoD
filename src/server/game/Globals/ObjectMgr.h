@@ -359,8 +359,8 @@ struct AreaTriggerStruct
     float  target_Orientation;
 };
 
-typedef std::set<uint32> CellGuidSet;
-typedef std::map<uint32/*player guid*/, uint32/*instance*/> CellCorpseSet;
+typedef std::set<ObjectGuid::LowType> CellGuidSet;
+typedef std::map<ObjectGuid/*player guid*/, uint32/*instance*/> CellCorpseSet;
 struct CellObjectGuids
 {
     CellGuidSet creatures;
@@ -386,9 +386,9 @@ struct TrinityStringLocale
     StringVector Content;
 };
 
-typedef std::map<uint64, uint64> LinkedRespawnContainer;
-typedef UNORDERED_MAP<uint32, CreatureData> CreatureDataContainer;
-typedef UNORDERED_MAP<uint32, GameObjectData> GameObjectDataContainer;
+typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
+typedef UNORDERED_MAP<ObjectGuid::LowType, CreatureData> CreatureDataContainer;
+typedef UNORDERED_MAP<ObjectGuid::LowType, GameObjectData> GameObjectDataContainer;
 typedef UNORDERED_MAP<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef UNORDERED_MAP<uint32, GameObjectLocale> GameObjectLocaleContainer;
 typedef UNORDERED_MAP<uint32, ItemLocale> ItemLocaleContainer;
@@ -641,7 +641,7 @@ class ObjectMgr
         typedef std::list<CurrencyLoot> CurrencysLoot;
         std::list<CurrencyLoot> GetCurrencyLoot(uint32 entry, uint8 type, uint8 spawnMode);
 
-        Player* GetPlayerByLowGUID(uint32 lowguid) const;
+        Player* GetPlayerByLowGUID(ObjectGuid::LowType const& lowguid) const;
 
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);
         GameObjectTemplateContainer const* GetGameObjectTemplates() const { return &_gameObjectTemplateStore; }
@@ -660,7 +660,7 @@ class ObjectMgr
         static uint32 ChooseDisplayId(uint32 team, const CreatureTemplate* cinfo, const CreatureData* data = NULL);
         static void ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& npcflag2, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data = NULL);
         EquipmentInfo const* GetEquipmentInfo(uint32 entry);
-        CreatureAddon const* GetCreatureAddon(uint32 lowguid);
+        CreatureAddon const* GetCreatureAddon(ObjectGuid::LowType const& lowguid);
         CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
         ItemTemplate const* GetItemTemplate(uint32 entry);
         ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
@@ -685,11 +685,24 @@ class ObjectMgr
 
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
-        uint64 GetPlayerGUIDByName(std::string name) const;
-        bool GetPlayerNameByGUID(uint64 guid, std::string &name) const;
-        uint32 GetPlayerTeamByGUID(uint64 guid) const;
-        uint32 GetPlayerAccountIdByGUID(uint64 guid) const;
-        uint32 GetPlayerAccountIdByPlayerName(const std::string& name) const;
+        /**
+        * Retrieves the player name by guid.
+        *
+        * If the player is online, the name is retrieved immediately otherwise
+        * a database query is done.
+        *
+        * @remark Use sWorld->GetCharacterNameData because it doesn't require a database query when player is offline
+        *
+        * @param guid player full guid
+        * @param name returned name
+        *
+        * @return true if player was found, false otherwise
+        */
+        ObjectGuid GetPlayerGUIDByName(std::string name) const;
+        bool GetPlayerNameByGUID(ObjectGuid const& guid, std::string &name) const;
+        uint32 GetPlayerTeamByGUID(ObjectGuid const& guid) const;
+        uint32 GetPlayerAccountIdByGUID(ObjectGuid const& guid) const;
+        uint32 GetPlayerAccountIdByPlayerName(std::string const& name) const;
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
@@ -893,7 +906,7 @@ class ObjectMgr
         void LoadCreatures();
         void LoadCreatureAIInstance();
         void LoadLinkedRespawn();
-        bool SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid);
+        bool SetCreatureLinkedRespawn(ObjectGuid::LowType const& guid, ObjectGuid::LowType const& linkedGuid);
         void LoadCreatureAddons();
         void LoadCreatureModelInfo();
         void LoadEquipmentTemplates();
@@ -931,7 +944,6 @@ class ObjectMgr
         void LoadExplorationBaseXP();
         void LoadPetNames();
         void LoadPetNumber();
-        void LoadBattlePetGuid();
         void LoadCorpses();
         void LoadFishingBaseSkillLevel();
 
@@ -994,14 +1006,13 @@ class ObjectMgr
         CreatureBaseStats const* GetCreatureBaseStats(uint8 level, uint8 unitClass);
 
         void SetHighestGuids();
-        uint32 GenerateLowGuid(HighGuid guidhigh);
+        template<HighGuid type>
+        ObjectGuidGenerator<type>* GetGenerator();
         uint32 GenerateAuctionID();
         uint64 GenerateEquipmentSetGuid();
         uint32 GenerateMailID();
         uint32 GeneratePetNumber();
         uint64 GenerateVoidStorageItemId();
-
-        uint64 GenerateBattlePetGuid();
 
         typedef std::multimap<int32, uint32> ExclusiveQuestGroups;
         ExclusiveQuestGroups mExclusiveQuestGroups;
@@ -1024,7 +1035,7 @@ class ObjectMgr
             return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)][cell_id];
         }
 
-        CreatureData const* GetCreatureData(uint32 guid) const
+        CreatureData const* GetCreatureData(ObjectGuid::LowType const& guid) const
         {
             CreatureDataContainer::const_iterator itr = _creatureDataStore.find(guid);
             if (itr == _creatureDataStore.end()) return NULL;
@@ -1050,12 +1061,12 @@ class ObjectMgr
             return itr != _creatureAIInstanceGo.end() ? &(itr->second) : NULL;
         }
 
-        CreatureData& NewOrExistCreatureData(uint32 guid) { return _creatureDataStore[guid]; }
-        void DeleteCreatureData(uint32 guid);
-        uint64 GetLinkedRespawnGuid(uint64 guid) const
+        CreatureData& NewOrExistCreatureData(ObjectGuid::LowType const& guid) { return _creatureDataStore[guid]; }
+        void DeleteCreatureData(ObjectGuid::LowType const& guid);
+        ObjectGuid GetLinkedRespawnGuid(ObjectGuid const& guid) const
         {
             LinkedRespawnContainer::const_iterator itr = _linkedRespawnStore.find(guid);
-            if (itr == _linkedRespawnStore.end()) return 0;
+            if (itr == _linkedRespawnStore.end()) return ObjectGuid::Empty;
             return itr->second;
         }
         CreatureLocale const* GetCreatureLocale(uint32 entry) const
@@ -1107,14 +1118,14 @@ class ObjectMgr
             return &itr->second;
         }
 
-        GameObjectData const* GetGOData(uint32 guid) const
+        GameObjectData const* GetGOData(ObjectGuid::LowType const& guid) const
         {
             GameObjectDataContainer::const_iterator itr = _gameObjectDataStore.find(guid);
             if (itr == _gameObjectDataStore.end()) return NULL;
             return &itr->second;
         }
-        GameObjectData& NewGOData(uint32 guid) { return _gameObjectDataStore[guid]; }
-        void DeleteGOData(uint32 guid);
+        GameObjectData& NewGOData(ObjectGuid::LowType const& guid) { return _gameObjectDataStore[guid]; }
+        void DeleteGOData(ObjectGuid::LowType const& guid);
 
         TrinityStringLocale const* GetTrinityStringLocale(int32 entry) const
         {
@@ -1127,17 +1138,17 @@ class ObjectMgr
         LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
         void SetDBCLocaleIndex(LocaleConstant locale) { DBCLocaleIndex = locale; }
 
-        void AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance);
-        void DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid);
+        void AddCorpseCellData(uint32 mapid, uint32 cellid, ObjectGuid player_guid, uint32 instance);
+        void DeleteCorpseCellData(uint32 mapid, uint32 cellid, ObjectGuid player_guid);
 
         // grid objects
-        void AddCreatureToGrid(uint32 guid, CreatureData const* data);
-        void RemoveCreatureFromGrid(uint32 guid, CreatureData const* data);
-        void AddGameobjectToGrid(uint32 guid, GameObjectData const* data);
-        void RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data);
-        uint32 AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
-        uint32 AddCreData(uint32 entry, uint32 team, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
-        bool MoveCreData(uint32 guid, uint32 map, Position pos);
+        void AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* data);
+        void RemoveCreatureFromGrid(ObjectGuid::LowType guid, CreatureData const* data);
+        void AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData const* data);
+        void RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectData const* data);
+        ObjectGuid::LowType AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
+        ObjectGuid::LowType AddCreData(uint32 entry, uint32 team, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
+        bool MoveCreData(ObjectGuid::LowType guid, uint32 map, Position pos);
 
         // reserved names
         void LoadReservedPlayersNames();
@@ -1317,21 +1328,20 @@ class ObjectMgr
         uint32 _itemTextId;
         uint32 _mailId;
         uint32 _hiPetNumber;
-        uint64 _voidItemId;
+        ObjectGuid::LowType _voidItemId;
 
         // first free low guid for selected guid type
-        uint32 _hiCharGuid;
-        uint32 _hiCreatureGuid;
-        uint32 _hiPetGuid;
-        uint32 _hiVehicleGuid;
-        uint32 _hiItemGuid;
-        uint32 _hiGoGuid;
-        uint32 _hiDoGuid;
-        uint32 _hiCorpseGuid;
-        uint32 _hiAreaTriggerGuid;
-        uint32 _hiMoTransGuid;
-
-        uint64 _hiBattlePetGuid;
+        ObjectGuidGenerator<HighGuid::Player> _playerGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Creature> _creatureGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Pet> _petGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Vehicle> _vehicleGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Item> _itemGuidGenerator;
+        ObjectGuidGenerator<HighGuid::GameObject> _gameObjectGuidGenerator;
+        ObjectGuidGenerator<HighGuid::DynamicObject> _dynamicObjectGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Corpse> _corpseGuidGenerator;
+        ObjectGuidGenerator<HighGuid::AreaTrigger> _areaTriggerGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Transport> _moTransportGuidGenerator;
+        ObjectGuidGenerator<HighGuid::BattlePet> _BattlePetGuidGenerator;
 
         QuestMap _questTemplates;
 

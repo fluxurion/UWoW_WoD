@@ -191,8 +191,8 @@ void AuraApplication::BuildBitUpdatePacket(ByteBuffer& data, bool remove) const
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         flags |= AFLAG_DURATION;
 
-    if (data.WriteBit(!(flags & AFLAG_CASTER)))
-        data.WriteGuidMask<2, 3, 4, 0, 1, 6, 7, 5>(aura->GetCasterGUID());
+    //if (data.WriteBit(!(flags & AFLAG_CASTER)))
+        //data.WriteGuidMask<2, 3, 4, 0, 1, 6, 7, 5>(aura->GetCasterGUID());
     uint32 count = 0;
     bool sendEffect = false;
     bool nosendEffect = false;
@@ -300,7 +300,7 @@ void AuraApplication::BuildByteUpdatePacket(ByteBuffer& data, bool remove, uint3
 
     data << uint16(aura->GetCasterLevel());
     if (!(flags & AFLAG_CASTER))
-        data.WriteGuidBytes<0, 6, 1, 4, 5, 3, 2, 7>(aura->GetCasterGUID());
+        //data.WriteGuidBytes<0, 6, 1, 4, 5, 3, 2, 7>(aura->GetCasterGUID());
     data << uint8(flags);
     if (flags & AFLAG_DURATION)
         data << uint32(aura->GetMaxDuration());
@@ -337,19 +337,19 @@ void AuraApplication::ClientUpdate(bool remove)
 
     _needClientUpdate = false;
 
-    ObjectGuid targetGuid = GetTarget()->GetObjectGuid();
+    ObjectGuid targetGuid = GetTarget()->GetGUID();
 
     WorldPacket data(SMSG_AURA_UPDATE);
-    data.WriteGuidMask<0>(targetGuid);
+    //data.WriteGuidMask<0>(targetGuid);
     data.WriteBit(0);   // has power unit
     data.WriteBit(0);   // full update
-    data.WriteGuidMask<6>(targetGuid);
+    //data.WriteGuidMask<6>(targetGuid);
     /*
     if (hasPowerData) { }
     */
-    data.WriteGuidMask<4, 7, 3>(targetGuid);
+    //data.WriteGuidMask<4, 7, 3>(targetGuid);
     data.WriteBits(1, 24);
-    data.WriteGuidMask<1, 5, 2>(targetGuid);
+    //data.WriteGuidMask<1, 5, 2>(targetGuid);
 
     BuildBitUpdatePacket(data, remove);
     BuildByteUpdatePacket(data, remove);
@@ -358,7 +358,7 @@ void AuraApplication::ClientUpdate(bool remove)
     if (hasPowerData) { }
     */
 
-    data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
+    //data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
 
     _target->SendMessageToSet(&data, true);
 }
@@ -368,19 +368,19 @@ void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
     if (!GetTarget())
         return;
 
-    ObjectGuid targetGuid = GetTarget()->GetObjectGuid();
+    ObjectGuid targetGuid = GetTarget()->GetGUID();
 
     WorldPacket data(SMSG_AURA_UPDATE);
-    data.WriteGuidMask<0>(targetGuid);
+    //data.WriteGuidMask<0>(targetGuid);
     data.WriteBit(0);   // has power unit
     data.WriteBit(0);   // full update
-    data.WriteGuidMask<6>(targetGuid);
+    //data.WriteGuidMask<6>(targetGuid);
     /*
     if (hasPowerData) { }
     */
-    data.WriteGuidMask<4, 7, 3>(targetGuid);
+    //data.WriteGuidMask<4, 7, 3>(targetGuid);
     data.WriteBits(1, 24);
-    data.WriteGuidMask<1, 5, 2>(targetGuid);
+    //data.WriteGuidMask<1, 5, 2>(targetGuid);
 
     BuildBitUpdatePacket(data, remove);
     BuildByteUpdatePacket(data, remove, auraId);
@@ -389,7 +389,7 @@ void AuraApplication::SendFakeAuraUpdate(uint32 auraId, bool remove)
     if (hasPowerData) { }
     */
 
-    data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
+    //data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
 
     _target->SendMessageToSet(&data, true);
  }
@@ -422,7 +422,7 @@ uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibl
     return effMask & avalibleEffectMask;
 }
 
-Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/, bool* refresh /*= NULL*/, uint16 stackAmount)
+Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= 0*/, bool* refresh /*= NULL*/, uint16 stackAmount)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -456,7 +456,7 @@ Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMa
         return Create(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID, stackAmount);
 }
 
-Aura* Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
+Aura* Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObject* owner, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= 0*/)
 {
     ASSERT(spellproto);
     ASSERT(owner);
@@ -470,7 +470,7 @@ Aura* Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObjec
     return Create(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
 }
 
-Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID, uint16 stackAmount)
+Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, uint16 stackAmount)
 {
     ASSERT(effMask);
     ASSERT(spellproto);
@@ -590,13 +590,13 @@ uint32 Aura::CalculateEffMaskFromDummy(Unit* caster, WorldObject* target, uint32
     return effMask;
 }
 
-Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, uint64 casterGUID, uint16 stackAmount) :
+Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, uint16 stackAmount) :
 m_spellInfo(spellproto), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()),
-m_castItemGuid(castItem ? castItem->GetGUID() : 0), m_applyTime(time(NULL)),
+m_castItemGuid(castItem ? castItem->GetGUID() : ObjectGuid::Empty), m_applyTime(time(NULL)),
 m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(stackAmount ? stackAmount: 1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_fromAreatrigger(false), m_aura_amount(0),
-m_diffMode(caster ? caster->GetSpawnMode() : 0), m_spellDynObjGuid(0), m_spellAreaTrGuid(0)
+m_diffMode(caster ? caster->GetSpawnMode() : 0), m_spellDynObjGuid(), m_spellAreaTrGuid()
 {
     SpellPowerEntry power;
     if (!GetSpellInfo()->GetSpellPowerByCasterPower(GetCaster(), power))
@@ -706,7 +706,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraA
     if (itr == m_applications.end())
     {
         sLog->outError(LOG_FILTER_SPELLS_AURAS, "Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
-        target->GetGUIDLow(), caster ? caster->GetGUIDLow() : 0, auraApp->GetBase()->GetSpellInfo()->Id);
+        target->GetGUID().GetCounter(), caster ? caster->GetGUID().GetCounter() : 0, auraApp->GetBase()->GetSpellInfo()->Id);
         ASSERT(false);
     }
 
@@ -1940,7 +1940,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // Glyph of Blind
                         if (caster && caster->HasAura(91299))
                         {
-                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409));
+                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(32409));
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                         }
@@ -1959,7 +1959,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // Glyph of Solace
                         if (caster && caster->HasAura(119407))
                         {
-                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409));
+                            target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(32409));
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                         }
@@ -2165,7 +2165,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (apply)
                         target->CastSpell(caster, 59665, true, 0, NULL, caster->GetGUID());
                     else
-                        target->SetReducedThreatPercent(0, 0);
+                        target->SetReducedThreatPercent(0, ObjectGuid::Empty);
                     break;
             }
             break;
@@ -2930,7 +2930,7 @@ void Aura::SetScriptData(uint32 type, uint32 data)
         (*scritr)->SetData(type, data);
 }
 
-void Aura::SetScriptGuid(uint32 type, uint64 data)
+void Aura::SetScriptGuid(uint32 type, ObjectGuid const& data)
 {
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
         (*scritr)->SetGuid(type, data);
@@ -3025,7 +3025,7 @@ void Aura::CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraAppli
     }
 }
 
-UnitAura::UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID, uint16 stackAmount)
+UnitAura::UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, uint16 stackAmount)
     : Aura(spellproto, owner, caster, castItem, casterGUID, stackAmount)
 {
     m_AuraDRGroup = DIMINISHING_NONE;
@@ -3140,7 +3140,7 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
     }
 }
 
-DynObjAura::DynObjAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, uint64 casterGUID, uint16 stackAmount)
+DynObjAura::DynObjAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* owner, Unit* caster, int32 *baseAmount, Item* castItem, ObjectGuid casterGUID, uint16 stackAmount)
     : Aura(spellproto, owner, caster, castItem, casterGUID, stackAmount)
 {
 }
@@ -3188,7 +3188,7 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* /*caster
     }
 }
 
-void Aura::SetAuraTimer(int32 time, uint64 guid)
+void Aura::SetAuraTimer(int32 time, ObjectGuid guid)
 {
     if(GetDuration() == -1 || GetDuration() > time)
     {

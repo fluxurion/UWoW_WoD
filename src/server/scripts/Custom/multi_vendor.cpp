@@ -91,8 +91,8 @@ public:
                         }
 
                         player->SetAtLoginFlag(AT_LOGIN_CHANGE_FACTION);
-                        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '64' WHERE guid = %u", player->GetGUIDLow());
-                        CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='%s', `cost`='%u', `targetguid`='%u'",accountId , player->GetGUIDLow(), "CHANGE_FACTION", priceFaction, player->GetGUIDLow());
+                        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '64' WHERE guid = %u", player->GetGUID().GetCounter());
+                        CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='%s', `cost`='%u', `targetguid`='%u'",accountId , player->GetGUID().GetCounter(), "CHANGE_FACTION", priceFaction, player->GetGUID().GetCounter());
                         player->DestroyItemCount(EFIRALS, priceFaction, true);
                         activate = true;
                         player->CLOSE_GOSSIP_MENU();
@@ -108,8 +108,8 @@ public:
                         }
 
                         player->SetAtLoginFlag(AT_LOGIN_CHANGE_RACE);
-                        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '128' WHERE guid = %u", player->GetGUIDLow());
-                        CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='%s', `cost`='%u', `targetguid`='%u'", accountId, player->GetGUIDLow(), "CHANGE_RACE", priceRace, player->GetGUIDLow());
+                        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '128' WHERE guid = %u", player->GetGUID().GetCounter());
+                        CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='%s', `cost`='%u', `targetguid`='%u'", accountId, player->GetGUID().GetCounter(), "CHANGE_RACE", priceRace, player->GetGUID().GetCounter());
                         player->DestroyItemCount(EFIRALS, priceRace, true);
                         activate = true;
                         player->CLOSE_GOSSIP_MENU();
@@ -124,8 +124,8 @@ public:
                         }
 
                         player->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
-                        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '8' WHERE guid = '%u'", player->GetGUIDLow());
-                        CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='%s', `cost`='%u', `targetguid`='%u'", accountId, player->GetGUIDLow(), "CHANGE_GENDER", priceGender, player->GetGUIDLow());
+                        CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '8' WHERE guid = '%u'", player->GetGUID().GetCounter());
+                        CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='%s', `cost`='%u', `targetguid`='%u'", accountId, player->GetGUID().GetCounter(), "CHANGE_GENDER", priceGender, player->GetGUID().GetCounter());
                         player->DestroyItemCount(EFIRALS, priceGender, true);
                         activate = true;
                         player->CLOSE_GOSSIP_MENU();
@@ -140,7 +140,7 @@ public:
                             break;
                         }
 
-                        QueryResult result = CharacterDatabase.PQuery("SELECT name, guid FROM `characters` WHERE account = '%u' AND guid != '%u'", accountId, player->GetGUIDLow());
+                        QueryResult result = CharacterDatabase.PQuery("SELECT name, guid FROM `characters` WHERE account = '%u' AND guid != '%u'", accountId, player->GetGUID().GetCounter());
                         if (!result)
                         {
                             player->CLOSE_GOSSIP_MENU();
@@ -159,7 +159,7 @@ public:
                             {
                                 Field* fields = result->Fetch();
                                 std::string playerName  = fields[0].GetString();
-                                uint32 guid             = fields[1].GetUInt32();
+                                ObjectGuid::LowType guid             = fields[1].GetUInt32();
 
                                 char chardata[50]; // Max length: name(12) + guid(11) + _.log (5) + \0
                                 sprintf(chardata, "%s", playerName.c_str());
@@ -186,7 +186,7 @@ public:
                             {
                                 Field* fields = result->Fetch();
                                 std::string playerName  = fields[0].GetString();
-                                uint32 guid             = fields[1].GetUInt32();
+                                ObjectGuid::LowType guid             = fields[1].GetUInt32();
                                 uint8 level             = fields[2].GetUInt8();
                                 uint8 pclass            = fields[3].GetUInt8();
                                 uint32 deleteDate       = fields[4].GetUInt32();
@@ -213,14 +213,15 @@ public:
                     break;
                 }
                 QueryResult result = CharacterDatabase.PQuery("SELECT name, guid FROM `characters` WHERE account = '%u' AND guid = '%u'", accountId, action);
-                if (!result || action == player->GetGUIDLow())
+                if (!result || action == player->GetGUID().GetCounter())
                 {
                     player->CLOSE_GOSSIP_MENU();
                     break;
                 }
                 else
                 {
-                    Player* receiver = ObjectAccessor::FindPlayer(action);
+                    //WARNING!!! action is not good way to send player guid as we should have uint64 size.
+                    Player* receiver = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(ObjectGuid::LowType(action)));
                     uint32 transcount = CalculatePct(countefirs, 85);
                     player->DestroyItemCount(EFIRALS, countefirs, true);
                     // from console show not existed sendermail
@@ -234,11 +235,11 @@ public:
                         player->SaveInventoryAndGoldToDB(trans);
                         item->SaveToDB(trans);                           // save for prevent lost at next mail load, if send fail then item will deleted
                         draft.AddItem(item);
-                        draft.SendMailTo(trans, MailReceiver(receiver, GUID_LOPART(action)), sendermail);
+                        draft.SendMailTo(trans, MailReceiver(receiver, receiver->GetGUID().GetCounter()), sendermail);
                         CharacterDatabase.CommitTransaction(trans);
                         chH.PSendSysMessage(20019, transcount);
                     }
-                    CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='%s', `cost`='%u', `targetguid`='%u'",accountId , player->GetGUIDLow(), "EFIRALS_TRANS", transcount, action);
+                    CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='%s', `cost`='%u', `targetguid`='%u'",accountId , player->GetGUID().GetCounter(), "EFIRALS_TRANS", transcount, action);
                 }
                 break;
             }
@@ -282,7 +283,7 @@ public:
 
                 player->DestroyItemCount(EFIRALS, priceRecobery, true);
                 sWorld->AddCharacterNameData(action, name, gender, race, playerClass, level);
-                CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='%s', `cost`='%u', `targetguid`='%u'",accountId , player->GetGUIDLow(), "RECOVERY_CHAR", priceRecobery, action);
+                CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='%s', `cost`='%u', `targetguid`='%u'",accountId , player->GetGUID().GetCounter(), "RECOVERY_CHAR", priceRecobery, action);
                 chH.PSendSysMessage(20011);
             }
             break;
@@ -321,7 +322,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        QueryResult result = CharacterDatabase.PQuery("SELECT itemguid, itemEntry, count FROM character_donate WHERE owner_guid = '%u' AND state = 0 AND `type` = 0", player->GetGUIDLow());
+        QueryResult result = CharacterDatabase.PQuery("SELECT itemguid, itemEntry, count FROM character_donate WHERE owner_guid = '%u' AND state = 0 AND `type` = 0", player->GetGUID().GetCounter());
         if (!result)
         {
             LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
@@ -378,13 +379,13 @@ public:
             }
 
             Field* fields = result->Fetch();
-            uint32 owner_guid = fields[0].GetUInt32();
+            ObjectGuid::LowType owner_guid = fields[0].GetUInt64();
             uint32 entry = fields[1].GetUInt32();
             uint32 efircount = fields[2].GetUInt32();
             uint32 count = fields[3].GetUInt32();
             uint32 countitem = player->GetItemCount(entry, false);
 
-            if(owner_guid != player->GetGUIDLow())
+            if(owner_guid != player->GetGUID().GetCounter())
             {
                 player->CLOSE_GOSSIP_MENU(); return true;
             }
@@ -405,12 +406,13 @@ public:
                 player->CLOSE_GOSSIP_MENU(); return true;
             }
 
-            if(player->GetGUIDLow() != owner_guid2)
+            if(player->GetGUID().GetCounter() != owner_guid2)
             {
                 player->CLOSE_GOSSIP_MENU(); return true;
             }
 
-            if(Item *item = GetItemByGuid(action, player))
+            //Warning!! action should be uint64
+            if (Item *item = GetItemByGuid(ObjectGuid::Create<HighGuid::Item>(action), player))
             {
                 player->DestroyItemCount(item, count, true);
                 player->AddItem(EFIRALS, uint32(efircount * 0.8));
@@ -424,32 +426,31 @@ public:
         return true;
     }
 
-    Item* GetItemByGuid(uint64 guid, Player* player) const
+    Item* GetItemByGuid(ObjectGuid const& guid, Player* player) const
     {
         for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
             if (Item *pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                if (pItem->GetGUIDLow() == guid)
+                if (pItem->GetGUID() == guid)
                     return pItem;
 
         for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
             if (Item *pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                if (pItem->GetGUIDLow() == guid)
+                if (pItem->GetGUID() == guid)
                     return pItem;
 
         for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
             if (Bag *pBag = player->GetBagByPos(i))
                 for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
                     if (Item* pItem = pBag->GetItemByPos(j))
-                        if (pItem->GetGUIDLow() == guid)
+                        if (pItem->GetGUID() == guid)
                             return pItem;
 
         for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
             if (Bag *pBag = player->GetBagByPos(i))
                 for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
                     if (Item* pItem = pBag->GetItemByPos(j))
-                        if (pItem->GetGUIDLow() == guid)
+                        if (pItem->GetGUID() == guid)
                             return pItem;
-
         return NULL;
     }
 };
@@ -519,7 +520,7 @@ public:
                     do
                     {
                         Field* fields = result->Fetch();
-                        uint32 guid = fields[0].GetUInt32();
+                        ObjectGuid::LowType guid = fields[0].GetUInt64();
                         std::string name = fields[1].GetString();
 
                         player->ADD_GOSSIP_ITEM(0, name, GOSSIP_SENDER_INN_INFO, guid);
@@ -539,7 +540,7 @@ public:
                     }
 
                     Field* fields = result->Fetch();
-                    uint32 guid = fields[0].GetUInt32();
+                    ObjectGuid::LowType guid = fields[0].GetUInt64();
                     std::string name = fields[1].GetString();
                     uint32 account_id = player->GetSession()->GetAccountId();
                     std::string dump;
@@ -555,7 +556,7 @@ public:
                     if(stmt)
                     {
                         stmt->setUInt32(0, account_id);
-                        stmt->setUInt32(1, guid);
+                        stmt->setUInt64(1, guid);
                         stmt->setUInt32(2, realmHandle.Index);
                         stmt->setUInt32(3, player->GetTransferId());
                         stmt->setUInt32(4, 1);
@@ -564,7 +565,7 @@ public:
                     }
                     CharacterDatabase.PQuery("UPDATE characters SET deleteInfos_Name = name, deleteInfos_Account = account, deleteDate = UNIX_TIMESTAMP(), name = '', account = 0, `transfer` = '%u' WHERE guid = %u", player->GetTransferId(), guid);
 
-                    if(player->GetGUIDLow() == guid)
+                    if(player->GetGUID().GetCounter() == guid)
                         player->GetSession()->KickPlayer();
                 }
                 break;

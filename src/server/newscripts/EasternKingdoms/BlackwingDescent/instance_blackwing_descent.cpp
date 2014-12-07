@@ -20,18 +20,19 @@ class instance_blackwing_descent : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 omnotronHealth = 0;
                 uiBileotron800Active = 0;
-                uiMagmawGUID = 0;
-                uiMagmawHeadGUID = 0;
-                uiMaloriakGUID = 0;
+                uiMagmawGUID.Clear();
+                uiMagmawHeadGUID.Clear();
+                uiMaloriakGUID.Clear();
                 uiAberCount = 18;
-                uiChimaeronGUID = 0;
-                uiBileotron800GUID = 0;
-                uiAtramedesGUID = 0;
-                uiInnerChamberDoorGUID = 0;
-                uiNefarianGUID = 0;
-                uiOnyxiaGUID = 0;
-                uiNefarianFloorGUID = 0;
-                memset(&m_uiOmnotronGUID, 0, sizeof(m_uiOmnotronGUID));
+                uiChimaeronGUID.Clear();
+                uiBileotron800GUID.Clear();
+                uiAtramedesGUID.Clear();
+                uiInnerChamberDoorGUID.Clear();
+                uiNefarianGUID.Clear();
+                uiOnyxiaGUID.Clear();
+                uiNefarianFloorGUID.Clear();
+                for (int32 i = 0; i < 4; ++i)
+                    m_uiOmnotronGUID[i].Clear();
             }
 
             void OnPlayerEnter(Player* player)
@@ -101,7 +102,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 case GO_INNER_CHAMBER_DOOR:
                     uiInnerChamberDoorGUID = go->GetGUID();
                     if (GetBossState(DATA_OMNOTRON) == DONE && GetBossState(DATA_MAGMAW) == DONE)
-                        HandleGameObject(NULL, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_NEFARIAN_FLOOR:
                     uiNefarianFloorGUID = go->GetGUID();
@@ -121,7 +122,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -156,7 +157,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 case DATA_NEFARIAN_FLOOR:
                     return uiNefarianFloorGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             uint32 GetData(uint32 type)
@@ -294,18 +295,18 @@ class instance_blackwing_descent : public InstanceMapScript
                 uint32 omnotronHealth;
                 uint32 uiAberCount;
                 uint32 uiBileotron800Active;
-                uint64 uiMagmawGUID;
-                uint64 uiMagmawHeadGUID;
-                uint64 uiMaloriakGUID;
-                uint64 m_uiOmnotronGUID[4];
-                uint64 uiOmnotronControllerGUID;
-                uint64 uiChimaeronGUID;
-                uint64 uiBileotron800GUID;
-                uint64 uiAtramedesGUID;
-                uint64 uiInnerChamberDoorGUID;
-                uint64 uiNefarianGUID;
-                uint64 uiOnyxiaGUID;
-                uint64 uiNefarianFloorGUID;
+                ObjectGuid uiMagmawGUID;
+                ObjectGuid uiMagmawHeadGUID;
+                ObjectGuid uiMaloriakGUID;
+                ObjectGuid m_uiOmnotronGUID[4];
+                ObjectGuid uiOmnotronControllerGUID;
+                ObjectGuid uiChimaeronGUID;
+                ObjectGuid uiBileotron800GUID;
+                ObjectGuid uiAtramedesGUID;
+                ObjectGuid uiInnerChamberDoorGUID;
+                ObjectGuid uiNefarianGUID;
+                ObjectGuid uiOnyxiaGUID;
+                ObjectGuid uiNefarianFloorGUID;
                 uint32 uiTeamInInstance;
         };
 };

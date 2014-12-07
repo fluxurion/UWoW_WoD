@@ -697,9 +697,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void RemoveFromWorld();
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
-        bool Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time);
-        static GameObject* GetGameObject(WorldObject& object, uint64 guid);
+        static GameObject* GetGameObject(WorldObject& object, ObjectGuid guid);
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectData const* GetGOData() const { return m_goData; }
         GameObjectValue * GetGOValue() const { return m_goValue; }
@@ -708,26 +708,26 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool IsDynTransport() const;
         bool IsDestructibleBuilding() const;
 
-        uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
+        ObjectGuid::LowType GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
         void UpdateRotationFields(float rotation2 = 0.0f, float rotation3 = 0.0f);
 
-        void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId, language, TargetGuid); }
-        void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId, language, TargetGuid); }
-        void TextEmote(int32 textId, uint64 TargetGuid) { MonsterTextEmote(textId, TargetGuid); }
-        void Whisper(int32 textId, uint64 receiver) { MonsterWhisper(textId, receiver); }
-        void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId, language, TargetGuid); }
+        void Say(int32 textId, uint32 language, ObjectGuid TargetGuid) { MonsterSay(textId, language, TargetGuid); }
+        void Yell(int32 textId, uint32 language, ObjectGuid TargetGuid) { MonsterYell(textId, language, TargetGuid); }
+        void TextEmote(int32 textId, ObjectGuid TargetGuid) { MonsterTextEmote(textId, TargetGuid); }
+        void Whisper(int32 textId, ObjectGuid receiver) { MonsterWhisper(textId, receiver); }
+        void YellToZone(int32 textId, uint32 language, ObjectGuid TargetGuid) { MonsterYellToZone(textId, language, TargetGuid); }
 
         // overwrite WorldObject function for proper name localization
         const char* GetNameForLocaleIdx(LocaleConstant locale_idx) const;
 
         void SaveToDB();
         void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
-        bool LoadFromDB(uint32 guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
-        bool LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap = true);
+        bool LoadFromDB(ObjectGuid::LowType guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
+        bool LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap = true);
         void DeleteFromDB();
 
-        void SetOwnerGUID(uint64 owner)
+        void SetOwnerGUID(ObjectGuid owner)
         {
             // Owner already found and different than expected owner - remove object from old owner
             if (owner && GetOwnerGUID() && GetOwnerGUID() != owner)
@@ -735,9 +735,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>
                 ASSERT(false);
             }
             m_spawnedByDefault = false;                     // all object with owner is despawned after delay
-            SetUInt64Value(GAMEOBJECT_FIELD_CREATED_BY, owner);
+            SetGuidValue(GAMEOBJECT_FIELD_CREATED_BY, owner);
         }
-        uint64 GetOwnerGUID() const { return GetUInt64Value(GAMEOBJECT_FIELD_CREATED_BY); }
+        ObjectGuid GetOwnerGUID() const { return GetGuidValue(GAMEOBJECT_FIELD_CREATED_BY); }
         Unit* GetOwner() const;
 
         void SetSpellId(uint32 id)
@@ -784,7 +784,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoArtKit(uint8 artkit);
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_FIELD_BYTES_1, 3); }
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_FIELD_BYTES_1, 3, animprogress); }
-        static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
+        static void SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid = 0);
 
         void SetPhaseMask(uint32 newPhaseMask, bool update);
         void SetManualAnim(bool apply)
@@ -801,14 +801,10 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         // Note: unit is only used when s = GO_ACTIVATED
         void SetLootState(LootState s, Unit* unit = NULL);
 
-        void AddToSkillupList(uint32 PlayerGuidLow) { m_SkillupList.push_back(PlayerGuidLow); }
-        bool IsInSkillupList(uint32 PlayerGuidLow) const
+        void AddToSkillupList(ObjectGuid const& PlayerGuidLow) { m_SkillupList.insert(PlayerGuidLow); }
+        bool IsInSkillupList(ObjectGuid const& playerGuid) const
         {
-            for (std::list<uint32>::const_iterator i = m_SkillupList.begin(); i != m_SkillupList.end(); ++i)
-                if (*i == PlayerGuidLow)
-                    return true;
-
-            return false;
+            return m_SkillupList.count(playerGuid) > 0;
         }
         void ClearSkillupList() { m_SkillupList.clear(); }
 
@@ -828,7 +824,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool IsLootAllowedFor(Player const* player) const;
         bool HasLootRecipient() const { return m_lootRecipient || m_lootRecipientGroup; }
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
-        uint32 lootingGroupLowGUID;                         // used to find group which is looting
+        ObjectGuid lootingGroupLowGUID;                     // used to find group which is looting
 
         bool hasQuest(uint32 quest_id) const;
         bool hasInvolvedQuest(uint32 quest_id) const;
@@ -894,24 +890,24 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool        m_spawnedByDefault;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
-        std::list<uint32> m_SkillupList;
+        GuidSet m_SkillupList;
 
         Player* m_ritualOwner;                              // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
-        std::set<uint64> m_unique_users;
+        GuidSet m_unique_users;
         uint32 m_usetimes;
 
-        typedef std::map<uint32, uint64> ChairSlotAndUser;
+        typedef std::map<uint32, ObjectGuid> ChairSlotAndUser;
         ChairSlotAndUser ChairListSlots;
 
-        uint32 m_DBTableGuid;                               ///< For new or temporary gameobjects is 0 for saved it is lowguid
+        ObjectGuid::LowType m_DBTableGuid;                   ///< For new or temporary gameobjects is 0 for saved it is lowguid
         GameObjectTemplate const* m_goInfo;
         GameObjectData const* m_goData;
         GameObjectValue * const m_goValue;
 
         uint64 m_rotation;
 
-        uint64 m_lootRecipient;
-        uint32 m_lootRecipientGroup;
+        ObjectGuid m_lootRecipient;
+        ObjectGuid m_lootRecipientGroup;
         bool   m_manual_anim;
         bool   m_isDynActive;
         bool   m_onUse;

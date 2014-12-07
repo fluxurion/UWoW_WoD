@@ -256,7 +256,7 @@ struct SummonLocation
     uint32 entry;
 };
 
-uint32 PsTarget[3];
+ObjectGuid PsTarget[3];
 
 SummonLocation stormwindLocations[]=
 {
@@ -426,7 +426,7 @@ class boss_sara : public CreatureScript
                 // Reset Yogg-Saron
                 for (uint8 data = DATA_YOGGSARON_BRAIN; data <= DATA_YOGGSARON; ++data)
                 {
-                    if (Creature *pCreature = Creature::GetCreature((*me), pInstance->GetData64(data)))
+                    if (Creature *pCreature = Creature::GetCreature((*me), pInstance->GetGuidData(data)))
                         pCreature->AI()->EnterEvadeMode();
                 }
                 Map::PlayerList const &players = pInstance->instance->GetPlayers();
@@ -447,7 +447,7 @@ class boss_sara : public CreatureScript
                         me->Kill(pPlayer, true);                
                 }
                 for (int32 n = 0; n < RAID_MODE(1, 3); n++)
-                    PsTarget[n] = 0;
+                    PsTarget[n].Clear();
             }
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -675,7 +675,7 @@ class boss_sara : public CreatureScript
             }
         }
 
-        uint64 GetTarget(int8 index)
+        ObjectGuid GetTarget(int8 index)
         {
             return PsTarget[index];
         }
@@ -683,7 +683,7 @@ class boss_sara : public CreatureScript
         void SetTargetNull()
         {
             for (int8 i = 0; i < 3; i++)
-                PsTarget[i] = 0;
+                PsTarget[i].Clear();
         }
         
         void DamageTaken(Unit *who, uint32 &damage)
@@ -781,7 +781,7 @@ class boss_yoggsaron : public CreatureScript
         {
             for (uint8 data = DATA_YS_FREYA; data <= DATA_YS_HODIR; data++)
             {
-                if (Creature * pCreature = me->GetCreature(*me, pInstance->GetData64(data)))
+                if (Creature * pCreature = me->GetCreature(*me, pInstance->GetGuidData(data)))
                     if (pCreature->HasAura(SPELL_KEEPER_ACTIVE))
                         keepersval++;
             }
@@ -820,7 +820,7 @@ class boss_yoggsaron : public CreatureScript
                         if (!pPlayer->HasAura(SPELL_SANITY) && drivecrazy)
                         {
                             drivecrazy = false;
-                            me->MonsterTextEmote("Drive me Crazy Fail", 0, true);
+                            me->MonsterTextEmote("Drive me Crazy Fail", ObjectGuid::Empty, true);
                         }
 
                         if (pPlayer->isDead() || pPlayer->HasAura(SPELL_SANITY) || pPlayer->HasAura(SPELL_INSANE))
@@ -955,7 +955,7 @@ class boss_yoggsaron : public CreatureScript
                 switch (illusion)
                 {
                     case 0: // Chamber of the Aspects Illusion
-                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetData64(DATA_YOGGSARON_BRAIN)))
+                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetGuidData(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_CHAMBER_ILLUSION);
@@ -964,7 +964,7 @@ class boss_yoggsaron : public CreatureScript
                         }
                         break;
                     case 1: // Icecrown Illusion
-                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetData64(DATA_YOGGSARON_BRAIN)))
+                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetGuidData(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_ICECROWN_ILLUSION);
@@ -974,7 +974,7 @@ class boss_yoggsaron : public CreatureScript
                         }
                         break;
                     case 2: // Stormwind Illusion
-                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetData64(DATA_YOGGSARON_BRAIN)))
+                        if (Creature *pBrain = Creature::GetCreature((*me), pInstance->GetGuidData(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_STORMWIND_ILLUSION);
@@ -1734,25 +1734,25 @@ class keeper_image : public CreatureScript
             case NPC_IMAGE_OF_FREYA:
                 DoScriptText(SAY_FREYA_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pFreya = pCreature->GetCreature(*pCreature, pInstance->GetData64(DATA_YS_FREYA)))
+                if (Creature *pFreya = pCreature->GetCreature(*pCreature, pInstance->GetGuidData(DATA_YS_FREYA)))
                     pFreya->AddAura(SPELL_KEEPER_ACTIVE, pFreya);
                 break;
             case NPC_IMAGE_OF_THORIM:
                 DoScriptText(SAY_THORIM_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pThorim = pCreature->GetCreature(*pCreature, pInstance->GetData64(DATA_YS_THORIM)))
+                if (Creature *pThorim = pCreature->GetCreature(*pCreature, pInstance->GetGuidData(DATA_YS_THORIM)))
                     pThorim->AddAura(SPELL_KEEPER_ACTIVE, pThorim);
                 break;
             case NPC_IMAGE_OF_MIMIRON:
                 DoScriptText(SAY_MIMIRON_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pMimiron = pCreature->GetCreature(*pCreature, pInstance->GetData64(DATA_YS_MIMIRON)))
+                if (Creature *pMimiron = pCreature->GetCreature(*pCreature, pInstance->GetGuidData(DATA_YS_MIMIRON)))
                     pMimiron->AddAura(SPELL_KEEPER_ACTIVE, pMimiron);
                 break;
             case NPC_IMAGE_OF_HODIR:
                 DoScriptText(SAY_HODIR_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pHodir = pCreature->GetCreature(*pCreature, pInstance->GetData64(DATA_YS_HODIR)))
+                if (Creature *pHodir = pCreature->GetCreature(*pCreature, pInstance->GetGuidData(DATA_YS_HODIR)))
                     pHodir->AddAura(SPELL_KEEPER_ACTIVE, pHodir);
                 break;
             }
@@ -1809,7 +1809,7 @@ class npc_ys_freya : public CreatureScript
         {
             if (!applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         DoCast(me, SPELL_RESILIENCE_OF_NATURE, true);
@@ -1820,10 +1820,10 @@ class npc_ys_freya : public CreatureScript
             }
             else if (applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && !Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
-                        me->RemoveAura(SPELL_RESILIENCE_OF_NATURE, 0);
+                        me->RemoveAura(SPELL_RESILIENCE_OF_NATURE, ObjectGuid::Empty);
                         applyaura = false;
                         summons.DespawnAll();
                     }
@@ -1925,7 +1925,7 @@ class npc_ys_thorim : public CreatureScript
         {
             if (!applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         DoCast(me, SPELL_FURY_OF_THE_STORMS, true);
@@ -1935,12 +1935,12 @@ class npc_ys_thorim : public CreatureScript
             }
             else if (applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && !Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
-                        me->RemoveAura(SPELL_FURY_OF_THE_STORMS, 0);
+                        me->RemoveAura(SPELL_FURY_OF_THE_STORMS, ObjectGuid::Empty);
                         applyaura = false;
-                        me->RemoveAura(SPELL_TITANIC_STORM, 0);
+                        me->RemoveAura(SPELL_TITANIC_STORM, ObjectGuid::Empty);
                     }
             }
         }
@@ -1983,7 +1983,7 @@ class npc_ys_mimiron : public CreatureScript
         {
             if (!applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         DoCast(me, SPELL_SPEED_OF_INVENTION , true);
@@ -1995,12 +1995,12 @@ class npc_ys_mimiron : public CreatureScript
             }
             else if (applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && !Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
-                        me->RemoveAura(SPELL_SPEED_OF_INVENTION, 0);
+                        me->RemoveAura(SPELL_SPEED_OF_INVENTION, ObjectGuid::Empty);
                         applyaura = false;
-                        me->RemoveAura(65206, 0);
+                        me->RemoveAura(65206, ObjectGuid::Empty);
                         DestabilizeTimer = 0;
                     }
             }
@@ -2052,7 +2052,7 @@ class npc_ys_hodir : public CreatureScript
         {
              if (!applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
                         DoCast(me, SPELL_FORTITUDE_OF_FROST , true);
@@ -2062,11 +2062,11 @@ class npc_ys_hodir : public CreatureScript
             }
             else if (applyaura)
             {
-                if (Creature * Sara = me->GetCreature(*me, pInstance->GetData64(DATA_SARA)))
+                if (Creature * Sara = me->GetCreature(*me, pInstance->GetGuidData(DATA_SARA)))
                     if (Sara && !Sara->isInCombat() && me->HasAura(SPELL_KEEPER_ACTIVE))
                     {
-                        me->RemoveAura(SPELL_FORTITUDE_OF_FROST, 0);
-                        me->RemoveAura(SPELL_PROTECTIVE_GAZE, 0);
+                        me->RemoveAura(SPELL_FORTITUDE_OF_FROST, ObjectGuid::Empty);
+                        me->RemoveAura(SPELL_PROTECTIVE_GAZE, ObjectGuid::Empty);
                         applyaura = false;
                     }
             }
@@ -2303,14 +2303,14 @@ class spell_psychosis : public SpellScriptLoader
                     if (In25())
                     {
                         if (stack <= 12)
-                            GetHitUnit()->RemoveAura(SPELL_SANITY, 0);
+                            GetHitUnit()->RemoveAura(SPELL_SANITY, ObjectGuid::Empty);
                         else if (stack > 12)
                             aura->SetStackAmount(stack -12);
                     }
                     else
                     {
                         if (stack <= 9)
-                            GetHitUnit()->RemoveAura(SPELL_SANITY, 0);
+                            GetHitUnit()->RemoveAura(SPELL_SANITY, ObjectGuid::Empty);
                         else if (stack > 9)
                             aura->SetStackAmount(stack -9);
                     }
@@ -2349,7 +2349,7 @@ class spell_malady_of_the_mind : public SpellScriptLoader
                     int8 stack = aura->GetStackAmount();
                     
                     if (stack <= 3)
-                        GetHitUnit()->RemoveAura(SPELL_SANITY, 0);
+                        GetHitUnit()->RemoveAura(SPELL_SANITY, ObjectGuid::Empty);
                     else if (stack > 3)
                         aura->SetStackAmount(stack -3);
                 }
@@ -2388,7 +2388,7 @@ class spell_lunatic_gaze : public SpellScriptLoader
                     int8 stack = aura->GetStackAmount();
 
                     if (stack <= 4)
-                        GetHitUnit()->RemoveAura(SPELL_SANITY, 0);
+                        GetHitUnit()->RemoveAura(SPELL_SANITY, ObjectGuid::Empty);
                     else if (stack > 4)
                         aura->SetStackAmount(stack -4);
                 }
@@ -2437,7 +2437,7 @@ class spell_induce_madness : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 if (GetHitUnit()->HasAura(SPELL_SANITY))
-                    GetHitUnit()->RemoveAura(SPELL_SANITY, 0);
+                    GetHitUnit()->RemoveAura(SPELL_SANITY, ObjectGuid::Empty);
             }
             
             void Register()

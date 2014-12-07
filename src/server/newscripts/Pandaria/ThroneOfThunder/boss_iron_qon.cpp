@@ -73,7 +73,7 @@ class boss_iron_qon : public CreatureScript
                 {
                     for (uint8 n = 0; n < 3; n++)
                     {
-                        if (Creature* maunt = me->GetCreature(*me, instance->GetData64(mauntEntry[n])))
+                        if (Creature* maunt = me->GetCreature(*me, instance->GetGuidData(mauntEntry[n])))
                         {
                             if (!maunt->isAlive())
                             {
@@ -144,14 +144,14 @@ void FindAndUseNextMaunt(InstanceScript* instance, Creature* caller, uint32 call
 {
     if (instance && caller)
     {
-        if (Creature* iq = caller->GetCreature(*caller, instance->GetData64(NPC_IRON_QON)))
+        if (Creature* iq = caller->GetCreature(*caller, instance->GetGuidData(NPC_IRON_QON)))
         {
             iq->RemoveAurasDueToSpell(SPELL_RIDE_VEHICLE);
             
             switch (callerEntry)
             {
             case NPC_ROSHAK:
-                if (Creature* q = caller->GetCreature(*caller, instance->GetData64(NPC_QUETZAL)))
+                if (Creature* q = caller->GetCreature(*caller, instance->GetGuidData(NPC_QUETZAL)))
                 {
                     if (q->isAlive())
                     {
@@ -162,7 +162,7 @@ void FindAndUseNextMaunt(InstanceScript* instance, Creature* caller, uint32 call
                 }
                 break;
             case NPC_QUETZAL:
-                if (Creature* d = caller->GetCreature(*caller, instance->GetData64(NPC_DAMREN)))
+                if (Creature* d = caller->GetCreature(*caller, instance->GetGuidData(NPC_DAMREN)))
                 {
                     if (d->isAlive())
                     {
@@ -188,7 +188,7 @@ void CheckDiedMaunts(InstanceScript* instance, Creature* caller, uint32 callerEn
     {
         for (uint8 n = 0; n < 3; n++)
         {
-            if (Creature* maunt = caller->GetCreature(*caller, instance->GetData64(mauntEntry[n])))
+            if (Creature* maunt = caller->GetCreature(*caller, instance->GetGuidData(mauntEntry[n])))
             {
                 if (callerEntry != mauntEntry[n] && !maunt->isAlive())
                 {
@@ -214,7 +214,7 @@ class npc_iron_qon_maunt : public CreatureScript
                     DoCast(me, SPELL_ANIM_SIT, true);
                 else
                 {
-                    if (Creature* iq = me->GetCreature(*me, instance->GetData64(NPC_IRON_QON)))
+                    if (Creature* iq = me->GetCreature(*me, instance->GetGuidData(NPC_IRON_QON)))
                         iq->CastSpell(me, SPELL_RIDE_VEHICLE);
                 }
             }
@@ -252,14 +252,14 @@ class npc_iron_qon_maunt : public CreatureScript
                     DoCast(me, SPELL_ANIM_SIT, true);
                 else
                 {
-                    if (Creature* iq = me->GetCreature(*me, instance->GetData64(NPC_IRON_QON)))
+                    if (Creature* iq = me->GetCreature(*me, instance->GetGuidData(NPC_IRON_QON)))
                         iq->CastSpell(me, SPELL_RIDE_VEHICLE);
                 }
             }
 
             void RemovePassenger()
             {
-                 if (Creature* iq = me->GetCreature(*me, instance->GetData64(NPC_IRON_QON)))
+                 if (Creature* iq = me->GetCreature(*me, instance->GetGuidData(NPC_IRON_QON)))
                  {
                      if (iq->isAlive())
                          iq->RemoveAurasDueToSpell(SPELL_RIDE_VEHICLE);
@@ -272,7 +272,7 @@ class npc_iron_qon_maunt : public CreatureScript
                 {
                     if (pointId == 0)
                     {
-                       if (Creature* iq = me->GetCreature(*me, instance->GetData64(NPC_IRON_QON)))
+                       if (Creature* iq = me->GetCreature(*me, instance->GetGuidData(NPC_IRON_QON)))
                        {
                            iq->CastSpell(me, SPELL_RIDE_VEHICLE);
                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);

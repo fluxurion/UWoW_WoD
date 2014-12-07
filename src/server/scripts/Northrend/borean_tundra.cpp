@@ -65,13 +65,13 @@ public:
 
         uint32 uiPhaseTimer;
         uint8  Phase;
-        uint64 casterGuid;
+        ObjectGuid casterGuid;
 
         void Reset()
         {
             uiPhaseTimer = 500;
             Phase = 0;
-            casterGuid = 0;
+            casterGuid.Clear();
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
@@ -368,7 +368,7 @@ public:
                 if (uiRand < 25)
                 {
                     player->CastSpell(me, 45532, true);
-                    player->KilledMonsterCredit(WARSONG_PEON, 0);
+                    player->KilledMonsterCredit(WARSONG_PEON, ObjectGuid::Empty);
                 }
                 else if (uiRand < 75)
                     player->CastSpell(me, nerubarVictims[urand(0, 2)], true);
@@ -578,7 +578,7 @@ public:
     {
         npc_nesingwary_trapperAI(Creature* creature) : ScriptedAI(creature) { creature->SetVisible(false); }
 
-        uint64 go_caribouGUID;
+        ObjectGuid go_caribouGUID;
         uint8  Phase;
         uint32 uiPhaseTimer;
 
@@ -587,7 +587,7 @@ public:
             me->SetVisible(false);
             uiPhaseTimer = 2500;
             Phase = 1;
-            go_caribouGUID = 0;
+            go_caribouGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -602,7 +602,7 @@ public:
                 if (summon->isSummon())
                     if (Unit* temp = summon->GetSummoner())
                         if (temp->GetTypeId() == TYPEID_PLAYER)
-                            CAST_PLR(temp)->KilledMonsterCredit(me->GetEntry(), 0);
+                            CAST_PLR(temp)->KilledMonsterCredit(me->GetEntry(), ObjectGuid::Empty);
 
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
                 go_caribou->SetGoState(GO_STATE_READY);
@@ -878,10 +878,10 @@ public:
         {
         }
 
-        uint64 uiArthas;
-        uint64 uiTalbot;
-        uint64 uiLeryssa;
-        uint64 uiArlos;
+        ObjectGuid uiArthas;
+        ObjectGuid uiTalbot;
+        ObjectGuid uiLeryssa;
+        ObjectGuid uiArlos;
 
         bool bArthasInPosition;
         bool bArlosInPosition;
@@ -896,10 +896,10 @@ public:
             me->RestoreFaction();
             me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
 
-            uiArthas = 0;
-            uiTalbot = 0;
-            uiLeryssa = 0;
-            uiArlos = 0;
+            uiArthas.Clear();
+            uiTalbot.Clear();
+            uiLeryssa.Clear();
+            uiArlos.Clear();
 
             bArthasInPosition           = false;
             bArlosInPosition            = false;
@@ -1258,8 +1258,8 @@ public:
             creature->RestoreFaction();
         }
 
-        uint64 LeryssaGUID;
-        uint64 ArlosGUID;
+        ObjectGuid LeryssaGUID;
+        ObjectGuid ArlosGUID;
 
         bool bCheck;
 
@@ -1269,8 +1269,8 @@ public:
 
         void Reset()
         {
-            LeryssaGUID         = 0;
-            ArlosGUID           = 0;
+            LeryssaGUID.Clear();
+            ArlosGUID.Clear();
             bCheck              = false;
             uiShadowBoltTimer   = urand(5000, 12000);
             uiDeflectionTimer   = urand(20000, 25000);
@@ -1527,7 +1527,7 @@ public:
                 DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
 
                 if (Player* player = pCaster->ToPlayer())
-                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, 0);
+                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, ObjectGuid::Empty);
 
                 bEnslaved = true;
             }
@@ -1587,7 +1587,7 @@ public:
     {
         npc_imprisoned_beryl_sorcererAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 CasterGUID;
+        ObjectGuid CasterGUID;
 
         uint32 rebuff;
     
@@ -1634,7 +1634,7 @@ public:
             }
         }
 
-        void GotStinged(uint64 casterGUID)
+        void GotStinged(ObjectGuid const& casterGUID)
         {
             if(Player* caster = Player::GetPlayer(*me, casterGUID))
             {
@@ -1671,7 +1671,7 @@ public:
 
                 case 7:
                     DoScriptText(SAY_IMPRISIONED_BERYL_7, me);
-                    caster->KilledMonsterCredit(25478, 0);
+                    caster->KilledMonsterCredit(25478, ObjectGuid::Empty);
                     break;
                 }
             }
@@ -2012,7 +2012,7 @@ public:
             {
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
                 if (qInfo)
-                    player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], 0);
+                    player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], ObjectGuid::Empty);
             }
         }
     };
@@ -2279,7 +2279,7 @@ public:
         uint32 uiEventTimer;
         uint8 uiEventPhase;
 
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
 
         void Reset()
         {
@@ -2292,7 +2292,7 @@ public:
             uiEventTimer = 0;
             uiEventPhase = 0;
 
-            uiPlayerGUID = 0;
+            uiPlayerGUID.Clear();
 
             DoCast(SPELL_SHROUD_OF_THE_DEATH_CULTIST);
 
@@ -2312,7 +2312,7 @@ public:
             uiEventPhase = 1;
         }
 
-        void SetGUID(uint64 uiGuid, int32 /*iId*/)
+        void SetGUID(ObjectGuid const& uiGuid, int32 /*iId*/)
         {
             uiPlayerGUID = uiGuid;
         }

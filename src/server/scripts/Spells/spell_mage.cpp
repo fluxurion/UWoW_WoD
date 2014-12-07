@@ -1491,7 +1491,7 @@ class spell_mage_living_bomb : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                std::deque<uint64>::iterator curr = std::find(caster->m_livingBombTargets.begin(), caster->m_livingBombTargets.end(), target->GetGUID());
+                GuidDeque::iterator curr = std::find(caster->m_livingBombTargets.begin(), caster->m_livingBombTargets.end(), target->GetGUID());
                 if (curr != caster->m_livingBombTargets.end())
                     caster->m_livingBombTargets.erase(curr);
 
@@ -1563,8 +1563,8 @@ class spell_mage_frost_nova : public SpellScriptLoader
                 {
                     if (caster->GetTypeId() == TYPEID_PLAYER)
                     {
-                        caster->ToPlayer()->KilledMonsterCredit(44175, 0);
-                        caster->ToPlayer()->KilledMonsterCredit(44548, 0);
+                        caster->ToPlayer()->KilledMonsterCredit(44175, ObjectGuid::Empty);
+                        caster->ToPlayer()->KilledMonsterCredit(44548, ObjectGuid::Empty);
                     }
                 }
             }

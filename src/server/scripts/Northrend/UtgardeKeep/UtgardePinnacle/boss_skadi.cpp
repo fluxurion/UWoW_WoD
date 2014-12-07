@@ -172,13 +172,13 @@ public:
         boss_skadiAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             instance = creature->GetInstanceScript();
-            m_uiGraufGUID = 0;
+            m_uiGraufGUID.Clear();
         }
 
         InstanceScript* instance;
         SummonList Summons;
-        uint64 m_uiGraufGUID;
-        std::vector<uint64> triggersGUID;
+        ObjectGuid m_uiGraufGUID;
+        GuidVector triggersGUID;
 
         uint32 m_uiCrushTimer;
         uint32 m_uiPoisonedSpearTimer;
@@ -274,7 +274,7 @@ public:
         void SummonedCreatureDespawn(Creature* summoned)
         {
             if (summoned->GetEntry() == CREATURE_GRAUF)
-                m_uiGraufGUID = 0;
+                m_uiGraufGUID.Clear();
             Summons.Despawn(summoned);
         }
 
@@ -477,7 +477,7 @@ public:
         if (!instance)
             return false;
 
-        if (Creature* pSkadi = Unit::GetCreature(*go, instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+        if (Creature* pSkadi = Unit::GetCreature(*go, instance->GetGuidData(DATA_SKADI_THE_RUTHLESS)))
             player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
 
         return false;

@@ -336,7 +336,7 @@ class npc_warden_mellichar : public CreatureScript
                 if (instance)
                 {
                     instance->SetData(TYPE_HARBINGERSKYRISS, IN_PROGRESS);
-                    instance->HandleGameObject(instance->GetData64(DATA_SPHERE_SHIELD), false);
+                    instance->HandleGameObject(instance->GetGuidData(DATA_SPHERE_SHIELD), false);
                     IsRunning = true;
                 }
             }
@@ -376,7 +376,7 @@ class npc_warden_mellichar : public CreatureScript
                     case 2:
                         DoCast(me, SPELL_TARGET_ALPHA);
                         instance->SetData(TYPE_WARDEN_1, IN_PROGRESS);
-                        instance->HandleGameObject(instance->GetData64(DATA_SPHERE_SHIELD), false);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_SPHERE_SHIELD), false);
                         break;
                     case 3:
                         DoCast(me, SPELL_TARGET_BETA);

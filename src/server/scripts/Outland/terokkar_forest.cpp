@@ -319,7 +319,7 @@ public:
                 if (rand()%100 < 25)
                 {
                     me->SummonCreature(QUEST_TARGET, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                    player->KilledMonsterCredit(QUEST_TARGET, 0);
+                    player->KilledMonsterCredit(QUEST_TARGET, ObjectGuid::Empty);
                 }
                 else
                     me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);

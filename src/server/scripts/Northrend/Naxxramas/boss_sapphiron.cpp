@@ -69,7 +69,7 @@ enum Events
     EVENT_BIRTH,
 };
 
-typedef std::map<uint64, uint64> IceBlockMap;
+typedef std::map<ObjectGuid, ObjectGuid> IceBlockMap;
 
 class boss_sapphiron : public CreatureScript
 {
@@ -319,7 +319,7 @@ public:
                             {
                                 std::vector<Unit*>::const_iterator itr = targets.begin();
                                 advance(itr, rand()%targets.size());
-                                iceblocks.insert(std::make_pair((*itr)->GetGUID(), 0));
+                                iceblocks.insert(std::make_pair((*itr)->GetGUID(), ObjectGuid::Empty));
                                 DoCast(*itr, SPELL_ICEBOLT);
                                 --iceboltCount;
                             }

@@ -45,7 +45,7 @@ void MapManager::LoadTransports()
     {
 
         Field* fields = result->Fetch();
-        uint32 lowguid = fields[0].GetUInt32();
+        ObjectGuid::LowType lowguid = fields[0].GetUInt64();
         uint32 entry = fields[1].GetUInt32();
         std::string name = fields[2].GetString();
         uint32 period = fields[3].GetUInt32();
@@ -112,7 +112,7 @@ void MapManager::LoadTransports()
         {
             Field* fields = result->Fetch();
 
-            uint32 guid  = fields[0].GetUInt32();
+            ObjectGuid::LowType guid  = fields[0].GetUInt64();
             uint32 entry = fields[1].GetUInt32();
             std::string name = fields[2].GetString();
             sLog->outError(LOG_FILTER_SQL, "Transport %u '%s' have record (GUID: %u) in `gameobject`. Transports must not have any records in `gameobject` or its behavior will be unpredictable/bugged.", entry, name.c_str(), guid);
@@ -141,7 +141,7 @@ void MapManager::LoadTransportNPCs()
     do
     {
         Field* fields = result->Fetch();
-        uint32 guid = fields[0].GetInt32();
+        ObjectGuid::LowType guid = fields[0].GetInt64();
         uint32 entry = fields[1].GetInt32();
         uint32 transportEntry = fields[2].GetInt32();
         float tX = fields[3].GetFloat();
@@ -186,7 +186,7 @@ Transport::~Transport()
     m_passengers.clear();
 }
 
-bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags)
+bool Transport::Create(ObjectGuid::LowType const& guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags)
 {
     Relocate(x, y, z, ang);
     // instance id and phaseMask isn't set to values different from std.
@@ -198,7 +198,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
         return false;
     }
 
-    Object::_Create(guidlow, 0, HIGHGUID_MO_TRANSPORT);
+    Object::_Create(ObjectGuid::Create<HighGuid::Transport>(guidlow));
 
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
 
@@ -659,12 +659,12 @@ void Transport::BuildStopMovePacket(Map const* targetMap)
     UpdateForMap(targetMap);
 }
 
-Creature * Transport::AddNPCPassengerCreature(uint32 tguid, uint32 entry, float x, float y, float z, float o, uint32 anim)
+Creature * Transport::AddNPCPassengerCreature(ObjectGuid::LowType tguid, uint32 entry, float x, float y, float z, float o, uint32 anim)
 {
     Map* map = GetMap();
     Creature * pCreature = new Creature;
 
-    if (!pCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, GetPhaseMask(), entry, 0, GetGOInfo()->faction, 0, 0, 0, 0))
+    if (!pCreature->Create(sObjectMgr->GetGenerator<HighGuid::Creature>()->Generate(), map, GetPhaseMask(), entry, 0, GetGOInfo()->faction, 0, 0, 0, 0))
     {
         delete pCreature;
         return NULL;
@@ -688,7 +688,7 @@ Creature * Transport::AddNPCPassengerCreature(uint32 tguid, uint32 entry, float 
 
     if(!pCreature->IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_TRANSPORTS, "Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)", pCreature->GetGUIDLow(), pCreature->GetEntry(), pCreature->GetPositionX(), pCreature->GetPositionY());
+        sLog->outError(LOG_FILTER_TRANSPORTS, "Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)", pCreature->GetGUID().GetCounter(), pCreature->GetEntry(), pCreature->GetPositionX(), pCreature->GetPositionY());
         delete pCreature;
         return NULL;
     }
@@ -709,13 +709,13 @@ Creature * Transport::AddNPCPassengerCreature(uint32 tguid, uint32 entry, float 
     return pCreature;
 }
 
-uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, float z, float o, uint32 anim)
+ObjectGuid::LowType Transport::AddNPCPassenger(ObjectGuid::LowType tguid, uint32 entry, float x, float y, float z, float o, uint32 anim)
 {
     Map* map = GetMap();
     //make it world object so it will not be unloaded with grid
     Creature* creature = new Creature(true);
 
-    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, GetPhaseMask(), entry, 0, GetGOInfo()->faction, 0, 0, 0, 0))
+    if (!creature->Create(sObjectMgr->GetGenerator<HighGuid::Creature>()->Generate(), map, GetPhaseMask(), entry, 0, GetGOInfo()->faction, 0, 0, 0, 0))
     {
         delete creature;
         return 0;
@@ -740,7 +740,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
 
     if (!creature->IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_TRANSPORTS, "Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)", creature->GetGUIDLow(), creature->GetEntry(), creature->GetPositionX(), creature->GetPositionY());
+        sLog->outError(LOG_FILTER_TRANSPORTS, "Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)", creature->GetGUID().GetCounter(), creature->GetEntry(), creature->GetPositionX(), creature->GetPositionY());
         delete creature;
         return 0;
     }

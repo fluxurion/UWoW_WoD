@@ -96,7 +96,7 @@ public:
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         uint32 SpeechTimer;
         uint32 SpeechNum;
         uint32 Cleave_Timer;
@@ -110,7 +110,7 @@ public:
 
         void Reset()
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             SpeechTimer = 0;
             SpeechNum = 0;
             Cleave_Timer = 8000;                                // These times are probably wrong

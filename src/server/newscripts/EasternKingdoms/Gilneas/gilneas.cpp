@@ -111,14 +111,14 @@ public:
         //Evade or Respawn
         void Reset()
         {
-            if (me->GetGUIDLow() == 3486400)
+            if (me->GetGUID().GetCounter() == 3486400)
                 tSay = DELAY_SAY_GILNEAS_CITY_GUARD_GATE; //Reset timer
         }
 
         void UpdateAI(uint32 diff)
         {
             //Out of combat and
-            if (me->GetGUIDLow() == 3486400)
+            if (me->GetGUID().GetCounter() == 3486400)
             {
                 //Timed say
                 if (tSay <= diff)
@@ -410,7 +410,7 @@ public:
                     case 100:
                     case 8921:
                     {
-                        player->KilledMonsterCredit(44175, 0);
+                        player->KilledMonsterCredit(44175, ObjectGuid::Empty);
                         break;
                     }
                     default:
@@ -515,7 +515,7 @@ public:
             {
                 if (me->GetHealthPct() <= 30 && willCastEnrage)
                 {
-                    me->MonsterTextEmote(-106, 0);
+                    me->MonsterTextEmote(-106, ObjectGuid::Empty);
                     DoCast(me, SPELL_ENRAGE);
                     tEnrage = CD_ENRAGE;
                 }
@@ -591,7 +591,7 @@ public:
                 opened = 0;
                 
                 if(aPlayer)
-                    aPlayer->KilledMonsterCredit(35830, 0);
+                    aPlayer->KilledMonsterCredit(35830, ObjectGuid::Empty);
                 
                 if (spawnKind == 3)
                 {
@@ -855,7 +855,7 @@ public:
 
             if (tEnrage <= diff && willCastEnrage && me->GetHealthPct() <= 30)
             {
-                me->MonsterTextEmote(-106, 0);
+                me->MonsterTextEmote(-106, ObjectGuid::Empty);
                 DoCast(me, SPELL_ENRAGE);
                 tEnrage = CD_ENRAGE;
             }
@@ -1324,7 +1324,7 @@ public:
                 {
                     if (me->GetHealthPct() <= 30 && willCastEnrage)
                     {
-                        me->MonsterTextEmote(-106, 0);
+                        me->MonsterTextEmote(-106, ObjectGuid::Empty);
                         DoCast(me, SPELL_ENRAGE);
                         tEnrage = CD_ENRAGE;
                     }
@@ -1454,7 +1454,7 @@ public:
                 {
                     if (me->GetHealthPct() <= 30 && willCastEnrage)
                     {
-                        me->MonsterTextEmote(-106, 0);
+                        me->MonsterTextEmote(-106, ObjectGuid::Empty);
                         DoCast(me, SPELL_ENRAGE);
                         tEnrage = CD_ENRAGE;
                     }
@@ -1584,7 +1584,7 @@ public:
                 {
                     if (me->GetHealthPct() <= 30 && willCastEnrage)
                     {
-                        me->MonsterTextEmote(-106, 0);
+                        me->MonsterTextEmote(-106, ObjectGuid::Empty);
                         DoCast(me, SPELL_ENRAGE);
                         tEnrage = CD_ENRAGE;
                     }
@@ -1700,7 +1700,7 @@ public:
                 {
                     if (me->GetHealthPct() <= 30 && willCastEnrage)
                     {
-                        me->MonsterTextEmote(-106, 0);
+                        me->MonsterTextEmote(-106, ObjectGuid::Empty);
                         DoCast(me, SPELL_ENRAGE);
                         tEnrage = CD_ENRAGE;
                     }
@@ -1755,12 +1755,12 @@ public:
         npc_josiah_avery_triggerAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Phase, tEvent;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void Reset()
         {
             Phase       = 0;
-            PlayerGUID  = 0;
+            PlayerGUID.Clear();
             tEvent      = 0;
         }
 
@@ -1790,7 +1790,7 @@ public:
                             {
                                 BadAvery->SetOrientation(BadAvery->GetAngle(player)); // Face Player
                                 BadAvery->CastSpell(player, 69873, true); // Do Cosmetic Attack
-                                player->GetMotionMaster()->MoveJump(-1791.94f, 1427.29f, 12.4584f, 22.0f, 8.0f, PlayerGUID);
+                                player->GetMotionMaster()->MoveJump(-1791.94f, 1427.29f, 12.4584f, 22.0f, 8.0f);
                                 BadAvery->getThreatManager().resetAllAggro();
                                 tEvent = 1200;
                                 Phase++;
@@ -1864,13 +1864,13 @@ public:
         npc_josiah_avery_p2AI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 tSay, tPlayerCheck;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         bool Talk;
 
         void Reset()
         {
             tSay        = urand(2000, 4000);
-            PlayerGUID  = 0;
+            PlayerGUID.Clear();
             tPlayerCheck= 500;
             Talk        = false;
         }
@@ -1963,7 +1963,7 @@ public:
 
             if (Player* player = rider->ToPlayer())
             {
-                player->KilledMonsterCredit(NPC_MOUNTAICE_HOURCE_CREDIT, 0);
+                player->KilledMonsterCredit(NPC_MOUNTAICE_HOURCE_CREDIT, ObjectGuid::Empty);
                 who->ToCreature()->DespawnOrUnsummon(1000);
             }
         }
@@ -2088,7 +2088,7 @@ public:
 
             if (tEnrage <= diff && willCastEnrage && me->GetHealthPct() <= 30)
             {
-                me->MonsterTextEmote(-106, 0);
+                me->MonsterTextEmote(-106, ObjectGuid::Empty);
                 DoCast(me, SPELL_ENRAGE);
                 tEnrage = CD_ENRAGE;
             }
@@ -2301,7 +2301,7 @@ public:
 
             if (tEnrage <= diff && willCastEnrage && me->GetHealthPct() <= 30)
             {
-                me->MonsterTextEmote(-106, 0);
+                me->MonsterTextEmote(-106, ObjectGuid::Empty);
                 DoCast(me, SPELL_ENRAGE);
                 tEnrage = CD_ENRAGE;
             }
@@ -2726,7 +2726,7 @@ class spell_keg_placed : public SpellScriptLoader
                         if (caster->GetTypeId() != TYPEID_PLAYER)
                             return;
 
-                        caster->ToPlayer()->KilledMonsterCredit(36233, 0);
+                        caster->ToPlayer()->KilledMonsterCredit(36233, ObjectGuid::Empty);
                         if (Unit* target = GetTarget())
                             target->Kill(target);
                     }
@@ -2938,7 +2938,7 @@ public:
             {
                 if (me->GetHealthPct() <= 30)
                 {
-                    me->MonsterTextEmote(-106, 0);
+                    me->MonsterTextEmote(-106, ObjectGuid::Empty);
                     DoCast(me, SPELL_ENRAGE);
                     tEnrage = CD_ENRAGE;
                 }
@@ -2993,7 +2993,7 @@ public:
 
                 if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetQuestStatus(QUEST_SACRIFICES) == QUEST_STATUS_INCOMPLETE)
                 {
-                    caster->ToPlayer()->KilledMonsterCredit(NPC_BLOODFANG_STALKER_CREDIT, 0);
+                    caster->ToPlayer()->KilledMonsterCredit(NPC_BLOODFANG_STALKER_CREDIT, ObjectGuid::Empty);
                 }
             }
         }

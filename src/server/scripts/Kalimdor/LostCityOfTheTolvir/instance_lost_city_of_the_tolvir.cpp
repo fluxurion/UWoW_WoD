@@ -21,16 +21,16 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
             instance_lost_city_of_the_tolvir_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { Initialize(); }
 
             uint32 Encounter[MAX_ENCOUNTER];
-            uint64 uiTunnelGUID[6];
+            ObjectGuid uiTunnelGUID[6];
             uint8 uiTunnelFlag;
-            uint64 uiHusamGUID;
-            uint64 uiLockmawGUID;
-            uint64 uiAughGUID;
-            uint64 uiBarimGUID;
-            uint64 uiBlazeGUID;
-            uint64 uiHarbingerGUID;
-            uint64 uiSiamatGUID;
-            uint64 uiSiamatPlatformGUID;
+            ObjectGuid uiHusamGUID;
+            ObjectGuid uiLockmawGUID;
+            ObjectGuid uiAughGUID;
+            ObjectGuid uiBarimGUID;
+            ObjectGuid uiBlazeGUID;
+            ObjectGuid uiHarbingerGUID;
+            ObjectGuid uiSiamatGUID;
+            ObjectGuid uiSiamatPlatformGUID;
             uint32 uiUpdateTimer;
             bool BarimIsDone;
 
@@ -39,14 +39,14 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 memset(&Encounter, 0, sizeof(Encounter));
                 memset(&uiTunnelGUID, 0, sizeof(uiTunnelGUID));
                 uiTunnelFlag = 0;
-                uiHusamGUID = 0;
-                uiLockmawGUID = 0;
-                uiAughGUID = 0;
-                uiBarimGUID = 0;
-                uiBlazeGUID = 0;
-                uiSiamatGUID = 0;
-                uiHarbingerGUID = 0;
-                uiSiamatPlatformGUID = 0;
+                uiHusamGUID.Clear();
+                uiLockmawGUID.Clear();
+                uiAughGUID.Clear();
+                uiBarimGUID.Clear();
+                uiBlazeGUID.Clear();
+                uiSiamatGUID.Clear();
+                uiHarbingerGUID.Clear();
+                uiSiamatPlatformGUID.Clear();
                 uiUpdateTimer = 7000;
                 BarimIsDone = false;
             }
@@ -131,7 +131,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const
+            ObjectGuid GetGuidData(uint32 type) const
             {
                 switch (type)
                 {
@@ -143,7 +143,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                     case DATA_HARBINGER:          return uiHarbingerGUID;
                     case DATA_SIAMAT:             return uiSiamatGUID;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             uint32 GetData(uint32 type) const
@@ -151,7 +151,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 return Encounter[type];
             }
 
-            void SetData64(uint32 type, uint64 data)
+            void SetGuidData(uint32 type, ObjectGuid data)
             {
                 switch (type)
                 {

@@ -49,23 +49,23 @@ public:
     {
         instance_pinnacle(Map* map) : InstanceScript(map) {}
 
-        uint64 uiSvalaSorrowgrave;
-        uint64 uiGortokPalehoof;
-        uint64 uiSkadiTheRuthless;
-        uint64 uiKingYmiron;
+        ObjectGuid uiSvalaSorrowgrave;
+        ObjectGuid uiGortokPalehoof;
+        ObjectGuid uiSkadiTheRuthless;
+        ObjectGuid uiKingYmiron;
 
-        uint64 uiSkadiTheRuthlessDoor;
-        uint64 uiKingYmironDoor;
-        uint64 uiGortokPalehoofSphere;
+        ObjectGuid uiSkadiTheRuthlessDoor;
+        ObjectGuid uiKingYmironDoor;
+        ObjectGuid uiGortokPalehoofSphere;
 
-        uint64 uiFrenziedWorgen;
-        uint64 uiRavenousFurbolg;
-        uint64 uiFerociousRhino;
-        uint64 uiMassiveJormungar;
-        uint64 uiPalehoofOrb;
+        ObjectGuid uiFrenziedWorgen;
+        ObjectGuid uiRavenousFurbolg;
+        ObjectGuid uiFerociousRhino;
+        ObjectGuid uiMassiveJormungar;
+        ObjectGuid uiPalehoofOrb;
 
-        uint64 uiSvala;
-        uint64 uiSacrificedPlayer;
+        ObjectGuid uiSvala;
+        ObjectGuid uiSacrificedPlayer;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -76,23 +76,23 @@ public:
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                m_auiEncounter[i] = NOT_STARTED;
 
-            uiSvalaSorrowgrave = 0;
-            uiGortokPalehoof = 0;
-            uiSkadiTheRuthless = 0;
-            uiKingYmiron = 0;
+            uiSvalaSorrowgrave.Clear();
+            uiGortokPalehoof.Clear();
+            uiSkadiTheRuthless.Clear();
+            uiKingYmiron.Clear();
 
-            uiSkadiTheRuthlessDoor = 0;
-            uiKingYmironDoor = 0;
-            uiGortokPalehoofSphere = 0;
+            uiSkadiTheRuthlessDoor.Clear();
+            uiKingYmironDoor.Clear();
+            uiGortokPalehoofSphere.Clear();
 
-            uiFrenziedWorgen = 0;
-            uiRavenousFurbolg = 0;
-            uiFerociousRhino = 0;
-            uiMassiveJormungar = 0;
-            uiPalehoofOrb = 0;
+            uiFrenziedWorgen.Clear();
+            uiRavenousFurbolg.Clear();
+            uiFerociousRhino.Clear();
+            uiMassiveJormungar.Clear();
+            uiPalehoofOrb.Clear();
 
-            uiSvala = 0;
-            uiSacrificedPlayer = 0;
+            uiSvala.Clear();
+            uiSacrificedPlayer.Clear();
         }
 
         bool IsEncounterInProgress() const
@@ -127,17 +127,17 @@ public:
             {
                 case ENTRY_SKADI_THE_RUTHLESS_DOOR:
                     uiSkadiTheRuthlessDoor = go->GetGUID();
-                    if (m_auiEncounter[2] == DONE) HandleGameObject(0, true, go);
+                    if (m_auiEncounter[2] == DONE) HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case ENTRY_KING_YMIRON_DOOR:
                     uiKingYmironDoor = go->GetGUID();
-                    if (m_auiEncounter[3] == DONE) HandleGameObject(0, true, go);
+                    if (m_auiEncounter[3] == DONE) HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case ENTRY_GORK_PALEHOOF_SPHERE:
                     uiGortokPalehoofSphere = go->GetGUID();
                     if (m_auiEncounter[1] == DONE)
                     {
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                         go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
@@ -170,7 +170,7 @@ public:
                 SaveToDB();
         }
 
-        void SetData64(uint32 type, uint64 data)
+        void SetGuidData(uint32 type, ObjectGuid data)
         {
             switch (type)
             {
@@ -192,7 +192,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -210,7 +210,7 @@ public:
                 case DATA_SACRIFICED_PLAYER:      return uiSacrificedPlayer;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

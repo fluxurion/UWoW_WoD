@@ -25,6 +25,7 @@
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
+#include "ObjectGuid.h"
 
 typedef std::list<AchievementCriteriaEntry const*> AchievementCriteriaEntryList;
 typedef std::list<CriteriaTreeEntry const*> CriteriaTreeEntryList;
@@ -37,7 +38,7 @@ struct CriteriaProgress
 {
     uint32 counter;
     time_t date;                                            // latest update time.
-    uint64 CompletedGUID;                                   // GUID of the player that completed this criteria (guild achievements)
+    ObjectGuid CompletedGUID;                               // GUID of the player that completed this criteria (guild achievements)
     bool changed;
 };
 
@@ -221,7 +222,7 @@ struct CompletedAchievementData
     CompletedAchievementData() : date(0), first_guid(0) {}
 
     time_t date;
-    std::set<uint64> guids;
+    GuidSet guids;
     uint64 first_guid;
     bool completedByThisCharacter;
     bool changed;
@@ -238,7 +239,7 @@ class AchievementMgr
         ~AchievementMgr();
 
         void Reset();
-        static void DeleteFromDB(uint32 lowguid, uint32 accountId = 0);
+        static void DeleteFromDB(ObjectGuid lowguid, uint32 accountId = 0);
         void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult = NULL, PreparedQueryResult criteriaAccountResult = NULL);
         void SaveToDB(SQLTransaction& trans);
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, bool evenIfCriteriaComplete = false);

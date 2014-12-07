@@ -170,7 +170,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 6:
                 player->SEND_GOSSIP_MENU(7761, creature->GetGUID());
                                                                 //'kill' our trigger to update quest status
-                player->KilledMonsterCredit(TRIGGER_RUTGAR, 0);
+                player->KilledMonsterCredit(TRIGGER_RUTGAR, ObjectGuid::Empty);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 9:
@@ -196,7 +196,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 14:
                 player->SEND_GOSSIP_MENU(7767, creature->GetGUID());
                                                                 //'kill' our trigger to update quest status
-                player->KilledMonsterCredit(TRIGGER_FRANKAL, 0);
+                player->KilledMonsterCredit(TRIGGER_FRANKAL, ObjectGuid::Empty);
                 break;
         }
         return true;

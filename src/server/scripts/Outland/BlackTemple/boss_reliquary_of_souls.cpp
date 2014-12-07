@@ -116,9 +116,9 @@ public:
     {
         npc_enslaved_soulAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 ReliquaryGUID;
+        ObjectGuid ReliquaryGUID;
 
-        void Reset() {ReliquaryGUID = 0;}
+        void Reset() {ReliquaryGUID.Clear();}
 
         void EnterCombat(Unit* /*who*/)
         {
@@ -146,12 +146,12 @@ public:
         boss_reliquary_of_soulsAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            EssenceGUID = 0;
+            EssenceGUID.Clear();
         }
 
         InstanceScript* instance;
 
-        uint64 EssenceGUID;
+        ObjectGuid EssenceGUID;
 
         uint32 Phase;
         uint32 Counter;
@@ -171,7 +171,7 @@ public:
                 {
                     Essence->DespawnOrUnsummon();
                 }
-                EssenceGUID = 0;
+                EssenceGUID.Clear();
             }
 
             Phase = 0;
@@ -344,7 +344,7 @@ public:
                     }
                     Essence->DespawnOrUnsummon();
                     me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-                    EssenceGUID = 0;
+                    EssenceGUID.Clear();
                     SoulCount = 0;
                     SoulDeathCount = 0;
                     Timer = 3000;
@@ -399,7 +399,7 @@ public:
     {
         boss_essence_of_sufferingAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 StatAuraGUID;
+        ObjectGuid StatAuraGUID;
 
         uint32 AggroYellTimer;
         uint32 FixateTimer;
@@ -409,7 +409,7 @@ public:
 
         void Reset()
         {
-            StatAuraGUID = 0;
+            StatAuraGUID.Clear();
 
             AggroYellTimer = 5000;
             FixateTimer = 8000;
@@ -424,7 +424,7 @@ public:
             {
                 damage = 0;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->Yell(SUFF_SAY_RECAP, LANG_UNIVERSAL, 0);
+                me->Yell(SUFF_SAY_RECAP, LANG_UNIVERSAL, ObjectGuid::Empty);
                 DoScriptText(SUFF_SAY_RECAP, me);
                 me->SetReactState(REACT_PASSIVE);
             }
@@ -629,19 +629,19 @@ public:
     {
         boss_essence_of_angerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 AggroTargetGUID;
+        ObjectGuid AggroTargetGUID;
 
         uint32 CheckTankTimer;
         uint32 SoulScreamTimer;
         uint32 SpiteTimer;
 
-        std::list<uint64> SpiteTargetGUID;
+        GuidList SpiteTargetGUID;
 
         bool CheckedAggro;
 
         void Reset()
         {
-            AggroTargetGUID = 0;
+            AggroTargetGUID.Clear();
 
             CheckTankTimer = 5000;
             SoulScreamTimer = 10000;

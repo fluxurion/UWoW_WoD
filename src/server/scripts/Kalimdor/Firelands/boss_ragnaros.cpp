@@ -345,7 +345,7 @@ class at_sulfuron_keep : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*enter*/)
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (!ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_RAGNAROS)))
+                if (!ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_RAGNAROS)))
                     player->SummonCreature(NPC_RAGNAROS, RagnarosSummonPosition, TEMPSUMMON_MANUAL_DESPAWN, 0);
             return true;
         }
@@ -572,7 +572,7 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
                     events.SetPhase(PHASE_SUBMERGED);
                     events.ScheduleEvent(EVENT_SUBMERGE, 12000, 0, PHASE_SUBMERGED);
                     events.ScheduleEvent(EVENT_EMERGE, 47000, 0, PHASE_SUBMERGED);
@@ -633,7 +633,7 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
                     events.SetPhase(PHASE_SUBMERGED);
                     events.ScheduleEvent(EVENT_SUBMERGE, 12000, 0, PHASE_SUBMERGED);
                     events.ScheduleEvent(EVENT_EMERGE, 47000, 0, PHASE_SUBMERGED);

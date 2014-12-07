@@ -394,7 +394,7 @@ public:
         }
 
         InstanceScript* instance;
-        std::list<uint64> lSummonedGUID;
+        GuidList lSummonedGUID;
         Position pos;
         uint32 uiCheckTimer;
         bool CanCheck;
@@ -406,10 +406,10 @@ public:
             summoned->AddAura(SPELL_SHOCKWAVE_STALKER_VISUAL, summoned);
 
             if (instance)
-                if (Creature* husam = Unit::GetCreature(*me, instance->GetData64(DATA_GENERAL_HUSAM)))
+                if (Creature* husam = Unit::GetCreature(*me, instance->GetGuidData(DATA_GENERAL_HUSAM)))
                     husam->AI()->JustSummoned(summoned);
 
-            if (uint64 uiGUID = summoned->GetGUID())
+            if (ObjectGuid uiGUID = summoned->GetGUID())
                 lSummonedGUID.push_back(uiGUID);
         }
 
@@ -424,7 +424,7 @@ public:
                 if (lSummonedGUID.empty())
                     return;
 
-                for (std::list<uint64>::const_iterator itr = lSummonedGUID.begin(); itr != lSummonedGUID.end(); ++itr)
+                for (GuidList::const_iterator itr = lSummonedGUID.begin(); itr != lSummonedGUID.end(); ++itr)
                     if (Creature* shockwave = Unit::GetCreature(*me, (*itr)))
                     {
                         shockwave->CastSpell(shockwave, SPELL_SHOCKWAVE_DAMAGE, true);

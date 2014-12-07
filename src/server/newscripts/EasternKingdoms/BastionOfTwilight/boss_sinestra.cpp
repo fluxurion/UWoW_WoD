@@ -187,7 +187,7 @@ const Position addsPos[16] =
 /*class WhelpCheck
 {
     public:
-        WhelpCheck(Unit const* obj, uint32 entry, uint64 guid) : i_obj(obj), i_entry(entry), i_guid(guid) {}
+        WhelpCheck(Unit const* obj, uint32 entry, ObjectGuid guid) : i_obj(obj), i_entry(entry), i_guid(guid) {}
         bool operator()(Creature const* creature) const
         {
             return (creature->GetEntry() == i_entry && creature->AI()->GetData(TYPE_RESURRECT) && creature->GetGUID() != i_guid);
@@ -195,7 +195,7 @@ const Position addsPos[16] =
     private:
         Unit const* i_obj;
         uint32 i_entry;
-        uint64 i_guid;
+        ObjectGuid i_guid;
 };*/
 
 class TwilightSlicerTargetSelector

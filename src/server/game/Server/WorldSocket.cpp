@@ -165,7 +165,7 @@ bool WorldSocket::ReadHeaderHandler()
         {
             Player* player = _worldSession->GetPlayer();
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %hu, cmd: %u)",
-                _worldSession->GetAccountId(), player ? player->GetGUIDLow() : 0, player ? player->GetName() : "<none>", size, opcode);
+                _worldSession->GetAccountId(), player ? player->GetGUID().GetCounter() : 0, player ? player->GetName() : "<none>", size, opcode);
         }
         else
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %hu, cmd: %u)",

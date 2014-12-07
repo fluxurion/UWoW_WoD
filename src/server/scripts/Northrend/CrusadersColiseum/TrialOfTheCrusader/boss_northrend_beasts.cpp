@@ -151,7 +151,7 @@ public:
 
         void EnterEvadeMode()
         {
-            m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+            m_instance->DoUseDoorOrButton(m_instance->GetGuidData(GO_MAIN_GATE_DOOR));
             ScriptedAI::EnterEvadeMode();
         }
 
@@ -162,7 +162,7 @@ public:
             switch (uiId)
             {
                 case 0:
-                    m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+                    m_instance->DoUseDoorOrButton(m_instance->GetGuidData(GO_MAIN_GATE_DOOR));
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
@@ -204,7 +204,7 @@ public:
         {
             if (m_instance)
             {
-                m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+                m_instance->DoUseDoorOrButton(m_instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 m_instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
             }
             me->DespawnOrUnsummon();
@@ -295,8 +295,8 @@ public:
         uint32 m_uiFireBombTimer;
         uint32 m_uiBatterTimer;
         uint32 m_uiHeadCrackTimer;
-        uint64 m_uiBossGUID;
-        uint64 m_uiTargetGUID;
+        ObjectGuid m_uiBossGUID;
+        ObjectGuid m_uiTargetGUID;
         bool   m_bTargetDied;
 
         void Reset()
@@ -305,17 +305,17 @@ public:
             m_uiBatterTimer = 5000;
             m_uiHeadCrackTimer = 25000;
 
-            m_uiTargetGUID = 0;
+            m_uiTargetGUID.Clear();
             m_bTargetDied = false;
             if (m_instance)
-                m_uiBossGUID = m_instance->GetData64(NPC_GORMOK);
+                m_uiBossGUID = m_instance->GetGuidData(NPC_GORMOK);
             //Workaround for Snobold
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void EnterEvadeMode()
         {
-            m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
+            m_instance->DoUseDoorOrButton(m_instance->GetGuidData(GO_MAIN_GATE_DOOR));
             ScriptedAI::EnterEvadeMode();
         }
 
@@ -347,7 +347,7 @@ public:
             }
         }
         
-        void RemoveSnoboldFromPlayer(uint64 guid)
+        void RemoveSnoboldFromPlayer(ObjectGuid guid)
         {
             if (Unit* target = Unit::GetPlayer(*me, guid))
             {
@@ -422,7 +422,7 @@ struct boss_jormungarAI : public ScriptedAI
     {
         if (instanceScript)
         {
-            if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(otherWormEntry)))
+            if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetGuidData(otherWormEntry)))
             {
                 if (!otherWorm->isAlive())
                 {
@@ -641,7 +641,7 @@ class boss_acidmaw : public CreatureScript
 
         void EnterEvadeMode()
         {
-            //instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+            //instanceScript->DoUseDoorOrButton(instanceScript->GetGuidData(GO_MAIN_GATE_DOOR));
             //boss_jormungarAI::EnterEvadeMode();
             me->SetReactState(REACT_AGGRESSIVE);
             me->SetInCombatWithZone();
@@ -655,7 +655,7 @@ class boss_acidmaw : public CreatureScript
         void JustReachedHome()
         {
             //if (instanceScript)
-                //instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+                //instanceScript->DoUseDoorOrButton(instanceScript->GetGuidData(GO_MAIN_GATE_DOOR));
 
             //boss_jormungarAI::JustReachedHome();
             me->SetReactState(REACT_AGGRESSIVE);
@@ -711,11 +711,11 @@ public:
             switch (uiId)
             {
                 case 0:
-                    instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+                    instanceScript->DoUseDoorOrButton(instanceScript->GetGuidData(GO_MAIN_GATE_DOOR));
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
-                    if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(otherWormEntry)))
+                    if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetGuidData(otherWormEntry)))
                     {
                         otherWorm->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                         otherWorm->SetReactState(REACT_AGGRESSIVE);
@@ -728,7 +728,7 @@ public:
 
         void EnterEvadeMode()
         {
-            //instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+            //instanceScript->DoUseDoorOrButton(instanceScript->GetGuidData(GO_MAIN_GATE_DOOR));
             //boss_jormungarAI::EnterEvadeMode();
             me->SetReactState(REACT_AGGRESSIVE);
             me->SetInCombatWithZone();
@@ -742,7 +742,7 @@ public:
         void JustReachedHome()
         {
             //if (instanceScript)
-                //instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+                //instanceScript->DoUseDoorOrButton(instanceScript->GetGuidData(GO_MAIN_GATE_DOOR));
 
             //boss_jormungarAI::JustReachedHome();
             me->SetReactState(REACT_AGGRESSIVE);
@@ -822,7 +822,7 @@ public:
         uint32 m_uiMassiveCrashTimer;
         uint32 m_uiTrampleTimer;
         float  m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ;
-        uint64 m_uiTrampleTargetGUID;
+        ObjectGuid m_uiTrampleTargetGUID;
         bool   m_bMovementStarted;
         bool   m_bMovementFinish;
         bool   m_bTrampleCasted;
@@ -839,7 +839,7 @@ public:
             m_bMovementStarted = false;
             m_bMovementFinish = false;
             m_bTrampleCasted = false;
-            m_uiTrampleTargetGUID = 0;
+            m_uiTrampleTargetGUID.Clear();
             m_fTrampleTargetX = 0;
             m_fTrampleTargetY = 0;
             m_fTrampleTargetZ = 0;
@@ -884,7 +884,7 @@ public:
                     m_bMovementFinish = true;
                     break;
                 case 2:
-                    instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                    instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetInCombatWithZone();
@@ -894,7 +894,7 @@ public:
 
         void EnterEvadeMode()
         {
-            instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+            instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
             ScriptedAI::EnterEvadeMode();
         }
 
@@ -902,7 +902,7 @@ public:
         {
             if (instance)
             {
-                instance->DoUseDoorOrButton(instance->GetData64(GO_MAIN_GATE_DOOR));
+                instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
                 instance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
             }
             me->DespawnOrUnsummon();
@@ -1014,7 +1014,7 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                     me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ+2, 42, 1);
                     SetCombatMovement(true);
-                    me->SetTarget(0);
+                    me->SetTarget(ObjectGuid::Empty);
                     m_uiStage = 5;
                     break;
                 case 5:

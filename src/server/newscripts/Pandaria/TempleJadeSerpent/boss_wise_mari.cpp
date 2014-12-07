@@ -114,13 +114,13 @@ class boss_wase_mari : public CreatureScript
             bool intro;
             uint8 phase;
             uint8 foutainCount;
-            uint64 foutainTrigger[4];
+            ObjectGuid foutainTrigger[4];
             uint32 hydrolancePhase;
 
             void Reset()
             {
                 for (uint8 i = 0; i < 4; i++)
-                    foutainTrigger[i] = 0;
+                    foutainTrigger[i].Clear();
 
                 std::list<Creature*> searcher;
                 GetCreatureListWithEntryInGrid(searcher, me, CREATURE_FOUTAIN_TRIGGER, 50.0f);

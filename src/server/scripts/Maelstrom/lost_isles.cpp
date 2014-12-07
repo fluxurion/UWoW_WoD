@@ -194,7 +194,7 @@ class npc_gizmo : public CreatureScript
         }
 
         EventMap events;
-        std::set<uint64> m_player_for_event;
+        GuidSet m_player_for_event;
         void Reset()
         {
             m_player_for_event.clear();
@@ -206,12 +206,12 @@ class npc_gizmo : public CreatureScript
             if (!quest || quest->GetQuestId() != QUEST_GOBLIN_ESCAPE_PODS)
                 return;
 
-            sCreatureTextMgr->SendChat(me, TEXT_GIZMO_QUEST, player ? player->GetGUID(): 0);
+            sCreatureTextMgr->SendChat(me, TEXT_GIZMO_QUEST, player ? player->GetGUID() : ObjectGuid::Empty);
         }
 
         // Remove from conteiner for posibility repeat it.
         // If plr disconect or not finish quest.
-        void SetGUID(uint64 guid, int32 id)
+        void SetGUID(ObjectGuid const& guid, int32 id)
         {
             m_player_for_event.erase(guid);
         }
@@ -225,7 +225,7 @@ class npc_gizmo : public CreatureScript
                 if (who->ToPlayer()->isWatchingMovie())
                     return;
 
-                std::set<uint64>::iterator itr = m_player_for_event.find(who->GetGUID());
+                GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
                 if (itr == m_player_for_event.end())
                 {
                     m_player_for_event.insert(who->GetGUID());
@@ -285,18 +285,18 @@ class npc_doc_zapnnozzle : public CreatureScript
             creature->m_invisibilityDetect.AddValue(INVISIBILITY_UNK7, 100000);
         }
 
-        uint64 plrGUID;
-        uint64 gizmoGUID;
+        ObjectGuid plrGUID;
+        ObjectGuid gizmoGUID;
         EventMap events;
 
         void Reset()
         {
-            plrGUID = 0;
-            gizmoGUID = 0;
+            plrGUID.Clear();
+            gizmoGUID.Clear();
             events.Reset();
         }
 
-        void SetGUID(uint64 guid, int32 id)
+        void SetGUID(ObjectGuid const& guid, int32 id)
         {
             switch(id)
             {
@@ -409,11 +409,11 @@ class npc_foreman_dampwick : public CreatureScript
 
         }
 
-        uint64 guidMiner;
+        ObjectGuid guidMiner;
 
         void Reset()
         {
-            guidMiner = 0;
+            guidMiner.Clear();
         }
 
         void OnStartQuest(Player* player, Quest const* quest)   
@@ -475,23 +475,23 @@ public:
     {
         npc_frightened_minerAI(Creature* creature) : npc_escortAI(creature) {}
 
-        uint64 plrGUID;
-        uint64 cartGUID;
-        uint64 mineGUID;
+        ObjectGuid plrGUID;
+        ObjectGuid cartGUID;
+        ObjectGuid mineGUID;
         EventMap events;
         uint32 wpMine;
 
         void Reset()
         {
-            plrGUID = 0;
-            cartGUID = 0;
-            mineGUID = 0;
+            plrGUID.Clear();
+            cartGUID.Clear();
+            mineGUID.Clear();
             wpMine = 0;
             events.Reset();
             
         }
 
-        void SetGUID(uint64 guid, int32 id)
+        void SetGUID(ObjectGuid const& guid, int32 id)
         {
             plrGUID = guid;
             Start(true, false, guid);
@@ -861,17 +861,17 @@ public:
                 //    summon->CastSpell(caster, 68217, true);
                 //}
                 WorldPacket data(SMSG_FORCE_SET_VEHICLE_REC_ID, 16);
-                data.WriteGuidMask<1, 5, 0, 6, 4, 3, 7, 2>(caster->GetObjectGuid());
-                data.WriteGuidBytes<7, 2, 5, 6, 4>(caster->GetObjectGuid());
+                //data.WriteGuidMask<1, 5, 0, 6, 4, 3, 7, 2>(caster->GetGUID());
+                //data.WriteGuidBytes<7, 2, 5, 6, 4>(caster->GetGUID());
                 data << uint32(493);
-                data.WriteGuidBytes<3, 1, 0>(caster->GetObjectGuid());
+                //data.WriteGuidBytes<3, 1, 0>(caster->GetGUID());
                 data << uint32(534);          //unk
                 caster->SendMessageToSet(&data, true);
 
                 data.Initialize(SMSG_PLAYER_VEHICLE_DATA, 8 + 1 + 4);
                 data << uint32(493);
-                data.WriteGuidMask<5, 3, 6, 2, 1, 4, 0, 7>(caster->GetObjectGuid());
-                data.WriteGuidBytes<6, 0, 1, 3, 5, 7, 2, 4>(caster->GetObjectGuid());
+                //data.WriteGuidMask<5, 3, 6, 2, 1, 4, 0, 7>(caster->GetGUID());
+                //data.WriteGuidBytes<6, 0, 1, 3, 5, 7, 2, 4>(caster->GetGUID());
                 caster->SendMessageToSet(&data, true);*/
 
                 caster->CastSpell(caster, SPELL_WEED_WHACKER, true);
@@ -1703,15 +1703,15 @@ class npc_naga_hatchling : public CreatureScript
     {
         npc_naga_hatchlingAI(Creature* creature) : ScriptedAI(creature){}
         EventMap events;
-        uint64 plrGUID;
+        ObjectGuid plrGUID;
         void Reset()
         {
             events.Reset();
-            plrGUID = 0;
+            plrGUID.Clear();
             me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
-        void SetGUID(uint64 guid, int32 id)
+        void SetGUID(ObjectGuid const& guid, int32 id)
         {
             events.ScheduleEvent(EVENT_GENERIC_1, 20000);
             plrGUID = guid;
@@ -1799,11 +1799,11 @@ class npc_faceless_of_the_deep : public CreatureScript
     {
         npc_faceless_of_the_deepAI(Creature* creature) : ScriptedAI(creature){}
         EventMap events;
-        uint64 playerGUID;
+        ObjectGuid playerGUID;
         void Reset()
         {
             events.Reset();
-            playerGUID = 0;
+            playerGUID.Clear();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
@@ -1937,7 +1937,7 @@ public:
             Start(false, false);
             if (me->GetPositionY() < 2285.0f)
             {
-                switch(me->GetGUID()%3)
+                switch(me->GetGUID().GetCounter()%3)
                 {
                     case 0:
                         SetNextWaypoint(urand(0, 15), true, false);
@@ -2018,10 +2018,10 @@ public:
     {
         npc_goblin_captiveAI(Creature* creature) : npc_escortAI(creature) {}
         EventMap events;
-        uint64 sharMan;
+        ObjectGuid sharMan;
         void Reset()
         {
-            sharMan = 0;
+            sharMan.Clear();
 
             events.Reset();
 
@@ -2101,7 +2101,7 @@ class npc_sassy_hardwrench : public CreatureScript
 
         }
 
-        std::set<uint64> m_player_for_event;
+        GuidSet m_player_for_event;
         void Reset()
         {
             m_player_for_event.clear();
@@ -2112,7 +2112,7 @@ class npc_sassy_hardwrench : public CreatureScript
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            std::set<uint64>::iterator itr = m_player_for_event.find(who->GetGUID());
+            GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
             if (itr != m_player_for_event.end())
                 return;
             m_player_for_event.insert(who->GetGUID());
@@ -2454,10 +2454,10 @@ class npc_trade_prince_gallywix_final : public CreatureScript
     {
         npc_trade_prince_gallywix_finalAI(Creature* creature) : ScriptedAI(creature){}
         EventMap events;
-        uint64 playerGUID;
+        ObjectGuid playerGUID;
         void Reset()
         {
-            playerGUID = 0;
+            playerGUID.Clear();
             events.Reset();
             me->SetCreateHealth(98260);
             me->SetMaxHealth(98260);

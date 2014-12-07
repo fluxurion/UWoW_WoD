@@ -55,58 +55,58 @@ public:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
         /** Creatures **/
-        uint64 Kalecgos_Dragon;
-        uint64 Kalecgos_Human;
-        uint64 Sathrovarr;
-        uint64 Brutallus;
-        uint64 Madrigosa;
-        uint64 Felmyst;
-        uint64 Alythess;
-        uint64 Sacrolash;
-        uint64 Muru;
-        uint64 KilJaeden;
-        uint64 KilJaedenController;
-        uint64 Anveena;
-        uint64 KalecgosKJ;
+        ObjectGuid Kalecgos_Dragon;
+        ObjectGuid Kalecgos_Human;
+        ObjectGuid Sathrovarr;
+        ObjectGuid Brutallus;
+        ObjectGuid Madrigosa;
+        ObjectGuid Felmyst;
+        ObjectGuid Alythess;
+        ObjectGuid Sacrolash;
+        ObjectGuid Muru;
+        ObjectGuid KilJaeden;
+        ObjectGuid KilJaedenController;
+        ObjectGuid Anveena;
+        ObjectGuid KalecgosKJ;
         uint32 SpectralPlayers;
 
         /** GameObjects **/
-        uint64 ForceField;                                      // Kalecgos Encounter
-        uint64 KalecgosWall[2];
-        uint64 FireBarrier;                                     // Felmysts Encounter
-        uint64 MurusGate[2];                                    // Murus Encounter
+        ObjectGuid ForceField;                                      // Kalecgos Encounter
+        ObjectGuid KalecgosWall[2];
+        ObjectGuid FireBarrier;                                     // Felmysts Encounter
+        ObjectGuid MurusGate[2];                                    // Murus Encounter
 
         /*** Misc ***/
         uint32 SpectralRealmTimer;
-        std::vector<uint64> SpectralRealmList;
+        GuidVector SpectralRealmList;
 
         void Initialize()
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
             /*** Creatures ***/
-            Kalecgos_Dragon         = 0;
-            Kalecgos_Human          = 0;
-            Sathrovarr              = 0;
-            Brutallus               = 0;
-            Madrigosa               = 0;
-            Felmyst                 = 0;
-            Alythess                = 0;
-            Sacrolash               = 0;
-            Muru                    = 0;
-            KilJaeden               = 0;
-            KilJaedenController     = 0;
-            Anveena                 = 0;
-            KalecgosKJ              = 0;
-            SpectralPlayers         = 0;
+            Kalecgos_Dragon.Clear();
+            Kalecgos_Human.Clear();
+            Sathrovarr.Clear();
+            Brutallus.Clear();
+            Madrigosa.Clear();
+            Felmyst.Clear();
+            Alythess.Clear();
+            Sacrolash.Clear();
+            Muru.Clear();
+            KilJaeden.Clear();
+            KilJaedenController.Clear();
+            Anveena.Clear();
+            KalecgosKJ.Clear();
+            SpectralPlayers = 0;
 
             /*** GameObjects ***/
-            ForceField  = 0;
-            FireBarrier = 0;
-            MurusGate[0] = 0;
-            MurusGate[1] = 0;
-            KalecgosWall[0] = 0;
-            KalecgosWall[1] = 0;
+            ForceField.Clear();
+            FireBarrier.Clear();
+            MurusGate[0].Clear();
+            MurusGate[1].Clear();
+            KalecgosWall[0].Clear();
+            KalecgosWall[1].Clear();
 
             /*** Misc ***/
             SpectralRealmTimer = 5000;
@@ -130,7 +130,7 @@ public:
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     Player* player = itr->getSource();
-                    if (player && !player->HasAura(45839, 0))
+                    if (player && !player->HasAura(45839, ObjectGuid::Empty))
                             return player;
                 }
             }
@@ -168,13 +168,13 @@ public:
                 case 188524: KalecgosWall[0] = go->GetGUID(); break;
                 case 188075:
                     if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     FireBarrier = go->GetGUID();
                     break;
                 case 187990: MurusGate[0]   = go->GetGUID(); break;
                 case 188118:
                     if (m_auiEncounter[4] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     MurusGate[1]= go->GetGUID();
                     break;
             }
@@ -194,7 +194,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 id)
+        ObjectGuid GetGuidData(uint32 id)
         {
             switch (id)
             {
@@ -216,7 +216,7 @@ public:
                     if(Player* Target = GetPlayerInMap())
                         return Target->GetGUID();
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 id, uint32 data)

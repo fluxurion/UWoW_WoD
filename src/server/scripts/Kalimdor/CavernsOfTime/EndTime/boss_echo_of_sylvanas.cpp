@@ -341,12 +341,12 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
             }
 
             EventMap events;
-            uint64 _guid;
+            ObjectGuid _guid;
 
             void Reset()
             {
                 events.Reset();
-                _guid = 0;
+                _guid.Clear();
                 me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 5.0f);
                 me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 5.0f);
             }
@@ -356,7 +356,7 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
                 me->RemoveAura(SPELL_WRACKING_PAIN_ANY);
                 if (Creature* pTarget = ObjectAccessor::GetCreature(*me, _guid))
                     pTarget->RemoveAura(SPELL_WRACKING_PAIN_ANY);
-                _guid = 0;
+                _guid.Clear();
                 if (Creature* pSylvanas = me->FindNearestCreature(NPC_ECHO_OF_SYLVANAS, 300.0f))
                     pSylvanas->GetAI()->DoAction(ACTION_KILL_GHOUL);
                 me->DespawnOrUnsummon(500);
@@ -368,17 +368,17 @@ class npc_echo_of_sylvanas_risen_ghoul : public CreatureScript
                 events.ScheduleEvent(EVENT_MOVE_GHOUL, 2000);
             }
             
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(ObjectGuid const& guid, int32 type)
             {
                 if (type == DATA_GUID)
                     _guid = guid;
             }
 
-            uint64 GetGUID(int32 type)
+            ObjectGuid GetGUID(int32 type)
             {
                 if (type == DATA_GUID)
                     return _guid;
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void MovementInform(uint32 type, uint32 data)
@@ -437,7 +437,7 @@ class spell_echo_of_sylvanas_wracking_pain_dmg : public SpellScriptLoader
                     return;
                 }
 
-                uint64 _guid = GetCaster()->GetAI()->GetGUID(DATA_GUID);
+                ObjectGuid _guid = GetCaster()->GetAI()->GetGUID(DATA_GUID);
                 if (Creature* pTarget = ObjectAccessor::GetCreature(*GetCaster(), _guid))
                 {
                     if (pTarget->isAlive())

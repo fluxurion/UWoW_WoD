@@ -54,6 +54,7 @@ struct AuctionEntry;
 struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
+class ObjectGuid;
 
 namespace lfg
 {
@@ -323,31 +324,31 @@ class WorldSession
         /// Handle the authentication waiting queue (to be completed)
         void SendAuthWaitQue(uint32 position);
 
-        //void SendTestCreatureQueryOpcode(uint32 entry, uint64 guid, uint32 testvalue);
-        void SendNameQueryOpcode(uint64 guid);
+        //void SendTestCreatureQueryOpcode(uint32 entry, ObjectGuid guid, uint32 testvalue);
+        void SendNameQueryOpcode(ObjectGuid guid);
 
-        void SendTrainerList(uint64 guid);
-        void SendTrainerList(uint64 guid, const std::string& strTitle);
-        void SendListInventory(uint64 guid);
-        void SendShowBank(uint64 guid);
-        void SendTabardVendorActivate(uint64 guid);
+        void SendTrainerList(ObjectGuid guid);
+        void SendTrainerList(ObjectGuid guid, const std::string& strTitle);
+        void SendListInventory(ObjectGuid guid);
+        void SendShowBank(ObjectGuid guid);
+        void SendTabardVendorActivate(ObjectGuid guid);
         void SendSpiritResurrect();
         void SendBindPoint(Creature* npc);
 
-        void SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId);
+        void SendBattleGroundList(ObjectGuid guid, BattlegroundTypeId bgTypeId);
 
         void SendTradeStatus(TradeStatus status);
         void SendUpdateTrade(bool trader_data = true);
         void SendCancelTrade();
 
-        void SendPetitionQueryOpcode(uint64 petitionguid);
+        void SendPetitionQueryOpcode(ObjectGuid petitionguid);
 
         // Pet
-        void SendPetNameQuery(uint64 guid, uint32 petnumber);
-        void SendStablePet(uint64 guid);
-        void SendStablePetCallback(PreparedQueryResult result, uint64 guid);
+        void SendPetNameQuery(ObjectGuid guid, uint32 petnumber);
+        void SendStablePet(ObjectGuid guid);
+        void SendStablePetCallback(PreparedQueryResult result, ObjectGuid guid);
         void SendStableResult(uint8 guid);
-        bool CheckStableMaster(uint64 guid);
+        bool CheckStableMaster(ObjectGuid guid);
 
         // Battle pet
         void HandleSummonBattlePet(WorldPacket& recvData);
@@ -375,29 +376,29 @@ class WorldSession
         //used with item_page table
         bool SendItemInfo(uint32 itemid, WorldPacket data);
         //auction
-        void SendAuctionHello(uint64 guid, Creature* unit);
+        void SendAuctionHello(ObjectGuid guid, Creature* unit);
         void SendAuctionCommandResult(AuctionEntry* auction, uint32 Action, uint32 ErrorCode, uint32 bidError = 0);
-        void SendAuctionBidderNotification(uint32 location, uint32 auctionId, uint64 bidder, uint32 bidSum, uint32 diff, uint32 item_template);
+        void SendAuctionBidderNotification(uint32 location, uint32 auctionId, ObjectGuid bidder, uint32 bidSum, uint32 diff, uint32 item_template);
         void SendAuctionOwnerNotification(AuctionEntry* auction);
         void SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId);
 
         //Item Enchantment
-        void SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID);
-        void SendItemEnchantTimeUpdate(uint64 Playerguid, uint64 Itemguid, uint32 slot, uint32 Duration);
+        void SendEnchantmentLog(ObjectGuid const& Target, ObjectGuid const& Caster, uint32 ItemID, uint32 SpellID);
+        void SendItemEnchantTimeUpdate(ObjectGuid const& Playerguid, ObjectGuid const& Itemguid, uint32 slot, uint32 Duration);
 
         //Taxi
-        void SendTaxiStatus(uint64 guid);
+        void SendTaxiStatus(ObjectGuid guid);
         void SendTaxiMenu(Creature* unit);
         void SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathNode = 0);
         bool SendLearnNewTaxiNode(Creature* unit);
         void SendDiscoverNewTaxiNode(uint32 nodeid);
 
         // Guild
-        void SendPetitionShowList(uint64 guid);
+        void SendPetitionShowList(ObjectGuid guid);
 
         void BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket* data, bool full = false);
 
-        void DoLootRelease(uint64 lguid);
+        void DoLootRelease(ObjectGuid lguid);
 
         // Account mute time
         time_t m_muteTime;
@@ -603,7 +604,7 @@ class WorldSession
         void HandlePetitionQueryOpcode(WorldPacket& recvData);
         void HandlePetitionRenameOpcode(WorldPacket& recvData);
         void HandlePetitionSignOpcode(WorldPacket& recvData);
-        void SendPetitionSignResult(uint64 playerGuid, uint64 petitionGuid, uint8 result);
+        void SendPetitionSignResult(ObjectGuid const& playerGuid, ObjectGuid const& petitionGuid, uint8 result);
         void HandlePetitionDeclineOpcode(WorldPacket& recvData);
         void HandleOfferPetitionOpcode(WorldPacket& recvData);
         void HandleTurnInPetitionOpcode(WorldPacket& recvData);
@@ -671,7 +672,7 @@ class WorldSession
         void HandleStableChangeSlot(WorldPacket& recvPacket);
         void HandleStableChangeSlotCallback(PreparedQueryResult result, uint8 new_slot);        //void HandleBuyStableSlot(WorldPacket& recvPacket);
         void HandleStableRevivePet(WorldPacket& recvPacket);
-        void SendTrainerService(uint64 guid, uint32 spellId, uint32 trainState);
+        void SendTrainerService(ObjectGuid guid, uint32 spellId, uint32 trainState);
 
         void HandleDuelAcceptResultOpcode(WorldPacket& recvPacket);
         void HandleDuelCancelledOpcode(WorldPacket& recvPacket);
@@ -817,7 +818,7 @@ class WorldSession
         //Pet
         void HandlePetAction(WorldPacket& recvData);
         void HandlePetStopAttack(WorldPacket& recvData);
-        void HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid, uint16 flag, uint64 guid2, float x, float y, float z);
+        void HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z);
         void HandlePetNameQuery(WorldPacket& recvData);
         void HandlePetSetAction(WorldPacket& recvData);
         void HandlePetAbandon(WorldPacket& recvData);
@@ -872,11 +873,11 @@ class WorldSession
         void HandlePersonalRatedInfoRequest(WorldPacket& recvPacket);
 
         // Battlefield
-        void SendBfInvitePlayerToWar(uint64 guid,uint32 ZoneId,uint32 time);
-        void SendBfInvitePlayerToQueue(uint64 guid);
-        void SendBfQueueInviteResponse(uint64 guid,uint32 ZoneId, bool CanQueue = true, bool Full = false);
-        void SendBfEntered(uint64 guid);
-        void SendBfLeaveMessage(uint64 guid, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
+        void SendBfInvitePlayerToWar(ObjectGuid guid,uint32 ZoneId,uint32 time);
+        void SendBfInvitePlayerToQueue(ObjectGuid guid);
+        void SendBfQueueInviteResponse(ObjectGuid guid,uint32 ZoneId, bool CanQueue = true, bool Full = false);
+        void SendBfEntered(ObjectGuid guid);
+        void SendBfLeaveMessage(ObjectGuid guid, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
         void HandleBfQueueInviteResponse(WorldPacket &recv_data);
         void HandleBfEntryInviteResponse(WorldPacket &recv_data);
         void HandleBfExitQueueRequest(WorldPacket &recv_data);
@@ -900,7 +901,7 @@ class WorldSession
 
         void SendLfgUpdatePlayer(lfg::LfgUpdateData const& updateData);
         void SendLfgUpdateParty(lfg::LfgUpdateData const& updateData);
-        void SendLfgRoleChosen(uint64 guid, uint8 roles);
+        void SendLfgRoleChosen(ObjectGuid guid, uint8 roles);
         void SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& pRoleCheck);
         void SendLfgLfrList(bool update);
         void SendLfgJoinResult(lfg::LfgJoinResultData const& joinData);
@@ -1058,7 +1059,7 @@ class WorldSession
         void HandleChallengeModeRequestCompletionInfoOpcode(WorldPacket& recvPacket);
         void HandleChallengeModeRequestOpcode(WorldPacket& recvPacket);
 
-        void LootCorps(uint64 corpsGUID, WorldObject* lootedBy = NULL);
+        void LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy = NULL);
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
@@ -1068,7 +1069,7 @@ class WorldSession
         PreparedQueryResultFuture _stablePetCallback;
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
-        QueryCallback<PreparedQueryResult, uint64> _sendStabledPetCallback;
+        QueryCallback<PreparedQueryResult, ObjectGuid> _sendStabledPetCallback;
         QueryCallback<PreparedQueryResult, uint32> _stableChangeSlotCallback;
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
         QueryResultHolderFuture _charLoginCallback;
@@ -1082,16 +1083,16 @@ class WorldSession
         void LogUnprocessedTail(WorldPacket* packet);
 
         // EnumData helpers
-        bool CharCanLogin(uint32 lowGUID)
+        bool CharCanLogin(ObjectGuid::LowType lowGUID)
         {
             return _allowedCharsToLogin.find(lowGUID) != _allowedCharsToLogin.end();
         }
 
         // this stores the GUIDs of the characters who can login
         // characters who failed on Player::BuildEnumData shouldn't login
-        std::set<uint32> _allowedCharsToLogin;
+        std::set<ObjectGuid::LowType> _allowedCharsToLogin;
 
-        uint32 m_GUIDLow;                                   // set loggined or recently logout player (while m_playerRecentlyLogout set)
+        ObjectGuid::LowType m_GUIDLow;                                   // set loggined or recently logout player (while m_playerRecentlyLogout set)
         Player* _player;
         std::shared_ptr<WorldSocket> m_Socket;
         std::string m_Address;

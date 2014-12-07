@@ -96,7 +96,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (instance)
-                if (Unit* boss = me->GetUnit(*me, instance->GetData64(DATA_PRINCEKELESETH)))
+                if (Unit* boss = me->GetUnit(*me, instance->GetGuidData(DATA_PRINCEKELESETH)))
                     if (boss->ToCreature() && boss->ToCreature()->AI())
                         boss->ToCreature()->AI()->SetData(DATA_ON_THE_ROCKS, false);
         }

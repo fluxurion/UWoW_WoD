@@ -81,7 +81,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     // while the player is in transit, for example the map may get full
     if (!newMap || !newMap->CanEnter(GetPlayer()))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Map %d could not be created for player %d, porting player to homebind", loc.GetMapId(), GetPlayer()->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "Map %d could not be created for player %d, porting player to homebind", loc.GetMapId(), GetPlayer()->GetGUID().GetCounter());
         GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
         return;
     }
@@ -94,7 +94,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->SendInitialPacketsBeforeAddToMap();
     if (!GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: failed to teleport player %s (%d) to map %d because of unknown reason!", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), loc.GetMapId());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: failed to teleport player %s (%d) to map %d because of unknown reason!", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter(), loc.GetMapId());
         GetPlayer()->ResetMap();
         GetPlayer()->SetMap(oldMap);
         GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
@@ -212,10 +212,10 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
     uint32 flags, time;
     recvPacket >> flags >> time;
 
-    recvPacket.ReadGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guid);
-    recvPacket.ReadGuidBytes<1, 5, 4, 3, 0, 7, 6, 2>(guid);
+    //recvPacket.ReadGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guid);
+    //recvPacket.ReadGuidBytes<1, 5, 4, 3, 0, 7, 6, 2>(guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, uint64(guid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, guid.GetCounter());
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
     Player* plMover = _player->m_mover->ToPlayer();
@@ -399,7 +399,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         {
             GameObject* go = mover->GetMap()->GetGameObject(movementInfo.t_guid);
             if (!go || go->GetGoType() != GAMEOBJECT_TYPE_TRANSPORT)
-                movementInfo.t_guid = 0;
+                movementInfo.t_guid.Clear();
         }
     }
     else if (plrMover && (plrMover->m_transport || plrMover->m_temp_transport))                // if we were on a transport, leave
@@ -767,11 +767,11 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     uint32 opcode = recvData.GetOpcode();
 
     /* extract packet */
-    uint64 guid;
+    ObjectGuid guid;
     uint32 unk1;
     float  newspeed;
 
-    recvData.readPackGUID(guid);
+    recvData >> guid;
 
     // now can skip not our packet
     if (_player->GetGUID() != guid)
@@ -831,13 +831,13 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
     ObjectGuid guid;
 
     recvPacket.ReadBit(); //unk
-    recvPacket.ReadGuidMask<4, 7, 0, 1, 5, 6, 2, 3>(guid);
-    recvPacket.ReadGuidBytes<6, 5, 4, 3, 1, 0, 7, 2>(guid);
+    ////recvPacket.ReadGuidMask<4, 7, 0, 1, 5, 6, 2, 3>(guid);
+    ////recvPacket.ReadGuidBytes<6, 5, 4, 3, 1, 0, 7, 2>(guid);
 
     if (GetPlayer()->IsInWorld())
     {
         if (_player->m_mover->GetGUID() != guid)
-            sLog->outError(LOG_FILTER_NETWORKIO, "HandleSetActiveMoverOpcode: incorrect mover guid: mover is " UI64FMTD " (%s - Entry: %u) and should be " UI64FMTD, uint64(guid), GetLogNameForGuid(guid), GUID_ENPART(guid), _player->m_mover->GetGUID());
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s  and should be %s", guid.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
     }
 }
 
@@ -845,8 +845,8 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
 
-    uint64 old_mover_guid;
-    recvData.readPackGUID(old_mover_guid);
+    ObjectGuid old_mover_guid;
+    recvData >> old_mover_guid;
 
     MovementInfo mi;
     ReadMovementInfo(recvData, &mi);
@@ -858,11 +858,11 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
 {
-    ObjectGuid guid = _player->GetObjectGuid();
+    ObjectGuid guid = _player->GetGUID();
 
     WorldPacket data(SMSG_MOUNTSPECIAL_ANIM, 8 + 1);
-    data.WriteGuidMask<2, 4, 3, 7, 1, 0, 5, 6>(guid);
-    data.WriteGuidBytes<4, 1, 3, 0, 7, 2, 5, 6>(guid);
+    //data.WriteGuidMask<2, 4, 3, 7, 1, 0, 5, 6>(guid);
+    //data.WriteGuidBytes<4, 1, 3, 0, 7, 2, 5, 6>(guid);
 
     GetPlayer()->SendMessageToSet(&data, false);
 }
@@ -893,7 +893,7 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_HOVER_ACK");
 
     uint64 guid;                                            // guid - unused
-    recvData.readPackGUID(guid);
+    recvData.ReadPackedUInt64(guid);
 
     recvData.read_skip<uint32>();                          // unk
 
@@ -911,11 +911,11 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     ObjectGuid summonerGuid;
     bool agree;
 
-    recvData.ReadGuidMask<0, 7, 3, 1, 6, 2, 4>(summonerGuid);
+    //recvData.ReadGuidMask<0, 7, 3, 1, 6, 2, 4>(summonerGuid);
     agree = recvData.ReadBit();
-    recvData.ReadGuidMask<5>(summonerGuid);
+    //recvData.ReadGuidMask<5>(summonerGuid);
 
-    recvData.ReadGuidBytes<2, 0, 4, 5, 7, 1, 3, 6>(summonerGuid);
+    //recvData.ReadGuidBytes<2, 0, 4, 5, 7, 1, 3, 6>(summonerGuid);
 
     _player->SummonIfPossible(agree);
 }
@@ -1146,7 +1146,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
         { \
             sLog->outDebug(LOG_FILTER_UNITS, "WorldSession::ReadMovementInfo: Violation of MovementFlags found (%s). " \
                 "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Mask %u will be removed.", \
-                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUIDLow(), maskToRemove); \
+                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUID().GetCounter(), maskToRemove); \
             mi->RemoveMovementFlag((maskToRemove)); \
         } \
     }
@@ -1216,7 +1216,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi, Unit* 
     bool hasMovementFlags2 = mi->GetExtraMovementFlags() != 0;
     bool hasTimestamp = mi->time != 0;
     bool hasOrientation = !G3D::fuzzyEq(mi->pos.GetOrientation(), 0.0f);
-    bool hasTransportData = mi->t_guid != 0;
+    bool hasTransportData = mi->t_guid;
 
     MovementStatusElements* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
     if (!sequence)

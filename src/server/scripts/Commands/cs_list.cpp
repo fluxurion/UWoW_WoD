@@ -107,7 +107,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid     = fields[0].GetUInt32();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
@@ -179,10 +179,10 @@ public:
             do
             {
                 Field* fields           = result->Fetch();
-                uint32 itemGuid         = fields[0].GetUInt32();
-                uint32 itemBag          = fields[1].GetUInt32();
+                ObjectGuid::LowType itemGuid         = fields[0].GetUInt64();
+                uint8 itemBag          = fields[1].GetUInt8();
                 uint8 itemSlot          = fields[2].GetUInt8();
-                uint32 ownerGuid        = fields[3].GetUInt32();
+                ObjectGuid::LowType ownerGuid        = fields[3].GetUInt64();
                 uint32 ownerAccountId   = fields[4].GetUInt32();
                 std::string ownerName   = fields[5].GetString();
 
@@ -233,9 +233,9 @@ public:
             do
             {
                 Field* fields                   = result->Fetch();
-                uint32 itemGuid                 = fields[0].GetUInt32();
-                uint32 itemSender               = fields[1].GetUInt32();
-                uint32 itemReceiver             = fields[2].GetUInt32();
+                ObjectGuid::LowType itemGuid                 = fields[0].GetUInt64();
+                ObjectGuid::LowType itemSender               = fields[1].GetUInt64();
+                ObjectGuid::LowType itemReceiver             = fields[2].GetUInt64();
                 uint32 itemSenderAccountId      = fields[3].GetUInt32();
                 std::string itemSenderName      = fields[4].GetString();
                 uint32 itemReceiverAccount      = fields[5].GetUInt32();
@@ -280,8 +280,8 @@ public:
             do
             {
                 Field* fields           = result->Fetch();
-                uint32 itemGuid         = fields[0].GetUInt32();
-                uint32 owner            = fields[1].GetUInt32();
+                ObjectGuid::LowType itemGuid         = fields[0].GetUInt64();
+                ObjectGuid::LowType owner            = fields[1].GetUInt64();
                 uint32 ownerAccountId   = fields[2].GetUInt32();
                 std::string ownerName   = fields[3].GetString();
 
@@ -312,8 +312,8 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                uint32 itemGuid = fields[0].GetUInt32();
-                uint32 guildGuid = fields[1].GetUInt32();
+                ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
+                ObjectGuid::LowType guildGuid = fields[1].GetUInt64();
                 std::string guildName = fields[2].GetString();
 
                 char const* itemPos = "[in guild bank]";
@@ -396,7 +396,7 @@ public:
             do
             {
                 Field* fields   = result->Fetch();
-                uint32 guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid     = fields[0].GetUInt64();
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
@@ -445,8 +445,8 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.str().c_str() : name),
                 aurApp->GetEffectMask(), aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
                 aura->GetDuration(), aura->GetMaxDuration(), (aura->IsPassive() ? passiveStr : ""),
-                (talent ? talentStr : ""), IS_PLAYER_GUID(aura->GetCasterGUID()) ? "player" : "creature",
-                GUID_LOPART(aura->GetCasterGUID()));
+                (talent ? talentStr : ""), aura->GetCasterGUID().IsPlayer() ? "player" : "creature",
+                aura->GetCasterGUID().GetCounter());
         }
 
         for (uint16 i = 0; i < TOTAL_AURAS; ++i)
@@ -468,34 +468,34 @@ public:
     static bool HandleListMailCommand(ChatHandler* handler, char const* args)
     {
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string targetName;
 
         if (!*args)
             return false;
 
-        uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
+        ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(atol((char*)args));
 
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
         {
-            target = sObjectMgr->GetPlayerByLowGUID(parseGUID);
+            target = sObjectMgr->GetPlayerByLowGUID(parseGUID.GetCounter());
             targetGuid = parseGUID;
         }
         else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_COUNT);
-        stmt->setUInt32(0, targetGuid);
+        stmt->setUInt64(0, targetGuid.GetCounter());
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
         if (result)
         {
             Field* fields = result->Fetch();
-            uint32 countMail = fields[0].GetUInt64();
+            uint32 countMail = fields[0].GetUInt32();
             std::string nameLink = handler->playerLink(targetName);
             handler->PSendSysMessage(LANG_LIST_MAIL_HEADER, countMail, nameLink.c_str(), targetGuid);
             handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_INFO);
-            stmt->setUInt32(0, targetGuid);
+            stmt->setUInt64(0, targetGuid.GetCounter());
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
             if (result)
             {
@@ -503,9 +503,9 @@ public:
                 {
                     Field* fields           = result->Fetch();
                     uint32 messageId        = fields[0].GetUInt32();
-                    uint32 senderId         = fields[1].GetUInt32();
+                    ObjectGuid::LowType senderId         = fields[1].GetUInt64();
                     std::string sender      = fields[2].GetString();
-                    uint32 receiverId       = fields[3].GetUInt32();
+                    ObjectGuid::LowType receiverId       = fields[3].GetUInt64();
                     std::string receiver    = fields[4].GetString();
                     std::string subject     = fields[5].GetString();
                     uint64 deliverTime      = fields[6].GetUInt32();
@@ -528,9 +528,9 @@ public:
                         {
                             do
                             {
-                                uint32 item_guid        = (*result2)[0].GetUInt32();
+                                ObjectGuid::LowType item_guid        = (*result2)[0].GetUInt64();
                                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_ITEMS);
-                                stmt->setUInt32(0, item_guid);
+                                stmt->setUInt64(0, item_guid);
                                 PreparedQueryResult result3 = CharacterDatabase.Query(stmt);
                                 if (result3)
                                 {

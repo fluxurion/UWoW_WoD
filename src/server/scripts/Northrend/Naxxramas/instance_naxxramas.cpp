@@ -154,44 +154,44 @@ public:
             LoadMinionData(minionData);
         }
 
-    std::set<uint64> HeiganEruptionGUID[4];
-    uint64 GothikGateGUID;
-    uint64 HorsemenChestGUID;
-    uint64 SapphironGUID;
-    uint64 uiFaerlina;
-    uint64 uiThane;
-    uint64 uiLady;
-    uint64 uiBaron;
-    uint64 uiSir;
+    GuidSet HeiganEruptionGUID[4];
+    ObjectGuid GothikGateGUID;
+    ObjectGuid HorsemenChestGUID;
+    ObjectGuid SapphironGUID;
+    ObjectGuid uiFaerlina;
+    ObjectGuid uiThane;
+    ObjectGuid uiLady;
+    ObjectGuid uiBaron;
+    ObjectGuid uiSir;
 
-    uint64 uiMaexxna;
-    uint64 uiLoatheb;
+    ObjectGuid uiMaexxna;
+    ObjectGuid uiLoatheb;
 
-    uint64 uiThaddius;
-    uint64 uiFeugen;
-    uint64 uiStalagg;
+    ObjectGuid uiThaddius;
+    ObjectGuid uiFeugen;
+    ObjectGuid uiStalagg;
 
-    uint64 uiKelthuzad;
-    uint64 uiKelthuzadTrigger;
-    uint64 uiPortals[4];
+    ObjectGuid uiKelthuzad;
+    ObjectGuid uiKelthuzadTrigger;
+    ObjectGuid uiPortals[4];
 
-    uint64 m_uiAracEyeRampGUID;
-    uint64 m_uiPlagEyeRampGUID;
-    uint64 m_uiMiliEyeRampGUID;
-    uint64 m_uiConsEyeRampGUID;
+    ObjectGuid m_uiAracEyeRampGUID;
+    ObjectGuid m_uiPlagEyeRampGUID;
+    ObjectGuid m_uiMiliEyeRampGUID;
+    ObjectGuid m_uiConsEyeRampGUID;
 
-    uint64 m_uiAracPortalGUID;
-    uint64 m_uiPlagPortalGUID;
-    uint64 m_uiMiliPortalGUID;
-    uint64 m_uiConsPortalGUID;
+    ObjectGuid m_uiAracPortalGUID;
+    ObjectGuid m_uiPlagPortalGUID;
+    ObjectGuid m_uiMiliPortalGUID;
+    ObjectGuid m_uiConsPortalGUID;
 
-    uint64 m_uiAracEyeBossGUID;
-    uint64 m_uiPlagEyeBossGUID;
-    uint64 m_uiMiliEyeBossGUID;
-    uint64 m_uiConsEyeBossGUID;
+    ObjectGuid m_uiAracEyeBossGUID;
+    ObjectGuid m_uiPlagEyeBossGUID;
+    ObjectGuid m_uiMiliEyeBossGUID;
+    ObjectGuid m_uiConsEyeBossGUID;
 
-    uint64 tesla05Guid;
-    uint64 tesla06Guid;
+    ObjectGuid tesla05Guid;
+    ObjectGuid tesla06Guid;
 
     GOState gothikDoorState;
 
@@ -205,39 +205,39 @@ public:
 
     void Initialize()
     {
-        GothikGateGUID = 0;
-        HorsemenChestGUID = 0;
-        SapphironGUID = 0;
-        uiFaerlina = 0;
-        uiThane = 0;
-        uiLady = 0;
-        uiBaron = 0;
-        uiSir = 0;
-        uiMaexxna = 0;
-        uiLoatheb = 0;
-        uiThaddius = 0;
-        uiFeugen = 0;
-        uiStalagg = 0;
-        uiKelthuzad = 0;
-        uiKelthuzadTrigger = 0;
-        uiPortals[0] = 0;
-        uiPortals[1] = 0;
-        uiPortals[2] = 0;
-        uiPortals[3] = 0;
-        m_uiAracEyeRampGUID     = 0;
-        m_uiPlagEyeRampGUID     = 0;
-        m_uiMiliEyeRampGUID     = 0;
-        m_uiConsEyeRampGUID     = 0;
-        m_uiAracEyeBossGUID     = 0;
-        m_uiPlagEyeBossGUID     = 0;
-        m_uiMiliEyeBossGUID     = 0;
-        m_uiConsEyeBossGUID     = 0;
-        m_uiAracPortalGUID      = 0;
-        m_uiPlagPortalGUID      = 0;
-        m_uiMiliPortalGUID      = 0;
-        m_uiConsPortalGUID      = 0;
-        tesla05Guid = 0;
-        tesla06Guid = 0;
+        GothikGateGUID.Clear();
+        HorsemenChestGUID.Clear();
+        SapphironGUID.Clear();
+        uiFaerlina.Clear();
+        uiThane.Clear();
+        uiLady.Clear();
+        uiBaron.Clear();
+        uiSir.Clear();
+        uiMaexxna.Clear();
+        uiLoatheb.Clear();
+        uiThaddius.Clear();
+        uiFeugen.Clear();
+        uiStalagg.Clear();
+        uiKelthuzad.Clear();
+        uiKelthuzadTrigger.Clear();
+        uiPortals[0].Clear();
+        uiPortals[1].Clear();
+        uiPortals[2].Clear();
+        uiPortals[3].Clear();
+        m_uiAracEyeRampGUID.Clear();
+        m_uiPlagEyeRampGUID.Clear();
+        m_uiMiliEyeRampGUID.Clear();
+        m_uiConsEyeRampGUID.Clear();
+        m_uiAracEyeBossGUID.Clear();
+        m_uiPlagEyeBossGUID.Clear();
+        m_uiMiliEyeBossGUID.Clear();
+        m_uiConsEyeBossGUID.Clear();
+        m_uiAracPortalGUID.Clear();
+        m_uiPlagPortalGUID.Clear();
+        m_uiMiliPortalGUID.Clear();
+        m_uiConsPortalGUID.Clear();
+        tesla05Guid.Clear();
+        tesla06Guid.Clear();
         gothikDoorState = GO_STATE_ACTIVE;
         minHorsemenDiedTime = 0;
         maxHorsemenDiedTime = 0;
@@ -456,7 +456,7 @@ public:
         }
     }
 
-    uint64 GetData64(uint32 id)
+    ObjectGuid GetGuidData(uint32 id)
     {
         switch(id)
         {
@@ -495,7 +495,7 @@ public:
         case DATA_THADDIUS_TESLA06:
             return tesla06Guid;
         }
-        return 0;
+        return ObjectGuid::Empty;
     }
 
     bool SetBossState(uint32 id, EncounterState state)
@@ -639,7 +639,7 @@ public:
             if (i == section)
                 continue;
 
-            for (std::set<uint64>::const_iterator itr = HeiganEruptionGUID[i].begin(); itr != HeiganEruptionGUID[i].end(); ++itr)
+            for (GuidSet::const_iterator itr = HeiganEruptionGUID[i].begin(); itr != HeiganEruptionGUID[i].end(); ++itr)
             {
                 if (GameObject *pHeiganEruption = instance->GetGameObject(*itr))
                 {

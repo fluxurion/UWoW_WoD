@@ -163,7 +163,7 @@ public:
 
     WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-    void RemovePlayer(Player* player, uint64 guid, uint32 team);
+    void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
     void HandleAreaTrigger(Player* Source, uint32 Trigger);
     bool SetupBattleground();
     virtual void Reset();
@@ -181,7 +181,7 @@ public:
     uint32 ModGold(uint8 teamId, int32 val);
     uint32 GetCurrentGold(uint8 teamId) { return m_gold[teamId]; }
 
-    uint64 GetFlagPickerGUID(int32 team) const;
+    ObjectGuid GetFlagPickerGUID(int32 team) const;
 
 private:
         class Point
@@ -260,22 +260,22 @@ private:
             void SetTeamId(uint32 team) { m_team = team; }
             uint32 TeamId() { return m_team; }
 
-            uint64 TakePlayerWhoDroppedFlag() { uint64 v = m_playerDroppedCart; m_playerDroppedCart = 0; return v; }
+            ObjectGuid TakePlayerWhoDroppedFlag() { ObjectGuid v = m_playerDroppedCart; m_playerDroppedCart.Clear(); return v; }
 
             Player* ControlledBy();
-            uint64  ControlledByPlayerWithGuid() { return m_controlledBy; }
+            ObjectGuid  ControlledByPlayerWithGuid() { return m_controlledBy; }
 
             BattlegroundDG* GetBg() { return m_bg; }
         private:
             BattlegroundDG* m_bg;
-            uint64 m_controlledBy;
+            ObjectGuid m_controlledBy;
 
             GameObject* m_goCart;
             uint32 m_goBgId;
 
             uint32 m_team;
 
-            uint64 m_playerDroppedCart;
+            ObjectGuid m_playerDroppedCart;
             uint32 m_stolenGold;
         };
 

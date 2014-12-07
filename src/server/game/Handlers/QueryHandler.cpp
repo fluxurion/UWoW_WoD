@@ -32,15 +32,15 @@
 #include "MapManager.h"
 #include "GossipDef.h"
 
-void WorldSession::SendNameQueryOpcode(uint64 guid)
+void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindPlayer(guid);
-    CharacterNameData const* nameData = sWorld->GetCharacterNameData(GUID_LOPART(guid));
+    CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid.GetCounter());
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE);
-    data.WriteGuidMask<3, 2, 6, 0, 4, 1, 5, 7>(guid);
+//    //data.WriteGuidMask<3, 2, 6, 0, 4, 1, 5, 7>(guid);
 
-    data.WriteGuidBytes<7, 1, 2, 6, 3, 5>(guid);
+  //  //data.WriteGuidBytes<7, 1, 2, 6, 3, 5>(guid);
     data << uint8(nameData ? 0 : 1);
     if (nameData)
     {
@@ -51,46 +51,46 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
         data << uint8(nameData->m_race);
         data << uint32(0);
     }
-    data.WriteGuidBytes<4, 0>(guid);
+    //data.WriteGuidBytes<4, 0>(guid);
 
-    ObjectGuid guid28 = 0;
+    ObjectGuid guid28;
     ObjectGuid guid30 = guid;
 
     if (nameData)
     {
-        data.WriteGuidMask<5>(guid30);
-        data.WriteGuidMask<1, 6, 2>(guid28);
-        data.WriteGuidMask<3, 7, 0, 6>(guid30);
-        data.WriteGuidMask<0, 7>(guid28);
-        data.WriteGuidMask<1>(guid30);
-        data.WriteGuidMask<5>(guid28);
+        //data.WriteGuidMask<5>(guid30);
+        //data.WriteGuidMask<1, 6, 2>(guid28);
+        //data.WriteGuidMask<3, 7, 0, 6>(guid30);
+        //data.WriteGuidMask<0, 7>(guid28);
+        //data.WriteGuidMask<1>(guid30);
+        //data.WriteGuidMask<5>(guid28);
 
         DeclinedName const* names = player ? player->GetDeclinedNames() : NULL;
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             data.WriteBits(names ? names->name[i].length() : 0, 7);
 
-        data.WriteGuidMask<2>(guid30);
+        //data.WriteGuidMask<2>(guid30);
         data.WriteBit(0);       // byte20
-        data.WriteGuidMask<4>(guid30);
-        data.WriteGuidMask<4>(guid28);
+        //data.WriteGuidMask<4>(guid30);
+        //data.WriteGuidMask<4>(guid28);
         data.WriteBits(nameData->m_name.size(), 6);
-        data.WriteGuidMask<3>(guid28);
+        //data.WriteGuidMask<3>(guid28);
 
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             data.WriteString(names ? names->name[i] : "");
 
-        data.WriteGuidBytes<3>(guid28);
-        data.WriteGuidBytes<0>(guid30);
-        data.WriteGuidBytes<5, 1>(guid28);
-        data.WriteGuidBytes<7, 5>(guid30);
-        data.WriteGuidBytes<3, 6>(guid28);
-        data.WriteGuidBytes<2>(guid30);
-        data.WriteGuidBytes<2>(guid28);
-        data.WriteString(nameData->m_name);
-        data.WriteGuidBytes<4, 1>(guid30);
-        data.WriteGuidBytes<0>(guid28);
-        data.WriteGuidBytes<3, 6>(guid30);
-        data.WriteGuidBytes<7>(guid28);
+        //data.WriteGuidBytes<3>(guid28);
+        //data.WriteGuidBytes<0>(guid30);
+        //data.WriteGuidBytes<5, 1>(guid28);
+        //data.WriteGuidBytes<7, 5>(guid30);
+        //data.WriteGuidBytes<3, 6>(guid28);
+        //data.WriteGuidBytes<2>(guid30);
+        //data.WriteGuidBytes<2>(guid28);
+        //data.WriteString(nameData->m_name);
+        //data.WriteGuidBytes<4, 1>(guid30);
+        //data.WriteGuidBytes<0>(guid28);
+        //data.WriteGuidBytes<3, 6>(guid30);
+        //data.WriteGuidBytes<7>(guid28);
     }
 
     SendPacket(&data);
@@ -100,13 +100,13 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
 
-    recvData.ReadGuidMask<1, 3, 6, 7, 2, 5>(guid);
+    //recvData.ReadGuidMask<1, 3, 6, 7, 2, 5>(guid);
     bool bit14 = recvData.ReadBit();
-    recvData.ReadGuidMask<0>(guid);
+    //recvData.ReadGuidMask<0>(guid);
     bool bit1C = recvData.ReadBit();
-    recvData.ReadGuidMask<4>(guid);
+    //recvData.ReadGuidMask<4>(guid);
 
-    recvData.ReadGuidBytes<4, 6, 7, 1, 2, 5, 0, 3>(guid);
+    //recvData.ReadGuidBytes<4, 6, 7, 1, 2, 5, 0, 3>(guid);
     if (bit14)
         recvData.read_skip<uint32>();   // realm id 1
     if (bit1C)
@@ -222,8 +222,8 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recvData)
     uint32 entry;
     recvData >> entry;
     ObjectGuid guid;
-    recvData.ReadGuidMask<6, 3, 1, 2, 0, 7, 5, 4>(guid);
-    recvData.ReadGuidBytes<5, 0, 6, 7, 3, 4, 2, 1>(guid);
+    //recvData.ReadGuidMask<6, 3, 1, 2, 0, 7, 5, 4>(guid);
+    //recvData.ReadGuidBytes<5, 0, 6, 7, 3, 4, 2, 1>(guid);
 
     const GameObjectTemplate* info = sObjectMgr->GetGameObjectTemplate(entry);
     if (info)
@@ -281,7 +281,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recvData)
     else
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (GUID: %u, ENTRY: %u)",
-            GUID_LOPART(guid), entry);
+            guid.GetCounter(), entry);
 
         WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 4 + 4 + 1);
         data << uint32(entry);
@@ -343,18 +343,18 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
 
     //! 5.4.1
     WorldPacket data(SMSG_CORPSE_QUERY);
-    data.WriteGuidMask<1, 0, 3, 7, 4, 6, 5, 2>(guid);
+    //data.WriteGuidMask<1, 0, 3, 7, 4, 6, 5, 2>(guid);
     data.WriteBit(1);               // corpse found
 
     data.FlushBits();
 
     data << float(y);
-    data.WriteGuidBytes<6>(guid);
+    //data.WriteGuidBytes<6>(guid);
     data << float(x);
     data << int32(mapid);
-    data.WriteGuidBytes<0, 7, 2, 4>(guid);
+    //data.WriteGuidBytes<0, 7, 2, 4>(guid);
     data << float(z);
-    data.WriteGuidBytes<1, 5, 3>(guid);
+    //data.WriteGuidBytes<1, 5, 3>(guid);
     data << int32(corpsemapid);
 
     SendPacket(&data);
@@ -368,8 +368,8 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
     recvData >> textID;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
 
-    recvData.ReadGuidMask<4, 7, 2, 5, 3, 0, 1, 6>(guid);
-    recvData.ReadGuidBytes<6, 4, 1, 3, 2, 5, 7, 0>(guid);
+    //recvData.ReadGuidMask<4, 7, 2, 5, 3, 0, 1, 6>(guid);
+    //recvData.ReadGuidBytes<6, 4, 1, 3, 2, 5, 7, 0>(guid);
     GetPlayer()->SetSelection(guid);
 
     GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
@@ -528,8 +528,8 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
     ObjectGuid itemGuid;
     uint32 pageID;
     recvData >> pageID;
-    recvData.ReadGuidMask<3, 2, 5, 1, 4, 7, 6, 0>(itemGuid);
-    recvData.ReadGuidBytes<4, 6, 1, 5, 7, 3, 2, 0>(itemGuid);
+    //recvData.ReadGuidMask<3, 2, 5, 1, 4, 7, 6, 0>(itemGuid);
+    //recvData.ReadGuidBytes<4, 6, 1, 5, 7, 3, 2, 0>(itemGuid);
 
     while (pageID)
     {

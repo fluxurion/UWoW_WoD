@@ -46,10 +46,10 @@ public:
     {
         instance_scarlet_monastery_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        uint64 MograineGUID;
-        uint64 WhitemaneGUID;
-        uint64 VorrelGUID;
-        uint64 DoorHighInquisitorGUID;
+        ObjectGuid MograineGUID;
+        ObjectGuid WhitemaneGUID;
+        ObjectGuid VorrelGUID;
+        ObjectGuid DoorHighInquisitorGUID;
 
         uint32 encounter[MAX_ENCOUNTER];
 
@@ -57,10 +57,10 @@ public:
         {
             memset(&encounter, 0, sizeof(encounter));
 
-            MograineGUID = 0;
-            WhitemaneGUID = 0;
-            VorrelGUID = 0;
-            DoorHighInquisitorGUID = 0;
+            MograineGUID.Clear();
+            WhitemaneGUID.Clear();
+            VorrelGUID.Clear();
+            DoorHighInquisitorGUID.Clear();
         }
 
         void OnGameObjectCreate(GameObject* go)
@@ -96,7 +96,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -105,7 +105,7 @@ public:
                 case DATA_VORREL:               return VorrelGUID;
                 case DATA_DOOR_WHITEMANE:       return DoorHighInquisitorGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         uint32 GetData(uint32 type)

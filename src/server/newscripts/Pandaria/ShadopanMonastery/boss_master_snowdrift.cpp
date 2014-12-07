@@ -232,7 +232,7 @@ class boss_master_snowdrift : public CreatureScript
                     GetCreatureListWithEntryInGrid(noviceList, me, NPC_NOVICE, 100.0f);
 
                     for (std::list<Creature*>::const_iterator itr = noviceList.begin(); itr != noviceList.end(); ++itr)
-                        if (Creature* position = pInstance->instance->GetCreature(pInstance->GetData64(DATA_RANDOM_SECOND_POS)))
+                        if (Creature* position = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_RANDOM_SECOND_POS)))
                             (*itr)->GetMotionMaster()->MoveJump(position->GetPositionX(), position->GetPositionY(), position->GetPositionZ(), 20.0f, 30.0f, POINT_NOVICE_DEFEATED_SECOND);
 
                     ++eventPhase;
@@ -494,7 +494,7 @@ class npc_snowdrift_novice : public CreatureScript
                     if (pInstance)
                         pInstance->SetData(DATA_DEFEATED_NOVICE, 1);
 
-                    if (Creature* position = pInstance->instance->GetCreature(pInstance->GetData64(DATA_RANDOM_FIRST_POS)))
+                    if (Creature* position = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_RANDOM_FIRST_POS)))
                     {
                         me->GetMotionMaster()->MoveJump(position->GetPositionX(), position->GetPositionY(), position->GetPositionZ(), 20.0f, 10.0f, POINT_NOVICE_DEFEATED);
                         me->SetHomePosition(position->GetPositionX(), position->GetPositionY(), position->GetPositionZ(), position->GetOrientation());
@@ -595,7 +595,7 @@ class npc_snowdrift_miniboss : public CreatureScript
                     if (pInstance)
                         pInstance->SetData(DATA_DEFEATED_MINIBOSS, 1);
 
-                    if (Creature* position = pInstance->instance->GetCreature(pInstance->GetData64(DATA_RANDOM_MINIBOSS_POS)))
+                    if (Creature* position = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_RANDOM_MINIBOSS_POS)))
                     {
                         me->GetMotionMaster()->MovePoint(POINT_MINIBOSS_DEFEATED, position->GetPositionX(), position->GetPositionY(), position->GetPositionZ());
                         me->SetHomePosition(position->GetPositionX(), position->GetPositionY(), position->GetPositionZ(), position->GetOrientation());

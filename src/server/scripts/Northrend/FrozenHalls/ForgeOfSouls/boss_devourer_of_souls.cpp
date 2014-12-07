@@ -139,7 +139,7 @@ class boss_devourer_of_souls : public CreatureScript
                 summons.DespawnAll();
 
                 threeFaced = true;
-                mirroredSoulTarget = 0;
+                mirroredSoulTarget.Clear();
 
                 instance->SetData(DATA_DEVOURER_EVENT, NOT_STARTED);
             }
@@ -171,7 +171,7 @@ class boss_devourer_of_souls : public CreatureScript
                             me->CastCustomSpell(player, 69034, &mirrorDamage, 0, 0, true);
                         }
                         else
-                            mirroredSoulTarget = 0;
+                            mirroredSoulTarget.Clear();
                     }
                 }
             }
@@ -315,7 +315,7 @@ class boss_devourer_of_souls : public CreatureScript
                             me->SetReactState(REACT_PASSIVE);
 
                             //Remove any target
-                            me->SetTarget(0);
+                            me->SetTarget(ObjectGuid::Empty);
 
                             me->GetMotionMaster()->Clear();
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
@@ -358,7 +358,7 @@ class boss_devourer_of_souls : public CreatureScript
             float beamAngleDiff;
             int8 wailingSoulTick;
 
-            uint64 mirroredSoulTarget;
+            ObjectGuid mirroredSoulTarget;
         };
 
         CreatureAI* GetAI(Creature* creature) const

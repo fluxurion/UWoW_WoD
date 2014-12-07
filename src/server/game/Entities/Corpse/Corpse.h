@@ -55,16 +55,16 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool Create(uint32 guidlow, Map* map);
-        bool Create(uint32 guidlow, Player* owner);
+        bool Create(ObjectGuid::LowType guidlow, Map* map);
+        bool Create(ObjectGuid::LowType guidlow, Player* owner);
 
         void SaveToDB();
-        bool LoadCorpseFromDB(uint32 guid, Field* fields);
+        bool LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields);
 
         void DeleteBonesFromWorld();
         void DeleteFromDB(SQLTransaction& trans);
 
-        uint64 GetOwnerGUID() const { return GetUInt64Value(CORPSE_FIELD_OWNER); }
+        ObjectGuid GetOwnerGUID() const { return GetGuidValue(CORPSE_FIELD_OWNER); }
 
         time_t const& GetGhostTime() const { return m_time; }
         void ResetGhostTime() { m_time = time(NULL); }
@@ -77,11 +77,11 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         Player* lootRecipient;
         bool lootForBody;
 
-        void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId, language, TargetGuid); }
-        void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId, language, TargetGuid); }
-        void TextEmote(int32 textId, uint64 TargetGuid) { MonsterTextEmote(textId, TargetGuid); }
-        void Whisper(int32 textId, uint64 receiver) { MonsterWhisper(textId, receiver); }
-        void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId, language, TargetGuid); }
+        void Say(int32 textId, uint32 language, ObjectGuid TargetGuid) { MonsterSay(textId, language, TargetGuid); }
+        void Yell(int32 textId, uint32 language, ObjectGuid TargetGuid) { MonsterYell(textId, language, TargetGuid); }
+        void TextEmote(int32 textId, ObjectGuid TargetGuid) { MonsterTextEmote(textId, TargetGuid); }
+        void Whisper(int32 textId, ObjectGuid receiver) { MonsterWhisper(textId, receiver); }
+        void YellToZone(int32 textId, uint32 language, ObjectGuid TargetGuid) { MonsterYellToZone(textId, language, TargetGuid); }
 
         bool IsExpired(time_t t) const;
 

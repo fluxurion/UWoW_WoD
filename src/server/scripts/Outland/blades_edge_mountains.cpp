@@ -460,11 +460,11 @@ public:
            }
         }
 
-        uint64 OgreGUID;
+        ObjectGuid OgreGUID;
 
         void Reset()
         {
-            OgreGUID = 0;
+            OgreGUID.Clear();
         }
 
         void UpdateAI(uint32 /*uiDiff*/) {}
@@ -489,11 +489,11 @@ public:
     {
         npc_ogre_bruteAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void Reset()
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -646,7 +646,7 @@ class npc_simon_bunny : public CreatureScript
             uint8 gameLevel;
             uint8 fails;
             uint8 gameTicks;
-            uint64 playerGUID;
+            ObjectGuid playerGUID;
             uint32 clusterIds[SIMON_MAX_COLORS];
             float zCoordCorrection;
             float searchDistance;
@@ -756,7 +756,7 @@ class npc_simon_bunny : public CreatureScript
             }
 
             // Used for getting involved player guid. Parameter id is used for defining if is a large(Monument) or small(Relic) node
-            void SetGUID(uint64 guid, int32 id)
+            void SetGUID(ObjectGuid const& guid, int32 id)
             {
                 me->SetCanFly(true);
 

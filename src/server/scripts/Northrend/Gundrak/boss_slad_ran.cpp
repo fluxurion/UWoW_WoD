@@ -94,7 +94,7 @@ public:
 
         uint8 uiPhase;
 
-        std::set<uint64> lWrappedPlayers;
+        GuidSet lWrappedPlayers;
         SummonList lSummons;
 
         InstanceScript* instance;
@@ -195,13 +195,13 @@ public:
             lSummons.Summon(summoned);
         }
 
-        void SetGUID(uint64 guid, int32 type)
+        void SetGUID(ObjectGuid const& guid, int32 type)
         {
             if (type == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
                 lWrappedPlayers.insert(guid);
         }
 
-        bool WasWrapped(uint64 guid)
+        bool WasWrapped(ObjectGuid guid)
         {
             return lWrappedPlayers.count(guid) != 0;
         }

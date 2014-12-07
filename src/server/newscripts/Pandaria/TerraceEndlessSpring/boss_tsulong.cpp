@@ -80,7 +80,7 @@ bool CheckProtectors(InstanceScript* instance, Creature* caller)
 {
     if (instance && caller)
     {
-        if (Creature* pr = caller->GetCreature(*caller, instance->GetData64(NPC_PROTECTOR_KAOLAN)))
+        if (Creature* pr = caller->GetCreature(*caller, instance->GetGuidData(NPC_PROTECTOR_KAOLAN)))
         {
             if (pr->isAlive())
                 return true;
@@ -205,7 +205,7 @@ class boss_tsulong : public CreatureScript
                 if (instance)
                 {
                     instance->SetBossState(DATA_TSULONG, DONE);
-                    if (Creature* leishi = me->GetCreature(*me, instance->GetData64(NPC_LEI_SHI)))
+                    if (Creature* leishi = me->GetCreature(*me, instance->GetGuidData(NPC_LEI_SHI)))
                     {
                         leishi->SetVisible(true);
                         leishi->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);

@@ -531,7 +531,7 @@ public:
     {
         npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 drakeGUID;
+        ObjectGuid drakeGUID;
         uint16 enter_timer;
         bool hasEmptySeats;
 
@@ -539,7 +539,7 @@ public:
         {
             me->CastSpell(me, SPELL_ICE_PRISON, true);
             enter_timer = 0;
-            drakeGUID = 0;
+            drakeGUID.Clear();
             hasEmptySeats = false;
         }
 
@@ -552,7 +552,7 @@ public:
             Creature* drake = Unit::GetCreature(*me, drakeGUID);
             if (!drake)
             {
-                drakeGUID = 0;
+                drakeGUID.Clear();
                 return;
             }
 
@@ -583,7 +583,7 @@ public:
             Creature* drake = Unit::GetCreature(*me, drakeGUID);
             if (!drake)
             {
-                drakeGUID = 0;
+                drakeGUID.Clear();
                 return;
             }
 
@@ -623,7 +623,7 @@ public:
                     {
                         // not working rider->CastSpell(rider, SPELL_KILL_CREDIT_DRAKE, true);
                         if (rider->ToPlayer())
-                            rider->ToPlayer()->KilledMonsterCredit(29709, 0);
+                            rider->ToPlayer()->KilledMonsterCredit(29709, ObjectGuid::Empty);
 
                         drake->DespawnOrUnsummon(0);
                     }

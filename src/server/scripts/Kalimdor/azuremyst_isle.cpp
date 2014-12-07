@@ -74,7 +74,7 @@ public:
     {
         npc_draenei_survivorAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 pCaster;
+        ObjectGuid pCaster;
 
         uint32 SayThanksTimer;
         uint32 RunAwayTimer;
@@ -84,7 +84,7 @@ public:
 
         void Reset()
         {
-            pCaster = 0;
+            pCaster.Clear();
 
             SayThanksTimer = 0;
             RunAwayTimer = 0;

@@ -262,7 +262,7 @@ public:
             pPlayer->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_announcer_toc5AI, pCreature->AI())->StartEncounter();
             if (InstanceScript* pInstance = (InstanceScript*)pCreature->GetInstanceScript())
-                pInstance->SetData64(DATA_ANNOUNCER, pCreature->GetGUID());
+                pInstance->SetGuidData(DATA_ANNOUNCER, pCreature->GetGUID());
         }
 
         return true;
@@ -312,9 +312,9 @@ public:
             uiPhase = 0;
             uiTimer = 0;
 
-            uiVehicle1GUID = 0;
-            uiVehicle2GUID = 0;
-            uiVehicle3GUID = 0;
+            uiVehicle1GUID.Clear();
+            uiVehicle2GUID.Clear();
+            uiVehicle3GUID.Clear();
 
             Champion1List.clear();
             Champion2List.clear();
@@ -342,16 +342,16 @@ public:
         uint32 uiPhase;
         uint32 uiTimer;
 
-        uint64 uiBlackKnightGUID;
-        uint64 uiVehicle1GUID;
-        uint64 uiVehicle2GUID;
-        uint64 uiVehicle3GUID;
+        ObjectGuid uiBlackKnightGUID;
+        ObjectGuid uiVehicle1GUID;
+        ObjectGuid uiVehicle2GUID;
+        ObjectGuid uiVehicle3GUID;
 
-        uint64 uiGrandChampionBoss1;
+        ObjectGuid uiGrandChampionBoss1;
 
-        std::list<uint64> Champion1List;
-        std::list<uint64> Champion2List;
-        std::list<uint64> Champion3List;
+        GuidList Champion1List;
+        GuidList Champion2List;
+        GuidList Champion3List;
 
         void NextStep(uint32 uiTimerStep,bool bNextStep = true,uint8 uiPhaseStep = 0)
         {
@@ -367,9 +367,9 @@ public:
             switch (uiType)
             {
                 case DATA_START:
-                    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),true);
-                    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
                         pInstance->HandleGameObject(pGO->GetGUID(),false);    
                     DoScriptText(SAY_START, me);            
                     DoSummonGrandChampion(uiFirstBoss);
@@ -379,14 +379,14 @@ public:
                     me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);            
                     me->GetMotionMaster()->MovePoint(1,735.898f, 651.961f, 411.93f);
                     DoScriptText(SAY_START2, me);
-                    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),false);
                     NextStep(20000,false,3);
                     break;
                 case DATA_LESSER_CHAMPIONS_DEFEATED:
                 {
                     ++uiLesserChampions;
-                    std::list<uint64> TempList;
+                    GuidList TempList;
                     if (uiLesserChampions == 3 || uiLesserChampions == 6)
                     {
                         switch(uiLesserChampions)
@@ -399,7 +399,7 @@ public:
                                 break;
                         }
 
-                        for (std::list<uint64>::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
+                        for (GuidList::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
                             if (Creature* pSummon = Unit::GetCreature(*me, *itr))
                                 AggroAllPlayers(pSummon);
                     }else if (uiLesserChampions == 9)
@@ -474,15 +474,15 @@ public:
                     case 1:
                     {
                         uiVehicle1GUID = pBoss->GetGUID();
-                        uint64 uiGrandChampionBoss1 = 0;
+                        ObjectGuid uiGrandChampionBoss1;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle1GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
                                     uiGrandChampionBoss1 = pUnit->GetGUID();
                         if (pInstance)
                         {
-                            pInstance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_1,uiVehicle1GUID);
-                            pInstance->SetData64(DATA_GRAND_CHAMPION_1,uiGrandChampionBoss1);
+                            pInstance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_1,uiVehicle1GUID);
+                            pInstance->SetGuidData(DATA_GRAND_CHAMPION_1,uiGrandChampionBoss1);
                         }
                         pBoss->AI()->SetData(1,0);
                         break;
@@ -490,15 +490,15 @@ public:
                     case 2:
                     {
                         uiVehicle2GUID = pBoss->GetGUID();
-                        uint64 uiGrandChampionBoss2 = 0;
+                        ObjectGuid uiGrandChampionBoss2;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle2GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
                                     uiGrandChampionBoss2 = pUnit->GetGUID();
                         if (pInstance)
                         {
-                            pInstance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_2,uiVehicle2GUID);
-                            pInstance->SetData64(DATA_GRAND_CHAMPION_2,uiGrandChampionBoss2);
+                            pInstance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_2,uiVehicle2GUID);
+                            pInstance->SetGuidData(DATA_GRAND_CHAMPION_2,uiGrandChampionBoss2);
                         }
                         pBoss->AI()->SetData(2,0);
                         break;
@@ -506,15 +506,15 @@ public:
                     case 3:                    
                     {
                         uiVehicle3GUID = pBoss->GetGUID();
-                        uint64 uiGrandChampionBoss3 = 0;
+                        ObjectGuid uiGrandChampionBoss3;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle3GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                                 if (Unit* pUnit = pVehicle->GetPassenger(0))
                                     uiGrandChampionBoss3 = pUnit->GetGUID();
                         if (pInstance)
                         {
-                            pInstance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_3,uiVehicle3GUID);
-                            pInstance->SetData64(DATA_GRAND_CHAMPION_3,uiGrandChampionBoss3);
+                            pInstance->SetGuidData(DATA_GRAND_CHAMPION_VEHICLE_3,uiVehicle3GUID);
+                            pInstance->SetGuidData(DATA_GRAND_CHAMPION_3,uiGrandChampionBoss3);
                         }
                         pBoss->AI()->SetData(3,0);
                         break;
@@ -613,7 +613,7 @@ public:
                 return;
 
             me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
                         pInstance->HandleGameObject(pGO->GetGUID(),false);
 
             if (pInstance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
@@ -635,9 +635,9 @@ public:
                     {
                         uiBlackKnightGUID = pBlackKnight->GetGUID();
                         pBlackKnight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pBlackKnight->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, uiBlackKnightGUID);
-                        if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                        pBlackKnight->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
+                        me->SetGuidValue(UNIT_FIELD_TARGET, uiBlackKnightGUID);
+                        if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
                             pInstance->HandleGameObject(pGO->GetGUID(),false);
                     }
 
@@ -652,7 +652,7 @@ public:
         
         void Reset()
         {
-            uiBlackKnightGUID = 0;
+            uiBlackKnightGUID.Clear();
         }
 
         void AggroAllPlayers(Creature* pTemp)
@@ -718,7 +718,7 @@ public:
                     case 3:
                         if (!Champion1List.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
+                            for (GuidList::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
                                 if (Creature* pSummon = Unit::GetCreature(*me, *itr))
                                     AggroAllPlayers(pSummon);
                             NextStep(0,false);

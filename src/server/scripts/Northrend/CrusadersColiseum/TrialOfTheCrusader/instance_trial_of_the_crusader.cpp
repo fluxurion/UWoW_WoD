@@ -48,30 +48,30 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             uint32 FjolaCasting;
             uint32 EydisCasting;
 
-            uint64 BarrentGUID;
-            uint64 TirionGUID;
-            uint64 FizzlebangGUID;
-            uint64 GarroshGUID;
-            uint64 VarianGUID;
+            ObjectGuid BarrentGUID;
+            ObjectGuid TirionGUID;
+            ObjectGuid FizzlebangGUID;
+            ObjectGuid GarroshGUID;
+            ObjectGuid VarianGUID;
 
-            uint64 GormokGUID;
-            uint64 AcidmawGUID;
-            uint64 DreadscaleGUID;
-            uint64 IcehowlGUID;
-            uint64 JaraxxusGUID;
-            uint64 ChampionsControllerGUID;
-            uint64 DarkbaneGUID;
-            uint64 LightbaneGUID;
-            uint64 AnubarakGUID;
+            ObjectGuid GormokGUID;
+            ObjectGuid AcidmawGUID;
+            ObjectGuid DreadscaleGUID;
+            ObjectGuid IcehowlGUID;
+            ObjectGuid JaraxxusGUID;
+            ObjectGuid ChampionsControllerGUID;
+            ObjectGuid DarkbaneGUID;
+            ObjectGuid LightbaneGUID;
+            ObjectGuid AnubarakGUID;
 
-            uint64 CrusadersCacheGUID;
-            uint64 FloorGUID;
+            ObjectGuid CrusadersCacheGUID;
+            ObjectGuid FloorGUID;
 
-            uint64 TributeChestGUID;
+            ObjectGuid TributeChestGUID;
 
-            uint64 MainGateDoorGUID;
-            uint64 EastPortcullisGUID;
-            uint64 WebDoorGUID;
+            ObjectGuid MainGateDoorGUID;
+            ObjectGuid EastPortcullisGUID;
+            ObjectGuid WebDoorGUID;
 
             // Achievement stuff
             uint32 NotOneButTwoJormungarsTimer;
@@ -88,12 +88,12 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 TrialCounter = 50;
                 EventStage = 0;
 
-                TributeChestGUID = 0;
+                TributeChestGUID.Clear();
                 DataDamageTwin = 0;
 
-                MainGateDoorGUID = 0;
-                EastPortcullisGUID = 0;
-                WebDoorGUID = 0;
+                MainGateDoorGUID.Clear();
+                EastPortcullisGUID.Clear();
+                WebDoorGUID.Clear();
 
                 NorthrendBeasts = NOT_STARTED;
 
@@ -125,7 +125,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
-            void OpenDoor(uint64 guid)
+            void OpenDoor(ObjectGuid const& guid)
             {
                 if (!guid)
                     return;
@@ -133,7 +133,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
             }
 
-            void CloseDoor(uint64 guid)
+            void CloseDoor(ObjectGuid const& guid)
             {
                 if (!guid)
                     return;
@@ -392,13 +392,13 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
                 if (IsEncounterInProgress())
                 {
-                    CloseDoor(GetData64(GO_EAST_PORTCULLIS));
-                    CloseDoor(GetData64(GO_WEB_DOOR));
+                    CloseDoor(GetGuidData(GO_EAST_PORTCULLIS));
+                    CloseDoor(GetGuidData(GO_WEB_DOOR));
                 }
                 else
                 {
-                    OpenDoor(GetData64(GO_EAST_PORTCULLIS));
-                    OpenDoor(GetData64(GO_WEB_DOOR));
+                    OpenDoor(GetGuidData(GO_EAST_PORTCULLIS));
+                    OpenDoor(GetGuidData(GO_WEB_DOOR));
                 }
 
                 if (type < MAX_ENCOUNTERS)
@@ -415,13 +415,13 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                     if (data == DONE || NeedSave == true)
                     {
-                        if (Unit* announcer = instance->GetCreature(GetData64(NPC_BARRENT)))
+                        if (Unit* announcer = instance->GetCreature(GetGuidData(NPC_BARRENT)))
                             announcer->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     }
                 }
             }
 
-            uint64 GetData64(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -467,7 +467,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             uint32 GetData(uint32 type)

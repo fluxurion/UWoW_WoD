@@ -324,7 +324,7 @@ class boss_professor_putricide : public CreatureScript
                         instance->SetBossState(DATA_FESTERGUT, IN_PROGRESS); // needed here for delayed gate close
                         me->SetSpeed(MOVE_RUN, _baseSpeed, true);
                         DoAction(ACTION_FESTERGUT_GAS);
-                        if (Creature* festergut = Unit::GetCreature(*me, instance->GetData64(DATA_FESTERGUT)))
+                        if (Creature* festergut = Unit::GetCreature(*me, instance->GetGuidData(DATA_FESTERGUT)))
                             festergut->CastSpell(festergut, SPELL_GASEOUS_BLIGHT_LARGE, false, NULL, NULL, festergut->GetGUID());
                         break;
                     case POINT_ROTFACE:
@@ -337,7 +337,7 @@ class boss_professor_putricide : public CreatureScript
                         // stop attack
                         me->GetMotionMaster()->MoveIdle();
                         me->SetSpeed(MOVE_RUN, _baseSpeed, true);
-                        if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_PUTRICIDE_TABLE)))
+                        if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_PUTRICIDE_TABLE)))
                             me->SetFacingToObject(table);
                         // operating on new phase already
                         switch (_phase)
@@ -396,7 +396,7 @@ class boss_professor_putricide : public CreatureScript
                         if (IsHeroic())
                             events.ScheduleEvent(EVENT_ROTFACE_VILE_GAS, urand(15000, 20000), 0, PHASE_ROTFACE);
                         // init random sequence of floods
-                        if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
+                        if (Creature* rotface = Unit::GetCreature(*me, instance->GetGuidData(DATA_ROTFACE)))
                         {
                             std::list<Creature*> list;
                             GetCreatureListWithEntryInGrid(list, rotface, NPC_PUDDLE_STALKER, 36.0f);
@@ -661,7 +661,7 @@ class boss_professor_putricide : public CreatureScript
                 events.SetPhase(newPhase);
             }
 
-            uint64 _oozeFloodDummyGUIDs[4];
+            ObjectGuid _oozeFloodDummyGUIDs[4];
             Phases _phase;          // external of EventMap because event phase gets reset on evade
             float const _baseSpeed;
             uint8 _oozeFloodStage;
@@ -688,7 +688,7 @@ class npc_volatile_ooze : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 m_uiTargetGUID;
+            ObjectGuid m_uiTargetGUID;
             uint32 m_uiSearchTargetTimer;
             uint32 m_uiGetTargetTimer;
             uint32 m_uiApplyTargetTimer;
@@ -702,11 +702,11 @@ class npc_volatile_ooze : public CreatureScript
                 m_uiGetTargetTimer = 0;
                 me->SetReactState(REACT_PASSIVE);
                 m_uiSearchTargetTimer = 90000;
-                m_uiTargetGUID = 0;
+                m_uiTargetGUID.Clear();
                 DoCast(me, SPELL_OOZE_HIT, true);
             }
 
-            void SetTarget(uint64 guid)
+            void SetTarget(ObjectGuid guid)
             {
                 m_uiTargetGUID = guid;
                 
@@ -784,15 +784,15 @@ class npc_volatile_ooze : public CreatureScript
                 }
             }
             
-            uint64 GetRandomPlayerGUID()
+            ObjectGuid const& GetRandomPlayerGUID()
             {
-                if (Creature* professor = Unit::GetCreature((*me), instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                if (Creature* professor = Unit::GetCreature((*me), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                 {
                     std::list<HostileReference*> t_list = professor->getThreatManager().getThreatList();
-                    std::vector<uint64> targets;
+                    GuidVector targets;
                     
                     if (t_list.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
                     
                     for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
@@ -803,15 +803,15 @@ class npc_volatile_ooze : public CreatureScript
                     }
                         
                         if (targets.empty())
-                            return 0;
+                            return ObjectGuid::Empty;
                         
-                        std::vector<uint64>::iterator itr = targets.begin();
+                        GuidVector::iterator itr = targets.begin();
                         std::advance(itr, urand(0, targets.size() - 1));
 
                     return *itr;
                 }
                 
-                return 0;
+                return ObjectGuid::Empty;
 
             }
         
@@ -837,7 +837,7 @@ class npc_gas_cloud : public CreatureScript
 
             InstanceScript* instance;
 
-            uint64 m_uiTargetGUID;
+            ObjectGuid m_uiTargetGUID;
             uint32 m_uiSearchTargetTimer;
             uint32 m_uiGetTargetTimer;
             uint32 m_uiApplyTargetTimer;
@@ -851,11 +851,11 @@ class npc_gas_cloud : public CreatureScript
                 m_uiGetTargetTimer = 0;
                 me->SetReactState(REACT_PASSIVE);
                 m_uiSearchTargetTimer = 90000;
-                m_uiTargetGUID = 0;
+                m_uiTargetGUID.Clear();
                 DoCast(me, SPELL_OOZE_HIT, true);
             }
 
-            void SetTarget(uint64 guid)
+            void SetTarget(ObjectGuid guid)
             {
                 m_uiTargetGUID = guid;
                 
@@ -936,15 +936,15 @@ class npc_gas_cloud : public CreatureScript
                 }
             }
             
-            uint64 GetRandomPlayerGUID()
+            ObjectGuid const& GetRandomPlayerGUID()
             {
-                if (Creature* professor = Unit::GetCreature((*me), instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                if (Creature* professor = Unit::GetCreature((*me), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                 {
                     std::list<HostileReference*> t_list = professor->getThreatManager().getThreatList();
-                    std::vector<uint64> targets;
+                    GuidVector targets;
                     
                     if (t_list.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
                     
                     for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
@@ -955,15 +955,15 @@ class npc_gas_cloud : public CreatureScript
                     }
                         
                     if (targets.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
                         
-                    std::vector<uint64>::iterator itr = targets.begin();
+                    GuidVector::iterator itr = targets.begin();
                     std::advance(itr, urand(0, targets.size() - 1));
 
                     return *itr;
                 }
                 
-                return 0;
+                return ObjectGuid::Empty;
 
             }
 
@@ -1108,7 +1108,7 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
                     return;
 
                 uint32 stage = GetCaster()->ToCreature()->AI()->GetData(DATA_EXPERIMENT_STAGE);
-                uint64 targetGUID = (stage == 0) ? instance->GetData64(DATA_GREEN_TRIGGER) : instance->GetData64(DATA_ORANGE_TRIGGER);
+                ObjectGuid targetGUID = (stage == 0) ? instance->GetGuidData(DATA_GREEN_TRIGGER) : instance->GetGuidData(DATA_ORANGE_TRIGGER);
                 Creature * target = ObjectAccessor::GetCreature(*GetCaster(), targetGUID);
 
                 if (target)
@@ -1223,7 +1223,7 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
 
                 if (!GetHitUnit()->HasAura(plagueId))
                 {
-                    if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                    if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                     {
                         if (Aura* oldPlague = GetCaster()->GetAura(plagueId, professor->GetGUID()))
                         {
@@ -1370,7 +1370,7 @@ class spell_putricide_mutation_init : public SpellScriptLoader
                 if (!instance)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
-                Creature* professor = ObjectAccessor::GetCreature(*GetExplTargetUnit(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
+                Creature* professor = ObjectAccessor::GetCreature(*GetExplTargetUnit(), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE));
                 if (!professor)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
@@ -1491,7 +1491,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
                 if (!instance)
                     return;
 
-                Creature* putricide = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
+                Creature* putricide = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE));
                 if (!putricide)
                     return;
 
@@ -1508,7 +1508,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
 
                 Position pos;
                 caster->GetPosition(&pos);
-                TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id);
+                TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, ObjectGuid::Empty, GetSpellInfo()->Id);
                 if (!summon || !summon->IsVehicle())
                     return;
 

@@ -190,7 +190,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (InstanceScript* pInstance = me->GetInstanceScript())
-                if (Creature* pLoatheb = Creature::GetCreature(*me, pInstance->GetData64(DATA_LOATHEB)))
+                if (Creature* pLoatheb = Creature::GetCreature(*me, pInstance->GetGuidData(DATA_LOATHEB)))
                     if (pLoatheb->isAlive())
                         pLoatheb->AI()->DoAction(0);
         }

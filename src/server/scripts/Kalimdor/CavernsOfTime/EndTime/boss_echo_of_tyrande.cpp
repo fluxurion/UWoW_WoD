@@ -150,7 +150,7 @@ class boss_echo_of_tyrande : public CreatureScript
             {
                 _Reset();
 
-                moonlanceGUID = 0LL;
+                moonlanceGUID.Clear();
                 phase = 0;
 
                 if (instance->GetData(DATA_TYRANDE_EVENT) == DONE)
@@ -417,7 +417,7 @@ class boss_echo_of_tyrande : public CreatureScript
             }
         private:
             uint8 phase; 
-            uint64 moonlanceGUID;
+            ObjectGuid moonlanceGUID;
             uint8 eventphase;
             Unit* curPool;
         };
@@ -568,7 +568,7 @@ class at_et_tyrande : public AreaTriggerScript
                 if (pInstance->GetData(DATA_TYRANDE_EVENT) != IN_PROGRESS && 
                     pInstance->GetData(DATA_TYRANDE_EVENT) != DONE)
                 {
-                    if (Creature* pTyrande = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetData64(DATA_ECHO_OF_TYRANDE)))
+                    if (Creature* pTyrande = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetGuidData(DATA_ECHO_OF_TYRANDE)))
                     {
                         pTyrande->AI()->Talk(SAY_INTRO_1);
                         pTyrande->AI()->DoAction(ACTION_START_EVENT);

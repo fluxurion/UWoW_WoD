@@ -85,7 +85,7 @@ public:
 
         InstanceScript* instance;
 
-        std::list<uint64> m_lGolemGUIDList;
+        GuidList m_lGolemGUIDList;
 
         bool m_bHasTemper;
         bool m_bIsStriking;
@@ -177,7 +177,7 @@ public:
             if (m_lGolemGUIDList.empty())
                 return;
 
-            for (std::list<uint64>::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
+            for (GuidList::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
             {
                 if (Creature* temp = Unit::GetCreature(*me, *itr))
                 {
@@ -194,7 +194,7 @@ public:
             if (m_lGolemGUIDList.empty())
                 return;
 
-            for (std::list<uint64>::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
+            for (GuidList::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
             {
                 if (Creature* temp = Unit::GetCreature(*me, *itr))
                 {

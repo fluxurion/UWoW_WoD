@@ -44,14 +44,14 @@ class instance_zulaman : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
 
-                HarkorsSatchelGUID = 0;
-                TanzarsTrunkGUID = 0;
-                AshlisBagGUID = 0;
-                KrazsPackageGUID = 0;
+                HarkorsSatchelGUID.Clear();
+                TanzarsTrunkGUID.Clear();
+                AshlisBagGUID.Clear();
+                KrazsPackageGUID.Clear();
 
-                HexLordGateGUID = 0;
-                MainGateGUID    = 0;
-                StrangeGongGUID = 0;
+                HexLordGateGUID.Clear();
+                MainGateGUID.Clear();
+                StrangeGongGUID.Clear();
 
                 QuestTimer = 0;
                 QuestMinute = 21;
@@ -60,15 +60,15 @@ class instance_zulaman : public InstanceMapScript
                 uiVendor2 = 0;
             }
 
-            uint64 HarkorsSatchelGUID;
-            uint64 TanzarsTrunkGUID;
-            uint64 AshlisBagGUID;
-            uint64 KrazsPackageGUID;
+            ObjectGuid HarkorsSatchelGUID;
+            ObjectGuid TanzarsTrunkGUID;
+            ObjectGuid AshlisBagGUID;
+            ObjectGuid KrazsPackageGUID;
 
-            uint64 HexLordGateGUID;
-            uint64 MainGateGUID;
-            uint64 StrangeGongGUID;
-            uint64 AmanishiTempestGUID;
+            ObjectGuid HexLordGateGUID;
+            ObjectGuid MainGateGUID;
+            ObjectGuid StrangeGongGUID;
+            ObjectGuid AmanishiTempestGUID;
 
             uint32 uiMainGate;
             uint32 uiVendor1;
@@ -293,10 +293,6 @@ class instance_zulaman : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_MAIN_GATE:
-                        return MainGateGUID;
-                    case DATA_TEMPEST:
-                        return AmanishiTempestGUID;
                     case DATA_VENDOR_1:
                         return uiVendor1;
                     case DATA_VENDOR_2:

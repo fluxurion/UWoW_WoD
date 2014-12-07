@@ -35,8 +35,8 @@ class instance_forge_of_souls : public InstanceMapScript
             instance_forge_of_souls_InstanceScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(MAX_ENCOUNTER);
-                bronjahm = 0;
-                devourerOfSouls = 0;
+                bronjahm.Clear();
+                devourerOfSouls.Clear();
 
                 teamInInstance = 0;
             }
@@ -84,7 +84,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -96,7 +96,7 @@ class instance_forge_of_souls : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()
@@ -141,8 +141,8 @@ class instance_forge_of_souls : public InstanceMapScript
             }
 
         private:
-            uint64 bronjahm;
-            uint64 devourerOfSouls;
+            ObjectGuid bronjahm;
+            ObjectGuid devourerOfSouls;
 
             uint32 teamInInstance;
         };

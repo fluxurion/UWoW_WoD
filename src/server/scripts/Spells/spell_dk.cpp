@@ -541,7 +541,7 @@ class spell_dk_howling_blast : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_howling_blast_SpellScript);
 
-            uint64 tar;
+            ObjectGuid tar;
 
             void HandleBeforeCast()
             {

@@ -112,7 +112,7 @@ public:
 
         uint32 timer;
         uint8  questPhase;
-        uint64 summonerGuid;
+        ObjectGuid summonerGuid;
 
         bool spellFlashLight;
         bool spellJustice;
@@ -128,7 +128,7 @@ public:
         {
           timer = 2000;
           questPhase = 0;
-          summonerGuid = 0;
+          summonerGuid.Clear();
 
           me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_KNEEL);
           me->setFaction(FACTION_FRIENDLY);
@@ -236,7 +236,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void Activate(uint64 summonerguid)
+        void Activate(ObjectGuid summonerguid)
         {
             questPhase = 1;
             summonerGuid = summonerguid;
@@ -301,7 +301,7 @@ public:
         uint8  paladinPhase;
         uint32 timer;
 
-        uint64 paladinGuid[4];
+        ObjectGuid paladinGuid[4];
 
         void Reset()
         {
@@ -309,7 +309,7 @@ public:
             timer = 60000;
             paladinPhase = 0;
             for (uint8 i = 0; i < 4; ++i)
-                paladinGuid[i] = 0;
+                paladinGuid[i].Clear();
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -462,14 +462,14 @@ public:
         npc_apprentice_mirvedaAI(Creature* creature) : ScriptedAI(creature), Summons(me) {}
 
         uint32 KillCount;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
         bool Summon;
         SummonList Summons;
 
         void Reset()
         {
             KillCount = 0;
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             Summons.DespawnAll();
             Summon = false;
         }
@@ -555,14 +555,14 @@ public:
         uint32 WaveTimer;
         bool Completed;
         bool Progress;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void Reset()
         {
             EndTimer = 0;
             Completed = false;
             Progress = false;
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
             WaveTimer = 0;
         }
 

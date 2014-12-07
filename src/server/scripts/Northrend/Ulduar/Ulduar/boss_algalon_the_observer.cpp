@@ -364,7 +364,7 @@ class boss_algalon_the_observer : public CreatureScript
                     case ACTION_BLACK_HOLE_VAL:
                         instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, 21697);
                         instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65312);
-                        me->MonsterTextEmote("BlackHole Despawn", 0, true);
+                        me->MonsterTextEmote("BlackHole Despawn", ObjectGuid::Empty, true);
                         break;
 
 
@@ -903,10 +903,10 @@ class go_celestial_planetarium_access : public GameObjectScript
                 if (InstanceScript* instance = go->GetInstanceScript())
                 {
                     instance->SetData(DATA_ALGALON_SUMMON_STATE, 1);
-                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetData64(DATA_SIGILDOOR_01)))
+                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_SIGILDOOR_01)))
                         sigil->SetGoState(GO_STATE_ACTIVE);
 
-                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetData64(DATA_SIGILDOOR_02)))
+                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_SIGILDOOR_02)))
                         sigil->SetGoState(GO_STATE_ACTIVE);
                 }
 

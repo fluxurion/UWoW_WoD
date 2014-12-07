@@ -67,12 +67,12 @@ void WorldSession::SendTradeStatus(TradeStatus status)
 
 void WorldSession::HandleIgnoreTradeOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Ignore Trade %u", _player->GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Ignore Trade %u", _player->GetGUID().GetCounter());
 }
 
 void WorldSession::HandleBusyTradeOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Busy Trade %u", _player->GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Busy Trade %u", _player->GetGUID().GetCounter());
 }
 
 void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
@@ -104,20 +104,20 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
         if (!item)
             continue;
 
-        ObjectGuid giftCreatorGuid = item->GetUInt64Value(ITEM_FIELD_GIFT_CREATOR);
-        ObjectGuid creatorGuid = item->GetUInt64Value(ITEM_FIELD_CREATOR);
+        ObjectGuid giftCreatorGuid = item->GetGuidValue(ITEM_FIELD_GIFT_CREATOR);
+        ObjectGuid creatorGuid = item->GetGuidValue(ITEM_FIELD_CREATOR);
         bool notWrapped = !item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED);
 
-        data.WriteGuidMask<0, 6>(giftCreatorGuid);
+        //data.WriteGuidMask<0, 6>(giftCreatorGuid);
         data.WriteBit(notWrapped);
 
-        itemData.WriteGuidBytes<4>(giftCreatorGuid);
+        //itemData.WriteGuidBytes<4>(giftCreatorGuid);
 
         if (notWrapped)
         {
-            data.WriteGuidMask<0, 3, 1>(creatorGuid);
+            //data.WriteGuidMask<0, 3, 1>(creatorGuid);
             data.WriteBit(item->GetTemplate()->LockID != 0);
-            data.WriteGuidMask<6, 5, 2, 4, 7>(creatorGuid);
+            //data.WriteGuidMask<6, 5, 2, 4, 7>(creatorGuid);
 
             itemData << uint32(item->GetItemRandomPropertyId());
 
@@ -130,20 +130,20 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
                 itemData << uint32(item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
             itemData << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
             itemData << uint32(item->GetItemSuffixFactor());
-            itemData.WriteGuidBytes<4, 1, 6, 7, 0, 3>(creatorGuid);
+            //itemData.WriteGuidBytes<4, 1, 6, 7, 0, 3>(creatorGuid);
             itemData << uint32(item->GetUInt32Value(ITEM_FIELD_DURABILITY));
             itemData << uint32(item->GetUInt32Value(ITEM_FIELD_MAX_DURABILITY));
-            itemData.WriteGuidBytes<2, 5>(creatorGuid);
+            //itemData.WriteGuidBytes<2, 5>(creatorGuid);
         }
 
-        data.WriteGuidMask<7, 1, 5, 4, 3, 2>(giftCreatorGuid);
+        //data.WriteGuidMask<7, 1, 5, 4, 3, 2>(giftCreatorGuid);
 
         itemData << uint32(item->GetCount());
-        itemData.WriteGuidBytes<6, 3>(giftCreatorGuid);
+        //itemData.WriteGuidBytes<6, 3>(giftCreatorGuid);
         itemData << uint32(item->GetTemplate()->ItemId);
-        itemData.WriteGuidBytes<1, 5, 2>(giftCreatorGuid);
+        //itemData.WriteGuidBytes<1, 5, 2>(giftCreatorGuid);
         itemData << uint8(i);
-        itemData.WriteGuidBytes<7, 0>(giftCreatorGuid);
+        //itemData.WriteGuidBytes<7, 0>(giftCreatorGuid);
     }
 
     if (!itemData.empty())
@@ -178,7 +178,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (myItems[i])
             {
                 // logging
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "partner storing: %u", myItems[i]->GetGUIDLow());
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "partner storing: %u", myItems[i]->GetGUID().GetCounter());
                 if (!AccountMgr::IsPlayerAccount(_player->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
                 {
                     sLog->outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
@@ -196,7 +196,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (hisItems[i])
             {
                 // logging
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "player storing: %u", hisItems[i]->GetGUIDLow());
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "player storing: %u", hisItems[i]->GetGUID().GetCounter());
                 if (!AccountMgr::IsPlayerAccount(trader->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
                 {
                     sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
@@ -219,21 +219,21 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (myItems[i])
             {
                 if (!traderCanTrade)
-                    sLog->outError(LOG_FILTER_NETWORKIO, "trader can't store item: %u", myItems[i]->GetGUIDLow());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "trader can't store item: %u", myItems[i]->GetGUID().GetCounter());
                 if (_player->CanStoreItem(NULL_BAG, NULL_SLOT, playerDst, myItems[i], false) == EQUIP_ERR_OK)
                     _player->MoveItemToInventory(playerDst, myItems[i], true, true);
                 else
-                    sLog->outError(LOG_FILTER_NETWORKIO, "player can't take item back: %u", myItems[i]->GetGUIDLow());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "player can't take item back: %u", myItems[i]->GetGUID().GetCounter());
             }
             // return the already removed items to the original owner
             if (hisItems[i])
             {
                 if (!playerCanTrade)
-                    sLog->outError(LOG_FILTER_NETWORKIO, "player can't store item: %u", hisItems[i]->GetGUIDLow());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "player can't store item: %u", hisItems[i]->GetGUID().GetCounter());
                 if (trader->CanStoreItem(NULL_BAG, NULL_SLOT, traderDst, hisItems[i], false) == EQUIP_ERR_OK)
                     trader->MoveItemToInventory(traderDst, hisItems[i], true, true);
                 else
-                    sLog->outError(LOG_FILTER_NETWORKIO, "trader can't take item back: %u", hisItems[i]->GetGUIDLow());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "trader can't take item back: %u", hisItems[i]->GetGUID().GetCounter());
             }
         }
     }
@@ -251,7 +251,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
     {
         if (Item* item = myTrade->GetItem(TradeSlots(i)))
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "player trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "player trade item %u bag: %u slot: %u", item->GetGUID().GetCounter(), item->GetBagSlot(), item->GetSlot());
             //Can return NULL
             myItems[i] = item;
             myItems[i]->SetInTrade();
@@ -259,7 +259,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
 
         if (Item* item = hisTrade->GetItem(TradeSlots(i)))
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "partner trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "partner trade item %u bag: %u slot: %u", item->GetGUID().GetCounter(), item->GetBagSlot(), item->GetSlot());
             hisItems[i] = item;
             hisItems[i]->SetInTrade();
         }
@@ -473,12 +473,12 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& recvPacket)
         {
             if (myItems[i])
             {
-                myItems[i]->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, _player->GetGUID());
+                myItems[i]->SetGuidValue(ITEM_FIELD_GIFT_CREATOR, _player->GetGUID());
                 _player->MoveItemFromInventory(myItems[i]->GetBagSlot(), myItems[i]->GetSlot(), true);
             }
             if (hisItems[i])
             {
-                hisItems[i]->SetUInt64Value(ITEM_FIELD_GIFT_CREATOR, trader->GetGUID());
+                hisItems[i]->SetGuidValue(ITEM_FIELD_GIFT_CREATOR, trader->GetGUID());
                 trader->MoveItemFromInventory(hisItems[i]->GetBagSlot(), hisItems[i]->GetSlot(), true);
             }
         }
@@ -576,8 +576,8 @@ void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
 void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
-    recvPacket.ReadGuidMask<4, 7, 3, 0, 6, 1, 5, 2>(guid);
-    recvPacket.ReadGuidBytes<6, 3, 1, 5, 7, 2, 4, 0>(guid);
+    //recvPacket.ReadGuidMask<4, 7, 3, 0, 6, 1, 5, 2>(guid);
+    //recvPacket.ReadGuidBytes<6, 3, 1, 5, 7, 2, 4, 0>(guid);
 
     if (GetPlayer()->m_trade)
         return;
@@ -650,7 +650,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
+    if (pOther->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
     {
         SendTradeStatus(TRADE_STATUS_IGNORE_YOU);
         return;
@@ -683,8 +683,8 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
     WorldPacket data(SMSG_TRADE_STATUS, 1 + 8 + 1);
     data.WriteBit(0);
     data.WriteBits(TRADE_STATUS_BEGIN_TRADE, 5);
-    data.WriteGuidMask<0, 1, 3, 6, 2, 7, 4, 5>(playerGuid);
-    data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0, 7>(playerGuid);
+    //data.WriteGuidMask<0, 1, 3, 6, 2, 7, 4, 5>(playerGuid);
+    //data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0, 7>(playerGuid);
 
     pOther->GetSession()->SendPacket(&data);
 }
@@ -732,10 +732,8 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    uint64 iGUID = item->GetGUID();
-
     // prevent place single item into many trade slots using cheating and client bugs
-    if (my_trade->HasItem(iGUID))
+    if (my_trade->HasItem(item->GetGUID()))
     {
         // cheating attempt
         SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);

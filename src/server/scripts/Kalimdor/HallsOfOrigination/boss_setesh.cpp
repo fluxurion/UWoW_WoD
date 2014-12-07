@@ -210,7 +210,7 @@ class npc_setesh_chaos_portal : public CreatureScript
                 if (!pInstance)
                     return;
 
-                if (Creature* pSetesh = pInstance->instance->GetCreature(pInstance->GetData64(DATA_SETESH)))
+                if (Creature* pSetesh = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_SETESH)))
                 {    
                     switch (type)
                     {

@@ -200,7 +200,7 @@ class boss_alar : public CreatureScript
                         me->RemoveAllAuras();
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->AttackStop();
-                        me->SetTarget(0);
+                        me->SetTarget(ObjectGuid::Empty);
                         me->SetSpeed(MOVE_RUN, 5.0f);
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(0, waypoint[5][0], waypoint[5][1], waypoint[5][2]);
@@ -518,7 +518,7 @@ class mob_ember_of_alar : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     if (instance && instance->GetData(DATA_ALAREVENT) == 2)
                     {
-                        if (Unit* Alar = Unit::GetUnit(*me, instance->GetData64(DATA_ALAR)))
+                        if (Unit* Alar = Unit::GetUnit(*me, instance->GetGuidData(DATA_ALAR)))
                         {
                             int32 AlarHealth = int32(Alar->GetHealth()) - int32(Alar->CountPctFromMaxHealth(3));
                             if (AlarHealth > 0)

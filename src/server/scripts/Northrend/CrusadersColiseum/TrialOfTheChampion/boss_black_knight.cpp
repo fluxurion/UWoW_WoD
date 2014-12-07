@@ -124,7 +124,7 @@ public:
         }
 
         InstanceScript* pInstance;
-        std::list<uint64> SummonList;
+        GuidList SummonList;
 
         bool bEventInProgress;
         bool bEvent;
@@ -167,9 +167,9 @@ public:
             bDeathArmyDone = false;
             bFight = false;
 
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
                 pInstance->HandleGameObject(pGO->GetGUID(),true);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
                 pInstance->HandleGameObject(pGO->GetGUID(),false);
 
             if (bEventInBattle)
@@ -204,7 +204,7 @@ public:
             if (SummonList.empty())
                 return;
 
-            for(std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+            for(GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                 if (Creature* pTemp = Unit::GetCreature(*me, *itr))
                     if (pTemp)
                         pTemp->DisappearAndDie();
@@ -366,9 +366,9 @@ public:
             bEventInBattle = true;
             DoScriptText(SAY_AGGRO_2, me);
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
             pInstance->HandleGameObject(pGO->GetGUID(),false);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE)))
             pInstance->HandleGameObject(pGO->GetGUID(),false);
         }
 
@@ -404,7 +404,7 @@ public:
         void JustDied(Unit* pKiller)
         {
             DoScriptText(SAY_DEATH_3, me);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_MAIN_GATE1)))
                 pInstance->HandleGameObject(pGO->GetGUID(),true);
 
             DoCast(me, SPELL_KILL_CREDIT);
@@ -470,7 +470,7 @@ public:
     {
         npc_black_knight_skeletal_gryphonAI(Creature* pCreature) : npc_escortAI(pCreature)
         {
-            Start(false,true,0,NULL);
+            Start(false, true, ObjectGuid::Empty, NULL);
             pInstance = (InstanceScript*)pCreature->GetInstanceScript();    
         }
         InstanceScript* pInstance;

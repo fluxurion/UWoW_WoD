@@ -154,7 +154,7 @@ class boss_janalai : public CreatureScript
             bool bEnraged;
 
             uint8 bombsCount;
-            uint64 FireBombsGUID[40];
+            ObjectGuid FireBombsGUID[40];
 
             void Reset()
             {

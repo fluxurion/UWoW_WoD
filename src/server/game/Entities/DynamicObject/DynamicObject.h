@@ -42,7 +42,7 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type);
+        bool CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type);
         void Update(uint32 p_time);
         void Remove();
         void SetDuration(int32 newDuration);
@@ -56,16 +56,16 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         void BindToCaster();
         void UnbindFromCaster();
         uint32 GetSpellId() const {  return GetUInt32Value(DYNAMICOBJECT_FIELD_SPELL_ID); }
-        uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_FIELD_CASTER); }
+        ObjectGuid GetCasterGUID() const { return GetGuidValue(DYNAMICOBJECT_FIELD_CASTER); }
         float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_FIELD_RADIUS); }
         DynamicObjectType GetType() const { return DynamicObjectType(GetByteValue(DYNAMICOBJECT_FIELD_BYTES, 3) >> 4); }
         uint32 GetVisualId() const { return GetUInt32Value(DYNAMICOBJECT_FIELD_BYTES) & 0xFFFFFFF; }
 
-        void Say(int32 textId, uint32 language, uint64 targetGuid) { MonsterSay(textId, language, targetGuid); }
-        void Yell(int32 textId, uint32 language, uint64 targetGuid) { MonsterYell(textId, language, targetGuid); }
-        void TextEmote(int32 textId, uint64 targetGuid) { MonsterTextEmote(textId, targetGuid); }
-        void Whisper(int32 textId, uint64 receiver) { MonsterWhisper(textId, receiver); }
-        void YellToZone(int32 textId, uint32 language, uint64 targetGuid) { MonsterYellToZone(textId, language, targetGuid); }
+        void Say(int32 textId, uint32 language, ObjectGuid targetGuid) { MonsterSay(textId, language, targetGuid); }
+        void Yell(int32 textId, uint32 language, ObjectGuid targetGuid) { MonsterYell(textId, language, targetGuid); }
+        void TextEmote(int32 textId, ObjectGuid targetGuid) { MonsterTextEmote(textId, targetGuid); }
+        void Whisper(int32 textId, ObjectGuid receiver) { MonsterWhisper(textId, receiver); }
+        void YellToZone(int32 textId, uint32 language, ObjectGuid targetGuid) { MonsterYellToZone(textId, language, targetGuid); }
 
     protected:
         Aura* _aura;

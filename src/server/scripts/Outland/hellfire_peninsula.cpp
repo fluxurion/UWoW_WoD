@@ -462,12 +462,12 @@ public:
         npc_fel_guard_houndAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 uiCheckTimer;
-        uint64 uiHelboarGUID;
+        ObjectGuid uiHelboarGUID;
 
         void Reset()
         {
             uiCheckTimer = 5000; //check for creature every 5 sec
-            uiHelboarGUID = 0;
+            uiHelboarGUID.Clear();
         }
 
         void MovementInform(uint32 uiType, uint32 uiId)

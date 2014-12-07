@@ -178,7 +178,7 @@ class BattlegroundWS : public Battleground
         /// Called when a player join battle
         void AddPlayer(Player* player);
         /// Called when a player leave battleground
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
 
         /// Called when battle start
         void StartingEventCloseDoors();
@@ -198,7 +198,7 @@ class BattlegroundWS : public Battleground
         void HandleKillPlayer(Player *player, Player *killer);
 
         /// Called in HandleBattlegroundPlayerPositionsOpcode for tracking player on map
-        uint64 GetFlagPickerGUID(int32 team) const              { return _flagKeepers[team == TEAM_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE]; }
+        ObjectGuid GetFlagPickerGUID(int32 team) const              { return _flagKeepers[team == TEAM_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE]; }
 
         /// Called when a player hits an area. (Like when is within distance to capture the flag (mainly used for this))
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
@@ -212,7 +212,7 @@ class BattlegroundWS : public Battleground
         /// Update score on the top of screen by worldstates
         void UpdateTeamScore(uint32 team);
 
-        void SetDroppedFlagGUID(uint64 guid, uint32 TeamID)  { _droppedFlagGUID[GetTeamIndexByTeamId(TeamID)] = guid;}
+        void SetDroppedFlagGUID(ObjectGuid guid, uint32 TeamID)  { _droppedFlagGUID[GetTeamIndexByTeamId(TeamID)] = guid; }
 
 private:
         /// Internal Battlegorund methods
@@ -223,7 +223,7 @@ private:
 
         /// Flag Events
         /// Update Flag state of one team, if the flag is in base, is waitng for respawn, is on player or on ground(if a player droped it)
-        void UpdateFlagState(uint32 team, uint32 value, uint64 flagKeeperGUID = 0);
+        void UpdateFlagState(uint32 team, uint32 value, ObjectGuid flagKeeperGUID = ObjectGuid::Empty);
         /// Used to maintain the last team witch captured the flag (see def of _lastFlagCaptureTeam)
         void SetLastFlagCapture(uint32 teamID)                  { _lastFlagCaptureTeam = teamID; }
         /// Respawn flag method
@@ -236,8 +236,8 @@ private:
         void EventPlayerCapturedFlag(Player* source);
 
         /// Members:
-        uint64 _flagKeepers[2];         ///< Maintains the flag picker GUID: 0 for ALLIANCE FLAG and 1 for HORDE FLAG (EX: _flagKeepers[TEAM_ALLIANCE] is guid for a horde player)
-        uint64 _droppedFlagGUID[2];     ///< If the flag is on the ground(dropped by a player) we must maintain its guid to dispawn it when a player clicks on it. (else it will automatically dispawn)
+        ObjectGuid _flagKeepers[2];         ///< Maintains the flag picker GUID: 0 for ALLIANCE FLAG and 1 for HORDE FLAG (EX: _flagKeepers[TEAM_ALLIANCE] is guid for a horde player)
+        ObjectGuid _droppedFlagGUID[2];     ///< If the flag is on the ground(dropped by a player) we must maintain its guid to dispawn it when a player clicks on it. (else it will automatically dispawn)
         uint8 _flagState[2];            ///< Show where flag is (in base / on ground / on player)
         int32 _flagsTimer;              ///< Timer for flags that are unspawn after a capture
         int32 _flagsDropTimer[2];       ///< Used for counting how much time have passed since the flag dropped

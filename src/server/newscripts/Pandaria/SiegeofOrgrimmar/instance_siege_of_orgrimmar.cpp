@@ -34,21 +34,21 @@ public:
     {
         instance_siege_of_orgrimmar_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        std::map<uint32, uint64> easyGUIDconteiner;
+        std::map<uint32, ObjectGuid> easyGUIDconteiner;
         //Misc
         uint32 TeamInInstance;
         uint32 EventfieldOfSha;
         uint32 lingering_corruption_count;
 
         //GameObjects
-        uint64 immerseusexdoorGUID;
-        uint64 chestShaVaultOfForbiddenTreasures;
-        std::vector<uint64> lightqGUIDs;
+        ObjectGuid immerseusexdoorGUID;
+        ObjectGuid chestShaVaultOfForbiddenTreasures;
+        GuidVector lightqGUIDs;
         
         //Creature
-        std::set<uint64> shaSlgGUID;
-        uint64 LorewalkerChoGUIDtmp;
-        uint64 fpGUID[3];
+        GuidSet shaSlgGUID;
+        ObjectGuid LorewalkerChoGUIDtmp;
+        ObjectGuid fpGUID[3];
 
         EventMap Events;
 
@@ -70,13 +70,13 @@ public:
             lingering_corruption_count = 0;
 
             //GameObject
-            immerseusexdoorGUID     = 0;
-            chestShaVaultOfForbiddenTreasures = 0;
+            immerseusexdoorGUID.Clear();
+            chestShaVaultOfForbiddenTreasures.Clear();
             lightqGUIDs.clear();
            
             //Creature
-            LorewalkerChoGUIDtmp    = 0;
-            memset(fpGUID, 0, 3 * sizeof(uint64));
+            LorewalkerChoGUIDtmp.Clear();
+            //memset(fpGUID, 0, 3 * sizeof(ObjectGuid));
             EventfieldOfSha     = 0;
 
             onInitEnterState = false;
@@ -352,17 +352,17 @@ public:
                     switch (state)
                     {
                     case NOT_STARTED:
-                        for (std::vector<uint64>::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
+                        for (GuidVector::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
                             HandleGameObject(*guid, true);
                         break;
                     case IN_PROGRESS:
-                        for (std::vector<uint64>::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
+                        for (GuidVector::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
                             HandleGameObject(*guid, false);
                         break;
                     case DONE:
-                        for (std::vector<uint64>::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
+                        for (GuidVector::const_iterator guid = lightqGUIDs.begin(); guid != lightqGUIDs.end(); guid++)
                             HandleGameObject(*guid, true);
-                        if (Creature* norush = instance->GetCreature(GetData64(NPC_NORUSHEN)))
+                        if (Creature* norush = instance->GetCreature(GetGuidData(NPC_NORUSHEN)))
                             norush->DespawnOrUnsummon();
                         if (Creature* bq = instance->GetCreature(LorewalkerChoGUIDtmp))
                             bq->DespawnOrUnsummon();
@@ -391,7 +391,7 @@ public:
                 ++EventfieldOfSha;
                 if (EventfieldOfSha >= 3)
                 {
-                    HandleGameObject(GetData64(GO_SHA_ENERGY_WALL), true);
+                    HandleGameObject(GetGuidData(GO_SHA_ENERGY_WALL), true);
                     SaveToDB();
                 }
             }else if (type == DATA_FP_EVADE)
@@ -406,7 +406,7 @@ public:
                 }
             }else if (type == DATA_SHA_PRE_EVENT)
             {
-                for(std::set<uint64>::iterator itr =  shaSlgGUID.begin(); itr != shaSlgGUID.end(); ++itr)
+                for(GuidSet::iterator itr =  shaSlgGUID.begin(); itr != shaSlgGUID.end(); ++itr)
                 {
                     if (Creature* slg = instance->GetCreature(*itr))
                     {
@@ -422,7 +422,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -442,11 +442,11 @@ public:
                     return LorewalkerChoGUIDtmp;
             }
 
-            std::map<uint32, uint64>::iterator itr = easyGUIDconteiner.find(type);
+            std::map<uint32, ObjectGuid>::iterator itr = easyGUIDconteiner.find(type);
             if (itr != easyGUIDconteiner.end())
                 return itr->second;
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void CreatureDies(Creature* creature, Unit* /*killer*/)
@@ -462,7 +462,7 @@ public:
                     --lingering_corruption_count;
                     if (!lingering_corruption_count)
                     {
-                        if (Creature* Norushen = instance->GetCreature(GetData64(NPC_SHA_NORUSHEN)))
+                        if (Creature* Norushen = instance->GetCreature(GetGuidData(NPC_SHA_NORUSHEN)))
                             Norushen->AI()->SetData(NPC_LINGERING_CORRUPTION, DONE);
                     }
                     break;
@@ -596,7 +596,7 @@ public:
                 float o = 1;
 
                 // creates the Gameobject
-                if (!t->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_MO_TRANSPORT), goEntry, mapid, x, y, z, o, 255, 0))
+                if (!t->Create(sObjectMgr->GetGenerator<HighGuid::Transport>()->Generate(), goEntry, mapid, x, y, z, o, 255, 0))
                 {
                     delete t;
                     return NULL;

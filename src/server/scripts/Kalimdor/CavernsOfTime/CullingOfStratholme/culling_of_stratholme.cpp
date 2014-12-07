@@ -344,39 +344,39 @@ public:
         uint32 uiBossEvent;
         uint32 uiWave;
 
-        uint64 uiUtherGUID;
-        uint64 uiJainaGUID;
-        uint64 uiCitymenGUID[2];
-        uint64 uiWaveGUID[ENCOUNTER_WAVES_MAX_SPAWNS];
-        uint64 uiInfiniteDraconianGUID[ENCOUNTER_DRACONIAN_NUMBER];
-        uint64 uiStalkerGUID;
+        ObjectGuid uiUtherGUID;
+        ObjectGuid uiJainaGUID;
+        ObjectGuid uiCitymenGUID[2];
+        ObjectGuid uiWaveGUID[ENCOUNTER_WAVES_MAX_SPAWNS];
+        ObjectGuid uiInfiniteDraconianGUID[ENCOUNTER_DRACONIAN_NUMBER];
+        ObjectGuid uiStalkerGUID;
 
-        uint64 uiBossGUID; //uiMeathookGUID || uiSalrammGUID
-        uint64 uiEpochGUID;
-        uint64 uiMalganisGUID;
-        uint64 uiInfiniteGUID;
+        ObjectGuid uiBossGUID; //uiMeathookGUID || uiSalrammGUID
+        ObjectGuid uiEpochGUID;
+        ObjectGuid uiMalganisGUID;
+        ObjectGuid uiInfiniteGUID;
 
         uint32 uiExorcismTimer;
 
         void Reset()
         {
-            uiUtherGUID = 0;
-            uiJainaGUID = 0;
+            uiUtherGUID.Clear();
+            uiJainaGUID.Clear();
 
             for (uint8 i = 0; i < 2; ++i)
-                uiCitymenGUID[i] = 0;
+                uiCitymenGUID[i].Clear();
 
             for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
-                uiWaveGUID[i] = 0;
+                uiWaveGUID[i].Clear();
 
             for (uint8 i = 0; i < ENCOUNTER_DRACONIAN_NUMBER; ++i)
-                uiInfiniteDraconianGUID[i] = 0;
+                uiInfiniteDraconianGUID[i].Clear();
 
-            uiStalkerGUID = 0;
-            uiBossGUID = 0;
-            uiEpochGUID = 0;
-            uiMalganisGUID = 0;
-            uiInfiniteGUID = 0;
+            uiStalkerGUID.Clear();
+            uiBossGUID.Clear();
+            uiEpochGUID.Clear();
+            uiMalganisGUID.Clear();
+            uiInfiniteGUID.Clear();
 
             if (instance) {
                 instance->SetData(DATA_ARTHAS_EVENT, NOT_STARTED);
@@ -407,7 +407,7 @@ public:
                 instance->SetData(DATA_ARTHAS_EVENT, FAIL);
         }
 
-        void SpawnTimeRift(uint32 timeRiftID, uint64* guidVector)
+        void SpawnTimeRift(uint32 timeRiftID, ObjectGuid* guidVector)
         {
             me->SummonCreature((uint32)RiftAndSpawnsLocations[timeRiftID][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_DESPAWN, 11000);
 
@@ -426,7 +426,7 @@ public:
             }
         }
 
-        void SpawnWaveGroup(uint32 waveID, uint64* guidVector)
+        void SpawnWaveGroup(uint32 waveID, ObjectGuid* guidVector)
         {
             for (uint32 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
             {
@@ -539,7 +539,7 @@ public:
                     break;
                 case 36:
                     if (instance)
-                        if (GameObject* pGate = instance->instance->GetGameObject(instance->GetData64(DATA_SHKAF_GATE)))
+                        if (GameObject* pGate = instance->instance->GetGameObject(instance->GetGuidData(DATA_SHKAF_GATE)))
                             pGate->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case 45:
@@ -709,7 +709,7 @@ public:
                         case 21:
                             SetEscortPaused(false);
                             bStepping = false;
-                            me->SetTarget(0);
+                            me->SetTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After waypoint 3
@@ -729,7 +729,7 @@ public:
                             if (Creature* pUther = Unit::GetCreature(*me, uiUtherGUID))
                                 pUther->DisappearAndDie();
 
-                            me->SetTarget(0);
+                            me->SetTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After Gossip 1 (waypoint 8)
@@ -749,7 +749,7 @@ public:
                             SetEscortPaused(false);
                             bStepping = false;
                             SetRun(false);
-                            me->SetTarget(0);
+                            me->SetTarget(ObjectGuid::Empty);
                             JumpToNextStep(0);
                             break;
                         //After waypoint 9
@@ -903,7 +903,7 @@ public:
                                 uint32 deadCounter = 0;
                                 for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
                                 {
-                                    if (uiWaveGUID[i] == 0)
+                                    if (!uiWaveGUID[i])
                                         break;
                                     ++mobCounter;
                                     Unit* temp = Unit::GetCreature(*me, uiWaveGUID[i]);
@@ -1138,7 +1138,7 @@ public:
                                 pMalganis->SetReactState(REACT_PASSIVE);
                             }
                             if (instance)
-                                if (GameObject* pGate = instance->instance->GetGameObject(instance->GetData64(DATA_MAL_GANIS_GATE_1)))
+                                if (GameObject* pGate = instance->instance->GetGameObject(instance->GetGuidData(DATA_MAL_GANIS_GATE_1)))
                                     pGate->SetGoState(GO_STATE_ACTIVE);
                             SetHoldState(false);
                             bStepping = false;
@@ -1183,7 +1183,7 @@ public:
                             if (instance)
                             {
                                 instance->SetData(DATA_ARTHAS_EVENT, DONE); //Rewards: Achiev & Chest ;D
-                                me->SetTarget(instance->GetData64(DATA_MAL_GANIS_GATE_2)); //Look behind
+                                me->SetTarget(instance->GetGuidData(DATA_MAL_GANIS_GATE_2)); //Look behind
                             }
                             DoScriptText(SAY_PHASE504, me);
                             bStepping = false;

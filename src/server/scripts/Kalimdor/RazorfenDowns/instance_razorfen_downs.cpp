@@ -37,7 +37,7 @@ public:
         {
         }
 
-        uint64 uiGongGUID;
+        ObjectGuid uiGongGUID;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -47,7 +47,7 @@ public:
 
         void Initialize()
         {
-            uiGongGUID = 0;
+            uiGongGUID.Clear();
 
             uiGongWaves = 0;
 
@@ -196,14 +196,14 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiType)
+        ObjectGuid GetGuidData(uint32 uiType)
         {
             switch (uiType)
             {
                 case DATA_GONG: return uiGongGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

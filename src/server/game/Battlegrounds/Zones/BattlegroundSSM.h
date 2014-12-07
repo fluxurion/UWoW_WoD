@@ -220,7 +220,7 @@ class BattlegroundSSM : public Battleground
         void PostUpdateImpl(uint32 diff);
 
         void AddPlayer(Player* player);
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
 
         void StartingEventOpenDoors();
 
@@ -250,7 +250,7 @@ class BattlegroundSSM : public Battleground
         int32 m_timerPointsUpdate;
         int32 m_timerCartsUpdate;
 
-        typedef std::vector<uint64> PlayersNearPointType;
+        typedef std::vector<ObjectGuid> PlayersNearPointType;
         PlayersNearPointType m_PlayersNearPoint[SSM_POINTS_MAX + 1];
 };
 

@@ -30,12 +30,12 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
 
-                _kurinaxxGUID   = 0;
-                _rajaxxGUID     = 0;
-                _moamGUID       = 0;
-                _buruGUID       = 0;
-                _ayamissGUID    = 0;
-                _ossirianGUID   = 0;
+                _kurinaxxGUID.Clear();
+                _rajaxxGUID.Clear();
+                _moamGUID.Clear();
+                _buruGUID.Clear();
+                _ayamissGUID.Clear();
+                _ossirianGUID.Clear();
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -71,7 +71,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -89,7 +89,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                         return _ossirianGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()
@@ -136,12 +136,12 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             }
 
         private:
-            uint64 _kurinaxxGUID;
-            uint64 _rajaxxGUID;
-            uint64 _moamGUID;
-            uint64 _buruGUID;
-            uint64 _ayamissGUID;
-            uint64 _ossirianGUID;
+            ObjectGuid _kurinaxxGUID;
+            ObjectGuid _rajaxxGUID;
+            ObjectGuid _moamGUID;
+            ObjectGuid _buruGUID;
+            ObjectGuid _ayamissGUID;
+            ObjectGuid _ossirianGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

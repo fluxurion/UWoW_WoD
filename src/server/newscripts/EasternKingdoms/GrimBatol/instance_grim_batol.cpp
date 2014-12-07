@@ -18,10 +18,10 @@ public:
             SetBossNumber(MAX_ENCOUNTER);
         }
         
-        uint64 uiGeneralUmbrissGUID;
-        uint64 uiForgemasterThrongusGUID;
-        uint64 uiDrahgaShadowburnerGUID;
-        uint64 uiErudaxGUID;
+        ObjectGuid uiGeneralUmbrissGUID;
+        ObjectGuid uiForgemasterThrongusGUID;
+        ObjectGuid uiDrahgaShadowburnerGUID;
+        ObjectGuid uiErudaxGUID;
         
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         
@@ -32,10 +32,10 @@ public:
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 m_auiEncounter[i] = NOT_STARTED;
                 
-            uiGeneralUmbrissGUID = 0;
-            uiForgemasterThrongusGUID = 0;
-            uiDrahgaShadowburnerGUID = 0;
-            uiErudaxGUID = 0;
+            uiGeneralUmbrissGUID.Clear();
+            uiForgemasterThrongusGUID.Clear();
+            uiDrahgaShadowburnerGUID.Clear();
+            uiErudaxGUID.Clear();
         }
         
         bool IsEncounterInProgress() const
@@ -103,7 +103,7 @@ public:
             return 0;
         }
         
-        uint64 GetData64(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch(identifier)
             {
@@ -116,7 +116,7 @@ public:
                 case DATA_ERUDAX:
                     return uiErudaxGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
         
         std::string GetSaveData()

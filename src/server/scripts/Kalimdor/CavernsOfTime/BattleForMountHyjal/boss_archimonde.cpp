@@ -90,11 +90,11 @@ public:
         mob_ancient_wispAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            ArchimondeGUID = 0;
+            ArchimondeGUID.Clear();
         }
 
         InstanceScript* instance;
-        uint64 ArchimondeGUID;
+        ObjectGuid ArchimondeGUID;
         uint32 CheckTimer;
 
         void Reset()
@@ -102,7 +102,7 @@ public:
             CheckTimer = 1000;
 
             if (instance)
-                ArchimondeGUID = instance->GetData64(DATA_ARCHIMONDE);
+                ArchimondeGUID = instance->GetGuidData(DATA_ARCHIMONDE);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
@@ -176,12 +176,12 @@ public:
     {
         mob_doomfire_targettingAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 TargetGUID;
+        ObjectGuid TargetGUID;
         uint32 ChangeTargetTimer;
 
         void Reset()
         {
-            TargetGUID = 0;
+            TargetGUID.Clear();
             ChangeTargetTimer = 5000;
         }
 
@@ -207,7 +207,7 @@ public:
                 if (Unit* temp = Unit::GetUnit(*me, TargetGUID))
                 {
                     me->GetMotionMaster()->MoveFollow(temp, 0.0f, 0.0f);
-                    TargetGUID = 0;
+                    TargetGUID.Clear();
                 }
                 else
                 {
@@ -250,8 +250,8 @@ public:
 
         InstanceScript* instance;
 
-        uint64 DoomfireSpiritGUID;
-        uint64 WorldTreeGUID;
+        ObjectGuid DoomfireSpiritGUID;
+        ObjectGuid WorldTreeGUID;
 
         uint32 DrainNordrassilTimer;
         uint32 FearTimer;
@@ -277,9 +277,9 @@ public:
             if (instance)
                 instance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
 
-            DoomfireSpiritGUID = 0;
+            DoomfireSpiritGUID.Clear();
             damageTaken = 0;
-            WorldTreeGUID = 0;
+            WorldTreeGUID.Clear();
 
             DrainNordrassilTimer = 0;
             FearTimer = 42000;
@@ -413,7 +413,7 @@ public:
                 if (Unit* DoomfireSpirit = Unit::GetUnit(*me, DoomfireSpiritGUID))
                 {
                     summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit, 0.0f, 0.0f);
-                    DoomfireSpiritGUID = 0;
+                    DoomfireSpiritGUID.Clear();
                 }
             }
         }

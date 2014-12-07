@@ -44,7 +44,7 @@ public:
             if (Spell->Id == 86264)
             {
                 if (Caster->ToPlayer())
-                    Caster->ToPlayer()->KilledMonsterCredit(46268, 0);
+                    Caster->ToPlayer()->KilledMonsterCredit(46268, ObjectGuid::Empty);
 
                 me->ForcedDespawn(1000);
                 me->SetRespawnDelay(15);
@@ -220,7 +220,7 @@ public:
                 case 3:
                     timer = 1000;
                     ++phase;
-                    me->MonsterSay("Probleme technique, interruption de la sequence", 0, 0);
+                    me->MonsterSay("Probleme technique, interruption de la sequence", 0, ObjectGuid::Empty);
                     break;
             }
         }

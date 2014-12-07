@@ -72,18 +72,18 @@ public:
         uint32 Encounter[MAX_ENCOUNTER];
         uint32 DelrissaDeathCount;
 
-        std::list<uint64> FelCrystals;
-        std::list<uint64>::const_iterator CrystalItr;
+        GuidList FelCrystals;
+        GuidList::const_iterator CrystalItr;
 
-        uint64 SelinGUID;
-        uint64 DelrissaGUID;
-        uint64 VexallusDoorGUID;
-        uint64 SelinDoorGUID;
-        uint64 SelinEncounterDoorGUID;
-        uint64 DelrissaDoorGUID;
-        uint64 KaelDoorGUID;
-        uint64 KaelStatue[2];
-        uint64 EscapeOrbGUID;
+        ObjectGuid SelinGUID;
+        ObjectGuid DelrissaGUID;
+        ObjectGuid VexallusDoorGUID;
+        ObjectGuid SelinDoorGUID;
+        ObjectGuid SelinEncounterDoorGUID;
+        ObjectGuid DelrissaDoorGUID;
+        ObjectGuid KaelDoorGUID;
+        ObjectGuid KaelStatue[2];
+        ObjectGuid EscapeOrbGUID;
 
         bool InitializedItr;
 
@@ -95,16 +95,16 @@ public:
 
             DelrissaDeathCount = 0;
 
-            SelinGUID = 0;
-            DelrissaGUID = 0;
-            VexallusDoorGUID = 0;
-            SelinDoorGUID = 0;
-            SelinEncounterDoorGUID = 0;
-            DelrissaDoorGUID = 0;
-            KaelDoorGUID = 0;
-            KaelStatue[0] = 0;
-            KaelStatue[1] = 0;
-            EscapeOrbGUID = 0;
+            SelinGUID.Clear();
+            DelrissaGUID.Clear();
+            VexallusDoorGUID.Clear();
+            SelinDoorGUID.Clear();
+            SelinEncounterDoorGUID.Clear();
+            DelrissaDoorGUID.Clear();
+            KaelDoorGUID.Clear();
+            KaelStatue[0].Clear();
+            KaelStatue[1].Clear();
+            EscapeOrbGUID.Clear();
 
             InitializedItr = false;
         }
@@ -215,7 +215,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -245,7 +245,7 @@ public:
                     if (FelCrystals.empty())
                     {
                         sLog->outError(LOG_FILTER_TSCR, "Magisters Terrace: No Fel Crystals loaded in Inst Data");
-                        return 0;
+                        return ObjectGuid::Empty;
                     }
 
                     if (!InitializedItr)
@@ -254,12 +254,12 @@ public:
                         InitializedItr = true;
                     }
 
-                    uint64 guid = *CrystalItr;
+                    ObjectGuid guid = *CrystalItr;
                     ++CrystalItr;
                     return guid;
                 }
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

@@ -48,38 +48,6 @@
 #define MELEE_RANGE                 (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
 #define MAGIC_RANGE                 30.0f
 
-enum TypeMask
-{
-    TYPEMASK_OBJECT         = 0x0001,
-    TYPEMASK_ITEM           = 0x0002,
-    TYPEMAST_BAG            = 0x0004,
-    TYPEMASK_CONTAINER      = TYPEMAST_BAG | TYPEMASK_ITEM,                       // TYPEMASK_ITEM | 0x0004
-    TYPEMASK_UNIT           = 0x0008, // creature
-    TYPEMASK_PLAYER         = 0x0010,
-    TYPEMASK_GAMEOBJECT     = 0x0020,
-    TYPEMASK_DYNAMICOBJECT  = 0x0040,
-    TYPEMASK_CORPSE         = 0x0080,
-    TYPEMASK_AREATRIGGER    = 0x0100,
-    TYPEMASK_SEER           = TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
-};
-
-enum TypeID
-{
-    TYPEID_OBJECT        = 0,
-    TYPEID_ITEM          = 1,
-    TYPEID_CONTAINER     = 2,
-    TYPEID_UNIT          = 3,
-    TYPEID_PLAYER        = 4,
-    TYPEID_GAMEOBJECT    = 5,
-    TYPEID_DYNAMICOBJECT = 6,
-    TYPEID_CORPSE        = 7,
-    TYPEID_AREATRIGGER   = 8
-};
-
-#define NUM_CLIENT_OBJECT_TYPES             9
-
-uint32 GuidHigh2TypeId(uint32 guid_hi);
-
 enum TempSummonType
 {
     TEMPSUMMON_TIMED_OR_DEAD_DESPAWN       = 1,             // despawns after a specified time OR when the creature disappears
@@ -135,12 +103,8 @@ class Object
         virtual void AddToWorld();
         virtual void RemoveFromWorld();
 
-        uint64 GetGUID() const { return GetUInt64Value(0); }
-        uint32 GetGUIDLow() const { return GUID_LOPART(GetUInt64Value(0)); }
-        uint32 GetGUIDMid() const { return GUID_ENPART(GetUInt64Value(0)); }
-        uint32 GetGUIDHigh() const { return GUID_HIPART(GetUInt64Value(0)); }
-        ObjectGuid GetObjectGuid() const { return ObjectGuid(GetUInt64Value(0)); }
-        const ByteBuffer& GetPackGUID() const { return m_PackGUID; }
+        ObjectGuid const& GetGUID() const { return GetGuidValue(OBJECT_FIELD_GUID); }
+        PackedGuid const& GetPackGUID() const { return m_PackGUID; }
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY_ID); }
         void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY_ID, entry); }
 
@@ -216,6 +180,8 @@ class Object
                 return uint16(0);
         }
 
+        ObjectGuid const& GetGuidValue(uint16 index) const;
+
         void SetInt32Value(uint16 index, int32 value);
         void UpdateInt32Value(uint16 index, int32 value);
         void SetUInt32Value(uint16 index, uint32 value);
@@ -225,11 +191,12 @@ class Object
         void SetByteValue(uint16 index, uint8 offset, uint8 value);
         void SetUInt16Value(uint16 index, uint8 offset, uint16 value);
         void SetInt16Value(uint16 index, uint8 offset, int16 value) { SetUInt16Value(index, offset, (uint16)value); }
+        void SetGuidValue(uint16 index, ObjectGuid const& value);
         void SetStatFloatValue(uint16 index, float value);
         void SetStatInt32Value(uint16 index, int32 value);
 
-        bool AddUInt64Value(uint16 index, uint64 value);
-        bool RemoveUInt64Value(uint16 index, uint64 value);
+        bool AddGuidValue(uint16 index, ObjectGuid const& value);
+        bool RemoveGuidValue(uint16 index, ObjectGuid const& value);
 
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);
@@ -335,7 +302,6 @@ class Object
 
         void SetDynamicUInt32Value(uint32 tab, uint16 index, uint32 value);
 
-
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
         virtual void BuildUpdate(UpdateDataMapType&) {}
@@ -375,7 +341,7 @@ class Object
         Object();
 
         void _InitValues();
-        void _Create(uint32 guidlow, uint32 entry, HighGuid guidhigh);
+        void _Create(ObjectGuid const& guid);
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
         void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
 
@@ -415,17 +381,12 @@ class Object
     private:
         bool m_inWorld;
 
-        ByteBuffer m_PackGUID;
+        PackedGuid m_PackGUID;
 
         // for output helpfull error messages from asserts
         bool PrintIndexError(uint32 index, bool set) const;
         Object(const Object&);                              // prevent generation copy constructor
         Object& operator=(Object const&);                   // prevent generation assigment operator
-
-    public:
-        static char const* GetTypeName(uint32 high);
-        char const* GetTypeName() const { return m_valuesCount ? GetTypeName(GetGUIDHigh()) : "None"; }
-        std::string GetString() const;
 };
 
 struct Position
@@ -570,7 +531,7 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& st
 struct MovementInfo
 {
     // common
-    uint64 guid;
+    ObjectGuid guid;
     uint32 flags;
     uint16 flags2;
     Position pos;
@@ -578,7 +539,7 @@ struct MovementInfo
     // transport
     bool hasTransportTime2;
     bool hasTransportTime3;
-    uint64 t_guid;
+    ObjectGuid t_guid;
     Position t_pos;
     int8 t_seat;
     uint32 t_time;
@@ -607,7 +568,7 @@ struct MovementInfo
     MovementInfo()
     {
         pos.Relocate(0, 0, 0, 0);
-        guid = 0;
+        guid.Clear();
         flags = 0;
         flags2 = 0;
         hasTransportTime2 = false;
@@ -617,7 +578,7 @@ struct MovementInfo
         hasSplineElevation = false;
         hasPitch = false;
         pitch = j_zspeed = j_sinAngle = j_cosAngle = j_xyspeed = 0.0f;
-        t_guid = 0;
+        t_guid.Clear();
         t_pos.Relocate(0, 0, 0, 0);
         t_seat = -1;
         hasFallData = false;
@@ -729,8 +690,6 @@ class WorldObject : public Object, public WorldLocation
         virtual ~WorldObject();
 
         virtual void Update (uint32 /*time_diff*/) { }
-
-        void _Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask);
 
         virtual void RemoveFromWorld()
         {
@@ -901,21 +860,21 @@ class WorldObject : public Object, public WorldLocation
 
         virtual uint8 getLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 
-        void MonsterSay(const char* text, uint32 language, uint64 TargetGuid);
-        void MonsterYell(const char* text, uint32 language, uint64 TargetGuid);
-        void MonsterTextEmote(const char* text, uint64 TargetGuid, bool IsBossEmote = false);
-        void MonsterWhisper(const char* text, uint64 receiver, bool IsBossWhisper = false);
-        void MonsterSay(int32 textId, uint32 language, uint64 TargetGuid);
-        void MonsterYell(int32 textId, uint32 language, uint64 TargetGuid);
-        void MonsterTextEmote(int32 textId, uint64 TargetGuid, bool IsBossEmote = false);
-        void MonsterWhisper(int32 textId, uint64 receiver, bool IsBossWhisper = false);
-        void MonsterYellToZone(int32 textId, uint32 language, uint64 TargetGuid);
-        void BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, char const* name, uint64 TargetGuid) const;
+        void MonsterSay(const char* text, uint32 language, ObjectGuid TargetGuid);
+        void MonsterYell(const char* text, uint32 language, ObjectGuid TargetGuid);
+        void MonsterTextEmote(const char* text, ObjectGuid TargetGuid, bool IsBossEmote = false);
+        void MonsterWhisper(const char* text, ObjectGuid receiver, bool IsBossWhisper = false);
+        void MonsterSay(int32 textId, uint32 language, ObjectGuid TargetGuid);
+        void MonsterYell(int32 textId, uint32 language, ObjectGuid TargetGuid);
+        void MonsterTextEmote(int32 textId, ObjectGuid TargetGuid, bool IsBossEmote = false);
+        void MonsterWhisper(int32 textId, ObjectGuid receiver, bool IsBossWhisper = false);
+        void MonsterYellToZone(int32 textId, uint32 language, ObjectGuid TargetGuid);
+        void BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, char const* name, ObjectGuid TargetGuid) const;
 
         void PlayDistanceSound(uint32 sound_id, Player* target = NULL);
         void PlayDirectSound(uint32 sound_id, Player* target = NULL);
 
-        void SendObjectDeSpawnAnim(uint64 guid);
+        void SendObjectDeSpawnAnim(ObjectGuid guid);
 
         virtual void SaveRespawnTime() {}
         void AddObjectToRemoveList();
@@ -951,9 +910,9 @@ class WorldObject : public Object, public WorldLocation
         void SetZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
-        TempSummon* SummonCreature(uint32 id, const Position &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, int32 vehId = 0, uint64 viewerGuid = 0, std::list<uint64>* viewersList = NULL) const;
-        TempSummon* SummonCreature(uint32 id, const Position &pos, uint64 targetGuid, TempSummonType spwtype, uint32 despwtime, uint32 spellId = 0, SummonPropertiesEntry const* properties = NULL) const;
-        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint64 viewerGuid = 0, std::list<uint64>* viewersList = NULL)
+        TempSummon* SummonCreature(uint32 id, const Position &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, int32 vehId = 0, ObjectGuid viewerGuid = ObjectGuid::Empty, GuidList* viewersList = NULL) const;
+        TempSummon* SummonCreature(uint32 id, const Position &pos, ObjectGuid targetGuid, TempSummonType spwtype, uint32 despwtime, uint32 spellId = 0, SummonPropertiesEntry const* properties = NULL) const;
+        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, ObjectGuid viewerGuid = ObjectGuid::Empty, GuidList* viewersList = NULL)
         {
             if (!x && !y && !z)
             {
@@ -964,11 +923,11 @@ class WorldObject : public Object, public WorldLocation
             pos.Relocate(x, y, z, ang);
             return SummonCreature(id, pos, spwtype, despwtime, 0, viewerGuid, viewersList);
         }
-        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid = 0, std::list<uint64>* viewersList = NULL);
+        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, ObjectGuid viewerGuid = ObjectGuid::Empty, GuidList* viewersList = NULL);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
 
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
-        void GetAreaTriggersWithEntryInRange(std::list<AreaTrigger*>& list, uint32 entry, uint64 casterGuid, float fMaxSearchRange) const;
+        void GetAreaTriggersWithEntryInRange(std::list<AreaTrigger*>& list, uint32 entry, ObjectGuid casterGuid, float fMaxSearchRange) const;
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         Player*     FindNearestPlayer(float range, bool alive = true);
@@ -1014,20 +973,20 @@ class WorldObject : public Object, public WorldLocation
         virtual float GetTransOffsetO() const { return 0; }
         virtual uint32 GetTransTime()   const { return 0; }
         virtual int8 GetTransSeat()     const { return -1; }
-        virtual uint64 GetTransGUID()   const;
+        virtual ObjectGuid GetTransGUID()   const;
         void SetTransport(Transport* t) { m_transport = t; }
 
         MovementInfo m_movementInfo;
 
         // Personal visibility system
         bool MustBeVisibleOnlyForSomePlayers() const { return !_visibilityPlayerList.empty(); }
-        void GetMustBeVisibleForPlayersList(std::list<uint64/* guid*/>& playerList) { playerList = _visibilityPlayerList; }
+        void GetMustBeVisibleForPlayersList(GuidList& playerList) { playerList = _visibilityPlayerList; }
 
-        bool IsPlayerInPersonnalVisibilityList(uint64 guid) const;
-        bool IsGroupInPersonnalVisibilityList(uint64 guid) const;
-        void AddPlayerInPersonnalVisibilityList(uint64 guid) { _visibilityPlayerList.push_back(guid); }
-        void AddPlayersInPersonnalVisibilityList(std::list<uint64> viewerList);
-        void RemovePlayerFromPersonnalVisibilityList(uint64 guid) { _visibilityPlayerList.remove(guid); }
+        bool IsPlayerInPersonnalVisibilityList(ObjectGuid guid) const;
+        bool IsGroupInPersonnalVisibilityList(ObjectGuid guid) const;
+        void AddPlayerInPersonnalVisibilityList(ObjectGuid guid) { _visibilityPlayerList.push_back(guid); }
+        void AddPlayersInPersonnalVisibilityList(GuidList viewerList);
+        void RemovePlayerFromPersonnalVisibilityList(ObjectGuid guid) { _visibilityPlayerList.remove(guid); }
 
     protected:
         std::string m_name;
@@ -1059,7 +1018,7 @@ class WorldObject : public Object, public WorldLocation
         uint32 m_phaseId;                                   // special phase. It's new generation phase, when we should check id.
         bool m_ignorePhaseIdCheck;                          // like gm mode.
 
-        std::list<uint64/* guid*/> _visibilityPlayerList;
+        GuidList _visibilityPlayerList;
 
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
 
@@ -1096,7 +1055,7 @@ namespace Trinity
                 if (!pLeft->IsInWorld() || !pRight->IsInWorld())
                     return false;
 
-                return m_ascending ? pLeft->GetGUIDLow() < pRight->GetGUIDLow() : pLeft->GetGUIDLow() > pRight->GetGUIDLow();
+                return m_ascending ? pLeft->GetGUID().GetCounter() < pRight->GetGUID().GetCounter() : pLeft->GetGUID().GetCounter() > pRight->GetGUID().GetCounter();
             }
         private:
             const bool m_ascending;

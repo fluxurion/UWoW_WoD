@@ -122,7 +122,7 @@ class GameEventMgr
         void HandleQuestComplete(uint32 quest_id);  // called on world event type quest completions
         void HandleWorldEventGossip(Player* player, Creature* c);
         uint32 GetNPCFlag(Creature* cr);
-        uint32 GetNpcTextId(uint32 guid);
+        uint32 GetNpcTextId(ObjectGuid::LowType guid);
         uint16 GetEventIdForQuest(Quest const* quest) const;
     private:
         void SendWorldStateUpdate(Player* player, uint16 event_id);

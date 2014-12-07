@@ -19,10 +19,10 @@ class instance_dragon_soul : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
 
-                uiMorchokGUID = 0;
-                uiKohcromGUID = 0;
-                uiValeeraGUID = 0;
-                uiEiendormiGUID = 0;
+                uiMorchokGUID.Clear();
+                uiKohcromGUID.Clear();
+                uiValeeraGUID.Clear();
+                uiEiendormiGUID.Clear();
             }
 
             void OnPlayerEnter(Player* pPlayer)
@@ -64,7 +64,7 @@ class instance_dragon_soul : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -72,9 +72,9 @@ class instance_dragon_soul : public InstanceMapScript
                     case DATA_KOHCROM: return uiKohcromGUID;
                     case NPC_VALEERA: return uiValeeraGUID;
                     case NPC_EIENDORMI: return uiEiendormiGUID;
-                    default: return 0;
+                    default: return ObjectGuid::Empty;
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state)
@@ -85,7 +85,7 @@ class instance_dragon_soul : public InstanceMapScript
                 if (state == IN_PROGRESS)
                 {
                     if (!teleportGUIDs.empty())
-                        for (std::vector<uint64>::const_iterator itr = teleportGUIDs.begin(); itr != teleportGUIDs.end(); ++itr)
+                        for (GuidVector::const_iterator itr = teleportGUIDs.begin(); itr != teleportGUIDs.end(); ++itr)
                             if (Creature* pTeleport = instance->GetCreature((*itr)))
                             {
                                 pTeleport->RemoveAura(SPELL_TELEPORT_VISUAL_ACTIVE);
@@ -95,7 +95,7 @@ class instance_dragon_soul : public InstanceMapScript
                 else
                 {
                     if (!teleportGUIDs.empty())
-                        for (std::vector<uint64>::const_iterator itr = teleportGUIDs.begin(); itr != teleportGUIDs.end(); ++itr)
+                        for (GuidVector::const_iterator itr = teleportGUIDs.begin(); itr != teleportGUIDs.end(); ++itr)
                             if (Creature* pTeleport = instance->GetCreature((*itr)))
                             {
                                 pTeleport->RemoveAura(SPELL_TELEPORT_VISUAL_DISABLED);
@@ -154,12 +154,12 @@ class instance_dragon_soul : public InstanceMapScript
             private:
                 uint32 uiTeamInInstance;
 
-                uint64 uiMorchokGUID;
-                uint64 uiKohcromGUID;
-                uint64 uiValeeraGUID;
-                uint64 uiEiendormiGUID;
+                ObjectGuid uiMorchokGUID;
+                ObjectGuid uiKohcromGUID;
+                ObjectGuid uiValeeraGUID;
+                ObjectGuid uiEiendormiGUID;
 
-                std::vector<uint64> teleportGUIDs;
+                GuidVector teleportGUIDs;
                
         };
 };

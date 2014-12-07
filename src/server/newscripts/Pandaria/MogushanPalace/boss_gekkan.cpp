@@ -48,14 +48,14 @@ class boss_gekkan : public CreatureScript
             boss_gekkan_AI(Creature* creature) : BossAI(creature, DATA_GEKKAN)
             {
             }
-            std::list<uint64> entourage;
+            GuidList entourage;
 
             void EnterCombat(Unit* who)
             {
                 //Get the four adds.
                 if (me->GetInstanceScript())
                     for (int i = 0; i < 4; ++i)
-                        entourage.push_back(me->GetInstanceScript()->GetData64(TYPE_GET_ENTOURAGE + i));
+                        entourage.push_back(me->GetInstanceScript()->GetGuidData(TYPE_GET_ENTOURAGE + i));
                 events.ScheduleEvent(EVENT_RECKLESS_INSPIRATION, 3000);
                 Talk(TALK_AGGRO);
 
@@ -65,7 +65,7 @@ class boss_gekkan : public CreatureScript
 
             void JustDied(Unit* who)
             {
-                for (std::list<uint64>::iterator itr = entourage.begin(); itr != entourage.end(); ++itr)
+                for (GuidList::iterator itr = entourage.begin(); itr != entourage.end(); ++itr)
                 {
                     Creature* c = me->GetMap()->GetCreature(*itr);
                     if (!c)
@@ -88,8 +88,8 @@ class boss_gekkan : public CreatureScript
                 case ACTION_ENTOURAGE_DIED:
                     {
                         //Delete the guid of the list if one dies.
-                        uint64 dead_entourage = 0;
-						for (std::list<uint64>::iterator itr = entourage.begin(); itr != entourage.end(); ++itr)
+                        ObjectGuid dead_entourage;
+						for (GuidList::iterator itr = entourage.begin(); itr != entourage.end(); ++itr)
                         {
                             Creature* c = me->GetMap()->GetCreature(*itr);
                             if (!c)
@@ -125,9 +125,9 @@ class boss_gekkan : public CreatureScript
                     case EVENT_RECKLESS_INSPIRATION:
                         {
                             //Cast on a random entourage the inspiration.
-                            std::list<uint64>::iterator itr = entourage.begin();
+                            GuidList::iterator itr = entourage.begin();
                             std::advance(itr, urand(0, entourage.size() - 1));
-                            uint64 guid = *itr;
+                            ObjectGuid guid = *itr;
                             Creature* c = me->GetMap()->GetCreature(guid);
                             if (c)
                             {

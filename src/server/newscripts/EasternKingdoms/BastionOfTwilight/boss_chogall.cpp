@@ -403,7 +403,7 @@ class boss_chogall : public CreatureScript
                     case EVENT_FESTER_BLOOD_1:
                         if (!summons.empty())
                         {
-                            for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                            for (GuidList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
                             {
                                 if(Creature* pSummon = Unit::GetCreature(*me, *itr))
                                 {
@@ -627,7 +627,7 @@ class npc_chogall_fire_elemental : public CreatureScript
                 if (!pInstance)
                     return;
                 bNear = false;
-                pChogall = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_CHOGALL));
+                pChogall = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_CHOGALL));
                 if (!pChogall)
                     me->DespawnOrUnsummon();
                 DoCast(me, SPELL_FIRE_SHELL);
@@ -698,7 +698,7 @@ class npc_chogall_shadow_lord : public CreatureScript
                 if (!pInstance)
                     return;
                 bNear = false;
-                pChogall = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_CHOGALL));
+                pChogall = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_CHOGALL));
                 if (!pChogall)
                     me->DespawnOrUnsummon();
                 DoCast(me, SPELL_SHADOW_SHELL);

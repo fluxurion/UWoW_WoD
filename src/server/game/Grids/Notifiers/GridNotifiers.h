@@ -43,7 +43,7 @@ namespace Trinity
         Player &i_player;
         UpdateData i_data;
         std::set<Unit*> i_visibleNow;
-        Player::ClientGUIDs vis_guids;
+        GuidSet vis_guids;
 
         VisibleNotifier(Player &player) : i_player(player), i_data(player.GetMapId()), vis_guids(player.m_clientGUIDs) {}
         template<class T> void Visit(GridRefManager<T> &m);
@@ -1058,7 +1058,7 @@ namespace Trinity
     class AreaTriggerWithEntryInObjectRangeCheck
     {
         public:
-            AreaTriggerWithEntryInObjectRangeCheck(WorldObject const* obj, uint32 entry, uint64 casterGuid, float range) : i_obj(obj), i_entry(entry), i_casterGuid(casterGuid), i_range(range) {}
+            AreaTriggerWithEntryInObjectRangeCheck(WorldObject const* obj, uint32 entry, ObjectGuid casterGuid, float range) : i_obj(obj), i_entry(entry), i_casterGuid(casterGuid), i_range(range) {}
             bool operator()(AreaTrigger* at)
             {
                 if (i_obj->IsWithinDistInMap(at, i_range) && i_entry == at->GetEntry() && (!i_casterGuid || i_casterGuid == at->GetCasterGUID()))
@@ -1070,7 +1070,7 @@ namespace Trinity
             WorldObject const* i_obj;
             float i_range;
             uint32 i_entry;
-            uint64 i_casterGuid;
+            ObjectGuid i_casterGuid;
     };
 
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)
@@ -1613,20 +1613,20 @@ namespace Trinity
     class ObjectGUIDCheck
     {
         public:
-            ObjectGUIDCheck(uint64 GUID) : _GUID(GUID) {}
+            ObjectGUIDCheck(ObjectGuid GUID) : _GUID(GUID) {}
             bool operator()(WorldObject* object)
             {
                 return object->GetGUID() == _GUID;
             }
 
         private:
-            uint64 _GUID;
+            ObjectGuid _GUID;
     };
 
     class UnitAuraCheck
     {
         public:
-            UnitAuraCheck(bool present, uint32 spellId, uint64 casterGUID = 0) : _present(present), _spellId(spellId), _casterGUID(casterGUID) {}
+            UnitAuraCheck(bool present, uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty) : _present(present), _spellId(spellId), _casterGUID(casterGUID) {}
             bool operator()(Unit* unit) const
             {
                 return unit->HasAura(_spellId, _casterGUID) == _present;
@@ -1640,7 +1640,7 @@ namespace Trinity
         private:
             bool _present;
             uint32 _spellId;
-            uint64 _casterGUID;
+            ObjectGuid _casterGUID;
     };
 
     class UnitAuraTypeCheck

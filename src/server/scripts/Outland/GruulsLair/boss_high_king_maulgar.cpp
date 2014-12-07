@@ -73,11 +73,11 @@ bool CheckAllBossDied(InstanceScript* instance, Creature* me)
     if (!instance || !me)
         return false;
 
-    uint64 MaulgarGUID = 0;
-    uint64 KigglerGUID = 0;
-    uint64 BlindeyeGUID = 0;
-    uint64 OlmGUID = 0;
-    uint64 KroshGUID = 0;
+    ObjectGuid MaulgarGUID;
+    ObjectGuid KigglerGUID;
+    ObjectGuid BlindeyeGUID;
+    ObjectGuid OlmGUID;
+    ObjectGuid KroshGUID;
 
     Creature* Maulgar = NULL;
     Creature* Kiggler = NULL;
@@ -85,11 +85,11 @@ bool CheckAllBossDied(InstanceScript* instance, Creature* me)
     Creature* Olm = NULL;
     Creature* Krosh = NULL;
 
-    MaulgarGUID = instance->GetData64(DATA_MAULGAR);
-    KigglerGUID = instance->GetData64(DATA_KIGGLERTHECRAZED);
-    BlindeyeGUID = instance->GetData64(DATA_BLINDEYETHESEER);
-    OlmGUID = instance->GetData64(DATA_OLMTHESUMMONER);
-    KroshGUID = instance->GetData64(DATA_KROSHFIREHAND);
+    MaulgarGUID = instance->GetGuidData(DATA_MAULGAR);
+    KigglerGUID = instance->GetGuidData(DATA_KIGGLERTHECRAZED);
+    BlindeyeGUID = instance->GetGuidData(DATA_BLINDEYETHESEER);
+    OlmGUID = instance->GetGuidData(DATA_OLMTHESUMMONER);
+    KroshGUID = instance->GetGuidData(DATA_KROSHFIREHAND);
 
     Maulgar = (Unit::GetCreature((*me), MaulgarGUID));
     Kiggler = (Unit::GetCreature((*me), KigglerGUID));
@@ -123,7 +123,7 @@ public:
         {
             instance = creature->GetInstanceScript();
             for (uint8 i = 0; i < 4; ++i)
-                Council[i] = 0;
+                Council[i].Clear();
         }
 
         InstanceScript* instance;
@@ -136,7 +136,7 @@ public:
 
         bool Phase2;
 
-        uint64 Council[4];
+        ObjectGuid Council[4];
 
         void Reset()
         {
@@ -197,10 +197,10 @@ public:
             if (instance)
             {
                 //get council member's guid to respawn them if needed
-                Council[0] = instance->GetData64(DATA_KIGGLERTHECRAZED);
-                Council[1] = instance->GetData64(DATA_BLINDEYETHESEER);
-                Council[2] = instance->GetData64(DATA_OLMTHESUMMONER);
-                Council[3] = instance->GetData64(DATA_KROSHFIREHAND);
+                Council[0] = instance->GetGuidData(DATA_KIGGLERTHECRAZED);
+                Council[1] = instance->GetGuidData(DATA_BLINDEYETHESEER);
+                Council[2] = instance->GetGuidData(DATA_OLMTHESUMMONER);
+                Council[3] = instance->GetGuidData(DATA_KROSHFIREHAND);
             }
         }
 
@@ -213,7 +213,7 @@ public:
 
             DoScriptText(SAY_AGGRO, me);
 
-            instance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
+            instance->SetGuidData(DATA_MAULGAREVENT_TANK, who->GetGUID());
             instance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
 
             DoZoneInCombat();
@@ -224,7 +224,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_MAULGAREVENT_TANK));
 
                 if (target)
                 {
@@ -359,7 +359,7 @@ public:
         {
             if (instance)
             {
-                instance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
+                instance->SetGuidData(DATA_MAULGAREVENT_TANK, who->GetGUID());
                 instance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
             }
         }
@@ -369,7 +369,7 @@ public:
             if (instance)
             {
                 Creature* Maulgar = NULL;
-                Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR)));
+                Maulgar = (Unit::GetCreature((*me), instance->GetGuidData(DATA_MAULGAR)));
 
                 if (Maulgar)
                     CAST_AI(boss_high_king_maulgar::boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
@@ -384,7 +384,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_MAULGAREVENT_TANK));
 
                 if (target)
                 {
@@ -474,7 +474,7 @@ public:
         {
             if (instance)
             {
-                instance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
+                instance->SetGuidData(DATA_MAULGAREVENT_TANK, who->GetGUID());
                 instance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
             }
         }
@@ -484,7 +484,7 @@ public:
             if (instance)
             {
                 Creature* Maulgar = NULL;
-                Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR)));
+                Maulgar = (Unit::GetCreature((*me), instance->GetGuidData(DATA_MAULGAR)));
 
                 if (Maulgar)
                     CAST_AI(boss_high_king_maulgar::boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
@@ -499,7 +499,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_MAULGAREVENT_TANK));
 
                 if (target)
                 {
@@ -594,7 +594,7 @@ public:
         {
             if (instance)
             {
-                instance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
+                instance->SetGuidData(DATA_MAULGAREVENT_TANK, who->GetGUID());
                 instance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
             }
         }
@@ -604,7 +604,7 @@ public:
             if (instance)
             {
                 Creature* Maulgar = NULL;
-                Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR)));
+                Maulgar = (Unit::GetCreature((*me), instance->GetGuidData(DATA_MAULGAR)));
 
                 if (Maulgar)
                     CAST_AI(boss_high_king_maulgar::boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
@@ -619,7 +619,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_MAULGAREVENT_TANK));
 
                 if (target)
                 {
@@ -704,7 +704,7 @@ public:
         {
             if (instance)
             {
-                instance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
+                instance->SetGuidData(DATA_MAULGAREVENT_TANK, who->GetGUID());
                 instance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
             }
         }
@@ -714,7 +714,7 @@ public:
             if (instance)
             {
                 Creature* Maulgar = NULL;
-                Maulgar = (Unit::GetCreature((*me), instance->GetData64(DATA_MAULGAR)));
+                Maulgar = (Unit::GetCreature((*me), instance->GetGuidData(DATA_MAULGAR)));
 
                 if (Maulgar)
                     CAST_AI(boss_high_king_maulgar::boss_high_king_maulgarAI, Maulgar->AI())->AddDeath();
@@ -729,7 +729,7 @@ public:
             //Only if not incombat check if the event is started
             if (!me->isInCombat() && instance && instance->GetData(DATA_MAULGAREVENT))
             {
-                Unit* target = Unit::GetUnit(*me, instance->GetData64(DATA_MAULGAREVENT_TANK));
+                Unit* target = Unit::GetUnit(*me, instance->GetGuidData(DATA_MAULGAREVENT_TANK));
 
                 if (target)
                 {

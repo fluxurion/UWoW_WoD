@@ -136,13 +136,13 @@ public:
     {
         mob_restless_soulAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 Tagger;
+        ObjectGuid Tagger;
         uint32 Die_Timer;
         bool Tagged;
 
         void Reset()
         {
-            Tagger = 0;
+            Tagger.Clear();
             Die_Timer = 5000;
             Tagged = false;
         }

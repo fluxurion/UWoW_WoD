@@ -71,7 +71,7 @@ public:
                 case 0:
                     spawnCreatureID = 17681;
                     if (Player* player = killer->ToPlayer())
-                        player->KilledMonsterCredit(spawnCreatureID, 0);
+                        player->KilledMonsterCredit(spawnCreatureID, ObjectGuid::Empty);
                     break;
                 case 1:
                 case 2:
@@ -176,7 +176,7 @@ public:
         {
             go->SetGoState(GO_STATE_ACTIVE);
             stillpine->GetMotionMaster()->MovePoint(1, go->GetPositionX(), go->GetPositionY()-15, go->GetPositionZ());
-            player->CastedCreatureOrGO(NPC_PRINCESS_STILLPINE, 0, SPELL_OPENING_PRINCESS_STILLPINE_CREDIT);
+            player->CastedCreatureOrGO(NPC_PRINCESS_STILLPINE, ObjectGuid::Empty, SPELL_OPENING_PRINCESS_STILLPINE_CREDIT);
         }
         return true;
     }
@@ -386,7 +386,7 @@ public:
 
                 if (killer->GetGUID() == legoso->GetGUID() ||
                     (group && group->IsMember(killer->GetGUID())) ||
-                    killer->GetGUIDLow() == legoso->AI()->GetData(DATA_EVENT_STARTER_GUID))
+                    killer->GetGUID().GetCounter() == legoso->AI()->GetData(DATA_EVENT_STARTER_GUID))
                     legoso->AI()->DoAction(ACTION_LEGOSO_SIRONAS_KILLED);
             }
         }
@@ -442,7 +442,7 @@ public:
                 case ACTION_SIRONAS_CHANNEL_STOP:
                 {
                     me->InterruptNonMeleeSpells(true, SPELL_SIRONAS_CHANNELING);
-                    for (std::list<uint64>::const_iterator itr = _beamGuidList.begin(); itr != _beamGuidList.end(); ++itr)
+                    for (GuidList::const_iterator itr = _beamGuidList.begin(); itr != _beamGuidList.end(); ++itr)
                         if (Creature* beam = ObjectAccessor::GetCreature(*me, *itr))
                             beam->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
                     break;
@@ -453,7 +453,7 @@ public:
         }
 
     private:
-        std::list<uint64> _beamGuidList;
+        GuidList _beamGuidList;
         EventMap _events;
     };
 };
@@ -471,7 +471,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_ENDING_THEIR_WORLD)
         {
-            creature->AI()->SetData(DATA_EVENT_STARTER_GUID, player->GetGUIDLow());
+            creature->AI()->SetData(DATA_EVENT_STARTER_GUID, player->GetGUID().GetCounter());
             CAST_AI(npc_demolitionist_legoso::npc_demolitionist_legosoAI, creature->AI())->Start(true, true, player->GetGUID(), quest);
         }
 

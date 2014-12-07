@@ -35,47 +35,47 @@ public:
 
         uint32 encounter[MAX_ENCOUNTER];
         std::string m_strInstData;
-        uint64 HighlordOmokk;
-        uint64 ShadowHunterVoshgajin;
-        uint64 WarMasterVoone;
-        uint64 MotherSmolderweb;
-        uint64 UrokDoomhowl;
-        uint64 QuartermasterZigris;
-        uint64 GizrultheSlavener;
-        uint64 Halycon;
-        uint64 OverlordWyrmthalak;
-        uint64 PyroguardEmberseer;
-        uint64 WarchiefRendBlackhand;
-        uint64 Gyth;
-        uint64 TheBeast;
-        uint64 GeneralDrakkisath;
-        uint64 go_emberseerin;
-        uint64 go_doors;
-        uint64 go_emberseerout;
-        uint64 go_roomrunes[MAX_DRAGONSPIRE_HALL_RUNES];
+        ObjectGuid HighlordOmokk;
+        ObjectGuid ShadowHunterVoshgajin;
+        ObjectGuid WarMasterVoone;
+        ObjectGuid MotherSmolderweb;
+        ObjectGuid UrokDoomhowl;
+        ObjectGuid QuartermasterZigris;
+        ObjectGuid GizrultheSlavener;
+        ObjectGuid Halycon;
+        ObjectGuid OverlordWyrmthalak;
+        ObjectGuid PyroguardEmberseer;
+        ObjectGuid WarchiefRendBlackhand;
+        ObjectGuid Gyth;
+        ObjectGuid TheBeast;
+        ObjectGuid GeneralDrakkisath;
+        ObjectGuid go_emberseerin;
+        ObjectGuid go_doors;
+        ObjectGuid go_emberseerout;
+        ObjectGuid go_roomrunes[MAX_DRAGONSPIRE_HALL_RUNES];
         uint8 Runemaxprotectors[MAX_DRAGONSPIRE_HALL_RUNES];
         uint8 Runeprotectorsdead[MAX_DRAGONSPIRE_HALL_RUNES];
 
         void Initialize()
         {
             SetBossNumber(MAX_ENCOUNTER);
-            HighlordOmokk           = 0;
-            ShadowHunterVoshgajin   = 0;
-            WarMasterVoone          = 0;
-            MotherSmolderweb        = 0;
-            UrokDoomhowl            = 0;
-            QuartermasterZigris     = 0;
-            GizrultheSlavener       = 0;
-            Halycon                 = 0;
-            OverlordWyrmthalak      = 0;
-            PyroguardEmberseer      = 0;
-            WarchiefRendBlackhand   = 0;
-            Gyth                    = 0;
-            TheBeast                = 0;
-            GeneralDrakkisath       = 0;
-            go_emberseerin          = 0;
-            go_doors                = 0;
-            go_emberseerout         = 0;
+            HighlordOmokk.Clear();
+            ShadowHunterVoshgajin.Clear();
+            WarMasterVoone.Clear();
+            MotherSmolderweb.Clear();
+            UrokDoomhowl.Clear();
+            QuartermasterZigris.Clear();
+            GizrultheSlavener.Clear();
+            Halycon.Clear();
+            OverlordWyrmthalak.Clear();
+            PyroguardEmberseer.Clear();
+            WarchiefRendBlackhand.Clear();
+            Gyth.Clear();
+            TheBeast.Clear();
+            GeneralDrakkisath.Clear();
+            go_emberseerin.Clear();
+            go_doors.Clear();
+            go_emberseerout.Clear();
         }
 
         bool IsEncounterInProgress() const
@@ -222,7 +222,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -276,7 +276,7 @@ public:
                     return go_roomrunes[6];
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

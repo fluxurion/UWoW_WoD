@@ -56,20 +56,20 @@ public:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
 
-        uint64 m_uiRefectoryDoorGUID;
-        uint64 m_uiScreamingHallDoorGUID;
+        ObjectGuid m_uiRefectoryDoorGUID;
+        ObjectGuid m_uiScreamingHallDoorGUID;
 
-        uint64 m_uiGrandmasterVorpil;
+        ObjectGuid m_uiGrandmasterVorpil;
         uint32 m_uiFelOverseerCount;
 
         void Initialize()
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            m_uiRefectoryDoorGUID = 0;
-            m_uiScreamingHallDoorGUID = 0;
+            m_uiRefectoryDoorGUID.Clear();
+            m_uiScreamingHallDoorGUID.Clear();
 
-            m_uiGrandmasterVorpil = 0;
+            m_uiGrandmasterVorpil.Clear();
             m_uiFelOverseerCount = 0;
         }
 
@@ -191,12 +191,12 @@ public:
             return false;
         }
 
-        uint64 GetData64(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             if (identifier == DATA_GRANDMASTERVORPIL)
                 return m_uiGrandmasterVorpil;
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

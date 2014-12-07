@@ -69,32 +69,32 @@ void WorldSession::SendGroupInvite(Player* player, bool AlowEnter)
 
     WorldPacket data(SMSG_GROUP_INVITE, 45);
 
-    data.WriteGuidMask<3, 5>(invitedGuid);
+    //data.WriteGuidMask<3, 5>(invitedGuid);
     data.WriteBit(0);
-    data.WriteGuidMask<7, 2, 0>(invitedGuid);
+    //data.WriteGuidMask<7, 2, 0>(invitedGuid);
     data.WriteBits(0, 22);                              // Count 2
     data.WriteBits(strlen(GetPlayer()->GetName()), 6);  // Inviter name length
     data.WriteBit(AlowEnter);                           // Inverse already in group
-    data.WriteGuidMask<4>(invitedGuid);
+    //data.WriteGuidMask<4>(invitedGuid);
     data.WriteBit(0);
     data.WriteBit(0);
     data.WriteBits(0, 9);                              // Realm name
-    data.WriteGuidMask<6, 1>(invitedGuid);
+    //data.WriteGuidMask<6, 1>(invitedGuid);
 
     data.FlushBits();
 
     data << int32(0);
-    data.WriteGuidBytes<6>(invitedGuid);
+    //data.WriteGuidBytes<6>(invitedGuid);
     // data.append(realm name);
-    data.WriteGuidBytes<1, 2>(invitedGuid);
+    //data.WriteGuidBytes<1, 2>(invitedGuid);
     data << int32(0);
     data.WriteString(GetPlayer()->GetName()); // inviter name
-    data.WriteGuidBytes<0>(invitedGuid);
+    //data.WriteGuidBytes<0>(invitedGuid);
     data << int32(0);
     // for count2 { int32(0) }
-    data.WriteGuidBytes<7, 3>(invitedGuid);
+    //data.WriteGuidBytes<7, 3>(invitedGuid);
     data << int64(getMSTime());
-    data.WriteGuidBytes<5, 4>(invitedGuid);
+    //data.WriteGuidBytes<5, 4>(invitedGuid);
 
     player->GetSession()->SendPacket(&data);
 }
@@ -118,15 +118,15 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
     
     std::string realmName, memberName;
 
-    recvData.ReadGuidMask<2>(crossRealmGuid);
+    //recvData.ReadGuidMask<2>(crossRealmGuid);
     uint8 realmLen = recvData.ReadBits(9);
-    recvData.ReadGuidMask<0, 3, 4, 6, 7, 5, 1>(crossRealmGuid);
+    //recvData.ReadGuidMask<0, 3, 4, 6, 7, 5, 1>(crossRealmGuid);
     uint8 nameLen = recvData.ReadBits(9);
 
-    recvData.ReadGuidBytes<5>(crossRealmGuid);
+    //recvData.ReadGuidBytes<5>(crossRealmGuid);
     realmName = recvData.ReadString(realmLen); // unused
     memberName = recvData.ReadString(nameLen);
-    recvData.ReadGuidBytes<4, 0, 3, 6, 1, 2, 7>(crossRealmGuid);
+    //recvData.ReadGuidBytes<4, 0, 3, 6, 1, 2, 7>(crossRealmGuid);
 
     // attempt add selected player
 
@@ -171,7 +171,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
         return;
     }
 
-    if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
+    if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
     {
         SendPartyResult(PARTY_OP_INVITE, memberName, ERR_IGNORING_YOU_S);
         return;
@@ -266,7 +266,7 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
 
         if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
             return;
         }
 
@@ -332,17 +332,17 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket& recvData)
 
     recvData.read_skip<uint8>(); // unk 0x00
 
-    recvData.ReadGuidMask<3>(guid);
+    //recvData.ReadGuidMask<3>(guid);
     uint8 stringSize = recvData.ReadBits(8);
-    recvData.ReadGuidMask<5, 2, 0, 4, 1, 6, 7>(guid);
-    recvData.ReadGuidBytes<0, 4>(guid);
+    //recvData.ReadGuidMask<5, 2, 0, 4, 1, 6, 7>(guid);
+    //recvData.ReadGuidBytes<0, 4>(guid);
     unkstring = recvData.ReadString(stringSize);
-    recvData.ReadGuidBytes<5, 7, 2, 3, 1, 6>(guid);
+    //recvData.ReadGuidBytes<5, 7, 2, 3, 1, 6>(guid);
 
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteGuidOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteGuidOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
         return;
     }
 
@@ -392,7 +392,7 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recvData)
     // can't uninvite yourself
     if (GetPlayer()->GetName() == membername)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
         return;
     }
 
@@ -407,7 +407,7 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recvData)
     if (!grp)
         return;
 
-    if (uint64 guid = grp->GetMemberGUID(membername))
+    if (ObjectGuid guid = grp->GetMemberGUID(membername))
     {
         Player::RemoveFromGroup(grp, guid, GROUP_REMOVEMETHOD_KICK, GetPlayer()->GetGUID());
         return;
@@ -430,8 +430,8 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData.read_skip<uint8>();
 
-    recvData.ReadGuidMask<6, 7, 0, 3, 2, 5, 4, 1>(guid);
-    recvData.ReadGuidBytes<5, 7, 1, 6, 2, 4, 0, 3>(guid);
+    //recvData.ReadGuidMask<6, 7, 0, 3, 2, 5, 4, 1>(guid);
+    //recvData.ReadGuidBytes<5, 7, 1, 6, 2, 4, 0, 3>(guid);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
     Group* group = GetPlayer()->GetGroup();
@@ -468,38 +468,38 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
     recvData >> unk;
     recvData >> newRole;
 
-    recvData.ReadGuidMask<4, 0, 2, 7, 5, 6, 1, 3>(guid2);
-    recvData.ReadGuidBytes<4, 6, 2, 5, 3, 7, 0, 1>(guid2);
+    //recvData.ReadGuidMask<4, 0, 2, 7, 5, 6, 1, 3>(guid2);
+    //recvData.ReadGuidBytes<4, 6, 2, 5, 3, 7, 0, 1>(guid2);
 
     //! 5.4.1
     WorldPacket data(SMSG_GROUP_SET_ROLE, 24);
 
-    data.WriteGuidMask<2>(guid1);
-    data.WriteGuidMask<1>(guid2);
-    data.WriteGuidMask<1, 3>(guid1);
-    data.WriteGuidMask<2, 3>(guid2);
-    data.WriteGuidMask<7>(guid1);
-    data.WriteGuidMask<7, 5>(guid2);
-    data.WriteGuidMask<4, 6>(guid1);
-    data.WriteGuidMask<0, 6>(guid2);
-    data.WriteGuidMask<0>(guid1);
-    data.WriteGuidMask<4>(guid2);
-    data.WriteGuidMask<5>(guid1);
+    //data.WriteGuidMask<2>(guid1);
+    //data.WriteGuidMask<1>(guid2);
+    //data.WriteGuidMask<1, 3>(guid1);
+    //data.WriteGuidMask<2, 3>(guid2);
+    //data.WriteGuidMask<7>(guid1);
+    //data.WriteGuidMask<7, 5>(guid2);
+    //data.WriteGuidMask<4, 6>(guid1);
+    //data.WriteGuidMask<0, 6>(guid2);
+    //data.WriteGuidMask<0>(guid1);
+    //data.WriteGuidMask<4>(guid2);
+    //data.WriteGuidMask<5>(guid1);
             
-    data.WriteGuidBytes<1>(guid1);
-    data.WriteGuidBytes<7>(guid2);
-    data.WriteGuidBytes<6>(guid1);
+    //data.WriteGuidBytes<1>(guid1);
+    //data.WriteGuidBytes<7>(guid2);
+    //data.WriteGuidBytes<6>(guid1);
     data << uint32(0); // Old Role
-    data.WriteGuidBytes<5>(guid1);
+    //data.WriteGuidBytes<5>(guid1);
     data << uint8(unk);
-    data.WriteGuidBytes<3>(guid2);
-    data.WriteGuidBytes<3>(guid1);
-    data.WriteGuidBytes<4, 1 ,2>(guid2);
-    data.WriteGuidBytes<0, 7>(guid1);
-    data.WriteGuidBytes<0, 6>(guid2);
+    //data.WriteGuidBytes<3>(guid2);
+    //data.WriteGuidBytes<3>(guid1);
+    //data.WriteGuidBytes<4, 1 ,2>(guid2);
+    //data.WriteGuidBytes<0, 7>(guid1);
+    //data.WriteGuidBytes<0, 6>(guid2);
     data << uint32(newRole); // New Role
-    data.WriteGuidBytes<5>(guid2);
-    data.WriteGuidBytes<2, 4>(guid1);
+    //data.WriteGuidBytes<5>(guid2);
+    //data.WriteGuidBytes<2, 4>(guid1);
 
     if (GetPlayer()->GetGroup())
     {
@@ -539,12 +539,12 @@ void WorldSession::HandleGroupDisbandOpcode(WorldPacket& recvData)
 //! 5.4.1
 void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
 {
-    ObjectGuid guid = 0;
+    ObjectGuid guid;
     uint8 slot = 0;
 
     recvData >> slot;
-    recvData.ReadGuidMask<0, 4, 2, 1, 5, 3, 7, 6>(guid);
-    recvData.ReadGuidBytes<4, 7, 6, 0, 5, 1, 2, 3>(guid);
+    //recvData.ReadGuidMask<0, 4, 2, 1, 5, 3, 7, 6>(guid);
+    //recvData.ReadGuidBytes<4, 7, 6, 0, 5, 1, 2, 3>(guid);
 
     if (!_player->GetGroup() || _player->GetGroup()->GetLooterGuid() != _player->GetGUID())
     {
@@ -554,7 +554,7 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
 
     Loot* loot = NULL;
 
-    if (IS_CRE_OR_VEH_GUID(guid))
+    if (guid.IsCreatureOrVehicle())
     {
         Creature* creature = GetPlayer()->GetMap()->GetCreature(guid);
         if (!creature)
@@ -562,7 +562,7 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
 
         loot = &creature->loot;
     }
-    else if (IS_GAMEOBJECT_GUID(guid))
+    else if (guid.IsGameObject())
     {
         GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(guid);
         if (!pGO)
@@ -588,13 +588,13 @@ void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
 //! 5.4.1
 void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 {
-    ObjectGuid target_playerguid = 0;
+    ObjectGuid target_playerguid;
 
     uint32 count = recvData.ReadBits(23);
     std::vector<ObjectGuid> guids(count);
     std::vector<uint8> types(count);
 
-    recvData.ReadGuidMask<6, 2>(target_playerguid);
+    //recvData.ReadGuidMask<6, 2>(target_playerguid);
     
     if (count > 100)
     {
@@ -603,20 +603,20 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     }
 
     for (uint32 i = 0; i < count; ++i)
-        recvData.ReadGuidMask<1, 0, 5, 2, 3, 6, 7, 4>(guids[i]);
+        //recvData.ReadGuidMask<1, 0, 5, 2, 3, 6, 7, 4>(guids[i]);
 
     ///
 
-    recvData.ReadGuidMask<5, 7, 0, 3, 1, 4>(target_playerguid);
+    //recvData.ReadGuidMask<5, 7, 0, 3, 1, 4>(target_playerguid);
 
     for (uint32 i = 0; i < count; ++i)
     {
-        recvData.ReadGuidBytes<5, 2, 3, 0, 6, 7>(guids[i]);
+        //recvData.ReadGuidBytes<5, 2, 3, 0, 6, 7>(guids[i]);
         recvData >> types[i];
-        recvData.ReadGuidBytes<1, 4>(guids[i]);
+        //recvData.ReadGuidBytes<1, 4>(guids[i]);
     }
 
-    recvData.ReadGuidBytes<5, 3, 6, 7, 1, 2, 0, 4>(target_playerguid);
+    //recvData.ReadGuidBytes<5, 3, 6, 7, 1, 2, 0, 4>(target_playerguid);
 
     Group* group = _player->GetGroup();
     if (!group || group->isLFGGroup() || group->GetLooterGuid() != _player->GetGUID())
@@ -625,9 +625,9 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         return;
     }
 
-    target_playerguid = GUID_LOPART(target_playerguid); //WARNING! TMP! plr should have off-like hi-guid, as server not suport it  - cut.
+    //target_playerguid = GUID_LOPART(target_playerguid); //WARNING! TMP! plr should have off-like hi-guid, as server not suport it  - cut.
 
-    Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(target_playerguid, 0, HIGHGUID_PLAYER));
+    Player* target = ObjectAccessor::FindPlayer(target_playerguid);
     if (!target)
         return;
 
@@ -639,7 +639,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         uint8 slotid = types[i];
         Loot* loot = NULL;
 
-        if (IS_CRE_OR_VEH_GUID(lootguid))
+        if (lootguid.IsCreatureOrVehicle())
         {
             Creature* creature = GetPlayer()->GetMap()->GetCreature(lootguid);
             if (!creature)
@@ -647,7 +647,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
             loot = &creature->loot;
         }
-        else if (IS_GAMEOBJECT_GUID(lootguid))
+        else if (lootguid.IsGameObject())
         {
             GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(lootguid);
             if (!pGO)
@@ -690,7 +690,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         // ToDo: check for already rolled items. This could posible on packet spaming (special tools should be writen, no so important now)
 
         // list of players allowed to receive this item in trade
-        AllowedLooterSet looters = item.GetAllowedLooters();
+        GuidSet looters = item.GetAllowedLooters();
 
         // not move item from loot to target inventory
         Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, looters);
@@ -722,8 +722,8 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
     recvData >> lootMethod;
     recvData >> lootThreshold;
 
-    recvData.ReadGuidMask<4, 0, 7, 3, 2, 6, 5, 1>(lootMaster);
-    recvData.ReadGuidBytes<4, 7, 6, 3, 5, 1, 2, 0>(lootMaster);
+    //recvData.ReadGuidMask<4, 0, 7, 3, 2, 6, 5, 1>(lootMaster);
+    //recvData.ReadGuidBytes<4, 7, 6, 3, 5, 1, 2, 0>(lootMaster);
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -751,8 +751,8 @@ void WorldSession::HandleLootRoll(WorldPacket& recvData)
     recvData >> rollType;              // 0: pass, 1: need, 2: greed
     recvData >> itemSlot;              // always 0
 
-    recvData.ReadGuidMask<7, 1, 2, 4, 5, 6, 3, 0>(guid);
-    recvData.ReadGuidBytes<0, 7, 1, 3, 4, 6, 2, 5>(guid);
+    //recvData.ReadGuidMask<7, 1, 2, 4, 5, 6, 3, 0>(guid);
+    //recvData.ReadGuidBytes<0, 7, 1, 3, 4, 6, 2, 5>(guid);
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -788,15 +788,15 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
     /** error handling **/
     /********************/
 
-    ObjectGuid guid = GetPlayer()->GetObjectGuid();
+    ObjectGuid guid = GetPlayer()->GetGUID();
 
     // everything's fine, do it
     //! 5.4.1
     WorldPacket data(SMSG_MINIMAP_PING, (8+4+4));
     data << float(x);
     data << float(y);
-    data.WriteGuidMask<7, 6, 0, 5, 3, 2, 1, 4>(guid);
-    data.WriteGuidBytes<1, 6, 3, 0, 2, 4, 5, 7>(guid);
+    //data.WriteGuidMask<7, 6, 0, 5, 3, 2, 1, 4>(guid);
+    //data.WriteGuidBytes<1, 6, 3, 0, 2, 4, 5, 7>(guid);
 
     GetPlayer()->GetGroup()->BroadcastPacket(&data, true, -1, GetPlayer()->GetGUID());
 }
@@ -824,13 +824,13 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "ROLL: MIN: %u, MAX: %u, ROLL: %u", minimum, maximum, roll);
 
     WorldPacket data(SMSG_RANDOM_ROLL, 4+4+4+8);
-    ObjectGuid guid = GetPlayer()->GetObjectGuid();
+    ObjectGuid guid = GetPlayer()->GetGUID();
     data << uint32(roll);
     data << uint32(minimum);
     data << uint32(maximum);
 
-    data.WriteGuidMask<6, 1, 2, 7, 4, 5, 0, 3>(guid);
-    data.WriteGuidBytes<0, 6, 4, 3, 7, 2, 5, 1>(guid);
+    //data.WriteGuidMask<6, 1, 2, 7, 4, 5, 0, 3>(guid);
+    //data.WriteGuidBytes<0, 6, 4, 3, 7, 2, 5, 1>(guid);
 
     if (GetPlayer()->GetGroup())
         GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
@@ -852,8 +852,8 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
     recvData >> x;
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<2, 5, 6, 4, 7, 1, 0, 3>(guid);
-    recvData.ReadGuidBytes<2, 6, 4, 3, 5, 7, 1, 0>(guid);
+    //recvData.ReadGuidMask<2, 5, 6, 4, 7, 1, 0, 3>(guid);
+    //recvData.ReadGuidBytes<2, 6, 4, 3, 5, 7, 1, 0>(guid);
 
     /** error handling **/
     /********************/
@@ -924,13 +924,13 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     uint8 unk;
     recvData >> unk >> groupNr;
 
-    recvData.ReadGuidMask<0, 1, 7, 6, 3, 5, 4, 2>(guid);
-    recvData.ReadGuidBytes<6, 3, 7, 5, 1, 4, 2, 0>(guid);
+    //recvData.ReadGuidMask<0, 1, 7, 6, 3, 5, 4, 2>(guid);
+    //recvData.ReadGuidBytes<6, 3, 7, 5, 1, 4, 2, 0>(guid);
 
     if (groupNr >= MAX_RAID_SUBGROUPS)
         return;
 
-    uint64 senderGuid = GetPlayer()->GetGUID();
+    ObjectGuid senderGuid = GetPlayer()->GetGUID();
     if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid) && !(group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
         return;
 
@@ -1023,10 +1023,10 @@ void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket & recvData)
     uint8 unk = 0;
     recvData >> unk;
 
-    recvData.ReadGuidMask<0, 3, 6, 5>(guid);
+    //recvData.ReadGuidMask<0, 3, 6, 5>(guid);
     apply = recvData.ReadBit();
-    recvData.ReadGuidMask<7, 2, 4, 1>(guid);
-    recvData.ReadGuidBytes<1, 2, 7, 3, 4, 5, 0, 6>(guid);
+    //recvData.ReadGuidMask<7, 2, 4, 1>(guid);
+    //recvData.ReadGuidBytes<1, 2, 7, 3, 4, 5, 0, 6>(guid);
 
     group->SetGroupMemberFlag(guid, apply, MEMBER_FLAG_ASSISTANT);
 
@@ -1042,7 +1042,7 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
     if (!group)
         return;
 
-    uint64 senderGuid = GetPlayer()->GetGUID();
+    ObjectGuid senderGuid = GetPlayer()->GetGUID();
     if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid) && !(group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
         return;
 
@@ -1053,10 +1053,10 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
 
     recvData >> unk >> assignment;
 
-    recvData.ReadGuidMask<3, 5>(guid);
+    //recvData.ReadGuidMask<3, 5>(guid);
     apply = recvData.ReadBit();
-    recvData.ReadGuidMask<0, 7, 2, 6, 4, 1>(guid);
-    recvData.ReadGuidBytes<4, 1, 0, 6, 5, 3, 7, 2>(guid);
+    //recvData.ReadGuidMask<0, 7, 2, 6, 4, 1>(guid);
+    //recvData.ReadGuidBytes<4, 1, 0, 6, 5, 3, 7, 2>(guid);
 
     switch (assignment)
     {
@@ -1096,27 +1096,27 @@ void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& recvData)
     //! 5.4.1
     WorldPacket data(SMSG_RAID_READY_CHECK_STARTED);
 
-    data.WriteGuidMask<2>(leaderGUID);
-    data.WriteGuidMask<6, 4>(groupGUID);
-    data.WriteGuidMask<7, 4, 1>(leaderGUID);
-    data.WriteGuidMask<1>(groupGUID);
-    data.WriteGuidMask<6>(leaderGUID);
-    data.WriteGuidMask<7, 5>(groupGUID);
-    data.WriteGuidMask<0, 3>(leaderGUID);
-    data.WriteGuidMask<0>(groupGUID);
-    data.WriteGuidMask<5>(leaderGUID);
-    data.WriteGuidMask<3, 2>(groupGUID);
+    //data.WriteGuidMask<2>(leaderGUID);
+    //data.WriteGuidMask<6, 4>(groupGUID);
+    //data.WriteGuidMask<7, 4, 1>(leaderGUID);
+    //data.WriteGuidMask<1>(groupGUID);
+    //data.WriteGuidMask<6>(leaderGUID);
+    //data.WriteGuidMask<7, 5>(groupGUID);
+    //data.WriteGuidMask<0, 3>(leaderGUID);
+    //data.WriteGuidMask<0>(groupGUID);
+    //data.WriteGuidMask<5>(leaderGUID);
+    //data.WriteGuidMask<3, 2>(groupGUID);
 
-    data.WriteGuidBytes<5, 0, 4, 2>(groupGUID);
-    data.WriteGuidBytes<6, 5>(leaderGUID);
-    data.WriteGuidBytes<7, 1>(groupGUID);
-    data.WriteGuidBytes<1>(leaderGUID);
-    data.WriteGuidBytes<6>(groupGUID);
-    data.WriteGuidBytes<2, 4, 7, 0>(leaderGUID);
+    //data.WriteGuidBytes<5, 0, 4, 2>(groupGUID);
+    //data.WriteGuidBytes<6, 5>(leaderGUID);
+    //data.WriteGuidBytes<7, 1>(groupGUID);
+    //data.WriteGuidBytes<1>(leaderGUID);
+    //data.WriteGuidBytes<6>(groupGUID);
+    //data.WriteGuidBytes<2, 4, 7, 0>(leaderGUID);
     data << uint8(1);                               // unk 5.0.5
-    data.WriteGuidBytes<3>(groupGUID);
+    //data.WriteGuidBytes<3>(groupGUID);
     data << uint32(35000);                          // TimeOut
-    data.WriteGuidBytes<3>(leaderGUID);
+    //data.WriteGuidBytes<3>(leaderGUID);
 
     group->BroadcastPacket(&data, false, -1);
 
@@ -1144,32 +1144,32 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& recvData)
 
     //! 5.4.1
     WorldPacket data(SMSG_RAID_READY_CHECK_RESPONSE);
-    data.WriteGuidMask<6>(plGUID);
+    //data.WriteGuidMask<6>(plGUID);
     data.WriteBit(ready);
-    data.WriteGuidMask<5>(plGUID);
-    data.WriteGuidMask<3, 2>(grpGUID);
-    data.WriteGuidMask<1, 0>(plGUID);
-    data.WriteGuidMask<1>(grpGUID);
-    data.WriteGuidMask<2>(plGUID);
-    data.WriteGuidMask<4, 6>(grpGUID);
-    data.WriteGuidMask<3, 4>(plGUID);
-    data.WriteGuidMask<5, 7>(grpGUID);
-    data.WriteGuidMask<7>(plGUID);
-    data.WriteGuidMask<0>(grpGUID);
+    //data.WriteGuidMask<5>(plGUID);
+    //data.WriteGuidMask<3, 2>(grpGUID);
+    //data.WriteGuidMask<1, 0>(plGUID);
+    //data.WriteGuidMask<1>(grpGUID);
+    //data.WriteGuidMask<2>(plGUID);
+    //data.WriteGuidMask<4, 6>(grpGUID);
+    //data.WriteGuidMask<3, 4>(plGUID);
+    //data.WriteGuidMask<5, 7>(grpGUID);
+    //data.WriteGuidMask<7>(plGUID);
+    //data.WriteGuidMask<0>(grpGUID);
 
     data.FlushBits();
 
-    data.WriteGuidBytes<0, 6>(plGUID);
-    data.WriteGuidBytes<0>(grpGUID);
-    data.WriteGuidBytes<3>(plGUID);
-    data.WriteGuidBytes<5, 6>(grpGUID);
-    data.WriteGuidBytes<2>(plGUID);
-    data.WriteGuidBytes<2>(grpGUID);
-    data.WriteGuidBytes<7>(plGUID);
-    data.WriteGuidBytes<4, 3>(grpGUID);
-    data.WriteGuidBytes<4>(plGUID);
-    data.WriteGuidBytes<1, 7>(grpGUID);
-    data.WriteGuidBytes<5, 1>(plGUID);
+    //data.WriteGuidBytes<0, 6>(plGUID);
+    //data.WriteGuidBytes<0>(grpGUID);
+    //data.WriteGuidBytes<3>(plGUID);
+    //data.WriteGuidBytes<5, 6>(grpGUID);
+    //data.WriteGuidBytes<2>(plGUID);
+    //data.WriteGuidBytes<2>(grpGUID);
+    //data.WriteGuidBytes<7>(plGUID);
+    //data.WriteGuidBytes<4, 3>(grpGUID);
+    //data.WriteGuidBytes<4>(plGUID);
+    //data.WriteGuidBytes<1, 7>(grpGUID);
+    //data.WriteGuidBytes<5, 1>(plGUID);
 
     group->BroadcastPacket(&data, true);
 
@@ -1180,8 +1180,8 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& recvData)
 
         //! 5.4.1
         data.Initialize(SMSG_RAID_READY_CHECK_COMPLETED);
-        data.WriteGuidMask<3, 2, 0, 7, 6, 4, 1, 5>(grpGUID);
-        data.WriteGuidBytes<3, 0, 6, 7, 1, 4, 5, 2>(grpGUID);
+        //data.WriteGuidMask<3, 2, 0, 7, 6, 4, 1, 5>(grpGUID);
+        //data.WriteGuidBytes<3, 0, 6, 7, 1, 4, 5, 2>(grpGUID);
         data << uint8(1);
 
         group->BroadcastPacket(&data, true);
@@ -1213,10 +1213,10 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
             mask |= (GROUP_UPDATE_FLAG_PET_CUR_POWER | GROUP_UPDATE_FLAG_PET_MAX_POWER);
     }
 
-    data->WriteGuidMask<5, 6, 4>(guid);
+    //data->WriteGuidMask<5, 6, 4>(guid);
     data->WriteBit(0);
     data->WriteBit(full);
-    data->WriteGuidMask<1, 7, 3, 2, 0>(guid);
+    //data->WriteGuidMask<1, 7, 3, 2, 0>(guid);
     data->FlushBits();
 
     if (mask & GROUP_UPDATE_FLAG_STATUS)
@@ -1302,9 +1302,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_GUID)
     {
         if (pet)
-            buffer << uint64(pet->GetGUID());
+            buffer << pet->GetGUID();
         else
-            buffer << uint64(0);
+            buffer << ObjectGuid::Empty;
     }
 
     if (mask & GROUP_UPDATE_FLAG_PET_NAME)
@@ -1437,9 +1437,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     *data << uint32(buffer.wpos());
     data->append(buffer);
 
-    data->WriteGuidBytes<2, 1, 7>(guid);
+    //data->WriteGuidBytes<2, 1, 7>(guid);
     *data << uint32(mask);
-    data->WriteGuidBytes<4, 3, 5, 0, 6>(guid);
+    //data->WriteGuidBytes<4, 3, 5, 0, 6>(guid);
 }
 
 //! 5.4.1
@@ -1450,24 +1450,24 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     ObjectGuid Guid;
     recvData.read_skip<uint8>();
 
-    recvData.ReadGuidMask<4, 0, 1, 3, 6, 2, 7, 5>(Guid);
-    recvData.ReadGuidBytes<0, 4, 6, 3, 1, 5, 2, 7>(Guid);
+    //recvData.ReadGuidMask<4, 0, 1, 3, 6, 2, 7, 5>(Guid);
+    //recvData.ReadGuidBytes<0, 4, 6, 3, 1, 5, 2, 7>(Guid);
 
     Player* player = HashMapHolder<Player>::Find(Guid);
     if (!player)
     {
         //! 5.4.1
         WorldPacket data(SMSG_PARTY_MEMBER_STATS_FULL, 3+4+2);
-        data.WriteGuidMask<5, 6, 4>(Guid);
+        //data.WriteGuidMask<5, 6, 4>(Guid);
         data.WriteBit(0);                                   // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
         data.WriteBit(1);                                   // full
-        data.WriteGuidMask<1, 7, 3, 2, 0>(Guid);
+        //data.WriteGuidMask<1, 7, 3, 2, 0>(Guid);
         data.FlushBits();
         data << uint32(2);
         data << (uint16) MEMBER_STATUS_OFFLINE;
-        data.WriteGuidBytes<2, 1, 7>(Guid);
+        //data.WriteGuidBytes<2, 1, 7>(Guid);
         data << uint32(GROUP_UPDATE_FLAG_STATUS);
-        data.WriteGuidBytes<4, 3, 5, 0, 6>(Guid);
+        //data.WriteGuidBytes<4, 3, 5, 0, 6>(Guid);
         SendPacket(&data);
         return;
     }
@@ -1535,10 +1535,10 @@ void WorldSession::HandleRolePollBegin(WorldPacket & recvData)
 
     //! 5.4.1
     WorldPacket data(SMSG_ROLE_POLL_BEGIN, (8+4+4));
-    data.WriteGuidMask<0, 1, 7, 2, 3, 5, 4, 6>(guid);
-    data.WriteGuidBytes<0, 7>(guid);
+    //data.WriteGuidMask<0, 1, 7, 2, 3, 5, 4, 6>(guid);
+    //data.WriteGuidBytes<0, 7>(guid);
     data << unk;
-    data.WriteGuidBytes<1, 2, 4, 3, 5, 6>(guid);
+    //data.WriteGuidBytes<1, 2, 4, 3, 5, 6>(guid);
 
     group->BroadcastPacket(&data, false);
 }
@@ -1556,5 +1556,5 @@ void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& recv_data)
         return;
 
     if (group->IsAssistant(_player->GetGUID()) || group->IsLeader(_player->GetGUID()))
-        group->SetRaidMarker(id, _player, 0);
+        group->SetRaidMarker(id, _player, ObjectGuid::Empty);
 }

@@ -169,7 +169,7 @@ void Totem::UnSummon(uint32 msTime)
     {
         if (m_owner->m_SummonSlot[i] == GetGUID())
         {
-            m_owner->m_SummonSlot[i] = 0;
+            m_owner->m_SummonSlot[i].Clear();
             break;
         }
     }

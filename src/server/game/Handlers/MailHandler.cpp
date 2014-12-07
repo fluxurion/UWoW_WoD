@@ -57,7 +57,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     recvData >> money;                                      // CGMailInfo__m_sendMoney
     recvData >> COD;                                        // CGMailInfo__m_sendCOD
     
-    recvData.ReadGuidMask<0, 4, 6>(mailbox);
+    //recvData.ReadGuidMask<0, 4, 6>(mailbox);
     uint8 items_count = recvData.ReadBits(5);               // attached items count
 
     if (items_count > MAX_MAIL_ITEMS)                       // client limit
@@ -68,33 +68,33 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     }
 
     sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u",
-    _player->GetGUIDLow(), items_count, money, COD, stationery, package);
+    _player->GetGUID().GetCounter(), items_count, money, COD, stationery, package);
 
     ObjectGuid itemGUIDs[MAX_MAIL_ITEMS];
 
     for (uint8 i = 0; i < items_count; ++i)
-        recvData.ReadGuidMask<1, 0, 4, 5, 7, 3, 6, 2>(itemGUIDs[i]);
+        //recvData.ReadGuidMask<1, 0, 4, 5, 7, 3, 6, 2>(itemGUIDs[i]);
 
-    recvData.ReadGuidMask<1>(mailbox);
+    //recvData.ReadGuidMask<1>(mailbox);
     bodyLength = recvData.ReadBits(11);
     receiverLength = recvData.ReadBits(9);
-    recvData.ReadGuidMask<7, 5>(mailbox);
+    //recvData.ReadGuidMask<7, 5>(mailbox);
     subjectLength = recvData.ReadBits(9);
-    recvData.ReadGuidMask<2, 3>(mailbox);
+    //recvData.ReadGuidMask<2, 3>(mailbox);
 
     for (uint8 i = 0; i < items_count; ++i)
     {
-        recvData.ReadGuidBytes<1, 7, 2, 3, 5, 4>(itemGUIDs[i]);
+        //recvData.ReadGuidBytes<1, 7, 2, 3, 5, 4>(itemGUIDs[i]);
         recvData.read_skip<uint8>();           // item slot in mail, not used? researching...
-        recvData.ReadGuidBytes<0, 6>(itemGUIDs[i]);
+        //recvData.ReadGuidBytes<0, 6>(itemGUIDs[i]);
     }
 
     receiver = recvData.ReadString(receiverLength);
-    recvData.ReadGuidBytes<6, 2>(mailbox);
+    //recvData.ReadGuidBytes<6, 2>(mailbox);
     subject = recvData.ReadString(subjectLength);
-    recvData.ReadGuidBytes<7, 4, 1, 5, 3>(mailbox);
+    //recvData.ReadGuidBytes<7, 4, 1, 5, 3>(mailbox);
     body = recvData.ReadString(bodyLength);
-    recvData.ReadGuidBytes<0>(mailbox);
+    //recvData.ReadGuidBytes<0>(mailbox);
 
     // packet read complete, now do check
 
@@ -129,19 +129,19 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
     }
 
-    uint64 rc = 0;
+    ObjectGuid rc;
     if (normalizePlayerName(receiver))
         rc = sObjectMgr->GetPlayerGUIDByName(receiver);
 
     if (!rc)
     {
         sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: not existed!) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u",
-            player->GetGUIDLow(), receiver.c_str(), subject.c_str(), body.c_str(), items_count, money, COD, stationery, package);
+            player->GetGUID().GetCounter(), receiver.c_str(), subject.c_str(), body.c_str(), items_count, money, COD, stationery, package);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u", player->GetGUIDLow(), receiver.c_str(), GUID_LOPART(rc), subject.c_str(), body.c_str(), items_count, money, COD, stationery, package);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u", player->GetGUID().GetCounter(), receiver.c_str(), rc.GetCounter(), subject.c_str(), body.c_str(), items_count, money, COD, stationery, package);
 
     if (player->GetGUID() == rc)
     {
@@ -177,7 +177,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
 
-        stmt->setUInt32(0, GUID_LOPART(rc));
+        stmt->setUInt64(0, rc.GetCounter());
 
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -189,7 +189,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
 
-        stmt->setUInt32(0, GUID_LOPART(rc));
+        stmt->setUInt64(0, rc.GetCounter());
 
         result = CharacterDatabase.Query(stmt);
 
@@ -342,7 +342,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     draft
         .AddMoney(money)
         .AddCOD(COD)
-        .SendMailTo(trans, MailReceiver(receive, GUID_LOPART(rc)), MailSender(player), body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
+        .SendMailTo(trans, MailReceiver(receive, rc.GetCounter()), MailSender(player), body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
 
     player->SaveInventoryAndGoldToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
@@ -355,8 +355,8 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket & recvData)
     uint32 mailId;
 
     recvData >> mailId;
-    recvData.ReadGuidMask<7, 3, 4, 1, 5, 2, 6, 0>(mailbox);
-    recvData.ReadGuidBytes<1, 4, 0, 2, 7, 5, 6, 3>(mailbox);
+    //recvData.ReadGuidMask<7, 3, 4, 1, 5, 2, 6, 0>(mailbox);
+    //recvData.ReadGuidBytes<1, 4, 0, 2, 7, 5, 6, 3>(mailbox);
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -406,8 +406,8 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recvData)
     uint32 mailId;
 
     recvData >> mailId;
-    recvData.ReadGuidMask<5, 7, 4, 0, 1, 2, 6, 3>(owner);
-    recvData.ReadGuidBytes<1, 0, 7, 5, 2, 4, 3, 6>(owner);
+    //recvData.ReadGuidMask<5, 7, 4, 0, 1, 2, 6, 3>(owner);
+    //recvData.ReadGuidBytes<1, 0, 7, 5, 2, 4, 3, 6>(owner);
 
     //if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
     //    return;
@@ -468,8 +468,8 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 
     recvData >> mailId;
     recvData >> itemId;                                    // item guid low
-    recvData.ReadGuidMask<1, 0, 6, 3, 5, 2, 7, 4>(mailbox);
-    recvData.ReadGuidBytes<0, 6, 4, 3, 7, 1, 5, 2>(mailbox);
+    //recvData.ReadGuidMask<1, 0, 6, 3, 5, 2, 7, 4>(mailbox);
+    //recvData.ReadGuidBytes<0, 6, 4, 3, 7, 1, 5, 2>(mailbox);
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -504,7 +504,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 
         if (m->COD > 0)                                     //if there is COD, take COD money from player and send them to sender by mail
         {
-            uint64 sender_guid = MAKE_NEW_GUID(m->sender, 0, HIGHGUID_PLAYER);
+            ObjectGuid sender_guid = ObjectGuid::Create<HighGuid::Player>(m->sender);
             Player* receive = ObjectAccessor::FindPlayer(sender_guid);
 
             uint32 sender_accId = 0;
@@ -544,7 +544,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
         m->COD = 0;
         m->state = MAIL_STATE_CHANGED;
         player->m_mailsUpdated = true;
-        player->RemoveMItem(item->GetGUIDLow());
+        player->RemoveMItem(item->GetGUID().GetCounter());
 
         uint32 count = item->GetCount();                      // save counts before store and possible merge with deleting
         item->SetState(ITEM_UNCHANGED);                       // need to set this state, otherwise item cannot be removed later, if neccessary
@@ -568,8 +568,8 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
 
     recvData >> mailId;
     recvData >> money;
-    recvData.ReadGuidMask<4, 0, 1, 7, 5, 2, 3, 6>(mailbox);
-    recvData.ReadGuidBytes<6, 1, 2, 0, 4, 5, 7, 3>(mailbox);
+    //recvData.ReadGuidMask<4, 0, 1, 7, 5, 2, 3, 6>(mailbox);
+    //recvData.ReadGuidBytes<6, 1, 2, 0, 4, 5, 7, 3>(mailbox);
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -602,8 +602,8 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
 void WorldSession::HandleGetMailList(WorldPacket& recvData)
 {
     ObjectGuid mailbox;
-    recvData.ReadGuidMask<0, 2, 6, 7, 5, 4, 3, 1>(mailbox);
-    recvData.ReadGuidBytes<1, 2, 4, 6, 0, 3, 5, 7>(mailbox);
+    //recvData.ReadGuidMask<0, 2, 6, 7, 5, 4, 3, 1>(mailbox);
+    //recvData.ReadGuidBytes<1, 2, 4, 6, 0, 3, 5, 7>(mailbox);
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -662,8 +662,8 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 
         if (normalMail)
         {
-            ObjectGuid plSender = MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER);
-            data.WriteGuidMask<2, 0, 3, 7, 1, 4, 5, 6>(plSender);
+            ObjectGuid plSender = ObjectGuid::Create<HighGuid::Player>((*itr)->sender);
+            //data.WriteGuidMask<2, 0, 3, 7, 1, 4, 5, 6>(plSender);
         }
 
         data.WriteBits((*itr)->body.size(), 13);                 // mail body size
@@ -704,7 +704,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
             data << uint32(4);
             data << uint32(0);
             //
-            data << uint32((item ? item->GetGUIDLow() : 0));
+            data << uint32((item ? item->GetGUID().GetCounter() : 0));
             data << uint32((item ? item->GetItemSuffixFactor() : 0));
             data << uint32((item ? item->GetEntry() : 0));
 
@@ -726,8 +726,8 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 
         if (normalMail)
         {
-            ObjectGuid plSender = MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER);
-            data.WriteGuidBytes<2, 6, 0, 5, 4, 7, 3, 1>(plSender);
+            ObjectGuid plSender = ObjectGuid::Create<HighGuid::Player>((*itr)->sender);
+            //data.WriteGuidBytes<2, 6, 0, 5, 4, 7, 3, 1>(plSender);
         }
 
         data.WriteString((*itr)->body);                          // mail body
@@ -762,8 +762,8 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     uint32 mailId;
 
     recvData >> mailId;
-    recvData.ReadGuidMask<4, 6, 2, 3, 7, 1, 5, 0>(mailbox);
-    recvData.ReadGuidBytes<0, 7, 1, 5, 3, 2, 4, 6>(mailbox);
+    //recvData.ReadGuidMask<4, 6, 2, 3, 7, 1, 5, 0>(mailbox);
+    //recvData.ReadGuidBytes<0, 7, 1, 5, 3, 2, 4, 6>(mailbox);
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -778,7 +778,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     }
 
     Item* bodyItem = new Item;                              // This is not bag and then can be used new Item.
-    if (!bodyItem->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), MAIL_BODY_ITEM_TEMPLATE, player))
+    if (!bodyItem->Create(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate(), MAIL_BODY_ITEM_TEMPLATE, player))
     {
         delete bodyItem;
         return;

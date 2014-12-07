@@ -43,14 +43,14 @@ class instance_blood_furnace : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                TheMakerGUID            = 0;
-                BroggokGUID             = 0;
-                KelidanTheBreakerGUID   = 0;
+                TheMakerGUID.Clear();
+                BroggokGUID.Clear();
+                KelidanTheBreakerGUID.Clear();
 
-                BroggokLeverGUID        = 0;
-                PrisonDoor4GUID         = 0;
+                BroggokLeverGUID.Clear();
+                PrisonDoor4GUID.Clear();
 
-                memset(PrisonCellGUIDs, 0, 8 * sizeof(uint64));
+                //memset(PrisonCellGUIDs, 0, 8 * sizeof(ObjectGuid));
 
                 PrisonersCell5.clear();
                 PrisonersCell6.clear();
@@ -153,7 +153,7 @@ class instance_blood_furnace : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type) const
+            ObjectGuid GetGuidData(uint32 type) const
             {
                 switch (type)
                 {
@@ -167,7 +167,7 @@ class instance_blood_furnace : public InstanceMapScript
                         return BroggokLeverGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state)
@@ -218,9 +218,9 @@ class instance_blood_furnace : public InstanceMapScript
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL8 - DATA_PRISON_CELL1], false);
             }
 
-            void ResetPrisoners(const std::set<uint64>& prisoners)
+            void ResetPrisoners(const GuidSet& prisoners)
             {
-                for (std::set<uint64>::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
+                for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))
                         ResetPrisoner(prisoner);
             }
@@ -272,7 +272,7 @@ class instance_blood_furnace : public InstanceMapScript
                 ResetPrisoner(creature);
             }
 
-            void PrisonerDied(uint64 guid)
+            void PrisonerDied(ObjectGuid guid)
             {
                 if (PrisonersCell5.find(guid) != PrisonersCell5.end() && --PrisonerCounter5 <= 0)
                     ActivateCell(DATA_PRISON_CELL6);
@@ -312,9 +312,9 @@ class instance_blood_furnace : public InstanceMapScript
                 }
             }
 
-            void ActivatePrisoners(std::set<uint64> const& prisoners)
+            void ActivatePrisoners(GuidSet const& prisoners)
             {
-                for (std::set<uint64>::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
+                for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))
                     {
                         prisoner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
@@ -366,19 +366,19 @@ class instance_blood_furnace : public InstanceMapScript
             }
 
         protected:
-            uint64 TheMakerGUID;
-            uint64 BroggokGUID;
-            uint64 KelidanTheBreakerGUID;
+            ObjectGuid TheMakerGUID;
+            ObjectGuid BroggokGUID;
+            ObjectGuid KelidanTheBreakerGUID;
 
-            uint64 BroggokLeverGUID;
-            uint64 PrisonDoor4GUID;
+            ObjectGuid BroggokLeverGUID;
+            ObjectGuid PrisonDoor4GUID;
 
-            uint64 PrisonCellGUIDs[8];
+            ObjectGuid PrisonCellGUIDs[8];
 
-            std::set<uint64>PrisonersCell5;
-            std::set<uint64>PrisonersCell6;
-            std::set<uint64>PrisonersCell7;
-            std::set<uint64>PrisonersCell8;
+            GuidSet PrisonersCell5;
+            GuidSet PrisonersCell6;
+            GuidSet PrisonersCell7;
+            GuidSet PrisonersCell8;
 
             uint8 PrisonerCounter5;
             uint8 PrisonerCounter6;

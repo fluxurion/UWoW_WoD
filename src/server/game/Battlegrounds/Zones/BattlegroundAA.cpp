@@ -54,7 +54,7 @@ void BattlegroundAA::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
 }
 
-void BattlegroundAA::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundAA::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
 {
 }
 

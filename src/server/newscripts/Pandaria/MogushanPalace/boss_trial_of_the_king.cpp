@@ -543,7 +543,7 @@ class boss_kuai_the_brute : public CreatureScript
                     sum->setFaction(me->getFaction());
                 }
             }
-            uint64 pet_guid;
+            ObjectGuid pet_guid;
             
             void Reset()
             {

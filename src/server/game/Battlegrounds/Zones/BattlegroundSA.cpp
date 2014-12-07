@@ -485,7 +485,7 @@ void BattlegroundSA::AddPlayer(Player* player)
     SendTransportInit(player);
 }
 
-void BattlegroundSA::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundSA::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
 {
 }
 
@@ -884,7 +884,7 @@ void BattlegroundSA::UpdateDemolisherSpawns()
 {
     for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4; i++)
     {
-        if (BgCreatures[i])
+        if (!BgCreatures[i].IsEmpty())
         {
             if (Creature* Demolisher = GetBGCreature(i))
             {
@@ -919,13 +919,12 @@ void BattlegroundSA::UpdateDemolisherSpawns()
 
 void BattlegroundSA::SendTransportInit(Player* player)
 {
-    if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO])
+    if (!BgObjects[BG_SA_BOAT_ONE].IsEmpty() ||  !BgObjects[BG_SA_BOAT_TWO].IsEmpty())
     {
         UpdateData transData(player->GetMapId());
-        if (BgObjects[BG_SA_BOAT_ONE])
-
+        if (!BgObjects[BG_SA_BOAT_ONE].IsEmpty())
             GetBGObject(BG_SA_BOAT_ONE)->BuildCreateUpdateBlockForPlayer(&transData, player);
-        if (BgObjects[BG_SA_BOAT_TWO])
+        if (!BgObjects[BG_SA_BOAT_TWO].IsEmpty())
             GetBGObject(BG_SA_BOAT_TWO)->BuildCreateUpdateBlockForPlayer(&transData, player);
         WorldPacket packet;
         transData.BuildPacket(&packet);
@@ -935,12 +934,12 @@ void BattlegroundSA::SendTransportInit(Player* player)
 
 void BattlegroundSA::SendTransportsRemove(Player* player)
 {
-    if (BgObjects[BG_SA_BOAT_ONE] ||  BgObjects[BG_SA_BOAT_TWO])
+    if (!BgObjects[BG_SA_BOAT_ONE].IsEmpty() || !BgObjects[BG_SA_BOAT_TWO].IsEmpty())
     {
         UpdateData transData(player->GetMapId());
-        if (BgObjects[BG_SA_BOAT_ONE])
+        if (!BgObjects[BG_SA_BOAT_ONE].IsEmpty())
             GetBGObject(BG_SA_BOAT_ONE)->BuildOutOfRangeUpdateBlock(&transData);
-        if (BgObjects[BG_SA_BOAT_TWO])
+        if (!BgObjects[BG_SA_BOAT_TWO].IsEmpty())
             GetBGObject(BG_SA_BOAT_TWO)->BuildOutOfRangeUpdateBlock(&transData);
         WorldPacket packet;
         transData.BuildPacket(&packet);

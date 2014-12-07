@@ -167,7 +167,7 @@ public:
             Position pos;
             me->GetPosition(&pos);
 
-            for (std::list<uint64>::const_iterator itr = lSparkList.begin(); itr != lSparkList.end(); ++itr)
+            for (GuidList::const_iterator itr = lSparkList.begin(); itr != lSparkList.end(); ++itr)
             {
                 if (Creature* pSpark = Unit::GetCreature(*me, *itr))
                 {
@@ -349,7 +349,7 @@ public:
             {
                 if (instance)
                 {
-                    Creature* pIonar = instance->instance->GetCreature(instance->GetData64(DATA_IONAR));
+                    Creature* pIonar = instance->instance->GetCreature(instance->GetGuidData(DATA_IONAR));
                     if (pIonar && pIonar->isAlive())
                     {
                         if (me->GetDistance(pIonar) > DATA_MAX_SPARK_DISTANCE)

@@ -63,15 +63,15 @@ public:
     {
         instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        uint64 Keleseth;
-        uint64 Skarvald;
-        uint64 Dalronn;
-        uint64 Ingvar;
+        ObjectGuid Keleseth;
+        ObjectGuid Skarvald;
+        ObjectGuid Dalronn;
+        ObjectGuid Ingvar;
 
-        uint64 forge_bellow[3];
-        uint64 forge_fire[3];
-        uint64 forge_anvil[3];
-        uint64 portcullis[2];
+        ObjectGuid forge_bellow[3];
+        ObjectGuid forge_fire[3];
+        ObjectGuid forge_anvil[3];
+        ObjectGuid portcullis[2];
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         uint32 forge_event[3];
@@ -81,21 +81,21 @@ public:
        {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            Keleseth = 0;
-            Skarvald = 0;
-            Dalronn = 0;
-            Ingvar = 0;
+            Keleseth.Clear();
+            Skarvald.Clear();
+            Dalronn.Clear();
+            Ingvar.Clear();
 
             for (uint8 i = 0; i < 3; ++i)
             {
-                forge_bellow[i] = 0;
-                forge_fire[i] = 0;
-                forge_anvil[i] = 0;
+                forge_bellow[i].Clear();
+                forge_fire[i].Clear();
+                forge_anvil[i].Clear();
                 forge_event[i] = NOT_STARTED;
             }
 
-            portcullis[0] = 0;
-            portcullis[1] = 0;
+            portcullis[0].Clear();
+            portcullis[1].Clear();
         }
 
         bool IsEncounterInProgress() const
@@ -141,31 +141,31 @@ public:
             {
             //door and object id
             case ENTRY_BELLOW_1: forge_bellow[0] = go->GetGUID();
-            if (forge_event[0] != NOT_STARTED)HandleGameObject(0, true, go);break;
+            if (forge_event[0] != NOT_STARTED)HandleGameObject(ObjectGuid::Empty, true, go);break;
             case ENTRY_BELLOW_2: forge_bellow[1] = go->GetGUID();
-            if (forge_event[1] != NOT_STARTED)HandleGameObject(0, true, go);break;
+            if (forge_event[1] != NOT_STARTED)HandleGameObject(ObjectGuid::Empty, true, go);break;
             case ENTRY_BELLOW_3: forge_bellow[2] = go->GetGUID();
-            if (forge_event[2] != NOT_STARTED)HandleGameObject(0, true, go);break;
+            if (forge_event[2] != NOT_STARTED)HandleGameObject(ObjectGuid::Empty, true, go);break;
             case ENTRY_FORGEFIRE_1: forge_fire[0] = go->GetGUID();
-            if (forge_event[0] != NOT_STARTED)HandleGameObject(0, true, go);break;
+            if (forge_event[0] != NOT_STARTED)HandleGameObject(ObjectGuid::Empty, true, go);break;
             case ENTRY_FORGEFIRE_2: forge_fire[1] = go->GetGUID();
-            if (forge_event[1] != NOT_STARTED)HandleGameObject(0, true, go);break;
+            if (forge_event[1] != NOT_STARTED)HandleGameObject(ObjectGuid::Empty, true, go);break;
             case ENTRY_FORGEFIRE_3: forge_fire[2] = go->GetGUID();
-            if (forge_event[2] != NOT_STARTED)HandleGameObject(0, true, go);break;
+            if (forge_event[2] != NOT_STARTED)HandleGameObject(ObjectGuid::Empty, true, go);break;
             case ENTRY_GLOWING_ANVIL_1: forge_anvil[0] = go->GetGUID();
-            if (forge_event[0] != NOT_STARTED)HandleGameObject(0, true, go);break;
+            if (forge_event[0] != NOT_STARTED)HandleGameObject(ObjectGuid::Empty, true, go);break;
             case ENTRY_GLOWING_ANVIL_2: forge_anvil[1] = go->GetGUID();
-            if (forge_event[1] != NOT_STARTED)HandleGameObject(0, true, go);break;
+            if (forge_event[1] != NOT_STARTED)HandleGameObject(ObjectGuid::Empty, true, go);break;
             case ENTRY_GLOWING_ANVIL_3: forge_anvil[2] = go->GetGUID();
-            if (forge_event[2] != NOT_STARTED)HandleGameObject(0, true, go);break;
+            if (forge_event[2] != NOT_STARTED)HandleGameObject(ObjectGuid::Empty, true, go);break;
             case ENTRY_GIANT_PORTCULLIS_1: portcullis[0] = go->GetGUID();
-            if (m_auiEncounter[2] == DONE)HandleGameObject(0, true, go);break;
+            if (m_auiEncounter[2] == DONE)HandleGameObject(ObjectGuid::Empty, true, go);break;
             case ENTRY_GIANT_PORTCULLIS_2: portcullis[1] = go->GetGUID();
-            if (m_auiEncounter[2] == DONE)HandleGameObject(0, true, go);break;
+            if (m_auiEncounter[2] == DONE)HandleGameObject(ObjectGuid::Empty, true, go);break;
             }
         }
 
-        uint64 GetData64(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -175,7 +175,7 @@ public:
                 case DATA_INGVAR:                 return Ingvar;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

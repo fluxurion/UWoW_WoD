@@ -54,15 +54,15 @@ public:
 
         uint8 uiDredAchievCounter;
 
-        uint64 uiTrollgore;
-        uint64 uiNovos;
-        uint64 uiDred;
-        uint64 uiTharonJa;
+        ObjectGuid uiTrollgore;
+        ObjectGuid uiNovos;
+        ObjectGuid uiDred;
+        ObjectGuid uiTharonJa;
 
-        uint64 uiNovosCrystal1;
-        uint64 uiNovosCrystal2;
-        uint64 uiNovosCrystal3;
-        uint64 uiNovosCrystal4;
+        ObjectGuid uiNovosCrystal1;
+        ObjectGuid uiNovosCrystal2;
+        ObjectGuid uiNovosCrystal3;
+        ObjectGuid uiNovosCrystal4;
 
         uint16 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -71,14 +71,14 @@ public:
         void Initialize()
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-            uiTrollgore = 0;
-            uiNovos = 0;
-            uiDred = 0;
-            uiTharonJa = 0;
-            uiNovosCrystal1 = 0;
-            uiNovosCrystal2 = 0;
-            uiNovosCrystal3 = 0;
-            uiNovosCrystal4 = 0;
+            uiTrollgore.Clear();
+            uiNovos.Clear();
+            uiDred.Clear();
+            uiTharonJa.Clear();
+            uiNovosCrystal1.Clear();
+            uiNovosCrystal2.Clear();
+            uiNovosCrystal3.Clear();
+            uiNovosCrystal4.Clear();
             uiDredAchievCounter = 0;
         }
 
@@ -129,7 +129,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -143,7 +143,7 @@ public:
                 case DATA_NOVOS_CRYSTAL_4:    return uiNovosCrystal4;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

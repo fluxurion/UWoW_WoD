@@ -33,19 +33,19 @@ void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TAXINODE_STATUS_QUERY");
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<0, 7, 6, 5, 4, 1, 3, 2>(guid);
-    recvData.ReadGuidBytes<7, 0, 5, 2, 3, 4, 1, 6>(guid);
+    //recvData.ReadGuidMask<0, 7, 6, 5, 4, 1, 3, 2>(guid);
+    //recvData.ReadGuidBytes<7, 0, 5, 2, 3, 4, 1, 6>(guid);
 
     SendTaxiStatus(guid);
 }
 
-void WorldSession::SendTaxiStatus(uint64 guid)
+void WorldSession::SendTaxiStatus(ObjectGuid guid)
 {
     // cheating checks
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::SendTaxiStatus - Unit (GUID: %u) not found.", uint32(GUID_LOPART(guid)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::SendTaxiStatus - Unit (GUID: %u) not found.", guid.GetCounter());
         return;
     }
 
@@ -58,11 +58,11 @@ void WorldSession::SendTaxiStatus(uint64 guid)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: current location %u ", curloc);
 
     WorldPacket data(SMSG_TAXINODE_STATUS, 9);
-    data.WriteGuidMask<1>(guid);
+    //data.WriteGuidMask<1>(guid);
     data.WriteBits(GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? 1 : 0, 2);
-    data.WriteGuidMask<7, 4, 0, 5, 3, 2, 6>(guid);
+    //data.WriteGuidMask<7, 4, 0, 5, 3, 2, 6>(guid);
 
-    data.WriteGuidBytes<1, 3, 4, 2, 5, 0, 6, 7>(guid);
+    //data.WriteGuidBytes<1, 3, 4, 2, 5, 0, 6, 7>(guid);
     SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_TAXINODE_STATUS");
 }
@@ -72,14 +72,14 @@ void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TAXIQUERYAVAILABLENODES");
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<7, 6, 2, 5, 0, 3, 1, 4>(guid);
-    recvData.ReadGuidBytes<5, 1, 7, 6, 3, 2, 0, 4>(guid);
+    //recvData.ReadGuidMask<7, 6, 2, 5, 0, 3, 1, 4>(guid);
+    //recvData.ReadGuidBytes<5, 1, 7, 6, 3, 2, 0, 4>(guid);
 
     // cheating checks
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTaxiQueryAvailableNodes - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTaxiQueryAvailableNodes - Unit (GUID: %u) not found or you can't interact with him.", uint32(guid.GetCounter()));
         return;
     }
 
@@ -108,15 +108,15 @@ void WorldSession::SendTaxiMenu(Creature* unit)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_TAXINODE_STATUS_QUERY %u ", curloc);
 
-    ObjectGuid guid = unit->GetObjectGuid();
+    ObjectGuidSteam guid = 0/*unit->GetGUID()*/;
     WorldPacket data(SMSG_SHOWTAXINODES, (4 + 8 + 4 + 8 * 4));
     data.WriteBits(TaxiMaskSize, 24);
     data.WriteBit(1);       // has data
-    data.WriteGuidMask<0, 4, 3, 1, 5, 7, 2, 6>(guid);
+    //data.WriteGuidMask<0, 4, 3, 1, 5, 7, 2, 6>(guid);
 
-    data.WriteGuidBytes<4, 0>(guid);
+    //data.WriteGuidBytes<4, 0>(guid);
     data << uint32(curloc);
-    data.WriteGuidBytes<5, 7, 6, 3, 1, 2>(guid);
+    //data.WriteGuidBytes<5, 7, 6, 3, 1, 2>(guid);
     GetPlayer()->m_taxi.AppendTaximaskTo(data, GetPlayer()->isTaxiCheater());
     SendPacket(&data);
 
@@ -153,14 +153,14 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
         WorldPacket msg(SMSG_NEW_TAXI_PATH, 0);
         SendPacket(&msg);
 
-        ObjectGuid guid = unit->GetObjectGuid();
+        ObjectGuid guid = unit->GetGUID();
 
         WorldPacket update(SMSG_TAXINODE_STATUS, 9);
-        update.WriteGuidMask<1>(guid);
+        //update.WriteGuidMask<1>(guid);
         update.WriteBits(1, 2);
-        update.WriteGuidMask<7, 4, 0, 5, 3, 2, 6>(guid);
+        //update.WriteGuidMask<7, 4, 0, 5, 3, 2, 6>(guid);
 
-        update.WriteGuidBytes<1, 3, 4, 2, 5, 0, 6, 7>(guid);
+        //update.WriteGuidBytes<1, 3, 4, 2, 5, 0, 6, 7>(guid);
         SendPacket(&update);
 
         return true;
@@ -186,8 +186,8 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket & recvData)
     uint32 node_count;
 
     node_count = recvData.ReadBits(22);
-    recvData.ReadGuidMask<3, 2, 5, 4, 0, 7, 1, 6>(guid);
-    recvData.ReadGuidBytes<7, 2, 4, 3, 5, 1, 6>(guid);
+    //recvData.ReadGuidMask<3, 2, 5, 4, 0, 7, 1, 6>(guid);
+    //recvData.ReadGuidBytes<7, 2, 4, 3, 5, 1, 6>(guid);
 
     std::vector<uint32> nodes;
     for (uint32 i = 0; i < node_count; ++i)
@@ -197,12 +197,12 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket & recvData)
         nodes.push_back(node);
     }
 
-    recvData.ReadGuidBytes<0>(guid);
+    //recvData.ReadGuidBytes<0>(guid);
 
     Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);
     if (!npc)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleActivateTaxiExpressOpcode - Unit (GUID: %u) not found or you can't interact with it.", uint32(GUID_LOPART(guid)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleActivateTaxiExpressOpcode - Unit (GUID: %u) not found or you can't interact with it.", uint32(guid.GetCounter()));
         return;
     }
 
@@ -294,14 +294,14 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket & recvData)
     nodes.resize(2);
 
     recvData >> nodes[0] >> nodes[1];
-    recvData.ReadGuidMask<3, 7, 0, 2, 1, 4, 6, 5>(guid);
-    recvData.ReadGuidBytes<1, 2, 4, 5, 6, 3, 7, 0>(guid);
+    //recvData.ReadGuidMask<3, 7, 0, 2, 1, 4, 6, 5>(guid);
+    //recvData.ReadGuidBytes<1, 2, 4, 5, 6, 3, 7, 0>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXI from %d to %d", nodes[0], nodes[1]);
     Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);
     if (!npc)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleActivateTaxiOpcode - Unit (GUID: %u) not found or you can't interact with it.", uint32(GUID_LOPART(guid)));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleActivateTaxiOpcode - Unit (GUID: %u) not found or you can't interact with it.", uint32(guid.GetCounter()));
         return;
     }
 

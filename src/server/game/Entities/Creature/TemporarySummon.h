@@ -67,7 +67,7 @@ class TempSummon : public Creature
         void SetTempSummonType(TempSummonType type);
         void SaveToDB(uint32 /*mapid*/, uint32 /*spawnMask*/, uint32 /*phaseMask*/) {}
         Unit* GetSummoner() const;
-        uint64 GetSummonerGUID() const { return m_summonerGUID; }
+        ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }
         TempSummonType const& GetSummonType() { return m_type; }
         uint32 GetTimer() { return m_timer; }
         void CastPetAuras(bool current, uint32 spellId = 0);
@@ -81,7 +81,7 @@ class TempSummon : public Creature
         TempSummonType m_type;
         uint32 m_timer;
         uint32 m_lifetime;
-        uint64 m_summonerGUID;
+        ObjectGuid m_summonerGUID;
         bool onUnload;
         PetType m_petType;
 };

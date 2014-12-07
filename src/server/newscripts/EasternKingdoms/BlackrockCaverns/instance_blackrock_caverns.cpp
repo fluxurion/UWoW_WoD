@@ -19,21 +19,22 @@ public:
 
         uint32 m_uiEncounter[ENCOUNTERS];
 
-        uint64 uiRomoggGUID;
-        uint64 uiCorlaGUID;
-        uint64 uiKarshGUID;
-        uint64 uiBeautyGUID;
-        uint64 uiLordObsidiusGUID;
-		uint64 m_uiPortalGUID[4];
+        ObjectGuid uiRomoggGUID;
+        ObjectGuid uiCorlaGUID;
+        ObjectGuid uiKarshGUID;
+        ObjectGuid uiBeautyGUID;
+        ObjectGuid uiLordObsidiusGUID;
+		ObjectGuid m_uiPortalGUID[4];
 
         void Initialize()
         {
-             uiRomoggGUID = 0;
-             uiCorlaGUID = 0;
-             uiKarshGUID = 0;
-             uiBeautyGUID = 0;
-             uiLordObsidiusGUID = 0;
-			 memset(&m_uiPortalGUID[4], 0, sizeof(m_uiPortalGUID[4]));
+             uiRomoggGUID.Clear();
+             uiCorlaGUID.Clear();
+             uiKarshGUID.Clear();
+             uiBeautyGUID.Clear();
+             uiLordObsidiusGUID.Clear();
+             for (int32 i = 0; i < 4; ++i)
+                 m_uiPortalGUID[i].Clear();
         }
 
         void OnCreatureCreate(Creature* pCreature)
@@ -93,7 +94,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data)
+        ObjectGuid GetGuidData(uint32 data)
         {
             switch(data)
             {
@@ -108,7 +109,7 @@ public:
                 case DATA_ASCENDANT_LORD_OBSIDIUS:
                     return uiLordObsidiusGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

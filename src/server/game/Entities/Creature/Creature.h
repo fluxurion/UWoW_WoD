@@ -196,7 +196,7 @@ struct CreatureDifficultyStat
 };
 
 // Benchmarked: Faster than std::map (insert/find)
-typedef UNORDERED_MAP<uint32, CreatureTemplate> CreatureTemplateContainer;
+typedef UNORDERED_MAP<ObjectGuid::LowType, CreatureTemplate> CreatureTemplateContainer;
 typedef UNORDERED_MAP<uint32, std::vector<CreatureDifficultyStat> > CreatureDifficultyStatContainer;
 
 // Defines base stats for creatures (used to calculate HP/mana/armor).
@@ -536,12 +536,12 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         void DisappearAndDie();
 
-        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, int32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
+        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 Entry, int32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
         bool LoadCreaturesAddon(bool reload = false);
         void SelectLevel(const CreatureTemplate* cinfo);
         void LoadEquipment(uint32 equip_entry, bool force=false);
 
-        uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
+        ObjectGuid::LowType GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
         void Update(uint32 time);                         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
@@ -653,19 +653,19 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
 
-        void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId, language, TargetGuid); }
-        void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId, language, TargetGuid); }
-        void TextEmote(int32 textId, uint64 TargetGuid, bool IsBossEmote = false) { MonsterTextEmote(textId, TargetGuid, IsBossEmote); }
-        void Whisper(int32 textId, uint64 receiver, bool IsBossWhisper = false) { MonsterWhisper(textId, receiver, IsBossWhisper); }
-        void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId, language, TargetGuid); }
+        void Say(int32 textId, uint32 language, ObjectGuid TargetGuid) { MonsterSay(textId, language, TargetGuid); }
+        void Yell(int32 textId, uint32 language, ObjectGuid TargetGuid) { MonsterYell(textId, language, TargetGuid); }
+        void TextEmote(int32 textId, ObjectGuid TargetGuid, bool IsBossEmote = false) { MonsterTextEmote(textId, TargetGuid, IsBossEmote); }
+        void Whisper(int32 textId, ObjectGuid receiver, bool IsBossWhisper = false) { MonsterWhisper(textId, receiver, IsBossWhisper); }
+        void YellToZone(int32 textId, uint32 language, ObjectGuid TargetGuid) { MonsterYellToZone(textId, language, TargetGuid); }
 
         // override WorldObject function for proper name localization
         const char* GetNameForLocaleIdx(LocaleConstant locale_idx) const;
 
         void setDeathState(DeathState s);                   // override virtual Unit::setDeathState
 
-        bool LoadFromDB(uint32 guid, Map* map) { return LoadCreatureFromDB(guid, map, false); }
-        bool LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap = true);
+        bool LoadFromDB(ObjectGuid::LowType guid, Map* map) { return LoadCreatureFromDB(guid, map, false); }
+        bool LoadCreatureFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap = true);
         void SaveToDB();
                                                             // overriden in Pet
         virtual void SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask);
@@ -681,7 +681,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
 
         void SetLootRecipient (Unit* unit);
-        void SetOtherLootRecipient(uint64 guid);
+        void SetOtherLootRecipient(ObjectGuid guid);
         void AllLootRemovedFromCorpse();
 
         SpellInfo const* reachWithSpellAttack(Unit* victim);
@@ -734,7 +734,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void SetRespawnRadius(float dist) { m_respawnradius = dist; }
 
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
-        uint32 lootingGroupLowGUID;                         // used to find group which is looting corpse
+        ObjectGuid lootingGroupLowGUID;                     // used to find group which is looting corpse
 
         void SendZoneUnderAttackMessage(Player* attacker);
 
@@ -797,7 +797,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         float m_SightDistance, m_CombatDistance;
 
-        void SetGUIDTransport(uint32 guid) { guid_transport=guid; }
+        void SetGUIDTransport(ObjectGuid::LowType guid) { guid_transport=guid; }
         uint32 GetGUIDTransport() { return guid_transport; }
 
         void FarTeleportTo(Map* map, float X, float Y, float Z, float O);
@@ -817,7 +817,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
     protected:
         bool m_onVehicleAccessory;
 
-        bool CreateFromProto(uint32 guidlow, uint32 Entry, int32 vehId, uint32 team, const CreatureData* data = NULL);
+        bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 Entry, int32 vehId, uint32 team, const CreatureData* data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
 
         // vendor items
@@ -825,9 +825,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         static float _GetHealthMod(int32 Rank);
 
-        uint64 m_lootRecipient;
-        uint64 m_LootOtherRecipient;                        // Pet lotter for example
-        uint32 m_lootRecipientGroup;
+        ObjectGuid m_lootRecipient;
+        ObjectGuid m_LootOtherRecipient;                        // Pet lotter for example
+        ObjectGuid m_lootRecipientGroup;
 
         /// Timers
         time_t m_corpseRemoveTime;                          // (msecs)timer for death or corpse disappearance
@@ -843,7 +843,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint32 m_regenTimerCount;
         uint32 m_petregenTimer;
         MovementGeneratorType m_defaultMovementType;
-        uint32 m_DBTableGuid;                               ///< For new or temporary creatures is 0 for saved it is lowguid
+        ObjectGuid::LowType m_DBTableGuid;                  ///< For new or temporary creatures is 0 for saved it is lowguid
         uint32 m_equipmentId;
 
         bool m_AlreadyCallAssistance;
@@ -885,16 +885,16 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 class AssistDelayEvent : public BasicEvent
 {
     public:
-        AssistDelayEvent(uint64 victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
+        AssistDelayEvent(ObjectGuid victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
 
         bool Execute(uint64 e_time, uint32 p_time);
-        void AddAssistant(uint64 guid) { m_assistants.push_back(guid); }
+        void AddAssistant(ObjectGuid guid) { m_assistants.push_back(guid); }
     private:
         AssistDelayEvent();
 
-        uint64            m_victim;
-        std::list<uint64> m_assistants;
-        Unit&             m_owner;
+        ObjectGuid            m_victim;
+        GuidList              m_assistants;
+        Unit&                 m_owner;
 };
 
 class ForcedDespawnDelayEvent : public BasicEvent

@@ -75,7 +75,7 @@ class boss_grand_vizier_ertan : public CreatureScript
                 me->setActive(true);
             }
 
-            uint64 _vortexes[8];
+            ObjectGuid _vortexes[8];
             float _distance;
     
             void Reset()

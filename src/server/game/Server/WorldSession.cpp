@@ -178,7 +178,7 @@ std::string WorldSession::GetPlayerName(bool simple /* = true */) const
     if (Player* player = GetPlayer())
     {
         name.append(player->GetName());
-        guidLow = player->GetGUIDLow();
+        guidLow = player->GetGUID().GetCounter();
     }
     else
         name.append("<none>");
@@ -197,7 +197,7 @@ std::string WorldSession::GetPlayerName(bool simple /* = true */) const
 /// Get player guid if available. Use for logging purposes only
 uint32 WorldSession::GetGuidLow() const
 {
-    return GetPlayer() ? GetPlayer()->GetGUIDLow() : 0;
+    return GetPlayer() ? GetPlayer()->GetGUID().GetCounter() : 0;
 }
 
 /// Send a packet to the client
@@ -509,7 +509,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (_player)
     {
-        if (uint64 lguid = _player->GetLootGUID())
+        if (ObjectGuid lguid = _player->GetLootGUID())
             DoLootRelease(lguid);
         _player->ClearAoeLootList();
 
@@ -640,8 +640,8 @@ void WorldSession::LogoutPlayer(bool Save)
         }
 
         //! Broadcast a logout message to the player's friends
-        sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUIDLow(), true);
-        sSocialMgr->RemovePlayerSocial(_player->GetGUIDLow());
+        sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUID(), true);
+        sSocialMgr->RemovePlayerSocial(_player->GetGUID());
 
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
@@ -651,7 +651,7 @@ void WorldSession::LogoutPlayer(bool Save)
         // e.g if he got disconnected during a transfer to another map
         // calls to GetMap in this case may cause crashes
         _player->CleanupsBeforeDelete();
-        sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUIDLow(), _player->getLevel());
+        sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUID().GetCounter(), _player->getLevel());
 
         sBattlenetServer.SendChangeToonOnlineState(GetBattlenetAccountId(), GetAccountId(), _player->GetGUID(), _player->GetName(), false);
 
@@ -807,12 +807,14 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 
 void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string data)
 {
-    uint32 id = 0;
-    uint32 index = 0;
     if ((1 << type) & GLOBAL_CACHE_MASK)
     {
-        id = GetAccountId();
-        index = CHAR_REP_ACCOUNT_DATA;
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_ACCOUNT_DATA);
+        stmt->setUInt32(0, GetAccountId());
+        stmt->setUInt8(1, type);
+        stmt->setUInt32(2, uint32(tm));
+        stmt->setString(3, data);
+        CharacterDatabase.Execute(stmt);
     }
     else
     {
@@ -820,16 +822,13 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
         if (!m_GUIDLow)
             return;
 
-        id = m_GUIDLow;
-        index = CHAR_REP_PLAYER_ACCOUNT_DATA;
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_ACCOUNT_DATA);
+        stmt->setUInt64(0, m_GUIDLow);
+        stmt->setUInt8(1, type);
+        stmt->setUInt32(2, uint32(tm));
+        stmt->setString(3, data);
+        CharacterDatabase.Execute(stmt);
     }
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(index);
-    stmt->setUInt32(0, id);
-    stmt->setUInt8 (1, type);
-    stmt->setUInt32(2, uint32(tm));
-    stmt->setString(3, data);
-    CharacterDatabase.Execute(stmt);
 
     m_accountData[type].Time = tm;
     m_accountData[type].Data = data;
@@ -1391,7 +1390,7 @@ void WorldSession::SetPlayer(Player* player)
 
     // set m_GUID that can be used while player loggined and later until m_playerRecentlyLogout not reset
     if (_player)
-        m_GUIDLow = _player->GetGUIDLow();
+        m_GUIDLow = _player->GetGUID().GetCounter();
 }
 
 void WorldSession::InitializeQueryCallbackParameters()
@@ -1453,7 +1452,7 @@ void WorldSession::ProcessQueryCallbacks()
     //- SendStabledPet
     if (_sendStabledPetCallback.IsReady())
     {
-        uint64 param = _sendStabledPetCallback.GetParam();
+        ObjectGuid param = _sendStabledPetCallback.GetParam();
         _sendStabledPetCallback.GetResult(result);
         SendStablePetCallback(result, param);
         _sendStabledPetCallback.FreeResult();

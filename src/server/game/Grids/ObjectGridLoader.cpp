@@ -94,7 +94,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
     for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
         T* obj = new T;
-        uint32 guid = *i_guid;
+        ObjectGuid::LowType guid = *i_guid;
         //sLog->outInfo(LOG_FILTER_GENERAL, "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
         if (!obj->LoadFromDB(guid, map))
         {
@@ -116,9 +116,7 @@ void LoadHelper(CellCorpseSet const& cell_corpses, CellCoord &cell, CorpseMapTyp
         if (itr->second != map->GetInstanceId())
             continue;
 
-        uint32 player_guid = itr->first;
-
-        Corpse* obj = sObjectAccessor->GetCorpseForPlayerGUID(player_guid);
+        Corpse* obj = sObjectAccessor->GetCorpseForPlayerGUID(itr->first);
         if (!obj)
             continue;
 

@@ -269,7 +269,7 @@ public:
         uint8 PreAddsCount;
         uint8 spawnedAdds;
         uint32 EncounterTime;
-        uint64 TargetPillar;
+        ObjectGuid TargetPillar;
         bool bWipe;
         bool HardMode;
         bool AchivDontStand;
@@ -281,7 +281,7 @@ public:
             
             _Reset();
 
-            uint64 TargetPillar = 0;
+            ObjectGuid TargetPillar;
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
             bWipe = false;
@@ -292,7 +292,7 @@ public:
         
             // Respawn Mini Bosses
             for (uint8 i = DATA_RUNIC_COLOSSUS; i <= DATA_RUNE_GIANT; i++)
-                if (Creature* pMiniBoss = me->GetCreature(*me, instance->GetData64(i)))
+                if (Creature* pMiniBoss = me->GetCreature(*me, instance->GetGuidData(i)))
                     pMiniBoss->Respawn(true);
 
             // Spawn Pre-Phase Adds
@@ -321,7 +321,7 @@ public:
             if (target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_LIGHTNING_RELEASE)
                 if (AchivDontStand)
                 {
-                    me->MonsterTextEmote("Achievement Don't Stand in the Lightning - Fail", 0, true); 
+                    me->MonsterTextEmote("Achievement Don't Stand in the Lightning - Fail", ObjectGuid::Empty, true);
                     AchivDontStand = false;
                 }
         }
@@ -445,14 +445,14 @@ public:
                                 if (Creature* orb = me->GetCreature(*me,TargetPillar))
                                 {
                                     DoCast(orb, SPELL_LIGHTNING_RELEASE);
-                                    TargetPillar = 0;
+                                    TargetPillar.Clear();
                                 }
                                 events.ScheduleEvent(EVENT_RELEASE_ENERGY, 12000, 0, PHASE_2);
                                 break;
                             }
                         case EVENT_RELEASE_ENERGY:
                             {
-                                me->MonsterTextEmote("Warning Lightning Charge", 0, true);
+                                                     me->MonsterTextEmote("Warning Lightning Charge", ObjectGuid::Empty, true);
 
                                 std::list<Creature*> orbs;
                                 me->GetCreatureListWithEntryInGrid(orbs, 33378, 200.0f);
@@ -520,9 +520,9 @@ public:
         {
             if (phase == PHASE_1 && pKiller && instance)
             {
-                if (Creature* pRunicColossus = me->GetCreature(*me, instance->GetData64(DATA_RUNIC_COLOSSUS)))
+                if (Creature* pRunicColossus = me->GetCreature(*me, instance->GetGuidData(DATA_RUNIC_COLOSSUS)))
                     if (pRunicColossus->isDead())
-                        if (Creature* pRuneGiant = me->GetCreature(*me, instance->GetData64(DATA_RUNE_GIANT)))
+                        if (Creature* pRuneGiant = me->GetCreature(*me, instance->GetGuidData(DATA_RUNE_GIANT)))
                             if (pRuneGiant->isDead())
                                 if (me->IsWithinDistInMap(pKiller, 20.0f) && pKiller->ToPlayer())
                                 {
@@ -590,7 +590,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* pThorim = me->GetCreature(*me, pInstance->GetData64(DATA_THORIM)))
+            if (Creature* pThorim = me->GetCreature(*me, pInstance->GetGuidData(DATA_THORIM)))
                 pThorim->AI()->DoAction(INCREASE_PREADDS_COUNT);
         }
 
@@ -802,7 +802,7 @@ public:
             
             if (BarrierTimer <= diff)
             {
-                me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
+                me->MonsterTextEmote(EMOTE_MIGHT, ObjectGuid::Empty, true);
                 DoCast(me, SPELL_RUNIC_BARRIER);
                 BarrierTimer = urand(35000, 45000);
             }
@@ -879,7 +879,7 @@ public:
 
         void EnterCombat(Unit* /*pWho*/)
         {
-            me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
+            me->MonsterTextEmote(EMOTE_MIGHT, ObjectGuid::Empty, true);
         }
 
         void JustDied(Unit* /*victim*/)

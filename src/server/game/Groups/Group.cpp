@@ -38,7 +38,7 @@
 #include "GuildMgr.h"
 #include "Bracket.h"
 
-Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
+Roll::Roll(ObjectGuid _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
     itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
     totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0),
     rollVoteMask(ROLL_ALL_TYPE_NO_DISENCHANT), aoeSlot(0)
@@ -59,14 +59,14 @@ Loot* Roll::getLoot()
     return getTarget();
 }
 
-Group::Group() : m_leaderGuid(0), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
+Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
     m_dungeonDifficulty(REGULAR_DIFFICULTY), m_raidDifficulty(MAN10_DIFFICULTY),
-    m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
-    m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0), m_readyCheck(false),
+    m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
+    m_subGroupsCounts(NULL), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0), m_readyCheck(false),
     m_aoe_slots(0)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
-        m_targetIcons[i] = 0;
+        m_targetIcons[i].Clear();
 }
 
 Group::~Group()
@@ -100,10 +100,9 @@ Group::~Group()
 
 bool Group::Create(Player* leader)
 {
-    uint64 leaderGuid = leader->GetGUID();
-    uint32 lowguid = sGroupMgr->GenerateGroupId();
+    ObjectGuid leaderGuid = leader->GetGUID();
 
-    m_guid = MAKE_NEW_GUID(lowguid, 0, HIGHGUID_GROUP);
+    m_guid = ObjectGuid::Create<HighGuid::Party>(sGroupMgr->GenerateGroupId());
     m_leaderGuid = leaderGuid;
     m_leaderName = leader->GetName();
 
@@ -134,18 +133,18 @@ bool Group::Create(Player* leader)
         uint8 index = 0;
 
         stmt->setUInt32(index++, m_dbStoreId);
-        stmt->setUInt32(index++, GUID_LOPART(m_leaderGuid));
+        stmt->setUInt64(index++, m_leaderGuid.GetCounter());
         stmt->setUInt8(index++, uint8(m_lootMethod));
-        stmt->setUInt32(index++, GUID_LOPART(m_looterGuid));
+        stmt->setUInt64(index++, m_looterGuid.GetCounter());
         stmt->setUInt8(index++, uint8(m_lootThreshold));
-        stmt->setUInt32(index++, uint32(m_targetIcons[0]));
-        stmt->setUInt32(index++, uint32(m_targetIcons[1]));
-        stmt->setUInt32(index++, uint32(m_targetIcons[2]));
-        stmt->setUInt32(index++, uint32(m_targetIcons[3]));
-        stmt->setUInt32(index++, uint32(m_targetIcons[4]));
-        stmt->setUInt32(index++, uint32(m_targetIcons[5]));
-        stmt->setUInt32(index++, uint32(m_targetIcons[6]));
-        stmt->setUInt32(index++, uint32(m_targetIcons[7]));
+        stmt->setBinary(index++, m_targetIcons[0].GetRawValue());
+        stmt->setBinary(index++, m_targetIcons[1].GetRawValue());
+        stmt->setBinary(index++, m_targetIcons[2].GetRawValue());
+        stmt->setBinary(index++, m_targetIcons[3].GetRawValue());
+        stmt->setBinary(index++, m_targetIcons[4].GetRawValue());
+        stmt->setBinary(index++, m_targetIcons[5].GetRawValue());
+        stmt->setBinary(index++, m_targetIcons[6].GetRawValue());
+        stmt->setBinary(index++, m_targetIcons[7].GetRawValue());
         stmt->setUInt8(index++, uint8(m_groupType));
         stmt->setUInt32(index++, uint8(m_dungeonDifficulty));
         stmt->setUInt32(index++, uint8(m_raidDifficulty));
@@ -166,19 +165,19 @@ bool Group::Create(Player* leader)
 void Group::LoadGroupFromDB(Field* fields)
 {
     m_dbStoreId = fields[15].GetUInt32();
-    m_guid = MAKE_NEW_GUID(sGroupMgr->GenerateGroupId(), 0, HIGHGUID_GROUP);
-    m_leaderGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+    m_guid = ObjectGuid::Create<HighGuid::Party>(sGroupMgr->GenerateGroupId());
+    m_leaderGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
 
     // group leader not exist
-    if (!sObjectMgr->GetPlayerNameByGUID(fields[0].GetUInt32(), m_leaderName))
+    if (!sObjectMgr->GetPlayerNameByGUID(m_leaderGuid, m_leaderName))
         return;
 
     m_lootMethod = LootMethod(fields[1].GetUInt8());
-    m_looterGuid = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
+    m_looterGuid = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt64());
     m_lootThreshold = ItemQualities(fields[3].GetUInt8());
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
-        m_targetIcons[i] = fields[4+i].GetUInt32();
+        m_targetIcons[i].SetRawValue(fields[4 + i].GetBinary());
 
     m_groupType  = GroupType(fields[12].GetUInt8());
     if (m_groupType & GROUPTYPE_RAID)
@@ -200,16 +199,16 @@ void Group::LoadGroupFromDB(Field* fields)
         sLFGMgr->_LoadFromDB(fields, GetGUID());
 }
 
-void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
+void Group::LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
 {
     MemberSlot member;
-    member.guid = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
+    member.guid = ObjectGuid::Create<HighGuid::Player>(guidLow);
 
     // skip non-existed member
     if (!sObjectMgr->GetPlayerNameByGUID(member.guid, member.name))
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_MEMBER);
-        stmt->setUInt32(0, guidLow);
+        stmt->setUInt64(0, guidLow);
         CharacterDatabase.Execute(stmt);
         return;
     }
@@ -360,7 +359,7 @@ void Group::RemoveAllInvites()
     m_invitees.clear();
 }
 
-Player* Group::GetInvited(uint64 guid) const
+Player* Group::GetInvited(ObjectGuid guid) const
 {
     for (InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
     {
@@ -432,7 +431,7 @@ bool Group::AddMember(Player* player)
     if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
     {
         for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
-            m_targetIcons[i] = 0;
+            m_targetIcons[i].Clear();
     }
 
     // insert into the table if we're not a battleground group
@@ -441,7 +440,7 @@ bool Group::AddMember(Player* player)
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GROUP_MEMBER);
 
         stmt->setUInt32(0, m_dbStoreId);
-        stmt->setUInt32(1, GUID_LOPART(member.guid));
+        stmt->setUInt64(1, member.guid.GetCounter());
         stmt->setUInt8(2, member.flags);
         stmt->setUInt8(3, member.group);
         stmt->setUInt8(4, member.roles);
@@ -536,7 +535,7 @@ bool Group::AddMember(Player* player)
     return true;
 }
 
-bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOVEMETHOD_DEFAULT*/, uint64 kicker /*= 0*/, const char* reason /*= NULL*/)
+bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod &method /*= GROUP_REMOVEMETHOD_DEFAULT*/, ObjectGuid kicker /*= 0*/, const char* reason /*= NULL*/)
 {
     BroadcastGroupUpdate();
 
@@ -585,7 +584,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
         if (!isBGGroup() && !isBFGroup())
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_MEMBER);
-            stmt->setUInt32(0, GUID_LOPART(guid));
+            stmt->setUInt64(0, guid.GetCounter());
             CharacterDatabase.Execute(stmt);
             DelinkMember(guid);
         }
@@ -614,7 +613,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
 
             roll->playerVote.erase(itr2);
 
-            CountRollVote(guid, roll->itemGUID, MAX_ROLL_TYPE);
+            CountRollVote(guid, roll->aoeSlot, MAX_ROLL_TYPE);
         }
 
         // Update subgroups
@@ -664,7 +663,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOV
     }
 }
 
-void Group::ChangeLeader(uint64 guid)
+void Group::ChangeLeader(ObjectGuid guid)
 {
     member_witerator slot = _getMemberWSlot(guid);
 
@@ -701,7 +700,7 @@ void Group::ChangeLeader(uint64 guid)
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_PERM_BINDING);
 
         stmt->setUInt32(0, m_dbStoreId);
-        stmt->setUInt32(1, player->GetGUIDLow());
+        stmt->setUInt64(1, player->GetGUID().GetCounter());
 
         CharacterDatabase.Execute(stmt);
 
@@ -711,7 +710,7 @@ void Group::ChangeLeader(uint64 guid)
         // Update the group leader
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_LEADER);
 
-        stmt->setUInt32(0, player->GetGUIDLow());
+        stmt->setUInt64(0, player->GetGUID().GetCounter());
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -742,7 +741,7 @@ void Group::Disband(bool hideDestroy /* = false */)
             continue;
 
         // remove all raid markers
-        SetRaidMarker(RAID_MARKER_COUNT, player, 0, false);
+        SetRaidMarker(RAID_MARKER_COUNT, player, ObjectGuid::Empty, false);
 
         //we cannot call _removeMember because it would invalidate member iterator
         //if we are removing player from battleground raid
@@ -828,16 +827,16 @@ void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, const Roll& r)
     WorldPacket data(SMSG_LOOT_START_ROLL, (8+4+4+4+4+4+4+1));
     ObjectGuid guid = r.lootedGUID;
 
-    data.WriteGuidMask<1, 0>(guid);
+    //data.WriteGuidMask<1, 0>(guid);
     data.WriteBits(r.TotalEmited(), 3);
-    data.WriteGuidMask<3>(guid);
+    //data.WriteGuidMask<3>(guid);
     data.WriteBit(1);
-    data.WriteGuidMask<2, 4, 5>(guid);
+    //data.WriteGuidMask<2, 4, 5>(guid);
     data.WriteBits(0, 2);                                           //unk
     data.WriteBit(1);
-    data.WriteGuidMask<6>(guid);
+    //data.WriteGuidMask<6>(guid);
     data.WriteBit(r.aoeSlot == 0);
-    data.WriteGuidMask<7>(guid);
+    //data.WriteGuidMask<7>(guid);
 
     data.FlushBits();
 
@@ -846,19 +845,19 @@ void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, const Roll& r)
         data << uint8(r.aoeSlot);
     data << uint32(mapid);                                          // 3.3.3 mapid
     data << uint32(countDown);                                      // the countdown time to choose "need" or "greed"
-    data.WriteGuidBytes<1>(guid);
+    //data.WriteGuidBytes<1>(guid);
     data << uint32(r.itemRandomSuffix);
-    data.WriteGuidBytes<3>(guid);
+    //data.WriteGuidBytes<3>(guid);
                                                                     // Display ID
     data << uint32(sObjectMgr->GetItemTemplate(r.itemid)->DisplayInfoID);    
     data << uint32(r.itemid);                                       // the itemEntryId for the item that shall be rolled for
     data << uint32(0);
-    data.WriteGuidBytes<2>(guid);
+    //data.WriteGuidBytes<2>(guid);
     data << uint32(r.itemRandomPropId);
     data << uint8(r.totalPlayersRolling);                           // maybe the number of players rolling for it???
-    data.WriteGuidBytes<4, 0, 5>(guid);
+    //data.WriteGuidBytes<4, 0, 5>(guid);
     data << uint32(r.itemCount);                                    // items in stack
-    data.WriteGuidBytes<7, 6>(guid);
+    //data.WriteGuidBytes<7, 6>(guid);
 
     for (Roll::PlayerVote::const_iterator itr=r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
     {
@@ -880,16 +879,16 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p,
     WorldPacket data(SMSG_LOOT_START_ROLL, (8 + 4 + 4 + 4 + 4 + 4 + 4 + 1));
     ObjectGuid guid = r.lootedGUID;
 
-    data.WriteGuidMask<1, 0>(guid);
+    //data.WriteGuidMask<1, 0>(guid);
     data.WriteBits(r.TotalEmited(), 3);
-    data.WriteGuidMask<3>(guid);
+    //data.WriteGuidMask<3>(guid);
     data.WriteBit(canNeed);
-    data.WriteGuidMask<2, 4, 5>(guid);
+    //data.WriteGuidMask<2, 4, 5>(guid);
     data.WriteBits(0, 2);                                           //unk
     data.WriteBit(1);
-    data.WriteGuidMask<6>(guid);
+    //data.WriteGuidMask<6>(guid);
     data.WriteBit(r.aoeSlot == 0);
-    data.WriteGuidMask<7>(guid);
+    //data.WriteGuidMask<7>(guid);
 
     data.FlushBits();
 
@@ -898,25 +897,25 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p,
         data << uint8(r.aoeSlot);
     data << uint32(mapId);                                          // 3.3.3 mapid
     data << uint32(countDown);                                      // the countdown time to choose "need" or "greed"
-    data.WriteGuidBytes<1>(guid);
+    //data.WriteGuidBytes<1>(guid);
     data << uint32(r.itemRandomSuffix);
-    data.WriteGuidBytes<3>(guid);
+    //data.WriteGuidBytes<3>(guid);
                                                                     // Display ID
     data << uint32(sObjectMgr->GetItemTemplate(r.itemid)->DisplayInfoID);    
     data << uint32(r.itemid);                                       // the itemEntryId for the item that shall be rolled for
     data << uint32(0);
-    data.WriteGuidBytes<2>(guid);
+    //data.WriteGuidBytes<2>(guid);
     data << uint32(r.itemRandomPropId);
     data << uint8(r.totalPlayersRolling);                           // maybe the number of players rolling for it???
-    data.WriteGuidBytes<4, 0, 5>(guid);
+    //data.WriteGuidBytes<4, 0, 5>(guid);
     data << uint32(r.itemCount);                                    // items in stack
-    data.WriteGuidBytes<7, 6>(guid);
+    //data.WriteGuidBytes<7, 6>(guid);
 
     p->GetSession()->SendPacket(&data);
 }
 
 //! 5.4.1
-void Group::SendLootRoll(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumber, uint8 rollType, Roll const& roll)
+void Group::SendLootRoll(ObjectGuid sourceGuid, ObjectGuid targetGuid, uint8 rollNumber, uint8 rollType, Roll const& roll)
 {
     //! ToDo: itemRandomSuffix & itemRandomPropId
     WorldPacket data(SMSG_LOOT_ROLL, (8+4+8+4+4+4+1+1+1));
@@ -924,43 +923,43 @@ void Group::SendLootRoll(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumber,
     ObjectGuid guid = roll.lootedGUID;
 
     data.WriteBit(1);
-    data.WriteGuidMask<6>(guid);
-    data.WriteGuidMask<5>(target);
-    data.WriteGuidMask<7>(guid);
-    data.WriteGuidMask<1>(target);
-    data.WriteGuidMask<2>(guid);
+    //data.WriteGuidMask<6>(guid);
+    //data.WriteGuidMask<5>(target);
+    //data.WriteGuidMask<7>(guid);
+    //data.WriteGuidMask<1>(target);
+    //data.WriteGuidMask<2>(guid);
     data.WriteBits(0, 2);
     data.WriteBit(0);                                       // 1: "You automatically passed on: %s because you cannot loot that item." - Possibly used in need befor greed
-    data.WriteGuidMask<5>(guid);
-    data.WriteGuidMask<7, 0>(target);
-    data.WriteGuidMask<1, 4, 3>(guid);
+    //data.WriteGuidMask<5>(guid);
+    //data.WriteGuidMask<7, 0>(target);
+    //data.WriteGuidMask<1, 4, 3>(guid);
     data.WriteBit(0);
-    data.WriteGuidMask<6>(target);
+    //data.WriteGuidMask<6>(target);
     data.WriteBit(roll.aoeSlot == 0);
-    data.WriteGuidMask<2, 4>(target);
+    //data.WriteGuidMask<2, 4>(target);
     data.WriteBits(roll.TotalEmited(), 3);
-    data.WriteGuidMask<3>(target);
-    data.WriteGuidMask<0>(guid);
+    //data.WriteGuidMask<3>(target);
+    //data.WriteGuidMask<0>(guid);
 
     data.FlushBits();
 
     data << uint32(1);                                      // always 1
-    data.WriteGuidBytes<1, 0>(target);
+    //data.WriteGuidBytes<1, 0>(target);
     if (roll.aoeSlot)
         data << uint8(roll.aoeSlot);
-    data.WriteGuidBytes<4, 5>(target);
-    data.WriteGuidBytes<3, 4, 7, 2, 1>(guid);
+    //data.WriteGuidBytes<4, 5>(target);
+    //data.WriteGuidBytes<3, 4, 7, 2, 1>(guid);
     data << uint32(0);
-    data.WriteGuidBytes<5, 6>(guid);
+    //data.WriteGuidBytes<5, 6>(guid);
     data << uint32(rollNumber);                             // 0: "Need for: [item name]" > 127: "you passed on: [item name]"      Roll number
-    data.WriteGuidBytes<6>(target);
-    data.WriteGuidBytes<0>(guid);
-    data.WriteGuidBytes<7>(target);
+    //data.WriteGuidBytes<6>(target);
+    //data.WriteGuidBytes<0>(guid);
+    //data.WriteGuidBytes<7>(target);
     data << uint32(roll.itemid);                            // the itemEntryId for the item that shall be rolled for
     data << uint32(roll.itemRandomSuffix);
-    data.WriteGuidBytes<2>(target);
+    //data.WriteGuidBytes<2>(target);
     data << uint32(roll.itemRandomPropId);                  // randomSuffix
-    data.WriteGuidBytes<3>(target);
+    //data.WriteGuidBytes<3>(target);
     data << uint8(rollType);                                // 0: "Need for: [item name]" 0: "You have selected need for [item name] 1: need roll 2: greed roll
                                                             // Display ID
     data << uint32(sObjectMgr->GetItemTemplate(roll.itemid)->DisplayInfoID);      
@@ -977,7 +976,7 @@ void Group::SendLootRoll(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumber,
 }
 
 //! 5.4.1
-void Group::SendLootRollWon(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumber, uint8 rollType, Roll const& roll)
+void Group::SendLootRollWon(ObjectGuid sourceGuid, ObjectGuid targetGuid, uint8 rollNumber, uint8 rollType, Roll const& roll)
 {
     //! ToDo: itemRandomSuffix & itemRandomPropId
     WorldPacket data(SMSG_LOOT_ROLL_WON, 60);
@@ -985,55 +984,55 @@ void Group::SendLootRollWon(uint64 sourceGuid, uint64 targetGuid, uint8 rollNumb
     ObjectGuid guid = roll.lootedGUID;
     
     data.WriteBit(roll.aoeSlot == 0);
-    data.WriteGuidMask<0>(guid);
-    data.WriteGuidMask<4>(target);
-    data.WriteGuidMask<1>(guid);
-    data.WriteGuidMask<6>(target);
+    //data.WriteGuidMask<0>(guid);
+    //data.WriteGuidMask<4>(target);
+    //data.WriteGuidMask<1>(guid);
+    //data.WriteGuidMask<6>(target);
     data.WriteBits(roll.TotalEmited(), 3);
-    data.WriteGuidMask<0>(target);
-    data.WriteGuidMask<3>(guid);
-    data.WriteGuidMask<7>(target);
-    data.WriteGuidMask<6>(guid);
-    data.WriteGuidMask<1>(target);
+    //data.WriteGuidMask<0>(target);
+    //data.WriteGuidMask<3>(guid);
+    //data.WriteGuidMask<7>(target);
+    //data.WriteGuidMask<6>(guid);
+    //data.WriteGuidMask<1>(target);
     data.WriteBits(0, 2);
-    data.WriteGuidMask<4>(guid);
-    data.WriteGuidMask<2>(target);
-    data.WriteGuidMask<2, 5>(guid);
-    data.WriteGuidMask<3>(target);
+    //data.WriteGuidMask<4>(guid);
+    //data.WriteGuidMask<2>(target);
+    //data.WriteGuidMask<2, 5>(guid);
+    //data.WriteGuidMask<3>(target);
     data.WriteBit(0);
     data.WriteBit(1);
-    data.WriteGuidMask<5>(target);
-    data.WriteGuidMask<7>(guid);
+    //data.WriteGuidMask<5>(target);
+    //data.WriteGuidMask<7>(guid);
 
     data.FlushBits();
 
-    data.WriteGuidBytes<3>(target);
+    //data.WriteGuidBytes<3>(target);
     data << uint32(roll.itemRandomSuffix);                  // Item random property ID
     data << uint32(0);
     data << uint32(1);                                      // Always 1
-    data.WriteGuidBytes<6>(target);
-    data.WriteGuidBytes<0, 4>(guid);
+    //data.WriteGuidBytes<6>(target);
+    //data.WriteGuidBytes<0, 4>(guid);
                                                            // Display ID
     data << uint32(sObjectMgr->GetItemTemplate(roll.itemid)->DisplayInfoID);   
-    data.WriteGuidBytes<1, 5, 2>(guid);
+    //data.WriteGuidBytes<1, 5, 2>(guid);
     data << uint32(roll.itemid);                            // the itemEntryId for the item that shall be rolled for
     if (roll.aoeSlot)
         data << roll.aoeSlot;
-    data.WriteGuidBytes<6>(guid);
+    //data.WriteGuidBytes<6>(guid);
     data << uint8(rollType);                                // rollType related to SMSG_LOOT_ROLL
-    data.WriteGuidBytes<7, 3>(guid);
-    data.WriteGuidBytes<4, 2, 1, 0>(target);
+    //data.WriteGuidBytes<7, 3>(guid);
+    //data.WriteGuidBytes<4, 2, 1, 0>(target);
     data << uint32(roll.itemRandomPropId);                  // Item random property
-    data.WriteGuidBytes<5>(target);
+    //data.WriteGuidBytes<5>(target);
     data << uint32(rollNumber);                             // rollnumber realted to SMSG_LOOT_ROLL
-    data.WriteGuidBytes<7>(target);
+    //data.WriteGuidBytes<7>(target);
 
     //! 5.4.1
     WorldPacket data2(SMSG_LOOT_ROLLS_COMPLETE, 7);
-    data2.WriteGuidMask<4, 7, 1, 6, 0, 5, 2, 3>(target);
-    data2.WriteGuidBytes<1, 5, 0, 7>(target);
+    //data2.WriteGuidMask<4, 7, 1, 6, 0, 5, 2, 3>(target);
+    //data2.WriteGuidBytes<1, 5, 0, 7>(target);
     data2 << uint8(roll.itemSlot);
-    data2.WriteGuidBytes<6, 2, 4, 3>(target);
+    //data2.WriteGuidBytes<6, 2, 4, 3>(target);
 
     for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
     {
@@ -1055,31 +1054,31 @@ void Group::SendLootAllPassed(Roll const& roll)
     WorldPacket data(SMSG_LOOT_ALL_PASSED, (8+4+4+4+4));
     ObjectGuid guid = roll.lootedGUID;
 
-    data.WriteGuidMask<3>(guid);
+    //data.WriteGuidMask<3>(guid);
     data.WriteBit(0);
-    data.WriteGuidMask<6>(guid);
+    //data.WriteGuidMask<6>(guid);
     data.WriteBits(0, 2);
-    data.WriteGuidMask<0, 4, 5>(guid);
+    //data.WriteGuidMask<0, 4, 5>(guid);
     data.WriteBit(1);
     data.WriteBit(roll.aoeSlot == 0);
     data.WriteBits(roll.TotalEmited(), 3);
-    data.WriteGuidMask<2, 7, 1>(guid);
+    //data.WriteGuidMask<2, 7, 1>(guid);
 
     data.FlushBits();
 
-    data.WriteGuidBytes<4, 3, 2, 0>(guid);
+    //data.WriteGuidBytes<4, 3, 2, 0>(guid);
     data << uint32(roll.itemid);                // real itemID
-    data.WriteGuidBytes<6, 5>(guid);
+    //data.WriteGuidBytes<6, 5>(guid);
     if (roll.aoeSlot)
         data << uint8(roll.aoeSlot);
-    data.WriteGuidBytes<7>(guid);
+    //data.WriteGuidBytes<7>(guid);
                                                 // DisplayID
     data << uint32(sObjectMgr->GetItemTemplate(roll.itemid)->DisplayInfoID);   
     data << uint32(roll.itemid);
     data << uint32(0);                          // Dynamic Info
     data << uint32(roll.itemid);
     data << uint32(roll.itemid);
-    data.WriteGuidBytes<1>(guid);
+    //data.WriteGuidBytes<1>(guid);
 
     for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
     {
@@ -1098,35 +1097,35 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
     ASSERT(creature);
 
     ObjectGuid guid = creature->GetGUID();
-    ObjectGuid gGroupLooter = groupLooter ? groupLooter->GetGUID() : 0;
-    ObjectGuid guid28 = 0;
+    ObjectGuid gGroupLooter = groupLooter ? groupLooter->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid guid28;
 
     //! 5.4.1
     WorldPacket data(SMSG_LOOT_LIST, (25));
 
-    data.WriteBit(guid28);
-    data.WriteGuidMask<4>(guid);
-    data.WriteBit(gGroupLooter);
+    data.WriteBit(bool(guid28));
+    //data.WriteGuidMask<4>(guid);
+    data.WriteBit(bool(gGroupLooter));
 
     if (gGroupLooter)
-        data.WriteGuidMask<4, 5, 3, 6, 1, 0, 2, 7>(gGroupLooter);
+        //data.WriteGuidMask<4, 5, 3, 6, 1, 0, 2, 7>(gGroupLooter);
 
-    data.WriteGuidMask<0>(guid);
+    //data.WriteGuidMask<0>(guid);
 
     if (guid28)
-        data.WriteGuidMask<6, 3, 5, 2, 7, 0, 1, 4>(guid28);
+        //data.WriteGuidMask<6, 3, 5, 2, 7, 0, 1, 4>(guid28);
 
-    data.WriteGuidMask<1, 2, 6, 3, 5, 7>(guid);
+    //data.WriteGuidMask<1, 2, 6, 3, 5, 7>(guid);
 
     data.FlushBits();
 
     if (guid28)
-        data.WriteGuidBytes<7, 6, 5, 2, 4, 1, 3, 0>(guid28);
+        //data.WriteGuidBytes<7, 6, 5, 2, 4, 1, 3, 0>(guid28);
 
     if (gGroupLooter)
-        data.WriteGuidBytes<5, 0, 1, 7, 3, 6, 2, 4>(gGroupLooter);
+        //data.WriteGuidBytes<5, 0, 1, 7, 3, 6, 2, 4>(gGroupLooter);
 
-    data.WriteGuidBytes<5, 6, 7, 1, 4, 2, 0, 3>(guid);
+    //data.WriteGuidBytes<5, 6, 7, 1, 4, 2, 0, 3>(guid);
 
     BroadcastPacket(&data, false);
 }
@@ -1152,7 +1151,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         //roll for over-threshold item if it's one-player loot
         if (item->Quality >= uint32(m_lootThreshold))
         {
-            uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), 0, HIGHGUID_ITEM);
+            ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate());
             Roll* r = new Roll(newitemGUID, *i);
             r->lootedGUID = pLootedObject->GetGUID();
 
@@ -1211,12 +1210,12 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
                 if (Creature* creature = pLootedObject->ToCreature())
                 {
                     creature->m_groupLootTimer = 60000;
-                    creature->lootingGroupLowGUID = GetLowGUID();
+                    creature->lootingGroupLowGUID = GetGUID();
                 }
                 else if (GameObject* go = pLootedObject->ToGameObject())
                 {
                     go->m_groupLootTimer = 60000;
-                    go->lootingGroupLowGUID = GetLowGUID();
+                    go->lootingGroupLowGUID = GetGUID();
                 }
             }
             else
@@ -1238,7 +1237,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
             continue;
         }
 
-        uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), 0, HIGHGUID_ITEM);
+        ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate());
         Roll* r = new Roll(newitemGUID, *i);
         r->lootedGUID = pLootedObject->GetGUID();
 
@@ -1274,12 +1273,12 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
             if (Creature* creature = pLootedObject->ToCreature())
             {
                 creature->m_groupLootTimer = 60000;
-                creature->lootingGroupLowGUID = GetLowGUID();
+                creature->lootingGroupLowGUID = GetGUID();
             }
             else if (GameObject* go = pLootedObject->ToGameObject())
             {
                 go->m_groupLootTimer = 60000;
-                go->lootingGroupLowGUID = GetLowGUID();
+                go->lootingGroupLowGUID = GetGUID();
             }
         }
         else
@@ -1301,7 +1300,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
         //roll for over-threshold item if it's one-player loot
         if (item->Quality >= uint32(m_lootThreshold))
         {
-            uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), 0, HIGHGUID_ITEM);
+            ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate());
             Roll* r = new Roll(newitemGUID, *i);
             r->lootedGUID = lootedObject->GetGUID();
 
@@ -1358,12 +1357,12 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
                 if (Creature* creature = lootedObject->ToCreature())
                 {
                     creature->m_groupLootTimer = 60000;
-                    creature->lootingGroupLowGUID = GetLowGUID();
+                    creature->lootingGroupLowGUID = GetGUID();
                 }
                 else if (GameObject* go = lootedObject->ToGameObject())
                 {
                     go->m_groupLootTimer = 60000;
-                    go->lootingGroupLowGUID = GetLowGUID();
+                    go->lootingGroupLowGUID = GetGUID();
                 }
             }
             else
@@ -1379,7 +1378,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
             continue;
 
         item = sObjectMgr->GetItemTemplate(i->itemid);
-        uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), 0, HIGHGUID_ITEM);
+        ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate());
         Roll* r = new Roll(newitemGUID, *i);
         r->lootedGUID = lootedObject->GetGUID();
 
@@ -1423,12 +1422,12 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
             if (Creature* creature = lootedObject->ToCreature())
             {
                 creature->m_groupLootTimer = 60000;
-                creature->lootingGroupLowGUID = GetLowGUID();
+                creature->lootingGroupLowGUID = GetGUID();
             }
             else if (GameObject* go = lootedObject->ToGameObject())
             {
                 go->m_groupLootTimer = 60000;
-                go->lootingGroupLowGUID = GetLowGUID();
+                go->lootingGroupLowGUID = GetGUID();
             }
         }
         else
@@ -1445,7 +1444,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
     ByteBuffer dataBuffer(GetMembersCount()*8);
     ObjectGuid guid_looted = pLootedObject->GetGUID();
     WorldPacket data(SMSG_LOOT_MASTER_LIST, 12 + GetMembersCount()*8);
-    data.WriteGuidMask<5, 4, 6, 1, 0>(guid_looted);
+    //data.WriteGuidMask<5, 4, 6, 1, 0>(guid_looted);
     uint32 pos = data.bitwpos();
     data.WriteBits(0, 24);
 
@@ -1458,23 +1457,23 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
         if (looter->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
         {
             //HardHack! Plr should have off-like hiGuid
-            ObjectGuid guid = MAKE_NEW_GUID(looter->GetGUIDLow(), 0, HIGHGUID_PLAYER_MOP);
+            //ObjectGuid guid = MAKE_NEW_GUID(looter->GetGUID().GetCounter(), 0, HighGuid::Player_MOP);
 
-            data.WriteGuidMask<0, 6, 3, 1, 5, 7, 4, 2>(guid);
-            dataBuffer.WriteGuidBytes<6, 7, 2, 0, 5, 3, 1, 4>(guid);
+            //data.WriteGuidMask<0, 6, 3, 1, 5, 7, 4, 2>(guid);
+            //dataBuffer.WriteGuidBytes<6, 7, 2, 0, 5, 3, 1, 4>(guid);
             ++real_count;
             if (real_count >= 10)
                 break;
         }
     }
 
-    data.WriteGuidMask<2, 3, 7>(guid_looted);
+    //data.WriteGuidMask<2, 3, 7>(guid_looted);
     data.PutBits<uint32>(pos, real_count, 24);
 
     data.FlushBits();
 
     data.append(dataBuffer);
-    data.WriteGuidBytes<7, 0, 3, 2, 1, 4, 5, 6>(guid_looted);
+    //data.WriteGuidBytes<7, 0, 3, 2, 1, 4, 5, 6>(guid_looted);
 
     if (Player* player = ObjectAccessor::FindPlayer(GetLooterGuid()))
         player->GetSession()->SendPacket(&data);
@@ -1487,14 +1486,14 @@ void Group::DoRollForAllMembers(ObjectGuid guid, uint8 slot, uint32 mapid, Loot*
         if ((*iter)->itemSlot == slot && loot == (*iter)->getLoot() && (*iter)->isValid())
             return;
 
-    uint64 newitemGUID = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), 0, HIGHGUID_ITEM);
+    ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>()->Generate());
     Roll* r = new Roll(newitemGUID, item);
     r->lootedGUID = guid;
     WorldObject* pLootedObject = NULL;
 
-    if (IS_CRE_OR_VEH_GUID(guid))
+    if (guid.IsCreatureOrVehicle())
         pLootedObject = player->GetMap()->GetCreature(guid);
-    else if (IS_GAMEOBJECT_GUID(guid))
+    else if (guid.IsGameObject())
         pLootedObject = player->GetMap()->GetGameObject(guid);
 
     if (!pLootedObject)
@@ -1529,7 +1528,7 @@ void Group::DoRollForAllMembers(ObjectGuid guid, uint8 slot, uint32 mapid, Loot*
     SendLootStartRoll(180000, mapid, *r);
 }
 
-void Group::CountRollVote(uint64 playerGUID, uint8 AoeSlot, uint8 Choice)
+void Group::CountRollVote(ObjectGuid playerGUID, uint8 AoeSlot, uint8 Choice)
 {
     Rolls::iterator rollI = GetRoll(AoeSlot);
     if (rollI == RollId.end())
@@ -1549,22 +1548,22 @@ void Group::CountRollVote(uint64 playerGUID, uint8 AoeSlot, uint8 Choice)
     {
     case ROLL_PASS:                                     // Player choose pass
         ++roll->totalPass;
-        SendLootRoll(0, playerGUID, 0, ROLL_PASS, *roll);
+        SendLootRoll(ObjectGuid::Empty, playerGUID, 0, ROLL_PASS, *roll);
         itr->second = PASS;
         break;
     case ROLL_NEED:                                     // player choose Need
         ++roll->totalNeed;
-        SendLootRoll(0, playerGUID, 0, ROLL_NEED, *roll);
+        SendLootRoll(ObjectGuid::Empty, playerGUID, 0, ROLL_NEED, *roll);
         itr->second = NEED;
         break;
     case ROLL_GREED:                                    // player choose Greed
         ++roll->totalGreed;
-        SendLootRoll(0, playerGUID, 0, ROLL_GREED, *roll);
+        SendLootRoll(ObjectGuid::Empty, playerGUID, 0, ROLL_GREED, *roll);
         itr->second = GREED;
         break;
     case ROLL_DISENCHANT:                               // player choose Disenchant
         ++roll->totalGreed;
-        SendLootRoll(0, playerGUID, 0, ROLL_DISENCHANT, *roll);
+        SendLootRoll(ObjectGuid::Empty, playerGUID, 0, ROLL_DISENCHANT, *roll);
         itr->second = DISENCHANT;
         break;
     }
@@ -1603,7 +1602,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
         if (!roll->playerVote.empty())
         {
             uint8 maxresul = 0;
-            uint64 maxguid  = (*roll->playerVote.begin()).first;
+            ObjectGuid maxguid  = (*roll->playerVote.begin()).first;
             Player* player;
 
             for (Roll::PlayerVote::const_iterator itr=roll->playerVote.begin(); itr != roll->playerVote.end(); ++itr)
@@ -1612,14 +1611,14 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     continue;
 
                 uint8 randomN = urand(1, 100);
-                SendLootRoll(0, itr->first, randomN, ROLL_NEED, *roll);
+                SendLootRoll(ObjectGuid::Empty, itr->first, randomN, ROLL_NEED, *roll);
                 if (maxresul < randomN)
                 {
                     maxguid  = itr->first;
                     maxresul = randomN;
                 }
             }
-            SendLootRollWon(0, maxguid, maxresul, ROLL_NEED, *roll);
+            SendLootRollWon(ObjectGuid::Empty, maxguid, maxresul, ROLL_NEED, *roll);
             player = ObjectAccessor::FindPlayer(maxguid);
 
             if (player && player->GetSession())
@@ -1634,7 +1633,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     item->is_looted = true;
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
-                    AllowedLooterSet looters = item->GetAllowedLooters();
+                    GuidSet looters = item->GetAllowedLooters();
                     player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
                 }
                 else
@@ -1650,7 +1649,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
         if (!roll->playerVote.empty())
         {
             uint8 maxresul = 0;
-            uint64 maxguid = (*roll->playerVote.begin()).first;
+            ObjectGuid maxguid = (*roll->playerVote.begin()).first;
             Player* player;
             RollVote rollvote = NOT_VALID;
 
@@ -1661,7 +1660,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     continue;
 
                 uint8 randomN = urand(1, 100);
-                SendLootRoll(0, itr->first, randomN, itr->second, *roll);
+                SendLootRoll(ObjectGuid::Empty, itr->first, randomN, itr->second, *roll);
                 if (maxresul < randomN)
                 {
                     maxguid  = itr->first;
@@ -1669,7 +1668,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     rollvote = itr->second;
                 }
             }
-            SendLootRollWon(0, maxguid, maxresul, rollvote, *roll);
+            SendLootRollWon(ObjectGuid::Empty, maxguid, maxresul, rollvote, *roll);
             player = ObjectAccessor::FindPlayer(maxguid);
 
             if (player && player->GetSession())
@@ -1687,7 +1686,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                         item->is_looted = true;
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         roll->getLoot()->unlootedCount--;
-                        AllowedLooterSet looters = item->GetAllowedLooters();
+                        GuidSet looters = item->GetAllowedLooters();
                         player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
                     }
                     else
@@ -1729,35 +1728,35 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
         return;
 
     // clean other icons
-    if (targetGuid != 0)
+    if (targetGuid)
         for (int i=0; i<TARGETICONCOUNT; ++i)
             if (m_targetIcons[i] == targetGuid)
-                SetTargetIcon(i, 0, 0);
+                SetTargetIcon(i, ObjectGuid::Empty, ObjectGuid::Empty);
 
     m_targetIcons[id] = targetGuid;
 
     WorldPacket data(SMSG_RAID_TARGET_UPDATE_SINGLE, (1+8+1+8));
 
-    data.WriteGuidMask<3, 2, 0, 4>(targetGuid);
-    data.WriteGuidMask<0>(whoGuid);
-    data.WriteGuidMask<1>(targetGuid);
-    data.WriteGuidMask<4, 1>(whoGuid);
-    data.WriteGuidMask<5>(targetGuid);
-    data.WriteGuidMask<5, 3, 2, 7>(whoGuid);
-    data.WriteGuidMask<6>(targetGuid);
-    data.WriteGuidMask<6>(whoGuid);
-    data.WriteGuidMask<7>(targetGuid);
+    //data.WriteGuidMask<3, 2, 0, 4>(targetGuid);
+    //data.WriteGuidMask<0>(whoGuid);
+    //data.WriteGuidMask<1>(targetGuid);
+    //data.WriteGuidMask<4, 1>(whoGuid);
+    //data.WriteGuidMask<5>(targetGuid);
+    //data.WriteGuidMask<5, 3, 2, 7>(whoGuid);
+    //data.WriteGuidMask<6>(targetGuid);
+    //data.WriteGuidMask<6>(whoGuid);
+    //data.WriteGuidMask<7>(targetGuid);
 
     data << uint8(id);
-    data.WriteGuidBytes<6, 4>(whoGuid);
-    data.WriteGuidBytes<7>(targetGuid);
-    data.WriteGuidBytes<3>(whoGuid);
-    data.WriteGuidBytes<6, 5>(targetGuid);
-    data.WriteGuidBytes<7, 5, 0>(whoGuid);
-    data.WriteGuidBytes<1, 2>(targetGuid);
+    //data.WriteGuidBytes<6, 4>(whoGuid);
+    //data.WriteGuidBytes<7>(targetGuid);
+    //data.WriteGuidBytes<3>(whoGuid);
+    //data.WriteGuidBytes<6, 5>(targetGuid);
+    //data.WriteGuidBytes<7, 5, 0>(whoGuid);
+    //data.WriteGuidBytes<1, 2>(targetGuid);
     data << uint8(IsHomeGroup() ? 0 : 1);
-    data.WriteGuidBytes<2, 1>(whoGuid);
-    data.WriteGuidBytes<3, 0, 4>(targetGuid);
+    //data.WriteGuidBytes<2, 1>(whoGuid);
+    //data.WriteGuidBytes<3, 0, 4>(targetGuid);
 
     BroadcastPacket(&data, true);
 }
@@ -1777,15 +1776,15 @@ void Group::SendTargetIconList(WorldSession* session)
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
     {
-        if (m_targetIcons[i] == 0)
+        if (!m_targetIcons[i])
             continue;
         ObjectGuid guid = m_targetIcons[i];
     
-        data.WriteGuidMask<7, 6, 0, 1, 5, 2, 3, 4>(guid);
+        //data.WriteGuidMask<7, 6, 0, 1, 5, 2, 3, 4>(guid);
 
-        dataBuffer.WriteGuidBytes<2, 0, 6, 5, 4>(guid);
+        //dataBuffer.WriteGuidBytes<2, 0, 6, 5, 4>(guid);
         dataBuffer << uint8(i);
-        dataBuffer.WriteGuidBytes<7, 3, 1>(guid);
+        //dataBuffer.WriteGuidBytes<7, 3, 1>(guid);
         ++count;
     }
     data.FlushBits();
@@ -1802,7 +1801,7 @@ void Group::SendUpdate()
         SendUpdateToPlayer(witr->guid, &(*witr));
 }
 
-void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
+void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 {
     Player* player = ObjectAccessor::FindPlayer(playerGUID);
 
@@ -1843,25 +1842,25 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     data << uint8(m_groupType);                                         // group type (flags in 3.3)
     data << uint32(0);                                                  // unk, sometime 32 in sniff (flags ?)
 
-    data.WriteGuidMask<3, 6>(leaderGuid);
-    data.WriteGuidMask<6, 7, 2, 5, 3>(guid);
-    data.WriteGuidMask<0, 5>(leaderGuid);
+    //data.WriteGuidMask<3, 6>(leaderGuid);
+    //data.WriteGuidMask<6, 7, 2, 5, 3>(guid);
+    //data.WriteGuidMask<0, 5>(leaderGuid);
     data.WriteBit(true);                                                // HasLooterGuid
-    data.WriteGuidMask<4>(leaderGuid);
+    //data.WriteGuidMask<4>(leaderGuid);
     data.WriteBits(GetMembersCount() , 21);
 
     if (true)                                                           // HasLooterGuid
-        data.WriteGuidMask<4, 6, 5, 7, 0, 1, 2, 3>(looterGuid);
+        //data.WriteGuidMask<4, 6, 5, 7, 0, 1, 2, 3>(looterGuid);
 
     // Send self first
     data.WriteBits(slot->name.size(), 6);
-    data.WriteGuidMask<4, 3, 7, 0, 1, 2, 6, 5>(plguid);
+    //data.WriteGuidMask<4, 3, 7, 0, 1, 2, 6, 5>(plguid);
 
     dataBuffer << uint8(gStatusOnline);                                 // online-state
     dataBuffer << uint8(slot->flags);
-    dataBuffer.WriteGuidBytes<2, 7, 4, 0>(plguid);
+    //dataBuffer.WriteGuidBytes<2, 7, 4, 0>(plguid);
     dataBuffer << uint8(slot->group);
-    dataBuffer.WriteGuidBytes<6, 1, 5, 3>(plguid);
+    //dataBuffer.WriteGuidBytes<6, 1, 5, 3>(plguid);
     dataBuffer << uint8(slot->roles);
     dataBuffer.WriteString(slot->name);
 
@@ -1873,23 +1872,23 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         member = ObjectAccessor::FindPlayer(citr->guid);
 
         data.WriteBits(citr->name.size(), 6);
-        data.WriteGuidMask<4, 3, 7, 0, 1, 2, 6, 5>(citr->guid);
+        //data.WriteGuidMask<4, 3, 7, 0, 1, 2, 6, 5>(citr->guid);
 
         dataBuffer << uint8(member ? gStatusOnline : gStatusOfline);  // online-state
         dataBuffer << uint8(citr->flags);
-        dataBuffer.WriteGuidBytes<2, 7, 4, 0>(citr->guid);
+        //dataBuffer.WriteGuidBytes<2, 7, 4, 0>(citr->guid);
         dataBuffer << uint8(citr->group);
-        dataBuffer.WriteGuidBytes<6, 1, 5, 3>(citr->guid);
+        //dataBuffer.WriteGuidBytes<6, 1, 5, 3>(citr->guid);
         dataBuffer << uint8(citr->roles);
         dataBuffer.WriteString(citr->name);
     }
 
     data.WriteBit(m_groupType & GROUPTYPE_LFG);
-    data.WriteGuidMask<1>(guid);
+    //data.WriteGuidMask<1>(guid);
     data.WriteBit(sendDifficultyInfo);
-    data.WriteGuidMask<4>(leaderGuid);
-    data.WriteGuidMask<0>(guid);
-    data.WriteGuidMask<2>(leaderGuid);
+    //data.WriteGuidMask<4>(leaderGuid);
+    //data.WriteGuidMask<0>(guid);
+    //data.WriteGuidMask<2>(leaderGuid);
 
     ByteBuffer lfgBuff;
     if (m_groupType & GROUPTYPE_LFG)
@@ -1925,7 +1924,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         lfgBuff << uint32(dungeon ? dungeon->Entry() : 0);
     }
 
-    data.WriteGuidMask<7, 1>(leaderGuid);
+    //data.WriteGuidMask<7, 1>(leaderGuid);
 
     data.FlushBits();
 
@@ -1938,12 +1937,12 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     if (true)                                                           // HasLooterGuid
     {
         data << uint8(m_lootThreshold);                                 // loot threshold
-        data.WriteGuidBytes<5, 4>(looterGuid);
+        //data.WriteGuidBytes<5, 4>(looterGuid);
         data << uint8(m_lootMethod);                                    // loot method
-        data.WriteGuidBytes<3, 1, 0, 6, 2, 7>(looterGuid);
+        //data.WriteGuidBytes<3, 1, 0, 6, 2, 7>(looterGuid);
     }
 
-    data.WriteGuidBytes<2>(guid);
+    //data.WriteGuidBytes<2>(guid);
 
     if (sendDifficultyInfo)
     {
@@ -1951,12 +1950,12 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         data << uint32(m_dungeonDifficulty);
     }
 
-    data.WriteGuidBytes<5, 3, 1, 0>(guid);
-    data.WriteGuidBytes<7, 2, 0, 1>(leaderGuid);
-    data.WriteGuidBytes<7>(guid);
-    data.WriteGuidBytes<6, 4, 5>(leaderGuid);
-    data.WriteGuidBytes<6, 4>(guid);
-    data.WriteGuidBytes<3>(guid);
+    //data.WriteGuidBytes<5, 3, 1, 0>(guid);
+    //data.WriteGuidBytes<7, 2, 0, 1>(leaderGuid);
+    //data.WriteGuidBytes<7>(guid);
+    //data.WriteGuidBytes<6, 4, 5>(leaderGuid);
+    //data.WriteGuidBytes<6, 4>(guid);
+    //data.WriteGuidBytes<3>(guid);
 
     player->GetSession()->SendPacket(&data);
 }
@@ -1964,8 +1963,8 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 //! 5.4.1
 void Group::SendEmptyParty(Player *player)
 {
-    ObjectGuid leaderGuid = 0;
-    ObjectGuid guid = 0;
+    ObjectGuid leaderGuid;
+    ObjectGuid guid;
 
     WorldPacket data(SMSG_PARTY_UPDATE, 60);
 
@@ -1974,27 +1973,27 @@ void Group::SendEmptyParty(Player *player)
     data << uint8(IsHomeGroup() ? 0 : 1);
     data << uint8(0);                                                   // group type (flags in 3.3)
     data << uint32(0);                                                  // unk, sometime 32 in sniff (flags ?)
-    data.WriteGuidMask<3, 6>(leaderGuid);
-    data.WriteGuidMask<6, 7, 2, 5, 3>(guid);
-    data.WriteGuidMask<0, 5>(leaderGuid);
+    //data.WriteGuidMask<3, 6>(leaderGuid);
+    //data.WriteGuidMask<6, 7, 2, 5, 3>(guid);
+    //data.WriteGuidMask<0, 5>(leaderGuid);
     data.WriteBit(false);                                                // HasLooterGuid
-    data.WriteGuidMask<4>(leaderGuid);
+    //data.WriteGuidMask<4>(leaderGuid);
     data.WriteBits(0 , 21);
     data.WriteBit(false);
-    data.WriteGuidMask<1>(guid);
+    //data.WriteGuidMask<1>(guid);
     data.WriteBit(false);
-    data.WriteGuidMask<4>(leaderGuid);
-    data.WriteGuidMask<0>(guid);
-    data.WriteGuidMask<2>(leaderGuid);
-    data.WriteGuidMask<7, 1>(leaderGuid);
+    //data.WriteGuidMask<4>(leaderGuid);
+    //data.WriteGuidMask<0>(guid);
+    //data.WriteGuidMask<2>(leaderGuid);
+    //data.WriteGuidMask<7, 1>(leaderGuid);
     data.FlushBits();
-    data.WriteGuidBytes<2>(guid);
-    data.WriteGuidBytes<5, 3, 1, 0>(guid);
-    data.WriteGuidBytes<7, 2, 0, 1>(leaderGuid);
-    data.WriteGuidBytes<7>(guid);
-    data.WriteGuidBytes<6, 4, 5>(leaderGuid);
-    data.WriteGuidBytes<6, 4>(guid);
-    data.WriteGuidBytes<3>(guid);
+    //data.WriteGuidBytes<2>(guid);
+    //data.WriteGuidBytes<5, 3, 1, 0>(guid);
+    //data.WriteGuidBytes<7, 2, 0, 1>(leaderGuid);
+    //data.WriteGuidBytes<7>(guid);
+    //data.WriteGuidBytes<6, 4, 5>(leaderGuid);
+    //data.WriteGuidBytes<6, 4>(guid);
+    //data.WriteGuidBytes<3>(guid);
 
     player->GetSession()->SendPacket(&data);
 }
@@ -2016,12 +2015,12 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     }
 }
 
-void Group::BroadcastAddonMessagePacket(WorldPacket* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group, uint64 ignore)
+void Group::BroadcastAddonMessagePacket(WorldPacket* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group, ObjectGuid ignore)
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* player = itr->getSource();
-        if (!player || (ignore != 0 && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
+        if (!player || (ignore && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
             continue;
 
         if (WorldSession* session = player->GetSession())
@@ -2031,12 +2030,12 @@ void Group::BroadcastAddonMessagePacket(WorldPacket* packet, const std::string& 
     }
 }
 
-void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group, uint64 ignore)
+void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int group, ObjectGuid ignore)
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* player = itr->getSource();
-        if (!player || (ignore != 0 && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
+        if (!player || (ignore && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
             continue;
 
         if (player->GetSession() && (group == -1 || itr->getSubGroup() == group))
@@ -2069,32 +2068,32 @@ void Group::OfflineReadyCheck()
 
             //! 5.4.1
             WorldPacket data(SMSG_RAID_READY_CHECK_RESPONSE);
-            data.WriteGuidMask<6>(plGUID);
+            //data.WriteGuidMask<6>(plGUID);
             data.WriteBit(ready);
-            data.WriteGuidMask<5>(plGUID);
-            data.WriteGuidMask<3, 2>(grpGUID);
-            data.WriteGuidMask<1, 0>(plGUID);
-            data.WriteGuidMask<1>(grpGUID);
-            data.WriteGuidMask<2>(plGUID);
-            data.WriteGuidMask<4, 6>(grpGUID);
-            data.WriteGuidMask<3, 4>(plGUID);
-            data.WriteGuidMask<5, 7>(grpGUID);
-            data.WriteGuidMask<7>(plGUID);
-            data.WriteGuidMask<0>(grpGUID);
+            //data.WriteGuidMask<5>(plGUID);
+            //data.WriteGuidMask<3, 2>(grpGUID);
+            //data.WriteGuidMask<1, 0>(plGUID);
+            //data.WriteGuidMask<1>(grpGUID);
+            //data.WriteGuidMask<2>(plGUID);
+            //data.WriteGuidMask<4, 6>(grpGUID);
+            //data.WriteGuidMask<3, 4>(plGUID);
+            //data.WriteGuidMask<5, 7>(grpGUID);
+            //data.WriteGuidMask<7>(plGUID);
+            //data.WriteGuidMask<0>(grpGUID);
 
             data.FlushBits();
 
-            data.WriteGuidBytes<0, 6>(plGUID);
-            data.WriteGuidBytes<0>(grpGUID);
-            data.WriteGuidBytes<3>(plGUID);
-            data.WriteGuidBytes<5, 6>(grpGUID);
-            data.WriteGuidBytes<2>(plGUID);
-            data.WriteGuidBytes<2>(grpGUID);
-            data.WriteGuidBytes<7>(plGUID);
-            data.WriteGuidBytes<4, 3>(grpGUID);
-            data.WriteGuidBytes<4>(plGUID);
-            data.WriteGuidBytes<1, 7>(grpGUID);
-            data.WriteGuidBytes<5, 1>(plGUID);
+            //data.WriteGuidBytes<0, 6>(plGUID);
+            //data.WriteGuidBytes<0>(grpGUID);
+            //data.WriteGuidBytes<3>(plGUID);
+            //data.WriteGuidBytes<5, 6>(grpGUID);
+            //data.WriteGuidBytes<2>(plGUID);
+            //data.WriteGuidBytes<2>(grpGUID);
+            //data.WriteGuidBytes<7>(plGUID);
+            //data.WriteGuidBytes<4, 3>(grpGUID);
+            //data.WriteGuidBytes<4>(plGUID);
+            //data.WriteGuidBytes<1, 7>(grpGUID);
+            //data.WriteGuidBytes<5, 1>(plGUID);
 
             BroadcastReadyCheck(&data);
 
@@ -2103,7 +2102,7 @@ void Group::OfflineReadyCheck()
     }
 }
 
-bool Group::_setMembersGroup(uint64 guid, uint8 group)
+bool Group::_setMembersGroup(ObjectGuid guid, uint8 group)
 {
     member_witerator slot = _getMemberWSlot(guid);
     if (slot == m_memberSlots.end())
@@ -2118,7 +2117,7 @@ bool Group::_setMembersGroup(uint64 guid, uint8 group)
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_SUBGROUP);
 
         stmt->setUInt8(0, group);
-        stmt->setUInt32(1, GUID_LOPART(guid));
+        stmt->setUInt64(1, guid.GetCounter());
 
         CharacterDatabase.Execute(stmt);
     }
@@ -2138,7 +2137,7 @@ bool Group::SameSubGroup(Player const* member1, Player const* member2) const
 }
 
 // Allows setting sub groups both for online or offline members
-void Group::ChangeMembersGroup(uint64 guid, uint8 group)
+void Group::ChangeMembersGroup(ObjectGuid guid, uint8 group)
 {
     // Only raid groups have sub groups
     if (!isRaidGroup())
@@ -2169,7 +2168,7 @@ void Group::ChangeMembersGroup(uint64 guid, uint8 group)
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_SUBGROUP);
 
         stmt->setUInt8(0, group);
-        stmt->setUInt32(1, GUID_LOPART(guid));
+        stmt->setUInt64(1, guid.GetCounter());
 
         CharacterDatabase.Execute(stmt);
     }
@@ -2215,7 +2214,7 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
         break;
     }
 
-    uint64 oldLooterGUID = GetLooterGuid();
+    ObjectGuid oldLooterGUID = GetLooterGuid();
     member_citerator guid_itr = _getMemberCSlot(oldLooterGUID);
     if (guid_itr != m_memberSlots.end())
     {
@@ -2265,7 +2264,7 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
     }
     else
     {
-        SetLooterGuid(0);
+        SetLooterGuid(ObjectGuid::Empty);
         SendUpdate();
     }
 }
@@ -2564,7 +2563,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
     bind.perm = permanent;
     if (!load)
         sLog->outDebug(LOG_FILTER_MAPS, "Group::BindToInstance: Group (guid: %u, storage id: %u) is now bound to map %d, instance %d, difficulty %d",
-        GUID_LOPART(GetGUID()), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
+        GetGUID().GetCounter(), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
 
     return &bind;
 }
@@ -2628,7 +2627,7 @@ void Group::SetLootMethod(LootMethod method)
     m_lootMethod = method;
 }
 
-void Group::SetLooterGuid(uint64 guid)
+void Group::SetLooterGuid(ObjectGuid guid)
 {
     m_looterGuid = guid;
 }
@@ -2638,7 +2637,7 @@ void Group::SetLootThreshold(ItemQualities threshold)
     m_lootThreshold = threshold;
 }
 
-void Group::SetLfgRoles(uint64 guid, const uint8 roles)
+void Group::SetLfgRoles(ObjectGuid guid, const uint8 roles)
 {
     member_witerator slot = _getMemberWSlot(guid);
     if (slot == m_memberSlots.end())
@@ -2682,19 +2681,14 @@ bool Group::IsCreated() const
     return GetMembersCount() > 0;
 }
 
-uint64 Group::GetLeaderGUID() const
+ObjectGuid Group::GetLeaderGUID() const
 {
     return m_leaderGuid;
 }
 
-uint64 Group::GetGUID() const
+ObjectGuid Group::GetGUID() const
 {
     return m_guid;
-}
-
-uint32 Group::GetLowGUID() const
-{
-    return GUID_LOPART(m_guid);
 }
 
 const char * Group::GetLeaderName() const
@@ -2707,7 +2701,7 @@ LootMethod Group::GetLootMethod() const
     return m_lootMethod;
 }
 
-uint64 Group::GetLooterGuid() const
+ObjectGuid Group::GetLooterGuid() const
 {
     return m_looterGuid;
 }
@@ -2717,25 +2711,25 @@ ItemQualities Group::GetLootThreshold() const
     return m_lootThreshold;
 }
 
-bool Group::IsMember(uint64 guid) const
+bool Group::IsMember(ObjectGuid guid) const
 {
     return _getMemberCSlot(guid) != m_memberSlots.end();
 }
 
-bool Group::IsLeader(uint64 guid) const
+bool Group::IsLeader(ObjectGuid guid) const
 {
     return (GetLeaderGUID() == guid);
 }
 
-uint64 Group::GetMemberGUID(const std::string& name)
+ObjectGuid Group::GetMemberGUID(const std::string& name)
 {
     for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
         if (itr->name == name)
             return itr->guid;
-    return 0;
+        return ObjectGuid::Empty;
 }
 
-bool Group::IsAssistant(uint64 guid) const
+bool Group::IsAssistant(ObjectGuid guid) const
 {
     member_citerator mslot = _getMemberCSlot(guid);
     if (mslot == m_memberSlots.end())
@@ -2743,7 +2737,7 @@ bool Group::IsAssistant(uint64 guid) const
     return mslot->flags & MEMBER_FLAG_ASSISTANT;
 }
 
-bool Group::SameSubGroup(uint64 guid1, uint64 guid2) const
+bool Group::SameSubGroup(ObjectGuid guid1, ObjectGuid guid2) const
 {
     member_citerator mslot2 = _getMemberCSlot(guid2);
     if (mslot2 == m_memberSlots.end())
@@ -2751,7 +2745,7 @@ bool Group::SameSubGroup(uint64 guid1, uint64 guid2) const
     return SameSubGroup(guid1, &*mslot2);
 }
 
-bool Group::SameSubGroup(uint64 guid1, MemberSlot const* slot2) const
+bool Group::SameSubGroup(ObjectGuid guid1, MemberSlot const* slot2) const
 {
     member_citerator mslot1 = _getMemberCSlot(guid1);
     if (mslot1 == m_memberSlots.end() || !slot2)
@@ -2765,7 +2759,7 @@ bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
 }
 
 
-uint8 Group::GetMemberGroup(uint64 guid) const
+uint8 Group::GetMemberGroup(ObjectGuid guid) const
 {
     member_citerator mslot = _getMemberCSlot(guid);
     if (mslot == m_memberSlots.end())
@@ -2783,7 +2777,7 @@ void Group::SetBattlefieldGroup(Battlefield *bg)
     m_bfGroup = bg;
 }
 
-void Group::setGroupMemberRole(uint64 guid, uint32 role)
+void Group::setGroupMemberRole(ObjectGuid guid, uint32 role)
 {
     for (MemberSlotList::iterator member = m_memberSlots.begin(); member != m_memberSlots.end(); ++member)
     {
@@ -2797,12 +2791,12 @@ void Group::setGroupMemberRole(uint64 guid, uint32 role)
     if (stmt != NULL)
     {
         stmt->setUInt8(0, role);
-        stmt->setUInt32(1, GUID_LOPART(guid));
+        stmt->setUInt64(1, guid.GetCounter());
         CharacterDatabase.Execute(stmt);
     }
 }
 
-void Group::SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag)
+void Group::SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags flag)
 {
     // Assistants, main assistants and main tanks are only available in raid groups
     if (!isRaidGroup())
@@ -2834,7 +2828,7 @@ void Group::SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_FLAG);
 
     stmt->setUInt8(0, slot->flags);
-    stmt->setUInt32(1, GUID_LOPART(guid));
+    stmt->setUInt64(1, guid.GetCounter());
 
     CharacterDatabase.Execute(stmt);
 
@@ -2889,7 +2883,7 @@ void Group::LinkMember(GroupReference* pRef)
     m_memberMgr.insertFirst(pRef);
 }
 
-void Group::DelinkMember(uint64 guid)
+void Group::DelinkMember(ObjectGuid guid)
 {
     GroupReference* ref = m_memberMgr.getFirst();
     while (ref)
@@ -2921,7 +2915,7 @@ void Group::_initRaidSubGroupsCounter()
         ++m_subGroupsCounts[itr->group];
 }
 
-Group::member_citerator Group::_getMemberCSlot(uint64 Guid) const
+Group::member_citerator Group::_getMemberCSlot(ObjectGuid Guid) const
 {
     for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
         if (itr->guid == Guid)
@@ -2929,7 +2923,7 @@ Group::member_citerator Group::_getMemberCSlot(uint64 Guid) const
     return m_memberSlots.end();
 }
 
-Group::member_witerator Group::_getMemberWSlot(uint64 Guid)
+Group::member_witerator Group::_getMemberWSlot(ObjectGuid Guid)
 {
     for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
         if (itr->guid == Guid)
@@ -2964,7 +2958,7 @@ void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
         slot->flags &= ~flag;
 }
 
-bool Group::IsGuildGroup(uint32 guildId, bool AllInSameMap, bool AllInSameInstanceId)
+bool Group::IsGuildGroup(ObjectGuid const& guildId, bool AllInSameMap, bool AllInSameInstanceId)
 {
     uint32 mapId = 0;
     uint32 InstanceId = 0;
@@ -2973,7 +2967,7 @@ bool Group::IsGuildGroup(uint32 guildId, bool AllInSameMap, bool AllInSameInstan
     // First we populate the array
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next()) // Loop trought all members
         if (Player *player = itr->getSource())
-            if (player->GetGuildId() == guildId) // Check if it has a guild
+            if (player->GetGuildId() == guildId.GetCounter()) // Check if it has a guild
                 members.push_back(player);
 
     bool ret = false;
@@ -3134,7 +3128,7 @@ uint32 Group::GetAverageMMR(BracketType bracket) const
     return matchMakerRating;
 }
 
-void Group::SetRaidMarker(uint8 id, Player* who, uint64 targetGuid, bool update /*=true*/)
+void Group::SetRaidMarker(uint8 id, Player* who, ObjectGuid targetGuid, bool update /*=true*/)
 {
     if (!who)
         return;
@@ -3143,7 +3137,7 @@ void Group::SetRaidMarker(uint8 id, Player* who, uint64 targetGuid, bool update 
     {
         // remove all markers
         for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-            m_raidMarkers[i] = 0;
+            m_raidMarkers[i].Clear();
     }
     else
         m_raidMarkers[id] = targetGuid;
@@ -3193,20 +3187,20 @@ void Group::SendRaidMarkerUpdate()
     }
 }
 
-void Group::ClearRaidMarker(uint64 guid)
+void Group::ClearRaidMarker(ObjectGuid guid)
 {
     for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
     {
         if (m_raidMarkers[i] == guid)
         {
-            m_raidMarkers[i] = 0;
+            m_raidMarkers[i].Clear();
             SendRaidMarkerUpdate();
             break;
         }
     }
 }
 
-bool Group::HasRaidMarker(uint64 guid) const
+bool Group::HasRaidMarker(ObjectGuid guid) const
 {
     for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
         if (m_raidMarkers[i] == guid)

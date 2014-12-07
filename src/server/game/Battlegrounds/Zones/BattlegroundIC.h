@@ -868,7 +868,7 @@ class BattlegroundIC : public Battleground
         virtual void StartingEventOpenDoors();
         virtual void PostUpdateImpl(uint32 diff);
 
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void SpawnLeader(uint32 teamid);
@@ -887,7 +887,7 @@ class BattlegroundIC : public Battleground
 
         void FillInitialWorldStates(WorldPacket& data);
 
-        void DoAction(uint32 action, uint64 var);
+        void DoAction(uint32 action, ObjectGuid var);
 
         virtual void HandlePlayerResurrect(Player* player);
 

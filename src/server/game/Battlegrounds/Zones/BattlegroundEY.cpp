@@ -154,7 +154,7 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
                 Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[EY_POINTS_MAX][j]);
                 if (!player)
                 {
-                    sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundEY:CheckSomeoneJoinedPoint: Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[EY_POINTS_MAX][j]));
+                    sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundEY:CheckSomeoneJoinedPoint: Player (GUID: %u) not found!", m_PlayersNearPoint[EY_POINTS_MAX][j].GetCounter());
                     ++j;
                     continue;
                 }
@@ -194,7 +194,7 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
                 Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[i][j]);
                 if (!player)
                 {
-                    sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundEY:CheckSomeoneLeftPoint Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[i][j]));
+                    sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundEY:CheckSomeoneLeftPoint Player (GUID: %u) not found!", m_PlayersNearPoint[i][j].GetCounter());
                     //move not existed player to "free space" - this will cause many error showing in log, but it is a very important bug
                     m_PlayersNearPoint[EY_POINTS_MAX].push_back(m_PlayersNearPoint[i][j]);
                     m_PlayersNearPoint[i].erase(m_PlayersNearPoint[i].begin() + j);
@@ -342,7 +342,7 @@ void BattlegroundEY::AddPlayer(Player* player)
     m_PlayersNearPoint[EY_POINTS_MAX].push_back(player->GetGUID());
 }
 
-void BattlegroundEY::RemovePlayer(Player* player, uint64 guid, uint32 /*team*/)
+void BattlegroundEY::RemovePlayer(Player* player, ObjectGuid guid, uint32 /*team*/)
 {
     // sometimes flag aura not removed :(
     for (int j = EY_POINTS_MAX; j >= 0; --j)
@@ -359,7 +359,7 @@ void BattlegroundEY::RemovePlayer(Player* player, uint64 guid, uint32 /*team*/)
                 EventPlayerDroppedFlag(player);
             else
             {
-                SetFlagPicker(0);
+                SetFlagPicker(ObjectGuid::Empty);
                 RespawnFlag(true);
             }
         }
@@ -523,8 +523,8 @@ void BattlegroundEY::Reset()
     m_HonorScoreTics[BG_TEAM_HORDE] = 0;
     m_FlagState = BG_EY_FLAG_STATE_ON_BASE;
     m_FlagCapturedBgObjectType = 0;
-    m_FlagKeeper = 0;
-    m_DroppedFlagGUID = 0;
+    m_FlagKeeper.Clear();
+    m_DroppedFlagGUID.Clear();
     m_PointAddingTimer = 0;
     m_TowerCapCheckTimer = 0;
     bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
@@ -568,9 +568,9 @@ void BattlegroundEY::RespawnFlagAfterDrop()
     if (obj)
         obj->Delete();
     else
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundEY: Unknown dropped flag guid: %u", GUID_LOPART(GetDroppedFlagGUID()));
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundEY: Unknown dropped flag guid: %u", GetDroppedFlagGUID().GetCounter());
 
-    SetDroppedFlagGUID(0);
+    SetDroppedFlagGUID(ObjectGuid::Empty);
 }
 
 void BattlegroundEY::HandleKillPlayer(Player* player, Player* killer)
@@ -590,7 +590,7 @@ void BattlegroundEY::EventPlayerDroppedFlag(Player* Source)
         // just take off the aura
         if (IsFlagPickedup() && GetFlagPickerGUID() == Source->GetGUID())
         {
-            SetFlagPicker(0);
+            SetFlagPicker(ObjectGuid::Empty);
             Source->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
         }
         return;
@@ -602,7 +602,7 @@ void BattlegroundEY::EventPlayerDroppedFlag(Player* Source)
     if (GetFlagPickerGUID() != Source->GetGUID())
         return;
 
-    SetFlagPicker(0);
+    SetFlagPicker(ObjectGuid::Empty);
     Source->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
     m_FlagState = BG_EY_FLAG_STATE_ON_GROUND;
     m_FlagsTimer = BG_EY_FLAG_RESPAWN_TIME;
@@ -734,7 +734,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* Source, uint32 Point)
     else
         SendMessageToAll(m_CapturingPointTypes[Point].MessageIdHorde, CHAT_MSG_BG_SYSTEM_HORDE, Source);
 
-    if (BgCreatures[Point])
+    if (!BgCreatures[Point].IsEmpty())
         DelCreature(Point);
 
     WorldSafeLocsEntry const* sg = NULL;
@@ -770,7 +770,7 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* Source, uint32 BgObjectType
     if (GetStatus() != STATUS_IN_PROGRESS || GetFlagPickerGUID() != Source->GetGUID())
         return;
 
-    SetFlagPicker(0);
+    SetFlagPicker(ObjectGuid::Empty);
     m_FlagState = BG_EY_FLAG_STATE_WAIT_RESPAWN;
     Source->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
 

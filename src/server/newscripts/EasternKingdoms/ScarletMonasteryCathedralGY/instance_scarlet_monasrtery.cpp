@@ -46,10 +46,10 @@ public:
     {
         instance_scarlet_monastery_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        uint64 PumpkinShrineGUID;
-        uint64 HorsemanGUID;
-        uint64 HeadGUID;
-        std::set<uint64> HorsemanAdds;
+        ObjectGuid PumpkinShrineGUID;
+        ObjectGuid HorsemanGUID;
+        ObjectGuid HeadGUID;
+        GuidSet HorsemanAdds;
 
         uint32 encounter[MAX_ENCOUNTER];
 
@@ -57,9 +57,9 @@ public:
         {
             memset(&encounter, 0, sizeof(encounter));
 
-            PumpkinShrineGUID  = 0;
-            HorsemanGUID = 0;
-            HeadGUID = 0;
+            PumpkinShrineGUID.Clear();
+            HorsemanGUID.Clear();
+            HeadGUID.Clear();
             HorsemanAdds.clear();
         }
 
@@ -94,7 +94,7 @@ public:
                 encounter[0] = data;
                 if (data == DONE)
                 {
-                    for (std::set<uint64>::const_iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
+                    for (GuidSet::const_iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
                     {
                         Creature* add = instance->GetCreature(*itr);
                         if (add && add->isAlive())
@@ -107,7 +107,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -115,7 +115,7 @@ public:
                 case ENTRY_HORSEMAN:              return HorsemanGUID;
                 case ENTRY_HEAD:                  return HeadGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         uint32 GetData(uint32 type)

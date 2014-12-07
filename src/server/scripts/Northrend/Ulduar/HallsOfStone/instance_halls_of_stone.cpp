@@ -42,24 +42,24 @@ public:
     {
         instance_halls_of_stone_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
-        uint64 uiMaidenOfGrief;
-        uint64 uiKrystallus;
-        uint64 uiSjonnir;
+        ObjectGuid uiMaidenOfGrief;
+        ObjectGuid uiKrystallus;
+        ObjectGuid uiSjonnir;
 
-        uint64 uiKaddrak;
-        uint64 uiAbedneum;
-        uint64 uiMarnak;
-        uint64 uiBrann;
+        ObjectGuid uiKaddrak;
+        ObjectGuid uiAbedneum;
+        ObjectGuid uiMarnak;
+        ObjectGuid uiBrann;
 
-        uint64 uiMaidenOfGriefDoor;
-        uint64 uiSjonnirDoor;
-        uint64 uiBrannDoor;
-        uint64 uiTribunalConsole;
-        uint64 uiTribunalChest;
-        uint64 uiTribunalSkyFloor;
-        uint64 uiKaddrakGo;
-        uint64 uiAbedneumGo;
-        uint64 uiMarnakGo;
+        ObjectGuid uiMaidenOfGriefDoor;
+        ObjectGuid uiSjonnirDoor;
+        ObjectGuid uiBrannDoor;
+        ObjectGuid uiTribunalConsole;
+        ObjectGuid uiTribunalChest;
+        ObjectGuid uiTribunalSkyFloor;
+        ObjectGuid uiKaddrakGo;
+        ObjectGuid uiAbedneumGo;
+        ObjectGuid uiMarnakGo;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -67,24 +67,24 @@ public:
 
         void Initialize()
         {
-            uiMaidenOfGrief = 0;
-            uiKrystallus = 0;
-            uiSjonnir = 0;
+            uiMaidenOfGrief.Clear();
+            uiKrystallus.Clear();
+            uiSjonnir.Clear();
 
-            uiKaddrak = 0;
-            uiMarnak = 0;
-            uiAbedneum = 0;
-            uiBrann = 0;
+            uiKaddrak.Clear();
+            uiMarnak.Clear();
+            uiAbedneum.Clear();
+            uiBrann.Clear();
 
-            uiMaidenOfGriefDoor = 0;
-            uiSjonnirDoor = 0;
-            uiBrannDoor = 0;
-            uiKaddrakGo = 0;
-            uiMarnakGo = 0;
-            uiAbedneumGo = 0;
-            uiTribunalConsole = 0;
-            uiTribunalChest = 0;
-            uiTribunalSkyFloor = 0;
+            uiMaidenOfGriefDoor.Clear();
+            uiSjonnirDoor.Clear();
+            uiBrannDoor.Clear();
+            uiKaddrakGo.Clear();
+            uiMarnakGo.Clear();
+            uiAbedneumGo.Clear();
+            uiTribunalConsole.Clear();
+            uiTribunalChest.Clear();
+            uiTribunalSkyFloor.Clear();
 
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 m_auiEncounter[i] = NOT_STARTED;
@@ -199,7 +199,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -218,7 +218,7 @@ public:
                 case DATA_MAIDEN_DOOR:                     return uiMaidenOfGriefDoor;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

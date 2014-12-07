@@ -291,7 +291,7 @@ class spell_trash_mob_glacial_strike : public SpellScriptLoader
             {
                 if (GetTarget()->IsFullHealth())
                 {
-                    GetTarget()->RemoveAura(GetId(), AURA_REMOVE_BY_ENEMY_SPELL);
+                    GetTarget()->RemoveAura(GetId(), ObjectGuid::Empty, 0U, AURA_REMOVE_BY_ENEMY_SPELL);
                     PreventDefaultAction();
                 }
             }
@@ -406,16 +406,16 @@ public:
         {
         }
             uint32 m_uiSpeech_TimerAlliance;
-            uint64 m_uiTyrannusGuid;
-            uint64 m_uiMageLeaftGuid;
-            uint64 m_uiMageRightGuid;
-            uint64 m_uiSkeletGuid[12];
-            uint64 muiCastNpcStart;
-            uint64 m_uiDeathGuid;
+            ObjectGuid m_uiTyrannusGuid;
+            ObjectGuid m_uiMageLeaftGuid;
+            ObjectGuid m_uiMageRightGuid;
+            ObjectGuid m_uiSkeletGuid[12];
+            ObjectGuid muiCastNpcStart;
+            ObjectGuid m_uiDeathGuid;
             uint8 m_uiIntro_Phase;
             bool m_bIsIntro;
             bool m_bIsIntroEnd;
-            uint64 m_uiChampAlianceGuid[12];
+            ObjectGuid m_uiChampAlianceGuid[12];
             uint32 creatureEntry;
     
 
@@ -424,39 +424,20 @@ public:
         InstanceScript* pInstance = me->GetInstanceScript();
         m_uiIntro_Phase     = 0;
         m_uiSpeech_TimerAlliance    = 1000;
-        m_uiTyrannusGuid = 0;
-        m_uiMageLeaftGuid = 0;
-        m_uiMageRightGuid = 0;
-        muiCastNpcStart = 0;
-        m_uiDeathGuid     = 0;
+        m_uiTyrannusGuid.Clear();
+        m_uiMageLeaftGuid.Clear();
+        m_uiMageRightGuid.Clear();
+        muiCastNpcStart.Clear();
+        m_uiDeathGuid.Clear();
         m_bIsIntro = false;
         m_bIsIntroEnd = false;
-        m_uiChampAlianceGuid[0]    = 0;
-        m_uiChampAlianceGuid[1]    = 0;
-        m_uiChampAlianceGuid[2]    = 0;
-        m_uiChampAlianceGuid[3]    = 0;
-        m_uiChampAlianceGuid[4]    = 0;
-        m_uiChampAlianceGuid[5]    = 0;
-        m_uiChampAlianceGuid[6]    = 0;
-        m_uiChampAlianceGuid[7]    = 0;
-        m_uiChampAlianceGuid[8]    = 0;
-        m_uiChampAlianceGuid[9]    = 0;
-        m_uiChampAlianceGuid[10]    = 0;
-        m_uiChampAlianceGuid[11]    = 0;
-        m_uiChampAlianceGuid[12]    = 0;
-        m_uiSkeletGuid[0]    = 0;
-        m_uiSkeletGuid[1]    = 0;
-        m_uiSkeletGuid[2]    = 0;
-        m_uiSkeletGuid[3]    = 0;
-        m_uiSkeletGuid[4]    = 0;
-        m_uiSkeletGuid[5]    = 0;
-        m_uiSkeletGuid[6]    = 0;
-        m_uiSkeletGuid[7]    = 0;
-        m_uiSkeletGuid[8]    = 0;
-        m_uiSkeletGuid[9]    = 0;
-        m_uiSkeletGuid[10]    = 0;
-        m_uiSkeletGuid[11]    = 0;
-        m_uiSkeletGuid[12]    = 0;
+
+        for (int32 i = 0; i < 13; ++i)
+        {
+            m_uiChampAlianceGuid[i].Clear();
+            m_uiSkeletGuid[i].Clear();
+        }
+
         creatureEntry = me->GetEntry();
         }
 
@@ -1048,7 +1029,7 @@ public:
                 if(Creature* pTyrannus = me->SummonCreature(NPC_TYRANNUS_INTRO, 526.501f, 237.639f, 543.686f, 3.431f, TEMPSUMMON_MANUAL_DESPAWN))
                 {
                 pTyrannus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                pTyrannus->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                pTyrannus->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                 pTyrannus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pTyrannus->SetUInt32Value(UNIT_FIELD_BYTES_0, 50331648);
                 pTyrannus->SetUInt32Value(UNIT_FIELD_BYTES_1, 50331648);
@@ -1344,58 +1325,39 @@ public:
         {
         }
             uint32 m_uiSpeech_Timer;
-            uint64 m_uiTyrannusGuid;
-            uint64 m_uiMageLeaftGuid;
-            uint64 m_uiMageRightGuid;
-            uint64 m_uiSkeletGuid[12];
-            uint64 muiCastNpcStart;
-            uint64 m_uiDeathGuid;
+            ObjectGuid m_uiTyrannusGuid;
+            ObjectGuid m_uiMageLeaftGuid;
+            ObjectGuid m_uiMageRightGuid;
+            ObjectGuid m_uiSkeletGuid[12];
+            ObjectGuid muiCastNpcStart;
+            ObjectGuid m_uiDeathGuid;
             uint8 m_uiIntro_Phase;
             bool m_bIsIntro;
             bool m_bIsIntroEnd;
-            uint64 m_uiChampHordeGuid[12];
+            ObjectGuid m_uiChampHordeGuid[12];
             uint32 creatureEntry;
     
 
         void Reset()
         {
-        InstanceScript* pInstance = me->GetInstanceScript();
-        m_uiIntro_Phase     = 0;
-        m_uiSpeech_Timer    = 1000;
-        m_uiTyrannusGuid = 0;
-        m_uiMageLeaftGuid = 0;
-        m_uiMageRightGuid = 0;
-        muiCastNpcStart = 0;
-        m_uiDeathGuid     = 0;
-        m_bIsIntro = false;
-        m_bIsIntroEnd = false;
-        m_uiChampHordeGuid[0]    = 0;
-        m_uiChampHordeGuid[1]    = 0;
-        m_uiChampHordeGuid[2]    = 0;
-        m_uiChampHordeGuid[3]    = 0;
-        m_uiChampHordeGuid[4]    = 0;
-        m_uiChampHordeGuid[5]    = 0;
-        m_uiChampHordeGuid[6]    = 0;
-        m_uiChampHordeGuid[7]    = 0;
-        m_uiChampHordeGuid[8]    = 0;
-        m_uiChampHordeGuid[9]    = 0;
-        m_uiChampHordeGuid[10]    = 0;
-        m_uiChampHordeGuid[11]    = 0;
-        m_uiChampHordeGuid[12]    = 0;
-        m_uiSkeletGuid[0]    = 0;
-        m_uiSkeletGuid[1]    = 0;
-        m_uiSkeletGuid[2]    = 0;
-        m_uiSkeletGuid[3]    = 0;
-        m_uiSkeletGuid[4]    = 0;
-        m_uiSkeletGuid[5]    = 0;
-        m_uiSkeletGuid[6]    = 0;
-        m_uiSkeletGuid[7]    = 0;
-        m_uiSkeletGuid[8]    = 0;
-        m_uiSkeletGuid[9]    = 0;
-        m_uiSkeletGuid[10]    = 0;
-        m_uiSkeletGuid[11]    = 0;
-        m_uiSkeletGuid[12]    = 0;
-        creatureEntry = me->GetEntry();
+            InstanceScript* pInstance = me->GetInstanceScript();
+            m_uiIntro_Phase     = 0;
+            m_uiSpeech_Timer    = 1000;
+            m_uiTyrannusGuid.Clear();
+            m_uiMageLeaftGuid.Clear();
+            m_uiMageRightGuid.Clear();
+            muiCastNpcStart.Clear();
+            m_uiDeathGuid.Clear();
+            m_bIsIntro = false;
+            m_bIsIntroEnd = false;
+
+            for (int32 i = 0; i < 13; ++i)
+            {
+                m_uiChampHordeGuid[i].Clear();
+                m_uiSkeletGuid[i].Clear();
+            }
+
+            creatureEntry = me->GetEntry();
         }
         
         void SummonHordeChampions01()
@@ -1953,7 +1915,7 @@ public:
                 if(Creature* pTyrannus = me->SummonCreature(NPC_TYRANNUS_INTRO, 526.501f, 237.639f, 543.686f, 3.431f, TEMPSUMMON_MANUAL_DESPAWN))
                 {
                 pTyrannus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                pTyrannus->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                pTyrannus->SetGuidValue(UNIT_FIELD_TARGET, me->GetGUID());
                 pTyrannus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pTyrannus->SetUInt32Value(UNIT_FIELD_BYTES_0, 50331648);
                 pTyrannus->SetUInt32Value(UNIT_FIELD_BYTES_1, 50331648);

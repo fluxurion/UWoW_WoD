@@ -44,11 +44,11 @@ public:
     {
         npc_drakuru_shacklesAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 RageclawGUID;
+        ObjectGuid RageclawGUID;
 
         void Reset()
         {
-            RageclawGUID = 0;
+            RageclawGUID.Clear();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
             float x, y, z;
@@ -160,7 +160,7 @@ public:
                 me->setFaction(me->GetCreatureTemplate()->faction_H);
 
                 DoCast(me, SPELL_UNSHACKLED, true);
-                me->MonsterSay(SAY_RAGECLAW, LANG_UNIVERSAL, 0);
+                me->MonsterSay(SAY_RAGECLAW, LANG_UNIVERSAL, ObjectGuid::Empty);
                 me->GetMotionMaster()->MoveRandom(10);
 
                 DespawnTimer = 10000;
@@ -335,8 +335,8 @@ public:
     {
         npc_gurgthockAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 SummonGUID;
-        uint64 uiPlayerGUID;
+        ObjectGuid SummonGUID;
+        ObjectGuid uiPlayerGUID;
 
         uint32 uiTimer;
         uint32 uiPhase;
@@ -348,8 +348,8 @@ public:
 
         void Reset()
         {
-            SummonGUID = 0;
-            uiPlayerGUID = 0;
+            SummonGUID.Clear();
+            uiPlayerGUID.Clear();
 
             me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             uiTimer = 0;
@@ -362,7 +362,7 @@ public:
             bRemoveFlag = false;
         }
 
-        void SetGUID(uint64 guid, int32 /*id*/)
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/)
         {
             uiPlayerGUID = guid;
         }
@@ -438,7 +438,7 @@ public:
                             if (Creature* summon = Unit::GetCreature(*me, SummonGUID))
                                 summon->GetMotionMaster()->MoveJump(5776.319824f, -2981.005371f, 273.100037f, 10.0f, 20.0f);
                             uiPhase = 0;
-                            SummonGUID = 0;
+                            SummonGUID.Clear();
                             break;
                         case 3:
                             DoScriptText(SAY_QUEST_ACCEPT_KORRAK_2, me);
@@ -458,7 +458,7 @@ public:
 
                                 std::string sText = ("The grand Amphitheater of Anguish awaits, " + std::string(player->GetName()) + ". Remember, once a battle starts you have to stay in the area. WIN OR DIE!");
 
-                                me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
+                                me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, ObjectGuid::Empty);
                                 uiTimer = 5000;
                                 uiPhase = 9;
                             }
@@ -469,7 +469,7 @@ public:
                                    return;
 
                                 std::string sText = ("Prepare to make you stand, " + std::string(player->GetName()) + "! Get in the Amphitheater and stand ready! Remember, you and your opponent must stay in the arena at all times or you will be disqualified!");
-                                me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
+                                me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, ObjectGuid::Empty);
                                 uiTimer = 3000;
                                 uiPhase = 8;
                             }
@@ -485,7 +485,7 @@ public:
                                     return;
 
                                 std::string sText = ("Here we are once again, ladies and gentlemen. The epic struggle between life and death in the Amphitheater of Anguish! For this round we have " + std::string(player->GetName()) + " versus the hulking jormungar, Yg... Yggd? Yggdoze? Who comes up with these names?! " + std::string(player->GetName()) + " versus big worm!");
-                                me->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
+                                me->MonsterYell(sText.c_str(), LANG_UNIVERSAL, ObjectGuid::Empty);
                                 uiTimer = 10000;
                                 uiPhase = 10;
                             }
@@ -506,7 +506,7 @@ public:
                                 return;
 
                             std::string sText = ("Prepare to make you stand, " + std::string(player->GetName()) + "! Get in the Amphitheater and stand ready! Remember, you and your opponent must stay in the arena at all times or you will be disqualified!");
-                            me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
+                            me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, ObjectGuid::Empty);
                             uiTimer = 5000;
                             uiPhase = 13;
                         }
@@ -598,8 +598,8 @@ public:
         uint32 uiBattleShoutTimer;
         uint32 uiFishyScentTimer;
 
-        uint64 AffectedGUID;
-        uint64 uiWhisker;
+        ObjectGuid AffectedGUID;
+        ObjectGuid uiWhisker;
 
         void Reset()
         {
@@ -608,8 +608,8 @@ public:
             bFishyScent         = false;
             uiBattleShoutTimer  = 0;
             uiFishyScentTimer   = 20000;
-            uiWhisker           = 0;
-            AffectedGUID        = 0;
+            uiWhisker.Clear();
+            AffectedGUID.Clear();
         }
 
         void EnterEvadeMode()
@@ -724,7 +724,7 @@ public:
     {
         npc_korrak_bloodragerAI(Creature* creature) : npc_escortAI(creature)
         {
-            Start(true, true, 0, NULL);
+            Start(true, true);
             SetDespawnAtEnd(false);
         }
 
@@ -873,7 +873,7 @@ public:
             if (Unit* summoner = me->ToTempSummon()->GetSummoner())
             {
                 std::string sText = (std::string(killer->GetName()) + " has defeated Yg.. Yggg-really big worm!");
-                summoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
+                summoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, ObjectGuid::Empty);
             }
 
             if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
@@ -917,7 +917,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetReactState(REACT_PASSIVE);
-            Start(true, true, 0, NULL);
+            Start(true, true);
             SetDespawnAtEnd(false);
         }
 
@@ -1016,7 +1016,7 @@ public:
                 player->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR, killer);
 
             std::string sText = ("And with AUTHORITY, " + std::string(killer->GetName()) + " dominates the magnataur lord! Stinkbeard's clan is gonna miss him back home in the Dragonblight!");
-            me->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
+            me->MonsterYell(sText.c_str(), LANG_UNIVERSAL, ObjectGuid::Empty);
         }
     };
 
@@ -1039,7 +1039,7 @@ public:
     {
         npc_elemental_lordAI(Creature* creature) : ScriptedAI(creature) {}
 
-        std::list<uint64> SummonList;
+        GuidList SummonList;
 
         uint32 uiElementalSpellTimer;
 
@@ -1087,7 +1087,7 @@ public:
         void EnterCombat(Unit* unit)
         {
             if (!SummonList.empty())
-                for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+                for (GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                 {
                     if (Creature* temp = Unit::GetCreature(*me, *itr))
                     {
@@ -1130,7 +1130,7 @@ public:
             if (!bAddAttack && !HealthAbovePct(20))
             {
                 if (!SummonList.empty())
-                    for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+                    for (GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                     {
                         if (Creature* temp = Unit::GetCreature(*me, *itr))
                         {
@@ -1151,7 +1151,7 @@ public:
         void JustDied(Unit* killer)
         {
             if (!SummonList.empty())
-                for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+                for (GuidList::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                     if (Creature* temp = Unit::GetCreature(*me, *itr))
                         temp->DespawnOrUnsummon();
 
@@ -1161,7 +1161,7 @@ public:
             std::string sText = (std::string(killer->GetName()) + " is victorious once more!");
 
             if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                summoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
+                summoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, ObjectGuid::Empty);
         }
     };
 

@@ -65,7 +65,7 @@ void BattlegroundTV::AddPlayer(Player* player)
     UpdateArenaWorldState();
 }
 
-void BattlegroundTV::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundTV::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;

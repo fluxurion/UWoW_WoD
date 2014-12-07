@@ -39,9 +39,9 @@ void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, O
         return;
 
     // prepare static data
-    uint64 sourceGUID = source ? source->GetGUID() : uint64(0); //some script commands doesn't have source
-    uint64 targetGUID = target ? target->GetGUID() : uint64(0);
-    uint64 ownerGUID  = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : uint64(0);
+    ObjectGuid sourceGUID = source ? source->GetGUID() : ObjectGuid::Empty; //some script commands doesn't have source
+    ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid ownerGUID = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : ObjectGuid::Empty;
 
     ///- Schedule script execution for all scripts in the script map
     ScriptMap const* s2 = &(s->second);
@@ -74,9 +74,9 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
     // NOTE: script record _must_ exist until command executed
 
     // prepare static data
-    uint64 sourceGUID = source ? source->GetGUID() : uint64(0);
-    uint64 targetGUID = target ? target->GetGUID() : uint64(0);
-    uint64 ownerGUID  = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : uint64(0);
+    ObjectGuid sourceGUID = source ? source->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid ownerGUID = (source && source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : ObjectGuid::Empty;
 
     ScriptAction sa;
     sa.sourceGUID = sourceGUID;
@@ -114,8 +114,8 @@ inline Player* Map::_GetScriptPlayerSourceOrTarget(Object* source, Object* targe
         if (!player)
             sLog->outError(LOG_FILTER_TSCR, "%s neither source nor target object is player (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
-                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUIDLow() : 0,
-                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUIDLow() : 0);
+                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().GetCounter() : 0,
+                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().GetCounter() : 0);
     }
     return player;
 }
@@ -147,8 +147,8 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
         if (!creature)
             sLog->outError(LOG_FILTER_TSCR, "%s neither source nor target are creatures (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
-                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUIDLow() : 0,
-                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUIDLow() : 0);
+                source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().GetCounter() : 0,
+                target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().GetCounter() : 0);
     }
     return creature;
 }
@@ -160,7 +160,7 @@ inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* s
         sLog->outError(LOG_FILTER_TSCR, "%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else if (!obj->isType(TYPEMASK_UNIT))
         sLog->outError(LOG_FILTER_TSCR, "%s %s object is not unit (TypeId: %u, Entry: %u, GUID: %u), skipping.",
-            scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUIDLow());
+            scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID().GetCounter());
     else
     {
         unit = obj->ToUnit();
@@ -181,7 +181,7 @@ inline Player* Map::_GetScriptPlayer(Object* obj, bool isSource, const ScriptInf
         player = obj->ToPlayer();
         if (!player)
             sLog->outError(LOG_FILTER_TSCR, "%s %s object is not a player (TypeId: %u, Entry: %u, GUID: %u).",
-                scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUIDLow());
+                scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID().GetCounter());
     }
     return player;
 }
@@ -196,7 +196,7 @@ inline Creature* Map::_GetScriptCreature(Object* obj, bool isSource, const Scrip
         creature = obj->ToCreature();
         if (!creature)
             sLog->outError(LOG_FILTER_TSCR, "%s %s object is not a creature (TypeId: %u, Entry: %u, GUID: %u).", scriptInfo->GetDebugInfo().c_str(),
-                isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUIDLow());
+                isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID().GetCounter());
     }
     return creature;
 }
@@ -212,7 +212,7 @@ inline WorldObject* Map::_GetScriptWorldObject(Object* obj, bool isSource, const
         pWorldObject = dynamic_cast<WorldObject*>(obj);
         if (!pWorldObject)
             sLog->outError(LOG_FILTER_TSCR, "%s %s object is not a world object (TypeId: %u, Entry: %u, GUID: %u).",
-                scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUIDLow());
+                scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID().GetCounter());
     }
     return pWorldObject;
 }
@@ -220,7 +220,7 @@ inline WorldObject* Map::_GetScriptWorldObject(Object* obj, bool isSource, const
 inline void Map::_ScriptProcessDoor(Object* source, Object* target, const ScriptInfo* scriptInfo) const
 {
     bool bOpen = false;
-    uint32 guid = scriptInfo->ToggleDoor.GOGuid;
+    ObjectGuid::LowType guid = scriptInfo->ToggleDoor.GOGuid;
     int32 nTimeToToggle = std::max(15, int32(scriptInfo->ToggleDoor.ResetDelay));
     switch (scriptInfo->command)
     {
@@ -236,13 +236,13 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
         sLog->outError(LOG_FILTER_TSCR, "%s source object is NULL.", scriptInfo->GetDebugInfo().c_str());
     else if (!source->isType(TYPEMASK_UNIT))
         sLog->outError(LOG_FILTER_TSCR, "%s source object is not unit (TypeId: %u, Entry: %u, GUID: %u), skipping.", scriptInfo->GetDebugInfo().c_str(),
-            source->GetTypeId(), source->GetEntry(), source->GetGUIDLow());
+            source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter());
     else
     {
         WorldObject* wSource = dynamic_cast <WorldObject*> (source);
         if (!wSource)
             sLog->outError(LOG_FILTER_TSCR, "%s source object could not be casted to world object (TypeId: %u, Entry: %u, GUID: %u), skipping.",
-                scriptInfo->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUIDLow());
+                scriptInfo->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter());
         else
         {
             GameObject* pDoor = _FindGameObject(wSource, guid);
@@ -250,7 +250,7 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
                 sLog->outError(LOG_FILTER_TSCR, "%s gameobject was not found (guid: %u).", scriptInfo->GetDebugInfo().c_str(), guid);
             else if (pDoor->GetGoType() != GAMEOBJECT_TYPE_DOOR)
                 sLog->outError(LOG_FILTER_TSCR, "%s gameobject is not a door (GoType: %u, Entry: %u, GUID: %u).",
-                    scriptInfo->GetDebugInfo().c_str(), pDoor->GetGoType(), pDoor->GetEntry(), pDoor->GetGUIDLow());
+                    scriptInfo->GetDebugInfo().c_str(), pDoor->GetGoType(), pDoor->GetEntry(), pDoor->GetGUID().GetCounter());
             else if (bOpen == (pDoor->GetGoState() == GO_STATE_READY))
             {
                 pDoor->UseDoorOrButton(nTimeToToggle);
@@ -266,7 +266,7 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
     }
 }
 
-inline GameObject* Map::_FindGameObject(WorldObject* searchObject, uint32 guid) const
+inline GameObject* Map::_FindGameObject(WorldObject* searchObject, ObjectGuid::LowType guid) const
 {
     GameObject* gameobject = NULL;
 
@@ -298,29 +298,29 @@ void Map::ScriptsProcess()
         Object* source = NULL;
         if (step.sourceGUID)
         {
-            switch (GUID_HIPART(step.sourceGUID))
+            switch (step.sourceGUID.GetHigh())
             {
-                case HIGHGUID_ITEM: // as well as HIGHGUID_CONTAINER
+                case HighGuid::Item: // as well as HIGHGUID_CONTAINER
                     if (Player* player = HashMapHolder<Player>::Find(step.ownerGUID))
                         source = player->GetItemByGuid(step.sourceGUID);
                     break;
-                case HIGHGUID_UNIT:
-                case HIGHGUID_VEHICLE:
+                case HighGuid::Creature:
+                case HighGuid::Vehicle:
                     source = HashMapHolder<Creature>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_PET:
+                case HighGuid::Pet:
                     source = HashMapHolder<Pet>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_PLAYER:
+                case HighGuid::Player:
                     source = HashMapHolder<Player>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_GAMEOBJECT:
+                case HighGuid::GameObject:
                     source = HashMapHolder<GameObject>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_CORPSE:
+                case HighGuid::Corpse:
                     source = HashMapHolder<Corpse>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_MO_TRANSPORT:
+                case HighGuid::Transport:
                     for (MapManager::TransportSet::iterator itr2 = sMapMgr->m_Transports.begin(); itr2 != sMapMgr->m_Transports.end(); ++itr2)
                     {
                         if ((*itr2)->GetGUID() == step.sourceGUID)
@@ -332,7 +332,7 @@ void Map::ScriptsProcess()
                     break;
                 default:
                     sLog->outError(LOG_FILTER_TSCR, "%s source with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
-                        step.script->GetDebugInfo().c_str(), step.sourceGUID, GUID_HIPART(step.sourceGUID));
+                        step.script->GetDebugInfo().c_str(), step.sourceGUID, step.sourceGUID.GetHigh());
                     break;
             }
         }
@@ -340,27 +340,27 @@ void Map::ScriptsProcess()
         Object* target = NULL;
         if (step.targetGUID)
         {
-            switch (GUID_HIPART(step.targetGUID))
+            switch (step.targetGUID.GetHigh())
             {
-                case HIGHGUID_UNIT:
-                case HIGHGUID_VEHICLE:
+                case HighGuid::Creature:
+                case HighGuid::Vehicle:
                     target = HashMapHolder<Creature>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_PET:
+                case HighGuid::Pet:
                     target = HashMapHolder<Pet>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_PLAYER:                       // empty GUID case also
+                case HighGuid::Player:                       // empty GUID case also
                     target = HashMapHolder<Player>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_GAMEOBJECT:
+                case HighGuid::GameObject:
                     target = HashMapHolder<GameObject>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_CORPSE:
+                case HighGuid::Corpse:
                     target = HashMapHolder<Corpse>::Find(step.targetGUID);
                     break;
                 default:
                     sLog->outError(LOG_FILTER_TSCR, "%s target with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
-                        step.script->GetDebugInfo().c_str(), step.targetGUID, GUID_HIPART(step.targetGUID));
+                        step.script->GetDebugInfo().c_str(), step.targetGUID, step.targetGUID.GetHigh());
                     break;
             }
         }
@@ -395,8 +395,8 @@ void Map::ScriptsProcess()
                             case CHAT_TYPE_WHISPER:
                             case CHAT_MSG_RAID_BOSS_WHISPER:
                             {
-                                uint64 targetGUID = target ? target->GetGUID() : 0;
-                                if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
+                                ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
+                                if (!targetGUID || !targetGUID.IsPlayer())
                                     sLog->outError(LOG_FILTER_TSCR, "%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
                                     player->Whisper(text, LANG_UNIVERSAL, targetGUID);
@@ -412,7 +412,7 @@ void Map::ScriptsProcess()
                     // Source or target must be Creature.
                     if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script))
                     {
-                        uint64 targetGUID = target ? target->GetGUID() : 0;
+                        ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
                         switch (step.script->Talk.ChatType)
                         {
                             case CHAT_TYPE_SAY:
@@ -428,13 +428,13 @@ void Map::ScriptsProcess()
                                 cSource->MonsterTextEmote(step.script->Talk.TextID, targetGUID, true);
                                 break;
                             case CHAT_TYPE_WHISPER:
-                                if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
+                                if (!targetGUID || !targetGUID.IsPlayer())
                                     sLog->outError(LOG_FILTER_TSCR, "%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
                                     cSource->Whisper(step.script->Talk.TextID, targetGUID);
                                 break;
                             case CHAT_MSG_RAID_BOSS_WHISPER:
-                                if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
+                                if (!targetGUID || !targetGUID.IsPlayer())
                                     sLog->outError(LOG_FILTER_TSCR, "%s attempt to raidbosswhisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
                                 else
                                     cSource->MonsterWhisper(step.script->Talk.TextID, targetGUID, true);
@@ -465,7 +465,7 @@ void Map::ScriptsProcess()
                     if (step.script->FieldSet.FieldID <= OBJECT_FIELD_ENTRY_ID || step.script->FieldSet.FieldID >= cSource->GetValuesCount())
                         sLog->outError(LOG_FILTER_TSCR, "%s wrong field %u (max count: %u) in object (TypeId: %u, Entry: %u, GUID: %u) specified, skipping.",
                             step.script->GetDebugInfo().c_str(), step.script->FieldSet.FieldID,
-                            cSource->GetValuesCount(), cSource->GetTypeId(), cSource->GetEntry(), cSource->GetGUIDLow());
+                            cSource->GetValuesCount(), cSource->GetTypeId(), cSource->GetEntry(), cSource->GetGUID().GetCounter());
                     else
                         cSource->SetUInt32Value(step.script->FieldSet.FieldID, step.script->FieldSet.FieldValue);
                 }
@@ -494,7 +494,7 @@ void Map::ScriptsProcess()
                     if (step.script->FlagToggle.FieldID <= OBJECT_FIELD_ENTRY_ID || step.script->FlagToggle.FieldID >= cSource->GetValuesCount())
                         sLog->outError(LOG_FILTER_TSCR, "%s wrong field %u (max count: %u) in object (TypeId: %u, Entry: %u, GUID: %u) specified, skipping.",
                             step.script->GetDebugInfo().c_str(), step.script->FlagToggle.FieldID,
-                            source->GetValuesCount(), source->GetTypeId(), source->GetEntry(), source->GetGUIDLow());
+                            source->GetValuesCount(), source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter());
                     else
                         cSource->SetFlag(step.script->FlagToggle.FieldID, step.script->FlagToggle.FieldValue);
                 }
@@ -508,7 +508,7 @@ void Map::ScriptsProcess()
                     if (step.script->FlagToggle.FieldID <= OBJECT_FIELD_ENTRY_ID || step.script->FlagToggle.FieldID >= cSource->GetValuesCount())
                         sLog->outError(LOG_FILTER_TSCR, "%s wrong field %u (max count: %u) in object (TypeId: %u, Entry: %u, GUID: %u) specified, skipping.",
                             step.script->GetDebugInfo().c_str(), step.script->FlagToggle.FieldID,
-                            source->GetValuesCount(), source->GetTypeId(), source->GetEntry(), source->GetGUIDLow());
+                            source->GetValuesCount(), source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter());
                     else
                         cSource->RemoveFlag(step.script->FlagToggle.FieldID, step.script->FlagToggle.FieldValue);
                 }
@@ -550,7 +550,7 @@ void Map::ScriptsProcess()
                     if (source->GetTypeId() != TYPEID_UNIT && source->GetTypeId() != TYPEID_GAMEOBJECT && source->GetTypeId() != TYPEID_PLAYER)
                     {
                         sLog->outError(LOG_FILTER_TSCR, "%s source is not unit, gameobject or player (TypeId: %u, Entry: %u, GUID: %u), skipping.",
-                            step.script->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUIDLow());
+                            step.script->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter());
                         break;
                     }
                     worldObject = dynamic_cast<WorldObject*>(source);
@@ -563,7 +563,7 @@ void Map::ScriptsProcess()
                         if (target->GetTypeId() != TYPEID_UNIT && target->GetTypeId() != TYPEID_GAMEOBJECT && target->GetTypeId() != TYPEID_PLAYER)
                         {
                             sLog->outError(LOG_FILTER_TSCR, "%s target is not unit, gameobject or player (TypeId: %u, Entry: %u, GUID: %u), skipping.",
-                                step.script->GetDebugInfo().c_str(), target->GetTypeId(), target->GetEntry(), target->GetGUIDLow());
+                                step.script->GetDebugInfo().c_str(), target->GetTypeId(), target->GetEntry(), target->GetGUID().GetCounter());
                             break;
                         }
                         worldObject = dynamic_cast<WorldObject*>(target);
@@ -571,8 +571,8 @@ void Map::ScriptsProcess()
                     else
                     {
                         sLog->outError(LOG_FILTER_TSCR, "%s neither source nor target is player (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
-                            step.script->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUIDLow(),
-                            target->GetTypeId(), target->GetEntry(), target->GetGUIDLow());
+                            step.script->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUID().GetCounter(),
+                            target->GetTypeId(), target->GetEntry(), target->GetGUID().GetCounter());
                         break;
                     }
                 }
@@ -594,7 +594,7 @@ void Map::ScriptsProcess()
                     if (step.script->KillCredit.Flags & SF_KILLCREDIT_REWARD_GROUP)
                         player->RewardPlayerAndGroupAtEvent(step.script->KillCredit.CreatureEntry, player);
                     else
-                        player->KilledMonsterCredit(step.script->KillCredit.CreatureEntry, 0);
+                        player->KilledMonsterCredit(step.script->KillCredit.CreatureEntry, ObjectGuid::Empty);
                 }
                 break;
 
@@ -677,7 +677,7 @@ void Map::ScriptsProcess()
                     if (target->GetTypeId() != TYPEID_GAMEOBJECT)
                     {
                         sLog->outError(LOG_FILTER_TSCR, "%s target object is not gameobject (TypeId: %u, Entry: %u, GUID: %u), skipping.",
-                            step.script->GetDebugInfo().c_str(), target->GetTypeId(), target->GetEntry(), target->GetGUIDLow());
+                            step.script->GetDebugInfo().c_str(), target->GetTypeId(), target->GetEntry(), target->GetGUID().GetCounter());
                         break;
                     }
 
@@ -849,7 +849,7 @@ void Map::ScriptsProcess()
                 else //check hashmap holders
                 {
                     if (CreatureData const* data = sObjectMgr->GetCreatureData(step.script->CallScript.CreatureEntry))
-                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, MAKE_NEW_GUID(step.script->CallScript.CreatureEntry, data->id, HIGHGUID_UNIT), cTarget);
+                        cTarget = ObjectAccessor::GetObjectInWorld<Creature>(data->mapid, data->posX, data->posY, ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, uint64(step.script->CallScript.CreatureEntry)), cTarget);
                 }
 
                 if (!cTarget)
@@ -878,7 +878,7 @@ void Map::ScriptsProcess()
                 {
                     if (cSource->isDead())
                         sLog->outError(LOG_FILTER_TSCR, "%s creature is already dead (Entry: %u, GUID: %u)",
-                            step.script->GetDebugInfo().c_str(), cSource->GetEntry(), cSource->GetGUIDLow());
+                            step.script->GetDebugInfo().c_str(), cSource->GetEntry(), cSource->GetGUID().GetCounter());
                     else
                     {
                         cSource->setDeathState(JUST_DIED);

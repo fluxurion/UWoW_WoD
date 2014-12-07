@@ -33,7 +33,7 @@ void OutdoorPvPNA::HandleKillImpl(Player* player, Unit* killed)
 {
     if (killed->GetTypeId() == TYPEID_PLAYER && player->GetTeam() != killed->ToPlayer()->GetTeam())
     {
-        player->KilledMonsterCredit(NA_CREDIT_MARKER, 0); // 0 guid, btw it isn't even used in killedmonster function :S
+        player->KilledMonsterCredit(NA_CREDIT_MARKER, ObjectGuid::Empty); // 0 guid, btw it isn't even used in killedmonster function :S
         if (player->GetTeam() == ALLIANCE)
             player->CastSpell(player, NA_KILL_TOKEN_ALLIANCE, true);
         else
@@ -44,7 +44,7 @@ void OutdoorPvPNA::HandleKillImpl(Player* player, Unit* killed)
 uint32 OPvPCapturePointNA::GetAliveGuardsCount()
 {
     uint32 cnt = 0;
-    for (std::map<uint32, uint64>::iterator itr = m_Creatures.begin(); itr != m_Creatures.end(); ++itr)
+    for (std::map<uint32, ObjectGuid>::iterator itr = m_Creatures.begin(); itr != m_Creatures.end(); ++itr)
     {
         switch (itr->first)
         {
@@ -405,7 +405,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
     return false;
 }
 
-int32 OPvPCapturePointNA::HandleOpenGo(Player* player, uint64 guid)
+int32 OPvPCapturePointNA::HandleOpenGo(Player* player, ObjectGuid guid)
 {
     int32 retval = OPvPCapturePoint::HandleOpenGo(player, guid);
     if (retval >= 0)

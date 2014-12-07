@@ -184,7 +184,7 @@ PoolObject* PoolGroup<T>::RollOne(ActivePoolData& spawns, uint32 triggerFrom)
 // If no guid is passed, the pool is just removed (event end case)
 // If guid is filled, cache will be used and no removal will occur, it just fill the cache
 template<class T>
-void PoolGroup<T>::DespawnObject(ActivePoolData& spawns, uint32 guid)
+void PoolGroup<T>::DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType guid)
 {
     for (size_t i=0; i < EqualChanced.size(); ++i)
     {
@@ -215,40 +215,40 @@ void PoolGroup<T>::DespawnObject(ActivePoolData& spawns, uint32 guid)
 
 // Method that is actualy doing the removal job on one creature
 template<>
-void PoolGroup<Creature>::Despawn1Object(uint32 guid)
+void PoolGroup<Creature>::Despawn1Object(uint64 guid)
 {
     if (CreatureData const* data = sObjectMgr->GetCreatureData(guid))
     {
         sObjectMgr->RemoveCreatureFromGrid(guid, data);
 
-        if (Creature* creature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, guid), (Creature*)NULL))
             creature->AddObjectToRemoveList();
     }
 }
 
 // Same on one gameobject
 template<>
-void PoolGroup<GameObject>::Despawn1Object(uint32 guid)
+void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid)
 {
     if (GameObjectData const* data = sObjectMgr->GetGOData(guid))
     {
         sObjectMgr->RemoveGameobjectFromGrid(guid, data);
 
-        if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
+        if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::GameObject>(data->mapid, data->id, guid), (GameObject*)NULL))
             pGameobject->AddObjectToRemoveList();
     }
 }
 
 // Same on one pool
 template<>
-void PoolGroup<Pool>::Despawn1Object(uint32 child_pool_id)
+void PoolGroup<Pool>::Despawn1Object(uint64 child_pool_id)
 {
     sPoolMgr->DespawnPool(child_pool_id);
 }
 
 // Same on one quest
 template<>
-void PoolGroup<Quest>::Despawn1Object(uint32 quest_id)
+void PoolGroup<Quest>::Despawn1Object(uint64 quest_id)
 {
     // Creatures
     QuestRelations* questMap = sObjectMgr->GetCreatureQuestRelationMap();
@@ -510,7 +510,7 @@ template <>
 void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
 {
     if (CreatureData const* data = sObjectMgr->GetCreatureData(obj->guid))
-        if (Creature* creature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(obj->guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
+    if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, obj->guid), (Creature*)NULL))
             creature->GetMap()->AddToMap(creature);
 }
 
@@ -519,7 +519,7 @@ template <>
 void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* obj)
 {
     if (GameObjectData const* data = sObjectMgr->GetGOData(obj->guid))
-        if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(obj->guid, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
+    if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::GameObject>(data->mapid, data->id, obj->guid), (GameObject*)NULL))
             pGameobject->GetMap()->AddToMap(pGameobject);
 }
 
@@ -613,7 +613,7 @@ void PoolMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint32 guid    = fields[0].GetUInt32();
+                ObjectGuid::LowType guid    = fields[0].GetUInt32();
                 uint32 pool_id = fields[1].GetUInt32();
                 float chance   = fields[2].GetFloat();
 
@@ -669,7 +669,7 @@ void PoolMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint32 guid    = fields[0].GetUInt32();
+                ObjectGuid::LowType guid    = fields[0].GetUInt32();
                 uint32 pool_id = fields[1].GetUInt32();
                 float chance   = fields[2].GetFloat();
 

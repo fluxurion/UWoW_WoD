@@ -50,7 +50,7 @@ void WorldSession::HandleChallengeModeRequestOpcode(WorldPacket& recvPacket)
         for(ChallengeMemberList::iterator itr = bestGuild->member.begin(); itr != bestGuild->member.end(); ++itr)
         {
             ChallengeMember member = *itr;
-            data.WriteGuidMask<5, 1, 4, 2, 6, 3, 0, 7>(member.guid);
+            //data.WriteGuidMask<5, 1, 4, 2, 6, 3, 0, 7>(member.guid);
         }
     }
 
@@ -60,7 +60,7 @@ void WorldSession::HandleChallengeModeRequestOpcode(WorldPacket& recvPacket)
         for(ChallengeMemberList::iterator itr = bestServer->member.begin(); itr != bestServer->member.end(); ++itr)
         {
             ChallengeMember member = *itr;
-            data.WriteGuidMask<6, 0, 2, 3, 1, 4, 7, 5>(member.guid);
+            //data.WriteGuidMask<6, 0, 2, 3, 1, 4, 7, 5>(member.guid);
         }
     }
 
@@ -72,12 +72,12 @@ void WorldSession::HandleChallengeModeRequestOpcode(WorldPacket& recvPacket)
         for(ChallengeMemberList::iterator itr = bestServer->member.begin(); itr != bestServer->member.end(); ++itr)
         {
             ChallengeMember member = *itr;
-            data.WriteGuidBytes<2>(member.guid);
+            //data.WriteGuidBytes<2>(member.guid);
             data << uint32(realmHandle.Index);
             data << uint32(member.specId);
-            data.WriteGuidBytes<4, 7, 6, 3, 5, 1>(member.guid);
+            //data.WriteGuidBytes<4, 7, 6, 3, 5, 1>(member.guid);
             data << uint32(realmHandle.Index);
-            data.WriteGuidBytes<0>(member.guid);
+            //data.WriteGuidBytes<0>(member.guid);
         }
         data << uint32(bestServer->guildId);    // 246155
         data << uint32(realmHandle.Index);      // 50659408
@@ -94,12 +94,12 @@ void WorldSession::HandleChallengeModeRequestOpcode(WorldPacket& recvPacket)
         {
             ChallengeMember member = *itr;
 
-            data.WriteGuidBytes<7, 0>(member.guid);
+            //data.WriteGuidBytes<7, 0>(member.guid);
             data << uint32(realmHandle.Index);
-            data.WriteGuidBytes<4, 1, 3, 5, 2>(member.guid);
+            //data.WriteGuidBytes<4, 1, 3, 5, 2>(member.guid);
             data << uint32(member.specId);
             data << uint32(realmHandle.Index);
-            data.WriteGuidBytes<6>(member.guid);
+            //data.WriteGuidBytes<6>(member.guid);
         }
         data.AppendPackedTime(bestServer->date);
         data << uint32(realmHandle.Index);      // 50659408

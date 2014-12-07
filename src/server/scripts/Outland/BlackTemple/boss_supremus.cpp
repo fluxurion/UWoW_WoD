@@ -163,7 +163,7 @@ public:
             if (instance)
             {
                 instance->SetData(DATA_SUPREMUSEVENT, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_GAMEOBJECT_SUPREMUS_DOORS), true);
             }
             summons.DespawnAll();
         }

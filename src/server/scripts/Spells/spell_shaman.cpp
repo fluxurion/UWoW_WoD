@@ -1526,7 +1526,7 @@ public:
             if (Unit* caster = GetCaster())
             {
                 if (caster->GetTypeId() == TYPEID_PLAYER)
-                    caster->ToPlayer()->KilledMonsterCredit(44548, 0);
+                    caster->ToPlayer()->KilledMonsterCredit(44548, ObjectGuid::Empty);
             }
         }
 
@@ -1597,7 +1597,7 @@ class spell_shaman_totemic_projection : public SpellScriptLoader
                     return;
 
                 Position const* sumpos = GetExplTargetDest();
-                TempSummon* summon = caster->GetMap()->SummonCreature(47319, *sumpos, NULL, 0, caster, GetSpellInfo()->Id);
+                TempSummon* summon = caster->GetMap()->SummonCreature(47319, *sumpos, NULL, 0, caster, ObjectGuid::Empty, GetSpellInfo()->Id);
                 if(Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]))
                 {
                     Position pos;

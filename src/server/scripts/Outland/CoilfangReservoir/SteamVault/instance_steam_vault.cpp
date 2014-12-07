@@ -78,24 +78,24 @@ public:
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        uint64 ThespiaGUID;
-        uint64 MekgineerGUID;
-        uint64 KalithreshGUID;
+        ObjectGuid ThespiaGUID;
+        ObjectGuid MekgineerGUID;
+        ObjectGuid KalithreshGUID;
 
-        uint64 MainChambersDoor;
-        uint64 AccessPanelHydro;
-        uint64 AccessPanelMek;
+        ObjectGuid MainChambersDoor;
+        ObjectGuid AccessPanelHydro;
+        ObjectGuid AccessPanelMek;
 
         void Initialize()
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            ThespiaGUID = 0;
-            MekgineerGUID = 0;
-            KalithreshGUID = 0;
-            MainChambersDoor = 0;
-            AccessPanelHydro = 0;
-            AccessPanelMek = 0;
+            ThespiaGUID.Clear();
+            MekgineerGUID.Clear();
+            KalithreshGUID.Clear();
+            MainChambersDoor.Clear();
+            AccessPanelHydro.Clear();
+            AccessPanelMek.Clear();
         }
 
         bool IsEncounterInProgress() const
@@ -183,7 +183,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data)
+        ObjectGuid GetGuidData(uint32 data)
         {
             switch (data)
             {
@@ -194,7 +194,7 @@ public:
                 case DATA_KALITRESH:
                     return KalithreshGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

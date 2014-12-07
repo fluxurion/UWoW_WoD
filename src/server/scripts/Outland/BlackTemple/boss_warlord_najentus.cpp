@@ -81,13 +81,13 @@ public:
         InstanceScript* instance;
         EventMap events;
 
-        uint64 SpineTargetGUID;
+        ObjectGuid SpineTargetGUID;
 
         void Reset()
         {
             events.Reset();
 
-            SpineTargetGUID = 0;
+            SpineTargetGUID.Clear();
 
             if (instance)
                 instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, NOT_STARTED);
@@ -137,7 +137,7 @@ public:
             Unit* target = Unit::GetUnit(*me, SpineTargetGUID);
             if (target && target->HasAura(SPELL_IMPALING_SPINE))
                 target->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);
-            SpineTargetGUID=0;
+            SpineTargetGUID.Clear();
             return true;
         }
 
@@ -218,7 +218,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* go)
     {
         if (InstanceScript* instance = go->GetInstanceScript())
-            if (Creature* Najentus = Unit::GetCreature(*go, instance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
+            if (Creature* Najentus = Unit::GetCreature(*go, instance->GetGuidData(DATA_HIGHWARLORDNAJENTUS)))
                 if (CAST_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
                 {
                     player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);

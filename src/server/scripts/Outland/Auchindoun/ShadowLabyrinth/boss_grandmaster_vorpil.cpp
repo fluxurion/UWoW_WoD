@@ -79,13 +79,13 @@ public:
         {
         }
 
-        uint64 VorpilGUID;
+        ObjectGuid VorpilGUID;
         uint32 move;
         bool sacrificed;
 
         void Reset()
         {
-            VorpilGUID = 0;
+            VorpilGUID.Clear();
             move = 0;
             sacrificed = false;
         }
@@ -104,7 +104,7 @@ public:
                 Creature* Vorpil = Unit::GetCreature(*me, VorpilGUID);
                 if (!Vorpil)
                 {
-                    VorpilGUID = 0;
+                    VorpilGUID.Clear();
                     return;
                 }
 
@@ -162,7 +162,7 @@ public:
         uint32 DrawShadows_Timer;
         uint32 summonTraveler_Timer;
         uint32 banish_Timer;
-        uint64 PortalsGuid[5];
+        ObjectGuid PortalsGuid[5];
 
         void Reset()
         {
@@ -206,7 +206,7 @@ public:
                     Unit* Portal = Unit::GetUnit(*me, PortalsGuid[i]);
                     if (Portal && Portal->isAlive())
                         Portal->DealDamage(Portal, Portal->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    PortalsGuid[i] = 0;
+                    PortalsGuid[i].Clear();
                 }
                 sumportals = false;
             }

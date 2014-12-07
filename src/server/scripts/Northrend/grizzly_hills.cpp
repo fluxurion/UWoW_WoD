@@ -62,8 +62,8 @@ public:
 
         uint32 m_uiChatTimer;
 
-        uint64 RWORGGUID;
-        uint64 MrfloppyGUID;
+        ObjectGuid RWORGGUID;
+        ObjectGuid MrfloppyGUID;
 
         bool Completed;
 
@@ -119,7 +119,7 @@ public:
                 case 19:
                     if (Creature* Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
                     {
-                        if (Mrfloppy->HasAura(SPELL_MRFLOPPY, 0))
+                        if (Mrfloppy->HasAura(SPELL_MRFLOPPY, ObjectGuid::Empty))
                         {
                             if (Creature* RWORG = Unit::GetCreature(*me, RWORGGUID))
                                 Mrfloppy->EnterVehicle(RWORG);
@@ -185,8 +185,8 @@ public:
         void Reset()
         {
             m_uiChatTimer = 4000;
-            MrfloppyGUID = 0;
-            RWORGGUID = 0;
+            MrfloppyGUID.Clear();
+            RWORGGUID.Clear();
         }
 
         void UpdateAI(uint32 uiDiff)
@@ -233,9 +233,9 @@ public:
     {
         npc_mrfloppyAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 EmilyGUID;
-        uint64 RWORGGUID;
-        uint64 HWORGGUID;
+        ObjectGuid EmilyGUID;
+        ObjectGuid RWORGGUID;
+        ObjectGuid HWORGGUID;
 
         void Reset() {}
 
@@ -476,14 +476,14 @@ public:
     {
         npc_wounded_skirmisherAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
 
         uint32 DespawnTimer;
 
         void Reset()
         {
             DespawnTimer = 5000;
-            uiPlayerGUID = 0;
+            uiPlayerGUID.Clear();
         }
 
         void MovementInform(uint32, uint32 id)
@@ -497,7 +497,7 @@ public:
             if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
                 && caster->ToPlayer()->GetQuestStatus(12288) == QUEST_STATUS_INCOMPLETE)
             {
-                caster->ToPlayer()->KilledMonsterCredit(CREDIT_NPC, 0);
+                caster->ToPlayer()->KilledMonsterCredit(CREDIT_NPC, ObjectGuid::Empty);
                 DoScriptText(RAND(RANDOM_SAY_1, RANDOM_SAY_2, RANDOM_SAY_3), caster);
                 if (me->IsStandState())
                     me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());
@@ -581,7 +581,7 @@ public:
                 {
                     if (killer->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_A) == QUEST_STATUS_INCOMPLETE ||
                         killer->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_H) == QUEST_STATUS_INCOMPLETE)
-                        killer->ToPlayer()->KilledMonsterCredit(NPC_WAR_GOLEM, 0);
+                        killer->ToPlayer()->KilledMonsterCredit(NPC_WAR_GOLEM, ObjectGuid::Empty);
                 }
             }
         }
@@ -612,14 +612,14 @@ class npc_venture_co_straggler : public CreatureScript
         {
             npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint64 uiPlayerGUID;
+            ObjectGuid uiPlayerGUID;
             uint32 uiRunAwayTimer;
             uint32 uiTimer;
             uint32 uiChopTimer;
 
             void Reset()
             {
-                uiPlayerGUID = 0;
+                uiPlayerGUID.Clear();
                 uiTimer = 0;
                 uiRunAwayTimer = 0;
                 uiChopTimer = urand(10000, 12500);

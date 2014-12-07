@@ -75,7 +75,7 @@ public:
                 uint32 size = instance->GetData(DATA_FEL_CRYSTAL_SIZE);
                 for (uint8 i = 0; i < size; ++i)
                 {
-                    uint64 guid = instance->GetData64(DATA_FEL_CRYSTAL);
+                    ObjectGuid guid = instance->GetGuidData(DATA_FEL_CRYSTAL);
                     sLog->outDebug(LOG_FILTER_TSCR, "Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
                     Crystals.push_back(guid);
                 }
@@ -84,7 +84,7 @@ public:
 
         InstanceScript* instance;
 
-        std::list<uint64> Crystals;
+        GuidList Crystals;
 
         uint32 DrainLifeTimer;
         uint32 DrainManaTimer;
@@ -95,14 +95,14 @@ public:
         bool IsDraining;
         bool DrainingCrystal;
 
-        uint64 CrystalGUID;                                     // This will help us create a pointer to the crystal we are draining. We store GUIDs, never units in case unit is deleted/offline (offline if player of course).
+        ObjectGuid CrystalGUID;                                     // This will help us create a pointer to the crystal we are draining. We store GUIDs, never units in case unit is deleted/offline (offline if player of course).
 
         void Reset()
         {
             if (instance)
             {
                 //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-                for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+                for (GuidList::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
                 {
                     //Unit* unit = Unit::GetUnit(*me, FelCrystals[i]);
                     Unit* unit = Unit::GetUnit(*me, *itr);
@@ -116,7 +116,7 @@ public:
                     }
                 }
 
-                instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_SELIN_ENCOUNTER_DOOR), true);
                 // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
                                                                 // Small door opened after event are expected to be closed by default
                 // Set Inst data for encounter
@@ -134,7 +134,7 @@ public:
 
             IsDraining = false;
             DrainingCrystal = false;
-            CrystalGUID = 0;
+            CrystalGUID.Clear();
         }
 
         void SelectNearestCrystal()
@@ -143,11 +143,11 @@ public:
                 return;
 
             //float ShortestDistance = 0;
-            CrystalGUID = 0;
+            CrystalGUID.Clear();
             Unit* pCrystal = NULL;
             Unit* CrystalChosen = NULL;
             //for (uint8 i =  0; i < CRYSTALS_NUMBER; ++i)
-            for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+            for (GuidList::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
             {
                 pCrystal = NULL;
                 //pCrystal = Unit::GetUnit(*me, FelCrystals[i]);
@@ -184,7 +184,7 @@ public:
                 return;
 
             //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-            for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+            for (GuidList::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
             {
                 //Creature* pCrystal = (Unit::GetCreature(*me, FelCrystals[i]));
                 Creature* pCrystal = Unit::GetCreature(*me, *itr);
@@ -198,7 +198,7 @@ public:
             DoScriptText(SAY_AGGRO, me);
 
             if (instance)
-                instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), false);
+                instance->HandleGameObject(instance->GetGuidData(DATA_SELIN_ENCOUNTER_DOOR), false);
                 //Close the encounter door, open it in JustDied/Reset
          }
 
@@ -237,8 +237,8 @@ public:
                 return;
 
             instance->SetData(DATA_SELIN_EVENT, DONE);         // Encounter complete!
-            instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), true);                  // Open the encounter door
-            instance->HandleGameObject(instance->GetData64(DATA_SELIN_DOOR), true);                 // Open the door leading further in
+            instance->HandleGameObject(instance->GetGuidData(DATA_SELIN_ENCOUNTER_DOOR), true);                  // Open the encounter door
+            instance->HandleGameObject(instance->GetGuidData(DATA_SELIN_DOOR), true);                 // Open the door leading further in
             ShatterRemainingCrystals();
         }
 
@@ -308,7 +308,7 @@ public:
                             // Use Deal Damage to kill it, not setDeathState.
                             CrystalChosen->Kill(CrystalChosen);
 
-                        CrystalGUID = 0;
+                        CrystalGUID.Clear();
 
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveChase(me->getVictim());
@@ -346,7 +346,7 @@ public:
         {
             if (InstanceScript* instance = me->GetInstanceScript())
             {
-                Creature* Selin = (Unit::GetCreature(*me, instance->GetData64(DATA_SELIN)));
+                Creature* Selin = (Unit::GetCreature(*me, instance->GetGuidData(DATA_SELIN)));
                 if (Selin && Selin->isAlive())
                 {
                     if (CAST_AI(boss_selin_fireheart::boss_selin_fireheartAI, Selin->AI())->CrystalGUID == me->GetGUID())

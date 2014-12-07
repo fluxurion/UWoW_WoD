@@ -61,7 +61,7 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     mDespawnState = 0;
 
     mEscortInvokerCheckTimer = 1000;
-    mFollowGuid = 0;
+    mFollowGuid = ObjectGuid::Empty;
     mFollowDist = 0;
     mFollowAngle = 0;
     mFollowCredit = 0;
@@ -344,7 +344,7 @@ void SmartAI::UpdateAI(uint32 diff)
     UpdateDespawn(diff);
 
     //TODO move to void
-    if (mFollowGuid)
+    if (!mFollowGuid.IsEmpty())
     {
         if (mFollowArrivedTimer < diff)
         {
@@ -357,7 +357,7 @@ void SmartAI::UpdateAI(uint32 diff)
                     else
                         player->GroupEventHappens(mFollowCredit, me);
                 }
-                mFollowGuid = 0;
+                mFollowGuid = ObjectGuid::Empty;
                 mFollowDist = 0;
                 mFollowAngle = 0;
                 mFollowCredit = 0;
@@ -476,7 +476,7 @@ void SmartAI::EnterEvadeMode()
         AddEscortState(SMART_ESCORT_RETURNING);
         ReturnToLastOOCPos();
     }
-    else if (mFollowGuid)
+    else if (!mFollowGuid.IsEmpty())
     {
         if (Unit* target = me->GetUnit(*me, mFollowGuid))
             me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
@@ -576,7 +576,7 @@ void SmartAI::JustRespawned()
         me->RestoreFaction();
     GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
     Reset();
-    mFollowGuid = 0;//do not reset follower on Reset(), we need it after combat evade
+    mFollowGuid = ObjectGuid::Empty;//do not reset follower on Reset(), we need it after combat evade
     mFollowDist = 0;
     mFollowAngle = 0;
     mFollowCredit = 0;
@@ -753,13 +753,13 @@ void SmartAI::SetData(uint32 id, uint32 value)
     GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, NULL, id, value);
 }
 
-void SmartAI::SetGUID(uint64 /*guid*/, int32 /*id*/)
+void SmartAI::SetGUID(ObjectGuid /*guid*/, int32 /*id*/)
 {
 }
 
-uint64 SmartAI::GetGUID(int32 /*id*/)
+ObjectGuid SmartAI::GetGUID(int32 /*id*/)
 {
-    return 0;
+    return ObjectGuid::Empty;
 }
 
 void SmartAI::SetRun(bool run)

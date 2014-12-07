@@ -60,13 +60,13 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
-bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* info, Position const& pos, Spell* spell /*=NULL*/, uint64 targetGuid /*=0*/)
+bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* info, Position const& pos, Spell* spell /*=NULL*/, ObjectGuid targetGuid /*=0*/)
 {
     m_spellInfo = info;
 
     if (!info)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (entry %u) caster %s no spellInfo", triggerEntry, caster->GetString().c_str());
+        sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (entry %u) caster %s no spellInfo", triggerEntry, caster->ToString().c_str());
         return false;
     }
 
@@ -76,7 +76,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
 
     if (!caster->isAlive())
     {
-        sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (spell %u) caster %s is dead ", info->Id, caster->GetString().c_str());
+        sLog->outError(LOG_FILTER_GENERAL, "AreaTrigger (spell %u) caster %s is dead ", info->Id, caster->ToString().c_str());
         return false;
     }
 
@@ -98,7 +98,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
             _actionInfo[itr->id] = ActionInfo(&*itr);
     }
 
-    WorldObject::_Create(guidlow, HIGHGUID_AREATRIGGER, caster->GetPhaseMask());
+    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(caster->GetMapId(), 0, guidlow));
+    SetPhaseMask(caster->GetPhaseMask(), false);
     SetPhaseId(caster->GetPhaseId(), false);
 
     _realEntry = triggerEntry;
@@ -125,7 +126,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     if (!find && atInfo.radius)
         _radius = atInfo.radius;
 
-    SetUInt64Value(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
+    SetGuidValue(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, info->Id);
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, info->SpellVisual[0] ? info->SpellVisual[0] : info->SpellVisual[1]);
     SetUInt32Value(AREATRIGGER_FIELD_DURATION, duration);
@@ -148,7 +149,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
         return false;
 
     #ifdef WIN32
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::Create AreaTrigger caster %s spellID %u spell rage %f dist %f dest - X:%f,Y:%f,Z:%f", caster->GetString().c_str(), info->Id, _radius, GetSpellInfo()->GetMaxRange(), _destPosition.GetPositionX(), _destPosition.GetPositionY(), _destPosition.GetPositionZ());
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::Create AreaTrigger caster %s spellID %u spell rage %f dist %f dest - X:%f,Y:%f,Z:%f", caster->ToString().c_str(), info->Id, _radius, GetSpellInfo()->GetMaxRange(), _destPosition.GetPositionX(), _destPosition.GetPositionY(), _destPosition.GetPositionZ());
     #endif
 
     if (atInfo.maxCount)
@@ -198,14 +199,14 @@ void AreaTrigger::UpdateAffectedList(uint32 p_time, AreaTriggerActionMoment acti
         return;
 
     WorldObject const* searcher = this;
-    if(uint64 targetGuid = GetTargetGuid())
+    if(ObjectGuid targetGuid = GetTargetGuid())
         if(Unit* target = ObjectAccessor::GetUnit(*this, targetGuid))
             if(_caster->GetMap() == target->GetMap())
                 searcher = target;
 
     if (actionM & AT_ACTION_MOMENT_ENTER)
     {
-        for (std::list<uint64>::iterator itr = affectedPlayers.begin(), next; itr != affectedPlayers.end(); itr = next)
+        for (GuidList::iterator itr = affectedPlayers.begin(), next; itr != affectedPlayers.end(); itr = next)
         {
             next = itr;
             ++next;
@@ -244,7 +245,7 @@ void AreaTrigger::UpdateAffectedList(uint32 p_time, AreaTriggerActionMoment acti
     }
     else
     {
-        for (std::list<uint64>::iterator itr = affectedPlayers.begin(), next; itr != affectedPlayers.end(); itr = next)
+        for (GuidList::iterator itr = affectedPlayers.begin(), next; itr != affectedPlayers.end(); itr = next)
         {
             next = itr;
             ++next;
@@ -316,7 +317,7 @@ void AreaTrigger::Update(uint32 p_time)
     //WorldObject::Update(p_time);
 }
 
-bool AreaTrigger::IsUnitAffected(uint64 guid) const
+bool AreaTrigger::IsUnitAffected(ObjectGuid guid) const
 {
     return std::find(affectedPlayers.begin(), affectedPlayers.end(), guid) != affectedPlayers.end();
 }
@@ -395,7 +396,7 @@ void AreaTrigger::DoAction(Unit* unit, ActionInfo& action)
     Unit* caster = _caster;
 
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::DoAction caster %s unit %s type %u spellID %u, moment %u, targetFlags %u",
-    //caster->GetString().c_str(), unit->GetString().c_str(), action.action->actionType, action.action->spellId, action.action->moment, action.action->targetFlags);
+    //caster->ToString().c_str(), unit->ToString().c_str(), action.action->actionType, action.action->spellId, action.action->moment, action.action->targetFlags);
 
     if (action.action->targetFlags & AT_TARGET_FLAG_FRIENDLY)
         if (!caster || !caster->IsFriendlyTo(unit))

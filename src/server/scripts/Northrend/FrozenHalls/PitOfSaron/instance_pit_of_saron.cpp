@@ -35,13 +35,13 @@ class instance_pit_of_saron : public InstanceMapScript
             instance_pit_of_saron_InstanceScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(MAX_ENCOUNTER);
-                _garfrostGUID = 0;
-                _krickGUID = 0;
-                _ickGUID = 0;
-                _tyrannusGUID = 0;
-                _rimefangGUID = 0;
-                _jainaOrSylvanas1GUID = 0;
-                _jainaOrSylvanas2GUID = 0;
+                _garfrostGUID.Clear();
+                _krickGUID.Clear();
+                _ickGUID.Clear();
+                _tyrannusGUID.Clear();
+                _rimefangGUID.Clear();
+                _jainaOrSylvanas1GUID.Clear();
+                _jainaOrSylvanas2GUID.Clear();
                 _teamInInstance = 0;
             }
 
@@ -58,7 +58,7 @@ class instance_pit_of_saron : public InstanceMapScript
             case GO_ICE_WALL:
                 uiIceWall = go->GetGUID();
                 if(GetBossState(DATA_GARFROST) == DONE && GetBossState(DATA_ICK) == DONE)
-                    HandleGameObject(NULL,true,go);
+                    HandleGameObject(ObjectGuid::Empty, true, go);
                 break;
             }
         }
@@ -247,7 +247,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 type)
+            ObjectGuid GetGuidData(uint32 type)
             {
                 switch (type)
                 {
@@ -271,7 +271,7 @@ class instance_pit_of_saron : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             std::string GetSaveData()
@@ -319,16 +319,16 @@ class instance_pit_of_saron : public InstanceMapScript
             }
 
         private:
-            uint64 _garfrostGUID;
-            uint64 _krickGUID;
-            uint64 _ickGUID;
-            uint64 _tyrannusGUID;
-            uint64 _rimefangGUID;
+            ObjectGuid _garfrostGUID;
+            ObjectGuid _krickGUID;
+            ObjectGuid _ickGUID;
+            ObjectGuid _tyrannusGUID;
+            ObjectGuid _rimefangGUID;
 
-            uint64 _tyrannusEventGUID;
-            uint64 _jainaOrSylvanas1GUID;
-            uint64 _jainaOrSylvanas2GUID;
-            uint64 uiIceWall;
+            ObjectGuid _tyrannusEventGUID;
+            ObjectGuid _jainaOrSylvanas1GUID;
+            ObjectGuid _jainaOrSylvanas2GUID;
+            ObjectGuid uiIceWall;
             uint32 _teamInInstance;
         };
 

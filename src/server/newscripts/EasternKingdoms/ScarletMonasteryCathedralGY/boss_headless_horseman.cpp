@@ -231,7 +231,7 @@ public:
     {
         mob_headAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 bodyGUID;
+        ObjectGuid bodyGUID;
 
         uint32 Phase;
         uint32 laugh;
@@ -243,7 +243,7 @@ public:
         void Reset()
         {
             Phase = 0;
-            bodyGUID = 0;
+            bodyGUID.Clear();
             die = false;
             withbody = true;
             wait = 1000;
@@ -340,7 +340,7 @@ public:
                     Creature* speaker = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000);
                     if (speaker)
                         speaker->CastSpell(speaker, SPELL_HEAD_SPEAKS, false);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, 0);
+                    me->MonsterTextEmote(EMOTE_LAUGHS, ObjectGuid::Empty);
                 }
                 else laugh -= diff;
             }
@@ -381,8 +381,8 @@ public:
 
         InstanceScript* instance;
 
-        uint64 headGUID;
-        uint64 PlayerGUID;
+        ObjectGuid headGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 Phase;
         uint32 id;
@@ -425,7 +425,7 @@ public:
                 if (Creature* Head = Unit::GetCreature((*me), headGUID))
                     Head->DisappearAndDie();
 
-                headGUID = 0;
+                headGUID.Clear();
             }
 
             //if (instance)
@@ -711,7 +711,7 @@ public:
                 if (laugh <= diff)
                 {
                     laugh = urand(11000, 22000);
-                    me->MonsterTextEmote(EMOTE_LAUGHS, 0);
+                    me->MonsterTextEmote(EMOTE_LAUGHS, ObjectGuid::Empty);
                     DoPlaySoundToSet(me, RandomLaugh[rand()%3]);
                 }
                 else laugh -= diff;
@@ -782,7 +782,7 @@ public:
         mob_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool sprouted;
-        uint64 debuffGUID;
+        ObjectGuid debuffGUID;
 
         void Reset()
         {
@@ -828,7 +828,7 @@ public:
             if (debuff)
             {
                 debuff->SetVisible(false);
-                debuffGUID = 0;
+                debuffGUID.Clear();
             }
         }
 
@@ -866,7 +866,7 @@ public:
         InstanceScript* instance = player->GetInstanceScript();
         if (instance)
         {
-            if (instance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED || instance->GetData64(ENTRY_HORSEMAN))
+            if (instance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED || instance->GetGuidData(ENTRY_HORSEMAN))
                 return true;
             instance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
         }

@@ -175,7 +175,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (EnrageTimer < diff && !me->HasAura(SPELL_ENRAGE, 0))
+            if (EnrageTimer < diff && !me->HasAura(SPELL_ENRAGE, ObjectGuid::Empty))
             {
                 DoCast(me, SPELL_ENRAGE, false);
             } else EnrageTimer -= diff;
@@ -310,7 +310,7 @@ public:
                 return;
             }
 
-            if (EnrageTimer < diff && !me->HasAura(SPELL_ENRAGE, 0))
+            if (EnrageTimer < diff && !me->HasAura(SPELL_ENRAGE, ObjectGuid::Empty))
             {
                 DoCast(me, SPELL_ENRAGE, false);
             } else EnrageTimer -= diff;
@@ -408,7 +408,7 @@ public:
         void JustSummoned(Creature* summoned)
         {
             if (instance)
-                if (Player* Target = Unit::GetPlayer(*me, instance->GetData64(DATA_PLAYER_GUID)))
+                if (Player* Target = Unit::GetPlayer(*me, instance->GetGuidData(DATA_PLAYER_GUID)))
                     summoned->AI()->AttackStart(Target);
 
             Summons.Summon(summoned);
@@ -608,7 +608,7 @@ public:
         {
             if (SpellTimer <= diff)
             {
-                Unit* Victim = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_PLAYER_GUID) : 0);
+                Unit* Victim = Unit::GetUnit(*me, instance ? instance->GetGuidData(DATA_PLAYER_GUID) : ObjectGuid::Empty);
                 switch (NeedForAHack)
                 {
                     case 0:
@@ -627,7 +627,7 @@ public:
                     case 2:
                         SpellTimer = 400;
                         NeedForAHack = 3;
-                        me->RemoveAura(SPELL_BLACKHOLE_GROW, 1);
+                        me->RemoveAura(SPELL_BLACKHOLE_GROW, ObjectGuid::Empty);
                         break;
                     case 3:
                         SpellTimer = urand(400, 900);

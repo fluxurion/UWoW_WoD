@@ -145,7 +145,7 @@ public:
 
         // Activate
         obj->setActive(!obj->isActiveObject());
-        WorldDatabase.PExecute("UPDATE gameobject SET isActive = %u WHERE guid = %u", uint8(obj->isActiveObject()), obj->GetGUIDLow());
+        WorldDatabase.PExecute("UPDATE gameobject SET isActive = %u WHERE guid = %u", uint8(obj->isActiveObject()), obj->GetGUID().GetCounter());
 
         if (obj->isActiveObject())
             handler->PSendSysMessage("Object added to actived objects !");
@@ -198,7 +198,7 @@ public:
         Map* map = player->GetMap();
 
         GameObject* object = new GameObject;
-        uint32 guidLow = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+        uint32 guidLow = sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate();
 
         if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMgr().GetPhaseMaskForSpawn(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
         {
@@ -333,14 +333,15 @@ public:
 
         bool found = false;
         float x, y, z, o;
-        uint32 guidLow, id;
+        ObjectGuid::LowType guidLow;
+        uint32 id;
         uint16 mapId, phase;
         uint32 poolId;
 
         do
         {
             Field* fields = result->Fetch();
-            guidLow = fields[0].GetUInt32();
+            guidLow = fields[0].GetUInt64();
             id =      fields[1].GetUInt32();
             x =       fields[2].GetFloat();
             y =       fields[3].GetFloat();
@@ -367,7 +368,7 @@ public:
             return false;
         }
 
-        GameObject* target = handler->GetSession()->GetPlayer()->GetMap()->GetGameObject(MAKE_NEW_GUID(guidLow, id, HIGHGUID_GAMEOBJECT));
+        GameObject* target = handler->GetSession()->GetPlayer()->GetMap()->GetGameObject(ObjectGuid::Create<HighGuid::GameObject>(mapId, id, guidLow));
 
         handler->PSendSysMessage(LANG_GAMEOBJECT_DETAIL, guidLow, objectInfo->name.c_str(), guidLow, id, x, y, z, mapId, o, phase);
         player->SetLastTargetedGO(guidLow);
@@ -407,13 +408,13 @@ public:
             return false;
         }
 
-        uint64 ownerGuid = object->GetOwnerGUID();
+        ObjectGuid ownerGuid = object->GetOwnerGUID();
         if (ownerGuid)
         {
             Unit* owner = ObjectAccessor::GetUnit(*handler->GetSession()->GetPlayer(), ownerGuid);
-            if (!owner || !IS_PLAYER_GUID(ownerGuid))
+            if (!owner || !ownerGuid.IsPlayer())
             {
-                handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, GUID_LOPART(ownerGuid), object->GetGUIDLow());
+                handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), object->GetGUID().GetCounter());
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -425,7 +426,7 @@ public:
         object->Delete();
         object->DeleteFromDB();
 
-        handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetGUIDLow());
+        handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetGUID().GetCounter());
 
         return true;
     }
@@ -470,7 +471,7 @@ public:
         object->SaveToDB();
         object->Refresh();
 
-        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetGUIDLow(), object->GetGOInfo()->name.c_str(), object->GetGUIDLow(), o);
+        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetGUID().GetCounter(), object->GetGOInfo()->name.c_str(), object->GetGUID().GetCounter(), o);
 
         return true;
     }
@@ -531,7 +532,7 @@ public:
         object->SaveToDB();
         object->Refresh();
 
-        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetGUIDLow(), object->GetGOInfo()->name.c_str(), object->GetGUIDLow());
+        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetGUID().GetCounter(), object->GetGOInfo()->name.c_str(), object->GetGUID().GetCounter());
 
         return true;
     }
@@ -594,7 +595,7 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guid = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt64();
                 uint32 entry = fields[1].GetUInt32();
                 float x = fields[2].GetFloat();
                 float y = fields[3].GetFloat();

@@ -94,7 +94,7 @@ public:
         uint32 uiFlamesphereTimer;
         uint32 uiPhaseTimer;
 
-        uint64 uiEmbraceTarget;
+        ObjectGuid uiEmbraceTarget;
 
         CombatPhase Phase;
 
@@ -109,7 +109,7 @@ public:
             uiEmbraceTakenDamage = 0;
             Phase = NORMAL;
             uiPhaseTimer = 0;
-            uiEmbraceTarget = 0;
+            uiEmbraceTarget.Clear();
             if (instance)
                 instance->SetData(DATA_PRINCE_TALDARAM_EVENT, NOT_STARTED);
         }
@@ -191,7 +191,7 @@ public:
                     case FEEDING:
                         Phase = NORMAL;
                         uiPhaseTimer = 0;
-                        uiEmbraceTarget = 0;
+                        uiEmbraceTarget.Clear();
                         break;
                     case NORMAL:
                         if (uiBloodthirstTimer <= diff)
@@ -254,7 +254,7 @@ public:
               {
                   Phase = NORMAL;
                   uiPhaseTimer = 0;
-                  uiEmbraceTarget = 0;
+                  uiEmbraceTarget.Clear();
                   me->CastStop();
               }
             }
@@ -278,7 +278,7 @@ public:
             {
                 Phase = NORMAL;
                 uiPhaseTimer = 0;
-                uiEmbraceTarget = 0;
+                uiEmbraceTarget.Clear();
             }
             Talk(SAY_SLAY);
         }
@@ -288,9 +288,9 @@ public:
             if (!instance)
                 return false;
 
-            uint64 uiSphereGuids[2];
-            uiSphereGuids[0] = instance->GetData64(DATA_SPHERE1);
-            uiSphereGuids[1] = instance->GetData64(DATA_SPHERE2);
+            ObjectGuid uiSphereGuids[2];
+            uiSphereGuids[0] = instance->GetGuidData(DATA_SPHERE1);
+            uiSphereGuids[1] = instance->GetGuidData(DATA_SPHERE2);
 
             for (uint8 i=0; i < 2; ++i)
             {
@@ -323,7 +323,7 @@ public:
             me->SetDisableGravity(false);
             me->GetMotionMaster()->MovePoint(0, me->GetHomePosition());
             Talk(SAY_WARNING);
-            uint64 prison_GUID = instance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
+            ObjectGuid prison_GUID = instance->GetGuidData(DATA_PRINCE_TALDARAM_PLATFORM);
             instance->HandleGameObject(prison_GUID, true);
         }
     };
@@ -396,7 +396,7 @@ public:
         if (!instance)
             return true;
 
-        Creature* pPrinceTaldaram = Unit::GetCreature(*go, instance->GetData64(DATA_PRINCE_TALDARAM));
+        Creature* pPrinceTaldaram = Unit::GetCreature(*go, instance->GetGuidData(DATA_PRINCE_TALDARAM));
         if (pPrinceTaldaram && pPrinceTaldaram->isAlive())
         {
             // maybe these are hacks :(

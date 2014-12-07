@@ -138,7 +138,7 @@ public:
         Vehicle* vehicle;
         std::vector<Creature *> construct_list;
     
-        uint32 SlagPotGUID;
+        ObjectGuid SlagPotGUID;
         uint32 ConstructTimer;
         uint8 ConstructVal;
         bool Shattered;
@@ -154,7 +154,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 480000);
             me->SetReactState(REACT_DEFENSIVE);
             ConstructVal = 0;
-            SlagPotGUID = 0;
+            SlagPotGUID.Clear();
             ConstructTimer = 0;
             Shattered = false;
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -229,7 +229,7 @@ public:
                 switch(eventId)
                 {
                     case EVENT_JET:
-                        me->MonsterTextEmote(EMOTE_JETS, 0, true);
+                        me->MonsterTextEmote(EMOTE_JETS, ObjectGuid::Empty, true);
                         DoCastAOE(SPELL_FLAME_JETS);
                         events.ScheduleEvent(EVENT_JET, urand(35000,40000));
                         break;
@@ -264,7 +264,7 @@ public:
                         {
                             SlagPotTarget->ExitVehicle();
                             SlagPotTarget = NULL;
-                            SlagPotGUID = NULL;
+                            SlagPotGUID.Clear();
                         }
                         break;
                     case EVENT_SCORCH:
@@ -364,7 +364,7 @@ public:
             if (me->HasAura(SPELL_BRITTLE) && damage >= 5000)
             {
                 DoCastAOE(SPELL_SHATTER, true);
-                if (Creature *pIgnis = me->GetCreature(*me, pInstance->GetData64(DATA_IGNIS)))
+                if (Creature *pIgnis = me->GetCreature(*me, pInstance->GetGuidData(DATA_IGNIS)))
                         pIgnis->AI()->DoAction(ACTION_REMOVE_BUFF);
                 me->DespawnOrUnsummon(1000);
             }

@@ -83,13 +83,13 @@ public:
     {
         mob_inner_demonAI(Creature* creature) : ScriptedAI(creature)
         {
-            victimGUID = 0;
+            victimGUID.Clear();
         }
 
         uint32 ShadowBolt_Timer;
 
         uint32 Link_Timer;
-        uint64 victimGUID;
+        ObjectGuid victimGUID;
 
         void Reset()
         {
@@ -97,17 +97,17 @@ public:
             Link_Timer = 1000;
         }
 
-        void SetGUID(uint64 guid, int32 id/* = 0 */)
+        void SetGUID(ObjectGuid const& guid, int32 id/* = 0 */)
         {
             if (id == INNER_DEMON_VICTIM)
                 victimGUID = guid;
         }
 
-        uint64 GetGUID(int32 id/* = 0 */)
+        ObjectGuid GetGUID(int32 id/* = 0 */)
         {
             if (id == INNER_DEMON_VICTIM)
                 return victimGUID;
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void JustDied(Unit* /*killer*/)
@@ -191,10 +191,10 @@ public:
         {
             creature->GetPosition(x, y, z);
             instance = creature->GetInstanceScript();
-            Demon = 0;
+            Demon.Clear();
 
             for (uint8 i = 0; i < 3; ++i)//clear guids
-                SpellBinderGUID[i] = 0;
+                SpellBinderGUID[i].Clear();
         }
 
         InstanceScript* instance;
@@ -214,10 +214,10 @@ public:
         bool EnrageUsed;
         float x, y, z;
 
-        uint64 InnderDemon[5];
+        ObjectGuid InnderDemon[5];
         uint32 InnerDemon_Count;
-        uint64 Demon;
-        uint64 SpellBinderGUID[3];
+        ObjectGuid Demon;
+        ObjectGuid SpellBinderGUID[3];
 
         void Reset()
         {
@@ -320,10 +320,10 @@ public:
                 // and reseting equipment
                 me->LoadEquipment(me->GetEquipmentId());
 
-                if (instance && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+                if (instance && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
                 {
                     Unit* victim = NULL;
-                    victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                    victim = Unit::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
                         me->getThreatManager().addThreat(victim, 1);
                     StartEvent();
@@ -358,7 +358,7 @@ public:
                         {
                             creature->DespawnOrUnsummon();
                         }
-                        InnderDemon[i] = 0;
+                        InnderDemon[i].Clear();
                 }
             }
 
@@ -369,7 +369,7 @@ public:
         {
             for (uint8 i=0; i<5; ++i)
             {
-                if (InnderDemon[i] > 0)
+                if (InnderDemon[i])
                 {
                     Creature* unit = Unit::GetCreature((*me), InnderDemon[i]);
                     if (unit && unit->isAlive())
@@ -492,7 +492,7 @@ public:
                     if (SwitchToDemon_Timer <= diff)
                     {
                         //switch to demon form
-                        me->RemoveAurasDueToSpell(SPELL_WHIRLWIND, 0);
+                        me->RemoveAurasDueToSpell(SPELL_WHIRLWIND, ObjectGuid::Empty);
                         me->SetDisplayId(MODEL_DEMON);
                         DoScriptText(SAY_SWITCH_TO_DEMON, me);
                         me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID  , 0);
@@ -694,13 +694,13 @@ public:
         mob_greyheart_spellbinderAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            leotherasGUID = 0;
+            leotherasGUID.Clear();
             AddedBanish = false;
         }
 
         InstanceScript* instance;
 
-        uint64 leotherasGUID;
+        ObjectGuid leotherasGUID;
 
         uint32 Mindblast_Timer;
         uint32 Earthshock_Timer;
@@ -714,7 +714,7 @@ public:
 
             if (instance)
             {
-                instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, 0);
+                instance->SetGuidData(DATA_LEOTHERAS_EVENT_STARTER, ObjectGuid::Empty);
                 Creature* leotheras = Unit::GetCreature(*me, leotherasGUID);
                 if (leotheras && leotheras->isAlive())
                     CAST_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
@@ -725,7 +725,7 @@ public:
         {
             me->InterruptNonMeleeSpells(false);
             if (instance)
-                instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
+                instance->SetGuidData(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
         }
 
         void JustRespawned()
@@ -752,12 +752,12 @@ public:
             if (instance)
             {
                 if (!leotherasGUID)
-                    leotherasGUID = instance->GetData64(DATA_LEOTHERAS);
+                    leotherasGUID = instance->GetGuidData(DATA_LEOTHERAS);
 
-                if (!me->isInCombat() && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+                if (!me->isInCombat() && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
                 {
                     Unit* victim = NULL;
-                    victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                    victim = Unit::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
                         AttackStart(victim);
                 }
@@ -769,7 +769,7 @@ public:
                 return;
             }
 
-            if (instance && !instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+            if (instance && !instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
             {
                 EnterEvadeMode();
                 return;

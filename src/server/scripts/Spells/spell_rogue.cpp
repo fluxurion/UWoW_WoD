@@ -978,7 +978,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->spellid[s]);
                             if (!spellInfo)
                             {
-                                sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::CastItemCombatSpell Enchant %i, player (Name: %s, GUID: %u) cast unknown spell %i", enchant->ID, player->GetName(), player->GetGUIDLow(), enchant->spellid[s]);
+                                sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::CastItemCombatSpell Enchant %i, player (Name: %s, GUID: %u) cast unknown spell %i", enchant->ID, player->GetName(), player->GetGUID().GetCounter(), enchant->spellid[s]);
                                 continue;
                             }
 
@@ -1064,8 +1064,8 @@ class spell_rog_eviscerate : public SpellScriptLoader
                 {
                     if (caster->GetTypeId() == TYPEID_PLAYER)
                     {
-                        caster->ToPlayer()->KilledMonsterCredit(44175, 0);
-                        caster->ToPlayer()->KilledMonsterCredit(44548, 0);
+                        caster->ToPlayer()->KilledMonsterCredit(44175, ObjectGuid::Empty);
+                        caster->ToPlayer()->KilledMonsterCredit(44548, ObjectGuid::Empty);
                     }
                     if (target && caster->HasAura(14171) || caster->HasAura(14172))
                     {
@@ -1141,7 +1141,7 @@ class spell_rog_distract : public SpellScriptLoader
                         if (!summon)
                             return;
 
-                        summon->SetUInt64Value(UNIT_FIELD_SUMMONED_BY, caster->GetGUID());
+                        summon->SetGuidValue(UNIT_FIELD_SUMMONED_BY, caster->GetGUID());
                         summon->AddAura(31366, summon);
                         //summon->SetMaxHealth(caster->CountPctFromMaxHealth(50));
                         //summon->SetHealth(summon->GetMaxHealth());

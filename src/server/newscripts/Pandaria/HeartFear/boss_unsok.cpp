@@ -167,7 +167,7 @@ class npc_amber_monster : public CreatureScript
             {
                 if (pInstance)
                 {
-                    if (Creature* unsok = me->GetCreature(*me, pInstance->GetData64(NPC_UNSOK)))
+                    if (Creature* unsok = me->GetCreature(*me, pInstance->GetGuidData(NPC_UNSOK)))
                         unsok->AI()->DoAction(ACTION_INTRO_P3);
                 }
             }

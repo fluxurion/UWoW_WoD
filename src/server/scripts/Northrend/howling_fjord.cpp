@@ -175,7 +175,7 @@ public:
 
         void Reset()
         {
-            uint64 summonerGUID = 0;
+            ObjectGuid summonerGUID;
 
             if (me->isSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
@@ -367,15 +367,15 @@ public:
         npc_daegarnAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool bEventInProgress;
-        uint64 uiPlayerGUID;
+        ObjectGuid uiPlayerGUID;
 
         void Reset()
         {
             bEventInProgress = false;
-            uiPlayerGUID = 0;
+            uiPlayerGUID.Clear();
         }
 
-        void StartEvent(uint64 uiGUID)
+        void StartEvent(ObjectGuid uiGUID)
         {
             if (bEventInProgress)
                 return;

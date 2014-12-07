@@ -102,7 +102,7 @@ class boss_dark_animus : public CreatureScript
                 if (action == ACTION_FULL_POWER && !fullpower)
                 {
                     fullpower = true;
-                    me->MonsterTextEmote("FULL POWER ACTIVE", 0, true);
+                    me->MonsterTextEmote("FULL POWER ACTIVE", ObjectGuid::Empty, true);
                     events.ScheduleEvent(EVENT_FULL_POWER, 4000);
                 }
             }
@@ -222,7 +222,7 @@ class npc_massive_anima_golem : public CreatureScript
             {
                 if (instance)
                 {
-                    if (Creature* animus = me->GetCreature(*me, instance->GetData64(NPC_DARK_ANIMUS)))
+                    if (Creature* animus = me->GetCreature(*me, instance->GetGuidData(NPC_DARK_ANIMUS)))
                         animus->AI()->DoAction(ACTION_FULL_POWER);
                 }
             }

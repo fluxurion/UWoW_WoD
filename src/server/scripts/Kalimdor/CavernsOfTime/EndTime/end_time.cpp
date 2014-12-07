@@ -169,12 +169,12 @@ class npc_end_time_image_of_nozdormu : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_TALK:
-                            Talk(id, 0);
+                            Talk(id, ObjectGuid::Empty);
                             if (id != 3)
                                 bTalk = false;
                             break;
                         case EVENT_TALK_1:
-                            Talk(SAY_INTRO_5, 0);
+                            Talk(SAY_INTRO_5, ObjectGuid::Empty);
                             bTalk = false;
                             break;
                     }

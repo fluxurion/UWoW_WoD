@@ -156,7 +156,7 @@ class boss_feng : public CreatureScript
             uint8 newphase;
             uint8 actualPhase;
             uint32 dotSpellId, checkvictim;
-            uint64 targetGuid;
+            ObjectGuid targetGuid;
 
             void Reset()
             {
@@ -168,23 +168,23 @@ class boss_feng : public CreatureScript
                 newphase = 0;
                 actualPhase = PHASE_NONE;
                 dotSpellId = 0;
-                targetGuid = 0;
+                targetGuid.Clear();
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(115811);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(115972);
 
                 for (uint8 i = 0; i < 4; ++i)
                     me->RemoveAurasDueToSpell(fengVisualId[i]);
 
-                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[actualPhase - 1])))
+                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetGuidData(statueEntryInOrder[actualPhase - 1])))
                 {
                     oldStatue->SetLootState(GO_READY);
                     oldStatue->UseDoorOrButton();
                 }
 
-                if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_INVERSION)))
+                if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_INVERSION)))
                     inversionGob->Respawn();
 
-                if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_CANCEL)))
+                if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_CANCEL)))
                     cancelGob->Respawn();
             }
 
@@ -222,10 +222,10 @@ class boss_feng : public CreatureScript
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(115811);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(115972);
 
-                if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_INVERSION)))
+                if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_INVERSION)))
                     inversionGob->Delete();
 
-                if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_CANCEL)))
+                if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_CANCEL)))
                     cancelGob->Delete();
             }
 
@@ -261,13 +261,13 @@ class boss_feng : public CreatureScript
                 }
 
                 // Desactivate old statue and enable the new one
-                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[actualPhase - 1])))
+                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetGuidData(statueEntryInOrder[actualPhase - 1])))
                 {
                     oldStatue->SetLootState(GO_READY);
                     oldStatue->UseDoorOrButton();
                 }
 
-                if (GameObject* newStatue = pInstance->instance->GetGameObject(pInstance->GetData64(statueEntryInOrder[newPhase - 1])))
+                if (GameObject* newStatue = pInstance->instance->GetGameObject(pInstance->GetGuidData(statueEntryInOrder[newPhase - 1])))
                 {
                     newStatue->SetLootState(GO_READY);
                     newStatue->UseDoorOrButton();
@@ -359,7 +359,7 @@ class boss_feng : public CreatureScript
                     if (Unit* pl = me->GetPlayer(*me, targetGuid))
                     {
                         sum->AI()->SetGUID(targetGuid); 
-                        targetGuid = 0;
+                        targetGuid.Clear();
                     }
                 }
             }
@@ -414,7 +414,7 @@ class boss_feng : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
                         {
                             if (targetGuid)
-                                targetGuid = 0;
+                                targetGuid.Clear();
                             targetGuid = target->GetGUID();
                             DoCast(target, SPELL_LIGHTNING_FISTS);
                         }
@@ -491,7 +491,7 @@ class mob_lightning_fist : public CreatureScript
                 unsummon = 6000;
             }
 
-            void SetGUID(uint64 plguid, int32 type/* = 0 */)
+            void SetGUID(ObjectGuid const& plguid, int32 type/* = 0 */)
             {
                 if (plguid)
                 {
@@ -569,7 +569,7 @@ class mob_wild_spark : public CreatureScript
 
                 if (id == 1)
                     if (InstanceScript* pInstance = me->GetInstanceScript())
-                        if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FENG)))
+                        if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_FENG)))
                         {
                             feng->AI()->DoAction(ACTION_SPARK);
                             me->DespawnOrUnsummon();

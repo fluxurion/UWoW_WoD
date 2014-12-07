@@ -57,9 +57,9 @@ public:
         uint32 mBarrelCount;
         uint32 mThrallEventCount;
 
-        uint64 ThrallGUID;
-        uint64 TarethaGUID;
-        uint64 EpochGUID;
+        ObjectGuid ThrallGUID;
+        ObjectGuid TarethaGUID;
+        ObjectGuid EpochGUID;
 
         void Initialize()
         {
@@ -67,9 +67,9 @@ public:
 
             mBarrelCount        = 0;
             mThrallEventCount   = 0;
-            ThrallGUID          = 0;
-            TarethaGUID         = 0;
-            EpochGUID        = 0;
+            ThrallGUID.Clear();
+            TarethaGUID.Clear();
+            EpochGUID.Clear();
         }
 
         Player* GetPlayerInMap()
@@ -98,7 +98,7 @@ public:
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     if (Player* player = itr->getSource())
-                        player->KilledMonsterCredit(LODGE_QUEST_TRIGGER, 0);
+                        player->KilledMonsterCredit(LODGE_QUEST_TRIGGER, ObjectGuid::Empty);
                 }
             }
         }
@@ -222,7 +222,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data)
+        ObjectGuid GetGuidData(uint32 data)
         {
             switch (data)
             {
@@ -233,7 +233,7 @@ public:
             case DATA_EPOCH:
             return EpochGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

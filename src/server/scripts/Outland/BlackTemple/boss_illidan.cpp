@@ -386,13 +386,13 @@ public:
 
         uint32 FlameBlastTimer;
         uint32 CheckTimer;
-        uint64 GlaiveGUID;
+        ObjectGuid GlaiveGUID;
 
         void Reset()
         {
             FlameBlastTimer = 15000;
             CheckTimer = 5000;
-            GlaiveGUID = 0;
+            GlaiveGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -436,7 +436,7 @@ public:
             }
         }
 
-        void SetGlaiveGUID(uint64 guid)
+        void SetGlaiveGUID(ObjectGuid guid)
         {
             GlaiveGUID = guid;
         }
@@ -498,10 +498,10 @@ public:
 
         uint32 HoverPoint;
 
-        uint64 AkamaGUID;
-        uint64 MaievGUID;
-        uint64 FlameGUID[2];
-        uint64 GlaiveGUID[2];
+        ObjectGuid AkamaGUID;
+        ObjectGuid MaievGUID;
+        ObjectGuid FlameGUID[2];
+        ObjectGuid GlaiveGUID[2];
 
         SummonList Summons;
 
@@ -515,7 +515,7 @@ public:
             {
                 for (uint8 i = 0; i < 2; ++i)
                     if (summon->GetGUID() == FlameGUID[i])
-                        FlameGUID[i] = 0;
+                        FlameGUID[i].Clear();
 
                 if (!FlameGUID[0] && !FlameGUID[1] && Phase != PHASE_ILLIDAN_NULL)
                 {
@@ -570,7 +570,7 @@ public:
             instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, DONE); // Completed
 
             for (uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
-                instance->HandleGameObject(instance->GetData64(i), true);
+                instance->HandleGameObject(instance->GetGuidData(i), true);
         }
 
         void KilledUnit(Unit* victim)
@@ -612,7 +612,7 @@ public:
             }
         }
 
-        void DeleteFromThreatList(uint64 TargetGUID)
+        void DeleteFromThreatList(ObjectGuid TargetGUID)
         {
             for (std::list<HostileReference*>::const_iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
             {
@@ -641,7 +641,7 @@ public:
                 if (Conversation[count].emote)
                     creature->HandleEmoteCommand(Conversation[count].emote); // Make the Creature do some animation!
                 if (Conversation[count].text.size())
-                    creature->MonsterYell(Conversation[count].text.c_str(), LANG_UNIVERSAL, 0); // Have the Creature yell out some text
+                    creature->MonsterYell(Conversation[count].text.c_str(), LANG_UNIVERSAL, ObjectGuid::Empty); // Have the Creature yell out some text
                 if (Conversation[count].sound)
                     DoPlaySoundToSet(creature, Conversation[count].sound); // Play some sound on the creature
             }
@@ -713,7 +713,7 @@ public:
                 {
                     TransformCount = 0;
                     Timer[EVENT_TRANSFORM_SEQUENCE] = 500;
-                    me->MonsterYell(SAY_MORPH, LANG_UNIVERSAL, 0);
+                    me->MonsterYell(SAY_MORPH, LANG_UNIVERSAL, ObjectGuid::Empty);
                     DoPlaySoundToSet(me, SOUND_MORPH);
                 }
                 me->GetMotionMaster()->Clear();
@@ -735,7 +735,7 @@ public:
         {
             me->InterruptNonMeleeSpells(false);
 
-            me->MonsterYell(SAY_EYE_BLAST, LANG_UNIVERSAL, 0);
+            me->MonsterYell(SAY_EYE_BLAST, LANG_UNIVERSAL, ObjectGuid::Empty);
             DoPlaySoundToSet(me, SOUND_EYE_BLAST);
 
             float distx, disty, dist[2];
@@ -771,7 +771,7 @@ public:
         }
         void SummonFlamesOfAzzinoth()
         {
-            me->MonsterYell(SAY_SUMMONFLAMES, LANG_UNIVERSAL, 0);
+            me->MonsterYell(SAY_SUMMONFLAMES, LANG_UNIVERSAL, ObjectGuid::Empty);
             DoPlaySoundToSet(me, SOUND_SUMMONFLAMES);
 
             for (uint8 i = 0; i < 2; ++i)
@@ -797,7 +797,7 @@ public:
             if (!MaievGUID) // If Maiev cannot be summoned, reset the encounter and post some errors to the console.
             {
                 EnterEvadeMode();
-                me->MonsterTextEmote(EMOTE_UNABLE_TO_SUMMON, 0);
+                me->MonsterTextEmote(EMOTE_UNABLE_TO_SUMMON, ObjectGuid::Empty);
                 sLog->outError(LOG_FILTER_TSCR, "SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
             }
         }
@@ -812,7 +812,7 @@ public:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                 me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
                 me->StopMoving();
-                me->MonsterYell(SAY_TAKEOFF, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_TAKEOFF, LANG_UNIVERSAL, ObjectGuid::Empty);
                 DoPlaySoundToSet(me, SOUND_TAKEOFF);
                 Timer[EVENT_FLIGHT_SEQUENCE] = 3000;
                 break;
@@ -891,7 +891,7 @@ public:
                             Glaive->SetVisible(false);
                             Glaive->setDeathState(JUST_DIED); // Despawn the Glaive
                         }
-                        GlaiveGUID[i] = 0;
+                        GlaiveGUID[i].Clear();
                     }
                 }
                 Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
@@ -1019,7 +1019,7 @@ public:
                 {
                     // PHASE_NORMAL
                 case EVENT_BERSERK:
-                    me->MonsterYell(SAY_ENRAGE, LANG_UNIVERSAL, 0);
+                    me->MonsterYell(SAY_ENRAGE, LANG_UNIVERSAL, ObjectGuid::Empty);
                     DoPlaySoundToSet(me, SOUND_ENRAGE);
                     DoCast(me, SPELL_BERSERK, true);
                     Timer[EVENT_BERSERK] = 5000; // The buff actually lasts forever.
@@ -1030,7 +1030,7 @@ public:
                         uint32 random = rand()%4;
                         uint32 soundid = RandomTaunts[random].sound;
                         if (RandomTaunts[random].text.size())
-                            me->MonsterYell(RandomTaunts[random].text.c_str(), LANG_UNIVERSAL, 0);
+                            me->MonsterYell(RandomTaunts[random].text.c_str(), LANG_UNIVERSAL, ObjectGuid::Empty);
                         if (soundid)
                             DoPlaySoundToSet(me, soundid);
                     }
@@ -1171,7 +1171,7 @@ public:
     {
         boss_maievAI(Creature* creature) : ScriptedAI(creature) {};
 
-        uint64 IllidanGUID;
+        ObjectGuid IllidanGUID;
 
         PhaseIllidan Phase;
         EventMaiev Event;
@@ -1182,7 +1182,7 @@ public:
         {
             MaxTimer = 0;
             Phase = PHASE_NORMAL_MAIEV;
-            IllidanGUID = 0;
+            IllidanGUID.Clear();
             Timer[EVENT_MAIEV_STEALTH] = 0;
             Timer[EVENT_MAIEV_TAUNT] = urand(22, 43) * 1000;
             Timer[EVENT_MAIEV_SHADOW_STRIKE] = 30000;
@@ -1194,7 +1194,7 @@ public:
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterEvadeMode() {}
 
-        void GetIllidanGUID(uint64 guid)
+        void GetIllidanGUID(ObjectGuid guid)
         {
             IllidanGUID = guid;
         }
@@ -1335,7 +1335,7 @@ public:
                         uint32 random = rand()%4;
                         uint32 sound = MaievTaunts[random].sound;
                         if (MaievTaunts[random].text.size())
-                            me->MonsterYell(MaievTaunts[random].text.c_str(), LANG_UNIVERSAL, 0);
+                            me->MonsterYell(MaievTaunts[random].text.c_str(), LANG_UNIVERSAL, ObjectGuid::Empty);
                         DoPlaySoundToSet(me, sound);
                         Timer[EVENT_MAIEV_TAUNT] = urand(22, 43) * 1000;
                     }
@@ -1400,11 +1400,11 @@ public:
         bool Event;
         uint32 Timer;
 
-        uint64 IllidanGUID;
-        uint64 ChannelGUID;
-        uint64 SpiritGUID[2];
-        uint64 GateGUID;
-        uint64 DoorGUID[2];
+        ObjectGuid IllidanGUID;
+        ObjectGuid ChannelGUID;
+        ObjectGuid SpiritGUID[2];
+        ObjectGuid GateGUID;
+        ObjectGuid DoorGUID[2];
 
         uint32 ChannelCount;
         uint32 WalkCount;
@@ -1418,10 +1418,10 @@ public:
             {
                 instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
 
-                IllidanGUID = instance->GetData64(DATA_ILLIDANSTORMRAGE);
-                GateGUID = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE);
-                DoorGUID[0] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
-                DoorGUID[1] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
+                IllidanGUID = instance->GetGuidData(DATA_ILLIDANSTORMRAGE);
+                GateGUID = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_GATE);
+                DoorGUID[0] = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
+                DoorGUID[1] = instance->GetGuidData(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
 
                 if (JustCreated) // close all doors at create
                 {
@@ -1441,15 +1441,15 @@ public:
             }
             else
             {
-                IllidanGUID = 0;
-                GateGUID = 0;
-                DoorGUID[0] = 0;
-                DoorGUID[1] = 0;
+                IllidanGUID.Clear();
+                GateGUID.Clear();
+                DoorGUID[0].Clear();
+                DoorGUID[1].Clear();
             }
 
-            ChannelGUID = 0;
-            SpiritGUID[0] = 0;
-            SpiritGUID[1] = 0;
+            ChannelGUID.Clear();
+            SpiritGUID[0].Clear();
+            SpiritGUID[1].Clear();
 
             Phase = PHASE_AKAMA_NULL;
             Timer = 0;
@@ -1630,13 +1630,13 @@ public:
                 if (GETCRE(Illidan, IllidanGUID))
                 {
                     CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, Illidan->AI())->Timer[EVENT_TAUNT] += 30000;
-                    Illidan->MonsterYell(SAY_AKAMA_MINION, LANG_UNIVERSAL, 0);
+                    Illidan->MonsterYell(SAY_AKAMA_MINION, LANG_UNIVERSAL, ObjectGuid::Empty);
                     DoPlaySoundToSet(Illidan, SOUND_AKAMA_MINION);
                 }
                 Timer = 8000;
                 break;
             case 1:
-                me->MonsterYell(SAY_AKAMA_LEAVE, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_AKAMA_LEAVE, LANG_UNIVERSAL, ObjectGuid::Empty);
                 DoPlaySoundToSet(me, SOUND_AKAMA_LEAVE);
                 Timer = 3000;
                 break;
@@ -1689,7 +1689,7 @@ public:
                 Timer = 2000;
                 break;
             case 5:
-                me->MonsterYell(SAY_AKAMA_BEWARE, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_AKAMA_BEWARE, LANG_UNIVERSAL, ObjectGuid::Empty);
                 DoPlaySoundToSet(me, SOUND_AKAMA_BEWARE);
                 Channel->setDeathState(JUST_DIED);
                 Spirit[0]->SetVisible(false);
@@ -1861,14 +1861,14 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
                 CAST_AI(npc_akama_illidan::npc_akama_illidanAI, Akama->AI())->Reset();
             }
         }
-        AkamaGUID = 0;
+        AkamaGUID.Clear();
     }
 
-    MaievGUID = 0;
+    MaievGUID.Clear();
     for (uint8 i = 0; i < 2; ++i)
     {
-        FlameGUID[i] = 0;
-        GlaiveGUID[i] = 0;
+        FlameGUID[i].Clear();
+        GlaiveGUID[i].Clear();
     }
 
     Phase = PHASE_ILLIDAN_NULL;
@@ -2037,7 +2037,7 @@ public:
     {
         cage_trap_triggerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 IllidanGUID;
+        ObjectGuid IllidanGUID;
         uint32 DespawnTimer;
 
         bool Active;
@@ -2045,7 +2045,7 @@ public:
 
         void Reset()
         {
-            IllidanGUID = 0;
+            IllidanGUID.Clear();
 
             Active = false;
             SummonedBeams = false;
@@ -2073,7 +2073,7 @@ public:
                         DespawnTimer = 5000;
                         if (who->HasAura(SPELL_ENRAGE))
                             who->RemoveAurasDueToSpell(SPELL_ENRAGE); // Dispel his enrage
-                        // if (GameObject* CageTrap = instance->instance->GetGameObject(instance->GetData64(CageTrapGUID)))
+                        // if (GameObject* CageTrap = instance->instance->GetGameObject(instance->GetGuidData(CageTrapGUID)))
 
                         //    CageTrap->SetLootState(GO_JUST_DEACTIVATED);
                     }
@@ -2133,7 +2133,7 @@ public:
     {
         shadow_demonAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint64 TargetGUID;
+        ObjectGuid TargetGUID;
 
         void EnterCombat(Unit* /*who*/)
         {
@@ -2142,7 +2142,7 @@ public:
 
         void Reset()
         {
-            TargetGUID = 0;
+            TargetGUID.Clear();
             DoCast(me, SPELL_SHADOW_DEMON_PASSIVE, true);
         }
 
@@ -2216,15 +2216,15 @@ public:
         }
 
         InstanceScript* instance;
-        uint64 IllidanGUID;
+        ObjectGuid IllidanGUID;
         uint32 CheckTimer;
 
         void Reset()
         {
             if (instance)
-                IllidanGUID = instance->GetData64(DATA_ILLIDANSTORMRAGE);
+                IllidanGUID = instance->GetGuidData(DATA_ILLIDANSTORMRAGE);
             else
-                IllidanGUID = 0;
+                IllidanGUID.Clear();
 
             CheckTimer = 5000;
             DoCast(me, SPELL_SHADOWFIEND_PASSIVE, true);

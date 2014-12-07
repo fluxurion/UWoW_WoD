@@ -1750,9 +1750,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading the max pet number...");
     sObjectMgr->LoadPetNumber();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading the max batlpet number...");
-    sObjectMgr->LoadBattlePetGuid();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pet level stats...");
     sObjectMgr->LoadPetStats();
 
@@ -2532,7 +2529,7 @@ void World::SendGlobalText(const char* text, WorldSession* self)
 
     while (char* line = ChatHandler::LineFromMessage(pos))
     {
-        ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, line, NULL);
+        ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, ObjectGuid::Empty, line, NULL);
         SendGlobalMessage(&data, self);
     }
 
@@ -2561,7 +2558,7 @@ void World::SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self
 void World::SendZoneText(uint32 zone, const char* text, WorldSession* self, uint32 team)
 {
     WorldPacket data;
-    ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, text, NULL);
+    ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, ObjectGuid::Empty, text, NULL);
     SendZoneMessage(zone, &data, self, team);
 }
 
@@ -2705,7 +2702,7 @@ bool World::RemoveBanAccount(BanMode mode, std::string nameOrIP)
 BanReturn World::BanCharacter(std::string name, std::string duration, std::string reason, std::string author)
 {
     Player* pBanned = sObjectAccessor->FindPlayerByName(name.c_str());
-    uint32 guid = 0;
+    ObjectGuid::LowType guid = 0;
 
     uint32 duration_secs = TimeStringToSecs(duration);
 
@@ -2719,18 +2716,18 @@ BanReturn World::BanCharacter(std::string name, std::string duration, std::strin
         if (!resultCharacter)
             return BAN_NOTFOUND;                                    // Nobody to ban
 
-        guid = (*resultCharacter)[0].GetUInt32();
+        guid = (*resultCharacter)[0].GetUInt64();
     }
     else
-        guid = pBanned->GetGUIDLow();
+        guid = pBanned->GetGUID().GetCounter();
 
     // make sure there is only one active ban
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
-    stmt->setUInt32(0, guid);
+    stmt->setUInt64(0, guid);
     CharacterDatabase.Execute(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_BAN);
-    stmt->setUInt32(0, guid);
+    stmt->setUInt64(0, guid);
     stmt->setUInt32(1, duration_secs);
     stmt->setString(2, author);
     stmt->setString(3, reason);
@@ -2746,7 +2743,7 @@ BanReturn World::BanCharacter(std::string name, std::string duration, std::strin
 bool World::RemoveBanCharacter(std::string name)
 {
     Player* pBanned = sObjectAccessor->FindPlayerByName(name.c_str());
-    uint32 guid = 0;
+    ObjectGuid::LowType guid = 0;
 
     /// Pick a player to ban if not online
     if (!pBanned)
@@ -2758,16 +2755,16 @@ bool World::RemoveBanCharacter(std::string name)
         if (!resultCharacter)
             return false;
 
-        guid = (*resultCharacter)[0].GetUInt32();
+        guid = (*resultCharacter)[0].GetUInt64();
     }
     else
-        guid = pBanned->GetGUIDLow();
+        guid = pBanned->GetGUID().GetCounter();
 
     if (!guid)
         return false;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
-    stmt->setUInt32(0, guid);
+    stmt->setUInt64(0, guid);
     CharacterDatabase.Execute(stmt);
     return true;
 }
@@ -3473,7 +3470,7 @@ void World::LoadCharacterNameData()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters", count);
 }
 
-void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+void World::AddCharacterNameData(ObjectGuid::LowType guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
 {
     CharacterNameData& data = _characterNameDataMap[guid];
     data.m_name = name;
@@ -3483,7 +3480,7 @@ void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gen
     data.m_level = level;
 }
 
-void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
+void World::UpdateCharacterNameData(ObjectGuid::LowType guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
 {
     std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
@@ -3498,7 +3495,7 @@ void World::UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 
         itr->second.m_race = race;
 }
 
-void World::UpdateCharacterNameDataLevel(uint32 guid, uint8 level)
+void World::UpdateCharacterNameDataLevel(ObjectGuid::LowType guid, uint8 level)
 {
     std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
@@ -3507,7 +3504,7 @@ void World::UpdateCharacterNameDataLevel(uint32 guid, uint8 level)
     itr->second.m_level = level;
 }
 
-CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
+CharacterNameData const* World::GetCharacterNameData(ObjectGuid::LowType guid) const
 {
     std::map<uint32, CharacterNameData>::const_iterator itr = _characterNameDataMap.find(guid);
     if (itr != _characterNameDataMap.end())
@@ -3527,120 +3524,127 @@ void World::UpdatePhaseDefinitions()
 void World::ProcessMailboxQueue()
 {
     Field * f;
-    Field * fetch;
 
-    QueryResult result = CharacterDatabase.Query("SELECT id FROM mailbox_queue LIMIT 10000");
+    //QueryResult result = CharacterDatabase.Query("SELECT id FROM mailbox_queue LIMIT 10000");
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILBOX_QUEUE);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if(result)
     {
         do
         {
-            fetch = result->Fetch();
-            uint32 id = fetch[0].GetUInt32();
+            f = result->Fetch();
+            uint32 mailId = sObjectMgr->GenerateMailID();
 
-            QueryResult select = CharacterDatabase.PQuery("SELECT * FROM mailbox_queue WHERE id = '%u'", id);
-            if(select)
+            time_t deliver_time = m_gameTime;
+            time_t expire_time = deliver_time + 30 * DAY;
+
+            uint32 i = 0;
+            uint32 id = f[i++].GetUInt32();
+            uint32 messageType = f[i++].GetUInt32();
+            uint32 stationery = f[i++].GetUInt32();
+            ObjectGuid::LowType sender_guid = f[i++].GetUInt64();
+            ObjectGuid receiver_guid = ObjectGuid::Create<HighGuid::Player>(f[i++].GetUInt64());
+            std::string subject = f[i++].GetCString();
+            std::string body = f[i++].GetCString();
+            uint32 money = f[i++].GetUInt32();
+            uint32 itemid = f[i++].GetUInt32();
+            uint32 itemcount = f[i++].GetUInt32();
+
+            uint32 forefir = 0;
+
+            if(itemid != 0 && itemid != 49426 && itemid != 38186 && itemid != 62062 && itemid != 47241 && money)
             {
-                do
-                {
-                    f = select->Fetch();
-                    uint32 mailId = sObjectMgr->GenerateMailID();
-
-                    time_t deliver_time = m_gameTime;
-                    time_t expire_time = deliver_time + 30 * DAY;
-
-                    uint32 i = 1; //don't need the temp index
-                    uint32 messageType = f[i++].GetUInt32();
-                    uint32 stationery = f[i++].GetUInt32();
-                    uint32 sender_guid = f[i++].GetUInt32();
-                    uint32 receiver_guid = f[i++].GetUInt32();
-                    std::string subject = f[i++].GetCString();
-                    std::string body = f[i++].GetCString();
-                    uint32 money = f[i++].GetUInt32();
-                    uint32 itemid = f[i++].GetUInt32();
-                    uint32 itemcount = f[i++].GetUInt32();
-
-                    uint32 forefir = 0;
-
-                    if(itemid != 0 && itemid != 49426 && itemid != 38186 && itemid != 62062 && itemid != 47241 && money)
-                    {
-                        forefir = money / 10000;
-                        money = 0;
-                    }
-
-                    ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(itemid);
-                    if(itemid && !pProto)
-                        continue;
-
-                    Item *attachment = NULL;
-                    Player * receiver = ObjectAccessor::FindPlayer(receiver_guid);
-                    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-                    if(itemid != 0)
-                    {
-                        attachment = Item::CreateItem ( itemid, itemcount, receiver );
-                        if(attachment)
-                            attachment->SaveToDB(trans);
-                    }
-
-                    // Add to DB
-                    CharacterDatabase.EscapeString(subject);
-                    CharacterDatabase.EscapeString(body);
-                    trans->PAppend("INSERT INTO mail (id,messageType,stationery,mailTemplateId,sender,receiver,subject,body,has_items,expire_time,deliver_time,money,cod,checked) VALUES ('%u', '%u', '%u', '%u', '%u', '%u', '%s', '%s', '%u', '" UI64FMTD "','" UI64FMTD "', '%u', '%u', '%d')",
-                        mailId, messageType, stationery, 0, sender_guid, receiver_guid, subject.c_str(), body.c_str(), (attachment != NULL ? 1 : 0), (uint64)expire_time, (uint64)deliver_time, money, 0, 0);
-         
-                    if(attachment != NULL)
-                    {
-                        trans->PAppend("INSERT INTO mail_items (mail_id,item_guid,receiver) VALUES ('%u', '%u', '%u')", mailId, attachment->GetGUIDLow(), receiver_guid);
-                        if(forefir)
-                            trans->PAppend("REPLACE INTO character_donate (`owner_guid`, `itemguid`, `itemEntry`, `efircount`, `count`) VALUES ('%u', '%u', '%u', '%u', '%u')", receiver_guid, attachment->GetGUIDLow(), itemid, forefir, itemcount);
-                    }
-                    sLog->outError(LOG_FILTER_REMOTECOMMAND,"Sending mail to %u, Item:%u , ItemCount:%u, %s", receiver_guid, itemid,itemcount,body.c_str());
-
-                    CharacterDatabase.CommitTransaction(trans);
-
-                    // For online receiver update in game mail status and data
-                    if (receiver)
-                    {
-                        receiver->AddNewMailDeliverTime(deliver_time);
-
-                        if (receiver->IsMailsLoaded())
-                        {
-                            Mail *m = new Mail;
-                            m->messageID = mailId;
-                            m->messageType = messageType;
-                            m->stationery = stationery;
-                            m->mailTemplateId = 0;
-                            m->sender = sender_guid;
-                            m->receiver = receiver->GetGUIDLow();
-                            m->subject = subject;
-                            m->body = body;
-
-                            if(attachment)
-                                m->AddItem(attachment->GetGUIDLow(),attachment->GetEntry());
-
-                            m->expire_time = expire_time;
-                            m->deliver_time = deliver_time;
-                            m->money = money;
-                            m->COD = 0;
-                            m->checked = 0;
-                            m->state = MAIL_STATE_UNCHANGED;
-
-                            receiver->AddMail(m);                           // to insert new mail to beginning of maillist
-
-                            if(attachment)
-                                receiver->AddMItem(attachment);
-                        }
-                        else if (attachment)
-                            delete attachment;
-                    }
-                    else if (attachment)
-                        delete attachment;
-
-                    CharacterDatabase.PExecute("DELETE FROM mailbox_queue WHERE id = '%u'", id);
-                } while (select->NextRow());
+                forefir = money / 10000;
+                money = 0;
             }
-		} while ( result->NextRow() );
+
+            ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(itemid);
+            if(itemid && !pProto)
+                continue;
+
+            Item *attachment = NULL;
+            Player * receiver = ObjectAccessor::FindPlayer(receiver_guid);
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+            if(itemid != 0)
+            {
+                attachment = Item::CreateItem ( itemid, itemcount, receiver );
+                if(attachment)
+                    attachment->SaveToDB(trans);
+            }
+
+            // Add to DB
+            CharacterDatabase.EscapeString(subject);
+            CharacterDatabase.EscapeString(body);
+            trans->PAppend("INSERT INTO mail (id,messageType,stationery,mailTemplateId,sender,receiver,subject,body,has_items,expire_time,deliver_time,money,cod,checked) VALUES ('%u', '%u', '%u', '%u', '%u', '%u', '%s', '%s', '%u', '" UI64FMTD "','" UI64FMTD "', '%u', '%u', '%d')",
+                mailId, messageType, stationery, 0, sender_guid, receiver_guid.GetCounter(), subject.c_str(), body.c_str(), (attachment != NULL ? 1 : 0), (uint64)expire_time, (uint64)deliver_time, money, 0, 0);
+         
+            if(attachment != NULL)
+            {
+                trans->PAppend("INSERT INTO mail_items (mail_id,item_guid,receiver) VALUES ('%u', '%u', '%u')", mailId, attachment->GetGUID().GetCounter(), receiver_guid.GetCounter());
+                if(forefir)
+                {
+                    //trans->PAppend("REPLACE INTO character_donate (`owner_guid`, `itemguid`, `itemEntry`, `efircount`, `count`) VALUES ('%u', '%u', '%u', '%u', '%u')", receiver_guid.GetCounter(), attachment->GetGUID().GetCounter(), itemid, forefir, itemcount);
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_ITEM_DONATE);
+                    stmt->setUInt64(0, receiver_guid.GetCounter());
+                    stmt->setUInt64(1, attachment->GetGUID().GetCounter());
+                    stmt->setUInt32(2, itemid);
+                    stmt->setUInt32(3, forefir);
+                    stmt->setUInt32(4, itemcount);
+                    stmt->setUInt32(5, 0);
+                    trans->Append(stmt);
+                }
+            }
+            sLog->outError(LOG_FILTER_REMOTECOMMAND,"Sending mail to %u, Item:%u , ItemCount:%u, %s", receiver_guid.GetCounter(), itemid,itemcount,body.c_str());
+
+            CharacterDatabase.CommitTransaction(trans);
+
+            // For online receiver update in game mail status and data
+            if (receiver)
+            {
+                receiver->AddNewMailDeliverTime(deliver_time);
+
+                if (receiver->IsMailsLoaded())
+                {
+                    Mail *m = new Mail;
+                    m->messageID = mailId;
+                    m->messageType = messageType;
+                    m->stationery = stationery;
+                    m->mailTemplateId = 0;
+                    m->sender = sender_guid;
+                    m->receiver = receiver->GetGUID().GetCounter();
+                    m->subject = subject;
+                    m->body = body;
+
+                    if(attachment)
+                        m->AddItem(attachment->GetGUID().GetCounter(),attachment->GetEntry());
+
+                    m->expire_time = expire_time;
+                    m->deliver_time = deliver_time;
+                    m->money = money;
+                    m->COD = 0;
+                    m->checked = 0;
+                    m->state = MAIL_STATE_UNCHANGED;
+
+                    receiver->AddMail(m);                           // to insert new mail to beginning of maillist
+
+                    if(attachment)
+                        receiver->AddMItem(attachment);
+                }
+                else if (attachment)
+                    delete attachment;
+            }
+            else if (attachment)
+                delete attachment;
+
+            //CharacterDatabase.PExecute("DELETE FROM mailbox_queue WHERE id = '%u'", id);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAILBOX_QUEUE);
+            stmt->setUInt32(0, id);
+            CharacterDatabase.Execute(stmt);
+
+        } while (result->NextRow());
+
         sLog->outError(LOG_FILTER_WORLDSERVER, "MailboxQueue: Complete");
     }
     else
@@ -3706,7 +3710,7 @@ void World::Transfer()
             Field* field = toDump->Fetch();
             uint32 transaction = field[0].GetUInt32();
             uint32 account = field[1].GetUInt32();
-            uint32 guid = field[2].GetUInt32();
+            ObjectGuid::LowType guid = field[2].GetUInt64();
             uint32 to = field[3].GetUInt32();
             uint32 state = field[4].GetUInt32();
 
@@ -3726,7 +3730,7 @@ void World::Transfer()
 
             if (dumpState == DUMP_SUCCESS)
             {
-                CharacterDatabase.PExecute("UPDATE `characters` SET `at_login` = '512', `deleteInfos_Name` = `name`, `deleteInfos_Account` = `account`, `deleteDate` ='" UI64FMTD "', `name` = '', `account` = 0, `transfer` = '%u' WHERE `guid` = '%u'", uint64(time(NULL)), to, guid);
+                CharacterDatabase.PExecute("UPDATE `characters` SET `at_login` = '512', `deleteInfos_Name` = `name`, `deleteInfos_Account` = `account`, `deleteDate` ='" UI64FMTD "', `name` = '', `account` = 0, `transfer` = '%u' WHERE `guid` = '" UI64FMTD "'", uint64(time(NULL)), to, guid);
                 PreparedStatement * stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_DUMP);
                 if(stmt)
                 {
@@ -3755,7 +3759,7 @@ void World::Transfer()
             Field* field = toLoad->Fetch();
             uint32 transaction = field[0].GetUInt32();
             uint32 account = field[1].GetUInt32();
-            uint32 guid = field[2].GetUInt32();
+            ObjectGuid::LowType guid = field[2].GetUInt64();
             uint32 from = field[3].GetUInt32();
             std::string dump = field[4].GetString();
             uint32 toacc = field[5].GetUInt32();
@@ -3776,7 +3780,7 @@ void World::Transfer()
                 {
                     stmt->setUInt32(0, transaction);
                     stmt->setUInt32(1, account);
-                    stmt->setUInt32(2, guid);
+                    stmt->setUInt64(2, guid);
                     stmt->setUInt32(3, from);
                     stmt->setUInt32(4, realmHandle.Index);
                     stmt->setString(5, dump);

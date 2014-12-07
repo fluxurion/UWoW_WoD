@@ -148,8 +148,8 @@ public:
         InstanceScript* m_pInstance;
 
         SummonList Summons;
-        std::list<uint64> m_vBurrowGUID;
-        uint64 m_aSphereGUID[6];
+        GuidList m_vBurrowGUID;
+        ObjectGuid m_aSphereGUID[6];
 
         uint32 m_uiFreezeSlashTimer;
         uint32 m_uiPenetratingColdTimer;
@@ -164,7 +164,7 @@ public:
         uint8  m_uiStage;
         bool   m_bIntro;
         bool   m_bReachedPhase3;
-        uint64 m_uiTargetGUID;
+        ObjectGuid m_uiTargetGUID;
         uint8  m_uiScarabSummoned;
 
         void Reset()
@@ -185,7 +185,7 @@ public:
             m_uiScarabSummoned = 0;
             m_bIntro = true;
             m_bReachedPhase3 = false;
-            m_uiTargetGUID = 0;
+            m_uiTargetGUID.Clear();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             Summons.DespawnAll();
             m_vBurrowGUID.clear();
@@ -336,7 +336,7 @@ public:
                         /* WORKAROUND
                          * - The correct implementation is more likely the comment below but it needs spell knowledge
                          */
-                        std::list<uint64>::iterator i = m_vBurrowGUID.begin();
+                        GuidList::iterator i = m_vBurrowGUID.begin();
                         uint32 at = urand(0, m_vBurrowGUID.size()-1);
                         for (uint32 k = 0; k < at; k++)
                             ++i;
@@ -660,7 +660,7 @@ public:
         InstanceScript* m_pInstance;
 
         uint32 SearchTargetTimer;
-        uint64 TargetGUID;
+        ObjectGuid TargetGUID;
         bool notstartpursuit;
 
         void Reset()
@@ -668,10 +668,10 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             notstartpursuit = true;
             SearchTargetTimer = 0;
-            TargetGUID = 0;
+            TargetGUID.Clear();
         }
 
-        void SetGUID(uint64 guid)
+        void SetGUID(ObjectGuid const& guid)
         {
             TargetGUID = guid;
         
@@ -714,15 +714,15 @@ public:
             else SearchTargetTimer -= uiDiff;
         }
         
-        uint64 GetRandomPlayerGUID()
+        ObjectGuid GetRandomPlayerGUID()
         {
-            if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
+            if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetGuidData(NPC_ANUBARAK)))
             {
                 std::list<HostileReference*> t_list = pAnubarak->getThreatManager().getThreatList();
-                std::vector<uint64> targets;
+                GuidVector targets;
 
                 if (t_list.empty())
-                    return 0;
+                    return ObjectGuid::Empty;
 
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
@@ -732,15 +732,15 @@ public:
                 }
 
                 if (targets.empty())
-                    return 0;
+                    return ObjectGuid::Empty;
                 
-                std::vector<uint64>::iterator itr = targets.begin();
+                GuidVector::iterator itr = targets.begin();
                 std::advance(itr, urand(0, targets.size() - 1));
 
                 return *itr;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
     };
 

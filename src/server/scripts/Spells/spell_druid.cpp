@@ -237,14 +237,14 @@ class spell_dru_life_tap : public SpellScriptLoader
 class AuraDurationCompareOrderPred
 {
     public:
-        AuraDurationCompareOrderPred(uint64 caster, uint32 auraId, bool ascending = true) : m_caster(caster), m_aura(auraId), m_ascending(ascending) {}
+        AuraDurationCompareOrderPred(ObjectGuid caster, uint32 auraId, bool ascending = true) : m_caster(caster), m_aura(auraId), m_ascending(ascending) {}
         bool operator() (const Unit* a, const Unit* b) const
         {
             return m_ascending ? a->GetAura(m_aura, m_caster)->GetDuration() < b->GetAura(m_aura, m_caster)->GetDuration() :
                                     a->GetAura(m_aura, m_caster)->GetDuration() > b->GetAura(m_aura, m_caster)->GetDuration();
         }
     private:
-        uint64 m_caster;
+        ObjectGuid m_caster;
         uint32 m_aura;
         const bool m_ascending;
 };
@@ -1714,7 +1714,7 @@ class spell_dru_wild_mushroom : public SpellScriptLoader
                     if (!summon)
                         return;
 
-                    summon->SetUInt64Value(UNIT_FIELD_SUMMONED_BY, player->GetGUID());
+                    summon->SetGuidValue(UNIT_FIELD_SUMMONED_BY, player->GetGUID());
                     summon->setFaction(player->getFaction());
                     summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     summon->SetMaxHealth(5);
@@ -2668,7 +2668,7 @@ class spell_druid_rejuvenation : public SpellScriptLoader
                     if (caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    caster->ToPlayer()->KilledMonsterCredit(44175, 0);
+                    caster->ToPlayer()->KilledMonsterCredit(44175, ObjectGuid::Empty);
                 }
             }
 

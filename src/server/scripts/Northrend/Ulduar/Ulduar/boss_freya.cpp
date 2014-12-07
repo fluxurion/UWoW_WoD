@@ -238,7 +238,7 @@ public:
             {
                 for (uint8 data = DATA_BRIGHTLEAF; data <= DATA_STONEBARK; ++data)
                 {
-                    if (Creature *pCreature = Creature::GetCreature((*me), instance->GetData64(data)))
+                    if (Creature *pCreature = Creature::GetCreature((*me), instance->GetGuidData(data)))
                     {
                         if (pCreature->isAlive())
                             pCreature->AI()->EnterEvadeMode();
@@ -325,7 +325,7 @@ public:
             if (instance)
             {
                 // Freya hard mode can be triggered simply by letting the elders alive
-                if (Creature* Brightleaf = me->GetCreature(*me, instance->GetData64(DATA_BRIGHTLEAF)))
+                if (Creature* Brightleaf = me->GetCreature(*me, instance->GetGuidData(DATA_BRIGHTLEAF)))
                     if (Brightleaf && Brightleaf->isAlive())
                     {
                         EldersCount++;
@@ -335,7 +335,7 @@ public:
                         events.ScheduleEvent(EVENT_BRIGHTLEAF, urand(15000, 30000));
                     }
             
-                if (Creature* Ironbranch = me->GetCreature(*me, instance->GetData64(DATA_IRONBRANCH)))
+                if (Creature* Ironbranch = me->GetCreature(*me, instance->GetGuidData(DATA_IRONBRANCH)))
                     if (Ironbranch && Ironbranch->isAlive())
                     {
                         EldersCount++;
@@ -345,7 +345,7 @@ public:
                         events.ScheduleEvent(EVENT_IRONBRANCH, urand(45000, 60000));
                     }
             
-                if (Creature* Stonebark = me->GetCreature(*me, instance->GetData64(DATA_STONEBARK)))
+                if (Creature* Stonebark = me->GetCreature(*me, instance->GetGuidData(DATA_STONEBARK)))
                     if (Stonebark && Stonebark->isAlive())
                     {
                         EldersCount++;
@@ -378,14 +378,14 @@ public:
                 {
                     if (SnapVal >= 2 && WaterVal >= 2 && StormVal >= 2)
                     {
-                        me->MonsterTextEmote("Deforestation is Done", 0, true);
+                        me->MonsterTextEmote("Deforestation is Done", ObjectGuid::Empty, true);
                         DeforesTimer = 0;
                         instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 65015, 0, me);
                         instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65015, 0, me);
                     }
                     else
                     {
-                        me->MonsterTextEmote("Deforestation is Fail", 0, true);
+                        me->MonsterTextEmote("Deforestation is Fail", ObjectGuid::Empty, true);
                         SnapVal = 0;
                         WaterVal = 0;
                         StormVal = 0;
@@ -422,7 +422,7 @@ public:
                                 for (uint32 i = 0; i < 3; i++)
                                     Elemental[i]->DespawnOrUnsummon(3000);
                                 
-                                if (Creature* Freya = me->GetCreature(*me, instance->GetData64(DATA_FREYA)))
+                                if (Creature* Freya = me->GetCreature(*me, instance->GetGuidData(DATA_FREYA)))
                                     Freya->AI()->DoAction(ACTION_ELEMENTAL);
                             }
                 }
@@ -450,12 +450,12 @@ public:
                         events.ScheduleEvent(EVENT_SUNBEAM, urand(10000, 15000));
                         break;
                     case EVENT_EONAR_GIFT:
-                        me->MonsterTextEmote(EMOTE_GIFT, 0, true);
+                        me->MonsterTextEmote(EMOTE_GIFT, ObjectGuid::Empty, true);
                         DoCast(SPELL_EONAR_GIFT);
                         events.ScheduleEvent(EVENT_EONAR_GIFT, urand(35000, 45000));
                         break;
                     case EVENT_SUMMON_ALLIES:
-                        me->MonsterTextEmote(EMOTE_ALLIES, 0, true);
+                        me->MonsterTextEmote(EMOTE_ALLIES, ObjectGuid::Empty, true);
                         DoCast(me, SPELL_SUMMON_ALLIES);
                         spawnAdd();
                         events.ScheduleEvent(EVENT_SUMMON_ALLIES, 60000);
@@ -576,22 +576,22 @@ public:
             {
                 case ACTION_LASHER:
                     for (uint32 i = 0; i < 2; ++i)
-                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, 0, AURA_REMOVE_BY_DEFAULT);
+                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, ObjectGuid::Empty, AURA_REMOVE_BY_DEFAULT);
                     break;
                 case ACTION_ELEMENTAL:
                     checkElementalAlive = true;
                     for (uint32 i = 0; i < 30; ++i)
-                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, 0, AURA_REMOVE_BY_DEFAULT);
+                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, ObjectGuid::Empty, AURA_REMOVE_BY_DEFAULT);
                     break;
                 case ACTION_ANCIENT:
                     for (uint32 i = 0; i < 25; ++i)
-                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, 0, AURA_REMOVE_BY_DEFAULT);
+                        me->RemoveAuraFromStack(SPELL_ATTUNED_TO_NATURE, ObjectGuid::Empty, AURA_REMOVE_BY_DEFAULT);
                     break;
                 case ACTION_SNAP_DEAD:
                         SnapVal++;
                         if (!DeforesTimer)
                         {
-                            me->MonsterTextEmote("Deforestation timer start", 0,true);
+                            me->MonsterTextEmote("Deforestation timer start", ObjectGuid::Empty, true);
                             DeforesTimer = 10000;
                         }
                         checkElementalAlive = false;
@@ -600,7 +600,7 @@ public:
                         WaterVal++;
                         if (!DeforesTimer)
                         {
-                            me->MonsterTextEmote("Deforestation timer start", 0,true);
+                            me->MonsterTextEmote("Deforestation timer start", ObjectGuid::Empty, true);
                             DeforesTimer = 10000;
                         }
                         checkElementalAlive = false;
@@ -609,7 +609,7 @@ public:
                         StormVal++;
                         if (!DeforesTimer)
                         {
-                            me->MonsterTextEmote("Deforestation timer start", 0,true);
+                            me->MonsterTextEmote("Deforestation timer start", ObjectGuid::Empty, true);
                             DeforesTimer = 10000;
                         }
                         checkElementalAlive = false;
@@ -670,8 +670,8 @@ public:
             if (pInstance)
             {
                 pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, 21686);
-                if (Creature* IR = me->GetCreature(*me, pInstance->GetData64(DATA_IRONBRANCH)))
-                    if (Creature* ST = me->GetCreature(*me, pInstance->GetData64(DATA_STONEBARK)))
+                if (Creature* IR = me->GetCreature(*me, pInstance->GetGuidData(DATA_IRONBRANCH)))
+                    if (Creature* ST = me->GetCreature(*me, pInstance->GetGuidData(DATA_STONEBARK)))
                         if (!IR->isAlive()) 
                             if (!ST->isAlive())
                                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
@@ -821,8 +821,8 @@ public:
             if (pInstance)
             {
                 pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, 21686);
-                if (Creature* BR = me->GetCreature(*me, pInstance->GetData64(DATA_BRIGHTLEAF)))
-                    if (Creature* ST = me->GetCreature(*me, pInstance->GetData64(DATA_STONEBARK)))
+                if (Creature* BR = me->GetCreature(*me, pInstance->GetGuidData(DATA_BRIGHTLEAF)))
+                    if (Creature* ST = me->GetCreature(*me, pInstance->GetGuidData(DATA_STONEBARK)))
                         if (!BR->isAlive())
                             if (!ST->isAlive())
                                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
@@ -946,8 +946,8 @@ public:
             if (pInstance)
             {
                 pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, 21686);
-                if (Creature* BR = me->GetCreature(*me, pInstance->GetData64(DATA_BRIGHTLEAF)))
-                    if (Creature* IR = me->GetCreature(*me, pInstance->GetData64(DATA_IRONBRANCH)))
+                if (Creature* BR = me->GetCreature(*me, pInstance->GetGuidData(DATA_BRIGHTLEAF)))
+                    if (Creature* IR = me->GetCreature(*me, pInstance->GetGuidData(DATA_IRONBRANCH)))
                         if (!BR->isAlive())
                             if (!IR->isAlive())
                                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
@@ -1011,13 +1011,13 @@ public:
             uiLifebindersGiftTimer = 12000;
             DoCast(me, SPELL_PHEROMONES, true);
             DoCast(me, SPELL_EONAR_VISUAL, true);
-            if (Unit *pfreya = Unit::GetUnit((*me), instance->GetData64(DATA_FREYA)))
+            if (Unit *pfreya = Unit::GetUnit((*me), instance->GetGuidData(DATA_FREYA)))
                 pfreya->CastSpell(pfreya, SPELL_TOUCH_OF_EONAR, true);
         }
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Unit *pfreya = Unit::GetUnit((*me), instance->GetData64(DATA_FREYA)))
+            if (Unit *pfreya = Unit::GetUnit((*me), instance->GetGuidData(DATA_FREYA)))
                 pfreya->RemoveAurasDueToSpell(SPELL_TOUCH_OF_EONAR);
         }
 
@@ -1143,7 +1143,7 @@ public:
             DoCast(me, SPELL_DETONATE);
 
             if(pInstance)
-                if (Creature* Freya = me->GetCreature(*me, pInstance->GetData64(DATA_FREYA)))
+                if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
                     Freya->AI()->DoAction(ACTION_LASHER);
         }
     };
@@ -1231,7 +1231,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetData64(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_ANCIENT);
         }
     };
@@ -1324,7 +1324,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetData64(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_STORM_DEAD);
         }
     };
@@ -1354,7 +1354,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetData64(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_SNAP_DEAD);
         }
     };
@@ -1403,7 +1403,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetData64(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_WATER_DEAD);
         }
     };

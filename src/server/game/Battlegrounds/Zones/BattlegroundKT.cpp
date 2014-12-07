@@ -79,17 +79,22 @@ void BattlegroundKT::PostUpdateImpl(uint32 diff)
         if (m_UpdatePointsTimer <= diff)
         {
             for (uint8 i = 0; i < MAX_ORBS; ++i)
-                if (uint64 guid = m_OrbKeepers[i])
-                    if (m_playersZone.find(guid) != m_playersZone.end())
-                        if (Player* player = ObjectAccessor::FindPlayer(guid))
-                        {
-                            AccumulateScore(player->GetTeamId(), m_playersZone[guid]);
-                            UpdatePlayerScore(player, SCORE_ORB_SCORE, m_playersZone[guid]);
-                        }
+            {
+                ObjectGuid guid = m_OrbKeepers[i];
+                if (guid.IsEmpty() || m_playersZone.find(guid) == m_playersZone.end())
+                    continue;
+
+                if (Player* player = ObjectAccessor::FindPlayer(guid))
+                {
+                    AccumulateScore(player->GetTeamId(), m_playersZone[guid]);
+                    UpdatePlayerScore(player, SCORE_ORB_SCORE, m_playersZone[guid]);
+                }
+            }
 
             m_UpdatePointsTimer = BG_KT_POINTS_UPDATE_TIME;
         }
-        else m_UpdatePointsTimer -= diff;
+        else
+            m_UpdatePointsTimer -= diff;
     }
 }
 
@@ -137,7 +142,7 @@ void BattlegroundKT::EventPlayerClickedOnOrb(Player* source, GameObject* target_
     uint32 index = target_obj->GetEntry() - BG_KT_OBJECT_ORB_1_ENTRY;
 
     // If this orb is already keeped by a player, there is a problem
-    if (index > MAX_ORBS || m_OrbKeepers[index] != 0)
+    if (index > MAX_ORBS || !m_OrbKeepers[index].IsEmpty())
         return;
 
     // Check if the player already have an orb
@@ -183,7 +188,7 @@ void BattlegroundKT::EventPlayerDroppedFlag(Player* source)
     source->RemoveAurasDueToSpell(BG_KT_ALLIANCE_INSIGNIA);
     source->RemoveAurasDueToSpell(BG_KT_HORDE_INSIGNIA);
 
-    m_OrbKeepers[index] = 0;
+    m_OrbKeepers[index].Clear();
     SpawnBGObject(BG_KT_OBJECT_ORB_1 + index, RESPAWN_IMMEDIATELY);
 
     if (Creature* aura = GetBGCreature(BG_KT_CREATURE_ORB_AURA_1 + index))
@@ -194,7 +199,7 @@ void BattlegroundKT::EventPlayerDroppedFlag(Player* source)
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
-void BattlegroundKT::RemovePlayer(Player* player, uint64 guid, uint32)
+void BattlegroundKT::RemovePlayer(Player* player, ObjectGuid guid, uint32)
 {
     if(!player)
         return;
@@ -225,7 +230,7 @@ void BattlegroundKT::HandleAreaTrigger(Player* source, uint32 trigger)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    uint64 sourceGuid = source->GetGUID();
+    ObjectGuid sourceGuid = source->GetGUID();
     switch(trigger)
     {
         case 7734: // Out-In trigger
@@ -293,7 +298,7 @@ void BattlegroundKT::Reset()
     BgCreatures.resize(BG_KT_CREATURE_MAX);
 
     for(uint32 i = 0; i < MAX_ORBS; ++i)
-        m_OrbKeepers[i] = 0;
+        m_OrbKeepers[i].Clear();
 
     bool isBGWeekend = BattlegroundMgr::IsBGWeekend(GetTypeID());
     m_ReputationCapture = (isBGWeekend) ? 45 : 35;
@@ -339,7 +344,7 @@ void BattlegroundKT::HandleKillPlayer(Player *player, Player *killer)
 
 void BattlegroundKT::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetObjectGuid());
+    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
     if(itr == PlayerScores.end())                         // player not found
         return;
 

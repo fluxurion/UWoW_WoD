@@ -380,7 +380,7 @@ public:
                 Heart->ToCreature()->AI()->DoAction(0);
 
             DoScriptText(SAY_HEART_OPENED, me);
-            me->MonsterTextEmote(EMOTE_HEART, 0, true);
+            me->MonsterTextEmote(EMOTE_HEART, ObjectGuid::Empty, true);
             me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
             SpawnAdds();
         }
@@ -562,17 +562,17 @@ public:
             repaired = false;
             
 
-            if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(DATA_XT002)))
+            if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetGuidData(DATA_XT002)))
                 me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
         }
 
         void UpdateAI(uint32 diff)
         {
-            if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(DATA_XT002)))
+            if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetGuidData(DATA_XT002)))
             {
                 if (!repaired && me->GetDistance2d(pXT002) <= 0.5)
                 {
-                    me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
+                    me->MonsterTextEmote(EMOTE_REPAIR, ObjectGuid::Empty, true);
                    
                     pXT002->CastSpell(me, SPELL_REPAIR, true);
                     repaired = true;
@@ -691,7 +691,7 @@ public:
 
         void Reset()
         {
-            if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(DATA_XT002)))
+            if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetGuidData(DATA_XT002)))
                 me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
         }
 
@@ -966,7 +966,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                 {
                     if (InstanceScript* instance = caster->GetInstanceScript())
                     {
-                        if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetData64(DATA_TOY_PILE_0 + urand(0, 3))))
+                        if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetGuidData(DATA_TOY_PILE_0 + urand(0, 3))))
                         {
                             caster->CastSpell(toyPile, SPELL_ENERGY_ORB, true);
 
@@ -979,7 +979,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                             {
                                 uint8 a = urand(0, 4);
                                 uint32 spellId = spells[a];
-                                toyPile->CastSpell(toyPile, spellId, true, NULL, NULL, instance->GetData64(BOSS_XT002));
+                                toyPile->CastSpell(toyPile, spellId, true, NULL, NULL, instance->GetGuidData(BOSS_XT002));
                             }
                         }
                     }

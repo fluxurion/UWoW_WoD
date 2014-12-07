@@ -124,7 +124,7 @@ class boss_lorewalker_stonestep : public CreatureScript
             }
 
             bool event_go;
-            uint64 scrollGUID;
+            ObjectGuid scrollGUID;
 
             void Reset()
             {
@@ -263,7 +263,7 @@ class boss_lorewalker_stonestep : public CreatureScript
                                 temp->Attack(SelectTarget(SELECT_TARGET_RANDOM), true);
                                 temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 temp->SetFacingTo(1.239f);
-                                sCreatureTextMgr->SendChat(temp, 0, 0);
+                                sCreatureTextMgr->SendChat(temp, 0, ObjectGuid::Empty);
                             }
                             break;
                         case EVENT_STRIFE_4:
@@ -352,7 +352,7 @@ class mob_zao : public CreatureScript
                 isCorrupted = false;
                 me->AddUnitState(UNIT_STATE_ROOT);
             }
-            std::list<uint64> suns;
+            GuidList suns;
 
             bool isCorrupted;
 
@@ -428,9 +428,9 @@ class mob_zao : public CreatureScript
                             if (!suns.empty())
                             {
                                 uint32 rand = urand(0, suns.size());
-                                uint64 guid_target = 0;
+                                ObjectGuid guid_target;
                                 Creature* target = NULL;
-                                for (std::list<uint64>::const_iterator guid = suns.begin(); guid != suns.end(); ++guid)
+                                for (GuidList::const_iterator guid = suns.begin(); guid != suns.end(); ++guid)
                                 {
                                     if (rand == 0)
                                     {
@@ -482,8 +482,7 @@ class mob_haunting_sha : public CreatureScript
                 if (action != 0)
                     return;
 
-                uint64 guid = me->GetInstanceScript()->GetData64(CREATURE_ZAO_SUNSEEKER);
-                if (guid != 0)
+                if (ObjectGuid guid = me->GetInstanceScript()->GetGuidData(CREATURE_ZAO_SUNSEEKER))
                 {
                     Creature* zao = me->GetMap()->GetCreature(guid);
                     if(!zao)

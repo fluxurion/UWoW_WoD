@@ -1655,7 +1655,7 @@ public:
                     me->DespawnOrUnsummon();
                     break;
                 case EVENT_BLAZING_INFERNO:
-                    if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_MAGMAW)))
+                    if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW)))
                     {
                         Unit* pTarget;
                         pTarget = pMagmaw->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, -20.0f);
@@ -1669,7 +1669,7 @@ public:
                     events.ScheduleEvent(EVENT_BLAZING_INFERNO, urand(30000, 35000));
                     break;
                 case EVENT_SHADOW_BREATH:
-                    if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_MAGMAW)))
+                    if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW)))
                     {
                         Unit* pTarget;
                         pTarget = pMagmaw->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, -20.0f);

@@ -94,8 +94,8 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 
     uint8 specializationReset = recvData.read<uint8>();
     ObjectGuid guid;
-    recvData.ReadGuidMask<7, 4, 0, 5, 2, 6, 3, 1>(guid);
-    recvData.ReadGuidBytes<5, 1, 7, 0, 3, 6, 4, 2>(guid);
+    //recvData.ReadGuidMask<7, 4, 0, 5, 2, 6, 3, 1>(guid);
+    //recvData.ReadGuidBytes<5, 1, 7, 0, 3, 6, 4, 2>(guid);
 
     // Hack
     if (GetPlayer()->HasAura(33786))
@@ -145,10 +145,10 @@ void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
     ObjectGuid guid;
 
     recvPacket >> spellId >> skillId;
-    recvPacket.ReadGuidMask<6, 0, 2, 3, 5, 7, 1, 4>(guid);
-    recvPacket.ReadGuidBytes<5, 6, 1, 3, 4, 0, 7, 2>(guid);
+    //recvPacket.ReadGuidMask<6, 0, 2, 3, 5, 7, 1, 4>(guid);
+    //recvPacket.ReadGuidBytes<5, 6, 1, 3, 4, 0, 7, 2>(guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PLAYER_RECIPES player: %s spell: %u skill: %u guid: %u", _player->GetName(), spellId, skillId, (uint64)guid);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PLAYER_RECIPES player: %s spell: %u skill: %u guid: %u", _player->GetName(), spellId, skillId, guid.GetCounter());
 
     if (!sSkillLineStore.LookupEntry(skillId) || !sSpellMgr->GetSpellInfo(spellId))
     {
@@ -159,7 +159,7 @@ void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
     Player* player = sObjectAccessor->FindPlayer(guid);
     if (!player)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PLAYER_RECIPES player %u is not in world.", (uint64)guid);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PLAYER_RECIPES player %u is not in world.", guid.GetCounter());
         return;
     }
 
@@ -201,20 +201,20 @@ void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
 
     WorldPacket data(SMSG_PLAYER_RECIPES, 4 + 3 * 4 + relatedSkills.size() * 4 * 3 + profSpells.size() * 4);
     data.WriteBits(relatedSkills.size(), 22);
-    data.WriteGuidMask<3, 7>(guid);
+    //data.WriteGuidMask<3, 7>(guid);
     data.WriteBits(relatedSkills.size(), 22);
     data.WriteBits(profSpells.size(), 22);
     data.WriteBits(relatedSkills.size(), 22);
-    data.WriteGuidMask<0, 4, 6, 2, 5, 1>(guid);
+    //data.WriteGuidMask<0, 4, 6, 2, 5, 1>(guid);
 
     data << uint32(spellId);
-    data.WriteGuidBytes<3, 1, 0, 7, 5>(guid);
+    //data.WriteGuidBytes<3, 1, 0, 7, 5>(guid);
     for (std::set<uint32>::const_iterator itr = profSpells.begin(); itr != profSpells.end(); ++itr)
         data << uint32(*itr);
-    data.WriteGuidBytes<2, 6>(guid);
+    //data.WriteGuidBytes<2, 6>(guid);
     for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)
         data << uint32(player->GetMaxSkillValue(*itr));
-    data.WriteGuidBytes<4>(guid);
+    //data.WriteGuidBytes<4>(guid);
     for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)
         data << uint32(player->GetSkillValue(*itr));
     for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)

@@ -53,9 +53,9 @@ public:
 			return 0;
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         bool SetBossState(uint32 type, EncounterState state)

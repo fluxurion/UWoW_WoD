@@ -284,10 +284,10 @@ public:
         uint8  nAbomination;
         uint8  nWeaver;
 
-        std::map<uint64, float> chained;
+        std::map<ObjectGuid, float> chained;
 
-        uint64 PortalsGUID[4];
-        uint64 KTTriggerGUID;
+        ObjectGuid PortalsGUID[4];
+        ObjectGuid KTTriggerGUID;
 
         SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
 
@@ -299,14 +299,14 @@ public:
         void Reset()
         {
             _Reset();
-
-            PortalsGUID[0] = PortalsGUID[1] = PortalsGUID[2] = PortalsGUID[3] = 0;
-            KTTriggerGUID = 0;
+            for (int32 i = 0; i < 4; ++i)
+                PortalsGUID[i].Clear();
+            KTTriggerGUID.Clear();
             uiAbominationCounter = 0;
 
             me->setFaction(35);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-            std::map<uint64, float>::const_iterator itr;
+            std::map<ObjectGuid, float>::const_iterator itr;
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* charmed = Unit::GetPlayer(*me, (*itr).first))
@@ -351,7 +351,7 @@ public:
             _JustDied();
             DoScriptText(SAY_DEATH, me);
 
-            std::map<uint64, float>::const_iterator itr;
+            std::map<ObjectGuid, float>::const_iterator itr;
             for (itr = chained.begin(); itr != chained.end(); ++itr)
             {
                 if (Player* pPlayer = Unit::GetPlayer(*me, (*itr).first))
@@ -390,11 +390,14 @@ public:
 
         void FindGameObjects()
         {
-            PortalsGUID[0] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL01) : 0;
-            PortalsGUID[1] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL02) : 0;
-            PortalsGUID[2] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL03) : 0;
-            PortalsGUID[3] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL04) : 0;
-            KTTriggerGUID = instance ? instance->GetData64(DATA_KELTHUZAD_TRIGGER) : 0;
+            if (!instance)
+                return;
+
+            PortalsGUID[0] = instance->GetGuidData(DATA_KELTHUZAD_PORTAL01);
+            PortalsGUID[1] = instance->GetGuidData(DATA_KELTHUZAD_PORTAL02);
+            PortalsGUID[2] = instance->GetGuidData(DATA_KELTHUZAD_PORTAL03);
+            PortalsGUID[3] = instance->GetGuidData(DATA_KELTHUZAD_PORTAL04);
+            KTTriggerGUID = instance->GetGuidData(DATA_KELTHUZAD_TRIGGER);
         }
 
         void UpdateAI(uint32 diff)
@@ -543,7 +546,7 @@ public:
                         }
                         case EVENT_CHAINED_SPELL:
                         {
-                            std::map<uint64, float>::iterator itr;
+                            std::map<ObjectGuid, float>::iterator itr;
                             for (itr = chained.begin(); itr != chained.end();)
                             {
                                 if (Unit* player = Unit::GetPlayer(*me, (*itr).first))
@@ -551,7 +554,7 @@ public:
                                     if (!player->isCharmed())
                                     {
                                         player->SetFloatValue(OBJECT_FIELD_SCALE, (*itr).second);
-                                        std::map<uint64, float>::iterator next = itr;
+                                        std::map<ObjectGuid, float>::iterator next = itr;
                                         ++next;
                                         chained.erase(itr);
                                         itr = next;
@@ -690,7 +693,7 @@ public:
         if (!pInstance || pInstance->IsEncounterInProgress() || pInstance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*pPlayer, pInstance->GetData64(DATA_KELTHUZAD)));
+        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*pPlayer, pInstance->GetGuidData(DATA_KELTHUZAD)));
         if (!pKelthuzad)
             return false;
 
@@ -701,7 +704,7 @@ public:
         pKelthuzadAI->EnterCombat(pPlayer);
         pKelthuzadAI->AttackStart(pPlayer);
 
-        if (GameObject* trigger = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+        if (GameObject* trigger = pInstance->instance->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_TRIGGER)))
         {
             if (trigger->getLootState() == GO_READY)
                 trigger->UseDoorOrButton();
@@ -773,7 +776,7 @@ public:
         void JustDied(Unit *killer)
         {
             if (InstanceScript* pInstance = me->GetInstanceScript())
-                if (Creature* pKelthuzad = Creature::GetCreature(*me, pInstance->GetData64(DATA_KELTHUZAD)))
+                if (Creature* pKelthuzad = Creature::GetCreature(*me, pInstance->GetGuidData(DATA_KELTHUZAD)))
                     pKelthuzad->AI()->DoAction(0);
         }
 

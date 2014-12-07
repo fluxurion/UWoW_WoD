@@ -114,7 +114,7 @@ public:
 
         uint32 ImpaleTimer;
         uint32 ImpalePhase;
-        uint64 ImpaleTarget;
+        ObjectGuid ImpaleTarget;
 
         SummonList Summons;
 

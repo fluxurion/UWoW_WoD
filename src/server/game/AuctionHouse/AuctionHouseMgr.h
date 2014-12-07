@@ -64,16 +64,16 @@ enum MailAuctionAnswers
 struct AuctionEntry
 {
     uint32 Id;
-    uint32 auctioneer;                                      // creature low guid
-    uint32 itemGUIDLow;
+    ObjectGuid::LowType auctioneer;                         // creature low guid
+    ObjectGuid::LowType itemGUIDLow;
     uint32 itemEntry;
     uint32 itemCount;
-    uint64 owner;
+    ObjectGuid::LowType owner;
     uint64 startbid;                                        //maybe useless
     uint64 bid;
     uint64 buyout;
     time_t expire_time;
-    uint64 bidder;
+    ObjectGuid::LowType bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
     uint32 factionTemplateId;
@@ -151,12 +151,12 @@ class AuctionHouseMgr
             return &instance;
         }
 
-        typedef UNORDERED_MAP<uint32, Item*> ItemMap;
+        typedef UNORDERED_MAP<ObjectGuid::LowType, Item*> ItemMap;
 
         AuctionHouseObject* GetAuctionsMap(uint32 factionTemplateId);
         AuctionHouseObject* GetBidsMap(uint32 factionTemplateId);
 
-        Item* GetAItem(uint32 id)
+        Item* GetAItem(ObjectGuid::LowType const& id)
         {
             ItemMap::const_iterator itr = mAitems.find(id);
             if (itr != mAitems.end())
@@ -170,7 +170,7 @@ class AuctionHouseMgr
         void SendAuctionSalePendingMail(AuctionEntry* auction, SQLTransaction& trans);
         void SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransaction& trans);
         void SendAuctionExpiredMail(AuctionEntry* auction, SQLTransaction& trans);
-        void SendAuctionOutbiddedMail(AuctionEntry* auction, uint64 newPrice, Player* newBidder, SQLTransaction& trans);
+        void SendAuctionOutbiddedMail(AuctionEntry* auction, uint64 const& newPrice, Player* newBidder, SQLTransaction& trans);
         void SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans, Item* item);
 
         static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count);
@@ -186,7 +186,7 @@ class AuctionHouseMgr
         void LoadAuctions();
 
         void AddAItem(Item* it);
-        bool RemoveAItem(uint32 id);
+        bool RemoveAItem(ObjectGuid::LowType const& id);
 
         void Update();
 

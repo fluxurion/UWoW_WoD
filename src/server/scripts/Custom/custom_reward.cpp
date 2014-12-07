@@ -28,7 +28,7 @@ public:
     {
         if(!player)
             return;
-        uint32 owner_guid = player->GetGUIDLow();
+        ObjectGuid::LowType owner_guid = player->GetGUID().GetCounter();
         ChatHandler chH = ChatHandler(player);
 
         //type:
@@ -48,7 +48,7 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guid = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt32();
                 uint32 type = fields[1].GetUInt32();
                 uint32 id = fields[2].GetUInt32();
                 uint32 count = fields[3].GetUInt32();
@@ -305,7 +305,7 @@ public:
     uint32 ItemDel(Item* _item, Player* player, uint32 count)
     {
         uint32 tempcount = count;
-        QueryResult result = CharacterDatabase.PQuery("SELECT itemEntry FROM character_donate WHERE itemguid = '%u'", _item->GetGUIDLow());
+        QueryResult result = CharacterDatabase.PQuery("SELECT itemEntry FROM character_donate WHERE itemguid = '%u'", _item->GetGUID().GetCounter());
         if(!result)
         {
             ChatHandler chH = ChatHandler(player);
@@ -706,7 +706,7 @@ public:
             case 85125:
             case 85124:
             {
-                QueryResult result = CharacterDatabase.PQuery("SELECT itemEntry FROM character_donate WHERE itemguid = '%u'", _item->GetGUIDLow());
+                QueryResult result = CharacterDatabase.PQuery("SELECT itemEntry FROM character_donate WHERE itemguid = '%u'", _item->GetGUID().GetCounter());
                 if(!result)
                 {
                     ChatHandler chH = ChatHandler(player);

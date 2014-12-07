@@ -68,8 +68,8 @@ public:
 
         InstanceScript* instance;
 
-        std::list<uint64> intenseColdList;
-        uint64 auiContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
+        GuidList intenseColdList;
+        ObjectGuid auiContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
         uint32 uiCrystalfireBreathTimer;
         uint32 uiCrystalChainsCrystalizeTimer;
         uint32 uiTailSweepTimer;
@@ -121,9 +121,9 @@ public:
             if (!instance)
                 return false;
 
-            auiContainmentSphereGUIDs[0] = instance->GetData64(ANOMALUS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[1] = instance->GetData64(ORMOROKS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[2] = instance->GetData64(TELESTRAS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[0] = instance->GetGuidData(ANOMALUS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[1] = instance->GetGuidData(ORMOROKS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[2] = instance->GetGuidData(TELESTRAS_CONTAINMET_SPHERE);
 
             GameObject* ContainmentSpheres[DATA_CONTAINMENT_SPHERES];
 
@@ -157,7 +157,7 @@ public:
             }
         }
 
-        void SetGUID(uint64 guid, int32 id/* = 0 */)
+        void SetGUID(ObjectGuid const& guid, int32 id/* = 0 */)
         {
             if (id == DATA_INTENSE_COLD)
                 intenseColdList.push_back(guid);
@@ -212,7 +212,7 @@ public:
     {
         InstanceScript* instance = go->GetInstanceScript();
 
-        Creature* pKeristrasza = Unit::GetCreature(*go, instance ? instance->GetData64(DATA_KERISTRASZA) : 0);
+        Creature* pKeristrasza = Unit::GetCreature(*go, instance ? instance->GetGuidData(DATA_KERISTRASZA) : ObjectGuid::Empty);
         if (pKeristrasza && pKeristrasza->isAlive())
         {
             // maybe these are hacks :(
@@ -270,9 +270,9 @@ class achievement_intense_cold : public AchievementCriteriaScript
             if (!target)
                 return false;
 
-            std::list<uint64> intenseColdList = CAST_AI(boss_keristrasza::boss_keristraszaAI, target->ToCreature()->AI())->intenseColdList;
+            GuidList intenseColdList = CAST_AI(boss_keristrasza::boss_keristraszaAI, target->ToCreature()->AI())->intenseColdList;
             if (!intenseColdList.empty())
-                for (std::list<uint64>::iterator itr = intenseColdList.begin(); itr != intenseColdList.end(); ++itr)
+                for (GuidList::iterator itr = intenseColdList.begin(); itr != intenseColdList.end(); ++itr)
                     if (player->GetGUID() == *itr)
                         return false;
 

@@ -93,8 +93,8 @@ public:
         }
 
         // Get target information
-        uint64 targetGuid = sObjectMgr->GetPlayerGUIDByName(target.c_str());
-        uint64 targetAccountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
+        ObjectGuid targetGuid = sObjectMgr->GetPlayerGUIDByName(target.c_str());
+        uint32 targetAccountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
         uint32 targetGmLevel = AccountMgr::GetSecurity(targetAccountId, realmHandle.Index);
 
         // Target must exist and have administrative rights
@@ -152,8 +152,13 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_TICKETCANNOTCLOSE, ticket->GetId());
             return true;
         }
+        ObjectGuid closedByGuid;
+        if (player)
+            closedByGuid = player->GetGUID();
+        else
+            closedByGuid.SetRawValue(0, uint64(-1));
 
-        sTicketMgr->CloseTicket(ticket->GetId(), player ? player->GetGUID() : -1);
+        sTicketMgr->CloseTicket(ticket->GetId(), closedByGuid);
         sTicketMgr->UpdateLastChange();
 
         std::string msg = ticket->FormatMessageString(*handler, player ? player->GetName() : "Console", NULL, NULL, NULL);
@@ -377,7 +382,7 @@ public:
             security = assignedPlayer->GetSession()->GetSecurity();
         else
         {
-            uint64 guid = ticket->GetAssignedToGUID();
+            ObjectGuid guid = ticket->GetAssignedToGUID();
             uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(guid);
             security = AccountMgr::GetSecurity(accountId, realmHandle.Index);
         }
@@ -434,7 +439,7 @@ public:
             return false;
 
         // Detect target's GUID
-        uint64 guid = 0;
+        ObjectGuid guid;
         if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
             guid = player->GetGUID();
         else

@@ -44,19 +44,19 @@ public:
     {
         instance_ahnkahet_InstanceScript(Map* map) : InstanceScript(map) {}
 
-        uint64 Elder_Nadox;
-        uint64 Prince_Taldaram;
-        uint64 Jedoga_Shadowseeker;
-        uint64 Herald_Volazj;
-        uint64 Amanitar;
+        ObjectGuid Elder_Nadox;
+        ObjectGuid Prince_Taldaram;
+        ObjectGuid Jedoga_Shadowseeker;
+        ObjectGuid Herald_Volazj;
+        ObjectGuid Amanitar;
 
-        uint64 Prince_TaldaramSpheres[2];
-        uint64 Prince_TaldaramPlatform;
-        uint64 Prince_TaldaramGate;
+        ObjectGuid Prince_TaldaramSpheres[2];
+        ObjectGuid Prince_TaldaramPlatform;
+        ObjectGuid Prince_TaldaramGate;
 
-        std::set<uint64> InitiandGUIDs;
-        uint64 JedogaSacrifices;
-        uint64 JedogaTarget;
+        GuidSet InitiandGUIDs;
+        ObjectGuid JedogaSacrifices;
+        ObjectGuid JedogaTarget;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         uint32 spheres[2];
@@ -71,19 +71,19 @@ public:
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
             InitiandGUIDs.clear();
 
-            Elder_Nadox =0;
-            Prince_Taldaram =0;
-            Jedoga_Shadowseeker =0;
-            Herald_Volazj =0;
-            Amanitar =0;
+            Elder_Nadox.Clear();
+            Prince_Taldaram.Clear();
+            Jedoga_Shadowseeker.Clear();
+            Herald_Volazj.Clear();
+            Amanitar.Clear();
 
             spheres[0] = NOT_STARTED;
             spheres[1] = NOT_STARTED;
 
             InitiandCnt = 0;
             switchtrigger = 0;
-            JedogaSacrifices = 0;
-            JedogaTarget = 0;
+            JedogaSacrifices.Clear();
+            JedogaTarget.Clear();
         }
 
         bool IsEncounterInProgress() const
@@ -115,7 +115,7 @@ public:
                 case 193564:
                     Prince_TaldaramPlatform = go->GetGUID();
                     if (m_auiEncounter[1] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
 
                 case 193093:
@@ -141,12 +141,12 @@ public:
                 case 192236:
                     Prince_TaldaramGate = go->GetGUID(); // Web gate past Prince Taldaram
                     if (m_auiEncounter[1] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
             }
         }
 
-        void SetData64(uint32 idx, uint64 guid)
+        void SetGuidData(uint32 idx, ObjectGuid guid)
         {
             switch (idx)
             {
@@ -160,7 +160,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier)
         {
             switch (identifier)
             {
@@ -174,23 +174,23 @@ public:
                 case DATA_PRINCE_TALDARAM_PLATFORM:   return Prince_TaldaramPlatform;
                 case DATA_ADD_JEDOGA_INITIAND:
                 {
-                    std::vector<uint64> vInitiands;
+                    GuidVector vInitiands;
                     vInitiands.clear();
-                    for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                    for (GuidSet::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                     {
                         Creature* cr = instance->GetCreature(*itr);
                         if (cr && cr->isAlive())
                             vInitiands.push_back(*itr);
                     }
                     if (vInitiands.empty())
-                        return 0;
+                        return ObjectGuid::Empty;
                     uint8 j = urand(0, vInitiands.size() -1);
                     return vInitiands[j];
                 }
                 case DATA_ADD_JEDOGA_OPFER: return JedogaSacrifices;
                 case DATA_PL_JEDOGA_TARGET: return JedogaTarget;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)
@@ -209,7 +209,7 @@ public:
                     m_auiEncounter[2] = data;
                     if (data == DONE)
                     {
-                        for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                        for (GuidSet::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                         {
                             Creature* cr = instance->GetCreature(*itr);
                             if (cr && cr->isAlive())
@@ -237,7 +237,7 @@ public:
                     switchtrigger = data;
                     break;
                 case DATA_JEDOGA_RESET_INITIANDS:
-                    for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                    for (GuidSet::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                     {
                         Creature* cr = instance->GetCreature(*itr);
                         if (cr)
@@ -264,7 +264,7 @@ public:
                 case DATA_SPHERE1_EVENT:                return spheres[0];
                 case DATA_SPHERE2_EVENT:                return spheres[1];
                 case DATA_ALL_INITIAND_DEAD:
-                    for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
+                    for (GuidSet::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                     {
                         Creature* cr = instance->GetCreature(*itr);
                         if (!cr || (cr && cr->isAlive()))

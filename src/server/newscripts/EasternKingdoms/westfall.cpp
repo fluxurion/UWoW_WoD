@@ -302,7 +302,7 @@ public:
                     {
                         (*itr)->GetMotionMaster()->MoveFollow(me, 1, me->GetAngle((*itr)));
                         (*itr)->SetStandState(UNIT_STAND_STATE_SIT);
-                        invocer->KilledMonsterCredit(KILL_CREDIT_WESTFALL_STEW, 0);
+                        invocer->KilledMonsterCredit(KILL_CREDIT_WESTFALL_STEW, ObjectGuid::Empty);
                     }
                 }               
             }

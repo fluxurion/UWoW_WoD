@@ -746,7 +746,7 @@ class spell_monk_touch_of_karma : public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_touch_of_karma_AuraScript);
 
-            uint64 eff1Target;
+            ObjectGuid eff1Target;
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -1043,7 +1043,7 @@ class spell_monk_jade_serpent_statue : public SpellScriptLoader
                     if (!summon)
                         return;
 
-                    summon->SetUInt64Value(UNIT_FIELD_SUMMONED_BY, player->GetGUID());
+                    summon->SetGuidValue(UNIT_FIELD_SUMMONED_BY, player->GetGUID());
                     summon->setFaction(player->getFaction());
                     summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
                     summon->SetMaxHealth(player->CountPctFromMaxHealth(50));

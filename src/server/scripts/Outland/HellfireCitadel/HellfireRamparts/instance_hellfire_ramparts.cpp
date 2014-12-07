@@ -40,16 +40,16 @@ class instance_ramparts : public InstanceMapScript
             instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
-            uint64 m_uiChestNGUID;
-            uint64 m_uiChestHGUID;
+            ObjectGuid m_uiChestNGUID;
+            ObjectGuid m_uiChestHGUID;
             bool spawned;
 
             void Initialize()
             {
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-                m_uiChestNGUID = 0;
-                m_uiChestHGUID = 0;
+                m_uiChestNGUID.Clear();
+                m_uiChestHGUID.Clear();
             }
 
             void OnGameObjectCreate(GameObject* go)

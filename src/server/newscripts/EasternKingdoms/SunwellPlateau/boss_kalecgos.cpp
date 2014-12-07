@@ -119,8 +119,8 @@ public:
         boss_kalecgosAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            SathGUID = 0;
-            DoorGUID = 0;
+            SathGUID.Clear();
+            DoorGUID.Clear();
             bJustReset = false;
             me->setActive(true);
         }
@@ -142,14 +142,14 @@ public:
         bool isBanished;
         bool bJustReset;
 
-        uint64 SathGUID;
-        uint64 DoorGUID;
+        ObjectGuid SathGUID;
+        ObjectGuid DoorGUID;
 
         void Reset()
         {
             if (instance)
             {
-                SathGUID = instance->GetData64(DATA_SATHROVARR);
+                SathGUID = instance->GetGuidData(DATA_SATHROVARR);
                 instance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
             }
 
@@ -453,7 +453,7 @@ public:
         uint32 YellTimer;
         uint32 YellSequence;
 
-        uint64 SathGUID;
+        ObjectGuid SathGUID;
 
         bool isEnraged; // if demon is enraged
 
@@ -465,7 +465,7 @@ public:
         void Reset()
         {
             if (instance)
-                SathGUID = instance->GetData64(DATA_SATHROVARR);
+                SathGUID = instance->GetGuidData(DATA_SATHROVARR);
 
             RevitalizeTimer = 5000;
             HeroicStrikeTimer = 3000;
@@ -579,8 +579,8 @@ public:
         boss_sathrovarrAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            KalecGUID = 0;
-            KalecgosGUID = 0;
+            KalecGUID.Clear();
+            KalecgosGUID.Clear();
         }
 
         InstanceScript* instance;
@@ -591,8 +591,8 @@ public:
         uint32 CheckTimer;
         uint32 ResetThreat;
 
-        uint64 KalecGUID;
-        uint64 KalecgosGUID;
+        ObjectGuid KalecGUID;
+        ObjectGuid KalecgosGUID;
 
         bool isEnraged;
         bool isBanished;
@@ -603,14 +603,14 @@ public:
             me->setActive(true);
             if (instance)
             {
-                KalecgosGUID = instance->GetData64(DATA_KALECGOS_DRAGON);
+                KalecgosGUID = instance->GetGuidData(DATA_KALECGOS_DRAGON);
                 instance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
             }
             if (KalecGUID)
             {
                 if (Creature* Kalec = Unit::GetCreature(*me, KalecGUID))
                     Kalec->setDeathState(JUST_DIED);
-                KalecGUID = 0;
+                KalecGUID.Clear();
             }
 
             ShadowBoltTimer = urand(7, 10) * 1000;
@@ -751,7 +751,7 @@ public:
                     }
                     else
                     {
-                        me->MonsterTextEmote(EMOTE_UNABLE_TO_FIND, 0);
+                        me->MonsterTextEmote(EMOTE_UNABLE_TO_FIND, ObjectGuid::Empty);
                         EnterEvadeMode();
                         return;
                     }
