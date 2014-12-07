@@ -135,7 +135,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
     // we checked above, if this player is in an arenateam, so this must be
     // datacorruption
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_BY_OWNER);
-    stmt->setUInt32(0, _player->GetGUID().GetCounter());
+    stmt->setUInt64(0, _player->GetGUID().GetCounter());
     stmt->setUInt8(1, type);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -445,7 +445,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
     }
 
     fields = result->Fetch();
-    ObjectGuid ownerGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32());
+    ObjectGuid ownerGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
     uint64 signs = fields[1].GetUInt64();
     uint8 type = fields[2].GetUInt8();
 

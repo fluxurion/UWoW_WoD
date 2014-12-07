@@ -82,7 +82,7 @@ MailDraft& MailDraft::AddItem(Item* item)
     {
         // just for disable error log and possible something else.
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
-        stmt->setUInt32(0, 0);
+        stmt->setUInt64(0, 0);
         stmt->setUInt64(1, item->GetGUID().GetCounter());
         CharacterDatabase.Execute(stmt);
 

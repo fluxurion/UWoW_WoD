@@ -1,5 +1,18 @@
+RENAME TABLE `guild_news_log` TO `wod_char`.`guild_newslog`;
+ALTER TABLE `guild_newslog` CHANGE `guild` `guildId` INT(10) UNSIGNED NOT NULL;
+
+--
 DROP TABLE character_archaelogy;
 DROP TABLE character_arena_stats;
+DROP TABLE daily_players_reports;
+DROP TABLE log_gm;
+DROP TABLE log_gm_chat;
+DROP TABLE log_arena;
+DROP TABLE log_mail;
+DROP TABLE log_trade;
+DROP TABLE players_reports_status;
+DROP TABLE time_diff_log;
+DROP TABLE void_storage;
 
 TRUNCATE `character_aura`;
 TRUNCATE `pet_aura`;
@@ -72,7 +85,7 @@ ALTER TABLE `character_pet` CHANGE `owner` `owner` BIGINT(20) UNSIGNED NOT NULL 
 ALTER TABLE `character_pet_declinedname` CHANGE `owner` `owner` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_queststatus` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_queststatus_daily` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `character_queststatus_monthly` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+-- ALTER TABLE `character_queststatus_monthly` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_queststatus_rewarded` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_queststatus_seasonal` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_queststatus_weekly` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
@@ -83,45 +96,21 @@ ALTER TABLE `character_share` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL;
 ALTER TABLE `character_skills` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_social` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_social` CHANGE `friend` `friend` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-
-
--- ------------ TODO
-ALTER TABLE `guild_achievement` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL;
-ALTER TABLE `guild_achievement_progress` CHANGE `completedGuid` `completedGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `guild_achievement_progress` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL;
-
---
-ALTER TABLE `item_instance` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `item_instance` CHANGE `owner_guid` `owner_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `item_instance` CHANGE `creatorGuid` `creatorGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `item_instance` CHANGE `giftCreatorGuid` `giftCreatorGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `item_loot_items` CHANGE `container_id` `container_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `item_loot_money` CHANGE `container_id` `container_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `item_refund_instance` CHANGE `item_guid` `item_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `item_refund_instance` CHANGE `player_guid` `player_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `item_soulbound_trade_data` CHANGE `itemGuid` `itemGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `lag_reports` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `mail` CHANGE `sender` `sender` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `mail` CHANGE `receiver` `receiver` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `mail_items` CHANGE `item_guid` `item_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `mail_items` CHANGE `receiver` `receiver` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `petition` CHANGE `ownerguid` `ownerguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `petition` CHANGE `petitionguid` `petitionguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `petition_sign` CHANGE `ownerguid` `ownerguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `petition_sign` CHANGE `petitionguid` `petitionguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `petition_sign` CHANGE `playerguid` `playerguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `pvpstats_players` CHANGE `character_guid` `character_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `quest_tracker` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `calendar_events` CHANGE `creator` `creator` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `calendar_invites` CHANGE `invitee` `invitee` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `calendar_invites` CHANGE `sender` `sender` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-
+ALTER TABLE `character_spell` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_spell_cooldown` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_stats` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_talent` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_visuals` CHANGE `guid` `guid` BIGINT(20) NOT NULL DEFAULT '0';
+ALTER TABLE `character_void_storage` CHANGE `playerGuid` `playerGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_void_storage` CHANGE `creatorGuid` `creatorGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `corpse` CHANGE `corpseGuid` `corpseGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `corpse` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `creature_respawn` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `gameobject_respawn` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-
---
-
-ALTER TABLE `pet_aura` CHANGE `caster_guid` `caster_guid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier';
+ALTER TABLE `gm_surveys` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `gm_tickets` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `gm_tickets` CHANGE `closedBy` `closedBy` BIGINT(20) NOT NULL DEFAULT '0';
+ALTER TABLE `gm_tickets` CHANGE `assignedTo` `assignedTo` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `groups` CHANGE `icon1` `icon1` binary(16) NOT NULL;
 ALTER TABLE `groups` CHANGE `icon2` `icon2` binary(16) NOT NULL;
 ALTER TABLE `groups` CHANGE `icon3` `icon3` binary(16) NOT NULL;
@@ -130,34 +119,58 @@ ALTER TABLE `groups` CHANGE `icon5` `icon5` binary(16) NOT NULL;
 ALTER TABLE `groups` CHANGE `icon6` `icon6` binary(16) NOT NULL;
 ALTER TABLE `groups` CHANGE `icon7` `icon7` binary(16) NOT NULL;
 ALTER TABLE `groups` CHANGE `icon8` `icon8` binary(16) NOT NULL;
-
-
---
-
-ALTER TABLE `character_spell` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `character_spell_cooldown` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `character_stats` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `character_talent` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `character_void_storage` CHANGE `playerGuid` `playerGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `character_void_storage` CHANGE `creatorGuid` `creatorGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `corpse` CHANGE `corpseGuid` `corpseGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `corpse` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `gm_surveys` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `gm_tickets` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `gm_tickets` CHANGE `closedBy` `closedBy` BIGINT(20) NOT NULL DEFAULT '0';
-ALTER TABLE `gm_tickets` CHANGE `assignedTo` `assignedTo` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
-
---
-
-
---
-
-
-
-
-
-
-
-
---
+ALTER TABLE `groups` CHANGE `leaderGuid` `leaderGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `groups` CHANGE `looterGuid` `looterGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `group_member` CHANGE `memberGuid` `memberGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild` CHANGE `guildid` `guildid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild` CHANGE `leaderguid` `leaderguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_achievement` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_achievement_progress` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_achievement_progress` CHANGE `completedGuid` `completedGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_bank_eventlog` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_bank_eventlog` CHANGE `PlayerGuid` `PlayerGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_bank_eventlog` CHANGE `ItemOrMoney` `ItemOrMoney` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_bank_item` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_bank_item` CHANGE `item_guid` `item_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_bank_right` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_bank_tab` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_eventlog` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_eventlog` CHANGE `PlayerGuid1` `PlayerGuid1` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_eventlog` CHANGE `PlayerGuid2` `PlayerGuid2` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_finder_applicant` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_finder_applicant` CHANGE `playerGuid` `playerGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_finder_guild_settings` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_member` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_member` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+-- ALTER TABLE `guild_member_withdraw` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_newslog` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_newslog` CHANGE `PlayerGuid` `PlayerGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `guild_rank` CHANGE `guildId` `guildId` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `item_instance` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `item_instance` CHANGE `owner_guid` `owner_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `item_instance` CHANGE `creatorGuid` `creatorGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `item_instance` CHANGE `giftCreatorGuid` `giftCreatorGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `item_refund_instance` CHANGE `item_guid` `item_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `item_refund_instance` CHANGE `player_guid` `player_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `item_soulbound_trade_data` CHANGE `itemGuid` `itemGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `lag_reports` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `log_faction_change` CHANGE `guid` `guid` BIGINT(20) NOT NULL;
+ALTER TABLE `log_rename` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL;
+ALTER TABLE `log_store_gold` CHANGE `guid` `guid` BIGINT(20) NOT NULL DEFAULT '0';
+ALTER TABLE `log_store_item` CHANGE `guid` `guid` BIGINT(20) NULL DEFAULT '0';
+ALTER TABLE `mail` CHANGE `sender` `sender` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `mail` CHANGE `receiver` `receiver` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `mail_items` CHANGE `item_guid` `item_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `mail_items` CHANGE `receiver` `receiver` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `mailbox_queue` CHANGE `sender_guid` `sender_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `mailbox_queue` CHANGE `receiver_guid` `receiver_guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `petition` CHANGE `ownerguid` `ownerguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `petition` CHANGE `petitionguid` `petitionguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `petition_sign` CHANGE `ownerguid` `ownerguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `petition_sign` CHANGE `petitionguid` `petitionguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `petition_sign` CHANGE `playerguid` `playerguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `pet_aura` CHANGE `caster_guid` `caster_guid` binary(16) NOT NULL COMMENT 'Full Global Unique Identifier';
+ALTER TABLE `store_gold` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL;
 ALTER TABLE `store_item` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL;
+ALTER TABLE `store_level` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `store_metier` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL;

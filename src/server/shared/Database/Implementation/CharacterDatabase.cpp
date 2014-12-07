@@ -130,7 +130,6 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_AUCTION_BY_TIME, "SELECT id FROM auctionhouse WHERE time <= ? ORDER BY TIME ASC", CONNECTION_SYNCH);
     PrepareStatement(CHAR_UPD_AUCTION_BID, "UPDATE auctionhouse SET buyguid = ?, lastbid = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_MAIL, "INSERT INTO mail(id, messageType, stationery, mailTemplateId, sender, receiver, subject, body, has_items, expire_time, deliver_time, money, cod, checked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_MAIL_LOG, "INSERT INTO log_mail(id, messageType, stationery, mailTemplateId, sender, receiver, subject, body, has_items, expire_time, deliver_time, money, cod, checked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_MAIL_BY_ID, "DELETE FROM mail WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_MAIL_ITEM, "INSERT INTO mail_items(mail_id, item_guid, receiver) VALUES (?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_MAIL_ITEM, "DELETE FROM mail_items WHERE item_guid = ?", CONNECTION_ASYNC);
@@ -263,8 +262,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_GUILD_ACHIEVEMENT_CRITERIA, "SELECT criteria, counter, date, completedGuid FROM guild_achievement_progress WHERE guildId = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_UPD_GUILD_EXPERIENCE, "UPDATE guild SET level = ?, experience = ?, todayExperience = ? WHERE guildId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE, "UPDATE guild SET todayExperience = 0", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_LOAD_GUILD_NEWS, "SELECT id, eventType, playerGuid, data, flags, date FROM guild_news_log WHERE guild = ? ORDER BY id DESC LIMIT 100", CONNECTION_SYNCH);
-    PrepareStatement(CHAR_SAVE_GUILD_NEWS, "REPLACE INTO guild_news_log (guild, id, eventType, playerGuid, data, flags, date) VALUES (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_LOAD_GUILD_NEWS, "SELECT id, eventType, playerGuid, data, flags, date FROM guild_newslog WHERE guildId = ? ORDER BY id DESC LIMIT 100", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_SAVE_GUILD_NEWS, "REPLACE INTO guild_newslog (guildId, id, eventType, playerGuid, data, flags, date) VALUES (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
     // Archaelogy
     PrepareStatement(CHAR_SEL_PLAYER_ARCHAELOGY, "SELECT sites, counts, projects FROM character_archaeology WHERE guid = ?", CONNECTION_ASYNC);
@@ -637,7 +636,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     // Else
     PrepareStatement(CHAR_SEL_PERSONAL_RATE,       "SELECT rate FROM character_rates WHERE guid=? LIMIT 1",                                         CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_PLAYER_VISUAL,       "SELECT head, shoulders, chest, waist, legs, feet, wrists, hands, back, main, off, ranged FROM character_visuals WHERE guid = ?",  CONNECTION_ASYNC);
-    PrepareStatement(CHAR_SEL_MAILBOX_QUEUE,       "SELECT * FROM mailbox_queue LIMIT 500",                                         CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_MAILBOX_QUEUE,       "SELECT id, messageType, stationery, sender_guid, receiver_guid, subject, message, money, item, item_count FROM mailbox_queue LIMIT 500",                                         CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_MAILBOX_QUEUE,       "DELETE FROM mailbox_queue WHERE id = ?",                                       CONNECTION_ASYNC);
 
     // character_donate

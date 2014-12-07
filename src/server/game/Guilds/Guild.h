@@ -982,10 +982,10 @@ private:
         SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD_S, name);
         return NULL;
     }
-    inline void _DeleteMemberFromDB(ObjectGuid::LowType lowguid) const
+    inline void _DeleteMemberFromDB(ObjectGuid::LowType const& lowguid) const
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER);
-        stmt->setUInt32(0, lowguid);
+        stmt->setUInt64(0, lowguid);
         CharacterDatabase.Execute(stmt);
     }
 

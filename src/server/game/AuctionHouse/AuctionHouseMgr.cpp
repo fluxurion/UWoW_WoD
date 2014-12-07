@@ -813,14 +813,14 @@ bool AuctionEntry::LoadFromFieldList(Field* fields)
     uint8 index = 0;
 
     Id          = fields[index++].GetUInt32();
-    auctioneer  = fields[index++].GetUInt32();
-    itemGUIDLow = fields[index++].GetUInt32();
+    auctioneer  = fields[index++].GetUInt64();
+    itemGUIDLow = fields[index++].GetUInt64();
     itemEntry   = fields[index++].GetUInt32();
     itemCount   = fields[index++].GetUInt32();
-    owner       = fields[index++].GetUInt32();
+    owner       = fields[index++].GetUInt64();
     buyout      = fields[index++].GetUInt64();
     expire_time = fields[index++].GetUInt32();
-    bidder      = fields[index++].GetUInt32();
+    bidder      = fields[index++].GetUInt64();
     bid         = fields[index++].GetUInt64();
     startbid    = fields[index++].GetUInt64();
     deposit     = fields[index++].GetUInt64();
