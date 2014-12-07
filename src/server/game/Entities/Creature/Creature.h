@@ -301,7 +301,9 @@ struct CreatureAddon
     std::vector<uint32> auras;
 };
 
-typedef UNORDERED_MAP<uint32, CreatureAddon> CreatureAddonContainer;
+typedef UNORDERED_MAP<ObjectGuid::LowType, CreatureAddon> CreatureAddonContainer;
+typedef UNORDERED_MAP<uint32, CreatureAddon> CreatureTemplateAddonContainer;
+ 
 
 struct CreatureModelInfo
 {

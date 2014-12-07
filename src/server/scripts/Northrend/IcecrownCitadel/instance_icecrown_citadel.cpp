@@ -969,15 +969,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_ORB_WHISPERER_ACHIEVEMENT:
                         IsOrbWhispererEligible = data ? true : false;
                         break;
-                    case DATA_SINDRAGOSA_FROSTWYRMS:
-                        FrostwyrmGUIDs.insert(data);
-                        break;
-                    case DATA_SPINESTALKER:
-                        SpinestalkerTrash.insert(data);
-                        break;
-                    case DATA_RIMEFANG:
-                        RimefangTrash.insert(data);
-                        break;
                     case DATA_COLDFLAME_JETS:
                         ColdflameJetsState = data;
                         if (ColdflameJetsState == DONE)
@@ -1015,6 +1006,22 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     }
                     default:
+                        break;
+                }
+            }
+
+            void SetGuidData(uint32 type, ObjectGuid guid) override
+            {
+                switch (type)
+                {
+                    case DATA_SINDRAGOSA_FROSTWYRMS:
+                        FrostwyrmGUIDs.insert(guid.GetCounter());
+                        break;
+                    case DATA_SPINESTALKER:
+                        SpinestalkerTrash.insert(guid.GetCounter());
+                        break;
+                    case DATA_RIMEFANG:
+                        RimefangTrash.insert(guid.GetCounter());
                         break;
                 }
             }
@@ -1628,9 +1635,9 @@ class instance_icecrown_citadel : public InstanceMapScript
             ObjectGuid PillarsUnchainedGUID;
             uint32 TeamInInstance;
             uint32 ColdflameJetsState;
-            std::set<uint32> FrostwyrmGUIDs;
-            std::set<uint32> SpinestalkerTrash;
-            std::set<uint32> RimefangTrash;
+            std::set<ObjectGuid::LowType> FrostwyrmGUIDs;
+            std::set<ObjectGuid::LowType> SpinestalkerTrash;
+            std::set<ObjectGuid::LowType> RimefangTrash;
             uint32 BloodQuickeningState;
             uint32 HeroicAttempts;
             uint16 BloodQuickeningMinutes;

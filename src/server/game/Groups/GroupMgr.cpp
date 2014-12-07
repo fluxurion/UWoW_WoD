@@ -22,7 +22,7 @@
 GroupMgr::GroupMgr()
 {
     NextGroupDbStoreId = 1;
-    NextGroupId = 1;
+    NextGroupId = UI64LIT(1);
 }
 
 GroupMgr::~GroupMgr()

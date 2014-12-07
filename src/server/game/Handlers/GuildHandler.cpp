@@ -139,8 +139,8 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& recvPacket)
         inviter->SendDirectMessage(&data);
     }
 
-    GetPlayer()->SetGuildIdInvited(0);
-    GetPlayer()->SetInGuild(0);
+    GetPlayer()->SetGuildIdInvited(UI64LIT(0));
+    GetPlayer()->SetInGuild(UI64LIT(0));
 }
 
 void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)

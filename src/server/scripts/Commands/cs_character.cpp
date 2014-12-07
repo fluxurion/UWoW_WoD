@@ -819,7 +819,7 @@ public:
         ObjectGuid guid;
         if (guidStr)
         {
-            LowGuid = uint32(atoi(guidStr));
+            LowGuid = strtoull(guidStr, nullptr, 10);
             if (!LowGuid)
             {
                 handler->PSendSysMessage(LANG_INVALID_CHARACTER_GUID);
@@ -875,7 +875,7 @@ public:
         ObjectGuid guid;
         // character name can't start from number
         if (isNumeric(playerStr))
-            guid = ObjectGuid::Create<HighGuid::Player>(atoi(playerStr));
+            guid = ObjectGuid::Create<HighGuid::Player>(strtoull(playerStr, nullptr, 10));
         else
         {
             std::string name = handler->extractPlayerNameFromLink(playerStr);

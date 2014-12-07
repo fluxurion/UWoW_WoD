@@ -1292,7 +1292,7 @@ struct SmartScriptHolder
         , event_id(0), link(0), timer(0), active(false), runOnce(false)
         , enableTimed(false) {}
 
-    int32 entryOrGuid;
+    int64 entryOrGuid;
     SmartScriptType source_type;
     uint32 event_id;
     uint32 link;
@@ -1348,7 +1348,7 @@ class SmartWaypointMgr
 typedef std::vector<SmartScriptHolder> SmartAIEventList;
 
 // all events for all entries / guids
-typedef UNORDERED_MAP<int32, SmartAIEventList> SmartAIEventMap;
+typedef UNORDERED_MAP<int64, SmartAIEventList> SmartAIEventMap;
 
 class SmartAIMgr
 {

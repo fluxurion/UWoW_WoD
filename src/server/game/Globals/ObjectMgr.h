@@ -1392,7 +1392,7 @@ class ObjectMgr
 
         SpellScriptsContainer _spellScriptsStore;
 
-        VehicleAccessoryContainer _vehicleTemplateAccessoryStore;
+        VehicleAccessoryTemplateContainer _vehicleTemplateAccessoryStore;
         VehicleAccessoryContainer _vehicleAccessoryStore;
 
         LocaleConstant DBCLocaleIndex;
@@ -1445,7 +1445,7 @@ class ObjectMgr
         CreatureDifficultyStatContainer _creatureDifficultyStatStore;
         CreatureModelContainer _creatureModelStore;
         CreatureAddonContainer _creatureAddonStore;
-        CreatureAddonContainer _creatureTemplateAddonStore;
+        CreatureTemplateAddonContainer _creatureTemplateAddonStore;
         CreatureAIInstanceContainer _creatureAIInstance;
         CreatureAIInstanceDoorContainer _creatureAIInstanceDoor;
         CreatureAIInstanceGoContainer _creatureAIInstanceGo;

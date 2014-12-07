@@ -183,7 +183,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
         StatusID = STATUS_NONE;
 
     ObjectGuid guidBytes1 = pPlayer->GetGUID();
-    ObjectGuid guidBytes2 = bg ? bg->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid guidBytes2 = /*bg ? bg->GetGUID() : */ObjectGuid::Empty;
 
     switch (StatusID)
     {

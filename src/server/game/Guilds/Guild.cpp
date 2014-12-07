@@ -2702,7 +2702,7 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked)
     // If player not online data in data field will be loaded from guild tabs no need to update it !!
     if (player)
     {
-        player->SetInGuild(0);
+        player->SetInGuild(UI64LIT(0));
         player->SetRank(0);
         player->SetGuildLevel(0);
         for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)

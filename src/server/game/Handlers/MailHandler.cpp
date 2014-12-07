@@ -464,7 +464,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 {
     ObjectGuid mailbox;
     uint32 mailId;
-    uint32 itemId;
+    ObjectGuid::LowType itemId;
 
     recvData >> mailId;
     recvData >> itemId;                                    // item guid low
@@ -837,7 +837,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 
         uint32 count = 0;
         time_t now = time(NULL);
-        std::set<uint32> sentSenders;
+        std::set<ObjectGuid::LowType> sentSenders;
         for (PlayerMails::iterator itr = _player->GetMailBegin(); itr != _player->GetMailEnd(); ++itr)
         {
             Mail* m = (*itr);

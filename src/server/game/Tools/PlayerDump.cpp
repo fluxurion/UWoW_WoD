@@ -157,41 +157,28 @@ bool changetoknth(std::string &str, int n, const char *with, bool insert = false
     return true;
 }
 
-uint32 registerNewGuid(uint32 oldGuid, std::map<uint32, uint32> &guidMap, uint32 hiGuid)
+uint32 registerNewGuid(uint64 oldGuid, std::map<uint64, uint64> &guidMap, uint64 hiGuid)
 {
-    std::map<uint32, uint32>::const_iterator itr = guidMap.find(oldGuid);
+    std::map<uint64, uint64>::const_iterator itr = guidMap.find(oldGuid);
     if (itr != guidMap.end())
         return itr->second;
 
-    uint32 newguid = hiGuid + guidMap.size();
+    uint64 newguid = hiGuid + guidMap.size();
     guidMap[oldGuid] = newguid;
     return newguid;
 }
 
-bool changeGuid(std::string &str, int n, std::map<uint32, uint32> &guidMap, uint32 hiGuid, bool nonzero = false)
+bool changeGuid(std::string &str, int n, std::map<uint64, uint64> &guidMap, uint32 hiGuid, bool nonzero = false)
 {
-    char chritem[20];
-    uint32 oldGuid = atoi(getnth(str, n).c_str());
-    if (nonzero && oldGuid == 0)
+    char chritem[21];
+    ObjectGuid::LowType oldGuid = strtoull(getnth(str, n).c_str(), nullptr, 10);
+    if (nonzero && !oldGuid)
         return true;                                        // not an error
 
     uint32 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
-    snprintf(chritem, 20, "%u", newGuid);
+    snprintf(chritem, 21, UI64FMTD, newGuid);
 
     return changenth(str, n, chritem, false, nonzero);
-}
-
-bool changetokGuid(std::string &str, int n, std::map<uint32, uint32> &guidMap, uint32 hiGuid, bool nonzero = false)
-{
-    char chritem[20];
-    uint32 oldGuid = atoi(gettoknth(str, n).c_str());
-    if (nonzero && oldGuid == 0)
-        return true;                                        // not an error
-
-    uint32 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
-    snprintf(chritem, 20, "%u", newGuid);
-
-    return changetoknth(str, n, chritem, false, nonzero);
 }
 
 std::string CreateDumpString(char const* tableName, QueryResult result, char const* tableSelect)
@@ -247,7 +234,7 @@ std::string PlayerDumpWriter::GenerateWhereStr(char const* field, GUIDs const& g
 void StoreGUID(QueryResult result, uint32 field, std::set<uint32>& guids)
 {
     Field* fields = result->Fetch();
-    ObjectGuid::LowType guid = fields[field].GetUInt32();
+    ObjectGuid::LowType guid = fields[field].GetUInt64();
     if (guid)
         guids.insert(guid);
 }
@@ -256,7 +243,7 @@ void StoreGUID(QueryResult result, uint32 data, uint32 field, std::set<uint32>& 
 {
     Field* fields = result->Fetch();
     std::string dataStr = fields[data].GetString();
-    ObjectGuid::LowType guid = atoi(gettoknth(dataStr, field).c_str());
+    ObjectGuid::LowType guid = strtoull(gettoknth(dataStr, field).c_str(), nullptr, 10);
     if (guid)
         guids.insert(guid);
 }
@@ -436,8 +423,8 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     snprintf(newpetid, 20, "%u", sObjectMgr->GeneratePetNumber());
     snprintf(lastpetid, 20, "%s", "");
 
-    std::map<uint32, uint32> items;
-    std::map<uint32, uint32> mails;
+    std::map<uint64, uint64> items;
+    std::map<uint64, uint64> mails;
     char buf[32000] = "";
 
     typedef std::map<uint32, uint32> PetIds;                // old->new petid relation
@@ -735,8 +722,8 @@ DumpReturn PlayerDumpReader::LoadDump(uint32 account, std::string& dump, std::st
     snprintf(newpetid, 20, "%u", sObjectMgr->GeneratePetNumber());
     snprintf(lastpetid, 20, "%s", "");
 
-    std::map<uint32, uint32> items;
-    std::map<uint32, uint32> mails;
+    std::map<uint64, uint64> items;
+    std::map<uint64, uint64> mails;
 
     typedef std::map<uint32, uint32> PetIds;                // old->new petid relation
     typedef PetIds::value_type PetIdsPair;

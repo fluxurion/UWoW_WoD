@@ -39,7 +39,7 @@ public:
     Guild* GetGuildById(ObjectGuid::LowType guildId) const;
     Guild* GetGuildByGuid(ObjectGuid const& guid) const;
     Guild* GetGuildByName(const std::string& guildName) const;
-    std::string GetGuildNameById(ObjectGuid::LowType guildId) const;
+    std::string GetGuildNameById(ObjectGuid::LowType const& guildId) const;
 
     void LoadGuildXpForLevel();
     void LoadGuildRewards();

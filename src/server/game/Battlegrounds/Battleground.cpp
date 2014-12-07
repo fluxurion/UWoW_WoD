@@ -127,7 +127,7 @@ void Battleground::BroadcastWorker(Do& _do)
 
 Battleground::Battleground()
 {
-    m_Guid              = ObjectGuid::Create<HighGuid::PVPQueueGroup>(m_TypeID);
+    m_Guid              = 0;
     m_TypeID            = BATTLEGROUND_TYPE_NONE;
     m_RandomTypeID      = BATTLEGROUND_TYPE_NONE;
     m_InstanceID        = 0;
@@ -885,7 +885,7 @@ void Battleground::EndBattleground(uint32 winner)
             if (!guildAwarded)
             {
                 guildAwarded = true;
-                if (uint32 guildId = GetBgMap()->GetOwnerGuildId(player->GetTeam()))
+                if (ObjectGuid::LowType guildId = GetBgMap()->GetOwnerGuildId(player->GetTeam()))
                     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
                     {
                         guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, NULL, player);
@@ -2110,5 +2110,5 @@ void Battleground::SendOponentSpecialization(uint32 team)
 
 void Battleground::InitGUID()
 { 
-    m_Guid = ObjectGuid::Create<HighGuid::PVPQueueGroup>(m_TypeID);
+    m_Guid = uint64(m_RandomTypeID) | UI64LIT(0x1F10000000000000);
 }

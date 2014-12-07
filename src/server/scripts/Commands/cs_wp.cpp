@@ -930,7 +930,7 @@ public:
                 // Set "wpguid" column to the visual waypoint
                 PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
 
-                stmt->setInt64(0, int32(wpCreature->GetGUID().GetCounter()));
+                stmt->setInt64(0, wpCreature->GetGUID().GetCounter());
                 stmt->setUInt32(1, pathid);
                 stmt->setUInt32(2, point);
 

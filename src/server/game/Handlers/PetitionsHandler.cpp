@@ -146,7 +146,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
         do
         {
             Field* fields = result->Fetch();
-            ssInvalidPetitionGUIDs << '\'' << fields[0].GetUInt32() << "', ";
+            ssInvalidPetitionGUIDs << '\'' << fields[0].GetUInt64() << "', ";
         } while (result->NextRow());
     }
 
@@ -160,8 +160,8 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
     trans->PAppend("DELETE FROM petition_sign WHERE petitionguid IN (%s)", ssInvalidPetitionGUIDs.str().c_str());
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION);
-    stmt->setUInt32(0, _player->GetGUID().GetCounter());
-    stmt->setUInt32(1, charter->GetGUID().GetCounter());
+    stmt->setUInt64(0, _player->GetGUID().GetCounter());
+    stmt->setUInt64(1, charter->GetGUID().GetCounter());
     stmt->setString(2, name);
     stmt->setUInt8(3, uint8(type));
     trans->Append(stmt);

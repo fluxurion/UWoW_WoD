@@ -18,9 +18,9 @@
 #include "Common.h"
 #include "GuildMgr.h"
 
-GuildMgr::GuildMgr()
+GuildMgr::GuildMgr() : NextGuildId(UI64LIT(1))
 {
-    NextGuildId = 1;
+
 }
 
 GuildMgr::~GuildMgr()
@@ -90,7 +90,7 @@ Guild* GuildMgr::GetGuildByName(const std::string& guildName) const
     return NULL;
 }
 
-std::string GuildMgr::GetGuildNameById(ObjectGuid::LowType guildId) const
+std::string GuildMgr::GetGuildNameById(ObjectGuid::LowType const& guildId) const
 {
     if (Guild* guild = GetGuildById(guildId))
         return guild->GetName();

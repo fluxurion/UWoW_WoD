@@ -81,7 +81,7 @@ enum MailShowFlags
 class MailSender
 {
     public:                                                 // Constructors
-        MailSender(MailMessageType messageType, ObjectGuid::LowType sender_guidlow_or_entry, MailStationery stationery = MAIL_STATIONERY_DEFAULT)
+        MailSender(MailMessageType messageType, ObjectGuid::LowType const& sender_guidlow_or_entry, MailStationery stationery = MAIL_STATIONERY_DEFAULT)
             : m_messageType(messageType), m_senderId(sender_guidlow_or_entry), m_stationery(stationery)
         {
         }

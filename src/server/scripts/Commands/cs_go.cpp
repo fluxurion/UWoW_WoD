@@ -269,7 +269,7 @@ public:
         if (!id)
             return false;
 
-        int32 guid = atoi(id);
+        ObjectGuid::LowType guid = strtoull(id, nullptr, 10);
         if (!guid)
             return false;
 

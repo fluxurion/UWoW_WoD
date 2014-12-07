@@ -94,7 +94,8 @@ struct VehicleAccessory
 };
 
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;
-typedef std::map<int32, VehicleAccessoryList> VehicleAccessoryContainer;
+typedef std::map<ObjectGuid::LowType, VehicleAccessoryList> VehicleAccessoryContainer;
+typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryTemplateContainer;
 typedef std::map<int8, VehicleSeat> SeatMap;
 
 class TransportBase

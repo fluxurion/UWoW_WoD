@@ -389,7 +389,7 @@ public:
             if (!cId)
                 return false;
 
-            ObjectGuid::LowType lowguid = atoi(cId);
+            ObjectGuid::LowType lowguid = strtoull(cId, nullptr, 10);
             if (!lowguid)
                 return false;
 
@@ -637,7 +637,7 @@ public:
     //move selected creature
     static bool HandleNpcMoveCommand(ChatHandler* handler, const char* args)
     {
-        ObjectGuid::LowType lowguid = 0;
+        ObjectGuid::LowType lowguid = UI64LIT(0);
 
         Creature* creature = handler->getSelectedCreature();
 
@@ -648,7 +648,7 @@ public:
             if (!cId)
                 return false;
 
-            lowguid = atoi(cId);
+            lowguid = strtoull(cId, nullptr, 10);
 
             /* FIXME: impossible without entry
             if (lowguid)
@@ -852,7 +852,7 @@ public:
         }
         else                                                    // case .setmovetype #creature_guid $move_type (with selected creature)
         {
-            lowguid = atoi((char*)guid_str);
+            lowguid = strtoull(guid_str, nullptr, 10);
 
             /* impossible without entry
             if (lowguid)
@@ -1266,7 +1266,7 @@ public:
         if (!*args)
             return false;
 
-        ObjectGuid::LowType leaderGUID = (uint32) atoi((char*)args);
+        ObjectGuid::LowType leaderGUID = strtoull(args, nullptr, 10);
         Creature* creature = handler->getSelectedCreature();
 
         if (!creature || !creature->GetDBTableGUIDLow())
@@ -1318,7 +1318,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 linkguid = (uint32) atoi((char*)args);
+        ObjectGuid::LowType linkguid = strtoull(args, nullptr, 10);
 
         Creature* creature = handler->getSelectedCreature();
 
@@ -1519,7 +1519,7 @@ public:
             if (!cId)
                 return false;
 
-            ObjectGuid::LowType lowguid = atoi(cId);
+            ObjectGuid::LowType lowguid = strtoull(cId, nullptr, 10);
             if (!lowguid)
                 return false;
 

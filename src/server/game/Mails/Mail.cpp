@@ -33,11 +33,11 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
     {
         case TYPEID_UNIT:
             m_messageType = MAIL_CREATURE;
-            m_senderId = sender->GetEntry();
+            m_senderId = uint64(sender->GetEntry());
             break;
         case TYPEID_GAMEOBJECT:
             m_messageType = MAIL_GAMEOBJECT;
-            m_senderId = sender->GetEntry();
+            m_senderId = uint64(sender->GetEntry());
             break;
         case TYPEID_ITEM:
             m_messageType = MAIL_ITEM;
@@ -197,9 +197,6 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
     // auction mail without any items and money
     if (sender.GetMailMessageType() == MAIL_AUCTION && m_items.empty() && !m_money)
         expire_delay = sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY);
-    // mail from battlemaster (rewardmarks) should last only one day
-    else if (sender.GetMailMessageType() == MAIL_CREATURE && sBattlegroundMgr->GetBattleMasterBG(sender.GetSenderId()) != BATTLEGROUND_TYPE_NONE)
-        expire_delay = DAY;
      // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
     else
         if (m_COD)

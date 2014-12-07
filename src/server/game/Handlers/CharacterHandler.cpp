@@ -993,7 +993,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
-        pCurrChar->SetInGuild(0);
+        pCurrChar->SetInGuild(UI64LIT(0));
         pCurrChar->SetRank(0);
         pCurrChar->SetGuildLevel(0);
     }

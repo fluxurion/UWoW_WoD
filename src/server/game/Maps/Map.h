@@ -239,7 +239,7 @@ enum LevelRequirementVsMode
 #define DEFAULT_HEIGHT_SEARCH     50.0f                     // default search distance to find height at nearby locations
 #define MIN_UNLOAD_DELAY      60000                         // immediate unload
 
-typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
+typedef std::map<ObjectGuid::LowType/*leaderDBGUID*/, CreatureGroup*> CreatureGroupHolderType;
 
 class Map : public GridRefManager<NGridType>
 {
@@ -573,7 +573,7 @@ class Map : public GridRefManager<NGridType>
         Creature* _GetScriptCreature(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const;
         WorldObject* _GetScriptWorldObject(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const;
         void _ScriptProcessDoor(Object* source, Object* target, const ScriptInfo* scriptInfo) const;
-        GameObject* _FindGameObject(WorldObject* pWorldObject, ObjectGuid::LowType guid) const;
+        GameObject* _FindGameObject(WorldObject* pWorldObject, ObjectGuid::LowType const& guid) const;
 
         time_t i_gridExpiry;
 

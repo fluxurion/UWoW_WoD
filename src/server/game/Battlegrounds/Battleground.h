@@ -384,7 +384,7 @@ class Battleground
         /* Battleground */
         // Get methods:
         char const* GetName() const         { return m_Name; }
-        ObjectGuid GetGUID() const { return m_Guid; }
+        uint64 GetGUID() const { return m_Guid; }
         BattlegroundTypeId GetTypeID(bool GetRandom = false) const { return GetRandom ? m_RandomTypeID : m_TypeID; }
         BattlegroundBracketId GetBracketId() const { return m_BracketId; }
         uint32 GetInstanceID() const        { return m_InstanceID; }
@@ -699,7 +699,7 @@ class Battleground
         bool   m_PrematureCountDown;
         uint32 m_PrematureCountDownTimer;
         char const* m_Name;
-        ObjectGuid m_Guid;
+        uint64 m_Guid;
 
         uint32 m_sameBgTeamId;
 

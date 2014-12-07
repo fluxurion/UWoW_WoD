@@ -1,0 +1,18 @@
+ALTER TABLE `creature` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `creature_addon` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `creature_formations` CHANGE `leaderGUID` `leaderGUID` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `creature_formations` CHANGE `memberGUID` `memberGUID` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `game_event_creature` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `game_event_gameobject` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `game_event_model_equip` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `game_event_npc_vendor` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `game_event_npcflag` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `gameobject` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `linked_respawn` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `pool_creature` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `pool_gameobject` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `smart_scripts` CHANGE `entryorguid` `entryorguid` BIGINT(20) NOT NULL DEFAULT '0';
+ALTER TABLE `transports` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `vehicle_accessory` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `waypoint_data` CHANGE `wpguid` `wpguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `linked_respawn` CHANGE `linkedGuid` `linkedGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
