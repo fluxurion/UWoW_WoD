@@ -686,10 +686,10 @@ void BattlefieldTB::ProcessEvent(GameObject *obj, uint32 eventId)
     {
         if (obj->GetEntry() == (*itr)->m_Build->GetEntry())
         {
-            if ((*itr)->m_Build->GetGOInfo()->building.damagedEvent == eventId)
+            if ((*itr)->m_Build->GetGOInfo()->destructibleBuilding.DamagedEvent == eventId)
                 (*itr)->Damaged();
             
-            if ((*itr)->m_Build->GetGOInfo()->building.destroyedEvent == eventId)
+            if ((*itr)->m_Build->GetGOInfo()->destructibleBuilding.DestroyedEvent == eventId)
                 (*itr)->Destroyed();
 
             break;

@@ -10368,7 +10368,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
                 loot->clear();
 
                 Group* group = GetGroup();
-                bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules);
+                bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules);
 
                 // check current RR player and get next if necessary
                 if (groupRules)
@@ -10388,7 +10388,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
             if (loot_type == LOOT_FISHING)
                 go->getFishLoot(loot, this);
 
-            if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules)
+            if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.usegrouplootrules)
             {
                 if (Group* group = GetGroup())
                 {
@@ -10653,15 +10653,15 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
         GameObject *go = GetMap()->GetGameObject(guid);
         if (go && go->GetGoType() == GAMEOBJECT_TYPE_CHEST)
         {
-            uint32 go_min = go->GetGOInfo()->chest.minSuccessOpens;
-            uint32 go_max = go->GetGOInfo()->chest.maxSuccessOpens;
+            uint32 go_min = go->GetGOInfo()->chest.minRestock;
+            uint32 go_max = go->GetGOInfo()->chest.maxRestock;
             uint32 chestRestockTime = go->GetGOInfo()->chest.chestRestockTime;
             uint32 consumable = go->GetGOInfo()->chest.consumable;
-            uint32 data26 = go->GetGOInfo()->chest.data26;
+            uint32 spell = go->GetGOInfo()->chest.spell;
             uint32 questItems = go->GetGOInfo()->questItems[0];
             uint32 lootid =  go->GetGOInfo()->GetLootId();
 
-            if(go_min == 1 && go_max ==1 && consumable == 1 && chestRestockTime == 0 && data26 == 0 && questItems == 0 && lootid)
+            if (go_min == 1 && go_max == 1 && consumable == 1 && chestRestockTime == 0 && spell == 0 && questItems == 0 && lootid)
             {
                 AutoStoreLoot(lootid, LootTemplates_Gameobject);
                 loot->clear();

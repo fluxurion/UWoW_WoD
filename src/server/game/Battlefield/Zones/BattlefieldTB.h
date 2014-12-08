@@ -562,23 +562,21 @@ struct BfTBGameObjectBuilding
         {
             case BATTLEFIELD_TB_OBJECTSTATE_ALLIANCE_INTACT:
             case BATTLEFIELD_TB_OBJECTSTATE_HORDE_INTACT:
-                if(m_Build)
+                if (m_Build)
+                {
                     m_Build->Refresh();
+                    m_Build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
+                }
                 break;
             case BATTLEFIELD_TB_OBJECTSTATE_ALLIANCE_DESTROY:
             case BATTLEFIELD_TB_OBJECTSTATE_HORDE_DESTROY:
-                if(m_Build){
-                    m_Build->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DAMAGED);
-                    m_Build->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
-                    m_Build->SetDisplayId(m_Build->GetGOInfo()->building.destroyedDisplayId);
-                }
+                if(m_Build)
+                    m_Build->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
                 break;
             case BATTLEFIELD_TB_OBJECTSTATE_ALLIANCE_DAMAGE:
             case BATTLEFIELD_TB_OBJECTSTATE_HORDE_DAMAGE:
-                if(m_Build){
-                    m_Build->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DAMAGED);
-                    m_Build->SetDisplayId(m_Build->GetGOInfo()->building.damagedDisplayId);
-                }
+                if (m_Build)
+                    m_Build->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
                 break;
         }
     }
