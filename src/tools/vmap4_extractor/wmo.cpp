@@ -1,19 +1,19 @@
 /*
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "vmapexport.h"
@@ -39,24 +39,12 @@ WMORoot::WMORoot(std::string &filename)
     memset(bbcorn2, 0, sizeof(bbcorn2));
 }
 
-extern HANDLE WorldMpq[];
+extern HANDLE CascStorage;
 
 bool WMORoot::open()
 {
-    MPQFile* f = NULL;
-    for (int i = 0; i < WORLD_MPQ_COUNT; ++i)
-    {
-        f = new MPQFile(WorldMpq[i], filename.c_str());
-        if( f->isEof ())
-        {
-            delete f;
-            f = NULL;
-        }
-        else
-            break;
-    }
-
-    if (!f)
+    MPQFile f(CascStorage, filename.c_str());
+    if(f.isEof ())
     {
         printf("No such file.\n");
         return false;
@@ -65,30 +53,30 @@ bool WMORoot::open()
     uint32 size;
     char fourcc[5];
 
-    while (!f->isEof())
+    while (!f.isEof())
     {
-        f->read(fourcc,4);
-        f->read(&size, 4);
+        f.read(fourcc,4);
+        f.read(&size, 4);
 
         flipcc(fourcc);
         fourcc[4] = 0;
 
-        size_t nextpos = f->getPos() + size;
+        size_t nextpos = f.getPos() + size;
 
         if (!strcmp(fourcc,"MOHD")) // header
         {
-            f->read(&nTextures, 4);
-            f->read(&nGroups, 4);
-            f->read(&nP, 4);
-            f->read(&nLights, 4);
-            f->read(&nModels, 4);
-            f->read(&nDoodads, 4);
-            f->read(&nDoodadSets, 4);
-            f->read(&col, 4);
-            f->read(&RootWMOID, 4);
-            f->read(bbcorn1, 12);
-            f->read(bbcorn2, 12);
-            f->read(&liquidType, 4);
+            f.read(&nTextures, 4);
+            f.read(&nGroups, 4);
+            f.read(&nP, 4);
+            f.read(&nLights, 4);
+            f.read(&nModels, 4);
+            f.read(&nDoodads, 4);
+            f.read(&nDoodadSets, 4);
+            f.read(&col, 4);
+            f.read(&RootWMOID, 4);
+            f.read(bbcorn1, 12);
+            f.read(bbcorn2, 12);
+            f.read(&liquidType, 4);
             break;
         }
         /*
@@ -132,11 +120,9 @@ bool WMORoot::open()
         {
         }
         */
-        f->seek((int)nextpos);
+        f.seek((int)nextpos);
     }
-    f->close();
-
-    delete f;
+    f.close ();
     return true;
 }
 
@@ -152,14 +138,12 @@ bool WMORoot::ConvertToVMAPRootWmo(FILE* pOutfile)
     return true;
 }
 
-WMORoot::~WMORoot()
-{
-}
-
 WMOGroup::WMOGroup(const std::string &filename) :
     filename(filename), MOPY(0), MOVI(0), MoviEx(0), MOVT(0), MOBA(0), MobaEx(0),
     hlq(0), LiquEx(0), LiquBytes(0), groupName(0), descGroupName(0), mogpFlags(0),
-    mopy_size(0), moba_size(0), LiquEx_size(0), nVertices(0), nTriangles(0)
+    moprIdx(0), moprNItems(0), nBatchA(0), nBatchB(0), nBatchC(0), fogIdx(0),
+    liquidType(0), groupWMOID(0), mopy_size(0), moba_size(0), LiquEx_size(0),
+    nVertices(0), nTriangles(0), liquflags(0)
 {
     memset(bbcorn1, 0, sizeof(bbcorn1));
     memset(bbcorn2, 0, sizeof(bbcorn2));
@@ -167,56 +151,43 @@ WMOGroup::WMOGroup(const std::string &filename) :
 
 bool WMOGroup::open()
 {
-    MPQFile* f = NULL;
-    for (int i = 0; i < WORLD_MPQ_COUNT; ++i)
-    {
-        f = new MPQFile(WorldMpq[i], filename.c_str());
-        if( f->isEof ())
-        {
-            delete f;
-            f = NULL;
-        }
-        else
-            break;
-    }
-
-    if (!f)
+    MPQFile f(CascStorage, filename.c_str());
+    if(f.isEof ())
     {
         printf("No such file.\n");
         return false;
     }
-
     uint32 size;
     char fourcc[5];
-    while (!f->isEof())
+    while (!f.isEof())
     {
-        f->read(fourcc,4);
-        f->read(&size, 4);
+        f.read(fourcc,4);
+        f.read(&size, 4);
         flipcc(fourcc);
         if (!strcmp(fourcc,"MOGP"))//Fix sizeoff = Data size.
         {
             size = 68;
         }
         fourcc[4] = 0;
-        size_t nextpos = f->getPos() + size;
+        size_t nextpos = f.getPos() + size;
         LiquEx_size = 0;
         liquflags = 0;
 
         if (!strcmp(fourcc,"MOGP"))//header
         {
-            f->read(&groupName, 4);
-            f->read(&descGroupName, 4);
-            f->read(&mogpFlags, 4);
-            f->read(bbcorn1, 12);
-            f->read(bbcorn2, 12);
-            f->read(&moprIdx, 2);
-            f->read(&moprNItems, 2);
-            f->read(&nBatchA, 2);
-            f->read(&nBatchB, 2);
-            f->read(&nBatchC, 4);
-            f->read(&fogIdx, 4);
-            f->read(&liquidType, 4);
-            f->read(&groupWMOID,4);
+            f.read(&groupName, 4);
+            f.read(&descGroupName, 4);
+            f.read(&mogpFlags, 4);
+            f.read(bbcorn1, 12);
+            f.read(bbcorn2, 12);
+            f.read(&moprIdx, 2);
+            f.read(&moprNItems, 2);
+            f.read(&nBatchA, 2);
+            f.read(&nBatchB, 2);
+            f.read(&nBatchC, 4);
+            f.read(&fogIdx, 4);
+            f.read(&liquidType, 4);
+            f.read(&groupWMOID,4);
 
         }
         else if (!strcmp(fourcc,"MOPY"))
@@ -224,17 +195,17 @@ bool WMOGroup::open()
             MOPY = new char[size];
             mopy_size = size;
             nTriangles = (int)size / 2;
-            f->read(MOPY, size);
+            f.read(MOPY, size);
         }
         else if (!strcmp(fourcc,"MOVI"))
         {
             MOVI = new uint16[size/2];
-            f->read(MOVI, size);
+            f.read(MOVI, size);
         }
         else if (!strcmp(fourcc,"MOVT"))
         {
             MOVT = new float[size/4];
-            f->read(MOVT, size);
+            f.read(MOVT, size);
             nVertices = (int)size / 12;
         }
         else if (!strcmp(fourcc,"MONR"))
@@ -247,19 +218,19 @@ bool WMOGroup::open()
         {
             MOBA = new uint16[size/2];
             moba_size = size/2;
-            f->read(MOBA, size);
+            f.read(MOBA, size);
         }
         else if (!strcmp(fourcc,"MLIQ"))
         {
             liquflags |= 1;
-            hlq = new WMOLiquidHeader;
-            f->read(hlq, 0x1E);
+            hlq = new WMOLiquidHeader();
+            f.read(hlq, 0x1E);
             LiquEx_size = sizeof(WMOLiquidVert) * hlq->xverts * hlq->yverts;
             LiquEx = new WMOLiquidVert[hlq->xverts * hlq->yverts];
-            f->read(LiquEx, LiquEx_size);
+            f.read(LiquEx, LiquEx_size);
             int nLiquBytes = hlq->xtiles * hlq->ytiles;
             LiquBytes = new char[nLiquBytes];
-            f->read(LiquBytes, nLiquBytes);
+            f.read(LiquBytes, nLiquBytes);
 
             /* std::ofstream llog("Buildings/liquid.log", ios_base::out | ios_base::app);
             llog << filename;
@@ -268,10 +239,9 @@ bool WMOGroup::open()
             llog << "\nx-/yvert: " << hlq->xverts << "/" << hlq->yverts << " size: " << size << " expected size: " << 30 + hlq->xverts*hlq->yverts*8 + hlq->xtiles*hlq->ytiles << std::endl;
             llog.close(); */
         }
-        f->seek((int)nextpos);
+        f.seek((int)nextpos);
     }
-    f->close();
-    delete f;
+    f.close();
     return true;
 }
 
@@ -418,7 +388,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
         fwrite(MoviEx,2,nColTriangles*3,output);
 
         // write vertices
-        int VERT[] = {0x54524556, nColVertices*3*sizeof(float)+4, nColVertices};// "VERT"
+        int VERT[] = {0x54524556, nColVertices*3*static_cast<int>(sizeof(float))+4, nColVertices};// "VERT"
         int check = 3*nColVertices;
         fwrite(VERT,4,3,output);
         for (uint32 i=0; i<nVertices; ++i)
@@ -432,9 +402,9 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
     }
 
     //------LIQU------------------------
-    if(LiquEx_size != 0)
+    if (LiquEx_size != 0)
     {
-        int LIQU_h[] = {0x5551494C, sizeof(WMOLiquidHeader) + LiquEx_size + hlq->xtiles*hlq->ytiles};// "LIQU"
+        int LIQU_h[] = {0x5551494C, static_cast<int>(sizeof(WMOLiquidHeader) + LiquEx_size) + hlq->xtiles*hlq->ytiles};// "LIQU"
         fwrite(LIQU_h, 4, 2, output);
 
         // according to WoW.Dev Wiki:
@@ -469,7 +439,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
 
         if (liquidEntry && liquidEntry < 21)
         {
-            switch (((uint8)liquidEntry - 1) & 3)
+            switch ((liquidEntry - 1) & 3)
             {
                 case 0:
                     liquidEntry = ((mogpFlags & 0x80000) != 0) + 13;
@@ -482,8 +452,6 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
                     break;
                 case 3:
                     liquidEntry = 20;
-                    break;
-                default:
                     break;
             }
         }
@@ -518,7 +486,7 @@ WMOGroup::~WMOGroup()
 }
 
 WMOInstance::WMOInstance(MPQFile& f, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
-    : currx(0), curry(0), wmo(NULL), doodadset(0), pos(), indx(0), d3(0)
+    : currx(0), curry(0), wmo(NULL), doodadset(0), pos(), indx(0), id(0), d2(0), d3(0)
 {
     float ff[3];
     f.read(&id, 4);
@@ -551,10 +519,10 @@ WMOInstance::WMOInstance(MPQFile& f, char const* WmoInstName, uint32 mapID, uint
 
     fseek(input, 8, SEEK_SET); // get the correct no of vertices
     int nVertices;
-    fread(&nVertices, sizeof (int), 1, input);
+    int count = fread(&nVertices, sizeof (int), 1, input);
     fclose(input);
 
-    if(nVertices == 0)
+    if (count != 1 || nVertices == 0)
         return;
 
     float x,z;

@@ -1,52 +1,52 @@
 #include "mpqfile.h"
 #include <deque>
 #include <cstdio>
-#include "StormLib.h"
 
-MPQFile::MPQFile(HANDLE mpq, const char* filename):
+MPQFile::MPQFile(HANDLE mpq, const char* filename, bool warnNoExist /*= true*/) :
     eof(false),
     buffer(0),
     pointer(0),
     size(0)
 {
     HANDLE file;
-    if (!SFileOpenFileEx(mpq, filename, SFILE_OPEN_PATCHED_FILE, &file))
+    if (!CascOpenFile(mpq, filename, CASC_LOCALE_ALL, 0, &file))
     {
-        //fprintf(stderr, "Can't open %s, err=%u!\n", filename, GetLastError());
+        if (warnNoExist || GetLastError() != ERROR_FILE_NOT_FOUND)
+            fprintf(stderr, "Can't open %s, err=%u!\n", filename, GetLastError());
         eof = true;
         return;
     }
 
     DWORD hi = 0;
-    size = SFileGetFileSize(file, &hi);
+    size = CascGetFileSize(file, &hi);
 
     if (hi)
     {
-        fprintf(stderr, "Can't open %s, size[hi] = %u!\n", filename, (uint32)hi);
-        SFileCloseFile(file);
+        fprintf(stderr, "Can't open %s, size[hi] = %u!\n", filename, uint32(hi));
+        CascCloseFile(file);
         eof = true;
         return;
     }
 
     if (size <= 1)
     {
-        fprintf(stderr, "Can't open %s, size = %u!\n", filename, size);
-        SFileCloseFile(file);
+        fprintf(stderr, "Can't open %s, size = %u!\n", filename, uint32(size));
+        CascCloseFile(file);
         eof = true;
         return;
     }
 
     DWORD read = 0;
     buffer = new char[size];
-    if (!SFileReadFile(file, buffer, size, &read) || size != read)
+    if (!CascReadFile(file, buffer, size, &read) || size != read)
     {
-        fprintf(stderr, "Can't read %s, size=%u read=%u!\n", filename, size, read);
-        SFileCloseFile(file);
+        fprintf(stderr, "Can't read %s, size=%u read=%u!\n", filename, uint32(size), uint32(read));
+        CascCloseFile(file);
         eof = true;
         return;
     }
 
-    SFileCloseFile(file);
+    CascCloseFile(file);
 }
 
 size_t MPQFile::read(void* dest, size_t bytes)

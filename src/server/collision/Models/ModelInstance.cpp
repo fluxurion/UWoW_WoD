@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@ namespace VMAP
 {
     ModelInstance::ModelInstance(const ModelSpawn &spawn, WorldModel* model): ModelSpawn(spawn), iModel(model)
     {
-        iInvRot = G3D::Matrix3::fromEulerAnglesZYX(G3D::pi()*iRot.y/180.f, G3D::pi()*iRot.x/180.f, G3D::pi()*iRot.z/180.f).inverse();
+        iInvRot = G3D::Matrix3::fromEulerAnglesZYX(G3D::pif()*iRot.y/180.f, G3D::pif()*iRot.x/180.f, G3D::pif()*iRot.z/180.f).inverse();
         iInvScale = 1.f/iScale;
     }
 
@@ -40,7 +40,7 @@ namespace VMAP
             return false;
         }
         float time = pRay.intersectionTime(iBound);
-        if (time == G3D::inf())
+        if (time == G3D::finf())
         {
 //            std::cout << "Ray does not hit '" << name << "'\n";
 

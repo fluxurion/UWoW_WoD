@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,16 +20,11 @@
 #define _MMAP_TERRAIN_BUILDER_H
 
 #include "PathCommon.h"
-#include "Map.h"
-#include "SharedDefines.h"
-
 #include "WorldModel.h"
 
 #include "G3D/Array.h"
 #include "G3D/Vector3.h"
 #include "G3D/Matrix3.h"
-
-using namespace Trinity;
 
 namespace MMAP
 {
@@ -52,7 +47,7 @@ namespace MMAP
     static const int V9_SIZE_SQ = V9_SIZE*V9_SIZE;
     static const int V8_SIZE = 128;
     static const int V8_SIZE_SQ = V8_SIZE*V8_SIZE;
-    static const float GRID_SIZE = 533.33333f;
+    static const float GRID_SIZE = 533.3333f;
     static const float GRID_PART_SIZE = GRID_SIZE/V8_SIZE;
 
     // see contrib/extractor/system.cpp, CONF_use_minHeight
@@ -62,7 +57,6 @@ namespace MMAP
     // see following files:
     // contrib/extractor/system.cpp
     // src/game/Map.cpp
-    static char const* MAP_VERSION_MAGIC = "v1.3";
 
     struct MeshData
     {
@@ -94,10 +88,10 @@ namespace MMAP
             bool usesLiquids() { return !m_skipLiquid; }
 
             // vert and triangle methods
-            static void transform(vector<G3D::Vector3> &original, vector<G3D::Vector3> &transformed,
+            static void transform(std::vector<G3D::Vector3> &original, std::vector<G3D::Vector3> &transformed,
                 float scale, G3D::Matrix3 &rotation, G3D::Vector3 &position);
-            static void copyVertices(vector<G3D::Vector3> &source, G3D::Array<float> &dest);
-            static void copyIndices(vector<VMAP::MeshTriangle> &source, G3D::Array<int> &dest, int offest, bool flip);
+            static void copyVertices(std::vector<G3D::Vector3> &source, G3D::Array<float> &dest);
+            static void copyIndices(std::vector<VMAP::MeshTriangle> &source, G3D::Array<int> &dest, int offest, bool flip);
             static void copyIndices(G3D::Array<int> &src, G3D::Array<int> &dest, int offset);
             static void cleanVertices(G3D::Array<float> &verts, G3D::Array<int> &tris);
         private:
@@ -120,7 +114,7 @@ namespace MMAP
             void getHeightTriangle(int square, Spot triangle, int* indices, bool liquid = false);
 
             /// Determines if the specific position's triangles should be rendered
-            bool isHole(int square, const uint16 holes[16][16]);
+            bool isHole(int square, uint8 const holes[16][16][8]);
 
             /// Get the liquid vector coordinate for a specific position
             void getLiquidCoord(int index, int index2, float xOffset, float yOffset, float* coord, float* v);

@@ -40,6 +40,7 @@ if(SERVERS)
   add_subdirectory(zmqpp)
 endif()
 
+  
 if(TOOLS)
-  add_subdirectory(StormLib)
+  add_subdirectory(CascLib)
 endif()

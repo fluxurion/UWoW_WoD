@@ -6480,7 +6480,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 // Hackfix for Raigonn
                 if (m_caster->GetEntry() != WORLD_TRIGGER && target->GetEntry() != 56895) // Ignore LOS for gameobjects casts (wrongly casted by a trigger)
-                    if (!(AttributesCustomEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOSInMap(target))
+                if (!(AttributesCustomEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOSInMap(target))
                         return SPELL_FAILED_LINE_OF_SIGHT;
 
                 if (m_spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE && m_caster->IsVisionObscured(target))
@@ -6495,7 +6495,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         float x, y, z;
         m_targets.GetDstPos()->GetPosition(x, y, z);
 
-        if (!(AttributesCustomEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOS(x, y, z))
+        if (!(AttributesCustomEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS) && !m_caster->IsWithinLOS(x, y, z))
             return SPELL_FAILED_LINE_OF_SIGHT;
     }
 

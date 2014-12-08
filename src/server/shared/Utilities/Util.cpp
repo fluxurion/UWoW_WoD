@@ -19,10 +19,18 @@
 
 #include "Util.h"
 #include "Common.h"
+#include "CompilerDefs.h"
 #include "utf8.h"
 #include "SFMT.h"
 #include "Errors.h" // for ASSERT
+#include <stdarg.h>
 #include <boost/thread/tss.hpp>
+
+#if COMPILER == COMPILER_GNU
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+  #include <arpa/inet.h>
+#endif
 
 static boost::thread_specific_ptr<SFMTRand> sfmtRand;
 
@@ -506,7 +514,7 @@ std::string ByteArrayToHexStr(uint8 const* bytes, uint32 arrayLen, bool reverse 
         end = -1;
         op = -1;
     }
-    
+
     std::ostringstream ss;
     for (int32 i = init; i != end; i += op)
     {

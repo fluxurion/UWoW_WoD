@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,7 +33,19 @@
     #include <errno.h>
 #endif
 
-using namespace std;
+enum NavTerrain
+{
+    NAV_EMPTY   = 0x00,
+    NAV_GROUND  = 0x01,
+    NAV_MAGMA   = 0x02,
+    NAV_SLIME   = 0x04,
+    NAV_WATER   = 0x08,
+    NAV_UNUSED1 = 0x10,
+    NAV_UNUSED2 = 0x20,
+    NAV_UNUSED3 = 0x40,
+    NAV_UNUSED4 = 0x80
+    // we only have 8 bits
+};
 
 namespace MMAP
 {
@@ -50,7 +62,7 @@ namespace MMAP
                 if (*++filter == '\0')   // wildcard at end of filter means all remaing chars match
                     return true;
 
-                while (true)
+                for (;;)
                 {
                     if (*filter == *str)
                         break;
@@ -75,12 +87,12 @@ namespace MMAP
         LISTFILE_OK = 1
     };
 
-    inline ListFilesResult getDirContents(vector<string> &fileList, string dirpath = ".", string filter = "*", bool includeSubDirs = false)
+    inline ListFilesResult getDirContents(std::vector<std::string> &fileList, std::string dirpath = ".", std::string filter = "*")
     {
     #ifdef WIN32
         HANDLE hFind;
         WIN32_FIND_DATA findFileInfo;
-        string directory;
+        std::string directory;
 
         directory = dirpath + "/" + filter;
 
@@ -90,8 +102,8 @@ namespace MMAP
             return LISTFILE_DIRECTORY_NOT_FOUND;
         do
         {
-            if (includeSubDirs || (findFileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
-                fileList.push_back(string(findFileInfo.cFileName));
+            if ((findFileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+                fileList.push_back(std::string(findFileInfo.cFileName));
         }
         while (FindNextFile(hFind, &findFileInfo));
 
@@ -101,7 +113,6 @@ namespace MMAP
         const char *p = dirpath.c_str();
         DIR * dirp = opendir(p);
         struct dirent * dp;
-        dirp = opendir(p);
 
         while (dirp)
         {
@@ -109,7 +120,7 @@ namespace MMAP
             if ((dp = readdir(dirp)) != NULL)
             {
                 if (matchWildcardFilter(filter.c_str(), dp->d_name))
-                    fileList.push_back(string(dp->d_name));
+                    fileList.push_back(std::string(dp->d_name));
             }
             else
                 break;

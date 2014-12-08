@@ -56,6 +56,9 @@ set(shared_STAT_SRCS
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast/Include
   ${CMAKE_SOURCE_DIR}/dep/SFMT
   ${CMAKE_SOURCE_DIR}/dep/sockets/include
   ${CMAKE_SOURCE_DIR}/dep/utf8cpp

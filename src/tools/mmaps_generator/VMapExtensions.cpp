@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,8 +22,6 @@
 #include "WorldModel.h"
 #include "ModelInstance.h"
 
-using namespace std;
-
 namespace VMAP
 {
     // Need direct access to encapsulated VMAP data, so we add functions for MMAP generator
@@ -43,13 +41,13 @@ namespace VMAP
     }
 
     // declared in src/shared/vmap/WorldModel.h
-    void WorldModel::getGroupModels(vector<GroupModel> &groupModels)
+    void WorldModel::getGroupModels(std::vector<GroupModel> &groupModels)
     {
         groupModels = this->groupModels;
     }
 
     // declared in src/shared/vmap/WorldModel.h
-    void GroupModel::getMeshData(vector<Vector3> &vertices, vector<MeshTriangle> &triangles, WmoLiquid* &liquid)
+    void GroupModel::getMeshData(std::vector<G3D::Vector3> &vertices, std::vector<MeshTriangle> &triangles, WmoLiquid* &liquid)
     {
         vertices = this->vertices;
         triangles = this->triangles;
@@ -57,13 +55,13 @@ namespace VMAP
     }
 
     // declared in src/shared/vmap/ModelInstance.h
-    WorldModel* const ModelInstance::getWorldModel()
+    WorldModel* ModelInstance::getWorldModel()
     {
         return iModel;
     }
 
     // declared in src/shared/vmap/WorldModel.h
-    void WmoLiquid::getPosInfo(uint32 &tilesX, uint32 &tilesY, Vector3 &corner) const
+    void WmoLiquid::getPosInfo(uint32 &tilesX, uint32 &tilesY, G3D::Vector3 &corner) const
     {
         tilesX = iTilesX;
         tilesY = iTilesY;

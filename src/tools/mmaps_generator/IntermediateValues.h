@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,7 +35,7 @@ namespace MMAP
         rcPolyMesh* polyMesh;
         rcPolyMeshDetail* polyMeshDetail;
 
-        IntermediateValues() :  compactHeightfield(NULL), heightfield(NULL),
+        IntermediateValues() :  heightfield(NULL), compactHeightfield(NULL),
                                 contours(NULL), polyMesh(NULL), polyMeshDetail(NULL) {}
         ~IntermediateValues();
 
