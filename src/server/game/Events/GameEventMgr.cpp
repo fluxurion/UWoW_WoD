@@ -382,7 +382,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                ObjectGuid::LowType guid    = fields[0].GetUInt32();
+                ObjectGuid::LowType guid    = fields[0].GetUInt64();
                 int16 event_id = fields[1].GetInt8();
 
                 int32 internal_event_id = mGameEvent.size() + event_id - 1;
@@ -425,7 +425,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                ObjectGuid::LowType guid    = fields[0].GetUInt32();
+                ObjectGuid::LowType guid    = fields[0].GetUInt64();
                 int16 event_id = fields[1].GetInt8();
 
                 int32 internal_event_id = mGameEvent.size() + event_id - 1;
@@ -466,7 +466,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                ObjectGuid::LowType guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid     = fields[0].GetUInt64();
                 uint16 event_id = fields[1].GetUInt8();
 
                 if (event_id >= mGameEventModelEquip.size())
@@ -486,13 +486,13 @@ void GameEventMgr::LoadFromDB()
                 {
                     if (!sObjectMgr->GetEquipmentInfo(newModelEquipSet.equipment_id))
                     {
-                        sLog->outError(LOG_FILTER_SQL, "Table `game_event_model_equip` have creature (Guid: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.",
+                        sLog->outError(LOG_FILTER_SQL, "Table `game_event_model_equip` have creature (Guid: " UI64FMTD ") with equipment_id %u not found in table `creature_equip_template`, set to no equipment.",
                                          guid, newModelEquipSet.equipment_id);
                         continue;
                     }
                 }
 
-                equiplist.push_back(std::pair<uint32, ModelEquip>(guid, newModelEquipSet));
+                equiplist.push_back(std::pair<ObjectGuid::LowType, ModelEquip>(guid, newModelEquipSet));
 
                 ++count;
             }
@@ -725,7 +725,7 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                ObjectGuid::LowType guid     = fields[0].GetUInt32();
+                ObjectGuid::LowType guid     = fields[0].GetUInt64();
                 uint16 event_id = fields[1].GetUInt8();
                 uint32 npcflag  = fields[2].GetUInt32();
 
@@ -1387,7 +1387,7 @@ bool GameEventMgr::hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 e
     }
     return false;
 }
-bool GameEventMgr::hasCreatureActiveEventExcept(ObjectGuid::LowType creature_id, uint16 event_id)
+bool GameEventMgr::hasCreatureActiveEventExcept(ObjectGuid::LowType const& creature_id, uint16 event_id)
 {
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {
@@ -1403,7 +1403,7 @@ bool GameEventMgr::hasCreatureActiveEventExcept(ObjectGuid::LowType creature_id,
     }
     return false;
 }
-bool GameEventMgr::hasGameObjectActiveEventExcept(ObjectGuid::LowType go_id, uint16 event_id)
+bool GameEventMgr::hasGameObjectActiveEventExcept(ObjectGuid::LowType const& go_id, uint16 event_id)
 {
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {

@@ -143,8 +143,8 @@ class GameEventMgr
         void SaveWorldEventStateToDB(uint16 event_id);
         bool hasCreatureQuestActiveEventExcept(uint32 quest_id, uint16 event_id);
         bool hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 event_id);
-        bool hasCreatureActiveEventExcept(ObjectGuid::LowType creature_guid, uint16 event_id);
-        bool hasGameObjectActiveEventExcept(ObjectGuid::LowType go_guid, uint16 event_id);
+        bool hasCreatureActiveEventExcept(ObjectGuid::LowType const& creature_guid, uint16 event_id);
+        bool hasGameObjectActiveEventExcept(ObjectGuid::LowType const& go_guid, uint16 event_id);
 
         typedef std::list<ObjectGuid::LowType> GuidList;
         typedef std::list<uint32> IdList;

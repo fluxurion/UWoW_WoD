@@ -869,7 +869,7 @@ void ObjectMgr::LoadCreatureAddons()
         CreatureData const* creData = GetCreatureData(guid);
         if (!creData)
         {
-            sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u) does not exist but has a record in `creature_addon`", guid);
+            sLog->outError(LOG_FILTER_SQL, "Creature (GUID: " UI64FMTD ") does not exist but has a record in `creature_addon`", guid);
             continue;
         }
 
@@ -879,7 +879,7 @@ void ObjectMgr::LoadCreatureAddons()
         if (creData->movementType == WAYPOINT_MOTION_TYPE && !creatureAddon.path_id)
         {
             const_cast<CreatureData*>(creData)->movementType = IDLE_MOTION_TYPE;
-            sLog->outError(LOG_FILTER_SQL, "Creature (GUID %u) has movement type set to WAYPOINT_MOTION_TYPE but no path assigned", guid);
+            sLog->outError(LOG_FILTER_SQL, "Creature (GUID " UI64FMTD ") has movement type set to WAYPOINT_MOTION_TYPE but no path assigned", guid);
         }
 
         creatureAddon.mount   = fields[2].GetUInt32();
@@ -895,7 +895,7 @@ void ObjectMgr::LoadCreatureAddons()
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*itr)));
             if (!AdditionalSpellInfo)
             {
-                sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u) has wrong spell %u defined in `auras` field in `creature_addon`.", guid, uint32(atol(*itr)));
+                sLog->outError(LOG_FILTER_SQL, "Creature (GUID: " UI64FMTD ") has wrong spell %u defined in `auras` field in `creature_addon`.", guid, uint32(atol(*itr)));
                 continue;
             }
             creatureAddon.auras[i++] = uint32(atol(*itr));
@@ -905,14 +905,14 @@ void ObjectMgr::LoadCreatureAddons()
         {
             if (!sCreatureDisplayInfoStore.LookupEntry(creatureAddon.mount))
             {
-                sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u) has invalid displayInfoId (%u) for mount defined in `creature_addon`", guid, creatureAddon.mount);
+                sLog->outError(LOG_FILTER_SQL, "Creature (GUID: " UI64FMTD ") has invalid displayInfoId (%u) for mount defined in `creature_addon`", guid, creatureAddon.mount);
                 creatureAddon.mount = 0;
             }
         }
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
         {
-            sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u) has invalid emote (%u) defined in `creature_addon`.", guid, creatureAddon.emote);
+            sLog->outError(LOG_FILTER_SQL, "Creature (GUID: " UI64FMTD ") has invalid emote (%u) defined in `creature_addon`.", guid, creatureAddon.emote);
             creatureAddon.emote = 0;
         }
 
@@ -1167,8 +1167,8 @@ void ObjectMgr::LoadLinkedRespawn()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType guidLow = fields[0].GetUInt32();
-        ObjectGuid::LowType linkedGuidLow = fields[1].GetUInt32();
+        ObjectGuid::LowType guidLow = fields[0].GetUInt64();
+        ObjectGuid::LowType linkedGuidLow = fields[1].GetUInt64();
         uint8  linkType = fields[2].GetUInt8();
 
         ObjectGuid guid, linkedGuid;
@@ -1180,7 +1180,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 const CreatureData* slave = GetCreatureData(guidLow);
                 if (!slave)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Couldn't get creature data for GUIDLow %u", guidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Couldn't get creature data for GUIDLow " UI64FMTD "", guidLow);
                     error = true;
                     break;
                 }
@@ -1188,7 +1188,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 const CreatureData* master = GetCreatureData(linkedGuidLow);
                 if (!master)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Couldn't get creature data for GUIDLow %u", linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Couldn't get creature data for GUIDLow " UI64FMTD "", linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1196,14 +1196,14 @@ void ObjectMgr::LoadLinkedRespawn()
                 const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
                 if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Creature '" UI64FMTD "' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
 
                 if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "LinkedRespawn: Creature '" UI64FMTD "' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1217,7 +1217,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 const CreatureData* slave = GetCreatureData(guidLow);
                 if (!slave)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Couldn't get creature data for GUIDLow %u", guidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Couldn't get creature data for GUIDLow " UI64FMTD "", guidLow);
                     error = true;
                     break;
                 }
@@ -1225,7 +1225,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 const GameObjectData* master = GetGOData(linkedGuidLow);
                 if (!master)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Couldn't get gameobject data for GUIDLow %u", linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Couldn't get gameobject data for GUIDLow " UI64FMTD "", linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1233,14 +1233,14 @@ void ObjectMgr::LoadLinkedRespawn()
                 const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
                 if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Creature '" UI64FMTD "' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
 
                 if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "LinkedRespawn: Creature '" UI64FMTD "' linking to '" UI64FMTD "' with not corresponding spawnMask", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1254,7 +1254,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 const GameObjectData* slave = GetGOData(guidLow);
                 if (!slave)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Couldn't get gameobject data for GUIDLow %u", guidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Couldn't get gameobject data for GUIDLow " UI64FMTD "", guidLow);
                     error = true;
                     break;
                 }
@@ -1262,7 +1262,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 const GameObjectData* master = GetGOData(linkedGuidLow);
                 if (!master)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Couldn't get gameobject data for GUIDLow %u", linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Couldn't get gameobject data for GUIDLow " UI64FMTD "", linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1270,14 +1270,14 @@ void ObjectMgr::LoadLinkedRespawn()
                 const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
                 if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Creature '" UI64FMTD "' linking to '" UI64FMTD "' on an unpermitted map.", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
 
                 if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "LinkedRespawn: Creature '" UI64FMTD "' linking to '" UI64FMTD "' with not corresponding spawnMask", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1291,7 +1291,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 const GameObjectData* slave = GetGOData(guidLow);
                 if (!slave)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Couldn't get gameobject data for GUIDLow %u", guidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Couldn't get gameobject data for GUIDLow " UI64FMTD "", guidLow);
                     error = true;
                     break;
                 }
@@ -1299,7 +1299,7 @@ void ObjectMgr::LoadLinkedRespawn()
                 const CreatureData* master = GetCreatureData(linkedGuidLow);
                 if (!master)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Couldn't get creature data for GUIDLow %u", linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Couldn't get creature data for GUIDLow " UI64FMTD "", linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1307,14 +1307,14 @@ void ObjectMgr::LoadLinkedRespawn()
                 const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
                 if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "Creature '" UI64FMTD "' linking to '" UI64FMTD "' on an unpermitted map.", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
 
                 if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    sLog->outError(LOG_FILTER_SQL, "LinkedRespawn: Creature '" UI64FMTD "' linking to '" UI64FMTD "' with not corresponding spawnMask", guidLow, linkedGuidLow);
                     error = true;
                     break;
                 }
@@ -1355,13 +1355,13 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType const& guidLow, Obj
     const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
     if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
     {
-        sLog->outError(LOG_FILTER_SQL, "Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
+        sLog->outError(LOG_FILTER_SQL, "Creature '" UI64FMTD "' linking to '" UI64FMTD "' on an unpermitted map.", guidLow, linkedGuidLow);
         return false;
     }
 
     if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
     {
-        sLog->outError(LOG_FILTER_SQL, "LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+        sLog->outError(LOG_FILTER_SQL, "LinkedRespawn: Creature '" UI64FMTD "' linking to '" UI64FMTD "' with not corresponding spawnMask", guidLow, linkedGuidLow);
         return false;
     }
 
@@ -1415,7 +1415,7 @@ void ObjectMgr::LoadCreatures()
         CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
         if (!cInfo)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature` has creature (GUID: %u) with non existing creature entry %u, skipped.", guid, entry);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature` has creature (GUID: " UI64FMTD ") with non existing creature entry %u, skipped.", guid, entry);
             continue;
         }
 
@@ -1448,13 +1448,13 @@ void ObjectMgr::LoadCreatures()
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: %u) that spawned at not existed map (Id: %u), skipped.", guid, data.mapid);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: " UI64FMTD ") that spawned at not existed map (Id: %u), skipped.", guid, data.mapid);
             continue;
         }
 
         if (data.spawnMask & ~spawnMasks[data.mapid])
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: %u) that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u) spawnMasks[data.mapid]: %u.", guid, data.spawnMask, data.mapid, spawnMasks[data.mapid]);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: " UI64FMTD ") that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u) spawnMasks[data.mapid]: %u.", guid, data.spawnMask, data.mapid, spawnMasks[data.mapid]);
             WorldDatabase.PExecute("UPDATE creature SET spawnMask = %u WHERE guid = %u", spawnMasks[data.mapid], guid);
         }
 
@@ -1471,19 +1471,19 @@ void ObjectMgr::LoadCreatures()
         if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
         {
             if (!mapEntry || !mapEntry->IsDungeon())
-                sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: %u Entry: %u) with `creature_template`.`flags_extra` including CREATURE_FLAG_EXTRA_INSTANCE_BIND but creature are not in instance.", guid, data.id);
+                sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `creature_template`.`flags_extra` including CREATURE_FLAG_EXTRA_INSTANCE_BIND but creature are not in instance.", guid, data.id);
         }
 
         if (data.spawndist < 0.0f)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: %u Entry: %u) with `spawndist`< 0, set to 0.", guid, data.id);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `spawndist`< 0, set to 0.", guid, data.id);
             data.spawndist = 0.0f;
         }
         else if (data.movementType == RANDOM_MOTION_TYPE)
         {
             if (data.spawndist == 0.0f)
             {
-                sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=1 (random movement) but with `spawndist`=0, replace by idle movement type (0).", guid, data.id);
+                sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `MovementType`=1 (random movement) but with `spawndist`=0, replace by idle movement type (0).", guid, data.id);
                 data.movementType = IDLE_MOTION_TYPE;
             }
         }
@@ -1491,14 +1491,14 @@ void ObjectMgr::LoadCreatures()
         {
             if (data.spawndist != 0.0f)
             {
-                sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=0 (idle) have `spawndist`<>0, set to 0.", guid, data.id);
+                sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `MovementType`=0 (idle) have `spawndist`<>0, set to 0.", guid, data.id);
                 data.spawndist = 0.0f;
             }
         }
 
         if (data.phaseMask == 0)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.", guid, data.id);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.", guid, data.id);
             data.phaseMask = 1;
         }
 
@@ -1599,7 +1599,7 @@ void ObjectMgr::LoadCreatureAIInstance()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature AI instance in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* data)
+void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType const& guid, CreatureData const* data)
 {
     uint32 mask = data->spawnMask;
     for (uint32 i = 0; mask != 0; i++, mask >>= 1)
@@ -1613,7 +1613,7 @@ void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* 
     }
 }
 
-void ObjectMgr::RemoveCreatureFromGrid(ObjectGuid::LowType guid, CreatureData const* data)
+void ObjectMgr::RemoveCreatureFromGrid(ObjectGuid::LowType const& guid, CreatureData const* data)
 {
     uint32 mask = data->spawnMask;
     for (uint32 i = 0; mask != 0; i++, mask >>= 1)
@@ -1631,11 +1631,11 @@ ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, fl
 {
     GameObjectTemplate const* goinfo = GetGameObjectTemplate(entry);
     if (!goinfo)
-        return 0;
+        return UI64LIT(0);
 
     Map* map = sMapMgr->CreateBaseMap(mapId);
     if (!map)
-        return 0;
+        return UI64LIT(0);
 
     ObjectGuid::LowType guid = GetGenerator<HighGuid::GameObject>()->Generate();
     GameObjectData& data = NewGOData(guid);
@@ -1668,16 +1668,16 @@ ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, fl
         {
             sLog->outError(LOG_FILTER_GENERAL, "AddGOData: cannot add gameobject entry %u to map", entry);
             delete go;
-            return 0;
+            return UI64LIT(0);
         }
     }
 
-    sLog->outDebug(LOG_FILTER_MAPS, "AddGOData: dbguid %u entry %u map %u x %f y %f z %f o %f", guid, entry, mapId, x, y, z, o);
+    sLog->outDebug(LOG_FILTER_MAPS, "AddGOData: dbguid " UI64FMTD " entry %u map %u x %f y %f z %f o %f", guid, entry, mapId, x, y, z, o);
 
     return guid;
 }
 
-bool ObjectMgr::MoveCreData(ObjectGuid::LowType guid, uint32 mapId, Position pos)
+bool ObjectMgr::MoveCreData(ObjectGuid::LowType const& guid, uint32 mapId, Position pos)
 {
     CreatureData& data = NewOrExistCreatureData(guid);
     if (!data.id)
@@ -1714,7 +1714,7 @@ ObjectGuid::LowType ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
     if (!cInfo)
-        return 0;
+        return UI64LIT(0);
 
     uint32 level = cInfo->minlevel == cInfo->maxlevel ? cInfo->minlevel : urand(cInfo->minlevel, cInfo->maxlevel); // Only used for extracting creature base stats
     CreatureBaseStats const* stats = GetCreatureBaseStats(level, cInfo->unit_class);
@@ -1802,7 +1802,7 @@ void ObjectMgr::LoadGameobjects()
         GameObjectTemplate const* gInfo = GetGameObjectTemplate(entry);
         if (!gInfo)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u) with non existing gameobject entry %u, skipped.", guid, entry);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: " UI64FMTD ") with non existing gameobject entry %u, skipped.", guid, entry);
             continue;
         }
 
@@ -1814,14 +1814,14 @@ void ObjectMgr::LoadGameobjects()
                 case GAMEOBJECT_TYPE_SPELL_FOCUS:
                     break;
                 default:
-                    sLog->outError(LOG_FILTER_SQL, "Gameobject (GUID: %u Entry %u GoType: %u) doesn't have a displayId (%u), not loaded.", guid, entry, gInfo->type, gInfo->displayId);
+                    sLog->outError(LOG_FILTER_SQL, "Gameobject (GUID: " UI64FMTD " Entry %u GoType: %u) doesn't have a displayId (%u), not loaded.", guid, entry, gInfo->type, gInfo->displayId);
                     break;
             }
         }
 
         if (gInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(gInfo->displayId))
         {
-            sLog->outError(LOG_FILTER_SQL, "Gameobject (GUID: %u Entry %u GoType: %u) has an invalid displayId (%u), not loaded.", guid, entry, gInfo->type, gInfo->displayId);
+            sLog->outError(LOG_FILTER_SQL, "Gameobject (GUID: " UI64FMTD " Entry %u GoType: %u) has an invalid displayId (%u), not loaded.", guid, entry, gInfo->type, gInfo->displayId);
             continue;
         }
 
@@ -1844,7 +1844,7 @@ void ObjectMgr::LoadGameobjects()
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) spawned on a non-existed map (Id: %u), skip", guid, data.id, data.mapid);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: " UI64FMTD " Entry: %u) spawned on a non-existed map (Id: %u), skip", guid, data.id, data.mapid);
             continue;
         }
 
@@ -1859,7 +1859,7 @@ void ObjectMgr::LoadGameobjects()
 
         if (data.spawntimesecs == 0 && gInfo->IsDespawnAtAction())
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) with `spawntimesecs` (0) value, but the gameobejct is marked as despawnable at action.", guid, data.id);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: " UI64FMTD " Entry: %u) with `spawntimesecs` (0) value, but the gameobejct is marked as despawnable at action.", guid, data.id);
         }
 
         data.animprogress   = fields[14].GetUInt8();
@@ -1868,7 +1868,7 @@ void ObjectMgr::LoadGameobjects()
         uint32 go_state     = fields[15].GetUInt8();
         if (go_state >= MAX_GO_STATE)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid `state` (%u) value, skip", guid, data.id, go_state);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: " UI64FMTD " Entry: %u) with invalid `state` (%u) value, skip", guid, data.id, go_state);
             continue;
         }
         data.go_state       = GOState(go_state);
@@ -1879,7 +1879,7 @@ void ObjectMgr::LoadGameobjects()
 
         if (data.spawnMask & ~spawnMasks[data.mapid])
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: " UI64FMTD " Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
             WorldDatabase.PExecute("UPDATE gameobject SET spawnMask = %u WHERE guid = %u", spawnMasks[data.mapid], guid);
         }
 
@@ -1889,19 +1889,19 @@ void ObjectMgr::LoadGameobjects()
 
         if (data.rotation2 < -1.0f || data.rotation2 > 1.0f)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation2 (%f) value, skip", guid, data.id, data.rotation2);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: " UI64FMTD " Entry: %u) with invalid rotation2 (%f) value, skip", guid, data.id, data.rotation2);
             continue;
         }
 
         if (data.rotation3 < -1.0f || data.rotation3 > 1.0f)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation3 (%f) value, skip", guid, data.id, data.rotation3);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: " UI64FMTD " Entry: %u) with invalid rotation3 (%f) value, skip", guid, data.id, data.rotation3);
             continue;
         }
 
         if (data.phaseMask == 0)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.", guid, data.id);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: " UI64FMTD " Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.", guid, data.id);
             data.phaseMask = 1;
         }
 
@@ -1913,7 +1913,7 @@ void ObjectMgr::LoadGameobjects()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu gameobjects in %u ms", (unsigned long)_gameObjectDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData const* data)
+void ObjectMgr::AddGameobjectToGrid(ObjectGuid::LowType const& guid, GameObjectData const* data)
 {
     uint32 mask = data->spawnMask;
     for (uint32 i = 0; mask != 0; i++, mask >>= 1)
@@ -1927,7 +1927,7 @@ void ObjectMgr::AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData con
     }
 }
 
-void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectData const* data)
+void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType const& guid, GameObjectData const* data)
 {
     uint32 mask = data->spawnMask;
     for (uint32 i = 0; mask != 0; i++, mask >>= 1)
