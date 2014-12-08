@@ -919,7 +919,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId
     bg->SetTypeID(isRandom ? oldbgTypeId : bgTypeId);       //oldbgTypeId can be BATTLEGROUND_RATED_10_VS_10 || BATTLEGROUND_RB
     bg->SetRBG(oldbgTypeId == BATTLEGROUND_RATED_10_VS_10);
     bg->SetRandomTypeID(bgTypeId);
-    bg->InitGUID();
+    bg->SetGuid(uint64(bgTypeId) | UI64LIT(0x1F10000000000000));
 
     return bg;
 }
@@ -958,7 +958,6 @@ uint32 BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
 
     bg->SetMapId(data.MapID);
     bg->SetTypeID(data.bgTypeId);
-    bg->InitGUID();
     bg->SetInstanceID(0);
     bg->SetArenaorBGType(data.IsArena);
     bg->SetRBG(data.IsRbg);
@@ -973,6 +972,7 @@ uint32 BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
     bg->SetLevelRange(data.LevelMin, data.LevelMax);
     bg->SetHolidayId(data.holiday);
     bg->SetScriptId(data.scriptId);
+    bg->SetGuid(uint64(data.bgTypeId) | UI64LIT(0x1F10000000000000));
 
     // add bg to update list
     AddBattleground(bg->GetInstanceID(), bg->GetTypeID(), bg);
