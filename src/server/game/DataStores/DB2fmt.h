@@ -18,19 +18,19 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
-const char Itemfmt[]="niiiiiii";
-const char ItemCurrencyCostfmt[]="xn";
-const char ItemSparsefmt[]="niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
-const char ItemExtendedCostEntryfmt[]="nxxiiiiiiiiiiiixiiiiiiiiiixxixx";
-const char BattlePetSpeciesEntryfmt[]="nixixiixx";
-const char QuestPackageItemfmt[]="iiiix";
-const char SpellReagentsEntryfmt[]="diiiiiiiiiiiiiiiiii";
-const char ItemUpgradeEntryfmt[]="niiiii";
-const char RuleSetItemUpgradeEntryfmt[]="niii";
-const char GameObjectsEntryfmt[]="niiffffffffiiiiis";
-const char MapChallengeModeEntryfmt[]="niiiiiiiii";
+const char Itemfmt[] = "niiiiiii";
+const char ItemCurrencyCostfmt[] = "xn";
+const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
+const char ItemExtendedCostEntryfmt[] = "nxxiiiiiiiiiiiixiiiiiiiiiixxixx";
+const char BattlePetSpeciesEntryfmt[] = "nixixiixx";
+const char QuestPackageItemfmt[] = "iiiix";
+const char SpellReagentsEntryfmt[] = "diiiiiiiiiiiiiiiiii";
+const char ItemUpgradeEntryfmt[] = "niiiii";
+const char RuleSetItemUpgradeEntryfmt[] = "niii";
+const char GameObjectsEntryfmt[] = "niiffffffffiiiiis";
+const char MapChallengeModeEntryfmt[] = "niiiiiiiii";
 const std::string CustomItemExtendedCostEntryfmt="paappppppppppppappppppppppaapaa";
 const std::string CustomItemExtendedCostEntryIndex = "ID";
-const char SpellVisualEntryfmt[]="nxxxxxxxxxxxxxxxxxxxxxxxxixxxx";
+const char SpellVisualEntryfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxixxxx";
 
 #endif
