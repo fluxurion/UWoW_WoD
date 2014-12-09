@@ -5612,7 +5612,7 @@ void ObjectMgr::LoadGraveyardZones()
             continue;
         }
 
-        /*if (areaEntry->zone != 0)
+        /*if (areaEntry->ParentAreaID != 0)
         {
             sLog->outError(LOG_FILTER_SQL, "Table `game_graveyard_zone` has a record for subzone id (%u) instead of zone, skipped.", zoneId);
             continue;
@@ -9211,9 +9211,9 @@ void ObjectMgr::LoadResearchSiteToZoneData()
             if (!area)
                 continue;
 
-            if (area->zone == zone_id)
+            if (area->ParentAreaID == zone_id)
             {
-                data.level = area->area_level;
+                data.level = area->ExplorationLevel;
                 break;
             }
         }

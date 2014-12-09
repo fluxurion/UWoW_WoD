@@ -13620,7 +13620,7 @@ void Unit::UpdateMount()
                     entry = GetAreaEntryByAreaID(zoneId);
 
                 if (entry)
-                    currentMountFlags = entry->mountFlags;
+                    currentMountFlags = entry->MountFlags;
             }
         }
 
