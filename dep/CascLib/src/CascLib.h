@@ -26,50 +26,6 @@
 extern "C" {
 #endif
 
-//-----------------------------------------------------------------------------
-// Use the apropriate library
-//
-// The library type is encoded in the library name as the following
-// CascLibXYZ.lib
-// 
-//  X - D for Debug version, R for Release version
-//  Y - A for ANSI version, U for Unicode version
-//  Z - S for static-linked CRT library, D for multithreaded DLL CRT library
-//
-
-#if defined(_MSC_VER) && !defined(__CASCLIB_SELF__)
-  
-  #ifdef _DEBUG                                 // DEBUG VERSIONS
-    #ifndef _UNICODE                            
-      #ifdef _DLL                               
-        #pragma comment(lib, "CascLibDAD.lib") // Debug Ansi CRT-DLL version
-      #else        
-        #pragma comment(lib, "CascLibDAS.lib") // Debug Ansi CRT-LIB version
-      #endif
-    #else
-      #ifdef _DLL                               
-        #pragma comment(lib, "CascLibDUD.lib") // Debug Unicode CRT-DLL version
-      #else        
-        #pragma comment(lib, "CascLibDUS.lib") // Debug Unicode CRT-LIB version
-      #endif
-    #endif
-  #else                                         // RELEASE VERSIONS
-    #ifndef _UNICODE                            
-      #ifdef _DLL
-        #pragma comment(lib, "CascLibRAD.lib") // Release Ansi CRT-DLL version
-      #else        
-        #pragma comment(lib, "CascLibRAS.lib") // Release Ansi CRT-LIB version
-      #endif
-    #else
-      #ifdef _DLL
-        #pragma comment(lib, "CascLibRUD.lib") // Release Unicode CRT-DLL version
-      #else        
-        #pragma comment(lib, "CascLibRUS.lib") // Release Unicode CRT-LIB version
-      #endif
-    #endif
-  #endif
-
-#endif
 
 //-----------------------------------------------------------------------------
 // Defines
