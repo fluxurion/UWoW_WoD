@@ -1144,19 +1144,22 @@ void ExtractDBFilesClient(int l)
     HANDLE dbcFile;
     while (fileName)
     {
-        if (CascOpenFile(CascStorage, fileName, 1 << l, 0, &dbcFile))
+        if (!CascOpenFile(CascStorage, fileName, 1 << l, 0, &dbcFile) &&
+            !CascOpenFile(CascStorage, fileName, CASC_LOCALE_NONE, 0, &dbcFile))
         {
-            std::string filename = fileName;
-            filename = outputPath + filename.substr(filename.rfind('\\') + 1);
-
-            if (!FileExists(filename.c_str()))
-                if (ExtractFile(dbcFile, filename.c_str()))
-                    ++count;
-
-            CascCloseFile(dbcFile);
-        }
-        else
             printf("Unable to open file %s in the archive for locale %s: %s\n", fileName, Locales[l], HumanReadableCASCError(GetLastError()));
+            fileName = DBFilesClientList[++index];
+            continue;
+        }
+
+        std::string filename = fileName;
+        filename = outputPath + filename.substr(filename.rfind('\\') + 1);
+
+        if (!FileExists(filename.c_str()))
+            if (ExtractFile(dbcFile, filename.c_str()))
+                ++count;
+
+        CascCloseFile(dbcFile);
 
         fileName = DBFilesClientList[++index];
     }
