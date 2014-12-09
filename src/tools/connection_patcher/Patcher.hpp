@@ -23,9 +23,6 @@
 
 #include <boost/filesystem.hpp>
 
-#include <vector>
-#include <string>
-
 namespace Connection_Patcher
 {
     struct Patcher

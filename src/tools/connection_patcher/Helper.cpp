@@ -27,25 +27,6 @@ namespace Connection_Patcher
 {
     namespace Helper
     {
-        Constants::BinaryTypes GetBinaryType(std::vector<unsigned char> const& data)
-        {
-            // Check MS-DOS magic
-            if (*reinterpret_cast<uint16_t const*>(data.data()) == 0x5A4D)
-            {
-                uint32_t const peOffset(*reinterpret_cast<uint32_t const*>(data.data() + 0x3C));
-
-                // Check PE magic
-                if (*reinterpret_cast<uint32_t const*>(data.data() + peOffset) != 0x4550)
-                    throw std::invalid_argument("Not a PE file!");
-
-                return Constants::BinaryTypes(*reinterpret_cast<uint16_t const*>(data.data() + peOffset + 4));
-            }
-            else
-            {
-                return Constants::BinaryTypes(*reinterpret_cast<uint32_t const*>(data.data()));
-            }
-        }
-
         std::string GetFileChecksum(std::vector<unsigned char> const& data)
         {
             SHA256Hash h;

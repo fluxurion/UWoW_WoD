@@ -20,6 +20,8 @@
 #define CONNECTION_PATCHER_CONSTANTS_BINARYTYPES_HPP
 
 #include <cstdint>
+#include <vector>
+#include <string>
 
 namespace Connection_Patcher
 {

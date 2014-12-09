@@ -21,14 +21,10 @@
 
 #include "Constants/BinaryTypes.hpp"
 
-#include <vector>
-#include <string>
-
 namespace Connection_Patcher
 {
     namespace Helper
     {
-        Constants::BinaryTypes GetBinaryType(std::vector<unsigned char> const& data);
         std::string GetFileChecksum(std::vector<unsigned char> const& data);
     }
 }
