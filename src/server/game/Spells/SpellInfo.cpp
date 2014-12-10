@@ -920,18 +920,18 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     SpellAuraRestrictionsEntry const* _aura = GetSpellAuraRestrictions();
     CasterAuraState = _aura ? _aura->CasterAuraState : 0;
     TargetAuraState = _aura ? _aura->TargetAuraState : 0;
-    CasterAuraStateNot = _aura ? _aura->CasterAuraStateNot : 0;
-    TargetAuraStateNot = _aura ? _aura->TargetAuraStateNot : 0;
-    CasterAuraSpell = _aura ? _aura->casterAuraSpell : 0;
-    TargetAuraSpell = _aura ? _aura->targetAuraSpell : 0;
-    ExcludeCasterAuraSpell = _aura ? _aura->excludeCasterAuraSpell : 0;
-    ExcludeTargetAuraSpell = _aura ? _aura->excludeTargetAuraSpell : 0;
+    CasterAuraStateNot = _aura ? _aura->ExcludeCasterAuraState : 0;
+    TargetAuraStateNot = _aura ? _aura->ExcludeTargetAuraState : 0;
+    CasterAuraSpell = _aura ? _aura->CasterAuraSpell : 0;
+    TargetAuraSpell = _aura ? _aura->TargetAuraSpell : 0;
+    ExcludeCasterAuraSpell = _aura ? _aura->ExcludeCasterAuraSpell : 0;
+    ExcludeTargetAuraSpell = _aura ? _aura->ExcludeTargetAuraSpell : 0;
 
     // SpellCastingRequirementsEntry
     SpellCastingRequirementsEntry const* _castreq = GetSpellCastingRequirements();
     RequiresSpellFocus = _castreq ? _castreq->RequiresSpellFocus : 0;
     FacingCasterFlags = _castreq ? _castreq->FacingCasterFlags : 0;
-    AreaGroupId = _castreq ? _castreq->AreaGroupId : -1;
+    AreaGroupId = _castreq ? _castreq->RequiredAreasID : -1;
 
     // SpellCategoriesEntry
     SpellCategoriesEntry const* _categorie = GetSpellCategories();
@@ -954,8 +954,8 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
 
     // SpellClassOptionsEntry
     SpellClassOptionsEntry const* _class = GetSpellClassOptions();
-    SpellFamilyName = _class ? _class->SpellFamilyName : 0;
-    SpellFamilyFlags = _class ? _class->SpellFamilyFlags : flag128(0);
+    SpellFamilyName = _class ? _class->SpellClassSet : 0;
+    SpellFamilyFlags = _class ? _class->SpellClassMask : flag128(0);
 
     // SpellCooldownsEntry
     SpellCooldownsEntry const* _cooldowns = GetSpellCooldowns();
@@ -984,22 +984,22 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     // SpellPowerEntry
     PowerType = POWER_NULL;
     PowerCost =  0;
-    PowerPerSecond = 0;
+    PowerCostPerSecond = 0;
     PowerCostPercentage = 0.0f;
-    PowerPerSecondPercentage = 0.0f;
+    PowerCostPercentagePerSecond = 0.0f;
     PowerRequestId = 0;
     PowerGetPercentHp = 0.0f;
 
     for (uint8 i = 0; i < MAX_POWERS_FOR_SPELL; ++i)
     {
-        spellPower[i].Id = 0;
-        spellPower[i].SpellId = Id;
-        spellPower[i].powerType = POWER_NULL;
-        spellPower[i].powerCost = 0;
-        spellPower[i].powerPerSecond = 0;
-        spellPower[i].powerCostPercentage = 0.0f;
-        spellPower[i].powerPerSecondPercentage = 0.0f;
-        spellPower[i].spellRequestId = 0;
+        spellPower[i].ID = 0;
+        spellPower[i].SpellID = Id;
+        spellPower[i].PowerType = POWER_NULL;
+        spellPower[i].PowerCost = 0;
+        spellPower[i].PowerCostPerSecond = 0;
+        spellPower[i].PowerCostPercentage = 0.0f;
+        spellPower[i].PowerCostPercentagePerSecond = 0.0f;
+        spellPower[i].RequiredAura = 0;
         spellPower[i].getpercentHp = 0.0f;
     }
 
@@ -1021,17 +1021,17 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
 
     uint32 castingTimeIndex = _misc ? _misc->CastingTimeIndex : 0;
     uint32 durationIndex = _misc ? _misc->DurationIndex : 0;
-    uint32 rangeIndex = _misc ? _misc->rangeIndex : 0;
+    uint32 rangeIndex = _misc ? _misc->RangeIndex : 0;
 
     CastTimeEntry = sSpellCastTimesStore.LookupEntry(castingTimeIndex);
     DurationEntry = sSpellDurationStore.LookupEntry(durationIndex);
     //PowerType = spellEntry->powerType; WTF
     RangeEntry = sSpellRangeStore.LookupEntry(rangeIndex);
-    Speed = _misc ? _misc->speed : 1.00f;
+    Speed = _misc ? _misc->Speed : 1.00f;
     for (uint8 i = 0; i < 2; ++i)
-        SpellVisual[i] = _misc ? _misc->SpellVisual[i] : 0;
+        SpellVisual[i] = _misc ? _misc->SpellVisualID[i] : 0;
     SpellIconID = _misc ? _misc->SpellIconID : 0;
-    ActiveIconID = _misc ? _misc->activeIconID : 0;
+    ActiveIconID = _misc ? _misc->ActiveIconID : 0;
     SchoolMask = _misc ? _misc->SchoolMask : 0;
 
     // SpellReagentsEntry
@@ -2593,7 +2593,7 @@ uint32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) 
         // Else drain all power
         if (PowerType < MAX_POWERS)
             return caster->GetPower(Powers(PowerType));
-        sLog->outError(LOG_FILTER_SPELLS_AURAS, "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", spellPower->powerType, Id);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", spellPower->PowerType, Id);
         return 0;
     }
 
@@ -2601,30 +2601,30 @@ uint32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) 
     if (GetSpellPowerByCasterPower(caster, power))
     {
         // Base powerCost
-        int32 powerCost = power.powerCost;
+        int32 powerCost = power.PowerCost;
         // PCT cost from total amount
-        if (power.powerCostPercentage)
+        if (power.PowerCostPercentage)
         {
-            switch (power.powerType)
+            switch (power.PowerType)
             {
                 // health as power used
                 case POWER_HEALTH:
-                    powerCost += int32(CalculatePct(caster->GetCreateHealth(), power.powerCostPercentage));
+                    powerCost += int32(CalculatePct(caster->GetCreateHealth(), power.PowerCostPercentage));
                     break;
                 case POWER_MANA:
-                    powerCost += int32(CalculatePct(caster->GetCreateMana(), power.powerCostPercentage));
+                    powerCost += int32(CalculatePct(caster->GetCreateMana(), power.PowerCostPercentage));
                     break;
                 case POWER_RAGE:
                 case POWER_FOCUS:
                 case POWER_ENERGY:
-                    powerCost += int32(CalculatePct(caster->GetMaxPower(Powers(power.powerType)), power.powerCostPercentage));
+                    powerCost += int32(CalculatePct(caster->GetMaxPower(Powers(power.PowerType)), power.PowerCostPercentage));
                     break;
                 case POWER_RUNES:
                 case POWER_RUNIC_POWER:
                     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Not implemented yet!");
                     break;
                 default:
-                    sLog->outError(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Unknown power type '%d' in spell %d", spellPower->powerType, Id);
+                    sLog->outError(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Unknown power type '%d' in spell %d", spellPower->PowerType, Id);
                     return 0;
             }
         }
@@ -2632,7 +2632,7 @@ uint32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) 
         // Flat mod from caster auras by spell school
         powerCost += caster->GetInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + school);
         // Apply cost mod by spell
-        if(power.powerType != POWER_BURNING_EMBERS)
+        if(power.PowerType != POWER_BURNING_EMBERS)
             if (Player* modOwner = caster->GetSpellModOwner())
                 modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost);
 
@@ -3394,13 +3394,13 @@ bool SpellInfo::AddPowerData(SpellPowerEntry const *power)
         if (IsPowerActive(i))
             continue;
 
-        spellPower[i].Id = power->Id;
-        spellPower[i].powerType = power->powerType;
-        spellPower[i].powerCost = power->powerCost;
-        spellPower[i].powerPerSecond = power->powerPerSecond;
-        spellPower[i].powerCostPercentage = power->powerCostPercentage;
-        spellPower[i].powerPerSecondPercentage = power->powerPerSecondPercentage;
-        spellPower[i].spellRequestId = power->spellRequestId;
+        spellPower[i].ID = power->ID;
+        spellPower[i].PowerType = power->PowerType;
+        spellPower[i].PowerCost = power->PowerCost;
+        spellPower[i].PowerCostPerSecond = power->PowerCostPerSecond;
+        spellPower[i].PowerCostPercentage = power->PowerCostPercentage;
+        spellPower[i].PowerCostPercentagePerSecond = power->PowerCostPercentagePerSecond;
+        spellPower[i].RequiredAura = power->RequiredAura;
         spellPower[i].getpercentHp = power->getpercentHp;
         return true;
     }
@@ -3410,7 +3410,7 @@ bool SpellInfo::AddPowerData(SpellPowerEntry const *power)
 
 bool SpellInfo::IsPowerActive(uint8 powerIndex) const
 {
-    return GetPowerInfo(powerIndex).Id != 0;
+    return GetPowerInfo(powerIndex).ID != 0;
 }
 
 SpellPowerEntry const SpellInfo::GetPowerInfo(uint8 powerIndex) const
@@ -3432,29 +3432,29 @@ bool SpellInfo::GetSpellPowerByCasterPower(Unit const * caster, SpellPowerEntry 
     uint8 index = 0;
     for (uint8 i = 0; i < MAX_POWERS_FOR_SPELL; ++i)
     {
-        if (!spellPower[i].Id)
+        if (!spellPower[i].ID)
             continue;
 
         // skip requarement
-        if (spellPower[i].spellRequestId > 0 && caster->HasAura(spellPower[i].spellRequestId))
+        if (spellPower[i].RequiredAura > 0 && caster->HasAura(spellPower[i].RequiredAura))
         {
             index = i;
             break;
         }
 
-        if (spellPower[i].powerType == caster->getPowerType())
+        if (spellPower[i].PowerType == caster->getPowerType())
             index = i;
     }
 
-    if (spellPower[index].Id)
+    if (spellPower[index].ID)
     {
-        power.Id = spellPower[index].Id;
-        power.powerType = spellPower[index].powerType;
-        power.powerCost = spellPower[index].powerCost;
-        power.powerPerSecond = spellPower[index].powerPerSecond;
-        power.powerCostPercentage = spellPower[index].powerCostPercentage;
-        power.powerPerSecondPercentage = spellPower[index].powerPerSecondPercentage;
-        power.spellRequestId = spellPower[index].spellRequestId;
+        power.ID = spellPower[index].ID;
+        power.PowerType = spellPower[index].PowerType;
+        power.PowerCost = spellPower[index].PowerCost;
+        power.PowerCostPerSecond = spellPower[index].PowerCostPerSecond;
+        power.PowerCostPercentage = spellPower[index].PowerCostPercentage;
+        power.PowerCostPercentagePerSecond = spellPower[index].PowerCostPercentagePerSecond;
+        power.RequiredAura = spellPower[index].RequiredAura;
         power.getpercentHp = spellPower[index].getpercentHp;
         return true;
     }
@@ -3465,7 +3465,7 @@ bool SpellInfo::GetSpellPowerByCasterPower(Unit const * caster, SpellPowerEntry 
 bool SpellInfo::HasPower(Powers power) const
 {
     for (uint8 i = 0; i < MAX_POWERS_FOR_SPELL; ++i)
-        if (spellPower[i].powerType == power && spellPower[i].Id)
+    if (spellPower[i].PowerType == power && spellPower[i].ID)
         return true;
 
     return false;
@@ -3474,7 +3474,7 @@ bool SpellInfo::HasPower(Powers power) const
 bool SpellInfo::NoPower() const
 {
     for (uint8 i = 0; i < MAX_POWERS_FOR_SPELL; ++i)
-        if (spellPower[i].Id)
+    if (spellPower[i].ID)
             return false;
 
     return true;

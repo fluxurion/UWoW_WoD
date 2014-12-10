@@ -16,27 +16,54 @@
  */
 
 #include "DB2Stores.h"
-#include "Log.h"
-#include "SharedDefines.h"
-#include "SpellMgr.h"
+#include "DBCStores.h"
 #include "DB2fmt.h"
+
+#include "Common.h"
+#include "Log.h"
+#include "World.h"
 #include <iostream>
 #include <fstream>
 
 #include <map>
 
-DB2Storage <ItemEntry> sItemStore(Itemfmt);
-DB2Storage <ItemCurrencyCostEntry> sItemCurrencyCostStore(ItemCurrencyCostfmt);
-DB2Storage <ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
-DB2Storage <ItemSparseEntry> sItemSparseStore (ItemSparsefmt);
-DB2Storage <BattlePetSpeciesEntry> sBattlePetSpeciesStore(BattlePetSpeciesEntryfmt);
-DB2Storage <QuestPackageItem> sQuestPackageItemStore(QuestPackageItemfmt);
-DB2Storage <SpellReagentsEntry> sSpellReagentsStore(SpellReagentsEntryfmt);
-DB2Storage <ItemUpgradeEntry> sItemUpgradeStore(ItemUpgradeEntryfmt);
-DB2Storage <RuleSetItemUpgradeEntry> sRuleSetItemUpgradeEntryStore(RuleSetItemUpgradeEntryfmt);
-DB2Storage <GameObjectsEntry> sGameObjectsStore(GameObjectsEntryfmt);
-DB2Storage <MapChallengeModeEntry> sMapChallengeModeStore(MapChallengeModeEntryfmt);
-DB2Storage <SpellVisualEntry> sSpellVisualStore(SpellVisualEntryfmt);
+DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryfmt);
+DB2Storage<ItemEntry>                       sItemStore(Itemfmt);
+DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore(ItemAppearanceEntryfmt);
+ItemDisplayIDMap                            sItemDisplayIDMap;
+DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore(ItemCurrencyCostfmt);
+DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedCostEntryfmt);
+DB2Storage<ItemEffectEntry>                 sItemEffectStore(ItemEffectEntryfmt);
+DB2Storage<ItemSparseEntry>                 sItemSparseStore (ItemSparsefmt);
+DB2Storage<BattlePetSpeciesEntry>           sBattlePetSpeciesStore(BattlePetSpeciesEntryfmt);
+DB2Storage<QuestPackageItem>                sQuestPackageItemStore(QuestPackageItemfmt);
+DB2Storage<SpellReagentsEntry>              sSpellReagentsStore(SpellReagentsEntryfmt);
+DB2Storage<ItemUpgradeEntry>                sItemUpgradeStore(ItemUpgradeEntryfmt);
+DB2Storage<RuleSetItemUpgradeEntry>         sRuleSetItemUpgradeEntryStore(RuleSetItemUpgradeEntryfmt);
+DB2Storage<GameObjectsEntry>                sGameObjectsStore(GameObjectsEntryfmt);
+DB2Storage<MapChallengeModeEntry>           sMapChallengeModeStore(MapChallengeModeEntryfmt);
+DB2Storage<SpellVisualEntry>                sSpellVisualStore(SpellVisualEntryfmt);
+DB2Storage<KeyChainEntry>                   sKeyChainStore(KeyChainfmt);
+DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore(OverrideSpellDataEntryfmt);
+DB2Storage<PhaseGroupEntry>                 sPhaseGroupStore(PhaseGroupEntryfmt);
+DB2Storage<SpellAuraRestrictionsEntry>      sSpellAuraRestrictionsStore(SpellAuraRestrictionsEntryfmt);
+DB2Storage<SpellCastingRequirementsEntry>   sSpellCastingRequirementsStore(SpellCastingRequirementsEntryfmt);
+DB2Storage<SpellClassOptionsEntry>          sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
+DB2Storage<SpellMiscEntry>                  sSpellMiscStore(SpellMiscEntryfmt);
+DB2Storage<SpellPowerEntry>                 sSpellPowerStore(SpellPowerEntryfmt);
+DB2Storage<SpellRuneCostEntry>              sSpellRuneCostStore(SpellRuneCostEntryfmt);
+DB2Storage<SpellTotemsEntry>                sSpellTotemsStore(SpellTotemsEntryfmt);
+DB2Storage<TaxiNodesEntry>                  sTaxiNodesStore(TaxiNodesEntryfmt);
+DB2Storage<TaxiPathEntry>                   sTaxiPathStore(TaxiPathEntryfmt);
+DB2Storage<TaxiPathNodeEntry>               sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
+TaxiMask                                    sTaxiNodesMask;
+TaxiMask                                    sOldContinentsNodesMask;
+TaxiMask                                    sHordeTaxiNodesMask;
+TaxiMask                                    sAllianceTaxiNodesMask;
+TaxiMask                                    sDeathKnightTaxiNodesMask;
+TaxiPathSetBySource                         sTaxiPathSetBySource;
+TaxiPathNodesByPath                         sTaxiPathNodesByPath;
+PhaseGroupContainer sPhasesByGroup;
 
 typedef std::list<std::string> StoreProblemList1;
 static std::map<uint32, std::list<uint32> > sPackageItemList;
@@ -115,15 +142,36 @@ void LoadDB2Stores(const std::string& dataPath)
 
         sBattlePetSpeciesBySpellId[entry->CreatureEntry] = entry;
     }
-    LoadDB2(bad_db2_files, sItemStore,              db2Path, "Item.db2");
-    LoadDB2(bad_db2_files, sItemCurrencyCostStore,  db2Path, "ItemCurrencyCost.db2");
-    LoadDB2(bad_db2_files, sItemSparseStore,        db2Path, "Item-sparse.db2");
-    LoadDB2(bad_db2_files, sItemExtendedCostStore,  db2Path, "ItemExtendedCost.db2", &CustomItemExtendedCostEntryfmt, &CustomItemExtendedCostEntryIndex);
-    LoadDB2(bad_db2_files, sQuestPackageItemStore,  db2Path, "QuestPackageItem.db2");
-    LoadDB2(bad_db2_files, sGameObjectsStore,       db2Path, "GameObjects.db2");
-    LoadDB2(bad_db2_files, sMapChallengeModeStore,  db2Path, "MapChallengeMode.db2");
-    LoadDB2(bad_db2_files, sSpellVisualStore,       db2Path, "SpellVisual.db2");
     
+    LoadDB2(bad_db2_files, sHolidaysStore,             db2Path,    "Holidays.db2");
+    LoadDB2(bad_db2_files, sItemStore,                 db2Path,    "Item.db2");
+    LoadDB2(bad_db2_files, sItemAppearanceStore,       db2Path,    "ItemAppearance.db2");
+    LoadDB2(bad_db2_files, sItemCurrencyCostStore,     db2Path,    "ItemCurrencyCost.db2");
+    LoadDB2(bad_db2_files, sItemSparseStore,           db2Path,    "Item-sparse.db2");
+    LoadDB2(bad_db2_files, sItemExtendedCostStore,     db2Path,    "ItemExtendedCost.db2", &CustomItemExtendedCostEntryfmt, &CustomItemExtendedCostEntryIndex);
+    LoadDB2(bad_db2_files, sItemEffectStore,           db2Path,    "ItemEffect.db2");
+    LoadDB2(bad_db2_files, sKeyChainStore,             db2Path,    "KeyChain.db2");
+    LoadDB2(bad_db2_files, sOverrideSpellDataStore,    db2Path,    "OverrideSpellData.db2");
+    LoadDB2(bad_db2_files, sPhaseGroupStore,           db2Path,    "PhaseXPhaseGroup.db2");
+    LoadDB2(bad_db2_files, sSpellAuraRestrictionsStore, db2Path,   "SpellAuraRestrictions.db2");
+    LoadDB2(bad_db2_files, sSpellCastingRequirementsStore, db2Path, "SpellCastingRequirements.db2");
+    LoadDB2(bad_db2_files, sSpellClassOptionsStore,    db2Path,    "SpellClassOptions.db2");
+    LoadDB2(bad_db2_files, sSpellMiscStore,            db2Path,    "SpellMisc.db2");
+    LoadDB2(bad_db2_files, sSpellPowerStore,           db2Path,    "SpellPower.db2");
+    LoadDB2(bad_db2_files, sSpellReagentsStore,        db2Path,    "SpellReagents.db2");
+    LoadDB2(bad_db2_files, sSpellRuneCostStore,        db2Path,    "SpellRuneCost.db2");
+    LoadDB2(bad_db2_files, sSpellTotemsStore,          db2Path,    "SpellTotems.db2");
+    LoadDB2(bad_db2_files, sTaxiNodesStore,            db2Path,    "TaxiNodes.db2");
+    LoadDB2(bad_db2_files, sTaxiPathStore,             db2Path,    "TaxiPath.db2");
+    LoadDB2(bad_db2_files, sTaxiPathNodeStore,         db2Path,    "TaxiPathNode.db2");
+
+    LoadDB2(bad_db2_files, sQuestPackageItemStore,     db2Path,    "QuestPackageItem.db2");
+    LoadDB2(bad_db2_files, sGameObjectsStore,          db2Path,    "GameObjects.db2");
+    LoadDB2(bad_db2_files, sMapChallengeModeStore,     db2Path,    "MapChallengeMode.db2");
+    LoadDB2(bad_db2_files, sSpellVisualStore,          db2Path,    "SpellVisual.db2");
+    LoadDB2(bad_db2_files, sItemUpgradeStore,          db2Path,    "ItemUpgrade.db2");
+    LoadDB2(bad_db2_files, sRuleSetItemUpgradeEntryStore,db2Path,  "RulesetItemUpgrade.db2");
+
     for (uint32 i = 0; i < sMapChallengeModeStore.GetNumRows(); ++i)
     {
         MapChallengeModeEntry const* entry = sMapChallengeModeStore.LookupEntry(i);
@@ -145,9 +193,101 @@ void LoadDB2Stores(const std::string& dataPath)
             sGameObjectsList.push_back(i);
     }
 
-    LoadDB2(bad_db2_files, sSpellReagentsStore,     db2Path,"SpellReagents.db2");
-    LoadDB2(bad_db2_files, sItemUpgradeStore,       db2Path,"ItemUpgrade.db2");
-    LoadDB2(bad_db2_files, sRuleSetItemUpgradeEntryStore,db2Path,"RulesetItemUpgrade.db2");
+    for (uint32 i = 0; i < sPhaseGroupStore.GetNumRows(); ++i)
+        if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
+            if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
+                sPhasesByGroup[group->PhaseGroupID].insert(phase->ID);
+    
+    for (uint32 i = 0; i < sItemAppearanceStore.GetNumRows(); ++i)
+        if (ItemAppearanceEntry const* entry = sItemAppearanceStore.LookupEntry(i))
+            sItemDisplayIDMap[entry->FileDataID] = entry->DisplayID;
+    
+    for (uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
+        if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
+            sTaxiPathSetBySource[entry->From][entry->To] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
+    uint32 pathCount = sTaxiPathStore.GetNumRows();
+
+    // Calculate path nodes count
+    std::vector<uint32> pathLength;
+    pathLength.resize(pathCount);                           // 0 and some other indexes not used
+    for (uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
+    {
+        if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
+        {
+            if (pathLength[entry->PathID] < entry->NodeIndex + 1)
+                pathLength[entry->PathID] = entry->NodeIndex + 1;
+        }
+    }
+    
+    // Set path length
+    sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
+    for (uint32 i = 1; i < sTaxiPathNodesByPath.size(); ++i)
+        sTaxiPathNodesByPath[i].resize(pathLength[i]);
+    
+    // fill data
+    for (uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
+        if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
+            sTaxiPathNodesByPath[entry->PathID].set(entry->NodeIndex, entry);
+
+    // Initialize global taxinodes mask
+    // include existed nodes that have at least single not spell base (scripted) path
+    {
+        std::set<uint32> spellPaths;
+        for (uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
+            if (SpellEffectEntry const* sInfo = sSpellEffectStore.LookupEntry (i))
+                if (sInfo->Effect == SPELL_EFFECT_SEND_TAXI)
+                    spellPaths.insert(sInfo->EffectMiscValue);
+
+        memset(sTaxiNodesMask, 0, sizeof(sTaxiNodesMask));
+        memset(sOldContinentsNodesMask, 0, sizeof(sOldContinentsNodesMask));
+        memset(sHordeTaxiNodesMask, 0, sizeof(sHordeTaxiNodesMask));
+        memset(sAllianceTaxiNodesMask, 0, sizeof(sAllianceTaxiNodesMask));
+        memset(sDeathKnightTaxiNodesMask, 0, sizeof(sDeathKnightTaxiNodesMask));
+        for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
+        {
+            TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
+            if (!node)
+                continue;
+
+            TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(i);
+            if (src_i != sTaxiPathSetBySource.end() && !src_i->second.empty())
+            {
+                bool ok = false;
+                for (TaxiPathSetForSource::const_iterator dest_i = src_i->second.begin(); dest_i != src_i->second.end(); ++dest_i)
+                {
+                    // not spell path
+                    if (spellPaths.find(dest_i->second.ID) == spellPaths.end())
+                    {
+                        ok = true;
+                        break;
+                    }
+                }
+
+                if (!ok)
+                    continue;
+            }
+
+            // valid taxi network node
+            uint8  field   = (uint8)((i - 1) / 8);
+            uint32 submask = 1 << ((i-1) % 8);
+
+            sTaxiNodesMask[field] |= submask;
+            if (node->MountCreatureID[0] && node->MountCreatureID[0] != 32981)
+                sHordeTaxiNodesMask[field] |= submask;
+            if (node->MountCreatureID[1] && node->MountCreatureID[1] != 32981)
+                sAllianceTaxiNodesMask[field] |= submask;
+            if (node->MountCreatureID[0] == 32981 || node->MountCreatureID[1] == 32981)
+                sDeathKnightTaxiNodesMask[field] |= submask;
+
+            // old continent node (+ nodes virtually at old continents, check explicitly to avoid loading map files for zone info)
+            if (node->MapID < 2 || i == 82 || i == 83 || i == 93 || i == 94)
+                sOldContinentsNodesMask[field] |= submask;
+
+            // fix DK node at Ebon Hold and Shadow Vault flight master
+            if (i == 315 || i == 333)
+                ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
+        }
+    }
 
     for (uint32 i = 0; i < sRuleSetItemUpgradeEntryStore.GetNumRows(); ++i)
     {
@@ -243,4 +383,17 @@ ItemUpgradeData const* GetItemUpgradeData(uint32 itemEntry)
         return NULL;
 
     return &itr->second;
+}
+
+uint32 GetItemDisplayID(uint32 appearanceID)
+{
+    auto itr = sItemDisplayIDMap.find(appearanceID);
+    if (itr != sItemDisplayIDMap.end())
+        return itr->second;
+    return 0;
+}
+
+std::set<uint32> const& GetPhasesForGroup(uint32 group)
+{
+    return sPhasesByGroup[group];
 }

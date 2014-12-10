@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "DBCStore.h"
 #include "DBCStructure.h"
+#include "SharedDefines.h"
 
 #include <list>
 
@@ -38,7 +39,6 @@ uint32 GetsAchievementEntryByTreeList(uint32 criteriaTree);
 char const* GetPetName(uint32 petfamily, uint32 dbclang);
 SpellEffectEntry const* GetSpellEffectEntry(uint32 spellId, uint32 effect, uint8 difficulty);
 SpellEffectScalingEntry const* GetSpellEffectScalingEntry(uint32 effectId);
-SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
 SpellTargetRestrictionsEntry const *GetSpellTargetRestrioctions(uint32 spellid, uint16 difficulty);
 
 int32 GetAreaFlagByAreaID(uint32 area_id);                  // -1 if not found
@@ -138,7 +138,6 @@ extern DBCStorage <GtSpellScalingEntry>          sGtSpellScalingStore;
 extern DBCStorage <GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore;
 extern DBCStorage <GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore;
 extern DBCStorage <GuildPerkSpellsEntry>         sGuildPerkSpellsStore;
-extern DBCStorage <HolidaysEntry>                sHolidaysStore;
 extern DBCStorage <ImportPriceArmorEntry>        sImportPriceArmorStore;
 extern DBCStorage <ImportPriceQualityEntry>      sImportPriceQualityStore;
 extern DBCStorage <ImportPriceShieldEntry>       sImportPriceShieldStore;
@@ -179,7 +178,6 @@ extern DBCStorage <PhaseEntry>                   sPhaseStore;
 //extern DBCStorage <MapDifficultyEntry>           sMapDifficultyStore; -- use GetMapDifficultyData instead
 extern MapDifficultyMap                          sMapDifficultyMap;
 extern DBCStorage <MovieEntry>                   sMovieStore;
-extern DBCStorage <OverrideSpellDataEntry>       sOverrideSpellDataStore;
 extern DBCStorage <QuestSortEntry>               sQuestSortStore;
 extern DBCStorage <QuestXPEntry>                 sQuestXPStore;
 extern DBCStorage <QuestFactionRewEntry>         sQuestFactionRewardStore;
@@ -207,43 +205,26 @@ extern PetFamilySpellsStore                      sPetFamilySpellsStore;
 extern DBCStorage <SpecializationSpellEntry>     sSpecializationSpellStore;
 extern DBCStorage <SpellRadiusEntry>             sSpellRadiusStore;
 extern DBCStorage <SpellRangeEntry>              sSpellRangeStore;
-extern DBCStorage <SpellRuneCostEntry>           sSpellRuneCostStore;
 extern DBCStorage <SpellShapeshiftEntry>         sSpellShapeshiftStore;
 extern DBCStorage <SpellShapeshiftFormEntry>     sSpellShapeshiftFormStore;
 extern DBCStorage <SpellEntry>                   sSpellStore;
 extern DBCStorage <SpellAuraOptionsEntry>        sSpellAuraOptionsStore;
 extern DBCStorage <SpellProcsPerMinuteEntry>     sSpellProcsPerMinuteStore;
 extern DBCStorage <SpellProcsPerMinuteModEntry>  sSpellProcsPerMinuteModStore;
-extern DBCStorage <SpellAuraRestrictionsEntry>   sSpellAuraRestrictionsStore;
-extern DBCStorage <SpellCastingRequirementsEntry> sSpellCastingRequirementsStore;
 extern DBCStorage <SpellCategoriesEntry>         sSpellCategoriesStore;
 extern DBCStorage <SpellCategoryEntry>           sSpellCategoryStores;
-extern DBCStorage <SpellClassOptionsEntry>       sSpellClassOptionsStore;
 extern DBCStorage <SpellCooldownsEntry>          sSpellCooldownsStore;
 extern DBCStorage <SpellEffectEntry>             sSpellEffectStore;
 extern DBCStorage <SpellEffectScalingEntry>      sSpellEffectScalingStore;
 extern DBCStorage <SpellEquippedItemsEntry>      sSpellEquippedItemsStore;
 extern DBCStorage <SpellInterruptsEntry>         sSpellInterruptsStore;
 extern DBCStorage <SpellLevelsEntry>             sSpellLevelsStore;
-extern DBCStorage <SpellMiscEntry>               sSpellMiscStore;
-extern DBCStorage <SpellPowerEntry>              sSpellPowerStore;
 extern DBCStorage <SpellScalingEntry>            sSpellScalingStore;
 extern DBCStorage <SpellTargetRestrictionsEntry> sSpellTargetRestrictionsStore;
-extern DBCStorage <SpellTotemsEntry>             sSpellTotemsStore;
 //extern DBCStorage <StableSlotPricesEntry>        sStableSlotPricesStore;
 extern DBCStorage <SummonPropertiesEntry>        sSummonPropertiesStore;
 extern DBCStorage <TalentEntry>                  sTalentStore;
 extern TalentSpellList                           sTalentSpellList;
-extern DBCStorage <TaxiNodesEntry>               sTaxiNodesStore;
-extern DBCStorage <TaxiPathEntry>                sTaxiPathStore;
-extern TaxiMask                                  sTaxiNodesMask;
-extern TaxiMask                                  sOldContinentsNodesMask;
-extern TaxiMask                                  sHordeTaxiNodesMask;
-extern TaxiMask                                  sAllianceTaxiNodesMask;
-extern TaxiMask                                  sDeathKnightTaxiNodesMask;
-extern TaxiPathSetBySource                       sTaxiPathSetBySource;
-extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
-extern DBCStorage <TotemCategoryEntry>           sTotemCategoryStore;
 extern TransportAnimationsByEntry                sTransportAnimationsByEntry;
 extern DBCStorage <TransportAnimationEntry>      sTransportAnimationStore;
 extern DBCStorage <VehicleEntry>                 sVehicleStore;

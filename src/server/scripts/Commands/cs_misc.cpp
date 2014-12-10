@@ -3014,7 +3014,7 @@ public:
                 if (const ItemSparseEntry* entry = sItemSparseStore.LookupEntry(i))
                 {
                     file << "REPLACE INTO item_template VALUES (" << itemEntry->ID << ", " << itemEntry->Class << ", " << itemEntry->SubClass << ", " << itemEntry->SoundOverrideSubclass
-                        << ", \"" << entry->Name << "\", " << itemEntry->DisplayId << ", " << entry->Quality << ", " << entry->Flags << ", " << entry->Flags2 << ", " << entry->Unk430_1
+                        << ", \"" << entry->Name << "\", " << GetItemDisplayID(itemEntry->FileDataID) << ", " << entry->Quality << ", " << entry->Flags << ", " << entry->Flags2 << ", " << entry->Unk430_1
                         << ", " << entry->Unk430_2 << ", " << entry->BuyCount << ", " << entry->BuyPrice << ", " << entry->SellPrice << ", " << entry->InventoryType << ", " << entry->AllowableClass
                         << ", " << entry->AllowableRace << ", " << entry->ItemLevel << ", " << entry->RequiredLevel << ", " << entry->RequiredSkill << ", " << entry->RequiredSkillRank
                         << ", " << entry->RequiredSpell << ", " << entry->RequiredHonorRank << ", " << entry->RequiredCityRank << ", " << entry->RequiredReputationFaction << ", " << entry->RequiredReputationRank

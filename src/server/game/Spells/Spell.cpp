@@ -4666,7 +4666,7 @@ void Spell::SendSpellStart()
         Powers powertype = POWER_MANA;
         SpellPowerEntry power;
         if (GetSpellInfo()->GetSpellPowerByCasterPower(m_caster, power))
-            powertype = (Powers)power.powerType;
+            powertype = (Powers)power.PowerType;
 
         data << uint32(m_caster->GetHealth());
         //data.WriteGuidBytes<7, 2>(m_caster->GetGUID());
@@ -4892,7 +4892,7 @@ void Spell::SendSpellGo()
 
     SpellPowerEntry power;
     uint32 powerCount = GetSpellInfo()->GetSpellPowerByCasterPower(m_caster, power) ? 1 : 0;
-    Powers powerType = Powers(power.powerType);
+    Powers powerType = Powers(power.PowerType);
 
     bool hasPowerUnit = false/*castFlags & CAST_FLAG_POWER_LEFT_SELF*/;
     bool hasPredictedHeal = castFlags & CAST_FLAG_HEAL_PREDICTION;
@@ -5147,7 +5147,7 @@ void Spell::SendSpellGo()
         Powers powertype = POWER_MANA;
         SpellPowerEntry power;
         if (GetSpellInfo()->GetSpellPowerByCasterPower(m_caster, power))
-            powertype = (Powers)power.powerType;
+            powertype = (Powers)power.PowerType;
 
         //data.WriteGuidBytes<2, 1, 3>(powerGuid);
         data << uint32(m_caster->GetHealth());
@@ -5658,7 +5658,7 @@ void Spell::TakePower()
     if (!GetSpellInfo()->GetSpellPowerByCasterPower(m_caster, power))
         return;
 
-    Powers powerType = Powers(power.powerType);
+    Powers powerType = Powers(power.PowerType);
     int32  ifMissedPowerCost = m_powerCost;
     bool hit = true;
 
@@ -5905,7 +5905,7 @@ void Spell::TakeRunePower(bool didHit)
 
     // you can gain some runic power when use runes
     if (didHit)
-        if (int32 rp = int32(runeCostData->runePowerGain * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME)))
+        if (int32 rp = int32(runeCostData->RunePowerGain * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME)))
         {
             Unit::AuraEffectList const& ModRuneRegen = player->GetAuraEffectsByType(SPELL_AURA_MOD_RUNE_REGEN_SPEED);
             for (Unit::AuraEffectList::const_iterator i = ModRuneRegen.begin(); i != ModRuneRegen.end(); ++i)
@@ -7678,16 +7678,16 @@ SpellCastResult Spell::CheckPower()
 
         SpellPowerEntry power = GetSpellInfo()->GetPowerInfo(i);
         // health as power used - need check health amount
-        if (power.powerType == POWER_HEALTH)
+        if (power.PowerType == POWER_HEALTH)
         {
             if (int32(m_caster->GetHealth()) <= m_powerCost)
                 return SPELL_FAILED_CASTER_AURASTATE;
             return SPELL_CAST_OK;
         }
         // Check valid power type
-        if (power.powerType >= MAX_POWERS)
+        if (power.PowerType >= MAX_POWERS)
         {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::CheckPower: Unknown power type '%d'", power.powerType);
+            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::CheckPower: Unknown power type '%d'", power.PowerType);
             return SPELL_FAILED_UNKNOWN;
         }
     }
@@ -7696,7 +7696,7 @@ SpellCastResult Spell::CheckPower()
     if (GetSpellInfo()->GetSpellPowerByCasterPower(m_caster, power))
     {
         //check rune cost only if a spell has PowerType == POWER_RUNES
-        if (power.powerType == POWER_RUNES)
+        if (power.PowerType == POWER_RUNES)
         {
             SpellCastResult failReason = CheckRuneCost(m_spellInfo->RuneCostID);
             if (failReason != SPELL_CAST_OK)
@@ -7704,7 +7704,7 @@ SpellCastResult Spell::CheckPower()
         }
 
         // Check power amount
-        Powers powerType = Powers(power.powerType);
+        Powers powerType = Powers(power.PowerType);
         if (int32(m_caster->GetPower(powerType)) < m_powerCost)
             return SPELL_FAILED_NO_POWER;
 
@@ -9364,7 +9364,7 @@ void Spell::WriteProjectile(uint8 &ammoInventoryType, uint32 &ammoDisplayID)
                     switch (itemEntry->SubClass)
                     {
                         case ITEM_SUBCLASS_WEAPON_THROWN:
-                            ammoDisplayID = itemEntry->DisplayId;
+                            ammoDisplayID = GetItemDisplayID(itemEntry->FileDataID);
                             ammoInventoryType = itemEntry->InventoryType;
                             break;
                         case ITEM_SUBCLASS_WEAPON_BOW:

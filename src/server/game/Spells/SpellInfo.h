@@ -369,8 +369,8 @@ public:
     SpellDurationEntry const* DurationEntry;
     uint32 PowerType;
     uint32 PowerCost;
-    uint32 PowerPerSecond;
-    float PowerPerSecondPercentage;
+    uint32 PowerCostPerSecond;
+    float PowerCostPercentagePerSecond;
     float PowerCostPercentage;
     uint32 PowerRequestId;
     float PowerGetPercentHp;

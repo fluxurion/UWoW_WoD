@@ -2221,7 +2221,7 @@ public:
             if (!runeCostData || (runeCostData->NoRuneCost() && runeCostData->NoRunicPowerGain()))
                 return;
 
-            if (int32 rp = int32(runeCostData->runePowerGain))
+            if (int32 rp = int32(runeCostData->RunePowerGain))
                 me->ModifyPower(POWER_RUNIC_POWER, int32(rp));
         }
 

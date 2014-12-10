@@ -3486,16 +3486,16 @@ void SpellMgr::LoadSpellInfoStore()
         if (!spellPower)
             continue;
 
-        SpellInfo* spell = mSpellInfoMap[spellPower->SpellId];
+        SpellInfo* spell = mSpellInfoMap[spellPower->SpellID];
         if (!spell)
             continue;
 
-        spell->PowerType = spellPower->powerType;
-        spell->PowerCost = spellPower->powerCost;
-        spell->PowerCostPercentage = spellPower->powerCostPercentage;
-        spell->PowerPerSecond = spellPower->powerPerSecond;
-        spell->PowerPerSecondPercentage = spellPower->powerPerSecondPercentage;
-        spell->PowerRequestId = spellPower->spellRequestId;
+        spell->PowerType = spellPower->PowerType;
+        spell->PowerCost = spellPower->PowerCost;
+        spell->PowerCostPercentage = spellPower->PowerCostPercentage;
+        spell->PowerCostPerSecond = spellPower->PowerCostPerSecond;
+        spell->PowerCostPercentagePerSecond = spellPower->PowerCostPercentagePerSecond;
+        spell->PowerRequestId = spellPower->RequiredAura;
         spell->PowerGetPercentHp = spellPower->getpercentHp;
 
         if (!spell->AddPowerData(spellPower))
@@ -5363,7 +5363,7 @@ void SpellMgr::LoadSpellPowerInfo()
         if (!spellPower)
             continue;
 
-        mSpellPowerInfo[spellPower->SpellId].push_back(spellPower->Id);
+        mSpellPowerInfo[spellPower->SpellID].push_back(spellPower->ID);
     }
 }
 
@@ -5375,7 +5375,7 @@ SpellPowerEntry const* SpellMgr::GetSpellPowerEntryByIdAndPower(uint32 id, Power
         if(!spellPower)
             continue;
 
-        if(spellPower->powerType == power)
+        if(spellPower->PowerType == power)
             return spellPower;
     }
 

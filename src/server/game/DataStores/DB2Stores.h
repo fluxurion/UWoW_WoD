@@ -27,18 +27,42 @@
 std::list<uint32> GetPackageItemList(uint32 packageEntry);
 std::list<uint32> GetGameObjectsList();
 
-extern DB2Storage <ItemEntry>                     sItemStore;
-extern DB2Storage <ItemCurrencyCostEntry>         sItemCurrencyCostStore;
-extern DB2Storage <ItemExtendedCostEntry>         sItemExtendedCostStore;
-extern DB2Storage <ItemSparseEntry>               sItemSparseStore;
-extern DB2Storage <BattlePetSpeciesEntry>         sBattlePetSpeciesStore;
-extern DB2Storage <QuestPackageItem>              sQuestPackageItemStore;
-extern DB2Storage <SpellReagentsEntry>            sSpellReagentsStore;
-extern DB2Storage <ItemUpgradeEntry>              sItemUpgradeStore;
-extern DB2Storage <RuleSetItemUpgradeEntry>       sRuleSetItemUpgradeEntryStore;
-extern DB2Storage <GameObjectsEntry>              sGameObjectsStore;
-extern DB2Storage <MapChallengeModeEntry>         sMapChallengeModeStore;
-extern DB2Storage <SpellVisualEntry>              sSpellVisualStore;
+extern DB2Storage<HolidaysEntry>                sHolidaysStore;
+extern DB2Storage<ItemEntry>                    sItemStore;
+extern DB2Storage<ItemAppearanceEntry>          sItemAppearanceStore;
+extern ItemDisplayIDMap                         sItemDisplayIDMap;
+extern DB2Storage<ItemCurrencyCostEntry>        sItemCurrencyCostStore;
+extern DB2Storage<ItemExtendedCostEntry>        sItemExtendedCostStore;
+extern DB2Storage<ItemSparseEntry>              sItemSparseStore;
+extern DB2Storage<KeyChainEntry>                sKeyChainStore;
+extern DB2Storage<OverrideSpellDataEntry>       sOverrideSpellDataStore;
+extern DB2Storage<PhaseGroupEntry>              sPhaseGroupStore;
+extern DB2Storage<SpellAuraRestrictionsEntry>   sSpellAuraRestrictionsStore;
+extern DB2Storage<SpellCastingRequirementsEntry> sSpellCastingRequirementsStore;
+extern DB2Storage<SpellClassOptionsEntry>       sSpellClassOptionsStore;
+extern DB2Storage<SpellMiscEntry>               sSpellMiscStore;
+extern DB2Storage<SpellPowerEntry>              sSpellPowerStore;
+extern DB2Storage<SpellReagentsEntry>           sSpellReagentsStore;
+extern DB2Storage<SpellRuneCostEntry>           sSpellRuneCostStore;
+extern DB2Storage<SpellTotemsEntry>             sSpellTotemsStore;
+extern DB2Storage<TaxiNodesEntry>               sTaxiNodesStore;
+extern DB2Storage<TaxiPathEntry>                sTaxiPathStore;
+extern DB2Storage<TaxiPathNodeEntry>            sTaxiPathNodeStore;
+extern TaxiMask                                 sTaxiNodesMask;
+extern TaxiMask                                 sOldContinentsNodesMask;
+extern TaxiMask                                 sHordeTaxiNodesMask;
+extern TaxiMask                                 sAllianceTaxiNodesMask;
+extern TaxiMask                                 sDeathKnightTaxiNodesMask;
+extern TaxiPathSetBySource                      sTaxiPathSetBySource;
+extern TaxiPathNodesByPath                      sTaxiPathNodesByPath;
+
+extern DB2Storage<BattlePetSpeciesEntry>        sBattlePetSpeciesStore;
+extern DB2Storage<QuestPackageItem>             sQuestPackageItemStore;
+extern DB2Storage<ItemUpgradeEntry>             sItemUpgradeStore;
+extern DB2Storage<RuleSetItemUpgradeEntry>      sRuleSetItemUpgradeEntryStore;
+extern DB2Storage<GameObjectsEntry>             sGameObjectsStore;
+extern DB2Storage<MapChallengeModeEntry>        sMapChallengeModeStore;
+extern DB2Storage<SpellVisualEntry>             sSpellVisualStore;
 
 void LoadDB2Stores(const std::string& dataPath);
 
@@ -52,4 +76,6 @@ extern BattlePetSpeciesBySpellIdMap sBattlePetSpeciesBySpellId;
 typedef UNORDERED_MAP<uint32, MapChallengeModeEntry const*> MapChallengeModeEntryMap;
 extern MapChallengeModeEntryMap sMapChallengeModeEntrybyMap;
 
+uint32 GetItemDisplayID(uint32 appearanceID);
+std::set<uint32> const& GetPhasesForGroup(uint32 group);
 #endif
