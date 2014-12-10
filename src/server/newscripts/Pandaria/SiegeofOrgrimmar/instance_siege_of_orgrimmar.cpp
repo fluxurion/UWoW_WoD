@@ -417,12 +417,12 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const
         {
             switch (type)
             {
@@ -442,7 +442,7 @@ public:
                     return LorewalkerChoGUIDtmp;
             }
 
-            std::map<uint32, ObjectGuid>::iterator itr = easyGUIDconteiner.find(type);
+            std::map<uint32, ObjectGuid>::const_iterator itr = easyGUIDconteiner.find(type);
             if (itr != easyGUIDconteiner.end())
                 return itr->second;
 
@@ -469,7 +469,7 @@ public:
             }
         }
 
-        bool IsWipe()
+        bool IsWipe() const
         {
             Map::PlayerList const& PlayerList = instance->GetPlayers();
 
@@ -531,7 +531,7 @@ public:
         }
 
         
-        bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
+        bool CheckRequiredBosses(uint32 bossId, uint32 entry, Player const* player = NULL) const
         {
             // Only on win build no check for complete boses.
             #ifdef WIN32

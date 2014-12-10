@@ -124,7 +124,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            ObjectGuid GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier) const
             {
                 switch(identifier)
                 {

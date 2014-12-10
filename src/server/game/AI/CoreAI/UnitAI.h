@@ -149,10 +149,11 @@ class UnitAI
 
         // Pass parameters between AI
         virtual void DoAction(int32 const /*param*/) {}
-        virtual uint32 GetData(uint32 /*id = 0*/) { return 0; }
-        virtual uint64 GetData64(uint64 /*id = 0*/) { return 0; }
+        virtual uint32 GetData(uint32 /*id = 0*/) const{ return 0; }
+        virtual uint32 GetModifyedData(uint32 /*id = 0*/) { return 0; } //non const for some modifications and getting data. Have 1 script with it.
+        virtual uint64 GetData64(uint64 /*id = 0*/) const{ return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
-        virtual void SetGUID(ObjectGuid /*guid*/, int32 /*id*/ = 0) {}
+        virtual void SetGUID(ObjectGuid const& /*guid*/, int32 /*id*/ = 0) {}
         virtual ObjectGuid GetGUID(int32 /*id*/ = 0) { return ObjectGuid::Empty; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);

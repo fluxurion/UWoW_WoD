@@ -185,7 +185,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 uiType)
+        uint32 GetData(uint32 uiType) const
         {
             switch (uiType)
             {
@@ -196,7 +196,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 uiType)
+        ObjectGuid GetGuidData(uint32 uiType) const
         {
             switch (uiType)
             {

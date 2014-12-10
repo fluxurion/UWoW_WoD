@@ -113,16 +113,17 @@ public:
             }
         }
 
-        uint32 GetData(uint32 uiType)
+        uint32 GetData(uint32 uiType) const
         {
             switch (uiType)
             {
-                case TYPE_EVENT:    return m_auiEncounter[0];
+                case TYPE_EVENT:
+                    return m_auiEncounter[0];
             }
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 uiType)
+        ObjectGuid GetGuidData(uint32 uiType) const
         {
             switch (uiType)
             {

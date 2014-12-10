@@ -434,9 +434,12 @@ class boss_amalgam_of_corruption : public CreatureScript
                     --challengeCounter[guid.GetCounter()];
             }
 
-            uint64 GetData64(uint64 guid)
+            uint64 GetData64(uint64 guid) const
             {  
-                return challengeCounter[guid];
+                std::map<ObjectGuid::LowType, uint64>::const_iterator itr = challengeCounter.find(guid);
+                if (itr == challengeCounter.end())
+                    return 0;
+                return itr->second;
             }
 
             void IsSummonedBy(Unit* /*summoner*/)

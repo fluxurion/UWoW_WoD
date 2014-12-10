@@ -61,12 +61,12 @@ public:
         void SetData(uint32 type, uint32 data)
         {}
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const
         {
             switch (type)
             {

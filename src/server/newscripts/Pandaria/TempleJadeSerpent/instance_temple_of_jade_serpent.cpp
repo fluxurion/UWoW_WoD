@@ -341,7 +341,7 @@ public:
             SetData_sha_of_doubt(type, data);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             switch (type)
             {
@@ -379,7 +379,7 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const
         {
             switch (type)
             {

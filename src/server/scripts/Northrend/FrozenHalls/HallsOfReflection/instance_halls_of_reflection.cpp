@@ -346,7 +346,7 @@ public:
                 SaveToDB();
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             switch(type)
             {
@@ -371,7 +371,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier) const
         {
             switch(identifier)
             {

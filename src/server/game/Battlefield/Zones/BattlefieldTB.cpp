@@ -676,7 +676,7 @@ void BattlefieldTB::OnDamaged()
                     plr->CastSpell(plr, SPELL_TB_TOL_BARAD_TOWER_DAMAGED, true);
 }
 
-void BattlefieldTB::ProcessEvent(GameObject *obj, uint32 eventId)
+void BattlefieldTB::ProcessEvent(WorldObject *obj, uint32 eventId)
 {
     if (!obj || !IsWarTime())
         return;

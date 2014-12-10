@@ -560,7 +560,7 @@ void BattlefieldWG::OnStartGrouping()
     SendWarningToAllInZone(BATTLEFIELD_WG_TEXT_WILL_START);
 }
 
-uint8 BattlefieldWG::GetSpiritGraveyardId(uint32 areaId)
+uint8 BattlefieldWG::GetSpiritGraveyardId(uint32 areaId) const
 {
     switch (areaId)
     {
@@ -947,7 +947,7 @@ void BattlefieldWG::OnPlayerEnterZone(Player* player)
     player->AddAura(m_DefenderTeam == TEAM_HORDE ? SPELL_HORDE_CONTROL_PHASE_SHIFT : SPELL_ALLIANCE_CONTROL_PHASE_SHIFT, player);
 }
 
-uint32 BattlefieldWG::GetData(uint32 data)
+uint32 BattlefieldWG::GetData(uint32 data) const
 {
     switch (data)
     {

@@ -499,7 +499,7 @@ class spell_sha_frozen_power : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_frozen_power_SpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const * spellEntry)
             {
                 if (!sSpellMgr->GetSpellInfo(8056))
                     return false;
@@ -673,7 +673,7 @@ class spell_sha_unleash_elements : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_unleash_elements_SpellScript);
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellInfo const * spellEntry)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_ELEMENTS))
                     return false;
@@ -781,7 +781,7 @@ class spell_sha_rolling_thunder : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_rolling_thunder_SpellScript)
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellInfo const * /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(403) || !sSpellMgr->GetSpellInfo(421))
                     return false;

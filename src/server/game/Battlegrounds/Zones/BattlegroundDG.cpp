@@ -71,7 +71,7 @@ void BattlegroundDG::StartingEventOpenDoors()
         DoorOpen(i);
 }
 
-void BattlegroundDG::UpdatePlayerScore(Player *player, ScoreUpdateType type, int32 addvalue)
+void BattlegroundDG::UpdatePlayerScore(Player *player, uint32 type, uint32 addvalue, bool add)
 {
     if (!player)
         return;

@@ -418,7 +418,7 @@ class boss_immerseus : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_SEND_F_P_COUNT)
                     return maxpcount;

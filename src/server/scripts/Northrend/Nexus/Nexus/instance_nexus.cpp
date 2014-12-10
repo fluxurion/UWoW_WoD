@@ -149,7 +149,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 identifier)
+        uint32 GetData(uint32 identifier) const
         {
             switch (identifier)
             {
@@ -216,7 +216,7 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 uiIdentifier)
+        ObjectGuid GetGuidData(uint32 uiIdentifier) const
         {
             switch (uiIdentifier)
             {

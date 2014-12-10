@@ -1552,7 +1552,7 @@ class spell_mage_frost_nova : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_frost_nova_SpellScript)
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellInfo const * /*spellEntry*/)
             {
                 return true;
             }

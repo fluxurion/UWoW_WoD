@@ -272,7 +272,7 @@ class Battlefield : public ZoneScript
         virtual void SetData64(uint32 dataId, uint64 value) { m_Data64[dataId] = value; }
 
         // All-purpose data storage 32 bit
-        virtual uint32 GetData(uint32 dataId) { return m_Data32[dataId]; }
+        virtual uint32 GetData(uint32 dataId) const { return m_Data32[dataId]; }
         virtual void SetData(uint32 dataId, uint32 value) { m_Data32[dataId] = value; }
         virtual void UpdateData(uint32 index, int32 pad) { m_Data32[index] += pad; }
 

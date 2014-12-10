@@ -352,7 +352,7 @@ class npc_daakara_vortex : public CreatureScript
             {
             }
             
-            void SetGUID(ObjectGuid const& guid, uint32 data)
+            void SetGUID(ObjectGuid const& guid, int32 data)
             {
                 victimGUID = guid;
             }

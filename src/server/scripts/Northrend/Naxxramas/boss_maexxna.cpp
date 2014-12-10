@@ -175,7 +175,7 @@ public:
 
         ObjectGuid victimGUID;
 
-        void SetGUID(ObjectGuid &guid, int32 /*param*/)
+        void SetGUID(ObjectGuid const& guid, int32 /*param*/)
         {
             victimGUID = guid;
             if (me->m_spells[0] && victimGUID)

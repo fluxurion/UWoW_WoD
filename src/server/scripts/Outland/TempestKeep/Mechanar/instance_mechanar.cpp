@@ -59,7 +59,7 @@ class instance_mechanar : public InstanceMapScript
                         break;
                 }
             }
-            ObjectGuid GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier) const
             {
                 switch (identifier)
                 {

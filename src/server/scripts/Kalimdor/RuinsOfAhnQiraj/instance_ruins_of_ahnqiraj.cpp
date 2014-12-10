@@ -71,7 +71,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 return true;
             }
 
-            ObjectGuid GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type) const
             {
                 switch (type)
                 {

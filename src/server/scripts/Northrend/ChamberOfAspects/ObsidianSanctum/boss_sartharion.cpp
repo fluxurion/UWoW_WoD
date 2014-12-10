@@ -392,7 +392,7 @@ public:
             DoScriptText(RAND(SAY_SARTHARION_SLAY_1, SAY_SARTHARION_SLAY_2, SAY_SARTHARION_SLAY_3), me);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == TWILIGHT_ACHIEVEMENTS)
                 return drakeCount;

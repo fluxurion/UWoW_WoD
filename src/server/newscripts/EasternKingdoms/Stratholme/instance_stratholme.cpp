@@ -401,7 +401,7 @@ class instance_stratholme : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                   switch (type)
                   {
@@ -425,7 +425,7 @@ class instance_stratholme : public InstanceMapScript
                   return 0;
             }
 
-            ObjectGuid GetGuidData(uint32 data)
+            ObjectGuid GetGuidData(uint32 data) const
             {
                 switch (data)
                 {

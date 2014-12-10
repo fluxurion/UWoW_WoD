@@ -671,7 +671,7 @@ public:
                 instance->SetGuidData(DATA_ADD_TRASH_MOB, summoned->GetGUID());
         }
 
-        void SummonedCreatureDies(Creature* summoned/*, Unit* killer*/)
+        void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/)
         {
             listOfMobs.Despawn(summoned);
             if (summoned)
@@ -808,7 +808,7 @@ struct violet_hold_trashAI : public npc_escortAI
         if (instance)
         {
             if (Creature* portal = Unit::GetCreature((*me), instance->GetGuidData(DATA_TELEPORTATION_PORTAL)))
-                CAST_AI(npc_teleportation_portal_vh::npc_teleportation_portalAI, portal->AI())->SummonedCreatureDies(me);
+                CAST_AI(npc_teleportation_portal_vh::npc_teleportation_portalAI, portal->AI())->SummonedCreatureDies(me, NULL);
         }
     }
 

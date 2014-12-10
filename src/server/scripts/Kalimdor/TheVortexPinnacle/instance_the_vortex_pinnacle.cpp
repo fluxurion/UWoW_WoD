@@ -46,7 +46,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                 
             }
 
-            ObjectGuid GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier) const
             {
                 switch(identifier)
                 {

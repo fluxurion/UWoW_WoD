@@ -241,7 +241,7 @@ public:
             return strSaveData;
         }
 
-        uint32 GetData(uint32 uiData)
+        uint32 GetData(uint32 uiData) const
         {
             switch (uiData)
             {
@@ -264,7 +264,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 uiData)
+        ObjectGuid GetGuidData(uint32 uiData) const
         {
             switch (uiData)
             {

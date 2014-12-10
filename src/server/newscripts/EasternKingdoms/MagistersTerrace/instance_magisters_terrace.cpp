@@ -117,7 +117,7 @@ public:
             return false;
         }
 
-        uint32 GetData(uint32 identifier)
+        uint32 GetData(uint32 identifier) const
         {
             switch (identifier)
             {
@@ -215,7 +215,20 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 identifier)
+        ObjectGuid CrystalItrGet()
+        {
+            if (!InitializedItr)
+            {
+                CrystalItr = FelCrystals.begin();
+                InitializedItr = true;
+            }
+
+            ObjectGuid guid = *CrystalItr;
+            ++CrystalItr;
+            return guid;
+        }
+
+        ObjectGuid GetGuidData(uint32 identifier) const
         {
             switch (identifier)
             {
@@ -248,15 +261,7 @@ public:
                         return ObjectGuid::Empty;
                     }
 
-                    if (!InitializedItr)
-                    {
-                        CrystalItr = FelCrystals.begin();
-                        InitializedItr = true;
-                    }
-
-                    ObjectGuid guid = *CrystalItr;
-                    ++CrystalItr;
-                    return guid;
+                    return const_cast<instance_magisters_terrace_InstanceMapScript*>(this)->CrystalItrGet();
                 }
             }
             return ObjectGuid::Empty;

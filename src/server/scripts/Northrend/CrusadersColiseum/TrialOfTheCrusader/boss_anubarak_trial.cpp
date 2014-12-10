@@ -671,7 +671,7 @@ public:
             TargetGUID.Clear();
         }
 
-        void SetGUID(ObjectGuid const& guid)
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/)
         {
             TargetGUID = guid;
         
@@ -697,7 +697,7 @@ public:
             if (!TargetGUID && notstartpursuit) 
             {
                 notstartpursuit = false;
-                SetGUID(GetRandomPlayerGUID());
+                SetGUID(GetRandomPlayerGUID(), 0);
             }
             
             if (SearchTargetTimer <= uiDiff)

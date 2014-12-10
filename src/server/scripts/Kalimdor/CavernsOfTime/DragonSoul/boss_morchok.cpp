@@ -207,7 +207,7 @@ class boss_morchok: public CreatureScript
                 return bAchieve;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_KOHCROM_DONE)
                     return uint32(bKohcrom);

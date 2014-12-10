@@ -107,7 +107,7 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const
         {
             switch (type)
             {
@@ -118,7 +118,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_HORSEMAN_EVENT)
                 return encounter[0];

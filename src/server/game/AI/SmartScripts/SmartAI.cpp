@@ -743,7 +743,7 @@ void SmartAI::DoAction(const int32 param)
     GetScript()->ProcessEventsFor(SMART_EVENT_ACTION_DONE, NULL, param);
 }
 
-uint32 SmartAI::GetData(uint32 /*id*/)
+uint32 SmartAI::GetData(uint32 /*id*/) const
 {
     return 0;
 }
@@ -753,7 +753,7 @@ void SmartAI::SetData(uint32 id, uint32 value)
     GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, NULL, id, value);
 }
 
-void SmartAI::SetGUID(ObjectGuid /*guid*/, int32 /*id*/)
+void SmartAI::SetGUID(ObjectGuid const& /*guid*/, int32 /*id*/)
 {
 }
 
@@ -974,7 +974,7 @@ class SmartTrigger : public AreaTriggerScript
 
         SmartTrigger() : AreaTriggerScript("SmartTrigger") {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool enter)
         {
             if (!player->isAlive())
                 return false;

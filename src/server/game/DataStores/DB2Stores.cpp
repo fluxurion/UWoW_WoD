@@ -17,13 +17,13 @@
 
 #include "DB2Stores.h"
 #include "DBCStores.h"
-#include "DB2fmt.h"
-
-#include "Common.h"
 #include "Log.h"
-#include "World.h"
+#include "SharedDefines.h"
+#include "SpellMgr.h"
+#include "DB2fmt.h"
 #include <iostream>
 #include <fstream>
+#include "DBCStructure.h"
 
 #include <map>
 
@@ -195,9 +195,14 @@ void LoadDB2Stores(const std::string& dataPath)
 
     for (uint32 i = 0; i < sPhaseGroupStore.GetNumRows(); ++i)
         if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
+        {
+
             if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
+            {
                 sPhasesByGroup[group->PhaseGroupID].insert(phase->ID);
-    
+            }
+        }
+        sPhaseStore.LookupEntry(1);
     for (uint32 i = 0; i < sItemAppearanceStore.GetNumRows(); ++i)
         if (ItemAppearanceEntry const* entry = sItemAppearanceStore.LookupEntry(i))
             sItemDisplayIDMap[entry->FileDataID] = entry->DisplayID;

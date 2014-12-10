@@ -71,7 +71,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
@@ -84,7 +84,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 return 0;
             }
 
-            ObjectGuid GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type) const
             {
                 switch (type)
                 {

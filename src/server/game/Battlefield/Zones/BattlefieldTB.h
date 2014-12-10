@@ -236,7 +236,6 @@ public:
     void OnBattleStart();
     void OnBattleEnd(bool endbytimer);
     bool Update(uint32 diff);
-    void OnCreatureCreate(Creature *creature, bool add);
     void BrokenWallOrTower(TeamId team);
     void AddDamagedTower(TeamId team);
     void AddBrokenTower(TeamId team);
@@ -262,7 +261,7 @@ public:
     void OnPlayerLeaveWar(Player* plr);
     void OnPlayerEnterZone(Player* player);
 
-    void ProcessEvent(GameObject *obj, uint32 eventId);
+    void ProcessEvent(WorldObject *obj, uint32 eventId);
 
     /**
         * \brief Called when a gameobject is created

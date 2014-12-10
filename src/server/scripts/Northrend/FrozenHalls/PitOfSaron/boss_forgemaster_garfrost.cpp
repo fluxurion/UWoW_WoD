@@ -177,7 +177,7 @@ class boss_garfrost : public CreatureScript
                 events.ScheduleEvent(EVENT_RESUME_ATTACK, 5000);
             }
 
-            void SpellHitTarget(Unit* target, const SpellEntry* spell)
+            void SpellHitTarget(Unit* target, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_PERMAFROST_HELPER)
                 {
@@ -190,7 +190,7 @@ class boss_garfrost : public CreatureScript
                     SetEquipmentSlots(false, EQUIP_ID_MACE);
             }
 
-            uint32 GetData(uint32 /*type*/)
+            uint32 GetData(uint32 /*type*/) const
             {
                 return _permafrostStack;
             }

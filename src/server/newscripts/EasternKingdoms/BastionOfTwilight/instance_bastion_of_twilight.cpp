@@ -141,7 +141,7 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 identifier)
+        ObjectGuid GetGuidData(uint32 identifier) const
         {
             switch (identifier)
             {
@@ -169,7 +169,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             switch (type)
             {
@@ -260,7 +260,7 @@ public:
             }
         }
 
-        bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
+        bool CheckRequiredBosses(uint32 bossId, uint32 entry, Player const* player = NULL) const
         {
             if (player && player->isGameMaster())
                 return true;

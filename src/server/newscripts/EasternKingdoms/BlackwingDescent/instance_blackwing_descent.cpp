@@ -110,7 +110,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 }
             }
             
-            void OnGameObjectRemove(GameObject *go, bool)
+            void OnGameObjectRemove(GameObject *go)
             {
                 switch (go->GetEntry())
                 {
@@ -122,7 +122,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 }
             }
 
-            ObjectGuid GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type) const
             {
                 switch (type)
                 {
@@ -160,7 +160,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
@@ -218,7 +218,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 }
             }
 
-            bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
+            bool CheckRequiredBosses(uint32 bossId, uint32 entry,  Player const* player = NULL) const
             {
                 if (player && player->isGameMaster())
                     return true;

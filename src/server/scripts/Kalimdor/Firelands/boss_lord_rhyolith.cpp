@@ -665,7 +665,7 @@ class npc_lord_rhyolith_right_foot : public CreatureScript
                     DoZoneInCombat(pLeftFoot);
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_HITS)
                     return GetHits();
@@ -716,7 +716,7 @@ class npc_lord_rhyolith_right_foot : public CreatureScript
                 m_hits[0] = 0;
             }
 
-            uint32 GetHits()
+            uint32 GetHits() const
             {
                 uint32 value = 0;
 
@@ -766,7 +766,7 @@ class npc_lord_rhyolith_left_foot : public CreatureScript
                     DoZoneInCombat(pRightFoot);
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_HITS)
                     return GetHits();
@@ -817,7 +817,7 @@ class npc_lord_rhyolith_left_foot : public CreatureScript
                 m_hits[0] = 0;
             }
 
-            uint32 GetHits()
+            uint32 GetHits() const
             {
                 uint32 value = 0;
 

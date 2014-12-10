@@ -169,7 +169,7 @@ class instance_end_time : public InstanceMapScript
                     SaveToDB();
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch(type)
                 {
@@ -188,7 +188,7 @@ class instance_end_time : public InstanceMapScript
                 return 0;
             }
 
-            ObjectGuid GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type) const
             {
                 switch (type)
                 {

@@ -109,13 +109,13 @@ class instance_zulgurub : public InstanceMapScript
                 return true;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_BOSSES)
                     return uiBosses;
                 return 0;
             }
-            ObjectGuid GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type) const
             {
                 switch (type)
                 {

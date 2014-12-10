@@ -230,7 +230,7 @@ class BattlegroundBFG : public Battleground
         virtual void Reset();
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-        void RemovePlayer(Player* player, ObjectGuid guid);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void EndBattleground(uint32 winner);

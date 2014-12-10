@@ -242,7 +242,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     LeotherasEventStarter = data;
             }
 
-            ObjectGuid GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier) const
             {
                 switch (identifier)
                 {
@@ -340,7 +340,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     SaveToDB();
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {

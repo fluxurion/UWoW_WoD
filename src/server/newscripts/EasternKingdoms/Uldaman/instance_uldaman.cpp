@@ -466,7 +466,7 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            ObjectGuid GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier) const
             {
                 if (identifier == 0) return uiWhoWokeuiArchaedasGUID;
                 if (identifier == 1) return vVaultWalker[0];    // VaultWalker1

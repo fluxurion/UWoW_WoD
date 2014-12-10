@@ -195,7 +195,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     SaveToDB();
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
@@ -215,7 +215,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 return 0;
             }
 
-            ObjectGuid GetGuidData(uint32 identifier)
+            ObjectGuid GetGuidData(uint32 identifier) const
             {
                 switch (identifier)
                 {

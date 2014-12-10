@@ -392,7 +392,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 id)
+        uint32 GetData(uint32 id) const
         {
             switch (id)
             {
@@ -405,7 +405,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 id)
+        ObjectGuid GetGuidData(uint32 id) const
         {
             switch(id)
             {
@@ -683,7 +683,7 @@ public:
             loadStream >> Immortal;
         }
         
-        bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
+        bool CheckRequiredBosses(uint32 bossId, uint32 entry, Player const* player = NULL) const
         {
             if (player && AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()))
                 return true;

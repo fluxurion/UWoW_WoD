@@ -202,7 +202,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 data)
+        uint32 GetData(uint32 data) const
         {
             switch (data)
             {
@@ -222,7 +222,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 data)
+        ObjectGuid GetGuidData(uint32 data) const
         {
             switch (data)
             {

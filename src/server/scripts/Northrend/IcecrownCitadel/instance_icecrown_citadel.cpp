@@ -660,7 +660,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
@@ -685,7 +685,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return 0;
             }
 
-            ObjectGuid GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type) const
             {
                 switch (type)
                 {
@@ -1066,7 +1066,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return false;
             }
 
-            bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
+            bool CheckRequiredBosses(uint32 bossId, uint32 entry, Player const* player = NULL) const
             {
                 if (player && AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()))
                     return true;

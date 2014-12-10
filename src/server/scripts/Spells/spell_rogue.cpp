@@ -1052,7 +1052,7 @@ class spell_rog_eviscerate : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_eviscerate_SpellScript)
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellInfo const * /*spellEntry*/)
             {
                 return true;
             }

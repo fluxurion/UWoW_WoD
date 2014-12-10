@@ -493,7 +493,12 @@ class boss_professor_putricide : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
+            {
+                ASSERT(false, "boss_professor_putricide USED GetModifyedData");
+            }
+
+            uint32 GetModifyedData(uint32 type)
             {
                 switch (type)
                 {
@@ -1107,7 +1112,7 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
                 if (!instance)
                     return;
 
-                uint32 stage = GetCaster()->ToCreature()->AI()->GetData(DATA_EXPERIMENT_STAGE);
+                uint32 stage = GetCaster()->ToCreature()->AI()->GetModifyedData(DATA_EXPERIMENT_STAGE);
                 ObjectGuid targetGUID = (stage == 0) ? instance->GetGuidData(DATA_GREEN_TRIGGER) : instance->GetGuidData(DATA_ORANGE_TRIGGER);
                 Creature * target = ObjectAccessor::GetCreature(*GetCaster(), targetGUID);
 
@@ -1374,13 +1379,13 @@ class spell_putricide_mutation_init : public SpellScriptLoader
                 if (!professor)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
-                if (professor->AI()->GetData(DATA_PHASE) == PHASE_COMBAT_3 || !professor->isAlive())
+                if (professor->AI()->GetModifyedData(DATA_PHASE) == PHASE_COMBAT_3 || !professor->isAlive())
                 {
                     extendedError = SPELL_CUSTOM_ERROR_ALL_POTIONS_USED;
                     return SPELL_FAILED_CUSTOM_ERROR;
                 }
 
-                if (professor->AI()->GetData(DATA_ABOMINATION))
+                if (professor->AI()->GetModifyedData(DATA_ABOMINATION))
                 {
                     extendedError = SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS;
                     return SPELL_FAILED_CUSTOM_ERROR;
@@ -1495,7 +1500,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
                 if (!putricide)
                     return;
 
-                if (putricide->AI()->GetData(DATA_ABOMINATION))
+                if (putricide->AI()->GetModifyedData(DATA_ABOMINATION))
                 {
                     if (Player* player = caster->ToPlayer())
                         Spell::SendCastResult(player, GetSpellInfo(), 0, SPELL_FAILED_CUSTOM_ERROR, SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS);

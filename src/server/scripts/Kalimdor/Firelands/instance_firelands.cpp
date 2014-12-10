@@ -162,7 +162,7 @@ class instance_firelands : public InstanceMapScript
                 }
 		    }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_RHYOLITH_HEALTH_SHARED)
                     return uiRhyolithHealth;
@@ -171,7 +171,7 @@ class instance_firelands : public InstanceMapScript
 			    return 0;
             }
 
-            ObjectGuid GetGuidData(uint32 type)
+            ObjectGuid GetGuidData(uint32 type) const
             {
                 switch (type)
                 {

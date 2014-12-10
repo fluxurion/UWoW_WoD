@@ -121,7 +121,7 @@ public:
             return false;
         }
 
-        Player* GetPlayerInMap()
+        Player* GetPlayerInMap() const
         {
             Map::PlayerList const& players = instance->GetPlayers();
 
@@ -180,7 +180,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 id)
+        uint32 GetData(uint32 id) const
         {
             switch (id)
             {
@@ -194,7 +194,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 id)
+        ObjectGuid GetGuidData(uint32 id) const
         {
             switch (id)
             {

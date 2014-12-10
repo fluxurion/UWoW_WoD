@@ -103,7 +103,7 @@ void LFGPlayerScript::OnMapChanged(Player* player)
 
 LFGGroupScript::LFGGroupScript() : GroupScript("LFGGroupScript") { }
 
-void LFGGroupScript::OnAddMember(Group* group, ObjectGuid guid)
+void LFGGroupScript::OnAddMember(Group* group, ObjectGuid const& guid)
 {
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
@@ -133,7 +133,7 @@ void LFGGroupScript::OnAddMember(Group* group, ObjectGuid guid)
     sLFGMgr->AddPlayerToGroup(gguid, guid);
 }
 
-void LFGGroupScript::OnRemoveMember(Group* group, ObjectGuid guid, RemoveMethod method, ObjectGuid kicker, char const* reason)
+void LFGGroupScript::OnRemoveMember(Group* group, ObjectGuid const& guid, RemoveMethod method, ObjectGuid const& kicker, char const* reason)
 {
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
@@ -198,7 +198,7 @@ void LFGGroupScript::OnDisband(Group* group)
     sLFGMgr->RemoveGroupData(gguid);
 }
 
-void LFGGroupScript::OnChangeLeader(Group* group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid)
+void LFGGroupScript::OnChangeLeader(Group* group, ObjectGuid const& newLeaderGuid, ObjectGuid const& oldLeaderGuid)
 {
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
@@ -209,7 +209,7 @@ void LFGGroupScript::OnChangeLeader(Group* group, ObjectGuid newLeaderGuid, Obje
     sLFGMgr->SetLeader(gguid, newLeaderGuid);
 }
 
-void LFGGroupScript::OnInviteMember(Group* group, ObjectGuid guid)
+void LFGGroupScript::OnInviteMember(Group* group, ObjectGuid const& guid)
 {
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;

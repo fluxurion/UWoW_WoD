@@ -76,7 +76,7 @@ public:
                 for (uint8 i = 0; i < size; ++i)
                 {
                     ObjectGuid guid = instance->GetGuidData(DATA_FEL_CRYSTAL);
-                    sLog->outDebug(LOG_FILTER_TSCR, "Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
+                    sLog->outDebug(LOG_FILTER_TSCR, "Selin: Adding Fel Crystal " UI64FMTD " to list", guid.GetCounter());
                     Crystals.push_back(guid);
                 }
             }

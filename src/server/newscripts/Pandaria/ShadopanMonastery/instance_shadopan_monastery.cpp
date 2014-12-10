@@ -332,7 +332,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type < MAX_DATA)
                 return dataStorage[type];
@@ -340,7 +340,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const
         {
             switch (type)
             {
@@ -356,7 +356,7 @@ public:
                         return ObjectGuid::Empty;
 
                     ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(firstDefeatedNovicePositionsGuid);
-                    firstDefeatedNovicePositionsGuid.remove(guid);
+                    const_cast<instance_shadopan_monastery_InstanceMapScript*>(this)->firstDefeatedNovicePositionsGuid.remove(guid);
                     return guid;
                 }
                 case DATA_RANDOM_SECOND_POS:
@@ -365,7 +365,7 @@ public:
                         return ObjectGuid::Empty;
 
                     ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(secondDefeatedNovicePositionsGuid);
-                    secondDefeatedNovicePositionsGuid.remove(guid);
+                    const_cast<instance_shadopan_monastery_InstanceMapScript*>(this)->secondDefeatedNovicePositionsGuid.remove(guid);
                     return guid;
                 }
                 case DATA_RANDOM_MINIBOSS_POS:
@@ -374,7 +374,7 @@ public:
                         return ObjectGuid::Empty;
 
                     ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(minibossPositionsGuid);
-                    minibossPositionsGuid.remove(guid);
+                    const_cast<instance_shadopan_monastery_InstanceMapScript*>(this)->minibossPositionsGuid.remove(guid);
                     return guid;
                 }
             }

@@ -456,7 +456,7 @@ public:
         }
     }
 
-    ObjectGuid GetGuidData(uint32 id)
+    ObjectGuid GetGuidData(uint32 id) const
     {
         switch(id)
         {
