@@ -153,7 +153,9 @@ class DBCStorage
                             if (indexTable.asT[id])
                             {
                                 sLog->outError(LOG_FILTER_GENERAL, "Index %d already exists in dbc:'%s'", id, sql->sqlTableName.c_str());
-                                return false;
+                                fields = NULL;
+                                ++rowIndex;
+                                continue;
                             }
                             indexTable.asT[id]=(T*)&sqlDataTable[offset];
                         }
