@@ -174,7 +174,7 @@ extern DBCStorage<MapEntry>                     sMapStore;
 extern DBCStorage<MountCapabilityEntry>         sMountCapabilityStore;
 extern DBCStorage<MountTypeEntry>               sMountTypeStore;
 extern DBCStorage<NameGenEntry>                 sNameGenStore;
-extern DBCStorage<PhaseEntry>                   sPhaseStore;
+extern DBCStorage<PhaseEntry>                   sPhaseStores;
 //extern DBCStorage<MapDifficultyEntry>           sMapDifficultyStore; -- use GetMapDifficultyData instead
 extern MapDifficultyMap                          sMapDifficultyMap;
 extern DBCStorage<MovieEntry>                   sMovieStore;

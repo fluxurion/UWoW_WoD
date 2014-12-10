@@ -195,14 +195,9 @@ void LoadDB2Stores(const std::string& dataPath)
 
     for (uint32 i = 0; i < sPhaseGroupStore.GetNumRows(); ++i)
         if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
-        {
-
-            if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
-            {
+            if (PhaseEntry const* phase = sPhaseStores.LookupEntry(group->PhaseID))
                 sPhasesByGroup[group->PhaseGroupID].insert(phase->ID);
-            }
-        }
-        sPhaseStore.LookupEntry(1);
+
     for (uint32 i = 0; i < sItemAppearanceStore.GetNumRows(); ++i)
         if (ItemAppearanceEntry const* entry = sItemAppearanceStore.LookupEntry(i))
             sItemDisplayIDMap[entry->FileDataID] = entry->DisplayID;
