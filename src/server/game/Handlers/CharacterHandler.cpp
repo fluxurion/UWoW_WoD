@@ -2386,28 +2386,28 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 // new team
                 if (team == BG_TEAM_ALLIANCE)
                 {
-                    uint32 bitIndex = htitleInfo->bit_index;
+                    uint32 bitIndex = htitleInfo->MaskID;
                     uint32 index = bitIndex / 32;
                     uint32 old_flag = 1 << (bitIndex % 32);
-                    uint32 new_flag = 1 << (atitleInfo->bit_index % 32);
+                    uint32 new_flag = 1 << (atitleInfo->MaskID % 32);
                     if (knownTitles[index] & old_flag)
                     {
                         knownTitles[index] &= ~old_flag;
                         // use index of the new title
-                        knownTitles[atitleInfo->bit_index / 32] |= new_flag;
+                        knownTitles[atitleInfo->MaskID / 32] |= new_flag;
                     }
                 }
                 else
                 {
-                    uint32 bitIndex = atitleInfo->bit_index;
+                    uint32 bitIndex = atitleInfo->MaskID;
                     uint32 index = bitIndex / 32;
                     uint32 old_flag = 1 << (bitIndex % 32);
-                    uint32 new_flag = 1 << (htitleInfo->bit_index % 32);
+                    uint32 new_flag = 1 << (htitleInfo->MaskID % 32);
                     if (knownTitles[index] & old_flag)
                     {
                         knownTitles[index] &= ~old_flag;
                         // use index of the new title
-                        knownTitles[htitleInfo->bit_index / 32] |= new_flag;
+                        knownTitles[htitleInfo->MaskID / 32] |= new_flag;
                     }
                 }
 

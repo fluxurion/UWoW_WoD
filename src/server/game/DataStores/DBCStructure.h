@@ -642,10 +642,11 @@ struct AreaTriggerEntry
     float   box_y;                                          // 10       m_box_width
     float   box_z;                                          // 11       m_box_heigh
     float   box_orientation;                                // 12       m_box_yaw
-    //uint32 m_shapeType                                    // 13        m_shapeType
-    //uint32 m_shapeID                                      // 14      m_shapeID
+    //uint32 m_shapeType                                    // 13       m_shapeType
+    //uint32 m_shapeID                                      // 14       m_shapeID
     //uint32 m_areaTriggerActionSetID                       // 15       m_areaTriggerActionSetID
     //uint32 m_flags                                        // 16       m_flags
+    //uint32 unk                                                        on 6.0.3 19243
 };
 
 struct ArmorLocationEntry
@@ -698,6 +699,7 @@ struct BattlemasterListEntry
     uint32 ReatedData;                                      // 27 m_flags 4.0.3, value 2 for Rated Battlegrounds
     //uint32  m_iconFileDataID                              // 28 m_iconFileDataID 5.4.1
     //char* m_gametype_lang                                 // 29 m_gametype_lang 5.4.1
+    //uint32    Unk1;                                       // 30
 };
 
 #define MAX_OUTFIT_ITEMS 24
@@ -716,12 +718,12 @@ struct CharStartOutfitEntry
 
 struct CharTitlesEntry
 {
-    uint32  ID;                                             // 0,       title ids, for example in Quest::GetCharTitleId()
-    //uint32  m_Condition_ID;                               // 1        m_Condition_ID
-    char* name;                                             // 2        m_name_lang
-    //char*       name2;                                    // 3        m_name1_lang
-    uint32  bit_index;                                      // 4        m_mask_ID used in PLAYER_FIELD_PLAYER_TITLE and 1<<index in PLAYER_FIELD_KNOWN_TITLES
-    //uint32 m_flags                                        // 5        m_flags
+    uint32      ID;                                         // 0, title ids, for example in Quest::GetCharTitleId()
+    //uint32    ConditionID;                                // 1
+    char*       NameMale_lang;                              // 2 m_name_lang
+    char*       NameFemale_lang;                            // 3 m_name1_lang
+    uint32      MaskID;                                     // 4 m_mask_ID used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
+    //uint32    Flags;                                      // 5
 };
 
 struct ChatChannelsEntry
@@ -999,6 +1001,7 @@ struct DifficultyEntry
     //uint32 m_groupSizeDmgCurveID;                         // 9
     //uint32 m_groupSizeSpellPointsCurveID;                 // 10
     //char* m_name_lang;                                    // 11
+    //uint32                                                // 6.0.3  19243
 };
 
 struct DungeonEncounterEntry
@@ -1588,22 +1591,24 @@ struct MapEntry
     //char*       internalname;                             // 1 unused
     uint32  map_type;                                       // 2
     uint32 flags;                                           // 3
-    //uint32 unk4;                                          // 4 4.0.1
-    char* name;                                             // 5        m_MapName_lang
-    uint32  linked_zone;                                    // 6        m_areaTableID
-    //char*     hordeIntro;                                 // 7        m_MapDescription0_lang
-    //char*     allianceIntro;                              // 8        m_MapDescription1_lang
-    uint32  multimap_id;                                    // 9       m_LoadingScreenID (LoadingScreens.dbc)
-    //float   BattlefieldMapIconScale;                      // 10       m_minimapIconScale
-    int32   entrance_map;                                   // 11       m_corpseMapID map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
-    float   entrance_x;                                     // 12       m_corpseX entrance x coordinate in ghost mode  (in most cases = normal entrance)
-    float   entrance_y;                                     // 13       m_corpseY entrance y coordinate in ghost mode  (in most cases = normal entrance)
-    //uint32  timeOfDayOverride;                            // 14       m_timeOfDayOverride
-    uint32  addon;                                          // 15       m_expansionID
-    uint32 unk_time;                                        // 16       m_raidOffset
-    uint32 maxPlayers;                                      // 17       m_maxPlayers
-    int32 rootPhaseMap;                                     // 18 new 4.0.0, mapid, related to phasing
-
+    //uint32        MapType;                                // 4
+    //uint32 unk4;                                          // 5 4.0.1
+    char* name;                                             // 6        m_MapName_lang
+    uint32  linked_zone;                                    // 7        m_areaTableID
+    //char*     hordeIntro;                                 // 8        m_MapDescription0_lang
+    //char*     allianceIntro;                              // 9        m_MapDescription1_lang
+    uint32  multimap_id;                                    // 10       m_LoadingScreenID (LoadingScreens.dbc)
+    //float   BattlefieldMapIconScale;                      // 11       m_minimapIconScale
+    int32   entrance_map;                                   // 12       m_corpseMapID map_id of entrance map in ghost mode (continent always and in most cases = normal entrance)
+    float   entrance_x;                                     // 13       m_corpseX entrance x coordinate in ghost mode  (in most cases = normal entrance)
+    float   entrance_y;                                     // 14       m_corpseY entrance y coordinate in ghost mode  (in most cases = normal entrance)
+    //uint32  timeOfDayOverride;                            // 15       m_timeOfDayOverride
+    uint32  addon;                                          // 16       m_expansionID
+    uint32 unk_time;                                        // 17       m_raidOffset
+    uint32 maxPlayers;                                      // 18       m_maxPlayers
+    int32 rootPhaseMap;                                     // 19 new 4.0.0, mapid, related to phasing
+    //uint32        CosmeticParentMapID                     // 20
+    //uint32        TimeOffset                              // 21
     // Helpers
     uint32 Expansion() const { return addon; }
 
