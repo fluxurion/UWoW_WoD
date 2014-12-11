@@ -1042,9 +1042,9 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         startId = fields[5].GetUInt32();
         if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
         {
-            data.Team1StartLocX = start->x;
-            data.Team1StartLocY = start->y;
-            data.Team1StartLocZ = start->z;
+            data.Team1StartLocX = start->Loc.X;
+            data.Team1StartLocY = start->Loc.Y;
+            data.Team1StartLocZ = start->Loc.Z;
             data.Team1StartLocO = fields[6].GetFloat();
         }
         else if (data.bgTypeId == BATTLEGROUND_AA || data.bgTypeId == BATTLEGROUND_RB || data.bgTypeId == BATTLEGROUND_RATED_10_VS_10)
@@ -1063,9 +1063,9 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         startId = fields[7].GetUInt32();
         if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
         {
-            data.Team2StartLocX = start->x;
-            data.Team2StartLocY = start->y;
-            data.Team2StartLocZ = start->z;
+            data.Team2StartLocX = start->Loc.X;
+            data.Team2StartLocY = start->Loc.Y;
+            data.Team2StartLocZ = start->Loc.Z;
             data.Team2StartLocO = fields[8].GetFloat();
         }
         else if (data.bgTypeId == BATTLEGROUND_AA || data.bgTypeId == BATTLEGROUND_RB || data.bgTypeId == BATTLEGROUND_RATED_10_VS_10)

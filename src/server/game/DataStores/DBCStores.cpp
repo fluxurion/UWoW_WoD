@@ -85,6 +85,7 @@ DBCStorage<ChrSpecializationsEntry> sChrSpecializationsStore(ChrSpecializationsf
 
 DBCStorage<CinematicSequencesEntry> sCinematicSequencesStore(CinematicSequencesEntryfmt);
 DBCStorage<CreatureDisplayInfoEntry> sCreatureDisplayInfoStore(CreatureDisplayInfofmt);
+DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore(CreatureDisplayInfoExtrafmt);
 DBCStorage<CreatureFamilyEntry> sCreatureFamilyStore(CreatureFamilyfmt);
 DBCStorage<CreatureModelDataEntry> sCreatureModelDataStore(CreatureModelDatafmt);
 DBCStorage<CreatureSpellDataEntry> sCreatureSpellDataStore(CreatureSpellDatafmt);
@@ -241,7 +242,9 @@ DBCStorage<TeamContributionPointsEntry> sTeamContributionPointsStore(TeamContrib
 DBCStorage<TotemCategoryEntry> sTotemCategoryStore(TotemCategoryEntryfmt);
 
 TransportAnimationsByEntry sTransportAnimationsByEntry;
-DBCStorage<TransportAnimationEntry> sTransportAnimationStore(TransportAnimationEntryfmt);
+DBCStorage<TransportAnimationEntry> sTransportAnimationStore(TransportAnimationfmt);
+DBCStorage<TransportRotationEntry> sTransportRotationStore(TransportRotationfmt);
+DBCStorage<UnitPowerBarEntry> sUnitPowerBarStore(UnitPowerBarfmt);
 DBCStorage<VehicleEntry> sVehicleStore(VehicleEntryfmt);
 DBCStorage<VehicleSeatEntry> sVehicleSeatStore(VehicleSeatEntryfmt);
 DBCStorage<WMOAreaTableEntry> sWMOAreaTableStore(WMOAreaTableEntryfmt);
@@ -388,6 +391,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sChrSpecializationsStore,     dbcPath, "ChrSpecialization.dbc");//16135
     //LoadDBC(availableDbcLocales, bad_dbc_files, sCinematicSequencesStore,     dbcPath, "CinematicSequences.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureDisplayInfoStore,    dbcPath, "CreatureDisplayInfo.dbc");//14545
+    LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureDisplayInfoExtraStore, dbcPath, "CreatureDisplayInfoExtra.dbc");//19116
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureFamilyStore,         dbcPath, "CreatureFamily.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureModelDataStore,      dbcPath, "CreatureModelData.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureSpellDataStore,      dbcPath, "CreatureSpellData.dbc");//14545
@@ -500,17 +504,17 @@ void LoadDBCStores(const std::string& dataPath)
     {
         if (MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
         {
-            if (!sMapStore.LookupEntry(entry->MapId))
+            if (!sMapStore.LookupEntry(entry->MapID))
             {
-                sLog->outInfo(LOG_FILTER_SERVER_LOADING, "DB table `mapdifficulty_dbc` or MapDifficulty.dbc has non-existant map %u.", entry->MapId);
+                sLog->outInfo(LOG_FILTER_SERVER_LOADING, "DB table `mapdifficulty_dbc` or MapDifficulty.dbc has non-existant map %u.", entry->MapID);
                 continue;
             }
-            if (entry->Difficulty && !sDifficultyStore.LookupEntry(entry->Difficulty))
+            if (entry->DifficultyID && !sDifficultyStore.LookupEntry(entry->DifficultyID))
             {
-                sLog->outInfo(LOG_FILTER_SERVER_LOADING, "DB table `mapdifficulty_dbc` or MapDifficulty.dbc has non-existant difficulty %u.", entry->Difficulty);
+                sLog->outInfo(LOG_FILTER_SERVER_LOADING, "DB table `mapdifficulty_dbc` or MapDifficulty.dbc has non-existant difficulty %u.", entry->DifficultyID);
                 continue;
             }
-            sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] > 0);
+            sMapDifficultyMap[MAKE_PAIR32(entry->MapID, entry->DifficultyID)] = MapDifficulty(entry->RaidDuration, entry->MaxPlayers, entry->Message_lang[0] > 0);
         }
     }
     sMapDifficultyStore.Clear();
@@ -715,8 +719,18 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sTransportAnimationStore,     dbcPath, "TransportAnimation.dbc");//17538
     for (uint32 i = 0; i < sTransportAnimationStore.GetNumRows(); ++i)
         if (TransportAnimationEntry const* entry = sTransportAnimationStore.LookupEntry(i))
-            sTransportAnimationsByEntry[entry->transportEntry][entry->timeFrame] = entry;
+            sTransportAnimationsByEntry[entry->TransportID][entry->TimeIndex] = entry;
+    LoadDBC(availableDbcLocales, bad_dbc_files, sTransportRotationStore,     dbcPath, "TransportRotation.dbc");
+    for (uint32 i = 0; i < sTransportRotationStore.GetNumRows(); ++i)
+    {
+        TransportRotationEntry const* rot = sTransportRotationStore.LookupEntry(i);
+        if (!rot)
+            continue;
 
+        //WoD::ToDo
+        //sTransportMgr->AddPathRotationToTransport(rot->TransportID, rot->TimeIndex, rot);
+    }
+    LoadDBC(availableDbcLocales, bad_dbc_files, sUnitPowerBarStore,           dbcPath, "UnitPowerBar.dbc");//15595
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sVehicleStore,                dbcPath, "Vehicle.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sVehicleSeatStore,            dbcPath, "VehicleSeat.dbc");//14545
@@ -724,7 +738,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sWMOAreaTableStore,           dbcPath, "WMOAreaTable.dbc");//14545
     for (uint32 i = 0; i < sWMOAreaTableStore.GetNumRows(); ++i)
         if (WMOAreaTableEntry const* entry = sWMOAreaTableStore.LookupEntry(i))
-            sWMOAreaInfoByTripple.insert(WMOAreaInfoByTripple::value_type(WMOAreaTableTripple(entry->rootId, entry->adtId, entry->groupId), entry));
+            sWMOAreaInfoByTripple.insert(WMOAreaInfoByTripple::value_type(WMOAreaTableTripple(entry->WMOID, entry->NameSet, entry->WMOGroupID), entry));
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapAreaStore,           dbcPath, "WorldMapArea.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapOverlayStore,        dbcPath, "WorldMapOverlay.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldSafeLocsStore,          dbcPath, "WorldSafeLocs.dbc");//14545
@@ -950,7 +964,7 @@ uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
         return mapid;
 
     if (WorldMapAreaEntry const* wma = sWorldMapAreaStore.LookupEntry(zoneId))
-        return wma->virtual_map_id >= 0 ? wma->virtual_map_id : wma->map_id;
+        return wma->DisplayMapID >= 0 ? wma->DisplayMapID : wma->MapID;
 
     return mapid;
 }
@@ -958,7 +972,7 @@ uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId)
 int32 GetMapFromZone(uint32 zoneId)
 {
     if (WorldMapAreaEntry const* wma = sWorldMapAreaStore.LookupEntry(zoneId))
-        return wma->virtual_map_id >= 0 ? wma->virtual_map_id : wma->map_id;
+        return wma->DisplayMapID >= 0 ? wma->DisplayMapID : wma->MapID;
 
     return -1;
 }
@@ -1041,8 +1055,8 @@ void Zone2MapCoordinates(float& x, float& y, uint32 zone)
         return;
 
     std::swap(x, y);                                         // at client map coords swapped
-    x = x*((maEntry->x2-maEntry->x1)/100)+maEntry->x1;
-    y = y*((maEntry->y2-maEntry->y1)/100)+maEntry->y1;      // client y coord from top to down
+    x = x*((maEntry->LocBottom - maEntry->LocTop) / 100) + maEntry->LocTop;
+    y = y*((maEntry->LocRight - maEntry->LocLeft) / 100) + maEntry->LocLeft;      // client y coord from top to down
 }
 
 void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
@@ -1053,8 +1067,8 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     if (!maEntry)
         return;
 
-    x = (x-maEntry->x1)/((maEntry->x2-maEntry->x1)/100);
-    y = (y-maEntry->y1)/((maEntry->y2-maEntry->y1)/100);    // client y coord from top to down
+    x = (x - maEntry->LocTop) / ((maEntry->LocBottom - maEntry->LocTop) / 100);
+    y = (y - maEntry->LocLeft) / ((maEntry->LocRight - maEntry->LocLeft) / 100);    // client y coord from top to down
     std::swap(x, y);                                         // client have map coords swapped
 }
 

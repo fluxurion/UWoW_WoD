@@ -1138,5 +1138,5 @@ void AddSC_boss_xt002()
     new achievement_nerf_gravity_bombs();
 
     if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(3846)))
-        vehSeat->m_flags |= 0x400;
+        vehSeat->Flags |= 0x400;
 }

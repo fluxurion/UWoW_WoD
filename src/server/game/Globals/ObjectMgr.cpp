@@ -2606,10 +2606,10 @@ void ObjectMgr::LoadItemTemplates()
 
         for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
         {
-            if (entry->ItemId[j] <= 0)
+            if (entry->ItemID[j] <= 0)
                 continue;
 
-            uint32 item_id = entry->ItemId[j];
+            uint32 item_id = entry->ItemID[j];
 
             if (!GetItemTemplate(item_id))
                 notFoundOutfit.insert(item_id);
@@ -2859,21 +2859,20 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
         if (count < -1)
             sLog->outError(LOG_FILTER_SQL, "Invalid count %i specified on item %u be removed from original player create info (use -1)!", count, itemId);
 
-        uint32 RaceClass = (race_) | (class_ << 8);
         bool doneOne = false;
         for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
         {
             if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
             {
-                if (entry->RaceClassGender == RaceClass || entry->RaceClassGender == (RaceClass | (1 << 16)))
+                if (entry->ClassID == class_ && entry->RaceID == race_)
                 {
                     bool found = false;
                     for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
                     {
-                        if (entry->ItemId[x] > 0 && uint32(entry->ItemId[x]) == itemId)
+                        if (entry->ItemID[x] > 0 && uint32(entry->ItemID[x]) == itemId)
                         {
                             found = true;
-                            const_cast<CharStartOutfitEntry*>(entry)->ItemId[x] = 0;
+                            const_cast<CharStartOutfitEntry*>(entry)->ItemID[x] = 0;
                             break;
                         }
                     }
@@ -5710,12 +5709,12 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             continue;
 
         // find now nearest graveyard at other map
-        if (MapId != entry->map_id)
+        if (MapId != entry->MapID)
         {
             // if find graveyard at different map from where entrance placed (or no entrance data), use any first
             if (!mapEntry
                 || mapEntry->entrance_map < 0
-                || uint32(mapEntry->entrance_map) != entry->map_id
+                || uint32(mapEntry->entrance_map) != entry->MapID
                 || (mapEntry->entrance_x == 0 && mapEntry->entrance_y == 0))
             {
                 // not have any corrdinates for check distance anyway
@@ -5724,8 +5723,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->x - mapEntry->entrance_x)*(entry->x - mapEntry->entrance_x)
-                +(entry->y - mapEntry->entrance_y)*(entry->y - mapEntry->entrance_y);
+            float dist2 = (entry->Loc.X - mapEntry->entrance_x)*(entry->Loc.X - mapEntry->entrance_x)
+                + (entry->Loc.Y - mapEntry->entrance_y)*(entry->Loc.Y - mapEntry->entrance_y);
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -5744,7 +5743,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
         // find now nearest graveyard at same map
         else
         {
-            float dist2 = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y)+(entry->z - z)*(entry->z - z);
+            float dist2 = (entry->Loc.X - x)*(entry->Loc.X - x) + (entry->Loc.Y - y)*(entry->Loc.Y - y) + (entry->Loc.Z - z)*(entry->Loc.Z - z);
             if (foundNear)
             {
                 if (dist2 < distNear)

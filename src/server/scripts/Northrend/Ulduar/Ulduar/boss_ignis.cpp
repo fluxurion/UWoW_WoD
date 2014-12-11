@@ -514,5 +514,5 @@ void AddSC_boss_ignis()
     new achievement_shattered();
 
     if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(3206)))
-        vehSeat->m_flags |= 0x400;
+        vehSeat->Flags |= 0x400;
 }

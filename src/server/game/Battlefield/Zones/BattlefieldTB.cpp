@@ -215,7 +215,7 @@ bool BattlefieldTB::Update(uint32 diff)
                 const WorldSafeLocsEntry *graveyard = GetClosestGraveYard(plr);
                 if (graveyard)
                 {
-                    if (plr->GetDistance2d(graveyard->x, graveyard->y) > 10.0f)
+                    if (plr->GetDistance2d(graveyard->Loc.X, graveyard->Loc.Y) > 10.0f)
                     {
                         plr->RemoveAurasDueToSpell(SPELL_TB_SPIRITUAL_IMMUNITY);
                         m_PlayersIsSpellImu.erase(plr->GetGUID());

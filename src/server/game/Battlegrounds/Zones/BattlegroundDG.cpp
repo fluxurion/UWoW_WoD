@@ -116,8 +116,8 @@ const WorldSafeLocsEntry *BattlegroundDG::GetClosestGraveYard(Player *player)
         entry = sWorldSafeLocsStore.LookupEntry(BG_DG_LOC_SPIRIT_HORDE_BOT);
     }
 
-    float dist = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y);
-    float minDist = (pGraveyard->x - x)*(pGraveyard->x - x)+(pGraveyard->y - y)*(pGraveyard->y - y);
+    float dist = (entry->Loc.X - x)*(entry->Loc.X - x) + (entry->Loc.Y - y)*(entry->Loc.Y - y);
+    float minDist = (pGraveyard->Loc.X - x)*(pGraveyard->Loc.X - x) + (pGraveyard->Loc.Y - y)*(pGraveyard->Loc.Y - y);
 
     if (dist < minDist)
         pGraveyard = entry;
@@ -352,28 +352,28 @@ bool BattlegroundDG::SetupBattleground()
         }
 
     WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(BG_DG_LOC_SPIRIT_ALLIANCE_BOT);
-    if (!sg || !AddSpiritGuide(BG_DG_SPIRIT_ALLIANCE_BOT, sg->x, sg->y, sg->z, 3.124139f, ALLIANCE))
+    if (!sg || !AddSpiritGuide(BG_DG_SPIRIT_ALLIANCE_BOT, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.124139f, ALLIANCE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundDG: Failed to spawn Alliance spirit guide! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(BG_DG_LOC_SPIRIT_HORDE_BOT);
-    if (!sg || !AddSpiritGuide(BG_DG_SPIRIT_HORDE_BOT, sg->x, sg->y, sg->z, 3.193953f, HORDE))
+    if (!sg || !AddSpiritGuide(BG_DG_SPIRIT_HORDE_BOT, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.193953f, HORDE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundDG: Failed to spawn Horde spirit guide! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(BG_DG_LOC_SPIRIT_ALLIANCE_TOP);
-    if (!sg || !AddSpiritGuide(BG_DG_SPIRIT_ALLIANCE_TOP, sg->x, sg->y, sg->z, 3.124139f, ALLIANCE))
+    if (!sg || !AddSpiritGuide(BG_DG_SPIRIT_ALLIANCE_TOP, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.124139f, ALLIANCE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundDG: Failed to spawn Alliance spirit guide! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(BG_DG_LOC_SPIRIT_HORDE_TOP);
-    if (!sg || !AddSpiritGuide(BG_DG_SPIRIT_HORDE_TOP, sg->x, sg->y, sg->z, 3.193953f, HORDE))
+    if (!sg || !AddSpiritGuide(BG_DG_SPIRIT_HORDE_TOP, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.193953f, HORDE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundDG: Failed to spawn Horde spirit guide! Battleground not created!");
         return false;

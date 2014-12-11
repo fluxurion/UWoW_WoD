@@ -1673,7 +1673,7 @@ bool Map::IsOutdoors(float x, float y, float z) const
         #ifdef TRINITY_DEBUG
         sLog->outDebug(LOG_FILTER_MAPS, "Got WMOAreaTableEntry! flag %u, areaid %u", wmoEntry->Flags, wmoEntry->areaId);
         #endif
-        atEntry = GetAreaEntryByAreaID(wmoEntry->areaId);
+        atEntry = GetAreaEntryByAreaID(wmoEntry->AreaTableID);
     }
     return IsOutdoorWMO(mogpFlags, adtId, rootId, groupId, wmoEntry, atEntry);
 }
@@ -1729,7 +1729,7 @@ uint16 Map::GetAreaFlag(float x, float y, float z, bool *isOutdoors) const
         haveAreaInfo = true;
         wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
         if (wmoEntry)
-            atEntry = GetAreaEntryByAreaID(wmoEntry->areaId);
+            atEntry = GetAreaEntryByAreaID(wmoEntry->AreaTableID);
     }
 
     uint16 areaflag;

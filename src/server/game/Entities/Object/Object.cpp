@@ -604,7 +604,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     {
         Unit const* self = ToUnit();
 
-        *data << uint32(self->GetVehicleKit()->GetVehicleInfo()->m_ID);
+        *data << uint32(self->GetVehicleKit()->GetVehicleInfo()->ID);
         *data << float(self->GetOrientation());
     }
 

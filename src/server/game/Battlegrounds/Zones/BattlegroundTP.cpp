@@ -249,7 +249,7 @@ bool BattlegroundTP::SetupBattleground()
         if (grave)
         {
             uint8 team = i % 2; ///< If 0 team == TEAM_ALLIANCE else TEAM_HORDE
-            if (!AddSpiritGuide(team == TEAM_ALLIANCE ? TP_SPIRIT_ALLIANCE : TP_SPIRIT_HORDE, grave->x, grave->y, grave->z, team == TEAM_ALLIANCE ?  M_PI : 0, team == TEAM_ALLIANCE ? ALLIANCE : HORDE))
+            if (!AddSpiritGuide(team == TEAM_ALLIANCE ? TP_SPIRIT_ALLIANCE : TP_SPIRIT_HORDE, grave->Loc.X, grave->Loc.Y, grave->Loc.Z, team == TEAM_ALLIANCE ? M_PI : 0, team == TEAM_ALLIANCE ? ALLIANCE : HORDE))
             {
                 sLog->outError(LOG_FILTER_GENERAL, "BatteGroundTP: Failed to spawn spirit guide id: %u. Battleground not created!", grave->ID);
                 return false;
@@ -468,7 +468,7 @@ WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
     WorldSafeLocsEntry const* grave_enemy_base = sWorldSafeLocsStore.LookupEntry(BG_TP_GraveyardIds[TP_GRAVEYARD_FLAGROOM_ALLIANCE + (team ^ 1)]);
     WorldSafeLocsEntry const* grave_enemy_middle = sWorldSafeLocsStore.LookupEntry(BG_TP_GraveyardIds[TP_GRAVEYARD_MIDDLE_ALLIANCE + (team ^ 1)]);
 
-    if (player->GetDistance2d(grave_enemy_base->x, grave_enemy_base->y) < player->GetDistance2d(grave_enemy_middle->x, grave_enemy_middle->y))
+    if (player->GetDistance2d(grave_enemy_base->Loc.X, grave_enemy_base->Loc.Y) < player->GetDistance2d(grave_enemy_middle->Loc.X, grave_enemy_middle->Loc.Y))
         return sWorldSafeLocsStore.LookupEntry(BG_TP_GraveyardIds[TP_GRAVEYARD_START_ALLIANCE + team]);
 
     return sWorldSafeLocsStore.LookupEntry(BG_TP_GraveyardIds[TP_GRAVEYARD_MIDDLE_ALLIANCE + team]);

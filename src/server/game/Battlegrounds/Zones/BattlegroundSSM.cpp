@@ -95,14 +95,14 @@ bool BattlegroundSSM::SetupBattleground()
     }
 
     WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(BG_SSM_ALLIANCE_GRAVEYARD);
-    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_ALLIANCE, sg->x, sg->y, sg->z, 3.124139f, ALLIANCE))
+    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_ALLIANCE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.124139f, ALLIANCE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundWS: Failed to spawn Alliance spirit guide! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(BG_SSM_HORDE_GRAVEYARD);
-    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_HORDE, sg->x, sg->y, sg->z, 3.193953f, HORDE))
+    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_HORDE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.193953f, HORDE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundWS: Failed to spawn Horde spirit guide! Battleground not created!");
         return false;

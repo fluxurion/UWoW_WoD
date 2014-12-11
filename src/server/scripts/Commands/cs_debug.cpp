@@ -958,7 +958,7 @@ public:
         if (target->GetVehicleKit())
             target->RemoveVehicleKit();
 
-        if (!target->CreateVehicleKit(entry->m_ID, target->GetEntry()))
+        if (!target->CreateVehicleKit(entry->ID, target->GetEntry()))
         {
             handler->PSendSysMessage("Can't create vehicle kit id %u.", vehicle_id);
             return false;

@@ -57,7 +57,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
     {
         VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(_player);
         ASSERT(seat);
-        if (!(seat->m_flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
+        if (!(seat->Flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
         {
             GetPlayer()->SendMeleeAttackStop(pEnemy);
             return;

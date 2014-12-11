@@ -601,7 +601,7 @@ void Creature::Update(uint32 diff)
             {
                 m_regenTimerCount += diff;
                 m_petregenTimer += diff;
-                if((m_petregenTimer >= 400) && (!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->m_powerType != POWER_PYRITE))
+                if ((m_petregenTimer >= 400) && (!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->PowerDisplayID[0] != POWER_PYRITE))
                     Regenerate(getPowerType());
             }
 
