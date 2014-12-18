@@ -236,8 +236,6 @@ extern DBCStorage<WorldMapAreaEntry>            sWorldMapAreaStore; //-- use Zon
 extern DBCStorage<WorldMapOverlayEntry>         sWorldMapOverlayStore;
 extern DBCStorage<WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
-std::set<uint32> const* GetSpecializationMasterySpells(uint32 specId);
-
 void LoadDBCStores(const std::string& dataPath);
 bool IsValidDifficulty(uint32 diff, bool isRaid);
 #endif

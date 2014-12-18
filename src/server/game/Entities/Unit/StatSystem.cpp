@@ -1610,14 +1610,16 @@ void Player::UpdateMasteryAuras()
     SetFloatValue(PLAYER_FIELD_MASTERY, masteryValue);
 
     // TODO: rewrite 115556 Master Demonologist
-
-    std::set<uint32> const* masterySpells = GetSpecializationMasterySpells(GetSpecializationId(GetActiveSpec()));
-    if (!masterySpells)
+    ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(GetSpecializationId(GetActiveSpec()));
+    if (!specialization)
         return;
 
-    for (std::set<uint32>::const_iterator itr = masterySpells->begin(); itr != masterySpells->end(); ++itr)
+    for (uint8 i = 0; i < MAX_MASTERY_SPELLS; ++i)
     {
-        Aura* aura = GetAura(*itr);
+        if (!specialization->MasterySpellID[i])
+            continue;
+
+        Aura* aura = GetAura(specialization->MasterySpellID[i]);
         if (!aura)
             continue;
 
