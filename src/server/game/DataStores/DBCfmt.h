@@ -50,7 +50,7 @@ const char ChrClassesXPowerTypesfmt[] = "nii";
 const char ChrSpecializationsfmt[] = "nxiiiiiiiiixxxii";
 
 const char CinematicSequencesEntryfmt[] = "nxxxxxxxxx";
-const char CreatureDisplayInfofmt[] = "nixxfxxxxxxxxxxxxxxx";
+const char CreatureDisplayInfofmt[] = "nixifxxxxxxxxxxxxxxix";
 char const CreatureDisplayInfoExtrafmt[] = "dixxxxxxxxxxxxxxxxxxxx";
 const char CreatureModelDatafmt[] = "nxxxxxxxxxxxxxffxxxxxxxxxxxxxxxxxx";
 const char CreatureFamilyfmt[] = "nfifiiiiixsx";

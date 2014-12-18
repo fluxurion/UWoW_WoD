@@ -29283,13 +29283,13 @@ float Player::GetCollisionHeight(bool mounted)
         if (!mountDisplayInfo)
             return GetCollisionHeight(false);
 
-        CreatureModelDataEntry const* mountModelData = sCreatureModelDataStore.LookupEntry(mountDisplayInfo->ModelId);
+        CreatureModelDataEntry const* mountModelData = sCreatureModelDataStore.LookupEntry(mountDisplayInfo->ModelID);
         if (!mountModelData)
             return GetCollisionHeight(false);
 
         CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
         ASSERT(displayInfo);
-        CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelId);
+        CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelID);
         ASSERT(modelData);
 
         return mountModelData->MountHeight + modelData->CollisionHeight * 0.5;
@@ -29299,7 +29299,7 @@ float Player::GetCollisionHeight(bool mounted)
         //! Dismounting case - use basic default model data
         CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
         ASSERT(displayInfo);
-        CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelId);
+        CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelID);
         ASSERT(modelData);
 
         return modelData->MountHeight;

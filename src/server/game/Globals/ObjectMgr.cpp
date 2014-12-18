@@ -820,7 +820,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if (cInfo->scale <= 0.0f)
     {
         if (displayScaleEntry)
-            const_cast<CreatureTemplate*>(cInfo)->scale = displayScaleEntry->scale;
+            const_cast<CreatureTemplate*>(cInfo)->scale = displayScaleEntry->CreatureModelScale;
         else
             const_cast<CreatureTemplate*>(cInfo)->scale = 1.0f;
     }
@@ -1067,15 +1067,15 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* display
         return NULL;
 
     // If a model for another gender exists, 50% chance to use it
-    if (modelInfo->modelid_other_gender != 0 && urand(0, 1) == 0)
+    if (modelInfo->displayId_other_gender != 0 && urand(0, 1) == 0)
     {
-        CreatureModelInfo const* minfo_tmp = GetCreatureModelInfo(modelInfo->modelid_other_gender);
+        CreatureModelInfo const* minfo_tmp = GetCreatureModelInfo(modelInfo->displayId_other_gender);
         if (!minfo_tmp)
-            sLog->outError(LOG_FILTER_SQL, "Model (Entry: %u) has modelid_other_gender %u not found in table `creature_model_info`. ", *displayID, modelInfo->modelid_other_gender);
+            sLog->outError(LOG_FILTER_SQL, "Model (Entry: %u) has displayId_other_gender %u not found in table `creature_model_info`. ", *displayID, modelInfo->displayId_other_gender);
         else
         {
-            // Model ID changed
-            *displayID = modelInfo->modelid_other_gender;
+            // DisplayID changed
+            *displayID = modelInfo->displayId_other_gender;
             return minfo_tmp;
         }
     }
@@ -1087,7 +1087,7 @@ void ObjectMgr::LoadCreatureModelInfo()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT modelid, bounding_radius, combat_reach, gender, modelid_other_gender, hostileId FROM creature_model_info");
+    QueryResult result = WorldDatabase.Query("SELECT DisplayID, BoundingRadius, CombatReach, DisplayID_Other_Gender, hostileId FROM creature_model_info");
 
     if (!result)
     {
@@ -1102,39 +1102,39 @@ void ObjectMgr::LoadCreatureModelInfo()
     {
         Field* fields = result->Fetch();
 
-        uint32 modelId = fields[0].GetUInt32();
+        uint32 displayId = fields[0].GetUInt32();
 
-        if (!sCreatureDisplayInfoStore.LookupEntry(modelId))
+        CreatureDisplayInfoEntry const* creatureDisplay = sCreatureDisplayInfoStore.LookupEntry(displayId);
+        if (!creatureDisplay)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_model_info` has model for not existed display id (%u).", modelId);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature_model_info` has model for not existed display id (%u).", displayId);
             continue;
         }
-
-        CreatureModelInfo& modelInfo = _creatureModelStore[modelId];
+ 
+        CreatureModelInfo& modelInfo = _creatureModelStore[displayId];
 
         modelInfo.bounding_radius      = fields[1].GetFloat();
         modelInfo.combat_reach         = fields[2].GetFloat();
-        modelInfo.gender               = fields[3].GetUInt8();
-        modelInfo.modelid_other_gender = fields[4].GetUInt32();
-        modelInfo.hostileId            = fields[5].GetUInt32();
+        modelInfo.gender               = creatureDisplay->Gender;
+        modelInfo.displayId_other_gender = fields[3].GetUInt32();
+        modelInfo.hostileId            = fields[4].GetUInt32();
 
         // Checks
-
-        if (modelInfo.gender > GENDER_NONE)
+        if (modelInfo.gender > GENDER_NONE || modelInfo.gender == GENDER_UNKNOWN)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_model_info` has wrong gender (%u) for display id (%u).", uint32(modelInfo.gender), modelId);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature_model_info` has wrong gender (%u) for display id (%u).", uint32(modelInfo.gender), displayId);
             modelInfo.gender = GENDER_MALE;
         }
 
-        if (modelInfo.modelid_other_gender && !sCreatureDisplayInfoStore.LookupEntry(modelInfo.modelid_other_gender))
+        if (modelInfo.displayId_other_gender && !sCreatureDisplayInfoStore.LookupEntry(modelInfo.displayId_other_gender))
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_model_info` has not existed alt.gender model (%u) for existed display id (%u).", modelInfo.modelid_other_gender, modelId);
-            modelInfo.modelid_other_gender = 0;
+            sLog->outError(LOG_FILTER_SQL, "Table `creature_model_info` has not existed alt.gender model (%u) for existed display id (%u).", modelInfo.displayId_other_gender, displayId);
+            modelInfo.displayId_other_gender = 0;
         }
 
         if (modelInfo.hostileId && !sCreatureDisplayInfoStore.LookupEntry(modelInfo.hostileId))
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_model_info` has not existed alt.hostileId model (%u) for existed display id (%u).", modelInfo.hostileId, modelId);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature_model_info` has not existed alt.hostileId model (%u) for existed display id (%u).", modelInfo.hostileId, displayId);
             modelInfo.hostileId = 0;
         }
 
