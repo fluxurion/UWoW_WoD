@@ -2415,8 +2415,8 @@ class Player : public Unit, public GridObject<Player>
             for (uint32 i = 0; i < sChrSpecializationsStore.GetNumRows(); i++)
             {
                 if(ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(i))
-                    if (specialization->classId == getClass() && specialization->tabId == 0)
-                        return specialization->entry;
+                    if (specialization->ClassID == getClass() && specialization->OrderIndex == 0)
+                        return specialization->ID;
             }
             return 0;
         }

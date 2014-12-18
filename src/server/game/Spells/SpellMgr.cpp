@@ -3456,7 +3456,7 @@ void SpellMgr::LoadSpellClassInfo()
             if (!chrSpec)
                 continue;
 
-            mSpellClassInfo[chrSpec->classId].insert(specializationInfo->LearnSpell);
+            mSpellClassInfo[chrSpec->ClassID].insert(specializationInfo->LearnSpell);
         }
     }
 

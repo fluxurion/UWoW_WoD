@@ -804,22 +804,24 @@ struct ChrPowerTypesEntry
    uint32 power;                                               // 2
 };
 
+#define MAX_MASTERY_SPELLS 2
+
 struct ChrSpecializationsEntry
 {
-    uint32 entry;                   // 0
-    char*  iconName;                // 1
-    uint32 classId;                 // 2
-    uint32 specializationSpell;     // 3
-    //uint32 specializationSpell2   // 4,       empty
-    uint32 tabId;                   // 5        m_orderIndex
-    //uint32 m_petTalentType        // 6        m_petTalentType
-    //uint32 role;                  // 7        m_role
-    //uint32 unk                    // 8        m_spellIconID
-    //uint32 unk                    // 9        m_raidBuffs
-    uint32 flags;                   // 10       m_flags
-    char* specializationName;       // 11
-    char* description;              // 12
-    //uint32 unk                    // 13       m_maxBuffs
+    uint32      ID;                                         // 0 Specialization ID
+    //char*     BackgroundFile;                             // 1
+    uint32      ClassID;                                    // 2
+    uint32      MasterySpellID[MAX_MASTERY_SPELLS];         // 3
+    uint32      OrderIndex;                                 // 4
+    uint32      PetTalentType;                              // 5
+    uint32      Role;                                       // 6 (0 - Tank, 1 - Healer, 2 - DPS)
+    uint32      SpellIconID;                                // 7
+    uint32      RaidBuffs;                                  // 8
+    uint32      Flags;                                      // 9
+    //char*     Name_lang;                                  // 10
+    //char*     Name2_lang;                                 // 11 Same as name_lang?
+    //char*     Description_lang;                           // 12
+    uint32      PrimaryStatOrder[2];                        // 13-14
 };
 
 /* not used

@@ -44,10 +44,10 @@ void WorldSession::HandleSetSpecialization(WorldPacket& recvData)
         if (!specialization)
             continue;
 
-        if (specialization->classId == classId && specialization->tabId == tab)
+        if (specialization->ClassID == classId && specialization->OrderIndex == tab)
         {
-            specializationId = specialization->entry;
-            specializationSpell = specialization->specializationSpell;
+            specializationId = specialization->ID;
+            specializationSpell = specialization->MasterySpellID[0];
             break;
         }
     }

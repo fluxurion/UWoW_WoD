@@ -559,6 +559,6 @@ void WorldSession::HandleLootSpecIdOpcode(WorldPacket& recvData)
 
     uint8 classId = _player->getClass();
     ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(specID);
-    if (specialization && specialization->classId == classId)
+    if (specialization && specialization->ClassID == classId)
         _player->SetLootSpecID(specID);   
 }
