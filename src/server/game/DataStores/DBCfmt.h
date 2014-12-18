@@ -44,8 +44,8 @@ char const CharStartOutfitEntryfmt[] = "dbbbXiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const CharTitlesEntryfmt[] = "nxssix";
 const char ChatChannelsEntryfmt[] = "nixsx";
 
-const char ChrClassesEntryfmt[] = "nixsxxxixiiiixxxxx";
-const char ChrRacesEntryfmt[] = "nxixiixixxxxixsxxxxxixxxxxxxxxxxxxxx";
+const char ChrClassesEntryfmt[] = "nixsxxxixiiiixxxxxx";
+char const ChrRacesEntryfmt[] = "niixiixxxxxxiisxxxxxxxxxxxxxxxxxxxxxxxxx";
 const char ChrClassesXPowerTypesfmt[] = "nii";
 const char ChrSpecializationsfmt[] = "nsiixixxxxissx";
 
