@@ -11985,9 +11985,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             if (dbccoeff && spellProto->SchoolMask & SPELL_SCHOOL_MASK_MAGIC)
                 coeff = dbccoeff;
 
-            if (spellProto->SpellAPBonusMultiplier)
+            if (spellProto->GetEffect(effIndex, m_diffMode).SpellAPBonusMultiplier)
             {
-                ApCoeffMod = spellProto->SpellAPBonusMultiplier;
+                ApCoeffMod = spellProto->GetEffect(effIndex, m_diffMode).SpellAPBonusMultiplier;
 
                 //code for bonus AP from dbc
 
@@ -12128,7 +12128,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     // Check for table values
     float dbccoeff = spellProto->GetEffect(effIndex, m_diffMode).BonusMultiplier;
     if(!dbccoeff)
-        dbccoeff = spellProto->SpellAPBonusMultiplier;
+        dbccoeff = spellProto->GetEffect(effIndex, m_diffMode).SpellAPBonusMultiplier;
     float coeff = 0;
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     if (bonus)
@@ -12655,7 +12655,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     // Check for table values
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     float dbccoeff = spellProto->GetEffect(effIndex, m_diffMode).BonusMultiplier;
-    float ApCoeffMod = spellProto->SpellAPBonusMultiplier;
+    float ApCoeffMod = spellProto->GetEffect(effIndex, m_diffMode).SpellAPBonusMultiplier;
     float coeff = 0;
     float factorMod = 1.0f;
     if (bonus)

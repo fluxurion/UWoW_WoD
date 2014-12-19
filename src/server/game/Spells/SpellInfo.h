@@ -271,6 +271,7 @@ public:
     float     ScalingMultiplier;
     float     DeltaScalingMultiplier;
     float     ComboScalingMultiplier;
+    float     SpellAPBonusMultiplier;
 
     SpellEffectInfo() {}
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* _effect);
@@ -423,7 +424,6 @@ public:
     int32  CastTimeMax;
     int32  CastTimeMaxLevel;
     int32  ScalingClass;
-    float  SpellAPBonusMultiplier;
     float  CoefBase;
     int32  CoefLevelBase;
     int32  MaxScalingLevel;

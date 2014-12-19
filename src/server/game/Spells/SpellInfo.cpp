@@ -354,30 +354,30 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
 
 SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* _effect)
 {
-    SpellEffectScalingEntry const* _effectScaling = GetSpellEffectScalingEntry(_effect ? _effect->Id : 0);
+    SpellEffectScalingEntry const* _effectScaling = GetSpellEffectScalingEntry(_effect ? _effect->ID : 0);
     SpellScalingEntry const* scaling = spellInfo->GetSpellScaling();
 
     _spellInfo = spellInfo;
     _effIndex = effIndex;
     Effect = _effect ? _effect->Effect : 0;
-    ApplyAuraName = _effect ? _effect->EffectApplyAuraName : 0;
+    ApplyAuraName = _effect ? _effect->EffectAura : 0;
     Amplitude = _effect ? _effect->EffectAmplitude : 0;
     DieSides = _effect ? _effect->EffectDieSides : 0;
     RealPointsPerLevel = _effect ? _effect->EffectRealPointsPerLevel : 0.0f;
     BasePoints = _effect ? _effect->EffectBasePoints : 0;
-    PointsPerComboPoint = _effect ? _effect->EffectPointsPerComboPoint : 0.0f;
-    ValueMultiplier = _effect ? _effect->EffectValueMultiplier : 0.0f;
-    DamageMultiplier = _effect ? _effect->EffectDamageMultiplier : 0.0f;
-    BonusMultiplier = _effect ? _effect->EffectBonusMultiplier : 0.0f;
+    PointsPerComboPoint = _effect ? _effect->EffectPointsPerResource : 0.0f;
+    ValueMultiplier = _effect ? _effect->EffectAmplitude : 0.0f;
+    DamageMultiplier = _effect ? _effect->EffectChainAmplitude : 0.0f;
+    BonusMultiplier = _effect ? _effect->EffectBonusCoefficient : 0.0f;
     MiscValue = _effect ? _effect->EffectMiscValue : 0;
     MiscValueB = _effect ? _effect->EffectMiscValueB : 0;
     Mechanic = Mechanics(_effect ? _effect->EffectMechanic : 0);
-    TargetA = SpellImplicitTargetInfo(_effect ? _effect->EffectImplicitTargetA : 0);
-    TargetB = SpellImplicitTargetInfo(_effect ? _effect->EffectImplicitTargetB : 0);
+    TargetA = SpellImplicitTargetInfo(_effect ? _effect->ImplicitTarget[0] : 0);
+    TargetB = SpellImplicitTargetInfo(_effect ? _effect->ImplicitTarget[1] : 0);
     RadiusEntry = _effect && _effect->EffectRadiusIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusIndex) : NULL;
     if (!RadiusEntry)
          RadiusEntry = _effect && _effect->EffectRadiusMaxIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusMaxIndex) : NULL;
-    ChainTarget = _effect ? _effect->EffectChainTarget : 0;
+    ChainTarget = _effect ? _effect->EffectChainTargets : 0;
     ItemType = _effect ? _effect->EffectItemType : 0;
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128(0);
@@ -385,6 +385,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     ScalingMultiplier = _effectScaling ? _effectScaling->Multiplier : 0.0f;
     DeltaScalingMultiplier = _effectScaling ? _effectScaling->RandomMultiplier : 0.0f;
     ComboScalingMultiplier = _effectScaling ? _effectScaling->OtherMultiplier: 0.0f;
+    SpellAPBonusMultiplier = _effect ? _effect->BonusCoefficientFromAP : 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -858,31 +859,30 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
 
 SpellInfo::SpellInfo(SpellEntry const* spellEntry)
 {
-    Id = spellEntry->Id;
+    Id = spellEntry->ID;
     AttributesCu = 0;
 
-    SpellName = spellEntry->SpellName;
-    Rank = spellEntry->Rank;
-    RuneCostID = spellEntry->runeCostID;
+    SpellName = spellEntry->Name_lang;
+    Rank = spellEntry->NameSubtext_lang;
+    RuneCostID = spellEntry->RuneCostID;
     SpellDifficultyId = 0;
-    SpellScalingId = spellEntry->SpellScalingId;
-    SpellAuraOptionsId = spellEntry->SpellAuraOptionsId;
-    SpellAuraRestrictionsId = spellEntry->SpellAuraRestrictionsId;
-    SpellCastingRequirementsId = spellEntry->SpellCastingRequirementsId;
-    SpellCategoriesId = spellEntry->SpellCategoriesId;
-    SpellClassOptionsId = spellEntry->SpellClassOptionsId;
-    SpellCooldownsId = spellEntry->SpellCooldownsId;
-    SpellEquippedItemsId = spellEntry->SpellEquippedItemsId;
-    SpellInterruptsId = spellEntry->SpellInterruptsId;
-    SpellLevelsId = spellEntry->SpellLevelsId;
+    SpellScalingId = spellEntry->ScalingID;
+    SpellAuraOptionsId = spellEntry->AuraOptionsID;
+    SpellAuraRestrictionsId = spellEntry->AuraRestrictionsID;
+    SpellCastingRequirementsId = spellEntry->CastingRequirementsID;
+    SpellCategoriesId = spellEntry->CategoriesID;
+    SpellClassOptionsId = spellEntry->ClassOptionsID;
+    SpellCooldownsId = spellEntry->CooldownsID;
+    SpellEquippedItemsId = spellEntry->EquippedItemsID;
+    SpellInterruptsId = spellEntry->InterruptsID;
+    SpellLevelsId = spellEntry->LevelsID;
    // SpellPowerId = spellEntry->SpellPowerId;
-    SpellReagentsId = spellEntry->SpellReagentsId;
-    SpellShapeshiftId = spellEntry->SpellShapeshiftId;
-    SpellTargetRestrictionsId = spellEntry->SpellTargetRestrictionsId;
-    SpellTotemsId = spellEntry->SpellTotemsId;
-    ResearchProject = spellEntry->ResearchProject;
-    SpellMiscId = spellEntry->SpellMiscId;
-    SpellAPBonusMultiplier = spellEntry->SpellAPBonusMultiplier;
+    SpellReagentsId = spellEntry->ReagentsID;
+    SpellShapeshiftId = spellEntry->ShapeshiftID;
+    SpellTargetRestrictionsId = spellEntry->TargetRestrictionsID;
+    SpellTotemsId = spellEntry->TotemsID;
+    ResearchProject = spellEntry->RequiredProjectID;
+    SpellMiscId = spellEntry->MiscID;
 
     // SpellDifficultyEntry
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -3236,7 +3236,7 @@ void SpellInfo::SetCastTimeIndex(uint32 index)
 
 SpellEffectEntry const* SpellEntry::GetSpellEffect(uint32 eff, uint8 diff) const
 {
-    return GetSpellEffectEntry(Id, eff, diff);
+    return GetSpellEffectEntry(ID, eff, diff);
 }
 
 void SpellInfo::_UnloadImplicitTargetConditionLists()

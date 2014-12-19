@@ -67,10 +67,10 @@ const char EmotesEntryfmt[] = "nxxiiixx";
 const char EmotesTextEntryfmt[] = "nxixxxxxxxxxxxxxxxx";
 const char FactionEntryfmt[] = "niiiiiiiiiiiiiiiiiiffixsxxix";
 const char FactionTemplateEntryfmt[] = "niiiiiiiiiiiii";
-const char GameObjectDisplayInfofmt[] = "nsxxxxxxxxxxffffffxxx";
+const char GameObjectDisplayInfofmt[] = "nixxxxxxxxxxffffffxxx";
 
-const char GemPropertiesEntryfmt[] = "nixxix";
-const char GlyphPropertiesfmt[] = "niii";
+const char GemPropertiesEntryfmt[] = "nixxii";
+const char GlyphPropertiesfmt[] = "niiix";
 const char GlyphSlotfmt[] = "nii";
 
 const char GtBarberShopCostBasefmt[] = "xf";
@@ -149,10 +149,10 @@ const char SpellDifficultyfmt[] = "niiii";
 const std::string CustomSpellDifficultyfmt="ppppp";
 const std::string CustomSpellDifficultyIndex="id";
 const char SpellDurationfmt[] = "niii";
-const char SpellEffectEntryfmt[] = "niifiiiffiiiiiifiifiiiiixiiiix";
+const char SpellEffectEntryfmt[] = "niifiiiffiiiiiifiifiiiiifiiiiif";
 const char SpellEffectScalingEntryfmt[] = "xfffxn";
-const char SpellEntryfmt[] = "nssxxixxfiiiiiiiiiiiiiiii";
-const std::string CustomSpellEntryfmt="paaaapaaapppppppppppppppp";
+char const SpellEntryfmt[] = "nssxxiiiiiiiiiiiiiiiiiii";
+const std::string CustomSpellEntryfmt="paaaapaapppppppppppppppp";
 const std::string CustomSpellEntryIndex = "Id";
 const char SpellFocusObjectfmt[] = "nx";
 const char SpellItemEnchantmentfmt[] = "niiiiiiiiiixiiiiiiiiiiifff";

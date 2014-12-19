@@ -1140,34 +1140,37 @@ struct FactionTemplateEntry
 
 struct GameObjectDisplayInfoEntry
 {
-    uint32      Displayid;                                  // 0        m_ID
-    char* filename;                                         // 1
-    //uint32  unk1[10];                                     //2-11
+    uint32          ID;                                     // 0
+    uint32          FileDataID;                             // 1
+    //uint32        Sound[10];                              // 2-11
     float   minX;
     float   minY;
     float   minZ;
     float   maxX;
     float   maxY;
     float   maxZ;
-    //uint32  transport;                                    //18
+    //uint32        ObjectEffectPackageID;                  // 18
+    //float         OverrideLootEffectScale;                // 19
+    //float         OverrideNameScale;                      // 20
 };
 
 struct GemPropertiesEntry
 {
     uint32      ID;                                         // 0        m_id
     uint32      spellitemenchantement;                      // 1        m_enchant_id
-                                                            // 2        m_maxcount_inv
-                                                            // 3        m_maxcount_item
-    uint32      color;                                      // 4        m_type
-    //uint32                                                // 5        m_min_item_level
+    //uint32    MaxCountInv;                                // 2
+    //uint32    MaxCountItem;                               // 3
+    uint32      Type;                                       // 4
+    uint32      MinItemLevel;                               // 5
 };
 
 struct GlyphPropertiesEntry
 {
-    uint32  Id;
-    uint32  SpellId;
-    uint32  TypeFlags;
-    uint32  Unk1;                                           // GlyphIconId (SpellIcon.dbc)
+    uint32      Id;
+    uint32      SpellId;
+    uint32      TypeFlags;
+    uint32      SpellIconID;                                // 3 GlyphIconId (SpellIcon.dbc)
+    //uint32    GlyphExclusiveCategoryID;                   // 4
 };
 
 struct GlyphSlotEntry
@@ -1918,33 +1921,33 @@ struct SpecializationSpellEntry
 // SpellEffect.dbc
 struct SpellEffectEntry
 {
-    uint32    Id;                                           // 0         m_ID
-    uint32    EffectDifficulty;                             // 1         m_effectDifficulty
-    uint32    Effect;                                       // 2         m_effect
-    float     EffectValueMultiplier;                        // 3         m_effectAmplitude
-    uint32    EffectApplyAuraName;                          // 4         m_effectAura
-    uint32    EffectAmplitude;                              // 5         m_effectAuraPeriod
-    int32     EffectBasePoints;                             // 6         m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
-    float     EffectBonusMultiplier;                        // 7         m_effectBonus
-    float     EffectDamageMultiplier;                       // 8         m_effectChainAmplitude
-    uint32    EffectChainTarget;                            // 9         m_effectChainTargets
-    int32     EffectDieSides;                               // 10         m_effectDieSides
-    uint32    EffectItemType;                               // 11        m_effectItemType
-    uint32    EffectMechanic;                               // 12        m_effectMechanic
-    int32     EffectMiscValue;                              // 13        m_effectMiscValue
-    int32     EffectMiscValueB;                             // 14        m_effectMiscValueB
-    float     EffectPointsPerComboPoint;                    // 15        m_effectPointsPerCombo
-    uint32    EffectRadiusIndex;                            // 16        m_effectRadiusIndex - spellradius.dbc
-    uint32    EffectRadiusMaxIndex;                         // 17        4.0.0
-    float     EffectRealPointsPerLevel;                     // 18        m_effectRealPointsPerLevel
-    flag128   EffectSpellClassMask;                         // 19-22     m_effectSpellClassMask
-    uint32    EffectTriggerSpell;                           // 23        m_effectTriggerSpell
-    //float                                                 // 24        m_effectPos_facing 5.0.5
-    uint32    EffectImplicitTargetA;                        // 25        m_implicitTargetA
-    uint32    EffectImplicitTargetB;                        // 26        m_implicitTargetB
-    uint32    EffectSpellId;                                // 27        new 4.0.0
-    uint32    EffectIndex;                                  // 28        new 4.0.0
-    //uint32  Unk0                                          // 29        m_effectAttributes 4.2.0 only 0 or 1
+    uint32      ID;                                         // 0
+    uint32      DifficultyID;                               // 1
+    uint32      Effect;                                     // 2
+    float       EffectAmplitude;                            // 3
+    uint32      EffectAura;                                 // 4
+    uint32      EffectAuraPeriod;                           // 5
+    uint32      EffectBasePoints;                           // 6
+    float       EffectBonusCoefficient;                     // 7
+    float       EffectChainAmplitude;                       // 8
+    uint32      EffectChainTargets;                         // 9
+    uint32      EffectDieSides;                             // 10
+    uint32      EffectItemType;                             // 11
+    uint32      EffectMechanic;                             // 12
+    int32       EffectMiscValue;                            // 13
+    int32       EffectMiscValueB;                           // 14
+    float       EffectPointsPerResource;                    // 15
+    uint32      EffectRadiusIndex;                          // 16
+    uint32      EffectRadiusMaxIndex;                       // 17
+    float       EffectRealPointsPerLevel;                   // 18
+    flag128     EffectSpellClassMask;                       // 19-22
+    uint32      EffectTriggerSpell;                         // 23
+    float       EffectPosFacing;                            // 24
+    uint32      ImplicitTarget[2];                          // 25-26
+    uint32      SpellID;                                    // 27
+    uint32      EffectIndex;                                // 28
+    uint32      EffectAttributes;                           // 29
+    float       BonusCoefficientFromAP;                     // 30
 };
 
 struct SpellEffectScalingEntry
@@ -1996,31 +1999,30 @@ struct SpellProcsPerMinuteModEntry
 // Spell.dbc
 struct SpellEntry
 {
-    uint32    Id;                                           // 0       m_ID
-    char* SpellName;                                        // 1       m_name_lang
-    char* Rank;                                             // 2       m_nameSubtext_lang
-    //char* Description;                                    // 3       m_description_lang not used
-    //char* ToolTip;                                        // 4       m_auraDescription_lang not used
-    uint32    runeCostID;                                   // 5       m_runeCostID
-    //uint32  spellMissileID;                               // 6       m_spellMissileID not used
-    //uint32  spellDescriptionVariableID;                   // 7       m_spellDescriptionVariableID, 3.2.0
-    float SpellAPBonusMultiplier;                           // 8       m_spellAPBonus
-    uint32 SpellScalingId;                                  // 9        SpellScaling.dbc
-    uint32 SpellAuraOptionsId;                              // 10       SpellAuraOptions.dbc
-    uint32 SpellAuraRestrictionsId;                         // 11       SpellAuraRestrictions.dbc
-    uint32 SpellCastingRequirementsId;                      // 12       SpellCastingRequirements.dbc
-    uint32 SpellCategoriesId;                               // 13       SpellCategories.dbc
-    uint32 SpellClassOptionsId;                             // 14       SpellClassOptions.dbc
-    uint32 SpellCooldownsId;                                // 15       SpellCooldowns.dbc
-    uint32 SpellEquippedItemsId;                            // 16       SpellEquippedItems.dbc
-    uint32 SpellInterruptsId;                               // 17       SpellInterrupts.dbc
-    uint32 SpellLevelsId;                                   // 18       SpellLevels.dbc
-    uint32 SpellReagentsId;                                 // 19       SpellReagents.dbc
-    uint32 SpellShapeshiftId;                               // 20       SpellShapeshift.dbc
-    uint32 SpellTargetRestrictionsId;                       // 21       SpellTargetRestrictions.dbc
-    uint32 SpellTotemsId;                                   // 22       SpellTotems.dbc
-    uint32 ResearchProject;                                 // 23       ResearchProject.dbc
-    uint32 SpellMiscId;                                     // 24       SpellMisc.dbc
+    uint32      ID;                                         // 0
+    char*       Name_lang;                                  // 1
+    char*       NameSubtext_lang;                           // 2
+    //char*     Description_lang;                           // 3
+    //char*     AuraDescription_lang;                       // 4
+    uint32      RuneCostID;                                 // 5
+    uint32      SpellMissileID;                             // 6
+    uint32      DescriptionVariablesID;                     // 7
+    uint32      ScalingID;                                  // 8
+    uint32      AuraOptionsID;                              // 9
+    uint32      AuraRestrictionsID;                         // 10
+    uint32      CastingRequirementsID;                      // 11
+    uint32      CategoriesID;                               // 12
+    uint32      ClassOptionsID;                             // 13
+    uint32      CooldownsID;                                // 14
+    uint32      EquippedItemsID;                            // 15
+    uint32      InterruptsID;                               // 16
+    uint32      LevelsID;                                   // 17
+    uint32      ReagentsID;                                 // 18
+    uint32      ShapeshiftID;                               // 19
+    uint32      TargetRestrictionsID;                       // 20
+    uint32      TotemsID;                                   // 21
+    uint32      RequiredProjectID;                          // 22
+    uint32      MiscID;                                     // 23
 
     // struct access functions
     SpellEffectEntry const* GetSpellEffect(uint32 eff, uint8 diff = 0) const;
