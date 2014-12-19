@@ -47,7 +47,7 @@ const char BattlePetSpeciesEntryfmt[] = "nixixiixx";
 const char QuestPackageItemfmt[] = "iiiix";
 const char ItemUpgradeEntryfmt[] = "niiiii";
 const char RuleSetItemUpgradeEntryfmt[] = "niii";
-const char GameObjectsEntryfmt[] = "niiffffffffiiiiis";
+const char GameObjectsEntryfmt[] = "niiffffffffiiiiiiiiiiiis";
 const char MapChallengeModeEntryfmt[] = "niiiiiiiii";
 const char SpellVisualEntryfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxixxxx";
 

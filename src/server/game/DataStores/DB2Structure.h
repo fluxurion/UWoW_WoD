@@ -459,6 +459,7 @@ struct RuleSetItemUpgradeEntry
     uint32 itemEntry;           // 3 Item ID
 };
 
+#define GO_DBC_DATA_COUNT 8
 struct GameObjectsEntry
 {
     uint32 id;                  // 0 m_ID
@@ -472,12 +473,12 @@ struct GameObjectsEntry
     float rotation2;            // 8
     float rotation3;            // 9
     float size;                 // 10
-    uint32 type;                // 11
-    uint32 data0;               // 12
-    uint32 data1;               // 13
-    uint32 data2;               // 14
-    uint32 data3;               // 15
-    char* name;                 // 16
+    uint32 unk1;                // 11
+    uint32 unk2;                // 12
+    uint32 unk3;                // 13
+    uint32 type;                // 14
+    uint32 data[GO_DBC_DATA_COUNT];             // 15-22
+    char* name;                 // 23
 };
 
 #define MAX_ITEM_UPDGRADES 3

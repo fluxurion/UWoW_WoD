@@ -6532,11 +6532,15 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.faction        = 0;
             got.flags          = 0;
             got.size           = goe->size;
-            got.raw.data[0]    = goe->data0;
-            got.raw.data[1]    = goe->data1;
-            got.raw.data[2]    = goe->data2;
-            got.raw.data[3]    = goe->data3;
-
+            got.raw.data[0]    = goe->data[0];
+            got.raw.data[1]    = goe->data[1];
+            got.raw.data[2]    = goe->data[2];
+            got.raw.data[3]    = goe->data[3];
+            //ToDo: more research
+            /*got.raw.data[4]    = goe->data[4];
+            got.raw.data[5]    = goe->data[5];
+            got.raw.data[6]    = goe->data[6];
+            got.raw.data[7]    = goe->data[7];*/
             for (uint8 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
                 got.questItems[i] = 0;
 

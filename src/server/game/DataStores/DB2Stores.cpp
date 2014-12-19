@@ -178,7 +178,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sTaxiPathNodeStore,         db2Path,    "TaxiPathNode.db2");
 
     LoadDB2(bad_db2_files, sQuestPackageItemStore,     db2Path,    "QuestPackageItem.db2");
-    LoadDB2(bad_db2_files, sGameObjectsStore,          db2Path,    "GameObjects.db2");
+    LoadDB2(bad_db2_files, sGameObjectsStore,          db2Path,    "GameObjects.db2");//19342
     LoadDB2(bad_db2_files, sMapChallengeModeStore,     db2Path,    "MapChallengeMode.db2");
     LoadDB2(bad_db2_files, sSpellVisualStore,          db2Path,    "SpellVisual.db2");
     LoadDB2(bad_db2_files, sItemUpgradeStore,          db2Path,    "ItemUpgrade.db2");
