@@ -19,11 +19,13 @@
 #define TRINITY_DB2SFRM_H
 
 char const HolidaysEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
-const char Itemfmt[] = "niiiiiii";
+const char Itemfmt[] = "niiiiiiii";
 char const ItemAppearanceEntryfmt[]="nii";
 const char ItemCurrencyCostfmt[] = "xn";
 const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
 char const ItemExtendedCostEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
+const std::string CustomItemExtendedCostEntryfmt="paappppppppppppappppppppppaapa";
+const std::string CustomItemExtendedCostEntryIndex = "ID";
 char const ItemEffectEntryfmt[]="niiiiiiii";
 const char LanguageWordsEntryfmt[] = "dis";
 char const KeyChainfmt[]="nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
@@ -47,8 +49,6 @@ const char ItemUpgradeEntryfmt[] = "niiiii";
 const char RuleSetItemUpgradeEntryfmt[] = "niii";
 const char GameObjectsEntryfmt[] = "niiffffffffiiiiis";
 const char MapChallengeModeEntryfmt[] = "niiiiiiiii";
-const std::string CustomItemExtendedCostEntryfmt="paappppppppppppappppppppppaapaa";
-const std::string CustomItemExtendedCostEntryIndex = "ID";
 const char SpellVisualEntryfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxixxxx";
 
 #endif

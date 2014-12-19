@@ -189,11 +189,10 @@ struct ItemExtendedCostEntry
     uint32      ItemPurchaseGroup;                          // 15
     uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];// 16-20 required curency id
     uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];// 21-25 required curency count
-                                                            // 26       reputation-related
-                                                            // 27       reputation-related
-    uint32      flags;                                      // 28
-    //                                                      // 29
-    //                                                      // 30
+    uint32      RequiredFactionId;
+    uint32      RequiredFactionStanding;
+    uint32      RequirementFlags;
+    uint32      RequiredAchievement;
 
     bool IsSeasonCurrencyRequirement(uint32 i) const
     {
@@ -201,7 +200,7 @@ struct ItemExtendedCostEntry
             return 0;
 
         // start from ITEM_EXTENDED_COST_FLAG_SEASON_IN_INDEX_0
-        return flags & (1 << (i + 1));
+        return RequirementFlags & (1 << (i + 1));
     }
 };
 

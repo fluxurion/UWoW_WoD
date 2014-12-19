@@ -114,7 +114,7 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
         if (FILE * f = fopen(db2_filename.c_str(), "rb"))
         {
             char buf[100];
-            snprintf(buf, 100,"(exist, but have %d fields instead %zu) Wrong client version DBC file?", storage.GetFieldCount(), strlen(storage.GetFormat()));
+            snprintf(buf, 100,"(exist, but have %d fields instead %u) Wrong client version DBC file?", storage.GetFieldCount(), strlen(storage.GetFormat()));
             errlist.push_back(db2_filename + buf);
             fclose(f);
         }
@@ -146,11 +146,11 @@ void LoadDB2Stores(const std::string& dataPath)
     }
     
     LoadDB2(bad_db2_files, sHolidaysStore,             db2Path,    "Holidays.db2");
-    LoadDB2(bad_db2_files, sItemStore,                 db2Path,    "Item.db2");
-    LoadDB2(bad_db2_files, sItemAppearanceStore,       db2Path,    "ItemAppearance.db2");
+    LoadDB2(bad_db2_files, sItemStore,                 db2Path,    "Item.db2");//19342
+    LoadDB2(bad_db2_files, sItemAppearanceStore,       db2Path,    "ItemAppearance.db2");//19342
     LoadDB2(bad_db2_files, sItemCurrencyCostStore,     db2Path,    "ItemCurrencyCost.db2");
     LoadDB2(bad_db2_files, sItemSparseStore,           db2Path,    "Item-sparse.db2");
-    LoadDB2(bad_db2_files, sItemExtendedCostStore,     db2Path,    "ItemExtendedCost.db2", &CustomItemExtendedCostEntryfmt, &CustomItemExtendedCostEntryIndex);
+    LoadDB2(bad_db2_files, sItemExtendedCostStore,     db2Path,    "ItemExtendedCost.db2", &CustomItemExtendedCostEntryfmt, &CustomItemExtendedCostEntryIndex);//19342
     LoadDB2(bad_db2_files, sItemEffectStore,           db2Path,    "ItemEffect.db2");
     LoadDB2(bad_db2_files, sLanguageWordsStore,        db2Path,    "LanguageWords.db2");//19342
     for (uint32 i = 0; i < sLanguageWordsStore.GetNumRows(); ++i)
