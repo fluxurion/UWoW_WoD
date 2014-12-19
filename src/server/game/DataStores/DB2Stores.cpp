@@ -36,6 +36,8 @@ DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedC
 DB2Storage<ItemEffectEntry>                 sItemEffectStore(ItemEffectEntryfmt);
 DB2Storage<ItemSparseEntry>                 sItemSparseStore (ItemSparsefmt);
 DB2Storage<BattlePetSpeciesEntry>           sBattlePetSpeciesStore(BattlePetSpeciesEntryfmt);
+DB2Storage<LanguageWordsEntry>              sLanguageWordsStore(LanguageWordsEntryfmt);
+std::map<uint32 /*lang id*/, LanguageWordsMap> sLanguageWordsMapStore;
 DB2Storage<QuestPackageItem>                sQuestPackageItemStore(QuestPackageItemfmt);
 DB2Storage<SpellReagentsEntry>              sSpellReagentsStore(SpellReagentsEntryfmt);
 DB2Storage<ItemUpgradeEntry>                sItemUpgradeStore(ItemUpgradeEntryfmt);
@@ -150,6 +152,16 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemSparseStore,           db2Path,    "Item-sparse.db2");
     LoadDB2(bad_db2_files, sItemExtendedCostStore,     db2Path,    "ItemExtendedCost.db2", &CustomItemExtendedCostEntryfmt, &CustomItemExtendedCostEntryIndex);
     LoadDB2(bad_db2_files, sItemEffectStore,           db2Path,    "ItemEffect.db2");
+    LoadDB2(bad_db2_files, sLanguageWordsStore,        db2Path,    "LanguageWords.db2");//19342
+    for (uint32 i = 0; i < sLanguageWordsStore.GetNumRows(); ++i)
+    {
+        LanguageWordsEntry const* entry = sLanguageWordsStore.LookupEntry(i);
+        if (!entry)
+            continue;
+
+        sLanguageWordsMapStore[entry->langId][strlen(entry->word)].push_back(entry->word);
+    }
+
     LoadDB2(bad_db2_files, sKeyChainStore,             db2Path,    "KeyChain.db2");
     LoadDB2(bad_db2_files, sOverrideSpellDataStore,    db2Path,    "OverrideSpellData.db2");
     LoadDB2(bad_db2_files, sPhaseGroupStore,           db2Path,    "PhaseXPhaseGroup.db2");
@@ -396,4 +408,20 @@ uint32 GetItemDisplayID(uint32 appearanceID)
 std::set<uint32> const& GetPhasesForGroup(uint32 group)
 {
     return sPhasesByGroup[group];
+}
+
+LanguageWordsMap const* GetLanguageWordMap(uint32 lang_id)
+{
+    std::map<uint32, LanguageWordsMap>::const_iterator itr = sLanguageWordsMapStore.find(lang_id);
+    return itr != sLanguageWordsMapStore.end() ? &itr->second : NULL;
+}
+
+std::vector<std::string> const* GetLanguageWordsBySize(uint32 lang_id, uint32 size)
+{
+    LanguageWordsMap const* wordMap = GetLanguageWordMap(lang_id);
+    if (!wordMap)
+        return NULL;
+
+    std::map<uint32, std::vector<std::string> >::const_iterator itr = wordMap->find(size);
+    return itr != wordMap->end() ? &itr->second : NULL;
 }

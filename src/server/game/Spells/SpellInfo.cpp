@@ -382,9 +382,9 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128(0);
     ImplicitTargetConditions = NULL;
-    ScalingMultiplier = _effectScaling ? _effectScaling->Multiplier : 0.0f;
-    DeltaScalingMultiplier = _effectScaling ? _effectScaling->RandomMultiplier : 0.0f;
-    ComboScalingMultiplier = _effectScaling ? _effectScaling->OtherMultiplier: 0.0f;
+    ScalingMultiplier = _effectScaling ? _effectScaling->Coefficient : 0.0f;
+    DeltaScalingMultiplier = _effectScaling ? _effectScaling->Variance : 0.0f;
+    ComboScalingMultiplier = _effectScaling ? _effectScaling->ResourceCoefficient : 0.0f;
     SpellAPBonusMultiplier = _effect ? _effect->BonusCoefficientFromAP : 0.0f;
 }
 
@@ -461,7 +461,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                 level = target->getLevel();
 
             if(SpellScalingEntry const* _scaling = _spellInfo->GetSpellScaling())
-                if(_scaling->MaxScalingLevel && level > _scaling->MaxScalingLevel)
+                if(_scaling->MaxScalingLevel && uint32(level) > _scaling->MaxScalingLevel)
                     level = _scaling->MaxScalingLevel;
 
             uint32 _gtscalingId = 0;

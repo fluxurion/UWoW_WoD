@@ -1431,19 +1431,29 @@ struct ItemRandomSuffixEntry
     uint32    prefix[5];                                    // 8-12     m_allocationPct
 };
 
-#define MAX_ITEM_SET_ITEMS 10
+#define MAX_ITEM_SET_ITEMS 17
 #define MAX_ITEM_SET_SPELLS 8
 
 struct ItemSetEntry
 {
-    //uint32    id                                          // 0        m_ID
+    uint32      ID;                                         // 0
     char* name;                                             // 1        m_name_lang
     uint32    itemId[MAX_ITEM_SET_ITEMS];                   // 2-18     m_itemID
-    uint32    spells[MAX_ITEM_SET_SPELLS];                  // 19-26    m_setSpellID
-    uint32    items_to_triggerspell[MAX_ITEM_SET_SPELLS];   // 27-34    m_setThreshold
-    uint32    required_skill_id;                            // 35       m_requiredSkill
-    uint32    required_skill_value;                         // 36       m_requiredSkillRank
+    uint32    required_skill_id;                            // 19       m_requiredSkill
+    uint32    required_skill_value;                         // 20       m_requiredSkillRank
 };
+
+struct ItemSetSpellEntry
+{
+    uint32      ID;                                         // 0
+    uint32      ItemSetID;                                  // 1
+    uint32      SpellID;                                    // 2
+    uint32      Threshold;                                  // 3
+    uint32      ChrSpecID;                                  // 4
+};
+
+typedef std::vector<ItemSetSpellEntry const*> ItemSetSpells;
+typedef std::unordered_map<uint32, ItemSetSpells> ItemSetSpellsStore;
 
 struct ItemSpecEntry
 {
@@ -1452,12 +1462,6 @@ struct ItemSpecEntry
     uint32      m_specID;                                   // 2,       m_specID
 };
 
-struct LanguageWordsEntry
-{
-    //uint32 Id;                                            // 0
-    uint32 langId;                                          // 1
-    char* word;                                             // 2
-};
 
 struct LFGDungeonEntry
 {
@@ -1706,7 +1710,6 @@ struct PvPDifficultyEntry
     uint32      bracketId;                                  // 2
     uint32      minLevel;                                   // 3
     uint32      maxLevel;                                   // 4
-    uint32      difficulty;                                 // 5
 
     // helpers
     BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(bracketId); }
@@ -1811,11 +1814,10 @@ struct QuestPOIPointEntry
 
 struct ScalingStatDistributionEntry
 {
-    uint32  Id;                                             // 0
-    int32   StatMod[10];                                    // 1-10
-    uint32  Modifier[10];                                   // 11-20
-    //uint32 m_minlevel;                                    // 21       m_minlevel
-    uint32  MaxLevel;                                       // 22       m_maxlevel
+    uint32      ID;                                         // 0
+    uint32      MinLevel;                                   // 1
+    uint32      MaxLevel;                                   // 2       m_maxlevel
+    uint32      UnkScalingID;                               // 3
 };
 
 struct ScalingStatValuesEntry
@@ -1890,22 +1892,24 @@ struct SkillLineAbilityEntry
 
 struct SoundEntriesEntry
 {
-    uint32    Id;                                           // 0        m_ID
-    //uint32    Type;                                       // 1        m_soundType
-    //char*     InternalName;                               // 2        m_name
-    //char*     FileName[10];                               // 3-12     m_File[10]
-    //uint32    Unk13[10];                                  // 13-22    m_Freq[10]
-    //char*     Path;                                       // 23       m_DirectoryBase
-                                                            // 24       m_volumeFloat
-                                                            // 25       m_flags
-                                                            // 26       m_minDistance
-                                                            // 27       m_distanceCutoff
-                                                            // 28       m_EAXDef
-                                                            // 29       m_soundEntriesAdvancedID, new in 3.1
-    //unk                                                   // 30       4.0.0
-    //unk                                                   // 31       4.0.0
-    //unk                                                   // 32       4.0.0
-    //unk                                                   // 33       4.0.0
+    uint32      ID;                                         // 0
+    //uint32    SoundType;                                  // 1
+    //char*     Name;                                       // 2
+    //uint32    FileDataID[20];                             // 3-22
+    //uint32    Freq[20];                                   // 23-42
+    //float     VolumeFloat;                                // 43
+    //uint32    Flags;                                      // 44
+    //float     MinDistance;                                // 45
+    //float     DistanceCutoff;                             // 46
+    //uint32    EAXDef;                                     // 47
+    //uint32    SoundEntriesAdvancedID;                     // 48
+    //float     VolumeVariationPlus;                        // 49
+    //float     VolumeVariationMinus;                       // 50
+    //float     PitchVariationPlus;                         // 51
+    //float     PitchVariationMinus;                        // 52
+    //float     PitchAdjust;                                // 53
+    //uint32    DialogType;                                 // 54
+    //uint32    BusOverwriteID;                             // 55
 };
 
 // SpecializationSpells.dbc
@@ -1953,11 +1957,10 @@ struct SpellEffectEntry
 struct SpellEffectScalingEntry
 {
     //uint32    Id;                                         // 0
-    float     Multiplier;                                   // 1
-    float     RandomMultiplier;                             // 2
-    float     OtherMultiplier;                              // 3
-    //float   m_resourceCoefficient                         // 4        5.4.1
-    uint32    SpellEffectId;                                // 5
+    float     Coefficient;                                  // 1
+    float     Variance;                                     // 2
+    float     ResourceCoefficient;                          // 3
+    uint32    SpellEffectId;                                // 4
 };
 
 #define MAX_SPELL_EFFECTS_DIFF 32
@@ -2650,9 +2653,5 @@ struct ResearchSiteData
 
 typedef std::map<uint32 /*site_id*/, ResearchSiteData> ResearchSiteDataMap;
 ResearchSiteEntry const* GetResearchSiteEntryById(uint32 id);
-
-typedef std::map<uint32 /*word length*/, std::vector<std::string> > LanguageWordsMap;
-LanguageWordsMap const* GetLanguageWordMap(uint32 lang_id);
-std::vector<std::string> const* GetLanguageWordsBySize(uint32 lang_id, uint32 size);
 
 #endif

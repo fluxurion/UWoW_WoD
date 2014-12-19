@@ -240,9 +240,10 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
 
     uint8 spawnMode;
 
-    if (bracketEntry)
+    //Wod::ToDo check mod.
+    /*if (bracketEntry)
         spawnMode = bracketEntry->difficulty;
-    else
+    else*/
         spawnMode = REGULAR_DIFFICULTY;
 
     BattlegroundMap* map = new BattlegroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);

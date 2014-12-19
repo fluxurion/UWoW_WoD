@@ -25,6 +25,7 @@ const char ItemCurrencyCostfmt[] = "xn";
 const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
 char const ItemExtendedCostEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const ItemEffectEntryfmt[]="niiiiiiii";
+const char LanguageWordsEntryfmt[] = "dis";
 char const KeyChainfmt[]="nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 char const OverrideSpellDataEntryfmt[] = "niiiiiiiiiixx";
 char const PhaseGroupEntryfmt[] = "nii";

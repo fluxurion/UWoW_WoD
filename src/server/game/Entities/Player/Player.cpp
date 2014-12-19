@@ -9358,14 +9358,15 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         uint32 statType = 0;
         int32  val = 0;
         // If set ScalingStatDistribution need get stats and values from it
-        if (ssd && ssv)
+        // ToDo: WOD find new system
+        /*if (ssd && ssv)
         {
             if (ssd->StatMod[i] < 0)
                 continue;
             statType = ssd->StatMod[i];
             val = (ssv->GetStatMultiplier(proto->InventoryType) * ssd->Modifier[i]) / 10000;
         }
-        else
+        else*/
         {
             statType = proto->ItemStat[i].ItemStatType;
             val = m_items[slot]->GetLeveledStatValue(i);

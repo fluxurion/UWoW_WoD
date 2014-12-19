@@ -72,17 +72,16 @@ void AddItemsSetItem(Player* player, Item* item)
 
     ++eff->item_count;
 
-    for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; ++x)
+    ItemSetSpells& spells = sItemSetSpellsStore[setid];
+    for (uint32 x = 0; x < spells.size(); ++x)
     {
-        if (!set->spells [x])
-            continue;
         //not enough for  spell
-        if (set->items_to_triggerspell[x] > eff->item_count)
+        if (spells[x]->Threshold > eff->item_count)
             continue;
 
         uint32 z = 0;
         for (; z < MAX_ITEM_SET_SPELLS; ++z)
-            if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
+            if (eff->spells[z] && eff->spells[z]->Id == spells[x]->SpellID)
                 break;
 
         if (z < MAX_ITEM_SET_SPELLS)
@@ -93,10 +92,10 @@ void AddItemsSetItem(Player* player, Item* item)
         {
             if (!eff->spells[y])                             // free slot
             {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(set->spells[x]);
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spells[x]->SpellID);
                 if (!spellInfo)
                 {
-                    sLog->outError(LOG_FILTER_PLAYER_ITEMS, "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
+                    sLog->outError(LOG_FILTER_PLAYER_ITEMS, "WORLD: unknown spell id %u in items set %u effects", spells[x]->SpellID, setid);
                     break;
                 }
 
@@ -137,19 +136,16 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
         return;
 
     --eff->item_count;
-
-    for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; x++)
+    ItemSetSpells& spells = sItemSetSpellsStore[setid];
+    for (uint32 x = 0; x < spells.size(); x++)
     {
-        if (!set->spells[x])
-            continue;
-
         // enough for spell
-        if (set->items_to_triggerspell[x] <= eff->item_count)
+        if (spells[x]->Threshold <= eff->item_count)
             continue;
 
         for (uint32 z = 0; z < MAX_ITEM_SET_SPELLS; z++)
         {
-            if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
+            if (eff->spells[z] && eff->spells[z]->Id == spells[x]->SpellID)
             {
                 // spell can be not active if not fit form requirement
                 player->ApplyEquipSpell(eff->spells[z], NULL, false);

@@ -271,6 +271,17 @@ struct QuestPackageItem
     //uint32 unk2;
 };
 
+struct LanguageWordsEntry
+{
+    //uint32 Id;                                            // 0
+    uint32 langId;                                          // 1
+    char* word;                                             // 2
+};
+
+typedef std::map<uint32 /*word length*/, std::vector<std::string> > LanguageWordsMap;
+LanguageWordsMap const* GetLanguageWordMap(uint32 lang_id);
+std::vector<std::string> const* GetLanguageWordsBySize(uint32 lang_id, uint32 size);
+
 #define KEYCHAIN_SIZE   32
 
 struct KeyChainEntry

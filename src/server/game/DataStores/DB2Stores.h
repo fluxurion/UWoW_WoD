@@ -34,6 +34,8 @@ extern ItemDisplayIDMap                         sItemDisplayIDMap;
 extern DB2Storage<ItemCurrencyCostEntry>        sItemCurrencyCostStore;
 extern DB2Storage<ItemExtendedCostEntry>        sItemExtendedCostStore;
 extern DB2Storage<ItemSparseEntry>              sItemSparseStore;
+extern DB2Storage<LanguageWordsEntry>           sLanguageWordsStore;
+extern std::map<uint32, LanguageWordsMap>       sLanguageWordsMapStore;
 extern DB2Storage<KeyChainEntry>                sKeyChainStore;
 extern DB2Storage<OverrideSpellDataEntry>       sOverrideSpellDataStore;
 extern DB2Storage<PhaseGroupEntry>              sPhaseGroupStore;
