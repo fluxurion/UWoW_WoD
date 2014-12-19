@@ -3014,8 +3014,8 @@ public:
                 if (const ItemSparseEntry* entry = sItemSparseStore.LookupEntry(i))
                 {
                     file << "REPLACE INTO item_template VALUES (" << itemEntry->ID << ", " << itemEntry->Class << ", " << itemEntry->SubClass << ", " << itemEntry->SoundOverrideSubclass
-                        << ", \"" << entry->Name << "\", " << GetItemDisplayID(itemEntry->FileDataID) << ", " << entry->Quality << ", " << entry->Flags << ", " << entry->Flags2 << ", " << entry->Unk430_1
-                        << ", " << entry->Unk430_2 << ", " << entry->BuyCount << ", " << entry->BuyPrice << ", " << entry->SellPrice << ", " << entry->InventoryType << ", " << entry->AllowableClass
+                        << ", \"" << entry->Name << "\", " << GetItemDisplayID(itemEntry->FileDataID) << ", " << entry->Quality << ", " << entry->Flags[0] << ", " << entry->Flags[1] << ", " << entry->Unk1
+                        << ", " << entry->Unk2 << ", " << entry->BuyCount << ", " << entry->BuyPrice << ", " << entry->SellPrice << ", " << entry->InventoryType << ", " << entry->AllowableClass
                         << ", " << entry->AllowableRace << ", " << entry->ItemLevel << ", " << entry->RequiredLevel << ", " << entry->RequiredSkill << ", " << entry->RequiredSkillRank
                         << ", " << entry->RequiredSpell << ", " << entry->RequiredHonorRank << ", " << entry->RequiredCityRank << ", " << entry->RequiredReputationFaction << ", " << entry->RequiredReputationRank
                         << ", " << entry->MaxCount << ", " << entry->Stackable << ", " << entry->ContainerSlots;
@@ -3025,16 +3025,17 @@ public:
 
                         file << ", " << entry->ScalingStatDistribution << ", " << entry->DamageType << ", " << entry->Delay << ", " << entry->RangedModRange;
 
-                        for (uint8 i = 0; i < 5; ++i)
-                            file << ", " << entry->SpellId[i] << ", " << entry->SpellTrigger[i] << ", " << entry->SpellCharges[i] << ", " << entry->SpellCooldown[i] << ", " << entry->SpellCategory[i]
-                                      << ", " << entry->SpellCategoryCooldown[i];
+                        //ToDo: new field
+                        //for (uint8 i = 0; i < 5; ++i)
+                        //    file << ", " << entry->SpellId[i] << ", " << entry->SpellTrigger[i] << ", " << entry->SpellCharges[i] << ", " << entry->SpellCooldown[i] << ", " << entry->SpellCategory[i]
+                        //              << ", " << entry->SpellCategoryCooldown[i];
 
                         file << ", " << entry->Bonding << ", \"" << entry->Description << "\", " << entry->PageText << ", " << entry->LanguageID << ", " << entry->PageMaterial << ", " << entry->StartQuest
                             << ", " << entry->LockID << ", " << entry->Material << ", " << entry->Sheath << ", " << entry->RandomProperty << ", " << entry->RandomSuffix << ", " << entry->ItemSet
                             << ", " << 0 << ", " << entry->Area << ", " << entry->Map << ", " << entry->BagFamily << ", " << entry->TotemCategory
                             << ", " << 0 << ", " << 0 << ", " << 0 << ", " << 0 << ", " << 0 << ", " << 0
                             << ", " << entry->SocketBonus << ", " << entry->GemProperties << ", " << entry->ArmorDamageModifier << ", " << entry->Duration << ", " << entry->ItemLimitCategory
-                            << ", " << entry->HolidayId << ", " << entry->StatScalingFactor << ", " << entry->CurrencySubstitutionId << ", " << entry->CurrencySubstitutionCount << ", " << 0 << ", " << 16135 << ");\n";
+                            << ", " << entry->HolidayID << ", " << entry->StatScalingFactor << ", " << entry->CurrencySubstitutionID << ", " << entry->CurrencySubstitutionCount << ", " << 0 << ", " << 16135 << ");\n";
                 }
         }
         file.close();

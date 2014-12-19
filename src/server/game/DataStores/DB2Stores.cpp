@@ -149,9 +149,9 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemStore,                 db2Path,    "Item.db2");//19342
     LoadDB2(bad_db2_files, sItemAppearanceStore,       db2Path,    "ItemAppearance.db2");//19342
     LoadDB2(bad_db2_files, sItemCurrencyCostStore,     db2Path,    "ItemCurrencyCost.db2");
-    LoadDB2(bad_db2_files, sItemSparseStore,           db2Path,    "Item-sparse.db2");
+    LoadDB2(bad_db2_files, sItemSparseStore,           db2Path,    "Item-sparse.db2");//19342
     LoadDB2(bad_db2_files, sItemExtendedCostStore,     db2Path,    "ItemExtendedCost.db2", &CustomItemExtendedCostEntryfmt, &CustomItemExtendedCostEntryIndex);//19342
-    LoadDB2(bad_db2_files, sItemEffectStore,           db2Path,    "ItemEffect.db2");
+    LoadDB2(bad_db2_files, sItemEffectStore,           db2Path,    "ItemEffect.db2");//19342
     LoadDB2(bad_db2_files, sLanguageWordsStore,        db2Path,    "LanguageWords.db2");//19342
     for (uint32 i = 0; i < sLanguageWordsStore.GetNumRows(); ++i)
     {
