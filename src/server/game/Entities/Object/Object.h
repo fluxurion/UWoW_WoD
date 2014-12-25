@@ -536,22 +536,54 @@ struct MovementInfo
     uint16 flags2;
     Position pos;
     uint32 time;
+
     // transport
-    bool hasTransportTime2;
-    bool hasTransportTime3;
-    ObjectGuid t_guid;
-    Position t_pos;
-    int8 t_seat;
-    uint32 t_time;
-    uint32 t_time2;
-    uint32 t_time3;
+    struct TransportInfo
+    {
+        void Reset()
+        {
+            guid.Clear();
+            pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+            seat = -1;
+            time = 0;
+            prevTime = 0;
+            vehicleId = 0;
+            hasTrevTime = false;
+            hasVehicleId = false;
+        }
+
+        ObjectGuid guid;
+        Position pos;
+        int8 seat;
+        uint32 time;
+        bool hasTrevTime;
+        uint32 prevTime;
+        bool hasVehicleId;
+        uint32 vehicleId;
+    } transport;
+
     // swimming/flying
     float pitch;
     bool hasPitch;
+
     // falling
     uint32 fallTime;
+
     // jumping
-    float j_zspeed, j_cosAngle, j_sinAngle, j_xyspeed;
+    struct JumpInfo
+    {
+        void Reset()
+        {
+            fallTime = 0;
+            zspeed = sinAngle = cosAngle = xyspeed = 0.0f;
+        }
+
+        uint32 fallTime;
+
+        float zspeed, sinAngle, cosAngle, xyspeed;
+
+    } jump;
+
     // spline
     bool hasSplineElevation;
     float splineElevation;
@@ -568,19 +600,16 @@ struct MovementInfo
     MovementInfo()
     {
         pos.Relocate(0, 0, 0, 0);
+        transport.Reset();
+        jump.Reset();
         guid.Clear();
         flags = 0;
         flags2 = 0;
-        hasTransportTime2 = false;
-        hasTransportTime3 = false;
-        time = t_time = t_time2 = t_time3 = fallTime = 0;
+        time =  fallTime = 0;
         splineElevation = 0;
         hasSplineElevation = false;
         hasPitch = false;
-        pitch = j_zspeed = j_sinAngle = j_cosAngle = j_xyspeed = 0.0f;
-        t_guid.Clear();
-        t_pos.Relocate(0, 0, 0, 0);
-        t_seat = -1;
+        pitch = 0.0f;
         hasFallData = false;
         hasFallDirection = false;
         hasSpline = false;
@@ -601,6 +630,16 @@ struct MovementInfo
     bool HasExtraMovementFlag(uint16 flag) const { return (flags2 & flag) != 0; }
 
     void SetFallTime(uint32 time) { fallTime = time; }
+
+    void ResetTransport()
+    {
+        transport.Reset();
+    }
+
+    void ResetJump()
+    {
+        jump.Reset();
+    }
 
     void OutDebug();
 };

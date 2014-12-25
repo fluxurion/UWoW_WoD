@@ -2370,9 +2370,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             m_transport->RemovePassenger(this);
             m_transport = NULL;
-            m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-            m_movementInfo.t_time = 0;
-            m_movementInfo.t_seat = -1;
+            m_movementInfo.transport.Reset();
             RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
         }
 
@@ -2400,10 +2398,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 m_transport->RemovePassenger(this);
                 m_transport = NULL;
             }
-            m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-            m_movementInfo.t_time = 0;
-            m_movementInfo.t_seat = -1;
-            m_movementInfo.t_guid.Clear();
+            m_movementInfo.transport.guid.Clear();
         }
     }
 
@@ -2566,12 +2561,12 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             float final_z = z;
             float final_o = orientation;
 
-            if (m_movementInfo.t_guid)
+            if (m_movementInfo.transport.guid)
             {
-                final_x += m_movementInfo.t_pos.GetPositionX();
-                final_y += m_movementInfo.t_pos.GetPositionY();
-                final_z += m_movementInfo.t_pos.GetPositionZ();
-                final_o += m_movementInfo.t_pos.GetOrientation();
+                final_x += m_movementInfo.transport.pos.GetPositionX();
+                final_y += m_movementInfo.transport.pos.GetPositionY();
+                final_z += m_movementInfo.transport.pos.GetPositionZ();
+                final_o += m_movementInfo.transport.pos.GetOrientation();
             }
 
             m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
@@ -2581,10 +2576,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             if (m_transport && m_transport->GetGUID().IsMOTransport())
             {
-                final_x = m_movementInfo.t_pos.GetPositionX();
-                final_y = m_movementInfo.t_pos.GetPositionY();
-                final_z = m_movementInfo.t_pos.GetPositionZ();
-                final_o = m_movementInfo.t_pos.GetOrientation();
+                final_x = m_movementInfo.transport.pos.GetPositionX();
+                final_y = m_movementInfo.transport.pos.GetPositionY();
+                final_z = m_movementInfo.transport.pos.GetPositionZ();
+                final_o = m_movementInfo.transport.pos.GetOrientation();
             }
 
             if (!GetSession()->PlayerLogout())
@@ -18873,18 +18868,18 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     // currently we do not support transport in bg
     else if (transGUID)
     {
-        m_movementInfo.t_guid = ObjectGuid::Create<HighGuid::Transport>(transGUID);
-        m_movementInfo.t_pos.Relocate(fields[27].GetFloat(), fields[28].GetFloat(), fields[29].GetFloat(), fields[30].GetFloat());
+        m_movementInfo.transport.guid = ObjectGuid::Create<HighGuid::Transport>(transGUID);
+        m_movementInfo.transport.pos.Relocate(fields[27].GetFloat(), fields[28].GetFloat(), fields[29].GetFloat(), fields[30].GetFloat());
 
         if (!Trinity::IsValidMapCoord(
-            GetPositionX()+m_movementInfo.t_pos.m_positionX, GetPositionY()+m_movementInfo.t_pos.m_positionY,
-            GetPositionZ()+m_movementInfo.t_pos.m_positionZ, GetOrientation()+m_movementInfo.t_pos.GetOrientation()) ||
+            GetPositionX()+m_movementInfo.transport.pos.m_positionX, GetPositionY()+m_movementInfo.transport.pos.m_positionY,
+            GetPositionZ()+m_movementInfo.transport.pos.m_positionZ, GetOrientation()+m_movementInfo.transport.pos.GetOrientation()) ||
             // transport size limited
-            m_movementInfo.t_pos.m_positionX > 250 || m_movementInfo.t_pos.m_positionY > 250 || m_movementInfo.t_pos.m_positionZ > 250)
+            m_movementInfo.transport.pos.m_positionX > 250 || m_movementInfo.transport.pos.m_positionY > 250 || m_movementInfo.transport.pos.m_positionZ > 250)
         {
             sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
-                guid, GetPositionX()+m_movementInfo.t_pos.m_positionX, GetPositionY()+m_movementInfo.t_pos.m_positionY,
-                GetPositionZ()+m_movementInfo.t_pos.m_positionZ, GetOrientation()+m_movementInfo.t_pos.GetOrientation());
+                guid, GetPositionX()+m_movementInfo.transport.pos.m_positionX, GetPositionY()+m_movementInfo.transport.pos.m_positionY,
+                GetPositionZ()+m_movementInfo.transport.pos.m_positionZ, GetOrientation()+m_movementInfo.transport.pos.GetOrientation());
 
             RelocateToHomebind();
         }

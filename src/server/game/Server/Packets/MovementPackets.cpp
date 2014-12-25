@@ -33,7 +33,7 @@ ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v)
 
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
 {
-    bool hasTransportData = !movementInfo.transport.t_guid.IsEmpty();
+    bool hasTransportData = !movementInfo.transport.guid.IsEmpty();
     bool hasTransportPrevTime = hasTransportData && movementInfo.transport.prevTime != 0;
     bool hasTransportVehicleId = hasTransportData && movementInfo.transport.vehicleId != 0;
     bool hasFallDirection = movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR);

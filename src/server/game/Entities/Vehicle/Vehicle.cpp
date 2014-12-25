@@ -587,11 +587,7 @@ void Vehicle::RemovePassenger(Unit* unit)
     }
 
     if (_me->IsInWorld())
-    {
-        unit->m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-        unit->m_movementInfo.t_time = 0;
-        unit->m_movementInfo.t_seat = 0;
-    }
+        unit->m_movementInfo.transport.Reset();
 
     // only for flyable vehicles
     if (unit->IsFlying())
@@ -625,7 +621,7 @@ void Vehicle::RelocatePassengers()
             ASSERT(passenger->IsInWorld());
 
             float px, py, pz, po;
-            passenger->m_movementInfo.t_pos.GetPosition(px, py, pz, po);
+            passenger->m_movementInfo.transport.pos.GetPosition(px, py, pz, po);
             CalculatePassengerPosition(px, py, pz, po);
             passenger->UpdatePosition(px, py, pz, po);
         }
@@ -888,18 +884,19 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     //Passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const* veSeat = Seat->second.SeatInfo;
-    Passenger->m_movementInfo.t_pos.Relocate(veSeat->AttachmentOffset.X, veSeat->AttachmentOffset.Y, veSeat->AttachmentOffset.Z);
-    Passenger->m_movementInfo.t_time = 0; // 1 for player
-    Passenger->m_movementInfo.t_seat = Seat->first;
-    Passenger->m_movementInfo.t_guid = Target->GetBase()->GetGUID();
+    Passenger->m_movementInfo.transport.pos.Relocate(veSeat->AttachmentOffset.X, veSeat->AttachmentOffset.Y, veSeat->AttachmentOffset.Z);
+    Passenger->m_movementInfo.transport.time = 0; // 1 for player
+    Passenger->m_movementInfo.transport.seat = Seat->first;
+    Passenger->m_movementInfo.transport.guid = Target->GetBase()->GetGUID();
+    Passenger->m_movementInfo.transport.vehicleId = Target->GetVehicleInfo()->m_ID;
 
     // Hackfix
     switch (veSeat->ID)
     {
         case 10882:
-            Passenger->m_movementInfo.t_pos.m_positionX = 15.0f;
-            Passenger->m_movementInfo.t_pos.m_positionY = 0.0f;
-            Passenger->m_movementInfo.t_pos.m_positionZ = 30.0f;
+            Passenger->m_movementInfo.transport.pos.m_positionX = 15.0f;
+            Passenger->m_movementInfo.transport.pos.m_positionY = 0.0f;
+            Passenger->m_movementInfo.transport.pos.m_positionZ = 30.0f;
             break;
         default:
             break;

@@ -991,24 +991,24 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
         if (hasTransport)
         {
             if (hasTransportTime3)
-                recvPacket >> movementInfo.t_time3;
+                recvPacket >> movementInfo.transport.vehicleId;
 
-            recvPacket >> movementInfo.t_pos.m_positionX;
+            recvPacket >> movementInfo.transport.pos.m_positionX;
             //recvPacket.ReadByteSeq(movementTransportGuid[6]);
 
             if (hasTransportTime2)
-                recvPacket >> movementInfo.t_time2;
+                recvPacket >> movementInfo.transport.prevTime;
 
-            movementInfo.t_pos.SetOrientation(recvPacket.read<float>());
+            movementInfo.transport.pos.SetOrientation(recvPacket.read<float>());
             //recvPacket.ReadByteSeq(movementTransportGuid[7]);
-            recvPacket >> movementInfo.t_seat;
+            recvPacket >> movementInfo.transport.seat;
             //recvPacket.ReadByteSeq(movementTransportGuid[3]);
-            recvPacket >> movementInfo.t_pos.m_positionZ;
-            recvPacket >> movementInfo.t_pos.m_positionY;
+            recvPacket >> movementInfo.transport.pos.m_positionZ;
+            recvPacket >> movementInfo.transport.pos.m_positionY;
             //recvPacket.ReadByteSeq(movementTransportGuid[1]);
             //recvPacket.ReadByteSeq(movementTransportGuid[2]);
             //recvPacket.ReadByteSeq(movementTransportGuid[0]);
-            recvPacket >> movementInfo.t_time;
+            recvPacket >> movementInfo.transport.time;
             //recvPacket.ReadByteSeq(movementTransportGuid[5]);
             //recvPacket.ReadByteSeq(movementTransportGuid[4]);
         }
@@ -1020,12 +1020,12 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
         {
             if (hasFallDirection)
             {
-                recvPacket >> movementInfo.j_xyspeed;
-                recvPacket >> movementInfo.j_sinAngle;
-                recvPacket >> movementInfo.j_cosAngle;
+                recvPacket >> movementInfo.jump.xyspeed;
+                recvPacket >> movementInfo.jump.sinAngle;
+                recvPacket >> movementInfo.jump.cosAngle;
             }
             recvPacket >> movementInfo.fallTime;
-            recvPacket >> movementInfo.j_zspeed;
+            recvPacket >> movementInfo.jump.zspeed;
         }
         //recvPacket.ReadByteSeq(movementGuid[1]);
         if (hasUnkMovementField)
@@ -1054,7 +1054,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
             movementInfo.pos.SetOrientation(recvPacket.read<float>());
 
         movementInfo.guid = movementGuid;
-        movementInfo.t_guid = movementTransportGuid;
+        movementInfo.transport.guid = movementTransportGuid;
     }
 
     if (hasDestLocation)

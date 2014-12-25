@@ -2355,12 +2355,12 @@ class Unit : public WorldObject
         bool IsOnVehicle(const Unit* vehicle) const { return m_vehicle && m_vehicle == vehicle->GetVehicleKit(); }
         Unit* GetVehicleBase()  const;
         Creature* GetVehicleCreatureBase() const;
-        float GetTransOffsetX() const { return m_movementInfo.t_pos.GetPositionX(); }
-        float GetTransOffsetY() const { return m_movementInfo.t_pos.GetPositionY(); }
-        float GetTransOffsetZ() const { return m_movementInfo.t_pos.GetPositionZ(); }
-        float GetTransOffsetO() const { return m_movementInfo.t_pos.GetOrientation(); }
-        uint32 GetTransTime()   const { return m_movementInfo.t_time; }
-        int8 GetTransSeat()     const { return m_movementInfo.t_seat; }
+        float GetTransOffsetX() const { return m_movementInfo.transport.pos.GetPositionX(); }
+        float GetTransOffsetY() const { return m_movementInfo.transport.pos.GetPositionY(); }
+        float GetTransOffsetZ() const { return m_movementInfo.transport.pos.GetPositionZ(); }
+        float GetTransOffsetO() const { return m_movementInfo.transport.pos.GetOrientation(); }
+        uint32 GetTransTime()   const { return m_movementInfo.transport.time; }
+        int8 GetTransSeat()     const { return m_movementInfo.transport.seat; }
         ObjectGuid GetTransGUID()   const;
         // Returns the transport this unit is on directly (if on vehicle and transport, return vehicle)
         TransportBase* GetDirectTransport() const;

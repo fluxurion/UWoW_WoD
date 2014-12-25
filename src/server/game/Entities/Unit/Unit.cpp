@@ -467,7 +467,7 @@ void Unit::UpdateSplinePosition(bool stop/* = false*/)
     Movement::Location loc = movespline->ComputePosition();
     if (GetTransGUID())
     {
-        Position& pos = m_movementInfo.t_pos;
+        Position& pos = m_movementInfo.transport.pos;
         pos.m_positionX = loc.x;
         pos.m_positionY = loc.y;
         pos.m_positionZ = loc.z;
@@ -21744,7 +21744,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     *data << GetPositionZMinusOffset();
     *data << GetOrientation();
 
-    bool onTransport = m_movementInfo.t_guid;
+    bool onTransport = m_movementInfo.transport.guid;
     bool hasInterpolatedMovement = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT;
     bool time3 = false;
     bool swimming = ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
@@ -21807,12 +21807,12 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     if (interPolatedTurning)
     {
         *data << (uint32)m_movementInfo.fallTime;
-        *data << (float)m_movementInfo.j_zspeed;
+        *data << (float)m_movementInfo.jump.zspeed;
         if (jumping)
         {
-            *data << (float)m_movementInfo.j_sinAngle;
-            *data << (float)m_movementInfo.j_cosAngle;
-            *data << (float)m_movementInfo.j_xyspeed;
+            *data << (float)m_movementInfo.jump.sinAngle;
+            *data << (float)m_movementInfo.jump.cosAngle;
+            *data << (float)m_movementInfo.jump.xyspeed;
         }
     }
 

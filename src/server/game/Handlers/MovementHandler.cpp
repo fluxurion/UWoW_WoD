@@ -331,18 +331,18 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     }
 
     /* handle special cases */
-    if (movementInfo.t_guid)
+    if (movementInfo.transport.guid)
     {
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
-        if (movementInfo.t_pos.GetPositionX() > 50 || movementInfo.t_pos.GetPositionY() > 50 || movementInfo.t_pos.GetPositionZ() > 50)
+        if (movementInfo.transport.pos.GetPositionX() > 50 || movementInfo.transport.pos.GetPositionY() > 50 || movementInfo.transport.pos.GetPositionZ() > 50)
         {
             recvPacket.rfinish();                 // prevent warnings spam
             return;
         }
 
-        if (!Trinity::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.t_pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.t_pos.GetPositionY(),
-            movementInfo.pos.GetPositionZ() + movementInfo.t_pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.t_pos.GetOrientation()))
+        if (!Trinity::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.transport.pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.transport.pos.GetPositionY(),
+            movementInfo.pos.GetPositionZ() + movementInfo.transport.pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.transport.pos.GetOrientation()))
         {
             recvPacket.rfinish();                 // prevent warnings spam
             return;
@@ -356,7 +356,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
                 // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just dismount if the guid can be found in the transport list
                 for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
                 {
-                    if ((*iter)->GetGUID() == movementInfo.t_guid)
+                    if ((*iter)->GetGUID() == movementInfo.transport.guid)
                     {
                         plrMover->m_transport = *iter;
                         (*iter)->AddPassenger(plrMover);
@@ -366,17 +366,17 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
                 if (!plrMover->m_transport)
                     if (Map *tempMap = mover->GetMap())
-                        if (GameObject *tempTransport = tempMap->GetGameObject(movementInfo.t_guid))
+                        if (GameObject *tempTransport = tempMap->GetGameObject(movementInfo.transport.guid))
                             if (tempTransport->IsTransport())
                                 plrMover->m_temp_transport = tempTransport;
             }
-            else if (plrMover->GetTransport()->GetGUID() != movementInfo.t_guid)
+            else if (plrMover->GetTransport()->GetGUID() != movementInfo.transport.guid)
             {
                 bool foundNewTransport = false;
                 plrMover->m_transport->RemovePassenger(plrMover);
                 for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
                 {
-                    if ((*iter)->GetGUID() == movementInfo.t_guid)
+                    if ((*iter)->GetGUID() == movementInfo.transport.guid)
                     {
                         foundNewTransport = true;
                         plrMover->m_transport = *iter;
@@ -388,18 +388,16 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
                 if (!foundNewTransport)
                 {
                     plrMover->m_transport = NULL;
-                    movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-                    movementInfo.t_time = 0;
-                    movementInfo.t_seat = -1;
+                    plrMover->m_movementInfo.transport.Reset();
                 }
             }
         }
 
         if (!mover->GetTransport() && !mover->GetVehicle())
         {
-            GameObject* go = mover->GetMap()->GetGameObject(movementInfo.t_guid);
+            GameObject* go = mover->GetMap()->GetGameObject(movementInfo.transport.guid);
             if (!go || go->GetGoType() != GAMEOBJECT_TYPE_TRANSPORT)
-                movementInfo.t_guid.Clear();
+                movementInfo.transport.guid.Clear();
         }
     }
     else if (plrMover && (plrMover->m_transport || plrMover->m_temp_transport))                // if we were on a transport, leave
@@ -410,9 +408,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
             plrMover->m_transport = NULL;
         }
         plrMover->m_temp_transport = NULL;
-        movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-        movementInfo.t_time = 0;
-        movementInfo.t_seat = -1;
+        movementInfo.transport.Reset();
     }
 
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
@@ -999,11 +995,11 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
                 break;
             case MSEHasTransportTime2:
                 if (hasTransportData)
-                    mi->hasTransportTime2 = data.ReadBit();
+                    mi->transport.hasTrevTime = data.ReadBit();
                 break;
             case MSEHasTransportTime3:
                 if (hasTransportData)
-                    mi->hasTransportTime3 = data.ReadBit();
+                    mi->transport.hasVehicleId = data.ReadBit();
                 break;
             case MSEHasPitch:
                 mi->hasPitch = !data.ReadBit();
@@ -1048,15 +1044,15 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
                 break;
             case MSETransportPositionX:
                 if (hasTransportData)
-                    data >> mi->t_pos.m_positionX;
+                    data >> mi->transport.pos.m_positionX;
                 break;
             case MSETransportPositionY:
                 if (hasTransportData)
-                    data >> mi->t_pos.m_positionY;
+                    data >> mi->transport.pos.m_positionY;
                 break;
             case MSETransportPositionZ:
                 if (hasTransportData)
-                    data >> mi->t_pos.m_positionZ;
+                    data >> mi->transport.pos.m_positionZ;
                 break;
             case MSETransportOrientation:
                 if (hasTransportData)
@@ -1064,19 +1060,19 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
                 break;
             case MSETransportSeat:
                 if (hasTransportData)
-                    data >> mi->t_seat;
+                    data >> mi->transport.seat;
                 break;
             case MSETransportTime:
                 if (hasTransportData)
-                    data >> mi->t_time;
+                    data >> mi->transport.time;
                 break;
             case MSETransportTime2:
-                if (hasTransportData && mi->hasTransportTime2)
-                    data >> mi->t_time2;
+                if (hasTransportData && mi->transport.hasTrevTime)
+                    data >> mi->transport.prevTime;
                 break;
             case MSETransportTime3:
-                if (hasTransportData && mi->hasTransportTime3)
-                    data >> mi->t_time3;
+                if (hasTransportData && mi->transport.hasVehicleId)
+                    data >> mi->transport.vehicleId;
                 break;
             case MSEPitch:
                 if (mi->hasPitch)
@@ -1088,19 +1084,19 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
                 break;
             case MSEFallVerticalSpeed:
                 if (mi->hasFallData)
-                    data >> mi->j_zspeed;
+                    data >> mi->jump.zspeed;
                 break;
             case MSEFallCosAngle:
                 if (mi->hasFallData && mi->hasFallDirection)
-                    data >> mi->j_cosAngle;
+                    data >> mi->jump.cosAngle;
                 break;
             case MSEFallSinAngle:
                 if (mi->hasFallData && mi->hasFallDirection)
-                    data >> mi->j_sinAngle;
+                    data >> mi->jump.sinAngle;
                 break;
             case MSEFallHorizontalSpeed:
                 if (mi->hasFallData && mi->hasFallDirection)
-                    data >> mi->j_xyspeed;
+                    data >> mi->jump.xyspeed;
                 break;
             case MSESplineElevation:
                 if (mi->hasSplineElevation)
@@ -1129,9 +1125,9 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
     }
 
     mi->guid = guid;
-    mi->t_guid = tguid;
+    mi->transport.guid = tguid;
 
-   if (hasTransportData && mi->pos.m_positionX != mi->t_pos.m_positionX)
+   if (hasTransportData && mi->pos.m_positionX != mi->transport.pos.m_positionX)
        if (GetPlayer()->GetTransport())
            GetPlayer()->GetTransport()->UpdatePosition(mi);
 
@@ -1214,7 +1210,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi, Unit* 
     bool hasMovementFlags2 = mi->GetExtraMovementFlags() != 0;
     bool hasTimestamp = mi->time != 0;
     bool hasOrientation = !G3D::fuzzyEq(mi->pos.GetOrientation(), 0.0f);
-    bool hasTransportData = mi->t_guid;
+    bool hasTransportData = mi->transport.guid;
 
     MovementStatusElements* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
     if (!sequence)
@@ -1224,7 +1220,7 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi, Unit* 
     }
 
     ObjectGuid guid = mi->guid;
-    ObjectGuid tguid = mi->t_guid;
+    ObjectGuid tguid = mi->transport.guid;
 
     for(uint32 i = 0; i < MSE_COUNT; ++i)
     {
@@ -1289,11 +1285,11 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi, Unit* 
                 break;
             case MSEHasTransportTime2:
                 if (hasTransportData)
-                    data.WriteBit(mi->hasTransportTime2);
+                    data.WriteBit(mi->transport.hasTrevTime);
                 break;
             case MSEHasTransportTime3:
                 if (hasTransportData)
-                    data.WriteBit(mi->hasTransportTime3);
+                    data.WriteBit(mi->transport.hasVehicleId);
                 break;
             case MSEHasPitch:
                 data.WriteBit(!mi->hasPitch);
@@ -1338,35 +1334,35 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi, Unit* 
                 break;
             case MSETransportPositionX:
                 if (hasTransportData)
-                    data << mi->t_pos.m_positionX;
+                    data << mi->transport.pos.m_positionX;
                 break;
             case MSETransportPositionY:
                 if (hasTransportData)
-                    data << mi->t_pos.m_positionY;
+                    data << mi->transport.pos.m_positionY;
                 break;
             case MSETransportPositionZ:
                 if (hasTransportData)
-                    data << mi->t_pos.m_positionZ;
+                    data << mi->transport.pos.m_positionZ;
                 break;
             case MSETransportOrientation:
                 if (hasTransportData)
-                    data << Position::NormalizeOrientation(mi->t_pos.GetOrientation());
+                    data << Position::NormalizeOrientation(mi->transport.pos.GetOrientation());
                 break;
             case MSETransportSeat:
                 if (hasTransportData)
-                    data << mi->t_seat;
+                    data << mi->transport.seat;
                 break;
             case MSETransportTime:
                 if (hasTransportData)
-                    data << mi->t_time;
+                    data << mi->transport.time;
                 break;
             case MSETransportTime2:
-                if (hasTransportData && mi->hasTransportTime2)
-                    data << mi->t_time2;
+                if (hasTransportData && mi->transport.hasTrevTime)
+                    data << mi->transport.prevTime;
                 break;
             case MSETransportTime3:
-                if (hasTransportData && mi->hasTransportTime3)
-                    data << mi->t_time3;
+                if (hasTransportData && mi->transport.hasVehicleId)
+                    data << mi->transport.vehicleId;
                 break;
             case MSEPitch:
                 if (mi->hasPitch)
@@ -1378,19 +1374,19 @@ void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi, Unit* 
                 break;
             case MSEFallVerticalSpeed:
                 if (mi->hasFallData)
-                    data << mi->j_zspeed;
+                    data << mi->jump.zspeed;
                 break;
             case MSEFallCosAngle:
                 if (mi->hasFallData && mi->hasFallDirection)
-                    data << mi->j_cosAngle;
+                    data << mi->jump.cosAngle;
                 break;
             case MSEFallSinAngle:
                 if (mi->hasFallData && mi->hasFallDirection)
-                    data << mi->j_sinAngle;
+                    data << mi->jump.sinAngle;
                 break;
             case MSEFallHorizontalSpeed:
                 if (mi->hasFallData && mi->hasFallDirection)
-                    data << mi->j_xyspeed;
+                    data << mi->jump.xyspeed;
                 break;
             case MSESplineElevation:
                 if (mi->hasSplineElevation)
