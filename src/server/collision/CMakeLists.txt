@@ -68,6 +68,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Movement/Spline
   ${CMAKE_SOURCE_DIR}/src/server/game/Movement
   ${CMAKE_SOURCE_DIR}/src/server/game/Server
+  ${CMAKE_SOURCE_DIR}/src/server/game/Server/Packets
   ${CMAKE_SOURCE_DIR}/src/server/game/Server/Protocol
   ${CMAKE_SOURCE_DIR}/src/server/game/World
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells
@@ -77,6 +78,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Maps
   ${CMAKE_CURRENT_SOURCE_DIR}/Models
   ${MYSQL_INCLUDE_DIR}
+  ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}
 )
 

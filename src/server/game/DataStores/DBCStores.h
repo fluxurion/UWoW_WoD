@@ -92,7 +92,7 @@ extern DBCStorage<AreaTriggerEntry>             sAreaTriggerStore;
 extern DBCStorage<ArmorLocationEntry>           sArmorLocationStore;
 extern DBCStorage<AuctionHouseEntry>            sAuctionHouseStore;
 extern DBCStorage<BankBagSlotPricesEntry>       sBankBagSlotPricesStore;
-extern BannedAddonDataMap                        sBannedAddonDataMap;
+extern DBCStorage <BannedAddOnsEntry>            sBannedAddOnsStore;
 extern DBCStorage<BarberShopStyleEntry>         sBarberShopStyleStore;
 extern DBCStorage<BattlemasterListEntry>        sBattlemasterListStore;
 extern DBCStorage<ChatChannelsEntry>            sChatChannelsStore;

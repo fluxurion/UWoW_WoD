@@ -29,19 +29,19 @@ class WorldPacket : public ByteBuffer
 {
     public:
                                                             // just container for later use
-        WorldPacket() : ByteBuffer(0), m_opcode(UNKNOWN_OPCODE), compressed(NULL)
+        WorldPacket() : ByteBuffer(0), m_opcode(UNKNOWN_OPCODE), _connection(CONNECTION_TYPE_DEFAULT)
         {
         }
 
-        WorldPacket(Opcodes opcode, size_t res = 200) : ByteBuffer(res), m_opcode(opcode), compressed(NULL)
+        WorldPacket(uint32 opcode, size_t res = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : ByteBuffer(res), m_opcode(opcode), _connection(connection)
         {
         }
                                                             // copy constructor
-        WorldPacket(WorldPacket const& packet) : ByteBuffer(packet), m_opcode(packet.m_opcode), compressed(NULL)
+        WorldPacket(WorldPacket const& packet) : ByteBuffer(packet), m_opcode(packet.m_opcode), _connection(packet._connection)
         {
         }
 
-        WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), compressed(NULL)
+        WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), _connection(packet._connection)
         {
         }
 
@@ -50,37 +50,37 @@ class WorldPacket : public ByteBuffer
             if (this != &right)
             {
                 m_opcode = right.m_opcode;
+                _connection = right._connection;
                 ByteBuffer::operator =(right);
             }
 
             return *this;
         }
 
-        WorldPacket(Opcodes opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode), compressed(NULL) {}
+        WorldPacket(Opcodes opcode, MessageBuffer&& buffer, ConnectionType connection) : ByteBuffer(std::move(buffer)), m_opcode(opcode), _connection(connection) {}
 
         ~WorldPacket()
         {
-            delete compressed;
         }
 
-        void Initialize(Opcodes opcode, size_t newres = 200)
+        void Initialize(uint32 opcode, size_t newres = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT)
         {
             clear();
             _storage.reserve(newres);
             m_opcode = opcode;
+            _connection = connection;
         }
 
-        Opcodes GetOpcode() const { return m_opcode; }
-        void SetOpcode(Opcodes opcode) { m_opcode = opcode; }
-        void Compress(z_stream_s* compressionStream);
-        bool Compress(z_stream_s* compressionStream, WorldPacket const* source);
+        uint32 GetOpcode() const { return m_opcode; }
+        void SetOpcode(uint32 opcode) { m_opcode = opcode; }
 
-        WorldPacket* compressed;
-        z_stream_s* _compressionStream;
+        ConnectionType GetConnection() const { return _connection; }
+
 
     protected:
-        bool Compress(void* dst, uint32 *dst_size, const void* src, int src_size, int flush);
-        Opcodes m_opcode;
+
+        uint32 m_opcode;
+        ConnectionType _connection;
 };
 #endif
 

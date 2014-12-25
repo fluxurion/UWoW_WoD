@@ -681,7 +681,19 @@ class ByteBuffer
                 append(str.c_str(), len);
         }
 
-        const uint8 *contents() const { return &_storage[0]; }
+        uint8* contents()
+        {
+            //if (_storage.empty())
+            //    throw ByteBufferException();
+            return _storage.data();
+        }
+
+        uint8 const* contents() const
+        {
+            //if (_storage.empty())
+            //    throw ByteBufferException();
+            return _storage.data();
+        }
 
         size_t size() const { return _storage.size(); }
         bool empty() const { return _storage.empty(); }

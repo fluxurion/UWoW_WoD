@@ -6173,7 +6173,7 @@ uint64 ObjectMgr::GenerateEquipmentSetGuid()
 {
     if (_equipmentSetGuid >= uint64(0xFFFFFFFFFFFFFFFELL))
     {
-        sLog->outError(LOG_FILTER_GENERAL, "EquipmentSet guid overflow!! Can't continue, shutting down server. ");
+        sLog->outError(LOG_FILTER_GENERAL, "EquipmentSetInfo guid overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
     return _equipmentSetGuid++;
@@ -9348,22 +9348,23 @@ void ObjectMgr::LoadBannedAddons()
     }
 
     uint32 count = 0;
+    uint32 dbcMaxBannedAddon = sBannedAddOnsStore.GetNumRows();
 
     do
     {
         Field* fields = result->Fetch();
 
-        uint32 Id = fields[0].GetUInt32();
         std::string name = fields[1].GetString();
         std::string version = fields[2].GetString();
         uint32 timestamp = uint32(fields[3].GetUInt64());
 
         BannedAddon ba;
+        ba.Id = fields[0].GetUInt32() + dbcMaxBannedAddon;
         MD5(reinterpret_cast<uint8 const*>(name.c_str()), name.length(), ba.MD5_name);
         MD5(reinterpret_cast<uint8 const*>(version.c_str()), version.length(), ba.MD5_version);
         ba.timestamp = timestamp;
 
-        sBannedAddonDataMap[Id] = ba;
+        sBannedAddonDataMap[ba.Id] = ba;
 
         ++count;
     }
@@ -9491,4 +9492,121 @@ AreaTriggerInfo const* ObjectMgr::GetAreaTriggerInfo(uint32 entry)
 {
     AreaTriggerInfoMap::const_iterator itr = _areaTriggerData.find(entry);
     return itr != _areaTriggerData.end() ? &itr->second : NULL;
+}
+
+void ObjectMgr::LoadRaceAndClassExpansionRequirements()
+{
+    uint32 oldMSTime = getMSTime();
+    _raceExpansionRequirementStore.clear();
+
+    //                                               0       1
+    QueryResult result = WorldDatabase.Query("SELECT raceID, expansion FROM `race_expansion_requirement`");
+
+    if (result)
+    {
+        uint32 count = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint8 raceID = fields[0].GetInt8();
+            uint8 expansion = fields[1].GetInt8();
+
+            ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
+            if (!raceEntry)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Race %u defined in `race_expansion_requirement` does not exists, skipped.", raceID);
+                continue;
+            }
+
+            if (expansion >= MAX_EXPANSIONS)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Race %u defined in `race_expansion_requirement` has incorrect expansion %u, skipped.", raceID, expansion);
+                continue;
+            }
+
+            _raceExpansionRequirementStore[raceID] = expansion;
+
+            ++count;
+        }
+        while (result->NextRow());
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u race expansion requirements in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
+
+    oldMSTime = getMSTime();
+    _classExpansionRequirementStore.clear();
+
+    //                                   0        1
+    result = WorldDatabase.Query("SELECT classID, expansion FROM `class_expansion_requirement`");
+
+    if (result)
+    {
+        uint32 count = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint8 classID = fields[0].GetInt8();
+            uint8 expansion = fields[1].GetInt8();
+
+            ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classID);
+            if (!classEntry)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Class %u defined in `class_expansion_requirement` does not exists, skipped.", classID);
+                continue;
+            }
+
+            if (expansion >= MAX_EXPANSIONS)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Class %u defined in `class_expansion_requirement` has incorrect expansion %u, skipped.", classID, expansion);
+                continue;
+            }
+
+            _classExpansionRequirementStore[classID] = expansion;
+
+            ++count;
+        }
+        while (result->NextRow());
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u class expansion requirements in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 class expansion requirements. DB table `class_expansion_requirement` is empty.");
+}
+
+void ObjectMgr::LoadRealmNames()
+{
+    uint32 oldMSTime = getMSTime();
+    _realmNameStore.clear();
+
+    //                                               0   1
+    QueryResult result = LoginDatabase.Query("SELECT id, name FROM `realmlist`");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 realm names. DB table `realmlist` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 realm = fields[0].GetUInt32();
+        std::string realmName = fields[1].GetString();
+
+        _realmNameStore[realm] = realmName;
+
+        ++count;
+    }
+    while (result->NextRow());
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u realm names in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+std::string ObjectMgr::GetRealmName(uint32 realm) const
+{
+    RealmNameContainer::const_iterator iter = _realmNameStore.find(realm);
+    return iter != _realmNameStore.end() ? iter->second : "";
 }

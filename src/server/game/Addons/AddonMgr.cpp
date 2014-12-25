@@ -23,6 +23,8 @@
 
 #include <list>
 
+BannedAddonDataMap  sBannedAddonDataMap;
+
 namespace AddonMgr
 {
 

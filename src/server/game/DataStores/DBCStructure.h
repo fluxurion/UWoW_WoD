@@ -670,6 +670,15 @@ struct BankBagSlotPricesEntry
     uint32  price;
 };
 
+struct BannedAddOnsEntry
+{
+    uint32      ID;                                         // 0
+    //uint32    NameMD5[4];                                 // 1
+    //uint32    VersionMD5[4];                              // 2
+    //uint32    LastModified;                               // 3
+    //uint32    Flags;                                      // 4
+};
+
 struct BarberShopStyleEntry
 {
     uint32  Id;                                             // 0
@@ -2551,15 +2560,6 @@ struct VectorArray
 typedef UNORDERED_MAP<uint32, VectorArray> NameGenVectorArraysMap;
 
 // Structures not used for casting to loaded DBC data and not required then packing
-struct BannedAddon
-{
-    uint8 MD5_name[16];
-    uint8 MD5_version[16];
-    uint32 timestamp;
-};
-
-typedef std::map<uint32 /*index*/, BannedAddon> BannedAddonDataMap;
-
 struct MapDifficulty
 {
     MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false) {}

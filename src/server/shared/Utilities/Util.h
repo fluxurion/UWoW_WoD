@@ -27,6 +27,27 @@
 #include <vector>
 #include <list>
 
+template<typename T>
+struct Optional
+{
+    Optional() : Value(), HasValue(false) { }
+
+    T Value;
+    bool HasValue;
+
+    inline void Set(T const& v)
+    {
+        HasValue = true;
+        Value = v;
+    }
+
+    inline void Clear()
+    {
+        HasValue = false;
+        Value = T();
+    }
+};
+
 // Searcher for map of structs
 template<typename T, class S> struct Finder
 {

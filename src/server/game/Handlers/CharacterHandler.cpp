@@ -1746,8 +1746,8 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
         return;
     }
 
-    EquipmentSet eqSet;
-    eqSet.state = EQUIPMENT_SET_NEW;
+    EquipmentSetInfo eqSet;
+    eqSet.State = EQUIPMENT_SET_NEW;
 
     ObjectGuid setGuid;
     ObjectGuid itemGuids[EQUIPMENT_SLOT_END];
@@ -1764,7 +1764,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
     //recvData.ReadGuidMask<2, 1>(setGuid);
 
     //recvData.ReadGuidBytes<6>(setGuid);
-    eqSet.IconName = recvData.ReadString(iconLen);
+    eqSet.Data.SetName = recvData.ReadString(iconLen);
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         //recvData.ReadGuidBytes<1, 3, 7, 2, 0, 5, 4, 6>(itemGuids[i]);
@@ -1773,7 +1773,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
         if (itemGuids[i] == ignoredItemGuid)
         {
             // ignored slots saved as bit mask because we have no free special values for Items[i]
-            eqSet.IgnoreMask |= 1 << i;
+            eqSet.Data.IgnoreMask |= 1 << i;
             continue;
         }
 
@@ -1785,14 +1785,14 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
         if (item && item->GetGUID() != itemGuids[i])        // cheating check 2
             return;
 
-        eqSet.Items[i] = itemGuids[i].GetCounter();
+        eqSet.Data.Pieces[i] = itemGuids[i];
     }
 
     //recvData.ReadGuidBytes<0, 4, 1>(setGuid);
-    eqSet.Name = recvData.ReadString(nameLen);
+    eqSet.Data.SetName = recvData.ReadString(nameLen);
     //recvData.ReadGuidBytes<7, 2, 5, 3>(setGuid);
 
-    eqSet.Guid = setGuid.GetCounter();
+    eqSet.Data.Guid = setGuid.GetCounter();
 
     _player->SetEquipmentSet(index, eqSet);
 }

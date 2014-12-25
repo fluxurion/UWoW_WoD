@@ -1283,7 +1283,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
             sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Macro %u into button %u", action, button);
             break;
         case ACTION_BUTTON_EQSET:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added EquipmentSet %u into button %u", action, button);
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added EquipmentSetInfo %u into button %u", action, button);
             break;
         case ACTION_BUTTON_SPELL:
             sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Spell %u into button %u", action, button);

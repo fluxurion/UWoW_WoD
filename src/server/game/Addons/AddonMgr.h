@@ -21,6 +21,7 @@
 
 #include "Define.h"
 #include <string>
+#include <openssl/md5.h>
 
 struct AddonInfo
 {
@@ -45,6 +46,17 @@ struct SavedAddon
     std::string Name;
     uint32 CRC;
 };
+
+struct BannedAddon
+{
+    uint32 Id;
+    uint8 MD5_name[MD5_DIGEST_LENGTH];
+    uint8 MD5_version[MD5_DIGEST_LENGTH];
+    uint32 timestamp;
+};
+
+typedef std::map<uint32 /*index*/, BannedAddon> BannedAddonDataMap;
+extern BannedAddonDataMap                        sBannedAddonDataMap;
 
 #define STANDARD_ADDON_CRC 0x4c1c776d
 

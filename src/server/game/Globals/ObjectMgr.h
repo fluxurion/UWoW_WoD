@@ -539,6 +539,9 @@ typedef std::multimap<uint32, GraveYardData> GraveYardContainer;
 typedef UNORDERED_MAP<uint32, VendorItemData> CacheVendorItemContainer;
 typedef UNORDERED_MAP<uint32, TrainerSpellData> CacheTrainerSpellContainer;
 
+typedef std::unordered_map<uint8, uint8> ExpansionRequirementContainer;
+typedef std::unordered_map<uint32, std::string> RealmNameContainer;
+
 enum SkillRangeType
 {
     SKILL_RANGE_LANGUAGE,                                   // 300..300
@@ -1321,6 +1324,29 @@ class ObjectMgr
             return 0;
         }
 
+        void LoadRaceAndClassExpansionRequirements();
+        void LoadRealmNames();
+
+        std::string GetRealmName(uint32 realm) const;
+
+        ExpansionRequirementContainer const& GetRaceExpansionRequirements() const { return _raceExpansionRequirementStore; }
+        uint8 GetRaceExpansionRequirement(uint8 race) const
+        {
+            auto itr = _raceExpansionRequirementStore.find(race);
+            if (itr != _raceExpansionRequirementStore.end())
+                return itr->second;
+            return EXPANSION_CLASSIC;
+        }
+
+        ExpansionRequirementContainer const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
+        uint8 GetClassExpansionRequirement(uint8 class_) const
+        {
+            auto itr = _classExpansionRequirementStore.find(class_);
+            if (itr != _classExpansionRequirementStore.end())
+                return itr->second;
+            return EXPANSION_CLASSIC;
+        }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1467,6 +1493,10 @@ class ObjectMgr
 
         CacheVendorItemContainer _cacheVendorItemStore;
         CacheTrainerSpellContainer _cacheTrainerSpellStore;
+
+        ExpansionRequirementContainer _raceExpansionRequirementStore;
+        ExpansionRequirementContainer _classExpansionRequirementStore;
+        RealmNameContainer _realmNameStore;
 
         enum CreatureLinkedRespawnType
         {

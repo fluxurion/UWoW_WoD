@@ -38,6 +38,7 @@ const char AreaTriggerEntryfmt[] = "nifffxxxfffffxxxx";
 const char ArmorLocationfmt[] = "nfffff";
 const char AuctionHouseEntryfmt[] = "niiix";
 const char BankBagSlotPricesEntryfmt[] = "ni";
+char const BannedAddOnsfmt[] = "nxxxxxxxxxx";
 const char BarberShopStyleEntryfmt[] = "nixxxiii";
 const char BattlemasterListEntryfmt[] = "niiiiiiiiiiiiiiiiixsiiiiiiiixxx";
 char const CharStartOutfitEntryfmt[] = "dbbbXiiiiiiiiiiiiiiiiiiiiiiiiii";

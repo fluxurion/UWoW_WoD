@@ -285,7 +285,6 @@ enum UnitRename
     UNIT_CAN_BE_ABANDONED   = 0x02,
 };
 
-#define CREATURE_MAX_SPELLS     8
 #define MAX_SPELL_CHARM         4
 #define MAX_SPELL_VEHICLE       6
 #define MAX_SPELL_POSSESS       8
@@ -326,7 +325,7 @@ enum HitInfo
     HITINFO_CRITICALHIT         = 0x00000200,               // critical hit
     // 0x00000400
     // 0x00000800
-    // 0x00001000
+    HITINFO_UNK12               = 0x00001000,
     HITINFO_BLOCK               = 0x00002000,               // blocked damage
     // 0x00004000                                           // Hides worldtext for 0 damage
     // 0x00008000                                           // Related to blood visual

@@ -80,10 +80,14 @@ enum CreatureFlagsExtra
 #define ENTRY_RUNE_WEAPON       27893
 
 #define MAX_KILL_CREDIT 2
+#define MAX_CREATURE_MODELS 4
+#define MAX_CREATURE_QUEST_ITEMS 6
+#define MAX_CREATURE_NAMES 4
+#define CREATURE_MAX_SPELLS 8
+
 #define CREATURE_REGEN_INTERVAL 5 * IN_MILLISECONDS
 #define PET_FOCUS_REGEN_INTERVAL 2 * IN_MILLISECONDS
 
-#define MAX_CREATURE_QUEST_ITEMS 6
 
 #define MAX_EQUIPMENT_ITEMS 3
 
@@ -458,11 +462,13 @@ struct VendorItemCount
 
 typedef std::list<VendorItemCount> VendorItemCounts;
 
+#define MAX_TRAINERSPELL_ABILITY_REQS 3
+
 struct TrainerSpell
 {
     TrainerSpell() : spell(0), spellCost(0), reqSkill(0), reqSkillValue(0), reqLevel(0)
     {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
             learnedSpell[i] = 0;
     }
 
@@ -471,7 +477,7 @@ struct TrainerSpell
     uint32 reqSkill;
     uint32 reqSkillValue;
     uint32 reqLevel;
-    uint32 learnedSpell[32];
+    uint32 learnedSpell[MAX_TRAINERSPELL_ABILITY_REQS];
 
     // helpers
     bool IsCastable() const { return learnedSpell[0] != spell; }
