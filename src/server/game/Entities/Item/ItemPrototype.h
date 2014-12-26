@@ -637,6 +637,8 @@ struct ItemTemplate
     int32  SoundOverrideSubclass;                           // < 0: id from ItemSubClass.dbc, used to override weapon sound from actual SubClass
     std::string Name1;
     uint32 DisplayInfoID;                                   // id from ItemDisplayInfo.dbc
+    uint32 FileDataID;
+    uint32 GroupSoundsID;
     uint32 Quality;
     uint32 Flags;
     uint32 Flags2;
@@ -694,6 +696,7 @@ struct ItemTemplate
     float  StatScalingFactor;
     uint32 CurrencySubstitutionId;                          // May be used instead of a currency
     uint32 CurrencySubstitutionCount;
+    uint32 ItemNameDescriptionID;
 
     // extra fields, not part of db2 files
     float  DamageMin;
