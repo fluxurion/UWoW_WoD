@@ -166,17 +166,6 @@ enum CharterTypes
     GUILD_CHARTER_TYPE                            = 4,
 };
 
-enum DB2Types
-{
-    DB2_REPLY_SPARSE                          = 0x919BE54E,         // hash of item-sparse.db2
-    DB2_REPLY_ITEM                            = 0x50238EC2,         // hash of item.db2
-    DB2_REPLY_SCENE_SCRIPT                    = 0xD4B163CC,         // hash of ScreneScript.db2 unhandler
-    DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES    = 0x63B4C4BA,         // hash of BattlePetEffectProperties.db2 unhandler
-    DB2_REPLY_BROADCAST_TEXT                  = 0x21826BB,          // hash of BroadcastText.db2
-    DB2_REPLY_ITEM_EXTENDED_COST              = 0xBB858355,         // hash of ItemExtendedCost.db2
-    DB2_REPLY_UNKNOWN                         = 0x6C93F9B1,         // hash of unk
-};
-
 //class to deal with packet processing
 //allows to determine if next packet is safe to be processed
 class PacketFilter
@@ -714,10 +703,6 @@ class WorldSession
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
         void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
-        void SendItemDb2Reply(uint32 entry);
-        void SendItemSparseDb2Reply(uint32 entry);
-        void SendItemeExtendedCostDb2Reply(uint32 entry);
-        void SendBroadcastTextDb2Reply(uint32 entry);
         void HandleSellItemOpcode(WorldPacket& recvPacket);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyItemOpcode(WorldPacket& recvPacket);
@@ -1038,7 +1023,7 @@ class WorldSession
         void HandleEnterPlayerVehicle(WorldPacket& data);
         void HandleSetVehicleRecId(WorldPacket& data);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
-        void HandleRequestHotfix(WorldPacket& recvPacket);
+        void HandleDBQueryBulk(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPacket& recvPacket);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);

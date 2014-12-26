@@ -2249,67 +2249,6 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
     _player->SetPendingBind(0, 0);
 }
 
-void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
-{
-    uint32 type, count;
-    recvPacket >> type;
-
-    count = recvPacket.ReadBits(21);
-
-    ObjectGuid* guids = new ObjectGuid[count];
-
-    //for (uint32 i = 0; i < count; ++i)
-        //recvPacket.ReadGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guids[i]);
-
-    uint32 entry;
-    bool needBreak = false;
-    for (uint32 i = 0; i < count; ++i)
-    {
-        //recvPacket.ReadGuidBytes<4, 7, 6, 0, 2, 3>(guids[i]);
-        recvPacket >> entry;
-        //recvPacket.ReadGuidBytes<5, 1>(guids[i]);
-
-        switch (type)
-        {
-            case DB2_REPLY_ITEM:
-                SendItemDb2Reply(entry);
-                break;
-            case DB2_REPLY_SPARSE:
-                SendItemSparseDb2Reply(entry);
-                break;
-            case DB2_REPLY_BROADCAST_TEXT:
-                //printf("DB2_REPLY_BROADCAST_TEXT : %u\n", entry);
-                SendBroadcastTextDb2Reply(entry);
-                break;
-            case DB2_REPLY_ITEM_EXTENDED_COST:
-                //printf("DB2_REPLY_ITEM_EXTENDED_COST : %u\n", entry);
-                SendItemeExtendedCostDb2Reply(entry);
-                break;
-            case DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES:
-            case DB2_REPLY_SCENE_SCRIPT:
-            {
-                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unhandled hotfix type: %u, entry %u", type, entry);
-                needBreak = true;
-                break;
-            }
-            default:
-            {
-                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u, entry %u", type, entry);
-                needBreak = true;
-                break;
-            }
-        }
-
-        if (needBreak)
-        {
-            recvPacket.rfinish();
-            break;
-        }
-    }
-
-    delete[] guids;
-}
-
 void WorldSession::HandleViolenceLevel(WorldPacket& recvPacket)
 {
     uint8 violenceLevel;

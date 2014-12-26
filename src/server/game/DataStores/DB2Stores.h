@@ -81,4 +81,6 @@ extern MapChallengeModeEntryMap sMapChallengeModeEntrybyMap;
 
 uint32 GetItemDisplayID(uint32 appearanceID);
 std::set<uint32> const& GetPhasesForGroup(uint32 group);
+
+DB2StorageBase const* GetDB2Storage(uint32 type);
 #endif

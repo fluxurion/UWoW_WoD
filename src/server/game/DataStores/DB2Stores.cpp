@@ -17,6 +17,7 @@
 
 #include "DB2Stores.h"
 #include "DBCStores.h"
+#include "DB2Utility.h"
 #include "Log.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"
@@ -28,13 +29,13 @@
 #include <map>
 
 DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryfmt);
-DB2Storage<ItemEntry>                       sItemStore(Itemfmt);
+DB2Storage<ItemEntry>                       sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utilities::WriteItemDbReply);
 DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore(ItemAppearanceEntryfmt);
 ItemDisplayIDMap                            sItemDisplayIDMap;
 DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage<ItemEffectEntry>                 sItemEffectStore(ItemEffectEntryfmt);
-DB2Storage<ItemSparseEntry>                 sItemSparseStore (ItemSparsefmt);
+DB2Storage<ItemSparseEntry>                 sItemSparseStore (ItemSparsefmt, &DB2Utilities::HasItemSparseEntry, &DB2Utilities::WriteItemSparseDbReply);
 DB2Storage<BattlePetSpeciesEntry>           sBattlePetSpeciesStore(BattlePetSpeciesEntryfmt);
 DB2Storage<LanguageWordsEntry>              sLanguageWordsStore(LanguageWordsEntryfmt);
 std::map<uint32 /*lang id*/, LanguageWordsMap> sLanguageWordsMapStore;
@@ -74,6 +75,9 @@ std::list<uint32> sGameObjectsList;
 ItemUpgradeDataMap sItemUpgradeDataMap;
 BattlePetSpeciesBySpellIdMap sBattlePetSpeciesBySpellId;
 MapChallengeModeEntryMap sMapChallengeModeEntrybyMap;
+
+typedef std::map<uint32 /*hash*/, DB2StorageBase*> DB2StorageMap;
+DB2StorageMap DB2Stores;
 
 uint32 DB2FilesCount = 0;
 
@@ -122,6 +126,7 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
             errlist.push_back(db2_filename);
     }
 
+    DB2Stores[storage.GetHash()] = &storage;
     delete sql;
 }
 
@@ -424,4 +429,13 @@ std::vector<std::string> const* GetLanguageWordsBySize(uint32 lang_id, uint32 si
 
     std::map<uint32, std::vector<std::string> >::const_iterator itr = wordMap->find(size);
     return itr != wordMap->end() ? &itr->second : NULL;
+}
+
+DB2StorageBase const* GetDB2Storage(uint32 type)
+{
+    DB2StorageMap::const_iterator itr = DB2Stores.find(type);
+    if (itr != DB2Stores.end())
+        return itr->second;
+
+    return NULL;
 }

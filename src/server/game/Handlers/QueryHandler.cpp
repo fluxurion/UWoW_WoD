@@ -31,6 +31,8 @@
 #include "Pet.h"
 #include "MapManager.h"
 #include "GossipDef.h"
+#include "CharacterPackets.h"
+#include "QueryPackets.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
@@ -459,67 +461,6 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
 }
 
-void WorldSession::SendBroadcastTextDb2Reply(uint32 entry)
-{
-    ByteBuffer buff;
-    WorldPacket data(SMSG_DB_REPLY);
-
-    int loc_idx = GetSessionDbLocaleIndex();
-    GossipText const* pGossip = sObjectMgr->GetGossipText(entry);
-    uint32 localeEntry = entry;
-    if (!pGossip)
-    {
-        pGossip = sObjectMgr->GetGossipText(DEFAULT_GOSSIP_MESSAGE);
-        localeEntry = DEFAULT_GOSSIP_MESSAGE;
-    }
-
-    std::string Text_0, Text_1;
-    if(pGossip)
-    {
-        Text_0 = pGossip->Options[0].Text_0;
-        Text_1 = pGossip->Options[0].Text_1;
-        
-        if (loc_idx >= 0)
-        {
-            if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(localeEntry))
-            {
-                ObjectMgr::GetLocaleString(nl->Text_0[0], loc_idx, Text_0);
-                ObjectMgr::GetLocaleString(nl->Text_1[0], loc_idx, Text_1);
-            }
-        }
-    }
-    
-    uint16 size1 = Text_0.length();
-    uint16 size2 = Text_1.length();
-
-    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_BROADCAST_TEXT));
-    data << uint32(DB2_REPLY_BROADCAST_TEXT);
-
-    buff << uint32(entry);
-    buff << uint32(0);
-    buff << uint16(size1);
-    if (size1)
-        buff << std::string( Text_0);
-    buff << uint16(size2);
-    if (size2)
-        buff << std::string(Text_1);
-    buff << uint32(0);
-    buff << uint32(0);
-    buff << uint32(0);
-    buff << uint32(0);
-    buff << uint32(0);
-    buff << uint32(0);
-    buff << uint32(0); // sound Id
-    buff << uint32(pGossip ? pGossip->Options[0].Emotes[0]._Delay : 0); // Delay
-    buff << uint32(pGossip ? pGossip->Options[0].Emotes[0]._Emote : 0); // Emote
-
-    data << uint32(buff.size());
-    data.append(buff);
-    data << uint32(entry);
-
-    SendPacket(&data);
-}
-
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
 {
@@ -656,4 +597,39 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
         data.append(buff);
 
     SendPacket(&data);
+}
+
+void WorldSession::HandleDBQueryBulk(WorldPacket& recvPacket)
+{
+    //TMP. Till move to new opcode read method
+    WorldPackets::Query::DBQueryBulk& packet;
+
+    DB2StorageBase const* store = GetDB2Storage(packet.TableHash);
+    if (!store)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_DB_QUERY_BULK: Received unknown hotfix type: %u", packet.TableHash);
+        return;
+    }
+
+    for (WorldPackets::Query::DBQueryRecord const& rec : packet.Queries)
+    {
+        WorldPackets::Query::DBReply response;
+        response.TableHash = packet.TableHash;
+
+        if (store->HasRecord(rec.RecordID))
+        {
+            response.RecordID = rec.RecordID;
+            response.Locale = GetSessionDbcLocale();
+            response.Timestamp = sObjectMgr->GetHotfixDate(rec.RecordID, packet.TableHash);
+            response.Data = store;
+        }
+        else
+        {
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_DB_QUERY_BULK: Entry %u does not exist in datastore: %u", rec.RecordID, packet.TableHash);
+            response.RecordID = -int32(rec.RecordID);
+            response.Timestamp = time(NULL);
+        }
+        
+        SendPacket(response.Write());
+    }
 }

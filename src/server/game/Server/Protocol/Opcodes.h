@@ -1499,7 +1499,6 @@ enum Opcodes
     CMSG_RAID_CONFIRM_READY_CHECK                     = 0x184D, // 5.4.1 17538
     CMSG_READY_FOR_ACCOUNT_DATA_TIMES                 = 0x144C, // 5.4.1 17538
     CMSG_REDIRECTION_AUTH_PROOF                       = 0x10E6, // 5.4.1 17538
-    CMSG_REQUEST_HOTFIX                               = 0x01E4, // 5.4.1 17538
     CMSG_REQUEST_RATED_INFO                           = 0x0DE9, // 5.4.1 17538
     CMSG_RESET_CHALLENGE_MODE                         = 0x1A56, // 5.4.1 17538
     CMSG_SELECT_FACTION                               = 0x1766, // 5.4.1 17538

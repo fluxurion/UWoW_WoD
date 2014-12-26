@@ -25,6 +25,7 @@
 #include "DatabaseWorkerPool.h"
 #include "Implementation/WorldDatabase.h"
 #include "DatabaseEnv.h"
+#include "ByteBuffer.h"
 
 #include <vector>
 
@@ -67,42 +68,129 @@ struct SqlDb2
     }
 };
 
+/// Interface class for common access
+class DB2StorageBase
+{
+public:
+    virtual ~DB2StorageBase() { }
+
+    uint32 GetHash() const { return tableHash; }
+
+    virtual bool HasRecord(uint32 id) const = 0;
+
+    virtual void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const = 0;
+
+protected:
+    uint32 tableHash;
+};
+
 template<class T>
-class DB2Storage
+class DB2Storage;
+
+template<class T>
+bool DB2StorageHasEntry(DB2Storage<T> const& store, uint32 id)
+{
+    return store.LookupEntry(id) != NULL;
+}
+
+template<class T>
+void WriteDB2RecordToPacket(DB2Storage<T> const& store, uint32 id, uint32 locale, ByteBuffer& buffer)
+{
+    uint8 const* entry = (uint8 const*)store.LookupEntry(id);
+    ASSERT(entry);
+
+    std::string format = store.GetFormat();
+    for (uint32 i = 0; i < format.length(); ++i)
+    {
+        switch (format[i])
+        {
+            case FT_IND:
+            case FT_INT:
+                buffer << *(uint32*)entry;
+                entry += 4;
+                break;
+            case FT_FLOAT:
+                buffer << *(float*)entry;
+                entry += 4;
+                break;
+            case FT_BYTE:
+                buffer << *(uint8*)entry;
+                entry += 1;
+                break;
+            case FT_STRING:
+            {
+                LocalizedString* locStr = *(LocalizedString**)entry;
+                if (locStr->Str[locale][0] == '\0')
+                    locale = 0;
+
+                char const* str = locStr->Str[locale];
+                size_t len = strlen(str);
+                buffer << uint16(len);
+                if (len)
+                    buffer << str;
+                entry += sizeof(char*);
+                break;
+            }
+            case FT_NA:
+            case FT_SORT:
+                buffer << uint32(0);
+                break;
+            case FT_NA_BYTE:
+                buffer << uint8(0);
+                break;
+        }
+    }
+}
+
+template<class T>
+class DB2Storage : public DB2StorageBase
 {
     typedef std::list<char*> StringPoolList;
     typedef std::vector<T*> DataTableEx;
+    typedef bool(*EntryChecker)(DB2Storage<T> const&, uint32);
+    typedef void(*PacketWriter)(DB2Storage<T> const&, uint32, uint32, ByteBuffer&);
 public:
-    explicit DB2Storage(const char *f) : nCount(0), fieldCount(0), fmt(f), indexTable(NULL), m_dataTable(NULL) { }
+
+    DB2Storage(char const* f, EntryChecker checkEntry = NULL, PacketWriter writePacket = NULL) :
+        nCount(0), fieldCount(0), fmt(f), indexTable(NULL), m_dataTable(NULL)
+    {
+        CheckEntry = checkEntry ? checkEntry : &DB2StorageHasEntry<T>;
+        WritePacket = writePacket ? writePacket : &WriteDB2RecordToPacket<T>;
+    }
+
     ~DB2Storage() { Clear(); }
 
+    bool HasRecord(uint32 id) const { return CheckEntry(*this, id); }
     T const* LookupEntry(uint32 id) const { return (id>=nCount)?NULL:indexTable[id]; }
     uint32  GetNumRows() const { return nCount; }
     char const* GetFormat() const { return fmt; }
     uint32 GetFieldCount() const { return fieldCount; }
+    void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const
+    {
+        WritePacket(*this, id, locale, buffer);
+    }
+    /// Copies the provided entry and stores it.
+    void AddEntry(uint32 id, const T* entry)
+    {
+        if (LookupEntry(id))
+            return;
 
-        /// Copies the provided entry and stores it.
-        void AddEntry(uint32 id, const T* entry)
+        if (id >= nCount)
         {
-            if (LookupEntry(id))
-                return;
-
-            if (id >= nCount)
-            {
-                // reallocate index table
-                char** tmpIdxTable = new char*[id+1];
-                memset(tmpIdxTable, 0, (id+1) * sizeof(char*));
-                memcpy(tmpIdxTable, (char*)indexTable, nCount * sizeof(char*));
-                delete[] ((char*)indexTable);
-                nCount = id + 1;
-                indexTable = (T**)tmpIdxTable;
-            }
-
-            T* entryDst = new T;
-            memcpy((char*)entryDst, (char*)entry, sizeof(T));
-            m_dataTableEx.push_back(entryDst);
-            indexTable[id] = entryDst;
+            // reallocate index table
+            char** tmpIdxTable = new char*[id+1];
+            memset(tmpIdxTable, 0, (id+1) * sizeof(char*));
+            memcpy(tmpIdxTable, (char*)indexTable, nCount * sizeof(char*));
+            delete[] ((char*)indexTable);
+            nCount = id + 1;
+            indexTable = (T**)tmpIdxTable;
         }
+
+        T* entryDst = new T;
+        memcpy((char*)entryDst, (char*)entry, sizeof(T));
+        m_dataTableEx.push_back(entryDst);
+        indexTable[id] = entryDst;
+    }
 
     bool Load(char const* fn, SqlDb2 * sql)
     {
@@ -144,6 +232,7 @@ public:
 
             char * sqlDataTable;
         fieldCount = db2.GetCols();
+        tableHash = db2.GetHash();
 
         // load raw non-string data
         m_dataTable = (T*)db2.AutoProduceData(fmt, nCount, (char**&)indexTable,
@@ -300,10 +389,12 @@ public:
 
     void EraseEntry(uint32 id) { indexTable[id] = NULL; }
 
+    EntryChecker CheckEntry;
+    PacketWriter WritePacket;
+
 private:
     uint32 nCount;
     uint32 fieldCount;
-    uint32 recordSize;
     char const* fmt;
     T** indexTable;
     T* m_dataTable;

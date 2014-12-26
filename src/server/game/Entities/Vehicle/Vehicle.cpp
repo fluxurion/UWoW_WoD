@@ -888,7 +888,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     Passenger->m_movementInfo.transport.time = 0; // 1 for player
     Passenger->m_movementInfo.transport.seat = Seat->first;
     Passenger->m_movementInfo.transport.guid = Target->GetBase()->GetGUID();
-    Passenger->m_movementInfo.transport.vehicleId = Target->GetVehicleInfo()->m_ID;
+    Passenger->m_movementInfo.transport.vehicleId = Target->GetVehicleInfo()->ID;
 
     // Hackfix
     switch (veSeat->ID)
