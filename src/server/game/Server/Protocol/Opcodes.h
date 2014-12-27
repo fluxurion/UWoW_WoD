@@ -1706,8 +1706,8 @@ class OpcodeTable
     public:
         OpcodeTable()
         {
-            memset(_internalTableClient, 0xBADD, sizeof(_internalTableClient));
-            memset(_internalTableServer, 0xBADD, sizeof(_internalTableServer));
+            memset(_internalTableClient, NULL, sizeof(_internalTableClient));
+            memset(_internalTableServer, NULL, sizeof(_internalTableServer));
         }
 
         OpcodeTable(OpcodeTable const&) = delete;

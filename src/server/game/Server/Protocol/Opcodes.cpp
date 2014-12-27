@@ -78,7 +78,7 @@ void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* na
 
     if (_internalTableClient[opcode] != NULL)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override client handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
+        sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override client handler of %s with %s (opcode %u)", GetOpcodeNameForLogging(opcode).c_str(), name, opcode);
         return;
     }
 
@@ -101,7 +101,7 @@ void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* na
 
     if (_internalTableServer[opcode] != NULL)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override server handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
+        sLog->outError(LOG_FILTER_NETWORKIO, "Tried to override server handler of %s with %s (opcode %u)", GetOpcodeNameForLogging(opcode).c_str(), name, opcode);
         return;
     }
 
