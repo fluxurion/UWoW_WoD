@@ -639,7 +639,7 @@ void Transport::DoEventIfAny(WayPointMap::value_type const& node, bool departure
 {
     if (uint32 eventid = departure ? node.second.departureEventID : node.second.arrivalEventID)
     {
-        sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Taxi %s event %u of node %u of %s path", departure ? "departure" : "arrival", eventid, node.first, GetName());
+        sLog->outDebug(LOG_FILTER_TRANSPORTS, "Taxi %s event %u of node %u of %s path", departure ? "departure" : "arrival", eventid, node.first, GetName());
         GetMap()->ScriptsStart(sEventScripts, eventid, this, this);
         EventInform(eventid);
     }

@@ -841,14 +841,14 @@ public:
 
                 if (item->GetOwnerGUID() != player->GetGUID())
                 {
-                    handler->PSendSysMessage("queue(%zu): For the item with guid %d, the owner's guid (%d) and the player's guid (%d) don't match!", i, item->GetGUID().GetCounter(), item->GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
+                    handler->PSendSysMessage("queue(%u): For the item with guid %d, the owner's guid (%d) and the player's guid (%d) don't match!", i, item->GetGUID().GetCounter(), item->GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
                     error = true;
                     continue;
                 }
 
                 if (item->GetQueuePos() != i)
                 {
-                    handler->PSendSysMessage("queue(%zu): For the item with guid %d, the queuepos doesn't match it's position in the queue!", i, item->GetGUID().GetCounter());
+                    handler->PSendSysMessage("queue(%u): For the item with guid %d, the queuepos doesn't match it's position in the queue!", i, item->GetGUID().GetCounter());
                     error = true;
                     continue;
                 }
@@ -860,14 +860,14 @@ public:
 
                 if (test == NULL)
                 {
-                    handler->PSendSysMessage("queue(%zu): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, the player doesn't have any item at that position!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUID().GetCounter());
+                    handler->PSendSysMessage("queue(%u): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, the player doesn't have any item at that position!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUID().GetCounter());
                     error = true;
                     continue;
                 }
 
                 if (test != item)
                 {
-                    handler->PSendSysMessage("queue(%zu): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, an item which guid is %d is there instead!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUID().GetCounter(), test->GetGUID().GetCounter());
+                    handler->PSendSysMessage("queue(%u): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, an item which guid is %d is there instead!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUID().GetCounter(), test->GetGUID().GetCounter());
                     error = true;
                     continue;
                 }
