@@ -142,6 +142,11 @@ LocaleConstant GetLocaleByName(const std::string& name);
 
 typedef std::vector<std::string> StringVector;
 
+struct LocalizedString
+{
+    char const* Str[TOTAL_LOCALES];
+};
+
 enum GM_COMMAND_TAB
 {
     GM,

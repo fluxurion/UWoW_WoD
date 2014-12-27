@@ -259,51 +259,51 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
 
 void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEGROUND_PLAYER_POSITIONS Message");
+   // sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEGROUND_PLAYER_POSITIONS Message");
 
-    Battleground* bg = _player->GetBattleground();
-    if (!bg)                                                 // can't be received if player not in battleground
-        return;
+   // Battleground* bg = _player->GetBattleground();
+   // if (!bg)                                                 // can't be received if player not in battleground
+   //     return;
 
-    uint32 flagCarrierCount = 0;
-    Player* allianceFlagCarrier = NULL;
-    Player* hordeFlagCarrier = NULL;
+   // uint32 flagCarrierCount = 0;
+   // Player* allianceFlagCarrier = NULL;
+   // Player* hordeFlagCarrier = NULL;
 
-    if (ObjectGuid guid = bg->GetFlagPickerGUID(BG_TEAM_ALLIANCE))
-    {
-        allianceFlagCarrier = ObjectAccessor::FindPlayer(guid);
-         if (allianceFlagCarrier)
-            ++flagCarrierCount;
-    }
+   // if (ObjectGuid guid = bg->GetFlagPickerGUID(BG_TEAM_ALLIANCE))
+   // {
+   //     allianceFlagCarrier = ObjectAccessor::FindPlayer(guid);
+   //      if (allianceFlagCarrier)
+   //         ++flagCarrierCount;
+   // }
 
-    if (ObjectGuid guid = bg->GetFlagPickerGUID(BG_TEAM_HORDE))
-    {
-        hordeFlagCarrier = ObjectAccessor::FindPlayer(guid);
-        if (hordeFlagCarrier)
-            ++flagCarrierCount;
-    }
+   // if (ObjectGuid guid = bg->GetFlagPickerGUID(BG_TEAM_HORDE))
+   // {
+   //     hordeFlagCarrier = ObjectAccessor::FindPlayer(guid);
+   //     if (hordeFlagCarrier)
+   //         ++flagCarrierCount;
+   // }
 
-    WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, 4 + 4 + 16 * flagCarrierCount);
-   // Used to send several player positions (found used in AV)
-    data << 0;  // CGBattlefieldInfo__m_numPlayerPositions
-    /*
-    for (CGBattlefieldInfo__m_numPlayerPositions)
-        data << guid << posx << posy;
-    */
-    {
-        data << allianceFlagCarrier->GetGUID();
-        data << float(allianceFlagCarrier->GetPositionX());
-        data << float(allianceFlagCarrier->GetPositionY());
-    }
+   // WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, 4 + 4 + 16 * flagCarrierCount);
+   //// Used to send several player positions (found used in AV)
+   // data << 0;  // CGBattlefieldInfo__m_numPlayerPositions
+   // /*
+   // for (CGBattlefieldInfo__m_numPlayerPositions)
+   //     data << guid << posx << posy;
+   // */
+   // {
+   //     data << allianceFlagCarrier->GetGUID();
+   //     data << float(allianceFlagCarrier->GetPositionX());
+   //     data << float(allianceFlagCarrier->GetPositionY());
+   // }
 
-    if (hordeFlagCarrier)
-    {
-        data << hordeFlagCarrier->GetGUID();
-        data << float(hordeFlagCarrier->GetPositionX());
-        data << float(hordeFlagCarrier->GetPositionY());
-    }
+   // if (hordeFlagCarrier)
+   // {
+   //     data << hordeFlagCarrier->GetGUID();
+   //     data << float(hordeFlagCarrier->GetPositionX());
+   //     data << float(hordeFlagCarrier->GetPositionY());
+   // }
 
-    SendPacket(&data);
+   // SendPacket(&data);
 }
 
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)

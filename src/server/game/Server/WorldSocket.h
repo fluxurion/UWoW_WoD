@@ -31,6 +31,7 @@
 #include <boost/asio/buffer.hpp>
 
 using boost::asio::ip::tcp;
+struct z_stream_s;
 
 #pragma pack(push, 1)
 

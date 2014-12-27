@@ -447,7 +447,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s > time: %d fall-time: %d | xyzo: %f, %f, %fo(%f) flags[%X] flags2[%X] UnitState[%X] opcode[%s] | mover (xyzo): %f, %f, %fo(%f)",
             plrMover->GetName(), movementInfo.time, movementInfo.fallTime, movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ(), movementInfo.pos.GetOrientation(),
-            movementInfo.flags, movementInfo.flags2, mover->GetUnitState(), GetOpcodeNameForLogging(opcode, CMSG).c_str(), mover->GetPositionX(), mover->GetPositionY(), mover->GetPositionZ(), mover->GetOrientation());
+            movementInfo.flags, movementInfo.flags2, mover->GetUnitState(), GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str(), mover->GetPositionX(), mover->GetPositionY(), mover->GetPositionZ(), mover->GetOrientation());
     }
 
     if (plrMover && plrMover->GetTypeId() == TYPEID_PLAYER && !plrMover->HasUnitState(UNIT_STATE_LOST_CONTROL) &&
@@ -503,7 +503,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
             if(World::GetEnableMvAnticheatDebug())
                 sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s Time > cClientTimeDelta: %d, cServerTime: %d | deltaC: %d - deltaS: %d | SyncTime: %d, opcode[%s]",
-                plrMover->GetName(), cClientTimeDelta, cServerTime, plrMover->m_anti_DeltaClientTime, plrMover->m_anti_DeltaServerTime, sync_time, GetOpcodeNameForLogging(opcode, CMSG).c_str());
+                plrMover->GetName(), cClientTimeDelta, cServerTime, plrMover->m_anti_DeltaClientTime, plrMover->m_anti_DeltaServerTime, sync_time, GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str());
 
             // mistiming checks
             const int32 GetMistimingDelta = abs(int32(World::GetMistimingDelta()));
@@ -517,7 +517,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
                 if (bMistimingModulo)
                 {
                     if(World::GetEnableMvAnticheatDebug())
-                        sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s, mistiming exception #%d, mistiming: %dms, opcode[%s]", plrMover->GetName(), plrMover->m_anti_MistimingCount, sync_time, GetOpcodeNameForLogging(opcode, CMSG).c_str());
+                        sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s, mistiming exception #%d, mistiming: %dms, opcode[%s]", plrMover->GetName(), plrMover->m_anti_MistimingCount, sync_time, GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str());
 
                     check_passed = false;
                 }                   
@@ -614,7 +614,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
                     if(World::GetEnableMvAnticheatDebug())
                         sLog->outError(LOG_FILTER_NETWORKIO, "AC444 out m_anti_JupmTime %u current_speed %f allowed_delta %f real_delta %f fly_auras %u fly_flags %u _vmapHeight %f, _Height %f, ZLiquidStatus %u, opcode[%s]",
-                                        mover->m_anti_JupmTime, current_speed, allowed_delta, real_delta, fly_auras, fly_flags, _vmapHeight, _Height, status, GetOpcodeNameForLogging(opcode, CMSG).c_str());
+                        mover->m_anti_JupmTime, current_speed, allowed_delta, real_delta, fly_auras, fly_flags, _vmapHeight, _Height, status, GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str());
 
                 if (movementInfo.time > plrMover->m_anti_LastSpeedChangeTime)
                 {
@@ -629,9 +629,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
                 {
                     if(World::GetEnableMvAnticheatDebug())
                         if (real_delta < 4900.0f)
-                            sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s, speed exception | cDelta=%f aDelta=%f | cSpeed=%f lSpeed=%f deltaTime=%f, opcode[%s]", plrMover->GetName(), real_delta, allowed_delta, current_speed, plrMover->m_anti_Last_HSpeed, time_delta, GetOpcodeNameForLogging(opcode, CMSG).c_str());
+                            sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s, speed exception | cDelta=%f aDelta=%f | cSpeed=%f lSpeed=%f deltaTime=%f, opcode[%s]", plrMover->GetName(), real_delta, allowed_delta, current_speed, plrMover->m_anti_Last_HSpeed, time_delta, GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str());
                         else
-                            sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s, teleport exception | cDelta=%f aDelta=%f | cSpeed=%f lSpeed=%f deltaTime=%f, opcode[%s]", plrMover->GetName(), real_delta, allowed_delta, current_speed, plrMover->m_anti_Last_HSpeed, time_delta, GetOpcodeNameForLogging(opcode, CMSG).c_str());
+                            sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s, teleport exception | cDelta=%f aDelta=%f | cSpeed=%f lSpeed=%f deltaTime=%f, opcode[%s]", plrMover->GetName(), real_delta, allowed_delta, current_speed, plrMover->m_anti_Last_HSpeed, time_delta, GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str());
 
                     if(speed_check || real_delta > 4900.0f)
                         check_passed = false;
@@ -647,7 +647,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
                             plrMover->GetName(),
                             plrMover->HasAuraType(SPELL_AURA_FLY), plrMover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
                             plrMover->HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED), plrMover->HasAuraType(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS),
-                            plrMover->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK), plrMover->GetVehicle(), forvehunit, GetOpcodeNameForLogging(opcode, CMSG).c_str());
+                            plrMover->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK), plrMover->GetVehicle(), forvehunit, GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str());
 
                     //check_passed = false;
                     plrMover->SendMovementSetCanFly(true);
@@ -665,11 +665,11 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
                         if (plane_z > 0.1f || plane_z < -0.1f)
                         {
                             if(World::GetEnableMvAnticheatDebug())
-                                sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s, teleport to plane exception. plane_z: %f, opcode[%s]", plrMover->GetName(), plane_z, GetOpcodeNameForLogging(opcode, CMSG).c_str());
+                                sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s, teleport to plane exception. plane_z: %f, opcode[%s]", plrMover->GetName(), plane_z, GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str());
 
                             if(World::GetEnableMvAnticheatDebug())
                                 if (plrMover->m_anti_TeleToPlane_Count > World::GetTeleportToPlaneAlarms())
-                                    sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s, teleport to plane exception. Exception count: %d, opcode[%s]", plrMover->GetName(), plrMover->m_anti_TeleToPlane_Count, GetOpcodeNameForLogging(opcode, CMSG).c_str());
+                                    sLog->outError(LOG_FILTER_NETWORKIO, "AC2-%s, teleport to plane exception. Exception count: %d, opcode[%s]", plrMover->GetName(), plrMover->m_anti_TeleToPlane_Count, GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str());
 
                             ++(plrMover->m_anti_TeleToPlane_Count);
                             check_passed = false;

@@ -22353,7 +22353,7 @@ void Unit::SendMovementHover()
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SendMovementSetHover(HasUnitMovementFlag(MOVEMENTFLAG_HOVER));
 
-    WorldPacket data(MSG_MOVE_HOVER, 64);
+    WorldPacket data(SMSG_MOVE_SET_HOVER, 64);
     data << GetPackGUID();
     BuildMovementPacket(&data);
     SendMessageToSet(&data, false);

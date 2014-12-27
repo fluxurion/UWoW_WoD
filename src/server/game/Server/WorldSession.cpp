@@ -49,14 +49,14 @@
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
-    OpcodeHandler const* opHandle = opcodeTable[CMSG][packet->GetOpcode()];
+    ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
 
     //let's check if our opcode can be really processed in Map::Update()
-    if (opHandle->packetProcessing == PROCESS_INPLACE)
+    if (opHandle->ProcessingPlace == PROCESS_INPLACE)
         return true;
 
     //we do not process thread-unsafe packets
-    if (opHandle->packetProcessing == PROCESS_THREADUNSAFE)
+    if (opHandle->ProcessingPlace == PROCESS_THREADUNSAFE)
         return false;
 
     Player* player = m_pSession->GetPlayer();
@@ -71,13 +71,13 @@ bool MapSessionFilter::Process(WorldPacket* packet)
 //OR packet handler is not thread-safe!
 bool WorldSessionFilter::Process(WorldPacket* packet)
 {
-    OpcodeHandler const* opHandle = opcodeTable[CMSG][packet->GetOpcode()];
+    ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
     //check if packet handler is supposed to be safe
-    if (opHandle->packetProcessing == PROCESS_INPLACE)
+    if (opHandle->ProcessingPlace == PROCESS_INPLACE)
         return true;
 
     //thread-unsafe packets should be processed in World::UpdateSessions()
-    if (opHandle->packetProcessing == PROCESS_THREADUNSAFE)
+    if (opHandle->ProcessingPlace == PROCESS_THREADUNSAFE)
         return true;
 
     //no player attached? -> our client! ^^
@@ -123,19 +123,6 @@ playerLoginCounter(0)
     }
 
     InitializeQueryCallbackParameters();
-
-    _compressionStream = new z_stream();
-    _compressionStream->zalloc = (alloc_func)NULL;
-    _compressionStream->zfree = (free_func)NULL;
-    _compressionStream->opaque = (voidpf)NULL;
-    _compressionStream->avail_in = 0;
-    _compressionStream->next_in = NULL;
-    int32 z_res = deflateInit2(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION), Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
-    if (z_res != Z_OK)
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
-        return;
-    }
 }
 
 /// WorldSession destructor
@@ -161,12 +148,6 @@ WorldSession::~WorldSession()
         delete packet;
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
-
-    int32 z_res = deflateEnd(_compressionStream);
-    if (z_res != Z_OK && z_res != Z_DATA_ERROR) // Z_DATA_ERROR signals that internal state was BUSY
-        sLog->outError(LOG_FILTER_NETWORKIO, "Can't close packet compression stream (zlib: deflateEnd) Error code: %i (%s)", z_res, zError(z_res));
-
-    delete _compressionStream;
 }
 
 /// Get the player name
@@ -219,10 +200,11 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     if (!forced)
     {
-        OpcodeHandler* handler = opcodeTable[SMSG][packet->GetOpcode()];
-        if (!handler || handler->status == STATUS_UNHANDLED)
+        ServerOpcodeHandler const* handler = opcodeTable[static_cast<OpcodeServer>(packet->GetOpcode())];
+
+        if (!handler || handler->Status == STATUS_UNHANDLED)
         {
-            sLog->outError(LOG_FILTER_OPCODES, "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(packet->GetOpcode(), SMSG).c_str(), GetPlayerName(false).c_str());
+            sLog->outError(LOG_FILTER_OPCODES, "Prevented sending disabled opcode %s to %s", GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet->GetOpcode())).c_str(), GetPlayerName(false).c_str());
             return;
         }
     }
@@ -268,37 +250,6 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     m_Socket->SendPacket(*const_cast<WorldPacket*>(packet));
 }
 
-uint32 WorldSession::CompressPacket(uint8* buffer, WorldPacket const& packet)
-{
-    uint32 opcode = packet.GetOpcode();
-    uint32 bufferSize = deflateBound(_compressionStream, packet.size() + sizeof(opcode));
-
-    _compressionStream->next_out = buffer;
-    _compressionStream->avail_out = bufferSize;
-    _compressionStream->next_in = (Bytef*)&opcode;
-    _compressionStream->avail_in = sizeof(uint32);
-
-    int32 z_res = deflate(_compressionStream, Z_BLOCK);
-    if (z_res != Z_OK)
-    {
-        sLog->outError(LOG_FILTER_OPCODES, "Can't compress packet opcode (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
-        return 0;
-    }
-
-    _compressionStream->next_in = (Bytef*)packet.contents();
-    _compressionStream->avail_in = packet.size();
-
-    z_res = deflate(_compressionStream, Z_SYNC_FLUSH);
-    if (z_res != Z_OK)
-    {
-        sLog->outError(LOG_FILTER_OPCODES, "Can't compress packet data (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
-        return 0;
-    }
-
-
-    return bufferSize - _compressionStream->avail_out;
-}
-
 /// Add an incoming packet to the queue
 void WorldSession::QueuePacket(WorldPacket* new_packet)
 {
@@ -313,14 +264,14 @@ void WorldSession::QueuePacket(WorldPacket* new_packet)
 void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received unexpected opcode %s Status: %s Reason: %s from %s",
-        GetOpcodeNameForLogging(packet->GetOpcode(), CMSG).c_str(), status, reason, GetPlayerName(false).c_str());
+        GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), status, reason, GetPlayerName(false).c_str());
 }
 
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Unprocessed tail data (read stop at %u from %u) Opcode %s from %s",
-        uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(packet->GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
+        uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerName(false).c_str());
     packet->print_storage();
 }
 
@@ -370,11 +321,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     while (m_Socket && !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket && _recvQueue.next(packet, updater))
     {
-        const OpcodeHandler* opHandle = opcodeTable[CMSG][packet->GetOpcode()];
-
+        ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
         try
         {
-            switch (opHandle->status)
+            switch (opHandle->Status)
             {
                 case STATUS_LOGGEDIN:
                     if (!_player)
@@ -392,13 +342,13 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             QueuePacket(packet);
                             //! Log
                                 sLog->outDebug(LOG_FILTER_NETWORKIO, "Re-enqueueing packet with opcode %s with with status STATUS_LOGGEDIN. "
-                                    "Player is currently not in world yet.", GetOpcodeNameForLogging(packet->GetOpcode(), CMSG).c_str());
+                                    "Player is currently not in world yet.", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str());
                         }
                     }
                     else if (_player->IsInWorld())
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
-                        (this->*opHandle->handler)(*packet);
+                        opHandle->Call(this, *packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
                     }
@@ -412,7 +362,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     {
                         // not expected _player or must checked in packet hanlder
                         sScriptMgr->OnPacketReceive(this, *packet);
-                        (this->*opHandle->handler)(*packet);
+                        opHandle->Call(this, *packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
                     }
@@ -425,7 +375,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
-                        (this->*opHandle->handler)(*packet);
+                        opHandle->Call(this, *packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
                     }
@@ -444,15 +394,15 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         m_playerRecentlyLogout = false;
 
                     sScriptMgr->OnPacketReceive(this, *packet);
-                    (this->*opHandle->handler)(*packet);
+                    opHandle->Call(this, *packet);
                     if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                         LogUnprocessedTail(packet);
                     break;
                 case STATUS_NEVER:
-                        sLog->outError(LOG_FILTER_OPCODES, "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
+                    sLog->outError(LOG_FILTER_OPCODES, "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerName(false).c_str());
                     break;
                 case STATUS_UNHANDLED:
-                        sLog->outError(LOG_FILTER_OPCODES, "Received not handled opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
+                    sLog->outError(LOG_FILTER_OPCODES, "Received not handled opcode %s from %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerName(false).c_str());
                     break;
             }
         }
@@ -736,25 +686,25 @@ const char *WorldSession::GetTrinityString(int32 entry) const
 void WorldSession::Handle_NULL(WorldPacket& recvPacket)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received unhandled opcode %s from %s",
-        GetOpcodeNameForLogging(recvPacket.GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
+        GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received opcode %s that must be processed in WorldSocket::OnRead from %s",
-        GetOpcodeNameForLogging(recvPacket.GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
+        GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_ServerSide(WorldPacket& recvPacket)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received server-side opcode %s from %s",
-        GetOpcodeNameForLogging(recvPacket.GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
+        GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received deprecated opcode %s from %s",
-        GetOpcodeNameForLogging(recvPacket.GetOpcode(), CMSG).c_str(), GetPlayerName(false).c_str());
+        GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::SendAuthWaitQue(uint32 position)

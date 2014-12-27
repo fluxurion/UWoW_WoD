@@ -67,6 +67,118 @@ struct LfgRoleCheck;
 struct LfgUpdateData;
 }
 
+namespace WorldPackets
+{
+    namespace Character
+    {
+        struct CharacterCreateInfo;
+        struct CharacterRenameInfo;
+        struct CharCustomizeInfo;
+        struct CharRaceOrFactionChangeInfo;
+        struct CharacterUndeleteInfo;
+
+        class EnumCharacters;
+        class CreateChar;
+        class DeleteChar;
+        class CharacterRenameRequest;
+        class CharCustomize;
+        class CharRaceOrFactionChange;
+        class GenerateRandomCharacterName;
+        class ReorderCharacters;
+        class UndeleteCharacter;
+        class PlayerLogin;
+        class LogoutRequest;
+        class LogoutCancel;
+        class LoadingScreenNotify;
+    }
+
+    namespace ClientConfig
+    {
+        class RequestAccountData;
+        class UserClientUpdateAccountData;
+    }
+
+    namespace Channel
+    {
+        class ChannelListRequest;
+        class JoinChannel;
+        class LeaveChannel;
+    }
+
+    namespace Chat
+    {
+        class ChatMessage;
+        class ChatMessageWhisper;
+        class ChatMessageChannel;
+        class ChatAddonMessage;
+        class ChatAddonMessageWhisper;
+        class ChatMessageAFK;
+        class ChatMessageDND;
+        class ChatMessageEmote;
+        class CTextEmote;
+    }
+
+    namespace Combat
+    {
+        class AttackSwing;
+        class AttackStop;
+    }
+
+    namespace EquipmentSet
+    {
+        class SaveEquipmentSet;
+    }
+
+    namespace Guild
+    {
+        class QueryGuildInfo;
+    }
+
+    namespace Talent
+    {
+        class SetSpecialization;
+    }
+
+    namespace Trade
+    {
+        class CancelTrade;
+    }
+
+    namespace Misc
+    {
+        class SetSelection;
+        class ViolenceLevel;
+        class TimeSyncResponse;
+        class TutorialSetFlag;
+    }
+
+    namespace Movement
+    {
+        class ClientPlayerMovement;
+        class WorldPortAck;
+        class MoveTeleportAck;
+    }
+
+    namespace NPC
+    {
+        class Hello;
+    }
+
+    namespace Query
+    {
+        class QueryCreature;
+        class QueryPlayerName;
+        class QueryPageText;
+        class QueryNPCText;
+        class DBQueryBulk;
+    }
+
+    namespace Quest
+    {
+        class QuestGiverStatusQuery;
+        class QuestGiverStatusMultipleQuery;
+    }
+}
 enum AccountDataType
 {
     GLOBAL_CONFIG_CACHE             = 0,                    // 0x01 g
@@ -255,7 +367,6 @@ class WorldSession
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
         static void WriteMovementInfo(WorldPacket& data, MovementInfo* mi, Unit* unit = NULL);
 
-        uint32 CompressPacket(uint8* buffer, WorldPacket const& packet);
         void SendPacket(WorldPacket const* packet, bool forced = false);
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 string_id, ...);
@@ -421,8 +532,6 @@ class WorldSession
         // Recruit-A-Friend Handling
         uint32 GetRecruiterId() const { return recruiterId; }
         bool IsARecruiter() const { return isRecruiter; }
-
-        z_stream_s* GetCompressionStream() { return _compressionStream; }
 
     public:                                                 // opcodes handlers
 
@@ -1023,7 +1132,7 @@ class WorldSession
         void HandleEnterPlayerVehicle(WorldPacket& data);
         void HandleSetVehicleRecId(WorldPacket& data);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
-        void HandleDBQueryBulk(WorldPacket& recvPacket);
+        void HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPacket& recvPacket);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
@@ -1138,8 +1247,6 @@ class WorldSession
         uint32 _pakagepersecond;
         uint32 _second;
         uint32 _counttokick;
-
-        z_stream_s* _compressionStream;
 };
 
 class PacketSendEvent : public BasicEvent

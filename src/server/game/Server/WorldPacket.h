@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,14 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WORLDPACKET_H
-#define WORLDPACKET_H
+#ifndef TRINITYCORE_WORLDPACKET_H
+#define TRINITYCORE_WORLDPACKET_H
 
 #include "Common.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
-
-struct z_stream_s;
 
 class WorldPacket : public ByteBuffer
 {
@@ -33,15 +31,14 @@ class WorldPacket : public ByteBuffer
         {
         }
 
-        WorldPacket(uint32 opcode, size_t res = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : ByteBuffer(res), m_opcode(opcode), _connection(connection)
-        {
-        }
-                                                            // copy constructor
-        WorldPacket(WorldPacket const& packet) : ByteBuffer(packet), m_opcode(packet.m_opcode), _connection(packet._connection)
+        WorldPacket(uint32 opcode, size_t res = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : ByteBuffer(res),
+            m_opcode(opcode), _connection(connection) { }
+
+        WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), _connection(packet._connection)
         {
         }
 
-        WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), _connection(packet._connection)
+        WorldPacket(WorldPacket const& right) : ByteBuffer(right), m_opcode(right.m_opcode), _connection(right._connection)
         {
         }
 
@@ -57,11 +54,7 @@ class WorldPacket : public ByteBuffer
             return *this;
         }
 
-        WorldPacket(Opcodes opcode, MessageBuffer&& buffer, ConnectionType connection) : ByteBuffer(std::move(buffer)), m_opcode(opcode), _connection(connection) {}
-
-        ~WorldPacket()
-        {
-        }
+        WorldPacket(uint32 opcode, MessageBuffer&& buffer, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : ByteBuffer(std::move(buffer)), m_opcode(opcode), _connection(connection) { }
 
         void Initialize(uint32 opcode, size_t newres = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT)
         {
@@ -76,11 +69,9 @@ class WorldPacket : public ByteBuffer
 
         ConnectionType GetConnection() const { return _connection; }
 
-
     protected:
-
         uint32 m_opcode;
         ConnectionType _connection;
 };
-#endif
 
+#endif

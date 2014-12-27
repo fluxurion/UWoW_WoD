@@ -17,12 +17,16 @@
 */
 
 #include "WorldSocket.h"
+#include "AuthenticationPackets.h"
 #include "BigNumber.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SHA1.h"
 #include "PacketLog.h"
+#include "BattlenetAccountMgr.h"
+#include "World.h"
+#include <zlib.h>
 #include <memory>
 
 using boost::asio::ip::tcp;
@@ -189,9 +193,9 @@ bool WorldSocket::ReadDataHandler()
 
         ExtractOpcodeAndSize(header, cmd, size);
 
-        Opcodes opcode = Opcodes(cmd);
+        OpcodeClient opcode = static_cast<OpcodeClient>(cmd);
 
-        std::string opcodeName = GetOpcodeNameForLogging(opcode, CMSG);
+        std::string opcodeName = GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode));
 
         WorldPacket packet(opcode, std::move(_packetBuffer));
 
@@ -250,10 +254,10 @@ bool WorldSocket::ReadDataHandler()
                         return false;
                     }
 
-                    OpcodeHandler const* handler = opcodeTable[CMSG][opcode];
+                    OpcodeHandler const* handler = opcodeTable[opcode];
                     if (!handler)
                     {
-                        sLog->outError(LOG_FILTER_NETWORKIO, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(packet.GetOpcode(), CMSG).c_str(), _worldSession->GetPlayerName().c_str());
+                        sLog->outError(LOG_FILTER_NETWORKIO, "No defined handler for opcode %s sent by %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet.GetOpcode())).c_str(), _worldSession->GetPlayerName().c_str());
                         return true;
                     }
 
@@ -270,7 +274,7 @@ bool WorldSocket::ReadDataHandler()
         catch (ByteBufferException const&)
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "ByteBufferException while processing %s (%u).",
-                GetOpcodeNameForLogging(opcode, CMSG), opcode);
+                GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)), opcode);
             CloseSocket();
             return false;
         }
@@ -305,7 +309,7 @@ void WorldSocket::SendPacket(WorldPacket& packet)
     //if (_worldSession && packet.size() > 0x400 && !packet.IsCompressed())
     //    packet.Compress(_worldSession->GetCompressionStream());
 
-    sLog->outTrace(LOG_FILTER_NETWORKIO, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(packet.GetOpcode(), SMSG).c_str());
+    sLog->outTrace(LOG_FILTER_NETWORKIO, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
 
     std::unique_lock<std::mutex> guard(_writeLock);
 

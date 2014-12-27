@@ -24,10 +24,11 @@
 #define _OPCODES_H
 
 #include "Common.h"
+#include <iomanip>
 
 enum ConnectionType
 {
-    CONNECTION_TYPE_REALM       = 0,
+    CONNECTION_TYPE_REALM       = 0xBADD,
     CONNECTION_TYPE_INSTANCE    = 1,
     MAX_CONNECTION_TYPES,
 
@@ -418,7 +419,7 @@ enum OpcodeClient : uint32
     CMSG_MOVE_START_STRAFE_LEFT                       = 0x0082,
     CMSG_MOVE_START_STRAFE_RIGHT                      = 0x1151,
     CMSG_MOVE_START_SWIM                              = 0x0B7A,
-    CMSG_MOVE_START_TURN_LEFT                         = 0x000B,
+    CMSG_MOVE_START_TURN_LEFT                         = 0xBADDB,
     CMSG_MOVE_START_TURN_RIGHT                        = 0x0D14,
     CMSG_MOVE_STOP                                    = 0x0513,
     CMSG_MOVE_STOP_ASCEND                             = 0x197C,
@@ -600,7 +601,7 @@ enum OpcodeClient : uint32
     CMSG_TELEPORT_TO_UNIT                             = 0xBADD,
     CMSG_TEXT_EMOTE                                   = 0x1901,
     CMSG_TIME_ADJUSTMENT_RESPONSE                     = 0xBADD,
-    CMSG_TIME_SYNC_RESP                               = 0x0003,
+    CMSG_TIME_SYNC_RESP                               = 0xBADD3,
     CMSG_TIME_SYNC_RESP_FAILED                        = 0xBADD,
     CMSG_TOGGLE_PVP                                   = 0xBADD,
     CMSG_TOTEM_DESTROYED                              = 0xBADD,
@@ -660,7 +661,6 @@ enum OpcodeClient : uint32
     MSG_MOVE_UPDATE_MOUSE                             = 0xBADD,
     MSG_NOTIFY_PARTY_SQUELCH                          = 0xBADD,
     MSG_PARTY_ASSIGNMENT                              = 0xBADD,
-    MSG_PETITION_DECLINE                              = 0xBADD,
     MSG_PETITION_RENAME                               = 0xBADD,
     MSG_QUERY_NEXT_MAIL_TIME                          = 0xBADD,
     MSG_QUEST_PUSH_RESULT                             = 0xBADD,
@@ -671,9 +671,70 @@ enum OpcodeClient : uint32
     MSG_RANDOM_ROLL                                   = 0xBADD,
     MSG_SAVE_GUILD_EMBLEM                             = 0xBADD,
     MSG_SET_DUNGEON_DIFFICULTY                        = 0xBADD,
-    MSG_SET_RAID_DIFFICULTY                           = 0xBADD,
     MSG_TABARDVENDOR_ACTIVATE                         = 0xBADD,
-    MSG_TALENT_WIPE_CONFIRM                           = 0xBADD
+    MSG_TALENT_WIPE_CONFIRM                           = 0xBADD,
+
+    //MOP
+    CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
+    CMSG_CHALLENGE_MODE_REQUEST_COMPLETION_INFO       = 0xBADD, // 5.4.1 17538
+    CMSG_CHALLENGE_MODE_REQUEST_LEADERS               = 0xBADD, // 5.4.1 17538
+    CMSG_CHAR_RACE_FACTION_CHANGE                     = 0xBADD, // 5.4.1 17538
+    CMSG_CONFIRM_TALENT_WIPE                          = 0xBADD, // 5.4.1 17538
+    CMSG_DELETEEQUIPMENT_SET                          = 0xBADD, // 5.4.1 17538
+    CMSG_DUEL_ACCEPT_RESULT                           = 0xBADD, // 5.4.1 17538
+    CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0xBADD, // 5.4.1 17538
+    CMSG_GUILD_AUTO_DECLINE                           = 0xBADD, // 5.4.1 17538
+    CMSG_GUILD_LEADER                                 = 0xBADD,  // Not found in 4.3.4
+    CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0xBADD, // 5.4.1 17538
+    CMSG_LEARN_TALENTS                                = 0xBADD, // 5.4.1 17538
+    CMSG_LEAVE_BATTLEFIELD                            = 0xBADD, // 5.4.1 17538
+    CMSG_LFG_GET_PLAYER_INFO                          = 0xBADD,  // Unused 434
+    CMSG_LFG_PARTY_LOCK_INFO_REQUEST                  = 0xBADD,  // Unused 434
+    CMSG_LOOT_METHOD_FOR_SPECIALIZATION               = 0xBADD, // 5.4.1 17538
+    CMSG_LOOT_MASTER_ASK_FOR_ROLL                     = 0xBADD, // 5.4.1 17538
+    CMSG_MESSAGECHAT_ADDON_BATTLEGROUND               = 0xBADD,      // 5.4.1 17538 obsolete
+    CMSG_MESSAGECHAT_ADDON_INSTANCE                   = 0xBADD, // 5.4.1 17538
+    CMSG_MESSAGECHAT_BATTLEGROUND                     = 0xBADD,      // 5.4.1 17538 obsolete
+    CMSG_MESSAGECHAT_INSTANCE                         = 0xBADD, // 5.4.1 17538
+    CMSG_PARTY_ASSIGNMENT                             = 0xBADD, // 5.4.1 17538
+    CMSG_PERSONAL_RATED_INFO_REQUEST                  = 0xBADD, // 5.4.1 17538
+    CMSG_PURCHASE_GET_PRODUCT_LIST                    = 0xBADD, // 5.4.1 17538
+    CMSG_PURCHASE_GET_PURCHASE_LIST                   = 0xBADD, // 5.4.1 17538
+    CMSG_QUERY_PLAYER_RECIPES                         = 0xBADD, // 5.4.1 17538
+    CMSG_RAID_LEADER_READY_CHECK                      = 0xBADD, // 5.4.1 17538
+    CMSG_RAID_CONFIRM_READY_CHECK                     = 0xBADD, // 5.4.1 17538
+    CMSG_READY_FOR_ACCOUNT_DATA_TIMES                 = 0xBADD, // 5.4.1 17538
+    CMSG_REDIRECTION_AUTH_PROOF                       = 0xBADD, // 5.4.1 17538
+    CMSG_REQUEST_RATED_INFO                           = 0xBADD, // 5.4.1 17538
+    CMSG_RESET_CHALLENGE_MODE                         = 0xBADD, // 5.4.1 17538
+    CMSG_SELECT_FACTION                               = 0xBADD, // 5.4.1 17538
+    CMSG_SET_DUNGEON_DIFFICULTY                       = 0xBADD, // 5.4.1 17538
+    CMSG_UNSET_FACTION_ATWAR                          = 0xBADD, // 5.4.1 17538
+    CMSG_SET_LFG_BONUS_FACTION                        = 0xBADD, // 5.4.1 17538
+    CMSG_SET_PRIMARY_TALENT_TREE                      = 0xBADD,  // 5.0.5 16048 deprecated
+    CMSG_SUMMON_BATTLEPET_COMPANION                   = 0xBADD, // 5.4.1 17538
+    CMSG_SUSPEND_TOKEN                                = 0xBADD,  // 5.0.5 16048 Unused
+    CMSG_TUTORIAL_CLEAR                               = 0xBADD, // 5.4.1 17538
+    CMSG_TUTORIAL_RESET                               = 0xBADD, // 5.4.1 17538
+    CMSG_UPGRADE_ITEM                                 = 0xBADD, // 5.4.1 17538
+    CMSG_CORPSE_QUERY                                 = 0xBADD, // 5.4.1 17538
+    CMSG_RAID_TARGET_UPDATE                           = 0xBADD, // 5.4.1 17538
+    CMSG_GET_WEB_TICKET                               = 0xBADD, // 5.4.1 17538
+    CMSG_BATTLE_PET_166F                              = 0xBADD, // 5.4.1 17538
+    CMSG_BATTLE_PET_1ACF                              = 0xBADD, // 5.4.1 17538
+    CMSG_BATTLE_PET_READY_FOR_BATTLE                  = 0xBADD, // 5.4.1 17538
+    CMSG_BATTLE_PET_USE_ACTION                        = 0xBADD, // 5.4.1 17538
+    CMSG_BATTLE_PET_SET_DATA                          = 0xBADD, // 5.4.1 17538 maybe only favorite flag???
+    CMSG_BATTLE_PET_RENAME                            = 0xBADD, // 5.4.1 17538
+    CMSG_BATTLE_PET_PUT_IN_CAGE                       = 0xBADD, // 5.4.1 17538
+    CMSG_LIST_STABLED_PETS                            = 0xBADD, // 5.4.1 17538
+    CMSG_DUEL_PROPOSED                                = 0xBADD, // 5.4.1 17538
+    CMSG_QUEST_PUSH_RESULT                            = 0x06C4, // 5.4.1 17538
+    CMSG_TABARDVENDOR_ACTIVATE                        = 0xBADD, // 5.4.1 17538
+    CMSG_SAVE_GUILD_EMBLEM                            = 0xBADD, // 5.4.1 17538
+    CMSG_PETITION_RENAME                              = 0xBADD, // 5.4.1 17538
+    MSG_PETITION_DECLINE                              = 0xBADD,
+    MSG_SET_RAID_DIFFICULTY                           = 0xBADD,
 };
 
 // SMSGs 6.0.3.19116
@@ -1458,7 +1519,118 @@ enum OpcodeServer : uint32
     SMSG_WORLD_SERVER_INFO                            = 0x11AC,
     SMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0B83,
     SMSG_XP_GAIN_ABORTED                              = 0xBADD,
-    SMSG_ZONE_UNDER_ATTACK                            = 0x1401
+    SMSG_ZONE_UNDER_ATTACK                            = 0x1401,
+
+    //MOP
+    SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
+    SMSG_CHALLENGE_MODE_COMPLETION_INFO               = 0xBADD, // 5.4.1 17538
+    SMSG_CHALLENGE_MODE_REWARD_INFO                   = 0xBADD, // 5.4.1 17538
+    SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT        = 0xBADD, // 5.4.1 17538
+    SMSG_LIST_STABLED_PETS                            = 0xBADD, // 5.4.1 17538
+    SMSG_PETITION_RENAME                              = 0xBADD, // 5.4.1 17538
+    SMSG_QUEST_PUSH_RESULT                            = 0xBADD, // 5.4.1 17538
+    SMSG_RANDOM_ROLL                                  = 0xBADD, // 5.4.1 17538
+    SMSG_SAVE_GUILD_EMBLEM                            = 0xBADD, // 5.4.1 17538
+    SMSG_TABARDVENDOR_ACTIVATE                        = 0xBADD, // 5.4.1 17538
+    SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0xBADD, // 5.4.1 17538
+    SMSG_RAID_TARGET_UPDATE_ALL                       = 0xBADD, // 5.4.1 17538
+    SMSG_CORPSE_QUERY                                 = 0xBADD, // 5.4.1 17538
+    SMSG_AREA_TRIGGER_RESET                           = 0xBADD,  // 5.0.5 16048
+    SMSG_ARENA_OPPONENT_UPDATE                        = 0xBADD, // 5.4.1 17538
+    SMSG_ARENA_OPPONENT_SPECIALIZATIONS               = 0xBADD, // 5.4.1 17538
+    SMSG_ATTACKSWING_ERROR                            = 0xBADD, // 5.4.1 17538
+    SMSG_AUCTION_LIST_RESULT                          = 0xBADD, // 5.4.1 17538
+    SMSG_ARENA_SEASON_WORLDSTATE                      = 0xBADD, // 5.4.1 17538
+    SMSG_BATTLEPAY_PRODUCT_ITEM                       = 0xBADD, // 5.4.1 17538
+    SMSG_BATTLE_PET_BATTLE_FINISHED                   = 0xBADD, // 5.4.1 17538
+    SMSG_BATTLE_PET_CHAT_RESTRICTED                   = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_DELETED                           = 0xBADD, // 5.4.1 17548
+    SMSG_BATTLE_PET_ERROR                             = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_FINALIZE_LOCATION                 = 0xBADD, // 5.4.1 17538
+    SMSG_BATTLE_PET_FINAL_ROUND                       = 0xBADD, // 5.4.1 17538
+    SMSG_BATTLE_PET_FIRST_ROUND                       = 0xBADD,  // 5.4.1 17538
+    SMSG_BATTLE_PET_FULL_UPDATE                       = 0xBADD, // 5.4.1 17538
+    SMSG_BATTLE_PET_HEALED                            = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED               = 0xBADD, // 5.4.1 17538
+    SMSG_BATTLE_PET_LICENSE_CHANGED                   = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_MAX_GAME_LENGTH_WARNING           = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_PVP_CHALLENGE                     = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_QUEUE_PROPOSE_MATCH               = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_QUEUE_STATUS                      = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_REPLACEMENTS_MADE                 = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_REQUEST_FAILED                    = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_ROUND_RESULT                      = 0xBADD, // 5.4.1 17538
+    SMSG_BATTLE_PET_SLOT_UPDATE                       = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_TRAP_LEVEL                        = 0xBADD,  // 5.0.5 16048
+    SMSG_BATTLE_PET_UPDATES                           = 0xBADD,  // 5.4.1 17538
+    SMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0xBADD, // 5.4.1 17538
+    SMSG_BATTLEGROUND_POINTS                          = 0xBADD, // 5.4.1 17538
+    SMSG_CLIENT_VIGNETTE_DATA                         = 0xBADD, // 5.4.1 17538
+    SMSG_COMPRESSED_ACHIEVEMENT_DATA                  = 0xBADD,      // Not found in 4.3.4
+    SMSG_COMPRESSED_CHAR_ENUM                         = 0xBADD,      // Not found in 4.3.4
+    SMSG_COMPRESSED_GUILD_ROSTER                      = 0xBADD,      // Not found in 4.3.4
+    SMSG_COMPRESSED_UPDATE_OBJECT                     = 0xBADD,      // Not found in 4.3.4
+    SMSG_FORCE_SEND_QUEUED_PACKETS                    = 0xBADD,  // 5.0.5 16048
+    SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT                = 0xBADD,  // 5.0.5 16048
+    SMSG_GROUP_JOINED_BATTLEGROUND                    = 0xBADD,      // Not found in TC
+    SMSG_PARTY_UPDATE                                 = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_GUILD_DISBANDED                  = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_GUILDBANK_TAB_UPDATE             = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_GUILDBANK_TEXT_CHANGED           = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_GUILDBANKBAGSLOTS_CHANGED        = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_JOIN_MEMBER                      = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_LEADER                           = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_MOTD                             = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_ONLINE                           = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_RANK_UPDATE                      = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_RANKS_UPDATE                     = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_REMOVE_MEMBER                    = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_TAB_PURCHASED                    = 0xBADD, // 5.4.1 17538
+    SMSG_GUILD_EVENT_TAB_REMOVED                      = 0xBADD, // 5.4.1 17538
+    SMSG_INITIAL_COOLDOWNS                            = 0xBADD, // 5.4.1 17538
+    SMSG_INSTANCE_DIFFICULTY                          = 0xBADD,      // Not found in 4.3.4
+    SMSG_SEND_KNOWN_SPELLS                            = 0xBADD, // 5.4.1 17538
+    SMSG_LFG_UPDATE_PARTY                             = 0xBADD,      // Not found in 4.3.4
+    SMSG_LFG_UPDATE_PLAYER                            = 0xBADD,      // Not found in 4.3.4
+    SMSG_LFG_UPDATE_STATUS_NONE                       = 0xBADD,  // 5.0.5 16048
+    SMSG_LF_GUILD_SEARCH_RESULT                       = 0xBADD,      // Not found in TC
+    SMSG_LOOT_RELEASE                                 = 0xBADD, // 5.4.1 17538
+    SMSG_LOOT_ROLLS_COMPLETE                          = 0xBADD, // 5.4.1 17538
+    SMSG_PERSONAL_RATED_INFO                          = 0xBADD, // 5.4.1 17538
+    SMSG_PLAYER_UNK_DEAD_ALIVE                        = 0xBADD,      // Not found in 4.3.4
+    SMSG_PLAYER_RECIPES                               = 0xBADD, // 5.4.1 17538
+    SMSG_PURCHASE_STORE_PRODUCTS_UPDATED              = 0xBADD, // 5.4.1 17538
+    SMSG_PURCHASE_STORE_PURCHASE_LIST_UPDATED         = 0xBADD, // 5.4.1 17538
+    SMSG_PVP_BRACKET_DATA                             = 0xBADD, // 5.4.1 17538
+    SMSG_RAID_READY_CHECK_COMPLETED                   = 0xBADD, // 5.4.1 17538
+    SMSG_RAID_READY_CHECK_RESPONSE                    = 0xBADD, // 5.4.1 17538
+    SMSG_RAID_READY_CHECK_STARTED                     = 0xBADD, // 5.4.1 17538 
+    SMSG_PVP_RATED_STATS                              = 0xBADD, // 5.4.1 17538
+    SMSG_RESPEC_WIPE_CONFIRM                          = 0xBADD, // 5.4.1 17538
+    SMSG_SERVER_SCENE_PLAYBACK                        = 0xBADD, // 5.4.1 17538
+    SMSG_SETUP_RESEARCH_HISTORY                       = 0xBADD,      // Not found in TC
+    SMSG_SET_DUNGEON_DIFFICULTY                       = 0xBADD, // 5.4.1 17538
+    SMSG_SET_PET_SPECIALIZATION                       = 0xBADD, // 5.4.1 17538
+    SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI       = 0xBADD, // 5.4.1 17538
+    SMSG_SPELL_CHARGE_DATA                            = 0xBADD, // 5.4.1 17538
+    SMSG_SPELL_CREATE_VISUAL                          = 0xBADD, // 5.4.1 17538
+    SMSG_SURVEY_CAST                                  = 0xBADD, // 5.4.1 17538
+    SMSG_SUSPEND_TOKEN_RESPONSE                       = 0xBADD, // 5.4.1 17538
+    SMSG_TITLE_REMOVED                                = 0xBADD, // 5.4.1 17538
+    SMSG_TRAINER_SERVICE                              = 0xBADD, // 5.4.1 17538
+    SMSG_UPDATE_ACCOUNT_DATA_COMPLETE                 = 0xBADD,  // 5.0.5 16048
+    SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0xBADD,  // 5.0.5 16048
+    SMSG_UPDATE_TALENT_DATA                           = 0xBADD, // 5.4.1 17538
+    SMSG_WORLD_STATE_TIMER_START_INIT                 = 0xBADD, // 5.4.1 17538
+    SMSG_WORLD_STATE_TIMER_START                      = 0xBADD, // 5.4.1 17538
+    SMSG_WORLD_STATE_TIMER_STOP                       = 0xBADD, // 5.4.1 17538
+    SMSG_SET_MOVEFLAG2_0x1000                         = 0xBADD, // 5.4.1 17538
+    SMSG_UNSET_MOVEFLAG2_0x1000                       = 0xBADD, // 5.4.1 17538
+    SMSG_SPELL_0x00E9                                 = 0xBADD, // 5.4.1 17538
+    SMSG_SPELL_PENDING_TARGET_CAST                    = 0xBADD, // 5.4.1 17538
+    SMSG_QUERY_NEXT_MAIL_TIME                         = 0xBADD,
+    SMSG_SET_RAID_DIFFICULTY                          = 0xBADD,
+    SMSG_PETITION_DECLINE                             = 0xBADD,
 };
 
 #define MAX_OPCODE 0x7FFF
@@ -1467,199 +1639,16 @@ enum OpcodeServer : uint32
 /// List of Opcodes
 enum Opcodes
 {
-    SMSG_COMPRESSED_OPCODE                            = 0x0855, // 5.4.1 17538
 
-    CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0x07EA, // 5.4.1 17538
-    CMSG_CHALLENGE_MODE_REQUEST_COMPLETION_INFO       = 0x0BEA, // 5.4.1 17538
-    CMSG_CHALLENGE_MODE_REQUEST_LEADERS               = 0x17E3, // 5.4.1 17538
-    CMSG_CHAR_RACE_FACTION_CHANGE                     = 0x1540, // 5.4.1 17538
-    CMSG_CONFIRM_TALENT_WIPE                          = 0x1255, // 5.4.1 17538
-    CMSG_DELETEEQUIPMENT_SET                          = 0x0755, // 5.4.1 17538
-    CMSG_DUEL_ACCEPT_RESULT                           = 0x0ADD, // 5.4.1 17538
-    CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0x0048, // 5.4.1 17538
-    CMSG_GUILD_AUTO_DECLINE                           = 0x174B, // 5.4.1 17538
-    CMSG_GUILD_LEADER                                 = 0x000,  // Not found in 4.3.4
-    CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0x1667, // 5.4.1 17538
-    CMSG_LEARN_TALENTS                                = 0x1776, // 5.4.1 17538
-    CMSG_LEAVE_BATTLEFIELD                            = 0x1B77, // 5.4.1 17538
-    CMSG_LFG_GET_PLAYER_INFO                          = 0x000,  // Unused 434
-    CMSG_LFG_PARTY_LOCK_INFO_REQUEST                  = 0x000,  // Unused 434
-    CMSG_LOOT_METHOD_FOR_SPECIALIZATION               = 0x06DD, // 5.4.1 17538
-    CMSG_LOOT_MASTER_ASK_FOR_ROLL                     = 0x17D7, // 5.4.1 17538
-    CMSG_MESSAGECHAT_ADDON_BATTLEGROUND               = 0,      // 5.4.1 17538 obsolete
-    CMSG_MESSAGECHAT_ADDON_INSTANCE                   = 0x0055, // 5.4.1 17538
-    CMSG_MESSAGECHAT_BATTLEGROUND                     = 0,      // 5.4.1 17538 obsolete
-    CMSG_MESSAGECHAT_INSTANCE                         = 0x0555, // 5.4.1 17538
-    CMSG_PARTY_ASSIGNMENT                             = 0x0CC5, // 5.4.1 17538
-    CMSG_PERSONAL_RATED_INFO_REQUEST                  = 0x166E, // 5.4.1 17538
-    CMSG_PURCHASE_GET_PRODUCT_LIST                    = 0x1064, // 5.4.1 17538
-    CMSG_PURCHASE_GET_PURCHASE_LIST                   = 0x186C, // 5.4.1 17538
-    CMSG_QUERY_PLAYER_RECIPES                         = 0x10E5, // 5.4.1 17538
-    CMSG_RAID_LEADER_READY_CHECK                      = 0x056D, // 5.4.1 17538
-    CMSG_RAID_CONFIRM_READY_CHECK                     = 0x184D, // 5.4.1 17538
-    CMSG_READY_FOR_ACCOUNT_DATA_TIMES                 = 0x144C, // 5.4.1 17538
-    CMSG_REDIRECTION_AUTH_PROOF                       = 0x10E6, // 5.4.1 17538
-    CMSG_REQUEST_RATED_INFO                           = 0x0DE9, // 5.4.1 17538
-    CMSG_RESET_CHALLENGE_MODE                         = 0x1A56, // 5.4.1 17538
-    CMSG_SELECT_FACTION                               = 0x1766, // 5.4.1 17538
-    CMSG_SET_DUNGEON_DIFFICULTY                       = 0x0C69, // 5.4.1 17538
-    CMSG_UNSET_FACTION_ATWAR                          = 0x0667, // 5.4.1 17538
-    CMSG_SET_LFG_BONUS_FACTION                        = 0x1676, // 5.4.1 17538
-    CMSG_SET_PRIMARY_TALENT_TREE                      = 0x000,  // 5.0.5 16048 deprecated
-    CMSG_SUMMON_BATTLEPET_COMPANION                   = 0x01C0, // 5.4.1 17538
-    CMSG_SUSPEND_TOKEN                                = 0x000,  // 5.0.5 16048 Unused
-    CMSG_TUTORIAL_CLEAR                               = 0x19AA, // 5.4.1 17538
-    CMSG_TUTORIAL_RESET                               = 0x0DB2, // 5.4.1 17538
-    CMSG_UPGRADE_ITEM                                 = 0x1B5F, // 5.4.1 17538
-    CMSG_CORPSE_QUERY                                 = 0x0D4C, // 5.4.1 17538
-    CMSG_RAID_TARGET_UPDATE                           = 0x15E4, // 5.4.1 17538
-    CMSG_GET_WEB_TICKET                               = 0x11C5, // 5.4.1 17538
-    CMSG_BATTLE_PET_166F                              = 0x166F, // 5.4.1 17538
-    CMSG_BATTLE_PET_1ACF                              = 0x1ACF, // 5.4.1 17538
-    CMSG_BATTLE_PET_READY_FOR_BATTLE                  = 0x15CC, // 5.4.1 17538
-    CMSG_BATTLE_PET_USE_ACTION                        = 0x08E4, // 5.4.1 17538
-    CMSG_BATTLE_PET_SET_DATA                          = 0x1464, // 5.4.1 17538 maybe only favorite flag???
-    CMSG_BATTLE_PET_RENAME                            = 0x056C, // 5.4.1 17538
-    CMSG_BATTLE_PET_PUT_IN_CAGE                       = 0x1345, // 5.4.1 17538
-    MSG_BATTLEGROUND_PLAYER_POSITIONS                 = 0x000,  // 5.0.5 16048 deprecated
-    SMSG_CHALLENGE_UNK                                = 0x009F, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
-    SMSG_CHALLENGE_MODE_COMPLETION_INFO               = 0x002C, // 5.4.1 17538
-    SMSG_CHALLENGE_MODE_REWARD_INFO                   = 0x099C, // 5.4.1 17538
-    SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT        = 0x019D, // 5.4.1 17538
-    CMSG_LIST_STABLED_PETS                            = 0x0745, // 5.4.1 17538
-    SMSG_LIST_STABLED_PETS                            = 0x11B4, // 5.4.1 17538
-    MSG_MOVE_FALL_LAND                                = 0,      // Client patched
-    MSG_MOVE_FEATHER_FALL                             = 0,      // Client patched
-    MSG_MOVE_GRAVITY_CHNG                             = 0,      // Client patched
-    MSG_MOVE_HEARTBEAT                                = 0,      // Client patched
-    MSG_MOVE_HOVER                                    = 0,      // Client patched
-    MSG_MOVE_JUMP                                     = 0,      // Client patched
-    MSG_MOVE_SET_COLLISION_HEIGHT                     = 0,      // Client patched
-    MSG_MOVE_SET_FACING                               = 0,      // Client patched
-    MSG_MOVE_SET_PITCH                                = 0,      // Client patched
-    MSG_MOVE_SET_RUN_MODE                             = 0,      // Client patched
-    MSG_MOVE_SET_WALK_MODE                            = 0,      // Client patched
-    MSG_MOVE_START_ASCEND                             = 0,      // Client patched
-    MSG_MOVE_START_BACKWARD                           = 0,      // Client patched
-    MSG_MOVE_START_DESCEND                            = 0,      // Client patched
-    MSG_MOVE_STOP                                     = 0x455,  // 5.0.5 16048 Used ?
-    MSG_MOVE_UPDATE_CAN_FLY                           = 0,      // Client patched
-    MSG_MOVE_UPDATE_FLIGHT_SPEED                      = 0,      // Client patched
-    MSG_MOVE_UPDATE_RUN_SPEED                         = 0,      // Client patched
-    MSG_MOVE_WATER_WALK                               = 0,      // Client patched
-    CMSG_PETITION_RENAME                              = 0x004C, // 5.4.1 17538
-    SMSG_PETITION_RENAME                              = 0x10A4, // 5.4.1 17538
-    CMSG_QUEST_PUSH_RESULT                            = 0x06C4, // 5.4.1 17538
-    SMSG_QUEST_PUSH_RESULT                            = 0x027D, // 5.4.1 17538
-    SMSG_RANDOM_ROLL                                  = 0x08B4, // 5.4.1 17538
-    CMSG_SAVE_GUILD_EMBLEM                            = 0x16D4, // 5.4.1 17538
-    SMSG_SAVE_GUILD_EMBLEM                            = 0x09BF, // 5.4.1 17538
-    CMSG_TABARDVENDOR_ACTIVATE                        = 0x17F7, // 5.4.1 17538
-    SMSG_TABARDVENDOR_ACTIVATE                        = 0x0006, // 5.4.1 17538
-    SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0x0404, // 5.4.1 17538
-    SMSG_RAID_TARGET_UPDATE_ALL                       = 0x0995, // 5.4.1 17538
-    SMSG_CORPSE_QUERY                                 = 0x11BE, // 5.4.1 17538
-    SMSG_AREA_TRIGGER_RESET                           = 0xB9B,  // 5.0.5 16048
-    SMSG_ARENA_OPPONENT_UPDATE                        = 0x081F, // 5.4.1 17538
-    SMSG_ARENA_OPPONENT_SPECIALIZATIONS               = 0x08AE, // 5.4.1 17538
-    SMSG_ATTACKSWING_ERROR                            = 0x05BF, // 5.4.1 17538
-    SMSG_AUCTION_LIST_RESULT                          = 0x113A, // 5.4.1 17538
-    SMSG_ARENA_SEASON_WORLDSTATE                      = 0x041F, // 5.4.1 17538
-    SMSG_BATTLEPAY_PRODUCT_ITEM                       = 0x0CAF, // 5.4.1 17538
-    SMSG_BATTLE_PET_BATTLE_FINISHED                   = 0x118C, // 5.4.1 17538
-    SMSG_BATTLE_PET_CHAT_RESTRICTED                   = 0xB68,  // 5.0.5 16048
-    SMSG_BATTLE_PET_DELETED                           = 0x1034, // 5.4.1 17548
-    SMSG_BATTLE_PET_ERROR                             = 0xBA0,  // 5.0.5 16048
-    SMSG_BATTLE_PET_FINALIZE_LOCATION                 = 0x0C04, // 5.4.1 17538
-    SMSG_BATTLE_PET_FINAL_ROUND                       = 0x0C06, // 5.4.1 17538
-    SMSG_BATTLE_PET_FIRST_ROUND                       = 0x915,  // 5.4.1 17538
-    SMSG_BATTLE_PET_FULL_UPDATE                       = 0x002F, // 5.4.1 17538
-    SMSG_BATTLE_PET_HEALED                            = 0xADC,  // 5.0.5 16048
-    SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED               = 0x0525, // 5.4.1 17538
-    SMSG_BATTLE_PET_LICENSE_CHANGED                   = 0xFC4,  // 5.0.5 16048
-    SMSG_BATTLE_PET_MAX_GAME_LENGTH_WARNING           = 0xB13,  // 5.0.5 16048
-    SMSG_BATTLE_PET_PVP_CHALLENGE                     = 0xE65,  // 5.0.5 16048
-    SMSG_BATTLE_PET_QUEUE_PROPOSE_MATCH               = 0xE58,  // 5.0.5 16048
-    SMSG_BATTLE_PET_QUEUE_STATUS                      = 0xB51,  // 5.0.5 16048
-    SMSG_BATTLE_PET_REPLACEMENTS_MADE                 = 0xE89,  // 5.0.5 16048
-    SMSG_BATTLE_PET_REQUEST_FAILED                    = 0xB04,  // 5.0.5 16048
-    SMSG_BATTLE_PET_ROUND_RESULT                      = 0x0D8F, // 5.4.1 17538
-    SMSG_BATTLE_PET_SLOT_UPDATE                       = 0xF16,  // 5.0.5 16048
-    SMSG_BATTLE_PET_TRAP_LEVEL                        = 0xAE1,  // 5.0.5 16048
-    SMSG_BATTLE_PET_UPDATES                           = 0x414,  // 5.4.1 17538
-    SMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x059C, // 5.4.1 17538
-    SMSG_BATTLEGROUND_POINTS                          = 0x0587, // 5.4.1 17538
-    SMSG_CLIENT_VIGNETTE_DATA                         = 0x1425, // 5.4.1 17538
-    SMSG_COMPRESSED_ACHIEVEMENT_DATA                  = 0,      // Not found in 4.3.4
-    SMSG_COMPRESSED_CHAR_ENUM                         = 0,      // Not found in 4.3.4
-    SMSG_COMPRESSED_GUILD_ROSTER                      = 0,      // Not found in 4.3.4
-    SMSG_COMPRESSED_UPDATE_OBJECT                     = 0,      // Not found in 4.3.4
-    CMSG_DUEL_PROPOSED                                = 0x1169, // 5.4.1 17538
-    SMSG_FORCE_SEND_QUEUED_PACKETS                    = 0x626,  // 5.0.5 16048
-    SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT                = 0xAB7,  // 5.0.5 16048
-    SMSG_GROUP_JOINED_BATTLEGROUND                    = 0,      // Not found in TC
-    SMSG_PARTY_UPDATE                                 = 0x01B5, // 5.4.1 17538
-    SMSG_GUILD_EVENT_GUILD_DISBANDED                  = 0x0C59, // 5.4.1 17538
-    SMSG_GUILD_EVENT_GUILDBANK_TAB_UPDATE             = 0x1450, // 5.4.1 17538
-    SMSG_GUILD_EVENT_GUILDBANK_TEXT_CHANGED           = 0x1159, // 5.4.1 17538
-    SMSG_GUILD_EVENT_GUILDBANKBAGSLOTS_CHANGED        = 0x08D0, // 5.4.1 17538
-    SMSG_GUILD_EVENT_JOIN_MEMBER                      = 0x0459, // 5.4.1 17538
-    SMSG_GUILD_EVENT_LEADER                           = 0x01D9, // 5.4.1 17538
-    SMSG_GUILD_EVENT_MOTD                             = 0x05D8, // 5.4.1 17538
-    SMSG_GUILD_EVENT_ONLINE                           = 0x01D0, // 5.4.1 17538
-    SMSG_GUILD_EVENT_RANK_UPDATE                      = 0x1551, // 5.4.1 17538
-    SMSG_GUILD_EVENT_RANKS_UPDATE                     = 0x0951, // 5.4.1 17538
-    SMSG_GUILD_EVENT_REMOVE_MEMBER                    = 0x15D1, // 5.4.1 17538
-    SMSG_GUILD_EVENT_TAB_PURCHASED                    = 0x1859, // 5.4.1 17538
-    SMSG_GUILD_EVENT_TAB_REMOVED                      = 0x09D9, // 5.4.1 17538
-    SMSG_INITIAL_COOLDOWNS                            = 0x05E8, // 5.4.1 17538
-    SMSG_INSTANCE_DIFFICULTY                          = 0,      // Not found in 4.3.4
-    SMSG_SEND_KNOWN_SPELLS                            = 0x1164, // 5.4.1 17538
-    SMSG_LFG_UPDATE_PARTY                             = 0,      // Not found in 4.3.4
-    SMSG_LFG_UPDATE_PLAYER                            = 0,      // Not found in 4.3.4
-    SMSG_LFG_UPDATE_STATUS_NONE                       = 0xFA0,  // 5.0.5 16048
-    SMSG_LF_GUILD_SEARCH_RESULT                       = 0,      // Not found in TC
-    SMSG_LOOT_RELEASE                                 = 0x051F, // 5.4.1 17538
-    SMSG_LOOT_ROLLS_COMPLETE                          = 0x0D06, // 5.4.1 17538
-    SMSG_PERSONAL_RATED_INFO                          = 0x08AF, // 5.4.1 17538
-    SMSG_PLAYER_UNK_DEAD_ALIVE                        = 0,      // Not found in 4.3.4
-    SMSG_PLAYER_RECIPES                               = 0x0D24, // 5.4.1 17538
-    SMSG_PURCHASE_STORE_PRODUCTS_UPDATED              = 0x1185, // 5.4.1 17538
-    SMSG_PURCHASE_STORE_PURCHASE_LIST_UPDATED         = 0x0895, // 5.4.1 17538
-    SMSG_PVP_BRACKET_DATA                             = 0x11BF, // 5.4.1 17538
-    SMSG_RAID_READY_CHECK_COMPLETED                   = 0x09AF, // 5.4.1 17538
-    SMSG_RAID_READY_CHECK_RESPONSE                    = 0x14AE, // 5.4.1 17538
-    SMSG_RAID_READY_CHECK_STARTED                     = 0x1427, // 5.4.1 17538 
-    SMSG_PVP_RATED_STATS                              = 0x108F, // 5.4.1 17538
-    SMSG_RESPEC_WIPE_CONFIRM                          = 0x099F, // 5.4.1 17538
-    SMSG_SERVER_SCENE_PLAYBACK                        = 0x018E, // 5.4.1 17538
-    SMSG_SETUP_RESEARCH_HISTORY                       = 0,      // Not found in TC
-    SMSG_SET_DUNGEON_DIFFICULTY                       = 0x00BC, // 5.4.1 17538
-    SMSG_SET_PET_SPECIALIZATION                       = 0x1115, // 5.4.1 17538
-    SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI       = 0x081D, // 5.4.1 17538
-    SMSG_SPELL_CHARGE_DATA                            = 0x0069, // 5.4.1 17538
-    SMSG_SPELL_CREATE_VISUAL                          = 0x1134, // 5.4.1 17538
-    SMSG_SURVEY_CAST                                  = 0x0415, // 5.4.1 17538
-    SMSG_SUSPEND_TOKEN_RESPONSE                       = 0x0496, // 5.4.1 17538
-    SMSG_TITLE_REMOVED                                = 0x013D, // 5.4.1 17538
-    SMSG_TRAINER_SERVICE                              = 0x04AD, // 5.4.1 17538
-    SMSG_UPDATE_ACCOUNT_DATA_COMPLETE                 = 0xD35,  // 5.0.5 16048
-    SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0x98E,  // 5.0.5 16048
-    SMSG_UPDATE_TALENT_DATA                           = 0x0494, // 5.4.1 17538
-    SMSG_WORLD_STATE_TIMER_START_INIT                 = 0x011F, // 5.4.1 17538
-    SMSG_WORLD_STATE_TIMER_START                      = 0x0886, // 5.4.1 17538
-    SMSG_WORLD_STATE_TIMER_STOP                       = 0x1186, // 5.4.1 17538
 
-    SMSG_SET_MOVEFLAG2_0x1000                         = 0x0386, // 5.4.1 17538
-    SMSG_UNSET_MOVEFLAG2_0x1000                       = 0x07A4, // 5.4.1 17538
-    SMSG_SPELL_0x00E9                                 = 0x00E9, // 5.4.1 17538
-    SMSG_SPELL_PENDING_TARGET_CAST                    = 0x098D, // 5.4.1 17538
+
+
 };
 
 /// Player state
 enum SessionStatus
 {
-    STATUS_AUTHED = 0,                                      // Player authenticated (_player == NULL, m_playerRecentlyLogout = false or will be reset before handler call, m_GUID have garbage)
+    STATUS_AUTHED = 0xBADD,                                      // Player authenticated (_player == NULL, m_playerRecentlyLogout = false or will be reset before handler call, m_GUID have garbage)
     STATUS_LOGGEDIN,                                        // Player in game (_player != NULL, m_GUID == _player->GetGUID(), inWorld())
     STATUS_TRANSFER,                                        // Player transferring to another map (_player != NULL, m_GUID == _player->GetGUID(), !inWorld())
     STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    // _player != NULL or _player == NULL && m_playerRecentlyLogout && m_playerLogout, m_GUID store last _player guid)
@@ -1669,72 +1658,124 @@ enum SessionStatus
 
 enum PacketProcessing
 {
-    PROCESS_INPLACE = 0,                                    // process packet whenever we receive it - mostly for non-handled or non-implemented packets
+    PROCESS_INPLACE = 0xBADD,                                    // process packet whenever we receive it - mostly for non-handled or non-implemented packets
     PROCESS_THREADUNSAFE,                                   // packet is not thread-safe - process it in World::UpdateSessions()
     PROCESS_THREADSAFE                                      // packet is thread-safe - process it in Map::Update()
 };
 
-enum PacketType
-{
-    CMSG            = 0,
-    SMSG            = 1,
-    MAX_PACKET_TYPE
-};
-
+class WorldSession;
 class WorldPacket;
 class WorldSession;
 
-typedef void(WorldSession::*pOpcodeHandler)(WorldPacket& recvPacket);
+#if defined(__GNUC__)
+#pragma pack(1)
+#else
+#pragma pack(push, 1)
+#endif
 
-struct OpcodeHandler
+class OpcodeHandler
 {
-    OpcodeHandler() {}
-    OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, pOpcodeHandler _handler)
-        : name(_name), status(_status), packetProcessing(_processing), handler(_handler) {}
+public:
+    OpcodeHandler(char const* name, SessionStatus status) : Name(name), Status(status) { }
+    virtual ~OpcodeHandler() { }
 
-    char const* name;
-    SessionStatus status;
-    PacketProcessing packetProcessing;
-    pOpcodeHandler handler;
+    char const* Name;
+    SessionStatus Status;
 };
 
-extern OpcodeHandler* opcodeTable[MAX_PACKET_TYPE][OPCODE_COUNT];
+class ClientOpcodeHandler : public OpcodeHandler
+{
+public:
+    ClientOpcodeHandler(char const* name, SessionStatus status, PacketProcessing processing)
+        : OpcodeHandler(name, status), ProcessingPlace(processing) { }
+
+    virtual void Call(WorldSession* session, WorldPacket& packet) const = 0;
+
+    PacketProcessing ProcessingPlace;
+};
+
+class ServerOpcodeHandler : public OpcodeHandler
+{
+public:
+    ServerOpcodeHandler(char const* name, SessionStatus status)
+        : OpcodeHandler(name, status) { }
+};
+
+class OpcodeTable
+{
+    public:
+        OpcodeTable()
+        {
+            memset(_internalTableClient, 0xBADD, sizeof(_internalTableClient));
+            memset(_internalTableServer, 0xBADD, sizeof(_internalTableServer));
+        }
+
+        OpcodeTable(OpcodeTable const&) = delete;
+        OpcodeTable& operator=(OpcodeTable const&) = delete;
+
+        ~OpcodeTable()
+        {
+            for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
+            {
+                delete _internalTableClient[i];
+                delete _internalTableServer[i];
+            }
+        }
+
+        void Initialize();
+
+        ClientOpcodeHandler const* operator[](OpcodeClient index) const
+        {
+            return _internalTableClient[index];
+        }
+
+        ServerOpcodeHandler const* operator[](OpcodeServer index) const
+        {
+            return _internalTableServer[index];
+        }
+
+    private:
+        template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
+        void ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing);
+
+        void ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status);
+
+        ClientOpcodeHandler* _internalTableClient[NUM_OPCODE_HANDLERS];
+        ServerOpcodeHandler* _internalTableServer[NUM_OPCODE_HANDLERS];
+};
+
+extern OpcodeTable opcodeTable;
+
+#if defined(__GNUC__)
+#pragma pack()
+#else
+#pragma pack(pop)
+#endif
+
 void InitOpcodes();
 
 // Lookup opcode name for human understandable logging
-inline std::string GetOpcodeNameForLogging(uint32 opcode, PacketType ptype)
+template<typename T>
+inline std::string GetOpcodeNameForLogging(T id)
 {
+    uint32 opcode = uint32(id);
     std::ostringstream ss;
     ss << '[';
 
-    if (opcode >= OPCODE_COUNT)
-        ss << "INVALID OPCODE";
-    else
+    if (static_cast<uint32>(id) < UNKNOWN_OPCODE)
     {
-        // all cases should be defined
-        if (ptype == MAX_PACKET_TYPE)
-        {
-            if (opcodeTable[CMSG][opcode] && opcodeTable[SMSG][opcode])
-            {
-                // Should not happend! Try to do strict definitions.
-                std::ostringstream ss;
-                ss << "CMSG: " << GetOpcodeNameForLogging(opcode, CMSG);
-                ss << " SMSG " << GetOpcodeNameForLogging(opcode, SMSG);
-                return ss.str();
-            }
-
-            return GetOpcodeNameForLogging(opcode, opcodeTable[CMSG][opcode] != nullptr ? CMSG : SMSG);
-        }
-
-        if (OpcodeHandler* handler = opcodeTable[ptype][opcode])
-            ss << handler->name;
+        if (OpcodeHandler const* handler = opcodeTable[T(opcode & 0x7FFF)])
+            ss << handler->Name;
         else
             ss << "UNKNOWN OPCODE";
     }
+    else
+        ss << "INVALID OPCODE";
 
-    ss << " 0x" << std::hex << std::uppercase << opcode << std::nouppercase << " (" << std::dec << opcode << ")]";
+    ss << " 0x" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << opcode << std::nouppercase << std::dec << " (" << opcode << ")]";
     return ss.str();
 }
+
 
 #endif
 /// @}

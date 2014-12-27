@@ -599,11 +599,8 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleDBQueryBulk(WorldPacket& recvPacket)
+void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
 {
-    //TMP. Till move to new opcode read method
-    WorldPackets::Query::DBQueryBulk& packet;
-
     DB2StorageBase const* store = GetDB2Storage(packet.TableHash);
     if (!store)
     {

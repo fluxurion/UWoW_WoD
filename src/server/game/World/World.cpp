@@ -2039,7 +2039,7 @@ void World::SetInitialWorldSettings()
     LoadCharacterNameData();
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Initializing Opcodes...");
-    InitOpcodes();
+    opcodeTable.Initialize();
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading hotfix info...");
     sObjectMgr->LoadHotfixData();
