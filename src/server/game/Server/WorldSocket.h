@@ -33,6 +33,16 @@
 using boost::asio::ip::tcp;
 struct z_stream_s;
 
+namespace WorldPackets
+{
+    class ServerPacket;
+    namespace Auth
+    {
+        class AuthSession;
+        class AuthContinuedSession;
+    }
+}
+
 #pragma pack(push, 1)
 
 union ClientPktHeader
@@ -78,7 +88,7 @@ public:
 
     void Start() override;
 
-    void SendPacket(WorldPacket& packet);
+    void SendPacket(WorldPacket const& packet);
 
 protected:
     void ReadHandler() override;
@@ -87,7 +97,7 @@ protected:
 
 private:
     void HandleSendAuthSession();
-    void HandleAuthSession(WorldPacket& recvPacket);
+    void HandleAuthSession(WorldPackets::Auth::AuthSession& authSession);
     void SendAuthResponseError(uint8 code);
 
     void HandlePing(WorldPacket& recvPacket);
@@ -96,6 +106,8 @@ private:
 
     uint32 _authSeed;
     WorldPacketCrypt _authCrypt;
+    BigNumber _encryptSeed;
+    BigNumber _decryptSeed;
 
     std::chrono::steady_clock::time_point _LastPingTime;
     uint32 _OverSpeedPings;

@@ -65,21 +65,19 @@ void WorldSocket::Start()
 
 void WorldSocket::HandleSendAuthSession()
 {
-    WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
+    BigNumber _encryptSeed;
+    BigNumber _decryptSeed;
 
-    packet << uint8(1);                                    // 1...31
+    _encryptSeed.SetRand(16 * 8);
+    _decryptSeed.SetRand(16 * 8);
 
-    BigNumber seed1;
-    seed1.SetRand(16 * 8);
-    packet.append(seed1.AsByteArray(16).get(), 16);         // new encryption seeds
+    WorldPackets::Auth::AuthChallenge challenge;
+    challenge.Challenge = _authSeed;
+    memcpy(&challenge.DosChallenge[0], _encryptSeed.AsByteArray(16).get(), 16);
+    memcpy(&challenge.DosChallenge[4], _decryptSeed.AsByteArray(16).get(), 16);
+    challenge.DosZeroBits = 1;
 
-    BigNumber seed2;
-    seed2.SetRand(16 * 8);
-    packet.append(seed2.AsByteArray(16).get(), 16);         // new encryption seeds
-
-    packet << uint32(_authSeed);
-
-    SendPacket(packet);
+    SendPacket(*challenge.Write());
 }
 
 void WorldSocket::ReadHandler()
@@ -213,14 +211,18 @@ bool WorldSocket::ReadDataHandler()
                     HandlePing(packet);
                     break;
                 case CMSG_AUTH_SESSION:
+                {
                     if (_worldSession)
                     {
                         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", _worldSession->GetPlayerName().c_str());
                         break;
                     }
 
-                    HandleAuthSession(packet);
+                    WorldPackets::Auth::AuthSession authSession(std::move(packet));
+                    authSession.Read();
+                    HandleAuthSession(authSession);
                     break;
+                }
                 case CMSG_KEEP_ALIVE:
                     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                     sScriptMgr->OnPacketReceive(_worldSession, packet);
@@ -297,7 +299,7 @@ bool WorldSocket::ReadDataHandler()
     return true;
 }
 
-void WorldSocket::SendPacket(WorldPacket& packet)
+void WorldSocket::SendPacket(WorldPacket const& packet)
 {
     if (!IsOpen())
         return;
@@ -308,7 +310,6 @@ void WorldSocket::SendPacket(WorldPacket& packet)
 
     //if (_worldSession && packet.size() > 0x400 && !packet.IsCompressed())
     //    packet.Compress(_worldSession->GetCompressionStream());
-
     sLog->outTrace(LOG_FILTER_NETWORKIO, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
 
     std::unique_lock<std::mutex> guard(_writeLock);
@@ -346,80 +347,22 @@ void WorldSocket::SendPacket(WorldPacket& packet)
     }
 }
 
-void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
+void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession)
 {
-    uint8 digest[20];
-    uint32 clientSeed;
     uint8 security;
     uint32 id;
     LocaleConstant locale;
-    std::string account;
     SHA1Hash sha;
-    uint16 clientBuild;
-    //uint32 serverId, region, battlegroup, realmIndex;
-    //uint64 unk4;
-    uint8 loginServerType;
-    WorldPacket packet, SendAddonPacked;
     BigNumber k;
     bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);
 
-    // Read the content of the packet
-    recvPacket.read_skip<uint32>();
-    recvPacket >> digest[14];
-    recvPacket >> digest[8];
-    recvPacket.read_skip<uint32>();
-    recvPacket >> digest[10];
-    recvPacket >> digest[19];
-    recvPacket >> digest[16];
-    recvPacket >> digest[13];
-    recvPacket >> digest[4];
-    recvPacket >> loginServerType;
-    recvPacket >> digest[9];
-    recvPacket >> digest[0];
-    recvPacket >> clientSeed;
-    recvPacket >> digest[5];
-    recvPacket >> digest[2];
-    recvPacket >> clientBuild;
-    recvPacket >> digest[12];
-    recvPacket.read_skip<uint32>();
-    recvPacket >> digest[18];
-    recvPacket >> digest[17];
-    recvPacket >> digest[11];
-    recvPacket.read_skip<uint64>();
-    recvPacket >> digest[7];
-    recvPacket >> digest[1];
-    recvPacket >> digest[3];
-    recvPacket.read_skip<uint8>();
-    recvPacket >> digest[6];
-    recvPacket.read_skip<uint32>();
-    recvPacket >> digest[15];
-
-    uint32 addonsSize;
-    WorldPacket addonsData;
-    recvPacket >> addonsSize;
-    addonsData.resize(addonsSize);
-    recvPacket.read((uint8*)addonsData.contents(), addonsSize);
-
-    uint32 accountNameLength = recvPacket.ReadBits(11);
-    account = recvPacket.ReadString(accountNameLength);
-
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: client %u, serverId %u, account %s, loginServerType %u, clientseed %u, realmIndex %u",
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: client %u, account %s, clientseed %u, loginServerType %u",
-        clientBuild,
-        //serverId,
-        account.c_str(),
-        clientSeed,
-        loginServerType
-        //realmIndex
-        );
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: client %u, account %s, loginServerType %u", authSession.Build, authSession.Account.c_str(), authSession.LoginServerType);
 
     // Get the account information from the realmd database
     //         0           1        2       3          4         5       6          7   8  9
     // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os, battlenet_account  FROM account WHERE username = ?
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
-
-    stmt->setString(0, account);
-
+    stmt->setString(0, authSession.Account);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     // Stop if the account is not found
@@ -489,9 +432,9 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     uint32 t = 0;
     uint32 seed = _authSeed;
 
-    sha.UpdateData(account);
+    sha.UpdateData(authSession.Account);
     sha.UpdateData((uint8*)&t, 4);
-    sha.UpdateData((uint8*)&clientSeed, 4);
+    sha.UpdateData((uint8*)&authSession.LocalChallenge, 4);
     sha.UpdateData((uint8*)&seed, 4);
     sha.UpdateBigNumbers(&k, NULL);
     sha.Finalize();
@@ -541,10 +484,8 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         mutetime = time(NULL) + llabs(mutetime);
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
-
         stmt->setInt64(0, mutetime);
         stmt->setUInt32(1, id);
-
         LoginDatabase.Execute(stmt);
     }
 
@@ -554,14 +495,13 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     uint32 recruiter = fields[9].GetUInt32();
     uint32 battlenetAccountId = 0;
-    if (loginServerType == 1)
+    if (authSession.LoginServerType == 1)
         battlenetAccountId = fields[11].GetUInt32();
+
     // Checks gmlevel per Realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
-
     stmt->setUInt32(0, id);
     stmt->setInt32(1, int32(realmHandle.Index));
-
     result = LoginDatabase.Query(stmt);
 
     if (!result)
@@ -574,13 +514,10 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     // Re-check account ban (same check as in realmd)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BANS);
-
     stmt->setUInt32(0, id);
     stmt->setString(1, address);
 
-    PreparedQueryResult banresult = LoginDatabase.Query(stmt);
-
-    if (banresult) // if account banned
+    if (PreparedQueryResult banresult = LoginDatabase.Query(stmt)) // if account banned
     {
         SendAuthResponseError(AUTH_BANNED);
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
@@ -602,14 +539,12 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     }
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.",
-        account.c_str(),
+        authSession.Account.c_str(),
         address.c_str());
 
     // Check if this user is by any chance a recruiter
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_RECRUITER);
-
     stmt->setUInt32(0, id);
-
     result = LoginDatabase.Query(stmt);
 
     bool isRecruiter = false;
@@ -620,7 +555,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
 
     stmt->setString(0, address);
-    stmt->setString(1, account);
+    stmt->setString(1, authSession.Account);
 
     LoginDatabase.Execute(stmt);
 
@@ -630,7 +565,7 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     _worldSession = new WorldSession(id, battlenetAccountId, shared_from_this(), AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter);
     _worldSession->LoadGlobalAccountData();
     _worldSession->LoadTutorialsData();
-    _worldSession->ReadAddonsInfo(addonsData);
+    _worldSession->ReadAddonsInfo(authSession.AddonInfo);
     //_worldSession->LoadPermissions();
 
     // Initialize Warden system only if it is enabled by config
