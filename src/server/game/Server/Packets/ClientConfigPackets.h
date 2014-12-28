@@ -36,7 +36,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::list< ::AddonInfo> const* Addons = nullptr;
-            std::list<BannedAddon> const* BannedAddons = nullptr;
+            BannedAddonDataMap const* BannedAddons = nullptr;
         };
 
         class AccountDataTimes final : public ServerPacket

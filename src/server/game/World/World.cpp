@@ -3808,3 +3808,8 @@ void World::Transfer()
         while (toLoad->NextRow());
     }
 }
+
+uint32 GetVirtualRealmAddress()
+{
+    return uint32(realmHandle.Region) << 24 | uint32(realmHandle.Battlegroup) << 16 | realmHandle.Index;
+}

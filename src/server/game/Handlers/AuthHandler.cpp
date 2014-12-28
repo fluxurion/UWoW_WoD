@@ -19,120 +19,41 @@
 #include "SharedDefines.h"
 #include "WorldSession.h"
 #include "WorldPacket.h"
-
-struct ExpansionInfoStrunct
-{
-    uint8 raceOrClass;
-    uint8 expansion;
-};
-
-ExpansionInfoStrunct classExpansionInfo[MAX_CLASSES - 1] =
-{
-    { CLASS_WARRIOR, EXP_VANILLA },
-    { CLASS_PALADIN, EXP_VANILLA },
-    { CLASS_HUNTER, EXP_VANILLA },
-    { CLASS_ROGUE, EXP_VANILLA },
-    { CLASS_PRIEST, EXP_VANILLA },
-    { CLASS_DEATH_KNIGHT, EXP_WOTLK },
-    { CLASS_SHAMAN, EXP_VANILLA },
-    { CLASS_MAGE, EXP_VANILLA },
-    { CLASS_WARLOCK, EXP_VANILLA },
-    { CLASS_MONK, EXP_PANDARIA },
-    { CLASS_DRUID, EXP_VANILLA }
-};
-
-ExpansionInfoStrunct raceExpansionInfo[MAX_PLAYABLE_RACES] =
-{
-    { RACE_HUMAN, EXP_VANILLA },
-    { RACE_ORC, EXP_VANILLA },
-    { RACE_DWARF, EXP_VANILLA },
-    { RACE_NIGHTELF, EXP_VANILLA },
-    { RACE_UNDEAD_PLAYER, EXP_VANILLA },
-    { RACE_TAUREN, EXP_VANILLA },
-    { RACE_GNOME, EXP_VANILLA },
-    { RACE_TROLL, EXP_VANILLA },
-    { RACE_GOBLIN, EXP_CATACLYSM },
-    { RACE_BLOODELF, EXP_BC },
-    { RACE_DRAENEI, EXP_BC },
-    { RACE_WORGEN, EXP_CATACLYSM },
-    { RACE_PANDAREN_NEUTRAL, EXP_PANDARIA },
-    { RACE_PANDAREN_ALLI, EXP_PANDARIA },
-    { RACE_PANDAREN_HORDE, EXP_PANDARIA }
-};
+#include "AuthenticationPackets.h"
+#include "ClientConfigPackets.h"
+#include "SystemPackets.h"
 
 void WorldSession::SendAuthResponse(uint8 code, bool hasAccountData, bool queued, uint32 queuePos)
 {
-    WorldPacket packet(SMSG_AUTH_RESPONSE);
-
-    packet << uint8(code);
-    packet.WriteBit(queued);
-    if (queued)
-        packet.WriteBit(1);
-
-    packet.WriteBit(hasAccountData);
-    std::string realmName = sWorld->GetRealmName();
-    std::string trimmedName = sWorld->GetTrimmedRealmName();
-    if (hasAccountData)
+    WorldPackets::Auth::AuthResponse response;
+    response.SuccessInfo.HasValue = code == AUTH_OK;
+    response.Result = code;
+    response.WaitInfo.HasValue = queued;
+    response.WaitInfo.Value.WaitCount = queuePos;
+    if (code == AUTH_OK)
     {
-        uint8 count5 = 1;
-        packet.WriteBit(0);
-        packet.WriteBits(count5, 21);
-        packet.WriteBits(0, 21);
-        packet.WriteBits(MAX_PLAYABLE_RACES, 23);
-        packet.WriteBit(0);
-        packet.WriteBit(0);
+        response.SuccessInfo.Value.AccountExpansionLevel = Expansion();
+        response.SuccessInfo.Value.ActiveExpansionLevel = Expansion();
+        response.SuccessInfo.Value.VirtualRealmAddress = GetVirtualRealmAddress();
 
-        for (uint8 i = 0; i < count5; ++i)
-        {
-            packet.WriteBits(realmName.size(), 8);
-            packet.WriteBit(1);
-            packet.WriteBits(trimmedName.size(), 8);
-        }
+        std::string realmName = sObjectMgr->GetRealmName(realmHandle.Index);
 
-        packet.WriteBit(0);
-        packet.WriteBits(MAX_CLASSES - 1, 23);
+        // Send current home realm. Also there is no need to send it later in realm queries.
+        response.SuccessInfo.Value.VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);
 
-        packet << uint32(0);
-        packet << uint32(0);
-        packet << uint8(Expansion());
-
-        for (uint8 i = 0; i < MAX_PLAYABLE_RACES; ++i)
-        {
-            packet << uint8(raceExpansionInfo[i].expansion);
-            packet << uint8(raceExpansionInfo[i].raceOrClass);
-        }
-
-        packet << uint8(Expansion());
-        packet << uint32(0);
-
-        for (uint8 i = 0; i < MAX_CLASSES - 1; ++i)
-        {
-            packet << uint8(classExpansionInfo[i].raceOrClass);
-            packet << uint8(classExpansionInfo[i].expansion);
-        }
-
-        for (uint8 i = 0; i < count5; ++i)
-        {
-            packet.WriteString(realmName);
-            packet.WriteString(trimmedName);
-            packet << uint32(realmHandle.Index);
-        }
-
-        packet << uint32(0);    //2957796664... 3495927968
-        packet << uint32(0);    //69076... 43190
+        response.SuccessInfo.Value.AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
+        response.SuccessInfo.Value.AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
     }
 
-    if (queued)
-        packet << uint32(queuePos);
-
-    SendPacket(&packet);
+    SendPacket(response.Write());
 }
 
 void WorldSession::SendClientCacheVersion(uint32 version)
 {
-    WorldPacket data(SMSG_CLIENTCACHE_VERSION, 4);
-    data << uint32(version);
-    SendPacket(&data);
+    WorldPackets::ClientConfig::ClientCacheVersion cache;
+    cache.CacheVersion = version;
+
+    SendPacket(cache.Write());
 }
 
 void WorldSession::SendBattlePay()

@@ -577,13 +577,11 @@ void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession
 
 void WorldSocket::SendAuthResponseError(uint8 code)
 {
-    WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-    packet << uint8(code);
-    packet.WriteBit(false); // not queued
-    packet.WriteBit(false); // no account data
-    packet.FlushBits();
-
-    SendPacket(packet);
+    WorldPackets::Auth::AuthResponse response;
+    response.SuccessInfo.HasValue = false;
+    response.WaitInfo.HasValue = false;
+    response.Result = code;
+    SendPacket(*response.Write());
 }
 
 void WorldSocket::HandlePing(WorldPacket& recvPacket)

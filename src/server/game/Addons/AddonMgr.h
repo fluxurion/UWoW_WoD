@@ -55,7 +55,7 @@ struct BannedAddon
     uint32 timestamp;
 };
 
-typedef std::map<uint32 /*index*/, BannedAddon> BannedAddonDataMap;
+typedef std::list<BannedAddon> BannedAddonDataMap;
 extern BannedAddonDataMap                        sBannedAddonDataMap;
 
 #define STANDARD_ADDON_CRC 0x4c1c776d

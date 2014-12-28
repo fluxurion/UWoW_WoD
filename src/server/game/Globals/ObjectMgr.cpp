@@ -9367,7 +9367,7 @@ void ObjectMgr::LoadBannedAddons()
         MD5(reinterpret_cast<uint8 const*>(version.c_str()), version.length(), ba.MD5_version);
         ba.timestamp = timestamp;
 
-        sBannedAddonDataMap[ba.Id] = ba;
+        sBannedAddonDataMap.push_back(ba);
 
         ++count;
     }

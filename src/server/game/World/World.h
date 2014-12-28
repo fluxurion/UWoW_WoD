@@ -994,6 +994,7 @@ class World
 };
 
 extern Battlenet::RealmHandle realmHandle;
+uint32 GetVirtualRealmAddress();
 
 #define sWorld World::instance()
 #endif
