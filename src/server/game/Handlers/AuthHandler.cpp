@@ -35,7 +35,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool hasAccountData, bool queued
         response.SuccessInfo.Value.AccountExpansionLevel = Expansion();
         response.SuccessInfo.Value.ActiveExpansionLevel = Expansion();
         response.SuccessInfo.Value.VirtualRealmAddress = GetVirtualRealmAddress();
-
+        response.SuccessInfo.Value.CurrencyID = 5;
         std::string realmName = sObjectMgr->GetRealmName(realmHandle.Index);
 
         // Send current home realm. Also there is no need to send it later in realm queries.

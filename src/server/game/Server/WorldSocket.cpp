@@ -441,7 +441,7 @@ void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession
 
     // even if auth credentials are bad, try using the session key we have - client cannot read auth response error without it
     _authCrypt.Init(&k);
-    _headerBuffer.Resize(ClientPktHeader::SizeOf[_initialized][_authCrypt.IsInitialized()]);
+    _headerBuffer.Resize(ClientPktHeader::SizeOf[1][1]);
 
     /*auto ddd = sha.GetDigest();
     std::cout << "====== orig =====" << std::endl;
