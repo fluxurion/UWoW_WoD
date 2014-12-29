@@ -58,10 +58,9 @@ void WorldSession::SendClientCacheVersion(uint32 version)
 
 void WorldSession::SendBattlePay()
 {
-    WorldPacket data(SMSG_BATTLEPAY_PRODUCT_ITEM, 7);
+    WorldPacket data(SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE, 7);
     data << uint32(0);
-    data.WriteBits(0, 19);
-    data.FlushBits();
+    data << uint32(0);
     SendPacket(&data);
 }
 
@@ -70,4 +69,15 @@ void WorldSession::SendDisplayPromo(int32 promo)
     WorldPacket data(SMSG_DISPLAY_PROMOTION, 7);
     data << promo;
     SendPacket(&data);
+}
+
+void WorldSession::SendFeatureSystemStatusGlueScreen()
+{
+    WorldPackets::System::FeatureSystemStatusGlueScreen features;
+    features.BpayStoreAvailable = false;
+    features.BpayStoreDisabledByParentalControls = false;
+    features.CharUndeleteEnabled = false/*sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED)*/;
+    features.BpayStoreEnabled = false/*sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED)*/;
+
+    SendPacket(features.Write());
 }

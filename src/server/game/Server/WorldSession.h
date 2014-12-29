@@ -382,6 +382,7 @@ class WorldSession
         void SendClientCacheVersion(uint32 version);
         void SendBattlePay();
         void SendDisplayPromo(int32 promo);
+        void SendFeatureSystemStatusGlueScreen();
 
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }

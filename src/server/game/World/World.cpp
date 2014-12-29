@@ -299,6 +299,10 @@ void World::AddSession_(WorldSession* s)
     }
 
     s->SendAuthResponse(AUTH_OK);
+
+    s->SendTimeZoneInformation();
+    s->SendFeatureSystemStatusGlueScreen();
+
     s->SendAddonsInfo();
     s->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
     s->SendBattlePay();
@@ -2037,6 +2041,12 @@ void World::SetInitialWorldSettings()
     InitServerAutoRestartTime();
 
     LoadCharacterNameData();
+
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading race and class expansion requirements...");
+    sObjectMgr->LoadRaceAndClassExpansionRequirements();
+
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading realm names...");
+    sObjectMgr->LoadRealmNames();
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Initializing Opcodes...");
     opcodeTable.Initialize();

@@ -378,7 +378,7 @@ void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession
     Field* fields = result->Fetch();
 
     //uint8 expansion = fields[4].GetUInt8();
-    uint8 expansion = 4;
+    uint8 expansion = 5;
     uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
     if (expansion > world_expansion)
         expansion = world_expansion;

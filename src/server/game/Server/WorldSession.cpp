@@ -49,6 +49,7 @@
 #include "CharacterPackets.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
+#include "SystemPackets.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -804,14 +805,11 @@ void WorldSession::SendAccountDataTimes(uint32 mask, bool ready)
 void WorldSession::SendTimeZoneInformation()
 {
     //Etc/UTC recomendation from skyfire
-    std::string zone = "Etc/UTC";    //RTL: Europe/Paris
-    WorldPacket data(SMSG_SET_TIME_ZONE_INFORMATION, 30);
-    data.WriteBits(zone.size(), 7);
-    data.WriteBits(zone.size(), 7);
-    data.FlushBits();
-    data.WriteString(zone);
-    data.WriteString(zone);
-    SendPacket(&data);
+    WorldPackets::System::SetTimeZoneInformation packet;
+    packet.ServerTimeTZ = "Etc/UTC";    //RTL: Europe/Paris
+    packet.GameTimeTZ = "Etc/UTC";      //RTL: Europe/Paris
+
+    SendPacket(packet.Write());
 }
 
 void WorldSession::LoadTutorialsData()
