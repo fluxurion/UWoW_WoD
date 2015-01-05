@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterPackets.h"
 #include "Common.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -251,56 +252,38 @@ bool LoginQueryHolder::Initialize()
 
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
-    WorldPacket data(SMSG_CHAR_ENUM);
+    WorldPackets::Character::EnumCharactersResult charEnum;
+    charEnum.Success = true;
+    charEnum.IsDeletedCharacters = false;
 
-    uint32 charCount = 0;
-    ByteBuffer bitBuffer;
-    ByteBuffer dataBuffer;
+    _allowedCharsToLogin.clear();
 
     if (result)
     {
-        _allowedCharsToLogin.clear();
-
-        charCount = uint32(result->GetRowCount());
-
-        bitBuffer.WriteBits(charCount, 16);
-
-        bitBuffer.reserve(24 * charCount / 8);
-        dataBuffer.reserve(charCount * 381);
-
         do
         {
-            ObjectGuid::LowType guidLow = (*result)[0].GetUInt64();
+            Field* fields = result->Fetch();
+            WorldPackets::Character::EnumCharactersResult::CharacterInfo charInfo(fields);
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "Loading char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "Loading char guid %u from account %u.", guidLow, GetAccountId());
+            //Player::BuildEnumData(result, &dataBuffer, &bitBuffer);
+            // Do not allow locked characters to login
+            if (!(charInfo.Flags & (CHARACTER_LOCKED_FOR_TRANSFER | CHARACTER_FLAG_LOCKED_BY_BILLING)))
+                _allowedCharsToLogin.insert(charInfo.Guid.GetCounter());
 
-            Player::BuildEnumData(result, &dataBuffer, &bitBuffer);
+            charEnum.Characters.emplace_back(charInfo);
 
-            _allowedCharsToLogin.insert(guidLow);
         } while (result->NextRow());
     }
-    else
-        bitBuffer.WriteBits(0, 16);
 
-    bitBuffer.WriteBit(1);
-    bitBuffer.WriteBits(0, 21); // restricted faction change rules count
-    bitBuffer.FlushBits();
-
-    data.append(bitBuffer);
-    if (charCount)
-        data.append(dataBuffer);
-
-    SendPacket(&data);
+    SendPacket(charEnum.Write());
 }
 
-void WorldSession::HandleCharEnumOpcode(WorldPacket & recvData)
+void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)
 {
     time_t now = time(NULL);
     if (now - timeCharEnumOpcode < 5)
-    {
-        recvData.rfinish();
         return;
-    }
     else
         timeCharEnumOpcode = now;
 

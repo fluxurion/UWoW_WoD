@@ -1403,8 +1403,6 @@ class Player : public Unit, public GridObject<Player>
 
         void Update(uint32 time);
 
-        static bool BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer);
-
         void SetInWater(bool apply);
 
         bool IsInWater() const { return m_isInWater; }
