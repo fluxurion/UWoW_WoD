@@ -424,7 +424,6 @@ class WorldSession
         // Account Data
         AccountData* GetAccountData(AccountDataType type) { return &m_accountData[type]; }
         void SetAccountData(AccountDataType type, time_t tm, std::string data);
-        void SendAccountDataTimes(uint32 mask, bool ready = false);
         void SendTimeZoneInformation();
         void LoadGlobalAccountData();
         void LoadAccountData(PreparedQueryResult result, uint32 mask);
@@ -1094,7 +1093,6 @@ class WorldSession
         void HandleEquipmentSetDelete(WorldPacket& recvData);
         void HandleEquipmentSetUse(WorldPacket& recvData);
         void HandleWorldStateUITimerUpdate(WorldPacket& recvData);
-        void HandleReadyForAccountDataTimes(WorldPacket& recvData);
         void HandleQueryQuestsCompleted(WorldPacket& recvData);
         void HandleQuestNpcQuery(WorldPacket& recvData);
         void HandleQuestPOIQuery(WorldPacket& recvData);

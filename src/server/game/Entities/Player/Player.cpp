@@ -81,7 +81,10 @@
 #include "Bracket.h"
 #include "BracketMgr.h"
 #include "AuctionHouseMgr.h"
+
+#include "SpellPackets.h"
 #include "CharacterPackets.h"
+#include "MiscPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -7641,7 +7644,7 @@ void Player::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
-void Player::SendDirectMessage(WorldPacket* data)
+void Player::SendDirectMessage(WorldPacket const* data) const
 {
     m_session->SendPacket(data);
 }
@@ -18405,6 +18408,17 @@ void Player::SetHomebind(WorldLocation const& loc, uint32 area_id)
     CharacterDatabase.Execute(stmt);
 }
 
+void Player::SendBindPointUpdate()
+{
+    WorldPackets::Misc::BindPointUpdate packet;
+    packet.BindPosition.x = m_homebindX;
+    packet.BindPosition.y = m_homebindY;
+    packet.BindPosition.z = m_homebindZ;
+    packet.BindMapID = m_homebindMapId;
+    packet.BindAreaID = m_homebindAreaId;
+    m_session->SendPacket(packet.Write());
+}
+
 uint32 Player::GetUInt32ValueFromArray(Tokenizer const& data, uint16 index)
 {
     if (index >= data.size())
@@ -25018,35 +25032,27 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
     GetSocial()->SendSocialList(this);
 
+    /// SMSG_SPELL_CATEGORY_COOLDOWN
+    SendCategoryCooldownMods();
+
     // guild bank list wtf?
     WorldPacket data(SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED);
     GetSession()->SendPacket(&data);
 
-    // Homebind
-    data.Initialize(SMSG_BINDPOINTUPDATE, 20);
-    data << m_homebindZ;
-    data << m_homebindY;
-    data << uint32(m_homebindMapId);
-    data << m_homebindX;
-    data << uint32(m_homebindAreaId);
-    GetSession()->SendPacket(&data);
+    /// SMSG_BINDPOINTUPDATE
+    SendBindPointUpdate();
 
     // SMSG_SET_PROFICIENCY
-    SendSpellMods();
+    //SendSpellMods(); //ToDo
     // SMSG_UPDATE_AURA_DURATION
-
-    data.Initialize(SMSG_SPELL_0x00E9);
-    GetSession()->SendPacket(&data);
 
     SendTalentsInfoData(false);
 
-    data.Initialize(SMSG_SEND_UNLEARN_SPELLS);
-    data.WriteBits(0, 22);                                  // count, read uint32 spells id
-    data.FlushBits();
-    GetSession()->SendPacket(&data);
+    /// SMSG_SEND_UNLEARN_SPELLS
+    SendDirectMessage(WorldPackets::Spell::SendUnlearnSpells().Write());
 
-    data.Initialize(SMSG_SPELL_0x00E9);
-    GetSession()->SendPacket(&data);
+    /// @todo: SMSG_SEND_SPELL_HISTORY
+    /// @todo: SMSG_SEND_SPELL_CHARGES
 
     SendKnownSpells();
     SendInitialCooldowns();
@@ -25094,13 +25100,16 @@ void Player::SendInitialPacketsBeforeAddToMap()
     data << GetPositionX();
     GetSession()->SendPacket(&data);
 
-    data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
-    data << uint32(0);
-    data << uint32(0);
-    data << float(0.01666667f);                             // game speed
-    data.AppendPackedTime(sWorld->GetGameTime());
-    data.AppendPackedTime(sWorld->GetGameTime());
-    GetSession()->SendPacket(&data);
+    /// SMSG_LOGIN_SETTIMESPEED
+    static float const TimeSpeed = 0.01666667f;
+    WorldPackets::Misc::LoginSetTimeSpeed loginSetTimeSpeed;
+    loginSetTimeSpeed.NewSpeed = TimeSpeed;
+    loginSetTimeSpeed.GameTime = sWorld->GetGameTime();
+    loginSetTimeSpeed.ServerTime = sWorld->GetGameTime();
+    loginSetTimeSpeed.GameTimeHolidayOffset = 0; /// @todo
+    loginSetTimeSpeed.ServerTimeHolidayOffset = 0; /// @todo
+    SendDirectMessage(loginSetTimeSpeed.Write());
+
     GetReputationMgr().SendForceReactions();                // SMSG_SET_FORCED_REACTIONS
 
     // SMSG_UPDATE_WORLD_STATE
@@ -25130,17 +25139,16 @@ void Player::SendInitialPacketsAfterAddToMap()
     InstanceMap* inst = GetMap()->ToInstanceMap();
     uint32 instancePlayers = inst ? inst->GetMaxPlayers() : 0;
 
-    WorldPacket data(SMSG_WORLD_SERVER_INFO, 4 + 4 + 1 + 1);
-    data << uint32(sWorld->GetNextWeeklyQuestsResetTime() -  WEEK);
-    data << uint8(0);                                       // is on tournament realm
-    data << uint32(GetMap()->GetDifficulty());
-    data.WriteBit(instancePlayers);                         // has instance players count
-    data.WriteBit(false);                                   // is ineligible for loot
-    data.WriteBit(false);                                   // has trial money
-    data.WriteBit(false);                                   // has trial level
-    if (instancePlayers)
-        data << uint32(instancePlayers);
-    GetSession()->SendPacket(&data);
+    /// SMSG_WORLD_SERVER_INFO
+    WorldPackets::Misc::WorldServerInfo worldServerInfo;
+    worldServerInfo.IneligibleForLootMask.Clear();     /// @todo
+    worldServerInfo.WeeklyReset = sWorld->GetNextWeeklyQuestsResetTime() - WEEK;
+    worldServerInfo.InstanceGroupSize.Set(instancePlayers);
+    worldServerInfo.IsTournamentRealm = 0;             /// @todo
+    worldServerInfo.RestrictedAccountMaxLevel.Clear(); /// @todo
+    worldServerInfo.RestrictedAccountMaxMoney.Clear(); /// @todo
+    worldServerInfo.DifficultyID = GetMap()->GetDifficulty();
+    SendDirectMessage(worldServerInfo.Write());
 
     // SMSG_TALENTS_INFO x 2 for pet (unspent points and talents in separate packets...)
     // SMSG_PET_GUIDS
@@ -25187,6 +25195,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     else if (GetRaidDifficulty() != GetStoredRaidDifficulty())
         SendRaidDifficulty();
 
+    WorldPacket data;
     GetBattlePetMgr()->BuildPetJournal(&data);
     GetSession()->SendPacket(&data);
 
@@ -29541,28 +29550,25 @@ void Player::SendCemeteryList(bool onMap)
 
 void Player::SendCategoryCooldownMods()
 {
-    std::map<uint32, int32> categoryMods;
-    Unit::AuraEffectList const& list = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
-    for (Unit::AuraEffectList::const_iterator itr = list.begin(); itr != list.end(); ++itr)
+    WorldPackets::Spell::CategoryCooldown cooldowns;
+
+    Unit::AuraEffectList const& categoryCooldownAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
+    for (AuraEffect* aurEff : categoryCooldownAuras)
     {
-        std::map<uint32, int32>::iterator cItr = categoryMods.find((*itr)->GetMiscValue());
-        if (cItr == categoryMods.end())
-            categoryMods[(*itr)->GetMiscValue()] = (*itr)->GetAmount();
+        uint32 categoryId = aurEff->GetMiscValue();
+        auto cItr = std::find_if(cooldowns.CategoryCooldowns.begin(), cooldowns.CategoryCooldowns.end(),
+            [categoryId](WorldPackets::Spell::CategoryCooldown::CategoryCooldownInfo const& cooldown)
+        {
+            return cooldown.Category == categoryId;
+        });
+
+        if (cItr == cooldowns.CategoryCooldowns.end())
+            cooldowns.CategoryCooldowns.emplace_back(aurEff->GetMiscValue(), -aurEff->GetAmount());
         else
-            cItr->second += (*itr)->GetAmount();
+            cItr->ModCooldown -= aurEff->GetAmount();
     }
 
-    //! 5.4.1
-    WorldPacket data(SMSG_SPELL_CATEGORY_COOLDOWN, 4 + (int(list.size()) * 8));
-    data.WriteBits<int>(list.size(), 21);
-    data.FlushBits();
-    for (std::map<uint32, int32>::const_iterator itr = categoryMods.begin(); itr != categoryMods.end(); ++itr)
-    {
-        data << uint32(itr->first);
-        data << int32(-itr->second);
-    }
-
-    SendDirectMessage(&data);
+    SendDirectMessage(cooldowns.Write());
 }
 
 void Player::SendModifyCooldown(uint32 spellId, int32 value)

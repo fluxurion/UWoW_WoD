@@ -45,6 +45,7 @@
 #include "LFGMgr.h"
 #include "BattlenetServerManager.h"
 
+#include "ClientConfigPackets.h"
 #include "CharacterPackets.h"
 #include "SystemPackets.h"
 #include "BattlegroundPackets.h"
@@ -803,8 +804,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
-    SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
-    SendTutorialsData();
+
+    WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
+    accountDataTimes.PlayerGuid = playerGuid;
+    accountDataTimes.ServerTime = uint32(sWorld->GetGameTime());
+    for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
+        accountDataTimes.AccountTimes[i] = uint32(GetAccountData(AccountDataType(i))->Time);
+
+    SendPacket(accountDataTimes.Write());
 
     /// Send FeatureSystemStatus
     {

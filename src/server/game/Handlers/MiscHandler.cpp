@@ -2116,14 +2116,6 @@ void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recvData*/)
-{
-    // empty opcode
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_READY_FOR_ACCOUNT_DATA_TIMES");
-
-    SendAccountDataTimes(GLOBAL_CACHE_MASK, true);
-}
-
 void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaIds, uint32 flag /*=0x1F*/)
 {
     ObjectGuid guid = _player->GetGUID();

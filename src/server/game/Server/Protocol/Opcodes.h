@@ -703,7 +703,6 @@ enum OpcodeClient : uint32
     CMSG_QUERY_PLAYER_RECIPES                         = 0xBADD, // 5.4.1 17538
     CMSG_RAID_LEADER_READY_CHECK                      = 0xBADD, // 5.4.1 17538
     CMSG_RAID_CONFIRM_READY_CHECK                     = 0xBADD, // 5.4.1 17538
-    CMSG_READY_FOR_ACCOUNT_DATA_TIMES                 = 0xBADD, // 5.4.1 17538
     CMSG_REDIRECTION_AUTH_PROOF                       = 0xBADD, // 5.4.1 17538
     CMSG_REQUEST_RATED_INFO                           = 0xBADD, // 5.4.1 17538
     CMSG_RESET_CHALLENGE_MODE                         = 0xBADD, // 5.4.1 17538

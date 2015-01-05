@@ -169,13 +169,16 @@ void PlayerSocial::SendSocialList(Player* player)
 
     WorldPacket data(SMSG_CONTACT_LIST, (4+4+size*25));     // just can guess size
     data << uint32(7);                                      // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
-    data << uint32(size);                                   // friends count
+    data << uint8(size);                                   // friends count
 
+    ObjectGuid WowAccount;
     for (PlayerSocialMap::iterator itr = m_playerSocialMap.begin(); itr != m_playerSocialMap.end(); ++itr)
     {
         sSocialMgr->GetFriendInfo(player, itr->first, itr->second);
 
-        //data << uint64(MAKE_NEW_GUID(itr->first, 0, HighGuid::Player));  // player guid
+        data << itr->first;                                 // player guid
+        data << WowAccount;
+
         data << uint32(realmHandle.Index);
         data << uint32(realmHandle.Index);
         data << uint32(itr->second.Flags);                  // player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)

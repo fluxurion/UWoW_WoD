@@ -788,19 +788,6 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
     m_accountData[type].Data = data;
 }
 
-void WorldSession::SendAccountDataTimes(uint32 mask, bool ready)
-{
-    WorldPacket data(SMSG_ACCOUNT_DATA_TIMES, 4+1+4+NUM_ACCOUNT_DATA_TYPES*4);
-    data << uint32(time(NULL));                             // Server time
-    data << uint32(mask);                                   // type mask
-    for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
-        data << uint32(GetAccountData(AccountDataType(i))->Time);// also unix time
-    data.WriteBit(!ready);
-    data.FlushBits();
-    SendPacket(&data);
-    SendTimeZoneInformation();
-}
-
 // ToDo: add confing. Are we need it?
 void WorldSession::SendTimeZoneInformation()
 {
@@ -873,6 +860,7 @@ void WorldSession::ReadAddonsInfo(ByteBuffer &data)
     ByteBuffer addonInfo;
     addonInfo.resize(size);
 
+    m_addonsList.clear();
     if (uncompress(const_cast<uint8*>(addonInfo.contents()), &uSize, const_cast<uint8*>(data.contents() + pos), data.size() - pos) == Z_OK)
     {
         uint32 addonsCount;

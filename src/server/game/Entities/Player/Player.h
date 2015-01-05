@@ -2624,7 +2624,7 @@ class Player : public Unit, public GridObject<Player>
         void SendInitWorldTimers();
         void SendInitWorldStates(uint32 zone, uint32 area);
         void SendUpdateWorldState(uint32 Field, uint32 Value);
-        void SendDirectMessage(WorldPacket* data);
+        void SendDirectMessage(WorldPacket const* data) const;
         void ScheduleMessageSend(WorldPacket* data, uint32 delay);
         void SendBGWeekendWorldStates();
 
@@ -2836,6 +2836,7 @@ class Player : public Unit, public GridObject<Player>
         void   SaveRecallPosition();
 
         void SetHomebind(WorldLocation const& loc, uint32 area_id);
+        void SendBindPointUpdate();
 
         // Homebind coordinates
         uint32 m_homebindMapId;
