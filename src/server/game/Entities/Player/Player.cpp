@@ -82,9 +82,10 @@
 #include "BracketMgr.h"
 #include "AuctionHouseMgr.h"
 
-#include "SpellPackets.h"
 #include "CharacterPackets.h"
+#include "EquipmentSetPackets.h"
 #include "MiscPackets.h"
+#include "SpellPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -8270,11 +8271,9 @@ void Player::_SaveCurrency(SQLTransaction& trans)
 
 void Player::SendCurrencies()
 {
-    ByteBuffer currencyData;
-
-    //! 5.4.1
+    //! 6.0.3
     WorldPacket packet(SMSG_INIT_CURRENCY, 3 + _currencyStorage.size() * (5 * 5 + 1));
-    packet.WriteBits(_currencyStorage.size(), 21);
+    packet << uint32(_currencyStorage.size());
 
     for (PlayerCurrenciesMap::const_iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
@@ -8286,25 +8285,23 @@ void Player::SendCurrencies()
         uint32 seasonTotal = itr->second.seasonTotal;
         bool hasSeason = entry->HasSeasonCount();
 
-        packet.WriteBit(hasSeason);                                     // season total earned
-        packet.WriteBit(weekCap);
-        packet.WriteBits(itr->second.flags, 5);                         // some flags
-        packet.WriteBit(weekCap && weekCount);                          // hasWeekCount
+        packet << uint32(entry->ID);                              // Currency Id
+        packet << uint32(itr->second.totalCount / precision);     // Currency count
 
-        currencyData << uint32(itr->second.totalCount / precision);     // Currency count
-        currencyData << uint32(entry->ID);                              // Currency Id
+        packet.WriteBit(weekCap && weekCount);                          // hasWeekCount
+        packet.WriteBit(weekCap);
+        packet.WriteBit(hasSeason);                                     // season total earned
+        packet.WriteBits(itr->second.flags, 5);                         // some flags
+
+        if (weekCap && weekCount)
+            packet << uint32(weekCount / precision);
+
+        if (weekCap)
+            packet << uint32(weekCap / precision);
 
         if (hasSeason)
-            currencyData << uint32(seasonTotal / precision);
-        if (weekCap && weekCount)
-            currencyData << uint32(weekCount / precision);
-        if (weekCap)
-            currencyData << uint32(weekCap / precision);
+            packet << uint32(seasonTotal / precision);
     }
-
-    packet.FlushBits();
-    if (!currencyData.empty())
-        packet.append(currencyData);
 
     GetSession()->SendPacket(&packet);
 }
@@ -25022,8 +25019,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendInitialActionButtons();
 
     data.Initialize(SMSG_CORPSE_RECLAIM_DELAY, 1);
-    data.WriteBit(1);
-    data.FlushBits();
+    data << uint32(0);
     GetSession()->SendPacket(&data);
 
     //SMSG_ALL_ACHIEVEMENT_DATA first send
@@ -25051,14 +25047,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
     data.Initialize(SMSG_SUSPEND_TOKEN_RESPONSE, 15);
     data << uint32(0);
     data.WriteBits(2, 2);
-    GetSession()->SendPacket(&data);
-
-    data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
-    data << GetPositionZ();
-    data << GetPositionY();
-    data << GetMapId();
-    data << GetOrientation();
-    data << GetPositionX();
     GetSession()->SendPacket(&data);
 
     /// SMSG_LOGIN_SETTIMESPEED
@@ -26390,9 +26378,7 @@ void Player::SendCorpseReclaimDelay(bool load)
 
     //! corpse reclaim delay 30 * 1000ms or longer at often deaths
     WorldPacket data(SMSG_CORPSE_RECLAIM_DELAY, 4 + 1);
-    data.WriteBit(!delay);
-    if (delay)
-        data << uint32(delay * IN_MILLISECONDS);
+    data << uint32(delay * IN_MILLISECONDS);
     GetSession()->SendPacket(&data);
 }
 
@@ -27838,50 +27824,17 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 
 void Player::SendEquipmentSetList()
 {
-    uint32 count = 0;
-    ByteBuffer dataBuf;
+    WorldPackets::EquipmentSet::LoadEquipmentSet data;
 
-    ObjectGuid itemGuid;
-    WorldPacket data(SMSG_EQUIPMENT_SET_LIST, 1000);
-    data.WriteBits(count, 19);
-
-    for (EquipmentSetContainer::const_iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
+    for (EquipmentSetContainer::value_type const& eqSet : m_EquipmentSets)
     {
-        EquipmentSetInfo const& set = itr->second;
-        if (set.State == EQUIPMENT_SET_DELETED)
+        if (eqSet.second.State == EQUIPMENT_SET_DELETED)
             continue;
 
-        //data.WriteGuidMask<2, 0>(set.Guid);
-
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-        {
-            //itemGuid = ObjectGuid::Create<HighGuid::Item>(set.IgnoreMask & (1 << i) ? 1 : set.Items[i]);
-            // ignored slots stored in IgnoreMask, client wants "1" as raw GUID, so no HighGuid::Item
-            //data.WriteGuidMask<2, 6, 3, 1, 4, 7, 5, 0>(itemGuid);
-            //data.WriteGuidBytes<3, 5, 1, 2, 0, 7, 6, 4>(itemGuid);
-        }
-
-        data.WriteBits(set.Data.SetName.size(), 8);
-        //data.WriteGuidMask<4, 1, 7, 3, 5>(set.Guid);
-        data.WriteBits(set.Data.SetIcon.size(), 9);
-        //data.WriteGuidMask<6>(set.Guid);
-
-        dataBuf.WriteGuidBytes<6>(set.Data.Guid);
-        dataBuf << uint32(itr->first);
-        dataBuf.WriteGuidBytes<1, 5>(set.Data.Guid);
-        dataBuf.WriteString(set.Data.SetIcon);
-        dataBuf.WriteString(set.Data.SetName);
-        dataBuf.WriteGuidBytes<2, 7, 0, 3, 4>(set.Data.Guid);
-
-        ++count;                                            // client has limit but it's checked at loading a set
+        data.SetData.push_back(&eqSet.second.Data);
     }
-    data.FlushBits();
-    data.PutBits<uint32>(0, count, 19);
 
-    if (!dataBuf.empty())
-        data.append(dataBuf);
-
-    GetSession()->SendPacket(&data);
+    SendDirectMessage(data.Write());
 }
 
 void Player::SetEquipmentSet(uint32 index, EquipmentSetInfo eqset)

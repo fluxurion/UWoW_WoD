@@ -24,6 +24,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "ReputationPackets.h"
 
 const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000};
 
@@ -151,13 +152,13 @@ uint32 ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) con
 
 void ReputationMgr::SendForceReactions()
 {
-    //! 5.4.1
+    //! 6.0.3
     WorldPacket data(SMSG_SET_FORCED_REACTIONS, 1 + _forcedReactions.size() * (4 + 4));
     data.WriteBits(_forcedReactions.size(), 6);
     for (ForcedReactions::const_iterator itr = _forcedReactions.begin(); itr != _forcedReactions.end(); ++itr)
     {
-        data << uint32(itr->second);                        // reputation rank
         data << uint32(itr->first);                         // faction_id (Faction.dbc)
+        data << uint32(itr->second);                        // reputation rank
     }
     _player->SendDirectMessage(&data);
 }
@@ -200,43 +201,17 @@ void ReputationMgr::SendState(FactionState const* faction)
 
 void ReputationMgr::SendInitialReputations()
 {
-    //! 5.4.1
-    WorldPacket data(SMSG_INITIALIZE_FACTIONS, (4+256*5));
+    WorldPackets::Reputation::InitializeFactions initFactions;
 
-    RepListID a = 0;
-    ByteBuffer bitBuff;
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
-        // fill in absent fields
-        for (; a != itr->first; ++a)
-        {
-            data << uint8(0);
-            data << uint32(0);
-            bitBuff.WriteBit(0);
-        }
-
-        // fill in encountered data
-        data << uint8(itr->second.Flags);
-        data << uint32(itr->second.Standing);
-        bitBuff.WriteBit(0);                // bonus rep gain unlocked
-
+        initFactions.FactionFlags[itr->first] = itr->second.Flags;
+        initFactions.FactionStandings[itr->first] = itr->second.Standing;
+        /// @todo faction bonus
         itr->second.needSend = false;
-        ++a;
     }
 
-    // fill in absent fields
-    for (; a != 256; ++a)
-    {
-        data << uint8(0);
-        data << uint32(0);
-        bitBuff.WriteBit(0);
-    }
-
-    bitBuff.FlushBits();
-    if (!bitBuff.empty())
-        data.append(bitBuff);
-
-    _player->SendDirectMessage(&data);
+    _player->SendDirectMessage(initFactions.Write());
 }
 
 void ReputationMgr::SendStates()
