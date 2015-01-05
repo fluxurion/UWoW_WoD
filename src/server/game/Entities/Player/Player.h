@@ -1399,7 +1399,7 @@ class Player : public Unit, public GridObject<Player>
         }
         void SummonIfPossible(bool agree);
 
-        bool Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo);
+        bool Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo* createInfo);
 
         void Update(uint32 time);
 

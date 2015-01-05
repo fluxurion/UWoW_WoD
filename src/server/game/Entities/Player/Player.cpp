@@ -81,6 +81,7 @@
 #include "Bracket.h"
 #include "BracketMgr.h"
 #include "AuctionHouseMgr.h"
+#include "CharacterPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -980,7 +981,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
             itr->second.save->RemovePlayer(this);
 }
 
-bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo)
+bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo* createInfo)
 {
     //FIXME: outfitId not used in player creating
     // TODO: need more checks against packet modifications
@@ -1021,16 +1022,16 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
 
     setFactionForRace(createInfo->Race);
 
-    if (!IsValidGender(createInfo->Gender))
+    if (!IsValidGender(createInfo->Sex))
     {
         sLog->outError(LOG_FILTER_PLAYER, "Player::Create: Possible hacking-attempt: Account %u tried creating a character named '%s' with an invalid gender (%hu) - refusing to do so",
-                GetSession()->GetAccountId(), m_name.c_str(), createInfo->Gender);
+            GetSession()->GetAccountId(), m_name.c_str(), createInfo->Sex);
         return false;
     }
 
     SetRace(createInfo->Race);
     SetClass(createInfo->Class);
-    SetGender(createInfo->Gender);
+    SetGender(createInfo->Sex);
     SetFieldPowerType(powertype);
 
     InitDisplayIds();
@@ -1051,11 +1052,11 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));
 
     SetUInt32Value(PLAYER_FIELD_BYTES, (createInfo->Skin | (createInfo->Face << 8) | (createInfo->HairStyle << 16) | (createInfo->HairColor << 24)));
-    SetUInt32Value(PLAYER_FIELD_BYTES_2, (createInfo->FacialHair |
+    SetUInt32Value(PLAYER_FIELD_BYTES_2, (createInfo->HairStyle |
                                    (0x00 << 8) |
                                    (0x00 << 16) |
                                    (((GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED) << 24)));
-    SetByteValue(PLAYER_FIELD_BYTES_3, 0, createInfo->Gender);
+    SetByteValue(PLAYER_FIELD_BYTES_3, 0, createInfo->Sex);
     SetByteValue(PLAYER_FIELD_BYTES_3, 3, 0);                     // BattlefieldArenaFaction (0 or 1)
 
     SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Empty);
@@ -1260,7 +1261,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     {
         if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
         {
-            if (entry->RaceID == createInfo->Race && entry->ClassID == createInfo->Class && entry->GenderID ==  createInfo->Gender)
+            if (entry->RaceID == createInfo->Race && entry->ClassID == createInfo->Class && entry->GenderID == createInfo->Sex)
             {
                 oEntry = entry;
                 break;

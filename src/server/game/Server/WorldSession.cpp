@@ -1018,7 +1018,7 @@ void WorldSession::ProcessQueryCallbacks()
     if (_charCreateCallback.IsReady())
     {
         _charCreateCallback.GetResult(result);
-        HandleCharCreateCallback(result, _charCreateCallback.GetParam());
+        HandleCharCreateCallback(result, _charCreateCallback.GetParam().get());
     }
 
     //! HandlePlayerLoginOpcode
