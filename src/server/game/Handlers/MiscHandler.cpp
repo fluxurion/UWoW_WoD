@@ -57,6 +57,8 @@
 #include "BattlefieldMgr.h"
 #include "Bracket.h"
 #include "LFGMgr.h"
+#include "ClientConfigPackets.h"
+#include "MiscPackets.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -1197,54 +1199,35 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
     SetAccountData(AccountDataType(type), timestamp, adata);
 }
 
-//! 5.4.1
-void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
+//! 6.0.3
+void WorldSession::HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_ACCOUNT_DATA");
 
-    uint32 type = recvData.ReadBits(3);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "RAD: type %u", type);
-
-    if (type > NUM_ACCOUNT_DATA_TYPES)
+    if (request.DataType >= NUM_ACCOUNT_DATA_TYPES)
         return;
 
-    AccountData* adata = GetAccountData(AccountDataType(type));
+    AccountData const* adata = GetAccountData(AccountDataType(request.DataType));
 
-    uint32 size = adata->Data.size();
+    WorldPackets::ClientConfig::UpdateAccountData data;
+    data.Player = _player ? _player->GetGUID() : ObjectGuid::Empty;
+    data.Time = adata->Time;
+    data.Size = adata->Data.size();
+    data.DataType = request.DataType;
 
-    uLongf destSize = compressBound(size);
+    uLongf destSize = compressBound(data.Size);
 
-    ByteBuffer dest;
-    dest.resize(destSize);
+    data.CompressedData.resize(destSize);
 
-    if (size && compress(const_cast<uint8*>(dest.contents()), &destSize, (uint8*)adata->Data.c_str(), size) != Z_OK)
+    if (data.Size && compress(data.CompressedData.contents(), &destSize, (uint8 const*)adata->Data.c_str(), data.Size) != Z_OK)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "RAD: Failed to compress account data");
+        sLog->outError(LOG_FILTER_NETWORKIO, "RAD: Failed to compress account data");
         return;
     }
 
-    dest.resize(destSize);
+    data.CompressedData.resize(destSize);
 
-    ObjectGuid playerGuid = _player ? _player->GetGUID() : ObjectGuid::Empty;
-
-    //! 5.4.1
-    WorldPacket data(SMSG_UPDATE_ACCOUNT_DATA, 8+4+4+4+destSize);
-
-    data.WriteBits(type, 3);                                // type (0-7)
-    //data.WriteGuidMask<2, 6, 0, 5, 7, 1, 3, 4>(playerGuid);
-
-    data.FlushBits();
-
-    //data.WriteGuidBytes<3, 2, 7>(playerGuid);
-    data << uint32(adata->Time);                            // unix time
-    //data.WriteGuidBytes<1>(playerGuid);
-    data << uint32(dest.size());                            // compressed length
-    data.append(dest);                                      // compressed data
-    //data.WriteGuidBytes<0>(playerGuid);  
-    data << uint32(size);                                   // decompressed length
-    //data.WriteGuidBytes<5, 4, 6>(playerGuid); 
-    SendPacket(&data);
+    SendPacket(data.Write());
 
 }
 
