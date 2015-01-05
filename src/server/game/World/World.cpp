@@ -86,6 +86,8 @@
 #include "PlayerDump.h"
 #include "ChallengeMgr.h"
 
+#include <boost/algorithm/string.hpp>
+
 std::atomic<bool> World::m_stopEvent(false);
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 std::atomic<uint32> World::m_worldLoopCounter(0);
@@ -201,16 +203,17 @@ void World::SetClosed(bool val)
     sScriptMgr->OnOpenStateChange(!val);
 }
 
-void World::SetMotd(const std::string& motd)
+void World::SetMotd(std::string motd)
 {
-    m_motd = motd;
+    _motd.clear();
+    boost::split(_motd, motd, boost::is_any_of("@"));
 
-    sScriptMgr->OnMotdChange(m_motd);
+    sScriptMgr->OnMotdChange(motd);
 }
 
-const char* World::GetMotd() const
+std::vector<std::string> const& World::GetMotd() const
 {
-    return m_motd.c_str();
+    return _motd;
 }
 
 /// Find a session by its id

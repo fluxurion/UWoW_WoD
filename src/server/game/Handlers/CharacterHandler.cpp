@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CharacterPackets.h"
 #include "Common.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -45,6 +44,10 @@
 #include "DBCStores.h"
 #include "LFGMgr.h"
 #include "BattlenetServerManager.h"
+
+#include "CharacterPackets.h"
+#include "SystemPackets.h"
+#include "BattlegroundPackets.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -250,6 +253,7 @@ bool LoginQueryHolder::Initialize()
     return res;
 }
 
+//6.0.3
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
     WorldPackets::Character::EnumCharactersResult charEnum;
@@ -279,6 +283,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     SendPacket(charEnum.Write());
 }
 
+//6.0.3
 void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)
 {
     time_t now = time(NULL);
@@ -303,6 +308,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters&
     _charEnumCallback = CharacterDatabase.AsyncQuery(stmt);
 }
 
+//6.0.3
 void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateChar& charCreate)
 {
     time_t now = time(NULL);
@@ -661,6 +667,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
     }
 }
 
+//6.0.3
 void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::DeleteChar& charDelete)
 {
     // can't delete loaded character
@@ -714,14 +721,12 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::DeleteChar& c
     timeCharEnumOpcode = 0;
 }
 
-void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
+//6.0.3
+void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin)
 {
     time_t now = time(NULL);
     if (now - timeLastHandlePlayerLogin < 5)
-    {
-        recvData.rfinish();
         return;
-    }
     else
        timeLastHandlePlayerLogin = now;
 
@@ -730,7 +735,6 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     {
         sLog->outError(LOG_FILTER_OPCODES, "Player kicked due to flood of CMSG_PLAYER_LOGIN");
         KickPlayer();
-        recvData.rfinish();
         return;
     }
     
@@ -741,24 +745,18 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     }
 
     m_playerLoading = true;
-    ObjectGuid playerGuid;
-    float unk;
-
-    recvData >> unk;
-    //recvData.ReadGuidMask<6, 7, 1, 5, 2, 4, 3, 0>(playerGuid);
-    //recvData.ReadGuidBytes<7, 6, 0, 1, 4, 3, 2, 5>(playerGuid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd Player Logon Message");
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Character (Guid: %u) logging in, unk float: %f", playerGuid.GetCounter(), unk);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Character (Guid: %s) logging in", playerLogin.Guid.ToString().c_str());
 
-    if (!CharCanLogin(playerGuid.GetCounter()))
+    if (!CharCanLogin(playerLogin.Guid.GetCounter()))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Account (%u) can't login with that character (%u).", GetAccountId(), playerGuid.GetCounter());
+        sLog->outError(LOG_FILTER_NETWORKIO, "Account (%u) can't login with that character (%u).", GetAccountId(), playerLogin.Guid.GetCounter());
         KickPlayer();
         return;
     }
 
-    LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), playerGuid);
+    LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), playerLogin.Guid);
     if (!holder->Initialize())
     {
         delete holder;                                      // delete all unprocessed queries
@@ -769,15 +767,13 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     _charLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)holder);
 }
 
-void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
+//6.0.3
+void WorldSession::HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& /*loadingScreenNotify*/)
 {
     sLog->outInfo(LOG_FILTER_GENERAL, "WORLD: Recvd CMSG_LOAD_SCREEN");
-    uint32 mapID;
-
-    recvPacket >> mapID;
-    recvPacket.ReadBit();
 }
 
+//6.0.3
 void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 {
     ObjectGuid playerGuid = holder->GetGuid();
@@ -800,79 +796,41 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty();
 
-    WorldPacket data(SMSG_LOGIN_VERIFY_WORLD, 20);
-    data << pCurrChar->GetPositionZ();
-    data << pCurrChar->GetPositionY();
-    data << pCurrChar->GetMapId();
-    data << pCurrChar->GetOrientation();
-    data << pCurrChar->GetPositionX();
-    SendPacket(&data);
+    WorldPackets::Character::LoginVerifyWorld loginVerifyWorld;
+    loginVerifyWorld.MapID = pCurrChar->GetMapId();
+    loginVerifyWorld.Pos = pCurrChar->GetPosition();
+    SendPacket(loginVerifyWorld.Write());
 
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
     SendTutorialsData();
 
-    data.Initialize(SMSG_FEATURE_SYSTEM_STATUS);
-    data.WriteBit(0);                                                       // has travel pass
-    data.WriteBit(sWorld->getBoolConfig(CONFIG_PURCHASE_SHOP_ENABLED));     // shop enabled
-    data.WriteBit(0);                                                       // shop disabled by parental controls
-    data.WriteBit(0);                                                       // has session time alert
-    data.WriteBit(0);                                                       // can sor by text
-    data.WriteBit(0);                                                       // voice chat enabled
-    data.WriteBit(sWorld->getBoolConfig(CONFIG_PURCHASE_SHOP_ENABLED));     // shop available
-    data.WriteBit(0);                                                       // raf status
-    data.WriteBit(0);                                                       // quick ticket status
-    data.WriteBit(0);                                                       // has item restoration button
-    data.WriteBit(1);                                                       // byte2D
-    data << uint32(realmHandle.Index);                                      // realm id?
-    data << uint32(0);                                                      // sor dword44
-    data << uint32(0);                                                      // sor remaining
-    data << uint32(43);                                                     // dword50
-    data << uint8(2);                                                       // complain state
-    SendPacket(&data);
+    /// Send FeatureSystemStatus
+    {
+        WorldPackets::System::FeatureSystemStatus features;
+
+        /// START OF DUMMY VALUES
+        features.ComplaintStatus = 2;
+        features.ScrollOfResurrectionRequestsRemaining = 1;
+        features.ScrollOfResurrectionMaxRequestsPerDay = 1;
+        features.CfgRealmID = 2;
+        features.CfgRealmRecID = 0;
+        features.VoiceEnabled = true;
+        /// END OF DUMMY VALUES
+
+        features.CharUndeleteEnabled = false/*sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED)*/;
+        features.BpayStoreEnabled    = sWorld->getBoolConfig(CONFIG_PURCHASE_SHOP_ENABLED);
+
+        SendPacket(features.Write());
+    }
 
     // Send MOTD
     {
-        data.Initialize(SMSG_MOTD);
-        uint32 bit_pos = data.bitwpos();
-        data.WriteBits(0, 4);                    // placeholder
+        WorldPackets::System::MOTD motd;
+        motd.Text = &sWorld->GetMotd();
+        SendPacket(motd.Write());
 
-        uint32 linecount=0;
-        std::string str_motd = sWorld->GetMotd();
-        std::string::size_type pos, nextpos;
-
-        pos = 0;
-        bool first = false;
-        while ((nextpos= str_motd.find('@', pos)) != std::string::npos)
-        {
-            if (nextpos != pos)
-            {
-                if (!first)
-                {
-                    first = true;
-                    data.WriteBits(nextpos-pos, 7);
-                }
-                else
-                    data.WriteBits(nextpos-pos+1, 7);
-                ++linecount;
-            }
-
-            str_motd.replace(nextpos, 1, "");
-            pos = nextpos+1;
-        }
-
-        if (pos<str_motd.length())
-        {
-            data.WriteBits(str_motd.length()-pos+1, 7);
-            ++linecount;
-        }
-
-        data.FlushBits();
-        data.PutBits<uint32>(bit_pos, linecount, 4);
-        data << str_motd;                                // mess
-
-        SendPacket(&data);
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_MOTD)");
 
         // send server info
@@ -900,17 +858,22 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->SetGuildLevel(0);
     }
 
-    //! 5.4.1
-    // ToDo: add data from config
-    data.Initialize(SMSG_ARENA_SEASON_WORLDSTATE, 4+4);
-    data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
-    data << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID)-1);
-    SendPacket(&data);
+    // Send PVPSeason
+    {
+        WorldPackets::Battleground::PVPSeason season;
+        season.PreviousSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) - sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS);
+
+        if (sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
+            season.CurrentSeason = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID);
+
+        SendPacket(season.Write());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent PVPSeason");
+    }
 
     //! 5.4.1
-    data.Initialize(SMSG_HOTFIX_INFO);
+    /*data.Initialize(SMSG_HOTFIX_INFO);
     HotfixData const& hotfix = sObjectMgr->GetHotfixData();
-    data.WriteBits(hotfix.size(), 20);
+    data.WriteBits(hotfix.size(), 22);
     data.FlushBits();
     for (uint32 i = 0; i < hotfix.size(); ++i)
     {
@@ -918,7 +881,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         data << uint32(hotfix[i].Type);
         data << uint32(hotfix[i].Entry);
     }
-    SendPacket(&data);
+    SendPacket(&data);*/
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
 

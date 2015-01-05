@@ -472,6 +472,11 @@ struct Position
 
     void GetPositionOffsetTo(const Position & endPos, Position & retOffset) const;
 
+    Position GetPosition() const
+    {
+        return *this;
+    }
+
     float GetAngle(const Position* pos) const;
     float GetAngle(float x, float y) const;
     float GetRelativeAngle(const Position* pos) const

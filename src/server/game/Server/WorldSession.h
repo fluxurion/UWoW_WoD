@@ -512,8 +512,8 @@ class WorldSession
         void HandleCharDeleteOpcode(WorldPackets::Character::DeleteChar& charDelete);
         void HandleCharCreateOpcode(WorldPackets::Character::CreateChar& charCreate);
         void HandleCharCreateCallback(PreparedQueryResult result, WorldPackets::Character::CharacterCreateInfo* createInfo);
-        void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
-        void HandleLoadScreenOpcode(WorldPacket& recvPacket);
+        void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
+        void HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& loadingScreenNotify);
         void HandleCharEnum(PreparedQueryResult result);
         void HandlePlayerLogin(LoginQueryHolder * holder);
         void HandleCharFactionOrRaceChange(WorldPacket& recvData);

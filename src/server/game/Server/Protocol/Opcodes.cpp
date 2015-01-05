@@ -359,7 +359,7 @@ void OpcodeTable::Initialize()
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_LF_GUILD_SET_GUILD_POST,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildFinderSetGuildPost   );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LIST_INVENTORY,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleListInventoryOpcode       );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_LFG_COMMENT,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgSetCommentOpcode       );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_LOAD_SCREEN,                             STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleLoadScreenOpcode          );
+    DEFINE_HANDLER(CMSG_LOAD_SCREEN,                                        STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::LoadingScreenNotify, &WorldSession::HandleLoadScreenOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOGOUT_CANCEL,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLogoutCancelOpcode        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOGOUT_REQUEST,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLogoutRequestOpcode       );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOG_DISCONNECT,                          STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess            );
@@ -435,7 +435,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PERSONAL_RATED_INFO_REQUEST,             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePersonalRatedInfoRequest  );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PING,                                    STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PLAYED_TIME,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePlayedTime                );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PLAYER_LOGIN,                            STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandlePlayerLoginOpcode         );
+    DEFINE_HANDLER(CMSG_PLAYER_LOGIN, STATUS_AUTHED, PROCESS_THREADUNSAFE, WorldPackets::Character::PlayerLogin, &WorldSession::HandlePlayerLoginOpcode            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PLAYER_VEHICLE_ENTER,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEnterPlayerVehicle        );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_PLAY_DANCE,                              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PURCHASE_GET_PRODUCT_LIST,               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePurchaseGetProductList    );
