@@ -22,6 +22,7 @@
 #include "Unit.h"
 #include "Transport.h"
 #include "Vehicle.h"
+#include "MovementPackets.h"
 
 namespace Movement
 {
@@ -106,9 +107,12 @@ namespace Movement
         unit.m_movementInfo.SetMovementFlags(moveFlags);
         move_spline.Initialize(args);
 
-        WorldPacket data(SMSG_MONSTER_MOVE, 64);
-        PacketBuilder::WriteMonsterMove(move_spline, data, unit);
-        unit.SendMessageToSet(&data, true);
+        WorldPackets::Movement::MonsterMove packet;
+        packet.MoverGUID = unit.GetGUID();
+        packet.Pos = real_position;
+        PacketBuilder::WriteMonsterMove(move_spline, packet.SplineData);
+        unit.SendMessageToSet(packet.Write(), true);
+
         //blizz-hack.
         //on retail if creature has loop emote and start run we remove emote, else client crash at getting object create.
         //ToDo: more reseach.
@@ -139,9 +143,18 @@ namespace Movement
         unit.m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
         move_spline.Initialize(args);
 
-        WorldPacket data(SMSG_MONSTER_MOVE, 64);
-        PacketBuilder::WriteStopMovement(loc, data, unit);
-        unit.SendMessageToSet(&data, true);
+        WorldPackets::Movement::MonsterMove packet;
+        packet.MoverGUID = unit.GetGUID();
+        packet.Pos = loc;
+        packet.SplineData.ID = move_spline.GetId();
+
+        //if (transport)
+        //{
+        //    packet.SplineData.Move.TransportGUID = unit.GetTransGUID();
+        //    packet.SplineData.Move.VehicleSeat = unit.GetTransSeat();
+        //}
+
+        unit.SendMessageToSet(packet.Write(), true);
     }
 
     MoveSplineInit::MoveSplineInit(Unit& m) : unit(m)

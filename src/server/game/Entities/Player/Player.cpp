@@ -7552,7 +7552,7 @@ void Player::SaveRecallPosition()
 
 //! WARN! We shouldn't send at login range based packet.
 //! For example SMSG_SPELLLOGEXECUTE
-void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self)
+void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self)
 {
     if (!IsInWorld())
         return;
@@ -7564,7 +7564,7 @@ void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self)
     VisitNearbyWorldObject(dist, notifier);
 }
 
-void Player::SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only)
+void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only)
 {
     if (!IsInWorld())
         return;
@@ -7592,7 +7592,7 @@ void Player::SendChatMessageToSetInRange(Trinity::ChatData& c, float dist, bool 
     VisitNearbyWorldObject(dist, notifier);
 }
 
-void Player::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
+void Player::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr)
 {
     if (!IsInWorld())
         return;

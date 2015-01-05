@@ -438,7 +438,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         // HasMovementSpline - marks that spline data is present in packet
 
         if (data->WriteBit(HasSpline))
-            Movement::PacketBuilder::WriteCreateBits(*unit->movespline, *data);
+            Movement::PacketBuilder::WriteCreate(*unit->movespline, *data);
     }
 
     if (HasMovementTransport)
@@ -3079,19 +3079,19 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     Trinity::BuildChatPacket(*data, c);
 }
 
-void WorldObject::SendMessageToSet(WorldPacket* data, bool self)
+void WorldObject::SendMessageToSet(WorldPacket const* data, bool self)
 {
     if (IsInWorld())
         SendMessageToSetInRange(data, GetVisibilityRange(), self);
 }
 
-void WorldObject::SendMessageToSetInRange(WorldPacket* data, float dist, bool /*self*/)
+void WorldObject::SendMessageToSetInRange(WorldPacket const* data, float dist, bool /*self*/)
 {
     Trinity::MessageDistDeliverer notifier(this, data, dist);
     VisitNearbyWorldObject(dist, notifier);
 }
 
-void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
+void WorldObject::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr)
 {
     Trinity::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr);
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
