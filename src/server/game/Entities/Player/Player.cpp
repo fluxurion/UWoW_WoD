@@ -25534,27 +25534,13 @@ void Player::SendAurasForTarget(Unit* target)
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
 
     WorldPacket data(SMSG_AURA_UPDATE);
-    //data.WriteGuidMask<0>(targetGuid);
-    data.WriteBit(0);   // has power unit
-    data.WriteBit(1);   // full update
-    //data.WriteGuidMask<6>(targetGuid);
-    /*
-    if (hasPowerData) { }
-    */
-    //data.WriteGuidMask<4, 7, 3>(targetGuid);
-    data.WriteBits(visibleAuras->size(), 24);
-    //data.WriteGuidMask<1, 5, 2>(targetGuid);
+    data.WriteBit(0); //bit16
+    data.FlushBits();
+    data << target->GetPackGUID();
+    data << uint32(visibleAuras->size()); //count
 
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
-        itr->second->BuildBitUpdatePacket(data, false);
-
-    for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
-        itr->second->BuildByteUpdatePacket(data, false);
-    /*
-    if (hasPowerData) { }
-    */
-
-    //data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
+        itr->second->BuildUpdatePacket(data, false);
 
     GetSession()->SendPacket(&data);
 }
