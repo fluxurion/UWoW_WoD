@@ -10463,9 +10463,9 @@ void Player::SendNotifyLootItemRemoved(uint8 lootSlot, ObjectGuid lguid)
 void Player::SendUpdateWorldState(uint32 Field, uint32 Value)
 {
     WorldPacket data(SMSG_UPDATE_WORLD_STATE, 4+4+1);
-    data << uint8(0);   //zero bit
     data << uint32(Field);
     data << uint32(Value);
+    data << uint8(0);   //zero bit
     GetSession()->SendPacket(&data);
 }
 
@@ -10481,15 +10481,12 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Sending SMSG_INIT_WORLD_STATES to Map: %u, Zone: %u", mapid, zoneid);
 
     WorldPacket data(SMSG_INIT_WORLD_STATES, (4+4+4+2+(NumberOfFields*8)));
+    data << uint32(mapid);                                  // mapid
     data << uint32(zoneid);                                 // zone id
     data << uint32(areaid);                                 // area id, new 2.1.0
-    data << uint32(mapid);                                  // mapid
 
-    uint32 bpos = data.bitwpos();                           // Place Holder
-
-    data.WriteBits(NumberOfFields, 21);                     // count of uint64 blocks
-    data.FlushBits();
     size_t countPos = data.wpos();
+    data << uint32(0);                                       // count of uint64 blocks
 
     FillInitialWorldState(data, 0x8d8, 0x0);                   // 1
     FillInitialWorldState(data, 0x8d7, 0x0);                   // 2
@@ -11051,8 +11048,8 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
     }
 
-    uint16 length = (data.wpos() - countPos) / 8;
-    data.PutBits<uint32>(bpos, length, 21);
+    uint32 length = (data.wpos() - countPos) / 8;
+    data.put<uint32>(countPos, length);
 
     GetSession()->SendPacket(&data);
     SendBGWeekendWorldStates();

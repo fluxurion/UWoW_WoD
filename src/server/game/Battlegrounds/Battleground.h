@@ -779,20 +779,20 @@ class Battleground
 // helper functions for world state list fill
 inline void FillInitialWorldState(ByteBuffer& data, uint32 state, uint32 value)
 {
-    data << uint32(value);
     data << uint32(state);
+    data << uint32(value);
 }
 
 inline void FillInitialWorldState(ByteBuffer& data, uint32 state, int32 value)
 {
-    data << int32(value);
     data << uint32(state);
+    data << int32(value);
 }
 
 inline void FillInitialWorldState(ByteBuffer& data, uint32 state, bool value)
 {
-    data << uint32(value?1:0);
     data << uint32(state);
+    data << uint32(value?1:0);
 }
 
 struct WorldStatePair
@@ -805,8 +805,8 @@ inline void FillInitialWorldState(ByteBuffer& data, WorldStatePair const* array)
 {
     for(WorldStatePair const* itr = array; itr->state; ++itr)
     {
-        data << uint32(itr->value);
         data << uint32(itr->state);
+        data << uint32(itr->value);
     }
 }
 #endif
