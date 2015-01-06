@@ -22754,9 +22754,11 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
     uint32 modTypeCount = 0;            // count of mods per one mod->op
 
     WorldPacket data(opcode);
-    data.WriteBits(1, 22);              // count of different mod->op's in packet
-    uint32 bpos = data.bitwpos();
-    data.WriteBits(0, 21);
+    data << uint32(1);  // count of different mod->op's in packet
+    data << uint8(mod->op);
+    size_t writePos = data.wpos();
+    data << uint32(modTypeCount);
+
     for (int eff = 0; eff < 128; ++eff)
     {
         if (eff != 0 && (eff % 32) == 0)
@@ -22798,9 +22800,9 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
             ++modTypeCount;
         }
     }
-    data << uint8(mod->op);
 
-    data.PutBits(bpos, modTypeCount, 21);
+
+    data.put<uint32>(writePos, modTypeCount);
     SendDirectMessage(&data);
 
     if (apply)
