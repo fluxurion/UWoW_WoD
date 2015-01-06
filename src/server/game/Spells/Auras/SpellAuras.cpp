@@ -278,10 +278,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove, uint32 ov
             if(aura->GetSpellInfo()->Effects[i].IsEffect())
             {
                 if (AuraEffect const* eff = aura->GetEffect(i))
-                {
-                    sLog->outU(">>>>>>>>>>>>>>>>> %f", eff->GetAmount());
                     data << float(eff->GetAmount());
-                }
                 else
                     data << float(0.0f);
             }

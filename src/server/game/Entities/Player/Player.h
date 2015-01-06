@@ -1099,45 +1099,50 @@ struct VoidStorageItem
 
 enum CUFOptions
 {
-    CUF_OPT_PREDICTED_HEALING        = 0,
-    CUF_OPT_RESOURCE_INDICATOR       = 1,
-    CUF_OPT_THREAT_INDICATOR         = 2,
-    CUF_OPT_CLASS_COLORS             = 3,
-    CUF_OPT_SHOW_PETS                = 4,
-    CUF_OPT_SHOW_MAIN_TANK_ASSIST    = 5,
-    CUF_OPT_SHOW_BORDERS             = 6,
-    CUF_OPT_SHOW_NEG_EFFECTS         = 7,
-    CUF_OPT_ONLY_DISPELLABLE_EFFECTS = 8,
-    CUF_OPT_GROUPS_TOGETHER          = 9,
-    CUF_OPT_GROUPS_TOGETHER_HORIZONT = 10,
-    CUF_OPT_AUTO_IN_GROUPS_2PPL      = 11,
-    CUF_OPT_AUTO_IN_GROUPS_3PPL      = 12,
-    CUF_OPT_AUTO_IN_GROUPS_5PPL      = 13,
-    CUF_OPT_AUTO_IN_GROUPS_10PPL     = 14,
-    CUF_OPT_AUTO_IN_GROUPS_15PPL     = 15,
-    CUF_OPT_AUTO_IN_GROUPS_25PPL     = 16,
-    CUF_OPT_AUTO_IN_GROUPS_40PPL     = 17,
-    CUF_OPT_AUTO_FOR_SPEC_1          = 18,
-    CUF_OPT_AUTO_FOR_SPEC_2          = 19,
-    CUF_OPT_AUTO_IN_PVP              = 20,
-    CUF_OPT_AUTO_IN_PVE              = 21,
-    CUF_OPT_UNK_145                  = 22,
-    CUF_OPT_UNK_156                  = 23,
-    CUF_OPT_UNK_157                  = 24
+    CUF_KEEP_GROUPS_TOGETHER,
+    CUF_DISPLAY_PETS,
+    CUF_DISPLAY_MAIN_TANK_AND_ASSIST,
+    CUF_DISPLAY_HEAL_PREDICTION,
+    CUF_DISPLAY_AGGRO_HIGHLIGHT,
+    CUF_DISPLAY_ONLY_DISPELLABLE_DEBUFFS,
+    CUF_DISPLAY_POWER_BAR,
+    CUF_DISPLAY_BORDER,
+    CUF_USE_CLASS_COLORS,
+    CUF_DISPLAY_NON_BOSS_DEBUFFS,
+    CUF_DISPLAY_HORIZONTAL_GROUPS,
+    CUF_DYNAMIC_POSITION,
+    CUF_LOCKED,
+    CUF_SHOWN,
+    CUF_AUTO_ACTIVATE_2_PLAYERS,
+    CUF_AUTO_ACTIVATE_3_PLAYERS,
+    CUF_AUTO_ACTIVATE_5_PLAYERS,
+    CUF_AUTO_ACTIVATE_10_PLAYERS,
+    CUF_AUTO_ACTIVATE_15_PLAYERS,
+    CUF_AUTO_ACTIVATE_25_PLAYERS,
+    CUF_AUTO_ACTIVATE_40_PLAYERS,
+    CUF_AUTO_ACTIVATE_SPEC_1,
+    CUF_AUTO_ACTIVATE_SPEC_2,
+    CUF_AUTO_ACTIVATE_PVP,
+    CUF_AUTO_ACTIVATE_PVE,
+    CUF_UNK_145,
+    CUF_UNK_156,
+    CUF_UNK_157,
 };
 
 struct CUFProfile
 {
-    CUFProfile(): profileName("Default"), frameWidth(0), frameHeight(0), Unk150(0), Unk154(0), Unk152(0), Unk146(0),
-        Unk147(0), Unk148(0), showHealthText(0), sortBy(0), options(0) {}
+    CUFProfile(): profileName("Default"), frameWidth(0), frameHeight(0), TopOffset(0), BottomOffset(0), LeftOffset(0), LeftPoint(0),
+        TopPoint(0), BottomPoint(0), showHealthText(0), sortBy(0), options(0) {}
 
     CUFProfile(const std::string& name, uint16 frameHeight, uint16 frameWidth, uint8 sortBy, uint8 healthText, uint32 options,
-        uint8 unk146, uint8 unk147, uint8 unk148, uint16 unk150, uint16 unk152, uint16 unk154): profileName(name), frameWidth(frameWidth), 
-        frameHeight(frameHeight), Unk150(unk150), Unk154(unk154), Unk152(unk152), Unk146(unk146), Unk147(unk147), Unk148(unk148), showHealthText(healthText), sortBy(sortBy), options(options) {}
+        uint8 _TopPoint, uint8 _BottomPoint, uint8 _LeftPoint, uint16 _TopOffset, uint16 _BottomOffset, uint16 _LeftOffset) :
+        profileName(name), frameWidth(frameWidth), frameHeight(frameHeight), TopOffset(_TopOffset), BottomOffset(_BottomOffset),
+        LeftOffset(_LeftOffset), TopPoint(_TopPoint), BottomPoint(_BottomPoint), LeftPoint(_LeftPoint), showHealthText(healthText),
+        sortBy(sortBy), options(options) {}
 
     std::string profileName;
-    uint16 frameWidth, frameHeight, Unk150, Unk154, Unk152;
-    uint8 Unk146, Unk147, Unk148, showHealthText, sortBy;
+    uint16 frameWidth, frameHeight, TopOffset, BottomOffset, LeftOffset;
+    uint8 TopPoint, BottomPoint, LeftPoint, showHealthText, sortBy;
     uint32 options;
 
     void setOptionBit(uint8 index, bool value)
