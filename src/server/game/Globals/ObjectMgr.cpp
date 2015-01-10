@@ -8682,8 +8682,8 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
-    //                                                  0     1       2        3        4        5         6        7          8
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basehp4, basemana, basearmor FROM creature_classlevelstats");
+    //                                                  0     1       2        3
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basemana, basearmor FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -8701,20 +8701,31 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         uint8 Level = fields[0].GetInt8();
         uint8 Class = fields[1].GetInt8();
 
+        GtNpcTotalHpEntry const* HpExp0 = sGtNpcTotalHpStore.EvaluateTable(Level - 1, Class - 1);
+        GtNpcTotalHpExp1Entry const* HpExp1 = sGtNpcTotalHpExp1Store.EvaluateTable(Level - 1, Class - 1);
+        GtNpcTotalHpExp2Entry const* HpExp2 = sGtNpcTotalHpExp2Store.EvaluateTable(Level - 1, Class - 1);
+        GtNpcTotalHpExp3Entry const* HpExp3 = sGtNpcTotalHpExp3Store.EvaluateTable(Level - 1, Class - 1);
+        GtNpcTotalHpExp4Entry const* HpExp4 = sGtNpcTotalHpExp4Store.EvaluateTable(Level - 1, Class - 1);
+        GtNpcTotalHpExp5Entry const* HpExp5 = sGtNpcTotalHpExp5Store.EvaluateTable(Level - 1, Class - 1);
+
         CreatureBaseStats stats;
 
-        for (uint8 i = 0; i < MAX_CREATURE_BASE_HP; ++i)
-            stats.BaseHealth[i] = fields[i + 2].GetUInt32();
-
-        stats.BaseMana = fields[7].GetUInt32();
-        stats.BaseArmor = fields[8].GetUInt32();
+        stats.BaseMana = fields[2].GetUInt32();
+        stats.BaseArmor = fields[3].GetUInt32();
 
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             sLog->outError(LOG_FILTER_SQL, "Creature base stats for level %u has invalid class %u", Level, Class);
 
-        for (uint8 i = 0; i < MAX_CREATURE_BASE_HP; ++i)
+        stats.BaseHealth[0] = uint32(HpExp0->HP);
+        stats.BaseHealth[1] = uint32(HpExp1->HP);
+        stats.BaseHealth[2] = uint32(HpExp2->HP);
+        stats.BaseHealth[3] = uint32(HpExp3->HP);
+        stats.BaseHealth[4] = uint32(HpExp4->HP);
+        stats.BaseHealth[5] = uint32(HpExp5->HP);
+
+        for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
         {
-            if (stats.BaseHealth[i] < 1)
+            if (stats.BaseHealth[i] < 0.0f)
             {
                 sLog->outError(LOG_FILTER_SQL, "Creature base stats for class %u, level %u has invalid zero base HP[%u] - set to 1", Class, Level, i);
                 stats.BaseHealth[i] = 1;

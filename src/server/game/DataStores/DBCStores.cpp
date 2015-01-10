@@ -132,6 +132,12 @@ GameTable<GtSpellScalingEntry>          sGtSpellScalingStore(GtSpellScalingfmt);
 GameTable<GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore(GtOCTBaseHPByClassfmt);
 GameTable<GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore(GtOCTBaseMPByClassfmt);
 GameTable<GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore(GtBattlePetTypeDamageModfmt);
+GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpStore(GtNpcTotalHpfmt);
+GameTable <GtNpcTotalHpExp1Entry>        sGtNpcTotalHpExp1Store(GtNpcTotalHpExp1fmt);
+GameTable <GtNpcTotalHpExp2Entry>        sGtNpcTotalHpExp2Store(GtNpcTotalHpExp2fmt);
+GameTable <GtNpcTotalHpExp3Entry>        sGtNpcTotalHpExp3Store(GtNpcTotalHpExp3fmt);
+GameTable <GtNpcTotalHpExp4Entry>        sGtNpcTotalHpExp4Store(GtNpcTotalHpExp4fmt);
+GameTable <GtNpcTotalHpExp5Entry>        sGtNpcTotalHpExp5Store(GtNpcTotalHpExp5fmt);
 
 DBCStorage<GuildPerkSpellsEntry>         sGuildPerkSpellsStore(GuildPerkSpellsfmt);
 DBCStorage<ImportPriceArmorEntry>        sImportPriceArmorStore(ImportPriceArmorfmt);
@@ -531,6 +537,13 @@ void LoadDBCStores(const std::string& dataPath)
     LoadGameTable(bad_dbc_files, "OCTBaseHPByClass", sGtOCTBaseHPByClassStore, dbcPath, "gtOCTBaseHPByClass.dbc");//15595
     LoadGameTable(bad_dbc_files, "OCTBaseMPByClass", sGtOCTBaseMPByClassStore, dbcPath, "gtOCTBaseMPByClass.dbc");//15595
     LoadGameTable(bad_dbc_files, "BattlePetTypeDamageMod", sGtBattlePetTypeDamageModStore,  dbcPath, "gtBattlePetTypeDamageMod.dbc");//15595
+
+    LoadGameTable(bad_dbc_files, "NpcTotalHp", sGtNpcTotalHpStore, dbcPath, "gtNpcTotalHp.dbc"); // 19445
+    LoadGameTable(bad_dbc_files, "NpcTotalHpExp1", sGtNpcTotalHpExp1Store, dbcPath, "gtNpcTotalHpExp1.dbc"); // 19445
+    LoadGameTable(bad_dbc_files, "NpcTotalHpExp2", sGtNpcTotalHpExp2Store, dbcPath, "gtNpcTotalHpExp2.dbc"); // 19445
+    LoadGameTable(bad_dbc_files, "NpcTotalHpExp3", sGtNpcTotalHpExp3Store, dbcPath, "gtNpcTotalHpExp3.dbc"); // 19445
+    LoadGameTable(bad_dbc_files, "NpcTotalHpExp4", sGtNpcTotalHpExp4Store, dbcPath, "gtNpcTotalHpExp4.dbc"); // 19445
+    LoadGameTable(bad_dbc_files, "NpcTotalHpExp5", sGtNpcTotalHpExp5Store, dbcPath, "gtNpcTotalHpExp5.dbc"); // 19445
 
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)

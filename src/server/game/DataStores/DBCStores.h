@@ -173,6 +173,12 @@ extern GameTable<GtSpellScalingEntry>          sGtSpellScalingStore;
 extern GameTable<GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore;
 extern GameTable<GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore;
 extern GameTable<GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore;
+extern GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpStore;
+extern GameTable <GtNpcTotalHpExp1Entry>        sGtNpcTotalHpExp1Store;
+extern GameTable <GtNpcTotalHpExp2Entry>        sGtNpcTotalHpExp2Store;
+extern GameTable <GtNpcTotalHpExp3Entry>        sGtNpcTotalHpExp3Store;
+extern GameTable <GtNpcTotalHpExp4Entry>        sGtNpcTotalHpExp4Store;
+extern GameTable <GtNpcTotalHpExp5Entry>        sGtNpcTotalHpExp5Store;
 
 extern DBCStorage<GuildPerkSpellsEntry>         sGuildPerkSpellsStore;
 extern DBCStorage<ImportPriceArmorEntry>        sImportPriceArmorStore;
