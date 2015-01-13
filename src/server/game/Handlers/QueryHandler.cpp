@@ -33,91 +33,48 @@
 #include "GossipDef.h"
 #include "CharacterPackets.h"
 #include "QueryPackets.h"
+#include "BattlenetAccountMgr.h"
+#include "CharacterPackets.h"
+#include "QueryPackets.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindPlayer(guid);
     CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid.GetCounter());
 
-    WorldPacket data(SMSG_NAME_QUERY_RESPONSE);
-//    //data.WriteGuidMask<3, 2, 6, 0, 4, 1, 5, 7>(guid);
-
-  //  //data.WriteGuidBytes<7, 1, 2, 6, 3, 5>(guid);
-    data << uint8(nameData ? 0 : 1);
-    if (nameData)
-    {
-        data << uint8(nameData->m_gender);
-        data << uint8(nameData->m_class);
-        data << uint8(nameData->m_level);
-        data << uint32(realmHandle.Index);
-        data << uint8(nameData->m_race);
-        data << uint32(0);
-    }
-    //data.WriteGuidBytes<4, 0>(guid);
-
-    ObjectGuid guid28;
-    ObjectGuid guid30 = guid;
+    WorldPackets::Query::QueryPlayerNameResponse response;
+    response.Player = guid;
 
     if (nameData)
     {
-        //data.WriteGuidMask<5>(guid30);
-        //data.WriteGuidMask<1, 6, 2>(guid28);
-        //data.WriteGuidMask<3, 7, 0, 6>(guid30);
-        //data.WriteGuidMask<0, 7>(guid28);
-        //data.WriteGuidMask<1>(guid30);
-        //data.WriteGuidMask<5>(guid28);
+        uint32 accountId = player ? player->GetSession()->GetAccountId() : ObjectMgr::GetPlayerAccountIdByGUID(guid);
+        uint32 bnetAccountId = player ? player->GetSession()->GetBattlenetAccountId() : Battlenet::AccountMgr::GetIdByGameAccount(accountId);
 
-        DeclinedName const* names = player ? player->GetDeclinedNames() : NULL;
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data.WriteBits(names ? names->name[i].length() : 0, 7);
+        response.Result             = RESPONSE_SUCCESS; // name known
+        response.Data.IsDeleted     = false/*characterInfo->IsDeleted*/;
+        response.Data.AccountID     = ObjectGuid::Create<HighGuid::WowAccount>(accountId);
+        response.Data.BnetAccountID = ObjectGuid::Create<HighGuid::BNetAccount>(bnetAccountId);
+        response.Data.Name          = nameData->m_name;
+        response.Data.VirtualRealmAddress = GetVirtualRealmAddress();
+        response.Data.Race          = nameData->m_race;
+        response.Data.Sex           = nameData->m_gender;
+        response.Data.ClassID       = nameData->m_class;
+        response.Data.Level         = nameData->m_level;
 
-        //data.WriteGuidMask<2>(guid30);
-        data.WriteBit(0);       // byte20
-        //data.WriteGuidMask<4>(guid30);
-        //data.WriteGuidMask<4>(guid28);
-        data.WriteBits(nameData->m_name.size(), 6);
-        //data.WriteGuidMask<3>(guid28);
-
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data.WriteString(names ? names->name[i] : "");
-
-        //data.WriteGuidBytes<3>(guid28);
-        //data.WriteGuidBytes<0>(guid30);
-        //data.WriteGuidBytes<5, 1>(guid28);
-        //data.WriteGuidBytes<7, 5>(guid30);
-        //data.WriteGuidBytes<3, 6>(guid28);
-        //data.WriteGuidBytes<2>(guid30);
-        //data.WriteGuidBytes<2>(guid28);
-        //data.WriteString(nameData->m_name);
-        //data.WriteGuidBytes<4, 1>(guid30);
-        //data.WriteGuidBytes<0>(guid28);
-        //data.WriteGuidBytes<3, 6>(guid30);
-        //data.WriteGuidBytes<7>(guid28);
+        if (DeclinedName const* names = (player ? player->GetDeclinedNames() : nullptr))
+            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+                response.Data.DeclinedNames.name[i] = names->name[i];
     }
+    else
+        response.Result = RESPONSE_FAILURE; // name unknown
 
-    SendPacket(&data);
+    SendPacket(response.Write());
 }
 
-void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
+
+void WorldSession::HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& packet)
 {
-    ObjectGuid guid;
-
-    //recvData.ReadGuidMask<1, 3, 6, 7, 2, 5>(guid);
-    bool bit14 = recvData.ReadBit();
-    //recvData.ReadGuidMask<0>(guid);
-    bool bit1C = recvData.ReadBit();
-    //recvData.ReadGuidMask<4>(guid);
-
-    //recvData.ReadGuidBytes<4, 6, 7, 1, 2, 5, 0, 3>(guid);
-    if (bit14)
-        recvData.read_skip<uint32>();   // realm id 1
-    if (bit1C)
-        recvData.read_skip<uint32>();   // realm id 2
-
-    // This is disable by default to prevent lots of console spam
-    // sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleNameQueryOpcode %u", guid);
-
-    SendNameQueryOpcode(guid);
+    SendNameQueryOpcode(packet.Player);
 }
 
 void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
