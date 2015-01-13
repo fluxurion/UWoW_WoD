@@ -22343,7 +22343,7 @@ bool Unit::SetWaterWalking(bool enable, bool packetOnly)
 
 bool Unit::SetCanFly(bool enable)
 {
-    if (enable && CanFly())
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
         return false;
 
     if (GetTypeId() == TYPEID_PLAYER)
