@@ -63,8 +63,14 @@ void BattlePetMgr::BuildPetJournal(WorldPacket *data)
     ObjectGuidSteam placeholderPet;
     uint32 count = 0;
     data->Initialize(SMSG_BATTLE_PET_JOURNAL, 400);
-    uint32 bit_pos = data->bitwpos();
-    data->WriteBits(count, 19);
+    *data << uint16(0);                     // TrapLevel
+    *data << uint32(0/*MAX_PET_BATTLE_SLOT*/);    // SlotsCount
+    size_t countPos = data->wpos();
+    *data << count;                          // PetsCount
+
+    //ToDo
+    *data << uint8(0); //HasJournalLock
+    return;
 
     for (PetJournal::const_iterator pet = m_PetJournal.begin(); pet != m_PetJournal.end(); ++pet)
     {
@@ -143,8 +149,7 @@ void BattlePetMgr::BuildPetJournal(WorldPacket *data)
         count++;
     }
 
-    *data << uint16(0);         // unk
-    data->PutBits<uint8>(bit_pos, count, 19);
+    data->put<uint32>(count, countPos);
 }
 
 void WorldSession::HandleSummonBattlePet(WorldPacket& recvData)
