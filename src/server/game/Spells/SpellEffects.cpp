@@ -7773,7 +7773,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
         if (summon->GetEntry() == 27893)
         {
-            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + 15 * 2))
+            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + EQUIPMENT_SLOT_MAINHAND * 3))
             {
                 summon->SetDisplayId(11686);
                 summon->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, weapon);

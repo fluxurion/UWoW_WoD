@@ -13576,14 +13576,14 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
 
     if (pItem)
     {
-        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2), pItem->GetVisibleEntry());
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (slot * 2), 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (slot * 2), 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
+        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3), pItem->GetVisibleEntry());
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (slot * 3), 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (slot * 3), 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
     }
     else
     {
-        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2), 0);
-        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (slot * 2), 0);
+        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3), 0);
+        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (slot * 3), 0);
     }
 }
 
@@ -15611,10 +15611,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // visualize enchantment at player and equipped items
     if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (item->GetSlot() * 2), 0, apply ? item->GetEnchantmentId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (item->GetSlot() * 3), 0, apply ? item->GetEnchantmentId(slot) : 0);
 
     if (slot == TEMP_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (item->GetSlot() * 2), 1, apply ? item->GetEnchantmentId(slot) : 0);
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (item->GetSlot() * 3), 1, apply ? item->GetEnchantmentId(slot) : 0);
 
     if (apply_dur)
     {
@@ -20778,7 +20778,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         // cache equipment...
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
+        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 3; ++i)
             ss << GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i) << ' ';
 
         // ...and bags for enum opcode
@@ -20909,7 +20909,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         // cache equipment...
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
+        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 3; ++i)
             ss << GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i) << ' ';
 
         // ...and bags for enum opcode
@@ -20999,7 +20999,7 @@ bool Player::HandleChangeSlotModel(uint32 newItem, uint16 pos)
 {
     if (newItem == 0 && pos != EQUIPMENT_SLOT_RANGED)    // отключаем для слота отображение модельки вообще.
     {
-        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + pos * 2, 0);
+        SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + pos * 3, 0);
         return true;
     }
     else if (newItem == 1)
@@ -21008,9 +21008,9 @@ bool Player::HandleChangeSlotModel(uint32 newItem, uint16 pos)
     {
         Item const* realItem = GetItemByPos(255, pos);
         if (realItem)
-            SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + pos * 2, realItem->GetEntry());
+            SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + pos * 3, realItem->GetEntry());
         else
-            SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + pos * 2, 0);
+            SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + pos * 3, 0);
         return true;
     }
     else
@@ -21083,7 +21083,7 @@ bool Player::HandleChangeSlotModel(uint32 newItem, uint16 pos)
             }
             if (condition)    // все окей, меняем модельку
             {
-                SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + pos * 2, newItem);
+                SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + pos * 3, newItem);
                 return true;
             }
             else
@@ -21102,9 +21102,9 @@ void Player::HandleAltVisSwitch()
         {
             Item const* realItem =  GetItemByPos(255, i);
             if (realItem)
-                SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (i * 2), realItem->GetEntry());
+                SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (i * 3), realItem->GetEntry());
             else
-                SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (i * 2), 0);
+                SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (i * 3), 0);
         }
     }
     else
