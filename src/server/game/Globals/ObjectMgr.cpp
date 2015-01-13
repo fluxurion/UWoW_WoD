@@ -1947,7 +1947,7 @@ Player* ObjectMgr::GetPlayerByLowGUID(ObjectGuid::LowType const& lowguid) const
 }
 
 // name must be checked to correctness (if received) before call this function
-ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string name) const
+ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string name)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
 
@@ -1961,7 +1961,7 @@ ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string name) const
     return ObjectGuid::Empty;
 }
 
-bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name) const
+bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name)
 {
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -2008,7 +2008,7 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid) const
     return 0;
 }
 
-uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid const& guid) const
+uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid const& guid)
 {
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -2031,7 +2031,7 @@ uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid const& guid) const
     return 0;
 }
 
-uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(std::string const& name) const
+uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(std::string const& name)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_NAME);
 

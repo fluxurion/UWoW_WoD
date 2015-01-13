@@ -136,7 +136,7 @@ bool ChatHandler::HasLowerSecurity(Player* target, ObjectGuid guid, bool strong)
     if (target)
         target_session = target->GetSession();
     else if (!guid.IsEmpty())
-        target_account = sObjectMgr->GetPlayerAccountIdByGUID(guid);
+        target_account = ObjectMgr::GetPlayerAccountIdByGUID(guid);
 
     if (!target_session && !target_account)
     {
@@ -1016,7 +1016,7 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
             if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
                 return player->GetGUID();
 
-            return sObjectMgr->GetPlayerGUIDByName(name);
+            return ObjectMgr::GetPlayerGUIDByName(name);
         }
         case SPELL_LINK_CREATURE:
         {
@@ -1075,7 +1075,7 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* p
             *player = pl;
 
         // if need guid value from DB (in name case for check player existence)
-        ObjectGuid guid = !pl && (player_guid || player_name) ? sObjectMgr->GetPlayerGUIDByName(name) : ObjectGuid::Empty;
+        ObjectGuid guid = !pl && (player_guid || player_name) ? ObjectMgr::GetPlayerGUIDByName(name) : ObjectGuid::Empty;
 
         // if allowed player guid (if no then only online players allowed)
         if (player_guid)
@@ -1205,7 +1205,7 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &player
 
             player = sObjectAccessor->FindPlayerByName(name.c_str());
             if (offline)
-                guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
+                guid = ObjectMgr::GetPlayerGUIDByName(name.c_str());
         }
     }
 

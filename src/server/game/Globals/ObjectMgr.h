@@ -701,11 +701,11 @@ class ObjectMgr
         *
         * @return true if player was found, false otherwise
         */
-        ObjectGuid GetPlayerGUIDByName(std::string name) const;
-        bool GetPlayerNameByGUID(ObjectGuid const& guid, std::string &name) const;
+        static ObjectGuid GetPlayerGUIDByName(std::string name);
+        static bool GetPlayerNameByGUID(ObjectGuid const& guid, std::string &name);
         uint32 GetPlayerTeamByGUID(ObjectGuid const& guid) const;
-        uint32 GetPlayerAccountIdByGUID(ObjectGuid const& guid) const;
-        uint32 GetPlayerAccountIdByPlayerName(std::string const& name) const;
+        static uint32 GetPlayerAccountIdByGUID(ObjectGuid const& guid);
+        static uint32 GetPlayerAccountIdByPlayerName(std::string const& name);
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
