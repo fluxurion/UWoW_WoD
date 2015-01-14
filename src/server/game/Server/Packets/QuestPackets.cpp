@@ -85,7 +85,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.Flags;
         _worldPacket << Info.FlagsEx;
 
-        for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
+        for (uint32 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
         {
             _worldPacket << Info.RewardItems[i];
             _worldPacket << Info.RewardAmount[i];
@@ -114,7 +114,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.PortraitGiver;
         _worldPacket << Info.PortraitTurnIn;
 
-        for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
+        for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         {
             _worldPacket << Info.RewardFactionID[i];
             _worldPacket << Info.RewardFactionValue[i];
@@ -205,7 +205,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const
 
     data << questRewards.ItemCount;
 
-    for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
+    for (uint32 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
     {
         data << questRewards.ItemID[i];
         data << questRewards.ItemQty[i];
@@ -217,7 +217,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const
     data << questRewards.Talents;
     data << questRewards.FactionFlags;
 
-    for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
     {
         data << questRewards.FactionID[i];
         data << questRewards.FactionValue[i];

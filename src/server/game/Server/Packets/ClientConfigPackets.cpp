@@ -47,7 +47,7 @@ WorldPacket const* WorldPackets::ClientConfig::AddonInfo::Write()
         for (::AddonInfo const& addon : *Addons)
         {
             bool KeyProvided = addon.UsePublicKeyOrCRC && addon.CRC != STANDARD_ADDON_CRC;
-            _worldPacket << uint8(addon.Status);
+            _worldPacket << uint8(addon.State);
 
             _worldPacket.WriteBit(addon.Enabled);                               // InfoProvided
             _worldPacket.WriteBit(KeyProvided);                                 // KeyProvided
@@ -69,9 +69,9 @@ WorldPacket const* WorldPackets::ClientConfig::AddonInfo::Write()
         for (BannedAddon const& addon : *BannedAddons)
         {
             _worldPacket << uint32(addon.Id);                                   // Id
-            _worldPacket.append(addon.NameMD5, MD5_DIGEST_LENGTH);              // NameMD5 - MD5 of addon .toc filename without extension
-            _worldPacket.append(addon.VersionMD5, MD5_DIGEST_LENGTH);           // VersionMD5 - MD5 of version string declared in addon .toc file
-            _worldPacket << uint32(addon.Timestamp);                            // LastModified
+            _worldPacket.append(addon.MD5_name, MD5_DIGEST_LENGTH);              // NameMD5 - MD5 of addon .toc filename without extension
+            _worldPacket.append(addon.MD5_version, MD5_DIGEST_LENGTH);           // VersionMD5 - MD5 of version string declared in addon .toc file
+            _worldPacket << uint32(addon.timestamp);                            // LastModified
             _worldPacket << uint32(1);                                          // Flags
         }
     }

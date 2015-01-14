@@ -22,6 +22,15 @@
 #include "Spline.h"
 #include "MoveSplineInitArgs.h"
 
+namespace WorldPackets
+{
+    namespace Movement
+    {
+        class CommonMovement;
+        class MonsterMove;
+    }
+}
+
 namespace Movement
 {
     struct Location : public Vector3
@@ -39,6 +48,9 @@ namespace Movement
     // point can have vertical acceleration motion componemt(used in fall, parabolic movement)
     class MoveSpline
     {
+        friend class WorldPackets::Movement::CommonMovement;
+        friend class WorldPackets::Movement::MonsterMove;
+
     public:
         typedef Spline<int32> MySpline;
         enum UpdateResult

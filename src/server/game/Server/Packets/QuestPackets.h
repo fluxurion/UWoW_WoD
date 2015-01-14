@@ -152,14 +152,14 @@ namespace WorldPackets
             int32 AreaGroupID               = 0;
             int32 TimeAllowed               = 0;
             std::vector<QuestObjective> Objectives;
-            int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 ItemDrop[QUEST_ITEM_DROP_COUNT] = {};
-            int32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT] = {};
+            int32 RewardItems[QUEST_SOURCE_ITEM_IDS_COUNT] = {};
+            int32 RewardAmount[QUEST_SOURCE_ITEM_IDS_COUNT] = {};
+            int32 ItemDrop[QUEST_SOURCE_ITEM_IDS_COUNT] = {};
+            int32 ItemDropQuantity[QUEST_SOURCE_ITEM_IDS_COUNT] = {};
             QuestInfoChoiceItem UnfilteredChoiceItems[QUEST_REWARD_CHOICES_COUNT];
-            int32 RewardFactionID[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
+            int32 RewardFactionID[QUEST_REPUTATIONS_COUNT] = {};
+            int32 RewardFactionValue[QUEST_REPUTATIONS_COUNT] = {};
+            int32 RewardFactionOverride[QUEST_REPUTATIONS_COUNT] = {};
             int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
             int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
 
@@ -216,11 +216,11 @@ namespace WorldPackets
             int32 SkillLineID               = 0;
             int32 NumSkillUps               = 0;
             QuestChoiceItem ChoiceItems[QUEST_REWARD_CHOICES_COUNT];
-            int32 ItemID[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 ItemQty[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 FactionID[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 FactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 FactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
+            int32 ItemID[QUEST_SOURCE_ITEM_IDS_COUNT] = {};
+            int32 ItemQty[QUEST_SOURCE_ITEM_IDS_COUNT] = {};
+            int32 FactionID[QUEST_REPUTATIONS_COUNT] = {};
+            int32 FactionValue[QUEST_REPUTATIONS_COUNT] = {};
+            int32 FactionOverride[QUEST_REPUTATIONS_COUNT] = {};
             int32 CurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
             int32 CurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
         };

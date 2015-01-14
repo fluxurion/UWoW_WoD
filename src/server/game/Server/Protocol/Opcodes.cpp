@@ -18,13 +18,18 @@
 
 #include "Opcodes.h"
 #include "WorldSession.h"
+#include "Packets/AchievementPackets.h"
 #include "Packets/CharacterPackets.h"
 #include "Packets/ChannelPackets.h"
 #include "Packets/ChatPackets.h"
 #include "Packets/ClientConfigPackets.h"
 #include "Packets/CombatPackets.h"
+#include "Packets/DuelPackets.h"
 #include "Packets/EquipmentSetPackets.h"
+#include "Packets/GameObjectPackets.h"
 #include "Packets/GuildPackets.h"
+#include "Packets/ItemPackets.h"
+#include "Packets/LootPackets.h"
 #include "Packets/MiscPackets.h"
 #include "Packets/MovementPackets.h"
 #include "Packets/NPCPackets.h"
@@ -249,8 +254,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_DESTROY_ITEM,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleDestroyItemOpcode         );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_DISMISS_CONTROLLED_VEHICLE,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleDismissControlledVehicle  );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_DISMISS_CRITTER,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleDismissCritter            );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_DUEL_PROPOSED,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSendDuelRequest        );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_DUEL_ACCEPT_RESULT,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleDuelAcceptResultOpcode    );
+    DEFINE_HANDLER(CMSG_DUEL_RESPONSE,                                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Duel::DuelResponse, &WorldSession::HandleDuelResponseOpcode);//603
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_EJECT_PASSENGER,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_EMOTE,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEmoteOpcode               );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ENABLETAXI,                              STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleTaxiQueryAvailableNodes   );
@@ -966,10 +970,10 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_XP_GAIN,                           STATUS_NEVER);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_HEALTH_UPDATE,                           STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_HIGHEST_THREAT_UPDATE,                   STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_HOTFIX_INFO,                             STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_HOTFIX_NOTIFY_BLOB,                             STATUS_NEVER);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_HOTFIX_NOTIFY,                           STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_INITIALIZE_FACTIONS,                     STATUS_NEVER);//603
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_INIT_CURRENCY,                           STATUS_NEVER);//603
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_SETUP_CURRENCY,                           STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_INIT_WORLD_STATES,                       STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_INITIAL_COOLDOWNS,                       STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_INSPECT_HONOR_STATS,                     STATUS_NEVER);
@@ -995,7 +999,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_TEXT_QUERY_RESPONSE,                STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ITEM_TIME_UPDATE,                        STATUS_NEVER);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_LEARNED_DANCE_MOVES,                     STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_LEARNED_SPELL,                           STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_LEARNED_SPELLS,                           STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LEVELUP_INFO,                            STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LIST_STABLED_PETS,                       STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LFG_BOOT_PROPOSAL_UPDATE,                STATUS_NEVER);

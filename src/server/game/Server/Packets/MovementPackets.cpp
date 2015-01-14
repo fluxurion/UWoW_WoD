@@ -237,14 +237,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline 
 
     switch (movementSpline.Face)
     {
-        case ::Movement::MONSTER_MOVE_FACING_SPOT:
+        case MONSTER_MOVE_FACING_SPOT:
             data << movementSpline.FaceSpot;
             break;
-        case ::Movement::MONSTER_MOVE_FACING_TARGET:
+        case MONSTER_MOVE_FACING_TARGET:
             data << movementSpline.FaceDirection;
             data << movementSpline.FaceGUID;
             break;
-        case ::Movement::MONSTER_MOVE_FACING_ANGLE:
+        case MONSTER_MOVE_FACING_ANGLE:
             data << movementSpline.FaceDirection;
             break;
     }
@@ -294,13 +294,13 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
 
         data.WriteBits(moveSpline.splineflags.raw(), 25);                       // SplineFlags
 
-        uint8 face = ::Movement::MONSTER_MOVE_NORMAL;
+        uint8 face = MONSTER_MOVE_NORMAL;
         if (splineFlags.final_angle)
-            face = ::Movement::MONSTER_MOVE_FACING_ANGLE;
+            face = MONSTER_MOVE_FACING_ANGLE;
         else if (splineFlags.final_target)
-            face = ::Movement::MONSTER_MOVE_FACING_TARGET;
+            face = MONSTER_MOVE_FACING_TARGET;
         else if (splineFlags.final_point)
-            face = ::Movement::MONSTER_MOVE_FACING_SPOT;
+            face = MONSTER_MOVE_FACING_SPOT;
 
         data.WriteBits(face, 2);                                                // Face
 
@@ -321,13 +321,13 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
 
         switch (face)
         {
-            case ::Movement::MONSTER_MOVE_FACING_SPOT:
+            case MONSTER_MOVE_FACING_SPOT:
                 data << moveSpline.facing.f;        // FaceSpot
                 break;
-            case ::Movement::MONSTER_MOVE_FACING_TARGET:
+            case MONSTER_MOVE_FACING_TARGET:
                 data << moveSpline.facing.target;   // FaceGUID
                 break;
-            case ::Movement::MONSTER_MOVE_FACING_ANGLE:
+            case MONSTER_MOVE_FACING_ANGLE:
                 data << moveSpline.facing.angle;    // FaceDirection
                 break;
         }
@@ -366,19 +366,19 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
     switch (moveSpline.splineflags & ::Movement::MoveSplineFlag::Mask_Final_Facing)
     {
         case ::Movement::MoveSplineFlag::Final_Point:
-            movementSpline.Face = ::Movement::MONSTER_MOVE_FACING_SPOT;
+            movementSpline.Face = MONSTER_MOVE_FACING_SPOT;
             movementSpline.FaceSpot = moveSpline.facing.f;
             break;
         case ::Movement::MoveSplineFlag::Final_Target:
-            movementSpline.Face = ::Movement::MONSTER_MOVE_FACING_TARGET;
+            movementSpline.Face = MONSTER_MOVE_FACING_TARGET;
             movementSpline.FaceGUID = moveSpline.facing.target;
             break;
         case ::Movement::MoveSplineFlag::Final_Angle:
-            movementSpline.Face = ::Movement::MONSTER_MOVE_FACING_ANGLE;
+            movementSpline.Face = MONSTER_MOVE_FACING_ANGLE;
             movementSpline.FaceDirection = moveSpline.facing.angle;
             break;
         default:
-            movementSpline.Face = ::Movement::MONSTER_MOVE_NORMAL;
+            movementSpline.Face = MONSTER_MOVE_NORMAL;
             break;
     }
 

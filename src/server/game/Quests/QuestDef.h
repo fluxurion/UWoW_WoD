@@ -203,6 +203,21 @@ struct QuestLocale
     StringVector QuestTurnTargetName;
 };
 
+struct QuestObjective
+{
+    uint32 ID           = 0;
+    uint8  Type         = 0;
+    int8   StorageIndex = 0;
+    int32  ObjectID     = 0;
+    int32  Amount       = 0;
+    uint32 Flags        = 0;
+    float  UnkFloat     = 0.0f;
+    std::string Description;
+    std::vector<int32> VisualEffects;
+};
+
+typedef std::vector<QuestObjective> QuestObjectives;
+
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
 // xp to give
@@ -458,7 +473,7 @@ struct QuestStatusData
     bool Explored;
 };
 
-enum QuestObjectives
+enum QuestObjectiveType
 {
     QUEST_OBJECTIVE_CREATURE                = 0,
     QUEST_OBJECTIVE_ITEM                    = 1,
@@ -472,7 +487,7 @@ enum QuestObjectives
     QUEST_OBJECTIVE_PLAYER_KILLS            = 9,
     QUEST_OBJECTIVE_EXPLORE_AREATRIGGER     = 10,
     QUEST_OBJECTIVE_PET_TRAINER_DEFEAT      = 11,
-    QUEST_OBJECTIVE_UNK12                   = 12,
+    QUEST_OBJECTIVE_DEFEATBATTLEPET         = 12,
     QUEST_OBJECTIVE_PET_BATTLE_VICTORIES    = 13,
 };
 

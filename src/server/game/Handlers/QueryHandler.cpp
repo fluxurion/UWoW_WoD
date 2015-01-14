@@ -565,7 +565,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
         return;
     }
 
-    for (WorldPackets::Query::DBQueryRecord const& rec : packet.Queries)
+    for (WorldPackets::Query::DBQueryBulk::DBQueryRecord const& rec : packet.Queries)
     {
         WorldPackets::Query::DBReply response;
         response.TableHash = packet.TableHash;

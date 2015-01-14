@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -72,7 +72,7 @@ char const* TypeNames[] =
 
 char const* ObjectGuid::GetTypeName(HighGuid high)
 {
-    if (high > HighGuid::Count)
+    if (high >= HighGuid::Count)
         return "<unknown>";
 
     return TypeNames[uint32(high)];
@@ -231,13 +231,13 @@ ObjectGuid const ObjectGuid::Empty = ObjectGuid();
 ObjectGuid const ObjectGuid::TradeItem = ObjectGuid::Create<HighGuid::Uniq>(uint64(10));
 
 template<HighGuid type>
-ObjectGuid ObjectGuid::Create(LowType counter)
+ObjectGuid ObjectGuid::Create(LowType /*counter*/)
 {
     static_assert(type == HighGuid::Count, "This guid type cannot be constructed using Create(LowType counter).");
 }
 
 template<HighGuid type>
-ObjectGuid ObjectGuid::Create(uint16 mapId, uint32 entry, LowType counter)
+ObjectGuid ObjectGuid::Create(uint16 /*mapId*/, uint32 /*entry*/, LowType /*counter*/)
 {
     static_assert(type == HighGuid::Count, "This guid type cannot be constructed using Create(uint16 mapId, uint32 entry, LowType counter).");
 }

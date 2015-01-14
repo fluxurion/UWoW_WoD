@@ -20,6 +20,7 @@
 #include "Player.h"
 #include "World.h"
 #include "Creature.h"
+#include "Channel.h"
 
 void WorldPackets::Chat::ChatMessage::Read()
 {
@@ -95,7 +96,7 @@ void WorldPackets::Chat::Chat::Initalize(ChatMsg chatType, Language language, Wo
     TargetGUID.Clear();
     SenderName.clear();
     TargetName.clear();
-    _ChatFlags = CHAT_FLAG_NONE;
+    _ChatFlags = CHAT_TAG_NONE;
 
     SlashCmd = chatType;
     _Language = language;
@@ -110,7 +111,7 @@ void WorldPackets::Chat::Chat::Initalize(ChatMsg chatType, Language language, Wo
         if (Player const* playerSender = sender->ToPlayer())
         {
             SenderAccountGUID = playerSender->GetSession()->GetAccountGUID();
-            _ChatFlags = playerSender->GetChatFlags();
+            _ChatFlags = playerSender->GetChatTag();
 
             SenderGuildGUID = ObjectGuid::Create<HighGuid::Guild>(playerSender->GetGuildId());
 

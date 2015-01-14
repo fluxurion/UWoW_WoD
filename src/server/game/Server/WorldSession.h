@@ -100,7 +100,7 @@ namespace WorldPackets
 
     namespace Channel
     {
-        class ChannelListRequest;
+        class ChannelPlayerCommand;
         class JoinChannel;
         class LeaveChannel;
     }
@@ -124,9 +124,20 @@ namespace WorldPackets
         class AttackStop;
     }
 
+    namespace Duel
+    {
+        class DuelResponse;
+    }
+
     namespace EquipmentSet
     {
         class SaveEquipmentSet;
+    }
+
+    namespace GameObject
+    {
+        class GameObjectReportUse;
+        class GameObjectUse;
     }
 
     namespace Guild
@@ -134,22 +145,33 @@ namespace WorldPackets
         class QueryGuildInfo;
     }
 
-    namespace Talent
+    namespace Item
     {
-        class SetSpecialization;
+        class BuyBackItem;
+        class ItemRefundInfo;
+        class RepairItem;
+        class SellItem;
+        class SplitItem;
+        class SwapInvItem;
+        class SwapItem;
+        class AutoEquipItem;
+        class DestroyItem;
     }
 
-    namespace Trade
+    namespace Loot
     {
-        class CancelTrade;
+        class LootUnit;
     }
 
     namespace Misc
     {
+        class AreaTrigger;
         class SetSelection;
         class ViolenceLevel;
         class TimeSyncResponse;
         class TutorialSetFlag;
+        class SetDungeonDifficulty;
+        class SetRaidDifficulty;
     }
 
     namespace Movement
@@ -171,14 +193,39 @@ namespace WorldPackets
         class QueryPageText;
         class QueryNPCText;
         class DBQueryBulk;
+        class QueryGameObject;
     }
 
     namespace Quest
     {
         class QuestGiverStatusQuery;
         class QuestGiverStatusMultipleQuery;
+        class QuestGiverHello;
+        class QueryQuestInfo;
+        class QuestGiverChooseReward;
+        class QuestGiverCompleteQuest;
+        class QuestGiverRequestReward;
+        class QuestGiverQueryQuest;
+    }
+
+    namespace Spells
+    {
+        class SpellCastRequest;
+        class SetActionButton;
+    }
+
+    namespace Talent
+    {
+        class SetSpecialization;
+        class LearnTalent;
+    }
+
+    namespace Trade
+    {
+        class CancelTrade;
     }
 }
+
 enum AccountDataType
 {
     GLOBAL_CONFIG_CACHE             = 0,                    // 0x01 g
@@ -353,7 +400,9 @@ class WorldSession
 
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
+        ObjectGuid GetAccountGUID() const;
         uint32 GetBattlenetAccountId() const { return _battlenetAccountId; }
+        ObjectGuid GetBattlenetAccountGUID() const;
         Player* GetPlayer() const { return _player; }
         std::string GetPlayerName(bool simple = true) const;
 
@@ -599,7 +648,9 @@ class WorldSession
         void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
         void HandleBugOpcode(WorldPacket& recvPacket);
 
-        void HandleSendDuelRequest(WorldPacket& recvPacket);
+        void HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse);
+        void HandleDuelAccepted();
+        void HandleDuelCancelled();
 
         void HandleAreaTriggerOpcode(WorldPacket& recvPacket);
 
@@ -741,7 +792,6 @@ class WorldSession
         void HandleStableRevivePet(WorldPacket& recvPacket);
         void SendTrainerService(ObjectGuid guid, uint32 spellId, uint32 trainState);
 
-        void HandleDuelAcceptResultOpcode(WorldPacket& recvPacket);
         void HandleDuelCancelledOpcode(WorldPacket& recvPacket);
 
         void HandleAcceptTradeOpcode(WorldPacket& recvPacket);

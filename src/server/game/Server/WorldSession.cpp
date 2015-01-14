@@ -1074,6 +1074,15 @@ void WorldSession::InitWarden(BigNumber* k, std::string os)
         // _warden->Init(this, k);
     }
 }
+ObjectGuid WorldSession::GetAccountGUID() const
+{ 
+    return ObjectGuid::Create<HighGuid::WowAccount>(GetAccountId());
+}
+
+ObjectGuid  WorldSession::GetBattlenetAccountGUID() const
+{ 
+    return ObjectGuid::Create<HighGuid::BNetAccount>(GetBattlenetAccountId());
+}
 
 PacketSendEvent::~PacketSendEvent()
 {
@@ -1090,4 +1099,3 @@ void PacketSendEvent::Schedule()
 {
     m_owner->m_Events.AddEvent(this, m_owner->m_Events.CalculateTime(m_delay));
 }
-

@@ -4523,11 +4523,9 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
     // prevent duplicated entires in spell book, also not send if not in world (loading)
     if (learning && IsInWorld())
     {
-        WorldPacket data(SMSG_LEARNED_SPELL, 8);
-        data.WriteBit(0); // 0 : auto push spell to action bar , 1 : don't auto push spell to action bar
-        data.WriteBits(1, 22); //count of spell_id to send.
-        data << uint32(spell_id);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Spells::LearnedSpells packet;
+        packet.SpellID.push_back(spell_id);
+        GetSession()->SendPacket(packet.Write());
     }
 
     // learn all disabled higher ranks and required spells (recursive)
@@ -8273,7 +8271,7 @@ void Player::_SaveCurrency(SQLTransaction& trans)
 void Player::SendCurrencies()
 {
     //! 6.0.3
-    WorldPacket packet(SMSG_INIT_CURRENCY, 3 + _currencyStorage.size() * (5 * 5 + 1));
+    WorldPacket packet(SMSG_SETUP_CURRENCY, 3 + _currencyStorage.size() * (5 * 5 + 1));
     packet << uint32(_currencyStorage.size());
 
     for (PlayerCurrenciesMap::const_iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
@@ -17512,12 +17510,12 @@ void Player::RemoveRewardedQuest(uint32 quest_id)
         phaseMgr.NotifyConditionChanged(phaseUdateData);
     }
 
-    if (uint32 questBit = GetQuestUniqueBitFlag(questId))
+    if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
     {
         _completedQuestBits.reset(questBit - 1);
 
         WorldPackets::Quest::ClearQuestCompletedBit clearCompletedBit;
-        clearCompletedBit.QuestID = questId;
+        clearCompletedBit.QuestID = quest_id;
         clearCompletedBit.Bit = questBit;
         SendDirectMessage(clearCompletedBit.Write());
     }
@@ -19978,7 +19976,7 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
 
                 // Skip loading special quests - they are also added to rewarded quests but only once and remain there forever
                 // instead add them separately from load daily/weekly/monthly/seasonal
-                if (!quest->IsDailyOrWeekly() && !quest->IsMonthly() && !quest->IsSeasonal())
+                if (!quest->IsDailyOrWeekly() /*&& !quest->IsMonthly()*/ && !quest->IsSeasonal())
                     if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
                         _completedQuestBits.set(questBit - 1);
 
@@ -25070,7 +25068,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendTalentsInfoData(false);
 
     /// SMSG_SEND_UNLEARN_SPELLS
-    SendDirectMessage(WorldPackets::Spell::SendUnlearnSpells().Write());
+    SendDirectMessage(WorldPackets::Spells::SendUnlearnSpells().Write());
 
     /// @todo: SMSG_SEND_SPELL_HISTORY
     /// @todo: SMSG_SEND_SPELL_CHARGES
@@ -29573,14 +29571,14 @@ void Player::SendCemeteryList(bool onMap)
 
 void Player::SendCategoryCooldownMods()
 {
-    WorldPackets::Spell::CategoryCooldown cooldowns;
+    WorldPackets::Spells::CategoryCooldown cooldowns;
 
     Unit::AuraEffectList const& categoryCooldownAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN);
     for (AuraEffect* aurEff : categoryCooldownAuras)
     {
         uint32 categoryId = aurEff->GetMiscValue();
         auto cItr = std::find_if(cooldowns.CategoryCooldowns.begin(), cooldowns.CategoryCooldowns.end(),
-            [categoryId](WorldPackets::Spell::CategoryCooldown::CategoryCooldownInfo const& cooldown)
+            [categoryId](WorldPackets::Spells::CategoryCooldown::CategoryCooldownInfo const& cooldown)
         {
             return cooldown.Category == categoryId;
         });
