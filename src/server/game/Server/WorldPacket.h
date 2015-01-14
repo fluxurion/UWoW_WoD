@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -49,6 +49,18 @@ class WorldPacket : public ByteBuffer
                 m_opcode = right.m_opcode;
                 _connection = right._connection;
                 ByteBuffer::operator =(right);
+            }
+
+            return *this;
+        }
+
+        WorldPacket& operator=(WorldPacket&& right)
+        {
+            if (this != &right)
+            {
+                m_opcode = right.m_opcode;
+                _connection = right._connection;
+                ByteBuffer::operator=(std::move(right));
             }
 
             return *this;
