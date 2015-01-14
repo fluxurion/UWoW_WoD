@@ -15,12 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlegroundPackets.h"
+#include "LootPackets.h"
 
-WorldPacket const* WorldPackets::Battleground::PVPSeason::Write()
+void WorldPackets::Loot::LootUnit::Read()
 {
-    _worldPacket << uint32(CurrentSeason);
-    _worldPacket << uint32(PreviousSeason);
-
-    return &_worldPacket;
+    _worldPacket >> Unit;
 }

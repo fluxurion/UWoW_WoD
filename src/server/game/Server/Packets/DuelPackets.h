@@ -15,12 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlegroundPackets.h"
+#ifndef DuelPackets_h__
+#define DuelPackets_h__
 
-WorldPacket const* WorldPackets::Battleground::PVPSeason::Write()
+#include "Packet.h"
+#include "ObjectGuid.h"
+
+namespace WorldPackets
 {
-    _worldPacket << uint32(CurrentSeason);
-    _worldPacket << uint32(PreviousSeason);
+    namespace Duel
+    {
+        class DuelResponse : public ClientPacket
+        {
+        public:
+            DuelResponse(WorldPacket&& packet) : ClientPacket(CMSG_DUEL_RESPONSE, std::move(packet)) { }
 
-    return &_worldPacket;
+            void Read() override;
+
+            ObjectGuid ArbiterGUID;
+            bool Accepted = false;
+        };
+    }
 }
+
+#endif // DuelPackets_h__

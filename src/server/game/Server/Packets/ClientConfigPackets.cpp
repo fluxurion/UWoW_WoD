@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,7 +47,7 @@ WorldPacket const* WorldPackets::ClientConfig::AddonInfo::Write()
         for (::AddonInfo const& addon : *Addons)
         {
             bool KeyProvided = addon.UsePublicKeyOrCRC && addon.CRC != STANDARD_ADDON_CRC;
-            _worldPacket << uint8(addon.State);
+            _worldPacket << uint8(addon.Status);
 
             _worldPacket.WriteBit(addon.Enabled);                               // InfoProvided
             _worldPacket.WriteBit(KeyProvided);                                 // KeyProvided
@@ -69,9 +69,9 @@ WorldPacket const* WorldPackets::ClientConfig::AddonInfo::Write()
         for (BannedAddon const& addon : *BannedAddons)
         {
             _worldPacket << uint32(addon.Id);                                   // Id
-            _worldPacket.append(addon.MD5_name, MD5_DIGEST_LENGTH);              // NameMD5 - MD5 of addon .toc filename without extension
-            _worldPacket.append(addon.MD5_version, MD5_DIGEST_LENGTH);           // VersionMD5 - MD5 of version string declared in addon .toc file
-            _worldPacket << uint32(addon.timestamp);                            // LastModified
+            _worldPacket.append(addon.NameMD5, MD5_DIGEST_LENGTH);              // NameMD5 - MD5 of addon .toc filename without extension
+            _worldPacket.append(addon.VersionMD5, MD5_DIGEST_LENGTH);           // VersionMD5 - MD5 of version string declared in addon .toc file
+            _worldPacket << uint32(addon.Timestamp);                            // LastModified
             _worldPacket << uint32(1);                                          // Flags
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,39 @@
  */
 
 #include "ItemPackets.h"
+
+void WorldPackets::Item::BuyBackItem::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> Slot;
+}
+
+void WorldPackets::Item::ItemRefundInfo::Read()
+{
+    _worldPacket >> ItemGUID;
+}
+
+void WorldPackets::Item::RepairItem::Read()
+{
+    _worldPacket >> NpcGUID;
+    _worldPacket >> ItemGUID;
+    UseGuildBank = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Item::SellItem::Read()
+{
+    _worldPacket >> VendorGUID;
+    _worldPacket >> ItemGUID;
+    _worldPacket >> Amount;
+}
+
+WorldPacket const* WorldPackets::Item::ItemTimeUpdate::Write()
+{
+    _worldPacket << ItemGuid;
+    _worldPacket << DurationLeft;
+
+    return &_worldPacket;
+}
 
 WorldPacket const* WorldPackets::Item::SetProficiency::Write()
 {
@@ -40,20 +73,93 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
     data << itemInstance.ItemID;
     data << itemInstance.RandomPropertiesSeed;
     data << itemInstance.RandomPropertiesID;
-    
+
     data.WriteBit(itemInstance.ItemBonus.HasValue);
     data.WriteBit(!itemInstance.Modifications.empty());
     data.FlushBits();
-    
+
     if (itemInstance.ItemBonus.HasValue)
         data << itemInstance.ItemBonus.Value;
-    
+
     if (!itemInstance.Modifications.empty())
     {
         data << uint32(itemInstance.Modifications.size() * sizeof(uint32));
-        for (uint32 itemMod : itemInstance.Modifications)
+        for (int32 itemMod : itemInstance.Modifications)
             data << itemMod;
     }
 
     return data;
+}
+
+ByteBuffer& WorldPackets::Item::operator>>(ByteBuffer& data, InvUpdate& invUpdate)
+{
+    invUpdate.Items.resize(data.ReadBits(2));
+    for (size_t i = 0; i < invUpdate.Items.size(); ++i)
+    {
+        data >> invUpdate.Items[i].ContainerSlot;
+        data >> invUpdate.Items[i].Slot;
+    }
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Item::InventoryChangeFailure::Write()
+{
+    _worldPacket << int8(BagResult);
+    _worldPacket << Item[0];
+    _worldPacket << Item[1];
+    _worldPacket << uint8(ContainerBSlot); // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
+
+    switch (BagResult)
+    {
+        case EQUIP_ERR_CANT_EQUIP_LEVEL_I:
+        case EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW:
+            _worldPacket << int32(Level);
+            break;
+        /// @todo: add more cases
+        default:
+            break;
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Item::SplitItem::Read()
+{
+    _worldPacket >> Inv
+                 >> FromPackSlot
+                 >> FromSlot
+                 >> ToPackSlot
+                 >> ToSlot
+                 >> Quantity;
+}
+
+void WorldPackets::Item::SwapInvItem::Read()
+{
+    _worldPacket >> Inv
+                 >> Slot2
+                 >> Slot1;
+}
+
+void WorldPackets::Item::SwapItem::Read()
+{
+    _worldPacket >> Inv
+                 >> ContainerSlotB
+                 >> ContainerSlotA
+                 >> SlotB
+                 >> SlotA;
+}
+
+void WorldPackets::Item::AutoEquipItem::Read()
+{
+    _worldPacket >> Inv
+                 >> PackSlot
+                 >> Slot;
+}
+
+void WorldPackets::Item::DestroyItem::Read()
+{
+    _worldPacket >> Count
+                 >> ContainerId
+                 >> SlotNum;
 }

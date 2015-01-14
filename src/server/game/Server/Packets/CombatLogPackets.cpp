@@ -15,12 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlegroundPackets.h"
+#include "CombatLogPackets.h"
+#include "SpellPackets.h"
 
-WorldPacket const* WorldPackets::Battleground::PVPSeason::Write()
+WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
 {
-    _worldPacket << uint32(CurrentSeason);
-    _worldPacket << uint32(PreviousSeason);
+    _worldPacket << Me;
+    _worldPacket << CasterGUID;
+    _worldPacket << SpellID;
+    _worldPacket << Damage;
+    _worldPacket << Overkill;
+    _worldPacket << SchoolMask;
+    _worldPacket << ShieldBlock;
+    _worldPacket << Resisted;
+    _worldPacket << Absorbed;
+
+    _worldPacket.WriteBit(Periodic);
+    _worldPacket.WriteBits(Flags, 9);
+    _worldPacket.WriteBit(false); // Debug info
+    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.FlushBits();
+
+    if (LogData.HasValue)
+        _worldPacket << LogData.Value;
 
     return &_worldPacket;
 }

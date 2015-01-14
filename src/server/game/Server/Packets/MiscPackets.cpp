@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,9 +46,57 @@ WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
+{
+    _worldPacket << uint32(Type);
+    _worldPacket << uint32(Quantity);
+    _worldPacket << uint32(Flags);
+    _worldPacket.WriteBit(WeeklyQuantity.HasValue);
+    _worldPacket.WriteBit(TrackedQuantity.HasValue);
+    _worldPacket.WriteBit(SuppressChatLog);
+
+    if (WeeklyQuantity.HasValue)
+        _worldPacket << uint32(WeeklyQuantity.Value);
+
+    if (TrackedQuantity.HasValue)
+        _worldPacket << uint32(TrackedQuantity.Value);
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Misc::SetSelection::Read()
 {
     _worldPacket >> Selection;
+}
+
+WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
+{
+    _worldPacket << uint32(Data.size());
+
+    for (Record const& data : Data)
+    {
+        _worldPacket << uint32(data.Type);
+        _worldPacket << uint32(data.Quantity);
+
+        _worldPacket.WriteBit(data.WeeklyQuantity.HasValue);
+        _worldPacket.WriteBit(data.MaxWeeklyQuantity.HasValue);
+        _worldPacket.WriteBit(data.TrackedQuantity.HasValue);
+
+        _worldPacket.WriteBits(data.Flags, 5);
+
+        if (data.WeeklyQuantity.HasValue)
+            _worldPacket << uint32(data.WeeklyQuantity.Value);
+        if (data.MaxWeeklyQuantity.HasValue)
+            _worldPacket << uint32(data.MaxWeeklyQuantity.Value);
+        if (data.TrackedQuantity.HasValue)
+            _worldPacket << uint32(data.TrackedQuantity.Value);
+    }
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
 }
 
 void WorldPackets::Misc::ViolenceLevel::Read()
@@ -76,6 +124,19 @@ WorldPacket const* WorldPackets::Misc::UITime::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::TriggerMovie::Write()
+{
+    _worldPacket << uint32(MovieID);
+
+    return &_worldPacket;
+}
+WorldPacket const* WorldPackets::Misc::TriggerCinematic::Write()
+{
+    _worldPacket << uint32(CinematicID);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::TutorialFlags::Write()
 {
     _worldPacket.append(TutorialData, MAX_ACCOUNT_TUTORIAL_VALUES);
@@ -94,16 +155,10 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     _worldPacket << uint32(DifficultyID);
     _worldPacket << uint8(IsTournamentRealm);
     _worldPacket << uint32(WeeklyReset);
-    _worldPacket.WriteBit(IneligibleForLootMask.HasValue);
-    _worldPacket.WriteBit(InstanceGroupSize.HasValue);
     _worldPacket.WriteBit(RestrictedAccountMaxLevel.HasValue);
     _worldPacket.WriteBit(RestrictedAccountMaxMoney.HasValue);
-
-    if (IneligibleForLootMask.HasValue)
-        _worldPacket << uint32(IneligibleForLootMask.Value);
-
-    if (InstanceGroupSize.HasValue)
-        _worldPacket << uint32(InstanceGroupSize.Value);
+    _worldPacket.WriteBit(IneligibleForLootMask.HasValue);
+    _worldPacket.WriteBit(InstanceGroupSize.HasValue);
 
     if (RestrictedAccountMaxLevel.HasValue)
         _worldPacket << uint32(RestrictedAccountMaxLevel.Value);
@@ -111,7 +166,44 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     if (RestrictedAccountMaxMoney.HasValue)
         _worldPacket << uint32(RestrictedAccountMaxMoney.Value);
 
+    if (IneligibleForLootMask.HasValue)
+        _worldPacket << uint32(IneligibleForLootMask.Value);
+
+    if (InstanceGroupSize.HasValue)
+        _worldPacket << uint32(InstanceGroupSize.Value);
+
     _worldPacket.FlushBits();
 
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::AreaTrigger::Read()
+{
+    _worldPacket >> AreaTriggerID;
+    Entered = _worldPacket.ReadBit();
+    FromClient = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Misc::SetDungeonDifficulty::Read()
+{
+    _worldPacket >> DifficultyID;
+}
+
+void WorldPackets::Misc::SetRaidDifficulty::Read()
+{
+    _worldPacket >> DifficultyID;
+    _worldPacket >> Legacy;
+}
+
+WorldPacket const* WorldPackets::Misc::DungeonDifficultySet::Write()
+{
+    _worldPacket << int32(DifficultyID);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::RaidDifficultySet::Write()
+{
+    _worldPacket << int32(DifficultyID);
+    _worldPacket << uint8(Legacy);
     return &_worldPacket;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -174,6 +174,8 @@ WorldPacket const* WorldPackets::Query::QueryNPCTextResponse::Write()
             _worldPacket << BroadcastTextID[i];
     }
 
+    _worldPacket.FlushBits();
+
     return &_worldPacket;
 }
 
@@ -182,7 +184,6 @@ void WorldPackets::Query::DBQueryBulk::Read()
     _worldPacket >> TableHash;
 
     uint32 count = _worldPacket.ReadBits(13);
-    _worldPacket.ResetBitPos();
 
     Queries.resize(count);
     for (uint32 i = 0; i < count; ++i)
@@ -204,7 +205,63 @@ WorldPacket const* WorldPackets::Query::DBReply::Write()
     if (Data)
         Data->WriteRecord(RecordID, Locale, _worldPacket);
 
-    _worldPacket.put<int32>(sizePos, _worldPacket.wpos() - sizePos - 4);
+    _worldPacket.put<int32>(sizePos, _worldPacket.wpos() - sizePos - sizeof(int32));
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Query::HotfixNotifyBlob::Write()
+{
+    _worldPacket << uint32(Hotfixes->size());
+    for (HotfixNotify const& hotfix : *Hotfixes)
+    {
+        _worldPacket << uint32(hotfix.TableHash);
+        _worldPacket << int32(hotfix.Entry);
+        _worldPacket << uint32(hotfix.Timestamp);
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryGameObject::Read()
+{
+    _worldPacket >> GameObjectID;
+    _worldPacket >> Guid;
+}
+
+WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
+{
+    _worldPacket << GameObjectID;
+    _worldPacket.WriteBit(Allow);
+
+    if (Allow)
+    {
+        uint32 dataSize = Stats.GetDataSize();
+
+        _worldPacket << uint32(dataSize);
+        if (dataSize)
+        {
+            _worldPacket << Stats.Type;
+            _worldPacket << Stats.DisplayID;
+            for (int8 i = 0; i < 4; i++)
+                _worldPacket << Stats.Name[i];
+
+            _worldPacket << Stats.IconName;
+            _worldPacket << Stats.CastBarCaption;
+            _worldPacket << Stats.UnkString;
+
+            for (uint32 i = 0; i < MAX_GAMEOBJECT_DATA; i++)
+                _worldPacket << Stats.Data[i];
+
+            _worldPacket << Stats.Size;
+
+            _worldPacket << uint8(Stats.QuestItems.size());
+            for (int32 questItem : Stats.QuestItems)
+                _worldPacket << questItem;
+
+            _worldPacket << Stats.Expansion;
+        }
+    }
 
     return &_worldPacket;
 }

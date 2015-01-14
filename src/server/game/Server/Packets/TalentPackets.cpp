@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,4 +40,18 @@ WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 void WorldPackets::Talent::SetSpecialization::Read()
 {
     _worldPacket >> SpecGroupIndex;
+}
+
+
+void WorldPackets::Talent::LearnTalent::Read()
+{
+    uint32 count;
+    _worldPacket >> count;
+
+    for (uint32 i = 0; i < count; ++i)
+    {
+        uint16 talent;
+        _worldPacket >> talent;
+        Talents.push_back(talent);
+    }
 }

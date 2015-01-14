@@ -15,12 +15,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlegroundPackets.h"
+#ifndef LootPackets_h__
+#define LootPackets_h__
 
-WorldPacket const* WorldPackets::Battleground::PVPSeason::Write()
+#include "Packet.h"
+#include "ObjectGuid.h"
+
+namespace WorldPackets
 {
-    _worldPacket << uint32(CurrentSeason);
-    _worldPacket << uint32(PreviousSeason);
+    namespace Loot
+    {
+        class LootUnit final : public ClientPacket
+        {
+        public:
+            LootUnit(WorldPacket&& packet) : ClientPacket(CMSG_LOOT, std::move(packet)) { }
 
-    return &_worldPacket;
+            void Read() override;
+
+            ObjectGuid Unit;
+        };
+    }
 }
+
+#endif // LootPackets_h__

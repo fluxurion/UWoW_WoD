@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlegroundPackets.h"
+#include "GameObjectPackets.h"
 
-WorldPacket const* WorldPackets::Battleground::PVPSeason::Write()
+void WorldPackets::GameObject::GameObjectUse::Read()
 {
-    _worldPacket << uint32(CurrentSeason);
-    _worldPacket << uint32(PreviousSeason);
+    _worldPacket >> Guid;
+}
 
-    return &_worldPacket;
+void WorldPackets::GameObject::GameObjectReportUse::Read()
+{
+    _worldPacket >> Guid;
 }
