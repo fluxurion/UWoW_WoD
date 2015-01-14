@@ -180,6 +180,7 @@ DBCStorage<PvPDifficultyEntry> sPvPDifficultyStore(PvPDifficultyfmt);
 
 DBCStorage<QuestSortEntry> sQuestSortStore(QuestSortEntryfmt);
 DBCStorage<QuestXPEntry>   sQuestXPStore(QuestXPfmt);
+DBCStorage<QuestV2Entry> sQuestV2Store(QuestV2fmt);
 DBCStorage<QuestFactionRewEntry>  sQuestFactionRewardStore(QuestFactionRewardfmt);
 DBCStorage<RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
 DBCStorage<ResearchBranchEntry> sResearchBranchStore(ResearchBranchfmt);
@@ -416,6 +417,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sPvPDifficultyStore,          dbcPath, "PvpDifficulty.dbc");//19342
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestXPStore,                dbcPath, "QuestXP.dbc");//14545
+    LoadDBC(availableDbcLocales, bad_dbc_files, sQuestV2Store,                dbcPath, "QuestV2.dbc");//19342
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestFactionRewardStore,     dbcPath, "QuestFactionReward.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestPOIPointStore,          dbcPath, "QuestPOIPoint.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sQuestSortStore,              dbcPath, "QuestSort.dbc");//14545
@@ -1300,4 +1302,13 @@ bool IsValidDifficulty(uint32 diff, bool isRaid)
     }
 
     return isRaid;
+}
+
+uint32 GetQuestUniqueBitFlag(uint32 questId)
+{
+    QuestV2Entry const* v2 = sQuestV2Store.LookupEntry(questId);
+    if (!v2)
+        return 0;
+
+    return v2->UniqueBitFlag;
 }

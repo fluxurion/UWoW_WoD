@@ -128,6 +128,7 @@ const char MountCapabilityfmt[] = "niiiiiii";
 const char MountTypefmt[] = "niiiiiiiiiiiiiiiiiiiiiiii";
 const char NameGenfmt[] = "dsii";
 const char QuestSortEntryfmt[] = "nx";
+const char QuestV2fmt[] = "ni";
 const char QuestXPfmt[] = "niiiiiiiiii";
 const char QuestFactionRewardfmt[] = "niiiiiiiiii";
 const char PvPDifficultyfmt[] = "diiii";

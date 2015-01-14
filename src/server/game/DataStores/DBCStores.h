@@ -239,4 +239,6 @@ extern DBCStorage<WorldSafeLocsEntry>           sWorldSafeLocsStore;
 void LoadDBCStores(const std::string& dataPath);
 void InitDBCCustomStores();
 bool IsValidDifficulty(uint32 diff, bool isRaid);
+
+uint32 GetQuestUniqueBitFlag(uint32 questId);
 #endif

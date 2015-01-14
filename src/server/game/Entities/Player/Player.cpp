@@ -86,6 +86,7 @@
 #include "EquipmentSetPackets.h"
 #include "MiscPackets.h"
 #include "SpellPackets.h"
+#include "QuestPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -900,8 +901,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     isDebugAreaTriggers = false;
 
+    _completedQuestBits.resize(QUESTS_COMPLETED_BITS_SIZE * 8);
     m_WeeklyQuestChanged = false;
-
     m_SeasonalQuestChanged = false;
 
     SetPendingBind(0, 0);
@@ -7390,7 +7391,7 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 state) const
 {
-    WorldPackets::Spell::UpdateActionButtons packet;
+    WorldPackets::Spells::UpdateActionButtons packet;
 
     for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
     {
@@ -16875,6 +16876,16 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST, quest->GetQuestId());
 
+    if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
+    {
+        _completedQuestBits.set(questBit - 1);
+
+        WorldPackets::Quest::SetQuestCompletedBit setCompletedBit;
+        setCompletedBit.QuestID = quest_id;
+        setCompletedBit.Bit = questBit;
+        SendDirectMessage(setCompletedBit.Write());
+    }
+
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
 }
@@ -17499,6 +17510,16 @@ void Player::RemoveRewardedQuest(uint32 quest_id)
         phaseUdateData.AddQuestUpdate(quest_id);
 
         phaseMgr.NotifyConditionChanged(phaseUdateData);
+    }
+
+    if (uint32 questBit = GetQuestUniqueBitFlag(questId))
+    {
+        _completedQuestBits.reset(questBit - 1);
+
+        WorldPackets::Quest::ClearQuestCompletedBit clearCompletedBit;
+        clearCompletedBit.QuestID = questId;
+        clearCompletedBit.Bit = questBit;
+        SendDirectMessage(clearCompletedBit.Write());
     }
 }
 
@@ -19955,6 +19976,12 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                         SetTitle(titleEntry);
                 }
 
+                // Skip loading special quests - they are also added to rewarded quests but only once and remain there forever
+                // instead add them separately from load daily/weekly/monthly/seasonal
+                if (!quest->IsDailyOrWeekly() && !quest->IsMonthly() && !quest->IsSeasonal())
+                    if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
+                        _completedQuestBits.set(questBit - 1);
+
                 if (uint32 talents = quest->GetBonusTalents())
                     AddQuestRewardedTalentCount(talents);
             }
@@ -19995,6 +20022,10 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
             if (!quest)
                 continue;
 
+            AddDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_id);
+            if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
+                _completedQuestBits.set(questBit - 1);
+
             m_dailyquests.insert(quest_id);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUID().GetCounter());
@@ -20018,6 +20049,10 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
                 continue;
+
+            m_weeklyquests.insert(quest_id);
+            if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
+                _completedQuestBits.set(questBit - 1);
 
             m_weeklyquests.insert(quest_id);
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Weekly quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUID().GetCounter());
@@ -20044,6 +20079,10 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
                 continue;
 
             m_seasonalquests[event_id].insert(quest_id);
+            if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
+                _completedQuestBits.set(questBit - 1);
+
+            m_seasonalquests[event_id].insert(quest_id);
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Seasonal quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUID().GetCounter());
         }
         while (result->NextRow());
@@ -20052,6 +20091,31 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
     m_SeasonalQuestChanged = false;
 }
 
+/*void Player::_LoadMonthlyQuestStatus(PreparedQueryResult result)
+{
+    m_monthlyquests.clear();
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 quest_id = fields[0].GetUInt32();
+            Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
+            if (!quest)
+                continue;
+
+            m_monthlyquests.insert(quest_id);
+            if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
+                _completedQuestBits.set(questBit - 1);
+
+            TC_LOG_DEBUG("entities.player.loading", "Monthly quest {%u} cooldown for player (%s)", quest_id, GetGUID().ToString().c_str());
+        }
+        while (result->NextRow());
+    }
+
+    m_MonthlyQuestChanged = false;
+}*/
 void Player::_LoadSpells(PreparedQueryResult result)
 {
     //QueryResult* result = CharacterDatabase.PQuery("SELECT spell, active, disabled FROM character_spell WHERE guid = '%u'", GetGUID().GetCounter());
@@ -25058,12 +25122,21 @@ void Player::SendInitialPacketsBeforeAddToMap()
     loginSetTimeSpeed.ServerTimeHolidayOffset = 0; /// @todo
     SendDirectMessage(loginSetTimeSpeed.Write());
 
-    GetReputationMgr().SendForceReactions();                // SMSG_SET_FORCED_REACTIONS
+    // SMSG_SET_FORCED_REACTIONS
+    GetReputationMgr().SendForceReactions();
 
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_SET_PHASE_SHIFT
     // SMSG_UPDATE_CURRENCY_WEEK_LIMIT
     // SMSG_WEEKLY_SPELL_USAGE
+
+    // SMSG_ACCOUNT_MOUNT_UPDATE
+    // SMSG_ACCOUNT_TOYS_UPDATE
+
+    WorldPackets::Character::InitialSetup initialSetup;
+    initialSetup.ServerExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);
+    boost::to_block_range(_completedQuestBits, std::back_inserter(initialSetup.QuestsCompleted));
+    SendDirectMessage(initialSetup.Write());
 
     // SMSG_0x010E
     // SMSG_ACCOUNT_CRITERIA_UPDATE
@@ -25585,6 +25658,20 @@ void Player::SetSeasonalQuestStatus(uint32 quest_id)
 
 void Player::ResetDailyQuestStatus()
 {
+    std::vector<uint32> dailies = GetDynamicValues(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
+    if (!dailies.empty())
+    {
+        WorldPackets::Quest::ClearQuestCompletedBits clearCompletedBits;
+        for (uint32 questId : dailies)
+            if (uint32 questBit = GetQuestUniqueBitFlag(questId))
+                clearCompletedBits.Qbits.push_back(questBit);
+
+        if (!clearCompletedBits.Qbits.empty())
+            SendDirectMessage(clearCompletedBits.Write());
+    }
+
+    ClearDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS);
+
     m_dailyquests.clear();
     m_DFQuests.clear(); // Dungeon Finder Quests.
 
@@ -25598,21 +25685,58 @@ void Player::ResetWeeklyQuestStatus()
     if (m_weeklyquests.empty())
         return;
 
+    WorldPackets::Quest::ClearQuestCompletedBits clearCompletedBits;
+    for (uint32 questId : m_weeklyquests)
+        if (uint32 questBit = GetQuestUniqueBitFlag(questId))
+            clearCompletedBits.Qbits.push_back(questBit);
+
+    if (!clearCompletedBits.Qbits.empty())
+        SendDirectMessage(clearCompletedBits.Write());
+
     m_weeklyquests.clear();
     // DB data deleted in caller
     m_WeeklyQuestChanged = false;
-
 }
 
 void Player::ResetSeasonalQuestStatus(uint16 event_id)
 {
-    if (m_seasonalquests.empty() || m_seasonalquests[event_id].empty())
+    auto eventItr = m_seasonalquests.find(event_id);
+    if (eventItr == m_seasonalquests.end())
         return;
 
-    m_seasonalquests.erase(event_id);
+    if (eventItr->second.empty())
+        return;
+
+    WorldPackets::Quest::ClearQuestCompletedBits clearCompletedBits;
+    for (uint32 questId : eventItr->second)
+        if (uint32 questBit = GetQuestUniqueBitFlag(questId))
+            clearCompletedBits.Qbits.push_back(questBit);
+
+    if (!clearCompletedBits.Qbits.empty())
+        SendDirectMessage(clearCompletedBits.Write());
+
+    m_seasonalquests.erase(eventItr);
     // DB data deleted in caller
     m_SeasonalQuestChanged = false;
 }
+
+/*void Player::ResetMonthlyQuestStatus()
+{
+    if (m_monthlyquests.empty())
+        return;
+
+    WorldPackets::Quest::ClearQuestCompletedBits clearCompletedBits;
+    for (uint32 questId : m_monthlyquests)
+        if (uint32 questBit = GetQuestUniqueBitFlag(questId))
+            clearCompletedBits.Qbits.push_back(questBit);
+
+    if (!clearCompletedBits.Qbits.empty())
+        SendDirectMessage(clearCompletedBits.Write());
+
+    m_monthlyquests.clear();
+    // DB data deleted in caller
+    m_MonthlyQuestChanged = false;
+}*/
 
 Battleground* Player::GetBattleground() const
 {

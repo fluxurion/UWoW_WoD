@@ -1093,7 +1093,6 @@ class WorldSession
         void HandleEquipmentSetDelete(WorldPacket& recvData);
         void HandleEquipmentSetUse(WorldPacket& recvData);
         void HandleWorldStateUITimerUpdate(WorldPacket& recvData);
-        void HandleQueryQuestsCompleted(WorldPacket& recvData);
         void HandleQuestNpcQuery(WorldPacket& recvData);
         void HandleQuestPOIQuery(WorldPacket& recvData);
         void HandleEjectPassenger(WorldPacket& data);
