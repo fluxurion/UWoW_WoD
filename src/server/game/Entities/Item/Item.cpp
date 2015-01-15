@@ -275,6 +275,9 @@ bool Item::Create(ObjectGuid::LowType const& guidlow, uint32 itemid, Player cons
     if (!itemProto)
         return false;
 
+    for (uint32 i = 0; i < ITEM_DYN_MOD_END; ++i)
+        AddDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0);
+
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
     SetUInt32Value(ITEM_FIELD_MAX_DURABILITY, itemProto->MaxDurability);
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
@@ -434,6 +437,9 @@ bool Item::LoadFromDB(ObjectGuid::LowType const& guid, ObjectGuid const& owner_g
     ItemTemplate const* proto = GetTemplate();
     if (!proto)
         return false;
+
+    for (uint32 i = 0; i < ITEM_DYN_MOD_END; ++i)
+        AddDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0);
 
     // set owner (not if item is only loaded for gbank/auction/mail
     if (owner_guid)

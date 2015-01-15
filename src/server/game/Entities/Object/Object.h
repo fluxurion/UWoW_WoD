@@ -344,15 +344,11 @@ class Object
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
         void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
 
-        void GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOwner, bool& isItemOwner, bool& hasSpecialInfo, bool& isPartyMember) const;
+        uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
         uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
 
-        bool IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const;
-
-        void _SetUpdateBits(UpdateMask* updateMask, Player* target) const;
-        void _SetCreateBits(UpdateMask* updateMask, Player* target) const;
         void _BuildMovementUpdate(ByteBuffer * data, uint16 flags) const;
-        void _BuildValuesUpdate(uint8 updatetype, ByteBuffer *data, UpdateMask* updateMask, Player* target) const;
+        void _BuildValuesUpdate(uint8 updatetype, ByteBuffer *data, Player* target) const;
         void _BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer *data, Player* target) const;
 
         uint16 m_objectType;

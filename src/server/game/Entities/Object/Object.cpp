@@ -226,11 +226,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << uint8(m_objectTypeId);
 
     _BuildMovementUpdate(&buf, flags);
-
-    UpdateMask updateMask;
-    updateMask.SetCount(valCount);
-    _SetCreateBits(&updateMask, target);
-    _BuildValuesUpdate(updateType, &buf, &updateMask, target);
+    _BuildValuesUpdate(updateType, &buf, target);
     _BuildDynamicValuesUpdate(updateType, &buf, target);
 
     data->AddUpdateBlock(buf);
@@ -254,15 +250,7 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << uint8(UPDATETYPE_VALUES);
     buf << GetPackGUID();
 
-    UpdateMask updateMask;
-    uint32 valCount = m_valuesCount;
-    if (GetTypeId() == TYPEID_PLAYER && target != this)
-        valCount = PLAYER_END_NOT_SELF;
-
-    updateMask.SetCount(valCount);
-
-    _SetUpdateBits(&updateMask, target);
-    _BuildValuesUpdate(UPDATETYPE_VALUES, &buf, &updateMask, target);
+    _BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
     _BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
 
     data->AddUpdateBlock(buf);
@@ -1089,13 +1077,17 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     }*/
 }
 
-void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* updateMask, Player* target) const
+void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
 {
     if (!target)
         return;
 
+    ByteBuffer fieldBuffer;
+    UpdateMask updateMask;
+    updateMask.SetCount(m_valuesCount);
+
     bool IsActivateToQuest = false;
-    if (updatetype == UPDATETYPE_CREATE_OBJECT || updatetype == UPDATETYPE_CREATE_OBJECT2)
+    if (updateType == UPDATETYPE_CREATE_OBJECT || updateType == UPDATETYPE_CREATE_OBJECT2)
     {
         if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsDynTransport())
         {
@@ -1103,12 +1095,12 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                 IsActivateToQuest = true;
 
             if (((GameObject*)this)->GetGoArtKit())
-                updateMask->SetBit(GAMEOBJECT_FIELD_BYTES_1);
+                _changedFields[GAMEOBJECT_FIELD_BYTES_1] = true;
         }
         else if (isType(TYPEMASK_UNIT))
         {
             if (((Unit*)this)->HasFlag(UNIT_FIELD_AURA_STATE, PER_CASTER_AURA_STATE_MASK))
-                updateMask->SetBit(UNIT_FIELD_AURA_STATE);
+                _changedFields[UNIT_FIELD_AURA_STATE] = true;
         }
     }
     else                                                    // case UPDATETYPE_VALUES
@@ -1118,34 +1110,40 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
             if (((GameObject*)this)->ActivateToQuest(target))
                 IsActivateToQuest = true;
 
-            updateMask->SetBit(GAMEOBJECT_FIELD_BYTES_1);
+            _changedFields[GAMEOBJECT_FIELD_BYTES_1] = true;
 
             if (ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_CHEST && ToGameObject()->GetGOInfo()->chest.usegrouplootrules &&
                 ToGameObject()->HasLootRecipient())
-                updateMask->SetBit(GAMEOBJECT_FIELD_FLAGS);
+                _changedFields[GAMEOBJECT_FIELD_FLAGS] = true;
         }
         else if (isType(TYPEMASK_UNIT))
         {
             if (((Unit*)this)->HasFlag(UNIT_FIELD_AURA_STATE, PER_CASTER_AURA_STATE_MASK))
-                updateMask->SetBit(UNIT_FIELD_AURA_STATE);
+                _changedFields[UNIT_FIELD_AURA_STATE] = true;
         }
     }
+
+    uint32* flags = NULL;
+    uint32 visibleFlag = GetUpdateFieldData(target, flags);
 
     uint32 valCount = m_valuesCount;
     if (GetTypeId() == TYPEID_PLAYER && target != this)
         valCount = PLAYER_END_NOT_SELF;
 
-    WPAssert(updateMask && updateMask->GetCount() == valCount);
+    if (target == this)
+        visibleFlag |= UF_FLAG_PRIVATE;
+    else if (GetTypeId() == TYPEID_PLAYER)
+        valCount = PLAYER_END_NOT_SELF;
 
-    *data << (uint8)updateMask->GetBlockCount();
-    data->append(updateMask->GetMask(), updateMask->GetLength());
-
-    // 2 specialized loops for speed optimization in non-unit case
-    if (isType(TYPEMASK_UNIT))                               // unit (creature/player) case
+    for (uint16 index = 0; index < valCount; ++index)
     {
-        for (uint16 index = 0; index < valCount; ++index)
+        if (_fieldNotifyFlags & flags[index] ||
+            ((flags[index] & visibleFlag) & UF_FLAG_SPECIAL_INFO) ||
+            ((updateType == UPDATETYPE_VALUES ? _changedFields[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)))
         {
-            if (updateMask->GetBit(index))
+            updateMask.SetBit(index);
+
+            if (isType(TYPEMASK_UNIT))                               // unit (creature/player) case
             {
                 if (index == UNIT_FIELD_NPC_FLAGS)
                 {
@@ -1164,22 +1162,26 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                         }
                     }
 
-                    *data << uint32(appendValue);
+                    fieldBuffer << uint32(appendValue);
+                    continue; //skip by custom write
                 }
                 else if (index == UNIT_FIELD_AURA_STATE)
                 {
                     // Check per caster aura states to not enable using a pell in client if specified aura is not by target
-                    *data << ((Unit*)this)->BuildAuraStateUpdateForTarget(target);
+                    fieldBuffer << ((Unit*)this)->BuildAuraStateUpdateForTarget(target);
+                    continue; //skip by custom write
                 }
                 else if (index == UNIT_FIELD_MAX_DAMAGE || index == UNIT_FIELD_MIN_DAMAGE || index == UNIT_FIELD_MIN_OFF_HAND_DAMAGE || index == UNIT_FIELD_MAX_OFF_HAND_DAMAGE)
                 {
-                    *data << (m_floatValues[index] + CalculatePct(m_floatValues[index], ((Unit*)this)->GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE)));
+                    fieldBuffer << (m_floatValues[index] + CalculatePct(m_floatValues[index], ((Unit*)this)->GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE)));
+                    continue; //skip by custom write
                 }
                 // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
                 else if (index >= UNIT_FIELD_ATTACK_ROUND_BASE_TIME && index <= UNIT_FIELD_RANGED_ATTACK_ROUND_BASE_TIME)
                 {
                     // convert from float to uint32 and send
-                    *data << uint32(m_floatValues[index] < 0 ? 0 : m_floatValues[index]);
+                    fieldBuffer << uint32(m_floatValues[index] < 0 ? 0 : m_floatValues[index]);
+                    continue; //skip by custom write
                 }
                 // there are some float values which may be negative or can't get negative due to other checks
                 else if ((index >= UNIT_FIELD_STAT_NEG_BUFF && index <= UNIT_FIELD_STAT_NEG_BUFF+4) ||
@@ -1187,15 +1189,17 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                     (index >= UNIT_FIELD_RESISTANCE_BUFF_MODS_NEGATIVE && index <= (UNIT_FIELD_RESISTANCE_BUFF_MODS_NEGATIVE + 6)) ||
                     (index >= UNIT_FIELD_STAT_POS_BUFF && index <= UNIT_FIELD_STAT_POS_BUFF + 4))
                 {
-                    *data << uint32(m_floatValues[index]);
+                    fieldBuffer << uint32(m_floatValues[index]);
+                    continue; //skip by custom write
                 }
                 // Gamemasters should be always able to select units - remove not selectable flag
                 else if (index == UNIT_FIELD_FLAGS)
                 {
                     if (target->isGameMaster())
-                        *data << (m_uint32Values[index] & ~UNIT_FLAG_NOT_SELECTABLE);
+                        fieldBuffer << (m_uint32Values[index] & ~UNIT_FLAG_NOT_SELECTABLE);
                     else
-                        *data << m_uint32Values[index];
+                        fieldBuffer << m_uint32Values[index];
+                    continue; //skip by custom write
                 }
                 // use modelid_a if not gm, _h if gm for CREATURE_FLAG_EXTRA_TRIGGER creatures
                 else if (index == UNIT_FIELD_DISPLAY_ID)
@@ -1216,29 +1220,27 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                                     }
 
                         if(modelInfo && modelInfo->hostileId && ToUnit()->IsHostileTo(target))
-                            *data << modelInfo->hostileId;
+                            fieldBuffer << modelInfo->hostileId;
                         else if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                         {
                             if (target->isGameMaster())
                             {
                                 if (cinfo->Modelid1)
-                                    *data << cinfo->Modelid1;//Modelid1 is a visible model for gms
+                                    fieldBuffer << cinfo->Modelid1;//Modelid1 is a visible model for gms
                                 else
-                                    *data << 17519; // world invisible trigger's model
+                                    fieldBuffer << 17519; // world invisible trigger's model
                             }
                             else
                             {
                                 if (cinfo->Modelid2)
-                                    *data << cinfo->Modelid2;//Modelid2 is an invisible model for players
+                                    fieldBuffer << cinfo->Modelid2;//Modelid2 is an invisible model for players
                                 else
-                                    *data << 11686; // world invisible trigger's model
+                                    fieldBuffer << 11686; // world invisible trigger's model
                             }
+                            continue; //skip by custom write
                         }
-                        else
-                            *data << m_uint32Values[index];
                     }
-                    else
-                        *data << m_uint32Values[index];
+
                 }
                 // hide lootable animation for unallowed players
                 else if (index == OBJECT_FIELD_DYNAMIC_FLAGS)
@@ -1274,7 +1276,9 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                         if (dynamicFlags & UNIT_DYNFLAG_TRACK_UNIT)
                             if (!unit->HasAuraTypeWithCaster(SPELL_AURA_MOD_STALKED, target->GetGUID()))
                                 dynamicFlags &= ~UNIT_DYNFLAG_TRACK_UNIT;
-                    *data << dynamicFlags;
+
+                    fieldBuffer << dynamicFlags;
+                    continue; //skip by custom write
                 }
                 // FG: pretend that OTHER players in own group are friendly ("blue")
                 else if (index == UNIT_FIELD_BYTES_2 || index == UNIT_FIELD_FACTION_TEMPLATE)
@@ -1289,34 +1293,19 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                             if (index == UNIT_FIELD_BYTES_2)
                             {
                                 // Allow targetting opposite faction in party when enabled in config
-                                *data << (m_uint32Values[index] & ((UNIT_BYTE2_FLAG_SANCTUARY /*| UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5*/) << 8)); // this flag is at uint8 offset 1 !!
+                                fieldBuffer << (m_uint32Values[index] & ((UNIT_BYTE2_FLAG_SANCTUARY /*| UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5*/) << 8)); // this flag is at uint8 offset 1 !!
                             }
                             else
                             {
                                 // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
-                                uint32 faction = target->getFaction();
-                                *data << uint32(faction);
+                                fieldBuffer << uint32(target->getFaction());
                             }
+                            continue; //skip by custom write
                         }
-                        else
-                            *data << m_uint32Values[index];
                     }
-                    else
-                        *data << m_uint32Values[index];
-                }
-                else
-                {
-                    // send in current format (float as float, uint32 as uint32)
-                    *data << m_uint32Values[index];
                 }
             }
-        }
-    }
-    else if (isType(TYPEMASK_GAMEOBJECT))                    // gameobject case
-    {
-        for (uint16 index = 0; index < valCount; ++index)
-        {
-            if (updateMask->GetBit(index))
+            else if (isType(TYPEMASK_GAMEOBJECT))                    // gameobject case
             {
                 // send in current format (float as float, uint32 as uint32)
                 if (index == OBJECT_FIELD_DYNAMIC_FLAGS)
@@ -1328,26 +1317,27 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                             case GAMEOBJECT_TYPE_CHEST:
                             case GAMEOBJECT_TYPE_GOOBER:
                                 if (!IsActivateToQuest)
-                                    *data << uint16(GO_DYNFLAG_LO_ACTIVATE);
+                                    fieldBuffer << uint16(GO_DYNFLAG_LO_ACTIVATE);
                                 else
-                                    *data << uint16(GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE);
+                                    fieldBuffer << uint16(GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE);
                                 break;
                             case GAMEOBJECT_TYPE_GENERIC:
                             case GAMEOBJECT_TYPE_SPELL_FOCUS:
                                 if (!IsActivateToQuest)
-                                    *data << uint16(0);
+                                    fieldBuffer << uint16(0);
                                 else
-                                    *data << uint16(GO_DYNFLAG_LO_SPARKLE);
+                                    fieldBuffer << uint16(GO_DYNFLAG_LO_SPARKLE);
                                 break;
                             default:
-                                *data << uint16(0); // unknown, not happen.
+                                fieldBuffer << uint16(0); // unknown, not happen.
                                 break;
                         }
                     }
                     else
-                        *data << uint16(0);         // disable quest object
+                        fieldBuffer << uint16(0);         // disable quest object
 
-                    *data << uint16(-1);
+                    fieldBuffer << uint16(-1);
+                    continue; //skip by custom write
                 }
                 else if (index == GAMEOBJECT_FIELD_FLAGS)
                 {
@@ -1356,25 +1346,19 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                         if (ToGameObject()->GetGOInfo()->chest.usegrouplootrules && !ToGameObject()->IsLootAllowedFor(target))
                             flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
-                    *data << flags;
+                    fieldBuffer << flags;
+                    continue; //skip by custom write
                 }
                 else if (index == GAMEOBJECT_FIELD_BYTES_1)
                 {
                     if (((GameObject*)this)->GetGOInfo()->type == GAMEOBJECT_TYPE_TRANSPORT)
-                        *data << uint32(m_uint32Values[index] | GO_STATE_TRANSPORT_SPEC);
-                    else
-                        *data << uint32(m_uint32Values[index]);
+                    {
+                        fieldBuffer << uint32(m_uint32Values[index] | GO_STATE_TRANSPORT_SPEC);
+                        continue; //skip by custom write
+                    }                    
                 }
-                else
-                    *data << m_uint32Values[index];                // other cases
             }
-        }
-    }
-    else if (isType(TYPEMASK_DYNAMICOBJECT))                    // dynamiobject case
-    {
-        for (uint16 index = 0; index < valCount; ++index)
-        {
-            if (updateMask->GetBit(index))
+            else if (isType(TYPEMASK_DYNAMICOBJECT))                    // dynamiobject case
             {
                 if (index == DYNAMICOBJECT_FIELD_BYTES)
                 {
@@ -1383,20 +1367,14 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                     Unit* caster = ((DynamicObject*)this)->GetCaster();
                     SpellVisualEntry const* visualEntry = sSpellVisualStore.LookupEntry(visualId);
                     if(caster && visualEntry && visualEntry->hostileId && caster->IsHostileTo(target))
+                    {
                         *data << ((dynType << 28) | visualEntry->hostileId);
-                    else
-                        *data << m_uint32Values[index];
+                        continue; //skip by custom write
+                    }
                 }
-                else
-                    *data << m_uint32Values[index];
+
             }
-        }
-    }
-    else if (isType(TYPEMASK_AREATRIGGER))                    // AreaTrigger case
-    {
-        for (uint16 index = 0; index < valCount; ++index)
-        {
-            if (updateMask->GetBit(index))
+            else if (isType(TYPEMASK_AREATRIGGER))                    // AreaTrigger case
             {
                 if (index == AREATRIGGER_FIELD_SPELL_VISUAL_ID)
                 {
@@ -1404,26 +1382,20 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
                     Unit* caster = ((AreaTrigger*)this)->GetCaster();
                     SpellVisualEntry const* visualEntry = sSpellVisualStore.LookupEntry(visualId);
                     if(caster && visualEntry && visualEntry->hostileId && caster->IsHostileTo(target))
+                    {
                         *data << (visualEntry->hostileId);
-                    else
-                        *data << m_uint32Values[index];
+                        continue; //skip by custom write
+                    }
                 }
-                else
-                    *data << m_uint32Values[index];
             }
+
+            fieldBuffer << m_uint32Values[index];
         }
     }
-    else                                                    // other objects case (no special index checks)
-    {
-        for (uint16 index = 0; index < valCount; ++index)
-        {
-            if (updateMask->GetBit(index))
-            {
-                // send in current format (float as float, uint32 as uint32)
-                *data << m_uint32Values[index];
-            }
-        }
-    }
+
+    *data << uint8(updateMask.GetBlockCount());
+    updateMask.AppendToPacket(data);
+    data->append(fieldBuffer);
 }
 
 void Object::_BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer *data, Player* target) const
@@ -1566,45 +1538,62 @@ void Object::_LoadIntoDataField(char const* data, uint32 startOffset, uint32 cou
     }
 }
 
-void Object::GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOwner, bool& isItemOwner, bool& hasSpecialInfo, bool& isPartyMember) const
+uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
 {
+    uint32 visibleFlag = UF_FLAG_PUBLIC;
+
+    if (target == this)
+        visibleFlag |= UF_FLAG_PRIVATE;
+
     // This function assumes updatefield index is always valid
     switch (GetTypeId())
     {
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
             flags = ItemUpdateFieldFlags;
-            isOwner = isItemOwner = ((Item*)this)->GetOwnerGUID() == target->GetGUID();
+            if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
             break;
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
         {
             Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
             flags = UnitUpdateFieldFlags;
-            isOwner = ToUnit()->GetOwnerGUID() == target->GetGUID();
-            hasSpecialInfo = ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID());
-            isPartyMember = plr && plr->IsInSameGroupWith(target);
+            if (ToUnit()->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
+
+            if (HasFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+                if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+                    visibleFlag |= UF_FLAG_SPECIAL_INFO;
+            
+            if (plr && plr->IsInSameRaidWith(target))
+                visibleFlag |= UF_FLAG_PARTY_MEMBER;
             break;
         }
         case TYPEID_GAMEOBJECT:
             flags = GameObjectUpdateFieldFlags;
-            isOwner = ToGameObject()->GetOwnerGUID() == target->GetGUID();
+            if (ToGameObject()->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_DYNAMICOBJECT:
             flags = DynamicObjectUpdateFieldFlags;
-            isOwner = ((DynamicObject*)this)->GetCasterGUID() == target->GetGUID();
+            if (ToDynObject()->GetCasterGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_CORPSE:
             flags = CorpseUpdateFieldFlags;
-            isOwner = ToCorpse()->GetOwnerGUID() == target->GetGUID();
+            if (ToCorpse()->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_AREATRIGGER:
             flags = AreaTriggerUpdateFieldFlags;
-            isOwner = ToAreaTrigger()->GetCasterGUID() == target->GetGUID();
+            if (ToAreaTrigger()->GetCasterGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
             break;
         case TYPEID_OBJECT:
             break;
     }
+    return visibleFlag;
 }
 
 uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const
@@ -1649,67 +1638,6 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
     return visibleFlag;
 }
 
-bool Object::IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const
-{
-    if (flags == UF_FLAG_NONE)
-        return false;
-
-    if (flags & (UF_FLAG_PUBLIC | UF_FLAG_DYNAMIC))
-        return true;
-
-    if (flags & UF_FLAG_PRIVATE && isSelf)
-        return true;
-
-    if (flags & UF_FLAG_OWNER && (isOwner || isItemOwner))
-        return true;
-
-    if (flags & UF_FLAG_PARTY_MEMBER && isPartyMember)
-        return true;
-
-    return false;
-}
-
-void Object::_SetUpdateBits(UpdateMask* updateMask, Player* target) const
-{
-    bool* indexes = _changedFields;
-    uint32* flags = NULL;
-    bool isSelf = target == this;
-    bool isOwner = false;
-    bool isItemOwner = false;
-    bool hasSpecialInfo = false;
-    bool isPartyMember = false;
-
-    GetUpdateFieldData(target, flags, isOwner, isItemOwner, hasSpecialInfo, isPartyMember);
-
-    uint32 valCount = m_valuesCount;
-    if (GetTypeId() == TYPEID_PLAYER && target != this)
-        valCount = PLAYER_END_NOT_SELF;
-
-    for (uint16 index = 0; index < valCount; ++index, ++indexes)
-        if (_fieldNotifyFlags & flags[index] || (flags[index] & UF_FLAG_SPECIAL_INFO && hasSpecialInfo) || (*indexes && IsUpdateFieldVisible(flags[index], isSelf, isOwner, isItemOwner, isPartyMember)))
-            updateMask->SetBit(index);
-}
-
-void Object::_SetCreateBits(UpdateMask* updateMask, Player* target) const
-{
-    uint32* value = m_uint32Values;
-    uint32* flags = NULL;
-    bool isSelf = target == this;
-    bool isOwner = false;
-    bool isItemOwner = false;
-    bool hasSpecialInfo = false;
-    bool isPartyMember = false;
-
-    GetUpdateFieldData(target, flags, isOwner, isItemOwner, hasSpecialInfo, isPartyMember);
-
-    uint32 valCount = m_valuesCount;
-    if (GetTypeId() == TYPEID_PLAYER && target != this)
-        valCount = PLAYER_END_NOT_SELF;
-
-    for (uint16 index = 0; index < valCount; ++index, ++value)
-        if (_fieldNotifyFlags & flags[index] || (flags[index] & UF_FLAG_DYNAMIC) ||(flags[index] & UF_FLAG_SPECIAL_INFO && hasSpecialInfo) || (*value && IsUpdateFieldVisible(flags[index], isSelf, isOwner, isItemOwner, isPartyMember)))
-            updateMask->SetBit(index);
-}
 
 void Object::SetInt32Value(uint16 index, int32 value)
 {
@@ -2053,6 +1981,7 @@ void Object::AddDynamicValue(uint16 index, uint32 value)
     ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
 
     std::vector<uint32>& values = _dynamicValues[index];
+
     UpdateMask& mask = _dynamicChangesArrayMask[index];
 
     _dynamicChangesMask.SetBit(index);
