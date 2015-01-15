@@ -54,8 +54,8 @@
 
 
 Object::Object() : m_objectTypeId(TYPEID_OBJECT), m_objectType(TYPEMASK_OBJECT), m_uint32Values(NULL),
-    _changedFields(NULL), m_valuesCount(0), _fieldNotifyFlags(UF_FLAG_NONE), m_inWorld(false),
-    m_objectUpdated(false)
+    _changedFields(NULL), m_valuesCount(0), _dynamicValuesCount(0), _fieldNotifyFlags(UF_FLAG_NONE), m_inWorld(false),
+    m_objectUpdated(false), _dynamicValues(NULL), _dynamicChangesArrayMask(NULL)
 {
 }
 
@@ -94,8 +94,11 @@ Object::~Object()
     delete [] m_uint32Values;
     delete [] _changedFields;
 
-    for(size_t i = 0; i < m_dynamicTab.size(); ++i)
-        delete [] m_dynamicTab[i];
+    delete[] _dynamicValues;
+    _dynamicValues = nullptr;
+
+    delete[] _dynamicChangesArrayMask;
+    _dynamicChangesArrayMask = nullptr;
 }
 
 void Object::_InitValues()
@@ -106,10 +109,11 @@ void Object::_InitValues()
     _changedFields = new bool[m_valuesCount];
     memset(_changedFields, 0, m_valuesCount*sizeof(bool));
 
-    for(size_t i = 0; i < m_dynamicTab.size(); ++i)
+    _dynamicChangesMask.SetCount(_dynamicValuesCount);
+    if (_dynamicValuesCount)
     {
-        memset(m_dynamicTab[i], 0, 32*sizeof(uint32));
-        m_dynamicChange[i] = false;
+        _dynamicValues = new std::vector<uint32>[_dynamicValuesCount];
+        _dynamicChangesArrayMask = new UpdateMask[_dynamicValuesCount];
     }
 
     m_objectUpdated = false;
@@ -1422,69 +1426,109 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, UpdateMask* 
     }
 }
 
-void Object::_BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer *data, Player* target) const
+void Object::_BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer *data, Player* target) const
 {
-    // Crashfix, prevent use of bag with dynamic field
-    if (/*isType(TYPEMAST_BAG) || */
-        (updatetype == UPDATETYPE_VALUES && GetTypeId() == TYPEID_PLAYER && this != target))
-    {
-        *data << uint8(0);
+    if (!target)
         return;
-    }
 
-    uint32 dynamicTabMask = 0;
-    std::vector<uint32> dynamicFieldsMask;
-    dynamicFieldsMask.resize(m_dynamicTab.size());
+    ByteBuffer fieldBuffer;
+    UpdateMask updateMask;
+    updateMask.SetCount(_dynamicValuesCount);
 
-    for (size_t i = 0; i < m_dynamicTab.size(); ++i)
+    uint32* flags = nullptr;
+    uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
+
+    for (uint16 index = 0; index < _dynamicValuesCount; ++index)
     {
-        dynamicFieldsMask[i] = 0;
-        for (int index = 0; index < 32; ++index)
+        ByteBuffer buffer;
+        std::vector<uint32> const& values = _dynamicValues[index];
+        if (_fieldNotifyFlags & flags[index] ||
+            ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask.GetBit(index) : !values.empty()) && (flags[index] & visibleFlag)))
         {
-            if ((updatetype == UPDATETYPE_CREATE_OBJECT || updatetype == UPDATETYPE_CREATE_OBJECT2) ||
-                updatetype == UPDATETYPE_VALUES && m_dynamicChange[i])
-            {
-                dynamicTabMask |= 1 << i;
-                if (m_dynamicTab[i][index] != 0)
-                    dynamicFieldsMask[i] |= 1 << index;
-            }
-        }
-    }
+            updateMask.SetBit(index);
 
-    *data << uint8(dynamicTabMask ? 1 : 0); // count of dynamic tab masks
-    if (dynamicTabMask)
-    {
-        *data << uint32(dynamicTabMask);
-
-        for (size_t i = 0; i < m_dynamicTab.size(); ++i)
-        {
-            if (dynamicTabMask & (1 << i))
+            UpdateMask arrayMask;
+            arrayMask.SetCount(values.size());
+            for (std::size_t v = 0; v < values.size(); ++v)
             {
-                *data << uint8(bool(dynamicFieldsMask[i]));      // count of dynamic field masks
-                if (dynamicFieldsMask[i])
+                if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index].GetBit(v))
                 {
-                    *data << uint32(dynamicFieldsMask[i]);
-
-                    for (int index = 0; index < 32; ++index)
-                    {
-                        if (dynamicFieldsMask[i] & (1 << index))
-                            *data << uint32(m_dynamicTab[i][index]);
-                    }
+                    arrayMask.SetBit(v);
+                    buffer << uint32(values[v]);
                 }
             }
+
+            fieldBuffer << uint8(arrayMask.GetBlockCount());
+            arrayMask.AppendToPacket(&fieldBuffer);
+            fieldBuffer.append(buffer);
         }
     }
+
+    *data << uint8(updateMask.GetBlockCount());
+    updateMask.AppendToPacket(data);
+    data->append(fieldBuffer);
+    //// Crashfix, prevent use of bag with dynamic field
+    //if (/*isType(TYPEMAST_BAG) || */
+    //    (updatetype == UPDATETYPE_VALUES && GetTypeId() == TYPEID_PLAYER && this != target))
+    //{
+    //    *data << uint8(0);
+    //    return;
+    //}
+
+    //uint32 dynamicTabMask = 0;
+    //std::vector<uint32> dynamicFieldsMask;
+    //dynamicFieldsMask.resize(m_dynamicTab.size());
+
+    //for (size_t i = 0; i < m_dynamicTab.size(); ++i)
+    //{
+    //    dynamicFieldsMask[i] = 0;
+    //    for (int index = 0; index < 32; ++index)
+    //    {
+    //        if ((updatetype == UPDATETYPE_CREATE_OBJECT || updatetype == UPDATETYPE_CREATE_OBJECT2) ||
+    //            updatetype == UPDATETYPE_VALUES && m_dynamicChange[i])
+    //        {
+    //            dynamicTabMask |= 1 << i;
+    //            if (m_dynamicTab[i][index] != 0)
+    //                dynamicFieldsMask[i] |= 1 << index;
+    //        }
+    //    }
+    //}
+
+    //*data << uint8(dynamicTabMask ? 1 : 0); // count of dynamic tab masks
+    //if (dynamicTabMask)
+    //{
+    //    *data << uint32(dynamicTabMask);
+
+    //    for (size_t i = 0; i < m_dynamicTab.size(); ++i)
+    //    {
+    //        if (dynamicTabMask & (1 << i))
+    //        {
+    //            *data << uint8(bool(dynamicFieldsMask[i]));      // count of dynamic field masks
+    //            if (dynamicFieldsMask[i])
+    //            {
+    //                *data << uint32(dynamicFieldsMask[i]);
+
+    //                for (int index = 0; index < 32; ++index)
+    //                {
+    //                    if (dynamicFieldsMask[i] & (1 << index))
+    //                        *data << uint32(m_dynamicTab[i][index]);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 }
 
 void Object::ClearUpdateMask(bool remove)
 {
+    _dynamicChangesMask.Clear();
+    for (uint32 i = 0; i < _dynamicValuesCount; ++i)
+        _dynamicChangesArrayMask[i].Clear();
+
     memset(_changedFields, 0, m_valuesCount*sizeof(bool));
 
     if (m_objectUpdated)
     {
-        for(size_t i = 0; i < m_dynamicTab.size(); i++)
-            m_dynamicChange[i] = false;
-
         if (remove)
             sObjectAccessor->RemoveUpdateObject(this);
         m_objectUpdated = false;
@@ -1561,6 +1605,48 @@ void Object::GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOw
         case TYPEID_OBJECT:
             break;
     }
+}
+
+uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const
+{
+    uint32 visibleFlag = UF_FLAG_PUBLIC;
+
+    if (target == this)
+        visibleFlag |= UF_FLAG_PRIVATE;
+
+    switch (GetTypeId())
+    {
+        case TYPEID_ITEM:
+        case TYPEID_CONTAINER:
+            flags = ItemDynamicFieldFlags;
+            if (((Item const*)this)->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
+            break;
+        case TYPEID_UNIT:
+        case TYPEID_PLAYER:
+        {
+            Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
+            flags = UnitDynamicFieldFlags;
+            if (ToUnit()->GetOwnerGUID() == target->GetGUID())
+                visibleFlag |= UF_FLAG_OWNER;
+
+            if (HasFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+                if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+                    visibleFlag |= UF_FLAG_SPECIAL_INFO;
+
+            if (plr && plr->IsInSameRaidWith(target))
+                visibleFlag |= UF_FLAG_PARTY_MEMBER;
+            break;
+        }
+        case TYPEID_CONVERSATION:
+            flags = ConversationDynamicFieldFlags;
+            break;
+        default:
+            flags = nullptr;
+            break;
+    }
+
+    return visibleFlag;
 }
 
 bool Object::IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const
@@ -1956,19 +2042,68 @@ void Object::RemoveByteFlag(uint16 index, uint8 offset, uint8 oldFlag)
     }
 }
 
-void Object::SetDynamicUInt32Value(uint32 tab, uint16 index, uint32 value)
+std::vector<uint32> const& Object::GetDynamicValues(uint16 index) const
 {
-    //ASSERT(tab < m_dynamicTab.size() && index < 32);
-    if(!(tab < m_dynamicTab.size() && index < 32))
-    {
-        sLog->outError(LOG_FILTER_GENERAL, "Object::SetDynamicUInt32Value: ASSERT FAILED index %u, tab %u, m_dynamicTab.size() %u", index, tab, m_dynamicTab.size());
-        return;
-    }
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+    return _dynamicValues[index];
+}
 
-    if (m_dynamicTab[tab][index] != value)
+void Object::AddDynamicValue(uint16 index, uint32 value)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+
+    std::vector<uint32>& values = _dynamicValues[index];
+    UpdateMask& mask = _dynamicChangesArrayMask[index];
+
+    _dynamicChangesMask.SetBit(index);
+    if (values.size() >= values.capacity())
+        values.reserve(values.capacity() + 32);
+
+    values.push_back(value);
+    if (mask.GetCount() < values.size())
+        mask.AddBlock();
+
+    mask.SetBit(values.size());
+
+    if (m_inWorld && !m_objectUpdated)
     {
-        m_dynamicTab[tab][index] = value;
-        m_dynamicChange[tab] = true;
+        sObjectAccessor->AddUpdateObject(this);
+        m_objectUpdated = true;
+    }
+}
+
+void Object::ClearDynamicValue(uint16 index)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+
+    if (!_dynamicValues[index].empty())
+    {
+        _dynamicValues[index].clear();
+        _dynamicChangesMask.SetBit(index);
+        _dynamicChangesArrayMask[index].SetCount(0);
+
+        if (m_inWorld && !m_objectUpdated)
+        {
+            sObjectAccessor->AddUpdateObject(this);
+            m_objectUpdated = true;
+        }
+    }
+}
+
+void Object::SetDynamicUInt32Value(uint32 index, uint16 offset, uint32 value)
+{
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+
+    std::vector<uint32>& values = _dynamicValues[index];
+
+    ASSERT(offset < values.size());
+
+    if (values[offset] != value)
+    {
+        values[offset] = value;
+        _dynamicChangesMask.SetBit(index);
+        _dynamicChangesArrayMask[index].SetBit(offset);
+
         if (m_inWorld && !m_objectUpdated)
         {
             sObjectAccessor->AddUpdateObject(this);

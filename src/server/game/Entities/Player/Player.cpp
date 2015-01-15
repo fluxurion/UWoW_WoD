@@ -671,14 +671,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_objectTypeId = TYPEID_PLAYER;
 
     m_valuesCount = PLAYER_END;
-
-    m_dynamicTab.resize(PLAYER_DYNAMIC_END);
-    m_dynamicChange.resize(PLAYER_DYNAMIC_END);
-    for(int i = 0; i < PLAYER_DYNAMIC_END; i++)
-    {
-        m_dynamicTab[i] = new uint32[32];
-        m_dynamicChange[i] = new bool[32];
-    }
+    _dynamicValuesCount = PLAYER_DYNAMIC_END;
 
     m_session = session;
 

@@ -41,6 +41,7 @@ GameObject::GameObject() : WorldObject(false), m_model(NULL), m_goValue(new Game
     m_lootRecipientGroup(), m_groupLootTimer(0), lootingGroupLowGUID(), m_isDynActive(false)
 {
     m_valuesCount = GAMEOBJECT_END;
+    _dynamicValuesCount = GAMEOBJECT_DYNAMIC_END;
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
 

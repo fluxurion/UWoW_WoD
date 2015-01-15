@@ -32,6 +32,7 @@ AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _activationDelay(
     m_updateFlag = UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_AREA_TRIGGER;
 
     m_valuesCount = AREATRIGGER_END;
+    _dynamicValuesCount = AREATRIGGER_DYNAMIC_END;
 }
 
 AreaTrigger::~AreaTrigger()

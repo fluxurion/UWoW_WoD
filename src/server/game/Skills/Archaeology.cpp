@@ -84,8 +84,9 @@ bool Player::OnSurvey(uint32& entry, float& x, float& y, float& z, float &orient
         return false;
 
     uint8 i = 0;
+    std::vector<uint32> const research = GetDynamicValues(PLAYER_DYNAMIC_FIELD_RESEARCH_SITES);
     for(; i < MAX_RESEARCH_SITES; ++i)
-        if (GetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_RESEARCH_SITES, i) == site_id)
+        if (research[i] == site_id)
             break;
 
     if(i > MAX_RESEARCH_SITES)

@@ -20,6 +20,7 @@
 #define _OBJECT_H
 
 #include "Common.h"
+#include "UpdateMask.h"
 #include "UpdateFields.h"
 #include "UpdateData.h"
 #include "GridReference.h"
@@ -80,7 +81,6 @@ class ByteBuffer;
 class WorldSession;
 class Creature;
 class Player;
-class UpdateMask;
 class InstanceScript;
 class Item;
 class GameObject;
@@ -289,18 +289,17 @@ class Object
         void ClearUpdateMask(bool remove);
 
         uint16 GetValuesCount() const { return m_valuesCount; }
+        uint16 GetDynamicValuesCount() const { return _dynamicValuesCount; }
 
-        // Dynamic Field function
-
-        uint16 GetDynamicValuesCount() const { return m_dynamicTab.size(); }
-
-        uint32 GetDynamicUInt32Value(uint32 tab, uint16 index) const
-        {
-            ASSERT(tab < m_dynamicTab.size() && index < 32);
-            return m_dynamicTab[tab][index];
-        }
-
+        std::vector<uint32> const& GetDynamicValues(uint16 tab) const;
+        void AddDynamicValue(uint16 tab, uint32 value);
         void SetDynamicUInt32Value(uint32 tab, uint16 index, uint32 value);
+        void ClearDynamicValue(uint16 tab);
+        uint32 GetDynamicUInt32Value(uint32 index, uint16 offset) const
+        {
+            ASSERT(index < _dynamicValuesCount);
+            return _dynamicValues[index][offset];
+        }
 
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
@@ -346,6 +345,7 @@ class Object
         void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
 
         void GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOwner, bool& isItemOwner, bool& hasSpecialInfo, bool& isPartyMember) const;
+        uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
 
         bool IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const;
 
@@ -375,9 +375,10 @@ class Object
 
         bool m_objectUpdated;
 
-        std::vector<uint32*> m_dynamicTab;
-        std::vector<bool> m_dynamicChange;
-
+        std::vector<uint32>* _dynamicValues;
+        UpdateMask _dynamicChangesMask;
+        UpdateMask* _dynamicChangesArrayMask;
+        uint16 _dynamicValuesCount;
     private:
         bool m_inWorld;
 

@@ -38,6 +38,7 @@ DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
 
     m_valuesCount = DYNAMICOBJECT_END;
+    _dynamicValuesCount = DYNAMICOBJECT_DYNAMIC_END;
 
     _fieldNotifyFlags = UF_FLAG_DYNAMIC;
 }

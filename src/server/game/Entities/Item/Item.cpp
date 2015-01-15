@@ -240,6 +240,8 @@ Item::Item() : ItemLevelBeforeCap(0)
     m_updateFlag = 0;
 
     m_valuesCount = ITEM_END;
+    _dynamicValuesCount = ITEM_DYNAMIC_END;
+
     m_slot = 0;
     uState = ITEM_NEW;
     uQueuePos = -1;
@@ -252,14 +254,6 @@ Item::Item() : ItemLevelBeforeCap(0)
     m_refundRecipient.Clear();
     m_paidMoney = 0;
     m_paidExtendedCost = 0;
-
-    m_dynamicTab.resize(ITEM_DYNAMIC_END);
-    m_dynamicChange.resize(ITEM_DYNAMIC_END);
-    for(int i = 0; i < ITEM_DYNAMIC_END; i++)
-    {
-        m_dynamicTab[i] = new uint32[32];
-        m_dynamicChange[i] = new bool[32];
-    }
 
     memset(m_dynamicModInfo, 0, sizeof(uint32) * ITEM_DYN_MOD_END);
 }

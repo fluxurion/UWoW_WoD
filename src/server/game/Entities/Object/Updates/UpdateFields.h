@@ -54,6 +54,11 @@ enum EObjectFields
     OBJECT_END = 0xC
 };
 
+enum EObjectDynamicFields
+{
+    OBJECT_DYNAMIC_END = 0x0,
+};
+
 enum EUnitFields
 {
     UNIT_FIELD_CHARM = OBJECT_END + 0x0, // Size: 4 Flags: Public
@@ -169,6 +174,13 @@ enum EItemFields
     ITEM_FIELD_MODIFIERS_MASK = OBJECT_END + 0x44, // Size: 1 Flags: Owner
     ITEM_FIELD_CONTEXT = OBJECT_END + 0x45, // Size: 1 Flags: Public
     ITEM_END = OBJECT_END + 0x46
+};
+
+enum EItemDynamicFields
+{
+    ITEM_DYNAMIC_FIELD_MODIFIERS = OBJECT_DYNAMIC_END + 0x0, // Size: 1 Flags: Owner
+    ITEM_DYNAMIC_FIELD_BONUS_LIST_IDS = OBJECT_DYNAMIC_END + 0x1, // Size: 1 Flags: Owner
+    ITEM_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x2
 };
 
 enum EPlayerFields
@@ -295,6 +307,11 @@ enum EContainerFields
     CONTAINER_END = ITEM_END + 0x91
 };
 
+enum ContainerDynamicFields
+{
+    CONTAINER_DYNAMIC_END = ITEM_DYNAMIC_END + 0x000,
+};
+
 enum EGameObjectFields
 {
     GAMEOBJECT_FIELD_CREATED_BY = OBJECT_END + 0x0, // Size: 4 Flags: Public
@@ -312,6 +329,11 @@ enum EGameObjectFields
     GAMEOBJECT_END = OBJECT_END + 0x15
 };
 
+enum GameObjectDynamicFields
+{
+    GAMEOBJECT_DYNAMIC_END                                 = OBJECT_DYNAMIC_END + 0x000,
+};
+
 enum EDynamicObjectFields
 {
     DYNAMICOBJECT_FIELD_CASTER = OBJECT_END + 0x0, // Size: 4 Flags: Public
@@ -320,6 +342,11 @@ enum EDynamicObjectFields
     DYNAMICOBJECT_FIELD_RADIUS = OBJECT_END + 0x6, // Size: 1 Flags: Public
     DYNAMICOBJECT_FIELD_CAST_TIME = OBJECT_END + 0x7, // Size: 1 Flags: Public
     DYNAMICOBJECT_END = OBJECT_END + 0x8
+};
+
+enum DynamicObjectDynamicFields
+{
+    DYNAMICOBJECT_DYNAMIC_END                              = OBJECT_DYNAMIC_END + 0x000,
 };
 
 enum ECorpseFields
@@ -336,6 +363,11 @@ enum ECorpseFields
     CORPSE_END = OBJECT_END + 0x21
 };
 
+enum CorpseDynamicFields
+{
+    CORPSE_DYNAMIC_END                                     = OBJECT_DYNAMIC_END + 0x000,
+};
+
 enum EAreaTriggerFields
 {
     AREATRIGGER_FIELD_CASTER = OBJECT_END + 0x0, // Size: 4 Flags: Public
@@ -344,6 +376,11 @@ enum EAreaTriggerFields
     AREATRIGGER_FIELD_SPELL_VISUAL_ID = OBJECT_END + 0x6, // Size: 1 Flags: Dynamic
     AREATRIGGER_FIELD_EXPLICIT_SCALE = OBJECT_END + 0x7, // Size: 1 Flags: Public, Urgent
     AREATRIGGER_END = OBJECT_END + 0x8
+};
+
+enum AreaTriggerDynamicFields
+{
+    AREATRIGGER_DYNAMIC_END                                = OBJECT_DYNAMIC_END + 0x000,
 };
 
 enum ESceneObjectFields
@@ -359,11 +396,6 @@ enum EConversationFields
 {
     CONVERSATION_FIELD_DUMMY = OBJECT_END + 0x0, // Size: 1 Flags: Private
     CONVERSATION_END = OBJECT_END + 0x1
-};
-
-enum EObjectDynamicFields
-{
-    OBJECT_DYNAMIC_END = 0x0,
 };
 
 enum EUnitDynamicFields
@@ -384,12 +416,6 @@ enum EPlayerDynamicFields
     PLAYER_DYNAMIC_END = UNIT_DYNAMIC_END + 0x6
 };
 
-enum EItemDynamicFields
-{
-    ITEM_DYNAMIC_FIELD_MODIFIERS = OBJECT_DYNAMIC_END + 0x0, // Size: 1 Flags: Owner
-    ITEM_DYNAMIC_FIELD_BONUS_LIST_IDS = OBJECT_DYNAMIC_END + 0x1, // Size: 1 Flags: Owner
-    ITEM_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x2
-};
 
 enum EConversationDynamicFields
 {

@@ -165,6 +165,7 @@ m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_o
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_petregenTimer = 0;
     m_valuesCount = UNIT_END;
+    _dynamicValuesCount = UNIT_DYNAMIC_END;
     isCasterPet = false;
 
     for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
