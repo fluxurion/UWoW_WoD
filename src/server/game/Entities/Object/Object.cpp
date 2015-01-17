@@ -2025,6 +2025,9 @@ void Object::SetDynamicUInt32Value(uint32 index, uint16 offset, uint32 value)
 
     std::vector<uint32>& values = _dynamicValues[index];
 
+    //if (offset >= values.capacity())
+    //    values.reserve(offset + 32);
+
     ASSERT(offset < values.size());
 
     if (values[offset] != value)

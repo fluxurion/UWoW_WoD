@@ -310,7 +310,7 @@ void Player::ShowResearchSites()
         if (!rs || CanResearchWithSkillLevel(rs->ID) == 2)
             id = 0;
 
-        SetDynamicUInt32Value(PLAYER_DYNAMIC_FIELD_RESEARCH_SITES, count++, id);
+        AddDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITES, id);
     }
 }
 
