@@ -33,6 +33,14 @@ class Aura;
 class SpellScript;
 class ByteBuffer;
 
+namespace WorldPackets
+{
+    namespace Spells
+    {
+        struct SpellTargetData;
+    }
+}
+
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 
 enum SpellCastFlags
@@ -56,7 +64,7 @@ enum SpellCastFlags
     CAST_FLAG_UNKNOWN_16         = 0x00008000,
     CAST_FLAG_UNKNOWN_17         = 0x00010000,
     CAST_FLAG_ADJUST_MISSILE     = 0x00020000,
-    CAST_FLAG_UNKNOWN_19         = 0x00040000,              // related to SPELL_AURA_380
+    CAST_FLAG_NO_GCD         = 0x00040000,              // related to SPELL_AURA_380
     CAST_FLAG_VISUAL_CHAIN       = 0x00080000,
     CAST_FLAG_UNKNOWN_21         = 0x00100000,
     CAST_FLAG_RUNE_LIST          = 0x00200000,
@@ -130,6 +138,9 @@ class SpellCastTargets
     public:
         SpellCastTargets();
         ~SpellCastTargets();
+
+        void Read(ByteBuffer& data, Unit* caster);
+        void Write(WorldPackets::Spells::SpellTargetData& data);
 
         uint32 GetTargetMask() const { return m_targetMask; }
         void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
@@ -572,7 +583,7 @@ class Spell
         void SetSpellValue(SpellValueMod mod, int32 value);
         uint32 GetCountDispel() const { return m_count_dispeling; }
         bool GetInterupted() const { return m_interupted; }
-        void WriteProjectile(uint8 &ammoInventoryType, uint32 &ammoDisplayID);
+        void WriteProjectile(int8 &ammoInventoryType, int32 &ammoDisplayID);
 
         void SetSpellDynamicObject(ObjectGuid const& dynObj) { m_spellDynObjGuid = dynObj;}
         ObjectGuid const& GetSpellDynamicObject() const { return m_spellDynObjGuid; }
