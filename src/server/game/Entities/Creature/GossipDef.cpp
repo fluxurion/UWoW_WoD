@@ -347,7 +347,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 {
     std::string questTitle           = quest->GetTitle();
     std::string questDetails         = quest->GetDetails();
-    std::string questObjectives      = quest->GetObjectives();
+    std::string questObjectives      = quest->GetQuestObjectives();
     std::string questEndText         = quest->GetEndText();
     std::string questGiverTextWindow = quest->GetQuestGiverTextWindow();
     std::string questGiverTargetName = quest->GetQuestGiverTargetName();
@@ -525,11 +525,6 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
     if (!quest)
     {
-        WorldPacket data(SMSG_QUEST_QUERY_RESPONSE, 5);
-        data << uint32(questId);
-        data.WriteBit(0);
-
-        _session->SendPacket(&data);
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u, does not exist", questId);
         return;
     }
@@ -537,7 +532,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     bool hideRewards = quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS);
     std::string questTitle = quest->GetTitle();
     std::string questDetails = quest->GetDetails();
-    std::string questObjectives = quest->GetObjectives();
+    std::string questObjectives = quest->GetQuestObjectives();
     std::string questEndText = quest->GetEndText();
     std::string questCompletedText = quest->GetCompletedText();
     std::string questGiverTextWindow = quest->GetQuestGiverTextWindow();

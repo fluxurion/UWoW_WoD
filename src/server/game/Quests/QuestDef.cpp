@@ -101,7 +101,7 @@ Quest::Quest(Field* questRecord)
     PointY                  = questRecord[index++].GetFloat();
     PointOption             = questRecord[index++].GetUInt32();
     Title                   = questRecord[index++].GetString();
-    Objectives              = questRecord[index++].GetString();
+    QuestObjectives         = questRecord[index++].GetString();
     Details                 = questRecord[index++].GetString();
     EndText                 = questRecord[index++].GetString();
     CompletedText           = questRecord[index++].GetString();
@@ -134,6 +134,23 @@ Quest::Quest(Field* questRecord)
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         ObjectiveText[i] = questRecord[index++].GetString();
+
+    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+    {
+        if (!RequiredIdCount[i])
+            continue;
+        QuestObjective obj;
+        obj.ID = RequiredPOI[i];
+        obj.Type = RequirementType[i];
+        obj.StorageIndex = i;
+        obj.ObjectID = RequiredId[i];
+        obj.Amount = RequiredIdCount[i];
+        obj.Flags = RequiredUnkFlag[i];
+        obj.UnkFloat = 0.0f;
+        obj.Description = ObjectiveText[i];
+
+        Objectives.push_back(obj);
+    }
 
     RequiredSpell           = questRecord[index++].GetUInt32();
 

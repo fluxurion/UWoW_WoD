@@ -271,7 +271,7 @@ class Quest
         uint32 GetSrcSpell() const { return SourceSpellid; }
         std::string GetTitle() const { return Title; }
         std::string GetDetails() const { return Details; }
-        std::string GetObjectives() const { return Objectives; }
+        std::string GetQuestObjectives() const { return QuestObjectives; }
         std::string GetOfferRewardText() const { return OfferRewardText; }
         std::string GetRequestItemsText() const { return RequestItemsText; }
         std::string GetEndText() const { return EndText; }
@@ -280,6 +280,7 @@ class Quest
         std::string GetQuestGiverTargetName() const { return QuestGiverTargetName; }
         std::string GetQuestTurnTextWindow() const { return QuestTurnTextWindow; }
         std::string GetQuestTurnTargetName() const { return QuestTurnTargetName; }
+        QuestObjectives const& GetObjectives() const { return Objectives; };
         int32  GetRewOrReqMoney() const;
         uint32 GetRewHonorAddition() const { return RewardHonor; }
         float GetRewHonorMultiplier() const { return RewardHonorMultiplier; }
@@ -370,6 +371,7 @@ class Quest
         typedef std::vector<uint32> PrevChainQuests;
         PrevChainQuests prevChainQuests;
 
+        QuestObjectives Objectives;
         // cached data
     private:
         uint32 m_reqItemsCount;
@@ -418,7 +420,7 @@ class Quest
         uint32 SourceSpellid;
         std::string Title;
         std::string Details;
-        std::string Objectives;
+        std::string QuestObjectives;
         std::string OfferRewardText;
         std::string RequestItemsText;
         std::string EndText;
