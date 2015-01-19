@@ -16399,7 +16399,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                 }
             }
 
-            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL_OR_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO))
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO))
             {
                 for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; i++)
                 {
@@ -16410,10 +16410,6 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                         return false;
                 }
             }
-
-            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL))
-                if (qInfo->GetPlayersSlain() != 0 && q_status.PlayerCount < qInfo->GetPlayersSlain())
-                    return false;
 
             if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT) && !q_status.Explored)
                 return false;
@@ -16569,7 +16565,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
             questStatusData.ItemCount[i] = 0;
     }
 
-    if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL_OR_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO))
+    if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO))
     {
         for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
             questStatusData.CreatureOrGOCount[i] = 0;
@@ -16857,8 +16853,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         SendQuestReward(quest, XP, questGiver);
 
     // cast spells after mark quest complete (some spells have quest completed state requirements in spell_area data)
-    if (quest->GetRewSpellCast() > 0)
-        CastSpell(this, quest->GetRewSpellCast(), true);
+    if (quest->GetRewSpell() > 0)
+        CastSpell(this, quest->GetRewSpell(), true);
     else if (quest->GetRewDisplaySpell() > 0)
         CastSpell(this, quest->GetRewDisplaySpell(), true);
 
@@ -17716,7 +17712,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid)
         QuestStatusData& q_status = m_QuestStatus[questid];
         if (q_status.Status == QUEST_STATUS_INCOMPLETE && (!GetGroup() || !GetGroup()->isRaidGroup() || qInfo->IsAllowedInRaid()))
         {
-            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL_OR_CAST))
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST))
             {
                 for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
                 {
@@ -17767,27 +17763,32 @@ void Player::KilledPlayerCredit()
         Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
         if (!qInfo)
             continue;
+
+        // This flag is only used for performance optimisation to prevent iterating over all quests
+        if (!qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL))
+            continue;
+
         // just if !ingroup || !noraidgroup || raidgroup
         QuestStatusData& q_status = m_QuestStatus[questid];
         if (q_status.Status == QUEST_STATUS_INCOMPLETE && (!GetGroup() || !GetGroup()->isRaidGroup() || qInfo->IsAllowedInRaid()))
         {
-            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL))
+            for (QuestObjective const& obj : qInfo->GetObjectives())
             {
-                uint32 reqkill = qInfo->GetPlayersSlain();
-                uint16 curkill = q_status.PlayerCount;
+                if (obj.Type != QUEST_OBJECTIVE_PLAYER_KILLS)
+                    continue;
 
-                if (curkill < reqkill)
+                uint16 curKillCount = q_status.PlayerCount;
+                if (curKillCount < uint32(obj.Amount))
                 {
-                    q_status.PlayerCount = curkill + addkillcount;
-
+                    q_status.PlayerCount = curKillCount + addkillcount;
                     m_QuestStatusSave[questid] = true;
-
-                    SendQuestUpdateAddPlayer(qInfo, curkill, addkillcount);
+                    SendQuestUpdateAddPlayer(qInfo, curKillCount + addkillcount, obj.Amount);
                 }
 
                 if (CanCompleteQuest(questid))
                     CompleteQuest(questid);
 
+                // Quest can't have more than one player kill objective (code optimisation)
                 break;
             }
         }
@@ -17813,7 +17814,7 @@ void Player::CastedCreatureOrGO(uint32 entry, ObjectGuid guid, uint32 spell_id)
 
         if (q_status.Status == QUEST_STATUS_INCOMPLETE)
         {
-            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL_OR_CAST))
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST))
             {
                 for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
                 {
@@ -17890,7 +17891,7 @@ void Player::TalkedToCreature(uint32 entry, ObjectGuid guid)
 
         if (q_status.Status == QUEST_STATUS_INCOMPLETE)
         {
-            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL_OR_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO))
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO))
             {
                 for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
                 {
@@ -25443,7 +25444,7 @@ void Player::learnDefaultSpells()
 
 void Player::learnQuestRewardedSpells(Quest const* quest)
 {
-    int32 spell_id = quest->GetRewSpellCast();
+    int32 spell_id = quest->GetRewSpell();
     uint32 src_spell_id = quest->GetSrcSpell();
 
     // skip quests without rewarded spell

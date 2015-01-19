@@ -18,21 +18,21 @@ ALTER TABLE `quest_template` CHANGE `RequiredClasses` `AllowableClasses` INT(11)
 ALTER TABLE `quest_template` CHANGE `RequiredRaces` `AllowableRaces` INT(11) NOT NULL DEFAULT '-1' AFTER `TimeAllowed`;
 ALTER TABLE `quest_template` CHANGE `NextQuestIdChain` `RewardNextQuest` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `RewardSpell` `RewardDisplaySpell` INT(10) UNSIGNED NOT NULL DEFAULT '0';
-
--- > ToDo
 ALTER TABLE `quest_template` CHANGE `RewardSpellCast` `RewardSpell` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `RewardHonor` `RewardHonor` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `RewardHonorMultiplier` `RewardKillHonor` INT(10) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `quest_template` DROP COLUMN `RewardMailTemplateId`;
-ALTER TABLE `quest_template` DROP COLUMN `RewardMailDelay`;
 ALTER TABLE `quest_template` CHANGE `SourceItemId` `StartItem` INT(10) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `quest_template` DROP COLUMN `SourceItemCount`;
-ALTER TABLE `quest_template` DROP COLUMN `SourceSpellId`;
 ALTER TABLE `quest_template` ADD COLUMN `FlagsEx` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `Flags`;
-ALTER TABLE `quest_template` DROP COLUMN `SpecialFlags`;
-ALTER TABLE `quest_template` CHANGE `MinimapTargetMark` `AreaGroupID` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `SoundTurnIn`;
+ALTER TABLE `quest_template` ADD COLUMN `AreaGroupID` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `SoundTurnIn`;
 ALTER TABLE `quest_template` CHANGE `RewardTitleId` `RewardTitle` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `PointOption`;
 ALTER TABLE `quest_template` DROP COLUMN `RequiredPlayerKills`;
+
+-- > ToDo
+
+
+
+
+
 ALTER TABLE `quest_template` CHANGE `RewardTalents` `RewardTalents` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardTitle`;
 ALTER TABLE `quest_template` CHANGE `RewardArenaPoints` `RewardArenaPoints` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardTalents`;
 ALTER TABLE `quest_template` CHANGE `RewardSkillId` `RewardSkillLineID` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardArenaPoints`;
@@ -182,3 +182,10 @@ ALTER TABLE `quest_template` DROP COLUMN `RequiredMaxRepValue`;
 ALTER TABLE `quest_template` DROP COLUMN `PrevQuestId`;
 ALTER TABLE `quest_template` DROP COLUMN `NextQuestId`;
 ALTER TABLE `quest_template` DROP COLUMN `ExclusiveGroup`;
+
+ALTER TABLE `quest_template` DROP COLUMN `RewardMailTemplateId`;
+ALTER TABLE `quest_template` DROP COLUMN `RewardMailDelay`;
+
+ALTER TABLE `quest_template` DROP COLUMN `SourceItemCount`;
+ALTER TABLE `quest_template` DROP COLUMN `SourceSpellId`;
+ALTER TABLE `quest_template` DROP COLUMN `SpecialFlags`;

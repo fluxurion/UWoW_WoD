@@ -171,6 +171,7 @@ enum __QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_AUTO_ACCEPT          = 0x004, // quest is to be auto-accepted.
     QUEST_SPECIAL_FLAGS_DF_QUEST             = 0x008, // quest is used by Dungeon Finder.
     QUEST_SPECIAL_FLAGS_NOT_REMOVE_SOURCE    = 0x010, // then we shoul leave at player requared items (exp. q30027)
+    QUEST_SPECIAL_FLAGS_CAST                 = 0x020,   // Set by 32 in SpecialFlags in DB if the quest requires RequiredOrNpcGo killcredit but NOT kill (a spell cast)
 
     // room for more custom flags
 
@@ -179,7 +180,7 @@ enum __QuestSpecialFlags
 
     QUEST_SPECIAL_FLAGS_DELIVER              = 0x080,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_SPEAKTO              = 0x100,   // Internal flag computed only
-    QUEST_SPECIAL_FLAGS_KILL_OR_CAST         = 0x200,   // Internal flag computed only
+    QUEST_SPECIAL_FLAGS_KILL                 = 0x200,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_TIMED                = 0x400,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x800,   // Internal flag computed only
 };
@@ -237,6 +238,7 @@ class Quest
         // table data accessors:
         uint32 GetQuestId() const { return Id; }
         uint32 GetQuestType() const { return Type; }
+        uint32 GetQuestPackageID() const { return PackageID; }
         int32  GetZoneOrSort() const { return QuestSortID; }
         uint32 GetMinLevel() const { return MinLevel; }
         uint32 GetMaxLevel() const { return MaxLevel; }
@@ -262,7 +264,6 @@ class Quest
         int32  GetExclusiveGroup() const { return ExclusiveGroup; }
         uint32 GetNextQuestInChain() const { return NextQuestIdChain; }
         uint32 GetRewTitle() const { return RewardTitleId; }
-        uint32 GetPlayersSlain() const { return RequiredPlayerKills; }
         uint32 GetBonusTalents() const { return RewardTalents; }
         int32  GetRewArenaPoints() const {return RewardArenaPoints; }
         uint32 GetXPDifficulty() const { return RewardXPDifficulty; }
@@ -285,9 +286,9 @@ class Quest
         uint32 GetRewMoneyMaxLevel() const; // use in XP calculation at client
         uint32 GetRewMoneyDifficulty() const { return RewardMoneyDifficulty; }
         uint32 GetRewHonor() const { return RewardHonor; }
-        float GetRewKillHonor() const { return RewardHonorMultiplier; }
+        float GetRewKillHonor() const { return RewardKillHonor; }
         uint32 GetRewDisplaySpell() const { return RewardDisplaySpell; }
-        int32  GetRewSpellCast() const { return RewardSpellCast; }
+        int32  GetRewSpell() const { return RewardSpell; }
         uint32 GetRewMailTemplateId() const { return RewardMailTemplateId; }
         uint32 GetRewMailDelaySecs() const { return RewardMailDelay; }
         uint32 GetPointMapId() const { return PointMapId; }
@@ -305,7 +306,9 @@ class Quest
         bool   IsAutoAccept() const;
         bool   IsAutoComplete() const;
         uint32 GetFlags() const { return Flags; }
+        uint32 GetFlagsEx() const { return FlagsEx; }
         uint32 GetSpecialFlags() const { return SpecialFlags; }
+        uint32 GetAreaGroupID() const { return AreaGroupID; }
         uint32 GetRewardSkillId() const { return RewardSkillId; }
         uint32 GetRewardSkillPoints() const { return RewardSkillPoints; }
         uint32 GetRewardReputationMask() const { return RewardReputationMask; }
@@ -386,6 +389,7 @@ class Quest
     public:
         uint32 Id;
         uint32 Type;
+        uint32 PackageID;
         int32  QuestSortID;
         uint32 MinLevel;
         uint32 MaxLevel;
@@ -407,8 +411,8 @@ class Quest
         uint32 SuggestedPlayers;
         uint32 LimitTime;
         uint32 Flags;
+        uint32 FlagsEx;
         uint32 RewardTitleId;
-        uint32 RequiredPlayerKills;
         uint32 RewardTalents;
         int32  RewardArenaPoints;
         int32  PrevQuestId;
@@ -428,13 +432,13 @@ class Quest
         std::string EndText;
         std::string CompletedText;
         uint32 RewardHonor;
-        float RewardHonorMultiplier;
+        float RewardKillHonor;
         int32  RewardMoney;
         uint32 RewardMoneyDifficulty;
         float  Float13;
         uint32 RewardBonusMoney;
         uint32 RewardDisplaySpell;
-        int32  RewardSpellCast;
+        int32  RewardSpell;
         uint32 RewardMailTemplateId;
         uint32 RewardMailDelay;
         uint32 PointMapId;
@@ -458,6 +462,7 @@ class Quest
         std::string QuestTurnTargetName;
         uint32 SoundAccept;
         uint32 SoundTurnIn;
+        uint32 AreaGroupID;
         uint32 PackageItem;
 
         uint32 SpecialFlags; // custom flags, not sniffed/WDB
@@ -487,8 +492,8 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_INTERACT                = 3,
     QUEST_OBJECTIVE_CURRENCY                = 4,
     QUEST_OBJECTIVE_SPELL                   = 5,
-    QUEST_OBJECTIVE_FACTION                 = 6,
-    QUEST_OBJECTIVE_UNK7                    = 7,
+    QUEST_OBJECTIVE_MIN_REPUTATION          = 6,
+    QUEST_OBJECTIVE_MAX_REPUTATION          = 7,
     QUEST_OBJECTIVE_MONEY                   = 8,
     QUEST_OBJECTIVE_PLAYER_KILLS            = 9,
     QUEST_OBJECTIVE_EXPLORE_AREATRIGGER     = 10,

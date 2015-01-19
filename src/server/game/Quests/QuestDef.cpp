@@ -28,6 +28,7 @@ Quest::Quest(Field* questRecord)
     Id                      = questRecord[index++].GetUInt32();
     Type                    = questRecord[index++].GetUInt8();
     Level                   = questRecord[index++].GetInt16();
+    PackageID               = questRecord[index++].GetUInt32();
     MinLevel                = uint32(questRecord[index++].GetInt16());
     MaxLevel                = uint32(questRecord[index++].GetInt16());
     QuestSortID              = questRecord[index++].GetInt16();
@@ -58,18 +59,18 @@ Quest::Quest(Field* questRecord)
     Float13                 = questRecord[index++].GetFloat();
     RewardBonusMoney        = questRecord[index++].GetUInt32();
     RewardDisplaySpell             = questRecord[index++].GetUInt32();
-    RewardSpellCast         = questRecord[index++].GetInt32();
+    RewardSpell         = questRecord[index++].GetInt32();
     RewardHonor             = questRecord[index++].GetUInt32();
-    RewardHonorMultiplier   = questRecord[index++].GetFloat();
+    RewardKillHonor   = questRecord[index++].GetFloat();
     RewardMailTemplateId    = questRecord[index++].GetUInt32();
     RewardMailDelay         = questRecord[index++].GetUInt32();
     SourceItemId            = questRecord[index++].GetUInt32();
     SourceItemIdCount       = questRecord[index++].GetUInt8();
     SourceSpellid           = questRecord[index++].GetUInt32();
     Flags                   = questRecord[index++].GetUInt32();
+    FlagsEx                 = questRecord[index++].GetUInt32();
     SpecialFlags            = questRecord[index++].GetUInt8();
     RewardTitleId           = questRecord[index++].GetUInt8();
-    RequiredPlayerKills     = questRecord[index++].GetUInt8();
     RewardTalents           = questRecord[index++].GetUInt8();
     RewardArenaPoints       = questRecord[index++].GetUInt16();
     RewardSkillId           = questRecord[index++].GetUInt16();
@@ -172,6 +173,7 @@ Quest::Quest(Field* questRecord)
     QuestTurnTargetName     = questRecord[index++].GetString();
     SoundAccept             = questRecord[index++].GetUInt16();
     SoundTurnIn             = questRecord[index++].GetUInt16();
+    AreaGroupID             = questRecord[index++].GetUInt32();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         DetailsEmote[i] = questRecord[index++].GetUInt16();
@@ -338,7 +340,7 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     data << float(0.0f);                                    // unk, honor multiplier?
     data << uint32(0x08);                                   // unused by client?
     data << uint32(quest->GetRewDisplaySpell());                   // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
-    data << int32(quest->GetRewSpellCast());                // casted spell
+    data << int32(quest->GetRewSpell());                // casted spell
     data << uint32(0);                                      // unknown
     data << uint32(quest->GetBonusTalents());               // bonus talents
     data << uint32(quest->GetRewArenaPoints());             // arena points
@@ -355,7 +357,7 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
         data << uint32(RewardFactionValueIdOverride[i]);
 
     data << uint32(GetRewDisplaySpell());
-    data << uint32(GetRewSpellCast());
+    data << uint32(GetRewSpell());
 
     for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         data << uint32(RewardCurrencyId[i]);

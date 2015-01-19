@@ -430,7 +430,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << uint32(quest->GetRewChoiceItemDisplayId(3));
     data << uint32(0);
     data << uint32(quest->GetRewChoiceItemDisplayId(4));
-    data << uint32(quest->GetRewSpellCast());
+    data << uint32(quest->GetRewSpell());
     data << uint32(quest->RewardChoiceItemId[1]);
     data << uint32(quest->RewardChoiceItemId[5]);
     data << uint32(0);
@@ -574,7 +574,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     packet.Info.QuestID = quest->GetQuestId();
     packet.Info.QuestType = quest->GetQuestType();
     packet.Info.QuestLevel = quest->GetQuestLevel();
-    packet.Info.QuestPackageID = 0/*quest->GetQuestPackageID()*/;
+    packet.Info.QuestPackageID = quest->GetQuestPackageID();
     packet.Info.QuestMinLevel = quest->GetMinLevel();
     packet.Info.QuestSortID = quest->GetZoneOrSort();
     packet.Info.QuestInfoID = quest->GetQuestInfoID();
@@ -597,7 +597,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
 
     packet.Info.StartItem = quest->GetSrcItemId();
     packet.Info.Flags = quest->GetFlags();
-    packet.Info.FlagsEx = quest->GetSpecialFlags();
+    packet.Info.FlagsEx = quest->GetFlagsEx();
     packet.Info.RewardTitle = quest->GetRewTitle();
     packet.Info.RewardTalents = quest->GetBonusTalents();
     packet.Info.RewardArenaPoints = quest->GetRewArenaPoints();
@@ -791,7 +791,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     data << uint32(hideRewards ? 0 : quest->RewardChoiceItemId[4]);
 
     data << uint32(quest->GetSrcItemId());                      // source item id
-    data << int32(quest->GetRewSpellCast());                    // casted spell
+    data << int32(quest->GetRewSpell());                    // casted spell
     data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[0]);
     data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[3]);
     data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[5]);
@@ -881,7 +881,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
 
 
     data << uint32(quest->GetQuestGiverPortrait());
-    data << uint32(quest->GetRewSpellCast());
+    data << uint32(quest->GetRewSpell());
     data << uint32(quest->GetRewItemsCount());
     data << uint32(quest->GetQuestTurnInPortrait());
     data << uint32(quest->RewardItemIdCount[1]);
