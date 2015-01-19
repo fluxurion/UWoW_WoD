@@ -727,7 +727,7 @@ struct CharStartOutfitEntry
 
 struct CharTitlesEntry
 {
-    uint32      ID;                                         // 0, title ids, for example in Quest::GetCharTitleId()
+    uint32      ID;                                         // 0, title ids, for example in Quest::GetRewTitle()
     //uint32    ConditionID;                                // 1
     char*       NameMale_lang;                              // 2 m_name_lang
     char*       NameFemale_lang;                            // 3 m_name1_lang

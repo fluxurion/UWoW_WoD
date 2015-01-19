@@ -23,6 +23,8 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Formulas.h"
+#include "QuestPackets.h"
+#include "NPCPackets.h"
 
 GossipMenu::GossipMenu()
 {
@@ -382,7 +384,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     }
 
     data << uint32(quest->GetRewItemDisplayId(2));
-    data << int32(quest->GetRewOrReqMoney());
+    data << int32(quest->GetRewMoney());
     data << uint32(quest->RewardItemId[0]);
     data << uint32(quest->RewardChoiceItemCount[5]);
     data << uint32(quest->GetRewPackageItem());
@@ -405,7 +407,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << uint32(quest->RewardChoiceItemCount[4]);
     data << uint32(quest->RewardItemIdCount[3]);
     data << uint32(quest->RewardItemId[2]);
-    data << uint32(quest->GetRewSpell());
+    data << uint32(quest->GetRewDisplaySpell());
     data << uint32(quest->GetRewChoiceItemDisplayId(2));
     data << uint32(0);
     data << uint32(quest->RewardItemId[1]);
@@ -564,7 +566,109 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
         }
     }
 
-    WorldPacket data(SMSG_QUEST_QUERY_RESPONSE, 100);           // guess size
+    WorldPackets::Quest::QueryQuestInfoResponse packet;
+
+    packet.Allow = true;
+    packet.QuestID = quest->GetQuestId();
+
+    packet.Info.QuestID = quest->GetQuestId();
+    packet.Info.QuestType = quest->GetQuestType();
+    packet.Info.QuestLevel = quest->GetQuestLevel();
+    packet.Info.QuestPackageID = 0/*quest->GetQuestPackageID()*/;
+    packet.Info.QuestMinLevel = quest->GetMinLevel();
+    packet.Info.QuestSortID = quest->GetZoneOrSort();
+    packet.Info.QuestInfoID = quest->GetQuestInfoID();
+    packet.Info.SuggestedGroupNum = quest->GetSuggestedPlayers();
+    packet.Info.RewardNextQuest = quest->GetNextQuestInChain();
+    packet.Info.RewardXPDifficulty = quest->GetXPDifficulty();
+    packet.Info.Float10 = quest->Float10; // Unk
+    packet.Info.Float13 = quest->Float13; // Unk
+
+    if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+        packet.Info.RewardMoney = quest->RewardMoney;
+
+    packet.Info.RewardMoneyDifficulty = quest->GetRewMoneyDifficulty();
+    packet.Info.RewardBonusMoney = quest->GetRewMoneyMaxLevel();
+    packet.Info.RewardDisplaySpell = quest->GetRewDisplaySpell();
+    packet.Info.RewardSpell = quest->GetRewDisplaySpell();
+
+    packet.Info.RewardHonor = quest->GetRewHonor();
+    packet.Info.RewardKillHonor = quest->GetRewKillHonor();
+
+    packet.Info.StartItem = quest->GetSrcItemId();
+    packet.Info.Flags = quest->GetFlags();
+    packet.Info.FlagsEx = quest->GetSpecialFlags();
+    packet.Info.RewardTitle = quest->GetRewTitle();
+    packet.Info.RewardTalents = quest->GetBonusTalents();
+    packet.Info.RewardArenaPoints = quest->GetRewArenaPoints();
+    packet.Info.RewardSkillLineID = quest->GetRewardSkillId();
+    packet.Info.RewardNumSkillUps = quest->GetRewardSkillPoints();
+    packet.Info.RewardFactionFlags = quest->GetRewardReputationMask();
+    packet.Info.PortraitGiver = quest->GetQuestGiverPortrait();
+    packet.Info.PortraitTurnIn = quest->GetQuestTurnInPortrait();
+
+    if (!quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+    {
+        for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+        {
+            packet.Info.RewardItems[i] = quest->RewardItemId[i];
+            packet.Info.RewardAmount[i] = quest->RewardItemCount[i];
+        }
+        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        {
+            packet.Info.UnfilteredChoiceItems[i].ItemID = quest->RewardChoiceItemId[i];
+            packet.Info.UnfilteredChoiceItems[i].Quantity = quest->RewardChoiceItemCount[i];
+        }
+    }
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    {
+        packet.Info.RewardFactionID[i] = quest->RewardFactionId[i];
+        packet.Info.RewardFactionValue[i] = quest->RewardFactionValue[i];
+        packet.Info.RewardFactionOverride[i] = quest->RewardFactionOverride[i];
+    }
+
+    packet.Info.POIContinent = quest->GetPointMapId();
+    packet.Info.POIx = quest->GetPointX();
+    packet.Info.POIy = quest->GetPointY();
+    packet.Info.POIPriority = quest->GetPointOpt();
+
+    /*if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
+        AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());*/
+
+    packet.Info.LogTitle = questTitle;
+    packet.Info.LogDescription = questDetails;
+    packet.Info.QuestDescription = questObjectives;
+    packet.Info.AreaDescription = questEndText;
+    packet.Info.QuestCompletionLog = questCompletedText;
+    packet.Info.AllowableRaces = quest->GetAllowableRaces();
+
+    for (QuestObjective const& obj : quest->Objectives)
+    {
+        packet.Info.Objectives.push_back(obj);
+        // @todo update quets objective locales
+        //packet.Info.Objectives.back().Description = questObjectiveText[i];
+    }
+
+    for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+    {
+        packet.Info.RewardCurrencyID[i] = quest->RewardCurrencyId[i];
+        packet.Info.RewardCurrencyQty[i] = quest->RewardCurrencyCount[i];
+    }
+
+    packet.Info.PortraitGiverText = portraitGiverText;
+    packet.Info.PortraitGiverName = portraitGiverName;
+    packet.Info.PortraitTurnInText = portraitTurnInText;
+    packet.Info.PortraitTurnInName = portraitTurnInName;
+
+    packet.Info.AcceptedSoundKitID = quest->GetSoundAccept();
+    packet.Info.CompleteSoundKitID = quest->GetSoundTurnIn();
+    packet.Info.AreaGroupID = quest->GetAreaGroupID();
+    packet.Info.TimeAllowed = quest->GetLimitTime();
+
+    _session->SendPacket(packet.Write());
+
+/*    WorldPacket data(SMSG_QUEST_QUERY_RESPONSE, 100);           // guess size
     data << uint32(quest->GetQuestId());
     data.WriteBit(1);                                           // has data
     data.WriteBits(questTurnTextWindow.size(), 10);
@@ -664,13 +768,13 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     data << uint32(hideRewards ? 0 : quest->RewardItemIdCount[3]);
     data << uint32(quest->RequiredSourceItemCount[2]);
     data << uint32(quest->RequiredSourceItemCount[1]);
-    data << float(quest->GetRewHonorMultiplier());
+    data << float(quest->GetRewKillHonor());
     data << uint32(hideRewards ? 0 : quest->GetRewChoiceItemDisplayId(3));
     data.WriteString(questCompletedText);
     data << uint32(0);
     data << uint32(quest->RequiredSourceItemId[3]);
     data << uint32(quest->GetQuestLevel());                     // may be -1, static data, in other cases must be used dynamic level: Player::GetQuestLevel (0 is not known, but assuming this is no longer valid for quest intended for client)
-    data << uint32(quest->GetXPId());                           // used for calculating rewarded experience
+    data << uint32(quest->GetXPDifficulty());                           // used for calculating rewarded experience
 
     data << uint32(0);                                          // quest flags 2
     data << uint32(quest->RequiredSourceItemCount[3]);
@@ -694,21 +798,22 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     data << uint32(hideRewards ? 0 : quest->RewardItemIdCount[1]);
     data << uint32(quest->RequiredSourceItemCount[1]);
     data << uint32(hideRewards ? 0 : quest->RewardItemId[0]);
-    data << uint32(quest->GetQuestMethod());                    // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
+    data << uint32(quest->GetQuestType());                    // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
     data << uint32(quest->RequiredSourceItemId[2]);
     if (hideRewards)
         data << uint32(0);                                      // Hide money rewarded
     else
-        data << uint32(quest->GetRewOrReqMoney());              // reward money (below max lvl)
+        data << uint32(quest->GetRewMoney());              // reward money (below max lvl)
     data << uint32(quest->GetFlags());                          // quest flags
     data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[4]);
     data << uint32(quest->GetPointOpt());
     data << uint32(quest->GetQuestId());                        // quest id
     data << uint32(quest->GetSuggestedPlayers());               // suggested players count
-    data << uint32(quest->GetRewSpell());                       // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
+    data << uint32(quest->GetRewDisplaySpell());                       // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
     data << uint32(quest->GetMinLevel());                       // min level
 
     _session->SendPacket(&data);
+    */
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
 }
 
@@ -807,7 +912,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint32(quest->RewardChoiceItemId[2]);
     data << uint32(quest->GetRewItemDisplayId(3));
     data << uint32(0);
-    data << int32(quest->GetRewOrReqMoney());
+    data << int32(quest->GetRewMoney());
 
     //data.WriteGuidMask<2, 6, 3, 0>(npcGUID);
     data.WriteBits(questGiverTargetName.size(), 8);
@@ -891,7 +996,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     data.WriteBits(questTitle.size(), 9);
 
     data << uint32(0);                                      // quest flags 2
-    data << uint32(quest->GetRewOrReqMoney() < 0 ? -quest->GetRewOrReqMoney() : 0);
+    data << uint32(quest->GetRewMoney() < 0 ? -quest->GetRewMoney() : 0);
     //data.WriteGuidBytes<3>(npcGUID);
     data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
     //data.WriteGuidBytes<4, 5>(npcGUID);

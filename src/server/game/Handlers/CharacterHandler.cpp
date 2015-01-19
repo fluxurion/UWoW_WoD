@@ -2090,7 +2090,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             for (ObjectMgr::QuestMap::const_iterator iter = qTemplates.begin(); iter != qTemplates.end(); ++iter)
             {
                 Quest *qinfo = iter->second;
-                uint32 requiredRaces = qinfo->GetRequiredRaces();
+                uint32 requiredRaces = qinfo->GetAllowableRaces();
                 if (team == BG_TEAM_ALLIANCE)
                 {
                     if (requiredRaces & RACEMASK_ALLIANCE)

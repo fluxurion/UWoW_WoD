@@ -26,17 +26,17 @@ Quest::Quest(Field* questRecord)
     uint8 index = 0;
 
     Id                      = questRecord[index++].GetUInt32();
-    Method                  = questRecord[index++].GetUInt8();
+    Type                    = questRecord[index++].GetUInt8();
     Level                   = questRecord[index++].GetInt16();
     MinLevel                = uint32(questRecord[index++].GetInt16());
     MaxLevel                = uint32(questRecord[index++].GetInt16());
-    ZoneOrSort              = questRecord[index++].GetInt16();
-    Type                    = questRecord[index++].GetUInt16();
+    QuestSortID              = questRecord[index++].GetInt16();
+    QuestInfoID             = questRecord[index++].GetUInt16();
     SuggestedPlayers        = questRecord[index++].GetUInt8();
     LimitTime               = questRecord[index++].GetUInt32();
     RequiredTeam            = questRecord[index++].GetInt8();
-    RequiredClasses         = questRecord[index++].GetInt16();
-    RequiredRaces           = questRecord[index++].GetInt32();
+    AllowableClasses         = questRecord[index++].GetInt16();
+    AllowableRaces           = questRecord[index++].GetInt32();
     RequiredSkillId         = questRecord[index++].GetUInt16();
     RequiredSkillPoints     = questRecord[index++].GetUInt16();
     RequiredFactionId1      = questRecord[index++].GetUInt16();
@@ -51,10 +51,13 @@ Quest::Quest(Field* questRecord)
     NextQuestId             = questRecord[index++].GetInt32();
     ExclusiveGroup          = questRecord[index++].GetInt32();
     NextQuestIdChain        = questRecord[index++].GetUInt32();
-    RewardXPId              = questRecord[index++].GetUInt8();
-    RewardOrRequiredMoney   = questRecord[index++].GetInt32();
-    RewardMoneyMaxLevel     = questRecord[index++].GetUInt32();
-    RewardSpell             = questRecord[index++].GetUInt32();
+    RewardXPDifficulty      = questRecord[index++].GetUInt8();
+    Float10                 = questRecord[index++].GetFloat();
+    RewardMoney             = questRecord[index++].GetInt32();
+    RewardMoneyDifficulty   = questRecord[index++].GetUInt32();
+    Float13                 = questRecord[index++].GetFloat();
+    RewardBonusMoney        = questRecord[index++].GetUInt32();
+    RewardDisplaySpell             = questRecord[index++].GetUInt32();
     RewardSpellCast         = questRecord[index++].GetInt32();
     RewardHonor             = questRecord[index++].GetUInt32();
     RewardHonorMultiplier   = questRecord[index++].GetFloat();
@@ -265,7 +268,7 @@ uint32 Quest::XPValue(Player* player) const
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = diffFactor * xpentry->Exp[RewardXPId] / 10;
+        uint32 xp = diffFactor * xpentry->Exp[RewardXPDifficulty] / 10;
         if (xp <= 100)
             xp = 5 * ((xp + 2) / 5);
         else if (xp <= 500)
@@ -281,12 +284,12 @@ uint32 Quest::XPValue(Player* player) const
     return 0;
 }
 
-int32 Quest::GetRewOrReqMoney() const
+int32 Quest::GetRewMoney() const
 {
-    if (RewardOrRequiredMoney <= 0)
-        return RewardOrRequiredMoney;
+    if (RewardMoney <= 0)
+        return RewardMoney;
 
-    return int32(RewardOrRequiredMoney * sWorld->getRate(RATE_DROP_MONEY));
+    return int32(RewardMoney * sWorld->getRate(RATE_DROP_MONEY));
 }
 
 void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
@@ -315,7 +318,7 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
             data << uint32(0);
     }
 
-    data << int32(GetRewOrReqMoney());
+    data << int32(GetRewMoney());
 
     float QuestXpRate = 1;
     if(player->GetPersonnalXpRate())
@@ -334,7 +337,7 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     data << uint32(10 * quest->CalculateHonorGain(_session->GetPlayer()->GetQuestLevel(quest)));
     data << float(0.0f);                                    // unk, honor multiplier?
     data << uint32(0x08);                                   // unused by client?
-    data << uint32(quest->GetRewSpell());                   // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
+    data << uint32(quest->GetRewDisplaySpell());                   // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
     data << int32(quest->GetRewSpellCast());                // casted spell
     data << uint32(0);                                      // unknown
     data << uint32(quest->GetBonusTalents());               // bonus talents
@@ -351,7 +354,7 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward reputation override?
         data << uint32(RewardFactionValueIdOverride[i]);
 
-    data << uint32(GetRewSpell());
+    data << uint32(GetRewDisplaySpell());
     data << uint32(GetRewSpellCast());
 
     for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
@@ -371,7 +374,7 @@ bool Quest::IsAutoAccept() const
 
 bool Quest::IsAutoComplete() const
 {
-    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && (Method == 0/* || HasFlag(QUEST_FLAGS_AUTOCOMPLETE)*/);
+    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && (Type == 0/* || HasFlag(QUEST_FLAGS_AUTOCOMPLETE)*/);
 }
 
 bool Quest::IsAllowedInRaid() const
@@ -389,14 +392,14 @@ uint32 Quest::CalculateHonorGain(uint8 level) const
 
     uint32 honor = 0;
 
-    /*if (GetRewHonorAddition() > 0 || GetRewHonorMultiplier() > 0.0f)
+    /*if (GetRewHonor() > 0 || GetRewKillHonor() > 0.0f)
     {
         // values stored from 0.. for 1...
         TeamContributionPointsEntry const* tc = sTeamContributionPointsStore.LookupEntry(level);
         if (!tc)
             return 0;
-        honor = uint32(tc->value * GetRewHonorMultiplier() * 0.1f);
-        honor += GetRewHonorAddition();
+        honor = uint32(tc->value * GetRewKillHonor() * 0.1f);
+        honor += GetRewHonor();
     }*/
 
     return honor;

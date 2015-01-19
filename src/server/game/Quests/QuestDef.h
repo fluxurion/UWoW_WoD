@@ -236,15 +236,15 @@ class Quest
 
         // table data accessors:
         uint32 GetQuestId() const { return Id; }
-        uint32 GetQuestMethod() const { return Method; }
-        int32  GetZoneOrSort() const { return ZoneOrSort; }
+        uint32 GetQuestType() const { return Type; }
+        int32  GetZoneOrSort() const { return QuestSortID; }
         uint32 GetMinLevel() const { return MinLevel; }
         uint32 GetMaxLevel() const { return MaxLevel; }
         int32 GetQuestLevel() const { return Level; }
-        uint32 GetType() const { return Type; }
+        uint32 GetQuestInfoID() const { return QuestInfoID; }
         int8   GetRequiredTeam() const { return RequiredTeam; }
-        int32  GetRequiredClasses() const { return RequiredClasses; }
-        int32  GetRequiredRaces() const { return RequiredRaces; }
+        int32  GetAllowableClasses() const { return AllowableClasses; }
+        int32  GetAllowableRaces() const { return AllowableRaces; }
         uint32 GetRequiredSkill() const { return RequiredSkillId; }
         uint32 GetRequiredSkillValue() const { return RequiredSkillPoints; }
         uint32 GetRepObjectiveFaction() const { return RequiredFactionId1; }
@@ -261,11 +261,11 @@ class Quest
         int32  GetNextQuestId() const { return NextQuestId; }
         int32  GetExclusiveGroup() const { return ExclusiveGroup; }
         uint32 GetNextQuestInChain() const { return NextQuestIdChain; }
-        uint32 GetCharTitleId() const { return RewardTitleId; }
+        uint32 GetRewTitle() const { return RewardTitleId; }
         uint32 GetPlayersSlain() const { return RequiredPlayerKills; }
         uint32 GetBonusTalents() const { return RewardTalents; }
         int32  GetRewArenaPoints() const {return RewardArenaPoints; }
-        uint32 GetXPId() const { return RewardXPId; }
+        uint32 GetXPDifficulty() const { return RewardXPDifficulty; }
         uint32 GetSrcItemId() const { return SourceItemId; }
         uint32 GetSrcItemCount() const { return SourceItemIdCount; }
         uint32 GetSrcSpell() const { return SourceSpellid; }
@@ -281,11 +281,12 @@ class Quest
         std::string GetQuestTurnTextWindow() const { return QuestTurnTextWindow; }
         std::string GetQuestTurnTargetName() const { return QuestTurnTargetName; }
         QuestObjectives const& GetObjectives() const { return Objectives; };
-        int32  GetRewOrReqMoney() const;
-        uint32 GetRewHonorAddition() const { return RewardHonor; }
-        float GetRewHonorMultiplier() const { return RewardHonorMultiplier; }
-        uint32 GetRewMoneyMaxLevel() const { return RewardMoneyMaxLevel; } // use in XP calculation at client
-        uint32 GetRewSpell() const { return RewardSpell; }
+        int32  GetRewMoney() const;
+        uint32 GetRewMoneyMaxLevel() const; // use in XP calculation at client
+        uint32 GetRewMoneyDifficulty() const { return RewardMoneyDifficulty; }
+        uint32 GetRewHonor() const { return RewardHonor; }
+        float GetRewKillHonor() const { return RewardHonorMultiplier; }
+        uint32 GetRewDisplaySpell() const { return RewardDisplaySpell; }
         int32  GetRewSpellCast() const { return RewardSpellCast; }
         uint32 GetRewMailTemplateId() const { return RewardMailTemplateId; }
         uint32 GetRewMailDelaySecs() const { return RewardMailDelay; }
@@ -312,9 +313,9 @@ class Quest
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
         bool   IsDaily() const { return (Flags & QUEST_FLAGS_DAILY) != 0; }
         bool   IsWeekly() const { return (Flags & QUEST_FLAGS_WEEKLY) != 0; }
-        bool   IsSeasonal() const { return (ZoneOrSort == -QUEST_SORT_SEASONAL || ZoneOrSort == -QUEST_SORT_SPECIAL || ZoneOrSort == -QUEST_SORT_LUNAR_FESTIVAL || ZoneOrSort == -QUEST_SORT_MIDSUMMER || ZoneOrSort == -QUEST_SORT_BREWFEST || ZoneOrSort == -QUEST_SORT_LOVE_IS_IN_THE_AIR || ZoneOrSort == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
+        bool   IsSeasonal() const { return (QuestSortID == -QUEST_SORT_SEASONAL || QuestSortID == -QUEST_SORT_SPECIAL || QuestSortID == -QUEST_SORT_LUNAR_FESTIVAL || QuestSortID == -QUEST_SORT_MIDSUMMER || QuestSortID == -QUEST_SORT_BREWFEST || QuestSortID == -QUEST_SORT_LOVE_IS_IN_THE_AIR || QuestSortID == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
         bool   IsDailyOrWeekly() const { return (Flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY)) != 0; }
-        bool   IsRaidQuest() const { return Type == QUEST_TYPE_RAID || Type == QUEST_TYPE_RAID_10 || Type == QUEST_TYPE_RAID_25 || Type == QUEST_TYPE_LEGENDARY; }
+        bool   IsRaidQuest() const { return QuestInfoID == QUEST_TYPE_RAID || QuestInfoID == QUEST_TYPE_RAID_10 || QuestInfoID == QUEST_TYPE_RAID_25 || QuestInfoID == QUEST_TYPE_LEGENDARY; }
         bool   IsAllowedInRaid() const;
         bool   IsDFQuest() const { return (SpecialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
         uint32 CalculateHonorGain(uint8 level) const;
@@ -382,17 +383,17 @@ class Quest
         uint32 m_reqCurrencyCount;
 
         // table data
-    protected:
+    public:
         uint32 Id;
-        uint32 Method;
-        int32  ZoneOrSort;
+        uint32 Type;
+        int32  QuestSortID;
         uint32 MinLevel;
         uint32 MaxLevel;
         int32  Level;
-        uint32 Type;
+        uint32 QuestInfoID;
         int8   RequiredTeam;
-        int32  RequiredClasses;
-        int32  RequiredRaces;
+        int32  AllowableClasses;
+        int32  AllowableRaces;
         uint32 RequiredSkillId;
         uint32 RequiredSkillPoints;
         uint32 RequiredFactionId1;
@@ -414,7 +415,8 @@ class Quest
         int32  NextQuestId;
         int32  ExclusiveGroup;
         uint32 NextQuestIdChain;
-        uint32 RewardXPId;
+        uint32 RewardXPDifficulty;
+        float  Float10;
         uint32 SourceItemId;
         uint32 SourceItemIdCount;
         uint32 SourceSpellid;
@@ -427,9 +429,11 @@ class Quest
         std::string CompletedText;
         uint32 RewardHonor;
         float RewardHonorMultiplier;
-        int32  RewardOrRequiredMoney;
-        uint32 RewardMoneyMaxLevel;
-        uint32 RewardSpell;
+        int32  RewardMoney;
+        uint32 RewardMoneyDifficulty;
+        float  Float13;
+        uint32 RewardBonusMoney;
+        uint32 RewardDisplaySpell;
         int32  RewardSpellCast;
         uint32 RewardMailTemplateId;
         uint32 RewardMailDelay;

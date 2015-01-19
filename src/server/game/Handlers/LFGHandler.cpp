@@ -290,7 +290,7 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recvData)
         buff << uint32(0);      // cap currency overall Quantity
         buff << uint32(0);      // cap currency period Purse Limit
         buff << uint32(0);      // completed encounters mask
-        buff << uint32(rewardQuest ? rewardQuest->GetRewOrReqMoney() : 0);
+        buff << uint32(rewardQuest ? rewardQuest->GetRewMoney() : 0);
 
         if (rewardQuest)
         {
@@ -639,7 +639,7 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
     }
 
     data << uint32(quest->XPValue(GetPlayer()));
-    data << uint32(quest->GetRewOrReqMoney());
+    data << uint32(quest->GetRewMoney());
     data << uint32(rewardData.rdungeonEntry);              // Random Dungeon Finished
     data << uint32(rewardData.sdungeonEntry);              // Dungeon Finished
 

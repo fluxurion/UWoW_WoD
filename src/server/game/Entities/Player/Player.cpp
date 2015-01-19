@@ -16421,9 +16421,9 @@ bool Player::CanCompleteQuest(uint32 quest_id)
             if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED) && q_status.Timer == 0)
                 return false;
 
-            if (qInfo->GetRewOrReqMoney() < 0)
+            if (qInfo->GetRewMoney() < 0)
             {
-                if (!HasEnoughMoney(-int64(qInfo->GetRewOrReqMoney())))
+                if (!HasEnoughMoney(-int64(qInfo->GetRewMoney())))
                     return false;
             }
 
@@ -16489,8 +16489,8 @@ bool Player::CanRewardQuest(Quest const* quest, bool msg)
         if (quest->RequiredCurrencyId[i] && !HasCurrency(quest->RequiredCurrencyId[i], quest->RequiredCurrencyCount[i] * GetCurrencyPrecision(quest->RequiredCurrencyId[i])))
             return false;
 
-    // prevent receive reward with low money and GetRewOrReqMoney() < 0
-    if (quest->GetRewOrReqMoney() < 0 && !HasEnoughMoney(-int64(quest->GetRewOrReqMoney())))
+    // prevent receive reward with low money and GetRewMoney() < 0
+    if (quest->GetRewMoney() < 0 && !HasEnoughMoney(-int64(quest->GetRewMoney())))
         return false;
 
     return true;
@@ -16783,9 +16783,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
         guild->GiveXP(uint32(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_GUILD_MODIFIER)), this);
 
-    // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
-    if (quest->GetRewOrReqMoney())
-        moneyRew += quest->GetRewOrReqMoney();
+    // Give player extra money if GetRewMoney > 0 and get ReqMoney if negative
+    if (quest->GetRewMoney())
+        moneyRew += quest->GetRewMoney();
 
     if (moneyRew)
     {
@@ -16800,9 +16800,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         RewardHonor(NULL, 0, honor);
 
     // title reward
-    if (quest->GetCharTitleId())
+    if (quest->GetRewTitle())
     {
-        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetCharTitleId()))
+        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetRewTitle()))
             SetTitle(titleEntry);
     }
 
@@ -16859,8 +16859,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // cast spells after mark quest complete (some spells have quest completed state requirements in spell_area data)
     if (quest->GetRewSpellCast() > 0)
         CastSpell(this, quest->GetRewSpellCast(), true);
-    else if (quest->GetRewSpell() > 0)
-        CastSpell(this, quest->GetRewSpell(), true);
+    else if (quest->GetRewDisplaySpell() > 0)
+        CastSpell(this, quest->GetRewDisplaySpell(), true);
 
     if (quest->GetZoneOrSort() > 0)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, quest->GetZoneOrSort());
@@ -17072,7 +17072,7 @@ bool Player::SatisfyQuestTeam(Quest const* qInfo, bool msg)
 
 bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
 {
-    int32 reqClass = qInfo->GetRequiredClasses();
+    int32 reqClass = qInfo->GetAllowableClasses();
 
     if (!reqClass)
         return true;
@@ -17107,7 +17107,7 @@ bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
 
 bool Player::SatisfyQuestRace(Quest const* qInfo, bool msg)
 {
-    int32 reqraces = qInfo->GetRequiredRaces();
+    int32 reqraces = qInfo->GetAllowableRaces();
     if (!reqraces)
         return true;
 
@@ -17939,13 +17939,13 @@ void Player::MoneyChanged(uint32 count)
             continue;
 
         Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
-        if (qInfo && qInfo->GetRewOrReqMoney() < 0)
+        if (qInfo && qInfo->GetRewMoney() < 0)
         {
             QuestStatusData& q_status = m_QuestStatus[questid];
 
             if (q_status.Status == QUEST_STATUS_INCOMPLETE)
             {
-                if (int32(count) >= -qInfo->GetRewOrReqMoney())
+                if (int32(count) >= -qInfo->GetRewMoney())
                 {
                     if (CanCompleteQuest(questid))
                         CompleteQuest(questid);
@@ -17953,7 +17953,7 @@ void Player::MoneyChanged(uint32 count)
             }
             else if (q_status.Status == QUEST_STATUS_COMPLETE)
             {
-                if (int32(count) < -qInfo->GetRewOrReqMoney())
+                if (int32(count) < -qInfo->GetRewMoney())
                     IncompleteQuest(questid);
             }
         }
@@ -18097,12 +18097,12 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         xp = XP;
-        moneyReward = quest->GetRewOrReqMoney();
+        moneyReward = quest->GetRewMoney();
     }
     else // At max level, increase gold reward
     {
         xp = 0;
-        moneyReward = uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
+        moneyReward = uint32(quest->GetRewMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
 
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4 + 4 + 4 + 4 + 4));
@@ -19961,9 +19961,9 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                 learnQuestRewardedSpells(quest);
 
                 // set rewarded title if any
-                if (quest->GetCharTitleId())
+                if (quest->GetRewTitle())
                 {
-                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetCharTitleId()))
+                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetRewTitle()))
                         SetTitle(titleEntry);
                 }
 

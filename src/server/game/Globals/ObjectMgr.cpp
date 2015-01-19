@@ -3476,12 +3476,12 @@ void ObjectMgr::LoadQuests()
     mExclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        //0     1      2        3        4           5       6            7             8           9              10              11             12                 13
-        "Id, Method, Level, MinLevel, MaxLevel, ZoneOrSort, Type, SuggestedPlayers, LimitTime, RequiredTeam, RequiredClasses, RequiredRaces, RequiredSkillId, RequiredSkillPoints, "
+        //0      1           2        3        4           5            6              7                  8           9              10              11             12                 13
+        "ID, QuestType, QuestLevel, MinLevel, MaxLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, TimeAllowed, RequiredTeam, AllowableClasses, AllowableRaces, RequiredSkillId, RequiredSkillPoints, "
         //         14                 15                    16                   17                      18                  19                        20                  21
         "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, "
-        //     22         23             24                25             26              27                    28                29            30              31              32
-        "PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestIdChain, RewardXPId, RewardOrRequiredMoney, RewardMoneyMaxLevel, RewardSpell, RewardSpellCast, RewardHonor, RewardHonorMultiplier, "
+        //     22         23             24                25               26               27        28             29            30              31              32
+        "PrevQuestId, NextQuestId, ExclusiveGroup, RewardNextQuest, RewardXPDifficulty, Float10, RewardMoney, RewardMoneyDifficulty, Float13, RewardBonusMoney, RewardDisplaySpell, RewardSpellCast, RewardHonor, RewardHonorMultiplier, "
         //         33                  34            35             36               37         38         39            40                41               42                 43
         "RewardMailTemplateId, RewardMailDelay, SourceItemId, SourceItemCount, SourceSpellId, Flags, SpecialFlags, RewardTitleId, RequiredPlayerKills, RewardTalents, RewardArenaPoints, "
         //      45            46                    47                    48                  49               50             51              52             53                54                55                56               57
@@ -3550,8 +3550,8 @@ void ObjectMgr::LoadQuests()
 
         // additional quest integrity checks (GO, creature_template and item_template must be loaded already)
 
-        if (qinfo->GetQuestMethod() >= 3)
-            sLog->outError(LOG_FILTER_SQL, "Quest %u has `Method` = %u, expected values are 0, 1 or 2.", qinfo->GetQuestId(), qinfo->GetQuestMethod());
+        if (qinfo->GetQuestType() >= 3)
+            sLog->outError(LOG_FILTER_SQL, "Quest %u has `Method` = %u, expected values are 0, 1 or 2.", qinfo->GetQuestId(), qinfo->GetQuestType());
 
         if (qinfo->SpecialFlags & ~QUEST_SPECIAL_FLAGS_DB_ALLOWED)
         {
@@ -3605,57 +3605,57 @@ void ObjectMgr::LoadQuests()
         }
 
         // client quest log visual (area case)
-        if (qinfo->ZoneOrSort > 0)
+        if (qinfo->QuestSortID > 0)
         {
-            if (!GetAreaEntryByAreaID(qinfo->ZoneOrSort))
+            if (!GetAreaEntryByAreaID(qinfo->QuestSortID))
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `ZoneOrSort` = %u (zone case) but zone with this id does not exist.",
-                    qinfo->GetQuestId(), qinfo->ZoneOrSort);
+                sLog->outError(LOG_FILTER_SQL, "Quest %u has `QuestSortID` = %u (zone case) but zone with this id does not exist.",
+                    qinfo->GetQuestId(), qinfo->QuestSortID);
                 // no changes, quest not dependent from this value but can have problems at client
             }
         }
         // client quest log visual (sort case)
-        if (qinfo->ZoneOrSort < 0)
+        if (qinfo->QuestSortID < 0)
         {
-            QuestSortEntry const* qSort = sQuestSortStore.LookupEntry(-int32(qinfo->ZoneOrSort));
+            QuestSortEntry const* qSort = sQuestSortStore.LookupEntry(-int32(qinfo->QuestSortID));
             if (!qSort)
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `ZoneOrSort` = %i (sort case) but quest sort with this id does not exist.",
-                    qinfo->GetQuestId(), qinfo->ZoneOrSort);
+                sLog->outError(LOG_FILTER_SQL, "Quest %u has `QuestSortID` = %i (sort case) but quest sort with this id does not exist.",
+                    qinfo->GetQuestId(), qinfo->QuestSortID);
                 // no changes, quest not dependent from this value but can have problems at client (note some may be 0, we must allow this so no check)
             }
             //check for proper RequiredSkillId value (skill case)
-            if (uint32 skill_id = SkillByQuestSort(-int32(qinfo->ZoneOrSort)))
+            if (uint32 skill_id = SkillByQuestSort(-int32(qinfo->QuestSortID)))
             {
                 if (qinfo->RequiredSkillId != skill_id)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `ZoneOrSort` = %i but `RequiredSkillId` does not have a corresponding value (%d).",
-                        qinfo->GetQuestId(), qinfo->ZoneOrSort, skill_id);
+                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `QuestSortID` = %i but `RequiredSkillId` does not have a corresponding value (%d).",
+                        qinfo->GetQuestId(), qinfo->QuestSortID, skill_id);
                     //override, and force proper value here?
                 }
             }
         }
 
-        // RequiredClasses, can be 0/CLASSMASK_ALL_PLAYABLE to allow any class
-        if (qinfo->RequiredClasses)
+        // AllowableClasses, can be 0/CLASSMASK_ALL_PLAYABLE to allow any class
+        if (qinfo->AllowableClasses)
         {
-            uint32 RequiredClassCheck = qinfo->RequiredClasses > 0 ? qinfo->RequiredClasses: -(qinfo->RequiredClasses);
+            uint32 RequiredClassCheck = qinfo->AllowableClasses > 0 ? qinfo->AllowableClasses: -(qinfo->AllowableClasses);
 
-            if (!(qinfo->RequiredClasses & CLASSMASK_ALL_PLAYABLE))
+            if (!(qinfo->AllowableClasses & CLASSMASK_ALL_PLAYABLE))
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u does not contain any playable classes in `RequiredClasses` (%u), value set to 0 (all classes).", qinfo->GetQuestId(), qinfo->RequiredClasses);
-                qinfo->RequiredClasses = 0;
+                sLog->outError(LOG_FILTER_SQL, "Quest %u does not contain any playable classes in `AllowableClasses` (%u), value set to 0 (all classes).", qinfo->GetQuestId(), qinfo->AllowableClasses);
+                qinfo->AllowableClasses = 0;
             }
         }
-        // RequiredRaces, can be 0/RACEMASK_ALL_PLAYABLE to allow any race
-        if (qinfo->RequiredRaces)
+        // AllowableRaces, can be 0/RACEMASK_ALL_PLAYABLE to allow any race
+        if (qinfo->AllowableRaces)
         {
-            uint32 RequiredRacesCheck = qinfo->RequiredRaces > 0 ? qinfo->RequiredRaces: -(qinfo->RequiredRaces);
+            uint32 RequiredRacesCheck = qinfo->AllowableRaces > 0 ? qinfo->AllowableRaces: -(qinfo->AllowableRaces);
 
-            if (!(qinfo->RequiredRaces & RACEMASK_ALL_PLAYABLE))
+            if (!(qinfo->AllowableRaces & RACEMASK_ALL_PLAYABLE))
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u does not contain any playable races in `RequiredRaces` (%u), value set to 0 (all races).", qinfo->GetQuestId(), qinfo->RequiredRaces);
-                qinfo->RequiredRaces = 0;
+                sLog->outError(LOG_FILTER_SQL, "Quest %u does not contain any playable races in `AllowableRaces` (%u), value set to 0 (all races).", qinfo->GetQuestId(), qinfo->AllowableRaces);
+                qinfo->AllowableRaces = 0;
             }
         }
         // RequiredSkillId, can be 0
@@ -3752,7 +3752,7 @@ void ObjectMgr::LoadQuests()
         if (qinfo->RewardTitleId && !sCharTitlesStore.LookupEntry(qinfo->RewardTitleId))
         {
             sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardTitleId` = %u but CharTitle Id %u does not exist, quest can't be rewarded with title.",
-                qinfo->GetQuestId(), qinfo->GetCharTitleId(), qinfo->GetCharTitleId());
+                qinfo->GetQuestId(), qinfo->GetRewTitle(), qinfo->GetRewTitle());
             qinfo->RewardTitleId = 0;
             // quest can't reward this title
         }
@@ -4009,29 +4009,29 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        if (qinfo->RewardSpell)
+        if (qinfo->RewardDisplaySpell)
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(qinfo->RewardSpell);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(qinfo->RewardDisplaySpell);
 
             if (!spellInfo)
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardSpell` = %u but spell %u does not exist, spell removed as display reward.",
-                    qinfo->GetQuestId(), qinfo->RewardSpell, qinfo->RewardSpell);
-                qinfo->RewardSpell = 0;                        // no spell reward will display for this quest
+                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardDisplaySpell` = %u but spell %u does not exist, spell removed as display reward.",
+                    qinfo->GetQuestId(), qinfo->RewardDisplaySpell, qinfo->RewardDisplaySpell);
+                qinfo->RewardDisplaySpell = 0;                        // no spell reward will display for this quest
             }
 
             else if (!SpellMgr::IsSpellValid(spellInfo))
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardSpell` = %u but spell %u is broken, quest will not have a spell reward.",
-                    qinfo->GetQuestId(), qinfo->RewardSpell, qinfo->RewardSpell);
-                qinfo->RewardSpell = 0;                        // no spell reward will display for this quest
+                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardDisplaySpell` = %u but spell %u is broken, quest will not have a spell reward.",
+                    qinfo->GetQuestId(), qinfo->RewardDisplaySpell, qinfo->RewardDisplaySpell);
+                qinfo->RewardDisplaySpell = 0;                        // no spell reward will display for this quest
             }
 
-            /*else if (GetTalentSpellCost(qinfo->RewardSpell))
+            /*else if (GetTalentSpellCost(qinfo->RewardDisplaySpell))
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardSpell` = %u but spell %u is talent, quest will not have a spell reward.",
-                    qinfo->GetQuestId(), qinfo->RewardSpell, qinfo->RewardSpell);
-                qinfo->RewardSpell = 0;                        // no spell reward will display for this quest
+                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardDisplaySpell` = %u but spell %u is talent, quest will not have a spell reward.",
+                    qinfo->GetQuestId(), qinfo->RewardDisplaySpell, qinfo->RewardDisplaySpell);
+                qinfo->RewardDisplaySpell = 0;                        // no spell reward will display for this quest
             }*/
         }
 
@@ -4055,7 +4055,7 @@ void ObjectMgr::LoadQuests()
 
             /*else if (GetTalentSpellCost(qinfo->RewardSpellCast))
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardSpell` = %u but spell %u is talent, quest will not have a spell reward.",
+                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardDisplaySpell` = %u but spell %u is talent, quest will not have a spell reward.",
                     qinfo->GetQuestId(), qinfo->RewardSpellCast, qinfo->RewardSpellCast);
                 qinfo->RewardSpellCast = 0;                    // no spell will be casted on player
             }*/
@@ -4188,7 +4188,7 @@ void ObjectMgr::LoadQuests()
             /* Can we require talents?
             else if (GetTalentSpellCost(qinfo->RewardSpellCast))
             {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardSpell` = %u but spell %u is talent, quest will not have a spell reward.",
+                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardDisplaySpell` = %u but spell %u is talent, quest will not have a spell reward.",
                     qinfo->GetQuestId(), qinfo->RewardSpellCast, qinfo->RewardSpellCast);
                 qinfo->RewardSpellCast = 0;                    // no spell will be casted on player
             }
