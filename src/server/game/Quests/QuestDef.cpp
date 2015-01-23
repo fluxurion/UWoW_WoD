@@ -83,22 +83,21 @@ Quest::Quest(Field* questRecord)
         RewardItemId[i] = questRecord[index++].GetUInt32();
 
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        RewardItemIdCount[i] = questRecord[index++].GetUInt16();
+        RewardItemCount[i] = questRecord[index++].GetUInt16();      
 
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+    {
         RewardChoiceItemId[i] = questRecord[index++].GetUInt32();
-
-    for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        RewardChoiceItemCount[i] = questRecord[index++].GetUInt16();
-
-    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        RewardFactionId[i] = questRecord[index++].GetUInt16();
+        RewardChoiceItemCount[i] = questRecord[index++].GetUInt32();
+        RewardChoiceItemDisplayId[i] = questRecord[index++].GetUInt32();
+    }
 
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        RewardFactionValueId[i] = questRecord[index++].GetInt32();
-
-    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        RewardFactionValueIdOverride[i] = questRecord[index++].GetInt32();
+    {
+        RewardFactionId[i] = questRecord[index++].GetUInt32();
+        RewardFactionValue[i] = questRecord[index++].GetInt32();
+        RewardFactionOverride[i] = questRecord[index++].GetInt32();
+    }
 
     PointMapId              = questRecord[index++].GetUInt16();
     PointX                  = questRecord[index++].GetFloat();
@@ -311,7 +310,7 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
         data << uint32(RewardItemId[i]);
     for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        data << uint32(RewardItemIdCount[i]);
+        data << uint32(RewardItemCount[i]);
     for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
@@ -351,10 +350,10 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
         data << uint32(RewardFactionId[i]);
 
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // columnid in QuestFactionReward.dbc (zero based)?
-        data << int32(RewardFactionValueId[i]);
+        data << int32(RewardFactionValue[i]);
 
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward reputation override?
-        data << uint32(RewardFactionValueIdOverride[i]);
+        data << uint32(RewardFactionOverride[i]);
 
     data << uint32(GetRewDisplaySpell());
     data << uint32(GetRewSpell());

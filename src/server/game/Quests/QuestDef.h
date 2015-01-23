@@ -338,11 +338,12 @@ class Quest
         uint32 RequiredSpellCast[QUEST_SOURCE_ITEM_IDS_COUNT];
         uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
+        uint32 RewardChoiceItemDisplayId[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardItemId[QUEST_REWARDS_COUNT];
-        uint32 RewardItemIdCount[QUEST_REWARDS_COUNT];
+        uint32 RewardItemCount[QUEST_REWARDS_COUNT];
         uint32 RewardFactionId[QUEST_REPUTATIONS_COUNT];
-        int32  RewardFactionValueId[QUEST_REPUTATIONS_COUNT];
-        int32  RewardFactionValueIdOverride[QUEST_REPUTATIONS_COUNT];
+        int32  RewardFactionValue[QUEST_REPUTATIONS_COUNT];
+        int32  RewardFactionOverride[QUEST_REPUTATIONS_COUNT];
         uint32 DetailsEmote[QUEST_EMOTE_COUNT];
         uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT];
         uint32 OfferRewardEmote[QUEST_EMOTE_COUNT];

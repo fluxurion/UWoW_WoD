@@ -1,3 +1,6 @@
+update quest_template SET RewardSpell = 0 WHERE RewardSpell < 0;
+update quest_template SET RewardSpellCast = 0 WHERE RewardSpellCast < 0;
+
 ALTER TABLE `quest_template` CHANGE `Id` `ID` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `Method` `QuestType` TINYINT(3) UNSIGNED NOT NULL DEFAULT '2';
 ALTER TABLE `quest_template` CHANGE `Type` `QuestInfoID` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
@@ -19,6 +22,7 @@ ALTER TABLE `quest_template` CHANGE `RequiredRaces` `AllowableRaces` INT(11) NOT
 ALTER TABLE `quest_template` CHANGE `NextQuestIdChain` `RewardNextQuest` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `RewardSpell` `RewardDisplaySpell` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `RewardSpellCast` `RewardSpell` INT(10) UNSIGNED NOT NULL DEFAULT '0';
+
 ALTER TABLE `quest_template` CHANGE `RewardHonor` `RewardHonor` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `RewardHonorMultiplier` `RewardKillHonor` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `SourceItemId` `StartItem` INT(10) UNSIGNED NOT NULL DEFAULT '0';
@@ -26,13 +30,6 @@ ALTER TABLE `quest_template` ADD COLUMN `FlagsEx` INT(10) UNSIGNED NOT NULL DEFA
 ALTER TABLE `quest_template` ADD COLUMN `AreaGroupID` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `SoundTurnIn`;
 ALTER TABLE `quest_template` CHANGE `RewardTitleId` `RewardTitle` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `PointOption`;
 ALTER TABLE `quest_template` DROP COLUMN `RequiredPlayerKills`;
-
--- > ToDo
-
-
-
-
-
 ALTER TABLE `quest_template` CHANGE `RewardTalents` `RewardTalents` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardTitle`;
 ALTER TABLE `quest_template` CHANGE `RewardArenaPoints` `RewardArenaPoints` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardTalents`;
 ALTER TABLE `quest_template` CHANGE `RewardSkillId` `RewardSkillLineID` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardArenaPoints`;
@@ -80,6 +77,10 @@ ALTER TABLE `quest_template` CHANGE `RewardFactionValueIdOverride4` `RewardFacti
 ALTER TABLE `quest_template` CHANGE `RewardFactionId5` `RewardFactionID5` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardFactionOverride4`;
 ALTER TABLE `quest_template` CHANGE `RewardFactionValueId5` `RewardFactionValue5` INT(11) NOT NULL DEFAULT '0' AFTER `RewardFactionID5`;
 ALTER TABLE `quest_template` CHANGE `RewardFactionValueIdOverride5` `RewardFactionOverride5` INT(11) NOT NULL DEFAULT '0' AFTER `RewardFactionValue5`;
+-- > ToDo
+
+
+
 ALTER TABLE `quest_template` CHANGE `RewardReputationMask` `RewardFactionFlags` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardFactionOverride5`;
 ALTER TABLE `quest_template` CHANGE `PointMapId` `POIContinent` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `PointX` `POIx` float NOT NULL DEFAULT '0';

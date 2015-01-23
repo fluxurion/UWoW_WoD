@@ -379,8 +379,8 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
     {
         data << uint32(quest->RewardFactionId[i]);                  // reward factions ids
-        data << int32(quest->RewardFactionValueId[i]);              // columnid in QuestFactionReward.dbc (zero based)?
-        data << uint32(quest->RewardFactionValueIdOverride[i]);     // reward reputation override?
+        data << int32(quest->RewardFactionValue[i]);              // columnid in QuestFactionReward.dbc (zero based)?
+        data << uint32(quest->RewardFactionOverride[i]);     // reward reputation override?
     }
 
     data << uint32(quest->GetRewItemDisplayId(2));
@@ -402,10 +402,10 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << uint32(quest->RewardChoiceItemId[3]);
     data << uint32(quest->RewardChoiceItemCount[0]);
     data << uint32(0);
-    data << uint32(quest->RewardItemIdCount[1]);
+    data << uint32(quest->RewardItemCount[1]);
     data << uint32(0);                                              // quest flags 2
     data << uint32(quest->RewardChoiceItemCount[4]);
-    data << uint32(quest->RewardItemIdCount[3]);
+    data << uint32(quest->RewardItemCount[3]);
     data << uint32(quest->RewardItemId[2]);
     data << uint32(quest->GetRewDisplaySpell());
     data << uint32(quest->GetRewChoiceItemDisplayId(2));
@@ -421,7 +421,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << uint32(quest->RewardChoiceItemId[0]);
     data << uint32(quest->GetRewItemDisplayId(0));
     data << uint32(quest->RewardChoiceItemCount[3]);
-    data << uint32(quest->RewardItemIdCount[0]);
+    data << uint32(quest->RewardItemCount[0]);
     data << uint32(quest->GetRewChoiceItemDisplayId(1));
     data << uint32(quest->RewardChoiceItemId[4]);
     data << uint32(quest->GetRewItemsCount());
@@ -435,7 +435,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << uint32(quest->RewardChoiceItemId[5]);
     data << uint32(0);
     data << uint32(quest->RewardItemId[3]);
-    data << uint32(quest->RewardItemIdCount[2]);
+    data << uint32(quest->RewardItemCount[2]);
 
     bool isAutoLaunched = true;                             //activateAccept ? 1 : 0
     ObjectGuid guid2 = isAutoLaunched ? ObjectGuid::Empty : npcGUID;
@@ -708,8 +708,8 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
     {
         data << uint32(quest->RewardFactionId[i]);              // reward factions ids
-        data << int32(quest->RewardFactionValueIdOverride[i]);  // unknown usage
-        data << int32(quest->RewardFactionValueId[i]);          // columnid+1 QuestFactionReward.dbc?
+        data << int32(quest->RewardFactionOverride[i]);  // unknown usage
+        data << int32(quest->RewardFactionValue[i]);          // columnid+1 QuestFactionReward.dbc?
     }
 
     data.WriteString(questGiverTargetName);
@@ -733,7 +733,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     data << uint32(quest->GetRewardSkillId());                  // reward skill id
     data << uint32(quest->GetRewMoneyMaxLevel());               // used in XP calculation at client
     data << uint32(hideRewards ? 0 : quest->RewardItemId[1]);
-    data << uint32(hideRewards ? 0 : quest->RewardItemIdCount[2]);
+    data << uint32(hideRewards ? 0 : quest->RewardItemCount[2]);
     data.WriteString(questGiverTextWindow);
     data << uint32(quest->GetZoneOrSort());                     // zone or sort to display in quest log
     data << quest->GetPointX();
@@ -748,7 +748,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     data << uint32(hideRewards ? 0 : quest->GetRewChoiceItemDisplayId(0));
     data << uint32(quest->RequiredSourceItemCount[0]);
     data << uint32(hideRewards ? 0 : quest->RewardChoiceItemId[1]);
-    data << uint32(hideRewards ? 0 : quest->RewardItemIdCount[0]);
+    data << uint32(hideRewards ? 0 : quest->RewardItemCount[0]);
     data << uint32(quest->GetPointY());
     data << uint32(hideRewards ? 0 : quest->RewardItemId[3]);
     data << uint32(quest->GetRewPackageItem());                 // Test, send packageId
@@ -765,7 +765,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
 
     data << uint32(hideRewards ? 0 : quest->GetRewChoiceItemDisplayId(5));
     data.WriteString(questTurnTextWindow);
-    data << uint32(hideRewards ? 0 : quest->RewardItemIdCount[3]);
+    data << uint32(hideRewards ? 0 : quest->RewardItemCount[3]);
     data << uint32(quest->RequiredSourceItemCount[2]);
     data << uint32(quest->RequiredSourceItemCount[1]);
     data << float(quest->GetRewKillHonor());
@@ -795,7 +795,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[0]);
     data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[3]);
     data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[5]);
-    data << uint32(hideRewards ? 0 : quest->RewardItemIdCount[1]);
+    data << uint32(hideRewards ? 0 : quest->RewardItemCount[1]);
     data << uint32(quest->RequiredSourceItemCount[1]);
     data << uint32(hideRewards ? 0 : quest->RewardItemId[0]);
     data << uint32(quest->GetQuestType());                    // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
@@ -851,7 +851,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint32(quest->RewardChoiceItemCount[5]);
     data << uint32(quest->GetRewChoiceItemDisplayId(3));
     data << uint32(quest->RewardItemId[0]);
-    data << uint32(quest->RewardItemIdCount[0]);
+    data << uint32(quest->RewardItemCount[0]);
 
     float QuestXpRate = 1;
     if (player->GetPersonnalXpRate())
@@ -874,9 +874,9 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
 
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i) 
     {
-        data << int32(quest->RewardFactionValueId[i]);              // columnid in QuestFactionReward.dbc (zero based)?
+        data << int32(quest->RewardFactionValue[i]);              // columnid in QuestFactionReward.dbc (zero based)?
         data << uint32(quest->RewardFactionId[i]);                  // reward factions ids
-        data << uint32(quest->RewardFactionValueIdOverride[i]);     // reward reputation override?
+        data << uint32(quest->RewardFactionOverride[i]);     // reward reputation override?
     }
 
 
@@ -884,7 +884,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint32(quest->GetRewSpell());
     data << uint32(quest->GetRewItemsCount());
     data << uint32(quest->GetQuestTurnInPortrait());
-    data << uint32(quest->RewardItemIdCount[1]);
+    data << uint32(quest->RewardItemCount[1]);
     data << uint32(quest->RewardItemId[2]);
     data << uint32(quest->GetRewPackageItem());
     data << uint32(quest->GetRewItemDisplayId(2));
@@ -897,7 +897,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint32(quest->RewardChoiceItemId[5]);
     data << uint32(quest->RewardChoiceItemCount[3]);
     data << uint32(quest->GetQuestId());
-    data << uint32(quest->RewardItemIdCount[3]);
+    data << uint32(quest->RewardItemCount[3]);
     data << uint32(quest->RewardChoiceItemCount[2]);
     data << uint32(quest->GetRewChoiceItemDisplayId(5));
     data << uint32(quest->GetRewChoiceItemDisplayId(1));
@@ -907,7 +907,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint32(quest->GetFlags());
     data << uint32(0);
     data << uint32(0);
-    data << uint32(quest->RewardItemIdCount[2]);
+    data << uint32(quest->RewardItemCount[2]);
     data << uint32(quest->RewardItemId[1]);
     data << uint32(quest->RewardChoiceItemId[2]);
     data << uint32(quest->GetRewItemDisplayId(3));

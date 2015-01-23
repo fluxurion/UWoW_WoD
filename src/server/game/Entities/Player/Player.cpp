@@ -7883,9 +7883,9 @@ void Player::RewardReputation(Quest const* quest)
     {
         if (!quest->RewardFactionId[i])
             continue;
-        if (quest->RewardFactionValueIdOverride[i])
+        if (quest->RewardFactionOverride[i])
         {
-            int32 rep = CalculateReputationGain(GetQuestLevel(quest), quest->RewardFactionValueIdOverride[i]/100, quest->RewardFactionId[i], true, true);
+            int32 rep = CalculateReputationGain(GetQuestLevel(quest), quest->RewardFactionOverride[i]/100, quest->RewardFactionId[i], true, true);
 
             if (recruitAFriend)
                 rep = int32(rep * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
@@ -7895,8 +7895,8 @@ void Player::RewardReputation(Quest const* quest)
         }
         else
         {
-            uint32 row = ((quest->RewardFactionValueId[i] < 0) ? 1 : 0) + 1;
-            uint32 field = abs(quest->RewardFactionValueId[i]);
+            uint32 row = ((quest->RewardFactionValue[i] < 0) ? 1 : 0) + 1;
+            uint32 field = abs(quest->RewardFactionValue[i]);
 
             if (const QuestFactionRewEntry* pRow = sQuestFactionRewardStore.LookupEntry(row))
             {
@@ -16519,7 +16519,7 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg, uint32 
             if (quest->RewardItemId[i])
             {
                 ItemPosCountVec dest;
-                InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardItemId[i], quest->RewardItemIdCount[i]);
+                InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardItemId[i], quest->RewardItemCount[i]);
                 if (res != EQUIP_ERR_OK)
                 {
                     SendEquipError(res, NULL, NULL, quest->RewardItemId[i]);
@@ -16706,10 +16706,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             if (uint32 itemId = quest->RewardItemId[i])
             {
                 ItemPosCountVec dest;
-                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemIdCount[i]) == EQUIP_ERR_OK)
+                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemCount[i]) == EQUIP_ERR_OK)
                 {
                     Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-                    SendNewItem(item, NULL, quest->RewardItemIdCount[i], true, false);
+                    SendNewItem(item, NULL, quest->RewardItemCount[i], true, false);
                 }
             }
         }
