@@ -3516,9 +3516,9 @@ void ObjectMgr::LoadQuests()
         //      152             153                 154                155                  156
         "RequiredSpell, RequiredSpellCast1, RequiredSpellCast2, RequiredSpellCast3, RequiredSpellCast4, "
         //     157                  158               159               160                  161                  162                     163                   164
-        "RewardCurrencyId1, RewardCurrencyId2, RewardCurrencyId3, RewardCurrencyId4, RewardCurrencyCount1, RewardCurrencyCount2, RewardCurrencyCount3, RewardCurrencyCount4, "
+        "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
         //      165                  166                 167                   168               169          170
-        "QuestGiverTextWindow, QuestGiverTargetName, QuestTurnTextWindow, QuestTurnTargetName, SoundAccept, SoundTurnIn, AreaGroupID, TimeAllowed, AllowableRaces, AllowableClasses, "
+        "PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, AllowableClasses, "
         //      171          172           173            174               175                176                  177                  178                179             180
         "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, EmoteOnIncomplete, EmoteOnComplete, "
         //      181                 182               183                184                   185                      186                     187                  188
@@ -4402,10 +4402,10 @@ void ObjectMgr::LoadQuestLocales()
             for (uint8 k = 0; k < QUEST_OBJECTIVES_COUNT; ++k)
                 AddLocaleString(fields[1 + 21 * (i - 1) + 7 + k].GetString(), locale, data.ObjectiveText[k]);
 
-            AddLocaleString(fields[1 + 21 * (i - 1) + 17].GetString(), locale, data.QuestGiverTextWindow);
-            AddLocaleString(fields[1 + 21 * (i - 1) + 18].GetString(), locale, data.QuestGiverTargetName);
-            AddLocaleString(fields[1 + 21 * (i - 1) + 19].GetString(), locale, data.QuestTurnTextWindow);
-            AddLocaleString(fields[1 + 21 * (i - 1) + 20].GetString(), locale, data.QuestTurnTargetName);
+            AddLocaleString(fields[1 + 21 * (i - 1) + 17].GetString(), locale, data.PortraitGiverText);
+            AddLocaleString(fields[1 + 21 * (i - 1) + 18].GetString(), locale, data.PortraitGiverName);
+            AddLocaleString(fields[1 + 21 * (i - 1) + 19].GetString(), locale, data.PortraitTurnInText);
+            AddLocaleString(fields[1 + 21 * (i - 1) + 20].GetString(), locale, data.PortraitTurnInName);
         }
     } while (result->NextRow());
 

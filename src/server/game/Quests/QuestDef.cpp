@@ -158,15 +158,15 @@ Quest::Quest(Field* questRecord)
         RequiredSpellCast[i] = questRecord[index++].GetUInt32();
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        RewardCurrencyId[i] = questRecord[index++].GetUInt16();
-
-    for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+    {
+        RewardCurrencyId[i] = questRecord[index++].GetUInt32();
         RewardCurrencyCount[i] = questRecord[index++].GetUInt32();
+    }
 
-    QuestGiverTextWindow    = questRecord[index++].GetString();
-    QuestGiverTargetName    = questRecord[index++].GetString();
-    QuestTurnTextWindow     = questRecord[index++].GetString();
-    QuestTurnTargetName     = questRecord[index++].GetString();
+    PortraitGiverText    = questRecord[index++].GetString();
+    PortraitGiverName    = questRecord[index++].GetString();
+    PortraitTurnInText     = questRecord[index++].GetString();
+    PortraitTurnInName     = questRecord[index++].GetString();
     SoundAccept             = questRecord[index++].GetUInt16();
     SoundTurnIn             = questRecord[index++].GetUInt16();
     AreaGroupID             = questRecord[index++].GetUInt32();
@@ -285,12 +285,12 @@ uint32 Quest::XPValue(Player* player) const
     return 0;
 }
 
-int32 Quest::GetRewMoney() const
+uint32 Quest::GetRewMoney() const
 {
-    if (RewardMoney <= 0)
-        return RewardMoney;
-
-    return int32(RewardMoney * sWorld->getRate(RATE_DROP_MONEY));
+    if (RewardMoney > 0)
+        return RewardMoney * sWorld->getRate(RATE_DROP_MONEY);
+    else
+        return 0;
 }
 
 void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
@@ -366,6 +366,16 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
 
     data << uint32(GetRewardSkillId());
     data << uint32(GetRewardSkillPoints());
+}
+
+uint32 Quest::GetRewMoneyMaxLevel() const
+{
+    // If Quest has flag to not give money on max level, it's 0
+    if (HasFlag(QUEST_FLAGS_NO_MONEY_FROM_XP))
+        return 0;
+
+    // Else, return the rewarded copper sum modified by the rate
+    return uint32(RewardBonusMoney/* * sWorld->getRate(RATE_MONEY_MAX_LEVEL_QUEST)*/);
 }
 
 bool Quest::IsAutoAccept() const
