@@ -34,10 +34,7 @@ Quest::Quest(Field* questRecord)
     QuestSortID              = questRecord[index++].GetInt16();
     QuestInfoID             = questRecord[index++].GetUInt16();
     SuggestedPlayers        = questRecord[index++].GetUInt8();
-    LimitTime               = questRecord[index++].GetUInt32();
     RequiredTeam            = questRecord[index++].GetInt8();
-    AllowableClasses         = questRecord[index++].GetInt16();
-    AllowableRaces           = questRecord[index++].GetInt32();
     RequiredSkillId         = questRecord[index++].GetUInt16();
     RequiredSkillPoints     = questRecord[index++].GetUInt16();
     RequiredFactionId1      = questRecord[index++].GetUInt16();
@@ -75,7 +72,6 @@ Quest::Quest(Field* questRecord)
     RewardArenaPoints       = questRecord[index++].GetUInt16();
     RewardSkillId           = questRecord[index++].GetUInt16();
     RewardSkillPoints       = questRecord[index++].GetUInt8();
-    RewardReputationMask    = questRecord[index++].GetUInt8();
     QuestGiverPortrait      = questRecord[index++].GetUInt32();
     QuestTurnInPortrait     = questRecord[index++].GetUInt32();
 
@@ -98,24 +94,25 @@ Quest::Quest(Field* questRecord)
         RewardFactionValue[i] = questRecord[index++].GetInt32();
         RewardFactionOverride[i] = questRecord[index++].GetInt32();
     }
+    RewardFactionFlags    = questRecord[index++].GetUInt32();
 
-    PointMapId              = questRecord[index++].GetUInt16();
-    PointX                  = questRecord[index++].GetFloat();
-    PointY                  = questRecord[index++].GetFloat();
-    PointOption             = questRecord[index++].GetUInt32();
-    Title                   = questRecord[index++].GetString();
-    QuestObjectives         = questRecord[index++].GetString();
-    Details                 = questRecord[index++].GetString();
-    EndText                 = questRecord[index++].GetString();
-    CompletedText           = questRecord[index++].GetString();
+    POIContinent              = questRecord[index++].GetUInt16();
+    POIx                  = questRecord[index++].GetFloat();
+    POIy                  = questRecord[index++].GetFloat();
+    POIPriority           = questRecord[index++].GetUInt32();
+    LogTitle              = questRecord[index++].GetString();
+    QuestDescription       = questRecord[index++].GetString();
+    LogDescription                 = questRecord[index++].GetString();
+    AreaDescription                 = questRecord[index++].GetString();
+    QuestCompletionLog           = questRecord[index++].GetString();
     OfferRewardText         = questRecord[index++].GetString();
     RequestItemsText        = questRecord[index++].GetString();
 
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        RequiredSourceItemId[i] = questRecord[index++].GetUInt32();
-
-    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        RequiredSourceItemCount[i] = questRecord[index++].GetUInt16();
+    {
+        ItemDrop[i] = questRecord[index++].GetUInt32();
+        ItemDropQuantity[i] = questRecord[index++].GetUInt32();
+    }
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
@@ -173,6 +170,9 @@ Quest::Quest(Field* questRecord)
     SoundAccept             = questRecord[index++].GetUInt16();
     SoundTurnIn             = questRecord[index++].GetUInt16();
     AreaGroupID             = questRecord[index++].GetUInt32();
+    LimitTime               = questRecord[index++].GetUInt32();
+    AllowableRaces           = questRecord[index++].GetInt32();
+    AllowableClasses         = questRecord[index++].GetInt32();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         DetailsEmote[i] = questRecord[index++].GetUInt16();
@@ -331,7 +331,7 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
 
     data << uint32(0);                                      // unk
     data << uint32(GetBonusTalents());
-    data << uint32(GetRewardReputationMask());
+    data << uint32(GetRewardFactionFlags());
 
     /* Pre cata struct, some of these unks might be the missing values in cata:
     // rewarded honor points. Multiply with 10 to satisfy client

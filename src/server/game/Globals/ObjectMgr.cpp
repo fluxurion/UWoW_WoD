@@ -3476,27 +3476,33 @@ void ObjectMgr::LoadQuests()
     mExclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
+
         //0      1           2              3        4           5            6              7                  8           9              10              11             12                 13
-        "ID, QuestType, QuestLevel, QuestPackageID, MinLevel, MaxLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, TimeAllowed, RequiredTeam, AllowableClasses, AllowableRaces, RequiredSkillId, RequiredSkillPoints, "
+        "ID, QuestType, QuestLevel, QuestPackageID, MinLevel, MaxLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RequiredTeam, RequiredSkillId, RequiredSkillPoints, "
         //         14                 15                    16                   17                      18                  19                        20                  21
         "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, "
         //     22         23             24                25               26               27        28             29            30              31              32
         "PrevQuestId, NextQuestId, ExclusiveGroup, RewardNextQuest, RewardXPDifficulty, Float10, RewardMoney, RewardMoneyDifficulty, Float13, RewardBonusMoney, RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
         //         33                  34          35            36               37         38     39            40           41          42                 43
-        "RewardMailTemplateId, RewardMailDelay, StartItem, SourceItemCount, SourceSpellId, Flags, FlagsEx, SpecialFlags, RewardTitle, RewardTalents, RewardArenaPoints, "
+        "RewardMailTemplateId, RewardMailDelay, StartItem, SourceItemCount, SourceSpellId, Flags, FlagsEx, SpecialFlags, "
         //      45                46                    47                 48             49             50          51             52         53             54              55           56            57
-        "RewardSkillLineID, RewardNumSkillUps, RewardReputationMask, PortraitGiver, PortraitTurnIn, RewardItem1, RewardItem2, RewardItem3, RewardItem4, RewardAmount1, RewardAmount2, RewardAmount3, RewardAmount4, "
+        "RewardItem1, RewardItem2, RewardItem3, RewardItem4, RewardAmount1, RewardAmount2, RewardAmount3, RewardAmount4, "
+        //
+        "ItemDrop1, ItemDropQuantity1, ItemDrop2, ItemDropQuantity2, ItemDrop3, ItemDropQuantity3, ItemDrop4, ItemDropQuantity4, "
         //         58                  59                  60                    61                    62                   63                      64                  65                        66                       67                      68                      69
         "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemDisplayID1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemDisplayID2, RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemDisplayID3, "
         //
         "RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemDisplayID4, RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemDisplayID5, RewardChoiceItemID6, RewardChoiceItemQuantity6, RewardChoiceItemDisplayID6, "
         //        70                71                72                73             74                   75                      76                     77                    78                      79
-        "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionId2, RewardFactionValue2, RewardFactionOverride2, RewardFactionId3, RewardFactionValue3, RewardFactionOverride3, RewardFactionId4, RewardFactionValue4, RewardFactionOverride4, RewardFactionId5, RewardFactionValue5, RewardFactionOverride5, "
 
         //    85        86      87      88          89       90        91      92          93             94              95
-        "PointMapId, PointX, PointY, PointOption, Title, Objectives, Details, EndText, CompletedText, OfferRewardText, RequestItemsText, "
+        "POIContinent, POIx, POIy, POIPriority, RewardTitle, RewardTalents, RewardArenaPointsRewardSkillLineID, RewardNumSkillUps, PortraitGiver, PortraitTurnIn, "
+        //
+        "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionId2, RewardFactionValue2, RewardFactionOverride2, RewardFactionId3, RewardFactionValue3, RewardFactionOverride3, RewardFactionId4, RewardFactionValue4, RewardFactionOverride4, RewardFactionId5, RewardFactionValue5, RewardFactionOverride5, "
+        //
+        "RewardFactionFlags, Title, Objectives, LogDescription, AreaDescription, QuestCompletionLog, OfferRewardText, RequestItemsText, "
         //         104                     105                    106                   107                     108                       109                     110                       111
-        "RequiredSourceItemId1, RequiredSourceItemId2, RequiredSourceItemId3, RequiredSourceItemId4, RequiredSourceItemCount1, RequiredSourceItemCount2, RequiredSourceItemCount3, RequiredSourceItemCount4, "
+
         //    96           97           98           99           100         101          102          103          104          105
         "RequiredId1, RequiredId2, RequiredId3, RequiredId4, RequiredId5, RequiredId6, RequiredId7, RequiredId8, RequiredId9, RequiredId10, "
         //       106             107                108              109                110               111              112               113               114               115
@@ -3512,7 +3518,7 @@ void ObjectMgr::LoadQuests()
         //     157                  158               159               160                  161                  162                     163                   164
         "RewardCurrencyId1, RewardCurrencyId2, RewardCurrencyId3, RewardCurrencyId4, RewardCurrencyCount1, RewardCurrencyCount2, RewardCurrencyCount3, RewardCurrencyCount4, "
         //      165                  166                 167                   168               169          170
-        "QuestGiverTextWindow, QuestGiverTargetName, QuestTurnTextWindow, QuestTurnTargetName, SoundAccept, SoundTurnIn, AreaGroupID, "
+        "QuestGiverTextWindow, QuestGiverTargetName, QuestTurnTextWindow, QuestTurnTargetName, SoundAccept, SoundTurnIn, AreaGroupID, TimeAllowed, AllowableRaces, AllowableClasses, "
         //      171          172           173            174               175                176                  177                  178                179             180
         "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, EmoteOnIncomplete, EmoteOnComplete, "
         //      181                 182               183                184                   185                      186                     187                  188
@@ -3828,22 +3834,22 @@ void ObjectMgr::LoadQuests()
 
         for (uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
         {
-            uint32 id = qinfo->RequiredSourceItemId[j];
+            uint32 id = qinfo->ItemDrop[j];
             if (id)
             {
                 if (!sObjectMgr->GetItemTemplate(id))
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredSourceItemId%d` = %u but item with entry %u does not exist, quest can't be done.",
+                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `ItemDrop%d` = %u but item with entry %u does not exist, quest can't be done.",
                         qinfo->GetQuestId(), j+1, id, id);
                     // no changes, quest can't be done for this requirement
                 }
             }
             else
             {
-                if (qinfo->RequiredSourceItemCount[j]>0)
+                if (qinfo->ItemDropQuantity[j]>0)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredSourceItemId%d` = 0 but `RequiredSourceItemCount%d` = %u.",
-                        qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredSourceItemCount[j]);
+                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `ItemDrop%d` = 0 but `ItemDropQuantity%d` = %u.",
+                        qinfo->GetQuestId(), j+1, j+1, qinfo->ItemDropQuantity[j]);
                     // no changes, quest ignore this data
                 }
             }
@@ -4385,13 +4391,13 @@ void ObjectMgr::LoadQuestLocales()
         {
             LocaleConstant locale = (LocaleConstant) i;
 
-            AddLocaleString(fields[1 + 21 * (i - 1)].GetString(), locale, data.Title);
-            AddLocaleString(fields[1 + 21 * (i - 1) + 1].GetString(), locale, data.Details);
-            AddLocaleString(fields[1 + 21 * (i - 1) + 2].GetString(), locale, data.Objectives);
+            AddLocaleString(fields[1 + 21 * (i - 1)].GetString(), locale, data.LogTitle);
+            AddLocaleString(fields[1 + 21 * (i - 1) + 1].GetString(), locale, data.QuestDescription);
+            AddLocaleString(fields[1 + 21 * (i - 1) + 2].GetString(), locale, data.LogDescription);
             AddLocaleString(fields[1 + 21 * (i - 1) + 3].GetString(), locale, data.OfferRewardText);
             AddLocaleString(fields[1 + 21 * (i - 1) + 4].GetString(), locale, data.RequestItemsText);
-            AddLocaleString(fields[1 + 21 * (i - 1) + 5].GetString(), locale, data.EndText);
-            AddLocaleString(fields[1 + 21 * (i - 1) + 6].GetString(), locale, data.CompletedText);
+            AddLocaleString(fields[1 + 21 * (i - 1) + 5].GetString(), locale, data.AreaDescription);
+            AddLocaleString(fields[1 + 21 * (i - 1) + 6].GetString(), locale, data.QuestCompletionLog);
 
             for (uint8 k = 0; k < QUEST_OBJECTIVES_COUNT; ++k)
                 AddLocaleString(fields[1 + 21 * (i - 1) + 7 + k].GetString(), locale, data.ObjectiveText[k]);

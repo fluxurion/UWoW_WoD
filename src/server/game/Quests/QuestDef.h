@@ -189,13 +189,13 @@ struct QuestLocale
 {
     QuestLocale() { ObjectiveText.resize(QUEST_OBJECTIVES_COUNT); }
 
-    StringVector Title;
-    StringVector Details;
-    StringVector Objectives;
+    StringVector LogTitle;
+    StringVector QuestDescription;
+    StringVector LogDescription;
     StringVector OfferRewardText;
     StringVector RequestItemsText;
-    StringVector EndText;
-    StringVector CompletedText;
+    StringVector AreaDescription;
+    StringVector QuestCompletionLog;
     std::vector< StringVector > ObjectiveText;
     // new on 4.x
     StringVector QuestGiverTextWindow;
@@ -270,13 +270,13 @@ class Quest
         uint32 GetSrcItemId() const { return SourceItemId; }
         uint32 GetSrcItemCount() const { return SourceItemIdCount; }
         uint32 GetSrcSpell() const { return SourceSpellid; }
-        std::string GetTitle() const { return Title; }
-        std::string GetDetails() const { return Details; }
-        std::string GetQuestObjectives() const { return QuestObjectives; }
+        std::string GetLogTitle() const { return LogTitle; }
+        std::string GetLogDescription() const { return LogDescription; }
+        std::string GetQuestDescription() const { return QuestDescription; }
         std::string GetOfferRewardText() const { return OfferRewardText; }
         std::string GetRequestItemsText() const { return RequestItemsText; }
-        std::string GetEndText() const { return EndText; }
-        std::string GetCompletedText() const { return CompletedText; }
+        std::string GetAreaDescription() const { return AreaDescription; }
+        std::string GetQuestCompletionLog() const { return QuestCompletionLog; }
         std::string GetQuestGiverTextWindow() const { return QuestGiverTextWindow; }
         std::string GetQuestGiverTargetName() const { return QuestGiverTargetName; }
         std::string GetQuestTurnTextWindow() const { return QuestTurnTextWindow; }
@@ -291,10 +291,10 @@ class Quest
         int32  GetRewSpell() const { return RewardSpell; }
         uint32 GetRewMailTemplateId() const { return RewardMailTemplateId; }
         uint32 GetRewMailDelaySecs() const { return RewardMailDelay; }
-        uint32 GetPointMapId() const { return PointMapId; }
-        float  GetPointX() const { return PointX; }
-        float  GetPointY() const { return PointY; }
-        uint32 GetPointOpt() const { return PointOption; }
+        uint32 GetPOIContinent() const { return POIContinent; }
+        float  GetPOIx() const { return POIx; }
+        float  GetPOIy() const { return POIy; }
+        uint32 GetPOIPriority() const { return POIPriority; }
         uint32 GetRequiredSpell() const { return RequiredSpell; }
         uint32 GetSoundAccept() const { return SoundAccept; }
         uint32 GetSoundTurnIn() const { return SoundTurnIn; }
@@ -311,7 +311,7 @@ class Quest
         uint32 GetAreaGroupID() const { return AreaGroupID; }
         uint32 GetRewardSkillId() const { return RewardSkillId; }
         uint32 GetRewardSkillPoints() const { return RewardSkillPoints; }
-        uint32 GetRewardReputationMask() const { return RewardReputationMask; }
+        uint32 GetRewardFactionFlags() const { return RewardFactionFlags; }
         uint32 GetQuestGiverPortrait() const { return QuestGiverPortrait; }
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
         bool   IsDaily() const { return (Flags & QUEST_FLAGS_DAILY) != 0; }
@@ -331,8 +331,8 @@ class Quest
         std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
         uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT];
         uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT];
-        uint32 RequiredSourceItemId[QUEST_SOURCE_ITEM_IDS_COUNT];
-        uint32 RequiredSourceItemCount[QUEST_SOURCE_ITEM_IDS_COUNT];
+        uint32 ItemDrop[QUEST_SOURCE_ITEM_IDS_COUNT];
+        uint32 ItemDropQuantity[QUEST_SOURCE_ITEM_IDS_COUNT];
         int32  RequiredNpcOrGo[QUEST_OBJECTIVES_COUNT];   // >0 Creature <0 Gameobject
         uint32 RequiredNpcOrGoCount[QUEST_OBJECTIVES_COUNT];
         uint32 RequiredSpellCast[QUEST_SOURCE_ITEM_IDS_COUNT];
@@ -425,13 +425,13 @@ class Quest
         uint32 SourceItemId;
         uint32 SourceItemIdCount;
         uint32 SourceSpellid;
-        std::string Title;
-        std::string Details;
-        std::string QuestObjectives;
+        std::string LogTitle;
+        std::string LogDescription;
+        std::string QuestDescription;
         std::string OfferRewardText;
         std::string RequestItemsText;
-        std::string EndText;
-        std::string CompletedText;
+        std::string AreaDescription;
+        std::string QuestCompletionLog;
         uint32 RewardHonor;
         float RewardKillHonor;
         int32  RewardMoney;
@@ -442,10 +442,10 @@ class Quest
         int32  RewardSpell;
         uint32 RewardMailTemplateId;
         uint32 RewardMailDelay;
-        uint32 PointMapId;
-        float  PointX;
-        float  PointY;
-        uint32 PointOption;
+        uint32 POIContinent;
+        float  POIx;
+        float  POIy;
+        uint32 POIPriority;
         uint32 EmoteOnIncomplete;
         uint32 EmoteOnComplete;
         uint32 StartScript;
@@ -453,7 +453,7 @@ class Quest
         // new in 4.x
         uint32 RewardSkillId;
         uint32 RewardSkillPoints;
-        uint32 RewardReputationMask;
+        uint32 RewardFactionFlags;
         uint32 QuestGiverPortrait;
         uint32 QuestTurnInPortrait;
         uint32 RequiredSpell;

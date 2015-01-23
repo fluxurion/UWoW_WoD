@@ -3,26 +3,25 @@ update quest_template SET RewardSpellCast = 0 WHERE RewardSpellCast < 0;
 
 ALTER TABLE `quest_template` CHANGE `Id` `ID` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `Method` `QuestType` TINYINT(3) UNSIGNED NOT NULL DEFAULT '2';
+ALTER TABLE `quest_template` CHANGE `Level` `QuestLevel` INT(11) NOT NULL DEFAULT '-1';
+ALTER TABLE `quest_template` ADD COLUMN `QuestPackageID` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `QuestLevel`;
+ALTER TABLE `quest_template` CHANGE `MinLevel` `MinLevel`  INT(11) NOT NULL DEFAULT '0';
+ALTER TABLE `quest_template` CHANGE `MaxLevel` `MaxLevel`  INT(11) NOT NULL DEFAULT '0';
+ALTER TABLE `quest_template` CHANGE `ZoneOrSort` `QuestSortID` SMALLINT(6) NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `Type` `QuestInfoID` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `quest_template` CHANGE `SuggestedPlayers` `SuggestedGroupNum` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `quest_template` CHANGE `LimitTime` `TimeAllowed` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `SoundTurnIn`;
+ALTER TABLE `quest_template` CHANGE `RequiredClasses` `AllowableClasses` INT(11) NOT NULL DEFAULT '-1' AFTER `TimeAllowed`;
+ALTER TABLE `quest_template` CHANGE `RequiredRaces` `AllowableRaces` INT(11) NOT NULL DEFAULT '-1' AFTER `TimeAllowed`;
+ALTER TABLE `quest_template` CHANGE `NextQuestIdChain` `RewardNextQuest` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `RewardXPId` `RewardXPDifficulty` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` ADD COLUMN `Float10` float NOT NULL DEFAULT '1' AFTER `RewardXPDifficulty`;
 ALTER TABLE `quest_template` CHANGE `RewardOrRequiredMoney` `RewardMoney` INT(11) NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` ADD COLUMN `RewardMoneyDifficulty` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardMoney`;
 ALTER TABLE `quest_template` ADD COLUMN `Float13` float NOT NULL DEFAULT '1' AFTER `RewardMoneyDifficulty`;
 ALTER TABLE `quest_template` CHANGE `RewardMoneyMaxLevel` `RewardBonusMoney` INT(10) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `quest_template` CHANGE `Level` `QuestLevel` INT(11) NOT NULL DEFAULT '-1';
-ALTER TABLE `quest_template` ADD COLUMN `QuestPackageID` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `QuestLevel`;
-ALTER TABLE `quest_template` CHANGE `MinLevel` `MinLevel`  INT(11) NOT NULL DEFAULT '0';
-ALTER TABLE `quest_template` CHANGE `MaxLevel` `MaxLevel`  INT(11) NOT NULL DEFAULT '0';
-ALTER TABLE `quest_template` CHANGE `ZoneOrSort` `QuestSortID` SMALLINT(6) NOT NULL DEFAULT '0';
-ALTER TABLE `quest_template` CHANGE `SuggestedPlayers` `SuggestedGroupNum` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0';
-ALTER TABLE `quest_template` CHANGE `LimitTime` `TimeAllowed` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `SoundTurnIn`;
-ALTER TABLE `quest_template` CHANGE `RequiredClasses` `AllowableClasses` INT(11) NOT NULL DEFAULT '-1' AFTER `TimeAllowed`;
-ALTER TABLE `quest_template` CHANGE `RequiredRaces` `AllowableRaces` INT(11) NOT NULL DEFAULT '-1' AFTER `TimeAllowed`;
-ALTER TABLE `quest_template` CHANGE `NextQuestIdChain` `RewardNextQuest` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `RewardSpell` `RewardDisplaySpell` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `RewardSpellCast` `RewardSpell` INT(10) UNSIGNED NOT NULL DEFAULT '0';
-
 ALTER TABLE `quest_template` CHANGE `RewardHonor` `RewardHonor` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `RewardHonorMultiplier` `RewardKillHonor` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `SourceItemId` `StartItem` INT(10) UNSIGNED NOT NULL DEFAULT '0';
@@ -77,30 +76,18 @@ ALTER TABLE `quest_template` CHANGE `RewardFactionValueIdOverride4` `RewardFacti
 ALTER TABLE `quest_template` CHANGE `RewardFactionId5` `RewardFactionID5` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardFactionOverride4`;
 ALTER TABLE `quest_template` CHANGE `RewardFactionValueId5` `RewardFactionValue5` INT(11) NOT NULL DEFAULT '0' AFTER `RewardFactionID5`;
 ALTER TABLE `quest_template` CHANGE `RewardFactionValueIdOverride5` `RewardFactionOverride5` INT(11) NOT NULL DEFAULT '0' AFTER `RewardFactionValue5`;
--- > ToDo
-
-
-
 ALTER TABLE `quest_template` CHANGE `RewardReputationMask` `RewardFactionFlags` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardFactionOverride5`;
 ALTER TABLE `quest_template` CHANGE `PointMapId` `POIContinent` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `PointX` `POIx` float NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `PointY` `POIy` float NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `PointOption` `POIPriority` INT(11) NOT NULL DEFAULT '0';
-ALTER TABLE `quest_template` CHANGE `Title` `LogTitle` text AFTER `AllowableRaces`;
+ALTER TABLE `quest_template` CHANGE `Title` `LogTitle` text AFTER `AllowableClasses`;
 ALTER TABLE `quest_template` CHANGE `Objectives` `LogDescription` text AFTER `LogTitle`;
 ALTER TABLE `quest_template` CHANGE `Details` `QuestDescription` text AFTER `LogDescription`;
 ALTER TABLE `quest_template` CHANGE `EndText` `AreaDescription` text AFTER `QuestDescription`;
-ALTER TABLE `quest_template` DROP COLUMN `OfferRewardText`;
-ALTER TABLE `quest_template` DROP COLUMN `RequestItemsText`;
+ALTER TABLE `quest_template` CHANGE `OfferRewardText` `OfferRewardText` text AFTER `AreaDescription`;
+ALTER TABLE `quest_template` CHANGE `RequestItemsText` `RequestItemsText` text AFTER `OfferRewardText`;
 ALTER TABLE `quest_template` CHANGE `CompletedText` `QuestCompletionLog` text AFTER `AreaDescription`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGo1`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGo2`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGo3`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGo4`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGoCount1`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGoCount2`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGoCount3`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGoCount4`;
 ALTER TABLE `quest_template` CHANGE `RequiredSourceItemId1` `ItemDrop1` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardAmount4`;
 ALTER TABLE `quest_template` CHANGE `RequiredSourceItemCount1` `ItemDropQuantity1` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `ItemDrop1`;
 ALTER TABLE `quest_template` CHANGE `RequiredSourceItemId2` `ItemDrop2` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `ItemDropQuantity1`;
@@ -109,23 +96,12 @@ ALTER TABLE `quest_template` CHANGE `RequiredSourceItemId3` `ItemDrop3` INT(10) 
 ALTER TABLE `quest_template` CHANGE `RequiredSourceItemCount3` `ItemDropQuantity3` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `ItemDrop3`;
 ALTER TABLE `quest_template` CHANGE `RequiredSourceItemId4` `ItemDrop4` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `ItemDropQuantity3`;
 ALTER TABLE `quest_template` CHANGE `RequiredSourceItemCount4` `ItemDropQuantity4` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `ItemDrop4`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId1`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId2`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId3`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId4`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId5`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId6`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount1`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount2`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount3`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount4`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount5`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount6`;
-ALTER TABLE `quest_template` DROP COLUMN `RequiredSpell`;
-ALTER TABLE `quest_template` DROP COLUMN `ObjectiveText1`;
-ALTER TABLE `quest_template` DROP COLUMN `ObjectiveText2`;
-ALTER TABLE `quest_template` DROP COLUMN `ObjectiveText3`;
-ALTER TABLE `quest_template` DROP COLUMN `ObjectiveText4`;
+-- > ToDo
+
+
+
+
+
 ALTER TABLE `quest_template` CHANGE `RewardCurrencyId1` `RewardCurrencyID1` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `quest_template` CHANGE `RewardCurrencyCount1` `RewardCurrencyQty1` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `RewardCurrencyID1`;
 ALTER TABLE `quest_template` CHANGE `RewardCurrencyId2` `RewardCurrencyID2` INT(10) UNSIGNED NOT NULL DEFAULT '0';
@@ -183,10 +159,34 @@ ALTER TABLE `quest_template` DROP COLUMN `RequiredMaxRepValue`;
 ALTER TABLE `quest_template` DROP COLUMN `PrevQuestId`;
 ALTER TABLE `quest_template` DROP COLUMN `NextQuestId`;
 ALTER TABLE `quest_template` DROP COLUMN `ExclusiveGroup`;
-
 ALTER TABLE `quest_template` DROP COLUMN `RewardMailTemplateId`;
 ALTER TABLE `quest_template` DROP COLUMN `RewardMailDelay`;
-
 ALTER TABLE `quest_template` DROP COLUMN `SourceItemCount`;
 ALTER TABLE `quest_template` DROP COLUMN `SourceSpellId`;
 ALTER TABLE `quest_template` DROP COLUMN `SpecialFlags`;
+
+ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGo1`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGo2`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGo3`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGo4`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGoCount1`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGoCount2`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGoCount3`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredNpcOrGoCount4`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId1`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId2`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId3`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId4`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId5`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemId6`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount1`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount2`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount3`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount4`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount5`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredItemCount6`;
+ALTER TABLE `quest_template` DROP COLUMN `RequiredSpell`;
+ALTER TABLE `quest_template` DROP COLUMN `ObjectiveText1`;
+ALTER TABLE `quest_template` DROP COLUMN `ObjectiveText2`;
+ALTER TABLE `quest_template` DROP COLUMN `ObjectiveText3`;
+ALTER TABLE `quest_template` DROP COLUMN `ObjectiveText4`;
