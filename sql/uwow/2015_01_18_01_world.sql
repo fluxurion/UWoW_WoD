@@ -113,6 +113,10 @@ ALTER TABLE `quest_template` CHANGE `SoundTurnIn` `CompleteSoundKitID` INT(10) U
 
 UPDATE `quest_template` SET `AllowableRaces` = -1 WHERE `AllowableRaces` = 0;
 
+UPDATE `quest_template` SET FlagsEx = Flags2;
+ALTER TABLE `quest_template` DROP COLUMN `Flags2`;
+UPDATE `quest_template` SET QuestPackageID = PackageItem;
+ALTER TABLE `quest_template` DROP COLUMN `PackageItem`;
 
 -- ALTER TABLE `quest_template` DROP COLUMN `RequiredSkillId`;
 -- ALTER TABLE `quest_template` DROP COLUMN `RequiredSkillPoints`;

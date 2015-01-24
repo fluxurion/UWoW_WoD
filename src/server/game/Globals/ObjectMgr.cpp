@@ -3476,55 +3476,50 @@ void ObjectMgr::LoadQuests()
     mExclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-
-        //0      1           2              3        4           5            6              7                  8           9              10              11             12                 13
+        //0      1           2              3         4           5          6             7           8              9               10              11  
         "ID, QuestType, QuestLevel, QuestPackageID, MinLevel, MaxLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RequiredTeam, RequiredSkillId, RequiredSkillPoints, "
-        //         14                 15                    16                   17                      18                  19                        20                  21
+        //      12                  13                  14                  15                      16                      17                  18                      19
         "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, "
-        //     22         23             24                25               26               27        28             29            30              31              32
+        //     20           21           22          23              24                    25         26            27                  28            29          30                   31            32          33
         "PrevQuestId, NextQuestId, ExclusiveGroup, RewardNextQuest, RewardXPDifficulty, Float10, RewardMoney, RewardMoneyDifficulty, Float13, RewardBonusMoney, RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
-        //         33                  34          35            36               37         38     39            40           41          42                 43
+        //         34               35               36              37          38         39       40      41 
         "RewardMailTemplateId, RewardMailDelay, StartItem, SourceItemCount, SourceSpellId, Flags, FlagsEx, SpecialFlags, "
-        //      45                46                    47                 48             49             50          51             52         53             54              55           56            57
-        "RewardItem1, RewardItem2, RewardItem3, RewardItem4, RewardAmount1, RewardAmount2, RewardAmount3, RewardAmount4, "
-        //
+        //      42          43          44              45          46              47            48           49 
+        "RewardItem1, RewardAmount1, RewardItem2, RewardAmount2, RewardItem3, RewardAmount3, RewardItem4, RewardAmount4, "
+        //      50      51                  52             53          54                55          56                  57
         "ItemDrop1, ItemDropQuantity1, ItemDrop2, ItemDropQuantity2, ItemDrop3, ItemDropQuantity3, ItemDrop4, ItemDropQuantity4, "
-        //         58                  59                  60                    61                    62                   63                      64                  65                        66                       67                      68                      69
+        //         58                   59                     60                          61                          62                  63                          64                          65                          66
         "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemDisplayID1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemDisplayID2, RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemDisplayID3, "
-        //
+        //          67                  68                      69                          70                      71                      72                          73                      74                          75
         "RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemDisplayID4, RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemDisplayID5, RewardChoiceItemID6, RewardChoiceItemQuantity6, RewardChoiceItemDisplayID6, "
-        //        70                71                72                73             74                   75                      76                     77                    78                      79
-
-        //    85        86      87      88          89       90        91      92          93             94              95
-        "POIContinent, POIx, POIy, POIPriority, RewardTitle, RewardTalents, RewardArenaPointsRewardSkillLineID, RewardNumSkillUps, PortraitGiver, PortraitTurnIn, "
-        //
-        "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionId2, RewardFactionValue2, RewardFactionOverride2, RewardFactionId3, RewardFactionValue3, RewardFactionOverride3, RewardFactionId4, RewardFactionValue4, RewardFactionOverride4, RewardFactionId5, RewardFactionValue5, RewardFactionOverride5, "
-        //
-        "RewardFactionFlags, Title, Objectives, LogDescription, AreaDescription, QuestCompletionLog, OfferRewardText, RequestItemsText, "
-        //         104                     105                    106                   107                     108                       109                     110                       111
-
-        //    96           97           98           99           100         101          102          103          104          105
+        //    76        77    78     79              80          81              82                 83              84                      85          86
+        "POIContinent, POIx, POIy, POIPriority, RewardTitle, RewardTalents, RewardArenaPoints, RewardSkillLineID, RewardNumSkillUps, PortraitGiver, PortraitTurnIn, "
+        //      87                  88                  89                      90                  91                  92                  93                  94                  95                      96                  97                      98                      99              100                 101
+        "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, "
+        //          102             103             104             105                 106             107                 108             109                 110             111                 112
+        "RewardFactionFlags, RequirementType1, RequirementType2, RequirementType3, RequirementType4, RequirementType5, RequirementType6, RequirementType7, RequirementType8, RequirementType9, RequirementType10, "
+        //    113           114         115         116         117             118         119         120         121         122
         "RequiredId1, RequiredId2, RequiredId3, RequiredId4, RequiredId5, RequiredId6, RequiredId7, RequiredId8, RequiredId9, RequiredId10, "
-        //       106             107                108              109                110               111              112               113               114               115
+        //       123                124            125                 126             127                 128             129                 130             131                 132
         "RequiredIdCount1, RequiredIdCount2, RequiredIdCount3, RequiredIdCount4, RequiredIdCount5, RequiredIdCount6, RequiredIdCount7, RequiredIdCount8, RequiredIdCount9, RequiredIdCount10, "
-        //      116          117           118           119          120          121            122           123          124             125            126             127                 128                 129             130                 131                 132             133
+        //      133         134         135           136             137            138         139         140             141             142              143             144                 145                 146             147                 148             149               150         151                 152
         "RequiredPOI1, RequiredPOI2, RequiredPOI3, RequiredPOI4, RequiredPOI5, RequiredPOI6, RequiredPOI7, RequiredPOI8, RequiredPOI9, RequiredPOI10, RequiredUnkFlag1, RequiredUnkFlag2, RequiredUnkFlag3, RequiredUnkFlag4, RequiredUnkFlag5, RequiredUnkFlag6, RequiredUnkFlag7, RequiredUnkFlag8, RequiredUnkFlag9, RequiredUnkFlag10, "
-        //       134              135              136               137               137               138               139                140               141               142
-        "RequirementType1, RequirementType2, RequirementType3, RequirementType4, RequirementType5, RequirementType6, RequirementType7, RequirementType8, RequirementType9, RequirementType10, "
-        //      143             144                 145                146                  147              148              149             150           151
-        "ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4, ObjectiveText5, ObjectiveText6, ObjectiveText7, ObjectiveText8, ObjectiveText9, ObjectiveText10, "
-        //      152             153                 154                155                  156
+        //      153         154                   155             156                   157            
         "RequiredSpell, RequiredSpellCast1, RequiredSpellCast2, RequiredSpellCast3, RequiredSpellCast4, "
-        //     157                  158               159               160                  161                  162                     163                   164
+        //      158             159             160             161             162         163             164                 165         166                 167   
+        "ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4, ObjectiveText5, ObjectiveText6, ObjectiveText7, ObjectiveText8, ObjectiveText9, ObjectiveText10, "
+        //     168                  169                  170                 171             172                 173                 174                 175 
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
-        //      165                  166                 167                   168               169          170
-        "PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, AllowableClasses, "
-        //      171          172           173            174               175                176                  177                  178                179             180
+        //  176                     177              178          179         180         181          
+        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, AllowableClasses, "
+        //  182             183         184             185                 186             187                 188             189                 190                 191                 192
+        "LogTitle, LogDescription, QuestDescription, AreaDescription, QuestCompletionLog, OfferRewardText, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, RequestItemsText, "
+        //      194             195         196             197             199                 200                 201             202                 203                     204
         "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, EmoteOnIncomplete, EmoteOnComplete, "
-        //      181                 182               183                184                   185                      186                     187                  188
+        //      204                 205             206                     207             208                 209                     210                     211   
         "OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, "
-        //    189           190           191          192
-        "StartScript, CompleteScript, PackageItem, WDBVerified"
+        //   212            213            214
+        "StartScript, CompleteScript, WDBVerified"
         " FROM quest_template");
     if (!result)
     {
