@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@ Field::Field()
     data.value = NULL;
     data.type = MYSQL_TYPE_NULL;
     data.length = 0;
+    data.raw = false;
 }
 
 Field::~Field()
@@ -34,7 +35,7 @@ void Field::SetByteValue(const void* newValue, const size_t newSize, enum_field_
     if (data.value)
         CleanUp();
 
-    // This value stores raw bytes that have to be explicitly casted later
+    // This value stores raw bytes that have to be explicitly cast later
     if (newValue)
     {
         data.value = new char[newSize];
@@ -45,7 +46,7 @@ void Field::SetByteValue(const void* newValue, const size_t newSize, enum_field_
     data.raw = true;
 }
 
-void Field::SetStructuredValue(char* newValue, enum_field_types newType, uint32 length, bool isBinary)
+void Field::SetStructuredValue(char* newValue, enum_field_types newType, uint32 length)
 {
     if (data.value)
         CleanUp();
@@ -53,15 +54,9 @@ void Field::SetStructuredValue(char* newValue, enum_field_types newType, uint32 
     // This value stores somewhat structured data that needs function style casting
     if (newValue)
     {
-        if (!isBinary)
-        {
-            data.value = new char[length + 1];
-            *(reinterpret_cast<char*>(data.value) + length) = '\0';
-        }
-        else
-            data.value = new char[length];
-
+        data.value = new char[length + 1];
         memcpy(data.value, newValue, length);
+        *(reinterpret_cast<char*>(data.value) + length) = '\0';
         data.length = length;
     }
 

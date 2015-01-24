@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,13 +43,14 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL,"Error: GetUInt8() on non-numeric field.");
+                sLog->outWarn(LOG_FILTER_SQL,"Warning: GetUInt8() on non-tinyint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
+
             if (data.raw)
                 return *reinterpret_cast<uint8*>(data.value);
-            return static_cast<uint8>(atol((char*)data.value));
+            return static_cast<uint8>(strtoul((char*)data.value, nullptr, 10));
         }
 
         int8 GetInt8() const
@@ -60,13 +61,14 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL,"Error: GeInt8() on non-numeric field.");
+                sLog->outWarn(LOG_FILTER_SQL,"Warning: GetInt8() on non-tinyint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
+
             if (data.raw)
                 return *reinterpret_cast<int8*>(data.value);
-            return static_cast<int8>(atol((char*)data.value));
+            return static_cast<int8>(strtol((char*)data.value, NULL, 10));
         }
 
         uint16 GetUInt16() const
@@ -77,13 +79,14 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL,"Error: GetUInt16() on non-numeric field.");
+                sLog->outWarn(LOG_FILTER_SQL,"Warning: GetUInt16() on non-smallint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
+
             if (data.raw)
                 return *reinterpret_cast<uint16*>(data.value);
-            return static_cast<uint16>(atol((char*)data.value));
+            return static_cast<uint16>(strtoul((char*)data.value, nullptr, 10));
         }
 
         int16 GetInt16() const
@@ -94,13 +97,14 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL,"Error: GetInt16() on non-numeric field.");
+                sLog->outWarn(LOG_FILTER_SQL,"Warning: GetInt16() on non-smallint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
+
             if (data.raw)
                 return *reinterpret_cast<int16*>(data.value);
-            return static_cast<int16>(atol((char*)data.value));
+            return static_cast<int16>(strtol((char*)data.value, NULL, 10));
         }
 
         uint32 GetUInt32() const
@@ -111,13 +115,14 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL,"Error: GetUInt32() on non-numeric field.");
+                sLog->outWarn(LOG_FILTER_SQL,"Warning: GetUInt32() on non-(medium)int field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
+
             if (data.raw)
                 return *reinterpret_cast<uint32*>(data.value);
-            return static_cast<uint32>(atol((char*)data.value));
+            return static_cast<uint32>(strtoul((char*)data.value, nullptr, 10));
         }
 
         int32 GetInt32() const
@@ -128,13 +133,14 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL,"Error: GetInt32() on non-numeric field.");
+                sLog->outWarn(LOG_FILTER_SQL,"Warning: GetInt32() on non-(medium)int field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
+
             if (data.raw)
                 return *reinterpret_cast<int32*>(data.value);
-            return static_cast<int32>(atol((char*)data.value));
+            return static_cast<int32>(strtol((char*)data.value, NULL, 10));
         }
 
         uint64 GetUInt64() const
@@ -145,13 +151,14 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL,"Error: GetUInt64() on non-numeric field.");
+                sLog->outWarn(LOG_FILTER_SQL,"Warning: GetUInt64() on non-bigint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
+
             if (data.raw)
                 return *reinterpret_cast<uint64*>(data.value);
-            return static_cast<uint64>(atol((char*)data.value));
+            return static_cast<uint64>(strtoull((char*)data.value, nullptr, 10));
         }
 
         int64 GetInt64() const
@@ -162,13 +169,14 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL,"Error: GetInt64() on non-numeric field.");
+                sLog->outWarn(LOG_FILTER_SQL,"Warning: GetInt64() on non-bigint field. Using type: %s.", FieldTypeToString(data.type));
                 return 0;
             }
             #endif
+
             if (data.raw)
                 return *reinterpret_cast<int64*>(data.value);
-            return static_cast<int64>(strtol((char*)data.value, NULL, 10));
+            return static_cast<int64>(strtoll((char*)data.value, NULL, 10));
         }
 
         float GetFloat() const
@@ -179,10 +187,11 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL,"Error: GetFloat() on non-numeric field.");
+                sLog->outWarn(LOG_FILTER_SQL,"Warning: GetFloat() on non-float field. Using type: %s.", FieldTypeToString(data.type));
                 return 0.0f;
             }
             #endif
+
             if (data.raw)
                 return *reinterpret_cast<float*>(data.value);
             return static_cast<float>(atof((char*)data.value));
@@ -196,16 +205,17 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL,"Error: GetDouble() on non-numeric field.");
+                sLog->outWarn(LOG_FILTER_SQL,"Warning: GetDouble() on non-double field. Using type: %s.", FieldTypeToString(data.type));
                 return 0.0f;
             }
             #endif
+
             if (data.raw)
                 return *reinterpret_cast<double*>(data.value);
             return static_cast<double>(atof((char*)data.value));
         }
 
-        const char* GetCString() const
+        char const* GetCString() const
         {
             if (!data.value)
                 return NULL;
@@ -213,11 +223,11 @@ class Field
             #ifdef TRINITY_DEBUG
             if (IsNumeric())
             {
-                sLog->outWarn(LOG_FILTER_SQL,"Error: GetCString() on numeric field.");
+                sLog->outWarn(LOG_FILTER_SQL,"Error: GetCString() on numeric field. Using type: %s.", FieldTypeToString(data.type));
                 return NULL;
             }
             #endif
-            return static_cast<const char*>(data.value);
+            return static_cast<char const*>(data.value);
         }
 
         std::string GetString() const
@@ -227,11 +237,13 @@ class Field
 
             if (data.raw)
             {
-                const char* string = GetCString();
+                char const* string = GetCString();
                 if (!string)
-                    string = "";
+                    return "";
+
                 return std::string(string, data.length);
             }
+
             return std::string((char*)data.value, data.length);
         }
 
@@ -244,11 +256,6 @@ class Field
             result.resize(data.length);
             memcpy(result.data(), data.value, data.length);
             return result;
-        }
-
-        uint32 GetStringLength() const
-        {
-            return data.length;
         }
 
         bool IsNull() const
@@ -279,7 +286,7 @@ class Field
         #endif
 
         void SetByteValue(void const* newValue, size_t const newSize, enum_field_types newType, uint32 length);
-        void SetStructuredValue(char* newValue, enum_field_types newType, uint32 length, bool isBinary);
+        void SetStructuredValue(char* newValue, enum_field_types newType, uint32 length);
 
         void CleanUp()
         {
