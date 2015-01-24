@@ -387,7 +387,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << int32(quest->GetRewMoney());
     data << uint32(quest->RewardItemId[0]);
     data << uint32(quest->RewardChoiceItemCount[5]);
-    data << uint32(quest->GetRewPackageItem());
+    data << uint32(quest->GetQuestPackageID());
     data << uint32(quest->GetRewItemDisplayId(3));
 
     for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
@@ -751,7 +751,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     data << uint32(hideRewards ? 0 : quest->RewardItemCount[0]);
     data << uint32(quest->GetPOIy());
     data << uint32(hideRewards ? 0 : quest->RewardItemId[3]);
-    data << uint32(quest->GetRewPackageItem());                 // Test, send packageId
+    data << uint32(quest->GetQuestPackageID());                 // Test, send packageId
     data.WriteString(questTitle);
     data << uint32(quest->GetRewardFactionFlags());           // rep mask (unsure on what it does)
     data << uint32(quest->GetType());                           // quest type
@@ -886,7 +886,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint32(quest->GetQuestTurnInPortrait());
     data << uint32(quest->RewardItemCount[1]);
     data << uint32(quest->RewardItemId[2]);
-    data << uint32(quest->GetRewPackageItem());
+    data << uint32(quest->GetQuestPackageID());
     data << uint32(quest->GetRewItemDisplayId(2));
     data << uint32(quest->GetRewChoiceItemDisplayId(2));
     data << uint32(quest->RewardChoiceItemCount[4]);

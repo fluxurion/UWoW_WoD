@@ -55,10 +55,10 @@ Quest::Quest(Field* questRecord)
     RewardMoneyDifficulty   = questRecord[index++].GetUInt32();
     Float13                 = questRecord[index++].GetFloat();
     RewardBonusMoney        = questRecord[index++].GetUInt32();
-    RewardDisplaySpell             = questRecord[index++].GetUInt32();
-    RewardSpell         = questRecord[index++].GetInt32();
+    RewardDisplaySpell      = questRecord[index++].GetUInt32();
+    RewardSpell             = questRecord[index++].GetInt32();
     RewardHonor             = questRecord[index++].GetUInt32();
-    RewardKillHonor   = questRecord[index++].GetFloat();
+    RewardKillHonor         = questRecord[index++].GetFloat();
     RewardMailTemplateId    = questRecord[index++].GetUInt32();
     RewardMailDelay         = questRecord[index++].GetUInt32();
     SourceItemId            = questRecord[index++].GetUInt32();
@@ -67,19 +67,18 @@ Quest::Quest(Field* questRecord)
     Flags                   = questRecord[index++].GetUInt32();
     FlagsEx                 = questRecord[index++].GetUInt32();
     SpecialFlags            = questRecord[index++].GetUInt8();
-    RewardTitleId           = questRecord[index++].GetUInt8();
-    RewardTalents           = questRecord[index++].GetUInt8();
-    RewardArenaPoints       = questRecord[index++].GetUInt16();
-    RewardSkillId           = questRecord[index++].GetUInt16();
-    RewardSkillPoints       = questRecord[index++].GetUInt8();
-    QuestGiverPortrait      = questRecord[index++].GetUInt32();
-    QuestTurnInPortrait     = questRecord[index++].GetUInt32();
 
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        RewardItemId[i] = questRecord[index++].GetUInt32();
+    {
+        RewardItemId[i]     = questRecord[index++].GetUInt32();
+        RewardItemCount[i]  = questRecord[index++].GetUInt32();    
+    }
 
-    for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        RewardItemCount[i] = questRecord[index++].GetUInt16();      
+    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
+    {
+        ItemDrop[i]         = questRecord[index++].GetUInt32();
+        ItemDropQuantity[i] = questRecord[index++].GetUInt32();
+    }
 
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
     {
@@ -88,6 +87,18 @@ Quest::Quest(Field* questRecord)
         RewardChoiceItemDisplayId[i] = questRecord[index++].GetUInt32();
     }
 
+    POIContinent            = questRecord[index++].GetUInt16();
+    POIx                    = questRecord[index++].GetFloat();
+    POIy                    = questRecord[index++].GetFloat();
+    POIPriority             = questRecord[index++].GetUInt32();
+    RewardTitleId           = questRecord[index++].GetUInt8();
+    RewardTalents           = questRecord[index++].GetUInt8();
+    RewardArenaPoints       = questRecord[index++].GetUInt16();
+    RewardSkillId           = questRecord[index++].GetUInt16();
+    RewardSkillPoints       = questRecord[index++].GetUInt8();
+    QuestGiverPortrait      = questRecord[index++].GetUInt32();
+    QuestTurnInPortrait     = questRecord[index++].GetUInt32();
+  
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
     {
         RewardFactionId[i] = questRecord[index++].GetUInt32();
@@ -96,23 +107,8 @@ Quest::Quest(Field* questRecord)
     }
     RewardFactionFlags    = questRecord[index++].GetUInt32();
 
-    POIContinent              = questRecord[index++].GetUInt16();
-    POIx                  = questRecord[index++].GetFloat();
-    POIy                  = questRecord[index++].GetFloat();
-    POIPriority           = questRecord[index++].GetUInt32();
-    LogTitle              = questRecord[index++].GetString();
-    QuestDescription       = questRecord[index++].GetString();
-    LogDescription                 = questRecord[index++].GetString();
-    AreaDescription                 = questRecord[index++].GetString();
-    QuestCompletionLog           = questRecord[index++].GetString();
-    OfferRewardText         = questRecord[index++].GetString();
-    RequestItemsText        = questRecord[index++].GetString();
-
-    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-    {
-        ItemDrop[i] = questRecord[index++].GetUInt32();
-        ItemDropQuantity[i] = questRecord[index++].GetUInt32();
-    }
+    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+        RequirementType[i] = questRecord[index++].GetUInt8();
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
@@ -129,8 +125,10 @@ Quest::Quest(Field* questRecord)
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         RequiredUnkFlag[i] = questRecord[index++].GetUInt32();
 
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        RequirementType[i] = questRecord[index++].GetUInt8();
+    RequiredSpell           = questRecord[index++].GetUInt32();
+
+    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i) // To be removed
+        RequiredSpellCast[i] = questRecord[index++].GetUInt32();
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         ObjectiveText[i] = questRecord[index++].GetString();
@@ -152,27 +150,30 @@ Quest::Quest(Field* questRecord)
         Objectives.push_back(obj);
     }
 
-    RequiredSpell           = questRecord[index++].GetUInt32();
-
-    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i) // To be removed
-        RequiredSpellCast[i] = questRecord[index++].GetUInt32();
-
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
     {
         RewardCurrencyId[i] = questRecord[index++].GetUInt32();
         RewardCurrencyCount[i] = questRecord[index++].GetUInt32();
     }
 
-    PortraitGiverText    = questRecord[index++].GetString();
-    PortraitGiverName    = questRecord[index++].GetString();
-    PortraitTurnInText     = questRecord[index++].GetString();
-    PortraitTurnInName     = questRecord[index++].GetString();
     SoundAccept             = questRecord[index++].GetUInt16();
     SoundTurnIn             = questRecord[index++].GetUInt16();
     AreaGroupID             = questRecord[index++].GetUInt32();
     LimitTime               = questRecord[index++].GetUInt32();
-    AllowableRaces           = questRecord[index++].GetInt32();
-    AllowableClasses         = questRecord[index++].GetInt32();
+    AllowableRaces          = questRecord[index++].GetInt32();
+    AllowableClasses        = questRecord[index++].GetInt32();
+
+    LogTitle                = questRecord[index++].GetString();
+    QuestDescription        = questRecord[index++].GetString();
+    LogDescription          = questRecord[index++].GetString();
+    AreaDescription         = questRecord[index++].GetString();
+    QuestCompletionLog      = questRecord[index++].GetString();
+    OfferRewardText         = questRecord[index++].GetString();
+    PortraitGiverText    = questRecord[index++].GetString();
+    PortraitGiverName    = questRecord[index++].GetString();
+    PortraitTurnInText     = questRecord[index++].GetString();
+    PortraitTurnInName     = questRecord[index++].GetString();
+    RequestItemsText        = questRecord[index++].GetString();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         DetailsEmote[i] = questRecord[index++].GetUInt16();
@@ -191,7 +192,6 @@ Quest::Quest(Field* questRecord)
 
     StartScript             = questRecord[index++].GetUInt32();
     CompleteScript          = questRecord[index++].GetUInt32();
-    PackageItem             = questRecord[index++].GetUInt32();;
 
     // int32 WDBVerified = questRecord[index++].GetInt32();
 
@@ -418,10 +418,10 @@ uint32 Quest::CalculateHonorGain(uint8 level) const
 
 uint32 Quest::GetItemFromPakage(uint32 packItemId) const
 {
-    if(GetRewPackageItem() == 0)
+    if(GetQuestPackageID() == 0)
         return 0;
 
-    std::list<uint32> tempList = GetPackageItemList(GetRewPackageItem());
+    std::list<uint32> tempList = GetPackageItemList(GetQuestPackageID());
     for (std::list<uint32>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
         if (QuestPackageItem const* sp = sQuestPackageItemStore.LookupEntry((*itr)))
             if(sp->ItemID == packItemId)

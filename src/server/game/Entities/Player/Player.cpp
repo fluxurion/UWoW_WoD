@@ -16529,7 +16529,7 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg, uint32 
         }
     }
 
-    if (quest->GetRewPackageItem() > 0 && packItemId != 0)
+    if (quest->GetQuestPackageID() > 0 && packItemId != 0)
     {
         ItemPosCountVec dest;
         InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, packItemId, 1);
@@ -16715,17 +16715,17 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         }
     }
 
-    if (quest->GetRewPackageItem() > 0)
+    if (quest->GetQuestPackageID() > 0)
     {
         if (uint32 packId = quest->GetItemFromPakage(packItemId))
         {
-            if (QuestPackageItem const* PackageItem = sQuestPackageItemStore.LookupEntry(packId))
+            if (QuestPackageItem const* PackageID = sQuestPackageItemStore.LookupEntry(packId))
             {
                 ItemPosCountVec dest;
-                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, PackageItem->ItemID, PackageItem->count) == EQUIP_ERR_OK)
+                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, PackageID->ItemID, PackageID->count) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, PackageItem->ItemID, true, Item::GenerateItemRandomPropertyId(PackageItem->ItemID));
-                    SendNewItem(item, NULL, PackageItem->count, true, false);
+                    Item* item = StoreNewItem(dest, PackageID->ItemID, true, Item::GenerateItemRandomPropertyId(PackageID->ItemID));
+                    SendNewItem(item, NULL, PackageID->count, true, false);
                 }
             }
         }

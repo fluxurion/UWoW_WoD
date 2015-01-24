@@ -367,7 +367,6 @@ class Quest
         uint32 GetRewItemsCount() const { return m_rewItemsCount; }
         uint32 GetRewCurrencyCount() const { return m_rewCurrencyCount; }
         uint32 GetReqCurrencyCount() const { return m_reqCurrencyCount; }
-        uint32 GetRewPackageItem() const { return PackageItem; }
 
         void BuildExtraQuestInfo(WorldPacket& data, Player* player) const;
 
@@ -464,7 +463,6 @@ class Quest
         uint32 SoundAccept;
         uint32 SoundTurnIn;
         uint32 AreaGroupID;
-        uint32 PackageItem;
 
         uint32 SpecialFlags; // custom flags, not sniffed/WDB
 };
