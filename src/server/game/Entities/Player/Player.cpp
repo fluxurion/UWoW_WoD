@@ -7879,7 +7879,7 @@ void Player::RewardReputation(Quest const* quest)
     float recruitAFriend = GetsAFriendBonus(false);
 
     // quest reputation reward/loss
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
     {
         if (!quest->RewardFactionId[i])
             continue;

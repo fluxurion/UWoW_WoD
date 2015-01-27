@@ -4027,7 +4027,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for (uint8 j = 0; j < QUEST_REWARDS_COUNT; ++j)
+        for (uint8 j = 0; j < QUEST_REWARD_ITEM_COUNT; ++j)
         {
             uint32 id = qinfo->RewardItemId[j];
             if (id)
@@ -4054,7 +4054,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for (uint8 j = 0; j < QUEST_REPUTATIONS_COUNT; ++j)
+        for (uint8 j = 0; j < QUEST_REWARD_REPUTATIONS_COUNT; ++j)
         {
             if (qinfo->RewardFactionId[j])
             {

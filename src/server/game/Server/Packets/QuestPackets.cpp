@@ -114,7 +114,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.PortraitGiver;
         _worldPacket << Info.PortraitTurnIn;
 
-        for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
         {
             _worldPacket << Info.RewardFactionID[i];
             _worldPacket << Info.RewardFactionValue[i];
@@ -217,7 +217,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const
     data << questRewards.Talents;
     data << questRewards.FactionFlags;
 
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
     {
         data << questRewards.FactionID[i];
         data << questRewards.FactionValue[i];

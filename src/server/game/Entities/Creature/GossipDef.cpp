@@ -376,7 +376,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << uint32(quest->GetQuestGiverPortrait());                 // 4.x
     data << uint32(quest->GetRewItemDisplayId(1));
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
     {
         data << uint32(quest->RewardFactionId[i]);                  // reward factions ids
         data << int32(quest->RewardFactionValue[i]);              // columnid in QuestFactionReward.dbc (zero based)?
@@ -621,7 +621,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
         }
     }
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
     {
         packet.Info.RewardFactionID[i] = quest->RewardFactionId[i];
         packet.Info.RewardFactionValue[i] = quest->RewardFactionValue[i];
@@ -705,7 +705,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     data << uint32(quest->GetNextQuestInChain());               // client will request this quest from NPC, if not 0
     data.WriteString(questTurnTargetName);
 
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
     {
         data << uint32(quest->RewardFactionId[i]);              // reward factions ids
         data << int32(quest->RewardFactionOverride[i]);  // unknown usage
@@ -872,7 +872,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint32(quest->GetRewChoiceItemDisplayId(0));
 
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i) 
+    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i) 
     {
         data << int32(quest->RewardFactionValue[i]);              // columnid in QuestFactionReward.dbc (zero based)?
         data << uint32(quest->RewardFactionId[i]);                  // reward factions ids

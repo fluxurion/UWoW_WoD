@@ -31,15 +31,23 @@ class Player;
 
 class ObjectMgr;
 
+namespace WorldPackets
+{
+    namespace Quest
+    {
+        struct QuestRewards;
+    }
+}
+
 #define MAX_QUEST_LOG_SIZE 25
 
 #define QUEST_OBJECTIVES_COUNT 10
 #define QUEST_ITEM_OBJECTIVES_COUNT 10
 #define QUEST_SOURCE_ITEM_IDS_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
-#define QUEST_REWARDS_COUNT 4
+#define QUEST_REWARD_ITEM_COUNT 4
 #define QUEST_DEPLINK_COUNT 10
-#define QUEST_REPUTATIONS_COUNT 5
+#define QUEST_REWARD_REPUTATIONS_COUNT 5
 #define QUEST_EMOTE_COUNT 4
 #define QUEST_PVP_KILL_SLOT 0
 #define QUEST_REWARD_CURRENCY_COUNT 4
@@ -339,11 +347,11 @@ class Quest
         uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardChoiceItemDisplayId[QUEST_REWARD_CHOICES_COUNT];
-        uint32 RewardItemId[QUEST_REWARDS_COUNT];
-        uint32 RewardItemCount[QUEST_REWARDS_COUNT];
-        uint32 RewardFactionId[QUEST_REPUTATIONS_COUNT];
-        int32  RewardFactionValue[QUEST_REPUTATIONS_COUNT];
-        int32  RewardFactionOverride[QUEST_REPUTATIONS_COUNT];
+        uint32 RewardItemId[QUEST_REWARD_ITEM_COUNT];
+        uint32 RewardItemCount[QUEST_REWARD_ITEM_COUNT];
+        uint32 RewardFactionId[QUEST_REWARD_REPUTATIONS_COUNT];
+        int32  RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT];
+        int32  RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT];
         uint32 DetailsEmote[QUEST_EMOTE_COUNT];
         uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT];
         uint32 OfferRewardEmote[QUEST_EMOTE_COUNT];
@@ -369,6 +377,7 @@ class Quest
         uint32 GetReqCurrencyCount() const { return m_reqCurrencyCount; }
 
         void BuildExtraQuestInfo(WorldPacket& data, Player* player) const;
+        void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
         typedef std::vector<int32> PrevQuests;
         PrevQuests prevQuests;

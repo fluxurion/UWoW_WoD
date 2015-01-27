@@ -269,7 +269,7 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recvData)
 
         if (rewardQuest)
         {
-            for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+            for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
             {
                 uint32 itemId = rewardQuest->RewardItemId[i];
                 if (!itemId)
@@ -602,13 +602,13 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
 
     WorldPacket data(SMSG_LFG_PLAYER_REWARD, 4 * 4 + itemCount + itemCount * 4 * 4);
     data.WriteBits(itemCount, 20);
-    for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+    for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
         if (quest->RewardItemId[i])
             data.WriteBit(0);
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         if (quest->RewardCurrencyId[i])
             data.WriteBit(1);
-    for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+    for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
     {
         uint32 itemId = quest->RewardItemId[i];
         if (!itemId)
