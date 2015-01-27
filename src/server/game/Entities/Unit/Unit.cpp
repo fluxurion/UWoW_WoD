@@ -21857,52 +21857,19 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 
         sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
 
-        ObjectGuid hostileGUID;
-        ObjectGuid HostileReferenceGUID = pHostileReference->getUnitGuid();
-        ObjectGuid guid = GetGUID(); 
-        ByteBuffer dataBuffer;
-
-        //! 5.4.1
-        WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE);
-        //data.WriteGuidMask<2>(guid);
-        //data.WriteGuidMask<5>(HostileReferenceGUID);
-        //data.WriteGuidMask<5>(guid);
-        //data.WriteGuidMask<7>(HostileReferenceGUID);
-        //data.WriteGuidMask<7>(guid);
-        //data.WriteGuidMask<2>(HostileReferenceGUID);
-        //data.WriteGuidMask<6, 1, 4>(guid);
-        //data.WriteGuidMask<6, 1>(HostileReferenceGUID);
-        data.WriteBits(count, 21);
-
-        std::list<HostileReference*>& tlist = getThreatManager().getThreatList();
+        WorldPackets::Combat::HighestThreatUpdate packet;
+        packet.UnitGUID = GetGUID();
+        packet.HighestThreatGUID = pHostileReference->getUnitGuid();
+        std::list<HostileReference*> const &tlist = getThreatManager().getThreatList();
+        packet.ThreatList.reserve(tlist.size());
         for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
-            hostileGUID = (*itr)->getUnitGuid();
-
-            //data.WriteGuidMask<5, 4, 7, 6, 2, 0, 1, 3>(hostileGUID);
-
-            //dataBuffer.WriteGuidBytes<2, 1, 5, 4, 3>(hostileGUID);
-            //dataBuffer << uint32((*itr)->getThreat());
-            //dataBuffer.WriteGuidBytes<0, 6, 7>(hostileGUID);
+            WorldPackets::Combat::ThreatInfo info;
+            info.UnitGUID = (*itr)->getUnitGuid();
+            info.Threat = int32((*itr)->getThreat());
+            packet.ThreatList.push_back(info);
         }
-        //data.WriteGuidMask<0, 4>(HostileReferenceGUID);
-        //data.WriteGuidMask<3>(guid);
-        //data.WriteGuidMask<3>(HostileReferenceGUID);
-        //data.WriteGuidMask<0>(guid);
-
-        data.FlushBits();
-
-        data.append(dataBuffer);
-        //data.WriteGuidBytes<5>(guid);
-        //data.WriteGuidBytes<1>(HostileReferenceGUID);
-        //data.WriteGuidBytes<6, 4, 7>(guid);
-        //data.WriteGuidBytes<0>(HostileReferenceGUID);
-        //data.WriteGuidBytes<3>(guid);
-        //data.WriteGuidBytes<7>(HostileReferenceGUID);
-        //data.WriteGuidBytes<1, 0, 2>(guid);
-        //data.WriteGuidBytes<5, 2, 6, 4, 3>(HostileReferenceGUID);
-
-        SendMessageToSet(&data, false);
+        SendMessageToSet(packet.Write(), false);
     }
 }
 
