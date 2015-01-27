@@ -822,10 +822,10 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     Player* player = _session->GetPlayer();
     std::string questTitle = quest->GetLogTitle();
     std::string questOfferRewardText = quest->GetOfferRewardText();
-    std::string questGiverTextWindow = quest->GetPortraitGiverText();
-    std::string questGiverTargetName = quest->GetPortraitGiverName();
-    std::string questTurnTextWindow = quest->GetPortraitTurnInText();
-    std::string questTurnTargetName = quest->GetPortraitTurnInName();
+    std::string portraitGiverText = quest->GetPortraitGiverText();
+    std::string portraitGiverName = quest->GetPortraitGiverName();
+    std::string portraitTurnInText = quest->GetPortraitTurnInText();
+    std::string portraitTurnInName = quest->GetPortraitTurnInName();
 
     int locale = _session->GetSessionDbLocaleIndex();
     if (locale >= 0)
@@ -834,128 +834,45 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
         {
             ObjectMgr::GetLocaleString(localeData->LogTitle, locale, questTitle);
             ObjectMgr::GetLocaleString(localeData->OfferRewardText, locale, questOfferRewardText);
-            ObjectMgr::GetLocaleString(localeData->PortraitGiverText, locale, questGiverTextWindow);
-            ObjectMgr::GetLocaleString(localeData->PortraitGiverName, locale, questGiverTargetName);
-            ObjectMgr::GetLocaleString(localeData->PortraitTurnInText, locale, questTurnTextWindow);
-            ObjectMgr::GetLocaleString(localeData->PortraitTurnInName, locale, questTurnTargetName);
+            ObjectMgr::GetLocaleString(localeData->PortraitGiverText, locale, portraitGiverText);
+            ObjectMgr::GetLocaleString(localeData->PortraitGiverName, locale, portraitGiverName);
+            ObjectMgr::GetLocaleString(localeData->PortraitTurnInText, locale, portraitTurnInText);
+            ObjectMgr::GetLocaleString(localeData->PortraitTurnInName, locale, portraitTurnInName);
         }
     }
 
-    WorldPacket data(SMSG_QUESTGIVER_OFFER_REWARD, 200);            // guess size
-    data << uint32(quest->GetSuggestedPlayers());                   // SuggestedGroupNum
-    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-    {
-        data << uint32(quest->RewardCurrencyId[i]);
-        data << uint32(quest->RewardCurrencyCount[i]);
-    }
-    data << uint32(quest->RewardChoiceItemCount[5]);
-    data << uint32(quest->GetRewChoiceItemDisplayId(3));
-    data << uint32(quest->RewardItemId[0]);
-    data << uint32(quest->RewardItemCount[0]);
+    WorldPackets::Quest::QuestGiverOfferRewardMessage packet;
+    WorldPackets::Quest::QuestGiverOfferReward& offer = packet.QuestData;
 
-    float QuestXpRate = 1;
-    if (player->GetPersonnalXpRate())
-        QuestXpRate = player->GetPersonnalXpRate();
-    else
-        QuestXpRate = sWorld->getRate(RATE_XP_QUEST);
-    data << uint32(quest->XPValue(player) * QuestXpRate);
+    quest->BuildQuestRewards(offer.Rewards, _session->GetPlayer());
+    offer.QuestGiverGUID = npcGUID;
 
-    data << uint32(quest->GetRewChoiceItemsCount());
-    data << uint32(0);
-    data << uint32(quest->RewardItemId[3]);
-    data << uint32(quest->RewardChoiceItemCount[1]);
-    data << uint32(quest->GetRewItemDisplayId(1));
-    data << uint32(quest->GetRewItemDisplayId(0));
-    data << uint32(0);
-    data << uint32(0);  // quest flags 2
-    data << uint32(quest->RewardChoiceItemCount[0]);
-    data << uint32(quest->GetRewChoiceItemDisplayId(0));
+    // Is there a better way? what about game objects?
+    if (Creature const* creature = sObjectAccessor->GetCreature(*_session->GetPlayer(), npcGUID))
+        offer.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
 
+    offer.QuestID = quest->GetQuestId();
+    offer.AutoLaunched = enableNext;
+    offer.SuggestedPartyMembers = quest->GetSuggestedPlayers();
 
-    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i) 
-    {
-        data << int32(quest->RewardFactionValue[i]);              // columnid in QuestFactionReward.dbc (zero based)?
-        data << uint32(quest->RewardFactionId[i]);                  // reward factions ids
-        data << uint32(quest->RewardFactionOverride[i]);     // reward reputation override?
-    }
+    for (uint32 i = 0; i < QUEST_EMOTE_COUNT && quest->OfferRewardEmote[i]; ++i)
+        offer.Emotes.push_back(WorldPackets::Quest::QuestDescEmote(quest->OfferRewardEmote[i], quest->OfferRewardEmoteDelay[i]));
 
+    offer.QuestFlags[0] = quest->GetFlags();
+    offer.QuestFlags[1] = quest->GetFlagsEx();
 
-    data << uint32(quest->GetQuestGiverPortrait());
-    data << uint32(quest->GetRewSpell());
-    data << uint32(quest->GetRewItemsCount());
-    data << uint32(quest->GetQuestTurnInPortrait());
-    data << uint32(quest->RewardItemCount[1]);
-    data << uint32(quest->RewardItemId[2]);
-    data << uint32(quest->GetQuestPackageID());
-    data << uint32(quest->GetRewItemDisplayId(2));
-    data << uint32(quest->GetRewChoiceItemDisplayId(2));
-    data << uint32(quest->RewardChoiceItemCount[4]);
-    data << uint32(quest->RewardChoiceItemId[4]);
-    data << uint32(quest->RewardChoiceItemId[1]);
-    data << uint32(npcGUID.GetEntry());                        // npc id
-    data << uint32(quest->RewardChoiceItemId[3]);
-    data << uint32(quest->RewardChoiceItemId[5]);
-    data << uint32(quest->RewardChoiceItemCount[3]);
-    data << uint32(quest->GetQuestId());
-    data << uint32(quest->RewardItemCount[3]);
-    data << uint32(quest->RewardChoiceItemCount[2]);
-    data << uint32(quest->GetRewChoiceItemDisplayId(5));
-    data << uint32(quest->GetRewChoiceItemDisplayId(1));
-    data << uint32(0);
-    data << uint32(quest->RewardChoiceItemId[0]);
-    data << uint32(quest->GetRewChoiceItemDisplayId(4));
-    data << uint32(quest->GetFlags());
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(quest->RewardItemCount[2]);
-    data << uint32(quest->RewardItemId[1]);
-    data << uint32(quest->RewardChoiceItemId[2]);
-    data << uint32(quest->GetRewItemDisplayId(3));
-    data << uint32(0);
-    data << int32(quest->GetRewMoney());
+    packet.QuestTitle = questTitle;
+    packet.RewardText = questOfferRewardText;
+    packet.PortraitTurnIn = quest->GetQuestTurnInPortrait();
+    packet.PortraitGiver = quest->GetQuestGiverPortrait();
+    packet.PortraitGiverText = portraitGiverText;
+    packet.PortraitGiverName = portraitGiverName;
+    packet.PortraitTurnInText = portraitTurnInText;
+    packet.PortraitTurnInName = portraitTurnInName;
+    packet.QuestPackageID = quest->GetQuestPackageID();
 
-    //data.WriteGuidMask<2, 6, 3, 0>(npcGUID);
-    data.WriteBits(questGiverTargetName.size(), 8);
-    data.WriteBit(enableNext);                              // Auto Finish
-    //data.WriteGuidMask<7, 5>(npcGUID);
-    data.WriteBits(questGiverTextWindow.size(), 10);
-    //data.WriteGuidMask<1>(npcGUID);
+    _session->SendPacket(packet.Write());
 
-    uint32 emoteCount = 0;
-    for (uint8 i = 0; i < QUEST_EMOTE_COUNT; ++i)
-    {
-        if (quest->OfferRewardEmote[i] <= 0)
-            continue;
-        ++emoteCount;
-    }
-    data.WriteBits(emoteCount, 21);
-    data.WriteBits(questOfferRewardText.size(), 12);
-    data.WriteBits(questTurnTargetName.size(), 8);
-    data.WriteBits(questTitle.size(), 9);
-    data.WriteBits(questTurnTextWindow.size(), 10);
-    //data.WriteGuidMask<4>(npcGUID);
-
-    //data.WriteGuidBytes<4, 7>(npcGUID);
-    data.WriteString(questTitle);
-    data.WriteString(questTurnTargetName);
-    //data.WriteGuidBytes<5>(npcGUID);
-    for (uint8 i = 0; i < QUEST_EMOTE_COUNT; ++i)
-    {
-        if (quest->OfferRewardEmote[i] <= 0)
-            continue;
-
-        data << uint32(quest->OfferRewardEmoteDelay[i]);
-        data << uint32(quest->OfferRewardEmote[i]);
-    }
-
-    //data.WriteGuidBytes<1, 0>(npcGUID);
-    data.WriteString(questGiverTargetName);
-    //data.WriteGuidBytes<6, 3, 2>(npcGUID);
-    data.WriteString(questGiverTextWindow);
-    data.WriteString(questOfferRewardText);
-    data.WriteString(questTurnTextWindow);
-
-    _session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPCGuid=%u, questid=%u", npcGUID.GetCounter(), quest->GetQuestId());
 }
 
