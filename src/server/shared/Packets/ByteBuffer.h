@@ -250,9 +250,9 @@ class ByteBuffer
             if (_bitpos == 8)
                 return;
 
+            _bitpos = 8;    //should be before append for priventing deadloop
             append((uint8 *)&_curbitval, sizeof(uint8));
             _curbitval = 0;
-            _bitpos = 8;
         }
 
         void ResetBitPos()
@@ -730,6 +730,8 @@ class ByteBuffer
                 throw ByteBufferSourceException(_wpos, size(), cnt);
 
             ASSERT(size() < 10000000);
+
+            FlushBits();
 
             if (_storage.size() < _wpos + cnt)
                 _storage.resize(_wpos + cnt);
