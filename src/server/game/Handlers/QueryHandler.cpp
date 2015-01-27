@@ -168,78 +168,6 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
         response.Allow = false;
 
     SendPacket(response.Write());
-/*    uint32 entry;
-    recvData >> entry;
-    ObjectGuid guid;
-    //recvData.ReadGuidMask<6, 3, 1, 2, 0, 7, 5, 4>(guid);
-    //recvData.ReadGuidBytes<5, 0, 6, 7, 3, 4, 2, 1>(guid);
-
-    const GameObjectTemplate* info = sObjectMgr->GetGameObjectTemplate(entry);
-    if (info)
-    {
-        std::string Name;
-        std::string IconName;
-        std::string CastBarCaption;
-
-        Name = info->name;
-        IconName = info->IconName;
-        CastBarCaption = info->castBarCaption;
-
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
-        {
-            if (GameObjectLocale const* gl = sObjectMgr->GetGameObjectLocale(entry))
-            {
-                ObjectMgr::GetLocaleString(gl->Name, loc_idx, Name);
-                ObjectMgr::GetLocaleString(gl->CastBarCaption, loc_idx, CastBarCaption);
-            }
-        }
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", info->name.c_str(), entry);
-
-        ByteBuffer buff;
-        WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 150);
-        data << uint32(entry);
-
-        buff << uint32(info->type);
-        buff << uint32(info->displayId);
-        buff << Name;
-        buff << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4
-        buff << IconName;                                   // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
-        buff << CastBarCaption;                             // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
-        buff << info->unk1;
-
-        buff.append<uint32>(info->raw.data, MAX_GAMEOBJECT_DATA);
-        buff << float(info->size);                          // go size
-        uint8 itemsCount = 0;
-        for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-            if (info->questItems[i])
-                ++itemsCount;
-        buff << uint8(itemsCount);
-        for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-            if (info->questItems[i])
-                buff << uint32(info->questItems[i]);        // itemId[6], quest drop
-        buff << int32(info->unkInt32);                      // 4.x, unknown
-
-        data << uint32(buff.size());
-        data.append(buff);
-        data.WriteBit(1);
-
-        SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
-    }
-    else
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (GUID: %u, ENTRY: %u)",
-            guid.GetCounter(), entry);
-
-        WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 4 + 4 + 1);
-        data << uint32(entry);
-        data << uint32(0);
-        data.WriteBit(0);
-        SendPacket(&data);
-
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
-    }*/
 }
 
 void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
@@ -309,37 +237,28 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet)
 {
-    uint32 textID;
-    ObjectGuid guid;
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", packet.TextID);
 
-    recvData >> textID;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", textID);
+    GossipText const* gossip = sObjectMgr->GetGossipText(packet.TextID);
 
-    //recvData.ReadGuidMask<4, 7, 2, 5, 3, 0, 1, 6>(guid);
-    //recvData.ReadGuidBytes<6, 4, 1, 3, 2, 5, 7, 0>(guid);
-    GetPlayer()->SetSelection(guid);
+    WorldPackets::Query::QueryNPCTextResponse response;
+    response.TextID = packet.TextID;
 
-    GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
+    //ToDo: rewrite store for collecting textId's
+    /*if (gossip)
+    {
+        for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+        {
+            response.Probabilities[i] = gossip->Options[i].Probability;
+            response.BroadcastTextID[i] = gossip->Options[i].BroadcastTextID;
+        }
 
-    ByteBuffer buf;
-    for (int i = 0; i < 8; ++i)
-        if (i == 0)
-            buf << uint32(0x3F800000);
-        else
-            buf << uint32(0);
-    for (int i = 0; i < 8; ++i)
-        if (i == 0)
-            buf << uint32(textID);
-        else
-            buf << uint32(0);
+        response.Allow = true;
+    }*/
 
-    WorldPacket data(SMSG_NPC_TEXT_UPDATE, 100);
-    data << uint32(textID);
-    data << uint32(buf.size());
-    data.append(buf);
-    data.WriteBit(1);                                   // has data
+    SendPacket(response.Write());
 
     /*if (!pGossip)
     {
@@ -403,51 +322,43 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recvData)
         }
     }*/
 
-    SendPacket(&data);
-
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PAGE_TEXT_QUERY");
 
-    ObjectGuid itemGuid;
-    uint32 pageID;
-    recvData >> pageID;
-    //recvData.ReadGuidMask<3, 2, 5, 1, 4, 7, 6, 0>(itemGuid);
-    //recvData.ReadGuidBytes<4, 6, 1, 5, 7, 3, 2, 0>(itemGuid);
+    uint32 pageID = packet.PageTextID;
 
     while (pageID)
     {
         PageText const* pageText = sObjectMgr->GetPageText(pageID);
-                                                            // guess size
-        WorldPacket data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50);
-        data << uint32(pageID);
+
+        WorldPackets::Query::QueryPageTextResponse response;
+        response.PageTextID = pageID;
 
         if (!pageText)
         {
-            data.WriteBit(0);
+            response.Allow = false;
             pageID = 0;
         }
         else
         {
-            std::string Text = pageText->Text;
+            response.Allow = true;
+            response.Info.ID = pageID;
 
             int loc_idx = GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
                 if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(pageID))
-                    ObjectMgr::GetLocaleString(player->Text, loc_idx, Text);
+                    ObjectMgr::GetLocaleString(player->Text, loc_idx, response.Info.Text);
 
-            data.WriteBit(1);
-            data.WriteBits(Text.size(), 12);
-            data.WriteString(Text);
-            data << uint32(pageText->NextPage);
-            data << uint32(pageID);
+            response.Info.NextPageID = pageText->NextPage;
             pageID = pageText->NextPage;
         }
-        SendPacket(&data);
+
+        SendPacket(response.Write());
 
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_PAGE_TEXT_QUERY_RESPONSE");
     }

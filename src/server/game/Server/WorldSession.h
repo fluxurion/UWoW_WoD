@@ -784,7 +784,7 @@ class WorldSession
         void HandleGossipHelloOpcode(WorldPacket& recvPacket);
         void HandleGossipSelectOptionOpcode(WorldPacket& recvPacket);
         void HandleSpiritHealerActivateOpcode(WorldPacket& recvPacket);
-        void HandleNpcTextQueryOpcode(WorldPacket& recvPacket);
+        void HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet);
         void HandleBinderActivateOpcode(WorldPacket& recvPacket);
         void HandleListStabledPetsOpcode(WorldPacket& recvPacket);
         void HandleStableChangeSlot(WorldPacket& recvPacket);
@@ -922,7 +922,7 @@ class WorldSession
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
         void HandleCompleteMovie(WorldPacket& recvPacket);
 
-        void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
+        void HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText& packet);
 
         void HandleTutorialFlag (WorldPacket& recvData);
         void HandleTutorialClear(WorldPacket& recvData);
