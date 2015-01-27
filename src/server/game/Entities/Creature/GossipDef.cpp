@@ -335,13 +335,11 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
 
 void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const
 {
-    WorldPacket data(SMSG_QUESTGIVER_STATUS, 4 + 8 + 1);
-    //data.WriteGuidMask<3, 6, 7, 1, 4, 0, 2, 5>(npcGUID);
-    //data.WriteGuidBytes<1, 3>(npcGUID);
-    data << uint32(questStatus);
-    //data.WriteGuidBytes<7, 0, 4, 6, 5, 2>(npcGUID);
+    WorldPackets::Quest::QuestGiverStatus packet;
+    packet.QuestGiver.Guid = npcGUID;
+    packet.QuestGiver.Status = questStatus;
 
-    _session->SendPacket(&data);
+    _session->SendPacket(packet.Write());
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC Guid=%u, status=%u", npcGUID.GetCounter(), questStatus);
 }
 
