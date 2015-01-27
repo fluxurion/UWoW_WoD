@@ -20834,17 +20834,20 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         // cache equipment...
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 3; ++i)
-            ss << GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i) << ' ';
-
-        // ...and bags for enum opcode
-        for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+        for (uint32 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
         {
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                ss << item->GetEntry();
+            {
+                ss << item->GetTemplate()->InventoryType << ' ' << item->GetTemplate()->DisplayInfoID/*GetDisplayId()*/ << ' ';
+                if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT)))
+                    ss << enchant->ItemVisual;
+                else
+                    ss << '0';
+
+                ss << ' ';
+            }
             else
-                ss << '0';
-            ss << " 0 ";
+                ss << "0 0 0 ";
         }
         stmt->setString(index++, ss.str());
 
@@ -20965,17 +20968,20 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         // cache equipment...
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 3; ++i)
-            ss << GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i) << ' ';
-
-        // ...and bags for enum opcode
-        for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+        for (uint32 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
         {
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                ss << item->GetEntry();
+            {
+                ss << item->GetTemplate()->InventoryType << ' ' << item->GetTemplate()->DisplayInfoID/*GetDisplayId()*/ << ' ';
+                if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT)))
+                    ss << enchant->ItemVisual;
+                else
+                    ss << '0';
+
+                ss << ' ';
+            }
             else
-                ss << '0';
-            ss << " 0 ";
+                ss << "0 0 0 ";
         }
 
         stmt->setString(index++, ss.str());
@@ -29554,11 +29560,11 @@ void Player::SendCemeteryList(bool onMap)
         buf << uint32(itr->second.safeLocId);
     }
 
-    //! 5.4.1
+    //! 6.0.3
     WorldPacket packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, buf.wpos()+4);
-    packet.WriteBits(count, 22);
     packet.WriteBit(onMap);
     packet.FlushBits();
+    packet << uint32(count);
     packet.append(buf);
     GetSession()->SendPacket(&packet);
 }
