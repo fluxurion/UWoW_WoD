@@ -3514,11 +3514,11 @@ void ObjectMgr::LoadQuests()
         "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, AllowableClasses, "
         //  182             183         184             185                 186             187                 188             189                 190                 191                 192
         "LogTitle, LogDescription, QuestDescription, AreaDescription, QuestCompletionLog, OfferRewardText, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, RequestItemsText, "
-        //      194             195         196             197             199                 200                 201             202                 203                     204
-        "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, EmoteOnIncomplete, EmoteOnComplete, "
-        //      204                 205             206                     207             208                 209                     210                     211   
+        //      194             195         196             197             199                 200                 201             202                 203                     204             205                 206
+        "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, EmoteOnIncomplete, EmoteOnComplete, EmoteOnCompleteDelay, EmoteOnIncompleteDelay"
+        //          207             208                 209               210                     211               212                     213                     214
         "OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, "
-        //   212            213            214
+        //   215            216             217
         "StartScript, CompleteScript, WDBVerified"
         " FROM quest_template");
     if (!result)

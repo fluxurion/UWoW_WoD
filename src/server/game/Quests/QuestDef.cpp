@@ -184,6 +184,8 @@ Quest::Quest(Field* questRecord)
 
     EmoteOnIncomplete       = questRecord[index++].GetUInt16();
     EmoteOnComplete         = questRecord[index++].GetUInt16();
+    EmoteOnCompleteDelay    = questRecord[index++].GetUInt32();
+    EmoteOnIncompleteDelay  = questRecord[index++].GetUInt32();
 
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         OfferRewardEmote[i] = questRecord[index++].GetInt16();

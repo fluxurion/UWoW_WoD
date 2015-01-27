@@ -668,152 +668,6 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
 
     _session->SendPacket(packet.Write());
 
-/*    WorldPacket data(SMSG_QUEST_QUERY_RESPONSE, 100);           // guess size
-    data << uint32(quest->GetQuestId());
-    data.WriteBit(1);                                           // has data
-    data.WriteBits(questTurnTextWindow.size(), 10);
-    data.WriteBits(questQuestCompletionLog.size(), 11);
-    data.WriteBits(questGiverTextWindow.size(), 10);
-    data.WriteBits(questObjectives.size(), 12);
-    data.WriteBits(questGiverTargetName.size(), 8);
-
-    uint32 realCount = 0;
-    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-    {
-        if (quest->RequiredIdBack[i] == 0)
-            break;
-        ++realCount;
-    }
-    data.WriteBits(realCount, 19);
-
-    data.WriteBits(questDetails.size(), 12);
-    data.WriteBits(questTitle.size(), 9);
-    data.WriteBits(questTurnTargetName.size(), 8);
-
-    for (uint8 i = 0; i < realCount; ++i)
-    {
-        data.WriteBits(questObjectiveText[i].size(), 8);
-        data.WriteBits(0, 22);
-    }
-
-    data.WriteBits(questEndText.size(), 9);
-
-    data << uint32(quest->GetBonusTalents());
-    data << uint32(quest->GetQuestGiverPortrait());
-    data << uint32(hideRewards ? 0 : quest->RewardChoiceItemId[3]);
-    data.WriteString(questEndText);
-    data << uint32(quest->GetNextQuestInChain());               // client will request this quest from NPC, if not 0
-    data.WriteString(questTurnTargetName);
-
-    for (uint32 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
-    {
-        data << uint32(quest->RewardFactionId[i]);              // reward factions ids
-        data << int32(quest->RewardFactionOverride[i]);  // unknown usage
-        data << int32(quest->RewardFactionValue[i]);          // columnid+1 QuestFactionReward.dbc?
-    }
-
-    data.WriteString(questGiverTargetName);
-    data.WriteString(questDetails);
-
-    for (uint32 i = 0; i < realCount; ++i)
-    {
-        data << uint32(quest->RequiredUnkFlag[i]);              // unk
-        data << uint8(quest->RequirementType[i]);               // RequirementType
-        data << uint32(quest->RequiredIdBack[i]);
-        data << uint32(quest->RequiredPOI[i]);
-        data.WriteString(questObjectiveText[i]);
-        data << uint8(i);                                       // objective index
-        data << uint32(quest->RequiredIdCount[i]);
-        // for (uint32 i = 0; i < ..
-        //      data << uint32
-    }
-
-    data << uint32(quest->GetPOIContinent());
-    data << uint32(quest->ItemDrop[0]);
-    data << uint32(quest->GetRewardSkillId());                  // reward skill id
-    data << uint32(quest->GetRewMoneyMaxLevel());               // used in XP calculation at client
-    data << uint32(hideRewards ? 0 : quest->RewardItemId[1]);
-    data << uint32(hideRewards ? 0 : quest->RewardItemCount[2]);
-    data.WriteString(questGiverTextWindow);
-    data << uint32(quest->GetZoneOrSort());                     // zone or sort to display in quest log
-    data << quest->GetPOIx();
-
-    for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-    {
-        data << uint32(quest->RewardCurrencyCount[i]);
-        data << uint32(quest->RewardCurrencyId[i]);
-    }
-
-    data << uint32(hideRewards ? 0 : quest->RewardItemId[2]);
-    data << uint32(hideRewards ? 0 : quest->GetRewChoiceItemDisplayId(0));
-    data << uint32(quest->ItemDropQuantity[0]);
-    data << uint32(hideRewards ? 0 : quest->RewardChoiceItemId[1]);
-    data << uint32(hideRewards ? 0 : quest->RewardItemCount[0]);
-    data << uint32(quest->GetPOIy());
-    data << uint32(hideRewards ? 0 : quest->RewardItemId[3]);
-    data << uint32(quest->GetQuestPackageID());                 // Test, send packageId
-    data.WriteString(questTitle);
-    data << uint32(quest->GetRewardFactionFlags());           // rep mask (unsure on what it does)
-    data << uint32(quest->GetType());                           // quest type
-    data << uint32(0);
-    data << uint32(hideRewards ? 0 : quest->GetRewChoiceItemDisplayId(2));
-    data << uint32(quest->GetRewardSkillPoints());              // reward skill points
-    data << uint32(hideRewards ? 0 : quest->GetRewChoiceItemDisplayId(4));
-    data << uint32(quest->GetSoundAccept());
-    data << uint32(0);
-    data << uint32(quest->GetQuestTurnInPortrait());            // quest turnin entry ?
-
-    data << uint32(hideRewards ? 0 : quest->GetRewChoiceItemDisplayId(5));
-    data.WriteString(questTurnTextWindow);
-    data << uint32(hideRewards ? 0 : quest->RewardItemCount[3]);
-    data << uint32(quest->ItemDropQuantity[2]);
-    data << uint32(quest->ItemDropQuantity[1]);
-    data << float(quest->GetRewKillHonor());
-    data << uint32(hideRewards ? 0 : quest->GetRewChoiceItemDisplayId(3));
-    data.WriteString(questQuestCompletionLog);
-    data << uint32(0);
-    data << uint32(quest->ItemDrop[3]);
-    data << uint32(quest->GetQuestLevel());                     // may be -1, static data, in other cases must be used dynamic level: Player::GetQuestLevel (0 is not known, but assuming this is no longer valid for quest intended for client)
-    data << uint32(quest->GetXPDifficulty());                           // used for calculating rewarded experience
-
-    data << uint32(0);                                          // quest flags 2
-    data << uint32(quest->ItemDropQuantity[3]);
-    data << uint32(hideRewards ? 0 : quest->RewardChoiceItemId[5]);
-    data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[2]);
-    data << uint32(hideRewards ? 0 : quest->GetRewChoiceItemDisplayId(1));
-    data << uint32(hideRewards ? 0 : quest->RewardChoiceItemId[0]);
-    data << uint32(0);
-    data << uint32(quest->GetSoundTurnIn());
-
-    data << uint32(hideRewards ? 0 : quest->RewardChoiceItemId[2]);
-    data << uint32(quest->ItemDrop[1]);
-    data.WriteString(questObjectives);
-    data << uint32(hideRewards ? 0 : quest->RewardChoiceItemId[4]);
-
-    data << uint32(quest->GetSrcItemId());                      // source item id
-    data << int32(quest->GetRewSpell());                    // casted spell
-    data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[0]);
-    data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[3]);
-    data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[5]);
-    data << uint32(hideRewards ? 0 : quest->RewardItemCount[1]);
-    data << uint32(quest->ItemDropQuantity[1]);
-    data << uint32(hideRewards ? 0 : quest->RewardItemId[0]);
-    data << uint32(quest->GetQuestType());                    // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
-    data << uint32(quest->ItemDrop[2]);
-    if (hideRewards)
-        data << uint32(0);                                      // Hide money rewarded
-    else
-        data << uint32(quest->GetRewMoney());              // reward money (below max lvl)
-    data << uint32(quest->GetFlags());                          // quest flags
-    data << uint32(hideRewards ? 0 : quest->RewardChoiceItemCount[4]);
-    data << uint32(quest->GetPOIPriority());
-    data << uint32(quest->GetQuestId());                        // quest id
-    data << uint32(quest->GetSuggestedPlayers());               // suggested players count
-    data << uint32(quest->GetRewDisplaySpell());                       // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
-    data << uint32(quest->GetMinLevel());                       // min level
-
-    _session->SendPacket(&data);
-    */
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
 }
 
@@ -900,75 +754,55 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         return;
     }
 
-    WorldPacket data(SMSG_QUESTGIVER_REQUEST_ITEMS, 150);   // guess size
-    //data.WriteGuidMask<6, 0, 1>(npcGUID);
-    data.WriteBits(quest->GetReqCurrencyCount(), 21);
-    //data.WriteGuidMask<4, 5>(npcGUID);
-    data.WriteBits(requestItemsText.size(), 12);
-    //data.WriteGuidMask<3>(npcGUID);
+    WorldPackets::Quest::QuestGiverRequestItems packet;
+    packet.QuestGiverGUID = npcGUID;
 
-    data.WriteBits(quest->GetReqItemsCount(), 20);          // objectives count
-    data.WriteBit(closeOnCancel);                           // Close Window after cancel
-    //data.WriteGuidMask<7, 2>(npcGUID);
-    data.WriteBits(questTitle.size(), 9);
+    // Is there a better way? what about game objects?
+    if (Creature const* creature = sObjectAccessor->GetCreature(*_session->GetPlayer(), npcGUID))
+        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
 
-    data << uint32(0);                                      // quest flags 2
-    data << uint32(quest->GetRewMoney());
-    //data.WriteGuidBytes<3>(npcGUID);
-    data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
-    //data.WriteGuidBytes<4, 5>(npcGUID);
+    packet.QuestID = quest->GetQuestId();
+
     if (canComplete)
-        data << uint32(quest->GetCompleteEmote());
-    else
-        data << uint32(quest->GetIncompleteEmote());
-    //data.WriteGuidBytes<2>(npcGUID);
-    data << uint32(quest->GetSuggestedPlayers());           // SuggestedGroupNum
-    data.WriteString(requestItemsText);
-
-    for (uint8 i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
     {
-        if (!quest->RequiredCurrencyId[i])
-            continue;
-
-        data << uint32(quest->RequiredCurrencyId[i]);
-        data << uint32(quest->RequiredCurrencyCount[i]);
+        packet.CompEmoteDelay = quest->EmoteOnCompleteDelay;
+        packet.CompEmoteType = quest->EmoteOnComplete;
     }
-    for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+    else
     {
-        if (!quest->RequiredItemId[i])
-            continue;
-
-        data << uint32(quest->RequiredItemId[i]);
-        data << uint32(quest->RequiredItemCount[i]);
-
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
-            data << uint32(itemTemplate->DisplayInfoID);
-        else
-            data << uint32(0);
+        packet.CompEmoteDelay = quest->EmoteOnIncompleteDelay;
+        packet.CompEmoteType = quest->EmoteOnIncomplete;
     }
 
-    //data.WriteGuidBytes<7, 1>(npcGUID);
+    packet.QuestFlags[0] = quest->GetFlags();
+    packet.QuestFlags[1] = quest->GetFlagsEx();
+    packet.SuggestPartyMembers = quest->GetSuggestedPlayers();
+    packet.StatusFlags = 0xDF; // Unk, send common value
 
-    /*
-    v17 = ((unsigned int)v16 >> 1) & 1
-        && ((unsigned int)v16 >> 2) & 1
-        && ((unsigned int)v16 >> 3) & 1
-        && ((unsigned int)v16 >> 4) & 1
-        && ((unsigned int)v16 >> 6) & 1;
-    */
-    if (!canComplete)                                       // Experimental; there are 6 similar flags, if any of them
-        data << uint32(0);                                  // is 0 player can't complete quest (still unknown meaning)
-    else
-        data << uint32(0x7E);
+    packet.MoneyToGet = 0;
+    for (QuestObjective const& obj : quest->GetObjectives())
+    {
+        switch (obj.Type)
+        {
+            case QUEST_OBJECTIVE_ITEM:
+                packet.Collect.push_back(WorldPackets::Quest::QuestObjectiveCollect(obj.ObjectID, obj.Amount));
+                break;
+            case QUEST_OBJECTIVE_CURRENCY:
+                packet.Currency.push_back(WorldPackets::Quest::QuestCurrency(obj.ObjectID, obj.Amount));
+                break;
+            case QUEST_OBJECTIVE_MONEY:
+                packet.MoneyToGet += obj.Amount;
+                break;
+            default:
+                break;
+        }
+    }
 
-    data << uint32(quest->GetQuestId());
-    data << uint32(0);              // emote delay
+    packet.AutoLaunched = closeOnCancel;
+    packet.QuestTitle = questTitle;
+    packet.CompletionText = requestItemsText;
 
-    //data.WriteGuidBytes<0>(npcGUID);
-    data.WriteString(questTitle);
-    //data.WriteGuidBytes<6>(npcGUID);
-    data << uint32(npcGUID.GetEntry());                // npc id
+    _session->SendPacket(packet.Write());
 
-    _session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPCGuid=%u, questid=%u", npcGUID.GetEntry(), quest->GetQuestId());
 }

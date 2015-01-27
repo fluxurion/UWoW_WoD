@@ -118,6 +118,10 @@ ALTER TABLE `quest_template` DROP COLUMN `Flags2`;
 UPDATE `quest_template` SET QuestPackageID = PackageItem;
 ALTER TABLE `quest_template` DROP COLUMN `PackageItem`;
 
+ALTER TABLE `quest_template` ADD COLUMN `EmoteOnCompleteDelay` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `EmoteOnComplete`;
+ALTER TABLE `quest_template` ADD COLUMN `EmoteOnIncompleteDelay` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `EmoteOnCompleteDelay`;
+
+    
 -- ALTER TABLE `quest_template` DROP COLUMN `RequiredSkillId`;
 -- ALTER TABLE `quest_template` DROP COLUMN `RequiredSkillPoints`;
 -- ALTER TABLE `quest_template` DROP COLUMN `RequiredFactionId1`;

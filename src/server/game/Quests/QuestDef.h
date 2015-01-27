@@ -454,8 +454,6 @@ class Quest
         float  POIx;
         float  POIy;
         uint32 POIPriority;
-        uint32 EmoteOnIncomplete;
-        uint32 EmoteOnComplete;
         uint32 StartScript;
         uint32 CompleteScript;
         // new in 4.x
@@ -474,6 +472,12 @@ class Quest
         uint32 AreaGroupID;
 
         uint32 SpecialFlags; // custom flags, not sniffed/WDB
+
+        // quest_request_items table
+        uint32 EmoteOnComplete          = 0;
+        uint32 EmoteOnIncomplete        = 0;
+        uint32 EmoteOnCompleteDelay     = 0;
+        uint32 EmoteOnIncompleteDelay   = 0;
 };
 
 struct QuestStatusData
