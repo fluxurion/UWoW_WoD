@@ -62,6 +62,8 @@
 #include <math.h>
 #include <cwctype>
 
+#include "CombatPackets.h"
+
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
     2.5f,                  // MOVE_WALK
@@ -17484,14 +17486,10 @@ void Unit::SendPetAIReaction(ObjectGuid guid)
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ObjectGuid guidd = guid;
-
-    //! 5.4.1
-    WorldPacket data(SMSG_AI_REACTION, 8 + 4);
-    //data.WriteGuidMask<1, 5, 4, 3, 7, 6, 0, 2>(guidd);
-    //data.WriteGuidBytes<0, 5, 6, 2, 7, 3, 1, 4>(guidd);
-    data << uint32(AI_REACTION_HOSTILE);
-    owner->ToPlayer()->GetSession()->SendPacket(&data);
+    WorldPackets::Combat::AIReaction packet;
+    packet.UnitGUID = guid;
+    packet.Reaction = AI_REACTION_HOSTILE;
+    owner->ToPlayer()->SendDirectMessage(packet.Write());
 }
 
 ///----------End of Pet responses methods----------
