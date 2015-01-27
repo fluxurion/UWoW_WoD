@@ -21777,31 +21777,18 @@ void Unit::SendThreatListUpdate()
 
         sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message");
 
-        ObjectGuid hostileGUID;
-        ObjectGuid guid = GetGUID(); 
-        ByteBuffer dataBuffer;
-
-        //! 5.4.1
-        WorldPacket data(SMSG_THREAT_UPDATE);
-        //data.WriteGuidMask<3, 2, 1>(guid);
-        data.WriteBits(count, 21);
-        //data.WriteGuidMask<0>(guid);
-        std::list<HostileReference*>& tlist = getThreatManager().getThreatList();
+        WorldPackets::Combat::ThreatUpdate packet;
+        packet.UnitGUID = GetGUID();
+        std::list<HostileReference*> const &tlist = getThreatManager().getThreatList();
+        packet.ThreatList.reserve(tlist.size());
         for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
-            hostileGUID = (*itr)->getUnitGuid();
-            //data.WriteGuidMask<2, 4, 6, 1, 5, 3, 0, 7>(hostileGUID);
-
-            dataBuffer << uint32((*itr)->getThreat() * 100);
-            //dataBuffer.WriteGuidBytes<0, 2, 5, 1, 4, 3, 6, 7>(hostileGUID);
+            WorldPackets::Combat::ThreatInfo info;
+            info.UnitGUID = (*itr)->getUnitGuid();
+            info.Threat = (*itr)->getThreat() * 100;
+            packet.ThreatList.push_back(info);
         }
-        //data.WriteGuidMask<4, 7, 5, 6>(guid);
-        data.FlushBits();
-        //data.WriteGuidBytes<0, 2>(guid);
-        data.append(dataBuffer);
-        //data.WriteGuidBytes<4, 7, 5, 6, 1, 3>(guid);
-
-        SendMessageToSet(&data, false);
+        SendMessageToSet(packet.Write(), false);
     }
 }
 
