@@ -19434,12 +19434,12 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid bagGuid = ObjectGuid::Create<HighGuid::Item>(fields[14].GetUInt64());
+                ObjectGuid::LowType bGUID = fields[14].GetUInt64();
                 uint8  slot     = fields[15].GetUInt8();
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
-                if (!bagGuid)
+                if (!bGUID)
                 {
                     ObjectGuid::LowType iGUIDfromInv = fields[18].GetUInt64();
 
@@ -19492,6 +19492,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                 }
                 else
                 {
+                    ObjectGuid bagGuid = ObjectGuid::Create<HighGuid::Item>(bGUID);
                     item->SetSlot(NULL_SLOT);
                     // Item is in the bag, find the bag
                     std::map<ObjectGuid, Bag*>::iterator itr = bagMap.find(bagGuid);
@@ -19527,7 +19528,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                 else
                 {
                     sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) which can't be loaded into inventory (Bag GUID: %u, slot: %u) by reason %u. Item will be sent by mail.",
-                        GetGUID().GetCounter(), GetName(), item->GetGUID().GetCounter(), item->GetEntry(), bagGuid, slot, err);
+                        GetGUID().GetCounter(), GetName(), item->GetGUID().GetCounter(), item->GetEntry(), bGUID, slot, err);
                     item->DeleteFromInventoryDB(trans);
                     RemoveItemDurations(item);
                     RemoveTradeableItem(item);

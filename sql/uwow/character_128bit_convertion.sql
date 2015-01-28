@@ -1,4 +1,4 @@
-RENAME TABLE `guild_news_log` TO `wod_char`.`guild_newslog`;
+RENAME TABLE `guild_news_log` TO `guild_newslog`;
 ALTER TABLE `guild_newslog` CHANGE `guild` `guildId` INT(10) UNSIGNED NOT NULL;
 
 --
@@ -42,6 +42,7 @@ ALTER TABLE `character_aura_effect` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT
 ALTER TABLE `character_banned` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_battleground_data` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_battleground_random` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+-- character_battle_pet менялся хз что там получилось.
 ALTER TABLE `character_battle_pet` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL;
 ALTER TABLE `character_battle_pet_journal` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL;
 ALTER TABLE `character_brackets_info` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
