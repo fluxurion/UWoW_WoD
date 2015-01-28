@@ -54,7 +54,7 @@
 
 
 Object::Object() : m_objectTypeId(TYPEID_OBJECT), m_objectType(TYPEMASK_OBJECT), m_uint32Values(NULL),
-    _changedFields(NULL), m_valuesCount(0), _dynamicValuesCount(0), _fieldNotifyFlags(UF_FLAG_NONE), m_inWorld(false),
+    _changedFields(NULL), m_valuesCount(0), _dynamicValuesCount(0), _fieldNotifyFlags(UF_FLAG_DYNAMIC), m_inWorld(false),
     m_objectUpdated(false), _dynamicValues(NULL), _dynamicChangesArrayMask(NULL)
 {
 }
