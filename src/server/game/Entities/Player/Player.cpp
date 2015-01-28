@@ -81,6 +81,7 @@
 #include "Bracket.h"
 #include "BracketMgr.h"
 #include "AuctionHouseMgr.h"
+#include "UpdateFieldFlags.h"
 
 #include "CharacterPackets.h"
 #include "EquipmentSetPackets.h"
@@ -3723,7 +3724,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     // cleanup player flags (will be re-applied if need at aura load), to avoid have ghost flag without ghost aura, for example.
     RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AFK | PLAYER_FLAGS_DND | PLAYER_FLAGS_GM | PLAYER_FLAGS_GHOST | PLAYER_ALLOW_ONLY_ABILITY);
 
-    RemoveStandFlags(UNIT_STAND_FLAGS_ALL);                 // one form stealth modified bytes
+    RemoveStandStateFlags(UNIT_STAND_FLAGS_ALL);                 // one form stealth modified bytes
     RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP | UNIT_BYTE2_FLAG_SANCTUARY);
 
     // restore if need some important flags
@@ -5951,7 +5952,7 @@ void Player::BuildPlayerRepop()
     SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, float(1.0f));   //see radius of death player?
 
     // set and clear other
-    SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
+    SetMiscStandValue(UNIT_BYTE1_FLAG_ALWAYS_STAND);
 }
 
 void Player::ResurrectPlayer(float restore_percent, bool applySickness)
@@ -5967,7 +5968,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     // speed change, land walk
 
     // remove death flag + set aura
-    SetByteValue(UNIT_FIELD_BYTES_1, 3, 0x00);
+    SetMiscStandValue(0);
     if (getRace() == RACE_NIGHTELF)
         RemoveAurasDueToSpell(20584);                       // speed bonuses
     RemoveAurasDueToSpell(8326);                            // SPELL_AURA_GHOST
@@ -24818,7 +24819,9 @@ void Player::UpdateTriggerVisibility()
             if (!obj || !(obj->isTrigger() || obj->HasAuraType(SPELL_AURA_TRANSFORM)))  // can transform into triggers
                 continue;
 
+            obj->SetFieldNotifyFlag(UF_FLAG_PUBLIC);
             obj->BuildCreateUpdateBlockForPlayer(&udata, this);
+            obj->RemoveFieldNotifyFlag(UF_FLAG_PUBLIC);
         }
     }
 

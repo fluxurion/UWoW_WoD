@@ -2609,7 +2609,7 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
         target->m_stealth.AddFlag(type);
         target->m_stealth.AddValue(type, GetAmount());
 
-        target->SetStandFlags(UNIT_STAND_FLAGS_CREEP);
+        target->setStandStateFlag(UNIT_STAND_FLAGS_CREEP);
         //if (target->GetTypeId() == TYPEID_PLAYER)
             //target->SetByteFlag(PLAYER_FIELD_BYTES2, 3, PLAYER_FIELD_BYTE2_STEALTH); // TODO : Check PLAYER_FIELD_AURA_VISION
     }
@@ -2621,7 +2621,7 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
         {
             target->m_stealth.DelFlag(type);
 
-            target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
+            target->RemoveStandStateFlags(UNIT_STAND_FLAGS_CREEP);
             //if (target->GetTypeId() == TYPEID_PLAYER)
                 //target->RemoveByteFlag(PLAYER_FIELD_BYTES2, 3, PLAYER_FIELD_BYTE2_STEALTH); // TODO : Check PLAYER_FIELD_AURA_VISION
         }
@@ -3606,13 +3606,13 @@ void AuraEffect::HandleAuraUntrackable(AuraApplication const* aurApp, uint8 mode
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-        target->SetByteFlag(UNIT_FIELD_BYTES_1, 2, UNIT_STAND_FLAGS_UNTRACKABLE);
+        target->SetStandVisFlags(UNIT_STAND_FLAGS_UNTRACKABLE);
     else
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
         if (target->HasAuraType(GetAuraType()))
             return;
-        target->RemoveByteFlag(UNIT_FIELD_BYTES_1, 2, UNIT_STAND_FLAGS_UNTRACKABLE);
+        target->RemoveStandVisFlags(UNIT_STAND_FLAGS_UNTRACKABLE);
     }
 }
 

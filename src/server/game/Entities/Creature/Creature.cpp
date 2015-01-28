@@ -2266,16 +2266,16 @@ bool Creature::LoadCreaturesAddon(bool reload)
         // 2 StandFlags
         // 3 StandMiscFlags
 
-        SetByteValue(UNIT_FIELD_BYTES_1, 0, uint8(cainfo->bytes1 & 0xFF));
+        setStandStateValue(cainfo->bytes1 & 0xFF);
         //SetByteValue(UNIT_FIELD_BYTES_1, 1, uint8((cainfo->bytes1 >> 8) & 0xFF));
         SetByteValue(UNIT_FIELD_BYTES_1, 1, 0);
-        SetByteValue(UNIT_FIELD_BYTES_1, 2, uint8((cainfo->bytes1 >> 16) & 0xFF));
-        SetByteValue(UNIT_FIELD_BYTES_1, 3, uint8((cainfo->bytes1 >> 24) & 0xFF));
+        SetStandVisValue(uint8(cainfo->bytes1 >> 16) & 0xFF);
+        SetMiscStandValue(uint8((cainfo->bytes1 >> 24) & 0xFF));
 
         //! Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
         //! If no inhabittype_fly (if no MovementFlag_DisableGravity flag found in sniffs)
         //! Set MovementFlag_Hover. Otherwise do nothing.
-        if (GetByteValue(UNIT_FIELD_BYTES_1, 3) & UNIT_BYTE1_FLAG_HOVER && !IsLevitating())
+        if (GetMiscStandValue() & UNIT_BYTE1_FLAG_HOVER && !IsLevitating())
             AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
 
@@ -2821,9 +2821,9 @@ bool Creature::SetHover(bool enable, bool packetOnly)
 
     //! Unconfirmed for players:
     if (enable)
-        SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+        SetMiscStandFlags(UNIT_BYTE1_FLAG_HOVER);
     else
-        RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+        RemoveMiscStandFlags(UNIT_BYTE1_FLAG_HOVER);
 
     if (!movespline->Initialized())
         return true;

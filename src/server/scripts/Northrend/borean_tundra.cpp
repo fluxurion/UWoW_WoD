@@ -894,7 +894,7 @@ public:
         void Reset()
         {
             me->RestoreFaction();
-            me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+            me->RemoveStandStateFlags(UNIT_STAND_STATE_SIT);
 
             uiArthas.Clear();
             uiTalbot.Clear();
@@ -1108,7 +1108,7 @@ public:
                             pArlos->RemoveFromWorld();
                         if (pTalbot)
                             pTalbot->RemoveFromWorld();
-                        me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+                        me->RemoveStandStateFlags(UNIT_STAND_STATE_SIT);
                         SetEscortPaused(false);
                         uiPhaseTimer = 0;
                         uiPhase = 0;
@@ -1371,7 +1371,7 @@ public:
             Phase = 0;
             uiPhaseTimer = 0;
 
-            creature->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+            creature->RemoveStandStateFlags(UNIT_STAND_STATE_SIT);
         }
 
         bool bDone;
