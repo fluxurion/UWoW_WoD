@@ -2984,12 +2984,12 @@ namespace Trinity
         public:
             MonsterChatBuilder(WorldObject const& obj, ChatMsg msgtype, int32 textId, uint32 language, ObjectGuid targetGUID)
                 : i_object(obj), i_msgtype(msgtype), i_textId(textId), i_language(language), i_targetGUID(targetGUID) {}
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            void operator()(const WorldPacket * data, LocaleConstant loc_idx)
             {
                 char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
 
                 // TODO: i_object.GetName() also must be localized?
-                i_object.BuildMonsterChat(&data, i_msgtype, text, i_language, i_object.GetNameForLocaleIdx(loc_idx), i_targetGUID);
+                i_object.BuildMonsterChat(data, i_msgtype, text, i_language, i_object.GetNameForLocaleIdx(loc_idx), i_targetGUID);
             }
 
         private:
@@ -3005,10 +3005,10 @@ namespace Trinity
         public:
             MonsterCustomChatBuilder(WorldObject const& obj, ChatMsg msgtype, const char* text, uint32 language, ObjectGuid targetGUID)
                 : i_object(obj), i_msgtype(msgtype), i_text(text), i_language(language), i_targetGUID(targetGUID) {}
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            void operator()(const WorldPacket * data, LocaleConstant loc_idx)
             {
                 // TODO: i_object.GetName() also must be localized?
-                i_object.BuildMonsterChat(&data, i_msgtype, i_text, i_language, i_object.GetNameForLocaleIdx(loc_idx), i_targetGUID);
+                i_object.BuildMonsterChat(data, i_msgtype, i_text, i_language, i_object.GetNameForLocaleIdx(loc_idx), i_targetGUID);
             }
 
         private:
@@ -3139,7 +3139,7 @@ void WorldObject::MonsterWhisper(int32 textId, ObjectGuid receiver, bool IsBossW
     player->GetSession()->SendPacket(&data);
 }
 
-void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const* text, uint32 language, char const* name, ObjectGuid targetGuid) const
+void WorldObject::BuildMonsterChat(const WorldPacket * data, uint8 msgtype, char const* text, uint32 language, char const* name, ObjectGuid targetGuid) const
 {
     Trinity::ChatData c;
     c.sourceGuid = GetGUID();
@@ -3149,7 +3149,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     c.language = language;
     c.chatType = msgtype;
 
-    Trinity::BuildChatPacket(*data, c);
+    data = Trinity::BuildChatPacket(c, this, ObjectAccessor::GetWorldObject(*this, targetGuid));
 }
 
 void WorldObject::SendMessageToSet(WorldPacket const* data, bool self)

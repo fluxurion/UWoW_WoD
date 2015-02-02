@@ -579,7 +579,7 @@ void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
 {
     LocaleConstant loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
     uint32 cache_idx = loc_idx+1;
-    WorldPacket* data;
+    const WorldPacket * data;
 
     // create if not cached yet
     if (i_data_cache.size() < cache_idx+1 || !i_data_cache[cache_idx])
@@ -589,7 +589,7 @@ void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
 
         data = new WorldPacket(SMSG_MESSAGECHAT, 200);
 
-        i_builder(*data, loc_idx);
+        i_builder(data, loc_idx);
 
         i_data_cache[cache_idx] = data;
     }

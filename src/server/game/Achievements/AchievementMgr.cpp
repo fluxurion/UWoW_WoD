@@ -49,7 +49,7 @@ namespace Trinity
         public:
             AchievementChatBuilder(Player const& player, ChatMsg msgtype, int32 textId, uint32 ach_id)
                 : i_player(player), i_msgtype(msgtype), i_textId(textId), i_achievementId(ach_id) {}
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            void operator()(const WorldPacket * data, LocaleConstant loc_idx)
             {
                 Trinity::ChatData c;
                 c.message = sObjectMgr->GetTrinityString(i_textId, loc_idx);
@@ -58,7 +58,7 @@ namespace Trinity
                 c.chatType = i_msgtype;
                 c.achievementId = i_achievementId;
 
-                Trinity::BuildChatPacket(data, c);
+                data = Trinity::BuildChatPacket(c, &i_player);
             }
 
         private:

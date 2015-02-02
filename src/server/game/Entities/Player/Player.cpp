@@ -7575,11 +7575,7 @@ void Player::SendChatMessageToSetInRange(Trinity::ChatData& c, float dist, bool 
         return;
 
     if (self)
-    {
-        WorldPacket data;
-        Trinity::BuildChatPacket(data, c, false);
-        GetSession()->SendPacket(&data);
-    }
+        GetSession()->SendPacket(Trinity::BuildChatPacket(c, false, this));
 
     Trinity::ChatMessageDistDeliverer notifier(this, c, dist, own_team_only);
     VisitNearbyWorldObject(dist, notifier);
@@ -22337,12 +22333,12 @@ void Player::StopCastingCharm()
     }
 }
 
-void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/) const
+void Player::BuildPlayerChat(const WorldPacket * data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/) const
 {
     Trinity::ChatData c;
     BuildPlayerChatData(c, msgtype, text, language, addonPrefix);
 
-    Trinity::BuildChatPacket(*data, c);
+    data = Trinity::BuildChatPacket(c, this, this);
 }
 
 inline void Player::BuildPlayerChatData(Trinity::ChatData& c, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/) const

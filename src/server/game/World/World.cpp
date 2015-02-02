@@ -2447,7 +2447,7 @@ namespace Trinity
     class WorldWorldTextBuilder
     {
         public:
-            typedef std::vector<WorldPacket*> WorldPacketList;
+            typedef std::vector<const WorldPacket *> WorldPacketList;
             explicit WorldWorldTextBuilder(int32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) {}
             void operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
             {
@@ -2480,8 +2480,8 @@ namespace Trinity
                     c.message = line ? line : "";
                     c.chatType = CHAT_MSG_SYSTEM;
 
-                    WorldPacket* data = new WorldPacket();
-                    Trinity::BuildChatPacket(*data, c);
+                    const WorldPacket * data = new WorldPacket();
+                    data = Trinity::BuildChatPacket(c);
 
                     data_list.push_back(data);
                 }

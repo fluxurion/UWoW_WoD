@@ -623,7 +623,7 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
 }
 
 //Note: target_guid used only in CHAT_MSG_WHISPER_INFORM mode (in this case channelName ignored)
-void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, ObjectGuid target_guid, const char *message, Unit* speaker, const char* addonPrefix /*= NULL*/)
+void ChatHandler::FillMessageData(const WorldPacket * data, WorldSession* session, uint8 type, uint32 language, const char *channelName, ObjectGuid target_guid, const char *message, Unit* speaker, const char* addonPrefix /*= NULL*/)
 {
     ASSERT(type != CHAT_MSG_CHANNEL || channelName);
     ASSERT(type != CHAT_MSG_ADDON || addonPrefix);
@@ -691,7 +691,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     if (session && type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
         c.chatTag = session->GetPlayer()->GetChatTag();
 
-    Trinity::BuildChatPacket(*data, c);
+    data = Trinity::BuildChatPacket(c, ObjectAccessor::FindPlayer(c.sourceGuid), ObjectAccessor::FindPlayer(c.targetGuid));
 }
 
 Player* ChatHandler::getSelectedPlayer()

@@ -45,7 +45,7 @@ namespace Trinity
             BattlegroundChatBuilder(ChatMsg msgtype, int32 textId, Player const* source, va_list* args = NULL)
                 : _msgtype(msgtype), _textId(textId), _source(source), _args(args) { }
 
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            void operator()(const WorldPacket * data, LocaleConstant loc_idx)
             {
                 char const* text = sObjectMgr->GetTrinityString(_textId, loc_idx);
                 if (_args)
@@ -65,7 +65,7 @@ namespace Trinity
             }
 
         private:
-            void do_helper(WorldPacket& data, char const* text)
+            void do_helper(const WorldPacket * data, char const* text)
             {
                 Trinity::ChatData c;
                 c.targetGuid = _source ? _source->GetGUID() : ObjectGuid::Empty;
@@ -74,7 +74,7 @@ namespace Trinity
                 c.message = text;
                 c.chatType = _msgtype;
 
-                Trinity::BuildChatPacket(data, c);
+                data = Trinity::BuildChatPacket(c, _source, _source);
             }
 
             ChatMsg _msgtype;
@@ -89,7 +89,7 @@ namespace Trinity
             Battleground2ChatBuilder(ChatMsg msgtype, int32 textId, Player const* source, int32 arg1, int32 arg2)
                 : _msgtype(msgtype), _textId(textId), _source(source), _arg1(arg1), _arg2(arg2) {}
 
-            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            void operator()(const WorldPacket * data, LocaleConstant loc_idx)
             {
                 char const* text = sObjectMgr->GetTrinityString(_textId, loc_idx);
                 char const* arg1str = _arg1 ? sObjectMgr->GetTrinityString(_arg1, loc_idx) : "";
@@ -105,7 +105,7 @@ namespace Trinity
                 c.message = str;
                 c.chatType = _msgtype;
 
-                Trinity::BuildChatPacket(data, c);
+                data = Trinity::BuildChatPacket(c, _source, _source);
             }
 
         private:
@@ -1782,18 +1782,18 @@ void Battleground::SendWarningToAll(int32 entry, ...)
     va_end(ap);
     std::string msg(str);
 
-    WorldPacket data;
+    const WorldPacket * data;
 
     Trinity::ChatData c;
     c.chatType = CHAT_MSG_RAID_BOSS_EMOTE;
     c.message = msg;
 
-    Trinity::BuildChatPacket(data, c);
+    data = Trinity::BuildChatPacket(c);
 
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             if (player->GetSession())
-                player->GetSession()->SendPacket(&data);
+                player->GetSession()->SendPacket(data);
 }
 
 void Battleground::SendMessage2ToAll(int32 entry, ChatMsg type, Player const* source, int32 arg1, int32 arg2)
