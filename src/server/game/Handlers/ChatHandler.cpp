@@ -508,12 +508,11 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
     }
 }
 
-void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
+void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMessage& packet)
 {
-    Player* sender = GetPlayer();
     ChatMsg type;
 
-    switch (recvData.GetOpcode())
+    switch (packet.GetOpcode())
     {
         case CMSG_MESSAGECHAT_ADDON_GUILD:
             type = CHAT_MSG_GUILD;
@@ -530,68 +529,28 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
         case CMSG_MESSAGECHAT_ADDON_RAID:
             type = CHAT_MSG_RAID;
             break;
-        case CMSG_MESSAGECHAT_ADDON_WHISPER:
+        case CMSG_MESSAGECHAT_ADDON_WHISPER:    //WorldSession::HandleChatAddonMessageWhisperOpcode
             type = CHAT_MSG_WHISPER;
             break;
         default:
-            sLog->outError(LOG_FILTER_NETWORKIO, "HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", recvData.GetOpcode());
-            recvData.hexlike();
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", packet.GetOpcode());
             return;
     }
 
-    std::string message;
-    std::string prefix;
-    std::string targetName;
+    HandleChatAddonMessage(type, packet.Prefix, packet.Text);
+}
 
-    switch (type)
-    {
-        case CHAT_MSG_WHISPER:
-        {
-            uint32 targetLen = recvData.ReadBits(9);
-            uint32 msgLen = recvData.ReadBits(8);
-            uint32 prefixLen = recvData.ReadBits(5);
+void WorldSession::HandleChatAddonMessageWhisperOpcode(WorldPackets::Chat::ChatAddonMessageWhisper& packet)
+{
+    HandleChatAddonMessage(CHAT_MSG_WHISPER, packet.Prefix, packet.Text, packet.Target);
+}
 
-            prefix = recvData.ReadString(prefixLen);
-            targetName = recvData.ReadString(targetLen);
-            message = recvData.ReadString(msgLen);
-            break;
-        }
-        case CHAT_MSG_RAID:
-        {
-            uint32 msgLen = recvData.ReadBits(8);
-            uint32 prefixLen = recvData.ReadBits(5);
-            prefix = recvData.ReadString(prefixLen);
-            message = recvData.ReadString(msgLen);
-            break;
-        }
-        case CHAT_MSG_OFFICER:
-        case CHAT_MSG_INSTANCE:
-        {
-            uint32 msgLen = recvData.ReadBits(8);
-            uint32 prefixLen = recvData.ReadBits(5);
-            message = recvData.ReadString(msgLen);
-            prefix = recvData.ReadString(prefixLen);
-            break;
-        }
-        case CHAT_MSG_PARTY:
-        {
-            uint32 prefixLen = recvData.ReadBits(5);
-            uint32 msgLen = recvData.ReadBits(8);
-            message = recvData.ReadString(msgLen);
-            prefix = recvData.ReadString(prefixLen);
-            break;
-        }
-        case CHAT_MSG_GUILD:
-        {
-            uint32 prefixLen = recvData.ReadBits(5);
-            uint32 msgLen = recvData.ReadBits(8);
-            prefix = recvData.ReadString(prefixLen);
-            message = recvData.ReadString(msgLen);
-            break;
-        }
-        default:
-            break;
-    }
+void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std::string message, std::string targetName /*= ""*/)
+{
+    Player* sender = GetPlayer();
+
+    if (prefix.empty() || prefix.length() > 16)
+        return;
 
     // Logging enabled?
     if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
