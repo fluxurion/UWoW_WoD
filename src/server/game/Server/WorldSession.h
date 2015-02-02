@@ -652,7 +652,7 @@ class WorldSession
         void HandleDuelAccepted();
         void HandleDuelCancelled();
 
-        void HandleAreaTriggerOpcode(WorldPacket& recvPacket);
+        void HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet);
 
         void HandleSetFactionAtWar(WorldPacket& recvData);
         void HandleUnsetFactionAtWar(WorldPacket& recvData);
