@@ -612,7 +612,6 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
-//! 5.4.1
 void WorldSession::HandleTogglePvP(WorldPacket& recvData)
 {
     uint8 newPvPStatus = recvData.ReadBit();
@@ -666,13 +665,9 @@ void WorldSession::HandleReturnToGraveyard(WorldPacket& /*recvPacket*/)
     GetPlayer()->RepopAtGraveyard();
 }
 
-void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet)
 {
-    ObjectGuid guid;
-    //recvData.ReadGuidMask<4, 3, 2, 0, 5, 7, 6, 1>(guid);
-    //recvData.ReadGuidBytes<1, 2, 3, 0, 7, 5, 4, 6>(guid);
-
-    _player->SetSelection(guid);
+    _player->SetSelection(packet.Selection);
 }
 
 void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)
