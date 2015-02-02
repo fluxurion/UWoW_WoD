@@ -881,8 +881,15 @@ class WorldSession
         void SendQuestgiverStatusMultipleQuery();
 
         bool processChatmessageFurtherAfterSecurityChecks(std::string&, uint32);
-        void HandleMessagechatOpcode(WorldPacket& recvPacket);
+        void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& packet);
+        void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& packet);
+        void HandleChatMessageChannelOpcode(WorldPackets::Chat::ChatMessageChannel& packet);
+        void HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageEmote& packet);
+        void HandleChatMessage(ChatMsg type, uint32 lang, std::string msg, std::string target = "");
+
         void HandleAddonMessagechatOpcode(WorldPacket& recvPacket);
+
+
         void SendPlayerNotFoundNotice(std::string name);
         void SendPlayerAmbiguousNotice(std::string name);
         void SendWrongFactionNotice();

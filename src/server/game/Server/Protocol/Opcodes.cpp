@@ -390,20 +390,20 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_ADDON_PARTY,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAddonMessagechatOpcode    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_ADDON_RAID,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAddonMessagechatOpcode    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_ADDON_WHISPER,               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAddonMessagechatOpcode    );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_AFK,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    //DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_BATTLEGROUND,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_CHANNEL,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_DND,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_EMOTE,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_GUILD,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_INSTANCE,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_OFFICER,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_PARTY,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_RAID,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_RAID_WARNING,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_SAY,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_WHISPER,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_YELL,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMessagechatOpcode         );
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_AFK,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );//603
+    //DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_BATTLEGROUND,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_CHANNEL,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessageChannel, &WorldSession::HandleChatMessageChannelOpcode);//603
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_DND,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );//603
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_EMOTE,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessageEmote, &WorldSession::HandleChatMessageEmoteOpcode);//603
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_GUILD,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );//603
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_INSTANCE,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_OFFICER,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );//603
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_PARTY,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );//603
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_RAID,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );//603
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_RAID_WARNING,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );//603
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_SAY,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );//603
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_WHISPER,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessageWhisper, &WorldSession::HandleChatMessageWhisperOpcode);//603
+    DEFINE_HANDLER(CMSG_MESSAGECHAT_YELL,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MOUNTSPECIAL_ANIM,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMountSpecialAnimOpcode    );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_NOT_ACTIVE_MOVER,                   STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMoveNotActiveMover        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_KNOCK_BACK_ACK,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMoveKnockBackAck          );
