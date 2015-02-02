@@ -1127,56 +1127,41 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
         player->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
 }
 
-//! 5.4.1
-void WorldSession::HandleUpdateAccountData(WorldPacket& recvData)
+void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA");
 
-    uint32 type, timestamp, decompressedSize, OriginalSize;
-    recvData >> OriginalSize >> timestamp >> decompressedSize;
-
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "UAD: type %u, time %u, decompressedSize %u", type, timestamp, decompressedSize);
 
-    //if (type > NUM_ACCOUNT_DATA_TYPES)
-        //return;
+    if (packet.DataType > NUM_ACCOUNT_DATA_TYPES)
+        return;
 
-    if (decompressedSize == 0)                               // erase
+    if (packet.Size == 0)                               // erase
     {
-        type = recvData.ReadBits(3);
-        if (type > NUM_ACCOUNT_DATA_TYPES)
-            return;
-
-        SetAccountData(AccountDataType(type), 0, "");
+        SetAccountData(AccountDataType(packet.DataType), 0, "");
         return;
     }
 
-    if (decompressedSize > 0xFFFF)
+    if (packet.Size > 0xFFFF)
     {
-        recvData.rfinish();                   // unnneded warning spam in this case
-        sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Account data packet too big, size %u", decompressedSize);
+        sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Account data packet too big, size %u", packet.Size);
         return;
     }
 
     ByteBuffer dest;
-    dest.resize(OriginalSize);
-    uLongf realSize = OriginalSize;
+    dest.resize(packet.Size);
 
-    if (uncompress(const_cast<uint8*>(dest.contents()), &realSize, const_cast<uint8*>(recvData.contents() + recvData.rpos()), decompressedSize) != Z_OK)
+    uLongf realSize = packet.Size;
+    if (uncompress(dest.contents(), &realSize, packet.CompressedData.contents(), packet.CompressedData.size()) != Z_OK)
     {
-        recvData.rfinish();                   // unnneded warning spam in this case
         sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Failed to decompress account data");
         return;
     }
 
-    std::string adata = dest.ReadString(OriginalSize);
+    std::string adata;
+    dest >> adata;
 
-    recvData.read_skip(decompressedSize);       //uncompress not move packet
-    type = recvData.ReadBits(3);
-
-    if (type > NUM_ACCOUNT_DATA_TYPES)
-        return;
-
-    SetAccountData(AccountDataType(type), timestamp, adata);
+    SetAccountData(AccountDataType(packet.DataType), packet.Time, adata);
 }
 
 //! 6.0.3
