@@ -546,24 +546,18 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     else if (GetPlayer()->duel || GetPlayer()->HasAura(9454)) // is dueling or frozen by GM via freeze command
         reason = 2;                                         // FIXME - Need the correct value
 
-    if (reason)
-    {
-        WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
-        data << uint32(reason);
-        data.WriteBit(0);
-        SendPacket(&data);
-        LogoutRequest(0);
-        return;
-    }
-
     //instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
-    if (GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
-        GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)))
+    bool instantLogout = GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
+        GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT));
+
+    WorldPackets::Character::LogoutResponse logoutResponse;
+    logoutResponse.LogoutResult = reason;
+    logoutResponse.Instant = instantLogout;
+    SendPacket(logoutResponse.Write());
+
+    // instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
+    if (instantLogout)
     {
-        WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
-        data << uint32(reason);
-        data.WriteBit(1);           // instant logout
-        SendPacket(&data);
         LogoutPlayer(true);
         return;
     }
@@ -576,10 +570,6 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
-    WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
-    data << uint32(0);
-    data.WriteBit(0);
-    SendPacket(&data);
     LogoutRequest(time(NULL));
 }
 
