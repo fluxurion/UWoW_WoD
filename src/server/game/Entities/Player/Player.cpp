@@ -17943,7 +17943,7 @@ void Player::MoneyChanged(uint32 count)
 
             if (q_status.Status == QUEST_STATUS_INCOMPLETE)
             {
-                if (int32(count) >= -qInfo->GetRewMoney())
+                if (count >= qInfo->GetRewMoney())
                 {
                     if (CanCompleteQuest(questid))
                         CompleteQuest(questid);
@@ -17951,7 +17951,7 @@ void Player::MoneyChanged(uint32 count)
             }
             else if (q_status.Status == QUEST_STATUS_COMPLETE)
             {
-                if (int32(count) < -qInfo->GetRewMoney())
+                if (count < qInfo->GetRewMoney())
                     IncompleteQuest(questid);
             }
         }
