@@ -59,6 +59,7 @@
 #include "LFGMgr.h"
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
+#include "CharacterPackets.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -591,8 +592,7 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
 
     LogoutRequest(0);
 
-    WorldPacket data(SMSG_LOGOUT_CANCEL_ACK, 0);
-    SendPacket(&data);
+    SendPacket(WorldPackets::Character::LogoutCancelAck().Write());
 
     // not remove flags if can't free move - its not set in Logout request code.
     if (GetPlayer()->CanFreeMove())
