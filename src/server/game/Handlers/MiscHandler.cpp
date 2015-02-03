@@ -60,6 +60,7 @@
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
 #include "CharacterPackets.h"
+#include "SpellPackets.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -1203,24 +1204,18 @@ int32 WorldSession::HandleEnableNagleAlgorithm()
     return 0;
 }
 
-void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_ACTION_BUTTON");
 
-    uint8 button;
-    ObjectGuidSteam packedData;
-    recvData >> button;
-    //recvData.ReadGuidMask<4, 7, 5, 6, 1, 3, 0, 2>(packedData);
-    //recvData.ReadGuidBytes<3, 4, 6, 7, 1, 2, 0, 5>(packedData);
+    uint32 action = uint32(packet.Action & 0xFFFFFFFF);
+    uint8  type = uint8(packet.Action >> 56);
 
-    uint32 action = uint32(packedData & 0xFFFFFFFF);
-    uint8  type = uint8(packedData >> 56);
-
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", button, action, type);
-    if (!packedData)
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", packet.Index, action, type);
+    if (!packet.Action)
     {
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Remove action from button %u", button);
-        GetPlayer()->removeActionButton(button);
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Remove action from button %u", packet.Index);
+        GetPlayer()->removeActionButton(packet.Index);
     }
     else
     {
@@ -1228,28 +1223,28 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
         {
         case ACTION_BUTTON_MACRO:
         case ACTION_BUTTON_CMACRO:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Macro %u into button %u", action, button);
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Macro %u into button %u", action, packet.Index);
             break;
         case ACTION_BUTTON_EQSET:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added EquipmentSetInfo %u into button %u", action, button);
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added EquipmentSetInfo %u into button %u", action, packet.Index);
             break;
         case ACTION_BUTTON_SPELL:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Spell %u into button %u", action, button);
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Spell %u into button %u", action, packet.Index);
             break;
         case ACTION_BUTTON_SUB_BUTTON:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added sub buttons %u into button %u", action, button);
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added sub buttons %u into button %u", action, packet.Index);
             break;
         case ACTION_BUTTON_ITEM:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Item %u into button %u", action, button);
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Item %u into button %u", action, packet.Index);
             break;
         case ACTION_BUTTON_PET:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Pet Spell %u into button %u", action, button);
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Pet Spell %u into button %u", action, packet.Index);
             break;
         default:
-            sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, button, _player->GetName(), _player->GetGUID().GetCounter());
+            sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, packet.Index, _player->GetName(), _player->GetGUID().GetCounter());
             return;
         }
-        GetPlayer()->addActionButton(button, action, type);
+        GetPlayer()->addActionButton(packet.Index, action, type);
     }
 }
 
