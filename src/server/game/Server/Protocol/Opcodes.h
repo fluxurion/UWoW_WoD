@@ -911,7 +911,7 @@ enum OpcodeServer : uint32
     SMSG_CORPSE_RECLAIM_DELAY                         = 0x0BE2,
     SMSG_CREATURE_QUERY_RESPONSE                      = 0x0A26,
     SMSG_CRITERIA_DELETED                             = 0xBADD,
-    SMSG_CRITERIA_UPDATE                              = 0xBADD,
+    SMSG_CRITERIA_UPDATE                              = 0x1904,
     SMSG_CRITERIA_UPDATE_ACCOUNT                      = 0x0912,
     SMSG_CRITERIA_UPDATE_PLAYER                       = 0x1904,
     SMSG_CROSSED_INEBRIATION_THRESHOLD                = 0xBADD,

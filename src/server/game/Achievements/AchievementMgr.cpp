@@ -41,6 +41,7 @@
 #include "InstanceScript.h"
 #include "Group.h"
 #include "Bracket.h"
+#include "AchievementPackets.h"
 
 namespace Trinity
 {
@@ -394,18 +395,18 @@ AchievementMgr<T>::~AchievementMgr()
 }
 
 template<class T>
-void AchievementMgr<T>::SendPacket(WorldPacket* data) const
+void AchievementMgr<T>::SendPacket(WorldPacket const* data) const
 {
 }
 
 template<>
-void AchievementMgr<Guild>::SendPacket(WorldPacket* data) const
+void AchievementMgr<Guild>::SendPacket(WorldPacket const* data) const
 {
     GetOwner()->BroadcastPacket(data);
 }
 
 template<>
-void AchievementMgr<Player>::SendPacket(WorldPacket* data) const
+void AchievementMgr<Player>::SendPacket(WorldPacket const* data) const
 {
     GetOwner()->GetSession()->SendPacket(data);
 }
@@ -1259,26 +1260,20 @@ void AchievementMgr<T>::SendCriteriaUpdate(AchievementCriteriaEntry const* /*ent
 template<>
 void AchievementMgr<Player>::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
-    WorldPacket data(SMSG_CRITERIA_UPDATE, 8 + 4 + 8);
-    data << uint32(entry->ID);
+    WorldPackets::Achievement::CriteriaUpdate criteriaUpdate;
 
-    data << uint32(secsToTimeBitFields(progress->date));
-    data << uint32(timeElapsed);                    // Unk timeElapsed 2??
-    // The counter is packed like a packed Guid
-    data.AppendPackedUInt64(progress->counter);
-    data << uint64(progress->counter);
+    criteriaUpdate.CriteriaID = entry->ID;
+    criteriaUpdate.Quantity = progress->counter;
+    criteriaUpdate.PlayerGUID = GetOwner()->GetGUID();
+    if (entry->timeLimit)
+        criteriaUpdate.Flags = timedCompleted ? 1 : 0; // 1 is for keeping the counter at 0 in client
 
-    if (!entry->timeLimit)
-        data << uint32(0);
-    else
-        data << uint32(timedCompleted ? 0 : 1);     // This are some flags, 1 is for keeping the counter at 0 in client
-    data << uint32(timeElapsed);                    // Time elapsed in seconds
+    criteriaUpdate.Flags = 0;
+    criteriaUpdate.CurrentTime = progress->date;
+    criteriaUpdate.ElapsedTime = timeElapsed;
+    criteriaUpdate.CreationTime = 0;
 
-    /*ObjectGuid guid = GetOwner()->GetGUID();
-    //data.WriteGuidMask<3, 0, 7, 6, 2, 1, 4, 5>(guid);
-    //data.WriteGuidBytes<4, 7, 1, 2, 6, 0, 5, 3>(guid);*/
-
-    SendPacket(&data);
+    SendPacket(criteriaUpdate.Write());
 }
 
 template<>

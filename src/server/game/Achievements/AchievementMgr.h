@@ -280,7 +280,7 @@ class AchievementMgr
         bool IsCompletedCriteria(CriteriaTreeEntry const* criteriaTree, AchievementEntry const* achievement);
         bool IsCompletedAchievement(AchievementEntry const* entry);
         bool CanUpdateCriteria(CriteriaTreeEntry const* treeEntry, AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer);
-        void SendPacket(WorldPacket* data) const;
+        void SendPacket(WorldPacket const* data) const;
 
         bool ConditionsSatisfied(AchievementCriteriaEntry const *criteria, Player* referencePlayer) const;
         bool RequirementsSatisfied(AchievementEntry const* achievement, AchievementCriteriaEntry const *criteria, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
