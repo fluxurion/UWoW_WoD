@@ -2363,99 +2363,40 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
         return;
 
     VisibleAchievementPred isVisible;
-    size_t numCriteria = progressMap->size();
-    size_t numAchievements = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), isVisible);
-    ObjectGuidSteam guid = 0/*GetOwner()->GetGUID()*/;
+    WorldPackets::Achievement::AllAchievements achievementData;
+    achievementData.Earned.reserve(m_completedAchievements.size());
+    achievementData.Progress.reserve(m_criteriaProgress.size());
 
-    WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA);
-
-    data.WriteBits(numCriteria, 19);
-    data.WriteBits(numAchievements, 20);
-
-    for (CriteriaProgressMap::const_iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
-    {
-        ObjectGuidSteam counter = uint64(itr->second.counter);
-
-        data.WriteBit(counter[5]);
-        data.WriteBits(0, 4);   // flags
-        data.WriteBit(guid[6]);
-        data.WriteBit(counter[2]);
-        data.WriteBit(guid[3]);
-        data.WriteBit(guid[2]);
-        data.WriteBit(counter[4]);
-        data.WriteBit(guid[1]);
-        data.WriteBit(counter[3]);
-        data.WriteBit(counter[7]);
-        data.WriteBit(counter[0]);
-        data.WriteBit(counter[1]);
-        data.WriteBit(guid[5]);
-        data.WriteBit(guid[0]);
-        data.WriteBit(guid[7]);
-        data.WriteBit(counter[6]);
-        data.WriteBit(guid[4]);
-    }
-
-    for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
+    for (auto itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
         if (!isVisible(*itr))
             continue;
 
-        //data.WriteGuidMask<3, 0, 6, 5, 2, 7, 4, 1>(itr->second.first_guid);
+        WorldPackets::Achievement::EarnedAchievement earned;
+        earned.Id = itr->first;
+        earned.Date = itr->second.date;
+        //if (!(achievement->Flags & ACHIEVEMENT_FLAG_ACCOUNT))
+        {
+            earned.Owner = GetOwner()->GetGUID();
+            earned.VirtualRealmAddress = earned.NativeRealmAddress = GetVirtualRealmAddress();
+        }
+        achievementData.Earned.push_back(earned);
     }
 
-    data.FlushBits();
-
-    for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
+    for (auto itr = m_criteriaProgress.begin(); itr != m_criteriaProgress.end(); ++itr)
     {
-        if (!isVisible(*itr))
-            continue;
-
-        ObjectGuidSteam firstAccountGuid = 0/*itr->second.first_guid*/;
-
-        data << uint32(secsToTimeBitFields(itr->second.date));
-        data.WriteByteSeq(firstAccountGuid[0]);
-        data << uint32(itr->first);
-        data.WriteByteSeq(firstAccountGuid[4]); 
-        data.WriteByteSeq(firstAccountGuid[2]);
-        data.WriteByteSeq(firstAccountGuid[3]);
-        data.WriteByteSeq(firstAccountGuid[5]);
-        data << uint32(realmHandle.Index);
-        data.WriteByteSeq(firstAccountGuid[6]);
-        data << uint32(realmHandle.Index);
-        data.WriteByteSeq(firstAccountGuid[7]);
-        data.WriteByteSeq(firstAccountGuid[1]);
+        WorldPackets::Achievement::CriteriaProgress progress;
+        progress.Id = itr->first;
+        progress.Quantity = itr->second.counter;
+        progress.Player = itr->second.CompletedGUID;
+        progress.Flags = 0;
+        progress.Date = itr->second.date;
+        progress.TimeFromStart = 0;
+        progress.TimeFromCreate = 0;
+        achievementData.Progress.push_back(progress);
     }
 
-    time_t now = time(NULL);
-    for (CriteriaProgressMap::const_iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
-    {
-        ObjectGuidSteam counter = uint64(0/*itr->second.counter*/);
-        CriteriaTreeEntry const* criteriaTree = sAchievementMgr->GetAchievementCriteriaTree(itr->first);
-        if(!criteriaTree)
-            continue;
-
-        data.WriteByteSeq(counter[5]);
-        data.WriteByteSeq(counter[7]);
-        data.WriteByteSeq(guid[3]);
-        data.WriteByteSeq(guid[4]);
-        data.WriteByteSeq(counter[1]);
-        data << secsToTimeBitFields(now);
-        data.WriteByteSeq(guid[0]);
-        data.WriteByteSeq(counter[2]);
-        data.WriteByteSeq(guid[6]);
-        data.WriteByteSeq(counter[6]);
-        data << uint32(criteriaTree->criteria);                     // Criteria id
-        data.WriteByteSeq(counter[4]);
-        data.WriteByteSeq(guid[2]);
-        data.WriteByteSeq(counter[3]);
-        data.WriteByteSeq(guid[7]);
-        data.WriteByteSeq(counter[0]);
-        data << uint32(itr->second.date);               // Unk value from 5.4.0, always 0
-        data << uint32(itr->second.date);               // Unk value from 5.4.0, always 0
-        data.WriteByteSeq(guid[1]);
-        data.WriteByteSeq(guid[5]);
-    }
-    SendPacket(&data);
+    SendPacket(achievementData.Write());
 }
 
 template<>

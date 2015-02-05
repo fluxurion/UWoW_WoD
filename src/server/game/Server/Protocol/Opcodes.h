@@ -750,7 +750,7 @@ enum OpcodeServer : uint32
     SMSG_ADD_RUNE_POWER                               = 0xBADD,
     SMSG_ADJUST_SPLINE_DURATION                       = 0x0104,
     SMSG_AI_REACTION                                  = 0x0BA1,
-    SMSG_ALL_ACHIEVEMENT_DATA                         = 0xBADD,
+    SMSG_ALL_ACHIEVEMENT_DATA                         = 0x0030,
     SMSG_ALL_ACHIEVEMENT_DATA_ACCOUNT                 = 0x0123,
     SMSG_ALL_ACHIEVEMENT_DATA_PLAYER                  = 0x0030,
     SMSG_AREA_SPIRIT_HEALER_TIME                      = 0xBADD,
