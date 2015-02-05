@@ -743,7 +743,7 @@ enum OpcodeServer : uint32
     SMSG_ACCOUNT_RESTRICTED_WARNING                   = 0xBADD,
     SMSG_ACCOUNT_TOYS_UPDATE                          = 0x0590,
     SMSG_ACHIEVEMENT_DELETED                          = 0xBADD,
-    SMSG_ACHIEVEMENT_EARNED                           = 0xBADD,
+    SMSG_ACHIEVEMENT_EARNED                           = 0x010E,
     SMSG_ACTION_BUTTONS                               = 0x1D1F,
     SMSG_ACTIVATETAXIREPLY                            = 0xBADD,
     SMSG_ADDON_INFO                                   = 0x1D9F,

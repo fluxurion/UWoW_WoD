@@ -1198,42 +1198,17 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
         cell.Visit(p, message, *GetOwner()->GetMap(), *GetOwner(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
     }
 
-    WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);
-    ObjectGuidSteam thisPlayerGuid = 0/*GetOwner()->GetGUID()*/;
-    ObjectGuidSteam firstPlayerOnAccountGuid = 0/*GetOwner()->GetGUID()*/;
-
+    ObjectGuid firstPlayerOnAccountGuid = GetOwner()->GetGUID();
     if (HasAccountAchieved(achievement->ID))
-        firstPlayerOnAccountGuid = GetFirstAchievedCharacterOnAccount(achievement->ID);
+        firstPlayerOnAccountGuid = ObjectGuid::Create<HighGuid::Player>(GetFirstAchievedCharacterOnAccount(achievement->ID));
 
-    //data.WriteGuidMask<5, 1>(thisPlayerGuid);
-    //data.WriteGuidMask<1, 5, 7>(firstPlayerOnAccountGuid);
-    //data.WriteGuidMask<0, 6, 2>(thisPlayerGuid);
-    //data.WriteGuidMask<0>(firstPlayerOnAccountGuid);
-    //data.WriteGuidMask<7>(thisPlayerGuid);
-    //data.WriteGuidMask<3, 4, 2>(firstPlayerOnAccountGuid);
-    data.WriteBit(0);
-    //data.WriteGuidMask<4, 3>(thisPlayerGuid);
-    //data.WriteGuidMask<6>(firstPlayerOnAccountGuid);
-
-    //data.WriteGuidBytes<5>(thisPlayerGuid);
-    data << uint32(realmHandle.Index);
-    //data.WriteGuidBytes<2>(firstPlayerOnAccountGuid);
-    //data.WriteGuidBytes<3>(thisPlayerGuid);
-    //data.WriteGuidBytes<4>(firstPlayerOnAccountGuid);
-    data << uint32(realmHandle.Index);
-    //data.WriteGuidBytes<1, 0>(firstPlayerOnAccountGuid);
-    //data.WriteGuidBytes<7>(thisPlayerGuid);
-    data << uint32(achievement->ID);
-    //data.WriteGuidBytes<2>(thisPlayerGuid);
-    //data.WriteGuidBytes<5>(firstPlayerOnAccountGuid);
-    data << uint32(secsToTimeBitFields(time(NULL)));
-    //data.WriteGuidBytes<4>(thisPlayerGuid);
-    //data.WriteGuidBytes<7>(firstPlayerOnAccountGuid);
-    //data.WriteGuidBytes<0>(thisPlayerGuid);
-    //data.WriteGuidBytes<6, 3>(firstPlayerOnAccountGuid);
-    //data.WriteGuidBytes<1, 6>(thisPlayerGuid);
-
-    GetOwner()->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    WorldPackets::Achievement::AchievementEarned achievementEarned;
+    achievementEarned.Sender = GetOwner()->GetGUID();
+    achievementEarned.Earner = firstPlayerOnAccountGuid;
+    achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = GetVirtualRealmAddress();
+    achievementEarned.AchievementID = achievement->ID;
+    achievementEarned.Time = time(NULL);
+    GetOwner()->SendMessageToSetInRange(achievementEarned.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
 
 template<>
