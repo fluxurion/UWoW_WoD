@@ -1838,24 +1838,21 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
     GetPlayer()->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, title);
 }
 
-void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
+void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_TIME_SYNC_RESP");
 
-    uint32 counter, clientTicks;
-    recvData >> clientTicks >> counter;
-
-    if (counter != _player->m_timeSyncCounter - 1)
+    if (packet.SequenceIndex != _player->m_timeSyncCounter - 1)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Wrong time sync counter from player %s (cheater?)", _player->GetName());
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Time sync received: counter %u, client ticks %u, time since last sync %u", counter, clientTicks, clientTicks - _player->m_timeSyncClient);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Time sync received: counter %u, client ticks %u, time since last sync %u", packet.SequenceIndex, packet.ClientTime, packet.ClientTime - _player->m_timeSyncClient);
 
-    uint32 ourTicks = clientTicks + (getMSTime() - _player->m_timeSyncServer);
+    uint32 ourTicks = packet.ClientTime + (getMSTime() - _player->m_timeSyncServer);
 
     // diff should be small
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Our ticks: %u, diff %u, latency %u", ourTicks, ourTicks - clientTicks, GetLatency());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Our ticks: %u, diff %u, latency %u", ourTicks, ourTicks - packet.ClientTime, GetLatency());
 
-    _player->m_timeSyncClient = clientTicks;
+    _player->m_timeSyncClient = packet.ClientTime;
 }
 
 void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
