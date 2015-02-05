@@ -88,6 +88,8 @@
 #include "MiscPackets.h"
 #include "SpellPackets.h"
 #include "QuestPackets.h"
+#include "MovementPackets.h"
+
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -2347,19 +2349,19 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
             RemoveAurasByType(SPELL_AURA_OVERRIDE_SPELLS);
 
-
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
-                //! 5.4.1
-                WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
-                data.WriteBit(0);                       // customLoadScreenSpell
-                data.WriteBit(bool(m_transport));       // has transport
-                data.FlushBits();
-                data << uint32(mapid);
-                if (m_transport)
-                    data << GetMapId() << m_transport->GetEntry();
-                GetSession()->SendPacket(&data);
+                WorldPackets::Movement::TransferPending transferPending;
+                transferPending.MapID = mapid;
+                if (Transport* transport = GetTransport())
+                {
+                    transferPending.Ship.HasValue = true;
+                    transferPending.Ship.Value.ID = transport->GetEntry();
+                    transferPending.Ship.Value.OriginMapID = GetMapId();
+                }
+
+                GetSession()->SendPacket(transferPending.Write());
             }
 
             // remove from old map now
