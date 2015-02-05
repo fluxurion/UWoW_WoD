@@ -28405,9 +28405,9 @@ void Player::ResetTimeSync()
 
 void Player::SendTimeSync()
 {
-    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
-    data << uint32(m_timeSyncCounter++);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Misc::TimeSyncRequest packet;
+    packet.SequenceIndex = m_timeSyncCounter++;
+    SendDirectMessage(packet.Write());
 
     // Schedule next sync in 10 sec
     m_timeSyncTimer = 10000;
