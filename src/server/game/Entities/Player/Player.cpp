@@ -2382,8 +2382,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 final_o += m_movementInfo.transport.pos.GetOrientation();
             }
 
-            m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
-            SetFallInformation(0, final_z);
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
 
@@ -2395,16 +2393,17 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 final_o = m_movementInfo.transport.pos.GetOrientation();
             }
 
+            m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
+            SetFallInformation(0, final_z);
+
             if (!GetSession()->PlayerLogout())
             {
-                WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-                data << float(final_y);
-                data << float(NormalizeOrientation(final_o));
-                data << uint32(mapid);
-                data << float(final_x);
-                data << float(final_z);
+                WorldPackets::Movement::NewWorld packet;
+                packet.MapID = mapid;
+                packet.Pos = m_teleport_dest;
+                packet.Reason = NEW_WORLD_NORMAL;
 
-                GetSession()->SendPacket(&data);
+                SendDirectMessage(packet.Write());
                 SendSavedInstances();
             }
 

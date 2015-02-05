@@ -730,6 +730,12 @@ enum TransferAbortReason
     TRANSFER_ABORT_DIFFICULTY                       = 0x1E,         // <Normal, Heroic, Epic> difficulty mode is not available for %s.
 };
 
+enum NewWorldReason
+{
+    NEW_WORLD_NORMAL    = 16,   // Normal map change
+    NEW_WORLD_SEAMLESS  = 21,   // Teleport to another map without a loading screen, used for outdoor scenarios
+};
+
 enum InstanceResetWarningType
 {
     RAID_INSTANCE_WARNING_HOURS     = 1,                    // WARNING! %s is scheduled to reset in %d hour(s).
