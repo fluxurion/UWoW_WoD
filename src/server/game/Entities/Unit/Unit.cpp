@@ -211,7 +211,6 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     m_movementCounter = 0;
 
-    m_rootTimes = 0;
     m_timeForSpline = 0;
 
     m_state = 0;
@@ -19536,33 +19535,6 @@ void Unit::SetControlled(bool apply, UnitState state)
     }
 }
 
-void Unit::SendMoveRoot(uint32 value)
-{
-    ObjectGuid guid = GetGUID();
-
-    //! 5.4.1
-    WorldPacket data(SMSG_MOVE_ROOT, 1 + 8 + 4);
-    //data.WriteGuidMask<7, 1, 2, 6, 4, 3, 0, 5>(guid);
-    data << uint32(value);
-    //data.WriteGuidBytes<5, 7, 2, 0, 4, 1, 6, 3>(guid);
-
-    SendMessageToSet(&data, true);
-}
-
-void Unit::SendMoveUnroot(uint32 value)
-{
-    ObjectGuid guid = GetGUID();
-
-    //! 5.4.1
-    WorldPacket data(SMSG_MOVE_UNROOT, 1 + 8 + 4);
-    //data.WriteGuidMask<2, 0, 3, 6, 1, 5, 4, 7>(guid);
-    //data.WriteGuidBytes<1, 5, 2, 6, 4>(guid);
-    data << uint32(value);
-    //data.WriteGuidBytes<7, 0, 3>(guid);
-
-    SendMessageToSet(&data, true);
-}
-
 void Unit::SetStunned(bool apply)
 {
     if (apply)
@@ -19582,7 +19554,7 @@ void Unit::SetStunned(bool apply)
         else
             SetStandState(UNIT_STAND_STATE_STAND);
 
-        SendMoveRoot(0);
+        SetRooted(true);
 
         CastStop();
     }
@@ -19598,7 +19570,7 @@ void Unit::SetStunned(bool apply)
 
         if (!HasUnitState(UNIT_STATE_ROOT))         // prevent moving if it also has root effect
         {
-            SendMoveUnroot(0);
+            SetRooted(false);
             RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
@@ -19606,50 +19578,45 @@ void Unit::SetStunned(bool apply)
 
 void Unit::SetRooted(bool apply)
 {
+     if (HasUnitState(UNIT_STATE_STUNNED) && !apply)
+         return;
+
+    static OpcodeServer const rootOpcodeTable[2][2] =
+    {
+        {SMSG_SPLINE_MOVE_ROOT,   SMSG_MOVE_ROOT    },
+        {SMSG_SPLINE_MOVE_UNROOT,  SMSG_MOVE_UNROOT   }
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+    ObjectGuid guid = GetGUID();
+
     if (apply)
     {
-        if (m_rootTimes > 0) // blizzard internal check?
-            m_rootTimes++;
-
         // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
         // this will freeze clients. That's why we remove MOVEMENTFLAG_MASK_MOVING before
         // setting MOVEMENTFLAG_ROOT
         RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
         AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
-        if (GetTypeId() == TYPEID_PLAYER)
-            SendMoveRoot(m_rootTimes);
-        else
-        {
-            ObjectGuid guid = GetGUID();
-            //! 5.4.1
-            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
-   
-            //data.WriteGuidMask<0, 5, 2, 1, 4, 6, 3, 7>(guid);
-            //data.WriteGuidBytes<2, 7, 3, 0, 4, 6, 1, 5>(guid);
-            SendMessageToSet(&data, true);
+        if (!player)
             StopMoving();
-        }
     }
     else
-    {
-        if (!HasUnitState(UNIT_STATE_STUNNED))      // prevent moving if it also has stun effect
-        {
-            if (GetTypeId() == TYPEID_PLAYER)
-                SendMoveUnroot(++m_rootTimes);
-            else
-            {
-                ObjectGuid guid = GetGUID();
-                //! 5.4.1
-                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
-                    
-                //data.WriteGuidMask<1, 0, 2, 6, 5, 4, 7>(guid);
-                //data.WriteGuidBytes<2, 4, 7, 3, 6, 5, 1, 0>(guid);
-                SendMessageToSet(&data, true);
-            }
+        RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
-            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
-        }
+    if (player)
+    {
+        //! 6.0.3
+        WorldPacket data(rootOpcodeTable[!apply][1], 20);
+        data << guid.WriteAsPacked();
+        data << uint32(m_movementCounter++);          //! movement counter
+        SendMessageToSet(&data, true);
+    }else
+    {
+        //! 6.0.3 FIND OPCODES
+        WorldPacket data(rootOpcodeTable[!apply][0], 16);
+        data << guid.WriteAsPacked();
+        SendMessageToSet(&data, true);
     }
 }
 
@@ -21947,6 +21914,75 @@ bool Unit::SetWalk(bool enable)
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
+    ///@ TODO: Find proper opcode for walk mode setting in player mind controlling a player case
+    ///@ ToDo: 603
+    /*if (enable)
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_WALK_MODE, SMSG_SPLINE_MOVE_SET_WALK_MODE).Send();
+    else
+        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_RUN_MODE, SMSG_SPLINE_MOVE_SET_RUN_MODE).Send();*/
+
+    return true;
+}
+
+bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
+{
+    if (!packetOnly)
+    {
+        if (disable == IsLevitating())
+            return false;
+
+        if (disable)
+        {
+            AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+            RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
+            SetFall(false);
+        }
+        else
+        {
+            RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+            RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+            if (!HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
+                SetFall(true);
+        }
+    }
+
+    static OpcodeServer const gravityOpcodeTable[2][2] =
+    {
+        {SMSG_SPLINE_MOVE_GRAVITY_ENABLE,   SMSG_MOVE_GRAVITY_ENABLE    },
+        {SMSG_SPLINE_MOVE_GRAVITY_DISABLE,  SMSG_MOVE_GRAVITY_DISABLE   }
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (player)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(gravityOpcodeTable[disable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
+    else
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(gravityOpcodeTable[disable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
+
+    return true;
+}
+
+bool Unit::SetFall(bool enable)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+        return false;
+
+    if (enable)
+    {
+        AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        m_movementInfo.SetFallTime(0);
+    }
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR);
     return true;
 }
 
@@ -21959,37 +21995,13 @@ bool Unit::SetSwim(bool enable)
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-    return true;
-}
 
-bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/)
-{
-    if (disable == IsLevitating())
-        return false;
+    static OpcodeServer const swimOpcodeTable[2] = {SMSG_SPLINE_MOVE_STOP_SWIM, SMSG_SPLINE_MOVE_START_SWIM};
 
-    if (disable)
-        AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+    WorldPackets::Movement::MoveSplineSetFlag packet(swimOpcodeTable[enable]);
+    packet.MoverGUID = GetGUID();
+    SendMessageToSet(packet.Write(), true);
 
-    return true;
-}
-
-bool Unit::SetWaterWalking(bool enable, bool packetOnly)
-{
-    if (!packetOnly && enable == HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
-        return false;
-
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SendMovementSetWaterWalking(enable);
-
-    if (packetOnly)
-        return false;
-
-    if (enable)
-        AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
     return true;
 }
 
@@ -21998,62 +22010,177 @@ bool Unit::SetCanFly(bool enable)
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
         return false;
 
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SendMovementSetCanFly(enable);
-
-    if (enable)
-        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
-    return true;
-}
-
-bool Unit::SetFeatherFall(bool enable, bool packetOnly)
-{
-    if (!packetOnly && enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
-        return false;
-
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SendMovementSetFeatherFall(enable);
-
-    if (packetOnly)
-        return false;
-
-    if (enable)
-        AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
-    return true;
-}
-
-bool Unit::SetHover(bool enable, bool packetOnly)
-{
-    if (!packetOnly && enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        return false;
-
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SendMovementSetHover(enable);
-    //for creature using virtual function
-
-    if (packetOnly)
-        return false;
-
     if (enable)
     {
-        //! No need to check height on ascent
-        AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        if (float hh = GetFloatValue(UNIT_FIELD_HOVER_HEIGHT))
-            UpdateHeight(GetPositionZ() + hh);
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
+        SetFall(false);
     }
     else
     {
-        RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        if (float hh = GetFloatValue(UNIT_FIELD_HOVER_HEIGHT))
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
+        if (!IsLevitating())
+            SetFall(true);
+    }
+
+    static OpcodeServer const flyOpcodeTable[2][2] =
+    {
+        {SMSG_SPLINE_MOVE_UNSET_FLYING, SMSG_MOVE_UNSET_CAN_FLY },
+        {SMSG_SPLINE_MOVE_SET_FLYING,   SMSG_MOVE_SET_CAN_FLY   }
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (player)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(flyOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
+    else
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(flyOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
+
+    return true;
+}
+
+bool Unit::SetWaterWalking(bool enable, bool packetOnly /*= false */)
+{
+    if (!packetOnly)
+    {
+        if (enable == HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
+            return false;
+
+        if (enable)
+            AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+    }
+
+    static OpcodeServer const waterWalkingOpcodeTable[2][2] =
+    {
+        {SMSG_SPLINE_MOVE_SET_LAND_WALK,    SMSG_MOVE_LAND_WALK },
+        {SMSG_SPLINE_MOVE_SET_WATER_WALK,   SMSG_MOVE_WATER_WALK}
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (player)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(waterWalkingOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
+    else
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(waterWalkingOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
+
+    return true;
+}
+
+bool Unit::SetFeatherFall(bool enable, bool packetOnly /*= false */)
+{
+    if (!packetOnly)
+    {
+        if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
+            return false;
+
+        if (enable)
+            AddUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+    }
+
+    static OpcodeServer const featherFallOpcodeTable[2][2] =
+    {
+        {SMSG_SPLINE_MOVE_SET_NORMAL_FALL,  SMSG_MOVE_NORMAL_FALL   },
+        {SMSG_SPLINE_MOVE_SET_FEATHER_FALL, SMSG_MOVE_FEATHER_FALL  }
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (player)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(featherFallOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
+    else
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(featherFallOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
+    }
+
+    return true;
+}
+
+bool Unit::SetHover(bool enable, bool packetOnly /*= false*/)
+{
+    if (!packetOnly)
+    {
+        if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+            return false;
+
+        float hoverHeight = GetFloatValue(UNIT_FIELD_HOVER_HEIGHT);
+
+        //! Unconfirmed for players:
+        if (GetTypeId() != TYPEID_PLAYER)
         {
-            float newZ = GetPositionZ() - hh;
-            UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), newZ);
-            UpdateHeight(newZ);
+            if (enable)
+                SetMiscStandFlags(UNIT_BYTE1_FLAG_HOVER);
+            else
+                RemoveMiscStandFlags(UNIT_BYTE1_FLAG_HOVER);
         }
+
+        if (enable)
+        {
+            //! No need to check height on ascent
+            AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
+            if (hoverHeight)
+                UpdateHeight(GetPositionZ() + hoverHeight);
+        }
+        else
+        {
+            RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
+            if (hoverHeight)
+            {
+                float newZ = GetPositionZ() - hoverHeight;
+                UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), newZ);
+                UpdateHeight(newZ);
+            }
+        }
+    }
+
+    static OpcodeServer const hoverOpcodeTable[2][2] =
+    {
+        {SMSG_SPLINE_MOVE_UNSET_HOVER,  SMSG_MOVE_UNSET_HOVER   },
+        {SMSG_SPLINE_MOVE_SET_HOVER,    SMSG_MOVE_SET_HOVER     }
+    };
+
+    bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+
+    if (player)
+    {
+        WorldPackets::Movement::MoveSetFlag packet(hoverOpcodeTable[enable][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
+    else
+    {
+        WorldPackets::Movement::MoveSplineSetFlag packet(hoverOpcodeTable[enable][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
     }
 
     return true;

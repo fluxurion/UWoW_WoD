@@ -5936,7 +5936,7 @@ void Player::BuildPlayerRepop()
     // convert player body to ghost
     SetHealth(1);
 
-    SendMovementSetWaterWalking(true);
+    SetWaterWalking(true);
     if (!GetSession()->isLogingOut())
         SetRooted(false);
 
@@ -5979,7 +5979,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 
     setDeathState(ALIVE);
 
-    SendMovementSetWaterWalking(false);
+    SetWaterWalking(false);
     SetRooted(false);
 
     m_deathTimer = 0;
@@ -25197,7 +25197,7 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
     if (HasAuraType(SPELL_AURA_MOD_ROOT))
-        SendMoveRoot(2);
+        SetRooted(true);
 
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
@@ -28874,137 +28874,15 @@ VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
     return NULL;
 }
 
-void Player::SendMovementSetCanFly(bool apply)
-{
-    ObjectGuid guid = GetGUID();
-    WorldPacket data;
-    if (apply)
-    {
-        //! 5.4.1
-        data.Initialize(SMSG_MOVE_SET_CAN_FLY, 1 + 8 + 4);
-
-        //data.WriteGuidMask<6, 2, 4, 1, 0, 5, 7, 3>(guid);
-        //data.WriteGuidBytes<7, 6, 4>(guid);
-        data << uint32(0);          //! movement counter
-        //data.WriteGuidBytes<2, 3, 1, 0, 5>(guid);
-    }
-    else
-    {
-        //! 5.4.1
-        data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 1 + 8 + 4);
-
-        //data.WriteGuidMask<7, 6, 5, 1, 2, 4, 3, 0>(guid);
-        //data.WriteGuidBytes<0, 6, 3, 7, 2, 1, 5>(guid);
-        data << uint32(0);          //! movement counter
-        //data.WriteGuidBytes<4>(guid);
-    }
-    SendDirectMessage(&data);
-}
-
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 {
     ObjectGuid guid = GetGUID();
-    if (apply)
-    {
-        //! 5.4.1
-        WorldPacket data(SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
+
+    //! 6.0.3
+    WorldPacket data(apply ? SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY : SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
     
-        //data.WriteGuidMask<3, 7, 5, 6, 2, 0, 4, 1>(guid);
-        //data.WriteGuidBytes< 4, 0, 2>(guid);
-        data << uint32(0);          //! movement counter
-        //data.WriteGuidBytes< 6, 1, 7, 5, 3 >(guid);
-        SendDirectMessage(&data);
-    }
-    else
-    {
-        //! 5.4.1
-        WorldPacket data(SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
-    
-        //data.WriteGuidMask<1, 4, 2, 7, 5, 0, 3, 6>(guid);
-        //data.WriteGuidBytes< 1, 4, 6, 7, 2, 6, 3, 0 >(guid);
-        data << uint32(0);          //! movement counter
-        SendDirectMessage(&data);
-    }
-}
-
-void Player::SendMovementSetHover(bool apply)
-{
-    ObjectGuid guid = GetGUID();
-    if (apply)
-    {
-        //! 5.4.1
-        WorldPacket data(SMSG_MOVE_SET_HOVER, 12);
-    
-        //data.WriteGuidMask<5, 7, 2, 4, 6, 1, 0, 3>(guid);
-        data << uint32(0);          //! movement counter
-        //data.WriteGuidBytes<0, 6, 1, 2, 3, 4, 5, 7>(guid);
-
-        SendDirectMessage(&data);
-    }
-    else
-    {
-        //! 5.4.1
-        WorldPacket data(SMSG_MOVE_UNSET_HOVER, 12);
-        
-        //data.WriteGuidMask<3, 7, 0, 2, 1, 4, 6, 5>(guid);
-        //data.WriteGuidBytes<2, 0, 1, 6, 4>(guid);
-        data << uint32(0);          //! movement counter
-        //data.WriteGuidBytes<3, 7, 5>(guid);
-        SendDirectMessage(&data);
-    }
-}
-
-void Player::SendMovementSetWaterWalking(bool apply)
-{
-    ObjectGuid guid = GetGUID();
-    WorldPacket data;
-    if (apply)
-    {
-        //! 5.4.1
-        data.Initialize(SMSG_MOVE_WATER_WALK, 1 + 4 + 8);
-    
-        data << uint32(0);          //! movement counter
-        //data.WriteGuidMask<0, 7, 1, 5, 6, 2, 3, 4>(guid);
-        //data.WriteGuidBytes<4, 0, 5, 6, 3, 1, 2, 7>(guid);
-    }
-    else
-    {
-        //! 5.4.1
-        data.Initialize(SMSG_MOVE_LAND_WALK, 1 + 4 + 8);
-
-        //data.WriteGuidMask<7, 5, 6, 1, 2, 3, 0, 4>(guid);
-        //data.WriteGuidBytes<3, 4, 7, 5, 2, 0, 6>(guid);
-        data << uint32(0);          //! movement counter
-        //data.WriteGuidBytes<1>(guid);
-    }
-    SendDirectMessage(&data);
-}
-
-void Player::SendMovementSetFeatherFall(bool apply)
-{
-    ObjectGuid guid = GetGUID();
-    WorldPacket data;
-
-    if (apply)
-    {
-        //! 5.4.1
-        data.Initialize(SMSG_MOVE_FEATHER_FALL, 1 + 4 + 8);
-    
-        //data.WriteGuidMask<0, 7, 6, 5, 4, 1, 3, 2>(guid);
-        //data.WriteGuidBytes<2, 1, 0, 3, 4, 5, 7, 6>(guid);
-        data << uint32(0);          //! movement counter
-    }
-    else
-    {
-        //! 5.4.1
-        data.Initialize(SMSG_MOVE_NORMAL_FALL, 1 + 4 + 8);
-    
-        //data.WriteGuidMask<5, 1, 7, 6, 3, 0, 2, 4>(guid);
-        //data.WriteGuidBytes<3, 4, 1, 6, 7, 0, 5>(guid);
-        data << uint32(0);          //! movement counter
-        //data.WriteGuidBytes<2>(guid);
-    }
-
+    data << guid.WriteAsPacked();
+    data << uint32(m_movementCounter++);          //! movement counter
     SendDirectMessage(&data);
 }
 
@@ -29012,24 +28890,17 @@ void Player::SendMovementSetCollisionHeight(float height, uint32 mountDisplayID/
 {
     ObjectGuid guid = GetGUID();
 
-    //! 5.4.1
+    //! 6.0.3
     WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
-    //data.WriteGuidMask<7, 0, 6, 1>(guid);
-    data.WriteBits(0, 2);
-    //data.WriteGuidMask<2, 5, 3>(guid);
-    data.WriteBit(!mountDisplayID);
-    //data.WriteGuidMask<4>(guid);
+    data << guid.WriteAsPacked();
+    data << uint32(m_movementCounter++);          //! movement counter
+    data << float(GetFloatValue(OBJECT_FIELD_SCALE));     // scale
+    data << float(height);
+    data << uint32(mountDisplayID);
 
     data.FlushBits();
-    
-    //data.WriteGuidBytes<5, 4, 1, 7, 0, 2>(guid);
-    if (mountDisplayID)
-        data << uint32(mountDisplayID);
-    data << float(height);
-    data << uint32(sWorld->GetGameTime());                  // Packet counter
-    //data.WriteGuidBytes<6>(guid);
-    data << float(GetFloatValue(OBJECT_FIELD_SCALE));     // scale
-    //data.WriteGuidBytes<3>(guid);
+
+    data.WriteBits(0, 2);   //reason
 
     SendDirectMessage(&data);
 }

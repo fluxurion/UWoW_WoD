@@ -639,8 +639,8 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
                             plrMover->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK), plrMover->GetVehicle(), forvehunit, GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str());
 
                     //check_passed = false;
-                    plrMover->SendMovementSetCanFly(true);
-                    plrMover->SendMovementSetCanFly(false);
+                    plrMover->SetCanFly(true);
+                    plrMover->SetCanFly(false);
                     //plrMover->FallGroundAnt();
                 }
 
@@ -739,8 +739,8 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
         playerMovement.movementInfo = &plrMover->m_movementInfo;
         plrMover->SendMessageToSet(playerMovement.Write(), true);
 
-        plrMover->SendMovementSetCanFly(true);
-        plrMover->SendMovementSetCanFly(false);
+        plrMover->SetCanFly(true);
+        plrMover->SetCanFly(false);
         plrMover->FallGroundAnt();
     }
 }

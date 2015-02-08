@@ -1779,12 +1779,13 @@ class Unit : public WorldObject
 
         bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);}
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
-        virtual bool SetWalk(bool enable);
-        virtual bool SetSwim(bool enable);
-        virtual bool SetDisableGravity(bool disable, bool packetOnly = false);
-        virtual bool SetWaterWalking(bool enable, bool packetOnly = false);
-        virtual bool SetFeatherFall(bool enable, bool packetOnly = false);
-        virtual bool SetCanFly(bool apply);
+        bool SetWalk(bool enable);
+        bool SetDisableGravity(bool disable, bool packetOnly = false);
+        bool SetFall(bool enable);
+        bool SetSwim(bool enable);
+        bool SetCanFly(bool apply);
+        bool SetWaterWalking(bool enable, bool packetOnly = false);
+        bool SetFeatherFall(bool enable, bool packetOnly = false);
         bool SetHover(bool enable, bool packetOnly = false);
 
         void SetInFront(Unit const* target);
@@ -2606,8 +2607,6 @@ class Unit : public WorldObject
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float cap, uint32 damage) const;
 
     protected:
-        void SendMoveRoot(uint32 value);
-        void SendMoveUnroot(uint32 value);
         void SetFeared(bool apply);
         void SetConfused(bool apply);
         void SetStunned(bool apply);
