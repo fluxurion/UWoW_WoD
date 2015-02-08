@@ -2613,6 +2613,7 @@ class Unit : public WorldObject
         void SetStunned(bool apply);
         void SetRooted(bool apply);
 
+        uint32 m_movementCounter;       ///< Incrementing counter used in movement packets
     private:
         class AINotifyTask;
         class VisibilityUpdateTask;

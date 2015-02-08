@@ -209,6 +209,8 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     insightCount = 0;
     m_canDualWield = false;
 
+    m_movementCounter = 0;
+
     m_rootTimes = 0;
     m_timeForSpline = 0;
 
@@ -14587,242 +14589,52 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
     propagateSpeedChange();
 
-    WorldPacket data;
-    ObjectGuid guid = GetGUID();
-    if (!forced)
+    // Spline packets are for creatures and move_update are for players
+    static OpcodeServer const moveTypeToOpcode[MAX_MOVE_TYPE][3] =
     {
-        switch (mtype)
-        {
-            case MOVE_WALK:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_SPLINE_MOVE_SET_WALK_SPEED, 8+4+1);
-    
-                //data.WriteGuidMask<2, 0, 6, 3, 7, 5, 1, 4>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<3, 1, 4, 2, 6, 0, 5, 7>(guid);
-                break;
-            }
-            case MOVE_RUN:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 1 + 8 + 4);
-    
-                //data.WriteGuidMask<7, 0, 4, 6, 1, 2, 3, 5>(guid);
-                //data.WriteGuidBytes<2, 4, 6>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes< 0, 3, 7, 1, 5>(guid);
-                break;
-            }
-            case MOVE_RUN_BACK:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4);
-    
-                //data.WriteGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guid);               
-                //data.WriteGuidBytes<4, 7, 6, 0, 2, 3>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<5, 1>(guid);
-                break;
-            }
-            case MOVE_SWIM:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_SPEED, 1 + 8 + 4);
-    
-                //data.WriteGuidMask<3, 2, 6, 1, 7, 0, 4, 5>(guid);                
-                //data.WriteGuidBytes<3>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<4, 1, 2, 7, 0, 5, 6>(guid);
-                break;
-            }
-            case MOVE_SWIM_BACK:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4);
-    
-                //data.WriteGuidMask<6, 0, 1, 3, 7, 2, 4, 5>(guid);                
-                //data.WriteGuidBytes<2, 5, 6, 4, 3, 1, 0>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<7>(guid);
-                break;
-            }
-            case MOVE_TURN_RATE:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_SPLINE_MOVE_SET_TURN_RATE, 1 + 8 + 4);
-    
-                //data.WriteGuidMask<5, 1, 7, 2, 0, 6, 3, 4>(guid);               
-                //data.WriteGuidBytes<4, 0, 3, 7, 5, 2>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<1, 6>(guid);
-                break;
-            }
-            case MOVE_FLIGHT:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4);
-    
-                //data.WriteGuidMask<2, 6, 0, 3, 4, 1, 5, 7>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<7, 2, 3, 0, 5, 1, 4, 6>(guid);
-                break;
-            }
-            case MOVE_FLIGHT_BACK:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4);
-    
-                //data.WriteGuidMask<6, 7, 1, 5, 2, 4, 3, 0>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<4, 3, 6, 5, 0, 2, 1, 7>(guid);
-                break;
-            }
-            case MOVE_PITCH_RATE:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_SPLINE_MOVE_SET_PITCH_RATE, 1 + 8 + 4);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidMask<4, 0, 5, 7, 2, 3, 6, 1>(guid);
-                //data.WriteGuidBytes<0, 3, 7, 4, 1, 2, 6, 5>(guid);
-                break;
-            }
-            default:
-                sLog->outError(LOG_FILTER_UNITS, "Unit::SetSpeed: Unsupported move type (%d), data not sent to client.", mtype);
-                return;
-        }
+        {SMSG_SPLINE_MOVE_SET_WALK_SPEED,        SMSG_MOVE_SET_WALK_SPEED/*FIND*/,        SMSG_MOVE_UPDATE_WALK_SPEED       },
+        {SMSG_SPLINE_MOVE_SET_RUN_SPEED,         SMSG_MOVE_SET_RUN_SPEED,         SMSG_MOVE_UPDATE_RUN_SPEED        },
+        {SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED,    SMSG_MOVE_SET_RUN_BACK_SPEED/*FIND*/,    SMSG_MOVE_UPDATE_RUN_BACK_SPEED   },
+        {SMSG_SPLINE_MOVE_SET_SWIM_SPEED,        SMSG_MOVE_SET_SWIM_SPEED,        SMSG_MOVE_UPDATE_SWIM_SPEED       },
+        {SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED/*FIND*/,   SMSG_MOVE_SET_SWIM_BACK_SPEED/*FIND*/,   SMSG_MOVE_UPDATE_SWIM_BACK_SPEED  },
+        {SMSG_SPLINE_MOVE_SET_TURN_RATE/*FIND*/,         SMSG_MOVE_SET_TURN_RATE/*FIND*/,         SMSG_MOVE_UPDATE_TURN_RATE        },
+        {SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED,      SMSG_MOVE_SET_FLIGHT_SPEED/*FIND*/,      SMSG_MOVE_UPDATE_FLIGHT_SPEED/*FIND*/     },
+        {SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED/*FIND*/, SMSG_MOVE_SET_FLIGHT_BACK_SPEED/*FIND*/, SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED/*FIND*/},
+        {SMSG_SPLINE_MOVE_SET_PITCH_RATE/*FIND*/,        SMSG_MOVE_SET_PITCH_RATE/*FIND*/,        SMSG_MOVE_UPDATE_PITCH_RATE       },
+    };
 
-        SendMessageToSet(&data, true);
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        // register forced speed changes for WorldSession::HandleForceSpeedChangeAck
+        // and do it only for real sent packets and use run for run/mounted as client expected
+        ++ToPlayer()->m_forced_speed_changes[mtype];
+
+        if (!isInCombat())
+            if (Pet* pet = ToPlayer()->GetPet())
+                pet->SetSpeed(mtype, m_speed_rate[mtype], forced);
+    }
+
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER)
+    {
+        // Send notification to self
+        WorldPackets::Movement::MoveSetSpeed selfpacket(moveTypeToOpcode[mtype][1]);
+        selfpacket.MoverGUID = GetGUID();
+        selfpacket.SequenceIndex = m_movementCounter++;
+        selfpacket.Speed = rate;
+        ToPlayer()->GetSession()->SendPacket(selfpacket.Write());
+
+        // Send notification to other players
+        WorldPackets::Movement::MoveUpdateSpeed packet(moveTypeToOpcode[mtype][2]);
+        packet.movementInfo = &m_movementInfo;
+        packet.Speed = rate;
+        SendMessageToSet(packet.Write(), false);
     }
     else
     {
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            // register forced speed changes for WorldSession::HandleForceSpeedChangeAck
-            // and do it only for real sent packets and use run for run/mounted as client expected
-            ++ToPlayer()->m_forced_speed_changes[mtype];
-
-            if (!isInCombat())
-                if (Pet* pet = ToPlayer()->GetPet())
-                    pet->SetSpeed(mtype, m_speed_rate[mtype], forced);
-        }
-
-        switch (mtype)
-        {
-            case MOVE_WALK:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_MOVE_SET_WALK_SPEED, 1 + 8 + 4 + 4);
-   
-                data << float(GetSpeed(mtype));
-                data << uint32(0); // Unk Int32
-                //data.WriteGuidMask<5, 4, 3, 1, 0, 7, 2, 6>(guid);                
-                //data.WriteGuidBytes<7, 5, 3, 2, 4, 1, 6, 0>(guid);
-                break;
-            }
-            case MOVE_RUN:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_MOVE_SET_RUN_SPEED, 1 + 8 + 4 + 4);
-
-                //data.WriteGuidMask<3, 6, 7, 1, 4, 0, 2, 5>(guid);
-                //data.WriteGuidBytes<7, 5>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<6, 2, 0, 3, 1, 4>(guid);
-                data << uint32(0); // Unk Int32
-                break;
-            }
-            case MOVE_RUN_BACK:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4 + 4);
-                //data.WriteGuidMask<1, 0, 5, 2, 4, 6, 7, 3>(guid);
-                //data.WriteGuidBytes<3, 0, 7>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<2, 4>(guid);
-                data << uint32(0); // Unk Int32
-                //data.WriteGuidBytes<6, 1, 5>(guid);
-                break;
-            }
-            case MOVE_SWIM:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 1 + 8 + 4 + 4);
-    
-                //data.WriteGuidMask<6, 3, 1, 2, 0, 4, 7, 5>(guid);
-                //data.WriteGuidBytes<2>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<1, 6>(guid);
-                data << uint32(0); // Unk Int32
-                //data.WriteGuidBytes<3, 4, 0, 7, 5>(guid);
-                break;
-            }
-            case MOVE_SWIM_BACK:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4 + 4);
-    
-                //data.WriteGuidMask<0, 6, 5, 2, 1, 7, 4, 3>(guid);
-                //data.WriteGuidBytes<0, 3, 6>(guid);
-                data << uint32(0); // Unk Int32
-                //data.WriteGuidBytes<5>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<2, 1, 7, 4>(guid);
-                break;
-            }
-            case MOVE_TURN_RATE:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_MOVE_SET_TURN_RATE, 1 + 8 + 4 + 4);
-                
-                //data.WriteGuidMask<1, 7, 3, 0, 5, 4, 6, 2>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<2, 7, 1, 5, 6, 0, 4, 3>(guid);
-                data << uint32(0); // Unk Int32
-                break;
-            }
-            case MOVE_FLIGHT:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4 + 4);
-    
-                //data.WriteGuidMask<3, 0, 2, 4, 6, 1, 5, 7>(guid);
-                //data.WriteGuidBytes<2, 7, 1>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<0, 4, 5>(guid);
-                data << uint32(0); // Unk Int32
-                //data.WriteGuidBytes<6, 3>(guid);
-                break;
-            }
-            case MOVE_FLIGHT_BACK:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4 + 4);
-    
-                //data.WriteGuidMask<1, 0, 7, 2, 3, 5, 4, 6>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<1, 4, 0, 3, 6, 7, 2, 5>(guid);
-                data << uint32(0); // Unk Int32
-                break;
-            }
-            case MOVE_PITCH_RATE:
-            {
-                //! 5.4.1
-                data.Initialize(SMSG_MOVE_SET_PITCH_RATE, 1 + 8 + 4 + 4);
-                
-                //data.WriteGuidMask<7, 5, 2, 6, 1, 3, 0, 4>(guid);
-                //data.WriteGuidBytes<2, 6>(guid);
-                data << float(GetSpeed(mtype));
-                //data.WriteGuidBytes<3, 1, 5, 4, 0>(guid);
-                data << uint32(0); // Unk Int32
-                //data.WriteGuidBytes<7>(guid);
-                break;
-            }
-            default:
-                sLog->outError(LOG_FILTER_UNITS, "Unit::SetSpeed: Unsupported move type (%d), data not sent to client.", mtype);
-                return;
-        }
-        SendMessageToSet(&data, true);
+        WorldPackets::Movement::MoveSplineSetSpeed packet(moveTypeToOpcode[mtype][0]);
+        packet.MoverGUID = GetGUID();
+        packet.Speed = rate;
+        SendMessageToSet(packet.Write(), true);
     }
 }
 
