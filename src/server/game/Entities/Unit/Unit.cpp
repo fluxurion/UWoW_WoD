@@ -22129,31 +22129,31 @@ void Unit::ApplySoulSwapDOT(Unit* target)
 
 void Unit::SendTeleportPacket(Position &destPos)
 {
-    ObjectGuid guid = GetGUID();
-    ObjectGuid transGuid = GetTransGUID();
+    WorldPackets::Movement::MoveUpdateTeleport packet;
+    packet.movementInfo = &m_movementInfo;
+    packet.movementInfo->pos.m_positionX = destPos.GetPositionX();
+    packet.movementInfo->pos.m_positionY = destPos.GetPositionY();
+    packet.movementInfo->pos.m_positionZ = destPos.GetPositionZ();
 
-    WorldPacket data(SMSG_MOVE_TELEPORT, 38);
-    //data.WriteGuidMask<7>(guid);
-    data.WriteBit(0);       // byte33
-    //data.WriteGuidMask<2, 0>(guid);
-    data.WriteBit(bool(transGuid));
-    if (transGuid)
-        //data.WriteGuidMask<4, 3, 5, 7, 0, 2, 6, 1>(transGuid);
-    //data.WriteGuidMask<5, 1, 3, 6, 4>(guid);
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        WorldPackets::Movement::MoveTeleport selfPacket;
 
-    //data.WriteGuidBytes<0>(guid);
-    if (transGuid)
-        //data.WriteGuidBytes<7, 6, 0, 2, 3, 1, 5, 4>(transGuid);
-    //data.WriteGuidBytes<6, 1>(guid);
-    data << uint32(0);  // counter
-    //data.WriteGuidBytes<7, 5>(guid);
-    data << float(destPos.GetPositionX());
-    //data.WriteGuidBytes<4, 3, 2>(guid);
-    data << float(destPos.GetPositionY());
-    data << float(NormalizeOrientation(destPos.GetOrientation()));
-    data << float(destPos.GetPositionZ());//oldPos.GetPositionZMinusOffset()
+        selfPacket.MoverGUID = GetGUID();
 
-    SendMessageToSet(&data, true);
+        ObjectGuid transGuid = GetTransGUID();
+        if (!transGuid.IsEmpty())
+            selfPacket.TransportGUID.Set(transGuid);
+
+        selfPacket.Pos.Relocate(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ());
+        selfPacket.Facing = destPos.GetOrientation();
+        selfPacket.SequenceIndex = m_movementCounter++;
+
+        ToPlayer()->SendDirectMessage(selfPacket.Write());
+    }
+
+    // Broadcast the packet to everyone except self.
+    SendMessageToSet(packet.Write(), false);
 }
 
 bool Unit::HandleCastWhileWalkingAuraProc(Unit* victim, DamageInfo* /*dmgInfoProc*/, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 /*procFlag*/, uint32 /*procEx*/, double cooldown)
