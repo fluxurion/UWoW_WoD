@@ -33,6 +33,7 @@
 #include "MovementStructures.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
+#include "MovementPackets.h"
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
 {
@@ -269,18 +270,15 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
+void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet)
 {
-    uint32 opcode = recvPacket.GetOpcode();
+    OpcodeClient opcode = packet.GetOpcode();
 
     uint32 diff = sWorld->GetUpdateTime();
     Unit* mover = _player->m_mover;
 
     if(!mover || mover == NULL)                                  // there must always be a mover
-    {
-        recvPacket.rfinish();                     // prevent warnings spam
         return;
-    }
 
     Player* plrMover = mover->ToPlayer();
 
@@ -299,27 +297,25 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plrMover && plrMover->IsBeingTeleported())
-    {
-        recvPacket.rfinish();                     // prevent warnings spam
         return;
-    }
+
+    // stop some emotes at player move
+    if (plrMover && (plrMover->GetUInt32Value(UNIT_FIELD_EMOTE_STATE) != 0))
+        plrMover->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_NONE);
 
     /* extract packet */
-    MovementInfo movementInfo;
-    ReadMovementInfo(recvPacket, &movementInfo);
+    MovementInfo& movementInfo = packet.movementInfo;
 
     // prevent tampered movement data
     if (movementInfo.guid != mover->GetGUID() || !mover->IsInWorld())
     {
         //sLog->outError(LOG_FILTER_NETWORKIO, "HandleMovementOpcodes: guid error");
-        recvPacket.rfinish();                     // prevent warnings spam
         return;
     }
 
     if (!movementInfo.pos.IsPositionValid())
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "HandleMovementOpcodes: Invalid Position");
-        recvPacket.rfinish();                     // prevent warnings spam
         return;
     }
 
@@ -337,14 +333,12 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
         if (movementInfo.transport.pos.GetPositionX() > 50 || movementInfo.transport.pos.GetPositionY() > 50 || movementInfo.transport.pos.GetPositionZ() > 50)
         {
-            recvPacket.rfinish();                 // prevent warnings spam
             return;
         }
 
         if (!Trinity::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.transport.pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.transport.pos.GetPositionY(),
             movementInfo.pos.GetPositionZ() + movementInfo.transport.pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.transport.pos.GetOrientation()))
         {
-            recvPacket.rfinish();                 // prevent warnings spam
             return;
         }
 
@@ -685,11 +679,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     /* process position-change */
     if (check_passed)
     {
-        WorldPacket data(SMSG_PLAYER_MOVE, recvPacket.size());
-        movementInfo.time = getMSTime();
-        movementInfo.guid = mover->GetGUID();
-        WorldSession::WriteMovementInfo(data, &movementInfo);
-        mover->SendMessageToSet(&data, _player);
+        WorldPackets::Movement::ServerPlayerMovement playerMovement;
+        playerMovement.movementInfo = &mover->m_movementInfo;
+        mover->SendMessageToSet(const_cast<WorldPacket*>(playerMovement.Write()), _player);
 
         mover->m_movementInfo = movementInfo;
 

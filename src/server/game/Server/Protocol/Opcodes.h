@@ -380,7 +380,7 @@ enum OpcodeClient : uint32
     CMSG_MOVE_CHARM_TELEPORT_CHEAT                    = 0xBADD,
     CMSG_MOVE_CHNG_TRANSPORT                          = 0xBADD,
     CMSG_MOVE_ENABLE_SWIM_TO_FLY_TRANS_ACK            = 0xBADD,
-    CMSG_MOVE_FALL_RESET                              = 0xBADD,
+    CMSG_MOVE_FALL_RESET                              = 0x0522,
     CMSG_MOVE_FEATHER_FALL_ACK                        = 0xBADD,
     CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK      = 0xBADD,
     CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK           = 0xBADD,

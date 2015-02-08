@@ -1502,7 +1502,7 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
         uint32 opcode;
         recvPacket >> opcode;
         recvPacket.SetOpcode(CMSG_MOVE_STOP); // always set to MSG_MOVE_STOP in client SetOpcode
-        HandleMovementOpcodes(recvPacket);
+        //HandleMovementOpcodes(recvPacket);
     }
 }
 
