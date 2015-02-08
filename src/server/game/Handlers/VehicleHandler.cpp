@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
+#include "MovementPackets.h"
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {
@@ -44,9 +45,9 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
     mi.pos.m_positionX = recvData.read<float>();
     mi.time = getMSTime();
 
-    WorldPacket data(SMSG_PLAYER_MOVE);
-    WorldSession::WriteMovementInfo(data, &mi);
-    _player->SendMessageToSet(&data, _player);
+    WorldPackets::Movement::ServerPlayerMovement playerMovement;
+    playerMovement.movementInfo = &mi;
+    _player->SendMessageToSet(playerMovement.Write(), _player);
 
     _player->m_movementInfo = mi;
 

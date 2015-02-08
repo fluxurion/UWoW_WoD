@@ -64,6 +64,7 @@
 
 #include "CombatPackets.h"
 #include "ChatPackets.h"
+#include "MovementPackets.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -17398,9 +17399,9 @@ void Unit::SendMovementFlagUpdate(bool self /* = false */)
 {
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        WorldPacket data(SMSG_PLAYER_MOVE);
-        WriteMovementUpdate(data);
-        SendMessageToSet(&data, self);
+        WorldPackets::Movement::ServerPlayerMovement playerMovement;
+        playerMovement.movementInfo = &m_movementInfo;
+        SendMessageToSet(playerMovement.Write(), self);
         return;
     }
     //creature will give update at next movement.

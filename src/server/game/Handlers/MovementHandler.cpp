@@ -128,13 +128,14 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->SendInitialPacketsAfterAddToMap();
 
     // Update position client-side to avoid undermap
-    WorldPacket data(SMSG_PLAYER_MOVE);
     _player->m_movementInfo.time = getMSTime();
     _player->m_movementInfo.pos.m_positionX = loc.m_positionX;
     _player->m_movementInfo.pos.m_positionY = loc.m_positionY;
     _player->m_movementInfo.pos.m_positionZ = loc.m_positionZ;
-    WorldSession::WriteMovementInfo(data, &_player->m_movementInfo);
-    _player->GetSession()->SendPacket(&data);
+
+    WorldPackets::Movement::ServerPlayerMovement playerMovement;
+    playerMovement.movementInfo = &_player->m_movementInfo;
+    _player->SendMessageToSet(playerMovement.Write(), _player);
 
     // flight fast teleport case
     if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
@@ -205,26 +206,17 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->ProcessDelayedOperations();
 }
 
-void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
+void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_TELEPORT_ACK");
-
-    ObjectGuid guid;
-    uint32 flags, time;
-    recvPacket >> flags >> time;
-
-    //recvPacket.ReadGuidMask<1, 7, 2, 5, 0, 6, 3, 4>(guid);
-    //recvPacket.ReadGuidBytes<1, 5, 4, 3, 0, 7, 6, 2>(guid);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, guid.GetCounter());
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Flags %u, time %u", flags, time/IN_MILLISECONDS);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid %s Flags %u, time %u", packet.MoverGUID.ToString().c_str(), packet.AckIndex, packet.MoveTime/IN_MILLISECONDS);
 
     Player* plMover = _player->m_mover->ToPlayer();
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
         return;
 
-    if (guid != plMover->GetGUID())
+    if (packet.MoverGUID != plMover->GetGUID())
         return;
 
     plMover->SetSemaphoreTeleportNear(false);
@@ -259,13 +251,15 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 
     if(Unit* mover = _player->m_mover)
     {
-        WorldPacket data(SMSG_PLAYER_MOVE);
         mover->m_movementInfo.time = getMSTime();
         mover->m_movementInfo.pos.m_positionX = mover->GetPositionX();
         mover->m_movementInfo.pos.m_positionY = mover->GetPositionY();
         mover->m_movementInfo.pos.m_positionZ = mover->GetPositionZ();
-        WorldSession::WriteMovementInfo(data, &mover->m_movementInfo);
-        mover->SendMessageToSet(&data, _player);
+
+        WorldPackets::Movement::ServerPlayerMovement playerMovement;
+        playerMovement.movementInfo = &mover->m_movementInfo;
+        mover->SendMessageToSet(playerMovement.Write(), mover);
+
         mover->ClearUnitState(UNIT_STATE_JUMPING);
     }
 }
@@ -305,6 +299,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
 
     /* extract packet */
     MovementInfo& movementInfo = packet.movementInfo;
+    CheckMovementInfo(&movementInfo);
 
     // prevent tampered movement data
     if (movementInfo.guid != mover->GetGUID() || !mover->IsInWorld())
@@ -737,11 +732,13 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
         }
         plrMover->m_temp_transport = NULL;
         ++(plrMover->m_anti_AlarmCount);
-        WorldPacket data(SMSG_PLAYER_MOVE);
         plrMover->SetUnitMovementFlags(0);
         //plrMover->SendTeleportPacket();
-        plrMover->WriteMovementUpdate(data);
-        plrMover->SendMessageToSet(&data, true);
+
+        WorldPackets::Movement::ServerPlayerMovement playerMovement;
+        playerMovement.movementInfo = &plrMover->m_movementInfo;
+        plrMover->SendMessageToSet(playerMovement.Write(), true);
+
         plrMover->SendMovementSetCanFly(true);
         plrMover->SendMovementSetCanFly(false);
         plrMover->FallGroundAnt();
@@ -1118,8 +1115,12 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
 
     mi->guid = guid;
     mi->transport.guid = tguid;
+    CheckMovementInfo(mi);
+}
 
-   if (hasTransportData && mi->pos.m_positionX != mi->transport.pos.m_positionX)
+void WorldSession::CheckMovementInfo(MovementInfo* mi)
+{
+    if (mi->transport.guid && mi->pos.m_positionX != mi->transport.pos.m_positionX)
        if (GetPlayer()->GetTransport())
            GetPlayer()->GetTransport()->UpdatePosition(mi);
 

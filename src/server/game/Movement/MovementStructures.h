@@ -2217,7 +2217,7 @@ MovementStatusElements* GetMovementStatusElementsSequence(uint32 opcode)
 {
     switch (opcode)
     {
-        case CMSG_CAST_SPELL:
+/*        case CMSG_CAST_SPELL:
             return NULL;
         case CMSG_MOVE_FALL_LAND:
             return MovementFallLandSequence;
@@ -2272,7 +2272,7 @@ MovementStatusElements* GetMovementStatusElementsSequence(uint32 opcode)
         case SMSG_MOVE_UPDATE_KNOCK_BACK:
             return MovementUpdateKnockBackSequence;
         case SMSG_PLAYER_MOVE:
-            return PlayerMoveSequence;
+            return PlayerMoveSequence;*/
         default:
             sLog->outError(LOG_FILTER_OPCODES, "Unknown movement sequence for opcode %u", opcode);
             break;
