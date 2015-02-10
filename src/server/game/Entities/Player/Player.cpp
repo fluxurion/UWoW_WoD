@@ -3749,35 +3749,28 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
 void Player::SendKnownSpells()
 {
-    ByteBuffer dataBuffer;
-    uint32 spellCount = 0;
+    WorldPackets::Spells::SendKnownSpells knownSpells;
+    knownSpells.InitialLogin = false; /// @todo
 
-    WorldPacket data(SMSG_SEND_KNOWN_SPELLS);
-    for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+    knownSpells.KnownSpells.reserve(m_spells.size());
+    for (PlayerSpellMap::value_type const& spell : m_spells)
     {
-        if (itr->second->state == PLAYERSPELL_REMOVED)
+        if (spell.second->state == PLAYERSPELL_REMOVED)
             continue;
 
-        if (!itr->second->active || itr->second->disabled)
+        if (!spell.second->active || spell.second->disabled)
             continue;
 
-        if(itr->second->mount && itr->second->mountReplace == 0)
+        if(spell.second->mount && spell.second->mountReplace == 0)
             continue;
 
-        if(itr->second->mountReplace)
-            dataBuffer << uint32(itr->second->mountReplace);
+        if (spell.second->mountReplace)
+            knownSpells.KnownSpells.push_back(spell.second->mountReplace);
         else
-            dataBuffer << uint32(itr->first);
-
-        ++spellCount;
+            knownSpells.KnownSpells.push_back(spell.first);
     }                          // spell count placeholder
 
-    data.WriteBit(0);       // unk
-    data.WriteBits(spellCount, 22);
-    data.FlushBits();
-    data.append(dataBuffer);
-
-    GetSession()->SendPacket(&data);
+    SendDirectMessage(knownSpells.Write());
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CHARACTER: Sent Send Known Spells");
 }
@@ -7390,7 +7383,7 @@ void Player::SendActionButtons(uint32 state) const
     {
         ActionButtonList::const_iterator itr = m_actionButtons.find(button);
         if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
-            packet.ActionButtons[button] = uint32(itr->second.packedData);
+            packet.ActionButtons[button] = itr->second.packedData;
         else
             packet.ActionButtons[button] = 0;
     }

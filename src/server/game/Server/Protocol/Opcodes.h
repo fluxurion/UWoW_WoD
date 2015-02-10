@@ -1588,7 +1588,6 @@ enum OpcodeServer : uint32
     SMSG_GUILD_EVENT_TAB_REMOVED                      = 0xBADD, // 5.4.1 17538
     SMSG_INITIAL_COOLDOWNS                            = 0xBADD, // 5.4.1 17538
     SMSG_INSTANCE_DIFFICULTY                          = 0xBADD,      // Not found in 4.3.4
-    SMSG_SEND_KNOWN_SPELLS                            = 0xBADD, // 5.4.1 17538
     SMSG_LFG_UPDATE_PARTY                             = 0xBADD,      // Not found in 4.3.4
     SMSG_LFG_UPDATE_PLAYER                            = 0xBADD,      // Not found in 4.3.4
     SMSG_LFG_UPDATE_STATUS_NONE                       = 0xBADD,  // 5.0.5 16048
