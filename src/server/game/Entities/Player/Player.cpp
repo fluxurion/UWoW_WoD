@@ -89,7 +89,7 @@
 #include "SpellPackets.h"
 #include "QuestPackets.h"
 #include "MovementPackets.h"
-
+#include "TalentPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -27819,55 +27819,14 @@ bool Player::canSeeSpellClickOn(Creature const* c) const
     return res;
 }
 
-void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
-{
-    if (GetSpecsCount() > MAX_TALENT_SPECS)
-        SetSpecsCount(MAX_TALENT_SPECS);
-
-    uint32 specsCount = GetSpecsCount();
-    data->WriteBits(specsCount, 19);
-
-    ByteBuffer buffer[MAX_TALENT_SPECS];
-    // loop through all specs (only 1 for now)
-    for (uint8 specIdx = 0; specIdx < specsCount; ++specIdx)
-    {
-        uint8 count = 0;
-        PlayerTalentMap* Talents = GetTalentMap(specIdx);
-        for (PlayerTalentMap::iterator itr = Talents->begin(); itr != Talents->end(); ++itr)
-        {
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr->first);
-            if (spell && spell->talentId)
-            {
-                buffer[specIdx] << uint16(spell->talentId);
-                ++count;
-            }
-        }
-
-        data->WriteBits(count, 23);
-    }
-
-    data->FlushBits();
-
-    for (uint8 specIdx = 0; specIdx < specsCount; ++specIdx)
-    {
-        for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-            *data << uint16(GetGlyph(specIdx, i));               // GlyphProperties.dbc
-
-        data->append(buffer[specIdx]);
-
-        *data << uint32(GetSpecializationId(specIdx));
-    }
-
-    *data << uint8(GetActiveSpec());
-}
-
 void Player::SendTalentsInfoData(bool pet)
 {
     if (pet)
     {
         Pet* pPet = GetPet();
         WorldPacket data(SMSG_SET_PET_SPECIALIZATION);
-        data << uint16(pPet ? pPet->GetSpecializationId() : 0);
+        data << pPet->GetGUID();
+        data << uint32(pPet ? pPet->GetSpecializationId() : 0);
         GetSession()->SendPacket(&data);
         return;
     }
@@ -27875,9 +27834,52 @@ void Player::SendTalentsInfoData(bool pet)
     // Update free talents points client-side
     SetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS, CalculateTalentsPoints());
 
-    WorldPacket data(SMSG_UPDATE_TALENT_DATA);
-    BuildPlayerTalentsInfoData(&data);
-    GetSession()->SendPacket(&data);
+    if (GetSpecsCount() > MAX_TALENT_SPECS)
+        SetSpecsCount(MAX_TALENT_SPECS);
+
+    uint32 specsCount = GetSpecsCount();
+
+    WorldPackets::Talent::UpdateTalentData packet;
+
+    packet.Info.ActiveGroup = GetActiveSpec();
+
+    for (uint8 specIdx = 0; specIdx < specsCount; ++specIdx)
+    {
+        WorldPackets::Talent::TalentGroupInfo groupInfoPkt;
+
+        PlayerTalentMap* Talents = GetTalentMap(specIdx);
+
+        groupInfoPkt.SpecID = GetSpecializationId(specIdx);
+        groupInfoPkt.TalentIDs.reserve(Talents->size());
+
+
+        for (PlayerTalentMap::iterator itr = Talents->begin(); itr != Talents->end(); ++itr)
+        {
+            SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr->first);
+            if (spell && spell->talentId)
+            {
+
+                TalentEntry const* talentInfo = sTalentStore.LookupEntry(spell->talentId);
+                if (!talentInfo)
+                {
+                    sLog->outError(LOG_FILTER_PLAYER, "Player %s has unknown talent id: %u", GetName(), spell->talentId);
+                    continue;
+                }
+
+                if (talentInfo->classId != getClass())
+                    continue;
+
+                groupInfoPkt.TalentIDs.push_back(uint16(spell->talentId));
+            }
+        }
+
+        for (uint32 x = 0; x < MAX_GLYPH_SLOT_INDEX; ++x)
+            groupInfoPkt.GlyphIDs[x] = uint16(GetGlyph(specIdx, x));
+
+        packet.Info.TalentGroups.push_back(groupInfoPkt);
+    }
+
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::BuildEnchantmentsInfoData(WorldPacket* data)

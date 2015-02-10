@@ -2113,7 +2113,6 @@ class Player : public Unit, public GridObject<Player>
         void InitSpellForLevel();
         void RemoveSpecializationSpells();
         void RemoveNotActiveSpecializationSpells();
-        void BuildPlayerTalentsInfoData(WorldPacket* data);
         void SendTalentsInfoData(bool pet);
         bool LearnTalent(uint32 talentId);
         bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);

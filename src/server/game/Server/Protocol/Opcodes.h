@@ -1608,7 +1608,7 @@ enum OpcodeServer : uint32
     SMSG_SERVER_SCENE_PLAYBACK                        = 0xBADD, // 5.4.1 17538
     SMSG_SETUP_RESEARCH_HISTORY                       = 0xBADD,      // Not found in TC
     SMSG_SET_DUNGEON_DIFFICULTY                       = 0xBADD, // 5.4.1 17538
-    SMSG_SET_PET_SPECIALIZATION                       = 0xBADD, // 5.4.1 17538
+    SMSG_SET_PET_SPECIALIZATION                       = 0x08D6, // 6.0.3
     SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI       = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_CHARGE_DATA                            = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_CREATE_VISUAL                          = 0xBADD, // 5.4.1 17538
@@ -1618,7 +1618,6 @@ enum OpcodeServer : uint32
     SMSG_TRAINER_SERVICE                              = 0xBADD, // 5.4.1 17538
     SMSG_UPDATE_ACCOUNT_DATA_COMPLETE                 = 0xBADD,  // 5.0.5 16048
     SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0xBADD,  // 5.0.5 16048
-    SMSG_UPDATE_TALENT_DATA                           = 0xBADD, // 5.4.1 17538
     SMSG_WORLD_STATE_TIMER_START_INIT                 = 0xBADD, // 5.4.1 17538
     SMSG_WORLD_STATE_TIMER_START                      = 0xBADD, // 5.4.1 17538
     SMSG_WORLD_STATE_TIMER_STOP                       = 0xBADD, // 5.4.1 17538
