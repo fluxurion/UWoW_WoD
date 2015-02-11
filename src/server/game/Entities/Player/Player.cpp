@@ -28913,13 +28913,9 @@ void Player::SetMover(Unit* target)
 
     if (m_mover)
     {
-        //! 5.4.1
+        //! 6.0.3
         WorldPacket data(SMSG_MOVE_SET_ACTIVE_MOVER);
-        ObjectGuid guid = m_mover->GetGUID();
-
-        //data.WriteGuidMask<4, 7, 3, 0, 6, 1, 5, 2>(guid);
-        //data.WriteGuidBytes<6, 3, 1, 5, 7, 2, 4, 0>(guid);
-
+        data << m_mover->GetGUID();
         SendDirectMessage(&data);
     }
 }

@@ -1181,7 +1181,7 @@ enum OpcodeServer : uint32
     SMSG_MOVE_LAND_WALK                               = 0x13DA,
     SMSG_MOVE_NORMAL_FALL                             = 0x0193,
     SMSG_MOVE_ROOT                                    = 0x1B5A,
-    SMSG_MOVE_SET_ACTIVE_MOVER                        = 0xBADD,
+    SMSG_MOVE_SET_ACTIVE_MOVER                        = 0x1021,
     SMSG_MOVE_SET_CAN_FLY                             = 0x01F6,
     SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x08CE,
     SMSG_MOVE_SET_COLLISION_HEIGHT                    = 0x008D,
