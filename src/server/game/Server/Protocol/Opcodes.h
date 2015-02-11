@@ -1222,7 +1222,7 @@ enum OpcodeServer : uint32
     SMSG_NEW_TAXI_PATH                                = 0xBADD,
     SMSG_NEW_WORLD                                    = 0x0206,
     SMSG_NEW_WORLD_ABORT                              = 0xBADD,
-    SMSG_NOTIFICATION                                 = 0xBADD,
+    SMSG_NOTIFICATION                                 = 0x0B22,
     SMSG_NOTIFICATION_2                               = 0xBADD,
     SMSG_NOTIFY_DANCE                                 = 0xBADD,
     SMSG_NOTIFY_DEST_LOC_SPELL_CAST                   = 0xBADD,
