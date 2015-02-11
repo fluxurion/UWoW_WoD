@@ -22342,6 +22342,7 @@ void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string
 inline void Player::BuildPlayerChatData(Trinity::ChatData& c, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/) const
 {
     c.sourceGuid = GetGUID();
+    c.SenderAccountGUID = GetSession()->GetAccountGUID();
     c.targetGuid = GetGUID();
     c.message = text;
     c.addonPrefix = addonPrefix ? addonPrefix : "";

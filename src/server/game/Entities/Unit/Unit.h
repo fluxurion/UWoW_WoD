@@ -2686,6 +2686,7 @@ namespace Trinity
         ObjectGuid targetGuid;
         ObjectGuid groupGuid;
         ObjectGuid guildGuid;
+        ObjectGuid SenderAccountGUID;
 
         std::string addonPrefix;
         std::string targetName;

@@ -22453,8 +22453,35 @@ void Trinity::BuildChatPacket(WorldPacket& data, ChatData& c, bool coded, bool e
         langId = LANG_UNIVERSAL;
 
     data.Initialize(SMSG_MESSAGECHAT);
+    data << c.chatType;
+    data << langId;
+    data << c.sourceGuid;
+    data << c.guildGuid;
+    data << c.SenderAccountGUID;
+    data << c.targetGuid;
+    data << GetVirtualRealmAddress();
+    data << GetVirtualRealmAddress();
+    data << c.groupGuid;
+    data << c.achievementId;
+    data << float(/*DisplayTime*/0.0f);
+    data.WriteBits(c.sourceName.length(), 11);
+    data.WriteBits(c.targetName.length(), 11);
+    data.WriteBits(c.addonPrefix.length(), 5);
+    data.WriteBits(c.channelName.length(), 7);
+    data.WriteBits(message.length(), 12);
+    data.WriteBits(c.chatTag, 10);
+    data.WriteBit(/*HideChatLog*/false);
+    data.WriteBit(/*FakeSenderName*/false);
+    data.WriteString(c.sourceName);
+    data.WriteString(c.targetName);
+    data.WriteString(c.addonPrefix);
+    data.WriteString(c.channelName);
+    data.WriteString(message);
 
-    data.WriteBit(!langId);
+
+
+
+    /*data.WriteBit(!langId);
     data.WriteBit(!c.sourceName.size());
 
     data.WriteBit(!c.groupGuid);
@@ -22528,7 +22555,7 @@ void Trinity::BuildChatPacket(WorldPacket& data, ChatData& c, bool coded, bool e
     if (c.float1490 != 0.0f)
         data << float(c.float1490);
     if (c.realmId)
-        data << uint32(c.realmId);
+        data << uint32(c.realmId);*/
 }
 
 uint32 GetWordWeight(std::string const& word)
