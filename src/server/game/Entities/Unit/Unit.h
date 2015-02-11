@@ -2704,7 +2704,7 @@ namespace Trinity
         bool hasCoded;
     };
 
-    const WorldPacket * BuildChatPacket(ChatData& c, WorldObject const* sender = nullptr, WorldObject const* receiver = nullptr, bool coded = false, bool empty = false);
+    void BuildChatPacket(WorldPacket& data, ChatData& c, bool coded = false, bool empty = false);
     std::string CodeChatMessage(std::string text, uint32 lang_id);
 }
 

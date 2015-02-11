@@ -164,9 +164,9 @@ namespace Trinity
         uint32 team;
         Player const* skipped_receiver;
         ChatData& i_c;
-        const WorldPacket * i_normalMessage;
-        const WorldPacket * i_codedMessage;
-        const WorldPacket * i_emptyMessage;
+        WorldPacket* i_normalMessage;
+        WorldPacket* i_codedMessage;
+        WorldPacket* i_emptyMessage;
         ChatMessageDistDeliverer(WorldObject* src, ChatData& c, float dist, bool own_team_only = false, Player const* skipped = NULL)
             : i_source(src), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist),
             team((own_team_only && src->GetTypeId() == TYPEID_PLAYER) ? ((Player*)src)->GetTeam() : 0),
@@ -1702,7 +1702,7 @@ namespace Trinity
 
         private:
             Builder& i_builder;
-            std::vector<const WorldPacket *> i_data_cache;         // 0 = default, i => i-1 locale index
+            std::vector<WorldPacket*> i_data_cache;         // 0 = default, i => i-1 locale index
     };
 
     // Prepare using Builder localized packets with caching and send to player
@@ -1710,7 +1710,7 @@ namespace Trinity
     class LocalizedPacketListDo
     {
         public:
-            typedef std::vector<const WorldPacket*> WorldPacketList;
+            typedef std::vector<WorldPacket*> WorldPacketList;
             explicit LocalizedPacketListDo(Builder& builder) : i_builder(builder) {}
 
             ~LocalizedPacketListDo()

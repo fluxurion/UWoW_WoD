@@ -43,7 +43,7 @@ class TrinityStringTextBuilder
         {
         }
 
-        void operator()(const WorldPacket * data, LocaleConstant locale, ObjectGuid targetGUID) const
+        void operator()(WorldPacket* data, LocaleConstant locale, ObjectGuid targetGUID) const
         {
             if (_msgType != CHAT_MSG_RAID_BOSS_EMOTE && _msgType !=CHAT_MSG_RAID_BOSS_WHISPER)
                 targetGUID = _targetGUID;
@@ -56,7 +56,7 @@ class TrinityStringTextBuilder
             c.chatType = _msgType;
             c.language = _language;
 
-            data = Trinity::BuildChatPacket(c, _source, ObjectAccessor::GetWorldObject(*_source, targetGUID));
+            Trinity::BuildChatPacket(*data, c);
         }
 
         WorldObject* _source;

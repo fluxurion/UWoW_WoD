@@ -63,7 +63,6 @@
 #include <cwctype>
 
 #include "CombatPackets.h"
-#include "ChatPackets.h"
 #include "MovementPackets.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -22437,7 +22436,7 @@ bool Unit::HandleIgnoreAurastateAuraProc(Unit* victim, DamageInfo* /*dmgInfoProc
     return true;
 }
 
-const WorldPacket * Trinity::BuildChatPacket(ChatData& c, WorldObject const* sender, WorldObject const* receiver, bool coded, bool empty)
+void Trinity::BuildChatPacket(WorldPacket& data, ChatData& c, bool coded, bool empty)
 {
     std::string message = c.message;
     uint8 langId = c.language;
@@ -22453,11 +22452,7 @@ const WorldPacket * Trinity::BuildChatPacket(ChatData& c, WorldObject const* sen
     if (message.empty())
         langId = LANG_UNIVERSAL;
 
-    WorldPackets::Chat::Chat packet;
-    packet.Initalize((ChatMsg)c.chatType, (Language)langId, sender, receiver, message, c.achievementId, c.channelName, DEFAULT_LOCALE, c.addonPrefix);
-    return packet.Write();
-
-    /*data.Initialize(SMSG_MESSAGECHAT);
+    data.Initialize(SMSG_MESSAGECHAT);
 
     data.WriteBit(!langId);
     data.WriteBit(!c.sourceName.size());
@@ -22515,7 +22510,7 @@ const WorldPacket * Trinity::BuildChatPacket(ChatData& c, WorldObject const* sen
     //data.WriteGuidBytes<5, 7, 3, 0, 4, 6, 1, 2>(c.guildGuid);
 
     if (langId)
-        data << uint8(langId);//+
+        data << uint8(langId);
 
     //data.WriteGuidBytes<7, 4, 0, 6, 3, 2, 5, 1>(c.sourceGuid);
 
@@ -22523,7 +22518,7 @@ const WorldPacket * Trinity::BuildChatPacket(ChatData& c, WorldObject const* sen
 
     data.WriteString(message);
 
-    data << uint8(c.chatType);//+
+    data << uint8(c.chatType);
 
     if (c.achievementId)
         data << uint32(c.achievementId);
@@ -22533,7 +22528,7 @@ const WorldPacket * Trinity::BuildChatPacket(ChatData& c, WorldObject const* sen
     if (c.float1490 != 0.0f)
         data << float(c.float1490);
     if (c.realmId)
-        data << uint32(c.realmId);*/
+        data << uint32(c.realmId);
 }
 
 uint32 GetWordWeight(std::string const& word)

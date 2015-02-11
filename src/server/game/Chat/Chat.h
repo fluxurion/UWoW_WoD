@@ -51,14 +51,14 @@ class ChatHandler
         explicit ChatHandler(Player* player) : m_session(player->GetSession()), sentErrorMessage(false) {}
         virtual ~ChatHandler() {}
 
-        static void FillMessageData(const WorldPacket * data, WorldSession* session, uint8 type, uint32 language, const char *channelName, ObjectGuid target_guid, const char *message, Unit* speaker, const char* addonPrefix = NULL);
+        static void FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, ObjectGuid target_guid, const char *message, Unit* speaker, const char* addonPrefix = NULL);
 
-        void FillMessageData(const WorldPacket * data, uint8 type, uint32 language, ObjectGuid target_guid, const char* message)
+        void FillMessageData(WorldPacket* data, uint8 type, uint32 language, ObjectGuid target_guid, const char* message)
         {
             FillMessageData(data, m_session, type, language, NULL, target_guid, message, NULL);
         }
 
-        void FillSystemMessageData(const WorldPacket * data, const char* message)
+        void FillSystemMessageData(WorldPacket* data, const char* message)
         {
             FillMessageData(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, ObjectGuid::Empty, message);
         }

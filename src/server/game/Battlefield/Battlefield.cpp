@@ -499,13 +499,16 @@ void Battlefield::BroadcastPacketToWar(WorldPacket& data) const
                 player->GetSession()->SendPacket(&data);
 }
 
-const WorldPacket * Battlefield::BuildWarningAnnPacket(std::string msg)
+WorldPacket Battlefield::BuildWarningAnnPacket(std::string msg)
 {
     Trinity::ChatData c;
     c.message = msg;
     c.chatType = CHAT_MSG_RAID_BOSS_EMOTE;
 
-    return Trinity::BuildChatPacket(c);
+    WorldPacket data;
+    Trinity::BuildChatPacket(data, c);
+
+    return data;
 }
 
 void Battlefield::SendWarningToAllInZone(uint32 entry)

@@ -319,21 +319,30 @@ void ChatMessageDistDeliverer::SendPacket(Player* player)
         if (needEmpty)
         {
             if (!i_emptyMessage)
-                i_emptyMessage = Trinity::BuildChatPacket(i_c, i_source, player, needCoded, needEmpty);
+            {
+                i_emptyMessage = new WorldPacket();
+                Trinity::BuildChatPacket(*i_emptyMessage, i_c, needCoded, needEmpty);
+            }
 
             session->SendPacket(i_emptyMessage);
         }
         else if (needCoded)
         {
             if (!i_codedMessage)
-                i_codedMessage = Trinity::BuildChatPacket(i_c, i_source, player, needCoded, needEmpty);
+            {
+                i_codedMessage = new WorldPacket();
+                Trinity::BuildChatPacket(*i_codedMessage, i_c, needCoded, needEmpty);
+            }
 
             session->SendPacket(i_codedMessage);
         }
         else
         {
             if (!i_normalMessage)
-                i_normalMessage = Trinity::BuildChatPacket(i_c, i_source, player, needCoded, needEmpty);
+            {
+                i_normalMessage = new WorldPacket();
+                Trinity::BuildChatPacket(*i_normalMessage, i_c, needCoded, needEmpty);
+            }
 
             session->SendPacket(i_normalMessage);
         }
