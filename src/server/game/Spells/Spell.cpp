@@ -4600,277 +4600,93 @@ void Spell::SendSpellStart()
         castFlags = 262913;
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SMSG_SPELL_START, castCount: %u, spellId: %u, castFlags: %u", m_cast_count, m_spellInfo->Id, castFlags);
 
-    ObjectGuid guid1A0 = ObjectGuid();
-    ObjectGuid casterGuid = m_caster->GetGUID();
-    ObjectGuid itemCasterGuid = m_CastItem ? m_CastItem->GetGUID() : casterGuid;
-    ObjectGuid targetGuid;
-    ObjectGuid itemTargetGuid;
+    WorldPackets::Spells::SpellStart packet;
+    WorldPackets::Spells::SpellCastData& castData = packet.Cast;
+    castData.CasterGUID = m_CastItem ? m_CastItem->GetGUID() : m_caster->GetGUID();
 
-    bool hasRuneState = castFlags & CAST_FLAG_RUNE_LIST;
-    bool hasCastImmunities = false;
-    bool hasCastSchoolImmunities = false;
-    uint8 byte180 = 0;
-    bool hasPowerUnit = false/*castFlags & CAST_FLAG_POWER_LEFT_SELF*/;
-    bool hasPredictedType = false;
-    bool hasAdjustMissile = false;
-    bool hasPredictedHeal = false;
-    bool hasVisualChain = false;
-    int8 AmmoInventoryType = 0;
-    int32 AmmoDisplayId = 0;
+    castData.CasterUnit = m_caster->GetGUID();
+    castData.CastID = m_cast_count; // pending spell cast?
+    castData.SpellID = m_spellInfo->Id;
+    castData.CastFlags = castFlags;
+    castData.CastTime = m_casttime;
 
-    uint32 powerCount = 0;
-    uint32 missCount2 = 0;
-    uint32 extraTargetsCount = 0;
-    std::vector<ObjectGuid> extraTargetGuids(extraTargetsCount);
+    //Is it need on cast?
+    /*uint32 hit = 0;
+    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && hit <= 255; ++ihit)
+    {
+        if (ihit->effectMask == 0)                      // No effect apply - all immuned add state
+            ihit->missCondition = SPELL_MISS_IMMUNE2;
 
-    if(m_caster->GetTypeId() == TYPEID_UNIT && m_spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && m_spellInfo->EquippedItemSubClassMask & 0x0004000C/*BOW, GUN, CROSSBOW*/)
+        if (ihit->missCondition == SPELL_MISS_NONE)
+        {
+            m_channelTargetEffectMask |= ihit->effectMask;
+            castData.HitTargets.push_back(ihit->targetGUID);
+        }
+        else
+        {
+            castData.MissTargets.push_back(ihit->targetGUID);
+
+            WorldPackets::Spells::SpellMissStatus status;
+            status.Reason = ihit->missCondition;
+            status.ReflectStatus = ihit->reflectResult;
+            castData.MissStatus.push_back(status);
+        }
+    }
+
+    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && hit <= 255; ++ighit)
+        castData.HitTargets.push_back(ighit->targetGUID);
+    */
+
+    if(m_caster->GetTypeId() == TYPEID_UNIT && m_spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && m_spellInfo->EquippedItemSubClassMask & 0x0004000C)//BOW, GUN, CROSSBOW
     {
         castFlags |= CAST_FLAG_PROJECTILE;
-        WriteProjectile(AmmoInventoryType, AmmoDisplayId);
+        WriteProjectile(castData.Ammo.InventoryType, castData.Ammo.DisplayID);
     }
 
-    uint32 targetMask = m_targets.GetTargetMask();
-    if (targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_MINIPET))
-        targetGuid = m_targets.m_objectTargetGUID;
+    m_targets.Write(castData.Target);
 
-    if (targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
-        if (Item* item = m_targets.GetItemTarget())
-            itemTargetGuid = item->GetGUID();
-        else
-            targetMask &= ~(TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM);
-
-    WorldPacket data(SMSG_SPELL_START, (8+8+4+4+2));
-    data.WriteBit(!hasRuneState);                               // has rune state after
-    data.WriteBit(!hasCastImmunities);                          // !dword198
-    data.WriteBit(!hasCastSchoolImmunities);                    // !dword194
-    //data.WriteGuidMask<5>(casterGuid);
-    data.WriteBits(powerCount, 21);                             // power count
-    //data.WriteGuidMask<7>(casterGuid);
-    data.WriteBits(missCount2, 25);                             // miss count 2
-
-    //data.WriteGuidMask<7>(itemCasterGuid);
-    data.WriteBit(!byte180);                                    // !byte180
-
-    data.WriteBits(extraTargetsCount, 20);                      // extra targets count
-    //data.WriteGuidMask<0>(casterGuid);
-
-    data.WriteBit(!guid1A0);                                    // guid1A0 marker
-    data.WriteBit(hasPowerUnit);
-    if (hasPowerUnit)
-    {
-        //data.WriteGuidMask<7, 3, 1, 5, 4, 2, 0>(casterGuid);
-        data.WriteBits(1, 21);                                  // power type count
-        //data.WriteGuidMask<6>(casterGuid);
-    }
-    data.WriteBit(!hasPredictedType);                           // !byte1AC
-    data.WriteBit(!hasAdjustMissile);                           // !has delay moment
-    data.WriteBit(!hasRuneState);                               // has rune state before
-
-    for (uint32 i = 0; i < extraTargetsCount; ++i)
-        //data.WriteGuidMask<3, 1, 7, 6, 2, 4, 5, 0>(extraTargetGuids[i]);
-
-    data.WriteBit(!AmmoInventoryType);                          // !AmmoInventoryType
-    //data.WriteGuidMask<2>(itemCasterGuid);
-    data.WriteBits(0, 24);                                      // hit count
-
-    for (uint32 i = 0; i < missCount2; ++i)
-    {
-        uint32 hitResult = 0;
-        data.WriteBits(hitResult, 4);                           // unk bits
-        if (hitResult == SPELL_MISS_REFLECT)
-            data.WriteBits(0, 4);                               // Reflect result
-    }
-
-    //data.WriteGuidMask<3>(itemCasterGuid);
-    //data.WriteGuidMask<6>(casterGuid);
-    data.WriteBits(0, 13);                                      // dword2C
-    //data.WriteGuidMask<4>(itemCasterGuid);
-    data.WriteBit(!hasPredictedHeal);                           // !has predicted healing
-    //data.WriteGuidMask<0>(itemCasterGuid);
-    data.WriteBit(hasVisualChain);                              // byte17C
-    data.WriteBit(m_targets.HasSrc());
-    //data.WriteGuidMask<1>(itemCasterGuid);
-    //data.WriteGuidMask<4, 5, 6, 7, 3, 1, 2, 0>(guid1A0);
-    //data.WriteGuidMask<2>(casterGuid);
-
-    uint8 runeCooldownCount = 0;
-    if (castFlags & CAST_FLAG_RUNE_LIST)
-        runeCooldownCount = MAX_RUNES;
-    data.WriteBits(runeCooldownCount, 3);
-    data.WriteBit(m_targets.HasDst());
-    if (m_targets.HasDst())
-    {
-        ObjectGuid destTransportGuid = m_targets.GetDst()->_transportGUID;
-        //data.WriteGuidMask<4, 1, 6, 2, 3, 0, 7, 5>(destTransportGuid);
-    }
-    if (m_targets.HasSrc())
-    {
-        ObjectGuid srcTransportGuid = m_targets.GetSrc()->_transportGUID;
-        //data.WriteGuidMask<4, 5, 6, 0, 7, 1, 2, 3>(srcTransportGuid);
-    }
-    //data.WriteGuidMask<1>(casterGuid);
-    data.WriteBit(!AmmoDisplayId);                            // !dword16C
-    //data.WriteGuidMask<4>(casterGuid);
-    data.WriteBit((targetMask & TARGET_FLAG_STRING) == 0);
-    if (targetMask & TARGET_FLAG_STRING)
-        data.WriteBits(m_targets.m_strTarget.length(), 7);
-    data.WriteBit(!targetMask);
-    data.WriteBits(0, 24);                                      // miss count
-    //data.WriteGuidMask<6, 5>(itemCasterGuid);
-
-    data.WriteBit(!targetGuid);
-    //data.WriteGuidMask<7, 5, 3, 6, 1, 4, 0, 2>(targetGuid);
-
-    if (targetMask)
-        data.WriteBits(targetMask, 20);
-
-    data.WriteBit(!itemTargetGuid);
-    //data.WriteGuidMask<0, 1, 2, 5, 4, 7, 3, 6>(itemTargetGuid);
-    data.WriteBit(!hasAdjustMissile);                           // !has elevation
-    //data.WriteGuidMask<3>(casterGuid);
-
-    data.FlushBits();
-
-    //data.WriteGuidBytes<5, 1>(itemCasterGuid);
-    if (m_targets.HasSrc())
-    {
-        ObjectGuid srcTransportGuid = m_targets.GetSrc()->_transportGUID;
-        Position const& pos = srcTransportGuid ? m_targets.GetSrc()->_transportOffset : m_targets.GetSrc()->_position;
-
-        //data.WriteGuidBytes<1, 3>(srcTransportGuid);
-        data << float(pos.GetPositionZ());
-        //data.WriteGuidBytes<7, 5>(srcTransportGuid);
-        data << float(pos.GetPositionX());
-        //data.WriteGuidBytes<2, 0, 4>(srcTransportGuid);
-        data << float(pos.GetPositionY());
-        //data.WriteGuidBytes<6>(srcTransportGuid);
-    }
-
-    for (uint32 i = 0; i < extraTargetsCount; ++i)
-    {
-        //data.WriteGuidBytes<5, 2>(extraTargetGuids[i]);
-        data << float(0.0f);    // dst Y
-        data << float(0.0f);    // dst X
-        //data.WriteGuidBytes<7>(extraTargetGuids[i]);
-        data << float(0.0f);    // dst Z
-        //data.WriteGuidBytes<3, 1, 6, 4, 0>(extraTargetGuids[i]);
-    }
-
-    if (AmmoInventoryType)
-        data << uint8(AmmoInventoryType);
-
-    //data.WriteGuidBytes<4, 2, 5, 6, 3, 1, 7, 0>(targetGuid);
-
-    if (m_targets.HasDst())
-    {
-        ObjectGuid dstTransportGuid = m_targets.GetDst()->_transportGUID;
-        Position const& pos = dstTransportGuid ? m_targets.GetDst()->_transportOffset : m_targets.GetDst()->_position;
-
-        data << float(pos.GetPositionX());
-        //data.WriteGuidBytes<0>(dstTransportGuid);
-        data << float(pos.GetPositionZ());
-        //data.WriteGuidBytes<7, 4, 1, 5, 3, 2>(dstTransportGuid);
-        data << float(pos.GetPositionY());
-        //data.WriteGuidBytes<6>(dstTransportGuid);
-    }
-
-    if (hasAdjustMissile)
-        data << uint32(0);                                      // delay moment
-
-    if (hasRuneState)
-    {
-        Player* player = m_caster->ToPlayer();
-        data << uint8(player->GetRunesState());                 // runes state after
-    }
-
-    //data.WriteGuidBytes<3, 7, 0, 2, 1, 6, 4, 5>(guid1A0);
-
-    if (hasPowerUnit)
+    if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
     {
         Powers powertype = POWER_MANA;
         SpellPowerEntry power;
         if (GetSpellInfo()->GetSpellPowerByCasterPower(m_caster, power))
             powertype = (Powers)power.PowerType;
 
-        data << uint32(m_caster->GetHealth());
-        //data.WriteGuidBytes<7, 2>(m_caster->GetGUID());
-        data << uint32(m_caster->GetPower(powertype));
-        data << uint32(powertype);
-        data << uint32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
-        data << uint32(m_caster->GetSpellPowerDamage());
-        //data.WriteGuidBytes<6, 4, 5, 0, 1, 3>(m_caster->GetGUID());
+        /// @todo Implement multiple power types
+        WorldPackets::Spells::SpellPowerData powerData;
+        powerData.Type = powertype;
+        powerData.Cost = m_caster->GetPower(powertype);
+        castData.RemainingPower.push_back(powerData);
     }
 
-    //data.WriteGuidBytes<2>(itemCasterGuid);
-    if (hasRuneState)
-        data << uint8(m_runesState);                            // runes state before
-    //data.WriteGuidBytes<1, 7, 6, 5, 2, 3, 0, 4>(itemTargetGuid);
-
-    //data.WriteGuidBytes<1>(casterGuid);
-    if (targetMask & TARGET_FLAG_STRING)
-        data.WriteString(m_targets.m_strTarget);
-
-    for (uint32 i = 0; i < powerCount; ++i)
+    if (castFlags & CAST_FLAG_RUNE_LIST) // rune cooldowns list
     {
-        // not sure about this ...
-        data << uint8((Powers)GetSpellInfo()->PowerType);
-        data << uint32(m_caster->GetPower((Powers)GetSpellInfo()->PowerType));
+        WorldPackets::Spells::RuneData& runeData = castData.RemainingRunes.Value;
+        //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
+        //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
+        if (Player* player = m_caster->ToPlayer())
+        {
+            runeData.Start = m_runesState; // runes state before
+            runeData.Count = player->GetRunesState(); // runes state after
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+            {
+                // float casts ensure the division is performed on floats as we need float result
+                float baseCd = float(player->GetRuneBaseCooldown(i));
+                runeData.Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+            }
+        }
+        else
+        {
+            runeData.Start = 0;
+            runeData.Count = 0;
+            for (uint8 i = 0; i < MAX_RUNES; ++i)
+                runeData.Cooldowns.push_back(0);
+        }
+
+        castData.RemainingRunes.HasValue = true;
     }
 
-    data << uint32(m_spellInfo->Id);                            // spellId
-
-    if (hasPredictedType)
-        data << uint8(0);
-
-    data << uint8(m_cast_count);                                // pending spell cast?
-
-    for (int i = 0; i < runeCooldownCount; ++i)
-    {
-        Player* player = m_caster->ToPlayer();
-        float baseCd = float(player->GetRuneBaseCooldown(i));
-        data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-    }
-
-    //data.WriteGuidBytes<6>(itemCasterGuid);
-    if (AmmoDisplayId)
-        data << uint32(AmmoDisplayId);
-    //data.WriteGuidBytes<0>(itemCasterGuid);
-    //data.WriteGuidBytes<4>(casterGuid);
-
-    if (hasAdjustMissile)
-        data << float(0.0f);                                    // elevation
-
-    if (hasVisualChain)
-    {
-        data << uint32(0);
-        data << uint32(0);
-    }
-
-    data << uint32(m_casttime);
-    //data.WriteGuidBytes<3>(itemCasterGuid);
-
-    if (hasCastSchoolImmunities)
-        data << uint32(0);
-
-    if (byte180)
-        data << uint8(byte180);
-
-    if (hasCastImmunities)
-        data << uint32(0);
-
-    //data.WriteGuidBytes<7>(casterGuid);
-
-    if (hasPredictedHeal)
-        data << uint32(0);                                      // amount
-
-    //data.WriteGuidBytes<4>(itemCasterGuid);
-    //data.WriteGuidBytes<5>(casterGuid);
-    data << uint32(castFlags);                                  // dword28
-    //data.WriteGuidBytes<3>(casterGuid);
-    //data.WriteGuidBytes<7>(itemCasterGuid);
-    //data.WriteGuidBytes<6, 0, 2>(casterGuid);
-
-    m_caster->SendMessageToSet(&data, true);
+    m_caster->SendMessageToSet(packet.Write(), true);
 }
 
 void Spell::SendSpellPendingCast()
@@ -5110,300 +4926,6 @@ void Spell::SendSpellGo()
     }
 
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SMSG_SPELL_GO, castCount: %u, spellId: %u, castFlags: %u", m_cast_count, m_spellInfo->Id, castFlags);
-
-    //WorldPacket data(SMSG_SPELL_GO, 50);                        // guess size
-    //data.WriteBits(miss, 25);                                   // miss count 2
-    ////data.WriteGuidMask<5>(casterGuid);
-    ////data.WriteGuidMask<1>(itemCasterGuid);
-    //data.WriteBits(extraTargetsCount, 20);                      // extra targets count
-    ////data.WriteGuidMask<0>(itemCasterGuid);
-    //data.WriteBit(!guid1A0);                                    // "Guid 1A0 marker"
-    ////data.WriteGuidMask<0>(casterGuid);
-
-    //for (uint32 i = 0; i < extraTargetsCount; ++i)
-    //    //data.WriteGuidMask<4, 1, 5, 2, 0, 3, 6, 7>(extraTargetGuids[i]);
-
-    //data.WriteBit(!AmmoDisplayId);                              // !AmmoDisplayId
-    ////data.WriteGuidMask<0, 1, 4, 6, 5, 3, 2, 7>(guid1A0);
-    //data.WriteBit(!byte180);                                     // !byte180
-    ////data.WriteGuidMask<3>(casterGuid);
-    //data.WriteBit((targetMask & TARGET_FLAG_STRING) == 0);
-    ////data.WriteGuidMask<4>(itemCasterGuid);
-    //data.WriteBit(!hasCastSchoolImmunities);                    // !dword194
-    //data.WriteBits(miss, 24);                                   // miss count
-
-    //data.WriteBit(!targetGuid);
-    ////data.WriteGuidMask<3, 1, 5, 4, 0, 2, 6, 7>(targetGuid);
-
-    //// misses
-    //uint32 counter = 0;
-    //for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && counter <= 255; ++ihit)
-    //{
-    //    if (ihit->missCondition != SPELL_MISS_NONE)
-    //    {
-    //        //data.WriteGuidMask<0, 5, 2, 7, 3, 6, 4, 1>(ihit->targetGUID);
-    //        ++counter;
-    //    }
-    //}
-
-    //data.WriteBit(!hasPredictedHeal);                           // !has predicted healing
-    //data.WriteBit(hasPowerUnit);                                // has power unit
-    //data.WriteBit(!hasPredictedType);                           // !byte1AC
-    //counter = 0;
-    //for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && counter <= 255; ++ihit)
-    //{
-    //    if (ihit->missCondition == SPELL_MISS_NONE)
-    //        continue;
-
-    //    data.WriteBits(ihit->missCondition, 4);
-    //    if (ihit->missCondition == SPELL_MISS_REFLECT)
-    //        data.WriteBits(ihit->reflectResult, 4);
-    //    ++counter;
-    //}
-    ////data.WriteGuidMask<2>(itemCasterGuid);
-
-    //if (hasPowerUnit)
-    //{
-    //    ObjectGuid powerGuid = m_caster->GetGUID();
-
-    //    //data.WriteGuidMask<5>(powerGuid);
-    //    data.WriteBits(1, 21);                                  // power count
-    //    //data.WriteGuidMask<1, 7, 4, 2, 3, 6, 0>(powerGuid);
-    //}
-    ////data.WriteGuidMask<3>(itemCasterGuid);
-    //uint8 runeCooldownCount = 0;
-    //if (hasRuneState)
-    //    runeCooldownCount = MAX_RUNES;
-    //data.WriteBits(runeCooldownCount, 3);
-    ////data.WriteGuidMask<2>(casterGuid);
-    //data.WriteBit(!hasRuneState);                               // has rune state before
-    //if (targetMask & TARGET_FLAG_STRING)
-    //    data.WriteBits(m_targets.m_strTarget.length(), 7);
-    ////data.WriteGuidMask<6>(itemCasterGuid);
-    //data.WriteBit(!hasAdjustMissile);                           // !has delay moment
-    ////data.WriteGuidMask<6>(casterGuid);
-    //data.WriteBit(!targetMask);
-    //data.WriteBits(0, 13);                                      // dword2C
-    ////data.WriteGuidMask<5>(itemCasterGuid);
-    //data.WriteBits(hasRuneState ? 1 : powerCount, 21);          // powerCount
-    //data.WriteBit(!AmmoInventoryType);                          // !AmmoInventoryType
-    ////data.WriteGuidMask<7>(casterGuid);
-    //data.WriteBit(m_targets.HasDst());
-    //data.WriteBit(hasVisualChain);                              // byte17C
-
-    //if (m_targets.HasDst())
-    //{
-    //    ObjectGuid dstTransportGuid = m_targets.GetDst()->_transportGUID;
-
-    //    //data.WriteGuidMask<0, 4, 3, 5, 2, 7, 6, 1>(dstTransportGuid);
-    //}
-    //data.WriteBit(!hasCastImmunities);                          // !dword198
-    //if (targetMask)
-    //    data.WriteBits(targetMask, 20);
-    ////data.WriteGuidMask<4>(casterGuid);
-    //data.WriteBit(!hasRuneState);                               // has rune state after
-    //data.WriteBit(!hasAdjustMissile);                           // has elevation
-    ////data.WriteGuidMask<1>(casterGuid);
-    //data.WriteBit(m_targets.HasSrc());
-    //if (m_targets.HasSrc())
-    //{
-    //    ObjectGuid srcTransportGuid = m_targets.GetSrc()->_transportGUID;
-
-    //    //data.WriteGuidMask<3, 5, 1, 7, 2, 6, 0, 4>(srcTransportGuid);
-    //}
-    //data.WriteBits(hit, 24);
-    //counter = 0;
-    //// hits
-    //for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && counter <= 255; ++ihit)
-    //{
-    //    if (ihit->missCondition == SPELL_MISS_NONE)
-    //    {
-    //        //data.WriteGuidMask<2, 3, 7, 1, 5, 4, 6, 0>(ihit->targetGUID);
-    //        ++counter;
-    //    }
-    //}
-    //for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && counter <= 255; ++ighit)
-    //{
-    //    //data.WriteGuidMask<2, 3, 7, 1, 5, 4, 6, 0>(ighit->targetGUID);
-    //    ++counter;
-    //}
-    ////data.WriteGuidMask<7>(itemCasterGuid);
-    //data.WriteBit(!itemTargetGuid);
-    ////data.WriteGuidMask<4, 3, 7, 0, 1, 6, 5, 2>(itemTargetGuid);
-
-    //data.FlushBits();
-
-    ////data.WriteGuidBytes<7, 4, 3, 2, 1, 0, 6, 5>(itemTargetGuid);
-
-    ////data.WriteGuidBytes<3, 1, 6, 5, 0, 7, 2, 4>(targetGuid);
-
-    //if (hasRuneState)
-    //{
-    //    data << uint32(0);
-    //    data << uint8(POWER_RUNES);
-    //}
-    //else
-    //{
-    //    //for (uint32 i = 0; i < powerCount; ++i)
-    //    if(powerCount)
-    //    {
-    //        data << uint32(m_caster->GetPower(powerType));
-    //        data << uint8(powerType); //Power
-    //    }
-    //}
-
-    //counter = 0;
-    //// hits
-    //for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && counter <= 255; ++ihit)
-    //{
-    //    if (ihit->missCondition == SPELL_MISS_NONE)
-    //    {
-    //        //data.WriteGuidBytes<6, 5, 0, 3, 2, 1, 4, 7>(ihit->targetGUID);
-    //        ++counter;
-    //    }
-    //}
-    //for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && counter <= 255; ++ighit)
-    //{
-    //    //data.WriteGuidBytes<6, 5, 0, 3, 2, 1, 4, 7>(ighit->targetGUID);
-    //    ++counter;
-    //}
-
-    //for (uint32 i = 0; i < extraTargetsCount; ++i) // TARGET_FLAG_EXTRA_TARGETS
-    //{
-    //    //data.WriteGuidBytes<6, 7, 2, 5, 0>(extraTargetGuids[i]);
-    //    data << float(0.0f);        // dst Y
-    //    //data.WriteGuidBytes<4, 1>(extraTargetGuids[i]);
-    //    data << float(0.0f);        // dst Z
-    //    //data.WriteGuidBytes<3>(extraTargetGuids[i]);
-    //    data << float(0.0f);        // dst X
-    //}
-
-    //if (m_targets.HasSrc())
-    //{
-    //    ObjectGuid srcTransportGuid = m_targets.GetSrc()->_transportGUID;
-    //    Position const& pos = srcTransportGuid ? m_targets.GetSrc()->_transportOffset : m_targets.GetSrc()->_position;
-
-    //    //data.WriteGuidBytes<4, 3>(srcTransportGuid);
-    //    data << float(pos.GetPositionX());
-    //    //data.WriteGuidBytes<6, 2, 1, 5>(srcTransportGuid);
-    //    data << float(pos.GetPositionY());
-    //    data << float(pos.GetPositionZ());
-    //    //data.WriteGuidBytes<7, 0>(srcTransportGuid);
-    //}
-
-    ////data.WriteGuidBytes<2, 7, 5, 1, 0, 3, 6, 4>(guid1A0);
-
-    //if (m_targets.HasDst())
-    //{
-    //    ObjectGuid dstTransportGuid = m_targets.GetDst()->_transportGUID;
-    //    Position const& pos = dstTransportGuid ? m_targets.GetDst()->_transportOffset : m_targets.GetDst()->_position;
-
-    //    data << float(pos.GetPositionY());
-    //    //data.WriteGuidBytes<3>(dstTransportGuid);
-    //    data << float(pos.GetPositionZ());
-    //    //data.WriteGuidBytes<4, 6, 7>(dstTransportGuid);
-    //    data << float(pos.GetPositionX());
-    //    //data.WriteGuidBytes<0, 2, 5, 1>(dstTransportGuid);
-    //}
-
-    //if (hasPowerUnit)
-    //{
-    //    ObjectGuid powerGuid = m_caster->GetGUID();
-    //    Powers powertype = POWER_MANA;
-    //    SpellPowerEntry power;
-    //    if (GetSpellInfo()->GetSpellPowerByCasterPower(m_caster, power))
-    //        powertype = (Powers)power.PowerType;
-
-    //    //data.WriteGuidBytes<2, 1, 3>(powerGuid);
-    //    data << uint32(m_caster->GetHealth());
-    //    //data.WriteGuidBytes<5, 6, 7>(powerGuid);
-    //    data << uint32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
-    //    //data.WriteGuidBytes<0>(powerGuid);
-    //    data << uint32(m_caster->GetPower(powertype));
-    //    data << uint32(powertype);
-    //    //data.WriteGuidBytes<4>(powerGuid);
-    //    data << uint32(m_caster->GetSpellPowerDamage());
-    //}
-
-    //if (hasCastImmunities)
-    //    data << uint32(0);
-
-    //if (hasRuneState)
-    //    data << uint8(m_runesState);                        // runes state before
-
-    //if (byte180)
-    //    data << uint8(byte180);
-
-    //// misses
-    //counter = 0;
-    //for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && counter <= 255; ++ihit)
-    //{
-    //    if (ihit->missCondition != SPELL_MISS_NONE)
-    //    {
-    //        //data.WriteGuidBytes<7, 3, 1, 6, 5, 2, 0, 4>(ihit->targetGUID);
-    //        ++counter;
-    //    }
-    //}
-    //data << uint32(castFlags);
-    ////data.WriteGuidBytes<2>(itemCasterGuid);
-    ////data.WriteGuidBytes<4>(casterGuid);
-    //if (hasVisualChain)
-    //{
-    //    data << uint32(0);
-    //    data << uint32(0);
-    //}
-
-    //if (hasPredictedHeal)
-    //    data << uint32(0);
-
-    ////data.WriteGuidBytes<6, 1>(casterGuid);
-
-    //if (hasAdjustMissile)
-    //    data << m_targets.GetElevation();
-
-    ////data.WriteGuidBytes<5>(itemCasterGuid);
-    ////data.WriteGuidBytes<7>(casterGuid);
-
-    //if (hasPredictedType)
-    //    data << uint8(0);
-
-    //if (AmmoInventoryType)
-    //    data << uint8(AmmoInventoryType);
-
-    ////data.WriteGuidBytes<3>(itemCasterGuid);
-    ////data.WriteGuidBytes<3, 2>(casterGuid);
-    //data << uint8(m_cast_count);                            // pending spell cast?
-    //if (hasAdjustMissile)
-    //    data << uint32(m_delayMoment);
-    ////data.WriteGuidBytes<6, 4>(itemCasterGuid);
-    //for (int i = 0; i < runeCooldownCount; ++i)
-    //{
-    //    Player* player = m_caster->ToPlayer();
-    //    float baseCd = float(player->GetRuneBaseCooldown(i));
-    //    data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-    //}
-    //if (hasRuneState)
-    //{
-    //    Player* player = m_caster->ToPlayer();
-    //    data << uint8(player->GetRunesState());             // runes state after
-    //}
-
-    ////data.WriteGuidBytes<0, 1>(itemCasterGuid);
-
-    //if (hasCastSchoolImmunities)
-    //    data << uint32(0);
-
-    //if (AmmoDisplayId)
-    //    data << uint32(AmmoDisplayId);
-
-    ////data.WriteGuidBytes<7>(itemCasterGuid);
-
-    //data << uint32(getMSTime());                            // timestamp
-    ////data.WriteGuidBytes<0>(casterGuid);
-    //data << uint32(m_spellInfo->Id);                        // spellId
-    ////data.WriteGuidBytes<5>(casterGuid);
-    //if (targetMask & TARGET_FLAG_STRING)
-    //    data.WriteString(m_targets.m_strTarget);
 
     m_caster->SendMessageToSet(packet.Write(), true);
 
