@@ -4080,19 +4080,19 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 if (next_active_spell_id)
                 {
                     // update spell ranks in spellbook and action bar
+                    // 6.0.3
                     WorldPacket data(SMSG_SUPERCEDED_SPELL);
-                    data.WriteBits(1, 22);
-                    data.WriteBits(1, 22);
-                    data << uint32(spellId);
+                    data << uint32(1);
+                    data << uint32(1);
                     data << uint32(next_active_spell_id);
+                    data << uint32(spellId);
                     GetSession()->SendPacket(&data);
                 }
                 else
                 {
-                    WorldPacket data(SMSG_REMOVED_SPELL, 4);
-                    data.WriteBits(1, 22);
-                    data << uint32(spellId);
-                    GetSession()->SendPacket(&data);
+                    WorldPackets::Spells::UnlearnedSpells unlearnedSpells;
+                    unlearnedSpells.SpellID.push_back(spellId);
+                    SendDirectMessage(unlearnedSpells.Write());
                 }
             }
 
@@ -4218,6 +4218,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         // replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
         if (newspell->active && !newspell->disabled && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked() != 0)
         {
+            //!6.0.3
             WorldPacket data(SMSG_SUPERCEDED_SPELL);
             uint32 bitCount = 0;
             ByteBuffer dataBuffer1;
@@ -4267,11 +4268,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                     }
                 }
             }
-            data.WriteBits(bitCount, 22);
-            data.WriteBits(bitCount, 22);
-            data.FlushBits();
-            data.append(dataBuffer1);
+            data << uint32(bitCount);
+            data << uint32(bitCount);
             data.append(dataBuffer2);
+            data.append(dataBuffer1);
             GetSession()->SendPacket(&data);
         }
 
@@ -4750,11 +4750,12 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                     if (addSpell(prev_id, true, false, prev_itr->second->dependent, prev_itr->second->disabled))
                     {
                         // downgrade spell ranks in spellbook and action bar
+                        //! 6.0.3
                         WorldPacket data(SMSG_SUPERCEDED_SPELL);
-                        data.WriteBits(1, 22);
-                        data.WriteBits(1, 22);
-                        data << uint32(spell_id);
+                        data << uint32(1);
+                        data << uint32(1);
                         data << uint32(prev_id);
+                        data << uint32(spell_id);
                         GetSession()->SendPacket(&data);
                         prev_activate = true;
                     }
@@ -4785,10 +4786,9 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // remove from spell book if not replaced by lesser rank
     if (!prev_activate)
     {
-        WorldPacket data(SMSG_REMOVED_SPELL, 4);
-        data.WriteBits(1, 22);
-        data << uint32(spell_id);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Spells::UnlearnedSpells unlearnedSpells;
+        unlearnedSpells.SpellID.push_back(spell_id);
+        SendDirectMessage(unlearnedSpells.Write());
     }
 }
 
@@ -9828,7 +9828,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
         spell->m_CastItem = item;
         spell->m_cast_count = cast_count;                   // set count of casts
-        spell->m_glyphIndex = glyphIndex;                   // glyph index
+        spell->m_misc.GlyphSlot = glyphIndex;                   // glyph index
         spell->prepare(&targets);
 
         ++count;
@@ -9859,7 +9859,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
             Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
             spell->m_CastItem = item;
             spell->m_cast_count = cast_count;               // set count of casts
-            spell->m_glyphIndex = glyphIndex;               // glyph index
+            spell->m_misc.GlyphSlot = glyphIndex;               // glyph index
             spell->prepare(&targets);
 
             ++count;

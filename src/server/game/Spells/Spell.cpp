@@ -95,6 +95,42 @@ SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
 {
 }
 
+SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellTargetData const& spellTargetData) :
+    m_targetMask(spellTargetData.Flags), m_objectTarget(nullptr), m_itemTarget(nullptr),
+    m_objectTargetGUID(spellTargetData.Unit), m_itemTargetGUID(spellTargetData.Item),
+    m_itemTargetEntry(0), m_elevation(0.0f), m_speed(0.0f), m_strTarget(spellTargetData.Name)
+{
+    if (spellTargetData.SrcLocation.HasValue)
+    {
+        m_src._transportGUID = spellTargetData.SrcLocation.Value.Transport;
+        Position* pos;
+        if (!m_src._transportGUID.IsEmpty())
+            pos = &m_src._transportOffset;
+        else
+            pos = &m_src._position;
+
+        pos->Relocate(spellTargetData.SrcLocation.Value.Location);
+        if (spellTargetData.Orientation.HasValue)
+            pos->SetOrientation(spellTargetData.Orientation.Value);
+    }
+
+    if (spellTargetData.DstLocation.HasValue)
+    {
+        m_dst._transportGUID = spellTargetData.DstLocation.Value.Transport;
+        Position* pos;
+        if (!m_dst._transportGUID.IsEmpty())
+            pos = &m_dst._transportOffset;
+        else
+            pos = &m_dst._position;
+
+        pos->Relocate(spellTargetData.DstLocation.Value.Location);
+        if (spellTargetData.Orientation.HasValue)
+            pos->SetOrientation(spellTargetData.Orientation.Value);
+    }
+
+    Update(caster);
+}
+
 SpellCastTargets::~SpellCastTargets()
 {
 }
@@ -526,7 +562,7 @@ m_customError(SPELL_CUSTOM_ERROR_NONE), m_skipCheck(skipCheck), m_spellMissMask(
 m_referencedFromCurrentSpell(false), m_executedCurrently(false), m_needComboPoints(info->NeedsComboPoints()), hasPredictedDispel(NULL),
 m_comboPointGain(0), m_delayStart(0), m_delayAtDamageCount(0), m_count_dispeling(0), m_applyMultiplierMask(0), m_auraScaleMask(0),
 m_CastItem(NULL), m_castItemGUID(), unitTarget(NULL), m_originalTarget(NULL), itemTarget(NULL), gameObjTarget(NULL), focusObject(NULL),
-m_cast_count(0), m_glyphIndex(0), m_preCastSpell(0), m_triggeredByAuraSpell(NULL), m_spellAura(NULL), find_target(false), m_spellState(SPELL_STATE_NULL),
+m_cast_count(0), m_preCastSpell(0), m_triggeredByAuraSpell(NULL), m_spellAura(NULL), find_target(false), m_spellState(SPELL_STATE_NULL),
 m_runesState(0), m_powerCost(0), m_casttime(0), m_timer(0), m_channelTargetEffectMask(0), _triggeredCastFlags(triggerFlags), m_spellValue(NULL), m_currentExecutedEffect(SPELL_EFFECT_NONE),
 m_absorb(0), m_resist(0), m_blocked(0), m_interupted(false), m_effect_targets(NULL)
 {
@@ -602,6 +638,7 @@ m_absorb(0), m_resist(0), m_blocked(0), m_interupted(false), m_effect_targets(NU
         m_destTargets[i] = SpellDestination(*m_caster);
     }
 
+    m_misc.Data = 0;
 }
 
 Spell::~Spell()
@@ -4408,29 +4445,31 @@ void Spell::SendCastResult(SpellCastResult result)
     if (m_caster->ToPlayer()->GetSession()->PlayerLoading())  // don't send cast results at loading time
         return;
 
-    SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_cast_count, result, m_customError);
+    SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_cast_count, result, m_customError, m_misc.Data);
 }
 
-void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/)
+void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, uint32 misc/*=0*/)
 {
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SendCastResult  Spell: %u result %u.", spellInfo->Id, result);
 
     if (result == SPELL_CAST_OK)
         return;
 
-    uint32 param1 = 0;
-    uint32 param2 = 0;
+    WorldPackets::Spells::CastFailed packet(SMSG_CAST_FAILED);
+    packet.CastID = cast_count;
+    packet.SpellID = spellInfo->Id;
+    packet.Reason = result;
 
     switch (result)
     {
         case SPELL_FAILED_NOT_READY:
         {
-            param1 = 0;                                    // unknown (value 1 update cooldowns on client flag)                       
+            packet.FailedArg1 = 0;                                    // unknown (value 1 update cooldowns on client flag)                       
             break;
         }
         case SPELL_FAILED_REQUIRES_SPELL_FOCUS:
         {
-            param1 = spellInfo->RequiresSpellFocus;        // SpellFocusObject.dbc id
+            packet.FailedArg1 = spellInfo->RequiresSpellFocus;        // SpellFocusObject.dbc id
             break;
         }
         case SPELL_FAILED_REQUIRES_AREA:                    // AreaTable.dbc id
@@ -4440,14 +4479,14 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
             {
                 case 41617:                                 // Cenarion Mana Salve
                 case 41619:                                 // Cenarion Healing Salve
-                    param1 = 3905;
+                    packet.FailedArg1 = 3905;
                     break;
                 case 41618:                                 // Bottled Nethergon Energy
                 case 41620:                                 // Bottled Nethergon Vapor
-                    param1 = 3842;
+                    packet.FailedArg1 = 3842;
                     break;
                 case 45373:                                 // Bloodberry Elixir
-                    param1 = 4075;
+                    packet.FailedArg1 = 4075;
                     break;
                 default:                                    // default case (don't must be)
                     break;
@@ -4456,14 +4495,14 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
         }
         case SPELL_FAILED_TOTEMS:
         {
-            param1 = spellInfo->Totem[0];
-            param2 = spellInfo->Totem[1];
+            packet.FailedArg1 = spellInfo->Totem[0];
+            packet.FailedArg2 = spellInfo->Totem[1];
             break;
         }
         case SPELL_FAILED_TOTEM_CATEGORY:
         {
-            param1 = spellInfo->TotemCategory[0];
-            param2 = spellInfo->TotemCategory[1];
+            packet.FailedArg1 = spellInfo->TotemCategory[0];
+            packet.FailedArg2 = spellInfo->TotemCategory[1];
 
             //if (hasBit1 && hasBit2 && (!spellInfo->TotemCategory[0] || !spellInfo->TotemCategory[1]))
             //    sLog->OutCS(">>> SPELL_FAILED_TOTEM_CATEGORY ");
@@ -4474,8 +4513,8 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS_MAINHAND:
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS_OFFHAND:
         {
-            param1 = spellInfo->EquippedItemClass;
-            param2 = spellInfo->EquippedItemSubClassMask;
+            packet.FailedArg1 = spellInfo->EquippedItemClass;
+            packet.FailedArg2 = spellInfo->EquippedItemSubClassMask;
             break;
         }
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
@@ -4484,19 +4523,19 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
                 if (uint32 item = spellInfo->Effects[eff].ItemType)
                     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item))
                     {
-                        param1 = proto->ItemLimitCategory;
+                        packet.FailedArg1 = proto->ItemLimitCategory;
                         break;
                     }
             break;
         }
         case SPELL_FAILED_PREVENTED_BY_MECHANIC:
         {
-            param1 = spellInfo->GetAllEffectsMechanicMask();   // SpellMechanic.dbc id
+            packet.FailedArg1 = spellInfo->GetAllEffectsMechanicMask();   // SpellMechanic.dbc id
             break;
         }
         case SPELL_FAILED_NEED_EXOTIC_AMMO:
         {
-            param1 = spellInfo->EquippedItemSubClassMask;          // seems correct...
+            packet.FailedArg1 = spellInfo->EquippedItemSubClassMask;          // seems correct...
             break;
         }
         case SPELL_FAILED_NEED_MORE_ITEMS:
@@ -4518,12 +4557,18 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
         }
         case SPELL_FAILED_CUSTOM_ERROR:
         {
-            param1 = customError;
+            packet.FailedArg1 = customError;
             break;
         }
         case SPELL_FAILED_SILENCED:
         {
             //param1 = 0;                              // Unknown
+            break;
+        }
+        case  SPELL_FAILED_CANT_UNTALENT:
+        {
+            if (TalentEntry const* talent = sTalentStore.LookupEntry(misc))
+                packet.FailedArg1 = talent->spellId;
             break;
         }
         case SPELL_FAILED_REAGENTS:
@@ -4538,21 +4583,21 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
 
                 if (!caster->HasItemCount(itemid, itemcount))
                 {
-                    param1 = itemid;
-                    param2 = itemcount;
+                    packet.FailedArg1 = itemid;
+                    packet.FailedArg2 = itemcount;
                     break;
                 }
             }
 
-            if(!param1 && spellInfo->ReagentCurrency != 0)
+            if (!packet.FailedArg1 && spellInfo->ReagentCurrency != 0)
             {
                 uint32 currencyId    = spellInfo->ReagentCurrency;
                 uint32 currencyCount = spellInfo->ReagentCurrencyCount;
 
                 if (!caster->HasCurrency(currencyId, currencyCount))
                 {
-                    param1 = currencyId;
-                    param2 = currencyCount;
+                    packet.FailedArg1 = currencyId;
+                    packet.FailedArg2 = currencyCount;
                 }
             }
             break;
@@ -4562,18 +4607,7 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
             break;
     }
 
-    //! 5.4.1
-    WorldPacket data(SMSG_CAST_FAILED, 4 * 4 + 1 + 1);
-    data.WriteBit(!param1);
-    data.WriteBit(!param2);
-    data << uint32(result);                                 // cast result
-    data << uint32(spellInfo->Id);                          // spellId
-    if (param1)
-        data << uint32(param1);
-    data << uint8(cast_count);                              // single cast or multi 2.3 (0/1)
-    if (param2)
-        data << uint32(param2);
-    caster->GetSession()->SendPacket(&data);
+    caster->GetSession()->SendPacket(packet.Write());
 }
 
 void Spell::SendSpellStart()
@@ -6787,8 +6821,17 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 break;
             }
-            case SPELL_EFFECT_TALENT_SPEC_SELECT:
             case SPELL_EFFECT_UNLEARN_TALENT:
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
+                if (TalentEntry const* talent = sTalentStore.LookupEntry(m_misc.TalentId))
+                {
+                    if (m_caster->ToPlayer()->HasSpellCooldown(talent->spellId))
+                        return SPELL_FAILED_CANT_UNTALENT;
+                }else
+                    return SPELL_FAILED_DONT_REPORT;
+                //no break
+            case SPELL_EFFECT_TALENT_SPEC_SELECT:
                 // can't change during already started arena/battleground
                 if (Player* player = m_caster->ToPlayer())
                     if (Battleground* bg = player->GetBattleground())

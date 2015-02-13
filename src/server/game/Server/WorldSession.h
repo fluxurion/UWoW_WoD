@@ -210,7 +210,8 @@ namespace WorldPackets
 
     namespace Spells
     {
-        class SpellCastRequest;
+        class CancelAura;
+        class CastSpell;
         class SetActionButton;
     }
 
@@ -851,7 +852,7 @@ class WorldSession
 
         void HandleUseItemOpcode(WorldPacket& recvPacket);
         void HandleOpenItemOpcode(WorldPacket& recvPacket);
-        void HandleCastSpellOpcode(WorldPacket& recvPacket);
+        void HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& castRequest);
         void HandleCancelCastOpcode(WorldPacket& recvPacket);
         void HandleCancelAuraOpcode(WorldPacket& recvPacket);
         void HandleCancelGrowthAuraOpcode(WorldPacket& recvPacket);
