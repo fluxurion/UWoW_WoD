@@ -5199,27 +5199,19 @@ void Spell::ExecuteLogEffectFeedPet(uint8 effIndex, uint32 entry)
 
 void Spell::SendInterrupted(uint8 result)
 {
-    ObjectGuid guid = m_caster->GetGUID();
+    WorldPackets::Spells::SpellFailure failurePacket;
+    failurePacket.CasterUnit = m_caster->GetGUID();
+    failurePacket.CastID = m_cast_count;
+    failurePacket.SpellID = m_spellInfo->Id;
+    failurePacket.Reason = result;
+    m_caster->SendMessageToSet(failurePacket.Write(), true);
 
-    //! 5.4.1
-    WorldPacket data(SMSG_SPELL_FAILURE, (8+4+1));
-    data << uint32(m_spellInfo->Id);
-    data << uint8(m_cast_count);
-    data << uint8(result);
-    //data.WriteGuidMask<6, 1, 3, 7, 0, 4, 2, 5>(guid);
-    //data.WriteGuidBytes<3, 2, 1, 6, 5, 0, 4, 7>(guid);
-    m_caster->SendMessageToSet(&data, true);
-
-    //! 5.4.1
-    data.Initialize(SMSG_SPELL_FAILED_OTHER, (8+4));
-    //data.WriteGuidMask<0, 4, 6, 2, 7, 3, 5, 1>(guid);
-    //data.WriteGuidBytes<7, 3, 5>(guid);
-    data << uint8(m_cast_count);
-    //data.WriteGuidBytes<4, 1>(guid);
-    data << uint32(m_spellInfo->Id);
-    data << uint8(result);
-    //data.WriteGuidBytes<0, 6, 2>(guid);
-    m_caster->SendMessageToSet(&data, true);
+    WorldPackets::Spells::SpellFailedOther failedPacket;
+    failedPacket.CasterUnit = m_caster->GetGUID();
+    failedPacket.CastID = m_cast_count;
+    failedPacket.SpellID = m_spellInfo->Id;
+    failedPacket.Reason = result;
+    m_caster->SendMessageToSet(failedPacket.Write(), true);
 }
 
 void Spell::SendChannelUpdate(uint32 time)
