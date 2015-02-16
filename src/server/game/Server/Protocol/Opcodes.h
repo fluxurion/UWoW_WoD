@@ -1341,7 +1341,7 @@ enum OpcodeServer : uint32
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0xBADD,
     SMSG_RESUME_COMMS                                 = 0x07C9,
     SMSG_RESURRECT_FAILED                             = 0xBADD,
-    SMSG_RESURRECT_REQUEST                            = 0xBADD,
+    SMSG_RESURRECT_REQUEST                            = 0x0336,
     SMSG_RESYNC_RUNES                                 = 0xBADD,
     SMSG_ROLE_POLL_BEGIN                              = 0xBADD,
     SMSG_RWHOIS                                       = 0xBADD,

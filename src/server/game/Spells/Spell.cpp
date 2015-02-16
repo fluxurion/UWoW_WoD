@@ -5262,23 +5262,18 @@ void Spell::SendResurrectRequest(Player* target)
     // for player resurrections the name is looked up by guid
     std::string resurrectorName = m_caster->GetTypeId() == TYPEID_PLAYER ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex());
 
-    ObjectGuid guid = m_caster->GetGUID();
+    //! 6.0.3
     WorldPacket data(SMSG_RESURRECT_REQUEST, 8 + 1 + 1 + 4 + 4 + 4 + resurrectorName.size());
+    data << m_caster->GetGUID();
+    data << uint32(realmHandle.Index);
+    data << uint32(0);                                                      // pet counter
+    data << uint32(m_spellInfo->Id);
     data.WriteBits(resurrectorName.size(), 6);
+    data.WriteBit(0);                                                       // use timer according to client symbols
     data.WriteBit(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1);          // "you'll be afflicted with resurrection sickness"
                                                                             // override delay sent with SMSG_CORPSE_RECLAIM_DELAY, set instant resurrection for spells with this attribute
-    data.WriteBit(0);                                                       // use timer according to client symbols
-    //data.WriteGuidMask<7, 2, 4, 5, 3, 0, 6, 1>(guid);
-    //data.WriteGuidBytes<4>(guid);
-    data << uint32(realmHandle.Index);
-    //data.WriteGuidBytes<0>(guid);
-    data << uint32(0);                                                      // pet counter?
-    //data.WriteGuidBytes<3>(guid);
-    // 4.2.2 edit : id of the spell used to resurect. (used client-side for Mass Resurect)
-    data << uint32(m_spellInfo->Id);
-    //data.WriteGuidBytes<6, 2, 5>(guid);
+                                                                            // 4.2.2 edit : id of the spell used to resurect. (used client-side for Mass Resurect)
     data.WriteString(resurrectorName);
-    //data.WriteGuidBytes<1, 7>(guid);
 
     target->GetSession()->SendPacket(&data);
 }
