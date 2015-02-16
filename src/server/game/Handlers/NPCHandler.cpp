@@ -55,8 +55,7 @@ enum StableResultCode
 void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
 {
     ObjectGuid guid;
-    //recvData.ReadGuidMask<7, 2, 6, 0, 3, 1, 4, 5>(guid);
-    //recvData.ReadGuidBytes<6, 3, 7, 0, 4, 1, 2, 5>(guid);
+    recvData >> guid.ReadAsPacked();
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TABARDDESIGNER);
     if (!unit)
@@ -75,8 +74,7 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
 void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
 {
     WorldPacket data(SMSG_TABARDVENDOR_ACTIVATE, 8 + 1);
-    //data.WriteGuidMask<4, 2, 1, 3, 0, 6, 7, 5>(guid);
-    //data.WriteGuidBytes<4, 6, 5, 0, 7, 1, 2, 3>(guid);
+    data << guid;
     SendPacket(&data);
 }
 

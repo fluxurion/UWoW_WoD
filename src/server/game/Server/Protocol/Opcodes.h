@@ -673,6 +673,9 @@ enum OpcodeClient : uint32
     MSG_TABARDVENDOR_ACTIVATE                         = 0xBADD,
     MSG_TALENT_WIPE_CONFIRM                           = 0xBADD,
 
+    //UWOW
+    CMSG_TABARDVENDOR_ACTIVATE                        = 0x08EE,
+
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
     CMSG_CHALLENGE_MODE_REQUEST_COMPLETION_INFO       = 0xBADD, // 5.4.1 17538
@@ -727,7 +730,6 @@ enum OpcodeClient : uint32
     CMSG_LIST_STABLED_PETS                            = 0xBADD, // 5.4.1 17538
     CMSG_DUEL_RESPONSE                                = 0x1BD2, // 5.4.1 17538
     CMSG_QUEST_PUSH_RESULT                            = 0x06C4, // 5.4.1 17538
-    CMSG_TABARDVENDOR_ACTIVATE                        = 0xBADD, // 5.4.1 17538
     CMSG_SAVE_GUILD_EMBLEM                            = 0xBADD, // 5.4.1 17538
     CMSG_PETITION_RENAME                              = 0xBADD, // 5.4.1 17538
     MSG_PETITION_DECLINE                              = 0xBADD,
@@ -1520,6 +1522,9 @@ enum OpcodeServer : uint32
     SMSG_XP_GAIN_ABORTED                              = 0xBADD,
     SMSG_ZONE_UNDER_ATTACK                            = 0x1401,
 
+    //UWOW
+    SMSG_TABARDVENDOR_ACTIVATE                        = 0x1389,
+
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
     SMSG_CHALLENGE_MODE_COMPLETION_INFO               = 0xBADD, // 5.4.1 17538
@@ -1530,7 +1535,6 @@ enum OpcodeServer : uint32
     SMSG_QUEST_PUSH_RESULT                            = 0xBADD, // 5.4.1 17538
     SMSG_RANDOM_ROLL                                  = 0xBADD, // 5.4.1 17538
     SMSG_SAVE_GUILD_EMBLEM                            = 0xBADD, // 5.4.1 17538
-    SMSG_TABARDVENDOR_ACTIVATE                        = 0xBADD, // 5.4.1 17538
     SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0xBADD, // 5.4.1 17538
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0xBADD, // 5.4.1 17538
     SMSG_CORPSE_QUERY                                 = 0xBADD, // 5.4.1 17538
