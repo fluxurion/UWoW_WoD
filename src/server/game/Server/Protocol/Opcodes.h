@@ -1524,6 +1524,7 @@ enum OpcodeServer : uint32
 
     //UWOW
     SMSG_TABARDVENDOR_ACTIVATE                        = 0x1389,
+    SMSG_TRAINER_SERVICE                              = 0x1BD2, //Trinity use as SMSG_TRAINER_BUY_FAILED
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1619,7 +1620,6 @@ enum OpcodeServer : uint32
     SMSG_SURVEY_CAST                                  = 0xBADD, // 5.4.1 17538
     SMSG_SUSPEND_TOKEN_RESPONSE                       = 0xBADD, // 5.4.1 17538
     SMSG_TITLE_REMOVED                                = 0xBADD, // 5.4.1 17538
-    SMSG_TRAINER_SERVICE                              = 0xBADD, // 5.4.1 17538
     SMSG_UPDATE_ACCOUNT_DATA_COMPLETE                 = 0xBADD,  // 5.0.5 16048
     SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0xBADD,  // 5.0.5 16048
     SMSG_WORLD_STATE_TIMER_START_INIT                 = 0xBADD, // 5.4.1 17538
