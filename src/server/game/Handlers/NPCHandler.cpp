@@ -38,6 +38,7 @@
 #include "SpellInfo.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "NPCPackets.h"
 
 enum StableResultCode
 {
@@ -109,8 +110,7 @@ void WorldSession::SendShowBank(ObjectGuid guid)
 void WorldSession::HandleTrainerListOpcode(WorldPacket & recvData)
 {
     ObjectGuid guid;
-    //recvData.ReadGuidMask<7, 0, 6, 3, 1, 5, 4, 2>(guid);
-    //recvData.ReadGuidBytes<5, 0, 1, 4, 6, 7, 3, 2>(guid);
+    recvData >> guid.ReadAsPacked();
 
     SendTrainerList(guid);
 }
@@ -156,13 +156,16 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
         return;
     }
 
-    ByteBuffer buff;
-    WorldPacket data(SMSG_TRAINER_LIST, 8+4+4+trainer_spells->spellList.size()*38 + strTitle.size()+1);
+    WorldPackets::NPC::TrainerList packet;
+    packet.TrainerGUID = guid;
+    packet.TrainerType = trainer_spells->trainerType;
+    packet.Greeting = strTitle;
 
     // reputation discount
     float fDiscountMod = _player->GetReputationPriceDiscount(unit);
     bool can_learn_primary_prof = GetPlayer()->GetFreePrimaryProfessionPoints() > 0;
 
+    packet.Spells.resize(trainer_spells->spellList.size());
     uint32 count = 0;
     for (TrainerSpellMap::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
     {
@@ -186,28 +189,6 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
         if (!valid)
             continue;
 
-        TrainerSpellState state = _player->GetTrainerSpellState(tSpell);
-
-        uint32 reqSpell = 0;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if (!tSpell->learnedSpell[i])
-                continue;
-            if (uint32 prevSpellId = sSpellMgr->GetPrevSpellInChain(tSpell->learnedSpell[i]))
-            {
-                reqSpell = prevSpellId;
-                break;
-            }
-            SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(tSpell->learnedSpell[i]);
-            for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second; ++itr2)
-            {
-                reqSpell = itr2->second;
-                break;
-            }
-
-            if (reqSpell)
-                break;
-        }
         if(SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(tSpell->spell))
         {
             if(spellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && GetPlayer()->GetTeam() != HORDE)
@@ -216,36 +197,45 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
                 continue;
         }
 
-        buff << uint32(tSpell->spell);                      // learned spell (or cast-spell in profession case)
-        buff << uint32(reqSpell);
-        buff << uint32(/*primary_prof_first_rank && can_learn_primary_prof ? 1 : 0*/0);
-        // primary prof. learn confirmation dialog
-        buff << uint32(/*primary_prof_first_rank ? 1 : 0*/ 0);    // must be equal prev. field to have learn button in enabled state
-        buff << uint8(state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
-        buff << uint8(tSpell->reqLevel);
-        buff << uint32(tSpell->reqSkillValue);
-        buff << uint32(floor(tSpell->spellCost * fDiscountMod));
-        buff << uint32(tSpell->reqSkill);
+        TrainerSpellState state = _player->GetTrainerSpellState(tSpell);
+
+        WorldPackets::NPC::TrainerListSpell& spell = packet.Spells[count];
+        spell.SpellID = tSpell->spell;
+        spell.MoneyCost = floor(tSpell->spellCost * fDiscountMod);
+        spell.ReqSkillLine = tSpell->reqSkill;
+        spell.ReqSkillRank = tSpell->reqSkillValue;
+        spell.ReqLevel = tSpell->reqLevel;
+        spell.Usable = (state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
+
+        uint8 maxReq = 0;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (!tSpell->learnedSpell[i])
+                continue;
+
+            if (maxReq > MAX_TRAINERSPELL_ABILITY_REQS)
+                break;
+
+            if (uint32 prevSpellId = sSpellMgr->GetPrevSpellInChain(tSpell->learnedSpell[i]))
+            {
+                spell.ReqAbility[maxReq++] = prevSpellId;
+                continue;
+            }
+            SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(tSpell->learnedSpell[i]);
+            for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second; ++itr2)
+            {
+                spell.ReqAbility[maxReq++] = itr2->second;
+                continue;
+            }
+        }
 
         ++count;
     }
 
-    //data.WriteGuidMask<4, 0>(guid);
-    data.WriteBits(count, 19);
-    //data.WriteGuidMask<3, 7>(guid);
-    data.WriteBits(strTitle.size(), 11);
-    //data.WriteGuidMask<5, 6, 2, 1>(guid);
-    data.FlushBits();
-    if (!buff.empty())
-        data.append(buff);
+    // Shrink to actual data size
+    packet.Spells.resize(count);
 
-    //data.WriteGuidBytes<4, 3, 2, 5, 1, 6>(guid);
-    data << uint32(trainer_spells->trainerType);
-    data.WriteString(strTitle);
-    data << uint32(1); // different value for each trainer, also found in CMSG_TRAINER_BUY_SPELL
-    //data.WriteGuidBytes<7, 0>(guid);
-
-    SendPacket(&data);
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)

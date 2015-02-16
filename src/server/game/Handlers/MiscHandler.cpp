@@ -2100,7 +2100,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recv_data)
     Battleground* bg = _player->GetBattleground();
 
     ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
+    recv_data >> guid.ReadAsPacked();
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
@@ -2123,7 +2123,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recv_data)
     Battleground* bg = _player->GetBattleground();
 
     ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
+    recv_data >> guid.ReadAsPacked();
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
