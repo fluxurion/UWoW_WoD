@@ -81,8 +81,7 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
 void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    //recvData.ReadGuidMask<1, 4, 2, 7, 5, 0, 3, 6>(guid);
-    //recvData.ReadGuidBytes<4, 2, 5, 7, 0, 6, 3, 1>(guid);
+    recvData >> guid.ReadAsPacked();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
 
@@ -103,8 +102,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 void WorldSession::SendShowBank(ObjectGuid guid)
 {
     WorldPacket data(SMSG_SHOW_BANK, 8 + 1);
-    //data.WriteGuidMask<6, 0, 4, 3, 2, 1, 7, 5>(guid);
-    //data.WriteGuidBytes<7, 2, 0, 1, 6, 5, 3, 4>(guid);
+    data << guid;
     SendPacket(&data);
 }
 

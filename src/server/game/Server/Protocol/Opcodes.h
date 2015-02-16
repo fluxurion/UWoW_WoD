@@ -1380,7 +1380,7 @@ enum OpcodeServer : uint32
     SMSG_SET_TIME_ZONE_INFORMATION                    = 0x153E,
     SMSG_SET_VIGNETTE                                 = 0x09AC,
     SMSG_SHOWTAXINODES                                = 0x12A1,
-    SMSG_SHOW_BANK                                    = 0x0204,
+    SMSG_SHOW_BANK                                    = 0x1B51,
     SMSG_SHOW_MAILBOX                                 = 0xBADD,
     SMSG_SHOW_RATINGS                                 = 0xBADD,
     SMSG_SOCKET_GEMS_RESULT                           = 0xBADD,
