@@ -950,7 +950,8 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
 
     // This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
 
-    uint32 count = recvPacket.ReadBits(24);
+    uint32 count = 0;
+    recvPacket >> count;
 
     if (count > REGISTERED_ADDON_PREFIX_SOFTCAP)
     {
@@ -962,10 +963,10 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
 
     std::vector<uint8> lengths(count);
     for (uint32 i = 0; i < count; ++i)
+    {
         lengths[i] = recvPacket.ReadBits(5);
-
-    for (uint32 i = 0; i < count; ++i)
         _registeredAddonPrefixes.push_back(recvPacket.ReadString(lengths[i]));
+    }
 
     if (_registeredAddonPrefixes.size() > REGISTERED_ADDON_PREFIX_SOFTCAP) // shouldn't happen
     {
