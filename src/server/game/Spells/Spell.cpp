@@ -7915,14 +7915,10 @@ void Spell::Delayed() // only called in DealDamage()
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "Spell %u partially interrupted for (%d) ms at damage", m_spellInfo->Id, delaytime);
 
-    ObjectGuid guid = m_caster->GetGUID();
-
-    //! 5.4.1
+    //! 6.0.3
     WorldPacket data(SMSG_SPELL_DELAYED, 8+4);
+    data << m_caster->GetGUID();
     data << uint32(delaytime);
-    //data.WriteGuidMask<3, 2, 5, 4, 0, 7, 1, 6>(guid);
-    //data.WriteGuidBytes<1, 5, 0, 2, 4, 6, 3, 7>(guid);
-
     m_caster->SendMessageToSet(&data, true);
 }
 
