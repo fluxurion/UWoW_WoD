@@ -5222,13 +5222,10 @@ void Spell::SendChannelUpdate(uint32 time)
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
     }
 
-    //! 5.4.1
+    //! 6.3.0
     WorldPacket data(SMSG_CHANNEL_UPDATE, 8+4);
-    ObjectGuid guid = m_caster->GetGUID();
-    //data.WriteGuidMask<7, 1, 2, 6, 4, 3, 0, 5>(guid);
+    data << m_caster->GetPackGUID();
     data << uint32(time);
-    //data.WriteGuidBytes<5, 7, 2, 0, 4, 1, 6, 3>(guid);
-
     m_caster->SendMessageToSet(&data, true);
 }
 
