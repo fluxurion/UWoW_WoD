@@ -4967,90 +4967,80 @@ void Spell::SendSpellGo()
 
 void Spell::SendLogExecute()
 {
-    ObjectGuid casterGuid = m_caster->GetGUID();
+    //! 6.0.3
+    WorldPacket data(SMSG_SPELLLOGEXECUTE);
+    data << m_caster->GetGUID();
 
-    WorldPacket data(SMSG_SPELLLOGEXECUTE, 8 + 4 + 4 + 4 + 4 + 8);
-    //data.WriteGuidMask<7, 0, 6, 3, 1, 5>(casterGuid);
+    data << uint32(m_spellInfo->Id);
 
     uint32 effectCount = 0;
-    uint32 bitpos = data.bitwpos();
-    data.WriteBits(effectCount, 19);
+    size_t wPos = data.wpos();
+    data << uint32(effectCount);
 
-    ByteBuffer buff;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (!m_effectExecuteData[i])
             continue;
 
         uint32 effect = m_spellInfo->GetEffect(i, m_diffMode).Effect;
+        data << uint32(effect);             // spell effect
 
         switch (effect)
         {
             case SPELL_EFFECT_POWER_DRAIN:
             case SPELL_EFFECT_POWER_BURN:
             {
-                data.WriteBits(0, 24);      // generic count
-                data.WriteBits(0, 22);      // trade count
-                data.WriteBit(0);           // no power data
-                data.WriteBits(0, 22);      // feed count
-                data.WriteBits(0, 21);      // extra count
-                data.WriteBits(0, 21);      // durability count
                 uint32 count = m_effectExecuteData[i]->guids.size();
-                data.WriteBits(count, 20);  // power count
+
+                data << uint32(count);      // PowerDrainTargetsCount
+                data << uint32(0);          // ExtraAttacksTargetsCount
+                data << uint32(0);          // DurabilityDamageTargetsCount
+                data << uint32(0);          // GenericVictimTargetsCount
+                data << uint32(0);          // TradeSkillTargetsCount
+                data << uint32(0);          // FeedPetTargetsCount
+
                 for (uint32 j = 0; j < count; ++j)
                 {
-                    //data.WriteGuidMask<0, 7, 5, 2, 3, 6, 1, 4>(m_effectExecuteData[i]->guids[j]);
-
-                    //buff.WriteGuidBytes<3, 0, 7, 1>(m_effectExecuteData[i]->guids[j]);
-                    buff << uint32(m_effectExecuteData[i]->param2[j]);
-                    buff << float(m_effectExecuteData[i]->floatParam[j]);
-                    //buff.WriteGuidBytes<6, 5>(m_effectExecuteData[i]->guids[j]);
-                    buff << uint32(m_effectExecuteData[i]->param1[j]);
-                    //buff.WriteGuidBytes<4, 2>(m_effectExecuteData[i]->guids[j]);
+                    data << m_effectExecuteData[i]->guids[j];
+                    data << uint32(m_effectExecuteData[i]->param1[j]);
+                    data << uint32(m_effectExecuteData[i]->param2[j]);
+                    data << float(m_effectExecuteData[i]->floatParam[j]);
                 }
                 break;
             }
             case SPELL_EFFECT_ADD_EXTRA_ATTACKS:
             {
-                data.WriteBits(0, 24);      // generic count
-                data.WriteBits(0, 22);      // trade count
-                data.WriteBit(0);           // no power data
-                data.WriteBits(0, 22);      // feed count
                 uint32 count = m_effectExecuteData[i]->guids.size();
-                data.WriteBits(count, 21);  // extra count
+                data << uint32(0);          // PowerDrainTargetsCount
+                data << uint32(count);      // ExtraAttacksTargetsCount
+                data << uint32(0);          // DurabilityDamageTargetsCount
+                data << uint32(0);          // GenericVictimTargetsCount
+                data << uint32(0);          // TradeSkillTargetsCount
+                data << uint32(0);          // FeedPetTargetsCount
+
                 for (uint32 j = 0; j < count; ++j)
                 {
-                    //data.WriteGuidMask<7, 3, 4, 5, 1, 0, 2, 6>(m_effectExecuteData[i]->guids[j]);
-
-                    //buff.WriteGuidBytes<3, 2, 4>(m_effectExecuteData[i]->guids[j]);
-                    buff << uint32(m_effectExecuteData[i]->param1[j]);
-                    //buff.WriteGuidBytes<6, 0, 7, 5, 1>(m_effectExecuteData[i]->guids[j]);
+                    data << m_effectExecuteData[i]->guids[j];
+                    data << uint32(m_effectExecuteData[i]->param1[j]);
                 }
-                data.WriteBits(0, 21);      // durability count
-                data.WriteBits(0, 20);      // power count
-
                 break;
             }
             case SPELL_EFFECT_DURABILITY_DAMAGE:
             {
-                data.WriteBits(0, 24);      // generic count
-                data.WriteBits(0, 22);      // trade count
-                data.WriteBit(0);           // no power data
-                data.WriteBits(0, 22);      // feed count
-                data.WriteBits(0, 21);      // extra count
                 uint32 count = m_effectExecuteData[i]->guids.size();
-                data.WriteBits(count, 21);  // durability count
+
+                data << uint32(0);          // PowerDrainTargetsCount
+                data << uint32(0);          // ExtraAttacksTargetsCount
+                data << uint32(count);      // DurabilityDamageTargetsCount
+                data << uint32(0);          // GenericVictimTargetsCount
+                data << uint32(0);          // TradeSkillTargetsCount
+                data << uint32(0);          // FeedPetTargetsCount
                 for (uint32 j = 0; j < count; ++j)
                 {
-                    //data.WriteGuidMask<5, 0, 7, 6, 1, 3, 2, 4>(m_effectExecuteData[i]->guids[j]);
-
-                    //buff.WriteGuidBytes<6>(m_effectExecuteData[i]->guids[j]);
-                    buff << uint32(m_effectExecuteData[i]->param2[j]);
-                    //buff.WriteGuidBytes<4, 5>(m_effectExecuteData[i]->guids[j]);
-                    buff << uint32(m_effectExecuteData[i]->param1[j]);
-                    //buff.WriteGuidBytes<2, 1, 3, 0, 7>(m_effectExecuteData[i]->guids[j]);
+                    data << m_effectExecuteData[i]->guids[j];
+                    data << uint32(m_effectExecuteData[i]->param2[j]);
+                    data << uint32(m_effectExecuteData[i]->param1[j]);
                 }
-                data.WriteBits(0, 20);      // power count
                 break;
             }
             case SPELL_EFFECT_RESURRECT:
@@ -5068,19 +5058,15 @@ void Spell::SendLogExecute()
             case SPELL_EFFECT_RESURRECT_NEW:
             {
                 uint32 count = m_effectExecuteData[i]->guids.size();
-                data.WriteBits(count, 24);  // generic count
-                for (uint32 j = 0; j < count; ++j)
-                {
-                    //data.WriteGuidMask<3, 4, 5, 7, 0, 2, 6, 1>(m_effectExecuteData[i]->guids[j]);
+                data << uint32(0);          // PowerDrainTargetsCount
+                data << uint32(0);          // ExtraAttacksTargetsCount
+                data << uint32(0);          // DurabilityDamageTargetsCount
+                data << uint32(count);      // GenericVictimTargetsCount
+                data << uint32(0);          // TradeSkillTargetsCount
+                data << uint32(0);          // FeedPetTargetsCount
 
-                    //buff.WriteGuidBytes<3, 5, 1, 0, 4, 7, 6, 2>(m_effectExecuteData[i]->guids[j]);
-                }
-                data.WriteBits(0, 22);      // trade count
-                data.WriteBit(0);           // no power data
-                data.WriteBits(0, 22);      // feed count
-                data.WriteBits(0, 21);      // extra count
-                data.WriteBits(0, 21);      // durability count
-                data.WriteBits(0, 20);      // power count
+                for (uint32 j = 0; j < count; ++j)
+                    data << m_effectExecuteData[i]->guids[j];
                 break;
             }
             case SPELL_EFFECT_CREATE_ITEM:
@@ -5088,32 +5074,30 @@ void Spell::SendLogExecute()
             case SPELL_EFFECT_CREATE_ITEM_2:
             case SPELL_EFFECT_LOOT_BONUS:
             {
-                data.WriteBits(0, 24);      // generic count
                 uint32 count = m_effectExecuteData[i]->param1.size();
-                data.WriteBits(count, 22);  // trade count
-                data.WriteBit(0);           // no power data
-                data.WriteBits(0, 22);      // feed count
-                data.WriteBits(0, 21);      // extra count
-                data.WriteBits(0, 21);      // durability count
-                data.WriteBits(0, 20);      // power count
+                data << uint32(0);          // PowerDrainTargetsCount
+                data << uint32(0);          // ExtraAttacksTargetsCount
+                data << uint32(0);          // DurabilityDamageTargetsCount
+                data << uint32(0);          // GenericVictimTargetsCount
+                data << uint32(count);      // TradeSkillTargetsCount
+                data << uint32(0);          // FeedPetTargetsCount
 
                 for (uint32 j = 0; j < count; ++j)
-                    buff << uint32(m_effectExecuteData[i]->param1[j]);
+                    data << uint32(m_effectExecuteData[i]->param1[j]);
                 break;
             }
             case SPELL_EFFECT_FEED_PET:
             {
-                data.WriteBits(0, 24);      // generic count
-                data.WriteBits(0, 22);      // trade count
-                data.WriteBit(0);           // no power data
                 uint32 count = m_effectExecuteData[i]->param1.size();
-                data.WriteBits(count, 22);  // feed count
-                data.WriteBits(0, 21);      // extra count
-                data.WriteBits(0, 21);      // durability count
-                data.WriteBits(0, 20);      // power count
+                data << uint32(0);          // PowerDrainTargetsCount
+                data << uint32(0);          // ExtraAttacksTargetsCount
+                data << uint32(0);          // DurabilityDamageTargetsCount
+                data << uint32(0);          // GenericVictimTargetsCount
+                data << uint32(0);          // TradeSkillTargetsCount
+                data << uint32(count);      // FeedPetTargetsCount
 
                 for (uint32 j = 0; j < count; ++j)
-                    buff << uint32(m_effectExecuteData[i]->param1[j]);
+                    data << uint32(m_effectExecuteData[i]->param1[j]);
                 break;
             }
             default:
@@ -5126,25 +5110,13 @@ void Spell::SendLogExecute()
         }
 
         ++effectCount;
-        buff << uint32(effect);             // spell effect
 
         delete m_effectExecuteData[i];
         m_effectExecuteData[i] = NULL;
     }
 
-    //data.WriteGuidMask<2, 4>(casterGuid);
-
-    if (!buff.empty())
-    {
-        data.FlushBits();
-        data.append(buff);
-    }
-
-    //data.WriteGuidBytes<4, 6, 0>(casterGuid);
-    data << uint32(m_spellInfo->Id);
-    //data.WriteGuidBytes<2, 5, 1, 3, 7>(casterGuid);
-
-    data.PutBits<uint32>(bitpos, effectCount, 19);
+    data.put<uint32>(wPos, effectCount);
+    data.WriteBit(0);   ///HasLogData
 
     m_caster->SendMessageToSet(&data, true);
 }
