@@ -49,6 +49,7 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
         error = ERR_REFER_A_FRIEND_NOT_IN_GROUP;
 
     if (error) {
+        //603
         WorldPacket data(SMSG_REFER_A_FRIEND_FAILURE, 24);
         data << uint32(error);
         if (error == ERR_REFER_A_FRIEND_NOT_IN_GROUP)
@@ -58,6 +59,7 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
         return;
     }
 
+    //603
     WorldPacket data2(SMSG_PROPOSE_LEVEL_GRANT, 8);
     data2 << _player->GetPackGUID();
     target->GetSession()->SendPacket(&data2);
@@ -68,8 +70,7 @@ void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ACCEPT_LEVEL_GRANT");
 
     ObjectGuid guid;
-    //recvData.ReadGuidMask<0, 6, 5, 1, 4, 7, 2, 3>(guid);
-    //recvData.ReadGuidBytes<4, 2, 3, 0, 6, 1, 7, 5>(guid);
+    recvData >> guid.ReadAsPacked();
 
     Player* other = ObjectAccessor::GetObjectInWorld(guid, _player);
     if (!(other && other->GetSession()))

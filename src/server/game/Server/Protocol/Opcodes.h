@@ -46,7 +46,7 @@ enum OpcodeMisc : uint32
 // CMSGs 6.0.3.19116
 enum OpcodeClient : uint32
 {
-    CMSG_ACCEPT_LEVEL_GRANT                           = 0xBADD,
+    CMSG_ACCEPT_LEVEL_GRANT                           = 0x0B12,
     CMSG_ACCEPT_TRADE                                 = 0xBADD,
     CMSG_ACTIVATETAXI                                 = 0x0311,
     CMSG_ACTIVATETAXIEXPRESS                          = 0x1B52,
@@ -245,7 +245,7 @@ enum OpcodeClient : uint32
     CMSG_GM_SET_SECURITY_GROUP                        = 0xBADD,
     CMSG_GOSSIP_HELLO                                 = 0x00F3,
     CMSG_GOSSIP_SELECT_OPTION                         = 0x0332,
-    CMSG_GRANT_LEVEL                                  = 0xBADD,
+    CMSG_GRANT_LEVEL                                  = 0x0BE3,
     CMSG_GROUP_ASSISTANT_LEADER                       = 0xBADD,
     CMSG_GROUP_CANCEL                                 = 0xBADD,
     CMSG_GROUP_CHANGE_SUB_GROUP                       = 0xBADD,
@@ -1282,7 +1282,7 @@ enum OpcodeServer : uint32
     SMSG_POWER_UPDATE                                 = 0x0B27,
     SMSG_PRE_RESURRECT                                = 0xBADD,
     SMSG_PROCRESIST                                   = 0xBADD,
-    SMSG_PROPOSE_LEVEL_GRANT                          = 0xBADD,
+    SMSG_PROPOSE_LEVEL_GRANT                          = 0x1B8C,
     SMSG_PUREMOUNT_CANCELLED_OBSOLETE                 = 0xBADD,
     SMSG_PVP_CREDIT                                   = 0xBADD,
     SMSG_PVP_LOG_DATA                                 = 0x1ECA,
@@ -1327,7 +1327,7 @@ enum OpcodeServer : uint32
     SMSG_RECEIVED_MAIL                                = 0xBADD,
     SMSG_REDIRECT_CLIENT                              = 0x175A,
     SMSG_REFER_A_FRIEND_EXPIRED                       = 0xBADD,
-    SMSG_REFER_A_FRIEND_FAILURE                       = 0xBADD,
+    SMSG_REFER_A_FRIEND_FAILURE                       = 0x0931,
     SMSG_REFORGE_RESULT                               = 0xBADD,
     SMSG_REFRESH_SPELL_HISTORY                        = 0x0A2A,
     SMSG_REPORT_PVP_AFK_RESULT                        = 0xBADD,

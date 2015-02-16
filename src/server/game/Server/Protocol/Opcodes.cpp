@@ -125,7 +125,7 @@ void OpcodeTable::Initialize()
 
     //------------                      C M S G                  ------------//
 
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_ACCEPT_LEVEL_GRANT,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptGrantLevel          );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_ACCEPT_LEVEL_GRANT,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptGrantLevel          );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ACCEPT_TRADE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptTradeOpcode         );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ACTIVATETAXI,                            STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleActivateTaxiOpcode        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ACTIVATETAXIEXPRESS,                     STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleActivateTaxiExpressOpcode );
@@ -277,7 +277,7 @@ void OpcodeTable::Initialize()
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_GM_REPORT_LAG,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReportLag                 );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GOSSIP_HELLO,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGossipHelloOpcode         );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GOSSIP_SELECT_OPTION,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGossipSelectOptionOpcode  );
-    //DEFINE_OPCODE_HANDLER_OLD(CMSG_GRANT_LEVEL,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGrantLevel                );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_GRANT_LEVEL,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGrantLevel                );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GROUP_ASSISTANT_LEADER,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupAssistantLeaderOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GROUP_CHANGE_SUB_GROUP,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupChangeSubGroupOpcode );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GROUP_DISBAND,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupDisbandOpcode        );
@@ -1172,7 +1172,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_POWER_UPDATE,                            STATUS_NEVER);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_PRE_RESURRECT,                           STATUS_NEVER);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_PROCRESIST,                              STATUS_NEVER);
-    //DEFINE_SERVER_OPCODE_HANDLER(SMSG_PROPOSE_LEVEL_GRANT,                     STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PROPOSE_LEVEL_GRANT,                     STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PURCHASE_STORE_PRODUCTS_UPDATED,         STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PURCHASE_STORE_PURCHASE_LIST_UPDATED,    STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PVP_CREDIT,                              STATUS_NEVER);
@@ -1221,7 +1221,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RECEIVED_MAIL,                           STATUS_NEVER);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_REDIRECT_CLIENT,                         STATUS_UNHANDLED);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_REFER_A_FRIEND_EXPIRED,                  STATUS_UNHANDLED);
-    //DEFINE_SERVER_OPCODE_HANDLER(SMSG_REFER_A_FRIEND_FAILURE,                  STATUS_UNHANDLED);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_REFER_A_FRIEND_FAILURE,                  STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REFORGE_RESULT,                          STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_UNLEARNED_SPELLS,                        STATUS_NEVER);//603
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_REPORT_PVP_AFK_RESULT,                   STATUS_UNHANDLED);
