@@ -675,6 +675,7 @@ enum OpcodeClient : uint32
 
     //UWOW
     CMSG_TABARDVENDOR_ACTIVATE                        = 0x08EE,
+    CMSG_LIST_STABLED_PETS                            = 0x059D, // CMSG_REQUEST_STABLED_PETS on trinity
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
@@ -727,7 +728,6 @@ enum OpcodeClient : uint32
     CMSG_BATTLE_PET_SET_DATA                          = 0xBADD, // 5.4.1 17538 maybe only favorite flag???
     CMSG_BATTLE_PET_RENAME                            = 0xBADD, // 5.4.1 17538
     CMSG_BATTLE_PET_PUT_IN_CAGE                       = 0xBADD, // 5.4.1 17538
-    CMSG_LIST_STABLED_PETS                            = 0xBADD, // 5.4.1 17538
     CMSG_DUEL_RESPONSE                                = 0x1BD2, // 5.4.1 17538
     CMSG_QUEST_PUSH_RESULT                            = 0x06C4, // 5.4.1 17538
     CMSG_SAVE_GUILD_EMBLEM                            = 0xBADD, // 5.4.1 17538
@@ -1435,7 +1435,7 @@ enum OpcodeServer : uint32
     SMSG_SPLINE_MOVE_UNSET_FLYING                     = 0x09D9,
     SMSG_SPLINE_MOVE_UNSET_HOVER                      = 0x1959,
     SMSG_SPLINE_MOVE_WATER_WALK                       = 0xBADD,
-    SMSG_STABLE_RESULT                                = 0xBADD,
+    SMSG_STABLE_RESULT                                = 0x1383,
     SMSG_STANDSTATE_UPDATE                            = 0x1311,
     SMSG_START_ELAPSED_TIMERS                         = 0x093F,
     SMSG_START_MIRROR_TIMER                           = 0xBADD,
@@ -1525,13 +1525,13 @@ enum OpcodeServer : uint32
     //UWOW
     SMSG_TABARDVENDOR_ACTIVATE                        = 0x1389,
     SMSG_TRAINER_SERVICE                              = 0x1BD2, //Trinity use as SMSG_TRAINER_BUY_FAILED
+    SMSG_LIST_STABLED_PETS                            = 0x0B1F, //Trinity use as SMSG_PET_STABLE_LIST
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
     SMSG_CHALLENGE_MODE_COMPLETION_INFO               = 0xBADD, // 5.4.1 17538
     SMSG_CHALLENGE_MODE_REWARD_INFO                   = 0xBADD, // 5.4.1 17538
     SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT        = 0xBADD, // 5.4.1 17538
-    SMSG_LIST_STABLED_PETS                            = 0xBADD, // 5.4.1 17538
     SMSG_PETITION_RENAME                              = 0xBADD, // 5.4.1 17538
     SMSG_QUEST_PUSH_RESULT                            = 0xBADD, // 5.4.1 17538
     SMSG_RANDOM_ROLL                                  = 0xBADD, // 5.4.1 17538

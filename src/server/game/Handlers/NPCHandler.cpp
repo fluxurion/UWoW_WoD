@@ -464,8 +464,7 @@ void WorldSession::SendSpiritResurrect()
 void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
 {
     ObjectGuid npcGUID;
-    //recvData.ReadGuidMask<3, 5, 4, 7, 0, 6, 2, 1>(npcGUID);
-    //recvData.ReadGuidBytes<3, 2, 6, 5, 1, 7, 0, 4>(npcGUID);
+    recvData >> npcGUID;
 
     if (!GetPlayer()->IsInWorld() || !GetPlayer()->isAlive())
         return;
@@ -530,8 +529,7 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_LIST_STABLED_PETS");
 
     ObjectGuid npcGUID;
-    //recvData.ReadGuidMask<1, 3, 4, 2, 0, 5, 7, 6>(npcGUID);
-    //recvData.ReadGuidBytes<0, 6, 1, 2, 5, 3, 7, 4>(npcGUID);
+    recvData >> npcGUID;
 
     if (!CheckStableMaster(npcGUID))
     {
@@ -565,15 +563,15 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
     if (!GetPlayer())
         return;
 
-
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Send SMSG_LIST_STABLED_PETS.");
 
-    ByteBuffer buf;
+    uint32 num = 0;
     WorldPacket data(SMSG_LIST_STABLED_PETS, 200);
+    data << guid;
 
-    uint8 num = 0;
+    size_t writePos = data.wpos();
+    data << num;
 
-    std::vector<uint32> nameLen;
     std::set<uint32> stableNumber;
     if (result)
     {
@@ -595,30 +593,23 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
             if (petSlot >= PET_SLOT_HUNTER_FIRST &&  petSlot < PET_SLOT_STABLE_LAST)
             {
                 std::string name = fields[3].GetString();
-                buf.WriteString(name);
-                nameLen.push_back(name.size());
-                buf << uint8(petSlot < PET_SLOT_STABLE_FIRST ? 1 : 3);     // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
-                buf << uint32(petNumber);          // petnumber
-                buf << uint32(fields[4].GetUInt32());          // model id
-                buf << uint32(fields[2].GetUInt16());          // level
-                buf << uint32(fields[1].GetUInt32());          // creature entry
-                buf << uint32(petSlot);                        // 4.x petSlot
+                data << uint32(petSlot);                        // 4.x petSlot
+                data << uint32(petNumber);                      // petnumber
+                data << uint32(fields[1].GetUInt32());          // creature entry
+                data << uint32(fields[4].GetUInt32());          // model id
+                data << uint32(fields[2].GetUInt16());          // level
+                data << uint8(petSlot < PET_SLOT_STABLE_FIRST ? 1 : 3);     // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
+
+                data << uint8(name.size());
+                data.WriteString(name);              
+                
 
                 ++num;
             }
         }
         while (result->NextRow());
     }
-
-    data.WriteBits(num, 19);
-    for (uint32 i = 0; i < num; ++i)
-        data.WriteBits(nameLen[i], 8);
-    //data.WriteGuidMask<2, 5, 6, 7, 3, 0, 4, 1>(guid);
-    data.FlushBits();
-    //data.WriteGuidBytes<0>(guid);
-    if (!buf.empty())
-        data.append(buf);
-    //data.WriteGuidBytes<6, 2, 7, 3, 4, 5, 1>(guid);
+    data.put<uint32>(writePos, num);
 
     //send only for hunter
     if (GetPlayer()->getClass() == CLASS_HUNTER)
