@@ -251,8 +251,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recvData)
 {
     ObjectGuid guid;
-    //recvData.ReadGuidMask<6, 2, 0, 5, 7, 4, 1, 3>(guid);
-    //recvData.ReadGuidBytes<4, 1, 5, 2, 3, 7, 6, 0>(guid);
+    recvData >> guid;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJ_USE Message [guid=%u]", guid.GetCounter());
 
@@ -267,8 +266,7 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recvData)
 void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
-    //recvPacket.ReadGuidMask<7, 0, 1, 3, 6, 2, 5, 4>(guid);
-    //recvPacket.ReadGuidBytes<0, 2, 7, 5, 6, 4, 1, 3>(guid);
+    recvPacket >> guid;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [in game guid: %u]", guid.GetCounter());
 
