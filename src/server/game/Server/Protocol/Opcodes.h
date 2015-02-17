@@ -557,7 +557,7 @@ enum OpcodeClient : uint32
     CMSG_SET_GUILD_BANK_TEXT                          = 0xBADD,
     CMSG_SET_LFG_COMMENT                              = 0xBADD,
     CMSG_SET_LOOT_SPECIALIZATION                      = 0x0226,
-    CMSG_SET_PET_SLOT                                 = 0xBADD,
+    CMSG_SET_PET_SLOT                                 = 0x0BFD,
     CMSG_SET_PLAYER_DECLINED_NAMES                    = 0xBADD,
     CMSG_SET_PREFERED_CEMETERY                        = 0xBADD,
     CMSG_SET_RAID_DIFFICULTY                          = 0xBADD,

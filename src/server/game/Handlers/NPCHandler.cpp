@@ -641,7 +641,6 @@ void WorldSession::SendStableResult(uint8 res)
     SendPacket(&data);
 }
 
-//! 5.4.1
 void WorldSession::HandleStableChangeSlot(WorldPacket & recv_data)
 {
     time_t now = time(NULL);
@@ -659,10 +658,7 @@ void WorldSession::HandleStableChangeSlot(WorldPacket & recv_data)
     ObjectGuid npcGUID;
     uint8 new_slot;
 
-    recv_data >> pet_number >> new_slot;
-
-    ////recv_data.ReadGuidMask<4, 1, 5, 3, 0, 6, 7, 2>(npcGUID);
-    ////recv_data.ReadGuidBytes<5, 1, 4, 6, 3, 7, 2, 0>(npcGUID);
+    recv_data >> pet_number >> new_slot >> npcGUID;
 
     if (!CheckStableMaster(npcGUID))
     {
