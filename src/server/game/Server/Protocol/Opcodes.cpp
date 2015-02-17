@@ -206,22 +206,22 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CHALLENGE_MODE_REQUEST_LEADERS,          STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleChallengeModeRequestOpcode);
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANGEPLAYER_DIFFICULTY,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE,      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChangeSeatsOnControlledVehicle);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_ANNOUNCEMENTS,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelAnnouncements      );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_BAN,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelBan                );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_DISPLAY_LIST,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelDisplayListQuery   );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_ANNOUNCEMENTS,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelAnnouncements      );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_BAN,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelBan                );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_DISPLAY_LIST,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelDisplayListQuery   );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_INVITE,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelInvite             );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_KICK,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelKick               );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_LIST,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelList               );
-    //DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_MODERATOR,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelModerator          );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_MUTE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelMute               );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_OWNER,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelOwner              );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_PASSWORD,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelPassword           );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_SET_OWNER,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelSetOwner           );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_KICK,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelKick               );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_LIST,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelList               );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_MODERATOR,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelModerator          );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_MUTE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelMute               );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_OWNER,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelOwner              );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_PASSWORD,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelPassword           );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_SET_OWNER,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelSetOwner           );//603
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_SILENCE_ALL,                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_SILENCE_VOICE,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_UNBAN,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnban              );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_UNMODERATOR,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnmoderator        );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_UNMUTE,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnmute             );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_UNBAN,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnban              );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_UNMODERATOR,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnmoderator        );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_UNMUTE,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleChannelUnmute             );//603
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_UNSILENCE_ALL,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_UNSILENCE_VOICE,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_CHANNEL_VOICE_OFF,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -342,10 +342,10 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ITEM_REFUND,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleItemRefund                );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ITEM_REFUND_INFO,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleItemRefundInfoRequest     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ITEM_TEXT_QUERY,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleItemTextQuery             );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_JOIN_CHANNEL,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleJoinChannel               );
+    DEFINE_HANDLER(CMSG_JOIN_CHANNEL,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Channel::JoinChannel, &WorldSession::HandleJoinChannel);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_KEEP_ALIVE,                              STATUS_NEVER,     PROCESS_THREADUNSAFE, &WorldSession::Handle_EarlyProccess            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LEARN_TALENTS,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLearnTalents              );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_LEAVE_CHANNEL,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLeaveChannel              );
+    DEFINE_HANDLER(CMSG_LEAVE_CHANNEL,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Channel::LeaveChannel, &WorldSession::HandleLeaveChannel);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LFG_GET_STATUS,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgGetStatus              );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LFG_JOIN,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgJoinOpcode             );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LFG_LEAVE,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgLeaveOpcode            );

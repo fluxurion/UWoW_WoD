@@ -908,8 +908,8 @@ class WorldSession
         void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
         void HandleSummonResponseOpcode(WorldPacket& recvData);
 
-        void HandleJoinChannel(WorldPacket& recvPacket);
-        void HandleLeaveChannel(WorldPacket& recvPacket);
+        void HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet);
+        void HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet);
         void HandleChannelList(WorldPacket& recvPacket);
         void HandleChannelPassword(WorldPacket& recvPacket);
         void HandleChannelSetOwner(WorldPacket& recvPacket);
