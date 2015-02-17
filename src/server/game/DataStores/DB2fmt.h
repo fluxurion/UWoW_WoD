@@ -18,6 +18,7 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
+char const BroadcastTextEntryfmt[] = "nissiiiiiiiii";
 char const HolidaysEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
 const char Itemfmt[] = "niiiiiiii";
 char const ItemAppearanceEntryfmt[]="nii";

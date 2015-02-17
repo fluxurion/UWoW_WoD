@@ -17,6 +17,7 @@
 
 #include "DB2Utility.h"
 #include "ObjectMgr.h"
+#include "GossipDef.h"
 
 inline bool ItemExists(uint32 id)
 {
@@ -31,6 +32,11 @@ bool DB2Utilities::HasItemEntry(DB2Storage<ItemEntry> const& /*store*/, uint32 i
 bool DB2Utilities::HasItemSparseEntry(DB2Storage<ItemSparseEntry> const& /*store*/, uint32 id)
 {
     return ItemExists(id);
+}
+
+bool DB2Utilities::HasBroadcastTextEntry(DB2Storage<BroadcastTextEntry> const& /*store*/, uint32 id)
+{
+    return true;
 }
 
 void DB2Utilities::WriteItemDbReply(DB2Storage<ItemEntry> const& /*store*/, uint32 id, uint32 /*locale*/, ByteBuffer& buffer)
@@ -154,12 +160,8 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
 }
 
 //ToDo
-/*void WorldSession::SendBroadcastTextDb2Reply(uint32 entry)
+void DB2Utilities::WriteBroadcastTextDbReply(DB2Storage<BroadcastTextEntry> const& store, uint32 entry, uint32 locale, ByteBuffer& buff)
 {
-    ByteBuffer buff;
-    WorldPacket data(SMSG_DB_REPLY);
-
-    int loc_idx = GetSessionDbLocaleIndex();
     GossipText const* pGossip = sObjectMgr->GetGossipText(entry);
     uint32 localeEntry = entry;
     if (!pGossip)
@@ -174,21 +176,18 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
         Text_0 = pGossip->Options[0].Text_0;
         Text_1 = pGossip->Options[0].Text_1;
         
-        if (loc_idx >= 0)
+        if (locale >= 0)
         {
             if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(localeEntry))
             {
-                ObjectMgr::GetLocaleString(nl->Text_0[0], loc_idx, Text_0);
-                ObjectMgr::GetLocaleString(nl->Text_1[0], loc_idx, Text_1);
+                ObjectMgr::GetLocaleString(nl->Text_0[0], locale, Text_0);
+                ObjectMgr::GetLocaleString(nl->Text_1[0], locale, Text_1);
             }
         }
     }
     
     uint16 size1 = Text_0.length();
     uint16 size2 = Text_1.length();
-
-    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_REPLY_BROADCAST_TEXT));
-    data << uint32(DB2_REPLY_BROADCAST_TEXT);
 
     buff << uint32(entry);
     buff << uint32(0);
@@ -198,19 +197,13 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
     buff << uint16(size2);
     if (size2)
         buff << std::string(Text_1);
-    buff << uint32(0);
-    buff << uint32(0);
-    buff << uint32(0);
-    buff << uint32(0);
-    buff << uint32(0);
-    buff << uint32(0);
-    buff << uint32(0); // sound Id
-    buff << uint32(pGossip ? pGossip->Options[0].Emotes[0]._Delay : 0); // Delay
     buff << uint32(pGossip ? pGossip->Options[0].Emotes[0]._Emote : 0); // Emote
-
-    data << uint32(buff.size());
-    data.append(buff);
-    data << uint32(entry);
-
-    SendPacket(&data);
-}*/
+    buff << uint32(0);
+    buff << uint32(0);
+    buff << uint32(pGossip ? pGossip->Options[0].Emotes[0]._Delay : 0); // Delay
+    buff << uint32(0);
+    buff << uint32(0);
+    buff << uint32(0); //SoundID
+    buff << uint32(0); //UnkEmoteID
+    buff << uint32(0); //Type Id
+}

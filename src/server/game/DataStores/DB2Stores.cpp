@@ -28,6 +28,7 @@
 
 #include <map>
 
+DB2Storage<BroadcastTextEntry>              sBroadcastTextStore(BroadcastTextEntryfmt, &DB2Utilities::HasBroadcastTextEntry, &DB2Utilities::WriteBroadcastTextDbReply);
 DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryfmt);
 DB2Storage<ItemEntry>                       sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utilities::WriteItemDbReply);
 DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore(ItemAppearanceEntryfmt);
@@ -149,7 +150,8 @@ void LoadDB2Stores(const std::string& dataPath)
 
         sBattlePetSpeciesBySpellId[entry->CreatureEntry] = entry;
     }
-    
+
+    LoadDB2(bad_db2_files, sBroadcastTextStore,        db2Path,    "BroadcastText.db2");//19342
     LoadDB2(bad_db2_files, sHolidaysStore,             db2Path,    "Holidays.db2");
     LoadDB2(bad_db2_files, sItemStore,                 db2Path,    "Item.db2");//19342
     LoadDB2(bad_db2_files, sItemAppearanceStore,       db2Path,    "ItemAppearance.db2");//19342

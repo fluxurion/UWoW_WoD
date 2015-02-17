@@ -27,6 +27,7 @@
 std::list<uint32> GetPackageItemList(uint32 packageEntry);
 std::list<uint32> GetGameObjectsList();
 
+extern DB2Storage<BroadcastTextEntry>           sBroadcastTextStore;
 extern DB2Storage<HolidaysEntry>                sHolidaysStore;
 extern DB2Storage<ItemEntry>                    sItemStore;
 extern DB2Storage<ItemAppearanceEntry>          sItemAppearanceStore;

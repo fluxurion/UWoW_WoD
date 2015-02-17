@@ -40,9 +40,23 @@
 
 // Structures used to access raw DB2 data and required packing to portability
 
+#define MAX_BROADCAST_TEXT_EMOTES 3
 #define MAX_HOLIDAY_DURATIONS 10
 #define MAX_HOLIDAY_DATES 16
 #define MAX_HOLIDAY_FLAGS 10
+
+struct BroadcastTextEntry
+{
+    uint32 ID;
+    int32 Language;
+    LocalizedString* MaleText;
+    LocalizedString* FemaleText;
+    uint32 EmoteID[MAX_BROADCAST_TEXT_EMOTES];
+    uint32 EmoteDelay[MAX_BROADCAST_TEXT_EMOTES];
+    uint32 SoundID;
+    uint32 UnkEmoteID;
+    uint32 Type;
+};
 
 struct HolidaysEntry
 {

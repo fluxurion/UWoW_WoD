@@ -246,17 +246,16 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
     WorldPackets::Query::QueryNPCTextResponse response;
     response.TextID = packet.TextID;
 
-    //ToDo: rewrite store for collecting textId's
-    /*if (gossip)
+    if (gossip)
     {
         for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
-            response.Probabilities[i] = gossip->Options[i].Probability;
-            response.BroadcastTextID[i] = gossip->Options[i].BroadcastTextID;
+            response.Probabilities[i] = i == 0 ? 0x3F800000 : 0/*gossip->Options[i].Probability*/;
+            response.BroadcastTextID[i] = i == 0 ? packet.TextID : 0/*gossip->Options[i].BroadcastTextID*/;
         }
 
         response.Allow = true;
-    }*/
+    }
 
     SendPacket(response.Write());
 
