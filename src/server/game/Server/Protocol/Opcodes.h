@@ -1296,7 +1296,7 @@ enum OpcodeServer : uint32
     SMSG_QUESTGIVER_QUEST_DETAILS                     = 0x15B3,
     SMSG_QUESTGIVER_QUEST_FAILED                      = 0xBADD,
     SMSG_QUESTGIVER_QUEST_INVALID                     = 0xBADD,
-    SMSG_QUESTGIVER_QUEST_LIST                        = 0xBADD,
+    SMSG_QUESTGIVER_QUEST_LIST                        = 0x17A5,
     SMSG_QUESTGIVER_REQUEST_ITEMS                     = 0xBADD,
     SMSG_QUESTGIVER_STATUS                            = 0x1567,
     SMSG_QUESTGIVER_STATUS_MULTIPLE                   = 0x17C6,

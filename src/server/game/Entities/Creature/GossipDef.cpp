@@ -255,20 +255,18 @@ void QuestMenu::ClearMenu()
     _questMenuItems.clear();
 }
 
+//6.0.3
 void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title, ObjectGuid npcGUID)
 {
     WorldPacket data(SMSG_QUESTGIVER_QUEST_LIST, 200);      // guess size
-    data.WriteBits(Title.size(), 11);
-    //data.WriteGuidMask<0, 4>(npcGUID);
+    data << npcGUID;
+    data << uint32(eEmote._Delay);                         // player emote
+    data << uint32(eEmote._Emote);                         // NPC emote
 
     uint32 menuCount = 0;
-    for (uint32 i = 0; i < _questMenu.GetMenuItemCount(); ++i)
-        if (sObjectMgr->GetQuestTemplate(_questMenu.GetItem(i).QuestId))
-            ++menuCount;
-    data.WriteBits(menuCount, 19);
-    //data.WriteGuidMask<7>(npcGUID);
+    size_t writePos = data.wpos();
+    data << menuCount;
 
-    ByteBuffer buff;
     for (uint32 i = 0; i < _questMenu.GetMenuItemCount(); ++i)
     {
         QuestMenuItem const& qmi = _questMenu.GetItem(i);
@@ -295,31 +293,23 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
             else if (questStatus == QUEST_STATUS_INCOMPLETE)
                 questStatus = 2;
 
+            data << uint32(questID);
+            data << uint32(questStatus);
+            data << int32(quest->GetQuestLevel());
+            data << uint32(quest->GetFlags());              // 3.3.3 quest flags
+            data << uint32(quest->GetFlagsEx());            // quest flags 2
+
             data.WriteBit(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
             data.WriteBits(title.size(), 9);
+            data.WriteString(title);
 
-            buff << uint32(0);                              // quest flags 2
-            buff.WriteString(title);
-            buff << int32(quest->GetQuestLevel());
-            buff << uint32(questID);
-            buff << uint32(quest->GetFlags());              // 3.3.3 quest flags
-            buff << uint32(questStatus);
+            ++menuCount;
         }
     }
+    data.put<uint32>(writePos, menuCount);
 
-    //data.WriteGuidMask<2, 6, 3, 5, 1>(npcGUID);
-    if (!buff.empty())
-    {
-        data.FlushBits();
-        data.append(buff);
-    }
-
-    //data.WriteGuidBytes<5, 4, 0, 7, 1, 6>(npcGUID);
-    data << uint32(eEmote._Emote);                         // NPC emote
-    //data.WriteGuidBytes<3>(npcGUID);
-    data << uint32(eEmote._Delay);                         // player emote
+    data.WriteBits(Title.size(), 11);
     data.WriteString(Title);
-    //data.WriteGuidBytes<2>(npcGUID);
 
     _session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid=%u", npcGUID.GetCounter());
