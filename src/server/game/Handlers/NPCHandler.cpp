@@ -321,18 +321,14 @@ void WorldSession::SendTrainerService(ObjectGuid guid, uint32 spellId, uint32 re
     SendPacket(&data);
 }
 
-void WorldSession::HandleGossipHelloOpcode(WorldPacket & recvData)
+void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GOSSIP_HELLO");
 
-    ObjectGuid guid;
-    //recvData.ReadGuidMask<2, 0, 1, 5, 7, 6, 4, 3>(guid);
-    //recvData.ReadGuidBytes<6, 3, 2, 0, 5, 1, 7, 4>(guid);
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_NONE);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipHelloOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(guid.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipHelloOpcode - Unit (GUID: %s) not found or you can not interact with him.", packet.Unit.ToString().c_str());
         return;
     }
 
