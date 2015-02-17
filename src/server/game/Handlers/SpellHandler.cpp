@@ -162,13 +162,14 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
         return;
 
     uint8 bagIndex, slot;
+    ObjectGuid itemGUID;
 
-    recvPacket >> bagIndex >> slot;
+    recvPacket >> bagIndex >> slot >> itemGUID;
 
     sLog->outInfo(LOG_FILTER_NETWORKIO, "bagIndex: %u, slot: %u", bagIndex, slot);
 
     Item* item = pUser->GetItemByPos(bagIndex, slot);
-    if (!item)
+    if (!item || item->GetGUID() != itemGUID)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
