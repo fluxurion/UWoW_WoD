@@ -407,14 +407,12 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
     }
 }*/
 
-//! 5.4.1
 void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
 
     ObjectGuid guid;
-    //recvData.ReadGuidMask<1, 7, 6, 2, 3, 5, 4, 0>(guid);
-    //recvData.ReadGuidBytes<7, 6, 1, 5, 4, 3, 2, 0>(guid);
+    recvData >> guid;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_SPIRITHEALER);
     if (!unit)
