@@ -40,6 +40,8 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "NPCPackets.h"
+#include "ItemPackets.h"
+#include "GuildMgr.h"
 
 enum StableResultCode
 {
@@ -832,4 +834,208 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "ITEM: Repair all items, npcGUID = %u", npcGUID.GetCounter());
         _player->DurabilityRepairAll(true, discountMod, guildBank != 0);
     }
+}
+
+void WorldSession::HandleListInventoryOpcode(WorldPacket & recvData)
+{
+    ObjectGuid guid;
+    recvData >> guid;
+
+    if (!GetPlayer()->isAlive())
+        return;
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LIST_INVENTORY");
+
+    SendListInventory(guid);
+}
+
+void WorldSession::SendListInventory(ObjectGuid vendorGuid)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LIST_INVENTORY");
+
+    Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
+    if (!vendor)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", vendorGuid.GetCounter());
+        _player->SendSellError(SELL_ERR_VENDOR_HATES_YOU, NULL, ObjectGuid::Empty);
+        return;
+    }
+
+    // remove fake death
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    // Stop the npc if moving
+    if (vendor->HasUnitState(UNIT_STATE_MOVING))
+        vendor->StopMoving();
+
+    VendorItemData const* vendorItems = vendor->GetVendorItems();
+    uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
+
+    //if (rawItemCount > 300),
+    //    rawItemCount = 300; // client cap but uint8 max value is 255
+
+    WorldPackets::NPC::VendorInventory packet;
+    packet.Vendor = vendor->GetGUID();
+
+    packet.Items.resize(rawItemCount);
+
+    const float discountMod = _player->GetReputationPriceDiscount(vendor);
+    uint32 realCount = 0;
+    for (uint32 slot = 0; slot < rawItemCount; ++slot)
+    {
+        if (realCount >= MAX_VENDOR_ITEMS)
+            break;
+
+        VendorItem const* vendorItem = vendorItems->GetItem(slot);
+        if (!vendorItem)
+            continue;
+
+        WorldPackets::NPC::VendorItem& item = packet.Items[realCount];
+
+        if (vendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
+        {
+            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
+            if (!itemTemplate) 
+                continue;
+
+            uint32 leftInStock = vendorItem->maxcount <= 0 ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
+            if (!_player->isGameMaster()) // ignore conditions if GM on
+            {
+                // Items sold out are not displayed in list
+                if (leftInStock == 0)
+                    continue;
+
+                ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(vendor->GetEntry(), vendorItem->item);
+                if (!sConditionMgr->IsObjectMeetToConditions(_player, vendor, conditions))
+                {
+                    sLog->outDebug(LOG_FILTER_CONDITIONSYS, "SendListInventory: conditions not met for creature entry %u item %u", vendor->GetEntry(), vendorItem->item);
+                    continue;
+                }
+
+                // Respect allowed class
+                if (!(itemTemplate->AllowableClass & _player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
+                    continue;
+
+                // Custom MoP Script for Pandarens Mounts (Alliance)
+                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && _player->getRace() != RACE_PANDAREN_ALLI
+                    && _player->getRace() != RACE_PANDAREN_HORDE && _player->getRace() != RACE_PANDAREN_NEUTRAL
+                    && vendor->GetEntry() == 65068 && _player->GetReputationRank(1353) != REP_EXALTED)
+                    continue;
+
+                // Custom MoP Script for Pandarens Mounts (Horde)
+                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && _player->getRace() != RACE_PANDAREN_ALLI
+                    && _player->getRace() != RACE_PANDAREN_HORDE && _player->getRace() != RACE_PANDAREN_NEUTRAL
+                    && vendor->GetEntry() == 66022 && _player->GetReputationRank(1352) != REP_EXALTED)
+                    continue;
+
+                // Only display items in vendor lists for the team the player is on
+                if ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
+                    (itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
+                    continue;
+
+                std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
+                bool guildRewardCheckPassed = true;
+
+                for (std::vector<GuildReward>::const_iterator reward = rewards.begin(); reward != rewards.end(); ++reward)
+                {
+                    if (itemTemplate->ItemId != reward->Entry)
+                        continue;
+
+                    Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId());
+
+                    if (!guild)
+                    {
+                        guildRewardCheckPassed = false;
+                        break;
+                    }
+
+                    if (reward->Standing && _player->GetReputationRank(REP_GUILD) < reward->Standing)
+                    {
+                        guildRewardCheckPassed = false;
+                        break;
+                    }
+
+                    if (reward->AchievementId && !guild->GetAchievementMgr().HasAchieved(reward->AchievementId))
+                    {
+                        guildRewardCheckPassed = false;
+                        break;
+                    }
+
+                    if (reward->Racemask)
+                    {
+                        if (!(_player->getRaceMask() & reward->Racemask))
+                        {
+                            guildRewardCheckPassed = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (!guildRewardCheckPassed)
+                    continue;
+            }
+
+            // reputation discount
+            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(itemTemplate->BuyPrice/* * discountMod*/) : 0;
+
+            //if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
+                 //price -= CalculatePct(price, priceMod);
+
+            // if (!unk "enabler") data << uint32(something);
+            if (vendorItem->ExtendedCost != 0)
+            {
+                //Hack for donate
+                if(vendorItem->ExtendedCost > 14999)
+                {
+                    if(ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(vendorItem->ExtendedCost))
+                        price = uint32(iece->RequiredItemCount[0] * 10000 * sWorld->getRate(RATE_DONATE));
+                }
+            }
+
+            item.MuID = slot + 1; // client expects counting to start at 1
+            item.Durability = itemTemplate->MaxDurability ? itemTemplate->MaxDurability : -1;
+            item.ExtendedCostID = vendorItem->ExtendedCost;
+            item.Type = vendorItem->Type;
+            item.Quantity = leftInStock;
+            item.StackCount = itemTemplate->BuyCount;
+            item.Price = price;
+
+            item.Item.ItemID = vendorItem->item;
+        }
+        else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
+        {
+            CurrencyTypesEntry const* currencyTemplate = sCurrencyTypesStore.LookupEntry(vendorItem->item);
+
+            if (!currencyTemplate)
+                continue;
+
+            if (vendorItem->ExtendedCost == 0)
+                continue; // there's no price defined for currencies, only extendedcost is used
+
+            uint32 precision = currencyTemplate->GetPrecision();
+
+            item.MuID = slot + 1; // client expects counting to start at 1
+            item.ExtendedCostID = vendorItem->ExtendedCost;
+            item.Item.ItemID = vendorItem->item;
+            item.Type = vendorItem->Type;
+            item.StackCount = vendorItem->maxcount * precision;
+        }
+
+        if (++realCount >= MAX_VENDOR_ITEMS)
+            break;
+    }
+
+    // It doesn't matter what value is used here (PROBABLY its full vendor size)
+    // What matters is that if count of items we can see is 0 and this field is 1
+    // then client will open the vendor list, otherwise it won't
+    //if (rawItemCount)
+    //    data << uint8(rawItemCount);
+    //else
+    //    data << uint8(vendor->isArmorer());
+
+    // Resize vector to real size (some items can be skipped due to checks)
+    packet.Items.resize(realCount);
+
+    SendPacket(packet.Write());
 }
