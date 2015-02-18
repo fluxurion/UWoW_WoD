@@ -1050,7 +1050,7 @@ class WorldSession
 
         void HandleCancelTempEnchantmentOpcode(WorldPacket& recvData);
 
-        void HandleItemRefundInfoRequest(WorldPacket& recvData);
+        void HandleGetItemPurchaseData(WorldPackets::Item::ItemRefundInfo& packet);
         void HandleItemRefund(WorldPacket& recvData);
 
         void HandleChannelVoiceOnOpcode(WorldPacket& recvData);

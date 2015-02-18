@@ -28,6 +28,7 @@
 #include "ObjectAccessor.h"
 #include "SpellInfo.h"
 #include <vector>
+#include "ItemPackets.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
 {
@@ -1333,15 +1334,11 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
     item->ClearEnchantment(TEMP_ENCHANTMENT_SLOT);
 }
 
-void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recvData)
+void WorldSession::HandleGetItemPurchaseData(WorldPackets::Item::ItemRefundInfo& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_REFUND_INFO");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_ITEM_PURCHASE_DATA");
 
-    ObjectGuid guid;
-    //recvData.ReadGuidMask<2, 0, 5, 3, 1, 6, 4, 7>(guid);
-    //recvData.ReadGuidBytes<0, 5, 7, 2, 6, 1, 3, 4>(guid);
-
-    Item* item = _player->GetItemByGuid(guid);
+    Item* item = _player->GetItemByGuid(packet.ItemGUID);
     if (!item)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Item refund: item not found!");

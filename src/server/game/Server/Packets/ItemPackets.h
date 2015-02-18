@@ -39,7 +39,7 @@ namespace WorldPackets
         class ItemRefundInfo final : public ClientPacket
         {
         public:
-            ItemRefundInfo(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_REFUND_INFO, std::move(packet)) { }
+            ItemRefundInfo(WorldPacket&& packet) : ClientPacket(CMSG_GET_ITEM_PURCHASE_DATA, std::move(packet)) { }
 
             void Read() override;
 

@@ -215,6 +215,20 @@ enum ItemUpdateState
     ITEM_REMOVED                                 = 3
 };
 
+enum ItemModifier
+{
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD   = 0,
+    ITEM_MODIFIER_TRANSMOG_ITEM_ID          = 1,
+    ITEM_MODIFIER_UPGRADE_ID                = 2,
+    ITEM_MODIFIER_BATTLE_PET_SPECIES_ID     = 3,
+    ITEM_MODIFIER_BATTLE_PET_BREED_DATA     = 4, // (breedId) | (breedQuality << 24)
+    ITEM_MODIFIER_BATTLE_PET_LEVEL          = 5,
+    ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID     = 6,
+    ITEM_MODIFIER_ENCHANT_ILLUSION          = 7,
+
+    MAX_ITEM_MODIFIERS
+};
+
 #define MAX_ITEM_SPELLS 5
 
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);

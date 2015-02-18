@@ -21338,7 +21338,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
 
     // Updated played time for refundable items. We don't do this in Player::Update because there's simply no need for it,
     // the client auto counts down in real time after having received the initial played time on the first
-    // SMSG_ITEM_REFUND_INFO_RESPONSE packet.
+    // SMSG_SET_ITEM_PURCHASE_DATA packet.
     // Item::UpdatePlayedTime is only called when needed, which is in DB saves, and item refund info requests.
     GuidSet::iterator i_next;
     for (GuidSet::iterator itr = m_refundableItems.begin(); itr!= m_refundableItems.end(); itr = i_next)
@@ -28481,12 +28481,11 @@ void Player::SendRefundInfo(Item* item)
         return;
     }
 
-    ObjectGuid guid = item->GetGUID();
-    WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE, 8 + 1 + 5 * 4 + 5 * 4 + 3 * 4);
+    //! 6.0.3
+    WorldPacket data(SMSG_SET_ITEM_PURCHASE_DATA, 8 + 1 + 5 * 4 + 5 * 4 + 3 * 4);
+    data << item->GetGUID();
 
-    //data.WriteGuidMask<3, 2, 0, 1, 5, 6, 7, 4>(guid);
-    //data.WriteGuidBytes<4, 5>(guid);
-    data << uint32(0);
+    data << uint32(item->GetPaidMoney());               // money cost
     for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)                             // item cost data
     {
         data << uint32(iece->RequiredItem[i]);
@@ -28495,9 +28494,7 @@ void Player::SendRefundInfo(Item* item)
         else
             data << uint32(iece->RequiredItemCount[i]);
     }
-    //data.WriteGuidBytes<3>(guid);
-    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());
-    //data.WriteGuidBytes<7, 0, 1, 2>(guid);
+
     for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)                       // currency cost data
     {
         if (CurrencyTypesEntry const * entry = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]))
@@ -28506,8 +28503,9 @@ void Player::SendRefundInfo(Item* item)
             data << uint32(iece->RequiredCurrencyCount[i]);
         data << uint32(iece->RequiredCurrency[i]);
     }
-    data << uint32(item->GetPaidMoney());               // money cost
-    //data.WriteGuidBytes<6>(guid);
+    
+    data << uint32(0);                                              //Flags
+    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());   //PurchaseTime
 
     GetSession()->SendPacket(&data);
 }
@@ -28540,18 +28538,22 @@ bool Player::AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount)
 
 void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece, uint8 error)
 {
-    ObjectGuid guid = item->GetGUID();
-    WorldPacket data(SMSG_ITEM_REFUND_RESULT, 8 + 1 + 1 + 1 + 4 * 5 + 4 * 5 + 4);
-    data << uint8(error);
-    //data.WriteGuidMask<0, 2, 7>(guid);
+    //! 6.0.3
+    WorldPacket data(SMSG_ITEM_PURCHASE_REFUND_RESULT, 8 + 1 + 1 + 1 + 4 * 5 + 4 * 5 + 4);
+    data << item->GetGUID() << uint8(error);
     data.WriteBit(!error);
-    //data.WriteGuidMask<5, 3, 4, 6, 1>(guid);
+
     if (!error)
     {
+        data << uint32(item->GetPaidMoney());               // money cost
+
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
             if (iece->IsSeasonCurrencyRequirement(i))
+            {
+                data << uint32(0) << uint32(0);
                 continue;
+            }
 
             data << uint32(iece->RequiredCurrency[i]);
             if (CurrencyTypesEntry const * entry = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]))
@@ -28561,13 +28563,10 @@ void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece,
         }
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i) // item cost data
         {
-            data << uint32(iece->RequiredItemCount[i]);
             data << uint32(iece->RequiredItem[i]);
+            data << uint32(iece->RequiredItemCount[i]);
         }
-        data << uint32(item->GetPaidMoney());               // money cost
     }
-
-    //data.WriteGuidBytes<5, 2, 3, 4, 1, 6, 0, 7>(guid);
 
     GetSession()->SendPacket(&data);
 }
