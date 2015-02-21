@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,15 +18,15 @@
 #include "ZmqMux.h"
 #include "ZmqContext.h"
 
-ZmqMux::ZmqMux(std::string from_uri, std::string to_uri):
-    _fromAddress(from_uri)
+ZmqMux::ZmqMux(std::string const& fromUri, std::string const& toUri):
+    _fromAddress(fromUri)
 {
-    printf("Opening muxer thread from %s to %s\n", from_uri.c_str(), to_uri.c_str());
+    printf("Opening muxer thread from %s to %s\n", fromUri.c_str(), toUri.c_str());
     _from = sIpcContext->CreateNewSocket(zmqpp::socket_type::pull);
     _to = sIpcContext->CreateNewSocket(zmqpp::socket_type::push);
 
-    _from->bind(from_uri);
-    _to->connect(to_uri);
+    _from->bind(fromUri);
+    _to->connect(toUri);
 }
 
 ZmqMux::~ZmqMux()
@@ -56,6 +56,7 @@ void ZmqMux::Run()
 {
     for (;;)
     {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         if (!_poller->poll())
             break;
 
