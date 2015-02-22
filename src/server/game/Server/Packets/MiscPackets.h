@@ -23,6 +23,8 @@
 #include "WorldSession.h"
 #include "G3D/Vector3.h"
 #include "Object.h"
+#include "Unit.h"
+#include "Weather.h"
 
 namespace WorldPackets
 {
@@ -160,14 +162,22 @@ namespace WorldPackets
             uint32 MovieID = 0;
         };
 
+        class UITimeRequest final : public ClientPacket
+        {
+        public:
+            UITimeRequest(WorldPacket&& packet) : ClientPacket(CMSG_UI_TIME_REQUEST, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class UITime final : public ServerPacket
         {
         public:
-            UITime() : ServerPacket(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 4) { }
+            UITime() : ServerPacket(SMSG_UI_TIME, 4) { }
 
             WorldPacket const* Write() override;
 
-            uint32 Time = 0;
+            uint32 Time = 0; ///< UnixTime
         };
 
         class TutorialFlags : public ServerPacket
@@ -229,7 +239,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 DifficultyID;
+            int32 DifficultyID = 0;
         };
 
         class SetRaidDifficulty final : public ClientPacket
@@ -239,8 +249,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 DifficultyID;
-            uint8 Legacy;
+            int32 DifficultyID = 0;
+            uint8 Legacy = 0;
         };
 
         class DungeonDifficultySet final : public ServerPacket
@@ -250,7 +260,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 DifficultyID;
+            int32 DifficultyID = 0;
         };
 
         class RaidDifficultySet final : public ServerPacket
@@ -260,8 +270,139 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 DifficultyID;
-            uint8 Legacy;
+            int32 DifficultyID = 0;
+            uint8 Legacy = 0;
+        };
+
+        class CorpseReclaimDelay : public ServerPacket
+        {
+        public:
+            CorpseReclaimDelay() : ServerPacket(SMSG_CORPSE_RECLAIM_DELAY, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Remaining = 0;
+        };
+
+        class DeathReleaseLoc : public ServerPacket
+        {
+        public:
+            DeathReleaseLoc() : ServerPacket(SMSG_DEATH_RELEASE_LOC, 4 + (3 * 4)) { }
+
+            WorldPacket const* Write() override;
+
+            int32 MapID = 0;
+            G3D::Vector3 Loc;
+        };
+
+        class PortGraveyard final : public ClientPacket
+        {
+        public:
+            PortGraveyard(WorldPacket&& packet) : ClientPacket(CMSG_PORT_GRAVEYARD, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class PreRessurect : public ServerPacket
+        {
+        public:
+            PreRessurect() : ServerPacket(SMSG_PRE_RESSURECT, 18) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PlayerGUID;
+        };
+
+        class ReclaimCorpse final : public ClientPacket
+        {
+        public:
+            ReclaimCorpse(WorldPacket&& packet) : ClientPacket(CMSG_RECLAIM_CORPSE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid CorpseGUID;
+        };
+
+        class RepopRequest final : public ClientPacket
+        {
+        public:
+            RepopRequest(WorldPacket&& packet) : ClientPacket(CMSG_REPOP_REQUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            bool CheckInstance = false;
+        };
+
+        class RequestCemeteryList final : public ClientPacket
+        {
+        public:
+            RequestCemeteryList(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_CEMETERY_LIST, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class RequestCemeteryListResponse final : public ServerPacket
+        {
+        public:
+            RequestCemeteryListResponse() : ServerPacket(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsGossipTriggered = false;
+            std::vector<uint32> CemeteryID;
+        };
+
+        class ResurrectResponse final : public ClientPacket
+        {
+        public:
+            ResurrectResponse(WorldPacket&& packet) : ClientPacket(CMSG_RESURRECT_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Resurrecter;
+            uint32 Response = 0;
+        };
+
+        class AreaTriggerNoCorpse final : public ServerPacket
+        {
+        public:
+            AreaTriggerNoCorpse() : ServerPacket(SMSG_AREA_TRIGGER_NO_CORPSE, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class Weather final : public ServerPacket
+        {
+        public:
+            Weather();
+            Weather(WeatherState weatherID, float intensity = 0.0f, bool abrupt = false);
+
+            WorldPacket const* Write() override;
+
+            bool Abrupt = false;
+            float Intensity = 0.0f;
+            WeatherState WeatherID = WEATHER_STATE_FINE;
+        };
+
+        class StandStateChange final : public ClientPacket
+        {
+        public:
+            StandStateChange(WorldPacket&& packet) : ClientPacket(CMSG_STAND_STATE_CHANGE, std::move(packet)) { }
+
+            void Read() override;
+
+            UnitStandStateType StandState = UNIT_STAND_STATE_STAND;
+        };
+
+        class StandStateUpdate final : public ServerPacket
+        {
+        public:
+            StandStateUpdate() : ServerPacket(SMSG_STAND_STATE_UPDATE, 1) { }
+            StandStateUpdate(UnitStandStateType state) : ServerPacket(SMSG_STAND_STATE_UPDATE, 1), State(state) { }
+
+            WorldPacket const* Write() override;
+
+            UnitStandStateType State = UNIT_STAND_STATE_STAND;
         };
     }
 }

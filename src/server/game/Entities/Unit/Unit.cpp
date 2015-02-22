@@ -64,6 +64,7 @@
 
 #include "CombatPackets.h"
 #include "MovementPackets.h"
+#include "MiscPackets.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -17244,8 +17245,7 @@ void Unit::SetStandState(uint8 state)
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        //! 5.4.1
-        WorldPacket data(SMSG_STANDSTATE_UPDATE, 1);
+        WorldPacket data(SMSG_STAND_STATE_UPDATE, 1);
         data << (uint8)state;
         ToPlayer()->GetSession()->SendPacket(&data);
     }

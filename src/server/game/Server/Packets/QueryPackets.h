@@ -22,6 +22,9 @@
 #include "Creature.h"
 #include "DB2Stores.h"
 #include "NPCHandler.h"
+#include "G3D/Vector3.h"
+
+class Player;
 
 namespace WorldPackets
 {
@@ -89,16 +92,18 @@ namespace WorldPackets
 
         struct PlayerGuidLookupData
         {
-            bool IsDeleted             = false;
+            bool Initialize(ObjectGuid const& guid, Player const* player = nullptr);
+
+            bool IsDeleted = false;
             ObjectGuid AccountID;
             ObjectGuid BnetAccountID;
             ObjectGuid GuidActual;
             std::string Name;
             uint32 VirtualRealmAddress = 0;
-            uint8 Race                 = RACE_NONE;
-            uint8 Sex                  = GENDER_NONE;
-            uint8 ClassID              = CLASS_NONE;
-            uint8 Level                = 0;
+            uint8 Race = RACE_NONE;
+            uint8 Sex = GENDER_NONE;
+            uint8 ClassID = CLASS_NONE;
+            uint8 Level = 0;
             DeclinedName DeclinedNames;
         };
 
@@ -253,7 +258,72 @@ namespace WorldPackets
             bool Allow = false;
             GameObjectStats Stats;
         };
+
+        class QueryCorpseLocationFromClient final : public ClientPacket
+        {
+        public:
+            QueryCorpseLocationFromClient(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CorpseLocation final : public ServerPacket
+        {
+        public:
+            CorpseLocation() : ServerPacket(SMSG_CORPSE_LOCATION, 1 + (5 * 4) + 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Transport;
+            G3D::Vector3 Position;
+            int32 ActualMapID = 0;
+            int32 MapID = 0;
+            bool Valid = false;
+        };
+
+        class QueryCorpseTransport final : public ClientPacket
+        {
+        public:
+            QueryCorpseTransport(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_CORPSE_TRANSPORT , std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Transport;
+        };
+
+        class CorpseTransportQuery final : public ServerPacket
+        {
+        public:
+            CorpseTransportQuery() : ServerPacket(SMSG_CORPSE_TRANSPORT_QUERY, 16) { }
+
+            WorldPacket const* Write() override;
+
+            G3D::Vector3 Position;
+            float Facing = 0.0f;
+        };
+
+        class QueryTime final : public ClientPacket
+        {
+        public:
+            QueryTime(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_TIME, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class QueryTimeResponse final : public ServerPacket
+        {
+        public:
+            QueryTimeResponse() : ServerPacket(SMSG_QUERY_TIME_RESPONSE, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            time_t CurrentTime = time_t(0);
+            int32 TimeOutRequest = 0;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupData const& lookupData);
 
 #endif // QueryPackets_h__

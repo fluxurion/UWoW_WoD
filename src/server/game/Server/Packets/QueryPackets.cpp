@@ -16,6 +16,10 @@
  */
 
 #include "QueryPackets.h"
+#include "BattlenetAccountMgr.h"
+#include "Player.h"
+#include "World.h"
+#include "ObjectMgr.h"
 
 void WorldPackets::Query::QueryCreature::Read()
 {
@@ -103,31 +107,96 @@ void WorldPackets::Query::QueryPlayerName::Read()
         _worldPacket >> Hint.NativeRealmAddress.Value;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint)
+{
+    data.WriteBit(lookupHint.VirtualRealmAddress.HasValue);
+    data.WriteBit(lookupHint.NativeRealmAddress.HasValue);
+    data.FlushBits();
+
+    if (lookupHint.VirtualRealmAddress.HasValue)
+        data << uint32(lookupHint.VirtualRealmAddress.Value);
+
+    if (lookupHint.NativeRealmAddress.HasValue)
+        data << uint32(lookupHint.NativeRealmAddress.Value);
+
+    return data;
+}
+
+bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* player /*= nullptr*/)
+{
+    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
+    if (!characterInfo)
+        return false;
+
+    if (player)
+    {
+        ASSERT(player->GetGUID() == guid);
+
+        AccountID     = player->GetSession()->GetAccountGUID();
+        BnetAccountID = player->GetSession()->GetBattlenetAccountGUID();
+        Name          = player->GetName();
+        Race          = player->getRace();
+        Sex           = player->getGender();
+        ClassID       = player->getClass();
+        Level         = player->getLevel();
+
+        if (DeclinedName const* names = player->GetDeclinedNames())
+            DeclinedNames = *names;
+    }
+    else
+    {
+        uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(guid);
+        uint32 bnetAccountId = Battlenet::AccountMgr::GetIdByGameAccount(accountId);
+
+        AccountID     = ObjectGuid::Create<HighGuid::WowAccount>(accountId);
+        BnetAccountID = ObjectGuid::Create<HighGuid::BNetAccount>(bnetAccountId);
+        Name          = characterInfo->Name;
+        Race          = characterInfo->Race;
+        Sex           = characterInfo->Sex;
+        ClassID       = characterInfo->Class;
+        Level         = characterInfo->Level;
+    }
+
+    IsDeleted = characterInfo->IsDeleted;
+    GuidActual = guid;
+    VirtualRealmAddress = GetVirtualRealmAddress();
+
+    return true;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupData const& lookupData)
+{
+    data.WriteBit(lookupData.IsDeleted);
+    data.WriteBits(lookupData.Name.length(), 6);
+
+    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        data.WriteBits(lookupData.DeclinedNames.name[i].length(), 7);
+
+    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        data.WriteString(lookupData.DeclinedNames.name[i]);
+
+    data << lookupData.AccountID;
+    data << lookupData.BnetAccountID;
+    data << lookupData.GuidActual;
+    data << uint32(lookupData.VirtualRealmAddress);
+    data << uint8(lookupData.Race);
+    data << uint8(lookupData.Sex);
+    data << uint8(lookupData.ClassID);
+    data << uint8(lookupData.Level);
+    data.WriteString(lookupData.Name);
+
+    data.FlushBits();
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Query::QueryPlayerNameResponse::Write()
 {
     _worldPacket << Result;
     _worldPacket << Player;
 
     if (Result == RESPONSE_SUCCESS)
-    {
-        _worldPacket.WriteBits(Data.Name.length(), 7);
-
-        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            _worldPacket.WriteBits(Data.DeclinedNames.name[i].length(), 7);
-
-        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            _worldPacket.WriteString(Data.DeclinedNames.name[i]);
-
-        _worldPacket << Data.AccountID;
-        _worldPacket << Data.BnetAccountID;
-        _worldPacket << Data.GuidActual;
-        _worldPacket << Data.VirtualRealmAddress;
-        _worldPacket << Data.Race;
-        _worldPacket << Data.Sex;
-        _worldPacket << Data.ClassID;
-        _worldPacket << Data.Level;
-        _worldPacket.WriteString(Data.Name);
-    }
+        _worldPacket << Data;
 
     return &_worldPacket;
 }
@@ -262,6 +331,44 @@ WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
             _worldPacket << Stats.Expansion;
         }
     }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
+{
+    _worldPacket.WriteBit(Valid);
+    _worldPacket.FlushBits();
+
+    _worldPacket << ActualMapID;
+    _worldPacket << Position.x;
+    _worldPacket << Position.y;
+    _worldPacket << Position.z;
+    _worldPacket << MapID;
+    _worldPacket << Transport;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryCorpseTransport::Read()
+{
+    _worldPacket >> Transport;
+}
+
+WorldPacket const* WorldPackets::Query::CorpseTransportQuery::Write()
+{
+    _worldPacket << Position.x;
+    _worldPacket << Position.y;
+    _worldPacket << Position.z;
+    _worldPacket << Facing;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Query::QueryTimeResponse::Write()
+{
+    _worldPacket << uint32(CurrentTime);
+    _worldPacket << int32(TimeOutRequest);
 
     return &_worldPacket;
 }

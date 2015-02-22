@@ -172,6 +172,13 @@ namespace WorldPackets
         class TutorialSetFlag;
         class SetDungeonDifficulty;
         class SetRaidDifficulty;
+        class PortGraveyard;
+        class ReclaimCorpse;
+        class RepopRequest;
+        class RequestCemeteryList;
+        class ResurrectResponse;
+        class StandStateChange;
+        class UITimeRequest;
     }
 
     namespace Movement
@@ -194,6 +201,8 @@ namespace WorldPackets
         class QueryNPCText;
         class DBQueryBulk;
         class QueryGameObject;
+        class QueryCorpseLocationFromClient;
+        class QueryCorpseTransport;
     }
 
     namespace Quest
@@ -224,6 +233,12 @@ namespace WorldPackets
     namespace Trade
     {
         class CancelTrade;
+    }
+
+    namespace Who
+    {
+        class WhoIsRequest;
+        class WhoRequestPkt;
     }
 }
 
@@ -580,7 +595,10 @@ class WorldSession
         void HandleMoveUnRootAck(WorldPacket& recvPacket);
         void HandleMoveRootAck(WorldPacket& recvPacket);
         void HandleLookingForGroup(WorldPacket& recvPacket);
-        void HandleReturnToGraveyard(WorldPacket& recvPacket);
+
+        // cemetery/graveyard related
+        void HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& packet);
+        void HandleRequestCemeteryList(WorldPackets::Misc::RequestCemeteryList& packet);
 
         // new inspect
         void HandleInspectOpcode(WorldPacket& recvPacket);
@@ -612,14 +630,14 @@ class WorldSession
 
         void HandlePingOpcode(WorldPacket& recvPacket);
         void HandleAuthSessionOpcode(WorldPacket& recvPacket);
-        void HandleRepopRequestOpcode(WorldPacket& recvPacket);
+        void HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet);
         void HandleAutostoreLootItemOpcode(WorldPacket& recvPacket);
         void HandleLootMoneyOpcode(WorldPacket& recvPacket);
         void HandleLootSpecIdOpcode(WorldPacket& recvPacket);
         void HandleLootOpcode(WorldPacket& recvPacket);
         void HandleLootReleaseOpcode(WorldPacket& recvPacket);
         void HandleLootMasterGiveOpcode(WorldPacket& recvPacket);
-        void HandleWhoOpcode(WorldPacket& recvPacket);
+        void HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest);
         void HandleLogoutRequestOpcode(WorldPacket& recvPacket);
         void HandlePlayerLogoutOpcode(WorldPacket& recvPacket);
         void HandleLogoutCancelOpcode(WorldPacket& recvPacket);
@@ -638,7 +656,7 @@ class WorldSession
 
         void HandleZoneUpdateOpcode(WorldPacket& recvPacket);
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
-        void HandleStandStateChangeOpcode(WorldPacket& recvPacket);
+        void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
         void HandleEmoteOpcode(WorldPacket& recvPacket);
         void HandleContactListOpcode(WorldPacket& recvPacket);
         void HandleAddFriendOpcode(WorldPacket& recvPacket);
@@ -902,10 +920,10 @@ class WorldSession
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
         void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
 
-        void HandleReclaimCorpseOpcode(WorldPacket& recvPacket);
-        void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
-        void HandleCorpseMapPositionQuery(WorldPacket& recvPacket);
-        void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
+        void HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& packet);
+        void HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& packet);
+        void HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet);
+        void HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse& packet);
         void HandleSummonResponseOpcode(WorldPacket& recvData);
 
         void HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet);
@@ -990,7 +1008,7 @@ class WorldSession
         void HandleRealmSplitOpcode(WorldPacket& recvData);
         void HandleRealmQueryNameOpcode(WorldPacket& recvData);
         void HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& packet);
-        void HandleWhoisOpcode(WorldPacket& recvData);
+        void HandleWhoisOpcode(WorldPackets::Who::WhoIsRequest& packet);
         void HandleResetInstancesOpcode(WorldPacket& recvData);
         void HandleHearthAndResurrect(WorldPacket& recvData);
         void HandleInstanceLockResponse(WorldPacket& recvPacket);
@@ -1153,7 +1171,7 @@ class WorldSession
         void HandleEquipmentSetSave(WorldPacket& recvData);
         void HandleEquipmentSetDelete(WorldPacket& recvData);
         void HandleEquipmentSetUse(WorldPacket& recvData);
-        void HandleWorldStateUITimerUpdate(WorldPacket& recvData);
+        void HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/);
         void HandleQuestNpcQuery(WorldPacket& recvData);
         void HandleQuestPOIQuery(WorldPacket& recvData);
         void HandleEjectPassenger(WorldPacket& data);
@@ -1168,7 +1186,6 @@ class WorldSession
         int32 HandleEnableNagleAlgorithm();
         void HandleRequestResearchHistory(WorldPacket& recvPacket);
         void HandleChangeCurrencyFlags(WorldPacket& recvPacket);
-        void HandleCemeteryListOpcode(WorldPacket& recvPacket);
         void HandlerCategoryCooldownOpocde(WorldPacket& recvPacket);
         void HandleClearRaidMarkerOpcode(WorldPacket& recvPacket);
         void HandleQueryPlayerRecipes(WorldPacket& recvPacket);

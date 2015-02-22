@@ -5897,9 +5897,9 @@ void Player::DeleteOldCharacters(uint32 keepDays)
 */
 void Player::BuildPlayerRepop()
 {
-    //WorldPacket data(SMSG_PRE_RESURRECT, GetPackGUID().size());
-    //data.append(GetPackGUID());
-    //GetSession()->SendPacket(&data);
+    WorldPackets::Misc::PreRessurect packet;
+    packet.PlayerGUID = GetGUID();
+    GetSession()->SendPacket(packet.Write());
 
     if (getRace() == RACE_NIGHTELF)
         CastSpell(this, 20584, true);
@@ -5951,13 +5951,9 @@ void Player::BuildPlayerRepop()
 
 void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 {
-    //! 5.4.1
-    WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);          // remove spirit healer position
-    data << uint32(-1);
-    data << float(0);
-    data << float(0);
-    data << float(0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Misc::DeathReleaseLoc packet;
+    packet.MapID = -1;
+    GetSession()->SendPacket(packet.Write());
 
     // speed change, land walk
 
@@ -6398,13 +6394,10 @@ void Player::RepopAtGraveyard()
         UpdateObjectVisibility();
         if (isDead())                                        // not send if alive, because it used in TeleportTo()
         {
-            //! 5.4.1
-            WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);  // show spirit healer position on minimap
-            data << ClosestGrave->MapID;
-            data << ClosestGrave->Loc.Z;
-            data << ClosestGrave->Loc.Y;
-            data << ClosestGrave->Loc.X;
-            GetSession()->SendPacket(&data);
+            WorldPackets::Misc::DeathReleaseLoc packet;
+            packet.MapID = ClosestGrave->MapID;
+            packet.Loc = G3D::Vector3(ClosestGrave->Loc.X, ClosestGrave->Loc.Y, ClosestGrave->Loc.Z);
+            GetSession()->SendPacket(packet.Write());
         }
     }
     // Do it only if where is no grave or transport!
@@ -25078,7 +25071,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendInitialActionButtons();
 
-    data.Initialize(SMSG_CORPSE_RECLAIM_DELAY, 1);
+    data.Initialize(SMSG_CORPSE_RECLAIM_DELAY, 4);
     data << uint32(0);
     GetSession()->SendPacket(&data);
 
@@ -26483,9 +26476,9 @@ void Player::SendCorpseReclaimDelay(bool load)
         return;
 
     //! corpse reclaim delay 30 * 1000ms or longer at often deaths
-    WorldPacket data(SMSG_CORPSE_RECLAIM_DELAY, 4 + 1);
-    data << uint32(delay * IN_MILLISECONDS);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Misc::CorpseReclaimDelay packet;
+    packet.Remaining = delay * IN_MILLISECONDS;
+    GetSession()->SendPacket(packet.Write());
 }
 
 Player* Player::GetNextRandomRaidMember(float radius)
@@ -29411,29 +29404,6 @@ void Player::_SaveHonor()
         }
         m_saveKills = false;
     }
-}
-
-void Player::SendCemeteryList(bool onMap)
-{
-    ByteBuffer buf(16);
-    uint32 count = 0;
-
-    uint32 zoneId = m_zoneUpdateId;
-    GraveYardContainer::const_iterator graveLow  = sObjectMgr->GraveYardStore.lower_bound(zoneId);
-    GraveYardContainer::const_iterator graveUp   = sObjectMgr->GraveYardStore.upper_bound(zoneId);
-    for (GraveYardContainer::const_iterator itr = graveLow; itr != graveUp; ++itr)
-    {
-        ++count;
-        buf << uint32(itr->second.safeLocId);
-    }
-
-    //! 6.0.3
-    WorldPacket packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, buf.wpos()+4);
-    packet.WriteBit(onMap);
-    packet.FlushBits();
-    packet << uint32(count);
-    packet.append(buf);
-    GetSession()->SendPacket(&packet);
 }
 
 void Player::SendCategoryCooldownMods()

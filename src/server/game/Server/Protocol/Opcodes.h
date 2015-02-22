@@ -198,7 +198,6 @@ enum OpcodeClient : uint32
     CMSG_COMPLETE_MOVIE                               = 0xBADD,
     CMSG_CONNECT_TO_FAILED                            = 0x0135,
     CMSG_CONTACT_LIST                                 = 0xBADD,
-    CMSG_CORPSE_MAP_POSITION_QUERY                    = 0xBADD,
     CMSG_CREATURE_QUERY                               = 0x0505,
     CMSG_DANCE_QUERY                                  = 0xBADD,
     CMSG_DB_QUERY_BULK                                = 0x138B,
@@ -468,8 +467,11 @@ enum OpcodeClient : uint32
     CMSG_PLAYER_LOGOUT                                = 0xBADD,
     CMSG_PLAYER_VEHICLE_ENTER                         = 0xBADD,
     CMSG_PLAY_DANCE                                   = 0xBADD,
+    CMSG_PORT_GRAVEYARD                               = 0x0D3E,
     CMSG_PUSHQUESTTOPARTY                             = 0xBADD,
     CMSG_PVP_LOG_DATA                                 = 0x08B5,
+    CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT            = 0x128A,
+    CMSG_QUERY_CORPSE_TRANSPORT                       = 0x0908,
     CMSG_QUERY_BATTLEFIELD_STATE                      = 0xBADD,
     CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE               = 0xBADD,
     CMSG_QUERY_GUILD_MEMBER_RECIPES                   = 0xBADD,
@@ -500,7 +502,7 @@ enum OpcodeClient : uint32
     CMSG_READ_ITEM                                    = 0xBADD,
     CMSG_REALM_NAME_QUERY                             = 0x1189,
     CMSG_REALM_SPLIT                                  = 0xBADD,
-    CMSG_RECLAIM_CORPSE                               = 0xBADD,
+    CMSG_RECLAIM_CORPSE                               = 0x1BC4,
     CMSG_RECRUIT_A_FRIEND                             = 0x07BA,
     CMSG_REFORGE_ITEM                                 = 0xBADD,
     CMSG_REORDER_CHARACTERS                           = 0x0DAA,
@@ -526,7 +528,7 @@ enum OpcodeClient : uint32
     CMSG_REQUEST_VEHICLE_SWITCH_SEAT                  = 0x0AED,
     CMSG_RESET_FACTION_CHEAT                          = 0xBADD,
     CMSG_RESET_INSTANCES                              = 0xBADD,
-    CMSG_RESURRECT_RESPONSE                           = 0xBADD,
+    CMSG_RESURRECT_RESPONSE                           = 0x073E,
     CMSG_RETURN_TO_GRAVEYARD                          = 0x12EA,
     CMSG_ROLE_POLL_BEGIN                              = 0xBADD,
     CMSG_SAVE_CUF_PROFILES                            = 0x0053,
@@ -579,7 +581,7 @@ enum OpcodeClient : uint32
     CMSG_SPELLCLICK                                   = 0x0BC2,
     CMSG_SPIRIT_HEALER_ACTIVATE                       = 0x03EC,
     CMSG_SPLIT_ITEM                                   = 0xBADD,
-    CMSG_STANDSTATECHANGE                             = 0xBADD,
+    CMSG_STAND_STATE_CHANGE                           = 0x0ABD,
     CMSG_START_QUEST                                  = 0xBADD,
     CMSG_STOP_DANCE                                   = 0xBADD,
     CMSG_STORE_LOOT_IN_SLOT                           = 0xBADD,
@@ -632,12 +634,11 @@ enum OpcodeClient : uint32
     CMSG_WARGAME_ACCEPT                               = 0xBADD,
     CMSG_WARGAME_START                                = 0xBADD,
     CMSG_WHO                                          = 0x1322,
-    CMSG_WHOIS                                        = 0xBADD,
-    CMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0302,
+    CMSG_WHOIS                                        = 0x011F,
+    CMSG_UI_TIME_REQUEST                              = 0x0302,
     CMSG_WORLD_TELEPORT                               = 0xBADD,
     CMSG_WRAP_ITEM                                    = 0xBADD,
     CMSG_ZONEUPDATE                                   = 0xBADD,
-    MSG_CORPSE_QUERY                                  = 0xBADD,
     MSG_GM_BIND_OTHER                                 = 0xBADD,
     MSG_GM_SHOWLABEL                                  = 0xBADD,
     MSG_GM_SUMMON                                     = 0xBADD,
@@ -719,7 +720,6 @@ enum OpcodeClient : uint32
     CMSG_TUTORIAL_CLEAR                               = 0xBADD, // 5.4.1 17538
     CMSG_TUTORIAL_RESET                               = 0xBADD, // 5.4.1 17538
     CMSG_UPGRADE_ITEM                                 = 0xBADD, // 5.4.1 17538
-    CMSG_CORPSE_QUERY                                 = 0xBADD, // 5.4.1 17538
     CMSG_RAID_TARGET_UPDATE                           = 0xBADD, // 5.4.1 17538
     CMSG_GET_WEB_TICKET                               = 0xBADD, // 5.4.1 17538
     CMSG_BATTLE_PET_166F                              = 0xBADD, // 5.4.1 17538
@@ -759,6 +759,7 @@ enum OpcodeServer : uint32
     SMSG_AREA_SPIRIT_HEALER_TIME                      = 0xBADD,
     SMSG_AREA_TRIGGER_MESSAGE                         = 0xBADD,
     SMSG_AREA_TRIGGER_MOVEMENT_UPDATE                 = 0xBADD,
+    SMSG_AREA_TRIGGER_NO_CORPSE                       = 0x0D3F,
     SMSG_ARENA_ERROR                                  = 0xBADD,
     SMSG_ARENA_UNIT_DESTROYED                         = 0xBADD,
     SMSG_ARENA_TEAM_CHANGE_FAILED_QUEUED              = 0xBADD,
@@ -909,9 +910,9 @@ enum OpcodeServer : uint32
     SMSG_CONVERT_RUNE                                 = 0xBADD,
     SMSG_COOLDOWN_CHEAT                               = 0xBADD,
     SMSG_COOLDOWN_EVENT                               = 0xBADD,
-    SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE           = 0xBADD,
-    SMSG_CORPSE_NOT_IN_INSTANCE                       = 0xBADD,
+    SMSG_CORPSE_LOCATION                              = 0x09E1,
     SMSG_CORPSE_RECLAIM_DELAY                         = 0x0BE2,
+    SMSG_CORPSE_TRANSPORT_QUERY                       = 0x13AB,
     SMSG_CREATURE_QUERY_RESPONSE                      = 0x0A26,
     SMSG_CRITERIA_DELETED                             = 0xBADD,
     SMSG_CRITERIA_UPDATE                              = 0x1904,
@@ -926,7 +927,7 @@ enum OpcodeServer : uint32
     SMSG_DANCE_QUERY_RESPONSE                         = 0xBADD,
     SMSG_DANCE_STUDIO_CREATE_RESULT                   = 0x178D,
     SMSG_DB_REPLY                                     = 0x1939,
-    SMSG_DEATH_RELEASE_LOC                            = 0xBADD,
+    SMSG_DEATH_RELEASE_LOC                            = 0x098C,
     SMSG_DEBUG_RUNE_REGEN                             = 0xBADD,
     SMSG_DEBUG_SERVER_GEO                             = 0xBADD,
     SMSG_DEFENSE_MESSAGE                              = 0xBADD,
@@ -1283,7 +1284,7 @@ enum OpcodeServer : uint32
     SMSG_PLAY_TIME_WARNING                            = 0xBADD,
     SMSG_PONG                                         = 0x17CA,
     SMSG_POWER_UPDATE                                 = 0x0B27,
-    SMSG_PRE_RESURRECT                                = 0xBADD,
+    SMSG_PRE_RESSURECT                                = 0x0D2E,
     SMSG_PROCRESIST                                   = 0xBADD,
     SMSG_PROPOSE_LEVEL_GRANT                          = 0x1B8C,
     SMSG_PUREMOUNT_CANCELLED_OBSOLETE                 = 0xBADD,
@@ -1437,7 +1438,7 @@ enum OpcodeServer : uint32
     SMSG_SPLINE_MOVE_UNSET_HOVER                      = 0x1959,
     SMSG_SPLINE_MOVE_WATER_WALK                       = 0xBADD,
     SMSG_STABLE_RESULT                                = 0x1383,
-    SMSG_STANDSTATE_UPDATE                            = 0x1311,
+    SMSG_STAND_STATE_UPDATE                           = 0x1311,
     SMSG_START_ELAPSED_TIMERS                         = 0x093F,
     SMSG_START_MIRROR_TIMER                           = 0xBADD,
     SMSG_START_TIMER                                  = 0xBADD,
@@ -1517,9 +1518,9 @@ enum OpcodeServer : uint32
     SMSG_WEEKLY_SPELL_USAGE                           = 0x13DC,
     SMSG_WEEKLY_SPELL_USAGE_UPDATE                    = 0xBADD,
     SMSG_WHO                                          = 0x0601,
-    SMSG_WHOIS                                        = 0xBADD,
+    SMSG_WHOIS                                        = 0x1D30,
     SMSG_WORLD_SERVER_INFO                            = 0x11AC,
-    SMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x0B83,
+    SMSG_UI_TIME                                      = 0x0B83,
     SMSG_XP_GAIN_ABORTED                              = 0xBADD,
     SMSG_ZONE_UNDER_ATTACK                            = 0x1401,
 
@@ -1539,7 +1540,6 @@ enum OpcodeServer : uint32
     SMSG_SAVE_GUILD_EMBLEM                            = 0xBADD, // 5.4.1 17538
     SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0xBADD, // 5.4.1 17538
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0xBADD, // 5.4.1 17538
-    SMSG_CORPSE_QUERY                                 = 0xBADD, // 5.4.1 17538
     SMSG_AREA_TRIGGER_RESET                           = 0xBADD,  // 5.0.5 16048
     SMSG_ARENA_OPPONENT_UPDATE                        = 0xBADD, // 5.4.1 17538
     SMSG_ARENA_OPPONENT_SPECIALIZATIONS               = 0xBADD, // 5.4.1 17538

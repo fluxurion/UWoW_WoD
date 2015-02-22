@@ -3487,41 +3487,41 @@ void World::LoadCharacterNameData()
 
 void World::AddCharacterNameData(ObjectGuid::LowType guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
 {
-    CharacterNameData& data = _characterNameDataMap[guid];
-    data.m_name = name;
-    data.m_race = race;
-    data.m_gender = gender;
-    data.m_class = playerClass;
-    data.m_level = level;
+    CharacterInfo& data = _characterNameDataMap[guid];
+    data.Name = name;
+    data.Race = race;
+    data.Sex = gender;
+    data.Class = playerClass;
+    data.Level = level;
 }
 
 void World::UpdateCharacterNameData(ObjectGuid::LowType guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
 {
-    std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
+    std::map<uint32, CharacterInfo>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
         return;
 
-    itr->second.m_name = name;
+    itr->second.Name = name;
 
     if (gender != GENDER_NONE)
-        itr->second.m_gender = gender;
+        itr->second.Sex = gender;
 
     if (race != RACE_NONE)
-        itr->second.m_race = race;
+        itr->second.Race = race;
 }
 
 void World::UpdateCharacterNameDataLevel(ObjectGuid::LowType guid, uint8 level)
 {
-    std::map<uint32, CharacterNameData>::iterator itr = _characterNameDataMap.find(guid);
+    std::map<uint32, CharacterInfo>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
         return;
 
-    itr->second.m_level = level;
+    itr->second.Level = level;
 }
 
-CharacterNameData const* World::GetCharacterNameData(ObjectGuid::LowType guid) const
+CharacterInfo const* World::GetCharacterInfo(ObjectGuid const& guid) const
 {
-    std::map<uint32, CharacterNameData>::const_iterator itr = _characterNameDataMap.find(guid);
+    std::map<uint32, CharacterInfo>::const_iterator itr = _characterNameDataMap.find(guid.GetCounter());
     if (itr != _characterNameDataMap.end())
         return &itr->second;
     else

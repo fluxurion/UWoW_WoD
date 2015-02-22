@@ -40,31 +40,12 @@
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindPlayer(guid);
-    CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid.GetCounter());
 
     WorldPackets::Query::QueryPlayerNameResponse response;
     response.Player = guid;
 
-    if (nameData)
-    {
-        uint32 accountId = player ? player->GetSession()->GetAccountId() : ObjectMgr::GetPlayerAccountIdByGUID(guid);
-        uint32 bnetAccountId = player ? player->GetSession()->GetBattlenetAccountId() : Battlenet::AccountMgr::GetIdByGameAccount(accountId);
-
-        response.Result             = RESPONSE_SUCCESS; // name known
-        response.Data.IsDeleted     = false/*characterInfo->IsDeleted*/;
-        response.Data.AccountID     = ObjectGuid::Create<HighGuid::WowAccount>(accountId);
-        response.Data.BnetAccountID = ObjectGuid::Create<HighGuid::BNetAccount>(bnetAccountId);
-        response.Data.Name          = nameData->m_name;
-        response.Data.VirtualRealmAddress = GetVirtualRealmAddress();
-        response.Data.Race          = nameData->m_race;
-        response.Data.Sex           = nameData->m_gender;
-        response.Data.ClassID       = nameData->m_class;
-        response.Data.Level         = nameData->m_level;
-
-        if (DeclinedName const* names = (player ? player->GetDeclinedNames() : nullptr))
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                response.Data.DeclinedNames.name[i] = names->name[i];
-    }
+    if (response.Data.Initialize(guid, player))
+        response.Result = RESPONSE_SUCCESS; // name known
     else
         response.Result = RESPONSE_FAILURE; // name unknown
 
@@ -170,7 +151,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& /*packet*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CORPSE_QUERY");
 
@@ -178,16 +159,9 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
 
     if (!corpse)
     {
-        //! 5.4.1
-        WorldPacket data(SMSG_CORPSE_QUERY);
-        data << uint8(0);
-        data << uint8(0);   // corpse not found
-        data << float(0);
-        data << float(0);
-        data << int32(0);
-        data << float(0);
-        data << int32(0);
-        SendPacket(&data);
+        WorldPackets::Query::CorpseLocation packet;
+        packet.Valid = false;                               // corpse not found
+        SendPacket(packet.Write());
         return;
     }
 
@@ -216,25 +190,14 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket& /*recvData*/)
             }
         }
     }
-    ObjectGuid guid = corpse->GetGUID();
 
-    //! 5.4.1
-    WorldPacket data(SMSG_CORPSE_QUERY);
-    //data.WriteGuidMask<1, 0, 3, 7, 4, 6, 5, 2>(guid);
-    data.WriteBit(1);               // corpse found
-
-    data.FlushBits();
-
-    data << float(y);
-    //data.WriteGuidBytes<6>(guid);
-    data << float(x);
-    data << int32(mapid);
-    //data.WriteGuidBytes<0, 7, 2, 4>(guid);
-    data << float(z);
-    //data.WriteGuidBytes<1, 5, 3>(guid);
-    data << int32(corpsemapid);
-
-    SendPacket(&data);
+    WorldPackets::Query::CorpseLocation packet;
+    packet.Valid = true;
+    packet.MapID = corpsemapid;
+    packet.ActualMapID = mapid;
+    packet.Position = G3D::Vector3(x, y, z);
+    packet.Transport = corpse->GetTransGUID();
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet)
@@ -363,19 +326,26 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText&
     }
 }
 
-void WorldSession::HandleCorpseMapPositionQuery(WorldPacket& recvData)
+//! ToDo: neew system of it.
+void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_CORPSE_MAP_POSITION_QUERY");
 
-    // Read guid, useless
-    recvData.rfinish();
+    Corpse* corpse = _player->GetCorpse();
 
-    WorldPacket data(SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE, 4+4+4+4);
-    data << float(0);
-    data << float(0);
-    data << float(0);
-    data << float(0);
-    SendPacket(&data);
+    WorldPackets::Query::CorpseTransportQuery response;
+    /*if (!corpse || corpse->GetTransGUID().IsEmpty() || corpse->GetTransGUID() != packet.Transport)*/
+    {
+        response.Position = G3D::Vector3(0.0f, 0.0f, 0.0f);
+        response.Facing = 0.0f;
+    }
+    /*else
+    {
+        response.Position = G3D::Vector3(corpse->GetTransOffsetX(), corpse->GetTransOffsetY(), corpse->GetTransOffsetZ());
+        response.Facing = corpse->GetTransOffsetO();
+    }*/
+
+    SendPacket(response.Write());
 }
 
 void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)

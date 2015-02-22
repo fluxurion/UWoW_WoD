@@ -16,12 +16,11 @@
  */
 
 #include "MiscPackets.h"
+#include "PacketUtilities.h"
 
 WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
 {
-    _worldPacket << float(BindPosition.x);
-    _worldPacket << float(BindPosition.y);
-    _worldPacket << float(BindPosition.z);
+    _worldPacket << BindPosition;
     _worldPacket << uint32(BindMapID);
     _worldPacket << uint32(BindAreaID);
 
@@ -205,5 +204,85 @@ WorldPacket const* WorldPackets::Misc::RaidDifficultySet::Write()
 {
     _worldPacket << int32(DifficultyID);
     _worldPacket << uint8(Legacy);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::CorpseReclaimDelay::Write()
+{
+    _worldPacket << Remaining;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::DeathReleaseLoc::Write()
+{
+    _worldPacket << MapID;
+    _worldPacket << Loc;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PreRessurect::Write()
+{
+    _worldPacket << PlayerGUID;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::ReclaimCorpse::Read()
+{
+    _worldPacket >> CorpseGUID;
+}
+
+void WorldPackets::Misc::RepopRequest::Read()
+{
+    CheckInstance = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Misc::RequestCemeteryListResponse::Write()
+{
+    _worldPacket.WriteBit(IsGossipTriggered);
+    _worldPacket.FlushBits();
+
+    _worldPacket << uint32(CemeteryID.size());
+    for (uint32 cemetery : CemeteryID)
+        _worldPacket << cemetery;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::ResurrectResponse::Read()
+{
+    _worldPacket >> Resurrecter;
+    _worldPacket >> Response;
+}
+
+WorldPackets::Misc::Weather::Weather() : ServerPacket(SMSG_WEATHER, 4 + 4 + 1) { }
+
+WorldPackets::Misc::Weather::Weather(WeatherState weatherID, float intensity /*= 0.0f*/, bool abrupt /*= false*/)
+    : ServerPacket(SMSG_WEATHER, 4 + 4 + 1), Abrupt(abrupt), Intensity(intensity), WeatherID(weatherID) { }
+
+WorldPacket const* WorldPackets::Misc::Weather::Write()
+{
+    _worldPacket << uint32(WeatherID);
+    _worldPacket << float(Intensity);
+    _worldPacket.WriteBit(Abrupt);
+
+    _worldPacket.FlushBits();
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::StandStateChange::Read()
+{
+    uint32 state;
+    _worldPacket >> state;
+
+    StandState = UnitStandStateType(state);
+}
+
+WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
+{
+    _worldPacket << uint8(State);
+
     return &_worldPacket;
 }

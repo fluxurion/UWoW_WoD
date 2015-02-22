@@ -600,13 +600,14 @@ struct CliCommandHolder
 
 typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
 
-struct CharacterNameData
+struct CharacterInfo
 {
-    std::string m_name;
-    uint8 m_class;
-    uint8 m_race;
-    uint8 m_gender;
-    uint8 m_level;
+    std::string Name;
+    uint8 Class;
+    uint8 Race;
+    uint8 Sex;
+    uint8 Level;
+    bool IsDeleted = false;
 };
 
 /// The World
@@ -847,7 +848,7 @@ class World
 
         bool isEventKillStart;
 
-        CharacterNameData const* GetCharacterNameData(ObjectGuid::LowType guid) const;
+        CharacterInfo const* GetCharacterInfo(ObjectGuid const& guid) const;
         void AddCharacterNameData(ObjectGuid::LowType guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
         void UpdateCharacterNameData(ObjectGuid::LowType guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
         void UpdateCharacterNameDataLevel(ObjectGuid::LowType guid, uint8 level);
@@ -984,7 +985,7 @@ class World
 
         std::list<std::string> m_Autobroadcasts;
 
-        std::map<uint32, CharacterNameData> _characterNameDataMap;
+        std::map<uint32, CharacterInfo> _characterNameDataMap;
         void LoadCharacterNameData();
 
         std::map<std::string, bool> nameMap;
