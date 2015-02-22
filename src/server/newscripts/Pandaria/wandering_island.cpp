@@ -2122,7 +2122,7 @@ public:
                 case 3:
                     if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
                         me->SetFacingToObject(wugou);
-                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READYUNARMED);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READYUNARMED);
                     eventTimer = 2000;
                     ++eventProgress;
                     break;
@@ -2154,7 +2154,7 @@ public:
                         case 3:
                             if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
                                 wugou->CastSpell(wugou, 118027, false);
-                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_NONE);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                             eventTimer = 3000;
                             ++eventProgress;
                             break;
@@ -3607,7 +3607,7 @@ class mop_air_balloon : public VehicleScript
                 }
                 if (text == TEXT_GENERIC_5) // restore emote
                 {
-                    head->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, ANIM_FLY_LAND);   //hack
+                    head->SetUInt32Value(UNIT_NPC_EMOTESTATE, ANIM_FLY_LAND);   //hack
                     plr->RemoveFromExtraLook(head);
                 }
             }
@@ -3699,7 +3699,7 @@ class mop_air_balloon : public VehicleScript
                             if (Player* plr = sObjectAccessor->FindPlayer(playerGuid))
                             {
                                 plr->CastSpell(plr, SPELL_HEAD_ANIM_RISE, false);    //17:25:31.000
-                                head->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);   //hack
+                                head->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);   //hack
                             }
                     case EVENT_AISA_TALK_0:
                     case EVENT_AISA_TALK_1:
@@ -4052,7 +4052,7 @@ class mob_mandori_escort : public CreatureScript
                         break;
                     case EVENT_JI_2:
                         me->GetMotionMaster()->MovePoint(100, 569.153f, 3582.24f, 94.95621f);
-                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STEALTH_STAND);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STEALTH_STAND);
                         break;
                     case EVENT_JI_3:
                         sCreatureTextMgr->SendChat(me, TEXT_GENERIC_1, playerGuid);
@@ -4061,7 +4061,7 @@ class mob_mandori_escort : public CreatureScript
                         me->SendPlaySpellVisualKit(15801, 0);
                         break;
                     case EVENT_JI_5:
-                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                         SetEscortPaused(false);
                         break;
                     case EVENT_JI_6:
@@ -4075,7 +4075,7 @@ class mob_mandori_escort : public CreatureScript
                         me->DespawnOrUnsummon(120000);
                         break;
                     case EVENT_JOJO_1:
-                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READYBOW);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READYBOW);
                         break;
                     case EVENT_JOJO_2:
                         me->HandleEmoteCommand(15);
@@ -5273,7 +5273,7 @@ public:
                     case EVENT_20:
                         me->SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 17719);
                         me->SetSpeed(MOVE_RUN, 8.0f, false);
-                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0x3000000);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0x3000000);
                         me->DespawnOrUnsummon(10000);
                         if (Creature* zu = me->GetMap()->GetCreature(CziGUID))
                             zu->DespawnOrUnsummon(10000);

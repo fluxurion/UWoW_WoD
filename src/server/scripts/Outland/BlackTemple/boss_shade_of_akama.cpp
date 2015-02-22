@@ -275,7 +275,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             //me->GetMotionMaster()->Clear();
             //me->GetMotionMaster()->MoveIdle();
-            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STUN);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
 
             if (instance)
                 instance->SetData(DATA_SHADEOFAKAMAEVENT, NOT_STARTED);
@@ -669,7 +669,7 @@ public:
                 CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->SetSelectableChannelers();
                 Shade->AddThreat(me, 1000000.0f);
                 me->CombatStart(Shade);
-                Shade->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_NONE);
+                Shade->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                 Shade->SetTarget(me->GetGUID());
                 if (player)
                     Shade->AddThreat(player, 1.0f);

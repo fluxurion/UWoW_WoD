@@ -6873,7 +6873,7 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
         //data.WriteGuidBytes<7, 2, 5, 6, 4>(target->GetGUID());
         data << uint32(vehicleId);
         //data.WriteGuidBytes<3, 1, 0>(target->GetGUID());
-        data << uint32(target->ToPlayer()->GetTimeSync()+1);          //CMSG_TIME_SYNC_RESP incremenet counter
+        data << uint32(target->ToPlayer()->GetTimeSync()+1);          //CMSG_TIME_SYNC_RESPONSE incremenet counter
         target->ToPlayer()->GetSession()->SendPacket(&data);
 
         // Initialize vehicle

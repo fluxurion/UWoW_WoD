@@ -451,7 +451,7 @@ void Map::ScriptsProcess()
                 if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script))
                 {
                     if (step.script->Emote.Flags & SF_EMOTE_USE_STATE)
-                        cSource->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, step.script->Emote.EmoteID);
+                        cSource->SetUInt32Value(UNIT_NPC_EMOTESTATE, step.script->Emote.EmoteID);
                     else
                         cSource->HandleEmoteCommand(step.script->Emote.EmoteID);
                 }

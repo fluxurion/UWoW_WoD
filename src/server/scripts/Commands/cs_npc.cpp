@@ -747,7 +747,7 @@ public:
             WorldDatabase.Execute(stmt);
         }
 
-        target->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, emote);
+        target->SetUInt32Value(UNIT_NPC_EMOTESTATE, emote);
 
         return true;
     }

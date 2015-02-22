@@ -542,7 +542,7 @@ public:
         {
             if (pointId == EVENT_POINT_MINE)
             {
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_FIND_MINING);
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_FIND_MINING);
                 events.ScheduleEvent(EVENT_GENERIC_1, 10000);
                 return;
             }
@@ -603,7 +603,7 @@ public:
                             case 14: text = TEXT_MINER_3; break;
                             case 17: text = TEXT_MINER_4; break;
                         }
-                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                         SetEscortPaused(false);
                         if (text)
                             sCreatureTextMgr->SendChat(me, text, plrGUID);
@@ -2290,7 +2290,7 @@ public:
                 case NPC_MB_KEZAN_CITIZEN2:
                     sCreatureTextMgr->SendChat(target->ToCreature(), TEXT_GENERIC_0, caster->GetGUID());
                     caster->ToPlayer()->KilledMonsterCredit(NPC_MB_KEZAN_CITIZEN2);
-                    target->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                    target->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                     target->GetMotionMaster()->MoveFollow(caster, 1.0f, 0);
                     target->ToCreature()->DespawnOrUnsummon(5000);
                     break;

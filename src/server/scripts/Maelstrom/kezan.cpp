@@ -87,10 +87,10 @@ class npc_defiant_troll : public CreatureScript
                     me->CastSpell(me, SPELL_SLEEP, true);
                     break;
                 case 1:
-                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 412);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 412);
                     break;
                 default:
-                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 10);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 10);
                     break;
             }
         }
@@ -117,7 +117,7 @@ class npc_defiant_troll : public CreatureScript
                 workTimer = WORK_TIMER;
 
                 // set working animation
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 467);
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 467);
                 SetEquipmentSlots(false, urand(0, 1) == 0 ? 2202 : 2704);
             }
         }

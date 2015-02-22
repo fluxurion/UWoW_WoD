@@ -2295,7 +2295,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
     }
 
     if (cainfo->emote != 0)
-        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, cainfo->emote);
+        SetUInt32Value(UNIT_NPC_EMOTESTATE, cainfo->emote);
 
     //Load Path
     if (cainfo->path_id != 0)

@@ -379,7 +379,7 @@ public:
 
             if (id)
             {
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_EAT);
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_EAT);
                 PoisonTimer = 15000;
             }
         }

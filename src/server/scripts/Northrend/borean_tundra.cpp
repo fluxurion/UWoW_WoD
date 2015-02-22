@@ -2269,7 +2269,7 @@ public:
     {
         npc_hidden_cultistAI(Creature* creature) : ScriptedAI(creature)
         {
-           uiEmoteState = creature->GetUInt32Value(UNIT_FIELD_EMOTE_STATE);
+           uiEmoteState = creature->GetUInt32Value(UNIT_NPC_EMOTESTATE);
            uiNpcFlags = creature->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
         }
 
@@ -2284,7 +2284,7 @@ public:
         void Reset()
         {
             if (uiEmoteState)
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, uiEmoteState);
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, uiEmoteState);
 
             if (uiNpcFlags)
                 me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, uiNpcFlags);
@@ -2334,7 +2334,7 @@ public:
                         switch (me->GetEntry())
                         {
                             case NPC_SALTY_JOHN_THORPE:
-                                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                                 DoScriptText(SAY_HIDDEN_CULTIST_1, me);
                                 uiEventTimer = 5000;
                                 uiEventPhase = 2;

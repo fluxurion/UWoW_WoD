@@ -589,7 +589,7 @@ public:
 
                     if (Creature* pUther = me->GetCreature(*me, uiUther))
                     {
-                        pUther->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_COWER);                        
+                        pUther->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);                        
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             DoScriptText(SAY_UTHER_INTRO_A2_9, pUther);
                         else
@@ -1585,7 +1585,7 @@ public:
             if(me->GetEntry() == NPC_JAINA_OUTRO)
             {
                 me->CastSpell(me, SPELL_ICE_BARRIER, false);
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2HL);
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
             }
             if(m_pInstance->GetData(DATA_LICHKING_EVENT) == DONE)
                 me->SetVisible(false);
@@ -1756,9 +1756,9 @@ public:
                     }
                     SetEscortPaused(true);
                     if(me->GetEntry() == NPC_JAINA_OUTRO)
-                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2HL);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
                     if(me->GetEntry() == NPC_SYLVANA_OUTRO)
-                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY1H);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
                     break;
             }
         }
@@ -1896,7 +1896,7 @@ public:
                         pLichKing->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
 
-                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                     me->AttackStop();
 
                     if(me->GetEntry() == NPC_JAINA_OUTRO)
@@ -1966,7 +1966,7 @@ public:
                     JumpNextStep(4000);
                     break;
                 case 13:
-                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                     if(GameObject* pCave = m_pInstance->instance->GetGameObject(m_pInstance->GetGuidData(GO_CAVE)))
                         pCave->SetGoState(GO_STATE_READY);
                     me->RemoveAllAuras();
@@ -2335,7 +2335,7 @@ public:
                     me->RemoveAurasDueToSpell(70300);
                     me->SetReactState(REACT_AGGRESSIVE);
                         if (Uther)
-                            Uther->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_SIT);
+                            Uther->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SIT);
                     if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST,0, 100.0f, true))
                     {
                         AttackStart(target);

@@ -291,12 +291,12 @@ class boss_lich_king_toc : public CreatureScript
                             break;
                         case 5030:
                             DoScriptText(SAY_STAGE_4_04, me);
-                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_TALK);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                             m_uiUpdateTimer = 10000;
                             m_pInstance->SetData(TYPE_EVENT, 5040);
                             break;
                         case 5040:
-                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_NONE);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                             me->GetMotionMaster()->MovePoint(1, LichKingLoc[1]);
                             m_uiUpdateTimer = 1000;
                             m_pInstance->SetData(TYPE_EVENT, 0);
@@ -543,20 +543,20 @@ class npc_tirion_toc : public CreatureScript
                     switch (m_pInstance->GetData(TYPE_EVENT))
                     {
                         case 110:
-                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_TALK);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_TALK);
                             DoScriptText(SAY_STAGE_0_01, me);
                             m_uiUpdateTimer = 22000;
                             m_pInstance->SetData(TYPE_EVENT, 120);
                             break;
                         case 140:
-                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_TALK);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_TALK);
                             DoScriptText(SAY_STAGE_0_02, me);
                             m_uiUpdateTimer = 5000;
                             m_pInstance->SetData(TYPE_EVENT, 150);
                             m_pInstance->DoUseDoorOrButton(m_pInstance->GetGuidData(GO_MAIN_GATE_DOOR));
                             break;
                         case 150:
-                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_NONE);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                             if (m_pInstance->GetData(TYPE_BEASTS) != DONE)
                             {
                                 me->SummonCreature(NPC_GORMOK, ToCCommonLoc[10].GetPositionX(), ToCCommonLoc[10].GetPositionY(), ToCCommonLoc[10].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30*IN_MILLISECONDS);
@@ -857,13 +857,13 @@ class npc_garrosh_toc : public CreatureScript
                     switch (m_pInstance->GetData(TYPE_EVENT))
                     {
                         case 130:
-                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_TALK);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_TALK);
                             DoScriptText(SAY_STAGE_0_03h, me);
                             m_uiUpdateTimer = 3000;
                             m_pInstance->SetData(TYPE_EVENT, 132);
                             break;
                         case 132:
-                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_NONE);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                             m_uiUpdateTimer = 5000;
                             m_pInstance->SetData(TYPE_EVENT, 140);
                             break;
@@ -935,13 +935,13 @@ class npc_varian_toc : public CreatureScript
                     switch (m_pInstance->GetData(TYPE_EVENT))
                     {
                         case 120:
-                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_TALK);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_TALK);
                             DoScriptText(SAY_STAGE_0_03a, me);
                             m_uiUpdateTimer = 2000;
                             m_pInstance->SetData(TYPE_EVENT, 122);
                             break;
                         case 122:
-                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_NONE);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                             m_uiUpdateTimer = 3000;
                             m_pInstance->SetData(TYPE_EVENT, 130);
                             break;

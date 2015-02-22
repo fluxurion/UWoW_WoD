@@ -676,7 +676,7 @@ Creature * Transport::AddNPCPassengerCreature(ObjectGuid::LowType tguid, uint32 
     pCreature->m_movementInfo.transport.pos.Relocate(x, y, z, o);
 
     if (anim)
-        pCreature->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, anim);
+        pCreature->SetUInt32Value(UNIT_NPC_EMOTESTATE, anim);
 
     pCreature->Relocate(
         GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + float(M_PI))),
@@ -727,7 +727,7 @@ ObjectGuid::LowType Transport::AddNPCPassenger(ObjectGuid::LowType tguid, uint32
     creature->m_movementInfo.transport.pos.Relocate(x, y, z, o);
 
     if (anim)
-        creature->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, anim);
+        creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, anim);
 
     creature->Relocate(
         GetPositionX() + (x * std::cos(GetOrientation()) + y * std::sin(GetOrientation() + float(M_PI))),

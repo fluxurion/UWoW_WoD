@@ -1905,17 +1905,17 @@ class npc_tg_tirion_fordring : public CreatureScript
                                 {
                                     Escort->SetFacingToObject(LichKing);
                                     Escort->AI()->Talk(SAY_CRUASDER_01);
-                                    Escort->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2H);
+                                    Escort->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
                                 }
                                 if (Creature* Escort = me->GetCreature(*me, EscortGUID[1]))
                                 {
                                     Escort->SetFacingToObject(LichKing);
-                                    Escort->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2H);
+                                    Escort->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
                                 }
                                 if (Creature* Escort = me->GetCreature(*me, EscortGUID[2]))
                                 {
                                     Escort->SetFacingToObject(LichKing);
-                                    Escort->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY2H);
+                                    Escort->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
                                 }
                             }
                             Events.ScheduleEvent(EVENT_TALK_9, 3000);
@@ -1937,7 +1937,7 @@ class npc_tg_tirion_fordring : public CreatureScript
                                 (*itr)->SetStandState(UNIT_STAND_STATE_STAND);
                                 (*itr)->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                 (*itr)->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
-                                (*itr)->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_ONESHOT_READYUNARMED);
+                                (*itr)->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_READYUNARMED);
                             }
                             Events.ScheduleEvent(EVENT_SPAWN_KNIGHTS, 6000);
                             }
@@ -1978,7 +1978,7 @@ class npc_tg_tirion_fordring : public CreatureScript
                             {
                                 Mograine->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                 Mograine->GetMotionMaster()->MovePoint(0, 6133.930f, 2758.642f, 573.914f);
-                                Mograine->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_READY1H);
+                                Mograine->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
                             }
                             Events.ScheduleEvent(EVENT_DARION_TALK, 4000);
                             break;
@@ -2025,7 +2025,7 @@ class npc_tg_tirion_fordring : public CreatureScript
                                 {
                                     Escort->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                     Escort->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 0, uint32(0));
-                                    Escort->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, EMOTE_STATE_STAND);
+                                    Escort->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                                     Escort->DespawnOrUnsummon();
                                 }
                             }
