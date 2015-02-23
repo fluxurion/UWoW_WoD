@@ -1397,7 +1397,7 @@ enum OpcodeServer : uint32
     SMSG_SPELLLOGEXECUTE                              = 0x1823,
     SMSG_SPELLLOGMISS                                 = 0x0313,
     SMSG_SPELLNONMELEEDAMAGELOG                       = 0x11FB,
-    SMSG_SPELLORDAMAGE_IMMUNE                         = 0xBADD,
+    SMSG_SPELLORDAMAGE_IMMUNE                         = 0x1313,
     SMSG_SPELLSTEALLOG                                = 0xBADD,
     SMSG_SPELL_CATEGORY_COOLDOWN                      = 0x082A,
     SMSG_SPELL_COOLDOWN                               = 0xBADD,

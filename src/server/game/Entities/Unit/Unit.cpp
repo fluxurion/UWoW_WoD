@@ -5521,32 +5521,13 @@ void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 
 void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 {
-    ObjectGuid casterGuid = GetGUID();
-    ObjectGuid targetGuid = target->GetGUID();
-
+    //! 6.0.3
     WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8 + 8 + 4 + 1 + 1 + 1);
-    //data.WriteGuidMask<3, 1>(targetGuid);
-    //data.WriteGuidMask<1, 5>(casterGuid);
-    data.WriteBit(1);       // 1 - spell immmune, 0 - damage? (1 seen only)
-    //data.WriteGuidMask<7>(targetGuid);
-    //data.WriteGuidMask<7, 2>(casterGuid);
-    //data.WriteGuidMask<5>(targetGuid);
-    //data.WriteGuidMask<3, 0>(casterGuid);
-    data.WriteBit(0);       // not has power data
-    //data.WriteGuidMask<4>(casterGuid);
-    //data.WriteGuidMask<0>(targetGuid);
-    //data.WriteGuidMask<6>(casterGuid);
-    //data.WriteGuidMask<6>(targetGuid);
-
-    //data.WriteGuidMask<2, 4>(targetGuid);
-    //data.WriteGuidBytes<1, 4, 2>(casterGuid);
-    //data.WriteGuidBytes<4, 5>(targetGuid);
-    //data.WriteGuidBytes<0, 6>(casterGuid);
-    //data.WriteGuidBytes<2, 6>(targetGuid);
-    //data.WriteGuidBytes<7, 3, 5>(casterGuid);
+    data << GetGUID();
+    data << target->GetGUID();
     data << uint32(spellId);
-    //data.WriteGuidBytes<0, 7, 1, 3>(targetGuid);
-
+    data.WriteBit(1);       // 1 - spell immmune, 0 - damage? (1 seen only)
+                            // on Trinity: IsPeriodic
     SendMessageToSet(&data, true);
 }
 
