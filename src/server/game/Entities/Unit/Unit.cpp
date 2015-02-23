@@ -22498,49 +22498,23 @@ void Unit::SendDispelFailed(ObjectGuid targetGuid, uint32 spellId, std::list<uin
 
 void Unit::SendDispelLog(ObjectGuid unitTargetGuid, uint32 spellId, std::list<uint32>& spellList, bool broke, bool stolen)
 {
-    ObjectGuid casterGuid = GetGUID();
-
+    //! 6.0.3
     WorldPacket data(SMSG_SPELLDISPELLOG, 4 + 4 + spellList.size() * 5 + 3 + 1);
-    //data.WriteGuidMask<1>(casterGuid);
     data.WriteBit(stolen);      // used in dispel, 0 - dispeled, 1 - stolen
-    //data.WriteGuidMask<7, 2>(casterGuid);
     data.WriteBit(broke);       // 0 - dispel, 1 - break
-    //data.WriteGuidMask<0>(casterGuid);
-    //data.WriteGuidMask<3>(unitTargetGuid);
-
-    data.WriteBits(spellList.size(), 22);
-    for (uint32 i = 0; i < spellList.size(); ++i)
-    {
-        data.WriteBit(0);
-        data.WriteBit(!stolen);
-        data.WriteBit(0);
-    }
-
-    //data.WriteGuidMask<2, 0>(unitTargetGuid);
-    data.WriteBit(0);           // not has power data
-    //data.WriteGuidMask<3>(casterGuid);
-
-    //data.WriteGuidMask<5, 4>(casterGuid);
-    //data.WriteGuidMask<1, 7, 4, 5, 6>(unitTargetGuid);
-    //data.WriteGuidMask<6>(casterGuid);
-
-    //data.WriteGuidBytes<5>(unitTargetGuid);
+    data << unitTargetGuid;
+    data << GetGUID();
     data << uint32(spellId);
 
-    for (std::list<uint32>::const_iterator itr = spellList.begin(); itr != spellList.end(); ++itr)
+    data << uint32(spellList.size());
+    for (uint32 i = 0; i < spellList.size(); ++i)
+    {
         data << uint32(*itr);
 
-    //data.WriteGuidBytes<3>(casterGuid);
-    //data.WriteGuidBytes<7, 2>(unitTargetGuid);
-    //data.WriteGuidBytes<1, 0>(casterGuid);
-    //data.WriteGuidBytes<3>(unitTargetGuid);
-    //data.WriteGuidBytes<7>(casterGuid);
-    //data.WriteGuidBytes<0, 4>(unitTargetGuid);
-    //data.WriteGuidBytes<2, 6>(casterGuid);
-    //data.WriteGuidBytes<1>(unitTargetGuid);
-    //data.WriteGuidBytes<4>(casterGuid);
-    //data.WriteGuidBytes<6>(unitTargetGuid);
-    //data.WriteGuidBytes<5>(casterGuid);
+        data.WriteBit(!stolen);
+        data.WriteBit(0);
+        data.WriteBit(0);
+    }
 
     SendMessageToSet(&data, true);
 }

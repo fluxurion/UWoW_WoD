@@ -1389,7 +1389,7 @@ enum OpcodeServer : uint32
     SMSG_SOR_START_EXPERIENCE_INCOMPLETE              = 0xBADD,
     SMSG_SPELLBREAKLOG                                = 0xBADD,
     SMSG_SPELLDAMAGESHIELD                            = 0x188A,
-    SMSG_SPELLDISPELLOG                               = 0xBADD,
+    SMSG_SPELLDISPELLOG                               = 0x18A2,
     SMSG_SPELLENERGIZELOG                             = 0x137C,
     SMSG_SPELLHEALLOG                                 = 0x0114,
     SMSG_SPELLINSTAKILLLOG                            = 0xBADD,
