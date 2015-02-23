@@ -11345,7 +11345,7 @@ void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Health, uint32 
     ObjectGuid targetGuid = victim->GetGUID();
 
     //! 6.0.3
-    WorldPacket data(SMSG_SPELLHEALLOG, 16 + 16 + 8 + 8 + 1 + 1 + 1);
+    WorldPacket data(SMSG_SPELLHEALLOG, 65);
     data << GetGUID();
     data << victim->GetGUID();
 
@@ -11382,38 +11382,17 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
 
 void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, uint32 damage, Powers powerType)
 {
-    WorldPacket data(SMSG_SPELLENERGIZELOG, 8 + 8 + 1 + 1 + 4 + 4 + 4);
+    //! 6.0.3
+    WorldPacket data(SMSG_SPELLENERGIZELOG, 35);
 
-    ObjectGuid targetGuid = victim->GetGUID();
-    ObjectGuid sourceGuid = GetGUID();
+    data << GetGUID();
+    data << victim->GetGUID();
 
-    //data.WriteGuidMask<2>(targetGuid);
-    //data.WriteGuidMask<1>(sourceGuid);
-    //data.WriteGuidMask<1>(targetGuid);
+    data << uint32(spellID);
+    data << uint32(powerType);
+    data << uint32(damage);
 
     data.WriteBit(0);       // not has power data
-
-    //data.WriteGuidMask<3, 0>(targetGuid);
-    //data.WriteGuidMask<5, 3>(sourceGuid);
-    //data.WriteGuidMask<5, 6>(targetGuid);
-    //data.WriteGuidMask<4>(sourceGuid);
-    //data.WriteGuidMask<7>(targetGuid);
-    //data.WriteGuidMask<6>(sourceGuid);
-    //data.WriteGuidMask<4>(targetGuid);
-    //data.WriteGuidMask<7, 0, 2>(sourceGuid);
-
-    //data.WriteGuidBytes<1>(sourceGuid);
-    //data.WriteGuidBytes<3>(targetGuid);
-
-    //data.WriteGuidBytes<5>(sourceGuid);
-    //data.WriteGuidBytes<7, 1, 6, 2, 0, 4>(targetGuid);
-    data << uint32(powerType);
-    //data.WriteGuidBytes<2>(sourceGuid);
-    data << uint32(damage);
-    //data.WriteGuidBytes<7, 0, 3>(sourceGuid);
-    //data.WriteGuidBytes<5>(targetGuid);
-    data << uint32(spellID);
-    //data.WriteGuidBytes<4, 6>(sourceGuid);
 
     SendMessageToSet(&data, true);
 }
