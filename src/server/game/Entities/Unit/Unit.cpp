@@ -5491,32 +5491,18 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 
 void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
 {
-    ObjectGuid casterGuid = GetGUID();
-    ObjectGuid targetGuid = target->GetGUID();
-
-    WorldPacket data(SMSG_SPELLLOGMISS, 8 + 8 + 1 + 1 + 1 + 3 + 4);
-    //data.WriteGuidMask<5, 2, 4>(casterGuid);
-    data.WriteBit(0);           // not has power data
-    //data.WriteGuidMask<1>(casterGuid);
-
-    data.WriteBits(1, 23);      // miss count
-    //for (var i = 0; i < missCount; ++i)
-    {
-        data.WriteBit(0);       // not has floats
-        //data.WriteGuidMask<1, 0, 3, 4, 5, 7, 2, 6>(targetGuid);
-    }
-
-    //data.WriteGuidMask<0, 6, 3, 7>(casterGuid);
-
-    //for (var i = 0; i < missCount; ++i)
-    {
-        //data.WriteGuidBytes<4, 0, 1, 7, 6, 3, 5>(targetGuid);
-        data << uint8(missInfo);
-        //data.WriteGuidBytes<2>(targetGuid);
-    }
-
-    //data.WriteGuidBytes<3, 6, 4, 2, 1, 7, 5, 0>(casterGuid);
+    //! 6.0.3
+    WorldPacket data(SMSG_SPELLLOGMISS, 4 + 16 + 16);
     data << uint32(spellID);
+    data << GetGUID();
+
+    data << uint32(1);              // miss count
+    //for (var i = 0; i < missCount; ++i)
+    {
+        data << target->GetGUID();
+        data << uint8(missInfo);
+        data.WriteBit(0);                   // HasSpellLogMissDebug
+    }
 
     SendMessageToSet(&data, true);
 }
