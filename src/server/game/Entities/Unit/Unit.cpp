@@ -11339,43 +11339,25 @@ void Unit::UnsummonAllTotems()
     }
 }
 
-void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical)
+void Unit::SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Health, uint32 OverHeal, uint32 Absorb, bool critical)
 {
     ObjectGuid casterGuid = GetGUID();
     ObjectGuid targetGuid = victim->GetGUID();
 
-    WorldPacket data(SMSG_SPELLHEALLOG, 4 * 4 + 8 + 8 + 1 + 1 + 1);
+    //! 6.0.3
+    WorldPacket data(SMSG_SPELLHEALLOG, 16 + 16 + 8 + 8 + 1 + 1 + 1);
+    data << GetGUID();
+    data << victim->GetGUID();
 
-    //data.WriteGuidMask<4>(casterGuid);
-    //data.WriteGuidMask<5, 3>(targetGuid);
-    data.WriteBit(0);       // not has float
-    //data.WriteGuidMask<3>(casterGuid);
-    //data.WriteGuidMask<7>(targetGuid);
-    //data.WriteGuidMask<0, 5>(casterGuid);
-    //data.WriteGuidMask<0>(targetGuid);
-    //data.WriteGuidMask<7, 1>(casterGuid);
-    data.WriteBit(critical);
-    //data.WriteGuidMask<6>(casterGuid);
-    //data.WriteGuidMask<1, 6, 2>(targetGuid);
-    //data.WriteGuidMask<2>(casterGuid);
-    data.WriteBit(0);       // not has float
-    //data.WriteGuidMask<4>(targetGuid);
-    data.WriteBit(0);       // not has power data
-
-    data << uint32(Damage);
-    //data.WriteGuidBytes<1>(targetGuid);
-    //data.WriteGuidBytes<7>(casterGuid);
-    //data.WriteGuidBytes<7>(targetGuid);
-    //data.WriteGuidBytes<3, 6, 5>(casterGuid);
-    //data.WriteGuidBytes<2>(targetGuid);
-    data << uint32(OverHeal);
-    //data.WriteGuidBytes<0, 6>(targetGuid);
-    //data.WriteGuidBytes<4>(casterGuid);
-    //data.WriteGuidBytes<5>(targetGuid);
-    //data.WriteGuidBytes<4, 3>(targetGuid);
     data << uint32(SpellID);
+    data << uint32(Health);
+    data << uint32(OverHeal);
     data << uint32(Absorb); // Absorb amount
-    //data.WriteGuidBytes<2, 1, 0>(casterGuid);
+
+    data.WriteBit(critical);// Crit
+    data.WriteBit(0);       // Multistrike
+    data.WriteBit(0);       // HasCritRollMade
+    data.WriteBit(0);       // HasLogData
 
     SendMessageToSet(&data, true);
 }
