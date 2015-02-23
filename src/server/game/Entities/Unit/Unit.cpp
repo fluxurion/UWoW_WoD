@@ -5509,11 +5509,13 @@ void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
 
 void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 {
+    //! 6.0.3
     WorldPacket data(SMSG_PROCRESIST, 8+8+4+1);
     data << GetGUID();
     data << target->GetGUID();
     data << uint32(spellId);
-    data << uint8(0); // bool - log format: 0-default, 1-debug
+    data.WriteBit(0); // bool - log format: 0-default, 1-debug
+    data.WriteBit(0);
     SendMessageToSet(&data, true);
 }
 

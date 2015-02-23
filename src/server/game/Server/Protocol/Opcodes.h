@@ -1285,7 +1285,7 @@ enum OpcodeServer : uint32
     SMSG_PONG                                         = 0x17CA,
     SMSG_POWER_UPDATE                                 = 0x0B27,
     SMSG_PRE_RESSURECT                                = 0x0D2E,
-    SMSG_PROCRESIST                                   = 0xBADD,
+    SMSG_PROCRESIST                                   = 0x1DAD,
     SMSG_PROPOSE_LEVEL_GRANT                          = 0x1B8C,
     SMSG_PUREMOUNT_CANCELLED_OBSOLETE                 = 0xBADD,
     SMSG_PVP_CREDIT                                   = 0xBADD,
