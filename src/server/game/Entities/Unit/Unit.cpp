@@ -5359,52 +5359,27 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
             newDamage *= bonus->damage_bonus;
     }
 
-    ObjectGuid casterGuid = log->attacker->GetGUID();
-    ObjectGuid targetGuid = log->target->GetGUID();
     int32 overkill = newDamage - log->target->GetHealth();
 
+    //! 6.0.3
     WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, 8 + 8 + 1 + 1 + 1 + 7 * 4 + 1);
-    //data.WriteGuidMask<1, 6, 0>(targetGuid);
-    //data.WriteGuidMask<3>(casterGuid);
+    data << log->target->GetGUID();
+    data << log->attacker->GetGUID();
 
-    data.WriteBit(0);                               // unk
-    //data.WriteGuidMask<4>(casterGuid);
-    //data.WriteGuidMask<3>(targetGuid);
-    data.WriteBit(log->physicalLog);                // if 1, then client show spell name (example: %s's ranged shot hit %s for %u school or %s suffers %u school damage from %s's spell_name
-    //data.WriteGuidMask<2>(targetGuid);
-    //data.WriteGuidMask<7, 2>(casterGuid);
-    data.WriteBit(0);                               // not has power data
-    //data.WriteGuidMask<7>(targetGuid);
-
-    //data.WriteGuidMask<1, 5>(casterGuid);
-
-    data.WriteBit(0);                               // not has floats (extended data)
-
-    //data.WriteGuidMask<5, 4>(targetGuid);
-    //data.WriteGuidMask<0, 6>(casterGuid);
-
-    //data.WriteGuidBytes<7>(targetGuid);
-    data << uint32(newDamage);                      // damage amount
-    //data.WriteGuidBytes<4, 6>(targetGuid);
-    data << uint32(log->absorb);                    // AbsorbedDamage
-    //data.WriteGuidBytes<4>(casterGuid);
-    //data.WriteGuidBytes<2>(targetGuid);
-    data << uint32(log->blocked);                   // blocked
     data << uint32(log->SpellID);
-    //data.WriteGuidBytes<1>(targetGuid);
-    //data.WriteGuidBytes<3>(casterGuid);
-    data << uint8 (log->schoolMask);                // damage school
-    //data.WriteGuidBytes<7>(casterGuid);
-    data << uint32(log->HitInfo);
-    //data.WriteGuidBytes<0>(targetGuid);
-    //data.WriteGuidBytes<0>(casterGuid);
-    //data.WriteGuidBytes<5>(targetGuid);
-    //data.WriteGuidBytes<6>(casterGuid);
-    data << uint32(log->resist);                    // resist
-    //data.WriteGuidBytes<3>(targetGuid);
-    //data.WriteGuidBytes<5>(casterGuid);
+    data << uint32(newDamage);        
     data << uint32(overkill > 0 ? overkill : -1);   // overkill
-    //data.WriteGuidBytes<2, 1>(casterGuid);
+
+    data << uint8 (log->schoolMask);                // damage school
+
+    data << uint32(log->blocked);                   // blocked
+    data << uint32(log->resist);                    // resist
+    data << uint32(log->absorb);                    // AbsorbedDamage
+
+    data.WriteBit(log->physicalLog);                // if 1, then client show spell name (example: %s's ranged shot hit %s for %u school or %s suffers %u school damage from %s's spell_name
+    data.WriteBits(log->HitInfo, 9);                // Flags
+    data.WriteBit(0);                               // not has power data
+    data.WriteBit(0);                               // not has floats (extended data)
 
     SendMessageToSet(&data, true);
 }
