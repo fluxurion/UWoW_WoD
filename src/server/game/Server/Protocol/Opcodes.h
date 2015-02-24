@@ -937,7 +937,7 @@ enum OpcodeServer : uint32
     SMSG_DISENCHANT_CREDIT                            = 0xBADD,
     SMSG_DISMOUNT                                     = 0xBADD,
     SMSG_DISMOUNTRESULT                               = 0xBADD,
-    SMSG_DISPEL_FAILED                                = 0xBADD,
+    SMSG_DISPEL_FAILED                                = 0x0AA3,
     SMSG_DISPLAY_GAME_ERROR                           = 0xBADD,
     SMSG_DISPLAY_PROMOTION                            = 0x151D,
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR          = 0xBADD,

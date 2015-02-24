@@ -22461,37 +22461,16 @@ void Unit::SendDispelFailed(ObjectGuid targetGuid, uint32 spellId, std::list<uin
 {
     ObjectGuid sourceGuid = GetGUID();
 
+    //! 6.0.3
     WorldPacket data(SMSG_DISPEL_FAILED, spellList.size() * 4 + 8 + 8 + 1 + 1 + 3);
-    //data.WriteGuidMask<6>(targetGuid);
-    data.WriteBit(0);       // not has power data
-    //data.WriteGuidMask<3>(sourceGuid);
+    data << GetGUID();
+    data << targetGuid;
 
-    //data.WriteGuidMask<6>(sourceGuid);
-    data.WriteBits(spellList.size(), 22);
-    //data.WriteGuidMask<0>(sourceGuid);
-    //data.WriteGuidMask<2>(targetGuid);
-    //data.WriteGuidMask<2, 4>(sourceGuid);
-    //data.WriteGuidMask<1>(targetGuid);
-    //data.WriteGuidMask<1, 5>(sourceGuid);
-    //data.WriteGuidMask<7, 3, 4, 0>(targetGuid);
-    //data.WriteGuidMask<7>(sourceGuid);
-    //data.WriteGuidMask<5>(targetGuid);
-
-    //data.WriteGuidBytes<4>(targetGuid);
-    //data.WriteGuidBytes<4, 2>(sourceGuid);
-    //data.WriteGuidBytes<2, 3, 7>(targetGuid);
-    //data.WriteGuidBytes<5>(sourceGuid);
-    //data.WriteGuidBytes<1>(targetGuid);
-    //data.WriteGuidBytes<7, 0>(sourceGuid);
-    //data.WriteGuidBytes<6>(targetGuid);
-    //data.WriteGuidBytes<1, 3>(sourceGuid);
-    //data.WriteGuidBytes<0, 5>(targetGuid);
-    //data.WriteGuidBytes<6>(sourceGuid);
+    data << uint32(spellId);
+    data << uint32(spellList.size());
 
     for (std::list<uint32>::const_iterator itr = spellList.begin(); itr != spellList.end(); ++itr)
         data << uint32(*itr);
-
-    data << uint32(spellId);
 
     SendMessageToSet(&data, true);
 }
@@ -22507,7 +22486,7 @@ void Unit::SendDispelLog(ObjectGuid unitTargetGuid, uint32 spellId, std::list<ui
     data << uint32(spellId);
 
     data << uint32(spellList.size());
-    for (uint32 i = 0; i < spellList.size(); ++i)
+    for (std::list<uint32>::const_iterator itr = spellList.begin(); itr != spellList.end(); ++itr)
     {
         data << uint32(*itr);
 
