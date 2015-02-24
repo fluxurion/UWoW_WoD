@@ -21607,8 +21607,7 @@ uint32 Unit::GetRemainingPeriodicAmount(ObjectGuid caster, uint32 spellId, AuraT
 void Unit::SendClearTarget()
 {
     WorldPacket data(SMSG_BREAK_TARGET, 8 + 1);
-    //data.WriteGuidMask<5, 6, 7, 3, 2, 0, 4, 1>(GetGUID());
-    //data.WriteGuidBytes<1, 6, 2, 4, 5, 3, 7, 0>(GetGUID());
+    data << GetGUID();
     SendMessageToSet(&data, false);
 }
 
@@ -22323,85 +22322,6 @@ void Trinity::BuildChatPacket(WorldPacket& data, ChatData& c, bool coded, bool e
     data.WriteString(c.addonPrefix);
     data.WriteString(c.channelName);
     data.WriteString(message);
-
-
-
-
-    /*data.WriteBit(!langId);
-    data.WriteBit(!c.sourceName.size());
-
-    data.WriteBit(!c.groupGuid);
-    //data.WriteGuidMask<3, 7, 2, 6, 0, 4, 5, 1>(c.groupGuid);
-
-    data.WriteBit(!c.achievementId);
-    data.WriteBit(c.byte1495);
-    data.WriteBit(!c.addonPrefix.size());
-
-    data.WriteBit(!c.guildGuid);
-    data.WriteBit(!c.targetName.size());
-    //data.WriteGuidMask<1, 6, 0, 5, 2, 4, 7, 3>(c.guildGuid);
-
-    data.WriteBit(!c.targetGuid);
-    //data.WriteGuidMask<6, 1, 3, 5, 4, 2, 7, 0>(c.targetGuid);
-
-    if (uint32 len = c.sourceName.size())
-        data.WriteBits(len, 11);
-
-    data.WriteBit(!c.channelName.size());
-    data.WriteBit(c.byte1494);
-    data.WriteBit(c.float1490 == 0.0f);
-    data.WriteBit(!c.realmId);
-
-    if (uint32 len = c.targetName.size())
-        data.WriteBits(len, 11);
-
-    if (uint32 len = c.channelName.size())
-        data.WriteBits(len, 7);
-
-    data.WriteBit(!message.size());
-    if (uint32 len = message.size())
-        data.WriteBits(len, 12);
-
-    data.WriteBit(!c.sourceGuid);
-    //data.WriteGuidMask<4, 1, 3, 6, 2, 5, 0, 7>(c.sourceGuid);
-
-    data.WriteBit(!c.chatTag);
-    if (c.chatTag)
-        data.WriteBits(c.chatTag, 9);
-
-    if (uint32 len = c.addonPrefix.size())
-        data.WriteBits(len, 5);
-
-    data.WriteString(c.addonPrefix);
-
-    //data.WriteGuidBytes<4, 2, 7, 3, 6, 1, 5, 0>(c.groupGuid);
-
-    data.WriteString(c.sourceName);
-
-    //data.WriteGuidBytes<7, 4, 1, 3, 0, 6, 5, 2>(c.targetGuid);
-
-    //data.WriteGuidBytes<5, 7, 3, 0, 4, 6, 1, 2>(c.guildGuid);
-
-    if (langId)
-        data << uint8(langId);
-
-    //data.WriteGuidBytes<7, 4, 0, 6, 3, 2, 5, 1>(c.sourceGuid);
-
-    data.WriteString(c.channelName);
-
-    data.WriteString(message);
-
-    data << uint8(c.chatType);
-
-    if (c.achievementId)
-        data << uint32(c.achievementId);
-
-    data.WriteString(c.targetName);
-
-    if (c.float1490 != 0.0f)
-        data << float(c.float1490);
-    if (c.realmId)
-        data << uint32(c.realmId);*/
 }
 
 uint32 GetWordWeight(std::string const& word)

@@ -825,7 +825,7 @@ enum OpcodeServer : uint32
     SMSG_BINDER_CONFIRM                               = 0x0B11,
     SMSG_BINDPOINTUPDATE                              = 0x0A30,
     SMSG_BINDZONEREPLY                                = 0xBADD,
-    SMSG_BREAK_TARGET                                 = 0xBADD,
+    SMSG_BREAK_TARGET                                 = 0x11A2,
     SMSG_BUY_BANK_SLOT_RESULT                         = 0xBADD,
     SMSG_BUY_FAILED                                   = 0x013A,
     SMSG_BUY_ITEM                                     = 0x0BD1,
