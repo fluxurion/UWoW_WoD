@@ -1561,8 +1561,15 @@ void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& pack
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_TIME_SYNC_RESPONSE");
 
-    if (packet.SequenceIndex != _player->m_timeSyncCounter - 1)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Wrong time sync counter from player %s (cheater?)", _player->GetName());
+    // Prevent crashing server if queue is empty
+    if (_player->m_timeSyncQueue.empty())
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Received CMSG_TIME_SYNC_RESPONSE from player %s without requesting it (hacker?)", _player->GetName());
+        return;
+    }
+
+    if (packet.SequenceIndex != _player->m_timeSyncQueue.front())
+        sLog->outError(LOG_FILTER_NETWORKIO, "Wrong time sync counter from player %s (cheater?)", _player->GetName());
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Time sync received: counter %u, client ticks %u, time since last sync %u", packet.SequenceIndex, packet.ClientTime, packet.ClientTime - _player->m_timeSyncClient);
 
@@ -1572,6 +1579,7 @@ void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& pack
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Our ticks: %u, diff %u, latency %u", ourTicks, ourTicks - packet.ClientTime, GetLatency());
 
     _player->m_timeSyncClient = packet.ClientTime;
+    _player->m_timeSyncQueue.pop();
 }
 
 void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)

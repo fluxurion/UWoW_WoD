@@ -28391,7 +28391,6 @@ void Player::ActivateSpec(uint8 spec)
 
 void Player::ResetTimeSync()
 {
-    m_timeSyncCounter = 0;
     m_timeSyncTimer = 0;
     m_timeSyncClient = 0;
     m_timeSyncServer = getMSTime();
@@ -28399,13 +28398,18 @@ void Player::ResetTimeSync()
 
 void Player::SendTimeSync()
 {
+    m_timeSyncQueue.push(m_movementCounter++);
+
     WorldPackets::Misc::TimeSyncRequest packet;
-    packet.SequenceIndex = m_timeSyncCounter++;
+    packet.SequenceIndex = m_timeSyncQueue.back();
     SendDirectMessage(packet.Write());
 
     // Schedule next sync in 10 sec
     m_timeSyncTimer = 10000;
     m_timeSyncServer = getMSTime();
+
+    if (m_timeSyncQueue.size() > 3)
+        sLog->outError(LOG_FILTER_NETWORKIO, "Not received CMSG_TIME_SYNC_RESP for over 30 seconds from 5s (%s), possible cheater", GetGUID().ToString().c_str());
 }
 
 void Player::SetReputation(uint32 factionentry, uint32 value)
