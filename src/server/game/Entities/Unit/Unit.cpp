@@ -21205,15 +21205,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SetFallInformation(0, GetPositionZ());
     else if (HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
-    {
-        //! 5.4.1
-        WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
-        ObjectGuid guid = GetGUID();
-    
-        //data.WriteGuidMask<1, 0, 2, 6, 5, 4, 7>(guid);
-        //data.WriteGuidBytes<2, 4, 7, 3, 6, 5, 1, 0>(guid);
-        SendMessageToSet(&data, false);
-    }
+        SetRooted(false);
 
     Movement::MoveSplineInit init(*this);
     init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
@@ -21448,10 +21440,9 @@ void Unit::SendClearThreatListOpcode()
 
     ObjectGuid guid = GetGUID(); 
 
-    //! 5.4.1
+    //! 6.0.3
     WorldPacket data(SMSG_THREAT_CLEAR, 8);
-    //data.WriteGuidMask<0, 2, 5, 3, 1, 4, 6, 7>(guid);
-    //data.WriteGuidBytes<1, 2, 3, 7, 6, 0, 4, 5>(guid);
+    data << GetGUID(); ;
     SendMessageToSet(&data, false);
 }
 
@@ -21462,26 +21453,10 @@ void Unit::SendRemoveFromThreatListOpcode(HostileReference* pHostileReference)
     ObjectGuid guid = GetGUID(); 
     ObjectGuid RefGUID = pHostileReference->getUnitGuid(); 
 
-    //! 5.4.1
-    WorldPacket data(SMSG_THREAT_REMOVE, 8 + 8);
-    //data.WriteGuidMask<3>(guid);
-    //data.WriteGuidMask<5, 1, 3, 0>(RefGUID);
-    //data.WriteGuidMask<5>(guid);
-    //data.WriteGuidMask<2, 7>(RefGUID);
-    //data.WriteGuidMask<2, 6>(guid);
-    //data.WriteGuidMask<4>(RefGUID);
-    //data.WriteGuidMask<0, 7, 1, 4>(guid);
-    //data.WriteGuidMask<6>(RefGUID);
-
-    //data.WriteGuidBytes<0, 5>(guid);
-    //data.WriteGuidBytes<4>(RefGUID);
-    //data.WriteGuidBytes<4, 7>(guid);
-    //data.WriteGuidBytes<0, 1>(RefGUID);
-    //data.WriteGuidBytes<3, 1>(guid);
-    //data.WriteGuidBytes<6, 7, 2, 3, 5>(RefGUID);
-    //data.WriteGuidBytes<2, 6>(guid);
-
-    SendMessageToSet(&data, false);
+    WorldPackets::Combat::ThreatRemove packet;
+    packet.UnitGUID = GetGUID();
+    packet.AboutGUID = pHostileReference->getUnitGuid();
+    SendMessageToSet(packet.Write(), false);
 }
 
 // baseRage means damage taken when attacker = false
@@ -21606,7 +21581,7 @@ uint32 Unit::GetRemainingPeriodicAmount(ObjectGuid caster, uint32 spellId, AuraT
 
 void Unit::SendClearTarget()
 {
-    WorldPacket data(SMSG_BREAK_TARGET, 8 + 1);
+    WorldPacket data(SMSG_BREAK_TARGET, 16);
     data << GetGUID();
     SendMessageToSet(&data, false);
 }

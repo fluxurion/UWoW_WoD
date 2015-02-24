@@ -1457,7 +1457,7 @@ enum OpcodeServer : uint32
     SMSG_TAXINODE_STATUS                              = 0x0338,
     SMSG_TEST_DROP_RATE_RESULT                        = 0xBADD,
     SMSG_TEXT_EMOTE                                   = 0x0383,
-    SMSG_THREAT_CLEAR                                 = 0xBADD,
+    SMSG_THREAT_CLEAR                                 = 0x030F,
     SMSG_THREAT_REMOVE                                = 0x0F3D,
     SMSG_THREAT_UPDATE                                = 0x03A9,
     SMSG_TIME_ADJUSTMENT                              = 0xBADD,
