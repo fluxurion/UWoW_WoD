@@ -217,6 +217,16 @@ namespace WorldPackets
         class QuestGiverQueryQuest;
     }
 
+    namespace Social
+    {
+        class AddFriend;
+        class AddIgnore;
+        class DelFriend;
+        class DelIgnore;
+        class SendContactList;
+        class SetContactNotes;
+    }
+
     namespace Spells
     {
         class CancelAura;
@@ -658,11 +668,11 @@ class WorldSession
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
         void HandleEmoteOpcode(WorldPacket& recvPacket);
-        void HandleContactListOpcode(WorldPacket& recvPacket);
-        void HandleAddFriendOpcode(WorldPacket& recvPacket);
+        void HandleContactListOpcode(WorldPackets::Social::SendContactList& packet);
+        void HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet);
         void HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std::string friendNote);
-        void HandleDelFriendOpcode(WorldPacket& recvPacket);
-        void HandleAddIgnoreOpcode(WorldPacket& recvPacket);
+        void HandleDelFriendOpcode(WorldPackets::Social::DelFriend& packet);
+        void HandleAddIgnoreOpcode(WorldPackets::Social::AddIgnore& packet);
         void HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result);
         void HandleDelIgnoreOpcode(WorldPacket& recvPacket);
         void HandleSetContactNotesOpcode(WorldPacket& recvPacket);

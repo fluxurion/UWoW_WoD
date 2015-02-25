@@ -69,7 +69,7 @@ typedef std::map<ObjectGuid, FriendInfo> PlayerSocialMap;
 typedef std::map<ObjectGuid, PlayerSocial> SocialMap;
 
 /// Results of friend related commands
-enum FriendsResult
+enum FriendsResult : uint8
 {
     FRIEND_DB_ERROR         = 0x00,
     FRIEND_LIST_FULL        = 0x01,

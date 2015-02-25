@@ -62,6 +62,7 @@
 #include "CharacterPackets.h"
 #include "SpellPackets.h"
 #include "WhoPackets.h"
+#include "SocialPackets.h"
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet)
 {
@@ -416,42 +417,32 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateCh
     _player->SetStandState(packet.StandState);
 }
 
-void WorldSession::HandleContactListOpcode(WorldPacket& recvData)
+void WorldSession::HandleContactListOpcode(WorldPackets::Social::SendContactList& packet)
 {
-    recvData.read_skip<uint32>(); // always 1
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONTACT_LIST");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SEND_CONTACT_LIST");
     _player->GetSocial()->SendSocialList(_player);
 }
 
-void WorldSession::HandleAddFriendOpcode(WorldPacket& recvData)
+void WorldSession::HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet)
 {
     time_t now = time(NULL);
     if (now - timeAddIgnoreOpcode < 3)
-    {
-        recvData.rfinish();
         return;
-    }
     else
        timeAddIgnoreOpcode = now;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADD_FRIEND");
 
-    std::string friendName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
-    std::string friendNote;
 
-    recvData >> friendName;
-    recvData >> friendNote;
-
-    if (!normalizePlayerName(friendName))
+    if (!normalizePlayerName(packet.Name))
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to add friend : '%s'", GetPlayer()->GetName(), friendName.c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to add friend : '%s'", GetPlayer()->GetName(), packet.Name.c_str());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
+    stmt->setString(0, packet.Name.c_str());
 
-    stmt->setString(0, friendName);
-
-    _addFriendCallback.SetParam(friendNote);
+    _addFriendCallback.SetParam(std::move(packet.Notes));
     _addFriendCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
@@ -508,47 +499,32 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_FRIEND_STATUS)");
 }
 
-void WorldSession::HandleDelFriendOpcode(WorldPacket& recvData)
+void WorldSession::HandleDelFriendOpcode(WorldPackets::Social::DelFriend& packet)
 {
-    ObjectGuid FriendGUID;
-
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DEL_FRIEND");
-
-    recvData >> FriendGUID;
-
-    _player->GetSocial()->RemoveFromSocialList(FriendGUID, false);
-
-    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, FriendGUID, false);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_FRIEND_STATUS)");
+    _player->GetSocial()->RemoveFromSocialList(packet.Player.Guid, false);
+    sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, packet.Player.Guid, false);
 }
 
-void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recvData)
+void WorldSession::HandleAddIgnoreOpcode(WorldPackets::Social::AddIgnore& packet)
 {
     time_t now = time(NULL);
     if (now - timeAddIgnoreOpcode < 3)
-    {
-        recvData.rfinish();
         return;
-    }
     else
        timeAddIgnoreOpcode = now;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADD_IGNORE");
 
-    std::string ignoreName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
-
-    recvData >> ignoreName;
-
-    if (!normalizePlayerName(ignoreName))
+    if (!normalizePlayerName(packet.Name))
         return;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to Ignore: '%s'",
-        GetPlayer()->GetName(), ignoreName.c_str());
+        GetPlayer()->GetName(), packet.Name.c_str());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
 
-    stmt->setString(0, ignoreName);
+    stmt->setString(0, packet.Name);
 
     _addIgnoreCallback = CharacterDatabase.AsyncQuery(stmt);
 }
