@@ -20325,18 +20325,16 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     AddUnitState(UNIT_STATE_JUMPING);
     m_TempSpeed = fabs(speedZ * 10.0f);
 
-    ObjectGuid guid = GetGUID();
-    //! 5.4.1
+    //! 6.0.3
     WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1+8+4+4+4+4+4));
-    
-    data << float(speedXY);
-    data << float(vcos);
-    data << float(speedZ);
-    data << uint32(0);
+    data << GetGUID();
+    data << uint32(m_movementCounter++);
+
     data << float(vsin);
-    
-    //data.WriteGuidMask<7, 2, 4, 3, 0, 6, 1, 5>(guid);
-    //data.WriteGuidBytes<1, 4, 0, 2, 3, 5, 7, 6>(guid);
+    data << float(vcos);
+
+    data << float(speedZ);
+    data << float(speedXY);
 
     player->GetSession()->SendPacket(&data);
 }

@@ -1181,7 +1181,7 @@ enum OpcodeServer : uint32
     SMSG_MOVE_FEATHER_FALL                            = 0x01DD,
     SMSG_MOVE_GRAVITY_DISABLE                         = 0x02C6,
     SMSG_MOVE_GRAVITY_ENABLE                          = 0x03B4,
-    SMSG_MOVE_KNOCK_BACK                              = 0xBADD,
+    SMSG_MOVE_KNOCK_BACK                              = 0x0CCB,
     SMSG_MOVE_LAND_WALK                               = 0x13DA,
     SMSG_MOVE_NORMAL_FALL                             = 0x0193,
     SMSG_MOVE_ROOT                                    = 0x1B5A,
@@ -1528,6 +1528,7 @@ enum OpcodeServer : uint32
     SMSG_TABARDVENDOR_ACTIVATE                        = 0x1389,
     SMSG_TRAINER_SERVICE                              = 0x1BD2, //Trinity use as SMSG_TRAINER_BUY_FAILED
     SMSG_LIST_STABLED_PETS                            = 0x0B1F, //Trinity use as SMSG_PET_STABLE_LIST
+    SMSG_SPELL_PENDING_TARGET_CAST                    = 0x1B1C, //SMSG_SCRIPT_CAST
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1629,7 +1630,6 @@ enum OpcodeServer : uint32
     SMSG_SET_MOVEFLAG2_0x1000                         = 0xBADD, // 5.4.1 17538
     SMSG_UNSET_MOVEFLAG2_0x1000                       = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_0x00E9                                 = 0xBADD, // 5.4.1 17538
-    SMSG_SPELL_PENDING_TARGET_CAST                    = 0xBADD, // 5.4.1 17538
     SMSG_QUERY_NEXT_MAIL_TIME                         = 0xBADD,
     SMSG_SET_RAID_DIFFICULTY                          = 0xBADD,
     SMSG_PETITION_DECLINE                             = 0xBADD,
