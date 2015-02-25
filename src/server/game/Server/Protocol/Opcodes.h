@@ -605,7 +605,7 @@ enum OpcodeClient : uint32
     CMSG_TIME_SYNC_RESPONSE                           = 0x0003,
     CMSG_TIME_SYNC_RESPONSE_DROPPED                   = 0x0D93,
     CMSG_TIME_SYNC_RESPONSE_FAILED                    = 0x1B73,
-    CMSG_TOGGLE_PVP                                   = 0xBADD,
+    CMSG_TOGGLE_PVP                                   = 0x149B,
     CMSG_TOTEM_DESTROYED                              = 0xBADD,
     CMSG_TRAINER_BUY_SPELL                            = 0x0A28,
     CMSG_TRAINER_LIST                                 = 0x0A2E,

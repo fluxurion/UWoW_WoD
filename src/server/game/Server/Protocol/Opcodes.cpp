@@ -569,7 +569,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_TIME_SYNC_RESPONSE,                                 STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Misc::TimeSyncResponse, &WorldSession::HandleTimeSyncResp);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TIME_SYNC_RESPONSE_DROPPED,              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TIME_SYNC_RESPONSE_FAILED,               STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_TOGGLE_PVP,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTogglePvP                 );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_TOGGLE_PVP,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTogglePvP                 );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TOTEM_DESTROYED,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTotemDestroyed            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TRAINER_BUY_SPELL,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTrainerBuySpellOpcode     );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TRAINER_LIST,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTrainerListOpcode         );//603

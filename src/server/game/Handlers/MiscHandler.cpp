@@ -352,9 +352,10 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
+//! ToDo: Check 6.0.3
 void WorldSession::HandleTogglePvP(WorldPacket& recvData)
 {
-    uint8 newPvPStatus = recvData.ReadBit();
+    uint8 newPvPStatus = recvData.size() == 1;
 
     // this opcode can be used in two ways: Either set explicit new status or toggle old status
     if (newPvPStatus)
