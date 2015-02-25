@@ -496,7 +496,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
 
     sSocialMgr->SendFriendStatus(GetPlayer(), friendResult, friendGuid, false);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_FRIEND_STATUS)");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_CONTACT_STATUS)");
 }
 
 void WorldSession::HandleDelFriendOpcode(WorldPackets::Social::DelFriend& packet)
@@ -562,7 +562,7 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
 
     sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, IgnoreGuid, false);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_FRIEND_STATUS)");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_CONTACT_STATUS)");
 }
 
 void WorldSession::HandleDelIgnoreOpcode(WorldPacket& recvData)
@@ -577,7 +577,7 @@ void WorldSession::HandleDelIgnoreOpcode(WorldPacket& recvData)
 
     sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_IGNORE_REMOVED, IgnoreGUID, false);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_FRIEND_STATUS)");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_CONTACT_STATUS)");
 }
 
 //! 5.4.1

@@ -26,6 +26,7 @@
 #include "World.h"
 #include "Util.h"
 #include "AccountMgr.h"
+#include "SocialPackets.h"
 
 PlayerSocial::PlayerSocial()
 {
@@ -264,47 +265,18 @@ void SocialMgr::GetFriendInfo(Player* player, ObjectGuid const& friendGUID, Frie
     }
 }
 
-void SocialMgr::MakeFriendStatusPacket(FriendsResult result, ObjectGuid const& guid, WorldPacket* data)
-{
-    data->Initialize(SMSG_FRIEND_STATUS, 5);
-    *data << uint8(result);
-    *data << guid;
-}
-
 void SocialMgr::SendFriendStatus(Player* player, FriendsResult result, ObjectGuid const& friendGuid, bool broadcast)
 {
     FriendInfo fi;
-
-    WorldPacket data;
-    MakeFriendStatusPacket(result, friendGuid, &data);
     GetFriendInfo(player, friendGuid, fi);
-    switch (result)
-    {
-        case FRIEND_ADDED_OFFLINE:
-        case FRIEND_ADDED_ONLINE:
-            data << fi.Note;
-            break;
-        default:
-            break;
-    }
 
-    switch (result)
-    {
-        case FRIEND_ADDED_ONLINE:
-        case FRIEND_ONLINE:
-            data << uint8(fi.Status);
-            data << uint32(fi.Area);
-            data << uint32(fi.Level);
-            data << uint32(fi.Class);
-            break;
-        default:
-            break;
-    }
+    WorldPackets::Social::FriendStatus friendStatus;
+    friendStatus.Initialize(friendGuid, result, fi);
 
     if (broadcast)
-        BroadcastToFriendListers(player, &data);
+        BroadcastToFriendListers(player, friendStatus.Write());
     else
-        player->GetSession()->SendPacket(&data);
+        player->GetSession()->SendPacket(friendStatus.Write());
 }
 
 void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)

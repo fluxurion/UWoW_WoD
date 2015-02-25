@@ -976,7 +976,6 @@ enum OpcodeServer : uint32
     SMSG_FORCE_DISPLAY_UPDATE                         = 0xBADD,
     SMSG_FORCE_SET_VEHICLE_REC_ID                     = 0xBADD,
     SMSG_FORGE_MASTER_SET                             = 0xBADD,
-    SMSG_FRIEND_STATUS                                = 0xBADD,
     SMSG_GAMEOBJECT_ACTIVATE_ANIM_KIT                 = 0x038C,
     SMSG_GAMEOBJECT_CUSTOM_ANIM                       = 0x03EB,
     SMSG_GAMEOBJECT_DESPAWN_ANIM                      = 0xBADD,
