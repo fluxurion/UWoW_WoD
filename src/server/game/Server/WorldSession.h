@@ -674,8 +674,8 @@ class WorldSession
         void HandleDelFriendOpcode(WorldPackets::Social::DelFriend& packet);
         void HandleAddIgnoreOpcode(WorldPackets::Social::AddIgnore& packet);
         void HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result);
-        void HandleDelIgnoreOpcode(WorldPacket& recvPacket);
-        void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
+        void HandleDelIgnoreOpcode(WorldPackets::Social::DelIgnore& packet);
+        void HandleSetContactNotesOpcode(WorldPackets::Social::SetContactNotes& packet);
         void HandleBugOpcode(WorldPacket& recvPacket);
 
         void HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse);

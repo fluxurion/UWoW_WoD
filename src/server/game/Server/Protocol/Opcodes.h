@@ -550,7 +550,7 @@ enum OpcodeClient : uint32
     CMSG_SET_ALLOW_LOW_LEVEL_RAID1                    = 0xBADD,
     CMSG_SET_ALLOW_LOW_LEVEL_RAID2                    = 0xBADD,
     CMSG_SET_CHANNEL_WATCH                            = 0xBADD,
-    CMSG_SET_CONTACT_NOTES                            = 0xBADD,
+    CMSG_SET_CONTACT_NOTES                            = 0x03AC,
     CMSG_SET_CURRENCY_FLAGS                           = 0xBADD,
     CMSG_SET_EVERYONE_IS_ASSISTANT                    = 0xBADD,
     CMSG_SET_FACTION_ATWAR                            = 0xBADD,

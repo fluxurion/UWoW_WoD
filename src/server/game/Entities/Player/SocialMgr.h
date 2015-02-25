@@ -42,7 +42,9 @@ enum SocialFlag
     SOCIAL_FLAG_FRIEND      = 0x01,
     SOCIAL_FLAG_IGNORED     = 0x02,
     SOCIAL_FLAG_MUTED       = 0x04,                          // guessed
-    SOCIAL_FLAG_UNK         = 0x08                           // Unknown - does not appear to be RaF
+    SOCIAL_FLAG_UNK         = 0x08,                          // Unknown - does not appear to be RaF
+
+    SOCIAL_FLAG_ALL         = SOCIAL_FLAG_FRIEND | SOCIAL_FLAG_IGNORED | SOCIAL_FLAG_MUTED
 };
 
 struct FriendInfo
@@ -96,13 +98,14 @@ enum FriendsResult : uint8
     FRIEND_MUTE_ADDED_S     = 0x16,
     FRIEND_MUTE_REMOVED     = 0x17,
     FRIEND_MUTE_AMBIGUOUS   = 0x18,                         // That name is ambiguous, type more of the player's server name
-    FRIEND_UNK7             = 0x19,                         // no message at client
-    FRIEND_UNKNOWN          = 0x1A,                         // Unknown friend response from server
-    FRIEND_UNKNOWN2         = 0x1B,                         // Unknown friend response from server
+    FRIEND_UNK1             = 0x19,                         // no message at client
+    FRIEND_UNK2             = 0x1A,
+    FRIEND_UNK3             = 0x1B,
+    FRIEND_UNKNOWN          = 0x1C                          // Unknown friend response from server
 };
 
-#define SOCIALMGR_FRIEND_LIMIT  50
-#define SOCIALMGR_IGNORE_LIMIT  50
+#define SOCIALMGR_FRIEND_LIMIT  50u
+#define SOCIALMGR_IGNORE_LIMIT  50u
 
 class PlayerSocial
 {
@@ -110,19 +113,25 @@ class PlayerSocial
     public:
         PlayerSocial();
         ~PlayerSocial();
+
         // adding/removing
-        bool AddToSocialList(ObjectGuid const& friend_guid, bool ignore);
-        void RemoveFromSocialList(ObjectGuid const& friend_guid, bool ignore);
+        bool AddToSocialList(ObjectGuid const& guid, SocialFlag flag);
+        void RemoveFromSocialList(ObjectGuid const& guid, SocialFlag flag);
         void SetFriendNote(ObjectGuid const& friendGuid, std::string note);
+
         // Packet send's
-        void SendSocialList(Player* player);
+        void SendSocialList(Player* player, uint32 flags);
+
         // Misc
         bool HasFriend(ObjectGuid const& friend_guid);
         bool HasIgnore(ObjectGuid const& ignore_guid);
+
         ObjectGuid GetPlayerGUID() const { return m_playerGUID; }
         void SetPlayerGUID(ObjectGuid const& guid) { m_playerGUID = guid; }
         uint32 GetNumberOfSocialsWithFlag(SocialFlag flag);
     private:
+        bool _HasContact(ObjectGuid const& guid, SocialFlag flags);
+
         PlayerSocialMap m_playerSocialMap;
         ObjectGuid m_playerGUID;
 };
@@ -146,7 +155,7 @@ class SocialMgr
         void GetFriendInfo(Player* player, ObjectGuid const& friendGUID, FriendInfo &friendInfo);
         // Packet management
         void SendFriendStatus(Player* player, FriendsResult result, ObjectGuid const& friend_guid, bool broadcast);
-        void BroadcastToFriendListers(Player* player, WorldPacket* packet);
+        void BroadcastToFriendListers(Player* player, WorldPacket const* packet);
         // Loading
         PlayerSocial *LoadFromDB(PreparedQueryResult result, ObjectGuid const& guid);
     private:

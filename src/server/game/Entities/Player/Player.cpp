@@ -5680,7 +5680,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     {
                         if (pFriend->IsInWorld())
                         {
-                            pFriend->GetSocial()->RemoveFromSocialList(playerguid, false);
+                            pFriend->GetSocial()->RemoveFromSocialList(playerguid, SOCIAL_FLAG_ALL);
                             sSocialMgr->SendFriendStatus(pFriend, FRIEND_REMOVED, playerguid, false);
                         }
                     }
@@ -25041,7 +25041,7 @@ void Player::SetGroup(Group* group, int8 subgroup)
 void Player::SendInitialPacketsBeforeAddToMap()
 {
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
-    GetSocial()->SendSocialList(this);
+    GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
 
     /// SMSG_SPELL_CATEGORY_COOLDOWN
     SendCategoryCooldownMods();
