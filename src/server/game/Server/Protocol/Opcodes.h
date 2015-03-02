@@ -1241,7 +1241,6 @@ enum OpcodeServer : uint32
     SMSG_PARTYKILLLOG                                 = 0xBADD,
     SMSG_PARTY_COMMAND_RESULT                         = 0x0B44,
     SMSG_PARTY_MEMBER_STATS                           = 0x1729,
-    SMSG_PARTY_MEMBER_STATS_FULL                      = 0xBADD,
     SMSG_PAUSE_MIRROR_TIMER                           = 0xBADD,
     SMSG_PERIODICAURALOG                              = 0x0B1B,
     SMSG_PETGODMODE                                   = 0xBADD,

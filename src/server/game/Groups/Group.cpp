@@ -1864,7 +1864,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         lfg::LFGDungeonData const* rDungeon = NULL;
         if (dungeon)
         {
-            lfg::LfgDungeonSet const& dungeons = sLFGMgr->GetSelectedDungeons(guid);
+            lfg::LfgDungeonSet const& dungeons = sLFGMgr->GetSelectedDungeons(m_guid);
             if (!dungeons.empty())
             {
                  rDungeon = sLFGMgr->GetLFGDungeon(*dungeons.begin());
