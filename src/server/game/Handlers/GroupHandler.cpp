@@ -795,12 +795,9 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
         return;
 
     uint8 x, unk;
-    recvData >> unk;
-    recvData >> x;
-
     ObjectGuid guid;
-    //recvData.ReadGuidMask<2, 5, 6, 4, 7, 1, 0, 3>(guid);
-    //recvData.ReadGuidBytes<2, 6, 4, 3, 5, 7, 1, 0>(guid);
+
+    recvData >> unk >> guid >> x;
 
     /** error handling **/
     /********************/

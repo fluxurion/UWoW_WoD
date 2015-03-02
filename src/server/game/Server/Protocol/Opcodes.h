@@ -679,6 +679,7 @@ enum OpcodeClient : uint32
     //UWOW
     CMSG_TABARDVENDOR_ACTIVATE                        = 0x08EE,
     CMSG_LIST_STABLED_PETS                            = 0x059D, // CMSG_REQUEST_STABLED_PETS on trinity
+    CMSG_RAID_TARGET_UPDATE                           = 0x1122, // CMSG_UPDATE_RAID_TARGET
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
@@ -721,7 +722,6 @@ enum OpcodeClient : uint32
     CMSG_TUTORIAL_CLEAR                               = 0xBADD, // 5.4.1 17538
     CMSG_TUTORIAL_RESET                               = 0xBADD, // 5.4.1 17538
     CMSG_UPGRADE_ITEM                                 = 0xBADD, // 5.4.1 17538
-    CMSG_RAID_TARGET_UPDATE                           = 0xBADD, // 5.4.1 17538
     CMSG_GET_WEB_TICKET                               = 0xBADD, // 5.4.1 17538
     CMSG_BATTLE_PET_166F                              = 0xBADD, // 5.4.1 17538
     CMSG_BATTLE_PET_1ACF                              = 0xBADD, // 5.4.1 17538
@@ -1529,6 +1529,7 @@ enum OpcodeServer : uint32
     SMSG_TRAINER_SERVICE                              = 0x1BD2, //Trinity use as SMSG_TRAINER_BUY_FAILED
     SMSG_LIST_STABLED_PETS                            = 0x0B1F, //Trinity use as SMSG_PET_STABLE_LIST
     SMSG_SPELL_PENDING_TARGET_CAST                    = 0x1B1C, //SMSG_SCRIPT_CAST
+    SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0x0D3E, //SMSG_SEND_RAID_TARGET_UPDATE_SINGLE
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1539,7 +1540,7 @@ enum OpcodeServer : uint32
     SMSG_QUEST_PUSH_RESULT                            = 0xBADD, // 5.4.1 17538
     SMSG_RANDOM_ROLL                                  = 0xBADD, // 5.4.1 17538
     SMSG_SAVE_GUILD_EMBLEM                            = 0xBADD, // 5.4.1 17538
-    SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0xBADD, // 5.4.1 17538
+
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0xBADD, // 5.4.1 17538
     SMSG_AREA_TRIGGER_RESET                           = 0xBADD,  // 5.0.5 16048
     SMSG_ARENA_OPPONENT_UPDATE                        = 0xBADD, // 5.4.1 17538

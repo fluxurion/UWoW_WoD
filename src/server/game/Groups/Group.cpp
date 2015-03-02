@@ -1721,7 +1721,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
     delete roll;
 }
 
-//! 5.4.1
+//! 6.0.3
 void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
 {
     if (id >= TARGETICONCOUNT)
@@ -1735,28 +1735,12 @@ void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
 
     m_targetIcons[id] = targetGuid;
 
-    WorldPacket data(SMSG_RAID_TARGET_UPDATE_SINGLE, (1+8+1+8));
-
-    //data.WriteGuidMask<3, 2, 0, 4>(targetGuid);
-    //data.WriteGuidMask<0>(whoGuid);
-    //data.WriteGuidMask<1>(targetGuid);
-    //data.WriteGuidMask<4, 1>(whoGuid);
-    //data.WriteGuidMask<5>(targetGuid);
-    //data.WriteGuidMask<5, 3, 2, 7>(whoGuid);
-    //data.WriteGuidMask<6>(targetGuid);
-    //data.WriteGuidMask<6>(whoGuid);
-    //data.WriteGuidMask<7>(targetGuid);
-
+    WorldPacket data(SMSG_RAID_TARGET_UPDATE_SINGLE, 34);
+    data << uint8(0);
     data << uint8(id);
-    //data.WriteGuidBytes<6, 4>(whoGuid);
-    //data.WriteGuidBytes<7>(targetGuid);
-    //data.WriteGuidBytes<3>(whoGuid);
-    //data.WriteGuidBytes<6, 5>(targetGuid);
-    //data.WriteGuidBytes<7, 5, 0>(whoGuid);
-    //data.WriteGuidBytes<1, 2>(targetGuid);
-    data << uint8(IsHomeGroup() ? 0 : 1);
-    //data.WriteGuidBytes<2, 1>(whoGuid);
-    //data.WriteGuidBytes<3, 0, 4>(targetGuid);
+    data << targetGuid;
+    data << whoGuid;
+    //data << uint8(IsHomeGroup() ? 0 : 1);
 
     BroadcastPacket(&data, true);
 }
