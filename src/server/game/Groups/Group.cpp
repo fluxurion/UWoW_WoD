@@ -1808,45 +1808,34 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     uint8 const gStatusOfline = (isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0;
     uint8 const gStatusOnline = gStatusOfline | MEMBER_STATUS_ONLINE;
 
-    ObjectGuid leaderGuid = m_leaderGuid;
-    ObjectGuid guid = m_guid;
     ObjectGuid looterGuid = m_looterGuid;
     ObjectGuid plguid = playerGUID;
 
     bool sendDifficultyInfo = true;
 
-    ByteBuffer dataBuffer(40 * GetMembersCount());
-
-    //! 5.4.1
+    //! 6.0.3
     WorldPacket data(SMSG_PARTY_UPDATE, 60 * GetMembersCount() + 41);
-
-    data << uint32(++m_counter);
-    data << uint8(0);                                                   // unk
-    data << uint8(IsHomeGroup() ? 0 : 1);                               // 0 - home group, 1 - instance group
+    data << uint8(IsHomeGroup() ? 0 : 1);                               // PartyFlags: 0 - home group, 1 - instance group 
+    data << uint8(0);                                                   // PartyIndex
     data << uint8(m_groupType);                                         // group type (flags in 3.3)
-    data << uint32(0);                                                  // unk, sometime 32 in sniff (flags ?)
 
-    //data.WriteGuidMask<3, 6>(leaderGuid);
-    //data.WriteGuidMask<6, 7, 2, 5, 3>(guid);
-    //data.WriteGuidMask<0, 5>(leaderGuid);
-    data.WriteBit(true);                                                // HasLooterGuid
-    //data.WriteGuidMask<4>(leaderGuid);
-    data.WriteBits(GetMembersCount() , 21);
+    data << int32(0);                                                   // unk, sometime 32 in sniff (flags ?)
+    data << m_leaderGuid;
+    data << uint32(++m_counter);
+    data << m_guid;
 
-    if (true)                                                           // HasLooterGuid
-        //data.WriteGuidMask<4, 6, 5, 7, 0, 1, 2, 3>(looterGuid);
+    data << uint32(GetMembersCount());
 
     // Send self first
     data.WriteBits(slot->name.size(), 6);
-    //data.WriteGuidMask<4, 3, 7, 0, 1, 2, 6, 5>(plguid);
+    data << playerGUID;
 
-    dataBuffer << uint8(gStatusOnline);                                 // online-state
-    dataBuffer << uint8(slot->flags);
-    //dataBuffer.WriteGuidBytes<2, 7, 4, 0>(plguid);
-    dataBuffer << uint8(slot->group);
-    //dataBuffer.WriteGuidBytes<6, 1, 5, 3>(plguid);
-    dataBuffer << uint8(slot->roles);
-    dataBuffer.WriteString(slot->name);
+    data << uint8(gStatusOnline);                                 // online-state
+    data << uint8(slot->group);
+    data << uint8(slot->flags);
+    data << uint8(slot->roles);
+    data << uint8(0);                                             //unk
+    data.WriteString(slot->name);
 
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
@@ -1856,25 +1845,19 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         member = ObjectAccessor::FindPlayer(citr->guid);
 
         data.WriteBits(citr->name.size(), 6);
-        //data.WriteGuidMask<4, 3, 7, 0, 1, 2, 6, 5>(citr->guid);
-
-        dataBuffer << uint8(member ? gStatusOnline : gStatusOfline);  // online-state
-        dataBuffer << uint8(citr->flags);
-        //dataBuffer.WriteGuidBytes<2, 7, 4, 0>(citr->guid);
-        dataBuffer << uint8(citr->group);
-        //dataBuffer.WriteGuidBytes<6, 1, 5, 3>(citr->guid);
-        dataBuffer << uint8(citr->roles);
-        dataBuffer.WriteString(citr->name);
+        data << citr->guid;
+        data << uint8(member ? gStatusOnline : gStatusOfline);  // online-state
+        data << uint8(citr->group);
+        data << uint8(citr->flags);
+        data << uint8(citr->roles);
+        data << uint8(0);                                       //unk
+        data.WriteString(citr->name);
     }
 
     data.WriteBit(m_groupType & GROUPTYPE_LFG);
-    //data.WriteGuidMask<1>(guid);
+    data.WriteBit(true);                                                // HasLooterGuid
     data.WriteBit(sendDifficultyInfo);
-    //data.WriteGuidMask<4>(leaderGuid);
-    //data.WriteGuidMask<0>(guid);
-    //data.WriteGuidMask<2>(leaderGuid);
 
-    ByteBuffer lfgBuff;
     if (m_groupType & GROUPTYPE_LFG)
     {
         lfg::LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(sLFGMgr->GetDungeon(m_guid, true));
@@ -1892,54 +1875,36 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
         lfg::LfgState lfgState = sLFGMgr->GetState(m_guid);
 
-        data.WriteBit(lfgState != lfg::LFG_STATE_FINISHED_DUNGEON); // can be rewarded
-        data.WriteBit(dungeon ? 0 : 1);
-
-        lfgBuff << uint32(rDungeon ? rDungeon->Entry() : 0);
-        lfgBuff << uint8(0);                                        // 0 always
-        lfgBuff << uint8(GetMembersCount() - 1);
-        lfgBuff << uint8(0);
-        lfgBuff << uint8(0);
         uint8 flags = 0;
         if (lfgState == lfg::LFG_STATE_FINISHED_DUNGEON || dungeon && dungeon->dbc->flags & LFG_FLAG_NON_BACKFILLABLE)
             flags |= 2;
-        lfgBuff << uint8(flags);
-        lfgBuff << float(dungeon ? 1.0f : 0.0f);
-        lfgBuff << uint32(dungeon ? dungeon->Entry() : 0);
+        data << uint8(flags);
+        data << uint32(rDungeon ? rDungeon->Entry() : 0);           // Should be LfgSlot. WOD ToDo: check it.
+        data << uint32(dungeon ? dungeon->Entry() : 0);             // Should be MyLfgRandomSlot. WOD ToDo: check if.
+        data << uint8(0);                                           // MyLfgRandomSlot
+        data << float(dungeon ? 1.0f : 0.0f);                       // MyLfgGearDiff
+        data << uint8(0);                                           // MyLfgStrangerCount
+        data << uint8(0);                                           // MyLfgKickVoteCount
+        data << uint8(GetMembersCount() - 1);                       // LfgBootCount
+
+        data.WriteBit(dungeon ? 0 : 1);
+        data.WriteBit(lfgState != lfg::LFG_STATE_FINISHED_DUNGEON); // can be rewarded
+
     }
-
-    //data.WriteGuidMask<7, 1>(leaderGuid);
-
-    data.FlushBits();
-
-    if (m_groupType & GROUPTYPE_LFG)
-        data.append(lfgBuff);
-
-    // Insert member data colected before
-    data.append(dataBuffer);
 
     if (true)                                                           // HasLooterGuid
     {
-        data << uint8(m_lootThreshold);                                 // loot threshold
-        //data.WriteGuidBytes<5, 4>(looterGuid);
         data << uint8(m_lootMethod);                                    // loot method
-        //data.WriteGuidBytes<3, 1, 0, 6, 2, 7>(looterGuid);
+        data << looterGuid;
+        data << uint8(m_lootThreshold);                                 // loot threshold
     }
-
-    //data.WriteGuidBytes<2>(guid);
 
     if (sendDifficultyInfo)
     {
-        data << uint32(m_raidDifficulty);
+        data << uint32(1);                                              // unk
         data << uint32(m_dungeonDifficulty);
+        data << uint32(m_raidDifficulty);
     }
-
-    //data.WriteGuidBytes<5, 3, 1, 0>(guid);
-    //data.WriteGuidBytes<7, 2, 0, 1>(leaderGuid);
-    //data.WriteGuidBytes<7>(guid);
-    //data.WriteGuidBytes<6, 4, 5>(leaderGuid);
-    //data.WriteGuidBytes<6, 4>(guid);
-    //data.WriteGuidBytes<3>(guid);
 
     player->GetSession()->SendPacket(&data);
 }

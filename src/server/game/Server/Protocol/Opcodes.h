@@ -1530,6 +1530,7 @@ enum OpcodeServer : uint32
     SMSG_LIST_STABLED_PETS                            = 0x0B1F, //Trinity use as SMSG_PET_STABLE_LIST
     SMSG_SPELL_PENDING_TARGET_CAST                    = 0x1B1C, //SMSG_SCRIPT_CAST
     SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0x0D3E, //SMSG_SEND_RAID_TARGET_UPDATE_SINGLE
+    SMSG_PARTY_UPDATE                                 = 0x15BE,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1580,7 +1581,6 @@ enum OpcodeServer : uint32
     SMSG_FORCE_SEND_QUEUED_PACKETS                    = 0xBADD,  // 5.0.5 16048
     SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT                = 0xBADD,  // 5.0.5 16048
     SMSG_GROUP_JOINED_BATTLEGROUND                    = 0xBADD,      // Not found in TC
-    SMSG_PARTY_UPDATE                                 = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_GUILD_DISBANDED                  = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_GUILDBANK_TAB_UPDATE             = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_GUILDBANK_TEXT_CHANGED           = 0xBADD, // 5.4.1 17538
