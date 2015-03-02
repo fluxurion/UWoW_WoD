@@ -322,22 +322,19 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
     }
 }
 
-//! 5.4.1
-void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket& recvData)
+//! 6.0.3
+void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_UNINVITE_GUID");
 
     ObjectGuid guid;
-    std::string unkstring;
+    std::string Reason;
 
-    recvData.read_skip<uint8>(); // unk 0x00
+    recvData.read_skip<uint8>(); // PartyIndex
+    recvData >> guid;
 
-    //recvData.ReadGuidMask<3>(guid);
     uint8 stringSize = recvData.ReadBits(8);
-    //recvData.ReadGuidMask<5, 2, 0, 4, 1, 6, 7>(guid);
-    //recvData.ReadGuidBytes<0, 4>(guid);
-    unkstring = recvData.ReadString(stringSize);
-    //recvData.ReadGuidBytes<5, 7, 2, 3, 1, 6>(guid);
+    Reason = recvData.ReadString(stringSize);
 
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
@@ -376,50 +373,6 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket& recvData)
     }
 
     SendPartyResult(PARTY_OP_UNINVITE, "", ERR_TARGET_NOT_IN_GROUP_S);
-}
-
-void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_UNINVITE");
-
-    std::string membername;
-    recvData >> membername;
-
-    // player not found
-    if (!normalizePlayerName(membername))
-        return;
-
-    // can't uninvite yourself
-    if (GetPlayer()->GetName() == membername)
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
-        return;
-    }
-
-    PartyResult res = GetPlayer()->CanUninviteFromGroup();
-    if (res != ERR_PARTY_RESULT_OK)
-    {
-        SendPartyResult(PARTY_OP_UNINVITE, "", res);
-        return;
-    }
-
-    Group* grp = GetPlayer()->GetGroup();
-    if (!grp)
-        return;
-
-    if (ObjectGuid guid = grp->GetMemberGUID(membername))
-    {
-        Player::RemoveFromGroup(grp, guid, GROUP_REMOVEMETHOD_KICK, GetPlayer()->GetGUID());
-        return;
-    }
-
-    if (Player* player = grp->GetInvited(membername))
-    {
-        player->UninviteFromGroup();
-        return;
-    }
-
-    SendPartyResult(PARTY_OP_UNINVITE, membername, ERR_TARGET_NOT_IN_GROUP_S);
 }
 
 //! 5.4.1
