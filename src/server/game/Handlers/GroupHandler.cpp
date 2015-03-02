@@ -49,57 +49,61 @@ class Aura;
 -raid markers
 */
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val /* = 0 */)
 {
     WorldPacket data(SMSG_PARTY_COMMAND_RESULT, 4 + member.size() + 1 + 4 + 4 + 8);
-    data << uint32(operation);
-    data << member;
-    data << uint32(res);
-    data << uint32(val);                                    // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)
-    data << uint64(0); // player who caused error (in some cases).
+    data.WriteBits(member.size(), 9);
+    data.WriteBits(operation, 4);
+    data.WriteBits(res, 6);                 // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)
+    data << uint32(val);
+    data << ObjectGuid::Empty;
+    data.WriteString(member);
 
     SendPacket(&data);
 }
 
-//!  5.4.1
+//!  6.0.3
 void WorldSession::SendGroupInvite(Player* player, bool AlowEnter)
 {
     ObjectGuid invitedGuid = player->GetGUID();
 
     WorldPacket data(SMSG_GROUP_INVITE, 45);
-
-    //data.WriteGuidMask<3, 5>(invitedGuid);
-    data.WriteBit(0);
-    //data.WriteGuidMask<7, 2, 0>(invitedGuid);
-    data.WriteBits(0, 22);                              // Count 2
-    data.WriteBits(strlen(GetPlayer()->GetName()), 6);  // Inviter name length
     data.WriteBit(AlowEnter);                           // Inverse already in group
-    //data.WriteGuidMask<4>(invitedGuid);
-    data.WriteBit(0);
-    data.WriteBit(0);
-    data.WriteBits(0, 9);                              // Realm name
-    //data.WriteGuidMask<6, 1>(invitedGuid);
+    data.WriteBit(0);                                   // MightCRZYou
+    data.WriteBit(0);                                   // MustBeBNetFriend
+    data.WriteBit(0);                                   // AllowMultipleRoles
+    data.WriteBit(0);                                   // IsXRealm
+    data.WriteBits(strlen(GetPlayer()->GetName()), 6);  // Inviter name length
+
+    data << player->GetGUID();
+    data << player->GetSession()->GetBattlenetAccountGUID();
+    data << uint32(realmHandle.Index);
+    data << uint16(0);                                  //unk
 
     data.FlushBits();
 
-    data << int32(0);
-    //data.WriteGuidBytes<6>(invitedGuid);
-    // data.append(realm name);
-    //data.WriteGuidBytes<1, 2>(invitedGuid);
-    data << int32(0);
+    data.WriteBit(1);                                   // IsLocal
+    data.WriteBit(0);                                   // unk2
+
+    data.WriteBits(0, 9);                              // InviterRealmNameActual
+    data.WriteBits(0, 9);                              // InviterRealmNameNormalized
+    //packet.ReadWoWString("InviterRealmNameActual", bits2);
+    //packet.ReadWoWString("InviterRealmNameNormalized", bits258);
+
+    data << int32(0);                                  // ProposedRoles
+    data << int32(0);                                  // LfgSlotsCount
+    data << int32(0);                                  // LfgCompletedMask
+
     data.WriteString(GetPlayer()->GetName()); // inviter name
-    //data.WriteGuidBytes<0>(invitedGuid);
-    data << int32(0);
-    // for count2 { int32(0) }
-    //data.WriteGuidBytes<7, 3>(invitedGuid);
-    data << int64(getMSTime());
-    //data.WriteGuidBytes<5, 4>(invitedGuid);
+
+    //for (int i = 0; i < int32; i++)
+    //    packet.ReadInt32("LfgSlots", i);
 
     player->GetSession()->SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_INVITE");
@@ -112,22 +116,18 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 
     ObjectGuid crossRealmGuid; // unused
 
-    recvData.read_skip<uint32>(); // Non-zero in cross realm invites
-    recvData.read_skip<uint32>(); // Always 0
-    recvData.read_skip<uint8>();
+    recvData.read_skip<uint8>();  // PartyIndex
+    recvData.read_skip<uint32>(); // ProposedRoles
+    recvData >> crossRealmGuid;
+    recvData.read_skip<uint32>(); // TargetCfgRealmID
     
     std::string realmName, memberName;
 
-    //recvData.ReadGuidMask<2>(crossRealmGuid);
-    uint8 realmLen = recvData.ReadBits(9);
-    //recvData.ReadGuidMask<0, 3, 4, 6, 7, 5, 1>(crossRealmGuid);
     uint8 nameLen = recvData.ReadBits(9);
+    uint8 realmLen = recvData.ReadBits(9);
 
-    //recvData.ReadGuidBytes<5>(crossRealmGuid);
-    realmName = recvData.ReadString(realmLen); // unused
     memberName = recvData.ReadString(nameLen);
-    //recvData.ReadGuidBytes<4, 0, 3, 6, 1, 2, 7>(crossRealmGuid);
-
+    realmName = recvData.ReadString(realmLen); // unused
     // attempt add selected player
 
     // cheating
@@ -243,14 +243,14 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
     SendPartyResult(PARTY_OP_INVITE, memberName, ERR_PARTY_RESULT_OK);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_INVITE_RESPONSE");
 
-    recvData.read_skip<uint8>(); // unk
-    bool dword18 = recvData.ReadBit();
+    recvData.read_skip<uint8>(); // PartyIndex
     bool accept = recvData.ReadBit();
+    bool dword18 = recvData.ReadBit();
     if (dword18)
         recvData.read_skip<uint32>();
 
@@ -314,10 +314,10 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
             return;
 
         // report
-        std::string name = std::string(GetPlayer()->GetName());
-        //! 5.4.1
+        //! 6.0.3
         WorldPacket data(SMSG_GROUP_DECLINE, name.length());
-        data << name.c_str();
+        data.WriteBits(strlen(GetPlayer()->GetName()), 6);
+        data.WriteString(GetPlayer()->GetName());
         leader->GetSession()->SendPacket(&data);
     }
 }
