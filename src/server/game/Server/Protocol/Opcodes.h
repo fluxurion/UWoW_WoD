@@ -248,7 +248,7 @@ enum OpcodeClient : uint32
     CMSG_GROUP_ASSISTANT_LEADER                       = 0xBADD,
     CMSG_GROUP_CANCEL                                 = 0xBADD,
     CMSG_GROUP_CHANGE_SUB_GROUP                       = 0xBADD,
-    CMSG_GROUP_DISBAND                                = 0xBADD,
+    CMSG_LEAVE_GROUP                                  = 0x1BA3,
     CMSG_GROUP_INVITE                                 = 0x122C,
     CMSG_GROUP_INVITE_RESPONSE                        = 0x118A,
     CMSG_GROUP_RAID_CONVERT                           = 0x0137,
