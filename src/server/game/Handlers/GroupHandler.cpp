@@ -315,7 +315,7 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
 
         // report
         //! 6.0.3
-        WorldPacket data(SMSG_GROUP_DECLINE, name.length());
+        WorldPacket data(SMSG_GROUP_DECLINE, 20);
         data.WriteBits(strlen(GetPlayer()->GetName()), 6);
         data.WriteString(GetPlayer()->GetName());
         leader->GetSession()->SendPacket(&data);
@@ -362,7 +362,7 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
 
     if (grp->IsMember(guid))
     {
-        Player::RemoveFromGroup(grp, guid, GROUP_REMOVEMETHOD_KICK, GetPlayer()->GetGUID(), unkstring.c_str());
+        Player::RemoveFromGroup(grp, guid, GROUP_REMOVEMETHOD_KICK, GetPlayer()->GetGUID(), Reason.c_str());
         return;
     }
 
