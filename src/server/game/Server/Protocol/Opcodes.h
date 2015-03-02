@@ -517,7 +517,7 @@ enum OpcodeClient : uint32
     CMSG_REQUEST_PET_INFO                             = 0xBADD,
     CMSG_REQUEST_PVP_OPTIONS_ENABLED                  = 0xBADD,
     CMSG_REQUEST_PVP_REWARDS                          = 0xBADD,
-    CMSG_REQUEST_RAID_INFO                            = 0xBADD,
+    CMSG_REQUEST_RAID_INFO                            = 0x0104,
     CMSG_REQUEST_RATED_BG_INFO                        = 0xBADD,
     CMSG_REQUEST_RATED_BG_STATS                       = 0xBADD,
     CMSG_REQUEST_RESEARCH_HISTORY                     = 0xBADD,

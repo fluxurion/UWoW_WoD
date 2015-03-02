@@ -20396,16 +20396,15 @@ void Player::BindToInstance()
     GetSession()->SendCalendarRaidLockout(mapSave, true);
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendRaidInfo()
 {
     uint32 counter = 0;
-    ObjectGuidSteam instanceID;
-    ByteBuffer dataBuffer;
+    uint64 instanceID = 0;
     InstanceSave* save = NULL;
 
-    WorldPacket data(SMSG_RAID_INSTANCE_INFO, 200);
-    data.WriteBits(counter, 20);                            // placeholder
+    WorldPacket data(SMSG_INSTANCE_INFO/*SMSG_RAID_INSTANCE_INFO*/, 200);
+    data << uint32(counter);                                     // placeholder
 
     time_t now = time(NULL);
 
@@ -20418,28 +20417,24 @@ void Player::SendRaidInfo()
                 save = itr->second.save;
                 bool isHeroic = save->GetDifficulty() == MAN10_HEROIC_DIFFICULTY || save->GetDifficulty() == MAN25_HEROIC_DIFFICULTY;
                 instanceID = save->GetInstanceId();
-                //data.WriteGuidMask<2, 4, 7>(instanceID);
-                data.WriteBit(0);                                       //extended?
-                //data.WriteGuidMask<1, 6>(instanceID);
-                data.WriteBit(1);                                       //expired?
-                //data.WriteGuidMask<5, 3, 0>(instanceID);
 
-                dataBuffer.WriteGuidBytes<2>(instanceID);
-                dataBuffer << uint32(save->GetResetTime() - now);       // reset time
-                dataBuffer.WriteGuidBytes<7, 5, 0, 4, 1, 3>(instanceID);
-                dataBuffer << uint32(save->GetDifficulty());            // difficulty
-                dataBuffer << uint32(save->GetMapId());                 // map id
-                dataBuffer << uint32(isHeroic);                         // Heroic
-                dataBuffer.WriteGuidBytes<6>(instanceID);
+                data << uint32(save->GetMapId());                 // map id
+                data << uint32(save->GetDifficulty());            // difficulty
+                data << uint64(instanceID);
+                data << uint32(save->GetResetTime() - now);       // reset time
+                data << uint32(isHeroic);                         // Heroic //Completed_mask ToDO WOD::CHECK
+
+                data.WriteBit(1);                                 // expired?
+                data.WriteBit(0);                                 // extended?
+
                 ++counter;
             }
         }
     }
 
     data.FlushBits();
-    data.append(dataBuffer);
 
-    data.PutBits<uint32>(0, counter, 20);
+    data.put<uint32>(0, counter);
     GetSession()->SendPacket(&data);
 }
 
