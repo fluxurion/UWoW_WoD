@@ -286,7 +286,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GROUP_INVITE_RESPONSE,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInviteResponseOpcode );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GROUP_RAID_CONVERT,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupRaidConvertOpcode    );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_GROUP_REQUEST_JOIN_UPDATES,              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_GROUP_SET_LEADER,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupSetLeaderOpcode      );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_GROUP_SET_LEADER,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupSetLeaderOpcode      );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GROUP_SET_ROLES,                         STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGroupSetRolesOpcode       );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_GROUP_SWAP_SUB_GROUP,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupSwapSubGroupOpcode   );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GROUP_UNINVITE,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupUninviteOpcode       );//603
@@ -377,7 +377,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOOT_RELEASE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootReleaseOpcode         );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOOT_ROLL,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootRoll                  );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOOT_MASTER_ASK_FOR_ROLL,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMasterAskForRoll      );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MINIMAP_PING,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMinimapPingOpcode         );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_MINIMAP_PING,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMinimapPingOpcode         );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MAIL_CREATE_TEXT_ITEM,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMailCreateTextItem        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MAIL_DELETE,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMailDelete                );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MAIL_MARK_AS_READ,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMailMarkAsRead            );
@@ -1063,7 +1063,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_INITIAL_SETUP,                           STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_INITIAL_SPELLS,                          STATUS_NEVER);//603
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_MESSAGE_BOX,                             STATUS_UNHANDLED);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_MINIMAP_PING,                            STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_MINIMAP_PING,                            STATUS_NEVER);//603
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_MINIGAME_SETUP,                          STATUS_UNHANDLED);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_MINIGAME_STATE,                          STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_MIRRORIMAGE_DATA,                        STATUS_NEVER);

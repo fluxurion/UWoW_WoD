@@ -375,16 +375,14 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
     SendPartyResult(PARTY_OP_UNINVITE, "", ERR_TARGET_NOT_IN_GROUP_S);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SET_LEADER");
 
     ObjectGuid guid;
     recvData.read_skip<uint8>();
-
-    //recvData.ReadGuidMask<6, 7, 0, 3, 2, 5, 4, 1>(guid);
-    //recvData.ReadGuidBytes<5, 7, 1, 6, 2, 4, 0, 3>(guid);
+    recvData >> guid;
 
     Player* player = ObjectAccessor::FindPlayer(guid);
     Group* group = GetPlayer()->GetGroup();
@@ -724,7 +722,7 @@ void WorldSession::HandleLootRoll(WorldPacket& recvData)
     }
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_MINIMAP_PING");
@@ -741,16 +739,12 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
     /** error handling **/
     /********************/
 
-    ObjectGuid guid = GetPlayer()->GetGUID();
-
     // everything's fine, do it
-    //! 5.4.1
+    //! 6.0.3
     WorldPacket data(SMSG_MINIMAP_PING, (8+4+4));
+    data << GetPlayer()->GetGUID();
     data << float(x);
     data << float(y);
-    //data.WriteGuidMask<7, 6, 0, 5, 3, 2, 1, 4>(guid);
-    //data.WriteGuidBytes<1, 6, 3, 0, 2, 4, 5, 7>(guid);
-
     GetPlayer()->GetGroup()->BroadcastPacket(&data, true, -1, GetPlayer()->GetGUID());
 }
 

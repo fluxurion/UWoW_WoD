@@ -253,7 +253,7 @@ enum OpcodeClient : uint32
     CMSG_GROUP_INVITE_RESPONSE                        = 0x118A,
     CMSG_GROUP_RAID_CONVERT                           = 0xBADD,
     CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0xBADD,
-    CMSG_GROUP_SET_LEADER                             = 0xBADD,
+    CMSG_GROUP_SET_LEADER                             = 0x091E,
     CMSG_GROUP_SET_ROLES                              = 0xBADD,
     CMSG_GROUP_SWAP_SUB_GROUP                         = 0xBADD,
     CMSG_GROUP_UNINVITE                               = 0x1982,
