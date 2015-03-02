@@ -814,7 +814,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
     }
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_RAID_CONVERT");
@@ -835,8 +835,8 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
 
     // New 4.x: it is now possible to convert a raid to a group if member count is 5 or less
 
-    bool unk;
-    recvData >> unk;
+    bool Raid;
+    recvData >> Raid;
 
     if(group->isRaidGroup())
         group->ConvertToGroup();
