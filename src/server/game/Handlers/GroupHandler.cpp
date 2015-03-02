@@ -1423,16 +1423,14 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     }
 }
 
-//! 5.4.1
+//! 6.0.3
 /*this procedure handles clients CMSG_REQUEST_PARTY_MEMBER_STATS request*/
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_PARTY_MEMBER_STATS");
     ObjectGuid Guid;
     recvData.read_skip<uint8>();
-
-    //recvData.ReadGuidMask<4, 0, 1, 3, 6, 2, 7, 5>(Guid);
-    //recvData.ReadGuidBytes<0, 4, 6, 3, 1, 5, 2, 7>(Guid);
+    recvData >> Guid;
 
     Player* player = HashMapHolder<Player>::Find(Guid);
     if (!player)
