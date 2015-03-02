@@ -20381,7 +20381,7 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
         return NULL;
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::BindToInstance()
 {
     InstanceSave* mapSave = sInstanceSaveMgr->GetInstanceSave(_pendingBindId);
@@ -20389,7 +20389,7 @@ void Player::BindToInstance()
         return;
 
     WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 1);
-    data << uint8(0);           //debug bit
+    data << uint8(0);           //Gm
     GetSession()->SendPacket(&data);
     BindToInstance(mapSave, true);
 
@@ -20459,7 +20459,7 @@ void Player::SendSavedInstances()
     }
 
     //Send opcode SMSG_UPDATE_INSTANCE_OWNERSHIP. true or false means, whether you have current raid/heroic instances
-    //! 5.4.1
+    //! 6.0.3
     data.Initialize(SMSG_UPDATE_INSTANCE_OWNERSHIP, 4);
     data << uint32(hasBeenSaved);
     GetSession()->SendPacket(&data);
@@ -20473,7 +20473,7 @@ void Player::SendSavedInstances()
         {
             if (itr->second.perm)
             {
-                //! 5.4.1
+                //! 6.0.3
                 data.Initialize(SMSG_UPDATE_LAST_INSTANCE, 4);
                 data << uint32(itr->second.save->GetMapId());
                 GetSession()->SendPacket(&data);
