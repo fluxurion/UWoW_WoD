@@ -22045,7 +22045,7 @@ void Player::Customize(ObjectGuid guid, uint8 gender, uint8 skin, uint8 face, ui
     CharacterDatabase.Execute(stmt);
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendAttackSwingResult(AttackSwing error)
 {
     WorldPacket data(SMSG_ATTACKSWING_ERROR, 1);
@@ -22053,24 +22053,20 @@ void Player::SendAttackSwingResult(AttackSwing error)
     GetSession()->SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendAutoRepeatCancel(Unit* target)
 {
-    ObjectGuid guid = target->GetGUID();    // may be it's target guid
-
     WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, 9);
-    //data.WriteGuidMask<5, 2, 3, 6, 0, 4, 1, 7>(guid);
-    //data.WriteGuidBytes<1, 6, 5, 7, 2, 4, 0, 3>(guid);
+    data << target->GetGUID();
     GetSession()->SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
 {
-
     WorldPacket data(SMSG_EXPLORATION_EXPERIENCE, 8);
-    data << uint32(Experience);
     data << uint32(Area);
+    data << uint32(Experience);
     GetSession()->SendPacket(&data);
 }
 

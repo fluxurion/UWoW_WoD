@@ -853,7 +853,7 @@ enum OpcodeServer : uint32
     SMSG_CALENDAR_SEND_NUM_PENDING                    = 0x1B3A,
     SMSG_CALENDAR_UPDATE_INVITE_LIST                  = 0xBADD,
     SMSG_CAMERA_SHAKE                                 = 0xBADD,
-    SMSG_CANCEL_AUTO_REPEAT                           = 0xBADD,
+    SMSG_CANCEL_AUTO_REPEAT                           = 0x0B18,
     SMSG_CANCEL_COMBAT                                = 0xBADD,
     SMSG_CAST_FAILED                                  = 0x1A89,
     SMSG_CHANNEL_LIST                                 = 0x1411,
@@ -959,7 +959,7 @@ enum OpcodeServer : uint32
     SMSG_EQUIPMENT_SET_SAVED                          = 0x0027,
     SMSG_EQUIPMENT_SET_USE_RESULT                     = 0xBADD,
     SMSG_EXPECTED_SPAM_RECORDS                        = 0xBADD,
-    SMSG_EXPLORATION_EXPERIENCE                       = 0xBADD,
+    SMSG_EXPLORATION_EXPERIENCE                       = 0x07AE,
     SMSG_FAILED_PLAYER_CONDITION                      = 0xBADD,
     SMSG_FEATURE_SYSTEM_STATUS                        = 0x0B1E,
     SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN            = 0x1540,
@@ -1531,6 +1531,7 @@ enum OpcodeServer : uint32
     SMSG_PARTY_UPDATE                                 = 0x15BE,
     SMSG_SET_DUNGEON_DIFFICULTY                       = 0x0719,
     SMSG_SET_RAID_DIFFICULTY                          = 0x051F,
+    SMSG_ATTACKSWING_ERROR                            = 0x0509,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1546,7 +1547,6 @@ enum OpcodeServer : uint32
     SMSG_AREA_TRIGGER_RESET                           = 0xBADD,  // 5.0.5 16048
     SMSG_ARENA_OPPONENT_UPDATE                        = 0xBADD, // 5.4.1 17538
     SMSG_ARENA_OPPONENT_SPECIALIZATIONS               = 0xBADD, // 5.4.1 17538
-    SMSG_ATTACKSWING_ERROR                            = 0xBADD, // 5.4.1 17538
     SMSG_AUCTION_LIST_RESULT                          = 0xBADD, // 5.4.1 17538
     SMSG_ARENA_SEASON_WORLDSTATE                      = 0xBADD, // 5.4.1 17538
     SMSG_BATTLEPAY_PRODUCT_ITEM                       = 0xBADD, // 5.4.1 17538
