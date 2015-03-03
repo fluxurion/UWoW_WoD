@@ -1815,9 +1815,9 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
     //! 6.0.3
     WorldPacket data(SMSG_PARTY_UPDATE, 60 * GetMembersCount() + 41);
-    data << uint8(IsHomeGroup() ? 0 : 1);                               // PartyFlags: 0 - home group, 1 - instance group 
+    data << uint8(m_groupType);                                         // PartyFlags: 
     data << uint8(0);                                                   // PartyIndex
-    data << uint8(m_groupType);                                         // group type (flags in 3.3)
+    data << uint8(IsHomeGroup() ? 0 : 1);                               // 0 - home group, 1 - instance group 
 
     data << int32(0);                                                   // unk, sometime 32 in sniff (flags ?)
     data << m_leaderGuid;

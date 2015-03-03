@@ -254,7 +254,7 @@ enum OpcodeClient : uint32
     CMSG_GROUP_RAID_CONVERT                           = 0x0137,
     CMSG_GROUP_REQUEST_JOIN_UPDATES                   = 0xBADD,
     CMSG_GROUP_SET_LEADER                             = 0x091E,
-    CMSG_GROUP_SET_ROLES                              = 0xBADD,
+    CMSG_SET_ROLE                                     = 0x0326,
     CMSG_GROUP_SWAP_SUB_GROUP                         = 0xBADD,
     CMSG_GROUP_UNINVITE                               = 0x1982,
     CMSG_GUILD_ACCEPT                                 = 0xBADD,
@@ -604,7 +604,7 @@ enum OpcodeClient : uint32
     CMSG_TIME_SYNC_RESPONSE                           = 0x0003,
     CMSG_TIME_SYNC_RESPONSE_DROPPED                   = 0x0D93,
     CMSG_TIME_SYNC_RESPONSE_FAILED                    = 0x1B73,
-    CMSG_TOGGLE_PVP                                   = 0x149B,
+    CMSG_TOGGLE_PVP                                   = 0x19B9, //0x149B??
     CMSG_TOTEM_DESTROYED                              = 0xBADD,
     CMSG_TRAINER_BUY_SPELL                            = 0x0A28,
     CMSG_TRAINER_LIST                                 = 0x0A2E,

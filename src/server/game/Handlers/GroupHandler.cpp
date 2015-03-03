@@ -404,10 +404,10 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
     group->SendUpdate();
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SET_ROLES");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_ROLE");
 
     uint32 newRole = 0;
     uint8 unk = 0;
@@ -416,14 +416,10 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
 
     guid1 = GetPlayer()->GetGUID();
 
-    recvData >> unk;
-    recvData >> newRole;
+    recvData >> unk >> guid2 >> newRole;
 
-    //recvData.ReadGuidMask<4, 0, 2, 7, 5, 6, 1, 3>(guid2);
-    //recvData.ReadGuidBytes<4, 6, 2, 5, 3, 7, 0, 1>(guid2);
-
-    //! 5.4.1
-    WorldPacket data(SMSG_GROUP_SET_ROLE, 24);
+    ////! 5.4.1
+    //WorldPacket data(SMSG_GROUP_SET_ROLE, 24);
 
     //data.WriteGuidMask<2>(guid1);
     //data.WriteGuidMask<1>(guid2);
@@ -436,19 +432,19 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
     //data.WriteGuidMask<0>(guid1);
     //data.WriteGuidMask<4>(guid2);
     //data.WriteGuidMask<5>(guid1);
-            
+    //        
     //data.WriteGuidBytes<1>(guid1);
     //data.WriteGuidBytes<7>(guid2);
     //data.WriteGuidBytes<6>(guid1);
-    data << uint32(0); // Old Role
+    //data << uint32(0); // Old Role
     //data.WriteGuidBytes<5>(guid1);
-    data << uint8(unk);
+    //data << uint8(unk);
     //data.WriteGuidBytes<3>(guid2);
     //data.WriteGuidBytes<3>(guid1);
     //data.WriteGuidBytes<4, 1 ,2>(guid2);
     //data.WriteGuidBytes<0, 7>(guid1);
     //data.WriteGuidBytes<0, 6>(guid2);
-    data << uint32(newRole); // New Role
+    //data << uint32(newRole); // New Role
     //data.WriteGuidBytes<5>(guid2);
     //data.WriteGuidBytes<2, 4>(guid1);
 
@@ -456,10 +452,10 @@ void WorldSession::HandleGroupSetRolesOpcode(WorldPacket& recvData)
     {
         GetPlayer()->GetGroup()->setGroupMemberRole(guid2, newRole);
         GetPlayer()->GetGroup()->SendUpdate();
-        GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
+        //GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
     }
-    else
-        SendPacket(&data);
+    //else
+    //    SendPacket(&data);
 }
 
 //! 6.0.3

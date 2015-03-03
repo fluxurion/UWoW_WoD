@@ -355,7 +355,7 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
 //! ToDo: Check 6.0.3
 void WorldSession::HandleTogglePvP(WorldPacket& recvData)
 {
-    uint8 newPvPStatus = recvData.size() == 1;
+    uint8 newPvPStatus = recvData.ReadBit();
 
     // this opcode can be used in two ways: Either set explicit new status or toggle old status
     if (newPvPStatus)
