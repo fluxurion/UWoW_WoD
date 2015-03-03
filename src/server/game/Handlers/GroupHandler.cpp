@@ -655,7 +655,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     }
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LOOT_METHOD");
@@ -664,13 +664,10 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
     ObjectGuid lootMaster;
     uint32 lootThreshold;
 
-    recvData.read_skip<uint8>();
-
     recvData >> lootMethod;
+    recvData.read_skip<uint8>();
+    recvData >> lootMaster;
     recvData >> lootThreshold;
-
-    //recvData.ReadGuidMask<4, 0, 7, 3, 2, 6, 5, 1>(lootMaster);
-    //recvData.ReadGuidBytes<4, 7, 6, 3, 5, 1, 2, 0>(lootMaster);
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)
