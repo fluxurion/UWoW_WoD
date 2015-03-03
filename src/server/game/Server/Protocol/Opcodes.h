@@ -561,7 +561,7 @@ enum OpcodeClient : uint32
     CMSG_SET_PET_SLOT                                 = 0x0BFD,
     CMSG_SET_PLAYER_DECLINED_NAMES                    = 0xBADD,
     CMSG_SET_PREFERED_CEMETERY                        = 0xBADD,
-    CMSG_SET_RAID_DIFFICULTY                          = 0xBADD,
+    CMSG_SET_RAID_DIFFICULTY                          = 0x1121,
     CMSG_SET_RELATIVE_POSITION                        = 0xBADD,
     CMSG_SET_SAVED_INSTANCE_EXTEND                    = 0xBADD,
     CMSG_SET_SELECTION                                = 0x05BD,
@@ -680,6 +680,7 @@ enum OpcodeClient : uint32
     CMSG_TABARDVENDOR_ACTIVATE                        = 0x08EE,
     CMSG_LIST_STABLED_PETS                            = 0x059D, // CMSG_REQUEST_STABLED_PETS on trinity
     CMSG_RAID_TARGET_UPDATE                           = 0x1122, // CMSG_UPDATE_RAID_TARGET
+    CMSG_SET_DUNGEON_DIFFICULTY                       = 0x012F,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
@@ -713,7 +714,6 @@ enum OpcodeClient : uint32
     CMSG_REQUEST_RATED_INFO                           = 0xBADD, // 5.4.1 17538
     CMSG_RESET_CHALLENGE_MODE                         = 0xBADD, // 5.4.1 17538
     CMSG_SELECT_FACTION                               = 0xBADD, // 5.4.1 17538
-    CMSG_SET_DUNGEON_DIFFICULTY                       = 0xBADD, // 5.4.1 17538
     CMSG_UNSET_FACTION_ATWAR                          = 0xBADD, // 5.4.1 17538
     CMSG_SET_LFG_BONUS_FACTION                        = 0xBADD, // 5.4.1 17538
     CMSG_SET_PRIMARY_TALENT_TREE                      = 0xBADD,  // 5.0.5 16048 deprecated
@@ -735,7 +735,6 @@ enum OpcodeClient : uint32
     CMSG_SAVE_GUILD_EMBLEM                            = 0xBADD, // 5.4.1 17538
     CMSG_PETITION_RENAME                              = 0xBADD, // 5.4.1 17538
     MSG_PETITION_DECLINE                              = 0xBADD,
-    MSG_SET_RAID_DIFFICULTY                           = 0xBADD,
 };
 
 // SMSGs 6.0.3.19116
@@ -1086,8 +1085,8 @@ enum OpcodeServer : uint32
     SMSG_INSPECT_TALENT                               = 0xBADD,
     SMSG_INSTANCE_INFO                                = 0x0DA0,
     SMSG_INSTANCE_LOCK_WARNING_QUERY                  = 0xBADD,
-    SMSG_INSTANCE_RESET                               = 0xBADD,
-    SMSG_INSTANCE_RESET_FAILED                        = 0xBADD,
+    SMSG_INSTANCE_RESET                               = 0x0B16,
+    SMSG_INSTANCE_RESET_FAILED                        = 0x1189,
     SMSG_INSTANCE_SAVE_CREATED                        = 0x093A,
     SMSG_INVALIDATE_DANCE                             = 0xBADD,
     SMSG_INVALIDATE_PLAYER                            = 0x0B37,
@@ -1339,7 +1338,7 @@ enum OpcodeServer : uint32
     SMSG_RESEARCH_COMPLETE                            = 0xBADD,
     SMSG_RESEARCH_SETUP_HISTORY                       = 0x0A25,
     SMSG_RESET_COMPRESSION_CONTEXT                    = 0xBADD,
-    SMSG_RESET_FAILED_NOTIFY                          = 0xBADD,
+    SMSG_RESET_FAILED_NOTIFY                          = 0x1B01,
     SMSG_RESISTLOG                                    = 0xBADD,
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0xBADD,
     SMSG_RESUME_COMMS                                 = 0x07C9,
@@ -1530,6 +1529,8 @@ enum OpcodeServer : uint32
     SMSG_SPELL_PENDING_TARGET_CAST                    = 0x1B1C, //SMSG_SCRIPT_CAST
     SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0x0D3E, //SMSG_SEND_RAID_TARGET_UPDATE_SINGLE
     SMSG_PARTY_UPDATE                                 = 0x15BE,
+    SMSG_SET_DUNGEON_DIFFICULTY                       = 0x0719,
+    SMSG_SET_RAID_DIFFICULTY                          = 0x051F,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1614,7 +1615,6 @@ enum OpcodeServer : uint32
     SMSG_RESPEC_WIPE_CONFIRM                          = 0xBADD, // 5.4.1 17538
     SMSG_SERVER_SCENE_PLAYBACK                        = 0xBADD, // 5.4.1 17538
     SMSG_SETUP_RESEARCH_HISTORY                       = 0xBADD,      // Not found in TC
-    SMSG_SET_DUNGEON_DIFFICULTY                       = 0xBADD, // 5.4.1 17538
     SMSG_SET_PET_SPECIALIZATION                       = 0x08D6, // 6.0.3
     SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI       = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_CHARGE_DATA                            = 0xBADD, // 5.4.1 17538
@@ -1631,7 +1631,6 @@ enum OpcodeServer : uint32
     SMSG_UNSET_MOVEFLAG2_0x1000                       = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_0x00E9                                 = 0xBADD, // 5.4.1 17538
     SMSG_QUERY_NEXT_MAIL_TIME                         = 0xBADD,
-    SMSG_SET_RAID_DIFFICULTY                          = 0xBADD,
     SMSG_PETITION_DECLINE                             = 0xBADD,
 };
 

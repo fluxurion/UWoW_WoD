@@ -22074,7 +22074,7 @@ void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
     GetSession()->SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendDungeonDifficulty()
 {
     WorldPacket data(SMSG_SET_DUNGEON_DIFFICULTY, 4);
@@ -22082,15 +22082,16 @@ void Player::SendDungeonDifficulty()
     GetSession()->SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendRaidDifficulty(int32 forcedDifficulty)
 {
-    WorldPacket data(SMSG_PETITION_DECLINE, 4);
+    WorldPacket data(SMSG_SET_RAID_DIFFICULTY, 4);
     data << uint32(forcedDifficulty == -1 ? GetRaidDifficulty() : forcedDifficulty);
+    data << uint8(forcedDifficulty == -1);
     GetSession()->SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendResetFailedNotify(uint32 mapid)
 {
     WorldPacket data(SMSG_RESET_FAILED_NOTIFY, 0);
@@ -22147,7 +22148,7 @@ void Player::ResetInstances(uint8 method, bool isRaid)
     }
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendResetInstanceSuccess(uint32 MapId)
 {
     WorldPacket data(SMSG_INSTANCE_RESET, 4);
@@ -22155,7 +22156,7 @@ void Player::SendResetInstanceSuccess(uint32 MapId)
     GetSession()->SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendResetInstanceFailed(uint32 reason, uint32 MapId)
 {
     /*reasons for instance reset failure:
@@ -22164,9 +22165,8 @@ void Player::SendResetInstanceFailed(uint32 reason, uint32 MapId)
     // 2>: There are players in your party attempting to zone into an instance.
     */
     WorldPacket data(SMSG_INSTANCE_RESET_FAILED, 8);
-    data.WriteBits(reason, 2);
-    data.FlushBits();
     data << uint32(MapId);
+    data.WriteBits(reason, 2);
     
     GetSession()->SendPacket(&data);
 }

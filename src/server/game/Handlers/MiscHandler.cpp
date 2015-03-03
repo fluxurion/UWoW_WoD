@@ -1620,13 +1620,14 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
     }
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_SET_RAID_DIFFICULTY");
 
     uint32 mode;
-    recvData >> mode;
+    uint8 force;
+    recvData >> mode >> force;
 
     if (!IsValidDifficulty(mode, true))
     {
