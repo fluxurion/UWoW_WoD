@@ -1820,9 +1820,9 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     data << uint8(IsHomeGroup() ? 0 : 1);                               // 0 - home group, 1 - instance group 
 
     data << int32(0);                                                   // unk, sometime 32 in sniff (flags ?)
-    data << m_leaderGuid;
-    data << uint32(++m_counter);
     data << m_guid;
+    data << uint32(++m_counter);
+    data << m_leaderGuid;
 
     data << uint32(GetMembersCount());
 
@@ -1834,7 +1834,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     data << uint8(slot->group);
     data << uint8(slot->flags);
     data << uint8(slot->roles);
-    data << uint8(0);                                             //unk
+    data << uint8(0);                                            //unk
     data.WriteString(slot->name);
 
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
@@ -1909,40 +1909,29 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     player->GetSession()->SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void Group::SendEmptyParty(Player *player)
 {
-    ObjectGuid leaderGuid;
-    ObjectGuid guid;
-
     WorldPacket data(SMSG_PARTY_UPDATE, 60);
 
+    data << uint8(16);                                                 // PartyFlags: 
+    data << uint8(0);                                                  // PartyIndex
+    data << uint8(0);                                                  // 0 - home group, 1 - instance group 
+
+    data << int32(-1);                                                   // unk, sometime 32 in sniff (flags ?)
+    data << m_guid;
     data << uint32(++m_counter);
-    data << uint8(0);                                                   // unk
-    data << uint8(IsHomeGroup() ? 0 : 1);
-    data << uint8(0);                                                   // group type (flags in 3.3)
-    data << uint32(0);                                                  // unk, sometime 32 in sniff (flags ?)
-    //data.WriteGuidMask<3, 6>(leaderGuid);
-    //data.WriteGuidMask<6, 7, 2, 5, 3>(guid);
-    //data.WriteGuidMask<0, 5>(leaderGuid);
-    data.WriteBit(false);                                                // HasLooterGuid
-    //data.WriteGuidMask<4>(leaderGuid);
-    data.WriteBits(0 , 21);
-    data.WriteBit(false);
-    //data.WriteGuidMask<1>(guid);
-    data.WriteBit(false);
-    //data.WriteGuidMask<4>(leaderGuid);
-    //data.WriteGuidMask<0>(guid);
-    //data.WriteGuidMask<2>(leaderGuid);
-    //data.WriteGuidMask<7, 1>(leaderGuid);
-    data.FlushBits();
-    //data.WriteGuidBytes<2>(guid);
-    //data.WriteGuidBytes<5, 3, 1, 0>(guid);
-    //data.WriteGuidBytes<7, 2, 0, 1>(leaderGuid);
-    //data.WriteGuidBytes<7>(guid);
-    //data.WriteGuidBytes<6, 4, 5>(leaderGuid);
-    //data.WriteGuidBytes<6, 4>(guid);
-    //data.WriteGuidBytes<3>(guid);
+    data << ObjectGuid::Empty;
+
+    data << uint32(0);
+
+    // Send self first
+    data.WriteBits(0, 6);
+    data << ObjectGuid::Empty;
+
+    data.WriteBit(0);
+    data.WriteBit(0);
+    data.WriteBit(0);
 
     player->GetSession()->SendPacket(&data);
 }
