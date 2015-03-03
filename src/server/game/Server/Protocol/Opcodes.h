@@ -507,7 +507,7 @@ enum OpcodeClient : uint32
     CMSG_REORDER_CHARACTERS                           = 0x0DAA,
     CMSG_REPAIR_ITEM                                  = 0x0B54,
     CMSG_REPLACE_ACCOUNT_DATA                         = 0xBADD,
-    CMSG_REPOP_REQUEST                                = 0xBADD,
+    CMSG_REPOP_REQUEST                                = 0x1BC2,
     CMSG_REPORT_PVP_AFK                               = 0xBADD,
     CMSG_REQUEST_ACCOUNT_DATA                         = 0x0F3E,
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0xBADD,
