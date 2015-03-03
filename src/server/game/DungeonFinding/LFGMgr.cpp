@@ -1487,41 +1487,39 @@ void LFGMgr::SendUpdateStatus(Player* player, LfgUpdateData const& updateData, b
 
     LfgQueueData const* queueData = queue.GetQueueData(gguid);
 
-    WorldPacket data(SMSG_LFG_UPDATE_STATUS, 60);
-    data.WriteBits(updateData.comment.size(), 8);   // comment
-    data.WriteBits(0, 24);                          // guids size
-    //data.WriteGuidMask<5>(guid);
 
-    data.WriteBit(party);                           // in group
-    data.WriteBit(join);                            // joined
-    data.WriteBit(lfgJoined);                       // display or not the lfr button, lfg join ?, 0 for last one
+    //! 6.0.3
+    WorldPacket data(SMSG_LFG_UPDATE_STATUS, 100);
 
-    //data.WriteGuidMask<3, 7, 1>(guid);
-    data.WriteBit(queued);                          // 1 - show notification
-    //data.WriteGuidMask<0>(guid);
-    data.WriteBits(updateData.dungeons.size(), 22);
-    //data.WriteGuidMask<6, 4>(guid);
-    data.WriteBit(1/*!queued ? 0 : active*/);            // 1 - active, 0 - paused
-    //data.WriteGuidMask<2>(guid);
+    //ReadCliRideTicket part
+    {
+        data << guid;
+        data << uint32(3);                              // queue id. 4 - looking for raid, 3 - others
+        data << uint32(player->GetTeam());              // group id?
+        data << uint32(queueData ? queueData->joinTime : time(NULL));
+    }
 
-    data.WriteString(updateData.comment);
     data << uint8(queueData ? queueData->subType : LFG_SUBTYPE_DUNGEON);  // 1 - dungeon finder, 2 - raid finder, 3 - scenarios, 4 - flex
-    data << uint8(updateData.updateType);           // error?   1, 11, 17 - succed, other - failed
-    //data.WriteGuidBytes<4>(guid);
+    data << uint8(updateData.updateType);                                 // error?   1, 11, 17 - succed, other - failed
+
+    for (int i = 0; i < 3; ++i)
+        data << uint8(0);     
+
+    data << uint32(updateData.dungeons.size());
     data << uint32(GetRoles(guid));                 // roles mask
-    //data.WriteGuidBytes<5, 7>(guid);
-    data << uint32(3);                              // queue id. 4 - looking for raid, 3 - others
-    //data.WriteGuidBytes<3>(guid);
+    data << uint32(0);                              // SuspendedPlayersCount
+
     for (LfgDungeonSet::const_iterator i = updateData.dungeons.begin(); i != updateData.dungeons.end(); ++i)
         data << uint32(GetLFGDungeonEntry(*i));     // Dungeon entries
-    //data.WriteGuidBytes<0>(guid);
-    data << uint32(player->GetTeam());              // group id?
-    //data.WriteGuidBytes<1>(guid);
-    data << uint32(queueData ? queueData->joinTime : time(NULL));
-    //data.WriteGuidBytes<6>(guid);
-    for (int i = 0; i < 3; ++i)
-        data << uint8(0);                           //unk8 always 0 ?
-    //data.WriteGuidBytes<2>(guid);
+
+    data.WriteBit(party);                           // in group
+    data.WriteBit(1/*!queued ? 0 : active*/);            // 1 - active, 0 - paused
+    data.WriteBit(join);                            // joined
+    data.WriteBit(lfgJoined);                       // display or not the lfr button, lfg join ?, 0 for last one
+    data.WriteBit(queued);                          // 1 - show notification
+
+    data.WriteBits(updateData.comment.size(), 8);   // comment
+    data.WriteString(updateData.comment);
 
     player->GetSession()->SendPacket(&data);
 }
