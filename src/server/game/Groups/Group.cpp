@@ -1903,8 +1903,8 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
     if (sendDifficultyInfo)
     {
-        data << uint32(1);                                              // unk
-        data << uint32(m_dungeonDifficulty);
+        data << uint32(m_dungeonDifficulty);                                              // unk
+        data << uint32(m_legacyRaidDifficulty);
         data << uint32(m_raidDifficulty);
     }
 

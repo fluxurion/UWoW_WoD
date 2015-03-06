@@ -1621,11 +1621,13 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
                     return;
                 }
             }
+
             // the difficulty is set even if the instances can't be reset
             //_player->SendDungeonDifficulty();
             group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, false, _player);
             group->SetDungeonDifficultyID(Difficulty(DifficultyID));
             _player->SendDungeonDifficulty();
+            group->SendUpdate();
         }
     }
     else
