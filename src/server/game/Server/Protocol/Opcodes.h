@@ -697,7 +697,6 @@ enum OpcodeClient : uint32
     CMSG_LEAVE_BATTLEFIELD                            = 0xBADD, // 5.4.1 17538
     CMSG_LFG_GET_PLAYER_INFO                          = 0xBADD,  // Unused 434
     CMSG_LFG_PARTY_LOCK_INFO_REQUEST                  = 0xBADD,  // Unused 434
-    CMSG_LOOT_METHOD_FOR_SPECIALIZATION               = 0xBADD, // 5.4.1 17538
     CMSG_LOOT_MASTER_ASK_FOR_ROLL                     = 0xBADD, // 5.4.1 17538
     CMSG_MESSAGECHAT_ADDON_BATTLEGROUND               = 0xBADD,      // 5.4.1 17538 obsolete
     CMSG_MESSAGECHAT_ADDON_INSTANCE                   = 0xBADD, // 5.4.1 17538
