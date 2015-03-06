@@ -35,6 +35,8 @@
 #include "Vehicle.h"
 #include "MovementPackets.h"
 
+#define MOVEMENT_PACKET_TIME_DELAY 0
+
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
@@ -674,11 +676,14 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     /* process position-change */
     if (check_passed)
     {
+        movementInfo.time = movementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
+
+        movementInfo.guid = mover->GetGUID();
+        mover->m_movementInfo = movementInfo;
+
         WorldPackets::Movement::ServerPlayerMovement playerMovement;
         playerMovement.movementInfo = &mover->m_movementInfo;
         mover->SendMessageToSet(const_cast<WorldPacket*>(playerMovement.Write()), _player);
-
-        mover->m_movementInfo = movementInfo;
 
         if(opcode == CMSG_MOVE_FALL_LAND)
         {
