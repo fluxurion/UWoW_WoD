@@ -664,8 +664,8 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
     ObjectGuid lootMaster;
     uint32 lootThreshold;
 
-    recvData >> lootMethod;
     recvData.read_skip<uint8>();
+    recvData >> lootMethod;
     recvData >> lootMaster;
     recvData >> lootThreshold;
 
