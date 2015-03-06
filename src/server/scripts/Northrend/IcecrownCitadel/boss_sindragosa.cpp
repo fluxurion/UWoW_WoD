@@ -410,7 +410,7 @@ class boss_sindragosa : public CreatureScript
                         if (spellId == spell->Id)
                         {
                             Item* shadowsEdge = player->GetWeaponForAttack(BASE_ATTACK, true);
-                            if (player->GetQuestStatus(QUEST_FROST_INFUSION) == QUEST_STATUS_INCOMPLETE && shadowsEdge && GetDifficulty() == MAN25_HEROIC_DIFFICULTY)
+                            if (player->GetQuestStatus(QUEST_FROST_INFUSION) == QUEST_STATUS_INCOMPLETE && shadowsEdge && GetDifficultyID() == DIFFICULTY_25_HC)
                             {
                                 if (!player->HasAura(SPELL_FROST_IMBUED_BLADE) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE)
                                 {

@@ -1254,59 +1254,28 @@ class ObjectMgr
         ///Temporaire pour la création des Z, a remettre en private après
         GameObjectDataContainer _gameObjectDataStore;
 
-        //Get difficulty from spawnmode
-        uint8 GetDiffFromSpawn(uint8 spawnmode)
-        {
-            switch (spawnmode)
-            {
-                case NONE_DIFFICULTY:
-                case REGULAR_DIFFICULTY:
-                case MAN10_DIFFICULTY:
-                case MAN40_DIFFICULTY:
-                case NORMAL_SCENARIO_DIFFICULTY:
-                    return  0;
-                case CHALLENGE_MODE_DIFFICULTY:
-                case HEROIC_DIFFICULTY:
-                case MAN25_DIFFICULTY:
-                case HEROIC_SCENARIO_DIFFICULTY:
-                    return 1;
-                case MAN10_HEROIC_DIFFICULTY:
-                    return 2;
-                case MAN25_HEROIC_DIFFICULTY:
-                    return 3;
-                case RAID_TOOL_DIFFICULTY:
-                    return 4;
-                case FLEXIBLE_DIFFICULTY:
-                    return 5;
-                default:
-                    break;
-            }
-
-            return 0;
-        }
-
         //Get item count from spawnmode
         uint8 GetCountFromSpawn(uint8 spawnmode, uint32 size)
         {
             switch (spawnmode)
             {
-                case NONE_DIFFICULTY:
-                case REGULAR_DIFFICULTY:
-                case HEROIC_DIFFICULTY:
+                case DIFFICULTY_NONE:
+                case DIFFICULTY_NORMAL:
+                case DIFFICULTY_HEROIC:
                     if(size > 5)
                         return 2;
                     else
                         return 1;
                     break;
-                case MAN10_DIFFICULTY:
-                case MAN10_HEROIC_DIFFICULTY:
+                case DIFFICULTY_10_N:
+                case DIFFICULTY_10_HC:
                     return 2;
-                case MAN25_DIFFICULTY:
-                case MAN25_HEROIC_DIFFICULTY:
-                case MAN40_DIFFICULTY:
+                case DIFFICULTY_25_N:
+                case DIFFICULTY_25_HC:
+                case DIFFICULTY_40:
                     return 4;
-                case RAID_TOOL_DIFFICULTY:
-                case CHALLENGE_MODE_DIFFICULTY:
+                case DIFFICULTY_LFR:
+                case DIFFICULTY_CHALLENGE:
                     return 3;
                 default:
                     break;

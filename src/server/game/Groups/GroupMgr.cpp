@@ -218,11 +218,9 @@ void GroupMgr::LoadGroups()
             }
 
             uint32 diff = fields[4].GetUInt8();
-            if (!mapEntry->IsDifficultyModeSupported(diff))
-            {
-                sLog->outError(LOG_FILTER_SQL, "Wrong dungeon difficulty use in group_instance table: %d", diff + 1);
-                diff = 0;                                   // default for both difficaly types
-            }
+            DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(diff);
+            if (!difficultyEntry || difficultyEntry->InstanceType != mapEntry->InstanceType)
+                continue;
 
             InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->MapID, fields[2].GetUInt32(), Difficulty(diff), fields[5].GetUInt64() != 0, true);
             group->BindToInstance(save, fields[3].GetBool(), true);

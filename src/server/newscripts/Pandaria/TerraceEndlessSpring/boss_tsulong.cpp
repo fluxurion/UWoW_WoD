@@ -348,14 +348,14 @@ class npc_sunbeam : public CreatureScript
 
             void SetMaxHitVal()
             {
-                switch (me->GetMap()->GetDifficulty())
+                switch (me->GetMap()->GetDifficultyID())
                 {
-                case MAN10_DIFFICULTY :
-                case MAN10_HEROIC_DIFFICULTY:
+                case DIFFICULTY_10_N :
+                case DIFFICULTY_10_HC:
                     maxhitval = 20;
                     break;
-                case MAN25_DIFFICULTY:
-                case MAN25_HEROIC_DIFFICULTY:
+                case DIFFICULTY_25_N:
+                case DIFFICULTY_25_HC:
                     maxhitval = 50;
                     break;
                 }

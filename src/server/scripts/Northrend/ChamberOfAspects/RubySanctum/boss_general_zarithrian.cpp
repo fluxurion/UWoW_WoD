@@ -158,7 +158,7 @@ public:
                 me->SummonCreature(NPC_FLAMECALLER, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z, SpawnLoc[1].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                 me->SummonCreature(NPC_FLAMECALLER, SpawnLoc[2].x, SpawnLoc[2].y, SpawnLoc[2].z, SpawnLoc[2].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
 
-                if (pInstance->instance->GetSpawnMode() == MAN25_DIFFICULTY || pInstance->instance->GetSpawnMode() == MAN25_HEROIC_DIFFICULTY)
+                if (pInstance->instance->GetSpawnMode() == DIFFICULTY_25_N || pInstance->instance->GetSpawnMode() == DIFFICULTY_25_HC)
                     DoCast(SPELL_CALL_FLAMECALLER);
 
                 DoScriptText(-1666204,me);

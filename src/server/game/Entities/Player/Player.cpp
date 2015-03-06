@@ -841,8 +841,9 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_HomebindTimer = 0;
     m_InstanceValid = true;
-    m_dungeonDifficulty = REGULAR_DIFFICULTY;
-    m_raidDifficulty = MAN10_DIFFICULTY;
+    m_dungeonDifficulty = DIFFICULTY_NORMAL;
+    m_legacyRaidDifficulty = DIFFICULTY_10_N;
+    m_raidDifficulty = DIFFICULTY_NORMAL_RAID;
 
     m_lastPotionId = 0;
     _talentMgr = new PlayerTalentInfo();
@@ -7792,7 +7793,7 @@ void Player::RewardReputation(Unit* victim, float rate)
                 InstanceTemplate const *instance = sObjectMgr->GetInstanceTemplate(map->GetId());
                 if (instance)
                 {
-                    AccessRequirement const *pAccessRequirement = sObjectMgr->GetAccessRequirement(map->GetId(), ((InstanceMap*)map)->GetDifficulty());
+                    AccessRequirement const *pAccessRequirement = sObjectMgr->GetAccessRequirement(map->GetId(), ((InstanceMap*)map)->GetDifficultyID());
                     if (pAccessRequirement)
                     {
                         if (!map->IsRaid() && pAccessRequirement->levelMin >= dungeonLevel)
@@ -13060,7 +13061,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
 
     // check if looted object is inside the lfg dungeon
     Map const* map = lootedObject->GetMap();
-    if (!sLFGMgr->inLfgDungeonMap(GetGroup()->GetGUID(), map->GetId(), map->GetDifficulty()))
+    if (!sLFGMgr->inLfgDungeonMap(GetGroup()->GetGUID(), map->GetId(), map->GetDifficultyID()))
         return EQUIP_ERR_OK;
 
     if (!proto)
@@ -18399,13 +18400,13 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
      // 12          13          14          15   16           17        18        19         20         21          22           23                 24
     //"position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, "
     // 25                 26          27       28       29       30       31         32           33               34     35      36         37              38               39
-    //"resettalents_time, talentTree, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, instance_mode_mask, "
+    //"resettalents_time, talentTree, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeonDifficulty, "
     //    40           41          42              43           44           45
     //"totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
     // 46      47      48      49      50      51      52           53         54             55               56                 57              58
     //"health, power1, power2, power3, power4, power5, instance_id, speccount, activespec, specialization1, specialization2, exploredZones, equipmentCache, "
-    // 59           60                  61          62             63              64                              65           66
-    //"knownTitles, actionBars, currentpetnumber, petslot, grantableLevels, resetspecialization_cost, resetspecialization_time, lfgBonusFaction  FROM characters WHERE guid = '%u'", guid);
+    // 59           60                  61          62             63              64                              65           66                      67              68
+    //"knownTitles, actionBars, currentpetnumber, petslot, grantableLevels, resetspecialization_cost, resetspecialization_time, lfgBonusFaction, raidDifficulty, legacyRaidDifficulty  FROM characters WHERE guid = '%u'", guid);
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADFROM);
 
     if (!result)
@@ -18533,14 +18534,9 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     uint32 mapId = fields[15].GetUInt16();
     uint32 instanceId = fields[52].GetUInt32();
 
-    uint32 dungeonDiff = fields[39].GetUInt32() & 0xFFFF;
-    if (!IsValidDifficulty(dungeonDiff, false) || !dungeonDiff)
-        dungeonDiff = REGULAR_DIFFICULTY;
-    uint32 raidDiff = (fields[39].GetUInt32() >> 16) & 0xFFFF;
-    if (!IsValidDifficulty(raidDiff, true) || !raidDiff)
-        raidDiff = MAN10_DIFFICULTY;
-    SetDungeonDifficulty(Difficulty(dungeonDiff));          // may be changed in _LoadGroup
-    SetRaidDifficulty(Difficulty(raidDiff));                // may be changed in _LoadGroup
+    SetDungeonDifficultyID(CheckLoadedDungeonDifficultyID(Difficulty(fields[39].GetUInt8())));
+    SetRaidDifficultyID(CheckLoadedRaidDifficultyID(Difficulty(fields[67].GetUInt8())));
+    SetLegacyRaidDifficultyID(CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[68].GetUInt8())));
 
     std::string taxi_nodes = fields[38].GetString();
 
@@ -18746,7 +18742,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
         // fix crash (because of if (Map* map = _FindMap(instanceId)) in MapInstanced::CreateInstance)
         if (instanceId)
-            if (InstanceSave* save = GetInstanceSave(mapId, mapEntry->IsRaid()))
+            if (InstanceSave* save = GetInstanceSave(mapId))
                 if (save->GetInstanceId() != instanceId)
                     instanceId = 0;
     }
@@ -18801,7 +18797,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     }
 
     SetMap(map);
-    StoreRaidMapDifficulty();
 
     // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
     // this must help in case next save after mass player load after server startup
@@ -20199,8 +20194,9 @@ void Player::_LoadGroup(PreparedQueryResult result)
             if (getLevel() >= LEVELREQUIREMENT_HEROIC)
             {
                 // the group leader may change the instance difficulty while the player is offline
-                SetDungeonDifficulty(group->GetDungeonDifficulty());
-                SetRaidDifficulty(group->GetRaidDifficulty());
+                SetDungeonDifficultyID(group->GetDungeonDifficultyID());
+                SetRaidDifficultyID(group->GetRaidDifficultyID());
+                SetLegacyRaidDifficultyID(group->GetLegacyRaidDifficultyID());
             }
         }
     }
@@ -20287,9 +20283,10 @@ InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty
         return NULL;
 }
 
-InstanceSave* Player::GetInstanceSave(uint32 mapid, bool raid)
+InstanceSave* Player::GetInstanceSave(uint32 mapid)
 {
-    InstancePlayerBind* pBind = GetBoundInstance(mapid, GetDifficulty(raid));
+    MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
+    InstancePlayerBind* pBind = GetBoundInstance(mapid, GetDifficultyID(mapEntry));
     InstanceSave* pSave = pBind ? pBind->save : NULL;
     if (!pBind || !pBind->perm)
         if (Group* group = GetGroup())
@@ -20331,7 +20328,7 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
 {
     if (save)
     {
-        InstancePlayerBind& bind = m_boundInstances[save->GetDifficulty()][save->GetMapId()];
+        InstancePlayerBind& bind = m_boundInstances[save->GetDifficultyID()][save->GetMapId()];
         if (bind.save)
         {
             // update the save when the group kills a boss
@@ -20373,8 +20370,8 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
         bind.save = save;
         bind.perm = permanent;
         if (!load)
-            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUID().GetCounter(), save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
-        sScriptMgr->OnPlayerBindToInstance(this, save->GetDifficulty(), save->GetMapId(), permanent);
+            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUID().GetCounter(), save->GetMapId(), save->GetInstanceId(), save->GetDifficultyID());
+        sScriptMgr->OnPlayerBindToInstance(this, save->GetDifficultyID(), save->GetMapId(), permanent);
         return &bind;
     }
     else
@@ -20415,11 +20412,11 @@ void Player::SendRaidInfo()
             if (itr->second.perm)
             {
                 save = itr->second.save;
-                bool isHeroic = save->GetDifficulty() == MAN10_HEROIC_DIFFICULTY || save->GetDifficulty() == MAN25_HEROIC_DIFFICULTY;
+                bool isHeroic = save->GetDifficultyID() == DIFFICULTY_10_HC || save->GetDifficultyID() == DIFFICULTY_25_HC;
                 instanceID = save->GetInstanceId();
 
                 data << uint32(save->GetMapId());                 // map id
-                data << uint32(save->GetDifficulty());            // difficulty
+                data << uint32(save->GetDifficultyID());            // difficulty
                 data << uint64(instanceID);
                 data << uint32(save->GetResetTime() - now);       // reset time
                 data << uint32(isHeroic);                         // Heroic //Completed_mask ToDO WOD::CHECK
@@ -20565,7 +20562,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
             if (!leader || !leader->GetAchievementMgr().HasAchieved(checkAchievement))
                 missingAchievement = checkAchievement;
 
-        Difficulty target_difficulty = GetDifficulty(mapEntry->IsRaid());
+        Difficulty target_difficulty = GetDifficultyID(mapEntry);
 
         MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(target_map, target_difficulty);
         if (!mapDiff)
@@ -20747,7 +20744,9 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS));
         stmt->setUInt16(index++, (uint16)GetMapId());
         stmt->setUInt32(index++, (uint32)GetInstanceId());
-        stmt->setUInt32(index++, (uint16(GetDungeonDifficulty()) | uint16(GetRaidDifficulty()) << 16));
+        stmt->setUInt8(index++, uint8(GetDungeonDifficultyID()));
+        stmt->setUInt8(index++, uint8(GetRaidDifficultyID()));
+        stmt->setUInt8(index++, uint8(GetLegacyRaidDifficultyID()));
         stmt->setFloat(index++, finiteAlways(GetPositionX()));
         stmt->setFloat(index++, finiteAlways(GetPositionY()));
         stmt->setFloat(index++, finiteAlways(GetPositionZ()));
@@ -20870,7 +20869,9 @@ void Player::SaveToDB(bool create /*=false*/)
         {
             stmt->setUInt16(index++, (uint16)GetMapId());
             stmt->setUInt32(index++, (uint32)GetInstanceId());
-            stmt->setUInt32(index++, (uint16(GetDungeonDifficulty()) | uint16(GetRaidDifficulty()) << 16));
+            stmt->setUInt8(index++, uint8(GetDungeonDifficultyID()));
+            stmt->setUInt8(index++, uint8(GetRaidDifficultyID()));
+            stmt->setUInt8(index++, uint8(GetLegacyRaidDifficultyID()));
             stmt->setFloat(index++, finiteAlways(GetPositionX()));
             stmt->setFloat(index++, finiteAlways(GetPositionY()));
             stmt->setFloat(index++, finiteAlways(GetPositionZ()));
@@ -20880,7 +20881,9 @@ void Player::SaveToDB(bool create /*=false*/)
         {
             stmt->setUInt16(index++, (uint16)GetTeleportDest().GetMapId());
             stmt->setUInt32(index++, (uint32)0);
-            stmt->setUInt32(index++, (uint16(GetDungeonDifficulty()) | uint16(GetRaidDifficulty()) << 16));
+            stmt->setUInt8(index++, uint8(GetDungeonDifficultyID()));
+            stmt->setUInt8(index++, uint8(GetRaidDifficultyID()));
+            stmt->setUInt8(index++, uint8(GetLegacyRaidDifficultyID()));
             stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetPositionX()));
             stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetPositionY()));
             stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetPositionZ()));
@@ -22074,16 +22077,16 @@ void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
 void Player::SendDungeonDifficulty()
 {
     WorldPacket data(SMSG_SET_DUNGEON_DIFFICULTY, 4);
-    data << (uint32)GetDungeonDifficulty();
+    data << (uint32)GetDungeonDifficultyID();
     GetSession()->SendPacket(&data);
 }
 
 //! 6.0.3
-void Player::SendRaidDifficulty(int32 forcedDifficulty)
+void Player::SendRaidDifficulty(bool legacy, int32 forcedDifficulty /*= -1*/)
 {
     WorldPacket data(SMSG_SET_RAID_DIFFICULTY, 4);
-    data << uint32(forcedDifficulty == -1 ? GetRaidDifficulty() : forcedDifficulty);
-    data << uint8(forcedDifficulty == -1);
+    data << uint32(forcedDifficulty == -1 ? GetRaidDifficultyID() : forcedDifficulty);
+    data << uint8(legacy);
     GetSession()->SendPacket(&data);
 }
 
@@ -22096,12 +22099,19 @@ void Player::SendResetFailedNotify(uint32 mapid)
 }
 
 /// Reset all solo instances and optionally send a message on success for each
-void Player::ResetInstances(uint8 method, bool isRaid)
+void Player::ResetInstances(uint8 method, bool isRaid, bool isLegacy)
 {
     // method can be INSTANCE_RESET_ALL, INSTANCE_RESET_CHANGE_DIFFICULTY, INSTANCE_RESET_GROUP_JOIN
 
     // we assume that when the difficulty changes, all instances that can be reset will be
-    Difficulty diff = GetDifficulty(isRaid);
+    Difficulty diff = GetDungeonDifficultyID();
+    if (isRaid)
+    {
+        if (!isLegacy)
+            diff = GetRaidDifficultyID();
+        else
+            diff = GetLegacyRaidDifficultyID();
+    }
 
     for (BoundInstancesMap::iterator itr = m_boundInstances[diff].begin(); itr != m_boundInstances[diff].end();)
     {
@@ -22116,7 +22126,7 @@ void Player::ResetInstances(uint8 method, bool isRaid)
         if (method == INSTANCE_RESET_ALL)
         {
             // the "reset all instances" method can only reset normal maps
-            if (entry->map_type == MAP_RAID || diff == HEROIC_DIFFICULTY)
+            if (entry->InstanceType == MAP_RAID || diff == DIFFICULTY_HEROIC)
             {
                 ++itr;
                 continue;
@@ -25076,7 +25086,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     worldServerInfo.IsTournamentRealm = 0;             /// @todo
     worldServerInfo.RestrictedAccountMaxLevel.Clear(); /// @todo
     worldServerInfo.RestrictedAccountMaxMoney.Clear(); /// @todo
-    worldServerInfo.DifficultyID = GetMap()->GetDifficulty();
+    worldServerInfo.DifficultyID = GetMap()->GetDifficultyID();
     SendDirectMessage(worldServerInfo.Write());
 
     // SMSG_TALENTS_INFO x 2 for pet (unspent points and talents in separate packets...)
@@ -25115,14 +25125,12 @@ void Player::SendInitialPacketsAfterAddToMap()
     // raid downscaling - send difficulty to player
     if (GetMap()->IsRaid())
     {
-        if (GetMap()->GetDifficulty() != GetRaidDifficulty())
-        {
-            StoreRaidMapDifficulty();
-            SendRaidDifficulty(GetStoredRaidDifficulty());
-        }
+        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(GetMap()->GetDifficultyID());
+        bool isLegacy = difficulty ? (difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0 : false;
+        SendRaidDifficulty(isLegacy, GetMap()->GetDifficultyID());
     }
-    else if (GetRaidDifficulty() != GetStoredRaidDifficulty())
-        SendRaidDifficulty();
+    else if (GetMap()->IsNonRaidDungeon())
+        SendDungeonDifficulty();
 
     WorldPacket data;
     GetBattlePetMgr()->BuildPetJournal(&data);
@@ -26482,7 +26490,7 @@ bool Player::inRandomLfgDungeon()
     if (sLFGMgr->selectedRandomLfgDungeon(GetGUID()))
     {
         Map const* map = GetMap();
-        return sLFGMgr->inLfgDungeonMap(GetGUID(), map->GetId(), map->GetDifficulty());
+        return sLFGMgr->inLfgDungeonMap(GetGUID(), map->GetId(), map->GetDifficultyID());
     }
 
     return false;
@@ -29808,4 +29816,65 @@ bool Player::GetRPPMProcChance(double &cooldown, float RPPM, const SpellInfo* sp
     SetLastChanceToProc(spellProto->Id, preciseTime);
 
     return roll_chance_f(chance);
+}
+
+Difficulty Player::GetDifficultyID(MapEntry const* mapEntry) const
+{
+    if (!mapEntry->IsRaid())
+        return m_dungeonDifficulty;
+
+    MapDifficulty const* defaultDifficulty = GetDefaultMapDifficulty(mapEntry->MapID);
+    if (!defaultDifficulty)
+        return m_legacyRaidDifficulty;
+
+    DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(defaultDifficulty->DifficultyID);
+    if (!difficulty || difficulty->Flags & DIFFICULTY_FLAG_LEGACY)
+        return m_legacyRaidDifficulty;
+
+    return m_raidDifficulty;
+}
+
+Difficulty Player::CheckLoadedDungeonDifficultyID(Difficulty difficulty)
+{
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    if (!difficultyEntry)
+        return DIFFICULTY_NORMAL;
+
+    if (difficultyEntry->InstanceType != MAP_INSTANCE)
+        return DIFFICULTY_NORMAL;
+
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT))
+        return DIFFICULTY_NORMAL;
+
+    return difficulty;
+}
+
+Difficulty Player::CheckLoadedRaidDifficultyID(Difficulty difficulty)
+{
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    if (!difficultyEntry)
+        return DIFFICULTY_NORMAL_RAID;
+
+    if (difficultyEntry->InstanceType != MAP_RAID)
+        return DIFFICULTY_NORMAL_RAID;
+
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || (difficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
+        return DIFFICULTY_NORMAL_RAID;
+
+    return difficulty;
+}
+
+Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
+{
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    if (!difficultyEntry)
+        return DIFFICULTY_10_N;
+
+    if (difficultyEntry->InstanceType != MAP_RAID)
+        return DIFFICULTY_10_N;
+
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || !(difficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
+        return DIFFICULTY_10_N;
+
+    return difficulty;
 }

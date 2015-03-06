@@ -249,11 +249,11 @@ public:
 
     void OnPlayerEnter(Player *pPlayer)
     {
-        if (instance->GetSpawnMode() == MAN10_DIFFICULTY)
+        if (instance->GetSpawnMode() == DIFFICULTY_10_N)
             if (instance->GetPlayersCountExceptGMs() > 8)
                 bfewer = false;
 
-        else if (instance->GetSpawnMode() == MAN25_DIFFICULTY)
+        else if (instance->GetSpawnMode() == DIFFICULTY_25_N)
                 if (instance->GetPlayersCountExceptGMs() > 20)
                     bfewer = false;
     }
@@ -551,9 +551,9 @@ public:
                 case BOSS_THADDIUS:
                   /*  if (bfewer)
                     {
-                        if (instance->GetSpawnMode() == MAN10_DIFFICULTY)
+                        if (instance->GetSpawnMode() == DIFFICULTY_10_N)
                             DoCompleteAchievement(ACHIEVEMENT_SUBTRACTION_10);
-                        else if (instance->GetSpawnMode() == MAN25_DIFFICULTY)
+                        else if (instance->GetSpawnMode() == DIFFICULTY_25_N)
                             DoCompleteAchievement(ACHIEVEMENT_SUBTRACTION_25);
                     }*/
                     if (Creature* pThaddius = instance->GetCreature(uiThaddius))
@@ -604,23 +604,23 @@ public:
                 }
             }
             if (bAllBossesDone && bImmortal)
-                if (Difficulty(instance->GetSpawnMode()) == MAN10_DIFFICULTY)
+                if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_10_N)
                     DoCompleteAchievement(ACHIEVEMENT_UNDYING_10);
-                else if (Difficulty(instance->GetSpawnMode()) == MAN25_DIFFICULTY)
+                else if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_25_N)
                     DoCompleteAchievement(ACHIEVEMENT_IMMORTAL_25);
         }
         if (state == IN_PROGRESS)
         {
             if (id != BOSS_HORSEMEN)
             {
-                if (instance->GetSpawnMode() == MAN10_DIFFICULTY)
+                if (instance->GetSpawnMode() == DIFFICULTY_10_N)
                 {
                     if (instance->GetPlayersCountExceptGMs() > 8)
                         bfewer = false;
                     else
                         bfewer = true;
                 }
-                else if (instance->GetSpawnMode() == MAN25_DIFFICULTY)
+                else if (instance->GetSpawnMode() == DIFFICULTY_25_N)
                 {
                     if (instance->GetPlayersCountExceptGMs() > 20)
                         bfewer = false;
@@ -657,11 +657,11 @@ public:
         switch(criteria_id)
         {
             case 7600:  // Criteria for achievement 2176: And They Would All Go Down Together 15sec of each other 10-man
-                if (Difficulty(instance->GetSpawnMode()) == MAN10_DIFFICULTY && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
+                if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_10_N && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
                     return true;
                 return false;
             case 7601:  // Criteria for achievement 2177: And They Would All Go Down Together 15sec of each other 25-man
-                if (Difficulty(instance->GetSpawnMode()) == MAN25_DIFFICULTY && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
+                if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_25_N && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
                     return true;
                 return false;
             case 13233: // Criteria for achievement 2186: The Immortal (25-man)

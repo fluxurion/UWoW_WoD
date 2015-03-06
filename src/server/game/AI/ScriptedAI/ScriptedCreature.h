@@ -215,19 +215,19 @@ struct ScriptedAI : public CreatureAI
     bool IsHeroic() const { return _isHeroic; }
 
     // return the dungeon or raid difficulty
-    Difficulty GetDifficulty() const { return _difficulty; }
+    Difficulty GetDifficultyID() const { return _difficulty; }
 
     // return true for 25 man or 25 man heroic mode
-    bool Is25ManRaid() const { return _difficulty == MAN25_DIFFICULTY || _difficulty == MAN25_HEROIC_DIFFICULTY; }
+    bool Is25ManRaid() const { return _difficulty == DIFFICULTY_25_N || _difficulty == DIFFICULTY_25_HC; }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10) const
     {
         switch (_difficulty)
         {
-            case REGULAR_DIFFICULTY:
+            case DIFFICULTY_NORMAL:
                 return normal5;
-            case HEROIC_DIFFICULTY:
+            case DIFFICULTY_HEROIC:
                 return heroic10;
             default:
                 break;
@@ -241,9 +241,9 @@ struct ScriptedAI : public CreatureAI
     {
         switch (_difficulty)
         {
-            case MAN10_DIFFICULTY:
+            case DIFFICULTY_10_N:
                 return normal10;
-            case MAN25_DIFFICULTY:
+            case DIFFICULTY_25_N:
                 return normal25;
             default:
                 break;
@@ -257,13 +257,13 @@ struct ScriptedAI : public CreatureAI
     {
         switch (_difficulty)
         {
-            case MAN10_DIFFICULTY:
+            case DIFFICULTY_10_N:
                 return normal10;
-            case MAN25_DIFFICULTY:
+            case DIFFICULTY_25_N:
                 return normal25;
-            case MAN10_HEROIC_DIFFICULTY:
+            case DIFFICULTY_10_HC:
                 return heroic10;
-            case MAN25_HEROIC_DIFFICULTY:
+            case DIFFICULTY_25_HC:
                 return heroic25;
             default:
                 break;

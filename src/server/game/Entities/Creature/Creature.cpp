@@ -291,7 +291,7 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
     }
 
     // get difficulty 1 mode entry
-    difficulty = sObjectMgr->GetDiffFromSpawn(GetMap()->GetSpawnMode());
+    difficulty = CreatureTemplate::GetDiffFromSpawn(GetMap()->GetSpawnMode());
 
     SetEntry(entry);                                        // normal entry always
     m_creatureInfo = cinfo;                                 // map mode related always
@@ -1577,7 +1577,7 @@ bool Creature::IsNeverVisible() const
     CreatureData const* data = sObjectMgr->GetCreatureData(m_DBTableGuid);
     if (data && data->spawnMask & 256)  // challenge
     {
-        if (GetMap()->GetSpawnMode() != HEROIC_DIFFICULTY)
+        if (GetMap()->GetSpawnMode() != DIFFICULTY_HEROIC)
             return true;
     }
     return WorldObject::IsNeverVisible();

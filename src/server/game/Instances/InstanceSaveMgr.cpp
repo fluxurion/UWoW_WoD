@@ -50,14 +50,14 @@ InstanceSaveManager::~InstanceSaveManager()
         for (InstanceSave::PlayerListType::iterator itr2 = save->m_playerList.begin(), next = itr2; itr2 != save->m_playerList.end(); itr2 = next)
         {
             ++next;
-            (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
+            (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficultyID(), true);
         }
         save->m_playerList.clear();
 
         for (InstanceSave::GroupListType::iterator itr2 = save->m_groupList.begin(), next = itr2; itr2 != save->m_groupList.end(); itr2 = next)
         {
             ++next;
-            (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
+            (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficultyID(), true);
         }
         save->m_groupList.clear();
         delete save;
@@ -86,7 +86,9 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
         return NULL;
     }
 
-    if (!entry->IsDifficultyModeSupported(difficulty))
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    if (!difficultyEntry || difficultyEntry->InstanceType != entry->InstanceType)
+    //if (!entry->IsDifficultyModeSupported(difficulty))
     {
         sLog->outError(LOG_FILTER_GENERAL, "InstanceSaveManager::AddInstanceSave: mapid = %d, instanceid = %d, wrong dificalty %u!", mapId, instanceId, difficulty);
         return NULL;
@@ -94,7 +96,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
 
     // initialize reset time
     // for normal instances if no creatures are killed the instance will reset in two hours
-    if (entry->map_type != MAP_RAID && difficulty <= REGULAR_DIFFICULTY)
+    if (entry->InstanceType != MAP_RAID && difficulty <= DIFFICULTY_NORMAL)
     {
         time_t resetTime = time(NULL) + 12 * HOUR;
         // normally this will be removed soon after in InstanceMap::Add, prevent error
@@ -188,7 +190,7 @@ void InstanceSave::SaveToDB()
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_INSTANCE_SAVE);
     stmt->setUInt32(0, m_instanceid);
     stmt->setUInt16(1, GetMapId());
-    stmt->setUInt8(2, uint8(GetDifficulty()));
+    stmt->setUInt8(2, uint8(GetDifficultyID()));
     stmt->setUInt32(3, challenge);
     stmt->setUInt32(4, completedEncounters);
     stmt->setString(5, data);
@@ -302,7 +304,7 @@ void InstanceSaveManager::LoadResetTimes()
             // initialize reset time
             // for normal instances if no creatures are killed the instance will reset in two hours
             // Set 12H, no more. In any way regular dung plr could restary himself, but collecting regular dunges wuth inf spawn time is bad idea.
-            if (entry->map_type != MAP_RAID && difficulty <= REGULAR_DIFFICULTY)
+            if (entry->InstanceType != MAP_RAID && difficulty <= DIFFICULTY_NORMAL)
                 instResetTime[instanceId] = ResetTimeMapDiffType(MAKE_PAIR32(entry->MapID, difficulty), time(NULL) + 12 * HOUR);
         }
         while (result->NextRow());
@@ -382,14 +384,14 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
     while (!pList.empty())
     {
         Player* player = *(pList.begin());
-        player->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficulty(), true);
+        player->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficultyID(), true);
     }
 
     InstanceSave::GroupListType &gList = itr->second->m_groupList;
     while (!gList.empty())
     {
         Group* group = *(gList.begin());
-        group->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficulty(), true);
+        group->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficultyID(), true);
     }
 
     delete itr->second;
@@ -435,7 +437,7 @@ void InstanceSaveManager::ResetOrWarnAll(uint32 mapid, Difficulty difficulty)
     // remove all binds to instances of the given map
     for (InstanceSaveHashMap::iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end();)
     {
-        if (itr->second->GetMapId() == mapid && itr->second->GetDifficulty() == difficulty)
+        if (itr->second->GetMapId() == mapid && itr->second->GetDifficultyID() == difficulty)
             _ResetSave(itr);
         else
             ++itr;
@@ -495,7 +497,7 @@ uint32 InstanceSaveManager::GetNumBoundGroupsTotal()
 
 time_t InstanceSave::GetResetTime()
 {
-    if(MapDifficulty const* mapDiff = GetMapDifficultyData(GetMapId(), GetDifficulty()))
+    if(MapDifficulty const* mapDiff = GetMapDifficultyData(GetMapId(), GetDifficultyID()))
         if (mapDiff->resetTime)
             return sWorld->getInstanceResetTime(mapDiff->resetTime);
 

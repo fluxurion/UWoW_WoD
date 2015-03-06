@@ -580,7 +580,7 @@ void InitDBCCustomStores()
                 sLog->outInfo(LOG_FILTER_SERVER_LOADING, "DB table `mapdifficulty_dbc` or MapDifficulty.dbc has non-existant difficulty %u.", entry->DifficultyID);
                 continue;
             }
-            sMapDifficultyMap[MAKE_PAIR32(entry->MapID, entry->DifficultyID)] = MapDifficulty(entry->RaidDuration, entry->MaxPlayers, entry->Message_lang[0] > 0);
+            sMapDifficultyMap[entry->MapID][entry->DifficultyID] = MapDifficulty(entry->DifficultyID, entry->RaidDuration, entry->MaxPlayers, entry->Message_lang[0] > 0);
         }
     }
     sMapDifficultyStore.Clear();
@@ -1027,32 +1027,59 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     std::swap(x, y);                                         // client have map coords swapped
 }
 
-MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
+MapDifficulty const* GetDefaultMapDifficulty(uint32 mapID)
 {
-    MapDifficultyMap::const_iterator itr = sMapDifficultyMap.find(MAKE_PAIR32(mapId, difficulty));
-    return itr != sMapDifficultyMap.end() ? &itr->second : NULL;
+    auto itr = sMapDifficultyMap.find(mapID);
+    if (itr == sMapDifficultyMap.end())
+        return nullptr;
+
+    if (itr->second.empty())
+        return nullptr;
+
+    for (auto& p : itr->second)
+    {
+        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(p.first);
+        if (!difficulty)
+            continue;
+
+        if (difficulty->Flags & DIFFICULTY_FLAG_DEFAULT)
+            return &p.second;
+    }
+
+    return &itr->second.begin()->second;
 }
 
-// TODO
+
+MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
+{
+    auto itr = sMapDifficultyMap.find(mapId);
+    if (itr == sMapDifficultyMap.end())
+        return nullptr;
+
+    auto diffItr = itr->second.find(difficulty);
+    if (diffItr == itr->second.end())
+        return nullptr;
+
+    return &diffItr->second;
+}
+
 MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
 {
+    DifficultyEntry const* diffEntry = sDifficultyStore.LookupEntry(difficulty);
+    if (!diffEntry)
+        return GetDefaultMapDifficulty(mapId);
+
     uint32 tmpDiff = difficulty;
     MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
-    if (!mapDiff)
+    while (!mapDiff)
     {
-        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(tmpDiff);
-        if (!difficultyEntry || !difficultyEntry->m_fallbackDifficultyID)
-            tmpDiff = REGULAR_DIFFICULTY;
-        else
-            tmpDiff = difficultyEntry->m_fallbackDifficultyID;
+        tmpDiff = diffEntry->FallbackDifficultyID;
+        diffEntry = sDifficultyStore.LookupEntry(tmpDiff);
+        if (!diffEntry)
+            return GetDefaultMapDifficulty(mapId);
 
         // pull new data
         mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // we are 10 normal or 25 normal
-        if (!mapDiff)
-        {
-            tmpDiff = MAN10_DIFFICULTY;
-            mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // 10 normal
-        }
     }
 
     difficulty = Difficulty(tmpDiff);
@@ -1286,16 +1313,16 @@ bool MapEntry::IsDifficultyModeSupported(uint32 difficulty) const
 
 bool IsValidDifficulty(uint32 diff, bool isRaid)
 {
-    if (diff == NONE_DIFFICULTY)
+    if (diff == DIFFICULTY_NONE)
         return true;
 
     switch (diff)
     {
-        case REGULAR_DIFFICULTY:
-        case HEROIC_DIFFICULTY:
-        case NORMAL_SCENARIO_DIFFICULTY:
-        case HEROIC_SCENARIO_DIFFICULTY:
-        case CHALLENGE_MODE_DIFFICULTY:
+        case DIFFICULTY_NORMAL:
+        case DIFFICULTY_HEROIC:
+        case DIFFICULTY_N_SCENARIO:
+        case DIFFICULTY_HC_SCENARIO:
+        case DIFFICULTY_CHALLENGE:
             return !isRaid;
         default:
             break;

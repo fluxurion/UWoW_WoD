@@ -271,12 +271,12 @@ class npc_captain_cookie_good_food : public CreatureScript
                 return false;
             if (pInstance->GetData(DATA_CAPTAIN) != IN_PROGRESS)
                 return false;
-            switch (pInstance->instance->GetDifficulty())
+            switch (pInstance->instance->GetDifficultyID())
             {
-            case REGULAR_DIFFICULTY:
+            case DIFFICULTY_NORMAL:
                 pPlayer->CastSpell(pPlayer, SPELL_SETIATED, true);
                 break;
-            case HEROIC_DIFFICULTY:
+            case DIFFICULTY_HEROIC:
                 pPlayer->CastSpell(pPlayer, SPELL_SETIATED_H, true);
                 break;
             }
@@ -338,12 +338,12 @@ class npc_captain_cookie_bad_food : public CreatureScript
                 return false;
             if (pInstance->GetData(DATA_CAPTAIN) != IN_PROGRESS)
                 return false;
-            switch (pInstance->instance->GetDifficulty())
+            switch (pInstance->instance->GetDifficultyID())
             {
-                case REGULAR_DIFFICULTY:
+                case DIFFICULTY_NORMAL:
                     pPlayer->CastSpell(pPlayer, SPELL_NAUSEATED, true);
                     break;
-                case HEROIC_DIFFICULTY:
+                case DIFFICULTY_HEROIC:
                     pPlayer->CastSpell(pPlayer, SPELL_NAUSEATED_H, true);
                     break;
             }

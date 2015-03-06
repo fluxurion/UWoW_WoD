@@ -564,7 +564,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
                 if (GetCaster()->GetMap()->IsHeroic())
                     GetCaster()->CastSpell(GetCaster(), SPELL_PRESENCE_OF_THE_DARKFALLEN, true);
                 // Shadowmourne questline
-                if (GetCaster()->ToPlayer()->GetQuestStatus(QUEST_BLOOD_INFUSION) == QUEST_STATUS_INCOMPLETE && GetCaster()->ToPlayer()->GetDifficulty(true) == MAN25_HEROIC_DIFFICULTY)
+                if (GetCaster()->ToPlayer()->GetQuestStatus(QUEST_BLOOD_INFUSION) == QUEST_STATUS_INCOMPLETE && GetCaster()->ToPlayer()->GetMap()->GetSpawnMode() == DIFFICULTY_25_HC)
                 {
                     if (Aura* aura = GetCaster()->GetAura(SPELL_GUSHING_WOUND))
                     {

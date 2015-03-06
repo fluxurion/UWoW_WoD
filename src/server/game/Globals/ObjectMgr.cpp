@@ -282,7 +282,7 @@ ObjectMgr::~ObjectMgr()
 std::list<CurrencyLoot> ObjectMgr::GetCurrencyLoot(uint32 entry, uint8 type, uint8 spawnMode)
 {
     std::list<CurrencyLoot> temp;
-    uint16 diffMask = (1 << (sObjectMgr->GetDiffFromSpawn(spawnMode)));
+    uint16 diffMask = (1 << (CreatureTemplate::GetDiffFromSpawn(spawnMode)));
     for (CurrencysLoot::iterator itr = _currencysLoot.begin(); itr != _currencysLoot.end(); ++itr)
     {
         if (itr->Entry == entry && itr->Type == type && (itr->lootmode == 0 || (itr->lootmode & diffMask)))
@@ -1395,11 +1395,9 @@ void ObjectMgr::LoadCreatures()
 
     // Build single time for check spawnmask
     std::map<uint32, uint32> spawnMasks;
-    for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
-        if (sMapStore.LookupEntry(i))
-            for (int k = 0; k < MAX_DIFFICULTY; ++k)
-                if (GetMapDifficultyData(i, Difficulty(k)))
-                    spawnMasks[i] |= (1 << k);
+    for (auto& mapDifficultyPair : sMapDifficultyMap)
+        for (auto& difficultyPair : mapDifficultyPair.second)
+            spawnMasks[mapDifficultyPair.first] |= (1 << difficultyPair.first);
 
     _creatureDataStore.rehash(result->GetRowCount());
     uint32 count = 0;
@@ -1785,11 +1783,9 @@ void ObjectMgr::LoadGameobjects()
 
     // build single time for check spawnmask
     std::map<uint32, uint32> spawnMasks;
-    for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
-        if (sMapStore.LookupEntry(i))
-            for (int k = 0; k < MAX_DIFFICULTY; ++k)
-                if (GetMapDifficultyData(i, Difficulty(k)))
-                    spawnMasks[i] |= (1 << k);
+    for (auto& mapDifficultyPair : sMapDifficultyMap)
+        for (auto& difficultyPair : mapDifficultyPair.second)
+            spawnMasks[mapDifficultyPair.first] |= (1 << difficultyPair.first);
 
     _gameObjectDataStore.rehash(result->GetRowCount());
     do

@@ -535,9 +535,9 @@ bool InstanceScript::IsWipe() const
 
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
 {
-    Difficulty diff = instance->GetDifficulty();
+    Difficulty diff = instance->GetDifficultyID();
     if (challenge_timer)
-        diff = HEROIC_DIFFICULTY;
+        diff = DIFFICULTY_HEROIC;
 
     DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), diff);
     if (!encounters)
@@ -563,7 +563,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         fullEncounterIndex |= 1 << encounter->dbcEntry->encounterIndex;
     }
 
-    if (dungeonId && (fullEncounterIndex == completedEncounters || instance->GetDifficulty() != CHALLENGE_MODE_DIFFICULTY))
+    if (dungeonId && (fullEncounterIndex == completedEncounters || instance->GetDifficultyID() != DIFFICULTY_CHALLENGE))
     {
         Map::PlayerList const& players = instance->GetPlayers();
         for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
@@ -644,7 +644,7 @@ void InstanceScript::Update(uint32 diff)
                 _events.ScheduleEvent(EVENT_SAVE_CHALLENGE, 60000);
 
                 // Now spawn from heroic & hide block
-                instance->SetSpawnModeBy(HEROIC_DIFFICULTY);
+                instance->SetSpawnModeBy(DIFFICULTY_HEROIC);
                 break;
             }
             case EVENT_CONTINUE_CHALLENGE:
@@ -658,7 +658,7 @@ void InstanceScript::Update(uint32 diff)
                 _events.ScheduleEvent(EVENT_SAVE_CHALLENGE, 60000);
 
                 // Now spawn from heroic & hide block
-                instance->SetSpawnModeBy(HEROIC_DIFFICULTY);
+                instance->SetSpawnModeBy(DIFFICULTY_HEROIC);
                 break;
             }
             case EVENT_SAVE_CHALLENGE:
@@ -703,12 +703,12 @@ void InstanceScript::SetChallengeProgresInSec(uint32 timer)
     _events.ScheduleEvent(EVENT_SAVE_CHALLENGE, 60000);
 
     // Now spawn from heroic & hide block
-    instance->SetSpawnModeBy(HEROIC_DIFFICULTY);
+    instance->SetSpawnModeBy(DIFFICULTY_HEROIC);
 }
 
 void InstanceScript::StartChallenge()
 {
-    if (instance->IsRaid() || !instance->isChallenge() || instance->GetSpawnMode() == HEROIC_DIFFICULTY)
+    if (instance->IsRaid() || !instance->isChallenge() || instance->GetSpawnMode() == DIFFICULTY_HEROIC)
         return;
 
     // Check if dungeon support challenge
@@ -727,7 +727,7 @@ void InstanceScript::StartChallenge()
 
 void InstanceScript::FillInitialWorldTimers(WorldPacket& data)
 {
-    if (challenge_timer && instance->GetSpawnMode() == HEROIC_DIFFICULTY)
+    if (challenge_timer && instance->GetSpawnMode() == DIFFICULTY_HEROIC)
     {
         data << uint32(LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE);
         data << uint32((getMSTime() - challenge_timer)/IN_MILLISECONDS);    //time elapsed in sec

@@ -66,7 +66,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
         uint8 type = LFG_TYPE_DUNGEON;
         uint8 maxGroupSize = 5;
         if (entry != NULL)
-            type = entry->difficulty == RAID_TOOL_DIFFICULTY ? LFG_TYPE_RAID : entry->IsScenario() ? LFG_TYPE_SCENARIO : LFG_TYPE_DUNGEON;
+            type = entry->difficulty == DIFFICULTY_LFR ? LFG_TYPE_RAID : entry->IsScenario() ? LFG_TYPE_SCENARIO : LFG_TYPE_DUNGEON;
         if (type == LFG_TYPE_RAID)
             maxGroupSize = 25;
         if (type == LFG_TYPE_SCENARIO)

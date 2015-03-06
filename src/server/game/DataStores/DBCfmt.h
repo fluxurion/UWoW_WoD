@@ -60,7 +60,7 @@ const char CreatureTypefmt[] = "nxx";
 const char CurrencyTypesfmt[] = "nixxxxiiiixx";
 
 const char DestructibleModelDatafmt[] = "ixxixxxixxxixxxixxxxxxxx";
-const char Difficultyfmt[] = "nixiixxxxxxxx";
+char const Difficultyfmt[] = "niiiixiixxxxx";
 const char DungeonEncounterfmt[] = "niixisxxx";
 const char DurabilityCostsfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 const char DurabilityQualityfmt[] = "nf";
@@ -120,7 +120,7 @@ const char LockEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
 char const PhaseEntryfmt[] = "ni";
 const char MailTemplateEntryfmt[] = "nxs";
 const char MapEntryfmt[] = "nxiixxsixxixiffxiiiixx";
-char const MapDifficultyEntryfmt[] = "diisiixx";
+char const MapDifficultyEntryfmt[] = "diisiiix";
 const std::string CustomMapDifficultyEntryfmt="pppappa";
 const std::string CustomMapDifficultyEntryIndex = "m_id";
 const char MovieEntryfmt[] = "nxxxx";

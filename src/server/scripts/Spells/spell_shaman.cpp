@@ -1555,7 +1555,7 @@ class spell_shaman_healing_tide: public SpellScriptLoader
             {
                 uint32 count = 5;
                 if (Unit* caster = GetCaster())
-                    if(caster->GetMap() && (caster->GetMap()->GetSpawnMode() == MAN25_HEROIC_DIFFICULTY || caster->GetMap()->GetSpawnMode() == MAN25_DIFFICULTY))
+                    if(caster->GetMap() && (caster->GetMap()->GetSpawnMode() == DIFFICULTY_25_HC || caster->GetMap()->GetSpawnMode() == DIFFICULTY_25_N))
                         count = 12;
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)

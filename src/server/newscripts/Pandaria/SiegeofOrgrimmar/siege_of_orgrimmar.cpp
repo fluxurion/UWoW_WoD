@@ -252,7 +252,7 @@ class spell_self_absorbed: public SpellScriptLoader
             {
                 uint32 count = 2;
                 if (Unit* caster = GetCaster())
-                    if(caster->GetMap() && (caster->GetMap()->GetSpawnMode() == MAN25_HEROIC_DIFFICULTY || caster->GetMap()->GetSpawnMode() == MAN25_DIFFICULTY))
+                    if(caster->GetMap() && (caster->GetMap()->GetSpawnMode() == DIFFICULTY_25_HC || caster->GetMap()->GetSpawnMode() == DIFFICULTY_25_N))
                         count = 5;
 
                 if (targets.size() > count)

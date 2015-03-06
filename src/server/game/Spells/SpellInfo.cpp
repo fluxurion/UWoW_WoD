@@ -1054,11 +1054,11 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     GeneralTargetCreatureType = 0;
 
     // loadinf all difficulties.
-    for(int difficulty = NONE_DIFFICULTY; difficulty < MAX_DIFFICULTY; ++difficulty)
+    for(int difficulty = DIFFICULTY_NONE; difficulty < MAX_DIFFICULTY; ++difficulty)
     {
         SpellTargetRestrictionsEntry const* _restr = GetSpellTargetRestrioctions(Id, difficulty);
-        if (!_restr && difficulty == MAN25_HEROIC_DIFFICULTY)
-            _restr = GetSpellTargetRestrioctions(Id, MAN25_DIFFICULTY);
+        if (!_restr && difficulty == DIFFICULTY_25_HC)
+            _restr = GetSpellTargetRestrioctions(Id, DIFFICULTY_25_N);
 
         if (!_restr)
             continue;

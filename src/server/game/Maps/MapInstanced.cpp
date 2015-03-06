@@ -26,7 +26,7 @@
 #include "World.h"
 #include "Group.h"
 
-MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, REGULAR_DIFFICULTY)
+MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DIFFICULTY_NORMAL)
 {
     // initialize instanced maps list
     m_InstancedMaps.clear();
@@ -141,11 +141,11 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
     }
     else
     {
-        Difficulty difficulty = IsRaid() ? player->GetRaidDifficulty() : player->GetDungeonDifficulty();
+        Difficulty difficulty = IsRaid() ? player->GetRaidDifficultyID() : player->GetDungeonDifficultyID();
         if(const MapEntry* entry = sMapStore.LookupEntry(mapId))
         {
             if(entry->maxPlayers == 40)
-                difficulty = MAN40_DIFFICULTY;
+                difficulty = DIFFICULTY_40;
         }
         InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), difficulty);
         InstanceSave* pSave = pBind ? pBind->save : NULL;
@@ -171,7 +171,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             map = FindInstanceMap(newInstanceId);
             // it is possible that the save exists but the map doesn't
             if (!map)
-                map = CreateInstance(newInstanceId, pSave, pSave->GetDifficulty());
+                map = CreateInstance(newInstanceId, pSave, pSave->GetDifficultyID());
         }
         else
         {
@@ -179,9 +179,9 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             // the instance will be created for the first time
             newInstanceId = sMapMgr->GenerateInstanceId();
 
-            Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficulty(IsRaid()) : player->GetDifficulty(IsRaid());
-            if(difficulty == MAN40_DIFFICULTY)
-                diff = MAN40_DIFFICULTY;
+            Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficultyID(GetEntry()) : player->GetDifficultyID(GetEntry());
+            if(difficulty == DIFFICULTY_40)
+                diff = DIFFICULTY_40;
             //Seems it is now possible, but I do not know if it should be allowed
             //ASSERT(!FindInstanceMap(NewInstanceId));
             map = FindInstanceMap(newInstanceId);
@@ -244,7 +244,7 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     /*if (bracketEntry)
         spawnMode = bracketEntry->difficulty;
     else*/
-        spawnMode = REGULAR_DIFFICULTY;
+        spawnMode = DIFFICULTY_NORMAL;
 
     BattlegroundMap* map = new BattlegroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);
     ASSERT(map->IsBattlegroundOrArena());

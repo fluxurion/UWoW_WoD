@@ -256,7 +256,7 @@ public:
 
         void DoGothikSummon(uint32 entry)
         {
-            if (GetDifficulty() == MAN25_DIFFICULTY)
+            if (GetDifficultyID() == DIFFICULTY_25_N)
             {
                 switch (entry)
                 {
@@ -426,9 +426,9 @@ public:
                     case EVENT_SUMMON:
                         if (waves[waveCount].entry)
                         {
-                            if ((waves[waveCount].mode == 2) && (GetDifficulty() == MAN25_DIFFICULTY))
+                            if ((waves[waveCount].mode == 2) && (GetDifficultyID() == DIFFICULTY_25_N))
                                DoGothikSummon(waves[waveCount].entry);
-                            else if ((waves[waveCount].mode == 0) && (GetDifficulty() == MAN10_DIFFICULTY))
+                            else if ((waves[waveCount].mode == 0) && (GetDifficultyID() == DIFFICULTY_10_N))
                                 DoGothikSummon(waves[waveCount].entry);
                             else if (waves[waveCount].mode == 1)
                                 DoGothikSummon(waves[waveCount].entry);
@@ -449,9 +449,9 @@ public:
 
                             if (waves[waveCount].mode == 1)
                                 events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
-                            else if ((waves[waveCount].mode == 2) && (GetDifficulty() == MAN25_DIFFICULTY))
+                            else if ((waves[waveCount].mode == 2) && (GetDifficultyID() == DIFFICULTY_25_N))
                                 events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
-                            else if ((waves[waveCount].mode == 0) && (GetDifficulty() == MAN10_DIFFICULTY))
+                            else if ((waves[waveCount].mode == 0) && (GetDifficultyID() == DIFFICULTY_10_N))
                                 events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
                             else
                                 events.ScheduleEvent(EVENT_SUMMON, 0);

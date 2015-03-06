@@ -1045,7 +1045,7 @@ class boss_yoggsaron : public CreatureScript
                     events.ScheduleEvent(EVENT_LUNATIC_GAZE, 15000, 0, PHASE_3);
                     events.ScheduleEvent(EVENT_IMMORTAL_GUARDIAN, 8000, 0, PHASE_3);
                     events.ScheduleEvent(EVENT_SHADOW_BEACON, 45000, 0, PHASE_3);
-                    if (GetDifficulty() == MAN25_DIFFICULTY)
+                    if (GetDifficultyID() == DIFFICULTY_25_N)
                         events.ScheduleEvent(EVENT_DEAFENING_ROAR, urand(5000, 7000), 0, PHASE_3);
                     break;
             } 
@@ -2286,7 +2286,7 @@ class spell_psychosis : public SpellScriptLoader
 
             bool In25()
             {
-                return GetCaster()->GetMap()->GetDifficulty() & RAID_DIFFICULTY_MASK_25MAN;
+                return GetCaster()->GetMap()->Is25ManRaid();
             }
             
             void FilterTargets(std::list<WorldObject*>& unitList)

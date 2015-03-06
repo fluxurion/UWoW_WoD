@@ -200,7 +200,7 @@ class boss_ra_den : public CreatureScript
                         {
                             if (me->HasAura(SPELL_IMBUED_WITH_VITA))
                                 DoCast(me->getVictim(), SPELL_FATAL_STRIKE);
-                            else if (me->HasAura(SPELL_IMBUED_WITH_ANIMA) && me->GetMap()->GetDifficulty() == MAN25_HEROIC_DIFFICULTY)
+                            else if (me->HasAura(SPELL_IMBUED_WITH_ANIMA) && me->GetMap()->GetDifficultyID() == DIFFICULTY_25_HC)
                             {
                                 dmg = 0;
                                 dmg = me->getVictim()->GetHealth();

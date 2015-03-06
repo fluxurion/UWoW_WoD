@@ -1554,10 +1554,10 @@ void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
     if (Group* group = _player->GetGroup())
     {
         if (group->IsLeader(_player->GetGUID()))
-            group->ResetInstances(INSTANCE_RESET_ALL, false, _player);
+            group->ResetInstances(INSTANCE_RESET_ALL, false, false, _player);
     }
     else
-        _player->ResetInstances(INSTANCE_RESET_ALL, false);
+        _player->ResetInstances(INSTANCE_RESET_ALL, false, false);
 }
 
 //! 6.0.3
@@ -1565,16 +1565,32 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_SET_DUNGEON_DIFFICULTY");
 
-    uint32 mode;
-    recvData >> mode;
+    uint32 DifficultyID;
+    recvData >> DifficultyID;
 
-    if (!IsValidDifficulty(mode, false))
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(DifficultyID);
+    if (!difficultyEntry)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: player %d sent an invalid instance mode %d!", _player->GetGUID().GetCounter(), mode);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %s sent an invalid instance mode %d!",
+            _player->GetGUID().ToString().c_str(), DifficultyID);
         return;
     }
 
-    if (Difficulty(mode) == _player->GetDungeonDifficulty())
+    if (difficultyEntry->InstanceType != MAP_INSTANCE)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %s sent an non-dungeon instance mode %d!",
+            _player->GetGUID().ToString().c_str(), difficultyEntry->m_ID);
+        return;
+    }
+
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT))
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %s sent unselectable instance mode %d!",
+            _player->GetGUID().ToString().c_str(), difficultyEntry->m_ID);
+        return;
+    }
+
+    if (Difficulty(DifficultyID) == _player->GetDungeonDifficultyID())
         return;
 
     // cannot reset while in an instance
@@ -1607,15 +1623,15 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
             }
             // the difficulty is set even if the instances can't be reset
             //_player->SendDungeonDifficulty();
-            group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, _player);
-            group->SetDungeonDifficulty(Difficulty(mode));
+            group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, false, _player);
+            group->SetDungeonDifficultyID(Difficulty(DifficultyID));
             _player->SendDungeonDifficulty();
         }
     }
     else
     {
-        _player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false);
-        _player->SetDungeonDifficulty(Difficulty(mode));
+        _player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, false);
+        _player->SetDungeonDifficultyID(Difficulty(DifficultyID));
         _player->SendDungeonDifficulty();
     }
 }
@@ -1625,15 +1641,42 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_SET_RAID_DIFFICULTY");
 
-    uint32 mode;
-    uint8 force;
-    recvData >> mode >> force;
+    uint32 DifficultyID;
+    uint8 Legacy;
+    recvData >> DifficultyID >> Legacy;
 
-    if (!IsValidDifficulty(mode, true))
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(DifficultyID);
+    if (!difficultyEntry)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetRaidDifficultyOpcode: player %d sent an invalid instance mode %d!", _player->GetGUID().GetCounter(), mode);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %s sent an invalid instance mode %u!",
+            _player->GetGUID().ToString().c_str(), DifficultyID);
         return;
     }
+
+    if (difficultyEntry->InstanceType != MAP_RAID)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %s sent an non-dungeon instance mode %u!",
+            _player->GetGUID().ToString().c_str(), difficultyEntry->m_ID);
+        return;
+    }
+
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT))
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %s sent unselectable instance mode %u!",
+            _player->GetGUID().ToString().c_str(), difficultyEntry->m_ID);
+        return;
+    }
+
+    if (((difficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY) >> 5) != Legacy)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %s sent not matching legacy difficulty %u!",
+            _player->GetGUID().ToString().c_str(), difficultyEntry->m_ID);
+        return;
+    }
+
+    Difficulty difficultyID = Difficulty(difficultyEntry->m_ID);
+    if (difficultyID == (Legacy ?  _player->GetLegacyRaidDifficultyID() : _player->GetRaidDifficultyID()))
+        return;
 
     // cannot reset while in an instance
     Map* map = _player->FindMap();
@@ -1642,9 +1685,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetRaidDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUID().GetCounter());
         return;
     }
-
-    if (Difficulty(mode) == _player->GetRaidDifficulty())
-        return;
 
     Group* group = _player->GetGroup();
     if (group)
@@ -1668,17 +1708,24 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
             }
             // the difficulty is set even if the instances can't be reset
             //_player->SendDungeonDifficulty();
-            group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, _player);
-            group->SetRaidDifficulty(Difficulty(mode));
-            _player->SendRaidDifficulty();
+            group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, Legacy != 0, _player);
+            if (Legacy)
+                group->SetLegacyRaidDifficultyID(difficultyID);
+            else
+                group->SetRaidDifficultyID(difficultyID);
+            _player->SendRaidDifficulty(Legacy != 0);
             group->SendUpdate();
         }
     }
     else
     {
-        _player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true);
-        _player->SetRaidDifficulty(Difficulty(mode));
-        _player->SendRaidDifficulty();
+        _player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, Legacy != 0);
+        if (Legacy)
+            _player->SetLegacyRaidDifficultyID(difficultyID);
+        else
+            _player->SetRaidDifficultyID(difficultyID);
+
+        _player->SendRaidDifficulty(Legacy != 0);
     }
 }
 

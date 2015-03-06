@@ -101,7 +101,7 @@ public:
             vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARRIOR : NPC_ALLIANCE_WARRIOR);
 
             uint8 healersSubtracted = 2;
-            if (m_pInstance->instance->GetSpawnMode() == MAN25_DIFFICULTY || m_pInstance->instance->GetSpawnMode() == MAN25_HEROIC_DIFFICULTY)
+            if (m_pInstance->instance->GetSpawnMode() == DIFFICULTY_25_N || m_pInstance->instance->GetSpawnMode() == DIFFICULTY_25_HC)
                 healersSubtracted = 1;
             for (uint8 i = 0; i < healersSubtracted; ++i)
             {
@@ -136,7 +136,7 @@ public:
                 vHealersEntries.erase(vHealersEntries.begin()+pos);
             }
 
-            if (m_pInstance->instance->GetSpawnMode() == MAN10_DIFFICULTY || m_pInstance->instance->GetSpawnMode() == MAN10_HEROIC_DIFFICULTY)
+            if (m_pInstance->instance->GetSpawnMode() == DIFFICULTY_10_N || m_pInstance->instance->GetSpawnMode() == DIFFICULTY_10_HC)
                 for (uint8 i = 0; i < 4; ++i)
                     vOtherEntries.erase(vOtherEntries.begin()+urand(0, vOtherEntries.size()-1));
 

@@ -167,6 +167,45 @@ struct CreatureTemplate
     uint32  GetRandomValidModelId() const;
     uint32  GetFirstValidModelId() const;
 
+    //Get difficulty from spawnmode
+    static uint8 GetDiffFromSpawn(uint8 spawnmode)
+    {
+        switch (spawnmode)
+        {
+            case DIFFICULTY_NONE:
+            case DIFFICULTY_NORMAL:
+            case DIFFICULTY_10_N:
+            case DIFFICULTY_40:
+            case DIFFICULTY_N_SCENARIO:
+            case DIFFICULTY_NORMAL_RAID:
+                return  0;
+            case DIFFICULTY_CHALLENGE://ToDo move to 
+            case DIFFICULTY_HEROIC:
+            case DIFFICULTY_25_N:
+            case DIFFICULTY_HC_SCENARIO:
+            case DIFFICULTY_HEROIC_RAID:
+                return 1;
+            case DIFFICULTY_10_HC:
+            //case DIFFICULTY_CHALLENGE:
+            case DIFFICULTY_MYTHIC_RAID:
+                return 2;
+            case DIFFICULTY_25_HC:
+                return 3;
+            case DIFFICULTY_LFR:
+                return 4;
+            /*case FLEXIBLE_DIFFICULTY:
+                return 5;*/
+            case DIFFICULTY_LFR_NEW:
+            case DIFFICULTY_EVENT_RAID:
+            case DIFFICULTY_EVENT_DUNGEON:
+            case DIFFICULTY_EVENT_SCENARIO:
+            default:
+                break;
+        }
+
+        return 0;
+    }
+
     // helpers
     SkillType GetRequiredLootSkill() const
     {

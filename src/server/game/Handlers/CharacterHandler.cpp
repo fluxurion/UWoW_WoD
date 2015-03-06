@@ -823,7 +823,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         features.ScrollOfResurrectionMaxRequestsPerDay = 1;
         features.CfgRealmID = 2;
         features.CfgRealmRecID = 0;
-        features.VoiceEnabled = true;
+        features.VoiceEnabled = false;
         /// END OF DUMMY VALUES
 
         features.CharUndeleteEnabled = false/*sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED)*/;

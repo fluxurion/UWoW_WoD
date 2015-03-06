@@ -1005,19 +1005,19 @@ struct DestructibleModelDataEntry
 
 struct DifficultyEntry
 {
-    uint32 m_ID;                                            // 0
-    uint32 m_fallbackDifficultyID;                          // 1
-    //uint32 m_instanceType;                                // 2
-    uint32 m_minPlayers;                                    // 3
-    uint32 m_maxPlayers;                                    // 4
-    //uint32 m_oldEnumValue;                                // 5
-    //uint32 m_flags;                                       // 6
-    //uint32 m_toggleDifficultyID;                          // 7
-    //uint32 m_groupSizeHealthCurveID;                      // 8
-    //uint32 m_groupSizeDmgCurveID;                         // 9
-    //uint32 m_groupSizeSpellPointsCurveID;                 // 10
-    //char* m_name_lang;                                    // 11
-    //uint32                                                // 6.0.3  19243
+    uint32      m_ID;                                       // 0
+    uint32      FallbackDifficultyID;                       // 1
+    uint32      InstanceType;                               // 2
+    uint32      m_minPlayers;                               // 3
+    uint32      m_maxPlayers;                               // 4
+    //int32     OldEnumValue;                               // 5
+    uint32      Flags;                                      // 6
+    uint32      ToggleDifficultyID;                         // 7
+    //uint32    GroupSizeHealthCurveID;                     // 8
+    //uint32    GroupSizeDmgCurveID;                        // 9
+    //uint32    GroupSizeSpellPointsCurveID;                // 10
+    //char const* NameLang;                                 // 11
+    //uint32    Unk;                                        // 12
 };
 
 struct DungeonEncounterEntry
@@ -1507,8 +1507,8 @@ struct LFGDungeonEntry
     // Helpers
     uint32 Entry() const { return ID + (type << 24); }
     bool IsScenario() const { return subType == LFG_SUBTYPE_SCENARIO; }
-    bool IsChallenge() const { return difficulty == CHALLENGE_MODE_DIFFICULTY; }
-    bool IsRaidFinder() const { return difficulty == RAID_TOOL_DIFFICULTY; }
+    bool IsChallenge() const { return difficulty == DIFFICULTY_CHALLENGE; }
+    bool IsRaidFinder() const { return difficulty == DIFFICULTY_LFR; }
     bool IsFlex() const { return difficulty == FLEXIBLE_DIFFICULTY; }
     uint32 GetMinGroupSize() const { return minTankNeeded + minHealerNeeded + minDpsNeeded; }
     uint32 GetMaxGroupSize() const { return tankNeeded + healerNeeded + dpsNeeded; }
@@ -1612,7 +1612,7 @@ struct MapEntry
 {
     uint32  MapID;                                          // 0
     //char*       internalname;                             // 1 unused
-    uint32  map_type;                                       // 2
+    uint32  InstanceType;                                   // 2
     uint32 flags;                                           // 3
     //uint32        MapType;                                // 4
     //uint32 unk4;                                          // 5 4.0.1
@@ -1635,15 +1635,15 @@ struct MapEntry
     // Helpers
     uint32 Expansion() const { return addon; }
 
-    bool IsDungeon() const { return map_type == MAP_INSTANCE || map_type == MAP_RAID || map_type == MAP_SCENARIO; }
-    bool IsNonRaidDungeon() const { return map_type == MAP_INSTANCE || map_type == MAP_SCENARIO; }
-    bool Instanceable() const { return map_type == MAP_INSTANCE || map_type == MAP_RAID || map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA || map_type == MAP_SCENARIO; }
-    bool IsRaid() const { return map_type == MAP_RAID; }
-    bool IsBattleground() const { return map_type == MAP_BATTLEGROUND; }
-    bool IsBattleArena() const { return map_type == MAP_ARENA; }
-    bool IsBattlegroundOrArena() const { return map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA; }
-    bool IsWorldMap() const { return map_type == MAP_COMMON; }
-    bool IsScenario() const { return map_type == MAP_SCENARIO; }
+    bool IsDungeon() const { return InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID || InstanceType == MAP_SCENARIO; }
+    bool IsNonRaidDungeon() const { return InstanceType == MAP_INSTANCE || InstanceType == MAP_SCENARIO; }
+    bool Instanceable() const { return InstanceType == MAP_INSTANCE || InstanceType == MAP_RAID || InstanceType == MAP_BATTLEGROUND || InstanceType == MAP_ARENA || InstanceType == MAP_SCENARIO; }
+    bool IsRaid() const { return InstanceType == MAP_RAID; }
+    bool IsBattleground() const { return InstanceType == MAP_BATTLEGROUND; }
+    bool IsBattleArena() const { return InstanceType == MAP_ARENA; }
+    bool IsBattlegroundOrArena() const { return InstanceType == MAP_BATTLEGROUND || InstanceType == MAP_ARENA; }
+    bool IsWorldMap() const { return InstanceType == MAP_COMMON; }
+    bool IsScenario() const { return InstanceType == MAP_SCENARIO; }
 
     bool GetEntrancePos(int32 &mapid, float &x, float &y) const
     {
@@ -1657,8 +1657,10 @@ struct MapEntry
 
     bool IsContinent() const
     {
-        return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571;
+        return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571 || MapID == 870 || MapID == 1116;
     }
+
+    bool IsDynamicDifficultyMap() const { return (flags & MAP_FLAG_CAN_CHANGE_DIFFICULTY) != 0; }
 
     bool IsDifficultyModeSupported(uint32 difficulty) const;
 };
@@ -1671,7 +1673,7 @@ struct MapDifficultyEntry
     char*       Message_lang;                               // 3 m_message_lang (text showed when transfer to map failed)
     uint32      RaidDuration;                               // 4 m_raidDuration in secs, 0 if no fixed reset time
     uint32      MaxPlayers;                                 // 5 m_maxPlayers some heroic versions have 0 when expected same amount as in normal version
-    //uint32    Unk1;                                       // 6
+    uint32      LockID;                                     // 6
     //uint32    Unk2;                                       // 7
 };
 
@@ -2568,9 +2570,11 @@ typedef UNORDERED_MAP<uint32, VectorArray> NameGenVectorArraysMap;
 // Structures not used for casting to loaded DBC data and not required then packing
 struct MapDifficulty
 {
-    MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false) {}
-    MapDifficulty(uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage) : resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage) {}
+    MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false), DifficultyID(0) {}
+    MapDifficulty(uint32 difficultyID, uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage) :
+        DifficultyID(difficultyID), resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage) {}
 
+    uint32 DifficultyID;
     uint32 resetTime;
     uint32 maxPlayers;
     bool hasErrorMessage;

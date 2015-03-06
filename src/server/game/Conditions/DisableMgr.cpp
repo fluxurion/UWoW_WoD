@@ -125,7 +125,7 @@ void LoadDisables()
                     continue;
                 }
                 bool isFlagInvalid = false;
-                switch (mapEntry->map_type)
+                switch (mapEntry->InstanceType)
                 {
                     case MAP_COMMON:
                         //if (flags)
@@ -133,11 +133,11 @@ void LoadDisables()
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
-                        /*if (flags & DUNGEON_STATUSFLAG_HEROIC && !GetMapDifficultyData(entry, HEROIC_DIFFICULTY))
+                        /*if (flags & DUNGEON_STATUSFLAG_HEROIC && !GetMapDifficultyData(entry, DIFFICULTY_HEROIC))
                             isFlagInvalid = true;
-                        else if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !GetMapDifficultyData(entry, MAN10_HEROIC_DIFFICULTY))
+                        else if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !GetMapDifficultyData(entry, DIFFICULTY_10_HC))
                             isFlagInvalid = true;
-                        else if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !GetMapDifficultyData(entry, MAN25_HEROIC_DIFFICULTY))
+                        else if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !GetMapDifficultyData(entry, DIFFICULTY_25_HC))
                             isFlagInvalid = true;*/
                         break;
                     case MAP_BATTLEGROUND:
@@ -187,7 +187,7 @@ void LoadDisables()
                     sLog->outError(LOG_FILTER_SQL, "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
-                switch (mapEntry->map_type)
+                switch (mapEntry->InstanceType)
                 {
                     case MAP_COMMON:
                         if (flags & VMAP_DISABLE_AREAFLAG)
@@ -323,22 +323,22 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                 if (mapEntry->IsDungeon())
                 {
                     /*uint8 disabledModes = itr->second.flags;
-                    Difficulty targetDifficulty = player->GetDifficulty(mapEntry->IsRaid());
+                    Difficulty targetDifficulty = player->GetDifficultyID(mapEntry);
                     GetDownscaledMapDifficultyData(entry, targetDifficulty);
                     switch (targetDifficulty)
                     {
-                        case REGULAR_DIFFICULTY:
+                        case DIFFICULTY_NORMAL:
                             return (disabledModes & DUNGEON_STATUSFLAG_NORMAL) != 0;
-                        case HEROIC_DIFFICULTY:
+                        case DIFFICULTY_HEROIC:
                             return (disabledModes & DUNGEON_STATUSFLAG_HEROIC) != 0;
-                        case MAN10_HEROIC_DIFFICULTY:
+                        case DIFFICULTY_10_HC:
                             return (disabledModes & RAID_STATUSFLAG_10MAN_HEROIC) != 0;
-                        case MAN25_HEROIC_DIFFICULTY:
+                        case DIFFICULTY_25_HC:
                             return (disabledModes & RAID_STATUSFLAG_25MAN_HEROIC) != 0;
                     }*/
                     return true;
                 }
-                else if (mapEntry->map_type == MAP_COMMON)
+                else if (mapEntry->InstanceType == MAP_COMMON)
                     return true;
             }
             return false;

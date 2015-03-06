@@ -3238,14 +3238,15 @@ void World::ResetCurrencyWeekCap()
 
 void World::InstanceDailyResetTime()
 {
-    for (MapDifficultyMap::const_iterator itr = sMapDifficultyMap.begin(); itr != sMapDifficultyMap.end(); ++itr)
-    {
-        uint32 mapid = PAIR32_LOPART(itr->first);
-        Difficulty difficulty = Difficulty(PAIR32_HIPART(itr->first));
+    for (auto& mapDifficultyPair : sMapDifficultyMap)
+        for (auto& difficultyPair : mapDifficultyPair.second)
+        {
+            uint32 mapid = mapDifficultyPair.first;
+            Difficulty difficulty = (Difficulty)difficultyPair.first;
 
-        if (itr->second.resetTime <= 86400)
-            sInstanceSaveMgr->ResetOrWarnAll(mapid, difficulty);
-    }
+            if (difficultyPair.second.resetTime == 86400)
+                sInstanceSaveMgr->ResetOrWarnAll(mapid, difficulty);
+        }
 
     m_NextInstanceDailyReset = time_t(m_NextInstanceDailyReset + DAY * getIntConfig(CONFIG_INSTANCE_DAILY_RESET));
     sWorld->setWorldState(WS_INSTANCE_DAILY_RESET_TIME, uint64(m_NextInstanceDailyReset));
@@ -3253,14 +3254,15 @@ void World::InstanceDailyResetTime()
 
 void World::InstanceHalfWeekResetTime()
 {
-    for (MapDifficultyMap::const_iterator itr = sMapDifficultyMap.begin(); itr != sMapDifficultyMap.end(); ++itr)
-    {
-        uint32 mapid = PAIR32_LOPART(itr->first);
-        Difficulty difficulty = Difficulty(PAIR32_HIPART(itr->first));
+   for (auto& mapDifficultyPair : sMapDifficultyMap)
+       for (auto& difficultyPair : mapDifficultyPair.second)
+       {
+           uint32 mapid = mapDifficultyPair.first;
+           Difficulty difficulty = (Difficulty)difficultyPair.first;
 
-        if (itr->second.resetTime == 259200)
-            sInstanceSaveMgr->ResetOrWarnAll(mapid, difficulty);
-    }
+           if (difficultyPair.second.resetTime == 259200)
+               sInstanceSaveMgr->ResetOrWarnAll(mapid, difficulty);
+       }
 
     m_NextInstanceHalfWeekReset = time_t(m_NextInstanceHalfWeekReset + DAY * getIntConfig(CONFIG_INSTANCE_HALF_WEEK_RESET));
     sWorld->setWorldState(WS_INSTANCE_HALF_WEEK_RESET_TIME, uint64(m_NextInstanceHalfWeekReset));
@@ -3268,14 +3270,15 @@ void World::InstanceHalfWeekResetTime()
 
 void World::InstanceWeeklyResetTime()
 {
-    for (MapDifficultyMap::const_iterator itr = sMapDifficultyMap.begin(); itr != sMapDifficultyMap.end(); ++itr)
-    {
-        uint32 mapid = PAIR32_LOPART(itr->first);
-        Difficulty difficulty = Difficulty(PAIR32_HIPART(itr->first));
+    for (auto& mapDifficultyPair : sMapDifficultyMap)
+        for (auto& difficultyPair : mapDifficultyPair.second)
+        {
+            uint32 mapid = mapDifficultyPair.first;
+            Difficulty difficulty = (Difficulty)difficultyPair.first;
 
-        if (itr->second.resetTime == 604800)
-            sInstanceSaveMgr->ResetOrWarnAll(mapid, difficulty);
-    }
+            if (difficultyPair.second.resetTime == 604800)
+                sInstanceSaveMgr->ResetOrWarnAll(mapid, difficulty);
+        }
 
     m_NextInstanceWeeklyReset = time_t(m_NextInstanceWeeklyReset + DAY * getIntConfig(CONFIG_INSTANCE_WEEKLY_RESET));
     sWorld->setWorldState(WS_INSTANCE_WEEKLY_RESET_TIME, uint64(m_NextInstanceWeeklyReset));

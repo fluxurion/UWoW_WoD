@@ -276,14 +276,14 @@ class Group
         void setGroupMemberRole(ObjectGuid guid, uint32 role);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
 
-        Difficulty GetDifficulty(bool isRaid) const;
-        Difficulty GetDungeonDifficulty() const;
-        Difficulty GetRaidDifficulty() const;
-        void SetDungeonDifficulty(Difficulty difficulty);
-        void SetRaidDifficulty(Difficulty difficulty);
-        uint16 InInstance();
-        bool InCombatToInstance(uint32 instanceId);
-        void ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo);
+        void SetDungeonDifficultyID(Difficulty difficulty);
+        void SetRaidDifficultyID(Difficulty difficulty);
+        void SetLegacyRaidDifficultyID(Difficulty difficulty);
+        Difficulty GetDifficultyID(MapEntry const* mapEntry) const;
+        Difficulty GetDungeonDifficultyID() const { return m_dungeonDifficulty; }
+        Difficulty GetRaidDifficultyID() const { return m_raidDifficulty; }
+        Difficulty GetLegacyRaidDifficultyID() const { return m_legacyRaidDifficulty; }
+        void ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* SendMsgTo);
 
         // -no description-
         //void SendInit(WorldSession* session);
@@ -310,7 +310,7 @@ class Group
         /***                   LOOT SYSTEM                     ***/
         /*********************************************************/
 
-        bool isRollLootActive() const;
+        bool isRollLootActive() const { return !RollId.empty(); }
         void SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r);
         void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r);
         void SendLootRoll(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
@@ -346,6 +346,7 @@ class Group
         InstanceGroupBind* GetBoundInstance(Player* player);
         InstanceGroupBind* GetBoundInstance(Map* aMap);
         InstanceGroupBind* GetBoundInstance(MapEntry const* mapEntry);
+        InstanceGroupBind* GetBoundInstance(Difficulty difficulty, uint32 mapId);
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty);
 
         // FG: evil hacks
@@ -377,6 +378,7 @@ class Group
         GroupType           m_groupType;
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
+        Difficulty          m_legacyRaidDifficulty;
         Battleground*       m_bgGroup;
         Battlefield*        m_bfGroup;
         ObjectGuid          m_targetIcons[TARGETICONCOUNT];

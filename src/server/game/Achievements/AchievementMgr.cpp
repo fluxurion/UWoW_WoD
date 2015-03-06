@@ -2839,7 +2839,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementEntry const* achievemen
                         if (!achievIdForDungeon[j][2])
                             break;                      // for
                     }
-                    else if (referencePlayer->GetDungeonDifficulty() == REGULAR_DIFFICULTY)
+                    else if (referencePlayer->GetDungeonDifficultyID() == DIFFICULTY_NORMAL)
                     {
                         // dungeon in normal mode accepted
                         if (!achievIdForDungeon[j][1])
@@ -3128,7 +3128,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementEntry const* achievemen
                  break;
              }
          case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY: // 20
-             if (uint32(referencePlayer->GetMap()->GetDifficulty()) != reqValue)
+             if (uint32(referencePlayer->GetMap()->GetDifficultyID()) != reqValue)
                  return false;
              break;
          case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_MAP: // 32

@@ -115,7 +115,7 @@ public:
                 events.ScheduleEvent(EVENT_BALCONY, 110000);
                 events.ScheduleEvent(EVENT_CURSE, 10000+rand()%15000);
                 events.ScheduleEvent(EVENT_WARRIOR, 30000);
-                if (GetDifficulty() == MAN25_DIFFICULTY)
+                if (GetDifficultyID() == DIFFICULTY_25_N)
                     events.ScheduleEvent(EVENT_BLINK, 20000 + rand()%20000);
             }
         }

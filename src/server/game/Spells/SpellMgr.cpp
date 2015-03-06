@@ -517,7 +517,7 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
 
     uint32 difficultyId = GetSpellDifficultyId(spellId);
     if (!difficultyId)
-    return spellId; //return source spell, it has only REGULAR_DIFFICULTY
+    return spellId; //return source spell, it has only DIFFICULTY_NORMAL
 
     SpellDifficultyEntry const* difficultyEntry = sSpellDifficultyStore.LookupEntry(difficultyId);
     if (!difficultyEntry)
@@ -526,7 +526,7 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
     return spellId; //return source spell
     }
 
-    if (difficultyEntry->SpellID[mode] <= 0 && mode > HEROIC_DIFFICULTY)
+    if (difficultyEntry->SpellID[mode] <= 0 && mode > DIFFICULTY_HEROIC)
     {
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is NULL, using mode %u", spellId, mode, mode - 2);
     mode -= 2;

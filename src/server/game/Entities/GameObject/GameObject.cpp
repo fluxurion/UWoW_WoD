@@ -925,7 +925,7 @@ bool GameObject::IsNeverVisible() const
     const GameObjectData* data = GetGOData();
     if (data && data->spawnMask == 256)  // only challenge go check. for hiding them after start.
     {
-        if (GetMap()->GetSpawnMode() == HEROIC_DIFFICULTY)
+        if (GetMap()->GetSpawnMode() == DIFFICULTY_HEROIC)
             return true;
     }
     return WorldObject::IsNeverVisible();

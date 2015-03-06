@@ -517,7 +517,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
             {
                 case LFG_SUBTYPE_SCENARIO:
                 {
-                    if (entry->dbc->difficulty == HEROIC_SCENARIO_DIFFICULTY && !isContinueDungeonRequest)
+                    if (entry->dbc->difficulty == DIFFICULTY_HC_SCENARIO && !isContinueDungeonRequest)
                     {
                         if (sWorld->getBoolConfig(CONFIG_LFG_DEBUG_JOIN))
                             break;
@@ -989,9 +989,9 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
             SetState(gguid, LFG_STATE_DUNGEON);
 
             if (dungeon->dbc->GetInternalType() == LFG_TYPE_RAID)
-                grp->SetRaidDifficulty(Difficulty(dungeon->difficulty));
+                grp->SetRaidDifficultyID(Difficulty(dungeon->difficulty));
             else
-                grp->SetDungeonDifficulty(Difficulty(dungeon->difficulty));
+                grp->SetDungeonDifficultyID(Difficulty(dungeon->difficulty));
 
             sGroupMgr->AddGroup(grp);
         }
@@ -1601,7 +1601,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId)
         }
 
         // Update achievements
-        if (rDungeon->difficulty == HEROIC_DIFFICULTY)
+        if (rDungeon->difficulty == DIFFICULTY_HEROIC)
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
 
         LfgReward const* reward = GetDungeonReward(rDungeonId, player->getLevel());
@@ -1761,7 +1761,7 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
             lockData.status = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
         else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
             lockData.status = LFG_LOCKSTATUS_RAID_LOCKED;
-        else if (dungeon->difficulty > REGULAR_DIFFICULTY && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)) && 
+        else if (dungeon->difficulty > DIFFICULTY_NORMAL && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)) && 
             !dungeon->dbc->IsScenario() && !dungeon->dbc->IsRaidFinder() && !dungeon->dbc->IsFlex())
             lockData.status = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->minlevel > level)

@@ -1410,7 +1410,7 @@ public:
 
         MapEntry const* mapEntry = map->GetEntry();
         handler->PSendSysMessage("MapId: %u MapName: %s Difficulty: %u Instance Id: %u",
-            mapEntry->MapID, mapEntry->name, map->GetDifficulty(), map->GetInstanceId());
+            mapEntry->MapID, mapEntry->name, map->GetDifficultyID(), map->GetInstanceId());
 
         return true;
     }

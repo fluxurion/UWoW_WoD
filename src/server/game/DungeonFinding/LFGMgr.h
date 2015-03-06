@@ -268,7 +268,7 @@ struct LfgRoleData
 struct LFGDungeonData
 {
     LFGDungeonData(): id(0), name(""), map(0), type(0), expansion(0), random_id(0), minlevel(0),
-        maxlevel(0), difficulty(REGULAR_DIFFICULTY), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f), internalType(LFG_TYPE_DUNGEON), dbc(NULL)
+        maxlevel(0), difficulty(DIFFICULTY_NORMAL), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f), internalType(LFG_TYPE_DUNGEON), dbc(NULL)
        { }
     LFGDungeonData(LFGDungeonEntry const* _dbc): id(_dbc->ID), name(_dbc->name), map(_dbc->map),
         type(_dbc->type), expansion(_dbc->expansion), random_id(_dbc->random_id),

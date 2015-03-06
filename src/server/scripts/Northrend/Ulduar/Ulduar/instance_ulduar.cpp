@@ -639,9 +639,9 @@ public:
                     }
                     if (bossval == 13 && Immortal)
                     {
-                        if (Difficulty(instance->GetSpawnMode()) == MAN10_DIFFICULTY)
+                        if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_10_N)
                             DoCompleteAchievement(2903);
-                        else if (Difficulty(instance->GetSpawnMode()) == MAN25_DIFFICULTY)
+                        else if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_25_N)
                             DoCompleteAchievement(2904);
                     }
                 }

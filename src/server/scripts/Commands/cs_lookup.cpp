@@ -1086,7 +1086,7 @@ public:
                     if (MapInfo->IsContinent())
                         ss << handler->GetTrinityString(LANG_CONTINENT);
 
-                    switch (MapInfo->map_type)
+                    switch (MapInfo->InstanceType)
                     {
                         case MAP_INSTANCE:      ss << handler->GetTrinityString(LANG_INSTANCE);      break;
                         case MAP_BATTLEGROUND:  ss << handler->GetTrinityString(LANG_BATTLEGROUND);  break;

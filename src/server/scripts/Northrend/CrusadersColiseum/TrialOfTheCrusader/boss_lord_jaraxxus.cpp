@@ -234,7 +234,7 @@ public:
                 m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
             } else m_uiLegionFlameTimer -= uiDiff;
 
-            if (GetDifficulty() == MAN25_HEROIC_DIFFICULTY && m_uiTouchOfJaraxxusTimer <= uiDiff)
+            if (GetDifficultyID() == DIFFICULTY_25_HC && m_uiTouchOfJaraxxusTimer <= uiDiff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_TOUCH_OF_JARAXXUS);
