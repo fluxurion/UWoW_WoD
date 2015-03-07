@@ -681,6 +681,9 @@ enum OpcodeClient : uint32
     CMSG_LIST_STABLED_PETS                            = 0x059D, // CMSG_REQUEST_STABLED_PETS on trinity
     CMSG_RAID_TARGET_UPDATE                           = 0x1122, // CMSG_UPDATE_RAID_TARGET
     CMSG_SET_DUNGEON_DIFFICULTY                       = 0x012F,
+    CMSG_DO_READY_CHECK                               = 0x1221,
+    CMSG_READY_CHECK_RESPONSE                         = 0x071A,
+    CMSG_INITIATE_ROLE_POLL                           = 0x1BA2,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
@@ -707,8 +710,6 @@ enum OpcodeClient : uint32
     CMSG_PURCHASE_GET_PRODUCT_LIST                    = 0xBADD, // 5.4.1 17538
     CMSG_PURCHASE_GET_PURCHASE_LIST                   = 0xBADD, // 5.4.1 17538
     CMSG_QUERY_PLAYER_RECIPES                         = 0xBADD, // 5.4.1 17538
-    CMSG_RAID_LEADER_READY_CHECK                      = 0xBADD, // 5.4.1 17538
-    CMSG_RAID_CONFIRM_READY_CHECK                     = 0xBADD, // 5.4.1 17538
     CMSG_REDIRECTION_AUTH_PROOF                       = 0xBADD, // 5.4.1 17538
     CMSG_REQUEST_RATED_INFO                           = 0xBADD, // 5.4.1 17538
     CMSG_RESET_CHALLENGE_MODE                         = 0xBADD, // 5.4.1 17538
@@ -1531,6 +1532,9 @@ enum OpcodeServer : uint32
     SMSG_SET_DUNGEON_DIFFICULTY                       = 0x0719,
     SMSG_SET_RAID_DIFFICULTY                          = 0x051F,
     SMSG_ATTACKSWING_ERROR                            = 0x0509,
+    SMSG_READY_CHECK_COMPLETED                        = 0x0BC3,
+    SMSG_READY_CHECK_RESPONSE                         = 0x0A10,
+    SMSG_READY_CHECK_STARTED                          = 0x17A9,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1607,9 +1611,6 @@ enum OpcodeServer : uint32
     SMSG_PURCHASE_STORE_PRODUCTS_UPDATED              = 0xBADD, // 5.4.1 17538
     SMSG_PURCHASE_STORE_PURCHASE_LIST_UPDATED         = 0xBADD, // 5.4.1 17538
     SMSG_PVP_BRACKET_DATA                             = 0xBADD, // 5.4.1 17538
-    SMSG_RAID_READY_CHECK_COMPLETED                   = 0xBADD, // 5.4.1 17538
-    SMSG_RAID_READY_CHECK_RESPONSE                    = 0xBADD, // 5.4.1 17538
-    SMSG_RAID_READY_CHECK_STARTED                     = 0xBADD, // 5.4.1 17538 
     SMSG_PVP_RATED_STATS                              = 0xBADD, // 5.4.1 17538
     SMSG_RESPEC_WIPE_CONFIRM                          = 0xBADD, // 5.4.1 17538
     SMSG_SERVER_SCENE_PLAYBACK                        = 0xBADD, // 5.4.1 17538

@@ -979,10 +979,10 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
     group->SendUpdate();
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RAID_LEADER_READY_CHECK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DO_READY_CHECK");
 
     recvData.read_skip<uint8>(); // unk, 0x00
 
@@ -993,101 +993,53 @@ void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& recvData)
     if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()) && !(group->GetGroupType() & GROUPTYPE_EVERYONE_IS_ASSISTANT))
         return;
 
-    ObjectGuid groupGUID = group->GetGUID();
-    ObjectGuid leaderGUID = GetPlayer()->GetGUID();
-
     group->SetReadyCheckCount(1);
 
-    //! 5.4.1
-    WorldPacket data(SMSG_RAID_READY_CHECK_STARTED);
-
-    //data.WriteGuidMask<2>(leaderGUID);
-    //data.WriteGuidMask<6, 4>(groupGUID);
-    //data.WriteGuidMask<7, 4, 1>(leaderGUID);
-    //data.WriteGuidMask<1>(groupGUID);
-    //data.WriteGuidMask<6>(leaderGUID);
-    //data.WriteGuidMask<7, 5>(groupGUID);
-    //data.WriteGuidMask<0, 3>(leaderGUID);
-    //data.WriteGuidMask<0>(groupGUID);
-    //data.WriteGuidMask<5>(leaderGUID);
-    //data.WriteGuidMask<3, 2>(groupGUID);
-
-    //data.WriteGuidBytes<5, 0, 4, 2>(groupGUID);
-    //data.WriteGuidBytes<6, 5>(leaderGUID);
-    //data.WriteGuidBytes<7, 1>(groupGUID);
-    //data.WriteGuidBytes<1>(leaderGUID);
-    //data.WriteGuidBytes<6>(groupGUID);
-    //data.WriteGuidBytes<2, 4, 7, 0>(leaderGUID);
-    data << uint8(1);                               // unk 5.0.5
-    //data.WriteGuidBytes<3>(groupGUID);
+    //! 6.0.3
+    WorldPacket data(SMSG_READY_CHECK_STARTED);
+    data << uint8(0);                               // PartyIndex
+    data << group->GetGUID();
+    data << GetPlayer()->GetGUID();
     data << uint32(35000);                          // TimeOut
-    //data.WriteGuidBytes<3>(leaderGUID);
 
     group->BroadcastPacket(&data, false, -1);
 
     group->OfflineReadyCheck();
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RAID_CONFIRM_READY_CHECK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_READY_CHECK_RESPONSE");
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
 
-    recvData.read_skip<uint8>(); // unk, 0x00
-    recvData.ReadBits(4);
+    ObjectGuid GroupGuid;
+    recvData.read_skip<uint8>(); // PartyIndex
+    recvData >> GroupGuid;
     bool ready = recvData.ReadBit();
-    recvData.rfinish();         //not use guid
-
-    ObjectGuid plGUID = GetPlayer()->GetGUID();
-    ObjectGuid grpGUID = group->GetGUID();
 
     group->SetReadyCheckCount(group->GetReadyCheckCount() +1 );
 
-    //! 5.4.1
-    WorldPacket data(SMSG_RAID_READY_CHECK_RESPONSE);
-    //data.WriteGuidMask<6>(plGUID);
+    //! 6.0.3
+    WorldPacket data(SMSG_READY_CHECK_RESPONSE);
+    data << group->GetGUID();
+    data << GetPlayer()->GetGUID();
     data.WriteBit(ready);
-    //data.WriteGuidMask<5>(plGUID);
-    //data.WriteGuidMask<3, 2>(grpGUID);
-    //data.WriteGuidMask<1, 0>(plGUID);
-    //data.WriteGuidMask<1>(grpGUID);
-    //data.WriteGuidMask<2>(plGUID);
-    //data.WriteGuidMask<4, 6>(grpGUID);
-    //data.WriteGuidMask<3, 4>(plGUID);
-    //data.WriteGuidMask<5, 7>(grpGUID);
-    //data.WriteGuidMask<7>(plGUID);
-    //data.WriteGuidMask<0>(grpGUID);
-
     data.FlushBits();
-
-    //data.WriteGuidBytes<0, 6>(plGUID);
-    //data.WriteGuidBytes<0>(grpGUID);
-    //data.WriteGuidBytes<3>(plGUID);
-    //data.WriteGuidBytes<5, 6>(grpGUID);
-    //data.WriteGuidBytes<2>(plGUID);
-    //data.WriteGuidBytes<2>(grpGUID);
-    //data.WriteGuidBytes<7>(plGUID);
-    //data.WriteGuidBytes<4, 3>(grpGUID);
-    //data.WriteGuidBytes<4>(plGUID);
-    //data.WriteGuidBytes<1, 7>(grpGUID);
-    //data.WriteGuidBytes<5, 1>(plGUID);
-
     group->BroadcastPacket(&data, true);
 
-    // Send SMSG_RAID_READY_CHECK_COMPLETED
+    // Send SMSG_READY_CHECK_COMPLETED
     if(group->GetReadyCheckCount() >= group->GetMembersCount())
     {
         ObjectGuid grpGUID = group->GetGUID();
 
-        //! 5.4.1
-        data.Initialize(SMSG_RAID_READY_CHECK_COMPLETED);
-        //data.WriteGuidMask<3, 2, 0, 7, 6, 4, 1, 5>(grpGUID);
-        //data.WriteGuidBytes<3, 0, 6, 7, 1, 4, 5, 2>(grpGUID);
-        data << uint8(1);
+        //! 6.0.3
+        data.Initialize(SMSG_READY_CHECK_COMPLETED);
+        data << uint8(0);
+        data << group->GetGUID();
 
         group->BroadcastPacket(&data, true);
     }

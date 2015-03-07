@@ -1994,46 +1994,20 @@ void Group::BroadcastReadyCheck(WorldPacket* packet)
     }
 }
 
-//! 5.4.1
+//! 6.0.3
 void Group::OfflineReadyCheck()
 {
+    bool ready = false;
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         Player* player = ObjectAccessor::FindPlayer(citr->guid);
         if (!player || !player->GetSession())
         {
-            bool ready = false;
-            ObjectGuid plGUID = citr->guid;
-            ObjectGuid grpGUID = GetGUID();
-
-            //! 5.4.1
-            WorldPacket data(SMSG_RAID_READY_CHECK_RESPONSE);
-            //data.WriteGuidMask<6>(plGUID);
+            WorldPacket data(SMSG_READY_CHECK_RESPONSE);
+            data << GetGUID();
+            data << citr->guid;
             data.WriteBit(ready);
-            //data.WriteGuidMask<5>(plGUID);
-            //data.WriteGuidMask<3, 2>(grpGUID);
-            //data.WriteGuidMask<1, 0>(plGUID);
-            //data.WriteGuidMask<1>(grpGUID);
-            //data.WriteGuidMask<2>(plGUID);
-            //data.WriteGuidMask<4, 6>(grpGUID);
-            //data.WriteGuidMask<3, 4>(plGUID);
-            //data.WriteGuidMask<5, 7>(grpGUID);
-            //data.WriteGuidMask<7>(plGUID);
-            //data.WriteGuidMask<0>(grpGUID);
-
             data.FlushBits();
-
-            //data.WriteGuidBytes<0, 6>(plGUID);
-            //data.WriteGuidBytes<0>(grpGUID);
-            //data.WriteGuidBytes<3>(plGUID);
-            //data.WriteGuidBytes<5, 6>(grpGUID);
-            //data.WriteGuidBytes<2>(plGUID);
-            //data.WriteGuidBytes<2>(grpGUID);
-            //data.WriteGuidBytes<7>(plGUID);
-            //data.WriteGuidBytes<4, 3>(grpGUID);
-            //data.WriteGuidBytes<4>(plGUID);
-            //data.WriteGuidBytes<1, 7>(grpGUID);
-            //data.WriteGuidBytes<5, 1>(plGUID);
 
             BroadcastReadyCheck(&data);
 
