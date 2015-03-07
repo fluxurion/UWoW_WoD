@@ -25025,7 +25025,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendEquipmentSetList();
     m_achievementMgr.SendAllAchievementData(this);  //second send
 
-    data.Initialize(SMSG_SUSPEND_TOKEN_RESPONSE, 15);
+    data.Initialize(SMSG_RESUME_TOKEN, 15);
     data << uint32(0);
     data.WriteBits(2, 2);
     GetSession()->SendPacket(&data);

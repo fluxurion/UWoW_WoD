@@ -588,7 +588,7 @@ enum OpcodeClient : uint32
     CMSG_SUGGESTION_SUBMIT                            = 0xBADD,
     CMSG_SUMMON_RESPONSE                              = 0xBADD,
     CMSG_SUSPEND_COMMS_ACK                            = 0x0C56,
-    CMSG_SUSPEND_TOKEN_RESPONSE                       = 0xBADD,
+    CMSG_SUSPEND_TOKEN_RESPONSE                       = 0x041E,
     CMSG_SWAP_INV_ITEM                                = 0xBADD,
     CMSG_SWAP_ITEM                                    = 0x0F17,
     CMSG_SYNC_DANCE                                   = 0xBADD,
@@ -717,7 +717,6 @@ enum OpcodeClient : uint32
     CMSG_SET_LFG_BONUS_FACTION                        = 0xBADD, // 5.4.1 17538
     CMSG_SET_PRIMARY_TALENT_TREE                      = 0xBADD,  // 5.0.5 16048 deprecated
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0xBADD, // 5.4.1 17538
-    CMSG_SUSPEND_TOKEN                                = 0xBADD,  // 5.0.5 16048 Unused
     CMSG_TUTORIAL_CLEAR                               = 0xBADD, // 5.4.1 17538
     CMSG_TUTORIAL_RESET                               = 0xBADD, // 5.4.1 17538
     CMSG_UPGRADE_ITEM                                 = 0xBADD, // 5.4.1 17538
@@ -1534,6 +1533,7 @@ enum OpcodeServer : uint32
     SMSG_READY_CHECK_COMPLETED                        = 0x0BC3,
     SMSG_READY_CHECK_RESPONSE                         = 0x0A10,
     SMSG_READY_CHECK_STARTED                          = 0x17A9,
+    SMSG_RESUME_TOKEN                                 = 0x0326,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1618,7 +1618,6 @@ enum OpcodeServer : uint32
     SMSG_SPELL_CHARGE_DATA                            = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_CREATE_VISUAL                          = 0xBADD, // 5.4.1 17538
     SMSG_SURVEY_CAST                                  = 0xBADD, // 5.4.1 17538
-    SMSG_SUSPEND_TOKEN_RESPONSE                       = 0xBADD, // 5.4.1 17538
     SMSG_TITLE_REMOVED                                = 0xBADD, // 5.4.1 17538
     SMSG_UPDATE_ACCOUNT_DATA_COMPLETE                 = 0xBADD,  // 5.0.5 16048
     SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0xBADD,  // 5.0.5 16048

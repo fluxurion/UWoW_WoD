@@ -2027,3 +2027,15 @@ void WorldSession::HandleRequestCemeteryList(WorldPackets::Misc::RequestCemetery
 
     SendPacket(packet.Write());
 }
+
+//! ToDo: WTF?
+void WorldSession::SuspendTokenResponse(WorldPacket& recvPacket)
+{
+    uint32 Sequence;
+    recvPacket >> Sequence;
+
+    WorldPacket data(SMSG_RESUME_TOKEN, 15);
+    data << uint32(0);
+    data.WriteBits(2, 2);
+    SendPacket(&data);
+}
