@@ -505,7 +505,7 @@ void OpcodeTable::Initialize()
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_RESET_FACTION_CHEAT,                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_RESET_INSTANCES,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleResetInstancesOpcode      );
     DEFINE_HANDLER(CMSG_RESURRECT_RESPONSE,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::ResurrectResponse, &WorldSession::HandleResurrectResponse);//603
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_ROLE_POLL_BEGIN,                         STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRolePollBegin             );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_INITIATE_ROLE_POLL,                      STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRolePollBegin             );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SAVE_GUILD_EMBLEM,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSaveGuildEmblemOpcode     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SAVE_CUF_PROFILES,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE,   &WorldSession::HandleSaveCUFProfiles         );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SELF_RES,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSelfResOpcode             );
@@ -1242,7 +1242,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESPOND_INSPECT_ACHIEVEMENTS,            STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESURRECT_REQUEST,                       STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RESYNC_RUNES,                            STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_ROLE_POLL_BEGIN,                         STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_ROLE_POLL_INFORM,                        STATUS_NEVER);//603
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_RWHOIS,                                  STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SELL_ITEM,                               STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SEND_MAIL_RESULT,                        STATUS_NEVER);

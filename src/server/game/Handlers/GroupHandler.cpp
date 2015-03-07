@@ -1422,9 +1422,10 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket & recvData)
     GetPlayer()->SetPassOnGroupLoot(passOnLoot);
 }
 
+//! 6.0.3
 void WorldSession::HandleRolePollBegin(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ROLE_POLL_BEGIN");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_INITIATE_ROLE_POLL");
 
     uint8 unk;
     recvData >> unk;
@@ -1442,14 +1443,10 @@ void WorldSession::HandleRolePollBegin(WorldPacket & recvData)
         return;
     }
 
-    ObjectGuid guid = group->GetGUID();
-
-    //! 5.4.1
-    WorldPacket data(SMSG_ROLE_POLL_BEGIN, (8+4+4));
-    //data.WriteGuidMask<0, 1, 7, 2, 3, 5, 4, 6>(guid);
-    //data.WriteGuidBytes<0, 7>(guid);
+    //! 6.0.3
+    WorldPacket data(SMSG_ROLE_POLL_INFORM, (8+4+4));
     data << unk;
-    //data.WriteGuidBytes<1, 2, 4, 3, 5, 6>(guid);
+    data << group->GetGUID();
 
     group->BroadcastPacket(&data, false);
 }
