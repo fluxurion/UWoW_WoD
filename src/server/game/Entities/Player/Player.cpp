@@ -4207,7 +4207,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             WorldPacket data(SMSG_ACCOUNT_MOUNT_UPDATE, 200);
             data.WriteBit(0);
             data << uint32(1);      //count
-            data << uint16(0);      //favorite count
+            data << uint32(0);      //favorite count
             data << spellId;
             GetSession()->SendPacket(&data);
 
@@ -20125,7 +20125,7 @@ void Player::_LoadAccountSpells(PreparedQueryResult result)
     WorldPacket data(SMSG_ACCOUNT_MOUNT_UPDATE, 200);
     data.WriteBit(1);
     data << uint32(count);  //count
-    data << uint16(0);      //favorite count
+    data << uint32(0);      //favorite count
 
     if (result)
     {
