@@ -4202,6 +4202,15 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             }
 
             mount = true;
+
+            //! 6.0.3
+            WorldPacket data(SMSG_ACCOUNT_MOUNT_UPDATE, 200);
+            data.WriteBit(0);
+            data << uint32(1);      //count
+            data << uint16(0);      //favorite count
+            data << spellId;
+            GetSession()->SendPacket(&data);
+
             if(mountReplace != 0)
                 AddSpellMountReplacelist(spellId, mountReplace);
         }
@@ -20108,12 +20117,34 @@ void Player::_LoadAccountSpells(PreparedQueryResult result)
 {
     //QueryResult* result = CharacterDatabase.PQuery("SELECT spell, active, disabled FROM character_spell WHERE guid = '%u'", GetGUID().GetCounter());
 
+    uint32 count = 0;
+    uint32 spellID = 0;
+    bool active = false;
+
+    //! 6.0.3
+    WorldPacket data(SMSG_ACCOUNT_MOUNT_UPDATE, 200);
+    data.WriteBit(1);
+    data << uint32(count);  //count
+    data << uint16(0);      //favorite count
+
     if (result)
     {
         do
-            addSpell((*result)[0].GetUInt32(), (*result)[1].GetBool(), false, false, false, true);
+        {
+            spellID = (*result)[0].GetUInt32();
+            active = (*result)[1].GetBool();
+            addSpell(spellID, active, false, false, false, true);
+            if (active)
+            {
+                ++count;
+                data << spellID;
+            }
+        }
         while (result->NextRow());
     }
+    data.put<uint32>(1, count);
+
+    GetSession()->SendPacket(&data);
 }
 
 void Player::_LoadCUFProfiles(PreparedQueryResult result)
