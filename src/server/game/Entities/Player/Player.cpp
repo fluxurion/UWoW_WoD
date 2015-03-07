@@ -25013,13 +25013,13 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendCurrencies();
 
     // Reset Vignitte data
-    data.Initialize(SMSG_CLIENT_VIGNETTE_DATA, 15);
-    data.WriteBits(0, 24);
-    data.WriteBits(0, 24);
+    data.Initialize(SMSG_SET_VIGNETTE, 21);
     data.WriteBit(1);
-    data.WriteBits(0, 20);
-    data.WriteBits(0, 20);
-    data.WriteBits(0, 24);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
     GetSession()->SendPacket(&data);
 
     SendEquipmentSetList();
@@ -29721,25 +29721,19 @@ void Player::SendVegnette(Creature *target)
     ObjectGuid targetGUID = target->GetGUID();
     ObjectGuid unk = targetGUID/*0x81101000F*/;
 
-    WorldPacket data(SMSG_CLIENT_VIGNETTE_DATA, 20);
-    data.WriteBits(0, 24);
-    data.WriteBits(0, 24);
-    data.WriteBit(9);
-    data.WriteBits(1, 20);
-    data.WriteBits(0, 20);
-    //data.WriteGuidMask<0, 5, 6, 7, 3, 1, 4, 2>(targetGUID);
-    data.WriteBits(1, 24);
-    //data.WriteGuidMask<0, 5, 6, 7, 3, 1, 4, 2>(unk);
-    //data.WriteGuidBytes<0, 2, 3, 4, 5, 1, 7, 6>(unk);
+    WorldPacket data(SMSG_SET_VIGNETTE, 20);
+    data.WriteBit(1);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(1);
+    data << uint32(0);
+    data << uint32(0);//or this
 
     {
-        data << float(target->GetPositionX());
-        //data.WriteGuidBytes<2, 4>(targetGUID);
-        data << float(target->GetPositionY());
-        //data.WriteGuidBytes<6, 7, 0, 3>(targetGUID);
+        data << float(target->GetPositionX()) << float(target->GetPositionY()) << float(target->GetPositionZ());
+        data << targetGUID;
         data << uint32(4);      //Vegnette.dbc2 ID
-        data << float(target->GetPositionZ());
-        //data.WriteGuidBytes<5, 1>(targetGUID);
+        data << uint32(0);      //unk???
     }
     GetSession()->SendPacket(&data);
 }

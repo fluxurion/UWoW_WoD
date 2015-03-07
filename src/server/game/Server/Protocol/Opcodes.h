@@ -1575,7 +1575,6 @@ enum OpcodeServer : uint32
     SMSG_BATTLE_PET_UPDATES                           = 0xBADD,  // 5.4.1 17538
     SMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0xBADD, // 5.4.1 17538
     SMSG_BATTLEGROUND_POINTS                          = 0xBADD, // 5.4.1 17538
-    SMSG_CLIENT_VIGNETTE_DATA                         = 0xBADD, // 5.4.1 17538
     SMSG_COMPRESSED_ACHIEVEMENT_DATA                  = 0xBADD,      // Not found in 4.3.4
     SMSG_COMPRESSED_CHAR_ENUM                         = 0xBADD,      // Not found in 4.3.4
     SMSG_COMPRESSED_GUILD_ROSTER                      = 0xBADD,      // Not found in 4.3.4
