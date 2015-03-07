@@ -874,53 +874,24 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     group->ChangeMembersGroup(guid, groupNr);
 }
 
+//! 6.0.3
+//! ToDo: Write swipe command.
 void WorldSession::HandleGroupSwapSubGroupOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SWAP_SUB_GROUP");
     uint8 unk1;
     ObjectGuid guid1;
     ObjectGuid guid2;
-    uint8 unk2;
 
-    recvData >> unk1;
+    recvData >> unk1 >> guid1 >> guid2;
 
-    guid1[4] = recvData.ReadBit();
-    guid1[6] = recvData.ReadBit();
-    guid1[5] = recvData.ReadBit();
-    guid1[0] = recvData.ReadBit();
-    guid2[3] = recvData.ReadBit();
-    guid2[4] = recvData.ReadBit();
-    guid1[7] = recvData.ReadBit();
-    guid1[2] = recvData.ReadBit();
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SWAP_SUB_GROUPS WARNING! ToDo! guid1 %s guid2 %s", guid1.ToString().c_str(), guid2.ToString().c_str());
 
-    guid2[7] = recvData.ReadBit();
-    guid2[1] = recvData.ReadBit();
-    guid2[5] = recvData.ReadBit();
-    guid2[6] = recvData.ReadBit();
-    guid2[0] = recvData.ReadBit();
-    guid1[3] = recvData.ReadBit();
-    guid2[2] = recvData.ReadBit();
-    guid1[1] = recvData.ReadBit();
+    Group* group = GetPlayer()->GetGroup();
+    if (!group)
+        return;
 
-    recvData.ReadByteSeq(guid2[0]);
-    recvData.ReadByteSeq(guid1[5]);
-    recvData.ReadByteSeq(guid1[0]);
-    recvData.ReadByteSeq(guid2[7]);
-    recvData.ReadByteSeq(guid1[6]);
-    recvData.ReadByteSeq(guid2[1]);
-    recvData.ReadByteSeq(guid2[5]);
-    recvData.ReadByteSeq(guid1[7]);
-
-    recvData.ReadByteSeq(guid1[4]);
-    recvData.ReadByteSeq(guid1[3]);
-    recvData.ReadByteSeq(guid2[3]);
-    recvData.ReadByteSeq(guid1[1]);
-    recvData.ReadByteSeq(guid1[4]);
-    recvData.ReadByteSeq(guid2[6]);
-    recvData.ReadByteSeq(guid2[2]);
-    recvData.ReadByteSeq(guid2[2]);
-
-    recvData >> unk2;
+    // Fix client display error.
+    group->SendUpdate();
 }
 
 //! 5.4.1
