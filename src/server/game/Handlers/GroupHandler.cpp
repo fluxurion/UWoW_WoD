@@ -778,7 +778,7 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
         SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RAID_TARGET_UPDATE");
@@ -837,7 +837,7 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
         group->ConvertToRaid();
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
 {
     time_t now = time(NULL);
@@ -849,7 +849,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     else
        timeAddIgnoreOpcode = now;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_CHANGE_SUB_GROUP");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CHANGE_SUB_GROUP");
 
     // we will get correct pointer for group here, so we don't have to check if group is BG raid
     Group* group = GetPlayer()->GetGroup();
@@ -859,10 +859,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     uint8 groupNr;
     uint8 unk;
-    recvData >> unk >> groupNr;
-
-    //recvData.ReadGuidMask<0, 1, 7, 6, 3, 5, 4, 2>(guid);
-    //recvData.ReadGuidBytes<6, 3, 7, 5, 1, 4, 2, 0>(guid);
+    recvData >> guid >> unk >> groupNr;
 
     if (groupNr >= MAX_RAID_SUBGROUPS)
         return;
