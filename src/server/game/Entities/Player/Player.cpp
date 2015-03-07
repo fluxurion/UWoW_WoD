@@ -28845,10 +28845,10 @@ void Player::SendMovementSetCollisionHeight(float height, uint32 mountDisplayID/
 
     //! 6.0.3
     WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
-    data << guid.WriteAsPacked();
+    data << guid;
     data << uint32(m_movementCounter++);          //! movement counter
-    data << float(GetFloatValue(OBJECT_FIELD_SCALE));     // scale
     data << float(height);
+    data << float(GetFloatValue(OBJECT_FIELD_SCALE));     // scale
     data << uint32(mountDisplayID);
 
     data.FlushBits();
