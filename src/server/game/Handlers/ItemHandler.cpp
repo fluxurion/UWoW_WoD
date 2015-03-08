@@ -30,39 +30,41 @@
 #include <vector>
 #include "ItemPackets.h"
 
-void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
+//! 6.0.3
+void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
 {
+    if (!splitItem.Inv.Items.empty())
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleSplitItemOpcode - Invalid ItemCount (%u)", splitItem.Inv.Items.size());
+        return;
+    }
+
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_SPLIT_ITEM");
-    uint8 srcbag, srcslot, dstbag, dstslot;
-    uint32 count;
-
-    recvData >> count >> dstbag >> srcbag >> dstslot >> srcslot;
-    recvData.rfinish();
-
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u, count = %u", srcbag, srcslot, dstbag, dstslot, count);
 
-    uint16 src = ((srcbag << 8) | srcslot);
-    uint16 dst = ((dstbag << 8) | dstslot);
+    uint16 src = ((splitItem.FromPackSlot << 8) | splitItem.FromSlot);
+    uint16 dst = ((splitItem.ToPackSlot << 8) | splitItem.ToSlot);
 
     if (src == dst)
         return;
 
-    if (count == 0)
-        return;                                             //check count - if zero it's fake packet
+    // check count - if zero it's fake packet
+    if (!splitItem.Quantity)
+        return;
 
-    if (!_player->IsValidPos(srcbag, srcslot, true))
+    if (!_player->IsValidPos(splitItem.FromPackSlot, splitItem.FromSlot, true))
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    if (!_player->IsValidPos(dstbag, dstslot, false))       // can be autostore pos
+    if (!_player->IsValidPos(splitItem.ToPackSlot, splitItem.ToSlot, false)) // can be autostore pos
     {
         _player->SendEquipError(EQUIP_ERR_WRONG_SLOT, NULL, NULL);
         return;
     }
 
-    _player->SplitItem(src, dst, count);
+    _player->SplitItem(src, dst, splitItem.Quantity);
 }
 
 void WorldSession::HandleSwapInvItemOpcode(WorldPacket & recvData)
