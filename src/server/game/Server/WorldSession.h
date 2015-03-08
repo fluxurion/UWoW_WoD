@@ -864,7 +864,7 @@ class WorldSession
 
         void SendItemPageInfo(ItemTemplate* itemProto);
         void HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem);
-        void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
+        void HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swapInvItem);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
         void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
         void HandleSellItemOpcode(WorldPacket& recvPacket);
@@ -1234,6 +1234,8 @@ class WorldSession
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
 
+        bool CanUseBank(ObjectGuid bankerGUID = ObjectGuid::Empty) const;
+
         // logging helper
         void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);
         void LogUnprocessedTail(WorldPacket* packet);
@@ -1309,6 +1311,8 @@ class WorldSession
         uint32 _pakagepersecond;
         uint32 _second;
         uint32 _counttokick;
+
+        ObjectGuid m_currentBankerGUID;
 };
 
 class PacketSendEvent : public BasicEvent
