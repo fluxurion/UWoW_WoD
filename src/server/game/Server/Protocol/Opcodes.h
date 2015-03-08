@@ -551,9 +551,9 @@ enum OpcodeClient : uint32
     CMSG_SET_CONTACT_NOTES                            = 0x03AC,
     CMSG_SET_CURRENCY_FLAGS                           = 0xBADD,
     CMSG_SET_EVERYONE_IS_ASSISTANT                    = 0xBADD,
-    CMSG_SET_FACTION_ATWAR                            = 0xBADD,
+    CMSG_SET_FACTION_AT_WAR                           = 0x051E,
     CMSG_SET_FACTION_CHEAT                            = 0xBADD,
-    CMSG_SET_FACTION_INACTIVE                         = 0xBADD,
+    CMSG_SET_FACTION_INACTIVE                         = 0x09E2,
     CMSG_SET_GUILD_BANK_TEXT                          = 0xBADD,
     CMSG_SET_LFG_COMMENT                              = 0xBADD,
     CMSG_SET_LOOT_SPECIALIZATION                      = 0x0226,
@@ -683,12 +683,13 @@ enum OpcodeClient : uint32
     CMSG_DO_READY_CHECK                               = 0x1221,
     CMSG_READY_CHECK_RESPONSE                         = 0x071A,
     CMSG_INITIATE_ROLE_POLL                           = 0x1BA2,
+    CMSG_SET_LFG_BONUS_FACTION                        = 0x009D,
+    CMSG_SET_FACTION_NOT_AT_WAR                       = 0x0A06,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
     CMSG_CHALLENGE_MODE_REQUEST_COMPLETION_INFO       = 0xBADD, // 5.4.1 17538
     CMSG_CHALLENGE_MODE_REQUEST_LEADERS               = 0xBADD, // 5.4.1 17538
-    
     CMSG_CONFIRM_TALENT_WIPE                          = 0xBADD, // 5.4.1 17538
     CMSG_DELETEEQUIPMENT_SET                          = 0xBADD, // 5.4.1 17538
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0xBADD, // 5.4.1 17538
@@ -713,12 +714,8 @@ enum OpcodeClient : uint32
     CMSG_REQUEST_RATED_INFO                           = 0xBADD, // 5.4.1 17538
     CMSG_RESET_CHALLENGE_MODE                         = 0xBADD, // 5.4.1 17538
     CMSG_SELECT_FACTION                               = 0xBADD, // 5.4.1 17538
-    CMSG_UNSET_FACTION_ATWAR                          = 0xBADD, // 5.4.1 17538
-    CMSG_SET_LFG_BONUS_FACTION                        = 0xBADD, // 5.4.1 17538
     CMSG_SET_PRIMARY_TALENT_TREE                      = 0xBADD,  // 5.0.5 16048 deprecated
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0xBADD, // 5.4.1 17538
-    CMSG_TUTORIAL_CLEAR                               = 0xBADD, // 5.4.1 17538
-    CMSG_TUTORIAL_RESET                               = 0xBADD, // 5.4.1 17538
     CMSG_UPGRADE_ITEM                                 = 0xBADD, // 5.4.1 17538
     CMSG_GET_WEB_TICKET                               = 0xBADD, // 5.4.1 17538
     CMSG_BATTLE_PET_166F                              = 0xBADD, // 5.4.1 17538

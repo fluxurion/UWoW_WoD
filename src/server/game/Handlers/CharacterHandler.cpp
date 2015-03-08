@@ -49,6 +49,7 @@
 #include "CharacterPackets.h"
 #include "SystemPackets.h"
 #include "BattlegroundPackets.h"
+#include "MiscPackets.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -1037,7 +1038,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
 void WorldSession::HandleSetFactionAtWar(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_ATWAR");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_AT_WAR");
 
     uint8 repListID;
     recvData >> repListID;
@@ -1057,7 +1058,7 @@ void WorldSession::HandleSetLfgBonusFaction(WorldPacket & recvData)
 
 void WorldSession::HandleUnsetFactionAtWar(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UNSET_FACTION_ATWAR");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_NOT_AT_WAR");
 
     uint8 repListID;
     recvData >> repListID;
@@ -1072,32 +1073,35 @@ void WorldSession::HandleSetFactionCheat(WorldPacket & /*recvData*/)
     GetPlayer()->GetReputationMgr().SendStates();
 }
 
-void WorldSession::HandleTutorialFlag(WorldPacket & recvData)
+void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packet)
 {
-    uint32 data;
-    recvData >> data;
-
-    uint8 index = uint8(data / 32);
-    if (index >= MAX_ACCOUNT_TUTORIAL_VALUES)
-        return;
-
-    uint32 value = (data % 32);
-
-    uint32 flag = GetTutorialInt(index);
-    flag |= (1 << value);
-    SetTutorialInt(index, flag);
-}
-
-void WorldSession::HandleTutorialClear(WorldPacket& /*recvData*/)
-{
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        SetTutorialInt(i, 0xFFFFFFFF);
-}
-
-void WorldSession::HandleTutorialReset(WorldPacket& /*recvData*/)
-{
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        SetTutorialInt(i, 0x00000000);
+    switch (packet.Action)
+    {
+        case TUTORIAL_ACTION_UPDATE:
+        {
+            uint8 index = uint8(packet.TutorialBit >> 5);
+            if (index >= MAX_ACCOUNT_TUTORIAL_VALUES)
+            {
+                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_TUTORIAL_FLAG received bad TutorialBit %u.", packet.TutorialBit);
+                return;
+            }
+            uint32 flag = GetTutorialInt(index);
+            flag |= (1 << (packet.TutorialBit & 0x1F));
+            SetTutorialInt(index, flag);
+            break;
+        }
+        case TUTORIAL_ACTION_CLEAR:
+            for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
+                SetTutorialInt(i, 0xFFFFFFFF);
+            break;
+        case TUTORIAL_ACTION_RESET:
+            for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
+                SetTutorialInt(i, 0x00000000);
+            break;
+        default:
+            sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_TUTORIAL_FLAG received unknown TutorialAction %u.", packet.Action);
+            return;
+    }
 }
 
 void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket & recvData)
