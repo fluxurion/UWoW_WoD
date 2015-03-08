@@ -683,7 +683,6 @@ enum OpcodeClient : uint32
     CMSG_DO_READY_CHECK                               = 0x1221,
     CMSG_READY_CHECK_RESPONSE                         = 0x071A,
     CMSG_INITIATE_ROLE_POLL                           = 0x1BA2,
-    CMSG_CHAR_RACE_OR_FACTION_CHANGE                  = 0x1209,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538

@@ -1477,135 +1477,6 @@ void WorldSession::HandleRemoveGlyph(WorldPacket & recvData)
     }
 }
 
-//! 5.4.1
-void WorldSession::HandleCharCustomize(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    std::string newName;
-
-    uint8 gender, skin, face, hairStyle, hairColor, facialHair;
-    recvData >> skin >> face >> gender >> facialHair >> hairStyle >> hairColor;
-
-    //recvData.ReadGuidMask<6, 2, 1>(guid);
-    uint32 newNameLen = recvData.ReadBits(6);
-    //recvData.ReadGuidMask<3, 5, 4, 0, 7>(guid);
-
-    //recvData.ReadGuidBytes<0, 3, 5, 7>(guid);
-    newName = recvData.ReadString(newNameLen);
-    //recvData.ReadGuidBytes<4, 6, 1, 2>(guid);
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AT_LOGIN);
-    stmt->setUInt64(0, guid.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
-    {
-        WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
-        data.WriteBits(0, 8);               //null guid
-        data << uint8(CHAR_CREATE_ERROR);
-        SendPacket(&data);
-        return;
-    }
-
-    Field* fields = result->Fetch();
-    uint32 at_loginFlags = fields[0].GetUInt16();
-
-    if (!(at_loginFlags & AT_LOGIN_CUSTOMIZE))
-    {
-        WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
-        data.WriteBits(0, 8);
-        data << uint8(CHAR_CREATE_ERROR);
-        SendPacket(&data);
-        return;
-    }
-
-    // prevent character rename to invalid name
-    if (!normalizePlayerName(newName))
-    {
-        WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
-        data.WriteBits(0, 8);
-        data << uint8(CHAR_NAME_NO_NAME);
-        SendPacket(&data);
-        return;
-    }
-
-    uint8 res = ObjectMgr::CheckPlayerName(newName, true);
-    if (res != CHAR_NAME_SUCCESS)
-    {
-        WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
-        data.WriteBits(0, 8);
-        data << uint8(res);
-        SendPacket(&data);
-        return;
-    }
-
-    // check name limitations
-    if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newName))
-    {
-        WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
-        data.WriteBits(0, 8);
-        data << uint8(CHAR_NAME_RESERVED);
-        SendPacket(&data);
-        return;
-    }
-
-    // character with this name already exist
-    if (ObjectGuid newguid = ObjectMgr::GetPlayerGUIDByName(newName))
-    {
-        if (newguid != guid)
-        {
-            WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
-            data.WriteBits(0, 8);
-            data << uint8(CHAR_CREATE_NAME_IN_USE);
-            SendPacket(&data);
-            return;
-        }
-    }
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME);
-    stmt->setUInt64(0, guid.GetCounter());
-    result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        std::string oldname = result->Fetch()[0].GetString();
-        sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s), Character[%s] (guid:%u) Customized to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldname.c_str(), guid.GetCounter(), newName.c_str());
-    }
-
-    Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_NAME_AT_LOGIN);
-
-    stmt->setString(0, newName);
-    stmt->setUInt16(1, uint16(AT_LOGIN_CUSTOMIZE));
-    stmt->setUInt64(2, guid.GetCounter());
-
-    CharacterDatabase.Execute(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
-
-    stmt->setUInt64(0, guid.GetCounter());
-
-    CharacterDatabase.Execute(stmt);
-
-    sWorld->UpdateCharacterNameData(guid.GetCounter(), newName, gender);
-
-    WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1+8+(newName.size()+1)+6);
-    //data.WriteGuidMask<5, 4, 2, 3, 1, 7, 0, 6>(guid);
-    //data.WriteGuidBytes<0, 4, 5>(guid);
-    data << uint8(RESPONSE_SUCCESS);
-    data << uint8(skin);
-    data << uint8(hairStyle);
-    data << uint8(face);
-    data << uint8(facialHair);
-    data << uint8(gender);
-    data << uint8(hairColor);
-    //data.WriteGuidBytes<6, 3, 2, 1, 7>(guid);
-    data.WriteBits(newName.length(), 6);
-    data.WriteString(newName);
-    SendPacket(&data);
-}
-
 void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_SAVE");
@@ -1750,6 +1621,134 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 
     WorldPacket data(SMSG_EQUIPMENT_SET_USE_RESULT, 1);
     data << uint8(0);                                       // 4 - inventory is full, 0 - ok, else failed
+    SendPacket(&data);
+}
+
+//! 6.0.3
+void WorldSession::HandleCharCustomize(WorldPacket& recvData)
+{
+    ObjectGuid guid;
+    std::string newName;
+
+    uint8 gender, skin, face, hairStyle, hairColor, facialHair;
+    recvData >> guid >> gender >> skin >> hairColor >> hairStyle >> facialHair >> face;
+
+    uint32 newNameLen = recvData.ReadBits(6);
+    newName = recvData.ReadString(newNameLen);
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AT_LOGIN);
+    stmt->setUInt64(0, guid.GetCounter());
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+    {
+        WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+        data << uint8(CHAR_CREATE_ERROR);
+        data << guid;
+        SendPacket(&data);
+        return;
+    }
+
+    Field* fields = result->Fetch();
+    uint32 at_loginFlags = fields[0].GetUInt16();
+
+    if (!(at_loginFlags & AT_LOGIN_CUSTOMIZE))
+    {
+        WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+        data << uint8(CHAR_CREATE_ERROR);
+        data << guid;
+        SendPacket(&data);
+        return;
+    }
+
+    // prevent character rename to invalid name
+    if (!normalizePlayerName(newName))
+    {
+        WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+        data << uint8(CHAR_NAME_NO_NAME);
+        data << guid;
+        SendPacket(&data);
+        return;
+    }
+
+    uint8 res = ObjectMgr::CheckPlayerName(newName, true);
+    if (res != CHAR_NAME_SUCCESS)
+    {
+        WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 1);
+        data << uint8(res);
+        data << guid;
+        SendPacket(&data);
+        return;
+    }
+
+    // check name limitations
+    if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newName))
+    {
+        WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+        data << uint8(CHAR_NAME_RESERVED);
+        data << guid;
+        SendPacket(&data);
+        return;
+    }
+
+    // character with this name already exist
+    if (ObjectGuid newguid = ObjectMgr::GetPlayerGUIDByName(newName))
+    {
+        if (newguid != guid)
+        {
+            WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+            data << uint8(CHAR_CREATE_NAME_IN_USE);
+            data << guid;
+            SendPacket(&data);
+            return;
+        }
+    }
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME);
+    stmt->setUInt64(0, guid.GetCounter());
+    result = CharacterDatabase.Query(stmt);
+
+    if (result)
+    {
+        std::string oldname = result->Fetch()[0].GetString();
+        sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s), Character[%s] (guid:%u) Customized to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldname.c_str(), guid.GetCounter(), newName.c_str());
+    }
+
+    Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_NAME_AT_LOGIN);
+
+    stmt->setString(0, newName);
+    stmt->setUInt16(1, uint16(AT_LOGIN_CUSTOMIZE));
+    stmt->setUInt64(2, guid.GetCounter());
+
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
+
+    stmt->setUInt64(0, guid.GetCounter());
+
+    CharacterDatabase.Execute(stmt);
+
+    sWorld->UpdateCharacterNameData(guid.GetCounter(), newName, gender);
+
+    /*WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+    data << uint8(RESPONSE_SUCCESS);
+    data << guid;
+    SendPacket(&data);*/
+
+    WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1+8+(newName.size()+1)+6);
+    data << guid;
+    data.WriteBits(newName.length(), 6);
+
+    data << uint8(gender);
+    data << uint8(skin);
+    data << uint8(hairColor);
+    data << uint8(hairStyle);
+    data << uint8(facialHair);
+    data << uint8(face);
+
+    data.WriteString(newName);
     SendPacket(&data);
 }
 
@@ -2313,7 +2312,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     data << uint8(RESPONSE_SUCCESS);
     data << guid;
     data.WriteBit(0);
-    data.WriteBits(newName.length(), 6);
+    data.WriteBits(newname.length(), 6);
     data << uint8(gender);
     data << uint8(skin);
     data << uint8(hairColor);
@@ -2321,7 +2320,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     data << uint8(facialHair);
     data << uint8(face);
     data << uint8(race);
-    data.WriteString(newName);
+    data.WriteString(newname);
 
     SendPacket(&data);
 }
