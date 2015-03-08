@@ -683,12 +683,13 @@ enum OpcodeClient : uint32
     CMSG_DO_READY_CHECK                               = 0x1221,
     CMSG_READY_CHECK_RESPONSE                         = 0x071A,
     CMSG_INITIATE_ROLE_POLL                           = 0x1BA2,
+    CMSG_CHAR_RACE_OR_FACTION_CHANGE                  = 0x1209,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
     CMSG_CHALLENGE_MODE_REQUEST_COMPLETION_INFO       = 0xBADD, // 5.4.1 17538
     CMSG_CHALLENGE_MODE_REQUEST_LEADERS               = 0xBADD, // 5.4.1 17538
-    CMSG_CHAR_RACE_FACTION_CHANGE                     = 0xBADD, // 5.4.1 17538
+    
     CMSG_CONFIRM_TALENT_WIPE                          = 0xBADD, // 5.4.1 17538
     CMSG_DELETEEQUIPMENT_SET                          = 0xBADD, // 5.4.1 17538
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0xBADD, // 5.4.1 17538

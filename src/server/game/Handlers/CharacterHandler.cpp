@@ -1753,7 +1753,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 {
     // TODO: Move queries to prepared statements
@@ -1761,28 +1761,23 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     std::string newname;
     uint8 gender, skin, face, hairStyle, hairColor, facialHair, race = 0;
 
-    recvData >> race >> gender;
-    bool byte15 = recvData.ReadBit();
-    //recvData.ReadGuidMask<1, 2, 4, 5, 0>(guid);
-    bool byte56 = recvData.ReadBit();
-    bool byte11 = recvData.ReadBit();
-    //recvData.ReadGuidMask<3>(guid);
-    bool byte53 = recvData.ReadBit();
-    bool byte13 = recvData.ReadBit();
-    //recvData.ReadGuidMask<6>(guid);
-    uint32 len = recvData.ReadBits(6);
     bool isFactionChange = recvData.ReadBit();
-    //recvData.ReadGuidMask<7>(guid);
+    uint32 len = recvData.ReadBits(6);
 
-    //recvData.ReadGuidBytes<2, 4, 6, 7, 3>(guid);
+    bool bit93 = recvData.ReadBit();
+    bool bit96 = recvData.ReadBit();
+    bool bit89 = recvData.ReadBit();
+    bool bit17 = recvData.ReadBit();
+    bool bit19 = recvData.ReadBit();
+
+    recvData >> guid >> gender >> race;
     newname = recvData.ReadString(len);
-    //recvData.ReadGuidBytes<0, 1, 5>(guid);
 
-    facialHair = byte56 ? recvData.read<uint8>() : 0;
-    hairColor = byte53 ? recvData.read<uint8>() : 0;
-    face = byte13 ? recvData.read<uint8>() : 0;
-    skin = byte15 ? recvData.read<uint8>() : 0;
-    hairStyle = byte11 ? recvData.read<uint8>() : 0;
+    skin = bit93 ? recvData.read<uint8>() : 0;
+    hairColor = bit96 ? recvData.read<uint8>() : 0;
+    hairStyle = bit89 ? recvData.read<uint8>() : 0;
+    facialHair = bit17 ? recvData.read<uint8>() : 0;
+    face = bit19 ? recvData.read<uint8>() : 0;
 
     ObjectGuid::LowType lowGuid = guid.GetCounter();
 
@@ -1796,7 +1791,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     {
         WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
         data << uint8(CHAR_CREATE_ERROR);
-        data << uint64(0);
+        data << guid;
+        data.WriteBit(0);
         SendPacket(&data);
         return;
     }
@@ -1841,7 +1837,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     {
         WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
         data << uint8(CHAR_CREATE_ERROR);
-        data << uint64(0);
+        data << guid;
+        data.WriteBit(0);
         SendPacket(&data);
         return;
     }
@@ -1850,7 +1847,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     {
         WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
         data << uint8(CHAR_CREATE_ERROR);
-        data << uint64(0);
+        data << guid;
+        data.WriteBit(0);
         SendPacket(&data);
         return;
     }
@@ -1862,7 +1860,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         {
             WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
             data << uint8(CHAR_CREATE_ERROR);
-            data << uint64(0);
+            data << guid;
+            data.WriteBit(0);
             SendPacket(&data);
             return;
         }
@@ -1873,7 +1872,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     {
         WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
         data << uint8(CHAR_NAME_NO_NAME);
-        data << uint64(0);
+        data << guid;
+        data.WriteBit(0);
         SendPacket(&data);
         return;
     }
@@ -1883,7 +1883,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     {
         WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
         data << uint8(res);
-        data << uint64(0);
+        data << guid;
+        data.WriteBit(0);
         SendPacket(&data);
         return;
     }
@@ -1893,7 +1894,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     {
         WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
         data << uint8(CHAR_NAME_RESERVED);
-        data << uint64(0);
+        data << guid;
+        data.WriteBit(0);
         SendPacket(&data);
         return;
     }
@@ -1905,7 +1907,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         {
             WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
             data << uint8(CHAR_CREATE_NAME_IN_USE);
-            data << uint64(0);
+            data << guid;
+            data.WriteBit(0);
             SendPacket(&data);
             return;
         }
@@ -2309,14 +2312,17 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1 + 8 + (newname.size() + 1) + 1 + 1 + 1 + 1 + 1 + 1 + 1);
     data << uint8(RESPONSE_SUCCESS);
     data << guid;
-    data << newname;
+    data.WriteBit(0);
+    data.WriteBits(newName.length(), 6);
     data << uint8(gender);
     data << uint8(skin);
-    data << uint8(face);
-    data << uint8(hairStyle);
     data << uint8(hairColor);
+    data << uint8(hairStyle);
     data << uint8(facialHair);
+    data << uint8(face);
     data << uint8(race);
+    data.WriteString(newName);
+
     SendPacket(&data);
 }
 
