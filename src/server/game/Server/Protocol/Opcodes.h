@@ -572,7 +572,7 @@ enum OpcodeClient : uint32
     CMSG_SET_TRADE_GOLD                               = 0xBADD,
     CMSG_SET_TRADE_ITEM                               = 0xBADD,
     CMSG_SET_VEHICLE_REC_ID_ACK                       = 0xBADD,
-    CMSG_SET_WATCHED_FACTION                          = 0xBADD,
+    CMSG_SET_WATCHED_FACTION                          = 0x0206,
     CMSG_SHOWING_CLOAK                                = 0x0132,
     CMSG_SHOWING_HELM                                 = 0x11E1,
     CMSG_SOCKET_GEMS                                  = 0xBADD,
