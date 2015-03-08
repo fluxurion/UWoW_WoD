@@ -215,9 +215,9 @@ enum OpcodeClient : uint32
     CMSG_EMOTE                                        = 0xBADD,
     CMSG_ENABLETAXI                                   = 0x00D2,
     CMSG_ENABLE_NAGLE                                 = 0x0460,
-    CMSG_EQUIPMENT_SET_DELETE                         = 0xBADD,
+    CMSG_DELETE_EQUIPMENT_SET                         = 0x03C3,
     CMSG_EQUIPMENT_SET_SAVE                           = 0x1B54,
-    CMSG_EQUIPMENT_SET_USE                            = 0xBADD,
+    CMSG_USE_EQUIPMENT_SET                            = 0x0756,
     CMSG_FACTION_BONUS_INFO                           = 0x0928,
     CMSG_FAR_SIGHT                                    = 0xBADD,
     CMSG_FORCE_MOVE_ROOT_ACK                          = 0x0B73,
@@ -691,7 +691,6 @@ enum OpcodeClient : uint32
     CMSG_CHALLENGE_MODE_REQUEST_COMPLETION_INFO       = 0xBADD, // 5.4.1 17538
     CMSG_CHALLENGE_MODE_REQUEST_LEADERS               = 0xBADD, // 5.4.1 17538
     CMSG_CONFIRM_TALENT_WIPE                          = 0xBADD, // 5.4.1 17538
-    CMSG_DELETEEQUIPMENT_SET                          = 0xBADD, // 5.4.1 17538
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0xBADD, // 5.4.1 17538
     CMSG_GUILD_AUTO_DECLINE                           = 0xBADD, // 5.4.1 17538
     CMSG_GUILD_LEADER                                 = 0xBADD,  // Not found in 4.3.4
@@ -952,7 +951,7 @@ enum OpcodeServer : uint32
     SMSG_ENVIRONMENTALDAMAGELOG                       = 0xBADD,
     SMSG_EQUIPMENT_SET_LIST                           = 0x0F1E,
     SMSG_EQUIPMENT_SET_SAVED                          = 0x0027,
-    SMSG_EQUIPMENT_SET_USE_RESULT                     = 0xBADD,
+    SMSG_USE_EQUIPMENT_SET_RESULT                     = 0x0128,
     SMSG_EXPECTED_SPAM_RECORDS                        = 0xBADD,
     SMSG_EXPLORATION_EXPERIENCE                       = 0x07AE,
     SMSG_FAILED_PLAYER_CONDITION                      = 0xBADD,
