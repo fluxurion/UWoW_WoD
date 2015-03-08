@@ -2348,23 +2348,20 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
 {
-    uint32 charactersCount = recvData.ReadBits(9);
+    uint32 charactersCount;
+    recvData >> charactersCount;
 
     std::vector<ObjectGuid> guids(charactersCount);
     uint8 position;
 
-    //for (uint8 i = 0; i < charactersCount; ++i)
-        //recvData.ReadGuidMask<6, 2, 7, 0, 4, 3, 5, 1>(guids[i]);
-
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     for (uint8 i = 0; i < charactersCount; ++i)
     {
-        //recvData.ReadGuidBytes<0>(guids[i]);
+        recvData >> guids[i];
         recvData >> position;
-        //recvData.ReadGuidBytes<6, 4, 7, 1, 5, 3, 2>(guids[i]);
 
         //! WARNING!!!
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_LIST_SLOT);
