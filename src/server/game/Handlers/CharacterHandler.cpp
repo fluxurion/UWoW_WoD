@@ -2320,13 +2320,13 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
 {
     uint8 gender, race;
 
-    recvData >> gender;
     recvData >> race;
+    recvData >> gender;
     
     if (!Player::IsValidRace(race))
     {
@@ -2342,7 +2342,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
 
     std::string const* name = GetRandomCharacterName(race, gender);
     WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 10);
-    data.WriteBit(0); // unk
+    data.WriteBit(1); // Success
     data.WriteBits(name->size(), 6);
     data.WriteString(*name);
     SendPacket(&data);
