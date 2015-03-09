@@ -603,34 +603,23 @@ void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", packet.ItemType);
 }
 
-void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvPacket)
+//! 6.0.3
+void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBagItem& packet)
 {
+    if (!packet.Inv.Items.empty())
+    {
+        //sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAutoStoreBagItemOpcode - Invalid itemCount (" SZFMTD ")", packet.Inv.Items.size());
+        return;
+    }
+
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTOSTORE_BAG_ITEM");
-    uint8 srcbag, srcslot, dstbag;
-
-    recvPacket >> srcbag >> dstbag >> srcslot;
-    uint32 count = recvPacket.ReadBits(2);
-    std::vector<bool> bits[2];
-    for (uint32 i = 0; i < count; ++i)
-    {
-        bits[0].push_back(!recvPacket.ReadBit());
-        bits[1].push_back(!recvPacket.ReadBit());
-    }
-    for (uint32 i = 0; i < count; ++i)
-    {
-        if (bits[1][i])
-            recvPacket.read_skip<uint8>();
-        if (bits[0][i])
-            recvPacket.read_skip<uint8>();
-    }
-
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u", srcbag, srcslot, dstbag);
 
-    Item* pItem = _player->GetItemByPos(srcbag, srcslot);
+    Item* pItem = _player->GetItemByPos(packet.ContainerSlotA, packet.SlotA);
     if (!pItem)
         return;
 
-    if (!_player->IsValidPos(dstbag, NULL_SLOT, false))      // can be autostore pos
+    if (!_player->IsValidPos(packet.ContainerSlotB, NULL_SLOT, false))      // can be autostore pos
     {
         _player->SendEquipError(EQUIP_ERR_WRONG_SLOT, NULL, NULL);
         return;
@@ -650,7 +639,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvPacket)
     }
 
     ItemPosCountVec dest;
-    InventoryResult msg = _player->CanStoreItem(dstbag, NULL_SLOT, dest, pItem, false);
+    InventoryResult msg = _player->CanStoreItem(packet.ContainerSlotB, NULL_SLOT, dest, pItem, false);
     if (msg != EQUIP_ERR_OK)
     {
         _player->SendEquipError(msg, pItem, NULL);
@@ -665,7 +654,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    _player->RemoveItem(srcbag, srcslot, true);
+    _player->RemoveItem(packet.ContainerSlotA, packet.SlotA, true);
     _player->StoreItem(dest, pItem, true);
 }
 
