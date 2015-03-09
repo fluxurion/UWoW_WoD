@@ -201,10 +201,28 @@ namespace WorldPackets
         };
 
         ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
+
+        class BuyItem final : public ClientPacket
+        {
+        public:
+            BuyItem(WorldPacket&& packet) : ClientPacket(CMSG_BUY_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid VendorGUID;
+            ItemInstance Item;
+            uint32 BagSlot = 0u;
+            uint32 Slot = 0u;
+            ItemVendorType ItemType = ITEM_VENDOR_TYPE_NONE;
+            int32 Quantity = 0;
+            ObjectGuid ContainerGUID;
+        };
     }
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData const& itemBonusInstanceData);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData& itemBonusInstanceData);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const& itemInstance);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemInstance);
 
 #endif // ItemPackets_h__

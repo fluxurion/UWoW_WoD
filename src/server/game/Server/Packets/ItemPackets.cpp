@@ -68,6 +68,23 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceDa
     return data;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData& itemBonusInstanceData)
+{
+    uint32 bonusListIdSize;
+
+    data >> itemBonusInstanceData.Context;
+    data >> bonusListIdSize;
+
+    for (uint32 i = 0u; i < bonusListIdSize; ++i)
+    {
+        uint32 bonusId;
+        data >> bonusId;
+        itemBonusInstanceData.BonusListIDs.push_back(bonusId);
+    }
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const& itemInstance)
 {
     data << itemInstance.ItemID;
@@ -86,6 +103,34 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
         data << uint32(itemInstance.Modifications.size() * sizeof(uint32));
         for (int32 itemMod : itemInstance.Modifications)
             data << itemMod;
+    }
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemInstance)
+{
+    data >> itemInstance.ItemID;
+    data >> itemInstance.RandomPropertiesSeed;
+    data >> itemInstance.RandomPropertiesID;
+
+    itemInstance.ItemBonus.HasValue = data.ReadBit();
+    bool ModificationsHasValue = data.ReadBit();
+
+    if (itemInstance.ItemBonus.HasValue)
+        data >> itemInstance.ItemBonus.Value;
+
+    if (ModificationsHasValue)
+    {
+        itemInstance.Modifications.resize(8);
+        uint32 mask, value = 0;
+        data >> mask;
+        for (int32 j = 1; j <= 8; ++j)
+            if ((mask & (1u << (j - 1))) != 0)
+            {
+                data >> value;
+                itemInstance.Modifications.push_back(value);
+            }
     }
 
     return data;
@@ -162,4 +207,16 @@ void WorldPackets::Item::DestroyItem::Read()
     _worldPacket >> Count
                  >> ContainerId
                  >> SlotNum;
+}
+
+void WorldPackets::Item::BuyItem::Read()
+{
+    _worldPacket >> VendorGUID
+                 >> ContainerGUID
+                 >> Item
+                 >> Quantity
+                 >> BagSlot
+                 >> Slot;
+
+    ItemType = static_cast<ItemVendorType>(_worldPacket.ReadBits(2));
 }

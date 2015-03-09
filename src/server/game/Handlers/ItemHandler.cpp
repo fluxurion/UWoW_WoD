@@ -571,64 +571,36 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recvData)
     GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagslot);
 }
 
-void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
+//! 6.0.3
+void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM");
-    ObjectGuid vendorguid, bagGuid;
-    uint32 item, slot, count, bagSlot;
-    uint8 itemType; // 1 = item, 2 = currency
-
-    recvData >> bagSlot >> count >> item >> slot;
-
-    //recvData.ReadGuidMask<4>(vendorguid);
-    //recvData.ReadGuidMask<5>(bagGuid);
-    //recvData.ReadGuidMask<5>(vendorguid);
-    //recvData.ReadGuidMask<6>(bagGuid);
-    //recvData.ReadGuidMask<6, 1, 3, 7>(vendorguid);
-    itemType = recvData.ReadBits(2);
-    //recvData.ReadGuidMask<0>(vendorguid);
-    //recvData.ReadGuidMask<7, 4>(bagGuid);
-    //recvData.ReadGuidMask<2>(vendorguid);
-    //recvData.ReadGuidMask<1, 2, 3, 0>(bagGuid);
-
-    //recvData.ReadGuidBytes<5>(bagGuid);
-    //recvData.ReadGuidBytes<1>(vendorguid);
-    //recvData.ReadGuidBytes<1, 6>(bagGuid);
-    //recvData.ReadGuidBytes<3>(vendorguid);
-    //recvData.ReadGuidBytes<2>(bagGuid);
-    //recvData.ReadGuidBytes<0>(vendorguid);
-    //recvData.ReadGuidBytes<0>(bagGuid);
-    //recvData.ReadGuidBytes<5, 2>(vendorguid);
-    //recvData.ReadGuidBytes<4, 7>(bagGuid);
-    //recvData.ReadGuidBytes<4, 6>(vendorguid);
-    //recvData.ReadGuidBytes<3>(bagGuid);
-    //recvData.ReadGuidBytes<7>(vendorguid);
-
+  
     // client expects count starting at 1, and we send vendorslot+1 to client already
-    if (slot > 0)
-        --slot;
+    if (packet.Slot > 0)
+        --packet.Slot;
     else
         return; // cheating
 
-    if (itemType == ITEM_VENDOR_TYPE_ITEM)
+    if (packet.ItemType == ITEM_VENDOR_TYPE_ITEM)
     {
         uint8 bag = NULL_BAG;
 
-        if (bagGuid == _player->GetGUID())
+        if (!packet.ContainerGUID)
             bag = INVENTORY_SLOT_BAG_0;
         else
         {
-            Item* bagItem = _player->GetItemByGuid(bagGuid);
+            Item* bagItem = _player->GetItemByGuid(packet.ContainerGUID);
             if (bagItem && bagItem->IsBag())
                 bag = bagItem->GetSlot();
         }
 
-        GetPlayer()->BuyItemFromVendorSlot(vendorguid, slot, item, count, bag, bagSlot);
+        GetPlayer()->BuyItemFromVendorSlot(packet.VendorGUID, packet.Slot, packet.Item.ItemID, packet.Quantity, bag, packet.BagSlot);
     }
-    else if (itemType == ITEM_VENDOR_TYPE_CURRENCY)
-        GetPlayer()->BuyCurrencyFromVendorSlot(vendorguid, slot, item, count);
+    else if (packet.ItemType == ITEM_VENDOR_TYPE_CURRENCY)
+        GetPlayer()->BuyCurrencyFromVendorSlot(packet.VendorGUID, packet.Slot, packet.Item.ItemID, packet.Quantity);
     else
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", itemType);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", packet.ItemType);
 }
 
 void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvPacket)

@@ -156,6 +156,7 @@ namespace WorldPackets
         class SwapItem;
         class AutoEquipItem;
         class DestroyItem;
+        class BuyItem;
     }
 
     namespace Loot
@@ -869,7 +870,7 @@ class WorldSession
         void HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem);
         void HandleSellItemOpcode(WorldPackets::Item::SellItem& packet);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
-        void HandleBuyItemOpcode(WorldPacket& recvPacket);
+        void HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet);
         void HandleListInventoryOpcode(WorldPacket& recvPacket);
         void HandleAutoStoreBagItemOpcode(WorldPacket& recvPacket);
         void HandleReadItem(WorldPacket& recvPacket);

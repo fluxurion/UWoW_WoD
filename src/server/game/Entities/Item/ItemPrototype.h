@@ -214,6 +214,7 @@ enum ItemFlagsCustom
 
 enum ItemVendorType
 {
+    ITEM_VENDOR_TYPE_NONE     = 0,
     ITEM_VENDOR_TYPE_ITEM     = 1,
     ITEM_VENDOR_TYPE_CURRENCY = 2,
 };
