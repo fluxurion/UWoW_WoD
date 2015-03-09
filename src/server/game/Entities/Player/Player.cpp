@@ -14737,19 +14737,16 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
     GetSession()->SendPacket(&data);
 }
 
+//! 6.0.3
 void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 /*param*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_BUY_FAILED");
     ObjectGuid guid = creature ? creature->GetGUID() : ObjectGuid::Empty;
 
     WorldPacket data(SMSG_BUY_FAILED, 8 + 4 + 4 + 1);
-    //data.WriteGuidMask<3, 4, 0, 5, 6, 7, 1, 2>(guid);
-    //data.WriteGuidBytes<5, 7, 0, 1, 3>(guid);
-    data << uint8(msg);
-    //data.WriteGuidBytes<6, 4>(guid);
+    data << guid;
     data << uint32(item);
-    //data.WriteGuidBytes<2>(guid);
-
+    data << uint8(msg);
     GetSession()->SendPacket(&data);
 }
 
