@@ -118,7 +118,7 @@ enum OpcodeClient : uint32
     CMSG_BOT_DETECTED2                                = 0xBADD,
     CMSG_BUG                                          = 0xBADD,
     CMSG_BUSY_TRADE                                   = 0xBADD,
-    CMSG_BUYBACK_ITEM                                 = 0x02D3,
+    CMSG_BUY_BACK_ITEM                                = 0x02D3,
     CMSG_BUY_BANK_SLOT                                = 0x0A25,
     CMSG_BUY_ITEM                                     = 0xBADD,
     CMSG_CALENDAR_ADD_EVENT                           = 0xBADD,

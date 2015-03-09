@@ -493,20 +493,15 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
     return;
 }
 
-void WorldSession::HandleBuybackItem(WorldPacket& recvData)
+//! 6.0.3
+void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUYBACK_ITEM");
-    ObjectGuid vendorguid;
-    uint32 slot;
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_BACK_ITEM");
 
-    recvData >> slot;
-    //recvData.ReadGuidMask<7, 1, 2, 6, 4, 3, 0, 5>(vendorguid);
-    //recvData.ReadGuidBytes<7, 1, 6, 5, 3, 2, 4, 0>(vendorguid);
-
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.VendorGUID, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBuybackItem - Unit (GUID: %u) not found or you can not interact with him.", vendorguid.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBuybackItem - Unit (GUID: %s) not found or you can not interact with him.", packet.VendorGUID.ToString().c_str());
         _player->SendSellError(SELL_ERR_VENDOR_HATES_YOU, NULL, ObjectGuid::Empty);
         return;
     }
@@ -515,10 +510,10 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    Item* pItem = _player->GetItemFromBuyBackSlot(slot);
+    Item* pItem = _player->GetItemFromBuyBackSlot(packet.Slot);
     if (pItem)
     {
-        uint32 price = _player->GetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + slot - BUYBACK_SLOT_START);
+        uint32 price = _player->GetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + packet.Slot - BUYBACK_SLOT_START);
         if (!_player->HasEnoughMoney(uint64(price)))
         {
             _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, pItem->GetEntry(), 0);
@@ -530,7 +525,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
         if (msg == EQUIP_ERR_OK)
         {
             _player->ModifyMoney(-(int32)price);
-            _player->RemoveItemFromBuyBackSlot(slot, false);
+            _player->RemoveItemFromBuyBackSlot(packet.Slot, false);
             _player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
             _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, pItem->GetEntry(), pItem->GetCount());
             _player->StoreItem(dest, pItem, true);

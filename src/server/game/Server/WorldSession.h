@@ -875,7 +875,7 @@ class WorldSession
         void HandleReadItem(WorldPacket& recvPacket);
         void HandleAutoEquipItemSlotOpcode(WorldPacket& recvPacket);
         void HandleSwapItem(WorldPackets::Item::SwapItem& swapItem);
-        void HandleBuybackItem(WorldPacket& recvPacket);
+        void HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet);
         void HandleAutoBankItemOpcode(WorldPacket& recvPacket);
         void HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket);
         void HandleWrapItemOpcode(WorldPacket& recvPacket);
