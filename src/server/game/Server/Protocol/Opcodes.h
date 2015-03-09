@@ -84,7 +84,7 @@ enum OpcodeClient : uint32
     CMSG_AUTOBANK_ITEM                                = 0x0751,
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0xBADD,
     CMSG_AUTOEQUIP_ITEM                               = 0x0F35,
-    CMSG_AUTOEQUIP_ITEM_SLOT                          = 0xBADD,
+    CMSG_AUTOEQUIP_ITEM_SLOT                          = 0x07B1,
     CMSG_AUTOSTORE_BAG_ITEM                           = 0x0F18,
     CMSG_AUTOSTORE_BANK_ITEM                          = 0x0732,
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0xBADD,

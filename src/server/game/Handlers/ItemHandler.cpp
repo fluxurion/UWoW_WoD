@@ -67,6 +67,7 @@ void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitIte
     _player->SplitItem(src, dst, splitItem.Quantity);
 }
 
+//! 6.0.3
 void WorldSession::HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swapInvItem)
 {
     if (swapInvItem.Inv.Items.size() != 2)
@@ -111,33 +112,20 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swap
     _player->SwapItem(src, dst);
 }
 
+//! 6.0.3
 void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
 {
     ObjectGuid itemguid;
     uint8 dstslot;
 
-    recvData >> dstslot;
     uint32 count = recvData.ReadBits(2);
-    //recvData.ReadGuidMask<0>(itemguid);
-
-    std::vector<bool> bits[2];
     for (uint32 i = 0; i < count; ++i)
     {
-        bits[1].push_back(!recvData.ReadBit());
-        bits[0].push_back(!recvData.ReadBit());
+        recvData.read_skip<uint8>();
+        recvData.read_skip<uint8>();
     }
 
-    //recvData.ReadGuidMask<4, 3, 1, 6, 2, 5, 7>(itemguid);
-
-    //recvData.ReadGuidBytes<4, 6, 1, 3, 0, 2, 7, 5>(itemguid);
-
-    for (uint32 i = 0; i < count; ++i)
-    {
-        if (bits[1][i])
-            recvData.read_skip<uint8>();
-        if (bits[0][i])
-            recvData.read_skip<uint8>();
-    }
+    recvData >> itemguid >> dstslot;
 
     // cheating attempt, client should never send opcode in that case
     if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, dstslot))
