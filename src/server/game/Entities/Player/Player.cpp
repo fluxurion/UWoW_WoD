@@ -14750,32 +14750,15 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
     GetSession()->SendPacket(&data);
 }
 
+//! 6.0.3
 void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SELL_ITEM");
-    WorldPacket data(SMSG_SELL_ITEM, 1 + 9 + 9);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SELL_RESPONSE");
+    WorldPacket data(SMSG_SELL_RESPONSE, 1 + 9 + 9);
     ObjectGuid creatureGuid = creature ? creature->GetGUID() : ObjectGuid::Empty;
-
-    //data.WriteGuidMask<5, 4, 6, 2>(creatureGuid);
-    //data.WriteGuidMask<5, 2>(guid);
-    //data.WriteGuidMask<0>(creatureGuid);
-    //data.WriteGuidMask<4>(guid);
-    //data.WriteGuidMask<7>(creatureGuid);
-    //data.WriteGuidMask<7>(guid);
-    //data.WriteGuidMask<1, 3>(creatureGuid);
-    //data.WriteGuidMask<0, 1, 6, 3>(guid);
-
-    //data.WriteGuidBytes<7>(guid);
-    //data.WriteGuidBytes<1, 5, 7>(creatureGuid);
-    //data.WriteGuidBytes<5>(guid);
-    //data.WriteGuidBytes<4>(creatureGuid);
-    //data.WriteGuidBytes<3, 4>(guid);
-    //data.WriteGuidBytes<0, 2>(creatureGuid);
-    //data.WriteGuidBytes<2>(guid);
-    //data.WriteGuidBytes<6>(creatureGuid);
+    data << creatureGuid;
+    data << guid;
     data << uint8(msg);
-    //data.WriteGuidBytes<3>(creatureGuid);
-    //data.WriteGuidBytes<0, 6, 1>(guid);
     
     GetSession()->SendPacket(&data);
 }

@@ -1341,7 +1341,7 @@ enum OpcodeServer : uint32
     SMSG_RESYNC_RUNES                                 = 0xBADD,
     SMSG_ROLE_POLL_INFORM                             = 0x0F89,
     SMSG_RWHOIS                                       = 0xBADD,
-    SMSG_SELL_ITEM                                    = 0xBADD,
+    SMSG_SELL_RESPONSE                                = 0x1352,
     SMSG_SEND_MAIL_RESULT                             = 0x0302,
     SMSG_SEND_SPELL_CHARGES                           = 0x1A82,
     SMSG_SEND_SPELL_HISTORY                           = 0x1933,
