@@ -1085,7 +1085,7 @@ enum OpcodeServer : uint32
     SMSG_INVALIDATE_DANCE                             = 0xBADD,
     SMSG_INVALIDATE_PLAYER                            = 0x0B37,
     SMSG_INVALID_PROMOTION_CODE                       = 0xBADD,
-    SMSG_INVENTORY_CHANGE_FAILURE                     = 0xBADD,
+    SMSG_INVENTORY_CHANGE_FAILURE                     = 0x0112,
     SMSG_ITEM_ADD_PASSIVE                             = 0xBADD,
     SMSG_ITEM_COOLDOWN                                = 0xBADD,
     SMSG_ITEM_ENCHANT_TIME_UPDATE                     = 0x010D,

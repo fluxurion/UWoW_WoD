@@ -14703,39 +14703,25 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
     }
 }
 
+//! 6.0.3
 void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint32 itemid)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_INVENTORY_CHANGE_FAILURE (%u)", msg);
-    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I ? 22 : 18));
+    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, 60);
 
     ObjectGuid itemGuid1 = pItem ? pItem->GetGUID() : ObjectGuid::Empty;
     ObjectGuid itemGuid2 = pItem2 ? pItem2->GetGUID() : ObjectGuid::Empty;
 
-    //data.WriteGuidMask<3, 0>(itemGuid2);
-    //data.WriteGuidMask<2, 3>(itemGuid1);
-    //data.WriteGuidMask<2, 6, 7>(itemGuid2);
-    //data.WriteGuidMask<0, 1, 6>(itemGuid1);
-    //data.WriteGuidMask<4>(itemGuid2);
-    //data.WriteGuidMask<5, 7, 4>(itemGuid1);
-    //data.WriteGuidMask<5, 1>(itemGuid2);
-
-    data.FlushBits();
-
-    //data.WriteGuidBytes<0, 7>(itemGuid2);
-    //data.WriteGuidBytes<7, 0>(itemGuid1);
-    //data.WriteGuidBytes<2, 4, 5, 1>(itemGuid2);
-    //data.WriteGuidBytes<1, 6>(itemGuid1);
     data << uint8(msg);
-    //data.WriteGuidBytes<6>(itemGuid2);
-    //data.WriteGuidBytes<5, 2, 3>(itemGuid1);
+    data << itemGuid1;
+    data << itemGuid2;
+    data << uint8(0);                                   // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
 
     if (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I || msg == EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW)
     {
         ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
         data << uint32(proto ? proto->RequiredLevel : 0);
     }
-
-    //data.WriteGuidBytes<3>(itemGuid2);
 
     if (msg == EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS ||
         msg == EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS ||
@@ -14747,13 +14733,6 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
 
     if (msg == EQUIP_ERR_NO_OUTPUT)
         data << uint32(0); // slot
-
-    data << uint8(0);                                   // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
-
-    //data.WriteGuidBytes<4>(itemGuid1);
-
-    if (msg == EQUIP_ERR_NO_OUTPUT)
-        data.WriteBits(0, 16);                          // item and container guids
 
     GetSession()->SendPacket(&data);
 }
