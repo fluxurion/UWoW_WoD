@@ -945,6 +945,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
     _player->DestroyItemCount(gift, count_dest, true);
 }
 
+//! 6.0.3
 void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SOCKET_GEMS");
@@ -952,43 +953,9 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     ObjectGuid item_guid;
     ObjectGuid gem_guids[MAX_GEM_SOCKETS];
 
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidMask<2>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidMask<1>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidMask<4>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidMask<7>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidMask<5>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidMask<6>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidMask<0>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidMask<3>(gem_guids[i]);
-
-    //recvData.ReadGuidMask<0, 4, 3, 7, 1, 5, 6, 2>(item_guid);
-
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidBytes<2>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidBytes<1>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidBytes<4>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidBytes<7>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidBytes<6>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidBytes<3>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidBytes<0>(gem_guids[i]);
-    for (uint8 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        //recvData.ReadGuidBytes<5>(gem_guids[i]);
-
-    //recvData.ReadGuidBytes<6, 0, 4, 2, 5, 3, 1, 7>(item_guid);
+    recvData >> item_guid;
+    for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
+        recvData >> gem_guids[i];
 
     if (!item_guid)
         return;

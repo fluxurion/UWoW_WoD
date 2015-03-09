@@ -575,7 +575,7 @@ enum OpcodeClient : uint32
     CMSG_SET_WATCHED_FACTION                          = 0x0206,
     CMSG_SHOWING_CLOAK                                = 0x0132,
     CMSG_SHOWING_HELM                                 = 0x11E1,
-    CMSG_SOCKET_GEMS                                  = 0xBADD,
+    CMSG_SOCKET_GEMS                                  = 0x1BE1,
     CMSG_SPELLCLICK                                   = 0x0BC2,
     CMSG_SPIRIT_HEALER_ACTIVATE                       = 0x03EC,
     CMSG_SPLIT_ITEM                                   = 0xBADD,
