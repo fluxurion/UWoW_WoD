@@ -712,26 +712,19 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
 }
 
+//! 6.0.3
 void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOBANK_ITEM");
     uint8 srcbag, srcslot;
 
-    recvPacket >> srcslot >> srcbag;
     uint32 count = recvPacket.ReadBits(2);
-    std::vector<bool> bits[2];
     for (uint32 i = 0; i < count; ++i)
     {
-        bits[1].push_back(!recvPacket.ReadBit());
-        bits[0].push_back(!recvPacket.ReadBit());
+        recvPacket.read_skip<uint8>();
+        recvPacket.read_skip<uint8>();
     }
-    for (uint32 i = 0; i < count; ++i)
-    {
-        if (bits[1][i])
-            recvPacket.read_skip<uint8>();
-        if (bits[0][i])
-            recvPacket.read_skip<uint8>();
-    }
+    recvPacket >> srcslot >> srcbag;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
 
@@ -758,26 +751,19 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
     _player->BankItem(dest, pItem, true);
 }
 
+//! 6.0.3
 void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_BANK_ITEM");
     uint8 srcbag, srcslot;
 
-    recvPacket >> srcslot >> srcbag;
     uint32 count = recvPacket.ReadBits(2);
-    std::vector<bool> bits[2];
     for (uint32 i = 0; i < count; ++i)
     {
-        bits[0].push_back(!recvPacket.ReadBit());
-        bits[1].push_back(!recvPacket.ReadBit());
+        recvPacket.read_skip<uint8>();
+        recvPacket.read_skip<uint8>();
     }
-    for (uint32 i = 0; i < count; ++i)
-    {
-        if (bits[0][i])
-            recvPacket.read_skip<uint8>();
-        if (bits[1][i])
-            recvPacket.read_skip<uint8>();
-    }
+    recvPacket >> srcslot >> srcbag;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
 
