@@ -637,7 +637,7 @@ enum OpcodeClient : uint32
     CMSG_WHOIS                                        = 0x011F,
     CMSG_UI_TIME_REQUEST                              = 0x0302,
     CMSG_WORLD_TELEPORT                               = 0xBADD,
-    CMSG_WRAP_ITEM                                    = 0xBADD,
+    CMSG_WRAP_ITEM                                    = 0x0797,
     CMSG_ZONEUPDATE                                   = 0xBADD,
     MSG_GM_BIND_OTHER                                 = 0xBADD,
     MSG_GM_SHOWLABEL                                  = 0xBADD,

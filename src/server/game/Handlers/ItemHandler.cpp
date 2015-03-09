@@ -825,6 +825,7 @@ void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid const& Playerguid, Objec
     SendPacket(&data);
 }
 
+//! 6.0.3 ToDo CHECK!
 void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WRAP_ITEM");
@@ -839,20 +840,8 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
         return;
     }
 
-    bool bits[2][2];
-    for (uint8 i = 0; i < count; ++i)
-    {
-        bits[i][0] = !recvData.ReadBit();
-        bits[i][1] = !recvData.ReadBit();
-    }
-    if (bits[0][1])
-        recvData >> gift_slot;
-    if (bits[0][0])
-        recvData >> gift_bag;
-    if (bits[1][1])
-        recvData >> item_slot;
-    if (bits[1][0])
-        recvData >> item_bag;
+    recvData >> gift_bag >> gift_slot >> item_bag >> item_slot;
+
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WRAP: receive gift_bag = %u, gift_slot = %u, item_bag = %u, item_slot = %u", gift_bag, gift_slot, item_bag, item_slot);
 
