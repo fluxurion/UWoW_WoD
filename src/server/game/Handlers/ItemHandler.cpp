@@ -284,17 +284,13 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
     }
 }
 
-//! 5.4.1
-void WorldSession::HandleDestroyItemOpcode(WorldPacket & recvData)
+//! 6.0.3
+void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& destroyItem)
 {
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_DESTROY_ITEM");
-    uint8 bag, slot;
-    uint32 count;
-
-    recvData >> count >> bag >> slot;
     //sLog->outDebug("STORAGE: receive bag = %u, slot = %u, count = %u", bag, slot, count);
 
-    uint16 pos = (bag << 8) | slot;
+    uint16 pos = (destroyItem.ContainerId << 8) | destroyItem.SlotNum;
 
     // prevent drop unequipable items (in combat, for example) and non-empty bags
     if (_player->IsEquipmentPos(pos) || _player->IsBagPos(pos))
@@ -307,7 +303,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recvData)
         }
     }
 
-    Item* pItem  = _player->GetItemByPos(bag, slot);
+    Item* pItem  = _player->GetItemByPos(destroyItem.ContainerId, destroyItem.SlotNum);
     if (!pItem)
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
@@ -331,13 +327,13 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recvData)
         }
     }
 
-    if (count)
+    if (destroyItem.Count)
     {
-        uint32 i_count = count;
+        uint32 i_count = destroyItem.Count;
         _player->DestroyItemCount(pItem, i_count, true);
     }
     else
-        _player->DestroyItem(bag, slot, true);
+        _player->DestroyItem(destroyItem.ContainerId, destroyItem.SlotNum, true);
 }
 
 void WorldSession::HandleReadItem(WorldPacket& recvData)
