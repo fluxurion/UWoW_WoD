@@ -866,7 +866,7 @@ class WorldSession
         void HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem);
         void HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swapInvItem);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
-        void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
+        void HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem);
         void HandleSellItemOpcode(WorldPacket& recvPacket);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyItemOpcode(WorldPacket& recvPacket);

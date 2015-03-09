@@ -186,31 +186,19 @@ void WorldSession::HandleSwapItem(WorldPackets::Item::SwapItem& swapItem)
     _player->SwapItem(src, dst);
 }
 
-void WorldSession::HandleAutoEquipItemOpcode(WorldPacket & recvData)
+//! 6.0.3
+void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem)
 {
+    if (autoEquipItem.Inv.Items.size() != 1)
+    {
+        //sLog->outDebug(LOG_FILTER_PACKETIO, "HandleAutoEquipItemOpcode - Invalid itemCount (" SZFMTD ")", autoEquipItem.Inv.Items.size());
+        return;
+    }
+
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTOEQUIP_ITEM");
-    uint8 srcbag, srcslot;
-
-    recvData >> srcbag >> srcslot;
-
-    uint32 count = recvData.ReadBits(2);
-    std::vector<bool> bits[2];
-    for (uint32 i = 0; i < count; ++i)
-    {
-        bits[0].push_back(!recvData.ReadBit());
-        bits[1].push_back(!recvData.ReadBit());
-    }
-    for (uint32 i = 0; i < count; ++i)
-    {
-        if (bits[0][i])
-            recvData.read_skip<uint8>();
-        if (bits[1][i])
-            recvData.read_skip<uint8>();
-    }
-
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
 
-    Item* pSrcItem  = _player->GetItemByPos(srcbag, srcslot);
+    Item* pSrcItem  = _player->GetItemByPos(autoEquipItem.PackSlot, autoEquipItem.Slot);
     if (!pSrcItem)
         return;                                             // only at cheat
 
@@ -229,7 +217,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket & recvData)
     Item* pDstItem = _player->GetItemByPos(dest);
     if (!pDstItem)                                         // empty slot, simple case
     {
-        _player->RemoveItem(srcbag, srcslot, true);
+        _player->RemoveItem(autoEquipItem.PackSlot, autoEquipItem.Slot, true);
         _player->EquipItem(dest, pSrcItem, true);
         _player->AutoUnequipOffhandIfNeed();
     }
@@ -250,23 +238,23 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket & recvData)
         uint16 eSrc = 0;
         if (_player->IsInventoryPos(src))
         {
-            msg = _player->CanStoreItem(srcbag, srcslot, sSrc, pDstItem, true);
+            msg = _player->CanStoreItem(autoEquipItem.PackSlot, autoEquipItem.Slot, sSrc, pDstItem, true);
             if (msg != EQUIP_ERR_OK)
-                msg = _player->CanStoreItem(srcbag, NULL_SLOT, sSrc, pDstItem, true);
+                msg = _player->CanStoreItem(autoEquipItem.PackSlot, NULL_SLOT, sSrc, pDstItem, true);
             if (msg != EQUIP_ERR_OK)
                 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sSrc, pDstItem, true);
         }
         else if (_player->IsBankPos(src))
         {
-            msg = _player->CanBankItem(srcbag, srcslot, sSrc, pDstItem, true);
+            msg = _player->CanBankItem(autoEquipItem.PackSlot, autoEquipItem.Slot, sSrc, pDstItem, true);
             if (msg != EQUIP_ERR_OK)
-                msg = _player->CanBankItem(srcbag, NULL_SLOT, sSrc, pDstItem, true);
+                msg = _player->CanBankItem(autoEquipItem.PackSlot, NULL_SLOT, sSrc, pDstItem, true);
             if (msg != EQUIP_ERR_OK)
                 msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, sSrc, pDstItem, true);
         }
         else if (_player->IsEquipmentPos(src))
         {
-            msg = _player->CanEquipItem(srcslot, eSrc, pDstItem, true);
+            msg = _player->CanEquipItem(autoEquipItem.Slot, eSrc, pDstItem, true);
             if (msg == EQUIP_ERR_OK)
                 msg = _player->CanUnequipItem(eSrc, true);
         }
@@ -279,7 +267,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket & recvData)
 
         // now do moves, remove...
         _player->RemoveItem(dstbag, dstslot, false);
-        _player->RemoveItem(srcbag, srcslot, false);
+        _player->RemoveItem(autoEquipItem.PackSlot, autoEquipItem.Slot, false);
 
         // add to dest
         _player->EquipItem(dest, pSrcItem, true);
