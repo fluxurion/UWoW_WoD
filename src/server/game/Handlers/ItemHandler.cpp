@@ -336,10 +336,11 @@ void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& dest
         _player->DestroyItem(destroyItem.ContainerId, destroyItem.SlotNum, true);
 }
 
+//! 6.0.3
 void WorldSession::HandleReadItem(WorldPacket& recvData)
 {
     uint8 bag, slot;
-    recvData >> bag >> slot;
+    recvData >> slot >> bag;
 
     Item* pItem = _player->GetItemByPos(bag, slot);
 
@@ -350,7 +351,7 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
         InventoryResult msg = _player->CanUseItem(pItem);
         if (msg == EQUIP_ERR_OK)
         {
-            data.Initialize(SMSG_READ_ITEM_OK, 8);
+            data.Initialize(SMSG_READ_ITEM_RESULT_OK, 8);
             data << pItem->GetGUID();
             sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Item page sent");
         }
@@ -358,7 +359,7 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
         {
             data.Initialize(SMSG_READ_ITEM_FAILED, 8 + 1);
             data << pItem->GetGUID();
-            data << uint8(2);
+            data << uint32(2);
             sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Unable to read item");
             _player->SendEquipError(msg, pItem, NULL);
         }
