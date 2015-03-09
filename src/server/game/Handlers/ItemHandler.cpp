@@ -802,45 +802,25 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
 
 void WorldSession::SendEnchantmentLog(ObjectGuid const& Target, ObjectGuid const& Caster, uint32 ItemID, uint32 SpellID)
 {
-    WorldPacket data(SMSG_ENCHANTMENTLOG, (8+8+8+4+4+4+1));     // last check 4.3.4
-    data << Target.WriteAsPacked();
-    data << Caster.WriteAsPacked();
-    data.appendPackGUID(0);
+    //! 6.0.3
+    WorldPacket data(SMSG_ENCHANTMENT_LOG, 60);
+    data << Caster;
+    data << Target;
+    data << ObjectGuid::Empty;
     data << uint32(ItemID);
     data << uint32(SpellID);
-    data << uint32(0); // TODO:Check this packet.
+    data << uint32(0);      //EnchantSlot
     SendPacket(&data);
 }
 
 void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid const& Playerguid, ObjectGuid const& Itemguid, uint32 slot, uint32 Duration)
 {
+    //! 6.0.3
     WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, 8 + 8 + 1 + 1 + 4 + 4);
-
-    //data.WriteGuidMask<0, 3>(Itemguid);
-    //data.WriteGuidMask<6, 7>(Playerguid);
-    //data.WriteGuidMask<2>(Itemguid);
-    //data.WriteGuidMask<3, 5>(Playerguid);
-    //data.WriteGuidMask<5>(Itemguid);
-    //data.WriteGuidMask<4>(Playerguid);
-    //data.WriteGuidMask<6, 7, 1>(Itemguid);
-    //data.WriteGuidMask<2, 1>(Playerguid);
-    //data.WriteGuidMask<4>(Itemguid);
-    //data.WriteGuidMask<0>(Playerguid);
-
-    //data.WriteGuidBytes<3>(Playerguid);
-    //data.WriteGuidBytes<6>(Itemguid);
-    //data.WriteGuidBytes<5, 4>(Playerguid);
-    //data.WriteGuidBytes<0, 3>(Itemguid);
-    //data.WriteGuidBytes<2>(Playerguid);
+    data << Itemguid;
     data << uint32(Duration);
-    //data.WriteGuidBytes<1>(Itemguid);
     data << uint32(slot);
-    //data.WriteGuidBytes<1, 0>(Playerguid);
-    //data.WriteGuidBytes<7, 5>(Itemguid);
-    //data.WriteGuidBytes<6>(Playerguid);
-    //data.WriteGuidBytes<2>(Itemguid);
-    //data.WriteGuidBytes<7>(Playerguid);
-    //data.WriteGuidBytes<4>(Itemguid);
+    data << Playerguid;
 
     SendPacket(&data);
 }

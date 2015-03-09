@@ -947,7 +947,7 @@ enum OpcodeServer : uint32
     SMSG_ECHO_PARTY_SQUELCH                           = 0xBADD,
     SMSG_EMOTE                                        = 0x071D,
     SMSG_ENABLE_BARBER_SHOP                           = 0xBADD,
-    SMSG_ENCHANTMENTLOG                               = 0xBADD,
+    SMSG_ENCHANTMENT_LOG                              = 0x15AD,
     SMSG_ENVIRONMENTALDAMAGELOG                       = 0xBADD,
     SMSG_EQUIPMENT_SET_LIST                           = 0x0F1E,
     SMSG_EQUIPMENT_SET_SAVED                          = 0x0027,
