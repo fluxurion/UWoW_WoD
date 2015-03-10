@@ -1157,6 +1157,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     itemTarget->ClearSoulboundTradeable(_player);           // clear tradeable flag
 }
 
+//! 6.0.3
 void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CANCEL_TEMP_ENCHANTMENT");
@@ -1181,6 +1182,7 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
     item->ClearEnchantment(TEMP_ENCHANTMENT_SLOT);
 }
 
+//! 6.0.3
 void WorldSession::HandleGetItemPurchaseData(WorldPackets::Item::ItemRefundInfo& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_ITEM_PURCHASE_DATA");
@@ -1195,13 +1197,12 @@ void WorldSession::HandleGetItemPurchaseData(WorldPackets::Item::ItemRefundInfo&
     GetPlayer()->SendRefundInfo(item);
 }
 
+//! 6.0.3
 void WorldSession::HandleItemRefund(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_REFUND");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_PURCHASE_REFUND");
     ObjectGuid guid;
-
-    //recvData.ReadGuidMask<4, 0, 7, 3, 6, 5, 1, 2>(guid);
-    //recvData.ReadGuidBytes<5, 1, 0, 3, 7, 6, 4, 2>(guid);
+    recvData >> guid;
 
     Item* item = _player->GetItemByGuid(guid);
     if (!item)
