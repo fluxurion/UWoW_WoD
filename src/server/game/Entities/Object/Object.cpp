@@ -264,16 +264,12 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
 void Object::DestroyForPlayer(Player* target, bool onDeath) const
 {
     ASSERT(target);
-    ObjectGuid guid = GetGUID();
 
-    WorldPacket data(SMSG_DESTROY_OBJECT, 8 + 1);
-    //data.WriteGuidMask<7, 2, 6, 3, 1, 4>(guid);
-    //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
-    //! OnDeath() does for eg trigger death animation and interrupts certain spells/missiles/auras/sounds...
-    data.WriteBit(onDeath);
-    //data.WriteGuidMask<5, 0>(guid);
-    //data.WriteGuidBytes<4, 3, 2, 7, 0, 1, 6, 5>(guid);
-    target->GetSession()->SendPacket(&data);
+    UpdateData updateData(target->GetMapId());
+    BuildOutOfRangeUpdateBlock(&updateData);
+    WorldPacket packet;
+    updateData.BuildPacket(&packet);
+    target->SendDirectMessage(&packet);
 }
 
 void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
