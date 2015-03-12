@@ -13243,7 +13243,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
         if (!pBag)
         {
             m_items[slot] = pItem;
-            SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 2), pItem->GetGUID());
+            SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), pItem->GetGUID());
             pItem->SetGuidValue(ITEM_FIELD_CONTAINED_IN, GetGUID());
             pItem->SetGuidValue(ITEM_FIELD_OWNER, GetGUID());
 
@@ -13589,7 +13589,7 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
     sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: EquipItem slot = %u, item = %u", slot, pItem->GetEntry());
 
     m_items[slot] = pItem;
-    SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 2), pItem->GetGUID());
+    SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), pItem->GetGUID());
     pItem->SetGuidValue(ITEM_FIELD_CONTAINED_IN, GetGUID());
     pItem->SetGuidValue(ITEM_FIELD_OWNER, GetGUID());
     pItem->SetSlot(slot);
@@ -13652,7 +13652,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
             }
 
             m_items[slot] = NULL;
-            SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 2), ObjectGuid::Empty);
+            SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), ObjectGuid::Empty);
 
             UpdateExpertise();
 
@@ -13750,7 +13750,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         if (bag == INVENTORY_SLOT_BAG_0)
         {
-            SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 2), ObjectGuid::Empty);
+            SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), ObjectGuid::Empty);
 
             // equipment and equipped bags can have applied bonuses
             if (slot < INVENTORY_SLOT_BAG_END)
@@ -14656,7 +14656,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         uint32 etime = uint32(base - m_logintime + (30 * 3600));
         uint32 eslot = slot - BUYBACK_SLOT_START;
 
-        SetGuidValue(PLAYER_FIELD_INV_SLOTS + (eslot * 2), pItem->GetGUID());
+        SetGuidValue(PLAYER_FIELD_INV_SLOTS + (eslot * 4), pItem->GetGUID());
         if (ItemTemplate const* proto = pItem->GetTemplate())
             SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, proto->SellPrice * pItem->GetCount());
         else
@@ -14693,7 +14693,7 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
         m_items[slot] = NULL;
 
         uint32 eslot = slot - BUYBACK_SLOT_START;
-        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 2), 0);
+        SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 4), 0);
         SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, 0);
         SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP + eslot, 0);
 
@@ -18474,7 +18474,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     // cleanup inventory related item value fields (its will be filled correctly in _LoadInventory)
     for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
     {
-        SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 2), ObjectGuid::Empty);
+        SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), ObjectGuid::Empty);
         SetVisibleItemSlot(slot, NULL);
 
         delete m_items[slot];

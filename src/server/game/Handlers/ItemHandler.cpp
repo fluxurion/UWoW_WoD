@@ -1228,18 +1228,18 @@ void WorldSession::HandleItemTextQuery(WorldPacket & recvData )
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ITEM_TEXT_QUERY item guid: %u unk %u", itemGuid.GetCounter(), unk);
 
-    WorldPacket data(SMSG_QUERY_ITEM_TEXT_RESPONSE, 14);    // guess size
+    WorldPacket data(SMSG_QUERY_ITEM_TEXT_RESPONSE, 14);        // guess size
 
     if (Item* item = _player->GetItemByGuid(itemGuid))
     {
-        data.WriteBit(0));                                      // has text
+        data.WriteBit(0);                                       // has text
         data << itemGuid;                                       // item guid
         data.WriteBits(item->GetText().size(), 13);
         data.WriteString(item->GetText());
     }
     else
     {
-        data.WriteBit(1));                                       // no text
+        data.WriteBit(1);                                        // no text
         data << itemGuid;
         data.WriteBits(0, 13);
     }
