@@ -18,11 +18,14 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
+char const CurvePointEntryfmt[] = "niiff";
 char const BroadcastTextEntryfmt[] = "nissiiiiiiiii";
 char const HolidaysEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
 const char Itemfmt[] = "niiiiiiii";
 char const ItemAppearanceEntryfmt[]="nii";
+char const ItemBonusEntryfmt[] = "niiiii";
 const char ItemCurrencyCostfmt[] = "xn";
+char const ItemModifiedAppearanceEntryfmt[] = "niiiii";
 const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
 char const ItemExtendedCostEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 const std::string CustomItemExtendedCostEntryfmt="paappppppppppppappppppppppaapa";

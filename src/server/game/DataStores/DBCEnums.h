@@ -528,6 +528,18 @@ enum ItemEnchantmentType
     ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET = 8
 };
 
+enum ItemBonusType
+{
+    ITEM_BONUS_ITEM_LEVEL     = 1,
+    ITEM_BONUS_STAT           = 2,
+    ITEM_BONUS_QUALITY        = 3,
+    ITEM_BONUS_DESCRIPTION    = 4,
+    ITEM_BONUS_SUFFIX         = 5,
+    ITEM_BONUS_SOCKET         = 6,
+    ITEM_BONUS_APPEARANCE     = 7,
+    ITEM_BONUS_REQUIRED_LEVEL = 8,
+};
+
 enum ItemLimitCategoryMode
 {
     ITEM_LIMIT_CATEGORY_MODE_HAVE       = 0,                      // limit applied to amount items in inventory/bank

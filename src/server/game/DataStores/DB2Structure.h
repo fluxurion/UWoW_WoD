@@ -58,6 +58,15 @@ struct BroadcastTextEntry
     uint32 Type;
 };
 
+struct CurvePointEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 CurveID;                                                 // 1
+    uint32 Index;                                                   // 2
+    float X;                                                        // 3
+    float Y;                                                        // 4
+};
+
 struct HolidaysEntry
 {
     uint32      ID;                                         // 0
@@ -94,6 +103,14 @@ struct ItemAppearanceEntry
     uint32      FileDataID;                                 // 2
 };
 
+struct ItemBonusEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      BonusListID;                                        // 1
+    uint32      Type;                                               // 2
+    int32       Value[2];                                           // 3-4
+    uint32      Index;                                              // 5
+};
 
 struct ItemCurrencyCostEntry
 {
@@ -112,6 +129,16 @@ struct ItemEffectEntry
     int32       Cooldown;                                   // 6
     uint32      Category;                                   // 7
     int32       CategoryCooldown;                           // 8
+};
+
+struct ItemModifiedAppearanceEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      ItemID;                                             // 1
+    uint32      AppearanceModID;                                    // 2
+    uint32      AppearanceID;                                       // 3
+    uint32      IconFileDataID;                                     // 4
+    uint32      Index;                                              // 5
 };
 
 struct ItemSparseEntry

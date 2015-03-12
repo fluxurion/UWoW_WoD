@@ -192,7 +192,6 @@ extern ResearchSiteDataMap                       sResearchSiteDataMap;
 extern DBCStorage<QuestPOIBlobEntry>            sQuestPOIBlobStore;
 extern DBCStorage<QuestPOIPointEntry>           sQuestPOIPointStore;
 extern DBCStorage<ScalingStatDistributionEntry> sScalingStatDistributionStore;
-extern DBCStorage<ScalingStatValuesEntry>       sScalingStatValuesStore;
 extern DBCStorage<SkillLineEntry>               sSkillLineStore;
 extern DBCStorage<SkillLineAbilityEntry>        sSkillLineAbilityStore;
 extern DBCStorage<SoundEntriesEntry>            sSoundEntriesStore;

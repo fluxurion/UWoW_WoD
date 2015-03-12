@@ -80,6 +80,10 @@ extern BattlePetSpeciesBySpellIdMap sBattlePetSpeciesBySpellId;
 typedef UNORDERED_MAP<uint32, MapChallengeModeEntry const*> MapChallengeModeEntryMap;
 extern MapChallengeModeEntryMap sMapChallengeModeEntrybyMap;
 
+uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
+uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId);
+std::vector<ItemBonusEntry const*> GetItemBonuses(uint32 bonusListId);
+
 uint32 GetItemDisplayID(uint32 appearanceID);
 std::set<uint32> const& GetPhasesForGroup(uint32 group);
 

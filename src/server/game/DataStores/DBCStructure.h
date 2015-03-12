@@ -1321,8 +1321,7 @@ struct ItemPriceBaseEntry
 
 struct GtItemSocketCostPerLevelEntry
 {
-    //uint32 id;                                            // 1
-    float cost;                                             // 2
+    float    ratio;
 };
 
 struct ItemReforgeEntry
@@ -1834,23 +1833,7 @@ struct ScalingStatDistributionEntry
     uint32      ID;                                         // 0
     uint32      MinLevel;                                   // 1
     uint32      MaxLevel;                                   // 2       m_maxlevel
-    uint32      UnkScalingID;                               // 3
-};
-
-struct ScalingStatValuesEntry
-{
-    uint32 Id;                                              // 0
-    uint32 Level;                                           // 1
-    uint32 dpsMod[7];                                       // 2-8      DPS mod for level
-    uint32 Spellpower;                                      // 9        Spell power for level
-    uint32 StatMultiplier[5];                               // 10-14    Multiplier for ScalingStatDistribution
-    uint32 Armor[8][4];                                     // 15-46    Armor for level
-    uint32 CloakArmor;                                      // 47       Armor for cloak
-    //uint32 m_armorShield                                  // 48       m_armorShield   5.4.1
-
-    uint32 GetStatMultiplier(uint32 inventoryType) const;
-    uint32 GetArmor(uint32 inventoryType, uint32 armorType) const;
-    uint32 GetDPSAndDamageMultiplier(uint32 subClass, bool isCasterWeapon, float* damageMultiplier) const;
+    uint32      ItemLevelCurveID;                           // 3
 };
 
 //struct SkillLineCategoryEntry{
