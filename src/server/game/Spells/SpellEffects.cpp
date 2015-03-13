@@ -8135,19 +8135,7 @@ int32 Spell::CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultip
     if (mainItem && coeff > 0)
     {
         ItemTemplate const* proto = mainItem->GetTemplate();
-        if (mainItem->GetLevel() != proto->ItemLevel)
-        {
-            float DPS;
-            FillItemDamageFields(&minDamage, &maxDamage, &DPS, mainItem->GetLevel(),
-                                 proto->Class, proto->SubClass, proto->Quality, proto->Delay, proto->StatScalingFactor,
-                                 proto->InventoryType, proto->Flags2);
-        }
-        else
-        {
-            minDamage = mainItem->GetTemplate()->DamageMin;
-            maxDamage = mainItem->GetTemplate()->DamageMax;
-        }
-
+        proto->GetDamage(mainItem->GetItemLevel(), minDamage, maxDamage);
         minDamage /= m_caster->GetAttackTime(BASE_ATTACK) / 1000;
         maxDamage /= m_caster->GetAttackTime(BASE_ATTACK) / 1000;
     }
@@ -8156,23 +8144,10 @@ int32 Spell::CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultip
     if (offItem && coeff > 0)
     {
         ItemTemplate const* proto = offItem->GetTemplate();
-        if (offItem->GetLevel() != proto->ItemLevel)
-        {
-            float DPS;
-            FillItemDamageFields(&minDamage, &maxDamage, &DPS, offItem->GetLevel(),
-                                 proto->Class, proto->SubClass, proto->Quality, proto->Delay, proto->StatScalingFactor,
-                                 proto->InventoryType, proto->Flags2);
-            minDamage /= 2;
-            maxDamage /= 2;
-        }
-        else
-        {
-            minDamage = offItem->GetTemplate()->DamageMin / 2;
-            maxDamage = offItem->GetTemplate()->DamageMax / 2;
-        }
-
-        minDamage /= m_caster->GetAttackTime(BASE_ATTACK) / 1000;
-        maxDamage /= m_caster->GetAttackTime(BASE_ATTACK) / 1000;
+        proto->GetDamage(offItem->GetItemLevel(), minDamage, maxDamage);
+        // ToDo: Is IT NEED? /2 ???
+        minDamage /= m_caster->GetAttackTime(BASE_ATTACK) / 1000 / 2;
+        maxDamage /= m_caster->GetAttackTime(BASE_ATTACK) / 1000 / 2;
     }
 
     // DualWield coefficient
@@ -8212,13 +8187,12 @@ int32 Spell::CalculateMonkSpellDamage(Unit* caster, float coeff, float APmultipl
     if (mainItem && coeff > 0)
         if (ItemTemplate const* tempMain = mainItem->GetTemplate())
         {
-            MHmin = tempMain->DamageMin;
-            MHmax = tempMain->DamageMax;
+            tempMain->GetDamage(mainItem->GetItemLevel(), MHmin, MHmax);
 
             MHmin /= tempMain->Delay / 1000.0f;
             MHmax /= tempMain->Delay / 1000.0f;
 
-            if (tempMain->InventoryType == INVTYPE_2HWEAPON)
+            if (tempMain->GetInventoryType() == INVTYPE_2HWEAPON)
             {
                 coeff *= 1.1125f;
             }
@@ -8228,10 +8202,12 @@ int32 Spell::CalculateMonkSpellDamage(Unit* caster, float coeff, float APmultipl
     if (offItem && coeff > 0)
         if (ItemTemplate const* temp = offItem->GetTemplate())
         {
-            if (temp->DamageMin && temp->DamageMax && temp->Delay)
+            temp->GetDamage(offItem->GetItemLevel(), OHmin, OHmax);
+
+            if (OHmin && OHmax && temp->Delay)
             {
-                OHmin += temp->DamageMin / 2;
-                OHmax += temp->DamageMax / 2;
+                OHmin /= 2;
+                OHmax /= 2;
 
                 OHmin /= temp->Delay / 1000.0f;
                 OHmax /= temp->Delay / 1000.0f;

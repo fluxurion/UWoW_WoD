@@ -22,7 +22,7 @@
 #include "Common.h"
 #include "Object.h"
 #include "LootMgr.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "DatabaseEnv.h"
 
 #define MIN_ITEM_LEVEL_CUP  463
@@ -175,11 +175,12 @@ enum EnchantmentSlot
     SOCK_ENCHANTMENT_SLOT_3         = 4,
     BONUS_ENCHANTMENT_SLOT          = 5,
     PRISMATIC_ENCHANTMENT_SLOT      = 6,                    // added at apply special permanent enchantment
-    //TODO: 7,
+    USE_ENCHANTMENT_SLOT            = 7,
+
     MAX_INSPECTED_ENCHANTMENT_SLOT  = 8,
 
-    PROP_ENCHANTMENT_SLOT_0         = 8,                   // used with RandomSuffix
-    PROP_ENCHANTMENT_SLOT_1         = 9,                   // used with RandomSuffix
+    PROP_ENCHANTMENT_SLOT_0         = 8,                    // used with RandomSuffix
+    PROP_ENCHANTMENT_SLOT_1         = 9,                    // used with RandomSuffix
     PROP_ENCHANTMENT_SLOT_2         = 10,                   // used with RandomSuffix and RandomProperty
     PROP_ENCHANTMENT_SLOT_3         = 11,                   // used with RandomProperty
     PROP_ENCHANTMENT_SLOT_4         = 12,                   // used with RandomProperty
@@ -233,6 +234,22 @@ enum ItemModifier
 
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 
+struct BonusData
+{
+    uint32 Quality;
+    int32 ItemLevel;
+    int32 RequiredLevel;
+    int32 ItemStatType[MAX_ITEM_PROTO_STATS];
+    int32 ItemStatValue[MAX_ITEM_PROTO_STATS];
+    int32 ItemStatAllocation[MAX_ITEM_PROTO_STATS];
+    float ItemStatSocketCostMultiplier[MAX_ITEM_PROTO_STATS];
+    uint32 SocketColor[MAX_ITEM_PROTO_SOCKETS];
+    uint32 AppearanceModID;
+
+    void Initialize(ItemTemplate const* proto);
+    void AddBonus(uint32 type, int32 const (&values)[2]);
+};
+
 class Item : public Object
 {
     public:
@@ -256,6 +273,9 @@ class Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
         virtual bool LoadFromDB(ObjectGuid::LowType const& guid, ObjectGuid const& owner_guid, Field* fields, uint32 entry);
+
+        void AddBonuses(uint32 bonusListID);    //ToDo
+
         static void DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
         virtual void DeleteFromDB(SQLTransaction& trans);
         static void DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
@@ -265,10 +285,10 @@ class Item : public Object
 
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return NULL; }
         const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); else return NULL; }
-        bool IsEquipable() const { return GetTemplate()->InventoryType != INVTYPE_NON_EQUIP; }
+        bool IsEquipable() const { return GetTemplate()->GetInventoryType() != INVTYPE_NON_EQUIP; }
 
         bool IsLocked() const { return !HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_UNLOCKED); }
-        bool IsBag() const { return GetTemplate()->InventoryType == INVTYPE_BAG; }
+        bool IsBag() const { return GetTemplate()->GetInventoryType() == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
         bool IsNotEmptyBag() const;
         bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAX_DURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
@@ -315,8 +335,6 @@ class Item : public Object
         uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
         uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
         uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
-        uint32 GetLevel() const { return ItemLevel; }
-        void SetLevel(uint32 level) { ItemLevel = level; }
 
         std::string const& GetText() const { return m_text; }
         void SetText(std::string const& text) { m_text = text; }
@@ -350,6 +368,16 @@ class Item : public Object
         bool IsVellum() const { return GetTemplate()->IsVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
+        uint32 GetQuality() const { return _bonusData.Quality; }
+        uint32 GetItemLevel() const;
+        int32 GetRequiredLevel() const { return _bonusData.RequiredLevel; }
+        int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return _bonusData.ItemStatType[index]; }
+        int32 GetItemStatValue(uint32 index) const;
+        SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(_bonusData.SocketColor[index]); }
+        uint32 GetAppearanceModId() const { return _bonusData.AppearanceModID; }
+        uint32 GetArmor() const { return GetTemplate()->GetArmor(GetItemLevel()); }
+        void GetDamage(float& minDamage, float& maxDamage) const { GetTemplate()->GetDamage(GetItemLevel(), minDamage, maxDamage); }
+        uint32 GetDisplayId() const;
         uint32 GetLeveledStatValue(uint8 statIndex) const;
 
         // Item Refund system
@@ -371,6 +399,7 @@ class Item : public Object
         bool CheckSoulboundTradeExpire();
 
         void BuildUpdate(UpdateDataMapType&);
+        void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
@@ -380,14 +409,13 @@ class Item : public Object
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 
-        uint32 GetVisibleEntry() const
-        {
-            if (uint32 transmogrification = GetTransmogrification())
-                return transmogrification;
-            return GetEntry();
-        }
+        uint32 GetVisibleEntry() const;
+        uint32 GetVisibleAppearanceModId() const;
 
         static uint32 GetSellPrice(ItemTemplate const* proto, bool& success);
+
+        uint32 GetModifier(ItemModifier modifier) const { return _modifiers[modifier]; }
+        void SetModifier(ItemModifier modifier, uint32 value);
 
         int32 GetReforgableStat(ItemModType statType) const;
 
@@ -407,6 +435,9 @@ class Item : public Object
         void AppendDynamicInfo(ByteBuffer& buff) const;
         void SetLevelCap(uint32 cup, bool pvp);
 
+    protected:
+        BonusData _bonusData;
+
     private:
         std::string m_text;
         uint8 m_slot;
@@ -420,7 +451,6 @@ class Item : public Object
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
-        uint32 ItemLevel;
-        uint32 ItemLevelBeforeCap;
+        uint32 _modifiers[MAX_ITEM_MODIFIERS];
 };
 #endif

@@ -19,7 +19,7 @@
 #ifndef DBCENUMS_H
 #define DBCENUMS_H
 
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 
 struct DBCPosition2D
 {

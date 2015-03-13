@@ -25,7 +25,7 @@
 #include "Util.h"
 //#include "Vehicle.h"
 #include "SharedDefines.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 
 #include <map>
 #include <set>
@@ -168,8 +168,8 @@ struct ItemSparseEntry
     uint32      ContainerSlots;                             // 24
     int32       ItemStatType[MAX_ITEM_PROTO_STATS];         // 25 - 34
     uint32      ItemStatValue[MAX_ITEM_PROTO_STATS];        // 35 - 44
-    int32       ItemStatUnk1[MAX_ITEM_PROTO_STATS];         // 45 - 54
-    int32       ItemStatUnk2[MAX_ITEM_PROTO_STATS];         // 55 - 64
+    int32       ItemStatAllocation[MAX_ITEM_PROTO_STATS];           // 45 - 54
+    float       ItemStatSocketCostMultiplier[MAX_ITEM_PROTO_STATS]; // 55 - 64
     uint32      ScalingStatDistribution;                    // 65
     uint32      DamageType;                                 // 66
     uint32      Delay;                                      // 67

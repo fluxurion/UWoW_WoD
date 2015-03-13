@@ -1625,7 +1625,7 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
         player->_ApplyItemMods(item, item->GetSlot(), false);
 
     item->SetUpgradeId(upgradeId);
-    item->SetLevel(item->GetTemplate()->ItemLevel + newUpgrade->levelBonus);
+    //item->SetLevel(item->GetTemplate()->ItemLevel + newUpgrade->levelBonus);
     item->SetState(ITEM_CHANGED, player);
 
     if (item->IsEquipped())

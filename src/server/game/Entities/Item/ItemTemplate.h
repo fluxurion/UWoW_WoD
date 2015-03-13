@@ -602,8 +602,8 @@ struct _ItemStat
 {
     uint32  ItemStatType;
     int32   ItemStatValue;
-    int32   ItemStatUnk1;
-    float   ItemStatUnk2;
+    int32   ItemStatAllocation;
+    float   ItemStatSocketCostMultiplier;
 };
 
 struct _Spell
@@ -630,6 +630,9 @@ struct _Socket
 #define MAX_ITEM_PROTO_SPELLS  5
 #define MAX_ITEM_PROTO_STATS  10
 
+#define MIN_ITEM_LEVEL 1
+#define MAX_ITEM_LEVEL 1000
+
 struct ItemTemplate
 {
     uint32 ItemId;
@@ -649,7 +652,7 @@ struct ItemTemplate
     uint32 BuyCount;
     int32  BuyPrice;
     uint32 SellPrice;
-    uint32 InventoryType;
+    uint32 _InventoryType;
     uint32 AllowableClass;
     uint32 AllowableRace;
     uint32 ItemLevel;
@@ -700,10 +703,6 @@ struct ItemTemplate
     uint32 ItemNameDescriptionID;
 
     // extra fields, not part of db2 files
-    float  DamageMin;
-    float  DamageMax;
-    float  DPS;
-    uint32 Armor;
     float  SpellPPMRate;
     uint32 ScriptId;
     uint32 DisenchantID;
@@ -714,10 +713,30 @@ struct ItemTemplate
     bool   ItemSpecExist;
     uint32 FlagsCu;
 
+    uint32 GetClass() const { return Class/*BasicData->Class*/; }
+    uint32 GetSubClass() const { return SubClass/*BasicData->SubClass*/; }
+    uint32 GetQuality() const { return Quality/*ExtendedData->Quality*/; }
+    uint32 GetFlags2() const { return Flags2/*ExtendedData->Flags[1]*/; }
+    uint32 GetBaseItemLevel() const { return ItemLevel/*ExtendedData->ItemLevel*/; }
+    int32 GetBaseRequiredLevel() const { return RequiredLevel/*ExtendedData->RequiredLevel*/; }
+    InventoryType GetInventoryType() const { return InventoryType(_InventoryType/*ExtendedData->InventoryType*/); }
+    uint32 GetDelay() const { return Delay/*ExtendedData->Delay*/; }
+    float  GetStatScalingFactor() const { return StatScalingFactor/*ExtendedData->StatScalingFactor*/; }
+    int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ItemStat[index].ItemStatType/*ExtendedData->ItemStatType[index]*/; }
+    int32 GetItemStatValue(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ItemStat[index].ItemStatValue/*ExtendedData->ItemStatValue[index]*/; }
+    int32 GetItemStatAllocation(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ItemStat[index].ItemStatAllocation/*ExtendedData->ItemStatAllocation[index]*/; }
+    float GetItemStatSocketCostMultiplier(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ItemStat[index].ItemStatSocketCostMultiplier/*ExtendedData->ItemStatSocketCostMultiplier[index]*/; }
+    SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(Socket[index].Color/*ExtendedData->SocketColor[index]*/); }
+    uint32 GetSocketBonus() const { return socketBonus/*ExtendedData->SocketBonus*/; }
+    uint32 GetGemProperties() const { return GemProperties/*ExtendedData->GemProperties*/; }
+
+    uint32 GetBaseArmor() const { return GetArmor(GetBaseItemLevel()); }
+    void GetBaseDamage(float& minDamage, float& maxDamage) const { GetDamage(GetBaseItemLevel(), minDamage, maxDamage); }
+
     // helpers
     bool CanChangeEquipStateInCombat() const
     {
-        switch (InventoryType)
+        switch (GetInventoryType())
         {
             case INVTYPE_RELIC:
             case INVTYPE_SHIELD:
@@ -776,6 +795,9 @@ struct ItemTemplate
                SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
                SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW;
     }
+
+    uint32 GetArmor(uint32 itemLevel) const;
+    void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
 };
 
 // Benchmarked: Faster than std::map (insert/find)

@@ -1435,9 +1435,9 @@ void LootTemplate::LootGroup::Process(Loot& loot) const
                     if (_item->itemid == item->itemid)                             // search through the items that have already dropped
                     {
                         ++_item_counter;
-                        if (_proto->InventoryType == 0 && _item_counter == 3)      // Non-equippable items are limited to 3 drops
+                        if (_proto->GetInventoryType() == 0 && _item_counter == 3)      // Non-equippable items are limited to 3 drops
                             duplicate = true;
-                        else if (_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
+                        else if (_proto->GetInventoryType() != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
                             duplicate = true;
                     }
 
@@ -1544,9 +1544,9 @@ void LootTemplate::LootGroup::ProcessInst(Loot& loot) const
                     if (_item->itemid == item->itemid)                             // search through the items that have already dropped
                     {
                         ++_item_counter;
-                        if (_proto->InventoryType == 0 && _item_counter == 3)      // Non-equippable items are limited to 3 drops
+                        if (_proto->GetInventoryType() == 0 && _item_counter == 3)      // Non-equippable items are limited to 3 drops
                             duplicate = true;
-                        else if (_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
+                        else if (_proto->GetInventoryType() != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
                             duplicate = true;
                     }
             }
@@ -1700,9 +1700,9 @@ void LootTemplate::Process(Loot& loot, bool rate, uint8 groupId) const
                     if (_item->itemid == i->itemid)                               // search through the items that have already dropped
                     {
                         ++_item_counter;
-                        if (_proto->InventoryType == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
+                        if (_proto->GetInventoryType() == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
                             continue;
-                        else if (_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
+                        else if (_proto->GetInventoryType() != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
                             continue;
                     }
                 if (_item != loot.items.end())

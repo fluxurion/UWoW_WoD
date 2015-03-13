@@ -267,6 +267,8 @@ void AuctionHouseMgr::LoadAuctionItems()
     uint32 oldMSTime = getMSTime();
 
     // data needs to be at first place for Item::LoadFromDB
+    //          0           1               2           3       4       5       6           7                   8           9           10      11              12          13              14              15          16
+    //SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, transmogrification, upgradeId, enchantIllusion, bonusListIDs, itemguid, itemEntry
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_ITEMS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -283,8 +285,8 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType item_guid = fields[14].GetUInt64();
-        uint32 itemEntry    = fields[15].GetUInt32();
+        ObjectGuid::LowType item_guid = fields[15].GetUInt64();
+        uint32 itemEntry    = fields[16].GetUInt32();
 
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
         if (!proto)
@@ -540,7 +542,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         if (itemSubClass != 0xFFFFFFFF && proto->SubClass != itemSubClass)
             continue;
 
-        if (inventoryType != 0xFFFFFFFF && proto->InventoryType != inventoryType)
+        if (inventoryType != 0xFFFFFFFF && proto->GetInventoryType() != inventoryType)
             continue;
 
         if (quality != 0xFFFFFFFF && proto->Quality != quality)

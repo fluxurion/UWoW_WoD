@@ -558,8 +558,8 @@ m_diffMode(caster ? caster->GetSpawnMode() : 0), m_spellDynObjGuid(), m_spellAre
 
     if(SpellScalingEntry const* _scaling = m_spellInfo->GetSpellScaling())
     {
-        if(_scaling->ScalesFromItemLevel && castItem)
-            m_casterLevel = castItem->GetLevel();
+        if (_scaling->ScalesFromItemLevel && caster)
+            m_casterLevel = caster->GetLevel();
         //For scaling max level
         if(_scaling->MaxScalingLevel && caster && caster->getLevel() > _scaling->MaxScalingLevel)
             m_casterLevel = _scaling->MaxScalingLevel;

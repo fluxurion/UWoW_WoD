@@ -49,7 +49,7 @@ void DB2Utilities::WriteItemDbReply(DB2Storage<ItemEntry> const& /*store*/, uint
     buffer << uint32(proto->SubClass);
     buffer << int32(proto->SoundOverrideSubclass);
     buffer << int32(proto->Material);
-    buffer << uint32(proto->InventoryType);
+    buffer << uint32(proto->GetInventoryType());
     buffer << uint32(proto->Sheath);
     buffer << uint32(proto->FileDataID);
     buffer << uint32(proto->GroupSoundsID);
@@ -74,7 +74,7 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
     buffer << uint32(proto->BuyCount);
     buffer << int32(proto->BuyPrice);
     buffer << uint32(proto->SellPrice);
-    buffer << uint32(proto->InventoryType);
+    buffer << uint32(proto->GetInventoryType());
     buffer << int32(proto->AllowableClass);
     buffer << int32(proto->AllowableRace);
     buffer << uint32(proto->ItemLevel);
@@ -97,10 +97,10 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
         buffer << int32(proto->ItemStat[x].ItemStatValue);
 
     for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
-        buffer << int32(proto->ItemStat[x].ItemStatUnk1);
+        buffer << int32(proto->ItemStat[x].ItemStatAllocation);
 
     for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
-        buffer << int32(proto->ItemStat[x].ItemStatUnk2);
+        buffer << float(proto->ItemStat[x].ItemStatSocketCostMultiplier);
 
     buffer << uint32(proto->ScalingStatDistribution);
     buffer << uint32(proto->DamageType);

@@ -5425,7 +5425,7 @@ void Spell::TakeAmmo()
         if (!pItem  || pItem->IsBroken() || pItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_WAND)
             return;
 
-        if (pItem->GetTemplate()->InventoryType == INVTYPE_THROWN)
+        if (pItem->GetTemplate()->GetInventoryType() == INVTYPE_THROWN)
         {
             if (pItem->GetMaxStackCount() == 1)
             {

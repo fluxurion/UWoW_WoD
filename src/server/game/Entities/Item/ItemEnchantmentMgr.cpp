@@ -135,7 +135,7 @@ uint32 GenerateEnchSuffixFactor(ItemTemplate const* itemProto, uint32 level)
         return 0;
 
     uint32 suffixFactor;
-    switch (itemProto->InventoryType)
+    switch (itemProto->GetInventoryType())
     {
         // Select point coefficient
         case INVTYPE_HEAD:

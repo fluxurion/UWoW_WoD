@@ -29,7 +29,7 @@
 #include "GameObject.h"
 #include "Corpse.h"
 #include "QuestDef.h"
-#include "ItemPrototype.h"
+#include "ItemTemplate.h"
 #include "NPCHandler.h"
 #include "DatabaseEnv.h"
 #include "Mail.h"
@@ -1469,9 +1469,6 @@ class ObjectMgr
 
         AreaTriggerInfoMap _areaTriggerData;
 };
-
-uint32 GetItemArmor(uint32 itemlevel, uint32 itemClass, uint32 itemSubclass, uint32 quality, uint32 inventoryType);
-void FillItemDamageFields(float* minDamage, float* maxDamage, float* dps, uint32 itemLevel, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint32 delay, float statScalingFactor, uint32 inventoryType, uint32 flags2);
 
 #define sObjectMgr ObjectMgr::instance()
 

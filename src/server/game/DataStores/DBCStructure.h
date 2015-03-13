@@ -1351,16 +1351,16 @@ struct ItemDamageEntry
 
 struct ItemArmorQualityEntry
 {
-    uint32    Id;                                             // 0 item level
-    float     Value[7];                                       // 1-7 multiplier for item quality
-    uint32    Id2;                                            // 8 item level
+    uint32      ID;                                           // 0 item level
+    float       QualityMod[7];                                // 1-7 multiplier for item quality
+    uint32      ItemLevel;                                    // 8 item level
 };
 
 struct ItemArmorShieldEntry
 {
-    uint32    Id;                                             // 0 item level
-    uint32    Id2;                                            // 1 item level
-    float     Value[7];                                       // 2-8 multiplier for item quality
+    uint32      ID;                                           // 0 item level
+    uint32      ItemLevel;                                    // 1 item level
+    float       Quality[7];                                   // 2-8 quality
 };
 
 struct ItemArmorTotalEntry
