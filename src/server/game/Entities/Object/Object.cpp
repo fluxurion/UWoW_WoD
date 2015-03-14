@@ -227,7 +227,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     _BuildMovementUpdate(&buf, flags);
     _BuildValuesUpdate(updateType, &buf, target);
-    _BuildDynamicValuesUpdate(updateType, &buf, target);
+    BuildDynamicValuesUpdate(updateType, &buf, target);
 
     data->AddUpdateBlock(buf);
 }
@@ -251,7 +251,7 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << GetPackGUID();
 
     _BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
-    _BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
+    BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
 
     data->AddUpdateBlock(buf);
 }
@@ -1394,7 +1394,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targ
     data->append(fieldBuffer);
 }
 
-void Object::_BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer *data, Player* target) const
+void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer *data, Player* target) const
 {
     if (!target)
         return;

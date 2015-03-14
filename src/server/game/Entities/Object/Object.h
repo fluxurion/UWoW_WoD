@@ -304,6 +304,8 @@ class Object
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
         virtual void BuildUpdate(UpdateDataMapType&) {}
+        virtual void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer *data, Player* target) const;
+
         void BuildFieldsUpdate(Player*, UpdateDataMapType &) const;
 
         void SetFieldNotifyFlag(uint16 flag) { _fieldNotifyFlags |= flag; }
@@ -349,7 +351,6 @@ class Object
 
         void _BuildMovementUpdate(ByteBuffer * data, uint16 flags) const;
         void _BuildValuesUpdate(uint8 updatetype, ByteBuffer *data, Player* target) const;
-        void _BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer *data, Player* target) const;
 
         uint16 m_objectType;
 
