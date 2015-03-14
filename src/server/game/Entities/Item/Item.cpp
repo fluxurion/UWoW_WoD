@@ -1637,7 +1637,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
     ItemTemplate const* proto = GetTemplate();
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         if (proto->ItemStat[i].ItemStatType == statType)
-            return GetLeveledStatValue(i);
+            return GetItemStatValue(i);
 
     int32 randomPropId = GetItemRandomPropertyId();
     if (!randomPropId)
@@ -1766,25 +1766,6 @@ void Item::AppendDynamicInfo(ByteBuffer& buff) const
     buff.put<uint32>(countPos, count * 4);
 }
 
-uint32 Item::GetLeveledStatValue(uint8 statIndex) const
-{
-    ItemTemplate const* proto = GetTemplate();
-    uint32 level = GetLevel();
-
-    if (level == proto->ItemLevel)
-        return proto->ItemStat[statIndex].ItemStatValue;
-
-    GtItemSocketCostPerLevelEntry const* sockCost = sGtItemSocketCostPerLevelStore.LookupEntry(level);
-    if (!sockCost)
-        return proto->ItemStat[statIndex].ItemStatValue;
-
-
-    float newStat = floorf(proto->ItemStat[statIndex].ItemStatAllocation * GenerateEnchSuffixFactor(proto, GetLevel()) * 0.0001f
-        - proto->ItemStat[statIndex].ItemStatSocketCostMultiplier * sockCost->ratio + 0.5f);
-
-    return std::max(0.0f, newStat);
-}
-
 //!@ For all inventoty items at add to world.
 //! TODO: FIX ME.
 void Item::SetLevelCap(uint32 cap, bool pvp)
@@ -1839,10 +1820,10 @@ uint32 Item::GetItemLevel() const
 int32 Item::GetItemStatValue(uint32 index) const
 {
     ASSERT(index < MAX_ITEM_PROTO_STATS);
-    if (uint32 randomPropPoints = GetRandomPropertyPoints(GetItemLevel(), GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass()))
+    if (uint32 randomPropPoints = GenerateEnchSuffixFactor(GetTemplate(), GetItemLevel()))
     {
         float statValue = float(_bonusData.ItemStatAllocation[index] * randomPropPoints) * 0.0001f;
-        if (GtItemSocketCostPerLevelEntry const* gtCost = sGtItemSocketCostPerLevelStore.EvaluateTable(GetItemLevel() - 1, 0))
+        if (GtItemSocketCostPerLevelEntry const* gtCost = sGtItemSocketCostPerLevelStore.LookupEntry(GetItemLevel() - 1))
             statValue -= float(int32(_bonusData.ItemStatSocketCostMultiplier[index] * gtCost->ratio));
 
         return int32(std::floor(statValue + 0.5f));

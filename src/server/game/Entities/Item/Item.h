@@ -378,7 +378,6 @@ class Item : public Object
         uint32 GetArmor() const { return GetTemplate()->GetArmor(GetItemLevel()); }
         void GetDamage(float& minDamage, float& maxDamage) const { GetTemplate()->GetDamage(GetItemLevel(), minDamage, maxDamage); }
         uint32 GetDisplayId() const;
-        uint32 GetLeveledStatValue(uint8 statIndex) const;
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);

@@ -554,12 +554,12 @@ m_diffMode(caster ? caster->GetSpawnMode() : 0), m_spellDynObjGuid(), m_spellAre
     m_isUsingCharges = m_procCharges != 0;
     //For scaling trinket
     if((m_spellInfo->AttributesEx11 & SPELL_ATTR11_SEND_ITEM_LEVEL) && castItem)
-        m_casterLevel = castItem->GetLevel();
+        m_casterLevel = castItem->GetItemLevel();
 
     if(SpellScalingEntry const* _scaling = m_spellInfo->GetSpellScaling())
     {
-        if (_scaling->ScalesFromItemLevel && caster)
-            m_casterLevel = caster->GetLevel();
+        if (_scaling->ScalesFromItemLevel && castItem)
+            m_casterLevel = castItem->GetItemLevel();
         //For scaling max level
         if(_scaling->MaxScalingLevel && caster && caster->getLevel() > _scaling->MaxScalingLevel)
             m_casterLevel = _scaling->MaxScalingLevel;

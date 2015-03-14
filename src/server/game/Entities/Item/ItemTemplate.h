@@ -722,6 +722,7 @@ struct ItemTemplate
     InventoryType GetInventoryType() const { return InventoryType(_InventoryType/*ExtendedData->InventoryType*/); }
     uint32 GetDelay() const { return Delay/*ExtendedData->Delay*/; }
     float  GetStatScalingFactor() const { return StatScalingFactor/*ExtendedData->StatScalingFactor*/; }
+    uint32 GetScalingStatDistribution() const { return ScalingStatDistribution/*ExtendedData->ScalingStatDistribution*/; }
     int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ItemStat[index].ItemStatType/*ExtendedData->ItemStatType[index]*/; }
     int32 GetItemStatValue(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ItemStat[index].ItemStatValue/*ExtendedData->ItemStatValue[index]*/; }
     int32 GetItemStatAllocation(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ItemStat[index].ItemStatAllocation/*ExtendedData->ItemStatAllocation[index]*/; }

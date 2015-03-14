@@ -481,7 +481,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                 if (_spellInfo->CoefLevelBase > level)
                     multiplier *= (1.0f - _spellInfo->CoefBase) * (float)(level - 1) / (float)(_spellInfo->CoefLevelBase - 1) + _spellInfo->CoefBase;
                 if((_spellInfo->AttributesEx11 & SPELL_ATTR11_SEND_ITEM_LEVEL) && m_castItem)
-                    multiplier = GenerateRandPropPoints(m_castItem->GetTemplate(), m_castItem->GetLevel());
+                    multiplier = GetRandomPropertyPoints(m_castItem->GetTemplate(), m_castItem->GetItemLevel());
 
                 float preciseBasePoints = ScalingMultiplier * multiplier;
 

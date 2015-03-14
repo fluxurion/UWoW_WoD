@@ -3021,7 +3021,7 @@ public:
                         << ", " << entry->MaxCount << ", " << entry->Stackable << ", " << entry->ContainerSlots;
 
                         for (uint8 i = 0; i < 10; ++i)
-                            file << ", " << entry->ItemStatType[i] << ", " << entry->ItemStatValue[i] << ", " << entry->ItemStatUnk1[i] << ", " << entry->ItemStatUnk2[i];
+                            file << ", " << entry->ItemStatType[i] << ", " << entry->ItemStatValue[i] << ", " << entry->ItemStatAllocation[i] << ", " << entry->ItemStatSocketCostMultiplier[i];
 
                         file << ", " << entry->ScalingStatDistribution << ", " << entry->DamageType << ", " << entry->Delay << ", " << entry->RangedModRange;
 

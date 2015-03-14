@@ -198,7 +198,7 @@ uint32 GenerateEnchSuffixFactor(ItemTemplate const* itemProto, uint32 level)
     return 0;
 }
 
-uint32 GenerateRandPropPoints(ItemTemplate const* itemProto, uint32 level)
+uint32 GetRandomPropertyPoints(ItemTemplate const* itemProto, uint32 level)
 {
     if (!itemProto)
         return 0;
