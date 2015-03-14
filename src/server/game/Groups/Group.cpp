@@ -851,7 +851,7 @@ void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, const Roll& r)
     data << uint32(r.itemRandomSuffix);
     //data.WriteGuidBytes<3>(guid);
                                                                     // Display ID
-    data << uint32(sObjectMgr->GetItemTemplate(r.itemid)->DisplayInfoID);    
+    data << uint32(GetItemDisplayId(r.itemid, 0));
     data << uint32(r.itemid);                                       // the itemEntryId for the item that shall be rolled for
     data << uint32(0);
     //data.WriteGuidBytes<2>(guid);
@@ -903,7 +903,7 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p,
     data << uint32(r.itemRandomSuffix);
     //data.WriteGuidBytes<3>(guid);
                                                                     // Display ID
-    data << uint32(sObjectMgr->GetItemTemplate(r.itemid)->DisplayInfoID);    
+    data << uint32(GetItemDisplayId(r.itemid, 0));
     data << uint32(r.itemid);                                       // the itemEntryId for the item that shall be rolled for
     data << uint32(0);
     //data.WriteGuidBytes<2>(guid);
@@ -964,7 +964,7 @@ void Group::SendLootRoll(ObjectGuid sourceGuid, ObjectGuid targetGuid, uint8 rol
     //data.WriteGuidBytes<3>(target);
     data << uint8(rollType);                                // 0: "Need for: [item name]" 0: "You have selected need for [item name] 1: need roll 2: greed roll
                                                             // Display ID
-    data << uint32(sObjectMgr->GetItemTemplate(roll.itemid)->DisplayInfoID);      
+    data << uint32(GetItemDisplayId(roll.itemid, 0));
 
     for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
     {
@@ -1015,7 +1015,7 @@ void Group::SendLootRollWon(ObjectGuid sourceGuid, ObjectGuid targetGuid, uint8 
     //data.WriteGuidBytes<6>(target);
     //data.WriteGuidBytes<0, 4>(guid);
                                                            // Display ID
-    data << uint32(sObjectMgr->GetItemTemplate(roll.itemid)->DisplayInfoID);   
+    data << uint32(GetItemDisplayId(roll.itemid, 0));
     //data.WriteGuidBytes<1, 5, 2>(guid);
     data << uint32(roll.itemid);                            // the itemEntryId for the item that shall be rolled for
     if (roll.aoeSlot)
@@ -1075,7 +1075,7 @@ void Group::SendLootAllPassed(Roll const& roll)
         data << uint8(roll.aoeSlot);
     //data.WriteGuidBytes<7>(guid);
                                                 // DisplayID
-    data << uint32(sObjectMgr->GetItemTemplate(roll.itemid)->DisplayInfoID);   
+    data << uint32(GetItemDisplayId(roll.itemid, 0));
     data << uint32(roll.itemid);
     data << uint32(0);                          // Dynamic Info
     data << uint32(roll.itemid);

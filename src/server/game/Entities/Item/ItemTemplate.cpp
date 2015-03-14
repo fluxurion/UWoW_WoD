@@ -58,17 +58,13 @@ uint32 ItemTemplate::GetArmor(uint32 itemLevel) const
     return uint32(shield->Quality[quality] + 0.5f);
 }
 
-void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const
+DBCStorage<ItemDamageEntry>* ItemTemplate::GetItemDamageStore() const
 {
-    minDamage = maxDamage = 0.0f;
-    uint32 quality = GetQuality() != ITEM_QUALITY_HEIRLOOM ? GetQuality() : ITEM_QUALITY_RARE;
-    if (GetClass() != ITEM_CLASS_WEAPON || quality > ITEM_QUALITY_ARTIFACT)
-        return;
-
     DBCStorage<ItemDamageEntry>* store = NULL;
+
     // get the right store here
     if (GetInventoryType() > INVTYPE_RANGEDRIGHT)
-        return;
+        return store;
 
     switch (GetInventoryType())
     {
@@ -98,7 +94,7 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
                     store = &sItemDamageRangedStore;
                     break;
                 default:
-                    return;
+                    return store;
             }
             break;
         case INVTYPE_WEAPON:
@@ -110,10 +106,23 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
                 store = &sItemDamageOneHandStore;
             break;
         default:
-            return;
+            return store;
     }
 
     ASSERT(store);
+    return store;
+}
+
+void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const
+{
+    minDamage = maxDamage = 0.0f;
+    uint32 quality = GetQuality() != ITEM_QUALITY_HEIRLOOM ? GetQuality() : ITEM_QUALITY_RARE;
+    if (GetClass() != ITEM_CLASS_WEAPON || quality > ITEM_QUALITY_ARTIFACT)
+        return;
+
+    DBCStorage<ItemDamageEntry>* store = GetItemDamageStore();
+    if (!store)
+        return;
 
     ItemDamageEntry const* damageInfo = store->LookupEntry(itemLevel);
     if (!damageInfo)
@@ -123,4 +132,17 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
     float avgDamage = dps * GetDelay() * 0.001f;
     minDamage = (GetStatScalingFactor() * -0.5f + 1.0f) * avgDamage;
     maxDamage = floor(float(avgDamage * (GetStatScalingFactor() * 0.5f + 1.0f) + 0.5f));
+}
+
+uint32 ItemTemplate::GetDPS(uint32 itemLevel) const
+{
+    DBCStorage<ItemDamageEntry>* store = GetItemDamageStore();
+    if (!store)
+        return 0;
+
+    ItemDamageEntry const* damageInfo = store->LookupEntry(itemLevel);
+    if (!damageInfo)
+        return 0;
+
+    return damageInfo->DPS[GetQuality() != ITEM_QUALITY_HEIRLOOM ? GetQuality() : ITEM_QUALITY_RARE];
 }

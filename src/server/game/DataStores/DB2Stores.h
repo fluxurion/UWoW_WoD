@@ -31,7 +31,6 @@ extern DB2Storage<BroadcastTextEntry>           sBroadcastTextStore;
 extern DB2Storage<HolidaysEntry>                sHolidaysStore;
 extern DB2Storage<ItemEntry>                    sItemStore;
 extern DB2Storage<ItemAppearanceEntry>          sItemAppearanceStore;
-extern ItemDisplayIDMap                         sItemDisplayIDMap;
 extern DB2Storage<ItemCurrencyCostEntry>        sItemCurrencyCostStore;
 extern DB2Storage<ItemExtendedCostEntry>        sItemExtendedCostStore;
 extern DB2Storage<ItemEffectEntry>              sItemEffectStore;
@@ -80,11 +79,13 @@ extern BattlePetSpeciesBySpellIdMap sBattlePetSpeciesBySpellId;
 typedef UNORDERED_MAP<uint32, MapChallengeModeEntry const*> MapChallengeModeEntryMap;
 extern MapChallengeModeEntryMap sMapChallengeModeEntrybyMap;
 
+typedef std::vector<ItemBonusEntry const*> ItemBonusList;
+typedef std::unordered_map<uint32 /*bonusListId*/, ItemBonusList> ItemBonusListContainer;
+
 uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
 uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId);
-std::vector<ItemBonusEntry const*> GetItemBonuses(uint32 bonusListId);
+ItemBonusList GetItemBonusList(uint32 bonusListId);
 
-uint32 GetItemDisplayID(uint32 appearanceID);
 std::set<uint32> const& GetPhasesForGroup(uint32 group);
 
 DB2StorageBase const* GetDB2Storage(uint32 type);

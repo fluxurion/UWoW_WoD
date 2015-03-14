@@ -35,10 +35,9 @@ DB2Storage<BroadcastTextEntry>              sBroadcastTextStore(BroadcastTextEnt
 DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryfmt);
 DB2Storage<ItemEntry>                       sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utilities::WriteItemDbReply);
 DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore(ItemAppearanceEntryfmt);
-ItemDisplayIDMap                            sItemDisplayIDMap;
 std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, uint32> ItemDisplayMap;
 DB2Storage<ItemBonusEntry>                  sItemBonusStore(ItemBonusEntryfmt);
-std::unordered_map<uint32 /*bonusListId*/, std::vector<ItemBonusEntry const*>> ItemBonusLists;
+ItemBonusListContainer                      ItemBonusLists;
 DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore(ItemCurrencyCostfmt);
 DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage<ItemEffectEntry>                 sItemEffectStore(ItemEffectEntryfmt);
@@ -247,10 +246,6 @@ void LoadDB2Stores(const std::string& dataPath)
         if (PhaseGroupEntry const* group = sPhaseGroupStore.LookupEntry(i))
             if (PhaseEntry const* phase = sPhaseStores.LookupEntry(group->PhaseID))
                 sPhasesByGroup[group->PhaseGroupID].insert(phase->ID);
-
-    for (uint32 i = 0; i < sItemAppearanceStore.GetNumRows(); ++i)
-        if (ItemAppearanceEntry const* entry = sItemAppearanceStore.LookupEntry(i))
-            sItemDisplayIDMap[entry->FileDataID] = entry->DisplayID;
     
     for (uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
         if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
@@ -435,14 +430,6 @@ ItemUpgradeData const* GetItemUpgradeData(uint32 itemEntry)
     return &itr->second;
 }
 
-uint32 GetItemDisplayID(uint32 appearanceID)
-{
-    auto itr = sItemDisplayIDMap.find(appearanceID);
-    if (itr != sItemDisplayIDMap.end())
-        return itr->second;
-    return 0;
-}
-
 uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level)
 {
     // Assuming linear item level scaling for heirlooms
@@ -464,6 +451,10 @@ uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level)
 
 uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId)
 {
+    //speedUp for some cases
+    if (!itemId)
+        return 0;
+
     auto itr = ItemDisplayMap.find(itemId | (appearanceModId << 24));
     if (itr != ItemDisplayMap.end())
         return itr->second;
@@ -479,13 +470,13 @@ uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId)
     return 0;
 }
 
-std::vector<ItemBonusEntry const*> GetItemBonuses(uint32 bonusListId)
+ItemBonusList GetItemBonusList(uint32 bonusListId)
 {
     auto itr = ItemBonusLists.find(bonusListId);
     if (itr != ItemBonusLists.end())
         return itr->second;
 
-    return std::vector<ItemBonusEntry const*>();
+    return ItemBonusList();
 }
 
 std::set<uint32> const& GetPhasesForGroup(uint32 group)

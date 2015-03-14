@@ -6140,7 +6140,7 @@ void Player::CreateCorpse()
     {
         if (m_items[i])
         {
-            iDisplayID = m_items[i]->GetTemplate()->DisplayInfoID;
+            iDisplayID = m_items[i]->GetDisplayId();
             iIventoryType = m_items[i]->GetTemplate()->GetInventoryType();
 
             _cfi = iDisplayID | (iIventoryType << 24);
@@ -20739,7 +20739,7 @@ void Player::SaveToDB(bool create /*=false*/)
         {
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             {
-                ss << item->GetTemplate()->GetInventoryType() << ' ' << item->GetTemplate()->DisplayInfoID/*GetDisplayId()*/ << ' ';
+                ss << item->GetTemplate()->GetInventoryType() << ' ' << item->GetDisplayId() << ' ';
                 if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT)))
                     ss << enchant->ItemVisual;
                 else
@@ -20877,7 +20877,7 @@ void Player::SaveToDB(bool create /*=false*/)
         {
             if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             {
-                ss << item->GetTemplate()->GetInventoryType() << ' ' << item->GetTemplate()->DisplayInfoID/*GetDisplayId()*/ << ' ';
+                ss << item->GetTemplate()->GetInventoryType() << ' ' << item->GetDisplayId() << ' ';
                 if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT)))
                     ss << enchant->ItemVisual;
                 else

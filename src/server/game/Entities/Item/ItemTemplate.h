@@ -633,6 +633,10 @@ struct _Socket
 #define MIN_ITEM_LEVEL 1
 #define MAX_ITEM_LEVEL 1000
 
+template<class T>
+class DBCStorage;
+struct ItemDamageEntry;
+
 struct ItemTemplate
 {
     uint32 ItemId;
@@ -640,7 +644,7 @@ struct ItemTemplate
     uint32 SubClass;                                        // id from ItemSubClass.dbc
     int32  SoundOverrideSubclass;                           // < 0: id from ItemSubClass.dbc, used to override weapon sound from actual SubClass
     std::string Name1;
-    uint32 DisplayInfoID;                                   // id from ItemDisplayInfo.dbc
+    //uint32 DisplayInfoID;                                   // id from ItemDisplayInfo.dbc
     uint32 FileDataID;
     uint32 GroupSoundsID;
     uint32 Quality;
@@ -797,8 +801,10 @@ struct ItemTemplate
                SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW;
     }
 
+    DBCStorage<ItemDamageEntry>* GetItemDamageStore() const;
     uint32 GetArmor(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
+    uint32 GetDPS(uint32 itemLevel) const;
 };
 
 // Benchmarked: Faster than std::map (insert/find)

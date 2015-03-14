@@ -492,7 +492,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType const& guid, ObjectGuid const& owner_g
     for (char const* token : bonusListIDs)
     {
         uint32 bonusListID = atoul(token);
-        std::vector<ItemBonusEntry const*> bonuses = GetItemBonuses(bonusListID);
+        std::vector<ItemBonusEntry const*> bonuses = GetItemBonusList(bonusListID);
         AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
         for (ItemBonusEntry const* bonus : bonuses)
             _bonusData.AddBonus(bonus->Type, bonus->Value);
@@ -1864,7 +1864,7 @@ uint32 Item::GetVisibleAppearanceModId() const
 
 void Item::AddBonuses(uint32 bonusListID)
 {
-    DB2Manager::ItemBonusList bonuses = sDB2Manager.GetItemBonusList(bonusListID);
+    ItemBonusList bonuses = GetItemBonusList(bonusListID);
     AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
     for (ItemBonusEntry const* bonus : bonuses)
         _bonusData.AddBonus(bonus->Type, bonus->Value);

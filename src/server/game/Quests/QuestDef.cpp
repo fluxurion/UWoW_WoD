@@ -303,10 +303,7 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     {
         data << uint32(RewardChoiceItemId[i]);
         data << uint32(RewardChoiceItemCount[i]);
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[i]))
-            data << uint32(itemTemplate->DisplayInfoID);
-        else
-            data << uint32(0);
+        data << uint32(GetItemDisplayId(RewardChoiceItemId[i], 0));
     }
 
     data << uint32(GetReqItemsCount());
@@ -315,12 +312,7 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
         data << uint32(RewardItemCount[i]);
     for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
-    {
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
-            data << uint32(itemTemplate->DisplayInfoID);
-        else
-            data << uint32(0);
-    }
+        data << uint32(GetItemDisplayId(RewardItemId[i], 0));
 
     data << int32(GetRewMoney());
 
@@ -485,8 +477,7 @@ uint32 Quest::GetRewItemDisplayId(uint8 index) const
     if (!itemId)
         return 0;
 
-    ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
-    return item ? item->DisplayInfoID : 0;
+    return GetItemDisplayId(itemId, 0);
 }
 
 uint32 Quest::GetRewChoiceItemDisplayId(uint8 index) const
@@ -495,6 +486,5 @@ uint32 Quest::GetRewChoiceItemDisplayId(uint8 index) const
     if (!itemId)
         return 0;
 
-    ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId);
-    return item ? item->DisplayInfoID : 0;
+    return GetItemDisplayId(itemId, 0);
 }

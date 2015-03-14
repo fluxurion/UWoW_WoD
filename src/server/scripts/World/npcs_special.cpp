@@ -172,12 +172,12 @@ public:
 
                 if (mainItem)
                 {
-                    finaldmg = mainItem->GetTemplate()->DPS;
+                    finaldmg = mainItem->GetTemplate()->GetDPS(mainItem->GetItemLevel());
                     mainattackspeed = mainItem->GetTemplate()->Delay / 1000.0f;
                 }
                 if (offItem && mainItem)
                 {
-                    adddmg = offItem->GetTemplate()->DPS;
+                    adddmg = offItem->GetTemplate()->GetDPS(offItem->GetItemLevel());
                     offattackspeed = mainItem->GetTemplate()->Delay / 1000.0f;
 
                     if (greenClone)

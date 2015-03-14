@@ -2218,7 +2218,6 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.SubClass = db2Data->SubClass;
         itemTemplate.SoundOverrideSubclass = db2Data->SoundOverrideSubclass;
         itemTemplate.Name1 = sparse->Name;
-        itemTemplate.DisplayInfoID = GetItemDisplayID(db2Data->FileDataID);
         itemTemplate.FileDataID = db2Data->FileDataID;
         itemTemplate.GroupSoundsID = db2Data->GroupSoundsID;
         itemTemplate.Quality = sparse->Quality;
@@ -2405,7 +2404,6 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.SubClass                  = uint32(fields[2].GetUInt8());
             itemTemplate.SoundOverrideSubclass     = int32(fields[3].GetInt8());
             itemTemplate.Name1                     = fields[4].GetString();
-            itemTemplate.DisplayInfoID             = fields[5].GetUInt32();
             itemTemplate.Quality                   = uint32(fields[6].GetUInt8());
             itemTemplate.Flags                     = uint32(fields[7].GetInt64());
             itemTemplate.Flags2                    = fields[8].GetUInt32();

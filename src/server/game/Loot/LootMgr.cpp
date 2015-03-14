@@ -984,7 +984,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                     dataBuffer << uint32(l.items[i].itemid);
                     dataBuffer << uint32(0);    //Dynamic Info
                     dataBuffer << uint32(l.items[i].randomPropertyId);
-                    dataBuffer << uint32(sObjectMgr->GetItemTemplate(l.items[i].itemid)->DisplayInfoID);
+                    dataBuffer << uint32(GetItemDisplayId(l.items[i].itemid, 0));
                     dataBuffer << uint32(l.items[i].count);
                     dataBuffer << uint32(l.items[i].randomSuffix);
                     
@@ -1015,7 +1015,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                     dataBuffer << uint32(l.items[i].itemid);
                     dataBuffer << uint32(0);    //Dynamic Info
                     dataBuffer << uint32(l.items[i].randomPropertyId);
-                    dataBuffer << uint32(sObjectMgr->GetItemTemplate(l.items[i].itemid)->DisplayInfoID);
+                    dataBuffer << uint32(GetItemDisplayId(l.items[i].itemid, 0));
                     dataBuffer << uint32(l.items[i].count);
                     dataBuffer << uint32(l.items[i].randomSuffix);
 
@@ -1057,7 +1057,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                     dataBuffer << uint32(l.items[i].itemid);
                     dataBuffer << uint32(0);    //Dynamic Info
                     dataBuffer << uint32(l.items[i].randomPropertyId);
-                    dataBuffer << uint32(sObjectMgr->GetItemTemplate(l.items[i].itemid)->DisplayInfoID);
+                    dataBuffer << uint32(GetItemDisplayId(l.items[i].itemid, 0));
                     dataBuffer << uint32(l.items[i].count);
                     dataBuffer << uint32(l.items[i].randomSuffix);
 
@@ -1116,7 +1116,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 dataBuffer << uint32(item.itemid);
                 dataBuffer << uint32(0);    //Dynamic Info
                 dataBuffer << uint32(item.randomPropertyId);
-                dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
+                dataBuffer << uint32(GetItemDisplayId(item.itemid, 0));
                 dataBuffer << uint32(item.count);
                 dataBuffer << uint32(item.randomSuffix);
 
@@ -1147,7 +1147,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 dataBuffer << uint32(item.itemid);
                 dataBuffer << uint32(0);    //Dynamic Info
                 dataBuffer << uint32(item.randomPropertyId);
-                dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
+                dataBuffer << uint32(GetItemDisplayId(item.itemid, 0));
                 dataBuffer << uint32(item.count);
                 dataBuffer << uint32(item.randomSuffix);
 
@@ -1202,7 +1202,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                 dataBuffer << uint32(item.itemid);
                 dataBuffer << uint32(0);    //Dynamic Info
                 dataBuffer << uint32(item.randomPropertyId);
-                dataBuffer << uint32(sObjectMgr->GetItemTemplate(item.itemid)->DisplayInfoID);
+                dataBuffer << uint32(GetItemDisplayId(item.itemid, 0));
                 dataBuffer << uint32(item.count);
                 dataBuffer << uint32(item.randomSuffix);             
                 
