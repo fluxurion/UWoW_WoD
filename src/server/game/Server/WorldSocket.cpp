@@ -359,8 +359,8 @@ void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: client %u, account %s, loginServerType %u", authSession.Build, authSession.Account.c_str(), authSession.LoginServerType);
 
     // Get the account information from the realmd database
-    //         0           1        2       3          4         5       6          7   8  9
-    // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os, battlenet_account  FROM account WHERE username = ?
+    //         0           1        2       3  4  5       6        7         8          9    10     11
+    // SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, battlenet_account  FROM account WHERE username = ?
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
     stmt->setString(0, authSession.Account);
     PreparedQueryResult result = LoginDatabase.Query(stmt);

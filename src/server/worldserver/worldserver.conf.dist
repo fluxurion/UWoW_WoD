@@ -618,7 +618,7 @@ StrictPetNames = 3
 #                     7   - (Spanish Mexico)
 #                     8   - (Russian)
 
-DBC.Locale = 0
+DBC.Locale = 8
 
 #
 #    DeclinedNames
@@ -632,7 +632,8 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     4 - (Expansion 4 Mists of Pandaria)
+#           Default:  5 - (Expansion 5 Warlords of Draenor)
+#                     4 - (Expansion 4 Mists of Pandaria)
 #				      3 - (Expansion 3 Cataclysm)
 #                     2 - (Expansion 2 Warth of the Lich King)
 #                     1 - (Expansion 1 Burning Crusade)
@@ -765,9 +766,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 100 are not recommended at all.
 #        Range:       1-255
-#        Default:     90
+#        Default:     100
 
-MaxPlayerLevel = 90
+MaxPlayerLevel = 100
 
 #
 #    MinDualSpecLevel
@@ -847,9 +848,9 @@ StartArenaPoints = 0
 #    RecruitAFriend.MaxLevel
 #        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
 #                     experience multiplier.
-#        Default:     80
+#        Default:     95
 
-RecruitAFriend.MaxLevel = 80
+RecruitAFriend.MaxLevel = 95
 
 #
 #    RecruitAFriend.MaxDifference
@@ -3118,14 +3119,14 @@ SpellForbidden = 0
 #        Default:     0 - (Disabled, server restarted every day)
 #                     1 - (Enabled)
 
-DisableRestart = 0
+DisableRestart = 1
 
 #   DisableUpdateOnlineTable
 #        Description: Disable update online table on auth base
 #        Default:     0 - (Disabled, server restarted every day)
 #                     1 - (Enabled)
 
-DisableUpdateOnlineTable = 0
+DisableUpdateOnlineTable = 1
 
 #
 ###################################################################################################
