@@ -349,6 +349,7 @@ void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTr
     SendPacket(response.Write());
 }
 
+//! 6.0.3
 void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
 {
     uint32 count;
@@ -356,16 +357,15 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
 
     WorldPacket data(SMSG_QUEST_POI_QUERY_RESPONSE, 557);
     data << uint32(count);
-    data.WriteBits(count, 20);
+    data << uint32(count);
 
-    ByteBuffer buff;
     for (uint32 i = 0; i < 50; ++i)
     {
         uint32 questId;
         recvData >> questId; // quest id
 
         if (i >= count)
-            continue;
+            break;
 
         bool questOk = false;
 
@@ -374,55 +374,47 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
         if (questSlot != MAX_QUEST_LOG_SIZE)
             questOk =_player->GetQuestSlotQuestId(questSlot) == questId;
 
-        if (!questOk)
-        {
-            data.WriteBits(0, 18);
-            buff << uint32(0);
-            buff << uint32(questId);
-            continue;
-        }
-
         QuestPOIVector const* POI = sObjectMgr->GetQuestPOIVector(questId);
-        if (!POI)
+
+        if (!questOk || !POI)
         {
-            data.WriteBits(0, 18);
-            buff << uint32(0);
-            buff << uint32(questId);
+            data << uint32(questId);
+            data << uint32(0);
+            data << uint32(0);
             continue;
         }
 
-        data.WriteBits(POI->size(), 18);
+        data << uint32(questId);                    // quest ID
+        data << uint32(POI->size());
+        data << uint32(POI->size());                // POI count
 
         for (QuestPOIVector::const_iterator itr = POI->begin(); itr != POI->end(); ++itr)
         {
-            data.WriteBits(itr->points.size(), 21); // POI points count
+            data << uint32(itr->Id);                // POI index
+            data << int32(itr->ObjectiveIndex);     // objective index
 
-            buff << uint32(itr->AreaId);            // areaid
+            data << uint32(itr->Unk4);              // QuestObjectiveID
+            data << uint32(0);                      // QuestObjectID
+            data << uint32(itr->MapId);             // Mapid
+            data << uint32(itr->AreaId);            // Areaid
+            data << uint32(itr->Unk2);              // Floor
+
+            data << uint32(0);                      // Priority
+            data << uint32(itr->Unk3);              // Flags
+            data << uint32(0);                      // WorldEffectID
+            data << uint32(0);                      // PlayerConditionID
+
+            data << uint32(itr->points.size());     // NumPoints
+            data << uint32(0);                      // Int12
+            data << uint32(itr->points.size());     // QuestPOIBlobPoint
+
             for (std::vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
             {
-                buff << int32(itr2->y);             // POI point y
-                buff << int32(itr2->x);             // POI point x
+                data << int32(itr2->x);             // POI point x
+                data << int32(itr2->y);             // POI point y
             }
-
-            buff << int32(itr->ObjectiveIndex);     // objective index
-            buff << uint32(0);
-            buff << uint32(itr->Unk4);              // unknown
-            buff << uint32(itr->Id);                // POI index
-            buff << uint32(itr->MapId);             // mapid
-            buff << uint32(0);
-            buff << uint32(itr->Unk2);              // floor
-            buff << uint32(itr->points.size());     // POI points count
-            buff << uint32(itr->Unk3);              // unknown
-            buff << uint32(0);
         }
-
-        buff << uint32(POI->size());                // POI count
-        buff << uint32(questId);                    // quest ID
     }
-
-    data.FlushBits();
-    if (!buff.empty())
-        data.append(buff);
 
     SendPacket(&data);
 }
