@@ -115,9 +115,9 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
 
     buffer << uint16(name.length());
     if (name.length())
-        buffer << name;
+        buffer.WriteString(name);
 
-    for (uint32 i = 0; i < 3; ++i) // other 3 names
+    for (uint32 i = 1; i < 4; ++i) // other 3 names
         buffer << uint16(0);
 
     std::string desc = proto->Description;
@@ -126,7 +126,7 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
 
     buffer << uint16(desc.length());
     if (desc.length())
-        buffer << desc;
+        buffer.WriteString(desc);
 
     buffer << uint32(proto->PageText);
     buffer << uint32(proto->LanguageID);
