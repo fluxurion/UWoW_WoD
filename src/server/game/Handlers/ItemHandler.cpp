@@ -340,7 +340,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& dest
 void WorldSession::HandleReadItem(WorldPacket& recvData)
 {
     uint8 bag, slot;
-    recvData >> slot >> bag;
+    recvData  >> bag >> slot;
 
     Item* pItem = _player->GetItemByPos(bag, slot);
 
