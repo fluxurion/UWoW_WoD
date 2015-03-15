@@ -310,7 +310,6 @@ enum OpcodeClient : uint32
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE               = 0xBADD,
     CMSG_ITEM_PURCHASE_REFUND                         = 0x1111,
     CMSG_GET_ITEM_PURCHASE_DATA                       = 0x0924,
-    CMSG_ITEM_TEXT_QUERY                              = 0x0BBB,
     CMSG_JOIN_CHANNEL                                 = 0x0B4B,
     CMSG_KEEP_ALIVE                                   = 0xBADD,
     CMSG_LEARN_PREVIEW_TALENTS                        = 0xBADD,

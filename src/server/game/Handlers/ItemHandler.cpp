@@ -1214,39 +1214,6 @@ void WorldSession::HandleItemRefund(WorldPacket &recvData)
     GetPlayer()->RefundItem(item);
 }
 
-/**
- * Handles the packet sent by the client when requesting information about item text.
- *
- * This function is called when player clicks on item which has some flag set
- */
-//! 6.0.3
-void WorldSession::HandleItemTextQuery(WorldPacket & recvData )
-{
-    uint32 unk;
-    ObjectGuid itemGuid;
-    recvData >> unk >> itemGuid;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ITEM_TEXT_QUERY item guid: %u unk %u", itemGuid.GetCounter(), unk);
-
-    WorldPacket data(SMSG_QUERY_ITEM_TEXT_RESPONSE, 14);        // guess size
-
-    if (Item* item = _player->GetItemByGuid(itemGuid))
-    {
-        data.WriteBit(0);                                       // has text
-        data << itemGuid;                                       // item guid
-        data.WriteBits(item->GetText().size(), 13);
-        data.WriteString(item->GetText());
-    }
-    else
-    {
-        data.WriteBit(1);                                        // no text
-        data << itemGuid;
-        data.WriteBits(0, 13);
-    }
-
-    SendPacket(&data);
-}
-
 void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRANSMOGRIFY_ITEMS");

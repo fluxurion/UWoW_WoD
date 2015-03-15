@@ -859,7 +859,6 @@ class WorldSession
         void HandleMailMarkAsRead(WorldPacket& recvData);
         void HandleMailReturnToSender(WorldPacket& recvData);
         void HandleMailDelete(WorldPacket& recvData);
-        void HandleItemTextQuery(WorldPacket& recvData);
         void HandleMailCreateTextItem(WorldPacket& recvData);
         void HandleQueryNextMailTime(WorldPacket& recvData);
         void HandleCancelChanneling(WorldPacket& recvData);
