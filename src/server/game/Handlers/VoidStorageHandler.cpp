@@ -99,18 +99,18 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
     packet.Data.resize(VOID_STORAGE_MAX_SLOT);
 
     uint32 count = 0;
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    for (uint16 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
     {
         VoidStorageItem* item = player->GetVoidStorageItem(i);
         if (!item)
             continue;
 
-        packet.Data[i].Guid = item->ItemId;
-        packet.Data[i].Creator = item->CreatorGuid;
-        packet.Data[i].Slot = i;    //slot conter really need. don't remove
-        packet.Data[i].Item.ItemID = item->ItemEntry;
-        packet.Data[i].Item.RandomPropertiesSeed = item->ItemSuffixFactor;
-        packet.Data[i].Item.RandomPropertiesID = item->ItemRandomPropertyId;
+        packet.Data[count].Guid = item->ItemId;
+        packet.Data[count].Creator = item->CreatorGuid;
+        packet.Data[count].Slot = i;    //slot conter really need. don't remove
+        packet.Data[count].Item.ItemID = item->ItemEntry;
+        packet.Data[count].Item.RandomPropertiesSeed = item->ItemSuffixFactor;
+        packet.Data[count].Item.RandomPropertiesID = item->ItemRandomPropertyId;
         ++count;
     }
     packet.Data.resize(count);  //cut over-size
@@ -228,7 +228,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     VoidStorageItem* itemVS = NULL;
     uint8 withdrawCount = 0;
-    uint8 slot = 0;
+    uint32 slot = 0;
     ItemPosCountVec dest;
     InventoryResult msg;
 
@@ -283,31 +283,17 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
     SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_NO_ERROR);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_VOID_SWAP_ITEM");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_VOID_SWAP_ITEM");
 
     Player* player = GetPlayer();
     uint32 newSlot;
     ObjectGuid npcGuid;
     ObjectGuid itemId;
 
-    recvData >> newSlot;
-    //recvData.ReadGuidMask<2, 3, 5, 7>(npcGuid);
-    //recvData.ReadGuidMask<0, 2>(itemId);
-    //recvData.ReadGuidMask<6>(npcGuid);
-    //recvData.ReadGuidMask<4, 1, 6, 5>(itemId);
-    //recvData.ReadGuidMask<4, 1>(npcGuid);
-    //recvData.ReadGuidMask<7, 3>(itemId);
-    //recvData.ReadGuidMask<0>(npcGuid);
-
-    //recvData.ReadGuidBytes<0>(itemId);
-    //recvData.ReadGuidBytes<0, 1, 2, 7, 4>(npcGuid);
-    //recvData.ReadGuidBytes<7, 1, 5>(itemId);
-    //recvData.ReadGuidBytes<3, 5>(npcGuid);
-    //recvData.ReadGuidBytes<6, 4, 3, 2>(itemId);
-    //recvData.ReadGuidBytes<6>(npcGuid);
+    recvData >> npcGuid >> itemId >> newSlot;
 
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
@@ -322,7 +308,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
         return;
     }
 
-    uint8 oldSlot;
+    uint32 oldSlot;
     if (!player->GetVoidStorageItem(itemId, oldSlot))
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidSwapItem - Player (GUID: %u, name: %s) requested swapping an invalid item (slot: %u, itemid: " UI64FMTD ").", player->GetGUID().GetCounter(), player->GetName(), newSlot, itemId.GetCounter());
@@ -341,24 +327,8 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
         return;
     }
 
-    WorldPacket data(SMSG_VOID_ITEM_SWAP_RESPONSE, 1 + (usedSrcSlot + usedDestSlot) * (1 + 7 + 4));
-    
-    data.WriteBit(!usedSrcSlot);
-    data.WriteBit(!itemIdDest);
-    //data.WriteGuidMask<2, 5, 4, 1, 7, 6, 0, 3>(itemIdDest);
-    data.WriteBit(!itemId);
-    data.WriteBit(!usedDestSlot);
-    //data.WriteGuidMask<6, 1, 4, 3, 0, 7, 2, 5>(itemId);
-
-    data.FlushBits();
-
-    //data.WriteGuidBytes<7, 2, 6, 1, 0, 4, 3, 5>(itemId);
-    //data.WriteGuidBytes<5, 6, 7, 0, 2, 4, 1, 3>(itemIdDest);
-    
-    if (usedSrcSlot)
-        data << uint32(newSlot);
-    if (usedDestSlot)
-        data << uint32(oldSlot);
-
+    //! 6.0.3
+    WorldPacket data(SMSG_VOID_ITEM_SWAP_RESPONSE, 1 + (usedSrcSlot + usedDestSlot) * (1 + 7 + 4));   
+    data << itemId << newSlot << itemIdDest << oldSlot;
     SendPacket(&data);
 }

@@ -953,7 +953,7 @@ Player::~Player()
 
     delete m_declinedname;
 
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    for (uint16 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
 
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
@@ -19202,7 +19202,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 
         ObjectGuid itemId = ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt64());
         uint32 itemEntry = fields[1].GetUInt32();
-        uint8 slot = fields[2].GetUInt8();
+        uint32 slot = fields[2].GetUInt32();
         ObjectGuid creatorGuid = ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64());
         uint32 randomProperty = fields[4].GetUInt32();
         uint32 suffixFactor = fields[5].GetUInt32();
@@ -21110,13 +21110,13 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
     PreparedStatement* stmt = NULL;
     ObjectGuid::LowType lowGuid = GetGUID().GetCounter();
 
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    for (uint32 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
     {
         if (!_voidStorageItems[i]) // unused item
         {
             // DELETE FROM void_storage WHERE slot = ? AND playerGuid = ?
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_VOID_STORAGE_ITEM_BY_SLOT);
-            stmt->setUInt8(0, i);
+            stmt->setUInt32(0, i);
             stmt->setUInt64(1, lowGuid);
         }
         else
@@ -21126,7 +21126,7 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
             stmt->setUInt64(0, _voidStorageItems[i]->ItemId.GetCounter());
             stmt->setUInt64(1, lowGuid);
             stmt->setUInt32(2, _voidStorageItems[i]->ItemEntry);
-            stmt->setUInt8(3, i);
+            stmt->setUInt32(3, i);
             stmt->setUInt64(4, _voidStorageItems[i]->CreatorGuid.GetCounter());
             stmt->setUInt32(5, _voidStorageItems[i]->ItemRandomPropertyId);
             stmt->setUInt32(6, _voidStorageItems[i]->ItemSuffixFactor);
@@ -28372,29 +28372,29 @@ void Player::SendPetTameResult(PetTameResult result)
     GetSession()->SendPacket(&data);
 }
 
-uint8 Player::GetNextVoidStorageFreeSlot() const
+uint32 Player::GetNextVoidStorageFreeSlot() const
 {
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    for (uint16 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         if (!_voidStorageItems[i]) // unused item
             return i;
 
     return VOID_STORAGE_MAX_SLOT;
 }
 
-uint8 Player::GetNumOfVoidStorageFreeSlots() const
+uint32 Player::GetNumOfVoidStorageFreeSlots() const
 {
     uint8 count = 0;
 
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    for (uint16 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         if (!_voidStorageItems[i])
             count++;
 
     return count;
 }
 
-uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
+uint32 Player::AddVoidStorageItem(const VoidStorageItem& item)
 {
-    int8 slot = GetNextVoidStorageFreeSlot();
+    int32 slot = GetNextVoidStorageFreeSlot();
 
     if (slot >= VOID_STORAGE_MAX_SLOT)
     {
@@ -28407,7 +28407,7 @@ uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
     return slot;
 }
 
-void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
+void Player::AddVoidStorageItemAtSlot(uint32 slot, const VoidStorageItem& item)
 {
     if (slot >= VOID_STORAGE_MAX_SLOT)
     {
@@ -28426,7 +28426,7 @@ void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
         item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
 }
 
-void Player::DeleteVoidStorageItem(uint8 slot)
+void Player::DeleteVoidStorageItem(uint32 slot)
 {
     if (slot >= VOID_STORAGE_MAX_SLOT)
     {
@@ -28438,7 +28438,7 @@ void Player::DeleteVoidStorageItem(uint8 slot)
     _voidStorageItems[slot] = NULL;
 }
 
-bool Player::SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot)
+bool Player::SwapVoidStorageItem(uint32 oldSlot, uint32 newSlot)
 {
     if (oldSlot >= VOID_STORAGE_MAX_SLOT || newSlot >= VOID_STORAGE_MAX_SLOT || oldSlot == newSlot)
         return false;
@@ -28447,7 +28447,7 @@ bool Player::SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot)
     return true;
 }
 
-VoidStorageItem* Player::GetVoidStorageItem(uint8 slot) const
+VoidStorageItem* Player::GetVoidStorageItem(uint32 slot) const
 {
     if (slot >= VOID_STORAGE_MAX_SLOT)
     {
@@ -28458,9 +28458,9 @@ VoidStorageItem* Player::GetVoidStorageItem(uint8 slot) const
     return _voidStorageItems[slot];
 }
 
-VoidStorageItem* Player::GetVoidStorageItem(ObjectGuid const& id, uint8& slot) const
+VoidStorageItem* Player::GetVoidStorageItem(ObjectGuid const& id, uint32& slot) const
 {
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    for (uint16 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
     {
         if (_voidStorageItems[i] && _voidStorageItems[i]->ItemId == id)
         {

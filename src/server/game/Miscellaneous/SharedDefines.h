@@ -4738,7 +4738,7 @@ enum CalendarError
 #define VOID_STORAGE_STORE_ITEM   25*GOLD
 #define VOID_STORAGE_MAX_DEPOSIT  9
 #define VOID_STORAGE_MAX_WITHDRAW 9
-#define VOID_STORAGE_MAX_SLOT     80
+#define VOID_STORAGE_MAX_SLOT     160
 
 enum VoidTransferError
 {

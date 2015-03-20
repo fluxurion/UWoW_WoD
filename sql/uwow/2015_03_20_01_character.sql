@@ -1,0 +1,1 @@
+ALTER TABLE `character_void_storage` CHANGE `slot` `slot` INT(11) UNSIGNED NOT NULL;
