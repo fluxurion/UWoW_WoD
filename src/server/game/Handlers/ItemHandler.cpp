@@ -1214,6 +1214,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recvData)
     GetPlayer()->RefundItem(item);
 }
 
+//! 6.0.3
 void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrigyItem& packet)
 {
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRANSMOGRIFY_ITEMS");
