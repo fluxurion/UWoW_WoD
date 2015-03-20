@@ -1209,7 +1209,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
         std::vector<uint32> const& values = _dynamicValues[index];
         if (_fieldNotifyFlags & flags[index] ||
             ((updateType == UPDATETYPE_VALUES ? _dynamicChangesMask.GetBit(index) : !values.empty()) && (flags[index] & visibleFlag)) ||
-            (index == ITEM_DYNAMIC_FIELD_MODIFIERS && _changedFields[ITEM_FIELD_MODIFIERS_MASK]))
+            (index == ITEM_DYNAMIC_FIELD_MODIFIERS && (updateType == UPDATETYPE_VALUES ? _changedFields[ITEM_FIELD_MODIFIERS_MASK] : GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK))))
         {
             updateMask.SetBit(index);
 
