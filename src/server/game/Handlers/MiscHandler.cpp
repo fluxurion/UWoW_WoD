@@ -1195,7 +1195,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
             data << uint32(enchId);
         }
         //data.WriteGuidBytes<3>(itemCreator);
-        item->AppendDynamicInfo(data);
+        //item->AppendDynamicInfo(data);
         //data.WriteGuidBytes<0>(itemCreator);
         data << uint8(i);
         data << uint32(item->GetEntry());

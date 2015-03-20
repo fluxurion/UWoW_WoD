@@ -8371,9 +8371,9 @@ void Spell::EffectUncagePet(SpellEffIndex effIndex)
         return;
 
     // get data from cage
-    uint32 speciesID = m_CastItem->GetBattlePetData(ITEM_DYN_MOD_1);
-    uint32 tempData = m_CastItem->GetBattlePetData(ITEM_DYN_MOD_2);
-    uint32 level = m_CastItem->GetBattlePetData(ITEM_DYN_MOD_3);
+    uint32 speciesID = m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
+    uint32 tempData = m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_BREED_DATA);    //(breedId) | (breedQuality << 24)
+    uint32 level = m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_LEVEL);
     uint32 quality = tempData >> 24;
     uint32 breedID = tempData & 0xFF;
 

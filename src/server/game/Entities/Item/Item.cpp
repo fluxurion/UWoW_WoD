@@ -247,7 +247,6 @@ mb_in_trade(false), m_paidMoney(0), m_paidExtendedCost(0)
 
     m_refundRecipient.Clear();
 
-    memset(m_dynamicModInfo, 0, sizeof(uint32) * ITEM_DYN_MOD_END); //ToDo: remove
     memset(_modifiers, 0, sizeof(_modifiers));
 }
 
@@ -1158,8 +1157,8 @@ Item* Item::CloneItem(uint32 count, Player const* player) const
     if (player)
         newItem->SetItemRandomProperties(GetItemRandomPropertyId());
 
-    memcpy(newItem->m_dynamicModInfo, m_dynamicModInfo, sizeof(uint32) * ITEM_DYN_MOD_END);
-    newItem->UpdateDynamicValues(newItem->isBattlePet() ? true : false);
+    //memcpy(newItem->m_dynamicModInfo, m_dynamicModInfo, sizeof(uint32) * ITEM_DYN_MOD_END);
+    //newItem->UpdateDynamicValues(newItem->isBattlePet() ? true : false);
 
     return newItem;
 }
@@ -1632,138 +1631,36 @@ uint32 Item::GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice /*= 
     return cost;
 }
 
-int32 Item::GetReforgableStat(ItemModType statType) const
-{
-    ItemTemplate const* proto = GetTemplate();
-    for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (proto->ItemStat[i].ItemStatType == statType)
-            return GetItemStatValue(i);
-
-    int32 randomPropId = GetItemRandomPropertyId();
-    if (!randomPropId)
-        return 0;
-
-    if (randomPropId < 0)
-    {
-        ItemRandomSuffixEntry const* randomSuffix = sItemRandomSuffixStore.LookupEntry(-randomPropId);
-        if (!randomSuffix)
-            return 0;
-
-        for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
-            if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
-                for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
-                if (enchant->Effect[f] == ITEM_ENCHANTMENT_TYPE_STAT && ItemModType(enchant->EffectSpellID[f]) == statType)
-                        for (int k = 0; k < 5; ++k)
-                            if (randomSuffix->enchant_id[k] == enchant->ID)
-                                return int32((randomSuffix->prefix[k] * GetItemSuffixFactor()) / 10000);
-    }
-    else
-    {
-        ItemRandomPropertiesEntry const* randomProp = sItemRandomPropertiesStore.LookupEntry(randomPropId);
-        if (!randomProp)
-            return 0;
-
-        for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
-            if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
-                for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
-                    if (enchant->Effect[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->EffectSpellID[f] == statType)
-                        for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
-                            if (randomProp->enchant_id[k] == enchant->ID)
-                                return int32(enchant->EffectPointsMin[k]);
-    }
-
-    return 0;
-}
-
-void Item::SetReforge(uint32 value)
-{
-    m_dynamicModInfo[ITEM_DYN_MOD_1] = value;
-    UpdateDynamicValues(false);
-}
-
-uint32 Item::GetReforge() const
-{
-    return m_dynamicModInfo[ITEM_DYN_MOD_1];
-}
-
 void Item::SetTransmogrification(uint32 value)
 {
-    m_dynamicModInfo[ITEM_DYN_MOD_2] = value;
-    UpdateDynamicValues(false);
+    SetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID, value);
 }
 
 uint32 Item::GetTransmogrification() const
 {
-    return m_dynamicModInfo[ITEM_DYN_MOD_2];
+    return GetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID);
 }
 
 void Item::SetUpgradeId(uint32 value)
 {
-    m_dynamicModInfo[ITEM_DYN_MOD_3] = value;
-    UpdateDynamicValues(false);
+    SetModifier(ITEM_MODIFIER_UPGRADE_ID, value);
 }
 
 uint32 Item::GetUpgradeId() const
 {
-    return m_dynamicModInfo[ITEM_DYN_MOD_3];
+    return GetModifier(ITEM_MODIFIER_UPGRADE_ID);
 }
 
 void Item::SetBattlePet(uint32 speciesID, uint32 data, uint32 level)
 {
-    m_dynamicModInfo[ITEM_DYN_MOD_1] = speciesID;
-    m_dynamicModInfo[ITEM_DYN_MOD_2] = data;
-    m_dynamicModInfo[ITEM_DYN_MOD_3] = level;
-    UpdateDynamicValues(true);
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID, speciesID);
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, data);
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, level);
 }
 
-uint32 Item::GetBattlePetData(ItemDynamicModifiersOffset off)
+uint32 Item::GetBattlePetData(ItemModifier mod)
 {
-    return m_dynamicModInfo[off];
-}
-
-void Item::UpdateDynamicValues(bool battlePet)
-{
-    uint32 offs = 0;
-    for (uint32 i = 0; i < ITEM_DYN_MOD_END; ++i)
-    {
-        if (uint32 value = m_dynamicModInfo[i])
-        {
-            SetFlag(ITEM_FIELD_MODIFIERS_MASK, battlePet ? (8 << i) : (1 << i));
-            SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, offs++, value);
-        }
-        else
-            RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, battlePet ? (8 << i) : (1 << i));
-    }
-
-    for (; offs < ITEM_DYN_MOD_END; ++offs)
-        SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, offs, 0);
-}
-
-void Item::AppendDynamicInfo(ByteBuffer& buff) const
-{
-    uint32 dynamicMask = GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK);
-
-    if (!dynamicMask)
-    {
-        buff << uint32(4);
-        buff << uint32(0);
-        return;
-    }
-
-    uint32 count = 1;
-    uint32 countPos = buff.wpos();
-    buff << uint32(0);
-    buff << uint32(dynamicMask);
-    for (uint32 i = 0; i < ITEM_DYN_MOD_END; ++i)
-    {
-        if (dynamicMask & (1 << i))
-        {
-            buff << uint32(m_dynamicModInfo[i]);
-            ++count;
-        }
-    }
-
-    buff.put<uint32>(countPos, count * 4);
+    return GetModifier(mod);
 }
 
 //!@ For all inventoty items at add to world.
@@ -1843,7 +1740,7 @@ uint32 Item::GetDisplayId() const
 void Item::SetModifier(ItemModifier modifier, uint32 value)
 {
     _modifiers[modifier] = value;
-    ApplyModFlag(ITEM_FIELD_MODIFIERS_MASK, 1 << modifier, value != 0);
+    ApplyModFlag(ITEM_FIELD_MODIFIERS_MASK, /*battlePet ? (8 << modifier) : */(1 << modifier), value != 0);
 }
 
 uint32 Item::GetVisibleEntry() const

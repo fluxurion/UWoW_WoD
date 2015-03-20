@@ -121,7 +121,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
 
             itemData << uint32(item->GetItemRandomPropertyId());
 
-            item->AppendDynamicInfo(itemData);
+            //item->AppendDynamicInfo(itemData);
 
             itemData << uint32(0);      // unk
             itemData << uint32(item->GetSpellCharges());

@@ -416,22 +416,16 @@ class Item : public Object
         uint32 GetModifier(ItemModifier modifier) const { return _modifiers[modifier]; }
         void SetModifier(ItemModifier modifier, uint32 value);
 
-        int32 GetReforgableStat(ItemModType statType) const;
-
-        void SetReforge(uint32 value);
-        uint32 GetReforge() const;
         void SetTransmogrification(uint32 value);
         uint32 GetTransmogrification() const;
-        void UpdateDynamicValues(bool battlePet);
         void SetUpgradeId(uint32 value);
         uint32 GetUpgradeId() const;
+
         // item battle pet
         bool isBattlePet() { return GetEntry() == ITEM_BATTLE_PET_CAGE_ID; }
         void SetBattlePet(uint32 speciesID, uint32 data, uint32 level);
-        uint32 GetBattlePetData(ItemDynamicModifiersOffset off);
+        uint32 GetBattlePetData(ItemModifier off);
 
-        uint32 m_dynamicModInfo[ITEM_DYN_MOD_END];
-        void AppendDynamicInfo(ByteBuffer& buff) const;
         void SetLevelCap(uint32 cup, bool pvp);
 
     protected:
