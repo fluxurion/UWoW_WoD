@@ -263,6 +263,17 @@ namespace WorldPackets
 
             std::vector<VoidStorageContentStruct> Data;
         };
+
+        class VoidStorageTransferChanges final : public ServerPacket
+        {
+        public:
+            VoidStorageTransferChanges() : ServerPacket(SMSG_VOID_STORAGE_TRANSFER_CHANGES) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<VoidStorageContentStruct> Data;
+            std::vector<ObjectGuid> RemovedItemsGuid;
+        };
     }
 }
 

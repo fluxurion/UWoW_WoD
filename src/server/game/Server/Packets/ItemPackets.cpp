@@ -260,3 +260,17 @@ WorldPacket const* WorldPackets::Item::VoidStorageContents::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Item::VoidStorageTransferChanges::Write()
+{
+    _worldPacket.WriteBits(Data.size(), 4);
+    _worldPacket.WriteBits(RemovedItemsGuid.size(), 4);
+
+    for(uint32 i = 0; i < Data.size(); ++i)
+        _worldPacket << Data[i].Guid << Data[i].Creator << Data[i].Slot << Data[i].Item;
+
+    for(uint32 i = 0; i < RemovedItemsGuid.size(); ++i)
+        _worldPacket << RemovedItemsGuid[i];
+
+    return &_worldPacket;
+}

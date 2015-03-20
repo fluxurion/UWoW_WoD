@@ -48,7 +48,7 @@ void WorldSession::SendVoidStorageFailed(bool unk/*=false*/)
 //! 6.0.3
 void WorldSession::HandleVoidStorageUnlock(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_VOID_STORAGE_UNLOCK");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_VOID_STORAGE_UNLOCK");
     Player* player = GetPlayer();
 
     ObjectGuid npcGuid;
@@ -74,7 +74,7 @@ void WorldSession::HandleVoidStorageUnlock(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_VOID_STORAGE_QUERY");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_VOID_STORAGE_QUERY");
     Player* player = GetPlayer();
 
     ObjectGuid npcGuid;
@@ -96,7 +96,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
     }
 
     WorldPackets::Item::VoidStorageContents packet;
-    packet.Data.reserve(VOID_STORAGE_MAX_SLOT);
+    packet.Data.resize(VOID_STORAGE_MAX_SLOT);
 
     uint32 count = 0;
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
@@ -118,18 +118,21 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
     SendPacket(packet.Write());
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_VOID_STORAGE_TRANSFER");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_VOID_STORAGE_TRANSFER");
     Player* player = GetPlayer();
 
     // Read everything
 
     ObjectGuid npcGuid;
-    //recvData.ReadGuidMask<7>(npcGuid);
-    uint32 countDeposit = recvData.ReadBits(24);
+    uint32 countWithdraw, countDeposit = 0;
+
+    recvData >> npcGuid >> countDeposit >> countWithdraw;
+
     std::vector<ObjectGuid> itemGuids(countDeposit);
+    std::vector<ObjectGuid> itemIds(countWithdraw);
 
     if (countDeposit > 9)
     {
@@ -137,34 +140,18 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         return;
     }
 
-    //for (uint32 i = 0; i < countDeposit; ++i)
-        //recvData.ReadGuidMask<4, 3, 1, 2, 0, 7, 5, 6>(itemGuids[i]);
-
-    uint32 countWithdraw = recvData.ReadBits(24);
-    std::vector<ObjectGuid> itemIds(countWithdraw);
-    
-    //recvData.ReadGuidMask<5, 0>(npcGuid);
-
     if (countWithdraw > 9)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) wants to withdraw more than 9 items (%u).", player->GetGUID().GetCounter(), player->GetName(), countWithdraw);
         return;
     }
 
-    //for (uint32 i = 0; i < countWithdraw; ++i)
-        //recvData.ReadGuidMask<3, 7, 6, 1, 4, 0, 2, 5>(itemIds[i]);
-    
-    //recvData.ReadGuidMask<2, 4, 6, 1, 3>(npcGuid);
+    for (uint32 i = 0; i < countDeposit; ++i)
+        recvData >> itemGuids[i];
 
-    //for (uint32 i = 0; i < countWithdraw; ++i)
-        //recvData.ReadGuidBytes<5, 3, 1, 7, 2, 4, 6, 0>(itemIds[i]);
+    for (uint32 i = 0; i < countWithdraw; ++i)
+        recvData >> itemIds[i];
 
-    //recvData.ReadGuidBytes<7>(npcGuid);
-
-    //for (uint32 i = 0; i < countDeposit; ++i)
-        //recvData.ReadGuidBytes<3, 7, 5, 1, 6, 0, 4, 2>(itemGuids[i]);
-
-    //recvData.ReadGuidBytes<2, 0, 6, 4, 1, 3, 5>(npcGuid);
     
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
@@ -274,71 +261,24 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         player->DeleteVoidStorageItem(slot);
     }
 
-    WorldPacket data(SMSG_VOID_STORAGE_TRANSFER_CHANGES, ((5 + 5 + (7 + 7) * depositCount +
-        7 * withdrawCount) / 8) + 7 * withdrawCount + (7 + 7 + 4 * 4) * depositCount);
-
-    data.WriteBits(depositCount, 4);
-
-    ObjectGuid itemId;
-    ObjectGuidSteam creatorGuid;
+    WorldPackets::Item::VoidStorageTransferChanges packet;
+    packet.Data.resize(depositCount);
+    packet.RemovedItemsGuid.resize(withdrawCount);
 
     for (uint8 i = 0; i < depositCount; ++i)
     {
-        itemId = depositItems[i].first.ItemId;
-        //creatorGuid = depositItems[i].first.CreatorGuid;
-
-        //data.WriteGuidMask<3, 0>(creatorGuid);
-        //data.WriteGuidMask<2>(itemId);
-        //data.WriteGuidMask<6, 2>(creatorGuid);
-        //data.WriteGuidMask<6>(itemId);
-        //data.WriteGuidMask<7>(creatorGuid);
-        //data.WriteGuidMask<7, 1, 4>(itemId);
-        //data.WriteGuidMask<1>(creatorGuid);
-        //data.WriteGuidMask<0, 5, 3>(itemId);
-        //data.WriteGuidMask<5, 4>(creatorGuid);
+        packet.Data[i].Guid = depositItems[i].first.ItemId;
+        packet.Data[i].Creator = depositItems[i].first.CreatorGuid;
+        packet.Data[i].Slot = depositItems[i].second;
+        packet.Data[i].Item.ItemID = depositItems[i].first.ItemEntry;
+        packet.Data[i].Item.RandomPropertiesSeed = depositItems[i].first.ItemSuffixFactor;
+        packet.Data[i].Item.RandomPropertiesID = depositItems[i].first.ItemRandomPropertyId;
     }
-
-    data.WriteBits(withdrawCount, 4);
 
     for (uint8 i = 0; i < withdrawCount; ++i)
-    {
-        itemId = withdrawItems[i].ItemId;
-        //data.WriteGuidMask<3, 7, 1, 6, 4, 0, 5, 2>(itemId);
-    }
+        packet.RemovedItemsGuid[i] = withdrawItems[i].ItemId;
 
-    data.FlushBits();
-
-    for (uint8 i = 0; i < withdrawCount; ++i)
-    {
-        ObjectGuid itemId = withdrawItems[i].ItemId;
-        //data.WriteGuidBytes<3, 7, 6, 0, 4, 1, 5, 2>(itemId);
-    }
-
-    for (uint8 i = 0; i < depositCount; ++i)
-    {
-        itemId = depositItems[i].first.ItemId;
-        //creatorGuid = depositItems[i].first.CreatorGuid;
-
-        //data.WriteGuidBytes<3>(itemId);
-        //data.WriteGuidBytes<6, 3, 2>(creatorGuid);
-        //data.WriteGuidBytes<2>(itemId);
-        data << uint32(depositItems[i].first.ItemEntry);
-        //data.WriteGuidBytes<0>(creatorGuid);
-        //data.WriteGuidBytes<5>(itemId);
-        data << uint32(depositItems[i].first.ItemRandomPropertyId);
-        //data.WriteGuidBytes<0>(itemId);
-        //data.WriteGuidBytes<7, 1>(creatorGuid);
-        data << uint32(0);                      //unk new on 5.4.x
-        //data.WriteGuidBytes<4>(creatorGuid);
-        //data.WriteGuidBytes<4>(itemId);
-        data << uint32(depositItems[i].first.ItemSuffixFactor);
-        //data.WriteGuidBytes<5>(creatorGuid);
-        //data.WriteGuidBytes<6, 1>(itemId);
-        data << uint32(depositItems[i].second); // slot
-        //data.WriteGuidBytes<7>(itemId);
-    }
-
-    SendPacket(&data);
+    SendPacket(packet.Write());
 
     SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_NO_ERROR);
 }
