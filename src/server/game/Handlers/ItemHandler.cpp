@@ -1390,14 +1390,6 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         player->ModifyMoney(-cost);
 }
 
-void WorldSession::SendReforgeResult(bool success)
-{
-    WorldPacket data(SMSG_REFORGE_RESULT, 1);
-    data.WriteBit(success);
-    data.FlushBits();
-    SendPacket(&data);
-}
-
 //! 6.0.3
 void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 {
@@ -1494,102 +1486,6 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     }
     else
         pUser->SendLoot(item->GetGUID(), LOOT_CORPSE);
-}
-
-//! 5.4.1
-void WorldSession::HandleReforgeItemOpcode(WorldPacket& recvData)
-{
-    uint32 slot, reforgeEntry;
-    ObjectGuid guid;
-    uint32 bag;
-    Player* player = GetPlayer();
-
-    recvData >> bag >> reforgeEntry >> slot;
-    //recvData.ReadGuidMask<1, 0, 5, 7, 2, 4, 6, 3>(guid);
-    //recvData.ReadGuidBytes<5, 6, 2, 7, 3, 4, 1, 0>(guid);
-
-    if (!player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_REFORGER))
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Unit (GUID: %u) not found or player can't interact with it.", guid.GetCounter());
-        SendReforgeResult(false);
-        return;
-    }
-
-    Item* item = player->GetItemByPos(bag, slot);
-
-    if (!item)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an invalid/non-existant item.", player->GetGUID().GetCounter(), player->GetName());
-        SendReforgeResult(false);
-        return;
-    }
-
-   /* if (item->GetEnchantmentId(slot) && reforgeEntry)
-    {
-        SendReforgeResult(false);
-        return;
-    }*/
-
-    if (!reforgeEntry)
-    {
-        // Reset the item
-        if (item->IsEquipped() && !item->IsBroken())
-            player->ApplyReforgeEnchantment(item, false);
-
-        item->SetReforge(0);
-        item->SetState(ITEM_CHANGED, player);
-        SendReforgeResult(true);
-        return;
-    }
-
-    ItemReforgeEntry const* stats = sItemReforgeStore.LookupEntry(reforgeEntry);
-    if (!stats)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleReforgeItemOpcode - Player (Guid: %u Name: %s) tried to reforge an item with invalid reforge entry (%u).", player->GetGUID().GetCounter(), player->GetName(), reforgeEntry);
-        SendReforgeResult(false);
-        return;
-    }
-
-    // prevent cheating with same refore entry
-    if (item->GetReforge() == reforgeEntry)
-    {
-        SendReforgeResult(false);
-        return;
-    }
-
-    // prevent cheating, you cant reforge to a stat that the item already has, nor reforge from a stat that the item does not have
-    if (!item->GetReforgableStat(ItemModType(stats->SourceStat)) || item->GetReforgableStat(ItemModType(stats->FinalStat))) 
-    {
-        SendReforgeResult(false);
-        return;
-    }
-
-    // prevent cheating with money
-    if (!player->HasEnoughMoney(uint64(item->GetSpecialPrice()))) // cheating
-    {
-        SendReforgeResult(false);
-        return;
-    }
-
-    // WTF?
-    /*if (item->HasFlag(ITEM_FIELD_MODIFIERS_MASK, 1))
-    {
-        SendReforgeResult(false);
-        return;
-    }*/
-
-    player->ModifyMoney(-int64(item->GetSpecialPrice()));
-
-    if (item->IsEquipped())
-        player->ApplyReforgeEnchantment(item, false);
-
-    item->SetReforge(reforgeEntry);
-    item->SetState(ITEM_CHANGED, player);
-
-    SendReforgeResult(true);
-
-    if (item->IsEquipped() && !item->IsBroken())
-        player->ApplyReforgeEnchantment(item, true);
 }
 
 void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
