@@ -6616,9 +6616,9 @@ uint32 ObjectMgr::GeneratePetNumber()
     return ++_hiPetNumber;
 }
 
-uint64 ObjectMgr::GenerateVoidStorageItemId()
+ObjectGuid ObjectMgr::GenerateVoidStorageItemId()
 {
-    return ++_voidItemId;
+    return ObjectGuid::Create<HighGuid::Item>(++_voidItemId);
 }
 
 void ObjectMgr::LoadCurrencysLoot()

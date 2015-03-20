@@ -251,3 +251,12 @@ void WorldPackets::Item::TransmogrigyItem::Read()
             _worldPacket >> SrcVoidItemGUID[i];
     }
 }
+
+WorldPacket const* WorldPackets::Item::VoidStorageContents::Write()
+{
+    _worldPacket.WriteBits(Data.size(), 8);
+    for(uint32 i = 0; i < Data.size(); ++i)
+        _worldPacket << Data[i].Guid << Data[i].Creator << Data[i].Slot << Data[i].Item;
+
+    return &_worldPacket;
+}

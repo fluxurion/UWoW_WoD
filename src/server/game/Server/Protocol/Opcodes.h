@@ -683,6 +683,7 @@ enum OpcodeClient : uint32
     CMSG_INITIATE_ROLE_POLL                           = 0x1BA2,
     CMSG_SET_LFG_BONUS_FACTION                        = 0x009D,
     CMSG_SET_FACTION_NOT_AT_WAR                       = 0x0A06,
+    CMSG_UPGRADE_ITEM                                 = 0x0518,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
@@ -713,7 +714,6 @@ enum OpcodeClient : uint32
     CMSG_SELECT_FACTION                               = 0xBADD, // 5.4.1 17538
     CMSG_SET_PRIMARY_TALENT_TREE                      = 0xBADD,  // 5.0.5 16048 deprecated
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0xBADD, // 5.4.1 17538
-    CMSG_UPGRADE_ITEM                                 = 0xBADD, // 5.4.1 17538
     CMSG_GET_WEB_TICKET                               = 0xBADD, // 5.4.1 17538
     CMSG_BATTLE_PET_166F                              = 0xBADD, // 5.4.1 17538
     CMSG_BATTLE_PET_1ACF                              = 0xBADD, // 5.4.1 17538

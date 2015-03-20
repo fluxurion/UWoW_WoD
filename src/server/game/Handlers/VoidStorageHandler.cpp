@@ -27,8 +27,9 @@
 #include <list>
 #include <vector>
 #include <utility>
+#include "ItemPackets.h"
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::SendVoidStorageTransferResult(VoidTransferError result)
 {
     WorldPacket data(SMSG_VOID_TRANSFER_RESULT, 4);
@@ -36,7 +37,7 @@ void WorldSession::SendVoidStorageTransferResult(VoidTransferError result)
     SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::SendVoidStorageFailed(bool unk/*=false*/)
 {
     WorldPacket data(SMSG_VOID_STORAGE_FAILED, 4);
@@ -44,15 +45,14 @@ void WorldSession::SendVoidStorageFailed(bool unk/*=false*/)
     SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleVoidStorageUnlock(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_VOID_STORAGE_UNLOCK");
     Player* player = GetPlayer();
 
     ObjectGuid npcGuid;
-    //recvData.ReadGuidMask<3, 2, 0, 1, 5, 6, 7, 4>(npcGuid);
-    //recvData.ReadGuidBytes<7, 1, 4, 6, 2, 3, 5, 0>(npcGuid);
+    recvData >> npcGuid;
 
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
@@ -71,15 +71,14 @@ void WorldSession::HandleVoidStorageUnlock(WorldPacket& recvData)
     player->UnlockVoidStorage();
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_VOID_STORAGE_QUERY");
     Player* player = GetPlayer();
 
     ObjectGuid npcGuid;
-    //recvData.ReadGuidMask<1, 2, 4, 7, 3, 5, 6, 0 >(npcGuid);
-    //recvData.ReadGuidBytes<5, 2, 7, 3, 4, 0, 1, 6>(npcGuid);
+    recvData >> npcGuid;
 
     Creature* unit = player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
@@ -96,60 +95,27 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         return;
     }
 
-    uint8 count = 0;
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
-        if (player->GetVoidStorageItem(i))
-            ++count;
+    WorldPackets::Item::VoidStorageContents packet;
+    packet.Data.reserve(VOID_STORAGE_MAX_SLOT);
 
-    WorldPacket data(SMSG_VOID_STORAGE_CONTENTS, 2 * count + (14 + 4 + 4 + 4 + 4) * count);
-
-    data.WriteBits(count, 7);
-
-    ByteBuffer itemData((14 + 4 + 4 + 4 + 4) * count);
-
+    uint32 count = 0;
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
     {
         VoidStorageItem* item = player->GetVoidStorageItem(i);
         if (!item)
             continue;
 
-        ObjectGuidSteam itemId = item->ItemId;
-        ObjectGuid creatorGuid = item->CreatorGuid;
-
-        //data.WriteGuidMask<3>(creatorGuid);
-        //data.WriteGuidMask<3, 5>(itemId);
-        //data.WriteGuidMask<1>(creatorGuid);
-        //data.WriteGuidMask<0, 7, 2>(itemId);
-        //data.WriteGuidMask<0>(creatorGuid);
-        //data.WriteGuidMask<6>(itemId);
-        //data.WriteGuidMask<4, 5, 2, 7, 6>(creatorGuid);
-        //data.WriteGuidMask<4, 1>(itemId);
-
-
-        //itemData.WriteGuidBytes<3>(creatorGuid);
-        //itemData.WriteGuidBytes<6>(itemId);
-        //itemData.WriteGuidBytes<6>(creatorGuid);
-        itemData << uint32(0);                      //unk
-        //itemData.WriteGuidBytes<7, 4>(itemId);
-        //itemData.WriteGuidBytes<7>(creatorGuid);
-        itemData << uint32(item->ItemEntry);
-        itemData << uint32(item->ItemSuffixFactor);
-        //itemData.WriteGuidBytes<4>(creatorGuid);
-        //itemData.WriteGuidBytes<0, 1>(itemId);
-        //itemData.WriteGuidBytes<1>(creatorGuid);
-        itemData << uint32(i);
-        //itemData.WriteGuidBytes<5, 2>(creatorGuid);
-        //itemData.WriteGuidBytes<5, 3>(itemId);
-        //itemData.WriteGuidBytes<0>(creatorGuid);
-        itemData << uint32(item->ItemRandomPropertyId);
-        //itemData.WriteGuidBytes<2>(itemId);
+        packet.Data[i].Guid = item->ItemId;
+        packet.Data[i].Creator = item->CreatorGuid;
+        packet.Data[i].Slot = i;    //slot conter really need. don't remove
+        packet.Data[i].Item.ItemID = item->ItemEntry;
+        packet.Data[i].Item.RandomPropertiesSeed = item->ItemSuffixFactor;
+        packet.Data[i].Item.RandomPropertiesID = item->ItemRandomPropertyId;
+        ++count;
     }
+    packet.Data.resize(count);  //cut over-size
 
-    data.FlushBits();
-    if (!itemData.empty())
-        data.append(itemData);
-
-    SendPacket(&data);
+    SendPacket(packet.Write());
 }
 
 //! 5.4.1
@@ -281,7 +247,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (std::vector<ObjectGuid>::iterator itr = itemIds.begin(); itr != itemIds.end(); ++itr)
     {
-        itemVS = player->GetVoidStorageItem(itr->GetCounter(), slot);
+        itemVS = player->GetVoidStorageItem(*itr, slot);
         if (!itemVS)
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidStorageTransfer - Player (GUID: %u, name: %s) tried to withdraw an invalid item (id: " UI64FMTD ")", player->GetGUID().GetCounter(), player->GetName(), itr->GetCounter());
@@ -313,7 +279,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     data.WriteBits(depositCount, 4);
 
-    ObjectGuidSteam itemId;
+    ObjectGuid itemId;
     ObjectGuidSteam creatorGuid;
 
     for (uint8 i = 0; i < depositCount; ++i)
@@ -344,7 +310,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 
     for (uint8 i = 0; i < withdrawCount; ++i)
     {
-        ObjectGuidSteam itemId = withdrawItems[i].ItemId;
+        ObjectGuid itemId = withdrawItems[i].ItemId;
         //data.WriteGuidBytes<3, 7, 6, 0, 4, 1, 5, 2>(itemId);
     }
 
@@ -417,7 +383,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
     }
 
     uint8 oldSlot;
-    if (!player->GetVoidStorageItem(itemId.GetCounter(), oldSlot))
+    if (!player->GetVoidStorageItem(itemId, oldSlot))
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleVoidSwapItem - Player (GUID: %u, name: %s) requested swapping an invalid item (slot: %u, itemid: " UI64FMTD ").", player->GetGUID().GetCounter(), player->GetName(), newSlot, itemId.GetCounter());
         return;
@@ -425,7 +391,7 @@ void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
 
     bool usedSrcSlot = player->GetVoidStorageItem(oldSlot) != NULL; // should be always true
     bool usedDestSlot = player->GetVoidStorageItem(newSlot) != NULL;
-    ObjectGuidSteam itemIdDest;
+    ObjectGuid itemIdDest;
     if (usedDestSlot)
         itemIdDest = player->GetVoidStorageItem(newSlot)->ItemId;
 

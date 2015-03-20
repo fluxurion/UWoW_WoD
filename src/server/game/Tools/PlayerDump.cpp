@@ -554,9 +554,9 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
             }
             case DTT_VS_TABLE:
             {
-                uint64 newItemIdNum = sObjectMgr->GenerateVoidStorageItemId();
+                ObjectGuid newItemIdNum = sObjectMgr->GenerateVoidStorageItemId();
                 char newItemId[20];
-                snprintf(newItemId, 20, "%u", newItemIdNum);
+                snprintf(newItemId, 20, "%u", newItemIdNum.GetCounter());
 
                 if (!changenth(line, 1, newItemId))           // character_void_storage.itemId update
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -893,9 +893,9 @@ DumpReturn PlayerDumpReader::LoadDump(uint32 account, std::string& dump, std::st
             }
             case DTT_VS_TABLE:
             {
-                uint64 newItemIdNum = sObjectMgr->GenerateVoidStorageItemId();
+                ObjectGuid newItemIdNum = sObjectMgr->GenerateVoidStorageItemId();
                 char newItemId[20];
-                snprintf(newItemId, 20, "%u", newItemIdNum);
+                snprintf(newItemId, 20, "%u", newItemIdNum.GetCounter());
 
                 if (!changenth(line, 1, newItemId))           // character_void_storage.itemId update
                 {

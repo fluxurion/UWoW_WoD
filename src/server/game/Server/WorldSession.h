@@ -159,6 +159,7 @@ namespace WorldPackets
         class BuyItem;
         class AutoStoreBagItem;
         class TransmogrigyItem;
+        class VoidStorageContents;
     }
 
     namespace Loot

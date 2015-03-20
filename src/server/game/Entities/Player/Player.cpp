@@ -19200,7 +19200,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         // SELECT itemid, itemEntry, slot, creatorGuid FROM character_void_storage WHERE playerGuid = ?
         Field* fields = result->Fetch();
 
-        uint64 itemId = fields[0].GetUInt64();
+        ObjectGuid itemId = ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt64());
         uint32 itemEntry = fields[1].GetUInt32();
         uint8 slot = fields[2].GetUInt8();
         ObjectGuid creatorGuid = ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64());
@@ -19209,25 +19209,25 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 
         if (!itemId)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid id (item id: " UI64FMTD ", entry: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid id (item id: %s, entry: %u).", GetGUID().GetCounter(), GetName(), itemId.ToString().c_str(), itemEntry);
             continue;
         }
 
         if (!sObjectMgr->GetItemTemplate(itemEntry))
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid entry (item id: " UI64FMTD ", entry: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid entry (item id: %s, entry: %u).", GetGUID().GetCounter(), GetName(), itemId.ToString().c_str(), itemEntry);
             continue;
         }
 
         if (slot >= VOID_STORAGE_MAX_SLOT)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid slot (item id: " UI64FMTD ", entry: %u, slot: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry, slot);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid slot (item id: %s, entry: %u, slot: %u).", GetGUID().GetCounter(), GetName(), itemId.ToString().c_str(), itemEntry, slot);
             continue;
         }
 
         if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid.GetCounter()))
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creatorGuid: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry, creatorGuid);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: %s, entry: %u, creatorGuid: %u).", GetGUID().GetCounter(), GetName(), itemId.ToString().c_str(), itemEntry, creatorGuid);
             creatorGuid.Clear();
         }
 
@@ -21123,7 +21123,7 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
         {
             // REPLACE INTO character_inventory (itemId, playerGuid, itemEntry, slot, creatorGuid) VALUES (?, ?, ?, ?, ?)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_VOID_STORAGE_ITEM);
-            stmt->setUInt64(0, _voidStorageItems[i]->ItemId);
+            stmt->setUInt64(0, _voidStorageItems[i]->ItemId.GetCounter());
             stmt->setUInt64(1, lowGuid);
             stmt->setUInt32(2, _voidStorageItems[i]->ItemEntry);
             stmt->setUInt8(3, i);
@@ -28422,7 +28422,7 @@ void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
         return;
     }
 
-    _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemId,
+    _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemEntry,
         item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
 }
 
@@ -28458,7 +28458,7 @@ VoidStorageItem* Player::GetVoidStorageItem(uint8 slot) const
     return _voidStorageItems[slot];
 }
 
-VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
+VoidStorageItem* Player::GetVoidStorageItem(ObjectGuid const& id, uint8& slot) const
 {
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
     {

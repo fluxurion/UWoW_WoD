@@ -1079,14 +1079,14 @@ struct VoidStorageItem
 {
     VoidStorageItem()
     {
-        ItemId = 0;
+        ItemId.Clear();
         ItemEntry = 0;
         CreatorGuid.Clear();
         ItemRandomPropertyId = 0;
         ItemSuffixFactor = 0;
     }
 
-    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid creator, uint32 randomPropertyId, uint32 suffixFactor)
+    VoidStorageItem(ObjectGuid id, uint32 entry, ObjectGuid creator, uint32 randomPropertyId, uint32 suffixFactor)
     {
         ItemId = id;
         ItemEntry = entry;
@@ -1095,7 +1095,7 @@ struct VoidStorageItem
         ItemSuffixFactor = suffixFactor;
     }
 
-    uint64 ItemId;
+    ObjectGuid ItemId;
     uint32 ItemEntry;
     ObjectGuid CreatorGuid;
     uint32 ItemRandomPropertyId;
@@ -3081,7 +3081,7 @@ class Player : public Unit, public GridObject<Player>
         void DeleteVoidStorageItem(uint8 slot);
         bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
-        VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
+        VoidStorageItem* GetVoidStorageItem(ObjectGuid const& id, uint8& slot) const;
 
         void SaveCUFProfile(uint8 id, CUFProfile * profile) { delete _CUFProfiles[id]; _CUFProfiles[id] = profile; }
         CUFProfile * GetCUFProfile(uint8 id) { return _CUFProfiles[id]; }

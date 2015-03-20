@@ -245,6 +245,24 @@ namespace WorldPackets
             std::vector<ObjectGuid> SrcVoidItemGUID;
             std::vector<uint32> Slots;
         };
+
+        struct VoidStorageContentStruct
+        {
+            ItemInstance Item;
+            ObjectGuid Guid;
+            ObjectGuid Creator;
+            uint32 Slot;
+        };
+
+        class VoidStorageContents final : public ServerPacket
+        {
+        public:
+            VoidStorageContents() : ServerPacket(SMSG_VOID_STORAGE_CONTENTS) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<VoidStorageContentStruct> Data;
+        };
     }
 }
 
