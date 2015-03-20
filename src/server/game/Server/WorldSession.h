@@ -158,6 +158,7 @@ namespace WorldPackets
         class DestroyItem;
         class BuyItem;
         class AutoStoreBagItem;
+        class TransmogrigyItem;
     }
 
     namespace Loot
@@ -1152,7 +1153,7 @@ class WorldSession
         void SendVoidStorageFailed(bool unk = false);
 
         // Transmogrification
-        void HandleTransmogrifyItems(WorldPacket& recvData);
+        void HandleTransmogrifyItems(WorldPackets::Item::TransmogrigyItem& request);
 
         // Upgrade item
         void HandleUpgradeItem(WorldPacket& recvData);

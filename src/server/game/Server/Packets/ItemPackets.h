@@ -230,6 +230,21 @@ namespace WorldPackets
             int32 Quantity = 0;
             ObjectGuid ContainerGUID;
         };
+
+        class TransmogrigyItem final : public ClientPacket
+        {
+        public:
+            TransmogrigyItem(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOGRIFY_ITEMS, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Count;
+            ObjectGuid NpcGUID;
+            std::vector<ItemInstance> Items;
+            std::vector<ObjectGuid> SrcItemGUID;
+            std::vector<ObjectGuid> SrcVoidItemGUID;
+            std::vector<uint32> Slots;
+        };
     }
 }
 

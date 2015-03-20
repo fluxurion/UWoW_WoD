@@ -228,3 +228,26 @@ void WorldPackets::Item::BuyItem::Read()
 
     ItemType = static_cast<ItemVendorType>(_worldPacket.ReadBits(2));
 }
+
+void WorldPackets::Item::TransmogrigyItem::Read()
+{
+    _worldPacket >> Count >> NpcGUID;
+    Items.resize(Count);
+    SrcItemGUID.resize(Count);
+    SrcVoidItemGUID.resize(Count);
+    Slots.resize(Count);
+
+    for (uint32 i = 0; i < Count; ++i)
+    {
+        uint32 HasSrcItem = _worldPacket.ReadBit();
+        uint32 HasSrcVoidItem = _worldPacket.ReadBit();
+
+        _worldPacket >> Items[i] >> Slots[i];
+
+        if (HasSrcItem)
+            _worldPacket >> SrcItemGUID[i];
+
+        if (HasSrcVoidItem)
+            _worldPacket >> SrcVoidItemGUID[i];
+    }
+}

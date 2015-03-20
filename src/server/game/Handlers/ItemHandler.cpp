@@ -1214,122 +1214,94 @@ void WorldSession::HandleItemRefund(WorldPacket &recvData)
     GetPlayer()->RefundItem(item);
 }
 
-void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
+void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrigyItem& packet)
 {
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRANSMOGRIFY_ITEMS");
     Player* player = GetPlayer();
 
-    ObjectGuid npcGuid;
-    uint32 count = 0;
-    recvData >> count >> npcGuid;
-
-    if (count < EQUIPMENT_SLOT_START || count >= EQUIPMENT_SLOT_END)
+    if (packet.Count < EQUIPMENT_SLOT_START || packet.Count >= EQUIPMENT_SLOT_END)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) sent a wrong count (%u) when transmogrifying items.", player->GetGUID().GetCounter(), player->GetName(), count);
-        recvData.rfinish();
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) sent a wrong count (%u) when transmogrifying items.", player->GetGUID().GetCounter(), player->GetName(), packet.Count);
         return;
     }
 
-    std::vector<ObjectGuid> itemGuids(count, ObjectGuid());
-    std::vector<ObjectGuid> SrcVoidItem(count, ObjectGuid());
-    std::vector<uint32> newEntries(count, 0);
-    std::vector<uint32> slots(count, 0);
-    std::vector<bool> HasItemGuid(count, 0);
-    std::vector<bool> HasSrcVoidItem(count, 0);
-
-    for (uint8 i = 0; i < count; ++i)
-    {
-        HasSrcVoidItem[i] = recvData.ReadBit();
-        HasItemGuid[i] = recvData.ReadBit();
-
-        recvData >> slots[i];
-
-        if (HasItemGuid[i])
-            recvData >> itemGuids[i];
-
-        if (HasSrcVoidItem[i])
-            recvData >> SrcVoidItem[i];
-    }
-
-
     // Validate
-
-    if (!player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_TRANSMOGRIFIER))
+    if (!player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_TRANSMOGRIFIER))
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", packet.NpcGUID.GetCounter());
         return;
     }
 
     int32 cost = 0;
-    for (uint8 i = 0; i < count; ++i)
+    for (uint8 i = 0; i < packet.Count; ++i)
     {
         // slot of the transmogrified item
-        if (slots[i] < EQUIPMENT_SLOT_START || slots[i] >= EQUIPMENT_SLOT_END)
+        if (packet.Slots[i] < EQUIPMENT_SLOT_START || packet.Slots[i] >= EQUIPMENT_SLOT_END)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an item (lowguid: %u) with a wrong slot (%u) when transmogrifying items.", player->GetGUID().GetCounter(), player->GetName(), itemGuids[i].GetCounter(), slots[i]);
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an item (lowguid: %u) with a wrong slot (%u) when transmogrifying items.", player->GetGUID().GetCounter(), player->GetName(), packet.SrcItemGUID[i].GetCounter(), packet.Slots[i]);
             return;
         }
 
         // entry of the transmogrifier item, if it's not 0
-        //if (newEntries[i])
+        //if (packet.Items[i].ItemID)
         //{
-        //    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(newEntries[i]);
+        //    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(packet.Items[i].ItemID);
         //    if (!proto)
         //    {
         //        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify to an invalid item (entry: %u).", player->GetGUID().GetCounter(), player->GetName(), newEntries[i]);
         //        return;
         //    }
 
-        //    if (!player->HasItemCount(newEntries[i], 1, false))
+        //    if (!player->HasItemCount(packet.Items[i].ItemID, 1, false))
         //    	return;
         //}
 
         Item* itemTransmogrifier = NULL;
         // guid of the transmogrifier item, if it's not 0
-        if (itemGuids[i])
+        if (packet.SrcItemGUID[i])
         {
-            itemTransmogrifier = player->GetItemByGuid(itemGuids[i]);
+            itemTransmogrifier = player->GetItemByGuid(packet.SrcItemGUID[i]);
             if (!itemTransmogrifier)
             {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUID().GetCounter(), player->GetName(), itemGuids[i].GetCounter());
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUID().GetCounter(), player->GetName(), packet.SrcItemGUID[i].GetCounter());
                 return;
             }
-            newEntries[i] = itemTransmogrifier->GetEntry();
-            //if(itemTransmogrifier->GetEntry() != newEntries[i])
-            //{
-            //    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems Cheats - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUID().GetCounter(), player->GetName(), GUID_LOPART(itemGuids[i]));
-            //    return;
-            //}
+
+            if (itemTransmogrifier->GetEntry() != packet.Items[i].ItemID)
+            {
+                //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems Cheats - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUID().GetCounter(), player->GetName(), GUID_LOPART(packet.SrcItemGUID[i]));
+                return;
+            }
         }
 
         // transmogrified item
-        Item* itemTransmogrified = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slots[i]);
+        Item* itemTransmogrified = player->GetItemByPos(INVENTORY_SLOT_BAG_0, packet.Slots[i]);
         if (!itemTransmogrified)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an invalid item in a valid slot (slot: %u).", player->GetGUID().GetCounter(), player->GetName(), slots[i]);
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an invalid item in a valid slot (slot: %u).", player->GetGUID().GetCounter(), player->GetName(), packet.Slots[i]);
             return;
         }
 
         // uint16 tempDest;
         //// has to be able to equip item transmogrified item
-        //if (!player->CanEquipItem(slots[i], tempDest, itemTransmogrified, true, true))
+        //if (!player->CanEquipItem(packet.Slots[i], tempDest, itemTransmogrified, true, true))
         //{
-        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the item to be transmogrified (slot: %u, entry: %u).", player->GetGUID().GetCounter(), player->GetName(), slots[i], itemTransmogrified->GetEntry());
+        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the item to be transmogrified (slot: %u, entry: %u).", player->GetGUID().GetCounter(), player->GetName(), packet.Slots[i], itemTransmogrified->GetEntry());
         //    return;
         //}
         //
         //// has to be able to equip item transmogrifier item
-        //if (!player->CanEquipItem(slots[i], tempDest, itemTransmogrifier, true, true))
+        //if (!player->CanEquipItem(packet.Slots[i], tempDest, itemTransmogrifier, true, true))
         //{
-        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the transmogrifier item (slot: %u, entry: %u).", player->GetGUID().GetCounter(), player->GetName(), slots[i], itemTransmogrifier->GetEntry());
+        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the transmogrifier item (slot: %u, entry: %u).", player->GetGUID().GetCounter(), player->GetName(), packet.Slots[i], itemTransmogrifier->GetEntry());
         //    return;
         //}
 
-        if (!newEntries[i]) // reset look
+        if (!packet.Items[i].ItemID) // reset look
         {
             itemTransmogrified->SetTransmogrification(0);
             itemTransmogrified->SetState(ITEM_CHANGED, player);
-            player->SetVisibleItemSlot(slots[i], itemTransmogrified);
+            player->SetVisibleItemSlot(packet.Slots[i], itemTransmogrified);
         }
         else
         {
@@ -1340,8 +1312,8 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
             }
 
             // All okay, proceed
-            itemTransmogrified->SetTransmogrification(newEntries[i]);
-            player->SetVisibleItemSlot(slots[i], itemTransmogrified);
+            itemTransmogrified->SetTransmogrification(packet.Items[i].ItemID);
+            player->SetVisibleItemSlot(packet.Slots[i], itemTransmogrified);
 
             itemTransmogrified->UpdatePlayedTime(player);
 
