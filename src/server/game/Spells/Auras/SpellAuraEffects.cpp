@@ -495,6 +495,47 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //435 SPELL_AURA_435
     &AuraEffect::HandleNULL,                                      //436 SPELL_AURA_436
     &AuraEffect::HandleNULL,                                      //437 SPELL_AURA_437
+    &AuraEffect::HandleNULL,                                      //438
+    &AuraEffect::HandleNULL,                                      //439
+    &AuraEffect::HandleNULL,                                      //440
+    &AuraEffect::HandleNULL,                                      //441
+    &AuraEffect::HandleNULL,                                      //442
+    &AuraEffect::HandleNULL,                                      //443
+    &AuraEffect::HandleNULL,                                      //444
+    &AuraEffect::HandleNULL,                                      //445
+    &AuraEffect::HandleNULL,                                      //446
+    &AuraEffect::HandleNULL,                                      //447
+    &AuraEffect::HandleNULL,                                      //448
+    &AuraEffect::HandleNULL,                                      //449
+    &AuraEffect::HandleNULL,                                      //450
+    &AuraEffect::HandleNULL,                                      //451
+    &AuraEffect::HandleNULL,                                      //452
+    &AuraEffect::HandleNULL,                                      //453
+    &AuraEffect::HandleNULL,                                      //454
+    &AuraEffect::HandleNULL,                                      //455
+    &AuraEffect::HandleNULL,                                      //456
+    &AuraEffect::HandleNULL,                                      //457
+    &AuraEffect::HandleNULL,                                      //458
+    &AuraEffect::HandleNULL,                                      //459
+    &AuraEffect::HandleNULL,                                      //460
+    &AuraEffect::HandleNULL,                                      //461
+    &AuraEffect::HandleNULL,                                      //462
+    &AuraEffect::HandleNULL,                                      //463
+    &AuraEffect::HandleNULL,                                      //464
+    &AuraEffect::HandleNULL,                                      //465
+    &AuraEffect::HandleNULL,                                      //466
+    &AuraEffect::HandleNULL,                                      //467
+    &AuraEffect::HandleNULL,                                      //468
+    &AuraEffect::HandleNULL,                                      //469
+    &AuraEffect::HandleNULL,                                      //470
+    &AuraEffect::HandleNULL,                                      //471
+    &AuraEffect::HandleNULL,                                      //472
+    &AuraEffect::HandleNULL,                                      //473
+    &AuraEffect::HandleNULL,                                      //474
+    &AuraEffect::HandleNULL,                                      //475
+    &AuraEffect::HandleNULL,                                      //476
+    &AuraEffect::HandleNULL,                                      //477
+    &AuraEffect::HandleNULL,                                      //478
 };
 
 AuraEffect::AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster):
