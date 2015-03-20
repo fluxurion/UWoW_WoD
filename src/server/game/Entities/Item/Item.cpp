@@ -1157,8 +1157,8 @@ Item* Item::CloneItem(uint32 count, Player const* player) const
     if (player)
         newItem->SetItemRandomProperties(GetItemRandomPropertyId());
 
-    //memcpy(newItem->m_dynamicModInfo, m_dynamicModInfo, sizeof(uint32) * ITEM_DYN_MOD_END);
-    //newItem->UpdateDynamicValues(newItem->isBattlePet() ? true : false);
+    memcpy(newItem->_modifiers, _modifiers, sizeof(_modifiers));
+    newItem->SetUInt32Value(ITEM_FIELD_MODIFIERS_MASK, GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
 
     return newItem;
 }

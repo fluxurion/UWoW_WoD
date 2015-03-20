@@ -302,7 +302,7 @@ enum EPlayerFields
 
 enum EContainerFields
 {
-    CONTAINER_FIELD_SLOTS = ITEM_END + 0x0, // Size: 144 Flags: Public
+    CONTAINER_FIELD_SLOT_1 = ITEM_END + 0x0, // Size: 144 Flags: Public
     CONTAINER_FIELD_NUM_SLOTS = ITEM_END + 0x90, // Size: 1 Flags: Public
     CONTAINER_END = ITEM_END + 0x91
 };
