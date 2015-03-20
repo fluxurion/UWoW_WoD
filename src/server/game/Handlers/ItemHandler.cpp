@@ -496,7 +496,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
 //! 6.0.3
 void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_BACK_ITEM");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_BACK_ITEM");
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.VendorGUID, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
@@ -540,7 +540,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
 
 void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM_IN_SLOT");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM_IN_SLOT");
     ObjectGuid vendorguid, bagguid;
     uint32 item, slot, count;
     uint8 bagslot;
@@ -574,7 +574,7 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recvData)
 //! 6.0.3
 void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM");
   
     // client expects count starting at 1, and we send vendorslot+1 to client already
     if (packet.Slot > 0)
@@ -661,7 +661,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBag
 //! 6.0.3
 void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BUY_BANK_SLOT");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BUY_BANK_SLOT");
 
     ObjectGuid guid;
     recvPacket >> guid;
@@ -715,7 +715,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
 //! 6.0.3
 void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOBANK_ITEM");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOBANK_ITEM");
     uint8 srcbag, srcslot;
 
     uint32 count = recvPacket.ReadBits(2);
@@ -754,7 +754,7 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
 //! 6.0.3
 void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_BANK_ITEM");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_BANK_ITEM");
     uint8 srcbag, srcslot;
 
     uint32 count = recvPacket.ReadBits(2);
@@ -828,7 +828,7 @@ void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid const& Playerguid, Objec
 //! 6.0.3
 void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WRAP_ITEM");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WRAP_ITEM");
 
     uint8 gift_bag = 0, gift_slot = 0, item_bag = 0, item_slot = 0;
 
@@ -948,7 +948,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SOCKET_GEMS");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SOCKET_GEMS");
 
     ObjectGuid item_guid;
     ObjectGuid gem_guids[MAX_GEM_SOCKETS];
@@ -1160,7 +1160,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CANCEL_TEMP_ENCHANTMENT");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CANCEL_TEMP_ENCHANTMENT");
 
     uint32 slot;
 
@@ -1185,7 +1185,7 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleGetItemPurchaseData(WorldPackets::Item::ItemRefundInfo& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_ITEM_PURCHASE_DATA");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_ITEM_PURCHASE_DATA");
 
     Item* item = _player->GetItemByGuid(packet.ItemGUID);
     if (!item)
@@ -1200,7 +1200,7 @@ void WorldSession::HandleGetItemPurchaseData(WorldPackets::Item::ItemRefundInfo&
 //! 6.0.3
 void WorldSession::HandleItemRefund(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_PURCHASE_REFUND");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_PURCHASE_REFUND");
     ObjectGuid guid;
     recvData >> guid;
 
@@ -1216,11 +1216,12 @@ void WorldSession::HandleItemRefund(WorldPacket &recvData)
 
 void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRANSMOGRIFY_ITEMS");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRANSMOGRIFY_ITEMS");
     Player* player = GetPlayer();
 
     ObjectGuid npcGuid;
-    uint32 count = recvData.ReadBits(21);
+    uint32 count = 0;
+    recvData >> count >> npcGuid;
 
     if (count < EQUIPMENT_SLOT_START || count >= EQUIPMENT_SLOT_END)
     {
@@ -1230,48 +1231,26 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
     }
 
     std::vector<ObjectGuid> itemGuids(count, ObjectGuid());
-    std::vector<ObjectGuid> itemGuids10(count, ObjectGuid());
+    std::vector<ObjectGuid> SrcVoidItem(count, ObjectGuid());
     std::vector<uint32> newEntries(count, 0);
     std::vector<uint32> slots(count, 0);
     std::vector<bool> HasItemGuid(count, 0);
-    std::vector<bool> HasItemGuid10(count, 0);
+    std::vector<bool> HasSrcVoidItem(count, 0);
 
     for (uint8 i = 0; i < count; ++i)
     {
-        HasItemGuid10[i] = recvData.ReadBit();
+        HasSrcVoidItem[i] = recvData.ReadBit();
         HasItemGuid[i] = recvData.ReadBit();
-    }
 
-    //recvData.ReadGuidMask<0, 2, 7, 1, 4, 6, 5, 3>(npcGuid);
-
-
-    for (uint32 i = 0; i < count; ++i)
-    {
-        //if (HasItemGuid10[i])
-            //recvData.ReadGuidMask<0, 2, 7, 1, 4, 6, 5, 3>(itemGuids10[i]);
-
-        //if (HasItemGuid[i])
-            //recvData.ReadGuidMask<4, 5, 0, 1, 6, 2, 3, 7>(itemGuids[i]);
-    }
-
-    //
-
-    for (uint32 i = 0; i < count; ++i)
-    {
-        recvData >> newEntries[i];
         recvData >> slots[i];
+
+        if (HasItemGuid[i])
+            recvData >> itemGuids[i];
+
+        if (HasSrcVoidItem[i])
+            recvData >> SrcVoidItem[i];
     }
 
-    //recvData.ReadGuidBytes<7, 4, 3, 0, 5, 6, 2, 1>(npcGuid);
-
-    for (uint32 i = 0; i < count; ++i)
-    {
-        //if (HasItemGuid[i])
-            //recvData.ReadGuidBytes<6, 7, 3, 0, 5, 2, 4, 1>(itemGuids[i]);
-
-        //if (HasItemGuid10[i])
-            //recvData.ReadGuidBytes<2, 3, 5, 0, 6, 7, 4, 1>(itemGuids10[i]);
-    }
 
     // Validate
 
@@ -1292,18 +1271,18 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
         }
 
         // entry of the transmogrifier item, if it's not 0
-        if (newEntries[i])
-        {
-            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(newEntries[i]);
-            if (!proto)
-            {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify to an invalid item (entry: %u).", player->GetGUID().GetCounter(), player->GetName(), newEntries[i]);
-                return;
-            }
+        //if (newEntries[i])
+        //{
+        //    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(newEntries[i]);
+        //    if (!proto)
+        //    {
+        //        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify to an invalid item (entry: %u).", player->GetGUID().GetCounter(), player->GetName(), newEntries[i]);
+        //        return;
+        //    }
 
-            if (!player->HasItemCount(newEntries[i], 1, false))
-            	return;
-        }
+        //    if (!player->HasItemCount(newEntries[i], 1, false))
+        //    	return;
+        //}
 
         Item* itemTransmogrifier = NULL;
         // guid of the transmogrifier item, if it's not 0
@@ -1315,11 +1294,12 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket& recvData)
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUID().GetCounter(), player->GetName(), itemGuids[i].GetCounter());
                 return;
             }
-            if(itemTransmogrifier->GetEntry() != newEntries[i])
-            {
-                //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems Cheats - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUID().GetCounter(), player->GetName(), GUID_LOPART(itemGuids[i]));
-                return;
-            }
+            newEntries[i] = itemTransmogrifier->GetEntry();
+            //if(itemTransmogrifier->GetEntry() != newEntries[i])
+            //{
+            //    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems Cheats - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUID().GetCounter(), player->GetName(), GUID_LOPART(itemGuids[i]));
+            //    return;
+            //}
         }
 
         // transmogrified item
