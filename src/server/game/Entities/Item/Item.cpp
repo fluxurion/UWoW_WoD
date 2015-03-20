@@ -26,6 +26,7 @@
 #include "SpellInfo.h"
 #include "ScriptMgr.h"
 #include "ConditionMgr.h"
+#include "ItemPackets.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -1833,4 +1834,40 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             RequiredLevel += values[0];
             break;
     }
+}
+
+void Item::AppendItemInstance(WorldPackets::Item::ItemInstance& data) const
+{
+    data.ItemID = GetEntry();
+    data.RandomPropertiesID = GetItemRandomPropertyId();
+    data.RandomPropertiesSeed = GetItemSuffixFactor();
+
+    WorldPackets::Item::ItemBonusInstanceData bonus;
+    //std::vector<uint32> const bonis = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
+    for (uint32 bonusID : GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS))
+        bonus.BonusListIDs.push_back(bonusID);
+    bonus.Context = 0;  //ToDo. WTF??
+    data.ItemBonus.Set(bonus);
+
+    for (uint8 i = 0; i < MAX_ITEM_MODIFIERS; ++i)
+        data.Modifications.push_back(GetModifier((ItemModifier)i));
+}
+
+WorldPackets::Item::ItemInstance& operator>>(WorldPackets::Item::ItemInstance& data, Item* item)
+{
+    data.ItemID = item->GetEntry();
+    data.RandomPropertiesID = item->GetItemRandomPropertyId();
+    data.RandomPropertiesSeed = item->GetItemSuffixFactor();
+
+    WorldPackets::Item::ItemBonusInstanceData bonus;
+    //std::vector<uint32> const bonis = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
+    for (uint32 bonusID : item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS))
+        bonus.BonusListIDs.push_back(bonusID);
+    bonus.Context = 0;  //ToDo. WTF??
+    data.ItemBonus.Set(bonus);
+
+    for (uint8 i = 0; i < MAX_ITEM_MODIFIERS; ++i)
+        data.Modifications.push_back(item->GetModifier((ItemModifier)i));
+
+    return data;
 }

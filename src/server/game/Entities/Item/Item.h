@@ -33,6 +33,14 @@ class Bag;
 class Unit;
 class BattlePetMgr;
 
+namespace WorldPackets
+{
+    namespace Item
+    {
+        struct ItemInstance;
+    };
+};
+
 struct ItemSetEffect
 {
     uint32 setid;
@@ -428,6 +436,7 @@ class Item : public Object
 
         void SetLevelCap(uint32 cup, bool pvp);
 
+        void AppendItemInstance(WorldPackets::Item::ItemInstance& buff) const;
     protected:
         BonusData _bonusData;
 
@@ -446,4 +455,7 @@ class Item : public Object
         GuidSet allowedGUIDs;
         uint32 _modifiers[MAX_ITEM_MODIFIERS];
 };
+
+WorldPackets::Item::ItemInstance& operator>>(WorldPackets::Item::ItemInstance& data, Item* item);
+
 #endif
