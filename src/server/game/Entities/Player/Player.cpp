@@ -8894,12 +8894,15 @@ void Player::DuelComplete(DuelCompleteType type)
 
     if (type != DUEL_INTERRUPTED)
     {
+        //! 6.0.3 ToDo check names.
         WorldPacket data(SMSG_DUEL_WINNER, 25);
-        data << uint32(realmHandle.Index);                  // winner or loser realmID
-        data << uint32(realmHandle.Index);                  // winner or loser realmID
-        data.WriteBit(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
-        data.WriteBits(strlen(duel->opponent->GetName()), 6);
         data.WriteBits(strlen(GetName()), 6);
+        data.WriteBits(strlen(duel->opponent->GetName()), 6);
+        data.WriteBit(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
+
+        data << uint32(realmHandle.Index);                  // winner or loser realmID
+        data << uint32(realmHandle.Index);                  // winner or loser realmID
+
         data.WriteString(GetName());
         data.WriteString(duel->opponent->GetName());
         SendMessageToSet(&data, true);
