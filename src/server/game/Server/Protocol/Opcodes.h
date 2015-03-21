@@ -1098,7 +1098,7 @@ enum OpcodeServer : uint32
     SMSG_KICK_REASON                                  = 0xBADD,
     SMSG_LEARNED_DANCE_MOVES                          = 0xBADD,
     SMSG_LEARNED_SPELLS                               = 0x08AB,
-    SMSG_LEVELUP_INFO                                 = 0xBADD,
+    SMSG_LEVELUP_INFO                                 = 0x1BE4,
     SMSG_LFG_BOOT_PROPOSAL_UPDATE                     = 0xBADD,
     SMSG_LFG_DISABLED                                 = 0xBADD,
     SMSG_LFG_JOIN_RESULT                              = 0x0F72,
