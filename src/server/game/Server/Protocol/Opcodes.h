@@ -1317,7 +1317,7 @@ enum OpcodeServer : uint32
     SMSG_REALM_QUERY_RESPONSE                         = 0x011D,
     SMSG_REALM_SPLIT                                  = 0xBADD,
     SMSG_REAL_GROUP_UPDATE                            = 0xBADD,
-    SMSG_RECEIVED_MAIL                                = 0xBADD,
+    SMSG_NOTIFY_RECEIVED_MAIL                         = 0x1F0D,
     SMSG_REDIRECT_CLIENT                              = 0x175A,
     SMSG_REFER_A_FRIEND_EXPIRED                       = 0xBADD,
     SMSG_REFER_A_FRIEND_FAILURE                       = 0x0931,

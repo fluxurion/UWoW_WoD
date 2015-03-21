@@ -3798,22 +3798,24 @@ void Player::SafeRemoveMailFromIgnored(ObjectGuid const& ignoredPlayerGuid)
     m_mailsUpdated = true;
 }
 
+//! 6.0.3
 void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType item_guid, uint32 item_count)
 {
     WorldPacket data(SMSG_SEND_MAIL_RESULT);
+    data << uint32(mailId);
+    data << uint32(mailAction);
+    data << uint32(mailError);
+    data << uint32(equipError);
     data << uint32(item_guid);                         // item guid low?
     data << uint32(item_count);                        // item count?
-    data << uint32(equipError);
-    data << uint32(mailAction);
-    data << uint32(mailId);
-    data << uint32(mailError);
+
     GetSession()->SendPacket(&data);
 }
 
 void Player::SendNewMail()
 {
     // deliver undelivered mail
-    WorldPacket data(SMSG_RECEIVED_MAIL, 4);
+    WorldPacket data(SMSG_NOTIFY_RECEIVED_MAIL, 4);
     data << float(0.0f);
     GetSession()->SendPacket(&data);
 }
