@@ -1405,12 +1405,13 @@ void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 Curre
             StopMirrorTimer(Type);
         return;
     }
+    //! 6.0.3
     WorldPacket data(SMSG_START_MIRROR_TIMER, 5 * 4 + 1);
-    data << uint32(CurrentValue);
     data << uint32(Type);
-    data << uint32(0);                                      // spell id
+    data << uint32(CurrentValue);
     data << uint32(MaxValue);
     data << uint32(Regen);
+    data << uint32(0);                                      // spell id
     data.WriteBit(0);                                       // paused - 1
     GetSession()->SendPacket(&data);
 }
@@ -3243,21 +3244,14 @@ void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool re
     if(victim)
         guid = victim->GetGUID();
 
+    //! 6.0.3
     WorldPacket data(SMSG_LOG_XPGAIN, 8 + 4 + 1 + 1 + 1 + 4);   // guess size?
-
-    data.WriteBit(1);                                           // not in group
-    //data.WriteGuidMask<6, 4>(guid);
-    data.WriteBit(recruitAFriend);
-    //data.WriteGuidMask<3, 0, 7, 1, 5, 2>(guid);
-    data.WriteBit(!victim);                                     // has base xp
-    if (victim)
-        data << uint32(GivenXP);                                // experience without bonus
-    //data.WriteGuidBytes<3, 2, 4, 0>(guid);
-    data << uint8(victim ? 0 : 1);                              // 00-kill_xp type, 01-non_kill_xp type
-    //data.WriteGuidBytes<1>(guid);
-    //data.WriteGuidBytes<5, 6>(guid);
+    data << guid;
     data << uint32(GivenXP + BonusXP);                          // given experience
-    //data.WriteGuidBytes<7>(guid);
+    data << uint8(victim ? 0 : 1);                              // 00-kill_xp type, 01-non_kill_xp type
+    data << uint32(victim ? GivenXP : 0); 
+    data << float(0.0f);
+    data.WriteBit(recruitAFriend);
 
     GetSession()->SendPacket(&data);
 }
@@ -24964,7 +24958,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
 
         AddSpellCooldown(spellData.SpellId, pItem->GetEntry(), getPreciseTime() + 30.0);
 
-        //! 5.4.1
+        //! 6.0.3
         WorldPacket data(SMSG_ITEM_COOLDOWN, 12);
         data << pItem->GetGUID();
         data << uint32(spellData.SpellId);
@@ -25935,18 +25929,14 @@ void Player::ResurectUsingRequestData()
     SpawnCorpseBones();
 }
 
+//! 6.0.3
 void Player::SetClientControl(Unit* target, uint8 allowMove)
 {
     WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, 8 + 1 + 1);
-
-    ObjectGuid guid = target->GetGUID();
-    //data.WriteGuidMask<0, 3, 6, 5, 1, 4, 2>(guid);
+    data << target->GetGUID();
     data.WriteBit(allowMove);
-    //data.WriteGuidMask<7>(guid);
-
-    //data.WriteGuidBytes<3, 6, 7, 1, 5, 0, 2, 4>(guid);
-
     GetSession()->SendPacket(&data);
+
     if (target == this)
         SetMover(this);
 }
@@ -26509,7 +26499,8 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
         SetFlag(PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
     }
 
-    WorldPacket data(lost ? SMSG_TITLE_REMOVED: SMSG_TITLE_EARNED, 4);
+    //! 6.0.3
+    WorldPacket data(lost ? SMSG_TITLE_LOST: SMSG_TITLE_EARNED, 4);
     data << uint32(title->MaskID);
     GetSession()->SendPacket(&data);
 }
@@ -27572,11 +27563,10 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSetInfo eqset)
     {
         eqslot.Data.Guid = sObjectMgr->GenerateEquipmentSetGuid();
 
+        //! 6.0.3
         WorldPacket data(SMSG_EQUIPMENT_SET_SAVED, 4 + 1);
-        //data.WriteGuidMask<0, 6, 3, 1, 4, 2, 7, 5>(eqslot.Guid);
-        //data.WriteGuidBytes<3, 6, 5, 1>(eqslot.Guid);
+        data << eqslot.Guid;
         data << uint32(index);
-        //data.WriteGuidBytes<0, 7, 2, 4>(eqslot.Guid);
         GetSession()->SendPacket(&data);
     }
 
@@ -28034,6 +28024,7 @@ Guild* Player::GetGuild()
     return GetGuildId() ? sGuildMgr->GetGuildById(GetGuildId()) : NULL;
 }
 
+//! 6.0.3
 void Player::SendDuelCountdown(uint32 counter)
 {
     WorldPacket data(SMSG_DUEL_COUNTDOWN, 4);
@@ -28365,6 +28356,7 @@ bool Player::IsInWhisperWhiteList(ObjectGuid guid)
     return false;
 }
 
+//! 6.0.3
 void Player::SendPetTameResult(PetTameResult result)
 {
     WorldPacket data(SMSG_PET_TAME_FAILURE, 4);
@@ -28913,7 +28905,7 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
     }
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendMusic(uint32 musicId)
 {
     WorldPacket data(SMSG_PLAY_MUSIC, 12);
@@ -28921,14 +28913,12 @@ void Player::SendMusic(uint32 musicId)
     GetSession()->SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendSound(uint32 soundId, ObjectGuid source)
 {
     WorldPacket data(SMSG_PLAY_SOUND, 12);
-    //data.WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(source);
-    //data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(source);
     data << uint32(soundId);
-    //data.WriteGuidBytes<7>(source);
+    data << source;
     GetSession()->SendPacket(&data);
 }
 

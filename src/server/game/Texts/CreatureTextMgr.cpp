@@ -279,7 +279,7 @@ float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
     return dist;
 }
 
-//! 5.4.1
+//! 6.0.3
 void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, ObjectGuid whisperGuid, TextRange range, Team team, bool gmOnly)
 {
     if (!sound || !source)
@@ -287,10 +287,8 @@ void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType,
 
     ObjectGuid guid = source->GetGUID();
     WorldPacket data(SMSG_PLAY_SOUND, 12);
-    //data.WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(guid);
-    //data.WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(guid);
     data << uint32(sound);
-    //data.WriteGuidBytes<7>(guid);
+    data << source->GetGUID();
     SendNonChatPacket(source, &data, msgType, whisperGuid, range, team, gmOnly);
 }
 

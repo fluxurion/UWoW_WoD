@@ -881,7 +881,7 @@ enum OpcodeServer : uint32
     SMSG_CLEAR_QUEST_COMPLETED_BITS                   = 0x1D47,
     SMSG_CLEAR_TARGET                                 = 0xBADD,
     SMSG_CLIENTCACHE_VERSION                          = 0x080D,
-    SMSG_CLIENT_CONTROL_UPDATE                        = 0xBADD,
+    SMSG_CLIENT_CONTROL_UPDATE                        = 0x080E,
     SMSG_COIN_REMOVED                                 = 0x0D30,
     SMSG_COMBAT_EVENT_FAILED                          = 0xBADD,
     SMSG_COMBAT_LOG_MULTIPLE                          = 0xBADD,
@@ -934,7 +934,7 @@ enum OpcodeServer : uint32
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR          = 0xBADD,
     SMSG_DROP_NEW_CONNECTION                          = 0xBADD,
     SMSG_DUEL_COMPLETE                                = 0xBADD,
-    SMSG_DUEL_COUNTDOWN                               = 0xBADD,
+    SMSG_DUEL_COUNTDOWN                               = 0x020E,
     SMSG_DUEL_INBOUNDS                                = 0xBADD,
     SMSG_DUEL_OUTOFBOUNDS                             = 0xBADD,
     SMSG_DUEL_REQUESTED                               = 0xBADD,
@@ -1084,7 +1084,7 @@ enum OpcodeServer : uint32
     SMSG_INVALID_PROMOTION_CODE                       = 0xBADD,
     SMSG_INVENTORY_CHANGE_FAILURE                     = 0x0112,
     SMSG_ITEM_ADD_PASSIVE                             = 0xBADD,
-    SMSG_ITEM_COOLDOWN                                = 0xBADD,
+    SMSG_ITEM_COOLDOWN                                = 0x090F,
     SMSG_ITEM_ENCHANT_TIME_UPDATE                     = 0x010D,
     SMSG_ITEM_EXPIRE_PURCHASE_REFUND                  = 0xBADD,
     SMSG_ITEM_PUSH_RESULT                             = 0xBADD,
@@ -1254,7 +1254,7 @@ enum OpcodeServer : uint32
     SMSG_PET_RENAMEABLE                               = 0xBADD,
     SMSG_PET_SLOT_UPDATED                             = 0xBADD,
     SMSG_PET_SPELLS                                   = 0x0174,
-    SMSG_PET_TAME_FAILURE                             = 0xBADD,
+    SMSG_PET_TAME_FAILURE                             = 0x0025,
     SMSG_PET_UPDATE_COMBO_POINTS                      = 0xBADD,
     SMSG_PLAYED_TIME                                  = 0xBADD,
     SMSG_PLAYERBINDERROR                              = 0xBADD,
@@ -1264,8 +1264,8 @@ enum OpcodeServer : uint32
     SMSG_PLAYER_SKINNED                               = 0xBADD,
     SMSG_PLAYER_VEHICLE_DATA                          = 0xBADD,
     SMSG_PLAY_DANCE                                   = 0xBADD,
-    SMSG_PLAY_MUSIC                                   = 0xBADD,
-    SMSG_PLAY_OBJECT_SOUND                            = 0xBADD,
+    SMSG_PLAY_MUSIC                                   = 0x0981,
+    SMSG_PLAY_OBJECT_SOUND                            = 0x0519,
     SMSG_PLAY_ONE_SHOT_ANIM_KIT                       = 0xBADD,
     SMSG_PLAY_SOUND                                   = 0x02D2,
     SMSG_PLAY_SPELL_VISUAL                            = 0x1A84,
@@ -1428,10 +1428,10 @@ enum OpcodeServer : uint32
     SMSG_STABLE_RESULT                                = 0x1383,
     SMSG_STAND_STATE_UPDATE                           = 0x1311,
     SMSG_START_ELAPSED_TIMERS                         = 0x093F,
-    SMSG_START_MIRROR_TIMER                           = 0xBADD,
+    SMSG_START_MIRROR_TIMER                           = 0x051E,
     SMSG_START_TIMER                                  = 0xBADD,
     SMSG_STOP_DANCE                                   = 0xBADD,
-    SMSG_STOP_MIRROR_TIMER                            = 0xBADD,
+    SMSG_STOP_MIRROR_TIMER                            = 0x0D1E,
     SMSG_STREAMING_MOVIE                              = 0xBADD,
     SMSG_SUMMON_CANCEL                                = 0xBADD,
     SMSG_SUMMON_REQUEST                               = 0xBADD,
@@ -1450,7 +1450,8 @@ enum OpcodeServer : uint32
     SMSG_THREAT_UPDATE                                = 0x03A9,
     SMSG_TIME_ADJUSTMENT                              = 0xBADD,
     SMSG_TIME_SYNC_REQ                                = 0x03B1,
-    SMSG_TITLE_EARNED                                 = 0xBADD,
+    SMSG_TITLE_EARNED                                 = 0x1324,
+    SMSG_TITLE_LOST                                   = 0x1D0E,
     SMSG_TOGGLE_XP_GAIN                               = 0xBADD,
     SMSG_TOTEM_CREATED                                = 0xBADD,
     SMSG_TRADE_STATUS                                 = 0xBADD,
@@ -1526,6 +1527,7 @@ enum OpcodeServer : uint32
     SMSG_READY_CHECK_RESPONSE                         = 0x0A10,
     SMSG_READY_CHECK_STARTED                          = 0x17A9,
     SMSG_RESUME_TOKEN                                 = 0x0326,
+    SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI       = 0x053D,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1536,7 +1538,6 @@ enum OpcodeServer : uint32
     SMSG_QUEST_PUSH_RESULT                            = 0xBADD, // 5.4.1 17538
     SMSG_RANDOM_ROLL                                  = 0xBADD, // 5.4.1 17538
     SMSG_SAVE_GUILD_EMBLEM                            = 0xBADD, // 5.4.1 17538
-
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0xBADD, // 5.4.1 17538
     SMSG_AREA_TRIGGER_RESET                           = 0xBADD,  // 5.0.5 16048
     SMSG_ARENA_OPPONENT_UPDATE                        = 0xBADD, // 5.4.1 17538
@@ -1606,11 +1607,9 @@ enum OpcodeServer : uint32
     SMSG_SERVER_SCENE_PLAYBACK                        = 0xBADD, // 5.4.1 17538
     SMSG_SETUP_RESEARCH_HISTORY                       = 0xBADD,      // Not found in TC
     SMSG_SET_PET_SPECIALIZATION                       = 0x08D6, // 6.0.3
-    SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI       = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_CHARGE_DATA                            = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_CREATE_VISUAL                          = 0xBADD, // 5.4.1 17538
     SMSG_SURVEY_CAST                                  = 0xBADD, // 5.4.1 17538
-    SMSG_TITLE_REMOVED                                = 0xBADD, // 5.4.1 17538
     SMSG_UPDATE_ACCOUNT_DATA_COMPLETE                 = 0xBADD,  // 5.0.5 16048
     SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0xBADD,  // 5.0.5 16048
     SMSG_WORLD_STATE_TIMER_START_INIT                 = 0xBADD, // 5.4.1 17538

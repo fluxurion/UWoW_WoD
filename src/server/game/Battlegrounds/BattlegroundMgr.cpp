@@ -675,16 +675,12 @@ void BattlegroundMgr::BuildUpdateWorldStatePacket(WorldPacket* data, uint32 fiel
     *data << uint32(value);
 }
 
-//! 5.4.1
+//! 6.0.3
 void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
 {
-    ObjectGuidSteam guid = 0;
-
     data->Initialize(SMSG_PLAY_SOUND, 10);
-    //data->WriteGuidMask<0, 2, 4, 7, 6, 5, 1, 3>(guid);
-    //data->WriteGuidBytes<3, 4, 2, 6, 1, 5, 0>(guid);
     *data << uint32(soundid);
-    //data->WriteGuidBytes<7>(guid);
+    *data << ObjectGuid::Empty;
 }
 
 //! 5.4.1
