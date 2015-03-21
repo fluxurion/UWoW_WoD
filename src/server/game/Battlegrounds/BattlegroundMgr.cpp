@@ -667,12 +667,13 @@ void BattlegroundMgr::BuildStatusFailedPacket(WorldPacket* data, Battleground* b
     //data->WriteGuidBytes<2>(guidBytes2);
 }
 
+//! 6.0.3
 void BattlegroundMgr::BuildUpdateWorldStatePacket(WorldPacket* data, uint32 field, uint32 value)
 {
     data->Initialize(SMSG_UPDATE_WORLD_STATE, 9);
-    *data << uint8(0);   //zero bit
     *data << uint32(field);
     *data << uint32(value);
+    *data << uint8(0);   //zero bit
 }
 
 //! 6.0.3

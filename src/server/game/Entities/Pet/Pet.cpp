@@ -1023,21 +1023,16 @@ void Pet::_LoadSpellCooldowns()
 
     if (result)
     {
-        ObjectGuid guid = GetGUID();
+        ObjectGuid guid = 
         time_t curTime = time(NULL);
         uint32 count = 0;
 
-        //! 5.4.1
+        //! 6.0.3
         WorldPacket data(SMSG_SPELL_COOLDOWN, size_t(8+1+result->GetRowCount()*8));
-
-        //data.WriteGuidMask<4, 7, 6>(guid);
-        size_t count_pos = data.bitwpos();
-        data.WriteBits(0, 21);
-        //data.WriteGuidMask<2, 3, 1, 0>(guid);
-        data.WriteBit(1);
-        //data.WriteGuidMask<5>(guid);
-
-        //data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
+        data << GetGUID();
+        data << uint8(0);
+        size_t count_pos = data.wpos();
+        data << uint32(0);
 
         do
         {
@@ -1056,8 +1051,8 @@ void Pet::_LoadSpellCooldowns()
             if (db_time <= curTime)
                 continue;
 
-            data << uint32(uint32(db_time-curTime)*IN_MILLISECONDS);
             data << uint32(spell_id);
+            data << uint32(uint32(db_time-curTime)*IN_MILLISECONDS);
 
             _AddCreatureSpellCooldown(spell_id, db_time);
 
@@ -1065,8 +1060,7 @@ void Pet::_LoadSpellCooldowns()
         }
         while (result->NextRow());
 
-        data.FlushBits();
-        data.PutBits(count_pos, count, 21);
+        data.put<uint32>(count_pos, count);
 
         if (!m_CreatureSpellCooldowns.empty() && GetOwner())
             ((Player*)GetOwner())->GetSession()->SendPacket(&data);

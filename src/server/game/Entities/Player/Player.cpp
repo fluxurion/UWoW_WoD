@@ -10326,25 +10326,17 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 }
 
+//! 6.0.3
 void Player::SendNotifyLootMoneyRemoved(uint64 gold, ObjectGuid lguid)
 {
-    //! 5.4.1
     WorldPacket data(SMSG_COIN_REMOVED, 8);
-    ObjectGuid guid;
-    if(lguid)
-        guid = lguid;
-    else
-        guid = GetLootGUID();
-
-    //data.WriteGuidMask<0, 7, 5, 6, 3, 4, 2, 1>(guid);
-    //data.WriteGuidBytes<3, 0, 4, 2, 5, 1, 6, 7>(guid);
-    
+    data << lguid ? lguid : GetLootGUID();   
     GetSession()->SendPacket(&data);
 }
 
+ //! 6.0.3
 void Player::SendNotifyLootItemRemoved(uint8 lootSlot, ObjectGuid lguid)
 {
-    //! 5.4.1
     WorldPacket data(SMSG_LOOT_REMOVED);
     ObjectGuid guid;
     if (lguid)
@@ -10353,34 +10345,14 @@ void Player::SendNotifyLootItemRemoved(uint8 lootSlot, ObjectGuid lguid)
         guid = GetLootGUID();
 
     ObjectGuid guid2 = guid;    // aoeguid
-
-    //data.WriteGuidMask<5>(guid);
-    //data.WriteGuidMask<7>(guid2);
-    //data.WriteGuidMask<6>(guid);
-    //data.WriteGuidMask<0>(guid2);
-    //data.WriteGuidMask<7, 4>(guid);
-    //data.WriteGuidMask<1, 2>(guid2);
-    //data.WriteGuidMask<2, 3>(guid);
-    //data.WriteGuidMask<5>(guid2);
-    //data.WriteGuidMask<0>(guid);
-    //data.WriteGuidMask<3>(guid2);
-    //data.WriteGuidMask<1>(guid);
-    //data.WriteGuidMask<6, 4>(guid2);
-
-    //data.WriteGuidBytes<5>(guid);
-    //data.WriteGuidBytes<7, 5>(guid2);
-    //data.WriteGuidBytes<0, 3, 6, 2>(guid);
-    //data.WriteGuidBytes<4>(guid2);
-
+    data << guid;
+    data << guid2;
     data << uint8(lootSlot);
-
-    //data.WriteGuidBytes<1>(guid2);
-    //data.WriteGuidBytes<7, 4, 1>(guid);
-    //data.WriteGuidBytes<0, 6, 3, 2>(guid2);
 
     GetSession()->SendPacket(&data);
 }
 
+//! 6.0.3
 void Player::SendUpdateWorldState(uint32 Field, uint32 Value)
 {
     WorldPacket data(SMSG_UPDATE_WORLD_STATE, 4+4+1);
@@ -10390,6 +10362,7 @@ void Player::SendUpdateWorldState(uint32 Field, uint32 Value)
     GetSession()->SendPacket(&data);
 }
 
+//! 6.0.3
 void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
 {
     // data depends on zoneid/mapid...
@@ -11024,18 +10997,17 @@ uint32 Player::GetXPRestBonus(uint32 xp)
     return rested_bonus;
 }
 
+//! 6.0.3
 void Player::SetBindPoint(ObjectGuid guid)
 {
     WorldPacket data(SMSG_BINDER_CONFIRM, 8);
-    //data.WriteGuidMask<6, 3, 4, 5, 1, 2, 7, 0>(guid);
-    //data.WriteGuidBytes<0, 3, 5, 2, 1, 7, 6, 4>(guid);
-
+    data << guid;
     GetSession()->SendPacket(&data);
 }
 
+//! 6.0.3
 void Player::SendTalentWipeConfirm(ObjectGuid guid, bool specialization)
 {
-    ObjectGuid Guid = guid;
     uint32 cost = 0;
 
     if (!specialization)
@@ -11044,12 +11016,9 @@ void Player::SendTalentWipeConfirm(ObjectGuid guid, bool specialization)
         cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetSpecializationCost();
 
     WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM);
-    //data.WriteGuidMask<7, 4, 2, 3, 5, 6, 1, 0>(Guid);
-    data << uint32(cost);
-    //data.WriteGuidBytes<1, 6, 7, 5, 0, 4, 3>(Guid);
     data << uint8(specialization ? 1 : 0);  // 0: talent, 1: specialization, 2: glyph, 3: pet speciazlization
-    //data.WriteGuidBytes<2>(Guid);
-
+    data << uint32(cost);
+    data << guid;
     GetSession()->SendPacket(&data);
 }
 
@@ -13303,17 +13272,13 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
                     ObjectGuid guid = GetGUID();
 
-                    //! 5.4.1
+                    //! 6.0.3
                     WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4);
-                    //data.WriteGuidMask<4, 7, 6>(guid);
-                    data.WriteBits(1, 21);
-                    //data.WriteGuidMask<2, 3, 1, 0>(guid);
-                    data.WriteBit(1);
-                    //data.WriteGuidMask<5>(guid);
-
-                    //data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
-                    data << uint32(m_weaponChangeTimer);
+                    data << GetGUID();
+                    data << uint8(0);   //flags
+                    data << uint32(1);  //count
                     data << uint32(cooldownSpell);
+                    data << uint32(m_weaponChangeTimer);
                     GetSession()->SendPacket(&data);
                 }
             }
@@ -23050,21 +23015,14 @@ void Player::ContinueTaxiFlight()
     GetSession()->SendDoFlight(mountDisplayId, path, startNode);
 }
 
+ //! 6.0.3
 void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
-    ObjectGuid guid = GetGUID();
-
-    //! 5.4.1
     WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+m_spells.size()*8);
-
-    //data.WriteGuidMask<4, 7, 6>(guid);
-    size_t count_pos = data.bitwpos();
-    data.WriteBits(0, 21);
-    //data.WriteGuidMask<2, 3, 1, 0>(guid);
-    data.WriteBit(1);
-    //data.WriteGuidMask<5>(guid);
-
-    //data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
+    data << GetGUID();
+    data << uint8(0);
+    size_t count_pos = data.wpos();
+    data << uint32(0);
 
     double curTime = getPreciseTime();
     uint32 count = 0;
@@ -23089,14 +23047,14 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 
         if ((idSchoolMask & spellInfo->GetSchoolMask()) && GetSpellCooldownDelay(unSpellId) < unTimeMs * 1.0 / IN_MILLISECONDS)
         {
-            data << uint32(unTimeMs);                       // in m.secs
             data << uint32(unSpellId);
+            data << uint32(unTimeMs);                       // in m.secs
             AddSpellCooldown(unSpellId, 0, curTime + unTimeMs * 1.0 /IN_MILLISECONDS);
             ++count;
         }
     }
-    data.FlushBits();
-    data.PutBits(count_pos, count, 21);
+    data.put<uint32>(count_pos, count);
+
     GetSession()->SendPacket(&data);
 }
 

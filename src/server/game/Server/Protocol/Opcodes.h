@@ -1139,7 +1139,7 @@ enum OpcodeServer : uint32
     SMSG_LOOT_MASTER_LIST                             = 0xBADD,
     SMSG_LOOT_MONEY_NOTIFY                            = 0x12A9,
     SMSG_LOOT_RELEASE_RESPONSE                        = 0xBADD,
-    SMSG_LOOT_REMOVED                                 = 0xBADD,
+    SMSG_LOOT_REMOVED                                 = 0x0906,
     SMSG_LOOT_RESPONSE                                = 0xBADD,
     SMSG_LOOT_ROLL                                    = 0xBADD,
     SMSG_LOOT_ROLL_WON                                = 0xBADD,
@@ -1388,7 +1388,7 @@ enum OpcodeServer : uint32
     SMSG_SPELLORDAMAGE_IMMUNE                         = 0x1313,
     SMSG_SPELLSTEALLOG                                = 0xBADD,
     SMSG_SPELL_CATEGORY_COOLDOWN                      = 0x082A,
-    SMSG_SPELL_COOLDOWN                               = 0xBADD,
+    SMSG_SPELL_COOLDOWN                               = 0x03F4,
     SMSG_SPELL_DELAYED                                = 0x0134,
     SMSG_SPELL_FAILED_OTHER                           = 0x1A03,
     SMSG_SPELL_FAILURE                                = 0x11DB,
@@ -1528,6 +1528,7 @@ enum OpcodeServer : uint32
     SMSG_READY_CHECK_STARTED                          = 0x17A9,
     SMSG_RESUME_TOKEN                                 = 0x0326,
     SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI       = 0x053D,
+    SMSG_RESPEC_WIPE_CONFIRM                          = 0x1341,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1603,7 +1604,6 @@ enum OpcodeServer : uint32
     SMSG_PURCHASE_STORE_PURCHASE_LIST_UPDATED         = 0xBADD, // 5.4.1 17538
     SMSG_PVP_BRACKET_DATA                             = 0xBADD, // 5.4.1 17538
     SMSG_PVP_RATED_STATS                              = 0xBADD, // 5.4.1 17538
-    SMSG_RESPEC_WIPE_CONFIRM                          = 0xBADD, // 5.4.1 17538
     SMSG_SERVER_SCENE_PLAYBACK                        = 0xBADD, // 5.4.1 17538
     SMSG_SETUP_RESEARCH_HISTORY                       = 0xBADD,      // Not found in TC
     SMSG_SET_PET_SPECIALIZATION                       = 0x08D6, // 6.0.3
