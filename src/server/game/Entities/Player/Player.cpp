@@ -8139,13 +8139,9 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [1..4]  HK: <dishonored rank>
     // victim_rank [5..19] HK: <alliance\horde rank>
     // victim_rank [0, 20+] HK: <>
+    //! 6.0.3
     WorldPacket data(SMSG_PVP_CREDIT, 4 + 8 + 4 + 1);
-    //data.WriteGuidMask<0, 3, 6, 4, 5, 2, 1, 7>(victim_guid);
-    //data.WriteGuidBytes<0, 7, 1, 6, 2>(victim_guid);
-    data << uint32(honor);
-    //data.WriteGuidBytes<5, 3, 4>(victim_guid);
-    data << uint32(victim_rank);
-
+    data << uint32(honor) << victim_guid << uint32(victim_rank);
     GetSession()->SendPacket(&data);
 
     // add honor points
@@ -8865,7 +8861,7 @@ void Player::CheckDuelDistance(time_t currTime)
         {
             duel->outOfBound = currTime;
 
-            WorldPacket data(SMSG_DUEL_OUTOFBOUNDS, 0);
+            WorldPacket data(SMSG_DUEL_OUT_OF_BOUNDS, 0);
             GetSession()->SendPacket(&data);
         }
     }
@@ -8875,7 +8871,7 @@ void Player::CheckDuelDistance(time_t currTime)
         {
             duel->outOfBound = 0;
 
-            WorldPacket data(SMSG_DUEL_INBOUNDS, 0);
+            WorldPacket data(SMSG_DUEL_IN_BOUNDS, 0);
             GetSession()->SendPacket(&data);
         }
         else if (currTime >= (duel->outOfBound+10))
@@ -27571,7 +27567,7 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSetInfo eqset)
 
         //! 6.0.3
         WorldPacket data(SMSG_EQUIPMENT_SET_SAVED, 4 + 1);
-        data << eqslot.Guid;
+        data << eqslot.Data.Guid;
         data << uint32(index);
         GetSession()->SendPacket(&data);
     }
