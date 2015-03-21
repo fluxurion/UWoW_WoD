@@ -1023,7 +1023,6 @@ void Pet::_LoadSpellCooldowns()
 
     if (result)
     {
-        ObjectGuid guid = 
         time_t curTime = time(NULL);
         uint32 count = 0;
 
@@ -1564,7 +1563,7 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
         if (!m_loading)
         {
             WorldPacket data(SMSG_PET_REMOVED_SPELL, 4);
-            data.WriteBits(1, 22);
+            data << uint32(1);
             data << uint32(spell_id);
             m_owner->GetSession()->SendPacket(&data);
         }

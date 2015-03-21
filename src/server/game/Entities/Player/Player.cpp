@@ -10330,7 +10330,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
 void Player::SendNotifyLootMoneyRemoved(uint64 gold, ObjectGuid lguid)
 {
     WorldPacket data(SMSG_COIN_REMOVED, 8);
-    data << lguid ? lguid : GetLootGUID();   
+    data << (lguid ? lguid : GetLootGUID());   
     GetSession()->SendPacket(&data);
 }
 
@@ -23227,18 +23227,14 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
     {
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
 
-        ObjectGuid guid = pVendor->GetGUID();
-        WorldPacket data(SMSG_BUY_ITEM, 8 + 1 + 4 + 4 + 4);
-        //data.WriteGuidMask<3, 1, 5, 6, 7, 0, 4, 2>(guid);
-        //data.WriteGuidBytes<3>(guid);
+        //! 6.0.3
+        WorldPacket data(SMSG_BUY_SUCCEEDED, 8 + 1 + 4 + 4 + 4);
+        data << pVendor->GetGUID();
         data << uint32(vendorslot + 1);                   // numbered from 1 at client
-        //data.WriteGuidBytes<0, 1>(guid);
         data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
-        //data.WriteGuidBytes<7, 5, 2>(guid);
-         data << uint32(count);
-        //data.WriteGuidBytes<6, 4>(guid);
-
+        data << uint32(count);
         GetSession()->SendPacket(&data);
+
         SendNewItem(it, NULL, count, true, false, false);
 
         if (!bStore)
