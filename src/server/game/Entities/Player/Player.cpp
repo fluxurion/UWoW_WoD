@@ -1397,6 +1397,7 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
     return false;
 }
 
+//! 6.0.3
 void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 CurrentValue, int32 Regen)
 {
     if (int(MaxValue) == DISABLED_MIRROR_TIMER)
@@ -1405,7 +1406,7 @@ void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 Curre
             StopMirrorTimer(Type);
         return;
     }
-    //! 6.0.3
+
     WorldPacket data(SMSG_START_MIRROR_TIMER, 5 * 4 + 1);
     data << uint32(Type);
     data << uint32(CurrentValue);
@@ -1416,6 +1417,7 @@ void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 Curre
     GetSession()->SendPacket(&data);
 }
 
+//! 6.0.3
 void Player::StopMirrorTimer(MirrorTimerType Type)
 {
     m_MirrorTimer[Type] = DISABLED_MIRROR_TIMER;
@@ -1447,19 +1449,14 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
 
     DealDamageMods(this, damage, &absorb);
 
-    ObjectGuid guid = GetGUID();
+    //! 6.0.3
     WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, 8 + 1 + 1 + 4 + 4 + 4 + 1);
-    //data.WriteGuidMask<6, 2, 7>(guid);
-    data.WriteBit(0);           // not has power data
-    //data.WriteGuidMask<0, 4, 3, 5, 1>(guid);
-
+    data << GetGUID();
+    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
+    data << uint32(damage);
     data << uint32(resist);
     data << uint32(absorb);
-    //data.WriteGuidBytes<1>(guid);
-    data << uint32(damage);
-    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
-    //data.WriteGuidBytes<0, 5, 4, 2, 6, 3, 7>(guid);
-
+    data.WriteBit(0);           // not has power data
     SendMessageToSet(&data, true);
 
     uint32 final_damage = DealDamage(this, damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -28984,15 +28981,13 @@ void Player::SendCategoryCooldownMods()
     SendDirectMessage(cooldowns.Write());
 }
 
+//! 6.0.3
 void Player::SendModifyCooldown(uint32 spellId, int32 value)
 {
-    ObjectGuid guid = GetGUID();
     WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4 + 1);
-    data << int32(value);                   // Cooldown mod in milliseconds
     data << uint32(spellId);                // Spell ID
-    //data.WriteGuidMask<1, 2, 0, 4, 3, 6, 5, 7>(guid);
-    //data.WriteGuidBytes<6, 1, 3, 0, 4, 5, 2, 7>(guid);
-
+    data << GetGUID();
+    data << int32(value);                   // Cooldown mod in milliseconds
     SendDirectMessage(&data);
 }
 
