@@ -1679,14 +1679,11 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
     if (newDrunkenState == oldDrunkenState)
         return;
 
-    ObjectGuid guid = GetGUID();
+    //! 6.0.3
     WorldPacket data(SMSG_CROSSED_INEBRIATION_THRESHOLD, (8+4+4));
-    //data.WriteGuidMask<1, 2, 0, 4, 3, 7, 5, 6>(guid);
-    //data.WriteGuidBytes<1, 4, 0, 3, 7>(guid);
+    data << GetGUID();
     data << uint32(newDrunkenState);
     data << uint32(itemId);
-    //data.WriteGuidBytes<6, 5, 2>(guid);
-
     SendMessageToSet(&data, true);
 }
 
@@ -7604,17 +7601,17 @@ void Player::ScheduleMessageSend(WorldPacket* data, uint32 delay)
     e->Schedule();
 }
 
+//! 6.0.3
 void Player::SendCinematicStart(uint32 CinematicSequenceId)
 {
-    //! 5.4.1
     WorldPacket data(SMSG_TRIGGER_CINEMATIC, 4);
     data << uint32(CinematicSequenceId);
     SendDirectMessage(&data);
 }
 
+//! 6.0.3
 void Player::SendMovieStart(uint32 MovieId)
 {
-    //! 5.4.1
     WorldPacket data(SMSG_TRIGGER_MOVIE, 4);
     data << uint32(MovieId);
     SendDirectMessage(&data);
@@ -8302,20 +8299,27 @@ void Player::ModifyCurrencyFlag(uint32 id, uint8 flag)
         _currencyStorage[id].state = PLAYERCURRENCY_CHANGED;
 }
 
-//! 5.4.1
+//! 6.0.3
 void Player::SendPvpRewards()
 {
     WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40);
-    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_POINTS));
-    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));//packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG)  / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG));
-    packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));
-    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_POINTS));
-    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));
-    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));
-    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));//packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG));
-    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RATED_BG) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RATED_BG));
-    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RATED_BG) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RATED_BG));
-    packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RBG_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RATED_BG));
+    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_POINTS));                           //RewardPointsThisWeek
+    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_POINTS));                          //MaxRewardPointsThisWeek
+
+    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RATED_BG) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RATED_BG));             //RatedRewardPointsThisWeek
+    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RATED_BG) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RATED_BG));            //RatedMaxRewardPointsThisWeek
+
+    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));                   //RandomRewardPointsThisWeek
+    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));                  //RandomMaxRewardPointsThisWeek
+
+    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));                   //ArenaRewardPointsThisWeek
+    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));                  //ArenaMaxRewardPointsThisWeek
+
+    packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));     //ArenaRewardPoints
+    packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RBG_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RATED_BG));    //RatedRewardPoints
+
+
+
     GetSession()->SendPacket(&packet);
 }
 
