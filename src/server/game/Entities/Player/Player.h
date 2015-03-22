@@ -1633,7 +1633,7 @@ class Player : public Unit, public GridObject<Player>
 
         * @param id currency entry from CurrencyTypes.dbc
         * @param count integer value for adding/removing current currency
-        * @param printLog used on SMSG_UPDATE_CURRENCY
+        * @param printLog used on SMSG_SET_CURRENCY
         * @param ignore gain multipliers
         */
 

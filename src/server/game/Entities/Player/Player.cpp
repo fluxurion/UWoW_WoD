@@ -8319,7 +8319,6 @@ void Player::SendPvpRewards()
     packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RBG_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RATED_BG));    //RatedRewardPoints
 
 
-
     GetSession()->SendPacket(&packet);
 }
 
@@ -8449,22 +8448,22 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             if (count > 0)
                 UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, id, count);
 
-            //! 5.4.1
-            WorldPacket packet(SMSG_UPDATE_CURRENCY, 5 * 4 + 1);
+            //! 6.0.3
+            WorldPacket packet(SMSG_SET_CURRENCY, 5 * 4 + 1);
 
             packet << uint32(id);
             packet << uint32(newTotalCount / precision);
-            packet << uint32(0);                                //unk
+            packet << uint32(0);                                //Flags
 
-            packet.WriteBit(!printLog);                         //printLog); // print in log
-            packet.WriteBit(weekCap != 0);
-            packet.WriteBit(itr->second.seasonTotal); // hasSeasonCount
-
-            if (weekCap)
-                packet << uint32(newWeekCount / precision);
+            packet.WriteBit(itr->second.seasonTotal);           // hasSeasonCount - HasTrackedQuantity
+            packet.WriteBit(weekCap != 0);                      // HasWeeklyQuantity
+            packet.WriteBit(!printLog);                         // printLog); // print in log - SuppressChatLog
 
             if (itr->second.seasonTotal)
                 packet << uint32(itr->second.seasonTotal / precision);
+
+            if (weekCap)
+                packet << uint32(newWeekCount / precision);
 
             GetSession()->SendPacket(&packet);
         }

@@ -1472,7 +1472,7 @@ enum OpcodeServer : uint32
     SMSG_UNLEARNED_SPELLS                             = 0x0B3B,
     SMSG_UPDATE_ACCOUNT_DATA                          = 0x1520,
     SMSG_UPDATE_COMBO_POINTS                          = 0xBADD,
-    SMSG_UPDATE_CURRENCY                              = 0xBADD,
+    SMSG_SET_CURRENCY                                 = 0x17BE,
     SMSG_UPDATE_CURRENCY_WEEK_LIMIT                   = 0xBADD,
     SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT            = 0xBADD,
     SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT               = 0xBADD,
