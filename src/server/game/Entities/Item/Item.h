@@ -436,7 +436,6 @@ class Item : public Object
 
         void SetLevelCap(uint32 cup, bool pvp);
 
-        void AppendItemInstance(WorldPackets::Item::ItemInstance& buff) const;
     protected:
         BonusData _bonusData;
 

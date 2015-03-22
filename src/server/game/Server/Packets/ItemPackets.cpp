@@ -100,9 +100,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const&
 
     if (!itemInstance.Modifications.empty())
     {
-        data << uint32(itemInstance.Modifications.size() * sizeof(uint32));
-        for (int32 itemMod : itemInstance.Modifications)
-            data << itemMod;
+        uint32 mask = 0;
+        size_t aPos = data.wpos();
+        data << uint32(mask);
+        for (int32 i = 0; i < 8; ++i)
+        {
+            if (itemInstance.Modifications[i])
+            {
+                data << itemInstance.Modifications[i];
+                mask |= 1 << i;
+            }
+        }
+        data.put<uint32>(aPos, mask);
     }
 
     return data;

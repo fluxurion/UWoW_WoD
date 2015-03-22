@@ -1836,36 +1836,24 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
     }
 }
 
-void Item::AppendItemInstance(WorldPackets::Item::ItemInstance& data) const
-{
-    data.ItemID = GetEntry();
-    data.RandomPropertiesID = GetItemRandomPropertyId();
-    data.RandomPropertiesSeed = GetItemSuffixFactor();
-
-    WorldPackets::Item::ItemBonusInstanceData bonus;
-    //std::vector<uint32> const bonis = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
-    for (uint32 bonusID : GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS))
-        bonus.BonusListIDs.push_back(bonusID);
-    bonus.Context = 0;  //ToDo. WTF??
-    data.ItemBonus.Set(bonus);
-
-    for (uint8 i = 0; i < MAX_ITEM_MODIFIERS; ++i)
-        data.Modifications.push_back(GetModifier((ItemModifier)i));
-}
-
 WorldPackets::Item::ItemInstance& operator<<(WorldPackets::Item::ItemInstance& data, Item* item)
 {
     data.ItemID = item->GetEntry();
     data.RandomPropertiesID = item->GetItemRandomPropertyId();
     data.RandomPropertiesSeed = item->GetItemSuffixFactor();
 
-    WorldPackets::Item::ItemBonusInstanceData bonus;
-    //std::vector<uint32> const bonis = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
-    for (uint32 bonusID : item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS))
-        bonus.BonusListIDs.push_back(bonusID);
-    bonus.Context = 0;  //ToDo. WTF??
-    data.ItemBonus.Set(bonus);
-
+    std::vector<uint32> const bList = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
+    if (bList.size())
+    {
+        WorldPackets::Item::ItemBonusInstanceData bonus;
+        data.Modifications.resize(bList.size());
+        for (uint32 bonusID : bList)
+            bonus.BonusListIDs.push_back(bonusID);
+        bonus.Context = 0;  //ToDo. WTF??
+        data.ItemBonus.Set(bonus);
+    }
+    
+    data.Modifications.resize(MAX_ITEM_MODIFIERS);
     for (uint8 i = 0; i < MAX_ITEM_MODIFIERS; ++i)
         data.Modifications.push_back(item->GetModifier((ItemModifier)i));
 
