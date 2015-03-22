@@ -8500,7 +8500,7 @@ void Player::ResetCurrencyWeekCap()
         itr->second.state = PLAYERCURRENCY_CHANGED;
     }
 
-    WorldPacket data(SMSG_WEEKLY_RESET_CURRENCY, 0);
+    WorldPacket data(SMSG_RESET_WEEKLY_CURRENCY, 0);
     SendDirectMessage(&data);
 }
 
@@ -8597,8 +8597,8 @@ void Player::UpdateConquestCurrencyCap(uint32 currency)
         uint32 precision = currencyEntry->GetPrecision();
         uint32 cap = GetCurrencyWeekCap(currencyEntry);
 
-        //! 5.4.1
-        WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
+        //! 6.0.3
+        WorldPacket packet(SMSG_SET_MAX_WEEKLY_QUANTITY, 8);
         packet << uint32(currenciesToUpdate[i]);
         packet << uint32(cap / precision);
         GetSession()->SendPacket(&packet);
@@ -9941,28 +9941,12 @@ void Player::RemovedInsignia(Player* looterPlr)
     looterPlr->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
 }
 
+//! 6.0.3 ToDo check it.
 void Player::SendLootRelease(ObjectGuid guid)
 {
-    WorldPacket data(SMSG_LOOT_RELEASE_RESPONSE);
-
-    ObjectGuid guid2;
-
-    //data.WriteGuidMask<1>(guid2);
-    //data.WriteGuidMask<7, 1, 6>(guid);
-    //data.WriteGuidMask<0>(guid2);
-    //data.WriteGuidMask<2, 3, 5>(guid);
-    //data.WriteGuidMask<5>(guid2);
-    //data.WriteGuidMask<0>(guid);
-    //data.WriteGuidMask<4, 6, 3, 2, 7>(guid2);
-    //data.WriteGuidMask<4>(guid);
-
-    //data.WriteGuidBytes<4, 0, 3, 2, 6>(guid);
-    //data.WriteGuidBytes<5, 2>(guid2);
-    //data.WriteGuidBytes<5>(guid);
-    //data.WriteGuidBytes<0, 6, 7, 1, 4>(guid2);
-    //data.WriteGuidBytes<7, 1>(guid);
-    //data.WriteGuidBytes<3>(guid2);
-
+    ObjectGuid Owner;
+    WorldPacket data(SMSG_LOOT_RELEASE);
+    data << guid << Owner;
     SendDirectMessage(&data);
 }
 
@@ -15292,54 +15276,29 @@ void Player::SendNewItem(Item* item, PetInfo * pet, uint32 count, bool received,
     if (!item)                                               // prevent crash
         return;
 
-    WorldPacket data(SMSG_ITEM_PUSH_RESULT);
-    ObjectGuid guid = GetGUID();
-    ObjectGuid guid2;
+    WorldPackets::Item::ItemPushResult packet;
+    packet.PlayerGUID = GetGUID();
+    packet.ItemGUID = item->GetGUID();
 
-    data.WriteBit(0);                                       // by bonus roll
-    //data.WriteGuidMask<6>(guid2);
-    data.WriteBit(received);
-    //data.WriteGuidMask<5, 4>(guid2);
-    data.WriteBit(created);
-    //data.WriteGuidMask<7>(guid2);
-    //data.WriteGuidMask<5, 3, 2>(guid);
-    //data.WriteGuidMask<1, 4>(guid2);
-    //data.WriteGuidMask<4, 6, 0>(guid);
-    //data.WriteGuidMask<2>(guid2);
-    data.WriteBit(1);                                       // show mesage
-    //data.WriteGuidMask<1, 7>(guid);
-    //data.WriteGuidMask<0>(guid2);
-
-    data << uint32(GetItemCount(item->GetEntry()));         // count of items in inventory
-    //data.WriteGuidBytes<1, 2>(guid2);
-    data << uint32(count);                                  // count of items
-    //data.WriteGuidBytes<3, 2>(guid);
-    //data.WriteGuidBytes<4>(guid2);
-    //data.WriteGuidBytes<0, 1>(guid);
-    //data.WriteGuidBytes<7>(guid2);
-    data << uint32(pet ? pet->quality : 0);                 // battle pet quality
-    //data.WriteGuidBytes<3>(guid2);
-    data << uint32(pet ? pet->breedID : 0);                 // battle pet breedID
-    //data.WriteGuidBytes<5>(guid2);
-    data << uint32(pet ? pet->level : 0);                   // battle pet level
-    //data.WriteGuidBytes<7>(guid);
-    //data.WriteGuidBytes<6>(guid2);
-    //data.WriteGuidBytes<4>(guid);
-                                                            // item slot, but when added to stack: 0xFFFFFFFF
-    data << uint32((item->GetCount() == count) ? item->GetSlot() : -1);
-    //data.WriteGuidBytes<5>(guid);
-    //data.WriteGuidBytes<0>(guid2);
-    data << uint8(item->GetBagSlot());                      // bagslot
-    data << uint32(pet ? pet->speciesID : 0);               // battle pet speciesID
-    data << uint32(item->GetItemRandomPropertyId());        // random property
-    data << uint32(item->GetEntry());                       // item id
-    //data.WriteGuidBytes<6>(guid);
-    data << uint32(item->GetItemSuffixFactor());            // suffix factor
+    packet.Slot = item->GetBagSlot();
+    packet.SlotInBag = (item->GetCount() == count) ? item->GetSlot() : -1;
+    packet.Item << item;    //WorldPackets::Item::ItemInstance& operator<<(WorldPackets::Item::ItemInstance& data, Item* item) in Item.cpp
+    packet.WodUnk = 0;
+    packet.Quantity = count;
+    packet.QuantityInInventory = GetItemCount(item->GetEntry());
+    packet.BattlePetBreedID = pet ? pet->breedID : 0;
+    packet.BattlePetBreedQuality = pet ? pet->quality : 0;
+    packet.BattlePetSpeciesID = pet ? pet->speciesID : 0;
+    packet.BattlePetLevel = pet ? pet->level : 0;
+    packet.Pushed = received;
+    packet.DisplayText = true;
+    packet.Created = created;
+    packet.IsBonusRoll = false;
 
     if (broadcast && GetGroup())
-        GetGroup()->BroadcastPacket(&data, true);
+        GetGroup()->BroadcastPacket(packet.Write(), true);
     else
-        GetSession()->SendPacket(&data);
+        GetSession()->SendPacket(packet.Write());
 }
 
 /*********************************************************/
@@ -24674,7 +24633,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_SET_PHASE_SHIFT
-    // SMSG_UPDATE_CURRENCY_WEEK_LIMIT
+    // SMSG_SET_MAX_WEEKLY_QUANTITY
     // SMSG_WEEKLY_SPELL_USAGE
 
     // SMSG_ACCOUNT_MOUNT_UPDATE

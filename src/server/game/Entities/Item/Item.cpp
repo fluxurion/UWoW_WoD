@@ -1853,7 +1853,7 @@ void Item::AppendItemInstance(WorldPackets::Item::ItemInstance& data) const
         data.Modifications.push_back(GetModifier((ItemModifier)i));
 }
 
-WorldPackets::Item::ItemInstance& operator>>(WorldPackets::Item::ItemInstance& data, Item* item)
+WorldPackets::Item::ItemInstance& operator<<(WorldPackets::Item::ItemInstance& data, Item* item)
 {
     data.ItemID = item->GetEntry();
     data.RandomPropertiesID = item->GetItemRandomPropertyId();

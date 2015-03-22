@@ -1087,7 +1087,7 @@ enum OpcodeServer : uint32
     SMSG_ITEM_COOLDOWN                                = 0x090F,
     SMSG_ITEM_ENCHANT_TIME_UPDATE                     = 0x010D,
     SMSG_ITEM_EXPIRE_PURCHASE_REFUND                  = 0xBADD,
-    SMSG_ITEM_PUSH_RESULT                             = 0xBADD,
+    SMSG_ITEM_PUSH_RESULT                             = 0x0183,
     SMSG_SET_ITEM_PURCHASE_DATA                       = 0x0316,
     SMSG_ITEM_PURCHASE_REFUND_RESULT                  = 0x0B3D,
     SMSG_ITEM_REMOVE_PASSIVE                          = 0xBADD,
@@ -1138,7 +1138,8 @@ enum OpcodeServer : uint32
     SMSG_LOOT_LIST                                    = 0xBADD,
     SMSG_LOOT_MASTER_LIST                             = 0xBADD,
     SMSG_LOOT_MONEY_NOTIFY                            = 0x12A9,
-    SMSG_LOOT_RELEASE_RESPONSE                        = 0xBADD,
+    SMSG_LOOT_RELEASE                                 = 0x0BD3,
+    SMSG_LOOT_RELEASE_ALL                             = 0x198C,
     SMSG_LOOT_REMOVED                                 = 0x0906,
     SMSG_LOOT_RESPONSE                                = 0xBADD,
     SMSG_LOOT_ROLL                                    = 0xBADD,
@@ -1472,8 +1473,6 @@ enum OpcodeServer : uint32
     SMSG_UNLEARNED_SPELLS                             = 0x0B3B,
     SMSG_UPDATE_ACCOUNT_DATA                          = 0x1520,
     SMSG_UPDATE_COMBO_POINTS                          = 0xBADD,
-    SMSG_SET_CURRENCY                                 = 0x17BE,
-    SMSG_UPDATE_CURRENCY_WEEK_LIMIT                   = 0xBADD,
     SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT            = 0xBADD,
     SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT               = 0xBADD,
     SMSG_UPDATE_INSTANCE_OWNERSHIP                    = 0x093E,
@@ -1503,7 +1502,7 @@ enum OpcodeServer : uint32
     SMSG_WARGAME_REQUEST_SENT                         = 0xBADD,
     SMSG_WEATHER                                      = 0x073E,
     SMSG_WEEKLY_LAST_RESET                            = 0xBADD,
-    SMSG_WEEKLY_RESET_CURRENCY                        = 0xBADD,
+    SMSG_RESET_WEEKLY_CURRENCY                        = 0x0916,
     SMSG_WEEKLY_SPELL_USAGE                           = 0x13DC,
     SMSG_WEEKLY_SPELL_USAGE_UPDATE                    = 0xBADD,
     SMSG_WHO                                          = 0x0601,
@@ -1595,7 +1594,6 @@ enum OpcodeServer : uint32
     SMSG_LFG_UPDATE_PLAYER                            = 0xBADD,      // Not found in 4.3.4
     SMSG_LFG_UPDATE_STATUS_NONE                       = 0xBADD,  // 5.0.5 16048
     SMSG_LF_GUILD_SEARCH_RESULT                       = 0xBADD,      // Not found in TC
-    SMSG_LOOT_RELEASE                                 = 0xBADD, // 5.4.1 17538
     SMSG_LOOT_ROLLS_COMPLETE                          = 0xBADD, // 5.4.1 17538
     SMSG_PERSONAL_RATED_INFO                          = 0xBADD, // 5.4.1 17538
     SMSG_PLAYER_UNK_DEAD_ALIVE                        = 0xBADD,      // Not found in 4.3.4

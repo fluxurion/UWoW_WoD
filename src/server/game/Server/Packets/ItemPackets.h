@@ -274,6 +274,31 @@ namespace WorldPackets
             std::vector<VoidStorageContentStruct> Data;
             std::vector<ObjectGuid> RemovedItemsGuid;
         };
+
+        class ItemPushResult final : public ServerPacket
+        {
+        public:
+            ItemPushResult() : ServerPacket(SMSG_ITEM_PUSH_RESULT) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PlayerGUID;
+            uint8 Slot;
+            uint32 SlotInBag;
+            ItemInstance Item;
+            uint32 WodUnk;
+            uint32 Quantity;
+            uint32 QuantityInInventory;
+            uint32 BattlePetBreedID;
+            uint32 BattlePetBreedQuality;
+            uint32 BattlePetSpeciesID;
+            uint32 BattlePetLevel;
+            ObjectGuid ItemGUID;
+            bool Pushed;
+            bool DisplayText;
+            bool Created;
+            bool IsBonusRoll;
+        };
     }
 }
 
