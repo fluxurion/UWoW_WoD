@@ -455,6 +455,6 @@ class Item : public Object
         uint32 _modifiers[MAX_ITEM_MODIFIERS];
 };
 
-WorldPackets::Item::ItemInstance& operator<<(WorldPackets::Item::ItemInstance& data, Item* item);
+WorldPackets::Item::ItemInstance& operator<<(WorldPackets::Item::ItemInstance& data, Item const* item);
 
 #endif

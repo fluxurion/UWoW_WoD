@@ -167,6 +167,19 @@ namespace WorldPackets
         class LootUnit;
     }
 
+    namespace Mail
+    {
+        class MailCreateTextItem;
+        class MailDelete;
+        class MailGetList;
+        class MailMarkAsRead;
+        class MailQueryNextMailTime;
+        class MailReturnToSender;
+        class MailTakeItem;
+        class MailTakeMoney;
+        class SendMail;
+    }
+
     namespace Misc
     {
         class AreaTrigger;
@@ -855,14 +868,14 @@ class WorldSession
         void HandleAuctionListPendingSales(WorldPacket& recvData);
 
         void HandleGetMailList(WorldPacket& recvData);
-        void HandleSendMail(WorldPacket& recvData);
+        void HandleSendMail(WorldPackets::Mail::SendMail& packet);
         void HandleMailTakeMoney(WorldPacket& recvData);
         void HandleMailTakeItem(WorldPacket& recvData);
         void HandleMailMarkAsRead(WorldPacket& recvData);
         void HandleMailReturnToSender(WorldPacket& recvData);
         void HandleMailDelete(WorldPacket& recvData);
         void HandleMailCreateTextItem(WorldPacket& recvData);
-        void HandleQueryNextMailTime(WorldPacket& recvData);
+        void HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& packet);
         void HandleCancelChanneling(WorldPacket& recvData);
 
         void SendItemPageInfo(ItemTemplate* itemProto);

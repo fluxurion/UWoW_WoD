@@ -1836,7 +1836,7 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
     }
 }
 
-WorldPackets::Item::ItemInstance& operator<<(WorldPackets::Item::ItemInstance& data, Item* item)
+WorldPackets::Item::ItemInstance& operator<<(WorldPackets::Item::ItemInstance& data, Item const* item)
 {
     data.ItemID = item->GetEntry();
     data.RandomPropertiesID = item->GetItemRandomPropertyId();
