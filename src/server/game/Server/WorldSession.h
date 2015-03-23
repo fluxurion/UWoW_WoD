@@ -870,10 +870,10 @@ class WorldSession
         void HandleGetMailList(WorldPacket& recvData);
         void HandleSendMail(WorldPackets::Mail::SendMail& packet);
         void HandleMailTakeMoney(WorldPacket& recvData);
-        void HandleMailTakeItem(WorldPacket& recvData);
-        void HandleMailMarkAsRead(WorldPacket& recvData);
-        void HandleMailReturnToSender(WorldPacket& recvData);
-        void HandleMailDelete(WorldPacket& recvData);
+        void HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& packet);
+        void HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead& packet);
+        void HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& packet);
+        void HandleMailDelete(WorldPackets::Mail::MailDelete& packet);
         void HandleMailCreateTextItem(WorldPacket& recvData);
         void HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& packet);
         void HandleCancelChanneling(WorldPacket& recvData);
