@@ -867,9 +867,9 @@ class WorldSession
         void HandleAuctionPlaceBid(WorldPacket& recvData);
         void HandleAuctionListPendingSales(WorldPacket& recvData);
 
-        void HandleGetMailList(WorldPacket& recvData);
+        void HandleGetMailList(WorldPackets::Mail::MailGetList& packet);
         void HandleSendMail(WorldPackets::Mail::SendMail& packet);
-        void HandleMailTakeMoney(WorldPacket& recvData);
+        void HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney& packet);
         void HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& packet);
         void HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead& packet);
         void HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& packet);

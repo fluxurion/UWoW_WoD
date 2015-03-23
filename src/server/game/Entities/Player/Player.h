@@ -1965,7 +1965,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetModForHolyPowerSpell() {return m_modForHolyPowerSpell;}
 
         uint64 GetMoney() const { return GetUInt64Value(PLAYER_FIELD_COINAGE); }
-        void ModifyMoney(int64 d);
+        bool ModifyMoney(int64 d, bool sendError = true);
         bool HasEnoughMoney(uint64 amount) const { return GetMoney() >= amount; }
         bool HasEnoughMoney(int64 amount) const
         {

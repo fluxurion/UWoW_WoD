@@ -267,7 +267,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_GAMEOBJECT_QUERY,                                   STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Query::QueryGameObject, &WorldSession::HandleGameObjectQueryOpcode);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GAMEOBJ_REPORT_USE,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGameobjectReportUse       );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GAMEOBJ_USE,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGameObjectUseOpcode       );//603
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_MAIL_LIST,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGetMailList               );
+    DEFINE_HANDLER(CMSG_GET_MAIL_LIST,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Mail::MailGetList, &WorldSession::HandleGetMailList);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_MIRRORIMAGE_DATA,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMirrorImageDataRequest    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GMRESPONSE_RESOLVE,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGMResponseResolve         );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_GMSURVEY_SUBMIT,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGMSurveySubmit            );
@@ -383,7 +383,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_MAIL_MARK_AS_READ,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Mail::MailMarkAsRead, &WorldSession::HandleMailMarkAsRead);//603
     DEFINE_HANDLER(CMSG_MAIL_RETURN_TO_SENDER,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Mail::MailReturnToSender, &WorldSession::HandleMailReturnToSender);//603
     DEFINE_HANDLER(CMSG_MAIL_TAKE_ITEM,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Mail::MailTakeItem, &WorldSession::HandleMailTakeItem);//603
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MAIL_TAKE_MONEY,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMailTakeMoney             );
+    DEFINE_HANDLER(CMSG_MAIL_TAKE_MONEY,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Mail::MailTakeMoney, &WorldSession::HandleMailTakeMoney);//603
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_ADDON_BATTLEGROUND,          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatAddonMessage, &WorldSession::HandleChatAddonMessageOpcode    );
     DEFINE_HANDLER(CMSG_MESSAGECHAT_ADDON_GUILD,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatAddonMessage, &WorldSession::HandleChatAddonMessageOpcode    );//603
     DEFINE_HANDLER(CMSG_MESSAGECHAT_ADDON_INSTANCE,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatAddonMessage, &WorldSession::HandleChatAddonMessageOpcode    );//603
@@ -1053,7 +1053,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_ROLL_WON,                           STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LOOT_START_ROLL,                         STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_COIN_REMOVED,                            STATUS_NEVER);//603
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_MAIL_LIST_RESULT,                        STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_MAIL_LIST_RESULT,                        STATUS_NEVER);//603
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_MAP_OBJ_EVENTS,                          STATUS_UNHANDLED);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_MEETINGSTONE_COMPLETE,                   STATUS_UNHANDLED);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_MEETINGSTONE_IN_PROGRESS,                STATUS_UNHANDLED);
