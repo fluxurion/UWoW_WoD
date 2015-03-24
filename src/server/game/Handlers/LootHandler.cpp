@@ -30,28 +30,18 @@
 #include "World.h"
 #include "Util.h"
 #include "GuildMgr.h"
+#include "LootPackets.h"
 
-void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLootItem& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
-    ObjectGuid lguid = player->GetLootGUID();
+    ObjectGuid lootObjectGUID = player->GetLootGUID();
     Loot* loot = NULL;
-    uint8 lootSlot = 0;
 
-    uint32 count = recvData.ReadBits(23);
-    std::vector<ObjectGuid> guids(count);
-
-    for (uint32 i = 0; i < count; ++i)
-        //recvData.ReadGuidMask<4, 7, 0, 3, 5, 6, 2, 1>(guids[i]);
-
-    for (uint32 i = 0; i < count; ++i)
+    for (WorldPackets::Loot::LootRequest const& req : packet.Loot)
     {
-        recvData >> lootSlot;
-
-        //recvData.ReadGuidBytes<2, 0, 5, 4, 6, 1, 3, 7>(guids[i]);
-
-        lguid = guids[i];
+        ObjectGuid lguid = req.Object;
 
         if (lguid.IsGameObject())
         {
@@ -101,7 +91,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
 
             if (!lootAllowed || !creature->IsWithinDistInMap(looter, LOOT_DISTANCE))
             {
-                player->SendLootRelease(lguid);
+                player->SendLootError(lootObjectGUID, lguid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
                 return;
             }
 
@@ -111,10 +101,15 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
         if(Group* group = player->GetGroup())
         {
             // Already rolled?
-            if (group->isRolledSlot(lootSlot))
+            if (group->isRolledSlot(req.LootListID-1))
                 return;
         }
-        player->StoreLootItem(lootSlot, loot);
+        // Since 6.x client sends loot starting from 1 hence the -1
+        player->StoreLootItem(req.LootListID-1, loot);
+
+        // If player is removing the last LootItem, delete the empty container.
+        if (loot->isLooted() && lguid.IsItem())
+            player->GetSession()->DoLootRelease(lguid);
     }
 }
 
