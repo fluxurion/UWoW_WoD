@@ -259,13 +259,13 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
 
     // Check possible cheat
-    if (!GetPlayer()->IsAlive() || !packet.Unit.IsCreatureOrVehicle())
+    if (!GetPlayer()->isAlive() || !packet.Unit.IsCreatureOrVehicle())
         return;
 
     LootCorps(packet.Unit);
 
     // interrupt cast
-    if (GetPlayer()->IsNonMeleeSpellCast(false))
+    if (GetPlayer()->IsNonMeleeSpellCasted(false))
         GetPlayer()->InterruptNonMeleeSpells(false);
 }
 
