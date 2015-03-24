@@ -32,6 +32,7 @@
 #include "GuildMgr.h"
 #include "LootPackets.h"
 
+//! 6.0.3
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLootItem& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
@@ -252,17 +253,20 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
     }
 }
 
-//! 5.4.1
-void WorldSession::HandleLootOpcode(WorldPacket & recvData)
+//! 6.0.3
+void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
 
-    ObjectGuid guid;
-    
-    //recvData.ReadGuidMask<7, 5, 4, 2, 0, 1, 6, 3>(guid);
-    //recvData.ReadGuidBytes<0, 2, 1, 3, 6, 5, 4, 7>(guid);
+    // Check possible cheat
+    if (!GetPlayer()->IsAlive() || !packet.Unit.IsCreatureOrVehicle())
+        return;
 
-    LootCorps(guid);
+    LootCorps(packet.Unit);
+
+    // interrupt cast
+    if (GetPlayer()->IsNonMeleeSpellCast(false))
+        GetPlayer()->InterruptNonMeleeSpells(false);
 }
 
 void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)

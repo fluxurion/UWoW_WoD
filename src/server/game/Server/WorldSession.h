@@ -671,7 +671,7 @@ class WorldSession
         void HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLootItem& packet);
         void HandleLootMoneyOpcode(WorldPacket& recvPacket);
         void HandleLootSpecIdOpcode(WorldPacket& recvPacket);
-        void HandleLootOpcode(WorldPacket& recvPacket);
+        void HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
         void HandleLootReleaseOpcode(WorldPacket& recvPacket);
         void HandleLootMasterGiveOpcode(WorldPacket& recvPacket);
         void HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest);
