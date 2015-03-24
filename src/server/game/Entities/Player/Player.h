@@ -2655,6 +2655,7 @@ class Player : public Unit, public GridObject<Player>
         void SendLootRelease(ObjectGuid guid);
         void SendNotifyLootItemRemoved(uint8 lootSlot, ObjectGuid guid);
         void SendNotifyLootMoneyRemoved(uint64 gold, ObjectGuid guid);
+        void SendLootError(ObjectGuid guid, ObjectGuid lGuid, LootError error);
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/

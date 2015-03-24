@@ -1422,8 +1422,8 @@ void GameObject::Use(Unit* user)
                         else
                             player->SendLoot(GetGUID(), LOOT_FISHING);
                     }
-                    // TODO: else: junk
-
+                    else // else: junk
+                        player->SendLoot(GetGUID(), LOOT_FISHING_JUNK);
                     break;
                 }
                 case GO_JUST_DEACTIVATED:                   // nothing to do, will be deleted at next update

@@ -10159,7 +10159,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
 
         if (loot_type == LOOT_PICKPOCKETING && IsFriendlyTo(creature))
         {
-            SendLootRelease(guid);
+            //SendLootRelease(guid);
+            SendLootError(guid, loot->GetGUID(), LOOT_ERROR_ALREADY_PICKPOCKETED);
             return;
         }
 
@@ -10269,6 +10270,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
     {
         case LOOT_INSIGNIA:    loot_type = LOOT_SKINNING; break;
         case LOOT_FISHINGHOLE: loot_type = LOOT_FISHING; break;
+        case LOOT_FISHING_JUNK: loot_type = LOOT_FISHING; break;
         default: break;
     }
 
@@ -10298,18 +10300,22 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
     }
 
     //! 6.0.3
-    WorldPackets::Loot::LootResponse packet;
-    packet.LootObj = guid;
-    packet.Owner = loot->GetGUID();
-    packet.LootMethod = loot_type;
-    if (!GetGroup())
-        packet.PersonalLooting = true;
-    else
-        packet.PersonalLooting = false;
-    packet.AELooting = pool;
-    loot->BuildLootResponse(packet, this, permission, groupThreshold);
+    if (permission != NONE_PERMISSION)
+    {
+        WorldPackets::Loot::LootResponse packet;
+        packet.LootObj = guid;
+        packet.Owner = loot->GetGUID();
+        packet.LootMethod = loot_type;
+        if (!GetGroup())
+            packet.PersonalLooting = true;
+        else
+            packet.PersonalLooting = false;
+        packet.AELooting = pool;
+        loot->BuildLootResponse(packet, this, permission, groupThreshold);
 
-    SendDirectMessage(packet.Write());
+        SendDirectMessage(packet.Write());
+    }else
+        SendLootError(guid, loot->GetGUID(), LOOT_ERROR_DIDNT_KILL);
 
     // add 'this' player as one of the players that are looting 'loot'
     if (permission != NONE_PERMISSION)
@@ -10317,6 +10323,17 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
 
     if (loot_type == LOOT_CORPSE && !guid.IsItem())
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
+}
+
+//! 6.0.3
+void Player::SendLootError(ObjectGuid guid, ObjectGuid lGuid, LootError error)
+{
+    WorldPackets::Loot::LootResponse packet;
+    packet.LootObj = guid;
+    packet.Owner = lGuid;
+    packet.LootMethod = LOOT_NONE;
+    packet.FailureReason = error;
+    SendDirectMessage(packet.Write());
 }
 
 //! 6.0.3
