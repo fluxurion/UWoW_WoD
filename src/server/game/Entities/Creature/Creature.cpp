@@ -1465,6 +1465,8 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType guid, Map* map, bool addTo
 
     m_creatureData = data;
 
+    loot.SetGUID(ObjectGuid::Create<HighGuid::LootObject>(data->mapid, data->id, sObjectMgr->GetGenerator<HighGuid::LootObject>()->Generate()));
+
     setActive(data->isActive);
 
     if (addToMap && !GetMap()->AddToMap(this))

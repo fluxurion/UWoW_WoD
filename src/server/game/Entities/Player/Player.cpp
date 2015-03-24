@@ -90,6 +90,7 @@
 #include "QuestPackets.h"
 #include "MovementPackets.h"
 #include "TalentPackets.h"
+#include "LootPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -10296,11 +10297,19 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
         }
     }
 
-    //! 5.4.1
-    WorldPacket data(SMSG_LOOT_RESPONSE);
-    data << LootView(*loot, this, loot_type, guid, permission, groupThreshold, pool);
+    //! 6.0.3
+    WorldPackets::Loot::LootResponse packet;
+    packet.LootObj = guid;
+    packet.Owner = loot->GetGUID();
+    packet.LootMethod = loot_type;
+    if (!GetGroup())
+        packet.PersonalLooting = true;
+    else
+        packet.PersonalLooting = false;
+    packet.AELooting = pool;
+    loot->BuildLootResponse(packet, this, permission, groupThreshold);
 
-    SendDirectMessage(&data);
+    SendDirectMessage(packet.Write());
 
     // add 'this' player as one of the players that are looting 'loot'
     if (permission != NONE_PERMISSION)

@@ -1143,7 +1143,7 @@ enum OpcodeServer : uint32
     SMSG_LOOT_RELEASE                                 = 0x0BD3,
     SMSG_LOOT_RELEASE_ALL                             = 0x198C,
     SMSG_LOOT_REMOVED                                 = 0x0906,
-    SMSG_LOOT_RESPONSE                                = 0xBADD,
+    SMSG_LOOT_RESPONSE                                = 0x0F8A,
     SMSG_LOOT_ROLL                                    = 0xBADD,
     SMSG_LOOT_ROLL_WON                                = 0xBADD,
     SMSG_LOOT_SLOT_CHANGED                            = 0xBADD,

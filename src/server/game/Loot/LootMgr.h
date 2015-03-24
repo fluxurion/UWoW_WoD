@@ -29,6 +29,19 @@
 #include <map>
 #include <vector>
 
+namespace WorldPackets
+{
+    namespace Loot
+    {
+        class LootResponse;
+    }
+
+    namespace Item
+    {
+        struct ItemInstance;
+    }
+}
+
 struct Loot;
 enum RollType
 {
@@ -69,9 +82,10 @@ enum PermissionTypes
     ALL_PERMISSION              = 0,
     GROUP_PERMISSION            = 1,
     MASTER_PERMISSION           = 2,
-    ROUND_ROBIN_PERMISSION      = 3,
-    OWNER_PERMISSION            = 4,
-    NONE_PERMISSION             = 5,
+    RESTRICTED_PERMISSION       = 3,
+    ROUND_ROBIN_PERMISSION      = 4,
+    OWNER_PERMISSION            = 5,
+    NONE_PERMISSION             = 6
 };
 
 enum LootItemType
@@ -179,6 +193,8 @@ struct LootItem
 
     void AddAllowedLooter(Player const* player);
     const GuidSet & GetAllowedLooters() const { return allowedGUIDs; }
+
+    void BuildItemInstance(WorldPackets::Item::ItemInstance& instance) const;
 };
 
 struct QuestItem
@@ -296,15 +312,9 @@ class LootValidatorRefManager : public RefManager<Loot, LootValidatorRef>
 };
 
 //=====================================================
-struct LootView;
-
-ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li);
-ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
 
 struct Loot
 {
-    friend ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
-
     QuestItemMap const& GetPlayerCurrencies() const { return PlayerCurrencies; }
     QuestItemMap const& GetPlayerQuestItems() const { return PlayerQuestItems; }
     QuestItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }
@@ -326,6 +336,9 @@ struct Loot
 
     Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), spawnMode(0), m_lootOwner(NULL), objType(0), specId(0), itemLevel(0), objGuid(), objEntry(0)  {}
     ~Loot() { clear(); }
+
+    ObjectGuid const& GetGUID() const { return _GUID; }
+    void SetGUID(ObjectGuid const& guid) { _GUID = guid; }
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)
@@ -382,36 +395,29 @@ struct Loot
     bool hasOverThresholdItem() const;
     Player const* GetLootOwner() const { return m_lootOwner; }
 
-    private:
-        void FillNotNormalLootFor(Player* player, bool presentAtLooting);
-        QuestItemList* FillCurrencyLoot(Player* player);
-        QuestItemList* FillFFALoot(Player* player);
-        QuestItemList* FillQuestLoot(Player* player);
-        QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
+    // Builds data for SMSG_LOOT_RESPONSE
+    void BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* viewer, PermissionTypes permission = ALL_PERMISSION, ItemQualities t = ITEM_QUALITY_POOR) const;
 
-        GuidSet PlayersLooting;
-        QuestItemMap PlayerCurrencies;
-        QuestItemMap PlayerQuestItems;
-        QuestItemMap PlayerFFAItems;
-        QuestItemMap PlayerNonQuestNonFFANonCurrencyConditionalItems;
+private:
+    void FillNotNormalLootFor(Player* player, bool presentAtLooting);
+    QuestItemList* FillCurrencyLoot(Player* player);
+    QuestItemList* FillFFALoot(Player* player);
+    QuestItemList* FillQuestLoot(Player* player);
+    QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
 
-        // All rolls are registered here. They need to know, when the loot is not valid anymore
-        LootValidatorRefManager i_LootValidatorRefManager;
+    GuidSet PlayersLooting;
+    QuestItemMap PlayerCurrencies;
+    QuestItemMap PlayerQuestItems;
+    QuestItemMap PlayerFFAItems;
+    QuestItemMap PlayerNonQuestNonFFANonCurrencyConditionalItems;
 
-        Player* m_lootOwner;
-};
+    // All rolls are registered here. They need to know, when the loot is not valid anymore
+    LootValidatorRefManager i_LootValidatorRefManager;
 
-struct LootView
-{
-    Loot &loot;
-    Player* viewer;
-    PermissionTypes permission;
-    ItemQualities threshold;
-    uint8 _loot_type;
-    uint8 pool;
-    ObjectGuid _guid;
-    LootView(Loot &_loot, Player* _viewer, uint8 loot_type, ObjectGuid guid, PermissionTypes _permission = ALL_PERMISSION, ItemQualities t = ITEM_QUALITY_POOR, uint8 _pool = 1)
-        : loot(_loot), viewer(_viewer), _loot_type(loot_type), _guid(ObjectGuid(guid)), permission(_permission), threshold(t), pool(_pool) {}
+    Player* m_lootOwner;
+
+    // Loot GUID
+    ObjectGuid _GUID;
 };
 
 extern LootStore LootTemplates_Creature;
