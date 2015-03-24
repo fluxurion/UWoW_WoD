@@ -1065,16 +1065,16 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
     GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, 2, actionBar);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 {
-    uint8 unk1;
-    recvData >> unk1;                                      // 0 or 127 expected. not it's bit
+    uint8 TriggerEvent;
+    recvData >> TriggerEvent;                                      // 0 or 127 expected. not it's bit
 
     WorldPacket data(SMSG_PLAYED_TIME, 4 + 4 + 1);
-    data << uint32(_player->GetLevelPlayedTime());
     data << uint32(_player->GetTotalPlayedTime());
-    data << uint8(unk1);                                    // 0 - will not show in chat frame
+    data << uint32(_player->GetLevelPlayedTime());
+    data << uint8(TriggerEvent);                                    // 0 - will not show in chat frame
     SendPacket(&data);
 }
 
@@ -2038,4 +2038,9 @@ void WorldSession::SuspendTokenResponse(WorldPacket& recvPacket)
     data << uint32(0);
     data.WriteBits(2, 2);
     SendPacket(&data);
+}
+
+void WorldSession::HandleForcedReactions(WorldPacket& recvPacket)
+{
+    _player->GetReputationMgr().SendForceReactions();
 }

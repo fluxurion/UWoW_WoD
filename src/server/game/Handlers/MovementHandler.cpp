@@ -812,15 +812,13 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     }
 }
 
+//! 6.0.3
 void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
 
     ObjectGuid guid;
-
-    recvPacket.ReadBit(); //unk
-    ////recvPacket.ReadGuidMask<4, 7, 0, 1, 5, 6, 2, 3>(guid);
-    ////recvPacket.ReadGuidBytes<6, 5, 4, 3, 1, 0, 7, 2>(guid);
+    recvPacket >> guid;
 
     if (GetPlayer()->IsInWorld())
     {

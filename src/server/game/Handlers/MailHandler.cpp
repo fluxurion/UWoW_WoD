@@ -540,6 +540,7 @@ void WorldSession::HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney& packet
     CharacterDatabase.CommitTransaction(trans);
 }
 
+//! 6.0.3
 //called when player lists his received mails
 void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
 {
@@ -585,25 +586,19 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
     _player->UpdateNextMailTimeAndUnreads();
 }
 
+//! 6.0.3
 //used when player copies mail body to his inventory
-void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
+void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextItem& packet)
 {
-    ObjectGuid mailbox;
-    uint32 mailId;
-
-    recvData >> mailId;
-    //recvData.ReadGuidMask<4, 6, 2, 3, 7, 1, 5, 0>(mailbox);
-    //recvData.ReadGuidBytes<0, 7, 1, 5, 3, 2, 4, 6>(mailbox);
-
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
     Player* player = _player;
 
-    Mail* m = player->GetMail(mailId);
+    Mail* m = player->GetMail(packet.MailID);
     if (!m || (m->body.empty() && !m->mailTemplateId) || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
     {
-        player->SendMailResult(mailId, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
+        player->SendMailResult(packet.MailID, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
         return;
     }
 
@@ -620,7 +615,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
         MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(m->mailTemplateId);
         if (!mailTemplateEntry)
         {
-            player->SendMailResult(mailId, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
+            player->SendMailResult(packet.MailID, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
             return;
         }
 
@@ -632,7 +627,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     bodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, m->sender);
     bodyItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_MAIL_TEXT_MASK);
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleMailCreateTextItem mailid=%u", mailId);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleMailCreateTextItem mailid=%u", packet.MailID);
 
     ItemPosCountVec dest;
     uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);
@@ -643,11 +638,11 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
         player->m_mailsUpdated = true;
 
         player->StoreItem(dest, bodyItem, true);
-        player->SendMailResult(mailId, MAIL_MADE_PERMANENT, MAIL_OK);
+        player->SendMailResult(packet.MailID, MAIL_MADE_PERMANENT, MAIL_OK);
     }
     else
     {
-        player->SendMailResult(mailId, MAIL_MADE_PERMANENT, MAIL_ERR_EQUIP_ERROR, msg);
+        player->SendMailResult(packet.MailID, MAIL_MADE_PERMANENT, MAIL_ERR_EQUIP_ERROR, msg);
         delete bodyItem;
     }
 }
@@ -655,19 +650,18 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
 //TODO Fix me! ... this void has probably bad condition, but good data are sent
 void WorldSession::HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& /*packet*/)
 {
-    WorldPacket data(SMSG_QUERY_NEXT_MAIL_TIME, 8 + _player->unReadMails*24);
+    WorldPackets::Mail::MailQueryNextTimeResult result;
 
     if (!_player->m_mailsLoaded)
         _player->_LoadMail();
 
     if (_player->unReadMails > 0)
     {
-        data << float(0);                                  // float
-        data << uint32(0);                                 // count
+        result.NextMailTime = 0.0f;
 
-        uint32 count = 0;
-        time_t now = time(NULL);
+        time_t now = time(nullptr);
         std::set<ObjectGuid::LowType> sentSenders;
+
         for (PlayerMails::iterator itr = _player->GetMailBegin(); itr != _player->GetMailEnd(); ++itr)
         {
             Mail* m = (*itr);
@@ -683,25 +677,17 @@ void WorldSession::HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMail
             if (sentSenders.count(m->sender))
                 continue;
 
-            data << uint64(m->messageType == MAIL_NORMAL ? m->sender : 0);  // player guid
-            data << uint32(m->messageType != MAIL_NORMAL ? m->sender : 0);  // non-player entries
-            data << uint32(m->messageType);
-            data << uint32(m->stationery);
-            data << float(m->deliver_time - now);
+            result.Next.emplace_back(m);
 
             sentSenders.insert(m->sender);
-            ++count;
-            if (count == 2)                                  // do not display more than 2 mails
+
+            // do not send more than 2 mails
+            if (sentSenders.size() > 2)
                 break;
         }
-
-        data.put<uint32>(4, count);
     }
     else
-    {
-        data << float(-DAY);
-        data << uint32(0);
-    }
+        result.NextMailTime = -DAY;
 
-    SendPacket(&data);
+    SendPacket(result.Write());
 }

@@ -874,7 +874,7 @@ class WorldSession
         void HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead& packet);
         void HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& packet);
         void HandleMailDelete(WorldPackets::Mail::MailDelete& packet);
-        void HandleMailCreateTextItem(WorldPacket& recvData);
+        void HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextItem& packet);
         void HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& packet);
         void HandleCancelChanneling(WorldPacket& recvData);
 
@@ -1215,7 +1215,7 @@ class WorldSession
         void HandlerCategoryCooldownOpocde(WorldPacket& recvPacket);
         void HandleClearRaidMarkerOpcode(WorldPacket& recvPacket);
         void HandleQueryPlayerRecipes(WorldPacket& recvPacket);
-
+        void HandleForcedReactions(WorldPacket& recvPacket);
         void HandleSaveCUFProfiles(WorldPacket& recvPacket);
         void SendLoadCUFProfiles();
 

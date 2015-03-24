@@ -24629,8 +24629,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     loginSetTimeSpeed.ServerTimeHolidayOffset = 0; /// @todo
     SendDirectMessage(loginSetTimeSpeed.Write());
 
-    // SMSG_SET_FORCED_REACTIONS
-    GetReputationMgr().SendForceReactions();
+    // SMSG_SET_FORCED_REACTIONS by CMSG_REQUEST_FORCED_REACTIONS
 
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_SET_PHASE_SHIFT
