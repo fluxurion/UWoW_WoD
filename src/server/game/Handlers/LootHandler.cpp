@@ -44,9 +44,9 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
     {
         ObjectGuid lguid = req.Object;
 
-        if (lguid.IsGameObject())
+        if (lootObjectGUID.IsGameObject())
         {
-            GameObject* go = player->GetMap()->GetGameObject(lguid);
+            GameObject* go = player->GetMap()->GetGameObject(lootObjectGUID);
 
             // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
             if (!go || ((go->GetOwnerGUID() != _player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(_player, INTERACTION_DISTANCE)))
@@ -57,9 +57,9 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
             loot = &go->loot;
         }
-        else if (lguid.IsItem())
+        else if (lootObjectGUID.IsItem())
         {
-            Item* pItem = player->GetItemByGuid(lguid);
+            Item* pItem = player->GetItemByGuid(lootObjectGUID);
 
             if (!pItem)
             {
@@ -69,9 +69,9 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
             loot = &pItem->loot;
         }
-        else if (lguid.IsCorpse())
+        else if (lootObjectGUID.IsCorpse())
         {
-            Corpse* bones = ObjectAccessor::GetCorpse(*player, lguid);
+            Corpse* bones = ObjectAccessor::GetCorpse(*player, lootObjectGUID);
             if (!bones)
             {
                 player->SendLootRelease(lguid);
@@ -82,7 +82,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
         }
         else
         {
-            Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
+            Creature* creature = GetPlayer()->GetMap()->GetCreature(lootObjectGUID);
 
             bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
 
@@ -92,7 +92,6 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
             if (!lootAllowed || !creature->IsWithinDistInMap(looter, LOOT_DISTANCE))
             {
-                sLog->outU(">>>>>>>>>>>>>>>> WTF?");
                 player->SendLootError(lootObjectGUID, lguid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
                 return;
             }
@@ -106,7 +105,6 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
             if (group->isRolledSlot(req.LootListID-1))
                 return;
         }
-        sLog->outU(">>>>>>>>>>>>>>>> DZINA - %u", req.LootListID-1);
 
         // Since 6.x client sends loot starting from 1 hence the -1
         player->StoreLootItem(req.LootListID-1, loot);
