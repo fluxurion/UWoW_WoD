@@ -212,12 +212,11 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 
                 loot->NotifyMoneyRemoved(goldPerPlayer);
 
-                //! 5.4.1
-                WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-                data << uint32(goldPerPlayer);
-                data.WriteBit(playersNear.size() <= 1);     // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
-                data.FlushBits();
-
+                //! 6.0.3 SMSG_LOOT_MONEY_NOTIFY
+                WorldPackets::Loot::LootMoneyNotify packet;
+                packet.Money = goldPerPlayer;
+                packet.SoleLooter = playersNear.size() <= 1 ? true : false;
+  
                 for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
                 {
                     (*i)->ModifyMoney(goldPerPlayer);
@@ -227,7 +226,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                         if (uint32 guildGold = CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
                             guild->HandleMemberDepositMoney(this, guildGold, true);
 
-                    (*i)->GetSession()->SendPacket(&data);
+                    (*i)->GetSession()->SendPacket(packet.Write());
                 }
             }
             else
@@ -241,12 +240,11 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
                 loot->NotifyMoneyRemoved(loot->gold);
 
-                //! 5.4.1
-                WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-                data << uint32(loot->gold);
-                data.WriteBit(1);   // "You loot..."
-                data.FlushBits();
-                SendPacket(&data);
+                //! 6.0.3 SMSG_LOOT_MONEY_NOTIFY
+                WorldPackets::Loot::LootMoneyNotify packet;
+                packet.Money = loot->gold;
+                packet.SoleLooter = true; // "You loot..."
+                SendPacket(packet.Write());
             }
 
             loot->gold = 0;
