@@ -15555,34 +15555,12 @@ void Unit::InitialPowers(bool maxpower)
         return;
 
     int32 count = 0;
-    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
-    {
-        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
-        if (!powerEntry)
-            continue;
 
-        if (powerEntry->classId != classId)
-            continue;
-
-        if (powerEntry->power == POWER_ALTERNATE_POWER)
-            continue;
-
-        if (powerEntry->power != POWER_MANA && (classId == CLASS_WARLOCK || maxpower)) //warlock not send power > 0
-            continue;
-
-        count++;
-    }
-
-    if(!count)
-        return;
-
+    //! 6.0.3
     WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
-    ObjectGuid guid = GetGUID();
-    //data.WriteGuidMask<1>(guid);
-    data.WriteBits(count, 21);
-    //data.WriteGuidMask<3, 6, 0, 4, 2, 5, 7>(guid);
-    data.FlushBits();
-    //data.WriteGuidBytes<1, 2, 0>(guid);
+    data << GetGUID();
+    size_t countPos = data.wpos();
+    data << uint32(count);
 
     int32 powerIndex = 0;
     for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
@@ -15614,12 +15592,13 @@ void Unit::InitialPowers(bool maxpower)
         if (power != POWER_MANA && (classId == CLASS_WARLOCK || maxpower)) //warlock not send power > 0
             continue;
 
-        data << uint8(power);
+        count++;
         data << int32(curval);
+        data << uint8(power);
 
     }
+    data.put<uint32>(countPos, count);
 
-    //data.WriteGuidBytes<7, 4, 5, 6, 3>(guid);
     SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
 }
 
@@ -15640,21 +15619,12 @@ void Unit::SetPower(Powers power, int32 val, bool send)
 
     if (IsInWorld() && send)
     {
-        //! 5.4.1
+        //! 6.0.3
         WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
-        ObjectGuid guid = GetGUID();
-
-        //data.WriteGuidMask<1>(guid);
-        int powerCounter = 1;
-        data.WriteBits(powerCounter, 21);
-        //data.WriteGuidMask<3, 6, 0, 4, 2, 5, 7>(guid);
-        
-        data.FlushBits();
-        
-        //data.WriteGuidBytes<1, 2, 0>(guid);
-        data << uint8(power);
+        data << GetGUID();
+        data << uint32(1);
         data << int32(val);
-        //data.WriteGuidBytes<7, 4, 5, 6, 3>(guid);
+        data << uint8(power);
         SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
     }
     
