@@ -24,8 +24,8 @@ void WorldPackets::Loot::LootUnit::Read()
 
 WorldPacket const* WorldPackets::Loot::LootResponse::Write()
 {
-    _worldPacket << LootObj;
     _worldPacket << Owner;
+    _worldPacket << LootObj;
     _worldPacket << Threshold;
     _worldPacket << LootMethod;
     _worldPacket << AcquireReason;

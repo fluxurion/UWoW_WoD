@@ -10259,7 +10259,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
     }
 
     if(AoeLoot)
-        AddAoeLootList(guid);
+        AddAoeLootList(guid, loot->GetGUID());
 
     if (pool == 0)
         SetLootGUID(guid);
@@ -10302,8 +10302,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
     if (permission != NONE_PERMISSION)
     {
         WorldPackets::Loot::LootResponse packet;
-        packet.LootObj = guid;
-        packet.Owner = loot->GetGUID();
+        packet.LootObj = loot->GetGUID();
+        packet.Owner = guid;
         packet.LootMethod = loot_type;
         if (!GetGroup())
             packet.PersonalLooting = true;

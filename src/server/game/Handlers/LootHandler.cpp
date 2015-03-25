@@ -35,14 +35,21 @@
 //! 6.0.3
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLootItem& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
-    ObjectGuid lootObjectGUID = player->GetLootGUID();
     Loot* loot = NULL;
 
     for (WorldPackets::Loot::LootRequest const& req : packet.Loot)
     {
         ObjectGuid lguid = req.Object;
+        ObjectGuid lootObjectGUID = player->GetOwnerByLootGuid(lguid);
+
+        if (!lootObjectGUID)
+        {
+            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM can't find owner of loot %u", lguid.GetCounter());
+            player->SendLootRelease(lguid);
+            return;
+        }
 
         if (lootObjectGUID.IsGameObject())
         {
@@ -117,13 +124,13 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
 
     Player* player = GetPlayer();
     ObjectGuid guid = player->GetLootGUID();
-    GuidList* listloot = player->GetAoeLootList();
-    GuidList* temploot;
-    GuidList templootguid;
+    AoeMap* listloot = player->GetAoeLootList();
+    AoeMap* temploot;
+    AoeMap templootguid;
     if (!guid && listloot->empty())
         return;
 
@@ -131,15 +138,15 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
         temploot = listloot;
     else
     {
-        templootguid.push_back(guid);
+        templootguid[guid] = guid/*should be loot guid. but no metter*/;
         temploot = &templootguid;
     }
 
-    for (GuidList::const_iterator itr = temploot->begin(); itr != temploot->end(); ++itr)
+    for (AoeMap::const_iterator itr = temploot->begin(); itr != temploot->end(); ++itr)
     {
         Loot* loot = NULL;
         bool shareMoney = true;
-        ObjectGuid lootguid = *itr;
+        ObjectGuid lootguid = itr->first;
 
         switch (lootguid.GetHigh())
         {

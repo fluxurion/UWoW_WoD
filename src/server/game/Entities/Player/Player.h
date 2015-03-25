@@ -1374,6 +1374,8 @@ struct Visuals
     uint8 m_altVis;
 };
 
+typedef UNORDERED_MAP<ObjectGuid/*owner*/, ObjectGuid/*lGUID*/> AoeMap;
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -2437,17 +2439,18 @@ class Player : public Unit, public GridObject<Player>
         ObjectGuid GetLootGUID() const { return m_lootGuid; }
         void SetLootGUID(ObjectGuid guid) { m_lootGuid = guid; }
         void ClearAoeLootList() { m_AoelootGuidList.clear(); }
-        void AddAoeLootList(ObjectGuid guid) { m_AoelootGuidList.push_back(guid); }
-        GuidList* GetAoeLootList() { return &m_AoelootGuidList; }
-        void DelAoeLootList(ObjectGuid guid) { m_AoelootGuidList.remove(guid); }
-        bool IsInAoeLootList(ObjectGuid guid)
+        void AddAoeLootList(ObjectGuid owner, ObjectGuid lGUID) { m_AoelootGuidList[owner] = lGUID; }
+        AoeMap* GetAoeLootList() { return &m_AoelootGuidList; }
+        void DelAoeLootList(ObjectGuid owner) { m_AoelootGuidList.erase(owner); }
+
+        ObjectGuid GetOwnerByLootGuid(ObjectGuid const& lguid)
         {
-            for (GuidList::const_iterator itr = m_AoelootGuidList.begin(); itr != m_AoelootGuidList.end(); ++itr)
+            for(AoeMap::const_iterator itr = m_AoelootGuidList.begin(); itr != m_AoelootGuidList.end(); ++itr)
             {
-                if (*itr == guid)
-                    return true;
+                if (itr->second == lguid)
+                    return itr->first;
             }
-            return false;
+            return ObjectGuid::Empty;
         }
 
         void RemovedInsignia(Player* looterPlr);
@@ -3277,7 +3280,7 @@ class Player : public Unit, public GridObject<Player>
 
         void outDebugValues() const;
         ObjectGuid m_lootGuid;
-        GuidList m_AoelootGuidList;
+        AoeMap m_AoelootGuidList;
 
         uint32 m_team;
         uint32 m_nextSave;
