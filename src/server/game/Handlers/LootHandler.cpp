@@ -92,6 +92,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
             if (!lootAllowed || !creature->IsWithinDistInMap(looter, LOOT_DISTANCE))
             {
+                sLog->outU(">>>>>>>>>>>>>>>> WTF?");
                 player->SendLootError(lootObjectGUID, lguid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
                 return;
             }
@@ -105,6 +106,8 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
             if (group->isRolledSlot(req.LootListID-1))
                 return;
         }
+        sLog->outU(">>>>>>>>>>>>>>>> DZINA - %u", req.LootListID-1);
+
         // Since 6.x client sends loot starting from 1 hence the -1
         player->StoreLootItem(req.LootListID-1, loot);
 
@@ -311,18 +314,20 @@ void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
         _player->InterruptNonMeleeSpells(false);
 }
 
+//! 6.0.3
 void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_RELEASE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_RELEASE");
 
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
     ObjectGuid guid;
+    recvData >> guid;
 
-    //recvData.ReadGuidMask<4, 6, 2, 0, 1, 3, 5, 7>(guid);
-    //recvData.ReadGuidBytes<1, 2, 6, 5, 3, 4, 7, 0>(guid);
-
-    DoLootRelease(guid);
+    ObjectGuid lguid = GetPlayer()->GetLootGUID();
+    if (!lguid.IsEmpty())
+        if (lguid == guid)
+            DoLootRelease(guid);
 }
 
 void WorldSession::DoLootRelease(ObjectGuid lguid)

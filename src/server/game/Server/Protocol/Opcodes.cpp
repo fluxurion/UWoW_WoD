@@ -375,7 +375,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOOT_METHOD,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMethodOpcode          );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_LOOT_SPECIALIZATION,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootSpecIdOpcode          );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOOT_MONEY,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMoneyOpcode           );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_LOOT_RELEASE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootReleaseOpcode         );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_LOOT_RELEASE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootReleaseOpcode         );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOOT_ROLL,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootRoll                  );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LOOT_MASTER_ASK_FOR_ROLL,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLootMasterAskForRoll      );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MINIMAP_PING,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMinimapPingOpcode         );//603
