@@ -57,8 +57,8 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
     }
 
     _worldPacket.WriteBit(PersonalLooting);
-    _worldPacket.WriteBit(Acquired);
     _worldPacket.WriteBit(AELooting);
+    _worldPacket.WriteBit(Acquired);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

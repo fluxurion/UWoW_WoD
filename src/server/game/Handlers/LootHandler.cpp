@@ -283,12 +283,15 @@ void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
     std::list<Creature*> corpesList;
     _looted->GetCorpseCreatureInGrid(corpesList, LOOT_DISTANCE);
 
-    WorldPacket data(SMSG_LOOT_RELEASE);
-    data << uint32(corpesList.size()-1);                             //aoe counter
+    WorldPacket data(SMSG_AE_LOOT_TARGETS);
+    data << uint32(corpesList.size());                             //aoe counter
     _player->SendDirectMessage(&data);
 
     _creature->SetOtherLootRecipient(lootedBy ? lootedBy->GetGUID() : ObjectGuid::Empty);
     _player->SendLoot(corpsGUID, LOOT_CORPSE, true);
+
+    data.Initialize(SMSG_AE_LOOT_TARGET_ACK);
+    _player->SendDirectMessage(&data);
 
     for (std::list<Creature*>::const_iterator itr = corpesList.begin(); itr != corpesList.end(); ++itr)
     {
@@ -297,7 +300,10 @@ void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
             creature->SetOtherLootRecipient(lootedBy ? lootedBy->GetGUID() : ObjectGuid::Empty);
 
             if(corpsGUID != creature->GetGUID())
+            {
                 _player->SendLoot(creature->GetGUID(), LOOT_CORPSE, true, 1);
+                _player->SendDirectMessage(&data); //SMSG_AE_LOOT_TARGET_ACK
+            }
         }
     }
 

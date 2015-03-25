@@ -9942,12 +9942,11 @@ void Player::RemovedInsignia(Player* looterPlr)
     looterPlr->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
 }
 
-//! 6.0.3 ToDo check it.
-void Player::SendLootRelease(ObjectGuid guid)
+//! 6.0.3
+void Player::SendLootRelease(ObjectGuid guid, ObjectGuid lGuid)
 {
-    ObjectGuid Owner;
     WorldPacket data(SMSG_LOOT_RELEASE);
-    data << guid << Owner;
+    data << guid << lGuid;
     SendDirectMessage(&data);
 }
 
@@ -9986,7 +9985,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
                     if (bg->GetTypeID(true) == BATTLEGROUND_AV)
                         if (!(((BattlegroundAV*)bg)->PlayerCanDoMineQuest(go->GetEntry(), GetTeam())))
                         {
-                            SendLootRelease(guid);
+                            SendLootRelease(guid, loot->GetGUID());
                             return;
                         }
 
@@ -10157,14 +10156,14 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
             return;
         }
 
+        loot = &creature->loot;
+
         if (loot_type == LOOT_PICKPOCKETING && IsFriendlyTo(creature))
         {
             //SendLootRelease(guid);
             SendLootError(guid, loot->GetGUID(), LOOT_ERROR_ALREADY_PICKPOCKETED);
             return;
         }
-
-        loot = &creature->loot;
 
         if (loot_type == LOOT_PICKPOCKETING)
         {
@@ -26857,7 +26856,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
     // questitems use the blocked field for other purposes
     if (!qitem && item->is_blocked)
     {
-        SendLootRelease(GetLootGUID());
+        SendLootRelease(GetLootGUID(), loot->GetGUID());
         return;
     }
 
