@@ -1020,7 +1020,7 @@ enum OpcodeServer : uint32
     SMSG_GUILD_CHALLENGE_COMPLETED                    = 0xBADD,
     SMSG_GUILD_CHALLENGE_UPDATED                      = 0xBADD,
     SMSG_GUILD_CHANGE_NAME_RESULT                     = 0xBADD,
-    SMSG_GUILD_COMMAND_RESULT                         = 0xBADD,
+    SMSG_GUILD_COMMAND_RESULT                         = 0x1205,
     SMSG_GUILD_COMMAND_RESULT_2                       = 0xBADD,
     SMSG_GUILD_CRITERIA_DATA                          = 0xBADD,
     SMSG_GUILD_CRITERIA_DELETED                       = 0xBADD,
@@ -1028,7 +1028,7 @@ enum OpcodeServer : uint32
     SMSG_GUILD_DECLINE                                = 0xBADD,
     SMSG_GUILD_EVENT                                  = 0x1027,
     SMSG_GUILD_EVENT_BANK_MONEY_CHANGED               = 0x1077,
-    SMSG_GUILD_EVENT_LOG_QUERY_RESULT                 = 0xBADD,
+    SMSG_GUILD_EVENT_LOG_QUERY_RESULTS                = 0x1075,
     SMSG_GUILD_EVENT_PRESENCE_CHANGE                  = 0x1228,
     SMSG_GUILD_FLAGGED_FOR_RENAME                     = 0xBADD,
     SMSG_GUILD_INVITE                                 = 0xBADD,
@@ -1532,6 +1532,7 @@ enum OpcodeServer : uint32
     SMSG_RESUME_TOKEN                                 = 0x0326,
     SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI       = 0x053D,
     SMSG_RESPEC_WIPE_CONFIRM                          = 0x1341,
+    SMSG_SAVE_GUILD_EMBLEM                            = 0x1037,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1541,7 +1542,6 @@ enum OpcodeServer : uint32
     SMSG_PETITION_RENAME                              = 0xBADD, // 5.4.1 17538
     SMSG_QUEST_PUSH_RESULT                            = 0xBADD, // 5.4.1 17538
     SMSG_RANDOM_ROLL                                  = 0xBADD, // 5.4.1 17538
-    SMSG_SAVE_GUILD_EMBLEM                            = 0xBADD, // 5.4.1 17538
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0xBADD, // 5.4.1 17538
     SMSG_AREA_TRIGGER_RESET                           = 0xBADD,  // 5.0.5 16048
     SMSG_ARENA_OPPONENT_UPDATE                        = 0xBADD, // 5.4.1 17538

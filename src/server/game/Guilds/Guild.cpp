@@ -26,6 +26,7 @@
 #include "SocialMgr.h"
 #include "Log.h"
 #include "AccountMgr.h"
+#include "GuildPackets.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -44,12 +45,13 @@ inline uint32 _GetGuildBankTabPrice(uint8 tabId)
     }
 }
 
+//! 6.0.3
 void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, GuildCommandError errCode, const std::string& param)
 {
-    WorldPacket data(SMSG_GUILD_COMMAND_RESULT, 8 + 1);
-    data.WriteBits(param.size(), 8);
+    WorldPacket data(SMSG_GUILD_COMMAND_RESULT, 9 + param.size());
     data << uint32(errCode);
     data << uint32(type);
+    data.WriteBits(param.size(), 8);
     data.WriteString(param);
     session->SendPacket(&data);
 
@@ -102,11 +104,10 @@ inline void Guild::LogHolder::AddEvent(SQLTransaction& trans, LogEntry* entry)
 inline void Guild::LogHolder::WritePacket(WorldPacket& data) const
 {
     ByteBuffer buffer;
-    data.WriteBits(m_log.size(), 21);
+    data << uint32(m_log.size());
     for (GuildLog::const_iterator itr = m_log.begin(); itr != m_log.end(); ++itr)
         (*itr)->WritePacket(data, buffer);
 
-    data.FlushBits();
     data.append(buffer);
 }
 
@@ -144,35 +145,18 @@ void Guild::EventLogEntry::SaveToDB(SQLTransaction& trans) const
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
+//structure of SMSG_GUILD_EVENT_LOG_QUERY_RESULTS
+//! 6.0.3
 void Guild::EventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& content) const
 {
     ObjectGuid guid1 = ObjectGuid::Create<HighGuid::Player>(m_playerGuid1);
     ObjectGuid guid2 = ObjectGuid::Create<HighGuid::Player>(m_playerGuid2);
 
-    //data.WriteGuidMask<2>(guid1);
-    //data.WriteGuidMask<4>(guid2);
-    //data.WriteGuidMask<7, 1>(guid1);
-    //data.WriteGuidMask<0, 6, 3>(guid2);
-    //data.WriteGuidMask<3, 5, 0, 4>(guid1);
-    //data.WriteGuidMask<7>(guid2);
-    //data.WriteGuidMask<6>(guid1);
-    //data.WriteGuidMask<2, 1, 5>(guid2);
-
-    //content.WriteGuidBytes<3>(guid2);
-    //content.WriteGuidBytes<3>(guid1);
-    //content.WriteGuidBytes<2, 1, 3>(guid2);
-    //content.WriteGuidBytes<1>(guid1);
-    // Event type
-    content << uint8(m_eventType);
-   /* content.WriteGuidBytes<0, 7>(guid2);
-    content.WriteGuidBytes<7, 4>(guid1);
-    content.WriteGuidBytes<5>(guid2);
-    content.WriteGuidBytes<5, 0>(guid1);*/
-    // New Rank
-    content << uint8(m_newRank);
-    // Event timestamp
-    content << uint32(::time(NULL) - m_timestamp);
-    //content.WriteGuidBytes<2, 6>(guid1);
+    content << guid1;
+    content << guid2;
+    content << uint8(m_eventType);                    // Event type
+    content << uint8(m_newRank);                      // New Rank
+    content << uint32(::time(NULL) - m_timestamp);    // Event timestamp
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2110,17 +2094,17 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
     data << float(0.f);                                                                 // Guild XP multiplier
 
     session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_PARTY_STATE_RESPONSE)");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_PARTY_STATE_RESPONSE)");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Send data to client
 void Guild::SendEventLog(WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_EVENT_LOG_QUERY_RESULT, 1 + m_eventLog->GetSize() * (1 + 8 + 4));
+    WorldPacket data(SMSG_GUILD_EVENT_LOG_QUERY_RESULTS, 4 + m_eventLog->GetSize() * 21);
     m_eventLog->WritePacket(data);
     session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_EVENT_LOG_QUERY_RESULT)");
+    //sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_EVENT_LOG_QUERY_RESULTS)");
 }
 
 void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
