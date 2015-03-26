@@ -501,12 +501,13 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* item)
     return true;
 }
 
+//! 6.0.3
 void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_BANK_QUERY_TEXT_RESULT, 4 + m_text.size() + 2);
-    data.WriteBits(m_text.size(), 14);
-    data.WriteString(m_text);
+    WorldPacket data(SMSG_GUILD_BANK_TEXT_QUERY_RESULT, 4 + m_text.size() + 2);
     data << uint32(m_tabId);
+    data(m_text.size(), 14);
+    data.WriteString(m_text);
 
     if (session)
         session->SendPacket(&data);
