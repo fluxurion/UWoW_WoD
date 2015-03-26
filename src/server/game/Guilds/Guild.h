@@ -522,7 +522,7 @@ private:
         uint32 GetGUID() const { return m_guid; }
 
         virtual void SaveToDB(SQLTransaction& trans) const = 0;
-        virtual void WritePacket(WorldPacket& data, ByteBuffer& content) const = 0;
+        virtual void WritePacket(WorldPacket& data) const = 0;
 
     protected:
         ObjectGuid::LowType m_guildId;
@@ -543,7 +543,7 @@ private:
         ~EventLogEntry() { }
 
         void SaveToDB(SQLTransaction& trans) const;
-        void WritePacket(WorldPacket& data, ByteBuffer& content) const;
+        void WritePacket(WorldPacket& data) const;
 
     private:
         GuildEventLogTypes m_eventType;
@@ -581,7 +581,7 @@ private:
         ~BankEventLogEntry() { }
 
         void SaveToDB(SQLTransaction& trans) const;
-        void WritePacket(WorldPacket& data, ByteBuffer& content) const;
+        void WritePacket(WorldPacket& data) const;
 
     private:
         GuildBankEventLogTypes m_eventType;

@@ -103,12 +103,9 @@ inline void Guild::LogHolder::AddEvent(SQLTransaction& trans, LogEntry* entry)
 // Writes information about all events into packet.
 inline void Guild::LogHolder::WritePacket(WorldPacket& data) const
 {
-    ByteBuffer buffer;
     data << uint32(m_log.size());
     for (GuildLog::const_iterator itr = m_log.begin(); itr != m_log.end(); ++itr)
-        (*itr)->WritePacket(data, buffer);
-
-    data.append(buffer);
+        (*itr)->WritePacket(data);
 }
 
 inline uint32 Guild::LogHolder::GetNextGUID()
@@ -147,16 +144,16 @@ void Guild::EventLogEntry::SaveToDB(SQLTransaction& trans) const
 
 //structure of SMSG_GUILD_EVENT_LOG_QUERY_RESULTS
 //! 6.0.3
-void Guild::EventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& content) const
+void Guild::EventLogEntry::WritePacket(WorldPacket& data) const
 {
     ObjectGuid guid1 = ObjectGuid::Create<HighGuid::Player>(m_playerGuid1);
     ObjectGuid guid2 = ObjectGuid::Create<HighGuid::Player>(m_playerGuid2);
 
-    content << guid1;
-    content << guid2;
-    content << uint8(m_eventType);                    // Event type
-    content << uint8(m_newRank);                      // New Rank
-    content << uint32(::time(NULL) - m_timestamp);    // Event timestamp
+    data << guid1;
+    data << guid2;
+    data << uint8(m_eventType);                    // Event type
+    data << uint8(m_newRank);                      // New Rank
+    data << uint32(::time(NULL) - m_timestamp);    // Event timestamp
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -188,7 +185,7 @@ void Guild::BankEventLogEntry::SaveToDB(SQLTransaction& trans) const
 
 //! SMSG_GUILD_BANK_LOG_QUERY_RESULT part of
 //! 6.0.3
-void Guild::BankEventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& content) const
+void Guild::BankEventLogEntry::WritePacket(WorldPacket& data) const
 {
     ObjectGuid logGuid = ObjectGuid::Create<HighGuid::Player>(m_playerGuid);
 
@@ -197,9 +194,9 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& conten
     bool itemMoved = (m_eventType == GUILD_BANK_LOG_MOVE_ITEM || m_eventType == GUILD_BANK_LOG_MOVE_ITEM2);
     bool hasStack = (hasItem && m_itemStackCount > 1);
 
-    content << logGuid;
-    content << uint32(time(NULL) - m_timestamp);
-    content << uint8(m_eventType);
+    data << logGuid;
+    data << uint32(time(NULL) - m_timestamp);
+    data << uint8(m_eventType);
 
     data.WriteBit(IsMoneyEvent());
     data.WriteBit(hasItem);
@@ -207,16 +204,16 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& conten
     data.WriteBit(itemMoved);
 
     if (IsMoneyEvent())
-        content << uint64(m_itemOrMoney);
+        data << uint64(m_itemOrMoney);
 
     if (hasItem)
-        content << uint32(m_itemOrMoney);
+        data << uint32(m_itemOrMoney);
 
     if (hasStack)
-        content << uint32(m_itemStackCount);
+        data << uint32(m_itemStackCount);
 
     if (itemMoved)
-        content << uint8(m_destTabId);
+        data << uint8(m_destTabId);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -506,7 +503,7 @@ void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
 {
     WorldPacket data(SMSG_GUILD_BANK_TEXT_QUERY_RESULT, 4 + m_text.size() + 2);
     data << uint32(m_tabId);
-    data(m_text.size(), 14);
+    data.WriteBits(m_text.size(), 14);
     data.WriteString(m_text);
 
     if (session)
@@ -2086,11 +2083,12 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
     {
         LogHolder::GuildLog const* log = m_bankEventLog[tabId]->GetLog();
         WorldPacket data(SMSG_GUILD_BANK_LOG_QUERY_RESULT, log->size() * (4 * 4 + 1) + 1 + 1);
+
         data << uint32(tabId);
         data << uint32(log->size());
 
         for (LogHolder::GuildLog::const_iterator itr = log->begin(); itr != log->end(); ++itr)
-            (*itr)->WritePacket(data, buffer);
+            (*itr)->WritePacket(data);
 
         if (GetLevel() >= 5 && tabId == GUILD_BANK_MAX_TABS)
         {
