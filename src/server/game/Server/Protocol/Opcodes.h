@@ -1031,7 +1031,7 @@ enum OpcodeServer : uint32
     SMSG_GUILD_EVENT_LOG_QUERY_RESULTS                = 0x1075,
     SMSG_GUILD_EVENT_PRESENCE_CHANGE                  = 0x1228,
     SMSG_GUILD_FLAGGED_FOR_RENAME                     = 0xBADD,
-    SMSG_GUILD_INVITE                                 = 0xBADD,
+    SMSG_GUILD_INVITE                                 = 0x1025,
     SMSG_GUILD_INVITE_CANCEL                          = 0xBADD,
     SMSG_GUILD_KNOWN_RECIPES                          = 0xBADD,
     SMSG_GUILD_MAX_DAILY_XP                           = 0xBADD,

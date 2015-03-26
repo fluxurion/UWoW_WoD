@@ -1695,44 +1695,26 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     if (ObjectGuid::LowType oldId = pInvitee->GetGuildId())
         oldGuildGuid = ObjectGuid::Create<HighGuid::Guild>(oldId);
 
-    ObjectGuid newGuildGuid = GetGUID();
-
+    //! 6.0.3
     WorldPacket data(SMSG_GUILD_INVITE, 100);
-    data << uint32(0);                      // unk
-    data << uint32(m_emblemInfo.GetBackgroundColor());
-    data << uint32(m_emblemInfo.GetStyle());
-    data << uint32(GetLevel());
-    data << uint32(realmHandle.Index);
-    data << uint32(m_emblemInfo.GetBorderStyle());
-    data << uint32(m_emblemInfo.GetColor());
-    data << uint32(m_emblemInfo.GetBorderColor());
-    data << uint32(realmHandle.Index);
 
     data.WriteBits(strlen(player->GetName()), 6);
-    //data.WriteGuidMask<7, 2, 6, 3, 5>(newGuildGuid);
     data.WriteBits(pInvitee->GetGuildName().length(), 7);
-    //data.WriteGuidMask<4>(oldGuildGuid);
-    //data.WriteGuidMask<1>(newGuildGuid);
-    //data.WriteGuidMask<1>(oldGuildGuid);
     data.WriteBits(m_name.length(), 7);
-    //data.WriteGuidMask<5, 0>(oldGuildGuid);
-    //data.WriteGuidMask<4>(newGuildGuid);
-    //data.WriteGuidMask<3, 7>(oldGuildGuid);
-    //data.WriteGuidMask<0>(newGuildGuid);
-    //data.WriteGuidMask<6, 2>(oldGuildGuid);
 
-    //data.WriteGuidBytes<3>(newGuildGuid);
+    data << uint32(realmHandle.Index);          //InviterVirtualRealmAddress
+    data << uint32(realmHandle.Index);          //GuildVirtualRealmAddress
+    data << GetGUID();
+    data << uint32(realmHandle.Index);          //OldGuildVirtualRealmAddress
+    data << oldGuildGuid;
+
+    m_emblemInfo.WritePacket(data);
+
+    data << uint32(GetLevel());
+
     data.WriteString(player->GetName());
-    //data.WriteGuidBytes<1>(newGuildGuid);
-    //data.WriteGuidBytes<3, 1, 0>(oldGuildGuid);
-    data.WriteString(m_name);
-    //data.WriteGuidBytes<7>(newGuildGuid);
-    //data.WriteGuidBytes<6, 4>(oldGuildGuid);
-    //data.WriteGuidBytes<4, 5, 6>(newGuildGuid);
     data.WriteString(pInvitee->GetGuildName());
-    //data.WriteGuidBytes<7, 2>(oldGuildGuid);
-    //data.WriteGuidBytes<2, 0>(newGuildGuid);
-    //data.WriteGuidBytes<5>(oldGuildGuid);
+    data.WriteString(m_name);
 
     pInvitee->GetSession()->SendPacket(&data);
 
