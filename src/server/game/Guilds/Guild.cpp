@@ -796,6 +796,7 @@ void EmblemInfo::LoadFromDB(Field* fields)
     m_backgroundColor   = fields[7].GetUInt8();
 }
 
+//! 6.0.3
 void EmblemInfo::WritePacket(WorldPacket& data) const
 {
     data << uint32(m_style);
@@ -1398,42 +1399,30 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_ROSTER)");
 }
 
+//! 6.0.3
 void Guild::HandleQuery(WorldSession* session)
 {
     WorldPacket data(SMSG_GUILD_QUERY_RESPONSE, 8 * 32 + 200);      // Guess size
 
-    ObjectGuid guid = GetGUID();
-    //data.WriteGuidMask<5, 0, 3, 4, 7, 1>(guid);
+    data << GetGUID();
     data.WriteBit(1);                                               // has data
 
-    //data.WriteGuidMask<7, 5, 0, 3, 4>(guid);
-    data.WriteBits(m_name.size(), 7);
-    //data.WriteGuidMask<2, 6, 1>(guid);
-    data.WriteBits(_GetRanksSize(), 21);
-    for (uint32 i = 0; i < _GetRanksSize(); ++i)
-        data.WriteBits(m_ranks[i].GetName().size(), 7);
-
-    //data.WriteGuidMask<2, 6>(guid);
-
-    data << uint32(m_emblemInfo.GetStyle());
-    //data.WriteGuidBytes<2, 6, 4, 3>(guid);
+    data << GetGUID();
     data << uint32(realmHandle.Index);
+    data << uint32(_GetRanksSize());
+    m_emblemInfo.WritePacket(data);
+
     for (uint32 i = 0; i < _GetRanksSize(); ++i)
     {
-        data.WriteString(m_ranks[i].GetName());
-        data << uint32(i);                                          // Rank order of creation
         data << uint32(m_ranks[i].GetId());                         // Rank order of "importance" (sorting by rights)
-    }
-    //data.WriteGuidBytes<5>(guid);
-    data.WriteString(m_name);
-    data << uint32(m_emblemInfo.GetColor());
-    data << uint32(m_emblemInfo.GetBorderColor());
-    data << uint32(m_emblemInfo.GetBorderStyle());
-    //data.WriteGuidBytes<1>(guid);
-    data << uint32(m_emblemInfo.GetBackgroundColor());
-    //data.WriteGuidBytes<0, 7>(guid);
+        data << uint32(i);                                          // Rank order of creation
 
-    //data.WriteGuidBytes<3, 0, 5, 2, 7, 1, 6, 4>(guid);
+        data.WriteBits(m_ranks[i].GetName().size(), 7);
+        data.WriteString(m_ranks[i].GetName());
+    }
+
+    data.WriteBits(m_name.size(), 7);
+    data.WriteString(m_name);
 
     session->SendPacket(&data);
 
