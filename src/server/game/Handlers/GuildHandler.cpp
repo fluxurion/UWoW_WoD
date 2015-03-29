@@ -282,9 +282,10 @@ void WorldSession::HandleGuildDelRankOpcode(WorldPacket& recvPacket)
         guild->HandleRemoveRank(this, rankId);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INFO_TEXT");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_UPDATE_INFO_TEXT");
 
     uint32 length = recvPacket.ReadBits(11);
     std::string info = recvPacket.ReadString(length);
