@@ -137,11 +137,11 @@ enum GuildEvents
     GE_LEADER_CHANGED               = 8,    // SMSG_GUILD_EVENT_NEW_LEADER
     GE_DISBANDED                    = 9,    // SMSG_GUILD_EVENT_DISBANDED
     GE_TABARDCHANGE                 = 10,   // not exist
-    GE_RANK_UPDATED                 = 11,   // SMSG_GUILD_EVENT_RANK_UPDATE
-    GE_RANK_CREATED                 = 12,   // SMSG_GUILD_EVENT_RANK_UPDATE
-    GE_RANK_DELETED                 = 13,   // SMSG_GUILD_EVENT_RANK_UPDATE
-    GE_RANK_ORDER_CHANGED           = 14,   // SMSG_GUILD_EVENT_RANK_UPDATE
-    GE_FOUNDER                      = 15,   // SMSG_GUILD_EVENT_RANK_UPDATE At guild creation - Set founder
+    GE_RANK_UPDATED                 = 11,   // SMSG_GUILD_EVENT_RANKS_UPDATED
+    GE_RANK_CREATED                 = 12,   // SMSG_GUILD_EVENT_RANKS_UPDATED
+    GE_RANK_DELETED                 = 13,   // SMSG_GUILD_EVENT_RANKS_UPDATED
+    GE_RANK_ORDER_CHANGED           = 14,   // SMSG_GUILD_EVENT_RANKS_UPDATED
+    GE_FOUNDER                      = 15,   // SMSG_GUILD_EVENT_RANKS_UPDATED At guild creation - Set founder
     GE_SIGNED_ON                    = 16,   // SMSG_GUILD_EVENT_ONLINE
     GE_SIGNED_OFF                   = 17,   // SMSG_GUILD_EVENT_ONLINE
     GE_GUILDBANKBAGSLOTS_CHANGED    = 18,   // SMSG_GUILD_EVENT_GUILDBANKBAGSLOTS_CHANGED

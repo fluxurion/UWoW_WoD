@@ -1540,6 +1540,8 @@ enum OpcodeServer : uint32
     SMSG_GUILD_EVENT_PLAYER_LEFT                      = 0x1206,
     SMSG_GUILD_EVENT_NEW_LEADER                       = 0x1005,
     SMSG_GUILD_EVENT_DISBANDED                        = 0x1A08,
+    SMSG_GUILD_EVENT_RANKS_UPDATED                    = 0x1018,
+    SMSG_GUILD_EVENT_RANK_CHANGED                     = 0x1276,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1589,8 +1591,6 @@ enum OpcodeServer : uint32
     SMSG_GUILD_EVENT_GUILDBANK_TEXT_CHANGED           = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_GUILDBANKBAGSLOTS_CHANGED        = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_ONLINE                           = 0xBADD, // 5.4.1 17538
-    SMSG_GUILD_EVENT_RANK_UPDATE                      = 0xBADD, // 5.4.1 17538
-    SMSG_GUILD_EVENT_RANKS_UPDATE                     = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_TAB_REMOVED                      = 0xBADD, // 5.4.1 17538
     SMSG_INITIAL_COOLDOWNS                            = 0xBADD, // 5.4.1 17538
     SMSG_INSTANCE_DIFFICULTY                          = 0xBADD,      // Not found in 4.3.4

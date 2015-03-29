@@ -3554,17 +3554,18 @@ void Guild::SendGuildEventDisbanded()
     BroadcastPacket(&data);
 }
 
+//! 6.0.3
 void Guild::SendGuildEventRankUpdate(uint32 rankId)
 {
     if (rankId)
     {
-        WorldPacket data(SMSG_GUILD_EVENT_RANK_UPDATE, 4);
+        WorldPacket data(SMSG_GUILD_EVENT_RANK_CHANGED, 4);
         data << uint32(rankId);
         BroadcastPacket(&data);
     }
     else
     {
-        WorldPacket data(SMSG_GUILD_EVENT_RANKS_UPDATE, 0);
+        WorldPacket data(SMSG_GUILD_EVENT_RANKS_UPDATED, 0);
         BroadcastPacket(&data);
     }
 }
