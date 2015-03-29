@@ -294,17 +294,16 @@ void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket)
         guild->HandleSetInfo(this, info);
 }
 
+//! 6.0.3 ToDo: check emblem read.
 void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SAVE_GUILD_EMBLEM");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SAVE_GUILD_EMBLEM");
 
     ObjectGuid vendorGuid;
     EmblemInfo emblemInfo;
 
+    recvPacket >> vendorGuid;
     emblemInfo.ReadPacket(recvPacket);
-
-    //recvPacket.ReadGuidMask<2, 4, 1, 5, 7, 3, 6, 0>(vendorGuid);
-    //recvPacket.ReadGuidBytes<2, 0, 3, 7, 1, 6, 4, 5>(vendorGuid);
 
     if (GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_TABARDDESIGNER))
     {

@@ -687,6 +687,7 @@ enum OpcodeClient : uint32
     CMSG_SET_FACTION_NOT_AT_WAR                       = 0x0A06,
     CMSG_UPGRADE_ITEM                                 = 0x0518,
     CMSG_GUILD_AUTO_DECLINE_INVITATION                = 0x062F,
+    CMSG_SAVE_GUILD_EMBLEM                            = 0x00F6,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
@@ -725,7 +726,6 @@ enum OpcodeClient : uint32
     CMSG_BATTLE_PET_PUT_IN_CAGE                       = 0xBADD, // 5.4.1 17538
     CMSG_DUEL_RESPONSE                                = 0x1BD2, // 5.4.1 17538
     CMSG_QUEST_PUSH_RESULT                            = 0x06C4, // 5.4.1 17538
-    CMSG_SAVE_GUILD_EMBLEM                            = 0xBADD, // 5.4.1 17538
     CMSG_PETITION_RENAME                              = 0xBADD, // 5.4.1 17538
     MSG_PETITION_DECLINE                              = 0xBADD,
 };
