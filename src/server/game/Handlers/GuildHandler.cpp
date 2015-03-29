@@ -159,16 +159,14 @@ void WorldSession::HandleGuildDemoteOpcode(WorldPacket& recvPacket)
         guild->HandleUpdateMemberRank(this, targetGuid, true);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildAssignRankOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ASSIGN_MEMBER_RANK");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ASSIGN_MEMBER_RANK");
 
     ObjectGuid targetGuid;
-
     uint32 rankId;
-    recvPacket >> rankId;
-    //recvPacket.ReadGuidMask<6, 4, 1, 3, 0, 5, 7, 2>(targetGuid);
-    //recvPacket.ReadGuidBytes<0, 2, 1, 4, 6, 5, 3, 7>(targetGuid);
+    recvPacket >> targetGuid >> rankId;
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleSetMemberRank(this, targetGuid, GetPlayer()->GetGUID(), rankId);
