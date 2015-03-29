@@ -506,9 +506,10 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPacket & recvData)
                 guild->HandleSetBankTabInfo(this, tabId, name, icon);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildBankLogQuery(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (MSG_GUILD_BANK_LOG_QUERY)");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_LOG_QUERY)");
 
     uint32 tabId;
     recvData >> tabId;
