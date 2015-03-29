@@ -3493,15 +3493,13 @@ void Guild::SendMotd(WorldSession* session)
         BroadcastPacket(&data);
 }
 
+//! 6.0.3
 void Guild::SendGuildEventJoinMember(ObjectGuid const& guid, std::string name)
 {
-    WorldPacket data(SMSG_GUILD_EVENT_JOIN_MEMBER, 8 + 1 + 4 + name.size() + 1);
-    data.WriteBits(name.size(), 6);
-    //data.WriteGuidMask<5, 4, 7, 1, 3, 0, 6, 2>(guid);
-
-    //data.WriteGuidBytes<2, 6, 0, 1, 3, 4, 7>(guid);
+    WorldPacket data(SMSG_GUILD_EVENT_PLAYER_JOINED, 8 + 1 + 4 + name.size() + 1);
+    data << guid;
     data << uint32(realmHandle.Index);
-    //data.WriteGuidBytes<5>(guid);
+    data.WriteBits(name.size(), 6);
     data.WriteString(name);
 
     BroadcastPacket(&data);
