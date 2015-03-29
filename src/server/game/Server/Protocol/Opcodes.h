@@ -1048,7 +1048,7 @@ enum OpcodeServer : uint32
     SMSG_GUILD_PERMISSIONS_QUERY_RESULTS              = 0x1827,
     SMSG_GUILD_QUERY_RESPONSE                         = 0x1046,
     SMSG_GUILD_RANK                                   = 0x1218,
-    SMSG_GUILD_RANKS_UPDATE                           = 0xBADD,
+    SMSG_GUILD_SEND_RANK_CHANGE                       = 0x1207,
     SMSG_GUILD_RECIPES                                = 0x1078,
     SMSG_GUILD_RENAMED                                = 0xBADD,
     SMSG_GUILD_REPUTATION_REACTION_CHANGED            = 0xBADD,

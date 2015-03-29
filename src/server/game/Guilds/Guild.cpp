@@ -1610,9 +1610,6 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     player->ModifyMoney(-int64(tabCost));
     WorldPacket data(SMSG_GUILD_EVENT_TAB_ADDED, 0);
     BroadcastPacket(&data);
-
-    _BroadcastEvent(GE_BANK_TAB_PURCHASED, ObjectGuid::Empty);
-    SendPermissions(session); /// Hack to force client to update permissions
 }
 
 void Guild::HandleSpellEffectBuyBankTab(WorldSession* session, uint8 tabId)
@@ -3207,6 +3204,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
     }
 }
 
+//! Not used any more
 void Guild::_BroadcastEvent(GuildEvents guildEvent, ObjectGuid const& guid, const char* param1, const char* param2, const char* param3) const
 {
     uint8 count = !param3 ? (!param2 ? (!param1 ? 0 : 1) : 2) : 3;
@@ -3230,45 +3228,22 @@ void Guild::_BroadcastEvent(GuildEvents guildEvent, ObjectGuid const& guid, cons
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_EVENT");
 }
 
+//! 6.0.3
 void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank)
 {
-    ObjectGuid tarGuid = targetGuid;
-    ObjectGuid setGuid = setterGuid;
-
     Member* member = GetMember(targetGuid);
     ASSERT(member);
 
-    WorldPacket data(SMSG_GUILD_RANKS_UPDATE, 4 + 8 + 8 + 1 + 1 + 1);
-    //data.WriteGuidMask<0, 6>(setterGuid);
-    //data.WriteGuidMask<7>(targetGuid);
-    //data.WriteGuidMask<3>(setterGuid);
-    //data.WriteGuidMask<4, 3>(targetGuid);
-    //data.WriteGuidMask<5>(setterGuid);
-    //data.WriteGuidMask<2>(targetGuid);
-    //data.WriteGuidMask<4>(setterGuid);
-    //data.WriteGuidMask<0>(targetGuid);
-    //data.WriteGuidMask<1, 2>(setterGuid);
-    //data.WriteGuidMask<6, 1>(targetGuid);
-    data.WriteBit(rank < member->GetRankId()); // 1 == promoted, 0 == demoted
-    //data.WriteGuidMask<7>(setterGuid);
-    //data.WriteGuidMask<5>(targetGuid);
-
-    //data.WriteGuidBytes<1>(setterGuid);
+    WorldPacket data(SMSG_GUILD_SEND_RANK_CHANGE, 4 + 8 + 8 + 1 + 1 + 1);
+    data << setterGuid;
+    data << targetGuid;
     data << uint32(rank);
-    //data.WriteGuidBytes<4, 1>(targetGuid);
-    //data.WriteGuidBytes<2>(setterGuid);
-    //data.WriteGuidBytes<5>(targetGuid);
-    //data.WriteGuidBytes<7, 6, 5, 0>(setterGuid);
-    //data.WriteGuidBytes<0, 3>(targetGuid);
-    //data.WriteGuidBytes<4>(setterGuid);
-    //data.WriteGuidBytes<7, 2, 6>(targetGuid);
-    //data.WriteGuidBytes<3>(setterGuid);
-
+    data.WriteBit(rank < member->GetRankId()); // 1 == promoted, 0 == demoted
     BroadcastPacket(&data);
 
     member->ChangeRank(rank);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GUILD_RANKS_UPDATE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GUILD_SEND_RANK_CHANGE");
 }
 
 void Guild::GiveXP(uint32 xp, Player* source)

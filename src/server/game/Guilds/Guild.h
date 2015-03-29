@@ -127,8 +127,8 @@ enum GuildCommandError
 
 enum GuildEvents
 {
-    GE_PROMOTION                    = 1,    // SMSG_GUILD_RANKS_UPDATE
-    GE_DEMOTION                     = 2,    // SMSG_GUILD_RANKS_UPDATE
+    GE_PROMOTION                    = 1,    // SMSG_GUILD_SEND_RANK_CHANGE
+    GE_DEMOTION                     = 2,    // SMSG_GUILD_SEND_RANK_CHANGE
     GE_MOTD                         = 3,    // SMSG_GUILD_EVENT_MOTD
     GE_JOINED                       = 4,    // SMSG_GUILD_EVENT_JOIN_MEMBER
     GE_LEFT                         = 5,    // SMSG_GUILD_EVENT_REMOVE_MEMBER
