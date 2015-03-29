@@ -270,9 +270,10 @@ void WorldSession::HandleGuildAddRankOpcode(WorldPacket& recvPacket)
         guild->HandleAddNewRank(this, rankName); //, rankId);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildDelRankOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DEL_RANK");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DELETE_RANK");
 
     uint32 rankId;
     recvPacket >> rankId;

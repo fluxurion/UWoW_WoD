@@ -276,7 +276,7 @@ enum OpcodeClient : uint32
     CMSG_GUILD_BANK_WITHDRAW_MONEY                    = 0xBADD,
     CMSG_GUILD_CHANGE_NAME_REQUEST                    = 0xBADD,
     CMSG_GUILD_DECLINE_INVITATION                     = 0x0667,
-    CMSG_GUILD_DEL_RANK                               = 0xBADD,
+    CMSG_GUILD_DELETE_RANK                            = 0x0C28,
     CMSG_GUILD_DEMOTE_MEMBER                          = 0x142F,
     CMSG_GUILD_DELETE                                 = 0x1427,
     CMSG_GUILD_EVENT_LOG_QUERY                        = 0xBADD,
