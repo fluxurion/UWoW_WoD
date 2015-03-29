@@ -3529,39 +3529,21 @@ void Guild::SendGuildEventRemoveMember(ObjectGuid const& guid, std::string name,
     BroadcastPacket(&data);
 }
 
+//! 6.0.3
 void Guild::SendGuildEventLeader(ObjectGuid const& guid, std::string name, ObjectGuid const& oldGuid, std::string oldName)
 {
-    WorldPacket data(SMSG_GUILD_EVENT_LEADER, 1 + 1 + 1 + 1 + 8 + 8 + oldName.size() + name.size());
+    WorldPacket data(SMSG_GUILD_EVENT_NEW_LEADER, 1 + 1 + 1 + 1 + 8 + 8 + oldName.size() + name.size());
+    data.WriteBit(0);                       // 1 - replaced, 0 - changed
     data.WriteBits(name.size(), 6);
-    //data.WriteGuidMask<7>(oldGuid);
-    //data.WriteGuidMask<5, 3>(guid);
     data.WriteBits(oldName.size(), 6);
-    //data.WriteGuidMask<1, 5>(oldGuid);
-    data.WriteBit(0);           // 1 - replaced, 0 - changed
-    //data.WriteGuidMask<4, 6>(oldGuid);
-    //data.WriteGuidMask<7>(guid);
-    //data.WriteGuidMask<3, 0>(oldGuid);
-    //data.WriteGuidMask<6, 2, 0, 1>(guid);
-    //data.WriteGuidMask<2>(oldGuid);
-    //data.WriteGuidMask<4>(guid);
 
-    //data.WriteGuidBytes<7>(oldGuid);
-    data.WriteString(oldName);
-    //data.WriteGuidBytes<1>(oldGuid);
-    //data.WriteGuidBytes<2, 1>(guid);
-    //data.WriteGuidBytes<2>(oldGuid);
-    //data.WriteGuidBytes<6>(guid);
-    //data.WriteGuidBytes<5>(oldGuid);
-    //data.WriteGuidBytes<7>(guid);
-    //data.WriteGuidBytes<6>(oldGuid);
-    //data.WriteGuidBytes<5>(guid);
-    //data.WriteGuidBytes<3>(oldGuid);
-    data.WriteString(name);
-    //data.WriteGuidBytes<0, 3>(guid);
-    //data.WriteGuidBytes<4, 0>(oldGuid);
+    data << oldGuid;
     data << uint32(realmHandle.Index);      // old leader realm id
+    data << guid;
     data << uint32(realmHandle.Index);      // new leader realm id
-    //data.WriteGuidBytes<4>(guid);
+
+    data.WriteString(name);
+    data.WriteString(oldName);
 
     BroadcastPacket(&data);
 }

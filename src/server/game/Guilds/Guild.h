@@ -133,8 +133,8 @@ enum GuildEvents
     GE_JOINED                       = 4,    // SMSG_GUILD_EVENT_PLAYER_JOINED
     GE_LEFT                         = 5,    // SMSG_GUILD_EVENT_PLAYER_LEFT
     GE_REMOVED                      = 6,    // SMSG_GUILD_EVENT_PLAYER_LEFT
-    GE_LEADER_IS                    = 7,    // SMSG_GUILD_EVENT_LEADER
-    GE_LEADER_CHANGED               = 8,    // SMSG_GUILD_EVENT_LEADER
+    GE_LEADER_IS                    = 7,    // SMSG_GUILD_EVENT_NEW_LEADER
+    GE_LEADER_CHANGED               = 8,    // SMSG_GUILD_EVENT_NEW_LEADER
     GE_DISBANDED                    = 9,    // SMSG_GUILD_EVENT_GUILD_DISBANDED
     GE_TABARDCHANGE                 = 10,   // not exist
     GE_RANK_UPDATED                 = 11,   // SMSG_GUILD_EVENT_RANK_UPDATE
@@ -150,7 +150,7 @@ enum GuildEvents
     GE_BANK_MONEY_UPDATED           = 21,   // SMSG_GUILD_BANK_MONEY_UPDATE
     GE_BANK_MONEY_WITHDRAWN         = 22,   // not exist
     GE_BANK_TEXT_CHANGED            = 23,   // SMSG_GUILD_EVENT_GUILDBANK_TEXT_CHANGED
-    GE_LEADER_REPLACED              = 24,   // SMSG_GUILD_EVENT_LEADER
+    GE_LEADER_REPLACED              = 24,   // SMSG_GUILD_EVENT_NEW_LEADER
     GE_SIGNED_ON_MOBILE             = 25,   // SMSG_GUILD_EVENT_ONLINE
     GE_SIGNED_OFF_MOBILE            = 26    // SMSG_GUILD_EVENT_ONLINE
 };
