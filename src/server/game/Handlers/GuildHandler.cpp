@@ -642,28 +642,29 @@ void WorldSession::HandleAutoDeclineGuildInvites(WorldPacket& recvPacket)
     GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD, enable);
 }
 
+//! 6.0.3 ToDo: more research
 void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
 {
-    recvPacket.read_skip<uint32>();         // counter?
+    recvPacket.read_skip<uint32>();         // CurrentVersion
 
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
     {
         std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
         WorldPacket data(SMSG_GUILD_REWARDS_LIST, (3 + rewards.size() * (4 + 4 + 4 + 8 + 4 + 4)));
-        data.WriteBits(rewards.size(), 19);
-        for (uint32 i = 0; i < rewards.size(); ++i)
-            data.WriteBits(0, 22);          // conditions count?
+        data << uint32(time(NULL));         // counter?
+        data << uint32(rewards.size());
 
         for (uint32 i = 0; i < rewards.size(); ++i)
         {
             data << uint32(rewards[i].Entry);
-            data << uint64(rewards[i].Price);
+            data << uint32(0);                          //AchievementsRequiredCount
             data << int32(rewards[i].Racemask);
-            data << uint32(rewards[i].AchievementId);
-            data << uint32(rewards[i].Standing);
+            data << uint32(rewards[i].Standing);        //MinGuildLevel should be on trinity
+            data << uint32(rewards[i].AchievementId);   //MinGuildRep should be on trinity
+            data << uint64(rewards[i].Price);
         }
-        data << uint32(time(NULL));         // counter?
+
         SendPacket(&data);
     }
 }
