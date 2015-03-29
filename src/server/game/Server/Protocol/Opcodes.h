@@ -264,7 +264,7 @@ enum OpcodeClient : uint32
     CMSG_GUILD_ADD_RANK                               = 0x1630,
     CMSG_GUILD_ASSIGN_MEMBER_RANK                     = 0x0436,
     CMSG_GUILD_BANK_ACTIVATE                          = 0x19E3,
-    CMSG_GUILD_BANK_BUY_TAB                           = 0xBADD,
+    CMSG_GUILD_BANK_BUY_TAB                           = 0x1BC3,
     CMSG_GUILD_BANK_DEPOSIT_MONEY                     = 0x1B11,
     CMSG_GUILD_BANK_LOG_QUERY                         = 0xBADD,
     CMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY_QUERY    = 0x063D,

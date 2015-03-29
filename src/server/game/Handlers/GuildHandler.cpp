@@ -472,15 +472,14 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recvData)
     }
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildBankBuyTab(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_BUY_TAB)");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_BUY_TAB)");
 
     ObjectGuid GoGuid;
     uint8 tabId;
-    recvData >> tabId;
-    //recvData.ReadGuidMask<7, 3, 4, 0, 2, 1, 5, 6>(GoGuid);
-    //recvData.ReadGuidBytes<5, 0, 1, 4, 7, 6, 3, 2>(GoGuid);
+    recvData >> GoGuid >> tabId;
 
     if (!GoGuid || GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
