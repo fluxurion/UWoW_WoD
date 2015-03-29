@@ -737,10 +737,11 @@ void WorldSession::HandleGuildQueryGuildRecipesOpcode(WorldPacket& recvPacket)
 
     Guild::KnownRecipesMap const& recipesMap = guild->GetGuildRecipes();
 
-    WorldPacket* data = new WorldPacket(SMSG_GUILD_RECIPES, 2 + recipesMap.size() * (300 + 4));
-    uint32 bitpos = data->bitwpos();
+    //! 6.0.3
+    WorldPacket* data = new WorldPacket(SMSG_GUILD_KNOWN_RECIPES, 2 + recipesMap.size() * (300 + 4));
+    uint32 pos = data->wpos();
     uint32 count = 0;
-    data->WriteBits(count, 15);
+    data << uint32(count);
 
     for (Guild::KnownRecipesMap::const_iterator itr = recipesMap.begin(); itr != recipesMap.end(); ++itr)
     {
@@ -752,8 +753,7 @@ void WorldSession::HandleGuildQueryGuildRecipesOpcode(WorldPacket& recvPacket)
         ++count;
     }
 
-    data->FlushBits();
-    data->PutBits(bitpos, count, 15);
+    data->put<uint32>(pos, count);
 
     _player->ScheduleMessageSend(data, 500);
 }
