@@ -3550,7 +3550,7 @@ void Guild::SendGuildEventLeader(ObjectGuid const& guid, std::string name, Objec
 
 void Guild::SendGuildEventDisbanded()
 {
-    WorldPacket data(SMSG_GUILD_EVENT_GUILD_DISBANDED, 0);
+    WorldPacket data(SMSG_GUILD_EVENT_DISBANDED, 0);
     BroadcastPacket(&data);
 }
 

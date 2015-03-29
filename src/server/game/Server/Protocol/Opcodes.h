@@ -1539,6 +1539,7 @@ enum OpcodeServer : uint32
     SMSG_GUILD_EVENT_PLAYER_JOINED                    = 0x1257,
     SMSG_GUILD_EVENT_PLAYER_LEFT                      = 0x1206,
     SMSG_GUILD_EVENT_NEW_LEADER                       = 0x1005,
+    SMSG_GUILD_EVENT_DISBANDED                        = 0x1A08,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1585,7 +1586,6 @@ enum OpcodeServer : uint32
     SMSG_FORCE_SEND_QUEUED_PACKETS                    = 0xBADD,  // 5.0.5 16048
     SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT                = 0xBADD,  // 5.0.5 16048
     SMSG_GROUP_JOINED_BATTLEGROUND                    = 0xBADD,      // Not found in TC
-    SMSG_GUILD_EVENT_GUILD_DISBANDED                  = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_GUILDBANK_TEXT_CHANGED           = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_GUILDBANKBAGSLOTS_CHANGED        = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_ONLINE                           = 0xBADD, // 5.4.1 17538

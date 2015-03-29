@@ -135,7 +135,7 @@ enum GuildEvents
     GE_REMOVED                      = 6,    // SMSG_GUILD_EVENT_PLAYER_LEFT
     GE_LEADER_IS                    = 7,    // SMSG_GUILD_EVENT_NEW_LEADER
     GE_LEADER_CHANGED               = 8,    // SMSG_GUILD_EVENT_NEW_LEADER
-    GE_DISBANDED                    = 9,    // SMSG_GUILD_EVENT_GUILD_DISBANDED
+    GE_DISBANDED                    = 9,    // SMSG_GUILD_EVENT_DISBANDED
     GE_TABARDCHANGE                 = 10,   // not exist
     GE_RANK_UPDATED                 = 11,   // SMSG_GUILD_EVENT_RANK_UPDATE
     GE_RANK_CREATED                 = 12,   // SMSG_GUILD_EVENT_RANK_UPDATE
