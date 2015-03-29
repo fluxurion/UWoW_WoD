@@ -277,7 +277,7 @@ enum OpcodeClient : uint32
     CMSG_GUILD_CHANGE_NAME_REQUEST                    = 0xBADD,
     CMSG_GUILD_DECLINE_INVITATION                     = 0x0667,
     CMSG_GUILD_DEL_RANK                               = 0xBADD,
-    CMSG_GUILD_DEMOTE                                 = 0xBADD,
+    CMSG_GUILD_DEMOTE_MEMBER                           = 0x142F,
     CMSG_GUILD_DISBAND                                = 0xBADD,
     CMSG_GUILD_EVENT_LOG_QUERY                        = 0xBADD,
     CMSG_GUILD_INFO                                   = 0xBADD,
@@ -1542,7 +1542,6 @@ enum OpcodeServer : uint32
     SMSG_GUILD_EVENT_DISBANDED                        = 0x1A08,
     SMSG_GUILD_EVENT_RANKS_UPDATED                    = 0x1018,
     SMSG_GUILD_EVENT_RANK_CHANGED                     = 0x1276,
-    SMSG_GUILD_EVENT_PRESENCE_CHANGE                  = 0x1228,
     SMSG_GUILD_EVENT_TAB_TEXT_CHANGED                 = 0x1076,
     SMSG_GUILD_EVENT_BANK_CONTENTS_CHANGED            = 0x1045,
 

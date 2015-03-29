@@ -147,13 +147,13 @@ void WorldSession::HandleGuildPromoteOpcode(WorldPacket& recvPacket)
         guild->HandleUpdateMemberRank(this, targetGuid, false);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildDemoteOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DEMOTE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DEMOTE_MEMBER");
 
     ObjectGuid targetGuid;
-    //recvPacket.ReadGuidMask<2, 3, 7, 5, 0, 6, 4, 1>(targetGuid);
-    //recvPacket.ReadGuidBytes<2, 6, 7, 0, 5, 3, 4, 1>(targetGuid);
+    recvPacket >> targetGuid;
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleUpdateMemberRank(this, targetGuid, true);
