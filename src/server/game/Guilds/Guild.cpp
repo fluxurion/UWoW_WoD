@@ -2243,6 +2243,7 @@ void Guild::SendLoginInfo(WorldSession* session)
     GetAchievementMgr().SendAllAchievementData(session->GetPlayer());
 }
 
+//! Remove It. Not used any more.
 void Guild::SendGuildReputationWeeklyCap(WorldSession* session) const
 {
     if (Member const* member = GetMember(session->GetPlayer()->GetGUID()))
@@ -3338,6 +3339,7 @@ void Guild::Member::RepEarned(Player* player, uint32 value)
     SendGuildReputationWeeklyCap(player->GetSession(), GetWeekReputation());
 }
 
+//! ToDo: remove it
 void Guild::Member::SendGuildReputationWeeklyCap(WorldSession* session, uint32 reputation) const
 {
     uint32 cap = sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP) - reputation;
@@ -3346,6 +3348,7 @@ void Guild::Member::SendGuildReputationWeeklyCap(WorldSession* session, uint32 r
     session->SendPacket(&data);
 }
 
+//! ToDo: remove it.
 void Guild::SendGuildXP(WorldSession* session) const
 {
     Member const* member = GetMember(session->GetPlayer()->GetGUID());
@@ -3431,57 +3434,47 @@ uint32 Guild::GuildNewsLog::GetNewId() const
     return !_newsLog.empty() ? _newsLog.rbegin()->first : 0;
 }
 
+//! 6.0.3
 void Guild::GuildNewsLog::BuildNewsData(uint32 id, GuildNewsEntry& guildNew, WorldPacket& data)
 {
-    data.Initialize(SMSG_GUILD_NEWS_UPDATE, (21 + _newsLog.size() * (26 + 8)) / 8 + (8 + 6 * 4) * _newsLog.size());
-    data.WriteBits(1, 19);
+    data.Initialize(SMSG_GUILD_NEWS, (21 + _newsLog.size() * (26 + 8)) / 8 + (8 + 6 * 4) * _newsLog.size());
+    data << uint32(1);
 
-    ObjectGuid guid = guildNew.PlayerGuid;
-
-    //data.WriteGuidMask<5, 2, 0, 3>(guid);
-    data.WriteBits(0, 24); // Not yet implemented used for guild achievements
-    //data.WriteGuidMask<1, 6, 4, 7>(guid);
-
-    data << uint32(secsToTimeBitFields(guildNew.Date));
-    //data.WriteGuidBytes<1>(guid);
-    data << uint32(guildNew.Flags);   // 1 sticky
-    //data.WriteGuidBytes<7, 6, 2>(guid);
-    data << uint32(0);                  // always 0
-    data << uint32(guildNew.EventType);
-    //data.WriteGuidBytes<3, 0, 5>(guid);
     data << uint32(id);
+    data << uint32(secsToTimeBitFields(guildNew.Date));
+    data << uint32(guildNew.EventType);
+    data << uint32(guildNew.Flags);   // 1 sticky
+
     data << uint32(guildNew.Data);
-    //data.WriteGuidBytes<4>(guid);
+    data << uint32(0);                  // data 0
+
+    data << guildNew.PlayerGuid;
+
+    data << uint32(0);          // MemberListCount
+    data.WriteBit(0);           // HasItemInstance
 }
 
+//! 6.0.3
 void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
 {
-    data.Initialize(SMSG_GUILD_NEWS_UPDATE, 7 + 32);
-    data.WriteBits(_newsLog.size(), 19); // size, we are only sending 1 news here
+    data.Initialize(SMSG_GUILD_NEWS, 7 + 32);
+    data << uint32(_newsLog.size()); // size, we are only sending 1 news here
 
     for (GuildNewsLogMap::const_iterator it = _newsLog.begin(); it != _newsLog.end(); it++)
     {
-        ObjectGuid guid = it->second.PlayerGuid;
-
-        //data.WriteGuidMask<5, 2, 0, 3>(guid);
-        data.WriteBits(0, 24); // Not yet implemented used for guild achievements
-        //data.WriteGuidMask<1, 6, 4, 7>(guid);
-    }
-
-    for (GuildNewsLogMap::const_iterator it = _newsLog.begin(); it != _newsLog.end(); it++)
-    {
-        ObjectGuid guid = it->second.PlayerGuid;
-
-        data << uint32(secsToTimeBitFields(it->second.Date));
-        //data.WriteGuidBytes<1>(guid);
-        data << uint32(it->second.Flags);   // 1 sticky
-        //data.WriteGuidBytes<7, 6, 2>(guid);
-        data << uint32(0);                  // always 0
-        data << uint32(it->second.EventType);
-        //data.WriteGuidBytes<3, 0, 5>(guid);
         data << uint32(it->first);
+        data << uint32(secsToTimeBitFields(it->second.Date));
+        data << uint32(it->second.EventType);
+        data << uint32(it->second.Flags);   // 1 sticky
+
         data << uint32(it->second.Data);
-        //data.WriteGuidBytes<4>(guid);
+        data << uint32(0);                  // always 0
+
+        data << it->second.PlayerGuid;
+
+        data << uint32(0);          // MemberListCount
+        //data.WriteBit(0);           // HasItemInstance
+        data << uint8(0);           // just one bit
     }
 }
 
