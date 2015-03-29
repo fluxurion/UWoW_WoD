@@ -275,7 +275,7 @@ enum OpcodeClient : uint32
     CMSG_GUILD_BANK_UPDATE_TAB                        = 0xBADD,
     CMSG_GUILD_BANK_WITHDRAW_MONEY                    = 0xBADD,
     CMSG_GUILD_CHANGE_NAME_REQUEST                    = 0xBADD,
-    CMSG_GUILD_DECLINE                                = 0xBADD,
+    CMSG_GUILD_DECLINE_INVITATION                     = 0x0667,
     CMSG_GUILD_DEL_RANK                               = 0xBADD,
     CMSG_GUILD_DEMOTE                                 = 0xBADD,
     CMSG_GUILD_DISBAND                                = 0xBADD,
@@ -686,6 +686,7 @@ enum OpcodeClient : uint32
     CMSG_SET_LFG_BONUS_FACTION                        = 0x009D,
     CMSG_SET_FACTION_NOT_AT_WAR                       = 0x0A06,
     CMSG_UPGRADE_ITEM                                 = 0x0518,
+    CMSG_GUILD_AUTO_DECLINE_INVITATION                = 0x062F,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
@@ -693,7 +694,6 @@ enum OpcodeClient : uint32
     CMSG_CHALLENGE_MODE_REQUEST_LEADERS               = 0xBADD, // 5.4.1 17538
     CMSG_CONFIRM_TALENT_WIPE                          = 0xBADD, // 5.4.1 17538
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0xBADD, // 5.4.1 17538
-    CMSG_GUILD_AUTO_DECLINE                           = 0xBADD, // 5.4.1 17538
     CMSG_GUILD_LEADER                                 = 0xBADD,  // Not found in 4.3.4
     CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0xBADD, // 5.4.1 17538
     CMSG_LEARN_TALENTS                                = 0xBADD, // 5.4.1 17538
@@ -1025,7 +1025,7 @@ enum OpcodeServer : uint32
     SMSG_GUILD_CRITERIA_DATA                          = 0xBADD,
     SMSG_GUILD_CRITERIA_DELETED                       = 0xBADD,
     SMSG_GUILD_CRITERIA_UPDATE                        = 0x1208,
-    SMSG_GUILD_DECLINE                                = 0xBADD,
+    SMSG_GUILD_INVITE_DECLINED                        = 0x1226,
     SMSG_GUILD_EVENT                                  = 0x1027,
     SMSG_GUILD_EVENT_BANK_MONEY_CHANGED               = 0x1077,
     SMSG_GUILD_EVENT_LOG_QUERY_RESULTS                = 0x1075,

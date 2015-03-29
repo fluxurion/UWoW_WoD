@@ -106,16 +106,17 @@ void WorldSession::HandleGuildAcceptOpcode(WorldPacket& /*recvPacket*/)
             guild->HandleAcceptMember(this);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildDeclineOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DECLINE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DECLINE_INVITATION");
 
     if (Player* inviter = ObjectAccessor::FindPlayer(GetPlayer()->GetGuildInviterGuid()))
     {
         std::string name = GetPlayer()->GetName();
-        WorldPacket data(SMSG_GUILD_DECLINE, 1 + name.size() + 4);
+        WorldPacket data(SMSG_GUILD_INVITE_DECLINED, 1 + name.size() + 4);
         data.WriteBits(name.size(), 6);
-        data.WriteBit(recvPacket.GetOpcode() == CMSG_GUILD_AUTO_DECLINE);
+        data.WriteBit(recvPacket.GetOpcode() == CMSG_GUILD_AUTO_DECLINE_INVITATION);
         data << uint32(realmHandle.Index);
         data.WriteString(name);
         inviter->SendDirectMessage(&data);
