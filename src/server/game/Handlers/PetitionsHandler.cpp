@@ -43,18 +43,17 @@ enum CharterCosts
     GUILD_CHARTER_COST                            = 1000,
 };
 
+//! 6.0.3
 void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_BUY");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_BUY");
 
     ObjectGuid guidNPC;
     std::string name;
 
-    //recvData.ReadGuidMask<3, 5, 4, 0, 6, 2, 1, 7>(guidNPC);
     uint32 strLen = recvData.ReadBits(7);
-    //recvData.ReadGuidBytes<6, 2, 1, 4, 0, 5>(guidNPC);
+    recvData >> guidNPC;
     name = recvData.ReadString(strLen);
-    //recvData.ReadGuidBytes<3, 7>(guidNPC);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Petitioner with GUID %u tried sell petition: name %s", guidNPC.GetCounter(), name.c_str());
 

@@ -443,7 +443,7 @@ enum OpcodeClient : uint32
     CMSG_PAGE_TEXT_QUERY                              = 0x0BBB,
     CMSG_PARTY_SILENCE                                = 0xBADD,
     CMSG_PARTY_UNSILENCE                              = 0xBADD,
-    CMSG_PETITION_BUY                                 = 0xBADD,
+    CMSG_PETITION_BUY                                 = 0x0010,
     CMSG_PETITION_QUERY                               = 0xBADD,
     CMSG_PETITION_SHOWLIST                            = 0xBADD,
     CMSG_PETITION_SHOW_SIGNATURES                     = 0xBADD,
