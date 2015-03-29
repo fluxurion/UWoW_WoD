@@ -243,13 +243,13 @@ void WorldSession::HandleGuildSetNoteOpcode(WorldPacket& recvPacket)
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: end CMSG_GUILD_SET_MEMBER_NOTE");
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildQueryRanksOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_QUERY_RANKS");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_GET_RANKS");
 
     ObjectGuid guildGuid;
-    //recvData.ReadGuidMask<5, 7, 2, 0, 4, 3, 6, 1>(guildGuid);
-    //recvData.ReadGuidBytes<2, 3, 5, 7, 6, 4, 1, 0>(guildGuid);
+    recvData >> guildGuid;
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         if (guild->IsMember(_player->GetGUID()))
