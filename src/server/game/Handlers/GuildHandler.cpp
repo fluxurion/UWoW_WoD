@@ -372,19 +372,16 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
 }
 
 // Called when opening guild bank tab only (first one)
+//! 6.0.3
 void WorldSession::HandleGuildBankQueryTab(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_QUERY_TAB)");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_QUERY_TAB)");
 
     ObjectGuid GoGuid;
     uint8 tabId;
 
-    recvData >> tabId;
-    //recvData.ReadGuidMask<6>(GoGuid);
+    recvData >> GoGuid>> tabId;
     bool fullSlotList = recvData.ReadBit(); // 0 = only slots updated in last operation are shown. 1 = all slots updated
-    //recvData.ReadGuidMask<5, 2, 1, 0, 4, 7, 3>(GoGuid);
-
-    //recvData.ReadGuidBytes<4, 6, 7, 3, 5, 0, 1, 2>(GoGuid);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
