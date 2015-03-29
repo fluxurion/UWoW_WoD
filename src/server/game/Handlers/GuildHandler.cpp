@@ -518,9 +518,10 @@ void WorldSession::HandleGuildBankLogQuery(WorldPacket & recvData)
         guild->SendBankLog(this, tabId);
 }
 
+//! 6.0.3
 void WorldSession::HandleQueryGuildBankTabText(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_BANK_QUERY_TEXT");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_BANK_TEXT_QUERY");
 
     uint32 tabId;
     recvData >> tabId;
@@ -529,9 +530,10 @@ void WorldSession::HandleQueryGuildBankTabText(WorldPacket &recvData)
         guild->SendBankTabText(this, tabId);
 }
 
+//! 6.0.3
 void WorldSession::HandleSetGuildBankTabText(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_GUILD_BANK_TEXT");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_BANK_SET_TAB_TEXT");
 
     uint32 tabId;
     recvData >> tabId;
