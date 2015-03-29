@@ -43,7 +43,7 @@ inline Guild* _GetPlayerGuild(WorldSession* session, bool sendError = false)
 //! 6.0.3
 void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_QUERY");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_QUERY");
 
     ObjectGuid guildGuid, playerGuid;
     recvPacket >> guildGuid >> playerGuid;
@@ -66,6 +66,7 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
     Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
 {
     time_t now = time(NULL);
@@ -74,10 +75,8 @@ void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
     else
        timeLastGuildInviteCommand = now;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INVITE");
-    uint32 nameLength = recvPacket.ReadBits(9);
-
-    std::string invitedName = recvPacket.ReadString(nameLength);
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INVITE_BY_NAME");
+    std::string invitedName = recvPacket.ReadString(recvPacket.ReadBits(9));
 
     if (normalizePlayerName(invitedName))
         if (Guild* guild = _GetPlayerGuild(this, true))

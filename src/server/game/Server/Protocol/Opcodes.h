@@ -282,7 +282,7 @@ enum OpcodeClient : uint32
     CMSG_GUILD_EVENT_LOG_QUERY                        = 0xBADD,
     CMSG_GUILD_INFO                                   = 0xBADD,
     CMSG_GUILD_INFO_TEXT                              = 0xBADD,
-    CMSG_GUILD_INVITE                                 = 0x19A4,
+    CMSG_GUILD_INVITE_BY_NAME                         = 0x19A4,
     CMSG_GUILD_LEAVE                                  = 0xBADD,
     CMSG_GUILD_MEMBER_SEND_SOR_REQUEST                = 0xBADD,
     CMSG_GUILD_MOTD                                   = 0xBADD,
