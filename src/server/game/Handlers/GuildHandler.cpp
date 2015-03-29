@@ -669,6 +669,7 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
     }
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildQueryNewsOpcode(WorldPacket& recvPacket)
 {
     recvPacket.rfinish();   // guild guid
@@ -681,16 +682,14 @@ void WorldSession::HandleGuildQueryNewsOpcode(WorldPacket& recvPacket)
     }
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
 {
     uint32 newsId;
     ObjectGuid guid;
 
-    recvPacket >> newsId;
-    //recvPacket.ReadGuidMask<6, 7>(guid);
+    recvPacket >> guid>> newsId;
     bool sticky = recvPacket.ReadBit();
-    //recvPacket.ReadGuidMask<1, 5, 2, 4, 3, 0>(guid);
-    //recvPacket.ReadGuidBytes<7, 6, 0, 1, 4, 3, 2, 5>(guid);
 
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
     {
