@@ -3587,9 +3587,10 @@ void Guild::SendGuildEventOnline(ObjectGuid const& guid, std::string name, bool 
         BroadcastPacket(&data);
 }
 
+//! 6.0.3
 void Guild::SendGuildEventTabTextChanged(uint32 tabId, WorldSession* session)
 {
-    WorldPacket data(SMSG_GUILD_EVENT_GUILDBANK_TEXT_CHANGED, 4);
+    WorldPacket data(SMSG_GUILD_EVENT_TAB_TEXT_CHANGED, 4);
     data << uint32(tabId);
     if (session)
         session->SendPacket(&data);
@@ -3599,7 +3600,7 @@ void Guild::SendGuildEventTabTextChanged(uint32 tabId, WorldSession* session)
 
 void Guild::SendGuildEventBankSlotChanged()
 {
-    WorldPacket data(SMSG_GUILD_EVENT_GUILDBANKBAGSLOTS_CHANGED, 0);
+    WorldPacket data(SMSG_GUILD_EVENT_BANK_CONTENTS_CHANGED, 0);
     BroadcastPacket(&data);
 }
 
