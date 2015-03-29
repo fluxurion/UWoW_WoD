@@ -256,14 +256,15 @@ void WorldSession::HandleGuildQueryRanksOpcode(WorldPacket& recvData)
             guild->HandleGuildRanks(this);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildAddRankOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ADD_RANK");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ADD_RANK");
 
     uint32 rankId;
+    uint32 len = recvPacket.ReadBits(7);
     recvPacket >> rankId;
-
-    std::string rankName = recvPacket.ReadString(recvPacket.ReadBits(7));
+    std::string rankName = recvPacket.ReadString(len);
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleAddNewRank(this, rankName); //, rankId);
