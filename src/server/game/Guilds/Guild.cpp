@@ -27,6 +27,7 @@
 #include "Log.h"
 #include "AccountMgr.h"
 #include "GuildPackets.h"
+#include "ItemPackets.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -2063,6 +2064,7 @@ void Guild::SendEventLog(WorldSession* session) const
     //sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_EVENT_LOG_QUERY_RESULTS)");
 }
 
+//! 6.0.3
 void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
 {
     // GUILD_BANK_MAX_TABS send by client for money log
@@ -2079,9 +2081,10 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
 
         if (GetLevel() >= 5 && tabId == GUILD_BANK_MAX_TABS)
         {
-            data.WriteBit(1);     // has Cash Flow perk
-            data << uint64(0);//cashFlowContribution);
-        }
+            data.WriteBit(1);       // has Cash Flow perk
+            data << uint64(0);      // cashFlowContribution);
+        }else
+            data.WriteBit(0);
 
         session->SendPacket(&data);
         sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LOG_QUERY_RESULT) for tab %u", tabId);
@@ -2091,7 +2094,7 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
 void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const
 {
     ByteBuffer tabData;
-    WorldPacket data(SMSG_GUILD_BANK_LIST, 500);
+    WorldPacket data(SMSG_GUILD_BANK_QUERY_RESULTS, 500);
 
     data << int32(_GetMemberRemainingSlots(session->GetPlayer()->GetGUID(), 0));
     data << uint64(m_bankMoney);
@@ -2164,7 +2167,7 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
 
     session->SendPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_QUERY_RESULTS)");
 }
 
 void Guild::SendBankTabText(WorldSession* session, uint8 tabId) const
@@ -3138,36 +3141,40 @@ void Guild::_SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) cons
     _SendBankContentUpdate(tabId, slots);
 }
 
+//! 6.0.3
 void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
 {
     if (BankTab const* tab = GetBankTab(tabId))
     {
-        ByteBuffer tabData;
-        WorldPacket data(SMSG_GUILD_BANK_LIST, 1200);
-        size_t rempos = data.wpos();
-        data << uint32(-1);                                      // Item withdraw amount, will be filled later
+        WorldPacket data(SMSG_GUILD_BANK_QUERY_RESULTS, 1200);
         data << uint64(m_bankMoney);
         data << uint32(tabId);
 
-        data.WriteBits(0, 21);                                                      // Tab count
-        data.WriteBits(slots.size(), 18);                                           // Item count
+        size_t rempos = data.wpos();
+        data << uint32(-1);                                                         // Item withdraw amount, will be filled later personally for every player
+
+        data << uint32(0);                                                          // Tab count
+        data << uint32(slots.size());                                               // Item count
 
         for (SlotIds::const_iterator itr = slots.begin(); itr != slots.end(); ++itr)
         {
             Item const* tabItem = tab->GetItem(*itr);
 
-            tabData << uint32(tabItem ? tabItem->GetItemSuffixFactor() : 0);        // SuffixFactor
-            tabData << uint32(0);
-            tabData << uint32(tabItem ? tabItem->GetItemRandomPropertyId() : 0);
-            tabData << uint32(0);
-            tabData << uint32(*itr);
-            //if (tabItem)
-            //    tabItem->AppendDynamicInfo(tabData);
-            //else
-            {
-                tabData << uint32(4);
-                tabData << uint32(0);
-            }
+            data << uint32(*itr);
+
+            WorldPackets::Item::ItemInstance itemInstanse;
+            if (tabItem)
+                itemInstanse << tabItem;
+            data << itemInstanse;
+
+            data << uint32(tabItem ? tabItem->GetCount() : 0);                   // ITEM_FIELD_STACK_COUNT
+            data << uint32(0);                                                   // EnchantmentID
+            data << uint32(tabItem ? abs(tabItem->GetSpellCharges()) : 0);       // Spell charges
+            data << uint32(0);                                                   // OnUseEnchantmentID
+
+            size_t enchantPos = data.wpos();
+            data << uint32(0);                                                   // SocketEnchant
+            data << uint32(0);                                                   // Flags
 
             uint32 enchantCount = 0;
             if (tabItem)
@@ -3176,27 +3183,17 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
                 {
                     if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(enchSlot)))
                     {
-                        tabData << uint32(enchantId);
-                        tabData << uint32(enchSlot);
+                        data << uint32(enchSlot);
+                        data << uint32(enchantId);
                         ++enchantCount;
                     }
                 }
             }
-
-            data.WriteBits(enchantCount, 21);                                       // enchantment count
-            data.WriteBit(0);
-
-            tabData << uint32(0);
-            tabData << uint32(tabItem ? abs(tabItem->GetSpellCharges()) : 0);       // Spell charges
-            tabData << uint32(tabItem ? tabItem->GetEntry() : 0);
-            tabData << uint32(tabItem ? tabItem->GetCount() : 0);                   // ITEM_FIELD_STACK_COUNT
+            data.put<int32>(enchantPos, enchantCount);
+            data.WriteBit(0);                                                       // Locked
         }
 
-        data.WriteBit(0);
-
-        data.FlushBits();
-        if (!tabData.empty())
-            data.append(tabData);
+        data.WriteBit(0);                                                           // FullUpdate
 
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (_MemberHasTabRights(itr->second->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
@@ -3206,7 +3203,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
                     player->GetSession()->SendPacket(&data);
                 }
 
-        sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
+        //sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_QUERY_RESULTS)");
     }
 }
 
