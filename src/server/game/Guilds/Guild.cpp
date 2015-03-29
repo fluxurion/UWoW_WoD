@@ -3570,21 +3570,16 @@ void Guild::SendGuildEventRankUpdate(uint32 rankId)
     }
 }
 
+//! 6.0.3
 void Guild::SendGuildEventOnline(ObjectGuid const& guid, std::string name, bool online, WorldSession* session)
 {
-    WorldPacket data(SMSG_GUILD_EVENT_ONLINE, 8 + 1 + name.size() + 1 + 1 + 4);
-    //data.WriteGuidMask<1>(guid);
-    data.WriteBit(online);
-    //data.WriteGuidMask<7, 6>(guid);
-    data.WriteBits(name.size(), 6);
-    data.WriteBit(0);               // 0 - normal chat, 1 - remote chat
-    //data.WriteGuidMask<4, 3, 2, 5, 0>(guid);
-
-    //data.WriteGuidBytes<5, 0, 6, 4, 3>(guid);
+    WorldPacket data(SMSG_GUILD_EVENT_PRESENCE_CHANGE, 8 + 1 + name.size() + 1 + 1 + 4);
+    data << guid;
     data << uint32(realmHandle.Index);
-    //data.WriteGuidBytes<2, 7>(guid);
+    data.WriteBits(name.size(), 6);
+    data.WriteBit(online);
+    data.WriteBit(0);               // 0 - normal chat, 1 - remote chat
     data.WriteString(name);
-    //data.WriteGuidBytes<1>(guid);
 
     if (session)
         session->SendPacket(&data);
