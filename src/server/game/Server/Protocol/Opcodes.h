@@ -300,7 +300,7 @@ enum OpcodeClient : uint32
     CMSG_GUILD_GET_ROSTER                             = 0x0638,
     CMSG_GUILD_SET_ACHIEVEMENT_TRACKING               = 0xBADD,
     CMSG_GUILD_SET_GUILD_MASTER                       = 0x1184,
-    CMSG_GUILD_SET_NOTE                               = 0xBADD,
+    CMSG_GUILD_SET_MEMBER_NOTE                        = 0x1C27,
     CMSG_GUILD_SET_RANK_PERMISSIONS                   = 0xBADD,
     CMSG_GUILD_SHIFT_RANK                             = 0x0627,
     CMSG_HEARTH_AND_RESURRECT                         = 0xBADD,

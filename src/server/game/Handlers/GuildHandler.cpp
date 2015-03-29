@@ -226,25 +226,21 @@ void WorldSession::HandleSwapRanks(WorldPacket& recvPacket)
         guild->HandleSwapRanks(this, id, up);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildSetNoteOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SET_NOTE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SET_MEMBER_NOTE");
 
     ObjectGuid playerGuid;
-
-    //recvPacket.ReadGuidMask<3, 7, 1>(playerGuid);
-    bool type = recvPacket.ReadBit();      // 0 == Officer, 1 == Public
-    //recvPacket.ReadGuidMask<6, 0, 4, 2>(playerGuid);
+    recvPacket >> playerGuid;
     uint32 noteLength = recvPacket.ReadBits(8);
-    //recvPacket.ReadGuidMask<5>(playerGuid);
-
-    //recvPacket.ReadGuidBytes<1, 2, 4, 7, 0, 5, 3, 6>(playerGuid);
+    bool type = recvPacket.ReadBit();      // 0 == Officer, 1 == Public
     std::string note = recvPacket.ReadString(noteLength);
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleSetMemberNote(this, note, playerGuid, type);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: end CMSG_GUILD_SET_NOTE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: end CMSG_GUILD_SET_MEMBER_NOTE");
 }
 
 void WorldSession::HandleGuildQueryRanksOpcode(WorldPacket& recvData)
