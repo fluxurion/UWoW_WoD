@@ -388,16 +388,15 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket & recvData)
             guild->SendBankList(this, tabId, true, false);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_DEPOSIT_MONEY)");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_DEPOSIT_MONEY)");
 
     ObjectGuid goGuid;
     uint64 money;
 
-    recvData >> money;
-    //recvData.ReadGuidMask<0, 1, 4, 3, 7, 5, 2, 6>(goGuid);
-    //recvData.ReadGuidBytes<1, 5, 4, 0, 3, 6, 7, 2>(goGuid);
+    recvData >> goGuid >> money;
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(goGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (money && GetPlayer()->HasEnoughMoney(money))
