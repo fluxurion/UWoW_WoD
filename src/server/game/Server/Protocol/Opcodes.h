@@ -258,7 +258,7 @@ enum OpcodeClient : uint32
     CMSG_SET_ROLE                                     = 0x0326,
     CMSG_SWAP_SUB_GROUPS                              = 0x0106,
     CMSG_GROUP_UNINVITE                               = 0x1982,
-    CMSG_GUILD_ACCEPT                                 = 0xBADD,
+    CMSG_ACCEPT_GUILD_INVITE                          = 0x0384,
     CMSG_GUILD_ACHIEVEMENT_MEMBERS                    = 0xBADD,
     CMSG_GUILD_ACHIEVEMENT_PROGRESS_QUERY             = 0xBADD,
     CMSG_GUILD_ADD_RANK                               = 0xBADD,

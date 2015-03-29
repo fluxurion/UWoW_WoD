@@ -83,6 +83,7 @@ void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
             guild->HandleInviteMember(this, invitedName);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
 {
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_OFFICER_REMOVE_MEMBER");
@@ -94,9 +95,10 @@ void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
         guild->HandleRemoveMember(this, playerGuid);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildAcceptOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ACCEPT");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received /*CMSG_ACCEPT_GUILD_INVITE*/");
     // Player cannot be in guild
     if (!GetPlayer()->GetGuildId())
         // Guild where player was invited must exist
