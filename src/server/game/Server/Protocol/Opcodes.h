@@ -272,7 +272,7 @@ enum OpcodeClient : uint32
     CMSG_GUILD_BANK_QUERY_TAB                         = 0x1139,
     CMSG_GUILD_BANK_QUERY_TEXT                        = 0xBADD,
     CMSG_GUILD_BANK_SWAP_ITEMS                        = 0x1131,
-    CMSG_GUILD_BANK_UPDATE_TAB                        = 0xBADD,
+    CMSG_GUILD_BANK_UPDATE_TAB                        = 0x13C1,
     CMSG_GUILD_BANK_WITHDRAW_MONEY                    = 0x020D,
     CMSG_GUILD_CHANGE_NAME_REQUEST                    = 0xBADD,
     CMSG_GUILD_DECLINE_INVITATION                     = 0x0667,

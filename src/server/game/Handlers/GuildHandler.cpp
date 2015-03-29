@@ -486,23 +486,19 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket & recvData)
             guild->HandleBuyBankTab(this, tabId);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildBankUpdateTab(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_UPDATE_TAB)");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_UPDATE_TAB)");
 
     ObjectGuid GoGuid;
     uint8 tabId;
-    recvData >> tabId;
+    recvData >> GoGuid >> tabId;
     uint32 nameLen = recvData.ReadBits(7);
-    //recvData.ReadGuidMask<6, 5, 7>(GoGuid);
     uint32 iconLen = recvData.ReadBits(9);
-    //recvData.ReadGuidMask<3, 2, 1, 4, 0>(GoGuid);
 
-    //recvData.ReadGuidBytes<4, 0, 7, 3, 2>(GoGuid);
     std::string name = recvData.ReadString(nameLen);
-    //recvData.ReadGuidBytes<1, 5>(GoGuid);
     std::string icon = recvData.ReadString(iconLen);
-    //recvData.ReadGuidBytes<6>(GoGuid);
 
     if (!name.empty() && !icon.empty())
         if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
