@@ -170,12 +170,11 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
 
 void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
 
     uint8 signs = 0;
     ObjectGuid petitionguid;
-    //recvData.ReadGuidMask<0, 5, 2, 1, 4, 6, 3, 7>(petitionguid);
-    //recvData.ReadGuidBytes<2, 7, 3, 0, 4, 6, 1, 5>(petitionguid);
+    recvData >> petitionguid;
 
     // solve (possible) some strange compile problems with explicit use GUID_LOPART(petitionguid) at some GCC versions (wrong code optimization in compiler?)
     ObjectGuid::LowType petitionGuidLow = petitionguid.GetCounter();
@@ -211,55 +210,20 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 
     ObjectGuid playerGUID = _player->GetGUID();
 
+    //! 6.0.3
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8+8+4+1+signs*12));
-    //data.WriteGuidMask<3>(playerGUID);
-    //data.WriteGuidMask<2>(petitionguid);
-    //data.WriteGuidMask<0>(playerGUID);
-    //data.WriteGuidMask<0>(petitionguid);
-    //data.WriteGuidMask<1>(playerGUID);
-    //data.WriteGuidMask<6, 7, 1>(petitionguid);
-    //data.WriteGuidMask<5, 6>(playerGUID);
-    //data.WriteGuidMask<5>(petitionguid);
-    //data.WriteGuidMask<4>(playerGUID);
-    //data.WriteGuidMask<3>(petitionguid);
-    //data.WriteGuidMask<2>(playerGUID);
+    data << petitionguid;
+    data << playerGUID;                             //should be owner
+    data << GetBattlenetAccountGUID();
+    data << uint32(petitionGuidLow);                // CGPetitionInfo__m_petitionID
 
-    data.WriteBits(signs, 21);                              // sign's count
-
+    data << uint32(signs);                          // sign's count                    
     for (uint8 i = 0; i < signs; i++)
     {
         Field* fields2 = result->Fetch();
-        ObjectGuid::LowType lowGuid = fields2[0].GetUInt64();
-        ObjectGuid plSignGuid = ObjectGuid::Create<HighGuid::Player>(lowGuid);
-
-        //data.WriteGuidMask<2, 0, 3, 6, 4, 5, 7, 1>(plSignGuid);
-    }
-
-    //data.WriteGuidMask<4>(petitionguid);
-    //data.WriteGuidMask<7>(playerGUID);
-
-    for (uint8 i = 0; i < signs; i++)
-    {
-        Field* fields2 = result->Fetch();
-        ObjectGuid::LowType lowGuid = fields2[0].GetUInt64();
-        ObjectGuid plSignGuid = ObjectGuid::Create<HighGuid::Player>(lowGuid);
-
-        //data.WriteGuidBytes<6, 3, 0, 4, 7, 5, 1, 2>(plSignGuid);
+        data << ObjectGuid::Create<HighGuid::Player>(fields2[0].GetUInt64());
         data << uint32(0);
     }
-
-    //data.WriteGuidBytes<2>(playerGUID);
-    //data.WriteGuidBytes<4, 2, 3, 0>(petitionguid);
-    //data.WriteGuidBytes<0>(playerGUID);
-    //data.WriteGuidBytes<6>(petitionguid);
-
-    data << uint32(petitionGuidLow);               // CGPetitionInfo__m_petitionID
-
-    //data.WriteGuidBytes<5, 1>(playerGUID);
-    //data.WriteGuidBytes<7>(petitionguid);
-    //data.WriteGuidBytes<6>(playerGUID);
-    //data.WriteGuidBytes<5, 1>(petitionguid);
-    //data.WriteGuidBytes<4, 7, 3>(playerGUID);
 
     SendPacket(&data);
 }
