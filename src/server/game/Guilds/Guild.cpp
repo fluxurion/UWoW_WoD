@@ -3714,14 +3714,13 @@ void Guild::SendGuildMembersForRecipeResponse(WorldSession* session, uint32 skil
         }
     }
 
-    WorldPacket* data = new WorldPacket(SMSG_GUILD_MEMBERS_FOR_RECIPE, 4 + 4 + 3 + guids.size() * 9);
+    //! 6.0.3 ToDo: check skill and spell order
+    WorldPacket* data = new WorldPacket(SMSG_GUILD_MEMBERS_WITH_RECIPE, 4 + 4 + 3 + guids.size() * 9);
     *data << uint32(skillId);
     *data << uint32(spellId);
-    data->WriteBits(guids.size(), 24);
+    *data << guids.size();
     for (GuidSet::const_iterator itr = guids.begin(); itr != guids.end(); ++itr)
-        //data->WriteGuidMask<2, 0, 1, 6, 7, 5, 3, 4>(*itr);
-    for (GuidSet::const_iterator itr = guids.begin(); itr != guids.end(); ++itr)
-        //data->WriteGuidBytes<1, 2, 7, 4, 6, 3, 5, 0>(*itr);
+        *data << (*itr);
 
     session->GetPlayer()->ScheduleMessageSend(data, 500);
 }
