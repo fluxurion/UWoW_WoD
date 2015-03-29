@@ -1414,36 +1414,30 @@ void Guild::HandleQuery(WorldSession* session)
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_QUERY_RESPONSE)");
 }
 
+//! 6.0.3
 void Guild::HandleGuildRanks(WorldSession* session) const
 {
-    // perhaps move to guild.cpp.....
-    ByteBuffer rankData(100);
     WorldPacket data(SMSG_GUILD_RANK, 100);
 
-    data.WriteBits(_GetRanksSize(), 17);
+    data << uint32(_GetRanksSize());
 
     for (uint8 i = 0; i < _GetRanksSize(); ++i)
     {
         RankInfo const* rankInfo = GetRankInfo(i);
 
-        data.WriteBits(rankInfo->GetName().length(), 7);
+        data << uint32(rankInfo->GetId());
+        data << uint32(i);
+        data << uint32(rankInfo->GetRights());
+        data << uint32(rankInfo->GetBankMoneyPerDay() / 10000);
 
-        rankData << uint32(rankInfo->GetId());
-        rankData << uint32(rankInfo->GetRights());
         for (uint8 j = 0; j < GUILD_BANK_MAX_TABS; ++j)
         {
-            rankData << uint32(rankInfo->GetBankTabSlotsPerDay(j));
-            rankData << uint32(rankInfo->GetBankTabRights(j));
+            data << uint32(rankInfo->GetBankTabRights(j));
+            data << uint32(rankInfo->GetBankTabSlotsPerDay(j));
         }
-        rankData.WriteString(rankInfo->GetName());
-        rankData << uint32(i);
-        rankData << uint32(rankInfo->GetBankMoneyPerDay() / 10000);
-    }
 
-    if (!rankData.empty())
-    {
-        data.FlushBits();
-        data.append(rankData);
+        data.WriteBits(rankInfo->GetName().length(), 7);
+        data.WriteString(rankInfo->GetName());
     }
 
     session->SendPacket(&data);
