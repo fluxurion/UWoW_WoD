@@ -1534,6 +1534,7 @@ enum OpcodeServer : uint32
     SMSG_RESPEC_WIPE_CONFIRM                          = 0x1341,
     SMSG_SAVE_GUILD_EMBLEM                            = 0x1037,
     SMSG_GUILD_EVENT_TAB_MODIFIED                     = 0x1035,
+    SMSG_GUILD_EVENT_TAB_ADDED                        = 0x1868,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1590,7 +1591,6 @@ enum OpcodeServer : uint32
     SMSG_GUILD_EVENT_RANK_UPDATE                      = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_RANKS_UPDATE                     = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_REMOVE_MEMBER                    = 0xBADD, // 5.4.1 17538
-    SMSG_GUILD_EVENT_TAB_PURCHASED                    = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_TAB_REMOVED                      = 0xBADD, // 5.4.1 17538
     SMSG_INITIAL_COOLDOWNS                            = 0xBADD, // 5.4.1 17538
     SMSG_INSTANCE_DIFFICULTY                          = 0xBADD,      // Not found in 4.3.4

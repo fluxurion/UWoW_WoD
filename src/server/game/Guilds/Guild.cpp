@@ -1607,8 +1607,11 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
         return;
 
     player->ModifyMoney(-int64(tabCost));
-    WorldPacket data(SMSG_GUILD_EVENT_TAB_PURCHASED, 0);
+    WorldPacket data(SMSG_GUILD_EVENT_TAB_ADDED, 0);
     BroadcastPacket(&data);
+
+    _BroadcastEvent(GE_BANK_TAB_PURCHASED, ObjectGuid::Empty);
+    SendPermissions(session); /// Hack to force client to update permissions
 }
 
 void Guild::HandleSpellEffectBuyBankTab(WorldSession* session, uint8 tabId)
@@ -1620,7 +1623,7 @@ void Guild::HandleSpellEffectBuyBankTab(WorldSession* session, uint8 tabId)
     if (!_CreateNewBankTab())
         return;
 
-    WorldPacket data(SMSG_GUILD_EVENT_TAB_PURCHASED, 0);
+    WorldPacket data(SMSG_GUILD_EVENT_TAB_ADDED, 0);
     BroadcastPacket(&data);
 
     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS, tabId + 1, 0, 0, player);
@@ -2030,6 +2033,7 @@ void Guild::HandleDisband(WorldSession* session)
     }
 }
 
+//! 6.0.3
 void Guild::HandleGuildPartyRequest(WorldSession* session)
 {
     Player* player = session->GetPlayer();
