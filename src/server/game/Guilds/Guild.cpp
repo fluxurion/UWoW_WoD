@@ -2177,9 +2177,9 @@ void Guild::SendBankTabText(WorldSession* session, uint8 tabId) const
 void Guild::SendPermissions(WorldSession* session) const
 {
     ObjectGuid guid = session->GetPlayer()->GetGUID();
-
+    uint32 rankId = session->GetPlayer()->GetRank();
     WorldPacket data(SMSG_GUILD_PERMISSIONS_QUERY_RESULTS, 4 * 15 + 1);
-    data << uint32(session->GetPlayer()->GetRank());
+    data << uint32(rankId);
     data << int32(_GetMemberRemainingMoney(guid));
     data << uint32(_GetRankRights(rankId));
     data << uint32(GetPurchasedTabsSize());
@@ -3478,6 +3478,7 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
     }
 }
 
+//! 6.0.3
 void Guild::SendMotd(WorldSession* session)
 {
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent guild MOTD (SMSG_GUILD_EVENT_MOTD)");
