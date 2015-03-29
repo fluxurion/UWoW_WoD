@@ -2197,13 +2197,13 @@ void Guild::SendPermissions(WorldSession* session) const
 
 void Guild::SendMoneyInfo(WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_BANK_MONEY_WITHDRAWN, 4);
+    WorldPacket data(SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY, 4);
     // -1 in 64bit is 0xFFFFFFFFFFFFFFFF not 0xFFFFFFFF, 
     // so transform uint32 0xFFFFFFFF to -1 and then send -1 as uint64
     // Now _GetMemberRemainingMoney return int value no need double convertation
     data << int64(_GetMemberRemainingMoney(session->GetPlayer()->GetGUID()));
     session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_BANK_MONEY_WITHDRAWN");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY");
 }
 
 void Guild::SendLoginInfo(WorldSession* session)

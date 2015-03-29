@@ -1014,7 +1014,7 @@ enum OpcodeServer : uint32
     SMSG_GUILD_ACHIEVEMENT_MEMBERS                    = 0xBADD,
     SMSG_GUILD_BANK_QUERY_RESULTS                     = 0x1245,
     SMSG_GUILD_BANK_LOG_QUERY_RESULT                  = 0x1237,
-    SMSG_GUILD_BANK_MONEY_WITHDRAWN                   = 0x1047,
+    SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY          = 0x1047,
     SMSG_GUILD_BANK_TEXT_QUERY_RESULT                 = 0x1875,
     SMSG_GUILD_CANCEL                                 = 0xBADD,
     SMSG_GUILD_CHALLENGE_COMPLETED                    = 0xBADD,
