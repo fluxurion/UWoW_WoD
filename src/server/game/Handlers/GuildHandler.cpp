@@ -600,18 +600,19 @@ void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket)
     , moneyPerDay, rankId, newRights);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildRequestPartyState(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REQUEST_PARTY_STATE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REQUEST_PARTY_STATE");
 
     ObjectGuid guildGuid;
-    //recvData.ReadGuidMask<0, 6, 5, 3, 4, 7, 2, 1>(guildGuid);
-    //recvData.ReadGuidBytes<1, 2, 3, 5, 4, 0, 6, 7>(guildGuid);
+    recvData >> guildGuid;
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         guild->HandleGuildPartyRequest(this);
 }
 
+//! remove it
 void WorldSession::HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket)
 {
     ObjectGuid guildGuid;
@@ -633,6 +634,7 @@ void WorldSession::HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket)
     }
 }
 
+//! 6.0.3
 void WorldSession::HandleAutoDeclineGuildInvites(WorldPacket& recvPacket)
 {
     bool enable = recvPacket.ReadBit();

@@ -90,7 +90,7 @@ enum OpcodeClient : uint32
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0xBADD,
     CMSG_AUTOSTORE_LOOT_ITEM                          = 0x0609,
     CMSG_AUTO_DECLINE_GUILD_INVITE                    = 0xBADD,
-    CMSG_AUTO_DECLINE_GUILD_INVITES                   = 0xBADD,
+    CMSG_DECLINE_GUILD_INVITES                         = 0x148A,
     CMSG_BANKER_ACTIVATE                              = 0x1B24,
     CMSG_BATTLEFIELD_JOIN                             = 0xBADD,
     CMSG_BATTLEFIELD_LEAVE                            = 0xBADD,
