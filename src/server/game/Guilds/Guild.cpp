@@ -1531,18 +1531,19 @@ void Guild::HandleSetLeader(WorldSession* session, const std::string& name)
         SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PERMISSIONS);
 }
 
+//! 6.0.3
 void Guild::HandleSetBankTabInfo(WorldSession* session, uint8 tabId, const std::string& name, const std::string& icon)
 {
     if (BankTab* pTab = GetBankTab(tabId))
     {
         pTab->SetInfo(name, icon);
 
-        WorldPacket data(SMSG_GUILD_EVENT_GUILDBANK_TAB_UPDATE, 4 + 2 + name.size() + icon.size());
+        WorldPacket data(SMSG_GUILD_EVENT_TAB_MODIFIED, 4 + 2 + name.size() + icon.size());
         data << uint32(tabId);
         data.WriteBits(name.size(), 7);
         data.WriteBits(icon.size(), 9);
-        data.WriteString(icon);
         data.WriteString(name);
+        data.WriteString(icon);
         BroadcastPacket(&data);
     }
 }

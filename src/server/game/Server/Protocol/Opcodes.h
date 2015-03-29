@@ -1533,6 +1533,7 @@ enum OpcodeServer : uint32
     SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI       = 0x053D,
     SMSG_RESPEC_WIPE_CONFIRM                          = 0x1341,
     SMSG_SAVE_GUILD_EMBLEM                            = 0x1037,
+    SMSG_GUILD_EVENT_TAB_MODIFIED                     = 0x1035,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1580,7 +1581,6 @@ enum OpcodeServer : uint32
     SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT                = 0xBADD,  // 5.0.5 16048
     SMSG_GROUP_JOINED_BATTLEGROUND                    = 0xBADD,      // Not found in TC
     SMSG_GUILD_EVENT_GUILD_DISBANDED                  = 0xBADD, // 5.4.1 17538
-    SMSG_GUILD_EVENT_GUILDBANK_TAB_UPDATE             = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_GUILDBANK_TEXT_CHANGED           = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_GUILDBANKBAGSLOTS_CHANGED        = 0xBADD, // 5.4.1 17538
     SMSG_GUILD_EVENT_JOIN_MEMBER                      = 0xBADD, // 5.4.1 17538
