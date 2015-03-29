@@ -2140,7 +2140,6 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
                     data << uint32(0);                                   // SocketEnchant
                     data << uint32(0);                                   // Flags
 
-
                     uint32 enchants = 0;
                     for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
                     {
@@ -2174,18 +2173,18 @@ void Guild::SendBankTabText(WorldSession* session, uint8 tabId) const
         tab->SendText(this, session);
 }
 
+//! 6.0.3
 void Guild::SendPermissions(WorldSession* session) const
 {
     ObjectGuid guid = session->GetPlayer()->GetGUID();
-    uint32 rankId = session->GetPlayer()->GetRank();
 
     WorldPacket data(SMSG_GUILD_PERMISSIONS_QUERY_RESULTS, 4 * 15 + 1);
-    data << uint32(rankId);
+    data << uint32(session->GetPlayer()->GetRank());
     data << int32(_GetMemberRemainingMoney(guid));
     data << uint32(_GetRankRights(rankId));
     data << uint32(GetPurchasedTabsSize());
 
-    data.WriteBits(GUILD_BANK_MAX_TABS, 21);
+    data << uint32(GUILD_BANK_MAX_TABS);
     for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)
     {
         data << uint32(_GetRankBankTabRights(rankId, tabId));
@@ -2193,7 +2192,7 @@ void Guild::SendPermissions(WorldSession* session) const
     }
 
     session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_PERMISSIONS_QUERY_RESULTS)");
+    //sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_PERMISSIONS_QUERY_RESULTS)");
 }
 
 void Guild::SendMoneyInfo(WorldSession* session) const
