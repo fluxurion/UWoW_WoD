@@ -1037,7 +1037,7 @@ enum OpcodeServer : uint32
     SMSG_GUILD_MAX_DAILY_XP                           = 0xBADD,
     SMSG_GUILD_MEMBERS_WITH_RECIPE                    = 0x1277,
     SMSG_GUILD_MEMBER_DAILY_RESET                     = 0x1015,
-    SMSG_GUILD_MEMBER_RECIPES                         = 0xBADD,
+    SMSG_GUILD_MEMBER_RECIPES                         = 0x1036,
     SMSG_GUILD_MEMBER_UPDATE_NOTE                     = 0xBADD,
     SMSG_GUILD_MOTD                                   = 0x1825,
     SMSG_GUILD_MOVE_COMPLETE                          = 0xBADD,

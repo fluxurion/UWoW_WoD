@@ -3725,6 +3725,7 @@ void Guild::SendGuildMembersForRecipeResponse(WorldSession* session, uint32 skil
     session->GetPlayer()->ScheduleMessageSend(data, 500);
 }
 
+//! 6.0.3
 void Guild::SendGuildMemberRecipesResponse(WorldSession* session, ObjectGuid playerGuid, uint32 skillId)
 {
     Member* member = GetMember(playerGuid);
@@ -3737,15 +3738,12 @@ void Guild::SendGuildMemberRecipesResponse(WorldSession* session, ObjectGuid pla
         if (info.skillId == skillId)
         {
             WorldPacket* data = new WorldPacket(SMSG_GUILD_MEMBER_RECIPES, 8 + 1 + 4 * 3 + 300);
-            //data->WriteGuidMask<0, 7, 5, 2, 4, 1, 6, 3>(playerGuid);
-
-            *data << uint32(info.skillValue);
-            //data->WriteGuidBytes<7, 1, 6>(playerGuid);
-            data->append(info.knownRecipes.recipesMask, KNOW_RECIPES_MASK_SIZE);
-            *data << uint32(info.skillRank);
-            //data->WriteGuidBytes<4, 0>(playerGuid);
+            *data << playerGuid;
             *data << uint32(info.skillId);
-            //data->WriteGuidBytes<5, 3, 2>(playerGuid);
+            *data << uint32(info.skillValue);
+            *data << uint32(info.skillRank);
+
+            data->append(info.knownRecipes.recipesMask, KNOW_RECIPES_MASK_SIZE);
 
             session->GetPlayer()->ScheduleMessageSend(data, 500);
             return;
