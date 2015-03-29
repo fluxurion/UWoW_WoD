@@ -319,7 +319,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_INVITE_BY_NAME,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildInviteOpcode         );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_LEAVE,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildLeaveOpcode          );//603
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_MEMBER_SEND_SOR_REQUEST,           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_MOTD,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildMOTDOpcode           );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_UPDATE_MOTD_TEXT,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildMOTDOpcode           );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_NEWS_UPDATE_STICKY,                STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildNewsUpdateStickyOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_PERMISSIONS,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildPermissions          );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_PROMOTE_MEMBER,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildPromoteOpcode        );//603
@@ -336,7 +336,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SET_GUILD_MASTER,                  STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildLeaderOpcode         );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SET_NOTE,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetNoteOpcode        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SET_RANK_PERMISSIONS,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetRankPermissionsOpcode);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SWITCH_RANK,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSwapRanks                 );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SHIFT_RANK,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSwapRanks                 );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_HEARTH_AND_RESURRECT,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleHearthAndResurrect        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_IGNORE_TRADE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleIgnoreTradeOpcode         );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_INITIATE_TRADE,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleInitiateTradeOpcode       );

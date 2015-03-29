@@ -202,9 +202,10 @@ void WorldSession::HandleGuildLeaderOpcode(WorldPacket& recvPacket)
             guild->HandleSetLeader(this, name);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildMOTDOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_MOTD");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_UPDATE_MOTD_TEXT");
 
     std::string motd = recvPacket.ReadString(recvPacket.ReadBits(10));
 
@@ -212,9 +213,10 @@ void WorldSession::HandleGuildMOTDOpcode(WorldPacket& recvPacket)
         guild->HandleSetMOTD(this, motd);
 }
 
+//! 6.0.3
 void WorldSession::HandleSwapRanks(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SWITCH_RANK");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SHIFT_RANK");
 
     uint32 id;
 
