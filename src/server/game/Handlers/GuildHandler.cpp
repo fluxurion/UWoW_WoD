@@ -40,29 +40,13 @@ inline Guild* _GetPlayerGuild(WorldSession* session, bool sendError = false)
     return NULL;
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_QUERY");
 
     ObjectGuid guildGuid, playerGuid;
-
-    //recvPacket.ReadGuidMask<5>(guildGuid);
-    //recvPacket.ReadGuidMask<7, 6>(playerGuid);
-    //recvPacket.ReadGuidMask<4, 3>(guildGuid);
-    //recvPacket.ReadGuidMask<2>(playerGuid);
-    //recvPacket.ReadGuidMask<2>(guildGuid);
-    //recvPacket.ReadGuidMask<3>(playerGuid);
-    //recvPacket.ReadGuidMask<7, 0, 6>(guildGuid);
-    //recvPacket.ReadGuidMask<1, 0, 4>(playerGuid);
-    //recvPacket.ReadGuidMask<1>(guildGuid);
-    //recvPacket.ReadGuidMask<5>(playerGuid);
-
-    //recvPacket.ReadGuidBytes<4, 6>(playerGuid);
-    //recvPacket.ReadGuidBytes<0>(guildGuid);
-    //recvPacket.ReadGuidBytes<5, 3, 0>(playerGuid);
-    //recvPacket.ReadGuidBytes<2, 6, 3, 4, 7, 5>(guildGuid);
-    //recvPacket.ReadGuidBytes<7, 1, 2>(playerGuid);
-    //recvPacket.ReadGuidBytes<1>(guildGuid);
+    recvPacket >> guildGuid >> playerGuid;
 
     // If guild doesn't exist or player is not part of the guild send error
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
@@ -74,10 +58,8 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
     else
     {
         WorldPacket data(SMSG_GUILD_QUERY_RESPONSE, 8 + 1 + 1);
-        //data.WriteGuidMask<5, 0, 3, 4, 7, 1>(guildGuid);
+        data << guildGuid;
         data.WriteBit(0);   // no data
-        //data.WriteGuidMask<2, 6>(guildGuid);
-        //data.WriteGuidBytes<3, 0, 5, 2, 7, 1, 6, 4>(guildGuid);
         SendPacket(&data);
     }
 
