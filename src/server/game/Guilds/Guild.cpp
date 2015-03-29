@@ -2088,32 +2088,34 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
     }
 }
 
+//! 6.0.3
 void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const
 {
-    ByteBuffer tabData;
     WorldPacket data(SMSG_GUILD_BANK_QUERY_RESULTS, 500);
 
-    data << int32(_GetMemberRemainingSlots(session->GetPlayer()->GetGUID(), 0));
     data << uint64(m_bankMoney);
     data << uint32(tabId);
+    data << int32(_GetMemberRemainingSlots(session->GetPlayer()->GetGUID(), 0));
 
-    data.WriteBits(withTabInfo ? GetPurchasedTabsSize() : 0, 21);
+    data << uint32(withTabInfo ? GetPurchasedTabsSize() : 0);
+    uint32 itemCount = 0;
+    uint32 pos = data.wpos();
+    data << uint32(itemCount);
+
     if (withTabInfo)
     {
         for (uint8 i = 0; i < GetPurchasedTabsSize(); ++i)
         {
+            data << uint32(i);
+
             data.WriteBits(m_bankTabs[i]->GetName().length(), 7);
             data.WriteBits(m_bankTabs[i]->GetIcon().length(), 9);
 
-            tabData << uint32(i);
-            tabData.WriteString(m_bankTabs[i]->GetName());
-            tabData.WriteString(m_bankTabs[i]->GetIcon());
+            data.WriteString(m_bankTabs[i]->GetName());
+            data.WriteString(m_bankTabs[i]->GetIcon());
         }
     }
 
-    uint32 itemCount = 0;
-    uint32 bitpos = data.bitwpos();
-    data.WriteBits(itemCount, 18);
     if (withContent && _MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
     {
         if (BankTab const* tab = GetBankTab(tabId))
@@ -2124,47 +2126,46 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
                 {
                     ++itemCount;
 
-                    tabData << uint32(tabItem->GetItemSuffixFactor());      // SuffixFactor
-                    tabData << uint32(0);
-                    tabData << uint32(tabItem->GetItemRandomPropertyId());
-                    tabData << uint32(0);
-                    tabData << uint32(slotId);
-                    //tabItem->AppendDynamicInfo(tabData);
+                    data << uint32(slotId);
+
+                    WorldPackets::Item::ItemInstance itemInstanse;
+                    itemInstanse << tabItem;
+                    data << itemInstanse;
+
+                    data << uint32(tabItem->GetCount());                 // ITEM_FIELD_STACK_COUNT
+                    data << uint32(0);                                   // EnchantmentID
+                    data << uint32(abs(tabItem->GetSpellCharges()));     // Spell charges
+                    data << uint32(0);                                   // OnUseEnchantmentID
+                    uint32 epos = data.wpos();
+                    data << uint32(0);                                   // SocketEnchant
+                    data << uint32(0);                                   // Flags
+
 
                     uint32 enchants = 0;
                     for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
                     {
                         if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
                         {
-                            tabData << uint32(enchantId);
-                            tabData << uint32(ench);
+                            data << uint32(ench);
+                            data << uint32(enchantId);
                             ++enchants;
                         }
                     }
+                    data.put<uint32>(epos, enchants);
 
-                    data.WriteBits(enchants, 21);
-                    data.WriteBit(0);
-
-                    tabData << uint32(0);
-                    tabData << uint32(abs(tabItem->GetSpellCharges()));     // Spell charges
-                    tabData << uint32(tabItem->GetEntry());
-                    tabData << uint32(tabItem->GetCount());                 // ITEM_FIELD_STACK_COUNT
+                    data.WriteBit(0);                                     // Locked
                 }
             }
         }
     }
 
-    data.WriteBit(0);
+    data.WriteBit(1);                                                    // FullUpdate
 
-    data.FlushBits();
-    if (!tabData.empty())
-        data.append(tabData);
-
-    data.PutBits(bitpos, itemCount, 18);
+    data.put<uint32>(pos, itemCount);
 
     session->SendPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_QUERY_RESULTS)");
+    //sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_QUERY_RESULTS)");
 }
 
 void Guild::SendBankTabText(WorldSession* session, uint8 tabId) const
@@ -3246,6 +3247,7 @@ void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, u
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GUILD_SEND_RANK_CHANGE");
 }
 
+//! ToDo: remove. not used in WOD
 void Guild::GiveXP(uint32 xp, Player* source)
 {
     if (!sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED))
