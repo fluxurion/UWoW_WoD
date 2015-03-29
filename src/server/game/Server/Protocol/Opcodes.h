@@ -292,7 +292,7 @@ enum OpcodeClient : uint32
     CMSG_GUILD_QUERY                                  = 0x0930,
     CMSG_GUILD_QUERY_NEWS                             = 0xBADD,
     CMSG_GUILD_QUERY_RANKS                            = 0x0C37,
-    CMSG_GUILD_REMOVE                                 = 0xBADD,
+    CMSG_GUILD_OFFICER_REMOVE_MEMBER                  = 0x042F,
     CMSG_GUILD_REPLACE_GUILD_MASTER                   = 0xBADD,
     CMSG_GUILD_REQUEST_CHALLENGE_UPDATE               = 0xBADD,
     CMSG_GUILD_REQUEST_MAX_DAILY_XP                   = 0xBADD,

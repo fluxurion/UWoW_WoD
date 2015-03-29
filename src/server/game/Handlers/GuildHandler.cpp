@@ -85,11 +85,10 @@ void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REMOVE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_OFFICER_REMOVE_MEMBER");
 
     ObjectGuid playerGuid;
-    //recvPacket.ReadGuidMask<6, 5, 2, 0, 3, 4, 7, 1>(playerGuid);
-    //recvPacket.ReadGuidBytes<1, 2, 4, 3, 7, 5, 6, 0>(playerGuid);
+    recvPacket >> playerGuid;
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleRemoveMember(this, playerGuid);
