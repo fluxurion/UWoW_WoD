@@ -3505,36 +3505,26 @@ void Guild::SendGuildEventJoinMember(ObjectGuid const& guid, std::string name)
     BroadcastPacket(&data);
 }
 
+//! 6.0.3
 void Guild::SendGuildEventRemoveMember(ObjectGuid const& guid, std::string name, ObjectGuid kickerGuid, std::string kickerName)
 {
     bool kicked = kickerGuid;
 
-    WorldPacket data(SMSG_GUILD_EVENT_REMOVE_MEMBER, 8 + 8 + 1 + 1 + name.size() + 1 + kickerName.size() + 1 + 1 + 4 + 4);
-    //data.WriteGuidMask<4, 1, 0>(guid);
+    WorldPacket data(SMSG_GUILD_EVENT_PLAYER_LEFT, 8 + 8 + 1 + 1 + name.size() + 1 + kickerName.size() + 1 + 1 + 4 + 4);
     data.WriteBit(kicked);
-    //data.WriteGuidMask<3>(guid);
-    if (kicked)
-    {
-        data.WriteBit(0);       // has kicker realm id
-        data.WriteBit(0);       // has kicker name
-        data.WriteBit(0);       // has kicker guid
-        data.WriteBits(kickerName.size(), 6);
-        //data.WriteGuidMask<6, 5, 2, 7, 3, 0, 1, 4>(kickerGuid);
-    }
-    //data.WriteGuidMask<7>(guid);
     data.WriteBits(name.size(), 6);
-    //data.WriteGuidMask<6, 2, 5>(guid);
+
     if (kicked)
     {
-        //data.WriteGuidBytes<1, 7, 3, 5, 0, 6, 2, 4>(kickerGuid);
-        data << uint32(realmHandle.Index);
+        data.WriteBits(kickerName.size(), 6);
+        data << kickerGuid;
+        data << uint32(realmHandle.Index);                  //RemoverVirtualRealmAddress
         data.WriteString(kickerName);
     }
-    //data.WriteGuidBytes<0, 7>(guid);
+
+    data << guid;
+    data << uint32(realmHandle.Index);                      //LeaverVirtualRealmAddress
     data.WriteString(name);
-    //data.WriteGuidBytes<3, 1, 5, 2>(guid);
-    data << uint32(realmHandle.Index);
-    //data.WriteGuidBytes<6, 4>(guid);
 
     BroadcastPacket(&data);
 }
