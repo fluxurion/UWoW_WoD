@@ -544,6 +544,7 @@ void WorldSession::HandleSetGuildBankTabText(WorldPacket& recvData)
         guild->SetBankTabText(tabId, text);
 }
 
+//! remove it
 void WorldSession::HandleGuildQueryXPOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_GUILD_XP");
@@ -557,6 +558,7 @@ void WorldSession::HandleGuildQueryXPOpcode(WorldPacket& recvPacket)
             guild->SendGuildXP(this);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket)
 {
     Guild* guild = _GetPlayerGuild(this, true);
@@ -572,11 +574,11 @@ void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket)
     uint32 newRights;
     uint32 moneyPerDay;
 
+    recvPacket >> rankId;
     recvPacket >> oldRankId;
+    recvPacket >> newRights;
     recvPacket >> oldRights;
     recvPacket >> moneyPerDay;
-    recvPacket >> newRights;
-    recvPacket >> rankId;
 
     GuildBankRightsAndSlotsVec rightsAndSlots(GUILD_BANK_MAX_TABS);
     for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)

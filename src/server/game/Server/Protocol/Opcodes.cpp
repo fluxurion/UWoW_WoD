@@ -335,7 +335,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SET_ACHIEVEMENT_TRACKING,          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SET_GUILD_MASTER,                  STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildLeaderOpcode         );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SET_MEMBER_NOTE,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetNoteOpcode        );//603
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SET_RANK_PERMISSIONS,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetRankPermissionsOpcode);
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SET_RANK_PERMISSIONS,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildSetRankPermissionsOpcode);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_SHIFT_RANK,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSwapRanks                 );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_HEARTH_AND_RESURRECT,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleHearthAndResurrect        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_IGNORE_TRADE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleIgnoreTradeOpcode         );
@@ -456,7 +456,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_QUERY_MEMBER_RECIPES,              STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildQueryGuildMembersRecipes);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GUILD_QUERY_RECIPES,                     STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildQueryGuildRecipesOpcode);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_GUILD_REWARDS,                     STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildRewardsQueryOpcode   );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_GUILD_XP,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildQueryXPOpcode        ); // STATUS_AUTHED
+    //DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_GUILD_XP,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildQueryXPOpcode        ); // STATUS_AUTHED
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_INSPECT_ACHIEVEMENTS,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryInspectAchievements  );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_PLAYER_RECIPES,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryPlayerRecipes        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_TIME,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryTimeOpcode           );//603
