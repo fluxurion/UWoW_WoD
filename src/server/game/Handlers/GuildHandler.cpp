@@ -343,25 +343,24 @@ void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket & /* recvData */)
         guild->SendMoneyInfo(this);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildPermissions(WorldPacket& /* recvData */)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_PERMISSIONS)");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_PERMISSIONS_QUERY)");
 
     if (Guild* guild = _GetPlayerGuild(this))
         guild->SendPermissions(this);
 }
 
 // Called when clicking on Guild bank gameobject
+//! 6.0.3
 void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANKER_ACTIVATE)");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_ACTIVATE)");
 
     ObjectGuid GoGuid;
-    //recvData.ReadGuidMask<5, 2, 1, 0, 4>(GoGuid);
+    recvData >> GoGuid;
     bool fullSlotList = recvData.ReadBit();
-    //recvData.ReadGuidMask<6, 3, 7>(GoGuid);
-
-    //recvData.ReadGuidBytes<3, 6, 1, 7, 0, 5, 2, 4>(GoGuid);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
     {
