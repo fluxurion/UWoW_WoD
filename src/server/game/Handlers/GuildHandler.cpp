@@ -172,25 +172,28 @@ void WorldSession::HandleGuildAssignRankOpcode(WorldPacket& recvPacket)
         guild->HandleSetMemberRank(this, targetGuid, GetPlayer()->GetGUID(), rankId);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildLeaveOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_LEAVE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_LEAVE");
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleLeaveMember(this);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildDisbandOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DISBAND");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DELETE");
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleDisband(this);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildLeaderOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_LEADER");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SET_GUILD_MASTER");
 
     std::string name = recvPacket.ReadString(recvPacket.ReadBits(9));
 

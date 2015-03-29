@@ -277,13 +277,13 @@ enum OpcodeClient : uint32
     CMSG_GUILD_CHANGE_NAME_REQUEST                    = 0xBADD,
     CMSG_GUILD_DECLINE_INVITATION                     = 0x0667,
     CMSG_GUILD_DEL_RANK                               = 0xBADD,
-    CMSG_GUILD_DEMOTE_MEMBER                           = 0x142F,
-    CMSG_GUILD_DISBAND                                = 0xBADD,
+    CMSG_GUILD_DEMOTE_MEMBER                          = 0x142F,
+    CMSG_GUILD_DELETE                                 = 0x1427,
     CMSG_GUILD_EVENT_LOG_QUERY                        = 0xBADD,
     CMSG_GUILD_INFO                                   = 0xBADD,
     CMSG_GUILD_INFO_TEXT                              = 0xBADD,
     CMSG_GUILD_INVITE_BY_NAME                         = 0x19A4,
-    CMSG_GUILD_LEAVE                                  = 0xBADD,
+    CMSG_GUILD_LEAVE                                  = 0x0476,
     CMSG_GUILD_MEMBER_SEND_SOR_REQUEST                = 0xBADD,
     CMSG_GUILD_MOTD                                   = 0xBADD,
     CMSG_GUILD_NEWS_UPDATE_STICKY                     = 0xBADD,
@@ -299,7 +299,7 @@ enum OpcodeClient : uint32
     CMSG_GUILD_REQUEST_PARTY_STATE                    = 0x0A8E,
     CMSG_GUILD_GET_ROSTER                             = 0x0638,
     CMSG_GUILD_SET_ACHIEVEMENT_TRACKING               = 0xBADD,
-    CMSG_GUILD_SET_GUILD_MASTER                       = 0xBADD,
+    CMSG_GUILD_SET_GUILD_MASTER                       = 0x1184,
     CMSG_GUILD_SET_NOTE                               = 0xBADD,
     CMSG_GUILD_SET_RANK_PERMISSIONS                   = 0xBADD,
     CMSG_GUILD_SWITCH_RANK                            = 0xBADD,
@@ -694,7 +694,6 @@ enum OpcodeClient : uint32
     CMSG_CHALLENGE_MODE_REQUEST_LEADERS               = 0xBADD, // 5.4.1 17538
     CMSG_CONFIRM_TALENT_WIPE                          = 0xBADD, // 5.4.1 17538
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0xBADD, // 5.4.1 17538
-    CMSG_GUILD_LEADER                                 = 0xBADD,  // Not found in 4.3.4
     CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0xBADD, // 5.4.1 17538
     CMSG_LEARN_TALENTS                                = 0xBADD, // 5.4.1 17538
     CMSG_LEAVE_BATTLEFIELD                            = 0xBADD, // 5.4.1 17538
