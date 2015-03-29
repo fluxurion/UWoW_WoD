@@ -126,23 +126,22 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& recvPacket)
     GetPlayer()->SetInGuild(UI64LIT(0));
 }
 
-void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)
+//! 6.0.3
+void WorldSession::HandleGuildRosterOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ROSTER");
-
-    recvPacket.rfinish();
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_GET_ROSTER");
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleRoster(this);
 }
 
+//! 6.0.3
 void WorldSession::HandleGuildPromoteOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_PROMOTE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_PROMOTE_MEMBER");
 
     ObjectGuid targetGuid;
-    //recvPacket.ReadGuidMask<4, 7, 6, 2, 3, 1, 0, 5>(targetGuid);
-    //recvPacket.ReadGuidBytes<0, 7, 1, 5, 3, 6, 2, 4>(targetGuid);
+    recvPacket >> targetGuid;
 
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleUpdateMemberRank(this, targetGuid, false);

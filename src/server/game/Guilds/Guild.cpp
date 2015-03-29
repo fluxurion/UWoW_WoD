@@ -1312,7 +1312,6 @@ void Guild::SaveToDB(bool withMembers)
 //! 6.0.3
 void Guild::HandleRoster(WorldSession* session /*= NULL*/)
 {
-    ByteBuffer memberData(100);
     // Guess size
     WorldPacket data(SMSG_GUILD_ROSTER);
 
@@ -1383,7 +1382,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         session->SendPacket(&data);
     else
         BroadcastPacket(&data);
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_ROSTER)");
+    //sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_ROSTER)");
 }
 
 //! 6.0.3
