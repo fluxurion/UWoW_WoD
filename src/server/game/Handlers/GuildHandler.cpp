@@ -420,9 +420,10 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & recvData)
                 guild->HandleMemberWithdrawMoney(this, money);
 }
 
+//! 6.0.3 TODo: check it.
 void WorldSession::HandleGuildBankSwapItems(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_SWAP_ITEMS)");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_SWAP_ITEMS)");
 
     Guild* guild = _GetPlayerGuild(this);
     if (!guild)
@@ -432,45 +433,28 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recvData)
     }
 
     ObjectGuid GoGuid;
-
     bool bankToBank, autoStore;
     uint8 tabId = 0, slotId = 0, toChar, destTabId, destSlotId, playerBag = NULL_BAG, playerSlotId = NULL_SLOT;
-    uint32 itemEntry = 0, destItemEntry, splitedAmount;
+    uint32 itemEntry = 0, destItemEntry, splitedAmount, BankItemCount;
 
-    recvData >> toChar >> destTabId >> destItemEntry >> destSlotId >> splitedAmount;
+    recvData >> GoGuid
+        >> tabId
+        >> slotId
+        >> itemEntry
+        >> destTabId
+        >> destSlotId
+        >> destItemEntry
+        >> BankItemCount
+        >> playerBag
+        >> playerSlotId
+        >> splitedAmount
+        >> toChar;
 
-    autoStore = recvData.ReadBit();
     bankToBank = recvData.ReadBit();
-    //recvData.ReadGuidMask<2, 6, 0, 5, 7>(GoGuid);
-    bool hasPlayerSlotId = !recvData.ReadBit();
-    //recvData.ReadGuidMask<4, 1>(GoGuid);
-    bool hasPlayerBag = !recvData.ReadBit();
-    bool hasItemEntry = !recvData.ReadBit();
-    bool hasTabId = !recvData.ReadBit();
-    bool hasSlotId = !recvData.ReadBit();
-    //recvData.ReadGuidMask<3>(GoGuid);
-    bool hasAutoStoreCount = !recvData.ReadBit();
-
-    //recvData.ReadGuidBytes<7, 5, 6, 1, 0, 4, 2, 3>(GoGuid);
+    autoStore = recvData.ReadBit();
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-    {
-        recvData.rfinish();                   // Prevent additional spam at rejected packet
         return;
-    }
-
-    if (hasAutoStoreCount)
-        recvData.read_skip<uint32>();
-    if (hasSlotId)
-        recvData >> slotId;
-    if (hasPlayerBag)
-        recvData >> playerBag;
-    if (hasItemEntry)
-        recvData >> itemEntry;
-    if (hasPlayerSlotId)
-        recvData >> playerSlotId;
-    if (hasTabId)
-        recvData >> tabId;
 
     if (bankToBank)
         guild->SwapItems(GetPlayer(), tabId, slotId, destTabId, destSlotId, splitedAmount);
@@ -736,7 +720,7 @@ void WorldSession::HandleGuildQueryGuildRecipesOpcode(WorldPacket& recvPacket)
     WorldPacket* data = new WorldPacket(SMSG_GUILD_KNOWN_RECIPES, 2 + recipesMap.size() * (300 + 4));
     uint32 pos = data->wpos();
     uint32 count = 0;
-    data << uint32(count);
+    *data << uint32(count);
 
     for (Guild::KnownRecipesMap::const_iterator itr = recipesMap.begin(); itr != recipesMap.end(); ++itr)
     {
