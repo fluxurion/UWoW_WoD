@@ -29,6 +29,7 @@
 #include "Guild.h"
 #include "GossipDef.h"
 #include "SocialMgr.h"
+#include "PetitionPackets.h"
 
 #define CHARTER_DISPLAY_ID 16161
 
@@ -243,6 +244,7 @@ void WorldSession::HandlePetitionQueryOpcode(WorldPacket & recvData)
     SendPetitionQueryOpcode(petitionguid);
 }
 
+//! 6.0.3
 void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
 {
     ObjectGuid ownerguid;
@@ -262,58 +264,16 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
         name      = fields[1].GetString();
         type      = fields[2].GetUInt8();
     }
-    else
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PETITION failed for petition (GUID: %u)", petitionguid.GetCounter());
-        return;
-    }
 
-    WorldPacket data(SMSG_QUERY_PETITION_RESPONSE);
-    bool unk = data.WriteBit(1);
-    if (unk)
-    {
-        //data.WriteGuidMask<5>(ownerguid);
-        data.WriteBits(name.size(), 7);              // guild name->length
-        //data.WriteGuidMask<3, 6, 1>(ownerguid);
+    WorldPackets::Petition::QueryPetitionResponse packet;
+    packet.PetitionID = petitionguid.GetCounter();
+    packet.Allow = bool(result);
+    packet.Info.PetitionID = petitionguid.GetCounter();
+    packet.Info.Petitioner = ownerguid;
+    packet.Info.Title = name;
+    packet.Info.StaticType = type;
 
-        for (uint32 i = 0; i < 10; i++)
-            data.WriteBits(0, 6);                    // unk strings[]->length
-
-        //data.WriteGuidMask<0>(ownerguid);
-        data.WriteBits(0, 12);                       // unk string 1->length
-        //data.WriteGuidMask<2, 7, 4>(ownerguid);
-
-        //data.WriteGuidBytes<0>(ownerguid);
-        data << uint64(petitionguid.GetCounter());   // petition low guid
-        data << uint32(0);
-        data << uint32(GUILD_CHARTER_TYPE);          // unk number 4 in sniffs, type?
-        data.WriteString("");                        // unk string 1
-        data << uint32(0);
-        //data.WriteGuidBytes<5>(ownerguid);
-        data << uint32(0);
-        //data.WriteGuidBytes<6, 4>(ownerguid);
-        data.WriteString(name);                      // guild name
-        //data.WriteGuidBytes<3>(ownerguid);
-        data << uint32(GUILD_CHARTER_TYPE);          // unk number 4 in sniffs, type?
-        //data.WriteGuidBytes<2>(ownerguid);
-        data << uint16(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        //data.WriteGuidBytes<7, 1>(ownerguid);
-
-        for (uint32 i = 0; i < 10; i++)
-            data.WriteString("");                     // unk strings[]
-
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-    }
-
-    data << uint64(petitionguid.GetCounter());        // petition low guid
-
-    SendPacket(&data);
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
