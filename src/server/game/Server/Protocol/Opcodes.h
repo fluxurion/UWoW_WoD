@@ -1466,7 +1466,7 @@ enum OpcodeServer : uint32
     SMSG_TRANSFER_PENDING                             = 0x172A,
     SMSG_TRIGGER_CINEMATIC                            = 0x032F,
     SMSG_TRIGGER_MOVIE                                = 0x151F,
-    SMSG_TURN_IN_PETITION_RESULTS                     = 0xBADD,
+    SMSG_TURN_IN_PETITION_RESULTS                     = 0x0919,
     SMSG_TUTORIAL_FLAGS                               = 0x020F,
     SMSG_UNDELETE_CHARACTER_RESPONSE                  = 0x0344,
     SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE            = 0x0310,

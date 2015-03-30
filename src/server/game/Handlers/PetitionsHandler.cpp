@@ -445,7 +445,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
 void WorldSession::SendPetitionSignResult(ObjectGuid const& playerGuid, ObjectGuid const& petitionGuid, uint8 result)
 {
     WorldPacket data(SMSG_PETITION_SIGN_RESULTS, 8 + 8 + 1 + 1 + 1);
-    data >> petitionGuid >> playerGuid;
+    data << petitionGuid << playerGuid;
     data.WriteBits(result, 4);
     SendPacket(&data);
 }
@@ -574,16 +574,48 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
     player->GetSession()->SendPacket(&data);
 }
 
+//! 6.0.3
+void WorldSession::HandlePetitionShowListOpcode(WorldPacket & recvData)
+{
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Received CMSG_PETITION_SHOW_LIST");
+
+    ObjectGuid guid;
+    recvData >> guid;
+
+    SendPetitionShowList(guid);
+}
+
+//! 6.0.3
+void WorldSession::SendPetitionShowList(ObjectGuid guid)
+{
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
+    if (!creature)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionShowListOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(guid.GetCounter()));
+        return;
+    }
+
+    if (!creature->isTabardDesigner())
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionShowListOpcode - Unit (GUID: %u) is not a tabard designer.", uint32(guid.GetCounter()));
+        return;
+    }
+
+    WorldPacket data(SMSG_PETITION_SHOW_LIST, 4 + 8 + 1);
+    data << guid;
+    data << uint32(GUILD_CHARTER_COST);                 // charter cost
+    SendPacket(&data);
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Sent SMSG_PETITION_SHOW_LIST");
+}
+
 void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_TURN_IN_PETITION");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_TURN_IN_PETITION");
 
     // Get petition guid from packet
     WorldPacket data;
     ObjectGuid petitionGuid;
-
-    //recvData.ReadGuidMask<6, 5, 7, 4, 3, 0, 1, 2>(petitionGuid);
-    //recvData.ReadGuidBytes<3, 5, 4, 2, 7, 0, 1, 6>(petitionGuid);
+    recvData >> petitionGuid;
 
     // Check if player really has the required petition charter
     Item* item = _player->GetItemByGuid(petitionGuid);
@@ -701,38 +733,4 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
     data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 1);
     data.WriteBits(PETITION_TURN_OK, 4);
     SendPacket(&data);
-}
-
-void WorldSession::HandlePetitionShowListOpcode(WorldPacket & recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received CMSG_PETITION_SHOW_LIST");
-
-    ObjectGuid guid;
-    //recvData.ReadGuidMask<1, 3, 0, 6, 7, 2, 5, 4>(guid);
-    //recvData.ReadGuidBytes<1, 7, 4, 2, 3, 5, 6, 0>(guid);
-
-    SendPetitionShowList(guid);
-}
-
-//! 6.0.3
-void WorldSession::SendPetitionShowList(ObjectGuid guid)
-{
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
-    if (!creature)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionShowListOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(guid.GetCounter()));
-        return;
-    }
-
-    if (!creature->isTabardDesigner())
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionShowListOpcode - Unit (GUID: %u) is not a tabard designer.", uint32(guid.GetCounter()));
-        return;
-    }
-
-    WorldPacket data(SMSG_PETITION_SHOW_LIST, 4 + 8 + 1);
-    data << guid;
-    data << uint32(GUILD_CHARTER_COST);                 // charter cost
-    SendPacket(&data);
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Sent SMSG_PETITION_SHOW_LIST");
 }
