@@ -376,13 +376,10 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     uint32 gossipListId;
     uint32 menuId;
-    uint8 boxTextLength = 0;
-    std::string code = "";
 
-    recvData >> guid >> gossipListId >> menuId;
+    recvData >> guid >> menuId >> gossipListId;
 
-    boxTextLength = recvData.ReadBits(8);
-    code = recvData.ReadString(boxTextLength);
+    std::string code = recvData.ReadString(recvData.ReadBits(8));
 
     Creature* unit = NULL;
     GameObject* go = NULL;
@@ -424,6 +421,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         _player->PlayerTalkClass->SendCloseGossip();
         return;
     }
+
     if (!code.empty())
     {
         if (unit)
