@@ -375,7 +375,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
     }
 
     ObjectGuid playerGuid = _player->GetGUID();
-    if (playerGuid == playerGuid)
+    if (playerGuid == ownerGuid)
         return;
 
     // not let enemies sign guild charter
@@ -548,8 +548,9 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
 
             if (player->GetGUID() == plSignGuid)
             {
-                // TODO : find and send correctly data structure, this response are not worked...research in future 
-                //SendPetitionSignResult(player->GetGUID(), petitionguid, PETITION_SIGN_ALREADY_SIGNED);
+                WorldPacket data(SMSG_PETITION_ALREADY_SIGNED, 16);
+                data << plSignGuid;
+                SendPacket(&data);
                 return;
             }
         }
@@ -581,7 +582,6 @@ void WorldSession::HandlePetitionShowListOpcode(WorldPacket & recvData)
 
     ObjectGuid guid;
     recvData >> guid;
-
     SendPetitionShowList(guid);
 }
 

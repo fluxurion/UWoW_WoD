@@ -166,14 +166,18 @@ enum PetitionTurns
 
 enum PetitionSigns
 {
-    PETITION_SIGN_OK                    = 2,
-    PETITION_SIGN_ALREADY_IN_GUILD      = 3,
-    PETITION_SIGN_ALREADY_SIGNED        = 6,
-    PETITION_SIGN_CANT_SIGN_OWN         = 7,
-    PETITION_SIGN_ALREADY_SIGNED_OTHER  = 8,
-    PETITION_SIGN_FULL                  = 11,
-    PETITION_SIGN_NOT_SERVER            = 12,
-    PETITION_SIGN_RESTRICTED_ACCOUNT    = 13,
+    PETITION_SIGN_OK                            = 0,
+    //PETITION_SIGN_ALREADY_IN_GUILD      = 3,
+    //PETITION_SIGN_CANT_SIGN_OWN         = 7,
+    //PETITION_SIGN_ALREADY_SIGNED_OTHER  = 8,
+    //PETITION_SIGN_FULL                  = 11,
+    //PETITION_SIGN_NOT_SERVER            = 12,
+    //PETITION_SIGN_RESTRICTED_ACCOUNT    = 13,
+
+    PETITION_SIGN_ALREADY_SIGNED                = 12,
+    PETITION_SIGN_ALREADY_INVITED_TO_GUILD_S    = 13, //already invited to enother guild
+    PETITION_SIGN_ALREADY_IN_GUILD_S            = 15, //already in guild
+
 };
 
 enum GuildBankRights
