@@ -278,21 +278,18 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     SendPacket(packet.Write());
 }
 
+//! 6.0.3
 void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_RENAME_GUILD");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_RENAME_GUILD");
 
     ObjectGuid petitionGuid;
     uint32 type;
-    std::string newName;
 
-    //recvData.ReadGuidMask<4, 7, 5, 1, 2, 6>(petitionGuid);
-    uint32 strLen = recvData.ReadBits(7);
-    //recvData.ReadGuidMask<3, 0>(petitionGuid);
-    //recvData.ReadGuidBytes<0, 1, 5, 2, 7>(petitionGuid);
-    newName = recvData.ReadString(strLen);
-    //recvData.ReadGuidBytes<4, 6, 3>(petitionGuid);
+    recvData >> petitionGuid;
 
+    std::string newName = recvData.ReadString(recvData.ReadBits(7));
+    
     Item* item = _player->GetItemByGuid(petitionGuid);
     if (!item)
         return;
@@ -335,13 +332,11 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition (GUID: %u) renamed to '%s'", petitionGuid.GetCounter(), newName.c_str());
 
+    //! 6.0.3
     WorldPacket data(SMSG_PETITION_RENAME_GUILD_RESPONSE, (8+newName.size()+1));
-    //data.WriteGuidMask<1, 0>(petitionGuid);
+    data << petitionGuid;
     data.WriteBits(newName.size(), 7);
-    //data.WriteGuidMask<3, 5, 2, 6, 4, 7>(petitionGuid);
-    //data.WriteGuidBytes<6, 7>(petitionGuid);
     data.WriteString(newName);
-    //data.WriteGuidBytes<2, 4, 1, 0, 3, 5>(petitionGuid);
     SendPacket(&data);
 }
 
