@@ -340,16 +340,15 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
     SendPacket(&data);
 }
 
+//! 6.0.3
 void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_SIGN_PETITION");    // ok
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_SIGN_PETITION");    // ok
 
     Field* fields;
     ObjectGuid petitionGuid;
-    uint8 unk;
-    recvData >> unk;
-    //recvData.ReadGuidMask<1, 7, 4, 5, 3, 6, 0, 2>(petitionGuid);
-    //recvData.ReadGuidBytes<4, 6, 7, 2, 5, 3, 1, 0>(petitionGuid);
+    uint8 Choice;
+    recvData >> petitionGuid >> Choice;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURES);
 
@@ -426,7 +425,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
 
     CharacterDatabase.Execute(stmt);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u)", petitionGuid.GetCounter(), _player->GetName(), playerGuid, GetAccountId());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u) Choice %u", petitionGuid.GetCounter(), _player->GetName(), playerGuid, GetAccountId(), Choice);
 
     // close at signer side
     SendPetitionSignResult(_player->GetGUID(), petitionGuid, PETITION_SIGN_OK);
@@ -442,34 +441,12 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
     }
 }
 
+//! 6.0.3
 void WorldSession::SendPetitionSignResult(ObjectGuid const& playerGuid, ObjectGuid const& petitionGuid, uint8 result)
 {
     WorldPacket data(SMSG_PETITION_SIGN_RESULTS, 8 + 8 + 1 + 1 + 1);
-
-    //data.WriteGuidMask<6>(playerGuid);
-    //data.WriteGuidMask<3, 0, 6, 7>(petitionGuid);
-    //data.WriteGuidMask<2>(playerGuid);
-    //data.WriteGuidMask<5>(petitionGuid);
-    //data.WriteGuidMask<4>(playerGuid);
-    //data.WriteGuidMask<2>(petitionGuid);
-    //data.WriteGuidMask<1, 5, 7, 0>(playerGuid);
+    data >> petitionGuid >> playerGuid;
     data.WriteBits(result, 4);
-    //data.WriteGuidMask<1>(petitionGuid);
-    //data.WriteGuidMask<3>(playerGuid);
-    //data.WriteGuidMask<4>(petitionGuid);
-
-    //data.WriteGuidBytes<5>(petitionGuid);
-    //data.WriteGuidBytes<0, 4>(playerGuid);
-    //data.WriteGuidBytes<1>(petitionGuid);
-    //data.WriteGuidBytes<2, 3>(playerGuid);
-    //data.WriteGuidBytes<4, 3>(petitionGuid);
-    //data.WriteGuidBytes<7>(playerGuid);
-    //data.WriteGuidBytes<2>(petitionGuid);
-    //data.WriteGuidBytes<5, 1>(playerGuid);
-    //data.WriteGuidBytes<6>(petitionGuid);
-    //data.WriteGuidBytes<6>(playerGuid);
-    //data.WriteGuidBytes<0, 7>(petitionGuid);
-
     SendPacket(&data);
 }
 
