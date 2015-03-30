@@ -609,7 +609,7 @@ enum OpcodeClient : uint32
     CMSG_TRAINER_LIST                                 = 0x0A2E,
     CMSG_TRANSMOGRIFY_ITEMS                           = 0x0A85,
     CMSG_TRIGGER_CINEMATIC_CHEAT                      = 0xBADD,
-    CMSG_TURN_IN_PETITION                             = 0xBADD,
+    CMSG_TURN_IN_PETITION                             = 0x1C89,
     CMSG_TUTORIAL_FLAG                                = 0x0B16,
     CMSG_UNACCEPT_TRADE                               = 0xBADD,
     CMSG_UNDELETE_CHARACTER                           = 0x0D99,

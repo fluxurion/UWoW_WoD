@@ -193,10 +193,10 @@ void DB2Utilities::WriteBroadcastTextDbReply(DB2Storage<BroadcastTextEntry> cons
     buff << uint32(0);
     buff << uint16(size1);
     if (size1)
-        buff << std::string( Text_0);
+        buff.WriteString(Text_0);
     buff << uint16(size2);
     if (size2)
-        buff << std::string(Text_1);
+        buff.WriteString(Text_1);
     buff << uint32(pGossip ? pGossip->Options[0].Emotes[0]._Emote : 0); // Emote
     buff << uint32(0);
     buff << uint32(0);

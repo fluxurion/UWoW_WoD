@@ -226,6 +226,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
         Field* fields2 = result->Fetch();
         data << ObjectGuid::Create<HighGuid::Player>(fields2[0].GetUInt64());
         data << uint32(0);
+        result->NextRow();
     }
 
     SendPacket(&data);
@@ -273,8 +274,10 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     packet.Info.Petitioner = ownerguid;
     packet.Info.Title = name;
     packet.Info.MinSignatures = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS);
-    packet.Info.MaxSignatures = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS)+1;
-    packet.Info.StaticType = type;
+    packet.Info.MaxSignatures = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS);
+    packet.Info.StaticType = 0; //0 - guild, 1 - arena team
+    packet.Info.NumChoices = 0;
+    packet.Info.DeadLine = 0;
     SendPacket(packet.Write());
 }
 
@@ -553,6 +556,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
                 SendPacket(&data);
                 return;
             }
+            result->NextRow();
         }
     }
 
@@ -570,6 +574,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
         Field* fields2 = result->Fetch();
         data << ObjectGuid::Create<HighGuid::Player>(fields2[0].GetUInt64());
         data << uint32(0);
+        result->NextRow();
     }
 
     player->GetSession()->SendPacket(&data);
@@ -608,6 +613,7 @@ void WorldSession::SendPetitionShowList(ObjectGuid guid)
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "Sent SMSG_PETITION_SHOW_LIST");
 }
 
+//! 6.0.3
 void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
 {
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_TURN_IN_PETITION");
