@@ -1241,6 +1241,7 @@ enum OpcodeServer : uint32
     SMSG_PETITION_SHOW_LIST                           = 0x0915,
     SMSG_PETITION_SHOW_SIGNATURES                     = 0x0830,
     SMSG_PETITION_SIGN_RESULTS                        = 0xBADD,
+    SMSG_PETITION_DECLINED                            = 0x1B32,
     SMSG_PET_ACTION_FEEDBACK                          = 0xBADD,
     SMSG_PET_ACTION_SOUND                             = 0xBADD,
     SMSG_PET_ADDED                                    = 0xBADD,

@@ -450,14 +450,15 @@ void WorldSession::SendPetitionSignResult(ObjectGuid const& playerGuid, ObjectGu
     SendPacket(&data);
 }
 
+//! 6.0.3
 void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_DECLINE_PETITION");  // ok
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_DECLINE_PETITION");  // ok
 
     ObjectGuid petitionguid;
     ObjectGuid ownerguid;
-    //recvData.ReadGuidMask<7, 3, 5, 1, 0, 6, 2, 4>(petitionguid);
-    //recvData.ReadGuidBytes<6, 0, 3, 5, 2, 1, 7, 4>(petitionguid);
+    recvData >> petitionguid;
+
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition %u declined by %u", petitionguid.GetCounter(), _player->GetGUID().GetCounter());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_OWNER_BY_GUID);
@@ -472,13 +473,12 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recvData)
     Field* fields = result->Fetch();
     ownerguid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
 
-    /*Player* owner = ObjectAccessor::FindPlayer(ownerguid);
-    if (owner)                                               // petition owner online
+    if (Player* owner = ObjectAccessor::FindPlayer(ownerguid))                                               // petition owner online
     {
-        WorldPacket data(CMSG_DECLINE_PETITION, 8);
-        data << uint64(_player->GetGUID());
+        WorldPacket data(SMSG_PETITION_DECLINED, 8);
+        data << _player->GetGUID();
         owner->GetSession()->SendPacket(&data);
-    }*/
+    }
 }
 
 //! 6.0.3
