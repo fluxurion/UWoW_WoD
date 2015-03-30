@@ -791,6 +791,7 @@ void WorldSession::HandlePetitionShowListOpcode(WorldPacket & recvData)
     SendPetitionShowList(guid);
 }
 
+//! 6.0.3
 void WorldSession::SendPetitionShowList(ObjectGuid guid)
 {
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
@@ -807,11 +808,8 @@ void WorldSession::SendPetitionShowList(ObjectGuid guid)
     }
 
     WorldPacket data(SMSG_PETITION_SHOW_LIST, 4 + 8 + 1);
-    //data.WriteGuidMask<4, 0, 1, 6, 3, 7, 5, 2>(guid);
-    //data.WriteGuidBytes<2, 3, 1, 5>(guid);
+    data << guid;
     data << uint32(GUILD_CHARTER_COST);                 // charter cost
-    //data.WriteGuidBytes<4, 0, 6, 7>(guid);
-
     SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Sent SMSG_PETITION_SHOW_LIST");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Sent SMSG_PETITION_SHOW_LIST");
 }
