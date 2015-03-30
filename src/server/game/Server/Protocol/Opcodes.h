@@ -444,10 +444,10 @@ enum OpcodeClient : uint32
     CMSG_PARTY_SILENCE                                = 0xBADD,
     CMSG_PARTY_UNSILENCE                              = 0xBADD,
     CMSG_PETITION_BUY                                 = 0x0010,
-    CMSG_PETITION_QUERY                               = 0xBADD,
-    CMSG_PETITION_SHOWLIST                            = 0xBADD,
+    CMSG_QUERY_PETITION                               = 0x048B,
+    CMSG_PETITION_SHOW_LIST                           = 0x000F,
     CMSG_PETITION_SHOW_SIGNATURES                     = 0x0BC4,
-    CMSG_PETITION_SIGN                                = 0xBADD,
+    CMSG_SIGN_PETITION                                = 0x0B03,
     CMSG_PET_ABANDON                                  = 0xBADD,
     CMSG_PET_ACTION                                   = 0x133A,
     CMSG_PET_CANCEL_AURA                              = 0xBADD,
@@ -662,7 +662,7 @@ enum OpcodeClient : uint32
     MSG_MOVE_UPDATE_MOUSE                             = 0xBADD,
     MSG_NOTIFY_PARTY_SQUELCH                          = 0xBADD,
     MSG_PARTY_ASSIGNMENT                              = 0xBADD,
-    MSG_PETITION_RENAME                               = 0xBADD,
+    CMSG_PETITION_RENAME_GUILD                        = 0x0920,
     CMSG_QUERY_NEXT_MAIL_TIME                         = 0x0B31,
     MSG_QUEST_PUSH_RESULT                             = 0xBADD,
     MSG_RAID_READY_CHECK                              = 0xBADD,
@@ -688,6 +688,7 @@ enum OpcodeClient : uint32
     CMSG_UPGRADE_ITEM                                 = 0x0518,
     CMSG_GUILD_AUTO_DECLINE_INVITATION                = 0x062F,
     CMSG_SAVE_GUILD_EMBLEM                            = 0x00F6,
+    CMSG_DECLINE_PETITION                             = 0x03EA,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
@@ -726,8 +727,6 @@ enum OpcodeClient : uint32
     CMSG_BATTLE_PET_PUT_IN_CAGE                       = 0xBADD, // 5.4.1 17538
     CMSG_DUEL_RESPONSE                                = 0x1BD2, // 5.4.1 17538
     CMSG_QUEST_PUSH_RESULT                            = 0x06C4, // 5.4.1 17538
-    CMSG_PETITION_RENAME                              = 0xBADD, // 5.4.1 17538
-    MSG_PETITION_DECLINE                              = 0xBADD,
 };
 
 // SMSGs 6.0.3.19116
@@ -1238,8 +1237,8 @@ enum OpcodeServer : uint32
     SMSG_PERIODICAURALOG                              = 0x0B1B,
     SMSG_PETGODMODE                                   = 0xBADD,
     SMSG_PETITION_ALREADY_SIGNED                      = 0xBADD,
-    SMSG_PETITION_QUERY_RESPONSE                      = 0xBADD,
-    SMSG_PETITION_SHOWLIST                            = 0xBADD,
+    SMSG_QUERY_PETITION_RESPONSE                      = 0x13AC,
+    SMSG_PETITION_SHOW_LIST                           = 0x0915,
     SMSG_PETITION_SHOW_SIGNATURES                     = 0x0830,
     SMSG_PETITION_SIGN_RESULTS                        = 0xBADD,
     SMSG_PET_ACTION_FEEDBACK                          = 0xBADD,
@@ -1542,13 +1541,13 @@ enum OpcodeServer : uint32
     SMSG_GUILD_EVENT_RANK_CHANGED                     = 0x1276,
     SMSG_GUILD_EVENT_TAB_TEXT_CHANGED                 = 0x1076,
     SMSG_GUILD_EVENT_BANK_CONTENTS_CHANGED            = 0x1045,
+    SMSG_PETITION_RENAME_GUILD_RESPONSE               = 0x1055,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
     SMSG_CHALLENGE_MODE_COMPLETION_INFO               = 0xBADD, // 5.4.1 17538
     SMSG_CHALLENGE_MODE_REWARD_INFO                   = 0xBADD, // 5.4.1 17538
     SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT        = 0xBADD, // 5.4.1 17538
-    SMSG_PETITION_RENAME                              = 0xBADD, // 5.4.1 17538
     SMSG_QUEST_PUSH_RESULT                            = 0xBADD, // 5.4.1 17538
     SMSG_RANDOM_ROLL                                  = 0xBADD, // 5.4.1 17538
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0xBADD, // 5.4.1 17538

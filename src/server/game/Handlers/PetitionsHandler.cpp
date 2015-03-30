@@ -168,6 +168,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
     CharacterDatabase.CommitTransaction(trans);
 }
 
+//! 6.0.3
 void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
 {
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
@@ -228,17 +229,16 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
+//! 6.0.3
 void WorldSession::HandlePetitionQueryOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_QUERY");   // ok
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_QUERY_PETITION");   // ok
 
     uint32 guildguid;
     ObjectGuid petitionguid;
-    recvData >> guildguid;                                 // in Trinity always same as GUID_LOPART(petitionguid)
-    //recvData.ReadGuidMask<4, 7, 0, 2, 3, 6, 1, 5>(petitionguid);
-    //recvData.ReadGuidBytes<4, 6, 7, 5, 3, 0, 1, 2>(petitionguid);
+    recvData >> guildguid >> guildguid;                                 // in Trinity always same as GUID_LOPART(petitionguid)
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", petitionguid.GetCounter(), guildguid);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PETITION Petition GUID %u Guild GUID %u", petitionguid.GetCounter(), guildguid);
 
     SendPetitionQueryOpcode(petitionguid);
 }
@@ -264,11 +264,11 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY failed for petition (GUID: %u)", petitionguid.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PETITION failed for petition (GUID: %u)", petitionguid.GetCounter());
         return;
     }
 
-    WorldPacket data(SMSG_PETITION_QUERY_RESPONSE);
+    WorldPacket data(SMSG_QUERY_PETITION_RESPONSE);
     bool unk = data.WriteBit(1);
     if (unk)
     {
@@ -318,7 +318,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
 
 void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode MSG_PETITION_RENAME");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_RENAME_GUILD");
 
     ObjectGuid petitionGuid;
     uint32 type;
@@ -348,7 +348,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY failed for petition (GUID: %u)", petitionGuid.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PETITION failed for petition (GUID: %u)", petitionGuid.GetCounter());
         return;
     }
 
@@ -373,7 +373,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Petition (GUID: %u) renamed to '%s'", petitionGuid.GetCounter(), newName.c_str());
 
-    WorldPacket data(SMSG_PETITION_RENAME, (8+newName.size()+1));
+    WorldPacket data(SMSG_PETITION_RENAME_GUILD_RESPONSE, (8+newName.size()+1));
     //data.WriteGuidMask<1, 0>(petitionGuid);
     data.WriteBits(newName.size(), 7);
     //data.WriteGuidMask<3, 5, 2, 6, 4, 7>(petitionGuid);
@@ -385,7 +385,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
 
 void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SIGN");    // ok
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_SIGN_PETITION");    // ok
 
     Field* fields;
     ObjectGuid petitionGuid;
@@ -518,7 +518,7 @@ void WorldSession::SendPetitionSignResult(ObjectGuid const& playerGuid, ObjectGu
 
 void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode MSG_PETITION_DECLINE");  // ok
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_DECLINE_PETITION");  // ok
 
     ObjectGuid petitionguid;
     ObjectGuid ownerguid;
@@ -541,7 +541,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recvData)
     /*Player* owner = ObjectAccessor::FindPlayer(ownerguid);
     if (owner)                                               // petition owner online
     {
-        WorldPacket data(MSG_PETITION_DECLINE, 8);
+        WorldPacket data(CMSG_DECLINE_PETITION, 8);
         data << uint64(_player->GetGUID());
         owner->GetSession()->SendPacket(&data);
     }*/
@@ -822,7 +822,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
 
 void WorldSession::HandlePetitionShowListOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received CMSG_PETITION_SHOWLIST");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received CMSG_PETITION_SHOW_LIST");
 
     ObjectGuid guid;
     //recvData.ReadGuidMask<1, 3, 0, 6, 7, 2, 5, 4>(guid);
@@ -846,12 +846,12 @@ void WorldSession::SendPetitionShowList(ObjectGuid guid)
         return;
     }
 
-    WorldPacket data(SMSG_PETITION_SHOWLIST, 4 + 8 + 1);
+    WorldPacket data(SMSG_PETITION_SHOW_LIST, 4 + 8 + 1);
     //data.WriteGuidMask<4, 0, 1, 6, 3, 7, 5, 2>(guid);
     //data.WriteGuidBytes<2, 3, 1, 5>(guid);
     data << uint32(GUILD_CHARTER_COST);                 // charter cost
     //data.WriteGuidBytes<4, 0, 6, 7>(guid);
 
     SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Sent SMSG_PETITION_SHOWLIST");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Sent SMSG_PETITION_SHOW_LIST");
 }

@@ -424,11 +424,11 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PLAYER_LOGOUT,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePlayerLogoutOpcode        );
     DEFINE_HANDLER(CMSG_PAGE_TEXT_QUERY,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryPageText, &WorldSession::HandlePageTextQueryOpcode);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PETITION_BUY,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionBuyOpcode         );//603
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PETITION_QUERY,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionQueryOpcode       );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PETITION_SHOWLIST,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionShowListOpcode    );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_PETITION,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionQueryOpcode       );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_PETITION_SHOW_LIST,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionShowListOpcode    );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PETITION_SHOW_SIGNATURES,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionShowSignOpcode    );//603
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PETITION_SIGN,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionSignOpcode        );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PETITION_RENAME,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionRenameOpcode      );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_SIGN_PETITION,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionSignOpcode        );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_PETITION_RENAME_GUILD,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionRenameOpcode      );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_ABANDON,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetAbandon                );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_ACTION,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetAction                 );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_CANCEL_AURA,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetCancelAuraOpcode       );
@@ -649,7 +649,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PET_RENAME,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE,   &WorldSession::HandleBattlePetRename );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PET_NAME_QUERY,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE,   &WorldSession::HandleBattlePetNameQuery );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PET_PUT_IN_CAGE,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE,   &WorldSession::HandleBattlePetPutInCage );
-    DEFINE_OPCODE_HANDLER_OLD(MSG_PETITION_DECLINE,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionDeclineOpcode     );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_DECLINE_PETITION,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionDeclineOpcode     );
     DEFINE_HANDLER(CMSG_QUERY_NEXT_MAIL_TIME,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Mail::MailQueryNextMailTime, &WorldSession::HandleQueryNextMailTime);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_RAID_DIFFICULTY,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetRaidDifficultyOpcode   );//603
 
@@ -1141,11 +1141,11 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PERSONAL_RATED_INFO,                     STATUS_NEVER);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_PETGODMODE,                              STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PETITION_ALREADY_SIGNED,                 STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PETITION_QUERY_RESPONSE,                 STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PETITION_SHOWLIST,                       STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_QUERY_PETITION_RESPONSE,                 STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PETITION_SHOW_LIST,                      STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PETITION_SHOW_SIGNATURES,                STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PETITION_SIGN_RESULTS,                   STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PETITION_RENAME,                         STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PETITION_RENAME_GUILD_RESPONSE,          STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_ACTION_FEEDBACK,                     STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_ACTION_SOUND,                        STATUS_NEVER);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_ADDED,                               STATUS_NEVER);
