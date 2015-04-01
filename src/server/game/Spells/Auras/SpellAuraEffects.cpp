@@ -5735,7 +5735,7 @@ void AuraEffect::HandleModAttackSpeed(AuraApplication const* aurApp, uint8 mode,
         return;
 
     Unit* target = aurApp->GetTarget();
-    float hastMod = target->GetFloatValue(UNIT_MOD_HASTE);
+    float hastMod = target->GetFloatValue(UNIT_FIELD_MOD_HASTE);
     ApplyPercentModFloatVar(hastMod, (float)GetAmount(), !apply);
 
     target->CalcAttackTimePercentMod(BASE_ATTACK, hastMod);

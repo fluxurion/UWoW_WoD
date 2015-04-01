@@ -884,7 +884,7 @@ void Unit::UpdateManaRegen()
 
     // haste also increase your mana regeneration
     if (HasAuraType(SPELL_AURA_HASTE_AFFECTS_BASE_MANA_REGEN))
-        regenFromHaste += (1.0f - GetFloatValue(UNIT_MOD_CAST_HASTE));
+        regenFromHaste += (1.0f - GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE));
 
     float manaRegen = ((baseRegen * baseMod + auraMp5regen + spirit_regen) * pctRegenMod) * regenFromHaste;
     float manaRegenInterupted = ((baseRegen * baseMod + auraMp5regen + spirit_regen * interruptMod / 100.0f) * pctRegenMod) * regenFromHaste;
@@ -994,7 +994,7 @@ void Unit::UpdateHastMod()
 
     if(isAnySummons())
     {
-        float haste = GetFloatValue(UNIT_MOD_CAST_HASTE);
+        float haste = GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE);
         if(CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(GetEntry()))
         {
             SetAttackTime(BASE_ATTACK, cinfo->baseattacktime * haste);
@@ -1100,7 +1100,7 @@ void Unit::UpdatePowerRegen(uint32 power)
     if (powerIndex == MAX_POWERS)
         return;
 
-    float meleeHaste = GetFloatValue(UNIT_MOD_HASTE);
+    float meleeHaste = GetFloatValue(UNIT_FIELD_MOD_HASTE);
     float addvalue = 0.0f;
 
     //add value in 1s

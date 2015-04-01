@@ -57,10 +57,10 @@ public:
             LoadDoorData(doorData);
             memset(&encounter, 0, sizeof(encounter));
 
-            PumpkinShrineGUID.clear();
-            HorsemanGUID.clear();
-            HeadGUID.clear();
-            thalnosGUID.clear();
+            PumpkinShrineGUID.Clear();
+            HorsemanGUID.Clear();
+            HeadGUID.Clear();
+            thalnosGUID.Clear();
             HorsemanAdds.clear();
         }
 

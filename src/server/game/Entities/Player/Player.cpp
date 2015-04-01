@@ -2205,7 +2205,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     DisableSpline();
 
     //hack for Stand of Acient for teleportation to the ships.
-    if (m_movementInfo.t_guid || mapid == 607)
+    if (m_movementInfo.transport.guid || mapid == 607)
     {
         if (!(options & TELE_TO_NOT_LEAVE_TRANSPORT))
         {
@@ -9275,7 +9275,7 @@ void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
         UpdateDamagePhysical(attType);
 }
 
-void Player::_ApplyOrRemoveItemEquipDependentAuras(uint64 itemGUID, bool apply)
+void Player::_ApplyOrRemoveItemEquipDependentAuras(ObjectGuid const& itemGUID, bool apply)
 {
     if (apply)
     {
@@ -9332,7 +9332,7 @@ void Player::_ApplyOrRemoveItemEquipDependentAuras(uint64 itemGUID, bool apply)
     }
 }
 
-bool Player::CheckItemEquipDependentSpell(SpellInfo const* spellInfo, uint64 itemGUID)
+bool Player::CheckItemEquipDependentSpell(SpellInfo const* spellInfo, ObjectGuid const& itemGUID)
 {
     switch (spellInfo->EquippedItemClass)
     {
@@ -19409,7 +19409,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (quest)
             {
-                if(quest->GetType() != QUEST_TYPE_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
+                if(quest->GetQuestType() != QUEST_TYPE_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
                     continue;
 
                 // find or create
@@ -19497,7 +19497,7 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (quest)
             {
-                if(quest->GetType() != QUEST_TYPE_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
+                if(quest->GetQuestType() != QUEST_TYPE_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
                     continue;
 
                 // learn rewarded spell if unknown
@@ -19544,7 +19544,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
             if (!quest)
                 continue;
 
-            if(quest->GetType() != QUEST_TYPE_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
+            if(quest->GetQuestType() != QUEST_TYPE_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
                 continue;
 
             if (quest->IsDFQuest())
@@ -19588,7 +19588,7 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
             if (!quest)
                 continue;
 
-            if(quest->GetType() != QUEST_TYPE_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
+            if(quest->GetQuestType() != QUEST_TYPE_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
                 continue;
 
             if (m_weeklyquests.find(quest_id) != m_weeklyquests.end())
@@ -19624,7 +19624,7 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
             if (!quest)
                 continue;
 
-            if(quest->GetType() != QUEST_TYPE_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
+            if(quest->GetQuestType() != QUEST_TYPE_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
                 continue;
 
             if (m_seasonalquests.find(quest_id) != m_seasonalquests.end())
@@ -20788,7 +20788,7 @@ bool Player::HandleChangeSlotModel(uint32 newItem, uint16 pos)
                     if (itemProto->InventoryType == INVTYPE_RANGED || itemProto->InventoryType == INVTYPE_RANGEDRIGHT)
                         condition = true;
                     break;
-                case PLAYER_VISIBLE_ITEM_19_ENTRYID:    // tabard
+                case EQUIPMENT_SLOT_TABARD:    // tabard
                     if (itemProto->InventoryType == INVTYPE_TABARD)
                         condition = true;
                     break;
@@ -21219,7 +21219,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
 
             ObjectGuid::LowType guid = GetGUID().GetCounter();
             Quest const* quest = sObjectMgr->GetQuestTemplate(saveItr->first);
-            if (quest && quest->GetType() == QUEST_TYPE_ACCOUNT)
+            if (quest && quest->GetQuestType() == QUEST_TYPE_ACCOUNT)
                 guid = 0;
 
             if (statusItr != m_QuestStatus.end() && (keepAbandoned || statusItr->second.Status != QUEST_STATUS_NONE))
@@ -21247,7 +21247,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
         else
         {
             Quest const* quest = sObjectMgr->GetQuestTemplate(saveItr->first);
-            if (quest && quest->GetType() == QUEST_TYPE_ACCOUNT)
+            if (quest && quest->GetQuestType() == QUEST_TYPE_ACCOUNT)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACC_QUESTSTATUS_BY_QUEST);
                 stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -21280,7 +21280,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
         else if (!keepAbandoned)
         {
             Quest const* quest = sObjectMgr->GetQuestTemplate(saveItr->first);
-            if (quest && quest->GetType() == QUEST_TYPE_ACCOUNT)
+            if (quest && quest->GetQuestType() == QUEST_TYPE_ACCOUNT)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACC_QUESTSTATUS_REWARDED_BY_QUEST);
                 stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -21324,7 +21324,7 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     {
         uint32 guid = GetGUIDLow();
         Quest const* quest = sObjectMgr->GetQuestTemplate((*itr));
-        if (quest && quest->GetType() == QUEST_TYPE_ACCOUNT)
+        if (quest && quest->GetQuestType() == QUEST_TYPE_ACCOUNT)
             guid = 0;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
@@ -21341,7 +21341,7 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
         {
             uint32 guid = GetGUIDLow();
             Quest const* quest = sObjectMgr->GetQuestTemplate((*itr));
-            if (quest && quest->GetType() == QUEST_TYPE_ACCOUNT)
+            if (quest && quest->GetQuestType() == QUEST_TYPE_ACCOUNT)
                 guid = 0;
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
@@ -21372,7 +21372,7 @@ void Player::_SaveWeeklyQuestStatus(SQLTransaction& trans)
         uint32 quest_id  = *iter;
         uint32 guid = GetGUIDLow();
         Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
-        if (quest && quest->GetType() == QUEST_TYPE_ACCOUNT)
+        if (quest && quest->GetQuestType() == QUEST_TYPE_ACCOUNT)
             guid = 0;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_WEEKLYQUESTSTATUS);
@@ -21406,7 +21406,7 @@ void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
             uint32 quest_id = (*itr);
             uint32 guid = GetGUIDLow();
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
-            if (quest && quest->GetType() == QUEST_TYPE_ACCOUNT)
+            if (quest && quest->GetQuestType() == QUEST_TYPE_ACCOUNT)
                 guid = 0;
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SEASONALQUESTSTATUS);
@@ -23940,7 +23940,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
         AuraEffectList const& spellCooldownByHaste = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE);
         for (AuraEffectList::const_iterator itr = spellCooldownByHaste.begin(); itr != spellCooldownByHaste.end(); ++itr)
             if ((*itr)->IsAffectingSpell(spellInfo))
-                rec *= GetFloatValue(UNIT_MOD_HASTE);
+                rec *= GetFloatValue(UNIT_FIELD_MOD_HASTE);
 
         // Apply SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN modifiers
         // Note: This aura applies its modifiers to all cooldowns of spells with set category, not to category cooldown only
@@ -23982,7 +23982,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     }
 
     if (!spellInfo->IsChanneled() && (spellInfo->AttributesEx8 & SPELL_ATTR8_HASTE_AFFECT_DURATION_RECOVERY))
-        recTime *= GetFloatValue(UNIT_MOD_CAST_HASTE);
+        recTime *= GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE);
 
     // self spell cooldown
     if (G3D::fuzzyGt(recTime, 0.0))
@@ -24891,6 +24891,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     else if (GetMap()->IsNonRaidDungeon())
         SendDungeonDifficulty();
 
+    WorldPacket data;
     if (GetBattlePetMgr()->BuildPetJournal(&data))
         GetSession()->SendPacket(&data);
     else
@@ -24917,7 +24918,7 @@ void Player::SendSpellHistoryData()
     uint32 spellCount = 0;
 
     ByteBuffer buff;
-    WorldPacket data(SMSG_SPELL_HISTORY_DATA);
+    WorldPacket data(SMSG_SEND_SPELL_HISTORY/*SMSG_SPELL_HISTORY_DATA*/);
     size_t count_pos = data.bitwpos();
     data.WriteBits(0, 19);
 
@@ -26593,7 +26594,7 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
         SetFlag(PLAYER_FIELD_KNOWN_TITLES + fieldIndexOffset, flag);
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK, title->ID);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE, title->bit_index);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE, title->MaskID);
     }
 
     //! 6.0.3

@@ -1651,7 +1651,7 @@ void PetBattleWild::UpdatePetsAfterBattle()
                 if (!pb->Captured())
                     continue;
 
-                ObjectGuid petguid = sObjectMgr->GenerateBattlePetGuid();
+                ObjectGuid petguid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>()->Generate());
 
                 BattlePetStatAccumulator* accumulator = new BattlePetStatAccumulator(pb->GetSpeciesID(), pb->GetBreedID());
                 accumulator->CalcQualityMultiplier(pb->GetQuality(), pb->GetLevel());

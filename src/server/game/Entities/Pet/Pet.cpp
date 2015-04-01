@@ -363,7 +363,7 @@ void Pet::SavePetToDB(bool isDelete)
         return;
 
     //Don`t save temporary pets
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_CREATED_BY_SPELL));
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
     bool is_temporary_summoned = spellInfo && spellInfo->GetDuration() > 0;
     if (is_temporary_summoned)
         return;
@@ -1349,7 +1349,7 @@ bool TempSummon::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, 
 
     if (active == ACT_DECIDE)                               // active was not used before, so we save it's autocast/passive state here
     {
-        SpellInfo const* spellInfoDur = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        SpellInfo const* spellInfoDur = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
         if(spellInfoDur && spellInfoDur->GetDuration() > 0 && spellInfo->GetMaxRange(false))
             newspell.active = ACT_ENABLED;
         else if (spellInfo->IsAutocastable())
@@ -1624,7 +1624,7 @@ void TempSummon::CastPetAuras(bool apply, uint32 spellId)
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    uint32 createdSpellId = GetUInt32Value(UNIT_CREATED_BY_SPELL);
+    uint32 createdSpellId = GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
 
     if (std::vector<PetAura> const* petSpell = sSpellMgr->GetPetAura(GetEntry()))
     {

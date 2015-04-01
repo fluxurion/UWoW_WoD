@@ -65,7 +65,7 @@ static AreaFlagByMapID sAreaFlagByMapID;                    // for instances wit
 static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
 
 DBCStorage<AchievementEntry> sAchievementStore(Achievementfmt);
-DBCStorage<AchievementCriteriaEntry> sAchievementCriteriaStore(AchievementCriteriafmt);
+//DBCStorage<AchievementCriteriaEntry> sAchievementCriteriaStore(AchievementCriteriafmt);
 DBCStorage <CriteriaEntry> sCriteriaStore(Criteriafmt);
 DBCStorage<CriteriaTreeEntry> sCriteriaTreeStore(CriteriaTreefmt);
 DBCStorage<ModifierTreeEntry> sModifierTreeStore(ModifierTreefmt);
@@ -475,6 +475,9 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapAreaStore,           dbcPath, "WorldMapArea.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapOverlayStore,        dbcPath, "WorldMapOverlay.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldSafeLocsStore,          dbcPath, "WorldSafeLocs.dbc");//14545
+    LoadDBC(availableDbcLocales, bad_dbc_files, sScenarioStore,               dbcPath, "Scenario.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sScenarioStepStore,           dbcPath, "ScenarioStep.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sPowerDisplayStore,           dbcPath, "PowerDisplay.dbc");//17538
 
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)
@@ -629,8 +632,7 @@ void InitDBCCustomStores()
             sLog->outDebug(LOG_FILTER_SERVER_LOADING,"Research site %u POI %u map %u has 0 POI points in DBC!", rs->ID, rs->POIid, rs->MapID);
     }
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sScenarioStore,               dbcPath, "Scenario.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sScenarioStepStore,           dbcPath, "ScenarioStep.dbc");
+
     for (uint32 i = 0; i < sScenarioStepStore.GetNumRows(); ++i)
     {
         ScenarioStepEntry const* entry = sScenarioStepStore.LookupEntry(i);
@@ -691,7 +693,7 @@ void InitDBCCustomStores()
         if(SpellTargetRestrictionsEntry const *restriction = sSpellTargetRestrictionsStore.LookupEntry(i))
             sSpellRestrictionDiffMap[restriction->SpellId].restrictions.insert(restriction);
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sPowerDisplayStore,           dbcPath,"PowerDisplay.dbc");//17538
+
     for (uint32 i = 0; i < sSpellProcsPerMinuteModStore.GetNumRows(); ++i)
     {
         if(SpellProcsPerMinuteModEntry const* sppm = sSpellProcsPerMinuteModStore.LookupEntry(i))

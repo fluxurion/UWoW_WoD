@@ -10,14 +10,14 @@ public:
     {
         if(player->getClass() != CLASS_HUNTER)
         {
-            m_creature->MonsterWhisper("Вы не охотник!", player->GetGUIDLow());
+            m_creature->MonsterWhisper("Вы не охотник!", player->GetGUID());
             player->PlayerTalkClass->SendCloseGossip();
             return;
         }
 
         if(player->GetPet())
         {
-            m_creature->MonsterWhisper("Вы должны отпусить своего питомца!", player->GetGUIDLow());
+            m_creature->MonsterWhisper("Вы должны отпусить своего питомца!", player->GetGUID());
             player->PlayerTalkClass->SendCloseGossip();
             return;
         }
@@ -58,7 +58,7 @@ public:
         
         //end
         player->PlayerTalkClass->SendCloseGossip();
-        m_creature->MonsterWhisper("Питомец добавлен в стойло,теперь вы можете делать с ним все, что пожелаете.", player->GetGUIDLow());
+        m_creature->MonsterWhisper("Питомец добавлен в стойло,теперь вы можете делать с ним все, что пожелаете.", player->GetGUID());
     }
 
 
@@ -67,7 +67,7 @@ public:
 
         if(player->getClass() != CLASS_HUNTER)
         {
-            m_creature->MonsterWhisper("Вы не охотник!", player->GetGUIDLow());
+            m_creature->MonsterWhisper("Вы не охотник!", player->GetGUID());
             return true;
         }
         player->ADD_GOSSIP_ITEM(4, "Получить нового питомца", GOSSIP_SENDER_MAIN, 30);

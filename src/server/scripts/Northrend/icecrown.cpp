@@ -1055,7 +1055,6 @@ public:
 
 };
 
-                pPlayer->KilledMonsterCredit(CREATURE_DYING_SOLDIER_KC, 0);
 /*######
 * npc_training_dummy_argent
 ######*/

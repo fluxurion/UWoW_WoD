@@ -513,8 +513,8 @@ void AreaTrigger::DoAction(Unit* unit, ActionInfo& action)
         }
         case AT_ACTION_TYPE_CHANGE_SCALE: //limit scale by hit
         {
-            float scale = GetFloatValue(AREATRIGGER_EXPLICIT_SCALE) + action.action->scale;
-            SetFloatValue(AREATRIGGER_EXPLICIT_SCALE, scale);
+            float scale = GetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE) + action.action->scale;
+            SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, scale);
             break;
         }
         case AT_ACTION_TYPE_SHARE_DAMAGE:

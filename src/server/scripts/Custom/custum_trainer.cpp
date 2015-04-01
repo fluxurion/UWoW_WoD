@@ -312,7 +312,7 @@ class custum_trainer : public CreatureScript
                     if ( player->GetTeam() == ALLIANCE ) 
                     {
                         player->CLOSE_GOSSIP_MENU();
-                        creature->MonsterSay("You are from the Alliance and we won't let you Телепорт в Orgrimmar that easy, bro.", LANG_UNIVERSAL, NULL);
+                        creature->MonsterSay("You are from the Alliance and we won't let you Телепорт в Orgrimmar that easy, bro.", LANG_UNIVERSAL, ObjectGuid::Empty);
                     }
                     else
                     {
@@ -333,7 +333,7 @@ class custum_trainer : public CreatureScript
                     else
                     {
                         player->CLOSE_GOSSIP_MENU();
-                        creature->MonsterSay("You are from the Horde and we won't let you Телепорт в Stormwind that easy, bro.", LANG_UNIVERSAL, NULL);
+                        creature->MonsterSay("You are from the Horde and we won't let you Телепорт в Stormwind that easy, bro.", LANG_UNIVERSAL, ObjectGuid::Empty);
                     }
                     break;
                 case 22114: //Razorfen Kraul
@@ -695,7 +695,7 @@ class custum_trainer : public CreatureScript
                     else
                         {
                             player->CLOSE_GOSSIP_MENU();
-                            creature->MonsterSay("You don't know Aquatic Form spell", LANG_UNIVERSAL, NULL);
+                            creature->MonsterSay("You don't know Aquatic Form spell", LANG_UNIVERSAL, ObjectGuid::Empty);
                         }
                     break;
                 case 42: //Unlearn Swift Flight Form
@@ -710,7 +710,7 @@ class custum_trainer : public CreatureScript
                     else
                         {
                             player->CLOSE_GOSSIP_MENU();
-                            creature->MonsterSay("You don't know Swift Flight Form spell", LANG_UNIVERSAL, NULL);
+                            creature->MonsterSay("You don't know Swift Flight Form spell", LANG_UNIVERSAL, ObjectGuid::Empty);
                         }
                     break;
                 case 43: //Unlearn Water Breathing
@@ -722,7 +722,7 @@ class custum_trainer : public CreatureScript
                     else
                         {
                             player->CLOSE_GOSSIP_MENU();
-                            creature->MonsterSay("You don't know Water Breathing spell", LANG_UNIVERSAL, NULL);
+                            creature->MonsterSay("You don't know Water Breathing spell", LANG_UNIVERSAL, ObjectGuid::Empty);
                         }
                     break;
                 case 5: //Donation main menu
@@ -801,14 +801,14 @@ class custum_trainer : public CreatureScript
         {
             if (player->HasSpell(spellid) || player->GetItemCount(38186) < 25)
             {
-                creature->MonsterSay("You already know this spell or you don't have enough Ethereal Credits to buy it", LANG_UNIVERSAL, NULL);
+                creature->MonsterSay("You already know this spell or you don't have enough Ethereal Credits to buy it", LANG_UNIVERSAL, ObjectGuid::Empty);
                 player->CLOSE_GOSSIP_MENU();
             }
             else
             {
                 player->DestroyItemCount(38186, 25, true); //true has to be here
                 player->learnSpell(spellid, false);
-                CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='BYU_SPELL %u', `cost`='%u', `targetguid`='%u'", player->GetSession()->GetAccountId(), player->GetGUIDLow(), spellid, 25, player->GetGUIDLow());
+                CharacterDatabase.PExecute("INSERT INTO character_donate_service SET `account`='%u',`guid`='%u', `service`='BYU_SPELL %u', `cost`='%u', `targetguid`='%u'", player->GetSession()->GetAccountId(), player->GetGUID().GetCounter(), spellid, 25, player->GetGUID().GetCounter());
                 OnGossipSelect(player, creature, GOSSIP_SENDER_MAIN, caseid);
             }
         } 

@@ -943,31 +943,31 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             }
         }*/
 
-        if (t->GetAreaTriggerInfo().MoveCurveID)
-            *data << uint32(t->GetAreaTriggerInfo().MoveCurveID);
+        //if (t->GetAreaTriggerInfo().MoveCurveID)
+        //    *data << uint32(t->GetAreaTriggerInfo().MoveCurveID);
 
         //if (hasMorphCurveID)
             //data << uint32(0);
 
-        if (t->GetVisualScale())                // areaTriggerSphere
-        {
-            *data << t->GetVisualScale(true);   // Radius
-            *data << t->GetVisualScale();       // RadiusTarget
-        }
+        //if (t->GetVisualScale())                // areaTriggerSphere
+        //{
+        //    *data << t->GetVisualScale(true);   // Radius
+        //    *data << t->GetVisualScale();       // RadiusTarget
+        //}
 
-        if (t->isMoving())                      // areaTriggerSpline
-            t->PutObjectUpdateMovement(data);   // Points
+        //if (t->isMoving())                      // areaTriggerSpline
+        //    t->PutObjectUpdateMovement(data);   // Points
 
-        if(t->GetAreaTriggerInfo().ElapsedTime)
-            *data << uint32(t->GetAreaTriggerInfo().ElapsedTime);                     // Elapsed Time Ms
-        else
-            *data << uint32(1);                     // Elapsed Time Ms
+        //if(t->GetAreaTriggerInfo().ElapsedTime)
+        //    *data << uint32(t->GetAreaTriggerInfo().ElapsedTime);                     // Elapsed Time Ms
+        //else
+        //    *data << uint32(1);                     // Elapsed Time Ms
 
         /*if (hasFacingCurveID)
             data << uint32(0);
 
         if (hasScaleCurveID)
-            data << uint32(0);*/
+            data << uint32(0);
     }
 
     if (flags & UPDATEFLAG_LIVING)
@@ -3555,7 +3555,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, getFaction());
     pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
     pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
+    pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, spellId);
     pet->InitStatsForLevel(getLevel());
 
     if(petType == SUMMON_PET)
