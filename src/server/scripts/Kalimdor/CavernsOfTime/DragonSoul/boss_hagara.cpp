@@ -779,7 +779,7 @@ class boss_hagara_the_stormbinder: public CreatureScript
                             crystalCount = 4;
                             phase = 10;
                             Talk(SAY_LIGHTNING);
-                            switch (GetDifficulty())
+                            switch (GetDifficultyID())
                             {
                                 case DIFFICULTY_10_N:
                                     for (uint8 i = 0; i < 4; ++i)

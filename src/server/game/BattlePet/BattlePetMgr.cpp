@@ -50,7 +50,7 @@ BattlePetMgr::BattlePetMgr(Player* owner) : m_player(owner), m_petBattleWild(NUL
     m_battleSlots.clear();
 }
 
-void BattlePetMgr::AddPetInJournal(ObjectGuid guid, uint32 speciesID, uint32 creatureEntry, uint8 level, uint32 display, uint16 power, uint16 speed, uint32 health, uint32 maxHealth, uint8 quality, uint16 xp, uint16 flags, uint32 spellID, std::string customName, int16 breedID, bool update)
+void BattlePetMgr::AddPetToList(ObjectGuid guid, uint32 speciesID, uint32 creatureEntry, uint8 level, uint32 display, uint16 power, uint16 speed, uint32 health, uint32 maxHealth, uint8 quality, uint16 xp, uint16 flags, uint32 spellID, std::string customName, int16 breedID, uint8 state)
 {
     m_PetJournal[guid] = new PetJournalInfo(speciesID, creatureEntry, level, display, power, speed, health, maxHealth, quality, xp, flags, spellID, customName, breedID);
 }
@@ -128,7 +128,7 @@ bool BattlePetMgr::BuildPetJournal(WorldPacket *data)
         data->WriteBit(!slotIndex);                                      // hasSlotIndex
         data->WriteBit(1);                                               // hasCollarID, inverse
         data->WriteBit(!slot->IsEmpty());                                // empty slot, inverse
-        data->WriteGuidMask<7, 1, 3, 2, 5, 0, 4, 6>(slot->GetPet());     // pet guid in slot
+        //data->WriteGuidMask<7, 1, 3, 2, 5, 0, 4, 6>(slot->GetPet());     // pet guid in slot
         data->WriteBit(SlotIsLocked(slotIndex));                         // locked slot
     }
 
@@ -487,7 +487,7 @@ bool PetBattleWild::PrepareBattleInfo(ObjectGuid creatureGuid)
         uint32 speed = accumulator->CalculateSpeed();
         delete accumulator;
 
-        PetBattleSlot* slot = new PetBattleSlot(0);
+        PetBattleSlot* slot = new PetBattleSlot(ObjectGuid::Empty);
         PetJournalInfo* petInfo = new PetJournalInfo(s->ID, wildPet->GetEntry(), wildPetLevel, t->Modelid1, power, speed, health, health, quality, 0, 0, s->spellId, "", breedID);
         PetBattleInfo* pbInfo = new PetBattleInfo();
 
@@ -594,8 +594,8 @@ void PetBattleWild::SendFullUpdate(ObjectGuid creatureGuid)
     data.WriteBit(0);
     data.WriteBit(0);
 
-    teamGuids[0] = /*m_player->GetBattlePetMgr()->InverseGuid(*/m_player->GetObjectGuid()/*)*/;
-    teamGuids[1] = 0;
+    //teamGuids[0] = m_player->GetBattlePetMgr()->InverseGuid(m_player->GetObjectGuid());
+    //teamGuids[1] = 0;
 
     for (uint8 i = 0; i < 2; ++i)
     {

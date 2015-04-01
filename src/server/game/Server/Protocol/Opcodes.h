@@ -1622,6 +1622,8 @@ enum OpcodeServer : uint32
     SMSG_ADD_LOSS_OF_CONTROL                          = 0xBADD, // 5.4.1 17538
     SMSG_LOSS_OF_CONTROL_AURA_UPDATE                  = 0xBADD, // 5.4.1 17538
     SMSG_REMOVE_LOSS_OF_CONTROL                       = 0xBADD, // 5.4.1 17538
+    SMSG_PET_BATTLE_FINALIZE_LOCATION                 = 0xBADD,
+    SMSG_PET_BATTLE_FULL_UPDATE                       = 0xBADD,
 };
 
 #define MAX_OPCODE 0x7FFF

@@ -2162,7 +2162,7 @@ class npc_madness_of_deathwing_deathwing : public CreatureScript
                                 sLFGMgr->FinishDungeon(players.begin()->getSource()->GetGroup()->GetGUID(), 417);
                         if (Creature* pThrall = me->FindNearestCreature(NPC_THRALL_2, 500.0f))
                             pThrall->AI()->DoAction(ACTION_END_BATTLE);
-                        switch (GetDifficulty())
+                        switch (GetDifficultyID())
                         {
                             case DIFFICULTY_10_N:
                                 pInstance->DoRespawnGameObject(pInstance->GetData64(DATA_ELEM_FRAGMENT_10N), DAY);

@@ -2991,7 +2991,7 @@ void Map::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Uni
         challenge_timer = instance->GetChallengeTime();
     }
 
-    Difficulty diff = GetDifficulty();
+    Difficulty diff = GetDifficultyID();
     if (challenge_timer)
         diff = DIFFICULTY_HEROIC;
 
@@ -3019,7 +3019,7 @@ void Map::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Uni
         fullEncounterIndex |= 1 << encounter->dbcEntry->encounterIndex;
     }
 
-    if (dungeonId && (fullEncounterIndex == completedEncounters || GetDifficulty() != DIFFICULTY_CHALLENGE))
+    if (dungeonId && (fullEncounterIndex == completedEncounters || GetDifficultyID() != DIFFICULTY_CHALLENGE))
     {
         Map::PlayerList const& players = GetPlayers();
         for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)

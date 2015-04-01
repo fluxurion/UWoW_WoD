@@ -473,9 +473,9 @@ class spell_ignis_slag_pot : public SpellScriptLoader
                 aurEffCaster->CastSpell(target, SPELL_SLAG_POT_DAMAGE, true);
                 if (target->isAlive() && !GetDuration())
                 {
-                    if (aurEffCaster->GetMap()->GetDifficulty() == DIFFICULTY_10_N)
+                    if (aurEffCaster->GetMap()->GetDifficultyID() == DIFFICULTY_10_N)
                         target->CastSpell(target, SPELL_SLAG_IMBUED_10, true);
-                    else if (aurEffCaster->GetMap()->GetDifficulty() == DIFFICULTY_25_N)
+                    else if (aurEffCaster->GetMap()->GetDifficultyID() == DIFFICULTY_25_N)
                         target->CastSpell(target, SPELL_SLAG_IMBUED_25, true);
                 }
             }

@@ -384,7 +384,7 @@ class boss_warlord_zonozz: public CreatureScript
                             if (!IsHeroic())
                                 DoCast(me, SPELL_BLACK_BLOOD_OF_GORATH_SELF, true);
                             DoCast(me, SPELL_TANTRUM);
-                            switch (GetDifficulty())
+                            switch (GetDifficultyID())
                             {
                                 case DIFFICULTY_10_N:
                                     SpawnRandomTentacles(4, 0, 0);

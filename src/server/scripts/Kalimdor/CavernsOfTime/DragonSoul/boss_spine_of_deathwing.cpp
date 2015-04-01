@@ -263,7 +263,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                             {
                                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SEARING_PLASMA);
                                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SEARING_PLASMA_AOE);
-                                switch (GetDifficulty())
+                                switch (GetDifficultyID())
                                 {
                                     case DIFFICULTY_10_N:
                                         pInstance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_10N);
@@ -1062,7 +1062,7 @@ class spell_spine_of_deathwing_roll_control_check : public SpellScriptLoader
                 uint8 playersLeft = 0;
                 uint8 playersRight = 0;
 
-                switch (GetCaster()->GetInstanceScript()->instance->GetDifficulty())
+                switch (GetCaster()->GetInstanceScript()->instance->GetDifficultyID())
                 {
                     case DIFFICULTY_10_N:
                     case DIFFICULTY_10_HC:

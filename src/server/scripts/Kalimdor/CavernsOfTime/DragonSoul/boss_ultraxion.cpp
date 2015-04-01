@@ -325,7 +325,7 @@ class boss_ultraxion: public CreatureScript
                     pKalecgos->GetMotionMaster()->MovePoint(0, pKalecgos->GetPositionX(), pKalecgos->GetPositionY(), pKalecgos->GetPositionZ() - 3);
                 }
 
-                switch (GetDifficulty())
+                switch (GetDifficultyID())
                 {
                     case DIFFICULTY_10_N:
                         instance->DoRespawnGameObject(instance->GetData64(DATA_LESSER_CACHE_10N), DAY);
@@ -644,7 +644,7 @@ class spell_ultraxion_hour_of_twilight_dmg : public SpellScriptLoader
 
                 uint32 min_players = 1;
 
-                switch (GetCaster()->GetMap()->GetDifficulty())
+                switch (GetCaster()->GetMap()->GetDifficultyID())
                 {
                     case DIFFICULTY_10_N: min_players = 1; break;
                     case DIFFICULTY_10_HC: min_players = 2; break;
@@ -772,7 +772,7 @@ class spell_ultraxion_fading_light : public SpellScriptLoader
                         targets.remove(pTarget);
 
                 uint32 min_players = 1;
-                switch (GetCaster()->GetMap()->GetDifficulty())
+                switch (GetCaster()->GetMap()->GetDifficultyID())
                 {
                     case DIFFICULTY_10_HC: min_players = 2; break;
                     case DIFFICULTY_25_N: min_players = 3; break;

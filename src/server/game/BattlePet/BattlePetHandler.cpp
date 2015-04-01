@@ -114,7 +114,7 @@ void WorldSession::HandleBattlePetNameQuery(WorldPacket& recvData)
                 // timestamp for custom name cache
                 data << uint32(hasCustomName ? summon->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP) : 0);
                 // battlepet guid
-                data << uint64(battlepetGuid);
+                data << battlepetGuid;
                 // need store declined names at rename
                 bool hasDeclinedNames = false;
                 data.WriteBit(hasCustomName);

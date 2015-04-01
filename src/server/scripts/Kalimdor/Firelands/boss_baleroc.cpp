@@ -324,7 +324,7 @@ class spell_baleroc_shards_of_torment_aoe : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                switch (GetCaster()->GetMap()->GetDifficulty())
+                switch (GetCaster()->GetMap()->GetDifficultyID())
                 {
                     case DIFFICULTY_10_N:
                     case DIFFICULTY_10_HC:

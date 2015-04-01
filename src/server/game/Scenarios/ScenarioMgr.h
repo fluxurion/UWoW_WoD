@@ -122,6 +122,6 @@ private:
 
 };
 
-#define sScenarioMgr sScenarioMgr::instance()
+#define sScenarioMgr ScenarioMgr::instance()
 
 #endif
