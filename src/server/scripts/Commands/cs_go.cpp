@@ -525,10 +525,10 @@ public:
         MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
         if (mapEntry->IsScenario())
         {
-            if (GetMapDifficultyData(mapId, NORMAL_SCENARIO_DIFFICULTY))
-                player->SetDungeonDifficulty(NORMAL_SCENARIO_DIFFICULTY);
-            else if (GetMapDifficultyData(mapId, HEROIC_SCENARIO_DIFFICULTY))
-                player->SetDungeonDifficulty(HEROIC_SCENARIO_DIFFICULTY);
+            if (GetMapDifficultyData(mapId, DIFFICULTY_N_SCENARIO))
+                player->SetDungeonDifficulty(DIFFICULTY_N_SCENARIO);
+            else if (GetMapDifficultyData(mapId, DIFFICULTY_HC_SCENARIO))
+                player->SetDungeonDifficulty(DIFFICULTY_HC_SCENARIO);
         }
 
         // stop flight if need

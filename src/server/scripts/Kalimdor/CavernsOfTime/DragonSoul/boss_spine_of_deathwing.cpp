@@ -265,16 +265,16 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SEARING_PLASMA_AOE);
                                 switch (GetDifficulty())
                                 {
-                                    case MAN10_DIFFICULTY:
+                                    case DIFFICULTY_10_N:
                                         pInstance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_10N);
                                         break;
-                                    case MAN25_DIFFICULTY:
+                                    case DIFFICULTY_25_N:
                                         pInstance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_25N);
                                         break;
-                                    case MAN10_HEROIC_DIFFICULTY:
+                                    case DIFFICULTY_10_HC:
                                         pInstance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_10H);
                                         break;
-                                    case MAN25_HEROIC_DIFFICULTY:
+                                    case DIFFICULTY_25_HC:
                                         pInstance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_25H);
                                         break;
                                 }
@@ -1064,12 +1064,12 @@ class spell_spine_of_deathwing_roll_control_check : public SpellScriptLoader
 
                 switch (GetCaster()->GetInstanceScript()->instance->GetDifficulty())
                 {
-                    case MAN10_DIFFICULTY:
-                    case MAN10_HEROIC_DIFFICULTY:
+                    case DIFFICULTY_10_N:
+                    case DIFFICULTY_10_HC:
                         min_diff = 4;
                         break;
-                    case MAN25_DIFFICULTY:
-                    case MAN25_HEROIC_DIFFICULTY:
+                    case DIFFICULTY_25_N:
+                    case DIFFICULTY_25_HC:
                         min_diff = 6;
                         break;
                 }

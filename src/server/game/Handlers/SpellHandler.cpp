@@ -200,7 +200,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     Unit* mover = _player->m_mover;
     if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: mover != _player id %u", spellId);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: mover != _player id %u", cast.Cast.SpellID);
         return;
     }
 
@@ -227,7 +227,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 mover->RemoveAurasDueToSpell(107837);
                 mover->RemoveAurasDueToSpell(101601);
             }
-            if(spellId == 119393)
+            if (cast.Cast.SpellID == 119393)
             {
                 mover->RemoveAurasDueToSpell(119388);
                 mover->RemoveAurasDueToSpell(119386);
@@ -245,19 +245,19 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
         // spell passive and not casted by client
         if (spellInfo->IsPassive())
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: spell passive and not casted by client id %u", spellId);
+            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: spell passive and not casted by client id %u", cast.Cast.SpellID);
             return;
         }
         // not have spell in spellbook or spell passive and not casted by client
         if ((mover->GetTypeId() == TYPEID_UNIT && !mover->ToCreature()->HasSpell(cast.Cast.SpellID)) || spellInfo->IsPassive())
-        if (mover->GetTypeId() == TYPEID_UNIT && !mover->ToCreature()->HasSpell(spellId))
+            if (mover->GetTypeId() == TYPEID_UNIT && !mover->ToCreature()->HasSpell(cast.Cast.SpellID))
         {
-            if(_player->HasActiveSpell(spellId))
+            if (_player->HasActiveSpell(cast.Cast.SpellID))
                 mover = (Unit*)_player;
             else
             {
                 //cheater? kick? ban?
-                sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: not have spell in spellbook id %u", spellId);
+                sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: not have spell in spellbook id %u", cast.Cast.SpellID);
                 return;
             }
         }
@@ -332,7 +332,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     // can't use our own spells when we're in possession of another unit,
     if (_player->isPossessing())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: can't use our own spells when we're in possession id %u", spellId);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: can't use our own spells when we're in possession id %u", cast.Cast.SpellID);
         return;
     }
 
@@ -378,7 +378,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 if (SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(112092))
                 {
                     spellInfo = newSpellInfo;
-                    spellId = newSpellInfo->Id;
+                    cast.Cast.SpellID = newSpellInfo->Id;
                     replaced = true;
                 }
             }
@@ -391,7 +391,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 if (SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(123194))
                 {
                     spellInfo = newSpellInfo;
-                    spellId = newSpellInfo->Id;
+                    cast.Cast.SpellID = newSpellInfo->Id;
                     replaced = true;
                 }
             }

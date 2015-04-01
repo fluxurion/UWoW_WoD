@@ -1344,22 +1344,22 @@ class ObjectMgr
         {
             switch (spawnmode)
             {
-                case NONE_DIFFICULTY:
-                case REGULAR_DIFFICULTY:
-                case HEROIC_DIFFICULTY:
-                case CHALLENGE_MODE_DIFFICULTY:
-                case HEROIC_SCENARIO_DIFFICULTY:
-                case NORMAL_SCENARIO_DIFFICULTY:
+                case DIFFICULTY_NONE:
+                case DIFFICULTY_NORMAL:
+                case DIFFICULTY_HEROIC:
+                case DIFFICULTY_CHALLENGE:
+                case DIFFICULTY_HC_SCENARIO:
+                case DIFFICULTY_N_SCENARIO:
                     return 3;
-                case MAN10_DIFFICULTY:
-                case MAN10_HEROIC_DIFFICULTY:
+                case DIFFICULTY_10_N:
+                case DIFFICULTY_10_HC:
                     return 8;
-                case MAN25_DIFFICULTY:
-                case MAN25_HEROIC_DIFFICULTY:
+                case DIFFICULTY_25_N:
+                case DIFFICULTY_25_HC:
                 case FLEXIBLE_DIFFICULTY:
-                case RAID_TOOL_DIFFICULTY:
+                case DIFFICULTY_LFR:
                     return 20;
-                case MAN40_DIFFICULTY:
+                case DIFFICULTY_40:
                     return 32;
                 default:
                     break;

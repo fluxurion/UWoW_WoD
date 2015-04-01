@@ -2164,16 +2164,16 @@ class npc_madness_of_deathwing_deathwing : public CreatureScript
                             pThrall->AI()->DoAction(ACTION_END_BATTLE);
                         switch (GetDifficulty())
                         {
-                            case MAN10_DIFFICULTY:
+                            case DIFFICULTY_10_N:
                                 pInstance->DoRespawnGameObject(pInstance->GetData64(DATA_ELEM_FRAGMENT_10N), DAY);
                                 break;
-                            case MAN25_DIFFICULTY:
+                            case DIFFICULTY_25_N:
                                 pInstance->DoRespawnGameObject(pInstance->GetData64(DATA_ELEM_FRAGMENT_25N), DAY);
                                 break;
-                            case MAN10_HEROIC_DIFFICULTY:
+                            case DIFFICULTY_10_HC:
                                 pInstance->DoRespawnGameObject(pInstance->GetData64(DATA_ELEM_FRAGMENT_10H), DAY);
                                 break;
-                            case MAN25_HEROIC_DIFFICULTY:
+                            case DIFFICULTY_25_HC:
                                 pInstance->DoRespawnGameObject(pInstance->GetData64(DATA_ELEM_FRAGMENT_25H), DAY);
                                 break;
                         }

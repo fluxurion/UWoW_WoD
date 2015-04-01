@@ -243,16 +243,16 @@ void ScenarioProgress::SendStepUpdate(Player* player, bool full)
                 ObjectGuid criteriaGuid = MAKE_NEW_GUID(1, GetScenarioId(), HIGHGUID_SCENARIO_CRITERIA);
                 uint64 counter = progress.counter;
 
-                data.WriteGuidMask<7, 6, 0, 4>(criteriaGuid);
-                data.WriteGuidMask<7>(counter);
-                data.WriteGuidMask<5, 1>(criteriaGuid);
-                data.WriteGuidMask<1, 3, 0, 2>(counter);
-                data.WriteGuidMask<3>(criteriaGuid);
-                data.WriteGuidMask<5>(counter);
+                //data.WriteGuidMask<7, 6, 0, 4>(criteriaGuid);
+                //data.WriteGuidMask<7>(counter);
+                //data.WriteGuidMask<5, 1>(criteriaGuid);
+                //data.WriteGuidMask<1, 3, 0, 2>(counter);
+                //data.WriteGuidMask<3>(criteriaGuid);
+                //data.WriteGuidMask<5>(counter);
                 data.WriteBits(0, 4);           // criteria flags
-                data.WriteGuidMask<4>(counter);
-                data.WriteGuidMask<2>(criteriaGuid);
-                data.WriteGuidMask<6>(counter);
+                //data.WriteGuidMask<4>(counter);
+                //data.WriteGuidMask<2>(criteriaGuid);
+                //data.WriteGuidMask<6>(counter);
 
                 buff.WriteGuidBytes<1>(counter);
                 buff << uint32(time(NULL) - progress.date);
@@ -298,34 +298,34 @@ void ScenarioProgress::SendCriteriaUpdate(uint32 criteriaId, uint32 counter, tim
 
     ObjectGuid criteriaGuid = MAKE_NEW_GUID(1, GetScenarioId(), HIGHGUID_SCENARIO_CRITERIA);
 
-    data.WriteGuidMask<3>(counter);
-    data.WriteGuidMask<7, 2, 0>(criteriaGuid);
-    data.WriteGuidMask<4>(counter);
-    data.WriteGuidMask<4, 6>(criteriaGuid);
+    //data.WriteGuidMask<3>(counter);
+    //data.WriteGuidMask<7, 2, 0>(criteriaGuid);
+    //data.WriteGuidMask<4>(counter);
+    //data.WriteGuidMask<4, 6>(criteriaGuid);
     data.WriteBits(0, 4);               // criteria flags
-    data.WriteGuidMask<2>(counter);
-    data.WriteGuidMask<3>(criteriaGuid);
-    data.WriteGuidMask<1>(counter);
-    data.WriteGuidMask<1>(criteriaGuid);
-    data.WriteGuidMask<6, 5>(counter);
-    data.WriteGuidMask<5>(criteriaGuid);
-    data.WriteGuidMask<7, 0>(counter);
+    //data.WriteGuidMask<2>(counter);
+    //data.WriteGuidMask<3>(criteriaGuid);
+    //data.WriteGuidMask<1>(counter);
+    //data.WriteGuidMask<1>(criteriaGuid);
+    //data.WriteGuidMask<6, 5>(counter);
+    //data.WriteGuidMask<5>(criteriaGuid);
+    //data.WriteGuidMask<7, 0>(counter);
 
-    data.WriteGuidBytes<6, 4>(counter);
+    //data.WriteGuidBytes<6, 4>(counter);
     data << uint32(criteriaId);
     data << uint32(time(NULL) - date);
-    data.WriteGuidBytes<4, 5>(criteriaGuid);
-    data.WriteGuidBytes<3, 1>(counter);
-    data.WriteGuidBytes<3, 1, 6>(criteriaGuid);
-    data.WriteGuidBytes<7>(counter);
-    data.WriteGuidBytes<0>(criteriaGuid);
+    //data.WriteGuidBytes<4, 5>(criteriaGuid);
+    //data.WriteGuidBytes<3, 1>(counter);
+    //data.WriteGuidBytes<3, 1, 6>(criteriaGuid);
+    //data.WriteGuidBytes<7>(counter);
+    //data.WriteGuidBytes<0>(criteriaGuid);
     data << uint32(time(NULL) - date);
     data << secsToTimeBitFields(date);
-    data.WriteGuidBytes<5>(counter);
-    data.WriteGuidBytes<2>(criteriaGuid);
-    data.WriteGuidBytes<2>(counter);
-    data.WriteGuidBytes<7>(criteriaGuid);
-    data.WriteGuidBytes<0>(counter);
+    //data.WriteGuidBytes<5>(counter);
+    //data.WriteGuidBytes<2>(criteriaGuid);
+    //data.WriteGuidBytes<2>(counter);
+    //data.WriteGuidBytes<7>(criteriaGuid);
+    //data.WriteGuidBytes<0>(counter);
 
     BroadCastPacket(data);
 }

@@ -199,7 +199,7 @@ private:
     uint16 power;
     uint16 speed;
     int32 health;
-    uint32 maxHealth;
+    int32 maxHealth;
     uint8 quality;
     uint16 xp;
     uint8 level;
@@ -217,7 +217,7 @@ public:
     PetBattleSlot(ObjectGuid _guid): petGUID(_guid) {}
 
     // helpers
-    bool IsEmpty() { return petGUID == 0; }
+    bool IsEmpty() { return petGUID.IsEmpty(); }
     void SetPet(ObjectGuid const& guid) { petGUID = guid; }
     ObjectGuid GetPet() { return petGUID; }
 
@@ -368,8 +368,8 @@ public:
     int32 GetHealth() { return health; }
     float GetHealthPct() { return maxHealth ? 100.f * health / maxHealth : 0.0f; }
     void SetHealth(int32 _health) { health = _health; }
-    uint32 GetMaxHealth() { return maxHealth; }
-    void SetMaxHealth(uint32 _maxHealth) { maxHealth = _maxHealth; }
+    int32 GetMaxHealth() { return maxHealth; }
+    void SetMaxHealth(int32 _maxHealth) { maxHealth = _maxHealth; }
     void SetPower(uint16 _power) { power = _power; }
     void SetSpeed(uint16 _speed) { speed = _speed; }
     uint16 GetSpeed() { return speed; }
@@ -411,7 +411,7 @@ private:
     uint16 power;
     uint16 speed;
     int32 health;
-    uint32 maxHealth;
+    int32 maxHealth;
     uint8 quality;
     uint16 xp;
     uint16 totalXP;
@@ -722,18 +722,19 @@ public:
     {
         PetBattleSlots::const_iterator itr = m_battleSlots.find(index);
         if (itr != m_battleSlots.end())
-            return itr->first;
+            return itr->second->GetPet();
 
         return ObjectGuid::Empty;
     }
 
     bool SlotIsLocked(uint8 index);
 
-    ObjectGuid InverseGuid(ObjectGuid guid)
-    {
-        return ((guid & 0x00000000000000FF) << 56) | ((guid & 0x000000000000FF00) << 40) | ((guid & 0x0000000000FF0000) << 24) | ((guid & 0x00000000FF000000) <<  8) |
-        ((guid & 0x000000FF00000000) >>  8) | ((guid & 0x0000FF0000000000) >> 24) | ((guid & 0x00FF000000000000) >> 40) | ((guid & 0xFF00000000000000) >> 56);
-    }
+    //ToDo: WoD: check need it?
+    //ObjectGuid InverseGuid(ObjectGuid guid)
+    //{
+    //    return ((guid & 0x00000000000000FF) << 56) | ((guid & 0x000000000000FF00) << 40) | ((guid & 0x0000000000FF0000) << 24) | ((guid & 0x00000000FF000000) <<  8) |
+    //    ((guid & 0x000000FF00000000) >>  8) | ((guid & 0x0000FF0000000000) >> 24) | ((guid & 0x00FF000000000000) >> 40) | ((guid & 0xFF00000000000000) >> 56);
+    //}
 
     PetBattleWild* GetPetBattleWild() { return m_petBattleWild; }
 

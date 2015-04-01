@@ -5015,7 +5015,7 @@ void Spell::SendSpellGo()
             castData.MissTargets.push_back(ihit->targetGUID);
     for (std::list<TargetInfo>::iterator ihit = m_VisualHitTargetInfo.begin(); ihit != m_VisualHitTargetInfo.end() && counter <= 255; ++ihit)
     {
-        data.WriteGuidMask<2, 3, 7, 1, 5, 4, 6, 0>(ihit->targetGUID);
+        //data.WriteGuidMask<2, 3, 7, 1, 5, 4, 6, 0>(ihit->targetGUID);
         ++counter;
     }
 
@@ -5030,7 +5030,7 @@ void Spell::SendSpellGo()
         castData.HitTargets.push_back(ighit->targetGUID);
     for (std::list<TargetInfo>::iterator ihit = m_VisualHitTargetInfo.begin(); ihit != m_VisualHitTargetInfo.end() && hit <= 255; ++ihit)
     {
-        data.WriteGuidBytes<6, 5, 0, 3, 2, 1, 4, 7>(ihit->targetGUID);
+        //data.WriteGuidBytes<6, 5, 0, 3, 2, 1, 4, 7>(ihit->targetGUID);
         ++counter;
     }
 

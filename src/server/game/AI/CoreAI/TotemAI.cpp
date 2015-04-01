@@ -52,7 +52,7 @@ void TotemAI::InitializeAI()
                 me->Attack(victim, !me->GetCasterPet());
         }
 
-    i_victimGuid = 0;
+    i_victimGuid.Clear();
 }
 
 void TotemAI::MoveInLineOfSight(Unit* /*who*/)

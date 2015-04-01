@@ -61,9 +61,9 @@ public:
     {
         switch (difficulty)
         {
-            case NORMAL_SCENARIO_DIFFICULTY:
+            case DIFFICULTY_N_SCENARIO:
                 return "Normal";
-            case HEROIC_SCENARIO_DIFFICULTY:
+            case DIFFICULTY_HC_SCENARIO:
                 return "Heroic";
             default:
                 break;

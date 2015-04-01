@@ -2111,26 +2111,26 @@ void WorldSession::HandleWarGameAccept(WorldPacket& recvPacket)
     ObjectGuid guid, guid2;
     WorldPacket data(SMSG_WARGAME_CHECK_ENTRY);
 
-    data.WriteGuidMask<3, 4>(guid);
-    data.WriteGuidMask<0>(guid2);
-    data.WriteGuidMask<1>(guid);
-    data.WriteGuidMask<5, 1, 7, 4, 2>(guid2);
-    data.WriteGuidMask<0>(guid);
-    data.WriteGuidMask<6>(guid2);
-    data.WriteGuidMask<2, 7>(guid);
-    data.WriteGuidMask<3>(guid2);
-    data.WriteGuidMask<6, 5>(guid);
+    //data.WriteGuidMask<3, 4>(guid);
+    //data.WriteGuidMask<0>(guid2);
+    //data.WriteGuidMask<1>(guid);
+    //data.WriteGuidMask<5, 1, 7, 4, 2>(guid2);
+    //data.WriteGuidMask<0>(guid);
+    //data.WriteGuidMask<6>(guid2);
+    //data.WriteGuidMask<2, 7>(guid);
+    //data.WriteGuidMask<3>(guid2);
+    //data.WriteGuidMask<6, 5>(guid);
 
     data << uint32(0); 
 
-    data.WriteGuidBytes<2, 7, 5>(guid);
-    data.WriteGuidBytes<7, 5>(guid2);
-    data.WriteGuidBytes<6, 4>(guid);
-    data.WriteGuidBytes<6, 2, 0>(guid2);
-    data.WriteGuidBytes<1, 3>(guid);
-    data.WriteGuidBytes<4, 3>(guid2);
-    data.WriteGuidBytes<0>(guid);
-    data.WriteGuidBytes<1>(guid2);
+    //data.WriteGuidBytes<2, 7, 5>(guid);
+    //data.WriteGuidBytes<7, 5>(guid2);
+    //data.WriteGuidBytes<6, 4>(guid);
+    //data.WriteGuidBytes<6, 2, 0>(guid2);
+    //data.WriteGuidBytes<1, 3>(guid);
+    //data.WriteGuidBytes<4, 3>(guid2);
+    //data.WriteGuidBytes<0>(guid);
+    //data.WriteGuidBytes<1>(guid2);
 }*/
 
 // SMSG_WARGAME_REQUEST_SENT - maybe sent to initiator if wargame request sucessfully sended to other party leader
@@ -2139,8 +2139,8 @@ void WorldSession::HandleWarGameAccept(WorldPacket& recvPacket)
     ObjectGuid guid;
     WorldPacket data(SMSG_WARGAME_REQUEST_SENT);
 
-    data.WriteGuidMask<0, 6, 7, 2, 4, 3, 1, 5>(guid);
-    data.WriteGuidBytes<0, 2, 1, 6, 3, 7, 5, 4>(guid);
+    //data.WriteGuidMask<0, 6, 7, 2, 4, 3, 1, 5>(guid);
+    //data.WriteGuidBytes<0, 2, 1, 6, 3, 7, 5, 4>(guid);
 }*/
 
 // Loss of Control
@@ -2151,13 +2151,13 @@ void WorldSession::HandleWarGameAccept(WorldPacket& recvPacket)
     ObjectGuid guid;          // CasterGUID
     data.WriteBits(x, 8);     // Mechanic
     data.WriteBits(x, 8);     // Type (interrupt or some other)
-    data.WriteGuidMask<2, 1, 4, 3, 5, 6, 7, 0>(guid);
-    data.WriteGuidBytes<3, 1, 4>(guid);
+    //data.WriteGuidMask<2, 1, 4, 3, 5, 6, 7, 0>(guid);
+    //data.WriteGuidBytes<3, 1, 4>(guid);
     data << uint32(x);        // RemainingDuration (контролирует блокировку баров, скажем если duration = 40000, а это число 10000, то как только останется 10 секунд, на барах пойдет прокрутка, иначе просто затеменено)
     data << uint32(x);        // Duration (время действия)
-    data.WriteGuidBytes<0>(guid);
+    //data.WriteGuidBytes<0>(guid);
     data << uint32(val4);     // SpellID
-    data.WriteGuidBytes<2, 5, 6, 7>(guid);
+    //data.WriteGuidBytes<2, 5, 6, 7>(guid);
     data << uint32(val5);     // SchoolMask (для type == interrupt and other)
 }
 
@@ -2165,12 +2165,12 @@ SMSG_REMOVE_LOSS_OF_CONTROL
 {
     WorldPacket data(SMSG_REMOVE_LOSS_OF_CONTROL);
     ObjectGuid guid;
-    data.WriteGuidMask<1, 7, 0, 6, 2, 4, 5>(guid);
+    //data.WriteGuidMask<1, 7, 0, 6, 2, 4, 5>(guid);
     data.WriteBits(x, 8); // Type
-    data.WriteGuidMask<3>(guid);
-    data.WriteGuidBytes<1, 0, 4, 6, 7>(guid);
+    //data.WriteGuidMask<3>(guid);
+    //data.WriteGuidBytes<1, 0, 4, 6, 7>(guid);
     data << uint32(x); // SpellID
-    data.WriteGuidBytes<3, 5, 2>(guid);
+    //data.WriteGuidBytes<3, 5, 2>(guid);
 }
 
 SMSG_LOSS_OF_CONTROL_AURA_UPDATE
@@ -2208,16 +2208,16 @@ SMSG_LOSS_OF_CONTROL_AURA_UPDATE
 
         ObjectGuid counter = uint64(itr->second.counter);
 
-        data.WriteGuidMask<7, 6, 0, 4>(guid);
-        data.WriteGuidMask<7>(counter);
-        data.WriteGuidMask<5, 1>(guid);
-        data.WriteGuidMask<1, 3, 0, 2>(counter);
-        data.WriteGuidMask<3>(guid);
-        data.WriteGuidMask<5>(counter);
+        //data.WriteGuidMask<7, 6, 0, 4>(guid);
+        //data.WriteGuidMask<7>(counter);
+        //data.WriteGuidMask<5, 1>(guid);
+        //data.WriteGuidMask<1, 3, 0, 2>(counter);
+        //data.WriteGuidMask<3>(guid);
+        //data.WriteGuidMask<5>(counter);
         data.WriteBits(0, 4);          // flags
-        data.WriteGuidMask<4>(counter);
-        data.WriteGuidMask<2>(guid);
-        data.WriteGuidMask<6>(counter);
+        //data.WriteGuidMask<4>(counter);
+        //data.WriteGuidMask<2>(guid);
+        //data.WriteGuidMask<6>(counter);
 
         criteriaData.WriteGuidBytes<1>(counter);
         criteriaData << uint32(0);

@@ -386,16 +386,16 @@ class boss_warlord_zonozz: public CreatureScript
                             DoCast(me, SPELL_TANTRUM);
                             switch (GetDifficulty())
                             {
-                                case MAN10_DIFFICULTY:
+                                case DIFFICULTY_10_N:
                                     SpawnRandomTentacles(4, 0, 0);
                                     break;                                    
-                                case MAN25_DIFFICULTY:
+                                case DIFFICULTY_25_N:
                                     SpawnRandomTentacles(8, 0, 0);
                                     break;
-                                case MAN10_HEROIC_DIFFICULTY:
+                                case DIFFICULTY_10_HC:
                                     SpawnRandomTentacles(4, 2, 1);
                                     break;
-                                case MAN25_HEROIC_DIFFICULTY:
+                                case DIFFICULTY_25_HC:
                                     SpawnRandomTentacles(8, 4, 2);
                                     break;
                                 default:

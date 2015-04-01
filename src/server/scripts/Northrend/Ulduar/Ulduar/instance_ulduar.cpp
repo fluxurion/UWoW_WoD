@@ -554,7 +554,7 @@ public:
                     break;
                 case DATA_ALGALON:
                     {
-                        if (Difficulty(instance->GetSpawnMode()) == MAN10_DIFFICULTY)
+                        if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_10_N)
                         {
                             // get item level (armor cannot be swapped in combat)
                             Map::PlayerList const& players = instance->GetPlayers();
@@ -655,7 +655,7 @@ public:
                     if (state == DONE)
                     {
                         //Achievement Herald of the Titans
-                       if (Difficulty(instance->GetSpawnMode()) == MAN10_DIFFICULTY)
+                       if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_10_N)
                        {
                             // get item level (recheck weapons)
                             Map::PlayerList const& players = instance->GetPlayers();
@@ -671,7 +671,7 @@ public:
                     }
                     else if (state == IN_PROGRESS)
                     {
-                        if (Difficulty(instance->GetSpawnMode()) == MAN10_DIFFICULTY)
+                        if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_10_N)
                         {
                             // get item level (armor cannot be swapped in combat)
                             Map::PlayerList const& players = instance->GetPlayers();

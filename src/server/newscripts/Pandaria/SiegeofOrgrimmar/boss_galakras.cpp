@@ -466,14 +466,14 @@ class boss_galakras : public CreatureScript
                         break;
                     //Heroic mode
                     case ACTION_GRUNT_SOUTH:
-                        if (instance->instance->GetDifficulty() == MAN10_HEROIC_DIFFICULTY || instance->instance->GetDifficulty() == MAN25_HEROIC_DIFFICULTY)
+                        if (instance->instance->GetDifficulty() == DIFFICULTY_10_HC || instance->instance->GetDifficulty() == DIFFICULTY_25_HC)
                         {
                             SouthGruntEvent = true;
                             events.ScheduleEvent(EVENT_SUMMON_GRUNT_SOUTH, 6000);
                         }
                         break;
                     case ACTION_GRUNT_NORTH:
-                        if (instance->instance->GetDifficulty() == MAN10_HEROIC_DIFFICULTY || instance->instance->GetDifficulty() == MAN25_HEROIC_DIFFICULTY)
+                        if (instance->instance->GetDifficulty() == DIFFICULTY_10_HC || instance->instance->GetDifficulty() == DIFFICULTY_25_HC)
                         {
                             NorthGruntEvent = true;
                             events.ScheduleEvent(EVENT_SUMMON_GRUNT_NORTH, 6000);

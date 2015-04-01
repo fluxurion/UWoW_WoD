@@ -327,16 +327,16 @@ class boss_ultraxion: public CreatureScript
 
                 switch (GetDifficulty())
                 {
-                    case MAN10_DIFFICULTY:
+                    case DIFFICULTY_10_N:
                         instance->DoRespawnGameObject(instance->GetData64(DATA_LESSER_CACHE_10N), DAY);
                         break;
-                    case MAN25_DIFFICULTY:
+                    case DIFFICULTY_25_N:
                         instance->DoRespawnGameObject(instance->GetData64(DATA_LESSER_CACHE_25N), DAY);
                         break;
-                    case MAN10_HEROIC_DIFFICULTY:
+                    case DIFFICULTY_10_HC:
                         instance->DoRespawnGameObject(instance->GetData64(DATA_LESSER_CACHE_10H), DAY);
                         break;
-                    case MAN25_HEROIC_DIFFICULTY:
+                    case DIFFICULTY_25_HC:
                         instance->DoRespawnGameObject(instance->GetData64(DATA_LESSER_CACHE_25H), DAY);
                         break;
                 }
@@ -646,10 +646,10 @@ class spell_ultraxion_hour_of_twilight_dmg : public SpellScriptLoader
 
                 switch (GetCaster()->GetMap()->GetDifficulty())
                 {
-                    case MAN10_DIFFICULTY: min_players = 1; break;
-                    case MAN10_HEROIC_DIFFICULTY: min_players = 2; break;
-                    case MAN25_DIFFICULTY: min_players = 3; break;
-                    case MAN25_HEROIC_DIFFICULTY: min_players = 5; break;
+                    case DIFFICULTY_10_N: min_players = 1; break;
+                    case DIFFICULTY_10_HC: min_players = 2; break;
+                    case DIFFICULTY_25_N: min_players = 3; break;
+                    case DIFFICULTY_25_HC: min_players = 5; break;
                     default: min_players = 1; break;
                 }
 
@@ -774,9 +774,9 @@ class spell_ultraxion_fading_light : public SpellScriptLoader
                 uint32 min_players = 1;
                 switch (GetCaster()->GetMap()->GetDifficulty())
                 {
-                    case MAN10_HEROIC_DIFFICULTY: min_players = 2; break;
-                    case MAN25_DIFFICULTY: min_players = 3; break;
-                    case MAN25_HEROIC_DIFFICULTY: min_players = 6; break;
+                    case DIFFICULTY_10_HC: min_players = 2; break;
+                    case DIFFICULTY_25_N: min_players = 3; break;
+                    case DIFFICULTY_25_HC: min_players = 6; break;
                     default: min_players = 1; break;
                 }
                     

@@ -237,15 +237,15 @@ void BattlePetMgr::SendUpdatePets(std::list<ObjectGuid> &updates, bool added)
         data.WriteBits(len, 7);                         // custom name length
         data.WriteBit(!petInfo->GetFlags());            // !hasFlags
         data.WriteBit(1);                               // !hasUnk
-        data.WriteGuidMask<2>(guid);
+        //data.WriteGuidMask<2>(guid);
         data.WriteBit(!petInfo->GetBreedID());          // !hasBreed
         data.WriteBit(!petInfo->GetQuality());          // !hasQuality
-        data.WriteGuidMask<1, 6, 3, 7, 0, 4, 5>(guid);
+        //data.WriteGuidMask<1, 6, 3, 7, 0, 4, 5>(guid);
         data.WriteBit(0);                               // hasGuid
 
         /*if (hasGuid)
         {
-            data.WriteGuidMask<7, 0, 6, 2, 1, 3, 5, 4>(petGuid2);
+            //data.WriteGuidMask<7, 0, 6, 2, 1, 3, 5, 4>(petGuid2);
         }*/
     }
 
@@ -262,7 +262,7 @@ void BattlePetMgr::SendUpdatePets(std::list<ObjectGuid> &updates, bool added)
         /*if (hasGuid)
         {
             data << uint32(0); // unk
-            data.WriteGuidBytes<0, 1, 2, 3, 4, 5, 7, 6>(petGuid2);
+            //data.WriteGuidBytes<0, 1, 2, 3, 4, 5, 7, 6>(petGuid2);
             data << uint32(0); // unk1
         }*/
 
@@ -272,7 +272,7 @@ void BattlePetMgr::SendUpdatePets(std::list<ObjectGuid> &updates, bool added)
             data << uint16(petInfo->GetFlags());              // flags
         if (petInfo->GetQuality())
             data << uint8(petInfo->GetQuality());             // quality
-        data.WriteGuidBytes<3>(guid);
+        //data.WriteGuidBytes<3>(guid);
         data << uint32(petInfo->GetCreatureEntry());          // creature ID
         data << uint32(petInfo->GetSpeed());                  // speed
         if (petInfo->GetBreedID())
@@ -281,11 +281,11 @@ void BattlePetMgr::SendUpdatePets(std::list<ObjectGuid> &updates, bool added)
         data << uint32(petInfo->GetDisplayID());              // display ID
         if (len > 0)
             data.WriteString(petInfo->GetCustomName());       // custom name
-        data.WriteGuidBytes<5, 4, 7>(guid);
+        //data.WriteGuidBytes<5, 4, 7>(guid);
         data << uint32(petInfo->GetSpeciesID());              // species ID
-        data.WriteGuidBytes<2, 6>(guid);
+        //data.WriteGuidBytes<2, 6>(guid);
         data << uint16(petInfo->GetXP());                     // experience
-        data.WriteGuidBytes<0, 1>(guid);
+        //data.WriteGuidBytes<0, 1>(guid);
         data << uint32(petInfo->GetPower());                  // power
     }
 
@@ -594,18 +594,18 @@ void PetBattleWild::SendFullUpdate(ObjectGuid creatureGuid)
     data.WriteBit(0);
     data.WriteBit(0);
 
-    teamGuids[0] = m_player->GetBattlePetMgr()->InverseGuid(m_player->GetObjectGuid());
+    teamGuids[0] = /*m_player->GetBattlePetMgr()->InverseGuid(*/m_player->GetObjectGuid()/*)*/;
     teamGuids[1] = 0;
 
     for (uint8 i = 0; i < 2; ++i)
     {
-        data.WriteGuidMask<2>(teamGuids[i]);
+        //data.WriteGuidMask<2>(teamGuids[i]);
         data.WriteBit(1);
-        data.WriteGuidMask<5, 7, 4>(teamGuids[i]);
+        //data.WriteGuidMask<5, 7, 4>(teamGuids[i]);
         data.WriteBit(0);
-        data.WriteGuidMask<0>(teamGuids[i]);
+        //data.WriteGuidMask<0>(teamGuids[i]);
         data.WriteBits(GetTotalPetCountInTeam(i), 2);
-        data.WriteGuidMask<1>(teamGuids[i]);
+        //data.WriteGuidMask<1>(teamGuids[i]);
 
         for (BattleInfo::const_iterator itr = battleInfo.begin(); itr != battleInfo.end(); ++itr)
         {
@@ -617,16 +617,16 @@ void PetBattleWild::SendFullUpdate(ObjectGuid creatureGuid)
 
             ObjectGuid guid = pb->GetGUID();
 
-            data.WriteGuidMask<3, 4, 0>(guid);
+            //data.WriteGuidMask<3, 4, 0>(guid);
             data.WriteBit(0);
-            data.WriteGuidMask<6>(guid);
+            //data.WriteGuidMask<6>(guid);
             data.WriteBits(4, 21);                   // state count
             data.WriteBits(1, 20);                   // abilities count
-            data.WriteGuidMask<5>(guid);
+            //data.WriteGuidMask<5>(guid);
 
             data.WriteBit(0);
 
-            data.WriteGuidMask<2, 1, 7>(guid);
+            //data.WriteGuidMask<2, 1, 7>(guid);
             data.WriteBit(1);
 
             uint8 len = pb->GetCustomName() == "" ? 0 : pb->GetCustomName().length();
@@ -634,16 +634,16 @@ void PetBattleWild::SendFullUpdate(ObjectGuid creatureGuid)
             data.WriteBits(0, 21);                   // auras count
         }
 
-        data.WriteGuidMask<6>(teamGuids[i]);
+        //data.WriteGuidMask<6>(teamGuids[i]);
         data.WriteBit(0);
-        data.WriteGuidMask<3>(teamGuids[i]);
+        //data.WriteGuidMask<3>(teamGuids[i]);
     }
 
     data.WriteBit(1);
     data.WriteBit(0);
     data.WriteBit(1);
 
-    data.WriteGuidMask<6, 0, 1, 4, 2, 5, 3, 7>(creatureGuid);
+    //data.WriteGuidMask<6, 0, 1, 4, 2, 5, 3, 7>(creatureGuid);
 
     data.WriteBit(0);
     data.WriteBit(1);
@@ -681,7 +681,7 @@ void PetBattleWild::SendFullUpdate(ObjectGuid creatureGuid)
             data << uint16(pb->GetXP());
             data << uint32(pb->GetMaxHealth());
 
-            data.WriteGuidBytes<1>(guid);
+            //data.WriteGuidBytes<1>(guid);
 
             // states - same for testing
             data << uint32(1600); // some fucking strange value!
@@ -699,36 +699,36 @@ void PetBattleWild::SendFullUpdate(ObjectGuid creatureGuid)
             // auras
             //
 
-            data.WriteGuidBytes<4>(guid);
+            //data.WriteGuidBytes<4>(guid);
             uint8 len = pb->GetCustomName() == "" ? 0 : pb->GetCustomName().length();
             if (len > 0)
                 data.WriteString(pb->GetCustomName());
             data << uint16(pb->GetQuality());
-            data.WriteGuidBytes<0>(guid);
+            //data.WriteGuidBytes<0>(guid);
             data << uint32(pb->GetHealth());
-            data.WriteGuidBytes<3>(guid);
+            //data.WriteGuidBytes<3>(guid);
             data << uint32(pb->GetSpeciesID());
             data << uint32(0);
-            data.WriteGuidBytes<2, 6>(guid);
+            //data.WriteGuidBytes<2, 6>(guid);
             data << uint32(pb->GetDisplayID());
             data << uint16(pb->GetLevel());
-            data.WriteGuidBytes<7, 5>(guid);
+            //data.WriteGuidBytes<7, 5>(guid);
             data << uint32(pb->GetPower());
             uint8 slot = GetTeamIndex(pb->GetPetID());
             data << uint8(slot);                       // Slot
         }
 
         data << uint32(427);                           // TrapSpellID
-        data.WriteGuidBytes<2, 5>(teamGuids[i]);
+        //data.WriteGuidBytes<2, 5>(teamGuids[i]);
         data << uint32(2);                             // TrapStatus
 
-        data.WriteGuidBytes<4, 0, 7, 6>(teamGuids[i]);
+        //data.WriteGuidBytes<4, 0, 7, 6>(teamGuids[i]);
         data << uint8(6);                              // InputFlags
         data << uint8(0);                              // FrontPet
-        data.WriteGuidBytes<1, 3>(teamGuids[i]);
+        //data.WriteGuidBytes<1, 3>(teamGuids[i]);
     }
 
-    data.WriteGuidBytes<6, 2, 1, 3, 0, 4, 7, 5>(creatureGuid);
+    //data.WriteGuidBytes<6, 2, 1, 3, 0, 4, 7, 5>(creatureGuid);
 
     data << uint16(30);                                // WaitingForFrontPetsMaxSecs | PvpMaxRoundTime
     data << uint16(30);                                // WaitingForFrontPetsMaxSecs | PvpMaxRoundTime

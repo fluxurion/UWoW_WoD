@@ -239,7 +239,7 @@ public:
     void BrokenWallOrTower(TeamId team);
     void AddDamagedTower(TeamId team);
     void AddBrokenTower(TeamId team);
-    void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
+    void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
     bool SetupBattlefield();
 
     void RewardMarkOfHonor(Player *plr, uint32 count);

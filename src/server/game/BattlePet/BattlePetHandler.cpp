@@ -27,8 +27,8 @@
 void WorldSession::HandleBattlePetSummon(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<6, 0, 1, 5, 3, 4, 7, 2>(guid);
-    recvData.ReadGuidBytes<2, 5, 3, 7, 1, 0, 6, 4>(guid);
+    //recvData.ReadGuidMask<6, 0, 1, 5, 3, 4, 7, 2>(guid);
+    //recvData.ReadGuidBytes<2, 5, 3, 7, 1, 0, 6, 4>(guid);
 
     // find pet
     PetJournalInfo* petInfo = _player->GetBattlePetMgr()->GetPetInfoByPetGUID(guid);
@@ -52,7 +52,7 @@ void WorldSession::HandleBattlePetSummon(WorldPacket& recvData)
     {
         Creature* oldSummon = _player->GetMap()->GetCreature(_player->m_SummonSlot[SUMMON_SLOT_MINIPET]);
 
-        if (oldSummon && oldSummon->isSummon() && oldSummon->GetUInt64Value(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) == guid)
+        if (oldSummon && oldSummon->isSummon() && oldSummon->GetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) == guid)
             oldSummon->ToTempSummon()->UnSummon();
         else
         {
@@ -75,29 +75,29 @@ void WorldSession::HandleBattlePetSummon(WorldPacket& recvData)
 void WorldSession::HandleBattlePetNameQuery(WorldPacket& recvData)
 {
     ObjectGuid creatureGuid, battlepetGuid;
-    recvData.ReadGuidMask<7, 6>(battlepetGuid);
-    recvData.ReadGuidMask<6>(creatureGuid);
-    recvData.ReadGuidMask<1>(battlepetGuid);
-    recvData.ReadGuidMask<4, 5>(creatureGuid);
-    recvData.ReadGuidMask<2, 5, 0>(battlepetGuid);
-    recvData.ReadGuidMask<0, 3, 1, 2>(creatureGuid);
-    recvData.ReadGuidMask<4, 3>(battlepetGuid);
-    recvData.ReadGuidMask<7>(creatureGuid);
+    //recvData.ReadGuidMask<7, 6>(battlepetGuid);
+    //recvData.ReadGuidMask<6>(creatureGuid);
+    //recvData.ReadGuidMask<1>(battlepetGuid);
+    //recvData.ReadGuidMask<4, 5>(creatureGuid);
+    //recvData.ReadGuidMask<2, 5, 0>(battlepetGuid);
+    //recvData.ReadGuidMask<0, 3, 1, 2>(creatureGuid);
+    //recvData.ReadGuidMask<4, 3>(battlepetGuid);
+    //recvData.ReadGuidMask<7>(creatureGuid);
 
-    recvData.ReadGuidBytes<5>(battlepetGuid);
-    recvData.ReadGuidBytes<7>(creatureGuid);
-    recvData.ReadGuidBytes<2>(battlepetGuid);
-    recvData.ReadGuidBytes<3>(creatureGuid);
-    recvData.ReadGuidBytes<1, 4>(battlepetGuid);
-    recvData.ReadGuidBytes<0>(creatureGuid);
-    recvData.ReadGuidBytes<0>(battlepetGuid);
-    recvData.ReadGuidBytes<1, 6, 4, 2, 5>(creatureGuid);
-    recvData.ReadGuidBytes<7, 3, 6>(battlepetGuid);
+    //recvData.ReadGuidBytes<5>(battlepetGuid);
+    //recvData.ReadGuidBytes<7>(creatureGuid);
+    //recvData.ReadGuidBytes<2>(battlepetGuid);
+    //recvData.ReadGuidBytes<3>(creatureGuid);
+    //recvData.ReadGuidBytes<1, 4>(battlepetGuid);
+    //recvData.ReadGuidBytes<0>(creatureGuid);
+    //recvData.ReadGuidBytes<0>(battlepetGuid);
+    //recvData.ReadGuidBytes<1, 6, 4, 2, 5>(creatureGuid);
+    //recvData.ReadGuidBytes<7, 3, 6>(battlepetGuid);
 
     if (Creature* summon = _player->GetMap()->GetCreature(creatureGuid))
     {
         // check battlepet guid
-        if (summon->GetUInt64Value(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) != battlepetGuid)
+        if (summon->GetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) != battlepetGuid)
             return;
 
         if (Player * owner = summon->GetCharmerOrOwnerPlayerOrPlayerItself())
@@ -141,20 +141,20 @@ void WorldSession::HandleBattlePetNameQuery(WorldPacket& recvData)
 void WorldSession::HandleBattlePetModifyName(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<1, 6>(guid);
+    //recvData.ReadGuidMask<1, 6>(guid);
     uint8 len = recvData.ReadBits(7);
-    recvData.ReadGuidMask<3, 5>(guid);
+    //recvData.ReadGuidMask<3, 5>(guid);
     bool hasDeclined = recvData.ReadBit();
-    recvData.ReadGuidMask<7, 4, 0, 2>(guid);
+    //recvData.ReadGuidMask<7, 4, 0, 2>(guid);
     uint8 len1[5];
     if (hasDeclined)
     {
         for (uint8 i = 0; i < 5; ++i)
             len1[i] = recvData.ReadBits(7);
     }
-    recvData.ReadGuidBytes<7, 4, 3, 5, 1>(guid);
+    //recvData.ReadGuidBytes<7, 4, 3, 5, 1>(guid);
     std::string customName = recvData.ReadString(len);
-    recvData.ReadGuidBytes<0, 2, 6>(guid);
+    //recvData.ReadGuidBytes<0, 2, 6>(guid);
     std::string declinedNames[5];
     if (hasDeclined)
     {
@@ -177,10 +177,10 @@ void WorldSession::HandleBattlePetSetFlags(WorldPacket& recvData)
     ObjectGuid guid;
     uint32 flags;
     recvData >> flags;                                       // Flags
-    recvData.ReadGuidMask<2, 6, 1, 7, 0>(guid);
+    //recvData.ReadGuidMask<2, 6, 1, 7, 0>(guid);
     uint32 active = recvData.ReadBits(2);                    // ControlTypes?
-    recvData.ReadGuidMask<3, 4, 5>(guid);
-    recvData.ReadGuidBytes<3, 5, 2, 1, 0, 6, 7, 4>(guid);
+    //recvData.ReadGuidMask<3, 4, 5>(guid);
+    //recvData.ReadGuidBytes<3, 5, 2, 1, 0, 6, 7, 4>(guid);
 
     // find pet
     PetJournalInfo* petInfo = _player->GetBattlePetMgr()->GetPetInfoByPetGUID(guid);
@@ -197,14 +197,14 @@ void WorldSession::HandleBattlePetSetFlags(WorldPacket& recvData)
 void WorldSession::HandleCageBattlePet(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<6, 5, 0, 3, 4, 7, 2, 1>(guid);
-    recvData.ReadGuidBytes<4, 1, 5, 3, 0, 6, 7, 2>(guid);
+    //recvData.ReadGuidMask<6, 5, 0, 3, 4, 7, 2, 1>(guid);
+    //recvData.ReadGuidBytes<4, 1, 5, 3, 0, 6, 7, 2>(guid);
 
     // unsummon pet if active
     if (_player->m_SummonSlot[SUMMON_SLOT_MINIPET])
     {
         Creature* oldSummon = _player->GetMap()->GetCreature(_player->m_SummonSlot[SUMMON_SLOT_MINIPET]);
-        if (oldSummon && oldSummon->isSummon() && oldSummon->GetUInt64Value(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) == guid)
+        if (oldSummon && oldSummon->isSummon() && oldSummon->GetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) == guid)
             oldSummon->ToTempSummon()->UnSummon();
     }
 
@@ -253,8 +253,8 @@ void WorldSession::HandleCageBattlePet(WorldPacket& recvData)
 
         // send visual to client
         WorldPacket data(SMSG_BATTLE_PET_DELETED);
-        data.WriteGuidMask<5, 6, 4, 0, 1, 2, 7, 4>(guid);
-        data.WriteGuidBytes<1, 0, 6, 5, 2, 4, 3, 7>(guid);
+        //data.WriteGuidMask<5, 6, 4, 0, 1, 2, 7, 4>(guid);
+        //data.WriteGuidBytes<1, 0, 6, 5, 2, 4, 3, 7>(guid);
 
         // send packet twice? (sniff data)
         SendPacket(&data);
@@ -268,8 +268,8 @@ void WorldSession::HandleBattlePetSetSlot(WorldPacket& recvData)
     recvData >> slotID;
 
     ObjectGuid guid;
-    recvData.ReadGuidMask<3, 6, 2, 1, 0, 5, 7, 4>(guid);
-    recvData.ReadGuidBytes<1, 5, 3, 0, 4, 7, 2, 6>(guid);
+    //recvData.ReadGuidMask<3, 6, 2, 1, 0, 5, 7, 4>(guid);
+    //recvData.ReadGuidBytes<1, 5, 3, 0, 4, 7, 2, 6>(guid);
 
     if (slotID >= MAX_ACTIVE_BATTLE_PETS)
         return;
@@ -327,13 +327,13 @@ void WorldSession::HandlePetBattleRequestWild(WorldPacket& recvData)
         }
     }
 
-    recvData.ReadGuidMask<6>(guid);
+    //recvData.ReadGuidMask<6>(guid);
     bool hasFacing = recvData.ReadBit();
-    recvData.ReadGuidMask<3>(guid);
+    //recvData.ReadGuidMask<3>(guid);
     bool hasLocationRes = recvData.ReadBit();
-    recvData.ReadGuidMask<7, 1, 0, 5, 4, 2>(guid);
+    //recvData.ReadGuidMask<7, 1, 0, 5, 4, 2>(guid);
 
-    recvData.ReadGuidBytes<1, 5, 0, 2, 6, 4, 3, 7>(guid);
+    //recvData.ReadGuidBytes<1, 5, 0, 2, 6, 4, 3, 7>(guid);
 
     if (!hasLocationRes)
         recvData >> locationResult;
@@ -403,10 +403,10 @@ void WorldSession::HandlePetBattleInputFirstPet(WorldPacket& recvData)
 void WorldSession::HandlePetBattleRequestUpdate(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<6, 2, 3, 7, 0, 4>(guid);
+    //recvData.ReadGuidMask<6, 2, 3, 7, 0, 4>(guid);
     bool cancelled = recvData.ReadBit();                                       // Cancelled
-    recvData.ReadGuidMask<5, 1>(guid);
-    recvData.ReadGuidBytes<3, 5, 6, 7, 1, 0, 2, 4>(guid);
+    //recvData.ReadGuidMask<5, 1>(guid);
+    //recvData.ReadGuidBytes<3, 5, 6, 7, 1, 0, 2, 4>(guid);
 }
 
 void WorldSession::HandlePetBattleInput(WorldPacket& recvData)
@@ -507,8 +507,8 @@ void WorldSession::HandlePetBattleQuitNotify(WorldPacket& recvData)
 void WorldSession::HandleBattlePetDelete(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    recvData.ReadGuidMask<4, 3, 5, 7, 2, 1, 6, 0>(guid);
-    recvData.ReadGuidBytes<6, 3, 5, 0, 4, 7, 1, 2>(guid);
+    //recvData.ReadGuidMask<4, 3, 5, 7, 2, 1, 6, 0>(guid);
+    //recvData.ReadGuidBytes<6, 3, 5, 0, 4, 7, 1, 2>(guid);
 
     // find current pet
     PetJournalInfo* petInfo = _player->GetBattlePetMgr()->GetPetInfoByPetGUID(guid);

@@ -19,7 +19,6 @@
 #define TRINITY_SCENARIOMGR_H
 
 #include "Common.h"
-#include <ace/Singleton.h>
 #include "DatabaseEnv.h"
 #include "AchievementMgr.h"
 
@@ -89,12 +88,16 @@ typedef UNORDERED_MAP<uint32, ScenarioSteps> ScenarioStepsByScenarioMap;
 
 class ScenarioMgr
 {
-    friend class ACE_Singleton<ScenarioMgr, ACE_Null_Mutex>;
-
+public:
     ScenarioMgr();
     ~ScenarioMgr();
 
-public:
+    static ScenarioMgr* instance()
+    {
+        static ScenarioMgr instance;
+        return &instance;
+    }
+
     void Initialize();
 
     void Update(uint32 diff);
@@ -119,6 +122,6 @@ private:
 
 };
 
-#define sScenarioMgr ACE_Singleton<ScenarioMgr, ACE_Null_Mutex>::instance()
+#define sScenarioMgr sScenarioMgr::instance()
 
 #endif

@@ -1917,7 +1917,7 @@ namespace Trinity
     class UnitAuraAndCheck
     {
         public:
-            UnitAuraAndCheck (int32 aura1, int32 aura2 = 0, int32 aura3 = 0, uint64 casterGUID = 0) : _aura1(aura1), _aura2(aura2), _aura3(aura3), _casterGUID(casterGUID) {}
+            UnitAuraAndCheck(int32 aura1, int32 aura2 = 0, int32 aura3 = 0, ObjectGuid casterGUID = ObjectGuid::Empty) : _aura1(aura1), _aura2(aura2), _aura3(aura3), _casterGUID(casterGUID) {}
             bool operator()(Unit* unit) const
             {
                 if(_aura1 < 0 && unit->HasAura(abs(_aura1), _casterGUID))
@@ -1967,13 +1967,13 @@ namespace Trinity
             int32 _aura1;
             int32 _aura2;
             int32 _aura3;
-            uint64 _casterGUID;
+            ObjectGuid _casterGUID;
     };
 
     class UnitAuraOrCheck
     {
         public:
-            UnitAuraOrCheck (int32 aura1, int32 aura2, int32 aura3, uint64 casterGUID = 0) : _aura1(aura1), _aura2(aura2), _aura3(aura3), _casterGUID(casterGUID) {}
+            UnitAuraOrCheck(int32 aura1, int32 aura2, int32 aura3, ObjectGuid casterGUID = ObjectGuid::Empty) : _aura1(aura1), _aura2(aura2), _aura3(aura3), _casterGUID(casterGUID) {}
             bool operator()(Unit* unit) const
             {
                 if(_aura1 < 0 && !unit->HasAura(abs(_aura1), _casterGUID))
@@ -2023,7 +2023,7 @@ namespace Trinity
             int32 _aura1;
             int32 _aura2;
             int32 _aura3;
-            uint64 _casterGUID;
+            ObjectGuid _casterGUID;
     };
 
     class UnitEntryCheck

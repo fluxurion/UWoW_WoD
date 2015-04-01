@@ -58,7 +58,6 @@ char const TaxiNodesEntryfmt[] = "nifffsiiiiff";
 char const TaxiPathEntryfmt[] = "niii";
 char const TaxiPathNodeEntryfmt[] = "niiifffiiii";
 
-const char BattlePetSpeciesEntryfmt[] = "nixixiixx";
 const char QuestPackageItemfmt[] = "iiiix";
 const char ItemUpgradeEntryfmt[] = "niiiii";
 const char RuleSetItemUpgradeEntryfmt[] = "niii";

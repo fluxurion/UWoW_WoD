@@ -781,19 +781,19 @@ class boss_hagara_the_stormbinder: public CreatureScript
                             Talk(SAY_LIGHTNING);
                             switch (GetDifficulty())
                             {
-                                case MAN10_DIFFICULTY:
+                                case DIFFICULTY_10_N:
                                     for (uint8 i = 0; i < 4; ++i)
                                         if (Creature* pCronductor = me->SummonCreature(NPC_CRYSTAL_CONDUCTOR, crystalconductorPos[i + 4]))
                                             pCronductor->CastSpell(me, SPELL_CRYSTALLINE_TETHER_2);
                                     break;
-                                case MAN10_HEROIC_DIFFICULTY:
+                                case DIFFICULTY_10_HC:
                                     crystalCount += 4;
                                     for (uint8 i = 0; i < 4; ++i)
                                         if (Creature* pCronductor = me->SummonCreature(NPC_CRYSTAL_CONDUCTOR, crystalconductorPos[i + 4]))
                                             pCronductor->CastSpell(me, SPELL_CRYSTALLINE_TETHER_2);
                                 // no break
-                                case MAN25_DIFFICULTY:
-                                case MAN25_HEROIC_DIFFICULTY:
+                                case DIFFICULTY_25_N:
+                                case DIFFICULTY_25_HC:
                                     for (uint8 i = 0; i < 4; ++i)
                                         if (Creature* pCronductor = me->SummonCreature(NPC_CRYSTAL_CONDUCTOR, crystalconductorPos[i]))
                                             pCronductor->CastSpell(me, SPELL_CRYSTALLINE_TETHER_2);

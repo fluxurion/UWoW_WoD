@@ -437,9 +437,7 @@ enum AreaFlags
     AREA_FLAG_UNK9                  = 0x40000000
 };
 
-    DIFFICULTY_FLAG_HEROIC          = 0x01,
-    DIFFICULTY_FLAG_DEFAULT         = 0x02,
-    DIFFICULTY_FLAG_CAN_SELECT      = 0x04, // Player can select this difficulty in dropdown menu
+
 enum Difficulty
 {
     DIFFICULTY_NONE              = 0,                       // entry

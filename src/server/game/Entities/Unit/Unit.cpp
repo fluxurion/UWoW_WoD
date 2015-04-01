@@ -23744,21 +23744,21 @@ void Unit::SendFakeAuraUpdate(uint32 auraId, uint32 flags, uint32 diration, uint
     ObjectGuid targetGuid = GetObjectGuid();
 
     WorldPacket data(SMSG_AURA_UPDATE);
-    data.WriteGuidMask<0>(targetGuid);
+    //data.WriteGuidMask<0>(targetGuid);
     data.WriteBit(0);   // has power unit
     data.WriteBit(0);   // full update
-    data.WriteGuidMask<6>(targetGuid);
+    //data.WriteGuidMask<6>(targetGuid);
     /*
     if (hasPowerData) { }
     */
-    data.WriteGuidMask<4, 7, 3>(targetGuid);
+    //data.WriteGuidMask<4, 7, 3>(targetGuid);
     data.WriteBits(1, 24);
-    data.WriteGuidMask<1, 5, 2>(targetGuid);
+    //data.WriteGuidMask<1, 5, 2>(targetGuid);
 
     if (data.WriteBit(!remove))
     {
         if (data.WriteBit(!(flags & AFLAG_CASTER)))
-            data.WriteGuidMask<2, 3, 4, 0, 1, 6, 7, 5>(targetGuid);
+            //data.WriteGuidMask<2, 3, 4, 0, 1, 6, 7, 5>(targetGuid);
         data.WriteBits(0, 22);  // effect count 2
         data.WriteBits(0, 22);  // effect count
         data.WriteBit(flags & AFLAG_DURATION);  // has duration
@@ -23771,7 +23771,7 @@ void Unit::SendFakeAuraUpdate(uint32 auraId, uint32 flags, uint32 diration, uint
     {
         data << uint16(getLevel());
         if (!(flags & AFLAG_CASTER))
-            data.WriteGuidBytes<0, 6, 1, 4, 5, 3, 2, 7>(targetGuid);
+            //data.WriteGuidBytes<0, 6, 1, 4, 5, 3, 2, 7>(targetGuid);
         data << uint8(flags);
         if (flags & AFLAG_DURATION)
             data << uint32(diration);
@@ -23788,7 +23788,7 @@ void Unit::SendFakeAuraUpdate(uint32 auraId, uint32 flags, uint32 diration, uint
     if (hasPowerData) { }
     */
 
-    data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
+    //data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
 
     SendMessageToSet(&data, true);
 }
@@ -23843,12 +23843,12 @@ void Unit::SendSpellCooldown(int32 spellId, int32 spell_cooldown, int32 cooldown
 
     ObjectGuid guid = player->GetGUID();
     WorldPacket data(SMSG_SPELL_COOLDOWN, 8 + 1 + 3 + 4 + 4);
-    data.WriteGuidMask<4, 7, 6>(guid);
+    //data.WriteGuidMask<4, 7, 6>(guid);
     data.WriteBits(1, 21);
-    data.WriteGuidMask<2, 3, 1, 0>(guid);
+    //data.WriteGuidMask<2, 3, 1, 0>(guid);
     data.WriteBit(1);                                  // !hasFlags
-    data.WriteGuidMask<5>(guid);
-    data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
+    //data.WriteGuidMask<5>(guid);
+    //data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
     data << uint32(cooldown);
     data << uint32(spellId);
 
@@ -23886,8 +23886,8 @@ void Unit::SendSpellScene(uint32 miscValue, Position* /*pos*/)
             data.WriteBit(!i->PlaybackFlags);
             data.WriteBit(!i->bit16);
 
-            data.WriteGuidMask<0, 5, 1, 7, 4, 2, 6, 3>(casterGuid);
-            data.WriteGuidBytes<1, 2, 5, 6, 0, 7, 3, 4>(casterGuid);
+            //data.WriteGuidMask<0, 5, 1, 7, 4, 2, 6, 3>(casterGuid);
+            //data.WriteGuidBytes<1, 2, 5, 6, 0, 7, 3, 4>(casterGuid);
 
             data << float(i->y);            // Y
 
@@ -23917,12 +23917,12 @@ void Unit::SendMissileCancel(uint32 spellId, bool cancel)
     ObjectGuid guid = GetObjectGuid();
 
     WorldPacket data(SMSG_MISSILE_CANCEL, 13);
-    data.WriteGuidMask<6, 0, 3, 7, 5, 1, 4>(guid);
+    //data.WriteGuidMask<6, 0, 3, 7, 5, 1, 4>(guid);
     data.WriteBit(cancel);            // Reverse
-    data.WriteGuidMask<2>(guid);
-    data.WriteGuidBytes<4, 5, 7, 6, 1, 3>(guid);
+    //data.WriteGuidMask<2>(guid);
+    //data.WriteGuidBytes<4, 5, 7, 6, 1, 3>(guid);
     data << uint32(spellId);
-    data.WriteGuidBytes<0, 2>(guid);
+    //data.WriteGuidBytes<0, 2>(guid);
     ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -23940,25 +23940,25 @@ void Unit::SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uin
         WorldPacket data(SMSG_ADD_LOSS_OF_CONTROL);
         data.WriteBits(mechanic, 8);     // Mechanic
         data.WriteBits(type, 8);     // Type (interrupt or some other) may be loss control = 0, silence = 0, interrupt = 1, disarm = 0, root = 0
-        data.WriteGuidMask<2, 1, 4, 3, 5, 6, 7, 0>(guid);
-        data.WriteGuidBytes<3, 1, 4>(guid);
+        //data.WriteGuidMask<2, 1, 4, 3, 5, 6, 7, 0>(guid);
+        //data.WriteGuidBytes<3, 1, 4>(guid);
         data << uint32(rmDuraction);        // RemainingDuration (контролирует блокировку баров, скажем если duration = 40000, а это число 10000, то как только останется 10 секунд, на барах пойдет прокрутка, иначе просто затеменено)
         data << uint32(duraction);        // Duration (время действия)
-        data.WriteGuidBytes<0>(guid);
+        //data.WriteGuidBytes<0>(guid);
         data << uint32(spellId);     // SpellID
-        data.WriteGuidBytes<2, 5, 6, 7>(guid);
+        //data.WriteGuidBytes<2, 5, 6, 7>(guid);
         data << uint32(schoolMask);     // SchoolMask (для type == interrupt and other)
         ToPlayer()->GetSession()->SendPacket(&data);
     }
     /*else
     {
         WorldPacket data(SMSG_REMOVE_LOSS_OF_CONTROL);
-        data.WriteGuidMask<1, 7, 0, 6, 2, 4, 5>(guid);
+        //data.WriteGuidMask<1, 7, 0, 6, 2, 4, 5>(guid);
         data.WriteBits(type, 8); // Type
-        data.WriteGuidMask<3>(guid);
-        data.WriteGuidBytes<1, 0, 4, 6, 7>(guid);
+        //data.WriteGuidMask<3>(guid);
+        //data.WriteGuidBytes<1, 0, 4, 6, 7>(guid);
         data << uint32(spellId); // SpellID
-        data.WriteGuidBytes<3, 5, 2>(guid);
+        //data.WriteGuidBytes<3, 5, 2>(guid);
         ToPlayer()->GetSession()->SendPacket(&data);
     }*/
 }

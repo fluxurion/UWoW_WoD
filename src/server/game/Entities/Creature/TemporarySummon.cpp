@@ -420,7 +420,7 @@ void TempSummon::UnSummon(uint32 msTime)
 
     if (owner && owner->GetTypeId() == TYPEID_PLAYER && GetCreatureTemplate()->type == CREATURE_TYPE_WILD_PET)
     {
-        owner->SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
+        owner->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
         owner->SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, 0);
     }
 

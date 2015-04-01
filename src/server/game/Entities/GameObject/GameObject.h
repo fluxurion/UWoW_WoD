@@ -636,7 +636,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.allowMounted; 
             case GAMEOBJECT_TYPE_TEXT: return text.allowMounted; 
             case GAMEOBJECT_TYPE_GOOBER: return goober.allowMounted; 
-            case GAMEOBJECT_TYPE_SPELLCASTER: return spellcaster.allowMounted; 
+            case GAMEOBJECT_TYPE_SPELLCASTER: return spellCaster.allowMounted;
             default: return false; 
         }
     }

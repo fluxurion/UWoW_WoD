@@ -402,12 +402,13 @@ void AchievementMgr<T>::SendPacket(WorldPacket const* data) const
 }
 
 template<>
-void AchievementMgr<ScenarioProgress>::SendPacket(WorldPacket* data) const
+void AchievementMgr<ScenarioProgress>::SendPacket(WorldPacket const* data) const
 {
     // FIXME
 }
 
 template<>
+void AchievementMgr<Guild>::SendPacket(WorldPacket const* data) const
 {
     GetOwner()->BroadcastPacket(data);
 }
@@ -533,6 +534,7 @@ void AchievementMgr<ScenarioProgress>::DeleteFromDB(ObjectGuid guid, uint32 acco
 }
 
 template<>
+void AchievementMgr<Player>::DeleteFromDB(ObjectGuid guid, uint32 accountId)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -1388,29 +1390,29 @@ void AchievementMgr<Player>::SendAccountCriteriaUpdate(CriteriaEntry const* entr
     WorldPacket data(SMSG_ACCOUNT_CRITERIA_UPDATE);
     ObjectGuid guid = GetOwner()->GetGUID();         // needed send first completer criteria guid or else not found - then current player guid
 
-    data.WriteGuidMask<6, 7>(guid);
-    data.WriteGuidMask<6>(progress->counter);
-    data.WriteGuidMask<1>(guid);
+    //data.WriteGuidMask<6, 7>(guid);
+    //data.WriteGuidMask<6>(progress->counter);
+    //data.WriteGuidMask<1>(guid);
     data.WriteBits(0, 4);                         // Flags
-    data.WriteGuidMask<4, 5>(progress->counter);
-    data.WriteGuidMask<2, 5, 0>(guid);
-    data.WriteGuidMask<0, 3, 1, 2>(progress->counter);
-    data.WriteGuidMask<4, 3>(guid);
-    data.WriteGuidMask<7>(progress->counter);
+    //data.WriteGuidMask<4, 5>(progress->counter);
+    //data.WriteGuidMask<2, 5, 0>(guid);
+    //data.WriteGuidMask<0, 3, 1, 2>(progress->counter);
+    //data.WriteGuidMask<4, 3>(guid);
+    //data.WriteGuidMask<7>(progress->counter);
 
-    data.WriteGuidBytes<0, 5, 3>(progress->counter);
-    data.WriteGuidBytes<7>(guid);
-    data.WriteGuidBytes<6, 1, 2>(progress->counter);
-    data.WriteGuidBytes<1>(guid);
+    //data.WriteGuidBytes<0, 5, 3>(progress->counter);
+    //data.WriteGuidBytes<7>(guid);
+    //data.WriteGuidBytes<6, 1, 2>(progress->counter);
+    //data.WriteGuidBytes<1>(guid);
     data << uint32(0);
     data << uint32(0);
-    data.WriteGuidBytes<2, 3>(guid);
-    data.WriteGuidBytes<4>(progress->counter);
-    data.WriteGuidBytes<6, 0, 4>(guid);
+    //data.WriteGuidBytes<2, 3>(guid);
+    //data.WriteGuidBytes<4>(progress->counter);
+    //data.WriteGuidBytes<6, 0, 4>(guid);
     data << uint32(secsToTimeBitFields(progress->date));   // Date
-    data.WriteGuidBytes<7>(progress->counter);
+    //data.WriteGuidBytes<7>(progress->counter);
     data << uint32(entry->ID);
-    data.WriteGuidBytes<5>(guid);
+    //data.WriteGuidBytes<5>(guid);
 
     SendPacket(&data);
 }
@@ -2746,9 +2748,9 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
     for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
         data << uint32(secsToTimeBitFields(itr->second.date));
-        data << uint32(realmID);                                     // VirtualRealmAddress / NativeRealmAddress
+        data << uint32(realmHandle.Index);                                     // VirtualRealmAddress / NativeRealmAddress
         data << uint32(itr->first);
-        data << uint32(realmID);                                     // VirtualRealmAddress / NativeRealmAddress
+        data << uint32(realmHandle.Index);                                     // VirtualRealmAddress / NativeRealmAddress
     }
 
     receiver->GetSession()->SendPacket(&data);
@@ -2766,7 +2768,7 @@ void AchievementMgr<T>::SendAllAccountCriteriaData(Player* /*receiver*/)
     uint32 criteriaCount = 0;
     ByteBuffer criteriaData;
 
-    WorldPacket data(SMSG_ALL_ACCOUNT_CRITERIA_DATA);
+    WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA_ACCOUNT/*SMSG_ALL_ACCOUNT_CRITERIA_DATA*/);
 
     uint32 bit_pos = data.bitwpos();
     data.WriteBits(0, 19);
@@ -2783,37 +2785,37 @@ void AchievementMgr<T>::SendAllAccountCriteriaData(Player* /*receiver*/)
         if (!achievement || !(achievement->flags & ACHIEVEMENT_FLAG_ACCOUNT) || HasAchieved(achievement->ID) || (achievement->parent && !HasAchieved(achievement->parent)))
             continue;
 
-        ObjectGuid counter = uint64(itr->second.counter);
+        ObjectGuidSteam counter = uint64(itr->second.counter);
 
         data.WriteBits(0, 4);            // Flags
-        data.WriteGuidMask<4>(counter);
-        data.WriteGuidMask<3>(guid);
-        data.WriteGuidMask<6, 0, 3>(counter);
-        data.WriteGuidMask<2, 5>(guid);
-        data.WriteGuidMask<5>(counter);
-        data.WriteGuidMask<0, 1>(guid);
-        data.WriteGuidMask<2>(counter);
-        data.WriteGuidMask<4>(guid);
-        data.WriteGuidMask<1>(counter);
-        data.WriteGuidMask<6, 7>(guid);
-        data.WriteGuidMask<7>(counter);
+        //data.WriteGuidMask<4>(counter);
+        //data.WriteGuidMask<3>(guid);
+        //data.WriteGuidMask<6, 0, 3>(counter);
+        //data.WriteGuidMask<2, 5>(guid);
+        //data.WriteGuidMask<5>(counter);
+        //data.WriteGuidMask<0, 1>(guid);
+        //data.WriteGuidMask<2>(counter);
+        //data.WriteGuidMask<4>(guid);
+        //data.WriteGuidMask<1>(counter);
+        //data.WriteGuidMask<6, 7>(guid);
+        //data.WriteGuidMask<7>(counter);
 
-        criteriaData.WriteGuidBytes<0>(guid);
-        criteriaData.WriteGuidBytes<7>(counter);
+        //criteriaData.WriteGuidBytes<0>(guid);
+        //criteriaData.WriteGuidBytes<7>(counter);
         criteriaData << uint32(0);
         criteriaData << uint32(0);
-        criteriaData.WriteGuidBytes<2>(guid);
-        criteriaData.WriteGuidBytes<2>(counter);
+        //criteriaData.WriteGuidBytes<2>(guid);
+        //criteriaData.WriteGuidBytes<2>(counter);
         criteriaData << uint32(secsToTimeBitFields(itr->second.date));
-        criteriaData.WriteGuidBytes<4>(counter);
-        criteriaData.WriteGuidBytes<6>(guid);
-        criteriaData.WriteGuidBytes<0>(counter);
-        criteriaData.WriteGuidBytes<4, 1>(guid);
-        criteriaData.WriteGuidBytes<1>(counter);
-        criteriaData.WriteGuidBytes<3, 5>(guid);
-        criteriaData.WriteGuidBytes<6, 5, 3>(counter);
-        criteriaData.WriteGuidBytes<7>(guid);
-        criteriaData << uint32(criteriaTree->criteria);
+        //criteriaData.WriteGuidBytes<4>(counter);
+        //criteriaData.WriteGuidBytes<6>(guid);
+        //criteriaData.WriteGuidBytes<0>(counter);
+        //criteriaData.WriteGuidBytes<4, 1>(guid);
+        //criteriaData.WriteGuidBytes<1>(counter);
+        //criteriaData.WriteGuidBytes<3, 5>(guid);
+        //criteriaData.WriteGuidBytes<6, 5, 3>(counter);
+        //criteriaData.WriteGuidBytes<7>(guid);
+        //criteriaData << uint32(criteriaTree->criteria);
 
         ++criteriaCount;
     }
@@ -2885,7 +2887,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
         data.WriteBit(guid[0]);  
     }
 
-    data.WriteGuidMask<0>(guid);
+    //data.WriteGuidMask<0>(guid);
     data.WriteBits(numAchievements, 20);
 
     for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
@@ -2894,10 +2896,10 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
             continue;
 
         ObjectGuid firstGuid = (*itr).second.first_guid;
-        data.WriteGuidMask<2, 3, 4, 1, 0, 5, 7, 6>(firstGuid);
+        //data.WriteGuidMask<2, 3, 4, 1, 0, 5, 7, 6>(firstGuid);
     }
 
-    data.WriteGuidMask<5, 1>(guid);
+    //data.WriteGuidMask<5, 1>(guid);
 
     data.FlushBits();
 
@@ -2906,19 +2908,19 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
         counter = itr->second.counter;
         CriteriaTreeEntry const* criteriaTree = sAchievementMgr->GetAchievementCriteriaTree(itr->first);
 
-        data.WriteGuidBytes<1, 3, 0>(guid);
-        data.WriteGuidBytes<5, 7>(counter);
+        //data.WriteGuidBytes<1, 3, 0>(guid);
+        //data.WriteGuidBytes<5, 7>(counter);
         data << uint32(criteriaTree->criteria);     // ID
-        data.WriteGuidBytes<2>(counter);
+        //data.WriteGuidBytes<2>(counter);
         data << uint32(0);                          // TimeFromStart / TimeFromCreate
-        data.WriteGuidBytes<4>(guid);
-        data.WriteGuidBytes<4, 0>(counter);
+        //data.WriteGuidBytes<4>(guid);
+        //data.WriteGuidBytes<4, 0>(counter);
         data << uint32(secsToTimeBitFields(itr->second.date));  // Date
-        data.WriteGuidBytes<6, 3>(counter);
+        //data.WriteGuidBytes<6, 3>(counter);
         data << uint32(0);                          // TimeFromStart / TimeFromCreate
-        data.WriteGuidBytes<2, 5>(guid);
-        data.WriteGuidBytes<1>(counter);
-        data.WriteGuidBytes<7, 6>(guid);
+        //data.WriteGuidBytes<2, 5>(guid);
+        //data.WriteGuidBytes<1>(counter);
+        //data.WriteGuidBytes<7, 6>(guid);
     }
 
     for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
@@ -2928,16 +2930,16 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
 
         ObjectGuid firstGuid = (*itr).second.first_guid;
 
-        data.WriteGuidBytes<6>(firstGuid);
-        data << uint32(realmID);                                   // VirtualRealmAddress / NativeRealmAddress
-        data.WriteGuidBytes<7, 5>(firstGuid);
+        //data.WriteGuidBytes<6>(firstGuid);
+        data << uint32(realmHandle.Index);                                   // VirtualRealmAddress / NativeRealmAddress
+        //data.WriteGuidBytes<7, 5>(firstGuid);
         data << uint32(secsToTimeBitFields((*itr).second.date));   // Date
-        data << uint32(realmID);                                   // VirtualRealmAddress / NativeRealmAddress
+        data << uint32(realmHandle.Index);                                   // VirtualRealmAddress / NativeRealmAddress
         data << uint32(itr->first);                                // ID
-        data.WriteGuidBytes<4, 2, 3, 0, 1>(firstGuid);
+        //data.WriteGuidBytes<4, 2, 3, 0, 1>(firstGuid);
     }
 
-    data.WriteGuidBytes<2, 5, 3, 1, 6, 4, 0, 7>(guid);
+    //data.WriteGuidBytes<2, 5, 3, 1, 6, 4, 0, 7>(guid);
     */
     receiver->GetSession()->SendPacket(&data);
 }
@@ -3011,7 +3013,7 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
         criteriaData << uint32(::time(NULL) - progress->date); // DateStarted / DateCreated
         criteriaData.WriteGuidBytes<5, 2>(counter);
         criteriaData.WriteGuidBytes<3>(guid);*/
-        criteriaData.WriteGuidBytes<3>(counter);
+        criteriaData.WriteGuidBytes<3>(numCriteria);
     }
 
     data.FlushBits();
@@ -3303,7 +3305,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementEntry const* achievemen
                             if (!achievIdForDungeon[j][2])
                                 break;                      // for
                         }
-                        else if (referencePlayer->GetDungeonDifficulty() == DIFFICULTY_NORMAL)
+                        else if (referencePlayer->GetDungeonDifficultyID() == DIFFICULTY_NORMAL)
                         {
                             // dungeon in normal mode accepted
                             if (!achievIdForDungeon[j][1])
@@ -3598,7 +3600,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                 {
                     // miscValue1 is itemid
                     ItemTemplate const * const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-                    if (!item || item->ItemLevel < reqValue)
+                    if (!item || (int32)item->ItemLevel < reqValue)
                         check = false;
                     break;
                 }
@@ -3638,7 +3640,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                 {
                     // miscValue1 is itemid
                     ItemTemplate const * const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-                    if (!item || item->Quality < reqValue)
+                    if (!item || (int32)item->Quality < reqValue)
                         check = false;
                     break;
                 }
@@ -3664,7 +3666,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                     break;
                 }
                 case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY: // 20
-                    if (sObjectMgr->GetDiffFromSpawn(referencePlayer->GetMap()->GetDifficulty()) != reqValue)
+                    if (CreatureTemplate::GetDiffFromSpawn(referencePlayer->GetMap()->GetDifficultyID()) != reqValue)
                         check = false;
                     break;
                 case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_YIELDS_XP: // 21
@@ -3703,7 +3705,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                         check = false;
                     break;
                 case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MAX_GROUP_MEMBERS: // 29
-                    if (referencePlayer->GetGroup() && referencePlayer->GetGroup()->GetMembersCount() >= reqValue)
+                    if (referencePlayer->GetGroup() && (int32)referencePlayer->GetGroup()->GetMembersCount() >= reqValue)
                         check = false;
                     break;
                 case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_TYPE: // 30
@@ -3774,7 +3776,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                         check = false;
                     break;
                 case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MIN_ACHIEVEMENT_POINTS: // 56
-                    if (_achievementPoints < reqValue)
+                    if ((int32)_achievementPoints < reqValue)
                         check = false;
                     break;
                 case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_REQUIRES_LFG_GROUP: // 58
@@ -3932,7 +3934,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                 }
                 case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_CURRENCY: // 121
                 {
-                    if (referencePlayer->GetCurrency(reqValue) <= reqCount)
+                    if ((int32)referencePlayer->GetCurrency(reqValue) <= reqCount)
                         check = false;
                     break;
                 }
