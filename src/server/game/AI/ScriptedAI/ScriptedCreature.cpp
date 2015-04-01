@@ -66,6 +66,16 @@ void SummonList::DespawnAll()
     }
 }
 
+void SummonList::SetReactState(ReactStates state)
+{
+    for (iterator i = begin(); i != end();)
+    {
+        Creature* summon = Unit::GetCreature(*me, *i++);
+        if (summon && summon->IsAIEnabled)
+            summon->SetReactState(state);
+    }
+}
+
 void SummonList::RemoveNotExisting()
 {
     for (iterator i = begin(); i != end();)
@@ -212,7 +222,7 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
     //Check if each spell is viable(set it to null if not)
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; i++)
     {
-        tempSpell = sSpellMgr->GetSpellInfo(me->m_spells[i]);
+        tempSpell = sSpellMgr->GetSpellInfo(me->m_temlate_spells[i]);
 
         //This spell doesn't exist
         if (!tempSpell)
@@ -220,11 +230,11 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
 
         // Targets and Effects checked first as most used restrictions
         //Check the spell targets if specified
-        if (targets && !(SpellSummary[me->m_spells[i]].Targets & (1 << (targets-1))))
+        if (targets && !(SpellSummary[me->m_temlate_spells[i]].Targets & (1 << (targets-1))))
             continue;
 
         //Check the type of spell if we are looking for a specific spell type
-        if (effects && !(SpellSummary[me->m_spells[i]].Effects & (1 << (effects-1))))
+        if (effects && !(SpellSummary[me->m_temlate_spells[i]].Effects & (1 << (effects-1))))
             continue;
 
         //Check for school if specified
@@ -463,6 +473,14 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
     return true;
 }
 
+void ScriptedAI::InitializeAI()
+{
+    if(PetStats const* pStats = sObjectMgr->GetPetStats(me->GetEntry()))
+        me->SetReactState(ReactStates(pStats->state));
+
+    CreatureAI::InitializeAI();
+}
+
 void Scripted_NoMovementAI::AttackStart(Unit* target)
 {
     if (!target)
@@ -489,7 +507,10 @@ void BossAI::_Reset()
     summons.DespawnAll();
 
     if (instance && me->isAlive())
+    {
         instance->SetBossState(_bossId, NOT_STARTED);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_RESET_COMBAT_RES_LIMIT, me);
+    }
 }
 
 void BossAI::_JustDied()
@@ -500,6 +521,7 @@ void BossAI::_JustDied()
     {
         instance->SetBossState(_bossId, DONE);
         instance->SaveToDB();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_RESET_COMBAT_RES_LIMIT, me);
     }
 }
 
@@ -533,6 +555,7 @@ void BossAI::_EnterCombat()
             return;
         }
         instance->SetBossState(_bossId, IN_PROGRESS);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT, me);
     }
 }
 

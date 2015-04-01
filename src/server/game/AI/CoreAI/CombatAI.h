@@ -45,6 +45,7 @@ class AnyPetAI : public CreatureAI
         void UpdateAllies();
         GuidSet m_AllySet;
         uint32 m_updateAlliesTimer;
+        void MovementInform(uint32 moveType, uint32 data);
 };
 
 typedef std::vector<uint32> SpellVct;

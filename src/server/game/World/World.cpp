@@ -85,6 +85,7 @@
 #include "BracketMgr.h"
 #include "PlayerDump.h"
 #include "ChallengeMgr.h"
+#include "ScenarioMgr.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -1344,6 +1345,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_LFG_FORCE_MINPLAYERS] = sConfigMgr->GetBoolDefault("DungeonFinder.ForceMinplayers", false);
 
     m_bool_configs[CONFIG_GROUP_BONUS_XP] = sConfigMgr->GetBoolDefault("Group.BonusXp", false);
+    m_bool_configs[CONFIG_FUN_OPTION_ENABLED] = ConfigMgr::GetIntDefault("FunOption", false);
 
     // DBC_ItemAttributes
     m_bool_configs[CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES] = sConfigMgr->GetBoolDefault("DBC.EnforceItemAttributes", true);
@@ -1417,7 +1419,9 @@ void World::LoadConfigSettings(bool reload)
     // Blizzard Shop
     m_bool_configs[CONFIG_PURCHASE_SHOP_ENABLED] = sConfigMgr->GetBoolDefault("Purchase.Shop.Enabled", true);
 
-    // call ScriptMgr if we're reloading the configuration
+    // Battle Pets
+    m_bool_configs[CONFIG_PET_BATTLES_ENABLED] = ConfigMgr::GetBoolDefault("PetBattles.Enabled", true);
+
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }
@@ -1673,6 +1677,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests Relations...");
     sObjectMgr->LoadQuestRelations();                            // must be after quest load
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Scenario POI");
+    sObjectMgr->LoadScenarioPOI();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Objects Pooling Data...");
     sPoolMgr->LoadFromDB();
 
@@ -1741,6 +1748,7 @@ void World::SetInitialWorldSettings()
     sSpellMgr->LoadSpellTriggered();
     sSpellMgr->LoadSpellVisual();
     sSpellMgr->LoadSpellPendingCast();
+    sSpellMgr->LoadSpellScene();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading mount replace list...");
     sSpellMgr->LoadmSpellMountList();
@@ -2065,6 +2073,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading archaeology digsite positions...");
     sObjectMgr->LoadDigSitePositions();
 
+    // Battle Pets some data
+    sObjectMgr->LoadBattlePetBreedsToSpecies();
+
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading realm name...");
 
     m_realmName = "Mist of Pandaria servers";
@@ -2343,6 +2354,9 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_DELETECHARS].Reset();
         Player::DeleteOldCharacters();
     }
+
+    sScenarioMgr->Update(diff);
+    RecordTimeDiff("UpdateScenarioMgr");
 
     sLFGMgr->Update(diff);
     RecordTimeDiff("UpdateLFGMgr");

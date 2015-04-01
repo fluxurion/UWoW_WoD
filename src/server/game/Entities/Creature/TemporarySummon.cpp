@@ -24,9 +24,8 @@
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) :
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
-m_timer(0), m_lifetime(0), onUnload(false)
+m_timer(0), m_lifetime(0), onUnload(false), m_loading(false), m_owner(owner)
 {
-    m_Stampeded = false;
     m_summonerGUID = owner ? owner->GetGUID() : ObjectGuid::Empty;
     m_unitTypeMask |= UNIT_MASK_SUMMON;
 }
@@ -178,13 +177,16 @@ void TempSummon::InitStats(uint32 duration)
 
     Unit* owner = GetSummoner();
 
-    if (owner && isTrigger() && m_spells[0])
+    if (owner && isTrigger() && m_temlate_spells[0])
     {
         setFaction(owner->getFaction());
         SetLevel(owner->getLevel());
         if (owner->GetTypeId() == TYPEID_PLAYER)
             m_ControlledByPlayer = true;
     }
+
+    bool damageSet = false;
+    InitBaseStat(GetEntry(), damageSet);
 
     if (!m_Properties)
         return;
@@ -217,7 +219,7 @@ void TempSummon::InitStats(uint32 duration)
                 if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
                 {
                     Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
-                    if (oldSummon && oldSummon->isSummon())
+                    if (oldSummon && oldSummon->isSummon() && oldSummon->IsInWorld() && oldSummon->isAlive())
                         oldSummon->ToTempSummon()->UnSummon();
                 }
                 owner->m_SummonSlot[slot] = GetGUID();
@@ -262,7 +264,7 @@ void TempSummon::InitStats(uint32 duration)
                     if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
                     {
                         Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
-                        if (oldSummon && oldSummon->isSummon())
+                        if (oldSummon && oldSummon->isSummon() && oldSummon->IsInWorld() && oldSummon->isAlive())
                             oldSummon->ToTempSummon()->UnSummon();
                     }
                     owner->m_SummonSlot[slot] = GetGUID();
@@ -273,7 +275,7 @@ void TempSummon::InitStats(uint32 duration)
                     if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
                     {
                         Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
-                        if (oldSummon && oldSummon->isSummon())
+                        if (oldSummon && oldSummon->isSummon() && oldSummon->IsInWorld() && oldSummon->isAlive())
                             oldSummon->ToTempSummon()->UnSummon();
                     }
                     owner->m_SummonSlot[slot] = GetGUID();
@@ -321,6 +323,8 @@ bool TempSummon::InitBaseStat(uint32 creatureId, bool& damageSet)
     CreatureTemplate const* cinfo = GetCreatureTemplate();
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), cinfo->unit_class);
     Unit* owner = GetAnyOwner();
+
+    //sLog->outDebug(LOG_FILTER_PETS, "TempSummon::InitBaseStat owner %u creatureId %i", owner ? owner->GetGUID() : 0, creatureId);
 
     PetStats const* pStats = sObjectMgr->GetPetStats(creatureId);
     if (pStats)                                      // exist in DB
@@ -407,23 +411,19 @@ void TempSummon::UnSummon(uint32 msTime)
     //ASSERT(!isPet());
     if (isPet())
     {
-        if (((Pet*)this)->getPetType() == HUNTER_PET)
-            ((Pet*)this)->Remove(PET_SLOT_ACTUAL_PET_SLOT, false);
-        else
-            ((Pet*)this)->Remove(PET_SLOT_OTHER_PET);
+        ((Pet*)this)->Remove();
         ASSERT(!IsInWorld());
         return;
     }
 
     Unit* owner = GetSummoner();
-    if (isMinion() && owner && owner->GetTypeId() == TYPEID_PLAYER)
+
+    if (owner && owner->GetTypeId() == TYPEID_PLAYER && GetCreatureTemplate()->type == CREATURE_TYPE_WILD_PET)
     {
-        if (sBattlePetSpeciesBySpellId.find(GetEntry()) != sBattlePetSpeciesBySpellId.end())
-        {
-            owner->SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
-            owner->SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, 0);
-        }
+        owner->SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, 0);
+        owner->SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, 0);
     }
+
     if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
         owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
 
@@ -460,11 +460,10 @@ void TempSummon::RemoveFromWorld()
 }
 
 Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) : TempSummon(properties, owner, isWorldObject)
-, m_owner(owner)
 {
+    m_owner = owner;
     ASSERT(m_owner);
     m_unitTypeMask |= UNIT_MASK_MINION;
-    m_followAngle = frand(0, 2*M_PI);
 }
 
 void Minion::InitStats(uint32 duration)
@@ -476,7 +475,7 @@ void Minion::InitStats(uint32 duration)
     SetCreatorGUID(m_owner->GetGUID());
     setFaction(m_owner->getFaction());
 
-    m_owner->SetMinion(this, true, PET_SLOT_UNK_SLOT);
+    m_owner->SetMinion(this, true);
 }
 
 void Minion::RemoveFromWorld()
@@ -484,7 +483,7 @@ void Minion::RemoveFromWorld()
     if (!IsInWorld() || !m_owner || !this)
         return;
 
-    m_owner->SetMinion(this, false, PET_SLOT_UNK_SLOT);
+    m_owner->SetMinion(this, false);
     TempSummon::RemoveFromWorld();
 }
 
@@ -507,6 +506,7 @@ bool Minion::IsWarlockPet() const
 Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) : Minion(properties, owner, isWorldObject)
 , m_bonusSpellDamage(0)
 {
+    m_owner = owner;
     bool controlable = true;
     memset(m_statFromOwner, 0, sizeof(float)*MAX_STATS);
     m_unitTypeMask |= UNIT_MASK_GUARDIAN;
@@ -553,8 +553,8 @@ void Guardian::InitSummon()
 
 Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false) //maybe true?
 {
+    m_owner = owner;
     ASSERT(owner->GetTypeId() == TYPEID_PLAYER);
-    m_owner = (Player*)owner;
     m_unitTypeMask |= UNIT_MASK_PUPPET;
 }
 

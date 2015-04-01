@@ -82,7 +82,7 @@ bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellIn
     if (threatSpell && threatSpell->AttributesEx & SPELL_ATTR1_NO_THREAT)
         return false;
 
-    ASSERT(hatingUnit->GetTypeId() == TYPEID_UNIT);
+    ASSERT(hatingUnit->GetTypeId() == TYPEID_UNIT || hatingUnit->GetTypeId() == TYPEID_PLAYER);
 
     return true;
 }
@@ -185,15 +185,17 @@ void HostileReference::updateOnlineStatus()
         && getTarget()->InSamePhase(getSourceUnit())
         )
     {
-        Creature* creature = getSourceUnit()->ToCreature();
-        online = getTarget()->isInAccessiblePlaceFor(creature);
-        if (!online)
+        if(Creature* creature = getSourceUnit()->ToCreature())
         {
-            if (creature->IsWithinCombatRange(getTarget(), creature->m_CombatDistance))
-                online = true;                              // not accessible but stays online
+            online = getTarget()->isInAccessiblePlaceFor(creature);
+            if (!online)
+            {
+                if (creature->IsWithinCombatRange(getTarget(), creature->m_CombatDistance))
+                    online = true;                              // not accessible but stays online
+            }
+            else
+                accessible = true;
         }
-        else
-            accessible = true;
     }
     setAccessibleState(accessible);
     setOnlineOfflineState(online);

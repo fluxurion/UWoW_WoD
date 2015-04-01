@@ -99,6 +99,22 @@ struct SpellDestination
     Position _transportOffset;
 };
 
+// Targets store structures and data
+struct TargetInfo
+{
+    ObjectGuid targetGUID;
+    ObjectGuid timeDelay;
+    SpellMissInfo missCondition:8;
+    SpellMissInfo reflectResult:8;
+    uint32  effectMask:32;
+    bool   processed:1;
+    bool   alive:1;
+    bool   crit:1;
+    bool   scaleAura:1;
+    int32  damage;
+    int32  damageBeforeHit;
+};
+
 enum WeightType
 {
     WEIGHT_KEYSTONE = 0,
@@ -409,12 +425,14 @@ class Spell
         void EffectSummonRaidMarker(SpellEffIndex effIndex);
         void EffectRandomizeDigsites(SpellEffIndex effIndex);
         void EffectTeleportToDigsite(SpellEffIndex effIndex);
-        void EffectUncagePet(SpellEffIndex effIndex);
+        void EffectUncageBattlePet(SpellEffIndex effIndex);
+        void EffectUnlockPetBattles(SpellEffIndex effIndex);
+        void EffectHealBattlePetPct(SpellEffIndex effIndex);
         void SendScene(SpellEffIndex effIndex);
 
         typedef std::set<Aura *> UsedSpellMods;
 
-        Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = ObjectGuid::Empty, bool skipCheck = false);
+        Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = ObjectGuid::Empty, bool skipCheck = false, bool replaced = false);
         ~Spell();
 
         void InitExplicitTargets(SpellCastTargets const& targets);
@@ -461,8 +479,6 @@ class Spell
         SpellCastResult CheckCast(bool strict);
         SpellCastResult CheckPetCast(Unit* target);
 
-        static uint32 GetSpellDelay(SpellInfo const* _spell);
-
         // handlers
         void handle_immediate();
         uint64 handle_delayed(uint64 t_offset);
@@ -497,7 +513,6 @@ class Spell
         void SendSpellStart();
         void SendSpellGo();
         void SendSpellPendingCast();
-        void SendSpellActivationScene();
         void SendSpellCooldown();
         void SendLogExecute();
         void ExecuteLogEffectGeneric(uint8 effIndex, ObjectGuid const& guid);
@@ -537,6 +552,9 @@ class Spell
         bool canHitTargetInLOS;
         uint32 m_count_dispeling; // Final count dispell auras
         bool m_interupted;
+        bool m_replaced;
+        WorldLocation destAtTarget;
+        WorldLocation* destTarget;
 
         UsedSpellMods m_appliedMods;
 
@@ -566,6 +584,7 @@ class Spell
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_FIELD_CHANNEL_SPELL) != 0; }
         bool IsAutoActionResetSpell() const;
         bool IsCritForTarget(Unit* target) const;
+        bool CanSpellProc(Unit* target, uint32 mask = 7) const;
 
         bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
         void SetReferencedFromCurrent(bool yes) { m_referencedFromCurrentSpell = yes; }
@@ -595,10 +614,20 @@ class Spell
 
         void SetSpellDynamicObject(ObjectGuid const& dynObj) { m_spellDynObjGuid = dynObj;}
         ObjectGuid const& GetSpellDynamicObject() const { return m_spellDynObjGuid; }
-        void SetEffectTargets (std::list<WorldObject*> targets) { m_effect_targets = targets; }
-        std::list<WorldObject*> GetEffectTargets() { return m_effect_targets; }
+        void SetEffectTargets (std::list<uint64> targets) { m_effect_targets = targets; }
+        std::list<uint64> GetEffectTargets() { return m_effect_targets; }
+        void AddEffectTarget (uint64 targetGuid) { m_effect_targets.push_back(targetGuid); }
+        void RemoveEffectTarget (uint64 targetGuid) { m_effect_targets.remove(targetGuid); }
+        void ClearEffectTarget () { m_effect_targets.clear(); }
+        uint64 GetRndEffectTarget () { return Trinity::Containers::SelectRandomContainerElement(m_effect_targets); }
+        AuraEffect const* GetTriggeredAuraEff() const { return m_triggeredByAura; }
+
+        // Spell mod
+        void AddSpellModId (uint32 spellId) { m_spell_mods.push_back(spellId); }
+        std::list<uint32>* GetSpellMods() { return &m_spell_mods; }
 
         uint32 GetTargetCount() const { return m_UniqueTargetInfo.size(); }
+        std::list<TargetInfo>* GetUniqueTargetInfo() { return &m_UniqueTargetInfo; }
     protected:
         bool HasGlobalCooldown();
         void TriggerGlobalCooldown();
@@ -654,14 +683,14 @@ class Spell
         Unit* unitTarget;
         Item* itemTarget;
         GameObject* gameObjTarget;
-        WorldLocation* destTarget;
         int32 damage;
         bool damageCalculate[MAX_SPELL_EFFECTS];
         int32 saveDamageCalculate[MAX_SPELL_EFFECTS];
         SpellEffectHandleMode effectHandleMode;
         // used in effects handlers
         Aura* m_spellAura;
-        std::list<WorldObject*> m_effect_targets;
+        std::list<uint64> m_effect_targets;
+        std::list<uint32> m_spell_mods;
 
         // this is set in Spell Hit, but used in Apply Aura handler
         DiminishingLevels m_diminishLevel;
@@ -678,6 +707,8 @@ class Spell
         int32 m_absorb;           // Absorb
         int32 m_resist;           // Resist
         int32 m_blocked;          // Blocked
+        int32 m_addpower;         // if spell add power
+        int32 m_addptype;         // if spell add power
 
         // ******************************************
         // Spell trigger system
@@ -692,21 +723,9 @@ class Spell
         // *****************************************
         // Spell target subsystem
         // *****************************************
-        // Targets store structures and data
-        struct TargetInfo
-        {
-            ObjectGuid targetGUID;
-            uint64 timeDelay;
-            SpellMissInfo missCondition:8;
-            SpellMissInfo reflectResult:8;
-            uint32  effectMask:32;
-            bool   processed:1;
-            bool   alive:1;
-            bool   crit:1;
-            bool   scaleAura:1;
-            int32  damage;
-        };
         std::list<TargetInfo> m_UniqueTargetInfo;
+        std::list<TargetInfo> m_VisualHitTargetInfo;
+        TargetInfo* GetTargetInfo(uint64 targetGUID);
         uint32 m_channelTargetEffectMask;                        // Mask req. alive targets
 
         struct GOTargetInfo
@@ -731,6 +750,7 @@ class Spell
         void AddGOTarget(GameObject* target, uint32 effectMask);
         void AddItemTarget(Item* item, uint32 effectMask);
         void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
+        void AddTargetVisualHit(Unit* target);
         WorldLocation* GetDestTarget(uint32 effIndex) { return &m_destTargets[effIndex]._position; }
 
         void DoAllEffectOnTarget(TargetInfo* target);
@@ -762,8 +782,9 @@ class Spell
         void CallScriptBeforeHitHandlers();
         void CallScriptOnHitHandlers();
         void CallScriptAfterHitHandlers();
-        void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex);
+        void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, Targets targetId);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex);
+        void CustomTargetSelector(std::list<WorldObject*>& targets, SpellEffIndex effIndex, Targets targetId);
         std::list<SpellScript*> m_loadedScripts;
 
         struct HitTriggerSpell
@@ -789,12 +810,13 @@ class Spell
         uint32 m_spellState;
         int32 m_timer;
 
-        TriggerCastFlags _triggeredCastFlags;
+        uint32 _triggeredCastFlags;
 
         // if need this can be replaced by Aura copy
         // we can't store original aura link to prevent access to deleted auras
         // and in same time need aura data and after aura deleting.
         SpellInfo const* m_triggeredByAuraSpell;
+        AuraEffect const* m_triggeredByAura;
 
         bool m_skipCheck;
         uint32 m_spellMissMask;

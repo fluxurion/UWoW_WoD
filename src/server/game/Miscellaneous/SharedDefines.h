@@ -23,6 +23,12 @@
 #include "Define.h"
 #include <cassert>
 
+enum EncounterCreditType
+{
+    ENCOUNTER_CREDIT_KILL_CREATURE  = 0,
+    ENCOUNTER_CREDIT_CAST_SPELL     = 1,
+};
+
 #define MAX_CREATURE_BASE_HP 5
 
 enum SpellEffIndex
@@ -86,10 +92,10 @@ enum SpecIndex
     SPEC_PET_FEROCITY           = 74,
     SPEC_PET_TENACITY           = 81,
     SPEC_PET_CUNNING            = 79,
-    SPEC_DROOD_BALANCE          = 102,
-    SPEC_DROOD_CAT              = 103,
-    SPEC_DROOD_BEAR             = 104,
-    SPEC_DROOD_RESTORATION      = 105,
+    SPEC_DRUID_BALANCE          = 102,
+    SPEC_DRUID_CAT              = 103,
+    SPEC_DRUID_BEAR             = 104,
+    SPEC_DRUID_RESTORATION      = 105,
     SPEC_DK_BLOOD               = 250,
     SPEC_DK_FROST               = 251,
     SPEC_DK_UNHOLY              = 252,
@@ -515,7 +521,7 @@ enum SpellAttr3
     SPELL_ATTR3_CANT_TRIGGER_PROC                = 0x00010000, // 16 confirmed with many patchnotes
     SPELL_ATTR3_NO_INITIAL_AGGRO                 = 0x00020000, // 17 Soothe Animal, 39758, Mind Soothe
     SPELL_ATTR3_IGNORE_HIT_RESULT                = 0x00040000, // 18 Spell should always hit its target
-    SPELL_ATTR3_DISABLE_PROC                     = 0x00080000, // 19 during aura proc no spells can trigger (20178, 20375)
+    SPELL_ATTR3_DISABLE_PROC                     = 0x00080000, // 19 during aura proc no spells can trigger(неверно определенный атрибут к примеру 5.4.1 спелл 144899 должен прокать от 51124, который тригерится из 51128 с этим атрибутом)
     SPELL_ATTR3_DEATH_PERSISTENT                 = 0x00100000, // 20 Death persistent spells
     SPELL_ATTR3_UNK21                            = 0x00200000, // 21 unused
     SPELL_ATTR3_REQ_WAND                         = 0x00400000, // 22 Req wand
@@ -568,7 +574,7 @@ enum SpellAttr4
 
 enum SpellAttr5
 {
-    SPELL_ATTR5_UNK0                             = 0x00000001, //  0
+    SPELL_ATTR5_USABLE_WHILE_MOVING              = 0x00000001, //  0 usable while moving
     SPELL_ATTR5_NO_REAGENT_WHILE_PREP            = 0x00000002, //  1 not need reagents if UNIT_FLAG_PREPARATION
     SPELL_ATTR5_UNK2                             = 0x00000004, //  2
     SPELL_ATTR5_USABLE_WHILE_STUNNED             = 0x00000008, //  3 usable while stunned
@@ -583,7 +589,7 @@ enum SpellAttr5
     SPELL_ATTR5_UNK12                            = 0x00001000, // 12 Cleave related?
     SPELL_ATTR5_HASTE_AFFECT_TICK_AND_CASTTIME   = 0x00002000, // 13 haste effects decrease duration of this, amplitude modify
     SPELL_ATTR5_UNK14                            = 0x00004000, // 14
-    SPELL_ATTR5_UNK15                            = 0x00008000, // 15 Inflits on multiple targets?
+    SPELL_ATTR5_CANT_IMMUNITY_SPELL              = 0x00008000, // 15 Can`t mechanic immunity spell
     SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK         = 0x00010000, // 16 this allows spells with EquippedItemClass to affect spells from other items if the required item is equipped
     SPELL_ATTR5_USABLE_WHILE_FEARED              = 0x00020000, // 17 usable while feared
     SPELL_ATTR5_USABLE_WHILE_CONFUSED            = 0x00040000, // 18 usable while confused
@@ -621,7 +627,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK14                            = 0x00004000, // 14
     SPELL_ATTR6_UNK15                            = 0x00008000, // 15 only 54368, 67892
     SPELL_ATTR6_UNK16                            = 0x00010000, // 16
-    SPELL_ATTR6_UNK17                            = 0x00020000, // 17 Mount spell
+    SPELL_ATTR6_CANT_PROC                        = 0x00020000, // 17 Mount spell, Bonus loot, Quest
     SPELL_ATTR6_CAST_BY_CHARMER                  = 0x00040000, // 18 client won't allow to cast these spells when unit is not possessed && charmer of caster will be original caster
     SPELL_ATTR6_UNK19                            = 0x00080000, // 19 only 47488, 50782
     SPELL_ATTR6_ONLY_VISIBLE_TO_CASTER           = 0x00100000, // 20 Auras with this attribute are only visible to their caster (or pet's owner)
@@ -693,7 +699,7 @@ enum SpellAttr8
     SPELL_ATTR8_UNK14                            = 0x00004000, // 14
     SPELL_ATTR8_WATER_MOUNT                      = 0x00008000, // 15 only one River Boat used in Thousand Needles
     SPELL_ATTR8_UNK16                            = 0x00010000, // 16
-    SPELL_ATTR8_HASTE_AFFECT_DURATION            = 0x00020000, // 17 Modify duration on haste
+    SPELL_ATTR8_HASTE_AFFECT_DURATION_RECOVERY   = 0x00020000, // 17 Modify duration on haste
     SPELL_ATTR8_REMEMBER_SPELLS                  = 0x00040000, // 18 at some point in time, these auras remember spells and allow to cast them later
     SPELL_ATTR8_USE_COMBO_POINTS_ON_ANY_TARGET   = 0x00080000, // 19 allows to consume combo points from dead targets
     SPELL_ATTR8_ARMOR_SPECIALIZATION             = 0x00100000, // 20
@@ -735,7 +741,7 @@ enum SpellAttr9
     SPELL_ATTR9_UNK20                            = 0x00100000, // 20
     SPELL_ATTR9_UNK21                            = 0x00200000, // 21
     SPELL_ATTR9_UNK22                            = 0x00400000, // 22
-    SPELL_ATTR9_UNK23                            = 0x00800000, // 23
+    SPELL_ATTR9_UNK23                            = 0x00800000, // 23 Jump or Roll spell
     SPELL_ATTR9_UNK24                            = 0x01000000, // 24
     SPELL_ATTR9_UNK25                            = 0x02000000, // 25
     SPELL_ATTR9_UNK26                            = 0x04000000, // 26
@@ -762,7 +768,7 @@ enum SpellAttr10
     SPELL_ATTR10_HERB_GATHERING_MINING            = 0x00000800, // 11 Only Herb Gathering and Mining
     SPELL_ATTR10_UNK12                            = 0x00001000, // 12
     SPELL_ATTR10_UNK13                            = 0x00002000, // 13
-    SPELL_ATTR10_UNK14                            = 0x00004000, // 14
+    SPELL_ATTR10_STACK_DAMAGE_OR_HEAL             = 0x00004000, // 14 Stack damage(heal) from last damage(heal) by damage(heal) - (damage * tick left(may be time))
     SPELL_ATTR10_UNK15                            = 0x00008000, // 15
     SPELL_ATTR10_UNK16                            = 0x00010000, // 16
     SPELL_ATTR10_UNK17                            = 0x00020000, // 17
@@ -777,7 +783,7 @@ enum SpellAttr10
     SPELL_ATTR10_UNK26                            = 0x04000000, // 26
     SPELL_ATTR10_UNK27                            = 0x08000000, // 27
     SPELL_ATTR10_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR10_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR10_SOME_MOUNT                       = 0x20000000, // 29 some mount spell
     SPELL_ATTR10_UNK30                            = 0x40000000, // 30
     SPELL_ATTR10_UNK31                            = 0x80000000  // 31
 };
@@ -1257,7 +1263,7 @@ enum SpellEffects
     SPELL_EFFECT_210                                = 210,
     SPELL_EFFECT_211                                = 211,
     SPELL_EFFECT_212                                = 212,
-    SPELL_EFFECT_213                                = 213,
+    SPELL_EFFECT_JUMP_DEST2                         = 213,
     SPELL_EFFECT_214                                = 214,
     SPELL_EFFECT_215                                = 215,
     SPELL_EFFECT_216                                = 216,
@@ -2022,7 +2028,7 @@ enum Targets
     TARGET_UNK_117                     = 117, //not use
     TARGET_UNIT_FRIEND_OR_RAID         = 118,
     TARGET_MASS_RESSURECTION           = 119,
-    TARGET_UNIT_TARGET_SELECT          = 120,
+    TARGET_UNIT_TARGET_SELF            = 120,
     TARGET_UNIT_RESURRECT              = 121,
     TARGET_UNIT_TARGET_SELECT2         = 122,
     TARGET_UNIT_TARGET_PLAYER          = 123,
@@ -2045,25 +2051,25 @@ enum Targets
     TARGET_UNK_140                     = 140,
     TARGET_UNK_141                     = 141,
     TARGET_UNK_142                     = 142,
-    TARGET_UNK_143                     = 143,
+    TARGET_UNIT_CASTER_AREA_ENEMY      = 143,
     TOTAL_SPELL_TARGETS
 };
 
 enum SpellMissInfo
 {
-    SPELL_MISS_NONE                    = 0,
-    SPELL_MISS_MISS                    = 1,  // hitmask = 1
-    SPELL_MISS_RESIST                  = 2,  // hitmask = 2
-    SPELL_MISS_DODGE                   = 3,  // hitmask = 4
-    SPELL_MISS_PARRY                   = 4,  // hitmask = 8
-    SPELL_MISS_BLOCK                   = 5,  // hitmask = 16
-    SPELL_MISS_EVADE                   = 6,  // hitmask = 32
-    SPELL_MISS_IMMUNE                  = 7,  // hitmask = 64
-    SPELL_MISS_IMMUNE2                 = 8,  // one of these 2 is MISS_TEMPIMMUNE,  hitmask = 128
-    SPELL_MISS_DEFLECT                 = 9,  // hitmask = 256
-    SPELL_MISS_ABSORB                  = 10, // hitmask = 512
-    SPELL_MISS_REFLECT                 = 11, // hitmask = 1024
-    SPELL_MISS_MISFIRED                = 12, // hitmask = 2048
+    SPELL_MISS_NONE                    = 0,  // hitmask = 1
+    SPELL_MISS_MISS                    = 1,  // hitmask = 2
+    SPELL_MISS_RESIST                  = 2,  // hitmask = 4
+    SPELL_MISS_DODGE                   = 3,  // hitmask = 8
+    SPELL_MISS_PARRY                   = 4,  // hitmask = 16
+    SPELL_MISS_BLOCK                   = 5,  // hitmask = 32
+    SPELL_MISS_EVADE                   = 6,  // hitmask = 64
+    SPELL_MISS_IMMUNE                  = 7,  // hitmask = 128
+    SPELL_MISS_IMMUNE2                 = 8,  // one of these 2 is MISS_TEMPIMMUNE,  hitmask = 256
+    SPELL_MISS_DEFLECT                 = 9,  // hitmask = 512
+    SPELL_MISS_ABSORB                  = 10, // hitmask = 1024
+    SPELL_MISS_REFLECT                 = 11, // hitmask = 2048
+    SPELL_MISS_MISFIRED                = 12, // hitmask = 4096
 };
 
 enum SpellHitType
@@ -3694,8 +3700,8 @@ enum QuestTypes
     QUEST_TYPE_HEROIC              = 85,
     QUEST_TYPE_RAID_10             = 88,
     QUEST_TYPE_RAID_25             = 89,
-    QUEST_TYPE_SCENARIO            = 98, // New on MoP 5.0.5
-    QUEST_TYPE_ACCOUNT             = 102 // New on MoP 5.0.5
+    QUEST_TYPE_SCENARIO            = 98,
+    QUEST_TYPE_ACCOUNT             = 102
 };
 
 // values based at QuestSort.dbc
@@ -3983,7 +3989,7 @@ enum SkillType
     SKILL_NO_PLAYER				   = 999  // Last on DBC
 };
 
-#define MAX_SKILL_TYPE               825
+#define MAX_SKILL_TYPE               1000
 
 inline SkillType SkillByLockType(LockType locktype)
 {
@@ -4534,7 +4540,8 @@ enum SpellFamilyNames
     // 16 - unused
     SPELLFAMILY_PET         = 17,
     SPELLFAMILY_UNK3        = 50,
-    SPELLFAMILY_MONK        = 53
+    SPELLFAMILY_MONK        = 53,
+    SPELLFAMILY_PET_ABILITY = 57,
 };
 
 // stored in character_pet.slot
@@ -4544,18 +4551,11 @@ enum PetSlot
     PET_SLOT_FULL_LIST              =  -4,        //Used when there is no slot free for tameing
     PET_SLOT_UNK_SLOT               =  -3,        //Used in some scripts.
 
-    PET_SLOT_ACTUAL_PET_SLOT        =  -2,        //Save the pet in his actual slot.
-    PET_SLOT_DELETED                =  -1,        //Delete the pet
-
     //Hunter pet slots, sended to client at stable.
     PET_SLOT_HUNTER_FIRST           =   0,        //PetType == HUNTER_PET
     PET_SLOT_HUNTER_LAST            =   4,        //PetType == HUNTER_PET
     PET_SLOT_STABLE_FIRST           =   5,
     PET_SLOT_STABLE_LAST            =  55,
-    PET_SLOT_WARLOCK_PET_FIRST      =  0,
-    PET_SLOT_WARLOCK_PET_LAST       =  10,
-    PET_SLOT_STAMPED_FIRST          =  0,
-    PET_SLOT_STAMPED_LAST           =  10,
 
     //Non-hunter pet slot
     PET_SLOT_OTHER_PET              = 56,        // PetType != HUNTER_PET
@@ -4798,5 +4798,23 @@ enum ChallengeTimerType
     LE_WORLD_ELAPSED_TIMER_TYPE_PROVING_GROUND  = 0,
     LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE  = 1,
     LE_WORLD_ELAPSED_TIMER_TYPE_NONE            = 2
+};
+
+enum LossOfControlType
+{
+    LOC_POSSESS           = 1,
+    LOC_CONFUSE           = 2,
+    LOC_CHARM             = 3,
+    LOC_FEAR              = 4,
+    LOC_STUN              = 5,
+    LOC_PACIFY            = 6,
+    LOC_ROOT              = 7,
+    LOC_SILENCE           = 8,
+    LOC_PACIFYSILENCE     = 9,
+    LOC_DISARM            = 10,
+    LOC_SCHOOL_INTERRUPT  = 11,
+    LOC_STUN_MECHANIC     = 12,
+    LOC_FEAR_MECHANIC     = 13,
+    LOC_SILENCE_HARMFUL   = 14
 };
 #endif

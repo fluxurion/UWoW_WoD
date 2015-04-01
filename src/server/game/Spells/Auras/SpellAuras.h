@@ -22,6 +22,7 @@
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 #include "Unit.h"
+#include "Containers.h"
 
 class Unit;
 class SpellInfo;
@@ -82,7 +83,6 @@ class AuraApplication
         bool IsNeedClientUpdate() const { return _needClientUpdate;}
         void BuildUpdatePacket(ByteBuffer& data, bool remove, uint32 overrideAura = 0) const;
         void ClientUpdate(bool remove = false);
-        void SendFakeAuraUpdate(uint32 auraId, bool remove);
 };
 
 class Aura
@@ -100,6 +100,7 @@ class Aura
         void _InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount);
         virtual ~Aura();
         static uint32 CalculateEffMaskFromDummy(Unit* caster, WorldObject* target, uint32 effMask, SpellInfo const* spellproto);
+        void CalculateDurationFromDummy(int32 &duration);
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const{ return GetSpellInfo()->Id; }
@@ -115,6 +116,8 @@ class Aura
         ObjectGuid GetSpellDynamicObject() const { return m_spellDynObjGuid; }
         void SetSpellAreaTrigger(ObjectGuid areaTr) { m_spellAreaTrGuid = areaTr; }
         ObjectGuid GetSpellAreaTrigger() const { return m_spellAreaTrGuid; }
+        void SetTriggeredAuraEff(AuraEffect const* trigger) { m_triggeredByAura = trigger;}
+        AuraEffect const* GetTriggeredAuraEff() const { return m_triggeredByAura; }
 
         AuraObjectType GetType() const;
 
@@ -155,7 +158,12 @@ class Aura
 
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
+        void SetMaxStackAmount();
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+
+        //Position from spell
+        void SetDst(Position const* pos) { _position.Relocate(pos); }
+        Position const* GetDstPos() const { return &_position; }
 
         void RefreshSpellMods();
 
@@ -184,8 +192,14 @@ class Aura
         uint32 GetEffectMask() const { uint32 effMask = 0; for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i) if (m_effects[i]) effMask |= 1<<i; return effMask; }
         void RecalculateAmountOfEffects();
         void HandleAllEffects(AuraApplication * aurApp, uint8 mode, bool apply);
-        void SetEffectTargets (std::list<WorldObject*> targets) { m_effect_targets = targets; }
-        std::list<WorldObject*> GetEffectTargets() { return m_effect_targets; }
+
+        //Save list target for custom scripts work
+        void SetEffectTargets (std::list<uint64> targets) { m_effect_targets = targets; }
+        std::list<uint64> GetEffectTargets() { return m_effect_targets; }
+        void AddEffectTarget (uint64 targetGuid) { m_effect_targets.push_back(targetGuid); }
+        void RemoveEffectTarget (uint64 targetGuid) { m_effect_targets.remove(targetGuid); }
+        void ClearEffectTarget () { m_effect_targets.clear(); }
+        uint64 GetRndEffectTarget () { return Trinity::Containers::SelectRandomContainerElement(m_effect_targets); }
 
         // Helpers for targets
         ApplicationMap const & GetApplicationMap() {return m_applications;}
@@ -228,7 +242,7 @@ class Aura
         void CallScriptEffectUpdateHandlers(uint32 diff, AuraEffect* aurEff);
         void CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff);
         void CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated);
-        void CallScriptCalcMaxDurationHandlers(int32 & maxDuration);
+        void CallScriptCalcMaxDurationHandlers(int32& maxDuration);
         void CallScriptEffectChangeTickDamageHandlers(AuraEffect const* aurEff, int32 & amount, Unit* target);
         void CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool & isPeriodic, int32 & amplitude);
         void CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier* & spellMod);
@@ -248,6 +262,7 @@ class Aura
 
         std::list<AuraScript*> m_loadedScripts;
         int32 m_aura_amount;
+        Position _position;
 
         void SetFromAreaTrigger(bool set) { m_fromAreatrigger = set; }
     private:
@@ -260,6 +275,7 @@ class Aura
         WorldObject* m_owner;
         ObjectGuid m_spellDynObjGuid;
         ObjectGuid m_spellAreaTrGuid;
+        AuraEffect const* m_triggeredByAura;
 
         int32 m_maxDuration;                                // Max aura duration
         int32 m_duration;                                   // Current time
@@ -274,7 +290,7 @@ class Aura
 
         AuraEffect* m_effects[MAX_SPELL_EFFECTS];
         ApplicationMap m_applications;
-        std::list<WorldObject*> m_effect_targets;
+        std::list<uint64> m_effect_targets;
 
         bool m_isRemoved:1;
         bool m_isSingleTarget:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example

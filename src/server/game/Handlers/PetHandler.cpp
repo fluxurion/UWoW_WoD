@@ -290,7 +290,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     {
                         ASSERT(pet->GetTypeId() == TYPEID_UNIT);
                         if (pet->isPet())
-                            GetPlayer()->RemovePet((Pet*)pet, PET_SLOT_DELETED);
+                            GetPlayer()->RemovePet((Pet*)pet);
                         else if (pet->HasUnitTypeMask(UNIT_MASK_MINION))
                         {
                             ((Minion*)pet)->UnSummon();
@@ -318,12 +318,15 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             {
                 case REACT_PASSIVE:                         //passive
                     pet->AttackStop();
+                    //pet->GetMotionMaster()->Clear();
+                    pet->GetMotionMaster()->MoveFollow(_player, PET_FOLLOW_DIST, pet->GetFollowAngle());
+                    charmInfo->SetIsReturning(true);
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_HELPER:
+                case REACT_AGGRESSIVE:
                     if (pet->GetTypeId() == TYPEID_UNIT)
                         pet->ToCreature()->SetReactState(ReactStates(spellid));
                     break;
-                case REACT_AGGRESSIVE:                      //There is no on MOP
                 default:
                     break;
             }
@@ -607,7 +610,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
         //return;
     }
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position, spell_id, uint32(act_state));
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X HasSpell %i", _player->GetName(), position, spell_id, uint32(act_state), pet->HasSpell(spell_id));
 
     //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
     if (!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
@@ -617,7 +620,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
             //sign for autocast
             if (act_state == ACT_ENABLED)
             {
-                if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
+                if (pet->GetCharmInfo())
                     ((Pet*)pet)->ToggleAutocast(spellInfo, true);
                 else
                     for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
@@ -627,7 +630,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
             //sign for no/turn off autocast
             else if (act_state == ACT_DISABLED)
             {
-                if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
+                if (pet->GetCharmInfo())
                     ((Pet*)pet)->ToggleAutocast(spellInfo, false);
                 else
                     for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
@@ -645,14 +648,13 @@ void WorldSession::HandlePetRename(WorldPacket & recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetRename. CMSG_PET_RENAME");
 
-    uint32 data;
+    uint32 petnumber;
     uint8 isdeclined;
 
     std::string name;
     DeclinedName declinedname;
 
-    recvData >> data;
-    uint32 petnumber = data >> 8;
+    recvData >> petnumber;
 
     bool namepart = !recvData.ReadBit();
     isdeclined  = recvData.ReadBit();
@@ -661,6 +663,7 @@ void WorldSession::HandlePetRename(WorldPacket & recvData)
     if (!pet)
     {
         recvData.rfinish();
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetRename pet not found");
         return;
     }
                                                             // check it!
@@ -669,12 +672,14 @@ void WorldSession::HandlePetRename(WorldPacket & recvData)
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
     {
         recvData.rfinish();
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetRename error pet");
         return;
     }
 
     if (pet->GetCharmInfo()->GetPetNumber() != petnumber)
     {
         recvData.rfinish();
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetRename petnumber not correct");
         return;
     }
 
@@ -698,6 +703,7 @@ void WorldSession::HandlePetRename(WorldPacket & recvData)
         {
             SendPetNameInvalid(res, name, NULL);
             recvData.rfinish();
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetRename CheckPetName res %i", res);
             return;
         }
 
@@ -784,7 +790,7 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
     {
         if (pet->isPet())
         {
-            _player->RemovePet((Pet*)pet, PET_SLOT_DELETED);
+            _player->RemovePet((Pet*)pet, true);
             _player->GetSession()->SendStablePet(ObjectGuid::Empty);
         }
         else if (pet->GetGUID() == _player->GetCharmGUID())
@@ -1181,7 +1187,10 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     caster->ClearUnitState(UNIT_STATE_FOLLOW);
 
-    Spell* spell = new Spell(caster, spellInfo, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
+    uint32 triggeredCastFlags = triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE;
+    triggeredCastFlags &= ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST;
+
+    Spell* spell = new Spell(caster, spellInfo, TriggerCastFlags(triggeredCastFlags));
     spell->m_cast_count = castCount;                    // probably pending spell cast
     spell->m_targets = targets;
 

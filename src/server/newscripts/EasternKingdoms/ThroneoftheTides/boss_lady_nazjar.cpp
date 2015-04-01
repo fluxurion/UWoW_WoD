@@ -41,6 +41,8 @@ enum Spells
     SPELL_LIGHTNING_SURGE       = 75992,
     SPELL_LIGHTNING_SURGE_DMG   = 75993,
     SPELL_LIGHTNING_SURGE_DMG_H = 91451,
+    
+    SPELL_ACHIEV_CREDIT         = 94042,
 };
 
 enum Events
@@ -68,8 +70,8 @@ enum Adds
     NPC_TEMPEST_WITCH       = 44404,
     NPC_HONNOR_GUARD        = 40633,
     NPC_WATERSPOUT          = 48571,
-	NPC_WATERSPOUT_H        = 49108,
-	NPC_GEYSER              = 40597,
+    NPC_WATERSPOUT_H        = 49108,
+    NPC_GEYSER              = 40597,
 };
 
 const Position summonPos[3] =
@@ -88,7 +90,7 @@ class boss_lady_nazjar : public CreatureScript
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
-            return GetAIForInstance< boss_lady_nazjarAI >(pCreature, TotTScriptName);
+            return GetInstanceAI<boss_lady_nazjarAI>(pCreature);
         }
 
         struct boss_lady_nazjarAI : public BossAI
@@ -144,8 +146,8 @@ class boss_lady_nazjar : public CreatureScript
                     if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_SHOCK_BLAST
                         || me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_SHOCK_BLAST_H)
                         for (uint8 i = 0; i < 3; ++i)
-						    if (spell->Effects[i].Effect == SPELL_EFFECT_INTERRUPT_CAST)
-							    me->InterruptSpell(CURRENT_GENERIC_SPELL);
+                            if (spell->Effects[i].Effect == SPELL_EFFECT_INTERRUPT_CAST)
+                                me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
             void JustSummoned(Creature* summon)
@@ -333,10 +335,12 @@ class npc_lady_nazjar_honnor_guard : public CreatureScript
         {
             npc_lady_nazjar_honnor_guardAI(Creature* creature) : ScriptedAI(creature)
             {
+                instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
             }
 
             EventMap events;
+            InstanceScript* instance;
             bool bEnrage;
 
             void Reset()
@@ -378,6 +382,13 @@ class npc_lady_nazjar_honnor_guard : public CreatureScript
                 }
                 DoMeleeAttackIfReady();                
             }
+
+            void JustDied(Unit* killer)
+            {
+                if (instance)
+                    if (killer && killer->GetTypeId() == TYPEID_UNIT && killer->GetEntry() == NPC_GEYSER)
+                        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEV_CREDIT, 0, me);
+            }
         };
 };
 
@@ -395,10 +406,12 @@ class npc_lady_nazjar_tempest_witch : public CreatureScript
         {
             npc_lady_nazjar_tempest_witchAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
+                instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
             }
 
             EventMap events;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -435,6 +448,13 @@ class npc_lady_nazjar_tempest_witch : public CreatureScript
                         break;
                     }
                 }
+            }
+            
+            void JustDied(Unit* killer)
+            {
+                if (instance)
+                    if (killer && killer->GetTypeId() == TYPEID_UNIT && killer->GetEntry() == NPC_GEYSER)
+                        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEV_CREDIT, 0, me); 
             }
         };
 };
@@ -495,7 +515,7 @@ class npc_lady_nazjar_geyser : public CreatureScript
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
-            return new npc_lady_nazjar_geyserAI (pCreature);
+            return GetInstanceAI<npc_lady_nazjar_geyserAI>(pCreature);
         }
 
         struct npc_lady_nazjar_geyserAI : public Scripted_NoMovementAI

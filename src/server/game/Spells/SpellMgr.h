@@ -97,6 +97,7 @@ enum SpellLinkedType
     SPELL_LINK_ON_HIT       = 1 * 200000,
     SPELL_LINK_AURA         = 2 * 200000,   // +: aura; -: immune
     SPELL_LINK_BEFORE_HIT   = 3 * 200000,
+    SPELL_LINK_AURA_HIT     = 4 * 200000,
     SPELL_LINK_REMOVE       = 0,
 };
 
@@ -109,7 +110,7 @@ enum SpellTriggeredType
     SPELL_TRIGGER_COOLDOWN                      = 4,            // Set cooldown for trigger spell
     SPELL_TRIGGER_UPDATE_DUR                    = 5,            // Update duration for select spell
     SPELL_TRIGGER_GET_DUR_AURA                  = 6,            // Get duration from select aura to cast bp
-    SPELL_TRIGGER_NEED_COMBOPOINTS              = 7,            // Proc from spell that need compopoiunts
+    SPELL_TRIGGER_COMBOPOINTS_TO_CHANCE         = 7,            // Proc from spell that need compopoiunts
     SPELL_TRIGGER_UPDATE_DUR_TO_MAX             = 8,            // Update duration for select spell to max duration
     SPELL_TRIGGER_PERC_FROM_DAMGE               = 9,            // Percent from damage
     SPELL_TRIGGER_PERC_MAX_MANA                 = 10,           // Percent from max mana
@@ -134,6 +135,11 @@ enum SpellTriggeredType
     SPELL_TRIGGER_COMBOPOINT_BP                 = 29,           // set basepoint to bp * combopoints
     SPELL_TRIGGER_DAM_PERC_FROM_MAX_HP          = 30,           // set basepoint to (damage / max hp) * 100
     SPELL_TRIGGER_SUMM_DAMAGE_PROC              = 31,           // summ damage in amount, proc if damage > bp0(1,2) * SPD(SPDH,AP)
+    SPELL_TRIGGER_ADDPOWER_PCT                  = 32,           // set basepoint to spell add power percent from aura amount
+    SPELL_TRIGGER_ADD_ABSORB_PCT                = 33,           // set basepoint from absorb percent
+    SPELL_TRIGGER_ADD_BLOCK_PCT                 = 34,           // set basepoint from block percent
+    SPELL_TRIGGER_NEED_COMBOPOINTS              = 35,           // Proc from spell that need compopoiunts
+    SPELL_TRIGGER_HOLYPOWER_BONUS               = 36,           // Holypower bonus
 };
 
 enum SpellAuraDummyType
@@ -143,6 +149,35 @@ enum SpellAuraDummyType
     SPELL_DUMMY_ADD_VALUE                       = 2,            // add value to amount
     SPELL_DUMMY_ADD_ATTRIBUTE                   = 3,            // add attribute to spell value
     SPELL_DUMMY_MOD_EFFECT_MASK                 = 4,            // Modify effect mask for add aura
+    SPELL_DUMMY_CRIT_RESET                      = 5,            // reset or not crit chance
+    SPELL_DUMMY_CRIT_ADD_PERC                   = 6,            // add percent to crit
+    SPELL_DUMMY_CRIT_ADD_VALUE                  = 7,            // add value to crit
+    SPELL_DUMMY_ADD_PERC_BP                     = 8,            // add percent(bp / 100) to amount
+    SPELL_DUMMY_DAMAGE_ADD_PERC                 = 9,            // add percent to damage
+    SPELL_DUMMY_DAMAGE_ADD_VALUE                = 10,           // add value to damage
+    SPELL_DUMMY_DURATION_ADD_PERC               = 11,           // add percent to duration
+    SPELL_DUMMY_DURATION_ADD_VALUE              = 12,           // add value to duration
+    SPELL_DUMMY_CASTTIME_ADD_PERC               = 13,           // add percent to castTime
+    SPELL_DUMMY_CASTTIME_ADD_VALUE              = 14,           // add value to castTime
+};
+
+enum SpellTargetFilterType
+{
+    SPELL_FILTER_SORT_BY_HEALT                  = 0,            // Sort target by healh
+    SPELL_FILTER_BY_AURA                        = 1,            // Remove target by aura
+    SPELL_FILTER_BY_DISTANCE                    = 2,            // Check distance
+    SPELL_FILTER_TARGET_TYPE                    = 3,            // Check target rype
+    SPELL_FILTER_SORT_BY_DISTANCE               = 4,            // Sort by distance
+    SPELL_FILTER_TARGET_FRIENDLY                = 5,            // Check Friendly
+    SPELL_FILTER_TARGET_IN_RAID                 = 6,            // Check Raid
+    SPELL_FILTER_TARGET_IN_PARTY                = 7,            // Check Party
+    SPELL_FILTER_TARGET_EXPL_TARGET             = 8,            // Select explicit target
+    SPELL_FILTER_TARGET_EXPL_TARGET_REMOVE      = 9,            // Select explicit target remove
+    SPELL_FILTER_TARGET_IN_LOS                  = 10,           // Select target in los
+    SPELL_FILTER_TARGET_IS_IN_BETWEEN           = 11,           // Select target is in between
+    SPELL_FILTER_TARGET_IS_IN_BETWEEN_SHIFT     = 12,           // Select target is in between and shift
+    SPELL_FILTER_BY_AURA_OR                     = 13,           // Remove target by any aura
+    SPELL_FILTER_BY_ENTRY                       = 14,           // Remove target by any entry
 };
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
@@ -153,28 +188,28 @@ enum ProcFlags
     PROC_FLAG_KILLED                          = 0x00000001,    // 00 Killed by agressor - not sure about this flag
     PROC_FLAG_KILL                            = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
 
-    PROC_FLAG_DONE_MELEE_AUTO_ATTACK          = 0x00000004,    // 02 Done melee auto attack
-    PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK         = 0x00000008,    // 03 Taken melee auto attack
+    PROC_FLAG_DONE_MELEE_AUTO_ATTACK          = 0x00000004,    // 02 Done melee auto attack(on hit)
+    PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK         = 0x00000008,    // 03 Taken melee auto attack(on hit)
 
-    PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS      = 0x00000010,    // 04 Done attack by Spell that has dmg class melee
-    PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS     = 0x00000020,    // 05 Taken attack by Spell that has dmg class melee
+    PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS      = 0x00000010,    // 04 Done attack by Spell that has dmg class melee(on hit)
+    PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS     = 0x00000020,    // 05 Taken attack by Spell that has dmg class melee(on hit)
 
-    PROC_FLAG_DONE_RANGED_AUTO_ATTACK         = 0x00000040,    // 06 Done ranged auto attack
-    PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK        = 0x00000080,    // 07 Taken ranged auto attack
+    PROC_FLAG_DONE_RANGED_AUTO_ATTACK         = 0x00000040,    // 06 Done ranged auto attack(on hit)
+    PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK        = 0x00000080,    // 07 Taken ranged auto attack(on hit)
 
-    PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS     = 0x00000100,    // 08 Done attack by Spell that has dmg class ranged
-    PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS    = 0x00000200,    // 09 Taken attack by Spell that has dmg class ranged
+    PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS     = 0x00000100,    // 08 Done attack by Spell that has dmg class ranged(after cast if charges and hit of not)
+    PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS    = 0x00000200,    // 09 Taken attack by Spell that has dmg class ranged(on hit)
 
-    PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS   = 0x00000400,    // 10 Done positive spell that has dmg class none
-    PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS  = 0x00000800,    // 11 Taken positive spell that has dmg class none
+    PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS   = 0x00000400,    // 10 Done positive spell that has dmg class none(after cast)
+    PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS  = 0x00000800,    // 11 Taken positive spell that has dmg class none(on hit)
 
-    PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG   = 0x00001000,    // 12 Done negative spell that has dmg class none
+    PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG   = 0x00001000,    // 12 Done negative spell that has dmg class none(after cast)
     PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG  = 0x00002000,    // 13 Taken negative spell that has dmg class none
 
-    PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS  = 0x00004000,    // 14 Done positive spell that has dmg class magic
+    PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS  = 0x00004000,    // 14 Done positive spell that has dmg class magic(after cast if charges and hit of not)
     PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS = 0x00008000,    // 15 Taken positive spell that has dmg class magic
 
-    PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG  = 0x00010000,    // 16 Done negative spell that has dmg class magic
+    PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG  = 0x00010000,    // 16 Done negative spell that has dmg class magic(after cast if charges and hit of not)
     PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG = 0x00020000,    // 17 Taken negative spell that has dmg class magic
 
     PROC_FLAG_DONE_PERIODIC                   = 0x00040000,    // 18 Successful do periodic (damage / healing)
@@ -188,16 +223,16 @@ enum ProcFlags
 
     PROC_FLAG_DEATH                           = 0x01000000,    // 24 Died in any way
 
-    PROC_FLAG_DONE_PET_SPELL_MELEE_DMG_CLASS  = 0x02000000,    // 25 Done attack by Spell by pet that has dmg class melee
-    PROC_FLAG_TAKEN_PET_SPELL_MELEE_DMG_CLASS = 0x04000000,    // 26 Taken attack by Spell by pet that has dmg class melee
+    PROC_FLAG_ON_JUMP                         = 0x02000000,    // 25 When jump
+    PROC_FLAG_TEST_PROC                       = 0x04000000,    // 26 Test proc
 
-    PROC_FLAG_SUM_PET                         = 0x08000000,    // 27 Summon pet
+    PROC_FLAG_TEST_PROC1                      = 0x08000000,    // 27 Test proc
 
-    PROC_FLAG_DONE_DISPEL_SPELL               = 0x10000000,    // 28 Done dispel spell
-    PROC_FLAG_TAKEN_DISPEL_SPELL              = 0x20000000,    // 29 Taken dispel spell
+    PROC_FLAG_TEST_PROC2                      = 0x10000000,    // 28 Test proc
+    PROC_FLAG_DONE_SPELL_MAGIC_DMG_POS_NEG    = 0x20000000,    // 29 Alway take charges(or stack) and not amount modify by stack, proc flags 10|14|16
 
-    PROC_FLAG_GET_COMBOPOINTS                 = 0x40000000,    // 30 Get need ComboPoints
-    PROC_FLAG_ADD_COMBOPOINTS                 = 0x80000000,    // 31 Add ComboPoints
+    PROC_FLAG_TEST_PROC4                      = 0x40000000,    // 30 Test proc
+    PROC_FLAG_TEST_PROC5                      = 0x80000000,    // 31 Test proc
 
     // flag masks
     AUTO_ATTACK_PROC_FLAG_MASK                = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK
@@ -215,7 +250,8 @@ enum ProcFlags
                                                 | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS
                                                 | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG
                                                 | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS
-                                                | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG,
+                                                | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG
+                                                | PROC_FLAG_DONE_SPELL_MAGIC_DMG_POS_NEG,
 
     SPELL_CAST_PROC_FLAG_MASK                  = SPELL_PROC_FLAG_MASK | PROC_FLAG_DONE_TRAP_ACTIVATION | RANGED_PROC_FLAG_MASK,
 
@@ -225,7 +261,8 @@ enum ProcFlags
                                                  | PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS
                                                  | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG
                                                  | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG
-                                                 | PROC_FLAG_DONE_PERIODIC | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK,
+                                                 | PROC_FLAG_DONE_PERIODIC | PROC_FLAG_DONE_MAINHAND_ATTACK | PROC_FLAG_DONE_OFFHAND_ATTACK
+                                                 | PROC_FLAG_DONE_SPELL_MAGIC_DMG_POS_NEG,
 
     TAKEN_HIT_PROC_FLAG_MASK                   = PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK
                                                  | PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS | PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS
@@ -234,6 +271,8 @@ enum ProcFlags
                                                  | PROC_FLAG_TAKEN_PERIODIC | PROC_FLAG_TAKEN_DAMAGE,
 
     REQ_SPELL_PHASE_PROC_FLAG_MASK             = SPELL_PROC_FLAG_MASK & DONE_HIT_PROC_FLAG_MASK,
+
+    SPELL_PROC_FROM_CAST_MASK                  = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS,
 };
 
 #define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_DONE_MELEE_AUTO_ATTACK      | \
@@ -262,7 +301,7 @@ enum ProcFlagsExLegacy
     PROC_EX_REFLECT             = 0x0000800,
     PROC_EX_INTERRUPT           = 0x0001000,                 // Melee hit result can be Interrupt (not used)
     PROC_EX_FULL_BLOCK          = 0x0002000,                 // block al attack damage
-    PROC_EX_RESERVED2           = 0x0004000,
+    PROC_EX_ON_CAST             = 0x0004000,
     PROC_EX_NOT_ACTIVE_SPELL    = 0x0008000,                 // Spell mustn't do damage/heal to proc
     PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always no matter of hit result
     PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time
@@ -507,6 +546,8 @@ struct PetAura
     float bp2;
     int32 aura;
     int32 casteraura;
+    int32 createdspell;
+    int32 fromspell;
 };
 
 typedef UNORDERED_MAP<int32, std::vector<PetAura> > SpellPetAuraMap;
@@ -612,6 +653,7 @@ struct SpellLinked
     int32 type2;
     uint32 hitmask;
     int32 learnspell;
+    int32 removeMask;
 };
 
 struct SpellTalentLinked
@@ -639,6 +681,8 @@ struct SpellPrcoCheck
     int32 fromlevel;
     int32 perchp;
     int32 spelltypeMask;
+    int32 combopoints;
+    int32 deathstateMask;
 };
 
 struct SpellTriggered
@@ -658,7 +702,10 @@ struct SpellTriggered
     int32 chance;
     int32 group;
     int32 procFlags;
+    int32 procEx;
     int32 check_spell_id;
+    int32 addptype;
+    int32 schoolMask;
 };
 
 struct SpellMountList
@@ -702,23 +749,61 @@ struct SpellAuraDummy
     int32 chance;
     int32 attr;
     int32 attrValue;
+    float custombp;
+};
+
+struct SpellTargetFilter
+{
+    int32 spellId;
+    int32 targetId;
+    int32 option;
+    int32 param1;
+    int32 param2;
+    int32 param3;
+    int32 aura;
+    int32 chance;
+    int32 effectMask;
+    int32 resizeType;
+    int32 count;
+    int32 maxcount;
+    int32 addcount;
+    int32 addcaster;
+};
+
+struct SpellScene
+{
+    int32 ScenePackageId;
+    int32 MiscValue;
+    bool hasO;
+    int32 SceneInstanceID;
+    int32 PlaybackFlags;
+    bool bit16;
+    float x;
+    float y;
+    float z;
+    float o;
+    int32 transport;
 };
 
 typedef std::map<int32, std::vector<SpellTriggered> > SpellTriggeredMap;
 typedef std::map<int32, std::vector<SpellTriggered> > SpellTriggeredDummyMap;
 typedef std::map<int32, std::vector<SpellAuraDummy> > SpellAuraDummyMap;
+typedef std::map<int32, std::vector<SpellTargetFilter> > SpellTargetFilterMap;
 typedef std::map<int32, std::vector<SpellLinked> > SpellLinkedMap;
 typedef std::map<int32, std::vector<SpellTalentLinked> > SpellTalentLinkedMap;
 typedef std::map<int32, std::vector<SpellPrcoCheck> > SpellPrcoCheckMap;
 typedef std::map<int32, std::vector<SpellVisual> > SpellVisualMap;
 typedef std::map<int32, std::vector<SpellPendingCast> > SpellPendingCastMap;
 typedef std::map<int32, SpellMountList* > SpellMountListMap;
+typedef std::map<int32, std::vector<SpellScene> > SpellSceneMap;
 
 bool IsPrimaryProfessionSkill(uint32 skill);
 
 inline bool IsProfessionSkill(uint32 skill)
 {
-    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID || skill == SKILL_ARCHAEOLOGY;
+    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID || skill == SKILL_ARCHAEOLOGY ||
+            skill == SKILL_WAY_OF_GRILL || skill == SKILL_WAY_OF_WOK || skill == SKILL_WAY_OF_POT || skill == SKILL_WAY_OF_STEAMER ||
+            skill == SKILL_WAY_OF_OVEN || skill == SKILL_WAY_OF_BREW;
 }
 
 inline bool IsProfessionOrRidingSkill(uint32 skill)
@@ -734,6 +819,8 @@ DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
 DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
 int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto);
 bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
+
+bool IsCCSpell(SpellInfo const *spellInfo, uint8 EffMask= 0, bool nodamage = false);
 
 typedef std::vector<std::set<uint32> > SpellClassList;
 typedef std::map<uint32, std::list<uint32> > SpellOverrideInfo;
@@ -831,8 +918,10 @@ class SpellMgr
         const std::vector<SpellTriggered> *GetSpellTriggered(int32 spell_id) const;
         const std::vector<SpellTriggered> *GetSpellTriggeredDummy(int32 spell_id) const;
         const std::vector<SpellAuraDummy> *GetSpellAuraDummy(int32 spell_id) const;
+        const std::vector<SpellTargetFilter> *GetSpellTargetFilter(int32 spell_id) const;
         const std::vector<SpellVisual> *GetSpellVisual(int32 spell_id) const;
         const std::vector<SpellPendingCast> *GetSpellPendingCast(int32 spell_id) const;
+        const std::vector<SpellScene> *GetSpellScene(int32 miscValue) const;
 
         PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const;
         PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const;
@@ -891,6 +980,7 @@ class SpellMgr
         void LoadForbiddenSpells();
         void LoadSpellVisual();
         void LoadSpellPendingCast();
+        void LoadSpellScene();
 
         std::vector<uint32>        mSpellCreateItemList;
 
@@ -916,6 +1006,7 @@ class SpellMgr
         SpellTriggeredMap          mSpellTriggeredMap;
         SpellTriggeredDummyMap     mSpellTriggeredDummyMap;
         SpellAuraDummyMap          mSpellAuraDummyMap;
+        SpellTargetFilterMap       mSpellTargetFilterMap;
         SpellEnchantProcEventMap   mSpellEnchantProcEventMap;
         EnchantCustomAttribute     mEnchantCustomAttr;
         SpellAreaMap               mSpellAreaMap;
@@ -936,6 +1027,7 @@ class SpellMgr
         SpellVisualMap             mSpellVisualMap;
         SpellPendingCastMap        mSpellPendingCastMap;
         std::list<uint32>          mForbiddenSpells;
+        SpellSceneMap              mSpellSceneMap;
 };
 
 #define sSpellMgr SpellMgr::instance()

@@ -86,7 +86,7 @@ void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet)
     }
 
     //this is spirit release confirm?
-    GetPlayer()->RemovePet(NULL, PET_SLOT_ACTUAL_PET_SLOT, true);
+    GetPlayer()->RemovePet(NULL);
     GetPlayer()->BuildPlayerRepop();
     GetPlayer()->RepopAtGraveyard();
 }
@@ -2044,3 +2044,208 @@ void WorldSession::HandleForcedReactions(WorldPacket& recvPacket)
 {
     _player->GetReputationMgr().SendForceReactions();
 }
+
+// WarGames
+
+void WorldSession::HandleWarGameStart(WorldPacket& recvPacket)
+{
+    ObjectGuid guid, guid2;
+    recvPacket.ReadGuidMask<6, 5, 2>(guid2);
+    recvPacket.ReadGuidMask<3>(guid);
+    recvPacket.ReadGuidMask<1>(guid2);
+    recvPacket.ReadGuidMask<1, 7>(guid);
+    recvPacket.ReadGuidMask<0, 4, 3>(guid2);
+    recvPacket.ReadGuidMask<6>(guid);
+    recvPacket.ReadGuidMask<7>(guid2);
+    recvPacket.ReadGuidMask<4, 2, 5, 0>(guid);
+
+    recvPacket.ReadGuidBytes<4>(guid);
+    recvPacket.ReadGuidBytes<3>(guid2);
+    recvPacket.ReadGuidBytes<2>(guid);
+    recvPacket.ReadGuidBytes<1>(guid2);
+    recvPacket.ReadGuidBytes<5>(guid);
+    recvPacket.ReadGuidBytes<5>(guid2);
+    recvPacket.ReadGuidBytes<7, 3>(guid);
+    recvPacket.ReadGuidBytes<7>(guid2);
+    recvPacket.ReadGuidBytes<1>(guid);
+    recvPacket.ReadGuidBytes<6>(guid2);
+    recvPacket.ReadGuidBytes<6>(guid);
+    recvPacket.ReadGuidBytes<0, 2>(guid2);
+    recvPacket.ReadGuidBytes<0>(guid);
+    recvPacket.ReadGuidBytes<4>(guid2);
+}
+
+void WorldSession::HandleWarGameAccept(WorldPacket& recvPacket)
+{
+    ObjectGuid guid, guid2;
+
+    recvPacket.ReadGuidMask<4>(guid);
+    recvPacket.ReadGuidMask<7>(guid2);
+    recvPacket.ReadGuidMask<3>(guid);
+    recvPacket.ReadGuidMask<5, 3>(guid2);
+    recvPacket.ReadGuidMask<6>(guid);
+    recvPacket.ReadGuidMask<4, 2>(guid2);
+    recvPacket.ReadGuidMask<2, 5, 7>(guid);
+    recvPacket.ReadGuidMask<0>(guid2);
+    bool accept = recvPacket.ReadBit();
+    recvPacket.ReadGuidMask<1, 0>(guid);
+    recvPacket.ReadGuidMask<6, 1>(guid2);
+
+    recvPacket.ReadGuidBytes<4>(guid2);
+    recvPacket.ReadGuidBytes<3>(guid);
+    recvPacket.ReadGuidBytes<1, 2>(guid2);
+    recvPacket.ReadGuidBytes<4>(guid);
+    recvPacket.ReadGuidBytes<5>(guid2);
+    recvPacket.ReadGuidBytes<7>(guid);
+    recvPacket.ReadGuidBytes<7>(guid2);
+    recvPacket.ReadGuidBytes<1>(guid);
+    recvPacket.ReadGuidBytes<0, 3, 6>(guid2);
+    recvPacket.ReadGuidBytes<2, 5, 0, 6>(guid);
+
+    // if (accept)
+    //
+}
+
+// SMSG_WARGAME_CHECK_ENTRY - maybe sent to other party leader after accept? need data of Cata implementations
+/*{
+    ObjectGuid guid, guid2;
+    WorldPacket data(SMSG_WARGAME_CHECK_ENTRY);
+
+    data.WriteGuidMask<3, 4>(guid);
+    data.WriteGuidMask<0>(guid2);
+    data.WriteGuidMask<1>(guid);
+    data.WriteGuidMask<5, 1, 7, 4, 2>(guid2);
+    data.WriteGuidMask<0>(guid);
+    data.WriteGuidMask<6>(guid2);
+    data.WriteGuidMask<2, 7>(guid);
+    data.WriteGuidMask<3>(guid2);
+    data.WriteGuidMask<6, 5>(guid);
+
+    data << uint32(0); 
+
+    data.WriteGuidBytes<2, 7, 5>(guid);
+    data.WriteGuidBytes<7, 5>(guid2);
+    data.WriteGuidBytes<6, 4>(guid);
+    data.WriteGuidBytes<6, 2, 0>(guid2);
+    data.WriteGuidBytes<1, 3>(guid);
+    data.WriteGuidBytes<4, 3>(guid2);
+    data.WriteGuidBytes<0>(guid);
+    data.WriteGuidBytes<1>(guid2);
+}*/
+
+// SMSG_WARGAME_REQUEST_SENT - maybe sent to initiator if wargame request sucessfully sended to other party leader
+/*{
+    // public ulong Opponent
+    ObjectGuid guid;
+    WorldPacket data(SMSG_WARGAME_REQUEST_SENT);
+
+    data.WriteGuidMask<0, 6, 7, 2, 4, 3, 1, 5>(guid);
+    data.WriteGuidBytes<0, 2, 1, 6, 3, 7, 5, 4>(guid);
+}*/
+
+// Loss of Control
+
+/*SMSG_ADD_LOSS_OF_CONTROL - added LossOfControl frame
+{
+    WorldPacket data(SMSG_ADD_LOSS_OF_CONTROL);
+    ObjectGuid guid;          // CasterGUID
+    data.WriteBits(x, 8);     // Mechanic
+    data.WriteBits(x, 8);     // Type (interrupt or some other)
+    data.WriteGuidMask<2, 1, 4, 3, 5, 6, 7, 0>(guid);
+    data.WriteGuidBytes<3, 1, 4>(guid);
+    data << uint32(x);        // RemainingDuration (контролирует блокировку баров, скажем если duration = 40000, а это число 10000, то как только останется 10 секунд, на барах пойдет прокрутка, иначе просто затеменено)
+    data << uint32(x);        // Duration (время действия)
+    data.WriteGuidBytes<0>(guid);
+    data << uint32(val4);     // SpellID
+    data.WriteGuidBytes<2, 5, 6, 7>(guid);
+    data << uint32(val5);     // SchoolMask (для type == interrupt and other)
+}
+
+SMSG_REMOVE_LOSS_OF_CONTROL
+{
+    WorldPacket data(SMSG_REMOVE_LOSS_OF_CONTROL);
+    ObjectGuid guid;
+    data.WriteGuidMask<1, 7, 0, 6, 2, 4, 5>(guid);
+    data.WriteBits(x, 8); // Type
+    data.WriteGuidMask<3>(guid);
+    data.WriteGuidBytes<1, 0, 4, 6, 7>(guid);
+    data << uint32(x); // SpellID
+    data.WriteGuidBytes<3, 5, 2>(guid);
+}
+
+SMSG_LOSS_OF_CONTROL_AURA_UPDATE
+{
+    WorldPacket data(SMSG_LOSS_OF_CONTROL_AURA_UPDATE);
+    data.WriteBits(y, 22); // LossOfControl effects count
+    for (int i = 0; i < y; i++)
+    {
+        data.WriteBits(x, 8); // Mechanic
+        data.WriteBits(x, 8); // Type
+    }
+    for (int i = 0; i < y; i++)
+    {
+        data << uint8(x); // effectIndex
+        data << uint8(x); // auraSlot
+    }
+}*/
+
+// Scenario
+// SMSG_SCENARIO_STATE
+/*{
+    WorldPacket data(SMSG_SCENARIO_STATE);
+    ByteBuffer criteriaData;
+    ObjectGuid guid = handler->GetSession()->GetPlayer()->GetObjectGuid();
+    data.WriteBit(0); // hasBonusStepComplete
+    data.WriteBit(0); // hasBonusStep
+    data.WriteBits(0, 19); // criteriaCount
+    // в цикле перебираем только нужные критерии для конкретного сценария, общий цикл приведен для примера
+    for (CriteriaProgressMap::const_iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
+    {
+        CriteriaTreeEntry const* criteriaTree = sAchievementMgr->GetAchievementCriteriaTree(itr->first);
+
+        if (!criteriaTree)
+            continue;
+
+        ObjectGuid counter = uint64(itr->second.counter);
+
+        data.WriteGuidMask<7, 6, 0, 4>(guid);
+        data.WriteGuidMask<7>(counter);
+        data.WriteGuidMask<5, 1>(guid);
+        data.WriteGuidMask<1, 3, 0, 2>(counter);
+        data.WriteGuidMask<3>(guid);
+        data.WriteGuidMask<5>(counter);
+        data.WriteBits(0, 4);          // flags
+        data.WriteGuidMask<4>(counter);
+        data.WriteGuidMask<2>(guid);
+        data.WriteGuidMask<6>(counter);
+
+        criteriaData.WriteGuidBytes<1>(counter);
+        criteriaData << uint32(0);
+        criteriaData.WriteGuidBytes<3>(counter);
+        criteriaData.WriteGuidBytes<3, 4, 0, 1>(guid);
+        criteriaData << uint32(secsToTimeBitFields(itr->second.date));
+        criteriaData.WriteGuidBytes<6, 7>(guid);
+        criteriaData.WriteGuidBytes<0>(counter);
+        criteriaData.WriteGuidBytes<5>(guid);
+        criteriaData.WriteGuidBytes<4, 5>(counter);
+        criteriaData << uint32(criteriaTree->criteria);
+        criteriaData.WriteGuidBytes<2>(counter);
+        criteriaData << uint32(0);
+        criteriaData.WriteGuidBytes<6, 7>(counter);
+        criteriaData.WriteGuidBytes<2>(guid);
+
+    }
+
+    data.FlushBits();
+
+    if (!criteriaData.empty())
+        data.append(criteriaData);
+
+    data << uint32(0); // waveMax (only for ProvingGrounds)
+    data << uint32(0); // difficultyID (only for ProvingGrounds)
+    data << uint32(44); // scenarioID low part (ID from Scenario.dbc)
+    data << uint32(0); // scenarioID high part (scenarioCompleted? LOL)
+    data << uint32(0); // waveCurrent (only for ProvingGrounds)
+    data << uint32(0); // timerDuration (only for ProvingGrounds)
+    data << uint32(0); // currentStep
+}*/

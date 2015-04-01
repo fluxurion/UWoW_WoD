@@ -233,8 +233,13 @@ enum ScoreType
     SCORE_ORB_SCORE             = 22,
     /** World of Warcraft Armory **/
     SCORE_DAMAGE_TAKEN          = 23,
-    SCORE_HEALING_TAKEN         = 24
+    SCORE_HEALING_TAKEN         = 24,
     /** World of Warcraft Armory **/
+    //DG
+    SCORE_CARTS_CAPTURED        = 25,
+    SCORE_CARTS_DEFENDED        = 26,
+    SCORE_POINTS_CAPTURED       = 27,
+    SCORE_POINTS_DEFENDED       = 28,
 };
 
 enum JoinType
@@ -637,7 +642,7 @@ class Battleground
         void SetRBG(bool enable) { m_IsRBG = enable; }
 
         void SendFlagsPositionsUpdate(uint32 diff);
-        void SendOponentSpecialization(uint32 team);
+        void SendOpponentSpecialization(uint32 team);
 
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground

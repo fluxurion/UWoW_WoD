@@ -1632,6 +1632,7 @@ void GameObject::Use(Unit* user)
 
             player->SendLoot(GetGUID(), LOOT_FISHINGHOLE);
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, GetGOInfo()->entry);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL, GetGOInfo()->entry);
             return;
         }
 
@@ -1825,6 +1826,10 @@ void GameObject::SendCustomAnim(uint32 anim)
     //data.WriteGuidBytes<6, 7, 3, 1, 0, 2, 4>(guid);
 
     SendMessageToSet(&data, true);
+}
+
+void GameObject::SendActivateAnim(uint32 anim)
+{
 }
 
 bool GameObject::IsInRange(float x, float y, float z, float radius) const

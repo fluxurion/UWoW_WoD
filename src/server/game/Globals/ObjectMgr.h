@@ -417,6 +417,7 @@ struct PetStats
     float armor;
     float damage;
     int32 type;
+    int32 maxspdorap;
 };
 
 struct MailLevelReward
@@ -528,6 +529,35 @@ struct QuestPOI
 typedef std::vector<QuestPOI> QuestPOIVector;
 typedef UNORDERED_MAP<uint32, QuestPOIVector> QuestPOIContainer;
 
+struct ScenarioPOIPoint
+{
+    int32 x;
+    int32 y;
+
+    ScenarioPOIPoint() : x(0), y(0) {}
+    ScenarioPOIPoint(int32 _x, int32 _y) : x(_x), y(_y) {}
+};
+
+struct ScenarioPOI
+{
+    uint32 Id;
+    uint32 MapId;
+    uint32 WorldMapAreaId;
+    uint32 Unk12;
+    uint32 Unk16;
+    uint32 Unk20;
+    uint32 Unk24;
+    uint32 Unk28;
+    std::vector<ScenarioPOIPoint> points;
+
+    ScenarioPOI() : Id(0), MapId(0), WorldMapAreaId(0), Unk12(0), Unk16(0), Unk20(0), Unk24(0), Unk28(0) {}
+    ScenarioPOI(uint32 _Id, uint32 _MapId, uint32 _WorldMapAreaId, uint32 _Unk12, uint32 _Unk16, uint32 _Unk20, uint32 _Unk24, uint32 _Unk28) :
+        Id(_Id), MapId(_MapId), WorldMapAreaId(_WorldMapAreaId), Unk12(_Unk12), Unk16(_Unk16), Unk20(_Unk20), Unk24(_Unk24), Unk28(_Unk28) { }
+};
+
+typedef std::vector<ScenarioPOI> ScenarioPOIVector;
+typedef UNORDERED_MAP<uint32, ScenarioPOIVector> ScenarioPOIContainer;
+
 struct GraveYardData
 {
     uint32 safeLocId;
@@ -571,12 +601,6 @@ struct LanguageDesc
 #define LANGUAGE_DESC_COUNT 24
 extern LanguageDesc lang_description[LANGUAGE_DESC_COUNT];
 LanguageDesc const* GetLanguageDescByID(uint32 lang);
-
-enum EncounterCreditType
-{
-    ENCOUNTER_CREDIT_KILL_CREATURE  = 0,
-    ENCOUNTER_CREDIT_CAST_SPELL     = 1,
-};
 
 struct DungeonEncounter
 {
@@ -810,6 +834,14 @@ class ObjectMgr
             return NULL;
         }
 
+        ScenarioPOIVector const* GetScenarioPOIVector(uint32 criteriaTreeId)
+        {
+            ScenarioPOIContainer::const_iterator itr = _scenarioPOIStore.find(criteriaTreeId);
+            if (itr != _scenarioPOIStore.end())
+                return &itr->second;
+            return NULL;
+        }
+
         VehicleAccessoryList const* GetVehicleAccessoryList(Vehicle* veh) const;
 
         DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, Difficulty difficulty)
@@ -956,6 +988,7 @@ class ObjectMgr
 
         void LoadPointsOfInterest();
         void LoadQuestPOI();
+        void LoadScenarioPOI();
 
         void LoadNPCSpellClickSpells();
 
@@ -981,6 +1014,7 @@ class ObjectMgr
 
         // Battle Pet System
         void LoadBattlePetXPForLevel();
+        void LoadBattlePetBreedsToSpecies();
 
         PhaseDefinitionStore const* GetPhaseDefinitionStore() { return &_PhaseDefinitionStore; }
         SpellPhaseStore const* GetSpellPhaseStore() { return &_SpellPhaseStore; }
@@ -1262,11 +1296,7 @@ class ObjectMgr
                 case DIFFICULTY_NONE:
                 case DIFFICULTY_NORMAL:
                 case DIFFICULTY_HEROIC:
-                    if(size > 5)
-                        return 2;
-                    else
-                        return 1;
-                    break;
+                    return 1;
                 case DIFFICULTY_10_N:
                 case DIFFICULTY_10_HC:
                     return 2;
@@ -1284,6 +1314,8 @@ class ObjectMgr
             return 0;
         }
 
+        // Battle Pets
+        const std::vector<uint32>* GetPossibleBreedsForSpecies(uint32 speciesID) const;
         void LoadRaceAndClassExpansionRequirements();
         void LoadRealmNames();
 
@@ -1305,6 +1337,35 @@ class ObjectMgr
             if (itr != _classExpansionRequirementStore.end())
                 return itr->second;
             return EXPANSION_CLASSIC;
+        }
+
+        //Get count from difficulty
+        static uint8 GetGuildGroupCountFromDifficulty(uint8 spawnmode)
+        {
+            switch (spawnmode)
+            {
+                case NONE_DIFFICULTY:
+                case REGULAR_DIFFICULTY:
+                case HEROIC_DIFFICULTY:
+                case CHALLENGE_MODE_DIFFICULTY:
+                case HEROIC_SCENARIO_DIFFICULTY:
+                case NORMAL_SCENARIO_DIFFICULTY:
+                    return 3;
+                case MAN10_DIFFICULTY:
+                case MAN10_HEROIC_DIFFICULTY:
+                    return 8;
+                case MAN25_DIFFICULTY:
+                case MAN25_HEROIC_DIFFICULTY:
+                case FLEXIBLE_DIFFICULTY:
+                case RAID_TOOL_DIFFICULTY:
+                    return 20;
+                case MAN40_DIFFICULTY:
+                    return 32;
+                default:
+                    break;
+            }
+
+            return 5;
         }
 
     private:
@@ -1355,6 +1416,7 @@ class ObjectMgr
         PointOfInterestContainer _pointsOfInterestStore;
 
         QuestPOIContainer _questPOIStore;
+        ScenarioPOIContainer _scenarioPOIStore;
 
         QuestRelations _goQuestRelations;
         QuestRelations _goQuestInvolvedRelations;
@@ -1393,6 +1455,9 @@ class ObjectMgr
         // Battle Pet System
         typedef std::vector<uint32> BattlePetXPForLevel;
         BattlePetXPForLevel _battlePetXPperLevel;
+
+        typedef std::map<uint32, std::vector<uint32> > BattlePetPossibleBreedsToSpecies;
+        BattlePetPossibleBreedsToSpecies _battlePetPossibleBreedsToSpecies;
 
         uint32 _skipUpdateCount;
 

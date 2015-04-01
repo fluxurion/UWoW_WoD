@@ -46,8 +46,8 @@ static DumpTable dumpTables[DUMP_TABLE_COUNT] =
     { "character_inventory",              DTT_INVENTORY,  "guid, bag, slot, item"},
     { "character_pet",                    DTT_PET,        "`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`"},
     { "character_pet_declinedname",       DTT_PET,        "id, owner, genitive, dative, accusative, instrumental, prepositional"},
-    { "character_queststatus",            DTT_CHAR_TABLE, "`guid`, `quest`, `status`, `explored`, `timer`, `mobcount1`, `mobcount2`, `mobcount3`, `mobcount4`, `mobcount5`, `mobcount6`, `mobcount7`, `mobcount8`, `mobcount9`, `mobcount10`, `itemcount1`, `itemcount2`, `itemcount3`, `itemcount4`, `itemcount5`, `itemcount6`, `itemcount7`, `itemcount8`, `itemcount9`, `itemcount10`, `playercount`"},
-    { "character_queststatus_rewarded",   DTT_CHAR_TABLE, "guid, quest"},
+    { "character_queststatus",            DTT_QUEST_TABLE, "`guid`, `account`, `quest`, `status`, `explored`, `timer`, `mobcount1`, `mobcount2`, `mobcount3`, `mobcount4`, `mobcount5`, `mobcount6`, `mobcount7`, `mobcount8`, `mobcount9`, `mobcount10`, `itemcount1`, `itemcount2`, `itemcount3`, `itemcount4`, `itemcount5`, `itemcount6`, `itemcount7`, `itemcount8`, `itemcount9`, `itemcount10`, `playercount`"},
+    { "character_queststatus_rewarded",   DTT_QUEST_TABLE, "`guid`, `account`, `quest`"},
     { "character_reputation",             DTT_CHAR_TABLE, "guid, faction, standing, flags"},
     { "character_skills",                 DTT_CHAR_TABLE, "guid, skill, value, max"},
     { "character_spell",                  DTT_CHAR_TABLE, "guid, spell, active, disabled"},
@@ -375,7 +375,7 @@ void fixNULLfields(std::string &line)
 DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, std::string name, ObjectGuid::LowType guid)
 {
     uint32 charcount = AccountMgr::GetCharactersCount(account);
-    if (charcount >= 10)
+    if (charcount >= 11)
         return DUMP_TOO_MANY_CHARS;
 
     FILE* fin = fopen(file.c_str(), "r");
@@ -678,7 +678,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 DumpReturn PlayerDumpReader::LoadDump(uint32 account, std::string& dump, std::string name, uint32& guid)
 {
     uint32 charcount = AccountMgr::GetCharactersCount(account);
-    if (charcount >= 10)
+    if (charcount >= 11)
         return DUMP_TOO_MANY_CHARS;
 
     QueryResult result = QueryResult(NULL);
@@ -850,6 +850,20 @@ DumpReturn PlayerDumpReader::LoadDump(uint32 account, std::string& dump, std::st
                 if (!changenth(line, 1, newguid))           // character_*.guid update
                 {
                     sLog->outDebug(LOG_FILTER_NETWORKIO, "LoadPlayerDump: character_.guid line: '%s'!", line.c_str());
+                    return DUMP_FILE_BROKEN;
+                }
+                break;
+            }
+            case DTT_QUEST_TABLE:
+            {
+                if (!changenth(line, 1, newguid))           // character_*.guid update
+                {
+                    sLog->outDebug(LOG_FILTER_NETWORKIO, "LoadPlayerDump: character_queststatus.guid line: '%s'!", line.c_str());
+                    return DUMP_FILE_BROKEN;
+                }
+                if (!changenth(line, 2, chraccount))
+                {
+                    sLog->outDebug(LOG_FILTER_NETWORKIO, "LoadPlayerDump: character_queststatus.account update line: '%s'!", line.c_str());
                     return DUMP_FILE_BROKEN;
                 }
                 break;

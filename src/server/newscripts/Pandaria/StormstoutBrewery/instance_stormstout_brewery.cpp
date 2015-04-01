@@ -11,13 +11,10 @@ class instance_stormstout_brewery : public InstanceMapScript
 public:
     instance_stormstout_brewery() : InstanceMapScript("instance_stormstout_brewery", 961) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
-    {
-        return new instance_stormstout_brewery_InstanceMapScript(map);
-    }
-
     struct instance_stormstout_brewery_InstanceMapScript : public InstanceScript
     {
+        instance_stormstout_brewery_InstanceMapScript(Map* map) : InstanceScript(map) {}
+
         ObjectGuid ookookGuid;
         ObjectGuid hoptallusGuid;
         ObjectGuid yanzhuGuid;
@@ -28,9 +25,9 @@ public:
         ObjectGuid door4Guid;
         ObjectGuid lastdoorGuid;
         ObjectGuid carrotdoorGuid;
-
-        instance_stormstout_brewery_InstanceMapScript(Map* map) : InstanceScript(map)
-        {}
+        ObjectGuid sTriggerGuid;
+        uint16 HoplingCount;
+        uint16 GoldenHoplingCount;
 
         void Initialize()
         {
@@ -45,6 +42,9 @@ public:
             door4Guid.Clear();
             lastdoorGuid.Clear();
             carrotdoorGuid.Clear();
+            HoplingCount = 0;
+            GoldenHoplingCount = 0;
+            sTriggerGuid.Clear();
         }
 
         void OnGameObjectCreate(GameObject* go)
@@ -88,6 +88,9 @@ public:
                 case NPC_YAN_ZHU:
                     yanzhuGuid = creature->GetGUID();
                     break;
+                case NPC_TRIGGER_SUMMONER:
+                    sTriggerGuid = creature->GetGUID();
+                    break;
             }
         }
         
@@ -102,9 +105,15 @@ public:
                 {
                     if (state == DONE)
                     {
-                         HandleGameObject(ookexitdoorGuid, true);
-                         HandleGameObject(doorGuid, true);
-                         HandleGameObject(door2Guid, true);
+                        HandleGameObject(ookexitdoorGuid, true);
+                        HandleGameObject(doorGuid, true);
+                        HandleGameObject(door2Guid, true);
+                        if (Creature* trigger = instance->GetCreature(sTriggerGuid))
+                        {
+                            trigger->CastSpell(trigger, SPELL_HOPPER_SUM_EXPLOSIVE);
+                            trigger->CastSpell(trigger, SPELL_HOPPER_SUM_HAMMER);
+                            trigger->CastSpell(trigger, SPELL_HOPLING_AURA_3);
+                        }
                     }
                 }
                 break;
@@ -117,6 +126,12 @@ public:
                         break;
                     case IN_PROGRESS:
                         HandleGameObject(door2Guid, false);
+                        if (Creature* trigger = instance->GetCreature(sTriggerGuid))
+                        {
+                            trigger->RemoveAurasDueToSpell(SPELL_HOPPER_SUM_EXPLOSIVE);
+                            trigger->RemoveAurasDueToSpell(SPELL_HOPPER_SUM_HAMMER);
+                            trigger->RemoveAurasDueToSpell(SPELL_HOPLING_AURA_3);
+                        }
                         break;
                     case DONE:
                         {
@@ -149,10 +164,27 @@ public:
             return true;
         }
 
-        void SetData(uint32 type, uint32 data){}
+        void SetData(uint32 type, uint32 data)
+        {
+            if (type == DATA_HOPLING)
+            {
+                HoplingCount = data;
+                if (HoplingCount > 100)
+                    HoplingCount = 100;
+            }
+
+            if (type == DATA_GOLDEN_HOPLING)
+                GoldenHoplingCount = data;
+        }
 
         uint32 GetData(uint32 type) const
         {
+            if (type == DATA_HOPLING)
+                return HoplingCount;
+
+            if (type == DATA_GOLDEN_HOPLING)
+                return GoldenHoplingCount;
+
             return 0;
         }
 
@@ -178,6 +210,10 @@ public:
         }
     };
 
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    {
+        return new instance_stormstout_brewery_InstanceMapScript(map);
+    }
 };
 
 void AddSC_instance_stormstout_brewery()

@@ -176,7 +176,7 @@ typedef UNORDERED_MAP<uint32, PlayerCurrency> PlayerCurrenciesMap;
 struct SpellCooldown
 {
     double end;
-    uint16 itemid;
+    uint32 itemid;
 };
 
 struct UncategorySpellChargeData
@@ -881,11 +881,12 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADCURRENCY                 = 36,
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES            = 37,
     PLAYER_LOGIN_QUERY_LOAD_BATTLE_PETS             = 38,
-    PLAYER_LOGIN_QUERY_LOADARCHAELOGY               = 39,
-    PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_FINDS       = 40,
-    PLAYER_LOGIN_QUERY_LOAD_PERSONAL_RATE           = 41,
-    PLAYER_LOGIN_QUERY_LOAD_VISUAL                  = 42,
+    PLAYER_LOGIN_QUERY_LOAD_BATTLE_PET_SLOTS        = 39,
+    PLAYER_LOGIN_QUERY_LOADARCHAELOGY               = 40,
+    PLAYER_LOGIN_QUERY_LOAD_ARCHAEOLOGY_FINDS       = 41,
+    PLAYER_LOGIN_QUERY_LOAD_PERSONAL_RATE           = 42,
     PLAYER_LOGIN_QUERY_HONOR                        = 43,
+    PLAYER_LOGIN_QUERY_LOAD_VISUAL                  = 44,
 
     MAX_PLAYER_LOGIN_QUERY
 };
@@ -1356,7 +1357,7 @@ typedef std::set<uint32> ResearchProjectSet;
 struct Visuals
 {
     Visuals() : m_visHead(1), m_visShoulders(1), m_visChest(1), m_visWaist(1), m_visLegs(1), m_visFeet(1),
-    m_visWrists(1), m_visHands(1), m_visBack(1), m_visMainhand(1), m_visOffhand(1), m_visRanged(1), m_altVis(0) { }
+    m_visWrists(1), m_visHands(1), m_visBack(1), m_visMainhand(1), m_visOffhand(1), m_visRanged(1), m_visTabard(1), m_visShirt(1), m_altVis(0) { }
 
     uint32 m_visHead;
     uint32 m_visShoulders;
@@ -1370,6 +1371,8 @@ struct Visuals
     uint32 m_visMainhand;
     uint32 m_visOffhand;
     uint32 m_visRanged;
+    uint32 m_visTabard;
+    uint32 m_visShirt;
 
     uint8 m_altVis;
 };
@@ -1512,8 +1515,8 @@ class Player : public Unit, public GridObject<Player>
         void UpdateInnerTime (time_t time) { time_inn_enter = time; }
 
         Pet* GetPet() const;
-        Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime, PetSlot slotID = PET_SLOT_UNK_SLOT, bool stampeded = false);
-        void RemovePet(Pet* pet, PetSlot mode, bool returnreagent = false);
+        Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime, uint32 spellId = 0, bool stampeded = false);
+        void RemovePet(Pet* pet, bool isDelete = false);
 
         PhaseMgr& GetPhaseMgr() { return phaseMgr; }
 
@@ -1731,7 +1734,7 @@ class Player : public Unit, public GridObject<Player>
 
             return mainItem && ((mainItem->GetTemplate()->GetInventoryType() == INVTYPE_2HWEAPON && !CanTitanGrip()) || mainItem->GetTemplate()->GetInventoryType() == INVTYPE_RANGED || mainItem->GetTemplate()->GetInventoryType() == INVTYPE_THROWN || mainItem->GetTemplate()->GetInventoryType() == INVTYPE_RANGEDRIGHT);
         }
-        void SendNewItem(Item* item, PetInfo * pet, uint32 count, bool received, bool created, bool broadcast = false);
+        void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false, PetJournalInfo * petInfo = NULL);
         bool BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
         bool BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
@@ -1963,8 +1966,6 @@ class Player : public Unit, public GridObject<Player>
         void RegenerateHealth();
         void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
-        uint8 HandleHolyPowerCost(uint8 cost, uint8 baseCost);
-        uint8 GetModForHolyPowerSpell() {return m_modForHolyPowerSpell;}
 
         uint64 GetMoney() const { return GetUInt64Value(PLAYER_FIELD_COINAGE); }
         bool ModifyMoney(int64 d, bool sendError = true);
@@ -1997,8 +1998,10 @@ class Player : public Unit, public GridObject<Player>
         Player* GetSelectedPlayer() const;
         void SetSelection(ObjectGuid guid) { m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
-        uint8 GetComboPoints() const { return m_comboPoints; }
+        uint8 GetComboPoints() const { if(HasAura(138148)) return m_comboPoints + 1; else return m_comboPoints; }
         ObjectGuid GetComboTarget() const { return m_comboTarget; }
+        void SaveAddComboPoints(int8 count) { m_comboSavePoints += count; }
+        uint8 GetSaveComboPoints() const { return m_comboSavePoints; }
 
         void AddComboPoints(Unit* target, int8 count, Spell* spell = NULL);
         void GainSpellComboPoints(int8 count);
@@ -2386,9 +2389,6 @@ class Player : public Unit, public GridObject<Player>
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float GetMeleeCritFromAgility();
         void GetDodgeFromAgility(float &diminishing, float &nondiminishing);
-        float GetSpellCritFromIntellect();
-        float OCTRegenMPPerSpirit();
-        float GetRatingMultiplier(CombatRating cr) const;
         float GetRatingBonusValue(CombatRating cr) const;
         uint32 GetBaseSpellPowerBonus() { return m_baseSpellPower; }
         int32 GetSpellPenetrationItemMod() const { return m_spellPenetrationItemMod; }
@@ -2410,7 +2410,6 @@ class Player : public Unit, public GridObject<Player>
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateMasteryAuras();
-        void UpdateManaRegen();
         void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
         void UpdatePvPPower();
@@ -2611,9 +2610,8 @@ class Player : public Unit, public GridObject<Player>
         void ResetAllPowers();
         void ResetEclipseState();
 
-        void _ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackType, bool apply);
-        void _ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply);
-        void _ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, AuraEffect const* aura, bool apply);
+        void _ApplyOrRemoveItemEquipDependentAuras(uint64 itemGUID = 0, bool apply = true);
+        bool CheckItemEquipDependentSpell(SpellInfo const* spellInfo = NULL, uint64 itemGUID = NULL);
 
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
         void _RemoveAllItemMods();
@@ -2646,7 +2644,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendAurasForTarget(Unit* target);
         void SendVegnette(Creature *target);
-        void SendInitialCooldowns();
+        void SendSpellHistoryData();
         void SendSpellChargeData();
         void SendCategoryCooldownMods();
         void SendModifyCooldown(uint32 spellId, int32 value);
@@ -2866,6 +2864,7 @@ class Player : public Unit, public GridObject<Player>
 
         // current pet slot
         uint32 m_currentPetNumber;
+        PetSlot m_currentSummonedSlot;
 
         void setPetSlotWithStableMoveOrRealDelete(PetSlot slot, uint32 petID, bool isHanterPet);
         int16 SetOnAnyFreeSlot(uint32 petID);
@@ -3035,7 +3034,7 @@ class Player : public Unit, public GridObject<Player>
 
         AchievementMgr<Player>& GetAchievementMgr() { return m_achievementMgr; }
         AchievementMgr<Player> const& GetAchievementMgr() const { return m_achievementMgr; }
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL);
+        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL, bool ignoreGroup = false);
         void CompletedAchievement(AchievementEntry const* entry);
         uint32 GetAchievementPoints() const;
 
@@ -3162,7 +3161,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_demonicFuryPowerRegenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
-        uint8 m_modForHolyPowerSpell;
 
 
         /*********************************************************/
@@ -3235,6 +3233,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadCUFProfiles(PreparedQueryResult result);
         void _LoadBattlePets(PreparedQueryResult result);
         void _LoadHonor(PreparedQueryResult resultUnread);
+        void _LoadBattlePetSlots(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -3262,6 +3261,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveBrackets(SQLTransaction& trans);
         void _SaveCUFProfiles(SQLTransaction& trans);
         void _SaveBattlePets(SQLTransaction& trans);
+        void _SaveBattlePetSlots(SQLTransaction& trans);
         void _SaveHonor();
 
         /*********************************************************/
@@ -3309,6 +3309,7 @@ class Player : public Unit, public GridObject<Player>
 
         ObjectGuid m_comboTarget;
         int8 m_comboPoints;
+        int8 m_comboSavePoints;
 
         QuestStatusMap m_QuestStatus;
         QuestStatusSaveMap m_QuestStatusSave;
@@ -3513,7 +3514,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_DelayedOperations;
         bool m_bCanDelayTeleport;
         bool m_bHasDelayedTeleport;
-        bool m_isMoltenCored;
 
         // Temporary removed pet cache
         uint32 m_temporaryUnsummonedPetNumber;
@@ -3574,8 +3574,6 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
         return 0;
     float totalmul = 1.0f;
     int32 totalflat = 0;
-    bool chaosBolt = false;
-    bool soulFire = false;
     int32 value = 0;
 
     // Drop charges for triggering spells instead of triggered ones
@@ -3592,6 +3590,15 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
 
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
+        SpellInfo const* affectSpell = sSpellMgr->GetSpellInfo(mod->spellId);
+        if(!affectSpell)
+            continue;
+        if((affectSpell->Attributes & SPELL_ATTR0_ONLY_STEALTHED) && !HasStealthAura())
+            continue;
+
+        //Don`t moded value if allready max moded
+        if(mod->value == 0 || (totalmul <= 0.0f && mod->value < 0) || (totalflat < 0 && ((basevalue + totalflat) <= 0) && mod->value < 0))
+            continue;
 
         if (mod->type == SPELLMOD_FLAT)
             totalflat += mod->value;
@@ -3605,37 +3612,18 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
             if (mod->op == SPELLMOD_CASTING_TIME && basevalue >= T(10000) && mod->value <= -100)
                 continue;
 
+            if(spellId == 116858 && mod->spellId == 117828) // Chaos Bolt
+            {
+                if(mod->ownerAura->GetCharges() < 3)
+                    continue;
+            }
+
             value = mod->value;
-
-            // Fix don't apply Backdraft twice for Chaos Bolt
-            if (mod->spellId == 117828 && mod->op == SPELLMOD_CASTING_TIME && spellInfo->Id == 116858)
-            {
-                if (chaosBolt)
-                    continue;
-                else
-                    chaosBolt = true;
-            }
-            // Fix don't apply Molten Core multiple times for Soul Fire
-            else if (mod->spellId == 122355 && (spellInfo->Id == 6353 || spellInfo->Id == 104027))
-            {
-                if (soulFire)
-                    continue;
-                else
-                    soulFire = true;
-
-                if (m_isMoltenCored)
-                    m_isMoltenCored = false;
-                else if (mod->op == SPELLMOD_CASTING_TIME)
-                    m_isMoltenCored = true;
-
-                value = mod->value / mod->charges;
-            }
 
             totalmul += CalculatePct(1.0f, value);
         }
 
-        if (!m_isMoltenCored)
-            DropModCharge(mod, spell);
+        DropModCharge(mod, spell);
     }
 
     float diff = (float)basevalue * (totalmul - 1.0f) + (float)totalflat;

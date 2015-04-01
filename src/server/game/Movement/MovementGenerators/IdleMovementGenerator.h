@@ -26,7 +26,7 @@ class IdleMovementGenerator : public MovementGenerator
     public:
 
         void Initialize(Unit &) override;
-        void Finalize(Unit &) override {  }
+        void Finalize(Unit &) override{  }
         void Reset(Unit &) override;
         bool Update(Unit &, const uint32&) override { return true; }
         MovementGeneratorType GetMovementGeneratorType() { return IDLE_MOTION_TYPE; }
@@ -72,7 +72,7 @@ class AssistanceDistractMovementGenerator : public DistractMovementGenerator
             DistractMovementGenerator(timer) {}
 
         MovementGeneratorType GetMovementGeneratorType() { return ASSISTANCE_DISTRACT_MOTION_TYPE; }
-        void Finalize(Unit& unit);
+        void Finalize(Unit& unit) override;
 };
 
 #endif

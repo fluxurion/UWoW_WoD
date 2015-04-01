@@ -66,6 +66,7 @@ static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
 
 DBCStorage<AchievementEntry> sAchievementStore(Achievementfmt);
 DBCStorage<AchievementCriteriaEntry> sAchievementCriteriaStore(AchievementCriteriafmt);
+DBCStorage <CriteriaEntry> sCriteriaStore(Criteriafmt);
 DBCStorage<CriteriaTreeEntry> sCriteriaTreeStore(CriteriaTreefmt);
 DBCStorage<ModifierTreeEntry> sModifierTreeStore(ModifierTreefmt);
 DBCStorage<AreaTriggerEntry> sAreaTriggerStore(AreaTriggerEntryfmt);
@@ -126,6 +127,7 @@ DBCStorage<GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore(GtRegenMPPerSptfm
 DBCStorage<GtSpellScalingEntry>          sGtSpellScalingStore(GtSpellScalingfmt);
 DBCStorage<GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore(GtOCTBaseHPByClassfmt);
 DBCStorage<GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore(GtOCTBaseMPByClassfmt);
+DBCStorage <GtBattlePetTypeDamageModEntry>      sGtBattlePetTypeDamageModStore(GtBattlePetTypeDamageModfmt);
 DBCStorage<GuildPerkSpellsEntry>         sGuildPerkSpellsStore(GuildPerkSpellsfmt);
 
 DBCStorage<ImportPriceArmorEntry>        sImportPriceArmorStore(ImportPriceArmorfmt);
@@ -192,6 +194,10 @@ DBCStorage<QuestPOIBlobEntry> sQuestPOIBlobStore(QuestPOIBlobfmt);
 DBCStorage<QuestPOIPointEntry> sQuestPOIPointStore(QuestPOIPointfmt);
 DBCStorage<ScalingStatDistributionEntry> sScalingStatDistributionStore(ScalingStatDistributionfmt);
 
+std::set<uint32> sScenarioCriteriaTreeStore;
+DBCStorage <ScenarioEntry> sScenarioStore(Scenariofmt);
+DBCStorage <ScenarioStepEntry> sScenarioStepStore(ScenarioStepfmt);
+
 DBCStorage<SkillLineEntry> sSkillLineStore(SkillLinefmt);
 DBCStorage<SkillLineAbilityEntry> sSkillLineAbilityStore(SkillLineAbilityfmt);
 
@@ -208,6 +214,7 @@ PetFamilySpellsStore sPetFamilySpellsStore;
 
 DBCStorage<SpellScalingEntry> sSpellScalingStore(SpellScalingEntryfmt);
 DBCStorage<SpellTargetRestrictionsEntry> sSpellTargetRestrictionsStore(SpellTargetRestrictionsEntryfmt);
+DBCStorage <PowerDisplayEntry> sPowerDisplayStore(PowerDisplayEntryfmt);
 DBCStorage<SpellLevelsEntry> sSpellLevelsStore(SpellLevelsEntryfmt);
 DBCStorage<SpellInterruptsEntry> sSpellInterruptsStore(SpellInterruptsEntryfmt);
 DBCStorage<SpellEquippedItemsEntry> sSpellEquippedItemsStore(SpellEquippedItemsEntryfmt);
@@ -322,7 +329,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaStore,                   dbcPath, "AreaTable.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore,            dbcPath, "Achievement.dbc"/*, &CustomAchievementfmt, &CustomAchievementIndex*/);//14545
     //LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementCriteriaStore,    dbcPath, "Achievement_Criteria.dbc", &CustomAchievementCriteriafmt, &CustomAchievementCriteriaIndex);//14545
-    LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementCriteriaStore,    dbcPath, "Criteria.dbc");//16048
+    LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaStore,               dbcPath, "Criteria.dbc");//16048
     LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaTreeStore,           dbcPath, "CriteriaTree.dbc");//16048
     LoadDBC(availableDbcLocales, bad_dbc_files, sModifierTreeStore,           dbcPath, "ModifierTree.dbc");//16048
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");//19342
@@ -375,6 +382,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtSpellScalingStore,         dbcPath, "gtSpellScaling.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTBaseHPByClassStore,     dbcPath, "gtOCTBaseHPByClass.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTBaseMPByClassStore,     dbcPath, "gtOCTBaseMPByClass.dbc");//15595
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGtBattlePetTypeDamageModStore,        dbcPath, "gtBattlePetTypeDamageMod.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sGuildPerkSpellsStore,        dbcPath, "GuildPerkSpells.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceArmorStore,       dbcPath, "ImportPriceArmor.dbc"); // 15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sImportPriceQualityStore,     dbcPath, "ImportPriceQuality.dbc"); // 15595
@@ -621,6 +629,20 @@ void InitDBCCustomStores()
             sLog->outDebug(LOG_FILTER_SERVER_LOADING,"Research site %u POI %u map %u has 0 POI points in DBC!", rs->ID, rs->POIid, rs->MapID);
     }
 
+    LoadDBC(availableDbcLocales, bad_dbc_files, sScenarioStore,               dbcPath, "Scenario.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sScenarioStepStore,           dbcPath, "ScenarioStep.dbc");
+    for (uint32 i = 0; i < sScenarioStepStore.GetNumRows(); ++i)
+    {
+        ScenarioStepEntry const* entry = sScenarioStepStore.LookupEntry(i);
+        if (!entry || !entry->m_criteriaTreeId)
+            continue;
+
+        if (!sCriteriaTreeStore.LookupEntry(entry->m_criteriaTreeId))
+            continue;
+
+        sScenarioCriteriaTreeStore.insert(entry->m_criteriaTreeId);
+    }
+
     for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
         SpellCategoriesEntry const* spell = sSpellCategoriesStore.LookupEntry(i);
@@ -669,6 +691,7 @@ void InitDBCCustomStores()
         if(SpellTargetRestrictionsEntry const *restriction = sSpellTargetRestrictionsStore.LookupEntry(i))
             sSpellRestrictionDiffMap[restriction->SpellId].restrictions.insert(restriction);
 
+    LoadDBC(availableDbcLocales, bad_dbc_files, sPowerDisplayStore,           dbcPath,"PowerDisplay.dbc");//17538
     for (uint32 i = 0; i < sSpellProcsPerMinuteModStore.GetNumRows(); ++i)
     {
         if(SpellProcsPerMinuteModEntry const* sppm = sSpellProcsPerMinuteModStore.LookupEntry(i))
@@ -1185,3 +1208,9 @@ uint32 GetQuestUniqueBitFlag(uint32 questId)
 
     return v2->UniqueBitFlag;
 }
+
+bool IsScenarioCriteriaTree(uint32 criteriaTreeId)
+{
+    return sScenarioCriteriaTreeStore.find(criteriaTreeId) != sScenarioCriteriaTreeStore.end();
+}
+

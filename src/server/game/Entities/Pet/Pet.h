@@ -82,26 +82,17 @@ class Pet : public Guardian
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
         bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask);
-        bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false, PetSlot slotID = PET_SLOT_UNK_SLOT, bool stampeded = false);
+        bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool stampeded = false);
         bool isBeingLoaded() const { return m_loading;}
-        void SavePetToDB(PetSlot mode);
-        void Remove(PetSlot mode, bool returnreagent = false);
+        void SavePetToDB(bool isDelete = false);
+        void Remove();
         static void DeleteFromDB(uint32 guidlow);
 
         void setDeathState(DeathState s);                   // overwrite virtual Creature::setDeathState and Unit::setDeathState
         void Update(uint32 diff);                           // overwrite virtual Creature::Update and Unit::Update
 
-        uint8 GetPetAutoSpellSize() const { return m_autospells.size(); }
-        uint32 GetPetAutoSpellOnPos(uint8 pos) const
-        {
-            if (pos >= m_autospells.size())
-                return 0;
-            else
-                return m_autospells[pos];
-        }
-
-        void SetSlot(uint8 slot) { m_slot = slot; }
-        uint8 GetSlot() { return m_slot; }
+        void SetSlot(PetSlot slot) { m_slot = slot; }
+        PetSlot GetSlot() { return m_slot; }
 
         void GivePetXP(uint32 xp);
         void GivePetLevel(uint8 level);
@@ -124,7 +115,6 @@ class Pet : public Guardian
 
         bool HasSpell(uint32 spell) const;
 
-        void LearnPetPassives();
         bool IsPetAura(Aura const* aura);
 
         void _LoadSpellCooldowns();
@@ -134,12 +124,6 @@ class Pet : public Guardian
         void _LoadSpells();
         void _SaveSpells(SQLTransaction& trans);
 
-        bool addSpell(uint32 spellId, ActiveStates active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
-        bool learnSpell(uint32 spell_id);
-        void learnSpellHighRank(uint32 spellid);
-        void InitLevelupSpellsForLevel();
-        bool unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
-        bool removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab = true);
         void CleanupActionBar();
 
         void InitPetCreateSpells();
@@ -152,7 +136,7 @@ class Pet : public Guardian
 
         bool    m_removed;                                  // prevent overwrite pet state in DB at next Pet::Update if pet already removed(saved)
 
-        Player* GetOwner() { return m_owner; }
+        Unit* GetOwner() { return m_owner; }
 
         uint32 GetSpecializationId() const { return m_specialization; }
         void SetSpecializationId(uint32 id) { m_specialization = id; }
@@ -160,13 +144,11 @@ class Pet : public Guardian
         void UnlearnSpecializationSpell();
 
     protected:
-        Player* m_owner;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;
-        bool    m_loading;
         bool    m_Update;
         uint32  m_specialization;
-        uint8   m_slot;
+        PetSlot   m_slot;
 
         DeclinedName *m_declinedname;
 

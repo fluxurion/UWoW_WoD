@@ -254,7 +254,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         item = player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->ItemRandomPropertyId);
         item->SetGuidValue(ITEM_FIELD_CREATOR, itemVS->CreatorGuid);
         item->SetBinding(true);
-        player->SendNewItem(item, NULL, 1, false, false, false);
+        player->SendNewItem(item, 1, false, false, false);
 
         withdrawItems[withdrawCount++] = *itemVS;
 

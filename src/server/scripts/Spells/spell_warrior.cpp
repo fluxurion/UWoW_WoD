@@ -49,7 +49,6 @@ enum WarriorSpells
     WARRIOR_NPC_MOCKING_BANNER                  = 59390,
     WARRIOR_SPELL_COLOSSUS_SMASH                = 86346,
     WARRIOR_SPELL_MORTAL_STRIKE_AURA            = 12294,
-    WARRIOR_SPELL_SECOND_WIND_REGEN             = 16491,
     WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK        = 118895,
     WARRIOR_SPELL_MEAT_CLEAVER_PROC             = 85739,
     WARRIOR_SPELL_PHYSICAL_VULNERABILITY        = 81326,
@@ -301,35 +300,6 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
         }
 };
 
-// Dragon Roar - 118000
-class spell_warr_dragon_roar : public SpellScriptLoader
-{
-    public:
-        spell_warr_dragon_roar() : SpellScriptLoader("spell_warr_dragon_roar") { }
-
-        class spell_warr_dragon_roar_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_dragon_roar_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        _player->CastSpell(target, WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_dragon_roar_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_dragon_roar_SpellScript();
-        }
-};
-
 // Staggering Shout - 107566
 class spell_warr_staggering_shout : public SpellScriptLoader
 {
@@ -354,56 +324,6 @@ class spell_warr_staggering_shout : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warr_staggering_shout_SpellScript();
-        }
-};
-
-// Second Wind - 29838
-class spell_warr_second_wind : public SpellScriptLoader
-{
-    public:
-        spell_warr_second_wind() : SpellScriptLoader("spell_warr_second_wind") { }
-
-        class spell_warr_second_wind_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_second_wind_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->CastSpell(_player, WARRIOR_SPELL_SECOND_WIND_REGEN, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_second_wind_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_second_wind_SpellScript();
-        }
-
-        class spell_warr_second_wind_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warr_second_wind_AuraScript);
-
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
-                        caster->RemoveAura(WARRIOR_SPELL_SECOND_WIND_REGEN);
-            }
-
-            void Register()
-            {
-                OnEffectRemove += AuraEffectRemoveFn(spell_warr_second_wind_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warr_second_wind_AuraScript();
         }
 };
 
@@ -589,43 +509,6 @@ class spell_warr_mortal_strike : public SpellScriptLoader
         }
 };
 
-// Rallying cry - 97462
-class spell_warr_rallying_cry : public SpellScriptLoader
-{
-    public:
-        spell_warr_rallying_cry() : SpellScriptLoader("spell_warr_rallying_cry") { }
-
-        class spell_warr_rallying_cry_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_rallying_cry_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    _player->CastSpell(_player, WARRIOR_SPELL_RALLYING_CRY, true);
-
-                    std::list<Unit*> memberList;
-                    _player->GetPartyMembers(memberList);
-
-                    for (std::list<Unit*>::const_iterator itr = memberList.begin(); itr != memberList.end(); ++itr)
-                        if ((*itr)->IsWithinDistInMap(_player, 30.0f))
-                            _player->CastSpell(*itr, WARRIOR_SPELL_RALLYING_CRY, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHit += SpellEffectFn(spell_warr_rallying_cry_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_rallying_cry_SpellScript();
-        }
-};
-
 // Heroic leap - 6544
 class spell_warr_heroic_leap : public SpellScriptLoader
 {
@@ -709,13 +592,6 @@ class spell_warr_shockwave : public SpellScriptLoader
                 return true;
             }
 
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        _player->CastSpell(target, WARRIOR_SPELL_SHOCKWAVE_STUN, true);
-            }
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.size() >= GetSpellInfo()->Effects[EFFECT_0].BasePoints)
@@ -735,7 +611,6 @@ class spell_warr_shockwave : public SpellScriptLoader
             {
                 AfterCast += SpellCastFn(spell_warr_shockwave_SpellScript::HandleAfterCast);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_shockwave_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
-                OnHit += SpellHitFn(spell_warr_shockwave_SpellScript::HandleOnHit);
             }
         };
 
@@ -755,7 +630,7 @@ class spell_warr_bloodthirst : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
 
-            bool Validate(SpellInfo const* /*SpellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODTHIRST))
                     return false;
@@ -791,7 +666,7 @@ class spell_warr_victory_rush : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_victory_rush_SpellScript);
 
-            bool Validate(SpellInfo const* /*SpellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_VICTORY_RUSH_DAMAGE))
                     return false;
@@ -831,7 +706,7 @@ class spell_warr_last_stand : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_last_stand_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
                     return false;
@@ -1290,14 +1165,37 @@ class spell_warr_charge_drop_fire : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_charge_drop_fire_AuraScript);
 
+            Position savePos;
             void OnTick(AuraEffect const* aurEff)
             {
                 if(Unit* caster = GetCaster())
-                    caster->SendSpellCreateVisual(GetSpellInfo());
+                {
+                    float distance = caster->GetDistance(savePos);
+                    uint32 count = uint32(distance);
+                    float angle = caster->GetAngle(&savePos);
+                    if(count > 0)
+                    {
+                        for(int32 j = 1; j < count + 1; ++j)
+                        {
+                            int32 distanceNext = j;
+                            float destx = caster->GetPositionX() + distanceNext * std::cos(angle);
+                            float desty = caster->GetPositionY() + distanceNext * std::sin(angle);
+                            savePos.Relocate(destx, desty, caster->GetPositionZ());
+                            caster->SendSpellCreateVisual(GetSpellInfo(), &savePos);
+                        }
+                    }
+                }
+            }
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if(Unit* caster = GetCaster())
+                    savePos.Relocate(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ());
             }
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_charge_drop_fire_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_charge_drop_fire_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
@@ -1305,34 +1203,6 @@ class spell_warr_charge_drop_fire : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warr_charge_drop_fire_AuraScript();
-        }
-};
-
-// Bloodbath - 113344
-class spell_warr_bloodbath : public SpellScriptLoader
-{
-    public:
-        spell_warr_bloodbath() : SpellScriptLoader("spell_warr_bloodbath") { }
-
-        class spell_warr_bloodbath_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warr_bloodbath_AuraScript);
-
-            void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if((amount * 36) > aurEff->GetOldBaseAmount())
-                    amount += aurEff->GetOldBaseAmount();
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_bloodbath_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warr_bloodbath_AuraScript();
         }
 };
 
@@ -1344,15 +1214,12 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_storm_bolt();
     new spell_warr_colossus_smash();
     new spell_warr_meat_cleaver();
-    new spell_warr_dragon_roar();
     new spell_warr_staggering_shout();
-    new spell_warr_second_wind();
     new spell_warr_sudden_death();
     new spell_warr_mocking_banner();
     new spell_warr_raging_blow();
     new spell_warr_sword_and_board();
     new spell_warr_mortal_strike();
-    new spell_warr_rallying_cry();
     new spell_warr_heroic_leap_damage();
     new spell_warr_heroic_leap();
     new spell_warr_shockwave();
@@ -1371,5 +1238,4 @@ void AddSC_warrior_spell_scripts()
     new spell_war_slam_aoe();
     new spell_war_intervene();
     new spell_warr_charge_drop_fire();
-    new spell_warr_bloodbath();
 }

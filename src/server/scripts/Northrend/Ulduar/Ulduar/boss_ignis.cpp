@@ -46,7 +46,8 @@ enum Spells
     SPELL_FLAME_JETS                            = 62680,
     SPELL_SCORCH                                = 62546,
     SPELL_SLAG_POT                              = 62717,
-    SPELL_SLAG_IMBUED                           = 62836,
+    SPELL_SLAG_IMBUED_10                        = 62836,
+    SPELL_SLAG_IMBUED_25                        = 63536,
     SPELL_SLAG_POT_DAMAGE                       = 65722,
     SPELL_ACTIVATE_CONSTRUCT                    = 62488,
     SPELL_STRENGHT                              = 64473,
@@ -161,7 +162,7 @@ public:
 
             if (instance)
             {
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_TIMED_START_EVENT);
             }
             
             construct_list.clear();
@@ -184,7 +185,7 @@ public:
 
             // Stokin' the Furnace
             if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_TIMED_START_EVENT);
         }
 
         void JustDied(Unit* /*victim*/)
@@ -254,7 +255,7 @@ public:
                     case EVENT_CHANGE_POT:
                         if (Unit* SlagPotTarget = Unit::GetUnit(*me, SlagPotGUID))
                         {
-                            SlagPotTarget->AddAura(SPELL_SLAG_POT, SlagPotTarget);
+                            me->CastSpell(SlagPotTarget, SPELL_SLAG_POT, true);
                             SlagPotTarget->ChangeSeat(1);
                             events.ScheduleEvent(EVENT_END_POT, 10000);
                         }
@@ -449,13 +450,15 @@ class spell_ignis_slag_pot : public SpellScriptLoader
         class spell_ignis_slag_pot_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_ignis_slag_pot_AuraScript)
-            bool Validate(SpellInfo const * /*spellEntry*/)
+            bool Validate(SpellInfo const * /*SpellInfo*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_SLAG_POT_DAMAGE))
                     return false;
                 if (!sSpellStore.LookupEntry(SPELL_SLAG_POT))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_SLAG_IMBUED))
+                if (!sSpellStore.LookupEntry(SPELL_SLAG_IMBUED_10))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_SLAG_IMBUED_25))
                     return false;
                 return true;
             }
@@ -469,7 +472,12 @@ class spell_ignis_slag_pot : public SpellScriptLoader
                 Unit * target = GetTarget();
                 aurEffCaster->CastSpell(target, SPELL_SLAG_POT_DAMAGE, true);
                 if (target->isAlive() && !GetDuration())
-                     target->CastSpell(target, SPELL_SLAG_IMBUED, true);
+                {
+                    if (aurEffCaster->GetMap()->GetDifficulty() == MAN10_DIFFICULTY)
+                        target->CastSpell(target, SPELL_SLAG_IMBUED_10, true);
+                    else if (aurEffCaster->GetMap()->GetDifficulty() == MAN25_DIFFICULTY)
+                        target->CastSpell(target, SPELL_SLAG_IMBUED_25, true);
+                }
             }
 
             void Register()

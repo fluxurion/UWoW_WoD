@@ -377,6 +377,7 @@ class Map : public GridRefManager<NGridType>
         bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
         bool isChallenge() const { return i_difficulty == DIFFICULTY_CHALLENGE; }
+        bool IsScenario() const { return i_mapEntry && i_mapEntry->IsScenario(); }
         bool IsRaidOrHeroicDungeon() const { return IsRaid() || IsHeroic(); }
         bool IsHeroic() const;
         bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC); }   // since 25man difficulties are 1 and 3, we can check them like that
@@ -459,6 +460,7 @@ class Map : public GridRefManager<NGridType>
         void InsertGameObjectModel(const GameObjectModel& model) { /*_dynamicTree.insert(model);*/ }
         bool ContainsGameObjectModel(const GameObjectModel& model) const { return _dynamicTree.contains(model);}
         bool getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist);
+        void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
 
         virtual uint32 GetOwnerGuildId(uint32 /*team*/ = TEAM_OTHER) const { return 0; }
         /*

@@ -110,7 +110,7 @@ struct boss_fallen_protectors : public BossAI
     boss_fallen_protectors(Creature* creature) : BossAI(creature, DATA_F_PROTECTORS)
     {
         measureVeh = 0;
-        measureSummonedCount = 0;
+        //measureSummonedCount = 0;
     }
 
     int8 _healthPhase;
@@ -124,6 +124,11 @@ struct boss_fallen_protectors : public BossAI
         _healthPhase = 0;
         me->CastSpell(me, SPELL_DESPAWN_AT, true);
         //me->RemoveAllAreaObjects();
+        instance->DoRemoveAurasDueToSpellOnPlayers(143239); // Remove AT dots
+        instance->DoRemoveAurasDueToSpellOnPlayers(143959);
+        instance->DoRemoveAurasDueToSpellOnPlayers(143564);
+        measureSummonedCount = 0;
+
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
@@ -132,6 +137,7 @@ struct boss_fallen_protectors : public BossAI
         InitBattle();
 
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->SetBossState(DATA_F_PROTECTORS, IN_PROGRESS);
         DoZoneInCombat(me, 150.0f);
         
         for (int32 i = 0; i < 3; ++i)
@@ -228,6 +234,9 @@ struct boss_fallen_protectors : public BossAI
         summons.DespawnAll();
 
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(143239); // Remove AT dots
+        instance->DoRemoveAurasDueToSpellOnPlayers(143959);
+        instance->DoRemoveAurasDueToSpellOnPlayers(143564);
     }
 
     void summonDesperation()
@@ -324,6 +333,10 @@ class boss_rook_stonetoe : public CreatureScript
             void Reset()
             {
                 boss_fallen_protectors::Reset();
+                me->CastSpell(me, SPELL_DESPAWN_AT, true);
+
+                if (Creature* sun = instance->instance->GetCreature(instance->GetData64(NPC_SUN_TENDERHEART)))
+                    sun->AI()->EnterEvadeMode();
             }
 
             enum local
@@ -428,6 +441,11 @@ class boss_he_softfoot : public CreatureScript
             {
                 boss_fallen_protectors::Reset();
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GARROTE);
+
+                me->CastSpell(me, SPELL_DESPAWN_AT, true);
+
+                if (Creature* sun = instance->instance->GetCreature(instance->GetData64(NPC_SUN_TENDERHEART)))
+                    sun->AI()->EnterEvadeMode();
             }
 
             enum local
@@ -547,17 +565,20 @@ class boss_sun_tenderheart : public CreatureScript
 
         struct boss_sun_tenderheartAI : public boss_fallen_protectors
         {
-            boss_sun_tenderheartAI(Creature* creature) : boss_fallen_protectors(creature)
+            boss_sun_tenderheartAI(Creature* creature) : boss_fallen_protectors(creature), summons(me)
             {
                 SetCombatMovement(false);
                 measureVeh = NPC_GOLD_LOTOS_SUN;
             }
 
+            SummonList summons;
             uint32 shadow_word_count;
             void Reset()
             {
                 boss_fallen_protectors::Reset();
                 shadow_word_count = 0;
+                summons.DespawnAll();
+                me->SummonCreature(NPC_GOLD_LOTOS_MAIN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
 
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_WORD_BANE);
             }
@@ -589,9 +610,15 @@ class boss_sun_tenderheart : public CreatureScript
                 boss_fallen_protectors::DoAction(action);
             }
 
+            void JustSummoned(Creature* summon)
+            {
+                summons.Summon(summon);
+            }
+
             void JustDied(Unit* /*killer*/)
             {
                 boss_fallen_protectors::JustDied(NULL);
+                summons.DespawnAll();
                 sCreatureTextMgr->SendChat(me, TEXT_GENERIC_6, me->GetGUID());
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_WORD_BANE);
             }
@@ -880,6 +907,8 @@ struct npc_measure : public ScriptedAI
         }
         else
             sLog->outError(LOG_FILTER_GENERAL, " >> Script boss_fallen_protectors::npc_measure can't find vehowner %u", ownVehicle);
+        
+        me->CombatStop();
     }
 
     void DamageTaken(Unit* attacker, uint32 &damage)
@@ -889,6 +918,9 @@ struct npc_measure : public ScriptedAI
             goBack();
             damage = 0;
         }
+
+        if (me->HasAura(46598))
+            damage = 0;
     }
 
     void JustSummoned(Creature* summon)
@@ -1482,7 +1514,7 @@ class spell_fallen_protectors_mark_of_anguish : public SpellScriptLoader
                     //By normal way should prock from our proc system... but where is caster and target is channel target... so this is custom prock reason.
                     if (SpellInfo const* m_spellInfo = sSpellMgr->GetSpellInfo(SPELL_MARK_OF_ANGUISH_DAMAGE))
                     {
-                        DamageInfo dmgInfoProc = DamageInfo(caster, target, 1, m_spellInfo, SpellSchoolMask(m_spellInfo->SchoolMask), SPELL_DIRECT_DAMAGE);
+                        DamageInfo dmgInfoProc = DamageInfo(caster, target, 1, m_spellInfo, SpellSchoolMask(m_spellInfo->SchoolMask), SPELL_DIRECT_DAMAGE, 0);
                         caster->ProcDamageAndSpell(target, PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG, 0, PROC_EX_NORMAL_HIT, &dmgInfoProc, BASE_ATTACK, m_spellInfo, aurEff->GetSpellInfo());
                     }
                 }
@@ -1607,7 +1639,7 @@ class spell_fallen_protectors_defile_ground : public SpellScriptLoader
                     return;
 
                 AreaTrigger * areaTrigger = new AreaTrigger;
-                if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), AT_ENTRY, caster, GetSpellInfo(), *target, GetSpell()))
+                if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), AT_ENTRY, caster, GetSpellInfo(), *target, *target, GetSpell()))
                 {
 
                     delete areaTrigger;

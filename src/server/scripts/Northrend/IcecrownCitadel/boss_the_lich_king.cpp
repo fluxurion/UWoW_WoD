@@ -570,11 +570,11 @@ class boss_the_lich_king : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 20000, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOUL, 10000, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_INFEST, 5000, 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, urand(30000, 33000), 0, PHASE_ONE);
+                //events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, urand(30000, 33000), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_BERSERK, 1200000, EVENT_GROUP_BERSERK);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                //if (IsHeroic())
-                    //events.ScheduleEvent(EVENT_SHADOW_TRAP, 15500, 0, PHASE_ONE);
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_SHADOW_TRAP, 15500, 0, PHASE_ONE);
             }
 
             void JustReachedHome()
@@ -2240,12 +2240,12 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
                         return;
                 }
 
-                CustomSpellValues values;
+                //CustomSpellValues values;
                 //values.AddSpellMod(SPELLVALUE_AURA_STACK, 2);
-                values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
-                GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, NULL, true, NULL, NULL, GetCasterGUID());
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, SPELL_PLAGUE_SIPHON, true);
+                //values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
+                //GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, NULL, true, NULL, NULL, GetCasterGUID());
+                //if (Unit* caster = GetCaster())
+                    //caster->CastSpell(caster, SPELL_PLAGUE_SIPHON, true);
             }
 
             void Register()
@@ -2334,8 +2334,8 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
                         return;
                 }
 
-                CustomSpellValues values;
-                values.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
+                //CustomSpellValues values;
+                //values.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
                 //GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, NULL, true, NULL, NULL, GetCasterGUID());
                 //if (Unit* caster = GetCaster())
                     //caster->CastSpell(caster, SPELL_PLAGUE_SIPHON, true);
@@ -2352,14 +2352,14 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
                 if (aurEff->GetAmount() > _lastAmount)
                     return;
 
-                CustomSpellValues values;
-                values.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
-                values.AddSpellMod(SPELLVALUE_BASE_POINT1, AURA_REMOVE_BY_ENEMY_SPELL); // add as marker (spell has no effect 1)
+                //CustomSpellValues values;
+                //values.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
+                //values.AddSpellMod(SPELLVALUE_BASE_POINT1, AURA_REMOVE_BY_ENEMY_SPELL); // add as marker (spell has no effect 1)
                 //GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, NULL, true, NULL, NULL, GetCasterGUID());
                 //if (Unit* caster = GetCaster())
                     //caster->CastSpell(caster, SPELL_PLAGUE_SIPHON, true);
 
-                Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+                //Remove(AURA_REMOVE_BY_ENEMY_SPELL);
             }
 
             void Register()
@@ -3444,7 +3444,7 @@ public:
                             if (!curVictim || curVictim->GetEntry() == NPC_TERENAS_MENETHIL_FROSTMOURNE_H)
                                 curVictim = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
 
-                            if(curVictim || curVictim->GetEntry() != NPC_TERENAS_MENETHIL_FROSTMOURNE_H)
+                            if(curVictim && curVictim->GetEntry() != NPC_TERENAS_MENETHIL_FROSTMOURNE_H)
                                 AttackStart(curVictim);
                             else
                             {

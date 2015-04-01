@@ -43,9 +43,19 @@ DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore(ItemExtendedC
 DB2Storage<ItemEffectEntry>                 sItemEffectStore(ItemEffectEntryfmt);
 DB2Storage<ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore(ItemModifiedAppearanceEntryfmt);
 DB2Storage<ItemSparseEntry>                 sItemSparseStore (ItemSparsefmt, &DB2Utilities::HasItemSparseEntry, &DB2Utilities::WriteItemSparseDbReply);
-DB2Storage<BattlePetSpeciesEntry>           sBattlePetSpeciesStore(BattlePetSpeciesEntryfmt);
+DB2Storage <BattlePetAbilityEntry> sBattlePetAbilityStore(BattlePetAbilityEntryfmt);
+DB2Storage <BattlePetAbilityTurnEntry> sBattlePetAbilityTurnStore(BattlePetAbilityTurnEntryfmt);
+DB2Storage <BattlePetAbilityEffectEntry> sBattlePetAbilityEffectStore(BattlePetAbilityEffectEntryfmt);
+DB2Storage <BattlePetEffectPropertiesEntry> sBattlePetEffectPropertiesStore(BattlePetEffectPropertiesEntryfmt);
+DB2Storage <BattlePetAbilityStateEntry> sBattlePetAbilityStateStore(BattlePetAbilityStateEntryfmt);
+DB2Storage <BattlePetSpeciesEntry> sBattlePetSpeciesStore(BattlePetSpeciesEntryfmt);
+DB2Storage <BattlePetSpeciesStateEntry> sBattlePetSpeciesStateStore(BattlePetSpeciesStateEntryfmt);
+DB2Storage <BattlePetSpeciesXAbilityEntry> sBattlePetSpeciesXAbilityStore(BattlePetSpeciesXAbilityEntryfmt);
 DB2Storage<LanguageWordsEntry>              sLanguageWordsStore(LanguageWordsEntryfmt);
 std::map<uint32 /*lang id*/, LanguageWordsMap> sLanguageWordsMapStore;
+DB2Storage <BattlePetStateEntry> sBattlePetStateStore(BattlePetStateEntryfmt);
+DB2Storage <BattlePetBreedQualityEntry> sBattlePetBreedQualityStore(BattlePetBreedQualityEntryfmt);
+DB2Storage <BattlePetBreedStateEntry> sBattlePetBreedStateStore(BattlePetBreedStateEntryfmt);
 DB2Storage<QuestPackageItem>                sQuestPackageItemStore(QuestPackageItemfmt);
 DB2Storage<SpellReagentsEntry>              sSpellReagentsStore(SpellReagentsEntryfmt);
 DB2Storage<ItemUpgradeEntry>                sItemUpgradeStore(ItemUpgradeEntryfmt);
@@ -163,6 +173,16 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemStore,                 db2Path,    "Item.db2");//19342
     LoadDB2(bad_db2_files, sItemAppearanceStore,       db2Path,    "ItemAppearance.db2");//19342
     LoadDB2(bad_db2_files, sItemBonusStore,            db2Path,    "ItemBonus.db2");//19342
+    LoadDB2(bad_db2_files, sBattlePetAbilityStore,  db2Path, "BattlePetAbility.db2");
+    LoadDB2(bad_db2_files, sBattlePetAbilityEffectStore,  db2Path, "BattlePetAbilityEffect.db2");
+    LoadDB2(bad_db2_files, sBattlePetEffectPropertiesStore,  db2Path, "BattlePetEffectProperties.db2");
+    LoadDB2(bad_db2_files, sBattlePetAbilityTurnStore,  db2Path, "BattlePetAbilityTurn.db2");
+    LoadDB2(bad_db2_files, sBattlePetAbilityStateStore,  db2Path, "BattlePetAbilityState.db2");
+    LoadDB2(bad_db2_files, sBattlePetSpeciesStateStore,  db2Path, "BattlePetSpeciesState.db2");
+    LoadDB2(bad_db2_files, sBattlePetSpeciesXAbilityStore,  db2Path, "BattlePetSpeciesXAbility.db2");
+    LoadDB2(bad_db2_files, sBattlePetStateStore,  db2Path, "BattlePetState.db2");
+    LoadDB2(bad_db2_files, sBattlePetBreedQualityStore,  db2Path, "BattlePetBreedQuality.db2");
+    LoadDB2(bad_db2_files, sBattlePetBreedStateStore,  db2Path, "BattlePetBreedState.db2");
     LoadDB2(bad_db2_files, sItemCurrencyCostStore,     db2Path,    "ItemCurrencyCost.db2");
     LoadDB2(bad_db2_files, sItemSparseStore,           db2Path,    "Item-sparse.db2");//19342
     LoadDB2(bad_db2_files, sItemModifiedAppearanceStore, db2Path,  "ItemModifiedAppearance.db2");//19342
@@ -411,18 +431,6 @@ std::list<uint32> GetGameObjectsList()
 
 ItemUpgradeData const* GetItemUpgradeData(uint32 itemEntry)
 {
-    switch (itemEntry)
-    {
-        case 102248: itemEntry = 105277; break;
-        case 102249: itemEntry = 98147;  break;
-        case 102245: itemEntry = 98335;  break;
-        case 102250: itemEntry = 98146;  break;
-        case 102247: itemEntry = 98149;  break;
-        case 102246: itemEntry = 98150;  break;
-        default:
-            break;
-    }
-
     ItemUpgradeDataMap::iterator itr = sItemUpgradeDataMap.find(itemEntry);
     if (itr == sItemUpgradeDataMap.end())
         return NULL;

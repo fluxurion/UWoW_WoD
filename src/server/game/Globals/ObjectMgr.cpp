@@ -1382,8 +1382,8 @@ void ObjectMgr::LoadCreatures()
 
     //                                               0              1   2       3      4       5           6           7           8            9            10            11          12
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, zoneId, areaId, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
-    //        13            14         15       16            17         18         19          20          21                22                   23                     24
-        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, creature.isActive "
+    //        13            14         15       16            17         18         19          20          21                22                   23                     24                    25
+        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.npcflag2, creature.unit_flags, creature.dynamicflags, creature.isActive "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1440,6 +1440,7 @@ void ObjectMgr::LoadCreatures()
         int16 gameEvent     = fields[index++].GetInt8();
         uint32 PoolId       = fields[index++].GetUInt32();
         data.npcflag        = fields[index++].GetUInt32();
+        data.npcflag2       = fields[index++].GetUInt32();
         data.unit_flags     = fields[index++].GetUInt32();
         data.dynamicflags   = fields[index++].GetUInt32();
         data.isActive       = fields[index++].GetBool();
@@ -1738,6 +1739,7 @@ ObjectGuid::LowType ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 
     data.phaseMask = PHASEMASK_NORMAL;
     data.dbData = false;
     data.npcflag = cInfo->npcflag;
+    data.npcflag2 = cInfo->npcflag2;
     data.unit_flags = cInfo->unit_flags;
     data.dynamicflags = cInfo->dynamicflags;
 
@@ -2713,8 +2715,8 @@ void ObjectMgr::LoadPetStats()
     uint32 oldMSTime = getMSTime();
     _petStatsStore.clear();
 
-    //                                                 0      1     2       3        4          5           6        7            8           9       10      11
-    QueryResult result = WorldDatabase.Query("SELECT entry, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `state`, `energy`, `energy_type`, `armor`, `type`, `damage` FROM pet_stats");
+    //                                                 0      1     2       3        4          5           6        7            8           9       10      11           12
+    QueryResult result = WorldDatabase.Query("SELECT entry, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `state`, `energy`, `energy_type`, `armor`, `type`, `damage`, `maxspdorap` FROM pet_stats");
 
     if (!result)
     {
@@ -2737,15 +2739,16 @@ void ObjectMgr::LoadPetStats()
         PetStats stats;
         stats.hp = fields[1].GetFloat();
         stats.ap   = fields[2].GetFloat();
-        stats.ap_type  = fields[3].GetUInt32();
+        stats.ap_type  = fields[3].GetInt32();
         stats.spd  = fields[4].GetFloat();
-        stats.school_mask  = fields[5].GetUInt32();
-        stats.state  = fields[6].GetUInt32();
-        stats.energy  = fields[7].GetUInt32();
-        stats.energy_type  = fields[8].GetUInt32();
+        stats.school_mask  = fields[5].GetInt32();
+        stats.state  = fields[6].GetInt32();
+        stats.energy  = fields[7].GetInt32();
+        stats.energy_type  = fields[8].GetInt32();
         stats.armor  = fields[9].GetFloat();
-        stats.type  = fields[10].GetUInt32();
+        stats.type  = fields[10].GetInt32();
         stats.damage  = fields[11].GetFloat();
+        stats.maxspdorap  = fields[12].GetInt32();
         _petStatsStore[entry] = stats;
 
         ++count;
@@ -7082,6 +7085,80 @@ void ObjectMgr::LoadQuestPOI()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quest POI definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadScenarioPOI()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _scenarioPOIStore.clear();                          // need for reload case
+
+    uint32 count = 0;
+
+    //                                               0               1   2      3               4      5      6      7      8
+    QueryResult result = WorldDatabase.Query("SELECT criteriaTreeId, id, mapid, WorldMapAreaId, unk12, unk16, unk20, unk24, unk28 FROM scenario_poi order by criteriaTreeId");
+
+    if (!result)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 scenario POI definitions. DB table `scenario_poi` is empty.");
+
+        return;
+    }
+
+    //                                               0               1   2  3
+    QueryResult points = WorldDatabase.Query("SELECT criteriaTreeId, id, x, y FROM scenario_poi_points ORDER BY criteriaTreeId DESC, idx");
+
+    std::vector<std::vector<std::vector<ScenarioPOIPoint> > > POIs;
+
+    if (points)
+    {
+        // The first result should have the highest questId
+        Field* fields = points->Fetch();
+        uint32 criteriaTreeIdMax = fields[0].GetUInt32();
+        POIs.resize(criteriaTreeIdMax + 1);
+
+        do
+        {
+            fields = points->Fetch();
+
+            uint32 criteriaTreeId     = fields[0].GetUInt32();
+            uint32 id                 = fields[1].GetUInt32();
+            int32  x                  = fields[2].GetInt32();
+            int32  y                  = fields[3].GetInt32();
+
+            if (POIs[criteriaTreeId].size() <= id + 1)
+                POIs[criteriaTreeId].resize(id + 10);
+
+            ScenarioPOIPoint point(x, y);
+            POIs[criteriaTreeId][id].push_back(point);
+        } while (points->NextRow());
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 criteriaTreeId     = fields[0].GetUInt32();
+        uint32 id                 = fields[1].GetUInt32();
+        uint32 mapid              = fields[2].GetUInt32();
+        uint32 WorldMapAreaId     = fields[3].GetUInt32();
+        uint32 unk12              = fields[4].GetUInt32();
+        uint32 unk16              = fields[5].GetUInt32();
+        uint32 unk20              = fields[6].GetUInt32();
+        uint32 unk24              = fields[7].GetUInt32();
+        uint32 unk28              = fields[8].GetUInt32();
+
+        if(POIs[criteriaTreeId].size() > 0)
+        {
+            ScenarioPOI POI(id, mapid, WorldMapAreaId, unk12, unk16, unk20, unk24, unk28);
+            POI.points = POIs[criteriaTreeId][id];
+            _scenarioPOIStore[criteriaTreeId].push_back(POI);
+        }
+
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u scenario POI definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void ObjectMgr::LoadNPCSpellClickSpells()
 {
     uint32 oldMSTime = getMSTime();
@@ -9360,12 +9437,62 @@ void ObjectMgr::LoadBattlePetXPForLevel()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battle pet xp for level definitions.", count);
 }
 
+void ObjectMgr::LoadBattlePetBreedsToSpecies()
+{
+    // Loading xp per level data
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Battle Pet Breeds For Species Data...");
+
+    // clear container
+    _battlePetPossibleBreedsToSpecies.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT speciesID, possibleBreedMask FROM battle_pet_breed2species");
+
+    if (!result)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 possible breeds for species definitions. DB table `battle_pet_breed2species` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 speciesID = fields[0].GetUInt32();
+        uint32 possibleBreedMask = fields[1].GetUInt32();
+
+        std::vector<uint32> breeds;
+
+        // fill breed data
+        for (uint8 i = 3; i < 13; ++i)
+        {
+            bool allow = (possibleBreedMask & (1 << i));
+
+            if (allow)
+                breeds.push_back(i);
+        }
+
+        _battlePetPossibleBreedsToSpecies[speciesID] = breeds;
+        ++count;
+
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u possible breeds for species definitions.", count);
+}
+
+const std::vector<uint32>* ObjectMgr::GetPossibleBreedsForSpecies(uint32 speciesID) const
+{
+    BattlePetPossibleBreedsToSpecies::const_iterator itr = _battlePetPossibleBreedsToSpecies.find(speciesID);
+    return itr != _battlePetPossibleBreedsToSpecies.end() ? &(itr->second) : NULL;
+}
+
 void ObjectMgr::LoadAreaTriggerActionsAndData()
 {
     _areaTriggerData.clear();
 
-    //                                               0         1              2        3            4          5             6          7           8
-    QueryResult result = WorldDatabase.Query("SELECT entry, customVisualId, radius, radius2, activationDelay, updateDelay, maxCount, customEntry, isMoving FROM areatrigger_data");
+    //                                                  0            1                2              3                   4                5            6             7             8         9        10          11         12           13           14        15        16         17                18            19
+    QueryResult result = WorldDatabase.Query("SELECT `entry`, `customVisualId`, `sphereScale`, `sphereScaleMax`, `activationDelay`, `updateDelay`, `maxCount`, `customEntry`, `isMoving`, `speed`, `moveType`, `hitType`, `Height`, `RadiusTarget`, `Float5`, `Float4`, `Radius`, `HeightTarget`, `MoveCurveID`, `ElapsedTime` FROM areatrigger_data");
     if (result)
     {
         uint32 counter = 0;
@@ -9377,13 +9504,24 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
             uint32 id = fields[i++].GetUInt32();
             AreaTriggerInfo& info = _areaTriggerData[id];
             info.visualId = fields[i++].GetUInt32();
-            info.radius = fields[i++].GetFloat();
-            info.radius2 = fields[i++].GetFloat();
+            info.sphereScale = fields[i++].GetFloat();
+            info.sphereScaleMax = fields[i++].GetFloat();
             info.activationDelay = fields[i++].GetUInt32();
             info.updateDelay = fields[i++].GetUInt32();
             info.maxCount = fields[i++].GetUInt8();
             info.customEntry = fields[i++].GetUInt32();
             info.isMoving = fields[i++].GetBool();
+            info.speed = fields[i++].GetFloat();
+            info.moveType = fields[i++].GetUInt32();
+            info.hitType = fields[i++].GetUInt32();
+            info.Height = fields[i++].GetFloat();
+            info.RadiusTarget = fields[i++].GetFloat();
+            info.Float5 = fields[i++].GetFloat();
+            info.Float4 = fields[i++].GetFloat();
+            info.Radius = fields[i++].GetFloat();
+            info.HeightTarget = fields[i++].GetFloat();
+            info.MoveCurveID = fields[i++].GetUInt32();
+            info.ElapsedTime = fields[i++].GetUInt32();
             ++counter;
         }
         while (result->NextRow());
@@ -9393,8 +9531,8 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
     else
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 areatrigger data. DB table `areatrigger_data` is empty.");
 
-    //                                                0      1   2       3           4            5        6           7
-    QueryResult result2 = WorldDatabase.Query("SELECT entry, id, moment, actionType, targetFlags, spellId, maxCharges, chargeRecoveryTime FROM areatrigger_actions");
+    //                                                0      1     2         3           4           5         6                7           8       9       10      11
+    QueryResult result2 = WorldDatabase.Query("SELECT entry, id, moment, actionType, targetFlags, spellId, maxCharges, chargeRecoveryTime, aura, hasspell, scale, hitMaxCount FROM areatrigger_actions");
     if (result2)
     {
         uint32 counter = 0;
@@ -9412,6 +9550,10 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
             action.spellId = fields[i++].GetUInt32();
             action.maxCharges = fields[i++].GetInt8();
             action.chargeRecoveryTime = fields[i++].GetUInt32();
+            action.aura = fields[i++].GetInt32();
+            action.hasspell = fields[i++].GetInt32();
+            action.scale = fields[i++].GetFloat();
+            action.hitMaxCount = fields[i++].GetInt32();
 
             if (action.actionType >= AT_ACTION_TYPE_MAX)
             {

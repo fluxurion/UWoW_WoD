@@ -360,12 +360,12 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
 
     ObjectGuid GoGuid;
     recvData >> GoGuid;
-    bool fullSlotList = recvData.ReadBit();
+    bool fullUpdate = recvData.ReadBit();
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
     {
         if (Guild* guild = _GetPlayerGuild(this))
-            guild->SendBankList(this, 0, true, true);
+            guild->SendBankList(this, 0, true, true, fullUpdate);
         else
             Guild::SendCommandResult(this, GUILD_UNK1, ERR_GUILD_PLAYER_NOT_IN_GUILD);
     }
@@ -381,11 +381,11 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket & recvData)
     uint8 tabId;
 
     recvData >> GoGuid>> tabId;
-    bool fullSlotList = recvData.ReadBit(); // 0 = only slots updated in last operation are shown. 1 = all slots updated
+    bool fullUpdate = recvData.ReadBit();  // fullUpdate
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
-            guild->SendBankList(this, tabId, true, false);
+            guild->SendBankList(this, tabId, true, false, fullUpdate);
 }
 
 //! 6.0.3
@@ -769,4 +769,10 @@ void WorldSession::HandleGuildQueryGuildMembersRecipes(WorldPacket& recvPacket)
         return;
 
     guild->SendGuildMemberRecipesResponse(this, playerGuid, skillId);
+}
+
+void WorldSession::HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket)
+{
+    if (Guild* guild = _player->GetGuild())
+        guild->SendGuildChallengesInfo(this);
 }

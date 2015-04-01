@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "Common.h"
 #include "Player.h"
 #include "GridNotifiers.h"
@@ -35,6 +34,7 @@
 #include "World.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "ScenarioMgr.h"
 
 uint16 InstanceSaveManager::ResetTimeDelay[] = {3600, 900, 300, 60};
 
@@ -133,6 +133,8 @@ void InstanceSaveManager::DeleteInstanceFromDB(uint32 instanceid)
     stmt->setUInt32(0, instanceid);
     CharacterDatabase.DirectExecute(stmt);
     // Respawn times should be deleted only when the map gets unloaded
+
+    sScenarioMgr->RemoveScenarioProgress(instanceid);
 }
 
 void InstanceSaveManager::RemoveInstanceSave(uint32 InstanceId)
@@ -156,7 +158,7 @@ void InstanceSaveManager::UnloadInstanceSave(uint32 InstanceId)
 }
 
 InstanceSave::InstanceSave(uint16 MapId, uint32 InstanceId, Difficulty difficulty, bool canReset)
-: m_instanceid(InstanceId), m_mapid(MapId), m_difficulty(difficulty), m_canReset(canReset), m_toDelete(false)
+: m_instanceid(InstanceId), m_mapid(MapId), m_toDelete(false), m_difficulty(difficulty), m_canReset(canReset)
 {
 }
 

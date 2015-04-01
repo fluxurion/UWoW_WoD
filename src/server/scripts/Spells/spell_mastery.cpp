@@ -56,12 +56,6 @@ class spell_mastery_shield_discipline : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                if (AuraEffect const* aurEff = caster->GetAuraEffect(47753, EFFECT_0)) //Divine Aegis
-                {
-                    if(roll_chance_f(aurEff->GetCritChance()))
-                        amount *= 2;
-                }
-
                 AuraEffect const* aurEff = caster->GetAuraEffect(MASTERY_SPELL_DISCIPLINE_SHIELD, EFFECT_0);
                 if (!aurEff)
                     return;
@@ -75,7 +69,7 @@ class spell_mastery_shield_discipline : public SpellScriptLoader
                 Unit* caster = dmgInfo.GetVictim();
                 Unit* target = dmgInfo.GetAttacker();
 
-                if (!target || !caster || !caster->HasAura(33202, GetCasterGUID()) || GetSpellInfo()->Id != 17)
+                if (!target || !caster || !caster->HasAura(33202, GetCasterGUID()) || (GetSpellInfo()->Id != 17 && GetSpellInfo()->Id != 123258))
                     return;
 
                 int32 reflectiveDamage = int32((dmgInfo.GetDamage() > absorbAmount ? absorbAmount : dmgInfo.GetDamage()) * 0.7f);
@@ -107,14 +101,14 @@ class spell_mastery_elemental_overload : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mastery_elemental_overload_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(403) || !sSpellMgr->GetSpellInfo(421) || !sSpellMgr->GetSpellInfo(51505) || !sSpellMgr->GetSpellInfo(117014))
                     return false;
                 return true;
             }
 
-            void HandleOnHit()
+            void HandleAfterCast()
             {
                 SpellInfo const* procSpell = GetSpellInfo();
                 if (!procSpell)
@@ -124,7 +118,7 @@ class spell_mastery_elemental_overload : public SpellScriptLoader
                 if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                Unit* unitTarget = GetHitUnit();
+                Unit* unitTarget = GetExplTargetUnit();
                 if (!unitTarget)
                     return;
 
@@ -160,7 +154,7 @@ class spell_mastery_elemental_overload : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mastery_elemental_overload_SpellScript::HandleOnHit);
+                AfterCast += SpellCastFn(spell_mastery_elemental_overload_SpellScript::HandleAfterCast);
             }
         };
 

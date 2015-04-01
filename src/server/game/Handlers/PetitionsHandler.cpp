@@ -129,7 +129,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
     charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT, charter->GetGUID().GetCounter());
     charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT+1, 0);
     charter->SetState(ITEM_CHANGED, _player);
-    _player->SendNewItem(charter, NULL, 1, true, false);
+    _player->SendNewItem(charter, 1, true, false);
 
     // a petition is invalid, if both the owner and the type matches
     // we checked above, if this player is in an arenateam, so this must be
@@ -217,6 +217,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     data << petitionguid;
     data << playerGUID;                             // should be owner
     data << GetAccountGUID();
+        result->NextRow();
 
     data << uint32(petitionGuidLow);                // CGPetitionInfo__m_petitionID
 

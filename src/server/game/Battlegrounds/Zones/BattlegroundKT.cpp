@@ -88,6 +88,7 @@ void BattlegroundKT::PostUpdateImpl(uint32 diff)
                 {
                     AccumulateScore(player->GetTeamId(), m_playersZone[guid]);
                     UpdatePlayerScore(player, SCORE_ORB_SCORE, m_playersZone[guid]);
+                            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_KT_OBJECTIVE_ORB_COUNT, m_playersZone[guid] + 3);
                 }
             }
 

@@ -76,6 +76,9 @@ void Totem::InitStats(uint32 duration)
                     continue;
                 else
                 {
+                    if(m_owner->m_SummonSlot[i])
+                        if(Creature* oldSummon = GetMap()->GetCreature(m_owner->m_SummonSlot[i]))
+                            continue;
                     switch (i)
                     {
                         case 1:
@@ -118,9 +121,7 @@ void Totem::InitStats(uint32 duration)
 void Totem::InitSummon()
 {
     if (m_type == TOTEM_PASSIVE && GetSpell())
-    {
         CastSpell(this, GetSpell(), true);
-    }
 
     // Some totems can have both instant effect and passive spell
     if (GetSpell(1))

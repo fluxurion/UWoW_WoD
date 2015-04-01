@@ -85,10 +85,6 @@ enum eSpells
 Position const Sha_of_pride_taranzhu  = {748.1805f, 1058.264f, 356.1557f, 5.566918f };
 Position const Sha_of_pride_finish_jaina  = {765.6154f, 1050.112f, 357.0135f, 1.514341f };
 Position const Sha_of_pride_finish_teron  = {756.955f, 1048.71f, 357.0236f, 1.68638f };
-Position const Sha_of_pride_portal[2]  = {
-    {783.5452f, 1168.182f, 356.1551f, 4.221592f},
-    {691.1077f, 1149.943f, 356.1552f, 5.842754f},
-};
 
 //Manifestation of Pride
 Position const Sha_of_pride_manifestation[2]  = {
@@ -98,6 +94,11 @@ Position const Sha_of_pride_manifestation[2]  = {
 
 uint32 const prison[4] = { GO_CORRUPTED_PRISON_WEST, GO_CORRUPTED_PRISON_EAST, GO_CORRUPTED_PRISON_NORTH, GO_CORRUPTED_PRISON_SOUTH };
 uint32 const prison_spell[4] = { SPELL_CORRUPTED_PRISON_WEST, SPELL_CORRUPTED_PRISON_EAST, SPELL_CORRUPTED_PRISON_NORTH, SPELL_CORRUPTED_PRISON_SOUTH };
+uint32 const prisonbutton[12] = 
+{ GO_CORRUPTED_BUTTON_WEST_1, GO_CORRUPTED_BUTTON_WEST_2, GO_CORRUPTED_BUTTON_WEST_3, GO_CORRUPTED_BUTTON_EAST_1, GO_CORRUPTED_BUTTON_EAST_2,
+  GO_CORRUPTED_BUTTON_EAST_3, GO_CORRUPTED_BUTTON_NORTH_1, GO_CORRUPTED_BUTTON_NORTH_2, GO_CORRUPTED_BUTTON_NORTH_3, GO_CORRUPTED_BUTTON_SOUTH_1,
+  GO_CORRUPTED_BUTTON_SOUTH_2, GO_CORRUPTED_BUTTON_SOUTH_3 };
+
 enum PhaseEvents
 {
     EVENT_SPELL_MARK_OF_ARROGANCE       = 1,    
@@ -163,6 +164,7 @@ class boss_sha_of_pride : public CreatureScript
             }
 
             InstanceScript* instance;
+            bool bPhaseLowHp;
 
             void Reset()
             {
@@ -171,12 +173,29 @@ class boss_sha_of_pride : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERCOME);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_ARROGANCE);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERCOME_MIND_CONTROL);
-
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_PRISON_WEST);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_PRISON_EAST);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_PRISON_NORTH);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_PRISON_SOUTH);
+                
+                me->RemoveAurasDueToSpell(SPELL_UNLEASHED);
                 me->setPowerType(POWER_ENERGY);
                 me->SetMaxPower(POWER_ENERGY, 100);
                 me->SetPower(POWER_ENERGY, 0);
+                bPhaseLowHp = false;
+                
+                if (Creature* norushen = instance->instance->GetCreature(instance->GetData64(NPC_SHA_NORUSHEN)))
+                    norushen->Respawn();
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                
+                for(uint8 i = 0; i < 12; ++i)
+                {
+                    if (GameObject* prisonGo = instance->instance->GetGameObject(instance->GetData64(prisonbutton[i])))
+                    {
+                        prisonGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                    }
+                }
             }
 
             void SetData(uint32 id, uint32 value)
@@ -218,7 +237,6 @@ class boss_sha_of_pride : public CreatureScript
                 events.RescheduleEvent(EVENT_SUMMON_MANIFESTATION_OF_PRIDE, t += 9000, 0, PHASE_BATTLE);      //19:02:57.000
                 events.RescheduleEvent(EVENT_PRIDE_GENERATION, 4000);                                         //first SPELL_SWELLING_PRIDE at 19:03:11.000
                 events.RescheduleEvent(EVENT_SPELL_REACHING_ATTACK, 15000, 0, PHASE_BATTLE);                  //19:03:49.000. Cast only if no in attack range ppl.
-                events.RescheduleEvent(EVENT_SPELL_UNLEASHED, RAID_MODE(10 * MINUTE * IN_MILLISECONDS, 10 * MINUTE * IN_MILLISECONDS, 20* MINUTE * IN_MILLISECONDS , 20 * MINUTE * IN_MILLISECONDS), 0, PHASE_BATTLE);                //19:21:11.000 
 
                 Map::PlayerList const& PlayerList = instance->instance->GetPlayers();
 
@@ -283,6 +301,10 @@ class boss_sha_of_pride : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERCOME);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_ARROGANCE);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERCOME_MIND_CONTROL);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_PRISON_WEST);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_PRISON_EAST);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_PRISON_NORTH);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_PRISON_SOUTH);
             }
 
             void UpdateAI(uint32 diff)
@@ -290,6 +312,12 @@ class boss_sha_of_pride : public CreatureScript
                 if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
+                if (me->HealthBelowPct(30) && !bPhaseLowHp)
+                {
+                    events.ScheduleEvent(EVENT_SPELL_UNLEASHED, 1000);
+                    bPhaseLowHp = true;
+                }
+                
                 EnterEvadeIfOutOfCombatArea(diff);
                 events.Update(diff);
                 while (uint32 eventId = events.ExecuteEvent())
@@ -329,6 +357,7 @@ class boss_sha_of_pride : public CreatureScript
                             uint8 i = 0;
                             std::list<Unit*> targetList;
                             SelectTargetList(targetList, count, SELECT_TARGET_RANDOM, 0.0f, true);
+                            targetList.remove_if(TankTargetSelector(me));
                             for(std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                             {
                                 if (GameObject* prisonGo = instance->instance->GetGameObject(instance->GetGuidData(prison[i])))
@@ -427,7 +456,12 @@ public:
             start = false;
             _gift.clear();
         }
-
+        
+        void JustRespawned()
+        {
+            start = true;
+        }
+        
         void MoveInLineOfSight(Unit* who)
         {
             if (start)return;
@@ -710,13 +744,7 @@ public:
                             teron->AI()->ZoneTalk(TEXT_GENERIC_3, ObjectGuid::Empty);
                         break;
                     case EVENT_14:
-                        for(uint32 i = 0; i < 2; ++i)
-                            if (Creature * c = instance->instance->SummonCreature(NPC_PORTAL_TO_ORGRIMMAR, Sha_of_pride_portal[i]))
-                            {
-                                c->SetInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, 148034);
-                                c->SetDisplayId(51795);
-                            }
-                            
+                        instance->SetData(DATA_SHA_OF_PRIDE, DONE);
                         if (Creature* jaina = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_OF_PRIDE_END_LADY_JAINA)))
                         {
                             jaina->AI()->ZoneTalk(TEXT_GENERIC_4, ObjectGuid::Empty);

@@ -134,6 +134,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     _player->m_movementInfo.pos.m_positionX = loc.m_positionX;
     _player->m_movementInfo.pos.m_positionY = loc.m_positionY;
     _player->m_movementInfo.pos.m_positionZ = loc.m_positionZ;
+    _player->m_movementInfo.pos.m_orientation = loc.m_orientation;
 
     WorldPackets::Movement::ServerPlayerMovement playerMovement;
     playerMovement.movementInfo = &_player->m_movementInfo;
@@ -326,6 +327,9 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     /* handle special cases */
     if (movementInfo.transport.guid)
     {
+        if(World::GetEnableMvAnticheatDebug())
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleMovementOpcodes t_guid %u, opcode[%s]", movementInfo.t_guid, GetOpcodeNameForLogging(opcode).c_str());
+
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
         if (movementInfo.transport.pos.GetPositionX() > 50 || movementInfo.transport.pos.GetPositionY() > 50 || movementInfo.transport.pos.GetPositionZ() > 50)
@@ -402,13 +406,19 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
         movementInfo.transport.Reset();
     }
 
+    ZLiquidStatus status = LIQUID_MAP_NO_WATER;
+    bool liquidCheck = false;
+
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
-    if (plrMover && plrMover->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR) && !movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR) && plrMover && !plrMover->IsInWater() && !plrMover->isInFlight())
+    if (plrMover && plrMover->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR) && !movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR) && plrMover && !plrMover->isInFlight())
     {
+        status = _player->GetBaseMap()->getLiquidStatus(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ(), MAP_ALL_LIQUIDS);
+        liquidCheck = true;
         // movement anticheat
         plrMover->m_anti_JumpCount = 0;
         plrMover->m_anti_JumpBaseZ = 0;
-        plrMover->HandleFall(movementInfo);
+        if(!status)
+            plrMover->HandleFall(movementInfo);
     }
 
     if (plrMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plrMover->IsInWater())
@@ -549,8 +559,8 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
                 // end current speed
 
                 // movement distance
-                LiquidData liquidStatus;
-                ZLiquidStatus status = _player->GetBaseMap()->getLiquidStatus(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus);
+                if(!liquidCheck)
+                    status = _player->GetBaseMap()->getLiquidStatus(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ(), MAP_ALL_LIQUIDS);
                 const float delta_x = (plrMover->m_transport || plrMover->m_temp_transport) ? 0 : mover->GetPositionX() - movementInfo.pos.GetPositionX();
                 const float delta_y = (plrMover->m_transport || plrMover->m_temp_transport) ? 0 : mover->GetPositionY() - movementInfo.pos.GetPositionY();
                 const float delta_z = (plrMover->m_transport || plrMover->m_temp_transport) ? 0 : mover->GetPositionZ() - movementInfo.pos.GetPositionZ();
@@ -860,7 +870,9 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
     if(Unit* mover = _player->m_mover)
         mover->AddUnitState(UNIT_STATE_JUMPING);
 
-    MovementInfo movementInfo;
+    HandleMovementOpcodes(recvData);
+
+    /*MovementInfo movementInfo;
     ReadMovementInfo(recvData, &movementInfo);
 
     if (_player->m_mover->GetGUID() != movementInfo.guid)
@@ -871,7 +883,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
     WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 66);
     WriteMovementInfo(data, &movementInfo);
 
-    _player->SendMessageToSet(&data, false);
+    _player->SendMessageToSet(&data, false);*/
 }
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)

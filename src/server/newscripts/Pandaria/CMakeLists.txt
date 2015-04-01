@@ -16,6 +16,7 @@ set(scripts_STAT_SRCS
   Pandaria/boss_nalak.cpp
 
   Pandaria/MogushanPalace/instance_mogu_shan_palace.cpp
+  Pandaria/MogushanPalace/mogu_shan_palace.cpp
   Pandaria/MogushanPalace/boss_trial_of_the_king.cpp
   Pandaria/MogushanPalace/boss_gekkan.cpp
   Pandaria/MogushanPalace/boss_xin_the_weaponmaster.cpp
@@ -67,8 +68,6 @@ set(scripts_STAT_SRCS
   Pandaria/MogushanVault/boss_spirit_kings.cpp
   Pandaria/MogushanVault/boss_elegon.cpp
   Pandaria/MogushanVault/boss_will_of_emperor.cpp
-  
-  Pandaria/ScarletHalls/instance_scarlet_halls.cpp
   
   Pandaria/HeartFear/instance_heart_of_fear.cpp
   Pandaria/HeartFear/heart_of_fear.h
@@ -125,7 +124,6 @@ set(scripts_STAT_SRCS
   Pandaria/valley_of_the_four_winds.cpp
   Pandaria/krasarang_wilds.cpp
   Pandaria/kun_lai_summit.cpp
-  Pandaria/vale_of_eternal_blossoms.cpp
 )
 
 message("  -> Prepared: Pandaria")

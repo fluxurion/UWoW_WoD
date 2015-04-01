@@ -20,6 +20,7 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
             ObjectGuid uiGrandVizierErtanGUID;
             ObjectGuid uiAltairusGUID;
             ObjectGuid uiAsaadGUID;
+            uint8 OrbsCount;
 
             void Initialize()
             {
@@ -27,6 +28,12 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                 uiGrandVizierErtanGUID.Clear();
                 uiAltairusGUID.Clear();
                 uiAsaadGUID.Clear();
+                OrbsCount = 0;
+            }
+
+            void OnPlayerEnter(Player* player)
+            {
+                player->SendUpdateWorldState(5649, OrbsCount);
             }
 
             void OnCreatureCreate(Creature* pCreature)
@@ -43,7 +50,29 @@ class instance_the_vortex_pinnacle : public InstanceMapScript
                         uiAsaadGUID = pCreature->GetGUID();
                         break;
                 }
-                
+            }
+
+            void SetData(uint32 data, uint32 value)
+            {
+                switch (data)
+                {
+                    case DATA_ORB:
+                        OrbsCount = value;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                switch (type)
+                {
+                    case DATA_ORB:
+                        return OrbsCount;
+                }
+    
+                return 0;
             }
 
             ObjectGuid GetGuidData(uint32 identifier) const

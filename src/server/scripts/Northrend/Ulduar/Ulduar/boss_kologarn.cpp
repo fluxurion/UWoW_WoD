@@ -72,8 +72,8 @@ enum Actions
 
 enum Npcs
 {
-    NPC_EYEBEAM_STALKER                         = 40111,
-    NPC_EYEBEAM_STALKER_2                       = 40112,
+    NPC_EYEBEAM_STALKER                         = 33001,
+    NPC_EYEBEAM_STALKER_2                       = 33002, 
     NPC_EYEBEAM_1                               = 33632,
     NPC_EYEBEAM_2                               = 33802,
     NPC_RUBBLE                                  = 33768,
@@ -173,7 +173,7 @@ public:
             me->SetDisableGravity(true);
             me->LowerPlayerDamageReq(me->GetMaxHealth());
             if (instance)
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_DISARMED_START_EVENT);
         }
         
         void JustDied(Unit* Killer)
@@ -412,7 +412,7 @@ public:
                     me->DealDamage(me, int32(me->GetMaxHealth() * 15 / 100)); // decreases Kologarn's health by 15%
                     ++RubbleCount;
                     if (instance && right)
-                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_DISARMED_START_EVENT);
                     events.ScheduleEvent(EVENT_LEFT, 30000);
                     break;
                 case ACTION_RESPAWN_RIGHT:
@@ -421,7 +421,7 @@ public:
                     me->DealDamage(me, int32(me->GetMaxHealth() * 15 / 100));
                     ++RubbleCount;
                     if (instance && left)
-                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_DISARMED_START_EVENT);
                     events.ScheduleEvent(EVENT_RIGHT, 30000);
                     break;
                 case ACTION_FAIL_ACHIV:

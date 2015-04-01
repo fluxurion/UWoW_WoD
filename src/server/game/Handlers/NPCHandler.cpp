@@ -726,12 +726,12 @@ void WorldSession::HandleStableChangeSlot(WorldPacket & recv_data)
 
     //If we move the pet already summoned...
     if (pet && pet->GetCharmInfo() && pet->GetCharmInfo()->GetPetNumber() == pet_number)
-        _player->RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT);
+        _player->RemovePet(pet);
 
     //If we move to the pet already summoned...
     PetSlot curentSlot = GetPlayer()->GetSlotForPetId(GetPlayer()->m_currentPetNumber);
     if (pet && curentSlot == new_slot)
-        _player->RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT);
+        _player->RemovePet(pet);
 
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_BY_ID);

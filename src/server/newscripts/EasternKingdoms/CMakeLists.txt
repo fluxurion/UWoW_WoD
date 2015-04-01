@@ -12,8 +12,6 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   EasternKingdoms/ghostlands.cpp
   EasternKingdoms/eversong_woods.cpp
-  EasternKingdoms/elwynn_forest.cpp
-  EasternKingdoms/dun_morogh.cpp
   EasternKingdoms/AlteracValley/boss_galvangar.cpp
   EasternKingdoms/AlteracValley/boss_balinda.cpp
   EasternKingdoms/AlteracValley/boss_drekthar.cpp
@@ -37,6 +35,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Scholomance/boss_rattlegore.cpp
   EasternKingdoms/Scholomance/boss_lilian_voss.cpp
   EasternKingdoms/Scholomance/boss_darkmaster_gandling.cpp
+  EasternKingdoms/Scholomance/scholomance.cpp
   EasternKingdoms/Scholomance/scholomance.h
   EasternKingdoms/Scholomance/instance_scholomance.cpp
   EasternKingdoms/isle_of_queldanas.cpp
@@ -82,9 +81,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ScarletEnclave/chapter5.cpp
   EasternKingdoms/ScarletEnclave/chapter1.cpp
   EasternKingdoms/ScarletEnclave/the_scarlet_enclave.cpp
-  EasternKingdoms/ScarletMonasteryCathedralGY/instance_scarlet_monasrtery.cpp
-  EasternKingdoms/ScarletMonasteryCathedralGY/scarlet_monastery.h
-  EasternKingdoms/ScarletMonasteryCathedralGY/boss_headless_horseman.cpp
   EasternKingdoms/eastern_plaguelands.cpp
   EasternKingdoms/MoltenCore/boss_coren_direbrew.cpp
   EasternKingdoms/MoltenCore/boss_gehennas.cpp
@@ -150,6 +146,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/BlackwingDescent/boss_chimaeron.cpp
   EasternKingdoms/BlackwingDescent/boss_magmaw.cpp
   EasternKingdoms/BlackwingDescent/boss_maloriak.cpp
+  EasternKingdoms/BlackwingDescent/boss_bwd_nefarian.cpp
   EasternKingdoms/BlackwingDescent/boss_omnotron_defence_system.cpp
   EasternKingdoms/BlackwingDescent/instance_blackwing_descent.cpp
   EasternKingdoms/BlackrockCaverns/boss_romogg_bonecrusher.cpp
@@ -194,20 +191,25 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Deadmines/deadmines.cpp
   EasternKingdoms/Deadmines/instance_deadmines.cpp
   EasternKingdoms/duskwood.cpp
-  EasternKingdoms/ScarletMonastery/boss_azshir_the_sleepless.cpp
-  EasternKingdoms/ScarletMonastery/boss_mograine_and_whitemane.cpp
-  EasternKingdoms/ScarletMonastery/boss_bloodmage_thalnos.cpp
-  EasternKingdoms/ScarletMonastery/boss_interrogator_vishas.cpp
+  EasternKingdoms/ScarletMonastery/boss_thalnos_the_soulrender.cpp
+  EasternKingdoms/ScarletMonastery/boss_brother_korloff.cpp
+  EasternKingdoms/ScarletMonastery/boss_high_inquisitor_whitemane.cpp
+  EasternKingdoms/ScarletMonastery/boss_headless_horseman.cpp
   EasternKingdoms/ScarletMonastery/instance_scarlet_monastery.cpp
-  EasternKingdoms/ScarletMonastery/boss_houndmaster_loksey.cpp
   EasternKingdoms/ScarletMonastery/scarlet_monastery.h
-  EasternKingdoms/ScarletMonastery/boss_high_inquisitor_fairbanks.cpp
-  EasternKingdoms/ScarletMonastery/boss_arcanist_doan.cpp
-  EasternKingdoms/ScarletMonastery/boss_herod.cpp
-  EasternKingdoms/ScarletMonastery/boss_scorn.cpp
+  EasternKingdoms/ScarletHalls/boss_armsmaster_harlan.cpp
+  EasternKingdoms/ScarletHalls/boss_houndmaster_braun.cpp
+  EasternKingdoms/ScarletHalls/boss_flameweaver_koegler.cpp
+  EasternKingdoms/ScarletHalls/instance_scarlet_halls.cpp
+  EasternKingdoms/ScarletHalls/scarlet_halls.h
   EasternKingdoms/undercity.cpp
   EasternKingdoms/silvermoon_city.cpp
   EasternKingdoms/loch_modan.cpp
+  EasternKingdoms/ShadowfangKeep/boss_baron_ashbury.cpp
+  EasternKingdoms/ShadowfangKeep/boss_baron_silverlaine.cpp
+  EasternKingdoms/ShadowfangKeep/boss_commander_springvale.cpp
+  EasternKingdoms/ShadowfangKeep/boss_lord_valden.cpp
+  EasternKingdoms/ShadowfangKeep/boss_lord_godfrey.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.cpp
   EasternKingdoms/ShadowfangKeep/instance_shadowfang_keep.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.h
@@ -221,7 +223,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/BlackwingLair/boss_vaelastrasz.cpp
   EasternKingdoms/BlackwingLair/boss_nefarian.cpp
   EasternKingdoms/BlackwingLair/boss_flamegor.cpp
-  EasternKingdoms/BlackwingLair/boss_victor_nefarius.cpp
+  EasternKingdoms/BlackwingLair/blackwing_lair.h
   EasternKingdoms/stormwind_city.cpp
   EasternKingdoms/ZulAman/boss_halazzi.cpp
   EasternKingdoms/ZulAman/boss_hexlord.cpp

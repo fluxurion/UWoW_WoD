@@ -521,9 +521,6 @@ class WorldSession
         void SendStableResult(uint8 guid);
         bool CheckStableMaster(ObjectGuid guid);
 
-        // Battle pet
-        void HandleSummonBattlePet(WorldPacket& recvData);
-
         // Account Data
         AccountData* GetAccountData(AccountDataType type) { return &m_accountData[type]; }
         void SetAccountData(AccountDataType type, time_t tm, std::string data);
@@ -814,6 +811,8 @@ class WorldSession
         void HandleGuildQueryGuildRecipesOpcode(WorldPacket& recvPacket);
         void HandleGuildQueryGuildMembersForRecipe(WorldPacket& recvPacket);
         void HandleGuildQueryGuildMembersRecipes(WorldPacket& recvPacket);
+
+        void HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket);
 
         void HandleGuildFinderAddRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderBrowse(WorldPacket& recvPacket);
@@ -1176,14 +1175,19 @@ class WorldSession
         void HandleUpgradeItem(WorldPacket& recvData);
 
         // Battle Pets
-        void HandleBattlePetOpcode166F(WorldPacket& recvData);
-        void HandleBattlePetOpcode1ACF(WorldPacket& recvData);
-        void HandleBattlePetReadyForBattle(WorldPacket& recvData);
-        void HandleBattlePetUseAction(WorldPacket& recvData);
-        void HandleBattlePetSetData(WorldPacket& recvData);
-        void HandleBattlePetRename(WorldPacket& recvData);
+        void HandleBattlePetSetFlags(WorldPacket& recvData);
+        void HandleBattlePetModifyName(WorldPacket& recvData);
         void HandleBattlePetNameQuery(WorldPacket& recvData);
-        void HandleBattlePetPutInCage(WorldPacket& recvData);
+        void HandleCageBattlePet(WorldPacket& recvData);
+        void HandleBattlePetSetSlot(WorldPacket& recvData);
+        void HandleBattlePetSummon(WorldPacket& recvData);
+        void HandlePetBattleRequestWild(WorldPacket& recvData);
+        void HandlePetBattleRequestUpdate(WorldPacket& recvData);
+        void HandlePetBattleInputFirstPet(WorldPacket& recvData);
+        void HandlePetBattleInput(WorldPacket& recvData);
+        void HandlePetBattleFinalNotify(WorldPacket& recvData);
+        void HandlePetBattleQuitNotify(WorldPacket& recvData);
+        void HandleBattlePetDelete(WorldPacket& recvData);
 
         // Blizzard Store
         void HandlePurchaseGetProductList(WorldPacket& recvData);
@@ -1222,10 +1226,17 @@ class WorldSession
         void HandleSaveCUFProfiles(WorldPacket& recvPacket);
         void SendLoadCUFProfiles();
 
+        // Scenarios
+        void HandleScenarioPOIQuery(WorldPacket& recvPacket);
+
         // Challenge Mode
         void HandleChallengeModeRequestRewardInfoOpcode(WorldPacket& recvPacket);
         void HandleChallengeModeRequestCompletionInfoOpcode(WorldPacket& recvPacket);
         void HandleChallengeModeRequestOpcode(WorldPacket& recvPacket);
+
+        // WarGames
+        void HandleWarGameStart(WorldPacket& recvPacket);
+        void HandleWarGameAccept(WorldPacket& recvPacket);
 
         //
         void SuspendTokenResponse(WorldPacket& recvPacket);

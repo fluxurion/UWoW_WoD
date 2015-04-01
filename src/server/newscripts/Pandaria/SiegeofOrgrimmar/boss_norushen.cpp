@@ -414,13 +414,15 @@ class boss_amalgam_of_corruption : public CreatureScript
                 
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PURIFIED);
 
-                me->RemoveAurasDueToSpell(SPELL_FRAYED);
-                me->RemoveAurasDueToSpell(SPELL_ICY_FEAR);
+                me->RemoveAllAuras();
                 me->SetReactState(REACT_DEFENSIVE);
                 me->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
                 ApplyOrRemoveBar(false);
                 FrayedCounter = 0;
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                
+                if (Creature* HealChGreater = me->FindNearestCreature(NPC_GREATER_CORRUPTION, 200.0f))
+                    me->Kill(HealChGreater);
 
                 challengeCounter.clear();
             }
@@ -492,8 +494,8 @@ class boss_amalgam_of_corruption : public CreatureScript
                     return;
                 }
 
-                //deal less damage if plr have corruptuin. Default value - 75%
-                damage = CalculatePct(damage, 100 - attacker->GetPower(POWER_ALTERNATE_POWER));
+                //deal less damage if plr have corruptuin. Default value - 50%
+                damage = CalculatePct(damage, 125 - attacker->GetPower(POWER_ALTERNATE_POWER));
 
                 //Frayed summon manifestation of corruption every 10% after 50 pct.
                 if (HealthBelowPct(50) && damage < me->GetHealth())
@@ -536,7 +538,8 @@ class boss_amalgam_of_corruption : public CreatureScript
                             events.ScheduleEvent(EVENT_CHECK_VICTIM, 2000);
                             break;
                         case EVENT_QUARANTINE_SAFETY:
-                            DoCastAOE(SPELL_QUARANTINE_SAFETY);
+                            me->CastSpell(me, SPELL_QUARANTINE_SAFETY, true);
+                            EnterEvadeMode();
                             break;
                         case EVENT_UNLEASHED_ANGER:
                             if (me->getVictim())
@@ -859,6 +862,7 @@ public:
             events.RescheduleEvent(EVENT_2, urand(3000, 6000));
             me->CastSpell(me, SPELL_ESSENCE_OF_CORUPTION, false);
             me->CastSpell(me, SPELL_STEALTH_DETECTION, true);
+            me->SetReactState(REACT_PASSIVE);
             npc_norushenChallengeAI::IsSummonedBy(summoner);
         }
 
@@ -873,7 +877,8 @@ public:
                 switch (eventId)
                 {
                     case EVENT_2:
-                        DoCastVictim(SPELL_EXPEL_CORRUPTUIN);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 60.0f, true))
+                            me->CastSpell(target, SPELL_EXPEL_CORRUPTUIN);
                         events.RescheduleEvent(EVENT_2, 9*IN_MILLISECONDS);
                         break;
                 }
@@ -967,6 +972,7 @@ public:
         enum sp
         {
             SPELL_UNLEASHED                              = 146173,
+            SPELL_UNLEASHED_0_EFFECT_PROCK               = 148974,
         };
 
         void Reset()
@@ -987,6 +993,8 @@ public:
         {
             me->CastSpell(me, SPELL_UNLEASHED, false);
             me->SetInCombatWithZone();
+            if (Creature* amalgam = pInstance->instance->GetCreature(pInstance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+                amalgam->CastSpell(me, SPELL_UNLEASHED_0_EFFECT_PROCK, false);
         }
 
         void JustDied(Unit* killer)
@@ -1048,6 +1056,7 @@ public:
         enum spell
         {
             SPELL_UNLEASHED                     = 146174,
+            SPELL_UNLEASHED_0_EFFECT_PROCK      = 148974,
             SPELL_STEALTH_DETECTION             = 8279,     //Stealth Detection
             SPELL_EXPEL_CORRUPTION              = 145064,   //145132 on friend | 145134 on enemy
         };
@@ -1066,7 +1075,10 @@ public:
             me->CastSpell(me, SPELL_STEALTH_DETECTION, false);
 
             if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
+            {
+                amalgam->CastSpell(me, SPELL_UNLEASHED_0_EFFECT_PROCK, false);
                 me->SetFacingToObject(amalgam);
+            }
 
             me->CastSpell(me, SPELL_EXPEL_CORRUPTION, true);
             events.RescheduleEvent(EVENT_1, 6*IN_MILLISECONDS);                  //18:38:25.000
@@ -1272,6 +1284,7 @@ public:
         void spawnOnRealWorld()
         {
             me->SetPhaseId(0, true);
+            me->ClearVisibleOnlyForSomePlayers();
             me->SetInCombatWithZone();
             me->SetFullHealth();
         }
@@ -1338,7 +1351,7 @@ struct npc_norushen_heal_chAI : public ScriptedAI
         if (damage >= me->GetHealth())
         {
             if (!me->HasAura(SPELL_PROTECTORS_EXHAUSTED))
-                DoCast(me, SPELL_PROTECTORS_EXHAUSTED);
+                DoCast(me, SPELL_PROTECTORS_EXHAUSTED, true);
             damage = 0;
         }
     }
@@ -1685,7 +1698,7 @@ class spell_norushen_residual_corruption : public SpellScriptLoader
                     return;
 
                 AreaTrigger * areaTrigger = new AreaTrigger;
-                if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), 5022, caster, GetSpellInfo(), *caster))
+                if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), 5022, caster, GetSpellInfo(), *caster, *caster))
                 {
                     delete areaTrigger;
                     return;
@@ -1757,17 +1770,17 @@ class spell_norushen_challenge : public SpellScriptLoader
                 {
                     case SPELL_TEST_OF_SERENITY:    //dd
                     {
-                        target->CastSpell(777.5012f, 974.7348f, 356.3398f, SPELL_SUM_MANIFESTATION_OF_C);
-                        target->CastSpell(761.4254f, 982.592f, 356.3398f, SPELL_SUM_ESSENCE_OF_CORRUPT_C);
-                        target->CastSpell(766.5504f, 960.6927f, 356.3398f, SPELL_SUM_ESSENCE_OF_CORRUPT_C);
-                        target->CastSpell(787.5417f, 987.2986f, 356.3398f, SPELL_SUM_ESSENCE_OF_CORRUPT_C);
+                        target->CastSpell(777.5012f, 974.7348f, 356.3398f, SPELL_SUM_MANIFESTATION_OF_C, true);
+                        target->CastSpell(761.4254f, 982.592f, 356.3398f, SPELL_SUM_ESSENCE_OF_CORRUPT_C, true);
+                        target->CastSpell(766.5504f, 960.6927f, 356.3398f, SPELL_SUM_ESSENCE_OF_CORRUPT_C, true);
+                        target->CastSpell(787.5417f, 987.2986f, 356.3398f, SPELL_SUM_ESSENCE_OF_CORRUPT_C, true);
                         break;
                     }
                     case SPELL_TEST_OF_RELIANCE:    //heal
-                        target->CastSpell(777.5012f, 974.7348f, 356.3398f, SPELL_GREATER_CORRUPTION);
-                        target->CastSpell(789.889f, 958.021f, 356.34f, SPELL_MELEE_COMBTANT);
-                        target->CastSpell(772.854f, 947.467f, 356.34f, SPELL_CASTER);
-                        target->CastSpell(780.8785f, 974.7535f, 356.34f, SPELL_SUMMON_GUARDIAN);
+                        target->CastSpell(777.5012f, 974.7348f, 356.3398f, SPELL_GREATER_CORRUPTION, true);
+                        target->CastSpell(789.889f, 958.021f, 356.34f, SPELL_MELEE_COMBTANT, true);
+                        target->CastSpell(772.854f, 947.467f, 356.34f, SPELL_CASTER, true);
+                        target->CastSpell(780.8785f, 974.7535f, 356.34f, SPELL_SUMMON_GUARDIAN, true);
                         break;
                     case SPELL_TEST_OF_CONFIDENCE:  //tank
                         target->CastSpell(777.5012f, 974.7348f, 356.3398f, SPELL_TITANIC_CORRUPTION);
@@ -1859,6 +1872,39 @@ class spell_norushen_heal_test_dd : public SpellScriptLoader
         }
 };
 
+class spell_essence_expel_corruption : public SpellScriptLoader
+{
+    public:
+        spell_essence_expel_corruption() : SpellScriptLoader("spell_essence_expel_corruption") { }
+
+        class spell_essence_expel_corruption_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_essence_expel_corruption_SpellScript);
+            
+            void HandleAfterCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if(Unit* ptarget = GetExplTargetUnit())
+                    {    
+                        caster->SetFacingToObject(ptarget);
+                        caster->AttackStop();
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_essence_expel_corruption_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_essence_expel_corruption_SpellScript();
+        }
+};
+
 void AddSC_boss_norushen()
 {
     new boss_norushen();
@@ -1883,4 +1929,5 @@ void AddSC_boss_norushen()
     new spell_norushen_residual_corruption();
     new spell_norushen_challenge();
     new spell_norushen_heal_test_dd();
+    new spell_essence_expel_corruption();
 }

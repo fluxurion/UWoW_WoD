@@ -76,7 +76,9 @@ public:
             Immortal = true;
             ironDefTimer = 0;
             count = 0;
-        }
+            _maxArmorItemLevel = 0;
+            _maxWeaponItemLevel = 0;
+        }   
 
         ObjectGuid uiLeviathan;
         ObjectGuid uiNorgannon;
@@ -128,6 +130,8 @@ public:
         uint8 count;
         uint32 ironDefTimer;
         uint32 ShieldCheck;
+        uint32 _maxArmorItemLevel;
+        uint32 _maxWeaponItemLevel;
 
         bool Immortal;
         bool _unbroken;
@@ -221,7 +225,7 @@ public:
                 creature->GetEntry() == 33526 ||
                 creature->GetEntry() == 33527 ||
                 creature->GetEntry() == 33528)
-                DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, 21597);
+                DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, 21597);
             
 
             if (ApplyAchiv)
@@ -231,7 +235,7 @@ public:
             {
                 if (!ironDefTimer)
                 {
-                    DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, CRITERIA_DWARFGEDDON);
+                    DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET2, CRITERIA_DWARFGEDDON);
                     ironDefTimer = 10*IN_MILLISECONDS;
                 }
 
@@ -243,7 +247,7 @@ public:
                     ApplyAchiv = true;
                     ironDefTimer = 0;
                     count = 0;
-                    DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, CRITERIA_DWARFGEDDON);
+                    DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET2, CRITERIA_DWARFGEDDON);
                 }
             }
         }
@@ -256,7 +260,7 @@ public:
                 {
                     ironDefTimer = 0;
                     count = 0;
-                    DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, CRITERIA_DWARFGEDDON);
+                    DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET2, CRITERIA_DWARFGEDDON);
                 } else ironDefTimer -= diff;
             }
 
@@ -548,6 +552,37 @@ public:
                 case DATA_THREE_KNOCK:
                     threeknock = (value == 0) ? true : false;
                     break;
+                case DATA_ALGALON:
+                    {
+                        if (Difficulty(instance->GetSpawnMode()) == MAN10_DIFFICULTY)
+                        {
+                            // get item level (armor cannot be swapped in combat)
+                            Map::PlayerList const& players = instance->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            {
+                                if (Player* player = itr->getSource())
+                                {
+                                    for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
+                                    {
+                                        if (slot == EQUIPMENT_SLOT_TABARD || slot == EQUIPMENT_SLOT_BODY)
+                                            continue;
+        
+                                        if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                                        {
+                                            if (slot >= EQUIPMENT_SLOT_MAINHAND && slot <= EQUIPMENT_SLOT_RANGED)
+                                            {
+                                                if (item->GetTemplate()->ItemLevel > _maxWeaponItemLevel)
+                                                    _maxWeaponItemLevel = item->GetTemplate()->ItemLevel;
+                                            }
+                                            else if (item->GetTemplate()->ItemLevel > _maxArmorItemLevel)
+                                                    _maxArmorItemLevel = item->GetTemplate()->ItemLevel;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                break;
             }
         }
 
@@ -615,6 +650,57 @@ public:
                             pHodir->SetVisible(true);
                     }
                     break;
+                case BOSS_ALGALON:
+                {
+                    if (state == DONE)
+                    {
+                        //Achievement Herald of the Titans
+                       if (Difficulty(instance->GetSpawnMode()) == MAN10_DIFFICULTY)
+                       {
+                            // get item level (recheck weapons)
+                            Map::PlayerList const& players = instance->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                if (Player* player = itr->getSource())
+                                {
+                                    for (uint8 slot = EQUIPMENT_SLOT_MAINHAND; slot <= EQUIPMENT_SLOT_RANGED; ++slot)
+                                        if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                                            if (item->GetTemplate()->ItemLevel > _maxWeaponItemLevel)
+                                                _maxWeaponItemLevel = item->GetTemplate()->ItemLevel;
+                                }
+                       }
+                    }
+                    else if (state == IN_PROGRESS)
+                    {
+                        if (Difficulty(instance->GetSpawnMode()) == MAN10_DIFFICULTY)
+                        {
+                            // get item level (armor cannot be swapped in combat)
+                            Map::PlayerList const& players = instance->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            {
+                                if (Player* player = itr->getSource())
+                                {
+                                    for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
+                                    {
+                                        if (slot == EQUIPMENT_SLOT_TABARD || slot == EQUIPMENT_SLOT_BODY)
+                                            continue;
+        
+                                        if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                                        {
+                                            if (slot >= EQUIPMENT_SLOT_MAINHAND && slot <= EQUIPMENT_SLOT_RANGED)
+                                            {
+                                                if (item->GetTemplate()->ItemLevel > _maxWeaponItemLevel)
+                                                    _maxWeaponItemLevel = item->GetTemplate()->ItemLevel;
+                                            }
+                                            else if (item->GetTemplate()->ItemLevel > _maxArmorItemLevel)
+                                                    _maxArmorItemLevel = item->GetTemplate()->ItemLevel;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
             }
             
             if (state == IN_PROGRESS && id != BOSS_LEVIATHAN)
@@ -645,6 +731,37 @@ public:
                             DoCompleteAchievement(2904);
                     }
                 }
+            }
+            return true;
+        }
+
+        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* player, Unit const* /* = NULL */, uint32 /* = 0 */) override
+        {
+            switch (criteriaId)
+            {
+                case CRITERIA_HERALD_OF_TITANS:
+                    return _maxArmorItemLevel <= MAX_HERALD_ARMOR_ITEMLEVEL && _maxWeaponItemLevel <= MAX_HERALD_WEAPON_ITEMLEVEL && player->getLevel() == 80;
+            }
+
+            return false;
+        }
+
+        bool IsWipe()
+        {
+            Map::PlayerList const& PlayerList = instance->GetPlayers();
+            
+            if (PlayerList.isEmpty())
+                return true;
+            
+            for (Map::PlayerList::const_iterator Itr = PlayerList.begin(); Itr != PlayerList.end(); ++Itr)
+            {
+                Player* player = Itr->getSource();
+                
+                if (!player)
+                    continue;
+                
+                if (player->isAlive() && !player->isGameMaster())
+                    return false;
             }
             return true;
         }
@@ -702,7 +819,6 @@ public:
             return true;
         }
     };
-
 };
 
 class go_call_tram : public GameObjectScript

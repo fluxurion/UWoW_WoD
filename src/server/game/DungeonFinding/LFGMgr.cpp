@@ -176,6 +176,20 @@ LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
     return NULL;
 }
 
+LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 mapId, Difficulty diff, uint32 team)
+{
+    for (LFGDungeonContainer::const_iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
+    {
+        LFGDungeonEntry const* dungeonEntry = itr->second.dbc;
+
+        if (dungeonEntry->difficulty == uint8(diff) && dungeonEntry->map == mapId &&
+            dungeonEntry->FitsTeam(team))
+            return &itr->second;
+    }
+
+    return NULL;
+}
+
 void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
 {
     uint32 oldMSTime = getMSTime();
@@ -1571,17 +1585,10 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId)
             sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: %s dungeon %u does not exist", guid.ToString().c_str(), rDungeonId);
             continue;
         }
-        LFGDungeonData const* dungeonDone = GetLFGDungeon(dungeonId);
         // if 'random' dungeon is not random nor seasonal, check actual dungeon (it can be raid finder)
-        if (rDungeon->type != LFG_TYPE_RANDOM && rDungeon->seasonal && dungeonDone && dungeonDone->dbc->CanBeRewarded())
+        if (rDungeon->type != LFG_TYPE_RANDOM && !rDungeon->seasonal)
         {
-            // there can be more that 1 non-random dungeon selected, so fall back to current dungeon id
-            rDungeonId = dungeonDone->id;
-            rDungeon = dungeonDone;
-        }
-        else
-        {
-            sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: %s dungeon %u is not random nor seasonal and can't be rewarded.", guid.ToString().c_str(), rDungeonId);
+            sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: [" UI64FMTD "] dungeon %u type %i is not random nor seasonal %i and can't be rewarded, rDungeon->id %i", guid, rDungeonId, rDungeon->type, rDungeon->seasonal, rDungeon->id);
             continue;
         }
 
@@ -1591,6 +1598,22 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId)
             sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: %s not found in world", guid.ToString().c_str());
             continue;
         }
+
+        LFGDungeonData const* dungeonDone = GetLFGDungeon(dungeonId);
+        if(!dungeonDone)
+        {
+            sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: dungeonDone %i not found or CanBeRewarded %i", dungeonId, dungeonDone->dbc->CanBeRewarded());
+            continue;
+        }
+        if(!dungeonDone->dbc->CanBeRewarded())
+        {
+            sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: dungeonDone %i not CanBeRewarded %i", dungeonId, dungeonDone->dbc->CanBeRewarded());
+            continue;
+        }
+
+        // there can be more that 1 non-random dungeon selected, so fall back to current dungeon id
+        rDungeonId = dungeonDone->random_id;
+        rDungeon = dungeonDone;
 
         uint32 mapId = dungeonDone ? uint32(dungeonDone->map) : 0;
 
@@ -1604,9 +1627,14 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId)
         if (rDungeon->difficulty == DIFFICULTY_HEROIC)
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
 
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID, dungeonDone->dbc->GetMaxGroupSize());
+
         LfgReward const* reward = GetDungeonReward(rDungeonId, player->getLevel());
         if (!reward)
+        {
+            sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: [" UI64FMTD "] Don`t find reward for DungeonId %i player %u level", guid, rDungeonId, player->getLevel());
             continue;
+        }
 
         // Give rewards
         bool done = reward->RewardPlayer(player, rDungeon, dungeonDone, false);
@@ -1646,10 +1674,11 @@ LfgDungeonSet const& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon)
 LfgReward const* LFGMgr::GetDungeonReward(uint32 dungeon, uint8 level)
 {
     LfgReward const* rew = NULL;
-    LfgRewardContainerBounds bounds = RewardMapStore.equal_range(dungeon & 0xFFFFF);
+    LfgRewardContainerBounds bounds = RewardMapStore.equal_range(dungeon & 0x00FFFFFF);
     for (LfgRewardContainer::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
         rew = itr->second;
+
         // ordered properly at loading
         if (itr->second->maxLevel >= level)
             break;

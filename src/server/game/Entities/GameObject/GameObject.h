@@ -628,7 +628,19 @@ struct GameObjectTemplate
             default: return false;
         }
     }
-
+    
+    bool IsUsableMounted() const 
+    {
+        switch (type) 
+        {
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.allowMounted; 
+            case GAMEOBJECT_TYPE_TEXT: return text.allowMounted; 
+            case GAMEOBJECT_TYPE_GOOBER: return goober.allowMounted; 
+            case GAMEOBJECT_TYPE_SPELLCASTER: return spellcaster.allowMounted; 
+            default: return false; 
+        }
+    }
+    
     uint32 GetLockId() const
     {
         switch (type)
@@ -1019,6 +1031,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         void CastSpell(Unit* target, uint32 spell);
         void SendCustomAnim(uint32 anim);
+        void SendActivateAnim(uint32 anim);
         bool IsInRange(float x, float y, float z, float radius) const;
 
         void ModifyHealth(int32 change, Unit* attackerOrHealer = NULL, uint32 spellId = 0);

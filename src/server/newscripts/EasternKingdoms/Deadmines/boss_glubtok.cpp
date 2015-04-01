@@ -61,7 +61,7 @@ class boss_glubtok : public CreatureScript
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
-            return GetAIForInstance< boss_glubtokAI >(pCreature, DMScriptName);
+            return new boss_glubtokAI (pCreature);
         }
 
         struct boss_glubtokAI : public BossAI
@@ -91,6 +91,14 @@ class boss_glubtok : public CreatureScript
 
                 stage = 0;
                 me->SetReactState(REACT_AGGRESSIVE);
+            }
+
+            void InitializeAI()
+            {
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(DMScriptName))
+                    me->IsAIEnabled = false;
+                else if (!me->isDead())
+                    Reset();
             }
 
             void EnterCombat(Unit* /*who*/) 

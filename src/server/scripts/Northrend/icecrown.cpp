@@ -1055,157 +1055,7 @@ public:
 
 };
 
-/*Dying Soldier (Finish me!) - on Gossip he will give a Quest Credit and die*/
-/*Dying Soldier (The Broken Front - Alliance) - on Gossip he will talk with you and after give a Quest Credit*/
-/*Dying Berserker (The Broken Front - Horde) - on Gossip he will talk with you and after give a Quest Credit*/
-enum eSoldier
-{
-    SAY_KILL_QUEST1                              = -1603511,
-    SAY_KILL_QUEST2                              = -1603512,
-    SAY_KILL_QUEST3                              = -1603513,
-    SAY_KILL_QUEST4                              = -1603514,
-    SAY_KILL_QUEST5                              = -1603515,
-    SAY_QUEST_SOLDIER1                           = -1603516,
-    SAY_QUEST_SOLDIER2                           = -1603517,
-    SAY_QUEST_SOLDIER3                           = -1603518,
-    SAY_QUEST_SOLDIER4                           = -1603519,
-    SAY_QUEST_SOLDIER5                           = -1603520,
-    SAY_QUEST_SOLDIER6                           = -1603521,
-    SAY_QUEST_SOLDIER7                           = -1603522,
-    SAY_QUEST_BERSERKER1                         = -1603523,
-    SAY_QUEST_BERSERKER2                         = -1603524,
-    SAY_QUEST_BERSERKER3                         = -1603525,
-    SAY_QUEST_BERSERKER4                         = -1603526,
-    SAY_QUEST_BERSERKER5                         = -1603527,
-    SAY_QUEST_BERSERKER6                         = -1603528,
-    SAY_QUEST_BERSERKER7                         = -1603529,
-    SAY_QUEST_BERSERKER8                         = -1603530,
-
-    CREATURE_DYING_SOLDIER_KC                    = 31312,
-    CREATURE_DYING_BERSERKER_KC                  = 31272,
-
-    QUEST_FINISH_ME                              = 13232,
-    QUEST_THE_BROKEN_FRONT_A                     = 13231,
-    QUEST_THE_BROKEN_FRONT_H                     = 13228,
-};
-
-#define GOSSIP_ITEM_DYING_SOLDIER "Complete this task..." /*Not Blizzlike*/
-#define GOSSIP_ITEM_DYING_SOLDIER1 "Tell me what happened" /*Not Blizzlike*/
-#define GOSSIP_ITEM_DYING_BERSERKER "Tell me what happened" /*Not Blizzlike*/
-
-class npc_dying_soldier : public CreatureScript
-{
-public:
-    npc_dying_soldier() : CreatureScript("npc_dying_soldier") { }
-
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
-    {
-        if (pPlayer->GetQuestStatus(QUEST_FINISH_ME) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DYING_SOLDIER, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
-
-        if (pPlayer->GetQuestStatus(QUEST_THE_BROKEN_FRONT_A) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DYING_SOLDIER1, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO+1);
-            
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-    {
-        pPlayer->PlayerTalkClass->ClearMenus();
-        
-        if (uiAction == GOSSIP_SENDER_INFO)
-        {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            if (pPlayer->GetQuestStatus(QUEST_FINISH_ME) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->KilledMonsterCredit(CREATURE_DYING_SOLDIER_KC, ObjectGuid::Empty);
-            pCreature->Kill(pCreature);
-            DoScriptText(RAND(SAY_KILL_QUEST1, SAY_KILL_QUEST2, SAY_KILL_QUEST3, SAY_KILL_QUEST4, SAY_KILL_QUEST5), pCreature);
-        }
-
-        if (uiAction == GOSSIP_SENDER_INFO+1)
-        {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            DoScriptText(SAY_QUEST_SOLDIER1, pCreature);
-            CAST_AI(npc_dying_soldier::npc_dying_soldierAI, pCreature->AI())->uiPlayerGUID = pPlayer->GetGUID();
-            CAST_AI(npc_dying_soldier::npc_dying_soldierAI, pCreature->AI())->uiTalkTimer = 3000;
-            CAST_AI(npc_dying_soldier::npc_dying_soldierAI, pCreature->AI())->bTalkTime = true;
-        }
-
-        return true;
-    }
-    
-    CreatureAI *GetAI(Creature *pCreature) const
-    {
-        return new npc_dying_soldierAI(pCreature);
-    }
-
-    struct npc_dying_soldierAI : public ScriptedAI
-    {
-        npc_dying_soldierAI(Creature *pCreature) : ScriptedAI(pCreature) { }
-
-        ObjectGuid uiPlayerGUID;
-        uint32 uiTalkTimer;
-        uint32 uiStep;
-        bool bTalkTime;
-
-        void Reset()
-        {
-            uiPlayerGUID.Clear();
-            bTalkTime = false;
-            uiStep = 0;
-        }
-
-        void UpdateAI(uint32 uiDiff)
-        {
-            if (bTalkTime && uiTalkTimer <= uiDiff)
-            {
-                if (Player *pPlayer = Unit::GetPlayer(*me, uiPlayerGUID))
-                {
-                    switch(uiStep)
-                    {
-                        case 0:
-                            DoScriptText(SAY_QUEST_SOLDIER2, me);
-                            uiTalkTimer = 3000;
-                            ++uiStep;
-                            break;
-                        case 1:
-                            DoScriptText(SAY_QUEST_SOLDIER3, pPlayer);
-                            uiTalkTimer = 3000;
-                            ++uiStep;
-                            break;
-                        case 2:
-                            DoScriptText(SAY_QUEST_SOLDIER4, me);
-                            uiTalkTimer = 3000;
-                            ++uiStep;
-                            break;
-                        case 3:
-                            DoScriptText(SAY_QUEST_SOLDIER5, me);
-                            uiTalkTimer = 3000;
-                            ++uiStep;
-                            break;
-                        case 4:
-                            DoScriptText(SAY_QUEST_SOLDIER6, me);
-                            uiTalkTimer = 3000;
-                            ++uiStep;
-                            break;
-                        case 5:
-                            DoScriptText(SAY_QUEST_SOLDIER7, me);
-                            if (pPlayer->GetQuestStatus(QUEST_THE_BROKEN_FRONT_A) == QUEST_STATUS_INCOMPLETE)
-                                pPlayer->KilledMonsterCredit(CREATURE_DYING_SOLDIER_KC, ObjectGuid::Empty);
-                            bTalkTime = false;
-                            uiStep = 0;
-                            break;
-                    }
-                }
-            }
-            else
-                uiTalkTimer -= uiDiff;
-        }
-    };
-};
-
+                pPlayer->KilledMonsterCredit(CREATURE_DYING_SOLDIER_KC, 0);
 /*######
 * npc_training_dummy_argent
 ######*/
@@ -1221,8 +1071,8 @@ enum eTrainingdummy
     NPC_CHARGE                 = 33272,
     NPC_RANGE                  = 33243,
     SPELL_ARGENT_MELEE         = 62544,
-    SPELL_ARGENT_CHARGE        = 68321,
-    SPELL_ARGENT_BREAK_SHIELD  = 62575,  // spell goes't work
+    SPELL_ARGENT_CHARGE        = 62874,
+    SPELL_ARGENT_BREAK_SHIELD  = 62626,  // spell goes't work
     SPELL_DEFEND_AURA          = 62719,  // it's spell spam in console
     SPELL_DEFEND_AURA_1        = 64100,  // it's spell spam in console
     NPC_ADVANCED_TARGET_DUMMY  = 2674,
@@ -1277,24 +1127,20 @@ public:
 
         void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if(caster->GetCharmerOrOwner())
+            switch (Npc_Entry)
             {
-                Player * pPlayer = caster->GetCharmerOrOwner()->ToPlayer();
-                switch (Npc_Entry)
-                {
-                    case NPC_MELEE: // dummy melee
-                        if (pPlayer && spell->Id == SPELL_ARGENT_MELEE && (pPlayer->GetQuestStatus(13828) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13829) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13625) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13677) == QUEST_STATUS_INCOMPLETE))
-                            me->CastSpell(pPlayer,62672,true);
-                        return;
-                    case NPC_CHARGE: // dummy charge
-                        if (pPlayer && spell->Id == SPELL_ARGENT_CHARGE && (pPlayer->GetQuestStatus(13837) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13839) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13625) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13677) == QUEST_STATUS_INCOMPLETE))
-                            me->CastSpell(pPlayer,62658,true);
-                        return;
-                    case NPC_RANGE: // dummy range
-                        if (pPlayer && spell->Id == SPELL_ARGENT_BREAK_SHIELD && (pPlayer->GetQuestStatus(13835) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13838) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13625) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13677) == QUEST_STATUS_INCOMPLETE))
-                            me->CastSpell(pPlayer,62673,true);
-                        return;
-                }
+                case NPC_MELEE: // dummy melee
+                    if (spell->Id == SPELL_ARGENT_MELEE)
+                        me->CastSpell(caster,62672,true);
+                    return;
+                case NPC_CHARGE: // dummy charge
+                    if (spell->Id == SPELL_ARGENT_CHARGE)
+                        me->CastSpell(caster,62658,true);
+                    return;
+                case NPC_RANGE: // dummy range
+                    if (spell->Id == SPELL_ARGENT_BREAK_SHIELD)
+                        me->CastSpell(caster,62673,true);
+                    return;
             }
         }
 
@@ -2126,7 +1972,6 @@ void AddSC_icecrown()
     new npc_jeran_lockwood;
     new npc_squire_danny;
     new npc_argent_champion;
-    new npc_dying_soldier;
     new npc_training_dummy_argent;
     new npc_vendor_argent_tournament;
     new npc_tg_tirion_fordring();

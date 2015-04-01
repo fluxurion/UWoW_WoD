@@ -43,7 +43,7 @@ struct AchievementEntry
     uint32    ID;                                           // 0
     int32    requiredFaction;                               // 1 -1=all, 0=horde, 1=alliance
     int32    mapID;                                         // 2 -1=none
-    //uint32 parentAchievement;                             // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
+    uint32   parent;                                        // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
     char* name;                                             // 4
     //char* description;                                    // 5
     uint32    categoryId;                                   // 6
@@ -65,7 +65,7 @@ struct AchievementCategoryEntry
     //uint32    sortOrder;                                  // 3
 };
 
-struct AchievementCriteriaEntry
+struct CriteriaEntry
 {
     uint32  ID;                                            // 0
     uint32  type;                                          // 1
@@ -451,6 +451,14 @@ struct AchievementCriteriaEntry
             // uint32  lootCount;                           // treeCount in CriteriaTree
         } fish_in_gameobject;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_SCRIPT_EVENT           = 73
+        // ACHIEVEMENT_CRITERIA_TYPE_SCRIPT_EVENT_2         = 92
+        struct
+        {
+            uint32 unkValue;
+            //uint32 count;
+        } script_event;
+
         // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS = 75
         struct
         {
@@ -526,16 +534,12 @@ struct AchievementCriteriaEntry
     uint32  timedCriteriaStartType;                        // 3 m_timer_start_event
     uint32  timedCriteriaMiscId;                           // 4 m_timer_asset_id
     uint32  timeLimit;                                     // 5 m_timer_time
-    struct
-    {
-        uint32  additionalRequirement_type;               // 6 fail_event
-        uint32  additionalRequirement_value;              // 7 fail_asset_id
-    } additionalRequirements[MAX_CRITERIA_REQUIREMENTS];  // max count 1
-
-    uint32  ModifyTree;                                    // 8
-    //uint32  m_flags;                                     // 9 m_flags
-    //uint32  m_eligibility_world_state_ID;                // 10 m_eligibility_world_state_ID
-    //uint32  m_eligibility_world_state_value;             // 11 m_eligibility_world_state_value
+    uint32  timedCriteriaFailType;                         // 6 fail_event
+    uint32  timedCriteriaMiscFailId;                       // 7 fail_asset_id
+    uint32  ModifyTree;                                    // 8 m_modifier_tree_id
+    uint32  operatorFlags;                                 // 9 m_flags
+    uint32  worldStateId;                                  // 10 m_eligibility_world_state_ID
+    uint32  worldStateValue;                               // 11 m_eligibility_world_state_value
 };
 
 struct CriteriaTreeEntry
@@ -552,13 +556,13 @@ struct CriteriaTreeEntry
 
 struct ModifierTreeEntry // additional Condition
 {
-    uint32  ID;                                            // 0
-    uint32  additionalConditionType;                       // 1 type
-    uint32  additionalConditionValue;                      // 2 requirement
-    //uint32 m_secondaryAsset                              // 3 m_secondaryAsset 5.4.1
-    uint32  flags;                                         // 4
-    //uint32  m_amount                                     // 5 m_amount 5.4.1
-    uint32  parent;                                        // 6 parent in m_id
+    uint32  ID;                                            // 0 m_ID
+    uint32  additionalConditionType;                       // 1 m_type
+    uint32  additionalConditionValue;                      // 2 m_asset
+    uint32  additionalConditionCount;                       // 3 m_secondaryAsset
+    uint32  operatorFlags;                                 // 4 m_operator
+    //uint32  m_amount                                     // 5 m_amount
+    uint32  parent;                                        // 6 m_parent in m_id
 };
 
 // Temporary define until max depth is found somewhere (adt?)
@@ -588,8 +592,8 @@ struct AreaTableEntry
     //uint32    UWAmbience;                                 // 23
     //uint32    WorldPvPID;                                 // 24 World_PVP_Area.dbc
     //uint32    PvPCombastWorldStateID;                     // 25
-    //uint32    WildBattlePetLevelMin;                      // 26
-    //uint32    WildBattlePetLevelMax;                      // 27
+    uint32    m_wildBattlePetLevelMin;                      // 26
+    uint32    m_wildBattlePetLevelMax;                      // 27
     //uint32    WindSettingsID;                             // 28
 
     // helpers
@@ -1273,6 +1277,12 @@ struct GtOCTBaseMPByClassEntry
     float ratio;
 };
 
+struct GtBattlePetTypeDamageModEntry
+{
+    uint32 Id;
+    float value;
+};
+
 struct GuildPerkSpellsEntry
 {
     //uint32 Id;
@@ -1484,7 +1494,7 @@ struct LFGDungeonEntry
     uint32  difficulty;                                     // 8
     uint32  flags;                                          // 9
     uint32  type;                                           // 10
-    //int32 m_faction;                                      // 11
+    int32 m_faction;                                        // 11
     //char*   textureFileName;                              // 12 Name lite
     uint32  expansion;                                      // 13
     //uint32 orderIndex;                                    // 14
@@ -1535,6 +1545,7 @@ struct LFGDungeonEntry
 
         return true;
     }
+
     LfgType GetInternalType() const
     {
         switch (subType)
@@ -1552,9 +1563,20 @@ struct LFGDungeonEntry
 
         return LFG_TYPE_DUNGEON;
     }
+
     bool CanBeRewarded() const
     {
         return type == LFG_TYPE_RANDOM || IsRaidFinder() || IsChallenge() || flags & LFG_FLAG_SEASONAL;
+    }
+
+    bool FitsTeam(uint32 team) const
+    {
+        if (m_faction == -1)
+            return true;
+        else if (m_faction == 0)
+            return team == HORDE;
+        else
+            return team == ALLIANCE;
     }
 };
 
@@ -1834,6 +1856,29 @@ struct ScalingStatDistributionEntry
     uint32      MinLevel;                                   // 1
     uint32      MaxLevel;                                   // 2       m_maxlevel
     uint32      ItemLevelCurveID;                           // 3
+};
+
+struct ScenarioEntry
+{
+    uint32 m_Id;                                            // 0
+    char* m_name_lang;                                      // 1
+    uint32 m_flags;                                         // 2
+
+    bool IsChallenge() const { return m_flags & SCENARIO_FLAG_CHALLENGE; }
+    bool IsProvingGrounds() const { return m_flags & SCENARIO_FLAG_SUPRESS_STAGE_TEXT; }
+};
+
+struct ScenarioStepEntry
+{
+    uint32 m_Id;                                            // 0
+    uint32 m_criteriaTreeId;                                // 1
+    uint32 m_scenarioId;                                    // 2
+    uint32 m_orderIndex;                                    // 3
+    //char* m_descriptionLang;                              // 4
+    //char* m_title_lang;                                   // 5
+    uint32 m_flags;                                         // 6
+
+    bool IsBonusObjective() const { return m_flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE; }
 };
 
 //struct SkillLineCategoryEntry{
@@ -2136,6 +2181,17 @@ struct SpellLevelsEntry
     uint32 baseLevel; // 3 m_baseLevel
     uint32 maxLevel; // 4 m_maxLevel
     uint32 spellLevel; // 5 m_spellLevel
+};
+
+// PowerDisplay.dbc
+struct PowerDisplayEntry
+{
+    uint32    Id;                                           // 0 m_ID
+    uint32    PowerType;                                    // 1 m_actualType
+    //char* m_globalStringBaseTag;                          // 2 m_globalStringBaseTag
+    //uint32    red;                                        // 3 m_red
+    //uint32    green;                                      // 4 m_green
+    //uint32    blue;                                       // 5 m_blue
 };
 
 #define MAX_SHAPESHIFT_SPELLS 8

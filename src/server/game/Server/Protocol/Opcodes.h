@@ -1618,6 +1618,9 @@ enum OpcodeServer : uint32
     SMSG_UNSET_MOVEFLAG2_0x1000                       = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_0x00E9                                 = 0xBADD, // 5.4.1 17538
     SMSG_PETITION_DECLINE                             = 0xBADD,
+    SMSG_ADD_LOSS_OF_CONTROL                          = 0xBADD, // 5.4.1 17538
+    SMSG_LOSS_OF_CONTROL_AURA_UPDATE                  = 0xBADD, // 5.4.1 17538
+    SMSG_REMOVE_LOSS_OF_CONTROL                       = 0xBADD, // 5.4.1 17538
 };
 
 #define MAX_OPCODE 0x7FFF
@@ -1626,8 +1629,6 @@ enum OpcodeServer : uint32
 /// List of Opcodes
 enum Opcodes
 {
-
-
 
 
 };

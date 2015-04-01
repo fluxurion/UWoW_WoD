@@ -269,7 +269,7 @@ class spell_gen_cannibalize : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_cannibalize_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_CANNIBALIZE_TRIGGERED))
                     return false;
@@ -451,56 +451,6 @@ class spell_gen_remove_flight_auras : public SpellScriptLoader
         }
 };
 
-// 66118 Leeching Swarm
-enum LeechingSwarmSpells
-{
-    SPELL_LEECHING_SWARM_DMG    = 66240,
-    SPELL_LEECHING_SWARM_HEAL   = 66125,
-};
-
-class spell_gen_leeching_swarm : public SpellScriptLoader
-{
-    public:
-        spell_gen_leeching_swarm() : SpellScriptLoader("spell_gen_leeching_swarm") { }
-
-        class spell_gen_leeching_swarm_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_leeching_swarm_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_DMG) || !sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_HEAL))
-                    return false;
-                return true;
-            }
-
-            void HandleEffectPeriodic(AuraEffect const* aurEff)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetTarget())
-                {
-                    int32 lifeLeeched = target->CountPctFromCurHealth(aurEff->GetAmount());
-                    if (lifeLeeched < 250)
-                        lifeLeeched = 250;
-                    // Damage
-                    caster->CastCustomSpell(target, SPELL_LEECHING_SWARM_DMG, &lifeLeeched, 0, 0, false);
-                    // Heal
-                    caster->CastCustomSpell(caster, SPELL_LEECHING_SWARM_HEAL, &lifeLeeched, 0, 0, false);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_leeching_swarm_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_leeching_swarm_AuraScript();
-        }
-};
-
 enum EluneCandle
 {
     NPC_OMEN = 15467,
@@ -520,7 +470,7 @@ class spell_gen_elune_candle : public SpellScriptLoader
         class spell_gen_elune_candle_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_gen_elune_candle_SpellScript);
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_HEAD))
                     return false;
@@ -590,7 +540,7 @@ class spell_gen_trick : public SpellScriptLoader
         class spell_gen_trick_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_gen_trick_SpellScript);
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE)
                     || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_FEMALE)
@@ -663,7 +613,7 @@ class spell_gen_trick_or_treat : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_trick_or_treat_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRICK) || !sSpellMgr->GetSpellInfo(SPELL_TREAT) || !sSpellMgr->GetSpellInfo(SPELL_TRICKED_OR_TREATED))
                     return false;
@@ -743,7 +693,7 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER) || !sSpellMgr->GetSpellInfo(SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF))
                     return false;
@@ -838,7 +788,7 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DIVINE_STORM))
                     return false;
@@ -954,7 +904,7 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
 
                 _handled = true;
                 Unit* caster = GetCaster();
-                if (InstanceScript* instance = caster->GetInstanceScript())
+                if (Map* instance = caster->GetMap())
                     instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, GetSpellInfo()->Id, caster);
             }
 
@@ -1096,7 +1046,7 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
 
                 uint32 prevItem;
 
-                bool Validate(SpellInfo const* /*spellEntry*/)
+                bool Validate(SpellInfo const* /*SpellInfo*/)
                 {
                     if (!sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_2_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_3_AURA)
                         || !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_2_AURA) || !sSpellMgr->GetSpellInfo(SPELL_COPY_RANGED_AURA))
@@ -1234,10 +1184,10 @@ class spell_gen_seaforium_blast : public SpellScriptLoader
             void AchievementCredit(SpellEffIndex /*effIndex*/)
             {
                 // but in effect handling OriginalCaster can become NULL
-                if (Unit* originalCaster = GetOriginalCaster())
+                if (Player* originalCaster = GetOriginalCaster()->ToPlayer())
                     if (GameObject* go = GetHitGObj())
                         if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
-                            originalCaster->CastSpell(originalCaster, SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT, true);
+                            originalCaster->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT);
             }
 
             void Register()
@@ -1441,11 +1391,11 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
                 {
                     case SPELL_GEAR_SCALING:
                         factor = 1.0f;
-                        baseItemLevel = 205;
+                        baseItemLevel = 405;
                         break;
                     default:
                         factor = 1.0f;
-                        baseItemLevel = 170;
+                        baseItemLevel = 405;
                         break;
                 }
 
@@ -1570,7 +1520,7 @@ class spell_gen_dummy_trigger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_dummy_trigger_SpellScript);
 
-            bool Validate(SpellInfo const* /*SpellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PERSISTANT_SHIELD_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_PERSISTANT_SHIELD))
                     return false;
@@ -1655,7 +1605,7 @@ class spell_gen_gadgetzan_transporter_backfire : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_gadgetzan_transporter_backfire_SpellScript)
 
-            bool Validate(SpellInfo const* /*SpellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_MALFUNCTION_POLYMORPH) || !sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_EVIL_TWIN)
                     || !sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_MALFUNCTION_MISS))
@@ -1702,7 +1652,7 @@ class spell_gen_gnomish_transporter : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_gnomish_transporter_SpellScript)
 
-            bool Validate(SpellInfo const* /*SpellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_SUCCESS) || !sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_FAILURE))
                     return false;
@@ -1746,9 +1696,9 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
         class spell_gen_dalaran_disguise_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_gen_dalaran_disguise_SpellScript);
-            bool Validate(SpellInfo const* spellEntry)
+            bool Validate(SpellInfo const* SpellInfo)
             {
-                switch (spellEntry->Id)
+                switch (SpellInfo->Id)
                 {
                     case SPELL_SUNREAVER_DISGUISE_TRIGGER:
                         if (!sSpellMgr->GetSpellInfo(SPELL_SUNREAVER_DISGUISE_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_SUNREAVER_DISGUISE_MALE))
@@ -2083,7 +2033,7 @@ class spell_gen_defend : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_defend_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_1))
                     return false;
@@ -2168,7 +2118,7 @@ class spell_gen_tournament_duel : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_tournament_duel_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ON_TOURNAMENT_MOUNT))
                     return false;
@@ -2220,7 +2170,7 @@ class spell_gen_summon_tournament_mount : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_summon_tournament_mount_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_LANCE_EQUIPPED))
                     return false;
@@ -2553,7 +2503,7 @@ class spell_gen_chaos_blast : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_chaos_blast_SpellScript)
 
-            bool Validate(SpellInfo const* /*SpellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_CHAOS_BLAST))
                     return false;
@@ -2878,7 +2828,7 @@ class spell_gen_summon_elemental : public SpellScriptLoader
                 if (GetCaster())
                     if (Unit* owner = GetCaster()->GetOwner())
                         if (owner->GetTypeId() == TYPEID_PLAYER) // todo: this check is maybe wrong
-                            owner->ToPlayer()->RemovePet(NULL, PET_SLOT_OTHER_PET, true);
+                            owner->ToPlayer()->RemovePet(NULL);
             }
 
             void Register()
@@ -3383,7 +3333,7 @@ public:
     class spell_brewfest_speed_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_brewfest_speed_AuraScript)
-        bool Validate(SpellInfo const * /*spellEntry*/)
+        bool Validate(SpellInfo const * /*SpellInfo*/)
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_RAM_FATIGUE))
                 return false;
@@ -3512,7 +3462,7 @@ class spell_gen_tricky_treat : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_tricky_treat_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_SPEED))
                     return false;
@@ -3943,6 +3893,138 @@ class spell_gen_battle_guild_standart : public SpellScriptLoader
         }
 };
 
+enum MineSpells
+{
+    SPELL_ACHIEV_MINE_KNOCKBACK = 54402,
+    SPELL_ACHIEV_MINE_STACK     = 57099,
+    SPELL_ACHIEV_MINE_CREDIT    = 57064,
+};
+// Achiev Mine Sweeper http://www.wowhead.com/achievement=1428
+// http://www.wowhead.com/spell=54355
+class spell_gen_landmine_knockback : public SpellScriptLoader
+{
+    public:
+        spell_gen_landmine_knockback() : SpellScriptLoader("spell_gen_landmine_knockback") { }
+
+        class spell_gen_landmine_knockback_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_landmine_knockback_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                Unit* target = GetHitUnit();
+                if (!target)
+                    return;
+
+                caster->CastSpell(target, SPELL_ACHIEV_MINE_KNOCKBACK, true);
+
+                if (Aura* aur = target->GetAura(SPELL_ACHIEV_MINE_STACK))
+                    if (aur->GetStackAmount() == 10)
+                        caster->CastSpell(target, SPELL_ACHIEV_MINE_CREDIT, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_gen_landmine_knockback_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_landmine_knockback_SpellScript();
+        }
+};
+
+enum ICSeaforiumSpells
+{
+    SPELL_BOMB_CREDIT_1 = 68366,
+    SPELL_BOMB_CREDIT_2 = 68367, // huge
+};
+//Isle of Conquest: A-bomb-inable
+class spell_gen_ic_seaforium_blast : public SpellScriptLoader
+{
+    public:
+        spell_gen_ic_seaforium_blast() : SpellScriptLoader("spell_gen_ic_seaforium_blast") {}
+
+        class spell_gen_ic_seaforium_blast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_ic_seaforium_blast_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BOMB_CREDIT_1))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_BOMB_CREDIT_2))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                return GetOriginalCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void AchievementCredit(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* originalCaster = GetOriginalCaster())
+                    if (GameObject* go = GetHitGObj())
+                        if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+                        {
+                            if (m_scriptSpellId == 66676 || m_scriptSpellId == 67814)
+                                originalCaster->CastSpell(originalCaster, SPELL_BOMB_CREDIT_1, true);
+                            else if (m_scriptSpellId == 66672 || m_scriptSpellId ==  67813)
+                                originalCaster->CastSpell(originalCaster, SPELL_BOMB_CREDIT_2, true);
+                        }
+
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_ic_seaforium_blast_SpellScript::AchievementCredit, EFFECT_1, SPELL_EFFECT_GAMEOBJECT_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_ic_seaforium_blast_SpellScript();
+        }
+};
+
+class spell_gen_cooking_way : public SpellScriptLoader
+{
+    public:
+        spell_gen_cooking_way() : SpellScriptLoader("spell_gen_cooking_way") { }
+
+        class spell_gen_cooking_way_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_cooking_way_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                if (!caster)
+                    return;
+
+                uint32 skillid = GetSpellInfo()->Effects[1].MiscValue;
+                caster->SetSkill(skillid, GetSpellInfo()->Effects[1].CalcValue(), 525, 600);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_gen_cooking_way_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_cooking_way_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_battle_fatigue();
@@ -3952,7 +4034,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_av_drekthar_presence();
     new spell_gen_burn_brutallus();
     new spell_gen_cannibalize();
-    new spell_gen_leeching_swarm();
     new spell_gen_parachute();
     new spell_gen_pet_summoned();
     new spell_gen_remove_flight_auras();
@@ -4028,4 +4109,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_orb_of_power();
     new spell_gen_drums_of_rage();
     new spell_gen_battle_guild_standart();
+    new spell_gen_landmine_knockback();
+    new spell_gen_ic_seaforium_blast();
+    new spell_gen_cooking_way();
 }

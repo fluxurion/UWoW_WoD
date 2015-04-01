@@ -59,6 +59,9 @@ public:
         ObjectGuid doorAfterTrialGuid;
         ObjectGuid doorBeforeKingGuid;
         ObjectGuid secretdoorGuid;
+        
+        uint8 JadeCount;
+        uint8 GemCount;
 
         instance_mogu_shan_palace_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
@@ -80,6 +83,15 @@ public:
             glintrok_skulker.Clear();
             glintrok_oracle.Clear();
             glintrok_hexxer.Clear();
+            
+            JadeCount = 0;
+            GemCount = 0;
+        }
+
+        void FillInitialWorldStates(WorldPacket& data)
+        {
+            data << uint32(JadeCount > 0 && JadeCount != 5)     << uint32(6761); // Show_Jade
+            data << uint32(JadeCount)                           << uint32(6748); // Jade_Count
         }
 
         bool SetBossState(uint32 id, EncounterState state)
@@ -158,6 +170,23 @@ public:
                         }
                     }
                     break;
+                case TYPE_JADECOUNT:
+                {
+                    JadeCount = data;
+                    DoUpdateWorldState(6761, 1);
+                    DoUpdateWorldState(6748, JadeCount);
+                    if (JadeCount == 5)
+                    {
+                        DoCastSpellOnPlayers(SPELL_ACHIEV_JADE_QUILEN);
+                        DoUpdateWorldState(6761, 0);
+                    }
+                    break;
+                }
+                case TYPE_GEMCOUNT:
+                {
+                    GemCount = data;
+                    break;
+                }
             }
 
             SetData_trial_of_the_king(type, data);
@@ -166,6 +195,11 @@ public:
 
         uint32 GetData(uint32 type) const
         {
+            if (type == TYPE_JADECOUNT)
+                return JadeCount;
+            if (type == TYPE_GEMCOUNT)
+                return GemCount;
+
             return 0;
         }
 
@@ -580,6 +614,7 @@ public:
                 {
                     chest->SetPhaseMask(1, true);
                     chest->SetRespawnTime(604800);
+                    instance->SummonCreature(CREATURE_JADE_QUILEN, otherPos[0]);
                 }
                 
                 if (GameObject* go = instance->GetGameObject(secretdoorGuid))

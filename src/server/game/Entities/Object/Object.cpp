@@ -790,26 +790,26 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         AreaTrigger const* t = ToAreaTrigger();
         ASSERT(t);
 
-        data->WriteBit(0);  //byte284
-        //if (byte284)
+        data->WriteBit(0);  // areaTriggerPolygon
+        //if (areaTriggerPolygon)
         //{
-        //    dword25C = p.ReadBits(21);
-        //    dword26C = p.ReadBits(21);
+        //    dword25C = p.ReadBits(21); // VerticesCount
+        //    dword26C = p.ReadBits(21); // VerticesTargetCount
         //}
-        data->WriteBit(0);              //byte20C
-        data->WriteBit(0);              //byte210
-        data->WriteBit(t->GetVisualScale());//byte23C
-        data->WriteBit(t->isMoving());  //byte298 areatrigger movement
-        data->WriteBit(0);              //byte20F
-        data->WriteBit(0);              //byte20E
-        data->WriteBit(0);              //byte218
-        data->WriteBit(0);              //byte220
+        data->WriteBit(0);              // HasAbsoluteOrientation?
+        data->WriteBit(0);              // HasFollowsTerrain?
+        data->WriteBit(t->GetVisualScale()); // areaTriggerSphere
+        data->WriteBit(t->isMoving());  // areaTriggerSpline
+        data->WriteBit(0);              // HasFaceMovementDir?
+        data->WriteBit(0);              // HasAttached?
+        data->WriteBit(0);              // hasScaleCurveID?
+        data->WriteBit(0);              // hasMorphCurveID?
         if (t->isMoving())
-            data->WriteBits(t->GetObjectMovementParts(), 20); // count areatrigger movement point dword288
-        data->WriteBit(0);              //byte228
-        data->WriteBit(0);              //byte20D
-        data->WriteBit(0);              //byte230
-        data->WriteBit(0);              //byte258
+            data->WriteBits(t->GetObjectMovementParts(), 20); // splinePointsCount
+        data->WriteBit(0);              // hasFacingCurveID?
+        data->WriteBit(0);              // HasDynamicShape?
+        data->WriteBit(t->GetAreaTriggerInfo().MoveCurveID);      // hasMoveCurveID
+        data->WriteBit(t->GetAreaTriggerCylinder());              // areaTriggerCylinder
     }
 
     if (flags & UPDATEFLAG_LIVING)
@@ -832,6 +832,8 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         }
 
         ObjectGuid transGuid = self->m_movementInfo.transport.guid;
+        //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "BuildMovement GUID %u, Entry %u, t_guid %u, Flags %i, FlagsExtra %i, flags %i, xyz (%f %f %f) Zofset %f, T(%f %f %f)", 
+        //GetGUID(), GetEntry(), self->m_movementInfo.t_guid, movementFlags, movementFlagsExtra, flags, self->GetPositionX(), self->GetPositionY(), self->GetPositionZ(), self->GetPositionZMinusOffset(), self->GetTransOffsetX(), self->GetTransOffsetY(), self->GetTransOffsetZ());
 
         //data->WriteGuidMask<4, 1>(guid);
         data->WriteBits(0, 19);                     // dword160
@@ -911,16 +913,61 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     {
         AreaTrigger const* t = ToAreaTrigger();
         ASSERT(t);
-        if (t->GetVisualScale())                //byte23C
-        {          
-            *data << t->GetVisualScale(true);
-            *data << t->GetVisualScale();
+
+        if (t->GetAreaTriggerCylinder())                // areaTriggerCylinder
+        {
+            *data << t->GetAreaTriggerInfo().Float4; // Float4 (float250)
+            *data << t->GetAreaTriggerInfo().Float5; // Float5 (float254)
+            *data << t->GetAreaTriggerInfo().Height; // Height (float248)
+            *data << t->GetAreaTriggerInfo().HeightTarget; // HeightTarget (float24C)
+            *data << t->GetAreaTriggerInfo().Radius; // Radius (float240)
+            *data << t->GetAreaTriggerInfo().RadiusTarget; // RadiusTarget (float244)
         }
 
-        if (t->isMoving())                      //byte298
-            t->PutObjectUpdateMovement(data);  //dword288
+        /*if (areaTriggerPolygon)
+        {
+            data << float(1.0f); // HeightTarget? (float280)
 
-        *data << uint32(1);
+            for (uint8 i = 0; i < dword26C; ++i)
+            {
+                data << float(1.0f); // Y
+                data << float(1.0f); // X
+            }
+
+            data << float(1.0f); // Height? (float27C)
+
+            for (uint8 i = 0; i < dword25C; ++i)
+            {
+                data << float(1.0f); // X
+                data << float(1.0f); // Y
+            }
+        }*/
+
+        if (t->GetAreaTriggerInfo().MoveCurveID)
+            *data << uint32(t->GetAreaTriggerInfo().MoveCurveID);
+
+        //if (hasMorphCurveID)
+            //data << uint32(0);
+
+        if (t->GetVisualScale())                // areaTriggerSphere
+        {
+            *data << t->GetVisualScale(true);   // Radius
+            *data << t->GetVisualScale();       // RadiusTarget
+        }
+
+        if (t->isMoving())                      // areaTriggerSpline
+            t->PutObjectUpdateMovement(data);   // Points
+
+        if(t->GetAreaTriggerInfo().ElapsedTime)
+            *data << uint32(t->GetAreaTriggerInfo().ElapsedTime);                     // Elapsed Time Ms
+        else
+            *data << uint32(1);                     // Elapsed Time Ms
+
+        /*if (hasFacingCurveID)
+            data << uint32(0);
+
+        if (hasScaleCurveID)
+            data << uint32(0);*/
     }
 
     if (flags & UPDATEFLAG_LIVING)
@@ -1176,7 +1223,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targ
                 else if (index >= UNIT_FIELD_ATTACK_ROUND_BASE_TIME && index <= UNIT_FIELD_RANGED_ATTACK_ROUND_BASE_TIME)
                 {
                     // convert from float to uint32 and send
-                    fieldBuffer << uint32(m_floatValues[index] < 0 ? 0 : m_floatValues[index]);
+                    fieldBuffer << uint32(m_floatValues[index] < 0 ? 0 : (RoundingFloatValue(m_floatValues[index] / 10) * 10));
                     continue; //skip by custom write
                 }
                 // there are some float values which may be negative or can't get negative due to other checks
@@ -2088,9 +2135,10 @@ Position Position::GetRandPointBetween(const Position &B) const
     return result;
 }
 
-void Position::SimplePosXYRelocationByAngle(Position &pos, float dist, float angle) const
+void Position::SimplePosXYRelocationByAngle(Position &pos, float dist, float angle, bool relative) const
 {
-    angle += GetOrientation();
+    if(!relative)
+        angle += GetOrientation();
 
     pos.m_positionX = m_positionX + dist * std::cos(angle);
     pos.m_positionY = m_positionY + dist * std::sin(angle);
@@ -2497,7 +2545,7 @@ bool Position::HasInArc(float arc, const Position* obj) const
     return ((angle >= lborder) && (angle <= rborder));
 }
 
-bool WorldObject::IsInBetween(const WorldObject* obj1, const WorldObject* obj2, float size) const
+bool WorldObject::IsInBetween(const Position* obj1, const Position* obj2, float size) const
 {
     if (!obj1 || !obj2)
         return false;
@@ -2515,6 +2563,30 @@ bool WorldObject::IsInBetween(const WorldObject* obj1, const WorldObject* obj2, 
 
     // not using sqrt() for performance
     return (size * size) >= GetExactDist2dSq(obj1->GetPositionX() + cos(angle) * dist, obj1->GetPositionY() + sin(angle) * dist);
+}
+
+bool WorldObject::IsInBetweenShift(const Position* obj1, const Position* obj2, float size, float shift, float angleShift) const
+{
+    if (!obj1 || !obj2)
+        return false;
+
+    angleShift += obj1->GetOrientation();
+    float destx = obj1->GetPositionX() + shift * std::cos(angleShift);
+    float desty = obj1->GetPositionY() + shift * std::sin(angleShift);
+
+    float dist = GetExactDist2d(destx, desty);
+
+    // not using sqrt() for performance
+    if ((dist * dist) >= obj1->GetExactDist2dSq(obj2->GetPositionX(), obj2->GetPositionY()))
+        return false;
+
+    if (!size)
+        size = GetObjectSize() / 2;
+
+    float angle = obj1->GetAngle(obj2);
+
+    // not using sqrt() for performance
+    return (size * size) >= GetExactDist2dSq(destx + cos(angle) * dist, desty + sin(angle) * dist);
 }
 
 bool WorldObject::IsInBetween(const WorldObject* obj1, float x2, float y2, float size) const
@@ -2680,6 +2752,10 @@ float WorldObject::GetSightRange(const WorldObject* target) const
         {
             if (target && target->isActiveObject() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
+            else if (GetMapId() == 967) // Dragon Soul
+                return 500.0f;
+            else if (GetMapId() == 754) // Throne of the Four Winds
+                return MAX_VISIBILITY_DISTANCE;
             else
                 return GetMap()->GetVisibilityRange();
         }
@@ -2737,6 +2813,11 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
         {
             if (thisPlayer->HaveExtraLook(obj->GetGUID()))
                 return true;
+
+            //not see befor enter vehicle.
+            if (Creature const* creature = obj->ToCreature())
+                if (creature->onVehicleAccessoryInit())
+                    return false;
 
             onArena = thisPlayer->InArena();
 
@@ -2813,7 +2894,7 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
     if (obj->IsAlwaysDetectableFor(seer))
         return true;
 
-    if (!seer->CanDetectInvisibilityOf(obj))
+    if (!ignoreStealth && !seer->CanDetectInvisibilityOf(obj))
         return false;
 
     if (!ignoreStealth && !seer->CanDetectStealthOf(obj))
@@ -2868,8 +2949,12 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
     if (isType(TYPEMASK_UNIT))
         combatReach = ((Unit*)this)->GetCombatReach();
 
-    if (distance < combatReach)
-        return true;
+//     if (distance < combatReach)
+//         return true;
+// 
+//     if (Player const* player = ToPlayer())
+//         if(player->HaveAtClient(obj) && distance < (ATTACK_DISTANCE * 2))
+//             return true;
 
     if (!HasInArc(M_PI, obj))
         return false;
@@ -3342,6 +3427,9 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
     AddToMap(summon->ToCreature());
     summon->InitSummon();
+    summon->CastPetAuras(true);
+
+    //sLog->outDebug(LOG_FILTER_PETS, "Map::SummonCreature summoner %u entry %i mask %i", summoner ? summoner->GetGUID() : 0, entry, mask);
 
     //ObjectAccessor::UpdateObjectVisibility(summon);
 
@@ -3411,15 +3499,14 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempS
     return NULL;
 }
 
-Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration, PetSlot slotID, bool stampeded)
+Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration, uint32 spellId, bool stampeded)
 {
-    bool currentPet = (slotID != PET_SLOT_UNK_SLOT);
-    if (getClass() != CLASS_HUNTER)
-        currentPet = false;
-    else
+    if (getClass() == CLASS_HUNTER)
         petType = HUNTER_PET;
 
     Pet* pet = new Pet(this, petType);
+
+    pet->Relocate(x, y, z, ang);
 
     //summoned pets always non-curent!
     if (petType == SUMMON_PET || petType == HUNTER_PET)
@@ -3431,12 +3518,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             return NULL;
         }
 
-        if (pet->LoadPetFromDB(this, entry, 0, currentPet, slotID, stampeded))
+        if (pet->LoadPetFromDB(this, entry, 0, stampeded))
         {
-            if (getClass() == CLASS_WARLOCK)
-                if (HasAura(108503))
-                    RemoveAura(108503);
-
             if (duration > 0)
                 pet->SetDuration(duration);
 
@@ -3447,14 +3530,14 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     // petentry == 0 for hunter "call pet" (current pet summoned if any)
     if (!entry)
     {
+        sLog->outError(LOG_FILTER_PETS, "no such entry %u", entry);
         delete pet;
         return NULL;
     }
 
-    pet->Relocate(x, y, z, ang);
     if (!pet->IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)", pet->GetGUID().GetCounter(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
+        sLog->outError(LOG_FILTER_PETS, "Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)", pet->GetGUID().GetCounter(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
         delete pet;
         return NULL;
     }
@@ -3463,7 +3546,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     uint32 pet_number = sObjectMgr->GeneratePetNumber();
     if (!pet->Create(sObjectMgr->GetGenerator<HighGuid::Pet>()->Generate(), map, GetPhaseMask(), entry, pet_number))
     {
-        sLog->outError(LOG_FILTER_GENERAL, "no such creature entry %u", entry);
+        sLog->outError(LOG_FILTER_PETS, "no such creature entry %u", entry);
         delete pet;
         return NULL;
     }
@@ -3472,36 +3555,25 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->SetUInt32Value(UNIT_FIELD_FACTION_TEMPLATE, getFaction());
     pet->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
     pet->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
+    pet->InitStatsForLevel(getLevel());
 
-    switch (petType)
-    {
-        case SUMMON_PET:
-            // this enables pet details window (Shift+P)
-            pet->GetCharmInfo()->SetPetNumber(pet_number, true);
-            break;
-        default:
-            break;
-    }
+    if(petType == SUMMON_PET)
+        pet->GetCharmInfo()->SetPetNumber(pet_number, true);
 
-    // Only slot 100, as it's not hunter pet.
     // After SetPetNumber
-    SetMinion(pet, true, slotID != PET_SLOT_UNK_SLOT ? slotID : PET_SLOT_OTHER_PET);
+    SetMinion(pet, true, stampeded);
 
     map->AddToMap(pet->ToCreature());
 
-    switch (petType)
+    if(petType == SUMMON_PET)
     {
-        case SUMMON_PET:
-            pet->InitPetCreateSpells();
-            pet->SynchronizeLevelWithOwner();
-            pet->LearnPetPassives();
-            pet->InitLevelupSpellsForLevel();
-            pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT);
-            PetSpellInitialize();
-            SendTalentsInfoData(true);
-            break;
-        default:
-            break;
+        pet->InitPetCreateSpells();
+        pet->SynchronizeLevelWithOwner();
+        pet->LearnPetPassives();
+        pet->SavePetToDB();
+        PetSpellInitialize();
+        SendTalentsInfoData(true);
     }
 
     if (getClass() == CLASS_WARLOCK)
@@ -3511,6 +3583,9 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     if (duration > 0)
         pet->SetDuration(duration);
 
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SummonPet entry %i, petType %i, spellId %i", entry, petType, spellId);
+
+    pet->CastPetAuras(true);
     return pet;
 }
 

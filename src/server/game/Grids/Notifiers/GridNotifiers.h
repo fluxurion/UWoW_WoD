@@ -1726,5 +1726,340 @@ namespace Trinity
             std::vector<WorldPacketList> i_data_cache;
                                                             // 0 = default, i => i-1 locale index
     };
+
+    class UnitHealthState
+    {
+        public:
+            UnitHealthState(bool sortlow) : _sortlow(sortlow) {}
+            bool operator()(Unit* unitA, Unit* unitB) const
+            {
+                return (unitA->GetHealthPct() < unitB->GetHealthPct()) == _sortlow;
+            }
+
+            bool operator()(WorldObject* objectA, WorldObject* objectB) const
+            {
+                return objectA->ToUnit() && objectB->ToUnit() && (objectA->ToUnit()->GetHealthPct() < objectB->ToUnit()->GetHealthPct()) == _sortlow;
+            }
+
+        private:
+            bool _sortlow;
+    };
+
+    class UnitDistanceCheck
+    {
+        public:
+            UnitDistanceCheck(bool checkin, Unit* caster, float dist) : _checkin(checkin), _caster(caster), _dist(dist) {}
+            bool operator()(Unit* unit) const
+            {
+                return (_caster->GetExactDist2d(unit) > _dist) == _checkin;
+            }
+
+            bool operator()(WorldObject* object) const
+            {
+                return (_caster->GetExactDist2d(object) > _dist) == _checkin;
+            }
+
+        private:
+            bool _checkin;
+            Unit* _caster;
+            float _dist;
+    };
+
+    class UnitTypeCheck
+    {
+        public:
+            UnitTypeCheck(bool checkin, uint32 typeMask) : _checkin(checkin), _typeMask(typeMask) {}
+            bool operator()(Unit* unit) const
+            {
+                return bool(_typeMask & (1 << unit->GetTypeId())) == _checkin;
+            }
+
+            bool operator()(WorldObject* object) const
+            {
+                return bool(_typeMask & (1 << object->GetTypeId())) == _checkin;
+            }
+
+        private:
+            bool _checkin;
+            uint32 _typeMask;
+    };
+
+    class UnitSortDistance
+    {
+        public:
+            UnitSortDistance(bool sortlow, Unit* caster) : _sortlow(sortlow), _caster(caster) {}
+            bool operator()(Unit* unitA, Unit* unitB) const
+            {
+                return (_caster->GetExactDist2d(unitA) < _caster->GetExactDist2d(unitB)) == _sortlow;
+            }
+
+            bool operator()(WorldObject* objectA, WorldObject* objectB) const
+            {
+                return (_caster->GetExactDist2d(objectA) < _caster->GetExactDist2d(objectB)) == _sortlow;
+            }
+
+        private:
+            bool _sortlow;
+            Unit* _caster;
+    };
+
+    class UnitFriendlyCheck
+    {
+        public:
+            UnitFriendlyCheck(bool present, Unit* caster) : _present(present), _caster(caster) {}
+            bool operator() (Unit* unit)
+            {
+                return unit->IsFriendlyTo(_caster) == _present;
+            }
+            bool operator() (WorldObject* object)
+            {
+                return object->ToUnit() && object->ToUnit()->IsFriendlyTo(_caster) == _present;
+            }
+        private:
+            bool _present;
+            Unit* _caster;
+    };
+
+    class UnitRaidCheck
+    {
+        public:
+            UnitRaidCheck(bool present, Unit* caster) : _present(present), _caster(caster) {}
+            bool operator() (Unit* unit)
+            {
+                return unit->IsInRaidWith(_caster) == _present;
+            }
+            bool operator() (WorldObject* object)
+            {
+                return object->ToUnit() && object->ToUnit()->IsInRaidWith(_caster) == _present;
+            }
+        private:
+            bool _present;
+            Unit* _caster;
+    };
+
+    class UnitPartyCheck
+    {
+        public:
+            UnitPartyCheck(bool present, Unit* caster) : _present(present), _caster(caster) {}
+            bool operator() (Unit* unit)
+            {
+                return unit->IsInPartyWith(_caster) == _present;
+            }
+            bool operator() (WorldObject* object)
+            {
+                return object->ToUnit() && object->ToUnit()->IsInPartyWith(_caster) == _present;
+            }
+        private:
+            bool _present;
+            Unit* _caster;
+    };
+
+    class UnitCheckInLos
+    {
+        public:
+            UnitCheckInLos(bool present, Unit* caster) : _present(present), _caster(caster) {}
+            bool operator() (WorldObject* object)
+            {
+                return object->IsWithinLOSInMap(_caster) == _present;
+            }
+        private:
+            bool _present;
+            Unit* _caster;
+    };
+
+    class UnitCheckInBetween
+    {
+        public:
+            UnitCheckInBetween(bool present, Unit* caster, Unit* target, float size) : _present(present), _caster(caster), _target(target), _size(size) {}
+            bool operator() (WorldObject* object)
+            {
+                return object->IsInBetween(_caster, _target, _size) == _present;
+            }
+        private:
+            bool _present;
+            Unit* _caster;
+            Unit* _target;
+            float _size;
+    };
+
+    class UnitCheckInBetweenShift
+    {
+        public:
+            UnitCheckInBetweenShift(bool present, Unit* caster, Unit* target, float size, float shift, float angleShift)
+            : _present(present), _caster(caster), _target(target), _size(size), _shift(shift), _angleShift(angleShift) {}
+
+            bool operator() (WorldObject* object)
+            {
+                return object->IsInBetweenShift(_caster, _target, _size, _shift, _angleShift) == _present;
+            }
+        private:
+            bool _present;
+            Unit* _caster;
+            Unit* _target;
+            float _size;
+            float _shift;
+            float _angleShift;
+    };
+
+    class UnitCheckCCAura
+    {
+        public:
+            UnitCheckCCAura(bool present, Unit* caster) : _present(present), _caster(caster) {}
+            bool operator() (WorldObject* object)
+            {
+                return object->ToUnit() && object->ToUnit()->HasCrowdControlAura(_caster) == _present;
+            }
+        private:
+            bool _present;
+            Unit* _caster;
+    };
+
+    class UnitAuraAndCheck
+    {
+        public:
+            UnitAuraAndCheck (int32 aura1, int32 aura2 = 0, int32 aura3 = 0, uint64 casterGUID = 0) : _aura1(aura1), _aura2(aura2), _aura3(aura3), _casterGUID(casterGUID) {}
+            bool operator()(Unit* unit) const
+            {
+                if(_aura1 < 0 && unit->HasAura(abs(_aura1), _casterGUID))
+                    return true;
+                else if(_aura1 > 0 && !unit->HasAura(_aura1, _casterGUID))
+                    return true;
+
+                if(_aura2 < 0 && unit->HasAura(abs(_aura2), _casterGUID))
+                    return true;
+                else if(_aura2 > 0 && !unit->HasAura(_aura2, _casterGUID))
+                    return true;
+
+                if(_aura3 < 0 && unit->HasAura(abs(_aura3), _casterGUID))
+                    return true;
+                else if(_aura3 > 0 && !unit->HasAura(_aura3, _casterGUID))
+                    return true;
+
+                return false;
+            }
+
+            bool operator()(WorldObject* object) const
+            {
+                if(Unit* unit = object->ToUnit())
+                {
+                    if(_aura1 < 0 && unit->HasAura(abs(_aura1), _casterGUID))
+                        return true;
+                    else if(_aura1 > 0 && !unit->HasAura(_aura1, _casterGUID))
+                        return true;
+
+                    if(_aura2 < 0 && unit->HasAura(abs(_aura2), _casterGUID))
+                        return true;
+                    else if(_aura2 > 0 && !unit->HasAura(_aura2, _casterGUID))
+                        return true;
+
+                    if(_aura3 < 0 && unit->HasAura(abs(_aura3), _casterGUID))
+                        return true;
+                    else if(_aura3 > 0 && !unit->HasAura(_aura3, _casterGUID))
+                        return true;
+
+                    return false;
+                }
+                else
+                    return true;
+            }
+
+        private:
+            int32 _aura1;
+            int32 _aura2;
+            int32 _aura3;
+            uint64 _casterGUID;
+    };
+
+    class UnitAuraOrCheck
+    {
+        public:
+            UnitAuraOrCheck (int32 aura1, int32 aura2, int32 aura3, uint64 casterGUID = 0) : _aura1(aura1), _aura2(aura2), _aura3(aura3), _casterGUID(casterGUID) {}
+            bool operator()(Unit* unit) const
+            {
+                if(_aura1 < 0 && !unit->HasAura(abs(_aura1), _casterGUID))
+                    return false;
+                else if(_aura1 > 0 && unit->HasAura(_aura1, _casterGUID))
+                    return false;
+
+                if(_aura2 < 0 && !unit->HasAura(abs(_aura2), _casterGUID))
+                    return false;
+                else if(_aura2 > 0 && unit->HasAura(_aura2, _casterGUID))
+                    return false;
+
+                if(_aura3 < 0 && !unit->HasAura(abs(_aura3), _casterGUID))
+                    return false;
+                else if(_aura3 > 0 && unit->HasAura(_aura3, _casterGUID))
+                    return false;
+
+                return true;
+            }
+
+            bool operator()(WorldObject* object) const
+            {
+                if(Unit* unit = object->ToUnit())
+                {
+                    if(_aura1 < 0 && !unit->HasAura(abs(_aura1), _casterGUID))
+                        return false;
+                    else if(_aura1 > 0 && unit->HasAura(_aura1, _casterGUID))
+                        return false;
+
+                    if(_aura2 < 0 && !unit->HasAura(abs(_aura2), _casterGUID))
+                        return false;
+                    else if(_aura2 > 0 && unit->HasAura(_aura2, _casterGUID))
+                        return false;
+
+                    if(_aura3 < 0 && !unit->HasAura(abs(_aura3), _casterGUID))
+                        return false;
+                    else if(_aura3 > 0 && unit->HasAura(_aura3, _casterGUID))
+                        return false;
+
+                    return true;
+                }
+                else
+                    return true;
+            }
+
+        private:
+            int32 _aura1;
+            int32 _aura2;
+            int32 _aura3;
+            uint64 _casterGUID;
+    };
+
+    class UnitEntryCheck
+    {
+        public:
+            UnitEntryCheck (int32 entry1, int32 entry2, int32 entry3) : _entry1(entry1), _entry2(entry2), _entry3(entry3) {}
+            bool operator()(WorldObject* object) const
+            {
+                if(_entry1 > 0)
+                {
+                    if(_entry1 > 0 && object->GetEntry() == _entry1)
+                        return false;
+                    if(_entry2 > 0 && object->GetEntry() == _entry2)
+                        return false;
+                    if(_entry3 > 0 && object->GetEntry() == _entry3)
+                        return false;
+
+                    return true;
+                }
+                if(_entry1 < 0)
+                {
+                    if(_entry1 < 0 && object->GetEntry() == abs(_entry1))
+                        return true;
+                    if(_entry2 < 0 && object->GetEntry() == abs(_entry2))
+                        return true;
+                    if(_entry3 < 0 && object->GetEntry() == abs(_entry3))
+                        return true;
+
+                    return false;
+                }
+            }
+
+        private:
+            int32 _entry1;
+            int32 _entry2;
+            int32 _entry3;
+    };
 }
 #endif

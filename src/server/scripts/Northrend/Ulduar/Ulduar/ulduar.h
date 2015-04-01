@@ -75,6 +75,7 @@ enum Data64
     DATA_RIGHT_ARM,  
     DATA_LEFT_ARM,
     DATA_SARA,
+    DATA_ALGALON,
 };
 
 enum Data
@@ -213,6 +214,7 @@ enum UlduarAchievementData
     MAX_HERALD_ARMOR_ITEMLEVEL  = 226,
     MAX_HERALD_WEAPON_ITEMLEVEL = 232,
     CRITERIA_DWARFGEDDON = 65387,
+    CRITERIA_HERALD_OF_TITANS   = 10678,
 };
 
 enum UlduarEvents

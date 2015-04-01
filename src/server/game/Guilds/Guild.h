@@ -847,13 +847,17 @@ public:
     // Send info to client
     void SendEventLog(WorldSession* session) const;
     void SendBankLog(WorldSession* session, uint8 tabId) const;
-    void SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const;
+    void SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo, bool fullUpdate) const;
     void SendBankTabText(WorldSession* session, uint8 tabId) const;
     void SendPermissions(WorldSession* session) const;
     void SendMoneyInfo(WorldSession* session) const;
     void SendLoginInfo(WorldSession* session);
     void SendGuildReputationWeeklyCap(WorldSession* session) const;
     void SendGuildXP(WorldSession* session) const;
+    void SendGuildChallengesInfo(WorldSession* session) const;
+
+    // send alert frame after complete some type of guild challenge, actually send after finish dungeon, kill raid boss, win rated BG and others...
+    void SendGuildChallengeComplete(WorldSession* session) const;
 
     // Load from DB
     bool LoadFromDB(Field* fields);

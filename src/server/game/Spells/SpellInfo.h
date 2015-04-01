@@ -470,6 +470,7 @@ public:
     bool HasAreaAuraEffect() const;
     bool HasDynAuraEffect() const;
     bool IsMountOrCompanions() const;
+    bool IsNotProcSpell() const;
     uint32 GetBattlePetEntry() const;
 
     bool IsExplicitDiscovery() const;
@@ -484,6 +485,7 @@ public:
 
     bool IsAffectingArea() const;
     bool IsTargetingArea() const;
+    bool IsTargetingAreaCast(uint8 effect = 0) const;
     bool NeedsExplicitUnitTarget() const;
     bool NeedsToBeTriggeredByCaster() const;
 
@@ -502,6 +504,7 @@ public:
     bool NeedsComboPoints() const;
     bool IsBreakingStealth() const;
     bool IsRangedWeaponSpell() const;
+    bool IsRangedSpell() const;
     bool IsAutoRepeatRangedSpell() const;
 
     bool IsAffectedBySpellMods() const;

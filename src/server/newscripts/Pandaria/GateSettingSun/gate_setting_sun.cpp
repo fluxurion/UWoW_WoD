@@ -13,52 +13,11 @@ enum spells
 
     SPELL_BOMB_CAST_VISUAL              = 106729,
     SPELL_BOMB_AURA                     = 106875,
+    
+    SPELL_RESIN_RESIDUE                 = 118795,
+    SPELL_ACHIEVEMENT_COMPLETE          = 118797,
 };
 
-class mob_serpent_spine_defender : public CreatureScript
-{
-public:
-    mob_serpent_spine_defender() : CreatureScript("mob_serpent_spine_defender") { }
-
-    struct mob_serpent_spine_defenderAI : public ScriptedAI
-    {
-        mob_serpent_spine_defenderAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 attackTimer;
-
-        void Reset()
-        {
-            attackTimer = urand(1000, 5000);
-        }
-
-        void DamageDealt(Unit* /*target*/, uint32& damage, DamageEffectType /*damageType*/)
-        {
-            damage = 0;
-        }
-
-        void UpdateAI(uint32 diff)
-        {
-            if (!me->isInCombat())
-            {
-                if (attackTimer <= diff)
-                {
-                    if (Unit* target = me->SelectNearestTarget(5.0f))
-                        if (!target->IsFriendlyTo(me))
-                            AttackStart(target);
-                }
-                else
-                    attackTimer -= diff;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_serpent_spine_defenderAI(creature);
-    }
-};
 
 class npc_krikthik_bombarder : public CreatureScript
 {
@@ -92,7 +51,7 @@ public:
         {
             if (bombTimer <= diff)
             {
-                if (Unit* stalker = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_RANDOM_BOMB_STALKER)))
+                if (Unit* stalker = pInstance->instance->GetCreature(pInstance->GetData64(DATA_RANDOM_BOMB_STALKER)))
                     if (!stalker->HasAura(SPELL_BOMB_AURA))
                         me->CastSpell(stalker, SPELL_BOMB_CAST_VISUAL, true);
 
@@ -108,13 +67,81 @@ public:
     }
 };
 
+class npc_krikthik_conscript : public CreatureScript
+{
+public:
+    npc_krikthik_conscript() : CreatureScript("npc_krikthik_conscript") { }
+
+    struct npc_krikthik_conscriptAI : public ScriptedAI
+    {
+        npc_krikthik_conscriptAI(Creature* creature) : ScriptedAI(creature)
+        {
+            pInstance = creature->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
+
+        void Reset()
+        {
+        }
+        
+        void JustDied(Unit* killer)
+        {
+            me->CastSpell(killer, SPELL_RESIN_RESIDUE, true);
+        }
+        
+        void DamageTaken(Unit* attacker, uint32 &damage)
+        {
+            if (attacker->ToCreature() && me->HealthBelowPct(85))
+                damage = 0;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_krikthik_conscriptAI (creature);
+    }
+};
+
+class spell_resin_residue : public SpellScriptLoader
+{
+    public:
+        spell_resin_residue() : SpellScriptLoader("spell_resin_residue") { }
+
+        class spell_resin_residue_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_resin_residue_AuraScript);
+
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                if(!target)
+                    return;
+                
+                if (Aura* aura = target->GetAura(SPELL_RESIN_RESIDUE))
+                    if (aura->GetStackAmount() > 2)
+                        target->CastSpell(target, SPELL_ACHIEVEMENT_COMPLETE, true);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_resin_residue_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAPPLY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_resin_residue_AuraScript();
+        }
+};
+
 //8359
 class AreaTrigger_at_first_door : public AreaTriggerScript
 {
     public:
         AreaTrigger_at_first_door() : AreaTriggerScript("at_first_door") {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*apply*/)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool apply)
         {
             if (player->GetInstanceScript())
                 player->GetInstanceScript()->SetData(DATA_OPEN_FIRST_DOOR, DONE);
@@ -161,70 +188,12 @@ public:
     }
 };
 
-class vehicle_artillery_to_wall : public VehicleScript
-{
-    public:
-        vehicle_artillery_to_wall() : VehicleScript("vehicle_artillery_to_wall") {}
-
-        void OnAddPassenger(Vehicle* veh, Unit* /*passenger*/, int8 /*seatId*/)
-        {
-            if (veh->GetBase())
-                if (veh->GetBase()->ToCreature())
-                    if (veh->GetBase()->ToCreature()->AI())
-                        veh->GetBase()->ToCreature()->AI()->DoAction(0);
-        }
-
-        struct vehicle_artillery_to_wallAI : public ScriptedAI
-        {
-            vehicle_artillery_to_wallAI(Creature* creature) : ScriptedAI(creature)
-            {}
-
-            uint32 launchEventTimer;
-
-            void Reset()
-            {
-                launchEventTimer = 0;
-            }
-
-            void DoAction(int32 const action)
-            {
-                launchEventTimer = 2500;
-            }
-
-            void UpdateAI(uint32 diff)
-            {
-                if (!launchEventTimer)
-                    return;
-
-                if (launchEventTimer <= diff)
-                {
-                    if (me->GetVehicleKit())
-                    {
-                        if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
-                        {
-                            passenger->ExitVehicle();
-                            passenger->GetMotionMaster()->MoveJump(1100.90f, 2304.58f, 381.23f, 30.0f, 50.0f);
-                        }
-                    }
-
-                    launchEventTimer = 0;
-                }
-                else launchEventTimer -= diff;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new vehicle_artillery_to_wallAI(creature);
-        }
-};
-
 void AddSC_gate_setting_sun()
 {
-    new mob_serpent_spine_defender();
     new npc_krikthik_bombarder();
+    new npc_krikthik_conscript();
+    new spell_resin_residue();
     new AreaTrigger_at_first_door();
     new go_setting_sun_brasier();
     new go_setting_sun_temp_portal();
-    new vehicle_artillery_to_wall();
 }

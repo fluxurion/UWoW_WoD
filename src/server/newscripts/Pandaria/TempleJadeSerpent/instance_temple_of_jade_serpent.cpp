@@ -11,7 +11,7 @@
 
 enum eSpells
 {
-    SPELL_CORRUPTED_WATERS      = 106778,
+    SPELL_CORRUPTED_WATERS      = 115167,
     //Spells for Lorewalker Stonestep event.
     SPELL_SHA_CORRUPTION        = 107034, //On spawn: Lot of mobs and decoration
     //HAUNTING SHA SPELLS
@@ -448,6 +448,7 @@ public:
                     creature->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
                     summoner->CastSpell(creature, SPELL_COPY_WEAPON, false);
                     summoner->CastSpell(creature, SPELL_COPY_WEAPON_2, false);
+                    creature->setFaction(14);
 
                     Unit* caster = summoner;
                     Unit* target = creature;

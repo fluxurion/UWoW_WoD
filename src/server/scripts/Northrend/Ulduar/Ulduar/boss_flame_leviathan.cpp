@@ -261,12 +261,12 @@ public:
         {
             _Reset();
             me->SetReactState(REACT_DEFENSIVE);
+            me->RemoveAllAuras();
             InstallAdds(false);
+            //me->ResetLootMode();
             ColossusCount = 0;
             towerCount = 0;
             ShutdownCount = 0;
-
-           
 
             _shutdown = false;
         }
@@ -315,6 +315,24 @@ public:
                     ++towerCount;
                     me->CastSpell(me, SPELL_BUFF_TOWER_OF_LIFE, false);
                     events.ScheduleEvent(EVENT_FREYA_S_WARD, 1000);
+                }
+
+                switch (towerCount)
+                {
+                    case 4:
+                        //me->AddLootMode(LOOT_MODE_HARD_MODE_4);
+                    case 3:
+                        //me->AddLootMode(LOOT_MODE_HARD_MODE_3);
+                    case 2:
+                        //me->AddLootMode(LOOT_MODE_HARD_MODE_2);
+                    case 1:
+                        DoScriptText(SAY_HARDMODE, me);
+                        //me->AddLootMode(LOOT_MODE_HARD_MODE_1);
+                        break;
+                    default:
+                        DoScriptText(SAY_TOWER_NONE, me);
+                        //me->SetLootMode(LOOT_MODE_DEFAULT);
+                        break;
                 }
             }
         }
@@ -415,10 +433,28 @@ public:
             }
         }
 
+        void ShieldCheckPlagin(Unit* who)
+        {
+            if (who->ToCreature())
+            {
+                if (Vehicle* vehicle = who->ToCreature()->GetVehicleKit())
+                {
+                    if (!vehicle->GetPassenger(0))
+                    {
+                        //vehicle->Dismiss();
+                        EnterEvadeMode();
+                    }
+                }
+            }
+        }
+
         void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
+
+            if (!me->getVictim()->ToPlayer())
+                ShieldCheckPlagin(me->getVictim());
 
             events.Update(diff);
             
@@ -857,19 +893,19 @@ public:
 };
 
 
-class spell_pool_of_tar : public CreatureScript
+class npc_pool_of_tar : public CreatureScript
 {
 public:
-    spell_pool_of_tar() : CreatureScript("spell_pool_of_tar") { }
+    npc_pool_of_tar() : CreatureScript("npc_pool_of_tar") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new spell_pool_of_tarAI (pCreature);
+        return new npc_pool_of_tarAI (pCreature);
     }
 
-    struct spell_pool_of_tarAI : public PassiveAI
+    struct npc_pool_of_tarAI : public PassiveAI
     {
-        spell_pool_of_tarAI(Creature* pCreature) : PassiveAI(pCreature)
+        npc_pool_of_tarAI(Creature* pCreature) : PassiveAI(pCreature)
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->AddAura(SPELL_TAR_PASSIVE, me);
@@ -1331,7 +1367,7 @@ class at_RX_214_repair_o_matic_station : public AreaTriggerScript
 public:
     at_RX_214_repair_o_matic_station() : AreaTriggerScript("at_RX_214_repair_o_matic_station") { }
 
-    bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
+	bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
     {
         InstanceScript* instance = pPlayer->GetInstanceScript();
 
@@ -1468,7 +1504,7 @@ void AddSC_boss_flame_leviathan()
     new boss_flame_leviathan_overload_device();
     new boss_flame_leviathan_safety_container();
     new npc_mechanolift();
-    new spell_pool_of_tar();
+    new npc_pool_of_tar();
     new npc_colossus();
     new npc_thorims_hammer();
     new npc_mimirons_inferno();

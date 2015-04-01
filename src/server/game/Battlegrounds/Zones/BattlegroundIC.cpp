@@ -317,11 +317,26 @@ void BattlegroundIC::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*
     }
 }
 
-void BattlegroundIC::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
+void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
+
+    if (Trigger == 5555 && player->GetTeamId() == TEAM_HORDE)
+    {
+        if (GateStatus[BG_IC_A_FRONT] != BG_IC_GATE_DESTROYED
+            && GateStatus[BG_IC_A_WEST] != BG_IC_GATE_DESTROYED
+            && GateStatus[BG_IC_A_EAST] != BG_IC_GATE_DESTROYED)
+        player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
+    }
+    else if (Trigger == 5535 && player->GetTeamId() == TEAM_ALLIANCE)
+    {
+        if (GateStatus[BG_IC_H_FRONT] != BG_IC_GATE_DESTROYED
+            && GateStatus[BG_IC_H_WEST] != BG_IC_GATE_DESTROYED
+            && GateStatus[BG_IC_H_EAST] != BG_IC_GATE_DESTROYED)
+        player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
+    }
 }
 
 void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
@@ -335,9 +350,11 @@ void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     {
         case SCORE_BASES_ASSAULTED:
             ((BattlegroundICScore*)itr->second)->BasesAssaulted += value;
+            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, IC_OBJECTIVE_ASSAULT_BASE, 1);
             break;
         case SCORE_BASES_DEFENDED:
             ((BattlegroundICScore*)itr->second)->BasesDefended += value;
+            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, IC_OBJECTIVE_DEFEND_BASE, 1);
             break;
         default:
             Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);

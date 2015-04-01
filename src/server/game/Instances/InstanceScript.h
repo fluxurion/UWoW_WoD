@@ -177,12 +177,17 @@ class InstanceScript : public ZoneScript
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
 
+        // Remove aura from stack on all players in instance
+        void DoRemoveAuraFromStackOnPlayers(uint32 spell, uint64 casterGUID = 0, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT, uint32 num = 1);
+
         // Cast spell on all players in instance
         void DoCastSpellOnPlayers(uint32 spell);
 
         void DoSetAlternatePowerOnPlayers(int32 value);
 
         void DoNearTeleportPlayers(const Position pos, bool casting = false);
+        
+        void DoStartMovie(uint32 movieId);
 
         // Add aura on all players in instance
         void DoAddAuraOnPlayers(uint32 spell);
@@ -211,7 +216,7 @@ class InstanceScript : public ZoneScript
         }
 
         // Checks encounter state at kill/spellcast
-        void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
+        //void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
 
         // Used only during loading
         void SetCompletedEncountersMask(uint32 newMask) { completedEncounters = newMask; }
@@ -256,8 +261,10 @@ class InstanceScript : public ZoneScript
         // Challenge
         void FillInitialWorldTimers(WorldPacket& data);
         void StartChallenge();
+        void StopChallenge();
         uint32 GetChallengeProgresTime();
         void SetChallengeProgresInSec(uint32 timer);
+        uint32 GetChallengeTime() { return challenge_timer; }
 
     protected:
         void LoadDoorData(DoorData const* data);

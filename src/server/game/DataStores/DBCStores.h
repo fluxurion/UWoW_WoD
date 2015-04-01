@@ -84,6 +84,7 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundB
 
 extern DBCStorage<AchievementEntry>             sAchievementStore;
 extern DBCStorage<AchievementCriteriaEntry>     sAchievementCriteriaStore;
+extern DBCStorage <CriteriaEntry>                sCriteriaStore;
 extern DBCStorage<CriteriaTreeEntry>            sCriteriaTreeStore;
 extern DBCStorage<ModifierTreeEntry>            sModifierTreeStore;
 extern DBCStorage<AreaTableEntry>               sAreaStore;// recommend access using functions
@@ -139,6 +140,7 @@ extern DBCStorage<GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore;
 extern DBCStorage<GtSpellScalingEntry>          sGtSpellScalingStore;
 extern DBCStorage<GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore;
 extern DBCStorage<GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore;
+extern DBCStorage <GtBattlePetTypeDamageModEntry>      sGtBattlePetTypeDamageModStore;
 extern DBCStorage<GuildPerkSpellsEntry>         sGuildPerkSpellsStore;
 extern DBCStorage<ImportPriceArmorEntry>        sImportPriceArmorStore;
 extern DBCStorage<ImportPriceQualityEntry>      sImportPriceQualityStore;
@@ -203,6 +205,9 @@ extern DBCStorage<SpellItemEnchantmentConditionEntry> sSpellItemEnchantmentCondi
 extern SpellCategoryStore                        sSpellCategoryStore;
 extern SpellSkillingList                         sSpellSkillingList;
 extern PetFamilySpellsStore                      sPetFamilySpellsStore;
+extern std::set<uint32>                          sScenarioCriteriaTreeStore;
+extern DBCStorage <ScenarioEntry>                sScenarioStore;
+extern DBCStorage <ScenarioStepEntry>            sScenarioStepStore;
 extern DBCStorage<SpecializationSpellEntry>     sSpecializationSpellStore;
 extern DBCStorage<SpellRadiusEntry>             sSpellRadiusStore;
 extern DBCStorage<SpellRangeEntry>              sSpellRangeStore;
@@ -220,6 +225,7 @@ extern DBCStorage<SpellEffectScalingEntry>      sSpellEffectScalingStore;
 extern DBCStorage<SpellEquippedItemsEntry>      sSpellEquippedItemsStore;
 extern DBCStorage<SpellInterruptsEntry>         sSpellInterruptsStore;
 extern DBCStorage<SpellLevelsEntry>             sSpellLevelsStore;
+extern DBCStorage <PowerDisplayEntry>            sPowerDisplayStore;
 extern DBCStorage<SpellScalingEntry>            sSpellScalingStore;
 extern DBCStorage<SpellTargetRestrictionsEntry> sSpellTargetRestrictionsStore;
 //extern DBCStorage<StableSlotPricesEntry>        sStableSlotPricesStore;

@@ -27,6 +27,7 @@
 #include "LFGMgr.h"
 #include "ChallengeMgr.h"
 #include "Group.h"
+#include "ScenarioMgr.h"
 
 #define CHALLENGE_START 5
 
@@ -50,6 +51,13 @@ void InstanceScript::SaveToDB()
     stmt->setString(2, data);
     stmt->setUInt32(3, instance->GetInstanceId());
     CharacterDatabase.Execute(stmt);
+
+    if (ScenarioProgress* progress = sScenarioMgr->GetScenarioProgress(instance->GetInstanceId()))
+    {
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        progress->SaveToDB(trans);
+        CharacterDatabase.CommitTransaction(trans);
+    }
 }
 
 void InstanceScript::HandleGameObject(ObjectGuid GUID, bool open, GameObject* go)
@@ -427,6 +435,16 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
     }
 }
 
+// Remove aura from stack on all players in instance
+void InstanceScript::DoRemoveAuraFromStackOnPlayers(uint32 spell, uint64 casterGUID, AuraRemoveMode mode, uint32 num)
+{
+    Map::PlayerList const& plrList = instance->GetPlayers();
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator itr = plrList.begin(); itr != plrList.end(); ++itr)
+            if (Player* pPlayer = itr->getSource())
+                pPlayer->RemoveAuraFromStack(spell, casterGUID, mode, num);
+}
+
 void InstanceScript::DoNearTeleportPlayers(const Position pos, bool casting /*=false*/)
 {
     Map::PlayerList const &PlayerList = instance->GetPlayers();
@@ -435,6 +453,17 @@ void InstanceScript::DoNearTeleportPlayers(const Position pos, bool casting /*=f
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* player = i->getSource())
                 player->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), casting);
+}
+
+void InstanceScript::DoStartMovie(uint32 movieId)
+{
+    Map::PlayerList const &plrList = instance->GetPlayers();
+
+    if (!plrList.isEmpty())
+        for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
+            if (Player* pPlayer = i->getSource())
+                pPlayer->SendMovieStart(movieId);
+
 }
 
 // Cast spell on all players in instance
@@ -533,11 +562,13 @@ bool InstanceScript::IsWipe() const
     return true;
 }
 
-void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
-{
+//void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
+/*{
     Difficulty diff = instance->GetDifficultyID();
     if (challenge_timer)
         diff = DIFFICULTY_HEROIC;
+
+    sLog->outDebug(LOG_FILTER_LFG, "UpdateEncounterState: Instance %s (instanceId %u) diff %u. creditEntry: %u, type %u", instance->GetMapName(), instance->GetInstanceId(), diff, creditEntry, type);
 
     DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), diff);
     if (!encounters)
@@ -555,7 +586,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
             if (encounter->lastEncounterDungeon)
             {
                 dungeonId = encounter->lastEncounterDungeon;
-                sLog->outDebug(LOG_FILTER_LFG, "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->encounterName[0], dungeonId);
+                sLog->outDebug(LOG_FILTER_LFG, "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->encounterName, dungeonId);
                 // no break need check all encounters.
                 //break;
             }
@@ -564,6 +595,8 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
     }
 
     if (dungeonId && (fullEncounterIndex == completedEncounters || instance->GetDifficultyID() != DIFFICULTY_CHALLENGE))
+    // TODO: challenges should be rewarded in scenario mgr
+    //if (dungeonId && !challenge_timer)
     {
         Map::PlayerList const& players = instance->GetPlayers();
         for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
@@ -572,12 +605,16 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
                 if (Group* grp = player->GetGroup())
                     if (grp->isLFGGroup())
                     {
+                        sLog->outDebug(LOG_FILTER_LFG, "UpdateEncounterState: grp->GetGUID %u. Credit Dungeon: %u", grp->GetGUID(), dungeonId);
                         sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId);
                         break;
                     }
         }
-
+    }
+    if (dungeonId)
+    {
         // Challenge reward
+        // TODO: move this to scenario mgr
         if (uint32 time = GetChallengeProgresTime())
         {
             MapChallengeModeEntryMap::iterator itr = sMapChallengeModeEntrybyMap.find(instance->GetId());
@@ -602,7 +639,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
             }
         }
     }
-}
+}*/
 
 void InstanceScript::UpdatePhasing()
 {
@@ -723,6 +760,11 @@ void InstanceScript::StartChallenge()
     data << uint32(CHALLENGE_START);
     data << uint32(CHALLENGE_START);
     BroadcastPacket(data);
+}
+
+void InstanceScript::StopChallenge()
+{
+     _events.ScheduleEvent(EVENT_CHALLENGE_STOP, 1000);
 }
 
 void InstanceScript::FillInitialWorldTimers(WorldPacket& data)

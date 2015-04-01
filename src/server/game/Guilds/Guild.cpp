@@ -1508,6 +1508,8 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
         SendSaveEmblemResult(session, ERR_GUILDEMBLEM_SUCCESS);
 
         HandleQuery(session);
+
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_EMBLEM, 1, 0, 0, player);
     }
 }
 
@@ -1956,7 +1958,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
     CharacterDatabase.CommitTransaction(trans);
 
     if (!cashFlow)
-        SendBankList(session, 0, false, false);
+        SendBankList(session, 0, false, false, false);
 }
 
 bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool repair)
@@ -1996,8 +1998,10 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
     CharacterDatabase.CommitTransaction(trans);
 
     SendMoneyInfo(session);
+
     if (!repair)
-        SendBankList(session, 0, false, false);
+        SendBankList(session, 0, false, false, false);
+
     return true;
 }
 
@@ -2068,7 +2072,7 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
     if (tabId < GetPurchasedTabsSize() || tabId == GUILD_BANK_MAX_TABS)
     {
         LogHolder::GuildLog const* log = m_bankEventLog[tabId]->GetLog();
-        WorldPacket data(SMSG_GUILD_BANK_LOG_QUERY_RESULT, log->size() * (4 * 4 + 1) + 1 + 1);
+        WorldPacket data(SMSG_GUILD_BANK_LOG_QUERY_RESULTS, log->size() * (4 * 4 + 1) + 1 + 1);
 
         data << uint32(tabId);
         data << uint32(log->size());
@@ -2116,6 +2120,7 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
         }
     }
 
+
     if (withContent && _MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
     {
         if (BankTab const* tab = GetBankTab(tabId))
@@ -2140,17 +2145,21 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
                     data << uint32(0);                                   // SocketEnchant
                     data << uint32(0);                                   // Flags
 
-                    uint32 enchants = 0;
-                    for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
+                    uint32 socketEnchants = 0;
+                    uint32 socketIndex = 0;
+                    // only sockets
+                    for (uint32 enchSlot = SOCK_ENCHANTMENT_SLOT; enchSlot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchSlot)
                     {
-                        if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
+                        if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(enchSlot)))
                         {
-                            data << uint32(ench);
+                            data << uint32(socketIndex);
                             data << uint32(enchantId);
-                            ++enchants;
+                            ++socketEnchants;
                         }
+
+                        ++socketIndex;
                     }
-                    data.put<uint32>(epos, enchants);
+                    data.put<uint32>(epos, socketEnchants);
 
                     data.WriteBit(0);                                     // Locked
                 }
@@ -2250,6 +2259,50 @@ void Guild::SendGuildReputationWeeklyCap(WorldSession* session) const
     {
         WorldPacket data(SMSG_GUILD_REPUTATION_WEEKLY_CAP, 4);
         data << uint32(member->GetWeekReputation());
+        session->SendPacket(&data);
+    }
+}
+
+void Guild::SendGuildChallengesInfo(WorldSession* session) const
+{
+    // Types: 1 - dungeon, 2 - raid, 3 - rated bg, 4 - scenario, 5 - challenge dungeon
+    if (Member const* member = GetMember(session->GetPlayer()->GetGUID()))
+    {
+        uint32 gold[5] = { 250, 1000, 500, 100, 400 };
+        uint32 goldMaxLevel[5] = { 0, 0, 0, 0, 0 };
+        uint32 count[5] = { 0, 0, 0, 0, 0 };
+        uint32 maxCount[5] = { 7, 1, 3, 15, 3 };
+        uint32 XP[5] = { 250000, 1000000, 400000, 150000, 500000 };
+
+        WorldPacket data(SMSG_GUILD_CHALLENGE_UPDATED);
+        for (uint8 i = 0; i < 5; ++i)
+            data << uint32(gold[i]);
+        for (uint8 i = 0; i < 5; ++i)
+            data << uint32(goldMaxLevel[i]);
+        for (uint8 i = 0; i < 5; ++i)
+            data << uint32(count[i]);
+        for (uint8 i = 0; i < 5; ++i)
+            data << uint32(XP[i]);
+        for (uint8 i = 0; i < 5; ++i)
+            data << uint32(maxCount[i]);
+
+        session->SendPacket(&data);
+    }
+}
+
+void Guild::SendGuildChallengeComplete(WorldSession* session) const
+{
+    if (Member const* member = GetMember(session->GetPlayer()->GetGUID()))
+    {
+        WorldPacket data(SMSG_GUILD_CHALLENGE_COMPLETED);
+
+        // example for dungeon
+        data << uint32(/*0+*/1);              // Count
+        data << uint32(1);                    // Type
+        data << uint32(250000);               // XP, if exists else 0
+        data << uint32(7);                    // MaxCount
+        data << uint32(250);                  // Gold, if exists else 0
+
         session->SendPacket(&data);
     }
 }
@@ -3161,6 +3214,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
             data << uint32(*itr);
 
             WorldPackets::Item::ItemInstance itemInstanse;
+
             if (tabItem)
                 itemInstanse << tabItem;
             data << itemInstanse;
@@ -3175,16 +3229,21 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
             data << uint32(0);                                                   // Flags
 
             uint32 enchantCount = 0;
+
             if (tabItem)
             {
-                for (uint32 enchSlot = 0; enchSlot < MAX_ENCHANTMENT_SLOT; ++enchSlot)
+                uint32 socketIndex = 0;
+                // only sockets
+                for (uint32 enchSlot = SOCK_ENCHANTMENT_SLOT; enchSlot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchSlot)
                 {
                     if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(enchSlot)))
                     {
-                        data << uint32(enchSlot);
+                        data << uint32(socketIndex);
                         data << uint32(enchantId);
                         ++enchantCount;
                     }
+
+                    ++socketIndex;
                 }
             }
             data.put<int32>(enchantPos, enchantCount);

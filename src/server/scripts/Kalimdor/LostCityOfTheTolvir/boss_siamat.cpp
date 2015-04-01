@@ -28,6 +28,8 @@ enum eSpells
     SPELL_TEMPEST_STORM_TRANSFORM    = 83170,
     SPELL_LIGHTNING_CHARGE           = 91872,
     SPELL_LIGHTNING_CHARGE_AURA      = 93959,
+    
+    SPELL_ACHIEV_CREDIT              = 93957,
 };
 
 enum eCreatures
@@ -56,6 +58,8 @@ enum ePhases
     PHASE_DEFLECTING_WINDS           = 1,
     PHASE_WAILING_WINDS              = 2,
     PHASE_SIAMAT                     = 3,
+
+    PHASE_WAILING_WINDS_MASK         = 1 << PHASE_WAILING_WINDS,
 };
 
 enum eEvents
@@ -121,6 +125,8 @@ public:
             lSummons.DespawnAll();
             uiStaticShockId = 0;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ACHIEV_CREDIT);
         }
         
         void EnterCombat(Unit* /*who*/)
@@ -135,6 +141,8 @@ public:
 
             if (instance)
                 instance->SetData(DATA_SIAMAT, IN_PROGRESS);
+            
+            instance->DoCastSpellOnPlayers(SPELL_ACHIEV_CREDIT);
         }
 
         void DoAction(const int32 action)

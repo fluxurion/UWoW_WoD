@@ -173,29 +173,36 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [in game guid: %u]", guid.GetCounter());
 
-    // ignore for remote control state
-    if (_player->m_mover != _player)
-        return;
+    if (GameObject* go = GetPlayer()->GetMap()->GetGameObject(guid))
+    {
+        // ignore for remote control state
+        if (_player->m_mover != _player)
+            if (!(_player->IsOnVehicle(_player->m_mover) || _player->IsMounted()) && !go->GetGOInfo()->IsUsableMounted())
+                return;
 
-    GameObject* go = GetPlayer()->GetMap()->GetGameObject(guid);
-    if (!go)
-        return;
+        if (!go->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+            return;
 
-    if (!go->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
-        return;
+        if (go->GetEntry() == 193905 || go->GetEntry() == 193967 || //Chest Alexstrasza's Gift
+            go->GetEntry() == 194158 || go->GetEntry() == 194159)   //Chest Heart of Magic
+            _player->CastSpell(go, 6247, true);
+        else
+            go->AI()->GossipHello(_player);
 
-    if (go->AI()->GossipHello(_player))
-        return;
-
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
+        _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
+    }
 }
 
 void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 {
+    bool replaced = false;
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;
     if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: mover != _player id %u", spellId);
         return;
+    }
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got cast spell packet, castCount: %u, spellId: %u, glyphIndex %u", cast.Cast.CastID, cast.Cast.SpellID, cast.Cast.Misc);
 
@@ -220,6 +227,11 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 mover->RemoveAurasDueToSpell(107837);
                 mover->RemoveAurasDueToSpell(101601);
             }
+            if(spellId == 119393)
+            {
+                mover->RemoveAurasDueToSpell(119388);
+                mover->RemoveAurasDueToSpell(119386);
+            }
             else
             {
                 //cheater? kick? ban?
@@ -230,11 +242,24 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     }
     else
     {
+        // spell passive and not casted by client
+        if (spellInfo->IsPassive())
+        {
+            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: spell passive and not casted by client id %u", spellId);
+            return;
+        }
         // not have spell in spellbook or spell passive and not casted by client
         if ((mover->GetTypeId() == TYPEID_UNIT && !mover->ToCreature()->HasSpell(cast.Cast.SpellID)) || spellInfo->IsPassive())
+        if (mover->GetTypeId() == TYPEID_UNIT && !mover->ToCreature()->HasSpell(spellId))
         {
-            //cheater? kick? ban?
-            return;
+            if(_player->HasActiveSpell(spellId))
+                mover = (Unit*)_player;
+            else
+            {
+                //cheater? kick? ban?
+                sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: not have spell in spellbook id %u", spellId);
+                return;
+            }
         }
     }
 
@@ -247,6 +272,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
             {
                 spellInfo = overrideSpellInfo;
                 cast.Cast.SpellID = overrideSpellInfo->Id;
+                replaced = true;
             }
             break;
         }
@@ -267,6 +293,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newInfo;
                     cast.Cast.SpellID = newInfo->Id;
+                replaced = true;
                 }
                 break;
             }
@@ -289,6 +316,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                     _player->SwapSpellUncategoryCharges(cast.Cast.SpellID, newInfo->Id);
                     spellInfo = newInfo;
                     cast.Cast.SpellID = newInfo->Id;
+                    replaced = true;
                 }
                 break;
             }
@@ -303,7 +331,10 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 
     // can't use our own spells when we're in possession of another unit,
     if (_player->isPossessing())
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: can't use our own spells when we're in possession id %u", spellId);
         return;
+    }
 
     // Check possible spell cast overrides
     //603 TODO
@@ -340,6 +371,32 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 //             }
 //             break;
 //         }
+        case 686: //Shadow Bolt
+        {
+            if (_player->HasSpell(112092)) //Shadow Bolt (Glyphed)
+            {
+                if (SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(112092))
+                {
+                    spellInfo = newSpellInfo;
+                    spellId = newSpellInfo->Id;
+                    replaced = true;
+                }
+            }
+            break;
+        }
+        case 105174: //Hand of Gul'dan
+        {
+            if (_player->HasSpell(123194)) //Glyph of Hand of Gul'dan
+            {
+                if (SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(123194))
+                {
+                    spellInfo = newSpellInfo;
+                    spellId = newSpellInfo->Id;
+                    replaced = true;
+                }
+            }
+            break;
+        }
         case 18540: //Summon Terrorguard
         {
             if (_player->HasSpell(112927))
@@ -348,6 +405,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -360,6 +418,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -372,6 +431,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -384,6 +444,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -396,6 +457,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -408,6 +470,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -420,6 +483,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -432,6 +496,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -444,16 +509,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
-            }
-            break;
-        }
-        case 116467:        // Consecration - 116467 and Consecration - 26573
-        {
-            if (SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(26573))
-            {
-                spellInfo = newSpellInfo;
-                cast.Cast.SpellID = newSpellInfo->Id;
             }
             break;
         }
@@ -479,6 +536,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -491,6 +549,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -515,6 +574,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -527,6 +587,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -539,6 +600,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newSpellInfo;
                     cast.Cast.SpellID = newSpellInfo->Id;
+                    replaced = true;
                 }
             }
             break;
@@ -566,7 +628,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
         }
     }
 
-    Spell* spell = new Spell(mover, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
+    Spell* spell = new Spell(mover, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false, replaced);
     spell->m_cast_count = cast.Cast.CastID;                         // set count of casts
     spell->m_misc.Data = cast.Cast.Misc;                            // 6.x Misc is just a guess
     spell->prepare(&targets);

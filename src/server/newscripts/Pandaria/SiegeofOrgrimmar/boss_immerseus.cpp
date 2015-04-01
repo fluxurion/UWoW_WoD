@@ -44,6 +44,8 @@ enum eSpells
     SPELL_CONGEALING            = 143540,//slow, self buff
     SPELL_ERUPTING_WATER        = 145377,
     SPELL_PURIFIED_RESIDUE      = 143524,//buff
+    
+    SPELL_ACHIEV_CREDIT         = 145889,
 };
 
 enum Events
@@ -441,7 +443,6 @@ class boss_immerseus : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveAurasDueToSpell(SPELL_SWELLING_CORRUPTION);
                     me->AddAura(SPELL_SUBMERGE, me);
-                    me->AddAura(SPELL_SUBMERGE_2, me);
                     me->SetFullHealth();
                     if (!shapoollist.empty())
                     {
@@ -481,15 +482,14 @@ class boss_immerseus : public CreatureScript
                     lasthppct = me->GetHealthPct();
                     me->RemoveAurasDueToSpell(SPELL_SHA_POOL);
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE);
-                    me->RemoveAurasDueToSpell(SPELL_SUBMERGE_2);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     DoZoneInCombat(me, 150.0f);
                     phase_two = false;
                     if (me->GetMap()->IsHeroic())
                         events.ScheduleEvent(EVENT_SWELLING_CORRUPTION, 12000);
-                    events.ScheduleEvent(EVENT_CORROSIVE_BLAST, 9000);
-                    events.ScheduleEvent(EVENT_SWIRL, 14000);
+                    events.ScheduleEvent(EVENT_CORROSIVE_BLAST, 10000);
+                    events.ScheduleEvent(EVENT_SWIRL, 20000);
                     events.ScheduleEvent(EVENT_SHA_BOLT, 6000);
                     break;
                 }
@@ -498,6 +498,7 @@ class boss_immerseus : public CreatureScript
             void JustDied(Unit* killer)
             {
                 me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEV_CREDIT, 0, me);
                 if (killer == me)
                 {
                     _JustDied();
@@ -532,7 +533,6 @@ class boss_immerseus : public CreatureScript
                         berserk -= diff;
                 }
 
-
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
@@ -543,18 +543,12 @@ class boss_immerseus : public CreatureScript
                     switch (eventId)
                     {
                     case EVENT_CORROSIVE_BLAST:
-                        if (me->getVictim())
+                        if (Unit* target = me->getVictim())
                         {
-                            ObjectGuid vG = me->getVictim()->GetGUID();
-                            me->AttackStop();
-                            me->SetReactState(REACT_PASSIVE);
-                            if (Unit* target = me->GetUnit(*me, vG))
-                            {
-                                me->SetFacingToObject(target);
-                                DoCastAOE(SPELL_CORROSIVE_BLAST);
-                            }
+                            me->SetFacingToObject(target);
+                            me->CastSpell(target, SPELL_CORROSIVE_BLAST);
                         }
-                        events.ScheduleEvent(EVENT_CORROSIVE_BLAST, 35000);
+                        events.ScheduleEvent(EVENT_CORROSIVE_BLAST, 20000);
                         break;
                     case EVENT_SHA_BOLT:
                         {
@@ -578,7 +572,7 @@ class boss_immerseus : public CreatureScript
                             me->SetFacingToObject(target);
                             DoCast(me, SPELL_SWIRL);
                         }
-                        events.ScheduleEvent(EVENT_SWIRL, 48500);
+                        events.ScheduleEvent(EVENT_SWIRL, 48000);
                         break;
                     //HM
                     case EVENT_SWELLING_CORRUPTION:
@@ -979,34 +973,6 @@ class npc_contaminated_puddle : public CreatureScript
         }
 };
 
-//143436
-class spell_corrosive_blast : public SpellScriptLoader
-{
-    public:
-        spell_corrosive_blast() : SpellScriptLoader("spell_corrosive_blast") { }
-        
-        class spell_corrosive_blast_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_corrosive_blast_SpellScript);
-            
-            void OnAfterCast()
-            {
-                if (GetCaster() && GetCaster()->ToCreature())
-                    GetCaster()->ToCreature()->AI()->DoAction(ACTION_RE_ATTACK);
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_corrosive_blast_SpellScript::OnAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_corrosive_blast_SpellScript();
-        }
-};
-
 //143309
 class spell_swirl : public SpellScriptLoader
 {
@@ -1167,7 +1133,6 @@ void AddSC_boss_immerseus()
     new npc_sha_pool();
     new npc_sha_puddle();
     new npc_contaminated_puddle();
-    new spell_corrosive_blast();
     new spell_swirl();
     new spell_swirl_searcher();
     new spell_sha_pool();

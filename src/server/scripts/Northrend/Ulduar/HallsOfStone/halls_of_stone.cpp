@@ -597,9 +597,9 @@ public:
                         break;
                     case 29:
                         DoScriptText(SAY_EVENT_END_02, me);
+                        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_REWARD_ACHIEVEMENT, 0, me);
                         if (instance)
                             instance->SetData(DATA_BRANN_EVENT, DONE);
-                        me->CastSpell(me, SPELL_REWARD_ACHIEVEMENT, true);
                         JumpToNextStep(5500);
                         break;
                     case 30:

@@ -145,6 +145,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
                 targetMask = TARGET_FLAG_DEST_LOCATION;
                 break;
             case TARGET_REFERENCE_TYPE_TARGET:
+            //case TARGET_REFERENCE_TYPE_CASTER:
                 switch (GetObjectType())
                 {
                     case TARGET_OBJECT_TYPE_GOBJ:
@@ -252,16 +253,16 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_BACK_LEFT},   // 43 TARGET_DEST_CASTER_BACK_LEFT
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_FRONT_LEFT},  // 44 TARGET_DEST_CASTER_FRONT_LEFT
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ALLY,     TARGET_DIR_NONE},        // 45 TARGET_UNIT_TARGET_CHAINHEAL_ALLY
-    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_ENTRY,    TARGET_DIR_NONE},        // 46 TARGET_DEST_NEARBY_ENTRY
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ENTRY,    TARGET_DIR_NONE},        // 46 TARGET_DEST_NEARBY_ENTRY
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_FRONT},       // 47 TARGET_DEST_CASTER_FRONT
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_BACK},        // 48 TARGET_DEST_CASTER_BACK
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_RIGHT},       // 49 TARGET_DEST_CASTER_RIGHT
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_LEFT},        // 50 TARGET_DEST_CASTER_LEFT
     {TARGET_OBJECT_TYPE_GOBJ, TARGET_REFERENCE_TYPE_SRC,    TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 51 TARGET_GAMEOBJECT_SRC_AREA
     {TARGET_OBJECT_TYPE_GOBJ, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 52 TARGET_GAMEOBJECT_DEST_AREA
-    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 53 TARGET_DEST_TARGET_ENEMY
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 53 TARGET_DEST_TARGET_ENEMY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,    TARGET_DIR_FRONT},       // 54 TARGET_UNIT_CONE_ENEMY_54
-    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 55 TARGET_DEST_CASTER_FRONT_LEAP
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_FRONT},       // 55 TARGET_DEST_CASTER_FRONT_LEAP
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 56 TARGET_UNIT_CASTER_AREA_RAID
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 57 TARGET_UNIT_TARGET_RAID
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 58 TARGET_UNIT_NEARBY_RAID
@@ -326,7 +327,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 117
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 118 TARGET_UNIT_FRIEND_OR_RAID
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_RAID,     TARGET_DIR_NONE},        // 119 TARGET_MASS_RESSURECTION
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 120 TARGET_UNIT_TARGET_SELECT
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 120 TARGET_UNIT_TARGET_SELF
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 121 TARGET_UNIT_RESURRECT
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 122 TARGET_UNIT_TARGET_SELECT2
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 123 TARGET_UNIT_TARGET_PLAYER
@@ -349,7 +350,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 140
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 141
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 142
-    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 143
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 143 TARGET_UNIT_CASTER_AREA_ENEMY
 };
 
 SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* _effect)
@@ -491,7 +492,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                     preciseBasePoints += frand(-delta, delta);
                 }
 
-                basePoints = int32(preciseBasePoints);
+                basePoints = RoundingFloatValue(preciseBasePoints);
 
                 if (ComboScalingMultiplier)
                     comboDamage = ComboScalingMultiplier * multiplier;
@@ -547,6 +548,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                 Effect != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
                 Effect != SPELL_EFFECT_KNOCK_BACK &&
                 Effect != SPELL_EFFECT_ADD_EXTRA_ATTACKS &&
+                Effect != SPELL_EFFECT_GAMEOBJECT_DAMAGE &&
                 ApplyAuraName != SPELL_AURA_MOD_SPEED_ALWAYS &&
                 ApplyAuraName != SPELL_AURA_MOD_SPEED_NOT_STACK &&
                 ApplyAuraName != SPELL_AURA_MOD_INCREASE_SPEED &&
@@ -1173,6 +1175,17 @@ SpellEffectInfo const& SpellInfo::GetEffect(uint8 effect, uint8 difficulty) cons
     case 144482: //Tear Reality
     case 145073: //Residual Corruption
     case 144628: //Titanic Smash
+    //Iron Juggernaut
+    case 144458: //Scatter Laser
+    case 144776: //Ground Pound
+    case 146325: //Cutter Laser Visual Target
+    case 144918: //Cutter Laser Dmg
+    //General Nazgrim
+    case 143872: //Ravager SUmmon
+    case 144278: //Generate rage
+    case 143597: //Generate rage energize
+    case 143716: //Heroic Shockwave
+    case 143420: //Ironstorm
         return Effects[effect];
     }
 
@@ -1219,7 +1232,43 @@ bool SpellInfo::IsMountOrCompanions() const
         if (Effects[i].Effect == SPELL_EFFECT_SUMMON)
             if (Effects[i].MiscValueB == 3221)
                 return true;
+        if (Effects[i].Effect == SPELL_EFFECT_BATTLE_PET)
+            return true;
     }
+    return false;
+}
+
+bool SpellInfo::IsNotProcSpell() const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (Effects[i].IsAura(SPELL_AURA_MOUNTED))
+            return true;
+        if (Effects[i].IsAura(SPELL_AURA_MOD_STAT))
+            return true;
+        switch(Effects[i].Effect)
+        {
+            case SPELL_EFFECT_SUMMON:
+            {
+                if (Effects[i].MiscValueB == 3221)
+                    return true;
+                break;
+            }
+            case SPELL_EFFECT_ENCHANT_ITEM:
+            case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
+            case SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC:
+            case SPELL_EFFECT_ENCHANT_HELD_ITEM:
+            case SPELL_EFFECT_BATTLE_PET:
+            case SPELL_EFFECT_APPLY_GLYPH:
+            case SPELL_EFFECT_CREATE_ITEM:
+            case SPELL_EFFECT_CREATE_ITEM_2:
+            case SPELL_EFFECT_UNLEARN_TALENT:
+                return true;
+            default:
+                break;
+        }
+    }
+
     return false;
 }
 
@@ -1247,8 +1296,9 @@ bool SpellInfo::IsExplicitDiscovery() const
     return ((Effects[0].Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM
         || Effects[0].Effect == SPELL_EFFECT_CREATE_ITEM
         || Effects[0].Effect == SPELL_EFFECT_CREATE_ITEM_2)
-        && Effects[1].Effect == SPELL_EFFECT_SCRIPT_EFFECT)
-        || Effects[0].Effect == SPELL_EFFECT_SCRIPT_EFFECT;
+        && Effects[1].Effect == SPELL_EFFECT_SCRIPT_EFFECT
+        && Attributes & SPELL_ATTR0_TRADESPELL)
+        || Id == 64323 || Id == 101805;
 }
 
 bool SpellInfo::IsLootCrafting() const
@@ -1371,6 +1421,13 @@ bool SpellInfo::IsTargetingArea() const
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (Effects[i].IsEffect() && Effects[i].IsTargetingArea())
             return true;
+    return false;
+}
+
+bool SpellInfo::IsTargetingAreaCast(uint8 effect) const
+{
+    if (Effects[effect].IsEffect() && Effects[effect].IsTargetingArea())
+        return true;
     return false;
 }
 
@@ -1511,8 +1568,12 @@ bool SpellInfo::IsBreakingStealth() const
 
 bool SpellInfo::IsRangedWeaponSpell() const
 {
-    return (SpellFamilyName == SPELLFAMILY_HUNTER && !(SpellFamilyFlags[1] & 0x10000000)) // for 53352, cannot find better way
-        || (EquippedItemSubClassMask != -1 && (EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED));
+    return SpellFamilyName == SPELLFAMILY_HUNTER || (EquippedItemSubClassMask != -1 && (EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED));
+}
+
+bool SpellInfo::IsRangedSpell() const
+{
+    return (EquippedItemSubClassMask != -1 && (EquippedItemSubClassMask & ITEM_SUBCLASS_MASK_WEAPON_RANGED));
 }
 
 bool SpellInfo::IsAutoRepeatRangedSpell() const
@@ -2093,6 +2154,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget) const
 {
     uint32 neededTargets = GetExplicitTargetMask();
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellInfo::CheckExplicitTarget neededTargets %i target %i Id %i", neededTargets, target ? target->GetGUID() : 0, Id);
     if (!target)
     {
         if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK))
@@ -2101,6 +2163,7 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
         return SPELL_CAST_OK;
     }
 
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellInfo::CheckExplicitTarget Id %i", Id);
     if (Unit const* unitTarget = target->ToUnit())
     {
         if (neededTargets & (TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER))
@@ -2234,7 +2297,7 @@ uint32 SpellInfo::GetSpellTypeMask() const
 
     if(range_type == SPELL_RANGE_MELEE)
         mask |= SPELL_TYPE_MELEE;
-    if(range_type == SPELL_RANGE_RANGED)
+    if(range_type == SPELL_RANGE_RANGED || IsRangedSpell())
         mask |= SPELL_TYPE_RANGE;
     if(IsAutoRepeatRangedSpell())
         mask |= SPELL_TYPE_AUTOREPEATE;
@@ -2531,6 +2594,11 @@ uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
 {
     int32 castTime = 0;
 
+    // hack -- no cast time while prep
+    if(sWorld->getBoolConfig(CONFIG_FUN_OPTION_ENABLED) && caster)
+        if (caster->HasAura(SPELL_PREPARATION) || caster->HasAura(SPELL_ARENA_PREPARATION))
+            return 0;
+
     // not all spells have cast time index and this is all is pasiive abilities
     if (caster && CastTimeMax > 0)
     {
@@ -2611,23 +2679,20 @@ uint32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) 
                 case POWER_HEALTH:
                     powerCost += int32(CalculatePct(caster->GetCreateHealth(), power.PowerCostPercentage));
                     break;
-                case POWER_MANA:
-                    powerCost += int32(CalculatePct(caster->GetCreateMana(), power.PowerCostPercentage));
-                    break;
-                case POWER_RAGE:
-                case POWER_FOCUS:
-                case POWER_ENERGY:
-                    powerCost += int32(CalculatePct(caster->GetMaxPower(Powers(power.PowerType)), power.PowerCostPercentage));
-                    break;
                 case POWER_RUNES:
                 case POWER_RUNIC_POWER:
-                    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Not implemented yet!");
+                    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalcPowerCost: Not implemented yet!");
                     break;
                 default:
-                    sLog->outError(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Unknown power type '%d' in spell %d", spellPower->PowerType, Id);
-                    return 0;
+                    powerCost += int32(CalculatePct(caster->GetCreatePowers(Powers(power.PowerType)), power.PowerCostPercentage));
+                    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalcPowerCost: Power type '%i' in spell %d, powerCost %i, GetCreatePowers %i", power.PowerType, Id, powerCost, caster->GetCreatePowers(Powers(power.PowerType)));
+                    //return powerCost;
             }
         }
+
+        if(PowerGetPercentHp)
+            powerCost += caster->CountPctFromMaxHealth(PowerGetPercentHp);
+
         SpellSchools school = GetFirstSchoolInMask(schoolMask);
         // Flat mod from caster auras by spell school
         powerCost += caster->GetInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + school);
@@ -2966,7 +3031,11 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                         return true;
                     return false;
                 case SPELL_AURA_MOD_ROOT:
+                case SPELL_AURA_MOD_FEAR:
                 case SPELL_AURA_MOD_SILENCE:
+                case SPELL_AURA_MOD_DISARM:
+                case SPELL_AURA_MOD_DISARM_RANGED:
+                case SPELL_AURA_MOD_DISARM_OFFHAND:
                 case SPELL_AURA_GHOST:
                 case SPELL_AURA_PERIODIC_LEECH:
                 case SPELL_AURA_MOD_STALKED:
@@ -3293,6 +3362,7 @@ bool SpellInfo::IsBreakingCamouflage() const
     switch (Id)
     {
         case 136:   // Mend Pet
+        case 781:   // Disengage
         case 982:   // Revive Pet
         case 1130:  // Hunter's Mark
         case 1462:  // Beast Lore

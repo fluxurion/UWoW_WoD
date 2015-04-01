@@ -149,6 +149,8 @@ enum Events
     // Living Constellation
     EVENT_ARCANE_BARRAGE            = 39,
     EVENT_LIVING_CONSTELLATION      = 40,
+    
+    EVENT_CHECK_EQUIP               = 41,
 };
 
 enum Actions
@@ -362,8 +364,8 @@ class boss_algalon_the_observer : public CreatureScript
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         break;
                     case ACTION_BLACK_HOLE_VAL:
-                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, 21697);
-                        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65312);
+                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, EVENT_ID_SUPERMASSIVE_START);
+                        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_BLACK_HOLE_CREDIT);
                         me->MonsterTextEmote("BlackHole Despawn", ObjectGuid::Empty, true);
                         break;
 
@@ -374,6 +376,7 @@ class boss_algalon_the_observer : public CreatureScript
             void EnterCombat(Unit* /*target*/)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_NPC);
+                instance->SetBossState(BOSS_ALGALON, IN_PROGRESS);
                 events.Reset();
                 phase = PHASE_ONE;
 
@@ -398,12 +401,13 @@ class boss_algalon_the_observer : public CreatureScript
                 me->setActive(true);
                 DoZoneInCombat();
                 events.ScheduleEvent(EVENT_QUANTUM_STRIKE, 3500);
-                events.ScheduleEvent(EVENT_PHASE_PUNCH, 15500 );
+                events.ScheduleEvent(EVENT_PHASE_PUNCH, 15500);
                 events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 18000);
                 events.ScheduleEvent(EVENT_BIG_BANG, 90000);
                 events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 360000);
                 events.ScheduleEvent(EVENT_COSMIC_SMASH, 25000);
                 events.ScheduleEvent(EVENT_LIVING_CONSTELLATION , 50000);
+                events.ScheduleEvent(EVENT_CHECK_EQUIP, 15000);
             }
             
             void JustSummoned(Creature* summon)
@@ -453,7 +457,7 @@ class boss_algalon_the_observer : public CreatureScript
             {
                 _JustDied();
                 if (instance)
-                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65184, 0, me); //Observed
+                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_CREDIT, 0, me); //Observed
 
                 me->setFaction(35);
                 me->SetPhaseMask(65535, true);
@@ -487,44 +491,47 @@ class boss_algalon_the_observer : public CreatureScript
                     {
                         switch (eventId)
                         {
-                        case EVENT_QUANTUM_STRIKE:
-                            DoCastVictim(SPELL_QUANTUM_STRIKE);
-                            events.ScheduleEvent(EVENT_QUANTUM_STRIKE, urand(3000, 5000));
-                            break;
-                        case EVENT_PHASE_PUNCH:
-                            DoCastVictim(SPELL_PHASE_PUNCH);
-                            events.ScheduleEvent(EVENT_PHASE_PUNCH, 15500);
-                            break;
-                        case EVENT_SUMMON_COLLAPSING_STAR:
-                            Talk(SAY_ALGALON_COLLAPSING_STAR);
-                            Talk(EMOTE_ALGALON_COLLAPSING_STAR);
-                            for (uint32 i = 0; i < COLLAPSING_STAR_COUNT; ++i)
-                                me->SummonCreature(NPC_COLLAPSING_STAR, CollapsingStarPos[i], TEMPSUMMON_MANUAL_DESPAWN);
-                            events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 60000);
-                            break;
-                        case EVENT_LIVING_CONSTELLATION :
-                            for (uint32 n = 0; n < 4; n++)
-                                me->SummonCreature(RAID_MODE(33052, 33116), ConstellationPos[rand()%6], TEMPSUMMON_CORPSE_DESPAWN);
-                            events.ScheduleEvent(EVENT_LIVING_CONSTELLATION , 50000);
-                            break;
-                        case EVENT_BIG_BANG:
-                        {
-                            Talk(SAY_ALGALON_BIG_BANG);
-                            Talk(EMOTE_ALGALON_BIG_BANG);
-                            DoCastAOE(SPELL_BIG_BANG);
-                            events.DelayEvents(9000);
-                            events.ScheduleEvent(EVENT_BIG_BANG, 90500);
-                            break;
-                        }
-                        case EVENT_COSMIC_SMASH:
-                            Talk(EMOTE_ALGALON_COSMIC_SMASH);
-                            DoCastAOE(SPELL_COSMIC_SMASH);
-                            events.ScheduleEvent(EVENT_COSMIC_SMASH, 25500);
-                            break;
+                            case EVENT_QUANTUM_STRIKE:
+                                DoCastVictim(SPELL_QUANTUM_STRIKE);
+                                events.ScheduleEvent(EVENT_QUANTUM_STRIKE, urand(3000, 5000));
+                                break;
+                            case EVENT_PHASE_PUNCH:
+                                DoCastVictim(SPELL_PHASE_PUNCH);
+                                events.ScheduleEvent(EVENT_PHASE_PUNCH, 15500);
+                                break;
+                            case EVENT_SUMMON_COLLAPSING_STAR:
+                                Talk(SAY_ALGALON_COLLAPSING_STAR);
+                                Talk(EMOTE_ALGALON_COLLAPSING_STAR);
+                                for (uint32 i = 0; i < COLLAPSING_STAR_COUNT; ++i)
+                                    me->SummonCreature(NPC_COLLAPSING_STAR, CollapsingStarPos[i], TEMPSUMMON_MANUAL_DESPAWN);
+                                events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 60000);
+                                break;
+                            case EVENT_LIVING_CONSTELLATION :
+                                for (uint32 n = 0; n < 4; n++)
+                                    me->SummonCreature(RAID_MODE(33052, 33116), ConstellationPos[rand()%6], TEMPSUMMON_CORPSE_DESPAWN);
+                                events.ScheduleEvent(EVENT_LIVING_CONSTELLATION , 50000);
+                                break;
+                            case EVENT_BIG_BANG:
+                            {
+                                Talk(SAY_ALGALON_BIG_BANG);
+                                Talk(EMOTE_ALGALON_BIG_BANG);
+                                DoCastAOE(SPELL_BIG_BANG);
+                                events.DelayEvents(9000);
+                                events.ScheduleEvent(EVENT_BIG_BANG, 90500);
+                                break;
+                            }
+                            case EVENT_COSMIC_SMASH:
+                                Talk(EMOTE_ALGALON_COSMIC_SMASH);
+                                DoCastAOE(SPELL_COSMIC_SMASH);
+                                events.ScheduleEvent(EVENT_COSMIC_SMASH, 25500);
+                                break;
+                            case EVENT_CHECK_EQUIP:
+                                instance->SetData(DATA_ALGALON, 0);
+                                events.ScheduleEvent(EVENT_CHECK_EQUIP, 30000);
+                                break;
                         }
                     }
                 }
-
                 DoMeleeAttackIfReady();
             }
 

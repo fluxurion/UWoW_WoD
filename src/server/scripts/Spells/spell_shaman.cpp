@@ -89,57 +89,6 @@ enum ShamanSpells
     SPELL_DRUMS_OF_RAGE                     = 146555,
 };
 
-class spell_sha_resurgence : public SpellScriptLoader
-{
-    public:
-        spell_sha_resurgence() : SpellScriptLoader("spell_sha_resurgence") { }
-
-        class spell_sha_resurgence_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_resurgence_SpellScript);
-
-            void HandleDummy(SpellEffIndex eff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    uint32 bp = GetEffectValue();
-                    for (uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
-                    {
-                        if (Spell* spell = caster->GetCurrentSpell(i))
-                        {
-                            SpellInfo const* currentSpellInfo = spell->GetSpellInfo();
-
-                            switch (currentSpellInfo->Id)
-                            {
-                                case 8004:  // Healing Surge
-                                case 61295: // Riptide
-                                case 73685: // Unleash life
-                                    bp *= 0.6f;
-                                    break;
-                                case 1064: // Chain Heal
-                                    bp *= 0.33f;
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-                    SetEffectValue(bp);
-                }
-            }
-
-            void Register()
-            {
-                 OnEffectHitTarget += SpellEffectFn(spell_sha_resurgence_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_ENERGIZE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_resurgence_SpellScript();
-        }
-};
-
 // Prowl - 113289
 class spell_sha_prowl : public SpellScriptLoader
 {
@@ -323,67 +272,22 @@ class spell_sha_conductivity : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_conductivity_SpellScript);
 
-            void HandleAfterHit()
+            void HandleAfterCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (caster->HasAura(SPELL_SHA_CONDUCTIVITY_TALENT))
                     {
-                        if (_player->HasAura(SPELL_SHA_CONDUCTIVITY_TALENT))
+                        Aura* aura = caster->GetAura(73920);
+                        if(caster->m_SummonSlot[17] && aura)
                         {
-                            if (DynamicObject* dynObj = _player->GetDynObject(SPELL_SHA_HEALING_RAIN))
-                            {
-                                if (target->GetDistance(dynObj) > 10.0f)
-                                    return;
-
-                                std::list<Unit*> tempList;
-                                std::list<Unit*> memberList;
-
-                                _player->GetPartyMembers(tempList);
-
-                                for (std::list<Unit*>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
-                                    if ((*itr)->GetDistance(dynObj) <= 10.0f)
-                                        memberList.push_back(*itr);
-
-                                if (memberList.empty())
-                                    return;
-
-                                memberList.sort(Trinity::DistanceCompareOrderPred(dynObj));
-                                memberList.resize(1);
-
-                                CustomSpellValues values;
-                                SpellCastTargets targets;
-                                targets.SetDst(*dynObj);
-                                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_CONDUCTIVITY_HEAL);
-                                // When you cast Healing Wave, Greater Healing Wave, or Healing Surge
-                                // allies within your Healing Rain share healing equal to 30% of the initial healing done
-                                if (GetSpellInfo()->IsPositive())
-                                {
-                                    int32 bp = int32(GetHitHeal() * 0.30f) / memberList.size();
-                                    values.AddSpellMod(SPELLVALUE_BASE_POINT0, bp);
-
-                                    for (std::list<Unit*>::const_iterator itr = memberList.begin(); itr != memberList.end(); ++itr)
-                                    {
-                                        //_player->CastCustomSpell(dynObj, SPELL_SHA_CONDUCTIVITY_HEAL, &bp, NULL, NULL, true);
-                                        _player->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULL, _player->GetGUID());
-                                        break;
-                                    }
-                                }
-                                // If your Lightning Bolt, Chain Lightning, Earth Shock, or Stormstrike damages an enemy
-                                // allies within your Healing Rain share healing equal to 50% of the initial damage done
-                                else
-                                {
-                                    int32 bp = int32(GetHitDamage() * 0.50f) / memberList.size();
-                                    values.AddSpellMod(SPELLVALUE_BASE_POINT0, bp);
-
-                                    for (std::list<Unit*>::const_iterator itr = memberList.begin(); itr != memberList.end(); ++itr)
-                                    {
-                                        //_player->CastCustomSpell(dynObj, SPELL_SHA_CONDUCTIVITY_HEAL, &bp, NULL, NULL, true);
-                                        _player->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULL, _player->GetGUID());
-                                        break;
-                                    }
-                                }
-                            }
+                            int32 duration = aura->GetDuration() + 4000;
+                            if(duration > 40000)
+                                duration = 40000;
+                            if(Creature* summon = caster->GetMap()->GetCreature(caster->m_SummonSlot[17]))
+                                if(summon->ToTempSummon())
+                                    summon->ToTempSummon()->InitStats(duration);
+                            aura->SetDuration(duration);
                         }
                     }
                 }
@@ -391,49 +295,13 @@ class spell_sha_conductivity : public SpellScriptLoader
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_sha_conductivity_SpellScript::HandleAfterHit);
+                AfterCast += SpellCastFn(spell_sha_conductivity_SpellScript::HandleAfterCast);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_conductivity_SpellScript();
-        }
-};
-
-// Earthgrab - 64695
-class spell_sha_earthgrab : public SpellScriptLoader
-{
-    public:
-        spell_sha_earthgrab() : SpellScriptLoader("spell_sha_earthgrab") { }
-
-        class spell_sha_earthgrab_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_earthgrab_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->HasAura(SPELL_SHA_EARTHGRAB_IMMUNITY, caster->GetGUID()))
-                            caster->CastSpell(target, SPELL_SHA_EARTHBIND_FOR_EARTHGRAB_TOTEM, true);
-                        else
-                            caster->CastSpell(target, SPELL_SHA_EARTHGRAB_IMMUNITY, true);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_sha_earthgrab_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_earthgrab_SpellScript();
         }
 };
 
@@ -541,26 +409,21 @@ class spell_sha_spirit_link : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (caster->GetEntry() == 53006)
+                    std::list<TargetInfo>* memberList = GetSpell()->GetUniqueTargetInfo();
+                    if(memberList->empty())
+                        return;
+
+                    float totalRaidHealthPct = 0;
+                    for (std::list<TargetInfo>::iterator ihit = memberList->begin(); ihit != memberList->end(); ++ihit)
                     {
-                        if (caster->GetOwner())
-                        {
-                            if (Player* _player = caster->GetOwner()->ToPlayer())
-                            {
-                                std::list<Unit*> memberList;
-                                _player->GetPartyMembers(memberList);
-
-                                float totalRaidHealthPct = 0;
-
-                                for (std::list<Unit*>::const_iterator itr = memberList.begin(); itr != memberList.end(); ++itr)
-                                    totalRaidHealthPct += (*itr)->GetHealthPct();
-
-                                totalRaidHealthPct /= memberList.size() * 100.0f;
-
-                                for (std::list<Unit*>::const_iterator itr = memberList.begin(); itr != memberList.end(); ++itr)
-                                    (*itr)->SetHealth(uint32(totalRaidHealthPct * (*itr)->GetMaxHealth()));
-                            }
-                        }
+                        if(Unit* member = ObjectAccessor::GetUnit(*caster, ihit->targetGUID))
+                            totalRaidHealthPct += member->GetHealthPct();
+                    }
+                    totalRaidHealthPct /= memberList->size() * 100.0f;
+                    for (std::list<TargetInfo>::iterator ihit = memberList->begin(); ihit != memberList->end(); ++ihit)
+                    {
+                        if(Unit* member = ObjectAccessor::GetUnit(*caster, ihit->targetGUID))
+                            member->SetHealth(uint32(totalRaidHealthPct * member->GetMaxHealth()));
                     }
                 }
             }
@@ -636,7 +499,7 @@ class spell_sha_fire_nova : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_fire_nova_SpellScript);
 
-            bool Validate(SpellInfo const* spellEntry)
+            bool Validate(SpellInfo const* SpellInfo)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHA_FIRE_NOVA))
                     return false;
@@ -680,11 +543,11 @@ class spell_sha_unleash_elements : public SpellScriptLoader
                 return true;
             }
 
-            void HandleOnHit()
+            void HandleAfterCast()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (Unit* target = GetExplTargetUnit())
                     {
                         Item *weapons[2];
                         weapons[0] = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
@@ -696,7 +559,6 @@ class spell_sha_unleash_elements : public SpellScriptLoader
                                 continue;
 
                             uint32 unleashSpell = 0;
-                            uint32 furySpell = 0;
                             bool hostileTarget = _player->IsValidAttackTarget(target);
                             bool hostileSpell = true;
                             switch (weapons[i]->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT))
@@ -704,33 +566,18 @@ class spell_sha_unleash_elements : public SpellScriptLoader
                                 case 3345: // Earthliving Weapon
                                     unleashSpell = 73685; // Unleash Life
                                     hostileSpell = false;
-
-                                    if (_player->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
-                                        furySpell = SPELL_SHA_UNLEASHED_FURY_EARTHLIVING;
                                     break;
                                 case 5: // Flametongue Weapon
                                     unleashSpell = 73683; // Unleash Flame
-
-                                    if (_player->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
-                                        furySpell = SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE;
                                     break;
                                 case 2: // Frostbrand Weapon
                                     unleashSpell = 73682; // Unleash Frost
-
-                                    if (_player->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
-                                        furySpell = SPELL_SHA_UNLEASHED_FURY_FROSTBRAND;
                                     break;
                                 case 3021: // Rockbiter Weapon
                                     unleashSpell = 73684; // Unleash Earth
-
-                                    if (_player->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
-                                        furySpell = SPELL_SHA_UNLEASHED_FURY_ROCKBITER;
                                     break;
                                 case 283: // Windfury Weapon
                                     unleashSpell = 73681; // Unleash Wind
-
-                                    if (_player->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
-                                        furySpell = SPELL_SHA_UNLEASHED_FURY_WINDFURY;
                                     break;
                             }
 
@@ -743,10 +590,46 @@ class spell_sha_unleash_elements : public SpellScriptLoader
                             if (unleashSpell)
                                 _player->CastSpell(target, unleashSpell, true);
 
-                            if (furySpell)
-                                _player->CastSpell(target, furySpell, true);
+                            target = GetExplTargetUnit();
 
-                            target = GetHitUnit();
+                            // If weapons are enchanted by same enchantment, only one should be unleashed
+                            if (i == 0 && weapons[0] && weapons[1])
+                                if (weapons[0]->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT) == weapons[1]->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT))
+                                    return;
+                        }
+                    }
+                    if (_player->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
+                    {
+                        Item *weapons[2];
+                        weapons[0] = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+                        weapons[1] = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+                        for (int i = 0; i < 2; i++)
+                        {
+                            if(!weapons[i])
+                                continue;
+
+                            uint32 furySpell = 0;
+                            switch (weapons[i]->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT))
+                            {
+                                case 3345: // Earthliving Weapon
+                                    furySpell = SPELL_SHA_UNLEASHED_FURY_EARTHLIVING;
+                                    break;
+                                case 5: // Flametongue Weapon
+                                    furySpell = SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE;
+                                    break;
+                                case 2: // Frostbrand Weapon
+                                    furySpell = SPELL_SHA_UNLEASHED_FURY_FROSTBRAND;
+                                    break;
+                                case 3021: // Rockbiter Weapon
+                                    furySpell = SPELL_SHA_UNLEASHED_FURY_ROCKBITER;
+                                    break;
+                                case 283: // Windfury Weapon
+                                    furySpell = SPELL_SHA_UNLEASHED_FURY_WINDFURY;
+                                    break;
+                            }
+                            if (furySpell)
+                                _player->CastSpell(_player, furySpell, true);
 
                             // If weapons are enchanted by same enchantment, only one should be unleashed
                             if (i == 0 && weapons[0] && weapons[1])
@@ -759,7 +642,8 @@ class spell_sha_unleash_elements : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_sha_unleash_elements_SpellScript::HandleOnHit);
+                //OnHit += SpellHitFn(spell_sha_unleash_elements_SpellScript::HandleOnHit);
+                AfterCast += SpellCastFn(spell_sha_unleash_elements_SpellScript::HandleAfterCast);
             }
         };
 
@@ -868,9 +752,11 @@ class spell_sha_fulmination : public SpellScriptLoader
                 if(SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE))
                 {
                     int32 basePoints = caster->CalculateSpellDamage(target, spellInfo, 0);
-                    int32 damage = int32((usedCharges - 1) * caster->SpellDamageBonusDone(target, spellInfo, basePoints, SPELL_DIRECT_DAMAGE, EFFECT_0));
+                    int32 damage = int32(usedCharges * caster->SpellDamageBonusDone(target, spellInfo, basePoints, SPELL_DIRECT_DAMAGE, EFFECT_0));
+                    if(Aura* aura = caster->GetAura(144998)) // Item - Shaman T16 Elemental 2P Bonus
+                        aura->GetEffect(0)->SetAmount(4 * usedCharges);
 
-                    caster->CastCustomSpell(target, SPELL_SHA_FULMINATION_TRIGGERED, &damage, NULL, NULL, true);
+                    caster->CastCustomSpell(target, SPELL_SHA_FULMINATION_TRIGGERED, &damage, NULL, NULL, false);
                     lightningShield->SetCharges(lsCharges - usedCharges);
 
                     caster->RemoveAura(SPELL_SHA_FULMINATION_INFO);
@@ -1133,8 +1019,11 @@ class spell_sha_healing_rain : public SpellScriptLoader
             void OnTick(AuraEffect const* aurEff)
             {
                 if (Unit* caster = GetCaster())
-                    if (DynamicObject* dynObj = caster->GetDynObject(SPELL_SHA_HEALING_RAIN))
-                        caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHA_HEALING_RAIN_TICK, true);
+                {
+                    if(caster->m_SummonSlot[17])
+                        if(Creature* summon = caster->GetMap()->GetCreature(caster->m_SummonSlot[17]))
+                            caster->CastSpell(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), SPELL_SHA_HEALING_RAIN_TICK, true);
+                }
             }
 
             void Register()
@@ -1142,6 +1031,39 @@ class spell_sha_healing_rain : public SpellScriptLoader
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
+
+        class spell_sha_healing_rain_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_healing_rain_SpellScript);
+
+            void HandleOnCast()
+            {
+                if(Unit* caster = GetCaster())
+                {
+                    Position const* sumpos = GetExplTargetDest();
+                    if(TempSummon* summon = caster->GetMap()->SummonCreature(73400, *sumpos, NULL, GetSpellInfo()->GetDuration(), caster))
+                    {
+                        if(caster->m_SummonSlot[17])
+                        {
+                            if(Creature* tempsummon = caster->GetMap()->GetCreature(caster->m_SummonSlot[17]))
+                                tempsummon->DespawnOrUnsummon(500);
+                        }
+                        caster->m_SummonSlot[17] = summon->GetGUID();
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_sha_healing_rain_SpellScript::HandleOnCast);
+            }
+
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_healing_rain_SpellScript();
+        }
 
         AuraScript* GetAuraScript() const
         {
@@ -1159,7 +1081,7 @@ class spell_sha_ascendance : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_ascendance_SpellScript);
 
-            bool Validate(SpellInfo const* spellEntry)
+            bool Validate(SpellInfo const* SpellInfo)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SHA_ASCENDANCE))
                     return false;
@@ -1245,7 +1167,7 @@ class spell_sha_bloodlust : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_bloodlust_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SHAMAN_SPELL_SATED))
                     return false;
@@ -1290,7 +1212,7 @@ class spell_sha_heroism : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_heroism_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SHAMAN_SPELL_EXHAUSTION))
                     return false;
@@ -1340,7 +1262,7 @@ class spell_sha_ancestral_awakening_proc : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_ancestral_awakening_proc_SpellScript);
 
-            bool Validate(SpellInfo const* /*SpellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ANCESTRAL_AWAKENING_PROC))
                     return false;
@@ -1598,32 +1520,39 @@ class spell_shaman_totemic_projection : public SpellScriptLoader
 
                 Position const* sumpos = GetExplTargetDest();
                 TempSummon* summon = caster->GetMap()->SummonCreature(47319, *sumpos, NULL, 0, caster, ObjectGuid::Empty, GetSpellInfo()->Id);
+                if(!summon)
+                    return;
+
                 if(Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]))
                 {
                     Position pos;
                     summon->GetFirstCollisionPosition(pos, 2.5f, static_cast<float>(-M_PI/4));
-                    totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    //totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    totem->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false, 60.0f);
                     //totem->SendMovementFlagUpdate();
                 }
                 if(Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[2]))
                 {
                     Position pos;
                     summon->GetFirstCollisionPosition(pos, 2.5f, static_cast<float>(-3*M_PI/4));
-                    totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    //totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    totem->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false, 60.0f);
                     //totem->SendMovementFlagUpdate();
                 }
                 if(Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[3]))
                 {
                     Position pos;
                     summon->GetFirstCollisionPosition(pos, 2.5f, static_cast<float>(3*M_PI/4));
-                    totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    //totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    totem->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false, 60.0f);
                     //totem->SendMovementFlagUpdate();
                 }
                 if(Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[4]))
                 {
                     Position pos;
                     summon->GetFirstCollisionPosition(pos, 2.5f, static_cast<float>(M_PI/4));
-                    totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    //totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    totem->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false, 60.0f);
                     //totem->SendMovementFlagUpdate();
                 }
             }
@@ -1702,16 +1631,259 @@ class spell_sha_maelstrom_weapon : public SpellScriptLoader
         }
 };
 
+// Earth Shield - 379
+class spell_sha_earth_shield : public SpellScriptLoader
+{
+    public:
+        spell_sha_earth_shield() : SpellScriptLoader("spell_sha_earth_shield") { }
+
+        class spell_sha_earth_shield_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_earth_shield_SpellScript)
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        int32 bp = GetHitHeal() * 3;
+                        if (caster->HasAura(145378)) //Item - Shaman T16 Restoration 2P Bonus
+                            target->CastCustomSpell(target, 145379, &bp, NULL, NULL, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_sha_earth_shield_SpellScript::HandleOnHit);
+            }
+
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_earth_shield_SpellScript();
+        }
+};
+
+// 144999 - Elemental Discharge
+class spell_sha_elemental_discharge : public SpellScriptLoader
+{
+    public:
+        spell_sha_elemental_discharge() : SpellScriptLoader("spell_sha_elemental_discharge") { }
+
+        class spell_sha_elemental_discharge_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_elemental_discharge_AuraScript);
+
+            void CalculateMaxDuration(int32 & duration)
+            {
+                if (Unit* caster = GetCaster())
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(144998, EFFECT_0))
+                        duration = int32(aurEff->GetAmount() / 2) * 1000;
+            }
+
+            void Register()
+            {
+                DoCalcMaxDuration += AuraCalcMaxDurationFn(spell_sha_elemental_discharge_AuraScript::CalculateMaxDuration);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_elemental_discharge_AuraScript();
+        }
+};
+
+// Purge - 370
+class spell_sha_purge : public SpellScriptLoader
+{
+    public:
+        spell_sha_purge() : SpellScriptLoader("spell_sha_purge") { }
+
+        class spell_sha_purge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_purge_SpellScript);
+
+            void HandleAfterHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if(GetSpell()->GetCountDispel() && caster->HasAura(147762) && caster->HasAura(77223)) //Glyph of Purging
+                        caster->CastSpell(caster, 53817, true);
+                }
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_sha_purge_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_purge_SpellScript();
+        }
+};
+
+// Glyph of Cleansing Waters - 55445, Call - 77130, 51886
+class spell_sha_cleansing_waters : public SpellScriptLoader
+{
+    public:
+        spell_sha_cleansing_waters() : SpellScriptLoader("spell_sha_cleansing_waters") { }
+
+        class spell_sha_cleansing_waters_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_cleansing_waters_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetExplTargetUnit();
+                if(!caster || !target)
+                    return;
+
+                if(GetSpell()->GetCountDispel())
+                {
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(55445, EFFECT_0))
+                    {
+                        int32 bp0 = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
+                        caster->CastCustomSpell(target, 86961, &bp0, NULL, NULL, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_sha_cleansing_waters_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_cleansing_waters_SpellScript();
+        }
+};
+
+// Astral Recall - 556
+class spell_sha_astral_recall : public SpellScriptLoader
+{
+    public:
+        spell_sha_astral_recall() : SpellScriptLoader("spell_sha_astral_recall") { }
+
+        class spell_sha_astral_recall_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_astral_recall_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* caster = GetCaster();
+                if(!caster)
+                    return;
+
+                if (caster->HasAura(147787)) //Glyph of Astral Fixation
+                {
+                    if (Player::TeamForRace(caster->getRace()) == HORDE)
+                        caster->CastSpell(caster, 147902, true);
+                    else
+                        caster->CastSpell(caster, 147901, true);
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_sha_astral_recall_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_astral_recall_SpellScript();
+        }
+};
+
+// Glyph of Elemental Familiars - 148118
+class spell_sha_elemental_familiars : public SpellScriptLoader
+{
+    public:
+        spell_sha_elemental_familiars() : SpellScriptLoader("spell_sha_elemental_familiars") { }
+
+        class spell_sha_elemental_familiars_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_elemental_familiars_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if(Unit* caster = GetCaster())
+                {
+                    Position const* sumpos = GetExplTargetDest();
+                    uint32 entry[] = { 73556, 73559, 73560 };
+                    SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(3221);
+                    if(TempSummon* summon = caster->GetMap()->SummonCreature(entry[urand(0, 2)], *sumpos, properties, 600000, caster))
+                    {
+                        if(caster->m_SummonSlot[17])
+                        {
+                            if(Creature* tempsummon = caster->GetMap()->GetCreature(caster->m_SummonSlot[17]))
+                                tempsummon->DespawnOrUnsummon(500);
+                        }
+                        caster->m_SummonSlot[17] = summon->GetGUID();
+                    }
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_sha_elemental_familiars_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_elemental_familiars_SpellScript();
+        }
+};
+
+// Grounding Totem - 89523
+class spell_sha_grounding_totem : public SpellScriptLoader
+{
+    public:
+        spell_sha_grounding_totem() : SpellScriptLoader("spell_sha_grounding_totem") { }
+
+        class spell_sha_grounding_totem_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_grounding_totem_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                    if ((removeMode == AURA_REMOVE_BY_DROP_CHARGERS || removeMode == AURA_REMOVE_BY_DEFAULT) && caster->ToTotem())
+                        caster->setDeathState(JUST_DIED);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_sha_grounding_totem_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_REFLECT_SPELLS, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_grounding_totem_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
-    new spell_sha_resurgence();
     new spell_sha_prowl();
     new spell_sha_solar_beam();
     new spell_sha_glyph_of_shamanistic_rage();
     new spell_sha_glyph_of_lakestrider();
     new spell_sha_call_of_the_elements();
     new spell_sha_conductivity();
-    new spell_sha_earthgrab();
     new spell_sha_mail_specialization();
     new spell_sha_frozen_power();
     new spell_sha_spirit_link();
@@ -1734,7 +1906,14 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_chain_heal();
     new spell_shaman_primal_strike();
     new spell_shaman_healing_tide();
-    new spell_shaman_totemic_projection();
     new spell_sha_ancestral_vigor();
     new spell_sha_maelstrom_weapon();
+    new spell_sha_earth_shield();
+    new spell_sha_elemental_discharge();
+    new spell_sha_purge();
+    new spell_sha_cleansing_waters();
+    new spell_sha_astral_recall();
+    new spell_sha_elemental_familiars();
+    new spell_sha_grounding_totem();
+    new spell_shaman_totemic_projection();
 }

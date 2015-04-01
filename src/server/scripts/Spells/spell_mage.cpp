@@ -225,7 +225,12 @@ class spell_mage_arcane_missile : public SpellScriptLoader
 
                 if (Player* _player = GetCaster()->ToPlayer())
                     if (Aura* arcaneMissiles = _player->GetAura(SPELL_MAGE_ARCANE_MISSILES))
-                        arcaneMissiles->DropCharge();
+                    {
+                        if (_player->HasAura(145257) && roll_chance_i(30)) //Item - Mage T16 4P Bonus
+                            return;
+                        else
+                            arcaneMissiles->DropCharge();
+                    }
             }
 
             void OnTick(AuraEffect const* aurEff)
@@ -531,7 +536,7 @@ class spell_mage_frostbolt : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_frostbolt_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 return true;
             }
@@ -850,7 +855,6 @@ class spell_mage_combustion : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        _player->CastSpell(target, SPELL_MAGE_COMBUSTION_IMPACT, true);
                         _player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST, true);
                         _player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
 
@@ -1173,7 +1177,7 @@ class spell_mage_alter_time_overrided : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_alter_time_overrided_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ALTER_TIME_OVERRIDED))
                     return false;
@@ -1364,7 +1368,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
 
             static const uint32 PolymorhForms[6];
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 // check if spell ids exist in dbc
                 for (uint32 i = 0; i < 6; i++)
@@ -1412,7 +1416,7 @@ class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
             SPELL_MAGE_INCANTERS_ABSORBTION_R1 = 44394,
         };
 
-        bool Validate(SpellInfo const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*SpellInfo*/)
         {
             return sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
                 && sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_R1);

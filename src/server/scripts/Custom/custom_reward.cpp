@@ -97,7 +97,7 @@ public:
                             Item* item = player->StoreNewItem(dest, id, true, Item::GenerateItemRandomPropertyId(id));
 
                             if (count > 0 && item)
-                                player->SendNewItem(item, NULL, count, false, true);
+                                player->SendNewItem(item, count, false, true);
 
                             if (noSpaceForCount > 0)
                             {
@@ -143,6 +143,19 @@ public:
                         rewarded = true;
                     }
                     break;
+                    case 11: // Remove title from char
+                    {
+                        if(CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id))
+                        {
+                            char const* targetName = player->GetName();
+                            char titleNameStr[80];
+                            snprintf(titleNameStr, 80, titleInfo->name, targetName);
+                            player->SetTitle(titleInfo, true);
+                            chH.PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, targetName);
+                            rewarded = true;
+                        }
+                    }
+                    break;
                     default:
                         break;
                 }
@@ -152,6 +165,10 @@ public:
         }
         else
         {
+            if (AchievementEntry const *achiev = sAchievementStore.LookupEntry(252))
+                if (player->GetAchievementMgr().IsCompletedAchievement(achiev))
+                    player->CompletedAchievement(achiev);
+
             if(QueryResult share_result = CharacterDatabase.PQuery("SELECT * FROM `character_share` WHERE guid = '%u'", owner_guid))
             {
                 uint32 totaltime = player->GetTotalPlayedTime();
@@ -171,21 +188,21 @@ public:
 
                 if (sWorld->getBoolConfig(CONFIG_SHARE_ENABLE))
                 {
-                    if(!bonus1 && totaltime >= (1 * HOUR))
+                    if(!bonus1 && totaltime >= (5 * HOUR))
                     {
-                        player->ModifyMoney(500000);
+                        player->ModifyMoney(2000000);
                         update = true;
                         bonus1 = true;
                     }
                     if(!bonus2 && totaltime >= (10 * HOUR))
                     {
-                        player->ModifyMoney(2500000);
+                        player->ModifyMoney(4000000);
                         update = true;
                         bonus2 = true;
                     }
                     if(!bonus3 && totaltime >= (20 * HOUR))
                     {
-                        player->ModifyMoney(5000000);
+                        player->ModifyMoney(8000000);
                         update = true;
                         bonus3 = true;
                     }

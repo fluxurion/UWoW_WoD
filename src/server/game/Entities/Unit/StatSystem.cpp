@@ -225,50 +225,6 @@ bool Player::UpdateAllStats()
             }
         }
     }
-    // Way of the Monk - 120277
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (getClass() == CLASS_MONK && HasAura(120277))
-        {
-            RemoveAurasDueToSpell(120275);
-            RemoveAurasDueToSpell(108977);
-
-            uint32 trigger = 0;
-            if (IsTwoHandUsed())
-            {
-                trigger = 120275;
-            }
-            else
-            {
-                Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-                if (mainItem && mainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && offItem && offItem->GetTemplate()->Class == ITEM_CLASS_WEAPON)
-                    trigger = 108977;
-            }
-
-            if (trigger)
-                CastSpell(this, trigger, true);
-        }
-    }
-    // Assassin's Resolve - 84601
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (getClass() == CLASS_ROGUE && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION)
-        {
-            Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-            Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-            if (((mainItem && mainItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER) || (offItem && offItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)))
-            {
-                if (HasAura(84601))
-                    RemoveAura(84601);
-
-                CastSpell(this, 84601, true);
-            }
-            else
-                RemoveAura(84601);
-        }
-    }
 
     UpdateAllRatings();
     UpdateAllCritPercentages();
@@ -502,8 +458,19 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType) / 14.0f * att_speed;
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
-    float total_pct = attType == OFF_ATTACK ? 0.5f : 1.0f;
-    total_pct *= addTotalPct ? GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, SPELL_SCHOOL_MASK_NORMAL) : 1.0f;
+    float total_pct = 1.0f;
+
+    if (addTotalPct)
+    {
+        total_pct *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, SPELL_SCHOOL_MASK_NORMAL);
+
+        if (attType == OFF_ATTACK)
+        {
+            total_pct *= 0.5f;
+            total_pct *= GetTotalAuraMultiplier(SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT);
+        }
+    }
+    
 
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
@@ -615,7 +582,7 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
 
     float value = GetMeleeCritFromAgility();
     value += GetRatingBonusValue(cr);
-    value += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
+    value += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT, true);
     // Modify crit from weapon skill and maximized defense skill of same level victim difference
     value += (int32(GetMaxSkillValueForLevel()) - int32(GetMaxSkillValueForLevel())) * 0.04f;
     value = value < 0.0f ? 0.0f : value;
@@ -824,48 +791,6 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
     _ModifyUInt32(apply, m_baseHealthRegen, amount);
 }
 
-void Player::UpdateManaRegen()
-{
-    // Mana regen from spirit
-    float spirit_regen = OCTRegenMPPerSpirit();
-    // percent of base mana per 5 sec
-    float manaMod = (getClass() == CLASS_MAGE || getClass() == CLASS_WARLOCK) ? 5.0f: 2.0f;
-
-    // manaMod% of base mana every 5 seconds is base for all classes
-    float baseRegen = CalculatePct(GetCreateMana(), manaMod) / 5;
-    float auraMp5regen = 0.0f;
-    AuraEffectList const& ModPowerRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN);
-    for (AuraEffectList::const_iterator i = ModPowerRegenAuras.begin(); i != ModPowerRegenAuras.end(); ++i)
-    {
-        if (Powers((*i)->GetMiscValue()) == POWER_MANA)
-        {
-            bool periodic = false;
-            if (Aura* aur = (*i)->GetBase())
-                if (AuraEffect const* aurEff = aur->GetEffect(1))
-                    if(aurEff->GetAuraType() == SPELL_AURA_PERIODIC_DUMMY)
-                    {
-                        periodic = true;
-                        auraMp5regen += aurEff->GetAmount() / 5.0f;
-                    }
-            if(!periodic)
-                auraMp5regen += (*i)->GetAmount() / 5.0f;
-        }
-    }
-
-    float interruptMod = std::max(float(std::min(GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT), 100)), 1.0f);
-    float baseMod = std::max(GetTotalAuraMultiplier(SPELL_AURA_MOD_BASE_MANA_REGEN_PERCENT), 1.0f);
-    float pctRegenMod = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
-
-    // haste also increase your mana regeneration
-    if (HasAuraType(SPELL_AURA_HASTE_AFFECTS_BASE_MANA_REGEN))
-        AddPct(pctRegenMod, GetRatingBonusValue(CR_HASTE_SPELL));
-
-    // out of combar
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, (baseRegen * baseMod + auraMp5regen + spirit_regen) * pctRegenMod);
-    // in combat
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, (baseRegen * baseMod + auraMp5regen + spirit_regen * interruptMod / 100.0f) * pctRegenMod);
-}
-
 void Player::UpdateRuneRegen(RuneType rune)
 {
     if (rune > NUM_RUNE_TYPES)
@@ -924,14 +849,62 @@ void Player::_RemoveAllStatBonuses()
 + ########                         ########
 + #######################################*/
 
+void Unit::UpdateManaRegen()
+{
+    // Mana regen from spirit
+    float spirit_regen = OCTRegenMPPerSpirit();
+    // percent of base mana per 5 sec
+    float manaMod = (getClass() == CLASS_MAGE || getClass() == CLASS_WARLOCK) ? 5.0f: 2.0f;
+
+    // manaMod% of base mana every 5 seconds is base for all classes
+    float baseRegen = CalculatePct(GetCreateMana(), manaMod) / 5;
+    float auraMp5regen = 0.0f;
+    AuraEffectList const& ModPowerRegenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN);
+    for (AuraEffectList::const_iterator i = ModPowerRegenAuras.begin(); i != ModPowerRegenAuras.end(); ++i)
+    {
+        if (Powers((*i)->GetMiscValue()) == POWER_MANA)
+        {
+            bool periodic = false;
+            if (Aura* aur = (*i)->GetBase())
+                if (AuraEffect const* aurEff = aur->GetEffect(1))
+                    if(aurEff->GetAuraType() == SPELL_AURA_PERIODIC_DUMMY)
+                    {
+                        periodic = true;
+                        auraMp5regen += aurEff->GetAmount() / 5.0f;
+                    }
+            if(!periodic)
+                auraMp5regen += (*i)->GetAmount() / 5.0f;
+        }
+    }
+
+    float interruptMod = std::max(float(std::min(GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT), 100)), 1.0f);
+    float baseMod = std::max(GetTotalAuraMultiplier(SPELL_AURA_MOD_BASE_MANA_REGEN_PERCENT), 1.0f);
+    float pctRegenMod = GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
+    float regenFromHaste = 1.0f;
+
+    // haste also increase your mana regeneration
+    if (HasAuraType(SPELL_AURA_HASTE_AFFECTS_BASE_MANA_REGEN))
+        regenFromHaste += (1.0f - GetFloatValue(UNIT_MOD_CAST_HASTE));
+
+    float manaRegen = ((baseRegen * baseMod + auraMp5regen + spirit_regen) * pctRegenMod) * regenFromHaste;
+    float manaRegenInterupted = ((baseRegen * baseMod + auraMp5regen + spirit_regen * interruptMod / 100.0f) * pctRegenMod) * regenFromHaste;
+
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::UpdateManaRegen pctRegenMod %f, regenFromHaste %f, manaRegen %f", pctRegenMod, regenFromHaste, manaRegen);
+
+    // out of combar
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, manaRegen);
+    // in combat
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, manaRegenInterupted);
+}
+
 void Unit::UpdateMeleeHastMod()
 {
     Player* player = ToPlayer();
-    float amount = 0.0f;
+    float amount = 100.0f;
     if(player)
-        amount = player->GetRatingBonusValue(CR_HASTE_MELEE);
+        amount += player->GetRatingBonusValue(CR_HASTE_MELEE);
 
-    m_baseMHastRatingPct = amount / 100.0f + 1.0f;
+    m_baseMHastRatingPct = amount / 100.0f;
 
     std::list<AuraType> auratypelist;
     auratypelist.push_back(SPELL_AURA_MOD_MELEE_HASTE);
@@ -941,7 +914,8 @@ void Unit::UpdateMeleeHastMod()
     auratypelist.push_back(SPELL_AURA_MOD_MELEE_RANGED_HASTE_2);
     auratypelist.push_back(SPELL_AURA_MELEE_SLOW);
 
-    amount += GetTotalForAurasModifier(&auratypelist);
+    amount *= GetTotalForAurasMultiplier(&auratypelist);
+    amount -= 100.0f;
 
     //sLog->outError(LOG_FILTER_NETWORKIO, "UpdateMeleeHastMod mod %f", mod);
 
@@ -962,6 +936,9 @@ void Unit::UpdateMeleeHastMod()
         ApplyPercentModFloatVar(value, -amount, true);
     SetFloatValue(UNIT_FIELD_MOD_HASTE, value);
     SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, value);
+
+    for (uint8 i = BASE_ATTACK; i < RANGED_ATTACK; ++i)
+        CalcAttackTimePercentMod(WeaponAttackType(i), value);
 
     Unit::AuraEffectList const& GcdByMeleeHaste = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_COOLDOWN_BY_MELEE_HASTE);
     for (Unit::AuraEffectList::const_iterator itr = GcdByMeleeHaste.begin(); itr != GcdByMeleeHaste.end(); ++itr)
@@ -984,16 +961,20 @@ void Unit::UpdateMeleeHastMod()
 void Unit::UpdateHastMod()
 {
     Player* player = ToPlayer();
-    float amount = 0.0f;
+    float amount = 100.0f;
     if(player)
-        amount = player->GetRatingBonusValue(CR_HASTE_SPELL);
+        amount += player->GetRatingBonusValue(CR_HASTE_SPELL);
 
-    m_baseHastRatingPct = amount / 100.0f + 1.0f;
+    m_baseHastRatingPct = amount / 100.0f;
 
-    amount += GetTotalAuraModifier(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK);
-    amount += GetTotalAuraModifier(SPELL_AURA_MOD_CASTING_SPEED);
-    amount += GetTotalAuraModifier(SPELL_AURA_HASTE_SPELLS);
-    amount += GetTotalAuraModifier(SPELL_AURA_MELEE_SLOW);
+    std::list<AuraType> auratypelist;
+    auratypelist.push_back(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK);
+    auratypelist.push_back(SPELL_AURA_MOD_CASTING_SPEED);
+    auratypelist.push_back(SPELL_AURA_HASTE_SPELLS);
+    auratypelist.push_back(SPELL_AURA_MELEE_SLOW);
+
+    amount *= GetTotalForAurasMultiplier(&auratypelist);
+    amount -= 100.0f;
 
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "UpdateHastMod amount %f", amount);
 
@@ -1011,17 +992,29 @@ void Unit::UpdateHastMod()
     SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, value);
     SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, value);
 
+    if(isAnySummons())
+    {
+        float haste = GetFloatValue(UNIT_MOD_CAST_HASTE);
+        if(CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(GetEntry()))
+        {
+            SetAttackTime(BASE_ATTACK, cinfo->baseattacktime * haste);
+            SetAttackTime(OFF_ATTACK, cinfo->baseattacktime * haste);
+            SetAttackTime(RANGED_ATTACK, cinfo->rangeattacktime * haste);
+        }
+    }
+
     if (player && getClass() == CLASS_DEATH_KNIGHT)
         player->UpdateAllRunesRegen();
+    UpdateManaRegen();
 }
 
 void Unit::UpdateRangeHastMod()
 {
     Player* player = ToPlayer();
-    float amount = 0.0f;
+    float amount = 100.0f;
     if(player)
-        amount = player->GetRatingBonusValue(CR_HASTE_RANGED);
-    m_baseRHastRatingPct = amount / 100.0f + 1.0f;
+        amount += player->GetRatingBonusValue(CR_HASTE_RANGED);
+    m_baseRHastRatingPct = amount / 100.0f;
 
     std::list<AuraType> auratypelist;
     auratypelist.push_back(SPELL_AURA_MOD_RANGED_HASTE);
@@ -1030,7 +1023,8 @@ void Unit::UpdateRangeHastMod()
     auratypelist.push_back(SPELL_AURA_MOD_MELEE_RANGED_HASTE_2);
     auratypelist.push_back(SPELL_AURA_MELEE_SLOW);
 
-    amount += GetTotalForAurasModifier(&auratypelist);
+    amount *= GetTotalForAurasMultiplier(&auratypelist);
+    amount -= 100.0f;
 
     //sLog->outError(LOG_FILTER_NETWORKIO, "UpdateRangeHastMod mod %f", mod);
 
@@ -1047,6 +1041,8 @@ void Unit::UpdateRangeHastMod()
         ApplyPercentModFloatVar(value, -amount, true);
     SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, value);
 
+    CalcAttackTimePercentMod(RANGED_ATTACK, value);
+
     if (GetPower(POWER_FOCUS))
         UpdateFocusRegen();
 
@@ -1056,8 +1052,7 @@ void Unit::UpdateRangeHastMod()
 
 void Unit::UpdateEnergyRegen()
 {
-    float auramod = GetTotalAuraMultiplier(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    float val = 1.0f / m_baseMHastRatingPct / auramod;
+    float val = 1.0f / m_baseMHastRatingPct;
     float amount = 0.0f;
     
     std::list<AuraType> auratypelist;
@@ -1073,12 +1068,13 @@ void Unit::UpdateEnergyRegen()
         ApplyPercentModFloatVar(val, -amount, true);
 
     SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, val);
+
+    UpdatePowerRegen(POWER_ENERGY);
 }
 
 void Unit::UpdateFocusRegen()
 {
-    float auramod = GetTotalAuraMultiplier(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    float val = 1.0f / m_baseRHastRatingPct / auramod;
+    float val = 1.0f / m_baseRHastRatingPct;
     float amount = 0.0f;
     
     std::list<AuraType> auratypelist;
@@ -1094,6 +1090,78 @@ void Unit::UpdateFocusRegen()
         ApplyPercentModFloatVar(val, -amount, true);
 
     SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, val);
+
+    UpdatePowerRegen(POWER_FOCUS);
+}
+
+void Unit::UpdatePowerRegen(uint32 power)
+{
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    if (powerIndex == MAX_POWERS)
+        return;
+
+    float meleeHaste = GetFloatValue(UNIT_MOD_HASTE);
+    float addvalue = 0.0f;
+
+    //add value in 1s
+    switch (power)
+    {
+        case POWER_RAGE: // Regenerate Rage
+        {
+            addvalue -= 25 / meleeHaste / 2;
+            break;
+        }
+        case POWER_FOCUS: // Regenerate Focus
+        {
+            addvalue += 1.0f * m_baseRHastRatingPct * 5;
+            break;
+        }
+        case POWER_ENERGY: // Regenerate Energy
+        {
+            addvalue += (0.01f * 1000) * m_baseMHastRatingPct;
+            break;
+        }
+        case POWER_RUNIC_POWER: // Regenerate Runic Power
+        {
+            addvalue -= 30 / 2;
+            break;
+        }
+        case POWER_HOLY_POWER:
+        case POWER_CHI:
+        {
+            addvalue -= 1.0f / 10;
+            break;
+        }
+        // Regenerate Demonic Fury
+        case POWER_DEMONIC_FURY:
+        {
+            addvalue -= 1.0f * 12.5f;
+            break;
+        }
+        // Regenerate Burning Embers
+        case POWER_BURNING_EMBERS:
+        {
+            addvalue -= 1.0f / 2.5f;
+            break;
+        }
+        // Regenerate Soul Shards
+        case POWER_SOUL_SHARDS:
+        {
+            addvalue += 100.0f / 20;
+            break;
+        }
+        default:
+            break;
+    }
+
+    int32 perc = GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, power);
+    float val = CalculatePct(addvalue, perc);
+
+    SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + powerIndex, val);
+    if(power < POWER_UNUSED)
+        SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + powerIndex, val);
+
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::UpdatePowerRegen val %f, perc %i, powerIndex %i, power %i, addvalue %f", val, perc, powerIndex, power, addvalue);
 }
 
 /*#######################################
@@ -1396,9 +1464,11 @@ void Guardian::UpdateArmor()
         value = m_owner->GetModifierValue(unitMod, BASE_VALUE) * pStats->armor;
     else
         value = m_owner->GetModifierValue(unitMod, BASE_VALUE);
-    
+
+    //sLog->outDebug(LOG_FILTER_PETS, "Guardian::UpdateArmor value %f creature_ID %i", value, creature_ID);
+
     value += GetModifierValue(unitMod, BASE_PCT);
-    value *= GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_RESISTANCE_PCT, 1);
+    value *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_RESISTANCE_PCT, 1);
     value *= m_owner->GetTotalAuraMultiplierByMiscValueB(SPELL_AURA_MOD_PET_STATS_MODIFIER, int32(PETSPELLMOD_ARMOR), GetEntry());
 
     SetArmor(int32(value));
@@ -1425,8 +1495,9 @@ void Guardian::UpdateMaxHealth()
 
         multiplicator *= owner->GetTotalAuraMultiplier(SPELL_AURA_MOD_PET_HEALTH_FROM_OWNER_PCT);
         multiplicator *= owner->GetTotalAuraMultiplierByMiscValueB(SPELL_AURA_MOD_PET_STATS_MODIFIER, int32(PETSPELLMOD_MAX_HP), GetEntry());
-
         value = owner->GetMaxHealth() * multiplicator;
+
+        //sLog->outDebug(LOG_FILTER_PETS, "Guardian::UpdateMaxHealth multiplicator %f creature_ID %i hp %f", multiplicator, creature_ID, value);
     }
     else
     {
@@ -1454,10 +1525,11 @@ void Guardian::UpdateMaxPower(Powers power)
     uint32 creature_ID = isHunterPet() ? 1 : GetEntry();
     if (PetStats const* pStats = sObjectMgr->GetPetStats(creature_ID))
     {
-        if(!pStats->energy)
+        if(!pStats->energy && pStats->energy_type == 1)
             value = pStats->energy;
     }
 
+    //sLog->outDebug(LOG_FILTER_PETS, "Guardian::UpdateMaxPower value %f creature_ID %i", value, creature_ID);
     SetMaxPower(power, uint32(value));
 }
 
@@ -1478,41 +1550,42 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 
         if (PetStats const* pStats = sObjectMgr->GetPetStats(creature_ID))
         {
+            int32 temp_ap = owner->GetTotalAttackPowerValue(WeaponAttackType(pStats->ap_type));
+            int32 school_spd = 0;
+            int32 school_temp_spd = 0;
+            for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+            {
+                if(pStats->school_mask & (1 << i))
+                {
+                    school_temp_spd = owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i) + owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i);
+                    if(school_temp_spd > school_spd)
+                        school_spd = school_temp_spd;
+                }
+            }
+
             if(pStats->ap > 0)
-                AP = int32(owner->GetTotalAttackPowerValue(WeaponAttackType(pStats->ap_type)) * pStats->ap);
+                AP = int32(temp_ap * pStats->ap);
             else if(pStats->ap < 0)
             {
-                int32 school_temp_spd = 0;
-                int32 school_spd = 0;
-                for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-                {
-                    if(pStats->school_mask & (1 << i))
-                    {
-                        school_temp_spd = owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i) + owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i);
-                        if(school_temp_spd > school_spd)
-                            school_spd = school_temp_spd;
-                    }
-                }
                 if(school_spd)
                     AP = -int32(school_spd * pStats->ap);
             }
             if(pStats->spd < 0)
-                SPD = -int32(owner->GetTotalAttackPowerValue(WeaponAttackType(pStats->ap_type)) * pStats->spd);
+                SPD = -int32(temp_ap * pStats->spd);
             else if(pStats->spd > 0)
             {
-                int32 school_temp_spd = 0;
-                int32 school_spd = 0;
-                for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-                {
-                    if(pStats->school_mask & (1 << i))
-                    {
-                        school_temp_spd = owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i) + owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i);
-                        if(school_temp_spd > school_spd)
-                            school_spd = school_temp_spd;
-                    }
-                }
                 if(school_spd)
                     SPD = int32(school_spd * pStats->spd);
+            }
+            if(pStats->maxspdorap > 0)
+            {
+                AP = temp_ap > school_spd ? int32(temp_ap * abs(pStats->ap)) : int32(school_spd * abs(pStats->spd));
+                SPD = temp_ap > school_spd ? int32(temp_ap * abs(pStats->ap)) : int32(school_spd * abs(pStats->spd));
+            }
+            else if(pStats->maxspdorap < 0)
+            {
+                AP = int32(((temp_ap + school_spd) / 2) * abs(pStats->ap));
+                SPD = int32(((temp_ap + school_spd) / 2) * abs(pStats->spd));
             }
         }
         else
@@ -1653,7 +1726,7 @@ void Player::UpdatePvPPower()
         case SPEC_WARRIOR_FURY:
         case SPEC_WARRIOR_PROTECTION:
         case SPEC_PALADIN_PROTECTION:
-        case SPEC_DROOD_BEAR:
+        case SPEC_DRUID_BEAR:
         case SPEC_DK_BLOOD:
         case SPEC_DK_FROST:
         case SPEC_DK_UNHOLY:
@@ -1675,8 +1748,8 @@ void Player::UpdatePvPPower()
         case SPEC_SHAMAN_ELEMENTAL:
         case SPEC_SHAMAN_ENHANCEMENT:
         case SPEC_PALADIN_RETRIBUTION:
-        case SPEC_DROOD_BALANCE:
-        case SPEC_DROOD_CAT:
+        case SPEC_DRUID_BALANCE:
+        case SPEC_DRUID_CAT:
         case SPEC_PRIEST_SHADOW:
         case SPEC_MONK_WINDWALKER:
         {
@@ -1685,7 +1758,7 @@ void Player::UpdatePvPPower()
             break;
         }
         case SPEC_PALADIN_HOLY:
-        case SPEC_DROOD_RESTORATION:
+        case SPEC_DRUID_RESTORATION:
         case SPEC_PRIEST_DISCIPLINE:
         case SPEC_PRIEST_HOLY:
         case SPEC_SHAMAN_RESTORATION:

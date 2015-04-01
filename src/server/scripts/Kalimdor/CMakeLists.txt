@@ -32,6 +32,12 @@ set(scripts_STAT_SRCS
   Kalimdor/CavernsOfTime/WellofEternity/boss_varothen.cpp
   Kalimdor/CavernsOfTime/WellofEternity/instance_well_of_eternity.cpp
   Kalimdor/CavernsOfTime/WellofEternity/well_of_eternity.h
+  Kalimdor/CavernsOfTime/HourofTwilight/boss_arcurion.cpp
+  Kalimdor/CavernsOfTime/HourofTwilight/boss_asira_dawnslayer.cpp
+  Kalimdor/CavernsOfTime/HourofTwilight/boss_archbishop_benedictus.cpp
+  Kalimdor/CavernsOfTime/HourofTwilight/instance_hour_of_twilight.cpp
+  Kalimdor/CavernsOfTime/HourofTwilight/hour_of_twilight.cpp
+  Kalimdor/CavernsOfTime/HourofTwilight/hour_of_twilight.h
   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_archimonde.cpp
   Kalimdor/CavernsOfTime/BattleForMountHyjal/hyjalAI.h
   Kalimdor/CavernsOfTime/BattleForMountHyjal/hyjal_trash.h
@@ -59,31 +65,37 @@ set(scripts_STAT_SRCS
   Kalimdor/CavernsOfTime/DarkPortal/boss_aeonus.cpp
   Kalimdor/CavernsOfTime/DarkPortal/boss_temporus.cpp
   Kalimdor/CavernsOfTime/DragonSoul/boss_morchok.cpp
+  Kalimdor/CavernsOfTime/DragonSoul/boss_yorsahj_the_unsleeping.cpp
   Kalimdor/CavernsOfTime/DragonSoul/boss_warlord_zonozz.cpp
-  Kalimdor/CavernsOfTime/DragonSoul/boss_yorsahj_unsleeping.cpp
+  Kalimdor/CavernsOfTime/DragonSoul/boss_hagara.cpp
+  Kalimdor/CavernsOfTime/DragonSoul/boss_ultraxion.cpp
+  Kalimdor/CavernsOfTime/DragonSoul/boss_warmaster_blackhorn.cpp
+  Kalimdor/CavernsOfTime/DragonSoul/boss_spine_of_deathwing.cpp
+  Kalimdor/CavernsOfTime/DragonSoul/boss_madness_of_deathwing.cpp
+  Kalimdor/CavernsOfTime/DragonSoul/boss_warmaster_blackhorn.h
+  Kalimdor/CavernsOfTime/DragonSoul/instance_dragon_soul.cpp
   Kalimdor/CavernsOfTime/DragonSoul/dragon_soul.cpp
   Kalimdor/CavernsOfTime/DragonSoul/dragon_soul.h
-  Kalimdor/CavernsOfTime/DragonSoul/instance_dragon_soul.cpp
   Kalimdor/CavernsOfTime/EndTime/boss_echo_of_tyrande.cpp
   Kalimdor/CavernsOfTime/EndTime/boss_echo_of_baine.cpp
   Kalimdor/CavernsOfTime/EndTime/boss_echo_of_sylvanas.cpp
   Kalimdor/CavernsOfTime/EndTime/boss_echo_of_jaina.cpp
   Kalimdor/CavernsOfTime/EndTime/boss_murozond.cpp
-  Kalimdor/CavernsOfTime/EndTime/end_time_teleport.cpp
   Kalimdor/CavernsOfTime/EndTime/instance_end_time.cpp
   Kalimdor/CavernsOfTime/EndTime/end_time.cpp
   Kalimdor/CavernsOfTime/EndTime/end_time.h
-  Kalimdor/Firelands/boss_alysrazor.cpp
-  Kalimdor/Firelands/boss_bethtilac.cpp
-  Kalimdor/Firelands/boss_majordomus.cpp
-  #Kalimdor/Firelands/boss_ragnaros_firelands.cpp
-  Kalimdor/Firelands/boss_ragnaros.cpp
-  Kalimdor/Firelands/boss_lord_rhyolith.cpp
   Kalimdor/Firelands/boss_shannox.cpp
+  Kalimdor/Firelands/boss_lord_rhyolith.cpp
+  Kalimdor/Firelands/boss_lord_rhyolith.h
+  Kalimdor/Firelands/boss_bethtilac.cpp
+  Kalimdor/Firelands/boss_alysrazor.cpp
   Kalimdor/Firelands/boss_baleroc.cpp
-  Kalimdor/Firelands/firelands.h
-  Kalimdor/Firelands/firelands.cpp
+  Kalimdor/Firelands/boss_majordomo_staghelm.cpp
+  Kalimdor/Firelands/boss_ragnaros_firelands.cpp
+  Kalimdor/Firelands/boss_ragnaros_firelands.h
   Kalimdor/Firelands/instance_firelands.cpp
+  Kalimdor/Firelands/firelands.cpp
+  Kalimdor/Firelands/firelands.h
   Kalimdor/HallsOfOrigination/boss_temple_guardian_anhuur.cpp
   Kalimdor/HallsOfOrigination/boss_earthrager_ptah.cpp
   Kalimdor/HallsOfOrigination/boss_anraphet.cpp
@@ -115,6 +127,7 @@ set(scripts_STAT_SRCS
   Kalimdor/Maraudon/boss_landslide.cpp
   Kalimdor/Maraudon/boss_celebras_the_cursed.cpp
   Kalimdor/Maraudon/boss_noxxion.cpp
+  Kalimdor/Maraudon/instance_maraudon.cpp
   Kalimdor/TempleOfAhnQiraj/boss_fankriss.cpp
   Kalimdor/TempleOfAhnQiraj/boss_huhuran.cpp
   Kalimdor/TempleOfAhnQiraj/instance_temple_of_ahnqiraj.cpp
@@ -165,7 +178,6 @@ set(scripts_STAT_SRCS
   Kalimdor/OnyxiasLair/boss_onyxia.cpp
   Kalimdor/OnyxiasLair/onyxias_lair.h
   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
-  Kalimdor/southern_barrens.cpp
   Kalimdor/ThroneOfTheFourWinds/instance_throne_of_the_four_winds.cpp
   Kalimdor/ThroneOfTheFourWinds/boss_alakir.cpp
   Kalimdor/ThroneOfTheFourWinds/boss_conclave_of_wind.cpp

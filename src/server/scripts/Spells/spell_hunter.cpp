@@ -182,44 +182,77 @@ class spell_hun_stampede : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_stampede_SpellScript);
 
-            void HandleOnHit(SpellEffIndex /*effIndex*/)
+            void HandleOnHit(SpellEffIndex effIndex)
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    Unit* target = GetHitUnit();
-                    WorldLocation * loc = GetHitDest();
-                    //if (target)
+                    Unit* target = GetExplTargetUnit();
+                    WorldLocation* loc = GetHitDest();
+                    Pet* curentPet = _player->GetPet();
+                    PetSlot saveSlot = _player->m_currentSummonedSlot;
+
+                    if (target)
                     {
+                        float x, y, z, o;
+                        target->GetPosition(x, y, z);
                         uint32 count = 0;
-                        PetSlot slot = PET_SLOT_HUNTER_FIRST;
-                        bool gliph = _player->HasAura(HUNTER_SPELL_GLYPH_OF_STAMPEDE);
                         PetSlot currentSlot = _player->GetSlotForPetId(_player->m_currentPetNumber);
+                        GetCaster()->SetInCombatWith(target);
+
+                        if(curentPet)
+                            count++;
+                        else
+                        {
+                            for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i <= uint32(PET_SLOT_HUNTER_LAST); ++i)
+                            {
+                                if (_player->getPetIdBySlot(i))
+                                {
+                                    currentSlot = PetSlot(i);
+                                    break;
+                                }
+                            }
+                        }
+
+                        bool gliph = _player->HasAura(HUNTER_SPELL_GLYPH_OF_STAMPEDE);
+
                         for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i <= uint32(PET_SLOT_HUNTER_LAST); ++i)
                         {
                             if (gliph)
-                                slot = currentSlot;
+                                _player->m_currentSummonedSlot = currentSlot;
                             else if (_player->getPetIdBySlot(i))
-                                slot = PetSlot(i);
+                                _player->m_currentSummonedSlot = PetSlot(i);
+                            else if (count < STAMPED_COUNT)
+                                _player->m_currentSummonedSlot = currentSlot;
                             else
                                 continue;
 
-                            //The pets will appear directly on the hunter's target, to avoid loss of damage.
-                            float x, y, z;
-                            _player->GetRandomPoint(*loc, 5.0f, x, y, z);
+                            if(curentPet && curentPet->GetSlot() == i && !gliph)
+                                continue;
 
-                            if(Pet* pet = _player->SummonPet(0, x, y, z, _player->GetOrientation(), SUMMON_PET, _player->CalcSpellDuration(GetSpellInfo()), slot, true))
+                            o = _player->GetOrientation() + PET_FOLLOW_ANGLE + (((PET_FOLLOW_ANGLE * 2) / 5) * count);
+
+                            Position pos;
+                            target->GetFirstCollisionPosition(pos, MIN_MELEE_REACH, o);
+
+                            if(Pet* pet = _player->SummonPet(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ, o, SUMMON_PET, _player->CalcSpellDuration(GetSpellInfo()), GetSpellInfo()->Id, true))
                             {
                                 pet->SetReactState(REACT_AGGRESSIVE);
-                                pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, GetSpellInfo()->Id);
-                                ++count;
-                                if (count >= STAMPED_COUNT)
-                                    break;
                                     
                                 if (pet->GetMap()->IsBattlegroundOrArena())
                                     pet->CastSpell(pet, HUNTER_SPELL_STAMPEDE_DAMAGE_REDUCTION, true);
+
+                                if (pet->IsAIEnabled)
+                                    pet->AI()->AttackStart(target);
+
+                                GetSpell()->ExecuteLogEffectGeneric(effIndex, pet->GetGUID());
+
+                                ++count;
+                                if (count >= STAMPED_COUNT)
+                                    break;
                             }
                         }
                     }
+                    _player->m_currentSummonedSlot = saveSlot;
                 }
             }
 
@@ -338,8 +371,20 @@ class spell_hun_a_murder_of_crows : public SpellScriptLoader
                 }
             }
 
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    if(target->GetHealthPct() < 20.0f && GetCaster())
+                        if (Player* caster = GetCaster()->ToPlayer())
+                        {
+                            double cd = 60000.0f - (GetAura()->GetMaxDuration() - GetAura()->GetDuration());
+                            caster->ModifySpellCooldown(GetSpellInfo()->Id, -cd);
+                        }
+            }
+
             void Register()
             {
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_a_murder_of_crows_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_a_murder_of_crows_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
@@ -750,10 +795,9 @@ class spell_hun_barrage : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (!target->HasAura(120360))
-                            SetHitDamage(GetHitDamage() / 2);
+                if (Unit* target = GetHitUnit())
+                    if (!target->HasAura(120360))
+                        SetHitDamage(GetHitDamage() / 2);
             }
 
             void Register()
@@ -774,82 +818,36 @@ class spell_hun_binding_shot : public SpellScriptLoader
     public:
         spell_hun_binding_shot() : SpellScriptLoader("spell_hun_binding_shot") { }
 
-        class spell_hun_binding_shot_zone_AuraScript : public AuraScript
+        class spell_hun_binding_shot_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_hun_binding_shot_zone_AuraScript);
+            PrepareSpellScript(spell_hun_binding_shot_SpellScript);
 
-            /*void OnUpdate(uint32 diff, AuraEffect* aurEff)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    DynamicObject* dynObj = caster->GetDynObject(HUNTER_SPELL_BINDING_SHOT_AREA);
+                targets.remove_if(Trinity::UnitAuraCheck(true, HUNTER_SPELL_BINDING_SHOT_IMMUNE));
+                targets.remove(GetCaster());
 
-                    if (!dynObj)
-                        return;
+                if (targets.empty())
+                    return;
 
-                    std::list<Unit*> bindedList;
+                std::list<uint64> targetList;
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    targetList.push_back((*itr)->GetGUID());
 
-                    CellCoord p(Trinity::ComputeCellCoord(dynObj->GetPositionX(), dynObj->GetPositionY()));
-                    Cell cell(p);
-                    cell.SetNoCreate();
-
-                    Trinity::AnyUnitInObjectRangeCheck u_check(dynObj, 15.0f);
-                    Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(dynObj, bindedList, u_check);
-
-                    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-                    cell.Visit(p, world_unit_searcher, *dynObj->GetMap(), *dynObj, 15.0f);
-                    cell.Visit(p, grid_unit_searcher, *dynObj->GetMap(), *dynObj, 15.0f);
-
-                    bindedList.remove_if(Trinity::UnitAuraCheck(false, GetSpellInfo()->Id, caster->GetGUID()));
-
-                    for (std::list<Unit*>::const_iterator itr = bindedList.begin(); itr != bindedList.end(); ++itr)
-                    {
-                        Unit* target = (*itr)->ToUnit();
-                        if (!target)
-                            continue;
-
-                        if (target->GetDistance(dynObj) > 5.0f)
-                        {
-                            if (!target->HasAura(HUNTER_SPELL_BINDING_SHOT_IMMUNE))
-                            {
-                                target->CastSpell(target, HUNTER_SPELL_BINDING_SHOT_STUN, true);
-                                target->CastSpell(target, HUNTER_SPELL_BINDING_SHOT_IMMUNE, true);
-                            }
-                        }
-                    }
-                }
-            }*/
-
-            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    Unit* target = GetTarget();
-                    if(!target)
-                        return;
-                    if(DynamicObject* dynObj = caster->GetDynObject(HUNTER_SPELL_BINDING_SHOT_AREA))
-                    {
-                        if (target->GetDistance(dynObj) > 5.0f)
-                        {
-                            target->CastSpell(target, HUNTER_SPELL_BINDING_SHOT_STUN, true);
-                            target->CastSpell(target, HUNTER_SPELL_BINDING_SHOT_IMMUNE, true);
-                        }
-                    }
-                }
+                if(Unit* caster = GetCaster())
+                    if (Aura* aura = caster->GetAura(109248))
+                        aura->SetEffectTargets(targetList);
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectApplyFn(spell_hun_binding_shot_zone_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_MOD_DAMAGE_FROM_CASTER, AURA_EFFECT_HANDLE_REAL);
-                //OnEffectUpdate += AuraEffectUpdateFn(spell_hun_binding_shot_zone_AuraScript::OnUpdate, EFFECT_1, SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_binding_shot_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_hun_binding_shot_zone_AuraScript();
+            return new spell_hun_binding_shot_SpellScript();
         }
 };
 
@@ -866,8 +864,30 @@ class spell_hun_binding_shot_zone : public SpellScriptLoader
             void OnTick(AuraEffect const* aurEff)
             {
                 if(Unit* caster = GetCaster())
+                {
                     if (DynamicObject* dynObj = caster->GetDynObject(HUNTER_SPELL_BINDING_SHOT_AREA))
+                    {
+                        std::list<uint64> targets = GetAura()->GetEffectTargets();
+                        if(!targets.empty())
+                        {
+                            for (std::list<uint64>::iterator itr = targets.begin(); itr != targets.end();)
+                            {
+                                Unit* unit = ObjectAccessor::GetUnit(*caster, (*itr));
+                                if (unit && unit->IsInWorld() && unit->GetDistance(dynObj) > 5.0f)
+                                {
+                                    unit->CastSpell(unit, HUNTER_SPELL_BINDING_SHOT_STUN, true);
+                                    unit->CastSpell(unit, HUNTER_SPELL_BINDING_SHOT_IMMUNE, true);
+                                    targets.erase(itr++);
+                                }
+                                else
+                                    ++itr;
+                            }
+                            GetAura()->SetEffectTargets(targets);
+                        }
+
                         caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), HUNTER_SPELL_BINDING_SHOT_LINK, true);
+                    }
+                }
             }
 
             void Register()
@@ -875,6 +895,33 @@ class spell_hun_binding_shot_zone : public SpellScriptLoader
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_binding_shot_zone_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
+
+        class spell_hun_binding_shot_zone_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_binding_shot_zone_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                std::list<uint64> targetList;
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    targetList.push_back((*itr)->GetGUID());
+
+                GetSpell()->SetEffectTargets(targetList);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_binding_shot_zone_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_binding_shot_zone_SpellScript();
+        }
 
         AuraScript* GetAuraScript() const
         {
@@ -1043,7 +1090,7 @@ class spell_hun_kill_command : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_kill_command_SpellScript);
 
-            bool Validate(SpellInfo const* /*SpellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_KILL_COMMAND))
                     return false;
@@ -1140,8 +1187,6 @@ class spell_hun_cobra_shot : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        _player->CastSpell(_player, HUNTER_SPELL_COBRA_SHOT_ENERGIZE, true);
-
                         if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_HUNTER, 16384, 0, 0, GetCaster()->GetGUID()))
                         {
                             Aura* serpentSting = aurEff->GetBase();
@@ -1176,19 +1221,18 @@ class spell_hun_steady_shot : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_steady_shot_SpellScript);
 
-            void HandleOnHit()
+            void HandleOnCast()
             {
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_STEADY_SHOT_ENERGIZE);
                 int32 basepoints0 = spellInfo->Effects[EFFECT_0].BasePoints;
                 
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {   
                     // Steady Focus
-                    if (AuraEffect * steadyfocus = _player->GetAuraEffect(HUNTER_SPELL_STEADY_FOCUS, 1))
+                    if (AuraEffect * steadyfocus = caster->GetAuraEffect(HUNTER_SPELL_STEADY_FOCUS, 1))
                         basepoints0 += steadyfocus->GetAmount();
 
-                    if (Unit* target = GetHitUnit())
-                        _player->CastCustomSpell(_player, spellInfo->Id, &basepoints0, NULL, NULL, true);
+                    caster->CastCustomSpell(caster, spellInfo->Id, &basepoints0, NULL, NULL, true);
                 }
             }
 
@@ -1200,7 +1244,7 @@ class spell_hun_steady_shot : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_hun_steady_shot_SpellScript::HandleOnHit);
+                OnCast += SpellCastFn(spell_hun_steady_shot_SpellScript::HandleOnCast);
                 OnEffectHit += SpellEffectFn(spell_hun_steady_shot_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
             }
         };
@@ -1258,7 +1302,7 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_last_stand_pet_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(HUNTER_PET_SPELL_LAST_STAND_TRIGGERED))
                     return false;
@@ -1295,7 +1339,7 @@ class spell_hun_masters_call : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_masters_call_SpellScript);
 
-            bool Validate(SpellInfo const* spellEntry)
+            bool Validate(SpellInfo const* SpellInfo)
             {
                 if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_MASTERS_CALL_TRIGGERED))
                     return false;
@@ -1345,88 +1389,6 @@ class spell_hun_masters_call : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_masters_call_SpellScript();
-        }
-};
-
-// Readiness - 23989
-class spell_hun_readiness : public SpellScriptLoader
-{
-    public:
-        spell_hun_readiness() : SpellScriptLoader("spell_hun_readiness") { }
-
-        class spell_hun_readiness_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_readiness_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
-                const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
-                for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
-                {
-                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-
-                    ///! If spellId in cooldown map isn't valid, the above will return a null pointer.
-                    if (spellInfo &&
-                        spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
-                        spellInfo->Id != HUNTER_SPELL_READINESS &&
-                        spellInfo->GetRecoveryTime() > 0)
-                        caster->RemoveSpellCooldown((itr++)->first, true);
-                    else
-                        ++itr;
-                }
-
-                if (caster->HasSpellCooldown(HUNTER_SPELL_DIRE_BEAST))
-                    caster->RemoveSpellCooldown(HUNTER_SPELL_DIRE_BEAST, true);
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to Readiness
-                OnEffectHitTarget += SpellEffectFn(spell_hun_readiness_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_readiness_SpellScript();
-        }
-};
-
-// Scatter Shot - 37506
-class spell_hun_scatter_shot : public SpellScriptLoader
-{
-    public:
-        spell_hun_scatter_shot() : SpellScriptLoader("spell_hun_scatter_shot") { }
-
-        class spell_hun_scatter_shot_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_scatter_shot_SpellScript);
-
-            bool Load()
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                // break Auto Shot and autohit
-                caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-                caster->AttackStop();
-                caster->SendAttackSwingResult(ATTACK_SWING_ERROR_CANT_ATTACK);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_scatter_shot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_scatter_shot_SpellScript();
         }
 };
 
@@ -1511,7 +1473,7 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
                 return true;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED) || !sSpellMgr->GetSpellInfo(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
                     return false;
@@ -1558,7 +1520,7 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
                 return true;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED))
                     return false;
@@ -1726,61 +1688,139 @@ class spell_hun_tame_beast : public SpellScriptLoader
 };
 
 // Glave Toss - 117050
-class spell_hun_Toss : public SpellScriptLoader
+class spell_hun_toss : public SpellScriptLoader
 {
     public:
-        spell_hun_Toss() : SpellScriptLoader("spell_hun_Toss") { }
+        spell_hun_toss() : SpellScriptLoader("spell_hun_toss") { }
 
-        class spell_hun_Toss_SpellScript : public SpellScript
+        class spell_hun_toss_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_hun_Toss_SpellScript);
+            PrepareAuraScript(spell_hun_toss_AuraScript);
 
-            void HandleOnHit()
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (GetSpellInfo()->Id == 117050)
-                        _player->CastSpell(GetHitUnit(), 121414, true);
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
 
-                    if (GetSpellInfo()->Id == 121414 && GetExplTargetUnit() == GetHitUnit())
-                    {
-                        SetHitDamage(GetHitDamage() * 4);
+                Player* _player = caster->ToPlayer();
+                if (!_player)
+                    return;
 
-                        GetHitUnit()->CastSpell(_player, 120755, true);
-                        GetHitUnit()->CastSpell(_player, 120756, true);
-                    }
-                }
+                Unit* target = _player->GetSelectedUnit();
+                if (!target)
+                    return;
+
+                caster->CastSpell(target, 120761, true, NULL, aurEff);
+                caster->CastSpell(target, 121414, true, NULL, aurEff);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_hun_Toss_SpellScript::HandleOnHit);
-            }
-        };
-
-        class spell_hun_Toss_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_Toss_AuraScript);
-
-            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                SetDuration(0, true);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_Toss_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_toss_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_hun_Toss_AuraScript();
+            return new spell_hun_toss_AuraScript();
         }
+};
+
+// Glave Toss - 120761, 121414
+class spell_hun_toss_damage : public SpellScriptLoader
+{
+    public:
+        spell_hun_toss_damage() : SpellScriptLoader("spell_hun_toss_damage") { }
+
+        class spell_hun_toss_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_toss_damage_SpellScript);
+
+            void HandleOnHit(SpellEffIndex effIndex)
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (_player->GetSelectedUnit() == GetHitUnit())
+                        SetHitDamage(GetHitDamage() * 4);
+                }
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (targets.empty())
+                    return;
+
+                Unit* caster = GetCaster();
+                if (!caster || !caster->ToPlayer())
+                    return;
+
+                Player* _player = caster->ToPlayer();
+
+                AuraEffect const* aurEff = GetSpell()->GetTriggeredAuraEff();
+                Unit* expltarget = _player->GetSelectedUnit();
+                if (!expltarget || !aurEff)
+                {
+                    targets.clear();
+                    return;
+                }
+
+                uint32 tick = aurEff->GetTickNumber();
+                float distanceintick = 3.6f * (tick - 1);
+                float maxDist = caster->GetDistance(expltarget);
+                if(distanceintick > maxDist)
+                    distanceintick = (maxDist * 2) - distanceintick;
+
+                if(distanceintick < 0.0f)
+                {
+                    targets.clear();
+                    return;
+                }
+
+                float angle = caster->GetAngle(expltarget);
+                float angleShift = angle;
+                float shift = 1.5f;
+                if(GetSpellInfo()->Id == 120761)
+                {
+                    targets.remove_if(Trinity::UnitCheckInBetweenShift(false, caster, expltarget, 5.0f, 2.5f, 1.57f));
+                    angleShift += 1.57f;
+                }
+                else
+                {
+                    targets.remove_if(Trinity::UnitCheckInBetweenShift(false, caster, expltarget, 5.0f, 2.5f, -1.57f));
+                    angleShift -= 1.57f;
+                }
+
+                // expload at tick
+                float x = caster->GetPositionX() + (caster->GetObjectSize() + distanceintick) * std::cos(angle);
+                float y = caster->GetPositionY() + (caster->GetObjectSize() + distanceintick) * std::sin(angle);
+                float shift_x = x + 2.5f * std::cos(angleShift);
+                float shift_y = y + 2.5f * std::sin(angleShift);
+                Trinity::NormalizeMapCoord(x);
+                Trinity::NormalizeMapCoord(y);
+
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
+                {
+                    if((*itr)->GetDistance2d(shift_x, shift_y) > shift)
+                        targets.erase(itr++);
+                    else
+                        ++itr;
+                }
+                if(expltarget->GetDistance2d(x, y) <= shift)
+                    targets.push_back(expltarget);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_toss_damage_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_toss_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_toss_damage_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_hun_Toss_SpellScript();
+            return new spell_hun_toss_damage_SpellScript();
         }
 };
 
@@ -1922,54 +1962,6 @@ class spell_hun_glyph_of_direction : public SpellScriptLoader
         }
 };
 
-// Glyph of Explosive Trap - 119403, spell trap - 13812
-class spell_hun_glyph_of_explosive_trap : public SpellScriptLoader
-{
-    public:
-        spell_hun_glyph_of_explosive_trap() : SpellScriptLoader("spell_hun_glyph_of_explosive_trap") { }
-
-        class spell_hun_glyph_of_explosive_trap_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_glyph_of_explosive_trap_SpellScript);
- 
-            void HandleTriggerEffect(SpellEffIndex effIndex)
-            {                
-                if (Unit* owner = GetCaster()->GetOwner())
-                {  
-                    if (!owner->HasAura(HUNTER_SPELL_GLYPH_OF_EXPLOSIVE_TRAP))
-                        PreventHitDefaultEffect(EFFECT_2);
-                }
-            }
-            void handlNull(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-            }
-            void HandleDamageEffect(SpellEffIndex effIndex)
-            {                
-                if (Unit* owner = GetCaster()->GetOwner())
-                {  
-                    if (owner->HasAura(HUNTER_SPELL_GLYPH_OF_EXPLOSIVE_TRAP))
-                    {
-                        PreventHitDefaultEffect(EFFECT_0);
-                        PreventHitDefaultEffect(EFFECT_1); 
-                    }
-                }
-            }
-            
-            void Register()
-            {
-                OnEffectLaunch += SpellEffectFn(spell_hun_glyph_of_explosive_trap_SpellScript::HandleTriggerEffect, EFFECT_2, SPELL_EFFECT_TRIGGER_SPELL);
-                OnEffectLaunch += SpellEffectFn(spell_hun_glyph_of_explosive_trap_SpellScript::HandleDamageEffect, EFFECT_1, SPELL_EFFECT_PERSISTENT_AREA_AURA);
-                OnEffectLaunch += SpellEffectFn(spell_hun_glyph_of_explosive_trap_SpellScript::HandleDamageEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-        
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_glyph_of_explosive_trap_SpellScript();
-        }
-};
-
 // Thrill of the Hunt - 109306, spell: 
 //! Arcane Shot - 3044, Multi-Shot - 2643
 class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
@@ -2038,44 +2030,6 @@ class spell_hun_t16_2p_bonus : public SpellScriptLoader
         }
 };
 
-// 16827, 17253, 49966 Based pets spells - checking distance target in ROOT state
-class spell_hun_pet_dist_check : public SpellScriptLoader
-{
-    public:
-        spell_hun_pet_dist_check() : SpellScriptLoader("spell_hun_pet_dist_check") { }
-
-        class spell_hun_pet_dist_check_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_pet_dist_check_SpellScript);
-
-            SpellCastResult CheckCastMeet()
-            {                              
-                Unit* caster = GetCaster();
-                Unit* target = caster->getVictim();
-                
-                if (!caster || !target)
-                    return SPELL_CAST_OK;
-                
-                if (!caster->IsWithinDist(target, 5.0f, true) && caster->HasUnitState(UNIT_STATE_ROOT))
-                {
-                    return SPELL_FAILED_DONT_REPORT;
-                }
-                
-                return SPELL_CAST_OK;
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_hun_pet_dist_check_SpellScript::CheckCastMeet);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_pet_dist_check_SpellScript();
-        }
-};
-
 class spell_hun_ice_trap : public SpellScriptLoader
 {
     public:
@@ -2112,6 +2066,108 @@ class spell_hun_ice_trap : public SpellScriptLoader
         }
 };
 
+// Scatter Shot - 19503
+class spell_hun_scatter_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_scatter_shot() : SpellScriptLoader("spell_hun_scatter_shot") { }
+
+        class spell_hun_scatter_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_scatter_shot_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Player* caster = GetCaster()->ToPlayer())
+                {
+					caster->SendAttackSwingResult(ATTACK_SWING_ERROR_DEAD_TARGET);
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_hun_scatter_shot_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_scatter_shot_SpellScript();
+        }
+};
+
+// Bestial Wrath - 19574
+class spell_hun_bestial_wrath  : public SpellScriptLoader
+{
+    public:
+        spell_hun_bestial_wrath() : SpellScriptLoader("spell_hun_bestial_wrath") { }
+
+        class spell_hun_bestial_wrath_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_bestial_wrath_AuraScript);
+
+            void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (dmgInfo.GetDamage() >= target->GetHealth())
+                    {
+                        if(target->GetHealth() > 1)
+                            absorbAmount = dmgInfo.GetDamage() - target->GetHealth() + 1;
+                        else
+                            absorbAmount = dmgInfo.GetDamage();
+                        return;
+                    }
+                }
+                absorbAmount = 0;
+            }
+
+            void Register()
+            {
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_hun_bestial_wrath_AuraScript::Absorb, EFFECT_3);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_bestial_wrath_AuraScript();
+        }
+};
+
+// Kill Command - 83381
+class spell_hun_kill_command_damage : public SpellScriptLoader
+{
+    public:
+        spell_hun_kill_command_damage() : SpellScriptLoader("spell_hun_kill_command_damage") { }
+
+        class spell_hun_kill_command_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_kill_command_damage_SpellScript);
+
+            void HandleOnHit(SpellEffIndex effIndex)
+            {
+                if (Unit* caster = GetCaster()->GetOwner())
+                {
+                    AuraEffect const* aurEff = caster->GetAuraEffect(76657, EFFECT_0);
+                    float mastery = aurEff ? (aurEff->GetAmount() + 100.0f) / 100.0f : 0.0f;
+                    int32 damage = int32(1.5f * ((caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.938f) + 935) * mastery);
+                    SetHitDamage(damage);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_kill_command_damage_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_kill_command_damage_SpellScript();
+        }
+};
+
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_dash();
@@ -2138,21 +2194,21 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_chimera_shot();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
-    new spell_hun_readiness();
-    new spell_hun_scatter_shot();
     new spell_hun_sniper_training();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_pet_carrion_feeder();
     new spell_hun_misdirection_proc();
     new spell_hun_disengage();
     new spell_hun_tame_beast();
-    new spell_hun_Toss();
+    new spell_hun_toss();
     new spell_hun_fetch();
     new spell_hun_fireworks();
     new spell_hun_glyph_of_direction();
-    new spell_hun_glyph_of_explosive_trap();
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_t16_2p_bonus();
-    new spell_hun_pet_dist_check();
     new spell_hun_ice_trap();
+    new spell_hun_scatter_shot();
+    new spell_hun_bestial_wrath();
+    new spell_hun_toss_damage();
+    new spell_hun_kill_command_damage();
 }

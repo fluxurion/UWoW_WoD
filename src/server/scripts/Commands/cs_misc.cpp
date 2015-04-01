@@ -149,6 +149,8 @@ public:
             { "mainhand",           SEC_ADMINISTRATOR,      true,  &HandleCharDisplayMainhandCommand,   "", NULL },
             { "offhand",            SEC_ADMINISTRATOR,      true,  &HandleCharDisplayOffhandCommand,    "", NULL },
             { "ranged",             SEC_ADMINISTRATOR,      true,  &HandleCharDisplayRangedCommand,     "", NULL },
+            { "tabard",             SEC_ADMINISTRATOR,      true,  &HandleCharDisplayTabardCommand,     "", NULL },
+            { "shirt",              SEC_ADMINISTRATOR,      true,  &HandleCharDisplayShirtCommand,     "", NULL },
             { NULL,                 0,                      false, NULL,                                "", NULL }
         };
         return commandTable;
@@ -1444,9 +1446,9 @@ public:
 
         if (count > 0 && item)
         {
-            player->SendNewItem(item, NULL, count, false, true);
+            player->SendNewItem(item, count, false, true);
             if (player != playerTarget)
-                playerTarget->SendNewItem(item, NULL, count, true, false);
+                playerTarget->SendNewItem(item, count, true, false);
         }
 
         if (noSpaceForCount > 0)
@@ -1498,9 +1500,9 @@ public:
                     if (player == playerTarget)
                         item->SetBinding(false);
 
-                    player->SendNewItem(item, NULL, 1, false, true);
+                    player->SendNewItem(item, 1, false, true);
                     if (player != playerTarget)
-                        playerTarget->SendNewItem(item, NULL, 1, true, false);
+                        playerTarget->SendNewItem(item, 1, true, false);
                 }
                 else
                 {
@@ -2658,8 +2660,8 @@ public:
         // visual effect for levelup
         pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel());
 
-        player->SetMinion(pet, true, PET_SLOT_UNK_SLOT);
-        pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT);
+        player->SetMinion(pet, true);
+        pet->SavePetToDB();
         player->PetSpellInitialize();
 
         return true;
@@ -2725,7 +2727,7 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
         if (pet->HasSpell(spellId))
-            pet->removeSpell(spellId, false);
+            pet->removeSpell(spellId);
         else
             handler->PSendSysMessage("Pet doesn't have that spell");
 
@@ -2782,10 +2784,10 @@ public:
             {
                 if (Pet* pet = player->GetPet())
                 {
-                    pet->SavePetToDB(PET_SLOT_ACTUAL_PET_SLOT);
+                    pet->SavePetToDB();
                  // not let dismiss dead pet
                  if (pet && pet->isAlive())
-                    player->RemovePet(pet, PET_SLOT_HUNTER_FIRST);
+                    player->RemovePet(pet);
                 }
             }
 
@@ -3313,6 +3315,54 @@ public:
         if (pl->HandleChangeSlotModel(newItem, 17))
         {
             pl->m_vis->m_visRanged = newItem;
+            return true;
+        }
+        else
+            return false;
+    }
+
+    static bool HandleCharDisplayTabardCommand(ChatHandler* handler, const char* args) //РЎСѓРєРё, РїРѕРєР°Р¶РёС‚Рµ СЃРІРѕРё СЂСѓРєРё!
+    {
+        if(!*args)
+            return false;
+        char* cId = handler->extractKeyFromLink((char*)args,"Hitem");
+        if(!cId)
+            return false;
+
+        uint32 newItem = (uint32)atol(cId);
+
+        Player* pl = handler->GetSession()->GetPlayer();
+
+        if(!pl->m_vis)
+            pl->m_vis = new Visuals;
+
+        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_19_ENTRYID, newItem, 18))
+        {
+            pl->m_vis->m_visTabard = newItem;
+            return true;
+        }
+        else
+            return false;
+    }
+
+    static bool HandleCharDisplayShirtCommand(ChatHandler* handler, const char* args) //РЎСѓРєРё, РїРѕРєР°Р¶РёС‚Рµ СЃРІРѕРё СЂСѓРєРё!
+    {
+        if(!*args)
+            return false;
+        char* cId = handler->extractKeyFromLink((char*)args,"Hitem");
+        if(!cId)
+            return false;
+
+        uint32 newItem = (uint32)atol(cId);
+
+        Player* pl = handler->GetSession()->GetPlayer();
+
+        if(!pl->m_vis)
+            pl->m_vis = new Visuals;
+
+        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_4_ENTRYID, newItem, 3))
+        {
+            pl->m_vis->m_visShirt = newItem;
             return true;
         }
         else

@@ -116,7 +116,7 @@ enum Yells
 #define EMOTE_HEART       "XT-002 Deconstructor's heart is exposed and leaking energy."
 #define EMOTE_REPAIR      "XT-002 Deconstructor consumes a scrap bot to repair himself!"
 
-#define ACHIEV_TIMED_START_EVENT                RAID_MODE(21027, 21027)
+#define ACHIEV_TIMED_START_EVENT                21027
 #define ACHIEVEMENT_HEARTBREAKER                RAID_MODE(3058, 3059)
 #define ACHIEVEMENT_NERF_ENG                    RAID_MODE(2931, 2932)
 #define ACHIEVEMENT_NERF_SCRAPBOTS              RAID_MODE(65037, 65037)
@@ -179,6 +179,7 @@ public:
             me->RemoveAura(SPELL_HEARTBREAK);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetReactState(REACT_AGGRESSIVE);
+            //me->ResetLootMode();
             me->RemoveAura(SPELL_HEARTBREAK);
             uiEnrageTimer = 600000;
             HeartVal = 0;
@@ -189,7 +190,7 @@ public:
             gbfail = false;
             
             if (instance)
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_TIMED_START_EVENT);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -204,7 +205,7 @@ public:
             events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, 40000, 0, 1);
 
             if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_TIMED_START_EVENT);
         }
 
         bool isgbfail()
@@ -233,6 +234,7 @@ public:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED);
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoZoneInCombat();
+                        //me->AddLootMode(LOOT_MODE_HARD_MODE_1);
                         me->SetFullHealth();
                         DoCast(me, SPELL_HEARTBREAK, true);
                         events.SetPhase(1);
@@ -587,7 +589,7 @@ public:
             {
                 if (m_pInstance)
                 {
-                    m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, ACHIEVEMENT_NERF_SCRAPBOTS);
+                    m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET2, ACHIEVEMENT_NERF_SCRAPBOTS);
                     m_pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, ACHIEVEMENT_NERF_SCRAPBOTS);
                 }
                     

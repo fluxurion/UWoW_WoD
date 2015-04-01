@@ -655,6 +655,11 @@ void OpcodeTable::Initialize()
 
 #undef DEFINE_OPCODE_HANDLER_OLD
 #undef DEFINE_HANDLER
+    DEFINE_OPCODE_HANDLER(CMSG, CMSG_BATTLE_PET_SET_FLAGS,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE,   &WorldSession::HandleBattlePetSetFlags );
+    DEFINE_OPCODE_HANDLER(CMSG, CMSG_BATTLE_PET_MODIFY_NAME,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE,   &WorldSession::HandleBattlePetModifyName );
+    DEFINE_OPCODE_HANDLER(CMSG, CMSG_BATTLE_PET_SET_BATTLE_SLOT,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE,   &WorldSession::HandleBattlePetSetSlot );
+    DEFINE_OPCODE_HANDLER(CMSG, CMSG_BATTLE_PET_SUMMON,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlePetSummon );
+    DEFINE_OPCODE_HANDLER(CMSG, CMSG_BATTLE_PET_DELETE,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlePetDelete);
 
 #define DEFINE_SERVER_OPCODE_HANDLER(opcode, status) \
     ValidateAndSetServerOpcode(opcode, #opcode, status)

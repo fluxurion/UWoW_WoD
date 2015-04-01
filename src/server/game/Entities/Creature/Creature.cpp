@@ -163,6 +163,7 @@ m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(UI64LIT(0)), m_equipmentI
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_onVehicleAccessory(false)
 {
+    m_followAngle = PET_FOLLOW_ANGLE;
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_petregenTimer = 0;
     m_valuesCount = UNIT_END;
@@ -170,7 +171,7 @@ m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_o
     isCasterPet = false;
 
     for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-        m_spells[i] = 0;
+        m_temlate_spells[i] = 0;
 
     m_CreatureSpellCooldowns.clear();
     m_CreatureCategoryCooldowns.clear();
@@ -188,6 +189,7 @@ m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_o
     m_isTempWorldObject = false;
     bossid = 0;
     difficulty = 0;
+    m_Stampeded = false;
 }
 
 Creature::~Creature()
@@ -351,7 +353,7 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
         m_defaultMovementType = IDLE_MOTION_TYPE;
 
     for (uint8 i=0; i < CREATURE_MAX_SPELLS; ++i)
-        m_spells[i] = GetCreatureTemplate()->spells[i];
+        m_temlate_spells[i] = GetCreatureTemplate()->spells[i];
 
     return true;
 }
@@ -558,11 +560,6 @@ void Creature::Update(uint32 diff)
         {
             Unit::Update(diff);
 
-            // creature can be dead after Unit::Update call
-            // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
-            if (!isAlive())
-                break;
-
             // if creature is charmed, switch to charmed AI (and back)
             if (NeedChangeAI)
             {
@@ -584,11 +581,6 @@ void Creature::Update(uint32 diff)
                 m_AI_locked = false;
             }
 
-            // creature can be dead after UpdateAI call
-            // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
-            if (!isAlive())
-                break;
-
             if (m_regenTimer > 0)
             {
                 if (diff >= m_regenTimer)
@@ -601,9 +593,14 @@ void Creature::Update(uint32 diff)
             {
                 m_regenTimerCount += diff;
                 m_petregenTimer += diff;
-                if ((m_petregenTimer >= 400) && (!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->PowerDisplayID[0] != POWER_PYRITE))
+                if(m_petregenTimer >= 400)
                     Regenerate(getPowerType());
             }
+
+            // creature can be dead after Unit::Update call
+            // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
+            if (!isAlive())
+                break;
 
             if (m_regenTimer != 0)
                break;
@@ -1208,8 +1205,19 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     SetLevel(level);
 
     // for wild battle pets
-    if (isWildBattlePet())
-        SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, level);
+    if (cinfo->type == CREATURE_TYPE_WILD_PET)
+    {
+        // random level depends on zone data
+        if (AreaTableEntry const * aEntry = GetAreaEntryByAreaID(GetZoneId()))
+        {
+            uint8 level_ = urand(aEntry->m_wildBattlePetLevelMin, aEntry->m_wildBattlePetLevelMax);
+            if (!level_)
+                level_ = level;
+            SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, level_);
+        }
+        else
+            SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, level);
+    }
 
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cinfo->unit_class);
 
@@ -1222,7 +1230,8 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     //shouldn't be more. Check stats.
     if (basehp > 0x7FFFFFFF)
     {
-        sLog->outError(LOG_FILTER_UNITS, "Creature::GenerateHealth  entry %u too long. Posible error in creature_difficulty_stat for dif %u", GetEntry(), diffStats->Difficulty);
+        if(diffStats)
+            sLog->outError(LOG_FILTER_UNITS, "Creature::GenerateHealth  entry %u too long. Posible error in creature_difficulty_stat for dif %u", GetEntry(), diffStats->Difficulty);
         health = 1;
     }
 
@@ -1572,14 +1581,11 @@ bool Creature::CanAlwaysSee(WorldObject const* obj) const
 
 bool Creature::IsNeverVisible() const
 {
-    //not see befor enter vehicle.
-    if (onVehicleAccessoryInit())
-        return true;
-
+    //At challenge we should see only at start. At start we change spawnMode, so just no see at CHALLENGE_MODE_DIFFICULTY ;)
     CreatureData const* data = sObjectMgr->GetCreatureData(m_DBTableGuid);
     if (data && data->spawnMask & 256)  // challenge
     {
-        if (GetMap()->GetSpawnMode() != DIFFICULTY_HEROIC)
+        if (GetMap()->GetSpawnMode() === DIFFICULTY_CHALLENGE)
             return true;
     }
     return WorldObject::IsNeverVisible();
@@ -1642,6 +1648,8 @@ float Creature::GetAttackDistance(Unit const* player) const
     // ToDo: UNIT_FIELD_COMBAT_REACH (or GetObjectSize) + self halfmodelze + target haldmodelsize
     // modelsize get from mdx, m2 file in client. See Ascent creature data extractor.
     float RetDistance = GetObjectSize() + GetCombatReach() + player->GetCombatReach();
+    if (RetDistance < 15.0f)
+        RetDistance = 15.0f;
 
     // "Aggro Radius varies with level difference at a rate of roughly 1 yard/level"
     // radius grow if playlevel < creaturelevel
@@ -1820,6 +1828,9 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo)
     if (!spellInfo)
         return false;
 
+    if (spellInfo->AttributesEx5 & SPELL_ATTR5_CANT_IMMUNITY_SPELL)
+        return false;
+
     // Creature is immune to main mechanic of the spell
     if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))
         return true;
@@ -1845,6 +1856,9 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo)
 
 bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
+    if (spellInfo->AttributesEx5 & SPELL_ATTR5_CANT_IMMUNITY_SPELL)
+        return false;
+
     if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Effects[index].Mechanic - 1)))
         return true;
 
@@ -1861,12 +1875,12 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
 
     for (uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
     {
-        if (!m_spells[i])
+        if (!m_temlate_spells[i])
             continue;
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spells[i]);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_temlate_spells[i]);
         if (!spellInfo)
         {
-            sLog->outError(LOG_FILTER_UNITS, "WORLD: unknown spell id %i", m_spells[i]);
+            sLog->outError(LOG_FILTER_UNITS, "WORLD: unknown spell id %i", m_temlate_spells[i]);
             continue;
         }
 
@@ -1912,12 +1926,12 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
 
     for (uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
     {
-        if (!m_spells[i])
+        if (!m_temlate_spells[i])
             continue;
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spells[i]);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_temlate_spells[i]);
         if (!spellInfo)
         {
-            sLog->outError(LOG_FILTER_UNITS, "WORLD: unknown spell id %i", m_spells[i]);
+            sLog->outError(LOG_FILTER_UNITS, "WORLD: unknown spell id %i", m_temlate_spells[i]);
             continue;
         }
 
@@ -2395,12 +2409,19 @@ void Creature::AddCreatureSpellCooldown(uint32 spellid)
     if (!spellInfo)
         return;
 
+    uint32 baseCD = 6000; //for pet prevented spamm spell
+    if(spellInfo->CalcCastTime() || spellInfo->PowerType < MAX_POWERS)
+        baseCD = 0;
     uint32 cooldown = spellInfo->GetRecoveryTime();
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellid, SPELLMOD_COOLDOWN, cooldown);
 
+    //sLog->outDebug(LOG_FILTER_PETS, "Creature::AddCreatureSpellCooldown cooldown %i, baseCD %i", cooldown, baseCD);
+
     if (cooldown)
         _AddCreatureSpellCooldown(spellid, time(NULL) + cooldown/IN_MILLISECONDS);
+    else if(baseCD)
+        _AddCreatureSpellCooldown(spellid, time(NULL) + baseCD/IN_MILLISECONDS);
 
     if (spellInfo->Category)
         _AddCreatureCategoryCooldown(spellInfo->Category, time(NULL));
@@ -2426,7 +2447,7 @@ bool Creature::HasSpell(uint32 spellID) const
 {
     uint8 i;
     for (i = 0; i < CREATURE_MAX_SPELLS; ++i)
-        if (spellID == m_spells[i])
+        if (spellID == m_temlate_spells[i])
             break;
     return i < CREATURE_MAX_SPELLS;                         //broke before end of iteration of known spells
 }

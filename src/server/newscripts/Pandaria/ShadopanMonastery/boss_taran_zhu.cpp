@@ -32,6 +32,8 @@ enum eSpells
     // Gripping Hatred
     SPELL_GRIP_OF_HATE              = 115010,
     SPELL_POOL_OF_SHADOWS           = 112929,
+    
+    SPELL_ACHIEV_CREDIT             = 123095,
 };
 
 enum eEvents
@@ -88,11 +90,13 @@ class boss_taran_zhu : public CreatureScript
             {
                 if (damage >= me->GetHealth())
                 {
+                    damage = 0;
                     if (instance)
                         instance->SetBossState(DATA_TARAN_ZHU, DONE);
                     me->setFaction(35);
                     me->SetFullHealth();
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTED);
+                    DoCast(SPELL_ACHIEV_CREDIT);
                 }
             }
 

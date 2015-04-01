@@ -485,7 +485,7 @@ struct Position
     float GetDegreesAngel(float x, float y, bool relative = false) const;
 
     Position GetRandPointBetween(const Position &B) const;
-    void SimplePosXYRelocationByAngle(Position &pos, float dist, float angle) const;
+    void SimplePosXYRelocationByAngle(Position &pos, float dist, float angle, bool relative = false) const;
 
     bool IsInDist2d(float x, float y, float dist) const
         { return GetExactDist2dSq(x, y) < dist * dist; }
@@ -891,7 +891,8 @@ class WorldObject : public Object, public WorldLocation
         bool isInFront(WorldObject const* target, float arc = M_PI) const;
         bool isInBack(WorldObject const* target, float arc = M_PI) const;
 
-        bool IsInBetween(const WorldObject* obj1, const WorldObject* obj2, float size = 0) const;
+        bool IsInBetweenShift(const Position* obj1, const Position* obj2, float size, float shift, float angleShift) const;
+        bool IsInBetween(const Position* obj1, const Position* obj2, float size = 0) const;
         bool IsInBetween(const WorldObject* obj1, float x2, float y2, float size = 0) const;
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
@@ -1023,6 +1024,7 @@ class WorldObject : public Object, public WorldLocation
         // Personal visibility system
         bool MustBeVisibleOnlyForSomePlayers() const { return !_visibilityPlayerList.empty(); }
         void GetMustBeVisibleForPlayersList(GuidList& playerList) { playerList = _visibilityPlayerList; }
+        void ClearVisibleOnlyForSomePlayers()  { _visibilityPlayerList.clear(); }
 
         bool IsPlayerInPersonnalVisibilityList(ObjectGuid guid) const;
         bool IsGroupInPersonnalVisibilityList(ObjectGuid guid) const;

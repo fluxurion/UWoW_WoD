@@ -106,7 +106,7 @@ class spell_q5206_test_fetid_skull : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_RESONATING_SKULL) || !sSpellMgr->GetSpellInfo(SPELL_CREATE_BONE_DUST))
                     return false;
@@ -269,7 +269,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q11396_11399_scourging_crystal_controller_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3) || !sSpellMgr->GetSpellInfo(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
                     return false;
@@ -307,7 +307,7 @@ class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScript
         {
             PrepareSpellScript(spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
                     return false;
@@ -370,7 +370,7 @@ class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q11587_arcane_prisoner_rescue_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ARCANE_PRISONER_MALE) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_ARCANE_PRISONER_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_ARCANE_PRISONER_KILL_CREDIT))
                     return false;
@@ -433,7 +433,7 @@ class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SCAVENGEBOT_004A8) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SENTRYBOT_57K) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_DEFENDOTANK_66D) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SCAVENGEBOT_005B6) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_55D_COLLECTATRON) || !sSpellMgr->GetSpellInfo(SPELL_ROBOT_KILL_CREDIT))
                     return false;
@@ -545,7 +545,7 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q12634_despawn_fruit_tosser_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_BANANAS_FALL_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_ORANGE_FALLS_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_PAPAYA_FALLS_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_ADVENTUROUS_DWARF))
                     return false;
@@ -697,7 +697,7 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRIGGER_AID_OF_THE_EARTHEN))
                     return false;
@@ -743,7 +743,7 @@ class spell_q10041_q10040_who_are_they : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q10041_q10040_who_are_they_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MALE_DISGUISE) || !sSpellMgr->GetSpellInfo(SPELL_FEMALE_DISGUISE) || !sSpellMgr->GetSpellInfo(SPELL_GENERIC_DISGUISE))
                     return false;
@@ -1004,7 +1004,7 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
         {
             PrepareSpellScript(spell_q14112_14145_chum_the_water_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*SpellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SUMMON_ANGRY_KVALDIR) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_MAKO) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_THRESHER) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_BLUE_SHARK))
                     return false;
@@ -1525,174 +1525,6 @@ public:
     }
 };
 
-// 13291 - Borrowed Technology/13292 - The Solution Solution /Daily//13239 - Volatility/13261 - Volatiliy /Daily//
-enum Quest13291_13292_13239_13261Data
-{
-    // NPCs
-    NPC_SKYTALON       = 31583,
-    NPC_DECOY          = 31578,
-    // Spells
-    SPELL_RIDE         = 56687
-};
-
-class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public SpellScriptLoader
-{
-    public:
-        spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy() : SpellScriptLoader("spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy") { }
-
-        class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RIDE))
-                    return false;
-
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (!GetHitCreature())
-                    return;
-                // TO DO: Being triggered is hack, but in checkcast it doesn't pass aurastate requirements.
-                // Beside that the decoy won't keep it's freeze animation state when enter.
-                GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE, true);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy_SpellScript();
-        }
-};
-
-class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon : public SpellScriptLoader
-{
-    public:
-        spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon() : SpellScriptLoader("spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon") { }
-
-        class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript);
-
-            void ChangeSummonPos(SpellEffIndex /*effIndex*/)
-            {
-                // Adjust effect summon position
-                WorldLocation summonPos = *GetExplTargetDest();
-                Position offset = { 0.0f, 0.0f, 20.0f, 0.0f };
-                summonPos.RelocateOffset(offset);
-                SetExplTargetDest(summonPos);
-                GetHitDest()->RelocateOffset(offset);
-            }
-
-            void Register()
-            {
-                OnEffectHit += SpellEffectFn(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript();
-        }
-};
-
-
-// 27421 Rayne's Seed
-
-class spell_q27421_rayne_seed : public SpellScriptLoader
-{
-    public:
-        spell_q27421_rayne_seed() : SpellScriptLoader("spell_q27421_rayne_seed") { }
-
-        class spell_q27421_rayne_seed_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_q27421_rayne_seed_SpellScript);
-
-            void HandleAfterCast()
-            {
-                std::list<Creature*> list;
-                if (GetCaster())
-                {
-                    if (Player* caster = GetCaster()->ToPlayer())
-                    {
-                        caster->GetCreatureListWithEntryInGrid(list, 45485, 20.0f);
-                
-                        for (std::list<Creature*>::const_iterator itr = list.begin(); itr != list.end(); ++itr)
-                            (*itr)->CastSpell(*itr, 84961, true);
-
-                        if (caster->GetPositionX() > 2536) //Necropolis Flower Controller NE
-                            caster->KilledMonsterCredit(45487, ObjectGuid::Empty);
-                    
-                        else if (caster->GetPositionX() <= 2536 && GetCaster()->GetPositionX() >= 2487) //Necropolis Flower Controller SE
-                            caster->KilledMonsterCredit(45488, ObjectGuid::Empty);
-
-                        else if (caster->GetPositionX() < 2487) //Necropolis Flower Controller W
-                            caster->KilledMonsterCredit(45486, ObjectGuid::Empty);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_q27421_rayne_seed_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_q27421_rayne_seed_SpellScript();
-        };
-};
-
-// 50662 Resuscitate
-
-class spell_q12512_resuscitate: public SpellScriptLoader
-{
-    public:
-        spell_q12512_resuscitate() : SpellScriptLoader("spell_q12512_resuscitate") { }
-
-        class spell_q12512_resuscitate_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_q12512_resuscitate_SpellScript);
-
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                if (GetCaster() && GetHitUnit())
-                {
-                    if (Player* caster = GetCaster()->ToPlayer())
-                    {
-                        if (GetHitUnit()->GetEntry() == 28136) //Crusader Jonathan
-                            caster->KilledMonsterCredit(28136, ObjectGuid::Empty);
-                    
-                        else if (GetHitUnit()->GetEntry() == 28142) //Crusader Lamoof
-                            caster->KilledMonsterCredit(28142, ObjectGuid::Empty);
-
-                        else if (GetHitUnit()->GetEntry() == 28148) //Crusader Josephine
-                            caster->KilledMonsterCredit(28148, ObjectGuid::Empty);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_q12512_resuscitate_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_q12512_resuscitate_SpellScript();
-        };
-};
-
 class spell_q30050_resuscitate: public SpellScriptLoader
 {
     public:
@@ -1799,9 +1631,5 @@ void AddSC_quest_spell_scripts()
     new spell_q11010_q11102_q11023_choose_loc();
     new spell_q11010_q11102_q11023_throw_bomb();
     new spell_q11008_blasting_charge();
-    new spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy();
-    new spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon();
-    new spell_q27421_rayne_seed();
-    new spell_q12512_resuscitate();
     new spell_q30050_resuscitate();
 }
