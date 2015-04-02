@@ -3084,7 +3084,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     }
 }
 
-TargetInfo* Spell::GetTargetInfo(uint64 targetGUID)
+TargetInfo* Spell::GetTargetInfo(ObjectGuid const& targetGUID)
 {
     TargetInfo* infoTarget = NULL;
     for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
@@ -4935,7 +4935,7 @@ void Spell::SendSpellPendingCast()
     if(!_spellId)
         return;
 
-    WorldPacket data(SMSG_SPELL_SCRIPT_CAST, 4);
+    WorldPacket data(SMSG_SCRIPT_CAST, 4);
     data << uint32(_spellId);           //Spell Id
     player->GetSession()->SendPacket(&data);
 }
@@ -4998,7 +4998,7 @@ void Spell::SendSpellGo()
     castData.CastTime = getMSTime();
 
     uint32 hit = 0;
-    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && hit <= 255; ++ihit)
+    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && ++hit <= 255; ++ihit)
     {
         if (ihit->effectMask == 0)                      // No effect apply - all immuned add state
             ihit->missCondition = SPELL_MISS_IMMUNE2;
@@ -5009,15 +5009,8 @@ void Spell::SendSpellGo()
             castData.HitTargets.push_back(ihit->targetGUID);
         }
         else
-    for (std::list<TargetInfo>::iterator ihit = m_VisualHitTargetInfo.begin(); ihit != m_VisualHitTargetInfo.end() && hit <= 255; ++ihit)
-        ++hit;
         {
             castData.MissTargets.push_back(ihit->targetGUID);
-    for (std::list<TargetInfo>::iterator ihit = m_VisualHitTargetInfo.begin(); ihit != m_VisualHitTargetInfo.end() && counter <= 255; ++ihit)
-    {
-        //data.WriteGuidMask<2, 3, 7, 1, 5, 4, 6, 0>(ihit->targetGUID);
-        ++counter;
-    }
 
             WorldPackets::Spells::SpellMissStatus status;
             status.Reason = ihit->missCondition;
@@ -5026,13 +5019,11 @@ void Spell::SendSpellGo()
         }
     }
 
-    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && hit <= 255; ++ighit)
+    for (std::list<TargetInfo>::iterator ihit = m_VisualHitTargetInfo.begin(); ihit != m_VisualHitTargetInfo.end() && ++hit <= 255; ++ihit)
+        castData.HitTargets.push_back(ihit->targetGUID);
+
+    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && ++hit <= 255; ++ighit)
         castData.HitTargets.push_back(ighit->targetGUID);
-    for (std::list<TargetInfo>::iterator ihit = m_VisualHitTargetInfo.begin(); ihit != m_VisualHitTargetInfo.end() && hit <= 255; ++ihit)
-    {
-        //data.WriteGuidBytes<6, 5, 0, 3, 2, 1, 4, 7>(ihit->targetGUID);
-        ++counter;
-    }
 
     ///// @todo implement multiple targets
     //if (m_targets.GetUnitTarget())

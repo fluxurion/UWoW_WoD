@@ -53,7 +53,7 @@ void ScenarioProgress::SaveToDB(SQLTransaction& trans)
 
 void ScenarioProgress::DeleteFromDB()
 {
-    m_achievementMgr.DeleteFromDB((ObjectGuid::LowType)instanceId, 0);
+    m_achievementMgr.DeleteFromDB(ObjectGuid::Create<HighGuid::Scenario>(0, instanceId, 1), 0);
 }
 
 Map* ScenarioProgress::GetMap()
@@ -240,7 +240,7 @@ void ScenarioProgress::SendStepUpdate(Player* player, bool full)
                 if (!criteriaTreeEntry)
                     continue;
 
-                ObjectGuid criteriaGuid = MAKE_NEW_GUID(1, GetScenarioId(), HIGHGUID_SCENARIO_CRITERIA);
+                ObjectGuid criteriaGuid = ObjectGuid::Create<HighGuid::Scenario>(0, GetScenarioId(), 1);
                 uint64 counter = progress.counter;
 
                 //data.WriteGuidMask<7, 6, 0, 4>(criteriaGuid);
@@ -327,7 +327,7 @@ void ScenarioProgress::SendCriteriaUpdate(uint32 criteriaId, uint32 counter, tim
     //data.WriteGuidBytes<7>(criteriaGuid);
     //data.WriteGuidBytes<0>(counter);
 
-    BroadCastPacket(data);
+    //BroadCastPacket(data);
 }
 
 void ScenarioProgress::BroadCastPacket(WorldPacket& data)

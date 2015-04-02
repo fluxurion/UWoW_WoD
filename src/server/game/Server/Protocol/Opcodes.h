@@ -1520,7 +1520,7 @@ enum OpcodeServer : uint32
     SMSG_TABARDVENDOR_ACTIVATE                        = 0x1389,
     SMSG_TRAINER_SERVICE                              = 0x1BD2, //Trinity use as SMSG_TRAINER_BUY_FAILED
     SMSG_LIST_STABLED_PETS                            = 0x0B1F, //Trinity use as SMSG_PET_STABLE_LIST
-    SMSG_SPELL_PENDING_TARGET_CAST                    = 0x1B1C, //SMSG_SCRIPT_CAST
+    SMSG_SCRIPT_CAST                                  = 0x1B1C,
     SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0x0D3E, //SMSG_SEND_RAID_TARGET_UPDATE_SINGLE
     SMSG_PARTY_UPDATE                                 = 0x15BE,
     SMSG_SET_DUNGEON_DIFFICULTY                       = 0x0719,
@@ -1629,6 +1629,8 @@ enum OpcodeServer : uint32
     SMSG_PET_BATTLE_ROUND_RESULT                      = 0xBADD,
     SMSG_PET_BATTLE_FINAL_ROUND                       = 0xBADD,
     SMSG_PET_BATTLE_FINISHED                          = 0xBADD,
+    SMSG_SCENARIO_PROGRESS_UPDATE                     = 0xBADD,
+    SMSG_SCENARIO_POI                                 = 0xBADD,
 };
 
 #define MAX_OPCODE 0x7FFF

@@ -125,7 +125,7 @@ class instance_shadowfang_keep : public InstanceMapScript
 
             ObjectGuid GetGuidData(uint32 data) const
             {
-                switch (type)
+                switch (data)
                 {
                     case DATA_ASHBURY: return uiAshburyGUID;
                     case DATA_SILVERLAINE: return uiSilverlaineGUID;

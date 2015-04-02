@@ -725,7 +725,7 @@ class Spell
         // *****************************************
         std::list<TargetInfo> m_UniqueTargetInfo;
         std::list<TargetInfo> m_VisualHitTargetInfo;
-        TargetInfo* GetTargetInfo(uint64 targetGUID);
+        TargetInfo* GetTargetInfo(ObjectGuid const& targetGUID);
         uint32 m_channelTargetEffectMask;                        // Mask req. alive targets
 
         struct GOTargetInfo

@@ -183,7 +183,7 @@ class instance_ruby_sanctum : public InstanceMapScript
 
             ObjectGuid GetGuidData(uint32 data) const
             {
-                switch (type)
+                switch (data)
                 {
                     case DATA_BALTHARUS_THE_WARBORN:
                         return BaltharusTheWarbornGUID;

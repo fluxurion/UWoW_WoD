@@ -526,9 +526,9 @@ public:
         if (mapEntry->IsScenario())
         {
             if (GetMapDifficultyData(mapId, DIFFICULTY_N_SCENARIO))
-                player->SetDungeonDifficulty(DIFFICULTY_N_SCENARIO);
+                player->SetDungeonDifficultyID(DIFFICULTY_N_SCENARIO);
             else if (GetMapDifficultyData(mapId, DIFFICULTY_HC_SCENARIO))
-                player->SetDungeonDifficulty(DIFFICULTY_HC_SCENARIO);
+                player->SetDungeonDifficultyID(DIFFICULTY_HC_SCENARIO);
         }
 
         // stop flight if need

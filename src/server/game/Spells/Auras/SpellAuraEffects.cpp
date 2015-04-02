@@ -956,7 +956,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
 
                     if (Player* plr = caster->ToPlayer())
                     {
-                        float mastery = plr->GetFloatValue(PLAYER_MASTERY);
+                        float mastery = plr->GetFloatValue(PLAYER_FIELD_MASTERY);
                         amount = -(RoundingFloatValue(float(m_spellInfo->Effects[EFFECT_5].BasePoints) + (mastery / (mastery + float(m_spellInfo->Effects[EFFECT_0].BasePoints))) * 100.0f));
                         
                     }
