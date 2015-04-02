@@ -1585,7 +1585,7 @@ bool Creature::IsNeverVisible() const
     CreatureData const* data = sObjectMgr->GetCreatureData(m_DBTableGuid);
     if (data && data->spawnMask & 256)  // challenge
     {
-        if (GetMap()->GetSpawnMode() === DIFFICULTY_CHALLENGE)
+        if (GetMap()->GetSpawnMode() == DIFFICULTY_CHALLENGE)
             return true;
     }
     return WorldObject::IsNeverVisible();

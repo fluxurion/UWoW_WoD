@@ -2840,7 +2840,7 @@ void Player::Regenerate(Powers power, uint32 saveTimer)
         }
 
         //Visualization for power
-        VisualForPower(power, curValue, -integerValue);
+        VisualForPower(power, curValue, int32(integerValue)*-1);
     }
     else
     {
@@ -9361,7 +9361,7 @@ bool Player::CheckItemEquipDependentSpell(SpellInfo const* spellInfo, ObjectGuid
                     if (!itemGUID || itemGUID != checkItem->GetGUID())
                         if (ItemTemplate const* checkItemTemplate = checkItem->GetTemplate())
                             if (spellInfo->EquippedItemSubClassMask & (1 << checkItemTemplate->SubClass))
-                                resemblanceMask |= (1 << checkItemTemplate->InventoryType);
+                                resemblanceMask |= (1 << checkItemTemplate->GetInventoryType());
 
             if (spellInfo->AttributesEx8 & SPELL_ATTR8_ARMOR_SPECIALIZATION)
             {
@@ -18627,7 +18627,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     // Clean bug Specialization Spells
     RemoveNotActiveSpecializationSpells();
-    _ApplyOrRemoveItemEquipDependentAuras(0, false);
+    _ApplyOrRemoveItemEquipDependentAuras(ObjectGuid::Empty, false);
 
     if(PreparedQueryResult resultvis = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_VISUAL))
     {
@@ -19813,18 +19813,18 @@ void Player::_LoadBattlePetSlots(PreparedQueryResult result)
     {
         // initial first
         for (int i = 0; i < MAX_ACTIVE_BATTLE_PETS; ++i)
-            GetBattlePetMgr()->InitBattleSlot(0, i);
+            GetBattlePetMgr()->InitBattleSlot(ObjectGuid::Empty, i);
         return;
     }
 
     // SELECT slot_0, slot_1, slot_2 FROM character_battle_pet WHERE ownerAccID = ?
     Field* fields = result->Fetch();
 
-    uint64 petGUIDs[3] = {0, 0, 0};
+    ObjectGuid petGUIDs[3] = { ObjectGuid::Empty, ObjectGuid::Empty, ObjectGuid::Empty };
 
-    petGUIDs[0]  = fields[0].GetUInt64();
-    petGUIDs[1]  = fields[1].GetUInt64();
-    petGUIDs[2]  = fields[2].GetUInt64();
+    petGUIDs[0] = ObjectGuid::Create<HighGuid::BattlePet>(fields[0].GetUInt64());
+    petGUIDs[1] = ObjectGuid::Create<HighGuid::BattlePet>(fields[1].GetUInt64());
+    petGUIDs[2] = ObjectGuid::Create<HighGuid::BattlePet>(fields[2].GetUInt64());
 
     for (int i = 0; i < MAX_ACTIVE_BATTLE_PETS; ++i)
         GetBattlePetMgr()->InitBattleSlot(petGUIDs[i], i);
@@ -21270,8 +21270,9 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
     {
         if (saveItr->second)
         {
+            //ToDo: for optimize this should save for account quest 0 and load  by acc.
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_QUESTSTATUS);
-            stmt->setUInt64(0, guid);
+            stmt->setUInt64(0, GetGUID().GetCounter());
             stmt->setUInt32(1, saveItr->first);
             stmt->setUInt32(2, GetSession()->GetAccountId());
             trans->Append(stmt);
@@ -21322,13 +21323,13 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
 
     for (QuestSet::iterator itr = m_dailyquests.begin(); itr != m_dailyquests.end(); ++itr)
     {
-        uint32 guid = GetGUIDLow();
+        ObjectGuid::LowType guid = GetGUID().GetCounter();
         Quest const* quest = sObjectMgr->GetQuestTemplate((*itr));
         if (quest && quest->GetQuestType() == QUEST_TYPE_ACCOUNT)
             guid = 0;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
-        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, guid);
         stmt->setUInt32(1, *itr);
         stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
         stmt->setUInt32(3, GetSession()->GetAccountId());
@@ -21339,13 +21340,13 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     {
         for (DFQuestsDoneList::iterator itr = m_DFQuests.begin(); itr != m_DFQuests.end(); ++itr)
         {
-            uint32 guid = GetGUIDLow();
+            ObjectGuid::LowType guid = GetGUID().GetCounter();
             Quest const* quest = sObjectMgr->GetQuestTemplate((*itr));
             if (quest && quest->GetQuestType() == QUEST_TYPE_ACCOUNT)
                 guid = 0;
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_DAILYQUESTSTATUS);
-            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, guid);
             stmt->setUInt32(1, (*itr));
             stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
             stmt->setUInt32(3, GetSession()->GetAccountId());
@@ -21370,13 +21371,13 @@ void Player::_SaveWeeklyQuestStatus(SQLTransaction& trans)
     for (QuestSet::const_iterator iter = m_weeklyquests.begin(); iter != m_weeklyquests.end(); ++iter)
     {
         uint32 quest_id  = *iter;
-        uint32 guid = GetGUIDLow();
+        ObjectGuid::LowType guid = GetGUID().GetCounter();
         Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
         if (quest && quest->GetQuestType() == QUEST_TYPE_ACCOUNT)
             guid = 0;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_WEEKLYQUESTSTATUS);
-        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, guid);
         stmt->setUInt32(1, quest_id);
         stmt->setUInt32(2, GetSession()->GetAccountId());
         trans->Append(stmt);
@@ -21404,13 +21405,13 @@ void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
         for (SeasonalQuestSet::const_iterator itr = iter->second.begin(); itr != iter->second.end(); ++itr)
         {
             uint32 quest_id = (*itr);
-            uint32 guid = GetGUIDLow();
+            ObjectGuid::LowType guid = GetGUID().GetCounter();
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (quest && quest->GetQuestType() == QUEST_TYPE_ACCOUNT)
                 guid = 0;
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SEASONALQUESTSTATUS);
-            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, guid);
             stmt->setUInt32(1, quest_id);
             stmt->setUInt32(2, event_id);
             stmt->setUInt32(3, GetSession()->GetAccountId());
@@ -22296,7 +22297,7 @@ void Player::VehicleSpellInitialize()
 
     for (uint32 i = 0; i < MAX_SPELL_CONTROL_BAR; ++i)
     {
-        uint32 spellId = i < CREATURE_MAX_SPELLS ? vehicle->m_spells[i] : 0;
+        uint32 spellId = i < CREATURE_MAX_SPELLS ? vehicle->m_temlate_spells[i] : 0;
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
@@ -28062,7 +28063,7 @@ void Player::ActivateSpec(uint8 spec)
     SetUsedTalentCount(usedTalentPoint);
     InitTalentForLevel();
     InitSpellForLevel();
-    _ApplyOrRemoveItemEquipDependentAuras(0, false);
+    _ApplyOrRemoveItemEquipDependentAuras(ObjectGuid::Empty, false);
 
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACTIONS_SPEC);

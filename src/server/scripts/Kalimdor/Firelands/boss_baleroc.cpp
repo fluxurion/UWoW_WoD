@@ -86,21 +86,21 @@ class boss_baleroc : public CreatureScript
                 me->setActive(true);
             }
 
-            std::map<uint32, uint8> tormentedPlayers;
+            std::map<ObjectGuid::LowType, uint8> tormentedPlayers;
 
             bool AllowAchieve()
             {
                 if (tormentedPlayers.empty())
                     return false;
 
-                for (std::map<uint32, uint8>::const_iterator itr = tormentedPlayers.begin(); itr != tormentedPlayers.end(); ++itr)
+                for (std::map<ObjectGuid::LowType, uint8>::const_iterator itr = tormentedPlayers.begin(); itr != tormentedPlayers.end(); ++itr)
                     if (itr->second > 3)
                         return false;
 
                 return true;
             }
 
-            void AddTormentedPlayer(uint32 guid)
+            void AddTormentedPlayer(ObjectGuid::LowType guid)
             {
                 tormentedPlayers[guid]++;
             }
@@ -289,7 +289,7 @@ class npc_baleroc_shard_of_torment : public CreatureScript
                         
                         if (Creature* pBaleroc = me->FindNearestCreature(NPC_BALEROC, 200.0f))
                             if (boss_baleroc::boss_balerocAI* BalerocAI = CAST_AI(boss_baleroc::boss_balerocAI, pBaleroc->GetAI()))
-                                BalerocAI->AddTormentedPlayer(curVictim->GetGUIDLow());
+                                BalerocAI->AddTormentedPlayer(curVictim->GetGUID().GetCounter());
                         
                         DoCast(curVictim, SPELL_TORMENT);
                     }

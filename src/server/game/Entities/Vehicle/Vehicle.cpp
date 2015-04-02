@@ -78,7 +78,7 @@ void Vehicle::Install()
 {
     if (Creature* creature = _me->ToCreature())
     {
-        if(PowerDisplayEntry const* powerDisplay = sPowerDisplayStore.LookupEntry(_vehicleInfo->m_powerDisplay))
+        if (PowerDisplayEntry const* powerDisplay = sPowerDisplayStore.LookupEntry(_vehicleInfo->PowerDisplayID[0]))
             _me->setPowerType(Powers(powerDisplay->PowerType));
     }
 
@@ -179,7 +179,7 @@ void Vehicle::ApplyAllImmunities()
     // This couldn't be done in DB, because some spells have MECHANIC_NONE
 
     // Vehicles should be immune on Knockback ...
-    if (GetVehicleInfo()->m_ID != 2059)
+    if (GetVehicleInfo()->ID != 2059)
     {
         _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
         _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);

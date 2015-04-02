@@ -2072,7 +2072,7 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
     if (tabId < GetPurchasedTabsSize() || tabId == GUILD_BANK_MAX_TABS)
     {
         LogHolder::GuildLog const* log = m_bankEventLog[tabId]->GetLog();
-        WorldPacket data(SMSG_GUILD_BANK_LOG_QUERY_RESULTS, log->size() * (4 * 4 + 1) + 1 + 1);
+        WorldPacket data(SMSG_GUILD_BANK_LOG_QUERY_RESULT, log->size() * (4 * 4 + 1) + 1 + 1);
 
         data << uint32(tabId);
         data << uint32(log->size());
@@ -2093,7 +2093,7 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
 }
 
 //! 6.0.3
-void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const
+void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo, bool fullUpdate) const
 {
     WorldPacket data(SMSG_GUILD_BANK_QUERY_RESULTS, 500);
 
@@ -2167,7 +2167,7 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
         }
     }
 
-    data.WriteBit(1);                                                    // FullUpdate
+    data.WriteBit(fullUpdate);                                           // FullUpdate
 
     data.put<uint32>(pos, itemCount);
 

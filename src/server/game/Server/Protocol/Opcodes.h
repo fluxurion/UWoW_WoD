@@ -1271,6 +1271,7 @@ enum OpcodeServer : uint32
     SMSG_PLAY_MUSIC                                   = 0x0981,
     SMSG_PLAY_OBJECT_SOUND                            = 0x0519,
     SMSG_PLAY_ONE_SHOT_ANIM_KIT                       = 0xBADD,
+    SMSG_PLAY_SCENE                                   = 0x0917,
     SMSG_PLAY_SOUND                                   = 0x02D2,
     SMSG_PLAY_SPELL_VISUAL                            = 0x1A84,
     SMSG_PLAY_SPELL_VISUAL_KIT                        = 0x0171,

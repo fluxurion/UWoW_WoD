@@ -2610,8 +2610,8 @@ class Player : public Unit, public GridObject<Player>
         void ResetAllPowers();
         void ResetEclipseState();
 
-        void _ApplyOrRemoveItemEquipDependentAuras(ObjectGuid itemGUID = ObjectGuid::Empty, bool apply = true);
-        bool CheckItemEquipDependentSpell(SpellInfo const* spellInfo = NULL, ObjectGuid itemGUID = ObjectGuid::Empty);
+        void _ApplyOrRemoveItemEquipDependentAuras(ObjectGuid const& itemGUID = ObjectGuid::Empty, bool apply = true);
+        bool CheckItemEquipDependentSpell(SpellInfo const* spellInfo = NULL, ObjectGuid const& itemGUID = ObjectGuid::Empty);
 
         void _ApplyItemMods(Item* item, uint8 slot, bool apply);
         void _RemoveAllItemMods();

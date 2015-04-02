@@ -303,9 +303,6 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove, uint32 ov
 
     if (flags & AFLAG_CASTER)
         data << aura->GetCasterGUID().WriteAsPacked();
-            if(!(_effectsToApply & (1 << i)))
-                continue;
-
 
     if (flags & AFLAG_DURATION)
         data << uint32(aura->GetDuration());

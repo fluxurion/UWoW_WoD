@@ -11999,7 +11999,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 
         // Check for table values
         float SPDCoeffMod = spellProto->GetEffect(effIndex, m_diffMode).BonusMultiplier;
-        float ApCoeffMod = spellProto->SpellAPBonusMultiplier;
+        float ApCoeffMod = spellProto->GetEffect(effIndex, m_diffMode).SpellAPBonusMultiplier;
 
         SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
         if (bonus)
@@ -18647,9 +18647,9 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                     if (!creature)
                         return false;
 
-                    uint64 creatureGUID = creature->GetGUID();
-                     int32 alldamage = dmgInfoProc->GetDamageBeforeHit();
-                     uint32 count = 1;
+                    ObjectGuid creatureGUID = creature->GetGUID();
+                    int32 alldamage = dmgInfoProc->GetDamageBeforeHit();
+                    uint32 count = 1;
                     float creatureThreat = 0.0f;
                     ThreatContainer& _threatContainer = getThreatManager().getOnlineContainer();
 
@@ -19210,7 +19210,7 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
 bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo const* procSpell, uint8 effect)
 {
     bool procCheck = false;
-    uint64 casterGUID = GetGUID();
+    ObjectGuid casterGUID = GetGUID();
     Unit* _checkTarget = this;
     int32 spellProcId = procSpell ? procSpell->Id : -1;
     uint32 procPowerType = procSpell ? procSpell->PowerType : 0;
@@ -23739,56 +23739,42 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position* position,
     SendMessageToSet(&data, true);
 }
 
+//! 6.0.3 ToDo: Check IT
 void Unit::SendFakeAuraUpdate(uint32 auraId, uint32 flags, uint32 diration, uint32 _slot, bool remove)
 {
-    ObjectGuid targetGuid = GetObjectGuid();
+    ObjectGuid targetGuid = GetGUID();
 
     WorldPacket data(SMSG_AURA_UPDATE);
-    //data.WriteGuidMask<0>(targetGuid);
-    data.WriteBit(0);   // has power unit
-    data.WriteBit(0);   // full update
-    //data.WriteGuidMask<6>(targetGuid);
-    /*
-    if (hasPowerData) { }
-    */
-    //data.WriteGuidMask<4, 7, 3>(targetGuid);
-    data.WriteBits(1, 24);
-    //data.WriteGuidMask<1, 5, 2>(targetGuid);
-
+    data.WriteBit(0);//bit16
+    data.FlushBits();
+    data << GetPackGUID();
+    data << uint32(1); //count
+    data << uint8(_slot);
     if (data.WriteBit(!remove))
     {
-        if (data.WriteBit(!(flags & AFLAG_CASTER)))
-            //data.WriteGuidMask<2, 3, 4, 0, 1, 6, 7, 5>(targetGuid);
-        data.WriteBits(0, 22);  // effect count 2
-        data.WriteBits(0, 22);  // effect count
+        data << uint32(auraId);
+        data << uint8(flags);
+        data << uint32(1); // Effect mask
+        data << uint16(getLevel());
+        data << uint8(0); // StackAmount
+        data << uint32(0);
+        data << uint32(0);
+
+        data.WriteBit(flags & AFLAG_CASTER);
         data.WriteBit(flags & AFLAG_DURATION);  // has duration
         data.WriteBit(flags & AFLAG_DURATION);  // has max duration
-    }
+        data.FlushBits();
 
-    if(remove)
-        data << uint8(_slot);
-    else
-    {
-        data << uint16(getLevel());
-        if (!(flags & AFLAG_CASTER))
-            //data.WriteGuidBytes<0, 6, 1, 4, 5, 3, 2, 7>(targetGuid);
-        data << uint8(flags);
+        if (flags & AFLAG_CASTER)
+            data << GetGUID();
+
         if (flags & AFLAG_DURATION)
             data << uint32(diration);
 
-        data << uint8(0); // StackAmount
-        data << uint32(1); // Effect mask
         if (flags & AFLAG_DURATION)
             data << uint32(diration);
-        data << uint32(auraId);
-        data << uint8(_slot);
+
     }
-
-    /*
-    if (hasPowerData) { }
-    */
-
-    //data.WriteGuidBytes<7, 4, 2, 0, 6, 5, 1, 3>(targetGuid);
 
     SendMessageToSet(&data, true);
 }
@@ -23858,13 +23844,13 @@ void Unit::SendSpellCooldown(int32 spellId, int32 spell_cooldown, int32 cooldown
 void Unit::SetDynamicPassiveSpells(uint32 spellId, uint32 slot)
 {
     //from sniff 1-3 enable spell, 0-2 disable
-    SetDynamicUInt32Value(UNIT_DYNAMIC_PASSIVE_SPELLS, slot, spellId);
+    SetDynamicUInt32Value(UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS, slot, spellId);
 }
 
 uint32 Unit::GetDynamicPassiveSpells(uint32 slot)
 {
     //from sniff 1-3 enable spell, 0-2 disable
-    return GetDynamicUInt32Value(UNIT_DYNAMIC_PASSIVE_SPELLS, slot);
+    return GetDynamicUInt32Value(UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS, slot);
 }
 
 void Unit::SendSpellScene(uint32 miscValue, Position* /*pos*/)
@@ -23878,7 +23864,7 @@ void Unit::SendSpellScene(uint32 miscValue, Position* /*pos*/)
     {
         for (std::vector<SpellScene>::const_iterator i = spell_scene->begin(); i != spell_scene->end(); ++i)
         {
-            WorldPacket data(SMSG_PLAY_SCENE_DATA, 46);
+            WorldPacket data(SMSG_PLAY_SCENE, 46);
             data.WriteBit(!i->MiscValue);
             data.WriteBit(!i->SceneInstanceID);
             data.WriteBit(!i->ScenePackageId);
@@ -23914,7 +23900,7 @@ void Unit::SendMissileCancel(uint32 spellId, bool cancel)
     if (GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ObjectGuid guid = GetObjectGuid();
+    ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_MISSILE_CANCEL, 13);
     //data.WriteGuidMask<6, 0, 3, 7, 5, 1, 4>(guid);
@@ -23931,7 +23917,7 @@ void Unit::SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uin
     if (GetTypeId() != TYPEID_PLAYER || !caster)
         return;
 
-    ObjectGuid guid = caster->GetObjectGuid();
+    ObjectGuid guid = caster->GetGUID();
 
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::SendLossOfControl GetEffectMechanic %i, apply %i, GetId %i duraction %i rmDuraction %i schoolMask %i", mechanic, apply, spellId, duraction, rmDuraction, schoolMask);
 
