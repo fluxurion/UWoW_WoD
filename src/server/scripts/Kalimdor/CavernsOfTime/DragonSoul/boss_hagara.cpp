@@ -1312,7 +1312,7 @@ class npc_hagara_the_stormbinder_icy_tomb : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-                trappedPlayer = 0;
+                trappedPlayer.Clear();
                 existenceCheckTimer = 1000;
             }
 
@@ -1321,7 +1321,7 @@ class npc_hagara_the_stormbinder_icy_tomb : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(ObjectGuid guid, int32 type)
+            void SetGUID(ObjectGuid const& guid, int32 type)
             {
                 if (type == DATA_TRAPPED_PLAYER)
                 {
@@ -1334,7 +1334,7 @@ class npc_hagara_the_stormbinder_icy_tomb : public CreatureScript
             {
                 if (Player* player = ObjectAccessor::GetPlayer(*me, trappedPlayer))
                 {
-                    trappedPlayer = 0;
+                    trappedPlayer.Clear();
                     player->RemoveAura(SPELL_ICY_TOMB);
                 }
                 me->DespawnOrUnsummon(800);
@@ -1380,7 +1380,7 @@ class npc_hagara_the_stormbinder_ice_lance : public CreatureScript
             npc_hagara_the_stormbinder_ice_lanceAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                targetPlayer = 0;
+                targetPlayer.Clear();
             }
 
             void Reset()
@@ -1388,7 +1388,7 @@ class npc_hagara_the_stormbinder_ice_lance : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(ObjectGuid guid, int32 type)
+            void SetGUID(ObjectGuid const& guid, int32 type)
             {
                 if (type == DATA_ICE_LANCE_GUID)
                 {
@@ -1404,7 +1404,7 @@ class npc_hagara_the_stormbinder_ice_lance : public CreatureScript
             {
                 if (type == DATA_ICE_LANCE_GUID)
                     return targetPlayer;
-                return 0;
+                return ObjectGuid::Empty;
             }
 
         private:
@@ -1588,7 +1588,7 @@ class npc_hagara_the_stormbinder_frozen_binding_crystal : public CreatureScript
                 DoCast(me, SPELL_CRYSTALLINE_OVERLOAD_1);
 
                 if (instance)
-                    if (Creature* pHagara = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_HAGARA)))
+                    if (Creature* pHagara = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HAGARA)))
                     {
                         pHagara->RemoveAura(SPELL_CRYSTALLINE_TETHER_1, me->GetGUID());
                         pHagara->AI()->DoAction(ACTION_CRYSTAL_DIED);
@@ -1645,7 +1645,7 @@ class npc_hagara_the_stormbinder_crystal_conductor : public CreatureScript
                     events.ScheduleEvent(EVENT_CHECK_PLAYERS, 2000);
 
                     if (instance)
-                        if (Creature* pHagara = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_HAGARA)))
+                        if (Creature* pHagara = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_HAGARA)))
                         {
                             pHagara->RemoveAura(SPELL_CRYSTALLINE_TETHER_2, me->GetGUID());
                             pHagara->AI()->DoAction(ACTION_CRYSTAL_DIED);
@@ -1757,7 +1757,7 @@ class go_hagara_the_stormbinder_the_focusing_iris : public GameObjectScript
                     return true;
                 }
 
-                if (Creature* pHagara = ObjectAccessor::GetCreature(*pGo, pinstance->GetGuidData(DATA_HAGARA)))
+                if (Creature* pHagara = ObjectAccessor::GetCreature(*pGo, instance->GetGuidData(DATA_HAGARA)))
                 {
                     pHagara->AI()->DoAction(ACTION_START_EVENT);
                     pGo->Delete();
@@ -1915,7 +1915,7 @@ class spell_hagara_the_stormbinder_ice_lance_target : public SpellScriptLoader
                 if (targets.size() <= 1)
                     return;
 
-                ObjectGuid guid = 0;
+                ObjectGuid guid;
                 if (Creature* pLance = GetCaster()->ToCreature())
                     guid = pLance->AI()->GetGUID(DATA_ICE_LANCE_GUID);
 

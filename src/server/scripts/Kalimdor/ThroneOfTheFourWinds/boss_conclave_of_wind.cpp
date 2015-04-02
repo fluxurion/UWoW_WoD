@@ -999,7 +999,7 @@ public:
             events.ScheduleEvent(EVENT_DESPAWN, 15000);
         }
 
-        void SetGUID(ObjectGuid guid, int32 /* = 0*/)
+        void SetGUID(ObjectGuid const& guid, int32 /* = 0*/)
         {
             grabbedPlayer = guid;
         }

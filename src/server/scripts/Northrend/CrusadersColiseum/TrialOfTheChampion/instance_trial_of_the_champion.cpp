@@ -275,14 +275,14 @@ public:
             return 0;
         }
 
-        void SetData64(uint32 type, ObjectGuid data)
+        void SetGuidData(uint32 type, ObjectGuid data)
         {
             switch (type)
             {
                 case DATA_GRAND_CHAMPION_GUID:
                     for (uint8 i=0; i<3; i++)
                     {
-                        if (grandChampionGUID[i] == 0)
+                        if (!grandChampionGUID[i])
                         {
                             grandChampionGUID[i] = data;
                             return;
@@ -292,7 +292,7 @@ public:
             }
         }
 
-        ObjectGuid GetData64(uint32 data)
+        ObjectGuid GetGuidData(uint32 data) const
         {
             switch(data)
             {
@@ -309,7 +309,7 @@ public:
                 case DATA_BLACK_KNIGHT_GRYPHON: return uiBlackKnightGryphonGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)

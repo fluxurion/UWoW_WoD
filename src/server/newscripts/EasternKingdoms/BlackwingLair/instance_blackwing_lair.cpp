@@ -80,26 +80,26 @@ public:
             LoadDoorData(doordata);
             // Razorgore
             EggCount = 0;
-            RazorgoreTheUntamedGUID = 0;
-            RazorgoreDoorGUID = 0;
+            RazorgoreTheUntamedGUID.Clear();
+            RazorgoreDoorGUID.Clear();
             EggList.clear();
             // Vaelastrasz the Corrupt
-            VaelastraszTheCorruptGUID = 0;
-            VaelastraszDoorGUID = 0;
+            VaelastraszTheCorruptGUID.Clear();
+            VaelastraszDoorGUID.Clear();
             // Broodlord Lashlayer
-            BroodlordLashlayerGUID = 0;
-            BroodlordDoorGUID = 0;
+            BroodlordLashlayerGUID.Clear();
+            BroodlordDoorGUID.Clear();
             // 3 Dragons
-            FiremawGUID = 0;
-            EbonrocGUID = 0;
-            FlamegorGUID = 0;
-            ChrommagusDoorGUID = 0;
+            FiremawGUID.Clear();
+            EbonrocGUID.Clear();
+            FlamegorGUID.Clear();
+            ChrommagusDoorGUID.Clear();
             // Chormaggus
-            ChromaggusGUID = 0;
-            NefarianDoorGUID = 0;
+            ChromaggusGUID.Clear();
+            NefarianDoorGUID.Clear();
             // Nefarian
-            LordVictorNefariusGUID = 0;
-            NefarianGUID = 0;
+            LordVictorNefariusGUID.Clear();
+            NefarianGUID.Clear();
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -241,7 +241,7 @@ public:
             return true;
         }
 
-        ObjectGuid GetGuidData(uint32 id)
+        ObjectGuid GetGuidData(uint32 id) const
         {
             switch (id)
             {
@@ -256,7 +256,7 @@ public:
                 case DATA_NEFARIAN:               return NefarianGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetData(uint32 type, uint32 data)

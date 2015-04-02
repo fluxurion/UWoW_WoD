@@ -757,7 +757,7 @@ class spell_monk_touch_of_karma : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     caster->RemoveAura(122470);
-                    caster->m_SpecialTarget = 0;
+                    caster->m_SpecialTarget.Clear();
                 }
             }
 

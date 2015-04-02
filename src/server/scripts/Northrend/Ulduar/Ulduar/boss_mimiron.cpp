@@ -1691,7 +1691,7 @@ public:
             }
         }
 
-        void SetGUID(ObjectGuid guid, int32 type/* = 0 */)
+        void SetGUID(ObjectGuid const& guid, int32 type/* = 0 */)
         {
             tGuid = guid;
             if (Unit* target = me->GetUnit(*me, tGuid))

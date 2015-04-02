@@ -428,7 +428,7 @@ public:
             return 0;
         }
 
-        void SetGUID(ObjectGuid guid, int32 type)
+        void SetGUID(ObjectGuid const& guid, int32 type)
         {
             switch (type)
             {

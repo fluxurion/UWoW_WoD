@@ -302,7 +302,7 @@ class boss_warmaster_blackhorn: public CreatureScript
                     deck = false;
             }
 
-            void SetGUID(ObjectGuid guid, int32 data)
+            void SetGUID(ObjectGuid const& guid, int32 data)
             {
                 shockwaveTarget = guid;
             }

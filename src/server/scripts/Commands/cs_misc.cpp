@@ -3336,7 +3336,7 @@ public:
         if(!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(EQUIPMENT_SLOT_TABARD, newItem, 18))
+        if (pl->HandleChangeSlotModel(newItem, EQUIPMENT_SLOT_TABARD))
         {
             pl->m_vis->m_visTabard = newItem;
             return true;
