@@ -335,7 +335,7 @@ class boss_rook_stonetoe : public CreatureScript
                 boss_fallen_protectors::Reset();
                 me->CastSpell(me, SPELL_DESPAWN_AT, true);
 
-                if (Creature* sun = instance->instance->GetCreature(instance->GetData64(NPC_SUN_TENDERHEART)))
+                if (Creature* sun = instance->instance->GetCreature(instance->GetGuidData(NPC_SUN_TENDERHEART)))
                     sun->AI()->EnterEvadeMode();
             }
 
@@ -444,7 +444,7 @@ class boss_he_softfoot : public CreatureScript
 
                 me->CastSpell(me, SPELL_DESPAWN_AT, true);
 
-                if (Creature* sun = instance->instance->GetCreature(instance->GetData64(NPC_SUN_TENDERHEART)))
+                if (Creature* sun = instance->instance->GetCreature(instance->GetGuidData(NPC_SUN_TENDERHEART)))
                     sun->AI()->EnterEvadeMode();
             }
 

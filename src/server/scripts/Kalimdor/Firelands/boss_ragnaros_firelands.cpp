@@ -337,8 +337,8 @@ class boss_ragnaros_firelands : public CreatureScript
                 uiDreadFlameTimer = 40000;
 
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, 50331648);
-                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 50);
-                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 50);
+                me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 50);
+                me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 50);
                 me->SetReactState(REACT_DEFENSIVE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->LowerPlayerDamageReq(me->GetMaxHealth());
@@ -887,8 +887,8 @@ class boss_ragnaros_firelands : public CreatureScript
                             me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), 56.0f, me->GetOrientation(), true);
                             Talk(SAY_HEROIC_2);
 
-                            me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 8);
-                            me->SetFloatValue(UNIT_FIELD_COMBATREACH, 8);
+                            me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 8);
+                            me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 8);
                             
                             events.ScheduleEvent(EVENT_EVENT_3, 9000);
                             break;

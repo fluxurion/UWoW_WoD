@@ -241,7 +241,7 @@ public:
             return true;
         }
 
-        uint64 GetData64(uint32 id)
+        ObjectGuid GetGuidData(uint32 id)
         {
             switch (id)
             {
@@ -345,31 +345,31 @@ public:
         // Razorgore
         uint8 EggCount;
         uint32 EggEvent;
-        uint64 RazorgoreTheUntamedGUID;
-        uint64 RazorgoreDoorGUID;
+        ObjectGuid RazorgoreTheUntamedGUID;
+        ObjectGuid RazorgoreDoorGUID;
         GuidList EggList;
 
         // Vaelastrasz the Corrupt
-        uint64 VaelastraszTheCorruptGUID;
-        uint64 VaelastraszDoorGUID;
+        ObjectGuid VaelastraszTheCorruptGUID;
+        ObjectGuid VaelastraszDoorGUID;
 
         // Broodlord Lashlayer
-        uint64 BroodlordLashlayerGUID;
-        uint64 BroodlordDoorGUID;
+        ObjectGuid BroodlordLashlayerGUID;
+        ObjectGuid BroodlordDoorGUID;
 
         // 3 Dragons
-        uint64 FiremawGUID;
-        uint64 EbonrocGUID;
-        uint64 FlamegorGUID;
-        uint64 ChrommagusDoorGUID;
+        ObjectGuid FiremawGUID;
+        ObjectGuid EbonrocGUID;
+        ObjectGuid FlamegorGUID;
+        ObjectGuid ChrommagusDoorGUID;
 
         // Chormaggus
-        uint64 ChromaggusGUID;
-        uint64 NefarianDoorGUID;
+        ObjectGuid ChromaggusGUID;
+        ObjectGuid NefarianDoorGUID;
 
         // Nefarian
-        uint64 LordVictorNefariusGUID;
-        uint64 NefarianGUID;
+        ObjectGuid LordVictorNefariusGUID;
+        ObjectGuid NefarianGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const

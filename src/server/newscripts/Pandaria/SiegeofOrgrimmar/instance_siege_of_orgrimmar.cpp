@@ -55,27 +55,28 @@ public:
         ObjectGuid immerseusexdoorGUID;
         ObjectGuid chestShaVaultOfForbiddenTreasures;
         GuidVector lightqGUIDs;
-        uint64 winddoorGuid;
-        uint64 orgrimmargateGuid;
-        uint64 orgrimmargate2Guid;
-        uint64 rustybarsGuid;
-        uint64 nazgrimdoorGuid;
+        ObjectGuid winddoorGuid;
+        ObjectGuid orgrimmargateGuid;
+        ObjectGuid orgrimmargate2Guid;
+        ObjectGuid rustybarsGuid;
+        ObjectGuid nazgrimdoorGuid;
         
         //Creature
         ObjectGuid LorewalkerChoGUIDtmp;
         GuidSet shaSlgGUID;
         GuidVector PortalOrgrimmarGUID;
         GuidVector MeasureGUID;
-        uint64 WrynOrLorthemarGUID;
-        uint64 JainaOrSylvanaGUID;
-        uint64 VereesaOrAethasGUID;
-        uint64 sExpertGUID;
-        uint64 nExpertGUID;
-        uint64 kardrisGuid;
-        uint64 harommGuid;
-        uint64 bloodclawGuid;
-        uint64 darkfangGuid;
-        uint64 gnazgrimGuid;
+        ObjectGuid WrynOrLorthemarGUID;
+        ObjectGuid JainaOrSylvanaGUID;
+        ObjectGuid VereesaOrAethasGUID;
+        ObjectGuid sExpertGUID;
+        ObjectGuid nExpertGUID;
+        ObjectGuid kardrisGuid;
+        ObjectGuid harommGuid;
+        ObjectGuid bloodclawGuid;
+        ObjectGuid darkfangGuid;
+        ObjectGuid gnazgrimGuid;
+        ObjectGuid fpGUID[3];
 
         EventMap Events;
 
@@ -106,26 +107,26 @@ public:
             immerseusexdoorGUID.Clear();
             chestShaVaultOfForbiddenTreasures.Clear();
             lightqGUIDs.clear();
-            winddoorGuid            = 0;
-            orgrimmargateGuid       = 0;
-            orgrimmargate2Guid      = 0;
-            rustybarsGuid           = 0;
-            nazgrimdoorGuid         = 0;
+            winddoorGuid.Clear();
+            orgrimmargateGuid.Clear();
+            orgrimmargate2Guid.Clear();
+            rustybarsGuid.Clear();
+            nazgrimdoorGuid.Clear();
            
             //Creature
             LorewalkerChoGUIDtmp.Clear();
             //memset(fpGUID, 0, 3 * sizeof(ObjectGuid));
             EventfieldOfSha     = 0;
-            WrynOrLorthemarGUID     = 0;
-            JainaOrSylvanaGUID      = 0;
-            VereesaOrAethasGUID     = 0;
-            sExpertGUID             = 0;
-            nExpertGUID             = 0;
-            kardrisGuid             = 0;
-            harommGuid              = 0;
-            bloodclawGuid           = 0;
-            darkfangGuid            = 0;
-            gnazgrimGuid            = 0;
+            WrynOrLorthemarGUID.Clear();
+            JainaOrSylvanaGUID.Clear();
+            VereesaOrAethasGUID.Clear();
+            sExpertGUID.Clear();
+            nExpertGUID.Clear();
+            kardrisGuid.Clear();
+            harommGuid.Clear();
+            bloodclawGuid.Clear();
+            darkfangGuid.Clear();
+            gnazgrimGuid.Clear();
 
             onInitEnterState = false;
             STowerFull = false;
@@ -497,7 +498,7 @@ public:
                 {
                     if (state == NOT_STARTED)
                     {
-                        for (std::vector<uint64>::iterator itr = MeasureGUID.begin(); itr != MeasureGUID.end(); ++itr)
+                        for (GuidVector::iterator itr = MeasureGUID.begin(); itr != MeasureGUID.end(); ++itr)
                         {
                             if (Creature* mes = instance->GetCreature(*itr))
                                 mes->DespawnOrUnsummon();
@@ -509,7 +510,7 @@ public:
                         if (Creature* bq = instance->GetCreature(LorewalkerChoGUIDtmp))
                             bq->AI()->SetData(DATA_F_PROTECTORS, DONE);
     
-                        for (std::vector<uint64>::iterator itr = MeasureGUID.begin(); itr != MeasureGUID.end(); ++itr)
+                        for (GuidVector::iterator itr = MeasureGUID.begin(); itr != MeasureGUID.end(); ++itr)
                         {
                             if (Creature* mes = instance->GetCreature(*itr))
                                 mes->DespawnOrUnsummon();
@@ -547,7 +548,7 @@ public:
                             pChest->SetRespawnTime(pChest->GetRespawnDelay());
                         if (GetData(DATA_GALAKRAS_PRE_EVENT) != IN_PROGRESS)
                         {
-                            if (Creature* Galakras = instance->GetCreature(GetData64(NPC_GALAKRAS)))
+                            if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                                 Galakras->AI()->DoAction(ACTION_PRE_EVENT);
                             SetData(DATA_GALAKRAS_PRE_EVENT, IN_PROGRESS);
                         }
@@ -564,11 +565,11 @@ public:
                             STowerNull = false;
                             NTowerFull = false;
                             NTowerNull = false;
-                            if (GameObject* SouthDoor = instance->GetGameObject(GetData64(GO_SOUTH_DOOR)))
+                            if (GameObject* SouthDoor = instance->GetGameObject(GetGuidData(GO_SOUTH_DOOR)))
                                 SouthDoor->SetGoState(GO_STATE_READY);
-                            if (GameObject* NorthDoor = instance->GetGameObject(GetData64(GO_NORTH_DOOR)))
+                            if (GameObject* NorthDoor = instance->GetGameObject(GetGuidData(GO_NORTH_DOOR)))
                                 NorthDoor->SetGoState(GO_STATE_READY);
-                            if (Creature* Galakras = instance->GetCreature(GetData64(NPC_GALAKRAS)))
+                            if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                             {
                                 Galakras->AI()->Reset();
                                 Galakras->AI()->EnterEvadeMode();
@@ -608,20 +609,20 @@ public:
                     {
                     case NOT_STARTED:
                         for (uint32 n = NPC_WAVEBINDER_KARDRIS; n <= NPC_EARTHBREAKER_HAROMM; n++)
-                            if (Creature* shaman = instance->GetCreature(GetData64(n)))
+                            if (Creature* shaman = instance->GetCreature(GetGuidData(n)))
                                 SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, shaman);
                         HandleGameObject(orgrimmargate2Guid, true);
                         break;
                     case DONE:
                         for (uint32 n = NPC_WAVEBINDER_KARDRIS; n <= NPC_EARTHBREAKER_HAROMM; n++)
-                            if (Creature* shaman = instance->GetCreature(GetData64(n)))
+                            if (Creature* shaman = instance->GetCreature(GetGuidData(n)))
                                 SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, shaman);
                         HandleGameObject(orgrimmargate2Guid, true);
                         HandleGameObject(rustybarsGuid, true);
                         break;
                     case IN_PROGRESS:
                         for (uint32 n = NPC_WAVEBINDER_KARDRIS; n <= NPC_EARTHBREAKER_HAROMM; n++)
-                            if (Creature* shaman = instance->GetCreature(GetData64(n)))
+                            if (Creature* shaman = instance->GetCreature(GetGuidData(n)))
                                 SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, shaman);
                         HandleGameObject(orgrimmargate2Guid, false);
                         break;
@@ -692,7 +693,7 @@ public:
             {
                 if (data == DONE)
                 {
-                    for (std::vector<uint64>::iterator itr = PortalOrgrimmarGUID.begin(); itr != PortalOrgrimmarGUID.end(); ++itr)
+                    for (GuidVector::iterator itr = PortalOrgrimmarGUID.begin(); itr != PortalOrgrimmarGUID.end(); ++itr)
                     {
                         if (Creature* c = instance->GetCreature(*itr))
                             c->SetVisible(true);
@@ -713,7 +714,7 @@ public:
                             ShowCannon = data;
                             DoUpdateWorldState(WS_SHOW_KORKRON_CANNON, 0);
                             DoUpdateWorldState(WS_KORKRON_CANNON_COUNT, 0);
-                            if (Creature* Galakras = instance->GetCreature(GetData64(NPC_GALAKRAS)))
+                            if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                                 Galakras->AI()->DoAction(ACTION_PRE_EVENT_FINISH);
                             break;
                     }
@@ -749,7 +750,7 @@ public:
                         case IN_PROGRESS:
                             ShowSouthTower = data;
                             DoUpdateWorldState(WS_SHOW_SOUTH_TOWER, 1);
-                            if (Creature* Galakras = instance->GetCreature(GetData64(NPC_GALAKRAS)))
+                            if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                                 Galakras->AI()->DoAction(ACTION_GRUNT_SOUTH);
                             break;
                         case NOT_STARTED:
@@ -762,7 +763,7 @@ public:
                             ShowSouthTower = data;
                             DoUpdateWorldState(WS_SHOW_SOUTH_TOWER, 0);
                             DoUpdateWorldState(WS_SHOW_CAPTURE_SOUTH_TOWER, 1);
-                            if (Creature* Galakras = instance->GetCreature(GetData64(NPC_GALAKRAS)))
+                            if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                                 Galakras->AI()->DoAction(ACTION_GRUNT_SOUTH_FINISH);
                             break;
                     }
@@ -775,7 +776,7 @@ public:
                         case IN_PROGRESS:
                             ShowNorthTower = data;
                             DoUpdateWorldState(WS_SHOW_NORTH_TOWER, 1);
-                            if (Creature* Galakras = instance->GetCreature(GetData64(NPC_GALAKRAS)))
+                            if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                                 Galakras->AI()->DoAction(ACTION_GRUNT_NORTH);
                             break;
                         case NOT_STARTED:
@@ -788,7 +789,7 @@ public:
                             ShowNorthTower = data;
                             DoUpdateWorldState(WS_SHOW_NORTH_TOWER, 0);
                             DoUpdateWorldState(WS_SHOW_CAPTURE_NORTH_TOWER, 1);
-                            if (Creature* Galakras = instance->GetCreature(GetData64(NPC_GALAKRAS)))
+                            if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                                 Galakras->AI()->DoAction(ACTION_GRUNT_NORTH_FINISH);
                             break;
                     }
@@ -805,11 +806,11 @@ public:
                     if (SouthTowerCount >= 100 && !STowerFull)
                     {
                         STowerFull = true;
-                        if (GameObject* SouthDoor = instance->GetGameObject(GetData64(GO_SOUTH_DOOR)))
+                        if (GameObject* SouthDoor = instance->GetGameObject(GetGuidData(GO_SOUTH_DOOR)))
                             SouthDoor->SetGoState(GO_STATE_ACTIVE);
-                        if (Creature* Galakras = instance->GetCreature(GetData64(NPC_GALAKRAS)))
+                        if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                             Galakras->AI()->DoAction(ACTION_DEMOLITIONS_NORTH);
-                        if (Creature* STower = instance->GetCreature(GetData64(NPC_TOWER_SOUTH)))
+                        if (Creature* STower = instance->GetCreature(GetGuidData(NPC_TOWER_SOUTH)))
                             STower->AI()->DoAction(ACTION_TOWER_GUARDS);
                         if (Creature* sDemo = instance->GetCreature(sExpertGUID))
                             sDemo->AI()->DoAction(ACTION_DEMOLITIONS_COMPLETE);
@@ -820,7 +821,7 @@ public:
                     {
                         STowerNull = true;
                         SetData(DATA_SOUTH_TOWER, NOT_STARTED);
-                        if (Creature* STower = instance->GetCreature(GetData64(NPC_TOWER_SOUTH)))
+                        if (Creature* STower = instance->GetCreature(GetGuidData(NPC_TOWER_SOUTH)))
                             STower->AI()->DoAction(ACTION_TOWER_TURRET);
                     }
                     break;
@@ -836,9 +837,9 @@ public:
                     if (NorthTowerCount >= 100 && !NTowerFull)
                     {
                         NTowerFull = true;
-                        if (GameObject* NorthDoor = instance->GetGameObject(GetData64(GO_NORTH_DOOR)))
+                        if (GameObject* NorthDoor = instance->GetGameObject(GetGuidData(GO_NORTH_DOOR)))
                             NorthDoor->SetGoState(GO_STATE_ACTIVE);
-                        if (Creature* NTower = instance->GetCreature(GetData64(NPC_TOWER_NORTH)))
+                        if (Creature* NTower = instance->GetCreature(GetGuidData(NPC_TOWER_NORTH)))
                             NTower->AI()->DoAction(ACTION_TOWER_GUARDS);
                         if (Creature* nDemo = instance->GetCreature(nExpertGUID))
                             nDemo->AI()->DoAction(ACTION_DEMOLITIONS_COMPLETE);
@@ -848,7 +849,7 @@ public:
                     {
                         NTowerNull = true;
                         SetData(DATA_NORTH_TOWER, NOT_STARTED);
-                        if (Creature* NTower = instance->GetCreature(GetData64(NPC_TOWER_NORTH)))
+                        if (Creature* NTower = instance->GetCreature(GetGuidData(NPC_TOWER_NORTH)))
                             NTower->AI()->DoAction(ACTION_TOWER_TURRET);
                     }
                     break;
@@ -1047,32 +1048,32 @@ public:
                     {
                         // Galakras finish event. Horde
                         case EVENT_FINISH_1_H:
-                            if (Creature* Lorthemar = instance->GetCreature(GetData64(NPC_LORTHEMAR_THERON_H)))
+                            if (Creature* Lorthemar = instance->GetCreature(GetGuidData(NPC_LORTHEMAR_THERON_H)))
                                 Lorthemar->AI()->Talk(7);
                             Events.ScheduleEvent(EVENT_FINISH_2_H, 2000);
                             break;
                         case EVENT_FINISH_2_H:
-                            if (Creature* Sylvana = instance->GetCreature(GetData64(NPC_LADY_SYLVANAS_WINDRUNNER_H)))
+                            if (Creature* Sylvana = instance->GetCreature(GetGuidData(NPC_LADY_SYLVANAS_WINDRUNNER_H)))
                                 Sylvana->AI()->Talk(5);
                             Events.ScheduleEvent(EVENT_FINISH_3_H, 4000);
                             break;
                         case EVENT_FINISH_3_H:
-                            if (Creature* Lorthemar = instance->GetCreature(GetData64(NPC_LORTHEMAR_THERON_H)))
+                            if (Creature* Lorthemar = instance->GetCreature(GetGuidData(NPC_LORTHEMAR_THERON_H)))
                                 Lorthemar->AI()->Talk(8);
                             break;
                         // Galakras finish event. Alliance
                         case EVENT_FINISH_1_A:
-                            if (Creature* Jaina = instance->GetCreature(GetData64(NPC_LADY_JAINA_PROUDMOORE_A)))
+                            if (Creature* Jaina = instance->GetCreature(GetGuidData(NPC_LADY_JAINA_PROUDMOORE_A)))
                                 Jaina->AI()->Talk(5);
                             Events.ScheduleEvent(EVENT_FINISH_2_A, 2000);
                             break;
                         case EVENT_FINISH_2_A:
-                            if (Creature* Varian = instance->GetCreature(GetData64(NPC_KING_VARIAN_WRYNN_A)))
+                            if (Creature* Varian = instance->GetCreature(GetGuidData(NPC_KING_VARIAN_WRYNN_A)))
                                 Varian->AI()->Talk(7);
                             Events.ScheduleEvent(EVENT_FINISH_3_A, 4000);
                             break;
                         case EVENT_FINISH_3_A:
-                            if (Creature* Jaina = instance->GetCreature(GetData64(NPC_LADY_JAINA_PROUDMOORE_A)))
+                            if (Creature* Jaina = instance->GetCreature(GetGuidData(NPC_LADY_JAINA_PROUDMOORE_A)))
                                 Jaina->AI()->Talk(6);
                             break;
                     }

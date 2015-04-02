@@ -585,7 +585,7 @@ class instance_dragon_soul : public InstanceMapScript
                         switch (data)
                         {
                         case IN_PROGRESS:
-                            for (std::vector<uint64>::const_iterator itr = assaultersGUIDs.begin(); itr != assaultersGUIDs.end(); ++itr)
+                            for (GuidVector::const_iterator itr = assaultersGUIDs.begin(); itr != assaultersGUIDs.end(); ++itr)
                                 if (Creature* assaulter = instance->GetCreature(*itr))
                                 {
                                     assaulter->SetPhaseMask(1, true);
@@ -593,7 +593,7 @@ class instance_dragon_soul : public InstanceMapScript
                                 }
                             break;
                         case SPECIAL:
-                            for (std::vector<uint64>::const_iterator itr = assaultersGUIDs.begin(); itr != assaultersGUIDs.end(); ++itr)
+                            for (GuidVector::const_iterator itr = assaultersGUIDs.begin(); itr != assaultersGUIDs.end(); ++itr)
                                 if (Creature* assaulter = instance->GetCreature(*itr))
                                     assaulter->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
                             if (!teleportGUIDs.empty())
@@ -602,7 +602,7 @@ class instance_dragon_soul : public InstanceMapScript
                                         DeactivatePortal(pTeleports);
                             break;
                         case FAIL:
-                            for (std::vector<uint64>::const_iterator itr = assaultersGUIDs.begin(); itr != assaultersGUIDs.end(); ++itr)
+                            for (GuidVector::const_iterator itr = assaultersGUIDs.begin(); itr != assaultersGUIDs.end(); ++itr)
                                 if (Creature* assaulter = instance->GetCreature(*itr))
                                 {
                                     assaulter->SetCanFly(true);
@@ -627,7 +627,7 @@ class instance_dragon_soul : public InstanceMapScript
                                 thrall->AI()->DoAction(ACTION_STOP_ASSAULTERS_SPAWN);
                             if (Creature* Deathwing = instance->GetCreature(GetData64(DATA_DRAGON_SOUL_EVENT)))
                                 Deathwing->AI()->DoAction(ACTION_DEATHWING_INTRO);
-                            for (std::vector<uint64>::const_iterator itr = assaultersGUIDs.begin(); itr != assaultersGUIDs.end(); ++itr)
+                            for (GuidVector::const_iterator itr = assaultersGUIDs.begin(); itr != assaultersGUIDs.end(); ++itr)
                                 if (Creature* assaulters = instance->GetCreature(*itr))
                                 {
                                     assaulters->AI()->DoAction(ACTION_STOP_ASSAULT);
@@ -700,7 +700,7 @@ class instance_dragon_soul : public InstanceMapScript
 
                 if (type == DATA_MORCHOK && state == DONE)
                     if (!dragonstaxiGUIDs.empty())
-                        for (std::vector<uint64>::const_iterator itr = dragonstaxiGUIDs.begin(); itr != dragonstaxiGUIDs.end(); ++itr)
+                        for (GuidVector::const_iterator itr = dragonstaxiGUIDs.begin(); itr != dragonstaxiGUIDs.end(); ++itr)
                             if (Creature* dragonstaxi = instance->GetCreature((*itr)))
                                 dragonstaxi->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
 
@@ -714,7 +714,7 @@ class instance_dragon_soul : public InstanceMapScript
 
                 if (type == DATA_SPINE)
                     if (!maelstormteleGUIDs.empty())
-                        for (std::vector<uint64>::const_iterator itr = maelstormteleGUIDs.begin(); itr != maelstormteleGUIDs.end(); ++itr)
+                        for (GuidVector::const_iterator itr = maelstormteleGUIDs.begin(); itr != maelstormteleGUIDs.end(); ++itr)
                             if (Creature* Teleports = instance->GetCreature((*itr)))
                                 Teleports->SetVisible(state == DONE ? true : false);
 
@@ -726,7 +726,7 @@ class instance_dragon_soul : public InstanceMapScript
                 if (state == IN_PROGRESS)
                 {
                     if (!teleportGUIDs.empty())
-                        for (std::vector<uint64>::const_iterator itr = teleportGUIDs.begin(); itr != teleportGUIDs.end(); ++itr)
+                        for (GuidVector::const_iterator itr = teleportGUIDs.begin(); itr != teleportGUIDs.end(); ++itr)
                             if (Creature* Teleports = instance->GetCreature((*itr)))
                                 DeactivatePortal(Teleports);
                 }
@@ -740,7 +740,7 @@ class instance_dragon_soul : public InstanceMapScript
             {
                 if (GetBossState(DATA_MORCHOK) == DONE)
                     if (!startportalsGUIDs.empty())
-                        for (std::vector<uint64>::const_iterator itr = startportalsGUIDs.begin(); itr != startportalsGUIDs.end(); ++itr)
+                        for (GuidVector::const_iterator itr = startportalsGUIDs.begin(); itr != startportalsGUIDs.end(); ++itr)
                             if (Creature* Teleports = instance->GetCreature((*itr)))
                                 ActivatePortal(Teleports);
                 if ((GetBossState(DATA_YORSAHJ) == DONE) && (GetBossState(DATA_ZONOZZ) == DONE))
@@ -748,7 +748,7 @@ class instance_dragon_soul : public InstanceMapScript
                         ActivatePortal(WyrmrestBaseFromSummitTele);
                 if ((GetBossState(DATA_HAGARA) == DONE) || (GetData(DATA_OPEN_PORTAL_TO_EYE) == DONE))
                     if (!wyrmrestsummitGUIDs.empty())
-                        for (std::vector<uint64>::const_iterator itr = wyrmrestsummitGUIDs.begin(); itr != wyrmrestsummitGUIDs.end(); ++itr)
+                        for (GuidVector::const_iterator itr = wyrmrestsummitGUIDs.begin(); itr != wyrmrestsummitGUIDs.end(); ++itr)
                             if (Creature* Teleports = instance->GetCreature((*itr)))
                                 ActivatePortal(Teleports);
                 if (GetBossState(DATA_ULTRAXION) == DONE)
@@ -756,7 +756,7 @@ class instance_dragon_soul : public InstanceMapScript
                         ActivatePortal(WyrmrestBaseFromGunship);
                 if (GetBossState(DATA_SPINE) == DONE)
                     if (!maelstormteleGUIDs.empty())
-                        for (std::vector<uint64>::const_iterator itr = maelstormteleGUIDs.begin(); itr != maelstormteleGUIDs.end(); ++itr)
+                        for (GuidVector::const_iterator itr = maelstormteleGUIDs.begin(); itr != maelstormteleGUIDs.end(); ++itr)
                             if (Creature* Teleports = instance->GetCreature((*itr)))
                                 ActivatePortal(Teleports);
             }

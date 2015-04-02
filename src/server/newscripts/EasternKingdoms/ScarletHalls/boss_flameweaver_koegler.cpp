@@ -294,7 +294,7 @@ public:
         
         if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
         {
-            if (Creature* koegler = pInstance->instance->GetCreature(pInstance->GetData64(NPC_FLAMEWEAVER_KOEGLER)))
+            if (Creature* koegler = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_FLAMEWEAVER_KOEGLER)))
                 koegler->AI()->DoAction(ACTION_INTRO);
         }
         return true;

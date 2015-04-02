@@ -588,7 +588,7 @@ class npc_snowdrift_novice : public CreatureScript
                     switch (eventId)
                     {
                     case EVENT_FORFEIT_JUMP:
-                        if (Creature* position = pInstance->instance->GetCreature(pInstance->GetData64(DATA_RANDOM_FIRST_POS)))
+                        if (Creature* position = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_RANDOM_FIRST_POS)))
                         {
                             EnterEvadeMode();
                             me->CombatStop();

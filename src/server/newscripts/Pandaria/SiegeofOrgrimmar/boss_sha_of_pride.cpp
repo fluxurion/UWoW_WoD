@@ -184,14 +184,14 @@ class boss_sha_of_pride : public CreatureScript
                 me->SetPower(POWER_ENERGY, 0);
                 bPhaseLowHp = false;
                 
-                if (Creature* norushen = instance->instance->GetCreature(instance->GetData64(NPC_SHA_NORUSHEN)))
+                if (Creature* norushen = instance->instance->GetCreature(instance->GetGuidData(NPC_SHA_NORUSHEN)))
                     norushen->Respawn();
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 
                 for(uint8 i = 0; i < 12; ++i)
                 {
-                    if (GameObject* prisonGo = instance->instance->GetGameObject(instance->GetData64(prisonbutton[i])))
+                    if (GameObject* prisonGo = instance->instance->GetGameObject(instance->GetGuidData(prisonbutton[i])))
                     {
                         prisonGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                     }

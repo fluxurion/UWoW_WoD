@@ -197,7 +197,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return GeneralZarithrianGUID;
                     case DATA_ZARITHRIAN_SPAWN_STALKER_1:
                     case DATA_ZARITHRIAN_SPAWN_STALKER_2:
-                        return ZarithrianSpawnStalkerGUID[type - DATA_ZARITHRIAN_SPAWN_STALKER_1];
+                        return ZarithrianSpawnStalkerGUID[data - DATA_ZARITHRIAN_SPAWN_STALKER_1];
                     case DATA_HALION:
                         return HalionGUID;
                     case DATA_TWILIGHT_HALION:
@@ -212,7 +212,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case DATA_BURNING_TREE_2:
                     case DATA_BURNING_TREE_3:
                     case DATA_BURNING_TREE_4:
-                        return BurningTreeGUID[type - DATA_BURNING_TREE_1];
+                        return BurningTreeGUID[data - DATA_BURNING_TREE_1];
                     case DATA_FLAME_RING:
                         return FlameRingGUID;
                     case DATA_TWILIGHT_FLAME_RING:

@@ -54,6 +54,8 @@ public:
         ObjectGuid uiBlackKnightGryphonGUID;
         ObjectGuid uiGrandChampion3GUID;
         ObjectGuid uiPortcullisGUID;
+        ObjectGuid uiMainGateGUID;
+        ObjectGuid uiChampionLootGUID;
 
         GuidList VehicleList;
         uint32 TeamInInstance;

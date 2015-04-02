@@ -251,7 +251,7 @@ class npc_springvale_wailing_guardsman : public CreatureScript
                             break;
                         case EVENT_UNHOLY_EMPOWERMENT:
                             if (pInstance)
-                                if (Creature* springvale = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SPRINGVALE)))
+                                if (Creature* springvale = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SPRINGVALE)))
                                     DoCast(springvale, SPELL_UNHOLY_EMPOWERMENT);
                             events.ScheduleEvent(EVENT_UNHOLY_EMPOWERMENT, 15000);
                             break;
@@ -315,7 +315,7 @@ class npc_springvale_tormented_officer : public CreatureScript
                             break;
                         case EVENT_UNHOLY_EMPOWERMENT:
                             if (pInstance)
-                                if (Creature* springvale = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SPRINGVALE)))
+                                if (Creature* springvale = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SPRINGVALE)))
                                     DoCast(springvale, SPELL_UNHOLY_EMPOWERMENT);
                             events.ScheduleEvent(EVENT_UNHOLY_EMPOWERMENT, 15000);
                             break;

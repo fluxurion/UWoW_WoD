@@ -486,7 +486,7 @@ public:
 
                     case EVENT_LIFTOFF:
                         Talk(SAY_AIR_PHASE_2);
-                        if (GameObject* elevator = instance->instance->GetGameObject(instance->GetData64(DATA_NEFARIAN_FLOOR)))
+                        if (GameObject* elevator = instance->instance->GetGameObject(instance->GetGuidData(DATA_NEFARIAN_FLOOR)))
                             elevator->SetGoState(GO_STATE_ACTIVE);
 
                         me->GetMotionMaster()->Clear();
@@ -547,7 +547,7 @@ public:
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MoveChase(me->getVictim());
 
-                        if (GameObject* elevator = instance->instance->GetGameObject(instance->GetData64(DATA_NEFARIAN_FLOOR)))
+                        if (GameObject* elevator = instance->instance->GetGameObject(instance->GetGuidData(DATA_NEFARIAN_FLOOR)))
                             elevator->SetGoState(GO_STATE_READY);
                         break;
 
@@ -715,7 +715,7 @@ public:
 
         void Reset()
         {
-            if (GameObject* elevator = instance->instance->GetGameObject(instance->GetData64(DATA_NEFARIAN_FLOOR)))
+            if (GameObject* elevator = instance->instance->GetGameObject(instance->GetGuidData(DATA_NEFARIAN_FLOOR)))
                 if (elevator->GetGoState() == GO_STATE_READY)
                     elevator->SetGoState(GO_STATE_ACTIVE);
 

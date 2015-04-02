@@ -3336,7 +3336,7 @@ public:
         if(!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_19_ENTRYID, newItem, 18))
+        if (pl->HandleChangeSlotModel(EQUIPMENT_SLOT_TABARD, newItem, 18))
         {
             pl->m_vis->m_visTabard = newItem;
             return true;
@@ -3360,7 +3360,7 @@ public:
         if(!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(PLAYER_VISIBLE_ITEM_4_ENTRYID, newItem, 3))
+        if (pl->HandleChangeSlotModel(EQUIPMENT_SLOT_BODY, newItem, 3))
         {
             pl->m_vis->m_visShirt = newItem;
             return true;

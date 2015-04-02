@@ -185,7 +185,7 @@ public:
     {
         if (InstanceScript* instance = go->GetInstanceScript())
             if (instance->GetData(DATA_EGG_EVENT) != DONE)
-                if (Creature* razor = Unit::GetCreature(*go, instance ? instance->GetData64(DATA_RAZORGORE_THE_UNTAMED) : 0))
+                if (Creature* razor = Unit::GetCreature(*go, instance ? instance->GetGuidData(DATA_RAZORGORE_THE_UNTAMED) : 0))
                 {
                     razor->SetInCombatWithZone();
                     razor->Attack(player, true);

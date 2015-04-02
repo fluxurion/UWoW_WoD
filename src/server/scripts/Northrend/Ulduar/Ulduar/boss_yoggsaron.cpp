@@ -411,7 +411,7 @@ class boss_sara : public CreatureScript
         }
 
         InstanceScript *pInstance;
-        std::vector<uint64> ominous_list;
+        GuidVector ominous_list;
         uint32 uiPhase_timer;
         uint32 uiStep;
         uint8 Phase;
@@ -500,7 +500,7 @@ class boss_sara : public CreatureScript
                 
                 if (!ominous_list.empty())
                 {
-                    for (std::vector<uint64>::iterator itr = ominous_list.begin(); itr != ominous_list.end(); ++itr)
+                    for (GuidVector::iterator itr = ominous_list.begin(); itr != ominous_list.end(); ++itr)
                     {
                         if (Unit* pTarget = ObjectAccessor::GetUnit(*me, *itr))
                             pTarget->AddThreat(me->getVictim(), 0.0f);
@@ -553,7 +553,7 @@ class boss_sara : public CreatureScript
                         case EVENT_SUMMON_GUARDIAN:
                             if (!ominous_list.empty())
                             {
-                                std::vector<uint64>::iterator itr = (ominous_list.begin()+rand()%ominous_list.size());
+                                GuidVector::iterator itr = (ominous_list.begin()+rand()%ominous_list.size());
                                 if (Unit* pTarget = ObjectAccessor::GetUnit(*me, *itr))
                                     pTarget->CastSpell(pTarget, SPELL_SUMMON_GUARDIAN, true);
                             }
@@ -624,7 +624,7 @@ class boss_sara : public CreatureScript
                             me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
                             if (!ominous_list.empty())
                             {
-                                for (std::vector<uint64>::iterator itr = ominous_list.begin(); itr != ominous_list.end(); ++itr)
+                                for (GuidVector::iterator itr = ominous_list.begin(); itr != ominous_list.end(); ++itr)
                                 {
                                     if (Creature* pTarget = ObjectAccessor::GetCreature(*me, *itr))
                                         pTarget->DespawnOrUnsummon();

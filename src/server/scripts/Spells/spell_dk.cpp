@@ -2188,8 +2188,8 @@ class spell_dk_death_shroud : public SpellScriptLoader
 
                 if (Player* _player = caster->ToPlayer())
                 {
-                    uint32 mastery = _player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_MASTERY);
-                    uint32 haste = _player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_MELEE);
+                    uint32 mastery = _player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY);
+                    uint32 haste = _player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE);
 
                     if(haste < mastery)
                         amount = 0;
@@ -2204,8 +2204,8 @@ class spell_dk_death_shroud : public SpellScriptLoader
 
                 if (Player* _player = caster->ToPlayer())
                 {
-                    uint32 mastery = _player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_MASTERY);
-                    uint32 haste = _player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_MELEE);
+                    uint32 mastery = _player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_MASTERY);
+                    uint32 haste = _player->GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE);
 
                     if(haste > mastery)
                         amount = 0;

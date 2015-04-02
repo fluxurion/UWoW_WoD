@@ -451,7 +451,7 @@ class boss_galakras : public CreatureScript
                     case ACTION_PRE_EVENT_FINISH:
                         PreEvent = false;
                         Summons();
-                        if (Creature* Zaela = instance->instance->GetCreature(instance->GetData64(NPC_WARLORD_ZAELA)))
+                        if (Creature* Zaela = instance->instance->GetCreature(instance->GetGuidData(NPC_WARLORD_ZAELA)))
                             Zaela->AI()->ZoneTalk(TEXT_GENERIC_9, 0);
                         break;
                     case ACTION_GALAKRAS_START_EVENT:
@@ -521,7 +521,7 @@ class boss_galakras : public CreatureScript
                             break;
                         case EVENT_GALAKRAS_INTRO:
                         {
-                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetData64(NPC_WARLORD_ZAELA)))
+                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetGuidData(NPC_WARLORD_ZAELA)))
                                 Zaela->AI()->Talk(SAY_GALAKRAS_INTRO);
                             DoZoneInCombat();
                             events.ScheduleEvent(EVENT_SUMMON_ADDS_1, 5000);
@@ -558,7 +558,7 @@ class boss_galakras : public CreatureScript
                             me->SummonCreature(NPC_DRAGONMAW_FLAMESLINGER, AddsSpawn[0].GetPositionX(), AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             me->SummonCreature(NPC_DRAGONMAW_FLAMESLINGER, AddsSpawn[0].GetPositionX() - 2.0, AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             me->SummonCreature(NPC_DRAGONMAW_TIDAL_SHAMAN, AddsSpawn[0].GetPositionX() - 4.0f, AddsSpawn[0].GetPositionY() - 1.0f, AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetData64(NPC_WARLORD_ZAELA)))
+                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetGuidData(NPC_WARLORD_ZAELA)))
                                 Zaela->AI()->Talk(SAY_GALAKRAS_1);
                             events.ScheduleEvent(EVENT_SUMMON_ADDS_3, 55000);
                             break;
@@ -566,7 +566,7 @@ class boss_galakras : public CreatureScript
                             me->SummonCreature(NPC_DRAGONMAW_EBON_STALKER, AddsSpawn[0].GetPositionX() + 2.0f, AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             me->SummonCreature(NPC_KORGRA_THE_SNAKE, AddsSpawn[0].GetPositionX(), AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             me->SummonCreature(NPC_DRAGONMAW_EBON_STALKER, AddsSpawn[0].GetPositionX() - 2.0, AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetData64(NPC_WARLORD_ZAELA)))
+                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetGuidData(NPC_WARLORD_ZAELA)))
                                 Zaela->AI()->Talk(SAY_GALAKRAS_2);
                             events.ScheduleEvent(EVENT_SUMMON_ADDS_4, 55000);
                             break;
@@ -580,7 +580,7 @@ class boss_galakras : public CreatureScript
                             me->SummonCreature(NPC_DRAGONMAW_TIDAL_SHAMAN, AddsSpawn[0].GetPositionX() + 2.0f, AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             me->SummonCreature(NPC_HIGH_ENFORCER_THRANOK, AddsSpawn[0].GetPositionX(), AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             me->SummonCreature(NPC_DRAGONMAW_GRUNT, AddsSpawn[0].GetPositionX() - 2.0, AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetData64(NPC_WARLORD_ZAELA)))
+                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetGuidData(NPC_WARLORD_ZAELA)))
                                 Zaela->AI()->Talk(SAY_GALAKRAS_1);
                             events.ScheduleEvent(EVENT_SUMMON_ADDS_6, 55000);
                             break;
@@ -588,7 +588,7 @@ class boss_galakras : public CreatureScript
                             me->SummonCreature(NPC_DRAGONMAW_GRUNT, AddsSpawn[0].GetPositionX() + 2.0f, AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             me->SummonCreature(NPC_DRAGONMAW_BONECRUSHER, AddsSpawn[0].GetPositionX(), AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             me->SummonCreature(NPC_DRAGONMAW_FLAGBEARER, AddsSpawn[0].GetPositionX() - 2.0, AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetData64(NPC_WARLORD_ZAELA)))
+                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetGuidData(NPC_WARLORD_ZAELA)))
                                 Zaela->AI()->Talk(SAY_GALAKRAS_4);
                             events.ScheduleEvent(EVENT_SUMMON_ADDS_7, 55000);
                             break;
@@ -598,7 +598,7 @@ class boss_galakras : public CreatureScript
                             me->SummonCreature(NPC_DRAGONMAW_TIDAL_SHAMAN, AddsSpawn[0].GetPositionX(), AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             me->SummonCreature(NPC_DRAGONMAW_FLAMESLINGER, AddsSpawn[0].GetPositionX() - 2.0, AddsSpawn[0].GetPositionY(), AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             me->SummonCreature(NPC_DRAGONMAW_FLAMESLINGER, AddsSpawn[0].GetPositionX() - 4.0f, AddsSpawn[0].GetPositionY() - 1.0f, AddsSpawn[0].GetPositionZ() + 1.0f, AddsSpawn[0].GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetData64(NPC_WARLORD_ZAELA)))
+                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetGuidData(NPC_WARLORD_ZAELA)))
                                 Zaela->AI()->Talk(SAY_GALAKRAS_1);
                             events.ScheduleEvent(EVENT_SUMMON_ADDS_8, 55000);
                             break;
@@ -625,7 +625,7 @@ class boss_galakras : public CreatureScript
                         case EVENT_GALAKRAS_EXECUTE_1:
                             me->GetMotionMaster()->MovePoint(1, ExecutePos[0]);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetData64(NPC_WARLORD_ZAELA)))
+                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetGuidData(NPC_WARLORD_ZAELA)))
                             {
                                 Zaela->AI()->Talk(SAY_GALAKRAS_6);
                                 Zaela->AI()->Talk(SAY_GALAKRAS_7);
@@ -731,13 +731,13 @@ class npc_varian_or_lorthemar : public CreatureScript
                             me->GetMotionMaster()->MovePoint(1, RinOrlortPos[0]);
                             me->SetHomePosition(RinOrlortPos[0]);
     
-                            if (Creature* jainasylvana = instance->instance->GetCreature(instance->GetData64(DATA_JAINA_OR_SYLVANA)))
+                            if (Creature* jainasylvana = instance->instance->GetCreature(instance->GetGuidData(DATA_JAINA_OR_SYLVANA)))
                                 if (CreatureGroup* f = me->GetFormation())
                                     f->AddMember(jainasylvana, group_member);
-                            if (Creature* VereesaAethas = instance->instance->GetCreature(instance->GetData64(DATA_VEREESA_OR_AETHAS)))
+                            if (Creature* VereesaAethas = instance->instance->GetCreature(instance->GetGuidData(DATA_VEREESA_OR_AETHAS)))
                                 if (CreatureGroup* f = me->GetFormation())
                                     f->AddMember(VereesaAethas, group_member);
-                            if (Creature* pGalakras = instance->instance->GetCreature(instance->GetData64(NPC_GALAKRAS)))
+                            if (Creature* pGalakras = instance->instance->GetCreature(instance->GetGuidData(NPC_GALAKRAS)))
                                 pGalakras->AI()->DoAction(ACTION_GALAKRAS_START_EVENT);
     
                             instance->SetBossState(DATA_GALAKRAS, IN_PROGRESS);
@@ -1103,11 +1103,11 @@ class npc_demolitions : public CreatureScript
                 summons.DespawnAll();
 
                 if (SouthExpert && RespawnEvent)
-                    if (Creature* Galakras = instance->instance->GetCreature(instance->GetData64(NPC_GALAKRAS)))
+                    if (Creature* Galakras = instance->instance->GetCreature(instance->GetGuidData(NPC_GALAKRAS)))
                         Galakras->AI()->DoAction(ACTION_DEMOLITIONS_SOUTH);
                     
                 if (NorthExpert && RespawnEvent)
-                    if (Creature* Galakras = instance->instance->GetCreature(instance->GetData64(NPC_GALAKRAS)))
+                    if (Creature* Galakras = instance->instance->GetCreature(instance->GetGuidData(NPC_GALAKRAS)))
                         Galakras->AI()->DoAction(ACTION_DEMOLITIONS_NORTH);
             }
             
@@ -1247,7 +1247,7 @@ class npc_galakras_south_tower : public CreatureScript
                     {
                         case EVENT_SUMMON_DEMOLISHER:
                             me->SummonCreature(NPC_KORKRON_DEMOLISHER, AddsSpawn[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
-                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetData64(NPC_WARLORD_ZAELA)))
+                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetGuidData(NPC_WARLORD_ZAELA)))
                                 Zaela->AI()->Talk(SAY_GALAKRAS_3);
                             break;
                         case EVENT_SUMMON_FLY_PROTODRAKE_1:
@@ -1693,7 +1693,7 @@ class npc_korkron_demolisher : public CreatureScript
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     me->SetFacingToObject(Summoner);
                                 }
-                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetData64(NPC_WARLORD_ZAELA)))
+                            if (Creature* Zaela = instance->instance->GetCreature(instance->GetGuidData(NPC_WARLORD_ZAELA)))
                                 Zaela->AI()->Talk(SAY_GALAKRAS_4);
                             events.ScheduleEvent(EVENT_ATTACK_TOWER, 2000);
                             break;
@@ -1971,13 +1971,13 @@ class npc_dragonmaw_grunt_h : public CreatureScript
                             break;
                         }
                         case EVENT_FIXATE:
-                            if (Creature* sExpert = instance->instance->GetCreature(instance->GetData64(DATA_DEMOLITIONS_EXPERT_S)))
+                            if (Creature* sExpert = instance->instance->GetCreature(instance->GetGuidData(DATA_DEMOLITIONS_EXPERT_S)))
                             {
                                 AttackStart(sExpert);
                                 me->AddThreat(sExpert, 1000000.0f);
                                 DoCast(sExpert, SPELL_FIXATE, true);
                             }
-                            if (Creature* nExpert = instance->instance->GetCreature(instance->GetData64(DATA_DEMOLITIONS_EXPERT_N)))
+                            if (Creature* nExpert = instance->instance->GetCreature(instance->GetGuidData(DATA_DEMOLITIONS_EXPERT_N)))
                             {
                                 AttackStart(nExpert);
                                 me->AddThreat(nExpert, 1000000.0f);

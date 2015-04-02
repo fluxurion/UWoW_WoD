@@ -436,7 +436,7 @@ class boss_amalgam_of_corruption : public CreatureScript
                     --challengeCounter[guid.GetCounter()];
             }
 
-            uint64 GetData64(uint64 guid) const
+            ObjectGuid GetGuidData(uint64 guid) const
             {  
                 std::map<ObjectGuid::LowType, uint64>::const_iterator itr = challengeCounter.find(guid);
                 if (itr == challengeCounter.end())
@@ -800,7 +800,7 @@ struct npc_norushenChallengeAI : public ScriptedAI
         {
             summonInRealWorld(amalgam);
             amalgam->AI()->SetGUID(plr->GetGUID(), -1);
-            if (!amalgam->AI()->GetData64(plr->GetGUID().GetCounter()))
+            if (!amalgam->AI()->GetGuidData(plr->GetGUID().GetCounter()))
                 plr->RemoveAurasDueToSpell(SPELL_TEST_OF_SERENITY);
         }
         me->DespawnOrUnsummon();
@@ -993,7 +993,7 @@ public:
         {
             me->CastSpell(me, SPELL_UNLEASHED, false);
             me->SetInCombatWithZone();
-            if (Creature* amalgam = pInstance->instance->GetCreature(pInstance->GetData64(NPC_AMALGAM_OF_CORRUPTION)))
+            if (Creature* amalgam = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
                 amalgam->CastSpell(me, SPELL_UNLEASHED_0_EFFECT_PROCK, false);
         }
 

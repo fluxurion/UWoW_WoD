@@ -40,7 +40,7 @@ class instance_deadmines : public InstanceMapScript
                 GoblinTeleporterGUID.Clear();
                 HeavyDoorGUID.Clear();
                 HeavyDoor2GUID.Clear();
-                TeamInInstance.Clear();
+                TeamInInstance = 0;
 
                 State = CANNON_NOT_USED;
                 uiVanessaEvent = 0;
@@ -205,7 +205,7 @@ class instance_deadmines : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 data)
+            ObjectGuid GetGuidData(uint32 data)
             {
                 switch (data)
                 {

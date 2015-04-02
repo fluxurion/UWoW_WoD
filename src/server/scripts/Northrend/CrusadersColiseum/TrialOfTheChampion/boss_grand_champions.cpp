@@ -823,8 +823,8 @@ public:
             disengageTimer = 3000;
             lightningArrowsTimer = 7000;
             me->SetSheath(SHEATH_STATE_RANGED);
-            me->SetStatFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, IsHeroic() ? 5000.0f : 3000.0f);
-            me->SetStatFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, IsHeroic() ? 6000.0f : 4000.0f);
+            me->SetStatFloatValue(UNIT_FIELD_MIN_RANGED_DAMAGE, IsHeroic() ? 5000.0f : 3000.0f);
+            me->SetStatFloatValue(UNIT_FIELD_MAX_RANGED_DAMAGE, IsHeroic() ? 6000.0f : 4000.0f);
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         }
 
@@ -1010,8 +1010,8 @@ public:
             // Settings for offhand attack
             DoCast(me, SPELL_DUAL_WIELD, true);
             me->SetAttackTime(OFF_ATTACK, 1400);
-            me->SetStatFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, IsHeroic() ? 5000.0f : 3000.0f);
-            me->SetStatFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, IsHeroic() ? 6000.0f : 4000.0f);
+            me->SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, IsHeroic() ? 5000.0f : 3000.0f);
+            me->SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, IsHeroic() ? 6000.0f : 4000.0f);
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         }
 
@@ -1155,9 +1155,9 @@ class spell_toc5_ride_mount : public SpellScriptLoader
 
             SpellCastResult CheckRequirement()
             {
-                if(GetCaster()->GetUInt32Value(PLAYER_VISIBLE_ITEM_16_ENTRYID) == 46106 ||
-                    GetCaster()->GetUInt32Value(PLAYER_VISIBLE_ITEM_16_ENTRYID) == 46069 ||
-                    GetCaster()->GetUInt32Value(PLAYER_VISIBLE_ITEM_16_ENTRYID) == 46070)
+                if(GetCaster()->GetUInt32Value(EQUIPMENT_SLOT_MAINHAND) == 46106 ||
+                    GetCaster()->GetUInt32Value(EQUIPMENT_SLOT_MAINHAND) == 46069 ||
+                    GetCaster()->GetUInt32Value(EQUIPMENT_SLOT_MAINHAND) == 46070)
                 {
                     GetCaster()->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
                     return SPELL_CAST_OK;

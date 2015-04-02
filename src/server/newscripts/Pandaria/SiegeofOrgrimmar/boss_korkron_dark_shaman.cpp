@@ -168,7 +168,7 @@ public:
         {
             if (instance)
             { 
-                if (Creature* oshaman = me->GetCreature(*me, instance->GetData64(me->GetEntry() == NPC_WAVEBINDER_KARDRIS ? NPC_EARTHBREAKER_HAROMM : NPC_WAVEBINDER_KARDRIS)))
+                if (Creature* oshaman = me->GetCreature(*me, instance->GetGuidData(me->GetEntry() == NPC_WAVEBINDER_KARDRIS ? NPC_EARTHBREAKER_HAROMM : NPC_WAVEBINDER_KARDRIS)))
                 {
                     if (oshaman->isAlive())
                         return oshaman;
@@ -516,7 +516,7 @@ public:
         {
             if (instance)
             {
-                if (Creature* omount = me->GetCreature(*me, instance->GetData64(me->GetEntry() == NPC_BLOODCLAW ? NPC_DARKFANG : NPC_BLOODCLAW)))
+                if (Creature* omount = me->GetCreature(*me, instance->GetGuidData(me->GetEntry() == NPC_BLOODCLAW ? NPC_DARKFANG : NPC_BLOODCLAW)))
                 {
                     if (!omount->isInCombat())
                         omount->AI()->DoZoneInCombat(omount, 150.0f);
