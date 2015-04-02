@@ -1345,7 +1345,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_LFG_FORCE_MINPLAYERS] = sConfigMgr->GetBoolDefault("DungeonFinder.ForceMinplayers", false);
 
     m_bool_configs[CONFIG_GROUP_BONUS_XP] = sConfigMgr->GetBoolDefault("Group.BonusXp", false);
-    m_bool_configs[CONFIG_FUN_OPTION_ENABLED] = ConfigMgr::GetIntDefault("FunOption", false);
+    m_bool_configs[CONFIG_FUN_OPTION_ENABLED] = sConfigMgr->GetIntDefault("FunOption", false);
 
     // DBC_ItemAttributes
     m_bool_configs[CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES] = sConfigMgr->GetBoolDefault("DBC.EnforceItemAttributes", true);
@@ -1417,10 +1417,10 @@ void World::LoadConfigSettings(bool reload)
     m_float_configs[CONFIG_ARCHAEOLOGY_RARE_MAXLEVEL_CHANCE] = sConfigMgr->GetFloatDefault("Archaeology.RareMaxLevelChance", 10.0f);
 
     // Blizzard Shop
-    m_bool_configs[CONFIG_PURCHASE_SHOP_ENABLED] = sConfigMgr->GetBoolDefault("Purchase.Shop.Enabled", true);
+    m_bool_configs[CONFIG_PURCHASE_SHOP_ENABLED] = sConfigMgr->GetBoolDefault("Purchase.Shop.Enabled", false);
 
     // Battle Pets
-    m_bool_configs[CONFIG_PET_BATTLES_ENABLED] = ConfigMgr::GetBoolDefault("PetBattles.Enabled", true);
+    m_bool_configs[CONFIG_PET_BATTLES_ENABLED] = sConfigMgr->GetBoolDefault("PetBattles.Enabled", true);
 
     if (reload)
         sScriptMgr->OnConfigLoad(reload);

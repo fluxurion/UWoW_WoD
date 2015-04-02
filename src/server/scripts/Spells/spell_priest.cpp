@@ -2215,7 +2215,7 @@ class spell_pri_divine_star_filter : public SpellScriptLoader
                 Trinity::NormalizeMapCoord(x);
                 Trinity::NormalizeMapCoord(y);
 
-                std::list<uint64> saveTargets = auraTrigger->GetEffectTargets();
+                GuidList saveTargets = auraTrigger->GetEffectTargets();
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
@@ -2223,7 +2223,7 @@ class spell_pri_divine_star_filter : public SpellScriptLoader
                     bool find = false;
                     if(!saveTargets.empty())
                     {
-                        for (std::list<uint64>::iterator itrGuid = saveTargets.begin(); itrGuid != saveTargets.end();)
+                        for (GuidList::iterator itrGuid = saveTargets.begin(); itrGuid != saveTargets.end();)
                         {
                             if(guid == (*itrGuid))
                             {

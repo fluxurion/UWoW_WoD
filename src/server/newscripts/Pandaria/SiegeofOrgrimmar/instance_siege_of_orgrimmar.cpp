@@ -62,6 +62,7 @@ public:
         uint64 nazgrimdoorGuid;
         
         //Creature
+        ObjectGuid LorewalkerChoGUIDtmp;
         GuidSet shaSlgGUID;
         GuidVector PortalOrgrimmarGUID;
         GuidVector MeasureGUID;

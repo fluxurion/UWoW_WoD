@@ -264,7 +264,7 @@ struct hyjalAI : public npc_escortAI
 
     private:
         uint32 SpellTimer[3];
-        //std::list<uint64> CreatureList;
+        //GuidList CreatureList;
 };
 #endif
 

@@ -1673,10 +1673,10 @@ class spell_dk_blood_boil : public SpellScriptLoader
                             SetHitDamage(int32(damge * 1.223f));
 
                             // Roiling Blood
-                            std::list<uint64> targets = GetSpell()->GetEffectTargets();
+                            GuidList targets = GetSpell()->GetEffectTargets();
                             if(!targets.empty())
                             {
-                                for (std::list<uint64>::iterator itr = targets.begin(); itr != targets.end();)
+                                for (GuidList::iterator itr = targets.begin(); itr != targets.end();)
                                 {
                                     if(target->GetGUID() == (*itr))
                                     {
@@ -1692,10 +1692,10 @@ class spell_dk_blood_boil : public SpellScriptLoader
                             SetHitDamage(int32(damge * 1.223f));
 
                             // Roiling Blood
-                            std::list<uint64> targets = GetSpell()->GetEffectTargets();
+                            GuidList targets = GetSpell()->GetEffectTargets();
                             if(!targets.empty())
                             {
-                                for (std::list<uint64>::iterator itr = targets.begin(); itr != targets.end();)
+                                for (GuidList::iterator itr = targets.begin(); itr != targets.end();)
                                 {
                                     if(target->GetGUID() == (*itr))
                                     {

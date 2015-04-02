@@ -279,7 +279,7 @@ class instance_oculus : public InstanceMapScript
 
             void GreaterWhelps()
             {
-                for (std::list<uint64>::const_iterator itr = GreaterWhelpList.begin(); itr != GreaterWhelpList.end(); ++itr)
+                for (GuidList::const_iterator itr = GreaterWhelpList.begin(); itr != GreaterWhelpList.end(); ++itr)
                     if (Creature* gwhelp = instance->GetCreature(*itr))
                         gwhelp->SetPhaseMask(1, true);
             }
@@ -341,7 +341,7 @@ class instance_oculus : public InstanceMapScript
 
             uint64 EregosCacheGUID;
 
-            std::list<uint64> GreaterWhelpList;
+            GuidList GreaterWhelpList;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

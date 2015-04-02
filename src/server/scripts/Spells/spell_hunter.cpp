@@ -830,7 +830,7 @@ class spell_hun_binding_shot : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                std::list<uint64> targetList;
+                GuidList targetList;
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                     targetList.push_back((*itr)->GetGUID());
 
@@ -867,10 +867,10 @@ class spell_hun_binding_shot_zone : public SpellScriptLoader
                 {
                     if (DynamicObject* dynObj = caster->GetDynObject(HUNTER_SPELL_BINDING_SHOT_AREA))
                     {
-                        std::list<uint64> targets = GetAura()->GetEffectTargets();
+                        GuidList targets = GetAura()->GetEffectTargets();
                         if(!targets.empty())
                         {
-                            for (std::list<uint64>::iterator itr = targets.begin(); itr != targets.end();)
+                            for (GuidList::iterator itr = targets.begin(); itr != targets.end();)
                             {
                                 Unit* unit = ObjectAccessor::GetUnit(*caster, (*itr));
                                 if (unit && unit->IsInWorld() && unit->GetDistance(dynObj) > 5.0f)
@@ -905,7 +905,7 @@ class spell_hun_binding_shot_zone : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                std::list<uint64> targetList;
+                GuidList targetList;
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                     targetList.push_back((*itr)->GetGUID());
 

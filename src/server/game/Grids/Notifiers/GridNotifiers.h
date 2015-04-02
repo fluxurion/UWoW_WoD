@@ -2054,6 +2054,7 @@ namespace Trinity
 
                     return false;
                 }
+                return false;
             }
 
         private:

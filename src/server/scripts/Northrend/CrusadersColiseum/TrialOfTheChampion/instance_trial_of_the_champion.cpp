@@ -177,7 +177,7 @@ public:
                     m_auiEncounter[0] = data;
                     if (data == SPECIAL)
                     {
-                        for (std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                        for (GuidList::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                             if (Creature* summon = instance->GetCreature(*itr))
                                 summon->RemoveFromWorld();
                     } else if (data == IN_PROGRESS)

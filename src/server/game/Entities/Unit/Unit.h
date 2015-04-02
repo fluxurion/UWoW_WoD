@@ -2469,12 +2469,12 @@ class Unit : public WorldObject
         TempSummon* ToTempSummon() { if (isSummon()) return reinterpret_cast<TempSummon*>(this); else return NULL; }
         TempSummon const* ToTempSummon() const { if (isSummon()) return reinterpret_cast<TempSummon const*>(this); else return NULL; }
 
-        void SetTarget(ObjectGuid guid)
+        void SetTarget(ObjectGuid const& guid)
         {
             if (!_focusSpell)
                 SetGuidValue(UNIT_FIELD_TARGET, guid);
         }
-        void SetTargetGUID(ObjectGuid guid)
+        void SetTargetGUID(ObjectGuid const& guid)
         {
             m_curTargetGUID = guid;
         }
@@ -2484,7 +2484,7 @@ class Unit : public WorldObject
         }
         Unit* GetTargetUnit() const;
 
-        uint64 m_SpecialTarget;
+        ObjectGuid m_SpecialTarget;
 
         float  m_baseRHastRatingPct;
         float  m_baseMHastRatingPct;

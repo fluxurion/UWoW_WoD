@@ -1216,7 +1216,7 @@ class spell_rog_killing_spree : public SpellScriptLoader
                     }
                 }
 
-                std::list<uint64> targetList;
+                GuidList targetList;
                 for (std::list<WorldObject*>::iterator itr = targetTemp.begin(); itr != targetTemp.end(); ++itr)
                     if(WorldObject* object = (*itr))
                         targetList.push_back(object->GetGUID());
@@ -1246,7 +1246,7 @@ class spell_rog_killing_spree : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     Unit* target = GetTarget();
-                    std::list<uint64> targets = GetAura()->GetEffectTargets();
+                    GuidList targets = GetAura()->GetEffectTargets();
 
                     if(!targets.empty())
                     {

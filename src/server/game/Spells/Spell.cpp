@@ -3960,7 +3960,7 @@ void Spell::cast(bool skipCheck)
     Unit* procTarget = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster;
     uint32 procAttacker = PROC_EX_NONE;
     uint32 procVictim   = PROC_EX_NONE;
-    TargetInfo* infoTarget = GetTargetInfo(procTarget ? procTarget->GetGUID() : 0);
+    TargetInfo* infoTarget = GetTargetInfo(procTarget ? procTarget->GetGUID() : ObjectGuid::Empty);
     //sLog->outDebug(LOG_FILTER_PROC, "Spell::cast Id %i, m_UniqueTargetInfo %i, procAttacker %i, target %u, infoTarget %u",
     //m_spellInfo->Id, m_UniqueTargetInfo.size(), procAttacker, procTarget ? procTarget->GetGUID() : 0, infoTarget ? infoTarget->targetGUID : 0);
 
@@ -5328,8 +5328,8 @@ void Spell::SendChannelUpdate(uint32 time)
 void Spell::SendChannelStart(uint32 duration)
 {
     ObjectGuid channelTarget = m_targets.GetObjectTargetGUID();
-    uint64 dynObjGuid = GetSpellDynamicObject();
-    uint64 channelGuid = m_caster->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT);
+    ObjectGuid dynObjGuid = GetSpellDynamicObject();
+    ObjectGuid channelGuid = m_caster->GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT);
 
     if (!channelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
         if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)   // this is for TARGET_SELECT_CATEGORY_NEARBY
@@ -5350,9 +5350,9 @@ void Spell::SendChannelStart(uint32 duration)
     if(!channelGuid)
     {
         if(dynObjGuid)
-            m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, dynObjGuid);
+            m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, dynObjGuid);
         else if (channelTarget)
-            m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, channelTarget);
+            m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, channelTarget);
     }
 
     if (m_spellInfo->Id != 101546)

@@ -3705,7 +3705,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     // terrible style....rewrited later
                     else if (summonBattlePetEntry)
                     {
-                        uint64 battlePetGUID = summonBattlePetGuid;
+                        //- -----------------------------------------------
+                        //!!!!!!!!!!!!!!! WARNING!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        //- -----------------------------------------------
+                        ObjectGuid battlePetGUID/* = summonBattlePetGuid*/;
                         if (battlePetGUID)
                         {
                             if (PetJournalInfo * petInfo = m_caster->ToPlayer()->GetBattlePetMgr()->GetPetInfoByPetGUID(battlePetGUID))
@@ -3717,7 +3720,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                                 if (petInfo->GetCustomName() != "")
                                     summon->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, time(NULL));
                                 // quality
-                                m_caster->SetUInt32Value(PLAYER_CURRENT_BATTLE_PET_BREED_QUALITY, petInfo->GetQuality());
+                                m_caster->SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, petInfo->GetQuality());
                                 // level
                                 summon->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, petInfo->GetLevel());
                                 // some pet data
@@ -8415,7 +8418,7 @@ void Spell::EffectUncageBattlePet(SpellEffIndex effIndex)
             delete accumulator;
             player->GetBattlePetMgr()->AddPetToList(petguid, bp->ID, bp->CreatureEntry, level, creature->Modelid1, power, speed, health, health, quality, 0, 0, bp->spellId, "", breedID);
         }
-        std::list<uint64> updates;
+        GuidList updates;
         updates.clear();
         updates.push_back(petguid);
         // update for client
@@ -8445,8 +8448,8 @@ void Spell::EffectUnlockPetBattles(SpellEffIndex effIndex)
         return;
 
     // unlock battles
-    if (!player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED))
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
+    if (!player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED))
+        player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
 }
 
 void Spell::EffectHealBattlePetPct(SpellEffIndex effIndex)
@@ -8462,7 +8465,7 @@ void Spell::EffectHealBattlePetPct(SpellEffIndex effIndex)
     PetJournal journal = player->GetBattlePetMgr()->GetPetJournal();
 
     // healed/revived hurt pets
-    std::list<uint64> updates;
+    GuidList updates;
     updates.clear();
     for (PetJournal::const_iterator j = journal.begin(); j != journal.end(); ++j)
     {

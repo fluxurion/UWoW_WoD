@@ -639,7 +639,7 @@ class instance_dragon_soul : public InstanceMapScript
                         break;
                     case DATA_NEXT_ASSAULTER:
                     {
-                        std::list<uint64> guids(assaultersGUIDs.begin(), assaultersGUIDs.end());
+                        GuidList guids(assaultersGUIDs.begin(), assaultersGUIDs.end());
                         AssaulterCheck check(this);
                         Trinity::Containers::RandomResizeList(guids, check, 1);
                         if (!guids.empty())
