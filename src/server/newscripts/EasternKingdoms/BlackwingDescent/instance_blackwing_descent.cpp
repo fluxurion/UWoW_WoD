@@ -306,6 +306,7 @@ public:
         ObjectGuid uiNefarianGUID;
         ObjectGuid uiOnyxiaGUID;
         ObjectGuid uiNefarianFloorGUID;
+        ObjectGuid uiLordNefarianGUID;
         uint32 uiTeamInInstance;
     };
 };

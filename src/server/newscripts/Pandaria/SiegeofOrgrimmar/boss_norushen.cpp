@@ -406,7 +406,7 @@ class boss_amalgam_of_corruption : public CreatureScript
 
             InstanceScript* instance;
             uint8 FrayedCounter;
-            std::map<ObjectGuid::LowType, ObjectGuid> challengeCounter;
+            std::map<ObjectGuid::LowType, uint64> challengeCounter;
 
             void Reset()
             {
@@ -433,12 +433,12 @@ class boss_amalgam_of_corruption : public CreatureScript
                 if (id > 0)
                     ++challengeCounter[guid.GetCounter()];
                 else
-                    --challengeCounter[guid.GetCounter()];
+                    ++challengeCounter[guid.GetCounter()];
             }
 
-            ObjectGuid GetGuidData(ObjectGuid guid) const
+            uint64 GetData64(uint64 guid) const
             {  
-                std::map<ObjectGuid::LowType, ObjectGuid>::const_iterator itr = challengeCounter.find(guid);
+                std::map<ObjectGuid::LowType, uint64>::const_iterator itr = challengeCounter.find(guid);
                 if (itr == challengeCounter.end())
                     return 0;
                 return itr->second;
@@ -800,7 +800,7 @@ struct npc_norushenChallengeAI : public ScriptedAI
         {
             summonInRealWorld(amalgam);
             amalgam->AI()->SetGUID(plr->GetGUID(), -1);
-            if (!amalgam->AI()->GetGuidData(plr->GetGUID().GetCounter()))
+            if (!amalgam->AI()->GetData64(plr->GetGUID().GetCounter()))
                 plr->RemoveAurasDueToSpell(SPELL_TEST_OF_SERENITY);
         }
         me->DespawnOrUnsummon();

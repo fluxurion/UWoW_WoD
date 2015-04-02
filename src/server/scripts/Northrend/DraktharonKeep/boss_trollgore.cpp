@@ -153,7 +153,7 @@ class boss_trollgore : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_CONSUMPTION_JUNCTION)
                     return _consumptionJunction ? 1 : 0;

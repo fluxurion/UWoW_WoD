@@ -189,7 +189,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 Type) const
+        uint32 GetData(uint32 type) const
         {
             switch (Type)
             {

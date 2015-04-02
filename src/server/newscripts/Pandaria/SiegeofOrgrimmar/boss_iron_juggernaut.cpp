@@ -462,7 +462,7 @@ public:
         {
             events.Reset();
             done = true;
-            targetGuid = NULL;
+            targetGuid.Clear();
         }
 
         void DamageTaken(Unit* attacker, uint32 &damage)

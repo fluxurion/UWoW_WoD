@@ -859,7 +859,7 @@ public:
         InstanceScript* instance = player->GetInstanceScript();
         if (instance)
         {
-            if (instance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED || instance->GetGuidData(ENTRY_HORSEMAN))
+            if (instance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED || instance->GetGuidData(NPC_HORSEMAN))
                 return true;
             instance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
         }

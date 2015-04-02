@@ -51,9 +51,9 @@ public:
         void Initialize()
         {
             LoadDoorData(doorData);
-            BraunGUID = 0;
-            HarlanGUID = 0;
-            KoeglerGUID = 0;
+            BraunGUID.Clear();
+            HarlanGUID.Clear();
+            KoeglerGUID.Clear();
         }
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -102,7 +102,7 @@ public:
             }*/
         }
 
-        ObjectGuid GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const
         {
             switch (type)
             {
@@ -113,10 +113,10 @@ public:
                 case NPC_FLAMEWEAVER_KOEGLER:                  
                     return KoeglerGUID;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             return 0;
         }

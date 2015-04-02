@@ -234,7 +234,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_PLATES)
                     return (uint32)destroyedPlates;
@@ -707,7 +707,7 @@ class npc_spine_of_deathwing_hideous_amalgamation : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_BLAST_POS)
                 {
@@ -991,7 +991,7 @@ class npc_spine_of_deathwing_burning_tendons : public CreatureScript
                     pos = (uint8)data;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_POS)
                     return pos;

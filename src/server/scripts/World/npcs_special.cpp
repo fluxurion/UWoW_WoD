@@ -4305,7 +4305,7 @@ class npc_riggle_bassbait : public CreatureScript
                 count = data;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_CHECK)
                 return count;

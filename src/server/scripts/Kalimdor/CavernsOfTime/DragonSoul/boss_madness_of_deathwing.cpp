@@ -558,7 +558,7 @@ class boss_madness_of_deathwing : public CreatureScript
                     m_destroyed_platform |= (1 << data);
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_DESTROY_PLATFORM)
                     return m_destroyed_platform;

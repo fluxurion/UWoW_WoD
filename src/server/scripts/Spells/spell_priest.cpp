@@ -733,7 +733,7 @@ class spell_pri_rapture : public SpellScriptLoader
 
                 if (caster->HasAura(47515))
                 {
-                    float critChance = caster->ToPlayer()->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                    float critChance = caster->ToPlayer()->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
                     if(roll_chance_f(critChance))
                         amount *= 2;
                 }

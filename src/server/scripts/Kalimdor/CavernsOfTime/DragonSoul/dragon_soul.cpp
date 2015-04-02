@@ -1968,7 +1968,7 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
                 return stalkerGUID;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == 1)
                     return wasActivated ? 1 : 0;

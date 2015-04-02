@@ -173,7 +173,7 @@ struct npc_mounted_championAI : ScriptedAI
         }
     }
 
-    uint32 GetData(uint32 type)
+    uint32 GetData(uint32 type) const
     {
         if(type == DATA_CHAMPION_DEFEATED)
             return _defeated ? 1 : 0;
@@ -354,7 +354,7 @@ public:
                 me->CastSpell(me, SPELL_KNEE, true);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (isInMountedGauntlet())
                 return npc_mounted_championAI::GetData(type);
@@ -515,7 +515,7 @@ public:
                 me->CastSpell(me, SPELL_KNEE, true);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (isInMountedGauntlet())
                 return npc_mounted_championAI::GetData(type);
@@ -702,7 +702,7 @@ public:
                 me->CastSpell(me, SPELL_KNEE, true);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (isInMountedGauntlet())
                 return npc_mounted_championAI::GetData(type);
@@ -862,7 +862,7 @@ public:
                 me->CastSpell(me, SPELL_KNEE, true);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (isInMountedGauntlet())
                 return npc_mounted_championAI::GetData(type);
@@ -1049,7 +1049,7 @@ public:
                 me->CastSpell(me, SPELL_KNEE, true);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (isInMountedGauntlet())
                 return npc_mounted_championAI::GetData(type);

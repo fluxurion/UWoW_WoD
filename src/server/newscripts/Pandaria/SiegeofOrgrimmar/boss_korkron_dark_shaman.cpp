@@ -475,7 +475,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_GET_PULL_STATE)
                 return firstpull ? 1 : 0;

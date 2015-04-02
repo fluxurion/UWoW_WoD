@@ -259,7 +259,7 @@ public:
                 me->DespawnOrUnsummon(0);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             // Used by Announcer on periodic check of the bosses state
             if(type == DATA_CHAMPION_DEFEATED)
@@ -463,7 +463,7 @@ public:
                 me->DespawnOrUnsummon(0);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             // Used by Announcer on periodic check of the bosses state
             if(type == DATA_CHAMPION_DEFEATED)

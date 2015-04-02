@@ -166,7 +166,7 @@ public:
                 ohNovos = false;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_NOVOS_ACHIEV)
                 return ohNovos ? 1 : 0;

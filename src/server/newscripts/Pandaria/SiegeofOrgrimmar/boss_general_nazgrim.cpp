@@ -255,7 +255,7 @@ class boss_general_nazgrim : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
                         return target->GetGUID();
                 }
-                return NULL;
+                return ObjectGuid::Empty;
             }
 
             bool CheckPlayerForRogue(Player* pl)
@@ -563,7 +563,7 @@ public:
             me->setPowerType(POWER_ENERGY);
             me->SetMaxPower(POWER_ENERGY, 100);
             me->SetPower(POWER_ENERGY, 100);
-            plGuid = 0;
+            plGuid.Clear();
             DoCast(me, SPELL_STEALTH);
             visible = false;
         }
@@ -577,7 +577,7 @@ public:
             return NULL;
         }
 
-        void SetGUID(ObjectGuid tGuid, int32 type)
+        void SetGUID(ObjectGuid const& tGuid, int32 type)
         {
             if (type == 1)
             {

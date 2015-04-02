@@ -452,7 +452,7 @@ class boss_galakras : public CreatureScript
                         PreEvent = false;
                         Summons();
                         if (Creature* Zaela = instance->instance->GetCreature(instance->GetGuidData(NPC_WARLORD_ZAELA)))
-                            Zaela->AI()->ZoneTalk(TEXT_GENERIC_9, 0);
+                            Zaela->AI()->ZoneTalk(TEXT_GENERIC_9, ObjectGuid::Empty);
                         break;
                     case ACTION_GALAKRAS_START_EVENT:
                         events.ScheduleEvent(EVENT_GALAKRAS_INTRO, 1000);
@@ -1215,7 +1215,7 @@ class npc_galakras_south_tower : public CreatureScript
                         summons.SetReactState(REACT_AGGRESSIVE);
                         EntryCheckPredicate pred(NPC_DRAGONMAW_FLAMESLINGER);
                         summons.DoAction(ACTION_TOWER_GUARDS, pred);
-                        ZoneTalk(TEXT_GENERIC_0, 0);
+                        ZoneTalk(TEXT_GENERIC_0, ObjectGuid::Empty);
                         events.ScheduleEvent(EVENT_SUMMON_DEMOLISHER, 20000);
                         events.ScheduleEvent(EVENT_SUMMON_FLY_PROTODRAKE_1, 1000);
                         break;
@@ -1328,7 +1328,7 @@ class npc_galakras_north_tower : public CreatureScript
                         summons.SetReactState(REACT_AGGRESSIVE);
                         EntryCheckPredicate pred(NPC_DRAGONMAW_FLAMESLINGER);
                         summons.DoAction(ACTION_TOWER_GUARDS, pred);
-                        ZoneTalk(TEXT_GENERIC_0, 0);
+                        ZoneTalk(TEXT_GENERIC_0, ObjectGuid::Empty);
                         events.ScheduleEvent(EVENT_SUMMON_DEMOLISHER, 20000);
                         break;
                     }
@@ -1399,9 +1399,9 @@ class npc_antiair_turret : public CreatureScript
                         if (Creature* Summoner = me->ToTempSummon()->GetSummoner()->ToCreature())
                         {
                             if (Summoner->GetEntry() == NPC_TOWER_SOUTH)
-                                ZoneTalk(TEXT_GENERIC_0, 0);
+                                ZoneTalk(TEXT_GENERIC_0, ObjectGuid::Empty);
                             else if (Summoner->GetEntry() == NPC_TOWER_NORTH)
-                                ZoneTalk(TEXT_GENERIC_1, 0);
+                                ZoneTalk(TEXT_GENERIC_1, ObjectGuid::Empty);
                         }
                 }
             }
@@ -1671,7 +1671,7 @@ class npc_korkron_demolisher : public CreatureScript
 
             void IsSummonedBy(Unit* summoner)
             {
-                ZoneTalk(TEXT_GENERIC_0, 0);
+                ZoneTalk(TEXT_GENERIC_0, ObjectGuid::Empty);
                 me->GetMotionMaster()->MovePoint(1, 1416.77f, -4827.58f, 18.22f);
                 events.ScheduleEvent(EVENT_PREPARE_ATTACK_TOWER, 4000);
             }

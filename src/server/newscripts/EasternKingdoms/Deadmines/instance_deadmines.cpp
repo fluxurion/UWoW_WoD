@@ -44,6 +44,7 @@ class instance_deadmines : public InstanceMapScript
 
                 State = CANNON_NOT_USED;
                 uiVanessaEvent = 0;
+                TeamInInstance = 0;
             };
 
             void OnPlayerEnter(Player* player)
@@ -198,14 +199,16 @@ class instance_deadmines : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_VANESSA_EVENT)
                     return uiVanessaEvent;
+                if (type == DATA_TEAM_IN_INSTANCE)
+                    return TeamInInstance;
                 return 0;
             }
 
-            ObjectGuid GetGuidData(uint32 data)
+            ObjectGuid GetGuidData(uint32 data) const
             {
                 switch (data)
                 {
@@ -219,8 +222,6 @@ class instance_deadmines : public InstanceMapScript
                         return uiFoereaperGUID;
                     case DATA_ADMIRAL:
                         return uiAdmiralGUID;
-                    case DATA_TEAM_IN_INSTANCE:     
-                        return TeamInInstance;
                 }
                 return ObjectGuid::Empty;
             }
@@ -314,6 +315,8 @@ class instance_deadmines : public InstanceMapScript
             }
 
         private:
+            uint32 TeamInInstance;
+
             ObjectGuid uiGlubtokGUID;
             ObjectGuid uiHelixGUID;
             ObjectGuid uiOafGUID;
@@ -330,11 +333,12 @@ class instance_deadmines : public InstanceMapScript
             ObjectGuid DefiasPirate1GUID;
             ObjectGuid DefiasPirate2GUID;
             ObjectGuid DefiasCompanionGUID;
+            ObjectGuid IronCladDoorGUID;
+            ObjectGuid DefiasCannonGUID;
+            ObjectGuid DoorLeverGUID;
 
             uint32 State;
             uint32 uiVanessaEvent;
-
-            uint32 TeamInInstance;
         };
 };
 

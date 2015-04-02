@@ -104,7 +104,7 @@ class instance_shadowfang_keep : public InstanceMapScript
                 return true;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_TEAM)
                     return teamInInstance;

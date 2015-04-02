@@ -984,7 +984,7 @@ public:
 
     struct npc_hurricaneAI : public ScriptedAI
     {
-        npc_hurricaneAI(Creature* creature) : ScriptedAI(creature), grabbedPlayer(0), instance(creature->GetInstanceScript()) { }
+        npc_hurricaneAI(Creature* creature) : ScriptedAI(creature), grabbedPlayer(), instance(creature->GetInstanceScript()) { }
 
         void Reset()
         {

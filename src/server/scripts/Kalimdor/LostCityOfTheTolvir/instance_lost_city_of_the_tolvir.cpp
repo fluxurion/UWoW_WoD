@@ -146,7 +146,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 return Encounter[type];
             }

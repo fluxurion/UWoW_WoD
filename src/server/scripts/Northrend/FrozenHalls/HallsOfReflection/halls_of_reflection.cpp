@@ -1241,7 +1241,7 @@ struct npc_gauntlet_trash : public ScriptedAI
         InternalWaveId = value;
     }
 
-    uint32 GetData(uint32 type)
+    uint32 GetData(uint32 type) const
     {
         if (type)
             return 0;
