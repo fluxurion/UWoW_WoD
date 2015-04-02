@@ -2946,7 +2946,7 @@ uint32 Map::ItemLevelCap() const
     if (IsBattlegroundOrArena())
         return sWorld->getIntConfig(CONFIG_PVP_ITEM_LEVEL_CAP);
 
-    if (IsChallenge())
+    if (isChallenge())
         return MIN_ITEM_LEVEL_CUP;
 
     return 0;

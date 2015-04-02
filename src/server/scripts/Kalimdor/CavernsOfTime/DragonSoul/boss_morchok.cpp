@@ -271,32 +271,32 @@ class boss_morchok: public CreatureScript
 
                 if (IsHeroic() && pKohcrom)
                 {
-                    if (me->HealthBelowPct(30) && me->GetFloatValue(OBJECT_FIELD_SCALE_X) > 0.2f)
+                    if (me->HealthBelowPct(30) && me->GetFloatValue(OBJECT_FIELD_SCALE) > 0.2f)
                     {
                         me->SetObjectScale(0.2f);
                         pKohcrom->SetObjectScale(0.2f);
                     }
-                    else if (me->HealthBelowPct(40) && me->GetFloatValue(OBJECT_FIELD_SCALE_X) > 0.3f)
+                    else if (me->HealthBelowPct(40) && me->GetFloatValue(OBJECT_FIELD_SCALE) > 0.3f)
                     {
                         me->SetObjectScale(0.3f);
                         pKohcrom->SetObjectScale(0.3f);
                     }
-                    else if (me->HealthBelowPct(50) && me->GetFloatValue(OBJECT_FIELD_SCALE_X) > 0.4f)
+                    else if (me->HealthBelowPct(50) && me->GetFloatValue(OBJECT_FIELD_SCALE) > 0.4f)
                     {
                         me->SetObjectScale(0.4f);
                         pKohcrom->SetObjectScale(0.4f);
                     }
-                    else if (me->HealthBelowPct(60) && me->GetFloatValue(OBJECT_FIELD_SCALE_X) > 0.5f)
+                    else if (me->HealthBelowPct(60) && me->GetFloatValue(OBJECT_FIELD_SCALE) > 0.5f)
                     {
                         me->SetObjectScale(0.5f);
                         pKohcrom->SetObjectScale(0.5f);
                     }
-                    else if (me->HealthBelowPct(70) && me->GetFloatValue(OBJECT_FIELD_SCALE_X) > 0.6f)
+                    else if (me->HealthBelowPct(70) && me->GetFloatValue(OBJECT_FIELD_SCALE) > 0.6f)
                     {
                         me->SetObjectScale(0.6f);
                         pKohcrom->SetObjectScale(0.6f);
                     }
-                    else if (me->HealthBelowPct(80) && me->GetFloatValue(OBJECT_FIELD_SCALE_X) > 0.7f)
+                    else if (me->HealthBelowPct(80) && me->GetFloatValue(OBJECT_FIELD_SCALE) > 0.7f)
                     {
                         me->SetObjectScale(0.7f);
                         pKohcrom->SetObjectScale(0.7f);

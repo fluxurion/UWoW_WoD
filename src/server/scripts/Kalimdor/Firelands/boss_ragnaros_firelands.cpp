@@ -2223,7 +2223,7 @@ class npc_ragnaros_firelands_cloudburst : public CreatureScript
             void IsSummonedBy(Unit* /*who*/)
             {
                 DoCast(me, SPELL_CLOUDBURST_DUMMY, true);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
 
         private:

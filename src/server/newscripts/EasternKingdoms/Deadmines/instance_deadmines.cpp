@@ -236,21 +236,21 @@ class instance_deadmines : public InstanceMapScript
                     if (state == IN_PROGRESS)
                     {
                         if (GameObject* go = instance->GetGameObject(HeavyDoorGUID))
-                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     else if (state == DONE)
                         if (GameObject* go = instance->GetGameObject(HeavyDoorGUID))
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 case DATA_FOEREAPER:
                     if (state == IN_PROGRESS)
                     {
                         if (GameObject* go = instance->GetGameObject(HeavyDoor2GUID))
-                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     else if (state == DONE)
                         if (GameObject* go = instance->GetGameObject(HeavyDoor2GUID))
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 }
 

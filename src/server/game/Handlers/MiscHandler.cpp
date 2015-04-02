@@ -2050,57 +2050,57 @@ void WorldSession::HandleForcedReactions(WorldPacket& recvPacket)
 void WorldSession::HandleWarGameStart(WorldPacket& recvPacket)
 {
     ObjectGuid guid, guid2;
-    recvPacket.ReadGuidMask<6, 5, 2>(guid2);
-    recvPacket.ReadGuidMask<3>(guid);
-    recvPacket.ReadGuidMask<1>(guid2);
-    recvPacket.ReadGuidMask<1, 7>(guid);
-    recvPacket.ReadGuidMask<0, 4, 3>(guid2);
-    recvPacket.ReadGuidMask<6>(guid);
-    recvPacket.ReadGuidMask<7>(guid2);
-    recvPacket.ReadGuidMask<4, 2, 5, 0>(guid);
+    //recvPacket.ReadGuidMask<6, 5, 2>(guid2);
+    //recvPacket.ReadGuidMask<3>(guid);
+    //recvPacket.ReadGuidMask<1>(guid2);
+    //recvPacket.ReadGuidMask<1, 7>(guid);
+    //recvPacket.ReadGuidMask<0, 4, 3>(guid2);
+    //recvPacket.ReadGuidMask<6>(guid);
+    //recvPacket.ReadGuidMask<7>(guid2);
+    //recvPacket.ReadGuidMask<4, 2, 5, 0>(guid);
 
-    recvPacket.ReadGuidBytes<4>(guid);
-    recvPacket.ReadGuidBytes<3>(guid2);
-    recvPacket.ReadGuidBytes<2>(guid);
-    recvPacket.ReadGuidBytes<1>(guid2);
-    recvPacket.ReadGuidBytes<5>(guid);
-    recvPacket.ReadGuidBytes<5>(guid2);
-    recvPacket.ReadGuidBytes<7, 3>(guid);
-    recvPacket.ReadGuidBytes<7>(guid2);
-    recvPacket.ReadGuidBytes<1>(guid);
-    recvPacket.ReadGuidBytes<6>(guid2);
-    recvPacket.ReadGuidBytes<6>(guid);
-    recvPacket.ReadGuidBytes<0, 2>(guid2);
-    recvPacket.ReadGuidBytes<0>(guid);
-    recvPacket.ReadGuidBytes<4>(guid2);
+    //recvPacket.ReadGuidBytes<4>(guid);
+    //recvPacket.ReadGuidBytes<3>(guid2);
+    //recvPacket.ReadGuidBytes<2>(guid);
+    //recvPacket.ReadGuidBytes<1>(guid2);
+    //recvPacket.ReadGuidBytes<5>(guid);
+    //recvPacket.ReadGuidBytes<5>(guid2);
+    //recvPacket.ReadGuidBytes<7, 3>(guid);
+    //recvPacket.ReadGuidBytes<7>(guid2);
+    //recvPacket.ReadGuidBytes<1>(guid);
+    //recvPacket.ReadGuidBytes<6>(guid2);
+    //recvPacket.ReadGuidBytes<6>(guid);
+    //recvPacket.ReadGuidBytes<0, 2>(guid2);
+    //recvPacket.ReadGuidBytes<0>(guid);
+    //recvPacket.ReadGuidBytes<4>(guid2);
 }
 
 void WorldSession::HandleWarGameAccept(WorldPacket& recvPacket)
 {
     ObjectGuid guid, guid2;
 
-    recvPacket.ReadGuidMask<4>(guid);
-    recvPacket.ReadGuidMask<7>(guid2);
-    recvPacket.ReadGuidMask<3>(guid);
-    recvPacket.ReadGuidMask<5, 3>(guid2);
-    recvPacket.ReadGuidMask<6>(guid);
-    recvPacket.ReadGuidMask<4, 2>(guid2);
-    recvPacket.ReadGuidMask<2, 5, 7>(guid);
-    recvPacket.ReadGuidMask<0>(guid2);
+    //recvPacket.ReadGuidMask<4>(guid);
+    //recvPacket.ReadGuidMask<7>(guid2);
+    //recvPacket.ReadGuidMask<3>(guid);
+    //recvPacket.ReadGuidMask<5, 3>(guid2);
+    //recvPacket.ReadGuidMask<6>(guid);
+    //recvPacket.ReadGuidMask<4, 2>(guid2);
+    //recvPacket.ReadGuidMask<2, 5, 7>(guid);
+    //recvPacket.ReadGuidMask<0>(guid2);
     bool accept = recvPacket.ReadBit();
-    recvPacket.ReadGuidMask<1, 0>(guid);
-    recvPacket.ReadGuidMask<6, 1>(guid2);
+    //recvPacket.ReadGuidMask<1, 0>(guid);
+    //recvPacket.ReadGuidMask<6, 1>(guid2);
 
-    recvPacket.ReadGuidBytes<4>(guid2);
-    recvPacket.ReadGuidBytes<3>(guid);
-    recvPacket.ReadGuidBytes<1, 2>(guid2);
-    recvPacket.ReadGuidBytes<4>(guid);
-    recvPacket.ReadGuidBytes<5>(guid2);
-    recvPacket.ReadGuidBytes<7>(guid);
-    recvPacket.ReadGuidBytes<7>(guid2);
-    recvPacket.ReadGuidBytes<1>(guid);
-    recvPacket.ReadGuidBytes<0, 3, 6>(guid2);
-    recvPacket.ReadGuidBytes<2, 5, 0, 6>(guid);
+    //recvPacket.ReadGuidBytes<4>(guid2);
+    //recvPacket.ReadGuidBytes<3>(guid);
+    //recvPacket.ReadGuidBytes<1, 2>(guid2);
+    //recvPacket.ReadGuidBytes<4>(guid);
+    //recvPacket.ReadGuidBytes<5>(guid2);
+    //recvPacket.ReadGuidBytes<7>(guid);
+    //recvPacket.ReadGuidBytes<7>(guid2);
+    //recvPacket.ReadGuidBytes<1>(guid);
+    //recvPacket.ReadGuidBytes<0, 3, 6>(guid2);
+    //recvPacket.ReadGuidBytes<2, 5, 0, 6>(guid);
 
     // if (accept)
     //

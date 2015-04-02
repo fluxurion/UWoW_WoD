@@ -1290,12 +1290,12 @@ class npc_dragon_soul_thrall : public CreatureScript
             {
                 player->CLOSE_GOSSIP_MENU();
                 creature->AI()->DoAction(ACTION_AFTER_HAGARA);
-                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
             else if (sender == GOSSIP_MENU_ULTRAXION_START && action == GOSSIP_ACTION_INFO_DEF + 2)
             {
                 player->CLOSE_GOSSIP_MENU();
-                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 creature->AI()->DoAction(ACTION_SPAWN_DRAGONS);
             }
             return true;
@@ -1383,7 +1383,7 @@ class npc_dragon_soul_thrall : public CreatureScript
                                 DragonSoul->CastSpell(DragonSoul, SPELL_DRAGON_SOUL_COSMETIC);
                             }
                             me->CastSpell(me, SPELL_CHARGING_UP_EARTH);
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             break;
                         case EVENT_LOAD_TRASH_1:
                             me->CastSpell(me, SPELL_WARD_OF_EARTH);
@@ -1401,7 +1401,7 @@ class npc_dragon_soul_thrall : public CreatureScript
                             if (Creature* DragonSoul = me->FindNearestCreature(NPC_THE_DRAGON_SOUL, 300.0f))
                             {
                                 DragonSoul->GetMotionMaster()->MovePoint(0, DragonSoul->GetPositionX(), DragonSoul->GetPositionY(), DragonSoul->GetPositionZ() + 7);
-                                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 me->SetFacingToObject(DragonSoul);
                                 me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 3);
                                 if (Creature* Ysera = me->FindNearestCreature(NPC_YSERA_THE_AWAKENED, 300.0f))
@@ -1521,7 +1521,7 @@ class npc_dragon_soul_thrall : public CreatureScript
                             break;
                         case EVENT_DRAGON_SOUL_11:
                             me->CastSpell(me, SPELL_CHARGING_UP_EARTH);
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             pInstance->SetData(DATA_DRAGON_SOUL_EVENT, DONE);
                             break;
                         case EVENT_SPAWN_DRAGONS:
@@ -1597,17 +1597,17 @@ class npc_dragon_soul_thrall : public CreatureScript
                         case EVENT_SPAWN_SHIP:
                             if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_HORDE_SHIP)))
                             {
-                                pShip->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                                pShip->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
                             }
                             if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_ALLIANCE_SHIP_FIRST)))
                             {
-                                pShip->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                                pShip->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
                             }
                             if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_ALLIANCE_SHIP)))
                             {
-                                pShip->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                                pShip->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
                             }
                             events.ScheduleEvent(EVENT_SPAWN_NPC, 1500);

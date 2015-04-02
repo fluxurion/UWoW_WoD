@@ -727,7 +727,7 @@ class npc_varian_or_lorthemar : public CreatureScript
                         if (!startEvent)
                         {
                             startEvent = true;
-                            me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+                            me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
                             me->GetMotionMaster()->MovePoint(1, RinOrlortPos[0]);
                             me->SetHomePosition(RinOrlortPos[0]);
     

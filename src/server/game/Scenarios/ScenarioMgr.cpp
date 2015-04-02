@@ -53,7 +53,7 @@ void ScenarioProgress::SaveToDB(SQLTransaction& trans)
 
 void ScenarioProgress::DeleteFromDB()
 {
-    m_achievementMgr.DeleteFromDB(instanceId, 0);
+    m_achievementMgr.DeleteFromDB((ObjectGuid::LowType)instanceId, 0);
 }
 
 Map* ScenarioProgress::GetMap()
@@ -161,7 +161,7 @@ void ScenarioProgress::Reward(bool bonus)
     else
         rewarded = true;
 
-    uint32 groupGuid = 0;
+    ObjectGuid groupGuid;
     Map* map = GetMap();
     // map not created? bye-bye reward
     if (!map)
@@ -176,7 +176,7 @@ void ScenarioProgress::Reward(bool bonus)
             continue;
 
         if (!groupGuid)
-            groupGuid = player->GetGroup() ? player->GetGroup()->GetGUID() : 0;
+            groupGuid = player->GetGroup() ? player->GetGroup()->GetGUID() : ObjectGuid::Empty;
 
         if (groupGuid)
             break;
@@ -257,17 +257,17 @@ void ScenarioProgress::SendStepUpdate(Player* player, bool full)
                 buff.WriteGuidBytes<1>(counter);
                 buff << uint32(time(NULL) - progress.date);
                 buff.WriteGuidBytes<3>(counter);
-                buff.WriteGuidBytes<3, 4, 0, 1>(criteriaGuid);
+                //buff.WriteGuidBytes<3, 4, 0, 1>(criteriaGuid);
                 buff << secsToTimeBitFields(progress.date);
-                buff.WriteGuidBytes<6, 7>(criteriaGuid);
-                buff.WriteGuidBytes<0>(counter);
-                buff.WriteGuidBytes<5>(criteriaGuid);
-                buff.WriteGuidBytes<4, 5>(counter);
+                //buff.WriteGuidBytes<6, 7>(criteriaGuid);
+                //buff.WriteGuidBytes<0>(counter);
+                //buff.WriteGuidBytes<5>(criteriaGuid);
+                //buff.WriteGuidBytes<4, 5>(counter);
                 buff << uint32(criteriaTreeEntry->criteria);
-                buff.WriteGuidBytes<2>(counter);
+                //buff.WriteGuidBytes<2>(counter);
                 buff << uint32(time(NULL) - progress.date);
-                buff.WriteGuidBytes<6, 7>(counter);
-                buff.WriteGuidBytes<2>(criteriaGuid);
+ /*               buff.WriteGuidBytes<6, 7>(counter);
+                buff.WriteGuidBytes<2>(criteriaGuid);*/
 
                 ++count;
             }
@@ -294,15 +294,15 @@ void ScenarioProgress::SendStepUpdate(Player* player, bool full)
 
 void ScenarioProgress::SendCriteriaUpdate(uint32 criteriaId, uint32 counter, time_t date)
 {
-    WorldPacket data(SMSG_SCENARIO_CRITERIA_UPDATE, 8 + 8 + 4 * 4 + 1);
+    //WorldPacket data(SMSG_SCENARIO_CRITERIA_UPDATE, 8 + 8 + 4 * 4 + 1);
 
-    ObjectGuid criteriaGuid = MAKE_NEW_GUID(1, GetScenarioId(), HIGHGUID_SCENARIO_CRITERIA);
+    //ObjectGuid criteriaGuid = MAKE_NEW_GUID(1, GetScenarioId(), HIGHGUID_SCENARIO_CRITERIA);
 
     //data.WriteGuidMask<3>(counter);
     //data.WriteGuidMask<7, 2, 0>(criteriaGuid);
     //data.WriteGuidMask<4>(counter);
     //data.WriteGuidMask<4, 6>(criteriaGuid);
-    data.WriteBits(0, 4);               // criteria flags
+    //data.WriteBits(0, 4);               // criteria flags
     //data.WriteGuidMask<2>(counter);
     //data.WriteGuidMask<3>(criteriaGuid);
     //data.WriteGuidMask<1>(counter);
@@ -312,15 +312,15 @@ void ScenarioProgress::SendCriteriaUpdate(uint32 criteriaId, uint32 counter, tim
     //data.WriteGuidMask<7, 0>(counter);
 
     //data.WriteGuidBytes<6, 4>(counter);
-    data << uint32(criteriaId);
-    data << uint32(time(NULL) - date);
+    //data << uint32(criteriaId);
+    //data << uint32(time(NULL) - date);
     //data.WriteGuidBytes<4, 5>(criteriaGuid);
     //data.WriteGuidBytes<3, 1>(counter);
     //data.WriteGuidBytes<3, 1, 6>(criteriaGuid);
     //data.WriteGuidBytes<7>(counter);
     //data.WriteGuidBytes<0>(criteriaGuid);
-    data << uint32(time(NULL) - date);
-    data << secsToTimeBitFields(date);
+    //data << uint32(time(NULL) - date);
+    //data << secsToTimeBitFields(date);
     //data.WriteGuidBytes<5>(counter);
     //data.WriteGuidBytes<2>(criteriaGuid);
     //data.WriteGuidBytes<2>(counter);

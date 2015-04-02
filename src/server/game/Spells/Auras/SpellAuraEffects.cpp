@@ -3335,7 +3335,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                 target->RemoveAurasByType(SPELL_AURA_MOUNTED);
             //remove fly aura Zen Flight
             if (target->HasAura(125883))
-                target->RemoveAurasDueToSpell(125883, 0, 0, AURA_REMOVE_BY_CANCEL);
+                target->RemoveAurasDueToSpell(125883, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
         }
     }
     else
@@ -7363,7 +7363,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
             for (std::list<DynamicObject*>::iterator itr = list.begin(); itr != list.end(); ++itr)
             {
                 if(DynamicObject* dynObj = (*itr))
-                    caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), trigger_spell_id, true, NULL, this, owner ? owner->GetGUID() : 0);
+                    caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), trigger_spell_id, true, NULL, this, owner ? owner->GetGUID() : ObjectGuid::Empty);
             }
         }
         else if(target)
@@ -7774,7 +7774,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
             for (std::list<DynamicObject*>::iterator itr = list.begin(); itr != list.end(); ++itr)
             {
                 if(DynamicObject* dynObj = (*itr))
-                    caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), triggerSpellId, true, NULL, this, owner ? owner->GetGUID() : 0);
+                    caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), triggerSpellId, true, NULL, this, owner ? owner->GetGUID() : ObjectGuid::Empty);
             }
         }
         else

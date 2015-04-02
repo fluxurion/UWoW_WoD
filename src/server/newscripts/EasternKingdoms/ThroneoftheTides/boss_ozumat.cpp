@@ -180,7 +180,7 @@ class npc_neptulon : public CreatureScript
             {
                 if (action == ACTION_NEPTULON_START_EVENT)
                 {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     bActive = true;
                     Talk(SAY_INTRO_1);
                     events.ScheduleEvent(EVENT_INTRO_2, 7000);
@@ -296,7 +296,7 @@ class npc_neptulon : public CreatureScript
                     case EVENT_INTRO_2:
                         Talk(SAY_INTRO_2);
                         bActive = false;
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
                     case EVENT_INTRO_3_2:
                         Talk(SAY_INTRO_3_2);

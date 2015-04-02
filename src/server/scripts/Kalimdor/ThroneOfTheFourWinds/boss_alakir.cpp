@@ -278,7 +278,7 @@ public:
 
             GameObject* floor = me->FindNearestGameObject(GO_FLOOR_ALAKIR, 200);
             if (floor)
-                floor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);	
+                floor->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);	
 
             me->AddAura(SPELL_RELENTLESS_STORM, me);	
 

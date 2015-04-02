@@ -23858,7 +23858,7 @@ void Unit::SendSpellScene(uint32 miscValue, Position* /*pos*/)
     if (GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ObjectGuid casterGuid = /*m_caster->GetObjectGuid()*/0; // not caster something else??? wrong val. could break scean.
+    ObjectGuid casterGuid;// = m_caster->GetGUID(); // not caster something else??? wrong val. could break scean.
 
     if (const std::vector<SpellScene> *spell_scene = sSpellMgr->GetSpellScene(miscValue))
     {

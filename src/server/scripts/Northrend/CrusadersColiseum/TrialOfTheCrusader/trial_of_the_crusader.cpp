@@ -216,7 +216,7 @@ class npc_announcer_toc10 : public CreatureScript
                 if (creature->IsVisible())
                     creature->SetVisible(false);
             }
-            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             return true;
         }
 
@@ -321,7 +321,7 @@ class boss_lich_king_toc : public CreatureScript
                             if (GameObject* go = ObjectAccessor::GetGameObject(*me, _instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                             {
                                 go->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
-                                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
+                                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
                                 go->SetGoState(GO_STATE_ACTIVE);
                             }
 

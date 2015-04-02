@@ -380,7 +380,7 @@ class boss_warmaster_blackhorn: public CreatureScript
                 if (Creature* pSwayze = me->FindNearestCreature(NPC_SKY_CAPTAIN_SWAYZE, 200.0f))
                 {
                     pSwayze->AI()->DoAction(ACTION_BLACKHORN_DIED);
-                    pSwayze->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    pSwayze->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
                         
                 DespawnCreatures(NPC_GORIONA);
@@ -1453,7 +1453,7 @@ class npc_dragon_soul_sky_captain_swayze : public CreatureScript
                     {
                         pCreature->SummonCreature(NPC_GORIONA, gorionaPos[0]);
                         pCreature->SummonCreature(NPC_BLACKHORN, blackhornPos);
-                        pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         pCreature->AI()->DoAction(ACTION_START);
                     }
                     else if (action == GOSSIP_ACTION_INFO_DEF + 3)
@@ -1547,7 +1547,7 @@ class npc_dragon_soul_sky_captain_swayze : public CreatureScript
                             if (Creature* pTrigger = me->SummonCreature(NPC_MASSIVE_EXPLOSION, customPos[0], TEMPSUMMON_TIMED_DESPAWN, 5000))
                                 pTrigger->CastSpell(pTrigger, SPELL_MASSIVE_EXPLOSION);
                             events.Reset();
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             if (Creature* pBlackhorn = me->FindNearestCreature(NPC_BLACKHORN, 300.0f))
                                 pBlackhorn->AI()->DoAction(ACTION_END_BATTLE);
                             summons.DespawnEntry(NPC_ENGINE_STALKER);
@@ -1559,7 +1559,7 @@ class npc_dragon_soul_sky_captain_swayze : public CreatureScript
                             if (!CheckPlayers())
                             {
                                 events.Reset();
-                                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 if (Creature* pBlackhorn = me->FindNearestCreature(NPC_BLACKHORN, 300.0f))
                                     pBlackhorn->AI()->DoAction(ACTION_END_BATTLE);
                                 summons.DespawnEntry(NPC_ENGINE_STALKER);

@@ -103,7 +103,7 @@ struct SpellDestination
 struct TargetInfo
 {
     ObjectGuid targetGUID;
-    ObjectGuid timeDelay;
+    uint64 timeDelay;
     SpellMissInfo missCondition:8;
     SpellMissInfo reflectResult:8;
     uint32  effectMask:32;

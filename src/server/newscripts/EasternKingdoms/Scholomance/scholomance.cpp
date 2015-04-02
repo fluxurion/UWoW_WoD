@@ -72,7 +72,7 @@ class npc_professor_slate : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (GameObject* go = me->FindNearestGameObject(211669, 60.0f))
-                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
             }
 
             void UpdateAI(uint32 diff)

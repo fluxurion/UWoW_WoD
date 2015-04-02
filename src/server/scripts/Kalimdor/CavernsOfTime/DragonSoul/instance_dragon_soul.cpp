@@ -188,7 +188,7 @@ class instance_dragon_soul : public InstanceMapScript
                         if (pCreature->GetPositionZ() > 200.0f)
                             uiSwayzeGUID = pCreature->GetGUID();
                         if (GetBossState(DATA_BLACKHORN) == DONE)
-                            pCreature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            pCreature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
                     case NPC_TWILIGHT_ASSAULTER_1:
                     case NPC_TWILIGHT_ASSAULTER_2:
@@ -205,15 +205,15 @@ class instance_dragon_soul : public InstanceMapScript
                         break;
                     case NPC_THRALL_1:
                         uiThrallEvent = pCreature->GetGUID();
-                        pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         if (GetBossState(DATA_ULTRAXION) == DONE)
                         {
-                            pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             pCreature->SummonCreature(NPC_SKY_CAPTAIN_SWAYZE, customPos[1], TEMPSUMMON_MANUAL_DESPAWN, 0);
                             pCreature->SummonCreature(NPC_KAANU_REEVS, customPos[2], TEMPSUMMON_MANUAL_DESPAWN, 0);
                         }
                         else if (GetBossState(DATA_HAGARA) == DONE)
-                            pCreature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            pCreature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
                     case NPC_TWILIGHT_ASSAULTER_STALKER:
                     {
@@ -249,15 +249,15 @@ class instance_dragon_soul : public InstanceMapScript
                     case NPC_EIENDORMI:
                     case NPC_VALEERA:
                         dragonstaxiGUIDs.push_back(pCreature->GetGUID());
-                        pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
+                        pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
                         if (GetBossState(DATA_MORCHOK) == DONE)
-                            pCreature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
+                            pCreature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
                         break;
                     case NPC_NETHESTRASZ:
                         uiNethestraszGUID = pCreature->GetGUID();
-                        pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
+                        pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
                         if ((GetBossState(DATA_YORSAHJ) == DONE) && (GetBossState(DATA_ZONOZZ) == DONE))
-                            pCreature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
+                            pCreature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
                         break;
                     case NPC_THRALL_2:
                         uiThrall2GUID = pCreature->GetGUID();
@@ -408,7 +408,7 @@ class instance_dragon_soul : public InstanceMapScript
                         uiAllianceShipGUID = pGo->GetGUID();
                         if (GetBossState(DATA_ULTRAXION) == DONE)
                         {
-                            pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                            pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                             pGo->UpdateObjectVisibility();
                         }
                         break;
@@ -416,7 +416,7 @@ class instance_dragon_soul : public InstanceMapScript
                         uiAllianceShipFirstGUID = pGo->GetGUID();
                         if (GetBossState(DATA_ULTRAXION) == DONE)
                         {
-                            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                            pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                             pGo->UpdateObjectVisibility();
                         }
                         break;
@@ -424,7 +424,7 @@ class instance_dragon_soul : public InstanceMapScript
                         uiHordeShipGUID = pGo->GetGUID();
                         if (GetBossState(DATA_ULTRAXION) == DONE)
                         {
-                            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                            pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                             pGo->UpdateObjectVisibility();
                         }
                         break;
@@ -702,15 +702,15 @@ class instance_dragon_soul : public InstanceMapScript
                     if (!dragonstaxiGUIDs.empty())
                         for (std::vector<uint64>::const_iterator itr = dragonstaxiGUIDs.begin(); itr != dragonstaxiGUIDs.end(); ++itr)
                             if (Creature* dragonstaxi = instance->GetCreature((*itr)))
-                                dragonstaxi->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
+                                dragonstaxi->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
 
                 if ((GetBossState(DATA_YORSAHJ) == DONE) && (GetBossState(DATA_ZONOZZ) == DONE))
                     if (Creature* Nethestrasz = instance->GetCreature(uiNethestraszGUID))
-                        Nethestrasz->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
+                        Nethestrasz->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
 
                 if (type == DATA_HAGARA && state == DONE)
                     if (Creature* Thrall = instance->GetCreature(uiThrallEvent))
-                        Thrall->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        Thrall->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                 if (type == DATA_SPINE)
                     if (!maelstormteleGUIDs.empty())
@@ -720,7 +720,7 @@ class instance_dragon_soul : public InstanceMapScript
 
                 if (type == DATA_BLACKHORN && state == DONE)
                     if (Creature* Swayze = instance->GetCreature(uiSwayzeGUID))
-                        Swayze->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        Swayze->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                 // visual state of teleporters
                 if (state == IN_PROGRESS)
@@ -1039,13 +1039,13 @@ class instance_dragon_soul : public InstanceMapScript
                 portal->RemoveAura(SPELL_TELEPORT_VISUAL_DISABLED);
                 portal->CastSpell(portal, SPELL_TELEPORT_VISUAL_DISABLED, true);
                 portal->CastSpell(portal, SPELL_TELEPORT_VISUAL_ACTIVE, true);
-                portal->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
+                portal->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
             }
             void DeactivatePortal(Creature* portal)
             {
                 portal->RemoveAura(SPELL_TELEPORT_VISUAL_ACTIVE);
                 portal->CastSpell(portal, SPELL_TELEPORT_VISUAL_DISABLED, true);
-                portal->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
+                portal->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
             }
             void SetPortalState(Creature* portal, bool active)
             {

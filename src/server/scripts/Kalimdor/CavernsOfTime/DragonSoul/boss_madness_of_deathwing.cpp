@@ -1011,7 +1011,7 @@ class npc_dragon_soul_thrall_1 : public CreatureScript
                             break;
                         case EVENT_MOVE_THRALL:
                             DoCast(me, SPELL_ASTRAL_RECALL);
-                            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
+                            me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
                             events.ScheduleEvent(EVENT_SUMMON_DEATHWING, 1000);
                             break;
                         case EVENT_SUMMON_DEATHWING:
@@ -1164,7 +1164,7 @@ class npc_dragon_soul_thrall_1 : public CreatureScript
                         case EVENT_DELAY_PLAY_MOVIE:
                             pInstance->DoStartMovie(76);
                             if (GameObject* ElemFragment = me->FindNearestGameObject(RAID_MODE(GO_ELEMENTIUM_FRAGMENT_10N, (pInstance->GetData(DATA_IS_LFR) ? GO_ELEMENTIUM_FRAGMENT_LFR : GO_ELEMENTIUM_FRAGMENT_25N), GO_ELEMENTIUM_FRAGMENT_10H, GO_ELEMENTIUM_FRAGMENT_25H), 300.0f))
-                                ElemFragment->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
+                                ElemFragment->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
                             events.ScheduleEvent(EVENT_FINAL_OUTRO, 500);
                             break;
                         case EVENT_FINAL_OUTRO:
@@ -1195,7 +1195,7 @@ class npc_dragon_soul_thrall_1 : public CreatureScript
                     pInstance->SetBossState(DATA_MADNESS, (done ? DONE : NOT_STARTED));
 
                 if (pInstance->GetBossState(DATA_MADNESS) != DONE)
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
+                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_SPELLCLICK);
 
                 DespawnCreatures(NPC_CORRUPTING_PARASITE);
                 DespawnCreatures(NPC_WING_TENTACLE);
@@ -2043,7 +2043,7 @@ class npc_madness_of_deathwing_corrupting_parasite : public CreatureScript
             {
                 if (action == ACTION_PARASITIC_BACKSLASH)
                 {
-                    me->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE_X, -70.0f, false);
+                    me->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE, -70.0f, false);
                     events.ScheduleEvent(EVENT_UNSTABLE_CORRUPTION, 200);
                 }
             }
@@ -2956,7 +2956,7 @@ class spell_madness_of_deathwing_corrupting_parasite_aoe : public SpellScriptLoa
                 {
                     pParasite->AI()->DoZoneInCombat();
                     pParasite->EnterVehicle(GetHitUnit(), -1);
-                    pParasite->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE_X, -70.0f, true);
+                    pParasite->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE, -70.0f, true);
                 }
             }
 

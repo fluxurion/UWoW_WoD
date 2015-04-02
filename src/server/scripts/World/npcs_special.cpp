@@ -4339,7 +4339,7 @@ class npc_riggle_bassbait : public CreatureScript
             {
                 me->AI()->SetData(DATA_CHECK, QuestEnd);
                 ZoneTalk(TEXT_GENERIC_3, player->GetGUID());
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                 me->DespawnOrUnsummon(30000);
             }
         }
