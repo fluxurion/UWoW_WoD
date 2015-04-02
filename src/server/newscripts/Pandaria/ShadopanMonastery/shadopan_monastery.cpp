@@ -129,11 +129,11 @@ class npc_shadopan_archery : public CreatureScript
         {
             npc_shadopan_archeryAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
             uint16 fireTimer;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -143,21 +143,21 @@ class npc_shadopan_archery : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance || !pInstance->GetData(DATA_ARCHERY))
+                if (!instance || !instance->GetData(DATA_ARCHERY))
                     return;
                 
                 if (fireTimer <= diff)
                 {
                     ObjectGuid targetGuid;
 
-                    if (pInstance->GetData(DATA_ARCHERY) == 1 && me->GetEntry() == NPC_ARCHERY_FIRST)
+                    if (instance->GetData(DATA_ARCHERY) == 1 && me->GetEntry() == NPC_ARCHERY_FIRST)
                     {
-                        targetGuid = pInstance->GetGuidData(NPC_ARCHERY_TARGET);
+                        targetGuid = instance->GetGuidData(NPC_ARCHERY_TARGET);
                         fireTimer = urand(2000, 4000);
                     }
-                    else if (pInstance->GetData(DATA_ARCHERY) == 2 && me->GetEntry() == NPC_ARCHERY_SECOND)
+                    else if (instance->GetData(DATA_ARCHERY) == 2 && me->GetEntry() == NPC_ARCHERY_SECOND)
                     {
-                        Map::PlayerList const& playerList = pInstance->instance->GetPlayers();
+                        Map::PlayerList const& playerList = instance->instance->GetPlayers();
 
                         if (!playerList.isEmpty())
                         {
@@ -415,24 +415,24 @@ class areatrigger_at_shadopan_archery : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool /*apply*/)
         {
-            InstanceScript* pInstance = player->GetInstanceScript();
+            InstanceScript* instance = player->GetInstanceScript();
 
-            if (!pInstance)
+            if (!instance)
                 return false;
 
             switch(trigger->id)
             {
                 case AREATRIGGER_ARCHERY_FIRST_BEGIN:
-                    pInstance->SetData(DATA_ARCHERY, 1);
+                    instance->SetData(DATA_ARCHERY, 1);
                     break;
                 case AREATRIGGER_ARCHERY_FIRST_END:
-                    pInstance->SetData(DATA_ARCHERY, 0);
+                    instance->SetData(DATA_ARCHERY, 0);
                     break;
                 case AREATRIGGER_ARCHERY_SECOND_FIRST:
-                    pInstance->SetData(DATA_ARCHERY, 2);
+                    instance->SetData(DATA_ARCHERY, 2);
                     break;
                 case AREATRIGGER_ARCHERY_SECOND_END:
-                    pInstance->SetData(DATA_ARCHERY, 0);
+                    instance->SetData(DATA_ARCHERY, 0);
                     break;
             }
 

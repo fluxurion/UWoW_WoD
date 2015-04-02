@@ -822,12 +822,12 @@ class npc_alysrazor_fiery_vortex : public CreatureScript
         {
             npc_alysrazor_fiery_vortexAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -1137,11 +1137,11 @@ class npc_alysrazor_blazing_talon_clawshaper : public CreatureScript
         {
             npc_alysrazor_blazing_talon_clawshaperAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             bool bLeft;
 
@@ -1380,7 +1380,7 @@ class npc_alysrazor_voracious_hatchling : public CreatureScript // 53509
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 bDespawn = false;
             }
@@ -1402,8 +1402,8 @@ class npc_alysrazor_voracious_hatchling : public CreatureScript // 53509
 
                 if (!bDespawn)
                 {
-                    if (pInstance)
-                        if (pInstance->GetBossState(DATA_ALYSRAZOR) != IN_PROGRESS)
+                    if (instance)
+                        if (instance->GetBossState(DATA_ALYSRAZOR) != IN_PROGRESS)
                         {
                             bDespawn = true;
                             me->DespawnOrUnsummon(500);
@@ -1463,7 +1463,7 @@ class npc_alysrazor_voracious_hatchling : public CreatureScript // 53509
 
         private:
             EventMap events;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             bool bDespawn;
         };
 };
@@ -1534,8 +1534,8 @@ class npc_alysrazor_molten_feather : public CreatureScript
 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            InstanceScript* pInstance = pCreature->GetInstanceScript();
-            if (!pInstance || pInstance->GetBossState(DATA_ALYSRAZOR) != IN_PROGRESS)
+            InstanceScript* instance = pCreature->GetInstanceScript();
+            if (!instance || instance->GetBossState(DATA_ALYSRAZOR) != IN_PROGRESS)
                 return true;
 
             if (pPlayer->HasAura(SPELL_WINGS_OF_FLAME_AURA))
@@ -1613,7 +1613,7 @@ class npc_alysrazor_molten_meteor : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
                 me->SetSpeed(MOVE_RUN, 0.3f, true);
                 me->SetSpeed(MOVE_WALK, 0.3f, true);
                 me->SetReactState(REACT_PASSIVE);
@@ -1660,13 +1660,13 @@ class npc_alysrazor_molten_meteor : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance)
-                    if (pInstance->GetBossState(DATA_ALYSRAZOR) != IN_PROGRESS)
+                if (instance)
+                    if (instance->GetBossState(DATA_ALYSRAZOR) != IN_PROGRESS)
                         me->DespawnOrUnsummon();
             }
 
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
         };
 };
 

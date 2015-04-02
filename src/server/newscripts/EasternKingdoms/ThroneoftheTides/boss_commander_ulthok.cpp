@@ -171,13 +171,13 @@ class at_tott_commander_ulthok : public AreaTriggerScript
 
         bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
         {
-            if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+            if (InstanceScript* instance = pPlayer->GetInstanceScript())
             {
-                if (pInstance->GetData(DATA_COMMANDER_ULTHOK_EVENT) != DONE
-                    && pInstance->GetBossState(DATA_LADY_NAZJAR) == DONE)
+                if (instance->GetData(DATA_COMMANDER_ULTHOK_EVENT) != DONE
+                    && instance->GetBossState(DATA_LADY_NAZJAR) == DONE)
                 {
-                    pInstance->SetData(DATA_COMMANDER_ULTHOK_EVENT, DONE);
-                    if (Creature* pUlthok = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetGuidData(DATA_COMMANDER_ULTHOK)))
+                    instance->SetData(DATA_COMMANDER_ULTHOK_EVENT, DONE);
+                    if (Creature* pUlthok = ObjectAccessor::GetCreature(*pPlayer, instance->GetGuidData(DATA_COMMANDER_ULTHOK)))
                     {
                         pUlthok->AI()->DoAction(ACTION_COMMANDER_ULTHOK_START_EVENT);
                     }

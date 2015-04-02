@@ -815,10 +815,10 @@ class npc_storm_caller : public CreatureScript
         {
             npc_storm_callerAI(Creature* pCreature) : BossAI(pCreature, DATA_STORM_CALLER)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
             
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -874,10 +874,10 @@ class npc_stormbringer : public CreatureScript
         {
             npc_stormbringerAI(Creature* pCreature) : BossAI(pCreature, DATA_STORMBRINGER)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
             
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {

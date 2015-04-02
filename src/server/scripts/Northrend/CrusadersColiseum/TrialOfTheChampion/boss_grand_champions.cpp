@@ -217,7 +217,7 @@ struct npc_mounted_championAI : ScriptedAI
 
     bool isInMountedGauntlet()
     {
-        if(Creature* announcer = me->GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
+        if(Creature* announcer = me->GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
         {
             if (announcer->AI()->GetData(EVENT_INTRO) == IN_PROGRESS || announcer->AI()->GetData(EVENT_WAVES) == IN_PROGRESS)
                 return true;

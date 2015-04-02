@@ -224,7 +224,7 @@ class boss_valithria_dreamwalker : public CreatureScript
             boss_valithria_dreamwalkerAI(Creature* pCreature) : BossAI(pCreature, DATA_VALITHRIA_DREAMWALKER),
             summons(me), _portalCount(RAID_MODE<uint32>(3, 7, 3, 7))
             {
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void Reset()
@@ -253,13 +253,13 @@ class boss_valithria_dreamwalker : public CreatureScript
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 
-                //if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                //if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                     //me->setFaction(2144);
 
                 DoCast(me, SPELL_COPY_DAMAGE);
 
-                if (pInstance && me->isAlive())
-                    pInstance->SetBossState(DATA_VALITHRIA_DREAMWALKER, NOT_STARTED);
+                if (instance && me->isAlive())
+                    instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, NOT_STARTED);
 
                 summons.DespawnAll();
             }
@@ -270,16 +270,16 @@ class boss_valithria_dreamwalker : public CreatureScript
 
             void MoveInLineOfSight(Unit *who)
             {
-                if (pInstance && !bIntro && who->IsWithinDistInMap(me, 40.0f,true))
+                if (instance && !bIntro && who->IsWithinDistInMap(me, 40.0f,true))
                 {
-                    if (pInstance && pInstance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == NOT_STARTED)
-                        pInstance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
+                    if (instance && instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == NOT_STARTED)
+                        instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
 
                     Talk(SAY_VALITHRIA_ENTER_COMBAT);
                     bIntro = true;
                     me->SetHealth(uint32(me->GetMaxHealth() * 0.50));
 
-                    /*if (pInstance->GetBossState(DATA_TEAM_IN_INSTANCE) == HORDE)
+                    /*if (instance->GetBossState(DATA_TEAM_IN_INSTANCE) == HORDE)
                         me->setFaction(2144);
                     else
                         me->setFaction(2144);*/
@@ -303,7 +303,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     me->AI()->AttackStart(combat_trigger);
                     combat_trigger->AI()->AttackStart(me);
 
-                    pInstance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
+                    instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
 
                     //ScriptedAI::MoveInLineOfSight(who);
                 }
@@ -346,12 +346,12 @@ class boss_valithria_dreamwalker : public CreatureScript
 
                 summons.DespawnAll();
                 if(IsHeroic())
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWISTED_NIGHTMARE);
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWISTED_NIGHTMARE);
                 else
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(EMERALD_VIGOR);
+                    instance->DoRemoveAurasDueToSpellOnPlayers(EMERALD_VIGOR);
 
-                if (pInstance)
-                    pInstance->SetBossState(DATA_VALITHRIA_DREAMWALKER, FAIL);
+                if (instance)
+                    instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, FAIL);
             }
 
             void SummonCreature(uint32 entry, uint8 probability)
@@ -370,10 +370,10 @@ class boss_valithria_dreamwalker : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
-                if (pInstance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == IN_PROGRESS)
                 {
                 
                     events.Update(diff);
@@ -494,8 +494,8 @@ class boss_valithria_dreamwalker : public CreatureScript
 
                     if (HealthBelowPct(3))
                     {
-                        if (pInstance)
-                            pInstance->SetBossState(DATA_VALITHRIA_DREAMWALKER, FAIL);
+                        if (instance)
+                            instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, FAIL);
                         summons.DespawnAll();
                         Reset();
                         EnterEvadeMode();
@@ -546,7 +546,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                                     }
                                     break;
                                 case 3:
-                                    pInstance->SetBossState(DATA_VALITHRIA_DREAMWALKER, DONE);
+                                    instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, DONE);
                                     DoCast(me, SPELL_CANCEL_ALL_AURAS);
                                     DoCast(me, SPELL_AWARD_REPUTATION_BOSS_KILL);
                                     // this display id was found in sniff instead of the one on aura
@@ -566,7 +566,7 @@ class boss_valithria_dreamwalker : public CreatureScript
            
 
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             Creature* combat_trigger;
 
             uint32 m_uiSummonSkeletonTimer, m_uiSummonSuppressorTimer;
@@ -599,7 +599,7 @@ class npc_risen_archmage : public CreatureScript
         {
             npc_risen_archmageAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
             void Reset()
@@ -650,7 +650,7 @@ class npc_risen_archmage : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 m_uiVolleyTimer;
             uint32 m_uiColumnTimer;
@@ -725,7 +725,7 @@ class npc_suppresser : public CreatureScript
         {
             npc_suppresserAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -741,7 +741,7 @@ class npc_suppresser : public CreatureScript
 
                 if (m_uiCheckTimer <= diff)
                 {
-                    if (Creature* pValithria = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)))
+                    if (Creature* pValithria = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)))
                         me->CastSpell(pValithria, SPELL_SUPRESSION, true);
                     m_uiCheckTimer = 100000;
                 } else m_uiCheckTimer -= diff;
@@ -749,7 +749,7 @@ class npc_suppresser : public CreatureScript
 
         private:
             uint32 m_uiCheckTimer;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* pCreature) const
@@ -767,7 +767,7 @@ class npc_gluttonous_abomination : public CreatureScript
         {
             npc_gluttonous_abominationAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
             void EnterCombat(Unit* /*who*/) { }
@@ -784,7 +784,7 @@ class npc_gluttonous_abomination : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                Creature* pValithria = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
+                Creature* pValithria = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
                 for (uint8 i = 1; i < 5; i++)
                 {
                     if(pValithria)
@@ -806,7 +806,7 @@ class npc_gluttonous_abomination : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint32 m_uiSprayTimer;
         };
 

@@ -491,8 +491,8 @@ class spell_kilnara_rat_lure : public SpellScriptLoader
 
                 GetHitUnit()->CastSpell(GetHitUnit(), SPELL_BLOOD_FRENZY, true);
                 GetHitUnit()->CastSpell(GetCaster(), SPELL_POUNCE_RAT, true);
-                if (InstanceScript* pInstance = GetHitUnit()->GetInstanceScript())
-                    pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CAT_FED);
+                if (InstanceScript* instance = GetHitUnit()->GetInstanceScript())
+                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CAT_FED);
             }
 
             void Register()

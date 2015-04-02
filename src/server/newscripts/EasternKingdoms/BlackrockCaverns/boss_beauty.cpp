@@ -54,10 +54,10 @@ public:
         {
 			me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-			pInstance = (InstanceScript*)c->GetInstanceScript();
+			instance = (InstanceScript*)c->GetInstanceScript();
         }
  
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 		EventMap events;
 		SummonList summons;
 		//Creature* pups[2];
@@ -68,7 +68,7 @@ public:
 			//pups[0] = me->SummonCreature(NPC_SPOT, pupsPos[0]);
 			//pups[1] = me->SummonCreature(NPC_BUSTER, pupsPos[1]);
 			events.Reset();
-            pInstance->SetData(DATA_BEAUTY, NOT_STARTED);
+            instance->SetData(DATA_BEAUTY, NOT_STARTED);
         }
  
 
@@ -79,8 +79,8 @@ public:
 			events.ScheduleEvent(EVENT_MAGMA_SPLIT, 18000);
 			events.ScheduleEvent(EVENT_TERRIFYING_ROAR, 30000);
             DoZoneInCombat();
-            if (pInstance)
-                pInstance->SetData(DATA_BEAUTY, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_BEAUTY, IN_PROGRESS);
         }
  
         void UpdateAI(uint32 diff)
@@ -140,8 +140,8 @@ public:
         void JustDied(Unit* /*killer*/)
         {
 			summons.DespawnAll();
-            if (pInstance)
-                pInstance->SetData(DATA_BEAUTY, DONE);
+            if (instance)
+                instance->SetData(DATA_BEAUTY, DONE);
         }
     };
  

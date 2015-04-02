@@ -467,10 +467,10 @@ class npc_firelands_molten_lord : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             
             void Reset()
@@ -480,9 +480,9 @@ class npc_firelands_molten_lord : public CreatureScript
 
             void JustDied(Unit* killer)
             {
-                if (pInstance)
+                if (instance)
                 {
-                    Map::PlayerList const& PlayerList = pInstance->instance->GetPlayers();
+                    Map::PlayerList const& PlayerList = instance->instance->GetPlayers();
                     if (!PlayerList.isEmpty())
                     {
                         for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
@@ -1357,8 +1357,8 @@ class npc_firelands_dull_focus : public CreatureScript
 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            InstanceScript* pInstance = pCreature->GetInstanceScript();
-            if (!pInstance)
+            InstanceScript* instance = pCreature->GetInstanceScript();
+            if (!instance)
                 return true;
 
             if (!pPlayer)
@@ -1395,14 +1395,14 @@ class npc_firelands_circle_of_thorns_portal : public CreatureScript
 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            InstanceScript* pInstance = pCreature->GetInstanceScript();
-            if (!pInstance)
+            InstanceScript* instance = pCreature->GetInstanceScript();
+            if (!instance)
                 return true;
 
             if (!pPlayer)
                 return true;
 
-            if (pInstance->GetData(DATA_EVENT) != DONE)
+            if (instance->GetData(DATA_EVENT) != DONE)
                 return true;
 
             bool bIn = (pCreature->GetPositionZ() <= 100.0f);

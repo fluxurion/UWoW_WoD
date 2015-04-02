@@ -295,11 +295,11 @@ class boss_shannox : public CreatureScript
                 {
                     bFrenzy = true;
                     
-                    if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIPLIMB)))
+                    if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIPLIMB)))
                         if (pRiplimb->isAlive())
                             pRiplimb->CastSpell(pRiplimb, SPELL_FRENZIED_DEVOTION, true);
 
-                    if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGEFACE)))
+                    if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGEFACE)))
                         if (pRageface->isAlive())
                             pRageface->CastSpell(pRageface, SPELL_FRENZIED_DEVOTION, true);
                 }
@@ -314,22 +314,22 @@ class boss_shannox : public CreatureScript
                         case EVENT_CHECK_COMBAT:
                             if (me->isInCombat())
                             {
-                                if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIPLIMB)))
+                                if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIPLIMB)))
                                     if (!pRiplimb->isInCombat() && !pRiplimb->IsInEvadeMode())
                                         if (pRiplimb->isAlive())
                                             DoZoneInCombat(pRiplimb);
 
-                                if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGEFACE)))
+                                if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGEFACE)))
                                     if (!pRageface->isInCombat() && !pRageface->IsInEvadeMode())
                                         if (pRageface->isAlive())
                                             DoZoneInCombat(pRageface);
                             }
                             events.ScheduleEvent(EVENT_CHECK_COMBAT, 5000);
                         case EVENT_SEPARATION_ANXIETY:
-                            if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RIPLIMB)))
+                            if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIPLIMB)))
                                 if (pRiplimb->isAlive() && !me->IsWithinDist(pRiplimb, 80.0f) && !me->HasAura(SPELL_SEPARATION_ANXIETY))
                                     DoCast(me, SPELL_SEPARATION_ANXIETY, true);
-                            if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_RAGEFACE)))
+                            if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGEFACE)))
                                 if (pRageface->isAlive() && !me->IsWithinDist(pRageface, 80.0f) && !me->HasAura(SPELL_SEPARATION_ANXIETY))
                                     DoCast(me, SPELL_SEPARATION_ANXIETY, true);
                             events.ScheduleEvent(EVENT_SEPARATION_ANXIETY, 2000);
@@ -410,10 +410,10 @@ class npc_shannox_riplimb : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                 me->setActive(true);
                 me->SetSpeed(MOVE_RUN, 1.1f);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             bool bFetch;
             EventMap events;
             bool bDead;
@@ -534,12 +534,12 @@ class npc_shannox_riplimb : public CreatureScript
                         case EVENT_CHECK_COMBAT:
                             if (me->isInCombat())
                             {
-                                if (Creature* pRageface = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_RAGEFACE)))
+                                if (Creature* pRageface = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_RAGEFACE)))
                                     if (!pRageface->isInCombat() && !pRageface->IsInEvadeMode())
                                         if (pRageface->isAlive())
                                             DoZoneInCombat(pRageface);
 
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_SHANNOX)))
                                     if (!pShannox->isInCombat() && !pShannox->IsInEvadeMode())
                                         if (pShannox->isAlive())
                                             DoZoneInCombat(pShannox);
@@ -552,8 +552,8 @@ class npc_shannox_riplimb : public CreatureScript
                             events.ScheduleEvent(EVENT_SEPARATION_ANXIETY, 2000);
                             break;
                         case EVENT_FETCH_SPEAR:
-                            if (pInstance)
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SHANNOX)))
+                            if (instance)
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_SHANNOX)))
                                 {
                                     bFetch = true;
                                     me->GetMotionMaster()->MovementExpired(false);
@@ -570,8 +570,8 @@ class npc_shannox_riplimb : public CreatureScript
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             me->SetHealth(me->GetMaxHealth());
                             me->GetMotionMaster()->MoveChase(me->getVictim());
-                            if (pInstance)
-                                if (Unit* pShannox = ObjectAccessor::GetUnit(*me, pInstance->GetGuidData(DATA_SHANNOX)))
+                            if (instance)
+                                if (Unit* pShannox = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SHANNOX)))
                                     pShannox->GetAI()->DoAction(ACTION_RESURRECT);
                             break;
                     }
@@ -611,10 +611,10 @@ class npc_shannox_rageface : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                 me->setActive(true);
                 me->SetSpeed(MOVE_RUN, 1.1f);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -684,12 +684,12 @@ class npc_shannox_rageface : public CreatureScript
                         case EVENT_CHECK_COMBAT:
                             if (me->isInCombat())
                             {
-                                if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_RIPLIMB)))
+                                if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_RIPLIMB)))
                                     if (!pRiplimb->isInCombat() && !pRiplimb->IsInEvadeMode())
                                         if (pRiplimb->isAlive())
                                             DoZoneInCombat(pRiplimb);
 
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_SHANNOX)))
                                     if (!pShannox->isInCombat() && !pShannox->IsInEvadeMode())
                                         if (pShannox->isAlive())
                                             DoZoneInCombat(pShannox);
@@ -702,16 +702,16 @@ class npc_shannox_rageface : public CreatureScript
                             events.ScheduleEvent(EVENT_SEPARATION_ANXIETY, 2000);
                             break;
                         case EVENT_FACE_RAGE:
-                            if (pInstance)
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SHANNOX)))
+                            if (instance)
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                                     pShannox->AI()->Talk(SAY_DOG);
                             DoCastVictim(SPELL_FACE_RAGE);
                             break;
                         case EVENT_CHANGE_TARGET:
-                            if (pInstance && !(me->getVictim() && me->getVictim()->HasAura(SPELL_RAGE)) && !me->HasAura(SPELL_FACE_RAGE_DUMMY))
+                            if (instance && !(me->getVictim() && me->getVictim()->HasAura(SPELL_RAGE)) && !me->HasAura(SPELL_FACE_RAGE_DUMMY))
                             {
                                 DoResetThreat();
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                                 {
                                     if (Unit* pTarget = pShannox->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                     {
@@ -752,11 +752,11 @@ class npc_shannox_spear_of_shannox : public CreatureScript
         {
             npc_shannox_spear_of_shannoxAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -787,9 +787,9 @@ class npc_shannox_spear_of_shannox : public CreatureScript
                     DoCast(me, SPELL_MAGMA_FLARE, true);
                     DoCast(me, SPELL_SPEAR_VISUAL, true);
 
-                    if (pInstance)
+                    if (instance)
                     {
-                        if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SHANNOX)))
+                        if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                         {
                             // There will be a spiral, 3 "circles", 20 points per circle
                             Position pos;

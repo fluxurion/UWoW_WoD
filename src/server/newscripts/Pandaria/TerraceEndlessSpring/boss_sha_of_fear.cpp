@@ -206,12 +206,12 @@ class npc_dread_spawn : public CreatureScript
         {
             npc_dread_spawnAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset(){}

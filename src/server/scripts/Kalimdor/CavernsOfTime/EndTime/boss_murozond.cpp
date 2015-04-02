@@ -348,10 +348,10 @@ class npc_murozond_mirror_image : public CreatureScript
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -414,7 +414,7 @@ class npc_murozond_mirror_image : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance || pInstance->GetBossState(DATA_MUROZOND) != IN_PROGRESS)
+                if (!instance || instance->GetBossState(DATA_MUROZOND) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;
@@ -507,11 +507,11 @@ class go_murozond_hourglass_of_time : public GameObjectScript
 
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {
-            InstanceScript* pInstance = pGo->GetInstanceScript();
-            if (!pInstance || pInstance->GetBossState(DATA_MUROZOND) != IN_PROGRESS)
+            InstanceScript* instance = pGo->GetInstanceScript();
+            if (!instance || instance->GetBossState(DATA_MUROZOND) != IN_PROGRESS)
                 return true;
 
-            if (Creature* pMurozond = ObjectAccessor::GetCreature(*pGo, pInstance->GetGuidData(DATA_MUROZOND)))
+            if (Creature* pMurozond = ObjectAccessor::GetCreature(*pGo, instance->GetGuidData(DATA_MUROZOND)))
             {
                 if (pMurozond->AI()->GetData(TYPE_HOURGLASS) == 0)
                     return true;

@@ -74,13 +74,13 @@ public:
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
     {
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+        if (InstanceScript* instance = pPlayer->GetInstanceScript())
         {
-            if (pInstance->GetData(DATA_LADY_NAZJAR_EVENT) != DONE
-                && pInstance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE)
+            if (instance->GetData(DATA_LADY_NAZJAR_EVENT) != DONE
+                && instance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE)
             {
-                pInstance->SetData(DATA_LADY_NAZJAR_EVENT, DONE);
-                if (Creature* pLadyNazjarEvent = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetGuidData(DATA_LADY_NAZJAR_EVENT)))
+                instance->SetData(DATA_LADY_NAZJAR_EVENT, DONE);
+                if (Creature* pLadyNazjarEvent = ObjectAccessor::GetCreature(*pPlayer, instance->GetGuidData(DATA_LADY_NAZJAR_EVENT)))
                     pLadyNazjarEvent->AI()->DoAction(ACTION_LADY_NAZJAR_START_EVENT);
             }
         }
@@ -132,19 +132,19 @@ class npc_lady_nazjar_event : public CreatureScript
         {
             npc_lady_nazjar_eventAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             bool bEvade;
 
             void Reset()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
-                if(pInstance->GetData(DATA_LADY_NAZJAR_EVENT) == DONE)
+                if(instance->GetData(DATA_LADY_NAZJAR_EVENT) == DONE)
                     me->DespawnOrUnsummon();
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -179,7 +179,7 @@ class npc_lady_nazjar_event : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if(!pInstance)
+                if(!instance)
                     return;
 
                 if (me->SelectNearestTarget(50.0f) && !bEvade)

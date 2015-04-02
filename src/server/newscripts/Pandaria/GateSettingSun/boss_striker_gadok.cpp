@@ -461,10 +461,10 @@ public:
     {
         npc_krikthik_strikerAI(Creature* creature) : npc_krikthik(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         bool isAttackerStriker;
 
         void Reset()
@@ -479,7 +479,7 @@ public:
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
-            Map::PlayerList const &PlayerList = pInstance->instance->GetPlayers();
+            Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
             Map::PlayerList::const_iterator it = PlayerList.begin();
             // Randomize it, everything is done in the "for"
             for (uint8 i = 0; i < urand(0, PlayerList.getSize() - 1); ++i, ++it);
@@ -512,10 +512,10 @@ public:
     {
         npc_krikthik_disruptorAI(Creature* creature) : npc_krikthik(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
@@ -527,12 +527,12 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             npc_krikthik::UpdateAI(diff);
 
-            if (pInstance->GetBossState(DATA_GADOK) != IN_PROGRESS)
+            if (instance->GetBossState(DATA_GADOK) != IN_PROGRESS)
                 return;
 
             events.Update(diff);
@@ -541,10 +541,10 @@ public:
             {
                 case EVENT_DISRUPTOR_BOMBARD:
                 {
-                    if (!pInstance)
+                    if (!instance)
                         break;
 
-                    Map::PlayerList const &PlayerList = pInstance->instance->GetPlayers();
+                    Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
 
                     if (PlayerList.isEmpty())
                         return;
@@ -581,27 +581,27 @@ public:
     {
         npc_flak_cannonAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {}
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            if (pInstance->GetBossState(DATA_GADOK) != DONE)
+            if (instance->GetBossState(DATA_GADOK) != DONE)
                 return;
 
             if (spell->Id == 116554) // Fire Flak Cannon
             {
                 for (uint8 i = 0; i < 5; ++i)
                 {
-                    if (Creature* bombarder = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_RANDOM_BOMBARDER)))
+                    if (Creature* bombarder = instance->instance->GetCreature(instance->GetGuidData(DATA_RANDOM_BOMBARDER)))
                     {
                         me->CastSpell(bombarder, 116553, true);
                         bombarder->GetMotionMaster()->MoveFall();

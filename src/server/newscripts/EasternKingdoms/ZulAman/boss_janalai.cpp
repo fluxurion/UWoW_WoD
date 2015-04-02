@@ -317,10 +317,10 @@ class npc_janalai_hatcher : public CreatureScript
             {
                 me->SetSpeed(MOVE_RUN, 0.8f);
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 waypoint;
             uint32 WaitTimer;
@@ -350,7 +350,7 @@ class npc_janalai_hatcher : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance || !(pInstance->GetBossState(DATA_JANALAI) == IN_PROGRESS))
+                if (!instance || !(instance->GetBossState(DATA_JANALAI) == IN_PROGRESS))
                 {
                     me->DespawnOrUnsummon();
                     return;
@@ -461,10 +461,10 @@ class npc_janalai_hatchling : public CreatureScript
         {
             npc_janalai_hatchlingAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -485,7 +485,7 @@ class npc_janalai_hatchling : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance || !(pInstance->GetBossState(DATA_JANALAI) == IN_PROGRESS))
+                if (!instance || !(instance->GetBossState(DATA_JANALAI) == IN_PROGRESS))
                 {
                     me->DisappearAndDie();
                     return;

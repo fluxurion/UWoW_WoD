@@ -99,7 +99,7 @@ class npc_air_warden : public CreatureScript
         {
             npc_air_wardenAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
@@ -114,7 +114,7 @@ class npc_air_warden : public CreatureScript
 			    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
  
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -130,8 +130,8 @@ class npc_air_warden : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_WARDENS, 1);
+                if (instance)
+                    instance->SetData(DATA_WARDENS, 1);
             }
         
             void UpdateAI(uint32 diff)
@@ -175,7 +175,7 @@ class npc_flame_warden : public CreatureScript
         {
             npc_flame_wardenAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
@@ -190,7 +190,7 @@ class npc_flame_warden : public CreatureScript
 			    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
  
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -207,8 +207,8 @@ class npc_flame_warden : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_WARDENS, 1);
+                if (instance)
+                    instance->SetData(DATA_WARDENS, 1);
             }
 
             void UpdateAI(uint32 diff)
@@ -256,7 +256,7 @@ class npc_water_warden : public CreatureScript
         {
             npc_water_wardenAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
@@ -271,7 +271,7 @@ class npc_water_warden : public CreatureScript
 			    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
  
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -287,8 +287,8 @@ class npc_water_warden : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_WARDENS, 1);
+                if (instance)
+                    instance->SetData(DATA_WARDENS, 1);
             }
 
             void UpdateAI(uint32 diff)
@@ -332,7 +332,7 @@ class npc_earth_warden : public CreatureScript
         {
             npc_earth_wardenAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
@@ -347,7 +347,7 @@ class npc_earth_warden : public CreatureScript
 			    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             }
  
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -364,8 +364,8 @@ class npc_earth_warden : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_WARDENS, 1);
+                if (instance)
+                    instance->SetData(DATA_WARDENS, 1);
             }
 
             void UpdateAI(uint32 diff)
@@ -489,11 +489,11 @@ class npc_halls_of_origination_brann_bronzebeard : public CreatureScript
         {
             npc_halls_of_origination_brann_bronzebeardAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 pCreature->setActive(true);
             }
  
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -536,10 +536,10 @@ class npc_halls_of_origination_brann_bronzebeard : public CreatureScript
                             events.ScheduleEvent(EVENT_TALK_1, 8000);
                             break;
                         case EVENT_TALK_1:
-                            if (pInstance)
+                            if (instance)
                             {
-                                pInstance->HandleGameObject(pInstance->GetGuidData(DATA_ANRAPHET_ENTRANCE_DOOR), true);
-                                pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, EVENT_FASTER_THAN_LIGHT);
+                                instance->HandleGameObject(instance->GetGuidData(DATA_ANRAPHET_ENTRANCE_DOOR), true);
+                                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, EVENT_FASTER_THAN_LIGHT);
                             }
                             Talk(SAY_1);
                             events.ScheduleEvent(EVENT_TALK_2, 4000);

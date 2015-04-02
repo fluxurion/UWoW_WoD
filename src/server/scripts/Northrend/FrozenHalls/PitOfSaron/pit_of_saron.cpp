@@ -421,7 +421,7 @@ public:
 
         void Reset()
         {
-        InstanceScript* pInstance = me->GetInstanceScript();
+        InstanceScript* instance = me->GetInstanceScript();
         m_uiIntro_Phase     = 0;
         m_uiSpeech_TimerAlliance    = 1000;
         m_uiTyrannusGuid.Clear();
@@ -985,15 +985,15 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            InstanceScript* pInstance = me->GetInstanceScript();
-        if (pInstance->GetBossState(DATA_TYRANNUS) == DONE || pInstance->GetBossState(DATA_ICK) == DONE || pInstance->GetBossState(DATA_GARFROST) == DONE
-        || pInstance->GetBossState(DATA_TYRANNUS) == IN_PROGRESS || pInstance->GetBossState(DATA_ICK) == IN_PROGRESS || pInstance->GetBossState(DATA_GARFROST) == IN_PROGRESS)
+            InstanceScript* instance = me->GetInstanceScript();
+        if (instance->GetBossState(DATA_TYRANNUS) == DONE || instance->GetBossState(DATA_ICK) == DONE || instance->GetBossState(DATA_GARFROST) == DONE
+        || instance->GetBossState(DATA_TYRANNUS) == IN_PROGRESS || instance->GetBossState(DATA_ICK) == IN_PROGRESS || instance->GetBossState(DATA_GARFROST) == IN_PROGRESS)
         {            
             m_bIsIntro = false;
         }
-        if (pInstance->GetBossState(DATA_TYRANNUS) == NOT_STARTED && pInstance->GetBossState(DATA_ICK) == NOT_STARTED
-        &&  pInstance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && pInstance->GetBossState(DATA_ICK) != IN_PROGRESS && pInstance->GetBossState(DATA_GARFROST) != IN_PROGRESS
-        &&  pInstance->GetBossState(DATA_TYRANNUS) != DONE && pInstance->GetBossState(DATA_ICK) != DONE && pInstance->GetBossState(DATA_GARFROST) != DONE)
+        if (instance->GetBossState(DATA_TYRANNUS) == NOT_STARTED && instance->GetBossState(DATA_ICK) == NOT_STARTED
+        &&  instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_ICK) != IN_PROGRESS && instance->GetBossState(DATA_GARFROST) != IN_PROGRESS
+        &&  instance->GetBossState(DATA_TYRANNUS) != DONE && instance->GetBossState(DATA_ICK) != DONE && instance->GetBossState(DATA_GARFROST) != DONE)
             m_bIsIntro = true;
              
         }
@@ -1016,10 +1016,10 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-                InstanceScript* pInstance = me->GetInstanceScript();
-                if(m_bIsIntro && !m_bIsIntroEnd && pInstance->GetBossState(DATA_TYRANNUS) == NOT_STARTED && pInstance->GetBossState(DATA_ICK) == NOT_STARTED
-                &&  pInstance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && pInstance->GetBossState(DATA_ICK) != IN_PROGRESS && pInstance->GetBossState(DATA_GARFROST) != IN_PROGRESS
-                &&  pInstance->GetBossState(DATA_TYRANNUS) != DONE && pInstance->GetBossState(DATA_ICK) != SPECIAL && pInstance->GetBossState(DATA_ICK) != DONE && pInstance->GetBossState(DATA_GARFROST) != DONE) {
+                InstanceScript* instance = me->GetInstanceScript();
+                if(m_bIsIntro && !m_bIsIntroEnd && instance->GetBossState(DATA_TYRANNUS) == NOT_STARTED && instance->GetBossState(DATA_ICK) == NOT_STARTED
+                &&  instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_ICK) != IN_PROGRESS && instance->GetBossState(DATA_GARFROST) != IN_PROGRESS
+                &&  instance->GetBossState(DATA_TYRANNUS) != DONE && instance->GetBossState(DATA_ICK) != SPECIAL && instance->GetBossState(DATA_ICK) != DONE && instance->GetBossState(DATA_GARFROST) != DONE) {
                 if(m_uiSpeech_TimerAlliance < diff)
                 {
                 switch(m_uiIntro_Phase)
@@ -1246,7 +1246,7 @@ public:
                     case 17:
                         TyrannusIntroEndAlliance();    
                     if(Creature* pTyrannus =  me->GetMap()->GetCreature(m_uiTyrannusGuid))
-                        pInstance->SetBossState(DATA_GARFROST, SPECIAL);
+                        instance->SetBossState(DATA_GARFROST, SPECIAL);
                         ++m_uiIntro_Phase;
                         m_uiSpeech_TimerAlliance = 2000;
                         break;
@@ -1340,7 +1340,7 @@ public:
 
         void Reset()
         {
-            InstanceScript* pInstance = me->GetInstanceScript();
+            InstanceScript* instance = me->GetInstanceScript();
             m_uiIntro_Phase     = 0;
             m_uiSpeech_Timer    = 1000;
             m_uiTyrannusGuid.Clear();
@@ -1871,15 +1871,15 @@ public:
     }
         void MoveInLineOfSight(Unit* who)
         {
-            InstanceScript* pInstance = me->GetInstanceScript();
-        if (pInstance->GetBossState(DATA_TYRANNUS) == DONE || pInstance->GetBossState(DATA_ICK) == DONE || pInstance->GetBossState(DATA_GARFROST) == DONE
-        || pInstance->GetBossState(DATA_TYRANNUS) == IN_PROGRESS || pInstance->GetBossState(DATA_ICK) == IN_PROGRESS || pInstance->GetBossState(DATA_GARFROST) == IN_PROGRESS)
+            InstanceScript* instance = me->GetInstanceScript();
+        if (instance->GetBossState(DATA_TYRANNUS) == DONE || instance->GetBossState(DATA_ICK) == DONE || instance->GetBossState(DATA_GARFROST) == DONE
+        || instance->GetBossState(DATA_TYRANNUS) == IN_PROGRESS || instance->GetBossState(DATA_ICK) == IN_PROGRESS || instance->GetBossState(DATA_GARFROST) == IN_PROGRESS)
         {            
             m_bIsIntro = false;
         }
-        if (pInstance->GetBossState(DATA_TYRANNUS) == NOT_STARTED && pInstance->GetBossState(DATA_ICK) == NOT_STARTED
-        &&  pInstance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && pInstance->GetBossState(DATA_ICK) != IN_PROGRESS && pInstance->GetBossState(DATA_GARFROST) != IN_PROGRESS
-        &&  pInstance->GetBossState(DATA_TYRANNUS) != DONE && pInstance->GetBossState(DATA_ICK) != DONE && pInstance->GetBossState(DATA_GARFROST) != DONE)
+        if (instance->GetBossState(DATA_TYRANNUS) == NOT_STARTED && instance->GetBossState(DATA_ICK) == NOT_STARTED
+        &&  instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_ICK) != IN_PROGRESS && instance->GetBossState(DATA_GARFROST) != IN_PROGRESS
+        &&  instance->GetBossState(DATA_TYRANNUS) != DONE && instance->GetBossState(DATA_ICK) != DONE && instance->GetBossState(DATA_GARFROST) != DONE)
             m_bIsIntro = true;
              
         }
@@ -1902,10 +1902,10 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-                InstanceScript* pInstance = me->GetInstanceScript();
-                if(m_bIsIntro && !m_bIsIntroEnd && pInstance->GetBossState(DATA_TYRANNUS) == NOT_STARTED && pInstance->GetBossState(DATA_ICK) == NOT_STARTED
-                &&  pInstance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && pInstance->GetBossState(DATA_ICK) != IN_PROGRESS && pInstance->GetBossState(DATA_GARFROST) != IN_PROGRESS
-                &&  pInstance->GetBossState(DATA_TYRANNUS) != DONE && pInstance->GetBossState(DATA_ICK) != DONE && pInstance->GetBossState(DATA_ICK) != SPECIAL && pInstance->GetBossState(DATA_GARFROST) != DONE) {
+                InstanceScript* instance = me->GetInstanceScript();
+                if(m_bIsIntro && !m_bIsIntroEnd && instance->GetBossState(DATA_TYRANNUS) == NOT_STARTED && instance->GetBossState(DATA_ICK) == NOT_STARTED
+                &&  instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_ICK) != IN_PROGRESS && instance->GetBossState(DATA_GARFROST) != IN_PROGRESS
+                &&  instance->GetBossState(DATA_TYRANNUS) != DONE && instance->GetBossState(DATA_ICK) != DONE && instance->GetBossState(DATA_ICK) != SPECIAL && instance->GetBossState(DATA_GARFROST) != DONE) {
                 if(m_uiSpeech_Timer < diff)
                 {
                 switch(m_uiIntro_Phase)
@@ -2108,7 +2108,7 @@ public:
                         if(Creature* pTyrannus =  me->GetMap()->GetCreature(m_uiTyrannusGuid))
                         //DoScriptText(SAY_TYRANNUS5, pTyrannus);
 
-                        pInstance->SetBossState(DATA_GARFROST, SPECIAL);
+                        instance->SetBossState(DATA_GARFROST, SPECIAL);
                         ++m_uiIntro_Phase;
                         m_uiSpeech_Timer = 2000;
                         break;

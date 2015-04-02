@@ -614,20 +614,20 @@ class npc_chogall_fire_elemental : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             Creature* pChogall;
             bool bNear;
 
             void IsSummonedBy(Unit* owner)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
                 bNear = false;
-                pChogall = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_CHOGALL));
+                pChogall = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CHOGALL));
                 if (!pChogall)
                     me->DespawnOrUnsummon();
                 DoCast(me, SPELL_FIRE_SHELL);
@@ -640,7 +640,7 @@ class npc_chogall_fire_elemental : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 events.Update(diff);
@@ -685,20 +685,20 @@ class npc_chogall_shadow_lord : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             Creature* pChogall;
             bool bNear;
 
             void IsSummonedBy(Unit* owner)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
                 bNear = false;
-                pChogall = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_CHOGALL));
+                pChogall = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CHOGALL));
                 if (!pChogall)
                     me->DespawnOrUnsummon();
                 DoCast(me, SPELL_SHADOW_SHELL);
@@ -711,7 +711,7 @@ class npc_chogall_shadow_lord : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 events.Update(diff);
@@ -829,10 +829,10 @@ class npc_chogall_darkened_creation : public CreatureScript
         {
             npc_chogall_darkened_creationAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void IsSummonedBy(Unit* owner)
@@ -864,7 +864,7 @@ class npc_chogall_darkened_creation : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 if (!UpdateVictim())
@@ -905,10 +905,10 @@ class npc_chogall_malformation : public CreatureScript
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void IsSummonedBy(Unit* owner)
@@ -928,7 +928,7 @@ class npc_chogall_malformation : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance && pInstance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
+                if (instance && instance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
                 {
                     if (Unit* pPlayer = me->GetVehicleBase())
                     {
@@ -990,10 +990,10 @@ class npc_chogall_corrupting_adherent : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void IsSummonedBy(Unit* owner)
@@ -1121,10 +1121,10 @@ class npc_chogall_blood_of_the_old_god : public CreatureScript
             {
                 me->SetSpeed(MOVE_RUN, 0.5f);
                 me->SetSpeed(MOVE_WALK, 0.5f);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void IsSummonedBy(Unit* owner)
             {
@@ -1142,7 +1142,7 @@ class npc_chogall_blood_of_the_old_god : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance && pInstance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
+                if (instance && instance->GetBossState(DATA_CHOGALL) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 if (!UpdateVictim())

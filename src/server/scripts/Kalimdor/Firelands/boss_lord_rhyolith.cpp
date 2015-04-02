@@ -542,7 +542,7 @@ class npc_lord_rhyolith_rhyolith : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 me->setActive(true);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void Reset()
@@ -575,12 +575,12 @@ class npc_lord_rhyolith_rhyolith : public CreatureScript
 
             void JustDied(Unit* killer)
             {
-                if (pInstance)
+                if (instance)
                 {
-                    if (Creature* pRhyolith = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_RHYOLITH)))
+                    if (Creature* pRhyolith = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RHYOLITH)))
                         pRhyolith->Kill(pRhyolith);
-                    pInstance->SetBossState(DATA_RHYOLITH, DONE);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BALANCE_BAR);
+                    instance->SetBossState(DATA_RHYOLITH, DONE);
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BALANCE_BAR);
                 }
                 Talk(SAY_DEATH);
 
@@ -620,7 +620,7 @@ class npc_lord_rhyolith_rhyolith : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             bool bAchieve;
         };
@@ -640,7 +640,7 @@ class npc_lord_rhyolith_right_foot : public CreatureScript
         {
             npc_lord_rhyolith_right_footAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->CastCustomSpell(SPELL_OBSIDIAN_ARMOR, SPELLVALUE_AURA_STACK, 80, me, true);
                 memset(m_hits, 0, sizeof(m_hits));
@@ -678,8 +678,8 @@ class npc_lord_rhyolith_right_foot : public CreatureScript
 
                 m_hits[0]++;
 
-                if (pInstance)
-                    pInstance->SetData(DATA_RHYOLITH_HEALTH_SHARED, me->GetHealth() > damage ? me->GetHealth() - damage : 0);
+                if (instance)
+                    instance->SetData(DATA_RHYOLITH_HEALTH_SHARED, me->GetHealth() > damage ? me->GetHealth() - damage : 0);
             }
 
             void UpdateAI(uint32 diff)
@@ -695,12 +695,12 @@ class npc_lord_rhyolith_right_foot : public CreatureScript
                      hitsTimer = 1000;
                 }
 
-                if (pInstance)
-                    if (pInstance->GetData(DATA_RHYOLITH_HEALTH_SHARED) != 0)
-                        me->SetHealth(pInstance->GetData(DATA_RHYOLITH_HEALTH_SHARED));
+                if (instance)
+                    if (instance->GetData(DATA_RHYOLITH_HEALTH_SHARED) != 0)
+                        me->SetHealth(instance->GetData(DATA_RHYOLITH_HEALTH_SHARED));
             }
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint32 m_hits[3];
             int32 hitsTimer;
 
@@ -741,7 +741,7 @@ class npc_lord_rhyolith_left_foot : public CreatureScript
         {
             npc_lord_rhyolith_left_footAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->CastCustomSpell(SPELL_OBSIDIAN_ARMOR, SPELLVALUE_AURA_STACK, 80, me, true);
                 memset(m_hits, 0, sizeof(m_hits));
@@ -779,8 +779,8 @@ class npc_lord_rhyolith_left_foot : public CreatureScript
 
                 m_hits[0]++;
 
-                if (pInstance)
-                    pInstance->SetData(DATA_RHYOLITH_HEALTH_SHARED, me->GetHealth() > damage ? me->GetHealth() - damage : 0);
+                if (instance)
+                    instance->SetData(DATA_RHYOLITH_HEALTH_SHARED, me->GetHealth() > damage ? me->GetHealth() - damage : 0);
             }
 
             void UpdateAI(uint32 diff)
@@ -796,12 +796,12 @@ class npc_lord_rhyolith_left_foot : public CreatureScript
                      hitsTimer = 1000;
                 }
 
-                if (pInstance)
-                    if (pInstance->GetData(DATA_RHYOLITH_HEALTH_SHARED) != 0)
-                        me->SetHealth(pInstance->GetData(DATA_RHYOLITH_HEALTH_SHARED));
+                if (instance)
+                    if (instance->GetData(DATA_RHYOLITH_HEALTH_SHARED) != 0)
+                        me->SetHealth(instance->GetData(DATA_RHYOLITH_HEALTH_SHARED));
             }
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint32 m_hits[3];
             int32 hitsTimer;
 

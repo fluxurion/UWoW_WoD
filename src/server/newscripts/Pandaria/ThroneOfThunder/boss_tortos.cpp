@@ -197,11 +197,11 @@ class npc_whirl_turtle : public CreatureScript
         {
             npc_whirl_turtleAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             bool done;
 
@@ -269,10 +269,10 @@ class npc_vampiric_cave_bat : public CreatureScript
         {
             npc_vampiric_cave_batAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset(){}
 

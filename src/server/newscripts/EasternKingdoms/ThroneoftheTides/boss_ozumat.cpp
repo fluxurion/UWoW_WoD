@@ -112,11 +112,11 @@ class npc_neptulon : public CreatureScript
 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            if (InstanceScript* pInstance = pCreature->GetInstanceScript())
+            if (InstanceScript* instance = pCreature->GetInstanceScript())
             {
-                if (pInstance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE
-                    || pInstance->GetBossState(DATA_OZUMAT) == IN_PROGRESS
-                    || pInstance->GetBossState(DATA_OZUMAT) == DONE)
+                if (instance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE
+                    || instance->GetBossState(DATA_OZUMAT) == IN_PROGRESS
+                    || instance->GetBossState(DATA_OZUMAT) == DONE)
                     return false;
 
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -127,17 +127,17 @@ class npc_neptulon : public CreatureScript
 
         bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
         {
-            if (InstanceScript* pInstance = pCreature->GetInstanceScript())
+            if (InstanceScript* instance = pCreature->GetInstanceScript())
             {
-                if (pInstance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE
-                    || pInstance->GetBossState(DATA_OZUMAT) == IN_PROGRESS
-                    || pInstance->GetBossState(DATA_OZUMAT) == DONE)
+                if (instance->GetBossState(DATA_COMMANDER_ULTHOK) != DONE
+                    || instance->GetBossState(DATA_OZUMAT) == IN_PROGRESS
+                    || instance->GetBossState(DATA_OZUMAT) == DONE)
                     return false;
 
                 pPlayer->PlayerTalkClass->ClearMenus();
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                pInstance->SetBossState(DATA_OZUMAT, IN_PROGRESS);
+                instance->SetBossState(DATA_OZUMAT, IN_PROGRESS);
                 pCreature->AI()->DoAction(ACTION_NEPTULON_START);
             }
             return true;
@@ -147,11 +147,11 @@ class npc_neptulon : public CreatureScript
         {
             npc_neptulonAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             SummonList summons;
             uint32 uiMindLasherCount;
@@ -171,9 +171,9 @@ class npc_neptulon : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
                 me->SetHealth(me->GetMaxHealth());
-                if (pInstance)
-                    if (pInstance->GetBossState(DATA_OZUMAT) != DONE)
-                        pInstance->SetBossState(DATA_OZUMAT, NOT_STARTED);
+                if (instance)
+                    if (instance->GetBossState(DATA_OZUMAT) != DONE)
+                        instance->SetBossState(DATA_OZUMAT, NOT_STARTED);
             }
 
             void DoAction(const int32 action)
@@ -234,13 +234,13 @@ class npc_neptulon : public CreatureScript
 
             void CompleteEncounter()
             {
-                if (pInstance)
+                if (instance)
                 {
                     // Achievement
-                    pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_OZUMAT, 0, me); 
+                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_KILL_OZUMAT, 0, me); 
                     
                     // Guild Achievement
-                    Map::PlayerList const &PlayerList = pInstance->instance->GetPlayers();
+                    Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
                     if (!PlayerList.isEmpty())
                     {
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -255,7 +255,7 @@ class npc_neptulon : public CreatureScript
                         }
                     }
                     me->GetMap()->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, SPELL_ENCOUNTER_COMPLETE, me); 
-                    pInstance->SetBossState(DATA_OZUMAT, DONE);
+                    instance->SetBossState(DATA_OZUMAT, DONE);
                 }
                 DoCast(SPELL_REMOVE_TIDAL_SURGE);
                 EnterEvadeMode();
@@ -403,10 +403,10 @@ class npc_vicious_mindslasher : public CreatureScript
         {
             npc_vicious_mindslasherAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -424,8 +424,8 @@ class npc_vicious_mindslasher : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (pInstance)
-                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_NEPTULON)))
+                if (instance)
+                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NEPTULON)))
                         pNeptulon->AI()->Talk(SAY_KILL);
             }
 
@@ -476,10 +476,10 @@ class npc_unyielding_behemoth : public CreatureScript
         {
             npc_unyielding_behemothAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -489,8 +489,8 @@ class npc_unyielding_behemoth : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (pInstance)
-                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_NEPTULON)))
+                if (instance)
+                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NEPTULON)))
                         pNeptulon->AI()->Talk(SAY_KILL);
             }
 
@@ -648,14 +648,14 @@ class at_tott_ozumat : public AreaTriggerScript
 
         bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
         {
-            if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+            if (InstanceScript* instance = pPlayer->GetInstanceScript())
             {
-                if (pInstance->GetData(DATA_NEPTULON_EVENT) != DONE
-                    && pInstance->GetBossState(DATA_OZUMAT) != IN_PROGRESS
-                    && pInstance->GetBossState(DATA_OZUMAT) != DONE)
+                if (instance->GetData(DATA_NEPTULON_EVENT) != DONE
+                    && instance->GetBossState(DATA_OZUMAT) != IN_PROGRESS
+                    && instance->GetBossState(DATA_OZUMAT) != DONE)
                 {
-                    pInstance->SetData(DATA_NEPTULON_EVENT, DONE);
-                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetGuidData(DATA_NEPTULON)))
+                    instance->SetData(DATA_NEPTULON_EVENT, DONE);
+                    if (Creature* pNeptulon = ObjectAccessor::GetCreature(*pPlayer, instance->GetGuidData(DATA_NEPTULON)))
                     {
                         pNeptulon->AI()->DoAction(ACTION_NEPTULON_START_EVENT);
                     }

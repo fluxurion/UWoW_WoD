@@ -170,10 +170,10 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
         SummonList summons;
         bool bGrounded;
@@ -189,9 +189,9 @@ public:
             me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
             me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 10);
 
-            if (!pInstance)
+            if (!instance)
                 return;
-            pInstance->SetBossState(DATA_MAGMAW, NOT_STARTED);
+            instance->SetBossState(DATA_MAGMAW, NOT_STARTED);
         }
 
         void EnterCombat(Unit* attacker)
@@ -211,16 +211,16 @@ public:
                     pNefarius->AI()->DoAction(ACTION_BLAZING_INFERNO);
                 }
                 DoZoneInCombat();
-                pInstance->SetBossState(DATA_MAGMAW, IN_PROGRESS);
+                instance->SetBossState(DATA_MAGMAW, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
             summons.DespawnAll();
-            pInstance->SetBossState(DATA_MAGMAW, DONE);
-            pInstance->SaveToDB();
+            instance->SetBossState(DATA_MAGMAW, DONE);
+            instance->SaveToDB();
             if (Creature* pNefarius = me->SummonCreature(NPC_LORD_VICTOR_NEFARIUS_HEROIC, 
                 me->GetPositionX(),
                 me->GetPositionY(),
@@ -249,7 +249,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance || !UpdateVictim())
+            if (!instance || !UpdateVictim())
                 return;
 
             if (IsHeroic() && me->HealthBelowPct(30) && !bShadowBreath)
@@ -270,12 +270,12 @@ public:
                 {
                     /*case EVENT_HEAD_START:
                     SetGrounded(true, 0);
-                    if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW_HEAD)))
+                    if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW_HEAD)))
                     pMagmawhead->AI()->DoAction(ACTION_HEAD_START);
                     events.ScheduleEvent(EVENT_HEAD_END, 20000);
                     break;
                     case EVENT_HEAD_END:
-                    if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW_HEAD)))
+                    if (Creature* pMagmawhead = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW_HEAD)))
                     pMagmawhead->AI()->DoAction(ACTION_HEAD_END);
                     SetGrounded(false, 0);
                     events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
@@ -406,14 +406,14 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
             me->SetReactState(REACT_PASSIVE);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
             if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -424,7 +424,7 @@ public:
 
         void DoAction(const int32 action)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
             switch (action)
             {
@@ -432,7 +432,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->ClearUnitState(UNIT_STATE_ONVEHICLE);
-                if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW)))
+                if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW)))
                 {
                     me->SetMaxHealth(pMagmaw->GetMaxHealth());
                     me->SetHealth(pMagmaw->GetHealth());
@@ -451,10 +451,10 @@ public:
 
         void DamageTaken(Unit* attacker, uint32 &damage)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW)))
+            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW)))
             {
                 if (me->GetHealth() > damage && pMagmaw->GetHealth() > damage)
                     pMagmaw->SetHealth(pMagmaw->GetHealth() - damage);
@@ -485,10 +485,10 @@ public:
         {
             me->SetSpeed(MOVE_WALK, 0.3f);
             me->SetSpeed(MOVE_RUN, 0.3f);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -501,7 +501,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (pInstance && pInstance->GetBossState(DATA_MAGMAW) != IN_PROGRESS)
+            if (instance && instance->GetBossState(DATA_MAGMAW) != IN_PROGRESS)
                 me->DespawnOrUnsummon();
 
             if (me->getVictim())
@@ -534,10 +534,10 @@ public:
     {
         npc_pillar_of_flameAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 uiFlameTimer;
         bool bFlame;
 
@@ -555,10 +555,10 @@ public:
 
         void JustSummoned(Creature* summon)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW)))
+            if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW)))
                 if (pMagmaw->isInCombat())
                     summon->SetInCombatWithZone();
         }

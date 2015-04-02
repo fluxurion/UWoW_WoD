@@ -337,16 +337,16 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         SummonList summons;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.Reset();
@@ -370,7 +370,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
             std::list<Creature*> _golems;
             GetCreatureListWithEntryInGrid(_golems, me, NPC_GOLEM_SENTRY, 200.0f);
@@ -385,7 +385,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance || !UpdateVictim())
+            if (!instance || !UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -434,15 +434,15 @@ public:
     {
         npc_flash_bombAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             DoCast(me, SPELL_FLASH_BOMB_DUMMY);
@@ -460,7 +460,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.Update(diff);
@@ -493,15 +493,15 @@ public:
     {
         npc_laser_strikeAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             DoCast(me, SPELL_LASER_STRIKE_DUMMY);
@@ -519,7 +519,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.Update(diff);
@@ -563,15 +563,15 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.Reset();
@@ -588,7 +588,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             std::list<Creature*> _drudges;
@@ -603,7 +603,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance || !UpdateVictim())
+            if (!instance || !UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -660,15 +660,15 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.Reset();
@@ -677,7 +677,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.ScheduleEvent(EVENT_OVERHEAD_SMASH, urand(5000, 10000));
@@ -687,7 +687,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance || !UpdateVictim())
+            if (!instance || !UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -745,15 +745,15 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.Reset();
@@ -761,7 +761,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.ScheduleEvent(EVENT_MAIMGOR_BERSERK, urand(5000, 10000));
@@ -772,7 +772,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance || !UpdateVictim())
+            if (!instance || !UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -832,15 +832,15 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.Reset();
@@ -848,7 +848,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.ScheduleEvent(EVENT_SHADOWFLAME, urand(8000, 12000));
@@ -857,7 +857,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance || !UpdateVictim())
+            if (!instance || !UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -910,15 +910,15 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.Reset();
@@ -926,7 +926,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.ScheduleEvent(EVENT_SHADOWFLAME, urand(8000, 12000));
@@ -935,7 +935,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance || !UpdateVictim())
+            if (!instance || !UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -988,15 +988,15 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.Reset();
@@ -1004,7 +1004,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 8000));
@@ -1014,7 +1014,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance || !UpdateVictim())
+            if (!instance || !UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -1070,15 +1070,15 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.Reset();
@@ -1086,7 +1086,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.ScheduleEvent(EVENT_FROST_BURN, urand(10000, 30000));
@@ -1099,7 +1099,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance || !UpdateVictim())
+            if (!instance || !UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -1177,15 +1177,15 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             switch (me->GetEntry())
@@ -1220,7 +1220,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             switch (me->GetEntry())
@@ -1302,7 +1302,7 @@ public:
 
         void JustDied(Unit* killer)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             switch (me->GetEntry())
@@ -1367,7 +1367,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance || !UpdateVictim())
+            if (!instance || !UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -1465,18 +1465,18 @@ public:
         npc_lord_victor_nefarius_heroicAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature), summons(me)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
         EventMap events;
         SummonList summons;
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         bool bAllowCast;
         Position homepos;        
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             me->SetCanFly(true);
@@ -1584,7 +1584,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.Update(diff);
@@ -1648,7 +1648,7 @@ public:
                     me->DespawnOrUnsummon();
                     break;
                 case EVENT_BLAZING_INFERNO:
-                    if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW)))
+                    if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW)))
                     {
                         Unit* pTarget;
                         pTarget = pMagmaw->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, -20.0f);
@@ -1662,7 +1662,7 @@ public:
                     events.ScheduleEvent(EVENT_BLAZING_INFERNO, urand(30000, 35000));
                     break;
                 case EVENT_SHADOW_BREATH:
-                    if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMAW)))
+                    if (Creature* pMagmaw = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MAGMAW)))
                     {
                         Unit* pTarget;
                         pTarget = pMagmaw->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, -20.0f);
@@ -1729,10 +1729,10 @@ public:
     {
         npc_blazing_bone_constructAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         EventMap events;
         bool bArmageddon;
@@ -1756,7 +1756,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (pInstance && pInstance->GetBossState(DATA_MAGMAW) != IN_PROGRESS)
+            if (instance && instance->GetBossState(DATA_MAGMAW) != IN_PROGRESS)
                 me->DespawnOrUnsummon();
 
             if (!UpdateVictim())

@@ -78,10 +78,10 @@ class boss_gu_cloudstrike : public CreatureScript
         {
             boss_gu_cloudstrikeAI(Creature* creature) : BossAI(creature, DATA_GU_CLOUDSTRIKE)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint8 phase;
 
             void Reset()
@@ -94,7 +94,7 @@ class boss_gu_cloudstrike : public CreatureScript
 
             Creature* GetAzureSerpent()
             {
-                return pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_AZURE_SERPENT));
+                return instance->instance->GetCreature(instance->GetGuidData(NPC_AZURE_SERPENT));
             }
 
             void DamageTaken(Unit* attacker, uint32& damage)
@@ -193,12 +193,12 @@ class npc_azure_serpent : public CreatureScript
         {
             npc_azure_serpentAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             uint8 phase;
 
@@ -277,8 +277,8 @@ class AreaTrigger_at_gu_intro : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool apply)
         {
-            if (InstanceScript* pInstance = player->GetInstanceScript())
-                if (Creature* gu = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_GU_CLOUDSTRIKE)))
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (Creature* gu = instance->instance->GetCreature(instance->GetGuidData(NPC_GU_CLOUDSTRIKE)))
                     if (gu->AI())
                         gu->AI()->DoAction(ACTION_INTRO);
 

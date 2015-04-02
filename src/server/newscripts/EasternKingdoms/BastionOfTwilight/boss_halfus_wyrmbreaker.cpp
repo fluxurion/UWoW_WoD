@@ -511,14 +511,14 @@ class npc_proto_behemoth : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             void Reset()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
                 me->SetCanFly(true);
                 SetCombatMovement(false);
@@ -527,7 +527,7 @@ class npc_proto_behemoth : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
                 if (me->HasAura(SPELL_SUPERHEATED_BREATH))
                     events.ScheduleEvent(EVENT_SCORCHING_BREATH, 30000);
@@ -537,7 +537,7 @@ class npc_proto_behemoth : public CreatureScript
             
             void DamageTaken(Unit* attacker, uint32 &damage)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 damage = 0;
@@ -545,7 +545,7 @@ class npc_proto_behemoth : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance || !UpdateVictim())
+                if (!instance || !UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -591,15 +591,15 @@ class npc_orphaned_whelp : public CreatureScript
         {
             npc_orphaned_whelpAI(Creature * creature) : ScriptedAI(creature)
             {
-                pInstance = (InstanceScript*)creature->GetInstanceScript();
+                instance = (InstanceScript*)creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint8 count;
 
             void Reset()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 me->SetReactState(REACT_PASSIVE);
@@ -612,7 +612,7 @@ class npc_orphaned_whelp : public CreatureScript
 
             void JustDied(Unit* /*Killer*/)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 if (Creature* pHalfus = me->FindNearestCreature(NPC_HALFUS_WYRMBREAKER, 100.0f))
@@ -621,7 +621,7 @@ class npc_orphaned_whelp : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance || !UpdateVictim())
+                if (!instance || !UpdateVictim())
                     return;
 
                 DoMeleeAttackIfReady();
@@ -636,11 +636,11 @@ public:
 
     bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
     {       
-        InstanceScript* pInstance = pGo ? pGo->GetInstanceScript() : NULL;
-        if (!pInstance)
+        InstanceScript* instance = pGo ? pGo->GetInstanceScript() : NULL;
+        if (!instance)
             return false;
 
-        if (Creature* halfus = ObjectAccessor::GetCreature(*pGo, pInstance->GetGuidData(DATA_HALFUS)))
+        if (Creature* halfus = ObjectAccessor::GetCreature(*pGo, instance->GetGuidData(DATA_HALFUS)))
         {
             halfus->AI()->DoAction(ACTION_WHELPS_RELEASE);
             pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
@@ -672,15 +672,15 @@ class npc_halfus_dragon : public CreatureScript{
         bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
         {
             pPlayer->PlayerTalkClass->ClearMenus();
-            InstanceScript* pInstance;
-            pInstance = (InstanceScript*)creature->GetInstanceScript();
-            if (!pInstance) 
+            InstanceScript* instance;
+            instance = (InstanceScript*)creature->GetInstanceScript();
+            if (!instance) 
                 return false;
             pPlayer->CLOSE_GOSSIP_MENU();
             switch (uiAction)
             {
             case GOSSIP_ACTION_INFO_DEF+1:
-                if (Creature * Halfus = Unit::GetCreature(*creature,pInstance->GetGuidData(DATA_HALFUS)))
+                if (Creature * Halfus = Unit::GetCreature(*creature,instance->GetGuidData(DATA_HALFUS)))
                 {
                     switch (creature->GetEntry())
                     {
@@ -722,14 +722,14 @@ class npc_halfus_dragon : public CreatureScript{
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 me->SetReactState(REACT_PASSIVE);
@@ -755,7 +755,7 @@ class npc_halfus_dragon : public CreatureScript{
 
             void UpdateAI(uint32 uiDiff)
             {
-                if (!pInstance || !UpdateVictim())
+                if (!instance || !UpdateVictim())
                     return;
 
                 DoMeleeAttackIfReady();
@@ -763,10 +763,10 @@ class npc_halfus_dragon : public CreatureScript{
 
             void JustDied(Unit* killer)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
-                if (Creature* Halfus = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_HALFUS)))
+                if (Creature* Halfus = Unit::GetCreature(*me, instance->GetGuidData(DATA_HALFUS)))
                 {
                     if(Aura* aura = Halfus->GetAura(SPELL_DRAGON_VENGEANCE))
                         aura->SetStackAmount(aura->GetStackAmount() + 1);
@@ -824,15 +824,15 @@ class spell_halfus_fireball_barrage : public SpellScriptLoader
                 uint32 _spell;
                 if (!GetCaster())
                     return;
-                InstanceScript* pInstance;
-                pInstance = GetCaster()->GetInstanceScript();
-                if (!pInstance)
+                InstanceScript* instance;
+                instance = GetCaster()->GetInstanceScript();
+                if (!instance)
                     return;
                 if (GetCaster()->HasAura(SPELL_TIME_DILATION))
                     _spell = SPELL_FIREBALL_BARRAGE_M1;
                 else
                     _spell = SPELL_FIREBALL_BARRAGE_M0;
-                if (Creature* pHalfus = ObjectAccessor::GetCreature(*GetCaster(), pInstance->GetGuidData(DATA_HALFUS)))
+                if (Creature* pHalfus = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_HALFUS)))
                     if (Unit* pTarget = pHalfus->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         GetCaster()->CastSpell(pTarget, _spell, true);
 

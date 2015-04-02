@@ -201,51 +201,51 @@ class boss_omnotron : public CreatureScript
         {
             boss_omnotronAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 memset(m_uiGuids, 0, sizeof(m_uiGuids));
                 current = 0;
                 me->SetReactState(REACT_PASSIVE);
             }
             
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             ObjectGuid m_uiGuids[4];
             uint8 current;
 
             void EnterCombat(Unit* who)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
-                if (pInstance->GetBossState(DATA_OMNOTRON) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_OMNOTRON) == IN_PROGRESS)
                     return;
 
                 Talk(SAY_AGGRO);
-                pInstance->SetBossState(DATA_OMNOTRON, IN_PROGRESS);
+                instance->SetBossState(DATA_OMNOTRON, IN_PROGRESS);
 
                 current = 0;
 
-                if (Creature* arcanotron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_ARCANOTRON)))
+                if (Creature* arcanotron = Unit::GetCreature(*me, instance->GetGuidData(DATA_ARCANOTRON)))
                 {
                     m_uiGuids[0] = arcanotron->GetGUID();
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, arcanotron); 
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, arcanotron); 
                     DoZoneInCombat(arcanotron);
                 }
-                if (Creature*  electron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_ELECTRON)))
+                if (Creature*  electron = Unit::GetCreature(*me, instance->GetGuidData(DATA_ELECTRON)))
                 {
                     m_uiGuids[1] = electron->GetGUID();
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, electron); 
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, electron); 
                     DoZoneInCombat(electron);
                 }
-                if (Creature* magmatron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMATRON)))
+                if (Creature* magmatron = Unit::GetCreature(*me, instance->GetGuidData(DATA_MAGMATRON)))
                 {
                     m_uiGuids[2] = magmatron->GetGUID();
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, magmatron); 
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, magmatron); 
                     DoZoneInCombat(magmatron);
                 }
-                if (Creature* toxitron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_TOXITRON)))
+                if (Creature* toxitron = Unit::GetCreature(*me, instance->GetGuidData(DATA_TOXITRON)))
                 {
                     m_uiGuids[3] = toxitron->GetGUID();
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, toxitron); 
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, toxitron); 
                     DoZoneInCombat(toxitron);
                 }
             }
@@ -289,16 +289,16 @@ class boss_omnotron : public CreatureScript
 
                 void EvadeAll()
                 {
-                    if (Creature*  arcanotron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_ARCANOTRON)))
+                    if (Creature*  arcanotron = Unit::GetCreature(*me, instance->GetGuidData(DATA_ARCANOTRON)))
                         if (arcanotron->IsAIEnabled)
                             arcanotron->AI()->EnterEvadeMode();
-                    if (Creature*  electron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_ELECTRON)))
+                    if (Creature*  electron = Unit::GetCreature(*me, instance->GetGuidData(DATA_ELECTRON)))
                         if (electron->IsAIEnabled)
                             electron->AI()->EnterEvadeMode();
-                    if (Creature* magmatron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_MAGMATRON)))
+                    if (Creature* magmatron = Unit::GetCreature(*me, instance->GetGuidData(DATA_MAGMATRON)))
                         if (magmatron->IsAIEnabled)
                             magmatron->AI()->EnterEvadeMode();
-                    if (Creature* toxitron = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_TOXITRON)))
+                    if (Creature* toxitron = Unit::GetCreature(*me, instance->GetGuidData(DATA_TOXITRON)))
                         if (toxitron->IsAIEnabled)
                             toxitron->AI()->EnterEvadeMode();
                     EnterEvadeMode();
@@ -1177,10 +1177,10 @@ class npc_poison_puddle : public CreatureScript
         {
             npc_poison_puddleAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -1189,10 +1189,10 @@ class npc_poison_puddle : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
-                if (pInstance->GetBossState(DATA_OMNOTRON) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_OMNOTRON) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
         };

@@ -247,16 +247,16 @@ class npc_vanessa_vancleef_a_note_from_vanessa : public CreatureScript
      
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            InstanceScript* pInstance = pCreature->GetInstanceScript();
-            if (!pInstance)
+            InstanceScript* instance = pCreature->GetInstanceScript();
+            if (!instance)
                 return true;
-            if (pInstance->GetBossState(DATA_CAPTAIN) != DONE)
+            if (instance->GetBossState(DATA_CAPTAIN) != DONE)
                 return true;
-            if (pInstance->GetData(DATA_VANESSA_EVENT) != NOT_STARTED)
+            if (instance->GetData(DATA_VANESSA_EVENT) != NOT_STARTED)
                 return true;
 
             pCreature->SummonCreature(NPC_VANESSA_SITTING, vanessaPos);
-            pInstance->SetData(DATA_VANESSA_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_VANESSA_EVENT, IN_PROGRESS);
 
             pCreature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             pCreature->DespawnOrUnsummon(1000);
@@ -280,12 +280,12 @@ class npc_vanessa_vancleef_vanessa_sitting : public CreatureScript
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->setActive(true);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void InitializeAI()
             {
-                if (!pInstance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(DMScriptName))
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(DMScriptName))
                     me->IsAIEnabled = false;
                 else if (!me->isDead())
                     Reset();
@@ -336,12 +336,12 @@ class npc_vanessa_vancleef_vanessa_sitting : public CreatureScript
                             events.ScheduleEvent(EVENT_INTRO_7, 5000);
                             break;
                         case EVENT_INTRO_7:
-                            if (pInstance)
-                                pInstance->SetData(DATA_VANESSA_EVENT, DONE);
+                            if (instance)
+                                instance->SetData(DATA_VANESSA_EVENT, DONE);
                             if (Creature* pVanessa = me->FindNearestCreature(NPC_VANESSA_VANCLEEF, 40.0f))
                                 pVanessa->SetVisible(true);
                             
-                            pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEVEMENT_EVENT);
+                            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEVEMENT_EVENT);
 
                             me->DespawnOrUnsummon(1000);
                             break;
@@ -352,7 +352,7 @@ class npc_vanessa_vancleef_vanessa_sitting : public CreatureScript
             }
 
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
         };
 };
@@ -372,7 +372,7 @@ class npc_vanessa_vancleef_defias_enforcer : public CreatureScript
             npc_vanessa_vancleef_defias_enforcerAI(Creature* pCreature) : BossAI(pCreature, DATA_VANESSA)
             {
                 me->setActive(true);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void Reset()
@@ -394,7 +394,7 @@ class npc_vanessa_vancleef_defias_enforcer : public CreatureScript
             }
 
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
         };
 };

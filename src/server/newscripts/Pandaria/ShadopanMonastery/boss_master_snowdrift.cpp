@@ -146,11 +146,11 @@ class boss_master_snowdrift : public CreatureScript
         {
             boss_master_snowdriftAI(Creature* creature) : BossAI(creature, DATA_MASTER_SNOWDRIFT)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 EncounterFinish = false;
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             bool introStarted;
@@ -180,7 +180,7 @@ class boss_master_snowdrift : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                pInstance->SetBossState(DATA_MASTER_SNOWDRIFT, IN_PROGRESS);
+                instance->SetBossState(DATA_MASTER_SNOWDRIFT, IN_PROGRESS);
                 initDefaultEventsForPhase();
                 Talk(SAY_AGGRO);
             }
@@ -220,7 +220,7 @@ class boss_master_snowdrift : public CreatureScript
                     {
                         introStarted = true;
                         Talk(SAY_INTRO_1);
-                        pInstance->SetBossState(DATA_MASTER_SNOWDRIFT, SPECIAL);
+                        instance->SetBossState(DATA_MASTER_SNOWDRIFT, SPECIAL);
                         events.ScheduleEvent(EVENT_FIRST_EVENT, 1000);
                         events.ScheduleEvent(EVENT_CHECK_WIPE, 1000);
                         events.ScheduleEvent(EVENT_INTRO, 5000);
@@ -242,8 +242,8 @@ class boss_master_snowdrift : public CreatureScript
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(POINT_BEGIN_EVENT, 3680.56f, 3045.27f, 816.20f);//Events pos
 
-                    if (pInstance)
-                        pInstance->SetBossState(DATA_MASTER_SNOWDRIFT, FAIL);
+                    if (instance)
+                        instance->SetBossState(DATA_MASTER_SNOWDRIFT, FAIL);
                 }
                 summons.DespawnAll();
             }
@@ -262,7 +262,7 @@ class boss_master_snowdrift : public CreatureScript
                     GetCreatureListWithEntryInGrid(noviceList, me, NPC_NOVICE, 100.0f);
 
                     for (std::list<Creature*>::const_iterator itr = noviceList.begin(); itr != noviceList.end(); ++itr)
-                        if (Creature* position = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_RANDOM_SECOND_POS)))
+                        if (Creature* position = instance->instance->GetCreature(instance->GetGuidData(DATA_RANDOM_SECOND_POS)))
                         {
                             (*itr)->GetMotionMaster()->Clear();
                             (*itr)->GetMotionMaster()->MoveJump(position->GetPositionX(), position->GetPositionY(), position->GetPositionZ(), 20.0f, 30.0f, POINT_NOVICE_DEFEATED_SECOND);
@@ -403,7 +403,7 @@ class boss_master_snowdrift : public CreatureScript
                             DoEvent(); 
                             break;
                         case EVENT_CHECK_WIPE:
-                            if (pInstance->IsWipe())
+                            if (instance->IsWipe())
                                 Reset();
                             events.ScheduleEvent(EVENT_CHECK_WIPE, defaultrand);
                             break;
@@ -494,12 +494,12 @@ class npc_snowdrift_novice : public CreatureScript
         {
             npc_snowdrift_noviceAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 jumpDone = false;
                 stillInFight = true;
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             bool jumpDone;
             bool stillInFight;
@@ -549,10 +549,10 @@ class npc_snowdrift_novice : public CreatureScript
                     me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
                     eventEmote = true;
                     me->RemoveAllAuras();
-                    if (pInstance && stillInFight)
+                    if (instance && stillInFight)
                     {
                         stillInFight = false;
-                        pInstance->SetData(DATA_DEFEATED_NOVICE, 1);
+                        instance->SetData(DATA_DEFEATED_NOVICE, 1);
                     }
                     events.ScheduleEvent(EVENT_FORFEIT_JUMP, 2000);
                 }
@@ -588,7 +588,7 @@ class npc_snowdrift_novice : public CreatureScript
                     switch (eventId)
                     {
                     case EVENT_FORFEIT_JUMP:
-                        if (Creature* position = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_RANDOM_FIRST_POS)))
+                        if (Creature* position = instance->instance->GetCreature(instance->GetGuidData(DATA_RANDOM_FIRST_POS)))
                         {
                             EnterEvadeMode();
                             me->CombatStop();
@@ -617,12 +617,12 @@ class npc_snowdrift_miniboss : public CreatureScript
         {
             npc_snowdrift_minibossAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 jumpDone = false;
                 stillInFight = true;
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             bool jumpDone;
             bool stillInFight;
@@ -682,10 +682,10 @@ class npc_snowdrift_miniboss : public CreatureScript
                     me->SetReactState(REACT_PASSIVE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                     stillInFight = false;
-                    if (pInstance)
-                        pInstance->SetData(DATA_DEFEATED_MINIBOSS, 1);
+                    if (instance)
+                        instance->SetData(DATA_DEFEATED_MINIBOSS, 1);
 
-                    if (Creature* position = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_RANDOM_MINIBOSS_POS)))
+                    if (Creature* position = instance->instance->GetCreature(instance->GetGuidData(DATA_RANDOM_MINIBOSS_POS)))
                     {
                         me->GetMotionMaster()->MovePoint(POINT_MINIBOSS_DEFEATED, position->GetPositionX(), position->GetPositionY(), position->GetPositionZ());
                         me->SetHomePosition(position->GetPositionX(), position->GetPositionY(), position->GetPositionZ(), position->GetOrientation());

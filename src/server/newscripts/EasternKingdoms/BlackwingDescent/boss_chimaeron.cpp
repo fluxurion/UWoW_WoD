@@ -349,10 +349,10 @@ public:
     {
         bool ru = pPlayer->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
 
-        InstanceScript* pInstance = pCreature->GetInstanceScript();
-        if (!pInstance)
+        InstanceScript* instance = pCreature->GetInstanceScript();
+        if (!instance)
             return false;
-        if (pInstance->GetData(DATA_CHIMAERON) == IN_PROGRESS || pInstance->GetData(DATA_BILE_O_TRON_800) == 1)
+        if (instance->GetData(DATA_CHIMAERON) == IN_PROGRESS || instance->GetData(DATA_BILE_O_TRON_800) == 1)
             return false;
         pPlayer->ADD_GOSSIP_ITEM(0, ru ? GOSSIP_OPTION_1_RU : GOSSIP_OPTION_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_MENU_1, pCreature->GetGUID());
@@ -363,8 +363,8 @@ public:
     {
         bool ru = pPlayer->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
 
-        InstanceScript* pInstance = pCreature->GetInstanceScript();
-        if (!pInstance)
+        InstanceScript* instance = pCreature->GetInstanceScript();
+        if (!instance)
             return false;
         pPlayer->PlayerTalkClass->ClearMenus();
         switch (uiAction)
@@ -387,8 +387,8 @@ public:
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_MENU_6, pCreature->GetGUID());
-            pInstance->SetData(DATA_BILE_O_TRON_800, 1);
-            if (Creature* pBileotron = ObjectAccessor::GetCreature(*pCreature, pInstance->GetGuidData(DATA_BILE_O_TRON_800)))
+            instance->SetData(DATA_BILE_O_TRON_800, 1);
+            if (Creature* pBileotron = ObjectAccessor::GetCreature(*pCreature, instance->GetGuidData(DATA_BILE_O_TRON_800)))
                 pBileotron->AI()->DoAction(ACTION_BILE_O_TRON_START);
             break;
         }
@@ -411,10 +411,10 @@ public:
         npc_bile_o_tron_800AI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pCreature->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
         uint8 uiWaypoint;
 
@@ -426,7 +426,7 @@ public:
 
         void DoAction(const int32 action)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             switch(action)
@@ -437,11 +437,11 @@ public:
                 me->GetMotionMaster()->MovePoint(1, bilePos[0]);
                 break;
             case ACTION_BILE_O_TRON_ONLINE:
-                pInstance->SetData(DATA_BILE_O_TRON_800, 1);
+                instance->SetData(DATA_BILE_O_TRON_800, 1);
                 DoCast(me, SPELL_FINKLES_MIXTURE, true);
                 break;
             case ACTION_BILE_O_TRON_OFFLINE:
-                pInstance->SetData(DATA_BILE_O_TRON_800, 0);
+                instance->SetData(DATA_BILE_O_TRON_800, 0);
                 me->RemoveAurasDueToSpell(SPELL_FINKLES_MIXTURE);
                 break;
             case ACTION_BILE_O_TRON_RESET:

@@ -451,7 +451,7 @@ public:
             {
                 case ACTION_LAND_ENCOUNTER_START:
                     events.CancelEventGroup(1);
-                    if (Creature* alexstraszaBunny = me->GetMap()->GetCreature(instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)))
+                    if (Creature* alexstraszaBunny = me->GetMap()->GetCreature(instance->GetGuidData(DATA_ALEXSTRASZA_BUNNY_GUID)))
                     {
                         Position pos;
                         pos.m_positionZ = alexstraszaBunny->GetPositionZ();
@@ -720,7 +720,7 @@ public:
                     {
                         _firstCyclicMovementStarted = true;
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetFacingToObject(me->GetMap()->GetCreature(instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)));
+                        me->SetFacingToObject(me->GetMap()->GetCreature(instance->GetGuidData(DATA_ALEXSTRASZA_BUNNY_GUID)));
                         events.ScheduleEvent(EVENT_SUMMON_ARCANE_BOMB, 1*IN_MILLISECONDS, 0, PHASE_TWO);
                     }
                     _flyingOutOfPlatform = false;
@@ -729,7 +729,7 @@ public:
                     break;
                 case POINT_PHASE_ONE_TO_TWO_TRANSITION:
                     me->SetDisableGravity(true);
-                    me->SetFacingToObject(me->GetMap()->GetCreature(instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)));
+                    me->SetFacingToObject(me->GetMap()->GetCreature(instance->GetGuidData(DATA_ALEXSTRASZA_BUNNY_GUID)));
                     SendLightOverride(LIGHT_ARCANE_RUNES, 5*IN_MILLISECONDS);
                     events.ScheduleEvent(EVENT_FLY_OUT_OF_PLATFORM, 18*IN_MILLISECONDS, 0, PHASE_TWO);
                     break;
@@ -787,7 +787,7 @@ public:
                         me->CastCustomSpell(SPELL_RANDOM_PORTAL, SPELLVALUE_MAX_TARGETS, 1);
                         break;
                     case EVENT_LAND_START_ENCOUNTER:
-                        if (GameObject* iris = me->GetMap()->GetGameObject(instance->GetData64(DATA_FOCUSING_IRIS_GUID)))
+                        if (GameObject* iris = me->GetMap()->GetGameObject(instance->GetGuidData(DATA_FOCUSING_IRIS_GUID)))
                         {
                             me->SetFacingToObject(iris);
                             iris->Delete(); // this is not the best way.
@@ -844,7 +844,7 @@ public:
                     case EVENT_FLY_OUT_OF_PLATFORM:
                         if (!_performingDestroyPlatform)
                         {
-                            if (Creature* alexstraszaBunny = me->GetMap()->GetCreature(instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)))
+                            if (Creature* alexstraszaBunny = me->GetMap()->GetCreature(instance->GetGuidData(DATA_ALEXSTRASZA_BUNNY_GUID)))
                             {
                                 Position randomPosOnRadius;
                                 // Hardcodded retail value, reason is Z getters can fail... (TO DO: Change to getter when height calculation works on 100%!)
@@ -1000,7 +1000,7 @@ public:
         {
             _JustDied();
             Talk(SAY_DEATH);
-            if (Creature* alexstraszaGiftBoxBunny = me->GetMap()->GetCreature(instance->GetData64(DATA_GIFT_BOX_BUNNY_GUID)))
+            if (Creature* alexstraszaGiftBoxBunny = me->GetMap()->GetCreature(instance->GetGuidData(DATA_GIFT_BOX_BUNNY_GUID)))
             {
                 if (GetDifficultyID() == DIFFICULTY_10_N)
                     alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_10, HeartOfMagicSpawnPos.GetPositionX(), HeartOfMagicSpawnPos.GetPositionY(),
@@ -1094,7 +1094,7 @@ public:
         {
             if (spell->Id == SPELL_PORTAL_OPENED)
             {
-                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_MALYGOS)))
                 {
                     if (malygos->AI()->GetData(DATA_PHASE) == PHASE_ONE)
                         DoCast(me, SPELL_SUMMON_POWER_PARK, true);
@@ -1110,7 +1110,7 @@ public:
 
             if (_instance)
             {
-                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_MALYGOS)))
                 {
                     if (malygos->AI()->GetData(DATA_PHASE) != PHASE_ONE && me->HasAura(SPELL_PORTAL_OPENED))
                     {
@@ -1151,7 +1151,7 @@ public:
             me->GetMotionMaster()->MoveIdle();
 
             if (_instance)
-                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_MALYGOS)))
                     me->GetMotionMaster()->MoveFollow(malygos, 0.0f, 0.0f);
         }
 
@@ -1160,7 +1160,7 @@ public:
             if (!_instance)
                 return;
 
-            if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+            if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_MALYGOS)))
             {
                 if (malygos->AI()->GetData(DATA_PHASE) != PHASE_ONE || _instance->GetBossState(DATA_MALYGOS_EVENT) == FAIL)
                 {
@@ -1439,7 +1439,7 @@ class npc_nexus_lord : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_MALYGOS)))
                     malygos->AI()->SetData(DATA_SUMMON_DEATHS, malygos->AI()->GetData(DATA_SUMMON_DEATHS) + 1);
             }
 
@@ -1506,7 +1506,7 @@ class npc_scion_of_eternity : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_MALYGOS)))
                     malygos->AI()->SetData(DATA_SUMMON_DEATHS, malygos->AI()->GetData(DATA_SUMMON_DEATHS) + 1);
             }
 
@@ -1549,7 +1549,7 @@ public:
 
         void DoAction(int32 const /*action*/)
         {
-            if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetData64(DATA_MALYGOS)))
+            if (Creature* malygos = me->GetMap()->GetCreature(_instance->GetGuidData(DATA_MALYGOS)))
             {
                 if (malygos->AI()->GetData(DATA_PHASE) == PHASE_TWO)
                     me->DespawnOrUnsummon(6*IN_MILLISECONDS);
@@ -1913,7 +1913,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
                             if (InstanceScript* instance = caster->GetInstanceScript())
                             {
                                 // Teleport spell - I'm not sure but might be it must be casted by each vehicle when it's passenger leaves it.
-                                if (Creature* trigger = caster->GetMap()->GetCreature(instance->GetData64(DATA_TRIGGER)))
+                                if (Creature* trigger = caster->GetMap()->GetCreature(instance->GetGuidData(DATA_TRIGGER)))
                                     trigger->CastSpell(targetPlayer, SPELL_VORTEX_6, true);
                             }
                         }
@@ -2059,7 +2059,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
 
                 Creature* caster = GetCaster()->ToCreature();
                 InstanceScript* instance = caster->GetInstanceScript();
-                Creature* malygos = caster->GetMap()->GetCreature(instance->GetData64(DATA_MALYGOS));
+                Creature* malygos = caster->GetMap()->GetCreature(instance->GetGuidData(DATA_MALYGOS));
 
                 // If max possible targets are more than 1 then Scions wouldn't select previosly selected target,
                 // in longer terms this means if spell picks target X then 2nd cast of this spell will pick smth else
@@ -2148,7 +2148,7 @@ class spell_malygos_destroy_platform_channel : public SpellScriptLoader
             {
                 if (Creature* target = GetTarget()->ToCreature())
                     if (InstanceScript* instance = target->GetInstanceScript())
-                        if (Creature* platformTrigger = target->GetMap()->GetCreature(instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)))
+                        if (Creature* platformTrigger = target->GetMap()->GetCreature(instance->GetGuidData(DATA_ALEXSTRASZA_BUNNY_GUID)))
                             platformTrigger->CastSpell(platformTrigger, SPELL_DESTROY_PLATFORM_BOOM_VISUAL);
             }
 
@@ -2222,7 +2222,7 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
             {
                 Creature* caster = GetCaster()->ToCreature();
                 if (InstanceScript* instance = caster->GetInstanceScript())
-                    if (GameObject* platform = caster->GetMap()->GetGameObject(instance->GetData64(DATA_PLATFORM)))
+                    if (GameObject* platform = caster->GetMap()->GetGameObject(instance->GetGuidData(DATA_PLATFORM)))
                         platform->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
             }
 
@@ -2507,7 +2507,7 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
                     if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                     {
                         _alexstraszaGift->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                        if (GameObject* heartMagic = target->GetMap()->GetGameObject(instance->GetData64(DATA_HEART_OF_MAGIC_GUID)))
+                        if (GameObject* heartMagic = target->GetMap()->GetGameObject(instance->GetGuidData(DATA_HEART_OF_MAGIC_GUID)))
                         {
                             heartMagic->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             // TO DO: This is hack, core doesn't have support for these flags,

@@ -636,10 +636,10 @@ public:
     {
         npc_elder_brightleafAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 uiUnstableSunbeamTimer;
         uint32 uiSolarFlareTimer;
         uint32 uiUnstableEnergyTimer;
@@ -667,14 +667,14 @@ public:
         void JustDied(Unit* /*victim*/)
         {
             DoScriptText(SAY_BRIGHTLEAF_DEATH, me);
-            if (pInstance)
+            if (instance)
             {
-                pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_LUMBERJACKED);
-                if (Creature* IR = me->GetCreature(*me, pInstance->GetGuidData(DATA_IRONBRANCH)))
-                    if (Creature* ST = me->GetCreature(*me, pInstance->GetGuidData(DATA_STONEBARK)))
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_LUMBERJACKED);
+                if (Creature* IR = me->GetCreature(*me, instance->GetGuidData(DATA_IRONBRANCH)))
+                    if (Creature* ST = me->GetCreature(*me, instance->GetGuidData(DATA_STONEBARK)))
                         if (!IR->isAlive()) 
                             if (!ST->isAlive())
-                                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
+                                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
              }
         }
         
@@ -789,10 +789,10 @@ public:
     {
         npc_elder_ironbranchAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 uiImpaleTimer;
         uint32 uiThornSwarmTimer;
         uint32 uiIronRootTimer;
@@ -818,14 +818,14 @@ public:
         void JustDied(Unit* /*victim*/)
         {
             DoScriptText(SAY_IRONBRANCH_DEATH, me);
-            if (pInstance)
+            if (instance)
             {
-                pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_LUMBERJACKED);
-                if (Creature* BR = me->GetCreature(*me, pInstance->GetGuidData(DATA_BRIGHTLEAF)))
-                    if (Creature* ST = me->GetCreature(*me, pInstance->GetGuidData(DATA_STONEBARK)))
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_LUMBERJACKED);
+                if (Creature* BR = me->GetCreature(*me, instance->GetGuidData(DATA_BRIGHTLEAF)))
+                    if (Creature* ST = me->GetCreature(*me, instance->GetGuidData(DATA_STONEBARK)))
                         if (!BR->isAlive())
                             if (!ST->isAlive())
-                                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
+                                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
              }
         }
 
@@ -914,10 +914,10 @@ public:
     {
         npc_elder_stonebarkAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 uiGroundTremorTimer;
         uint32 uiFistsOfStoneTimer;
         uint32 uiPetrifiedBarkTimer;
@@ -943,14 +943,14 @@ public:
         void JustDied(Unit* /*victim*/)
         {
             DoScriptText(SAY_STONEBARK_DEATH, me);
-            if (pInstance)
+            if (instance)
             {
-                pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_LUMBERJACKED);
-                if (Creature* BR = me->GetCreature(*me, pInstance->GetGuidData(DATA_BRIGHTLEAF)))
-                    if (Creature* IR = me->GetCreature(*me, pInstance->GetGuidData(DATA_IRONBRANCH)))
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_LUMBERJACKED);
+                if (Creature* BR = me->GetCreature(*me, instance->GetGuidData(DATA_BRIGHTLEAF)))
+                    if (Creature* IR = me->GetCreature(*me, instance->GetGuidData(DATA_IRONBRANCH)))
                         if (!BR->isAlive())
                             if (!IR->isAlive())
-                                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
+                                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK);
              }
         }
 
@@ -1102,10 +1102,10 @@ public:
     {
         npc_detonating_lasherAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 uiFlameLashTimer;
         uint32 uiSwitchTargetTimer;
 
@@ -1142,8 +1142,8 @@ public:
         {
             DoCast(me, SPELL_DETONATE);
 
-            if(pInstance)
-                if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
+            if(instance)
+                if (Creature* Freya = me->GetCreature(*me, instance->GetGuidData(DATA_FREYA)))
                     Freya->AI()->DoAction(ACTION_LASHER);
         }
     };
@@ -1165,12 +1165,12 @@ public:
     {
         npc_ancient_conservatorAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 uiNaturesFuryTimer;
         uint32 uiSpawnHealthySporeTimer;
         uint32 uiSpawnPauseTimer;
@@ -1231,7 +1231,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, instance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_ANCIENT);
         }
     };
@@ -1285,10 +1285,10 @@ public:
     {
         npc_storm_lasherAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 uiLightningLashTimer;
         uint32 uiStormboltTimer;
 
@@ -1324,7 +1324,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, instance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_STORM_DEAD);
         }
     };
@@ -1346,15 +1346,15 @@ public:
     {
         npc_snaplasherAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             DoCast(me, SPELL_HARDENED_BARK);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, instance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_SNAP_DEAD);
         }
     };
@@ -1375,10 +1375,10 @@ public:
     {
         npc_ancient_water_spiritAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 uiTidalWaveTimer;
 
         void Reset()
@@ -1403,7 +1403,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* Freya = me->GetCreature(*me, pInstance->GetGuidData(DATA_FREYA)))
+            if (Creature* Freya = me->GetCreature(*me, instance->GetGuidData(DATA_FREYA)))
                 Freya->AI()->DoAction(ACTION_WATER_DEAD);
         }
     };

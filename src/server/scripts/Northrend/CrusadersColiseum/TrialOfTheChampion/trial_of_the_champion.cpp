@@ -360,7 +360,7 @@ public:
 
                         break;
                     case 3:
-                        if (Creature* tirion = me->GetCreature(*me, instance->GetData64(DATA_TIRION)))
+                        if (Creature* tirion = me->GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_CHAMPS_1);
 
                         events.ScheduleEvent(4, 8000);
@@ -368,12 +368,12 @@ public:
                     case 4:
                         if (instance->GetData(DATA_TEAM) == HORDE)
                         {
-                            if (Creature* thrall = me->GetCreature(*me, instance->GetData64(DATA_THRALL)))
+                            if (Creature* thrall = me->GetCreature(*me, instance->GetGuidData(DATA_THRALL)))
                                 thrall->AI()->Talk(SAY_THRALL_INTRO_CHAMPS_H);
                             events.ScheduleEvent(5, 5000);
                         } else
                         {
-                            if (Creature* varian = me->GetCreature(*me, instance->GetData64(DATA_VARIAN)))
+                            if (Creature* varian = me->GetCreature(*me, instance->GetGuidData(DATA_VARIAN)))
                                 varian->AI()->Talk(SAY_VARIAN_INTRO_CHAMPS_A);
                             events.ScheduleEvent(5, 8000);
                         }
@@ -381,12 +381,12 @@ public:
                     case 5:
                         if (instance->GetData(DATA_TEAM) == HORDE)
                         {
-                            if (Creature* garrosh = me->GetCreature(*me, instance->GetData64(DATA_GARROSH)))
+                            if (Creature* garrosh = me->GetCreature(*me, instance->GetGuidData(DATA_GARROSH)))
                                 garrosh->AI()->Talk(SAY_GARROSH_INTRO_CHAMPS_H);
                             events.ScheduleEvent(6, 8000);
                         } else
                         {
-                            if (Creature* jaina = me->GetCreature(*me, instance->GetData64(DATA_JAINA)))
+                            if (Creature* jaina = me->GetCreature(*me, instance->GetGuidData(DATA_JAINA)))
                                 jaina->AI()->Talk(SAY_JAINA_INTRO_CHAMPS_A);
                             events.ScheduleEvent(6, 5000);
                         }
@@ -394,12 +394,12 @@ public:
                     case 6:
                         if (instance->GetData(DATA_TEAM) == HORDE)
                         {
-                            if (Creature* varian = me->GetCreature(*me, instance->GetData64(DATA_VARIAN)))
+                            if (Creature* varian = me->GetCreature(*me, instance->GetGuidData(DATA_VARIAN)))
                                 varian->AI()->Talk(SAY_VARIAN_INTRO_CHAMPS_H);
                             events.ScheduleEvent(7, 8000);
                         } else
                         {
-                            if (Creature* garrosh = me->GetCreature(*me, instance->GetData64(DATA_GARROSH)))
+                            if (Creature* garrosh = me->GetCreature(*me, instance->GetGuidData(DATA_GARROSH)))
                                 garrosh->AI()->Talk(SAY_GARROSH_INTRO_CHAMPS_A);
                             events.ScheduleEvent(7, 8000);
                         }
@@ -407,22 +407,22 @@ public:
                     case 7:
                         if (instance->GetData(DATA_TEAM) == HORDE)
                         {
-                            if (Creature* jaina = me->GetCreature(*me, instance->GetData64(DATA_JAINA)))
+                            if (Creature* jaina = me->GetCreature(*me, instance->GetGuidData(DATA_JAINA)))
                                 jaina->AI()->Talk(SAY_JAINA_INTRO_CHAMPS_H);
                             events.ScheduleEvent(8, 5000);
                         } else
                         {
-                            if (Creature* thrall = me->GetCreature(*me, instance->GetData64(DATA_THRALL)))
+                            if (Creature* thrall = me->GetCreature(*me, instance->GetGuidData(DATA_THRALL)))
                                 thrall->AI()->Talk(SAY_THRALL_INTRO_CHAMPS_A);
                             events.ScheduleEvent(8, 5000);
                         }
                         break;
                     case 8:
-                        if (Creature* tirion = me->GetCreature(*me, instance->GetData64(DATA_TIRION)))
+                        if (Creature* tirion = me->GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_CHAMPS_2);
 
                         // Open door
-                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(pGO->GetGUID(), true);
 
                         events.ScheduleEvent(9, 7000);
@@ -636,7 +636,7 @@ public:
                         break;
                     case 19:
                         //Close Door
-                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(pGO->GetGUID(), false);
 
                         events.Reset();
@@ -856,7 +856,7 @@ public:
                         for (uint8 i=0; i<3; i++)
                             if (Creature* boss = me->GetCreature(*me, bossGUID[i]))
                             {
-                                if (Creature* tirion = me->GetCreature(*me, instance->GetData64(DATA_TIRION)))
+                                if (Creature* tirion = me->GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                                     boss->SetFacingToObject(tirion);
                                 boss->SetHomePosition(boss->GetPositionX(), boss->GetPositionY(), boss->GetPositionZ() + 1.0f, boss->GetOrientation());
                                 boss->SetReactState(REACT_AGGRESSIVE);
@@ -905,10 +905,10 @@ public:
                 switch(events.ExecuteEvent())
                 {
                     case 1:
-                        if (Creature* tirion = me->GetCreature(*me, instance->GetData64(DATA_TIRION)))
+                        if (Creature* tirion = me->GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_ARGENT_1);
                         // Open door
-                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(pGO->GetGUID(), true);
                         events.ScheduleEvent(2, 2000);
                         break;
@@ -1147,10 +1147,10 @@ public:
                         break;
                     case 14:
                         //Close Door
-                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
+                        if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_MAIN_GATE)))
                             instance->HandleGameObject(pGO->GetGUID(), false);
 
-                        if (Creature* tirion = me->GetCreature(*me, instance->GetData64(DATA_TIRION)))
+                        if (Creature* tirion = me->GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_ARGENT_2);
 
                         events.Reset();
@@ -1259,16 +1259,16 @@ public:
                 switch(events.ExecuteEvent())
                 {
                     case 1:
-                        if (Creature* tirion = me->GetCreature(*me, instance->GetData64(DATA_TIRION)))
+                        if (Creature* tirion = me->GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                             tirion->AI()->Talk(SAY_TIRION_INTRO_BK_1);
 
                         events.ScheduleEvent(2, 3000);
                         break;
                     case 2:
-                        if (Creature* mount = me->GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT_GRYPHON)))
+                        if (Creature* mount = me->GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT_GRYPHON)))
                         {
                             mount->SetPhaseMask(1, true);
-                            if (Creature* knight = me->GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+                            if (Creature* knight = me->GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
                                 knight->SetPhaseMask(1, true);
                             Talk(SAY_ANNOUNCER_BK);
                             mount->AI()->SetData(1, 0);
@@ -1277,7 +1277,7 @@ public:
                         events.ScheduleEvent(3, 15000);
                         break;
                     case 3:
-                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
                         {
                             if (blackKinght->GetVehicle())
                                 events.ScheduleEvent(3, 2000);
@@ -1290,7 +1290,7 @@ public:
                         }
                         break;
                     case 4:
-                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
                         {
                             blackKinght->AI()->Talk(SAY_BK_INTRO_1);
                             blackKinght->AI()->DoCast(SPELL_DEATH_RESPITE_INTRO);
@@ -1298,7 +1298,7 @@ public:
                         events.ScheduleEvent(5, 4000);
                         break;
                     case 5:
-                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
                         {
                             blackKinght->AI()->DoCast(me, SPELL_DEATH_PUSH_INTRO);
                             blackKinght->SetTarget(0);
@@ -1306,10 +1306,10 @@ public:
                         events.ScheduleEvent(6, 2000);
                         break;
                     case 6:
-                        if (Creature* tirion = me->GetCreature(*me, instance->GetData64(DATA_TIRION)))
+                        if (Creature* tirion = me->GetCreature(*me, instance->GetGuidData(DATA_TIRION)))
                         {
                             tirion->AI()->Talk(SAY_TIRION_INTRO_BK_2);
-                            if (Creature* blackKinght = me->GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+                            if (Creature* blackKinght = me->GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
                             {
                                 DoCast(57626); // Feign death
                                 blackKinght->SetTarget(tirion->GetGUID());
@@ -1318,29 +1318,29 @@ public:
                         events.ScheduleEvent(7, 3000);
                         break;
                     case 7:
-                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
                             blackKinght->AI()->Talk(SAY_BK_INTRO_2);
                         events.ScheduleEvent(8, 9000);
                         break;
                     case 8:
-                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
                             blackKinght->AI()->Talk(SAY_BK_INTRO_3);
                         events.ScheduleEvent(9, 5000);
                         break;
                     case 9:
                         if (instance->GetData(DATA_TEAM) == HORDE)
                         {
-                            if (Creature* garrosh = me->GetCreature(*me, instance->GetData64(DATA_GARROSH)))
+                            if (Creature* garrosh = me->GetCreature(*me, instance->GetGuidData(DATA_GARROSH)))
                                 garrosh->AI()->Talk(SAY_GARROSH_INTRO_BK);
                         } else
                         {
-                            if (Creature* varian = me->GetCreature(*me, instance->GetData64(DATA_VARIAN)))
+                            if (Creature* varian = me->GetCreature(*me, instance->GetGuidData(DATA_VARIAN)))
                                 varian->AI()->Talk(SAY_VARIAN_INTRO_BK);
                         }
 
                         SetData(EVENT_BLACK_KNIGHT_INTRO, DONE);
                         events.Reset();
-                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+                        if (Creature* blackKinght = me->GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
                         {
                             blackKinght->SetHomePosition(blackKinght->GetPositionX(), blackKinght->GetPositionY(), blackKinght->GetPositionZ(), blackKinght->GetOrientation());
                             blackKinght->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1434,7 +1434,7 @@ and teleporting and unmounting them after defeating the mounted waves.
 
         // Remove chest (if any) before starting anything else
         if (InstanceScript* instance = creature->GetInstanceScript())
-            if (GameObject* chest = GameObject::GetGameObject(*creature, instance->GetData64(DATA_CHEST)))
+            if (GameObject* chest = GameObject::GetGameObject(*creature, instance->GetGuidData(DATA_CHEST)))
                 chest->RemoveFromWorld();
 
         switch (action)

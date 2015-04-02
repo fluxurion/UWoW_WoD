@@ -422,8 +422,8 @@ public:
             
     void UpdateAI(uint32 uiDiff)
     {
-        InstanceScript* pInstance = me->GetInstanceScript();
-        if (m_bIsOutro && pInstance->GetBossState(DATA_TYRANNUS) == NOT_STARTED)
+        InstanceScript* instance = me->GetInstanceScript();
+        if (m_bIsOutro && instance->GetBossState(DATA_TYRANNUS) == NOT_STARTED)
         {
             if(m_uiSpeech_Timer < uiDiff)
             {

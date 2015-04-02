@@ -174,12 +174,12 @@ public:
                 case GO_KEEPERS_DOOR:
                     KeepersGateGUID = pGo->GetGUID();
                     {
-                        if (InstanceScript* pInstance = pGo->GetInstanceScript())
+                        if (InstanceScript* instance = pGo->GetInstanceScript())
                         {
-                            if (pInstance->GetBossState(BOSS_MIMIRON) == DONE && 
-                                pInstance->GetBossState(BOSS_FREYA) == DONE &&
-                                pInstance->GetBossState(BOSS_HODIR) == DONE &&
-                                pInstance->GetBossState(BOSS_THORIM) == DONE)
+                            if (instance->GetBossState(BOSS_MIMIRON) == DONE && 
+                                instance->GetBossState(BOSS_FREYA) == DONE &&
+                                instance->GetBossState(BOSS_HODIR) == DONE &&
+                                instance->GetBossState(BOSS_THORIM) == DONE)
                                 pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                             else
                                 pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
@@ -344,33 +344,33 @@ public:
                 // Keeper's Images
                 case 33241: uiFreyaImage = pCreature->GetGUID();
                 {
-                    InstanceScript* pInstance = pCreature->GetInstanceScript();
+                    InstanceScript* instance = pCreature->GetInstanceScript();
                     pCreature->SetVisible(false);
-                    if (pInstance && pInstance->GetBossState(BOSS_VEZAX) == DONE)
+                    if (instance && instance->GetBossState(BOSS_VEZAX) == DONE)
                         pCreature->SetVisible(true);
                 }
                 return;
                 case 33242: uiThorimImage = pCreature->GetGUID();
                 {
-                    InstanceScript* pInstance = pCreature->GetInstanceScript();
+                    InstanceScript* instance = pCreature->GetInstanceScript();
                     pCreature->SetVisible(false);
-                    if (pInstance && pInstance->GetBossState(BOSS_VEZAX) == DONE)
+                    if (instance && instance->GetBossState(BOSS_VEZAX) == DONE)
                         pCreature->SetVisible(true);
                 }
                 return;
                 case 33244: uiMimironImage = pCreature->GetGUID();
                 {
-                    InstanceScript* pInstance = pCreature->GetInstanceScript();
+                    InstanceScript* instance = pCreature->GetInstanceScript();
                     pCreature->SetVisible(false);
-                    if (pInstance && pInstance->GetBossState(BOSS_VEZAX) == DONE)
+                    if (instance && instance->GetBossState(BOSS_VEZAX) == DONE)
                         pCreature->SetVisible(true);
                 }            
                 return;
                 case 33213: uiHodirImage = pCreature->GetGUID();
                 {
-                    InstanceScript* pInstance = pCreature->GetInstanceScript();
+                    InstanceScript* instance = pCreature->GetInstanceScript();
                     pCreature->SetVisible(false);
-                    if (pInstance && pInstance->GetBossState(BOSS_VEZAX) == DONE)
+                    if (instance && instance->GetBossState(BOSS_VEZAX) == DONE)
                         pCreature->SetVisible(true);
                 }
                 return;
@@ -713,12 +713,12 @@ public:
             {
                 if (InstanceMap * im = instance->ToInstanceMap())
                 {
-                    InstanceScript* pInstance = im->GetInstanceScript();
+                    InstanceScript* instance = im->GetInstanceScript();
                     int8 bossval = 0;
                     
                     for (uint32 state = BOSS_LEVIATHAN; state < BOSS_ALGALON; state++)
                     {
-                        if (pInstance->GetBossState(state) == DONE)
+                        if (instance->GetBossState(state) == DONE)
                             bossval++;
                         else
                             break;
@@ -770,13 +770,13 @@ public:
         {
             if (GameObject* pGo = instance->GetGameObject(KeepersGateGUID))
             {
-                InstanceScript* pInstance = pGo->GetInstanceScript();
-                if (pInstance)
+                InstanceScript* instance = pGo->GetInstanceScript();
+                if (instance)
                 {
-                    if (pInstance->GetBossState(BOSS_MIMIRON) == DONE &&
-                        pInstance->GetBossState(BOSS_FREYA) == DONE &&
-                        pInstance->GetBossState(BOSS_HODIR) == DONE &&
-                        pInstance->GetBossState(BOSS_THORIM) == DONE)
+                    if (instance->GetBossState(BOSS_MIMIRON) == DONE &&
+                        instance->GetBossState(BOSS_FREYA) == DONE &&
+                        instance->GetBossState(BOSS_HODIR) == DONE &&
+                        instance->GetBossState(BOSS_THORIM) == DONE)
                         pGo->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
                     else
                         pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_LOCKED);
@@ -828,20 +828,20 @@ public:
 
     bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
     {
-        InstanceScript* pInstance = pGo->GetInstanceScript();
+        InstanceScript* instance = pGo->GetInstanceScript();
 
-        if (!pInstance)
+        if (!instance)
             return false;
 
         switch(pGo->GetEntry())
         {
             case 194914:
             case 194438:
-                pInstance->SetData(DATA_CALL_TRAM, 0);
+                instance->SetData(DATA_CALL_TRAM, 0);
                 break;
             case 194912:
             case 194437:
-                pInstance->SetData(DATA_CALL_TRAM, 1);
+                instance->SetData(DATA_CALL_TRAM, 1);
                 break;
         }
         return true;

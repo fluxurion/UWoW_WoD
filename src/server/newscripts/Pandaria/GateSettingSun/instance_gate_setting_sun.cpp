@@ -238,11 +238,11 @@ public:
             {
                 if (InstanceMap* im = instance->ToInstanceMap())
                 {
-                    InstanceScript* pInstance = im->GetInstanceScript();
+                    InstanceScript* instance = im->GetInstanceScript();
                     int8 bossval = 0;
                     for (uint8 n = DATA_KIPTILAK; n <= DATA_RIMOK; n++)
                     {
-                        if (pInstance->GetBossState(n) == DONE)
+                        if (instance->GetBossState(n) == DONE)
                             bossval++;
                         else
                             break;
@@ -250,7 +250,7 @@ public:
 
                     if (bossval == 3)
                     {
-                        if (Creature* raigonn = instance->GetCreature(raigonnGuid))
+                        if (Creature* raigonn = instance->instance->GetCreature(raigonnGuid))
                             raigonn->SetVisible(true);
                     }
                 }

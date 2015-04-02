@@ -323,11 +323,11 @@ class npc_generic_royal_sentinel : public CreatureScript
         {
             npc_generic_royal_sentinelAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset(){}
@@ -348,9 +348,9 @@ class npc_generic_royal_sentinel : public CreatureScript
 
             void JustDied(Unit* killer)
             {
-                if (pInstance)
+                if (instance)
                 {
-                    if (Creature* shekzeer = me->GetCreature(*me, pInstance->GetGuidData(NPC_SHEKZEER)))
+                    if (Creature* shekzeer = me->GetCreature(*me, instance->GetGuidData(NPC_SHEKZEER)))
                         shekzeer->AI()->DoAction(ACTION_SENTINEL_DIED);
                 }
             }

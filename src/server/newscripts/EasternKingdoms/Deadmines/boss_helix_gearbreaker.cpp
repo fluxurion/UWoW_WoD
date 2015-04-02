@@ -249,11 +249,11 @@ class npc_lumbering_oaf : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
                 me->setActive(true);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             SummonList summons;
 
@@ -348,7 +348,7 @@ class npc_lumbering_oaf : public CreatureScript
                             if (me->getVictim())
                                 me->GetMotionMaster()->MoveChase(me->getVictim());
                             me->RemoveAurasDueToSpell(SPELL_RIDE_OAF);
-                            pInstance->DoCastSpellOnPlayers(SPELL_ACHIEV_CREDIT);
+                            instance->DoCastSpellOnPlayers(SPELL_ACHIEV_CREDIT);
                             for (uint8 i = 0; i < 9; i++)
                                 me->SummonCreature(NPC_MINE_RAT, RatPos[i], TEMPSUMMON_CORPSE_DESPAWN, 5000);
                             events.ScheduleEvent(EVENT_CHARGE_OAF0, 30000);
@@ -384,12 +384,12 @@ class npc_sticky_bomb : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
            
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -456,16 +456,16 @@ class npc_helix_crew : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             SummonList summons;
 
             void Reset()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
                 
                 summons.DespawnAll();
@@ -474,7 +474,7 @@ class npc_helix_crew : public CreatureScript
      
             void JustSummoned(Creature* summon)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 summons.Summon(summon);
@@ -482,7 +482,7 @@ class npc_helix_crew : public CreatureScript
 
             void SummonedCreatureDespawn(Creature* summon)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 summons.Despawn(summon);
@@ -495,7 +495,7 @@ class npc_helix_crew : public CreatureScript
 
             void JustDied(Unit* killer)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 summons.DespawnAll();
@@ -505,7 +505,7 @@ class npc_helix_crew : public CreatureScript
             void UpdateAI(uint32 diff)
             {
 
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 events.Update(diff);

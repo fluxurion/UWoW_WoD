@@ -111,22 +111,22 @@ class boss_spirit_kings_controler : public CreatureScript
         {
             boss_spirit_kings_controlerAI(Creature* creature) : BossAI(creature, DATA_SPIRIT_KINGS)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetDisplayId(11686);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             bool fightInProgress;
             uint32 spiritkings[3]; //Need for Event
             uint32 spiritkingsvirtual[3]; //Need for finish Event
 
             void Reset()
             {
-                if (pInstance)
+                if (instance)
                 {
-                    pInstance->SetBossState(DATA_SPIRIT_KINGS, NOT_STARTED);
+                    instance->SetBossState(DATA_SPIRIT_KINGS, NOT_STARTED);
                     fightInProgress = false;
                     
                     for (uint8 n = 0; n < 3; n++)
@@ -139,10 +139,10 @@ class boss_spirit_kings_controler : public CreatureScript
             
             void EnterCombat(Unit* who)
             {
-                if (pInstance)
+                if (instance)
                 {
                     PushArrayBoss();
-                    pInstance->SetBossState(DATA_SPIRIT_KINGS, IN_PROGRESS);
+                    instance->SetBossState(DATA_SPIRIT_KINGS, IN_PROGRESS);
                     fightInProgress = true;
                     events.ScheduleEvent(EVENT_CHECK_WIPE, 1500);
                 }
@@ -192,7 +192,7 @@ class boss_spirit_kings_controler : public CreatureScript
 
             void RestartEvent()
             {   // Qiang always first
-                if (Creature* qiang = me->GetCreature(*me, pInstance->GetGuidData(NPC_QIANG)))
+                if (Creature* qiang = me->GetCreature(*me, instance->GetGuidData(NPC_QIANG)))
                 {
                     if (!qiang->isAlive())
                         qiang->Respawn();
@@ -202,20 +202,20 @@ class boss_spirit_kings_controler : public CreatureScript
 
                 for (uint8 n = 0; n < 3; n++)
                 {
-                    if (Creature* kings = me->GetCreature(*me, pInstance->GetGuidData(spiritkings[n])))
+                    if (Creature* kings = me->GetCreature(*me, instance->GetGuidData(spiritkings[n])))
                     {
                         if (!kings->isAlive())
                             kings->Respawn();
                     }
                 }
 
-                if (Creature* nspirit = me->GetCreature(*me, pInstance->GetGuidData(spiritkings[0])))
+                if (Creature* nspirit = me->GetCreature(*me, instance->GetGuidData(spiritkings[0])))
                         nspirit->AddAura(SPELL_NEXT_SPIRIT_VISUAL, nspirit);
             }
 
             void DoAction(const int32 action)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 switch (action)
@@ -230,12 +230,12 @@ class boss_spirit_kings_controler : public CreatureScript
                                 nextspirit = spiritkings[n];
                                 if (nextspirit == spiritkings[2])
                                 {
-                                    if (Creature* sp = me->GetCreature(*me, pInstance->GetGuidData(nextspirit)))
+                                    if (Creature* sp = me->GetCreature(*me, instance->GetGuidData(nextspirit)))
                                         sp->AI()->DoAction(ACTION_SPIRIT_LOW_HEALTH);
                                 }
                                 else
                                 {
-                                    if (Creature* nspirit = me->GetCreature(*me, pInstance->GetGuidData(spiritkings[n+1])))
+                                    if (Creature* nspirit = me->GetCreature(*me, instance->GetGuidData(spiritkings[n+1])))
                                         nspirit->AddAura(SPELL_NEXT_SPIRIT_VISUAL, nspirit);
                                 }
                                 spiritkings[n] = 0;
@@ -245,7 +245,7 @@ class boss_spirit_kings_controler : public CreatureScript
                     
                         if (nextspirit)
                         {
-                            if (Creature* king = me->GetCreature(*me, pInstance->GetGuidData(nextspirit)))
+                            if (Creature* king = me->GetCreature(*me, instance->GetGuidData(nextspirit)))
                                 king->AI()->DoAction(ACTION_START_FIGHT);
                         }                   
                     }
@@ -253,13 +253,13 @@ class boss_spirit_kings_controler : public CreatureScript
                 case ACTION_SPIRIT_DONE:
                     for (uint8 i = 0; i < 3; i++)
                     {
-                        if (Creature* king = me->GetCreature(*me, pInstance->GetGuidData(spiritkingsvirtual[i])))
+                        if (Creature* king = me->GetCreature(*me, instance->GetGuidData(spiritkingsvirtual[i])))
                         {
                             if (king->isAlive())
                                 me->Kill(king, true);
                         }
                     }
-                    pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
+                    instance->SetBossState(DATA_SPIRIT_KINGS, DONE);
                     me->Kill(me, true);
                     break;
                 }
@@ -278,11 +278,11 @@ class boss_spirit_kings_controler : public CreatureScript
                     {
                         case EVENT_CHECK_WIPE:
                             {
-                                if (pInstance->IsWipe())
+                                if (instance->IsWipe())
                                 {
                                     for (uint8 n = 0; n < 4; n++)
                                     {
-                                        if (Creature* king = me->GetCreature(*me, pInstance->GetGuidData(spiritKingsEntry[n])))
+                                        if (Creature* king = me->GetCreature(*me, instance->GetGuidData(spiritKingsEntry[n])))
                                         {
                                             if (king->isAlive() && king->HasAura(SPELL_NEXT_SPIRIT_VISUAL))
                                                 king->RemoveAurasDueToSpell(SPELL_NEXT_SPIRIT_VISUAL);
@@ -314,10 +314,10 @@ class boss_spirit_kings : public CreatureScript
         {
             boss_spirit_kingsAI(Creature* creature) : ScriptedAI(creature), summons(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap   events;
             SummonList summons;
             bool vanquished, lastboss;
@@ -342,7 +342,7 @@ class boss_spirit_kings : public CreatureScript
 
             Creature* GetControler()
             {
-                if (pInstance) return pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_SPIRIT_GUID_CONTROLER)); else return NULL;
+                if (instance) return instance->instance->GetCreature(instance->GetGuidData(NPC_SPIRIT_GUID_CONTROLER)); else return NULL;
             }
 
             void EnterCombat(Unit* attacker)
@@ -541,10 +541,10 @@ class mob_pinning_arrow : public CreatureScript
         {
             mob_pinning_arrowAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             ObjectGuid playerGuid;
 
             void Reset()
@@ -589,10 +589,10 @@ class mob_undying_shadow : public CreatureScript
         {
             mob_undying_shadowAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             bool phase;
             uint32 switchPhaseTimer;
 

@@ -2634,21 +2634,21 @@ public:
 
         void OnPeriodic(AuraEffect const* aurEff)
         {
-            if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
+            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 if (GetSpellInfo()->Id == SPELL_MOST_COMPLICATED_BOMB_SOUTH)
                 {                    
-                    uint32 southTower = pInstance->GetData(DATA_SOUTH_COUNT) + 1;
-                    pInstance->SetData(DATA_SOUTH_COUNT, southTower);
+                    uint32 southTower = instance->GetData(DATA_SOUTH_COUNT) + 1;
+                    instance->SetData(DATA_SOUTH_COUNT, southTower);
                 }
 
                 if (GetSpellInfo()->Id == SPELL_MOST_COMPLICATED_BOMB_NORTH)
                 {                    
-                    uint32 northTower = pInstance->GetData(DATA_NORTH_COUNT) + 1;
-                    pInstance->SetData(DATA_NORTH_COUNT, northTower);
+                    uint32 northTower = instance->GetData(DATA_NORTH_COUNT) + 1;
+                    instance->SetData(DATA_NORTH_COUNT, northTower);
                 }
             }
         }

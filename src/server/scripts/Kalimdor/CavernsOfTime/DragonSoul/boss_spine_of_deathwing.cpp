@@ -161,7 +161,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->setActive(true);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
                 rollStage = ROLL_NONE;
                 destroyedPlates = 0;
                 achieve = 0;
@@ -200,12 +200,12 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                 if (type == DATA_PLATES)
                 {
                     destroyedPlates = (uint8)data;
-                    if (pInstance)
+                    if (instance)
                     {
                         if (destroyedPlates == 1)
                         {
                             Talk(SAY_DEATHWING_PLATE);
-                            pInstance->HandleGameObject(pInstance->GetData64(DATA_BACK_PLATE_1), true);
+                            instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_1), true);
                             for (uint8 i = 4; i < 6; ++i)
                                 if (Creature* pCorruption = me->SummonCreature(NPC_CORRUPTION_1, corruptionPos[i]))
                                 {
@@ -216,7 +216,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                         else if (destroyedPlates == 2)
                         {
                             Talk(SAY_DEATHWING_PLATE);
-                            pInstance->HandleGameObject(pInstance->GetData64(DATA_BACK_PLATE_2), true);
+                            instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_2), true);
                             for (uint8 i = 6; i < 8; ++i)
                                 if (Creature* pCorruption = me->SummonCreature(NPC_CORRUPTION_1, corruptionPos[i]))
                                 {
@@ -227,7 +227,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                         else if (destroyedPlates == 3)
                         {
                             Talk(SAY_DEATHWING_PLATE);
-                            pInstance->HandleGameObject(pInstance->GetData64(DATA_BACK_PLATE_3), true);
+                            instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_3), true);
                             events.ScheduleEvent(EVENT_END_ENCOUNTER, 1000);
                         }
                     }
@@ -259,27 +259,27 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                             events.Reset();
                             ResetBattle(true);
                             DoCastAOE(SPELL_PLAY_MOVIE);
-                            if (pInstance)
+                            if (instance)
                             {
-                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SEARING_PLASMA);
-                                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SEARING_PLASMA_AOE);
+                                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SEARING_PLASMA);
+                                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SEARING_PLASMA_AOE);
                                 switch (GetDifficultyID())
                                 {
                                     case DIFFICULTY_10_N:
-                                        pInstance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_10N);
+                                        instance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_10N);
                                         break;
                                     case DIFFICULTY_25_N:
-                                        pInstance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_25N);
+                                        instance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_25N);
                                         break;
                                     case DIFFICULTY_10_HC:
-                                        pInstance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_10H);
+                                        instance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_10H);
                                         break;
                                     case DIFFICULTY_25_HC:
-                                        pInstance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_25H);
+                                        instance->SetData(DATA_SPAWN_GREATER_CHEST, DATA_GREATER_CACHE_25H);
                                         break;
                                 }
-                                pInstance->DoStartMovie(75);
-                                Map::PlayerList const &plrList = pInstance->instance->GetPlayers();
+                                instance->DoStartMovie(75);
+                                Map::PlayerList const &plrList = instance->instance->GetPlayers();
                                 if (!plrList.isEmpty())
                                     for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
                                         if (Player* pPlayer = i->getSource())
@@ -310,9 +310,9 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                             events.ScheduleEvent(EVENT_TALK, urand(35000, 45000));
                             break;
                         case EVENT_CHECK_PLAYERS:
-                            if (pInstance)
+                            if (instance)
                             {
-                                if ((pInstance->GetBossState(DATA_SPINE) != IN_PROGRESS) || !CheckPlayers())
+                                if ((instance->GetBossState(DATA_SPINE) != IN_PROGRESS) || !CheckPlayers())
                                 {
                                     ResetBattle();
                                 }
@@ -364,7 +364,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
 
         private:
             EventMap events;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             RollStage rollStage;
             uint8 destroyedPlates;
             int8 achieve;
@@ -402,16 +402,16 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                 DespawnCreatures(NPC_BURNING_TENDONS_1);
                 DespawnCreatures(NPC_BURNING_TENDONS_2);
 
-                if (pInstance)
+                if (instance)
                 {
-                    pInstance->SetBossState(DATA_SPINE, (done ? DONE : NOT_STARTED));
+                    instance->SetBossState(DATA_SPINE, (done ? DONE : NOT_STARTED));
                     if (!done)
                     {
-                        pInstance->HandleGameObject(pInstance->GetData64(DATA_BACK_PLATE_1),  false);
-                        pInstance->HandleGameObject(pInstance->GetData64(DATA_BACK_PLATE_2),  false);
-                        pInstance->HandleGameObject(pInstance->GetData64(DATA_BACK_PLATE_3),  false);
+                        instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_1),  false);
+                        instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_2),  false);
+                        instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_3),  false);
 
-                        Map::PlayerList const& players = pInstance->instance->GetPlayers();
+                        Map::PlayerList const& players = instance->instance->GetPlayers();
                         if (!players.isEmpty())
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                 if (Player* players = itr->getSource())
@@ -532,7 +532,7 @@ class npc_spine_of_deathwing_corruption : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 damageCounter = 0;
                 isGrip = false;
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void IsSummonedBy(Unit* /*who*/)
@@ -543,7 +543,7 @@ class npc_spine_of_deathwing_corruption : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (!pInstance->GetData(DATA_IS_LFR))
+                if (!instance->GetData(DATA_IS_LFR))
                 {
                     events.ScheduleEvent(EVENT_SEARING_PLASMA, urand(1000, 8000));
                     events.ScheduleEvent(EVENT_FIERY_GRIP, urand(31000, 33000));
@@ -629,7 +629,7 @@ class npc_spine_of_deathwing_corruption : public CreatureScript
 
         private:
             EventMap events;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint32 damageCounter;
             bool isGrip;
             uint8 pos;
@@ -694,9 +694,9 @@ class npc_spine_of_deathwing_hideous_amalgamation : public CreatureScript
             {
                 if (IsHeroic())
                 {
-                    if (InstanceScript* pInstance = me->GetInstanceScript())
+                    if (InstanceScript* instance = me->GetInstanceScript())
                     {
-                        Map::PlayerList const& plrList = pInstance->instance->GetPlayers();
+                        Map::PlayerList const& plrList = instance->instance->GetPlayers();
                         if (!plrList.isEmpty())
                             for (Map::PlayerList::const_iterator itr = plrList.begin(); itr != plrList.end(); ++itr)
                                 if (Player* pPlayer = itr->getSource())

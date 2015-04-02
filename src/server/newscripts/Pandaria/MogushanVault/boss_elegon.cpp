@@ -63,14 +63,14 @@ class boss_elegon : public CreatureScript
         {
             boss_elegonAI(Creature* creature) : BossAI(creature, DATA_ELEGON)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetCanFly(true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
 
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -81,11 +81,11 @@ class boss_elegon : public CreatureScript
 
             void RemoveBuff()
             {
-                if (pInstance)
+                if (instance)
                 {
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERCHARGED);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(117878);//Overcharged (trigger aura)
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERCHARGED);
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
+                    instance->DoRemoveAurasDueToSpellOnPlayers(117878);//Overcharged (trigger aura)
                 }
             }
 

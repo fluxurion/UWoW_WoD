@@ -182,16 +182,16 @@ public:
         {
             _JustDied();
             DoScriptText(SAY_DEATH, me);
-            if (InstanceScript *pInstance = me->GetInstanceScript())
+            if (InstanceScript *instance = me->GetInstanceScript())
             {
                 if (!bShocked)
-                     pInstance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_SHOCKING_10, ACHIEVEMENT_SHOCKING_25));
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POSITIVE_CHARGE);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NEGATIVE_CHARGE);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POLARITY_CHARGE_1);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POLARITY_CHARGE_2);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POLARITY_CHARGE_3);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POLARITY_CHARGE_4);
+                     instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_SHOCKING_10, ACHIEVEMENT_SHOCKING_25));
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POSITIVE_CHARGE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NEGATIVE_CHARGE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POLARITY_CHARGE_1);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POLARITY_CHARGE_2);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POLARITY_CHARGE_3);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POLARITY_CHARGE_4);
             }
         }
 
@@ -351,10 +351,10 @@ public:
     {
         mob_stalaggAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 powerSurgeTimer;
         uint32 magneticPullTimer;
@@ -369,13 +369,13 @@ public:
 
         void Reset()
         {
-            if (pInstance)
+            if (instance)
             {
-                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetGuidData(DATA_THADDIUS)))
+                if (Creature *pThaddius = me->GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
 
-                if (GameObject* go = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_THADDIUS_TESLA06)))
+                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_THADDIUS_TESLA06)))
                     go->ResetDoorOrButton();
             }
             powerSurgeTimer = urand(20000, 25000);
@@ -391,8 +391,8 @@ public:
 
         void JustDied(Unit * /*killer*/)
         {
-            if (pInstance)
-                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetGuidData(DATA_THADDIUS)))
+            if (instance)
+                if (Creature *pThaddius = me->GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
         }
@@ -418,7 +418,7 @@ public:
 
             if (magneticPullTimer <= uiDiff)
             {
-                if (Creature *pFeugen = me->GetCreature(*me, pInstance->GetGuidData(DATA_FEUGEN)))
+                if (Creature *pFeugen = me->GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 {
                     Unit* pStalaggVictim = me->getVictim();
                     Unit* pFeugenVictim = pFeugen->getVictim();
@@ -457,7 +457,7 @@ public:
             if (bSwitch)
                 if (uiIdleTimer <= uiDiff)
                 {
-                    if (Creature *pFeugen = me->GetCreature(*me, pInstance->GetGuidData(DATA_FEUGEN)))
+                    if (Creature *pFeugen = me->GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                         pFeugen->SetReactState(REACT_AGGRESSIVE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     bSwitch = false;
@@ -499,10 +499,10 @@ public:
     {
         mob_feugenAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 staticFieldTimer;
         uint32 uiShockTimer;
@@ -514,13 +514,13 @@ public:
 
         void Reset()
         {
-            if (pInstance)
+            if (instance)
             {
-                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetGuidData(DATA_THADDIUS)))
+                if (Creature *pThaddius = me->GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
 
-                if (GameObject* go = GameObject::GetGameObject(*me, pInstance->GetGuidData(DATA_THADDIUS_TESLA05)))
+                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_THADDIUS_TESLA05)))
                     go->ResetDoorOrButton();
             }
             staticFieldTimer = 5000;
@@ -533,8 +533,8 @@ public:
 
         void JustDied(Unit * /*killer*/)
         {
-            if (pInstance)
-                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetGuidData(DATA_THADDIUS)))
+            if (instance)
+                if (Creature *pThaddius = me->GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
         }

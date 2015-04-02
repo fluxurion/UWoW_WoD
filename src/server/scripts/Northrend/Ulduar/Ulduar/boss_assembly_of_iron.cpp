@@ -130,14 +130,14 @@ enum Yells
     SAY_BRUNDIR_BERSERK                         = -1603047,
 };
 
-bool IsEncounterComplete(InstanceScript* pInstance, Creature* me)
+bool IsEncounterComplete(InstanceScript* instance, Creature* me)
 {
-   if (!pInstance || !me)
+   if (!instance || !me)
         return false;
 
     for (uint8 i = 0; i < 3; ++i)
     {
-        ObjectGuid guid = pInstance->GetGuidData(DATA_STEELBREAKER+i);
+        ObjectGuid guid = instance->GetGuidData(DATA_STEELBREAKER+i);
 
         if (!guid)
             return false;
@@ -153,11 +153,11 @@ bool IsEncounterComplete(InstanceScript* pInstance, Creature* me)
     return true;
 }
 
-void RespawnBosses(InstanceScript* pInstance, ObjectGuid caller, Creature* creature)
+void RespawnBosses(InstanceScript* instance, ObjectGuid caller, Creature* creature)
 {
     for (uint32 data = DATA_STEELBREAKER; data < DATA_KOLOGARN; data++)
     {
-        if (Creature * boss = creature->GetCreature(*creature, pInstance->GetGuidData(data)))
+        if (Creature * boss = creature->GetCreature(*creature, instance->GetGuidData(data)))
         { 
             if (boss)
             {
@@ -171,14 +171,14 @@ void RespawnBosses(InstanceScript* pInstance, ObjectGuid caller, Creature* creat
             }
         }
     }
-    pInstance->SetBossState(BOSS_ASSEMBLY, NOT_STARTED); 
+    instance->SetBossState(BOSS_ASSEMBLY, NOT_STARTED); 
 }
 
-void CallBosses(InstanceScript* pInstance, ObjectGuid caller, Unit* who)
+void CallBosses(InstanceScript* instance, ObjectGuid caller, Unit* who)
 {
     for (uint32 data = DATA_STEELBREAKER; data < DATA_KOLOGARN; data++)
     {
-        if (Creature * boss = who->GetCreature(*who, pInstance->GetGuidData(data)))
+        if (Creature * boss = who->GetCreature(*who, instance->GetGuidData(data)))
         {
             if (boss)
             {
@@ -208,13 +208,13 @@ public:
     {
         boss_steelbreakerAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         }
         
         EventMap events;
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 phase;
 
         void Reset()
@@ -222,9 +222,9 @@ public:
             events.Reset();
             phase = 0;
             me->RemoveAllAuras();
-            if (pInstance)
-                pInstance->SetBossState(BOSS_ASSEMBLY, NOT_STARTED);
-            RespawnBosses(pInstance, me->GetGUID(), me->ToCreature());
+            if (instance)
+                instance->SetBossState(BOSS_ASSEMBLY, NOT_STARTED);
+            RespawnBosses(instance, me->GetGUID(), me->ToCreature());
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetReactState(REACT_AGGRESSIVE);
         }
@@ -233,7 +233,7 @@ public:
         {
             DoScriptText(SAY_STEELBREAKER_AGGRO, me);
             DoZoneInCombat();
-            CallBosses(pInstance, me->GetGUID(), who);
+            CallBosses(instance, me->GetGUID(), who);
             DoCast(me, SPELL_HIGH_VOLTAGE);
             phase = 1;
             events.SetPhase(phase);
@@ -245,19 +245,19 @@ public:
         {
             DoScriptText(RAND(SAY_STEELBREAKER_DEATH_1, SAY_STEELBREAKER_DEATH_2), me);
     
-            if (IsEncounterComplete(pInstance, me) && pInstance)
+            if (IsEncounterComplete(instance, me) && instance)
             {
-                pInstance->SetBossState(BOSS_ASSEMBLY, DONE);
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_CHOOSE_STEELBREAKER);
-                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
+                instance->SetBossState(BOSS_ASSEMBLY, DONE);
+                instance->DoCompleteAchievement(ACHIEVEMENT_CHOOSE_STEELBREAKER);
+                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
             }
             else me->SetLootRecipient(NULL);
             
-            if (Creature* Brundir = me->GetCreature(*me, pInstance->GetGuidData(DATA_BRUNDIR)))
+            if (Creature* Brundir = me->GetCreature(*me, instance->GetGuidData(DATA_BRUNDIR)))
                 if (Brundir->isAlive())
                     Brundir->AI()->DoAction(ACTION_BRUNDIR);
 
-            if (Creature* Molgeim = me->GetCreature(*me, pInstance->GetGuidData(DATA_MOLGEIM)))
+            if (Creature* Molgeim = me->GetCreature(*me, instance->GetGuidData(DATA_MOLGEIM)))
                 if (Molgeim->isAlive())
                     Molgeim->AI()->DoAction(ACTION_MOLGEIM);
         }
@@ -342,20 +342,20 @@ public:
     {
         boss_runemaster_molgeimAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
         uint32 phase;
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetBossState(BOSS_ASSEMBLY, NOT_STARTED);
-            RespawnBosses(pInstance, me->GetGUID(), me->ToCreature());
+            if (instance)
+                instance->SetBossState(BOSS_ASSEMBLY, NOT_STARTED);
+            RespawnBosses(instance, me->GetGUID(), me->ToCreature());
             events.Reset();
             me->RemoveAllAuras();
             phase = 0;
@@ -367,9 +367,9 @@ public:
         {
             DoScriptText(SAY_MOLGEIM_AGGRO, me);
             DoZoneInCombat();
-            CallBosses(pInstance, me->GetGUID(), who);
+            CallBosses(instance, me->GetGUID(), who);
             phase = 1;
-            pInstance->SetBossState(BOSS_ASSEMBLY, IN_PROGRESS);
+            instance->SetBossState(BOSS_ASSEMBLY, IN_PROGRESS);
             events.ScheduleEvent(EVENT_ENRAGE, 900000);
             events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 30000);
             events.ScheduleEvent(EVENT_RUNE_OF_POWER, 20000);
@@ -379,19 +379,19 @@ public:
         {
             DoScriptText(RAND(SAY_MOLGEIM_DEATH_1, SAY_MOLGEIM_DEATH_2), me);
     
-            if (IsEncounterComplete(pInstance, me) && pInstance)
+            if (IsEncounterComplete(instance, me) && instance)
             {
-                pInstance->SetBossState(BOSS_ASSEMBLY, DONE);
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_CHOOSE_MOLGEIM);
-                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
+                instance->SetBossState(BOSS_ASSEMBLY, DONE);
+                instance->DoCompleteAchievement(ACHIEVEMENT_CHOOSE_MOLGEIM);
+                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
             }
             else me->SetLootRecipient(NULL);
             
-            if (Creature* Brundir = me->GetCreature(*me, pInstance->GetGuidData(DATA_BRUNDIR)))
+            if (Creature* Brundir = me->GetCreature(*me, instance->GetGuidData(DATA_BRUNDIR)))
                 if (Brundir->isAlive())
                     Brundir->AI()->DoAction(ACTION_BRUNDIR);
 
-            if (Creature* Steelbreaker = me->GetCreature(*me, pInstance->GetGuidData(DATA_STEELBREAKER)))
+            if (Creature* Steelbreaker = me->GetCreature(*me, instance->GetGuidData(DATA_STEELBREAKER)))
                 if (Steelbreaker->isAlive())
                     Steelbreaker->AI()->DoAction(ACTION_STEELBREAKER);
         }
@@ -421,23 +421,23 @@ public:
                         Creature* bosschoosed;
                         uint32 choice = urand(0,2);
 
-                        if (!pInstance) break;
+                        if (!instance) break;
                     
-                        bosschoosed = me->GetCreature(*me, pInstance->GetGuidData(DATA_STEELBREAKER+choice));
+                        bosschoosed = me->GetCreature(*me, instance->GetGuidData(DATA_STEELBREAKER+choice));
 
                         if (!bosschoosed || !bosschoosed->isAlive())
                         {
                             choice = ((choice == 2) ? 0 : choice++);
-                            bosschoosed = me->GetCreature(*me, pInstance->GetGuidData(DATA_STEELBREAKER+choice));
+                            bosschoosed = me->GetCreature(*me, instance->GetGuidData(DATA_STEELBREAKER+choice));
                             if (!bosschoosed || !bosschoosed->isAlive())
                             {
                                 choice = ((choice == 2) ? 0 : choice++);
-                                bosschoosed = me->GetCreature(*me, pInstance->GetGuidData(DATA_STEELBREAKER+choice));
+                                bosschoosed = me->GetCreature(*me, instance->GetGuidData(DATA_STEELBREAKER+choice));
                             }
                         }
 
                         if (!bosschoosed || !bosschoosed->isAlive())
-                            bosschoosed = me->GetCreature(*me, pInstance->GetGuidData(DATA_MOLGEIM));
+                            bosschoosed = me->GetCreature(*me, instance->GetGuidData(DATA_MOLGEIM));
                     
                         DoCast(bosschoosed, SPELL_RUNE_OF_POWER);
                         events.ScheduleEvent(EVENT_RUNE_OF_POWER, 35000);
@@ -613,23 +613,23 @@ public:
     {
         boss_stormcaller_brundirAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         }
         
         EventMap events;
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 phase;
         uint32 Position;
         bool achivstunned;
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetBossState(BOSS_ASSEMBLY, NOT_STARTED);
-            RespawnBosses(pInstance, me->GetGUID(), me->ToCreature());
+            if (instance)
+                instance->SetBossState(BOSS_ASSEMBLY, NOT_STARTED);
+            RespawnBosses(instance, me->GetGUID(), me->ToCreature());
             me->RemoveAllAuras();
             me->SetDisableGravity(false);
             events.Reset();
@@ -657,7 +657,7 @@ public:
         {
             DoScriptText(SAY_BRUNDIR_AGGRO, me);
             DoZoneInCombat();
-            CallBosses(pInstance, me->GetGUID(), who);
+            CallBosses(instance, me->GetGUID(), who);
             phase = 1;
             events.ScheduleEvent(EVENT_MOVE_POS, 1000);
             events.ScheduleEvent(EVENT_ENRAGE, 900000);
@@ -669,21 +669,21 @@ public:
         {
             DoScriptText(RAND(SAY_BRUNDIR_DEATH_1, SAY_BRUNDIR_DEATH_2), me);
             
-            if (IsEncounterComplete(pInstance, me) && pInstance)
+            if (IsEncounterComplete(instance, me) && instance)
             {
-                pInstance->SetBossState(BOSS_ASSEMBLY, DONE);
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_CHOOSE_BRUNDIR);
-                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
+                instance->SetBossState(BOSS_ASSEMBLY, DONE);
+                instance->DoCompleteAchievement(ACHIEVEMENT_CHOOSE_BRUNDIR);
+                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
                 if (me->GetPositionZ() > 428)
                     me->GetMotionMaster()->MoveFall(427.28f);
             }
             else me->SetLootRecipient(NULL);
 
-            if (Creature* Molgeim = me->GetCreature(*me, pInstance->GetGuidData(DATA_MOLGEIM)))
+            if (Creature* Molgeim = me->GetCreature(*me, instance->GetGuidData(DATA_MOLGEIM)))
                 if (Molgeim->isAlive())
                     Molgeim->AI()->DoAction(ACTION_MOLGEIM);
 
-            if (Creature* Steelbreaker = me->GetCreature(*me, pInstance->GetGuidData(DATA_STEELBREAKER)))
+            if (Creature* Steelbreaker = me->GetCreature(*me, instance->GetGuidData(DATA_STEELBREAKER)))
                 if (Steelbreaker->isAlive())
                     Steelbreaker->AI()->DoAction(ACTION_STEELBREAKER);
         }

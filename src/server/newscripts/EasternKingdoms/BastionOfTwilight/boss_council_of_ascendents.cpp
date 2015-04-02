@@ -1332,14 +1332,14 @@ public:
     {
         npc_violent_cycloneAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             DoCast(me, SPELL_LASHING_WINDS);
@@ -1370,15 +1370,15 @@ public:
     {
         npc_bt_gravity_wellAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             events.ScheduleEvent(EVENT_GRAVITY_WELL_DMG, 3000);
@@ -1426,18 +1426,18 @@ class npc_ignacious_inferno_leap : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetSpeed(MOVE_RUN, 3.0f);
                 me->SetSpeed(MOVE_WALK, 3.0f);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
+                if (!instance)
                     me->DespawnOrUnsummon();
 
                 if (!me->FindNearestCreature(NPC_INFERNO_RUSH, 5.0f))
-                    if (Creature* pIgnacious = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_IGNACIOUS)))
+                    if (Creature* pIgnacious = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_IGNACIOUS)))
                         pIgnacious->SummonCreature(NPC_INFERNO_RUSH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 20000);
             }
 
@@ -1578,14 +1578,14 @@ class npc_liquid_ice : public CreatureScript
         {
             npc_liquid_iceAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 DoCast(me, SPELL_LIQUID_ICE);
@@ -1616,15 +1616,15 @@ class npc_ascendant_council_plume_stalker : public CreatureScript
         {
             npc_ascendant_council_plume_stalkerAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 events.Reset();
@@ -1669,15 +1669,15 @@ class npc_eruption_target : public CreatureScript
         {
             npc_eruption_targetAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 DoCast(me, SPELL_ERUPTION_AURA);

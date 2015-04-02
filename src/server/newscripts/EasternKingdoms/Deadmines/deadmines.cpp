@@ -29,13 +29,13 @@ class go_defias_cannon : public GameObjectScript
 
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {
-            InstanceScript* pInstance = pGo->GetInstanceScript();
-            if (!pInstance)
+            InstanceScript* instance = pGo->GetInstanceScript();
+            if (!instance)
                 return false;
-            //if (pInstance->GetData(DATA_CANNON_EVENT) != CANNON_NOT_USED)
+            //if (instance->GetData(DATA_CANNON_EVENT) != CANNON_NOT_USED)
                 //return false ;
 
-            pInstance->SetData(DATA_CANNON_EVENT, CANNON_BLAST_INITIATED);
+            instance->SetData(DATA_CANNON_EVENT, CANNON_BLAST_INITIATED);
             return false;
         }
 };

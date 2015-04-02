@@ -228,12 +228,12 @@ class go_lei_shen_tp_platform : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
-            InstanceScript* pInstance = (InstanceScript*)go->GetInstanceScript();
+            InstanceScript* instance = (InstanceScript*)go->GetInstanceScript();
 
-            if (!pInstance)
+            if (!instance)
                 return false;
             
-            if (pInstance->GetBossState(DATA_LEI_SHEN) != IN_PROGRESS)
+            if (instance->GetBossState(DATA_LEI_SHEN) != IN_PROGRESS)
                 player->NearTeleportTo(5670.09f, 4094.19f, 156.4627f, 0.0755f);
             
             return true;
@@ -248,12 +248,12 @@ class go_tp_platform_to_ra_den : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
-            InstanceScript* pInstance = (InstanceScript*)go->GetInstanceScript();
+            InstanceScript* instance = (InstanceScript*)go->GetInstanceScript();
 
-            if (!pInstance || !player->GetMap()->IsHeroic())
+            if (!instance || !player->GetMap()->IsHeroic())
                 return false;
             
-            if (pInstance->GetBossState(DATA_LEI_SHEN) == DONE)
+            if (instance->GetBossState(DATA_LEI_SHEN) == DONE)
                 player->NearTeleportTo(5591.90f, 4692.89f, 55.7776f, 4.75735f);
             
             return true;

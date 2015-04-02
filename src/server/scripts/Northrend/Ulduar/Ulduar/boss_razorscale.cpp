@@ -453,8 +453,8 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        InstanceScript* pInstance = pCreature->GetInstanceScript();
-        if (pInstance && pInstance->GetBossState(BOSS_RAZORSCALE) == NOT_STARTED && pPlayer)
+        InstanceScript* instance = pCreature->GetInstanceScript();
+        if (instance && instance->GetBossState(BOSS_RAZORSCALE) == NOT_STARTED && pPlayer)
         {
             pPlayer->PrepareGossipMenu(pCreature);
 
@@ -475,11 +475,11 @@ public:
     {
         npc_expedition_commanderAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             greet = false;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         SummonList summons;
 
         bool greet;
@@ -527,7 +527,7 @@ public:
                 switch(uiPhase)
                 {
                     case 1:
-                        pInstance->SetBossState(BOSS_RAZORSCALE, IN_PROGRESS);
+                        instance->SetBossState(BOSS_RAZORSCALE, IN_PROGRESS);
                         summons.DespawnAll();
                         uiTimer = 1000;
                         uiPhase = 2;
@@ -565,7 +565,7 @@ public:
                         uiPhase = 5;
                         break;
                     case 5:
-                        if (Creature *pRazorscale = me->GetCreature(*me, pInstance->GetGuidData(DATA_RAZORSCALE)))
+                        if (Creature *pRazorscale = me->GetCreature(*me, instance->GetGuidData(DATA_RAZORSCALE)))
                             pRazorscale->AI()->DoAction(ACTION_EVENT_START);
                         engineer[0]->MonsterYell(SAY_AGGRO_1, LANG_UNIVERSAL, ObjectGuid::Empty);
                         uiPhase = 0;

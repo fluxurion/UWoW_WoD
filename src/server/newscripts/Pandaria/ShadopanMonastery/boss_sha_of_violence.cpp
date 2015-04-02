@@ -48,10 +48,10 @@ class boss_sha_of_violence : public CreatureScript
         {
             boss_sha_of_violenceAI(Creature* creature) : BossAI(creature, DATA_SHA_VIOLENCE)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             bool enrageDone;
 
             void Reset()

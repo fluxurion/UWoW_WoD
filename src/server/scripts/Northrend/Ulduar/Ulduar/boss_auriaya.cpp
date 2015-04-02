@@ -294,10 +294,10 @@ public:
     {
         npc_feral_defenderAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 PounceTimer;
         uint32 RushTimer;
@@ -319,7 +319,7 @@ public:
             if (!UpdateVictim())
                 me->DespawnOrUnsummon();
             
-            if (pInstance && pInstance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
+            if (instance && instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
                 me->DespawnOrUnsummon();
 
             if (PounceTimer <= uiDiff)
@@ -379,8 +379,8 @@ public:
                     PounceTimer = 35000;
                     RushTimer = 42000;
                     RessTimer = 30000;
-                    if (pInstance)
-                        if (Creature *pAuriaya = me->GetCreature(*me, pInstance->GetGuidData(DATA_AURIAYA)))
+                    if (instance)
+                        if (Creature *pAuriaya = me->GetCreature(*me, instance->GetGuidData(DATA_AURIAYA)))
                             pAuriaya->AI()->DoAction(ACTION_NINE_LIVES);
                 }
             }
@@ -404,10 +404,10 @@ public:
     {
         npc_sanctum_sentryAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 RipTimer;
         uint32 PounceTimer;
@@ -473,8 +473,8 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (pInstance)
-                if (Creature *pAuriaya = me->GetCreature(*me, pInstance->GetGuidData(DATA_AURIAYA)))
+            if (instance)
+                if (Creature *pAuriaya = me->GetCreature(*me, instance->GetGuidData(DATA_AURIAYA)))
                     pAuriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
         }
     };
@@ -496,12 +496,12 @@ public:
     {
         npc_seeping_triggerAI(Creature *pCreature) : Scripted_NoMovementAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
             me->SetDisplayId(11686);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -510,7 +510,7 @@ public:
     
         void UpdateAI(uint32 uiDiff)
         {
-            if (pInstance && pInstance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
+            if (instance && instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
                 me->DespawnOrUnsummon();
         }
     };

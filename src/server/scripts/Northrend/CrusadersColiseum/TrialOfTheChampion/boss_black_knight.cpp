@@ -402,7 +402,7 @@ public:
             uiAttackTimer = 3500;
             uiLeapTimer = 1000;
 
-            if (Creature* knight = me->GetCreature(*me, instance->GetData64(DATA_BLACK_KNIGHT)))
+            if (Creature* knight = me->GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
                 knight->AI()->JustSummoned(me);
         }
 
@@ -471,7 +471,7 @@ public:
             switch (id)
             {
                 case 13:
-                    if (Creature* announcer = me->GetCreature(*me, instance->GetData64(DATA_ANNOUNCER)))
+                    if (Creature* announcer = me->GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
                         me->SetFacingToObject(announcer);
 
                     if (Unit* blackKnight = _vehicleKit->GetPassenger(0))

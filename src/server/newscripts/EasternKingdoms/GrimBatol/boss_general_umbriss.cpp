@@ -78,10 +78,10 @@ class boss_general_umbriss : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             EventMap events;
             SummonList summons;
@@ -89,18 +89,18 @@ class boss_general_umbriss : public CreatureScript
 
             void Reset()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 bEnrage = false;
                 summons.DespawnAll();
                 events.Reset();
-                pInstance->SetData(DATA_GENERAL_UMBRISS, NOT_STARTED);
+                instance->SetData(DATA_GENERAL_UMBRISS, NOT_STARTED);
             }
 
             void EnterCombat(Unit* pWho)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 events.ScheduleEvent(EVENT_ADDS, 30000);
@@ -108,16 +108,16 @@ class boss_general_umbriss : public CreatureScript
                 events.ScheduleEvent(EVENT_BLEEDING_WOUND, 5000);
                 events.ScheduleEvent(EVENT_BLITZ, 23000);
                 Talk(SAY_AGGRO);
-                pInstance->SetData(DATA_GENERAL_UMBRISS, IN_PROGRESS);
+                instance->SetData(DATA_GENERAL_UMBRISS, IN_PROGRESS);
             }
 
             void JustDied(Unit* pKiller)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
                 
                 summons.DespawnAll();
-                pInstance->SetData(DATA_GENERAL_UMBRISS, DONE);
+                instance->SetData(DATA_GENERAL_UMBRISS, DONE);
             }
 
             void KilledUnit(Unit* /*victim*/)
@@ -145,7 +145,7 @@ class boss_general_umbriss : public CreatureScript
 
             void UpdateAI(uint32 uiDiff)
             {
-                if (!pInstance || !UpdateVictim())
+                if (!instance || !UpdateVictim())
                     return;
 
                 if (me->GetDistance(me->GetHomePosition()) > 60.0f)

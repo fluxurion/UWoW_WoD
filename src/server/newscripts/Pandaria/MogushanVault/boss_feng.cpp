@@ -148,10 +148,10 @@ class boss_feng : public CreatureScript
         {
             boss_fengAI(Creature* creature) : BossAI(creature, DATA_FENG)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             bool phaseone, phasetwo, phasethree;
             uint8 newphase;
             uint8 actualPhase;
@@ -169,22 +169,22 @@ class boss_feng : public CreatureScript
                 actualPhase = PHASE_NONE;
                 dotSpellId = 0;
                 targetGuid.Clear();
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(115811);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(115972);
+                instance->DoRemoveAurasDueToSpellOnPlayers(115811);
+                instance->DoRemoveAurasDueToSpellOnPlayers(115972);
 
                 for (uint8 i = 0; i < 4; ++i)
                     me->RemoveAurasDueToSpell(fengVisualId[i]);
 
-                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetGuidData(statueEntryInOrder[actualPhase - 1])))
+                if (GameObject* oldStatue = instance->instance->GetGameObject(instance->GetGuidData(statueEntryInOrder[actualPhase - 1])))
                 {
                     oldStatue->SetLootState(GO_READY);
                     oldStatue->UseDoorOrButton();
                 }
 
-                if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_INVERSION)))
+                if (GameObject* inversionGob = instance->instance->GetGameObject(instance->GetGuidData(GOB_INVERSION)))
                     inversionGob->Respawn();
 
-                if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_CANCEL)))
+                if (GameObject* cancelGob = instance->instance->GetGameObject(instance->GetGuidData(GOB_CANCEL)))
                     cancelGob->Respawn();
             }
 
@@ -219,13 +219,13 @@ class boss_feng : public CreatureScript
             void JustDied(Unit* attacker)
             {
                 _JustDied();
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(115811);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(115972);
+                instance->DoRemoveAurasDueToSpellOnPlayers(115811);
+                instance->DoRemoveAurasDueToSpellOnPlayers(115972);
 
-                if (GameObject* inversionGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_INVERSION)))
+                if (GameObject* inversionGob = instance->instance->GetGameObject(instance->GetGuidData(GOB_INVERSION)))
                     inversionGob->Delete();
 
-                if (GameObject* cancelGob = pInstance->instance->GetGameObject(pInstance->GetGuidData(GOB_CANCEL)))
+                if (GameObject* cancelGob = instance->instance->GetGameObject(instance->GetGuidData(GOB_CANCEL)))
                     cancelGob->Delete();
             }
 
@@ -261,13 +261,13 @@ class boss_feng : public CreatureScript
                 }
 
                 // Desactivate old statue and enable the new one
-                if (GameObject* oldStatue = pInstance->instance->GetGameObject(pInstance->GetGuidData(statueEntryInOrder[actualPhase - 1])))
+                if (GameObject* oldStatue = instance->instance->GetGameObject(instance->GetGuidData(statueEntryInOrder[actualPhase - 1])))
                 {
                     oldStatue->SetLootState(GO_READY);
                     oldStatue->UseDoorOrButton();
                 }
 
-                if (GameObject* newStatue = pInstance->instance->GetGameObject(pInstance->GetGuidData(statueEntryInOrder[newPhase - 1])))
+                if (GameObject* newStatue = instance->instance->GetGameObject(instance->GetGuidData(statueEntryInOrder[newPhase - 1])))
                 {
                     newStatue->SetLootState(GO_READY);
                     newStatue->UseDoorOrButton();
@@ -317,7 +317,7 @@ class boss_feng : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32 &damage)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 if (HealthBelowPct(95) && !phaseone)
@@ -478,11 +478,11 @@ class mob_lightning_fist : public CreatureScript
         {
             mob_lightning_fistAI(Creature* creature) : ScriptedAI(creature)
             {
-                InstanceScript* pInstance = creature->GetInstanceScript();
+                InstanceScript* instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 unsummon;
             
@@ -568,8 +568,8 @@ class mob_wild_spark : public CreatureScript
                     return;
 
                 if (id == 1)
-                    if (InstanceScript* pInstance = me->GetInstanceScript())
-                        if (Creature* feng = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_FENG)))
+                    if (InstanceScript* instance = me->GetInstanceScript())
+                        if (Creature* feng = instance->instance->GetCreature(instance->GetGuidData(NPC_FENG)))
                         {
                             feng->AI()->DoAction(ACTION_SPARK);
                             me->DespawnOrUnsummon();

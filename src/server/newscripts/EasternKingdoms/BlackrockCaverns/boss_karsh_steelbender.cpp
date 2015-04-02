@@ -49,10 +49,10 @@ class boss_karsh_steelbender : public CreatureScript
             {
 			    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-			    pInstance = c->GetInstanceScript();
+			    instance = c->GetInstanceScript();
             }
      
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 		    EventMap events;
 		    bool bHeat;
 
@@ -62,8 +62,8 @@ class boss_karsh_steelbender : public CreatureScript
 			    events.Reset();
 			    DoCast(me, SPELL_QUICKSILVER_ARMOR);
 			    bHeat = false;
-                if (pInstance)
-                    pInstance->SetData(DATA_KARSH, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_KARSH, NOT_STARTED);
             }
 
 
@@ -73,8 +73,8 @@ class boss_karsh_steelbender : public CreatureScript
 			    events.ScheduleEvent(EVENT_HEAT_ARMOR, 1000);
 			    Talk(SAY_AGGRO);
                 DoZoneInCombat();
-                if (pInstance)
-                    pInstance->SetData(DATA_KARSH, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_KARSH, IN_PROGRESS);
             }
      
             void UpdateAI(uint32 diff)
@@ -128,8 +128,8 @@ class boss_karsh_steelbender : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
 			    Talk(SAY_DEATH);
-                if (pInstance)
-                    pInstance->SetData(DATA_KARSH, DONE);
+                if (instance)
+                    instance->SetData(DATA_KARSH, DONE);
             }
      
             void KilledUnit(Unit * victim)

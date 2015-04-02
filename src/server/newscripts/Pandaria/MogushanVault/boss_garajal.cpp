@@ -76,10 +76,10 @@ class boss_garajal : public CreatureScript
         {
             boss_garajalAI(Creature* creature) : BossAI(creature, DATA_GARAJAL)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             ObjectGuid voodooTargets[4];
             uint32 checkvictim;
 
@@ -88,8 +88,8 @@ class boss_garajal : public CreatureScript
                 _Reset();
                 me->RemoveAllAuras();
                 checkvictim = 0;
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
 
                 for (uint8 n = 0; n < 4; n++) 
                     voodooTargets[n].Clear();
@@ -131,8 +131,8 @@ class boss_garajal : public CreatureScript
             void JustDied(Unit* attacker)
             {
                 _JustDied();
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
             }
 
             void DamageTaken(Unit* attacker, uint32 &damage)
@@ -205,8 +205,8 @@ class boss_garajal : public CreatureScript
                         }
                         case EVENT_VOODOO_DOLL:
                         {
-                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
-                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
 
                             uint8 mobCount = Is25ManRaid() ? 4: 3;
                             for (uint8 i = 0; i < mobCount; ++i)
@@ -267,8 +267,8 @@ class boss_garajal : public CreatureScript
                                 }
                                 me->getThreatManager().resetAllAggro();
                             }
-                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
-                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
                             events.ScheduleEvent(EVENT_VOODOO_DOLL, 5000);
                             events.ScheduleEvent(EVENT_BANISHMENT, 90000);
                             break;
@@ -297,10 +297,10 @@ class mob_spirit_totem : public CreatureScript
         {
             mob_spirit_totemAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -340,8 +340,8 @@ class mob_spirit_totem : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance)
-                    if (pInstance->GetBossState(DATA_GARAJAL) != IN_PROGRESS)
+                if (instance)
+                    if (instance->GetBossState(DATA_GARAJAL) != IN_PROGRESS)
                         me->DespawnOrUnsummon();
             }
         };
@@ -361,10 +361,10 @@ class mob_shadowy_minion : public CreatureScript
         {
             mob_shadowy_minionAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             ObjectGuid spiritGuid;
             EventMap events;
@@ -408,8 +408,8 @@ class mob_shadowy_minion : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance)
-                    if (pInstance->GetBossState(DATA_GARAJAL) != IN_PROGRESS)
+                if (instance)
+                    if (instance->GetBossState(DATA_GARAJAL) != IN_PROGRESS)
                         me->DespawnOrUnsummon();
 
                 events.Update(diff);
@@ -453,10 +453,10 @@ class mob_soul_cutter : public CreatureScript
         {
             mob_soul_cutterAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {}
@@ -479,8 +479,8 @@ class mob_soul_cutter : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance)
-                    if (pInstance->GetBossState(DATA_GARAJAL) != IN_PROGRESS)
+                if (instance)
+                    if (instance->GetBossState(DATA_GARAJAL) != IN_PROGRESS)
                         me->DespawnOrUnsummon();
 
                 DoMeleeAttackIfReady();

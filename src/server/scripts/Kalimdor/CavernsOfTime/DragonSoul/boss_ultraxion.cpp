@@ -185,15 +185,15 @@ class boss_ultraxion: public CreatureScript
             {
                 BossAI::EnterEvadeMode();
                 phase = 0;
-                if (InstanceScript* pInstance = me->GetInstanceScript())
-                    pInstance->SetBossState(DATA_ULTRAXION, FAIL);
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    instance->SetBossState(DATA_ULTRAXION, FAIL);
             }
 
             void JustReachedHome()
             {
                 if (me->isAlive())
-                    if (InstanceScript* pInstance = me->GetInstanceScript())
-                        if (pInstance->GetBossState(DATA_ULTRAXION) == FAIL)
+                    if (InstanceScript* instance = me->GetInstanceScript())
+                        if (instance->GetBossState(DATA_ULTRAXION) == FAIL)
                             events.ScheduleEvent(EVENT_WIPE_1, 1000);
             }
 
@@ -328,16 +328,16 @@ class boss_ultraxion: public CreatureScript
                 switch (GetDifficultyID())
                 {
                     case DIFFICULTY_10_N:
-                        instance->DoRespawnGameObject(instance->GetData64(DATA_LESSER_CACHE_10N), DAY);
+                        instance->DoRespawnGameObject(instance->GetGuidData(DATA_LESSER_CACHE_10N), DAY);
                         break;
                     case DIFFICULTY_25_N:
-                        instance->DoRespawnGameObject(instance->GetData64(DATA_LESSER_CACHE_25N), DAY);
+                        instance->DoRespawnGameObject(instance->GetGuidData(DATA_LESSER_CACHE_25N), DAY);
                         break;
                     case DIFFICULTY_10_HC:
-                        instance->DoRespawnGameObject(instance->GetData64(DATA_LESSER_CACHE_10H), DAY);
+                        instance->DoRespawnGameObject(instance->GetGuidData(DATA_LESSER_CACHE_10H), DAY);
                         break;
                     case DIFFICULTY_25_HC:
-                        instance->DoRespawnGameObject(instance->GetData64(DATA_LESSER_CACHE_25H), DAY);
+                        instance->DoRespawnGameObject(instance->GetGuidData(DATA_LESSER_CACHE_25H), DAY);
                         break;
                 }
 
@@ -382,8 +382,8 @@ class boss_ultraxion: public CreatureScript
                         case EVENT_END_TALK:
                             phase = 0;
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-                            if (InstanceScript* pInstance = me->GetInstanceScript())
-                                pInstance->SetData(DATA_ULTRAXION_TRASH, DONE);
+                            if (InstanceScript* instance = me->GetInstanceScript())
+                                instance->SetData(DATA_ULTRAXION_TRASH, DONE);
                             break;
                         case EVENT_WIPE_1:
                             if (Creature* pYsera = me->FindNearestCreature(NPC_YSERA_THE_AWAKENED, 300.0f))

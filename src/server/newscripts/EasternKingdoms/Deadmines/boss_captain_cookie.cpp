@@ -248,10 +248,10 @@ class npc_captain_cookie_good_food : public CreatureScript
 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            InstanceScript* pInstance = pCreature->GetInstanceScript();
-            if (!pInstance)
+            InstanceScript* instance = pCreature->GetInstanceScript();
+            if (!instance)
                 return true;
-            if (pInstance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
+            if (instance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
                 return true;
 
             pPlayer->CastSpell(pPlayer, SPELL_SETIATED, true);
@@ -264,7 +264,7 @@ class npc_captain_cookie_good_food : public CreatureScript
         {
             npc_captain_cookie_good_foodAI(Creature* pCreature) : ScriptedAI(pCreature) 
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
     
             void JustDied(Unit* killer)
@@ -274,15 +274,15 @@ class npc_captain_cookie_good_food : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
-                if (pInstance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
 
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
      
         };
 };
@@ -299,10 +299,10 @@ class npc_captain_cookie_bad_food : public CreatureScript
      
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            InstanceScript* pInstance = pCreature->GetInstanceScript();
-            if (!pInstance)
+            InstanceScript* instance = pCreature->GetInstanceScript();
+            if (!instance)
                 return true;
-            if (pInstance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
+            if (instance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
                 return true;
 
             pPlayer->CastSpell(pPlayer, SPELL_NAUSEATED, true);
@@ -315,7 +315,7 @@ class npc_captain_cookie_bad_food : public CreatureScript
         {
             npc_captain_cookie_bad_foodAI(Creature* pCreature) : ScriptedAI(pCreature) 
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
             void JustDied(Unit* killer)
@@ -330,14 +330,14 @@ class npc_captain_cookie_bad_food : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
-                if (pInstance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_CAPTAIN) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
         };
 };
 

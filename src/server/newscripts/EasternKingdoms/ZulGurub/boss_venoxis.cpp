@@ -265,11 +265,11 @@ class npc_venoxis_bloodvenom : public CreatureScript
             {
                 me->SetSpeed(MOVE_RUN, 0.3f);
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 DoCast(me, SPELL_BLOODVENOM_DUMMY, true);
             }
             
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             bool bMove;
             uint32 moveTimer;
 
@@ -287,7 +287,7 @@ class npc_venoxis_bloodvenom : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance || pInstance->GetBossState(DATA_VENOXIS) != IN_PROGRESS)
+                if (!instance || instance->GetBossState(DATA_VENOXIS) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;
@@ -325,11 +325,11 @@ class npc_venoxis_venomous_effusion_stalker : public CreatureScript
             {
                 me->SetSpeed(MOVE_RUN, 0.3f);
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 DoCast(me, SPELL_VENOMOUS_EFFUSION, true);
             }
             
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint8 side;
             uint32 moveTimer;
             uint8 waypoint;
@@ -362,7 +362,7 @@ class npc_venoxis_venomous_effusion_stalker : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance || pInstance->GetBossState(DATA_VENOXIS) != IN_PROGRESS)
+                if (!instance || instance->GetBossState(DATA_VENOXIS) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;
@@ -395,16 +395,16 @@ class npc_venoxis_venomous_effusion : public CreatureScript
             npc_venoxis_venomous_effusionAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
             {
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 //DoCast(me, SPELL_VENOMOUS_EFFUSION_DUMMY, true);
                 //DoCast(me, SPELL_VENOMOUS_EFFUSION_AURA, true);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance || pInstance->GetBossState(DATA_VENOXIS) != IN_PROGRESS)
+                if (!instance || instance->GetBossState(DATA_VENOXIS) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;

@@ -327,13 +327,13 @@ class npc_corrupted_sphere : public CreatureScript
         {
             npc_corrupted_sphereAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             float newx, lastx, newy, lasty;
 
@@ -347,21 +347,21 @@ class npc_corrupted_sphere : public CreatureScript
             {
                 if (damage >= me->GetHealth())
                 {
-                    if (pInstance)
-                        CallRaDenAndUseSphere(pInstance, me, me->GetEntry(), true);
+                    if (instance)
+                        CallRaDenAndUseSphere(instance, me, me->GetEntry(), true);
                 }
             }
             
             void MoveToRaDen()
             {
-                if (me->ToTempSummon() && pInstance)
+                if (me->ToTempSummon() && instance)
                 {
                     if (Unit* raden = me->ToTempSummon()->GetSummoner())
                     {
                         if (raden->isAlive())
                         {
                             if (me->GetDistance(raden) <= 5.0f)
-                                CallRaDenAndUseSphere(pInstance, me, me->GetEntry(), false);
+                                CallRaDenAndUseSphere(instance, me, me->GetEntry(), false);
                             else
                             {
                                 float x, y, z;
@@ -418,11 +418,11 @@ class npc_sanguine_horror : public CreatureScript
         {
             npc_sanguine_horrorAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -474,10 +474,10 @@ class npc_crackling_stalker : public CreatureScript
         {
             npc_crackling_stalkerAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             bool done;
 

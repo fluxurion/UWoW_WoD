@@ -7016,8 +7016,8 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 if (AttributesCustomEx8 & SPELL_ATTR8_BATTLE_RESURRECTION)
                 {
-                    if (InstanceScript* pInstance = m_caster->GetInstanceScript())
-                        if (!pInstance->GetResurectSpell())
+                    if (InstanceScript* instance = m_caster->GetInstanceScript())
+                        if (!instance->GetResurectSpell())
                             return SPELL_FAILED_IN_COMBAT_RES_LIMIT_REACHED;
                 }
                 break;

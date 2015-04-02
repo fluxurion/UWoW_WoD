@@ -90,10 +90,10 @@ class boss_erunak_stonespeaker : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             SummonList summons;
 
@@ -104,8 +104,8 @@ class boss_erunak_stonespeaker : public CreatureScript
                 bPhase = false;
                 events.Reset();
                 summons.DespawnAll();
-                if (pInstance)
-                    if (pInstance->GetBossState(DATA_MINDBENDER_GHURSHA) == DONE || bPhase)
+                if (instance)
+                    if (instance->GetBossState(DATA_MINDBENDER_GHURSHA) == DONE || bPhase)
                     {
                         me->setFaction(35);
                         me->RemoveAllAuras();
@@ -114,8 +114,8 @@ class boss_erunak_stonespeaker : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (pInstance)
-                    if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MINDBENDER_GHURSHA)))
+                if (instance)
+                    if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MINDBENDER_GHURSHA)))
                         pGhursha->AI()->Talk(SAY_KILL);
             }
 
@@ -135,8 +135,8 @@ class boss_erunak_stonespeaker : public CreatureScript
                 events.ScheduleEvent(EVENT_EMBERSTRIKE, 11000);
                 events.ScheduleEvent(EVENT_LAVA_BOLT, 13000);
                 events.ScheduleEvent(EVENT_MAGMA_SPLASH, 6000);
-                if (pInstance)
-                    pInstance->SetBossState(DATA_MINDBENDER_GHURSHA, IN_PROGRESS);
+                if (instance)
+                    instance->SetBossState(DATA_MINDBENDER_GHURSHA, IN_PROGRESS);
             }
 
             void JustSummoned(Creature* summon)
@@ -161,9 +161,9 @@ class boss_erunak_stonespeaker : public CreatureScript
                     events.Reset();
                     me->setFaction(35);
                     EnterEvadeMode();
-                    if (pInstance)
+                    if (instance)
                     {
-                        if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_MINDBENDER_GHURSHA)))
+                        if (Creature* pGhursha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MINDBENDER_GHURSHA)))
                             pGhursha->AI()->DoAction(ACTION_GHURSHA_START);
                     }
                     return;

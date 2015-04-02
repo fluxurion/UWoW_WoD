@@ -570,14 +570,14 @@ public:
     {
         npc_thorim_pre_phaseAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->setFaction(14);
             for (uint8 i = 0; i < 6; ++i)
                 if (me->GetEntry() == PRE_PHASE_ADD[i])
                     id = PreAdds(i);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         PreAdds id;
         uint32 PrimaryTimer;
         uint32 SecondaryTimer;
@@ -590,7 +590,7 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (Creature* pThorim = me->GetCreature(*me, pInstance->GetGuidData(DATA_THORIM)))
+            if (Creature* pThorim = me->GetCreature(*me, instance->GetGuidData(DATA_THORIM)))
                 pThorim->AI()->DoAction(INCREASE_PREADDS_COUNT);
         }
 
@@ -637,7 +637,7 @@ public:
     {
         npc_thorim_arena_phaseAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->setFaction(14);
             for (uint8 i = 0; i < 7; ++i)
                 if (me->GetEntry() == ARENA_PHASE_ADD[i])
@@ -646,7 +646,7 @@ public:
             IsInArena = IN_ARENA(me);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         ArenaAdds id;
         uint32 PrimaryTimer;
         uint32 SecondaryTimer;
@@ -749,12 +749,12 @@ public:
     {
         npc_runic_colossusAI(Creature *pCreature) : ScriptedAI(pCreature), summons(me)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         SummonList summons;
         
         uint32 BarrierTimer;
@@ -770,8 +770,8 @@ public:
             me->GetMotionMaster()->MoveTargetedHome();
 
             // Runed Door closed
-            if (pInstance)
-                pInstance->SetData(DATA_RUNIC_DOOR, GO_STATE_READY);
+            if (instance)
+                instance->SetData(DATA_RUNIC_DOOR, GO_STATE_READY);
             
             // Spawn trashes
             summons.DespawnAll();
@@ -787,8 +787,8 @@ public:
         void JustDied(Unit* /*victim*/)
         {
             // Runed Door opened
-            if (pInstance)
-                pInstance->SetData(DATA_RUNIC_DOOR, GO_STATE_ACTIVE);
+            if (instance)
+                instance->SetData(DATA_RUNIC_DOOR, GO_STATE_ACTIVE);
         }
 
         void UpdateAI(uint32 diff)
@@ -844,12 +844,12 @@ public:
     {
         npc_ancient_rune_giantAI(Creature *pCreature) : ScriptedAI(pCreature), summons(me)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         SummonList summons;
         
         uint32 StompTimer;
@@ -863,8 +863,8 @@ public:
             me->GetMotionMaster()->MoveTargetedHome();
 
             // Stone Door closed
-            if (pInstance)
-                pInstance->SetData(DATA_STONE_DOOR, GO_STATE_READY);
+            if (instance)
+                instance->SetData(DATA_STONE_DOOR, GO_STATE_READY);
             
             // Spawn trashes
             summons.DespawnAll();
@@ -885,8 +885,8 @@ public:
         void JustDied(Unit* /*victim*/)
         {
             // Stone Door opened
-            if (pInstance)
-                pInstance->SetData(DATA_STONE_DOOR, GO_STATE_ACTIVE);
+            if (instance)
+                instance->SetData(DATA_STONE_DOOR, GO_STATE_ACTIVE);
         }
 
         void UpdateAI(uint32 diff)
@@ -930,11 +930,11 @@ public:
     {
         npc_sifAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 FrostTimer;
         uint32 VolleyTimer;
         uint32 BlizzardTimer;

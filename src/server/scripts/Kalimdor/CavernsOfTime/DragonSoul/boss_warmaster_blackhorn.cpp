@@ -1340,7 +1340,7 @@ class npc_warmaster_blackhorn_skyfire: public CreatureScript
             npc_warmaster_blackhorn_skyfireAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {             
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
                 bLowHealth = false;
                 bHealth = false;
                 me->SetMaxHealth(RAID_MODE(4000000, 10000000, 6000000, 15000000));
@@ -1370,18 +1370,18 @@ class npc_warmaster_blackhorn_skyfire: public CreatureScript
                 if (Creature* pSwayze = me->FindNearestCreature(NPC_SKY_CAPTAIN_SWAYZE, 200.0f))
                     pSwayze->AI()->DoAction(ACTION_END_BATTLE);
 
-                if (pInstance)
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                if (instance)
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (pInstance)
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                if (instance)
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             }
             
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             bool bLowHealth;
             bool bHealth;
         };
@@ -1397,23 +1397,23 @@ class npc_dragon_soul_sky_captain_swayze : public CreatureScript
             if (pPlayer->isInCombat())
                 return true;
 
-            if (InstanceScript* pInstance = pCreature->GetInstanceScript())
+            if (InstanceScript* instance = pCreature->GetInstanceScript())
             {
-                if (pInstance->IsEncounterInProgress())
+                if (instance->IsEncounterInProgress())
                     return true;
 
-                if (pInstance->GetBossState(DATA_ULTRAXION) == !DONE)
+                if (instance->GetBossState(DATA_ULTRAXION) == !DONE)
                     return true;
 
-                if (pInstance->GetBossState(DATA_ULTRAXION) == DONE)
+                if (instance->GetBossState(DATA_ULTRAXION) == DONE)
                 {
                     if (pCreature->GetPositionZ() > 200.0f)
                         pPlayer->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_GUNSHIP, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    else if (pCreature->GetPositionZ() < 200.0f && pPlayer->GetTeam() == HORDE && pInstance->GetBossState(DATA_BLACKHORN) != DONE)
+                    else if (pCreature->GetPositionZ() < 200.0f && pPlayer->GetTeam() == HORDE && instance->GetBossState(DATA_BLACKHORN) != DONE)
                         pPlayer->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_GUNSHIP, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    else if (pCreature->GetPositionZ() < 200.0f && pPlayer->GetTeam() == ALLIANCE && pInstance->GetBossState(DATA_BLACKHORN) != DONE)
+                    else if (pCreature->GetPositionZ() < 200.0f && pPlayer->GetTeam() == ALLIANCE && instance->GetBossState(DATA_BLACKHORN) != DONE)
                         pPlayer->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_GUNSHIP, 2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    else if (pCreature->GetPositionZ() < 200.0f && pInstance->GetBossState(DATA_SPINE) != DONE)
+                    else if (pCreature->GetPositionZ() < 200.0f && instance->GetBossState(DATA_SPINE) != DONE)
                         pPlayer->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_GUNSHIP, 3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
                     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
@@ -1433,16 +1433,16 @@ class npc_dragon_soul_sky_captain_swayze : public CreatureScript
             if (pPlayer->isInCombat())
                 return true;
 
-            if (InstanceScript* pInstance = pCreature->GetInstanceScript())
+            if (InstanceScript* instance = pCreature->GetInstanceScript())
             {
-                if (pInstance->IsEncounterInProgress())
+                if (instance->IsEncounterInProgress())
                     return true;
 
-                if (pInstance->GetBossState(DATA_ULTRAXION) == DONE)
+                if (instance->GetBossState(DATA_ULTRAXION) == DONE)
                 {
                     if (action == GOSSIP_ACTION_INFO_DEF + 1)
                     {
-                        Map::PlayerList const &plrList = pInstance->instance->GetPlayers();
+                        Map::PlayerList const &plrList = instance->instance->GetPlayers();
                         if (!plrList.isEmpty())
                             for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
                                 if (Player* pPlayer = i->getSource())
@@ -1458,11 +1458,11 @@ class npc_dragon_soul_sky_captain_swayze : public CreatureScript
                     }
                     else if (action == GOSSIP_ACTION_INFO_DEF + 3)
                     {
-                        pInstance->SetBossState(DATA_SPINE, IN_PROGRESS);
+                        instance->SetBossState(DATA_SPINE, IN_PROGRESS);
                         if (Creature* pDeathwing = pCreature->SummonCreature(NPC_SPINE_OF_DEATHWING, customPos[3]))
                             pDeathwing->AI()->DoAction(1); // ACTION_START_BATTLE
-                        pInstance->DoStartMovie(74);
-                        Map::PlayerList const &plrList = pInstance->instance->GetPlayers();
+                        instance->DoStartMovie(74);
+                        Map::PlayerList const &plrList = instance->instance->GetPlayers();
                         if (!plrList.isEmpty())
                             for (Map::PlayerList::const_iterator i = plrList.begin(); i != plrList.end(); ++i)
                                 if (Player* pPlayer = i->getSource())

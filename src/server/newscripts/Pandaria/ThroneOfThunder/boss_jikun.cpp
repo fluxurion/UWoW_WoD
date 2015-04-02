@@ -131,8 +131,8 @@ class go_ji_kun_feather : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
-            InstanceScript* pInstance = (InstanceScript*)go->GetInstanceScript();
-            if (!pInstance)
+            InstanceScript* instance = (InstanceScript*)go->GetInstanceScript();
+            if (!instance)
                 return false;
 
             if (player->GetPositionZ() > -7.0f) //on platform

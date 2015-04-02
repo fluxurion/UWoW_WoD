@@ -209,10 +209,10 @@ class npc_springvale_wailing_guardsman : public CreatureScript
         {
             npc_springvale_wailing_guardsmanAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript *instance;
             EventMap events;
 
             void Reset()
@@ -250,8 +250,8 @@ class npc_springvale_wailing_guardsman : public CreatureScript
                             events.ScheduleEvent(EVENT_SCREAMS_OF_THE_PAST, urand(15000, 20000));
                             break;
                         case EVENT_UNHOLY_EMPOWERMENT:
-                            if (pInstance)
-                                if (Creature* springvale = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SPRINGVALE)))
+                            if (instance)
+                                if (Creature* springvale = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SPRINGVALE)))
                                     DoCast(springvale, SPELL_UNHOLY_EMPOWERMENT);
                             events.ScheduleEvent(EVENT_UNHOLY_EMPOWERMENT, 15000);
                             break;
@@ -275,10 +275,10 @@ class npc_springvale_tormented_officer : public CreatureScript
         {
             npc_springvale_tormented_officerAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript *instance;
             EventMap events;
 
             void Reset()
@@ -314,8 +314,8 @@ class npc_springvale_tormented_officer : public CreatureScript
                             //todo: реализовать спелл
                             break;
                         case EVENT_UNHOLY_EMPOWERMENT:
-                            if (pInstance)
-                                if (Creature* springvale = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_SPRINGVALE)))
+                            if (instance)
+                                if (Creature* springvale = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SPRINGVALE)))
                                     DoCast(springvale, SPELL_UNHOLY_EMPOWERMENT);
                             events.ScheduleEvent(EVENT_UNHOLY_EMPOWERMENT, 15000);
                             break;

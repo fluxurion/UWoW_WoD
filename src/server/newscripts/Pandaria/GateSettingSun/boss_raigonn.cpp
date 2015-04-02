@@ -94,11 +94,11 @@ class boss_raigonn : public CreatureScript
         {
             boss_raigonnAI(Creature* creature) : BossAI(creature, DATA_RAIGONN)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetVisible(false);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint8  eventChargeProgress;
             uint32 eventChargeTimer;
@@ -129,7 +129,7 @@ class boss_raigonn : public CreatureScript
                         passenger->setFaction(35);
                         passenger->SetFullHealth();
                         passenger->AddUnitState(UNIT_STATE_UNATTACKABLE);
-                        pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, passenger);
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, passenger);
                         return;
                     }
 
@@ -137,8 +137,8 @@ class boss_raigonn : public CreatureScript
                     {
                         weakSpot->_EnterVehicle(meVehicle, 1);
 
-                        if (pInstance)
-                            pInstance->SetGuidData(NPC_WEAK_SPOT, weakSpot->GetGUID());
+                        if (instance)
+                            instance->SetGuidData(NPC_WEAK_SPOT, weakSpot->GetGUID());
 
                         if (Vehicle* vehicleWeakSpot = weakSpot->GetVehicleKit())
                             vehicleWeakSpot->SetCanBeCastedByPassengers(true);
@@ -154,8 +154,8 @@ class boss_raigonn : public CreatureScript
                 if (me->GetDistance(who) > 30.0f)
                     return;
 
-                if (pInstance)
-                    if (pInstance->GetBossState(DATA_RIMOK) != DONE)
+                if (instance)
+                    if (instance->GetBossState(DATA_RIMOK) != DONE)
                         return;
 
                 Player* whoPlayer = who->ToPlayer();
@@ -174,9 +174,9 @@ class boss_raigonn : public CreatureScript
                 events.ScheduleEvent(EVENT_SUMMON_SWARM_BRINGER, urand(15000, 30000));
                 events.ScheduleEvent(EVENT_CHECK_WIPE, 1000);
 
-                pInstance->SetBossState(DATA_RAIGONN, IN_PROGRESS);
+                instance->SetBossState(DATA_RAIGONN, IN_PROGRESS);
 
-                if (Creature* weakPoint = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_WEAK_SPOT)))
+                if (Creature* weakPoint = instance->instance->GetCreature(instance->GetGuidData(NPC_WEAK_SPOT)))
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, weakPoint);
                     weakPoint->setFaction(16);
@@ -239,7 +239,7 @@ class boss_raigonn : public CreatureScript
 
           /*  void RemoveWeakSpotPassengers()
             {
-                if (Creature* weakPoint = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_WEAK_SPOT)))
+                if (Creature* weakPoint = instance->instance->GetCreature(instance->GetGuidData(NPC_WEAK_SPOT)))
                 {
                     if (Vehicle* weakVehicle = weakPoint->GetVehicleKit())
                     {
@@ -260,13 +260,13 @@ class boss_raigonn : public CreatureScript
 
             void DoEventCharge()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 if (Phase != PHASE_WEAK_SPOT)
                     return;
 
-                uint32 eventBrasierProgress = pInstance->GetData(DATA_BRASIER_CLICKED);
+                uint32 eventBrasierProgress = instance->GetData(DATA_BRASIER_CLICKED);
                 uint8 baseMovement = eventBrasierProgress != DONE ? 0: 2;
 
                 switch (eventChargeProgress)
@@ -309,8 +309,8 @@ class boss_raigonn : public CreatureScript
                 if (!me->SelectNearestPlayerNotGM(25.0f))
                     return false;
 
-                if (pInstance)
-                    if (pInstance->GetData(DATA_RIMOK) != DONE)
+                if (instance)
+                    if (instance->GetData(DATA_RIMOK) != DONE)
                         return false;
 
                 inFight = true;
@@ -319,7 +319,7 @@ class boss_raigonn : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 events.Update(diff);
@@ -331,7 +331,7 @@ class boss_raigonn : public CreatureScript
                     DoAction(ACTION_WEAK_SPOT_DEAD);
                     break;
                 case EVENT_CHECK_WIPE:
-                    if (pInstance->IsWipe())
+                    if (instance->IsWipe())
                         Reset();
                     else
                         events.ScheduleEvent(EVENT_CHECK_WIPE, 1000);
@@ -425,10 +425,10 @@ class npc_raigonn_weak_spot : public CreatureScript
         {
             npc_raigonn_weak_spotAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -438,8 +438,8 @@ class npc_raigonn_weak_spot : public CreatureScript
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
                 if (damage >= me->GetHealth())
-                    if (pInstance)
-                        if (Creature* Raigonn = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_RAIGONN)))
+                    if (instance)
+                        if (Creature* Raigonn = instance->instance->GetCreature(instance->GetGuidData(NPC_RAIGONN)))
                             if (Raigonn->AI())
                                 Raigonn->AI()->DoAction(ACTION_WEAK_SPOT_DEAD);
             }
@@ -460,10 +460,10 @@ class npc_krikthik_protectorat : public CreatureScript
         {
             npc_krikthik_protectoratAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             bool hasCastHiveMind;
 
             void Reset()
@@ -493,10 +493,10 @@ class npc_krikthik_engulfer : public CreatureScript
         {
             npc_krikthik_engulferAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint32 engulfingTimer;
 
             void Reset()
@@ -536,10 +536,10 @@ class npc_krikthik_swarm_bringer : public CreatureScript
         {
             npc_krikthik_swarm_bringerAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint32 swarmTimer;
 
             void Reset()
@@ -586,10 +586,10 @@ class vehicle_artillery : public VehicleScript
         {
             vehicle_artilleryAI(Creature* creature) : ScriptedAI(creature)
             {
-               pInstance = creature->GetInstanceScript();
+               instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint32 launchEventTimer;
 
             void Reset()
@@ -609,7 +609,7 @@ class vehicle_artillery : public VehicleScript
 
                 if (launchEventTimer <= diff)
                 {
-                    if (Creature* weakSpot = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_WEAK_SPOT)))
+                    if (Creature* weakSpot = instance->instance->GetCreature(instance->GetGuidData(NPC_WEAK_SPOT)))
                     {
                         if (weakSpot->GetVehicleKit())
                         {

@@ -563,16 +563,16 @@ class at_et_tyrande : public AreaTriggerScript
             if (pPlayer->IsBeingTeleported() || pPlayer->isBeingLoaded())
                 return true;
 
-            if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+            if (InstanceScript* instance = pPlayer->GetInstanceScript())
             {
-                if (pInstance->GetData(DATA_TYRANDE_EVENT) != IN_PROGRESS && 
-                    pInstance->GetData(DATA_TYRANDE_EVENT) != DONE)
+                if (instance->GetData(DATA_TYRANDE_EVENT) != IN_PROGRESS && 
+                    instance->GetData(DATA_TYRANDE_EVENT) != DONE)
                 {
-                    if (Creature* pTyrande = ObjectAccessor::GetCreature(*pPlayer, pInstance->GetGuidData(DATA_ECHO_OF_TYRANDE)))
+                    if (Creature* pTyrande = ObjectAccessor::GetCreature(*pPlayer, instance->GetGuidData(DATA_ECHO_OF_TYRANDE)))
                     {
                         pTyrande->AI()->Talk(SAY_INTRO_1);
                         pTyrande->AI()->DoAction(ACTION_START_EVENT);
-                        pInstance->SetData(DATA_TYRANDE_EVENT, IN_PROGRESS);
+                        instance->SetData(DATA_TYRANDE_EVENT, IN_PROGRESS);
                     }
                 }
             }

@@ -42,10 +42,10 @@ class mob_cursed_mogu_sculpture : public CreatureScript
         {
             mob_cursed_mogu_sculptureAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             uint32 spiritBoltTimer;
             uint32 groundSlamTimer;
@@ -131,7 +131,7 @@ class mob_enormous_stone_quilen : public CreatureScript
         {
             mob_enormous_stone_quilenAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 prevPosition = 1;
 
                 if (me->GetPositionX() > 3900)
@@ -142,7 +142,7 @@ class mob_enormous_stone_quilen : public CreatureScript
                 me->GetMotionMaster()->MovePoint(prevPosition, me->GetPositionX(), quilenNewY[prevPosition - 1], me->GetPositionZ());
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             uint32 nextMovementTimer;
             uint8 prevPosition;
@@ -243,10 +243,10 @@ class mob_stone_quilen : public CreatureScript
         {
             mob_stone_quilenAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -323,10 +323,10 @@ class mob_zandalari_skullcharger : public CreatureScript
         {
             mob_zandalari_skullchargerAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()

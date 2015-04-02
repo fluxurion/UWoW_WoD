@@ -149,11 +149,11 @@ class npc_amber_monster : public CreatureScript
         {
             npc_amber_monsterAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset(){}
@@ -165,9 +165,9 @@ class npc_amber_monster : public CreatureScript
 
             void JustDied(Unit* killer)
             {
-                if (pInstance)
+                if (instance)
                 {
-                    if (Creature* unsok = me->GetCreature(*me, pInstance->GetGuidData(NPC_UNSOK)))
+                    if (Creature* unsok = me->GetCreature(*me, instance->GetGuidData(NPC_UNSOK)))
                         unsok->AI()->DoAction(ACTION_INTRO_P3);
                 }
             }
@@ -210,14 +210,14 @@ public:
     {
         npc_amberbeam_stalkerAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_SCHOOL_DAMAGE, true);
             me->SetDisplayId(11686);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             me->SetReactState(REACT_PASSIVE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 sum;
 
         void Reset()
@@ -262,11 +262,11 @@ public:
     {
         npc_living_amberAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         bool explose;
 
         void Reset()

@@ -31,10 +31,10 @@ class instance_drak_tharon_keep : public InstanceMapScript
             {
                 SetBossNumber(EncounterCount);
 
-                TrollgoreGUID       = 0;
-                NovosGUID           = 0;
-                KingDredGUID        = 0;
-                TharonJaGUID        = 0;
+                TrollgoreGUID.Clear();
+                NovosGUID.Clear();
+                KingDredGUID.Clear();
+                TharonJaGUID.Clear();
 
                 memset(TrollgoreInvaderSummonerGuids, 0, 3 * sizeof(ObjectGuid));
                 memset(NovosCrystalGUIDs, 0, 4 * sizeof(ObjectGuid));
@@ -121,7 +121,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                     NovosSummonerGUIDs[3] = creature->GetGUID();
             }
 
-            ObjectGuid GetData64(uint32 type)
+            ObjectGuid GetData64(uint32 type) const
             {
                 switch (type)
                 {
@@ -149,7 +149,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                         return NovosSummonerGUIDs[type - DATA_NOVOS_SUMMONER_1];
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void OnUnitDeath(Unit* unit)

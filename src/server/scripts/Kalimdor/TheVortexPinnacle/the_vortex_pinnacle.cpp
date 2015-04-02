@@ -170,9 +170,9 @@ class npc_vortex_pinnacle_slipsteam : public CreatureScript
 
         bool OnGossipHello(Player* pPlayer, Creature* creature)
         {
-            if (InstanceScript* pInstance = creature->GetInstanceScript())
+            if (InstanceScript* instance = creature->GetInstanceScript())
             {
-                if (pInstance->GetBossState(DATA_ALTAIRUS) == DONE)
+                if (instance->GetBossState(DATA_ALTAIRUS) == DONE)
                 {
                     pPlayer->NearTeleportTo(
                         teleportPos[1].GetPositionX(),
@@ -181,7 +181,7 @@ class npc_vortex_pinnacle_slipsteam : public CreatureScript
                         teleportPos[1].GetOrientation());
                     return true;
                 }
-                else if (pInstance->GetBossState(DATA_ERTAN) == DONE)
+                else if (instance->GetBossState(DATA_ERTAN) == DONE)
                 {
                     pPlayer->NearTeleportTo(
                         teleportPos[0].GetPositionX(),
@@ -1135,15 +1135,15 @@ public:
 
     bool OnGossipHello(Player* player, Creature* me)
     {
-        if (InstanceScript* pInstance = me->GetInstanceScript())
+        if (InstanceScript* instance = me->GetInstanceScript())
         {
-            uint32 OrbsCount = pInstance->GetData(DATA_ORB) + 1;
-            pInstance->DoUpdateWorldState(5649, OrbsCount);
-            pInstance->SetData(DATA_ORB, OrbsCount);
+            uint32 OrbsCount = instance->GetData(DATA_ORB) + 1;
+            instance->DoUpdateWorldState(5649, OrbsCount);
+            instance->SetData(DATA_ORB, OrbsCount);
 
             if (OrbsCount == 5)
             {
-                pInstance->DoCastSpellOnPlayers(94756);
+                instance->DoCastSpellOnPlayers(94756);
             }
 
             me->DespawnOrUnsummon();

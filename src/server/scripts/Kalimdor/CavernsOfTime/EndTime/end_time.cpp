@@ -119,7 +119,7 @@ class npc_end_time_image_of_nozdormu : public CreatureScript
                 me->setActive(true);
                 id = 0;
                 bTalk = false;
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void Reset()
@@ -144,12 +144,12 @@ class npc_end_time_image_of_nozdormu : public CreatureScript
                         id = 3;
                         break;
                 }
-                if (pInstance)
+                if (instance)
                 {
-                    if (pInstance->GetData(11 + id) != IN_PROGRESS)
+                    if (instance->GetData(11 + id) != IN_PROGRESS)
                         return;
                     else
-                        pInstance->SetData(11 + id, DONE);
+                        instance->SetData(11 + id, DONE);
                 }
                 bTalk = true;
                 events.ScheduleEvent(EVENT_TALK, 15000);
@@ -185,7 +185,7 @@ class npc_end_time_image_of_nozdormu : public CreatureScript
             bool bTalk;
             uint8 id;
             EventMap events;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
         };
 };
 

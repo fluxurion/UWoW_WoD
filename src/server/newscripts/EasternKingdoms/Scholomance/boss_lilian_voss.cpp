@@ -43,10 +43,10 @@ public:
     {
         boss_lilian_vossAI(Creature* creature) : BossAI(creature, DATA_LILIAN) 
         {
-            InstanceScript* pInstance = creature->GetInstanceScript();
+            InstanceScript* instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 grasp;
         uint32 shiv;
 

@@ -1073,15 +1073,15 @@ class npc_ragnaros_firelands_sulfuras_smash : public CreatureScript
             npc_ragnaros_firelands_sulfuras_smashAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void Reset()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
-                if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_RAGNAROS)))
+                if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
                 {    
                     if (me->GetEntry() == NPC_SULFURAS_SMASH_1)
                     {
@@ -1098,7 +1098,7 @@ class npc_ragnaros_firelands_sulfuras_smash : public CreatureScript
 
             void DoAction(const int32 action)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 if (action == ACTION_LAVA_WAVE)
@@ -1121,11 +1121,11 @@ class npc_ragnaros_firelands_sulfuras_smash : public CreatureScript
             }
 
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void SendLavaWave(Position startpos, Position endpos)
             {
-                if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_RAGNAROS)))
+                if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
                     if (Creature* pLavaWave = pRagnaros->SummonCreature(NPC_LAVA_WAVE, startpos, TEMPSUMMON_TIMED_DESPAWN, 15000))
                     {
                         pLavaWave->CastSpell(pLavaWave, SPELL_LAVA_WAVE_AURA, true);
@@ -1406,7 +1406,7 @@ class npc_ragnaros_firelands_molten_elemental : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 bHit = false;
                 bStart = false;
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void IsSummonedBy(Unit* /*who*/)
@@ -1453,8 +1453,8 @@ class npc_ragnaros_firelands_molten_elemental : public CreatureScript
                     me->SetDisplayId(me->GetNativeDisplayId());
                     me->SetReactState(REACT_AGGRESSIVE);
                     
-                    if (pInstance)
-                        if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_RAGNAROS)))
+                    if (instance)
+                        if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
                             if (Unit* pTarget = pRagnaros->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 AttackStart(pTarget);
                 }
@@ -1466,7 +1466,7 @@ class npc_ragnaros_firelands_molten_elemental : public CreatureScript
             EventMap events;
             bool bHit;
             bool bStart;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
         };
 };
 
@@ -1636,7 +1636,7 @@ class npc_ragnaros_firelands_living_meteor : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
                 me->SetSpeed(MOVE_RUN, 0.6f, true);
             }
 
@@ -1661,8 +1661,8 @@ class npc_ragnaros_firelands_living_meteor : public CreatureScript
                 }
                 else if (who->GetEntry() == NPC_LAVA_WAVE && spellInfo->Id == SPELL_LAVALOGGED)
                 {
-                    if (pInstance)
-                        if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_RAGNAROS)))
+                    if (instance)
+                        if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
                             pRagnaros->AI()->DoAction(ACTION_LAVALOGGED);
                 }
             }
@@ -1715,8 +1715,8 @@ class npc_ragnaros_firelands_living_meteor : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FIXATE:
-                            if (pInstance)
-                                if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_RAGNAROS)))
+                            if (instance)
+                                if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
                                 {
                                     Unit* pTarget = NULL;
                                     pTarget = pRagnaros->AI()->SelectTarget(SELECT_TARGET_RANDOM, 2, 0.0f, true);
@@ -1749,7 +1749,7 @@ class npc_ragnaros_firelands_living_meteor : public CreatureScript
         private:
             EventMap events;
             bool bExplode;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
         };
 };
 
@@ -1768,7 +1768,7 @@ class npc_ragnaros_firelands_cenarius : public CreatureScript
             npc_ragnaros_firelands_cenariusAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void Reset()
@@ -1800,7 +1800,7 @@ class npc_ragnaros_firelands_cenarius : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 events.Update(diff);
@@ -1846,7 +1846,7 @@ class npc_ragnaros_firelands_cenarius : public CreatureScript
 
         private:
             EventMap events;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
         };
 };
 
@@ -1865,7 +1865,7 @@ class npc_ragnaros_firelands_malfurion_stormrage : public CreatureScript
             npc_ragnaros_firelands_malfurion_stormrageAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void IsSummonedBy(Unit* /*who*/)
@@ -1886,7 +1886,7 @@ class npc_ragnaros_firelands_malfurion_stormrage : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 events.Update(diff);
@@ -1916,7 +1916,7 @@ class npc_ragnaros_firelands_malfurion_stormrage : public CreatureScript
 
         private:
             EventMap events;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
         };
 };
 
@@ -1935,7 +1935,7 @@ class npc_ragnaros_firelands_hamuul_runetotem : public CreatureScript
             npc_ragnaros_firelands_hamuul_runetotemAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void IsSummonedBy(Unit* /*who*/)
@@ -1962,7 +1962,7 @@ class npc_ragnaros_firelands_hamuul_runetotem : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 events.Update(diff);
@@ -1975,7 +1975,7 @@ class npc_ragnaros_firelands_hamuul_runetotem : public CreatureScript
                         {
                             uint32 i = urand(0, 275);
                             me->CastSpell(floorPos[i].GetPositionX(), floorPos[i].GetPositionY(), floorPos[i].GetPositionZ(), SPELL_SUMMON_ENTRAPPING_ROOTS, true);
-                            if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_RAGNAROS)))
+                            if (Creature* pRagnaros = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGNAROS)))
                                 pRagnaros->AI()->DoAction(ACTION_EMPOWER_SULFURAS);
                             events.ScheduleEvent(EVENT_ENTRAPPING_ROOTS, 55000);
                             break;
@@ -1991,7 +1991,7 @@ class npc_ragnaros_firelands_hamuul_runetotem : public CreatureScript
 
         private:
             EventMap events;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
         };
 };
 

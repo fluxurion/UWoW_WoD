@@ -274,13 +274,13 @@ class npc_viscous_fluid : public CreatureScript
         {
             npc_viscous_fluidAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -317,9 +317,9 @@ class spell_rimok_saboteur_bombard : public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                 {
-                    if (InstanceScript* pInstance = caster->GetInstanceScript())
+                    if (InstanceScript* instance = caster->GetInstanceScript())
                     {
-                        Map::PlayerList const &PlayerList = pInstance->instance->GetPlayers();
+                        Map::PlayerList const &PlayerList = instance->instance->GetPlayers();
 
                         if (PlayerList.isEmpty())
                             return;

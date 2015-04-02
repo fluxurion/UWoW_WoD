@@ -91,10 +91,10 @@ class boss_drahga_shadowburner : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             SummonList summons;
             uint8 stage;
@@ -105,8 +105,8 @@ class boss_drahga_shadowburner : public CreatureScript
                 summons.DespawnAll();
                 events.Reset();
                 stage = 0;
-                if (pInstance)
-                    pInstance->SetData(DATA_DRAHGA_SHADOWBURNER, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_DRAHGA_SHADOWBURNER, NOT_STARTED);
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
@@ -140,16 +140,16 @@ class boss_drahga_shadowburner : public CreatureScript
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_BURNING_SHADOWBOLT, urand(2000, 5000));
                 events.ScheduleEvent(EVENT_INVOCATION_OF_FLAME, 10000);
-                if (pInstance)
-                    pInstance->SetData(DATA_DRAHGA_SHADOWBURNER, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_DRAHGA_SHADOWBURNER, IN_PROGRESS);
             }
             
             void JustDied(Unit* killer)
             {
                 Talk(SAY_DEATH);
                 summons.DespawnAll();
-                if (pInstance)
-                    pInstance->SetData(DATA_DRAHGA_SHADOWBURNER, DONE);
+                if (instance)
+                    instance->SetData(DATA_DRAHGA_SHADOWBURNER, DONE);
             }
 
             void KilledUnit(Unit* victim)
@@ -241,10 +241,10 @@ class npc_drahga_valiona : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             SummonList summons;
             uint8 stage;
@@ -312,7 +312,7 @@ class npc_drahga_valiona : public CreatureScript
                         me->GetVehicleKit()->RemoveAllPassengers();
                     me->SetCanFly(true);
                     me->GetMotionMaster()->MovePoint(1002, drahgavalionaPos[0]);
-                    if (Creature* drahga = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_DRAHGA_SHADOWBURNER)))
+                    if (Creature* drahga = Unit::GetCreature(*me, instance->GetGuidData(DATA_DRAHGA_SHADOWBURNER)))
                         drahga->RemoveAurasDueToSpell(SPELL_TWILIGHT_PROTECTION);
                     Talk(SAY_LEAVE);
                     return;
@@ -366,17 +366,17 @@ class npc_invocation_of_flame_stalker : public CreatureScript
         {
             npc_invocation_of_flame_stalkerAI(Creature *c) : ScriptedAI(c)
             {
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
             
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             
             void JustSummoned(Creature* summon)
             {
                 switch (summon->GetEntry())
                 {
                 case NPC_INVOKED_FLAMING_SPIRIT:
-                    if (Creature* drahga = Unit::GetCreature(*me, pInstance->GetGuidData(DATA_DRAHGA_SHADOWBURNER)))
+                    if (Creature* drahga = Unit::GetCreature(*me, instance->GetGuidData(DATA_DRAHGA_SHADOWBURNER)))
                         if (Unit* target = drahga->GetAI()->SelectTarget(SELECT_TARGET_RANDOM))
                             summon->AI()->AttackStart(target);
                     break;
@@ -409,10 +409,10 @@ class npc_invoked_flaming_spirit : public CreatureScript
                 me->SetSpeed(MOVE_WALK, 0.8f);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
             
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
@@ -426,10 +426,10 @@ class npc_invoked_flaming_spirit : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
-                if (pInstance->GetData(DATA_DRAHGA_SHADOWBURNER) != IN_PROGRESS)
+                if (instance->GetData(DATA_DRAHGA_SHADOWBURNER) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 DoMeleeAttackIfReady();

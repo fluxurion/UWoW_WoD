@@ -58,10 +58,10 @@ class boss_corla_herald_of_twilight : public CreatureScript
             {
 			    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-			    pInstance = (InstanceScript*)c->GetInstanceScript();
+			    instance = (InstanceScript*)c->GetInstanceScript();
             }
      
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 		    EventMap events;
 		    SummonList summons;
 		    Creature* twilightzealots[3];
@@ -70,7 +70,7 @@ class boss_corla_herald_of_twilight : public CreatureScript
             {
                 events.Reset();
 			    summons.DespawnAll();
-			    if (pInstance)
+			    if (instance)
                 {
                     if (IsHeroic())
 				        for (uint8 i = 0; i < 3; i++)
@@ -79,7 +79,7 @@ class boss_corla_herald_of_twilight : public CreatureScript
 				        for (uint8 i = 1; i < 3; i++)
 					        twilightzealots[i] = me->SummonCreature(NPC_CORLA_TWILIGHT_ZEALOT, twilightzealotPos[i]);
 
-                    pInstance->SetData(DATA_CORLA, NOT_STARTED);
+                    instance->SetData(DATA_CORLA, NOT_STARTED);
                 }
             }
 
@@ -99,8 +99,8 @@ class boss_corla_herald_of_twilight : public CreatureScript
 			    events.ScheduleEvent(EVENT_DARK_COMMAND, urand(6000, 10000));
 			    Talk(SAY_AGGRO);
                 DoZoneInCombat();
-                if (pInstance)
-                    pInstance->SetData(DATA_CORLA, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_CORLA, IN_PROGRESS);
             }
      
             void UpdateAI(uint32 diff)
@@ -138,8 +138,8 @@ class boss_corla_herald_of_twilight : public CreatureScript
             {
 			    summons.DespawnAll();
 			    Talk(SAY_DEATH);
-                if (pInstance)
-                    pInstance->SetData(DATA_CORLA, DONE);
+                if (instance)
+                    instance->SetData(DATA_CORLA, DONE);
             }
      
             void KilledUnit(Unit * victim)

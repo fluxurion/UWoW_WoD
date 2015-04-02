@@ -199,18 +199,18 @@ class npc_setesh_chaos_portal : public CreatureScript
         {
             npc_setesh_chaos_portalAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void SeteshSummon(SeteshSummonTypes type)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
-                if (Creature* pSetesh = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_SETESH)))
+                if (Creature* pSetesh = instance->instance->GetCreature(instance->GetGuidData(DATA_SETESH)))
                 {    
                     switch (type)
                     {
@@ -318,10 +318,10 @@ class npc_setesh_void_sentinel : public CreatureScript
         {
             npc_setesh_void_sentinelAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -373,10 +373,10 @@ class npc_setesh_void_seeker : public CreatureScript
         {
             npc_setesh_void_seekerAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()

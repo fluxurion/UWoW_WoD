@@ -28,10 +28,10 @@ public:
     {
         npc_krikthik_bombarderAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 bombTimer;
 
         void Reset()
@@ -51,7 +51,7 @@ public:
         {
             if (bombTimer <= diff)
             {
-                if (Unit* stalker = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_RANDOM_BOMB_STALKER)))
+                if (Unit* stalker = instance->instance->GetCreature(instance->GetGuidData(DATA_RANDOM_BOMB_STALKER)))
                     if (!stalker->HasAura(SPELL_BOMB_AURA))
                         me->CastSpell(stalker, SPELL_BOMB_CAST_VISUAL, true);
 
@@ -76,10 +76,10 @@ public:
     {
         npc_krikthik_conscriptAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {

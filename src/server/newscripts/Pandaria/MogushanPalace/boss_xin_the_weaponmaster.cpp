@@ -38,18 +38,18 @@ class boss_xin_the_weaponmaster : public CreatureScript
         {
             boss_xin_the_weaponmaster_AI(Creature* creature) : BossAI(creature, DATA_XIN_THE_WEAPONMASTER), summons(me)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             SummonList summons;
             bool onegem;
             bool twogem;
 
             void Reset()
             {
-                if (pInstance)
-                    pInstance->SetData(TYPE_ACTIVATE_SWORD, 0);
+                if (instance)
+                    instance->SetData(TYPE_ACTIVATE_SWORD, 0);
                 
                 onegem = true;
                 twogem = true;
@@ -102,8 +102,8 @@ class boss_xin_the_weaponmaster : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_RING_OF_FIRE:
-                            if (pInstance)
-                                pInstance->SetData(TYPE_ACTIVATE_ANIMATED_STAFF, 0);
+                            if (instance)
+                                instance->SetData(TYPE_ACTIVATE_ANIMATED_STAFF, 0);
                             events.ScheduleEvent(EVENT_RING_OF_FIRE, 20000);
                             break;
                         case EVENT_HEURT:
@@ -115,23 +115,23 @@ class boss_xin_the_weaponmaster : public CreatureScript
                             events.ScheduleEvent(EVENT_INCITING_ROAR, 30000);
                             break;
                         case EVENT_SWORD_THROWER:
-                            if (pInstance)
-                                pInstance->SetData(TYPE_ACTIVATE_SWORD, 1);
+                            if (instance)
+                                instance->SetData(TYPE_ACTIVATE_SWORD, 1);
                             events.ScheduleEvent(EVENT_SWORD_THROWER_STOP, 10000);
                             break;
                         case EVENT_SWORD_THROWER_STOP:
-                            if (pInstance)
-                                pInstance->SetData(TYPE_ACTIVATE_SWORD, 0);
+                            if (instance)
+                                instance->SetData(TYPE_ACTIVATE_SWORD, 0);
                             events.ScheduleEvent(EVENT_SWORD_THROWER, 20000);
                             break;
                         case EVENT_AXES_ACTIVATE:
-                            if (pInstance)
-                                pInstance->SetData(TYPE_ACTIVATE_ANIMATED_AXE, 1);
+                            if (instance)
+                                instance->SetData(TYPE_ACTIVATE_ANIMATED_AXE, 1);
                             events.ScheduleEvent(EVENT_AXES_DESACTIVATE, 10000);
                             break;
                         case EVENT_AXES_DESACTIVATE:
-                            if (pInstance)
-                                pInstance->SetData(TYPE_ACTIVATE_ANIMATED_AXE, 0);
+                            if (instance)
+                                instance->SetData(TYPE_ACTIVATE_ANIMATED_AXE, 0);
                             events.ScheduleEvent(EVENT_AXES_ACTIVATE, 15000);
                             break;
                     }

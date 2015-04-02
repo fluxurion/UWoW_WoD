@@ -123,14 +123,14 @@ public:
     {
         npc_lightning_ballAI(Creature* creature) : ScriptedAI(creature)
         {
-            InstanceScript* pInstance = creature->GetInstanceScript();
+            InstanceScript* instance = creature->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             me->AddAura(SPELL_LIGTNING_BALL_VISUAL, me);
             explose = false;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         ObjectGuid pl_guid;
         uint32 CheckDist;
         bool explose;

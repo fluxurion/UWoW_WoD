@@ -255,10 +255,10 @@ class boss_sinestra : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             SummonList summons;
             uint8 phase;
@@ -290,16 +290,16 @@ class boss_sinestra : public CreatureScript
                 pOrb2 = NULL;
                 pCalen = NULL;
 
-                if (!pInstance)
+                if (!instance)
                     return;
-                pInstance->SetBossState(DATA_SINESTRA, NOT_STARTED);
+                instance->SetBossState(DATA_SINESTRA, NOT_STARTED);
             }
 
             void EnterCombat(Unit* attacker)
             {
-                if (pInstance)
+                if (instance)
                 {
-                    if (!pInstance->CheckRequiredBosses(DATA_SINESTRA, me->GetEntry()))
+                    if (!instance->CheckRequiredBosses(DATA_SINESTRA, me->GetEntry()))
                     {
                         EnterEvadeMode();
 
@@ -330,10 +330,10 @@ class boss_sinestra : public CreatureScript
 
                 Talk(SAY_SINESTRA_AGGRO);
 
-                if (!pInstance)
+                if (!instance)
                     return;
                 DoZoneInCombat();
-                pInstance->SetBossState(DATA_SINESTRA, IN_PROGRESS);
+                instance->SetBossState(DATA_SINESTRA, IN_PROGRESS);
             }
 
             void DoAction(const int32 action)
@@ -363,9 +363,9 @@ class boss_sinestra : public CreatureScript
 
                 summons.DespawnAll();
 
-                if (!pInstance)
+                if (!instance)
                     return;
-                pInstance->SetBossState(DATA_SINESTRA, DONE);
+                instance->SetBossState(DATA_SINESTRA, DONE);
             }
             
             void JustSummoned(Creature* summon)

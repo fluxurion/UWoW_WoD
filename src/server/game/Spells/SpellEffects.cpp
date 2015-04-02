@@ -6540,8 +6540,8 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
         return;
 
     if (m_spellInfo->AttributesEx8 & SPELL_ATTR8_BATTLE_RESURRECTION)
-        if (InstanceScript* pInstance = target->GetInstanceScript())
-            pInstance->SetResurectSpell();
+        if (InstanceScript* instance = target->GetInstanceScript())
+            instance->SetResurectSpell();
 
     int32 hpPerc = m_spellInfo->Effects[EFFECT_1].CalcValue(m_caster);
     if(!hpPerc)

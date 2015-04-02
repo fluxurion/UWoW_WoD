@@ -315,10 +315,10 @@ class npc_beast_of_nightmare : public CreatureScript
         {
             npc_beast_of_nightmareAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset(){}
             

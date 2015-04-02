@@ -390,7 +390,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                 case EVENT_INTRO_A2_3:
                     me->CastSpell(me, SPELL_CAST_VISUAL, false);
                     me->CastSpell(me, SPELL_FROSTMOURNE_SOUNDS, true);
-                    _instance->HandleGameObject(_instance->GetData64(DATA_FROSTMOURNE), true);
+                    _instance->HandleGameObject(_instance->GetGuidData(DATA_FROSTMOURNE), true);
                     _events.ScheduleEvent(EVENT_INTRO_A2_4, 10000);
                     break;
                 case EVENT_INTRO_A2_4:
@@ -485,7 +485,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     Talk(SAY_SYLVANAS_INTRO_3);
                     me->CastSpell(me, SPELL_CAST_VISUAL, false);
                     me->CastSpell(me, SPELL_FROSTMOURNE_SOUNDS, true);
-                    _instance->HandleGameObject(_instance->GetData64(DATA_FROSTMOURNE), true);
+                    _instance->HandleGameObject(_instance->GetGuidData(DATA_FROSTMOURNE), true);
                     _events.ScheduleEvent(EVENT_INTRO_H2_4, 6000);
                     break;
                 case EVENT_INTRO_H2_4:
@@ -590,7 +590,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     // He steps forward and removes the runeblade from the heap of skulls.
                     if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                     {
-                        if (GameObject* frostmourne = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_FROSTMOURNE)))
+                        if (GameObject* frostmourne = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_FROSTMOURNE)))
                             frostmourne->SetPhaseMask(2, true);
                         lichking->CastSpell(lichking, SPELL_TAKE_FROSTMOURNE, true);
                         lichking->CastSpell(lichking, SPELL_FROSTMOURNE_VISUAL, true);
@@ -604,12 +604,12 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     break;
                 case EVENT_INTRO_LK_6:
                     // summon Falric and Marwyn. then go back to the door
-                    if (Creature* falric = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FALRIC_EVENT)))
+                    if (Creature* falric = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FALRIC_EVENT)))
                     {
                         falric->CastSpell(falric, SPELL_BOSS_SPAWN_AURA, true);
                         falric->SetVisible(true);
                     }
-                    if (Creature* marwyn = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MARWYN_EVENT)))
+                    if (Creature* marwyn = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MARWYN_EVENT)))
                     {
                         marwyn->CastSpell(marwyn, SPELL_BOSS_SPAWN_AURA, true);
                         marwyn->SetVisible(true);
@@ -624,7 +624,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     _events.ScheduleEvent(EVENT_OPEN_FROSTWORN_DOOR, 5000);
                     break;
                 case EVENT_INTRO_LK_7:
-                    if (Creature* marwyn = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_MARWYN_EVENT)))
+                    if (Creature* marwyn = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MARWYN_EVENT)))
                     {
                         marwyn->AI()->Talk(SAY_MARWYN_INTRO_1);
                         marwyn->SetWalk(true);
@@ -633,7 +633,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     _events.ScheduleEvent(EVENT_INTRO_LK_8, 1000);
                     break;
                 case EVENT_INTRO_LK_8:
-                    if (Creature* falric = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FALRIC_EVENT)))
+                    if (Creature* falric = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FALRIC_EVENT)))
                     {
                         falric->AI()->Talk(SAY_FALRIC_INTRO_1);
                         falric->SetWalk(true);
@@ -642,7 +642,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     _events.ScheduleEvent(EVENT_INTRO_LK_9, 5000);
                     break;
                 case EVENT_INTRO_LK_9:
-                    if (Creature* falric = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FALRIC_EVENT)))
+                    if (Creature* falric = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FALRIC_EVENT)))
                         falric->AI()->Talk(SAY_FALRIC_INTRO_2);
                     _instance->ProcessEvent(0, EVENT_SPAWN_WAVES);
                     _events.ScheduleEvent(EVENT_INTRO_LK_10, 4000);
@@ -693,11 +693,11 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     _events.ScheduleEvent(EVENT_INTRO_LK_4, 15000);
                     break;
                 case EVENT_OPEN_FROSTWORN_DOOR:
-                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_FROSTWORN_DOOR)))
+                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_FROSTWORN_DOOR)))
                         _instance->HandleGameObject(0, true, gate);
                     break;
                 case EVENT_CLOSE_FROSTWORN_DOOR:
-                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_FROSTWORN_DOOR)))
+                    if (GameObject* gate = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_FROSTWORN_DOOR)))
                         _instance->HandleGameObject(0, false, gate);
                     break;
             }
@@ -1108,7 +1108,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         _events.ScheduleEvent(EVENT_ESCAPE_25, 5000);
                         break;
                     case EVENT_ESCAPE_25:
-                        if (GameObject* cave = _instance->instance->GetGameObject(_instance->GetData64(DATA_CAVE_IN)))
+                        if (GameObject* cave = _instance->instance->GetGameObject(_instance->GetGuidData(DATA_CAVE_IN)))
                            cave->SetGoState(GO_STATE_READY);
                         _events.ScheduleEvent(EVENT_ESCAPE_26, 4000);
                         DoCastAOE(SPELL_ESCAPING_ARTHAS_CREDIT);
@@ -1800,12 +1800,12 @@ public:
         {
             _instance->ProcessEvent(0, EVENT_SPAWN_WAVES);
 
-            if (Creature* falric = player->GetCreature(*player, _instance->GetData64(DATA_FALRIC_EVENT)))
+            if (Creature* falric = player->GetCreature(*player, _instance->GetGuidData(DATA_FALRIC_EVENT)))
             {
                 falric->CastSpell(falric, SPELL_BOSS_SPAWN_AURA, true);
                 falric->SetVisible(true);
             }
-            if (Creature* marwyn = player->GetCreature(*player, _instance->GetData64(DATA_MARWYN_EVENT)))
+            if (Creature* marwyn = player->GetCreature(*player, _instance->GetGuidData(DATA_MARWYN_EVENT)))
             {
                 marwyn->CastSpell(marwyn, SPELL_BOSS_SPAWN_AURA, true);
                 marwyn->SetVisible(true);
@@ -1892,8 +1892,8 @@ public:
 
             if (_instance->GetData(DATA_ESCAPE_EVENT) == IN_PROGRESS)
             {
-                _leaderGUID = _instance->GetData64(DATA_ESCAPE_LEADER);
-                Creature* leader = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER));
+                _leaderGUID = _instance->GetGuidData(DATA_ESCAPE_LEADER);
+                Creature* leader = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ESCAPE_LEADER));
 
                 if (_doEmerge != true)
                 {
@@ -1968,7 +1968,7 @@ public:
         {
             DoCast(me, SPELL_EMERGE_VISUAL);
             DoZoneInCombat(me, 100.00f);
-            if (Creature* leader =  ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER)))
+            if (Creature* leader =  ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ESCAPE_LEADER)))
                 me->Attack(leader, true);
         }
 
@@ -2001,9 +2001,9 @@ public:
                     if (_emergeTimer < diff)
                     {
                         _doEmerge = true;
-                        _leaderGUID = _instance->GetData64(DATA_ESCAPE_LEADER);
+                        _leaderGUID = _instance->GetGuidData(DATA_ESCAPE_LEADER);
 
-                        if (Creature* leader =  ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER)))
+                        if (Creature* leader =  ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ESCAPE_LEADER)))
                         {
                             DoResetThreat();
                             me->GetMotionMaster()->MoveIdle();
@@ -2098,8 +2098,8 @@ public:
                 if (_doWalk != true)
                 {
                     _doWalk = true;
-                    _leaderGUID = _instance->GetData64(DATA_ESCAPE_LEADER);
-                    if (Creature* leader =  ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ESCAPE_LEADER)))
+                    _leaderGUID = _instance->GetGuidData(DATA_ESCAPE_LEADER);
+                    if (Creature* leader =  ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ESCAPE_LEADER)))
                     {
                         DoResetThreat();
                         me->GetMotionMaster()->MoveIdle();

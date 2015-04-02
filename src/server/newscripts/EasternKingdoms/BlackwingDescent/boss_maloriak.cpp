@@ -969,10 +969,10 @@ public:
             if (targets.empty())
                 return;
 
-            if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
+            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
             {
                 targets.remove_if(GoCheck());
-                uint32 count = pInstance->GetData(DATA_MALORIAK_ABERRATIONS);
+                uint32 count = instance->GetData(DATA_MALORIAK_ABERRATIONS);
                 if (!targets.empty() && count > 0)
                     Trinity::Containers::RandomResizeList(targets, count > 3? 3: count);
                 else
@@ -992,10 +992,10 @@ public:
 
         void OnAfterCast()
         {
-            if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
+            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
             {
-                uint32 count = pInstance->GetData(DATA_MALORIAK_ABERRATIONS);
-                pInstance->SetData(DATA_MALORIAK_ABERRATIONS, (_count > count? 0: count - _count));
+                uint32 count = instance->GetData(DATA_MALORIAK_ABERRATIONS);
+                instance->SetData(DATA_MALORIAK_ABERRATIONS, (_count > count? 0: count - _count));
             }
         }
 
@@ -1031,7 +1031,7 @@ public:
             if (targets.empty())
                 return;
 
-            if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
+            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
             {
                 std::list<WorldObject*> tempGos;
                 for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
@@ -1040,7 +1040,7 @@ public:
 
                 targets.remove_if(GoCheck());
 
-                uint32 count = pInstance->GetData(DATA_MALORIAK_ABERRATIONS);
+                uint32 count = instance->GetData(DATA_MALORIAK_ABERRATIONS);
                 if (count > 0)
                     Trinity::Containers::RandomResizeList(targets, count);
                 else
@@ -1066,8 +1066,8 @@ public:
 
         void OnAfterCast()
         {
-            if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
-                pInstance->SetData(DATA_MALORIAK_ABERRATIONS, 0);
+            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                instance->SetData(DATA_MALORIAK_ABERRATIONS, 0);
         }
 
         void Register()

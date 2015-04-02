@@ -215,14 +215,14 @@ class npc_foereaper_targeting_bunny: public CreatureScript
         {
             npc_foereaper_targeting_bunnyAI(Creature *c) : Scripted_NoMovementAI(c)
             {
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
            
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset()
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 DoCast(SPELL_TARGET_BUNNY);

@@ -1133,10 +1133,10 @@ class npc_twilight_rift : public CreatureScript
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetCanFly(true);
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             Unit* sentry;
 
             void IsSummonedBy(Unit* owner)
@@ -1152,9 +1152,9 @@ class npc_twilight_rift : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
-                if (pInstance->GetBossState(DATA_VALIONA_THERALION) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_VALIONA_THERALION) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
             

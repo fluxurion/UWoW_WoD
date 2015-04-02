@@ -60,10 +60,10 @@ class boss_romogg_bonecrusher : public CreatureScript
             {
 			    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
 			    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);   
-			    pInstance = (InstanceScript*)c->GetInstanceScript();
+			    instance = (InstanceScript*)c->GetInstanceScript();
             }
      
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 		    EventMap events;
             SummonList summons;
 		    uint8 stage;
@@ -73,8 +73,8 @@ class boss_romogg_bonecrusher : public CreatureScript
 			    stage = 0;
 			    events.Reset();
                 summons.DespawnAll();
-                if (pInstance)
-                    pInstance->SetData(DATA_ROMOGG, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_ROMOGG, NOT_STARTED);
             }
      
             void JustSummoned(Creature* summon)
@@ -101,8 +101,8 @@ class boss_romogg_bonecrusher : public CreatureScript
 			    events.ScheduleEvent(EVENT_WOUNDING_STRIKE, urand(5000, 7000));
 			    events.ScheduleEvent(EVENT_QUAKE, urand(18000, 20000));
                 DoZoneInCombat();
-                if (pInstance)
-                    pInstance->SetData(DATA_ROMOGG, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_ROMOGG, IN_PROGRESS);
                 
             }
      
@@ -172,8 +172,8 @@ class boss_romogg_bonecrusher : public CreatureScript
             {
 			    Talk(SAY_DEATH);
                 summons.DespawnAll();
-                if (pInstance)
-                    pInstance->SetData(DATA_ROMOGG, DONE);
+                if (instance)
+                    instance->SetData(DATA_ROMOGG, DONE);
             }
      
             void KilledUnit(Unit * victim)
@@ -197,10 +197,10 @@ class boss_romogg_bonecrusher : public CreatureScript
         {
             npc_chains_of_woeAI(Creature *c) : ScriptedAI(c) 
 		    {
-			    pInstance = c->GetInstanceScript();
+			    instance = c->GetInstanceScript();
 		    }
      
-		    InstanceScript* pInstance;
+		    InstanceScript* instance;
 
             void Reset()
             {
@@ -211,7 +211,7 @@ class boss_romogg_bonecrusher : public CreatureScript
      
             void UpdateAI(uint32 diff)
             {
-                if (!pInstance || !UpdateVictim())
+                if (!instance || !UpdateVictim())
                     return;
 		    }
         };

@@ -344,14 +344,14 @@ public:
     {
         npc_iron_constructAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetReactState(REACT_PASSIVE);
             me->AddAura(SPELL_FREEZE_ANIM, me);
             me->setFaction(35);
         }
 
-        InstanceScript *pInstance;
+        InstanceScript *instance;
 
         bool Brittled;
         
@@ -365,7 +365,7 @@ public:
             if (me->HasAura(SPELL_BRITTLE) && damage >= 5000)
             {
                 DoCastAOE(SPELL_SHATTER, true);
-                if (Creature *pIgnis = me->GetCreature(*me, pInstance->GetGuidData(DATA_IGNIS)))
+                if (Creature *pIgnis = me->GetCreature(*me, instance->GetGuidData(DATA_IGNIS)))
                         pIgnis->AI()->DoAction(ACTION_REMOVE_BUFF);
                 me->DespawnOrUnsummon(1000);
             }

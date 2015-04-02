@@ -209,12 +209,12 @@ class mob_tempest_slash : public CreatureScript
         {
             mob_tempest_slashAI(Creature* creature) : ScriptedAI(creature)
             {
-                InstanceScript* pInstance = creature->GetInstanceScript();
+                InstanceScript* instance = creature->GetInstanceScript();
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             
             void Reset()
             {

@@ -91,8 +91,8 @@ public:
             DoScriptText(SAY_DEATH, me);
 
             if (bAchievSavety)
-                if  (InstanceScript* pInstance = me->GetInstanceScript())
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_THE_SAFETY_DANCE_10, ACHIEV_THE_SAFETY_DANCE_25));
+                if  (InstanceScript* instance = me->GetInstanceScript())
+                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_THE_SAFETY_DANCE_10, ACHIEV_THE_SAFETY_DANCE_25));
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -134,9 +134,9 @@ public:
 
             if (uiCheckAchievTimer <= diff)
             {
-                if (Map *pInstance = me->GetInstanceScript()->instance)
+                if (Map *instance = me->GetInstanceScript()->instance)
                 {
-                    Map::PlayerList const &PlayerList = pInstance->GetPlayers();
+                    Map::PlayerList const &PlayerList = instance->GetPlayers();
                         if (!PlayerList.isEmpty())
                             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                                 if (i->getSource()->isDead())

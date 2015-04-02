@@ -106,17 +106,17 @@ class npc_woi_controller : public CreatureScript
         {
             npc_woi_controllerAI(Creature* creature) : BossAI(creature, DATA_WILL_OF_EMPEROR)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetDisplayId(11686);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint32 addentry[3]; //Array for summons entry
 
             void Reset()
             {
-                if (pInstance)
+                if (instance)
                 {
                     _Reset();
                     me->RemoveAurasDueToSpell(SPELL_TITAN_GAS);
@@ -128,8 +128,8 @@ class npc_woi_controller : public CreatureScript
 
             void RemovePursuitAuraOnPlayers()
             {
-               pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FOCALISED_ASSAULT);
-               pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FOCALISED_DEFENSE);
+               instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FOCALISED_ASSAULT);
+               instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FOCALISED_DEFENSE);
             }
 
             void EnterCombat(Unit* who)
@@ -181,11 +181,11 @@ class npc_woi_controller : public CreatureScript
                 switch (action)
                 {
                 case ACTION_DONE:
-                    if (pInstance)
+                    if (instance)
                     {
                         me->RemoveAurasDueToSpell(SPELL_TITAN_GAS);
                         RemovePursuitAuraOnPlayers();
-                        pInstance->SetBossState(DATA_WILL_OF_EMPEROR, DONE);
+                        instance->SetBossState(DATA_WILL_OF_EMPEROR, DONE);
                         me->DespawnOrUnsummon(1000);
                     }
                     break;
@@ -203,7 +203,7 @@ class npc_woi_controller : public CreatureScript
                     switch (eventId)
                     {
                     case EVENT_CHECK_WIPE:
-                        if (pInstance->IsWipe())
+                        if (instance->IsWipe())
                             EnterEvadeMode();
                         events.ScheduleEvent(EVENT_CHECK_WIPE, 1500);
                         break;
@@ -255,13 +255,13 @@ class npc_woi_controller : public CreatureScript
         }
 };
 
-void SendDied(InstanceScript* pInstance, Creature* caller, uint32 callerentry)
+void SendDied(InstanceScript* instance, Creature* caller, uint32 callerentry)
 {
-    if (caller && pInstance)
+    if (caller && instance)
     {
         for (uint8 n = 0; n < 2; n++)
         {
-            if (Creature* imperator = caller->GetCreature(*caller, pInstance->GetGuidData(imperators[n])))
+            if (Creature* imperator = caller->GetCreature(*caller, instance->GetGuidData(imperators[n])))
             {
                 if (imperator->isAlive() && imperator->GetEntry() != callerentry)
                 {
@@ -270,18 +270,18 @@ void SendDied(InstanceScript* pInstance, Creature* caller, uint32 callerentry)
                 }
             }
         }
-        if (Creature* controller = caller->GetCreature(*caller, pInstance->GetGuidData(NPC_WOI_CONTROLLER)))
+        if (Creature* controller = caller->GetCreature(*caller, instance->GetGuidData(NPC_WOI_CONTROLLER)))
             controller->AI()->DoAction(ACTION_DONE);
     }
 }
 
-void SendDamage(InstanceScript* pInstance, Creature* caller, uint32 callerentry, uint32 damage)
+void SendDamage(InstanceScript* instance, Creature* caller, uint32 callerentry, uint32 damage)
 {
-    if (caller && pInstance)
+    if (caller && instance)
     {
         for (uint8 n = 0; n < 2; n++)
         {
-            if (Creature* imperator = caller->GetCreature(*caller, pInstance->GetGuidData(imperators[n])))
+            if (Creature* imperator = caller->GetCreature(*caller, instance->GetGuidData(imperators[n])))
             {
                 if (imperator->isAlive() && imperator->GetEntry() != callerentry)
                     imperator->SetHealth(imperator->GetHealth() - damage);
@@ -299,10 +299,10 @@ class boss_generic_imperator : public CreatureScript
         {
             boss_generic_imperatorAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             uint32 attackspell[2];
 
@@ -359,9 +359,9 @@ class boss_generic_imperator : public CreatureScript
             void DamageTaken(Unit* attacker, uint32 &damage)
             {
                 if (damage >= me->GetHealth())
-                    SendDied(pInstance, me, me->GetEntry());
+                    SendDied(instance, me, me->GetEntry());
                 else
-                    SendDamage(pInstance, me, me->GetEntry(), damage);
+                    SendDamage(instance, me, me->GetEntry(), damage);
             }
             
             void UpdateAI(uint32 diff)
@@ -407,10 +407,10 @@ class mob_woi_add_generic : public CreatureScript
         {
             mob_woi_add_genericAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
             uint32 focusspell;
             ObjectGuid targetguid;
@@ -435,7 +435,7 @@ class mob_woi_add_generic : public CreatureScript
                         break;
                     case NPC_COURAGE:
                         focusspell = SPELL_FOCALISED_DEFENSE;
-                        if (Unit* randomBoss = pInstance->instance->GetCreature(pInstance->GetGuidData(urand(0, 1) ? NPC_QIN_XI: NPC_JAN_XI)))
+                        if (Unit* randomBoss = instance->instance->GetCreature(instance->GetGuidData(urand(0, 1) ? NPC_QIN_XI: NPC_JAN_XI)))
                         {
                             if (Unit* tank = randomBoss->getVictim())
                             {
@@ -515,7 +515,7 @@ class mob_woi_add_generic : public CreatureScript
                                     }
                                     break;
                                 case NPC_COURAGE:
-                                    if (Unit* randomBoss = pInstance->instance->GetCreature(pInstance->GetGuidData(urand(0, 1) ? NPC_QIN_XI: NPC_JAN_XI)))
+                                    if (Unit* randomBoss = instance->instance->GetCreature(instance->GetGuidData(urand(0, 1) ? NPC_QIN_XI: NPC_JAN_XI)))
                                     {
                                         if (Unit* tank = randomBoss->getVictim())
                                         {

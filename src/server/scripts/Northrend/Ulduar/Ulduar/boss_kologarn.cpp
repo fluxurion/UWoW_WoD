@@ -449,7 +449,7 @@ public:
     {
         npc_eyebeam_stalkerAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             me->SetDisplayId(11686);
             me->SetDisableGravity(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
@@ -457,7 +457,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         
         void UpdateAI(uint32 diff)
         {
@@ -552,7 +552,7 @@ public:
     {
         npc_left_armAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
@@ -566,7 +566,7 @@ public:
             BrokenLeft = false;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         
         void DamageTaken(Unit* /*attacker*/, uint32 &damage)
         {
@@ -580,8 +580,8 @@ public:
                 me->AttackStop();
                 me->SetVisible(false);
 
-                if (pInstance)
-                    if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetGuidData(DATA_KOLOGARN)))
+                if (instance)
+                    if (Creature* pKologarn = me->GetCreature(*me, instance->GetGuidData(DATA_KOLOGARN)))
                         pKologarn->AI()->DoAction(ACTION_RESPAWN_LEFT);
                 
                 for (uint8 i = 0; i < 5; ++i)
@@ -628,14 +628,14 @@ public:
     {
         npc_right_armAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 64708, true);
             me->SetReactState(REACT_PASSIVE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         bool Gripped;
         bool BrokenRight;
@@ -751,8 +751,8 @@ public:
                 for (uint8 i = 0; i < 5; ++i)
                         me->SummonCreature(NPC_RUBBLE, RubbleRight, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
 
-                if (pInstance)
-                    if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetGuidData(DATA_KOLOGARN)))
+                if (instance)
+                    if (Creature* pKologarn = me->GetCreature(*me, instance->GetGuidData(DATA_KOLOGARN)))
                         pKologarn->AI()->DoAction(ACTION_RESPAWN_RIGHT);
             }
             else if (damage >= me->GetHealth() && !Gripped && !BrokenRight)
@@ -768,8 +768,8 @@ public:
                 for (uint8 i = 0; i < 5; ++i)
                     me->SummonCreature(NPC_RUBBLE, RubbleRight, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
                 
-                if (pInstance)
-                    if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetGuidData(DATA_KOLOGARN)))
+                if (instance)
+                    if (Creature* pKologarn = me->GetCreature(*me, instance->GetGuidData(DATA_KOLOGARN)))
                         pKologarn->AI()->DoAction(ACTION_RESPAWN_RIGHT);
             }
             else if (ArmDamage && damage >= ArmDamage && Gripped && !BrokenRight)

@@ -386,16 +386,16 @@ public:
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
     {
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+        if (InstanceScript* instance = pPlayer->GetInstanceScript())
         {
-            if (pInstance->GetData(DATA_DLG_ENTRANCE) != DONE)
+            if (instance->GetData(DATA_DLG_ENTRANCE) != DONE)
             {
                 if (Creature* pChogall    = pPlayer->SummonCreature(NPC_CHOGALL_DLG,
                     pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f))
                 {
                     pChogall->AI()->DoAction(ACTION_AT_ENTRANCE);
                 }
-                pInstance->SetData(DATA_DLG_ENTRANCE, DONE);
+                instance->SetData(DATA_DLG_ENTRANCE, DONE);
             }
         }
         return true;
@@ -409,14 +409,14 @@ public:
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
     {
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+        if (InstanceScript* instance = pPlayer->GetInstanceScript())
         {
-            if (pInstance->GetData(DATA_DLG_HALFUS) != DONE)
+            if (instance->GetData(DATA_DLG_HALFUS) != DONE)
             {
                 if (Creature* pChogall    = pPlayer->SummonCreature(NPC_CHOGALL_DLG,
                     pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f))
                     pChogall->AI()->DoAction(ACTION_AT_HALFUS_START);
-                pInstance->SetData(DATA_DLG_HALFUS, DONE);
+                instance->SetData(DATA_DLG_HALFUS, DONE);
             }
         }
         return true;
@@ -430,14 +430,14 @@ public:
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
     {
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+        if (InstanceScript* instance = pPlayer->GetInstanceScript())
         {
-            if (pInstance->GetData(DATA_DLG_VALIONA_THERALION) != DONE)
+            if (instance->GetData(DATA_DLG_VALIONA_THERALION) != DONE)
             {
                 if (Creature* pChogall    = pPlayer->SummonCreature(NPC_CHOGALL_DLG,
                     pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f))
                     pChogall->AI()->DoAction(ACTION_AT_VALIONA_THERALION_START);
-                pInstance->SetData(DATA_DLG_VALIONA_THERALION, DONE);
+                instance->SetData(DATA_DLG_VALIONA_THERALION, DONE);
             }
         }
         return true;
@@ -451,14 +451,14 @@ public:
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
     {
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+        if (InstanceScript* instance = pPlayer->GetInstanceScript())
         {
-            if (pInstance->GetData(DATA_DLG_COUNCIL_1) != DONE)
+            if (instance->GetData(DATA_DLG_COUNCIL_1) != DONE)
             {
                 if (Creature* pChogall    = pPlayer->SummonCreature(NPC_CHOGALL_DLG,
                     pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f))
                     pChogall->AI()->DoAction(ACTION_AT_COUNCIL_1);
-                pInstance->SetData(DATA_DLG_COUNCIL_1, DONE);
+                instance->SetData(DATA_DLG_COUNCIL_1, DONE);
             }
         }
         return true;
@@ -472,14 +472,14 @@ public:
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
     {
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+        if (InstanceScript* instance = pPlayer->GetInstanceScript())
         {
-            if (pInstance->GetData(DATA_DLG_COUNCIL_2) != DONE)
+            if (instance->GetData(DATA_DLG_COUNCIL_2) != DONE)
             {
                 if (Creature* pChogall    = pPlayer->SummonCreature(NPC_CHOGALL_DLG,
                     pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f))
                     pChogall->AI()->DoAction(ACTION_AT_COUNCIL_2);
-                pInstance->SetData(DATA_DLG_COUNCIL_2, DONE);
+                instance->SetData(DATA_DLG_COUNCIL_2, DONE);
             }
         }
         return true;
@@ -493,14 +493,14 @@ public:
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
     {
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+        if (InstanceScript* instance = pPlayer->GetInstanceScript())
         {
-            if (pInstance->GetData(DATA_DLG_COUNCIL_3) != DONE)
+            if (instance->GetData(DATA_DLG_COUNCIL_3) != DONE)
             {
                 if (Creature* pChogall    = pPlayer->SummonCreature(NPC_CHOGALL_DLG,
                     pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f))
                     pChogall->AI()->DoAction(ACTION_AT_COUNCIL_3);
-                pInstance->SetData(DATA_DLG_COUNCIL_3, DONE);
+                instance->SetData(DATA_DLG_COUNCIL_3, DONE);
             }
         }
         return true;
@@ -514,14 +514,14 @@ public:
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
     {
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+        if (InstanceScript* instance = pPlayer->GetInstanceScript())
         {
-            if (pInstance->GetData(DATA_DLG_CHOGALL) != DONE)
+            if (instance->GetData(DATA_DLG_CHOGALL) != DONE)
             {
                 if (Creature* pChogall    = pPlayer->SummonCreature(NPC_CHOGALL_DLG,
                     pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f))
                     pChogall->AI()->DoAction(ACTION_AT_CHOGALL);
-                pInstance->SetData(DATA_DLG_CHOGALL, DONE);
+                instance->SetData(DATA_DLG_CHOGALL, DONE);
             }
         }
         return true;
@@ -535,11 +535,11 @@ public:
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
     {
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+        if (InstanceScript* instance = pPlayer->GetInstanceScript())
         {
-            if (pInstance->GetData(DATA_DLG_SINESTRA) != DONE)
+            if (instance->GetData(DATA_DLG_SINESTRA) != DONE)
             {
-                pInstance->SetData(DATA_DLG_SINESTRA, DONE);
+                instance->SetData(DATA_DLG_SINESTRA, DONE);
             }
         }
         return true;

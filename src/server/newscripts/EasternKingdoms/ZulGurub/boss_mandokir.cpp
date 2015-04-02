@@ -226,7 +226,7 @@ class npc_mandokir_chained_spirit : public CreatureScript
                 DoCast(me, SPELL_SPIRIT_FORM2, true);
             }
             
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             ObjectGuid playerGUID;
             uint32 despawnTimer;
             bool res;

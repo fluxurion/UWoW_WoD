@@ -1465,7 +1465,7 @@ class npc_hagara_the_stormbinder_ice_wave : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 circlePoint = 0;
                 bDespawn = false;
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
                 bMain = false;
             }
 
@@ -1530,7 +1530,7 @@ class npc_hagara_the_stormbinder_ice_wave : public CreatureScript
                 if (bDespawn)
                     return;
 
-                if (pInstance->GetBossState(DATA_HAGARA) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_HAGARA) != IN_PROGRESS)
                 {
                     bDespawn = true;
                     me->DespawnOrUnsummon(100);
@@ -1539,7 +1539,7 @@ class npc_hagara_the_stormbinder_ice_wave : public CreatureScript
 
         private:
             bool bDespawn;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             uint8 circlePoint;
             bool bMain;
 
@@ -1580,15 +1580,15 @@ class npc_hagara_the_stormbinder_frozen_binding_crystal : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 DoCast(me, SPELL_CRYSTALLINE_OVERLOAD_1);
 
-                if (pInstance)
-                    if (Creature* pHagara = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_HAGARA)))
+                if (instance)
+                    if (Creature* pHagara = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_HAGARA)))
                     {
                         pHagara->RemoveAura(SPELL_CRYSTALLINE_TETHER_1, me->GetGUID());
                         pHagara->AI()->DoAction(ACTION_CRYSTAL_DIED);
@@ -1598,7 +1598,7 @@ class npc_hagara_the_stormbinder_frozen_binding_crystal : public CreatureScript
             }
 
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
         };
 };
 
@@ -1629,7 +1629,7 @@ class npc_hagara_the_stormbinder_crystal_conductor : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
                 bOverloaded = false;
             }
 
@@ -1644,8 +1644,8 @@ class npc_hagara_the_stormbinder_crystal_conductor : public CreatureScript
 
                     events.ScheduleEvent(EVENT_CHECK_PLAYERS, 2000);
 
-                    if (pInstance)
-                        if (Creature* pHagara = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_HAGARA)))
+                    if (instance)
+                        if (Creature* pHagara = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_HAGARA)))
                         {
                             pHagara->RemoveAura(SPELL_CRYSTALLINE_TETHER_2, me->GetGUID());
                             pHagara->AI()->DoAction(ACTION_CRYSTAL_DIED);
@@ -1674,7 +1674,7 @@ class npc_hagara_the_stormbinder_crystal_conductor : public CreatureScript
             }
 
         private:
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             bool bOverloaded;
             EventMap events;
 
@@ -1749,15 +1749,15 @@ class go_hagara_the_stormbinder_the_focusing_iris : public GameObjectScript
 
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {
-            if (InstanceScript* pInstance = pGo->GetInstanceScript())
+            if (InstanceScript* instance = pGo->GetInstanceScript())
             {
-                if (pInstance->GetBossState(DATA_ZONOZZ) != DONE || pInstance->GetBossState(DATA_YORSAHJ) != DONE)
+                if (instance->GetBossState(DATA_ZONOZZ) != DONE || instance->GetBossState(DATA_YORSAHJ) != DONE)
                 {
-                    pInstance->DoNearTeleportPlayers(portalsPos[0]);
+                    instance->DoNearTeleportPlayers(portalsPos[0]);
                     return true;
                 }
 
-                if (Creature* pHagara = ObjectAccessor::GetCreature(*pGo, pInstance->GetData64(DATA_HAGARA)))
+                if (Creature* pHagara = ObjectAccessor::GetCreature(*pGo, pinstance->GetGuidData(DATA_HAGARA)))
                 {
                     pHagara->AI()->DoAction(ACTION_START_EVENT);
                     pGo->Delete();

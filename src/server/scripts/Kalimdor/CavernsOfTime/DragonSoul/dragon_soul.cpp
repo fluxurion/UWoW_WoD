@@ -1187,56 +1187,56 @@ class npc_dragon_soul_teleport : public CreatureScript
             if (pPlayer->isInCombat())
                 return true;
 
-            if (InstanceScript* pInstance = pCreature->GetInstanceScript())
-                if (pInstance->GetData(DATA_ULTRAXION_TRASH) == SPECIAL)
+            if (InstanceScript* instance = pCreature->GetInstanceScript())
+                if (instance->GetData(DATA_ULTRAXION_TRASH) == SPECIAL)
                     return true;
 
-            if (InstanceScript* pInstance = pCreature->GetInstanceScript())
+            if (InstanceScript* instance = pCreature->GetInstanceScript())
             {
                 switch (pCreature->GetEntry())
                 {
                     case NPC_TRAVEL_TO_WYRMREST_BASE:
-                        if (pInstance->GetBossState(DATA_MORCHOK) == DONE)
+                        if (instance->GetBossState(DATA_MORCHOK) == DONE)
                             if (pCreature->GetPositionZ() > 50.0f && pCreature->GetPositionZ() < 100.0f)
                                 pPlayer->NearTeleportTo(portalsPos[0].GetPositionX(), portalsPos[0].GetPositionY(), portalsPos[0].GetPositionZ(), portalsPos[0].GetOrientation());
                             else if (pCreature->GetPositionZ() < 50.0f || pCreature->GetPositionZ() > 100.0f)
                                 pPlayer->NearTeleportTo(portalsPos[10].GetPositionX(), portalsPos[10].GetPositionY(), portalsPos[10].GetPositionZ(), portalsPos[10].GetOrientation());
                         break;
                     case NPC_TRAVEL_TO_WYRMREST_TEMPLE:
-                        if (pInstance->GetBossState(DATA_MORCHOK) == DONE)
+                        if (instance->GetBossState(DATA_MORCHOK) == DONE)
                             if (pCreature->GetPositionZ() < -200.0f)
                                 pPlayer->NearTeleportTo(portalsPos[1].GetPositionX(), portalsPos[1].GetPositionY(), portalsPos[1].GetPositionZ(), portalsPos[1].GetOrientation());
                             else
                                 pPlayer->NearTeleportTo(portalsPos[2].GetPositionX(), portalsPos[2].GetPositionY(), portalsPos[2].GetPositionZ(), portalsPos[2].GetOrientation());
                         break;
                     case NPC_VALEERA:
-                        if (pInstance->GetBossState(DATA_MORCHOK) == DONE)
+                        if (instance->GetBossState(DATA_MORCHOK) == DONE)
                             pPlayer->NearTeleportTo(portalsPos[3].GetPositionX(), portalsPos[3].GetPositionY(), portalsPos[3].GetPositionZ(), portalsPos[3].GetOrientation());
                         break;
                     case NPC_EIENDORMI:
-                        if (pInstance->GetBossState(DATA_MORCHOK) == DONE)
+                        if (instance->GetBossState(DATA_MORCHOK) == DONE)
                             pPlayer->NearTeleportTo(portalsPos[4].GetPositionX(), portalsPos[4].GetPositionY(), portalsPos[4].GetPositionZ(), portalsPos[4].GetOrientation());
                         break;
                     case NPC_NETHESTRASZ:
-                        if (pInstance->GetBossState(DATA_YORSAHJ) == DONE && pInstance->GetBossState(DATA_ZONOZZ) == DONE)
+                        if (instance->GetBossState(DATA_YORSAHJ) == DONE && instance->GetBossState(DATA_ZONOZZ) == DONE)
                             pPlayer->NearTeleportTo(portalsPos[5].GetPositionX(), portalsPos[5].GetPositionY(), portalsPos[5].GetPositionZ(), portalsPos[5].GetOrientation());
                         break;
                     case NPC_TRAVEL_TO_EYE_OF_ETERNITY:
-                        if (pInstance->GetBossState(DATA_YORSAHJ) == DONE && pInstance->GetBossState(DATA_ZONOZZ) == DONE)
+                        if (instance->GetBossState(DATA_YORSAHJ) == DONE && instance->GetBossState(DATA_ZONOZZ) == DONE)
                             pPlayer->NearTeleportTo(portalsPos[6].GetPositionX(), portalsPos[6].GetPositionY(), portalsPos[6].GetPositionZ(), portalsPos[6].GetOrientation());
                         break;
                     case NPC_TRAVEL_TO_WYRMREST_SUMMIT:
                         pPlayer->NearTeleportTo(portalsPos[7].GetPositionX(), portalsPos[7].GetPositionY(), portalsPos[7].GetPositionZ(), portalsPos[7].GetOrientation());
                         break;
                     case NPC_TRAVEL_TO_DECK:
-                        if (pInstance->GetBossState(DATA_BLACKHORN) == DONE && pInstance->GetBossState(DATA_ULTRAXION) == DONE)
+                        if (instance->GetBossState(DATA_BLACKHORN) == DONE && instance->GetBossState(DATA_ULTRAXION) == DONE)
                             pPlayer->NearTeleportTo(portalsPos[8].GetPositionX(), portalsPos[8].GetPositionY(), portalsPos[8].GetPositionZ(), portalsPos[8].GetOrientation());
                         break;
                     case NPC_TRAVEL_TO_MAELSTORM:
-                        if (pInstance->GetBossState(DATA_BLACKHORN) == DONE && pInstance->GetBossState(DATA_ULTRAXION) == DONE)
+                        if (instance->GetBossState(DATA_BLACKHORN) == DONE && instance->GetBossState(DATA_ULTRAXION) == DONE)
                         {
                             pPlayer->NearTeleportTo(portalsPos[9].GetPositionX(), portalsPos[9].GetPositionY(), portalsPos[9].GetPositionZ(), portalsPos[9].GetOrientation());
-                            if (pInstance->GetBossState(DATA_MADNESS) == DONE)
+                            if (instance->GetBossState(DATA_MADNESS) == DONE)
                                 pPlayer->AddAura(SPELL_CALM_MAELSTROM_SKYBOX, pPlayer);
                         }
                         break;
@@ -1259,18 +1259,18 @@ class npc_dragon_soul_thrall : public CreatureScript
             if (pPlayer->isInCombat())
                 return true;
 
-            if (InstanceScript* pInstance = pCreature->GetInstanceScript())
+            if (InstanceScript* instance = pCreature->GetInstanceScript())
             {
-                if (pInstance->GetBossState(DATA_HAGARA) == !DONE)
+                if (instance->GetBossState(DATA_HAGARA) == !DONE)
                     return true;
 
-                if (pInstance->GetBossState(DATA_HAGARA) == DONE && pInstance->GetData(DATA_DRAGON_SOUL_EVENT) != DONE && pInstance->GetBossState(DATA_ULTRAXION) != DONE)
+                if (instance->GetBossState(DATA_HAGARA) == DONE && instance->GetData(DATA_DRAGON_SOUL_EVENT) != DONE && instance->GetBossState(DATA_ULTRAXION) != DONE)
                 {
                     pPlayer->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ULTRAXION_START, 0, GOSSIP_MENU_ULTRAXION_START, GOSSIP_ACTION_INFO_DEF + 1);
                     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
                     return true;
                 }
-                else if (pInstance->GetBossState(DATA_HAGARA) == DONE && pInstance->GetData(DATA_DRAGON_SOUL_EVENT) == DONE && pInstance->GetData(DATA_ULTRAXION_TRASH) != DONE && pInstance->GetBossState(DATA_ULTRAXION) != DONE)
+                else if (instance->GetBossState(DATA_HAGARA) == DONE && instance->GetData(DATA_DRAGON_SOUL_EVENT) == DONE && instance->GetData(DATA_ULTRAXION_TRASH) != DONE && instance->GetBossState(DATA_ULTRAXION) != DONE)
                 {
                     pPlayer->ADD_GOSSIP_ITEM_DB(GOSSIP_MENU_ULTRAXION_START, 1, GOSSIP_MENU_ULTRAXION_START, GOSSIP_ACTION_INFO_DEF + 2);
                     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
@@ -1284,7 +1284,7 @@ class npc_dragon_soul_thrall : public CreatureScript
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
         {
-            InstanceScript* pInstance = creature->GetInstanceScript();
+            InstanceScript* instance = creature->GetInstanceScript();
 
             if (sender == GOSSIP_MENU_ULTRAXION_START && action == GOSSIP_ACTION_INFO_DEF + 1)
             {
@@ -1305,7 +1305,7 @@ class npc_dragon_soul_thrall : public CreatureScript
         {
             npc_dragon_soul_thrallAI(Creature* pCreature) : ScriptedAI(pCreature) 
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
             void Reset()
@@ -1434,7 +1434,7 @@ class npc_dragon_soul_thrall : public CreatureScript
                             break;
                         case EVENT_TRASH_WIPE_CHECK:
                             {
-                                Map::PlayerList const& players = pInstance->instance->GetPlayers();
+                                Map::PlayerList const& players = instance->instance->GetPlayers();
                                 bool wipe = true;
                                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                 {
@@ -1450,7 +1450,7 @@ class npc_dragon_soul_thrall : public CreatureScript
                                 if (wipe)
                                 {
                                     events.CancelEvent(EVENT_TRASH_WIPE_CHECK);
-                                    pInstance->SetData(DATA_ULTRAXION_TRASH, FAIL);
+                                    instance->SetData(DATA_ULTRAXION_TRASH, FAIL);
                                     if (Creature* Ysera = me->FindNearestCreature(NPC_YSERA_THE_AWAKENED, 50.0f))
                                         Ysera->Respawn(true);
                                     if (Creature* Alexstrasza = me->FindNearestCreature(NPC_ALEXSTRASZA_THE_LIFE_BINDER, 50.0f))
@@ -1522,11 +1522,11 @@ class npc_dragon_soul_thrall : public CreatureScript
                         case EVENT_DRAGON_SOUL_11:
                             me->CastSpell(me, SPELL_CHARGING_UP_EARTH);
                             me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                            pInstance->SetData(DATA_DRAGON_SOUL_EVENT, DONE);
+                            instance->SetData(DATA_DRAGON_SOUL_EVENT, DONE);
                             break;
                         case EVENT_SPAWN_DRAGONS:
-                            pInstance->SetData(DATA_ULTRAXION_TRASH, IN_PROGRESS);
-                            if (Creature* Deathwing = pInstance->instance->GetCreature(pInstance->GetData64(DATA_DRAGON_SOUL_EVENT)))
+                            instance->SetData(DATA_ULTRAXION_TRASH, IN_PROGRESS);
+                            if (Creature* Deathwing = instance->instance->GetCreature(pinstance->GetGuidData(DATA_DRAGON_SOUL_EVENT)))
                                 Deathwing->AI()->DoAction(ACTION_DEATHWING_INTRO);
                             break;
                         case EVENT_DRAGONS_INTRO_1:
@@ -1572,14 +1572,14 @@ class npc_dragon_soul_thrall : public CreatureScript
                                     Kalecgos->SetFacingToObject(DragonSoul);
                                     Kalecgos->GetMotionMaster()->MovePoint(0, Kalecgos->GetPositionX(), Kalecgos->GetPositionY(), Kalecgos->GetPositionZ() + 3);
                                 }
-                                pInstance->SetData(DATA_ULTRAXION_TRASH, SPECIAL);
+                                instance->SetData(DATA_ULTRAXION_TRASH, SPECIAL);
                                 events.ScheduleEvent(EVENT_NEXT_ASSAULTER, 5000);
                                 events.ScheduleEvent(EVENT_TRASH_WIPE_CHECK, 5000);
                             }
                             break;
                         case EVENT_NEXT_ASSAULTER:
-                            pInstance->SetData(DATA_NEXT_ASSAULTER, 0);
-                            events.ScheduleEvent(EVENT_NEXT_ASSAULTER, pInstance->GetData(DATA_NEXT_ASSAULTER));
+                            instance->SetData(DATA_NEXT_ASSAULTER, 0);
+                            events.ScheduleEvent(EVENT_NEXT_ASSAULTER, instance->GetData(DATA_NEXT_ASSAULTER));
                             break;
                         case EVENT_ULTRAXION_NEAR:
                             if (Creature* Ysera = me->FindNearestCreature(NPC_YSERA_THE_AWAKENED, 50.0f))
@@ -1595,17 +1595,17 @@ class npc_dragon_soul_thrall : public CreatureScript
                             }
                             break;
                         case EVENT_SPAWN_SHIP:
-                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_HORDE_SHIP)))
+                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pinstance->GetGuidData(DATA_HORDE_SHIP)))
                             {
                                 pShip->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
                             }
-                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_ALLIANCE_SHIP_FIRST)))
+                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pinstance->GetGuidData(DATA_ALLIANCE_SHIP_FIRST)))
                             {
                                 pShip->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
                             }
-                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pInstance->GetData64(DATA_ALLIANCE_SHIP)))
+                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pinstance->GetGuidData(DATA_ALLIANCE_SHIP)))
                             {
                                 pShip->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
@@ -1615,7 +1615,7 @@ class npc_dragon_soul_thrall : public CreatureScript
                         case EVENT_SPAWN_NPC:
                             me->SummonCreature(NPC_SKY_CAPTAIN_SWAYZE, customPos[1], TEMPSUMMON_MANUAL_DESPAWN, 0);
                             me->SummonCreature(NPC_KAANU_REEVS, customPos[2], TEMPSUMMON_MANUAL_DESPAWN, 0);
-                            if (Creature* pSwayze = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_SWAYZE)))
+                            if (Creature* pSwayze = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_SWAYZE)))
                                 pSwayze->AI()->Talk(9);
                             events.ScheduleEvent(EVENT_TALK_ULTRAXION_WIN_1, 10000);
                             break;
@@ -1634,7 +1634,7 @@ class npc_dragon_soul_thrall : public CreatureScript
             }
 
             private:
-                InstanceScript* pInstance;
+                InstanceScript* instance;
                 EventMap events;
         };
 

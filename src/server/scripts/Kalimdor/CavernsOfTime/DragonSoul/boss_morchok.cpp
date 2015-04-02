@@ -450,7 +450,7 @@ class npc_morchok_kohcrom: public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
                 me->setActive(true);
                 me->SetReactState(REACT_PASSIVE);
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             void Reset()
@@ -573,7 +573,7 @@ class npc_morchok_kohcrom: public CreatureScript
         private:
             EventMap events;
             SummonList summons;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             ObjectGuid _stompguid1;
             ObjectGuid _stompguid2;
             bool bEnrage;

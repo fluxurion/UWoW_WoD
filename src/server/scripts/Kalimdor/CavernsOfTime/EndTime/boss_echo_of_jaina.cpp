@@ -345,11 +345,11 @@ class go_echo_of_jaina_jaina_staff_fragment : public GameObjectScript
 
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {
-            InstanceScript* pInstance = pGo->GetInstanceScript();
-            if (!pInstance)
+            InstanceScript* instance = pGo->GetInstanceScript();
+            if (!instance)
                 return true;
 
-            if (Creature* pJaina = ObjectAccessor::GetCreature(*pGo, pInstance->GetGuidData(DATA_ECHO_OF_JAINA)))
+            if (Creature* pJaina = ObjectAccessor::GetCreature(*pGo, instance->GetGuidData(DATA_ECHO_OF_JAINA)))
                 pJaina->AI()->DoAction(ACTION_FRAGMENTS);
  
             pGo->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);

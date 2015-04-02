@@ -1539,10 +1539,10 @@ public:
     {
         npc_assault_botAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 uiFieldTimer;
 
         void Reset()
@@ -1569,9 +1569,9 @@ public:
         void SpellHit(Unit* caster, SpellInfo const* spell)
         {
             // Achievement Not-So-Friendly Fire
-            if (spell->Id == SPELL_ROCKET_STRIKE_DMG && pInstance)
+            if (spell->Id == SPELL_ROCKET_STRIKE_DMG && instance)
             {
-                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65040, 0, me);
+                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65040, 0, me);
                 me->Kill(me, true);
             }
         }
@@ -1640,13 +1640,13 @@ public:
 
     bool OnGossipHello(Player* pPlayer, GameObject* pGo)
     {
-        InstanceScript* pInstance = pGo->GetInstanceScript();
+        InstanceScript* instance = pGo->GetInstanceScript();
 
-        if (!pInstance)
+        if (!instance)
             return false;
 
-        if (pInstance->GetBossState(BOSS_MIMIRON) == NOT_STARTED && pPlayer)
-            if (Creature *pMimiron = pPlayer->GetCreature(*pPlayer, pInstance->GetGuidData(DATA_MIMIRON)))
+        if (instance->GetBossState(BOSS_MIMIRON) == NOT_STARTED && pPlayer)
+            if (Creature *pMimiron = pPlayer->GetCreature(*pPlayer, instance->GetGuidData(DATA_MIMIRON)))
                 pMimiron->AI()->DoAction(DO_ACTIVATE_HARD_MODE);
 
         return true;
@@ -1723,17 +1723,17 @@ public:
     {
         npc_mimiron_flame_spreadAI(Creature *pCreature) : Scripted_NoMovementAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             me->SetReactState(REACT_PASSIVE);
             DoCast(me, SPELL_FLAME, true);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         
         void UpdateAI(uint32 uiDiff)
         {
-            if (pInstance && pInstance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS)
+            if (instance && instance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS)
                 me->DespawnOrUnsummon();
         }
     };
@@ -1802,10 +1802,10 @@ public:
     {
         npc_boom_botAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         bool Boom;
 
@@ -1827,8 +1827,8 @@ public:
 
         void SpellHitTarget(Unit*target, SpellInfo const* spell)
         {
-            if (spell->Id == 63801 && target->GetTypeId() == TYPEID_PLAYER && pInstance)
-                if (Creature* Mimiron = me->GetCreature(*me, pInstance->GetGuidData(DATA_MIMIRON)))
+            if (spell->Id == 63801 && target->GetTypeId() == TYPEID_PLAYER && instance)
+                if (Creature* Mimiron = me->GetCreature(*me, instance->GetGuidData(DATA_MIMIRON)))
                     Mimiron->AI()->DoAction(ACTION_BOOM_FAIL);
         }
     };

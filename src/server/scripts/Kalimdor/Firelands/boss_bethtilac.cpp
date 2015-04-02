@@ -402,12 +402,12 @@ class npc_bethtilac_spiderweb_filament : public CreatureScript
         {
             npc_bethtilac_spiderweb_filamentAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
             {
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void JustSummoned(Creature* summon)
             {
@@ -464,7 +464,7 @@ class npc_bethtilac_spiderweb_filament : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance->GetBossState(DATA_BETHTILAC) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_BETHTILAC) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
         };
@@ -487,12 +487,12 @@ class npc_bethtilac_cinderweb_spinner : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 bTaunted = false;
                 owner = NULL;
-                pInstance = me->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             bool bTaunted;
             Unit* owner;
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -557,7 +557,7 @@ class npc_bethtilac_cinderweb_spinner : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance->GetBossState(DATA_BETHTILAC) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_BETHTILAC) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 if (!UpdateVictim())

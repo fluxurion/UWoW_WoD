@@ -359,7 +359,7 @@ class boss_krick : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                InstanceScript* pInstance = me->GetInstanceScript();
+                InstanceScript* instance = me->GetInstanceScript();
                 if (_phase != PHASE_OUTRO)
                     return;
 
@@ -419,7 +419,7 @@ class boss_krick : public CreatureScript
                             _events.ScheduleEvent(EVENT_OUTRO_6, 1000);
                             break;
                         case EVENT_OUTRO_6:
-                            pInstance->SetBossState(DATA_ICK, SPECIAL);
+                            instance->SetBossState(DATA_ICK, SPECIAL);
                             _events.ScheduleEvent(EVENT_OUTRO_7, 5000);
                             break;
                         case EVENT_OUTRO_7:
@@ -464,7 +464,7 @@ class boss_krick : public CreatureScript
                             _events.ScheduleEvent(EVENT_OUTRO_END, 10000);
                             break;
                         case EVENT_OUTRO_END:
-                            pInstance->SetBossState(DATA_ICK, DONE);
+                            instance->SetBossState(DATA_ICK, DONE);
                             me->DisappearAndDie();
                             break;
                         default:

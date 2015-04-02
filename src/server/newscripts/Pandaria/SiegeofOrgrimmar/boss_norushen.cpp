@@ -576,12 +576,12 @@ public:
     {
         npc_blind_hatredAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            instance = (InstanceScript*)pCreature->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
             me->SetDisplayId(11686);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
         BlindOrderList order;
 
@@ -642,10 +642,10 @@ public:
     {
         npc_norushen_purifying_lightAI(Creature* pCreature) : CreatureAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            instance = (InstanceScript*)pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -963,10 +963,10 @@ public:
     {
         npc_norushen_manifestation_of_corruption_releasedAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            instance = (InstanceScript*)pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         enum sp
@@ -993,7 +993,7 @@ public:
         {
             me->CastSpell(me, SPELL_UNLEASHED, false);
             me->SetInCombatWithZone();
-            if (Creature* amalgam = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
+            if (Creature* amalgam = instance->instance->GetCreature(instance->GetGuidData(NPC_AMALGAM_OF_CORRUPTION)))
                 amalgam->CastSpell(me, SPELL_UNLEASHED_0_EFFECT_PROCK, false);
         }
 
@@ -1217,7 +1217,7 @@ public:
     {
         npc_norushen_heal_ch_greater_corruptionAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            instance = (InstanceScript*)pCreature->GetInstanceScript();
         }
 
         enum spells
@@ -1236,7 +1236,7 @@ public:
             EVENT_END                        = 4,
         };
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         void Reset()

@@ -554,10 +554,10 @@ public:
         {
             me->SetSpeed(MOVE_WALK, 0.8f);
             me->SetSpeed(MOVE_RUN, 0.8f);
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -581,7 +581,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             if (!me->FindNearestCreature(NPC_ROARING_FLAME, 4.0f))
@@ -601,10 +601,10 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        InstanceScript* pInstance = pCreature->GetInstanceScript();
-        if (!pInstance)
+        InstanceScript* instance = pCreature->GetInstanceScript();
+        if (!instance)
             return false;
-        if (pInstance->GetBossState(DATA_ATRAMEDES) != IN_PROGRESS)
+        if (instance->GetBossState(DATA_ATRAMEDES) != IN_PROGRESS)
             return true;
         if (Creature* atramedes = pCreature->FindNearestCreature(NPC_ATRAMEDES, 200.0f))
         {
@@ -631,20 +631,20 @@ public:
     {
         npc_abnoxious_fiendAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         void Reset()
         {
         }
 
         void UpdateAI(uint32 diff)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            if (pInstance->GetData(DATA_ATRAMEDES) != IN_PROGRESS)
+            if (instance->GetData(DATA_ATRAMEDES) != IN_PROGRESS)
                 me->DespawnOrUnsummon();
 
             DoMeleeAttackIfReady();

@@ -210,7 +210,7 @@ public:
         void SetSummonerStatus(bool active)
         {
             for (uint8 i = 0; i < 4; i++)
-                if (ObjectGuid guid = instance->GetData64(summoners[i].data))
+                if (ObjectGuid guid = instance->GetGuidData(summoners[i].data))
                     if (Creature* crystalChannelTarget = instance->instance->GetCreature(guid))
                     {
                         if (active)
@@ -223,7 +223,7 @@ public:
         void SetCrystalsStatus(bool active)
         {
             for (uint8 i = 0; i < 4; i++)
-                if (ObjectGuid guid = instance->GetData64(DATA_NOVOS_CRYSTAL_1 + i))
+                if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
                     if (GameObject* crystal = instance->instance->GetGameObject(guid))
                         SetCrystalStatus(crystal, active);
         }
@@ -243,7 +243,7 @@ public:
         void CrystalHandlerDied()
         {
             for (uint8 i = 0; i < 4; i++)
-                if (ObjectGuid guid = instance->GetData64(DATA_NOVOS_CRYSTAL_1 + i))
+                if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
                     if (GameObject* crystal = instance->instance->GetGameObject(guid))
                         if (crystal->GetGoState() == GO_STATE_ACTIVE)
                         {
@@ -260,7 +260,7 @@ public:
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
             }
-            else if (ObjectGuid guid = instance->GetData64(DATA_NOVOS_SUMMONER_4))
+            else if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_SUMMONER_4))
                 if (Creature* crystalChannelTarget = instance->instance->GetCreature(guid))
                     crystalChannelTarget->AI()->SetData(SPELL_SUMMON_CRYSTAL_HANDLER, 15000);
         }
@@ -316,7 +316,7 @@ public:
         void JustSummoned(Creature* summon)
         {
             if (InstanceScript* instance = me->GetInstanceScript())
-                if (ObjectGuid guid = instance->GetData64(DATA_NOVOS))
+                if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS))
                     if (Creature* novos = Creature::GetCreature(*me, guid))
                         novos->AI()->JustSummoned(summon);
 
@@ -360,14 +360,14 @@ public:
 
         void MovementInform(uint32 type, uint32 id)
         {
-            if (type != WAYPOINT_MOTION_TYPE)
+            if (type != WAYPOINT_MOTION_TYPE || !instance)
                 return;
 
             switch (id)
             {
                 case 4:
                 {
-                    if (Creature* Novos = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_NOVOS) : 0))
+                    if (Creature* Novos = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NOVOS)))
                     {
                         Novos->AI()->DoAction(ACTION_MINION_REACHED);
                         if (Unit* target = CAST_AI(boss_novos::boss_novosAI, Novos->AI())->GetRandomTarget())

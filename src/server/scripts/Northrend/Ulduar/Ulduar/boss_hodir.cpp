@@ -524,11 +524,11 @@ public:
     {
         npc_hodir_priestAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->setFaction(1665);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 HealTimer;
         uint32 DispelTimer;
 
@@ -545,8 +545,8 @@ public:
 
         void UpdateAI(uint32 uiDiff)
         {
-            if (pInstance)
-                if (pInstance->GetBossState(BOSS_HODIR) == DONE)
+            if (instance)
+                if (instance->GetBossState(BOSS_HODIR) == DONE)
                     me->DespawnOrUnsummon(1000);
 
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED))
@@ -616,11 +616,11 @@ public:
     {
         npc_hodir_shamanAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->setFaction(1665);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 StormTimer;
         uint32 LavaBurstTimer;
 
@@ -637,8 +637,8 @@ public:
 
         void UpdateAI(uint32 uiDiff)
         {
-             if (pInstance)
-                if (pInstance->GetBossState(BOSS_HODIR) == DONE)
+             if (instance)
+                if (instance->GetBossState(BOSS_HODIR) == DONE)
                     me->DespawnOrUnsummon(1000);
 
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED))
@@ -698,11 +698,11 @@ public:
     {
         npc_hodir_druidAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->setFaction(1665);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 StarlightTimer;
         uint32 WrathTimer;
 
@@ -719,8 +719,8 @@ public:
         
         void UpdateAI(uint32 uiDiff)
         {
-             if (pInstance)
-                if (pInstance->GetBossState(BOSS_HODIR) == DONE)
+             if (instance)
+                if (instance->GetBossState(BOSS_HODIR) == DONE)
                     me->DespawnOrUnsummon(1000);
 
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED))
@@ -774,11 +774,11 @@ public:
     {
         npc_hodir_mageAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->setFaction(1665);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 FireTimer;
         uint32 MeltIceTimer;
         uint32 FireBallTimer;
@@ -797,8 +797,8 @@ public:
 
         void UpdateAI(uint32 uiDiff)
         {
-             if (pInstance)
-                if (pInstance->GetBossState(BOSS_HODIR) == DONE)
+             if (instance)
+                if (instance->GetBossState(BOSS_HODIR) == DONE)
                     me->DespawnOrUnsummon(1000);
 
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_STUNNED))

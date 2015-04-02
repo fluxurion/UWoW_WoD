@@ -82,16 +82,16 @@ class npc_zulaman_forest_frog : public CreatureScript
         {
             npc_zulaman_forest_frogAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
                 reward = 0;
             }
 
-            InstanceScript *pInstance;
+            InstanceScript *instance;
             uint8 reward;
 
             void DoSpawnRandom()
             {
-                if (pInstance)
+                if (instance)
                 {
                     uint32 cEntry = 0;
                     uint32 spellId = 0; // For Achievement
@@ -111,9 +111,9 @@ class npc_zulaman_forest_frog : public CreatureScript
                         case 11: cEntry = NPC_MICAH; reward = 2; spellId = SPELL_MICAH_ACHIEVEMENT; break;
                     }
 
-                    if (cEntry == NPC_HARALD && pInstance->GetData(DATA_VENDOR_1))
+                    if (cEntry == NPC_HARALD && instance->GetData(DATA_VENDOR_1))
                         cEntry = NPC_TYLLAN;
-                    if (cEntry == NPC_EULINDA && pInstance->GetData(DATA_VENDOR_2))
+                    if (cEntry == NPC_EULINDA && instance->GetData(DATA_VENDOR_2))
                         cEntry = NPC_ARINOTH;
 
                     if (cEntry) 
@@ -124,9 +124,9 @@ class npc_zulaman_forest_frog : public CreatureScript
                     
                     // There must be only one vendor per instance
                     if (cEntry == NPC_HARALD)
-                        pInstance->SetData(DATA_VENDOR_1, DONE);
+                        instance->SetData(DATA_VENDOR_1, DONE);
                     else if (cEntry == NPC_EULINDA)
-                        pInstance->SetData(DATA_VENDOR_2, DONE);
+                        instance->SetData(DATA_VENDOR_2, DONE);
                     else
                     {
                         if (reward == 1)
@@ -167,9 +167,9 @@ class go_strange_gong : public GameObjectScript
         
         bool OnGossipHello(Player* pPlayer, GameObject* pGo)
         {
-            if (InstanceScript* pInstance = pGo->GetInstanceScript())
+            if (InstanceScript* instance = pGo->GetInstanceScript())
             {
-                pInstance->SetData(DATA_MAIN_GATE, 1);
+                instance->SetData(DATA_MAIN_GATE, 1);
             }
             return false;
         }

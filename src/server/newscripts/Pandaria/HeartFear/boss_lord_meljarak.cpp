@@ -251,11 +251,11 @@ class npc_generic_soldier : public CreatureScript
         {
             npc_generic_soldierAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             EventMap events;
 
             void Reset()
@@ -265,9 +265,9 @@ class npc_generic_soldier : public CreatureScript
             
             void EnterCombat(Unit* attacker)
             {
-                if (pInstance)
+                if (instance)
                 {
-                    if (Creature* meljarak = me->GetCreature(*me, pInstance->GetGuidData(NPC_MELJARAK)))
+                    if (Creature* meljarak = me->GetCreature(*me, instance->GetGuidData(NPC_MELJARAK)))
                     {
                         if (meljarak->isAlive() && !meljarak->isInCombat())
                             meljarak->AI()->AttackStart(attacker);
@@ -290,9 +290,9 @@ class npc_generic_soldier : public CreatureScript
             void DamageTaken(Unit* attacker, uint32 &damage)
             {
                 if (damage >= me->GetHealth())
-                    SendDiedSoldiers(pInstance, me, me->GetEntry(), me->GetGUID());
+                    SendDiedSoldiers(instance, me, me->GetEntry(), me->GetGUID());
                 else
-                    SendDamageSoldiers(pInstance, me, me->GetEntry(), me->GetGUID(), damage);
+                    SendDamageSoldiers(instance, me, me->GetEntry(), me->GetGUID(), damage);
             }
 
             bool CheckMeIsInControl()
@@ -310,7 +310,7 @@ class npc_generic_soldier : public CreatureScript
                 if (spell->Id == SPELL_HEAL_TR_EF)
                 {
                     uint32 modhealth = me->GetMaxHealth()/4;
-                    SendHealSoldiers(pInstance, me, me->GetEntry(), me->GetGUID(), modhealth);
+                    SendHealSoldiers(instance, me, me->GetEntry(), me->GetGUID(), modhealth);
                 }
             }
 
@@ -320,7 +320,7 @@ class npc_generic_soldier : public CreatureScript
                 {
                     for (uint32 n = NPC_SRATHIK_1; n <= NPC_KORTHIK_3; n++)
                     {
-                        if (Creature* soldier = me->GetCreature(*me, pInstance->GetGuidData(n)))
+                        if (Creature* soldier = me->GetCreature(*me, instance->GetGuidData(n)))
                         {
                             if (soldier->GetGUID() != me->GetGUID())
                             {
@@ -348,7 +348,7 @@ class npc_generic_soldier : public CreatureScript
                     switch (eventId)
                     {
                     case EVENT_HEAL:
-                        if (pInstance)
+                        if (instance)
                             FindSoldierWithLowHealt();
                         break;
                     case EVENT_HASTE:

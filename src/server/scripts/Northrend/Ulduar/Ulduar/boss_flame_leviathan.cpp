@@ -1200,17 +1200,17 @@ public:
         {
             //for (uint32 i = 0; i < 4; ++i)
                 //DoCast(me, SPELL_FREYA_SUMMONS, true);
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
             me->GetMotionMaster()->MovePoint(0, 259.56f, -17.45f, 409.65f);
             lashTimer = 5000 ;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 lashTimer ;
 
         void UpdateAI(uint32 diff)
         {
-            if (pInstance && pInstance->GetBossState(BOSS_LEVIATHAN) != IN_PROGRESS)
+            if (instance && instance->GetBossState(BOSS_LEVIATHAN) != IN_PROGRESS)
                 me->DespawnOrUnsummon();
         
             if (!UpdateVictim())

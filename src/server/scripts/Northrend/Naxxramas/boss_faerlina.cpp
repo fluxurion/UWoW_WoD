@@ -217,7 +217,7 @@ class mob_faerlina_add : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (instance)
-                    if (Creature* faerlina = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FAERLINA)))
+                    if (Creature* faerlina = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FAERLINA)))
                         DoCast(faerlina, SPELL_WIDOWS_EMBRACE);
             }
 

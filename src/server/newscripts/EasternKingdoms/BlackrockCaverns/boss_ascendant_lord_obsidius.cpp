@@ -56,10 +56,10 @@ class boss_ascendant_lord_obsidius : public CreatureScript
             {
 			    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-			    pInstance = (InstanceScript*)c->GetInstanceScript();
+			    instance = (InstanceScript*)c->GetInstanceScript();
             }
      
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 		    EventMap events;
             SummonList summons;
 		    Creature* shadows[3];
@@ -68,7 +68,7 @@ class boss_ascendant_lord_obsidius : public CreatureScript
             {
                 summons.DespawnAll();
 			    events.Reset();
-                if (pInstance)
+                if (instance)
                 {
                     if (IsHeroic())
 				        for (uint8 i = 0; i < 3; i++)
@@ -77,7 +77,7 @@ class boss_ascendant_lord_obsidius : public CreatureScript
 				        for (uint8 i = 1; i < 3; i++)
 					        shadows[i] = me->SummonCreature(NPC_SHADOW_OF_OBSIDIUS, shadowofobsidiusPos[i]);
                 }
-                pInstance->SetData(DATA_ASCENDANT_LORD_OBSIDIUS, NOT_STARTED);
+                instance->SetData(DATA_ASCENDANT_LORD_OBSIDIUS, NOT_STARTED);
             }
 
             void EnterCombat(Unit* who) 
@@ -88,8 +88,8 @@ class boss_ascendant_lord_obsidius : public CreatureScript
 				    events.ScheduleEvent(EVENT_THUNDERCLAP, 6000);
                 Talk(SAY_AGGRO);
                 DoZoneInCombat();
-                if (pInstance)
-                    pInstance->SetData(DATA_ASCENDANT_LORD_OBSIDIUS, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_ASCENDANT_LORD_OBSIDIUS, IN_PROGRESS);
             }
      
 		    void SummonedCreatureDespawn(Creature* summon)
@@ -145,8 +145,8 @@ class boss_ascendant_lord_obsidius : public CreatureScript
             {
 			    Talk(SAY_DEATH);
 			    summons.DespawnAll();
-                if (pInstance)
-                    pInstance->SetData(DATA_ASCENDANT_LORD_OBSIDIUS, DONE);
+                if (instance)
+                    instance->SetData(DATA_ASCENDANT_LORD_OBSIDIUS, DONE);
             }
      
             void KilledUnit(Unit * victim)
@@ -172,10 +172,10 @@ class npc_shadow_of_obsidius : public CreatureScript
 			{
 				me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
 				me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-				pInstance = creature->GetInstanceScript();
+				instance = creature->GetInstanceScript();
 			}
 
-			InstanceScript* pInstance;
+			InstanceScript* instance;
 			EventMap events;
             
             void Reset()

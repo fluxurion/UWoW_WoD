@@ -292,9 +292,9 @@ public:
         if (pPlayer->isGameMaster())
             return false;
         
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+        if (InstanceScript* instance = pPlayer->GetInstanceScript())
         {
-            if (Creature* koegler = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_FLAMEWEAVER_KOEGLER)))
+            if (Creature* koegler = instance->instance->GetCreature(instance->GetGuidData(NPC_FLAMEWEAVER_KOEGLER)))
                 koegler->AI()->DoAction(ACTION_INTRO);
         }
         return true;

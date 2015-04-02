@@ -321,7 +321,7 @@ class boss_tyrannus : public CreatureScript
     
             void UpdateAI(uint32 diff)
             {
-                InstanceScript* pInstance = me->GetInstanceScript();
+                InstanceScript* instance = me->GetInstanceScript();
                 if(m_startPhaseIntroTyr)
                 {
                     if(m_uiAtackTimer < diff)
@@ -330,7 +330,7 @@ class boss_tyrannus : public CreatureScript
                         {
                             case 0:
                                 DoScriptText(SAY_TYRANNUS_INTRO_1, me);
-                                pInstance->SetData(DATA_GAUNTLET, DONE);
+                                instance->SetData(DATA_GAUNTLET, DONE);
                                 ++m_uiAtackPhase;
                                 break;
                             case 1:
@@ -843,9 +843,9 @@ public:
 
         void UpdateAI(uint32 uiDiff)
         {
-            InstanceScript* pInstance = me->GetInstanceScript();
+            InstanceScript* instance = me->GetInstanceScript();
     
-            if (pInstance->GetBossState(DATA_TYRANNUS) == IN_PROGRESS && GetClosestCreatureWithEntry(me, 36661, 125.0f))
+            if (instance->GetBossState(DATA_TYRANNUS) == IN_PROGRESS && GetClosestCreatureWithEntry(me, 36661, 125.0f))
             {
                 if(m_uiSpeech_Timer < uiDiff)
                 {
@@ -984,7 +984,7 @@ public:
                 } else m_uiSpeech_Timer -= uiDiff;
             }
             
-            if (pInstance->GetBossState(DATA_TYRANNUS) == DONE)
+            if (instance->GetBossState(DATA_TYRANNUS) == DONE)
             {
                 if(m_uiSpeech_Timer < uiDiff)
                 {
@@ -1274,8 +1274,8 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            InstanceScript* pInstance = me->GetInstanceScript();
-            if (pInstance->GetBossState(DATA_TYRANNUS) == DONE)
+            InstanceScript* instance = me->GetInstanceScript();
+            if (instance->GetBossState(DATA_TYRANNUS) == DONE)
             {
                 if(m_uiSpeech_Timer < diff)
                 {
@@ -1441,7 +1441,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            InstanceScript* pInstance = me->GetInstanceScript();
+            InstanceScript* instance = me->GetInstanceScript();
             
             if(!GetClosestCreatureWithEntry(me, 36661, 157.0f)) 
             {
@@ -1449,7 +1449,7 @@ public:
                     Tyr->DespawnOrUnsummon();
             }
             
-            if(pInstance->GetBossState(DATA_ICK) == DONE && pInstance->GetBossState(DATA_GARFROST) == DONE && pInstance->GetBossState(DATA_TYRANNUS) == NOT_STARTED )
+            if(instance->GetBossState(DATA_ICK) == DONE && instance->GetBossState(DATA_GARFROST) == DONE && instance->GetBossState(DATA_TYRANNUS) == NOT_STARTED )
             {
                 if(m_uiGauntletTimer < diff)
                 {
@@ -1582,7 +1582,7 @@ public:
                 }else m_uiGauntletTimer -= diff;
             }
     
-            if(pInstance->GetBossState(DATA_ICK) == NOT_STARTED &&  pInstance->GetBossState(DATA_GARFROST) != DONE && pInstance->GetBossState(DATA_GARFROST) == SPECIAL) 
+            if(instance->GetBossState(DATA_ICK) == NOT_STARTED &&  instance->GetBossState(DATA_GARFROST) != DONE && instance->GetBossState(DATA_GARFROST) == SPECIAL) 
             { 
                 if(m_uiSpeech_Timers < diff)
                 {
@@ -1602,12 +1602,12 @@ public:
                     }
                 } else m_uiSpeech_Timers -= diff;
             }
-            if(pInstance->GetBossState(DATA_ICK) == SPECIAL)
+            if(instance->GetBossState(DATA_ICK) == SPECIAL)
             { 
                 checkEventIck = true;
             }
     
-            if(checkEventIck && pInstance->GetBossState(DATA_TYRANNUS) == NOT_STARTED ) 
+            if(checkEventIck && instance->GetBossState(DATA_TYRANNUS) == NOT_STARTED ) 
             {
                 if(m_uiSpeech_Timerss < diff)
                 {
@@ -1650,7 +1650,7 @@ public:
                     }
                 } else m_uiSpeech_Timerss -= diff;
             }
-            if(pInstance->GetBossState(DATA_GARFROST) != NOT_STARTED && pInstance->GetBossState(DATA_GARFROST) == DONE && pInstance->GetBossState(DATA_ICK) == NOT_STARTED && pInstance->GetBossState(DATA_ICK) != DONE && pInstance->GetBossState(DATA_ICK) != IN_PROGRESS) 
+            if(instance->GetBossState(DATA_GARFROST) != NOT_STARTED && instance->GetBossState(DATA_GARFROST) == DONE && instance->GetBossState(DATA_ICK) == NOT_STARTED && instance->GetBossState(DATA_ICK) != DONE && instance->GetBossState(DATA_ICK) != IN_PROGRESS) 
             {
                 if(m_uiSpeech_Timer < diff)
                 {
@@ -1675,7 +1675,7 @@ public:
                 } else m_uiSpeech_Timer -= diff;
             }
     
-        /*  if(pInstance->GetBossState(DATA_GARFROST)==SPECIAL && pInstance->GetBossState(DATA_ICK)==IN_PROGRESS)
+        /*  if(instance->GetBossState(DATA_GARFROST)==SPECIAL && instance->GetBossState(DATA_ICK)==IN_PROGRESS)
             {
                 if(m_uiSpeech_Timere < diff)
                 {

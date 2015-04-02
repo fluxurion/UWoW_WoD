@@ -142,10 +142,10 @@ class npc_silverlaine_worgen : public CreatureScript
          {
             npc_silverlaine_worgenAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceScript();
+                instance = pCreature->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript *instance;
 
             void IsSummonedBy(Unit* summoner)
             {
@@ -156,7 +156,7 @@ class npc_silverlaine_worgen : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (pInstance && pInstance->GetBossState(DATA_SILVERLAINE) != IN_PROGRESS)
+                if (instance && instance->GetBossState(DATA_SILVERLAINE) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 DoMeleeAttackIfReady();

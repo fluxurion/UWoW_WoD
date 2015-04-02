@@ -730,7 +730,7 @@ class npc_kelthuzad_abomination : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (_instance)
-                    if (Creature* KelThuzad = _instance->instance->GetCreature(_instance->GetData64(DATA_KELTHUZAD)))
+                    if (Creature* KelThuzad = _instance->instance->GetCreature(_instance->GetGuidData(DATA_KELTHUZAD)))
                         KelThuzad->AI()->DoAction(ACTION_ABOMCOUNT);
             }
 
@@ -755,11 +755,11 @@ public:
         if (pPlayer->isGameMaster())
             return false;
 
-        InstanceScript* pInstance = pPlayer->GetInstanceScript();
-        if (!pInstance || pInstance->IsEncounterInProgress() || pInstance->GetBossState(BOSS_KELTHUZAD) == DONE)
+        InstanceScript* instance = pPlayer->GetInstanceScript();
+        if (!instance || instance->IsEncounterInProgress() || instance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*pPlayer, pInstance->GetGuidData(DATA_KELTHUZAD)));
+        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*pPlayer, instance->GetGuidData(DATA_KELTHUZAD)));
         if (!pKelthuzad)
             return false;
 
@@ -770,7 +770,7 @@ public:
         //pKelthuzadAI->EnterCombat(pPlayer);
         pKelthuzadAI->AttackStart(pPlayer);
 
-        if (GameObject* trigger = pInstance->instance->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_TRIGGER)))
+        if (GameObject* trigger = instance->instance->GetGameObject(instance->GetGuidData(DATA_KELTHUZAD_TRIGGER)))
         {
             if (trigger->getLootState() == GO_READY)
                 trigger->UseDoorOrButton();

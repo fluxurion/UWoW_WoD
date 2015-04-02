@@ -531,8 +531,8 @@ class npc_warlord_zonozz_void_of_the_unmaking : public CreatureScript
                                 if (Aura const* aur = me->GetAura(SPELL_VOID_DIFFUSION_BUFF))
                                 {
                                     if (aur->GetStackAmount() >= 9)
-                                        if (InstanceScript* pInstance = me->GetInstanceScript())
-                                            if (Creature* pZonozz = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_ZONOZZ)))
+                                        if (InstanceScript* instance = me->GetInstanceScript())
+                                            if (Creature* pZonozz = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_ZONOZZ)))
                                                 pZonozz->AI()->SetData(DATA_ACHIEVE, 1);
                                 }
                                 
