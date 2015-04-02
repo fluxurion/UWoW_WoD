@@ -66,8 +66,9 @@ public:
     void SendStepUpdate(Player* player = NULL, bool full = false);
     void SendCriteriaUpdate(uint32 criteriaId, uint32 counter, time_t date);
     void BroadCastPacket(WorldPacket& data);
+    uint32 GetScenarioCriteriaByStep(uint8 step);
 
-    bool CanUpdateCriteria(uint32 criteriaTreeId) const;
+    bool CanUpdateCriteria(uint32 criteriaTreeId, uint32 recursTree = 0) const;
 
 protected:
     uint32 instanceId;
@@ -75,6 +76,7 @@ protected:
     AchievementMgr<ScenarioProgress> m_achievementMgr;
 
     uint8 currentStep;
+    uint32 currentTree;
     ScenarioSteps steps;
 
     ScenarioType type;

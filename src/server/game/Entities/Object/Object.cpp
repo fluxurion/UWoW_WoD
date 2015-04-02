@@ -763,10 +763,10 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
                     transportFrames.push_back(goInfo->transport.Timeto2ndfloor);
                 if (goInfo->transport.Timeto3rdfloor)
                     transportFrames.push_back(goInfo->transport.Timeto3rdfloor);
-                //if (goInfo->transport.nextFrame2)
-                //    transportFrames.push_back(goInfo->transport.nextFrame2);
-                //if (goInfo->transport.nextFrame3)
-                //    transportFrames.push_back(goInfo->transport.nextFrame3);
+                //if (goInfo->transport.Timeto4thfloor)
+                //    transportFrames.push_back(goInfo->transport.Timeto4thfloor);
+                //if (goInfo->transport.Timeto5thfloor)
+                //    transportFrames.push_back(goInfo->transport.Timeto5thfloor);
             }
         }
     }
@@ -2806,6 +2806,13 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
 
         if (!obj->IsPlayerInPersonnalVisibilityList(thisPlayer->GetGUID()) &&
             (!group || !obj->IsGroupInPersonnalVisibilityList(group->GetGUID())))
+            return false;
+    }
+
+    if (IS_PLAYER_GUID(GetGUID()) && IS_GAMEOBJECT_GUID(obj->GetGUID()))
+    {
+        Player const* thisPlayer = ToPlayer();
+        if (thisPlayer && thisPlayer->IsPlayerGOrespawned(obj->GetEntry()))
             return false;
     }
 

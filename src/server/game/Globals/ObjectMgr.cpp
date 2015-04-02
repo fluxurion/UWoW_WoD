@@ -1599,6 +1599,36 @@ void ObjectMgr::LoadCreatureAIInstance()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature AI instance in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadTreasureData()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT treasureID, type FROM treasure_template");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 treasure. DB table `treasure_template` is empty.");
+        return;
+    }
+
+    _TreasureDataStore.rehash(result->GetRowCount());
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 treasureID = fields[0].GetUInt32();
+
+        TreasureData& treasure = _TreasureDataStore[treasureID];
+        treasure.treasureID = treasureID;
+        treasure.type = fields[1].GetUInt8();
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u treasure in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType const& guid, CreatureData const* data)
 {
     uint32 mask = data->spawnMask;
@@ -1654,7 +1684,7 @@ ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, fl
     data.spawnMask      = 1;
     data.go_state       = GO_STATE_READY;
     data.phaseMask      = PHASEMASK_NORMAL;
-    data.artKit         = goinfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT ? 21 : 0;
+    data.artKit         = goinfo->type == GAMEOBJECT_TYPE_CONTROL_ZONE ? 21 : 0;
     data.dbData = false;
 
     AddGameobjectToGrid(guid, &data);
@@ -6183,7 +6213,7 @@ inline void CheckGOLockId(GameObjectTemplate const* goInfo, uint32 dataN, uint32
         return;
 
     sLog->outError(LOG_FILTER_SQL, "Gameobject (Entry: %u GoType: %u) have data%d=%u but lock (Id: %u) not found.",
-        goInfo->entry, goInfo->type, N, goInfo->door.open, goInfo->door.open);
+        goInfo->entry, goInfo->type, N, goInfo->GetLockId(), goInfo->GetLockId());
 }
 
 inline void CheckGOLinkedTrapId(GameObjectTemplate const* goInfo, uint32 dataN, uint32 N)
@@ -6297,29 +6327,29 @@ void ObjectMgr::LoadGameObjectTemplate()
         {
             case GAMEOBJECT_TYPE_DOOR:                      //0
             {
-                if (got.door.open)
-                    CheckGOLockId(&got, got.door.open, 1);
+                if (got.GetLockId())
+                    CheckGOLockId(&got, got.GetLockId(), 1);
                 CheckGONoDamageImmuneId(&got, got.door.noDamageImmune, 3);
                 break;
             }
             case GAMEOBJECT_TYPE_BUTTON:                    //1
             {
-                if (got.button.open)
-                    CheckGOLockId(&got, got.button.open, 1);
+                if (got.GetLockId())
+                    CheckGOLockId(&got, got.GetLockId(), 1);
                 CheckGONoDamageImmuneId(&got, got.button.noDamageImmune, 4);
                 break;
             }
             case GAMEOBJECT_TYPE_QUESTGIVER:                //2
             {
-                if (got.questgiver.open)
-                    CheckGOLockId(&got, got.questgiver.open, 0);
+                if (got.GetLockId())
+                    CheckGOLockId(&got, got.GetLockId(), 0);
                 CheckGONoDamageImmuneId(&got, got.questgiver.noDamageImmune, 5);
                 break;
             }
             case GAMEOBJECT_TYPE_CHEST:                     //3
             {
-                if (got.chest.open)
-                    CheckGOLockId(&got, got.chest.open, 0);
+                if (got.GetLockId())
+                    CheckGOLockId(&got, got.GetLockId(), 0);
 
                 CheckGOConsumable(&got, got.chest.consumable, 3);
 
@@ -6329,8 +6359,8 @@ void ObjectMgr::LoadGameObjectTemplate()
             }
             case GAMEOBJECT_TYPE_TRAP:                      //6
             {
-                if (got.trap.open)
-                    CheckGOLockId(&got, got.trap.open, 0);
+                if (got.GetLockId())
+                    CheckGOLockId(&got, got.GetLockId(), 0);
                 break;
             }
             case GAMEOBJECT_TYPE_CHAIR:                     //7
@@ -6351,8 +6381,8 @@ void ObjectMgr::LoadGameObjectTemplate()
             }
             case GAMEOBJECT_TYPE_GOOBER:                    //10
             {
-                if (got.goober.open)
-                    CheckGOLockId(&got, got.goober.open, 0);
+                if (got.GetLockId())
+                    CheckGOLockId(&got, got.GetLockId(), 0);
 
                 CheckGOConsumable(&got, got.goober.consumable, 3);
 
@@ -6417,14 +6447,14 @@ void ObjectMgr::LoadGameObjectTemplate()
             }
             case GAMEOBJECT_TYPE_AREADAMAGE:                //12
             {
-                if (got.areaDamage.open)
-                    CheckGOLockId(&got, got.areaDamage.open, 0);
+                if (got.GetLockId())
+                    CheckGOLockId(&got, got.GetLockId(), 0);
                 break;
             }
             case GAMEOBJECT_TYPE_CAMERA:                    //13
             {
-                if (got.camera.open)
-                    CheckGOLockId(&got, got.camera.open, 0);
+                if (got.GetLockId())
+                    CheckGOLockId(&got, got.GetLockId(), 0);
                 break;
             }
             case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:              //15
@@ -6447,21 +6477,21 @@ void ObjectMgr::LoadGameObjectTemplate()
             }
             case GAMEOBJECT_TYPE_FLAGSTAND:                 //24
             {
-                if (got.flagStand.open)
-                    CheckGOLockId(&got, got.flagStand.open, 0);
+                if (got.GetLockId())
+                    CheckGOLockId(&got, got.GetLockId(), 0);
                 CheckGONoDamageImmuneId(&got, got.flagStand.noDamageImmune, 5);
                 break;
             }
             case GAMEOBJECT_TYPE_FISHINGHOLE:               //25
             {
-                if (got.fishingHole.open)
-                    CheckGOLockId(&got, got.fishingHole.open, 4);
+                if (got.GetLockId())
+                    CheckGOLockId(&got, got.GetLockId(), 4);
                 break;
             }
             case GAMEOBJECT_TYPE_FLAGDROP:                  //26
             {
-                if (got.flagDrop.open)
-                    CheckGOLockId(&got, got.flagDrop.open, 0);
+                if (got.GetLockId())
+                    CheckGOLockId(&got, got.GetLockId(), 0);
                 CheckGONoDamageImmuneId(&got, got.flagDrop.noDamageImmune, 3);
                 break;
             }

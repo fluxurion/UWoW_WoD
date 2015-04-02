@@ -1490,7 +1490,7 @@ void GameObject::Use(Unit* user)
             {
                 player->CastSpell(player, info->ritual.animSpell, true);
 
-                // for this case, summoningRitual.spellId is always triggered
+                // for this case, ritual.spellId is always triggered
                 triggered = true;
             }
 
@@ -2108,7 +2108,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         }
         case GO_DESTRUCTIBLE_REBUILDING:
         {
-        EventInform(m_goInfo->destructibleBuilding.RebuildingEvent);
+            EventInform(m_goInfo->destructibleBuilding.RebuildingEvent);
             RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;

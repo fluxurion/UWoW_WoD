@@ -1051,7 +1051,7 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
 
     // check info existence
     GameObjectTemplate const* goinfo = capturePoint->GetGOInfo();
-    if (goinfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
+    if (goinfo->type != GAMEOBJECT_TYPE_CONTROL_ZONE)
     {
         sLog->outError(LOG_FILTER_GENERAL, "OutdoorPvP: GO %u is not capture point!", capturePoint->GetEntry());
         return false;

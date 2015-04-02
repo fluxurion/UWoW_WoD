@@ -897,6 +897,7 @@ class World
         void InstanceDailyResetTime();
         void InstanceHalfWeekResetTime();
         void InstanceWeeklyResetTime();
+        void ResetGameObjectRespawn();
     private:
         World();
         ~World();

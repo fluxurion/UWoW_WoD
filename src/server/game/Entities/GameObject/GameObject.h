@@ -477,6 +477,7 @@ struct GameObjectTemplate
         {
             uint32 chairheight;                             // 0 chairheight, int, Min value: 0, Max value: 2, Default value: 1
             int32 HeightOffset;                             // 1 Height Offset (inches), int, Min value: -100, Max value: 100, Default value: 0
+            uint32 SitAnimKit;                              // 2 Sit Anim Kit, References: AnimKit, NoValue = 0
         } barberChair;
         // 33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
         struct
@@ -788,7 +789,7 @@ class OPvPCapturePoint;
 
 union GameObjectValue
 {
-    //29 GAMEOBJECT_TYPE_CAPTURE_POINT
+    //29 GAMEOBJECT_TYPE_CONTROL_ZONE
     struct
     {
         OPvPCapturePoint *OPvPObj;
@@ -1082,7 +1083,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
         GuidSet m_SkillupList;
 
-        Player* m_ritualOwner;                              // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
+        Player* m_ritualOwner;                              // used for GAMEOBJECT_TYPE_RITUAL where GO is not summoned (no owner)
         GuidSet m_unique_users;
         uint32 m_usetimes;
 

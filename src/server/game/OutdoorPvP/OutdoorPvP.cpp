@@ -127,7 +127,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
 
     // check info existence
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
-    if (!goinfo || goinfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
+    if (!goinfo || goinfo->type != GAMEOBJECT_TYPE_CONTROL_ZONE)
     {
         sLog->outError(LOG_FILTER_OUTDOORPVP, "OutdoorPvP: GO %u is not capture point!", entry);
         return false;
@@ -613,7 +613,7 @@ void OutdoorPvP::TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2)
 
 void OutdoorPvP::OnGameObjectCreate(GameObject* go)
 {
-    if (go->GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
+    if (go->GetGoType() != GAMEOBJECT_TYPE_CONTROL_ZONE)
         return;
 
     if (OPvPCapturePoint *cp = GetCapturePoint(go->GetGUID()))
@@ -622,7 +622,7 @@ void OutdoorPvP::OnGameObjectCreate(GameObject* go)
 
 void OutdoorPvP::OnGameObjectRemove(GameObject* go)
 {
-    if (go->GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
+    if (go->GetGoType() != GAMEOBJECT_TYPE_CONTROL_ZONE)
         return;
 
     if (OPvPCapturePoint *cp = GetCapturePoint(go->GetGUID()))

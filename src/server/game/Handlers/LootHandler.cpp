@@ -403,7 +403,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                             float chance_rate = sWorld->getRate(RATE_MINING_NEXT);
 
                             int32 ReqValue = 175;
-                            LockEntry const* lockInfo = sLockStore.LookupEntry(go->GetGOInfo()->chest.open);
+                            LockEntry const* lockInfo = sLockStore.LookupEntry(go->GetGOInfo()->GetLockId());
                             if (lockInfo)
                                 ReqValue = lockInfo->Skill[0];
                             float skill = float(player->GetSkillValue(SKILL_MINING))/(ReqValue+25);

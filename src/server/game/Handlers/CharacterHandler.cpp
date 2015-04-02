@@ -256,6 +256,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_HONOR, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_GORESPAWN);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GORESPAWN, stmt);
+
     return res;
 }
 
