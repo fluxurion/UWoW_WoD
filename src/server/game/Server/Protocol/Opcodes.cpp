@@ -408,7 +408,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_MESSAGECHAT_YELL,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MOUNTSPECIAL_ANIM,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMountSpecialAnimOpcode    );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_NOT_ACTIVE_MOVER,                   STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMoveNotActiveMover        );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_KNOCK_BACK_ACK,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleMoveKnockBackAck          );
+    DEFINE_HANDLER(CMSG_MOVE_KNOCK_BACK_ACK,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Movement::ClientPlayerMovement, &WorldSession::HandleMovementOpcodes);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_SPLINE_DONE,                        STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveSplineDoneOpcode      );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_TIME_SKIPPED,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleMoveTimeSkippedOpcode     );
     DEFINE_HANDLER(CMSG_NAME_QUERY,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryPlayerName, &WorldSession::HandleNameQueryOpcode);//603

@@ -296,6 +296,10 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     if (plrMover && plrMover->IsBeingTeleported())
         return;
 
+    // only this was on HandleMoveKnockBackAck handler so move here.
+    if (opcode == CMSG_MOVE_KNOCK_BACK_ACK)
+        mover->AddUnitState(UNIT_STATE_JUMPING);
+
     // stop some emotes at player move
     if (plrMover && (plrMover->GetUInt32Value(UNIT_NPC_EMOTESTATE) != 0))
         plrMover->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
@@ -861,29 +865,6 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
     //data.WriteGuidBytes<4, 1, 3, 0, 7, 2, 5, 6>(guid);
 
     GetPlayer()->SendMessageToSet(&data, false);
-}
-
-void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_KNOCK_BACK_ACK");
-
-    if(Unit* mover = _player->m_mover)
-        mover->AddUnitState(UNIT_STATE_JUMPING);
-
-    HandleMovementOpcodes(recvData);
-
-    /*MovementInfo movementInfo;
-    ReadMovementInfo(recvData, &movementInfo);
-
-    if (_player->m_mover->GetGUID() != movementInfo.guid)
-        return;
-
-    _player->m_movementInfo = movementInfo;
-
-    WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 66);
-    WriteMovementInfo(data, &movementInfo);
-
-    _player->SendMessageToSet(&data, false);*/
 }
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)

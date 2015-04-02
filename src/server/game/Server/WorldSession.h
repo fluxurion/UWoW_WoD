@@ -656,9 +656,6 @@ class WorldSession
         // repair
         void HandleRepairItemOpcode(WorldPacket& recvPacket);
 
-        // Knockback
-        void HandleMoveKnockBackAck(WorldPacket& recvPacket);
-
         void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
         void HandleForceSpeedChangeAck(WorldPacket& recvData);
 
