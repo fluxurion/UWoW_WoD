@@ -1221,7 +1221,7 @@ class player_hex_mendingAI : public PlayerAI
         void UpdateAI(uint32 /*diff*/) { }
 
     private:
-        uint64 casterGUID;
+        ObjectGuid casterGUID;
 };
 
 class spell_toc5_hex_mending : public SpellScriptLoader

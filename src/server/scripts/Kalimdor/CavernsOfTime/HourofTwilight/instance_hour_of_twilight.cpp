@@ -112,7 +112,7 @@ class instance_hour_of_twilight : public InstanceMapScript
             }
 
             private:
-                uint64 uiAsira;
+                ObjectGuid uiAsira;
         };
 };
 

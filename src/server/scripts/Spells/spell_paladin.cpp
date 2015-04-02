@@ -1495,7 +1495,7 @@ class spell_pal_judgment : public SpellScriptLoader
                 {
                     if (Aura* glyph = caster->GetAura(121027))
                     {
-                        uint64 savetarget = glyph->GetRndEffectTarget();
+                        ObjectGuid savetarget = glyph->GetRndEffectTarget();
                         if (Unit* unitTarget = GetHitUnit())
                         {
                             if(savetarget != unitTarget->GetGUID())
@@ -1544,7 +1544,7 @@ class spell_pal_exorcism : public SpellScriptLoader
             {
                 if (Unit* unitTarget = GetHitUnit())
                 {
-                    uint64 savetarget = GetSpell()->GetRndEffectTarget();
+                    ObjectGuid savetarget = GetSpell()->GetRndEffectTarget();
                     if(savetarget != unitTarget->GetGUID())
                         SetHitDamage(GetHitDamage() / 4);
                 }

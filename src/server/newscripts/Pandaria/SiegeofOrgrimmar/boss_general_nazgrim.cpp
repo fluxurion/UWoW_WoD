@@ -236,7 +236,7 @@ class boss_general_nazgrim : public CreatureScript
                 wavenum++;
             }
 
-            uint64 GetTargetGUIDForRogue()
+            ObjectGuid GetTargetGUIDForRogue()
             {
                 std::list<HostileReference*>tlist = me->getThreatManager().getThreatList();
                 if (!tlist.empty())
@@ -555,7 +555,7 @@ public:
 
         InstanceScript* instance;
         EventMap events;
-        uint64 plGuid;
+        ObjectGuid plGuid;
         bool visible;
 
         void Reset()
@@ -577,7 +577,7 @@ public:
             return NULL;
         }
 
-        void SetGUID(uint64 tGuid, int32 type)
+        void SetGUID(ObjectGuid tGuid, int32 type)
         {
             if (type == 1)
             {
@@ -588,7 +588,7 @@ public:
             }
         }
 
-        void SetTarget(uint64 Guid)
+        void SetTarget(ObjectGuid Guid)
         {
             if (Player* pl = me->GetPlayer(*me, Guid))
             {

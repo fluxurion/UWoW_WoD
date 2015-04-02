@@ -875,7 +875,7 @@ class instance_dragon_soul : public InstanceMapScript
 
             Creature* GetNextTwilightAssaulterStalker(Creature const* current)
             {
-                uint64 currentGuid = current->GetGUID();
+                ObjectGuid currentGuid = current->GetGUID();
                 for (uint8 row = 0; row < 7; ++row)
                 {
                     for (uint8 col = 0; col < 8; ++col)
@@ -890,7 +890,7 @@ class instance_dragon_soul : public InstanceMapScript
                             bool inverseDirection = twilightAssaultLanesUsedH[row] == 2;
                             if (inverseDirection && col == 0)
                                 return NULL;
-                            uint64 nextGuid = twilightAssaultStalkerGuidsH[row][inverseDirection ? col-1 : col+1];
+                            ObjectGuid nextGuid = twilightAssaultStalkerGuidsH[row][inverseDirection ? col-1 : col+1];
                             return nextGuid ? instance->GetCreature(nextGuid) : NULL;
                         }
                     }
@@ -909,14 +909,14 @@ class instance_dragon_soul : public InstanceMapScript
                             bool inverseDirection = twilightAssaultLanesUsedV[col] == 2;
                             if (inverseDirection && row == 0)
                                 return NULL;
-                            uint64 nextGuid = twilightAssaultStalkerGuidsV[col][inverseDirection ? row-1 : row+1];
+                            ObjectGuid nextGuid = twilightAssaultStalkerGuidsV[col][inverseDirection ? row-1 : row+1];
                             return nextGuid ? instance->GetCreature(nextGuid) : NULL;
                         }
                     }
                 }
                 return NULL;
             }
-            Position const* GetRandomTwilightAssaulterAssaultPosition(bool horizonal, bool fromEnd, uint8& lane, uint64& targetGUID)
+            Position const* GetRandomTwilightAssaulterAssaultPosition(bool horizonal, bool fromEnd, uint8& lane, ObjectGuid& targetGUID)
             {
                 if (horizonal)
                 {
@@ -1102,9 +1102,9 @@ class instance_dragon_soul : public InstanceMapScript
                 uint8 twilightAssaultLanesUsedV[5];
 
                 ObjectGuid uiNethestraszGUID;
-                uint64 uiOpenPortalEvent;
-                uint64 uiDeathwingEvent;
-                uint64 uiThrallEvent;
+                ObjectGuid uiOpenPortalEvent;
+                ObjectGuid uiDeathwingEvent;
+                ObjectGuid uiThrallEvent;
                 uint32 bHagaraEvent;
                 uint32 uiDragonSoulEvent;
                 uint32 uiUltraxionTrash;
@@ -1120,7 +1120,7 @@ class instance_dragon_soul : public InstanceMapScript
                     public:
                         AssaulterCheck(instance_dragon_soul_InstanceMapScript* instance) : m_instance(instance) { }
 
-                        bool operator()(uint64 guid)
+                        bool operator()(ObjectGuid guid)
                         {
                             Creature* assaulter = m_instance->instance->GetCreature(guid);
                             return assaulter && assaulter->isAlive() && !assaulter->AI()->GetData(1);

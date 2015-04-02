@@ -44,9 +44,9 @@ public:
             SetBossNumber(MAX_ENCOUNTER);
         }
 
-        uint64 BraunGUID;
-        uint64 HarlanGUID;
-        uint64 KoeglerGUID;
+        ObjectGuid BraunGUID;
+        ObjectGuid HarlanGUID;
+        ObjectGuid KoeglerGUID;
 
         void Initialize()
         {

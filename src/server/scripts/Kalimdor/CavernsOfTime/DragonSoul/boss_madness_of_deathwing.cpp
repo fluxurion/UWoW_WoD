@@ -801,7 +801,7 @@ class boss_madness_of_deathwing : public CreatureScript
             }
 
         private:
-            uint64 limbsGuids[4];
+            ObjectGuid limbsGuids[4];
             uint8 m_current_platform;
             uint8 m_destroyed_platform;
             bool m_isFirst;
@@ -2265,7 +2265,7 @@ class npc_madness_of_deathwing_deathwing : public CreatureScript
             InstanceScript* pInstance;
             EventMap events;
             bool m_congealingBloodSpawned[3];
-            uint64 m_congealingBloodSpawnTargetGuid;
+            ObjectGuid m_congealingBloodSpawnTargetGuid;
             uint32 m_congealingBloodSpawnsLeft;
 
             bool isDead;
@@ -2695,7 +2695,7 @@ class npc_madness_of_deathwing_jump_pad : public CreatureScript
             uint32 spellId;
             uint32 spellIdEx1;
             uint32 spellIdEx2;
-            uint64 otherJumpPadGuid;
+            ObjectGuid otherJumpPadGuid;
 
             class PlayerCheck
             {

@@ -331,7 +331,7 @@ public:
                 {
                     uint32 deadNpcs = 0;
                     uint32 waveId = creature->AI()->GetData(0);
-                    for (std::set<uint64>::const_iterator itr = waveGuidList[waveId].begin(); itr != waveGuidList[waveId].end(); ++itr)
+                    for (GuidSet::const_iterator itr = waveGuidList[waveId].begin(); itr != waveGuidList[waveId].end(); ++itr)
                     {
                         Creature* npc = instance->GetCreature(*itr);
                         if (!npc || !npc->isAlive())
@@ -388,7 +388,7 @@ public:
                         {
                             tempList = possibilityList;
 
-                            uint64 bossGuid = i <= 3 ? _falricGUID : _marwynGUID;
+                            ObjectGuid bossGuid = i <= 3 ? _falricGUID : _marwynGUID;
 
                             if (!i)
                                 Trinity::Containers::RandomResizeList(tempList, 3);
@@ -420,7 +420,7 @@ public:
                     if (_waveCount % 5)
                     {
                         uint32 internalWaveId = _waveCount - ((_waveCount < 5) ? 1 : 2);
-                        for (std::set<uint64>::const_iterator itr = waveGuidList[internalWaveId].begin(); itr != waveGuidList[internalWaveId].end(); ++itr)
+                        for (GuidSet::const_iterator itr = waveGuidList[internalWaveId].begin(); itr != waveGuidList[internalWaveId].end(); ++itr)
                         {
                             if (Creature* temp = instance->GetCreature(*itr))
                             {
@@ -459,7 +459,7 @@ public:
                     //despawn wave npcs
                     for (uint8 i = 0; i < 8; ++i)
                     {
-                        for (std::set<uint64>::const_iterator itr = waveGuidList[i].begin(); itr != waveGuidList[i].end(); ++itr)
+                        for (GuidSet::const_iterator itr = waveGuidList[i].begin(); itr != waveGuidList[i].end(); ++itr)
                             if (Creature* creature = instance->GetCreature(*itr))
                                 creature->DespawnOrUnsummon(1);
                         waveGuidList[i].clear();
@@ -498,7 +498,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetData64(uint32 type)
         {
             switch (type)
             {
@@ -590,19 +590,19 @@ public:
         }
 
     private:
-        uint64 _falricGUID;
-        uint64 _marwynGUID;
-        uint64 _jainaOrSylvanasPart1GUID;
-        uint64 _jainaOrSylvanasPart2GUID;
-        uint64 _lichkingPart1GUID;
-        uint64 _frostwornGeneralGUID;
+        ObjectGuid _falricGUID;
+        ObjectGuid _marwynGUID;
+        ObjectGuid _jainaOrSylvanasPart1GUID;
+        ObjectGuid _jainaOrSylvanasPart2GUID;
+        ObjectGuid _lichkingPart1GUID;
+        ObjectGuid _frostwornGeneralGUID;
 
-        uint64 _frostmourneGUID;
-        uint64 _entranceDoorGUID;
-        uint64 _frostwornDoorGUID;
-        uint64 _arthasDoorGUID;
-        uint64 _escapeDoorGUID;
-        uint64 _caveGUID;
+        ObjectGuid _frostmourneGUID;
+        ObjectGuid _entranceDoorGUID;
+        ObjectGuid _frostwornDoorGUID;
+        ObjectGuid _arthasDoorGUID;
+        ObjectGuid _escapeDoorGUID;
+        ObjectGuid _caveGUID;
 
         uint32 _teamInInstance;
         uint32 _waveCount;
@@ -613,7 +613,7 @@ public:
 
         EventMap events;
 
-        std::set<uint64> waveGuidList[8];
+        GuidSet waveGuidList[8];
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const

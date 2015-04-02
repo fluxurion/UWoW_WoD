@@ -422,7 +422,7 @@ class boss_anubarak_trial : public CreatureScript
 
             private:
                 GuidList _burrowGUID;
-                uint64 _sphereGUID[6];
+                ObjectGuid _sphereGUID[6];
                 bool _intro;
                 bool _reachedPhase3;
         };

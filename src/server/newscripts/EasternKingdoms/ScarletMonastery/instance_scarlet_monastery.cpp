@@ -118,7 +118,7 @@ public:
                 encounter[0] = data;
                 if (data == DONE)
                 {
-                    for (std::set<uint64>::const_iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
+                    for (GuidSet::const_iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
                     {
                         Creature* add = instance->GetCreature(*itr);
                         if (add && add->isAlive())

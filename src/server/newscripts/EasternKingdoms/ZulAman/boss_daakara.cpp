@@ -356,7 +356,7 @@ class boss_daakara : public CreatureScript
             }
 
         private:
-            uint64 ClawTargetGUID;
+            ObjectGuid ClawTargetGUID;
             bool bEnrage;
             uint8 phase;
             bool bAchieve;

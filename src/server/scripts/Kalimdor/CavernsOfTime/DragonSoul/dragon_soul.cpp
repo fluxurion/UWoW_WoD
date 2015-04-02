@@ -1963,7 +1963,7 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
                 }
             }
 
-            uint64 GetGUID(int32 type = 0)
+            ObjectGuid GetGUID(int32 type = 0)
             {
                 return stalkerGUID;
             }
@@ -2005,7 +2005,7 @@ class npc_dragon_soul_twilight_assaulter : public CreatureScript
             bool horizontal;
             uint8 lane;
             Position assaultPos;
-            uint64 stalkerGUID;
+            ObjectGuid stalkerGUID;
         };
 
         CreatureAI* GetAI(Creature* pCreature) const

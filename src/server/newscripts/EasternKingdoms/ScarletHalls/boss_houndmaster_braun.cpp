@@ -94,7 +94,7 @@ public:
 
         InstanceScript* instance;
         SummonList summons;
-        uint64 dogGUID[4];
+        ObjectGuid dogGUID[4];
         uint32 dogcount;
         uint32 health;
         uint8 dogId;

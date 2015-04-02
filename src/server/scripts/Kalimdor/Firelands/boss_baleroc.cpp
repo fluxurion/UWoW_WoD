@@ -565,7 +565,7 @@ class spell_baleroc_final_countdown : public SpellScriptLoader
             class GuidCheck
             {
                 public:
-                    GuidCheck(uint64 guid) : _guid(guid) {}
+                    GuidCheck(ObjectGuid guid) : _guid(guid) {}
 
                     bool operator()(WorldObject* unit)
                     {
@@ -573,7 +573,7 @@ class spell_baleroc_final_countdown : public SpellScriptLoader
                     }
 
                 private:
-                    uint64 _guid;
+                    ObjectGuid _guid;
             };
         };
 

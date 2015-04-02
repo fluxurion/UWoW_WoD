@@ -310,8 +310,8 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
         }
 
         InstanceScript* _instance;
-        uint64 _utherGUID;
-        uint64 _lichkingGUID;
+        ObjectGuid _utherGUID;
+        ObjectGuid _lichkingGUID;
 
         EventMap _events;
 
@@ -724,9 +724,9 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
         }
 
         InstanceScript* _instance;
-        uint64 _lichkingGUID;
-        uint64 _walltargetGUID; // dummy
-        uint64 _icewallGUID; // object
+        ObjectGuid _lichkingGUID;
+        ObjectGuid _walltargetGUID; // dummy
+        ObjectGuid _icewallGUID; // object
         uint32 _icewall; // icewall number
         uint32 _isattackingwall; //sylvannas attacking icewall
 
@@ -1850,7 +1850,7 @@ public:
         uint32 _emergeTimer;
         bool _doEmerge;
         bool _doJump;
-        uint64 _leaderGUID;
+        ObjectGuid _leaderGUID;
 
         void Reset()
         {
@@ -1947,7 +1947,7 @@ public:
         InstanceScript* _instance;
         uint32 _emergeTimer;
         bool _doEmerge;
-        uint64 _leaderGUID;
+        ObjectGuid _leaderGUID;
         uint32 _boltTimer;
         uint32 _boltVolleyTimer;
         uint32 _curseTimer;
@@ -2067,7 +2067,7 @@ public:
         }
 
         InstanceScript* _instance;
-        uint64 _leaderGUID;
+        ObjectGuid _leaderGUID;
         bool _doWalk;
         uint32 _strikeTimer;
         uint32 _vomitTimer;

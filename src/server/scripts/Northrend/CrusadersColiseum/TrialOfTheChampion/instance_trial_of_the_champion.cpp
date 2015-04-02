@@ -275,7 +275,7 @@ public:
             return 0;
         }
 
-        void SetData64(uint32 type, uint64 data)
+        void SetData64(uint32 type, ObjectGuid data)
         {
             switch (type)
             {
@@ -292,7 +292,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data)
+        ObjectGuid GetData64(uint32 data)
         {
             switch(data)
             {

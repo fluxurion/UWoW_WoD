@@ -302,7 +302,7 @@ class boss_warmaster_blackhorn: public CreatureScript
                     deck = false;
             }
 
-            void SetGUID(uint64 guid, int32 data)
+            void SetGUID(ObjectGuid guid, int32 data)
             {
                 shockwaveTarget = guid;
             }
@@ -539,7 +539,7 @@ class boss_warmaster_blackhorn: public CreatureScript
             uint8 drakeDied;
             uint8 phase;
             bool deck;
-            uint64 shockwaveTarget;
+            ObjectGuid shockwaveTarget;
             bool clearShockwaveTarget;
 
             void DespawnCreatures(uint32 entry)

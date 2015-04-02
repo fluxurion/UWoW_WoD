@@ -2219,7 +2219,7 @@ class spell_pri_divine_star_filter : public SpellScriptLoader
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
-                    uint64 guid = (*itr)->GetGUID();
+                    ObjectGuid guid = (*itr)->GetGUID();
                     bool find = false;
                     if(!saveTargets.empty())
                     {

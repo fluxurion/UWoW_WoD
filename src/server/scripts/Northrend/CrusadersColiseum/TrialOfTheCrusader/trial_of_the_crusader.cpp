@@ -528,8 +528,8 @@ class npc_fizzlebang_toc : public CreatureScript
                 InstanceScript* _instance;
                 SummonList _summons;
                 uint32 _updateTimer;
-                uint64 _portalGUID;
-                uint64 _triggerGUID;
+                ObjectGuid _portalGUID;
+                ObjectGuid _triggerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const

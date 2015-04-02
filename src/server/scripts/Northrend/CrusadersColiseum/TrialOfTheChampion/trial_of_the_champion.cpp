@@ -140,11 +140,11 @@ public:
         uint32 eventIds[EVENTS_MAX];
 
         uint32 bossEntry[3];
-        uint64 bossGUID[3];
-        uint64 addsGUID[3][3];
-        uint64 stalkerGUID;
+        ObjectGuid bossGUID[3];
+        ObjectGuid addsGUID[3][3];
+        ObjectGuid stalkerGUID;
         std::set<int32> announceID;
-        std::set<uint64> playersGUID;
+        GuidSet playersGUID;
 
         bool addsAttacking;
         uint8 defeatedCount;

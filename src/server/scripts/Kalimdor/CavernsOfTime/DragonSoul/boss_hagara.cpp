@@ -1321,7 +1321,7 @@ class npc_hagara_the_stormbinder_icy_tomb : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(ObjectGuid guid, int32 type)
             {
                 if (type == DATA_TRAPPED_PLAYER)
                 {
@@ -1360,7 +1360,7 @@ class npc_hagara_the_stormbinder_icy_tomb : public CreatureScript
             } 
 
         private:
-            uint64 trappedPlayer;
+            ObjectGuid trappedPlayer;
             uint32 existenceCheckTimer;
         };
 };
@@ -1388,7 +1388,7 @@ class npc_hagara_the_stormbinder_ice_lance : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void SetGUID(uint64 guid, int32 type)
+            void SetGUID(ObjectGuid guid, int32 type)
             {
                 if (type == DATA_ICE_LANCE_GUID)
                 {
@@ -1400,7 +1400,7 @@ class npc_hagara_the_stormbinder_ice_lance : public CreatureScript
                 }
             }
 
-            uint64 GetGUID(int32 type)
+            ObjectGuid GetGUID(int32 type)
             {
                 if (type == DATA_ICE_LANCE_GUID)
                     return targetPlayer;
@@ -1408,7 +1408,7 @@ class npc_hagara_the_stormbinder_ice_lance : public CreatureScript
             }
 
         private:
-            uint64 targetPlayer;
+            ObjectGuid targetPlayer;
         };
 };
 
@@ -1915,7 +1915,7 @@ class spell_hagara_the_stormbinder_ice_lance_target : public SpellScriptLoader
                 if (targets.size() <= 1)
                     return;
 
-                uint64 guid = 0;
+                ObjectGuid guid = 0;
                 if (Creature* pLance = GetCaster()->ToCreature())
                     guid = pLance->AI()->GetGUID(DATA_ICE_LANCE_GUID);
 

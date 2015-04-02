@@ -406,7 +406,7 @@ class boss_amalgam_of_corruption : public CreatureScript
 
             InstanceScript* instance;
             uint8 FrayedCounter;
-            std::map<ObjectGuid::LowType, uint64> challengeCounter;
+            std::map<ObjectGuid::LowType, ObjectGuid> challengeCounter;
 
             void Reset()
             {
@@ -436,9 +436,9 @@ class boss_amalgam_of_corruption : public CreatureScript
                     --challengeCounter[guid.GetCounter()];
             }
 
-            ObjectGuid GetGuidData(uint64 guid) const
+            ObjectGuid GetGuidData(ObjectGuid guid) const
             {  
-                std::map<ObjectGuid::LowType, uint64>::const_iterator itr = challengeCounter.find(guid);
+                std::map<ObjectGuid::LowType, ObjectGuid>::const_iterator itr = challengeCounter.find(guid);
                 if (itr == challengeCounter.end())
                     return 0;
                 return itr->second;

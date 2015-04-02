@@ -167,7 +167,7 @@ public:
 
     private:
         bool secondPhase;
-        uint64 ownerGUID;
+        ObjectGuid ownerGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const

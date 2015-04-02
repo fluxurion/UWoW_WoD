@@ -192,7 +192,7 @@ class boss_arcurion : public CreatureScript
             }
         private:
             uint8 phase;
-            uint64 servitors[MAX_SERVITOR];
+            ObjectGuid servitors[MAX_SERVITOR];
 
             void SummonNewServitor()
             {
@@ -209,7 +209,7 @@ class boss_arcurion : public CreatureScript
                 }
             }
 
-            void DeleteServitor(uint64 guid)
+            void DeleteServitor(ObjectGuid guid)
             {
                 for (uint8 i = 0; i < MAX_SERVITOR; ++i)
                     if (servitors[i] == guid)

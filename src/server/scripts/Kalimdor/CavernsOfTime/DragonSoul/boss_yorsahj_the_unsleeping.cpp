@@ -885,7 +885,7 @@ class spell_yorsahj_the_unsleeping_deep_corruption : public SpellScriptLoader
 
                         if (InstanceScript* pInstance = GetCaster()->GetInstanceScript())
                         {
-                            if (uint64 guid = pInstance->GetData64(DATA_YORSAHJ))
+                            if (ObjectGuid guid = pInstance->GetData64(DATA_YORSAHJ))
                                 GetUnitOwner()->CastSpell(GetUnitOwner(), spellId, true, 0, NULL, guid);
                         }
                         else

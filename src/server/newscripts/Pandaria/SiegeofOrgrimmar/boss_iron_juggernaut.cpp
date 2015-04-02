@@ -455,7 +455,7 @@ public:
 
         InstanceScript* instance;
         EventMap events;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         bool done;
 
         void Reset()

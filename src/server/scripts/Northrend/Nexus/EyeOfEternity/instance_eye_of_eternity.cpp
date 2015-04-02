@@ -256,7 +256,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data)
+        ObjectGuid GetData64(uint32 data)
         {
             switch (data)
             {
@@ -324,14 +324,14 @@ public:
         private:
             GuidList vortexTriggers;
             GuidList portalTriggers;
-            uint64 malygosGUID;
-            uint64 irisGUID;
-            uint64 lastPortalGUID;
-            uint64 platformGUID;
-            uint64 exitPortalGUID;
-            uint64 heartOfMagicGUID;
-            uint64 alexstraszaBunnyGUID;
-            uint64 giftBoxBunnyGUID;
+            ObjectGuid malygosGUID;
+            ObjectGuid irisGUID;
+            ObjectGuid lastPortalGUID;
+            ObjectGuid platformGUID;
+            ObjectGuid exitPortalGUID;
+            ObjectGuid heartOfMagicGUID;
+            ObjectGuid alexstraszaBunnyGUID;
+            ObjectGuid giftBoxBunnyGUID;
             Position focusingIrisPosition;
             Position exitPortalPosition;
     };

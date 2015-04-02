@@ -1668,7 +1668,7 @@ public:
             tGuid = 0;
         }
 
-        uint64 tGuid;
+        ObjectGuid tGuid;
         uint32 uiFlameTimer;
         
         void UpdateAI(uint32 diff)
@@ -1691,7 +1691,7 @@ public:
             }
         }
 
-        void SetGUID(uint64 guid, int32 type/* = 0 */)
+        void SetGUID(ObjectGuid guid, int32 type/* = 0 */)
         {
             tGuid = guid;
             if (Unit* target = me->GetUnit(*me, tGuid))

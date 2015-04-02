@@ -737,29 +737,29 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 bool   NeedSave;
                 std::string SaveDataBuffer;
 
-                uint64 BarrentGUID;
-                uint64 TirionGUID;
-                uint64 TirionFordringGUID;
-                uint64 FizzlebangGUID;
-                uint64 GarroshGUID;
-                uint64 VarianGUID;
+                ObjectGuid BarrentGUID;
+                ObjectGuid TirionGUID;
+                ObjectGuid TirionFordringGUID;
+                ObjectGuid FizzlebangGUID;
+                ObjectGuid GarroshGUID;
+                ObjectGuid VarianGUID;
 
-                uint64 GormokGUID;
-                uint64 AcidmawGUID;
-                uint64 DreadscaleGUID;
-                uint64 IcehowlGUID;
-                uint64 JaraxxusGUID;
-                uint64 ChampionsControllerGUID;
-                uint64 DarkbaneGUID;
-                uint64 LightbaneGUID;
-                uint64 AnubarakGUID;
+                ObjectGuid GormokGUID;
+                ObjectGuid AcidmawGUID;
+                ObjectGuid DreadscaleGUID;
+                ObjectGuid IcehowlGUID;
+                ObjectGuid JaraxxusGUID;
+                ObjectGuid ChampionsControllerGUID;
+                ObjectGuid DarkbaneGUID;
+                ObjectGuid LightbaneGUID;
+                ObjectGuid AnubarakGUID;
 
-                uint64 CrusadersCacheGUID;
-                uint64 FloorGUID;
-                uint64 TributeChestGUID;
-                uint64 MainGateDoorGUID;
-                uint64 EastPortcullisGUID;
-                uint64 WebDoorGUID;
+                ObjectGuid CrusadersCacheGUID;
+                ObjectGuid FloorGUID;
+                ObjectGuid TributeChestGUID;
+                ObjectGuid MainGateDoorGUID;
+                ObjectGuid EastPortcullisGUID;
+                ObjectGuid WebDoorGUID;
 
                 // Achievement stuff
                 uint32 NotOneButTwoJormungarsTimer;

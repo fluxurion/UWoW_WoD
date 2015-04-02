@@ -36,9 +36,9 @@ class instance_drak_tharon_keep : public InstanceMapScript
                 KingDredGUID        = 0;
                 TharonJaGUID        = 0;
 
-                memset(TrollgoreInvaderSummonerGuids, 0, 3 * sizeof(uint64));
-                memset(NovosCrystalGUIDs, 0, 4 * sizeof(uint64));
-                memset(NovosSummonerGUIDs, 0, 4 * sizeof(uint64));
+                memset(TrollgoreInvaderSummonerGuids, 0, 3 * sizeof(ObjectGuid));
+                memset(NovosCrystalGUIDs, 0, 4 * sizeof(ObjectGuid));
+                memset(NovosSummonerGUIDs, 0, 4 * sizeof(ObjectGuid));
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -121,7 +121,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
                     NovosSummonerGUIDs[3] = creature->GetGUID();
             }
 
-            uint64 GetData64(uint32 type)
+            ObjectGuid GetData64(uint32 type)
             {
                 switch (type)
                 {
@@ -203,14 +203,14 @@ class instance_drak_tharon_keep : public InstanceMapScript
             }
 
         protected:
-            uint64 TrollgoreGUID;
-            uint64 NovosGUID;
-            uint64 KingDredGUID;
-            uint64 TharonJaGUID;
+            ObjectGuid TrollgoreGUID;
+            ObjectGuid NovosGUID;
+            ObjectGuid KingDredGUID;
+            ObjectGuid TharonJaGUID;
 
-            uint64 TrollgoreInvaderSummonerGuids[3];
-            uint64 NovosCrystalGUIDs[4];
-            uint64 NovosSummonerGUIDs[4];
+            ObjectGuid TrollgoreInvaderSummonerGuids[3];
+            ObjectGuid NovosCrystalGUIDs[4];
+            ObjectGuid NovosSummonerGUIDs[4];
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

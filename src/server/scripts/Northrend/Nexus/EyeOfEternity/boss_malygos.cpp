@@ -330,7 +330,7 @@ enum MiscData
 class VehicleCheckPredicate
 {
     public:
-        bool operator()(uint64 guid) { return IS_VEHICLE_GUID(guid); }
+        bool operator()(ObjectGuid guid) { return IS_VEHICLE_GUID(guid); }
 };
 
 class boss_malygos : public CreatureScript
@@ -418,7 +418,7 @@ public:
             }
         }
 
-        uint64 GetGUID(int32 type)
+        ObjectGuid GetGUID(int32 type)
         {
             if (type >= DATA_FIRST_SURGE_TARGET_GUID && type < DATA_FIRST_SURGE_TARGET_GUID + NUM_MAX_SURGE_TARGETS)
                 return _surgeTargetGUID[type - DATA_FIRST_SURGE_TARGET_GUID];
@@ -428,7 +428,7 @@ public:
             return 0;
         }
 
-        void SetGUID(uint64 guid, int32 type)
+        void SetGUID(ObjectGuid guid, int32 type)
         {
             switch (type)
             {
@@ -1055,9 +1055,9 @@ public:
         uint8 _phase; // Counter for phases used with a getter.
         uint8 _summonDeaths; // Keeps count of arcane trash.
         uint8 _preparingPulsesChecker; // In retail they use 2 preparing pulses with 7 sec CD, after they pass 2 seconds.
-        uint64 _arcaneOverloadGUID; // Last Arcane Overload summoned to know to which should visual be cast to (the purple ball, not bubble).
-        uint64 _lastHitByArcaneBarrageGUID; // Last hit player by Arcane Barrage, will be removed if targets > 1.
-        uint64 _surgeTargetGUID[3]; // All these three are used to keep current tagets to which warning should be sent.
+        ObjectGuid _arcaneOverloadGUID; // Last Arcane Overload summoned to know to which should visual be cast to (the purple ball, not bubble).
+        ObjectGuid _lastHitByArcaneBarrageGUID; // Last hit player by Arcane Barrage, will be removed if targets > 1.
+        ObjectGuid _surgeTargetGUID[3]; // All these three are used to keep current tagets to which warning should be sent.
 
         bool _killSpamFilter; // Prevent text spamming on killed player by helping implement a CD.
         bool _canAttack; // Used to control attacking (Move Chase not being applied after Stop Attack, only few times should act like this).

@@ -999,7 +999,7 @@ public:
             events.ScheduleEvent(EVENT_DESPAWN, 15000);
         }
 
-        void SetGUID(uint64 guid, int32 /* = 0*/)
+        void SetGUID(ObjectGuid guid, int32 /* = 0*/)
         {
             grabbedPlayer = guid;
         }
@@ -1046,7 +1046,7 @@ public:
 
     private:
         EventMap events;
-        uint64 grabbedPlayer;
+        ObjectGuid grabbedPlayer;
         InstanceScript* instance;
     };
 

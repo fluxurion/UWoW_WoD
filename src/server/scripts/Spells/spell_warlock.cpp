@@ -2477,8 +2477,8 @@ class spell_warl_demonic_gateway_at : public SpellScriptLoader
                 {
                     float distanceG = 0.0f;
                     float distanceP = 0.0f;
-                    uint64 uGateG = 0;
-                    uint64 uGateP = 0;
+                    ObjectGuid uGateG = 0;
+                    ObjectGuid uGateP = 0;
                     for (int32 i = 0; i < MAX_SUMMON_SLOT; ++i)
                     {
                         if(!caster->m_SummonSlot[i])
