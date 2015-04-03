@@ -75,46 +75,18 @@ bool BattlePetMgr::SlotIsLocked(uint8 index)
     return locked;
 }
 
+//! 6.0.3
 bool BattlePetMgr::BuildPetJournal(WorldPacket *data)
 {
     ObjectGuid unknownPet;
     uint32 count = 0;
-    uint32 count2 = 0;
 
     data->Initialize(SMSG_BATTLE_PET_JOURNAL);
-    uint32 bit_pos = data->bitwpos();
-    data->WriteBits(count, 19);
+    *data << uint16(0);                                        // trapLevel
 
-    for (PetJournal::const_iterator itr = m_PetJournal.begin(); itr != m_PetJournal.end(); ++itr)
-    {
-        PetJournalInfo* petInfo = itr->second;
-
-        // prevent crash
-        if (!petInfo)
-            return false;
-
-        // prevent loading deleted pet
-        if (petInfo->GetInternalState() == STATE_DELETED)
-            continue;
-
-        ObjectGuidSteam guid = 0/*pet->first*/;
-        uint8 len = petInfo->GetCustomName() == "" ? 0 : petInfo->GetCustomName().length();
-
-        data->WriteBit(!petInfo->GetBreedID());     // hasBreed, inverse
-        //data->WriteGuidMask<1, 5, 3>(guid);
-        data->WriteBit(0);                          // hasOwnerGuidInfo
-        data->WriteBit(!petInfo->GetQuality());     // hasQuality, inverse
-        //data->WriteGuidMask<6, 7>(guid);
-        data->WriteBit(!petInfo->GetFlags());       // hasFlags, inverse
-        //data->WriteGuidMask<0, 4>(guid);
-        data->WriteBits(len, 7);                    // custom name length
-        //data->WriteGuidMask<2>(guid);
-        data->WriteBit(1);                          // hasUnk (bool noRename?), inverse
-
-        ++count;
-    }
-
-    data->WriteBits(MAX_ACTIVE_BATTLE_PETS, 25);
+    uint32 pos = data->wpos();
+    *data << uint32(MAX_ACTIVE_BATTLE_PETS);
+    *data << count;
 
     // fill battle slots data
     for (PetBattleSlots::const_iterator itr = m_battleSlots.begin(); itr != m_battleSlots.end(); ++itr)
@@ -125,28 +97,11 @@ bool BattlePetMgr::BuildPetJournal(WorldPacket *data)
         if (!slot)
             return false;
 
-        data->WriteBit(!slotIndex);                                      // hasSlotIndex
-        data->WriteBit(1);                                               // hasCollarID, inverse
-        data->WriteBit(!slot->IsEmpty());                                // empty slot, inverse
-        //data->WriteGuidMask<7, 1, 3, 2, 5, 0, 4, 6>(slot->GetPet());     // pet guid in slot
+        *data << slot->GetPet();
+        *data << uint32(0);               // CollarID
+        *data << uint8(slotIndex);        // SlotIndex
+
         data->WriteBit(SlotIsLocked(slotIndex));                         // locked slot
-    }
-
-    data->WriteBit(1);                      // !hasJournalLock
-
-    for (PetBattleSlots::const_iterator itr = m_battleSlots.begin(); itr != m_battleSlots.end(); ++itr)
-    {
-        uint8 slotIndex = itr->first;
-        PetBattleSlot* slot = itr->second;
-
-        if (!slot)
-            return false;
-
-        //if (!bit)
-            //*data << uint32(0);             // CollarID
-        //data->WriteGuidBytes<3, 7, 5, 1, 4, 0, 6, 2>(placeholderPet);
-        if (slotIndex)
-            *data << uint8(slotIndex);        // SlotIndex
     }
 
     for (PetJournal::const_iterator itr = m_PetJournal.begin(); itr != m_PetJournal.end(); ++itr)
@@ -161,41 +116,39 @@ bool BattlePetMgr::BuildPetJournal(WorldPacket *data)
         if (petInfo->GetInternalState() == STATE_DELETED)
             continue;
 
-        ObjectGuidSteam guid = 0/*pet->first*/;
+        ObjectGuid guid = itr->first;
         uint8 len = petInfo->GetCustomName() == "" ? 0 : petInfo->GetCustomName().length();
 
-        if (petInfo->GetBreedID())
-            *data << uint16(petInfo->GetBreedID());            // breedID
-        *data << uint32(petInfo->GetSpeciesID());              // speciesID
-        *data << uint32(petInfo->GetSpeed());                  // speed
-        //data->WriteGuidBytes<1, 6, 4>(guid);
-        *data << uint32(petInfo->GetDisplayID());
-        *data << uint32(petInfo->GetMaxHealth());              // max health
-        *data << uint32(petInfo->GetPower());                  // power
-        //data->WriteGuidBytes<2>(guid);
-        *data << uint32(petInfo->GetCreatureEntry());          // Creature ID
-        *data << uint16(petInfo->GetLevel());                  // level
-        if (len > 0)
-            data->WriteString(petInfo->GetCustomName());       // custom name
-        *data << uint32(petInfo->GetHealth());                 // health
-        *data << uint16(petInfo->GetXP());                     // xp
-        if (petInfo->GetQuality())
-            *data << uint8(petInfo->GetQuality());             // quality
-        //data->WriteGuidBytes<3, 7, 0>(guid);
-        if (petInfo->GetFlags())
-            *data << uint16(petInfo->GetFlags());              // flags
-        //data->WriteGuidBytes<5>(guid);
+        *data << guid;
 
-        ++count2;
+        *data << uint32(petInfo->GetSpeciesID());              // speciesID
+        *data << uint32(petInfo->GetDisplayID());
+        *data << uint32(petInfo->GetCreatureEntry());         // CollarID
+
+        *data << uint16(petInfo->GetBreedID());                // breedID
+        *data << uint16(petInfo->GetLevel());                  // level
+        *data << uint16(petInfo->GetXP());                     // xp
+        *data << uint16(petInfo->GetFlags());                  // flags
+
+        *data << uint32(petInfo->GetPower());                  // power
+        *data << uint32(petInfo->GetHealth());                 // health
+        *data << uint32(petInfo->GetMaxHealth());              // max health
+        *data << uint32(petInfo->GetSpeed());                  // speed
+
+        *data << uint8(petInfo->GetQuality());                 // quality / BreedQuality
+
+        data->WriteBits(len, 7);                               // custom name length
+        data->WriteBit(0);                                     // hasOwnerGuidInfo
+        data->WriteBit(1);                                     // NoRename
+
+        data->WriteString(petInfo->GetCustomName());           // custom name
+
+        ++count;
     }
 
-    *data << uint16(0);                                        // trapLevel
+    data->WriteBit(1);                      // !hasJournalLock
 
-    // some check - rewrite in future
-    if (count != count2)
-        return false;
-
-    data->PutBits<uint8>(bit_pos, count, 19);
+    data->put<uint32>(pos, count);
     return true;
 }
 
