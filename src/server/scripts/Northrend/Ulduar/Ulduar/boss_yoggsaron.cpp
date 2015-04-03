@@ -446,7 +446,7 @@ class boss_sara : public CreatureScript
                     if (pPlayer->HasAura(SPELL_INSANE))
                         me->Kill(pPlayer, true);                
                 }
-                for (uint32 n = 0; n < RAID_MODE(1, 3); n++)
+                for (int32 n = 0; n < RAID_MODE(1, 3); n++)
                     PsTarget[n].Clear();
             }
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
@@ -957,7 +957,7 @@ class boss_yoggsaron : public CreatureScript
                         if (Creature *pBrain = Creature::GetCreature((*me), instance->GetGuidData(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
-                            pBrain->AI()->DoAction(ACTION_CHAMBER_ILLUSION);
+                            pBrain->AI()->DoAction((int32)ACTION_CHAMBER_ILLUSION);
                             for (uint32 i = 0; i < RAID_MODE(4, 10); ++i)
                                 me->SummonCreature(NPC_PORTAL_CHAMBER, PortalPos[i], TEMPSUMMON_TIMED_DESPAWN, 10000);
                         }
@@ -966,7 +966,7 @@ class boss_yoggsaron : public CreatureScript
                         if (Creature *pBrain = Creature::GetCreature((*me), instance->GetGuidData(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
-                            pBrain->AI()->DoAction(ACTION_ICECROWN_ILLUSION);
+                            pBrain->AI()->DoAction((int32)ACTION_ICECROWN_ILLUSION);
                             for (uint32 i = 0; i < RAID_MODE(4, 10); ++i)
                                 me->SummonCreature(NPC_PORTAL_ICECROWN, PortalPos[i], TEMPSUMMON_TIMED_DESPAWN, 10000);
 
@@ -976,7 +976,7 @@ class boss_yoggsaron : public CreatureScript
                         if (Creature *pBrain = Creature::GetCreature((*me), instance->GetGuidData(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
-                            pBrain->AI()->DoAction(ACTION_STORMWIND_ILLUSION);
+                            pBrain->AI()->DoAction((int32)ACTION_STORMWIND_ILLUSION);
                             for (uint32 i = 0; i < RAID_MODE(4, 10); ++i)
                                 me->SummonCreature(NPC_PORTAL_STORMWIND, PortalPos[i], TEMPSUMMON_TIMED_DESPAWN, 10000);
                         }

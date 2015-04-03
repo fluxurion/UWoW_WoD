@@ -168,7 +168,7 @@ struct npc_mounted_championAI : ScriptedAI
             me->Dismount();
             me->RemoveAurasDueToSpell(SPELL_SHIELD);
             me->CastSpell(me, SPELL_KNEE, true);
-            me->SetTarget(0);
+            me->SetTarget(ObjectGuid::Empty);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
     }
@@ -215,7 +215,7 @@ struct npc_mounted_championAI : ScriptedAI
                 me->GetEntry() == NPC_VISCERI || me->GetEntry() == NPC_LANA);
     }
 
-    bool isInMountedGauntlet()
+    bool isInMountedGauntlet() const
     {
         if(Creature* announcer = me->GetCreature(*me, instance->GetGuidData(DATA_ANNOUNCER)))
         {
@@ -341,7 +341,7 @@ public:
                 defeated = true;
                 me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                 me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 BindPlayersToInstance(me);
             }
@@ -502,7 +502,7 @@ public:
                 defeated = true;
                 me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                 me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 BindPlayersToInstance(me);
             }
@@ -689,7 +689,7 @@ public:
                 defeated = true;
                 me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                 me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 BindPlayersToInstance(me);
             }
@@ -849,7 +849,7 @@ public:
                 defeated = true;
                 me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                 me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 BindPlayersToInstance(me);
             }
@@ -1036,7 +1036,7 @@ public:
                 defeated = true;
                 me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                 me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 BindPlayersToInstance(me);
             }

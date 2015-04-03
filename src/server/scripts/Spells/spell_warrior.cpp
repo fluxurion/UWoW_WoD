@@ -1171,7 +1171,7 @@ class spell_warr_charge_drop_fire : public SpellScriptLoader
                 if(Unit* caster = GetCaster())
                 {
                     float distance = caster->GetDistance(savePos);
-                    uint32 count = uint32(distance);
+                    int32 count = uint32(distance);
                     float angle = caster->GetAngle(&savePos);
                     if(count > 0)
                     {

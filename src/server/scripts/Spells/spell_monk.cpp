@@ -2714,7 +2714,7 @@ class spell_monk_dampen_harm : public SpellScriptLoader
 
             void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
-                if (dmgInfo.GetDamage() >= bpHealh)
+                if ((int32)dmgInfo.GetDamage() >= bpHealh)
                 {
                     absorbAmount = int32(dmgInfo.GetDamage() * 0.5f);
                     aurEff->GetBase()->ModCharges(-1);

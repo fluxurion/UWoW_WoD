@@ -43,20 +43,20 @@ class instance_oculus : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
 
-                DrakosGUID          = 0;
-                VarosGUID           = 0;
-                UromGUID            = 0;
-                EregosGUID          = 0;
+                DrakosGUID.Clear();
+                VarosGUID.Clear();
+                UromGUID.Clear();
+                EregosGUID.Clear();
 
                 CentrifugueConstructCounter = 0;
 
-                EregosCacheGUID     = 0;
+                EregosCacheGUID.Clear();
 
                 GreaterWhelpList.clear();
 
-                BelgaristraszGUID   = 0;
-                EternosGUID         = 0;
-                VerdisaGUID         = 0;
+                BelgaristraszGUID.Clear();
+                EternosGUID.Clear();
+                VerdisaGUID.Clear();
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -237,7 +237,7 @@ class instance_oculus : public InstanceMapScript
                 return true;
             }
 
-            ObjectGuid GetData64(uint32 type)
+            ObjectGuid GetGuidData(uint32 type) const
             {
                 switch (type)
                 {
@@ -253,7 +253,7 @@ class instance_oculus : public InstanceMapScript
                         break;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void FreeDragons()

@@ -337,8 +337,8 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
         {
             _events.Reset();
 
-            _utherGUID = 0;
-            _lichkingGUID = 0;
+            _utherGUID.Clear();
+            _lichkingGUID.Clear();
 
             me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP|UNIT_NPC_FLAG_QUESTGIVER);
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -582,7 +582,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     {
                         uther->CastSpell(uther, SPELL_UTHER_DESPAWN, true);
                         uther->DespawnOrUnsummon(5000);
-                        _utherGUID = 0;
+                        _utherGUID.Clear();
                     }
                     _events.ScheduleEvent(EVENT_INTRO_LK_4, 9000);
                     break;
@@ -673,7 +673,7 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                     {
                         lichking->DespawnOrUnsummon(5000);
-                        _lichkingGUID = 0;
+                        _lichkingGUID.Clear();
                     }
                     me->DespawnOrUnsummon(10000);
                     _events.ScheduleEvent(EVENT_CLOSE_FROSTWORN_DOOR, 7000);
@@ -694,11 +694,11 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     break;
                 case EVENT_OPEN_FROSTWORN_DOOR:
                     if (GameObject* gate = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_FROSTWORN_DOOR)))
-                        _instance->HandleGameObject(0, true, gate);
+                        _instance->HandleGameObject(ObjectGuid::Empty, true, gate);
                     break;
                 case EVENT_CLOSE_FROSTWORN_DOOR:
                     if (GameObject* gate = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_FROSTWORN_DOOR)))
-                        _instance->HandleGameObject(0, false, gate);
+                        _instance->HandleGameObject(ObjectGuid::Empty, false, gate);
                     break;
             }
         }
@@ -738,9 +738,9 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
             _events.Reset();
             if (Creature* lichking = me->GetCreature(*me, _lichkingGUID))
                 lichking->DespawnOrUnsummon(1);
-            _lichkingGUID = 0;
-            _walltargetGUID = 0;
-            _icewallGUID = 0;
+            _lichkingGUID.Clear();
+            _walltargetGUID.Clear();
+            _icewallGUID.Clear();
             _icewall = 0;
             _isattackingwall = false;
             _events.ScheduleEvent(EVENT_ESCAPE, 0);
@@ -926,7 +926,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             {
                                 _icewallGUID = icewall->GetGUID();
                                 icewall->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
-                                _instance->HandleGameObject(0, false, icewall);
+                                _instance->HandleGameObject(ObjectGuid::Empty, false, icewall);
                                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                                     me->AI()->Talk(SAY_JAINA_ESCAPE_2);
                                 else
@@ -969,7 +969,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             walltarget->DespawnOrUnsummon(0);
                         if (GameObject* icewall = ObjectAccessor::GetGameObject(*me, _icewallGUID))
                         {
-                            _instance->HandleGameObject(0 ,true, icewall);
+                            _instance->HandleGameObject(ObjectGuid::Empty ,true, icewall);
                             if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                                 me->RemoveAurasDueToSpell(SPELL_JAINA_DESTROY_ICE_WALL);
                             else
@@ -1012,7 +1012,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             if (GameObject* icewall = walltarget->FindNearestGameObject(GO_ICE_WALL, 50.00f))
                             {
                                 _icewallGUID = icewall->GetGUID();
-                                _instance->HandleGameObject(0, false, icewall);
+                                _instance->HandleGameObject(ObjectGuid::Empty, false, icewall);
                                 icewall->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                                 {
@@ -1080,7 +1080,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             walltarget->DespawnOrUnsummon(0);
                         if (GameObject* icewall = ObjectAccessor::GetGameObject(*me, _icewallGUID))
                         {
-                            _instance->HandleGameObject(0 ,true, icewall);
+                            _instance->HandleGameObject(ObjectGuid::Empty ,true, icewall);
                             if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                             {
                                 me->RemoveAurasDueToSpell(SPELL_JAINA_DESTROY_ICE_WALL);

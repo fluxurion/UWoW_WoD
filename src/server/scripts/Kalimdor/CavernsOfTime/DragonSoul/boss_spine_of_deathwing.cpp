@@ -205,7 +205,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                         if (destroyedPlates == 1)
                         {
                             Talk(SAY_DEATHWING_PLATE);
-                            instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_1), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_1), true);
                             for (uint8 i = 4; i < 6; ++i)
                                 if (Creature* pCorruption = me->SummonCreature(NPC_CORRUPTION_1, corruptionPos[i]))
                                 {
@@ -216,7 +216,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                         else if (destroyedPlates == 2)
                         {
                             Talk(SAY_DEATHWING_PLATE);
-                            instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_2), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_2), true);
                             for (uint8 i = 6; i < 8; ++i)
                                 if (Creature* pCorruption = me->SummonCreature(NPC_CORRUPTION_1, corruptionPos[i]))
                                 {
@@ -227,7 +227,7 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                         else if (destroyedPlates == 3)
                         {
                             Talk(SAY_DEATHWING_PLATE);
-                            instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_3), true);
+                            instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_3), true);
                             events.ScheduleEvent(EVENT_END_ENCOUNTER, 1000);
                         }
                     }
@@ -407,9 +407,9 @@ class npc_spine_of_deathwing_deathwing : public CreatureScript
                     instance->SetBossState(DATA_SPINE, (done ? DONE : NOT_STARTED));
                     if (!done)
                     {
-                        instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_1),  false);
-                        instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_2),  false);
-                        instance->HandleGameObject(pinstance->GetGuidData(DATA_BACK_PLATE_3),  false);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_1),  false);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_2),  false);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_BACK_PLATE_3),  false);
 
                         Map::PlayerList const& players = instance->instance->GetPlayers();
                         if (!players.isEmpty())

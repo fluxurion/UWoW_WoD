@@ -725,9 +725,9 @@ public:
                     }
                     if (bossval == 13 && Immortal)
                     {
-                        if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_10_N)
+                        if (Difficulty(instance->instance->GetSpawnMode()) == DIFFICULTY_10_N)
                             DoCompleteAchievement(2903);
-                        else if (Difficulty(instance->GetSpawnMode()) == DIFFICULTY_25_N)
+                        else if (Difficulty(instance->instance->GetSpawnMode()) == DIFFICULTY_25_N)
                             DoCompleteAchievement(2904);
                     }
                 }
@@ -746,7 +746,7 @@ public:
             return false;
         }
 
-        bool IsWipe()
+        bool IsWipe() const override
         {
             Map::PlayerList const& PlayerList = instance->GetPlayers();
             

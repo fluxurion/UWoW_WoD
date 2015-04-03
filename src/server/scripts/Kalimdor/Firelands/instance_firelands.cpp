@@ -103,7 +103,7 @@ class instance_firelands : public InstanceMapScript
                 {
                     case GO_FIRE_WALL_BALEROC:
                         uiFirewallBalerockGUID = pGo->GetGUID();
-                        HandleGameObject(0, (GetBossState(DATA_SHANNOX)==DONE) && (GetBossState(DATA_RHYOLITH)==DONE) && (GetBossState(DATA_BETHTILAC)==DONE) && (GetBossState(DATA_ALYSRAZOR)==DONE), pGo);
+                        HandleGameObject(ObjectGuid::Empty, (GetBossState(DATA_SHANNOX)==DONE) && (GetBossState(DATA_RHYOLITH)==DONE) && (GetBossState(DATA_BETHTILAC)==DONE) && (GetBossState(DATA_ALYSRAZOR)==DONE), pGo);
                         break;
                     case GO_STICKY_WEB:
                     case GO_RAID_BRIDGE_FORMING:

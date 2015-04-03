@@ -1014,7 +1014,7 @@ class boss_ragnaros_firelands : public CreatureScript
                     {
                         if (Player* pPlayer = i->getSource())
                             if (Group* pGroup = pPlayer->GetGroup())
-                                if (pPlayer->GetGuildId() && pGroup->IsGuildGroup(pPlayer->GetGuildId(), true, true))
+                                if (pPlayer->GetGuildId() && pGroup->IsGuildGroup(pPlayer->GetGuildGUID(), true, true))
                                 {
                                     pGroup->UpdateGuildAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ENCOUNTER_COMPLETE, 0, 0, NULL, me);
                                     break;
@@ -1157,7 +1157,7 @@ class npc_ragnaros_firelands_lava_wave : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 bDest = false;
                 bDespawn = false;
-                destGUID = 0;
+                destGUID.Clear();
             }
 
             void SetGUID(ObjectGuid const& guid, int32 /*type*/)

@@ -487,7 +487,7 @@ public:
     {
         npc_demolitionist_legosoAI(Creature* creature) : npc_escortAI(creature) { }
 
-        uint32 GetData(uint32 id)
+        uint32 GetData(uint32 id) const
         {
             switch (id)
             {

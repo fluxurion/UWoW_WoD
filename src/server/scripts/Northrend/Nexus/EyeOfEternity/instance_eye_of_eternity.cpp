@@ -40,12 +40,12 @@ public:
             vortexTriggers.clear();
             portalTriggers.clear();
 
-            malygosGUID = 0;
-            irisGUID = 0;
-            lastPortalGUID = 0;
-            platformGUID = 0;
-            exitPortalGUID = 0;
-            alexstraszaBunnyGUID = 0;
+            malygosGUID.Clear();
+            irisGUID.Clear();
+            lastPortalGUID.Clear();
+            platformGUID.Clear();
+            exitPortalGUID.Clear();
+            alexstraszaBunnyGUID.Clear();
         };
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -256,7 +256,7 @@ public:
             }
         }
 
-        ObjectGuid GetData64(uint32 data)
+        ObjectGuid GetGuidData(uint32 data) const
         {
             switch (data)
             {
@@ -276,7 +276,7 @@ public:
                     return giftBoxBunnyGUID;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()
@@ -307,7 +307,7 @@ public:
 
             if (dataHead1 == 'E' && dataHead2 == 'E')
             {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                for (int32 i = 0; i < MAX_ENCOUNTER; ++i)
                 {
                     uint32 tmpState;
                     loadStream >> tmpState;

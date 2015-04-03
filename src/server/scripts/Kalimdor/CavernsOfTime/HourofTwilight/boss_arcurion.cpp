@@ -198,7 +198,7 @@ class boss_arcurion : public CreatureScript
             {
                 for (uint8 i = 0; i < MAX_SERVITOR; ++i)
                 {
-                    if (servitors[i] == 0)
+                    if (servitors[i].IsEmpty())
                     {
                         if (Creature* pServitor = me->SummonCreature(NPC_FROZEN_SERVITOR, servitorPos[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000))
                         {
@@ -213,7 +213,7 @@ class boss_arcurion : public CreatureScript
             {
                 for (uint8 i = 0; i < MAX_SERVITOR; ++i)
                     if (servitors[i] == guid)
-                        servitors[i] = 0;
+                        servitors[i].Clear();
             }
 
         };   

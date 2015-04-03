@@ -1665,7 +1665,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             uiFlameTimer = 0;
-            tGuid = 0;
+            tGuid.Clear();
         }
 
         ObjectGuid tGuid;

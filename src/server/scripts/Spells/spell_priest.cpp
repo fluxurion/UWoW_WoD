@@ -1473,7 +1473,7 @@ class spell_pri_void_shift : public SpellScriptLoader
                         else
                             casterHeal = caster->CountPctFromMaxHealth(int32(targetPct));
 
-                        if(target->GetHealth() > targetHeal)
+                        if((int32)target->GetHealth() > targetHeal)
                         {
                             targetDamage = target->GetHealth() - targetHeal;
                             targetHeal = 0;
@@ -1481,7 +1481,7 @@ class spell_pri_void_shift : public SpellScriptLoader
                         else
                             targetHeal -= target->GetHealth();
 
-                        if(caster->GetHealth() > casterHeal)
+                        if((int32)caster->GetHealth() > casterHeal)
                         {
                             casterDamage = caster->GetHealth() - casterHeal;
                             casterHeal = 0;

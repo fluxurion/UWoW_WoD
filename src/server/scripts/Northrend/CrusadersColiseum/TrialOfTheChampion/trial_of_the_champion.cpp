@@ -166,14 +166,14 @@ public:
             for (uint8 i=0; i<3; i++)
             {
                 bossEntry[i] = 0;
-                bossGUID[i] = 0;
+                bossGUID[i].Clear();
                 for (uint8 j=0; j<3; j++)
-                    addsGUID[i][j] = 0;
+                    addsGUID[i][j].Clear();
             }
 
             announceID.clear();
             playersGUID.clear();
-            stalkerGUID = 0;
+            stalkerGUID.Clear();
             defeatedCount = 0;
             addsAttacking = false;
         }
@@ -613,7 +613,7 @@ public:
                         for (uint8 i=0; i<3; i++)
                             if (Creature* boss = me->GetCreature(*me, bossGUID[i]))
                             {
-                                boss->SetTarget(0);
+                                boss->SetTarget(ObjectGuid::Empty);
                                 boss->CastSpell(boss, SPELL_MOUNT_LANCE_STAND, true);
                                 boss->SetHomePosition(boss->GetPositionX(), boss->GetPositionY(), boss->GetPositionZ(), boss->GetOrientation());
                             }
@@ -622,7 +622,7 @@ public:
                             for (uint8 j=0; j<3; j++)
                                 if (Creature* add = me->GetCreature(*me, addsGUID[i][j]))
                                 {
-                                    add->SetTarget(0);
+                                    add->SetTarget(ObjectGuid::Empty);
                                     add->SetFacingToObject(me);
                                     add->CastSpell(add, SPELL_MOUNT_LANCE_STAND, true);
                                     add->SetHomePosition(add->GetPositionX(), add->GetPositionY(), add->GetPositionZ(), add->GetOrientation());
@@ -838,7 +838,7 @@ public:
 								//we force faction due to interfaction
 								boss->setFaction(16); 
                                 // Save current boss entry to inst for achievement check
-                                instance->SetData64(DATA_GRAND_CHAMPION_GUID, boss->GetGUID());
+                                instance->SetGuidData(DATA_GRAND_CHAMPION_GUID, boss->GetGUID());
                                 instance->SetData(DATA_GRAND_CHAMPION_ENTRY, boss->GetEntry());
                                 // Prevent bosses from falling down the ground
                                 boss->SetPosition(boss->GetPositionX(), boss->GetPositionY(), boss->GetPositionZ()+0.1f, boss->GetOrientation());
@@ -1301,7 +1301,7 @@ public:
                         if (Creature* blackKinght = me->GetCreature(*me, instance->GetGuidData(DATA_BLACK_KNIGHT)))
                         {
                             blackKinght->AI()->DoCast(me, SPELL_DEATH_PUSH_INTRO);
-                            blackKinght->SetTarget(0);
+                            blackKinght->SetTarget(ObjectGuid::Empty);
                         }
                         events.ScheduleEvent(6, 2000);
                         break;

@@ -478,7 +478,7 @@ void AreaTrigger::DoAction(Unit* unit, ActionInfo& action)
         || action.action->targetFlags & AT_TARGET_FLAG_CASTER_IS_TARGET)
         caster = unit;
 
-    if(action.action->hitMaxCount && action.hitCount >= action.action->hitMaxCount)
+    if(action.action->hitMaxCount && (int32)action.hitCount >= action.action->hitMaxCount)
         return;
 
     switch (action.action->actionType)

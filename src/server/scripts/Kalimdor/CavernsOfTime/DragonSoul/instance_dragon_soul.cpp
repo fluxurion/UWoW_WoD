@@ -3,6 +3,7 @@
 #include "Group.h"
 #include "LFGMgr.h"
 #include "LFGQueue.h"
+#include "Creature.h"
 
 #define MAX_ENCOUNTER 8
 
@@ -48,7 +49,7 @@ class instance_dragon_soul : public InstanceMapScript
                 uiUltraxionGUID.Clear();
                 uiBlackhornGUID.Clear();
                 uiAllianceShipGUID.Clear();
-                uiAllianceShipFirstGUID =0;
+                uiAllianceShipFirstGUID.Clear();
                 uiHordeShipGUID.Clear();
                 uiSwayzeGUID.Clear();
                 // teleports
@@ -79,11 +80,11 @@ class instance_dragon_soul : public InstanceMapScript
                 uiNethestraszGUID.Clear();
                 uiOpenPortalEvent = 0;
                 bHagaraEvent = 0;
-                uiThrallEvent = 0;
+                uiThrallEvent.Clear();
                 uiDragonSoulEvent = 0;
                 uiUltraxionTrash = 0;
                 uiDragonsCount = 0;
-                uiDeathwingEvent = 0;
+                uiDeathwingEvent.Clear();
                 uiDelayedChestData = 0;
 
                 lfrSectionFound = false;
@@ -344,25 +345,25 @@ class instance_dragon_soul : public InstanceMapScript
                 switch (pCreature->GetEntry())
                 {
                     case NPC_ULTRAXION:
-                        uiUltraxionGUID = 0;
+                        uiUltraxionGUID.Clear();
                         break;
                     case NPC_BLACKHORN:
-                        uiBlackhornGUID = 0;
+                        uiBlackhornGUID.Clear();
                         break;
                     case NPC_DEATHWING:
-                        uiDeathwingGUID = 0;
+                        uiDeathwingGUID.Clear();
                         break;
                     case NPC_ALEXSTRASZA_DRAGON:
-                        uiAlexstraszaDragonGUID = 0;
+                        uiAlexstraszaDragonGUID.Clear();
                         break;
                     case NPC_NOZDORMU_DRAGON:
-                        uiNozdormuDragonGUID = 0;
+                        uiNozdormuDragonGUID.Clear();
                         break;
                     case NPC_YSERA_DRAGON:
-                        uiYseraDragonGUID = 0;
+                        uiYseraDragonGUID.Clear();
                         break;
                     case NPC_KALECGOS_DRAGON:
-                        uiKalecgosDragonGUID = 0;
+                        uiKalecgosDragonGUID.Clear();
                         break;
                 }
             }
@@ -625,7 +626,7 @@ class instance_dragon_soul : public InstanceMapScript
                         {
                             if (Creature* thrall = instance->GetCreature(uiThrallEvent))
                                 thrall->AI()->DoAction(ACTION_STOP_ASSAULTERS_SPAWN);
-                            if (Creature* Deathwing = instance->GetCreature(GetData64(DATA_DRAGON_SOUL_EVENT)))
+                            if (Creature* Deathwing = instance->GetCreature(GetGuidData(DATA_DRAGON_SOUL_EVENT)))
                                 Deathwing->AI()->DoAction(ACTION_DEATHWING_INTRO);
                             for (GuidVector::const_iterator itr = assaultersGUIDs.begin(); itr != assaultersGUIDs.end(); ++itr)
                                 if (Creature* assaulters = instance->GetCreature(*itr))
@@ -649,15 +650,15 @@ class instance_dragon_soul : public InstanceMapScript
                     case DATA_SPAWN_GREATER_CHEST:
                         if (uiDelayedChestData)
                         {
-                            if (instance->GetGameObject(GetData64(uiDelayedChestData)))
+                            if (instance->GetGameObject(GetGuidData(uiDelayedChestData)))
                             {
-                                DoRespawnGameObject(GetData64(uiDelayedChestData), DAY);
+                                DoRespawnGameObject(GetGuidData(uiDelayedChestData), DAY);
                                 uiDelayedChestData = 0;
                             }
                         }
-                        else if (instance->GetGameObject(GetData64(data)))
+                        else if (instance->GetGameObject(GetGuidData(data)))
                         {
-                            DoRespawnGameObject(GetData64(data), DAY);
+                            DoRespawnGameObject(GetGuidData(data), DAY);
                             uiDelayedChestData = 0;
                         }
                         else
@@ -827,11 +828,11 @@ class instance_dragon_soul : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-            bool IsLFR()
+            bool IsLFR() const
             {
                 return isLfr;
             }
-            bool IsFallOfDeathwing()
+            bool IsFallOfDeathwing() const
             {
                 return isLfr && isFallOfDeathwing;
             }
@@ -873,7 +874,7 @@ class instance_dragon_soul : public InstanceMapScript
                 return false;
             }
 
-            Creature* GetNextTwilightAssaulterStalker(Creature const* current)
+            Creature* GetNextTwilightAssaulterStalker(Creature const* current) override
             {
                 ObjectGuid currentGuid = current->GetGUID();
                 for (uint8 row = 0; row < 7; ++row)
@@ -916,7 +917,7 @@ class instance_dragon_soul : public InstanceMapScript
                 }
                 return NULL;
             }
-            Position const* GetRandomTwilightAssaulterAssaultPosition(bool horizonal, bool fromEnd, uint8& lane, ObjectGuid& targetGUID)
+            Position const* GetRandomTwilightAssaulterAssaultPosition(bool horizonal, bool fromEnd, uint8& lane, ObjectGuid& targetGUID) override
             {
                 if (horizonal)
                 {
@@ -1013,14 +1014,14 @@ class instance_dragon_soul : public InstanceMapScript
                     return assaultPos;
                 }
             }
-            void FreeTwilightAssaulterAssaultLane(bool horizontal, uint8 lane)
+            void FreeTwilightAssaulterAssaultLane(bool horizontal, uint8 lane) override
             {
                 if (horizontal)
                     twilightAssaultLanesUsedH[lane] = 0;
                 else
                     twilightAssaultLanesUsedV[lane] = 0;
             }
-            virtual void CleanTwilightAssaulterAssaultLane(bool horizontal, uint8 lane)
+            virtual void CleanTwilightAssaulterAssaultLane(bool horizontal, uint8 lane) override
             {
                 if (horizontal)
                 {
@@ -1102,7 +1103,7 @@ class instance_dragon_soul : public InstanceMapScript
                 uint8 twilightAssaultLanesUsedV[5];
 
                 ObjectGuid uiNethestraszGUID;
-                ObjectGuid uiOpenPortalEvent;
+                uint32 uiOpenPortalEvent;
                 ObjectGuid uiDeathwingEvent;
                 ObjectGuid uiThrallEvent;
                 uint32 bHagaraEvent;

@@ -246,7 +246,7 @@ public:
                 }
                 me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                 me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 Talk(SAY_COMMON_DEATH);
                 BindPlayersToInstance(me);
@@ -450,7 +450,7 @@ public:
                 }
                 me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                 me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
-                me->SetTarget(0);
+                me->SetTarget(ObjectGuid::Empty);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 Talk(SAY_COMMON_DEATH);
                 BindPlayersToInstance(me);

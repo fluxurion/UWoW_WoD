@@ -46,28 +46,28 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 NeedSave = false;
                 EventNPCId = 0;
 
-                TirionFordringGUID = 0;
-                BarrentGUID = 0;
-                TirionGUID = 0;
-                FizzlebangGUID = 0;
-                GarroshGUID = 0;
-                VarianGUID = 0;
-                GormokGUID = 0;
-                AcidmawGUID = 0;
-                DreadscaleGUID = 0;
-                IcehowlGUID = 0;
-                JaraxxusGUID = 0;
-                ChampionsControllerGUID = 0;
-                DarkbaneGUID = 0;
-                LightbaneGUID = 0;
-                AnubarakGUID = 0;
+                TirionFordringGUID.Clear();
+                BarrentGUID.Clear();
+                TirionGUID.Clear();
+                FizzlebangGUID.Clear();
+                GarroshGUID.Clear();
+                VarianGUID.Clear();
+                GormokGUID.Clear();
+                AcidmawGUID.Clear();
+                DreadscaleGUID.Clear();
+                IcehowlGUID.Clear();
+                JaraxxusGUID.Clear();
+                ChampionsControllerGUID.Clear();
+                DarkbaneGUID.Clear();
+                LightbaneGUID.Clear();
+                AnubarakGUID.Clear();
 
-                TributeChestGUID = 0;
-                MainGateDoorGUID = 0;
-                EastPortcullisGUID = 0;
-                WebDoorGUID = 0;
-                CrusadersCacheGUID = 0;
-                FloorGUID = 0;
+                TributeChestGUID.Clear();
+                MainGateDoorGUID.Clear();
+                EastPortcullisGUID.Clear();
+                WebDoorGUID.Clear();
+                CrusadersCacheGUID.Clear();
+                FloorGUID.Clear();
             }
 
             bool IsEncounterInProgress() const
@@ -96,10 +96,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 // make sure Anub'arak isnt missing and floor is destroyed after a crash
                 if (GetBossState(BOSS_LICH_KING) == DONE && TrialCounter && GetBossState(BOSS_ANUBARAK) != DONE)
                 {
-                    if (Creature* anubArak = ObjectAccessor::GetCreature(*player, GetData64(NPC_ANUBARAK)))
+                    if (Creature* anubArak = ObjectAccessor::GetCreature(*player, GetGuidData(NPC_ANUBARAK)))
                         anubArak = player->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
 
-                    if (GameObject* floor = ObjectAccessor::GetGameObject(*player, GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                    if (GameObject* floor = ObjectAccessor::GetGameObject(*player, GetGuidData(GO_ARGENT_COLISEUM_FLOOR)))
                         floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
                 }
             }
@@ -354,13 +354,13 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 if (IsEncounterInProgress())
                 {
-                    CloseDoor(GetData64(GO_EAST_PORTCULLIS));
-                    CloseDoor(GetData64(GO_WEB_DOOR));
+                    CloseDoor(GetGuidData(GO_EAST_PORTCULLIS));
+                    CloseDoor(GetGuidData(GO_WEB_DOOR));
                 }
                 else
                 {
-                    OpenDoor(GetData64(GO_EAST_PORTCULLIS));
-                    OpenDoor(GetData64(GO_WEB_DOOR));
+                    OpenDoor(GetGuidData(GO_EAST_PORTCULLIS));
+                    OpenDoor(GetGuidData(GO_WEB_DOOR));
                 }
 
                 if (type < MAX_ENCOUNTERS)
@@ -380,10 +380,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             // if theres no more attemps allowed
                             if (!TrialCounter)
                             {
-                                if (Unit* announcer = instance->GetCreature(GetData64(NPC_BARRENT)))
+                                if (Unit* announcer = instance->GetCreature(GetGuidData(NPC_BARRENT)))
                                     announcer->ToCreature()->DespawnOrUnsummon();
 
-                                if (Creature* anubArak = instance->GetCreature(GetData64(NPC_ANUBARAK)))
+                                if (Creature* anubArak = instance->GetCreature(GetGuidData(NPC_ANUBARAK)))
                                     anubArak->DespawnOrUnsummon();
                             }
                         }
@@ -394,7 +394,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                     if (state == DONE || NeedSave)
                     {
-                        if (Unit* announcer = instance->GetCreature(GetData64(NPC_BARRENT)))
+                        if (Unit* announcer = instance->GetCreature(GetGuidData(NPC_BARRENT)))
                             announcer->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         Save();
                     }
@@ -584,7 +584,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case 5060:
                             case 5070:
                             case 5080:
-                                EventNPCId = NPC_LICH_KING;
+                                static_cast<uint32>(EventNPCId) = NPC_LICH_KING;
                             case 120:
                             case 122:
                             case 2020:

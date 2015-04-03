@@ -371,12 +371,12 @@ class npc_fizzlebang_toc : public CreatureScript
             {
                 Initialize();
                 _instance = me->GetInstanceScript();
-                _triggerGUID = 0;
+                _triggerGUID.Clear();
             }
 
             void Initialize()
             {
-                _portalGUID = 0;
+                _portalGUID.Clear();
             }
 
             void JustDied(Unit* killer)

@@ -638,7 +638,7 @@ public:
 
             if (instance)
             {
-                instance->SetData64(DATA_HARBINGER, me->GetGUID());
+                instance->SetGuidData(DATA_HARBINGER, me->GetGUID());
 
                 if (Creature* barim = Unit::GetCreature(*me, instance->GetGuidData(DATA_HIGH_PROPHET_BARIM)))
                     barim->AI()->JustSummoned(me);

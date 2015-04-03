@@ -2299,7 +2299,7 @@ class spell_warl_felsteed : public SpellScriptLoader
                     float angle = caster->GetAngle(&savePos);
                     if(count > 0)
                     {
-                        for(int32 j = 0; j < count + 2; ++j)
+                        for(uint32 j = 0; j < count + 2; ++j)
                         {
                             int32 distanceNext = j * 2;
                             float destx = caster->GetPositionX() + distanceNext * std::cos(angle);

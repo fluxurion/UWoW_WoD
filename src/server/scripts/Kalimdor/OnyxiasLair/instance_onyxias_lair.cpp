@@ -191,7 +191,7 @@ public:
 
         uint32 GetData(uint32 type) const
         {
-            switch (Type)
+            switch (type)
             {
                 case DATA_ONYXIA:
                     return Encounter[0];

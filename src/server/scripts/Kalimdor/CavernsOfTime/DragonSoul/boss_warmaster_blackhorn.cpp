@@ -213,7 +213,7 @@ class boss_warmaster_blackhorn: public CreatureScript
                 drakeDied = 0;
                 phase = 0;
                 deck = true;
-                shockwaveTarget = 0;
+                shockwaveTarget.Clear();
                 clearShockwaveTarget = false;
             }
 
@@ -1938,7 +1938,7 @@ class spell_warmaster_blackhorn_shockwave_aoe : public SpellScriptLoader
                 if (!GetCaster() || !GetHitUnit())
                     return;
 
-                GetCaster()->SetTarget(NULL);
+                GetCaster()->SetTarget(ObjectGuid::Empty);
                 GetCaster()->GetAI()->SetGUID(GetHitUnit()->GetGUID());
                 Position pos;
                 GetCaster()->GetNearPosition(pos, 1, GetCaster()->GetRelativeAngle(GetHitUnit()));

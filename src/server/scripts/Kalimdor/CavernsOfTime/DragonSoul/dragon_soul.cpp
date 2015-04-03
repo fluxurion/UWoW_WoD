@@ -1526,7 +1526,7 @@ class npc_dragon_soul_thrall : public CreatureScript
                             break;
                         case EVENT_SPAWN_DRAGONS:
                             instance->SetData(DATA_ULTRAXION_TRASH, IN_PROGRESS);
-                            if (Creature* Deathwing = instance->instance->GetCreature(pinstance->GetGuidData(DATA_DRAGON_SOUL_EVENT)))
+                            if (Creature* Deathwing = instance->instance->GetCreature(instance->GetGuidData(DATA_DRAGON_SOUL_EVENT)))
                                 Deathwing->AI()->DoAction(ACTION_DEATHWING_INTRO);
                             break;
                         case EVENT_DRAGONS_INTRO_1:
@@ -1595,17 +1595,17 @@ class npc_dragon_soul_thrall : public CreatureScript
                             }
                             break;
                         case EVENT_SPAWN_SHIP:
-                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pinstance->GetGuidData(DATA_HORDE_SHIP)))
+                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_HORDE_SHIP)))
                             {
                                 pShip->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
                             }
-                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pinstance->GetGuidData(DATA_ALLIANCE_SHIP_FIRST)))
+                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ALLIANCE_SHIP_FIRST)))
                             {
                                 pShip->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
                             }
-                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, pinstance->GetGuidData(DATA_ALLIANCE_SHIP)))
+                            if (GameObject* pShip = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_ALLIANCE_SHIP)))
                             {
                                 pShip->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_DESTROYED);
                                 pShip->UpdateObjectVisibility();
@@ -1615,7 +1615,7 @@ class npc_dragon_soul_thrall : public CreatureScript
                         case EVENT_SPAWN_NPC:
                             me->SummonCreature(NPC_SKY_CAPTAIN_SWAYZE, customPos[1], TEMPSUMMON_MANUAL_DESPAWN, 0);
                             me->SummonCreature(NPC_KAANU_REEVS, customPos[2], TEMPSUMMON_MANUAL_DESPAWN, 0);
-                            if (Creature* pSwayze = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_SWAYZE)))
+                            if (Creature* pSwayze = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SWAYZE)))
                                 pSwayze->AI()->Talk(9);
                             events.ScheduleEvent(EVENT_TALK_ULTRAXION_WIN_1, 10000);
                             break;

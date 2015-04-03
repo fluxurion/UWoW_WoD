@@ -3360,7 +3360,7 @@ public:
         if(!pl->m_vis)
             pl->m_vis = new Visuals;
 
-        if (pl->HandleChangeSlotModel(EQUIPMENT_SLOT_BODY, newItem, 3))
+        if (pl->HandleChangeSlotModel(newItem, EQUIPMENT_SLOT_BODY))
         {
             pl->m_vis->m_visShirt = newItem;
             return true;

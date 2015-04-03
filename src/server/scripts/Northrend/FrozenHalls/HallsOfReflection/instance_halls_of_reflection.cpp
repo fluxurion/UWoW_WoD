@@ -79,15 +79,15 @@ public:
         {
             SetBossNumber(MAX_ENCOUNTER);
             events.Reset();
-            _falricGUID = 0;
-            _marwynGUID = 0;
-            _jainaOrSylvanasPart1GUID = 0;
-            _jainaOrSylvanasPart2GUID = 0;
-            _frostwornGeneralGUID = 0;
-            _frostmourneGUID = 0;
-            _entranceDoorGUID = 0;
-            _frostwornDoorGUID = 0;
-            _arthasDoorGUID = 0;
+            _falricGUID.Clear();
+            _marwynGUID.Clear();
+            _jainaOrSylvanasPart1GUID.Clear();
+            _jainaOrSylvanasPart2GUID.Clear();
+            _frostwornGeneralGUID.Clear();
+            _frostmourneGUID.Clear();
+            _entranceDoorGUID.Clear();
+            _frostwornDoorGUID.Clear();
+            _arthasDoorGUID.Clear();
             _teamInInstance = 0;
             _waveCount = 0;
             _mobsaticewall = 0;
@@ -161,30 +161,30 @@ public:
                 case GO_FROSTMOURNE:
                     _frostmourneGUID = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
-                    HandleGameObject(0, false, go);
+                    HandleGameObject(ObjectGuid::Empty, false, go);
                     if (GetData(DATA_INTRO_EVENT) == DONE)
                         go->SetPhaseMask(2, true);
                     break;
                 case GO_ENTRANCE_DOOR:
                     _entranceDoorGUID = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
-                    HandleGameObject(0, true, go);
+                    HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_FROSTWORN_DOOR:
                     _frostwornDoorGUID = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                     if (GetBossState(DATA_MARWYN_EVENT) == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     else
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_ARTHAS_DOOR:
                     _arthasDoorGUID = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_INTERACT_COND);
                     if (GetData(DATA_FROSWORN_EVENT) == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     else
-                        HandleGameObject(0, false, go);
+                        HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_CAVE:
                     _caveGUID = go->GetGUID();
@@ -480,7 +480,7 @@ public:
                         Map::PlayerList const& players = instance->GetPlayers();
                         if (!players.isEmpty())
                             if (Player* player = players.begin()->getSource())
-                                _teamInInstance = player->GetTeam();
+                                static_cast<uint32>(_teamInInstance) = player->GetTeam();
                     }
                     return _teamInInstance;
                 case DATA_INTRO_EVENT:
@@ -498,7 +498,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const
         {
             switch (type)
             {
@@ -520,7 +520,7 @@ public:
                     break;
             }
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         std::string GetSaveData()

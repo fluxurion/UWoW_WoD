@@ -534,12 +534,12 @@ class npc_shannox_riplimb : public CreatureScript
                         case EVENT_CHECK_COMBAT:
                             if (me->isInCombat())
                             {
-                                if (Creature* pRageface = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_RAGEFACE)))
+                                if (Creature* pRageface = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RAGEFACE)))
                                     if (!pRageface->isInCombat() && !pRageface->IsInEvadeMode())
                                         if (pRageface->isAlive())
                                             DoZoneInCombat(pRageface);
 
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                                     if (!pShannox->isInCombat() && !pShannox->IsInEvadeMode())
                                         if (pShannox->isAlive())
                                             DoZoneInCombat(pShannox);
@@ -553,7 +553,7 @@ class npc_shannox_riplimb : public CreatureScript
                             break;
                         case EVENT_FETCH_SPEAR:
                             if (instance)
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                                 {
                                     bFetch = true;
                                     me->GetMotionMaster()->MovementExpired(false);
@@ -684,12 +684,12 @@ class npc_shannox_rageface : public CreatureScript
                         case EVENT_CHECK_COMBAT:
                             if (me->isInCombat())
                             {
-                                if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_RIPLIMB)))
+                                if (Creature* pRiplimb = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_RIPLIMB)))
                                     if (!pRiplimb->isInCombat() && !pRiplimb->IsInEvadeMode())
                                         if (pRiplimb->isAlive())
                                             DoZoneInCombat(pRiplimb);
 
-                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, pinstance->GetGuidData(DATA_SHANNOX)))
+                                if (Creature* pShannox = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SHANNOX)))
                                     if (!pShannox->isInCombat() && !pShannox->IsInEvadeMode())
                                         if (pShannox->isAlive())
                                             DoZoneInCombat(pShannox);

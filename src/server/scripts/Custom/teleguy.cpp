@@ -96,7 +96,7 @@ public:
         if(!player->getAttackers().empty())
         {
             player->CLOSE_GOSSIP_MENU();
-            _Creature->MonsterSay("You are in combat!", LANG_UNIVERSAL, NULL);
+            _Creature->MonsterSay("You are in combat!", LANG_UNIVERSAL, ObjectGuid::Empty);
             return false;
         }
 

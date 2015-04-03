@@ -4316,7 +4316,7 @@ class npc_riggle_bassbait : public CreatureScript
         {
             if (StartEvent)
             {
-                ZoneTalk(TEXT_GENERIC_0, 0);
+                ZoneTalk(TEXT_GENERIC_0, ObjectGuid::Empty);
                 StartEvent = false;
             }
         }

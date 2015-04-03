@@ -217,7 +217,7 @@ public:
             Talk (RAND(SAY_KILL, SAY_KILL_2));
         }
 
-        uint32 GetData(uint32 data)
+        uint32 GetData(uint32 data) const
         {
             if (data == DATA_PHASE)
                 return _phase;
@@ -268,12 +268,12 @@ public:
             SetPhase(PHASE_TWO, true);
             SendLightOverride(NORMAL, 5000);
             SendWeather(WEATHER_STATE_MEDIUM_RAIN);
-            me->MonsterYell("INSTANCE MESSAGE: Al'Akir PhaseTwo started", 0, 0);
+            me->MonsterYell("INSTANCE MESSAGE: Al'Akir PhaseTwo started", 0, ObjectGuid::Empty);
         }
 
         void StartPhaseThree()
         {
-            me->MonsterYell("INSTANCE MESSAGE: Al'Akir PhaseThree started", 0, 0);
+            me->MonsterYell("INSTANCE MESSAGE: Al'Akir PhaseThree started", 0, ObjectGuid::Empty);
             SetPhase(PHASE_THREE, true);
 
             GameObject* floor = me->FindNearestGameObject(GO_FLOOR_ALAKIR, 200);
@@ -306,18 +306,18 @@ public:
         {
             Talk(SAY_AGGRO);
             _EnterCombat();
-            me->MonsterYell("INSTANCE MESSAGE: Al'Akir _EnterCombat", 0, 0);
+            me->MonsterYell("INSTANCE MESSAGE: Al'Akir _EnterCombat", 0, ObjectGuid::Empty);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             events.SetPhase(PHASE_ONE);
-            me->MonsterYell("PHASE_ONE", 0, 0);
+            me->MonsterYell("PHASE_ONE", 0, ObjectGuid::Empty);
             events.ScheduleEvent(EVENT_BERSERK, 10 * MINUTE * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* killer)
         {
             _JustDied();
-            me->MonsterYell("INSTANCE MESSAGE: Al'Akir _JustDied", 0, 0);
+            me->MonsterYell("INSTANCE MESSAGE: Al'Akir _JustDied", 0, ObjectGuid::Empty);
             me->SummonGameObject(GO_HEART_OF_THE_WIND, 25.359699f, 777.276733f, 200.264008f, 0, 0, 0, 0, 0, 100000);
         }
 
@@ -325,18 +325,18 @@ public:
         {
             if (me->HealthBelowPctDamaged(99, damage))
             {
-                me->MonsterYell("fuck it", 0, 0);
+                me->MonsterYell("fuck it", 0, ObjectGuid::Empty);
             }
 
             if (me->HealthBelowPctDamaged(80, damage) && (_phase == PHASE_ONE))
             {
                 StartPhaseTwo();
-                me->MonsterYell("INSTANCE MESSAGE: Al'Akir StartPhaseTwo", 0, 0);
+                me->MonsterYell("INSTANCE MESSAGE: Al'Akir StartPhaseTwo", 0, ObjectGuid::Empty);
             }
             if (me->HealthBelowPctDamaged(25, damage) && (_phase == PHASE_TWO))
             {
                 StartPhaseThree();
-                me->MonsterYell("INSTANCE MESSAGE: Al'Akir StartPhaseThree", 0, 0);
+                me->MonsterYell("INSTANCE MESSAGE: Al'Akir StartPhaseThree", 0, ObjectGuid::Empty);
             }
         }
 

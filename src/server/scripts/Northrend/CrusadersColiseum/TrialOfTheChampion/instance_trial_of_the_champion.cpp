@@ -251,16 +251,16 @@ public:
             if (type != DATA_I_VE_HAD_WORSE)
             {
                 if (data == DONE || data == FAIL)
-                    HandleGameObject(GetData64(DATA_PORTCULLIS), true);
+                    HandleGameObject(GetGuidData(DATA_PORTCULLIS), true);
                 else if (data == IN_PROGRESS)
-                    HandleGameObject(GetData64(DATA_PORTCULLIS), false);
+                    HandleGameObject(GetGuidData(DATA_PORTCULLIS), false);
 
                 if (data == DONE)
                     SaveToDB();
             }
         }
 
-        uint32 GetData(uint32 data)
+        uint32 GetData(uint32 data) const
         {
             switch(data)
             {

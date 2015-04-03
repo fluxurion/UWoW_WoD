@@ -27,7 +27,7 @@ class instance_hour_of_twilight : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doordata);
                 
-                uiAsira = 0;
+                uiAsira.Clear();
             }
             
             void OnCreatureCreate(Creature* pCreature)

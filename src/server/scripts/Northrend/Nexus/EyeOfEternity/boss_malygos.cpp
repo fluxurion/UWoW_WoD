@@ -330,7 +330,7 @@ enum MiscData
 class VehicleCheckPredicate
 {
     public:
-        bool operator()(ObjectGuid guid) { return IS_VEHICLE_GUID(guid); }
+        bool operator()(ObjectGuid guid) { return guid.IsVehicle(); }
 };
 
 class boss_malygos : public CreatureScript
@@ -354,8 +354,8 @@ public:
 
             _summonDeaths = 0;
             _preparingPulsesChecker = 0;
-            _arcaneOverloadGUID = 0;
-            _lastHitByArcaneBarrageGUID = 0;
+            _arcaneOverloadGUID.Clear();
+            _lastHitByArcaneBarrageGUID.Clear();
             memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
 
             _killSpamFilter = false;
@@ -380,7 +380,7 @@ public:
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, ACHIEV_TIMED_START_EVENT);
         }
 
-        uint32 GetData(uint32 data)
+        uint32 GetData(uint32 data) const
         {
             switch (data)
             {
@@ -425,7 +425,7 @@ public:
             else if (type == DATA_LAST_TARGET_BARRAGE_GUID)
                 return _lastHitByArcaneBarrageGUID;
 
-            return 0;
+            return ObjectGuid::Empty;
         }
 
         void SetGUID(ObjectGuid const& guid, int32 type)
@@ -670,7 +670,7 @@ public:
                 Talk(SAY_BUFF_SPARK);
             }
             else if (spell->Id == SPELL_MALYGOS_BERSERK)
-                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -1142,7 +1142,7 @@ public:
         {
             _instance = creature->GetInstanceScript();
             // Talk range was not enough for this encounter
-            sCreatureTextMgr->SendChat(me, EMOTE_POWER_SPARK_SUMMONED, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+            sCreatureTextMgr->SendChat(me, EMOTE_POWER_SPARK_SUMMONED, ObjectGuid::Empty, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
             MoveToMalygos();
         }
 
