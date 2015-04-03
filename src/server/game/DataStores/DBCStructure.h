@@ -1877,6 +1877,9 @@ struct ScenarioStepEntry
     //char* m_descriptionLang;                              // 4
     //char* m_title_lang;                                   // 5
     uint32 m_flags;                                         // 6
+    uint32 RelatedStep;                                     // 7
+    uint32 Supersedes;                                      // 8
+    uint32 RewardQuestID;                                   // 9
 
     bool IsBonusObjective() const { return m_flags & SCENARIO_STEP_FLAG_BONUS_OBJECTIVE; }
 };
