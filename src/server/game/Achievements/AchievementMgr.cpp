@@ -1384,35 +1384,21 @@ void AchievementMgr<Player>::SendCriteriaUpdate(CriteriaEntry const* entry, Crit
     SendPacket(criteriaUpdate.Write());
 }
 
+//! 6.0.3
 template<>
 void AchievementMgr<Player>::SendAccountCriteriaUpdate(CriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
     WorldPacket data(SMSG_ACCOUNT_CRITERIA_UPDATE);
     ObjectGuid guid = GetOwner()->GetGUID();         // needed send first completer criteria guid or else not found - then current player guid
 
-    //data.WriteGuidMask<6, 7>(guid);
-    //data.WriteGuidMask<6>(progress->counter);
-    //data.WriteGuidMask<1>(guid);
-    data.WriteBits(0, 4);                         // Flags
-    //data.WriteGuidMask<4, 5>(progress->counter);
-    //data.WriteGuidMask<2, 5, 0>(guid);
-    //data.WriteGuidMask<0, 3, 1, 2>(progress->counter);
-    //data.WriteGuidMask<4, 3>(guid);
-    //data.WriteGuidMask<7>(progress->counter);
-
-    //data.WriteGuidBytes<0, 5, 3>(progress->counter);
-    //data.WriteGuidBytes<7>(guid);
-    //data.WriteGuidBytes<6, 1, 2>(progress->counter);
-    //data.WriteGuidBytes<1>(guid);
-    data << uint32(0);
-    data << uint32(0);
-    //data.WriteGuidBytes<2, 3>(guid);
-    //data.WriteGuidBytes<4>(progress->counter);
-    //data.WriteGuidBytes<6, 0, 4>(guid);
-    data << uint32(secsToTimeBitFields(progress->date));   // Date
-    //data.WriteGuidBytes<7>(progress->counter);
     data << uint32(entry->ID);
-    //data.WriteGuidBytes<5>(guid);
+    data << uint64(progress->counter);                     // Quantity
+    data << GetOwner()->GetGUID();
+    data << uint32(secsToTimeBitFields(progress->date));   // Date
+    data << uint32(0);
+    data << uint32(0);
+
+    data.WriteBits(0, 4);                         // Flags
 
     SendPacket(&data);
 }
@@ -1426,6 +1412,7 @@ void AchievementMgr<ScenarioProgress>::SendCriteriaUpdate(CriteriaEntry const* e
         GetOwner()->UpdateCurrentStep(false);
 }
 
+//! 6.0.3 ToDo: check time
 template<>
 void AchievementMgr<Guild>::SendCriteriaUpdate(CriteriaEntry const* entry, CriteriaProgress const* progress, uint32 /*timeElapsed*/, bool /*timedCompleted*/) const
 {
@@ -1434,38 +1421,19 @@ void AchievementMgr<Guild>::SendCriteriaUpdate(CriteriaEntry const* entry, Crite
 
     //ObjectGuid counter = progress->counter; // for accessing every byte individually
     ObjectGuid guid = progress->CompletedGUID;
+    data << uint32(1);                          //counter
+    //for (int i = 0; i < int16; i++)
+    {
+        data << uint32(entry->ID);
+        data << uint32(secsToTimeBitFields(progress->date));
+        data << uint32(secsToTimeBitFields(progress->date));
+        data << uint32(::time(NULL) - progress->date);
+        data << uint64(progress->counter);
+        data << guid;
+        data << uint32(0);                      // flags?
+    }
 
-/*    data.WriteBits(1, 19);
-    //data.WriteGuidMask<4, 2, 6>(counter);
-    //data.WriteGuidMask<1, 5>(guid);
-    //data.WriteGuidMask<3>(counter);
-    //data.WriteGuidMask<2>(guid);
-    //data.WriteGuidMask<0, 5>(counter);
-    //data.WriteGuidMask<3>(guid);
-    //data.WriteGuidMask<1>(counter);
-    //data.WriteGuidMask<7>(guid);
-    //data.WriteGuidMask<7>(counter);
-    //data.WriteGuidMask<0, 6, 4>(guid);
-
-    //data.WriteGuidBytes<0>(guid);
-    data << uint32(secsToTimeBitFields(progress->date));
-    //data.WriteGuidBytes<2>(counter);
-    //data.WriteGuidBytes<1>(guid);
-    data << uint32(0);                      // flags?
-    //data.WriteGuidBytes<7, 6>(guid);
-    //data.WriteGuidBytes<0>(counter);
-    data << uint32(progress->date);         // unknown date
-    //data.WriteGuidBytes<6, 7>(counter);
-    //data.WriteGuidBytes<4>(guid);
-    //data.WriteGuidBytes<5>(counter);
-    data << uint32(entry->ID);
-    //data.WriteGuidBytes<4, 1>(counter);
-    data << uint32(::time(NULL) - progress->date);
-    //data.WriteGuidBytes<5, 2>(guid);
-    //data.WriteGuidBytes<3>(counter);
-    //data.WriteGuidBytes<3>(guid);
-
-    SendPacket(&data);*/
+    SendPacket(&data);
 }
 
 template<class T>
