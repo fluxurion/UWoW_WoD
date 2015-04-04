@@ -728,62 +728,47 @@ void WorldSession::HandleBattlemasterJoinRated(WorldPacket& recvData)
     JoinBracket(BRACKET_TYPE_RATED_BG);
 }
 
+//! 6.0.3
 void WorldSession::HandleRequestRatedInfo(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_RATED_INFO");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_RATED_BATTLEFIELD_INFO");
     _player->SendPvpRatedStats();
 }
 
+//! 6.0.3
 void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_OPTIONS_ENABLED");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_OPTIONS_ENABLED");
 
-    /// @Todo: perfome research in this case
     WorldPacket data(SMSG_PVP_OPTIONS_ENABLED, 1);
-    data.WriteBit(1);
-    data.WriteBit(1);
-    data.WriteBit(1);
-    data.WriteBit(1);
-    data.WriteBit(1);
+    data.WriteBit(1);           //RatedArenas
+    data.WriteBit(1);           //ArenaSkirmish
+    data.WriteBit(1);           //PugBattlegrounds
+    data.WriteBit(1);           //WargameBattlegrounds
+    data.WriteBit(1);           //WargameArenas
+    data.WriteBit(1);           //RatedBattlegrounds
     data.FlushBits();
     SendPacket(&data);
 }
 
+//! 6.0.3
 void WorldSession::HandleRequestPvpReward(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_REWARDS");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_REWARDS");
 
     _player->SendPvpRewards();
 }
 
-void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_RATED_BG_STATS");
-
-    Bracket* bracket = _player->getBracket(BRACKET_TYPE_RATED_BG);
-    ASSERT(bracket);
-
-    WorldPacket data(SMSG_BATTLEFIELD_RATED_INFO, 29);
-    data << uint32(bracket->getRating());  //rating
-    data << uint32(0);  //unk1
-    data << uint32(0);  //unk2
-    //data << _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG, true);
-    data << uint32(0);  //unk3
-    data << _player->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_POINTS);
-    data << uint8(3);   //unk4
-    data << uint32(0);  //unk5
-    SendPacket(&data);
-}
-
-//! This is const data used for calc some field for SMSG_PVP_RATED_STATS 
+//! This is const data used for calc some field for SMSG_BATTLEFIELD_RATED_INFO 
+//! 6.0.3
 void WorldSession::HandlePersonalRatedInfoRequest(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PERSONAL_RATED_INFO_REQUEST");
-    WorldPacket data(SMSG_PERSONAL_RATED_INFO, 20);
-    data << uint32(3500);
-    data << float(1639.28f);
-    data << uint32(2000);
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS");
+    WorldPacket data(SMSG_CONQUEST_FORMULA_CONSTANTS, 20);
+    data << uint32(1500);
+    data << uint32(3000);
     data << float(1511.26f);
+    data << float(1639.28f);
     data << float(0.00412f);
     SendPacket(&data);
 }

@@ -2097,7 +2097,7 @@ void Battleground::SendOpponentSpecialization(uint32 team)
 {
     uint32 opCoun = 0;
     ByteBuffer dataBuffer;
-    WorldPacket spec(SMSG_ARENA_OPPONENT_SPECIALIZATIONS, 65);  //send us info about opponents specID
+    WorldPacket spec(SMSG_ARENA_PREP_OPPONENT_SPECIALIZATIONS, 65);  //send us info about opponents specID
     spec.WriteBits(opCoun, 21);
 
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)

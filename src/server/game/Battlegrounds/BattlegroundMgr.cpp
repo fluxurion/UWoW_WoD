@@ -190,7 +190,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
         case STATUS_NONE:
         {
             //! 5.4.1
-            data->Initialize(SMSG_BATTLEFIELD_STATUS);
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_NONE);
 
             /*//data->WriteGuidMask<2, 0, 3, 6, 1, 5, 4, 7>(guidBytes1);
             //data->WriteGuidBytes<7, 3, 2, 6, 4>(guidBytes1);
@@ -254,7 +254,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
         case STATUS_WAIT_JOIN:
         {
             //! 5.4.1
-            data->Initialize(SMSG_BATTLEFIELD_STATUS_NEEDCONFIRMATION, 44);
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION, 44);
 
             /*data->WriteBit(1);                              //!byte44
             //data->WriteGuidMask<2>(guidBytes2);

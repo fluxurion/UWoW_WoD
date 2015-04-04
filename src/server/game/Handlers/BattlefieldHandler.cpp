@@ -130,7 +130,7 @@ void WorldSession::SendBfEntered(ObjectGuid guid)
 {
     ObjectGuidSteam bgGuid = 0/*guid*/;
 //    m_PlayerInWar[player->GetTeamId()].insert(player->GetGUID());
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERED);
+    WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERING);
     //data.WriteGuidMask<6>(bgGuid);
     data.WriteBit(1); // unk
     //data.WriteGuidMask<1>(bgGuid);

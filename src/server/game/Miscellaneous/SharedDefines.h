@@ -4482,7 +4482,7 @@ enum BracketType
     BRACKET_TYPE_ARENA_3  = 1,
     BRACKET_TYPE_ARENA_5  = 2,
     BRACKET_TYPE_RATED_BG = 3,
-    BRACKET_TYPE_MAX
+    BRACKET_TYPE_MAX      = 6
 };
 
 inline BracketType &operator++(BracketType &i){ return i = BracketType(i + 1); }

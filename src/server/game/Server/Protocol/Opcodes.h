@@ -515,8 +515,8 @@ enum OpcodeClient : uint32
     CMSG_REQUEST_FORCED_REACTIONS                     = 0x02C3,
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x031D,
     CMSG_REQUEST_PET_INFO                             = 0xBADD,
-    CMSG_REQUEST_PVP_OPTIONS_ENABLED                  = 0xBADD,
-    CMSG_REQUEST_PVP_REWARDS                          = 0xBADD,
+    CMSG_REQUEST_PVP_OPTIONS_ENABLED                  = 0x1101,
+    CMSG_REQUEST_PVP_REWARDS                          = 0x1399,
     CMSG_REQUEST_RAID_INFO                            = 0x0104,
     CMSG_REQUEST_RATED_BG_INFO                        = 0xBADD,
     CMSG_REQUEST_RATED_BG_STATS                       = 0xBADD,
@@ -689,6 +689,8 @@ enum OpcodeClient : uint32
     CMSG_GUILD_AUTO_DECLINE_INVITATION                = 0x062F,
     CMSG_SAVE_GUILD_EMBLEM                            = 0x00F6,
     CMSG_DECLINE_PETITION                             = 0x03EA,
+    CMSG_REQUEST_RATED_BATTLEFIELD_INFO               = 0x1323,
+    CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS           = 0x0359,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
@@ -707,12 +709,10 @@ enum OpcodeClient : uint32
     CMSG_MESSAGECHAT_BATTLEGROUND                     = 0xBADD,      // 5.4.1 17538 obsolete
     CMSG_MESSAGECHAT_INSTANCE                         = 0xBADD, // 5.4.1 17538
     CMSG_PARTY_ASSIGNMENT                             = 0xBADD, // 5.4.1 17538
-    CMSG_PERSONAL_RATED_INFO_REQUEST                  = 0xBADD, // 5.4.1 17538
     CMSG_PURCHASE_GET_PRODUCT_LIST                    = 0xBADD, // 5.4.1 17538
     CMSG_PURCHASE_GET_PURCHASE_LIST                   = 0xBADD, // 5.4.1 17538
     CMSG_QUERY_PLAYER_RECIPES                         = 0xBADD, // 5.4.1 17538
     CMSG_REDIRECTION_AUTH_PROOF                       = 0xBADD, // 5.4.1 17538
-    CMSG_REQUEST_RATED_INFO                           = 0xBADD, // 5.4.1 17538
     CMSG_RESET_CHALLENGE_MODE                         = 0xBADD, // 5.4.1 17538
     CMSG_SELECT_FACTION                               = 0xBADD, // 5.4.1 17538
     CMSG_SET_PRIMARY_TALENT_TREE                      = 0xBADD,  // 5.0.5 16048 deprecated
@@ -790,24 +790,27 @@ enum OpcodeServer : uint32
     SMSG_AVERAGE_ITEM_LEVEL_INFORM                    = 0xBADD,
     SMSG_BARBER_SHOP_RESULT                           = 0x150D,
     SMSG_BATTLEFIELD_LIST                             = 0xBADD,
-    SMSG_BATTLEFIELD_MGR_EJECTED                      = 0xBADD,
-    SMSG_BATTLEFIELD_MGR_EJECT_PENDING                = 0xBADD,
-    SMSG_BATTLEFIELD_MGR_ENTERED                      = 0xBADD,
-    SMSG_BATTLEFIELD_MGR_ENTRY_INVITE                 = 0xBADD,
+    SMSG_BATTLEFIELD_MGR_DROP_TIMER_CANCELED          = 0x179A,
+    SMSG_BATTLEFIELD_MGR_DROP_TIMER_STARTED           = 0x098B,
+    SMSG_BATTLEFIELD_MGR_EJECTED                      = 0x0DAF,
+    SMSG_BATTLEFIELD_MGR_EJECT_PENDING                = 0x09A1,
+    SMSG_BATTLEFIELD_MGR_ENTERING                     = 0x11A3,
+    SMSG_BATTLEFIELD_MGR_ENTRY_INVITE                 = 0x128B,
     SMSG_BATTLEFIELD_MGR_EXIT_REQUEST                 = 0xBADD,
-    SMSG_BATTLEFIELD_MGR_QUEUE_INVITE                 = 0xBADD,
-    SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE       = 0xBADD,
-    SMSG_BATTLEFIELD_MGR_STATE_CHANGE                 = 0xBADD,
+    SMSG_BATTLEFIELD_MGR_QUEUE_INVITE                 = 0x0B32,
+    SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE       = 0x0B28,
+    SMSG_BATTLEFIELD_MGR_STATE_CHANGED                = 0x13C3,
     SMSG_BATTLEFIELD_PLAYER_POSITIONS                 = 0xBADD,
     SMSG_BATTLEFIELD_PORT_DENIED                      = 0xBADD,
     SMSG_BATTLEFIELD_RATED_INFO                       = 0x1F0A,
-    SMSG_BATTLEFIELD_STATUS                           = 0xBADD,
-    SMSG_BATTLEFIELD_STATUS_QUEUED                    = 0xBADD,
-    SMSG_BATTLEFIELD_STATUS_ACTIVE                    = 0xBADD,
-    SMSG_BATTLEFIELD_STATUS_NEEDCONFIRMATION          = 0xBADD,
-    SMSG_BATTLEFIELD_STATUS_WAITFORGROUPS             = 0xBADD,
-    SMSG_BATTLEFIELD_STATUS_FAILED                    = 0xBADD,
+    SMSG_BATTLEFIELD_STATUS_NONE                      = 0x1E89,
+    SMSG_BATTLEFIELD_STATUS_QUEUED                    = 0x002D,
+    SMSG_BATTLEFIELD_STATUS_ACTIVE                    = 0x1284,
+    SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION         = 0x1719,
+    SMSG_BATTLEFIELD_STATUS_WAITFORGROUPS             = 0x082D,
+    SMSG_BATTLEFIELD_STATUS_FAILED                    = 0x0308,
     SMSG_BATTLEGROUND_INFO_THROTTLED                  = 0xBADD,
+    SMSG_BATTLEGROUND_INIT                            = 0x13C4,
     SMSG_BATTLEGROUND_PLAYER_JOINED                   = 0xBADD,
     SMSG_BATTLEGROUND_PLAYER_LEFT                     = 0xBADD,
     SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE               = 0x0BE3,
@@ -1150,7 +1153,8 @@ enum OpcodeServer : uint32
     SMSG_LOOT_START_ROLL                              = 0x1B84,
     SMSG_MAIL_LIST_RESULT                             = 0x0B3F,
     SMSG_MAIL_QUERY_NEXT_TIME_RESULT                  = 0x153D,
-    SMSG_MAP_OBJ_EVENTS                               = 0xBADD,
+    SMSG_MAP_OBJECTIVES_INIT                          = 0x1323,
+    SMSG_MAP_OBJ_EVENTS                               = 0x031A,
     SMSG_MEETINGSTONE_COMPLETE                        = 0xBADD,
     SMSG_MEETINGSTONE_IN_PROGRESS                     = 0xBADD,
     SMSG_MEETINGSTONE_MEMBER_ADDED                    = 0xBADD,
@@ -1284,7 +1288,7 @@ enum OpcodeServer : uint32
     SMSG_PUREMOUNT_CANCELLED_OBSOLETE                 = 0xBADD,
     SMSG_PVP_CREDIT                                   = 0x13A9,
     SMSG_PVP_LOG_DATA                                 = 0x1ECA,
-    SMSG_PVP_OPTIONS_ENABLED                          = 0xBADD,
+    SMSG_PVP_OPTIONS_ENABLED                          = 0x0320,
     SMSG_PVP_SEASON                                   = 0x09E3,
     SMSG_QUERY_TIME_RESPONSE                          = 0x1DB0,
     SMSG_QUESTGIVER_OFFER_REWARD                      = 0x17B2,
@@ -1476,6 +1480,7 @@ enum OpcodeServer : uint32
     SMSG_UNIT_SPELLCAST_START                         = 0xBADD,
     SMSG_UNLEARNED_SPELLS                             = 0x0B3B,
     SMSG_UPDATE_ACCOUNT_DATA                          = 0x1520,
+    SMSG_UPDATE_CAPTURE_POINT                         = 0x1B11,
     SMSG_UPDATE_COMBO_POINTS                          = 0xBADD,
     SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT            = 0xBADD,
     SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT               = 0xBADD,
@@ -1545,6 +1550,8 @@ enum OpcodeServer : uint32
     SMSG_GUILD_EVENT_TAB_TEXT_CHANGED                 = 0x1076,
     SMSG_GUILD_EVENT_BANK_CONTENTS_CHANGED            = 0x1045,
     SMSG_PETITION_RENAME_GUILD_RESPONSE               = 0x1055,
+    SMSG_ARENA_PREP_OPPONENT_SPECIALIZATIONS          = 0x03AA,
+    SMSG_CONQUEST_FORMULA_CONSTANTS                   = 0x1342,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1556,7 +1563,6 @@ enum OpcodeServer : uint32
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0xBADD, // 5.4.1 17538
     SMSG_AREA_TRIGGER_RESET                           = 0xBADD,  // 5.0.5 16048
     SMSG_ARENA_OPPONENT_UPDATE                        = 0xBADD, // 5.4.1 17538
-    SMSG_ARENA_OPPONENT_SPECIALIZATIONS               = 0xBADD, // 5.4.1 17538
     SMSG_AUCTION_LIST_RESULT                          = 0xBADD, // 5.4.1 17538
     SMSG_ARENA_SEASON_WORLDSTATE                      = 0xBADD, // 5.4.1 17538
     SMSG_BATTLEPAY_PRODUCT_ITEM                       = 0xBADD, // 5.4.1 17538
@@ -1598,13 +1604,11 @@ enum OpcodeServer : uint32
     SMSG_LFG_UPDATE_STATUS_NONE                       = 0xBADD,  // 5.0.5 16048
     SMSG_LF_GUILD_SEARCH_RESULT                       = 0xBADD,      // Not found in TC
     SMSG_LOOT_ROLLS_COMPLETE                          = 0xBADD, // 5.4.1 17538
-    SMSG_PERSONAL_RATED_INFO                          = 0xBADD, // 5.4.1 17538
     SMSG_PLAYER_UNK_DEAD_ALIVE                        = 0xBADD,      // Not found in 4.3.4
     SMSG_PLAYER_RECIPES                               = 0xBADD, // 5.4.1 17538
     SMSG_PURCHASE_STORE_PRODUCTS_UPDATED              = 0xBADD, // 5.4.1 17538
     SMSG_PURCHASE_STORE_PURCHASE_LIST_UPDATED         = 0xBADD, // 5.4.1 17538
     SMSG_PVP_BRACKET_DATA                             = 0xBADD, // 5.4.1 17538
-    SMSG_PVP_RATED_STATS                              = 0xBADD, // 5.4.1 17538
     SMSG_SERVER_SCENE_PLAYBACK                        = 0xBADD, // 5.4.1 17538
     SMSG_SETUP_RESEARCH_HISTORY                       = 0xBADD,      // Not found in TC
     SMSG_SET_PET_SPECIALIZATION                       = 0x08D6, // 6.0.3
