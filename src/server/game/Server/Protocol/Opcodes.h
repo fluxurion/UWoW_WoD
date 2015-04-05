@@ -90,10 +90,10 @@ enum OpcodeClient : uint32
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0xBADD,
     CMSG_AUTOSTORE_LOOT_ITEM                          = 0x0609,
     CMSG_AUTO_DECLINE_GUILD_INVITE                    = 0xBADD,
-    CMSG_DECLINE_GUILD_INVITES                         = 0x148A,
+    CMSG_DECLINE_GUILD_INVITES                        = 0x148A,
     CMSG_BANKER_ACTIVATE                              = 0x1B24,
     CMSG_BATTLEFIELD_JOIN                             = 0xBADD,
-    CMSG_BATTLEFIELD_LEAVE                            = 0xBADD,
+    CMSG_BATTLEFIELD_LEAVE                            = 0x06F1,
     CMSG_BATTLEFIELD_LIST                             = 0x03B1,
     CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE        = 0x059A,
     CMSG_BATTLEFIELD_MGR_EXIT_REQUEST                 = 0x1381,
@@ -700,7 +700,6 @@ enum OpcodeClient : uint32
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0xBADD, // 5.4.1 17538
     CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0xBADD, // 5.4.1 17538
     CMSG_LEARN_TALENTS                                = 0xBADD, // 5.4.1 17538
-    CMSG_LEAVE_BATTLEFIELD                            = 0xBADD, // 5.4.1 17538
     CMSG_LFG_GET_PLAYER_INFO                          = 0xBADD,  // Unused 434
     CMSG_LFG_PARTY_LOCK_INFO_REQUEST                  = 0xBADD,  // Unused 434
     CMSG_LOOT_MASTER_ASK_FOR_ROLL                     = 0xBADD, // 5.4.1 17538

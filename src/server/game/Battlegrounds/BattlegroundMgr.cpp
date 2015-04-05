@@ -52,6 +52,7 @@
 #include "Formulas.h"
 #include "DisableMgr.h"
 #include "BracketMgr.h"
+#include "BattlegroundPackets.h"
 
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/
@@ -182,197 +183,112 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
     if (!bg)
         StatusID = STATUS_NONE;
 
-    ObjectGuid guidBytes1 = pPlayer->GetGUID();
-    ObjectGuid guidBytes2 = /*bg ? bg->GetGUID() : */ObjectGuid::Empty;
+    WorldPackets::Battleground::StatusHeader sHeader;
+
+    sHeader.TicketData.RequesterGuid = pPlayer->GetGUID();
+    sHeader.QueueID = bg ? bg->GetGUID() : 0;
 
     switch (StatusID)
     {
         case STATUS_NONE:
         {
-            //! 5.4.1
-            data->Initialize(SMSG_BATTLEFIELD_STATUS_NONE);
+            //! 6.0.3
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_NONE, 50);
+            sHeader.TicketData.Time = Time1;
+            sHeader.TicketData.Id = QueueSlot;
 
-            /*//data->WriteGuidMask<2, 0, 3, 6, 1, 5, 4, 7>(guidBytes1);
-            //data->WriteGuidBytes<7, 3, 2, 6, 4>(guidBytes1);
-            *data << uint32(Time1);                                                                      // Join Time. Posible status.
-            //data->WriteGuidBytes<5>(guidBytes1);
-            *data << uint32(QueueSlot);                                                                  // Queue slot
-            //data->WriteGuidBytes<1>(guidBytes1);
             if (bg)
-                *data << uint32((bg->isArena() || bg->IsRBG()) ? arenatype : 1);                         // unk, always 1
+                sHeader.TicketData.Type = (bg->isArena() || bg->IsRBG()) ? arenatype : 1;
             else
-                *data << uint32(1);
-            //data->WriteGuidBytes<0>(guidBytes1);*/
+                sHeader.TicketData.Type = 1;
+            *data << sHeader.TicketData;
             break;
         }
         case STATUS_WAIT_QUEUE:
         {
-            //! 5.4.1
-            data->Initialize(SMSG_BATTLEFIELD_STATUS_QUEUED);
+            //! 6.0.3
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_QUEUED, 200);
+            sHeader.RangeMin = bg->GetMinLevel();                                        // BG Min level. ToDo: for arena basic template has always 10 min.lvl.
+            sHeader.InstanceID = bg->GetClientInstanceID();                              // Client Instance ID
+            sHeader.TicketData.Id = QueueSlot;
+            sHeader.TicketData.Type = (bg->isArena() || bg->IsRBG()) ? arenatype : 1;    // should be max
+            sHeader.TicketData.Time = Time1;                                             // Time of the join
+            sHeader.RegisteredMatch = true;                                              // RegisteredMatch
+            sHeader.TournamentRules = bg->isRated();                                     // Eligible In Queue
 
-            /*//data->WriteGuidMask<7>(guidBytes1);
-            //data->WriteGuidMask<0>(guidBytes2);
-            //data->WriteGuidMask<1, 0, 6, 2, 3>(guidBytes1);
-            //data->WriteGuidMask<5, 7>(guidBytes2);
-            //data->WriteGuidMask<5>(guidBytes1);
-            //data->WriteGuidMask<2>(guidBytes2);
-            //data->WriteGuidMask<4>(guidBytes1);
-            //data->WriteGuidMask<1>(guidBytes2);
-            data->WriteBit(bg->isRated());
-            data->WriteBit(0);   // Join Failed, 1 when it's arena ...
-            //data->WriteGuidMask<4>(guidBytes2);
-            data->WriteBit(1); // // Eligible In Queue
-            //data->WriteGuidMask<3>(guidBytes2);
-            data->WriteBit(0);  // Waiting On Other Activity // JoinAsGroup
-            //data->WriteGuidMask<6>(guidBytes2);
+            WorldPackets::Battleground::StatusQueued packet;
+            packet.Header = sHeader;
+            packet.AsGroup = false;                                                      // Waiting On Other Activity // JoinAsGroup
+            packet.SuspendedQueue = false;                                               // Join Failed, 1 when it's arena ...
+            packet.EligibleForMatchmaking = true;
 
-            data->FlushBits();
+            packet.AverageWaitTime = GetMSTimeDiffToNow(Time2);
+            packet.WaitTime = Time2;
 
-            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
-            *data << uint8(0);
-            *data << uint32(Time1);             //Time of the join
-            //data->WriteGuidBytes<3>(guidBytes1);
-            //data->WriteGuidBytes<1>(guidBytes2);
-            //data->WriteGuidBytes<2>(guidBytes1);
-            *data << uint32((bg->isArena() || bg->IsRBG()) ? arenatype : 1);    //should be max 
-            *data << uint32(Time2);                     // Estimated Wait Time
-            //data->WriteGuidBytes<7>(guidBytes2);
-            //data->WriteGuidBytes<4>(guidBytes1);
-            //data->WriteGuidBytes<0>(guidBytes2);
-            //data->WriteGuidBytes<6>(guidBytes1);
-            *data << uint32(GetMSTimeDiffToNow(Time2));
-            *data << uint8(bg->GetMinLevel()); //BG Min level. ToDo: for arena basic template has always 10 min.lvl.
-            *data << uint32(QueueSlot);
-            *data << uint8(0);
-            //data->WriteGuidBytes<1>(guidBytes1);
-            //data->WriteGuidBytes<2, 6, 3, 5>(guidBytes2);
-            //data->WriteGuidBytes<7, 0>(guidBytes1);
-            //data->WriteGuidBytes<4>(guidBytes2);
-            //data->WriteGuidBytes<5>(guidBytes1);*/
+            *data = *packet.Write();
             break;
         }
         case STATUS_WAIT_JOIN:
         {
-            //! 5.4.1
-            data->Initialize(SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION, 44);
+            //! 6.0.3
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION, 200);
+            sHeader.RangeMin = bg->GetMinLevel();                                        // BG Min level. ToDo: for arena basic template has always 10 min.lvl.
+            sHeader.InstanceID = bg->GetClientInstanceID();                              // Client Instance ID
+            sHeader.TicketData.Id = QueueSlot;
+            sHeader.TicketData.Type = (bg->isArena() || bg->IsRBG()) ? arenatype : 1;    // should be max
+            sHeader.TicketData.Time = Time1;                                             // Time of the join
+            sHeader.RegisteredMatch = true;                                              // RegisteredMatch
+            sHeader.TournamentRules = bg->isRated();                                     // Eligible In Queue
 
-            /*data->WriteBit(1);                              //!byte44
-            //data->WriteGuidMask<2>(guidBytes2);
-            //data->WriteGuidMask<1, 7>(guidBytes1);
-            //data->WriteGuidMask<5, 3, 7>(guidBytes2);
-            //data->WriteGuidMask<6, 2, 0, 4, 3>(guidBytes1);
-            //data->WriteGuidMask<1, 0>(guidBytes2);
-            data->WriteBit(bg->isRated());                  // Is Rated
-            //data->WriteGuidMask<5>(guidBytes1);
-            //data->WriteGuidMask<4, 6>(guidBytes2);
+            WorldPackets::Battleground::StatusNeedConfirmation packet;
+            packet.Header = sHeader;
+            packet.Mapid = bg->GetMapId();
+            packet.Timeout = Time2;
+            packet.Role = 0;
 
-            data->FlushBits();
-
-            *data << uint8(0);
-            *data << uint32(Time1);                     // Time until closed
-            //data->WriteGuidBytes<6>(guidBytes2);
-            *data << uint8(bg->GetMinLevel());
-            //data->WriteGuidBytes<3>(guidBytes1);
-            *data << uint8(0);                          // bool. hide exit on sub invite.
-            //data->WriteGuidBytes< 6, 4>(guidBytes1);
-            //data->WriteGuidBytes<0, 1, 2, 3>(guidBytes2);
-            //data->WriteGuidBytes<7>(guidBytes1);
-            *data << uint32(bg->GetClientInstanceID());
-            //if (byte44)
-            //   p.ReadByte("byte44");
-            *data << uint32(QueueSlot);
-            //data->WriteGuidBytes<7>(guidBytes2);
-            *data << uint32(bg->GetMapId());
-            *data << uint32((bg->isArena() || bg->IsRBG()) ? arenatype : 1);
-            //data->WriteGuidBytes<0, 2>(guidBytes1);
-            *data << uint32(Time2);
-            //data->WriteGuidBytes<5>(guidBytes1);
-            //data->WriteGuidBytes<4, 5>(guidBytes2);
-            //data->WriteGuidBytes<1>(guidBytes1);*/
-            
+            *data = *packet.Write();            
             break;
         }
         case STATUS_IN_PROGRESS:
         {
-            //! 5.4.1
-            data->Initialize(SMSG_BATTLEFIELD_STATUS_ACTIVE, 49);
+            //! 6.0.3
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_ACTIVE, 200);
+            sHeader.RangeMin = bg->GetMinLevel();                                        // BG Min level. ToDo: for arena basic template has always 10 min.lvl.
+            sHeader.InstanceID = bg->GetClientInstanceID();                              // Client Instance ID
+            sHeader.TicketData.Id = QueueSlot;
+            sHeader.TicketData.Type = (bg->isArena() || bg->IsRBG()) ? arenatype : 1;    // should be max
+            sHeader.TicketData.Time = Time1;                                             // Time of the join
+            sHeader.RegisteredMatch = true;                                              // RegisteredMatch
+            sHeader.TournamentRules = bg->isRated();                                     // Eligible In Queue
 
-            /*data->WriteBit(bg->isRated());
-            //data->WriteGuidMask<5, 2>(guidBytes1);
-            //data->WriteGuidMask<0, 7>(guidBytes2);
-            //data->WriteGuidMask<7, 6>(guidBytes1);
-            //data->WriteGuidMask<1, 2>(guidBytes2);
-            //data->WriteGuidMask<1, 4>(guidBytes1);
-            data->WriteBit(bg->isRated() && bg->GetStatus() != STATUS_WAIT_LEAVE);  // Block
-            //data->WriteGuidMask<3>(guidBytes2);
-            //data->WriteGuidMask<0, 3>(guidBytes1);
-            //data->WriteGuidMask<6, 5, 4>(guidBytes2);
-            data->WriteBit(pPlayer->GetBGTeam() == HORDE ? 0 : 1);      // Battlefield Faction ( 0 horde, 1 alliance )
+            WorldPackets::Battleground::StatusActive packet;
+            packet.Header = sHeader;
+            packet.Mapid = bg->GetMapId();
+            packet.StartTimer = Time2;
+            packet.ShutdownTimer = bg->GetRemainingTime();
+            packet.ArenaFaction = pPlayer->GetBGTeam() == HORDE ? 0 : 1;                // Battlefield Faction ( 0 horde, 1 alliance )
+            packet.LeftEarly = bg->isRated() && bg->GetStatus() != STATUS_WAIT_LEAVE;   // Block
 
-            data->FlushBits();
-
-            //data->WriteGuidBytes<7>(guidBytes2);
-            //data->WriteGuidBytes<5, 4>(guidBytes1);
-            //data->WriteGuidBytes<6>(guidBytes2);
-            *data << uint32(Time1);                                    // Time
-            //data->WriteGuidBytes<5>(guidBytes2);
-            //data->WriteGuidBytes<6>(guidBytes1);
-            //data->WriteGuidBytes<3>(guidBytes2);
-            *data << uint32((bg->isArena() || bg->IsRBG()) ? arenatype : 1);
-            *data << uint32(bg->GetMapId());            // Map Id
-            //data->WriteGuidBytes<3>(guidBytes1);
-            *data << uint32(bg->GetClientInstanceID()); // Client Instance ID
-            //data->WriteGuidBytes<1, 7>(guidBytes1);
-            *data << uint32(bg->GetRemainingTime());                     // Time until closed
-            //data->WriteGuidBytes<0>(guidBytes1);
-            //data->WriteGuidBytes<4>(guidBytes2);
-            *data << uint8(0);                          // unk
-            *data << uint32(QueueSlot);                 // Queue slot
-            //data->WriteGuidBytes<0, 2>(guidBytes2);
-            *data << uint8(0);                          // unk
-            *data << uint32(Time2);
-            //data->WriteGuidBytes<1>(guidBytes2);
-            //data->WriteGuidBytes<2>(guidBytes1);
-            *data << uint8(bg->GetMinLevel());          // Min Level*/
+            *data = *packet.Write();   
             break;
         }
         case STATUS_WAIT_LEAVE:
         {
-            data->Initialize(SMSG_BATTLEFIELD_STATUS_WAITFORGROUPS, 48);
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_WAITFORGROUPS, 200);
+            sHeader.RangeMin = bg->GetMinLevel();                                        // BG Min level. ToDo: for arena basic template has always 10 min.lvl.
+            sHeader.InstanceID = bg->GetClientInstanceID();                              // Client Instance ID
+            sHeader.TicketData.Id = QueueSlot;
+            sHeader.TicketData.Type = bg->GetStatus();                                   // is it right???
+            //sHeader.TicketData.Time = Time1;                                           // Time of the join
+            sHeader.RegisteredMatch = true;                                              // RegisteredMatch
+            sHeader.TournamentRules = bg->isRated();                                     // Eligible In Queue
             
-			/**data << uint8(bg->GetMinLevel());
-			*data << uint8(0);          // byte3A
-			*data << uint32(bg->GetStatus());
-			*data << uint32(bg->GetClientInstanceID());
-			*data << uint32(bg->GetMapId());            // time1OrMapId
-			*data << uint8(0);          // byte48
-			*data << uint8(0);          // byte49
-			*data << uint8(0);          // byte38
-			*data << uint32(bg->GetMapId());            // mapIdOrTime1
-			*data << uint32(Time2);
-			*data << uint8(0);          // byte4B
-            *data << uint32(QueueSlot);
-			*data << uint8(0);          // byte4A      
+            WorldPackets::Battleground::StatusWaitForGroups packet;
+            packet.Header = sHeader;
+            packet.Mapid = bg->GetMapId();
+            packet.Timeout = Time2;
 
-			//data->WriteGuidMask<5, 4>(guidBytes2);
-			//data->WriteGuidMask<2>(guidBytes1);
-			//data->WriteGuidMask<7>(guidBytes2);
-			//data->WriteGuidMask<0>(guidBytes1);
-			data->WriteBit(bg->isRated());
-			//data->WriteGuidMask<7>(guidBytes1);
-			//data->WriteGuidMask<0, 1>(guidBytes2);
-			//data->WriteGuidMask<3, 5, 1>(guidBytes1);
-			//data->WriteGuidMask<2>(guidBytes2);
-			//data->WriteGuidMask<4>(guidBytes1);
-			//data->WriteGuidMask<6, 3>(guidBytes2);
-			//data->WriteGuidMask<6>(guidBytes1);
-
-            data->FlushBits();
-
-			//data->WriteGuidBytes<7, 2, 4, 6>(guidBytes1);
-			//data->WriteGuidBytes<5, 4, 2, 1>(guidBytes2);
-			//data->WriteGuidBytes<5, 1, 0, 3>(guidBytes1);
-			//data->WriteGuidBytes<3, 0, 6, 7>(guidBytes2);*/
+            *data = *packet.Write();   
             break;
         }
     }
@@ -614,57 +530,21 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         *data << uint8(bg->GetWinner());                               // who win
 }
 
+//! 6.0.3
 void BattlegroundMgr::BuildStatusFailedPacket(WorldPacket* data, Battleground* bg, Player* player, uint8 QueueSlot, GroupJoinBattlegroundResult result)
 {
-    ObjectGuidSteam guidBytes1 = 0/*player->GetGUID()*/; // player who caused the error
-    ObjectGuidSteam guidBytes2 = 0/*bg->GetGUID()*/;
-    ObjectGuidSteam unkGuid3 = 0;
-
-    //! 5.4.1
     data->Initialize(SMSG_BATTLEFIELD_STATUS_FAILED);
 
-    *data << uint32(QueueSlot);                                                              // Queue slot
-    *data << uint32((bg->isArena() || bg->IsRBG()) ? bg->GetJoinType() : 1);                 // Unk, always 1 
-    *data << uint32(player->GetBattlegroundQueueJoinTime(bg->GetTypeID()));                  // Join Time RANDOM
-    *data << uint32(result);
+    WorldPackets::Battleground::StatusFailed packet;
+    packet.Ticket.RequesterGuid = player->GetGUID();
+    packet.Ticket.Id = QueueSlot;
+    packet.Ticket.Type = (bg->isArena() || bg->IsRBG()) ? bg->GetJoinType() : 1;         // should be max
+    packet.Ticket.Time = player->GetBattlegroundQueueJoinTime(bg->GetTypeID());  // Time of the join
 
-    //data->WriteGuidMask<0>(guidBytes1);
-    //data->WriteGuidMask<4>(guidBytes2);
-    //data->WriteGuidMask<4>(guidBytes1);
-    //data->WriteGuidMask<7>(unkGuid3);
-    //data->WriteGuidMask<1>(guidBytes2);
-    //data->WriteGuidMask<1>(guidBytes1);
-    //data->WriteGuidMask<2>(unkGuid3);
-    //data->WriteGuidMask<2>(guidBytes1);
-    //data->WriteGuidMask<3>(guidBytes2);
-    //data->WriteGuidMask<4, 3>(unkGuid3);
-    //data->WriteGuidMask<5>(guidBytes2);
-    //data->WriteGuidMask<6>(guidBytes1);
-    //data->WriteGuidMask<6>(unkGuid3);
-    //data->WriteGuidMask<0, 6, 7>(guidBytes2);
-    //data->WriteGuidMask<5, 0>(unkGuid3);
-    //data->WriteGuidMask<2>(guidBytes2);
-    //data->WriteGuidMask<7, 3, 5>(guidBytes1);
-    //data->WriteGuidMask<1>(unkGuid3);
-            
-    data->FlushBits();
-            
-    //data->WriteGuidBytes<6>(unkGuid3);
-    //data->WriteGuidBytes<5>(guidBytes1);
-    //data->WriteGuidBytes<6>(guidBytes2);
-    //data->WriteGuidBytes<4>(guidBytes1);
-    //data->WriteGuidBytes<3>(guidBytes2);
-    //data->WriteGuidBytes<1>(guidBytes1);
-    //data->WriteGuidBytes<3, 1>(unkGuid3);
-    //data->WriteGuidBytes<0>(guidBytes2);
-    //data->WriteGuidBytes<6>(guidBytes1);
-    //data->WriteGuidBytes<4, 5>(guidBytes2);
-    //data->WriteGuidBytes<2, 7, 0>(unkGuid3);
-    //data->WriteGuidBytes<7>(guidBytes2);
-    //data->WriteGuidBytes<5, 4>(unkGuid3);
-    //data->WriteGuidBytes<1>(guidBytes2);
-    //data->WriteGuidBytes<3, 0, 2, 7>(guidBytes1);
-    //data->WriteGuidBytes<2>(guidBytes2);
+    packet.QueueID = bg->GetGUID(); 
+    packet.Reason = result;
+  
+    *data = *packet.Write();
 }
 
 //! 6.0.3
