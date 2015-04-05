@@ -684,24 +684,18 @@ void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
     *data << ObjectGuid::Empty;
 }
 
-//! 5.4.1
-void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, ObjectGuid guid)
+//! 6.0.3
+void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, ObjectGuid const& guid)
 {
-    ObjectGuidSteam guidBytes = 0/*guid*/;
-
-    data->Initialize(SMSG_BATTLEGROUND_PLAYER_LEFT, 8 + 1);
-    //data->WriteGuidMask<7, 6, 2, 5, 0, 3, 1, 4>(guidBytes);
-    //data->WriteGuidBytes<5, 1, 7, 6, 3, 2, 0, 4>(guidBytes);
+    data->Initialize(SMSG_BATTLEGROUND_PLAYER_LEFT, 16);
+    *data << guid;
 }
 
-//! 5.4.1
-void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, ObjectGuid guid)
+//! 6.0.3
+void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, ObjectGuid const& guid)
 {
-    ObjectGuidSteam guidBytes = 0/*guid*/;
-
-    data->Initialize(SMSG_BATTLEGROUND_PLAYER_JOINED, 8);
-    //data->WriteGuidMask<5, 1, 7, 6, 3, 0, 2, 4>(guidBytes);
-    //data->WriteGuidBytes<4, 6, 2, 7, 0, 3, 1, 5>(guidBytes);
+    data->Initialize(SMSG_BATTLEGROUND_PLAYER_JOINED, 16);
+    *data << guid;
 }
 
 Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId)
@@ -1104,39 +1098,25 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlegrounds in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid _guid, Player* player, BattlegroundTypeId bgTypeId)
+//! 6.0.3
+void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid const& _guid, Player* player, BattlegroundTypeId bgTypeId)
 {
     if (!player)
         return;
 
-    uint32 winner_conquest = (player->GetRandomWinner() ? BG_REWARD_WINNER_CONQUEST_LAST : BG_REWARD_WINNER_CONQUEST_FIRST) / 100;
-    uint32 winner_honor = (player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST) / 100;
-    uint32 loser_honor = (player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST) / 100;
-
-    ByteBuffer dataBuffer;
-
-    ObjectGuidSteam guid = 0/*_guid*/; //TMP
-
     data->Initialize(SMSG_BATTLEFIELD_LIST, 83);
-    *data << uint32(winner_honor);              // holiday
-    *data << uint32(winner_honor);              // random
+    *data << _guid;
+    *data << uint32(bgTypeId);                  // battleground id
     *data << uint8(0);                          // min level
     *data << uint8(0);                          // max level
-    *data << uint32(bgTypeId);                  // battleground id
-    *data << uint32(winner_conquest);           // holiday
-    *data << uint32(loser_honor);               // random
-    *data << uint32(winner_conquest);           // random
-    *data << uint32(loser_honor);               // holiday
 
-    //data->WriteGuidMask<1>(guid);
-    data->WriteBit(!guid);                      // from where
-    //data->WriteGuidMask<4>(guid);
+    size_t countPos = data.wpos();
+    uint32 count = 0;
+     *data << count;
 
-    if (bgTypeId == BATTLEGROUND_AA)            // arena
-        data->WriteBits(0, 22);                 // instance count
-    else                                        // battleground
+    if (bgTypeId != BATTLEGROUND_AA)                                        // battleground
     {
-        uint32 count = 0;
+
         if (Battleground* bgTemplate = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId))
         {
             // expected bracket entry
@@ -1145,26 +1125,31 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
                 BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
                 for (std::set<uint32>::iterator itr = m_ClientBattlegroundIds[bgTypeId][bracketId].begin(); itr != m_ClientBattlegroundIds[bgTypeId][bracketId].end();++itr)
                 {
-                    dataBuffer << uint32(*itr);
+                    *data << uint32(*itr);
                     ++count;
                 }
             }
         }
-        data->WriteBits(count, 22);
+        data->put<uint32>(countPos, count);
     }
 
-    //data->WriteGuidMask<0, 6>(guid);
-    data->WriteBit(player->GetRandomWinner());  // holiday
-    //data->WriteGuidMask<5>(guid);
-    data->WriteBit(1);                          // unk
-    //data->WriteGuidMask<2, 3, 7>(guid);
-    data->WriteBit(player->GetRandomWinner());  // random
-    data->FlushBits();
+    //was on MOP
+    //uint32 winner_conquest = (player->GetRandomWinner() ? BG_REWARD_WINNER_CONQUEST_LAST : BG_REWARD_WINNER_CONQUEST_FIRST) / 100;
+    //uint32 winner_honor = (player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST) / 100;
+    //uint32 loser_honor = (player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST) / 100;
+    //*data << uint32(winner_honor);              // holiday
+    //*data << uint32(winner_honor);              // random
+    //*data << uint32(winner_conquest);           // holiday
+    //*data << uint32(loser_honor);               // random
+    //*data << uint32(winner_conquest);           // random
+    //*data << uint32(loser_honor);               // holiday
 
-    //data->WriteGuidBytes<2, 5, 7>(guid);
-    if (!dataBuffer.empty())
-        data->append(dataBuffer);
-    //data->WriteGuidBytes<1, 3, 6, 4, 0>(guid);
+    data->WriteBit(!guid);                      // from where | PvpAnywhere
+    data->WriteBit(player->GetRandomWinner());  // holiday
+    data->WriteBit(player->GetRandomWinner());  // random
+    data->WriteBit(1);                          // IsRandomBG
+
+    data->FlushBits();
 }
 
 void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, BattlegroundTypeId bgTypeId)

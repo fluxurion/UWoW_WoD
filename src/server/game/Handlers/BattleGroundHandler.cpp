@@ -95,7 +95,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
 
     BattlegroundTypeId bgTypeId = BattlegroundTypeId(bgTypeId_);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from (GUID: %u TypeId:%u)", guid.GetCounter(), guid.GetHigh());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from (GUID: %s TypeId:%u)", _player->GetGUID().ToString(), bgTypeId_);
 
     // can do this, since it's battleground, not arena
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, 0);
@@ -247,58 +247,10 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
     sBattlegroundMgr->ScheduleQueueUpdate(0, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket& /*recvData*/)
-{
-   // sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEGROUND_PLAYER_POSITIONS Message");
-
-   // Battleground* bg = _player->GetBattleground();
-   // if (!bg)                                                 // can't be received if player not in battleground
-   //     return;
-
-   // uint32 flagCarrierCount = 0;
-   // Player* allianceFlagCarrier = NULL;
-   // Player* hordeFlagCarrier = NULL;
-
-   // if (ObjectGuid guid = bg->GetFlagPickerGUID(BG_TEAM_ALLIANCE))
-   // {
-   //     allianceFlagCarrier = ObjectAccessor::FindPlayer(guid);
-   //      if (allianceFlagCarrier)
-   //         ++flagCarrierCount;
-   // }
-
-   // if (ObjectGuid guid = bg->GetFlagPickerGUID(BG_TEAM_HORDE))
-   // {
-   //     hordeFlagCarrier = ObjectAccessor::FindPlayer(guid);
-   //     if (hordeFlagCarrier)
-   //         ++flagCarrierCount;
-   // }
-
-   // WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, 4 + 4 + 16 * flagCarrierCount);
-   //// Used to send several player positions (found used in AV)
-   // data << 0;  // CGBattlefieldInfo__m_numPlayerPositions
-   // /*
-   // for (CGBattlefieldInfo__m_numPlayerPositions)
-   //     data << guid << posx << posy;
-   // */
-   // {
-   //     data << allianceFlagCarrier->GetGUID();
-   //     data << float(allianceFlagCarrier->GetPositionX());
-   //     data << float(allianceFlagCarrier->GetPositionY());
-   // }
-
-   // if (hordeFlagCarrier)
-   // {
-   //     data << hordeFlagCarrier->GetGUID();
-   //     data << float(hordeFlagCarrier->GetPositionX());
-   //     data << float(hordeFlagCarrier->GetPositionY());
-   // }
-
-   // SendPacket(&data);
-}
-
+//! 6.0.3
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");
 
     Battleground* bg = _player->GetBattleground();
     if (!bg)
@@ -315,9 +267,10 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent MSG_PVP_LOG_DATA Message");
 }
 
+//! 6.0.3
 void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_LIST Message");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_LIST Message");
 
     uint32 bgTypeId;
     recvData >> bgTypeId;                                  // id from DBC
