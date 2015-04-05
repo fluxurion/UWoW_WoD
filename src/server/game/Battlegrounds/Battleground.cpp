@@ -2060,21 +2060,9 @@ void Battleground::SendFlagsPositionsUpdate(uint32 diff)
         }
     }
 
+    //! 6.0.3
     WorldPacket packet(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
-    packet.WriteBits(flagCarrierCount, 20);
-
-    ObjectGuidSteam guids[2];
-    for (uint8 i = 0; i < 2; ++i)
-    {
-        Player* player = FlagCarrier[i];
-        if (!player)
-            continue;
-
-        //guids[i] = player->GetGUID();
-        packet.WriteGuidMask<6, 5, 4, 0, 2, 3, 7, 1>(guids[i]);
-    }
-
-    packet.FlushBits();
+    packet << flagCarrierCount;
 
     for (uint8 i = 0; i < 2; ++i)
     {
@@ -2082,38 +2070,35 @@ void Battleground::SendFlagsPositionsUpdate(uint32 diff)
         if (!player)
             continue;
 
-        packet << player->GetPositionY();
-        packet.WriteGuidBytes<2, 3, 7, 0, 1, 6>(guids[i]);
-        packet << uint8(player->GetTeamId() == TEAM_ALLIANCE ? 1 : 2);
-        packet.WriteGuidBytes<5, 4>(guids[i]);
-        packet << uint8(player->GetTeamId() == TEAM_ALLIANCE ? 3 : 2);
+        packet << player->GetGUID();
         packet << player->GetPositionX();
+        packet << player->GetPositionY();
+        packet << uint8(player->GetTeamId() == TEAM_ALLIANCE ? 1 : 2);      //IconID
+        packet << uint8(player->GetTeamId() == TEAM_ALLIANCE ? 3 : 2);      //ArenaSlot
     }
 
     SendPacketToAll(&packet);
 }
 
+//! 6.0.3
 void Battleground::SendOpponentSpecialization(uint32 team)
 {
     uint32 opCoun = 0;
-    ByteBuffer dataBuffer;
     WorldPacket spec(SMSG_ARENA_PREP_OPPONENT_SPECIALIZATIONS, 65);  //send us info about opponents specID
-    spec.WriteBits(opCoun, 21);
+    spec << opCoun;
 
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         if (Player* opponent = _GetPlayerForTeam(team, itr, "SendOponentSpecialization"))
         {
-            //spec.WriteGuidMask<7, 1, 2, 3, 5, 4, 6, 0>(opponent->GetGUID());
-            dataBuffer << uint32(opponent->GetSpecializationId(opponent->GetActiveSpec()));
-            //dataBuffer.WriteGuidBytes<6, 7, 0, 1, 3, 2, 4, 5>(opponent->GetGUID());
+            spec << uint32(opponent->GetSpecializationId(opponent->GetActiveSpec()));
+            spec << uint32(0);
+            spec << opponent->GetGUID();
             ++opCoun;
         }
     }
 
-    spec.FlushBits();
-    spec.append(dataBuffer);
-    spec.PutBits<uint32>(0, opCoun, 21);
+    spec.put<uint32>(0, opCoun);
 
     SendPacketToTeam(GetOtherTeam(team), &spec);
 }

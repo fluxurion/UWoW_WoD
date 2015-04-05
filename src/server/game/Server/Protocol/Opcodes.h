@@ -1552,6 +1552,7 @@ enum OpcodeServer : uint32
     SMSG_PETITION_RENAME_GUILD_RESPONSE               = 0x1055,
     SMSG_ARENA_PREP_OPPONENT_SPECIALIZATIONS          = 0x03AA,
     SMSG_CONQUEST_FORMULA_CONSTANTS                   = 0x1342,
+    SMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x1BE9,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1587,7 +1588,6 @@ enum OpcodeServer : uint32
     SMSG_BATTLE_PET_SLOT_UPDATE                       = 0xBADD,  // 5.0.5 16048
     SMSG_BATTLE_PET_TRAP_LEVEL                        = 0xBADD,  // 5.0.5 16048
     SMSG_BATTLE_PET_UPDATES                           = 0xBADD,  // 5.4.1 17538
-    SMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0xBADD, // 5.4.1 17538
     SMSG_BATTLEGROUND_POINTS                          = 0xBADD, // 5.4.1 17538
     SMSG_COMPRESSED_ACHIEVEMENT_DATA                  = 0xBADD,      // Not found in 4.3.4
     SMSG_COMPRESSED_CHAR_ENUM                         = 0xBADD,      // Not found in 4.3.4

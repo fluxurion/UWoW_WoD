@@ -69,27 +69,17 @@ void WorldSession::SendBattleGroundList(ObjectGuid guid, BattlegroundTypeId bgTy
     SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
 {
-    ObjectGuid guid;
-    uint32 bgTypeId_ = 0;
-    uint8 instanceId = 0;   // wtf could be 0-8
+    uint64 bgTypeId_ = 0;
+    uint8 role = 0;   // wtf could be 0-8
     bool isPremade = false;
     Group* grp = NULL;
     IgnorMapInfo ignore;
-    recvData >> ignore.map[0] >> ignore.map[1];
+    recvData >> bgTypeId_ >>  role >> ignore.map[0] >> ignore.map[1];
 
-    if (recvData.ReadBit())
-        instanceId = 8;
-    //recvData.ReadGuidMask<2, 4, 0, 3, 7, 1>(guid);
     bool joinAsGroup = recvData.ReadBit();
-    //recvData.ReadGuidMask<5, 6>(guid);
-    //recvData.ReadGuidBytes<0, 1, 7, 2, 4, 6, 5, 3>(guid);
-    if (instanceId != 8)
-        recvData >> instanceId;
-
-    bgTypeId_ = guid.GetCounter();
 
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {
@@ -117,8 +107,8 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
 
     // get bg instance or bg template if instance not found
     Battleground* bg = NULL;
-    if (instanceId)
-        bg = sBattlegroundMgr->GetBattlegroundThroughClientInstance(instanceId, bgTypeId);
+    //if (instanceId)
+    //    bg = sBattlegroundMgr->GetBattlegroundThroughClientInstance(instanceId, bgTypeId);
 
     if (!bg)
         bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
