@@ -473,10 +473,11 @@ void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
     _player->LeaveBattleground();
 }
 
+//! 6.0.3
 void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
 {
     // empty opcode
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_STATUS Message");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REQUEST_BATTLEFIELD_STATUS Message");
 
     WorldPacket data;
     // we must update all queues here
@@ -643,10 +644,11 @@ void WorldSession::JoinBracket(uint8 slot)
     sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, Jointype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-/// @used for CMSG_BATTLEMASTER_JOIN_ARENA and CMSG_BATTLEMASTER_JOIN_RATED
+/// @used for CMSG_BATTLEMASTER_JOIN_ARENA and CMSG_JOIN_RATED_BATTLEGROUND
+//! 6.0.3
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
 
     uint8 arenaslot;                                        // 2v2, 3v3 or 5v5
     recvData >> arenaslot;
@@ -654,9 +656,10 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
     JoinBracket(arenaslot);
 }
 
+//! 6.0.3
 void WorldSession::HandleBattlemasterJoinRated(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_RATED");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_JOIN_RATED_BATTLEGROUND");
 
     JoinBracket(BRACKET_TYPE_RATED_BG);
 }
