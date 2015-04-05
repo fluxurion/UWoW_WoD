@@ -33,6 +33,7 @@
 #include "DisableMgr.h"
 #include "Group.h"
 #include "Bracket.h"
+#include "BattlegroundPackets.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recvData)
 {
@@ -287,45 +288,34 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-//! 5.4.1
+//! 6.0.3
 void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_PORT Message");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_PORT Message");
 
-    uint32 time;
-    uint32 queueSlot;                                            // guessed
-    uint32 unk;                                                  // type id from dbc
-    uint8 action;                                                // enter battle 0x1, leave queue 0x0
-    ObjectGuid guid;
+    WorldPackets::Battleground::RideTicket queueInfo;
+    recvData >> queueInfo;
 
-    action = recvData.ReadBit();
-    recvData.ResetBitReader();
-
-    recvData >> queueSlot;
-    recvData >> time;
-    recvData >> unk;
-   
-    //recvData.ReadGuidMask<5, 0, 4, 2, 6, 1, 3, 7>(guid);
-    //recvData.ReadGuidBytes<2, 5, 4, 6, 3, 0, 7, 1>(guid);
+    uint8 action = recvData.ReadBit();
 
 	WorldPacket data;
 
-    if (queueSlot > PLAYER_MAX_BATTLEGROUND_QUEUES)
+    if (queueInfo.Id > PLAYER_MAX_BATTLEGROUND_QUEUES)
     {
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "HandleBattleFieldPortOpcode queueSlot %u", queueSlot);
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "HandleBattleFieldPortOpcode queueSlot %u", queueInfo.Id);
         return;
     }
 
     if (!_player || !_player->InBattlegroundQueue())
     {
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundHandler: Invalid CMSG_BATTLEFIELD_PORT received from player (Name: %s, GUID: %u), he is not in bg_queue.", _player->GetName(), _player->GetGUID().GetCounter());
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundHandler: Invalid CMSG_BATTLEFIELD_PORT received from player (Name: %s, GUID: %s), he is not in bg_queue.", _player->GetName(), _player->GetGUID().ToString());
         return;
     }
 
-    BattlegroundQueueTypeId bgQueueTypeId = _player->GetBattlegroundQueueTypeId(queueSlot);
+    BattlegroundQueueTypeId bgQueueTypeId = _player->GetBattlegroundQueueTypeId(queueInfo.Id);
     if (bgQueueTypeId == BATTLEGROUND_QUEUE_NONE)
     {
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundHandler: invalid queueSlot (%u) received.", queueSlot);
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundHandler: invalid queueSlot (%u) received.", queueInfo.Id);
         return;
     }
 
@@ -424,7 +414,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
                 _player->CleanupAfterTaxiFlight();
             }
 
-            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, _player, queueSlot, STATUS_IN_PROGRESS, _player->GetBattlegroundQueueJoinTime(bgTypeId), bg->GetElapsedTime(), ginfo.JoinType);
+            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, _player, queueInfo.Id, STATUS_IN_PROGRESS, _player->GetBattlegroundQueueJoinTime(bgTypeId), bg->GetElapsedTime(), ginfo.JoinType);
             _player->GetSession()->SendPacket(&data);
             // remove battleground queue status from BGmgr
             bgQueue.RemovePlayer(_player->GetGUID(), false);
@@ -445,10 +435,10 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", _player->GetName(), _player->GetGUID().GetCounter(), bg->GetInstanceID(), bg->GetTypeID(), bgQueueTypeId);
             break;
         case 0:                                         // leave queue
-            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, _player, queueSlot, STATUS_NONE,  0, 0, ginfo.JoinType);
+            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, _player, queueInfo.Id, STATUS_NONE,  0, 0, ginfo.JoinType);
             SendPacket(&data);
     
-            sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, _player, queueSlot, ERR_LEAVE_QUEUE);
+            sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, _player, queueInfo.Id, ERR_LEAVE_QUEUE);
             SendPacket(&data);
 
             _player->RemoveBattlegroundQueueId(bgQueueTypeId);  // must be called this way, because if you move this call to queue->removeplayer, it causes bugs

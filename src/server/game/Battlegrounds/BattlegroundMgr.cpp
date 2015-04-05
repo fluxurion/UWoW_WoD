@@ -1110,7 +1110,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     *data << uint8(0);                          // min level
     *data << uint8(0);                          // max level
 
-    size_t countPos = data.wpos();
+    size_t countPos = data->wpos();
     uint32 count = 0;
      *data << count;
 
@@ -1144,7 +1144,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     //*data << uint32(winner_conquest);           // random
     //*data << uint32(loser_honor);               // holiday
 
-    data->WriteBit(!guid);                      // from where | PvpAnywhere
+    data->WriteBit(_guid.IsEmpty());            // from where | PvpAnywhere
     data->WriteBit(player->GetRandomWinner());  // holiday
     data->WriteBit(player->GetRandomWinner());  // random
     data->WriteBit(1);                          // IsRandomBG
