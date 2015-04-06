@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,6 @@
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
 
-#include "ByteBuffer.h"
 #include "MessageBuffer.h"
 #include "Log.h"
 #include <atomic>
@@ -35,7 +34,9 @@
 using boost::asio::ip::tcp;
 
 #define READ_BLOCK_SIZE 4096
-#define TC_SOCKET_USE_IOCP BOOST_ASIO_HAS_IOCP
+#ifdef BOOST_ASIO_HAS_IOCP
+#define TC_SOCKET_USE_IOCP
+#endif
 
 template<class T>
 class Socket : public std::enable_shared_from_this<T>
@@ -91,7 +92,8 @@ public:
             return;
 
         _readBuffer.Normalize();
-        _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), READ_BLOCK_SIZE),
+        _readBuffer.EnsureFreeSpace();
+        _socket.async_read_some(boost::asio::buffer(_readBuffer.GetWritePointer(), _readBuffer.GetRemainingSpace()),
             std::bind(&Socket<T>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
@@ -108,7 +110,7 @@ public:
 
         if (error || bytesRead != size)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(),
+            TC_LOG_DEBUG("network", "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(),
                 error.message().c_str());
 
             CloseSocket();
@@ -122,7 +124,7 @@ public:
 #ifdef TC_SOCKET_USE_IOCP
         AsyncProcessQueue(guard);
 #else
-    (void)guard;
+        (void)guard;
 #endif
     }
 
@@ -136,7 +138,7 @@ public:
         boost::system::error_code shutdownError;
         _socket.shutdown(boost::asio::socket_base::shutdown_send, shutdownError);
         if (shutdownError)
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
+            TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
                 shutdownError.value(), shutdownError.message().c_str());
     }
 
