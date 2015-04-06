@@ -1352,7 +1352,7 @@ void WorldSession::HandleWhoisOpcode(WorldPackets::Who::WhoIsRequest& packet)
 
     if (!player)
     {
-        SendNotification(LANG_PLAYER_NOT_EXIST_OR_OFFLINE, packet.CharName);
+        SendNotification(LANG_PLAYER_NOT_EXIST_OR_OFFLINE, packet.CharName.c_str());
         return;
     }
 
@@ -1366,7 +1366,7 @@ void WorldSession::HandleWhoisOpcode(WorldPackets::Who::WhoIsRequest& packet)
 
     if (!result)
     {
-        SendNotification(LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND, packet.CharName);
+        SendNotification(LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND, packet.CharName.c_str());
         return;
     }
 

@@ -475,13 +475,14 @@ public:
                 case DATA_WAVE_COUNT:
                     return _waveCount;
                 case DATA_TEAM_IN_INSTANCE:
-                    if (!_teamInInstance)
-                    {
-                        Map::PlayerList const& players = instance->GetPlayers();
-                        if (!players.isEmpty())
-                            if (Player* player = players.begin()->getSource())
-                                static_cast<uint32>(_teamInInstance) = player->GetTeam();
-                    }
+                    //if (!_teamInInstance)
+                    //{
+                    //    Map::PlayerList const& players = instance->GetPlayers();
+                    //    if (!players.isEmpty())
+                    //        if (Player* player = players.begin()->getSource())
+                    //            static_cast<uint32>(_teamInInstance) = player->GetTeam();
+                    //}
+                    ASSERT(_teamInInstance);
                     return _teamInInstance;
                 case DATA_INTRO_EVENT:
                     return _introEvent;

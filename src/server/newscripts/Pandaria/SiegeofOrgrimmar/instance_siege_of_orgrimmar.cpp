@@ -868,7 +868,7 @@ public:
                         Map::PlayerList const& players = instance->GetPlayers();
                         if (!players.isEmpty())
                             if (Player* player = players.begin()->getSource())
-                                static_cast<uint32>(_teamInInstance) = player->GetTeam();
+                                const_cast<uint32&>(_teamInInstance) = player->GetTeam();
                     }
                     return _teamInInstance;
 

@@ -202,7 +202,7 @@ bool WorldSocket::ReadDataHandler()
             //sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
             sPacketLog->LogPacket(packet, CLIENT_TO_SERVER);
 
-        sLog->outTrace(LOG_FILTER_NETWORKIO, "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
+        sLog->outTrace(LOG_FILTER_NETWORKIO, "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerName().c_str() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
 
         try
         {
@@ -277,7 +277,7 @@ bool WorldSocket::ReadDataHandler()
         catch (ByteBufferException const&)
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "ByteBufferException while processing %s (%u).",
-                GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)), opcode);
+                GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str(), opcode);
             CloseSocket();
             return false;
         }
@@ -311,7 +311,7 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
 
     //if (_worldSession && packet.size() > 0x400 && !packet.IsCompressed())
     //    packet.Compress(_worldSession->GetCompressionStream());
-    sLog->outTrace(LOG_FILTER_NETWORKIO, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
+    sLog->outTrace(LOG_FILTER_NETWORKIO, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName().c_str() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
 
     std::unique_lock<std::mutex> guard(_writeLock);
 

@@ -584,7 +584,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case 5060:
                             case 5070:
                             case 5080:
-                                static_cast<uint32>(EventNPCId) = NPC_LICH_KING;
+                                const_cast<uint32&>(EventNPCId) = NPC_LICH_KING;
                             case 120:
                             case 122:
                             case 2020:
