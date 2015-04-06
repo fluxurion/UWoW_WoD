@@ -47,8 +47,6 @@ namespace WorldPackets
 
 union ClientPktHeader
 {
-    static uint32 const SizeOf[2][2];
-
     struct
     {
         uint16 Size;

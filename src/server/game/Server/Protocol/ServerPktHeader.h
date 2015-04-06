@@ -19,27 +19,14 @@
 #ifndef __SERVERPKTHDR_H__
 #define __SERVERPKTHDR_H__
 
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
 union ServerPktHeader
 {
-    static uint32 const SizeOf[2];
-
-    ServerPktHeader() { memset(data, 0, sizeof(data)); }
-
-    uint8 data[6];
     struct
     {
-        uint8 raw[6];
-        void Set(uint32 size, uint32 cmd)
-        {
-            memcpy(raw, &size, 2);
-            memcpy(&raw[2], &cmd, 4);
-        }
+        uint16 Size;
+        uint32 Command;
     } Setup;
 
     struct
@@ -49,10 +36,6 @@ union ServerPktHeader
     } Normal;
 };
 
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 #endif
