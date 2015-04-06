@@ -360,6 +360,8 @@ public:
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
             zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap);
 
+        handler->PSendSysMessage("Diffyculty %i spawnmask %i", map->GetDifficultyID(), map->GetSpawnMode());
+
         if (object->m_movementInfo.transport.guid)
             handler->PSendSysMessage("Transport position X: %f Y: %f Z: %f O: %f", object->m_movementInfo.transport.pos.GetPositionX(), object->m_movementInfo.transport.pos.GetPositionY(),
             object->m_movementInfo.transport.pos.GetPositionZ(), object->m_movementInfo.transport.pos.GetOrientation());

@@ -27,6 +27,7 @@
 #include "Group.h"
 #include "DBCStores.h"
 #include "LootPackets.h"
+#include "ObjectMgr.h"
 
 static Rates const qualityToRate[MAX_ITEM_QUALITY] =
 {
@@ -466,6 +467,20 @@ void LootItem::BuildItemInstance(WorldPackets::Item::ItemInstance& instance) con
 //
 // --------- Loot ---------
 //
+
+Loot::Loot(uint32 _gold)
+{
+    gold = _gold;
+    unlootedCount = 0;
+    loot_type = LOOT_CORPSE;
+    spawnMode = 0;
+    m_lootOwner = NULL;
+    objType = 0;
+    specId = 0;
+    itemLevel = 0;
+    objGuid.Clear();
+    objEntry = 0;
+}
 
 // Inserts the item into the loot (called by LootTemplate processors)
 void Loot::AddItem(LootStoreItem const & item)

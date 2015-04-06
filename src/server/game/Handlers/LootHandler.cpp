@@ -63,6 +63,12 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
             }
 
             loot = &go->loot;
+            if(go->GetGOInfo()->chest.chestPersonalLoot)
+                if(TreasureData const* pData = sObjectMgr->GetTreasureData(go->GetGOInfo()->chest.chestPersonalLoot))
+                    if(pData->type == GO_TYPE_RESPAWN || pData->type == GO_TYPE_DONTSPAWN)
+                        loot = &player->personalLoot;
+
+            //sLog->outDebug(LOG_FILTER_LOOT, "HandleAutostoreLootItemOpcode lguid %u, pguid %u lguid %u", lguid, player->personalLoot.GetGUID(), loot->GetGUID());
         }
         else if (lootObjectGUID.IsItem())
         {
@@ -103,7 +109,9 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
                 return;
             }
 
-            loot = &creature->loot;
+            loot = &player->personalLoot;
+            if(!creature->IsPersonalLoot() || loot->isLooted() || creature->GetGUID() != loot->objGuid)
+                loot = &creature->loot;
         }
 
         if(Group* group = player->GetGroup())
@@ -262,8 +270,6 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 //! 6.0.3
 void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
-
     // Check possible cheat
     if (!GetPlayer()->isAlive() || !packet.Unit.IsCreatureOrVehicle())
         return;
@@ -286,6 +292,8 @@ void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
     Creature* _creature = _player->GetMap()->GetCreature(corpsGUID);
     if (!_creature)
         return;
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT corpsGUID %u", corpsGUID);
 
     std::list<Creature*> corpesList;
     _looted->GetCorpseCreatureInGrid(corpesList, LOOT_DISTANCE);
@@ -520,6 +528,15 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
 
         if (!lootAllowed || !creature->IsWithinDistInMap(looter, LOOT_DISTANCE))
             return;
+
+        loot = &player->personalLoot;
+        if(creature->IsPersonalLoot() && loot->isLooted() && creature->GetGUID() == loot->objGuid)
+        {
+            loot->clear();
+            creature->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            creature->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            return;
+        }
 
         loot = &creature->loot;
         if (loot->isLooted())

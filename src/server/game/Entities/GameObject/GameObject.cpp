@@ -211,6 +211,9 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     SetGoState(go_state);
     SetGoArtKit(artKit);
 
+    if(m_goInfo->WorldEffectID)
+        m_updateFlag |= UPDATEFLAG_HAS_WORLDEFFECTID;
+
     switch (goinfo->type)
     {
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
@@ -1122,7 +1125,7 @@ void GameObject::EnableOrDisableGo(bool enable, bool alternative)
     {
         RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
         SetGoState(GO_STATE_READY);                                                 //if open -> close
-    }        
+    }
 }
 
 void GameObject::Use(Unit* user)
@@ -2165,6 +2168,17 @@ void GameObject::SetGoState(GOState state)
 
         EnableCollision(collision);
     }
+    switch (state)
+    {
+        case GO_STATE_READY:
+            if(GetGOInfo()->SpellVisualID)
+                SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, GetGOInfo()->SpellVisualID);
+            break;
+        default:
+            if(GetGOInfo()->SpellVisualID)
+                SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, 0);
+            break;
+    }
 }
 
 void GameObject::SetDisplayId(uint32 displayid)
@@ -2275,4 +2289,14 @@ uint32 GameObject::CalculateAnimDuration(GOState oldState, GOState newState) con
         return frameByState[oldState];
 
     return uint32(std::abs(int32(frameByState[oldState]) - int32(frameByState[newState])));
+}
+
+bool GameObject::IsPersonalLoot() const
+{
+    if(GetGOInfo()->chest.chestPersonalLoot)
+        if(TreasureData const* pData = sObjectMgr->GetTreasureData(GetGOInfo()->chest.chestPersonalLoot))
+            if(pData->type == GO_TYPE_RESPAWN || pData->type == GO_TYPE_DONTSPAWN)
+                return true;
+
+    return false;
 }

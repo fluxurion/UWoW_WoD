@@ -354,7 +354,7 @@ struct Loot
     uint32 specId;
     uint32 itemLevel;
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), spawnMode(0), m_lootOwner(NULL), objType(0), specId(0), itemLevel(0), objGuid(), objEntry(0)  {}
+    explicit Loot(uint32 _gold = 0);
     ~Loot() { clear(); }
 
     ObjectGuid const& GetGUID() const { return _GUID; }

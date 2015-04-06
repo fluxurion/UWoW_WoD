@@ -6246,8 +6246,8 @@ void ObjectMgr::LoadGameObjectTemplate()
                                              "questItem4, questItem5, questItem6, Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
     //                                          29      30      31      32      33      34      35      36      37      38      39      40      41      42      43      44
                                              "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, Data24, Data25, Data26, Data27, Data28, "
-    //                                          45      46      47      48       49       50        51
-                                             "Data29, Data30, Data31, Data32, unkInt32, AIName, ScriptName "
+    //                                          45      46      47      48       49       50        51          52              53
+                                             "Data29, Data30, Data31, Data32, unkInt32, AIName, ScriptName, WorldEffectID, SpellVisualID "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -6288,6 +6288,8 @@ void ObjectMgr::LoadGameObjectTemplate()
         got.unkInt32 = fields[49].GetInt32();
         got.AIName = fields[50].GetString();
         got.ScriptId = GetScriptId(fields[51].GetCString());
+        got.WorldEffectID = fields[52].GetInt32();
+        got.SpellVisualID = fields[53].GetInt32();
 
         // Checks
 

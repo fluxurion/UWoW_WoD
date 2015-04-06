@@ -52,6 +52,8 @@ struct GameObjectTemplate
     float   size;
     uint32  questItems[MAX_GAMEOBJECT_QUEST_ITEMS];
     int32   unkInt32;
+    uint32  WorldEffectID;
+    uint32  SpellVisualID;
     union                                                   // different GO types have different data field
     {
         // 0 GAMEOBJECT_TYPE_DOOR
@@ -849,6 +851,12 @@ struct GameObjectData
     bool dbData;
 };
 
+struct TreasureData
+{
+    uint32 treasureID;
+    uint32 type;
+};
+
 // For containers:  [GO_NOT_READY]->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED->GO_READY        -> ...
 // For bobber:      GO_NOT_READY  ->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED-><deleted>
 // For door(closed):[GO_NOT_READY]->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED->GO_READY(close) -> ...
@@ -980,6 +988,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         LootState getLootState() const { return m_lootState; }
         // Note: unit is only used when s = GO_ACTIVATED
         void SetLootState(LootState s, Unit* unit = NULL);
+        bool IsPersonalLoot() const;
 
         void AddToSkillupList(ObjectGuid const& PlayerGuidLow) { m_SkillupList.insert(PlayerGuidLow); }
         bool IsInSkillupList(ObjectGuid const& playerGuid) const

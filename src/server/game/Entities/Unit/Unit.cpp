@@ -2231,10 +2231,17 @@ void Unit::CalcHealAbsorb(Unit* victim, const SpellInfo* healSpell, uint32 &heal
     // Need remove expired auras after
     bool existExpired = false;
 
+    DamageInfo dmgInfo = DamageInfo(this, victim, healAmount, healSpell, SpellSchoolMask(healSpell->SchoolMask), SPELL_DIRECT_DAMAGE, 0);
+
     // absorb without mana cost
     AuraEffectList const& vHealAbsorb = victim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB);
     for (AuraEffectList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end() && RemainingHeal > 0; ++i)
     {
+        AuraEffect* absorbAurEff = *i;
+        AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(victim->GetGUID());
+        if (!aurApp)
+            continue;
+
         if (!((*i)->GetMiscValue() & healSpell->SchoolMask))
             continue;
 
@@ -2248,12 +2255,22 @@ void Unit::CalcHealAbsorb(Unit* victim, const SpellInfo* healSpell, uint32 &heal
             continue;
         }
 
+        uint32 tempAbsorb = uint32(currentAbsorb);
+        bool defaultPrevented = false;
+        absorbAurEff->GetBase()->CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, tempAbsorb, defaultPrevented);
+        currentAbsorb = tempAbsorb;
+
         // currentAbsorb - damage can be absorbed by shield
         // If need absorb less damage
         if (RemainingHeal < currentAbsorb)
             currentAbsorb = RemainingHeal;
 
         RemainingHeal -= currentAbsorb;
+
+        dmgInfo.AbsorbDamage(currentAbsorb);
+
+        tempAbsorb = currentAbsorb;
+        absorbAurEff->GetBase()->CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, tempAbsorb);
 
         // Reduce shield amount
         (*i)->SetAmount((*i)->GetAmount() - currentAbsorb);
@@ -14996,7 +15013,13 @@ void Unit::AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask, Sp
 {
     // Only mobs can manage threat lists
     if (CanHaveThreatList())
+    {
+        if(Creature* creature = ToCreature())
+            if(creature->IsPersonalLoot() && victim->GetTypeId() == TYPEID_PLAYER)
+                UpdateMaxHealth();
+
         m_ThreatManager.addThreat(victim, fThreat, schoolMask, threatSpell);
+    }
 }
 
 //======================================================================
@@ -15014,6 +15037,10 @@ void Unit::DeleteFromThreatList(Unit* victim)
 {
     if (CanHaveThreatList() && !m_ThreatManager.isThreatListEmpty())
     {
+        if(Creature* creature = ToCreature())
+            if(creature->IsPersonalLoot() && victim->GetTypeId() == TYPEID_PLAYER)
+                UpdateMaxHealth();
+
         // remove unreachable target from our threat list
         // next tick we will select next possible target
         m_HostileRefManager.deleteReference(victim);
@@ -20231,21 +20258,48 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
 
         if (creature)
         {
-            Loot* loot = &creature->loot;
-            if (creature->lootForPickPocketed)
-                creature->lootForPickPocketed = false;
-
-            loot->clear();
-            if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
+            if(!creature->IsPersonalLoot())
             {
-                loot->objEntry = creature->GetCreatureTemplate()->Entry;
-                loot->objGuid = creature->GetGUID();
-                loot->objType = 1;
-                loot->spawnMode = creature->GetMap()->GetSpawnMode();
-                loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false);
-            }
+                Loot* loot = &creature->loot;
+                if (creature->lootForPickPocketed)
+                    creature->lootForPickPocketed = false;
 
-            loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+                loot->clear();
+                if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
+                {
+                    loot->objEntry = creature->GetCreatureTemplate()->Entry;
+                    loot->objGuid = creature->GetGUID();
+                    loot->objType = 1;
+                    loot->spawnMode = creature->GetMap()->GetSpawnMode();
+                    loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false);
+                }
+
+                loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+            }
+            else
+            {
+                std::list<HostileReference*>& threatlist = creature->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+                {
+                    if (Player* lootPersonal = ObjectAccessor::GetPlayer(*creature, (*itr)->getUnitGuid()))
+                    {
+                        Loot* loot = &lootPersonal->personalLoot;
+                        loot->clear();
+                        if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
+                        {
+                            loot->objEntry = creature->GetCreatureTemplate()->Entry;
+                            loot->objGuid = creature->GetGUID();
+                            loot->objType = 1;
+                            loot->spawnMode = creature->GetMap()->GetSpawnMode();
+                            loot->FillLoot(lootid, LootTemplates_Creature, lootPersonal, false, false);
+                        }
+
+                        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::Kill lootGUID %i", loot->GetGUID());
+
+                        loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+                    }
+                }
+            }
         }
 
         player->RewardPlayerAndGroupAtKill(victim, false);
@@ -23936,7 +23990,7 @@ void Unit::SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uin
         data << uint32(schoolMask);     // SchoolMask (для type == interrupt and other)
         ToPlayer()->GetSession()->SendPacket(&data);
     }
-    /*else
+    else
     {
         WorldPacket data(SMSG_REMOVE_LOSS_OF_CONTROL);
         //data.WriteGuidMask<1, 7, 0, 6, 2, 4, 5>(guid);
@@ -23946,5 +24000,5 @@ void Unit::SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uin
         data << uint32(spellId); // SpellID
         //data.WriteGuidBytes<3, 5, 2>(guid);
         ToPlayer()->GetSession()->SendPacket(&data);
-    }*/
+    }
 }
