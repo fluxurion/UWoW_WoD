@@ -9946,7 +9946,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
     if ((guid.IsCorpse() || guid.IsItem() || guid.IsGameObject()) && lguid)
         m_session->DoLootRelease(lguid);
 
-    Loot* loot = 0;
+    Loot* loot = NULL;
+    //Loot* pLoot = NULL;
     PermissionTypes permission = ALL_PERMISSION;
     ItemQualities groupThreshold = ITEM_QUALITY_POOR;
 
@@ -9990,6 +9991,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
                     loot->objEntry = go->GetGOInfo()->entry;
                     loot->objGuid = go->GetGUID();
                     loot->objType = 3;
+                    loot->personal = true;
                     loot->spawnMode = go->GetMap()->GetSpawnMode();
                     loot->FillLoot(lootid, LootTemplates_Gameobject, this, true);
                 }
@@ -10092,6 +10094,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
         {
             item->m_lootGenerated = true;
             loot->clear();
+            loot->objEntry = item->GetEntry();
+            loot->objGuid = item->GetGUID();
 
             switch (loot_type)
             {
@@ -10105,10 +10109,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
                     loot->FillLoot(item->GetEntry(), LootTemplates_Milling, this, true);
                     break;
                 default:
-                    loot->generateMoneyLoot(item->GetTemplate()->MinMoneyLoot, item->GetTemplate()->MaxMoneyLoot);
-                    loot->objEntry = item->GetEntry();
-                    loot->objGuid = item->GetGUID();
                     loot->objType = 2;
+                    loot->generateMoneyLoot(item->GetTemplate()->MinMoneyLoot, item->GetTemplate()->MaxMoneyLoot);
                     loot->FillLoot(item->GetEntry(), LootTemplates_Item, this, true, loot->gold != 0);
                     break;
             }
@@ -10177,6 +10179,14 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
         loot = &personalLoot;
         if(!creature->IsPersonalLoot() || loot->isLooted() || creature->GetGUID() != loot->objGuid)
             loot = &creature->loot;
+        else
+            loot->personal = true;
+
+        /*if(creature->IsPersonalLoot())
+        {
+            pLoot = &personalLoot;
+            pLoot->personal = true;
+        }*/
         if (loot_type == LOOT_PICKPOCKETING)
         {
             if (!creature->lootForPickPocketed)
@@ -10201,7 +10211,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
             if (!recipient)
                 return;
 
-            if (!creature->lootForBody)
+            if (!creature->lootForBody && !creature->IsPersonalLoot())
             {
                 creature->lootForBody = true;
 
@@ -10232,6 +10242,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
             if (loot_type == LOOT_SKINNING)
             {
                 loot->clear();
+                loot->objGuid = creature->GetGUID();
                 loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, this, true);
                 permission = OWNER_PERMISSION;
             }
@@ -10289,6 +10300,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
 
     // need know merged fishing/corpse loot type for achievements
     loot->loot_type = loot_type;
+    //if(pLoot)
+        //pLoot->loot_type = loot_type;
 
     if (guid.IsGameObject())
     {
@@ -10333,6 +10346,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
             {
                 AutoStoreLoot(lootid, LootTemplates_Gameobject);
                 loot->clear();
+                //if(pLoot)
+                    //pLoot->clear();
                 m_session->DoLootRelease(guid);
             }
         }
@@ -10364,7 +10379,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 }
 
-//! 6.0.3
 void Player::SendLootError(ObjectGuid guid, ObjectGuid lGuid, LootError error)
 {
     WorldPackets::Loot::LootResponse packet;
@@ -10376,19 +10390,21 @@ void Player::SendLootError(ObjectGuid guid, ObjectGuid lGuid, LootError error)
 }
 
 //! 6.0.3
-void Player::SendNotifyLootMoneyRemoved(ObjectGuid lguid)
+void Player::SendNotifyLootMoneyRemoved(Loot* loot)
 {
+    ObjectGuid guid = loot->personal ? loot->GetLootOwner()->GetGUID() : loot->GetGUID();
+
     WorldPacket data(SMSG_COIN_REMOVED, 8);
-    data << (lguid ? lguid : GetLootGUID());   
+    data << guid;   
     GetSession()->SendPacket(&data);
 }
 
  //! 6.0.3
-void Player::SendNotifyLootItemRemoved(uint8 lootSlot, ObjectGuid owner, ObjectGuid lootObj)
+void Player::SendNotifyLootItemRemoved(uint8 lootSlot, Loot* loot)
 {
     WorldPackets::Loot::LootRemoved packet;
-    packet.Owner = owner;
-    packet.LootObj = lootObj;
+    packet.Owner = loot->personal ? loot->GetLootOwner()->GetGUID() : loot->GetGUID();
+    packet.LootObj = loot->objGuid;
     // Since 6.x client expects loot to be starting from 1 hence the +1
     packet.LootListID = lootSlot+1;
     GetSession()->SendPacket(packet.Write());
@@ -18768,7 +18784,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
     if (HasPendingBind())
         return false;
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Player::isAllowedToLoot isLooted %i GetGUID %i objGuid %i IsPersonalLoot %i", personalLoot.isLooted(), creature->GetGUID(), personalLoot.objGuid, creature->IsPersonalLoot());
+    //sLog->outDebug(LOG_FILTER_LOOT, "Player::isAllowedToLoot isLooted %i GetGUID %i objGuid %i IsPersonalLoot %i", personalLoot.isLooted(), creature->GetGUID(), personalLoot.objGuid, creature->IsPersonalLoot());
 
     if(creature->IsPersonalLoot() && creature->GetGUID() == personalLoot.objGuid)
     {
@@ -27151,9 +27167,10 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         if (CurrencyTypesEntry const * currencyEntry = sCurrencyTypesStore.LookupEntry(item->itemid))
             ModifyCurrency(item->itemid, int32(item->count * currencyEntry->GetPrecision()));
 
-        SendNotifyLootItemRemoved(lootSlot, loot->objGuid, loot->GetGUID());
+        SendNotifyLootItemRemoved(lootSlot, loot);
         currency->is_looted = true;
         --loot->unlootedCount;
+        SendDisplayToast(item->itemid, 3, 0, item->count, 2);
         return;
     }
 
@@ -27169,7 +27186,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
             qitem->is_looted = true;
             //freeforall is 1 if everyone's supposed to get the quest item.
             if (item->freeforall || loot->GetPlayerQuestItems().size() == 1)
-                SendNotifyLootItemRemoved(lootSlot, loot->objGuid, loot->GetGUID());
+                SendNotifyLootItemRemoved(lootSlot, loot);
             else
                 loot->NotifyQuestItemRemoved(qitem->index);
         }
@@ -27179,7 +27196,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
             {
                 //freeforall case, notify only one player of the removal
                 ffaitem->is_looted = true;
-                SendNotifyLootItemRemoved(lootSlot, loot->objGuid, loot->GetGUID());
+                SendNotifyLootItemRemoved(lootSlot, loot);
             }
             else
             {
@@ -27197,9 +27214,14 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         --loot->unlootedCount;
 
         if (const ItemTemplate* proto = sObjectMgr->GetItemTemplate(item->itemid))
+        {
             if (proto->Quality > ITEM_QUALITY_EPIC || (proto->Quality == ITEM_QUALITY_EPIC && proto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
                 if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
                     guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->itemid);
+
+            if (proto->Quality >= uint32(ITEM_QUALITY_UNCOMMON))
+                SendDisplayToast(item->itemid, 1, 0, item->count, 1, newitem);
+        }
 
         SendNewItem(newitem, uint32(item->count), false, false, true);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);

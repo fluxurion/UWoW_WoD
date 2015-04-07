@@ -353,6 +353,7 @@ struct Loot
     uint8 spawnMode;
     uint32 specId;
     uint32 itemLevel;
+    bool personal;
 
     explicit Loot(uint32 _gold = 0);
     ~Loot() { clear(); }
@@ -366,34 +367,7 @@ struct Loot
         i_LootValidatorRefManager.insertFirst(pLootValidatorRef);
     }
 
-    // void clear();
-    void clear()
-    {
-        for (QuestItemMap::const_iterator itr = PlayerCurrencies.begin(); itr != PlayerCurrencies.end(); ++itr)
-            delete itr->second;
-        PlayerCurrencies.clear();
-
-        for (QuestItemMap::const_iterator itr = PlayerQuestItems.begin(); itr != PlayerQuestItems.end(); ++itr)
-            delete itr->second;
-        PlayerQuestItems.clear();
-
-        for (QuestItemMap::const_iterator itr = PlayerFFAItems.begin(); itr != PlayerFFAItems.end(); ++itr)
-            delete itr->second;
-        PlayerFFAItems.clear();
-
-        for (QuestItemMap::const_iterator itr = PlayerNonQuestNonFFANonCurrencyConditionalItems.begin(); itr != PlayerNonQuestNonFFANonCurrencyConditionalItems.end(); ++itr)
-            delete itr->second;
-        PlayerNonQuestNonFFANonCurrencyConditionalItems.clear();
-
-        PlayersLooting.clear();
-        items.clear();
-        quest_items.clear();
-        gold = 0;
-        unlootedCount = 0;
-        roundRobinPlayer.Clear();
-        i_LootValidatorRefManager.clearReferences();
-    }
-
+    void clear();
     bool empty() const { return items.empty() && gold == 0; }
     bool isLooted() const { return gold == 0 && unlootedCount == 0; }
 
@@ -483,5 +457,29 @@ inline void LoadLootTables()
 
     LoadLootTemplates_Reference();
 }
+
+class LootMgr
+{
+    private:
+        LootMgr() {}
+        ~LootMgr() {}
+
+    public:
+        static LootMgr* instance()
+        {
+            static LootMgr instance;
+            return &instance;
+        }
+        typedef UNORDERED_MAP<ObjectGuid, Loot*> LootsMap;
+
+        Loot* GetLoot(ObjectGuid const& guid);
+        void AddLoot(Loot* loot);
+        void RemoveLoot(ObjectGuid const& guid);
+
+    protected:
+        LootsMap m_Loots;
+};
+
+#define sLootMgr LootMgr::instance()
 
 #endif

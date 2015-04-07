@@ -1634,6 +1634,7 @@ enum OpcodeServer : uint32
     SMSG_PET_BATTLE_FINISHED                          = 0xBADD,
     SMSG_SCENARIO_PROGRESS_UPDATE                     = 0xBADD,
     SMSG_SCENARIO_POI                                 = 0xBADD,
+    SMSG_DISPLAY_TOAST                                = 0xBADD, // 5.4.1 17538
 };
 
 #define MAX_OPCODE 0x7FFF
@@ -1642,7 +1643,6 @@ enum OpcodeServer : uint32
 /// List of Opcodes
 enum Opcodes
 {
-
 
 };
 

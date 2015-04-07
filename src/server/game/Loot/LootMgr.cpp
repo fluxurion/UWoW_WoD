@@ -480,6 +480,7 @@ Loot::Loot(uint32 _gold)
     itemLevel = 0;
     objGuid.Clear();
     objEntry = 0;
+    personal = false;
 }
 
 // Inserts the item into the loot (called by LootTemplate processors)
@@ -565,6 +566,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
                         if (!lootOwner->HasActiveSpell(*spellId))
                             lootOwner->learnSpell(*spellId, false);
     }
+    sLootMgr->AddLoot(this);
 
     return true;
 }
@@ -608,6 +610,34 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
 
             player->ModifyCurrency(i->CurrencyId, amount);
         }
+}
+
+void Loot::clear()
+{
+    for (QuestItemMap::const_iterator itr = PlayerCurrencies.begin(); itr != PlayerCurrencies.end(); ++itr)
+        delete itr->second;
+    PlayerCurrencies.clear();
+
+    for (QuestItemMap::const_iterator itr = PlayerQuestItems.begin(); itr != PlayerQuestItems.end(); ++itr)
+        delete itr->second;
+    PlayerQuestItems.clear();
+
+    for (QuestItemMap::const_iterator itr = PlayerFFAItems.begin(); itr != PlayerFFAItems.end(); ++itr)
+        delete itr->second;
+    PlayerFFAItems.clear();
+
+    for (QuestItemMap::const_iterator itr = PlayerNonQuestNonFFANonCurrencyConditionalItems.begin(); itr != PlayerNonQuestNonFFANonCurrencyConditionalItems.end(); ++itr)
+        delete itr->second;
+    PlayerNonQuestNonFFANonCurrencyConditionalItems.clear();
+
+    PlayersLooting.clear();
+    items.clear();
+    quest_items.clear();
+    gold = 0;
+    unlootedCount = 0;
+    roundRobinPlayer.Clear();
+    i_LootValidatorRefManager.clearReferences();
+    sLootMgr->RemoveLoot(GetGUID());
 }
 
 QuestItemList* Loot::FillCurrencyLoot(Player* player)
@@ -738,7 +768,7 @@ void Loot::NotifyItemRemoved(uint8 lootIndex)
         i_next = i;
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
-            player->SendNotifyLootItemRemoved(lootIndex, objGuid, GetGUID());
+            player->SendNotifyLootItemRemoved(lootIndex, this);
         else
             PlayersLooting.erase(i);
     }
@@ -753,7 +783,7 @@ void Loot::NotifyMoneyRemoved(uint64 gold)
         i_next = i;
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
-            player->SendNotifyLootMoneyRemoved(GetGUID());
+            player->SendNotifyLootMoneyRemoved(this);
         else
             PlayersLooting.erase(i);
     }
@@ -785,7 +815,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
                         break;
 
                 if (j < pql.size())
-                    player->SendNotifyLootItemRemoved(items.size()+j, objGuid, GetGUID());
+                    player->SendNotifyLootItemRemoved(items.size()+j, this);
             }
         }
         else
@@ -2175,4 +2205,30 @@ void LoadLootTemplates_Reference()
     LootTemplates_Reference.ReportUnusedIds(lootIdSet);
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded refence loot templates in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
+Loot* LootMgr::GetLoot(ObjectGuid const& guid)
+{
+    Loot* loot = NULL;
+    LootsMap::iterator itr = m_Loots.find(guid);
+    if (itr != m_Loots.end())
+        loot = itr->second;
+
+    //sLog->outDebug(LOG_FILTER_LOOT, "LootMgr::GetLoot loot %i guid %i size %i", loot ? loot->GetGUID() : 0, guid, m_Loots.size());
+    return loot;
+}
+
+void LootMgr::AddLoot(Loot* loot)
+{
+    m_Loots[loot->GetGUID()] = loot;
+    //sLog->outDebug(LOG_FILTER_LOOT, "LootMgr::AddLoot loot %i guid %i size %i", loot->GetGUID(), loot->GetGUID(), m_Loots.size());
+}
+
+void LootMgr::RemoveLoot(ObjectGuid const& guid)
+{
+    LootsMap::iterator itr = m_Loots.find(guid);
+    if (itr == m_Loots.end())
+        return;
+
+    m_Loots.erase(itr);
 }

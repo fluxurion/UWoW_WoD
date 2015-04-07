@@ -93,6 +93,19 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
             loot = &bones->loot;
         }
+        else if (lguid.IsLoot())
+        {
+            loot = sLootMgr->GetLoot(lguid);
+            if(!loot)
+            {
+                player->SendLootRelease(lguid);
+                return;
+            }
+        }
+        else if (lguid.IsPlayer())
+        {
+            loot = &player->personalLoot;
+        }
         else
         {
             Creature* creature = GetPlayer()->GetMap()->GetCreature(lootObjectGUID);
@@ -109,9 +122,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
                 return;
             }
 
-            loot = &player->personalLoot;
-            if(!creature->IsPersonalLoot() || loot->isLooted() || creature->GetGUID() != loot->objGuid)
-                loot = &creature->loot;
+            loot = &creature->loot;
         }
 
         if(Group* group = player->GetGroup())
@@ -529,16 +540,17 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         if (!lootAllowed || !creature->IsWithinDistInMap(looter, LOOT_DISTANCE))
             return;
 
-        loot = &player->personalLoot;
-        if(creature->IsPersonalLoot() && loot->isLooted() && creature->GetGUID() == loot->objGuid)
+        loot = &creature->loot;
+
+        if(creature->IsPersonalLoot() && player->personalLoot.isLooted() && creature->GetGUID() == player->personalLoot.objGuid)
         {
-            loot->clear();
+            player->personalLoot.clear();
             creature->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             creature->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-            return;
+            --loot->unlootedCount;
+            creature->RemoveThreatTarget(player->GetGUID());
         }
 
-        loot = &creature->loot;
         if (loot->isLooted())
         {
             // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact

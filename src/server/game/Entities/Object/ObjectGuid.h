@@ -191,6 +191,7 @@ class ObjectGuid
         bool IsDynamicObject()     const { return GetHigh() == HighGuid::DynamicObject; }
         bool IsCorpse()            const { return GetHigh() == HighGuid::Corpse; }
         bool IsAreaTrigger()       const { return GetHigh() == HighGuid::AreaTrigger; }
+        bool IsLoot()              const { return GetHigh() == HighGuid::LootObject; }
         bool IsMOTransport()       const { return GetHigh() == HighGuid::Transport; }
         bool IsAnyTypeGameObject() const { return IsGameObject() || IsMOTransport(); }
         bool IsParty()             const { return GetHigh() == HighGuid::Party; }
