@@ -332,7 +332,7 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
 #ifndef TC_SOCKET_USE_IOCP
     if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= sizeOfHeader + packet.size())
     {
-        _writeBuffer.Write(header.data, sizeOfHeader);
+        _writeBuffer.Write((uint8*)&header, sizeOfHeader);
         if (!packet.empty())
             _writeBuffer.Write(packet.contents(), packet.size());
     }

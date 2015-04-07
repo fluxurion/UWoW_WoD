@@ -110,8 +110,7 @@ public:
 
         if (error || bytesRead != size)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(),
-                error.message().c_str());
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(), error.message().c_str());
 
             CloseSocket();
         }
