@@ -61,8 +61,8 @@ public:
         ObjectGuid orgrimmargate2Guid;
         ObjectGuid rustybarsGuid;
         ObjectGuid nazgrimdoorGuid;
-        uint64 nazgrimexdoorGuid;
-        std::vector<uint64> malkorokfenchGuids;
+        ObjectGuid nazgrimexdoorGuid;
+        GuidVector malkorokfenchGuids;
         
         //Creature
         ObjectGuid LorewalkerChoGUIDtmp;
@@ -76,12 +76,12 @@ public:
         ObjectGuid nExpertGUID;
         ObjectGuid kardrisGuid;
         ObjectGuid harommGuid;
-        uint64 ironjuggGuid;
+        ObjectGuid ironjuggGuid;
         ObjectGuid bloodclawGuid;
         ObjectGuid darkfangGuid;
         ObjectGuid gnazgrimGuid;
         ObjectGuid fpGUID[3];
-        uint64 amGuid;
+        ObjectGuid amGuid;
 
         EventMap Events;
 
@@ -117,7 +117,7 @@ public:
             orgrimmargate2Guid.Clear();
             rustybarsGuid.Clear();
             nazgrimdoorGuid.Clear();
-            nazgrimexdoorGuid       = 0;
+            nazgrimexdoorGuid.Clear();
             malkorokfenchGuids.clear();
            
             //Creature
@@ -130,12 +130,12 @@ public:
             sExpertGUID.Clear();
             nExpertGUID.Clear();
             kardrisGuid.Clear();
-            ironjuggGuid            = 0;
+            ironjuggGuid.Clear();
             harommGuid.Clear();
             bloodclawGuid.Clear();
             darkfangGuid.Clear();
             gnazgrimGuid.Clear();
-            amGuid                  = 0;
+            amGuid.Clear();
 
             onInitEnterState = false;
             STowerFull = false;
@@ -686,15 +686,15 @@ public:
                     switch (state)
                     {
                     case NOT_STARTED:
-                        for (std::vector<uint64>::const_iterator itr = malkorokfenchGuids.begin(); itr != malkorokfenchGuids.end(); itr++)
+                        for (GuidVector::const_iterator itr = malkorokfenchGuids.begin(); itr != malkorokfenchGuids.end(); itr++)
                             HandleGameObject(*itr, true);
                         break;
                     case IN_PROGRESS:
-                        for (std::vector<uint64>::const_iterator itr = malkorokfenchGuids.begin(); itr != malkorokfenchGuids.end(); itr++)
+                        for (GuidVector::const_iterator itr = malkorokfenchGuids.begin(); itr != malkorokfenchGuids.end(); itr++)
                             HandleGameObject(*itr, false);
                         break;
                     case DONE:
-                        for (std::vector<uint64>::const_iterator itr = malkorokfenchGuids.begin(); itr != malkorokfenchGuids.end(); itr++)
+                        for (GuidVector::const_iterator itr = malkorokfenchGuids.begin(); itr != malkorokfenchGuids.end(); itr++)
                             HandleGameObject(*itr, true);
                         break;
                     }
