@@ -755,10 +755,11 @@ void InstanceScript::StartChallenge()
     // Set Timer For Start challenge
     _events.ScheduleEvent(EVENT_START_CHALLENGE, CHALLENGE_START * IN_MILLISECONDS);
 
+    //! 6.0.3
     WorldPacket data(SMSG_START_TIMER, 12);
+    data << uint32(CHALLENGE_START);
+    data << uint32(CHALLENGE_START);
     data << uint32(LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE);
-    data << uint32(CHALLENGE_START);
-    data << uint32(CHALLENGE_START);
     BroadcastPacket(data);
 }
 

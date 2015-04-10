@@ -1049,17 +1049,16 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     }
 }
 
-void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, ObjectGuid guid)
+//! 6.0.3
+void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, ObjectGuid const& guid)
 {
-    /*WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+    data << guid;
     uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
     if (time_ == uint32(-1))
         time_ = 0;
-    //data.WriteGuidMask<6, 5, 4, 2, 7, 0, 3, 1>(guid);
-    //data.WriteGuidBytes<4, 5, 7, 3, 1>(guid);
     data << uint32(time_);
-    //data.WriteGuidBytes<0, 2, 6>(guid);
-    player->GetSession()->SendPacket(&data);*/
+    player->GetSession()->SendPacket(&data);
 }
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)

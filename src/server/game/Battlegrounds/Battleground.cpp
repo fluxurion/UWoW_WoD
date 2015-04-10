@@ -1250,10 +1250,11 @@ void Battleground::AddPlayer(Player* player)
 
     if (GetStatus() == STATUS_WAIT_JOIN)
     {
+        //! 6.0.3
         WorldPacket data(SMSG_START_TIMER, 12);
-        data << uint32(0);  // timer type
-        data << uint32(GetStartDelayTime() / 1000);
         data << uint32(StartDelayTimes[BG_STARTING_EVENT_FIRST] / 1000);
+        data << uint32(GetStartDelayTime() / 1000);
+        data << uint32(0);  // timer type
         SendPacketToAll(&data);
     }
 

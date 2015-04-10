@@ -250,10 +250,11 @@ bool BattlegroundSA::ResetObjs()
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 SendBasicWorldStateUpdate(player);
 
+        //! 6.0.3
         WorldPacket data(SMSG_START_TIMER, 12);
+        data << uint32(BG_START_DELAY_1M / 1000);
+        data << uint32(BG_START_DELAY_1M / 1000);
         data << uint32(0);  // timer type
-        data << uint32(BG_START_DELAY_1M / 1000);
-        data << uint32(BG_START_DELAY_1M / 1000);
         SendPacketToAll(&data);
     }
 
