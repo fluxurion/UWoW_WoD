@@ -660,7 +660,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_REP_PLAYER_KILL, "REPLACE INTO character_kill (guid, victim_guid, count) VALUES ('%u','%u','%u')", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_PLAYER_KILL, "UPDATE character_kill SET count=? WHERE guid = ? AND victim_guid = ?", CONNECTION_ASYNC);
 
-    //Game Object re-spawn system
-    PrepareStatement(CHAR_SEL_PLAYER_GORESPAWN,       "SELECT entry, respawnTime FROM character_gameobject WHERE guid = ?",  CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_PLAYER_GORESPAWN,       "INSERT IGNORE INTO character_gameobject (`guid`, `entry`, `respawnTime`) VALUES (?, ?, ?)",  CONNECTION_ASYNC);
+    //Loot cooldown system
+    PrepareStatement(CHAR_SEL_PLAYER_LOOTCOOLDOWN,       "SELECT entry, type, respawnTime FROM character_loot_cooldown WHERE guid = ?",  CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_PLAYER_LOOTCOOLDOWN,       "INSERT IGNORE INTO character_loot_cooldown (`guid`, `entry`, `type`, `respawnTime`) VALUES (?, ?, ?, ?)",  CONNECTION_ASYNC);
 }

@@ -220,6 +220,7 @@ struct InstanceTemplate
     uint32 Parent;
     uint32 ScriptId;
     bool AllowMount;
+    uint32 bonusChance;
 };
 
 enum LevelRequirementVsMode
@@ -377,6 +378,7 @@ class Map : public GridRefManager<NGridType>
         bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
         bool isChallenge() const { return i_difficulty == DIFFICULTY_CHALLENGE; }
+        bool IsLfrFlex() const { return i_difficulty == DIFFICULTY_LFR || i_difficulty == FLEXIBLE_DIFFICULTY; }
         bool IsScenario() const { return i_mapEntry && i_mapEntry->IsScenario(); }
         bool IsRaidOrHeroicDungeon() const { return IsRaid() || IsHeroic(); }
         bool IsHeroic() const;

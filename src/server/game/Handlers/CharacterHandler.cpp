@@ -257,13 +257,13 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_VISUAL, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_KILL);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_LOOTCOOLDOWN);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_HONOR, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_GORESPAWN);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_KILL);
     stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GORESPAWN, stmt);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_LOOTCOOLDOWN, stmt);
 
     return res;
 }

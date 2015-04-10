@@ -53,6 +53,7 @@ static UNORDERED_MAP<uint32, std::list<uint32> > sSpellProcsPerMinuteModEntryLis
 static UNORDERED_MAP<uint32, uint32 > sAchievementEntryParentList;
 static UNORDERED_MAP<uint32, std::list<uint32> > sItemSpecsList;
 static UNORDERED_MAP<uint32, uint32 > sRevertLearnSpellList;
+static UNORDERED_MAP<uint32, uint32 > sReversTriggerSpellList;
 
 typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
 
@@ -766,6 +767,9 @@ void InitDBCCustomStores()
 
             if(spellEffect->Effect == SPELL_EFFECT_LEARN_SPELL)
                 sRevertLearnSpellList[spellEffect->EffectTriggerSpell] = spellEffect->SpellID;
+
+            if(spellEffect->EffectTriggerSpell)
+                sReversTriggerSpellList[spellEffect->EffectTriggerSpell] = spellEffect->SpellID;
         }
     }
 
@@ -837,6 +841,14 @@ uint32 GetLearnSpell(uint32 trigerSpell)
 {
     UNORDERED_MAP<uint32, uint32 >::const_iterator itr = sRevertLearnSpellList.find(trigerSpell);
     if(itr != sRevertLearnSpellList.end())
+        return itr->second;
+    return 0;
+}
+
+uint32 GetSpellByTrigger(uint32 trigerSpell)
+{
+    UNORDERED_MAP<uint32, uint32 >::const_iterator itr = sReversTriggerSpellList.find(trigerSpell);
+    if(itr != sReversTriggerSpellList.end())
         return itr->second;
     return 0;
 }
