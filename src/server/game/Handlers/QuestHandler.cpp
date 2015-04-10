@@ -516,6 +516,7 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
     }
 }
 
+//! 6.0.3
 void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet)
 {
     bool autoCompleteMode = packet.FromScript; // 0 - standart complete quest mode with npc, 1 - auto-complete mode
