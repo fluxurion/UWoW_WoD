@@ -977,7 +977,7 @@ bool Battlefield::IncrementQuest(Player *player, uint32 quest, bool complete)
 
 void Battlefield::InitGUID()
 { 
-    m_Guid = ObjectGuid::Create<HighGuid::PVPQueueGroup>(m_TypeId);
+    m_Guid = m_TypeId | 0x20000 | 0x1F10000000000000;
 }
 
 // *******************************************************

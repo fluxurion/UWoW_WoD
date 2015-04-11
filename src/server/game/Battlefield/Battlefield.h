@@ -242,9 +242,9 @@ class Battlefield : public ZoneScript
 
         void InitGUID();
 
-        uint32 GetTypeId()       { return m_TypeId; }
-        uint32 GetZoneId()       { return m_ZoneId; }
-        ObjectGuid GetGUID()     { return m_Guid; }
+        uint32 GetTypeId() const   { return m_TypeId; }
+        uint32 GetZoneId() const   { return m_ZoneId; }
+        uint64 GetGUID() const     { return m_Guid; }
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
@@ -365,7 +365,7 @@ class Battlefield : public ZoneScript
 
         void InitStalker(uint32 entry, float x, float y, float z, float o);
 
-        void SetGuid(ObjectGuid guid) { m_Guid = guid; };
+        void SetGuid(uint64 const& guid) { m_Guid = guid; };
 
         bool IsOnStartGrouping() const { return m_StartGrouping; }
     protected:
@@ -374,7 +374,7 @@ class Battlefield : public ZoneScript
         bool m_IsEnabled;
         bool m_isActive;
         TeamId m_DefenderTeam;
-        ObjectGuid m_Guid;
+        uint64 m_Guid;
 
         // Map of the objectives belonging to this OutdoorPvP
         BfCapturePointMap m_capturePoints;

@@ -1043,11 +1043,11 @@ class WorldSession
         void HandlePersonalRatedInfoRequest(WorldPacket& recvPacket);
 
         // Battlefield
-        void SendBfInvitePlayerToWar(ObjectGuid guid,uint32 ZoneId,uint32 time);
-        void SendBfInvitePlayerToQueue(ObjectGuid guid);
-        void SendBfQueueInviteResponse(ObjectGuid guid,uint32 ZoneId, bool CanQueue = true, bool Full = false);
-        void SendBfEntered(ObjectGuid guid);
-        void SendBfLeaveMessage(ObjectGuid guid, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
+        void SendBfInvitePlayerToWar(uint64 const& guid,uint32 ZoneId,uint32 time);
+        void SendBfInvitePlayerToQueue(uint64 const& guid);
+        void SendBfQueueInviteResponse(uint64 const& guid,uint32 ZoneId, bool CanQueue = true, bool Full = false);
+        void SendBfEntered(uint64 const& guid);
+        void SendBfLeaveMessage(uint64 const& guid, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
         void HandleBfQueueInviteResponse(WorldPacket &recv_data);
         void HandleBfEntryInviteResponse(WorldPacket &recv_data);
         void HandleBfExitQueueRequest(WorldPacket &recv_data);

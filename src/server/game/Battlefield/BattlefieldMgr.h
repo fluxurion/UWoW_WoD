@@ -51,7 +51,7 @@ class BattlefieldMgr
     // return assigned battlefield
     Battlefield *GetBattlefieldToZoneId(uint32 zoneid);
     Battlefield *GetBattlefieldByBattleId(uint32 battleid);
-    Battlefield *GetBattlefieldByGUID(ObjectGuid guid);
+    Battlefield *GetBattlefieldByGUID(uint64 const& guid);
 
     static BattlefieldMgr* instance()
     {
