@@ -83,6 +83,34 @@ uint32 GetLiquidFlags(uint32 liquidType);
 PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
 PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
 
+template<class T>
+class GameTable
+{
+public:
+    GameTable(char const* format) : _storage(format), _gtEntry(nullptr) { }
+
+    void SetGameTableEntry(GameTablesEntry const* gtEntry) { _gtEntry = gtEntry; }
+
+    T const* EvaluateTable(uint32 row, uint32 column) const
+    {
+        ASSERT(row < _gtEntry->NumRows);
+        ASSERT(column < _gtEntry->NumColumns);
+
+        return _storage.LookupEntry(_gtEntry->NumRows * column + row);
+    }
+
+    char const* GetFormat() const { return _storage.GetFormat(); }
+    uint32 GetFieldCount() const { return _storage.GetFieldCount(); }
+    bool Load(char const* fileName) { return _storage.Load(fileName, nullptr); }
+
+    uint32 GetTableRowCount() const { return _gtEntry->NumRows; }
+    uint32 GetTableColumnCount() const { return _gtEntry->NumColumns; }
+
+private:
+    DBCStorage<T> _storage;
+    GameTablesEntry const* _gtEntry;
+};
+
 extern DBCStorage<AchievementEntry>             sAchievementStore;
 //extern DBCStorage<AchievementCriteriaEntry>     sAchievementCriteriaStore;
 extern DBCStorage <CriteriaEntry>                sCriteriaStore;
@@ -127,22 +155,24 @@ extern DBCStorage<GemPropertiesEntry>           sGemPropertiesStore;
 extern DBCStorage<GlyphPropertiesEntry>         sGlyphPropertiesStore;
 extern DBCStorage<GlyphSlotEntry>               sGlyphSlotStore;
 
-extern DBCStorage<GtBarberShopCostBaseEntry>    sGtBarberShopCostBaseStore;
-extern DBCStorage<GtCombatRatingsEntry>         sGtCombatRatingsStore;
-extern DBCStorage<GtChanceToMeleeCritBaseEntry> sGtChanceToMeleeCritBaseStore;
-extern DBCStorage<GtChanceToMeleeCritEntry>     sGtChanceToMeleeCritStore;
-extern DBCStorage<GtChanceToSpellCritBaseEntry> sGtChanceToSpellCritBaseStore;
-extern DBCStorage<GtChanceToSpellCritEntry>     sGtChanceToSpellCritStore;
-extern DBCStorage<GtItemSocketCostPerLevelEntry> sGtItemSocketCostPerLevelStore;
-extern DBCStorage<GtOCTClassCombatRatingScalarEntry> sGtOCTClassCombatRatingScalarStore;
-extern DBCStorage<GtOCTLevelExperienceEntry>    sGtOCTLevelExperienceStore;
+extern GameTable<GtBarberShopCostBaseEntry>    sGtBarberShopCostBaseStore;
+extern GameTable<GtCombatRatingsEntry>         sGtCombatRatingsStore;
+extern GameTable<GtChanceToMeleeCritBaseEntry> sGtChanceToMeleeCritBaseStore;
+extern GameTable<GtChanceToMeleeCritEntry>     sGtChanceToMeleeCritStore;
+extern GameTable<GtChanceToSpellCritBaseEntry> sGtChanceToSpellCritBaseStore;
+extern GameTable<GtChanceToSpellCritEntry>     sGtChanceToSpellCritStore;
+extern GameTable<GtItemSocketCostPerLevelEntry> sGtItemSocketCostPerLevelStore;
+extern GameTable<GtNPCManaCostScalerEntry>     sGtNPCManaCostScalerStore;
+extern GameTable<GtOCTClassCombatRatingScalarEntry> sGtOCTClassCombatRatingScalarStore;
+extern GameTable<GtOCTLevelExperienceEntry>    sGtOCTLevelExperienceStore;
 //extern DBCStorage<GtOCTRegenMPEntry>            sGtOCTRegenMPStore; -- not used currently
-extern DBCStorage<gtOCTHpPerStaminaEntry>       sGtOCTHpPerStaminaStore;
-extern DBCStorage<GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore;
-extern DBCStorage<GtSpellScalingEntry>          sGtSpellScalingStore;
-extern DBCStorage<GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore;
-extern DBCStorage<GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore;
-extern DBCStorage <GtBattlePetTypeDamageModEntry>      sGtBattlePetTypeDamageModStore;
+extern GameTable<gtOCTHpPerStaminaEntry>       sGtOCTHpPerStaminaStore;
+extern GameTable<GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore;
+extern GameTable<GtSpellScalingEntry>          sGtSpellScalingStore;
+extern GameTable<GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore;
+extern GameTable<GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore;
+extern GameTable<GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore;
+
 extern DBCStorage<GuildPerkSpellsEntry>         sGuildPerkSpellsStore;
 extern DBCStorage<ImportPriceArmorEntry>        sImportPriceArmorStore;
 extern DBCStorage<ImportPriceQualityEntry>      sImportPriceQualityStore;

@@ -1763,16 +1763,20 @@ float PetBattleAbilityInfo::GetAttackModifier(uint8 attackType, uint8 defenseTyp
     uint32 formulaValue = 0xA;
     uint32 modId = defenseType * formulaValue + Type;
 
-    for (uint32 j = 0; j < sGtBattlePetTypeDamageModStore.GetNumRows(); ++j)
-    {
-        GtBattlePetTypeDamageModEntry const* gt = sGtBattlePetTypeDamageModStore.LookupEntry(j);
+    //! TODO: check IT
+    if (GtBattlePetTypeDamageModEntry const* gt = sGtBattlePetTypeDamageModStore.EvaluateTable(defenseType-1, Type-1))
+        return gt->value;
 
-        if (!gt)
-            continue;
+    //for (uint32 j = 0; j < sGtBattlePetTypeDamageModStore.GetNumRows(); ++j)
+    //{
+    //    GtBattlePetTypeDamageModEntry const* gt = sGtBattlePetTypeDamageModStore.LookupEntry(j);
 
-        if (gt->Id == modId)
-            return gt->value;
-    }
+    //    if (!gt)
+    //        continue;
+
+    //    if (gt->Id == modId)
+    //        return gt->value;
+    //}
 
     return 0.0f;
 }

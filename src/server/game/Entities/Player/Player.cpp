@@ -6634,11 +6634,11 @@ float Player::GetMeleeCritFromAgility()
     uint8 level = getLevel();
     uint32 pclass = getClass();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
+    if (level >= sGtChanceToMeleeCritStore.GetTableRowCount())
+        level = sGtChanceToMeleeCritStore.GetTableRowCount() - 1;
 
-    GtChanceToMeleeCritBaseEntry const* critBase  = sGtChanceToMeleeCritBaseStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    GtChanceToMeleeCritEntry     const* critRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtChanceToMeleeCritBaseEntry const* critBase = sGtChanceToMeleeCritBaseStore.EvaluateTable(pclass - 1, 0);
+    GtChanceToMeleeCritEntry     const* critRatio = sGtChanceToMeleeCritStore.EvaluateTable(level - 1, pclass - 1);
     if (critBase == NULL || critRatio == NULL)
         return 0.0f;
 
@@ -6667,12 +6667,12 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
     uint8 level = getLevel();
     uint32 pclass = getClass();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
+    if (level >= sGtChanceToMeleeCritStore.GetTableRowCount())
+        level = sGtChanceToMeleeCritStore.GetTableRowCount() - 1;
 
     // Dodge per agility is proportional to crit per agility, which is available from DBC files
-    GtChanceToMeleeCritEntry  const* dodgeRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    GtChanceToMeleeCritBaseEntry const* critBase  = sGtChanceToMeleeCritBaseStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtChanceToMeleeCritEntry  const* dodgeRatio = sGtChanceToMeleeCritStore.EvaluateTable(level - 1, pclass - 1);
+    GtChanceToMeleeCritEntry  const* critBase = sGtChanceToMeleeCritStore.EvaluateTable(level - 1, 0);
     if (dodgeRatio == NULL || pclass > MAX_CLASSES)
         return;
 
@@ -6682,7 +6682,7 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
 
     // calculate diminishing (green in char screen) and non-diminishing (white) contribution
     diminishing = 100.0f * (bonus_agility / (100.0f * dodgeRatio->ratio) * crit_to_dodge[pclass-1]);
-    nondiminishing = (((base_agility - 1) / (dodgeRatio->ratio * 100)) * crit_to_dodge[pclass-1] + critBase->base) * 100.0f;
+    nondiminishing = (((base_agility - 1) / (dodgeRatio->ratio * 100)) * crit_to_dodge[pclass-1] + critBase->ratio) * 100.0f;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
@@ -26518,8 +26518,8 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 {
     uint8 level = getLevel();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;                               // max level in this dbc
+    if (level >= sGtBarberShopCostBaseStore.GetTableRowCount())
+        level = sGtBarberShopCostBaseStore.GetTableRowCount() - 1;
 
     uint8 hairstyle = GetByteValue(PLAYER_FIELD_BYTES, 2);
     uint8 haircolor = GetByteValue(PLAYER_FIELD_BYTES, 3);
@@ -26529,7 +26529,7 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
     if ((hairstyle == newhairstyle) && (haircolor == newhaircolor) && (facialhair == newfacialhair) && (!newSkin || (newSkin->hair_id == skincolor)))
         return 0;
 
-    GtBarberShopCostBaseEntry const* bsc = sGtBarberShopCostBaseStore.LookupEntry(level - 1);
+    GtBarberShopCostBaseEntry const* bsc = sGtBarberShopCostBaseStore.EvaluateTable(level - 1, 0);
 
     if (!bsc)                                                // shouldn't happen
         return 0xFFFFFFFF;

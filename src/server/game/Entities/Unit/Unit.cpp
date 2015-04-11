@@ -16124,10 +16124,10 @@ float Unit::OCTRegenMPPerSpirit()
     uint8 level = getLevel();
     uint32 pclass = getClass();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
+    if (level >= sGtRegenMPPerSptStore.GetTableRowCount())
+        level = sGtRegenMPPerSptStore.GetTableRowCount() - 1;
 
-    GtRegenMPPerSptEntry  const* moreRatio = sGtRegenMPPerSptStore.LookupEntry((pclass-1) * GT_MAX_LEVEL + level-1);
+    GtRegenMPPerSptEntry  const* moreRatio = sGtRegenMPPerSptStore.EvaluateTable(level - 1, pclass - 1);
     if (!moreRatio)
         return 0.0f;
 
@@ -16140,11 +16140,11 @@ float Unit::GetSpellCritFromIntellect()
     uint8 level = getLevel();
     uint32 pclass = getClass();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
+    if (level >= sGtChanceToSpellCritStore.GetTableRowCount())
+        level = sGtChanceToSpellCritStore.GetTableRowCount() - 1;
 
-    GtChanceToSpellCritBaseEntry const* critBase = sGtChanceToSpellCritBaseStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
-    GtChanceToSpellCritEntry const* critRatio = sGtChanceToSpellCritStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
+    GtChanceToSpellCritBaseEntry const* critBase = sGtChanceToSpellCritBaseStore.EvaluateTable(pclass - 1, 0);
+    GtChanceToSpellCritEntry const* critRatio = sGtChanceToSpellCritStore.EvaluateTable(level - 1, pclass - 1);
     if (critBase == NULL || critRatio == NULL)
         return 0.0f;
 
@@ -16156,12 +16156,12 @@ float Unit::GetRatingMultiplier(CombatRating cr) const
 {
     uint8 level = getLevel();
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
+    if (level >= sGtCombatRatingsStore.GetTableRowCount())
+        level = sGtCombatRatingsStore.GetTableRowCount() - 1;
 
-    GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
+    GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.EvaluateTable(level - 1, cr);
     // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
-    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass()-1)*GT_MAX_RATING+cr+1);
+    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.EvaluateTable(cr + 1, getClass() - 1);
 
     if (cr == CR_RESILIENCE_PLAYER_DAMAGE_TAKEN)
         return Rating->ratio;

@@ -439,9 +439,6 @@ bool Quest::IsAllowedInRaid() const
 
 uint32 Quest::CalculateHonorGain(uint8 level) const
 {
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
-
     uint32 honor = 0;
 
     /*if (GetRewHonor() > 0 || GetRewKillHonor() > 0.0f)

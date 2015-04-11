@@ -1721,7 +1721,7 @@ int32 Item::GetItemStatValue(uint32 index) const
     if (uint32 randomPropPoints = GenerateEnchSuffixFactor(GetTemplate(), GetItemLevel()))
     {
         float statValue = float(_bonusData.ItemStatAllocation[index] * randomPropPoints) * 0.0001f;
-        if (GtItemSocketCostPerLevelEntry const* gtCost = sGtItemSocketCostPerLevelStore.LookupEntry(GetItemLevel() - 1))
+        if (GtItemSocketCostPerLevelEntry const* gtCost = sGtItemSocketCostPerLevelStore.EvaluateTable(GetItemLevel() - 1, 0))
             statValue -= float(int32(_bonusData.ItemStatSocketCostMultiplier[index] * gtCost->ratio));
 
         return int32(std::floor(statValue + 0.5f));

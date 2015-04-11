@@ -70,7 +70,7 @@ const char EmotesTextEntryfmt[] = "nxixxxxxxxxxxxxxxxx";
 const char FactionEntryfmt[] = "niiiiiiiiiiiiiiiiiiffixsxxix";
 const char FactionTemplateEntryfmt[] = "niiiiiiiiiiiii";
 const char GameObjectDisplayInfofmt[] = "nixxxxxxxxxxffffffxxx";
-
+char const GameTablesFmt[] = "dsii";
 const char GemPropertiesEntryfmt[] = "nixxii";
 const char GlyphPropertiesfmt[] = "niiix";
 const char GlyphSlotfmt[] = "nii";
@@ -84,6 +84,7 @@ const char GtChanceToMeleeCritfmt[] = "xf";
 const char GtChanceToSpellCritBasefmt[] = "xf";
 const char GtChanceToSpellCritfmt[] = "xf";
 const char GtItemSocketCostPerLevelfmt[] = "xf";
+char const GtNPCManaCostScalerfmt[] = "xf";
 const char GtOCTClassCombatRatingScalarfmt[] = "df";
 const char GtOCTRegenHPfmt[] = "f";
 //const char GtOCTRegenMPfmt[] = "f";
