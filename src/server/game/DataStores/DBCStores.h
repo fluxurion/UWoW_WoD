@@ -64,6 +64,7 @@ enum ContentLevels
 };
 
 uint32 GetMaxLevelForExpansion(uint32 expansion);
+uint32 GetExpansionForLevel(uint32 level);
 
 ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId);
 
@@ -134,6 +135,7 @@ extern DBCStorage<GtChanceToSpellCritBaseEntry> sGtChanceToSpellCritBaseStore;
 extern DBCStorage<GtChanceToSpellCritEntry>     sGtChanceToSpellCritStore;
 extern DBCStorage<GtItemSocketCostPerLevelEntry> sGtItemSocketCostPerLevelStore;
 extern DBCStorage<GtOCTClassCombatRatingScalarEntry> sGtOCTClassCombatRatingScalarStore;
+extern DBCStorage<GtOCTLevelExperienceEntry>    sGtOCTLevelExperienceStore;
 //extern DBCStorage<GtOCTRegenMPEntry>            sGtOCTRegenMPStore; -- not used currently
 extern DBCStorage<gtOCTHpPerStaminaEntry>       sGtOCTHpPerStaminaStore;
 extern DBCStorage<GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore;

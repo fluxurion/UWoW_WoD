@@ -78,6 +78,7 @@ const char GlyphSlotfmt[] = "nii";
 const char GtBarberShopCostBasefmt[] = "xf";
 const char GtCombatRatingsfmt[] = "xf";
 const char GtOCTHpPerStaminafmt[] = "df";
+char const GtOCTLevelExperiencefmt[] = "xf";
 const char GtChanceToMeleeCritBasefmt[] = "xf";
 const char GtChanceToMeleeCritfmt[] = "xf";
 const char GtChanceToSpellCritBasefmt[] = "xf";

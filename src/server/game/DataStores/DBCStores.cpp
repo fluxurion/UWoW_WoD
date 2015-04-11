@@ -120,6 +120,7 @@ DBCStorage<GtChanceToSpellCritBaseEntry> sGtChanceToSpellCritBaseStore(GtChanceT
 DBCStorage<GtChanceToSpellCritEntry>     sGtChanceToSpellCritStore(GtChanceToSpellCritfmt);
 DBCStorage<GtItemSocketCostPerLevelEntry> sGtItemSocketCostPerLevelStore(GtItemSocketCostPerLevelfmt);
 DBCStorage<GtOCTClassCombatRatingScalarEntry> sGtOCTClassCombatRatingScalarStore(GtOCTClassCombatRatingScalarfmt);
+DBCStorage <GtOCTLevelExperienceEntry>    sGtOCTLevelExperienceStore(GtOCTLevelExperiencefmt);
 DBCStorage<GtOCTRegenHPEntry>            sGtOCTRegenHPStore(GtOCTRegenHPfmt);
 //DBCStorage<GtOCTRegenMPEntry>            sGtOCTRegenMPStore(GtOCTRegenMPfmt);  -- not used currently
 DBCStorage<gtOCTHpPerStaminaEntry>       sGtOCTHpPerStaminaStore(GtOCTHpPerStaminafmt);
@@ -378,6 +379,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtItemSocketCostPerLevelStore,dbcPath,"gtItemSocketCostPerLevel.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTClassCombatRatingScalarStore,    dbcPath, "gtOCTClassCombatRatingScalar.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTHpPerStaminaStore,      dbcPath, "gtOCTHpPerStamina.dbc");//14545
+    LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTLevelExperienceStore,   dbcPath, "gtOCTLevelExperience.dbc"); // 19342
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtRegenMPPerSptStore,        dbcPath, "gtRegenMPPerSpt.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtSpellScalingStore,         dbcPath, "gtSpellScaling.dbc");//15595
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtOCTBaseHPByClassStore,     dbcPath, "gtOCTBaseHPByClass.dbc");//15595
@@ -976,32 +978,20 @@ uint32 GetMaxLevelForExpansion(uint32 expansion)
     return 0;
 }
 
-/*
-Used only for calculate xp gain by content lvl.
-Calculation on Gilneas and group maps of LostIslands calculated as CONTENT_1_60.
-*/
-ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
+uint32 GetExpansionForLevel(uint32 level)
 {
-    mapid = GetVirtualMapForMapAndZone(mapid, zoneId);
-    if (mapid < 2)
-        return CONTENT_1_60;
-
-    MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
-    if (!mapEntry)
-        return CONTENT_1_60;
-
-    // no need enum all maps from phasing
-    if (mapEntry->rootPhaseMap >= 0)
-        mapid = mapEntry->rootPhaseMap;
-
-    switch (mapid)
-    {
-        case 648:   //LostIslands
-        case 654:   //Gilneas
-            return CONTENT_1_60;
-        default:
-            return ContentLevels(mapEntry->Expansion());
-    }
+    if (level < 60)
+        return EXPANSION_CLASSIC;
+    else if (level < 70)
+        return EXPANSION_THE_BURNING_CRUSADE;
+    else if (level < 80)
+        return EXPANSION_WRATH_OF_THE_LICH_KING;
+    else if (level < 85)
+        return EXPANSION_CATACLYSM;
+    else if (level < 90)
+        return EXPANSION_MISTS_OF_PANDARIA;
+    else
+        return CURRENT_EXPANSION;
 }
 
 bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)
