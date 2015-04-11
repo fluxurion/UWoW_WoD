@@ -524,7 +524,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadGameTable(bad_dbc_files, "ItemSocketCostPerLevel", sGtItemSocketCostPerLevelStore,dbcPath,"gtItemSocketCostPerLevel.dbc");;//19342
     LoadGameTable(bad_dbc_files, "OCTClassCombatRatingScalar", sGtOCTClassCombatRatingScalarStore, dbcPath, "gtOCTClassCombatRatingScalar.dbc");//15595
     LoadGameTable(bad_dbc_files, "OCTHPPerStamina", sGtOCTHpPerStaminaStore, dbcPath, "gtOCTHpPerStamina.dbc");//15595
-    LoadGameTable(bad_dbc_files, "GtOCTLevelExperience", sGtOCTLevelExperienceStore,   dbcPath, "gtOCTLevelExperience.dbc"); // 19342
+    LoadGameTable(bad_dbc_files, "OCTLevelExperience", sGtOCTLevelExperienceStore,   dbcPath, "gtOCTLevelExperience.dbc"); // 19342
     LoadGameTable(bad_dbc_files, "RegenMPPerSpt", sGtRegenMPPerSptStore, dbcPath, "gtRegenMPPerSpt.dbc");//15595
     LoadGameTable(bad_dbc_files, "SpellScaling", sGtSpellScalingStore, dbcPath, "gtSpellScaling.dbc");//15595
     LoadGameTable(bad_dbc_files, "OCTBaseHPByClass", sGtOCTBaseHPByClassStore, dbcPath, "gtOCTBaseHPByClass.dbc");//15595
