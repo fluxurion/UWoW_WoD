@@ -1801,35 +1801,32 @@ void WorldSession::HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*requ
 void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaIds, uint32 flag /*=0x1F*/)
 {
     ObjectGuid guid = _player->GetGUID();
+    ObjectGuid PersonalGUID;
 
-    WorldPacket data(SMSG_SET_PHASE_SHIFT, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
-    //data.WriteGuidMask<6, 5, 2, 0, 3, 4, 7, 1>(guid);
-
-    //data.WriteGuidBytes<4, 1, 3>(guid);
+    WorldPacket data(SMSG_SET_PHASE_SHIFT_CHANGE, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
+    data << guid;
     // 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
     data << uint32(!flag ? 0x1F : flag); // flags, 0x18 most of time on retail sniff
 
-    data << uint32(terrainswaps.size()) * 2;    // Active terrain swaps
+    data << uint32(phaseIds.size());        // Phase.dbc ids
+    data << PersonalGUID;
+    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
+    {
+        data << uint16(1);     // Flags
+        data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
+    }
+
+    data << uint32(terrainswaps.size()) * 2;    // Active terrain swaps -  PreloadMapIDsCount
     for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
         data << uint16(*itr);
 
-    data << uint32(phaseIds.size()) * 2;        // Phase.dbc ids
-    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
-        data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
-
-    //data.WriteGuidBytes<0>(guid);
-
-    data << uint32(0);                          // Inactive terrain swaps
+    data << uint32(0);                          // Inactive terrain swaps - UiWorldMapAreaIDSwap
     //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
     //    data << uint16(0);
 
-    //data.WriteGuidBytes<6, 5>(guid);
-
-    data << uint32(worldMapAreaIds.size()) * 2;    // WorldMapAreaIds
+    data << uint32(worldMapAreaIds.size()) * 2;    // WorldMapAreaIds - VisibleMapID
     for (std::set<uint32>::const_iterator itr = worldMapAreaIds.begin(); itr != worldMapAreaIds.end(); ++itr)
         data << uint16(*itr);
-
-    //data.WriteGuidBytes<7, 2>(guid);
 
     SendPacket(&data);
 }

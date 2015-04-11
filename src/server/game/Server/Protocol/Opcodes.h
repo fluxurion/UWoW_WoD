@@ -1369,7 +1369,7 @@ enum OpcodeServer : uint32
     SMSG_SET_MELEE_ANIM_KIT                           = 0xBADD,
     SMSG_SET_MOVEMENT_ANIM_KIT                        = 0xBADD,
     SMSG_SET_PCT_SPELL_MODIFIER                       = 0x113C,
-    SMSG_SET_PHASE_SHIFT                              = 0x00D1,
+    SMSG_SET_PHASE_SHIFT_CHANGE                       = 0x00D1,
     SMSG_SET_PLAYER_DECLINED_NAMES_RESULT             = 0xBADD,
     SMSG_SET_PLAY_HOVER_ANIM                          = 0x02D4,
     SMSG_SET_PROFICIENCY                              = 0x00D3,
