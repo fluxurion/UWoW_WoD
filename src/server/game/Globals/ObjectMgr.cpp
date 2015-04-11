@@ -3183,6 +3183,8 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
+        _playerXPperLevel.resize(sGtOCTLevelExperienceStore.GetTableRowCount() + 1, 0);
+
         // load the DBC's levels at first...
         GtOCTLevelExperienceEntry const* exp;
         for (uint32 level = 0; level < sGtOCTLevelExperienceStore.GetTableRowCount(); ++level)
