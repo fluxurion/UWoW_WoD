@@ -2809,7 +2809,7 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
             return false;
     }
 
-    if (IS_PLAYER_GUID(GetGUID()) && IS_GAMEOBJECT_GUID(obj->GetGUID()))
+    if (GetGUID().IsPlayer() && obj->GetGUID().IsGameObject())
     {
         Player const* thisPlayer = ToPlayer();
         if (thisPlayer && thisPlayer->IsPlayerGOrespawned(obj->GetEntry()))
