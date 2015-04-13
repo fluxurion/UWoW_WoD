@@ -38,11 +38,16 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
     Loot* loot = NULL;
+    Loot* tmp_loot = NULL;
+    ObjectGuid lootObjectGUID;
 
     for (WorldPackets::Loot::LootRequest const& req : packet.Loot)
     {
+        tmp_loot = sLootMgr->GetLoot(req.Object);
         ObjectGuid lguid = req.Object;
-        ObjectGuid lootObjectGUID = player->GetOwnerByLootGuid(lguid);
+        lootObjectGUID.Clear();
+        if (tmp_loot)
+            lootObjectGUID = tmp_loot->objGuid;
 
         if (!lootObjectGUID)
         {

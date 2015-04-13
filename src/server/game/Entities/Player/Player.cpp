@@ -10274,8 +10274,8 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
         }
     }
 
-    if(AoeLoot)
-        AddAoeLootList(guid, loot->GetGUID());
+    //now used only for looting money.
+    AddAoeLootList(guid, loot->GetGUID());
 
     if (pool == 0)
         SetLootGUID(guid);
@@ -10382,8 +10382,8 @@ void Player::SendNotifyLootMoneyRemoved(Loot* loot)
 void Player::SendNotifyLootItemRemoved(uint8 lootSlot, Loot* loot)
 {
     WorldPackets::Loot::LootRemoved packet;
-    packet.Owner = loot->personal ? loot->GetLootOwner()->GetGUID() : loot->GetGUID();
-    packet.LootObj = loot->objGuid;
+    packet.Owner = loot->objGuid;
+    packet.LootObj = loot->personal ? loot->GetLootOwner()->GetGUID() : loot->GetGUID();
     // Since 6.x client expects loot to be starting from 1 hence the +1
     packet.LootListID = lootSlot+1;
     GetSession()->SendPacket(packet.Write());

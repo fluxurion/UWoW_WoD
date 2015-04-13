@@ -2458,20 +2458,12 @@ class Player : public Unit, public GridObject<Player>
 
         ObjectGuid GetLootGUID() const { return m_lootGuid; }
         void SetLootGUID(ObjectGuid guid) { m_lootGuid = guid; }
+
+        //! AOE loot now used only for looting money. Find fast way for loot money -> LootMgr.
         void ClearAoeLootList() { m_AoelootGuidList.clear(); }
         void AddAoeLootList(ObjectGuid owner, ObjectGuid lGUID) { m_AoelootGuidList[owner] = lGUID; }
         AoeMap* GetAoeLootList() { return &m_AoelootGuidList; }
         void DelAoeLootList(ObjectGuid owner) { m_AoelootGuidList.erase(owner); }
-
-        ObjectGuid GetOwnerByLootGuid(ObjectGuid const& lguid)
-        {
-            for(AoeMap::const_iterator itr = m_AoelootGuidList.begin(); itr != m_AoelootGuidList.end(); ++itr)
-            {
-                if (itr->second == lguid)
-                    return itr->first;
-            }
-            return ObjectGuid::Empty;
-        }
 
         void RemovedInsignia(Player* looterPlr);
 
