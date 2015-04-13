@@ -3852,8 +3852,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[0].MiscValue = SPELL_SCHOOL_MASK_ALL;
                     break;
                 case 146051: // Amplification
-                    spellInfo->Effects[0].ScalingMultiplier = 0.00177f;
-                    spellInfo->Effects[2].ScalingMultiplier = 0.00177f;
+                    spellInfo->Effects[0].Scaling.Coefficient = 0.00177f;
+                    spellInfo->Effects[2].Scaling.Coefficient = 0.00177f;
                     break;
                 case 13165:  // Aspect of the Hawk
                 case 109260: // Aspect of the Iron Hawk
@@ -3871,7 +3871,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[1].SpellClassMask[0] |= 33024;
                     break;
                 case 81269: // Efflorescence
-                    spellInfo->Effects[0].ScalingMultiplier = 1.5309f;
+                    spellInfo->Effects[0].Scaling.Coefficient = 1.5309f;
                     spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                     break;
                 case 132464: // Chi Wave (Pos)
@@ -3934,8 +3934,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].SpellClassMask[2] |= 64;
                     break;
                 case 379: // Earth Shield
-                    spellInfo->ScalingClass = 11;
-                    spellInfo->Effects[EFFECT_0].ScalingMultiplier = 1.862f;
+                    spellInfo->Scaling.Class = 11;
+                    spellInfo->Effects[EFFECT_0].Scaling.Coefficient = 1.862f;
                     break;
                 case 115450: // Detox
                     spellInfo->Effects[EFFECT_2].BasePoints = 0;
@@ -3951,8 +3951,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Speed = 25.f;
                     break;
                 case 124465: // Mastery: Vampiric Touch
-                    spellInfo->CastTimeMin = 0;
-                    spellInfo->CastTimeMax = 0;
+                    spellInfo->Scaling.CastTimeMin = 0;
+                    spellInfo->Scaling.CastTimeMax = 0;
                     break;
                 case 2094: // Blind
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
@@ -3962,7 +3962,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36);
                     break;
                 case 8676:   // Ambush
-                    spellInfo->Effects[EFFECT_0].ScalingMultiplier = 1.787f;
+                    spellInfo->Effects[EFFECT_0].Scaling.Coefficient = 1.787f;
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
                     break;
                 case 124487: // Zen Focus
@@ -3970,7 +3970,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->AttributesEx3 = SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                     break;
                 case 53: // Backstab
-                    spellInfo->Effects[EFFECT_0].ScalingMultiplier = 0.845f;
+                    spellInfo->Effects[EFFECT_0].Scaling.Coefficient = 0.845f;
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
                     break;
                 case 127424:

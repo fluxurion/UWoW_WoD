@@ -245,7 +245,7 @@ private:
 class SpellEffectInfo
 {
     SpellInfo const* _spellInfo;
-    uint8 _effIndex;
+    uint8 EffectIndex;
 public:
     uint32    Effect;
     uint32    ApplyAuraName;
@@ -268,11 +268,15 @@ public:
     uint32    TriggerSpell;
     flag128   SpellClassMask;
     std::list<Condition*>* ImplicitTargetConditions;
-    // SpellScalingEntry
-    float     ScalingMultiplier;
-    float     DeltaScalingMultiplier;
-    float     ComboScalingMultiplier;
     float     SpellAPBonusMultiplier;
+
+    // SpellScalingEntry
+    struct ScalingInfo
+    {
+        float Coefficient;
+        float Variance;
+        float ResourceCoefficient;
+    } Scaling;
 
     SpellEffectInfo() {}
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* _effect);
@@ -420,15 +424,20 @@ public:
     uint32 SpellTotemsId;
     uint32 ResearchProject;
     uint32 SpellMiscId;
+
     // SpellScalingEntry
-    int32  CastTimeMin;
-    int32  CastTimeMax;
-    int32  CastTimeMaxLevel;
-    int32  ScalingClass;
-    float  CoefBase;
-    int32  CoefLevelBase;
-    int32  MaxScalingLevel;
-    int32  ScalesFromItemLevel;
+    struct ScalingInfo
+    {
+        int32 CastTimeMin;
+        int32 CastTimeMax;
+        uint32 CastTimeMaxLevel;
+        int32 Class;
+        float NerfFactor;
+        uint32 NerfMaxLevel;
+        uint32 MaxScalingLevel;
+        uint32 ScalesFromItemLevel;
+    } Scaling;
+
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     SpellEffectInfoMap EffectsMap;
     SpellTargetRestrictionsMap RestrrictionsMap;
@@ -473,6 +482,22 @@ public:
     bool IsMountOrCompanions() const;
     bool IsNotProcSpell() const;
     uint32 GetBattlePetEntry() const;
+
+    inline bool HasAttribute(SpellAttr0 attribute) const { return !!(Attributes & attribute); }
+    inline bool HasAttribute(SpellAttr1 attribute) const { return !!(AttributesEx & attribute); }
+    inline bool HasAttribute(SpellAttr2 attribute) const { return !!(AttributesEx2 & attribute); }
+    inline bool HasAttribute(SpellAttr3 attribute) const { return !!(AttributesEx3 & attribute); }
+    inline bool HasAttribute(SpellAttr4 attribute) const { return !!(AttributesEx4 & attribute); }
+    inline bool HasAttribute(SpellAttr5 attribute) const { return !!(AttributesEx5 & attribute); }
+    inline bool HasAttribute(SpellAttr6 attribute) const { return !!(AttributesEx6 & attribute); }
+    inline bool HasAttribute(SpellAttr7 attribute) const { return !!(AttributesEx7 & attribute); }
+    inline bool HasAttribute(SpellAttr8 attribute) const { return !!(AttributesEx8 & attribute); }
+    inline bool HasAttribute(SpellAttr9 attribute) const { return !!(AttributesEx9 & attribute); }
+    inline bool HasAttribute(SpellAttr10 attribute) const { return !!(AttributesEx10 & attribute); }
+    inline bool HasAttribute(SpellAttr11 attribute) const { return !!(AttributesEx11 & attribute); }
+    inline bool HasAttribute(SpellAttr12 attribute) const { return !!(AttributesEx12 & attribute); }
+    inline bool HasAttribute(SpellAttr13 attribute) const { return !!(AttributesEx13 & attribute); }
+    inline bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
 
     bool IsExplicitDiscovery() const;
     bool IsLootCrafting() const;
