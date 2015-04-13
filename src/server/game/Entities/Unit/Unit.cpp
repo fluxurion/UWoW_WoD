@@ -15270,9 +15270,12 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
 }
 
 // function uses real base points (typically value - 1)
-int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints, Item* m_castitem) const
+int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints, Item* m_castitem, float* variance /*= nullptr*/) const
 {
-    return spellProto->GetEffect(effect_index, GetSpawnMode()).CalcValue(this, basePoints, target, m_castitem);
+    if (variance)
+        *variance = 0.0f;
+
+    return spellProto->GetEffect(effect_index, GetSpawnMode()).CalcValue(this, basePoints, target, m_castitem, variance);
 }
 
 int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)

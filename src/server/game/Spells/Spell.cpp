@@ -640,6 +640,7 @@ m_absorb(0), m_resist(0), m_blocked(0), m_interupted(false), m_effect_targets(NU
         saveDamageCalculate[i] = 0;
         m_destTargets[i] = SpellDestination(*m_caster);
     }
+    variance = 0.0f;
     m_damage = 0;
     m_misc.Data = 0;
     m_healing = 0;
@@ -6017,7 +6018,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
 
     if(!damageCalculate[i])
     {
-        damage = CalculateDamage(i, unitTarget);
+        damage = CalculateDamage(i, unitTarget, &variance);
         saveDamageCalculate[i] = damage;
         damageCalculate[i] = true;
     }

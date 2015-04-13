@@ -449,7 +449,7 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* target, Item* m_castItem) const
+int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* target, Item* m_castItem, float* variance /*= nullptr*/) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
     int32 basePoints = bp ? *bp : BasePoints;
@@ -502,8 +502,12 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
 
         if (Scaling.Variance)
         {
-            float delta = fabs(Scaling.Variance * value * 0.5f);
-            value += frand(-delta, delta);
+            float delta = fabs(Scaling.Variance * 0.5f);
+            float valueVariance = frand(-delta, delta);
+            value += value * valueVariance;
+
+            if (variance)
+                *variance = valueVariance;
         }
 
         basePoints = int32(value);
