@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -111,7 +111,8 @@ bool IsInterestingChunk(u_map_fcc const& fcc)
 void ChunkedFile::parseChunks()
 {
     uint8* ptr = GetData();
-    while (ptr < GetData() + GetDataSize())
+    // Make sure there's enough data to read u_map_fcc struct and the uint32 size after it
+    while (ptr <= GetData() + GetDataSize() - 8)
     {
         u_map_fcc header = *(u_map_fcc*)ptr;
         if (IsInterestingChunk(header))

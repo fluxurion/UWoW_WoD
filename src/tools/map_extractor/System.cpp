@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -97,8 +97,9 @@ typedef struct
 map_id *map_ids;
 uint16 *areas;
 uint16 *LiqType;
-char output_path[128] = ".";
-char input_path[128] = ".";
+#define MAX_PATH_LENGTH 128
+char output_path[MAX_PATH_LENGTH] = ".";
+char input_path[MAX_PATH_LENGTH] = ".";
 uint32 maxAreaId = 0;
 
 // **************************************************
@@ -126,19 +127,19 @@ float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - l
 
 uint32 CONF_Locale = 0;
 
-#define LOCALES_COUNT 18
+#define LOCALES_COUNT 17
 
 char const* Locales[LOCALES_COUNT] =
 {
-    "none", "unknown1",
-    "enUS", "koKR",
-    "unknown2", "frFR",
-    "deDE", "zhCN",
-    "esES", "zhTW",
-    "enGB", "enCN",
-    "enTW", "esMX",
-    "ruRU", "ptBR",
-    "itIT", "ptPT",
+    "none", "enUS",
+    "koKR", "unknown",
+    "frFR", "deDE",
+    "zhCN", "esES",
+    "zhTW", "enGB",
+    "enCN", "enTW",
+    "esMX", "ruRU",
+    "ptBR", "itIT",
+    "ptPT"
 };
 
 void CreateDir(std::string const& path)
@@ -173,11 +174,11 @@ void Usage(char const* prg)
     printf(
         "Usage:\n"\
         "%s -[var] [value]\n"\
-        "-i set input path\n"\
-        "-o set output path\n"\
+        "-i set input path (max %d characters)\n"\
+        "-o set output path (max %d characters)\n"\
         "-e extract only MAP(1)/DBC(2) - standard: both(3)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
-        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, prg);
+        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
     exit(1);
 }
 
@@ -197,14 +198,20 @@ void HandleArgs(int argc, char* arg[])
         switch (arg[c][1])
         {
             case 'i':
-                if (c + 1 < argc)                            // all ok
-                    strcpy(input_path, arg[c++ + 1]);
+                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
+                {
+                    strncpy(input_path, arg[c++ + 1], MAX_PATH_LENGTH);
+                    input_path[MAX_PATH_LENGTH - 1] = '\0';
+                }
                 else
                     Usage(arg[0]);
                 break;
             case 'o':
-                if (c + 1 < argc)                            // all ok
-                    strcpy(output_path, arg[c++ + 1]);
+                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
+                {
+                    strncpy(output_path, arg[c++ + 1], MAX_PATH_LENGTH);
+                    output_path[MAX_PATH_LENGTH - 1] = '\0';
+                }
                 else
                     Usage(arg[0]);
                 break;
@@ -266,7 +273,7 @@ uint32 ReadBuild(int locale)
         exit(1);
     }
 
-    std::string text = buff;
+    std::string text = std::string(buff, readBytes);
     CascCloseFile(dbcFile);
 
     size_t pos = text.find("version=\"");
@@ -313,7 +320,17 @@ uint32 ReadMapDBC()
     for(uint32 x = 0; x < map_count; ++x)
     {
         map_ids[x].id = dbc.getRecord(x).getUInt(0);
-        strcpy(map_ids[x].name, dbc.getRecord(x).getString(1));
+
+        const char* map_name = dbc.getRecord(x).getString(1);
+        size_t max_map_name_length = sizeof(map_ids[x].name);
+        if (strlen(map_name) >= max_map_name_length)
+        {
+            printf("Fatal error: Map name too long!\n");
+            exit(1);
+        }
+
+        strncpy(map_ids[x].name, map_name, max_map_name_length);
+        map_ids[x].name[max_map_name_length - 1] = '\0';
     }
 
     CascCloseFile(dbcFile);
@@ -341,6 +358,7 @@ void ReadAreaTableDBC()
     size_t area_count = dbc.getRecordCount();
     maxAreaId = dbc.getMaxId();
     areas = new uint16[maxAreaId + 1];
+    memset(areas, 0xFF, sizeof(uint16) * (maxAreaId + 1));
 
     for (uint32 x = 0; x < area_count; ++x)
         areas[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
@@ -1073,7 +1091,7 @@ void ExtractMaps(uint32 build)
                     continue;
 
                 sprintf(storagePath, "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
-                sprintf(output_filename, "%s/maps/%04u%02u%02u.map", output_path, map_ids[z].id, y, x);
+                sprintf(output_filename, "%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
                 ConvertADT(storagePath, output_filename, y, x, build);
 
                 sprintf(storagePath, "World\\Maps\\%s\\%s_%u_%u_obj0.adt", map_ids[z].name, map_ids[z].name, x, y);
@@ -1144,22 +1162,20 @@ void ExtractDBFilesClient(int l)
     HANDLE dbcFile;
     while (fileName)
     {
-        if (!CascOpenFile(CascStorage, fileName, 1 << l, 0, &dbcFile) &&
-            !CascOpenFile(CascStorage, fileName, CASC_LOCALE_NONE, 0, &dbcFile))
-        {
-            printf("Unable to open file %s in the archive for locale %s: %s\n", fileName, Locales[l], HumanReadableCASCError(GetLastError()));
-            fileName = DBFilesClientList[++index];
-            continue;
-        }
-
         std::string filename = fileName;
-        filename = outputPath + filename.substr(filename.rfind('\\') + 1);
+        if (CascOpenFile(CascStorage, (filename = (filename + ".db2")).c_str(), 1 << l, 0, &dbcFile) ||
+            CascOpenFile(CascStorage, (filename = (filename.substr(0, filename.length() - 4) + ".dbc")).c_str(), 1 << l, 0, &dbcFile))
+        {
+            filename = outputPath + filename.substr(filename.rfind('\\') + 1);
 
-        if (!FileExists(filename.c_str()))
-            if (ExtractFile(dbcFile, filename.c_str()))
-                ++count;
+            if (!FileExists(filename.c_str()))
+                if (ExtractFile(dbcFile, filename.c_str()))
+                    ++count;
 
-        CascCloseFile(dbcFile);
+            CascCloseFile(dbcFile);
+        }
+        else
+            printf("Unable to open file %s in the archive for locale %s: %s\n", fileName, Locales[l], HumanReadableCASCError(GetLastError()));
 
         fileName = DBFilesClientList[++index];
     }
@@ -1169,14 +1185,22 @@ void ExtractDBFilesClient(int l)
 
 bool OpenCascStorage()
 {
-    boost::filesystem::path const storage_dir (boost::filesystem::canonical (input_path) / "Data");
-    if (!CascOpenStorage(storage_dir.string().c_str(), 0, &CascStorage))
+    try
     {
-        printf("error opening casc storage '%s': %s\n", storage_dir.string().c_str(), HumanReadableCASCError(GetLastError()));
+        boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
+        if (!CascOpenStorage(storage_dir.string().c_str(), 0, &CascStorage))
+        {
+            printf("error opening casc storage '%s': %s\n", storage_dir.string().c_str(), HumanReadableCASCError(GetLastError()));
+            return false;
+        }
+        printf("opened casc storage '%s'\n", storage_dir.string().c_str());
+        return true;
+    }
+    catch (boost::filesystem::filesystem_error& error)
+    {
+        printf("error opening casc storage : %s\n", error.what());
         return false;
     }
-    printf("opened casc storage '%s'\n", storage_dir.string().c_str());
-    return true;
 }
 
 int main(int argc, char * arg[])
