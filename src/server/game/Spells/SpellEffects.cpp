@@ -852,7 +852,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
         }
 
-        if (m_originalCaster && damage > 0)
+        if (m_originalCaster)
         {
             damage = m_originalCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, effIndex);
         }
