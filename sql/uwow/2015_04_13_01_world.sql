@@ -3,7 +3,7 @@ ALTER TABLE `creature_classlevelstats` DROP `basehp1`;
 ALTER TABLE `creature_classlevelstats` DROP `basehp2`;
 ALTER TABLE `creature_classlevelstats` DROP `basehp3`;
 ALTER TABLE `creature_classlevelstats` DROP `basehp4`;
-ALTER TABLE `creature_classlevelstats` DROP `basehp5`;
+-- ALTER TABLE `creature_classlevelstats` DROP `basehp5`;
 
 DELETE FROM `creature_classlevelstats` WHERE `level` BETWEEN 101 AND 105;
 INSERT INTO `creature_classlevelstats` (`level`, `class`, `basemana`, `basearmor`) VALUES
