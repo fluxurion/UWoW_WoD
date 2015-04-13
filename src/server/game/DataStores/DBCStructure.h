@@ -1240,31 +1240,6 @@ struct GtNpcTotalHpEntry
     float    HP;
 };
 
-struct GtNpcTotalHpExp1Entry
-{
-    float    HP;
-};
-
-struct GtNpcTotalHpExp2Entry
-{
-    float    HP;
-};
-
-struct GtNpcTotalHpExp3Entry
-{
-    float    HP;
-};
-
-struct GtNpcTotalHpExp4Entry
-{
-    float    HP;
-};
-
-struct GtNpcTotalHpExp5Entry
-{
-    float    HP;
-};
-
 struct GtOCTClassCombatRatingScalarEntry
 {
     float    ratio;

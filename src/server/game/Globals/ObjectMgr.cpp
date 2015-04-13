@@ -8698,15 +8698,10 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         uint8 index = 0;
 
-        uint8 Level = fields[0].GetInt8();
-        uint8 Class = fields[1].GetInt8();
+        uint8 Level = fields[0].GetUInt8();
+        uint8 Class = fields[1].GetUInt8();
 
-        GtNpcTotalHpEntry const* HpExp0 = sGtNpcTotalHpStore.EvaluateTable(Level - 1, Class - 1);
-        GtNpcTotalHpExp1Entry const* HpExp1 = sGtNpcTotalHpExp1Store.EvaluateTable(Level - 1, Class - 1);
-        GtNpcTotalHpExp2Entry const* HpExp2 = sGtNpcTotalHpExp2Store.EvaluateTable(Level - 1, Class - 1);
-        GtNpcTotalHpExp3Entry const* HpExp3 = sGtNpcTotalHpExp3Store.EvaluateTable(Level - 1, Class - 1);
-        GtNpcTotalHpExp4Entry const* HpExp4 = sGtNpcTotalHpExp4Store.EvaluateTable(Level - 1, Class - 1);
-        GtNpcTotalHpExp5Entry const* HpExp5 = sGtNpcTotalHpExp5Store.EvaluateTable(Level - 1, Class - 1);
+        GameTable<GtNpcTotalHpEntry>* hpTables[] = { &sGtNpcTotalHpStore, &sGtNpcTotalHpExp1Store, &sGtNpcTotalHpExp2Store, &sGtNpcTotalHpExp3Store, &sGtNpcTotalHpExp4Store, &sGtNpcTotalHpExp5Store, NULL };
 
         CreatureBaseStats stats;
 
@@ -8716,12 +8711,9 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             sLog->outError(LOG_FILTER_SQL, "Creature base stats for level %u has invalid class %u", Level, Class);
 
-        stats.BaseHealth[0] = uint32(HpExp0->HP);
-        stats.BaseHealth[1] = uint32(HpExp1->HP);
-        stats.BaseHealth[2] = uint32(HpExp2->HP);
-        stats.BaseHealth[3] = uint32(HpExp3->HP);
-        stats.BaseHealth[4] = uint32(HpExp4->HP);
-        stats.BaseHealth[5] = uint32(HpExp5->HP);
+        for (auto i = 0; hpTables[i]; ++i)
+            if (hpTables[i]->HasEntry(Level - 1, Class - 1))
+                stats.BaseHealth[i] = hpTables[i]->EvaluateTable(Level - 1, Class - 1)->HP;
 
         for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
         {
@@ -9522,9 +9514,7 @@ void ObjectMgr::LoadBattlePetBreedsToSpecies()
         // fill breed data
         for (uint8 i = 3; i < 13; ++i)
         {
-            bool allow = (possibleBreedMask & (1 << i));
-
-            if (allow)
+            if ((possibleBreedMask & (1 << i)) != 0)
                 breeds.push_back(i);
         }
 

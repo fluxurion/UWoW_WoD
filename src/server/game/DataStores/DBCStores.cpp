@@ -133,11 +133,11 @@ GameTable<GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore(GtOCTBaseHPByCl
 GameTable<GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore(GtOCTBaseMPByClassfmt);
 GameTable<GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore(GtBattlePetTypeDamageModfmt);
 GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpStore(GtNpcTotalHpfmt);
-GameTable <GtNpcTotalHpExp1Entry>        sGtNpcTotalHpExp1Store(GtNpcTotalHpExp1fmt);
-GameTable <GtNpcTotalHpExp2Entry>        sGtNpcTotalHpExp2Store(GtNpcTotalHpExp2fmt);
-GameTable <GtNpcTotalHpExp3Entry>        sGtNpcTotalHpExp3Store(GtNpcTotalHpExp3fmt);
-GameTable <GtNpcTotalHpExp4Entry>        sGtNpcTotalHpExp4Store(GtNpcTotalHpExp4fmt);
-GameTable <GtNpcTotalHpExp5Entry>        sGtNpcTotalHpExp5Store(GtNpcTotalHpExp5fmt);
+GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp1Store(GtNpcTotalHpfmt);
+GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp2Store(GtNpcTotalHpfmt);
+GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp3Store(GtNpcTotalHpfmt);
+GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp4Store(GtNpcTotalHpfmt);
+GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp5Store(GtNpcTotalHpfmt);
 
 DBCStorage<GuildPerkSpellsEntry>         sGuildPerkSpellsStore(GuildPerkSpellsfmt);
 DBCStorage<ImportPriceArmorEntry>        sImportPriceArmorStore(ImportPriceArmorfmt);

@@ -100,6 +100,11 @@ public:
         return _storage.LookupEntry(_gtEntry->NumRows * column + row);
     }
 
+    inline bool HasEntry(uint32 row, uint32 column) const
+    {
+        return row < _gtEntry->NumRows && column < _gtEntry->NumColumns;
+    }
+
     char const* GetFormat() const { return _storage.GetFormat(); }
     uint32 GetFieldCount() const { return _storage.GetFieldCount(); }
     bool Load(char const* fileName) { return _storage.Load(fileName, nullptr); }
@@ -174,11 +179,11 @@ extern GameTable<GtOCTBaseHPByClassEntry>      sGtOCTBaseHPByClassStore;
 extern GameTable<GtOCTBaseMPByClassEntry>      sGtOCTBaseMPByClassStore;
 extern GameTable<GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore;
 extern GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpStore;
-extern GameTable <GtNpcTotalHpExp1Entry>        sGtNpcTotalHpExp1Store;
-extern GameTable <GtNpcTotalHpExp2Entry>        sGtNpcTotalHpExp2Store;
-extern GameTable <GtNpcTotalHpExp3Entry>        sGtNpcTotalHpExp3Store;
-extern GameTable <GtNpcTotalHpExp4Entry>        sGtNpcTotalHpExp4Store;
-extern GameTable <GtNpcTotalHpExp5Entry>        sGtNpcTotalHpExp5Store;
+extern GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp1Store;
+extern GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp2Store;
+extern GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp3Store;
+extern GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp4Store;
+extern GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp5Store;
 
 extern DBCStorage<GuildPerkSpellsEntry>         sGuildPerkSpellsStore;
 extern DBCStorage<ImportPriceArmorEntry>        sImportPriceArmorStore;
