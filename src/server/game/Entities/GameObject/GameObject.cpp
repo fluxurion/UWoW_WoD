@@ -1291,10 +1291,9 @@ void GameObject::Use(Unit* user)
 
                 if (info->goober.pageID)                    // show page...
                 {
-                    ObjectGuid guid = GetGUID();
-                    WorldPacket data(SMSG_GAMEOBJECT_PAGETEXT, 8 + 1);
-                    //data.WriteGuidMask<5, 7, 2, 6, 1, 3, 4, 0>(guid);
-                    //data.WriteGuidBytes<3, 0, 2, 7, 1, 4, 5, 6>(guid);
+                    //! 6.0.3
+                    WorldPacket data(SMSG_PAGE_TEXT, 8 + 1);
+                    data << GetGUID();
                     player->GetSession()->SendPacket(&data);
                 }
                 else if (info->goober.gossipID)
@@ -1813,21 +1812,13 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     }
 }
 
+//! 6.0.3
 void GameObject::SendCustomAnim(uint32 anim)
 {
-    ObjectGuid guid = GetGUID();
-
     WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8 + 1 + 4 + 1);
-    //data.WriteGuidMask<0, 4>(guid);
+    data << GetGUID();
+    data << uint32(anim);
     data.WriteBit(0);
-    //data.WriteGuidMask<3, 6>(guid);
-    data.WriteBit(!anim);
-    //data.WriteGuidMask<1, 7, 2, 5>(guid);
-
-    //data.WriteGuidBytes<5>(guid);
-    if (anim)
-        data << uint32(anim);
-    //data.WriteGuidBytes<6, 7, 3, 1, 0, 2, 4>(guid);
 
     SendMessageToSet(&data, true);
 }
@@ -1943,77 +1934,13 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
     // TODO: is there any packet for healing?
     if (change < 0 && player)
     {
+        //! 6.0.3
         WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE);
-        //data.WriteGuidMask<0, 7, 2, 6>(attackerOrHealer->GetGUID());
-        //data.WriteGuidMask<0>(player->GetGUID());
-        //data.WriteGuidMask<4>(attackerOrHealer->GetGUID());
-        //data.WriteGuidMask<7>(player->GetGUID());
-        //data.WriteGuidMask<5>(attackerOrHealer->GetGUID());
-        //data.WriteGuidMask<4>(player->GetGUID());
-        //data.WriteGuidMask<1>(attackerOrHealer->GetGUID());
-        //data.WriteGuidMask<3>(player->GetGUID());
-        //data.WriteGuidMask<0>(GetGUID());
-        //data.WriteGuidMask<3>(attackerOrHealer->GetGUID());
-        data.WriteBit(0);                                         // unk bit, bool unk
-        //data.WriteGuidMask<1, 7, 3>(GetGUID());
-        /*uint64 unkGuid = 0;
-        if (unk)
-        {
-            //data.WriteGuidMask<1>(unkGuid);
-            data.WriteBits(0, 21);                                // unk counter
-            //data.WriteGuidMask<4, 5, 2, 0, 6, 7, 3>(unkGuid);
-        }*/
-        //data.WriteGuidMask<6>(GetGUID());
-        //data.WriteGuidMask<5>(player->GetGUID());
-        //data.WriteGuidMask<5>(GetGUID());
-        //data.WriteGuidMask<6>(player->GetGUID());
-        //data.WriteGuidMask<2>(GetGUID());
-        //data.WriteGuidMask<1, 2>(player->GetGUID());
-        //data.WriteGuidMask<4>(GetGUID());
-
+        data << GetGUID();
+        data << attackerOrHealer->GetGUID();
+        data << GetOwnerGUID();
+        data << int32(-change);
         data << uint32(spellId);
-
-        /*if (unk)
-        {
-            //data.WriteGuidBytes<3, 6>(unkGuid);
-            data << uint32(0);
-            data << uint32(0);
-            //data.WriteGuidBytes<5, 2, 4>(unkGuid);
-
-            if (unk_counter)
-            {
-                for (int i = 0; i < unk_counter; i++)
-                {
-                    data << uint32(0);
-                    data << uint32(0);
-                }
-            }
-
-            //data.WriteGuidBytes<0, 7, 1>(unkGuid);
-            data << uint32(0);
-        }*/
-        //data.WriteGuidBytes<0>(player->GetGUID());
-        //data.WriteGuidBytes<7>(GetGUID());
-        //data.WriteGuidBytes<6>(attackerOrHealer->GetGUID());
-        //data.WriteGuidBytes<4>(GetGUID());
-        //data.WriteGuidBytes<6>(player->GetGUID());
-        //data.WriteGuidBytes<5, 2, 3>(attackerOrHealer->GetGUID());
-        //data.WriteGuidBytes<0, 1>(GetGUID());
-        //data.WriteGuidBytes<4>(player->GetGUID());
-        //data.WriteGuidBytes<6>(GetGUID());
-        //data.WriteGuidBytes<1>(player->GetGUID());
-        //data.WriteGuidBytes<3>(GetGUID());
-        //data.WriteGuidBytes<0>(attackerOrHealer->GetGUID());
-        //data.WriteGuidBytes<5, 2>(player->GetGUID());
-        //data.WriteGuidBytes<4, 1>(attackerOrHealer->GetGUID());
-        //data.WriteGuidBytes<7>(player->GetGUID());
-
-        data << uint32(-change);
-
-        //data.WriteGuidBytes<7>(attackerOrHealer->GetGUID());
-        //data.WriteGuidBytes<3>(player->GetGUID());
-        //data.WriteGuidBytes<5, 2>(GetGUID());
-
         player->GetSession()->SendPacket(&data);
     }
 
