@@ -762,6 +762,7 @@ enum CurrencyTypes
     CURRENCY_TYPE_ELDER_CHARM_GOOD_FORTUNE  = 697, // LFR roll chance MoP
     CURRENCY_TYPE_ZEN_JEWEL                 = 698, // Jewelcrafting token MoP NYI
     CURRENCY_TYPE_ARCHAEOLOGY_MANTID        = 754,
+    CURRENCY_TYPE_APEXIS_CRYSTALS           = 823,
 };
 
 #define CURRENCY_PRECISION 100.0f
