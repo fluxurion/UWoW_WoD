@@ -130,14 +130,18 @@ uint32 GenerateEnchSuffixFactor(ItemTemplate const* itemProto, uint32 level)
     if (!itemProto)
         return 0;
 
-    RandomPropertiesPointsEntry const* randomProperty = sRandomPropertiesPointsStore.LookupEntry(level ? level : itemProto->ItemLevel);
-    if (!randomProperty)
+    if (!itemProto->RandomSuffix)
         return 0;
 
-    uint32 suffixFactor;
-    switch (itemProto->GetInventoryType())
+    return GetRandomPropertyPoints(level, itemProto->GetQuality(), itemProto->GetInventoryType(), itemProto->GetSubClass());
+}
+
+uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType, uint32 subClass)
+{
+    uint32 propIndex;
+
+    switch (inventoryType)
     {
-        // Select point coefficient
         case INVTYPE_HEAD:
         case INVTYPE_BODY:
         case INVTYPE_CHEST:
@@ -146,14 +150,25 @@ uint32 GenerateEnchSuffixFactor(ItemTemplate const* itemProto, uint32 level)
         case INVTYPE_2HWEAPON:
         case INVTYPE_ROBE:
         case INVTYPE_THROWN:
-            suffixFactor = 0;
+            propIndex = 0;
+            break;
+        case INVTYPE_RANGEDRIGHT:
+            if (subClass == ITEM_SUBCLASS_WEAPON_WAND)
+                propIndex = 3;
+            else
+                propIndex = 0;
+            break;
+        case INVTYPE_WEAPON:
+        case INVTYPE_WEAPONMAINHAND:
+        case INVTYPE_WEAPONOFFHAND:
+            propIndex = 3;
             break;
         case INVTYPE_SHOULDERS:
         case INVTYPE_WAIST:
         case INVTYPE_FEET:
         case INVTYPE_HANDS:
         case INVTYPE_TRINKET:
-            suffixFactor = 1;
+            propIndex = 1;
             break;
         case INVTYPE_NECK:
         case INVTYPE_WRISTS:
@@ -161,67 +176,30 @@ uint32 GenerateEnchSuffixFactor(ItemTemplate const* itemProto, uint32 level)
         case INVTYPE_SHIELD:
         case INVTYPE_CLOAK:
         case INVTYPE_HOLDABLE:
-            suffixFactor = 2;
-            break;
-        case INVTYPE_WEAPON:
-        case INVTYPE_WEAPONMAINHAND:
-        case INVTYPE_WEAPONOFFHAND:
-            suffixFactor = 3;
-            break;
-        case INVTYPE_RANGEDRIGHT:
-            if (itemProto->SubClass == ITEM_SUBCLASS_WEAPON_WAND)
-                suffixFactor = 3;
-            else
-                suffixFactor = 0;
+            propIndex = 2;
             break;
         case INVTYPE_RELIC:
-            suffixFactor = 4;
-            break;
+            propIndex = 4;
         default:
             return 0;
     }
-    // Select rare/epic modifier
-    switch (itemProto->Quality)
-    {
-        case ITEM_QUALITY_UNCOMMON:
-            return randomProperty->UncommonPropertiesPoints[suffixFactor];
-        case ITEM_QUALITY_RARE:
-            return randomProperty->RarePropertiesPoints[suffixFactor];
-        case ITEM_QUALITY_LEGENDARY:
-        case ITEM_QUALITY_EPIC:
-            return randomProperty->EpicPropertiesPoints[suffixFactor];
-        case ITEM_QUALITY_ARTIFACT:
-            return 0;                                       // not have random properties
-        default:
-            break;
-    }
-    return 0;
-}
 
-uint32 GetRandomPropertyPoints(ItemTemplate const* itemProto, uint32 level)
-{
-    if (!itemProto)
+    RandomPropertiesPointsEntry const* randPropPointsEntry = sRandomPropertiesPointsStore.LookupEntry(itemLevel);
+    if (!randPropPointsEntry)
         return 0;
 
-    RandomPropertiesPointsEntry const* randomProperty = sRandomPropertiesPointsStore.LookupEntry(level);
-    if (!randomProperty)
-        return 0;
-
-    // Select rare/epic modifier
-    switch (itemProto->Quality)
+    switch (quality)
     {
         case ITEM_QUALITY_UNCOMMON:
-            return randomProperty->EpicPropertiesPoints[2];
+            return randPropPointsEntry->UncommonPropertiesPoints[propIndex];
         case ITEM_QUALITY_RARE:
-            return randomProperty->EpicPropertiesPoints[1];
-        case ITEM_QUALITY_LEGENDARY:
+        case ITEM_QUALITY_HEIRLOOM:
+            return randPropPointsEntry->RarePropertiesPoints[propIndex];
         case ITEM_QUALITY_EPIC:
-            return randomProperty->EpicPropertiesPoints[0];
-        case ITEM_QUALITY_ARTIFACT:
-            return 0;                                       // not have random properties
-        default:
-            break;
+        case ITEM_QUALITY_LEGENDARY:
+            return randPropPointsEntry->EpicPropertiesPoints[propIndex];
     }
+
     return 0;
 }
 

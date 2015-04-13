@@ -30,6 +30,6 @@ enum enchantmentRandomType
 void LoadRandomEnchantmentsTable();
 uint32 GetItemEnchantMod(int32 entry, uint32 type);
 uint32 GenerateEnchSuffixFactor(ItemTemplate const* proto, uint32 level = 0);
-uint32 GetRandomPropertyPoints(ItemTemplate const* proto, uint32 level);
+uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType, uint32 subclass);
 #endif
 
