@@ -221,6 +221,19 @@ namespace WorldPackets
             SpellCastRequest Cast;
         };
 
+        class ItemUse final : public ClientPacket
+        {
+        public:
+
+            ItemUse(WorldPacket&& packet) : ClientPacket(CMSG_USE_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid itemGUID;
+            SpellCastRequest Cast;
+            uint8 bagIndex, slot;
+        };
+
         struct SpellMissStatus
         {
             uint8 Reason = 0;

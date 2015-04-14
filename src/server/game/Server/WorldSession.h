@@ -253,6 +253,7 @@ namespace WorldPackets
         class CastSpell;
         class SetActionButton;
         class PetCastSpell;
+        class ItemUse;
     }
 
     namespace Talent
@@ -900,7 +901,7 @@ class WorldSession
         void HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& packet);
         void HandleSetSheathedOpcode(WorldPacket& recvPacket);
 
-        void HandleUseItemOpcode(WorldPacket& recvPacket);
+        void HandleUseItemOpcode(WorldPackets::Spells::ItemUse& recvPacket);
         void HandleOpenItemOpcode(WorldPacket& recvPacket);
         void HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& castRequest);
         void HandleCancelCastOpcode(WorldPacket& recvPacket);

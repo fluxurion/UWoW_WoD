@@ -35,7 +35,8 @@
 #include "SpellAuraEffects.h"
 #include "SpellPackets.h"
 
-void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
+//! 6.0.3
+void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::ItemUse& cast)
 {
     // TODO: add targets.read() check
     Player* pUser = _player;
@@ -43,14 +44,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     // ignore for remote control state
     if (pUser->m_mover != pUser)
         return;
-
-    uint8 bagIndex, slot;
-    ObjectGuid itemGUID;
-
-    recvPacket >> bagIndex >> slot >> itemGUID;
-
-    WorldPackets::Spells::CastSpell cast(std::move(recvPacket));
-    cast.Read();
 
     // client provided targets
     SpellCastTargets targets(pUser, cast.Cast.Target);
@@ -61,20 +54,20 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    Item* pItem = pUser->GetUseableItemByPos(bagIndex, slot);
+    Item* pItem = pUser->GetUseableItemByPos(cast.bagIndex, cast.slot);
     if (!pItem)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    if (pItem->GetGUID() != itemGUID)
+    if (pItem->GetGUID() != cast.itemGUID)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_USE_ITEM packet, bagIndex: %u, slot: %u, castCount: %u, spellId: %u, Item: %u, glyphIndex: %u, data length = %i", bagIndex, slot, cast.Cast.CastID, cast.Cast.SpellID, pItem->GetEntry(), cast.Cast.Misc, (uint32)recvPacket.size());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_USE_ITEM packet, bagIndex: %u, slot: %u, castCount: %u, spellId: %u, Item: %u, glyphIndex: %u", cast.bagIndex, cast.slot, cast.Cast.CastID, cast.Cast.SpellID, pItem->GetEntry(), cast.Cast.Misc);
 
     ItemTemplate const* proto = pItem->GetTemplate();
     if (!proto)
