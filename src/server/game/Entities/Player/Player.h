@@ -1924,7 +1924,7 @@ class Player : public Unit, public GridObject<Player>
         void SendCanTakeQuestResponse(uint32 msg) const;
         void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver);
         void SendPushToPartyResponse(Player* player, uint8 msg);
-        void SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count);
+        void SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid const& guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count);
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint16 add_count);
 
         ObjectGuid GetDivider() { return m_divider; }

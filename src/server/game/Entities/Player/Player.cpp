@@ -16531,9 +16531,9 @@ bool Player::SatisfyQuestLog(bool msg)
 
     if (msg)
     {
-        WorldPacket data(SMSG_QUESTLOG_FULL, 0);
+        WorldPacket data(SMSG_QUEST_LOG_FULL, 0);
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTLOG_FULL");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_LOG_FULL");
     }
     return false;
 }
@@ -17653,17 +17653,19 @@ bool Player::HasQuestForItem(uint32 itemid) const
     return false;
 }
 
+//! 6.0.3
 void Player::SendQuestComplete(Quest const* quest)
 {
     if (quest)
     {
-        WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
+        WorldPacket data(SMSG_QUEST_UPDATE_COMPLETE, 4);
         data << uint32(quest->GetQuestId());
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_COMPLETE quest = %u", quest->GetQuestId());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_UPDATE_COMPLETE quest = %u", quest->GetQuestId());
     }
 }
 
+//! 6.0.3
 void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
 {
     uint32 questId = quest->GetQuestId();
@@ -17683,18 +17685,23 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
         xp = 0;
         moneyReward = uint32(quest->GetRewMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
+    
+    // SMSG_QUESTGIVER_QUEST_COMPLETE
+    WorldPackets::Quest::QuestGiverQuestComplete packet;
 
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4 + 4 + 4 + 4 + 4));
-    data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
-    data << uint32(moneyReward);
-    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
-    data << uint32(xp);
-    data << uint32(questId);
-    data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
-    data.WriteBit(1);
-    data.WriteBit(0);                                      // FIXME: unknown bits, common values sent
+    packet.QuestID = questId;
+    packet.MoneyReward = moneyReward;
+    packet.XPReward = xp;
+    packet.SkillLineIDReward = quest->GetRewardSkillId();
+    packet.NumSkillUpsReward = quest->GetRewardSkillPoints();
+    packet.TalentReward = quest->GetBonusTalents();
 
-    GetSession()->SendPacket(&data);
+    // @todo fix these 3
+    packet.UseQuestReward = true;
+    packet.LaunchGossip = true;
+    //packet.ItemReward
+
+    GetSession()->SendPacket(packet.Write());
 
     if (quest->GetQuestCompleteScript() != 0)
         GetMap()->ScriptsStart(sQuestEndScripts, quest->GetQuestCompleteScript(), questGiver, this);
@@ -17703,6 +17710,7 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
         questGiver->ToCreature()->AI()->OnQuestReward(this, quest);
 }
 
+//! 6.0.3
 void Player::SendQuestFailed(uint32 questId, InventoryResult reason)
 {
     if (questId)
@@ -17715,17 +17723,19 @@ void Player::SendQuestFailed(uint32 questId, InventoryResult reason)
     }
 }
 
+//! 6.0.3
 void Player::SendQuestTimerFailed(uint32 quest_id)
 {
     if (quest_id)
     {
-        WorldPacket data(SMSG_QUESTUPDATE_FAILEDTIMER, 4);
+        WorldPacket data(SMSG_QUEST_UPDATE_FAILED_TIMER, 4);
         data << uint32(quest_id);
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_FAILEDTIMER");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_UPDATE_FAILED_TIMER");
     }
 }
 
+//! 6.0.3
 void Player::SendCanTakeQuestResponse(uint32 msg) const
 {
     bool hasString = false;
@@ -17734,7 +17744,7 @@ void Player::SendCanTakeQuestResponse(uint32 msg) const
     data.WriteBit(!hasString);      // used with INVALIDREASON_DONT_HAVE_REQ
     if (hasString)
     {
-        data.WriteBits(0, 9);
+        data.WriteBits(0, 8);
         data.WriteString("");
     }
 
@@ -17742,6 +17752,7 @@ void Player::SendCanTakeQuestResponse(uint32 msg) const
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_INVALID");
 }
 
+//! 6.0.3
 void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
 {
     if (pReceiver)
@@ -17753,42 +17764,33 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
             if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
                 ObjectMgr::GetLocaleString(pLocale->LogTitle, loc_idx, strTitle);
 
-        ObjectGuid guid = GetGUID();
-
         WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, 4 + strTitle.size() + 8 + 1 + 2);
-        //data.WriteGuidMask<6>(guid);
-        data.WriteBit(0);   // has title
-        data.WriteBits(strTitle.size(), 10);
-        //data.WriteGuidMask<2, 4, 5, 3, 0, 7, 1>(guid);
-
-        //data.WriteGuidBytes<3>(guid);
         data << uint32(quest->GetQuestId());
-        //data.WriteGuidBytes<1, 6, 7>(guid);
+        data << GetGUID();
+        data.WriteBits(strTitle.size(), 10);
         data.WriteString(strTitle);
-        //data.WriteGuidBytes<2, 0, 4, 5>(guid);
+
         pReceiver->GetSession()->SendPacket(&data);
 
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
+        //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
     }
 }
 
+//! 6.0.3
 void Player::SendPushToPartyResponse(Player* player, uint8 msg)
 {
     if (player)
     {
-        ObjectGuid guid = player->GetGUID();
-
         WorldPacket data(SMSG_QUEST_PUSH_RESULT, 8 + 1 + 1);
-        //data.WriteGuidMask<7, 0, 4, 6, 1, 2, 3, 5>(guid);
-        //data.WriteGuidBytes<2, 4, 6>(guid);
+        data << player->GetGUID();
         data << uint8(msg);
-        //data.WriteGuidBytes<0, 3, 7, 1, 5>(guid);
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_PUSH_RESULT");
+        //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_PUSH_RESULT");
     }
 }
 
-void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count)
+//! 6.0.3
+void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid const& guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count)
 {
     ASSERT(old_count + add_count < 65536 && "mob/GO count store in 16 bits 2^16 = 65536 (0..65536)");
 
@@ -17804,17 +17806,13 @@ void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid,
             break;
         }
 
-    WorldPacket data(SMSG_QUESTUPDATE_ADD_KILL, 29);
-    data << uint8(reqType);
-    data << uint16(old_count + add_count);
+    WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT, 29);
+    data << guid;
     data << uint32(quest->GetQuestId());
-    data << uint16(quest->RequiredNpcOrGoCount[ creatureOrGO_idx ]);
     data << uint32(entry);
-
-    //data.WriteGuidMask<4, 3, 0, 2, 5, 7, 6, 1>(guid);
-    //data.WriteGuidBytes<2, 5, 6, 7, 4, 1, 3, 0>(guid);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_KILL");
+    data << uint16(old_count + add_count);
+    data << uint16(quest->RequiredNpcOrGoCount[ creatureOrGO_idx ]);
+    data << uint8(reqType);
     GetSession()->SendPacket(&data);
 
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
@@ -17822,17 +17820,18 @@ void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid,
         SetQuestSlotCounter(log_slot, creatureOrGO_idx, GetQuestSlotCounter(log_slot, creatureOrGO_idx)+add_count);
 }
 
+//! 6.0.3 ToDo: test.
 void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint16 add_count)
 {
     ASSERT(old_count + add_count < 65536 && "player count store in 16 bits");
 
-    WorldPacket data(SMSG_QUESTUPDATE_ADD_PVP_KILL, (2*4) + 1);
-    data << uint8(QUEST_OBJECTIVE_PLAYER_KILLS);
-    data << uint32(old_count + add_count);      // test me vs. (add_count)
+    WorldPacket data(SMSG_QUEST_UPDATE_ADD_PVP_CREDIT, (2*4) + 1);
     data << uint32(quest->GetQuestId());
+    data << uint16(old_count + add_count);      // test me vs. (add_count)
+    //data << uint8(QUEST_OBJECTIVE_PLAYER_KILLS);
 
     GetSession()->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_PVP_KILL");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_UPDATE_ADD_PVP_CREDIT");
 
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
     if (log_slot < MAX_QUEST_LOG_SIZE)

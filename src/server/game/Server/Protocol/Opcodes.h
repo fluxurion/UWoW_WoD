@@ -1293,21 +1293,21 @@ enum OpcodeServer : uint32
     SMSG_QUESTGIVER_OFFER_REWARD                      = 0x17B2,
     SMSG_QUESTGIVER_QUEST_COMPLETE                    = 0x1773,
     SMSG_QUESTGIVER_QUEST_DETAILS                     = 0x15B3,
-    SMSG_QUESTGIVER_QUEST_FAILED                      = 0xBADD,
-    SMSG_QUESTGIVER_QUEST_INVALID                     = 0xBADD,
+    SMSG_QUESTGIVER_QUEST_FAILED                      = 0x1D42,
+    SMSG_QUESTGIVER_QUEST_INVALID                     = 0x15E1,
     SMSG_QUESTGIVER_QUEST_LIST                        = 0x17A5,
-    SMSG_QUESTGIVER_REQUEST_ITEMS                     = 0xBADD,
+    SMSG_QUESTGIVER_REQUEST_ITEMS                     = 0x17B8,
     SMSG_QUESTGIVER_STATUS                            = 0x1567,
     SMSG_QUESTGIVER_STATUS_MULTIPLE                   = 0x17C6,
-    SMSG_QUESTLOG_FULL                                = 0xBADD,
+    SMSG_QUEST_LOG_FULL                               = 0x17E4,
     SMSG_QUESTUPDATE_ADD_ITEM                         = 0xBADD,
-    SMSG_QUESTUPDATE_ADD_KILL                         = 0x1515,
-    SMSG_QUESTUPDATE_ADD_PVP_KILL                     = 0xBADD,
-    SMSG_QUESTUPDATE_COMPLETE                         = 0xBADD,
+    SMSG_QUEST_UPDATE_ADD_CREDIT                      = 0x1515,
+    SMSG_QUEST_UPDATE_ADD_PVP_CREDIT                  = 0x15A6,
+    SMSG_QUEST_UPDATE_COMPLETE                        = 0x1787,
     SMSG_QUESTUPDATE_FAILED                           = 0xBADD,
-    SMSG_QUESTUPDATE_FAILEDTIMER                      = 0xBADD,
+    SMSG_QUEST_UPDATE_FAILED_TIMER                    = 0x1D01,
     SMSG_QUEST_COMPLETION_NPC_RESPONSE                = 0x1591,
-    SMSG_QUEST_CONFIRM_ACCEPT                         = 0xBADD,
+    SMSG_QUEST_CONFIRM_ACCEPT                         = 0x15B2,
     SMSG_QUEST_FORCE_REMOVE                           = 0xBADD,
     SMSG_QUEST_POI_QUERY_RESPONSE                     = 0x1715,
     SMSG_QUEST_QUERY_RESPONSE                         = 0x1547,
@@ -1552,13 +1552,13 @@ enum OpcodeServer : uint32
     SMSG_ARENA_PREP_OPPONENT_SPECIALIZATIONS          = 0x03AA,
     SMSG_CONQUEST_FORMULA_CONSTANTS                   = 0x1342,
     SMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x1BE9,
+    SMSG_QUEST_PUSH_RESULT                            = 0x1797,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
     SMSG_CHALLENGE_MODE_COMPLETION_INFO               = 0xBADD, // 5.4.1 17538
     SMSG_CHALLENGE_MODE_REWARD_INFO                   = 0xBADD, // 5.4.1 17538
     SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT        = 0xBADD, // 5.4.1 17538
-    SMSG_QUEST_PUSH_RESULT                            = 0xBADD, // 5.4.1 17538
     SMSG_RANDOM_ROLL                                  = 0xBADD, // 5.4.1 17538
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0xBADD, // 5.4.1 17538
     SMSG_AREA_TRIGGER_RESET                           = 0xBADD,  // 5.0.5 16048
