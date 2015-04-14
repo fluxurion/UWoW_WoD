@@ -1403,7 +1403,7 @@ enum OpcodeServer : uint32
     SMSG_SPELL_GO                                     = 0x1161,
     SMSG_SPELL_START                                  = 0x0803,
     SMSG_SPELL_UPDATE_CHAIN_TARGETS                   = 0x0374,
-    SMSG_SPIRIT_HEALER_CONFIRM                        = 0xBADD,
+    SMSG_SPIRIT_HEALER_CONFIRM                        = 0x1331,
     SMSG_SPLINE_MOVE_COLLISION_DISABLE                = 0x1349,
     SMSG_SPLINE_MOVE_COLLISION_ENABLE                 = 0x02DE,
     SMSG_SPLINE_MOVE_GRAVITY_DISABLE                  = 0x0A86,
