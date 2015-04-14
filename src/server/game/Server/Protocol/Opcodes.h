@@ -209,7 +209,7 @@ enum OpcodeClient : uint32
     CMSG_DEL_VOICE_IGNORE                             = 0xBADD,
     CMSG_DESTROY_ITEM                                 = 0x01EE,
     CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0xBADD,
-    CMSG_DISMISS_CRITTER                              = 0xBADD,
+    CMSG_DISMISS_CRITTER                              = 0x02F1,
     CMSG_DUEL_ACCEPTED                                = 0xBADD,
     CMSG_DUEL_CANCELLED                               = 0xBADD,
     CMSG_EJECT_PASSENGER                              = 0xBADD,
@@ -448,17 +448,17 @@ enum OpcodeClient : uint32
     CMSG_PETITION_SHOW_LIST                           = 0x000F,
     CMSG_PETITION_SHOW_SIGNATURES                     = 0x0BC4,
     CMSG_SIGN_PETITION                                = 0x0B03,
-    CMSG_PET_ABANDON                                  = 0xBADD,
+    CMSG_PET_ABANDON                                  = 0x0005,
     CMSG_PET_ACTION                                   = 0x133A,
     CMSG_PET_CANCEL_AURA                              = 0xBADD,
     CMSG_PET_CAST_SPELL                               = 0x0286,
     CMSG_PET_LEARN_TALENT                             = 0xBADD,
     CMSG_PET_NAME_CACHE                               = 0xBADD,
     CMSG_PET_NAME_QUERY                               = 0x1433,
-    CMSG_PET_RENAME                                   = 0xBADD,
-    CMSG_PET_SET_ACTION                               = 0xBADD,
-    CMSG_PET_SPELL_AUTOCAST                           = 0xBADD,
-    CMSG_PET_STOP_ATTACK                              = 0xBADD,
+    CMSG_PET_RENAME                                   = 0x093F,
+    CMSG_PET_SET_ACTION                               = 0x020F,
+    CMSG_PET_SPELL_AUTOCAST                           = 0x0A2F,
+    CMSG_PET_STOP_ATTACK                              = 0x19E2,
     CMSG_PING                                         = 0x0416,
     CMSG_PLAYED_TIME                                  = 0x1BB2,
     CMSG_PLAYER_DIFFICULTY_CHANGE                     = 0xBADD,
@@ -677,7 +677,7 @@ enum OpcodeClient : uint32
 
     //UWOW
     CMSG_TABARDVENDOR_ACTIVATE                        = 0x08EE,
-    CMSG_LIST_STABLED_PETS                            = 0x059D, // CMSG_REQUEST_STABLED_PETS on trinity
+    CMSG_REQUEST_STABLED_PETS                         = 0x059D,
     CMSG_RAID_TARGET_UPDATE                           = 0x1122, // CMSG_UPDATE_RAID_TARGET
     CMSG_SET_DUNGEON_DIFFICULTY                       = 0x012F,
     CMSG_DO_READY_CHECK                               = 0x1221,
@@ -691,6 +691,7 @@ enum OpcodeClient : uint32
     CMSG_DECLINE_PETITION                             = 0x03EA,
     CMSG_REQUEST_RATED_BATTLEFIELD_INFO               = 0x1323,
     CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS           = 0x0359,
+    CMSG_PET_SET_SPECIALIZATION                       = 0x08D6,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
@@ -698,7 +699,6 @@ enum OpcodeClient : uint32
     CMSG_CHALLENGE_MODE_REQUEST_LEADERS               = 0xBADD, // 5.4.1 17538
     CMSG_CONFIRM_TALENT_WIPE                          = 0xBADD, // 5.4.1 17538
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0xBADD, // 5.4.1 17538
-    CMSG_LEARN_PET_SPECIALIZATION_GROUP               = 0xBADD, // 5.4.1 17538
     CMSG_LEARN_TALENTS                                = 0xBADD, // 5.4.1 17538
     CMSG_LFG_GET_PLAYER_INFO                          = 0xBADD,  // Unused 434
     CMSG_LFG_PARTY_LOCK_INFO_REQUEST                  = 0xBADD,  // Unused 434
@@ -1255,7 +1255,7 @@ enum OpcodeServer : uint32
     SMSG_PET_GUIDS                                    = 0xBADD,
     SMSG_PET_LEARNED_SPELL                            = 0xBADD,
     SMSG_PET_MODE                                     = 0xBADD,
-    SMSG_PET_NAME_INVALID                             = 0xBADD,
+    SMSG_PET_NAME_INVALID                             = 0x0007,
     SMSG_PET_NAME_QUERY_RESPONSE                      = 0x0D0E,
     SMSG_PET_REMOVED_SPELL                            = 0x011B,
     SMSG_PET_RENAMEABLE                               = 0xBADD,
@@ -1433,7 +1433,7 @@ enum OpcodeServer : uint32
     SMSG_SPLINE_MOVE_UNSET_FLYING                     = 0x09D9,
     SMSG_SPLINE_MOVE_UNSET_HOVER                      = 0x1959,
     SMSG_SPLINE_MOVE_WATER_WALK                       = 0xBADD,
-    SMSG_STABLE_RESULT                                = 0x1383,
+    SMSG_PET_STABLE_RESULT                            = 0x1383,
     SMSG_STAND_STATE_UPDATE                           = 0x1311,
     SMSG_START_ELAPSED_TIMERS                         = 0x093F,
     SMSG_START_MIRROR_TIMER                           = 0x051E,
@@ -1523,7 +1523,7 @@ enum OpcodeServer : uint32
     //UWOW
     SMSG_TABARDVENDOR_ACTIVATE                        = 0x1389,
     SMSG_TRAINER_SERVICE                              = 0x1BD2, //Trinity use as SMSG_TRAINER_BUY_FAILED
-    SMSG_LIST_STABLED_PETS                            = 0x0B1F, //Trinity use as SMSG_PET_STABLE_LIST
+    SMSG_PET_STABLE_LIST                              = 0x0B1F,
     SMSG_SCRIPT_CAST                                  = 0x1B1C,
     SMSG_RAID_TARGET_UPDATE_SINGLE                    = 0x0D3E, //SMSG_SEND_RAID_TARGET_UPDATE_SINGLE
     SMSG_PARTY_UPDATE                                 = 0x15BE,

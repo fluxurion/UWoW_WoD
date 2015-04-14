@@ -252,6 +252,7 @@ namespace WorldPackets
         class CancelAura;
         class CastSpell;
         class SetActionButton;
+        class PetCastSpell;
     }
 
     namespace Talent
@@ -438,7 +439,7 @@ class WorldSession
         void SendPacket(WorldPacket const* packet, bool forced = false);
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 string_id, ...);
-        void SendPetNameInvalid(uint32 error, const std::string& name, DeclinedName *declinedName);
+        void SendPetNameInvalid(uint32 error, ObjectGuid const& guid, const std::string& name, DeclinedName *declinedName);
         void SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val = 0);
         void SendGroupInvite(Player* player, bool AlowEnter);
         void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
@@ -515,11 +516,11 @@ class WorldSession
         void SendPetitionQueryOpcode(ObjectGuid petitionguid);
 
         // Pet
-        void SendPetNameQuery(ObjectGuid guid, uint32 petnumber);
-        void SendStablePet(ObjectGuid guid);
-        void SendStablePetCallback(PreparedQueryResult result, ObjectGuid guid);
-        void SendStableResult(uint8 guid);
-        bool CheckStableMaster(ObjectGuid guid);
+        void SendPetNameQuery(ObjectGuid const& guid);
+        void SendStablePet(ObjectGuid const& guid);
+        void SendStablePetCallback(PreparedQueryResult result, ObjectGuid const& guid);
+        void SendStableResult(uint8 res);
+        bool CheckStableMaster(ObjectGuid const& guid);
 
         // Account Data
         AccountData* GetAccountData(AccountDataType type) { return &m_accountData[type]; }
@@ -996,7 +997,7 @@ class WorldSession
         void HandlePetRename(WorldPacket& recvData);
         void HandlePetCancelAuraOpcode(WorldPacket& recvPacket);
         void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
-        void HandlePetCastSpellOpcode(WorldPacket& recvPacket);
+        void HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& recvPacket);
 
         void HandleSetActionBarToggles(WorldPacket& recvData);
 

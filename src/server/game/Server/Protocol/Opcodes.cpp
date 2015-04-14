@@ -163,7 +163,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE,   STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleBfEntryInviteResponse     );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLEFIELD_MGR_EXIT_REQUEST,            STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleBfExitQueueRequest        );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLEFIELD_LEAVE,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLeaveBattlefieldOpcode    );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_LEARN_PET_SPECIALIZATION_GROUP,          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLearnPetSpecialization    );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_SET_SPECIALIZATION,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLearnPetSpecialization    );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_LFD_PLAYER_LOCK_INFO_REQUEST,            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleLfgPlayerLockInfoRequestOpcode);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE,   STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleBfQueueInviteResponse     );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLEFIELD_MGR_QUEUE_REQUEST,           STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleBfQueueRequest            );//603
@@ -256,7 +256,7 @@ void OpcodeTable::Initialize()
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_DEL_VOICE_IGNORE,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_DESTROY_ITEM,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::DestroyItem, &WorldSession::HandleDestroyItemOpcode);//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_DISMISS_CONTROLLED_VEHICLE,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleDismissControlledVehicle  );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_DISMISS_CRITTER,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleDismissCritter            );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_DISMISS_CRITTER,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleDismissCritter            );//603
     DEFINE_HANDLER(CMSG_DUEL_RESPONSE,                                      STATUS_UNHANDLED, PROCESS_THREADUNSAFE, WorldPackets::Duel::DuelResponse, &WorldSession::HandleDuelResponseOpcode);//603
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_EJECT_PASSENGER,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_EMOTE,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEmoteOpcode               );
@@ -429,15 +429,15 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PETITION_SHOW_SIGNATURES,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionShowSignOpcode    );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SIGN_PETITION,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionSignOpcode        );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PETITION_RENAME_GUILD,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetitionRenameOpcode      );//603
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_ABANDON,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetAbandon                );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_ACTION,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetAction                 );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_ABANDON,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetAbandon                );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_ACTION,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetAction                 );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_CANCEL_AURA,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetCancelAuraOpcode       );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_CAST_SPELL,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetCastSpellOpcode        );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_NAME_QUERY,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetNameQuery              );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_RENAME,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetRename                 );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_SET_ACTION,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetSetAction              );
-    //DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_SPELL_AUTOCAST,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetSpellAutocastOpcode    );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_STOP_ATTACK,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetStopAttack             );
+    DEFINE_HANDLER(CMSG_PET_CAST_SPELL,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::PetCastSpell, &WorldSession::HandlePetCastSpellOpcode);//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_NAME_QUERY,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetNameQuery              );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_RENAME,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetRename                 );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_SET_ACTION,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetSetAction              );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_SPELL_AUTOCAST,                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetSpellAutocastOpcode    );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_STOP_ATTACK,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetStopAttack             );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS,      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePersonalRatedInfoRequest  );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PING,                                    STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess            );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PLAYED_TIME,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePlayedTime                );//603
@@ -607,7 +607,7 @@ void OpcodeTable::Initialize()
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_ZONEUPDATE,                              STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleZoneUpdateOpcode          );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_AUCTION_HELLO,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAuctionHelloOpcode        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_INSPECT_HONOR_STATS,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleInspectHonorStatsOpcode   );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_LIST_STABLED_PETS,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleListStabledPetsOpcode     );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_REQUEST_STABLED_PETS,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleListStabledPetsOpcode     );//603
     DEFINE_HANDLER(CMSG_MOVE_FALL_RESET,                                    STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Movement::ClientPlayerMovement, &WorldSession::HandleMovementOpcodes);//603
     DEFINE_HANDLER(CMSG_MOVE_FALL_LAND,                                     STATUS_LOGGEDIN, PROCESS_THREADSAFE, WorldPackets::Movement::ClientPlayerMovement, &WorldSession::HandleMovementOpcodes);//603
     DEFINE_HANDLER(CMSG_MOVE_HEARTBEAT,                                     STATUS_LOGGEDIN, PROCESS_THREADSAFE,    WorldPackets::Movement::ClientPlayerMovement, &WorldSession::HandleMovementOpcodes);//603
@@ -1008,7 +1008,7 @@ void OpcodeTable::Initialize()
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_LEARNED_DANCE_MOVES,                     STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LEARNED_SPELLS,                           STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LEVELUP_INFO,                            STATUS_NEVER);//603
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_LIST_STABLED_PETS,                       STATUS_NEVER);//603
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_STABLE_LIST,                         STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LFG_BOOT_PROPOSAL_UPDATE,                STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LFG_DISABLED,                            STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_LFG_JOIN_RESULT,                         STATUS_NEVER);
@@ -1153,8 +1153,8 @@ void OpcodeTable::Initialize()
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_GUIDS,                               STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_LEARNED_SPELL,                       STATUS_NEVER);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_MODE,                                STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_NAME_INVALID,                        STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_NAME_QUERY_RESPONSE,                 STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_NAME_INVALID,                        STATUS_NEVER);//603
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_NAME_QUERY_RESPONSE,                 STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_REMOVED_SPELL,                       STATUS_NEVER);//603
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_RENAMEABLE,                          STATUS_NEVER);
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_SLOT_UPDATED,                        STATUS_UNHANDLED);
@@ -1325,8 +1325,8 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SPLINE_MOVE_UNROOT,                      STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SPLINE_MOVE_UNSET_FLYING,                STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SPLINE_MOVE_UNSET_HOVER,                 STATUS_NEVER);//603
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_STABLE_RESULT,                           STATUS_NEVER);//603
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_STAND_STATE_UPDATE,                       STATUS_NEVER);//603
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PET_STABLE_RESULT,                       STATUS_NEVER);//603
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_STAND_STATE_UPDATE,                      STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_START_MIRROR_TIMER,                      STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_START_TIMER,                             STATUS_NEVER);//603
     //DEFINE_SERVER_OPCODE_HANDLER(SMSG_STOP_DANCE,                              STATUS_NEVER);
