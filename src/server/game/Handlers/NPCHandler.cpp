@@ -163,10 +163,11 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
 
         bool valid = true;
         bool primary_prof_first_rank = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
         {
             if (!tSpell->learnedSpell[i])
                 continue;
+
             if (!_player->IsSpellFitByClassAndRace(tSpell->learnedSpell[i]))
             {
                 valid = false;
@@ -176,6 +177,7 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
             if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank())
                 primary_prof_first_rank = true;
         }
+
         if (!valid)
             continue;
 
@@ -198,7 +200,7 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
         spell.Usable = (state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
 
         uint8 maxReq = 0;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
         {
             if (!tSpell->learnedSpell[i])
                 continue;
@@ -218,7 +220,6 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
                 continue;
             }
         }
-
         ++count;
     }
 

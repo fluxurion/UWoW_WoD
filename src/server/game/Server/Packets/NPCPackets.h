@@ -105,6 +105,10 @@ namespace WorldPackets
 
         struct TrainerListSpell
         {
+            TrainerListSpell()
+            {
+                memset(&ReqAbility, 0, sizeof(ReqAbility));
+            }
             int32 SpellID       = 0;
             int32 MoneyCost     = 0;
             int32 ReqSkillLine  = 0;
