@@ -104,15 +104,13 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHe
     creature->AI()->sGossipHello(_player);
 }
 
+//! 6.0.3
 void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
     uint32 questId;
-    recvData >> questId;
-    //recvData.ReadGuidMask<6, 7>(guid);
+    recvData >> guid >> questId;
     bool unk1 = recvData.ReadBit();
-    //recvData.ReadGuidMask<1, 5, 2, 4, 3, 0>(guid);
-    //recvData.ReadGuidBytes<7, 6, 0, 1, 4, 3, 2, 5>(guid);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_ACCEPT_QUEST npc = %u, quest = %u, unk1 = %u", uint32(guid.GetCounter()), questId, unk1);
 
@@ -448,6 +446,7 @@ void WorldSession::HandleQuestLogSwapQuest(WorldPacket& recvData)
     GetPlayer()->SwapQuestSlot(slot1, slot2);
 }
 
+//! 6.0.3
 void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
 {
     uint8 slot;
@@ -481,6 +480,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
     }
 }
 
+//! 6.0.3
 void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
 {
     uint32 questId;

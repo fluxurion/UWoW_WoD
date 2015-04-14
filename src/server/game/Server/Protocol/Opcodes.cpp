@@ -460,7 +460,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_INSPECT_ACHIEVEMENTS,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryInspectAchievements  );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_PLAYER_RECIPES,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryPlayerRecipes        );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_TIME,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryTimeOpcode           );//603
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_QUESTGIVER_ACCEPT_QUEST,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverAcceptQuestOpcode);
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_QUESTGIVER_ACCEPT_QUEST,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverAcceptQuestOpcode);//603
     DEFINE_HANDLER(CMSG_QUESTGIVER_CHOOSE_REWARD,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Quest::QuestGiverChooseReward, &WorldSession::HandleQuestgiverChooseRewardOpcode);//603
     DEFINE_HANDLER(CMSG_QUESTGIVER_COMPLETE_QUEST,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Quest::QuestGiverCompleteQuest, &WorldSession::HandleQuestgiverCompleteQuest);//603
     DEFINE_HANDLER(CMSG_QUESTGIVER_HELLO,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Quest::QuestGiverHello, &WorldSession::HandleQuestgiverHelloOpcode);//603
@@ -468,8 +468,8 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_QUESTGIVER_REQUEST_REWARD,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Quest::QuestGiverRequestReward, &WorldSession::HandleQuestgiverRequestRewardOpcode);//603
     DEFINE_HANDLER(CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Quest::QuestGiverStatusMultipleQuery, &WorldSession::HandleQuestgiverStatusMultipleQuery);//603
     DEFINE_HANDLER(CMSG_QUESTGIVER_STATUS_QUERY,                            STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Quest::QuestGiverStatusQuery, &WorldSession::HandleQuestgiverStatusQueryOpcode);//603
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_QUESTLOG_REMOVE_QUEST,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestLogRemoveQuest       );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_QUEST_CONFIRM_ACCEPT,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestConfirmAccept        );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_QUESTLOG_REMOVE_QUEST,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestLogRemoveQuest       );//603
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_QUEST_CONFIRM_ACCEPT,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestConfirmAccept        );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUERY_QUEST_COMPLETION_NPCS,             STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQuestNpcQuery             );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_QUEST_POI_QUERY,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestPOIQuery             );//603
     DEFINE_HANDLER(CMSG_QUEST_QUERY,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Quest::QueryQuestInfo, &WorldSession::HandleQuestQueryOpcode);//603
