@@ -232,8 +232,8 @@ void WorldPackets::Item::BuyItem::Read()
                  >> ContainerGUID
                  >> Item
                  >> Quantity
-                 >> BagSlot
-                 >> Slot;
+                 >> Slot
+                 >> BagSlot;
 
     ItemType = static_cast<ItemVendorType>(_worldPacket.ReadBits(2));
 }
