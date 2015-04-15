@@ -25,6 +25,7 @@ set(scripts_STAT_SRCS
 )
 
 if(SCRIPTS)
+  include(Draenor/CMakeLists.txt)
   include(Pandaria/CMakeLists.txt)
   include(EasternKingdoms/CMakeLists.txt)
 endif()

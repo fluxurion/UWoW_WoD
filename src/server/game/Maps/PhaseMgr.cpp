@@ -377,6 +377,7 @@ bool PhaseMgr::IsConditionTypeSupported(ConditionTypes const conditionType)
 {
     switch (conditionType)
     {
+        case CONDITION_AURA:
         case CONDITION_QUESTREWARDED:
         case CONDITION_QUESTTAKEN:
         case CONDITION_QUEST_COMPLETE:

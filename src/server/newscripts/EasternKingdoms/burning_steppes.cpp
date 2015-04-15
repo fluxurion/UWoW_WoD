@@ -28,8 +28,41 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 
+enum spells
+{
+    SPELL_TIME_SHIFT        = 176111,
+
+    SPELL_ASHRAN_TELE       = 176809,
+    SPELL_ASHRAN_HORDE      = 173143,  //5352.16 Y: -3944.96 Z: 32.7331 O: 3.921144
+    SPELL_ASHRAN_ALLIANCE   = 167220,
+    SPELL_TELE_OUT_ALLIANCE = 167221, //Teleport Out: Alliance / 2308.57 Y: 447.469 Z: 5.11977 O: 2.199202
+    SPELL_TELE_OUT_HORDE    = 167220,//Teleport Out: Alliance
+
+    MOVIE_HORDE             = 185,
+    MOVIE_ALLIANCE          = 187,
+};
+
+class at_wod_dark_portal : public AreaTriggerScript
+{
+public:
+    at_wod_dark_portal() : AreaTriggerScript("at_wod_dark_portal") { }
+
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/, bool /*enter*/)
+    {
+        if (player->getLevel() < 90 || player->HasAura(SPELL_TIME_SHIFT))
+            return false;       //tele to outlend
+
+        //if (questcomplete)
+        //{
+        //    tele ashran.
+        //}
+        player->SendMovieStart(player->GetTeam() == HORDE ? MOVIE_HORDE : MOVIE_ALLIANCE);    //alliance
+        player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_TELE_OUT_HORDE : SPELL_TELE_OUT_ALLIANCE);
+        return true;
+    }
+};
 
 void AddSC_burning_steppes()
 {
-
+    new at_wod_dark_portal();
 }
