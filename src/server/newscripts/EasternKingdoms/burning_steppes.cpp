@@ -56,8 +56,8 @@ public:
         //{
         //    tele ashran.
         //}
-        player->SendMovieStart(player->GetTeam() == HORDE ? MOVIE_HORDE : MOVIE_ALLIANCE);    //alliance
         player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_TELE_OUT_HORDE : SPELL_TELE_OUT_ALLIANCE);
+        player->SendMovieStart(player->GetTeam() == HORDE ? MOVIE_HORDE : MOVIE_ALLIANCE);    //alliance
         return true;
     }
 };

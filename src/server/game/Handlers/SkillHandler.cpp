@@ -25,7 +25,9 @@
 #include "WorldSession.h"
 #include "ObjectAccessor.h"
 #include "UpdateMask.h"
+#include "TalentPackets.h"
 
+//! 6.0.3
 void WorldSession::HandleSetSpecialization(WorldPacket& recvData)
 {
     uint32 tab = recvData.read<uint32>();
@@ -61,9 +63,10 @@ void WorldSession::HandleSetSpecialization(WorldPacket& recvData)
     }
 }
 
+//! 6.0.3
 void WorldSession::HandleLearnTalents(WorldPacket& recvData)
 {
-    uint32 count = recvData.ReadBits(23);
+    uint32 count = recvData.read<uint32>();
 
     // Cheat - Hack check
     if (count > 6)
@@ -88,14 +91,14 @@ void WorldSession::HandleLearnTalents(WorldPacket& recvData)
     _player->SendTalentsInfoData(false);
 }
 
+//! 6.0.3
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_TALENT_WIPE_CONFIRM");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CONFIRM_RESPEC_WIPE");
 
-    uint8 specializationReset = recvData.read<uint8>();
     ObjectGuid guid;
-    //recvData.ReadGuidMask<7, 4, 0, 5, 2, 6, 3, 1>(guid);
-    //recvData.ReadGuidBytes<5, 1, 7, 0, 3, 6, 4, 2>(guid);
+    recvData >> guid;
+    uint8 specializationReset = recvData.read<uint8>();
 
     // Hack
     if (GetPlayer()->HasAura(33786))
@@ -110,9 +113,9 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         if (!_player->ResetTalents())
         {
             WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM, 8+4);    //you have not any talent
-            data << uint8(0); // 0 guid bit
-            data << uint32(0);
             data << uint8(0);
+            data << uint32(0);
+            data << ObjectGuid::Empty;
             SendPacket(&data);
             return;
         }
@@ -128,6 +131,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
 }
 
+//! 6.0.3
 void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
 {
     uint32 skillId;

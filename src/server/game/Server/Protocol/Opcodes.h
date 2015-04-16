@@ -692,14 +692,14 @@ enum OpcodeClient : uint32
     CMSG_REQUEST_RATED_BATTLEFIELD_INFO               = 0x1323,
     CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS           = 0x0359,
     CMSG_PET_SET_SPECIALIZATION                       = 0x08D6,
+    CMSG_LEARN_TALENTS                                = 0x0BB6,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
     CMSG_CHALLENGE_MODE_REQUEST_COMPLETION_INFO       = 0xBADD, // 5.4.1 17538
     CMSG_CHALLENGE_MODE_REQUEST_LEADERS               = 0xBADD, // 5.4.1 17538
-    CMSG_CONFIRM_TALENT_WIPE                          = 0xBADD, // 5.4.1 17538
+    CMSG_CONFIRM_RESPEC_WIPE                          = 0xBADD, // 5.4.1 17538
     CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0xBADD, // 5.4.1 17538
-    CMSG_LEARN_TALENTS                                = 0xBADD, // 5.4.1 17538
     CMSG_LFG_GET_PLAYER_INFO                          = 0xBADD,  // Unused 434
     CMSG_LFG_PARTY_LOCK_INFO_REQUEST                  = 0xBADD,  // Unused 434
     CMSG_LOOT_MASTER_ASK_FOR_ROLL                     = 0xBADD, // 5.4.1 17538
