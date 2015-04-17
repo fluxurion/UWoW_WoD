@@ -173,13 +173,13 @@ void WorldSession::HandleSwapItem(WorldPackets::Item::SwapItem& swapItem)
 
     if (_player->IsBankPos(swapItem.ContainerSlotA, swapItem.SlotA) && !CanUseBank())
     {
-        //TC_LOG_DEBUG("network", "HandleSwapItem - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleSwapItem - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
         return;
     }
 
     if (_player->IsBankPos(swapItem.ContainerSlotB, swapItem.SlotB) && !CanUseBank())
     {
-        //TC_LOG_DEBUG("network", "HandleSwapItem - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleSwapItem - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
         return;
     }
 

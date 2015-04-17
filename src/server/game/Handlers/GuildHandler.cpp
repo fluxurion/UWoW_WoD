@@ -438,20 +438,23 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recvData)
     uint32 itemEntry = 0, destItemEntry, splitedAmount, BankItemCount;
 
     recvData >> GoGuid
-        >> tabId
-        >> slotId
-        >> itemEntry
         >> destTabId
         >> destSlotId
+        >> itemEntry
+        >> tabId
+        >> slotId
         >> destItemEntry
         >> BankItemCount
         >> playerBag
         >> playerSlotId
-        >> splitedAmount
-        >> toChar;
+        >> toChar
+        >> splitedAmount;
 
     bankToBank = recvData.ReadBit();
     autoStore = recvData.ReadBit();
+
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_SWAP_ITEMS): tabId %u slotId %u itemEntry %u destTabId %u destSlotId %u destItemEntry %u BankItemCount %u playerBag %u playerSlotId %u splitedAmount %u toChar %u bankToBank %u autoStore %u",
+    //    tabId, slotId, itemEntry, destTabId, destSlotId, destItemEntry, BankItemCount, playerBag, playerSlotId, splitedAmount, toChar, bankToBank, autoStore );
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         return;

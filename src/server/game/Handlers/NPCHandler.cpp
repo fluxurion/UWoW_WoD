@@ -69,15 +69,16 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
     SendPacket(&data);
 }
 
+//! 6.0.3
 void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
+    recvData >> guid;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
-    if (!unit)
+    m_currentBankerGUID = guid;
+    if (!CanUseBank(guid))
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBankerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(guid.GetCounter()));
         return;
