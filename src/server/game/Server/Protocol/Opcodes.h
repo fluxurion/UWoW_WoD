@@ -73,9 +73,9 @@ enum OpcodeClient : uint32
     CMSG_ATTACKSWING                                  = 0x1E9B,
     CMSG_AUCTION_HELLO                                = 0x13EA,
     CMSG_AUCTION_LIST_BIDDER_ITEMS                    = 0xBADD,
-    CMSG_AUCTION_LIST_ITEMS                           = 0xBADD,
+    CMSG_AUCTION_LIST_ITEMS                           = 0x0B53,
     CMSG_AUCTION_LIST_OWNER_ITEMS                     = 0xBADD,
-    CMSG_AUCTION_LIST_PENDING_SALES                   = 0xBADD,
+    CMSG_AUCTION_LIST_PENDING_SALES                   = 0x11E2,
     CMSG_AUCTION_PLACE_BID                            = 0xBADD,
     CMSG_AUCTION_REMOVE_ITEM                          = 0xBADD,
     CMSG_AUCTION_SELL_ITEM                            = 0xBADD,
@@ -774,7 +774,7 @@ enum OpcodeServer : uint32
     SMSG_AUCTION_CLOSED_NOTIFICATION                  = 0x058E,
     SMSG_AUCTION_COMMAND_RESULT                       = 0x0B2D,
     SMSG_AUCTION_HELLO                                = 0x011F,
-    SMSG_AUCTION_LIST_PENDING_SALES                   = 0xBADD,
+    SMSG_AUCTION_LIST_PENDING_SALES_RESULT            = 0x0332,
     SMSG_AUCTION_LIST_ITEMS_RESULT                    = 0x0BA4,
     SMSG_AUCTION_OUTBID_NOTIFICATION                  = 0x172E,
     SMSG_AUCTION_OWNER_LIST_RESULT                    = 0xBADD,
@@ -1566,7 +1566,6 @@ enum OpcodeServer : uint32
     SMSG_RAID_TARGET_UPDATE_ALL                       = 0xBADD, // 5.4.1 17538
     SMSG_AREA_TRIGGER_RESET                           = 0xBADD,  // 5.0.5 16048
     SMSG_ARENA_OPPONENT_UPDATE                        = 0xBADD, // 5.4.1 17538
-    SMSG_AUCTION_LIST_RESULT                          = 0xBADD, // 5.4.1 17538
     SMSG_ARENA_SEASON_WORLDSTATE                      = 0xBADD, // 5.4.1 17538
     SMSG_BATTLEPAY_PRODUCT_ITEM                       = 0xBADD, // 5.4.1 17538
     SMSG_BATTLE_PET_BATTLE_FINISHED                   = 0xBADD, // 5.4.1 17538

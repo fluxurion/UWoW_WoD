@@ -649,33 +649,53 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& data) const
         sLog->outError(LOG_FILTER_GENERAL, "AuctionEntry::BuildAuctionInfo: Auction %u has a non-existent item: %u", Id, itemGUIDLow);
         return false;
     }
-    data << uint32(Id);
-    data << uint32(item->GetEntry());
 
-    for (uint8 i = 0; i < PROP_ENCHANTMENT_SLOT_0; ++i) // PROP_ENCHANTMENT_SLOT_0 = 8
-    {
-        data << uint32(item->GetEnchantmentId(EnchantmentSlot(i)));
-        data << uint32(item->GetEnchantmentDuration(EnchantmentSlot(i)));
-        data << uint32(item->GetEnchantmentCharges(EnchantmentSlot(i)));
-    }
-    
-    // while not handle item dynamic info (needed only for battlepets auction lots)
-    data << uint32(4);
-    data << uint32(0);
+    WorldPackets::Item::ItemInstance itemInstance;
+    itemInstance << item;
 
-    data << int32(item->GetItemRandomPropertyId());                 // Random item property id
-    data << uint32(item->GetItemSuffixFactor());                    // SuffixFactor
+    data << itemInstance;
     data << uint32(item->GetCount());                               // item->count
     data << uint32(item->GetSpellCharges());                        // item->charge FFFFFFF
-    data << uint32(0);                                              // Unknown
-    data << uint64(owner);                                          // Auction->owner
+    size_t countPos = data.wpos();
+    data << uint32(0);                                              // EnchantmentsCount
+    data << uint32(0);                                              // Flags
+    data << uint32(Id);
+
+    data << ObjectGuid::Create<HighGuid::Player>(owner);            // Auction->owner
+
     data << uint64(startbid);                                       // Auction->startbid (not sure if useful)
     data << uint64(bid ? GetAuctionOutBid() : 0);
-    // Minimal outbid
     data << uint64(buyout);                                         // Auction->buyout
-    data << uint32((expire_time - time(NULL)) * IN_MILLISECONDS);   // time left
-    data << uint64(bidder);                                         // auction->bidder current
-    data << uint64(bid);                                            // current bid
+
+    uint32 entchantcount = 0;
+    for (uint8 i = 0; i < PROP_ENCHANTMENT_SLOT_0; ++i) // PROP_ENCHANTMENT_SLOT_0 = 8
+    {
+        if (uint32 id = item->GetEnchantmentId(EnchantmentSlot(i)))
+        {
+            data << id;
+            data << uint32(item->GetEnchantmentDuration(EnchantmentSlot(i)));
+            data << uint32(item->GetEnchantmentCharges(EnchantmentSlot(i)));
+            data << uint8(i);
+            ++entchantcount;
+        }
+    }
+    data.put<uint32>(countPos, entchantcount);
+    
+    data.WriteBit(1);
+    data.WriteBit(1);
+
+    {
+        data << item->GetGUID();
+        data << ObjectGuid::Empty;          //OwnerAccountID
+        data << uint32((expire_time - time(NULL)) * IN_MILLISECONDS);   // time left
+
+    }
+
+    {
+        data << ObjectGuid::Create<HighGuid::Player>(bidder);           // auction->bidder current
+        data << uint64(bid);                                            // current bid
+    }
+
     return true;
 }
 

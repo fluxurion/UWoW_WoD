@@ -730,25 +730,29 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
     uint32 page, classIndex, subClassIndex, invTypeIndex, quality;
 
     recvData >> page;
+    recvData >> guid;
     recvData >> auctionId;
-    recvData >> subClassIndex;
+
     recvData >> levelmin;
-    recvData >> quality;
-    recvData >> classIndex;
     recvData >> levelmax;
+    recvData >> classIndex;
     recvData >> invTypeIndex;
-    uint32 strLen;
-    recvData >> strLen;
-    std::string unkStr1 = recvData.ReadString(strLen);
-    //recvData.ReadGuidMask<4, 0, 1, 5, 3, 6>(guid);
+    recvData >> subClassIndex;
+    recvData >> quality;
+    uint8 sort = recvData.read<uint8>();
+
     uint32 searchedname_length = recvData.ReadBits(8);
-    //recvData.ReadGuidMask<2>(guid);
-    bool unk = recvData.ReadBit();
-    //recvData.ReadGuidMask<7>(guid);
-    canUse = recvData.ReadBit();
-    //recvData.ReadGuidBytes<0, 7, 3, 1, 4>(guid);
     searchedname = recvData.ReadString(searchedname_length);
-    //recvData.ReadGuidBytes<5, 6, 2>(guid);
+
+    canUse = recvData.ReadBit();
+    bool ExactMatch = recvData.ReadBit();
+
+    uint32 DataSize = recvData.read<uint32>();
+    for(uint32 i = 0; i < sort; ++i)
+    {
+        recvData.read<uint8>();
+        recvData.read<uint8>();
+    }
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -766,10 +770,12 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
     //sLog->outDebug(LOG_FILTER_GENERAL, "Auctionhouse search (GUID: %u TypeId: %u)",, list from: %u, searchedname: %s, levelmin: %u, levelmax: %u, auctionSlotID: %u, auctionMainCategory: %u, auctionSubCategory: %u, quality: %u, usable: %u",
     //  guid.GetCounter(), GuidHigh2TypeId(GUID_HIPART(guid)), listfrom, searchedname.c_str(), levelmin, levelmax, auctionSlotID, auctionMainCategory, auctionSubCategory, quality, usable);
 
-    WorldPacket data(SMSG_AUCTION_LIST_RESULT, (4+4+4));
+    WorldPacket data(SMSG_AUCTION_LIST_ITEMS_RESULT, (4+4+4));
     uint32 count = 0;
     uint32 totalcount = 0;
     data << uint32(0);
+    data << uint32(300);                                  // CGAuctionHouse__m_desiredDelayTime
+    data << totalcount;                                   // CGAuctionHouse__m_numTotalBid
 
     // converting string that we try to find to lower case
     std::wstring wsearchedname;
@@ -784,18 +790,21 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
         count, totalcount);
 
     data.put<uint32>(0, count);
-    data << totalcount;                                   // CGAuctionHouse__m_numTotalBid
-    data << uint32(300);                                  // CGAuctionHouse__m_desiredDelayTime
+    data.put<uint32>(4, totalcount);                     // CGAuctionHouse__m_numTotalBid
+    data.WriteBit(0);
+
     SendPacket(&data);
 }
 
+//! 6.0.3
 void WorldSession::HandleAuctionListPendingSales(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_PENDING_SALES");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_PENDING_SALES");
     uint32 count = 0;
 
-    WorldPacket data(SMSG_AUCTION_LIST_PENDING_SALES, 4);
+    WorldPacket data(SMSG_AUCTION_LIST_PENDING_SALES_RESULT, 4);
     data << uint32(count);                                  // count
+    data << uint32(0);
     /*for (uint32 i = 0; i < count; ++i)
     {
         data << "";                                         // string
