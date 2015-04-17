@@ -28,16 +28,17 @@
 #include "UpdateMask.h"
 #include "Util.h"
 #include "AccountMgr.h"
+#include "ItemPackets.h"
 
 //please DO NOT use iterator++, because it is slower than ++iterator!!!
 //post-incrementation is always slower than pre-incrementation !
 
 //void called when player click on auctioneer npc
+//! 6.0.3
 void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;                                        //NPC guid
-    //recvData.ReadGuidMask<1, 0, 2, 6, 5, 4, 7, 3>(guid);
-    //recvData.ReadGuidBytes<2, 4, 7, 3, 6, 5, 1, 0>(guid);
+    recvData >> guid;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
@@ -54,6 +55,7 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
 }
 
 //this void causes that auction window is opened
+//! 6.0.3
 void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
 {
     if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_AUCTION_LEVEL_REQ))
@@ -67,63 +69,73 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
         return;
 
     WorldPacket data(SMSG_AUCTION_HELLO, 12);
-    //data.WriteGuidMask<2, 1>(guid);
+    data << guid;
     data.WriteBit(1);                                   // 3.3.3: 1 - AH enabled, 0 - AH disabled
-    //data.WriteGuidMask<4, 6, 0, 5, 3, 7>(guid);
-    //data.WriteGuidBytes<2, 0, 7, 6, 5, 1, 3, 4>(guid);
     data << uint32(ahEntry->houseId);
     
     SendPacket(&data);
 }
 
 //call this method when player bids, creates, or deletes auction
+//! 6.0.3
 void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action, uint32 errorCode, uint32 bidError)
 {
-    ObjectGuidSteam bidderGUID = auction ? auction->bidder : 0;
+    ObjectGuid bidderGUID = auction ? ObjectGuid::Create<HighGuid::Player>(auction->bidder) : ObjectGuid::Empty;
 
     WorldPacket data(SMSG_AUCTION_COMMAND_RESULT);
-    data << uint32(40);                                   // inventoryErrorCode???, if exists, default 40
-    data << uint32(action);
     data << uint32(auction ? auction->Id : 0);
+    data << uint32(action);
     data << uint32(errorCode);
+    data << uint32(40);                                   // inventoryErrorCode???, if exists, default 40
+    data << bidderGUID;
 
-    data.WriteBit(1);                                     // bit_1, related to auction error or action
-    data.WriteBit(1);                                     // bit_2, related to auction error or action
-
-    //data.WriteGuidMask<7, 0, 1, 6, 3, 4, 5, 2>(bidderGUID);
-    data.WriteBit(1);                                     // bit_3, related to auction error or action
-    //data.WriteGuidBytes<2, 7, 3, 1, 5, 0, 6, 4>(bidderGUID);
+    data << uint64(0);                                   //MinIncrement
+    data << uint64(0);                                   //Money
 
     SendPacket(&data);
 }
 
 //this function sends notification, if bidder is online
-void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auctionId, ObjectGuid bidder, uint32 bidSum, uint32 diff, uint32 itemEntry)
+void WorldSession::SendAuctionBidderNotification(OpcodeServer opcode, uint32 auctionId, ObjectGuid const& bidder, uint64 bidSum, uint64 diff, WorldPackets::Item::ItemInstance const& item)
 {
-    /*WorldPacket data(SMSG_AUCTION_BIDDER_NOTIFICATION);
-    //data.WriteGuidMask<4, 5, 0, 7, 2, 3, 1, 6>(bidder);
-    //data.WriteGuidBytes<2, 7, 5, 0>(bidder);
-    data << uint32(0);
-    //data.WriteGuidBytes<3>(bidder);
-    data << uint32(location);
+    //SMSG_AUCTION_OUTBID_NOTIFICATION
+    //SMSG_AUCTION_WON_NOTIFICATION
+    WorldPacket data(opcode);
     data << uint32(auctionId);
-    data << uint32(itemEntry);
-    data << uint32(0);
-    //data.WriteGuidBytes<1, 4, 6>(bidder);
-    SendPacket(&data);*/
+    data << bidder;
+    data << item;
+
+    if (opcode == SMSG_AUCTION_OUTBID_NOTIFICATION)
+    {
+        data << bidSum;
+        data << diff;
+    }
+
+    SendPacket(&data);
 }
 
 // this void causes on client to display: "Your auction sold"
-void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
+void WorldSession::SendAuctionOwnerNotification(OpcodeServer opcode, AuctionEntry* auction, WorldPackets::Item::ItemInstance const& item, uint64 profit)
 {
-    WorldPacket data(SMSG_AUCTION_OWNER_NOTIFICATION, 40);
-    data.WriteBit(0);
+    //SMSG_AUCTION_CLOSED_NOTIFICATION
+    //SMSG_AUCTION_OWNER_BID_NOTIFICATION
+    WorldPacket data(opcode, 40);
+    data << uint32(auction ? auction->Id : 0);
     data << uint64(auction ? auction->bid : 0);
-    data << uint32(auction ? auction->Id : 0);                           // unk
-    data << uint32(0);                                     // unk
-    data << float(0);                                      // unk
-    data << uint32(auction ? auction->itemEntry : 0);
-    data << uint32(0);                                     // unk
+    data << item;
+
+    if (opcode == SMSG_AUCTION_CLOSED_NOTIFICATION)
+    {
+        data << float(0.0f);
+        data.WriteBit(0);
+    }else if (opcode == SMSG_AUCTION_OWNER_BID_NOTIFICATION)
+    {
+        ObjectGuid bidderGUID = auction ? ObjectGuid::Create<HighGuid::Player>(auction->bidder) : ObjectGuid::Empty;
+
+        data << profit;
+        data << bidderGUID;
+    }
+
     SendPacket(&data);
 }
 

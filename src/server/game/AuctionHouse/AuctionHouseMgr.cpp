@@ -31,6 +31,7 @@
 #include "Language.h"
 #include "Log.h"
 #include <vector>
+#include "ItemPackets.h"
 
 enum eAuctionHouse
 {
@@ -144,7 +145,10 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
 
         if (bidder)
         {
-            bidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, bidderGuid, 0, 0, auction->itemEntry);
+            WorldPackets::Item::ItemInstance itemInstance;
+            itemInstance << pItem;
+
+            bidder->GetSession()->SendAuctionBidderNotification(SMSG_AUCTION_WON_NOTIFICATION, auction->Id, bidderGuid, 0, 0, itemInstance);
             // FIXME: for offline player need also
             bidder->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS, 1);
         }
@@ -183,7 +187,13 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransa
             owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS, profit);
             owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD, auction->bid);
             //send auction owner notification, bidder must be current!
-            owner->GetSession()->SendAuctionOwnerNotification(auction);
+            Item* pItem = GetAItem(auction->itemGUIDLow);
+            WorldPackets::Item::ItemInstance itemInstance;
+            if(pItem)
+                itemInstance << pItem;
+            else
+                itemInstance.ItemID = auction->itemEntry;
+            owner->GetSession()->SendAuctionOwnerNotification(SMSG_AUCTION_OWNER_BID_NOTIFICATION, auction, itemInstance, profit);
         }
 
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_SUCCESSFUL), AuctionEntry::BuildAuctionMailBody(auction->bidder, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut()))
@@ -212,7 +222,11 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
         trans->Append(stmt);
 
         if (owner)
-            owner->GetSession()->SendAuctionOwnerNotification(auction);
+        {
+            WorldPackets::Item::ItemInstance itemInstance;
+            itemInstance << pItem;
+            owner->GetSession()->SendAuctionOwnerNotification(SMSG_AUCTION_CLOSED_NOTIFICATION, auction, itemInstance);
+        }
 
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_EXPIRED), AuctionEntry::BuildAuctionMailBody(0, 0, auction->buyout, auction->deposit, 0))
             .AddItem(pItem)
@@ -234,7 +248,16 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint64 con
     if (oldBidder || oldBidder_accId)
     {
         if (oldBidder && newBidder)
-            oldBidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, newBidder->GetGUID(), newPrice, auction->GetAuctionOutBid(), auction->itemEntry);
+        {
+            Item* pItem = GetAItem(auction->itemGUIDLow);
+            WorldPackets::Item::ItemInstance itemInstance;
+            if(pItem)
+                itemInstance << pItem;
+            else
+                itemInstance.ItemID = auction->itemEntry;
+
+            oldBidder->GetSession()->SendAuctionBidderNotification(SMSG_AUCTION_OUTBID_NOTIFICATION, auction->Id, newBidder->GetGUID(), newPrice, auction->GetAuctionOutBid(), itemInstance);
+        }
 
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_OUTBIDDED), AuctionEntry::BuildAuctionMailBody(auction->owner, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut()))
             .AddMoney(auction->bid)
@@ -253,7 +276,13 @@ void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQ
         bidder_accId = ObjectMgr::GetPlayerAccountIdByGUID(bidder_guid);
 
     if (bidder)
-        bidder->GetSession()->SendAuctionRemovedNotification(auction->Id, auction->itemEntry, item->GetItemRandomPropertyId());
+    {
+        WorldPackets::Item::ItemInstance itemInstance;
+        itemInstance << item;
+
+        bidder->GetSession()->SendAuctionBidderNotification(SMSG_AUCTION_OUTBID_NOTIFICATION, auction->Id, ObjectGuid::Empty, 0, 0, itemInstance);
+        //bidder->GetSession()->SendAuctionRemovedNotification(auction->Id, auction->itemEntry, item->GetItemRandomPropertyId());
+    }
 
     // bidder exist
     if (bidder || bidder_accId)

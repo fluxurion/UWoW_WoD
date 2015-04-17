@@ -160,6 +160,7 @@ namespace WorldPackets
         class AutoStoreBagItem;
         class TransmogrigyItem;
         class VoidStorageContents;
+        struct ItemInstance;
     }
 
     namespace Loot
@@ -547,8 +548,8 @@ class WorldSession
         //auction
         void SendAuctionHello(ObjectGuid guid, Creature* unit);
         void SendAuctionCommandResult(AuctionEntry* auction, uint32 Action, uint32 ErrorCode, uint32 bidError = 0);
-        void SendAuctionBidderNotification(uint32 location, uint32 auctionId, ObjectGuid bidder, uint32 bidSum, uint32 diff, uint32 item_template);
-        void SendAuctionOwnerNotification(AuctionEntry* auction);
+        void SendAuctionBidderNotification(OpcodeServer opcode, uint32 auctionId, ObjectGuid const& bidder, uint64 bidSum, uint64 diff, WorldPackets::Item::ItemInstance const& item);
+        void SendAuctionOwnerNotification(OpcodeServer opcode, AuctionEntry* auction, WorldPackets::Item::ItemInstance const& item, uint64 profit = 0);
         void SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId);
 
         //Item Enchantment
