@@ -1256,7 +1256,7 @@ enum OpcodeServer : uint32
     SMSG_PET_LEARNED_SPELL                            = 0xBADD,
     SMSG_PET_MODE                                     = 0xBADD,
     SMSG_PET_NAME_INVALID                             = 0x0007,
-    SMSG_PET_NAME_QUERY_RESPONSE                      = 0x0D0E,
+    SMSG_QUERY_PET_NAME_RESPONSE                      = 0x0D0E,
     SMSG_PET_REMOVED_SPELL                            = 0x011B,
     SMSG_PET_RENAMEABLE                               = 0xBADD,
     SMSG_PET_SLOT_UPDATED                             = 0xBADD,

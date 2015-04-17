@@ -732,7 +732,7 @@ void WorldSession::SendPetNameQuery(ObjectGuid const& petguid)
     Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, petguid);
     if (!pet)
     {
-        WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (4+1+4+1));
+        WorldPacket data(SMSG_QUERY_PET_NAME_RESPONSE, (4+1+4+1));
         data << petguid;
         data.WriteBit(0);
         data.FlushBits();
@@ -742,7 +742,7 @@ void WorldSession::SendPetNameQuery(ObjectGuid const& petguid)
 
     std::string name = pet->GetName();
 
-    WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (4+4+name.size()+1));
+    WorldPacket data(SMSG_QUERY_PET_NAME_RESPONSE, (4+4+name.size()+1));
     data << petguid;
     data.WriteBit(pet->isPet() ? 1 : 0);
     data.WriteBits(name.size(), 8);
@@ -763,6 +763,8 @@ void WorldSession::SendPetNameQuery(ObjectGuid const& petguid)
         else
         {
             data.WriteBit(0);   //HasDeclined
+            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+                data.WriteBits(0, 7);
         }
 
         data << uint32(playerPet->GetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP));
