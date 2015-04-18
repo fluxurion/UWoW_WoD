@@ -604,28 +604,25 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recvData)
 }
 
 //called when player lists his bids
+//! 6.0.3
 void WorldSession::HandleAuctionListBidderItems(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_BIDDER_ITEMS");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_BIDDER_ITEMS");
 
     ObjectGuid auctioneerGUID;
     uint32 page;                                            // page of auctions
     uint32 outbiddedCount;                                  // count of outbidded auctions
 
-    recvData >> page;                                       // not used in fact (this list not have page control in client)
-    //recvData.ReadGuidMask<6, 2, 1, 0, 3, 4>(auctioneerGUID);
+    recvData >> auctioneerGUID >> page;                                       // not used in fact (this list not have page control in client)
+
     outbiddedCount = recvData.ReadBits(7);
-    //recvData.ReadGuidMask<7, 5>(auctioneerGUID);
 
     std::vector<uint32> outbiddedAuctionIds;
     for (uint32 i = 0; i < outbiddedCount; i++)
     {
-        uint32 auctionID;
-        recvData >> auctionID;
+        uint32 auctionID = recvData.read<uint32>();
         outbiddedAuctionIds.push_back(auctionID);
     }
-
-    //recvData.ReadGuidBytes<0, 4, 7, 3, 5, 6, 2, 1>(auctioneerGUID);
 
     /*if (recvData.size() != (16 + outbiddedCount * 4))
     {
@@ -647,11 +644,14 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recvData)
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
-    WorldPacket data(SMSG_AUCTION_BIDDER_LIST_RESULT, (4+4+4));
-    Player* player = GetPlayer();
-    data << uint32(0);                                     //add 0 as count
     uint32 count = 0;
     uint32 totalcount = 0;
+
+    WorldPacket data(SMSG_AUCTION_LIST_BIDDER_ITEMS_RESULT, (4+4+4));
+    Player* player = GetPlayer();
+    data << uint32(0);                                     //add 0 as count
+    data << uint32(totalcount);                           // CGAuctionHouse__m_numTotalBid
+    data << uint32(300);                                  // CGAuctionHouse__m_desiredDelayTime
 
     for (uint32 i = 0; i < outbiddedCount; ++i)
     {
@@ -667,23 +667,21 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recvData)
     auctionHouse->BuildListBidderItems(data, _player, count, totalcount);
 
     data.put<uint32>(0, count);                           // add count to placeholder
-    data << uint32(totalcount);                           // CGAuctionHouse__m_numTotalBid
-    data << uint32(300);                                  // CGAuctionHouse__m_desiredDelayTime
+    data.put<uint32>(4, totalcount);
+
     SendPacket(&data);
 }
 
 //this void sends player info about his auctions
+//! 6.0.3
 void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_OWNER_ITEMS");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_OWNER_ITEMS");
 
     ObjectGuid guid;
     uint32 listfrom;
 
-    recvData >> listfrom;                                  // not used in fact (this list not have page control in client)
-
-    //recvData.ReadGuidMask<6, 0, 4, 3, 2, 5, 7, 1>(guid);
-    //recvData.ReadGuidBytes<2, 4, 6, 0, 5, 7, 3, 1>(guid);
+    recvData >> guid >> listfrom;                                  // not used in fact (this list not have page control in client)
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -698,17 +696,19 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recvData)
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
-    WorldPacket data(SMSG_AUCTION_OWNER_LIST_RESULT, (4+4+4));
-    data << uint32(0);                                     // amount place holder
-
     uint32 count = 0;
     uint32 totalcount = 0;
+
+    WorldPacket data(SMSG_AUCTION_LIST_OWNER_ITEMS_RESULT, (4+4+4));
+    data << uint32(0);                                     // amount place holder
+    data << uint32(totalcount);
+    data << uint32(300);                         // CGAuctionHouse__m_desiredDelayTime
 
     auctionHouse->BuildListOwnerItems(data, _player, count, totalcount);
 
     data.put<uint32>(0, count);                  // add count to placeholder
-    data << uint32(totalcount);
-    data << uint32(300);                         // CGAuctionHouse__m_desiredDelayTime
+    data.put<uint32>(4, totalcount);
+
     SendPacket(&data);
 }
 
