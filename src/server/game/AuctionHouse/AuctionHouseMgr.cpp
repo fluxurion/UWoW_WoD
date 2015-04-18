@@ -549,7 +549,7 @@ void AuctionHouseObject::BuildListOwnerItems(WorldPacket& data, Player* player, 
 
 void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player,
     std::wstring const& wsearchedname, uint32 page, uint8 levelmin, uint8 levelmax, uint8 canUse,
-    uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
+    int32 inventoryType, int32 itemClass, int32 itemSubClass, int32 quality,
     uint32& count, uint32& totalcount)
 {
     int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
@@ -564,17 +564,16 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 
         ItemTemplate const* proto = item->GetTemplate();
 
-        // 0xFFFFFFFF = -1
-        if (itemClass != 0xFFFFFFFF && proto->Class != itemClass)
+        if (itemClass != -1 && proto->Class != itemClass)
             continue;
 
-        if (itemSubClass != 0xFFFFFFFF && proto->SubClass != itemSubClass)
+        if (itemSubClass != -1 && proto->SubClass != itemSubClass)
             continue;
 
-        if (inventoryType != 0xFFFFFFFF && proto->GetInventoryType() != inventoryType)
+        if (inventoryType != -1 && proto->GetInventoryType() != inventoryType)
             continue;
 
-        if (quality != 0xFFFFFFFF && proto->Quality != quality)
+        if (quality != -1 && proto->Quality != quality)
             continue;
 
         if (levelmin != 0 && (proto->RequiredLevel < levelmin || (levelmax != 0 && proto->RequiredLevel > levelmax)))

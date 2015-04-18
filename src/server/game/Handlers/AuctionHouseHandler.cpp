@@ -96,12 +96,12 @@ void WorldSession::SendAuctionCommandResult(AuctionEntry* auction, uint32 action
 }
 
 //this function sends notification, if bidder is online
-void WorldSession::SendAuctionBidderNotification(OpcodeServer opcode, uint32 auctionId, ObjectGuid const& bidder, uint64 bidSum, uint64 diff, WorldPackets::Item::ItemInstance const& item)
+void WorldSession::SendAuctionBidderNotification(OpcodeServer opcode, uint32 bidID, ObjectGuid const& bidder, uint64 bidSum, uint64 diff, WorldPackets::Item::ItemInstance const& item)
 {
     //SMSG_AUCTION_OUTBID_NOTIFICATION
     //SMSG_AUCTION_WON_NOTIFICATION
     WorldPacket data(opcode);
-    data << uint32(auctionId);
+    data << uint32(bidID);
     data << bidder;
     data << item;
 
@@ -140,6 +140,7 @@ void WorldSession::SendAuctionOwnerNotification(OpcodeServer opcode, AuctionEntr
     SendPacket(&data);
 }
 
+//! DEPR remove it
 void WorldSession::SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId)
 {
     WorldPacket data(SMSG_AUCTION_REMOVED_NOTIFICATION, (4+4+4));
@@ -715,16 +716,15 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recvData)
 //! 6.0.3
 void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_ITEMS");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_ITEMS");
 
     ObjectGuid guid;
     std::string searchedname;
-    uint8 levelmin, levelmax, canUse, auctionId;
-    uint32 page, classIndex, subClassIndex, invTypeIndex, quality;
+    uint8 levelmin, levelmax, canUse;
+    int32 page, classIndex, subClassIndex, invTypeIndex, quality;
 
     recvData >> page;
     recvData >> guid;
-    recvData >> auctionId;
 
     recvData >> levelmin;
     recvData >> levelmax;
