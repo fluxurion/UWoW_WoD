@@ -63,6 +63,7 @@
 #include "SpellPackets.h"
 #include "WhoPackets.h"
 #include "SocialPackets.h"
+#include "ItemPackets.h"
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet)
 {
@@ -1413,17 +1414,18 @@ void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
     //sLog->outDebug("response sent %u", unk);
 }
 
+//! 6.0.3
 void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REALM_QUERY_NAME");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REALM_QUERY_NAME");
 
     uint32 realmId = recvData.read<uint32>();
 
     WorldPacket data(SMSG_REALM_QUERY_RESPONSE, 10 + 10 + 1 + 1 + 1 + 4);
     if (realmId != realmHandle.Index)  // Cheater ?
     {
-        data << uint8(1);
         data << uint32(realmId);
+        data << uint8(1);
         SendPacket(&data);
         return;
     }
@@ -1431,19 +1433,23 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
     std::string realmName = sWorld->GetRealmName();
     std::string trimmedName = sWorld->GetTrimmedRealmName();
 
-    data << uint8(0); // ok, realmId exist server-side
     data << uint32(realmId);
+    data << uint8(0);   // ok, realmId exist server-side
+
+    data.WriteBit(0);   // IsLocal
+    data.WriteBit(0);
+
     data.WriteBits(realmName.size(), 8);
-    data.WriteBit(1); // unk, if it's main realm ?
     data.WriteBits(trimmedName.size(), 8);
     data.WriteString(realmName);
     data.WriteString(trimmedName);
     SendPacket(&data);
 }
 
+//! 6.0.3
 void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_FAR_SIGHT");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_FAR_SIGHT");
 
     bool apply = recvData.ReadBit();
     if (!apply)
@@ -1463,9 +1469,10 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
     GetPlayer()->UpdateVisibilityForPlayer();
 }
 
+//! 6.0.3
 void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_TITLE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_TITLE");
 
     int32 title;
     recvData >> title;
@@ -1482,6 +1489,7 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
     GetPlayer()->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, title);
 }
 
+//! 6.0.3
 void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_TIME_SYNC_RESPONSE");
