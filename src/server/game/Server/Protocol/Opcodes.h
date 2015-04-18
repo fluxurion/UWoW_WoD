@@ -306,8 +306,9 @@ enum OpcodeClient : uint32
     CMSG_HEARTH_AND_RESURRECT                         = 0xBADD,
     CMSG_IGNORE_TRADE                                 = 0xBADD,
     CMSG_INITIATE_TRADE                               = 0xBADD,
-    CMSG_INSPECT                                      = 0xBADD,
-    CMSG_INSPECT_HONOR_STATS                          = 0xBADD,
+    CMSG_INSPECT                                      = 0x01EC,
+    CMSG_INSPECT_PVP                                  = 0x0382,
+    CMSG_REQUEST_HONOR_STATS                          = 0x09FD,
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE               = 0xBADD,
     CMSG_ITEM_PURCHASE_REFUND                         = 0x1111,
     CMSG_GET_ITEM_PURCHASE_DATA                       = 0x0924,
@@ -511,7 +512,6 @@ enum OpcodeClient : uint32
     CMSG_REQUEST_ACCOUNT_DATA                         = 0x0F3E,
     CMSG_REQUEST_CATEGORY_COOLDOWNS                   = 0xBADD,
     CMSG_REQUEST_CEMETERY_LIST                        = 0x10A2,
-    CMSG_REQUEST_INSPECT_RATED_BG_STATS               = 0xBADD,
     CMSG_REQUEST_FORCED_REACTIONS                     = 0x02C3,
     CMSG_REQUEST_PARTY_MEMBER_STATS                   = 0x031D,
     CMSG_REQUEST_PET_INFO                             = 0xBADD,
@@ -1074,13 +1074,13 @@ enum OpcodeServer : uint32
     SMSG_INITIALIZE_FACTIONS                          = 0x0B10,
     SMSG_INITIAL_SETUP                                = 0x0B07,
     SMSG_INITIAL_SPELLS                               = 0x0A81,
-    SMSG_SETUP_CURRENCY                                = 0x0B06,
+    SMSG_SETUP_CURRENCY                               = 0x0B06,
     SMSG_INIT_WORLD_STATES                            = 0x0B04,
     SMSG_INSPECT                                      = 0xBADD,
-    SMSG_INSPECT_HONOR_STATS                          = 0xBADD,
+    SMSG_INSPECT_HONOR_STATS                          = 0x02D3,
     SMSG_INSPECT_RATED_BG_STATS                       = 0xBADD,
     SMSG_INSPECT_RESULTS_UPDATE                       = 0xBADD,
-    SMSG_INSPECT_TALENT                               = 0xBADD,
+    SMSG_INSPECT_RESULT                               = 0x052E,
     SMSG_INSTANCE_INFO                                = 0x0DA0,
     SMSG_INSTANCE_LOCK_WARNING_QUERY                  = 0xBADD,
     SMSG_INSTANCE_RESET                               = 0x0B16,
@@ -1556,6 +1556,7 @@ enum OpcodeServer : uint32
     SMSG_CONQUEST_FORMULA_CONSTANTS                   = 0x1342,
     SMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x1BE9,
     SMSG_QUEST_PUSH_RESULT                            = 0x1797,
+    SMSG_INSPECT_PVP                                  = 0x050A,
 
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
@@ -1609,7 +1610,6 @@ enum OpcodeServer : uint32
     SMSG_PLAYER_RECIPES                               = 0xBADD, // 5.4.1 17538
     SMSG_PURCHASE_STORE_PRODUCTS_UPDATED              = 0xBADD, // 5.4.1 17538
     SMSG_PURCHASE_STORE_PURCHASE_LIST_UPDATED         = 0xBADD, // 5.4.1 17538
-    SMSG_PVP_BRACKET_DATA                             = 0xBADD, // 5.4.1 17538
     SMSG_SERVER_SCENE_PLAYBACK                        = 0xBADD, // 5.4.1 17538
     SMSG_SETUP_RESEARCH_HISTORY                       = 0xBADD,      // Not found in TC
     SMSG_SET_PET_SPECIALIZATION                       = 0x08D6, // 6.0.3
