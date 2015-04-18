@@ -1187,7 +1187,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     {
         data << guild->GetGUID();
         data << uint32(guild->GetMembersCount());
-        data << uint32(0);                              //GuildAchievementPoints
+        data << uint32(guild->GetAchievementPoints());
     }
 
     SendPacket(&data);
@@ -1515,9 +1515,10 @@ void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& pack
     _player->m_timeSyncQueue.pop();
 }
 
+//! 6.0.3
 void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_RESET_INSTANCES");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_RESET_INSTANCES");
 
     if (Group* group = _player->GetGroup())
     {
@@ -1699,9 +1700,10 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
     }
 }
 
+//! 6.0.3
 void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CANCEL_MOUNT_AURA");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CANCEL_MOUNT_AURA");
 
     //If player is not mounted, so go out :)
     if (!_player->IsMounted())                              // not blizz like; no any messages on blizz
@@ -1735,6 +1737,7 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Client used \"/timetest %d\" command", mode);
 }
 
+//! 6.0.3
 void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
 {
     ObjectGuid guid;

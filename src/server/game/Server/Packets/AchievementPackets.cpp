@@ -17,12 +17,12 @@
 
 #include "AchievementPackets.h"
 
-WorldPacket const* WorldPackets::Achievement::AllAchievements::Write()
+ByteBuffer& operator<<(ByteBuffer& _worldPacket, WorldPackets::Achievement::AllAchievements const& achieve)
 {
-    _worldPacket << uint32(Earned.size());
-    _worldPacket << uint32(Progress.size());
+    _worldPacket << uint32(achieve.Earned.size());
+    _worldPacket << uint32(achieve.Progress.size());
 
-    for (EarnedAchievement const& earned : Earned)
+    for (WorldPackets::Achievement::EarnedAchievement const& earned : achieve.Earned)
     {
         _worldPacket << uint32(earned.Id);
         _worldPacket.AppendPackedTime(earned.Date);
@@ -31,7 +31,7 @@ WorldPacket const* WorldPackets::Achievement::AllAchievements::Write()
         _worldPacket << uint32(earned.NativeRealmAddress);
     }
 
-    for (CriteriaProgress const& progress : Progress)
+    for (WorldPackets::Achievement::CriteriaProgress const& progress : achieve.Progress)
     {
         _worldPacket << uint32(progress.Id);
         _worldPacket << uint64(progress.Quantity);
@@ -43,6 +43,12 @@ WorldPacket const* WorldPackets::Achievement::AllAchievements::Write()
         _worldPacket.FlushBits();
     }
 
+    return _worldPacket;
+}
+
+WorldPacket const* WorldPackets::Achievement::AllAchievements::Write()
+{
+    _worldPacket << *this;
     return &_worldPacket;
 }
 
