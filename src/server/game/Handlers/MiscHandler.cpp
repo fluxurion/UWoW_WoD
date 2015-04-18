@@ -1135,7 +1135,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         uint32 enchantmentCount = 0;
 
         data << itemCreator;
-        data << item;
+        data << itemInstance;
         data << uint8(i);
 
         size_t entPos = data.wpos();
@@ -1182,7 +1182,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     }
     data.put<uint32>(talentPos, talentCount);
 
-    data.WriteBit(guild);
+    data.WriteBit(bool(guild));
     if (guild)
     {
         data << guild->GetGUID();
