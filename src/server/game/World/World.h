@@ -990,7 +990,7 @@ class World
 
         std::list<std::string> m_Autobroadcasts;
 
-        std::map<uint32, CharacterInfo> _characterNameDataMap;
+        std::map<ObjectGuid::LowType, CharacterInfo> _characterNameDataMap;
         void LoadCharacterNameData();
 
         std::map<std::string, bool> nameMap;

@@ -3524,7 +3524,7 @@ void World::LoadCharacterNameData()
     do
     {
         Field* fields = result->Fetch();
-        AddCharacterNameData(fields[0].GetUInt32(), fields[1].GetString(),
+        AddCharacterNameData(fields[0].GetUInt64(), fields[1].GetString(),
             fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/, fields[5].GetUInt8() /*level*/);
         ++count;
     } while (result->NextRow());
@@ -3544,7 +3544,7 @@ void World::AddCharacterNameData(ObjectGuid::LowType guid, std::string const& na
 
 void World::UpdateCharacterNameData(ObjectGuid::LowType guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
 {
-    std::map<uint32, CharacterInfo>::iterator itr = _characterNameDataMap.find(guid);
+    std::map<ObjectGuid::LowType, CharacterInfo>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
         return;
 
@@ -3559,7 +3559,7 @@ void World::UpdateCharacterNameData(ObjectGuid::LowType guid, std::string const&
 
 void World::UpdateCharacterNameDataLevel(ObjectGuid::LowType guid, uint8 level)
 {
-    std::map<uint32, CharacterInfo>::iterator itr = _characterNameDataMap.find(guid);
+    std::map<ObjectGuid::LowType, CharacterInfo>::iterator itr = _characterNameDataMap.find(guid);
     if (itr == _characterNameDataMap.end())
         return;
 
@@ -3568,7 +3568,7 @@ void World::UpdateCharacterNameDataLevel(ObjectGuid::LowType guid, uint8 level)
 
 CharacterInfo const* World::GetCharacterInfo(ObjectGuid const& guid) const
 {
-    std::map<uint32, CharacterInfo>::const_iterator itr = _characterNameDataMap.find(guid.GetCounter());
+    std::map<ObjectGuid::LowType, CharacterInfo>::const_iterator itr = _characterNameDataMap.find(guid.GetCounter());
     if (itr != _characterNameDataMap.end())
         return &itr->second;
     else
