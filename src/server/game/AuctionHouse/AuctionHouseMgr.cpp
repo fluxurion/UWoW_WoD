@@ -193,7 +193,7 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransa
                 itemInstance << pItem;
             else
                 itemInstance.ItemID = auction->itemEntry;
-            owner->GetSession()->SendAuctionOwnerNotification(SMSG_AUCTION_OWNER_BID_NOTIFICATION, auction, itemInstance, profit);
+            owner->GetSession()->SendAuctionOwnerNotification(SMSG_AUCTION_CLOSED_NOTIFICATION, auction, itemInstance, true);
         }
 
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_SUCCESSFUL), AuctionEntry::BuildAuctionMailBody(auction->bidder, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut()))
@@ -666,6 +666,9 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& data) const
     data << uint64(bid ? GetAuctionOutBid() : 0);
     data << uint64(buyout);                                         // Auction->buyout
 
+    data << uint32((expire_time - time(NULL)) * IN_MILLISECONDS);   // time left
+    data << uint8(0);                                               // DeleteReason
+
     uint32 entchantcount = 0;
     for (uint8 i = 0; i < PROP_ENCHANTMENT_SLOT_0; ++i) // PROP_ENCHANTMENT_SLOT_0 = 8
     {
@@ -680,16 +683,21 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& data) const
     }
     data.put<uint32>(countPos, entchantcount);
     
-    data.WriteBit(1);
-    data.WriteBit(1);
+    bool bit141 = false;
+    bool bit142 = true;
 
+    data.WriteBit(!bit141);
+    data.WriteBit(!bit142);
+
+    if (bit141)
     {
         data << item->GetGUID();
-        data << ObjectGuid::Empty;          //OwnerAccountID
-        data << uint32((expire_time - time(NULL)) * IN_MILLISECONDS);   // time left
+        data << ObjectGuid::Empty;                                      // OwnerAccountID
+        data << uint32(0);                                              // EndTime
 
     }
 
+    if (bit142)
     {
         data << ObjectGuid::Create<HighGuid::Player>(bidder);           // auction->bidder current
         data << uint64(bid);                                            // current bid

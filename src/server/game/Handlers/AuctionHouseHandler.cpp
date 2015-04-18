@@ -29,6 +29,7 @@
 #include "Util.h"
 #include "AccountMgr.h"
 #include "ItemPackets.h"
+#include "MailPackets.h"
 
 //please DO NOT use iterator++, because it is slower than ++iterator!!!
 //post-incrementation is always slower than pre-incrementation !
@@ -116,7 +117,7 @@ void WorldSession::SendAuctionBidderNotification(OpcodeServer opcode, uint32 bid
 
 // this void causes on client to display: "Your auction sold"
 //! 6.0.3
-void WorldSession::SendAuctionOwnerNotification(OpcodeServer opcode, AuctionEntry* auction, WorldPackets::Item::ItemInstance const& item, uint64 profit)
+void WorldSession::SendAuctionOwnerNotification(OpcodeServer opcode, AuctionEntry* auction, WorldPackets::Item::ItemInstance const& item, bool sell)
 {
     //SMSG_AUCTION_CLOSED_NOTIFICATION
     //SMSG_AUCTION_OWNER_BID_NOTIFICATION
@@ -127,13 +128,13 @@ void WorldSession::SendAuctionOwnerNotification(OpcodeServer opcode, AuctionEntr
 
     if (opcode == SMSG_AUCTION_CLOSED_NOTIFICATION)
     {
-        data << float(0.0f);
-        data.WriteBit(0);
+        data << float(3600.0f);
+        data.WriteBit(sell);
     }else if (opcode == SMSG_AUCTION_OWNER_BID_NOTIFICATION)
     {
         ObjectGuid bidderGUID = auction ? ObjectGuid::Create<HighGuid::Player>(auction->bidder) : ObjectGuid::Empty;
 
-        data << profit;
+        data << uint64(auction ? auction->GetAuctionOutBid() : 0);
         data << bidderGUID;
     }
 
@@ -398,17 +399,15 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
 }
 
 // this function is called when client bids or buys out auction
+//! 6.0.3
 void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_PLACE_BID");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_PLACE_BID");
 
     ObjectGuid auctioneerGUID;
     uint32 auctionId;
     uint64 price;
-    recvData >> price;
-    recvData >> auctionId;
-    //recvData.ReadGuidMask<2, 1, 0, 7, 5, 4, 3, 6>(auctioneerGUID);
-    //recvData.ReadGuidBytes<0, 5, 4, 6, 1, 2, 7, 3>(auctioneerGUID);
+    recvData >> auctioneerGUID >> auctionId >> price;
 
     if (!auctionId || !price)
         return;                                             // check for cheaters
@@ -528,15 +527,14 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
 }
 
 //this void is called when auction_owner cancels his auction
+//! 6.0.3
 void WorldSession::HandleAuctionRemoveItem(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_REMOVE_ITEM");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_REMOVE_ITEM");
 
     ObjectGuid auctioneerGUID;
     uint32 auctionId;
-    recvData >> auctionId;
-    //recvData.ReadGuidMask<0, 1, 4, 7, 2, 3, 5, 6>(auctioneerGUID);
-    //recvData.ReadGuidBytes<1, 5, 3, 4, 2, 6, 7, 0>(auctioneerGUID);
+    recvData >> auctioneerGUID >> auctionId;
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneerGUID, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -794,17 +792,29 @@ void WorldSession::HandleAuctionListPendingSales(WorldPacket & recvData)
 {
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_PENDING_SALES");
     uint32 count = 0;
+    time_t cur_time = time(nullptr);
 
-    WorldPacket data(SMSG_AUCTION_LIST_PENDING_SALES_RESULT, 4);
+    WorldPacket data(SMSG_AUCTION_LIST_PENDING_SALES_RESULT, 100);
     data << uint32(count);                                  // count
     data << uint32(0);
-    /*for (uint32 i = 0; i < count; ++i)
+
+    for (PlayerMails::iterator itr = _player->GetMailBegin(); itr != _player->GetMailEnd(); ++itr)
     {
-        data << "";                                         // string
-        data << "";                                         // string
-        data << uint64(0);
-        data << uint32(0);
-        data << float(0);
-    }*/
+        // skip deleted or not delivered (deliver delay not expired) mails
+        if ((*itr)->state == MAIL_STATE_DELETED || (*itr)->messageType == MAIL_AUCTION)
+            continue;
+
+        ++count;
+        if (count < 50)
+        {
+            WorldPackets::Mail::MailListEntry mEntry = WorldPackets::Mail::MailListEntry(*itr, _player);
+            data << mEntry;
+        }
+
+        break;
+    }
+    data.put<uint32>(0, count < 50 ? count : 50);
+    data.put<uint32>(4, count);
+
     SendPacket(&data);
 }
