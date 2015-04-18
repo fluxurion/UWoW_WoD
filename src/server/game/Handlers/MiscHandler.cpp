@@ -1187,7 +1187,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     {
         data << guild->GetGUID();
         data << uint32(guild->GetMembersCount());
-        data << uint32(guild->GetAchievementPoints());
+        data << uint32(guild->GetAchievementMgr().GetAchievementPoints());
     }
 
     SendPacket(&data);

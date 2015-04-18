@@ -17,6 +17,19 @@
 
 #include "AchievementPackets.h"
 
+ByteBuffer& operator<<(ByteBuffer& _worldPacket, WorldPackets::Achievement::CriteriaProgress const& progress)
+{
+    _worldPacket << uint32(progress.Id);
+    _worldPacket << uint64(progress.Quantity);
+    _worldPacket << progress.Player;
+    _worldPacket.AppendPackedTime(progress.Date);
+    _worldPacket << uint32(progress.TimeFromStart);
+    _worldPacket << uint32(progress.TimeFromCreate);
+    _worldPacket.WriteBits(progress.Flags, 4);
+    _worldPacket.FlushBits();
+    return _worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& _worldPacket, WorldPackets::Achievement::AllAchievements const& achieve)
 {
     _worldPacket << uint32(achieve.Earned.size());
@@ -32,16 +45,7 @@ ByteBuffer& operator<<(ByteBuffer& _worldPacket, WorldPackets::Achievement::AllA
     }
 
     for (WorldPackets::Achievement::CriteriaProgress const& progress : achieve.Progress)
-    {
-        _worldPacket << uint32(progress.Id);
-        _worldPacket << uint64(progress.Quantity);
-        _worldPacket << progress.Player;
-        _worldPacket.AppendPackedTime(progress.Date);
-        _worldPacket << uint32(progress.TimeFromStart);
-        _worldPacket << uint32(progress.TimeFromCreate);
-        _worldPacket.WriteBits(progress.Flags, 4);
-        _worldPacket.FlushBits();
-    }
+        _worldPacket << progress;
 
     return _worldPacket;
 }

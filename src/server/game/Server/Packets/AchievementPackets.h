@@ -91,5 +91,6 @@ namespace WorldPackets
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::AllAchievements const& achieve);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::CriteriaProgress const& achieve);
 
 #endif // game_AchievementPackets_h__
