@@ -124,10 +124,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHi
 
 bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* player /*= nullptr*/)
 {
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
-    if (!characterInfo)
-        return false;
-
     if (player)
     {
         ASSERT(player->GetGUID() == guid);
@@ -142,9 +138,15 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
 
         if (DeclinedName const* names = player->GetDeclinedNames())
             DeclinedNames = *names;
+
+        IsDeleted = false;
     }
     else
     {
+        CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
+        if (!characterInfo)
+            return false;
+
         uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(guid);
         uint32 bnetAccountId = Battlenet::AccountMgr::GetIdByGameAccount(accountId);
 
@@ -155,9 +157,10 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
         Sex           = characterInfo->Sex;
         ClassID       = characterInfo->Class;
         Level         = characterInfo->Level;
+
+        IsDeleted = characterInfo->IsDeleted;
     }
 
-    IsDeleted = characterInfo->IsDeleted;
     GuidActual = guid;
     VirtualRealmAddress = GetVirtualRealmAddress();
 
