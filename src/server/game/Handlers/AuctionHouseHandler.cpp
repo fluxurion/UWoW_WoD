@@ -115,6 +115,7 @@ void WorldSession::SendAuctionBidderNotification(OpcodeServer opcode, uint32 auc
 }
 
 // this void causes on client to display: "Your auction sold"
+//! 6.0.3
 void WorldSession::SendAuctionOwnerNotification(OpcodeServer opcode, AuctionEntry* auction, WorldPackets::Item::ItemInstance const& item, uint64 profit)
 {
     //SMSG_AUCTION_CLOSED_NOTIFICATION
@@ -149,20 +150,21 @@ void WorldSession::SendAuctionRemovedNotification(uint32 auctionId, uint32 itemE
 }
 
 //this void creates new auction and adds auction to some auctionhouse
+//! 6.0.3
 void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
 {
     ObjectGuid auctioneerGUID;
     uint64 bid, buyout;
     uint32 itemsCount, etime;
 
-    recvData >> buyout;
-    recvData >> bid;
-    recvData >> etime;
+    recvData >> auctioneerGUID
+             >> bid
+             >> buyout
+             >> etime;
 
     if (!bid || !etime)
         return;
 
-    //recvData.ReadGuidMask<5, 0, 1, 4, 3, 6>(auctioneerGUID);
     itemsCount = recvData.ReadBits(5);
 
     ObjectGuid itemGUIDs[MAX_AUCTION_ITEMS]; // 160 slot = 4x 36 slot bag + backpack 16 slot
@@ -175,22 +177,12 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
     }
 
     for (uint32 i = 0; i < itemsCount; ++i)
-        //recvData.ReadGuidMask<7, 0, 5, 1, 4, 6, 3, 2>(itemGUIDs[i]);
-
-    //recvData.ReadGuidMask<2, 7>(auctioneerGUID);
-    //recvData.ReadGuidBytes<6>(auctioneerGUID);
-
-    for (uint32 i = 0; i < itemsCount; ++i)
     {
-        //recvData.ReadGuidBytes<0, 5, 6, 3, 1, 7>(itemGUIDs[i]);
-        recvData >> stackCount[i];
-        //recvData.ReadGuidBytes<2, 4>(itemGUIDs[i]);
+        recvData >> itemGUIDs[i] >> stackCount[i];
 
         if (!itemGUIDs[i] || !stackCount[i] || stackCount[i] > 1000 )
             return;
-    }
-    
-    //recvData.ReadGuidBytes<7, 5, 3, 4, 0, 2, 1>(auctioneerGUID);
+    }    
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneerGUID, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -720,6 +712,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recvData)
 }
 
 //this void is called when player clicks on search button
+//! 6.0.3
 void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_ITEMS");
