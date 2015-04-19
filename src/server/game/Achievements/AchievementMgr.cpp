@@ -1425,9 +1425,9 @@ void AchievementMgr<Guild>::SendCriteriaUpdate(CriteriaEntry const* entry, Crite
     //for (int i = 0; i < int16; i++)
     {
         data << uint32(entry->ID);
-        data << uint32(secsToTimeBitFields(progress->date));
-        data << uint32(secsToTimeBitFields(progress->date));
-        data << uint32(::time(NULL) - progress->date);
+        data << uint32(progress->date);
+        data << uint32(progress->date);
+        data.AppendPackedTime(::time(NULL) - progress->date);
         data << uint64(progress->counter);
         data << guid;
         data << uint32(0);                      // flags?
@@ -2865,18 +2865,19 @@ void AchievementMgr<ScenarioProgress>::SendAllAchievementData(Player* receiver)
     // not needed
 }
 
+//! 6.0.3
 template<>
 void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
 {
-    WorldPacket data(SMSG_GUILD_ACHIEVEMENT_DATA, m_completedAchievements.size() * (4 + 4) + 3);
-    data.WriteBits(m_completedAchievements.size(), 20);
-    for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
-        data.WriteBits(0, 8);
+    WorldPacket data(SMSG_ALL_GUILD_ACHIEVEMENTS, m_completedAchievements.size() * (4 + 4) + 3);
+    data << uint32(m_completedAchievements.size());
+
     for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
-        data << uint32(secsToTimeBitFields(itr->second.date));
-        data << uint32(realmHandle.Index);                                     // VirtualRealmAddress / NativeRealmAddress
         data << uint32(itr->first);
+        data.AppendPackedTime(itr->second.date);
+        data << GetOwner()->GetGUID();
+        data << uint32(realmHandle.Index);                                     // VirtualRealmAddress / NativeRealmAddress
         data << uint32(realmHandle.Index);                                     // VirtualRealmAddress / NativeRealmAddress
     }
 
@@ -2989,6 +2990,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
     receiver->GetSession()->SendPacket(&data);
 }
 
+//! 6.0.3
 template<>
 void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achievementId /*= 0*/)
 {
@@ -3002,16 +3004,15 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
     {
         // send empty packet
         WorldPacket data(SMSG_GUILD_CRITERIA_UPDATE, 3);
-        data.WriteBits(0, 19);
+        data << uint32(0);
         receiver->GetSession()->SendPacket(&data);
         return;
     }
 
     uint32 numCriteria = 0;
-    ByteBuffer criteriaData(cTree->size() * (8 + 8 + 4 + 4 + 4));
 
     WorldPacket data(SMSG_GUILD_CRITERIA_UPDATE, 3 + cTree->size());
-    data.WriteBits(numCriteria, 19);
+    data << uint32(numCriteria);
 
     for (std::list<uint32>::const_iterator itr = cTree->begin(); itr != cTree->end(); ++itr)
     {
@@ -3022,51 +3023,16 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
 
         ++numCriteria;
 
-        //ObjectGuid counter = progress->counter;
-        ObjectGuid guid = progress->CompletedGUID;
-
-        /*data.WriteGuidMask<4, 2, 6>(counter);
-        //data.WriteGuidMask<1, 5>(guid);
-        //data.WriteGuidMask<3>(counter);
-        //data.WriteGuidMask<2>(guid);
-        //data.WriteGuidMask<0, 5>(counter);
-        //data.WriteGuidMask<3>(guid);
-        //data.WriteGuidMask<1>(counter);
-        //data.WriteGuidMask<7>(guid);
-        //data.WriteGuidMask<7>(counter);
-        //data.WriteGuidMask<0, 6, 4>(guid);
-
-        criteriaData.WriteGuidBytes<0>(guid);
-        criteriaData << uint32(secsToTimeBitFields(progress->date));
-        criteriaData.WriteGuidBytes<2>(counter);
-        criteriaData.WriteGuidBytes<1>(guid);
-        criteriaData << uint32(0);                      // flags?
-        criteriaData.WriteGuidBytes<7, 6>(guid);
-        criteriaData.WriteGuidBytes<0>(counter);
-        criteriaData << uint32(secsToTimeBitFields(progress->date)); // DateUpdated
-        criteriaData.WriteGuidBytes<2>(guid);
-        criteriaData.WriteGuidBytes<1>(counter);
-        criteriaData << uint32(0);                      // Flags
-        criteriaData.WriteGuidBytes<7, 6>(counter);
-        criteriaData.WriteGuidBytes<0>(guid);
-        criteriaData << uint32(progress->date);         // DateStarted / DateCreated
-        criteriaData.WriteGuidBytes<6, 7>(guid);
-        criteriaData.WriteGuidBytes<4>(counter);
-        criteriaData.WriteGuidBytes<5>(guid);
-        criteriaData << uint32(criteriaTree->criteria);
-        criteriaData.WriteGuidBytes<4, 1>(guid);
-        criteriaData << uint32(::time(NULL) - progress->date); // DateStarted / DateCreated
-        criteriaData.WriteGuidBytes<5, 2>(counter);
-        criteriaData.WriteGuidBytes<3>(guid);*/
-        criteriaData.WriteGuidBytes<3>(numCriteria);
+        data << uint32(criteriaTree->criteria);
+        data << uint32(progress->date);                       // DateCreated
+        data << uint32(progress->date);                       // DateStarted
+        data.AppendPackedTime(::time(NULL) - progress->date); // DateUpdated
+        data << uint64(progress->counter);
+        data << progress->CompletedGUID;
+        data << uint32(0);                                     // flags?
     }
 
-    data.FlushBits();
-
-    if (!criteriaData.empty())
-        data.append(criteriaData);
-
-    data.PutBits(0, numCriteria, 19);
+    data.put(0, numCriteria);
 
     receiver->GetSession()->SendPacket(&data);
 }

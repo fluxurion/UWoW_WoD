@@ -1012,7 +1012,7 @@ enum OpcodeServer : uint32
     SMSG_GROUP_SET_LEADER                             = 0xBADD,
     SMSG_GROUP_SET_ROLE                               = 0xBADD,
     SMSG_GROUP_UNINVITE                               = 0x0110,
-    SMSG_GUILD_ACHIEVEMENT_DATA                       = 0x1866,
+    SMSG_ALL_GUILD_ACHIEVEMENTS                       = 0x1866,
     SMSG_GUILD_ACHIEVEMENT_DELETED                    = 0xBADD,
     SMSG_GUILD_ACHIEVEMENT_EARNED                     = 0xBADD,
     SMSG_GUILD_ACHIEVEMENT_MEMBERS                    = 0xBADD,
