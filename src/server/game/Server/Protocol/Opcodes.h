@@ -541,7 +541,7 @@ enum OpcodeClient : uint32
     CMSG_SERVERTIME                                   = 0xBADD,
     CMSG_SETDEATHBINDPOINT                            = 0xBADD,
     CMSG_SETSHEATHED                                  = 0x1B43,
-    CMSG_SET_ACTIONBAR_TOGGLES                        = 0xBADD,
+    CMSG_SET_ACTIONBAR_TOGGLES                        = 0x0BD2,
     CMSG_SET_ACTION_BUTTON                            = 0x0599,
     CMSG_SET_ACTIVE_MOVER                             = 0x0971,
     CMSG_SET_ACTIVE_VOICE_CHANNEL                     = 0x031E,
