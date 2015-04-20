@@ -174,14 +174,14 @@ void DB2Utilities::WriteBroadcastTextDbReply(DB2Storage<BroadcastTextEntry> cons
     if(pGossip)
     {
         Text_0 = pGossip->Options[0].Text_0;
-        Text_1 = pGossip->Options[0].Text_1;
+        Text_1 = pGossip->Options[1].Text_1;
         
         if (locale >= 0)
         {
             if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(localeEntry))
             {
                 ObjectMgr::GetLocaleString(nl->Text_0[0], locale, Text_0);
-                ObjectMgr::GetLocaleString(nl->Text_1[0], locale, Text_1);
+                ObjectMgr::GetLocaleString(nl->Text_1[1], locale, Text_1);
             }
         }
     }
