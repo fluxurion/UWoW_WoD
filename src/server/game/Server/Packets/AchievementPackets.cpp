@@ -17,7 +17,7 @@
 
 #include "AchievementPackets.h"
 
-ByteBuffer& operator<<(ByteBuffer& _worldPacket, WorldPackets::Achievement::CriteriaProgress const& progress)
+ByteBuffer& operator<<(ByteBuffer& _worldPacket, WorldPackets::Achievement::CriteriaTreeProgress const& progress)
 {
     _worldPacket << uint32(progress.Id);
     _worldPacket << uint64(progress.Quantity);
@@ -44,7 +44,7 @@ ByteBuffer& operator<<(ByteBuffer& _worldPacket, WorldPackets::Achievement::AllA
         _worldPacket << uint32(earned.NativeRealmAddress);
     }
 
-    for (WorldPackets::Achievement::CriteriaProgress const& progress : achieve.Progress)
+    for (WorldPackets::Achievement::CriteriaTreeProgress const& progress : achieve.Progress)
         _worldPacket << progress;
 
     return _worldPacket;

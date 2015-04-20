@@ -108,7 +108,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_CHARACTER_SPELLCOOLDOWNS, "SELECT spell, item, time FROM character_spell_cooldown WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_DECLINEDNAMES, "SELECT genitive, dative, accusative, instrumental, prepositional FROM character_declinedname WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_GUILD_MEMBER, "SELECT guildid, rank FROM guild_member WHERE guid = ?", CONNECTION_BOTH);
-    PrepareStatement(CHAR_SEL_CHARACTER_ACHIEVEMENTS, "SELECT achievement FROM character_achievement WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHARACTER_ACHIEVEMENTS, "SELECT achievement, date FROM character_achievement WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_ACCOUNT_ACHIEVEMENTS, "SELECT first_guid, achievement, date FROM account_achievement WHERE account = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_CRITERIAPROGRESS, "SELECT criteria, counter, date FROM character_achievement_progress WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_ACCOUNT_CRITERIAPROGRESS, "SELECT criteria, counter, date FROM account_achievement_progress WHERE account = ?", CONNECTION_ASYNC);
@@ -437,6 +437,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_UPD_ZONE, "UPDATE characters SET zone = ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_LEVEL, "UPDATE characters SET level = ?, xp = 0 WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA, "DELETE FROM character_achievement_progress WHERE criteria = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_INVALID_ACC_ACHIEV_PROGRESS_CRITERIA, "DELETE FROM account_achievement_progress WHERE criteria = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_INVALID_ACHIEVMENT, "DELETE FROM character_achievement WHERE achievement = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_ADDON, "INSERT INTO addons (name, crc) VALUES (?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_GROUP_INSTANCE_BY_INSTANCE, "DELETE FROM group_instance WHERE instance = ?", CONNECTION_BOTH);
@@ -642,10 +643,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_LOAD_BATTLE_PET_SLOTS, "SELECT slot_0, slot_1, slot_2 FROM character_battle_pet WHERE ownerAccID = ?", CONNECTION_ASYNC);
 
     // Scenario Criterias
-    PrepareStatement(CHAR_SEL_SCENARIO_CRITERIAPROGRESS, "SELECT criteria, counter, date FROM scenario_criteria_progress WHERE instanceId = ?", CONNECTION_SYNCH);
-    PrepareStatement(CHAR_SAVE_SCENARIO_CRITERIAPROGRESS, "REPLACE INTO scenario_criteria_progress (instanceId, criteria, counter, date) VALUE (?, ?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_INVALID_SCENARIO_PROGRESS_CRITERIA, "DELETE FROM scenario_criteria_progress WHERE criteria = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_SCENARIO_CRITERIAPROGRESS, "DELETE FROM scenario_criteria_progress WHERE instanceId = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_SCENARIO_CRITERIAPROGRESS, "SELECT criteria, counter, date FROM achievement_scenario_criteria_progress WHERE instanceId = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_SAVE_SCENARIO_CRITERIAPROGRESS, "REPLACE INTO achievement_scenario_criteria_progress (instanceId, criteria, counter, date) VALUE (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_INVALID_SCENARIO_PROGRESS_CRITERIA, "DELETE FROM achievement_scenario_criteria_progress WHERE criteria = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_SCENARIO_CRITERIAPROGRESS, "DELETE FROM achievement_scenario_criteria_progress WHERE instanceId = ?", CONNECTION_ASYNC);
 
     // Else
     PrepareStatement(CHAR_SEL_PERSONAL_RATE,       "SELECT rate FROM character_rates WHERE guid=? LIMIT 1",                                         CONNECTION_ASYNC);

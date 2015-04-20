@@ -34,7 +34,7 @@ namespace WorldPackets
             uint32 NativeRealmAddress = 0;
         };
 
-        struct CriteriaProgress
+        struct CriteriaTreeProgress
         {
             uint32 Id = 0;
             uint64 Quantity = 0;
@@ -53,7 +53,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<EarnedAchievement> Earned;
-            std::vector<CriteriaProgress> Progress;
+            std::vector<CriteriaTreeProgress> Progress;
         };
 
         class CriteriaUpdate final : public ServerPacket
@@ -91,6 +91,6 @@ namespace WorldPackets
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::AllAchievements const& achieve);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::CriteriaProgress const& achieve);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::CriteriaTreeProgress const& achieve);
 
 #endif // game_AchievementPackets_h__
