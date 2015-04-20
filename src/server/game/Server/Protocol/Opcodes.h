@@ -578,7 +578,7 @@ enum OpcodeClient : uint32
     CMSG_SOCKET_GEMS                                  = 0x1BE1,
     CMSG_SPELLCLICK                                   = 0x0BC2,
     CMSG_SPIRIT_HEALER_ACTIVATE                       = 0x03EC,
-    CMSG_SPLIT_ITEM                                   = 0xBADD,
+    CMSG_SPLIT_ITEM                                   = 0x0795,
     CMSG_STAND_STATE_CHANGE                           = 0x0ABD,
     CMSG_START_QUEST                                  = 0xBADD,
     CMSG_STOP_DANCE                                   = 0xBADD,
