@@ -217,8 +217,6 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     data << petitionguid;
     data << playerGUID;                             // should be owner
     data << GetAccountGUID();
-        result->NextRow();
-
     data << uint32(petitionGuidLow);                // CGPetitionInfo__m_petitionID
 
     data << uint32(signs);                          // sign's count         
