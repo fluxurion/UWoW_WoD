@@ -27232,6 +27232,9 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
 uint32 Player::CalculateTalentsPoints() const
 {
+    if (getLevel() == 100)
+        return 7;
+
     // Un talent par tranche de 15 levels
     return getLevel() / 15;
 }
