@@ -883,14 +883,14 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     //data.WriteGuidMask<2>(guid);
     //data.WriteGuidMask<0>(guildGuid);
 
-    data << uint8(player ? player->GetByteValue(PLAYER_FIELD_BYTES, 1) : 0);   // face
+    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 1) : 0);   // face
     //data.WriteGuidBytes<2, 7>(guid);
     //data.WriteGuidBytes<6, 1>(guildGuid);
     data << uint8(creator->getGender());
     data << uint8(creator->getClass());
     //data.WriteGuidBytes<1>(guid);
     //data.WriteGuidBytes<0>(guildGuid);
-    data << uint8(player ? player->GetByteValue(PLAYER_FIELD_BYTES, 2) : 0);   // hair
+    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 2) : 0);   // hair
     //data.WriteGuidBytes<5, 0>(guid);
     //data.WriteGuidBytes<4, 2>(guildGuid);
 
@@ -929,13 +929,13 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     data << uint8(creator->getRace());
     //data.WriteGuidBytes<4>(guid);
     //data.WriteGuidBytes<7>(guildGuid);
-    data << uint8(player ? player->GetByteValue(PLAYER_FIELD_BYTES_2, 0) : 0); // facialhair
+    data << uint8(player ? player->GetByteValue(PLAYER_BYTES_2, 0) : 0); // facialhair
     //data.WriteGuidBytes<6>(guid);
     data << uint32(creator->GetDisplayId());
-    data << uint8(player ? player->GetByteValue(PLAYER_FIELD_BYTES, 0) : 0);   // skin
+    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 0) : 0);   // skin
     //data.WriteGuidBytes<3>(guid);
     //data.WriteGuidBytes<3>(guildGuid);
-    data << uint8(player ? player->GetByteValue(PLAYER_FIELD_BYTES, 3) : 0);   // haircolor
+    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, 3) : 0);   // haircolor
     //data.WriteGuidBytes<5>(guildGuid);
 
     data.PutBits<uint32>(bitpos, slotCount, 22);

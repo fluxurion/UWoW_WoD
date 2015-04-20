@@ -1079,7 +1079,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);  // We're not in BG.
         // reset destination bg team
         player->SetBGTeam(0);
-        player->SetByteValue(PLAYER_FIELD_BYTES_3, 3, 0);
+        player->SetByteValue(PLAYER_BYTES_3, 3, 0);
         player->RemoveBattlegroundQueueJoinTime(bgTypeId);
 
         if (Transport)
@@ -1228,7 +1228,7 @@ void Battleground::AddPlayer(Player* player)
         }
 
         // Set arena faction client-side to display arena unit frame
-        player->SetByteValue(PLAYER_FIELD_BYTES_3, 3, player->GetBGTeam() == HORDE ? 0 : 1);
+        player->SetByteValue(PLAYER_BYTES_3, 3, player->GetBGTeam() == HORDE ? 0 : 1);
 
         Pet* pet = player->GetPet();
         ObjectGuid petGUID = pet ? pet->GetGUID() : ObjectGuid::Empty;

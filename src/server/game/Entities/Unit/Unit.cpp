@@ -21586,7 +21586,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 hairColor = GetByteValue(PLAYER_FIELD_BYTES, 3);
+                uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
                 switch (hairColor)
                 {
                     case 7: // Violet
@@ -21614,7 +21614,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 hairColor = GetByteValue(PLAYER_FIELD_BYTES, 3);
+                uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
                 switch (hairColor)
                 {
                     case 0: // Red
@@ -21645,7 +21645,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 }
 
                 // Based on Skin color
-                uint8 skinColor = GetByteValue(PLAYER_FIELD_BYTES, 0);
+                uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -21697,7 +21697,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 skinColor = GetByteValue(PLAYER_FIELD_BYTES, 0);
+                uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -21772,7 +21772,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 hairColor = GetByteValue(PLAYER_FIELD_BYTES, 3);
+                uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
                 switch (hairColor)
                 {
                     case 0: // Green
@@ -21799,7 +21799,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 hairColor = GetByteValue(PLAYER_FIELD_BYTES, 3);
+                uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
                 switch (hairColor)
                 {
                     case 0: // Red
@@ -21831,7 +21831,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 }
 
                 // Based on Skin color
-                uint8 skinColor = GetByteValue(PLAYER_FIELD_BYTES, 0);
+                uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -21883,7 +21883,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                     return epic ? epicModels[urand(0, 4)] : models[urand(0, 4)];
                 }
 
-                uint8 skinColor = GetByteValue(PLAYER_FIELD_BYTES, 0);
+                uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
