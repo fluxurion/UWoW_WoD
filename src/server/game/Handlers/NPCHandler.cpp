@@ -147,6 +147,8 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
         return;
     }
 
+    uint32 specializationId = _player->GetSpecializationId(_player->GetActiveSpec());
+
     WorldPackets::NPC::TrainerList packet;
     packet.TrainerGUID = guid;
     packet.TrainerType = trainer_spells->trainerType;
@@ -187,6 +189,10 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
             if(spellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && GetPlayer()->GetTeam() != HORDE)
                 continue;
             if(spellInfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY && GetPlayer()->GetTeam() != ALLIANCE)
+                continue;
+
+            // if spell relates to some specialization and it is not our spec - do not learn
+            if (!spellInfo->SpecializationIdList.empty() && spellInfo->SpecializationIdList.find(specializationId) == spellInfo->SpecializationIdList.end())
                 continue;
         }
 
