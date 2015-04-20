@@ -644,6 +644,8 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
                 return;
             }
 
+            createInfo->guid = newChar.GetGUID();
+
             if ((haveSameRace && skipCinematics == 1) || skipCinematics == 2)
                 newChar.setCinematic(1);                          // not show intro
 
@@ -668,7 +670,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
 
             LoginDatabase.CommitTransaction(trans);
 
-            SendCharCreate(CHAR_CREATE_SUCCESS);
+            /*SendCharCreate(CHAR_CREATE_SUCCESS);*/
 
             std::string IP_str = GetRemoteAddress();
             sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUID().GetCounter());
@@ -676,9 +678,43 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
             sWorld->AddCharacterNameData(newChar.GetGUID().GetCounter(), std::string(newChar.GetName()), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel());
 
             newChar.CleanupsBeforeDelete();
-            _charCreateCallback.Reset();
+
+            //Try check succesfull creation
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_GUID);
+            stmt->setUInt64(0, newChar.GetGUID().GetCounter());
+
+            _charCreateCallback.FreeResult();
+            _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
+            _charCreateCallback.NextStage();
+            _charCreateCallback.InitTimer();    //set timer for manual waithing
         }
         break;
+        case 4:
+        case 5:
+        {
+            ASSERT(_charCreateCallback.GetParam().get() == createInfo);
+
+            //Char create succesfull
+            if (result)
+            {
+                SendCharCreate(CHAR_CREATE_SUCCESS);
+                _charCreateCallback.Reset();
+                return;
+            }
+
+            //Try more
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_GUID);
+            stmt->setUInt64(0, createInfo->guid.GetCounter());
+
+            _charCreateCallback.FreeResult();
+            _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
+            _charCreateCallback.NextStage();
+        }
+        break;
+        case 6:
+            SendCharCreate(CHAR_CREATE_ERROR);
+            _charCreateCallback.Reset();
+            break;
     }
 }
 

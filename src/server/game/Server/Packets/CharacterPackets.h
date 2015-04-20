@@ -50,6 +50,9 @@ namespace WorldPackets
 
             /// Server side data
             uint8 CharCount  = 0;
+
+            //
+            ObjectGuid guid;
         };
 
         struct CharacterRenameInfo

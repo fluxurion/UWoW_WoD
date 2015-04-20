@@ -32,7 +32,7 @@ template <typename Result, typename ParamType, bool chain = false>
 class QueryCallback
 {
     public:
-        QueryCallback() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID)  {}
+        QueryCallback() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID), _timer(0)  {}
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
         void SetFutureResult(std::future<Result> value)
@@ -45,9 +45,16 @@ class QueryCallback
             return _result;
         }
 
-        int IsReady()
+        int IsReady(uint32 sec = 0)
         {
+            if (_timer && time(NULL)-_timer < sec)
+                return false;
             return _result.valid() && _result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+        }
+
+        void InitTimer()
+        {
+            _timer = time(NULL);
         }
 
         void GetResult(Result& res)
@@ -97,6 +104,7 @@ class QueryCallback
         //! Resets all underlying variables (param, result and stage)
         void Reset()
         {
+            _timer = 0;
             SetParam(NULL);
             FreeResult();
             ResetStage();
@@ -106,6 +114,7 @@ class QueryCallback
         std::future<Result> _result;
         ParamType _param;
         uint8 _stage;
+        time_t _timer;
 };
 
 template <typename Result, typename ParamType1, typename ParamType2, bool chain = false>

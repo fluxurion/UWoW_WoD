@@ -1014,7 +1014,7 @@ void WorldSession::ProcessQueryCallbacks()
         HandleCharEnum(result);
     }
 
-    if (_charCreateCallback.IsReady())
+    if (_charCreateCallback.IsReady(2))
     {
         _charCreateCallback.GetResult(result);
         HandleCharCreateCallback(result, _charCreateCallback.GetParam().get());
