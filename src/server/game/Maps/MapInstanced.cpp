@@ -141,15 +141,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
     }
     else
     {
-        Difficulty difficulty = IsRaid() ? player->GetRaidDifficultyID() : player->GetDungeonDifficultyID();
-        MapEntry const* entry = sMapStore.LookupEntry(mapId);
-        if (entry)
-        {
-            if(entry->maxPlayers == 40 && mapId != 249) // hackfix - Onyxia's Lair 10/25
-                difficulty = DIFFICULTY_40;
-        }
-
-        InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), difficulty);
+        InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficultyID(GetEntry()));
         InstanceSave* pSave = pBind ? pBind->save : NULL;
 
         // the player's permanent player bind is taken into consideration first
@@ -182,8 +174,6 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             newInstanceId = sMapMgr->GenerateInstanceId();
 
             Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficultyID(GetEntry()) : player->GetDifficultyID(GetEntry());
-            if(difficulty == DIFFICULTY_40)
-                diff = DIFFICULTY_40;
             //Seems it is now possible, but I do not know if it should be allowed
             //ASSERT(!FindInstanceMap(NewInstanceId));
             map = FindInstanceMap(newInstanceId);

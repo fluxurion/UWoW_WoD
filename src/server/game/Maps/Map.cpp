@@ -2406,15 +2406,15 @@ bool InstanceMap::AddPlayerToMap(Player* player)
             if (!mapSave)
             {
                 if (IsScenario())
-                    if (lfg::LFGDungeonData const* data = sLFGMgr->GetLFGDungeon(GetId(), Difficulty(i_difficulty), player->GetTeam()))
+                    if (lfg::LFGDungeonData const* data = sLFGMgr->GetLFGDungeon(GetId(), GetDifficultyID(), player->GetTeam()))
                         sScenarioMgr->AddScenarioProgress(GetInstanceId(), data, false);
 
                 sLog->outInfo(LOG_FILTER_MAPS, "InstanceMap::Add: creating instance save for map %d spawnmode %d with instance id %d", GetId(), GetSpawnMode(), GetInstanceId());
-                mapSave = sInstanceSaveMgr->AddInstanceSave(GetId(), GetInstanceId(), Difficulty(GetSpawnMode()), true);
+                mapSave = sInstanceSaveMgr->AddInstanceSave(GetId(), GetInstanceId(), GetDifficultyID(), true);
             }
 
             // check for existing instance binds
-            InstancePlayerBind* playerBind = player->GetBoundInstance(GetId(), Difficulty(GetSpawnMode()));
+            InstancePlayerBind* playerBind = player->GetBoundInstance(GetId(), GetDifficultyID());
             if (playerBind && playerBind->perm)
             {
                 // cannot enter other instances if bound permanently
