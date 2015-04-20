@@ -39,6 +39,7 @@ ALTER TABLE `character_aura` CHANGE `caster_guid` `caster_guid` binary(16) NOT N
 ALTER TABLE `character_aura` CHANGE `item_guid` `item_guid` binary(16) NOT NULL;
 ALTER TABLE `character_aura` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier';
 ALTER TABLE `character_aura_effect` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_aura` CHANGE `effect_mask` `effect_mask` MEDIUMINT(3) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_banned` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_battleground_data` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `character_battleground_random` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
