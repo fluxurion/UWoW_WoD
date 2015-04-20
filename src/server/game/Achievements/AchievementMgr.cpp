@@ -2433,16 +2433,20 @@ bool AchievementMgr<T>::IsCompletedAchievement(AchievementEntry const* entry)
     if (entry->flags & ACHIEVEMENT_FLAG_COUNTER)
         return false;
 
-    // for achievement with referenced achievement criterias get from referenced and counter from self
-    uint32 achievementForTestId = entry->refAchievement ? entry->refAchievement : entry->ID;
-    uint32 achievementForTestCount = entry->count;
-    
-    AchievementEntry const* refentry = sAchievementMgr->GetAchievement(achievementForTestId);
-    uint32 criteriaTree = refentry ? refentry->criteriaTree : entry->criteriaTree;
+    //! WARNING! WOD: i can't find need for lookup for refAchievements.
+    // For expl. acID = 1832 not use refAchieve for check.
 
-    std::list<uint32> const* cList = GetCriteriaTreeList(criteriaTree);
+    // for achievement with referenced achievement criterias get from referenced and counter from self
+    uint32 achievementForTestId = /*entry->refAchievement ? entry->refAchievement : */entry->ID;
+    uint32 achievementForTestCount = entry->count;
+
+    //AchievementEntry const* refentry = sAchievementMgr->GetAchievement(achievementForTestId);
+    //uint32 criteriaTreeID = refentry ? refentry->criteriaTree : entry->criteriaTree;
+
+    std::list<uint32> const* cList = GetCriteriaTreeList(entry->criteriaTree);
     if (!cList)
         return false;
+
     uint32 count = 0;
 
     // For SUMM achievements, we have to count the progress of each criteria of the achievement.
@@ -2478,8 +2482,9 @@ bool AchievementMgr<T>::IsCompletedAchievement(AchievementEntry const* entry)
         if (completed)
         {
             ++count;
-            if (entry->flags & ACHIEVEMENT_FLAG_BAR) //achievement complete if completed one criteria
-                return true;
+            // For expl. acID = 1832 not need it.
+            //if (entry->flags & ACHIEVEMENT_FLAG_BAR) //achievement complete if completed one criteria
+            //    return true;
         }
         else
             completed_all = false;
