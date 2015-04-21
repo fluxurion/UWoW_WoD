@@ -20198,34 +20198,10 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
     if (isRewardAllowed && player && player != victim)
     {
-        ObjectGuid guid = player->GetGUID();
-        ObjectGuid vGuid = victim->GetGUID();
-
-        //! 5.4.1
-        WorldPacket data(SMSG_PARTYKILLLOG, (8+8)); // send event PARTY_KILL
-        data.WriteBit(0);
-        //data.WriteGuidMask<1>(guid);
-        //data.WriteGuidMask<4>(vGuid);
-        //data.WriteGuidMask<6, 0, 7, 3, 2, 4>(guid);
-        //data.WriteGuidMask<5, 7, 0, 2, 6>(vGuid);
-        //data.WriteGuidMask<5>(guid);
-        //data.WriteGuidMask<3, 1>(vGuid);
-
-        data.FlushBits();
-
-        //data.WriteGuidBytes<7>(guid);
-        //data.WriteGuidBytes<5>(vGuid);
-        //data.WriteGuidBytes<4>(guid);
-        //data.WriteGuidBytes<0>(vGuid);
-        //data.WriteGuidBytes<5>(guid);
-        //data.WriteGuidBytes<4, 2>(vGuid);
-        //data.WriteGuidBytes<1>(guid);
-        //data.WriteGuidBytes<6>(vGuid);
-        //data.WriteGuidBytes<6>(guid);
-        //data.WriteGuidBytes<3, 1>(vGuid);
-        //data.WriteGuidBytes<0, 3>(guid);
-        //data.WriteGuidBytes<7>(vGuid);
-        //data.WriteGuidBytes<2>(guid);
+        //! 6.0.3
+        WorldPacket data(SMSG_PARTY_KILL_LOG, 32); // send event PARTY_KILL
+        data << player->GetGUID();
+        data << victim->GetGUID();
 
         Player* looter = player;
 
@@ -20256,6 +20232,15 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
         else
         {
             player->SendDirectMessage(&data);
+
+            if (creature)
+            {
+                //! 6.0.3
+                WorldPacket data2(SMSG_LOOT_LIST, 8 + 1 + 1);
+                data2 << creature->GetGUID();
+                data2 << uint8(0); // 2 bits
+                player->SendMessageToSet(&data2, true);
+            }
         }
 
         if (creature)
@@ -20585,33 +20570,33 @@ void Unit::SetStunned(bool apply)
     }
 }
 
-void Unit::SetRooted(bool apply)
+void Unit::SetRooted(bool apply, bool packetOnly /*= false*/)
 {
-     if (HasUnitState(UNIT_STATE_STUNNED) && !apply)
-         return;
-
     static OpcodeServer const rootOpcodeTable[2][2] =
     {
-        {SMSG_SPLINE_MOVE_ROOT,   SMSG_MOVE_ROOT    },
-        {SMSG_SPLINE_MOVE_UNROOT,  SMSG_MOVE_UNROOT   }
+        {SMSG_MOVE_SPLINE_ROOT,   SMSG_MOVE_ROOT    },
+        {SMSG_MOVE_SPLINE_UNROOT,  SMSG_MOVE_UNROOT   }
     };
 
     bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
     ObjectGuid guid = GetGUID();
 
-    if (apply)
+    if (!packetOnly)
     {
-        // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
-        // this will freeze clients. That's why we remove MOVEMENTFLAG_MASK_MOVING before
-        // setting MOVEMENTFLAG_ROOT
-        RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
-        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+        if (apply)
+        {
+            // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
+            // this will freeze clients. That's why we remove MOVEMENTFLAG_MASK_MOVING before
+            // setting MOVEMENTFLAG_ROOT
+            RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
+            AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
-        if (!player)
-            StopMoving();
+            if (!player)
+                StopMoving();
+        }
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
     }
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
     if (player)
     {

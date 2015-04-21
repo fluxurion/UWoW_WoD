@@ -2662,7 +2662,7 @@ class Unit : public WorldObject
         void SetFeared(bool apply);
         void SetConfused(bool apply);
         void SetStunned(bool apply);
-        void SetRooted(bool apply);
+        void SetRooted(bool apply, bool packetOnly = false);
 
         uint32 m_movementCounter;       ///< Incrementing counter used in movement packets
     private:

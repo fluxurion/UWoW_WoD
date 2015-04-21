@@ -1094,40 +1094,25 @@ void Group::SendLootAllPassed(Roll const& roll)
 }
 
 // notify group members which player is the allowed looter for the given creature
+//! 6.0.3
 void Group::SendLooter(Creature* creature, Player* groupLooter)
 {
     ASSERT(creature);
 
-    ObjectGuid guid = creature->GetGUID();
     ObjectGuid gGroupLooter = groupLooter ? groupLooter->GetGUID() : ObjectGuid::Empty;
-    ObjectGuid guid28;
+    ObjectGuid RoundRobinWinner;
 
-    //! 5.4.1
     WorldPacket data(SMSG_LOOT_LIST, (25));
+    data << creature->GetGUID();
 
-    data.WriteBit(bool(guid28));
-    //data.WriteGuidMask<4>(guid);
-    data.WriteBit(bool(gGroupLooter));
-
-    if (gGroupLooter)
-        //data.WriteGuidMask<4, 5, 3, 6, 1, 0, 2, 7>(gGroupLooter);
-
-    //data.WriteGuidMask<0>(guid);
-
-    if (guid28)
-        //data.WriteGuidMask<6, 3, 5, 2, 7, 0, 1, 4>(guid28);
-
-    //data.WriteGuidMask<1, 2, 6, 3, 5, 7>(guid);
-
-    data.FlushBits();
-
-    if (guid28)
-        //data.WriteGuidBytes<7, 6, 5, 2, 4, 1, 3, 0>(guid28);
+    data.WriteBit(!gGroupLooter.IsEmpty());
+    data.WriteBit(!RoundRobinWinner.IsEmpty());
 
     if (gGroupLooter)
-        //data.WriteGuidBytes<5, 0, 1, 7, 3, 6, 2, 4>(gGroupLooter);
+        data << gGroupLooter;
 
-    //data.WriteGuidBytes<5, 6, 7, 1, 4, 2, 0, 3>(guid);
+    if (RoundRobinWinner)
+        data << RoundRobinWinner;
 
     BroadcastPacket(&data, false);
 }

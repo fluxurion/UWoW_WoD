@@ -24991,7 +24991,7 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
     if (HasAuraType(SPELL_AURA_MOD_ROOT))
-        SetRooted(true);
+        SetRooted(true, true);
 
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
