@@ -147,6 +147,7 @@ enum OpcodeClient : uint32
     CMSG_CANCEL_QUEUED_SPELL                          = 0xBADD,
     CMSG_CANCEL_TEMP_ENCHANTMENT                      = 0x13C4,
     CMSG_CANCEL_TRADE                                 = 0x1159,
+    CMSG_CAN_DUEL                                     = 0x0B25,
     CMSG_CAST_SPELL                                   = 0x08FE,
     CMSG_CHANGEPLAYER_DIFFICULTY                      = 0xBADD,
     CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE           = 0xBADD,
@@ -693,6 +694,7 @@ enum OpcodeClient : uint32
     CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS           = 0x0359,
     CMSG_PET_SET_SPECIALIZATION                       = 0x08D6,
     CMSG_LEARN_TALENTS                                = 0x0BB6,
+    CMSG_DUEL_RESPONSE                                = 0x1BD2,
 
     //MOP
     CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
@@ -724,7 +726,6 @@ enum OpcodeClient : uint32
     CMSG_BATTLE_PET_SET_DATA                          = 0xBADD, // 5.4.1 17538 maybe only favorite flag???
     CMSG_BATTLE_PET_RENAME                            = 0xBADD, // 5.4.1 17538
     CMSG_BATTLE_PET_PUT_IN_CAGE                       = 0xBADD, // 5.4.1 17538
-    CMSG_DUEL_RESPONSE                                = 0x1BD2, // 5.4.1 17538
     CMSG_QUEST_PUSH_RESULT                            = 0x06C4, // 5.4.1 17538
 };
 
@@ -945,7 +946,7 @@ enum OpcodeServer : uint32
     SMSG_DUEL_COUNTDOWN                               = 0x020E,
     SMSG_DUEL_IN_BOUNDS                               = 0x03E4,
     SMSG_DUEL_OUT_OF_BOUNDS                           = 0x0111,
-    SMSG_DUEL_REQUESTED                               = 0xBADD,
+    SMSG_DUEL_REQUESTED                               = 0x0827,
     SMSG_DUEL_WINNER                                  = 0x0935,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                   = 0xBADD,
     SMSG_DURABILITY_DAMAGE_DEATH                      = 0xBADD,
