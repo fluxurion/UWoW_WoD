@@ -24726,6 +24726,7 @@ void Player::SendComboPoints()
     {
         WorldPacket data;
         ObjectGuid combotargetGuid = combotarget->GetGUID();
+        SetPower(POWER_UNUSED, m_comboPoints);
         /*if (m_mover != this)
         {
             data.Initialize(SMSG_PET_UPDATE_COMBO_POINTS, m_mover->GetPackGUID().size()+combotarget->GetPackGUID().size()+1);
@@ -25077,7 +25078,7 @@ void Player::SendSpellHistoryData()
 void Player::SendSpellChargeData()
 {
     WorldPacket data(SMSG_SEND_SPELL_CHARGES, m_spellChargeData.size() * 9 + 3);
-    data.WriteBits(m_spellChargeData.size(), 21);
+    data << uint32(m_spellChargeData.size());
     for (SpellChargeDataMap::const_iterator itr = m_spellChargeData.begin(); itr != m_spellChargeData.end(); ++itr)
     {
         SpellChargeData const& chargeData = itr->second;
