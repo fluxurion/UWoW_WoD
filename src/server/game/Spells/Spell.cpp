@@ -1921,11 +1921,11 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImpli
 
 void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, WorldObject* target, uint32 effMask)
 {
-    int32 maxTargets = m_spellInfo->GetEffect(effIndex, m_diffMode).ChainTarget;
+    int32 maxTargets = m_spellInfo->GetEffect(effIndex, m_diffMode).ChainTargets;
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_JUMP_TARGETS, maxTargets, this);
     if(maxTargets < 0)
-        maxTargets = m_spellInfo->GetEffect(effIndex, m_diffMode).ChainTarget;
+        maxTargets = m_spellInfo->GetEffect(effIndex, m_diffMode).ChainTargets;
 
     // Havoc
     if (Aura* _aura = m_caster->GetAura(80240))
@@ -3325,7 +3325,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                             int32 origDuration = duration;
                             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                                 if (AuraEffect const* eff = m_spellAura->GetEffect(i))
-                                    if (int32 amplitude = eff->GetAmplitude())  // amplitude is hastened by UNIT_FIELD_MOD_CASTING_SPEED
+                                    if (int32 amplitude = eff->GetPeriod())  // amplitude is hastened by UNIT_FIELD_MOD_CASTING_SPEED
                                     {
                                         int32 gettotalticks = origDuration / amplitude;
                                         int32 rest = origDuration - (gettotalticks * amplitude);
@@ -6241,7 +6241,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     {
         if (m_spellInfo->CasterAuraState && !m_caster->HasAuraState(AuraStateType(m_spellInfo->CasterAuraState), m_spellInfo, m_caster))
             return SPELL_FAILED_CASTER_AURASTATE;
-        if (m_spellInfo->CasterAuraStateNot && m_caster->HasAuraState(AuraStateType(m_spellInfo->CasterAuraStateNot), m_spellInfo, m_caster))
+        if (m_spellInfo->ExcludeCasterAuraState && m_caster->HasAuraState(AuraStateType(m_spellInfo->ExcludeCasterAuraState), m_spellInfo, m_caster))
             return SPELL_FAILED_CASTER_AURASTATE;
 
         // Note: spell 62473 requres casterAuraSpell = triggering spell
@@ -7118,7 +7118,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 InstanceTemplate const* it = sObjectMgr->GetInstanceTemplate(m_caster->GetMapId());
                 if (it)
                     allowMount = it->AllowMount;
-                if (m_caster->GetTypeId() == TYPEID_PLAYER && !allowMount && !m_spellInfo->AreaGroupId)
+                if (m_caster->GetTypeId() == TYPEID_PLAYER && !allowMount && !m_spellInfo->RequiredAreasID)
                     return SPELL_FAILED_NO_MOUNTS_ALLOWED;
 
                 if (m_caster->IsInDisallowedMountForm())

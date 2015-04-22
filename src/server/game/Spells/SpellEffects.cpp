@@ -744,9 +744,9 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             return;
 
                         float cof = Living_Bomb_Dot->Effects[EFFECT_2].BasePoints;
-                        int32 SPD = m_caster->GetSpellPowerDamage(m_spellInfo->GetSchoolMask()) * Living_Bomb_Dot->Effects[EFFECT_0].BonusMultiplier;
+                        int32 SPD = m_caster->GetSpellPowerDamage(m_spellInfo->GetSchoolMask()) * Living_Bomb_Dot->Effects[EFFECT_0].BonusCoefficient;
                         int32 eff1val = Living_Bomb_Dot->Effects[EFFECT_0].CalcValue(m_caster);
-                        uint8 totalticks = Living_Bomb_Dot->GetMaxDuration() / Living_Bomb_Dot->Effects[EFFECT_0].Amplitude;
+                        uint8 totalticks = Living_Bomb_Dot->GetMaxDuration() / Living_Bomb_Dot->Effects[EFFECT_0].ApplyAuraPeriod;
                         eff1val += SPD;
                         eff1val *= totalticks;
 

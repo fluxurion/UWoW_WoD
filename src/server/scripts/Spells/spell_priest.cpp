@@ -291,7 +291,7 @@ class spell_pri_shadow_word_insanity_allowing : public SpellScriptLoader
                     {
                         if (Aura* shadowWordPain = (*itr)->GetAura(PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()))
                         {
-                            if (shadowWordPain->GetDuration() <= (shadowWordPain->GetEffect(0)->GetAmplitude() * 2))
+                            if (shadowWordPain->GetDuration() <= (shadowWordPain->GetEffect(0)->GetPeriod() * 2))
                                 caster->CastSpell(*itr, PRIEST_SHADOW_WORD_INSANITY_ALLOWING_CAST, true);
                             else
                                 (*itr)->RemoveAura(PRIEST_SHADOW_WORD_INSANITY_ALLOWING_CAST);

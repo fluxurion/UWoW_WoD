@@ -4978,7 +4978,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 145573:    //Blind Hatred Dummy
                     spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
-                    spellInfo->Effects[0].Amplitude = 500;
+                    spellInfo->Effects[0].ApplyAuraPeriod = 500;
                     spellInfo->Effects[0].TriggerSpell = 145227;
                     break;
                 case 145227:    //Blind Hatred Dmg
@@ -5175,7 +5175,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_1].Effect = 0;
                     break;
                 case 74793:// Summoning Ritual
-                    spellInfo->AreaGroupId = -1;
+                    spellInfo->RequiredAreasID = -1;
                     break;
                 case 75478:// Summon Charbringer
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_CASTER_RANDOM;
@@ -5309,7 +5309,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 // Thrall Lighting in goblin
                 case 68441:
                 case 68440:
-                    spellInfo->Effects[EFFECT_0].ChainTarget = 60;
+                    spellInfo->Effects[EFFECT_0].ChainTargets = 60;
                     break;
                 case 71091: // Goblin. Lost Isles. It's a Town-In-A-Box
                     spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(63);
@@ -5403,7 +5403,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 106463:
                 case 106026:
                 case 106039:
-                    spellInfo->Effects[0].Amplitude = 7000;
+                    spellInfo->Effects[0].ApplyAuraPeriod = 7000;
                     break;
                 case 106527: // Cataclysm screen
                     spellInfo->SetDurationIndex(1); // 10 secs
@@ -5430,7 +5430,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                     spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
                     spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_PERIODIC_DUMMY;
-                    spellInfo->Effects[EFFECT_1].Amplitude = 1000;
+                    spellInfo->Effects[EFFECT_1].ApplyAuraPeriod = 1000;
                     spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
                     break;
                 case 105371: // Lightning Conduit dummy 2

@@ -363,14 +363,14 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     EffectIndex = effIndex;
     Effect = _effect ? _effect->Effect : 0;
     ApplyAuraName = _effect ? _effect->EffectAura : 0;
-    Amplitude = _effect ? _effect->EffectAmplitude : 0;
+    ApplyAuraPeriod = _effect ? _effect->EffectAuraPeriod : 0;
     DieSides = _effect ? _effect->EffectDieSides : 0;
     RealPointsPerLevel = _effect ? _effect->EffectRealPointsPerLevel : 0.0f;
     BasePoints = _effect ? _effect->EffectBasePoints : 0;
-    PointsPerComboPoint = _effect ? _effect->EffectPointsPerResource : 0.0f;
-    ValueMultiplier = _effect ? _effect->EffectAmplitude : 0.0f;
-    DamageMultiplier = _effect ? _effect->EffectChainAmplitude : 0.0f;
-    BonusMultiplier = _effect ? _effect->EffectBonusCoefficient : 0.0f;
+    PointsPerResource = _effect ? _effect->EffectPointsPerResource : 0.0f;
+    Amplitude = _effect ? _effect->EffectAmplitude : 0.0f;
+    ChainAmplitude = _effect ? _effect->EffectChainAmplitude : 0.0f;
+    BonusCoefficient = _effect ? _effect->EffectBonusCoefficient : 0.0f;
     MiscValue = _effect ? _effect->EffectMiscValue : 0;
     MiscValueB = _effect ? _effect->EffectMiscValueB : 0;
     Mechanic = Mechanics(_effect ? _effect->EffectMechanic : 0);
@@ -379,7 +379,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
     RadiusEntry = _effect && _effect->EffectRadiusIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusIndex) : NULL;
     if (!RadiusEntry)
          RadiusEntry = _effect && _effect->EffectRadiusMaxIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusMaxIndex) : NULL;
-    ChainTarget = _effect ? _effect->EffectChainTargets : 0;
+    ChainTargets = _effect ? _effect->EffectChainTargets : 0;
     ItemType = _effect ? _effect->EffectItemType : 0;
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
     SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128(0);
@@ -453,7 +453,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
 {
     float basePointsPerLevel = RealPointsPerLevel;
     int32 basePoints = bp ? *bp : BasePoints;
-    float comboDamage = PointsPerComboPoint;
+    float comboDamage = PointsPerResource;
 
     // base amount modification based on spell lvl vs caster lvl
     if (Scaling.Coefficient != 0.0f && !(_spellInfo->Attributes & SPELL_ATTR0_TRADESPELL) && !(_spellInfo->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS) && _spellInfo->Id != 79638)
@@ -629,7 +629,7 @@ int32 SpellEffectInfo::CalcBaseValue(int32 value) const
 
 float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
 {
-    float multiplier = ValueMultiplier;
+    float multiplier = Amplitude;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
         modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_VALUE_MULTIPLIER, multiplier, spell);
     return multiplier;
@@ -637,7 +637,7 @@ float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
 
 float SpellEffectInfo::CalcDamageMultiplier(Unit* caster, Spell* spell) const
 {
-    float multiplier = DamageMultiplier;
+    float multiplier = ChainAmplitude;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
         modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplier, spell);
     return multiplier;
@@ -976,8 +976,8 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     SpellAuraRestrictionsEntry const* _aura = GetSpellAuraRestrictions();
     CasterAuraState = _aura ? _aura->CasterAuraState : 0;
     TargetAuraState = _aura ? _aura->TargetAuraState : 0;
-    CasterAuraStateNot = _aura ? _aura->ExcludeCasterAuraState : 0;
-    TargetAuraStateNot = _aura ? _aura->ExcludeTargetAuraState : 0;
+    ExcludeCasterAuraState = _aura ? _aura->ExcludeCasterAuraState : 0;
+    ExcludeTargetAuraState = _aura ? _aura->ExcludeTargetAuraState : 0;
     CasterAuraSpell = _aura ? _aura->CasterAuraSpell : 0;
     TargetAuraSpell = _aura ? _aura->TargetAuraSpell : 0;
     ExcludeCasterAuraSpell = _aura ? _aura->ExcludeCasterAuraSpell : 0;
@@ -987,7 +987,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     SpellCastingRequirementsEntry const* _castreq = GetSpellCastingRequirements();
     RequiresSpellFocus = _castreq ? _castreq->RequiresSpellFocus : 0;
     FacingCasterFlags = _castreq ? _castreq->FacingCasterFlags : 0;
-    AreaGroupId = _castreq ? _castreq->RequiredAreasID : -1;
+    RequiredAreasID = _castreq ? _castreq->RequiredAreasID : -1;
 
     // SpellCategoriesEntry
     SpellCategoriesEntry const* _categorie = GetSpellCategories();
@@ -1855,10 +1855,10 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player) const
 {
     // normal case
-    if (AreaGroupId > 0)
+    if (RequiredAreasID > 0)
     {
         bool found = false;
-        AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(AreaGroupId);
+        AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(RequiredAreasID);
         while (groupEntry)
         {
             for (uint8 i = 0; i < MAX_GROUP_AREA_IDS; ++i)
@@ -2191,7 +2191,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
         if (TargetAuraState && !unitTarget->HasAuraState(AuraStateType(TargetAuraState), this, caster))
             return SPELL_FAILED_TARGET_AURASTATE;
 
-        if (TargetAuraStateNot && unitTarget->HasAuraState(AuraStateType(TargetAuraStateNot), this, caster))
+        if (ExcludeTargetAuraState && unitTarget->HasAuraState(AuraStateType(ExcludeTargetAuraState), this, caster))
             return SPELL_FAILED_TARGET_AURASTATE;
     }
 
@@ -2693,8 +2693,8 @@ uint32 SpellInfo::GetMaxTicks() const
                 case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_HEAL:
                 case SPELL_AURA_PERIODIC_LEECH:
-                    if (Effects[x].Amplitude != 0)
-                        return DotDuration / Effects[x].Amplitude;
+                    if (Effects[x].ApplyAuraPeriod != 0)
+                        return DotDuration / Effects[x].ApplyAuraPeriod;
                     break;
             }
     }

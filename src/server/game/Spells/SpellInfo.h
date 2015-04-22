@@ -249,21 +249,21 @@ class SpellEffectInfo
 public:
     uint32    Effect;
     uint32    ApplyAuraName;
-    uint32    Amplitude;
+    uint32    ApplyAuraPeriod;
     int32     DieSides;
     float     RealPointsPerLevel;
     int32     BasePoints;
-    float     PointsPerComboPoint;
-    float     ValueMultiplier;
-    float     DamageMultiplier;
-    float     BonusMultiplier;
+    float     PointsPerResource;
+    float     Amplitude;
+    float     ChainAmplitude;
+    float     BonusCoefficient;
     int32     MiscValue;
     int32     MiscValueB;
     Mechanics Mechanic;
     SpellImplicitTargetInfo TargetA;
     SpellImplicitTargetInfo TargetB;
     SpellRadiusEntry const* RadiusEntry;
-    uint32    ChainTarget;
+    uint32    ChainTargets;
     uint32    ItemType;
     uint32    TriggerSpell;
     flag128   SpellClassMask;
@@ -349,8 +349,8 @@ public:
     uint32 FacingCasterFlags;
     uint32 CasterAuraState;
     uint32 TargetAuraState;
-    uint32 CasterAuraStateNot;
-    uint32 TargetAuraStateNot;
+    uint32 ExcludeCasterAuraState;
+    uint32 ExcludeTargetAuraState;
     uint32 CasterAuraSpell;
     uint32 TargetAuraSpell;
     uint32 ExcludeCasterAuraSpell;
@@ -404,7 +404,7 @@ public:
     flag128 SpellFamilyFlags;
     uint32 DmgClass;
     uint32 PreventionType;
-    int32  AreaGroupId;
+    int32  RequiredAreasID;
     uint32 SchoolMask;
     uint32 SpellDifficultyId;
     uint32 SpellScalingId;

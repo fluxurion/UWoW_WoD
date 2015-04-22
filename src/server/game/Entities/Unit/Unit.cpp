@@ -1140,7 +1140,7 @@ uint32 Unit::CalcStaggerDamage(uint32 damage, SpellSchoolMask damageSchoolMask, 
                     {
                         staggerDebufAura->GetEffect(EFFECT_0)->SetAmount(bp0);
                         staggerDebufAura->GetEffect(EFFECT_1)->SetAmount(bp1);
-                        int32 dur = 10000 - eff0->GetAmplitude() + eff0->GetPeriodicTimer();
+                        int32 dur = 10000 - eff0->GetPeriod() + eff0->GetPeriodicTimer();
                         staggerDebufAura->SetMaxDuration(dur);
                         staggerDebufAura->SetDuration(dur);
                     }
@@ -7554,7 +7554,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     if (!GoPoH)
                         return false;
 
-                    int32 tickcount = GoPoH->GetMaxDuration() / GoPoH->GetEffect(EFFECT_0, GetSpawnMode()).Amplitude;
+                    int32 tickcount = GoPoH->GetMaxDuration() / GoPoH->GetEffect(EFFECT_0, GetSpawnMode()).ApplyAuraPeriod;
                     basepoints0 = CalculatePct(int32(damage), triggerAmount) / tickcount;
                     break;
                 }
@@ -7614,7 +7614,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                         SpellInfo const* blessHealing = sSpellMgr->GetSpellInfo(triggered_spell_id);
                         if (!blessHealing)
                             return false;
-                        basepoints0 = int32(CalculatePct(damage, triggerAmount) / (blessHealing->GetMaxDuration() / blessHealing->GetEffect(0, GetSpawnMode()).Amplitude));
+                        basepoints0 = int32(CalculatePct(damage, triggerAmount) / (blessHealing->GetMaxDuration() / blessHealing->GetEffect(0, GetSpawnMode()).ApplyAuraPeriod));
                     }
                     break;
             }
@@ -7811,7 +7811,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
                         if (!triggeredSpell)
                             return false;
-                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->GetEffect(0, GetSpawnMode()).Amplitude);
+                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->GetEffect(0, GetSpawnMode()).ApplyAuraPeriod);
                     }
                     break;
                 }
@@ -8628,7 +8628,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
                         if (!triggeredSpell)
                             return false;
-                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->GetEffect(0, GetSpawnMode()).Amplitude);
+                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->GetEffect(0, GetSpawnMode()).ApplyAuraPeriod);
                     }
                     break;
                 }
@@ -8642,7 +8642,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                         SpellInfo const* triggeredSpell = sSpellMgr->GetSpellInfo(triggered_spell_id);
                         if (!triggeredSpell)
                             return false;
-                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->GetEffect(0, GetSpawnMode()).Amplitude);
+                        basepoints0 = CalculatePct(int32(damage), triggerAmount) / (triggeredSpell->GetMaxDuration() / triggeredSpell->GetEffect(0, GetSpawnMode()).ApplyAuraPeriod);
                     }
                     break;
                 }
@@ -8670,7 +8670,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     {
                         Aura* flameShock  = aurEff->GetBase();
                         int32 maxDuration = flameShock->GetMaxDuration();
-                        int32 newDuration = flameShock->GetDuration() + 2 * aurEff->GetAmplitude();
+                        int32 newDuration = flameShock->GetDuration() + 2 * aurEff->GetPeriod();
 
                         flameShock->SetDuration(newDuration);
                         // is it blizzlike to change max duration for FS?
@@ -8718,7 +8718,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
 
                 SpellInfo const* _spellinfo = sSpellMgr->GetSpellInfo(8024);
                 int32 dmg = 8625;
-                float add_spellpower = GetSpellPowerDamage(SPELL_SCHOOL_MASK_FIRE) * _spellinfo->Effects[EFFECT_1].BonusMultiplier;
+                float add_spellpower = GetSpellPowerDamage(SPELL_SCHOOL_MASK_FIRE) * _spellinfo->Effects[EFFECT_1].BonusCoefficient;
 
                 // Enchant on Off-Hand and ready?
                 if (castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
@@ -9527,7 +9527,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
                     if (!TriggerPS)
                         return false;
 
-                    basepoints0 = CalculatePct(int32(damage), triggerAmount) / (TriggerPS->GetMaxDuration() / TriggerPS->GetEffect(0, GetSpawnMode()).Amplitude);
+                    basepoints0 = CalculatePct(int32(damage), triggerAmount) / (TriggerPS->GetMaxDuration() / TriggerPS->GetEffect(0, GetSpawnMode()).ApplyAuraPeriod);
                     break;
                 }
                 // Item - Hunter T9 4P Bonus
@@ -12015,7 +12015,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             DoneAdvertisedBenefit += ((Guardian*)this)->GetBonusDamage();
 
         // Check for table values
-        float SPDCoeffMod = spellProto->GetEffect(effIndex, m_diffMode).BonusMultiplier;
+        float SPDCoeffMod = spellProto->GetEffect(effIndex, m_diffMode).BonusCoefficient;
         float ApCoeffMod = spellProto->GetEffect(effIndex, m_diffMode).SpellAPBonusMultiplier;
 
         SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
@@ -12715,7 +12715,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
 
     // Check for table values
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
-    float dbccoeff = spellProto->GetEffect(effIndex, m_diffMode).BonusMultiplier;
+    float dbccoeff = spellProto->GetEffect(effIndex, m_diffMode).BonusCoefficient;
     float ApCoeffMod = spellProto->GetEffect(effIndex, m_diffMode).SpellAPBonusMultiplier;
     float coeff = 0;
     float factorMod = 1.0f;
@@ -12872,7 +12872,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
     // Check for table values
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
-    float dbccoeff = spellProto->GetEffect(effIndex, m_diffMode).BonusMultiplier;
+    float dbccoeff = spellProto->GetEffect(effIndex, m_diffMode).BonusCoefficient;
     float coeff = 0;
     float factorMod = 1.0f;
     if (bonus)
@@ -22722,7 +22722,7 @@ uint32 Unit::GetRemainingPeriodicAmount(ObjectGuid caster, uint32 spellId, AuraT
             continue;
 
         int32 duration = (*i)->GetBase()->GetDuration();
-        int32 amplitude = (*i)->GetAmplitude();
+        int32 amplitude = (*i)->GetPeriod();
         if(!duration || !amplitude)
             continue;
 

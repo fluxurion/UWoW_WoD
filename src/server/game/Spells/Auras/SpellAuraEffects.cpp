@@ -622,7 +622,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
     if (caster && caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->AttributesEx8 & SPELL_ATTR8_MASTERY_SPECIALIZATION))
     {
         m_canBeRecalculated = false;
-        amount += int32(caster->GetFloatValue(PLAYER_FIELD_MASTERY) * m_spellInfo->GetEffect(m_effIndex, m_diffMode).BonusMultiplier + 0.5f);
+        amount += int32(caster->GetFloatValue(PLAYER_FIELD_MASTERY) * m_spellInfo->GetEffect(m_effIndex, m_diffMode).BonusCoefficient + 0.5f);
     }
 
     // custom amount calculations go here
@@ -915,7 +915,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                 case 146198: // Essence of Yu'lon
                 {
                     SpellInfo const* _info = sSpellMgr->GetSpellInfo(148008);
-                    amount = caster->GetSpellPowerDamage(_info->GetSchoolMask()) * _info->Effects[EFFECT_0].BonusMultiplier / GetTotalTicks(); 
+                    amount = caster->GetSpellPowerDamage(_info->GetSchoolMask()) * _info->Effects[EFFECT_0].BonusCoefficient / GetTotalTicks(); 
                     break;
                 }
                 default:
@@ -1080,7 +1080,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                     else
                         amount += int32(cp * AP * 0.387f);
 
-                    amount /= int32(GetBase()->GetMaxDuration() / GetBase()->GetEffect(0)->GetAmplitude());
+                    amount /= int32(GetBase()->GetMaxDuration() / GetBase()->GetEffect(0)->GetPeriod());
                     break;
                 }
                 case 50536: // Unholy Blight damage over time effect
@@ -1835,15 +1835,15 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
 
 void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= true*/, bool load /*= false*/)
 {
-    m_amplitude = m_spellInfo->GetEffect(m_effIndex, m_diffMode).Amplitude;
+    m_period = m_spellInfo->GetEffect(m_effIndex, m_diffMode).ApplyAuraPeriod;
 
     // prepare periodics
     switch (GetAuraType())
     {
         case SPELL_AURA_OBS_MOD_POWER:
             // 3 spells have no amplitude set
-            if (!m_amplitude)
-                m_amplitude = 1 * IN_MILLISECONDS;
+            if (!m_period)
+                m_period = 1 * IN_MILLISECONDS;
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_HEAL:
         case SPELL_AURA_OBS_MOD_HEALTH:
@@ -1865,7 +1865,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
             break;
     }
 
-    GetBase()->CallScriptEffectCalcPeriodicHandlers(const_cast<AuraEffect const*>(this), m_isPeriodic, m_amplitude);
+    GetBase()->CallScriptEffectCalcPeriodicHandlers(const_cast<AuraEffect const*>(this), m_isPeriodic, m_period);
 
     if (!m_isPeriodic)
         return;
@@ -1873,11 +1873,11 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
     Player* modOwner = caster ? caster->GetSpellModOwner() : NULL;
 
     // Apply casting time mods
-    if (m_amplitude)
+    if (m_period)
     {
         // Apply periodic time mod
         if (modOwner)
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_ACTIVATION_TIME, m_amplitude);
+            modOwner->ApplySpellMod(GetId(), SPELLMOD_ACTIVATION_TIME, m_period);
 
         if (caster)
         {
@@ -1885,12 +1885,12 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
             if (m_spellInfo->IsChanneled())
             {
                 if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_TICK_AND_CASTTIME)
-                    caster->ModSpellCastTime(m_spellInfo, m_amplitude);
+                    caster->ModSpellCastTime(m_spellInfo, m_period);
             }
             else
             {
                 if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_TICK_AND_CASTTIME)
-                    m_amplitude = int32(m_amplitude * caster->GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE));
+                    m_period = int32(m_period * caster->GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE));
 
                 if (m_spellInfo->AttributesEx8 & SPELL_ATTR8_HASTE_AFFECT_DURATION_RECOVERY)
                 {
@@ -1912,8 +1912,8 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
 
     if (load) // aura loaded from db
     {
-        m_tickNumber = m_amplitude ? GetBase()->GetDuration() / m_amplitude : 0;
-        m_periodicTimer = m_amplitude ? GetBase()->GetDuration() % m_amplitude : 0;
+        m_tickNumber = m_period ? GetBase()->GetDuration() / m_period : 0;
+        m_periodicTimer = m_period ? GetBase()->GetDuration() % m_period : 0;
         if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_START_PERIODIC_AT_APPLY)
             ++m_tickNumber;
     }
@@ -1927,8 +1927,8 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
         {
             m_periodicTimer = 0;
             // Start periodic on next tick or at aura apply
-            if (m_amplitude && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_START_PERIODIC_AT_APPLY))
-                m_periodicTimer += m_amplitude;
+            if (m_period && !(m_spellInfo->AttributesEx5 & SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+                m_periodicTimer += m_period;
         }
     }
 }
@@ -2161,7 +2161,7 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
             ++m_tickNumber;
 
             // update before tick (aura can be removed in TriggerSpell or PeriodicTick calls)
-            m_periodicTimer += m_amplitude - diff;
+            m_periodicTimer += m_period - diff;
             UpdatePeriodic(caster);
 
             std::list<AuraApplication*> effectApplications;
@@ -2349,7 +2349,7 @@ void AuraEffect::CleanupTriggeredSpells(Unit* target)
     // TODO: is there a spell flag, which can solve this in a more sophisticated way?
     if (m_spellInfo->GetEffect(GetEffIndex(), m_diffMode).ApplyAuraName == SPELL_AURA_PERIODIC_TRIGGER_SPELL)
     {
-        if (uint32(m_spellInfo->GetDuration()) == m_spellInfo->GetEffect(GetEffIndex(), m_diffMode).Amplitude)
+        if (uint32(m_spellInfo->GetDuration()) == m_spellInfo->GetEffect(GetEffIndex(), m_diffMode).ApplyAuraPeriod)
             return;
 
         if (tProto->StackAmount > 1)

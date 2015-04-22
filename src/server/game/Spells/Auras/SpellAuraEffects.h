@@ -50,8 +50,8 @@ class AuraEffect
         int32 GetBaseAmount() const { return m_baseAmount; }
         int32 GetBaseSendAmount() const { return m_send_baseAmount; }
         int32 GetOldBaseAmount() const { return m_oldbaseAmount; }
-        int32 GetAmplitude() const { return m_amplitude; }
-        void SetAmplitude(int32 amplitude) { m_amplitude = amplitude; }
+        int32 GetPeriod() const { return m_period; }
+        void SetAmplitude(int32 amplitude) { m_period = amplitude; }
 
         int32 GetMiscValueB() const { return m_spellInfo->GetEffect(m_effIndex, m_diffMode).MiscValueB; }
         int32 GetMiscValue() const { return m_spellInfo->GetEffect(m_effIndex, m_diffMode).MiscValue; }
@@ -94,8 +94,8 @@ class AuraEffect
 
         uint32 GetTickNumber() const { return m_tickNumber; }
         void SetTickNumber(uint32 tick) { m_tickNumber = tick; }
-        int32 GetTotalTicks() const { return m_amplitude ? (GetBase()->GetMaxDuration() / m_amplitude) : 1;}
-        void ResetPeriodic(bool resetPeriodicTimer = false) { if (resetPeriodicTimer) m_periodicTimer = m_amplitude; m_tickNumber = 0;}
+        int32 GetTotalTicks() const { return m_period ? (GetBase()->GetMaxDuration() / m_period) : 1;}
+        void ResetPeriodic(bool resetPeriodicTimer = false) { if (resetPeriodicTimer) m_periodicTimer = m_period; m_tickNumber = 0;}
 
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
@@ -127,7 +127,7 @@ class AuraEffect
         SpellModifier* m_spellmod;
 
         int32 m_periodicTimer;
-        int32 m_amplitude;
+        int32 m_period;
         uint32 m_tickNumber;
 
         uint8 const m_effIndex;

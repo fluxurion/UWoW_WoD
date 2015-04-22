@@ -609,7 +609,7 @@ struct AreaTableEntry
 
 struct AreaGroupEntry
 {
-    uint32  AreaGroupId;                                    // 0
+    uint32  RequiredAreasID;                                    // 0
     uint32  AreaId[MAX_GROUP_AREA_IDS];                     // 1-6
     uint32  nextGroup;                                      // 7 index of next group
 };
