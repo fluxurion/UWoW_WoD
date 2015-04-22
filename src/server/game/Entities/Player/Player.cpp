@@ -24137,6 +24137,7 @@ void Player::AddRPPMSpellCooldown(uint32 spellid, uint32 itemid, double end_time
     m_rppmspellCooldowns[spellid] = sc;
 }
 
+//! 6.0.3
 void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, Spell* spell /*= NULL*/, bool setCooldown /*= true*/)
 {
     // start cooldowns at server side, if any
@@ -24144,12 +24145,9 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
         AddSpellAndCategoryCooldowns(spellInfo, itemId, spell);
 
     // Send activate cooldown timer (possible 0) at client side
-    ObjectGuid guid = GetGUID();
     WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8 + 1);
-    //data.WriteGuidMask<6, 1, 5, 2, 7, 4, 3, 0>(guid);
-    //data.WriteGuidBytes<1, 5, 3, 2, 7>(guid);
+    data << GetGUID();
     data << uint32(spellInfo->Id);
-    //data.WriteGuidBytes<4, 6, 0>(guid);
     SendDirectMessage(&data);
 }
 

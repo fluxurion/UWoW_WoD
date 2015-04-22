@@ -910,7 +910,7 @@ enum OpcodeServer : uint32
     SMSG_CONTACT_STATUS                               = 0x1BEA,
     SMSG_CONVERT_RUNE                                 = 0xBADD,
     SMSG_COOLDOWN_CHEAT                               = 0xBADD,
-    SMSG_COOLDOWN_EVENT                               = 0xBADD,
+    SMSG_COOLDOWN_EVENT                               = 0x05B0,
     SMSG_CORPSE_LOCATION                              = 0x09E1,
     SMSG_CORPSE_RECLAIM_DELAY                         = 0x0BE2,
     SMSG_CORPSE_TRANSPORT_QUERY                       = 0x13AB,
