@@ -1402,6 +1402,7 @@ void World::LoadConfigSettings(bool reload)
     }
     m_bool_configs[CONFIG_DISABLE_RESTART] = sConfigMgr->GetBoolDefault("DisableRestart", true);
     m_bool_configs[CONFIG_DISABLE_NEW_ONLINE] = sConfigMgr->GetBoolDefault("DisableUpdateOnlineTable", false);
+    m_bool_configs[CONFIG_DISABLE_DONATE] = sConfigMgr->GetBoolDefault("DisableDonateScript", false);
 
     // call ScriptMgr if we're reloading the configuration
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = sConfigMgr->GetBoolDefault("Wintergrasp.Enable", false);

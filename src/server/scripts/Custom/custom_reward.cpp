@@ -26,6 +26,9 @@ public:
 
     void OnLogin(Player* player)
     {
+        if (sWorld->getBoolConfig(CONFIG_DISABLE_DONATE))
+            return;
+
         if(!player)
             return;
         ObjectGuid::LowType owner_guid = player->GetGUID().GetCounter();
