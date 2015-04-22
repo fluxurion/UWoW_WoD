@@ -1133,19 +1133,31 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     for (uint8 i = 0; i < 2; ++i)
         Totem[i] = _totem ? _totem->Totem[i] : 0;
 
-    // SpecializationSpellsEntry
-    SpecializationSpellEntry const* specializationInfo = NULL;
-    for (uint32 i = 0; i < sSpecializationSpellStore.GetNumRows(); i++)
+    if (Id != 674  &&   //Dual Wield
+        Effects[EFFECT_0].Effect != SPELL_EFFECT_LANGUAGE &&
+        Effects[EFFECT_0].Effect != SPELL_EFFECT_DEFENSE &&
+        Effects[EFFECT_0].Effect != SPELL_EFFECT_WEAPON &&
+        Effects[EFFECT_0].Effect != SPELL_EFFECT_BLOCK &&
+        Effects[EFFECT_0].Effect != SPELL_EFFECT_PARRY &&
+        Effects[EFFECT_0].Effect != SPELL_EFFECT_EVADE &&
+        Effects[EFFECT_0].Effect != SPELL_EFFECT_DODGE &&
+        Effects[EFFECT_0].Effect != SPELL_EFFECT_BLOCK &&
+        Effects[EFFECT_0].Effect != SPELL_EFFECT_SPELL_DEFENSE)
     {
-        specializationInfo = sSpecializationSpellStore.LookupEntry(i);
-        if(!specializationInfo)
-            continue;
+        // SpecializationSpellsEntry
+        SpecializationSpellEntry const* specializationInfo = NULL;
+        for (uint32 i = 0; i < sSpecializationSpellStore.GetNumRows(); i++)
+        {
+            specializationInfo = sSpecializationSpellStore.LookupEntry(i);
+            if(!specializationInfo)
+                continue;
 
-        if (specializationInfo->LearnSpell == Id)
-            SpecializationIdList.insert(specializationInfo->SpecializationEntry);
+            if (specializationInfo->LearnSpell == Id)
+                SpecializationIdList.insert(specializationInfo->SpecializationEntry);
 
-        if(specializationInfo->OverrideSpell == Id)
-            SpecializationOverrideSpellList.insert(specializationInfo);
+            if(specializationInfo->OverrideSpell == Id)
+                SpecializationOverrideSpellList.insert(specializationInfo);
+        }
     }
 
     talentId = 0;
