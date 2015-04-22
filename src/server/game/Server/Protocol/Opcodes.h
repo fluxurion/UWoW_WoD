@@ -883,8 +883,8 @@ enum OpcodeServer : uint32
     SMSG_CHAT_WRONG_FACTION                           = 0xBADD,
     SMSG_CHECK_FOR_BOTS                               = 0xBADD,
     SMSG_CLEAR_BOSS_EMOTES                            = 0xBADD,
-    SMSG_CLEAR_COOLDOWN                               = 0xBADD,
-    SMSG_CLEAR_COOLDOWNS                              = 0xBADD,
+    SMSG_CLEAR_COOLDOWN                               = 0x0226,
+    SMSG_CLEAR_COOLDOWNS                              = 0x0BFA,
     SMSG_CLEAR_FAR_SIGHT_IMMEDIATE                    = 0xBADD,
     SMSG_CLEAR_QUEST_COMPLETED_BIT                    = 0xBADD,
     SMSG_CLEAR_QUEST_COMPLETED_BITS                   = 0x1D47,
@@ -1168,7 +1168,7 @@ enum OpcodeServer : uint32
     SMSG_MINIGAME_STATE                               = 0xBADD,
     SMSG_MINIMAP_PING                                 = 0x07BA,
     SMSG_MIRRORIMAGE_DATA                             = 0xBADD,
-    SMSG_MISSILE_CANCEL                               = 0xBADD,
+    SMSG_MISSILE_CANCEL                               = 0x0337,
     SMSG_MODIFY_COOLDOWN                              = 0x17BA,
     SMSG_MONEY_NOTIFY                                 = 0xBADD,
     SMSG_MONSTER_MOVE                                 = 0x0994,
@@ -1317,7 +1317,7 @@ enum OpcodeServer : uint32
     SMSG_QUEST_QUERY_RESPONSE                         = 0x1547,
     SMSG_RAID_GROUP_ONLY                              = 0x0D9D,
     SMSG_RAID_INSTANCE_INFO                           = 0xBADD,
-    SMSG_RAID_INSTANCE_MESSAGE                        = 0xBADD,
+    SMSG_RAID_INSTANCE_MESSAGE                        = 0x0494,
     SMSG_RAID_MARKERS_CHANGED                         = 0xBADD,
     SMSG_RAID_READY_CHECK_THROTTLED_ERROR             = 0xBADD,
     SMSG_RAID_SUMMON_FAILED                           = 0xBADD,
@@ -1465,7 +1465,7 @@ enum OpcodeServer : uint32
     SMSG_TITLE_EARNED                                 = 0x1324,
     SMSG_TITLE_LOST                                   = 0x1D0E,
     SMSG_TOGGLE_XP_GAIN                               = 0xBADD,
-    SMSG_TOTEM_CREATED                                = 0xBADD,
+    SMSG_TOTEM_CREATED                                = 0x0352,
     SMSG_TRADE_STATUS                                 = 0x093D,
     SMSG_TRADE_UPDATED                                = 0x0B43,
     SMSG_TRAINER_BUY_FAILED                           = 0xBADD,
@@ -1558,7 +1558,8 @@ enum OpcodeServer : uint32
     SMSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x1BE9,
     SMSG_QUEST_PUSH_RESULT                            = 0x1797,
     SMSG_INSPECT_PVP                                  = 0x050A,
-
+    SMSG_ADD_LOSS_OF_CONTROL                          = 0x02F4,
+    SMSG_REMOVE_LOSS_OF_CONTROL                       = 0x0307,
     //MOP
     SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
     SMSG_CHALLENGE_MODE_COMPLETION_INFO               = 0xBADD, // 5.4.1 17538
@@ -1614,7 +1615,6 @@ enum OpcodeServer : uint32
     SMSG_SERVER_SCENE_PLAYBACK                        = 0xBADD, // 5.4.1 17538
     SMSG_SETUP_RESEARCH_HISTORY                       = 0xBADD,      // Not found in TC
     SMSG_SET_PET_SPECIALIZATION                       = 0x08D6, // 6.0.3
-    SMSG_SPELL_CHARGE_DATA                            = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_CREATE_VISUAL                          = 0xBADD, // 5.4.1 17538
     SMSG_SURVEY_CAST                                  = 0xBADD, // 5.4.1 17538
     SMSG_UPDATE_ACCOUNT_DATA_COMPLETE                 = 0xBADD,  // 5.0.5 16048
@@ -1626,9 +1626,7 @@ enum OpcodeServer : uint32
     SMSG_UNSET_MOVEFLAG2_0x1000                       = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_0x00E9                                 = 0xBADD, // 5.4.1 17538
     SMSG_PETITION_DECLINE                             = 0xBADD,
-    SMSG_ADD_LOSS_OF_CONTROL                          = 0xBADD, // 5.4.1 17538
     SMSG_LOSS_OF_CONTROL_AURA_UPDATE                  = 0xBADD, // 5.4.1 17538
-    SMSG_REMOVE_LOSS_OF_CONTROL                       = 0xBADD, // 5.4.1 17538
     SMSG_PET_BATTLE_FINALIZE_LOCATION                 = 0xBADD,
     SMSG_PET_BATTLE_FULL_UPDATE                       = 0xBADD,
     SMSG_PET_BATTLE_FIRST_ROUND                       = 0xBADD,

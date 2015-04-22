@@ -25027,16 +25027,15 @@ void Player::SendInitialPacketsAfterAddToMap()
     SetMover(this);
 }
 
+//! 6.0.3
 void Player::SendSpellHistoryData()
 {
     time_t curTime = time(NULL);
     time_t infTime = curTime + infinityCooldownDelayCheck;
     uint32 spellCount = 0;
 
-    ByteBuffer buff;
     WorldPacket data(SMSG_SEND_SPELL_HISTORY/*SMSG_SPELL_HISTORY_DATA*/);
-    size_t count_pos = data.bitwpos();
-    data.WriteBits(0, 19);
+    data << uint32(0);
 
     for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
     {
@@ -25046,55 +25045,50 @@ void Player::SendSpellHistoryData()
             continue;
 
         bool onHold = itr->second.end >= infTime;
-
-        data.WriteBit(onHold);                              // onHold
-        buff << uint32(itr->second.itemid);                 // ItemID
-        buff << uint32(info->Category);                     // Category
-
-        // send infinity cooldown in special format
-        if (onHold)
-        {
-            buff << uint32(1);                              // RecoveryTime
-            buff << uint32(itr->first);                     // SpellID
-            buff << uint32(0);                              // CategoryRecoveryTime
-            continue;
-        }
-
         time_t cooldown = itr->second.end > curTime ? (itr->second.end - curTime) * IN_MILLISECONDS : 0;
 
-        buff << uint32(cooldown);                       // RecoveryTime
-        buff << uint32(itr->first);                     // SpellID
+        data << uint32(itr->first);                         // SpellID
+        data << uint32(itr->second.itemid);                 // ItemID
+        data << uint32(info->Category);                     // Category
+        data << uint32(cooldown);                           // RecoveryTime
         if (info->Category)
-            buff << uint32(cooldown);                   // CategoryRecoveryTime
+            data << uint32(cooldown);                       // CategoryRecoveryTime
         else
-            buff << uint32(0);
+            data << uint32(0);
+
+        data.WriteBit(onHold);                              // onHold
+
+        // send infinity cooldown in special format
+        //if (onHold)
+        //{
+        //    buff << uint32(1);                              // RecoveryTime
+        //    buff << uint32(itr->first);                     // SpellID
+        //    buff << uint32(0);                              // CategoryRecoveryTime
+        //    continue;
+        //}
 
         ++spellCount;
     }
 
-    data.FlushBits();
-
-    if (!buff.empty())
-        data.append(buff);
-
-    data.PutBits(count_pos, spellCount, 19);
+    data.put(0, spellCount);
 
     GetSession()->SendPacket(&data);
 }
 
+//! 6.0.3
 void Player::SendSpellChargeData()
 {
-    WorldPacket data(SMSG_SPELL_CHARGE_DATA, m_spellChargeData.size() * 9 + 3);
+    WorldPacket data(SMSG_SEND_SPELL_CHARGES, m_spellChargeData.size() * 9 + 3);
     data.WriteBits(m_spellChargeData.size(), 21);
     for (SpellChargeDataMap::const_iterator itr = m_spellChargeData.begin(); itr != m_spellChargeData.end(); ++itr)
     {
         SpellChargeData const& chargeData = itr->second;
-        data << uint8(chargeData.maxCharges - chargeData.charges);  // ConsumedCharges (on cd)
+        data << uint32(itr->first);                                             // Category
         int32 diff = int32(chargeData.categoryEntry->chargeRegenTime) - int32(chargeData.timer);
         if (diff < 0)
             diff = 0;
         data << uint32(chargeData.charges != chargeData.maxCharges ? diff : 0); // NextRecoveryTime
-        data << uint32(itr->first);             // Category
+        data << uint8(chargeData.maxCharges - chargeData.charges);              // ConsumedCharges (on cd)
     }
 
     SendDirectMessage(&data);
@@ -25113,20 +25107,19 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
         pet->ResetAuraUpdateMaskForRaid();
 }
 
+//! 6.0.3
 void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Player::SendTransferAborted  mapid %i, reason %i, arg %i", mapid, reason, arg);
-    //! 5.4.1
     WorldPacket data(SMSG_TRANSFER_ABORTED, 4+2);
-    data.WriteBits(reason, 5);      // transfer abort reason
-    data.WriteBit(!arg);
-    data.FlushBits();
-    if (arg)
-        data << uint8(arg);
     data << uint32(mapid);
+    data << uint8(arg);
+    data.WriteBits(reason, 5);      // transfer abort reason
+        
     GetSession()->SendPacket(&data);
 }
 
+//! 6.0.3
 void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time)
 {
     // type of warning, based on the time remaining until reset
@@ -25141,10 +25134,10 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
         type = RAID_INSTANCE_WARNING_MIN_SOON;
 
     WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4 + 1 + 4 + 4 + 1);
-    data << uint32(difficulty);
     data << uint8(type);
-    data << uint32(time);
     data << uint32(mapid);
+    data << uint32(difficulty);
+    data << uint32(time);
     data.WriteBit(0);                                   // is locked or next
     data.WriteBit(0);                                   // is extended, ignored if prev field is 0 or prev
     GetSession()->SendPacket(&data);
@@ -27921,22 +27914,13 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
     }
 }
 
+//! 6.0.3
 void Player::SendClearCooldown(uint32 spell_id, Unit* target)
 {
-    //! 5.4.1
     WorldPacket data(SMSG_CLEAR_COOLDOWN);
-    ObjectGuid guid = target->GetGUID();
-
-    //data.WriteGuidMask<7, 5, 4, 6, 1, 2>(guid);
-    data.WriteBit(0/*notPet*/);
-    //data.WriteGuidMask<0, 3>(guid);
-
-    data.FlushBits();
-
-    //data.WriteGuidBytes<7, 4, 2, 0, 3>(guid);
+    data << target->GetGUID();
     data << spell_id;
-    //data.WriteGuidBytes<5, 6, 1>(guid);
-
+    data.WriteBit(0/*notPet*/);
     SendDirectMessage(&data);
 }
 

@@ -23813,6 +23813,7 @@ bool Unit::GetFreeAuraSlot(uint32& slot)
     return false;
 }
 
+//! 6.0.3
 void Unit::SendSpellCooldown(int32 spellId, int32 spell_cooldown, int32 cooldown)
 {
     Player* player = ToPlayer();
@@ -23841,16 +23842,12 @@ void Unit::SendSpellCooldown(int32 spellId, int32 spell_cooldown, int32 cooldown
     if (!cooldown)
         return;
 
-    ObjectGuid guid = player->GetGUID();
     WorldPacket data(SMSG_SPELL_COOLDOWN, 8 + 1 + 3 + 4 + 4);
-    //data.WriteGuidMask<4, 7, 6>(guid);
-    data.WriteBits(1, 21);
-    //data.WriteGuidMask<2, 3, 1, 0>(guid);
-    data.WriteBit(1);                                  // !hasFlags
-    //data.WriteGuidMask<5>(guid);
-    //data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
-    data << uint32(cooldown);
+    data << player->GetGUID();
+    data << uint8(0);
+    data << uint32(1);  //count
     data << uint32(spellId);
+    data << uint32(cooldown);
 
     player->GetSession()->SendPacket(&data);
 }
@@ -23867,65 +23864,48 @@ uint32 Unit::GetDynamicPassiveSpells(uint32 slot)
     return GetDynamicUInt32Value(UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS, slot);
 }
 
+//! 6.0.3
 void Unit::SendSpellScene(uint32 miscValue, Position* /*pos*/)
 {
     if (GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ObjectGuid casterGuid;// = m_caster->GetGUID(); // not caster something else??? wrong val. could break scean.
+    ObjectGuid TransportGUID;// = m_caster->GetGUID(); // not caster something else??? wrong val. could break scean.
 
     if (const std::vector<SpellScene> *spell_scene = sSpellMgr->GetSpellScene(miscValue))
     {
         for (std::vector<SpellScene>::const_iterator i = spell_scene->begin(); i != spell_scene->end(); ++i)
         {
             WorldPacket data(SMSG_PLAY_SCENE, 46);
-            data.WriteBit(!i->MiscValue);
-            data.WriteBit(!i->SceneInstanceID);
-            data.WriteBit(!i->ScenePackageId);
-            data.WriteBit(!i->hasO);
-            data.WriteBit(!i->PlaybackFlags);
-            data.WriteBit(!i->bit16);
+            data << uint32(miscValue);                                       // SceneID
+            data << uint32(i->PlaybackFlags);                                // PlaybackFlags
+            data << uint32(i->SceneInstanceID);                              // SceneInstanceID
+            data << uint32(i->ScenePackageId);                               // SceneScriptPackageID
+            data << TransportGUID;
+            data << float(i->x);                                             // X
+            data << float(i->y);                                             // Y
+            data << float(i->z);                                             // Z
+            data << float(i->o);      // Facing              
 
-            //data.WriteGuidMask<0, 5, 1, 7, 4, 2, 6, 3>(casterGuid);
-            //data.WriteGuidBytes<1, 2, 5, 6, 0, 7, 3, 4>(casterGuid);
-
-            data << float(i->y);            // Y
-
-            if(i->SceneInstanceID)
-                data << uint32(i->SceneInstanceID);                              // SceneInstanceID
-            if(miscValue)
-                data << uint32(miscValue);// SceneID
-            if(i->hasO)
-                data << float(i->o);      // Facing
-            if(i->ScenePackageId)
-                data << uint32(i->ScenePackageId);                   // SceneScriptPackageID
-            if(i->PlaybackFlags)
-                data << uint32(i->PlaybackFlags);                              // PlaybackFlags
-
-            data << float(i->x);            // X
-            data << float(i->z);            // Z
             ToPlayer()->GetSession()->SendPacket(&data);
         }
     }
 }
 
+//! 6.0.3
 void Unit::SendMissileCancel(uint32 spellId, bool cancel)
 {
     if (GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ObjectGuid guid = GetGUID();
-
     WorldPacket data(SMSG_MISSILE_CANCEL, 13);
-    //data.WriteGuidMask<6, 0, 3, 7, 5, 1, 4>(guid);
-    data.WriteBit(cancel);            // Reverse
-    //data.WriteGuidMask<2>(guid);
-    //data.WriteGuidBytes<4, 5, 7, 6, 1, 3>(guid);
+    data << GetGUID();
     data << uint32(spellId);
-    //data.WriteGuidBytes<0, 2>(guid);
+    data.WriteBit(cancel);            // Reverse
     ToPlayer()->GetSession()->SendPacket(&data);
 }
 
+//! 6.0.3
 void Unit::SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uint32 rmDuraction, uint32 mechanic, uint32 schoolMask, LossOfControlType type, bool apply)
 {
     if (GetTypeId() != TYPEID_PLAYER || !caster)
@@ -23938,27 +23918,21 @@ void Unit::SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uin
     if(apply)
     {
         WorldPacket data(SMSG_ADD_LOSS_OF_CONTROL);
-        data.WriteBits(mechanic, 8);     // Mechanic
-        data.WriteBits(type, 8);     // Type (interrupt or some other) may be loss control = 0, silence = 0, interrupt = 1, disarm = 0, root = 0
-        //data.WriteGuidMask<2, 1, 4, 3, 5, 6, 7, 0>(guid);
-        //data.WriteGuidBytes<3, 1, 4>(guid);
-        data << uint32(rmDuraction);        // RemainingDuration (контролирует блокировку баров, скажем если duration = 40000, а это число 10000, то как только останется 10 секунд, на барах пойдет прокрутка, иначе просто затеменено)
-        data << uint32(duraction);        // Duration (время действия)
-        //data.WriteGuidBytes<0>(guid);
-        data << uint32(spellId);     // SpellID
-        //data.WriteGuidBytes<2, 5, 6, 7>(guid);
-        data << uint32(schoolMask);     // SchoolMask (для type == interrupt and other)
+        data.WriteBits(mechanic, 8);             // Mechanic
+        data.WriteBits(type, 8);                 // Type (interrupt or some other) may be loss control = 0, silence = 0, interrupt = 1, disarm = 0, root = 0
+        data << uint32(spellId);                 // SpellID
+        data << caster->GetGUID();
+        data << uint32(duraction);               // Duration (время действия)
+        data << uint32(rmDuraction);             // RemainingDuration (контролирует блокировку баров, скажем если duration = 40000, а это число 10000, то как только останется 10 секунд, на барах пойдет прокрутка, иначе просто затеменено)
+        data << uint32(schoolMask);              // SchoolMask (для type == interrupt and other)
         ToPlayer()->GetSession()->SendPacket(&data);
     }
     else
     {
         WorldPacket data(SMSG_REMOVE_LOSS_OF_CONTROL);
-        //data.WriteGuidMask<1, 7, 0, 6, 2, 4, 5>(guid);
-        data.WriteBits(type, 8); // Type
-        //data.WriteGuidMask<3>(guid);
-        //data.WriteGuidBytes<1, 0, 4, 6, 7>(guid);
-        data << uint32(spellId); // SpellID
-        //data.WriteGuidBytes<3, 5, 2>(guid);
+        data.WriteBits(type, 8);                 // Type
+        data << uint32(spellId);                 // SpellID
+        data << caster->GetGUID();
         ToPlayer()->GetSession()->SendPacket(&data);
     }
 }
