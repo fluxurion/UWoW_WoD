@@ -1158,7 +1158,7 @@ void Unit::UpdatePowerRegen(uint32 power)
     float val = CalculatePct(addvalue, perc);
 
     SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + powerIndex, val);
-    if(power < POWER_UNUSED)
+    if(power < POWER_COMBO_POINTS)
         SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + powerIndex, val);
 
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::UpdatePowerRegen val %f, perc %i, powerIndex %i, power %i, addvalue %f", val, perc, powerIndex, power, addvalue);

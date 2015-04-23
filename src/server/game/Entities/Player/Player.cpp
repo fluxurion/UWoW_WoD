@@ -698,7 +698,6 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_curSelection.Clear();
     m_lootGuid.Clear();
 
-    m_comboTarget.Clear();
     m_comboPoints = 0;
     m_comboSavePoints = 0;
 
@@ -2953,6 +2952,7 @@ void Player::ResetAllPowers()
             break;
         case POWER_ENERGY:
             SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
+            SetPower(POWER_COMBO_POINTS, 0);
             break;
         case POWER_RUNIC_POWER:
             SetPower(POWER_RUNIC_POWER, 0);
@@ -8950,15 +8950,7 @@ void Player::DuelComplete(DuelCompleteType type)
     }
 
     // cleanup combo points
-    if (GetComboTarget() == duel->opponent->GetGUID())
-        ClearComboPoints();
-    else if (GetComboTarget() == duel->opponent->GetPetGUID())
-        ClearComboPoints();
-
-    if (duel->opponent->GetComboTarget() == GetGUID())
-        duel->opponent->ClearComboPoints();
-    else if (duel->opponent->GetComboTarget() == GetPetGUID())
-        duel->opponent->ClearComboPoints();
+    //ClearComboPoints();   //Need it?
 
     // Honor points after duel (the winner) - ImpConfig
     if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
@@ -24721,26 +24713,7 @@ Player* Player::GetSelectedPlayer() const
 
 void Player::SendComboPoints()
 {
-    Unit* combotarget = ObjectAccessor::GetUnit(*this, m_comboTarget);
-    if (combotarget)
-    {
-        WorldPacket data;
-        ObjectGuid combotargetGuid = combotarget->GetGUID();
-        SetPower(POWER_UNUSED, m_comboPoints);
-        /*if (m_mover != this)
-        {
-            data.Initialize(SMSG_PET_UPDATE_COMBO_POINTS, m_mover->GetPackGUID().size()+combotarget->GetPackGUID().size()+1);
-            data.append(m_mover->GetPackGUID());
-        }
-        else*/
-            //! 5.4.1
-            data.Initialize(SMSG_UPDATE_COMBO_POINTS, combotarget->GetPackGUID().size()+1);
-        //data.WriteGuidMask<5, 4, 6, 1, 3, 2, 7, 0>(combotargetGuid);
-        //data.WriteGuidBytes<1, 3, 7>(combotargetGuid);
-        data << uint8(m_comboPoints);
-        //data.WriteGuidBytes<6, 5, 2, 4, 0>(combotargetGuid);
-        GetSession()->SendPacket(&data);
-    }
+    SetPower(POWER_COMBO_POINTS, m_comboPoints, false);
 }
 
 void Player::AddComboPoints(Unit* target, int8 count, Spell* spell)
@@ -24753,23 +24726,7 @@ void Player::AddComboPoints(Unit* target, int8 count, Spell* spell)
     // without combo points lost (duration checked in aura)
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
 
-    if (target->GetGUID() == m_comboTarget)
-        *comboPoints += count;
-    else
-    {
-        if (m_comboTarget)
-            if (Unit* target2 = ObjectAccessor::GetUnit(*this, m_comboTarget))
-                target2->RemoveComboPointHolder(GetGUID());
-
-        // Spells will always add value to m_comboPoints eventualy, so it must be cleared first
-        if (spell)
-            m_comboPoints = 0;
-
-        m_comboTarget = target->GetGUID();
-        *comboPoints = count;
-
-        target->AddComboPointHolder(GetGUID());
-    }
+    *comboPoints += count;
 
     if (*comboPoints > 5)
         *comboPoints = 5;
@@ -24794,9 +24751,6 @@ void Player::GainSpellComboPoints(int8 count)
 
 void Player::ClearComboPoints()
 {
-    if (!m_comboTarget)
-        return;
-
     // without combopoints lost (duration checked in aura)
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
 
@@ -24817,11 +24771,6 @@ void Player::ClearComboPoints()
         ModifySpellCooldown(2983, chancekd);
         ModifySpellCooldown(73981, chancekd);
     }
-
-    if (Unit* target = ObjectAccessor::GetUnit(*this, m_comboTarget))
-        target->RemoveComboPointHolder(GetGUID());
-
-    m_comboTarget.Clear();
 }
 
 void Player::SetGroup(Group* group, int8 subgroup)
@@ -28129,7 +28078,6 @@ void Player::ActivateSpec(uint8 spec)
     if (Pet* pet = GetPet())
         RemovePet(pet);
 
-    ClearComboPointHolders();
     ClearAllReactives();
     UnsummonAllTotems();
     ExitVehicle();

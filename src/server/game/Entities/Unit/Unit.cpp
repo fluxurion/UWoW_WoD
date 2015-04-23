@@ -7901,13 +7901,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                                 rogue->AddSpellCooldown(51699, NULL, getPreciseTime() + cooldown);
                                 break;
                             }
-                            if (rogue->GetComboTarget())
-                            {
-                                Unit * getComdoTarget = ObjectAccessor::GetUnit(*rogue, rogue->GetComboTarget());
-                                rogue->CastSpell(getComdoTarget, 51699, true);
-                                rogue->AddSpellCooldown(51699, NULL, getPreciseTime() + cooldown);
-                                break;
-                            }
+
                             if (rogue->GetSelectedUnit() && !rogue->GetSelectedUnit()->IsFriendlyTo(rogue))
                             {
                                 rogue->CastSpell(rogue->GetSelectedUnit(), 51699, true);
@@ -14310,7 +14304,6 @@ int32 Unit::GetHealthGain(int32 dVal)
 void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal)
 {
 
-
     Player* player = ToPlayer();
     if(!player)
         return;
@@ -16107,6 +16100,7 @@ void Unit::SetMaxPower(Powers power, int32 val)
         // SetPower(power, val);
 }
 
+//! base max power for initiation
 int32 Unit::GetCreatePowers(Powers power) const
 {
     switch (power)
@@ -16141,6 +16135,8 @@ int32 Unit::GetCreatePowers(Powers power) const
             return 0;
         case POWER_CHI:
             return 4;
+        case POWER_COMBO_POINTS:
+            return 5;
         default:
             break;
     }
@@ -16276,7 +16272,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
-    ClearComboPointHolders();
     DeleteThreatList();
     getHostileRefManager().setOnlineOfflineState(false);
     GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
@@ -17632,20 +17627,6 @@ void Unit::RestoreDisplayId()
     // no auras found - set modelid to default
     else
         SetDisplayId(GetNativeDisplayId());
-}
-
-void Unit::ClearComboPointHolders()
-{
-    while (!m_ComboPointHolders.empty())
-    {
-        ObjectGuid guid = *m_ComboPointHolders.begin();
-
-        Player* player = ObjectAccessor::FindPlayer(guid);
-        if (player && player->GetComboTarget() == GetGUID())         // recheck for safe
-            player->ClearComboPoints();                        // remove also guid from m_ComboPointHolders;
-        else
-            m_ComboPointHolders.erase(guid);             // or remove manually
-    }
 }
 
 void Unit::ClearAllReactives()

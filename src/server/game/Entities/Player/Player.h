@@ -2067,7 +2067,6 @@ class Player : public Unit, public GridObject<Player>
         void SetSelection(ObjectGuid guid) { m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() const { if(HasAura(138148)) return m_comboPoints + 1; else return m_comboPoints; }
-        ObjectGuid GetComboTarget() const { return m_comboTarget; }
         void SaveAddComboPoints(int8 count) { m_comboSavePoints += count; }
         uint8 GetSaveComboPoints() const { return m_comboSavePoints; }
 
@@ -3390,7 +3389,6 @@ class Player : public Unit, public GridObject<Player>
         ObjectGuid m_curSelection;
         DigSiteInfo m_digsite;
 
-        ObjectGuid m_comboTarget;
         int8 m_comboPoints;
         int8 m_comboSavePoints;
 

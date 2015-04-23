@@ -4710,7 +4710,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     break;
 
-                if (m_caster->ToPlayer()->GetComboTarget() == unitTarget->GetGUID())
+                //if (m_caster->ToPlayer()->GetComboTarget() == unitTarget->GetGUID())
                     m_caster->ToPlayer()->AddComboPoints(unitTarget, 1);
 
                 // Fan of Knives - Vile Poisons
@@ -5925,26 +5925,25 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
         else
             damage += 1;
     }
-
     if (damage <= 0)
         return;
 
-    if (m_spellInfo->Id == 51723)
-    {
-        if (ObjectGuid const& combotarget = m_caster->m_movedPlayer->GetComboTarget())
-        {
-            if (unitTarget->GetGUID() != combotarget)
-                return;
-        }
-        else
-        {
-            if (Unit * target = m_caster->m_movedPlayer->GetSelectedUnit())
-            {
-                if (unitTarget->GetGUID() != target->GetGUID())
-                    return;
-            }
-        }
-    }
+    //if (m_spellInfo->Id == 51723)
+    //{
+    //    if (ObjectGuid const& combotarget = m_caster->m_movedPlayer->GetComboTarget())
+    //    {
+    //        if (unitTarget->GetGUID() != combotarget)
+    //            return;
+    //    }
+    //    else
+    //    {
+    //        if (Unit * target = m_caster->m_movedPlayer->GetSelectedUnit())
+    //        {
+    //            if (unitTarget->GetGUID() != target->GetGUID())
+    //                return;
+    //        }
+    //    }
+    //}
 
     if (m_spellInfo->Id == 139546) //Add CP after use old CP
         m_caster->m_movedPlayer->SaveAddComboPoints(damage);
