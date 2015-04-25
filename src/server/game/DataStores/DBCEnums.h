@@ -550,7 +550,9 @@ enum MapFlags
 enum AbilytyLearnType
 {
     ABILITY_LEARNED_ON_GET_PROFESSION_SKILL     = 1,
-    ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL  = 2
+    ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL  = 2,
+    ABILITY_LEARNED_ON_GET_UNK                  = 3,
+    ABILITY_LEARNED_ON_GET_UNK2                 = 4,    // DK: Death Gate
 };
 
 enum ItemEnchantmentType

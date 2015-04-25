@@ -3575,6 +3575,10 @@ void SpellMgr::LoadSpellClassInfo()
             if (skillLine->skillId != SkillClass[ClassID] || (spellEntry->SpellLevel == 0 && skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL))
                 continue;
 
+            // This is something else and it's should not be learn by player.
+            if (skillLine->learnOnGetSkill == ABILITY_LEARNED_ON_GET_UNK || skillLine->learnOnGetSkill == ABILITY_LEARNED_ON_GET_UNK2)
+                continue;
+
             // See CGSpellBook::InitFutureSpells in client
             if (spellEntry->Attributes & SPELL_ATTR0_TRADESPELL || ((spellEntry->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE) && !(spellEntry->Attributes & SPELL_ATTR0_PASSIVE))
                 || spellEntry->AttributesEx8 & SPELL_ATTR8_UNK13 || spellEntry->AttributesEx4 & SPELL_ATTR4_UNK15)
