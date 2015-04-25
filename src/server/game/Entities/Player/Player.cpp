@@ -27191,6 +27191,10 @@ uint32 Player::CalculateTalentsPoints() const
 
 bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
 {
+    // if no skill 225 - no riding.
+    if (GetSkillValue(SKILL_RIDING) < 225)
+        return false;
+
     switch(mapid)
     {
         case 0:

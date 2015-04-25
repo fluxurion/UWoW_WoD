@@ -110,6 +110,7 @@ enum DruidSpells
     SPELL_DRUID_SHOOTING_STARS              = 93400,
     SPELL_DRUID_AQUATIC_FORM                = 1066,
     SPELL_DRUID_FLY_FORM                    = 33943,
+    SPELL_DRUID_SWIFT_FLY_FORM              = 40120,
     SPELL_DRUID_STAG_FORM                   = 165961,
 };
 
@@ -3476,8 +3477,9 @@ class spell_dru_travel_form : public SpellScriptLoader
                 if (!target || target->GetTypeId() != TYPEID_PLAYER)
                     return;
                 
+                uint32 spellID = SPELL_DRUID_STAG_FORM;
                 if (target->IsInWater())    //Aquatic Form
-                    target->CastSpell(target, SPELL_DRUID_AQUATIC_FORM, true, NULL, aurEff);
+                    spellID = SPELL_DRUID_AQUATIC_FORM;
                 else
                 {
                     uint32 zoneID, areaID;
@@ -3493,8 +3495,10 @@ class spell_dru_travel_form : public SpellScriptLoader
                                 locRes = SPELL_FAILED_DONT_REPORT;
                     }
 
-                    target->CastSpell(target, locRes == SPELL_CAST_OK ? SPELL_DRUID_FLY_FORM : SPELL_DRUID_STAG_FORM, true, NULL, aurEff);
+                    if (locRes == SPELL_CAST_OK)
+                        spellID = target->ToPlayer()->GetSkillValue(SKILL_RIDING) >= 300 ? SPELL_DRUID_SWIFT_FLY_FORM : SPELL_DRUID_FLY_FORM;
                 }
+                target->CastSpell(target, spellID, true, NULL, aurEff);
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
@@ -3506,6 +3510,7 @@ class spell_dru_travel_form : public SpellScriptLoader
                 target->RemoveAurasDueToSpell(SPELL_DRUID_FLY_FORM);
                 target->RemoveAurasDueToSpell(SPELL_DRUID_STAG_FORM);
                 target->RemoveAurasDueToSpell(SPELL_DRUID_AQUATIC_FORM);
+                target->RemoveAurasDueToSpell(SPELL_DRUID_SWIFT_FLY_FORM);
             }
 
             void Register()
