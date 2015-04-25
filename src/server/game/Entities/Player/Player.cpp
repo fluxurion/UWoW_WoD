@@ -27178,6 +27178,10 @@ uint32 Player::CalculateTalentsPoints() const
 
 bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
 {
+    // No flying on Draenor.
+    if (mapid == 1265 || mapid == 1116)
+        return false;
+
     // continent checked in SpellInfo::CheckLocation at cast and area update
     uint32 v_map = GetVirtualMapForMapAndZone(mapid, zone);
     return v_map != 571 || HasSpell(54197); // Cold Weather Flying
