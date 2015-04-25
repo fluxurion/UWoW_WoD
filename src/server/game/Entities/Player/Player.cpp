@@ -27178,13 +27178,21 @@ uint32 Player::CalculateTalentsPoints() const
 
 bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
 {
-    // No flying on Draenor.
-    if (mapid == 1265 || mapid == 1116)
-        return false;
-
-    // continent checked in SpellInfo::CheckLocation at cast and area update
-    uint32 v_map = GetVirtualMapForMapAndZone(mapid, zone);
-    return v_map != 571 || HasSpell(54197); // Cold Weather Flying
+    switch(mapid)
+    {
+        case 0:
+        case 1:
+        case 646:
+            return HasSpell(54197); // Flight Master's License
+        case 571:
+            return HasSpell(54197); // Cold Weather Flying
+        case 870:
+            return HasSpell(115913);// Wisdom of the Four Winds
+        case 1265:
+        case 1116:
+            return false;
+    }
+    return true;
 }
 
 void Player::learnSpellHighRank(uint32 spellid)
