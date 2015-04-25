@@ -9550,11 +9550,11 @@ WorldObjectSpellTargetCheck::~WorldObjectSpellTargetCheck()
 
 bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
 {
-    uint8 res = _spellInfo->CheckTarget(_caster, target, true);
+    SpellCastResult res = _spellInfo->CheckTarget(_caster, target, true);
     if (res != SPELL_CAST_OK)
     {
         #ifdef WIN32
-        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::WorldObjectSpellTargetCheck::checkcast fail. spell id %u res %u caster %s target %s ", _spellInfo->Id, res, _caster->ToString().c_str(), target->ToString().c_str());
+        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::WorldObjectSpellTargetCheck::checkcast fail. spell id %u res %u caster %s target %s ", _spellInfo->Id, res, _caster->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str());
         #endif
         return false;
     }
