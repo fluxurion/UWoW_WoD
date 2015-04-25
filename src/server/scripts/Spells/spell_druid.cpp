@@ -3483,7 +3483,7 @@ class spell_dru_travel_form : public SpellScriptLoader
                     uint32 zoneID, areaID;
                     target->GetZoneAndAreaId(zoneID, areaID);
 
-                    SpellCastResult locRes = aurEff->GetSpellInfo()->CheckLocation(target->GetMapId(), zoneID, areaID, target->ToPlayer());
+                    SpellCastResult locRes = target->ToPlayer()->IsKnowHowFlyIn(target->GetMapId(), zoneID) ? SPELL_CAST_OK: SPELL_FAILED_DONT_REPORT;
 
                     if (locRes == SPELL_CAST_OK && target->isAlive())
                     {
