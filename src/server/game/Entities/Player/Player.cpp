@@ -3120,6 +3120,19 @@ void Player::SetInWater(bool apply)
     // remove auras that need water/land
     RemoveAurasWithInterruptFlags(apply ? AURA_INTERRUPT_FLAG_NOT_ABOVEWATER : AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
 
+    // Druid: Travel Form auto change form.
+    if (AuraEffect* travelForm = GetAuraEffect(783, EFFECT_0, GetGUID()))
+    {
+        if (apply)
+            CastSpell(this, 1066, true, NULL, travelForm);
+        else
+        {
+            //! ToDo: how better reaply aura with calling AfterEffectApply script
+            RemoveAurasDueToSpell(783);
+            CastSpell(this, 783, false);  // Try reapply
+        }
+    }
+
     getHostileRefManager().updateThreatTables();
 }
 

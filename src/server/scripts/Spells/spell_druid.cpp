@@ -25,6 +25,8 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Containers.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 
 enum DruidSpells
 {
@@ -106,6 +108,9 @@ enum DruidSpells
     SPELL_DRUID_CONSECRATION_DUMMY          = 81298,
     SPELL_DRUID_CONSECRATION_DAMAGE         = 110705,
     SPELL_DRUID_SHOOTING_STARS              = 93400,
+    SPELL_DRUID_AQUATIC_FORM                = 1066,
+    SPELL_DRUID_FLY_FORM                    = 33943,
+    SPELL_DRUID_STAG_FORM                   = 165961,
 };
 
 // Play Death - 110597
@@ -3455,6 +3460,67 @@ class spell_dru_ursocs_vigor : public SpellScriptLoader
         }
 };
 
+// 783 - Travel Form
+class spell_dru_travel_form : public SpellScriptLoader
+{
+    public:
+        spell_dru_travel_form() : SpellScriptLoader("spell_dru_travel_form") { }
+
+        class spell_dru_travel_form_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_travel_form_AuraScript);
+
+            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            {
+                Unit* target = GetTarget();
+                if (!target || target->GetTypeId() != TYPEID_PLAYER)
+                    return;
+                
+                if (target->IsInWater())    //Aquatic Form
+                    target->CastSpell(target, SPELL_DRUID_AQUATIC_FORM, true, NULL, aurEff);
+                else
+                {
+                    uint32 zoneID, areaID;
+                    target->GetZoneAndAreaId(zoneID, areaID);
+
+                    SpellCastResult locRes = aurEff->GetSpellInfo()->CheckLocation(target->GetMapId(), zoneID, areaID, target->ToPlayer());
+
+                    if (locRes == SPELL_CAST_OK && target->isAlive())
+                    {
+                        Battlefield* Bf = sBattlefieldMgr->GetBattlefieldToZoneId(areaID);
+                        if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaID))
+                            if (area->Flags[0] & AREA_FLAG_NO_FLY_ZONE  || (Bf && !Bf->CanFlyIn()))
+                                locRes = SPELL_FAILED_DONT_REPORT;
+                    }
+
+                    target->CastSpell(target, locRes == SPELL_CAST_OK ? SPELL_DRUID_FLY_FORM : SPELL_DRUID_STAG_FORM, true, NULL, aurEff);
+                }
+            }
+
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            {
+                Unit* target = GetTarget();
+                if (!target)
+                    return;
+
+                target->RemoveAurasDueToSpell(SPELL_DRUID_FLY_FORM);
+                target->RemoveAurasDueToSpell(SPELL_DRUID_STAG_FORM);
+                target->RemoveAurasDueToSpell(SPELL_DRUID_AQUATIC_FORM);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_travel_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_travel_form_AuraScript();
+        }
+};
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_play_death();
@@ -3523,4 +3589,5 @@ void AddSC_druid_spell_scripts()
     new spell_druid_dream_of_cenarius();
     new spell_dru_frenzied_regeneration_t16();
     new spell_dru_ursocs_vigor();
+    new spell_dru_travel_form();
 }

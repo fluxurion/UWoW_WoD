@@ -3485,10 +3485,6 @@ void SpellMgr::LoadSpellClassInfo()
             mSpellClassInfo[ClassID].insert(62158);
         }
 
-        // Swift Flight Form
-        if (ClassID == CLASS_DRUID)
-            mSpellClassInfo[ClassID].insert(40120);
-
         // Dark Soul
         if (ClassID == CLASS_WARLOCK)
             mSpellClassInfo[ClassID].insert(77801);

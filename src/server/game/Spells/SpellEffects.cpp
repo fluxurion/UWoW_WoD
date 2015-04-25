@@ -938,7 +938,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         && effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
 
+    #ifdef WIN32
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectDummy end %i, m_diffMode %i, effIndex %i, spellId %u, damage %i, effectHandleMode %u, GetExplicitTargetMask %u", m_damage, m_diffMode, effIndex, m_spellInfo->Id, damage, effectHandleMode, m_spellInfo->GetExplicitTargetMask());
+    #endif
 
     uint32 spell_id = 0;
     int32 bp = 0;
@@ -957,7 +959,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
         for (std::vector<SpellTriggered>::const_iterator itr = spellTrigger->begin(); itr != spellTrigger->end(); ++itr)
         {
+            #ifdef WIN32
             sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectDummy %u, 1<<effIndex %u, itr->effectmask %u, option %u, spell_trigger %i, target %u (%u ==> %u)", m_spellInfo->Id, 1<<effIndex, itr->effectmask, itr->option, itr->spell_trigger, itr->target, triggerTarget ? triggerTarget->GetGUID().GetCounter() : 0, triggerCaster ? triggerCaster->GetGUID().GetCounter() : 0);
+            #endif
 
             if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH && itr->option != 15 && itr->option != 20)
                 continue;
@@ -975,7 +979,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     continue;
             }
 
+            #ifdef WIN32
             sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectDummy2: %u, 1<<effIndex %u, itr->effectmask %u, option %u, spell_trigger %i, target %u (%u ==> %u)", m_spellInfo->Id, 1<<effIndex, itr->effectmask, itr->option, itr->spell_trigger, itr->target, triggerTarget ? triggerTarget->GetGUID().GetCounter(): 0, triggerCaster ? triggerCaster->GetGUID().GetCounter(): 0);
+            #endif
 
             if(itr->target == 1) //get target caster
                 triggerTarget = triggerCaster;
