@@ -21664,6 +21664,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 }
 
                 uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
+
                 // Male
                 if (getGender() == GENDER_MALE)
                 {
@@ -21705,7 +21706,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                             return epic ? 43770 : 29410;
                         case 4: // Brown
                         case 5:
-                            return epic ? 43768 : 2941;
+                            return epic ? 43768 : 29411;
                         case 0: // Dark
                         case 1:
                         case 2:
