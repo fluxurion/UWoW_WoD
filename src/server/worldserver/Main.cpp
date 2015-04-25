@@ -120,12 +120,6 @@ extern int main(int argc, char **argv)
         return 1;
     }
 
-    //if (sConfigMgr->GetBoolDefault("Log.Async.Enable", false))
-    {
-        // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
-        Log::instance(&_ioService);
-    }
-
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", _FULLVERSION);
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
     sLog->outInfo(LOG_FILTER_WORLDSERVER, " ______                       __");
@@ -187,6 +181,12 @@ extern int main(int argc, char **argv)
     {
         ShutdownThreadPool(threadPool);
         return 1;
+    }
+
+    //if (sConfigMgr->GetBoolDefault("Log.Async.Enable", false))
+    {
+        // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
+        Log::instance(&_ioService);
     }
 
     // Set server offline (not connectable)

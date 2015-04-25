@@ -291,17 +291,20 @@ void Log::vlog(LogFilterType filter, LogLevel level, char const* str, va_list ar
 
 void Log::write(LogMessage* msg)
 {
+    Logger* logger = GetLoggerByType(msg->type);
+    msg->text.append("\n");
+
+    auto logOperation = std::shared_ptr<LogOperation>(new LogOperation(logger, msg));
+
     if (_ioService)
     {
-        Logger* logger = GetLoggerByType(msg->type);
-        msg->text.append("\n");
-
-        auto logOperation = std::shared_ptr<LogOperation>(new LogOperation(logger, msg));
-
         _ioService->post(_strand->wrap([logOperation](){ logOperation->call(); }));
     }
     else
-        delete msg;
+    {
+        logOperation->call();
+        //delete msg;
+    }
 }
 
 std::string Log::GetTimestampStr()

@@ -76,8 +76,6 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    Log::instance(&_ioService);
-
     sLog->outInfo(LOG_FILTER_BATTLENET, "%s (bnetserver)", _FULLVERSION);
     sLog->outInfo(LOG_FILTER_BATTLENET, "<Ctrl-C> to stop.\n");
     sLog->outInfo(LOG_FILTER_BATTLENET, "Using configuration file %s.", configFile.c_str());
@@ -143,6 +141,9 @@ int main(int argc, char** argv)
 
     sComponentMgr->Load();
     sModuleMgr->Load();
+
+    // Init logging by thread.
+    Log::instance(&_ioService);
 
     // Start the io service worker loop
     _ioService.run();
