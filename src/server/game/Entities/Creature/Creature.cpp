@@ -375,7 +375,6 @@ bool Creature::UpdateEntry(uint32 entry, uint32 team, const CreatureData* data)
     SelectLevel(cInfo);
     setFaction(cInfo->faction);
 
-
     uint32 npcflag, npcflag2, unit_flags, dynamicflags;
     ObjectMgr::ChooseCreatureFlags(cInfo, npcflag, npcflag2, unit_flags, dynamicflags, data);
 
