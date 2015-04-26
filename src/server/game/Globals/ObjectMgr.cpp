@@ -835,13 +835,13 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             const_cast<CreatureTemplate*>(cInfo)->scale = 1.0f;
     }
 
-    if (cInfo->expansion > MAX_CREATURE_BASE_HP)
+    if (cInfo->expansion > MAX_EXPANSIONS)
     {
         sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with `exp` %u. Ignored and set to 0.", cInfo->Entry, cInfo->expansion);
         const_cast<CreatureTemplate*>(cInfo)->expansion = 0;
     }
 
-    if (cInfo->expansionUnknown > MAX_CREATURE_BASE_HP)
+    if (cInfo->expansionUnknown > MAX_EXPANSIONS)
     {
         sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with `exp_unk` %u. Ignored and set to 0.", cInfo->Entry, cInfo->expansionUnknown);
         const_cast<CreatureTemplate*>(cInfo)->expansionUnknown = 0;
@@ -8670,8 +8670,13 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
         DefaultCreatureBaseStats()
         {
             BaseArmor = 1;
-            for (uint8 j = 0; j < MAX_CREATURE_BASE_HP; ++j)
+            AttackPower = 1;
+            RangedAttackPower = 1;
+            for (uint8 j = 0; j < MAX_EXPANSIONS; ++j)
+            {
                 BaseHealth[j] = 1;
+                BaseDamage[j] = 1;
+            }
             BaseMana = 0;
         }
     };
@@ -8682,8 +8687,8 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
     uint32 oldMSTime = getMSTime();
-    //                                                  0     1       2        3
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basemana, basearmor FROM creature_classlevelstats");
+    //                                                  0     1       2        3            4               5               6               7           8           9           10              11
+    QueryResult result = WorldDatabase.Query("SELECT level, class, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2, damage_exp3, damage_exp4, damage_exp5 FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -8707,6 +8712,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         stats.BaseMana = fields[2].GetUInt32();
         stats.BaseArmor = fields[3].GetUInt32();
+        stats.AttackPower = fields[4].GetUInt16();
+        stats.RangedAttackPower = fields[5].GetUInt16();
 
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             sLog->outError(LOG_FILTER_SQL, "Creature base stats for level %u has invalid class %u", Level, Class);
@@ -8721,6 +8728,16 @@ void ObjectMgr::LoadCreatureClassLevelStats()
             {
                 sLog->outError(LOG_FILTER_SQL, "Creature base stats for class %u, level %u has invalid zero base HP[%u] - set to 1", Class, Level, i);
                 stats.BaseHealth[i] = 1;
+            }
+        }
+
+        for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
+        {
+            stats.BaseDamage[i] = fields[6 + i].GetFloat();
+            if (stats.BaseDamage[i] < 0.0f)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Creature base stats for class %u, level %u has invalid negative base damage[%u] - set to 0.0", Class, Level, i);
+                stats.BaseDamage[i] = 0.0f;
             }
         }
 

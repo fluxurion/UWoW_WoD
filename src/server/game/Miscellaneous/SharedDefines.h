@@ -29,8 +29,6 @@ enum EncounterCreditType
     ENCOUNTER_CREDIT_CAST_SPELL     = 1,
 };
 
-#define MAX_CREATURE_BASE_HP 5
-
 enum SpellEffIndex
 {
     EFFECT_0            = 0,

@@ -248,9 +248,12 @@ typedef UNORDERED_MAP<uint32, std::vector<CreatureDifficultyStat> > CreatureDiff
 // Defines base stats for creatures (used to calculate HP/mana/armor).
 struct CreatureBaseStats
 {
-    uint32 BaseHealth[MAX_CREATURE_BASE_HP];
+    uint32 BaseHealth[MAX_EXPANSIONS];
     uint32 BaseMana;
     uint32 BaseArmor;
+    uint32 AttackPower;
+    uint32 RangedAttackPower;
+    float BaseDamage[MAX_EXPANSIONS];
 
     // Helpers
 
@@ -260,6 +263,11 @@ struct CreatureBaseStats
             return uint32((BaseHealth[info->expansion] * diffStats->ModHealth) + 0.5f);
         else
             return uint32((BaseHealth[info->expansion] * info->ModHealth) + 0.5f);
+    }
+
+    float GenerateBaseDamage(CreatureTemplate const* info) const
+    {
+        return BaseDamage[info->expansion];
     }
 
     uint32 GenerateMana(CreatureTemplate const* info) const
