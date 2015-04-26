@@ -12223,6 +12223,10 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask, int32 baseBonus
         // Base value
         DoneAdvertisedBenefit += baseBonus;
 
+        // Check if we are ever using mana - PaperDollFrame.lua
+        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
+            DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));  // spellpower from intellect
+
         // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
         DoneAdvertisedBenefit *= GetTotalAuraMultiplier(SPELL_AURA_MOD_SPELL_POWER_PCT);
 
@@ -12980,6 +12984,10 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask, int32 baseBonu
     {
         // Base value
         AdvertisedBenefit += baseBonus;
+
+        // Check if we are ever using mana - PaperDollFrame.lua
+        if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
+            advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)));  // spellpower from intellect
 
         AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
         for (AuraEffectList::const_iterator i = mHealingDone.begin(); i != mHealingDone.end(); ++i)
