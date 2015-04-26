@@ -373,10 +373,8 @@ bool Creature::UpdateEntry(uint32 entry, uint32 team, const CreatureData* data)
         SetSheath(SHEATH_STATE_MELEE);
 
     SelectLevel(cInfo);
-    if (team == HORDE)
-        setFaction(cInfo->faction_H);
-    else
-        setFaction(cInfo->faction_A);
+    setFaction(cInfo->faction);
+
 
     uint32 npcflag, npcflag2, unit_flags, dynamicflags;
     ObjectMgr::ChooseCreatureFlags(cInfo, npcflag, npcflag2, unit_flags, dynamicflags, data);
@@ -414,7 +412,7 @@ bool Creature::UpdateEntry(uint32 entry, uint32 team, const CreatureData* data)
     UpdateAllStats();
 
     // checked and error show at loading templates
-    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_A))
+    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction))
     {
         if (factionTemplate->factionFlags & FACTION_TEMPLATE_FLAG_PVP)
             SetPvP(true);
