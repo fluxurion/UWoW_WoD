@@ -8542,7 +8542,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     int32 extra_attack_power = CalculateSpellDamage(victim, windfurySpellInfo, 1);
 
                     // Value gained from additional AP
-                    basepoints0 = int32(extra_attack_power / 14.0f * GetAttackTime(attType) / 1000);
+                    basepoints0 = int32(extra_attack_power / 3.5f * GetAttackTime(attType) / 1000);
 
                     if (procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK)
                         triggered_spell_id = 25504;
@@ -13216,7 +13216,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
                     normalized = true;
                     break;
                 }
-        DoneFlatBenefit += int32(APbonus/14.0f * GetAPMultiplier(attType, normalized));
+        DoneFlatBenefit += int32(APbonus/3.5f * GetAPMultiplier(attType, normalized));
     }
 
     // Done total percent damage auras
