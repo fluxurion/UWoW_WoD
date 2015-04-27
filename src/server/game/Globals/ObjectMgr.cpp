@@ -413,7 +413,7 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                          55      56      57      58      59      60      61      62         63            64       65       66       67         68
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                             69          70          71         72            73            74          75           76          77          78           79          80
-                                             "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
+                                             "InhabitType, HoverHeight, HealthModifier, ManaModifier, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
     //                                            81           82            83         84               85                  86          87
                                              " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
@@ -542,7 +542,7 @@ void ObjectMgr::LoadCreatureDifficultyStat()
     uint32 oldMSTime = getMSTime();
 
     //                                                 0        1             2             3
-    QueryResult result = WorldDatabase.Query("SELECT entry, difficulty, dmg_multiplier, Health_mod FROM creature_difficulty_stat;");
+    QueryResult result = WorldDatabase.Query("SELECT entry, difficulty, dmg_multiplier, HealthModifier FROM creature_difficulty_stat;");
 
     if (!result)
     {
