@@ -405,7 +405,7 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                           6       7       8        9           10           11        12     13      14        15        16         17         18        19         20
                                              "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
     //                                             21      22    23     24     25        26           27            28              29               30            31         32           33
-                                             "speed_fly, scale, rank, mindmg, maxdmg, dmgschool, attackpower, dmg_multiplier, baseattacktime, rangeattacktime, unit_class, unit_flags, unit_flags2, "
+                                             "speed_fly, scale, rank, mindmg, maxdmg, dmgschool, attackpower, dmg_multiplier, baseattacktime, rangeattacktime, unit_class, unit_flags, unit_flags2, unit_flags3, "
     //                                             34         35         36             37             38             39          40           41              42           43
                                              "dynamicflags, family, trainer_type, trainer_spell, trainer_class, trainer_race, minrangedmg, maxrangedmg, rangedattackpower, type, "
     //                                            44           45        46         47            48          49          50           51           52           53           54
@@ -471,6 +471,7 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.unit_class        = uint32(fields[index++].GetUInt8());
         creatureTemplate.unit_flags        = fields[index++].GetUInt32();
         creatureTemplate.unit_flags2       = fields[index++].GetUInt32();
+        creatureTemplate.unit_flags3       = fields[index++].GetUInt32();
         creatureTemplate.dynamicflags      = fields[index++].GetUInt32();
         creatureTemplate.family            = uint32(fields[index++].GetUInt32());
         creatureTemplate.trainer_type      = uint32(fields[index++].GetUInt8());

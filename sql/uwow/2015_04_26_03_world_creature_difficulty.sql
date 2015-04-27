@@ -4,3 +4,4 @@ ALTER TABLE `creature_template` CHANGE `Health_mod` `HealthModifier` FLOAT NOT N
 ALTER TABLE `creature_template` CHANGE `Mana_mod` `ManaModifier` FLOAT NOT NULL DEFAULT '1';
 ALTER TABLE `creature_template` CHANGE `WDBVerified` `VerifiedBuild` SMALLINT(6) NULL DEFAULT '1';
 ALTER TABLE `creature_difficulty_stat` CHANGE `Health_mod` `HealthModifier` INT UNSIGNED NOT NULL DEFAULT '1';
+ALTER TABLE `creature_template` ADD `unit_flags3` INT(10) NOT NULL DEFAULT '0' AFTER `unit_flags2`;

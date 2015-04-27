@@ -47,7 +47,7 @@ void VisibleNotifier::SendToSelf()
             }
         }
 
-        for (GuidSet::const_iterator it = vis_guids.begin(); it != vis_guids.end(); ++it)
+    for (GuidSet::const_iterator it = vis_guids.begin(); it != vis_guids.end(); ++it)
     {
         //extralook shouldn't be removed by missing creature in grid where is curently player
         if (i_player.HaveExtraLook(*it))
