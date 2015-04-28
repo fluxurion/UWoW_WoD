@@ -52,15 +52,17 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
 
     uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), GetPlayer()->GetTeam());
 
+    uint8 statu = 0;   // 0 - no, 1 - learned, 3 - ready for learning
     // not found nearest
-    if (curloc == 0)
-        return;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: current location %u ", curloc);
+    if (curloc)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: current location %u ", curloc);
+        statu = GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? 1 : 3;
+    }
 
     WorldPacket data(SMSG_TAXINODE_STATUS, 9);
     data << guid;
-    data.WriteBits(GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? 1 : 0, 2);
+    data.WriteBits(statu, 2);
     SendPacket(&data);
 
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_TAXINODE_STATUS");
