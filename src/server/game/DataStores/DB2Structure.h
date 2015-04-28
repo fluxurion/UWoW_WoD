@@ -666,7 +666,8 @@ struct TaxiPathNodePtr
 typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
-#define TaxiMaskSize 114
+// TaxiMaskSize = (TaxiNodes max id / 8)+1
+#define TaxiMaskSize 198    //6.0.2
 typedef uint8 TaxiMask[TaxiMaskSize];
 
 typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
