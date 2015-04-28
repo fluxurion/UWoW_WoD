@@ -235,6 +235,9 @@ void FlightPathMovementGenerator::DoReset(Player & player)
         G3D::Vector3 vertice((*i_path)[i].Loc.X, (*i_path)[i].Loc.Y, (*i_path)[i].Loc.Z);
         init.Path().push_back(vertice);
     }
+    G3D::Vector3 vertice((*i_path)[end-1].Loc.X, (*i_path)[end-1].Loc.Y, (*i_path)[end-1].Loc.Z);
+    init.Path().push_back(vertice);
+
     init.SetFirstPointId(GetCurrentNode());
     init.SetFly();
     init.SetSmooth();
