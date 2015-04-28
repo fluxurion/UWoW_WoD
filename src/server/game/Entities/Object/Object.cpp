@@ -45,13 +45,12 @@
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "OutdoorPvPMgr.h"
-#include "MovementPacketBuilder.h"
 #include "DynamicTree.h"
 #include "Unit.h"
 #include "Group.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
-
+#include "MovementPackets.h"
 
 Object::Object() : m_objectTypeId(TYPEID_OBJECT), m_objectType(TYPEMASK_OBJECT), m_uint32Values(NULL),
     _changedFields(NULL), m_valuesCount(0), _dynamicValuesCount(0), _fieldNotifyFlags(UF_FLAG_DYNAMIC), m_inWorld(false),
@@ -426,7 +425,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         // HasMovementSpline - marks that spline data is present in packet
 
         if (data->WriteBit(HasSpline))
-            Movement::PacketBuilder::WriteCreate(*unit->movespline, *data);
+            WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(*unit->movespline, *data);
     }
 
     if (HasMovementTransport)

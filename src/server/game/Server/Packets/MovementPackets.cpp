@@ -403,13 +403,13 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
     {
         if (!splineFlags.cyclic)
         {
-            uint32 count = spline.getPointCount() - 3;
-            for (uint32 i = 2; i < count; ++i)
+            uint32 count = spline.getPointCount()-1;
+            for (uint32 i = 1; i < count; ++i)
                 movementSpline.Points.push_back(array[i]);
         }
         else
         {
-            uint32 count = spline.getPointCount() - 3;
+            uint32 count = spline.getPointCount()-2;
             movementSpline.Points.push_back(array[1]);
             for (uint32 i = 1; i < count; ++i)
                 movementSpline.Points.push_back(array[i]);

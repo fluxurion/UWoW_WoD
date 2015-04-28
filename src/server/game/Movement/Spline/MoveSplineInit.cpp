@@ -18,7 +18,6 @@
 
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
-#include "MovementPacketBuilder.h"
 #include "Unit.h"
 #include "Transport.h"
 #include "Vehicle.h"
@@ -110,7 +109,7 @@ namespace Movement
         WorldPackets::Movement::MonsterMove packet;
         packet.MoverGUID = unit.GetGUID();
         packet.Pos = real_position;
-        PacketBuilder::WriteMonsterMove(move_spline, packet.SplineData);
+        packet.InitializeSplineData(move_spline);
         unit.SendMessageToSet(packet.Write(), true);
 
         //blizz-hack.
