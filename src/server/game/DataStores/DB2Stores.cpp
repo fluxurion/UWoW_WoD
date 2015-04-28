@@ -331,6 +331,9 @@ void LoadDB2Stores(const std::string& dataPath)
                 if (!ok)
                     continue;
             }
+            
+            if (src_i == sTaxiPathSetBySource.end())
+                continue;
 
             // valid taxi network node
             uint8  field   = (uint8)((i - 1) / 8);
