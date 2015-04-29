@@ -1591,7 +1591,7 @@ void SpellMgr::LoadSpellLearnSpells()
         if (!GetSpellInfo(node.spell) || node.reqSpell && !GetSpellInfo(node.reqSpell))
         {
             sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_learn_spell` learning not existed spell %u", spell_id, node.spell);
-            WorldDatabase.PExecute("DELETE FROM `spell_learn_spell` WHERE entry = %u", spell_id);
+            WorldDatabase.PExecute("DELETE FROM `spell_learn_spell` WHERE SpellID = %u", node.spell);
             continue;
         }
 

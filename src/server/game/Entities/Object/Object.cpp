@@ -1184,12 +1184,11 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targ
         visibleFlag |= UF_FLAG_PRIVATE;
     else if (GetTypeId() == TYPEID_PLAYER)
         valCount = PLAYER_END_NOT_SELF;
-
+    
     for (uint16 index = 0; index < valCount; ++index)
     {
-        if (_fieldNotifyFlags & flags[index] ||
-            ((flags[index] & visibleFlag) & UF_FLAG_SPECIAL_INFO) ||
-            ((updateType == UPDATETYPE_VALUES ? _changedFields[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)))
+        if ((_fieldNotifyFlags & flags[index] || ((flags[index] & visibleFlag) & UF_FLAG_SPECIAL_INFO) || (flags[index] & visibleFlag)) &&
+            (updateType == UPDATETYPE_VALUES ? _changedFields[index] : m_uint32Values[index]))
         {
             updateMask.SetBit(index);
 

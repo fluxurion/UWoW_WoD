@@ -862,7 +862,7 @@ enum OpcodeServer : uint32
     SMSG_CHANNEL_NOTIFY                               = 0x0643,
     SMSG_CHANNEL_NOTIFY_JOINED                        = 0x1602,
     SMSG_CHANNEL_NOTIFY_LEFT                          = 0x1452,
-    SMSG_CHANNEL_START                                = 0x016C,
+    SMSG_SPELL_CHANNEL_START                          = 0x016C,
     SMSG_CHANNEL_UPDATE                               = 0x19DB,
     SMSG_CHARACTER_LOGIN_FAILED                       = 0xBADD,
     SMSG_CHAR_CREATE                                  = 0x0107,

@@ -5366,13 +5366,11 @@ void Spell::SendChannelStart(uint32 duration)
                 channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
 
     //! 6.0.3
-    WorldPacket data(SMSG_CHANNEL_START, (8+4+4));
+    WorldPacket data(SMSG_SPELL_CHANNEL_START, (8+4+4));
     data << m_caster->GetPackGUID();
     data << uint32(m_spellInfo->Id);
     data << uint32(duration);
-    data << uint8(0);                           // immunity (castflag & 0x04000000)
-    data << uint8(0);                           // healPrediction (castflag & 0x40000000)
-
+    data << uint8(0);   // bit HasInterruptImmunities & HasHealPrediction
     m_caster->SendMessageToSet(&data, true);
 
     m_timer = duration;
