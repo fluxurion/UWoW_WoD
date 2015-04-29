@@ -38,6 +38,14 @@ class AreaTrigger;
 class AuraScript;
 class ProcInfo;
 
+namespace WorldPackets
+{
+    namespace Spells
+    {
+        struct AuraInfo;
+    }
+}
+
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 #define UPDATE_TARGET_MAP_INTERVAL 500
 
@@ -73,7 +81,7 @@ class AuraApplication
         uint32 GetEffectMask() const { return _effectMask; }
         bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return (_effectMask & (1<<effect)) != 0; }
         bool IsPositive() const { return (_flags & AFLAG_POSITIVE) != 0; }
-        bool IsSelfcasted() const { return (_flags & AFLAG_CASTER) != 0; }
+        bool IsSelfcasted() const { return !(_flags & AFLAG_NOCASTER); }
         uint32 GetEffectsToApply() const { return _effectsToApply; }
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
@@ -81,7 +89,7 @@ class AuraApplication
 
         void SetNeedClientUpdate() { _needClientUpdate = true;}
         bool IsNeedClientUpdate() const { return _needClientUpdate;}
-        void BuildUpdatePacket(ByteBuffer& data, bool remove, uint32 overrideAura = 0) const;
+        void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove, uint32 overrideAura = 0) const;
         void ClientUpdate(bool remove = false);
 };
 

@@ -25354,19 +25354,22 @@ void Player::SendAurasForTarget(Unit* target)
     if (target->HasAuraType(SPELL_AURA_HOVER))
         target->SetHover(true, true);
 
-    ObjectGuid targetGuid = target->GetGUID();
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
 
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data.WriteBit(0); //bit16
-    data.FlushBits();
-    data << target->GetPackGUID();
-    data << uint32(visibleAuras->size()); //count
+    WorldPackets::Spells::AuraUpdate update;
+    update.UpdateAll = true;
+    update.UnitGUID = target->GetGUID();
+    update.Auras.reserve(visibleAuras->size());
 
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
-        itr->second->BuildUpdatePacket(data, false);
+    {
+        AuraApplication* auraApp = itr->second;
+        WorldPackets::Spells::AuraInfo auraInfo;
+        auraApp->BuildUpdatePacket(auraInfo, false);
+        update.Auras.push_back(auraInfo);
+    }
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(update.Write());
 }
 
 void Player::SetDailyQuestStatus(uint32 quest_id)

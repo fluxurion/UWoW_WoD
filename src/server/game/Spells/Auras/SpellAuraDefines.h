@@ -24,10 +24,10 @@
 enum AURA_FLAGS
 {
     AFLAG_NONE                   = 0x00,
-    AFLAG_CASTER                 = 0x01,
+    AFLAG_NOCASTER               = 0x01,
     AFLAG_POSITIVE               = 0x02,
     AFLAG_DURATION               = 0x04,
-    AFLAG_ANY_EFFECT_AMOUNT_SENT = 0x08,
+    AFLAG_SCALABLE               = 0x08,
     AFLAG_NEGATIVE               = 0x10,
     AFLAG_FAKEAURA               = 0x20, //May be fake auras or not visible or update fake aura?
 };

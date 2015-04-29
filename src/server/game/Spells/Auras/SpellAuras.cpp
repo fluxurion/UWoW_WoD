@@ -35,6 +35,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "SpellPackets.h"
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura* aura, uint32 effMask):
 _target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), _slot(MAX_AURAS),
@@ -115,7 +116,7 @@ void AuraApplication::_Remove()
 void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
 {
     // mark as selfcasted if needed
-    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE;
+    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_NONE : AFLAG_NOCASTER;
 
     // aura is casted by self or an enemy
     // one negative effect and we know aura is negative
@@ -149,7 +150,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
     }
 
     if (GetBase()->GetSpellInfo()->AttributesEx8 & SPELL_ATTR8_AURA_SEND_AMOUNT)
-        _flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
+        _flags |= AFLAG_SCALABLE;
 }
 
 void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
@@ -178,137 +179,71 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     SetNeedClientUpdate();
 }
 
-void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove, uint32 overrideAura) const
+void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove, uint32 overrideAura) const
 {
-    data << uint8(_slot);
-
-    if (!data.WriteBit(!remove))
-    {
-        //ASSERT(!_target->GetVisibleAura(_slot));
+    auraInfo.Slot = GetSlot();
+    if (remove)
         return;
-    }
-    data.FlushBits();
 
     Aura const* aura = GetBase();
-    data << uint32(overrideAura ? overrideAura : aura->GetId());
-
-    uint8 flags = _flags;
+    WorldPackets::Spells::AuraDataInfo auraData;
+    auraData.SpellID = overrideAura ? overrideAura : aura->GetId();
+    auraData.Flags = GetFlags();
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
-        flags |= AFLAG_DURATION;
+        auraData.Flags |= AFLAG_DURATION;
 
-    data << uint8(flags);
+    auraData.ActiveFlags = GetEffectMask();
+    auraData.CastLevel = aura->GetCasterLevel();
 
-    //if (data.WriteBit(!(flags & AFLAG_CASTER)))
-        //data.WriteGuidMask<2, 3, 4, 0, 1, 6, 7, 5>(aura->GetCasterGUID());
-    uint32 count = 0;
-    bool sendEffect = false;
-    bool nosendEffect = false;
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
+    // stack amount has priority over charges (checked on retail with spell 50262)
+    auraData.Applications = aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges();
+    if (auraData.Flags & AFLAG_NOCASTER)
+        auraData.CastUnit.Set(aura->GetCasterGUID());
+
+    if (auraData.Flags & AFLAG_DURATION)
     {
-        if(!(_effectsToApply & (1 << i)))
-            continue;
+        auraData.Duration.Set(aura->GetMaxDuration());
+        auraData.Remaining.Set(aura->GetDuration());
+    }
 
-        if(aura->GetSpellInfo()->Effects[i].IsEffect())
+    if (auraData.Flags & AFLAG_SCALABLE)
+    {
+        auraData.Points.resize(MAX_SPELL_EFFECTS);
+        uint32 size = 0;
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            ++count;
-            if (AuraEffect const* eff = aura->GetEffect(i))
+            if (!(_effectsToApply & (1 << i)))
+                continue;
+
+            if (aura->GetSpellInfo()->Effects[i].IsEffect())
             {
-                switch (eff->GetAuraType())
+                if (AuraEffect const* effect = aura->GetEffect(i))
                 {
+                    switch (effect->GetAuraType())
+                    {
                     case SPELL_AURA_SCHOOL_ABSORB:
                     case SPELL_AURA_SCHOOL_HEAL_ABSORB:
                     case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
                     case SPELL_AURA_ADD_FLAT_MODIFIER:
                     case SPELL_AURA_ADD_PCT_MODIFIER:
-                        nosendEffect = true;
-                        break;
+                        continue;
                     default:
-                        if(eff->GetAmount() != eff->GetBaseSendAmount())
-                        {
-                            sendEffect = true;
-                        }
-                        break;
+                        //if (effect->GetAmount() != effect->GetBaseSendAmount())
+                    {
+                        auraData.Points.push_back(float(effect->GetAmount()));
+                        ++size;
+                    }
+                    break;
+                    }
+
                 }
             }
         }
-    }
-    data << uint32(GetEffectMask());
-    data << uint16(aura->GetCasterLevel());
-    // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
-    // stack amount has priority over charges (checked on retail with spell 50262)
-    data << uint8((aura->GetStackAmount() > 1 || !aura->GetSpellInfo()->ProcCharges) ? aura->GetStackAmount() : aura->GetCharges());
-    data << uint32((sendEffect && !nosendEffect) ? count : 0);  // effect count 2
-    data << uint32(count); // effect count
-
-    //effect2 send base amount
-    if(sendEffect && !nosendEffect)
-    {
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-        if(!(_effectsToApply & (1 << i)))
-            continue;
-
-            if(aura->GetSpellInfo()->Effects[i].IsEffect())
-            {
-                if (AuraEffect const* eff = aura->GetEffect(i))
-                    data << float(eff->GetAmount());
-                else
-                    data << float(0.0f);
-            }
-        }
+        auraData.Points.resize(size);
     }
 
-    //effect value
-    if(sendEffect && !nosendEffect)
-    {
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if(!(_effectsToApply & (1 << i)))
-                continue;
-            if(aura->GetSpellInfo()->Effects[i].IsEffect())
-            {
-                if (AuraEffect const* eff = aura->GetEffect(i))
-                {
-                    if(eff->GetAmount() != eff->GetBaseSendAmount())
-                        data << float(eff->GetAmount());
-                    else
-                        data << float(0.0f);
-                }
-                else
-                    data << float(0.0f);
-            }
-        }
-    }
-    else
-    {
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if(!(_effectsToApply & (1 << i)))
-                continue;
-
-            if(aura->GetSpellInfo()->Effects[i].IsEffect())
-            {
-                if (AuraEffect const* eff = aura->GetEffect(i))
-                    data << float(eff->GetAmount());
-                else
-                    data << float(0.0f);
-            }
-        }
-    }
-
-    data.WriteBit(flags & AFLAG_CASTER);
-    data.WriteBit(flags & AFLAG_DURATION);  // has duration
-    data.WriteBit(flags & AFLAG_DURATION);  // has max duration
-    data.FlushBits();
-
-    if (flags & AFLAG_CASTER)
-        data << aura->GetCasterGUID().WriteAsPacked();
-
-    if (flags & AFLAG_DURATION)
-        data << uint32(aura->GetDuration());
-
-    if (flags & AFLAG_DURATION)
-        data << uint32(aura->GetMaxDuration());
+    auraInfo.AuraData.Set(auraData);
 }
 
 void AuraApplication::ClientUpdate(bool remove)
@@ -318,14 +253,15 @@ void AuraApplication::ClientUpdate(bool remove)
 
     _needClientUpdate = false;
 
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data.WriteBit(0);//bit16
-    data.FlushBits();
-    data << GetTarget()->GetPackGUID();
-    data << uint32(1); //count
-    BuildUpdatePacket(data, remove);
+    WorldPackets::Spells::AuraUpdate update;
+    update.UpdateAll = false;
+    update.UnitGUID = GetTarget()->GetGUID();
 
-    _target->SendMessageToSet(&data, true);
+    WorldPackets::Spells::AuraInfo auraInfo;
+    BuildUpdatePacket(auraInfo, remove);
+    update.Auras.push_back(auraInfo);
+
+    _target->SendMessageToSet(update.Write(), true);
 }
 
 uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibleEffectMask, WorldObject* owner)

@@ -1709,7 +1709,7 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
                     if (!(mode & AURA_EFFECT_HANDLE_REAPPLY))
                         target->RemoveGameObject(GetId(), true);
 
-                    target->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, (AFLAG_CASTER | AFLAG_POSITIVE | AFLAG_FAKEAURA), 0, slot, true);
+                    target->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, (AFLAG_NOCASTER | AFLAG_POSITIVE | AFLAG_FAKEAURA), 0, slot, true);
                 }
             }
 
@@ -1725,9 +1725,9 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
                         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(WARLOCK_DEMONIC_CIRCLE_TELEPORT);
 
                         if (target->IsWithinDist(circle, spellInfo->GetMaxRange(true)))
-                            target->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, (AFLAG_CASTER | AFLAG_POSITIVE | AFLAG_FAKEAURA), 0, slot, false);
+                            target->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, (AFLAG_NOCASTER | AFLAG_POSITIVE | AFLAG_FAKEAURA), 0, slot, false);
                         else
-                            target->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, (AFLAG_CASTER | AFLAG_POSITIVE | AFLAG_FAKEAURA), 0, slot, true);
+                            target->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, (AFLAG_NOCASTER | AFLAG_POSITIVE | AFLAG_FAKEAURA), 0, slot, true);
                     }
                 }
             }
@@ -1737,7 +1737,7 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
                 if(Unit* target = GetTarget())
                 {
                     if(target->GetFreeAuraSlot(slot))
-                        target->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, (AFLAG_CASTER | AFLAG_POSITIVE | AFLAG_DURATION), 1000, slot, false);
+                        target->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, (AFLAG_NOCASTER | AFLAG_POSITIVE | AFLAG_DURATION), 1000, slot, false);
                 }
             }
 

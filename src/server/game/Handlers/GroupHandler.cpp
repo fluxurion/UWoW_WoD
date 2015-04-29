@@ -1174,7 +1174,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
                 uint8 count2 = 0;
                 *data << uint32(count2);
 
-                if (aurApp->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                if (aurApp->GetFlags() & AFLAG_SCALABLE)
                 {
                     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {
@@ -1304,7 +1304,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
                         uint8 count2 = 0;
                         *data << uint32(count2);
 
-                        if (aurApp->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                        if (aurApp->GetFlags() & AFLAG_SCALABLE)
                         {
                             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                             {

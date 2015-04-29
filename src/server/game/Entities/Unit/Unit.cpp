@@ -23746,41 +23746,34 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position* position,
 //! 6.0.3 ToDo: Check IT
 void Unit::SendFakeAuraUpdate(uint32 auraId, uint32 flags, uint32 diration, uint32 _slot, bool remove)
 {
-    ObjectGuid targetGuid = GetGUID();
+    WorldPackets::Spells::AuraUpdate update;
+    update.UpdateAll = false;
+    update.UnitGUID = GetGUID();
 
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data.WriteBit(0);//bit16
-    data.FlushBits();
-    data << GetPackGUID();
-    data << uint32(1); //count
-    data << uint8(_slot);
-    if (data.WriteBit(!remove))
+    WorldPackets::Spells::AuraInfo auraInfo;
+    auraInfo.Slot = _slot;
+    if (!remove)
     {
-        data << uint32(auraId);
-        data << uint8(flags);
-        data << uint32(1); // Effect mask
-        data << uint16(getLevel());
-        data << uint8(0); // StackAmount
-        data << uint32(0);
-        data << uint32(0);
+        WorldPackets::Spells::AuraDataInfo auraData;
+        auraData.SpellID = auraId;
+        auraData.Flags = flags;
+        auraData.ActiveFlags = 1;
+        auraData.CastLevel = getLevel();
 
-        data.WriteBit(flags & AFLAG_CASTER);
-        data.WriteBit(flags & AFLAG_DURATION);  // has duration
-        data.WriteBit(flags & AFLAG_DURATION);  // has max duration
-        data.FlushBits();
+        if (!(auraData.Flags & AFLAG_NOCASTER))
+            auraData.CastUnit.Set(GetGUID());
 
-        if (flags & AFLAG_CASTER)
-            data << GetGUID();
-
-        if (flags & AFLAG_DURATION)
-            data << uint32(diration);
-
-        if (flags & AFLAG_DURATION)
-            data << uint32(diration);
-
+        if (auraData.Flags & AFLAG_DURATION)
+        {
+            auraData.Duration.Set(diration);
+            auraData.Remaining.Set(diration);
+        }
+        auraInfo.AuraData.Set(auraData);
     }
 
-    SendMessageToSet(&data, true);
+    update.Auras.push_back(auraInfo);
+
+    SendMessageToSet(update.Write(), true);
 }
 
 bool Unit::GetFreeAuraSlot(uint32& slot)
