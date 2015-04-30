@@ -971,7 +971,7 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
     pos.Relocate(x, y, z);
     spell->m_targets.ModDst(pos);
 
-    WorldPacket data(SMSG_SET_PROJECTILE_POSITION, 21);
+    WorldPacket data(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 21);
     data << casterGuid;
     data << uint8(castCount);
     data << float(x);

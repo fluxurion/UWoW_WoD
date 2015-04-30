@@ -60,12 +60,12 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
         statu = GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? 1 : 3;
     }
 
-    WorldPacket data(SMSG_TAXINODE_STATUS, 9);
+    WorldPacket data(SMSG_TAXI_NODE_STATUS, 9);
     data << guid;
     data.WriteBits(statu, 2);
     SendPacket(&data);
 
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_TAXINODE_STATUS");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_TAXI_NODE_STATUS");
 }
 
 //! 6.0.3
@@ -153,7 +153,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
         WorldPacket msg(SMSG_NEW_TAXI_PATH, 0);
         SendPacket(&msg);
 
-        WorldPacket update(SMSG_TAXINODE_STATUS, 9);
+        WorldPacket update(SMSG_TAXI_NODE_STATUS, 9);
         update << unit->GetGUID();
         update.WriteBits(1, 2);
         SendPacket(&update);

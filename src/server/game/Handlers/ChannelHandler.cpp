@@ -399,24 +399,6 @@ void WorldSession::HandleChannelDisplayListQuery(WorldPacket &recvPacket)
     HandleChannelList(recvPacket);
 }
 
-void WorldSession::HandleGetChannelMemberCount(WorldPacket &recvPacket)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    std::string channelname;
-    recvPacket >> channelname;
-    if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
-    {
-        if (Channel* chn = cMgr->GetChannel(channelname, _player))
-        {
-            WorldPacket data(SMSG_CHANNEL_MEMBER_COUNT, chn->GetName().size()+1+1+4);
-            data << chn->GetName();
-            data << uint8(chn->GetFlags());
-            data << uint32(chn->GetNumPlayers());
-            SendPacket(&data);
-        }
-    }
-}
-
 void WorldSession::HandleSetChannelWatch(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());

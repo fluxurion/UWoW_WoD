@@ -384,7 +384,7 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     ObjectGuid targetGuid = unitTarget->GetGUID();
     ObjectGuid casterGuid = m_caster->GetGUID();
 
-    WorldPacket data(SMSG_SPELLINSTAKILLLOG, 8+8+4);
+    WorldPacket data(SMSG_SPELL_INSTAKILL_LOG, 8+8+4);
     //data.WriteGuidMask<1, 3>(targetGuid);
     //data.WriteGuidMask<5, 4>(casterGuid);
     //data.WriteGuidMask<7>(targetGuid);

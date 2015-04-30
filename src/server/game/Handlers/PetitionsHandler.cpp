@@ -658,7 +658,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
     // Check if player is already in a guild
     if (_player->GetGuildId())
     {
-        data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 1);
+        data.Initialize(SMSG_TURN_IN_PETITION_RESULT, 1);
         data.WriteBits(PETITION_TURN_ALREADY_IN_GUILD, 4);
         _player->GetSession()->SendPacket(&data);
         return;
@@ -689,7 +689,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
     // Notify player if signatures are missing
     if (signatures < requiredSignatures)
     {
-        data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 1);
+        data.Initialize(SMSG_TURN_IN_PETITION_RESULT, 1);
         data.WriteBits(PETITION_TURN_NEED_MORE_SIGNATURES, 4);
         SendPacket(&data);
         return;
@@ -735,7 +735,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
     // created
     sLog->outDebug(LOG_FILTER_NETWORKIO, "TURN IN PETITION GUID %u", petitionGuid.GetCounter());
 
-    data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 1);
+    data.Initialize(SMSG_TURN_IN_PETITION_RESULT, 1);
     data.WriteBits(PETITION_TURN_OK, 4);
     SendPacket(&data);
 }

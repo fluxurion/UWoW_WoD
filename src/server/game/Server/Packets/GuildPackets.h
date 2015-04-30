@@ -28,7 +28,7 @@ namespace WorldPackets
         class QueryGuildInfo final : public ClientPacket
         {
         public:
-            QueryGuildInfo(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_QUERY, std::move(packet)) { }
+            QueryGuildInfo(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_GUILD_INFO, std::move(packet)) { }
 
             void Read() override;
 

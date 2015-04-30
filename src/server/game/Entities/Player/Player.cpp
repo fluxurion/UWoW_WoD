@@ -7491,7 +7491,7 @@ void Player::SaveRecallPosition()
 }
 
 //! WARN! We shouldn't send at login range based packet.
-//! For example SMSG_SPELLLOGEXECUTE
+//! For example SMSG_SPELL_EXECUTE_LOG
 void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self)
 {
     if (!IsInWorld())
@@ -24880,7 +24880,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_SET_FORCED_REACTIONS by CMSG_REQUEST_FORCED_REACTIONS
 
     // SMSG_UPDATE_WORLD_STATE
-    // SMSG_SET_PHASE_SHIFT_CHANGE
+    // SMSG_PHASE_SHIFT_CHANGE
     // SMSG_SET_MAX_WEEKLY_QUANTITY
     // SMSG_WEEKLY_SPELL_USAGE
 

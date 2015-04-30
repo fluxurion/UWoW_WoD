@@ -444,7 +444,6 @@ class WorldSession
         void SendPetNameInvalid(uint32 error, ObjectGuid const& guid, const std::string& name, DeclinedName *declinedName);
         void SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val = 0);
         void SendGroupInvite(Player* player, bool AlowEnter);
-        void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
         void SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldareaids, uint32 flags = 0x1F);
         void SendQueryTimeResponse();
         void HandleLearnPetSpecialization(WorldPacket& data);
@@ -550,7 +549,6 @@ class WorldSession
         void SendAuctionCommandResult(AuctionEntry* auction, uint32 Action, uint32 ErrorCode, uint32 bidError = 0);
         void SendAuctionBidderNotification(OpcodeServer opcode, uint32 auctionId, ObjectGuid const& bidder, uint64 bidSum, uint64 diff, WorldPackets::Item::ItemInstance const& item);
         void SendAuctionOwnerNotification(OpcodeServer opcode, AuctionEntry* auction, WorldPackets::Item::ItemInstance const& item, bool profit = false);
-        void SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId);
 
         //Item Enchantment
         void SendEnchantmentLog(ObjectGuid const& Target, ObjectGuid const& Caster, uint32 ItemID, uint32 SpellID);
@@ -947,7 +945,6 @@ class WorldSession
 
         void SendPlayerNotFoundNotice(std::string name);
         void SendPlayerAmbiguousNotice(std::string name);
-        void SendWrongFactionNotice();
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet);
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
@@ -979,7 +976,6 @@ class WorldSession
         void HandleChannelModerate(WorldPacket& recvPacket);
         void HandleChannelDeclineInvite(WorldPacket& recvPacket);
         void HandleChannelDisplayListQuery(WorldPacket& recvPacket);
-        void HandleGetChannelMemberCount(WorldPacket& recvPacket);
         void HandleSetChannelWatch(WorldPacket& recvPacket);
 
         void HandleCompleteCinematic(WorldPacket& recvPacket);

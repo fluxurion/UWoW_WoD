@@ -663,23 +663,6 @@ void WorldSession::HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse
     GetPlayer()->ResurectUsingRequestData();
 }
 
-void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
-{
-    va_list ap;
-    char szStr [1024];
-    szStr[0] = '\0';
-
-    va_start(ap, Text);
-    vsnprintf(szStr, 1024, Text, ap);
-    va_end(ap);
-
-    uint32 length = strlen(szStr)+1;
-    WorldPacket data(SMSG_AREA_TRIGGER_MESSAGE, 4+length);
-    data << length;
-    data << szStr;
-    SendPacket(&data);
-}
-
 //! 6.0.3
 void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet)
 {
@@ -1301,7 +1284,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleWhoisOpcode(WorldPackets::Who::WhoIsRequest& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WHOIS");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WHO_IS");
 
     if (!AccountMgr::IsAdminAccount(GetSecurity()))
     {
@@ -1780,7 +1763,7 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     ObjectGuid guid = _player->GetGUID();
     ObjectGuid PersonalGUID;
 
-    WorldPacket data(SMSG_SET_PHASE_SHIFT_CHANGE, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
+    WorldPacket data(SMSG_PHASE_SHIFT_CHANGE, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
     data << guid;
     // 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
     data << uint32(!flag ? 0x1F : flag); // flags, 0x18 most of time on retail sniff

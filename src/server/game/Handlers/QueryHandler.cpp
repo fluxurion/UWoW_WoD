@@ -202,7 +202,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
 
 void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", packet.TextID);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_QUERY_NPC_TEXT ID '%u'", packet.TextID);
 
     GossipText const* gossip = sObjectMgr->GetGossipText(packet.TextID);
 
@@ -284,13 +284,13 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
         }
     }*/
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_NPC_TEXT_RESPONSE");
 }
 
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PAGE_TEXT_QUERY");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_PAGE_TEXT");
 
     uint32 pageID = packet.PageTextID;
 
@@ -323,7 +323,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText&
 
         SendPacket(response.Write());
 
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_PAGE_TEXT_QUERY_RESPONSE");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_PAGE_TEXT_RESPONSE");
     }
 }
 

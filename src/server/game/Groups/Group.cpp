@@ -722,7 +722,7 @@ void Group::ChangeLeader(ObjectGuid guid)
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 
     //! 5.4.1
-    WorldPacket data(CMSG_SET_PARTY_LEADER);
+    WorldPacket data(SMSG_GROUP_NEW_LEADER);
     data.WriteBits(slot->name.size(), 6);
     data.FlushBits();
     data << uint8(0);

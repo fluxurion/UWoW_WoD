@@ -69,7 +69,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
     if (!ahEntry)
         return;
 
-    WorldPacket data(SMSG_AUCTION_HELLO, 12);
+    WorldPacket data(SMSG_AUCTION_HELLO_RESPONSE, 12);
     data << guid;
     data.WriteBit(1);                                   // 3.3.3: 1 - AH enabled, 0 - AH disabled
     data << uint32(ahEntry->houseId);
@@ -138,16 +138,6 @@ void WorldSession::SendAuctionOwnerNotification(OpcodeServer opcode, AuctionEntr
         data << bidderGUID;
     }
 
-    SendPacket(&data);
-}
-
-//! DEPR remove it
-void WorldSession::SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId)
-{
-    WorldPacket data(SMSG_AUCTION_REMOVED_NOTIFICATION, (4+4+4));
-    data << uint32(auctionId);
-    data << uint32(itemEntry);
-    data << uint32(randomPropertyId);
     SendPacket(&data);
 }
 

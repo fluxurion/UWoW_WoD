@@ -28,12 +28,12 @@ namespace WorldPackets
 {
     namespace Chat
     {
-        // CMSG_MESSAGECHAT_GUILD
-        // CMSG_MESSAGECHAT_OFFICER
-        // CMSG_MESSAGECHAT_YELL
-        // CMSG_MESSAGECHAT_SAY
-        // CMSG_MESSAGECHAT_PARTY
-        // CMSG_MESSAGECHAT_RAID
+        // CMSG_CHAT_MESSAGE_GUILD
+        // CMSG_CHAT_MESSAGE_OFFICER
+        // CMSG_CHAT_MESSAGE_YELL
+        // CMSG_CHAT_MESSAGE_SAY
+        // CMSG_CHAT_MESSAGE_PARTY
+        // CMSG_CHAT_MESSAGE_RAID
         // CMSG_MESSAGECHAT_RAID_WARNING
         class ChatMessage final : public ClientPacket
         {
@@ -46,7 +46,7 @@ namespace WorldPackets
             int32 Language = LANG_UNIVERSAL;
         };
 
-        // CMSG_MESSAGECHAT_WHISPER
+        // CMSG_CHAT_MESSAGE_WHISPER
         class ChatMessageWhisper final : public ClientPacket
         {
         public:
@@ -72,10 +72,10 @@ namespace WorldPackets
             std::string Target;
         };
 
-        // CMSG_MESSAGECHAT_ADDON_GUILD
-        // CMSG_MESSAGECHAT_ADDON_OFFICER
-        // CMSG_MESSAGECHAT_ADDON_PARTY
-        // CMSG_MESSAGECHAT_ADDON_RAID
+        // CMSG_CHAT_ADDON_MESSAGE_GUILD
+        // CMSG_CHAT_ADDON_MESSAGE_OFFICER
+        // CMSG_CHAT_ADDON_MESSAGE_PARTY
+        // CMSG_CHAT_ADDON_MESSAGE_RAID
         class ChatAddonMessage final : public ClientPacket
         {
         public:
@@ -87,7 +87,7 @@ namespace WorldPackets
             std::string Text;
         };
 
-        // CMSG_MESSAGECHAT_ADDON_WHISPER
+        // CMSG_CHAT_ADDON_MESSAGE_WHISPER
         class ChatAddonMessageWhisper final : public ClientPacket
         {
         public:

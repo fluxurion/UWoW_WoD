@@ -5121,7 +5121,7 @@ void Spell::SendSpellGo()
 void Spell::SendLogExecute()
 {
     //! 6.0.3
-    WorldPacket data(SMSG_SPELLLOGEXECUTE);
+    WorldPacket data(SMSG_SPELL_EXECUTE_LOG);
     data << m_caster->GetGUID();
 
     data << uint32(m_spellInfo->Id);

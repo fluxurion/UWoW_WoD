@@ -185,7 +185,7 @@ void Guild::BankEventLogEntry::SaveToDB(SQLTransaction& trans) const
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-//! SMSG_GUILD_BANK_LOG_QUERY_RESULT part of
+//! SMSG_GUILD_BANK_LOG_QUERY_RESULTS part of
 //! 6.0.3
 void Guild::BankEventLogEntry::WritePacket(WorldPacket& data) const
 {
@@ -1388,7 +1388,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
 //! 6.0.3
 void Guild::HandleQuery(WorldSession* session)
 {
-    WorldPacket data(SMSG_GUILD_QUERY_RESPONSE, 8 * 32 + 200);      // Guess size
+    WorldPacket data(SMSG_QUERY_GUILD_INFO_RESPONSE, 8 * 32 + 200);      // Guess size
 
     data << GetGUID();
     data.WriteBit(1);                                               // has data
@@ -1412,13 +1412,13 @@ void Guild::HandleQuery(WorldSession* session)
 
     session->SendPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_QUERY_RESPONSE)");
+    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_QUERY_GUILD_INFO_RESPONSE)");
 }
 
 //! 6.0.3
 void Guild::HandleGuildRanks(WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_RANK, 100);
+    WorldPacket data(SMSG_GUILD_RANKS, 100);
 
     data << uint32(_GetRanksSize());
 
@@ -2072,7 +2072,7 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
     if (tabId < GetPurchasedTabsSize() || tabId == GUILD_BANK_MAX_TABS)
     {
         LogHolder::GuildLog const* log = m_bankEventLog[tabId]->GetLog();
-        WorldPacket data(SMSG_GUILD_BANK_LOG_QUERY_RESULT, log->size() * (4 * 4 + 1) + 1 + 1);
+        WorldPacket data(SMSG_GUILD_BANK_LOG_QUERY_RESULTS, log->size() * (4 * 4 + 1) + 1 + 1);
 
         data << uint32(tabId);
         data << uint32(log->size());
@@ -2088,7 +2088,7 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
             data.WriteBit(0);
 
         session->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LOG_QUERY_RESULT) for tab %u", tabId);
+        sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LOG_QUERY_RESULTS) for tab %u", tabId);
     }
 }
 
@@ -2220,7 +2220,7 @@ void Guild::SendLoginInfo(WorldSession* session)
     /*
         Login sequence:
           SMSG_GUILD_EVENT - GE_MOTD
-          SMSG_GUILD_RANK
+          SMSG_GUILD_RANKS
           SMSG_GUILD_EVENT - GE_SIGNED_ON
           -- learn perks
           SMSG_GUILD_REPUTATION_WEEKLY_CAP
@@ -2257,9 +2257,9 @@ void Guild::SendGuildReputationWeeklyCap(WorldSession* session) const
 {
     if (Member const* member = GetMember(session->GetPlayer()->GetGUID()))
     {
-        WorldPacket data(SMSG_GUILD_REPUTATION_WEEKLY_CAP, 4);
-        data << uint32(member->GetWeekReputation());
-        session->SendPacket(&data);
+        //WorldPacket data(SMSG_GUILD_REPUTATION_WEEKLY_CAP, 4);
+        //data << uint32(member->GetWeekReputation());
+        //session->SendPacket(&data);
     }
 }
 
@@ -2274,7 +2274,7 @@ void Guild::SendGuildChallengesInfo(WorldSession* session) const
         uint32 maxCount[5] = { 7, 1, 3, 15, 3 };
         uint32 XP[5] = { 250000, 1000000, 400000, 150000, 500000 };
 
-        WorldPacket data(SMSG_GUILD_CHALLENGE_UPDATED);
+        WorldPacket data(SMSG_GUILD_CHALLENGE_UPDATE);
         for (uint8 i = 0; i < 5; ++i)
             data << uint32(gold[i]);
         for (uint8 i = 0; i < 5; ++i)
@@ -3264,30 +3264,6 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
     }
 }
 
-//! Not used any more
-void Guild::_BroadcastEvent(GuildEvents guildEvent, ObjectGuid const& guid, const char* param1, const char* param2, const char* param3) const
-{
-    uint8 count = !param3 ? (!param2 ? (!param1 ? 0 : 1) : 2) : 3;
-
-    WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + count + (guid ? 8 : 0));
-    data << uint8(guildEvent);
-    data << uint8(count);
-
-    if (param3)
-        data << param1 << param2 << param3;
-    else if (param2)
-        data << param1 << param2;
-    else if (param1)
-        data << param1;
-
-    if (guid)
-        data << guid;
-
-    BroadcastPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_EVENT");
-}
-
 //! 6.0.3
 void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank)
 {
@@ -3320,9 +3296,9 @@ void Guild::GiveXP(uint32 xp, Player* source)
     //if (GetLevel() >= GUILD_EXPERIENCE_UNCAPPED_LEVEL)
         //xp = std::min(xp, sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP) - uint32(_todayExperience));
 
-    WorldPacket data(SMSG_GUILD_XP_GAIN, 8);
-    data << uint64(xp);    // XP missing for next level
-    source->GetSession()->SendPacket(&data);
+    //WorldPacket data(SMSG_GUILD_XP_GAIN, 8);
+    //data << uint64(xp);    // XP missing for next level
+    //source->GetSession()->SendPacket(&data);
 
     _experience += xp;
     _todayExperience += xp;
@@ -3402,9 +3378,9 @@ void Guild::Member::RepEarned(Player* player, uint32 value)
 void Guild::Member::SendGuildReputationWeeklyCap(WorldSession* session, uint32 reputation) const
 {
     uint32 cap = sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP) - reputation;
-    WorldPacket data(SMSG_GUILD_REPUTATION_WEEKLY_CAP, 4);
-    data << uint32(cap);
-    session->SendPacket(&data);
+    //WorldPacket data(SMSG_GUILD_REPUTATION_WEEKLY_CAP, 4);
+    //data << uint32(cap);
+    //session->SendPacket(&data);
 }
 
 //! ToDo: remove it.
@@ -3412,14 +3388,14 @@ void Guild::SendGuildXP(WorldSession* session) const
 {
     Member const* member = GetMember(session->GetPlayer()->GetGUID());
 
-    WorldPacket data(SMSG_GUILD_XP, 40);
-    uint64 xpMissing = sGuildMgr->GetXPForGuildLevel(GetLevel()) >= GetExperience() ?
-        sGuildMgr->GetXPForGuildLevel(GetLevel()) : GetExperience();    // XP missing for next level
-    data << uint64(xpMissing);
-    data << uint64(GetTodayExperience());
-    data << uint64(GetTodayExperience());
-    data << uint64(GetExperience());
-    session->SendPacket(&data);
+    //WorldPacket data(SMSG_GUILD_XP, 40);
+    //uint64 xpMissing = sGuildMgr->GetXPForGuildLevel(GetLevel()) >= GetExperience() ?
+    //    sGuildMgr->GetXPForGuildLevel(GetLevel()) : GetExperience();    // XP missing for next level
+    //data << uint64(xpMissing);
+    //data << uint64(GetTodayExperience());
+    //data << uint64(GetTodayExperience());
+    //data << uint64(GetExperience());
+    //session->SendPacket(&data);
 }
 
 void Guild::ResetDailyExperience()

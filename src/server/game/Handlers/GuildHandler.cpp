@@ -43,7 +43,7 @@ inline Guild* _GetPlayerGuild(WorldSession* session, bool sendError = false)
 //! 6.0.3
 void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_QUERY");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_GUILD_INFO");
 
     ObjectGuid guildGuid, playerGuid;
     recvPacket >> guildGuid >> playerGuid;
@@ -57,7 +57,7 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
         }
     else
     {
-        WorldPacket data(SMSG_GUILD_QUERY_RESPONSE, 8 + 1 + 1);
+        WorldPacket data(SMSG_QUERY_GUILD_INFO_RESPONSE, 8 + 1 + 1);
         data << guildGuid;
         data.WriteBit(0);   // no data
         SendPacket(&data);

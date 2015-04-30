@@ -804,7 +804,7 @@ void Player::SendCompletedProjects()
     if (!HasSkill(SKILL_ARCHAEOLOGY))
         return;
 
-    WorldPacket data(SMSG_RESEARCH_SETUP_HISTORY, 3 + _completedProjects.size() * 3 * 4);
+    WorldPacket data(SMSG_SETUP_RESEARCH_HISTORY, 3 + _completedProjects.size() * 3 * 4);
 
     data.WriteBits(_completedProjects.size(), 20);
 

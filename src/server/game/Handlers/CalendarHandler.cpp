@@ -841,13 +841,13 @@ void WorldSession::SendCalendarEventStatus(CalendarEvent const& calendarEvent, C
     uint32 statusTime = secsToTimeBitFields(invite.GetStatusTime());
 
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_EVENT_STATUS [" UI64FMTD "] EventId ["
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_EVENT_INVITE_STATUS [" UI64FMTD "] EventId ["
         UI64FMTD "] InviteId [" UI64FMTD "] Invitee [" UI64FMTD "] Time %u "
         "Flags %u, Status %u, Rank %u, StatusTime %u",
         guid.GetCounter(), eventId, inviteId, invitee.GetCounter(), eventTime, flags, status, rank,
         statusTime);
 
-    WorldPacket data(SMSG_CALENDAR_EVENT_STATUS, 8 + 8 + 4 + 4 + 1 + 1 + 4);
+    WorldPacket data(SMSG_CALENDAR_EVENT_INVITE_STATUS, 8 + 8 + 4 + 4 + 1 + 1 + 4);
     data << invitee.WriteAsPacked();
     data << uint64(eventId);
     data << uint32(eventTime);
@@ -866,12 +866,12 @@ void WorldSession::SendCalendarEventModeratorStatusAlert(CalendarInvite const& i
     uint8 status = invite.GetStatus();
 
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_EVENT_MODERATOR_STATUS_ALERT [" UI64FMTD
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_EVENT_INVITE_MODERATOR_STATUS [" UI64FMTD
         "] Invitee [" UI64FMTD "] EventId [" UI64FMTD "] Status %u ", guid.GetCounter(),
         invitee.GetCounter(), eventId, status);
 
 
-    WorldPacket data(SMSG_CALENDAR_EVENT_MODERATOR_STATUS_ALERT, 8 + 8 + 1 + 1);
+    WorldPacket data(SMSG_CALENDAR_EVENT_INVITE_MODERATOR_STATUS, 8 + 8 + 1 + 1);
     data <<invitee.WriteAsPacked();
     data << uint64(eventId);
     data << uint8(status);

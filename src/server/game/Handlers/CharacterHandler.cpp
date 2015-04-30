@@ -1661,7 +1661,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 
     if (!result)
     {
-        WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+        WorldPacket data(SMSG_CHAR_CUSTOMIZE_FAILED, 17);
         data << uint8(CHAR_CREATE_ERROR);
         data << guid;
         SendPacket(&data);
@@ -1673,7 +1673,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 
     if (!(at_loginFlags & AT_LOGIN_CUSTOMIZE))
     {
-        WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+        WorldPacket data(SMSG_CHAR_CUSTOMIZE_FAILED, 17);
         data << uint8(CHAR_CREATE_ERROR);
         data << guid;
         SendPacket(&data);
@@ -1683,7 +1683,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     // prevent character rename to invalid name
     if (!normalizePlayerName(newName))
     {
-        WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+        WorldPacket data(SMSG_CHAR_CUSTOMIZE_FAILED, 17);
         data << uint8(CHAR_NAME_NO_NAME);
         data << guid;
         SendPacket(&data);
@@ -1693,7 +1693,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     uint8 res = ObjectMgr::CheckPlayerName(newName, true);
     if (res != CHAR_NAME_SUCCESS)
     {
-        WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 1);
+        WorldPacket data(SMSG_CHAR_CUSTOMIZE_FAILED, 1);
         data << uint8(res);
         data << guid;
         SendPacket(&data);
@@ -1703,7 +1703,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     // check name limitations
     if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newName))
     {
-        WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+        WorldPacket data(SMSG_CHAR_CUSTOMIZE_FAILED, 17);
         data << uint8(CHAR_NAME_RESERVED);
         data << guid;
         SendPacket(&data);
@@ -1715,7 +1715,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     {
         if (newguid != guid)
         {
-            WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+            WorldPacket data(SMSG_CHAR_CUSTOMIZE_FAILED, 17);
             data << uint8(CHAR_CREATE_NAME_IN_USE);
             data << guid;
             SendPacket(&data);
@@ -1751,7 +1751,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 
     sWorld->UpdateCharacterNameData(guid.GetCounter(), newName, gender);
 
-    /*WorldPacket data(SMSG_CHAR_CUSTOMIZE_RESULT, 17);
+    /*WorldPacket data(SMSG_CHAR_CUSTOMIZE_FAILED, 17);
     data << uint8(RESPONSE_SUCCESS);
     data << guid;
     SendPacket(&data);*/

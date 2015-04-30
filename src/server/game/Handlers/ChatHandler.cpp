@@ -72,22 +72,22 @@ void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& pack
 
     switch (packet.GetOpcode())
     {
-        case CMSG_MESSAGECHAT_SAY:
+        case CMSG_CHAT_MESSAGE_SAY:
             type = CHAT_MSG_SAY;
             break;
-        case CMSG_MESSAGECHAT_YELL:
+        case CMSG_CHAT_MESSAGE_YELL:
             type = CHAT_MSG_YELL;
             break;
-        case CMSG_MESSAGECHAT_CHANNEL: //WorldSession::HandleChatMessageChannelOpcode
+        case CMSG_CHAT_MESSAGE_CHANNEL: //WorldSession::HandleChatMessageChannelOpcode
             type = CHAT_MSG_CHANNEL;
             break;
-        case CMSG_MESSAGECHAT_WHISPER: //WorldSession::HandleChatMessageWhisperOpcode
+        case CMSG_CHAT_MESSAGE_WHISPER: //WorldSession::HandleChatMessageWhisperOpcode
             type = CHAT_MSG_WHISPER;
             break;
-        case CMSG_MESSAGECHAT_GUILD:
+        case CMSG_CHAT_MESSAGE_GUILD:
             type = CHAT_MSG_GUILD;
             break;
-        case CMSG_MESSAGECHAT_OFFICER:
+        case CMSG_CHAT_MESSAGE_OFFICER:
             type = CHAT_MSG_OFFICER;
             break;
         case CMSG_CHAT_MESSAGE_AFK:
@@ -99,13 +99,13 @@ void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& pack
         case CMSG_CHAT_MESSAGE_EMOTE: //WorldSession::HandleChatMessageEmoteOpcode
             type = CHAT_MSG_EMOTE;
             break;
-        case CMSG_MESSAGECHAT_PARTY:
+        case CMSG_CHAT_MESSAGE_PARTY:
             type = CHAT_MSG_PARTY;
             break;
-        case CMSG_MESSAGECHAT_RAID:
+        case CMSG_CHAT_MESSAGE_RAID:
             type = CHAT_MSG_RAID;
             break;
-        case CMSG_MESSAGECHAT_RAID_WARNING:
+        case CMSG_CHAT_MESSAGE_RAID_WARNING:
             type = CHAT_MSG_RAID_WARNING;
             break;
         case CMSG_MESSAGECHAT_INSTANCE:
@@ -325,7 +325,6 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
             if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && senderIsPlayer && receiverIsPlayer)
                 if (GetPlayer()->GetTeam() != receiver->GetTeam())
                 {
-                    //SendWrongFactionNotice();
                     SendPlayerNotFoundNotice(target);
                     return;
                 }
@@ -516,22 +515,22 @@ void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMes
 
     switch (packet.GetOpcode())
     {
-        case CMSG_MESSAGECHAT_ADDON_GUILD:
+        case CMSG_CHAT_ADDON_MESSAGE_GUILD:
             type = CHAT_MSG_GUILD;
             break;
         case CMSG_MESSAGECHAT_ADDON_INSTANCE:
             type = CHAT_MSG_INSTANCE;
             break;
-        case CMSG_MESSAGECHAT_ADDON_OFFICER:
+        case CMSG_CHAT_ADDON_MESSAGE_OFFICER:
             type = CHAT_MSG_OFFICER;
             break;
-        case CMSG_MESSAGECHAT_ADDON_PARTY:
+        case CMSG_CHAT_ADDON_MESSAGE_PARTY:
             type = CHAT_MSG_PARTY;
             break;
-        case CMSG_MESSAGECHAT_ADDON_RAID:
+        case CMSG_CHAT_ADDON_MESSAGE_RAID:
             type = CHAT_MSG_RAID;
             break;
-        case CMSG_MESSAGECHAT_ADDON_WHISPER:    //WorldSession::HandleChatAddonMessageWhisperOpcode
+        case CMSG_CHAT_ADDON_MESSAGE_WHISPER:    //WorldSession::HandleChatAddonMessageWhisperOpcode
             type = CHAT_MSG_WHISPER;
             break;
         default:
@@ -718,7 +717,7 @@ void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)
 //! 5.4.1
 void WorldSession::SendPlayerNotFoundNotice(std::string name)
 {
-    WorldPacket data(SMSG_CHAT_PLAYER_NOT_FOUND, name.size()+1);
+    WorldPacket data(SMSG_CHAT_PLAYER_NOTFOUND, name.size()+1);
     data.WriteBits(name.size(), 9);
     data.WriteString(name);
     SendPacket(&data);
@@ -730,12 +729,6 @@ void WorldSession::SendPlayerAmbiguousNotice(std::string name)
     WorldPacket data(SMSG_CHAT_PLAYER_AMBIGUOUS, name.size()+1);
     data.WriteBits(name.size(), 9);
     data.WriteString(name);
-    SendPacket(&data);
-}
-
-void WorldSession::SendWrongFactionNotice()
-{
-    WorldPacket data(SMSG_CHAT_WRONG_FACTION, 0);
     SendPacket(&data);
 }
 

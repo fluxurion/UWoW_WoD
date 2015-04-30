@@ -1039,7 +1039,5 @@ private:
     void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
 
     void SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank);
-
-    void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid const& guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
 };
 #endif
