@@ -1063,7 +1063,7 @@ struct CalcDamageInfo
     MeleeHitOutcome hitOutCome;  // TODO: remove this field (need use TargetState)
 };
 
-// Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
+// Spell damage info structure based on structure sending in SMSG_SPELL_NON_MELEE_DAMAGE_LOG opcode
 struct SpellNonMeleeDamage{
     SpellNonMeleeDamage(Unit* _attacker = NULL, Unit* _target = NULL, uint32 _SpellID = 0, uint32 _schoolMask = 0)
         : target(_target), attacker(_attacker), SpellID(_SpellID), damage(0), overkill(0), schoolMask(_schoolMask),

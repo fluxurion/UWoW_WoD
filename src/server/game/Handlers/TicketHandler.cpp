@@ -56,7 +56,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recvData)
     }
 
     //WorldPacket data(SMSG_GMTICKET_CREATE, 4);
-    WorldPacket data(SMSG_GMTICKET_UPDATETEXT, 1);
+    WorldPacket data(SMSG_GM_TICKET_UPDATE, 1);
     data << uint8(response);
     SendPacket(&data);
 }
@@ -77,7 +77,7 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket & recvData)
         response = GMTICKET_RESPONSE_UPDATE_SUCCESS;
     }
 
-    WorldPacket data(SMSG_GMTICKET_UPDATETEXT, 1);
+    WorldPacket data(SMSG_GM_TICKET_UPDATE, 1);
     data << uint8(response);
     SendPacket(&data);
 }
@@ -87,7 +87,7 @@ void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recvData*/)
     if (GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
     {
         //WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
-        WorldPacket data(SMSG_GMTICKET_UPDATETEXT, 1);
+        WorldPacket data(SMSG_GM_TICKET_UPDATE, 1);
         data << uint8(GMTICKET_RESPONSE_TICKET_DELETED);
         SendPacket(&data);
 
@@ -199,7 +199,7 @@ void WorldSession::HandleGMResponseResolve(WorldPacket& /*recvPacket*/)
         SendPacket(&data);
 
         //WorldPacket data2(SMSG_GMTICKET_DELETETICKET, 4);
-        WorldPacket data2(SMSG_GMTICKET_UPDATETEXT, 1);
+        WorldPacket data2(SMSG_GM_TICKET_UPDATE, 1);
         data2 << uint8(GMTICKET_RESPONSE_TICKET_DELETED);
         SendPacket(&data2);
 

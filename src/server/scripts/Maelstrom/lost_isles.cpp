@@ -859,7 +859,7 @@ public:
                 //    summon->CastSpell(caster, 68214, true);
                 //    summon->CastSpell(caster, 68217, true);
                 //}
-                WorldPacket data(SMSG_FORCE_SET_VEHICLE_REC_ID, 16);
+                WorldPacket data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16);
                 //data.WriteGuidMask<1, 5, 0, 6, 4, 3, 7, 2>(caster->GetGUID());
                 //data.WriteGuidBytes<7, 2, 5, 6, 4>(caster->GetGUID());
                 data << uint32(493);
@@ -867,7 +867,7 @@ public:
                 data << uint32(534);          //unk
                 caster->SendMessageToSet(&data, true);
 
-                data.Initialize(SMSG_PLAYER_VEHICLE_DATA, 8 + 1 + 4);
+                data.Initialize(SMSG_SET_VEHICLE_REC_ID, 8 + 1 + 4);
                 data << uint32(493);
                 //data.WriteGuidMask<5, 3, 6, 2, 1, 4, 0, 7>(caster->GetGUID());
                 //data.WriteGuidBytes<6, 0, 1, 3, 5, 7, 2, 4>(caster->GetGUID());

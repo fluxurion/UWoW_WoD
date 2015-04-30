@@ -722,7 +722,7 @@ void Group::ChangeLeader(ObjectGuid guid)
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 
     //! 5.4.1
-    WorldPacket data(SMSG_GROUP_SET_LEADER);
+    WorldPacket data(CMSG_SET_PARTY_LEADER);
     data.WriteBits(slot->name.size(), 6);
     data.FlushBits();
     data << uint8(0);
@@ -826,7 +826,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, const Roll& r)
 {
     //! ToDo: itemRandomPropId & itemRandomSuffix
-    WorldPacket data(SMSG_LOOT_START_ROLL, (8+4+4+4+4+4+4+1));
+    WorldPacket data(SMSG_START_LOOT_ROLL, (8+4+4+4+4+4+4+1));
     ObjectGuid guid = r.lootedGUID;
 
     //data.WriteGuidMask<1, 0>(guid);
@@ -878,7 +878,7 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p,
         return;
 
     //! 5.4.1
-    WorldPacket data(SMSG_LOOT_START_ROLL, (8 + 4 + 4 + 4 + 4 + 4 + 4 + 1));
+    WorldPacket data(SMSG_START_LOOT_ROLL, (8 + 4 + 4 + 4 + 4 + 4 + 4 + 1));
     ObjectGuid guid = r.lootedGUID;
 
     //data.WriteGuidMask<1, 0>(guid);
@@ -1425,12 +1425,12 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 //! 5.4.1
 void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Group::MasterLoot (SMSG_LOOT_MASTER_LIST)");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Group::MasterLoot (SMSG_MASTER_LOOT_CANDIDATE_LIST)");
     uint32 real_count = 0;
 
     ByteBuffer dataBuffer(GetMembersCount()*8);
     ObjectGuid guid_looted = pLootedObject->GetGUID();
-    WorldPacket data(SMSG_LOOT_MASTER_LIST, 12 + GetMembersCount()*8);
+    WorldPacket data(SMSG_MASTER_LOOT_CANDIDATE_LIST, 12 + GetMembersCount()*8);
     //data.WriteGuidMask<5, 4, 6, 1, 0>(guid_looted);
     uint32 pos = data.bitwpos();
     data.WriteBits(0, 24);

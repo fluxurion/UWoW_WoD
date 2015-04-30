@@ -7060,7 +7060,7 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
     if (apply)
     {
         //send before init vehicle
-        WorldPacket data(SMSG_FORCE_SET_VEHICLE_REC_ID, 16);
+        WorldPacket data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16);
         //data.WriteGuidMask<1, 5, 0, 6, 4, 3, 7, 2>(target->GetGUID());
         //data.WriteGuidBytes<7, 2, 5, 6, 4>(target->GetGUID());
         data << uint32(vehicleId);
@@ -7075,7 +7075,7 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
             return;
     }
 
-    //SMSG_PLAYER_VEHICLE_DATA semd on HandleSetVehicleRecId
+    //SMSG_SET_VEHICLE_REC_ID semd on HandleSetVehicleRecId
 
     if (apply)
         target->ToPlayer()->SendOnCancelExpectedVehicleRideAura();
@@ -8501,7 +8501,7 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster, Spe
     float dmgMultiplier = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).CalcValueMultiplier(caster);
 
     SpellInfo const* spellProto = GetSpellInfo();
-    // maybe has to be sent different to client, but not by SMSG_PERIODICAURALOG
+    // maybe has to be sent different to client, but not by SMSG_SPELL_PERIODIC_AURA_LOG
     SpellNonMeleeDamage damageInfo(caster, target, spellProto->Id, spellProto->SchoolMask);
     // no SpellDamageBonus for burn mana
     caster->CalculateSpellDamageTaken(&damageInfo, int32(gain * dmgMultiplier), spellProto, (1 << effIndex));

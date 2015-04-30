@@ -1458,7 +1458,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     DealDamageMods(this, damage, &absorb);
 
     //! 6.0.3
-    WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, 8 + 1 + 1 + 4 + 4 + 4 + 1);
+    WorldPacket data(SMSG_ENVIRONMENTAL_DAMAGE_LOG, 8 + 1 + 1 + 4 + 4 + 4 + 1);
     data << GetGUID();
     data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
     data << uint32(damage);
@@ -3266,7 +3266,7 @@ void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool re
         guid = victim->GetGUID();
 
     //! 6.0.3
-    WorldPacket data(SMSG_LOG_XPGAIN, 8 + 4 + 1 + 1 + 1 + 4);   // guess size?
+    WorldPacket data(SMSG_LOG_XP_GAIN, 8 + 4 + 1 + 1 + 1 + 4);   // guess size?
     data << guid;
     data << uint32(GivenXP + BonusXP);                          // given experience
     data << uint8(victim ? 0 : 1);                              // 00-kill_xp type, 01-non_kill_xp type
@@ -3392,7 +3392,7 @@ void Player::GiveLevel(uint8 level)
 
     // send levelup info to client
     //! 6.0.3
-    WorldPacket data(SMSG_LEVELUP_INFO, 4 + 4 + MAX_POWERS_PER_CLASS * 4 + MAX_STATS * 4);
+    WorldPacket data(SMSG_LEVEL_UP_INFO, 4 + 4 + MAX_POWERS_PER_CLASS * 4 + MAX_STATS * 4);
     data << uint32(level);
     data << uint32(int32(basehp) - int32(GetCreateHealth()));
 
@@ -3813,7 +3813,7 @@ void Player::SafeRemoveMailFromIgnored(ObjectGuid const& ignoredPlayerGuid)
 //! 6.0.3
 void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType item_guid, uint32 item_count)
 {
-    WorldPacket data(SMSG_SEND_MAIL_RESULT);
+    WorldPacket data(SMSG_MAIL_COMMAND_RESULT);
     data << uint32(mailId);
     data << uint32(mailAction);
     data << uint32(mailError);
@@ -4094,7 +4094,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 {
                     // update spell ranks in spellbook and action bar
                     // 6.0.3
-                    WorldPacket data(SMSG_SUPERCEDED_SPELL);
+                    WorldPacket data(SMSG_SUPERCEDED_SPELLS);
                     data << uint32(1);
                     data << uint32(1);
                     data << uint32(next_active_spell_id);
@@ -4253,7 +4253,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         if (newspell->active && !newspell->disabled && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked() != 0)
         {
             //!6.0.3
-            WorldPacket data(SMSG_SUPERCEDED_SPELL);
+            WorldPacket data(SMSG_SUPERCEDED_SPELLS);
             uint32 bitCount = 0;
             ByteBuffer dataBuffer1;
             ByteBuffer dataBuffer2;
@@ -4279,7 +4279,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                                 dataBuffer2 << uint32(spellId);
                             }
 
-                            // mark old spell as disable (SMSG_SUPERCEDED_SPELL replace it in client by new)
+                            // mark old spell as disable (SMSG_SUPERCEDED_SPELLS replace it in client by new)
                             itr2->second->active = false;
                             if (itr2->second->state != PLAYERSPELL_NEW)
                                 itr2->second->state = PLAYERSPELL_CHANGED;
@@ -4787,7 +4787,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                     {
                         // downgrade spell ranks in spellbook and action bar
                         //! 6.0.3
-                        WorldPacket data(SMSG_SUPERCEDED_SPELL);
+                        WorldPacket data(SMSG_SUPERCEDED_SPELLS);
                         data << uint32(1);
                         data << uint32(1);
                         data << uint32(prev_id);
@@ -17716,11 +17716,11 @@ void Player::SendQuestFailed(uint32 questId, InventoryResult reason)
 {
     if (questId)
     {
-        WorldPacket data(SMSG_QUESTGIVER_QUEST_FAILED, 4 + 4);
+        WorldPacket data(SMSG_QUEST_GIVER_QUEST_FAILED, 4 + 4);
         data << uint32(questId);
         data << uint32(reason);                             // failed reason (valid reasons: 4, 16, 50, 17, 74, other values show default message)
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_FAILED");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_GIVER_QUEST_FAILED");
     }
 }
 
@@ -17740,7 +17740,7 @@ void Player::SendQuestTimerFailed(uint32 quest_id)
 void Player::SendCanTakeQuestResponse(uint32 msg) const
 {
     bool hasString = false;
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_INVALID, 4);
+    WorldPacket data(SMSG_QUEST_GIVER_INVALID_QUEST, 4);
     data << uint32(msg);
     data.WriteBit(!hasString);      // used with INVALIDREASON_DONT_HAVE_REQ
     if (hasString)
@@ -17750,7 +17750,7 @@ void Player::SendCanTakeQuestResponse(uint32 msg) const
     }
 
     GetSession()->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_INVALID");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_GIVER_INVALID_QUEST");
 }
 
 //! 6.0.3
@@ -22290,7 +22290,7 @@ void Player::PetSpellInitialize()
     CharmInfo* charmInfo = pet->GetCharmInfo();
 
     //! 6.0.3
-    WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
+    WorldPacket data(SMSG_PET_LEARNED_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
 
     uint8 cooldownsCount = pet->m_CreatureSpellCooldowns.size() + pet->m_CreatureCategoryCooldowns.size();
     data << pet->GetGUID();
@@ -22379,7 +22379,7 @@ void Player::PossessSpellInitialize()
     }
 
     //! 6.0.3
-    WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
+    WorldPacket data(SMSG_PET_LEARNED_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
     data << charm->GetGUID();
     data << uint16(0);                                          // creature family (required for pet talents)
     data << uint16(0);                                          // Specialization
@@ -22405,7 +22405,7 @@ void Player::VehicleSpellInitialize()
     uint8 cooldownCount = vehicle->m_CreatureSpellCooldowns.size();
 
     //! 6.0.3
-    WorldPacket data(SMSG_PET_SPELLS, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + cooldownCount * (4 + 2 + 4 + 4));
+    WorldPacket data(SMSG_PET_LEARNED_SPELLS, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + cooldownCount * (4 + 2 + 4 + 4));
     data << vehicle->GetGUID();
     data << uint16(0);                                                              // Pet Family (0 for all vehicles)
     data << uint16(0);                                                              // Specialization
@@ -22506,7 +22506,7 @@ void Player::CharmSpellInitialize()
     }
 
     //! 6.0.3
-    WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
+    WorldPacket data(SMSG_PET_LEARNED_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
     data << charm->GetGUID();
     data << uint16(0);              // creature family (required for pet talents)
     data << uint16(0);              // word18
@@ -22539,7 +22539,7 @@ void Player::CharmSpellInitialize()
 //! 6.0.3
 void Player::SendRemoveControlBar()
 {
-    WorldPacket data(SMSG_PET_SPELLS, 80);
+    WorldPacket data(SMSG_PET_LEARNED_SPELLS, 80);
     data << ObjectGuid::Empty;
     data << uint16(0);              // creature family (required for pet talents)
     data << uint16(0);              // word18
@@ -24850,7 +24850,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendCurrencies();
 
     // Reset Vignitte data
-    data.Initialize(SMSG_SET_VIGNETTE, 21);
+    data.Initialize(SMSG_VIGNETTE_UPDATE, 21);
     data.WriteBit(1);
     data << uint32(0);
     data << uint32(0);
@@ -26120,7 +26120,7 @@ void Player::ResurectUsingRequestData()
 //! 6.0.3
 void Player::SetClientControl(Unit* target, uint8 allowMove)
 {
-    WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, 8 + 1 + 1);
+    WorldPacket data(SMSG_CONTROL_UPDATE, 8 + 1 + 1);
     data << target->GetGUID();
     data.WriteBit(allowMove);
     GetSession()->SendPacket(&data);
@@ -29575,7 +29575,7 @@ void Player::SendVegnette(Creature *target)
     ObjectGuid targetGUID = target->GetGUID();
     ObjectGuid unk = targetGUID/*0x81101000F*/;
 
-    WorldPacket data(SMSG_SET_VIGNETTE, 20);
+    WorldPacket data(SMSG_VIGNETTE_UPDATE, 20);
     data.WriteBit(1);
     data << uint32(0);
     data << uint32(0);

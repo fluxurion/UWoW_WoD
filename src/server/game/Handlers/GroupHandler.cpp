@@ -45,7 +45,7 @@ class Aura;
 -group_destroyed msg is sent but not shown
 -reduce xp gaining when in raid group
 -quest sharing has to be corrected
--Master Loor corrections in sending SMSG_LOOT_MASTER_LIST
+-Master Loor corrections in sending SMSG_MASTER_LOOT_CANDIDATE_LIST
 -raid markers
 */
 

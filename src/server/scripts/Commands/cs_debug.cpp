@@ -286,7 +286,7 @@ public:
 
         ss << "FINISH";
 
-        WorldPacket data(SMSG_NOTIFICATION, 2 + ss.str().length());
+        WorldPacket data(SMSG_PRINT_NOTIFICATION, 2 + ss.str().length());
         data.WriteBits(ss.str().length(), 12);
         data.FlushBits();
         data.WriteString(ss.str().c_str());
@@ -303,7 +303,7 @@ public:
         uint32 const count = 3;
         std::string const msg = "TEST TEST TEST III A B C D E F G 1 2 3 4 5 6 7 8 9 0 K O P D S";
         
-        ByteBuffer buff;//SMSG_NOTIFICATION
+        ByteBuffer buff;//SMSG_PRINT_NOTIFICATION
         buff.WriteBits(msg.length(), 12);
         buff.FlushBits();
         buff.WriteString(msg);
@@ -311,7 +311,7 @@ public:
         WorldPacket data(SMSG_MULTIPLE_PACKETS, 100);
         for (int32 i = 0; i < count; ++i)
         {
-            data << uint16(SMSG_NOTIFICATION);
+            data << uint16(SMSG_PRINT_NOTIFICATION);
             data << uint16(buff.wpos());
             data.append(buff);
         }

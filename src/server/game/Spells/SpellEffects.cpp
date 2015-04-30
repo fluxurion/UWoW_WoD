@@ -8061,7 +8061,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
 
     // zone update
     ObjectGuid guid = player->GetGUID();
-    WorldPacket data(SMSG_PLAYERBOUND, 8 + 4 + 1);
+    WorldPacket data(SMSG_PLAYER_BOUND, 8 + 4 + 1);
     //data.WriteGuidMask<1, 3, 4, 2, 0, 5, 7, 6>(guid);
     //data.WriteGuidBytes<5>(guid);
     data << uint32(area_id);
