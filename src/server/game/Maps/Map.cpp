@@ -2461,7 +2461,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
                         // players also become permanently bound when they enter
                         if (groupBind->perm)
                         {
-                            WorldPacket data(SMSG_INSTANCE_LOCK_WARNING_QUERY, 10);
+                            WorldPacket data(SMSG_PENDING_RAID_LOCK, 10);
                             data << uint32(i_data ? i_data->GetCompletedEncounterMask() : 0);
                             data << uint32(60000);
                             data.WriteBit(0);

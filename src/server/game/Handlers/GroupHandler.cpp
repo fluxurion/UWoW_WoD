@@ -68,7 +68,7 @@ void WorldSession::SendGroupInvite(Player* player, bool AlowEnter)
 {
     ObjectGuid invitedGuid = player->GetGUID();
 
-    WorldPacket data(SMSG_GROUP_INVITE, 45);
+    WorldPacket data(SMSG_PARTY_INVITE, 45);
     data.WriteBit(AlowEnter);                           // Inverse already in group
     data.WriteBit(0);                                   // MightCRZYou
     data.WriteBit(0);                                   // MustBeBNetFriend
@@ -1051,7 +1051,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     uint32 mask = player->GetGroupUpdateFlag();
 
     //! 6.0.3
-    data->Initialize(SMSG_PARTY_MEMBER_STATS, 200);
+    data->Initialize(SMSG_PARTY_MEMBER_STATE, 200);
 
     if (full)
     {
@@ -1349,7 +1349,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     if (!player)
     {
         //! 6.0.3
-        WorldPacket data(SMSG_PARTY_MEMBER_STATS, 3+4+2);
+        WorldPacket data(SMSG_PARTY_MEMBER_STATE, 3+4+2);
         data.WriteBit(0);                                   // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
         data.WriteBit(1);                                   // full
 

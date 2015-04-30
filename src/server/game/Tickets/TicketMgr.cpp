@@ -145,7 +145,7 @@ void GmTicket::SendResponse(WorldSession* session) const
     uint32 responseSize = _response.size();
     uint32 messageSize = _message.size();
 
-    WorldPacket data(SMSG_GMRESPONSE_RECEIVED, 4 + 4 + messageSize + responseSize + 2 + 2 + 1);
+    WorldPacket data(SMSG_GM_TICKET_RESPONSE, 4 + 4 + messageSize + responseSize + 2 + 2 + 1);
     data << uint32(1);          // responseID
     data << uint32(_id);        // ticketID
     data.WriteBit(!responseSize);
@@ -374,7 +374,7 @@ void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
         status = GMTICKET_STATUS_HASTEXT;
     }
 
-    WorldPacket data(SMSG_GMTICKET_GETTICKET, (4 + (ticket ? 4 + message.length() + 1 + 4 + 4 + 4 + 1 + 1 : 0)));
+    WorldPacket data(SMSG_GM_TICKET_GET_TICKET_RESPONSE, (4 + (ticket ? 4 + message.length() + 1 + 4 + 4 + 4 + 1 + 1 : 0)));
     data << uint32(status);
     data.WriteBit(status == GMTICKET_STATUS_HASTEXT);                         // standard 0x0A, 0x06 if text present
     if (status == GMTICKET_STATUS_HASTEXT)

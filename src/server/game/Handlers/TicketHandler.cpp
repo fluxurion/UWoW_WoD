@@ -116,7 +116,7 @@ void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recvData*/)
 void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recvData*/)
 {
     // Note: This only disables the ticket UI at client side and is not fully reliable
-    WorldPacket data(SMSG_GMTICKET_SYSTEMSTATUS, 4);
+    WorldPacket data(SMSG_GM_TICKET_SYSTEM_STATUS, 4);
     data << uint32(sTicketMgr->GetStatus() ? GMTICKET_QUEUE_STATUS_ENABLED : GMTICKET_QUEUE_STATUS_DISABLED);
     SendPacket(&data);
 }
@@ -194,7 +194,7 @@ void WorldSession::HandleGMResponseResolve(WorldPacket& /*recvPacket*/)
         if (float(rand_chance()) < sWorld->getFloatConfig(CONFIG_CHANCE_OF_GM_SURVEY))
             getSurvey = 1;
 
-        WorldPacket data(SMSG_GMRESPONSE_STATUS_UPDATE, 1);
+        WorldPacket data(SMSG_GM_TICKET_STATUS_UPDATE, 1);
         data.WriteBit(getSurvey);
         SendPacket(&data);
 

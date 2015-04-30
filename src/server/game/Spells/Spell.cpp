@@ -5348,7 +5348,7 @@ void Spell::SendChannelUpdate(uint32 time)
     }
 
     //! 6.3.0
-    WorldPacket data(SMSG_CHANNEL_UPDATE, 8+4);
+    WorldPacket data(SMSG_SPELL_CHANNEL_UPDATE, 8+4);
     data << m_caster->GetPackGUID();
     data << uint32(time);
     m_caster->SendMessageToSet(&data, true);

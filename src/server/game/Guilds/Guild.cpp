@@ -2045,14 +2045,14 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
     if (!IsMember(player->GetGUID()) || !group)
         return;
 
-    WorldPacket data(SMSG_GUILD_PARTY_STATE_RESPONSE, 13);
+    WorldPacket data(SMSG_GUILD_PARTY_STATE, 13);
     data.WriteBit(player->GetMap()->GetOwnerGuildId(player->GetTeam()) == GetId());     // Is guild group
     data << uint32(0);                                                                  // Current guild members
     data << uint32(0);                                                                  // Needed guild members
     data << float(0.f);                                                                 // Guild XP multiplier
 
     session->SendPacket(&data);
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_PARTY_STATE_RESPONSE)");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_PARTY_STATE)");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

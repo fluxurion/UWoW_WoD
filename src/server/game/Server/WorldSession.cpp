@@ -949,7 +949,7 @@ bool WorldSession::IsAddonRegistered(const std::string& prefix) const
 
 void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/) // empty packet
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UNREGISTER_ALL_ADDON_PREFIXES");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES");
 
     _registeredAddonPrefixes.clear();
 }
@@ -958,7 +958,7 @@ void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADDON_REGISTERED_PREFIXES");
 
-    // This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
+    // This is always sent after CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES
 
     uint32 count = 0;
     recvPacket >> count;

@@ -718,6 +718,8 @@ enum OpcodeClient : uint32
     CMSG_VOICE_DEL_IGNORE                             = 0x0E95,
     CMSG_VOICE_SESSION_ENABLE                         = 0x1238,
     CMSG_VOID_STORAGE_TRANSFER                        = 0x0E07,
+    CMSG_VOID_SWAP_ITEM                               = 0xBADD,
+    CMSG_VOID_STORAGE_QUERY                           = 0x03D3,
     CMSG_WARDEN_DATA                                  = 0x02B8,
     CMSG_WHO                                          = 0x079E,
     CMSG_WHO_IS                                       = 0x17BF,
@@ -757,6 +759,7 @@ enum OpcodeClient : uint32
     CMSG_BATTLE_PET_SET_DATA                          = 0xBADD, // 5.4.1 17538 maybe only favorite flag???
     CMSG_BATTLE_PET_RENAME                            = 0xBADD, // 5.4.1 17538
     CMSG_BATTLE_PET_PUT_IN_CAGE                       = 0xBADD, // 5.4.1 17538
+    CMSG_BATTLE_PET_NAME_QUERY                        = 0xBADD,
 };
 
 // SMSGs 6.1.2.19802

@@ -357,7 +357,7 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
         }
         else
         {
-            data.Initialize(SMSG_READ_ITEM_FAILED, 8 + 1);
+            data.Initialize(SMSG_READ_ITEM_RESULT_FAILED, 8 + 1);
             data << pItem->GetGUID();
             data << uint32(2);
             sLog->outInfo(LOG_FILTER_NETWORKIO, "STORAGE: Unable to read item");

@@ -866,7 +866,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         if (Guild* guild = sGuildMgr->GetGuildById(guildId))
             guildGuid = guild->GetGUID();
 
-    WorldPacket data(SMSG_MIRRORIMAGE_DATA, 80);
+    WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 80);
     //data.WriteGuidMask<5>(guildGuid);
     //data.WriteGuidMask<0, 5>(guid);
     //data.WriteGuidMask<4>(guildGuid);

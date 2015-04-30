@@ -28679,7 +28679,7 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
     ObjectGuid guid = GetGUID();
 
     //! 6.0.3
-    WorldPacket data(apply ? SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY : SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
+    WorldPacket data(apply ? SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY : SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
     
     data << guid.WriteAsPacked();
     data << uint32(m_movementCounter++);          //! movement counter

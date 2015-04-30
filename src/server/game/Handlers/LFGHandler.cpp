@@ -389,10 +389,10 @@ void WorldSession::SendLfgUpdateParty(lfg::LfgUpdateData const& updateData)
 
 void WorldSession::SendLfgRoleChosen(ObjectGuid guid, uint8 roles)
 {
-    sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_ROLE_CHOSEN %s guid: %u roles: %u",
+    sLog->outDebug(LOG_FILTER_LFG, "SMSG_ROLE_CHOSEN %s guid: %u roles: %u",
         GetPlayerName().c_str(), guid.GetCounter(), roles);
 
-    WorldPacket data(SMSG_LFG_ROLE_CHOSEN, 8 + 1 + 1 + 4);
+    WorldPacket data(SMSG_ROLE_CHOSEN, 8 + 1 + 1 + 4);
     //data.WriteGuidMask<0, 6, 1, 4, 7, 3>(guid);
     data.WriteBit(roles != 0);                             // Ready
     //data.WriteGuidMask<2, 5>(guid);
@@ -659,7 +659,7 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
                 ++agreeNum;
         }
     }
-    sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_BOOT_PROPOSAL_UPDATE %s inProgress: %u - "
+    sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_BOOT_PLAYER %s inProgress: %u - "
         "didVote: %u - agree: %u - victim: %u votes: %u - agrees: %u - left: %u - "
         "needed: %u - reason %s",
         GetPlayerName().c_str(), uint8(boot.inProgress), uint8(playerVote != lfg::LFG_ANSWER_PENDING),
@@ -668,7 +668,7 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
 
     ObjectGuid victimGuid = boot.victim;
 
-    WorldPacket data(SMSG_LFG_BOOT_PROPOSAL_UPDATE, 8 + 1 + 1 + 4 + 4 + 4 + 4 + 1 + boot.reason.size());
+    WorldPacket data(SMSG_LFG_BOOT_PLAYER, 8 + 1 + 1 + 4 + 4 + 4 + 4 + 1 + boot.reason.size());
     // TODO: maybe my vote and agree need to be swapped
     //data.WriteGuidMask<4, 5, 7>(victimGuid);
     data.WriteBit(0);                                       // My vote

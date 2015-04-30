@@ -3267,10 +3267,9 @@ void WorldObject::SendMessageToSet(WorldPacket const* data, Player const* skippe
 
 void WorldObject::SendObjectDeSpawnAnim(ObjectGuid guid)
 {
-    /*WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8 + 1);
-    //data.WriteGuidMask<6, 5, 0, 1, 3, 2, 7, 4>(guid);
-    //data.WriteGuidBytes<2, 4, 1, 3, 0, 7, 5, 6>(guid);
-    SendMessageToSet(&data, true);*/
+    WorldPacket data(SMSG_GAME_OBJECT_DESPAWN, 8 + 1);
+    data << guid;
+    SendMessageToSet(&data, true);
 }
 
 void WorldObject::SetMap(Map* map)

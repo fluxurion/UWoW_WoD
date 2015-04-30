@@ -654,7 +654,7 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
     {
         std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
-        WorldPacket data(SMSG_GUILD_REWARDS_LIST, (3 + rewards.size() * (4 + 4 + 4 + 8 + 4 + 4)));
+        WorldPacket data(SMSG_GUILD_REWARD_LIST, (3 + rewards.size() * (4 + 4 + 4 + 8 + 4 + 4)));
         data << uint32(time(NULL));         // counter?
         data << uint32(rewards.size());
 
