@@ -300,7 +300,7 @@ void QuestMenu::ClearMenu()
 //6.0.3
 void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title, ObjectGuid npcGUID)
 {
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_LIST, 200);      // guess size
+    WorldPacket data(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 200);      // guess size
     data << npcGUID;
     data << uint32(eEmote._Delay);                         // player emote
     data << uint32(eEmote._Emote);                         // NPC emote
@@ -354,7 +354,7 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
     data.WriteString(Title);
 
     _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid=%u", npcGUID.GetCounter());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE NPC Guid=%u", npcGUID.GetCounter());
 }
 
 void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const
@@ -456,7 +456,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
     if (!quest)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u, does not exist", questId);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_QUEST_INFO_RESPONSE questid=%u, does not exist", questId);
         return;
     }
 
@@ -597,7 +597,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
 
     _session->SendPacket(packet.Write());
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_QUEST_INFO_RESPONSE questid=%u", quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const
@@ -656,7 +656,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
 
     _session->SendPacket(packet.Write());
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPCGuid=%u, questid=%u", npcGUID.GetCounter(), quest->GetQuestId());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE NPCGuid=%u, questid=%u", npcGUID.GetCounter(), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool closeOnCancel) const

@@ -1403,7 +1403,7 @@ bool TempSummon::learnSpell(uint32 spell_id)
 
     if (!m_loading && m_owner->ToPlayer())
     {
-        WorldPacket data(SMSG_PET_LEARNED_SPELL, 4);
+        WorldPacket data(SMSG_PET_LEARNED_SPELLS, 4);
         data.WriteBits(1, 22);
         data << uint32(spell_id);
         m_owner->ToPlayer()->GetSession()->SendPacket(&data);
@@ -1475,7 +1475,7 @@ bool TempSummon::unlearnSpell(uint32 spell_id)
     {
         if (!m_loading && m_owner->ToPlayer())
         {
-            WorldPacket data(SMSG_PET_REMOVED_SPELL, 4);
+            WorldPacket data(SMSG_PET_UNLEARNED_SPELLS, 4);
             data << uint32(1);
             data << uint32(spell_id);
             if(Player* player = m_owner->ToPlayer())

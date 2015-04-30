@@ -103,7 +103,7 @@ namespace WorldPackets
         class ChatMessageDND final : public ClientPacket
         {
         public:
-            ChatMessageDND(WorldPacket&& packet) : ClientPacket(CMSG_MESSAGECHAT_DND, std::move(packet)) { }
+            ChatMessageDND(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_DND, std::move(packet)) { }
 
             void Read() override;
 
@@ -113,7 +113,7 @@ namespace WorldPackets
         class ChatMessageAFK final : public ClientPacket
         {
         public:
-            ChatMessageAFK(WorldPacket&& packet) : ClientPacket(CMSG_MESSAGECHAT_AFK, std::move(packet)) { }
+            ChatMessageAFK(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_AFK, std::move(packet)) { }
 
             void Read() override;
 
@@ -123,18 +123,18 @@ namespace WorldPackets
         class ChatMessageEmote final : public ClientPacket
         {
         public:
-            ChatMessageEmote(WorldPacket&& packet) : ClientPacket(CMSG_MESSAGECHAT_EMOTE, std::move(packet)) { }
+            ChatMessageEmote(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_EMOTE, std::move(packet)) { }
 
             void Read() override;
 
             std::string Text;
         };
 
-        // SMSG_MESSAGECHAT
+        // SMSG_CHAT
         class Chat final : public ServerPacket
         {
         public:
-            Chat() : ServerPacket(SMSG_MESSAGECHAT, 100) { }
+            Chat() : ServerPacket(SMSG_CHAT, 100) { }
 
             void Initalize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message, uint32 achievementId = 0, std::string channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string addonPrefix = "");
             WorldPacket const* Write() override;
@@ -174,7 +174,7 @@ namespace WorldPackets
         class CTextEmote final : public ClientPacket
         {
         public:
-            CTextEmote(WorldPacket&& packet) : ClientPacket(CMSG_TEXT_EMOTE, std::move(packet)) { }
+            CTextEmote(WorldPacket&& packet) : ClientPacket(CMSG_SEND_TEXT_EMOTE, std::move(packet)) { }
 
             void Read() override;
 

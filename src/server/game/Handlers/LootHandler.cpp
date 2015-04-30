@@ -35,7 +35,7 @@
 //! 6.0.3
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLootItem& packet)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_ITEM");
     Player* player = GetPlayer();
     Loot* loot = NULL;
     Loot* tmp_loot = NULL;
@@ -51,7 +51,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
         if (!lootObjectGUID)
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM can't find owner of loot %u", lguid.GetCounter());
+            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_ITEM can't find owner of loot %u", lguid.GetCounter());
             player->SendLootRelease(lguid);
             return;
         }
@@ -309,7 +309,7 @@ void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
     if (!_creature)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT corpsGUID %u", corpsGUID);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_UNIT corpsGUID %u", corpsGUID);
 
     std::list<Creature*> corpesList;
     _looted->GetCorpseCreatureInGrid(corpesList, LOOT_DISTANCE);

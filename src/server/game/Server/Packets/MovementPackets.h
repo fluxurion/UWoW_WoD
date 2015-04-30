@@ -45,7 +45,7 @@ namespace WorldPackets
         class ServerPlayerMovement final : public ServerPacket
         {
         public:
-            ServerPlayerMovement() : ServerPacket(SMSG_PLAYER_MOVE) { }
+            ServerPlayerMovement() : ServerPacket(SMSG_MOVE_UPDATE) { }
 
             WorldPacket const* Write() override;
 
@@ -107,7 +107,7 @@ namespace WorldPackets
         class MonsterMove final : public ServerPacket
         {
         public:
-            MonsterMove() : ServerPacket(SMSG_MONSTER_MOVE) { }
+            MonsterMove() : ServerPacket(SMSG_ON_MONSTER_MOVE) { }
 
             void InitializeSplineData(::Movement::MoveSpline const& moveSpline);
 
@@ -218,7 +218,7 @@ namespace WorldPackets
         class WorldPortAck final : public ClientPacket
         {
         public:
-            WorldPortAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_WORLDPORT_ACK, std::move(packet)) { }
+            WorldPortAck(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_PORT_RESPONSE, std::move(packet)) { }
 
             void Read() override { }
         };

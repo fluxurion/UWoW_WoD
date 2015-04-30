@@ -36,7 +36,7 @@
 void WorldSession::SendBfInvitePlayerToWar(uint64 const& guid, uint32 zoneId, uint32 pTime)
 {
     //Send packet
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE);
+    WorldPacket data(SMSG_BF_MGR_ENTRY_INVITE);
     data << guid;
     data << uint32(zoneId);         // Zone Id
     data << uint32(time(NULL) + pTime); // Invite lasts until
@@ -52,7 +52,7 @@ void WorldSession::SendBfInvitePlayerToQueue(uint64 const& guid)
 {
     bool warmup = true;
 
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_INVITE);
+    WorldPacket data(SMSG_BF_MGR_QUEUE_INVITE);
     data << guid;
     data << uint8(1);  //warmup. 1 - WG, 2 - TB
     
@@ -78,7 +78,7 @@ void WorldSession::SendBfQueueInviteResponse(uint64 const& guid, uint32 ZoneId, 
 {
     ObjectGuid FailedPlayerGuid;
 
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE);
+    WorldPacket data(SMSG_BF_MGR_QUEUE_REQUEST_RESPONSE);
     data << guid;
     data << uint32(ZoneId);
     data << uint8(1); // Warmup
@@ -97,7 +97,7 @@ void WorldSession::SendBfEntered(uint64 const& guid)
 {
 //    m_PlayerInWar[player->GetTeamId()].insert(player->GetGUID());
 
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERING);
+    WorldPacket data(SMSG_BF_MGR_ENTERING);
 
     data.WriteBit(_player->isAFK() ? 1 : 0); //Clear AFK
     data.WriteBit(1); // unk
@@ -110,7 +110,7 @@ void WorldSession::SendBfEntered(uint64 const& guid)
 //! 6.0.3
 void WorldSession::SendBfLeaveMessage(uint64 const& guid, BFLeaveReason reason)
 {
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_EJECTED);
+    WorldPacket data(SMSG_BF_MGR_EJECTED);
     data << guid;
     data << uint8(2); // byte BattleStatus
     data << uint8(reason); // byte Reason

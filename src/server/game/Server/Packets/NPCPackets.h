@@ -94,7 +94,7 @@ namespace WorldPackets
         class VendorInventory final : public ServerPacket
         {
         public:
-            VendorInventory() : ServerPacket(SMSG_LIST_INVENTORY, 600) { }
+            VendorInventory() : ServerPacket(SMSG_VENDOR_INVENTORY, 600) { }
 
             WorldPacket const* Write() override;
 

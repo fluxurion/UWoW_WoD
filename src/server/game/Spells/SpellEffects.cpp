@@ -5219,7 +5219,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         const uint32 text[6] = { 2000009994, 2000009995, 2000009996, 2000009997, 2000009998, 2000009999};
                         LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
                         std::string texta(sObjectMgr->GetTrinityString(text[urand(0, 5)], loc_idx));
-                        WorldPacket data(SMSG_MESSAGECHAT, 200);
+                        WorldPacket data(SMSG_CHAT, 200);
                         player->BuildPlayerChat(&data, CHAT_MSG_RAID_BOSS_WHISPER, texta, LANG_UNIVERSAL);
                         player->GetSession()->SendPacket(&data);
                     }

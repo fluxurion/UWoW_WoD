@@ -29,7 +29,7 @@ namespace WorldPackets
         class AttackSwing final : public ClientPacket
         {
         public:
-            AttackSwing(WorldPacket&& packet) : ClientPacket(CMSG_ATTACKSWING, std::move(packet)) { }
+            AttackSwing(WorldPacket&& packet) : ClientPacket(CMSG_ATTACK_SWING, std::move(packet)) { }
 
             void Read() override;
 
@@ -39,7 +39,7 @@ namespace WorldPackets
         class AttackStop final : public ClientPacket
         {
         public:
-            AttackStop(WorldPacket&& packet) : ClientPacket(CMSG_ATTACKSTOP, std::move(packet)) { }
+            AttackStop(WorldPacket&& packet) : ClientPacket(CMSG_ATTACK_STOP, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -47,7 +47,7 @@ namespace WorldPackets
         class AttackStart final : public ServerPacket
         {
         public:
-            AttackStart() : ServerPacket(SMSG_ATTACKSTART, 16) { }
+            AttackStart() : ServerPacket(SMSG_ATTACK_START, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -58,7 +58,7 @@ namespace WorldPackets
         class SAttackStop final : public ServerPacket
         {
         public:
-            SAttackStop() : ServerPacket(SMSG_ATTACKSTOP, 17) { }
+            SAttackStop() : ServerPacket(SMSG_ATTACK_STOP, 17) { }
 
             WorldPacket const* Write() override;
 
@@ -146,7 +146,7 @@ namespace WorldPackets
         class AttackerStateUpdate final : public ServerPacket
         {
         public:
-            AttackerStateUpdate() : ServerPacket(SMSG_ATTACKERSTATEUPDATE, 70) { }
+            AttackerStateUpdate() : ServerPacket(SMSG_ATTACKER_STATE_UPDATE, 70) { }
 
             WorldPacket const* Write() override;
 

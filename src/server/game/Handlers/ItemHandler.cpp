@@ -195,7 +195,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
         return;
     }
 
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTOEQUIP_ITEM");
+    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTO_EQUIP_ITEM");
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
 
     Item* pSrcItem  = _player->GetItemByPos(autoEquipItem.PackSlot, autoEquipItem.Slot);
@@ -612,7 +612,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBag
         return;
     }
 
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTOSTORE_BAG_ITEM");
+    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTO_STORE_BAG_ITEM");
     //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u", srcbag, srcslot, dstbag);
 
     Item* pItem = _player->GetItemByPos(packet.ContainerSlotA, packet.SlotA);

@@ -108,7 +108,7 @@ void WorldSession::HandleBattlePetNameQuery(WorldPacket& recvData)
                     return;
 
                 bool hasCustomName = petInfo->GetCustomName() == "" ? false : true;
-                WorldPacket data(SMSG_BATTLE_PET_NAME_QUERY_RESPONSE);
+                WorldPacket data(SMSG_QUERY_BATTLE_PET_NAME_RESPONSE);
                 // creature entry
                 data << uint32(petInfo->GetCreatureEntry());
                 // timestamp for custom name cache

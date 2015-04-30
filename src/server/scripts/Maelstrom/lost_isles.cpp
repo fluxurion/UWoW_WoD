@@ -891,7 +891,7 @@ public:
 };
 
 /*
-ServerToClient: SMSG_MONSTER_MOVE (0x6E17) Length: 182 ConnectionIndex: 2 Time: 08/07/2012 10:46:08.603 Type: Unknown Opcode Type Number: 69708
+ServerToClient: SMSG_ON_MONSTER_MOVE (0x6E17) Length: 182 ConnectionIndex: 2 Time: 08/07/2012 10:46:08.603 Type: Unknown Opcode Type Number: 69708
 GUID: Full: 0xF1508EE900066DF4 Type: Vehicle Entry: 36585 Low: 421364
 Toggle AnimTierInTrans: False
 Position: X: 867.7984 Y: 2821.093 Z: 108.3891

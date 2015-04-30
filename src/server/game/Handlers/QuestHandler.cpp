@@ -42,7 +42,7 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestG
     Object* questgiver = ObjectAccessor::GetObjectByTypeMask(*_player, packet.QuestGiverGUID, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
     if (!questgiver)
     {
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_STATUS_QUERY, called for not found questgiver (%s)", packet.QuestGiverGUID.ToString().c_str());
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "Error in CMSG_QUEST_GIVER_STATUS_QUERY, called for not found questgiver (%s)", packet.QuestGiverGUID.ToString().c_str());
         return;
     }
 
@@ -50,7 +50,7 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestG
     {
         case TYPEID_UNIT:
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_STATUS_QUERY for npc %s", packet.QuestGiverGUID.ToString().c_str());
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_GIVER_STATUS_QUERY for npc %s", packet.QuestGiverGUID.ToString().c_str());
             Creature* cr_questgiver=questgiver->ToCreature();
             if (!cr_questgiver->IsHostileTo(_player))       // do not show quest status to enemies
             {
@@ -62,7 +62,7 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestG
         }
         case TYPEID_GAMEOBJECT:
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_STATUS_QUERY for GameObject %s", packet.QuestGiverGUID.ToString().c_str());
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_GIVER_STATUS_QUERY for GameObject %s", packet.QuestGiverGUID.ToString().c_str());
             GameObject* go_questgiver=(GameObject*)questgiver;
             questStatus = sScriptMgr->GetDialogStatus(_player, go_questgiver);
             if (questStatus > 6)
@@ -292,7 +292,7 @@ void WorldSession::HandleQuestQueryOpcode(WorldPackets::Quest::QueryQuestInfo& p
     if (!_player)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_QUERY quest = %u", packet.QuestID);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_QUEST_INFO quest = %u", packet.QuestID);
 
     _player->PlayerTalkClass->SendQuestQueryResponse(packet.QuestID);
 }
@@ -771,7 +771,7 @@ uint32 WorldSession::getDialogStatus(Player* player, Object* questgiver, uint32 
 
 void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& /*packet*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_GIVER_STATUS_MULTIPLE_QUERY");
 
 
     SendQuestgiverStatusMultipleQuery();

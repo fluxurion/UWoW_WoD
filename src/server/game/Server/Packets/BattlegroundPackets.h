@@ -103,7 +103,7 @@ namespace WorldPackets
         class ExitRequest final : public ClientPacket
         {
         public:
-            ExitRequest(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_MGR_EXIT_REQUEST, std::move(packet)) { }
+            ExitRequest(WorldPacket&& packet) : ClientPacket(CMSG_BF_MGR_QUEUE_EXIT_REQUEST, std::move(packet)) { }
 
             void Read() override;
 
@@ -222,7 +222,7 @@ namespace WorldPackets
         class ReportPvPPlayerAFKResult final : public ServerPacket
         {
         public:
-            ReportPvPPlayerAFKResult() : ServerPacket(SMSG_REPORT_PVP_AFK_RESULT, 25) { }
+            ReportPvPPlayerAFKResult() : ServerPacket(SMSG_REPORT_PVP_PLAYER_AFK_RESULT, 25) { }
 
             WorldPacket const* Write() override;
 
@@ -388,7 +388,7 @@ namespace WorldPackets
         class BFMgrEjected final : public ServerPacket
         {
         public:
-            BFMgrEjected() : ServerPacket(SMSG_BATTLEFIELD_MGR_EJECTED, 25) { }
+            BFMgrEjected() : ServerPacket(SMSG_BF_MGR_EJECTED, 25) { }
 
             WorldPacket const* Write() override;
 
@@ -401,7 +401,7 @@ namespace WorldPackets
         class BFMgrQueueRequestResponse final : public ServerPacket
         {
         public:
-            BFMgrQueueRequestResponse() : ServerPacket(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE, 25) { }
+            BFMgrQueueRequestResponse() : ServerPacket(SMSG_BF_MGR_QUEUE_REQUEST_RESPONSE, 25) { }
 
             WorldPacket const* Write() override;
 
@@ -445,7 +445,7 @@ namespace WorldPackets
         class BFMgrEjectPending final : public ServerPacket
         {
         public:
-            BFMgrEjectPending() : ServerPacket(SMSG_BATTLEFIELD_MGR_EJECT_PENDING, 9) { }
+            BFMgrEjectPending() : ServerPacket(SMSG_BF_MGR_EJECT_PENDING, 9) { }
 
             WorldPacket const* Write() override;
 
@@ -456,7 +456,7 @@ namespace WorldPackets
         class BFMgrEntryInvite final : public ServerPacket
         {
         public:
-            BFMgrEntryInvite() : ServerPacket(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE, 25) { }
+            BFMgrEntryInvite() : ServerPacket(SMSG_BF_MGR_ENTRY_INVITE, 25) { }
 
             WorldPacket const* Write() override;
 
@@ -469,7 +469,7 @@ namespace WorldPackets
         class BFMgrStateChanged final : public ServerPacket
         {
         public:
-            BFMgrStateChanged() : ServerPacket(SMSG_BATTLEFIELD_MGR_STATE_CHANGED, 12) { }
+            BFMgrStateChanged() : ServerPacket(SMSG_BF_MGR_STATE_CHANGED, 12) { }
 
             WorldPacket const* Write() override;
 
@@ -480,7 +480,7 @@ namespace WorldPackets
         class StatusWaitForGroups final : public ServerPacket
         {
         public:
-            StatusWaitForGroups() : ServerPacket(SMSG_BATTLEFIELD_STATUS_WAITFORGROUPS, 12) { }
+            StatusWaitForGroups() : ServerPacket(SMSG_BATTLEFIELD_STATUS_WAIT_FOR_GROUPS, 12) { }
 
             WorldPacket const* Write() override;
 
@@ -494,7 +494,7 @@ namespace WorldPackets
         class BFMgrDropTimerStarted final : public ServerPacket
         {
         public:
-            BFMgrDropTimerStarted() : ServerPacket(SMSG_BATTLEFIELD_MGR_DROP_TIMER_STARTED, 12) { }
+            BFMgrDropTimerStarted() : ServerPacket(SMSG_BF_MGR_DROP_TIMER_STARTED, 12) { }
 
             WorldPacket const* Write() override;
 
@@ -505,7 +505,7 @@ namespace WorldPackets
         class BFMgrDropTimerCanceled final : public ServerPacket
         {
         public:
-            BFMgrDropTimerCanceled() : ServerPacket(SMSG_BATTLEFIELD_MGR_DROP_TIMER_CANCELED, 8) { }
+            BFMgrDropTimerCanceled() : ServerPacket(SMSG_BF_MGR_DROP_TIMER_CANCELLED, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -515,7 +515,7 @@ namespace WorldPackets
         class BFMgrEntering final : public ServerPacket
         {
         public:
-            BFMgrEntering() : ServerPacket(SMSG_BATTLEFIELD_MGR_ENTERING, 11) { }
+            BFMgrEntering() : ServerPacket(SMSG_BF_MGR_ENTERING, 11) { }
 
             WorldPacket const* Write() override;
 
@@ -558,7 +558,7 @@ namespace WorldPackets
         class BFMgrQueueInvite final : public ServerPacket
         {
         public:
-            BFMgrQueueInvite() : ServerPacket(SMSG_BATTLEFIELD_MGR_QUEUE_INVITE, 31) { }
+            BFMgrQueueInvite() : ServerPacket(SMSG_BF_MGR_QUEUE_INVITE, 31) { }
 
             WorldPacket const* Write() override;
 

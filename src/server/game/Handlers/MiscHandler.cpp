@@ -498,7 +498,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
 
     sSocialMgr->SendFriendStatus(GetPlayer(), friendResult, friendGuid, false);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_CONTACT_STATUS)");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_FRIEND_STATUS)");
 }
 
 void WorldSession::HandleDelFriendOpcode(WorldPackets::Social::DelFriend& packet)
@@ -564,7 +564,7 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
 
     sSocialMgr->SendFriendStatus(GetPlayer(), ignoreResult, IgnoreGuid, false);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_CONTACT_STATUS)");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_FRIEND_STATUS)");
 }
 
 void WorldSession::HandleDelIgnoreOpcode(WorldPackets::Social::DelIgnore& packet)
@@ -683,7 +683,7 @@ void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
 //! 6.0.3
 void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_AREATRIGGER. Trigger ID: %u enter %u, FromClient %u", packet.AreaTriggerID, packet.Entered, packet.FromClient);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_AREA_TRIGGER. Trigger ID: %u enter %u, FromClient %u", packet.AreaTriggerID, packet.Entered, packet.FromClient);
 
     Player* player = GetPlayer();
     if (player->isInFlight())

@@ -2654,7 +2654,7 @@ void Unit::SendMeleeAttackStart(Unit* victim)
     packet.Victim = victim->GetGUID();
     SendMessageToSet(packet.Write(), true);
 
-    sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Sent SMSG_ATTACKSTART");
+    sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Sent SMSG_ATTACK_START");
 }
 
 void Unit::SendMeleeAttackStop(Unit* victim)
@@ -2668,7 +2668,7 @@ void Unit::SendMeleeAttackStop(Unit* victim)
     }
 
     SendMessageToSet(packet.Write(), true);
-    sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Sent SMSG_ATTACKSTOP");
+    sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Sent SMSG_ATTACK_STOP");
 
     if (victim)
         sLog->outInfo(LOG_FILTER_UNITS, "%s %u stopped attacking %s %u", (GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), GetGUID().GetCounter(), (victim->GetTypeId() == TYPEID_PLAYER ? "player" : "creature"), victim->GetGUID().GetCounter());
@@ -5821,7 +5821,7 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
-    sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Sending SMSG_ATTACKERSTATEUPDATE");
+    sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Sending SMSG_ATTACKER_STATE_UPDATE");
 
     WorldPackets::Combat::AttackerStateUpdate packet;
     packet.HitInfo = damageInfo->HitInfo;
@@ -23422,7 +23422,7 @@ void Trinity::BuildChatPacket(WorldPacket& data, ChatData& c, bool coded, bool e
     if (message.empty())
         langId = LANG_UNIVERSAL;
 
-    data.Initialize(SMSG_MESSAGECHAT);
+    data.Initialize(SMSG_CHAT);
     data << c.chatType;
     data << langId;
     data << c.sourceGuid;

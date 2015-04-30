@@ -29,7 +29,7 @@ namespace WorldPackets
         class LootUnit final : public ClientPacket
         {
         public:
-            LootUnit(WorldPacket&& packet) : ClientPacket(CMSG_LOOT, std::move(packet)) { }
+            LootUnit(WorldPacket&& packet) : ClientPacket(CMSG_LOOT_UNIT, std::move(packet)) { }
 
             void Read() override;
 
@@ -86,7 +86,7 @@ namespace WorldPackets
         class AutoStoreLootItem final : public ClientPacket
         {
         public:
-            AutoStoreLootItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_LOOT_ITEM, std::move(packet)) { }
+            AutoStoreLootItem(WorldPacket&& packet) : ClientPacket(CMSG_LOOT_ITEM, std::move(packet)) { }
 
             void Read() override;
 

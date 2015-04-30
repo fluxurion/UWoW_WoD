@@ -821,7 +821,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
 //6.0.3
 void WorldSession::HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& /*loadingScreenNotify*/)
 {
-    sLog->outInfo(LOG_FILTER_GENERAL, "WORLD: Recvd CMSG_LOAD_SCREEN");
+    sLog->outInfo(LOG_FILTER_GENERAL, "WORLD: Recvd CMSG_LOADING_SCREEN_NOTIFY");
 }
 
 //6.0.3
@@ -1127,7 +1127,7 @@ void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packe
             uint8 index = uint8(packet.TutorialBit >> 5);
             if (index >= MAX_ACCOUNT_TUTORIAL_VALUES)
             {
-                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_TUTORIAL_FLAG received bad TutorialBit %u.", packet.TutorialBit);
+                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_TUTORIAL received bad TutorialBit %u.", packet.TutorialBit);
                 return;
             }
             uint32 flag = GetTutorialInt(index);
@@ -1144,7 +1144,7 @@ void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packe
                 SetTutorialInt(i, 0x00000000);
             break;
         default:
-            sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_TUTORIAL_FLAG received unknown TutorialAction %u.", packet.Action);
+            sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_TUTORIAL received unknown TutorialAction %u.", packet.Action);
             return;
     }
 }
@@ -1203,7 +1203,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     // prevent character rename to invalid name
     if (!normalizePlayerName(newName))
     {
-        WorldPacket data(SMSG_CHAR_RENAME, 2);
+        WorldPacket data(SMSG_CHARACTER_RENAME_RESULT, 2);
         data << uint8(CHAR_NAME_NO_NAME);
         data.WriteBit(0);
         SendPacket(&data);
@@ -1213,7 +1213,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     uint8 res = ObjectMgr::CheckPlayerName(newName, true);
     if (res != CHAR_NAME_SUCCESS)
     {
-        WorldPacket data(SMSG_CHAR_RENAME, 1+8+(newName.size()+1));
+        WorldPacket data(SMSG_CHARACTER_RENAME_RESULT, 1+8+(newName.size()+1));
         data << uint8(res);
         data.WriteBit(1);
         data.WriteBits(newName.length(), 6);
@@ -1226,7 +1226,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     // check name limitations
     if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newName))
     {
-        WorldPacket data(SMSG_CHAR_RENAME, 2);
+        WorldPacket data(SMSG_CHARACTER_RENAME_RESULT, 2);
         data << uint8(CHAR_NAME_RESERVED);
         data.WriteBit(0);
         SendPacket(&data);
@@ -1252,7 +1252,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 {
     if (!result)
     {
-        WorldPacket data(SMSG_CHAR_RENAME, 2);
+        WorldPacket data(SMSG_CHARACTER_RENAME_RESULT, 2);
         data << uint8(CHAR_CREATE_ERROR);
         data.WriteBit(0);
         SendPacket(&data);
@@ -1293,7 +1293,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 
     sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), guidLow, newName.c_str());
 
-    WorldPacket data(SMSG_CHAR_RENAME, 1+8+(newName.size()+1));
+    WorldPacket data(SMSG_CHARACTER_RENAME_RESULT, 1+8+(newName.size()+1));
     data << uint8(RESPONSE_SUCCESS);
     data.WriteBit(1);
     data.WriteBits(newName.length(), 6);
@@ -1520,7 +1520,7 @@ void WorldSession::HandleRemoveGlyph(WorldPacket & recvData)
 //! 6.0.3
 void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_SAVE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SAVE_EQUIPMENT_SET");
 
     uint32 index;
     ObjectGuid itemGuids[EQUIPMENT_SLOT_END];
@@ -1807,7 +1807,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
     if (!result)
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE_RESULT, 5);
         data << uint8(CHAR_CREATE_ERROR);
         data << guid;
         data.WriteBit(0);
@@ -1853,7 +1853,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
     if (!sObjectMgr->GetPlayerInfo(race, playerClass))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE_RESULT, 5);
         data << uint8(CHAR_CREATE_ERROR);
         data << guid;
         data.WriteBit(0);
@@ -1863,7 +1863,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
     if (!(at_loginFlags & used_loginFlag))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE_RESULT, 5);
         data << uint8(CHAR_CREATE_ERROR);
         data << guid;
         data.WriteBit(0);
@@ -1876,7 +1876,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         uint32 raceMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
         if ((1 << (race - 1)) & raceMaskDisabled)
         {
-            WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
+            WorldPacket data(SMSG_CHAR_FACTION_CHANGE_RESULT, 5);
             data << uint8(CHAR_CREATE_ERROR);
             data << guid;
             data.WriteBit(0);
@@ -1888,7 +1888,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     // prevent character rename to invalid name
     if (!normalizePlayerName(newname))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE_RESULT, 5);
         data << uint8(CHAR_NAME_NO_NAME);
         data << guid;
         data.WriteBit(0);
@@ -1899,7 +1899,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     uint8 res = ObjectMgr::CheckPlayerName(newname, true);
     if (res != CHAR_NAME_SUCCESS)
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE_RESULT, 5);
         data << uint8(res);
         data << guid;
         data.WriteBit(0);
@@ -1910,7 +1910,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     // check name limitations
     if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newname))
     {
-        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE_RESULT, 5);
         data << uint8(CHAR_NAME_RESERVED);
         data << guid;
         data.WriteBit(0);
@@ -1923,7 +1923,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     {
         if (newguid != guid)
         {
-            WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 5);
+            WorldPacket data(SMSG_CHAR_FACTION_CHANGE_RESULT, 5);
             data << uint8(CHAR_CREATE_NAME_IN_USE);
             data << guid;
             data.WriteBit(0);
@@ -2327,7 +2327,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     std::string IP_str = GetRemoteAddress();
     sLog->outDebug(LOG_FILTER_UNITS, "Account: %d (IP: %s), Character guid: %u Change Race/Faction to: %s", GetAccountId(), IP_str.c_str(), lowGuid, newname.c_str());
 
-    WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1 + 8 + (newname.size() + 1) + 1 + 1 + 1 + 1 + 1 + 1 + 1);
+    WorldPacket data(SMSG_CHAR_FACTION_CHANGE_RESULT, 1 + 8 + (newname.size() + 1) + 1 + 1 + 1 + 1 + 1 + 1 + 1);
     data << uint8(RESPONSE_SUCCESS);
     data << guid;
     data.WriteBit(0);
@@ -2365,7 +2365,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
     }
 
     std::string const* name = GetRandomCharacterName(race, gender);
-    WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 10);
+    WorldPacket data(SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT, 10);
     data.WriteBit(1); // Success
     data.WriteBits(name->size(), 6);
     data.WriteString(*name);

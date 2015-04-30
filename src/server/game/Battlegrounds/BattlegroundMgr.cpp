@@ -274,7 +274,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
         }
         case STATUS_WAIT_LEAVE:
         {
-            data->Initialize(SMSG_BATTLEFIELD_STATUS_WAITFORGROUPS, 200);
+            data->Initialize(SMSG_BATTLEFIELD_STATUS_WAIT_FOR_GROUPS, 200);
             sHeader.RangeMin = bg->GetMinLevel();                                        // BG Min level. ToDo: for arena basic template has always 10 min.lvl.
             sHeader.InstanceID = bg->GetClientInstanceID();                              // Client Instance ID
             sHeader.TicketData.Id = QueueSlot;

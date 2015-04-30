@@ -781,7 +781,7 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RAID_TARGET_UPDATE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPDATE_RAID_TARGET");
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)

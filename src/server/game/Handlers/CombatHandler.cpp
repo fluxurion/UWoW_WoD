@@ -29,7 +29,7 @@
 
 void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_ATTACKSWING Message %s", packet.Victim.ToString().c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_ATTACK_SWING Message %s", packet.Victim.ToString().c_str());
 
     Unit* pEnemy = ObjectAccessor::GetUnit(*_player, packet.Victim);
 
@@ -47,7 +47,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& pa
         return;
     }
 
-    //! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
+    //! Client explicitly checks the following before sending CMSG_ATTACK_SWING packet,
     //! so we'll place the same check here. Note that it might be possible to reuse this snippet
     //! in other places as well.
     if (Vehicle* vehicle = _player->GetVehicle())

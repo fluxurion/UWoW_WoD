@@ -312,7 +312,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)
 
 void WorldSession::SendTrainerService(ObjectGuid guid, uint32 spellId, uint32 result)
 { 
-    WorldPacket data(SMSG_TRAINER_SERVICE, 16);
+    WorldPacket data(SMSG_TRAINER_BUY_FAILED, 16);
     data << guid;
     data << uint32(spellId);        // should be same as in packet from client
     data << uint32(result);         // 2 == Success. 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
@@ -608,7 +608,7 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket & recvData)
 
 void WorldSession::SendListInventory(ObjectGuid vendorGuid)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LIST_INVENTORY");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_VENDOR_INVENTORY");
 
     Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!vendor)

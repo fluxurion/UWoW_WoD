@@ -90,13 +90,13 @@ void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& pack
         case CMSG_MESSAGECHAT_OFFICER:
             type = CHAT_MSG_OFFICER;
             break;
-        case CMSG_MESSAGECHAT_AFK:
+        case CMSG_CHAT_MESSAGE_AFK:
             type = CHAT_MSG_AFK;
             break;
-        case CMSG_MESSAGECHAT_DND:
+        case CMSG_CHAT_MESSAGE_DND:
             type = CHAT_MSG_DND;
             break;
-        case CMSG_MESSAGECHAT_EMOTE: //WorldSession::HandleChatMessageEmoteOpcode
+        case CMSG_CHAT_MESSAGE_EMOTE: //WorldSession::HandleChatMessageEmoteOpcode
             type = CHAT_MSG_EMOTE;
             break;
         case CMSG_MESSAGECHAT_PARTY:

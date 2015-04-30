@@ -2271,7 +2271,7 @@ MovementStatusElements* GetMovementStatusElementsSequence(uint32 opcode)
             return MovementStopTurnSequence;
         case SMSG_MOVE_UPDATE_KNOCK_BACK:
             return MovementUpdateKnockBackSequence;
-        case SMSG_PLAYER_MOVE:
+        case SMSG_MOVE_UPDATE:
             return PlayerMoveSequence;*/
         default:
             sLog->outError(LOG_FILTER_OPCODES, "Unknown movement sequence for opcode %u", opcode);

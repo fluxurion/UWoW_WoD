@@ -22224,7 +22224,7 @@ void Player::TextEmote(const std::string& text)
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    WorldPacket data(SMSG_CHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_EMOTE, _text, LANG_UNIVERSAL);
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
 }
@@ -22237,7 +22237,7 @@ void Player::WhisperAddon(const std::string& text, const std::string& prefix, Pl
     if (!receiver->GetSession()->IsAddonRegistered(prefix))
         return;
 
-    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    WorldPacket data(SMSG_CHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, LANG_ADDON, prefix.c_str());
     receiver->GetSession()->SendPacket(&data);
 }
@@ -22252,11 +22252,11 @@ void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiv
     // when player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
     if (!rPlayer->isDND() || isGameMaster())
     {
-        WorldPacket data(SMSG_MESSAGECHAT, 200);
+        WorldPacket data(SMSG_CHAT, 200);
         BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, language);
         rPlayer->GetSession()->SendPacket(&data);
 
-        data.Initialize(SMSG_MESSAGECHAT, 200);
+        data.Initialize(SMSG_CHAT, 200);
         rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
         GetSession()->SendPacket(&data);
     }
@@ -24807,14 +24807,14 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
     GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
 
-    /// SMSG_SPELL_CATEGORY_COOLDOWN
+    /// SMSG_CATEGORY_COOLDOWN
     SendCategoryCooldownMods();
 
     // guild bank list wtf?
     WorldPacket data(SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED);
     GetSession()->SendPacket(&data);
 
-    /// SMSG_BINDPOINTUPDATE
+    /// SMSG_BIND_POINT_UPDATE
     SendBindPointUpdate();
 
     // SMSG_SET_PROFICIENCY
@@ -24867,7 +24867,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     data.WriteBits(2, 2);
     GetSession()->SendPacket(&data);
 
-    /// SMSG_LOGIN_SETTIMESPEED
+    /// SMSG_LOGIN_SET_TIME_SPEED
     static float const TimeSpeed = 0.01666667f;
     WorldPackets::Misc::LoginSetTimeSpeed loginSetTimeSpeed;
     loginSetTimeSpeed.NewSpeed = TimeSpeed;
@@ -24925,7 +24925,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     worldServerInfo.DifficultyID = GetMap()->GetDifficultyID();
     SendDirectMessage(worldServerInfo.Write());
 
-    // SMSG_TALENTS_INFO x 2 for pet (unspent points and talents in separate packets...)
+    // SMSG_UPDATE_TALENT_DATA x 2 for pet (unspent points and talents in separate packets...)
     // SMSG_PET_GUIDS
     // SMSG_POWER_UPDATE
 
@@ -27783,7 +27783,7 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSetInfo eqset)
         eqslot.Data.Guid = sObjectMgr->GenerateEquipmentSetGuid();
 
         //! 6.0.3
-        WorldPacket data(SMSG_EQUIPMENT_SET_SAVED, 4 + 1);
+        WorldPacket data(SMSG_EQUIPMENT_SET_ID, 4 + 1);
         data << eqslot.Data.Guid;
         data << uint32(index);
         GetSession()->SendPacket(&data);

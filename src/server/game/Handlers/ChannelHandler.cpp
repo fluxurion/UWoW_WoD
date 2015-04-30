@@ -23,7 +23,7 @@
 
 void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode CMSG_JOIN_CHANNEL");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode CMSG_CHAT_JOIN_CHANNEL");
 
     if (packet.ChatChannelId)
     {
@@ -52,7 +52,7 @@ void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
 
 void WorldSession::HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode CMSG_LEAVE_CHANNEL");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode CMSG_CHAT_LEAVE_CHANNEL");
 
     if (packet.ChannelName.empty())
         return;
