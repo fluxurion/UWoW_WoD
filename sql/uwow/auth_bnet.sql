@@ -147,7 +147,7 @@ ALTER TABLE realmlist ADD COLUMN
   `Battlegroup` tinyint(3) unsigned NOT NULL DEFAULT '1' AFTER Region;
   
 
--- UPDATE `realmlist` SET `gamebuild`=19865 WHERE `id`=1;
+-- UPDATE `realmlist` SET `gamebuild`=19793 WHERE `id`=1;
 
 DROP TABLE IF EXISTS `battlenet_components`;
 CREATE TABLE `battlenet_components` (

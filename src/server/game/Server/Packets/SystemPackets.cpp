@@ -83,7 +83,13 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(BpayStoreAvailable);
     _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
     _worldPacket.WriteBit(CharUndeleteEnabled);
+    _worldPacket.WriteBit(CommerceSystemEnabled);
+    _worldPacket.WriteBit(Unk14);
+    _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.FlushBits();
+
+    _worldPacket << int32(TokenPollTimeSeconds);
+    _worldPacket << int32(TokenRedeemIndex);
 
     return &_worldPacket;
 }
