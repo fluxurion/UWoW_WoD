@@ -24137,7 +24137,7 @@ void Player::AddRPPMSpellCooldown(uint32 spellid, uint32 itemid, double end_time
     m_rppmspellCooldowns[spellid] = sc;
 }
 
-//! 6.0.3
+//! 6.1.2
 void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, Spell* spell /*= NULL*/, bool setCooldown /*= true*/)
 {
     // start cooldowns at server side, if any
@@ -24146,8 +24146,9 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
 
     // Send activate cooldown timer (possible 0) at client side
     WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8 + 1);
-    data << GetGUID();
+    //data << GetGUID();
     data << uint32(spellInfo->Id);
+    data.WriteBit(1);       //Unk16 self? pet?
     SendDirectMessage(&data);
 }
 
@@ -27848,13 +27849,14 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
     }
 }
 
-//! 6.0.3
+//! 6.1.2
 void Player::SendClearCooldown(uint32 spell_id, Unit* target)
 {
     WorldPacket data(SMSG_CLEAR_COOLDOWN);
-    data << target->GetGUID();
+    //data << target->GetGUID();
     data << spell_id;
     data.WriteBit(0/*notPet*/);
+    data.WriteBit(1/*self*/);
     SendDirectMessage(&data);
 }
 
@@ -29189,13 +29191,13 @@ void Player::SendCategoryCooldownMods()
     SendDirectMessage(cooldowns.Write());
 }
 
-//! 6.0.3
+//! 6.1.2
 void Player::SendModifyCooldown(uint32 spellId, int32 value)
 {
     WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4 + 1);
     data << uint32(spellId);                // Spell ID
-    data << GetGUID();
     data << int32(value);                   // Cooldown mod in milliseconds
+    data.WriteBit(1);                       // self
     SendDirectMessage(&data);
 }
 
