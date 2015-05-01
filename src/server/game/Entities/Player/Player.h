@@ -1541,8 +1541,8 @@ class Player : public Unit, public GridObject<Player>
 
         void InitStatsForLevel(bool reapplyMods = false);
 
-// Size (in bytes) of client completed quests bit map
-#define QUESTS_COMPLETED_BITS_SIZE 2500
+// Size of client completed quests bit map
+#define QUESTS_COMPLETED_BITS_SIZE 625
 
         // .cheat command related
         bool GetCommandStatus(uint32 command) const { return (_activeCheats & command) != 0; }
@@ -1945,6 +1945,7 @@ class Player : public Unit, public GridObject<Player>
                 SetUInt32Value(PLAYER_FIELD_QUEST_LOG + MAX_QUEST_OFFSET * slot2 + i, temp1);
             }
         }
+        void SetQuestCompletedBit(uint32 questBit, bool completed);
         uint16 GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry);
         void AreaExploredOrEventHappens(uint32 questId);
         void GroupEventHappens(uint32 questId, WorldObject const* pEventObject);
@@ -3397,8 +3398,6 @@ class Player : public Unit, public GridObject<Player>
 
         RewardedQuestSet m_RewardedQuests;
         QuestStatusSaveMap m_RewardedQuestsSave;
-
-        boost::dynamic_bitset<uint8>* _completedQuestBits;
 
         SkillStatusMap mSkillStatus;
 
