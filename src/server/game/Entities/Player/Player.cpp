@@ -8424,7 +8424,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             GetSession()->SendPacket(&packet);
         }
 
-        if (currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
+        if (currency->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
         {
             // count was changed to week limit, now we can modify original points.
             ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, count, printLog);
@@ -8465,7 +8465,7 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency)
     if(!currency)
         return 0;
 
-    uint32 cap = currency->WeekCap;
+    uint32 cap = currency->MaxEarnablePerWeek;
     uint32 curentCap = 0;
 
     PlayerCurrenciesMap::iterator itr = _currencyStorage.find(currency->ID);
@@ -8518,7 +8518,7 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency)
 uint32 Player::GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const
 {
     // @TODO: Possibly use caps from CurrencyTypes.dbc
-    uint32 cap = currency->TotalCap;
+    uint32 cap = currency->MaxQty;
 
     switch (currency->ID)
     {

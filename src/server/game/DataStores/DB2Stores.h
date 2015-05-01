@@ -27,7 +27,9 @@
 std::list<uint32> GetPackageItemList(uint32 packageEntry);
 std::list<uint32> GetGameObjectsList();
 
+extern DB2Storage<AreaGroupMemberEntry>         sAreaGroupMemberStore;
 extern DB2Storage<BroadcastTextEntry>           sBroadcastTextStore;
+extern DB2Storage<CurrencyTypesEntry>           sCurrencyTypesStore;
 extern DB2Storage<HolidaysEntry>                sHolidaysStore;
 extern DB2Storage<ItemEntry>                    sItemStore;
 extern DB2Storage<ItemAppearanceEntry>          sItemAppearanceStore;
@@ -40,6 +42,7 @@ extern std::map<uint32, LanguageWordsMap>       sLanguageWordsMapStore;
 extern DB2Storage<KeyChainEntry>                sKeyChainStore;
 extern DB2Storage<OverrideSpellDataEntry>       sOverrideSpellDataStore;
 extern DB2Storage<PhaseGroupEntry>              sPhaseGroupStore;
+extern DB2Storage<SoundEntriesEntry>             sSoundEntriesStore;
 extern DB2Storage <BattlePetAbilityEntry>         sBattlePetAbilityStore;
 extern DB2Storage <BattlePetAbilityTurnEntry>     sBattlePetAbilityTurnStore;
 extern DB2Storage <BattlePetAbilityEffectEntry>   sBattlePetAbilityEffectStore;
@@ -79,6 +82,9 @@ extern DB2Storage<SpellVisualEntry>             sSpellVisualStore;
 
 void LoadDB2Stores(const std::string& dataPath);
 
+typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
+extern AreaGroupMemberContainer                 _areaGroupMembers;
+
 typedef UNORDERED_MAP<uint32, ItemUpgradeData> ItemUpgradeDataMap;
 ItemUpgradeData const* GetItemUpgradeData(uint32 itemEntry);
 extern ItemUpgradeDataMap sItemUpgradeDataMap;
@@ -92,6 +98,7 @@ extern MapChallengeModeEntryMap sMapChallengeModeEntrybyMap;
 typedef std::vector<ItemBonusEntry const*> ItemBonusList;
 typedef std::unordered_map<uint32 /*bonusListId*/, ItemBonusList> ItemBonusListContainer;
 
+std::vector<uint32> GetAreasForGroup(uint32 areaGroupId);
 uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
 uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId);
 ItemBonusList GetItemBonusList(uint32 bonusListId);
@@ -99,4 +106,5 @@ ItemBonusList GetItemBonusList(uint32 bonusListId);
 std::set<uint32> const& GetPhasesForGroup(uint32 group);
 
 DB2StorageBase const* GetDB2Storage(uint32 type);
+
 #endif

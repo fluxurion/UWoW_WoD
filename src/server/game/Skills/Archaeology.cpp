@@ -583,7 +583,7 @@ bool Player::SolveResearchProject(uint32 spellId, SpellCastTargets& targets)
                 if (!proto)
                     return false;
 
-                if (proto->CurrencySubstitutionId != currencyEntry->SubstitutionId)
+                if (proto->CurrencySubstitutionId != currencyEntry->SpellCategory)
                     return false;
 
                 if (w.keystone.itemCount > entry->Complexity)

@@ -1870,20 +1870,14 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     if (RequiredAreasID > 0)
     {
         bool found = false;
-        AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(RequiredAreasID);
-        while (groupEntry)
+        std::vector<uint32> areaGroupMembers = GetAreasForGroup(RequiredAreasID);
+        for (uint32 areaId : areaGroupMembers)
         {
-            for (uint8 i = 0; i < MAX_GROUP_AREA_IDS; ++i)
+            if (areaId == zone_id || areaId == area_id)
             {
-                if (groupEntry->AreaId[i] == zone_id || groupEntry->AreaId[i] == area_id)
-                    found = true;
-                else if (groupEntry->AreaId[i])
-                    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CheckLocation: spell %i only for %u area", Id, groupEntry->AreaId[i]);
-            }
-            if (found || !groupEntry->nextGroup)
+                found = true;
                 break;
-            // Try search in next group
-            groupEntry = sAreaGroupStore.LookupEntry(groupEntry->nextGroup);
+            }
         }
 
         if (!found)

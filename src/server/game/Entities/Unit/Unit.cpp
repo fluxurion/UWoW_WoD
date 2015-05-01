@@ -16191,16 +16191,14 @@ float Unit::GetRatingMultiplier(CombatRating cr) const
         level = sGtCombatRatingsStore.GetTableRowCount() - 1;
 
     GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.EvaluateTable(level - 1, cr);
-    // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
-    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.EvaluateTable(cr + 1, getClass() - 1);
+
+    if (!Rating || !Rating->ratio)
+        return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
     if (cr == CR_RESILIENCE_PLAYER_DAMAGE_TAKEN)
         return Rating->ratio;
 
-    if (!Rating || !classRating)
-        return 1.0f;                                        // By default use minimum coefficient (not must be called)
-
-    return classRating->ratio / Rating->ratio;
+    return 1.0f / Rating->ratio;
 }
 
 void Unit::AddToWorld()

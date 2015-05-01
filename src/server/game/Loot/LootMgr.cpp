@@ -378,7 +378,7 @@ LootItem::LootItem(LootStoreItem const& li, Loot* loot)
         float multiplier = sWorld->getRate(RATE_DROP_CURRENCY_AMOUNT);
         if (loot)
             if (Player const* lootOwner = loot->GetLootOwner())
-                multiplier *= lootOwner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_LOOT, sCurrencyTypesStore.LookupEntry(itemid)->Category);
+                multiplier *= lootOwner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_LOOT, sCurrencyTypesStore.LookupEntry(itemid)->CategoryID);
 
         count = uint32(count * multiplier + 0.5f);
     }
@@ -443,10 +443,10 @@ bool LootItem::AllowedForPlayer(Player const* player) const
 
         if (!player->isGameMaster())
         {
-            if (currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
+            if (currency->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
                 return false;
 
-            if (currency->Category == CURRENCY_CATEGORY_ARCHAEOLOGY && !player->HasSkill(SKILL_ARCHAEOLOGY))
+            if (currency->CategoryID == CURRENCY_CATEGORY_ARCHAEOLOGY && !player->HasSkill(SKILL_ARCHAEOLOGY))
                 return false;
         }
     }
@@ -628,7 +628,7 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
 
             uint32 amount = urand(i->CurrencyAmount, i->currencyMaxAmount) * proto->GetPrecision();
             if (m_lootOwner)
-                amount = uint32(0.5f + amount * m_lootOwner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_LOOT, proto->Category));
+                amount = uint32(0.5f + amount * m_lootOwner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_LOOT, proto->CategoryID));
 
             player->ModifyCurrency(i->CurrencyId, amount);
         }

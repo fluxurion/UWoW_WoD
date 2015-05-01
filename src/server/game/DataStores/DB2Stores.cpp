@@ -29,7 +29,10 @@
 #include <map>
 #include <functional>
 
+DB2Storage<AreaGroupEntry>                  sAreaGroupStore(AreaGroupFormat);
+DB2Storage<AreaGroupMemberEntry>            sAreaGroupMemberStore(AreaGroupMemberFormat);
 std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
+DB2Storage<CurrencyTypesEntry>              sCurrencyTypesStore(CurrencyTypesFormat);
 DB2Storage<CurvePointEntry>                 sCurvePointStore(CurvePointEntryfmt);
 DB2Storage<BroadcastTextEntry>              sBroadcastTextStore(BroadcastTextEntryfmt, &DB2Utilities::HasBroadcastTextEntry, &DB2Utilities::WriteBroadcastTextDbReply);
 DB2Storage<HolidaysEntry>                   sHolidaysStore(HolidaysEntryfmt);
@@ -66,6 +69,7 @@ DB2Storage<SpellVisualEntry>                sSpellVisualStore(SpellVisualEntryfm
 DB2Storage<KeyChainEntry>                   sKeyChainStore(KeyChainfmt);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore(OverrideSpellDataEntryfmt);
 DB2Storage<PhaseGroupEntry>                 sPhaseGroupStore(PhaseGroupEntryfmt);
+DB2Storage<SoundEntriesEntry>               sSoundEntriesStore(SoundEntriesFormat);
 DB2Storage<SpellAuraRestrictionsEntry>      sSpellAuraRestrictionsStore(SpellAuraRestrictionsEntryfmt);
 DB2Storage<SpellCastingRequirementsEntry>   sSpellCastingRequirementsStore(SpellCastingRequirementsEntryfmt);
 DB2Storage<SpellClassOptionsEntry>          sSpellClassOptionsStore(SpellClassOptionsEntryfmt);
@@ -83,7 +87,8 @@ TaxiMask                                    sAllianceTaxiNodesMask;
 TaxiMask                                    sDeathKnightTaxiNodesMask;
 TaxiPathSetBySource                         sTaxiPathSetBySource;
 TaxiPathNodesByPath                         sTaxiPathNodesByPath;
-PhaseGroupContainer sPhasesByGroup;
+PhaseGroupContainer                         sPhasesByGroup;
+AreaGroupMemberContainer                    _areaGroupMembers;
 
 typedef std::list<std::string> StoreProblemList1;
 static std::map<uint32, std::list<uint32> > sPackageItemList;
@@ -167,6 +172,8 @@ void LoadDB2Stores(const std::string& dataPath)
         sBattlePetSpeciesBySpellId[entry->CreatureEntry] = entry;
     }
 
+    LoadDB2(bad_db2_files, sAreaGroupStore,           db2Path,    "AreaGroup.db2");
+    LoadDB2(bad_db2_files, sAreaGroupMemberStore,     db2Path,    "AreaGroupMember.db2");
     LoadDB2(bad_db2_files, sCurvePointStore,           db2Path,    "CurvePoint.db2");//19342
     LoadDB2(bad_db2_files, sBroadcastTextStore,        db2Path,    "BroadcastText.db2");//19342
     LoadDB2(bad_db2_files, sHolidaysStore,             db2Path,    "Holidays.db2");
@@ -201,6 +208,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sKeyChainStore,             db2Path,    "KeyChain.db2");
     LoadDB2(bad_db2_files, sOverrideSpellDataStore,    db2Path,    "OverrideSpellData.db2");
     LoadDB2(bad_db2_files, sPhaseGroupStore,           db2Path,    "PhaseXPhaseGroup.db2");
+    LoadDB2(bad_db2_files, sSoundEntriesStore,        db2Path,    "SoundEntries.db2");
     LoadDB2(bad_db2_files, sSpellAuraRestrictionsStore, db2Path,   "SpellAuraRestrictions.db2");
     LoadDB2(bad_db2_files, sSpellCastingRequirementsStore, db2Path, "SpellCastingRequirements.db2");
     LoadDB2(bad_db2_files, sSpellClassOptionsStore,    db2Path,    "SpellClassOptions.db2");
@@ -219,6 +227,10 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sSpellVisualStore,          db2Path,    "SpellVisual.db2");
     LoadDB2(bad_db2_files, sItemUpgradeStore,          db2Path,    "ItemUpgrade.db2");
     LoadDB2(bad_db2_files, sRuleSetItemUpgradeEntryStore,db2Path,  "RulesetItemUpgrade.db2");
+
+    for (uint32 i = 0; i < sAreaGroupMemberStore.GetNumRows(); ++i)
+        if (AreaGroupMemberEntry const* areaGroupMember = sAreaGroupMemberStore.LookupEntry(i))
+            _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);
 
     for (uint32 i = 0; i < sItemBonusStore.GetNumRows(); ++i)
         if (ItemBonusEntry const* bonus = sItemBonusStore.LookupEntry(i))
@@ -420,6 +432,15 @@ void LoadDB2Stores(const std::string& dataPath)
     }
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Initialized %d DB2 data stores.", DB2FilesCount);
+}
+
+std::vector<uint32> GetAreasForGroup(uint32 areaGroupId)
+{
+    auto itr = _areaGroupMembers.find(areaGroupId);
+    if (itr != _areaGroupMembers.end())
+        return itr->second;
+
+    return std::vector<uint32>();
 }
 
 std::list<uint32> GetPackageItemList(uint32 packageEntry)

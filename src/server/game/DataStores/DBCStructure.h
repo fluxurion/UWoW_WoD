@@ -605,15 +605,6 @@ struct AreaTableEntry
     }
 };
 
-#define MAX_GROUP_AREA_IDS 6
-
-struct AreaGroupEntry
-{
-    uint32  RequiredAreasID;                                    // 0
-    uint32  AreaId[MAX_GROUP_AREA_IDS];                     // 1-6
-    uint32  nextGroup;                                      // 7 index of next group
-};
-
 struct AreaPOIEntry
 {
     uint32 id;              //0
@@ -959,26 +950,6 @@ struct CurrencyCategoryEntry
 };
 */
 
-struct CurrencyTypesEntry
-{
-    uint32 ID;                                              // 0        not used
-    uint32 Category;                                        // 1        may be category
-    //char* name;                                           // 2
-    //char* iconName;                                       // 3
-    //uint32 unk4;                                          // 4
-    //uint32 substitutionId;                                // 5
-    uint32 SubstitutionId;                                  // 6
-    uint32 TotalCap;                                        // 7
-    uint32 WeekCap;                                         // 8
-    uint32 Flags;                                           // 9
-    //uint32 rarity;                                        // 10
-    //char* description;                                    // 11
-
-    bool HasPrecision() const   { return Flags & CURRENCY_FLAG_HAS_PRECISION; }
-    bool HasSeasonCount() const { return Flags & CURRENCY_FLAG_HAS_SEASON_COUNT; }
-    float GetPrecision() const  { return HasPrecision() ? CURRENCY_PRECISION : 1.0f; }
-};
-
 struct DestructibleModelDataEntry
 {
     uint32  Id;
@@ -1238,11 +1209,6 @@ struct GtChanceToSpellCritEntry
 struct GtNpcTotalHpEntry
 {
     float    HP;
-};
-
-struct GtOCTClassCombatRatingScalarEntry
-{
-    float    ratio;
 };
 
 struct GtOCTLevelExperienceEntry
@@ -1954,28 +1920,6 @@ struct SkillLineAbilityEntry
     uint32    skill_gain;                                   // 10       m_skillgain 1-5
     //uint32                                                // 11       4.0.0 unk (increment id)
     //uint32                                                // 12       5.0.5
-};
-
-struct SoundEntriesEntry
-{
-    uint32      ID;                                         // 0
-    //uint32    SoundType;                                  // 1
-    //char*     Name;                                       // 2
-    //uint32    FileDataID[20];                             // 3-22
-    //uint32    Freq[20];                                   // 23-42
-    //float     VolumeFloat;                                // 43
-    //uint32    Flags;                                      // 44
-    //float     MinDistance;                                // 45
-    //float     DistanceCutoff;                             // 46
-    //uint32    EAXDef;                                     // 47
-    //uint32    SoundEntriesAdvancedID;                     // 48
-    //float     VolumeVariationPlus;                        // 49
-    //float     VolumeVariationMinus;                       // 50
-    //float     PitchVariationPlus;                         // 51
-    //float     PitchVariationMinus;                        // 52
-    //float     PitchAdjust;                                // 53
-    //uint32    DialogType;                                 // 54
-    //uint32    BusOverwriteID;                             // 55
 };
 
 // SpecializationSpells.dbc

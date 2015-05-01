@@ -2354,7 +2354,7 @@ void ObjectMgr::LoadItemTemplates()
         // Mantid Amber Sliver
         if (itemTemplate.ItemId == 95373)
             if (CurrencyTypesEntry const* curr = sCurrencyTypesStore.LookupEntry(CURRENCY_TYPE_ARCHAEOLOGY_MANTID))
-                itemTemplate.CurrencySubstitutionId = curr->SubstitutionId;
+                itemTemplate.CurrencySubstitutionId = curr->SpellCategory;
     }
 
     // Load item effects (spells)

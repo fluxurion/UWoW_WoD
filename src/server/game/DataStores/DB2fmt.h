@@ -18,7 +18,10 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
+char const AreaGroupFormat[] = "n";
+char const AreaGroupMemberFormat[] = "nii";
 char const CurvePointEntryfmt[] = "niiff";
+char const CurrencyTypesFormat[] = "nisssiiiiiis";
 char const BroadcastTextEntryfmt[] = "nissiiiiiiiii";
 char const HolidaysEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
 const char Itemfmt[] = "niiiiiiii";
@@ -27,7 +30,7 @@ char const ItemBonusEntryfmt[] = "niiiii";
 const char ItemCurrencyCostfmt[] = "xn";
 char const ItemModifiedAppearanceEntryfmt[] = "niiiii";
 const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
-char const ItemExtendedCostEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
+char const ItemExtendedCostEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiii";
 const std::string CustomItemExtendedCostEntryfmt="paappppppppppppappppppppppaapa";
 const std::string CustomItemExtendedCostEntryIndex = "ID";
 char const ItemEffectEntryfmt[]="niiiiiiii";
@@ -35,6 +38,7 @@ const char LanguageWordsEntryfmt[] = "dis";
 char const KeyChainfmt[]="nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 char const OverrideSpellDataEntryfmt[] = "niiiiiiiiiixx";
 char const PhaseGroupEntryfmt[] = "nii";
+char const SoundEntriesFormat[] = "nisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiififfiifffffii";
 char const SpellAuraRestrictionsEntryfmt[] = "diiiiiiii";
 char const SpellCastingRequirementsEntryfmt[] = "dixxixi";
 char const SpellClassOptionsEntryfmt[] = "niiiiii";
@@ -54,7 +58,7 @@ char const SpellPowerEntryfmt[] = "niiiiiixixffif";
 const char SpellReagentsEntryfmt[] = "diiiiiiiiiiiiiiiiii";
 char const SpellRuneCostEntryfmt[] = "niiixi";
 char const SpellTotemsEntryfmt[] = "niiii";
-char const TaxiNodesEntryfmt[] = "nifffsiiiiff";
+char const TaxiNodesEntryfmt[] = "nifffsiiiiiff";
 char const TaxiPathEntryfmt[] = "niii";
 char const TaxiPathNodeEntryfmt[] = "niiifffiiii";
 
