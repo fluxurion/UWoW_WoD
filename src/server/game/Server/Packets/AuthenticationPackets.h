@@ -20,7 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectMgr.h"
-#include "Util.h"
+#include "Common.h"
 #include "BigNumber.h"
 #include "SHA1.h"
 #include <boost/asio/ip/tcp.hpp>
@@ -110,8 +110,8 @@ namespace WorldPackets
                 uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
                 uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
 
-                std::list<RealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
-                std::list<CharacterTemplate> Templates; ///< list of pre-made character templates. @todo implement
+                std::vector<RealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
+                std::vector<CharacterTemplate> Templates; ///< list of pre-made character templates.
 
                 ExpansionRequirementContainer const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select the classes
                 ExpansionRequirementContainer const* AvailableRaces = nullptr; ///< the minimum AccountExpansion required to select the races
@@ -138,6 +138,17 @@ namespace WorldPackets
             uint8 Result = 0; ///< the result of the authentication process, it is AUTH_OK if it succeeded and the account is ready to log in. It can also be AUTH_WAIT_QUEUE if the account entered the login queue (Queued, QueuePos), possible values are @ref ResponseCodes
         };
 
+        enum class ConnectToSerial : uint32
+        {
+            None            = 0,
+            Realm           = 14,
+            WorldAttempt1   = 17,
+            WorldAttempt2   = 35,
+            WorldAttempt3   = 53,
+            WorldAttempt4   = 71,
+            WorldAttempt5   = 89
+        };
+
         class ConnectTo final : public ServerPacket
         {
             static std::string const Haiku;
@@ -157,7 +168,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 Key = 0;
-            uint32 Serial = 0;
+            ConnectToSerial Serial = ConnectToSerial::None;
             ConnectPayload Payload;
             uint8 Con = 0;
 
@@ -187,9 +198,20 @@ namespace WorldPackets
         class ResumeComms final : public ServerPacket
         {
         public:
-            ResumeComms() : ServerPacket(SMSG_RESUME_COMMS, 0) { }
+            ResumeComms(ConnectionType connection) : ServerPacket(SMSG_RESUME_COMMS, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class ConnectToFailed final : public ClientPacket
+        {
+        public:
+            ConnectToFailed(WorldPacket&& packet) : ClientPacket(CMSG_CONNECT_TO_FAILED, std::move(packet)) { }
+
+            void Read() override;
+
+            ConnectToSerial Serial = ConnectToSerial::None;
+            uint8 Con = 0;
         };
     }
 }

@@ -158,6 +158,7 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
         _worldPacket.WriteBits(charInfo.Name.length(), 6);
         _worldPacket.WriteBit(charInfo.FirstLogin);
         _worldPacket.WriteBit(charInfo.BoostInProgress);
+        _worldPacket.WriteBits(charInfo.unkWod61x, 5);
         _worldPacket.WriteString(charInfo.Name);
     }
 

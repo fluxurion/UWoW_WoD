@@ -2587,8 +2587,8 @@ public:
 
         /// - Send the message
         // Use SendAreaTriggerMessage for fastest delivery.
-        player->GetSession()->SendAreaTriggerMessage("%s", msgStr);
-        player->GetSession()->SendAreaTriggerMessage("|cffff0000[Message from administrator]:|r");
+        //player->GetSession()->SendAreaTriggerMessage("%s", msgStr);
+        //player->GetSession()->SendAreaTriggerMessage("|cffff0000[Message from administrator]:|r");
 
         // Confirmation message
         std::string nameLink = handler->GetNameLink(player);

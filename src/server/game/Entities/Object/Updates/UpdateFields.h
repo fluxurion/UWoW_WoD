@@ -45,7 +45,7 @@
 #define CORPSE_FIELD_BYTES_1 CORPSE_FIELD_SKIN_ID
 #define CORPSE_FIELD_BYTES_2 CORPSE_FIELD_FACIAL_HAIR_STYLE_ID
 
-// Updatefields auto generated for version 6.0.3 19116
+// Updatefields auto generated for version 6, 1, 2, 19802
 enum EObjectFields
 {
     OBJECT_FIELD_GUID = 0x0, // Size: 4 Flags: Public
@@ -155,7 +155,9 @@ enum EUnitFields
     UNIT_FIELD_SCALE_DURATION = OBJECT_END + 0xBC, // Size: 1 Flags: Public
     UNIT_FIELD_LOOKS_LIKE_MOUNT_ID = OBJECT_END + 0xBD, // Size: 1 Flags: Public
     UNIT_FIELD_LOOKS_LIKE_CREATURE_ID = OBJECT_END + 0xBE, // Size: 1 Flags: Public
-    UNIT_END = OBJECT_END + 0xBF
+    UNIT_FIELD_LOOK_AT_CONTROLLER_ID                       = OBJECT_END + 0x0BF, // Size: 1, Flags: PUBLIC
+    UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET                   = OBJECT_END + 0x0C0, // Size: 4, Flags: PUBLIC
+    UNIT_END                                               = OBJECT_END + 0x0C4,
 };
 
 enum EItemFields
@@ -300,7 +302,8 @@ enum EPlayerFields
     PLAYER_FIELD_BAG_SLOT_FLAGS = UNIT_END + 0x99D, // Size: 4 Flags: Private
     PLAYER_FIELD_BANK_BAG_SLOT_FLAGS = UNIT_END + 0x9A1, // Size: 7 Flags: Private
     PLAYER_FIELD_INSERT_ITEMS_LEFT_TO_RIGHT = UNIT_END + 0x9A8, // Size: 1 Flags: Private
-    PLAYER_END = UNIT_END + 0x9A9
+    PLAYER_FIELD_QUEST_COMPLETED                           = UNIT_END + 0x9A9, // Size: 625, Flags: PRIVATE
+    PLAYER_END                                             = UNIT_END + 0xC1A,
 };
 
 enum EContainerFields
@@ -415,8 +418,9 @@ enum EPlayerDynamicFields
     PLAYER_DYNAMIC_FIELD_DAILY_QUESTS = UNIT_DYNAMIC_END + 0x2, // Size: 1 Flags: Private
     PLAYER_DYNAMIC_FIELD_AVAILABLE_QUEST_LINE_XQUEST_IDS = UNIT_DYNAMIC_END + 0x3, // Size: 1 Flags: Private
     PLAYER_DYNAMIC_FIELD_HEIRLOOMS = UNIT_DYNAMIC_END + 0x4, // Size: 1 Flags: Private
-    PLAYER_DYNAMIC_FIELD_TOYS = UNIT_DYNAMIC_END + 0x5, // Size: 1 Flags: Private
-    PLAYER_DYNAMIC_END = UNIT_DYNAMIC_END + 0x6
+    PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS  = UNIT_DYNAMIC_END + 0x5, // Flags: Private
+    PLAYER_DYNAMIC_FIELD_TOYS = UNIT_DYNAMIC_END + 0x6, // Size: 1 Flags: Private
+    PLAYER_DYNAMIC_END = UNIT_DYNAMIC_END + 0x7
 };
 
 
