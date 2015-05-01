@@ -29,7 +29,7 @@ namespace WorldPackets
         // CMSG_BANKER_ACTIVATE
         // CMSG_BINDER_ACTIVATE
         // CMSG_BINDER_CONFIRM
-        // CMSG_GOSSIP_HELLO
+        // CMSG_TALK_TO_GOSSIP
         // CMSG_LIST_INVENTORY
         // CMSG_TRAINER_LIST
         class Hello final : public ClientPacket

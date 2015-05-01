@@ -606,35 +606,13 @@ void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket)
 //! 6.0.3
 void WorldSession::HandleGuildRequestPartyState(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REQUEST_PARTY_STATE");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_GUILD_PARTY_STATE");
 
     ObjectGuid guildGuid;
     recvData >> guildGuid;
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
         guild->HandleGuildPartyRequest(this);
-}
-
-//! remove it
-void WorldSession::HandleGuildRequestMaxDailyXP(WorldPacket& recvPacket)
-{
-    ObjectGuid guildGuid;
-
-    uint8 bitOrder[8] = {2, 5, 3, 7, 4, 1, 0, 6};
-    //recvPacket.ReadBitInOrder(guildGuid, bitOrder);
-
-    uint8 byteOrder[8] = {7, 3, 2, 1, 0, 5, 6, 4};
-    //recvPacket.ReadBytesSeq(guildGuid, byteOrder);
-
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-    {
-        if (guild->IsMember(_player->GetGUID()))
-        {
-            WorldPacket data(SMSG_GUILD_MAX_DAILY_XP, 8);
-            data << uint64(sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP));
-            SendPacket(&data);
-        }
-    }
 }
 
 //! 6.0.3

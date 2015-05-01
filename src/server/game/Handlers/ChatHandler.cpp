@@ -692,7 +692,7 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
     uint8 unk;
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_CHAT_IGNORED");
+    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_CHAT_REPORT_IGNORED");
 
     recvData >> unk;                                       // probably related to spam reporting
 

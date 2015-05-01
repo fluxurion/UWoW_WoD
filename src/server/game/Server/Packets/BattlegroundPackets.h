@@ -87,8 +87,8 @@ namespace WorldPackets
             uint32 ListID = 0;
         };
 
-        ///< CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE
-        ///< CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE
+        ///< SMSG_BF_MGR_ENTRY_INVITE
+        ///< SMSG_BF_MGR_QUEUE_INVITE
         class EntryOrQueueInviteResponse final : public ClientPacket
         {
         public:
@@ -598,7 +598,7 @@ namespace WorldPackets
         //< CMSG_REQUEST_BATTLEFIELD_STATUS
         //< CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS
         //< CMSG_REQUEST_RATED_BATTLEFIELD_INFO
-        //< CMSG_REQUEST_PVP_OPTIONS_ENABLED
+        //< CMSG_GET_PVP_OPTIONS_ENABLED
         class NullCmsg final : public ClientPacket
         {
         public:

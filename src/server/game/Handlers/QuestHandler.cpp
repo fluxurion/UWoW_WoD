@@ -452,7 +452,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
     uint8 slot;
     recvData >> slot;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTLOG_REMOVE_QUEST slot = %u", slot);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_LOG_REMOVE_QUEST slot = %u", slot);
 
     if (slot < MAX_QUEST_LOG_SIZE)
     {
@@ -581,7 +581,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
     uint32 questId;
     recvPacket >> questId;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PUSHQUESTTOPARTY questId = %u", questId);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PUSH_QUEST_TO_PARTY questId = %u", questId);
 
     if (_player->GetQuestStatus(questId) == QUEST_STATUS_NONE || _player->GetQuestStatus(questId) == QUEST_STATUS_REWARDED)
         return;

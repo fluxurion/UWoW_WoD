@@ -49,7 +49,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_GET_CALENDAR [" UI64FMTD "]", guid);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_GET [" UI64FMTD "]", guid);
 
     time_t cur_time = time_t(time(NULL));
 

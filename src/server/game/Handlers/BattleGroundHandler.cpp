@@ -670,7 +670,7 @@ void WorldSession::HandleRequestRatedInfo(WorldPacket & recvData)
 //! 6.0.3
 void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_OPTIONS_ENABLED");
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_PVP_OPTIONS_ENABLED");
 
     WorldPacket data(SMSG_PVP_OPTIONS_ENABLED, 1);
     data.WriteBit(1);           //RatedArenas

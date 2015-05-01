@@ -149,7 +149,7 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJ_USE Message [guid=%u]", guid.GetCounter());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAME_OBJ_USE Message [guid=%u]", guid.GetCounter());
 
     // ignore for remote control state
     if (_player->m_mover != _player)
@@ -164,7 +164,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     ObjectGuid guid;
     recvPacket >> guid;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [in game guid: %u]", guid.GetCounter());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAME_OBJ_REPORT_USE Message [in game guid: %u]", guid.GetCounter());
 
     if (GameObject* go = GetPlayer()->GetMap()->GetGameObject(guid))
     {
@@ -836,7 +836,7 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
 
 void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRROR_IMAGE_DATA");
     ObjectGuid guid;
     uint32 displayId;
 
@@ -856,7 +856,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     Unit* creator = unit->GetAuraEffectsByType(SPELL_AURA_CLONE_CASTER).front()->GetCaster();
     if (!creator)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRRORIMAGE_DATA displayId %u, creator not found", displayId);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRROR_IMAGE_DATA displayId %u, creator not found", displayId);
         creator = unit;
     }
 

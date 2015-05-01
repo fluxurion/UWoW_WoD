@@ -75,7 +75,7 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
     recvData >> sheathed;
     recvData.rfinish(); //could send 1 bit in some cases
 
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUID().GetCounter(), sheathed);
+    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Recvd CMSG_SET_SHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUID().GetCounter(), sheathed);
 
     if (sheathed >= MAX_SHEATH_STATE)
     {

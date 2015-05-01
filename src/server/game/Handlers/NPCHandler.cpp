@@ -321,7 +321,7 @@ void WorldSession::SendTrainerService(ObjectGuid guid, uint32 spellId, uint32 re
 
 void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GOSSIP_HELLO");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TALK_TO_GOSSIP");
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_NONE);
     if (!unit)

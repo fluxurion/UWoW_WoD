@@ -475,12 +475,12 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recvData)
     Field* fields = result->Fetch();
     ownerguid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
 
-    if (Player* owner = ObjectAccessor::FindPlayer(ownerguid))                                               // petition owner online
-    {
-        WorldPacket data(SMSG_PETITION_DECLINED, 8);
-        data << _player->GetGUID();
-        owner->GetSession()->SendPacket(&data);
-    }
+    //if (Player* owner = ObjectAccessor::FindPlayer(ownerguid))                                               // petition owner online
+    //{
+    //    WorldPacket data(SMSG_PETITION_DECLINED, 8);
+    //    data << _player->GetGUID();
+    //    owner->GetSession()->SendPacket(&data);
+    //}
 }
 
 //! 6.0.3

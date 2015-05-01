@@ -317,7 +317,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_PLAYER_LOGOUT Message");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LOGOUT_REQUEST Message");
     bool bit = !recvData.ReadBit();
     if (bit)
         recvData >> Unused<uint32>();
@@ -593,9 +593,9 @@ void WorldSession::HandleBugOpcode(WorldPacket& recvData)
     type = recvData.ReadString(typelen);
 
     if (suggestion == 0)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUG [Bug Report]");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SUPPORT_TICKET_SUBMIT_BUG [Bug Report]");
     else
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUG [Suggestion]");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SUPPORT_TICKET_SUBMIT_BUG [Suggestion]");
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", type.c_str());
     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", content.c_str());
@@ -1371,7 +1371,7 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
     // if it's mail spam - ALL mails from this spammer automatically removed by client
 
     // Complaint Received message
-    WorldPacket data(SMSG_COMPLAIN_RESULT, 2);
+    WorldPacket data(SMSG_COMPLAINT_RESULT, 2);
     data << uint8(0); // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
     data << uint8(0); // value 0xC generates a "CalendarError" in client.
     SendPacket(&data);

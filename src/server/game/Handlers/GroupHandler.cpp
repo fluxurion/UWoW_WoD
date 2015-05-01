@@ -106,7 +106,7 @@ void WorldSession::SendGroupInvite(Player* player, bool AlowEnter)
 //! 6.0.3
 void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_INVITE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PARTY_INVITE");
 
     time_t now = time(NULL);
     if (now - timeLastGroupInviteCommand < 5)
@@ -246,7 +246,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recvData)
 //! 6.0.3
 void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_INVITE_RESPONSE");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PARTY_INVITE_RESPONSE");
 
     recvData.read_skip<uint8>(); // PartyIndex
     bool accept = recvData.ReadBit();
@@ -378,7 +378,7 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SET_LEADER");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_PARTY_LEADER");
 
     ObjectGuid guid;
     recvData.read_skip<uint8>();
@@ -578,7 +578,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     if (!target)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = [%s].", target->GetName());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleLootMasterGiveOpcode (CMSG_MASTER_LOOT_ITEM, 0x02A3) Target = [%s].", target->GetName());
 
     for (uint32 i = 0; i < count; ++i)
     {
@@ -658,7 +658,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LOOT_METHOD");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_LOOT_METHOD");
 
     uint8 lootMethod;
     ObjectGuid lootMaster;
@@ -810,7 +810,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_RAID_CONVERT");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONVERT_RAID");
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -914,7 +914,7 @@ void WorldSession::HandleGroupEveryoneIsAssistantOpcode(WorldPacket& recvData)
 //! 5.4.1
 void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_ASSISTANT_LEADER");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_ASSISTANT_LEADER");
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)

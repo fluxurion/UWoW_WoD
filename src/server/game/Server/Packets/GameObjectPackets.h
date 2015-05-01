@@ -30,7 +30,7 @@ namespace WorldPackets
         class GameObjectUse final : public ClientPacket
         {
         public:
-            GameObjectUse(WorldPacket&& packet) : ClientPacket(CMSG_GAMEOBJ_USE, std::move(packet)) { }
+            GameObjectUse(WorldPacket&& packet) : ClientPacket(CMSG_GAME_OBJ_USE, std::move(packet)) { }
 
             void Read() override;
 
@@ -40,7 +40,7 @@ namespace WorldPackets
         class GameObjectReportUse final : public ClientPacket
         {
         public:
-            GameObjectReportUse(WorldPacket&& packet) : ClientPacket(CMSG_GAMEOBJ_REPORT_USE, std::move(packet)) { }
+            GameObjectReportUse(WorldPacket&& packet) : ClientPacket(CMSG_GAME_OBJ_REPORT_USE, std::move(packet)) { }
 
             void Read() override;
 

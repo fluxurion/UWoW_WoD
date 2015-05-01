@@ -956,7 +956,7 @@ void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket
 
 void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADDON_REGISTERED_PREFIXES");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CHAT_REGISTER_ADDON_PREFIXES");
 
     // This is always sent after CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES
 

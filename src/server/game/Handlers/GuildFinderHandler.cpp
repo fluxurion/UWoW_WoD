@@ -94,13 +94,13 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
 
     if (guildCount == 0)
     {
-        WorldPacket packet(SMSG_LF_GUILD_BROWSE_UPDATED, 0);
+        WorldPacket packet(SMSG_LF_GUILD_BROWSE, 0);
         player->SendDirectMessage(&packet);
         return;
     }
 
     ByteBuffer bufferData(65 * guildCount);
-    WorldPacket data(SMSG_LF_GUILD_BROWSE_UPDATED, 3 + guildCount * 65); // Estimated size
+    WorldPacket data(SMSG_LF_GUILD_BROWSE, 3 + guildCount * 65); // Estimated size
     data.WriteBits(guildCount, 19);
 
     for (LFGuildStore::const_iterator itr = guildList.begin(); itr != guildList.end(); ++itr)
@@ -178,7 +178,7 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
 
     std::list<MembershipRequest> applicatedGuilds = sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUID());
     uint32 applicationsCount = applicatedGuilds.size();
-    WorldPacket data(SMSG_LF_GUILD_MEMBERSHIP_LIST_UPDATED, 7 + 54 * applicationsCount);
+    WorldPacket data(SMSG_LF_GUILD_APPLICATIONS, 7 + 54 * applicationsCount);
     data << uint32(10 - sGuildFinderMgr->CountRequestsFromPlayer(GetPlayer()->GetGUID())); // Applications count left
     data.WriteBits(applicationsCount, 20);
 
@@ -312,7 +312,7 @@ void WorldSession::HandleGuildFinderPostRequest(WorldPacket& recvPacket)
 
     LFGuildSettings settings = sGuildFinderMgr->GetGuildSettings(ObjectGuid::Create<HighGuid::Guild>(player->GetGuildId()));
 
-    WorldPacket data(SMSG_LF_GUILD_POST_UPDATED, 35);
+    WorldPacket data(SMSG_LF_GUILD_POST, 35);
     data.WriteBit(isGuildMaster); // Guessed
 
     if (isGuildMaster)

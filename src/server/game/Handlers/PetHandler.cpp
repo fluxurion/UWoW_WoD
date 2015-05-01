@@ -158,7 +158,7 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
 //! 5.4.1
 void WorldSession::HandlePetNameQuery(WorldPacket & recvData)
 {
-    //sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetNameQuery. CMSG_PET_NAME_QUERY");
+    //sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetNameQuery. CMSG_QUERY_PET_NAME");
 
     ObjectGuid petGuid;
     recvData >> petGuid;

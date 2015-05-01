@@ -47,7 +47,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
 
     if (!numDungeons)
     {
-        sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_JOIN %s no dungeons selected", GetPlayerName().c_str());
+        sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_JOIN %s no dungeons selected", GetPlayerName().c_str());
         return;
     }
 
@@ -81,7 +81,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
         */
     }
 
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_JOIN %s roles: %u, Dungeons: %u, Comment: %s",
+    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_JOIN %s roles: %u, Dungeons: %u, Comment: %s",
         GetPlayerName().c_str(), roles, uint8(newDungeons.size()), comment.c_str());
     sLFGMgr->JoinLfg(GetPlayer(), uint8(roles), newDungeons, comment);
 }
@@ -94,7 +94,7 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket&  recvData)
     ObjectGuid guid = GetPlayer()->GetGUID();
     ObjectGuid gguid = group ? group->GetGUID() : guid;
 
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_LEAVE %s in group: %u",
+    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_LEAVE %s in group: %u",
         GetPlayerName().c_str(), group ? 1 : 0);
 
     // Check cheating - only leader can leave the queue
@@ -131,7 +131,7 @@ void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
     //recvData.ReadGuidBytes<3>(playerGuid);
     //recvData.ReadGuidBytes<0>(instanceGuid);
 
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_PROPOSAL_RESULT %s proposal: %u accept: %u",
+    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_PROPOSAL_RESPONSE %s proposal: %u accept: %u",
         GetPlayerName().c_str(), proposalId, accept ? 1 : 0);
     sLFGMgr->UpdateProposal(proposalId, GetPlayer()->GetGUID(), accept);
 }
@@ -147,12 +147,12 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
     Group* group = GetPlayer()->GetGroup();
     if (!group)
     {
-        sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_SET_ROLES %s Not in group",
+        sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_SET_ROLES %s Not in group",
             GetPlayerName().c_str());
         return;
     }
     ObjectGuid gguid = group->GetGUID();
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_SET_ROLES: Group %u, Player %s, Roles: %u",
+    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_SET_ROLES: Group %u, Player %s, Roles: %u",
         gguid.GetCounter(), GetPlayerName().c_str(), roles);
     sLFGMgr->UpdateRoleCheck(gguid, guid, roles);
 }
@@ -182,7 +182,7 @@ void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket& recvData)
     bool agree = recvData.ReadBit();                            // Agree to kick player
 
     ObjectGuid guid = GetPlayer()->GetGUID();
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_SET_BOOT_VOTE %s agree: %u",
+    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_BOOT_PLAYER_VOTE %s agree: %u",
         GetPlayerName().c_str(), agree ? 1 : 0);
     sLFGMgr->UpdateBoot(guid, agree);
 }
@@ -191,7 +191,7 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
 {
     bool out = recvData.ReadBit();
 
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_TELEPORT %s out: %u",
+    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_TELEPORT %s out: %u",
         GetPlayerName().c_str(), out ? 1 : 0);
     sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
 }
@@ -354,7 +354,7 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recvData)
 void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
 {
     ObjectGuid guid = GetPlayer()->GetGUID();
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_GET_STATUS %s", GetPlayerName().c_str());
+    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_GET_JOIN_STATUS %s", GetPlayerName().c_str());
 
     sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_GET_STATUS %s", GetPlayerName().c_str());
     lfg::LfgUpdateData updateData = sLFGMgr->GetLfgStatus(guid);
@@ -772,11 +772,11 @@ void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
 
 void WorldSession::SendLfgLfrList(bool update)
 {
-    sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_LFR_LIST %s update: %u",
-        GetPlayerName().c_str(), update ? 1 : 0);
-    WorldPacket data(SMSG_LFG_UPDATE_SEARCH, 1);
-    data << uint8(update);                                 // In Lfg Queue?
-    SendPacket(&data);
+    //sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_LFR_LIST %s update: %u",
+    //    GetPlayerName().c_str(), update ? 1 : 0);
+    //WorldPacket data(SMSG_LFG_UPDATE_SEARCH, 1);
+    //data << uint8(update);                                 // In Lfg Queue?
+    //SendPacket(&data);
 }
 
 void WorldSession::SendLfgDisabled()
