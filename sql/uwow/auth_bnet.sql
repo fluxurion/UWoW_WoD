@@ -147,7 +147,43 @@ ALTER TABLE realmlist ADD COLUMN
   `Battlegroup` tinyint(3) unsigned NOT NULL DEFAULT '1' AFTER Region;
   
 
--- UPDATE `realmlist` SET `gamebuild`=19634 WHERE `id`=1;
+-- UPDATE `realmlist` SET `gamebuild`=19865 WHERE `id`=1;
 
-UPDATE `battlenet_components` SET `Build`=19634 WHERE `Program`='WoW' AND `Platform`='base' AND `Build`=19057;
-UPDATE `battlenet_components` SET `Build`=19802 WHERE `Program`='WoW' AND `Platform` IN ('Win','Wn64','Mc64') AND `Build`=19342;
+DROP TABLE IF EXISTS `battlenet_components`;
+CREATE TABLE `battlenet_components` (
+  `Program` varchar(4) NOT NULL,
+  `Platform` varchar(4) NOT NULL,
+  `Build` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`Program`,`Platform`,`Build`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Дамп данных таблицы `battlenet_components`
+--
+
+INSERT INTO `battlenet_components` (`Program`, `Platform`, `Build`) VALUES
+('Bnet', 'Mc64', 26487),
+('Bnet', 'Mc64', 37165),
+('Bnet', 'Win', 26487),
+('Bnet', 'Win', 37165),
+('Bnet', 'Wn64', 26487),
+('Bnet', 'Wn64', 37165),
+('WoW', 'base', 17520),
+('WoW', 'base', 19793),
+('WoW', 'deDE', 0),
+('WoW', 'enGB', 17520),
+('WoW', 'enGB', 19057),
+('WoW', 'enUS', 0),
+('WoW', 'esES', 0),
+('WoW', 'esMX', 0),
+('WoW', 'frFR', 0),
+('WoW', 'koKR', 0),
+('WoW', 'Mc64', 17538),
+('WoW', 'Mc64', 19865),
+('WoW', 'ruRU', 0),
+('WoW', 'Win', 17538),
+('WoW', 'Win', 19865),
+('WoW', 'Wn64', 17538),
+('WoW', 'Wn64', 19865),
+('WoW', 'zhCN', 0),
+('WoW', 'zhTW', 0);
