@@ -200,7 +200,7 @@ bool WorldSocket::ReadDataHandler()
 
         if (sPacketLog->CanLogPacket())
             //sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
-            sPacketLog->LogPacket(packet, CLIENT_TO_SERVER);
+            sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
 
         sLog->outTrace(LOG_FILTER_NETWORKIO, "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerName().c_str() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
 
@@ -309,7 +309,7 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
     {
         if (sPacketLog->CanLogPacket())
             //sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
-            sPacketLog->LogPacket(packet, SERVER_TO_CLIENT);
+            sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
 
         sLog->outTrace(LOG_FILTER_NETWORKIO, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName().c_str() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
     }
