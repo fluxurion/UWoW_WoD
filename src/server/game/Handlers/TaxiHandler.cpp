@@ -52,12 +52,12 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
 
     uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), GetPlayer()->GetTeam());
 
-    uint8 statu = 0;   // 0 - no, 1 - learned, 3 - ready for learning
+    uint8 statu = 0;   // 0 - no, 1 - ready for learning, 2 - learned
     // not found nearest
     if (curloc)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: current location %u ", curloc);
-        statu = GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? 1 : 3;
+        statu = GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? 2 : 1;
     }
 
     WorldPacket data(SMSG_TAXI_NODE_STATUS, 9);
@@ -155,7 +155,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 
         WorldPacket update(SMSG_TAXI_NODE_STATUS, 9);
         update << unit->GetGUID();
-        update.WriteBits(1, 2);
+        update.WriteBits(2, 2);
         SendPacket(&update);
 
         return true;
@@ -287,9 +287,8 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket & recvData)
     std::vector<uint32> nodes;
     nodes.resize(2);
 
-    recvData >> guid >> nodes[0] >> nodes[1];
+    recvData >> guid >> nodes[1];
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATE_TAXI from %d to %d", nodes[0], nodes[1]);
     Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_FLIGHTMASTER);
     if (!npc)
     {
@@ -297,7 +296,17 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket & recvData)
         return;
     }
 
-    GetPlayer()->ActivateTaxiPathTo(nodes, npc);
+    nodes[0] = sObjectMgr->GetNearestTaxiNode(npc->GetPositionX(), npc->GetPositionY(), npc->GetPositionZ(), npc->GetMapId(), GetPlayer()->GetTeam());
+    if (!nodes[0])
+        return;
+
+    TaxiDestList::iterator list = sTaxiPathDestList[nodes[0]].find(nodes[1]);
+    if (list == sTaxiPathDestList[nodes[0]].end())
+        return;
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATE_TAXI from %d to %d", nodes[0], nodes[1]);
+
+    GetPlayer()->ActivateTaxiPathTo(sTaxiPathDestList[nodes[0]][nodes[1]], npc);
 }
 
 //! 6.0.3

@@ -87,6 +87,7 @@ TaxiMask                                    sAllianceTaxiNodesMask;
 TaxiMask                                    sDeathKnightTaxiNodesMask;
 TaxiPathSetBySource                         sTaxiPathSetBySource;
 TaxiPathNodesByPath                         sTaxiPathNodesByPath;
+TaxiPathDestList                            sTaxiPathDestList;
 PhaseGroupContainer                         sPhasesByGroup;
 AreaGroupMemberContainer                    _areaGroupMembers;
 
@@ -282,6 +283,12 @@ void LoadDB2Stores(const std::string& dataPath)
     for (uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
         if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
             sTaxiPathSetBySource[entry->From][entry->To] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
+
+    for (TaxiPathSetBySource::iterator itr = sTaxiPathSetBySource.begin(); itr != sTaxiPathSetBySource.end(); ++itr)
+    {
+        FillPathDestList(itr->first, itr->first);
+    }
+
     uint32 pathCount = sTaxiPathStore.GetNumRows();
 
     // Calculate path nodes count
@@ -432,6 +439,26 @@ void LoadDB2Stores(const std::string& dataPath)
     }
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Initialized %d DB2 data stores.", DB2FilesCount);
+}
+
+//! Generate path for all nodes.
+void FillPathDestList(uint32 from, uint32 prev)
+{
+    for(TaxiPathSetForSource::iterator itr = sTaxiPathSetBySource[prev].begin(); itr != sTaxiPathSetBySource[prev].end(); ++itr)
+    {
+        TaxiDestList::iterator list = sTaxiPathDestList[from].find(prev);
+        if (list == sTaxiPathDestList[from].end())
+            sTaxiPathDestList[from][prev].push_back(prev);                      //start
+
+        // check if we already have it.
+        list = sTaxiPathDestList[from].find(itr->first);
+        if (list != sTaxiPathDestList[from].end())
+            continue;
+
+        sTaxiPathDestList[from][itr->first] = sTaxiPathDestList[from][prev];    //copy path from prev.
+        sTaxiPathDestList[from][itr->first].push_back(itr->first);              //and add this to end.
+        FillPathDestList(from, itr->first);
+    }
 }
 
 std::vector<uint32> GetAreasForGroup(uint32 areaGroupId)

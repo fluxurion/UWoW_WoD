@@ -23105,6 +23105,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         if (!path)
         {
             m_taxi.ClearTaxiDestinations();
+            GetSession()->SendActivateTaxiReply(ERR_TAXINOVENDORNEARBY);
             return false;
         }
 

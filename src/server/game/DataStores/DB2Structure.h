@@ -708,6 +708,10 @@ struct TaxiPathBySourceAndDestination
 typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
 typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
+typedef std::vector<uint32> TaxiPatchList;
+typedef std::map<uint32/*DEST*/, TaxiPatchList> TaxiDestList;
+typedef std::map<uint32/*FROM*/, TaxiDestList> TaxiPathDestList;
+
 struct TaxiPathNodePtr
 {
     TaxiPathNodePtr() : i_ptr(NULL) { }

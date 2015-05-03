@@ -66,6 +66,7 @@ extern TaxiMask                                 sAllianceTaxiNodesMask;
 extern TaxiMask                                 sDeathKnightTaxiNodesMask;
 extern TaxiPathSetBySource                      sTaxiPathSetBySource;
 extern TaxiPathNodesByPath                      sTaxiPathNodesByPath;
+extern TaxiPathDestList                         sTaxiPathDestList;
 
 extern DB2Storage<BattlePetSpeciesEntry>        sBattlePetSpeciesStore;
 extern DB2Storage <BattlePetSpeciesStateEntry>    sBattlePetSpeciesStateStore;
@@ -107,4 +108,5 @@ std::set<uint32> const& GetPhasesForGroup(uint32 group);
 
 DB2StorageBase const* GetDB2Storage(uint32 type);
 
+void FillPathDestList(uint32 from, uint32 prev);
 #endif

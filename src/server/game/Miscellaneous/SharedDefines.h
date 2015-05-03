@@ -4635,7 +4635,7 @@ enum ActivateTaxiReply
 {
     ERR_TAXINOVENDORNEARBY          = 0,
     ERR_TAXINOSUCHPATH              = 1,
-    ERR_TAXINOTENOUGHMONEY          = 2,
+    ERR_TAXINOTENOUGHMONEY          = 2,    //6.1.2
     ERR_TAXITOOFARAWAY              = 3,
     ERR_TAXIPLAYERMOVING            = 4,
     ERR_TAXISAMENODE                = 5,
@@ -4643,9 +4643,9 @@ enum ActivateTaxiReply
     ERR_TAXINOTSTANDING             = 8,
     ERR_TAXIPLAYERALREADYMOUNTED    = 9,
     ERR_TAXIPLAYERBUSY              = 10,
-    ERR_TAXIUNSPECIFIEDSERVERERROR  = 12,
+    ERR_TAXIOK                      = 12,   //6.1.2
+    ERR_TAXIUNSPECIFIEDSERVERERROR  = 14,
     ERR_TAXIPLAYERSHAPESHIFTED      = 13,
-    ERR_TAXIOK                      = 14,
 };
 
 enum ProfessionUI
