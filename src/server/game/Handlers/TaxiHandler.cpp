@@ -309,6 +309,13 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket & recvData)
     GetPlayer()->ActivateTaxiPathTo(sTaxiPathDestList[nodes[0]][nodes[1]], npc);
 }
 
+//! 6.1.2
+void WorldSession::HandleTaxiRequestEarlyLandingOpcode(WorldPacket & recvData)
+{
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent CMSG_TAXI_REQUEST_EARLY_LANDING");
+    GetPlayer()->m_taxi.ClearTaxiDestinations();
+}
+
 //! 6.0.3
 void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
 {
