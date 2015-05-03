@@ -146,7 +146,8 @@ WorldPacket const* WorldPackets::Misc::TutorialFlags::Write()
 void WorldPackets::Misc::TutorialSetFlag::Read()
 {
     Action = _worldPacket.ReadBits(2);
-    _worldPacket >> TutorialBit;
+    if (Action == 1)
+        _worldPacket >> TutorialBit;
 }
 
 WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()

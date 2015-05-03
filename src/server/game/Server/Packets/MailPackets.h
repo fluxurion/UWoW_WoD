@@ -58,7 +58,6 @@ namespace WorldPackets
             int32 MailID = 0;
             uint8 SenderType = 0;
             Optional<ObjectGuid> SenderCharacter;
-            Query::PlayerGuidLookupHint SenderHint;
             Optional<uint32> AltSenderID;
             int64 Cod = 0;
             int32 PackageID = 0;
@@ -223,7 +222,6 @@ namespace WorldPackets
                 MailNextTimeEntry(::Mail const* mail);
 
                 ObjectGuid SenderGuid;
-                Query::PlayerGuidLookupHint SenderHint;
                 float TimeLeft = 0.0f;
                 int32 AltSenderID = 0;
                 int8 AltSenderType = 0;

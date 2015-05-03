@@ -17556,6 +17556,7 @@ bool Unit::IsStandState() const
     return !IsSitState() && s != UNIT_STAND_STATE_SLEEP && s != UNIT_STAND_STATE_KNEEL;
 }
 
+//! 6.1.2
 void Unit::SetStandState(uint8 state)
 {
     setStandStateValue(state);
@@ -17566,6 +17567,7 @@ void Unit::SetStandState(uint8 state)
     if (GetTypeId() == TYPEID_PLAYER)
     {
         WorldPacket data(SMSG_STAND_STATE_UPDATE, 1);
+        data << uint32(0);  //unk
         data << (uint8)state;
         ToPlayer()->GetSession()->SendPacket(&data);
     }

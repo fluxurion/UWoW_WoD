@@ -37,10 +37,10 @@ namespace WorldPackets
 
             struct EuropaTicketConfig
             {
-                bool UnkBit0             = false;
-                bool UnkBit1             = false;
-                bool TicketSystemEnabled = false;
-                bool SubmitBugEnabled    = false;
+                bool TicketsEnabled     = false;
+                bool BugsEnabled        = false;
+                bool ComplaintsEnabled  = false;
+                bool SuggestionsEnabled = false;
 
                 SavedThrottleObjectState ThrottleState;
             };
@@ -70,14 +70,19 @@ namespace WorldPackets
             uint8 ComplaintStatus                        = 0;
             int32 CfgRealmRecID                          = 0;
             int32 UnkInt27                               = 0;
-            int32 UnkInt29                               = 0;
+            int32 TwitterMsTillCanPost                   = 0;
+            int32 TokenPollTimeSeconds                   = 0;
+            int32 TokenRedeemIndex                       = 0;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
             bool TwitterEnabled                      = false;
+            bool CommerceSystemEnabled               = false;
+            bool Unk67                               = false;
+            bool WillKickFromWorld                   = false;
 
-            bool UnkBit21                            = false;
-            bool UnkBit22                            = false;
+            bool RestrictedAccount                   = false;
+            bool TutorialsEnabled                    = false;
             bool UnkBit90                            = false;
             bool UnkBit61                            = false;
         };

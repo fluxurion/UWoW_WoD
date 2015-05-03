@@ -8255,10 +8255,11 @@ void Player::ModifyCurrencyFlag(uint32 id, uint8 flag)
         _currencyStorage[id].state = PLAYERCURRENCY_CHANGED;
 }
 
-//! 6.0.3
+//! 6.1.2
 void Player::SendPvpRewards()
 {
     WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40);
+
     packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_POINTS));                           //RewardPointsThisWeek
     packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_POINTS));                          //MaxRewardPointsThisWeek
 
@@ -8274,6 +8275,19 @@ void Player::SendPvpRewards()
     packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));     //ArenaRewardPoints
     packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RBG_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RATED_BG));    //RatedRewardPoints
 
+    //ReadShortageReward
+    for (uint32 i = 0; i < 2; ++i)
+    {
+        packet << uint32(0);
+        packet << uint32(0);
+        packet << uint32(0);
+
+        packet << uint32(0);
+        packet << uint32(0);
+        packet << uint32(0);
+
+        packet.WriteBit(0);
+    }
 
     GetSession()->SendPacket(&packet);
 }

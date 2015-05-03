@@ -409,6 +409,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<uint32> SpellID;
+            bool Unk612 = 0;
         };
     }
 }

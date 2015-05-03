@@ -639,6 +639,7 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
         for (uint32 i = 0; i < rewards.size(); ++i)
         {
             data << uint32(rewards[i].Entry);
+            data << uint32(0);                          //UNK V6_1_0_19678
             data << uint32(0);                          //AchievementsRequiredCount
             data << int32(rewards[i].Racemask);
             data << uint32(rewards[i].Standing);        //MinGuildLevel should be on trinity

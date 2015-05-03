@@ -474,5 +474,6 @@ WorldPacket const* WorldPackets::Spells::UnlearnedSpells::Write()
     for (uint32 spellId : SpellID)
         _worldPacket << uint32(spellId);
 
+    _worldPacket.WriteBit(Unk612);
     return &_worldPacket;
 }
