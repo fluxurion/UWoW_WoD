@@ -84,8 +84,8 @@ bool BattlePetMgr::BuildPetJournal(WorldPacket *data)
     data->Initialize(SMSG_BATTLE_PET_JOURNAL);
     *data << uint16(0);                                        // trapLevel
 
-    uint32 pos = data->wpos();
     *data << uint32(MAX_ACTIVE_BATTLE_PETS);
+    uint32 pos = data->wpos();
     *data << count;
 
     // fill battle slots data
