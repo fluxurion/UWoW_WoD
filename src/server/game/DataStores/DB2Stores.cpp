@@ -284,11 +284,19 @@ void LoadDB2Stores(const std::string& dataPath)
         if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
             sTaxiPathSetBySource[entry->From][entry->To] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
 
+    // Generate multy-path
     for (TaxiPathSetBySource::iterator itr = sTaxiPathSetBySource.begin(); itr != sTaxiPathSetBySource.end(); ++itr)
-    {
         FillPathDestList(itr->first, itr->first);
-    }
 
+    //for (TaxiPathDestList::iterator itr = sTaxiPathDestList.begin(); itr != sTaxiPathDestList.end(); ++itr)
+    //    for(TaxiDestList::iterator r = itr->second.begin(); r != itr->second.end(); ++r)
+    //    {
+    //        std::ostringstream ss;
+    //        ss << "from:" << itr->first << " to:" << r->first << " - ";
+    //        for(TaxiPatchList::iterator b = r->second.begin(); b != r->second.end();++b)
+    //            ss << (*b) << " ";
+    //        sLog->outU(">>> %s", ss.str().c_str());
+    //    }
     uint32 pathCount = sTaxiPathStore.GetNumRows();
 
     // Calculate path nodes count
@@ -453,7 +461,11 @@ void FillPathDestList(uint32 from, uint32 prev)
         // check if we already have it.
         list = sTaxiPathDestList[from].find(itr->first);
         if (list != sTaxiPathDestList[from].end())
-            continue;
+        {
+            //if current path smaller - skip 
+            if (sTaxiPathDestList[from][itr->first].size() <= (sTaxiPathDestList[from][prev].size()+1))
+                continue;
+        }
 
         sTaxiPathDestList[from][itr->first] = sTaxiPathDestList[from][prev];    //copy path from prev.
         sTaxiPathDestList[from][itr->first].push_back(itr->first);              //and add this to end.
