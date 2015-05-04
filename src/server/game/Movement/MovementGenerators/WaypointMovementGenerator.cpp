@@ -220,7 +220,7 @@ void FlightPathMovementGenerator::DoFinalize(Player& player)
     }
 }
 
-#define PLAYER_FLIGHT_SPEED 32.0f
+#define PLAYER_FLIGHT_SPEED 45.7f
 
 void FlightPathMovementGenerator::DoReset(Player & player)
 {
