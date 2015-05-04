@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 
 void Battlenet::Cache::GetStreamItemsRequest::Read()
 {
-    _stream.WriteSkip(31);
+    _stream.ReadSkip(31);
     Index = _stream.Read<uint32>(32);
     ReferenceTime = _stream.Read<int32>(32) - std::numeric_limits<int32>::min();
     _stream.Read<bool>(1);  // StreamDirection

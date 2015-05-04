@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ namespace Battlenet
 
 #pragma pack(pop)
 
-    class SessionManager : SocketMgr<Session>
+    class SessionManager : public SocketMgr<Session>
     {
         typedef SocketMgr<Session> BaseSocketMgr;
         typedef std::map<SessionInfo, Session*> SessionMap;
@@ -64,7 +64,7 @@ namespace Battlenet
         std::list<Session*> GetSessions(uint32 accountId) const;
 
         template<typename Iterator>
-        void LockedForEach(Iterator iterator)
+        void LockedForEach(Iterator iterator) const
         {
             boost::shared_lock<boost::shared_mutex> lock(_sessionMutex);
             for (SessionMap::value_type const& pair : _sessions)
@@ -79,7 +79,7 @@ namespace Battlenet
 
         SessionMap _sessions;
         SessionByAccountMap _sessionsByAccountId;
-        boost::shared_mutex _sessionMutex;
+        mutable boost::shared_mutex _sessionMutex;
     };
 }
 

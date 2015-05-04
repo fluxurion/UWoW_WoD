@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -63,6 +63,8 @@ namespace Battlenet
             void Read() override { }
             std::string ToString() const override;
             void CallHandler(Session* session) override;
+            uint8* GetRemainingData() { return _stream.GetBuffer() + (((_stream.GetReadPos() + 7) & ~7) / 8); }
+            size_t GetRemainingSize() { return _stream.GetSize() - (((_stream.GetReadPos() + 7) & ~7) / 8); }
         };
 
         class LogoutRequest final : public ClientPacket
@@ -89,8 +91,8 @@ namespace Battlenet
             void Read() override;
             std::string ToString() const override;
 
-            uint16 Timeout;
-            uint32 Tick;
+            uint16 Timeout = 0;
+            uint32 Tick = 0;
         };
 
         class ConnectionClosing final : public ClientPacket
@@ -132,9 +134,9 @@ namespace Battlenet
             void CallHandler(Session* session) override;
 
             PacketHeader Header;
-            ClosingReason Reason;
+            ClosingReason Reason = PACKET_CORRUPT;
             std::vector<PacketInfo> Packets;
-            time_t Now;
+            time_t Now = 0;
         };
 
         class Pong final : public ServerPacket

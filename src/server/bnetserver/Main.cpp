@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,8 +56,8 @@ void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void KeepDatabaseAliveHandler(const boost::system::error_code& error);
 variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile);
 
-boost::asio::io_service _ioService;
-boost::asio::deadline_timer _dbPingTimer(_ioService);
+std::unique_ptr<boost::asio::io_service> _ioService;
+std::unique_ptr<boost::asio::deadline_timer> _dbPingTimer;
 uint32 _dbPingInterval;
 LoginDatabaseWorkerPool LoginDatabase;
 
@@ -108,8 +108,10 @@ int main(int argc, char** argv)
 
     sIpcContext->Initialize();
 
+    _ioService.reset(new boost::asio::io_service());
+
     // Get the list of realms for the server
-    sRealmList->Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10), worldListenPort);
+    sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10), worldListenPort);
 
     // Start the listening port (acceptor) for auth connections
     int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
@@ -122,10 +124,10 @@ int main(int argc, char** argv)
 
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
-    sSessionMgr.StartNetwork(_ioService, bindIp, bnport);
+    sSessionMgr.StartNetwork(*_ioService, bindIp, bnport);
 
     // Set signal handlers
-    boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
+    boost::asio::signal_set signals(*_ioService, SIGINT, SIGTERM);
 #if PLATFORM == PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
@@ -136,17 +138,19 @@ int main(int argc, char** argv)
 
     // Enabled a timed callback for handling the database keep alive ping
     _dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
-    _dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));
-    _dbPingTimer.async_wait(KeepDatabaseAliveHandler);
+    _dbPingTimer.reset(new boost::asio::deadline_timer(*_ioService));
+    _dbPingTimer->expires_from_now(boost::posix_time::minutes(_dbPingInterval));
+    _dbPingTimer->async_wait(KeepDatabaseAliveHandler);
 
     sComponentMgr->Load();
     sModuleMgr->Load();
 
-    // Init logging by thread.
-    Log::instance(&_ioService);
-
     // Start the io service worker loop
-    _ioService.run();
+    _ioService->run();
+
+    _dbPingTimer->cancel();
+
+    sSessionMgr.StopNetwork();
 
     sIpcContext->Close();
 
@@ -156,9 +160,12 @@ int main(int argc, char** argv)
     StopDB();
 
     sLog->outInfo(LOG_FILTER_BATTLENET, "Halting process...");
+
+    signals.clear();
+
+    _ioService.reset();
     return 0;
 }
-
 
 /// Initialize connection to the database
 bool StartDB()
@@ -207,7 +214,7 @@ void StopDB()
 void SignalHandler(const boost::system::error_code& error, int /*signalNumber*/)
 {
     if (!error)
-        _ioService.stop();
+        _ioService->stop();
 }
 
 void KeepDatabaseAliveHandler(const boost::system::error_code& error)
@@ -217,8 +224,8 @@ void KeepDatabaseAliveHandler(const boost::system::error_code& error)
         sLog->outInfo(LOG_FILTER_BATTLENET, "Ping MySQL to keep connection alive");
         LoginDatabase.KeepAlive();
 
-        _dbPingTimer.expires_from_now(boost::posix_time::minutes(_dbPingInterval));
-        _dbPingTimer.async_wait(KeepDatabaseAliveHandler);
+        _dbPingTimer->expires_from_now(boost::posix_time::minutes(_dbPingInterval));
+        _dbPingTimer->async_wait(KeepDatabaseAliveHandler);
     }
 }
 

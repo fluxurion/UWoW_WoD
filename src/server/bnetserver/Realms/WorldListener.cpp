@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -97,15 +97,22 @@ void WorldListener::HandleToonOnlineStatusChange(Battlenet::RealmHandle const& r
     {
         if (online)
         {
-            Battlenet::WoWRealm::ToonReady* toonReady = new Battlenet::WoWRealm::ToonReady();
-            toonReady->Realm.Battlegroup = realm.Battlegroup;
-            toonReady->Realm.Index = realm.Index;
-            toonReady->Realm.Region = realm.Region;
-            toonReady->Guid = toonHandle.Guid;
-            toonReady->Name = toonHandle.Name;
-            session->AsyncWrite(toonReady);
+            if (!session->IsToonOnline())
+            {
+                Battlenet::WoWRealm::ToonReady* toonReady = new Battlenet::WoWRealm::ToonReady();
+                toonReady->Realm.Battlegroup = realm.Battlegroup;
+                toonReady->Realm.Index = realm.Index;
+                toonReady->Realm.Region = realm.Region;
+                toonReady->Guid = toonHandle.Guid;
+                toonReady->Name = toonHandle.Name;
+                session->SetToonOnline(true);
+                session->AsyncWrite(toonReady);
+            }
         }
-        else
+        else if (session->IsToonOnline())
+        {
             session->AsyncWrite(new Battlenet::WoWRealm::ToonLoggedOut());
+            session->SetToonOnline(false);
+        }
     }
 }
