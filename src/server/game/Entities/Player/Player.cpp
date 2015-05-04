@@ -26902,20 +26902,22 @@ void Player::RestoreBaseRune(uint8 index)
     SetRuneConvertSpell(index, 0);
 }
 
+//! 6.1.2
 void Player::ConvertRune(uint8 index, RuneType newType)
 {
     SetCurrentRune(index, newType);
 
     WorldPacket data(SMSG_CONVERT_RUNE, 2);
-    data << uint8(newType);
     data << uint8(index);
+    data << uint8(newType);
     GetSession()->SendPacket(&data);
 }
 
+//! 6.1.2
 void Player::ResyncRunes(uint8 count)
 {
     WorldPacket data(SMSG_RESYNC_RUNES, 3 + count * 2);
-    data.WriteBits(count, 23);
+    data << uint32(count);
     for (uint32 i = 0; i < count; ++i)
     {
         data << uint8(GetCurrentRune(i));                   // rune type
@@ -26924,6 +26926,7 @@ void Player::ResyncRunes(uint8 count)
     GetSession()->SendPacket(&data);
 }
 
+//! 6.1.2
 void Player::SendDeathRuneUpdate()
 {
     if (getClass() != CLASS_DEATH_KNIGHT)
@@ -26933,8 +26936,8 @@ void Player::SendDeathRuneUpdate()
     {
         RuneType rune = GetBaseRune(i);
         WorldPacket data(SMSG_CONVERT_RUNE, 2);
-        data << uint8(rune);
         data << uint8(i);
+        data << uint8(rune);
         GetSession()->SendPacket(&data);
     }
 
@@ -26944,14 +26947,15 @@ void Player::SendDeathRuneUpdate()
             continue;
 
         WorldPacket data(SMSG_CONVERT_RUNE, 2);
-        data << uint8(RUNE_DEATH);
         data << uint8(i);
+        data << uint8(RUNE_DEATH);
         GetSession()->SendPacket(&data);
     }
 
     SetPower(POWER_RUNIC_POWER, 0);
 }
 
+//! 6.1.2
 void Player::AddRunePower(uint8 index)
 {
     WorldPacket data(SMSG_ADD_RUNE_POWER, 4);
