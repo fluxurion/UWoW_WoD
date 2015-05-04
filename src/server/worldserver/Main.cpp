@@ -29,7 +29,6 @@
 #include "Configuration/Config.h"
 #include "ProcessPriority.h"
 #include "BigNumber.h"
-#include "RealmList.h"
 #include "World.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
