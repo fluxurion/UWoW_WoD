@@ -22299,7 +22299,7 @@ void Player::PetSpellInitialize()
     CharmInfo* charmInfo = pet->GetCharmInfo();
 
     //! 6.0.3
-    WorldPacket data(SMSG_PET_LEARNED_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
 
     uint8 cooldownsCount = pet->m_CreatureSpellCooldowns.size() + pet->m_CreatureCategoryCooldowns.size();
     data << pet->GetGUID();
@@ -22388,7 +22388,7 @@ void Player::PossessSpellInitialize()
     }
 
     //! 6.0.3
-    WorldPacket data(SMSG_PET_LEARNED_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
     data << charm->GetGUID();
     data << uint16(0);                                          // creature family (required for pet talents)
     data << uint16(0);                                          // Specialization
@@ -22414,7 +22414,7 @@ void Player::VehicleSpellInitialize()
     uint8 cooldownCount = vehicle->m_CreatureSpellCooldowns.size();
 
     //! 6.0.3
-    WorldPacket data(SMSG_PET_LEARNED_SPELLS, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + cooldownCount * (4 + 2 + 4 + 4));
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + cooldownCount * (4 + 2 + 4 + 4));
     data << vehicle->GetGUID();
     data << uint16(0);                                                              // Pet Family (0 for all vehicles)
     data << uint16(0);                                                              // Specialization
@@ -22515,7 +22515,7 @@ void Player::CharmSpellInitialize()
     }
 
     //! 6.0.3
-    WorldPacket data(SMSG_PET_LEARNED_SPELLS, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
     data << charm->GetGUID();
     data << uint16(0);              // creature family (required for pet talents)
     data << uint16(0);              // word18
@@ -22548,7 +22548,7 @@ void Player::CharmSpellInitialize()
 //! 6.0.3
 void Player::SendRemoveControlBar()
 {
-    WorldPacket data(SMSG_PET_LEARNED_SPELLS, 80);
+    WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 80);
     data << ObjectGuid::Empty;
     data << uint16(0);              // creature family (required for pet talents)
     data << uint16(0);              // word18

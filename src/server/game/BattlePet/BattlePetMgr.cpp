@@ -84,9 +84,9 @@ bool BattlePetMgr::BuildPetJournal(WorldPacket *data)
     data->Initialize(SMSG_BATTLE_PET_JOURNAL);
     *data << uint16(0);                                        // trapLevel
 
-    *data << uint32(MAX_ACTIVE_BATTLE_PETS);
     uint32 pos = data->wpos();
-    *data << count;
+    *data << uint32(MAX_ACTIVE_BATTLE_PETS);
+    *data << uint32(0);
 
     // fill battle slots data
     for (PetBattleSlots::const_iterator itr = m_battleSlots.begin(); itr != m_battleSlots.end(); ++itr)
@@ -102,7 +102,11 @@ bool BattlePetMgr::BuildPetJournal(WorldPacket *data)
         *data << uint8(slotIndex);        // SlotIndex
 
         data->WriteBit(SlotIsLocked(slotIndex));                         // locked slot
+        ++count;
     }
+
+    data->put<uint32>(pos, count);
+    count = 0;
 
     for (PetJournal::const_iterator itr = m_PetJournal.begin(); itr != m_PetJournal.end(); ++itr)
     {
@@ -148,7 +152,7 @@ bool BattlePetMgr::BuildPetJournal(WorldPacket *data)
 
     data->WriteBit(1);                      // !hasJournalLock
 
-    data->put<uint32>(pos, count);
+    data->put<uint32>(pos+4, count);
     return true;
 }
 

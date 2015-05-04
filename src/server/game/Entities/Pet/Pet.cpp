@@ -1395,6 +1395,7 @@ bool TempSummon::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, 
     return true;
 }
 
+//! 6.0.3
 bool TempSummon::learnSpell(uint32 spell_id)
 {
     // prevent duplicated entires in spell book
@@ -1404,7 +1405,7 @@ bool TempSummon::learnSpell(uint32 spell_id)
     if (!m_loading && m_owner->ToPlayer())
     {
         WorldPacket data(SMSG_PET_LEARNED_SPELLS, 4);
-        data.WriteBits(1, 22);
+        data << uint32(1);
         data << uint32(spell_id);
         m_owner->ToPlayer()->GetSession()->SendPacket(&data);
         m_owner->ToPlayer()->PetSpellInitialize();
