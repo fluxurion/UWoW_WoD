@@ -1738,7 +1738,7 @@ uint16 Map::GetAreaFlag(float x, float y, float z, bool *isOutdoors) const
     uint16 areaflag;
 
     if (atEntry)
-        areaflag = atEntry->Flags[1];
+        areaflag = atEntry->AreaBit;
     else
     {
         if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
