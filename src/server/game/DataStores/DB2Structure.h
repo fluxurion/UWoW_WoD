@@ -536,8 +536,7 @@ struct SpellReagentsEntry
 struct SpellRuneCostEntry
 {
     uint32      ID;                                         // 0
-    uint32      RuneCost[3];                                // 1-3 (0=blood, 1=frost, 2=unholy)
-    //uint32    Unk;                                        // 4 (All 0 except for 2 ids: 2510, 2748)
+    uint32      RuneCost[4];                                // 1-4 (0=blood, 1=frost, 2=unholy)
     uint32      RunePowerGain;                              // 5
 
     bool NoRuneCost() const { return RuneCost[0] == 0 && RuneCost[1] == 0 && RuneCost[2] == 0; }
