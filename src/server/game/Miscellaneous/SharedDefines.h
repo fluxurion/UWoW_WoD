@@ -1295,7 +1295,13 @@ enum SpellEffects
     SPELL_EFFECT_242                                = 242,
     SPELL_EFFECT_243                                = 243,
     SPELL_EFFECT_244                                = 244,
-    TOTAL_SPELL_EFFECTS                             = 245,
+    SPELL_EFFECT_245                                = 245,
+    SPELL_EFFECT_246                                = 246,
+    SPELL_EFFECT_247                                = 247,
+    SPELL_EFFECT_248                                = 248,
+    SPELL_EFFECT_249                                = 249,
+    SPELL_EFFECT_250                                = 250,
+    TOTAL_SPELL_EFFECTS                             = 251,
 };
 
 enum PetTameResult
