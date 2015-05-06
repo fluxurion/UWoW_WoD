@@ -209,7 +209,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
 
     if (auraData.Flags & AFLAG_SCALABLE)
     {
-        auraData.Points.resize(MAX_SPELL_EFFECTS);
+        auraData.Points.reserve(MAX_SPELL_EFFECTS);
         uint32 size = 0;
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
