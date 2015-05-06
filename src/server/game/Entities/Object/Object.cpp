@@ -1793,6 +1793,8 @@ bool Object::RemoveGuidValue(uint16 index, ObjectGuid const& value)
     {
         m_uint32Values[index] = 0;
         m_uint32Values[index + 1] = 0;
+        m_uint32Values[index + 2] = 0;
+        m_uint32Values[index + 3] = 0;
         _changedFields[index] = true;
         _changedFields[index + 1] = true;
         _changedFields[index + 2] = true;
