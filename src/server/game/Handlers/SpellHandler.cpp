@@ -796,6 +796,7 @@ void WorldSession::HandleSelfResOpcode(WorldPacket& /*recvData*/)
     }
 }
 
+//! 6.1.2
 void WorldSession::HandleSpellClick(WorldPacket& recvData)
 {
     time_t now = time(NULL);
@@ -808,11 +809,8 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
        timeLastHandleSpellClick = now;
 
     ObjectGuid guid;
-    //recvData.ReadGuidMask<1, 7, 2, 5, 0, 6>(guid);
+    recvData >> guid;
     recvData.ReadBit();
-    //recvData.ReadGuidMask<3, 4>(guid);
-
-    //recvData.ReadGuidBytes<2, 3, 6, 5, 4, 1, 0, 7>(guid);
 
     // this will get something not in world. crash
     Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
