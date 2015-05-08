@@ -187,7 +187,7 @@ void DB2Utilities::WriteBroadcastTextDbReply(DB2Storage<BroadcastTextEntry> cons
     }
     
     uint16 size1 = Text_0.length();
-    uint16 size2 = Text_1.length();
+    uint16 size2 = 0/*Text_1.length()*/; // no send.
 
     buff << uint32(entry);
     buff << uint32(0);
