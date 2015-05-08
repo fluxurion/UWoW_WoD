@@ -369,74 +369,77 @@ void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTr
     SendPacket(response.Write());
 }
 
-//! 6.0.3
-void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
+//! 6.1.2
+void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packet)
 {
-    uint32 count;
-    recvData >> count; // quest count, max=50
+    if (packet.MissingQuestCount > MAX_QUEST_LOG_SIZE)
+        return;
 
-    WorldPacket data(SMSG_QUEST_POI_QUERY_RESPONSE, 557);
-    data << uint32(count);
-    data << uint32(count);
+    // Read quest ids and add the in a unordered_set so we don't send POIs for the same quest multiple times
+    std::set<int32> questIds;
+    for (int32 i = 0; i < packet.MissingQuestCount; ++i)
+        questIds.insert(packet.MissingQuestPOIs[i]); // QuestID
 
-    for (uint32 i = 0; i < 50; ++i)
+    WorldPackets::Query::QuestPOIQueryResponse response;
+
+    for (auto itr = questIds.begin(); itr != questIds.end(); ++itr)
     {
-        uint32 questId;
-        recvData >> questId; // quest id
-
-        if (i >= count)
-            break;
+        int32 QuestID = *itr;
 
         bool questOk = false;
 
-        uint16 questSlot = _player->FindQuestSlot(questId);
+        uint16 questSlot = _player->FindQuestSlot(uint32(QuestID));
 
         if (questSlot != MAX_QUEST_LOG_SIZE)
-            questOk =_player->GetQuestSlotQuestId(questSlot) == questId;
+            questOk = _player->GetQuestSlotQuestId(questSlot) == uint32(QuestID);
 
-        QuestPOIVector const* POI = sObjectMgr->GetQuestPOIVector(questId);
-
-        if (!questOk || !POI)
+        if (questOk)
         {
-            data << uint32(questId);
-            data << uint32(0);
-            data << uint32(0);
-            continue;
-        }
-
-        data << uint32(questId);                    // quest ID
-        data << uint32(POI->size());
-        data << uint32(POI->size());                // POI count
-
-        for (QuestPOIVector::const_iterator itr = POI->begin(); itr != POI->end(); ++itr)
-        {
-            data << uint32(itr->Id);                // POI index
-            data << int32(itr->ObjectiveIndex);     // objective index
-
-            data << uint32(itr->Unk4);              // QuestObjectiveID
-            data << uint32(0);                      // QuestObjectID
-            data << uint32(itr->MapId);             // Mapid
-            data << uint32(itr->AreaId);            // Areaid
-            data << uint32(itr->Unk2);              // Floor
-
-            data << uint32(0);                      // Priority
-            data << uint32(itr->Unk3);              // Flags
-            data << uint32(0);                      // WorldEffectID
-            data << uint32(0);                      // PlayerConditionID
-
-            data << uint32(itr->points.size());     // NumPoints
-            data << uint32(0);                      // Int12
-            data << uint32(itr->points.size());     // QuestPOIBlobPoint
-
-            for (std::vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
+            QuestPOIVector const* poiData = sObjectMgr->GetQuestPOIVector(QuestID);
+            if (poiData)
             {
-                data << int32(itr2->x);             // POI point x
-                data << int32(itr2->y);             // POI point y
+                WorldPackets::Query::QuestPOIData questPOIData;
+
+                questPOIData.QuestID = QuestID;
+
+                for (auto data = poiData->begin(); data != poiData->end(); ++data)
+                {
+                    WorldPackets::Query::QuestPOIBlobData questPOIBlobData;
+
+                    questPOIBlobData.BlobIndex          = data->BlobIndex;
+                    questPOIBlobData.ObjectiveIndex     = data->ObjectiveIndex;
+                    questPOIBlobData.QuestObjectiveID   = data->QuestObjectiveID;
+                    questPOIBlobData.QuestObjectID      = data->QuestObjectID;
+                    questPOIBlobData.MapID              = data->MapID;
+                    questPOIBlobData.WorldMapAreaID     = data->WorldMapAreaID;
+                    questPOIBlobData.Floor              = data->Floor;
+                    questPOIBlobData.Priority           = data->Priority;
+                    questPOIBlobData.Flags              = data->Flags;
+                    questPOIBlobData.WorldEffectID      = data->WorldEffectID;
+                    questPOIBlobData.PlayerConditionID  = data->PlayerConditionID;
+                    questPOIBlobData.UnkWoD1            = data->UnkWoD1;
+
+                    for (auto points = data->points.begin(); points != data->points.end(); ++points)
+                    {
+                        WorldPackets::Query::QuestPOIBlobPoint questPOIBlobPoint;
+
+                        questPOIBlobPoint.X = points->X;
+                        questPOIBlobPoint.Y = points->Y;
+
+                        sLog->outDebug(LOG_FILTER_NETWORKIO, "Quest: %i BlobIndex: %i X/Y: %i/%i", QuestID, data->BlobIndex, points->X, points->Y);
+
+                        questPOIBlobData.QuestPOIBlobPointStats.push_back(questPOIBlobPoint);
+                    }
+
+                    questPOIData.QuestPOIBlobDataStats.push_back(questPOIBlobData);
+                }
+
+                response.QuestPOIDataStats.push_back(questPOIData);
             }
         }
     }
 
-    SendPacket(&data);
+    SendPacket(response.Write());
 }
 
 void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)

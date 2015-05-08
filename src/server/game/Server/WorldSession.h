@@ -224,6 +224,8 @@ namespace WorldPackets
         class QueryGameObject;
         class QueryCorpseLocationFromClient;
         class QueryCorpseTransport;
+        class QuestPOIQuery;
+        class QueryQuestCompletionNPCs;
     }
 
     namespace Quest
@@ -1202,7 +1204,7 @@ class WorldSession
         void HandleEquipmentSetUse(WorldPacket& recvData);
         void HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/);
         void HandleQuestNpcQuery(WorldPacket& recvData);
-        void HandleQuestPOIQuery(WorldPacket& recvData);
+        void HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packet);
         void HandleEjectPassenger(WorldPacket& data);
         void HandleEnterPlayerVehicle(WorldPacket& data);
         void HandleSetVehicleRecId(WorldPacket& data);

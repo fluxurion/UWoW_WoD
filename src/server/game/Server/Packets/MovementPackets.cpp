@@ -434,6 +434,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
                 movementSpline.PackedDeltas.push_back(middle - realPath[i]);
         }
     }
+    movementSpline.Mode = spline.mode();
 }
 
 WorldPacket const* WorldPackets::Movement::MonsterMove::Write()
