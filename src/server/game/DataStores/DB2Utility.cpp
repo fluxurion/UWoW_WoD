@@ -186,17 +186,19 @@ void DB2Utilities::WriteBroadcastTextDbReply(DB2Storage<BroadcastTextEntry> cons
         }
     }
     
-    uint16 size1 = Text_0.length();
-    uint16 size2 = 0/*Text_1.length()*/; // no send.
+    uint16 size1 = Text_0.size();
+    uint16 size2 = Text_1.size();
 
     buff << uint32(entry);
     buff << uint32(0);
+
     buff << uint16(size1);
     if (size1)
         buff.WriteString(Text_0);
     buff << uint16(size2);
     if (size2)
         buff.WriteString(Text_1);
+
     buff << uint32(pGossip ? pGossip->Options[0].Emotes[0]._Emote : 0); // Emote
     buff << uint32(0);
     buff << uint32(0);
