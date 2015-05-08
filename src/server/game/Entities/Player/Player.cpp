@@ -3388,7 +3388,7 @@ void Player::GiveLevel(uint8 level)
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, basehp, basemana);
 
     // send levelup info to client
-    //! 6.0.3
+    //! 6.1.2
     WorldPacket data(SMSG_LEVEL_UP_INFO, 4 + 4 + MAX_POWERS_PER_CLASS * 4 + MAX_STATS * 4);
     data << uint32(level);
     data << uint32(int32(basehp) - int32(GetCreateHealth()));
