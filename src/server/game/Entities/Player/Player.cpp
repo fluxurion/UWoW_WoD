@@ -22287,6 +22287,7 @@ void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiv
         ToggleDND();
 }
 
+//! 6.1.2
 void Player::PetSpellInitialize()
 {
     Pet* pet = GetPet();
@@ -22298,7 +22299,6 @@ void Player::PetSpellInitialize()
 
     CharmInfo* charmInfo = pet->GetCharmInfo();
 
-    //! 6.0.3
     WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
 
     uint8 cooldownsCount = pet->m_CreatureSpellCooldowns.size() + pet->m_CreatureCategoryCooldowns.size();
@@ -22306,10 +22306,7 @@ void Player::PetSpellInitialize()
     data << uint16(pet->GetCreatureTemplate()->family);         // creature family (required for pet talents)
     data << uint16(0);                                          // Specialization
     data << uint32(pet->GetDuration());
-    // read by client as uint32
-    data << uint8(pet->GetReactState());                    // React State
-    data << uint8(charmInfo->GetCommandState());            // Command State
-    data << uint16(0);                                      // DisableActions (set for all vehicles)
+    data << uint32(257);                                        // PetModeAndOrders
 
     // action bar loop
     charmInfo->BuildActionBar(&data);
@@ -22371,8 +22368,16 @@ void Player::PetSpellInitialize()
     }
 
     GetSession()->SendPacket(&data);
+
+    data.Initialize(SMSG_PET_MODE, 100);
+    data << pet->GetGUID();
+    data << uint8(pet->GetReactState());                                            // React State
+    data << uint8(charmInfo->GetCommandState());                                    // Command State
+    data << uint16(0);                                                              // DisableActions (set for all vehicles)
+    GetSession()->SendPacket(&data);
 }
 
+//! 6.1.2
 void Player::PossessSpellInitialize()
 {
     Unit* charm = GetCharm();
@@ -22387,12 +22392,11 @@ void Player::PossessSpellInitialize()
         return;
     }
 
-    //! 6.0.3
     WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
     data << charm->GetGUID();
     data << uint16(0);                                          // creature family (required for pet talents)
     data << uint16(0);                                          // Specialization
-    data << uint32(0);
+    data << uint32(257);                                        // PetModeAndOrders
     data << uint32(0);
 
     // action bar loop
@@ -22403,8 +22407,14 @@ void Player::PossessSpellInitialize()
     data << uint32(0);                                          // SpellHistoryCount
 
     GetSession()->SendPacket(&data);
+
+    data.Initialize(SMSG_PET_MODE, 100);
+    data << charm->GetGUID();
+    data << uint32(0);
+    GetSession()->SendPacket(&data);
 }
 
+//! 6.1.2
 void Player::VehicleSpellInitialize()
 {
     Creature* vehicle = GetVehicleCreatureBase();
@@ -22413,16 +22423,12 @@ void Player::VehicleSpellInitialize()
 
     uint8 cooldownCount = vehicle->m_CreatureSpellCooldowns.size();
 
-    //! 6.0.3
     WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8 + 2 + 4 + 4 + 4 * 10 + 1 + 1 + cooldownCount * (4 + 2 + 4 + 4));
     data << vehicle->GetGUID();
     data << uint16(0);                                                              // Pet Family (0 for all vehicles)
     data << uint16(0);                                                              // Specialization
     data << uint32(vehicle->isSummon() ? vehicle->ToTempSummon()->GetTimer() : 0);  // Duration
-    // read by client as uint32
-    data << uint8(vehicle->GetReactState());                                        // React State
-    data << uint8(0);                                                               // Command State
-    data << uint16(0x800);                                                          // DisableActions (set for all vehicles)
+    data << uint32(257);                                                            // PetModeAndOrders
 
     for (uint32 i = 0; i < MAX_SPELL_CONTROL_BAR; ++i)
     {
@@ -22487,8 +22493,17 @@ void Player::VehicleSpellInitialize()
     }
 
     GetSession()->SendPacket(&data);
+
+    data.Initialize(SMSG_PET_MODE, 100);
+    data << vehicle->GetGUID();
+    data << uint8(vehicle->GetReactState());                                        // React State
+    data << uint8(0);                                                               // Command State
+    data << uint16(0x800);                                                          // Flags
+    GetSession()->SendPacket(&data);
+
 }
 
+//! 6.1.2
 void Player::CharmSpellInitialize()
 {
     Unit* charm = GetFirstControlled();
@@ -22514,16 +22529,12 @@ void Player::CharmSpellInitialize()
         }
     }
 
-    //! 6.0.3
     WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 8+2+4+4+4*MAX_UNIT_ACTION_BAR_INDEX+1+1);
     data << charm->GetGUID();
     data << uint16(0);              // creature family (required for pet talents)
     data << uint16(0);              // word18
     data << uint32(0);
-    if (charm->GetTypeId() != TYPEID_PLAYER)
-        data << uint8(charm->ToCreature()->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
-    else
-        data << uint32(0);
+    data << uint32(257);
 
     // action bar loop
     charmInfo->BuildActionBar(&data);
@@ -22543,9 +22554,16 @@ void Player::CharmSpellInitialize()
     }
 
     GetSession()->SendPacket(&data);
+
+    data.Initialize(SMSG_PET_MODE, 100);
+    data << charm->GetGUID();
+    data << uint8(charm->ToCreature()->GetReactState());                            // React State
+    data << uint8(charmInfo->GetCommandState());                                    // Command State
+    data << uint16(0);                                                              // DisableActions (set for all vehicles)
+    GetSession()->SendPacket(&data);
 }
 
-//! 6.0.3
+//! 6.1.2
 void Player::SendRemoveControlBar()
 {
     WorldPacket data(SMSG_PET_SPELLS_MESSAGE, 80);
