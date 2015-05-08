@@ -359,6 +359,9 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
     SplineData.ID = moveSpline.m_Id;
     WorldPackets::Movement::MovementSpline& movementSpline = SplineData.Move;
 
+    movementSpline.TransportGUID = moveSpline.TransportGUID;
+    movementSpline.VehicleSeat = moveSpline.VehicleSeat;
+
     ::Movement::MoveSplineFlag splineFlags = moveSpline.splineflags;
     splineFlags.enter_cycle = moveSpline.isCyclic();
     movementSpline.Flags = uint32(splineFlags & uint32(~::Movement::MoveSplineFlag::Mask_No_Monster_Move));

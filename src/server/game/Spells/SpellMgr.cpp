@@ -5492,9 +5492,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_RADIUS;
                     spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(10);
                     break;
-                case 51852:
-                    spellInfo->Effects[EFFECT_0].Effect = 0;
-                    break;
                 default:
                     break;
             }

@@ -62,7 +62,8 @@ namespace Movement
 
         Location real_position(unit.GetPositionX(), unit.GetPositionY(), unit.GetPositionZMinusOffset(), unit.GetOrientation());
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
-        if (unit.GetTransGUID())
+        //if (unit.GetTransGUID())
+        if (unit.m_movementInfo.transport.guid) //for vehicle too
         {
             real_position.x = unit.GetTransOffsetX();
             real_position.y = unit.GetTransOffsetY();
@@ -73,7 +74,7 @@ namespace Movement
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
         // this also allows calculate spline position and update map position in much greater intervals
         // Don't compute for transport movement if the unit is in a motion between two transports
-        const bool onTransport = unit.GetTransGUID();
+        const bool onTransport = unit.m_movementInfo.transport.guid;
         if (!move_spline.Finalized() && move_spline.onTransport == onTransport)
             real_position = move_spline.ComputePosition();
 
@@ -105,6 +106,8 @@ namespace Movement
 
         unit.m_movementInfo.SetMovementFlags(moveFlags);
         move_spline.Initialize(args);
+        move_spline.TransportGUID = unit.m_movementInfo.transport.guid;
+        move_spline.VehicleSeat = unit.m_movementInfo.transport.seat;
 
         WorldPackets::Movement::MonsterMove packet;
         packet.MoverGUID = unit.GetGUID();

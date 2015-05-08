@@ -133,7 +133,11 @@ namespace Movement
         int32 currentPathIdx() const;
 
         bool onTransport;
+        ObjectGuid TransportGUID;
+        uint8 VehicleSeat           = 255;
+
         std::string ToString() const;
+
     };
 }
 #endif // TRINITYSERVER_MOVEPLINE_H
