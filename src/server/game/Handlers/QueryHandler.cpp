@@ -108,8 +108,21 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.CreatureDisplayID[1] = creatureInfo->Modelid2;
         stats.CreatureDisplayID[2] = creatureInfo->Modelid3;
         stats.CreatureDisplayID[3] = creatureInfo->Modelid4;
-        stats.Name[0] = creatureInfo->Name;
-        stats.NameAlt[0] = creatureInfo->SubName;
+        if (CreatureLocale const* cl = sObjectMgr->GetCreatureLocale(response.CreatureID))
+        {
+            if (cl->Name.size() > GetSessionDbLocaleIndex() && !cl->Name[GetSessionDbLocaleIndex()].empty())
+                stats.Name[0] = cl->Name[GetSessionDbLocaleIndex()];
+
+            if (cl->SubName.size() > GetSessionDbLocaleIndex() && !cl->SubName[GetSessionDbLocaleIndex()].empty())
+                stats.NameAlt[0] = cl->SubName[GetSessionDbLocaleIndex()];
+        }
+
+        {
+            if (stats.Name[0].empty())
+                stats.Name[0] = creatureInfo->Name;
+            if (stats.NameAlt[0].empty())
+                stats.NameAlt[0] = creatureInfo->SubName;
+        }
     }
     else
         response.Allow = false;
@@ -131,6 +144,13 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
 
         stats.CastBarCaption = gameObjectInfo->castBarCaption;
         stats.DisplayID = gameObjectInfo->displayId;
+
+        if (GameObjectLocale const* cl = sObjectMgr->GetGameObjectLocale(response.GameObjectID))
+        {
+            if (cl->Name.size() > GetSessionDbLocaleIndex() && !cl->Name[GetSessionDbLocaleIndex()].empty())
+                stats.Name[0] = cl->Name[GetSessionDbLocaleIndex()];
+        }
+
         stats.IconName = gameObjectInfo->IconName;
         stats.Name[0] = gameObjectInfo->name;
 
