@@ -235,6 +235,13 @@ class Quest
     friend class ObjectMgr;
     public:
         Quest(Field* questRecord);
+        void LoadQuestDetails(Field* fields);
+        void LoadQuestRequestItems(Field* fields);
+        void LoadQuestOfferReward(Field* fields);
+        void LoadQuestTemplateAddon(Field* fields);
+        void LoadQuestObjective(Field* fields);
+        void LoadQuestObjectiveVisualEffect(Field* fields);
+
         uint32 XPValue(Player* player) const;
 
         bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
@@ -252,23 +259,18 @@ class Quest
         uint32 GetMaxLevel() const { return MaxLevel; }
         int32 GetQuestLevel() const { return Level; }
         uint32 GetQuestInfoID() const { return QuestInfoID; }
-        int8   GetRequiredTeam() const { return RequiredTeam; }
         int32  GetAllowableClasses() const { return AllowableClasses; }
         int32  GetAllowableRaces() const { return AllowableRaces; }
         uint32 GetRequiredSkill() const { return RequiredSkillId; }
         uint32 GetRequiredSkillValue() const { return RequiredSkillPoints; }
-        uint32 GetRepObjectiveFaction() const { return RequiredFactionId1; }
-        int32  GetRepObjectiveValue() const { return RequiredFactionValue1; }
-        uint32 GetRepObjectiveFaction2() const { return RequiredFactionId2; }
-        int32  GetRepObjectiveValue2() const { return RequiredFactionValue2; }
         uint32 GetRequiredMinRepFaction() const { return RequiredMinRepFaction; }
         int32  GetRequiredMinRepValue() const { return RequiredMinRepValue; }
         uint32 GetRequiredMaxRepFaction() const { return RequiredMaxRepFaction; }
         int32  GetRequiredMaxRepValue() const { return RequiredMaxRepValue; }
         uint32 GetSuggestedPlayers() const { return SuggestedPlayers; }
         uint32 GetLimitTime() const { return LimitTime; }
-        int32  GetPrevQuestId() const { return PrevQuestId; }
-        int32  GetNextQuestId() const { return NextQuestId; }
+        int32  GetPrevQuestId() const { return PrevQuestID; }
+        int32  GetNextQuestId() const { return NextQuestID; }
         int32  GetExclusiveGroup() const { return ExclusiveGroup; }
         uint32 GetNextQuestInChain() const { return NextQuestIdChain; }
         uint32 GetRewTitle() const { return RewardTitleId; }
@@ -277,7 +279,7 @@ class Quest
         uint32 GetXPDifficulty() const { return RewardXPDifficulty; }
         uint32 GetSrcItemId() const { return SourceItemId; }
         uint32 GetSrcItemCount() const { return SourceItemIdCount; }
-        uint32 GetSrcSpell() const { return SourceSpellid; }
+        uint32 GetSrcSpell() const { return SourceSpellID; }
         std::string GetLogTitle() const { return LogTitle; }
         std::string GetLogDescription() const { return LogDescription; }
         std::string GetQuestDescription() const { return QuestDescription; }
@@ -404,15 +406,10 @@ class Quest
         uint32 MaxLevel;
         int32  Level;
         uint32 QuestInfoID;
-        int8   RequiredTeam;
         int32  AllowableClasses;
         int32  AllowableRaces;
         uint32 RequiredSkillId;
         uint32 RequiredSkillPoints;
-        uint32 RequiredFactionId1;
-        int32  RequiredFactionValue1;
-        uint32 RequiredFactionId2;
-        int32  RequiredFactionValue2;
         uint32 RequiredMinRepFaction;
         int32  RequiredMinRepValue;
         uint32 RequiredMaxRepFaction;
@@ -424,15 +421,15 @@ class Quest
         uint32 RewardTitleId;
         uint32 RewardTalents;
         int32  RewardArenaPoints;
-        int32  PrevQuestId;
-        int32  NextQuestId;
+        int32  PrevQuestID;
+        int32  NextQuestID;
         int32  ExclusiveGroup;
         uint32 NextQuestIdChain;
         uint32 RewardXPDifficulty;
         float  Float10;
         uint32 SourceItemId;
         uint32 SourceItemIdCount;
-        uint32 SourceSpellid;
+        uint32 SourceSpellID;
         std::string LogTitle;
         std::string LogDescription;
         std::string QuestDescription;

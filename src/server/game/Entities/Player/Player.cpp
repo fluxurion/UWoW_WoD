@@ -15897,7 +15897,7 @@ Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* quest)
 
 bool Player::CanSeeStartQuest(Quest const* quest)
 {
-    if (SatisfyQuestTeam(quest, false) && SatisfyQuestClass(quest, false) && SatisfyQuestRace(quest, false) && SatisfyQuestSkill(quest, false) &&
+    if (SatisfyQuestClass(quest, false) && SatisfyQuestRace(quest, false) && SatisfyQuestSkill(quest, false) &&
         SatisfyQuestExclusiveGroup(quest, false) && SatisfyQuestReputation(quest, false) &&
         SatisfyQuestPreviousQuest(quest, false) && SatisfyQuestNextChain(quest, false) &&
         SatisfyQuestPrevChain(quest, false) && SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
@@ -15913,7 +15913,6 @@ bool Player::CanTakeQuest(Quest const* quest, bool msg)
 {
 	return !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this) 
 		&& SatisfyQuestStatus(quest, msg) && SatisfyQuestExclusiveGroup(quest, msg)
-        && SatisfyQuestTeam(quest, msg)
         && SatisfyQuestClass(quest, msg) && SatisfyQuestRace(quest, msg) && SatisfyQuestLevel(quest, msg)
         && SatisfyQuestSkill(quest, msg) && SatisfyQuestReputation(quest, msg)
         && SatisfyQuestPreviousQuest(quest, msg) && SatisfyQuestTimed(quest, msg)
@@ -16003,9 +16002,9 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                     return false;
             }
 
-            uint32 repFacId = qInfo->GetRepObjectiveFaction();
-            if (repFacId && GetReputationMgr().GetReputation(repFacId) < qInfo->GetRepObjectiveValue())
-                return false;
+            //uint32 repFacId = qInfo->GetRepObjectiveFaction();
+            //if (repFacId && GetReputationMgr().GetReputation(repFacId) < qInfo->GetRepObjectiveValue())
+            //    return false;
 
             return true;
         }
@@ -16157,13 +16156,13 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     GiveQuestSourceItem(quest);
     AdjustQuestReqItemCount(quest, questStatusData);
 
-    if (quest->GetRepObjectiveFaction())
-        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->GetRepObjectiveFaction()))
-            GetReputationMgr().SetVisible(factionEntry);
+    //if (quest->GetRepObjectiveFaction())
+    //    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->GetRepObjectiveFaction()))
+    //        GetReputationMgr().SetVisible(factionEntry);
 
-    if (quest->GetRepObjectiveFaction2())
-        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->GetRepObjectiveFaction2()))
-            GetReputationMgr().SetVisible(factionEntry);
+    //if (quest->GetRepObjectiveFaction2())
+    //    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->GetRepObjectiveFaction2()))
+    //        GetReputationMgr().SetVisible(factionEntry);
 
     uint32 qtime = 0;
     if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
@@ -16633,15 +16632,6 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
     return false;
 }
 
-bool Player::SatisfyQuestTeam(Quest const* qInfo, bool msg)
-{
-    int8 reqteam = qInfo->GetRequiredTeam();
-    if (reqteam < 0)
-        return true;
-
-    return reqteam == GetTeamId();
-}
-
 bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
 {
     int32 reqClass = qInfo->GetAllowableClasses();
@@ -16729,13 +16719,13 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
 
     // ReputationObjective2 does not seem to be an objective requirement but a requirement
     // to be able to accept the quest
-    uint32 fIdObj = qInfo->GetRepObjectiveFaction2();
-    if (fIdObj && GetReputationMgr().GetReputation(fIdObj) >= qInfo->GetRepObjectiveValue2())
-    {
-        if (msg)
-            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
-        return false;
-    }
+    //uint32 fIdObj = qInfo->GetRepObjectiveFaction2();
+    //if (fIdObj && GetReputationMgr().GetReputation(fIdObj) >= qInfo->GetRepObjectiveValue2())
+    //{
+    //    if (msg)
+    //        SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+    //    return false;
+    //}
 
     return true;
 }
@@ -17551,58 +17541,58 @@ void Player::MoneyChanged(uint32 count)
 
 void Player::ReputationChanged(FactionEntry const* factionEntry)
 {
-    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
-    {
-        if (uint32 questid = GetQuestSlotQuestId(i))
-        {
-            if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid))
-            {
-                if (qInfo->GetRepObjectiveFaction() == factionEntry->ID)
-                {
-                    QuestStatusData& q_status = m_QuestStatus[questid];
-                    if (q_status.Status == QUEST_STATUS_INCOMPLETE)
-                    {
-                        if (GetReputationMgr().GetReputation(factionEntry) >= qInfo->GetRepObjectiveValue())
-                            if (CanCompleteQuest(questid))
-                                CompleteQuest(questid);
-                    }
-                    else if (q_status.Status == QUEST_STATUS_COMPLETE)
-                    {
-                        if (GetReputationMgr().GetReputation(factionEntry) < qInfo->GetRepObjectiveValue())
-                            IncompleteQuest(questid);
-                    }
-                }
-            }
-        }
-    }
+    //for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+    //{
+    //    if (uint32 questid = GetQuestSlotQuestId(i))
+    //    {
+    //        if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid))
+    //        {
+    //            if (qInfo->GetRepObjectiveFaction() == factionEntry->ID)
+    //            {
+    //                QuestStatusData& q_status = m_QuestStatus[questid];
+    //                if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+    //                {
+    //                    if (GetReputationMgr().GetReputation(factionEntry) >= qInfo->GetRepObjectiveValue())
+    //                        if (CanCompleteQuest(questid))
+    //                            CompleteQuest(questid);
+    //                }
+    //                else if (q_status.Status == QUEST_STATUS_COMPLETE)
+    //                {
+    //                    if (GetReputationMgr().GetReputation(factionEntry) < qInfo->GetRepObjectiveValue())
+    //                        IncompleteQuest(questid);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 }
 
 void Player::ReputationChanged2(FactionEntry const* factionEntry)
 {
-    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
-    {
-        if (uint32 questid = GetQuestSlotQuestId(i))
-        {
-            if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid))
-            {
-                if (qInfo->GetRepObjectiveFaction2() == factionEntry->ID)
-                {
-                    QuestStatusData& q_status = m_QuestStatus[questid];
-                    if (q_status.Status == QUEST_STATUS_INCOMPLETE)
-                    {
-                        if (GetReputationMgr().GetReputation(factionEntry) >= qInfo->GetRepObjectiveValue2())
-                            if (CanCompleteQuest(questid))
-                                CompleteQuest(questid);
-                    }
-                    else if (q_status.Status == QUEST_STATUS_COMPLETE)
-                    {
-                        if (GetReputationMgr().GetReputation(factionEntry) < qInfo->GetRepObjectiveValue2())
-                            IncompleteQuest(questid);
-                    }
-                }
-            }
-        }
-    }
+    //for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+    //{
+    //    if (uint32 questid = GetQuestSlotQuestId(i))
+    //    {
+    //        if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid))
+    //        {
+    //            if (qInfo->GetRepObjectiveFaction2() == factionEntry->ID)
+    //            {
+    //                QuestStatusData& q_status = m_QuestStatus[questid];
+    //                if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+    //                {
+    //                    if (GetReputationMgr().GetReputation(factionEntry) >= qInfo->GetRepObjectiveValue2())
+    //                        if (CanCompleteQuest(questid))
+    //                            CompleteQuest(questid);
+    //                }
+    //                else if (q_status.Status == QUEST_STATUS_COMPLETE)
+    //                {
+    //                    if (GetReputationMgr().GetReputation(factionEntry) < qInfo->GetRepObjectiveValue2())
+    //                        IncompleteQuest(questid);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 }
 
 bool Player::HasQuestForItem(uint32 itemid) const

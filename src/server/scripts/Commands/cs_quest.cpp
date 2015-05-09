@@ -217,25 +217,25 @@ public:
             }
         }
 
-        // If the quest requires reputation to complete
-        if (uint32 repFaction = quest->GetRepObjectiveFaction())
-        {
-            uint32 repValue = quest->GetRepObjectiveValue();
-            uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
-            if (curRep < repValue)
-                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
-                    player->GetReputationMgr().SetReputation(factionEntry, repValue);
-        }
+        //// If the quest requires reputation to complete
+        //if (uint32 repFaction = quest->GetRepObjectiveFaction())
+        //{
+        //    uint32 repValue = quest->GetRepObjectiveValue();
+        //    uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
+        //    if (curRep < repValue)
+        //        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
+        //            player->GetReputationMgr().SetReputation(factionEntry, repValue);
+        //}
 
-        // If the quest requires a SECOND reputation to complete
-        if (uint32 repFaction = quest->GetRepObjectiveFaction2())
-        {
-            uint32 repValue2 = quest->GetRepObjectiveValue2();
-            uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
-            if (curRep < repValue2)
-                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
-                    player->GetReputationMgr().SetReputation(factionEntry, repValue2);
-        }
+        //// If the quest requires a SECOND reputation to complete
+        //if (uint32 repFaction = quest->GetRepObjectiveFaction2())
+        //{
+        //    uint32 repValue2 = quest->GetRepObjectiveValue2();
+        //    uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
+        //    if (curRep < repValue2)
+        //        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
+        //            player->GetReputationMgr().SetReputation(factionEntry, repValue2);
+        //}
 
         // If the quest requires money
         int32 ReqOrRewMoney = quest->GetRewMoney();
