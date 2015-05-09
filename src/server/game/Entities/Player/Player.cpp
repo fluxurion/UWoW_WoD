@@ -4542,7 +4542,8 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
     }
 
     // prevent duplicated entires in spell book, also not send if not in world (loading)
-    if (learning && IsInWorld())
+    // should send in any time for correct auto-action button setting.
+    if (learning/* && IsInWorld()*/)
     {
         WorldPackets::Spells::LearnedSpells packet;
         packet.SpellID.push_back(spell_id);
@@ -7398,7 +7399,6 @@ ActionButton* Player::addActionButton(uint8 button, uint32 action, uint8 type)
 
     // set data and update to CHANGED if not NEW
     ab.SetActionAndType(action, ActionButtonType(type));
-
     sLog->outInfo(LOG_FILTER_PLAYER_LOADING, "Player '%u' Added Action '%u' (type %u) to Button '%u'", GetGUID().GetCounter(), action, type, button);
     return &ab;
 }
@@ -18759,12 +18759,10 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
             learnSpell(63644, true);
     }else
     {
+        //Fix learning DK DualSpec at char creation + pissible lost cases.
         PlayerSpellMap::iterator itr = m_spells.find(63645);
         if(itr != m_spells.end())
-        {
-            SetSpecsCount(2);
-            SetActiveSpec(1);
-        }
+            UpdateSpecCount(2);
     }
 
     return true;
