@@ -1296,6 +1296,15 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
+                case 51858:     //Q: Death Comes From On High ID 12641
+                    if (unitTarget && 
+                        (unitTarget->GetEntry() == 28543 ||
+                        unitTarget->GetEntry() == 28542 ||
+                        unitTarget->GetEntry() == 28525 ||
+                        unitTarget->GetEntry() == 28544 ))
+                        if (Player *plr = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+                            plr->KilledMonsterCredit(unitTarget->GetEntry(), unitTarget->GetGUID());
+                    break;
                 case 126734: // Synapse Springs (Mod II)
                 {
                     uint32 spellid;

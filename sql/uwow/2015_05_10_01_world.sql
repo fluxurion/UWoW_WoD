@@ -13,3 +13,10 @@ UPDATE `quest_template_addon` SET `SpecialFlags`=`SpecialFlags`|32 WHERE `ID` IN
 12641,12669,12728,12859,13110,13119,13211);
 
 ALTER TABLE `quest_template` CHANGE `WDBVerified` `VerifiedBuild` SMALLINT(6) NOT NULL DEFAULT '1';
+
+-- DK Quest start.
+REPLACE INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `bytes2`, `auras`) VALUES
+(28544, 0, 0x0, 0x1, '51939'), -- 28544 - 51939 - 51939
+(28542, 0, 0x0, 0x1, '51939'), -- 28542 - 51939 - 51939
+(28543, 0, 0x0, 0x1, '51939'), -- 28543 - 51939 - 51939
+(28525, 0, 0x0, 0x1, '51939'); -- 28525 - 51939 - 51939
