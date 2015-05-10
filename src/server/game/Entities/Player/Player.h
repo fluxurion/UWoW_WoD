@@ -1978,7 +1978,7 @@ class Player : public Unit, public GridObject<Player>
         void SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver);
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
         void SendQuestTimerFailed(uint32 quest_id);
-        void SendCanTakeQuestResponse(uint32 msg) const;
+        void SendCanTakeQuestResponse(uint32 msg, std::string = "none") const;
         void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver);
         void SendPushToPartyResponse(Player* player, uint8 msg);
         void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, QuestObjective const& obj, uint16 count);

@@ -16520,7 +16520,7 @@ bool Player::SatisfyQuestSkill(Quest const* qInfo, bool msg) const
     if (GetSkillValue(skill) < qInfo->GetRequiredSkillValue())
     {
         if (msg)
-            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "skill");
 
         return false;
     }
@@ -16539,7 +16539,7 @@ bool Player::SatisfyQuestLevel(Quest const* qInfo, bool msg)
     else if (qInfo->GetMaxLevel() > 0 && getLevel() > qInfo->GetMaxLevel())
     {
         if (msg)
-            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ); // There doesn't seem to be a specific response for too high player level
+            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "level"); // There doesn't seem to be a specific response for too high player level
         return false;
     }
     return true;
@@ -16600,7 +16600,7 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
                     if (m_RewardedQuests.find(exclude_Id) == m_RewardedQuests.end())
                     {
                         if (msg)
-                            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+                            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "rewarded");
                         return false;
                     }
                 }
@@ -16633,7 +16633,7 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
                     if (GetQuestStatus(exclude_Id) != QUEST_STATUS_NONE)
                     {
                         if (msg)
-                            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+                            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "not active alt quest");
                         return false;
                     }
                 }
@@ -16645,7 +16645,7 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
     // Has only positive prev. quests in non-rewarded state
     // and negative prev. quests in non-active state
     if (msg)
-        SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+        SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "prev");
 
     return false;
 }
@@ -16663,7 +16663,7 @@ bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
         if ((reqClass & getClassMask()) == 0)
         {
             if (msg)
-                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "class");
 
             return false;
         }
@@ -16676,7 +16676,7 @@ bool Player::SatisfyQuestClass(Quest const* qInfo, bool msg) const
         if (reqClass & getClassMask())
         {
             if (msg)
-                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "class");
 
             return false;
         }
@@ -16723,7 +16723,7 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
     if (fIdMin && GetReputationMgr().GetReputation(fIdMin) < qInfo->GetRequiredMinRepValue())
     {
         if (msg)
-            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "rep");
         return false;
     }
 
@@ -16731,7 +16731,7 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
     if (fIdMax && GetReputationMgr().GetReputation(fIdMax) >= qInfo->GetRequiredMaxRepValue())
     {
         if (msg)
-            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "rep");
         return false;
     }
 
@@ -16769,7 +16769,7 @@ bool Player::SatisfyQuestConditions(Quest const* qInfo, bool msg)
     if (!sConditionMgr->IsObjectMeetToConditions(this, conditions))
     {
         if (msg)
-            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "cond");
         sLog->outDebug(LOG_FILTER_CONDITIONSYS, "Player::SatisfyQuestConditions: conditions not met for quest %u", qInfo->GetQuestId());
         return false;
     }
@@ -16811,7 +16811,7 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
         if (!SatisfyQuestDay(Nquest, false) || !SatisfyQuestWeek(Nquest, false) || !SatisfyQuestSeasonal(Nquest,false))
         {
             if (msg)
-                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "season");
 
             return false;
         }
@@ -16820,7 +16820,7 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
         if (GetQuestStatus(exclude_Id) != QUEST_STATUS_NONE || (!(qInfo->IsRepeatable() && Nquest->IsRepeatable()) && (m_RewardedQuests.find(exclude_Id) != m_RewardedQuests.end())))
         {
             if (msg)
-                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "alternative quest already started or completed");
             return false;
         }
     }
@@ -16837,7 +16837,7 @@ bool Player::SatisfyQuestNextChain(Quest const* qInfo, bool msg)
     if (GetQuestStatus(nextQuest) != QUEST_STATUS_NONE) // GetQuestStatus returns QUEST_STATUS_COMPLETED for rewarded quests
     {
         if (msg)
-            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "chain");
         return false;
     }
 
@@ -16861,7 +16861,7 @@ bool Player::SatisfyQuestPrevChain(Quest const* qInfo, bool msg)
         if (itr != m_QuestStatus.end() && itr->second.Status != QUEST_STATUS_NONE)
         {
             if (msg)
-                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, "prev chain");
             return false;
         }
 
@@ -17769,20 +17769,20 @@ void Player::SendQuestTimerFailed(uint32 quest_id)
 }
 
 //! 6.0.3
-void Player::SendCanTakeQuestResponse(uint32 msg) const
+void Player::SendCanTakeQuestResponse(uint32 msg, std::string str) const
 {
     bool hasString = false;
     WorldPacket data(SMSG_QUEST_GIVER_INVALID_QUEST, 4);
     data << uint32(msg);
-    data.WriteBit(!hasString);      // used with INVALIDREASON_DONT_HAVE_REQ
+    data.WriteBit(str.size());      // used with INVALIDREASON_DONT_HAVE_REQ
     if (hasString)
     {
-        data.WriteBits(0, 8);
-        data.WriteString("");
+        data.WriteBits(str.size(), 8);
+        data.WriteString(str);
     }
 
     GetSession()->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_GIVER_INVALID_QUEST");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_GIVER_INVALID_QUEST ID %i - %s", msg, str.c_str());
 }
 
 //! 6.0.3
