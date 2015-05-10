@@ -43,7 +43,8 @@ namespace WorldPackets
 
 #define QUEST_OBJECTIVES_COUNT 10
 #define QUEST_ITEM_OBJECTIVES_COUNT 10
-#define QUEST_SOURCE_ITEM_IDS_COUNT 4
+
+#define QUEST_ITEM_DROP_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
 #define QUEST_REWARD_ITEM_COUNT 4
 #define QUEST_DEPLINK_COUNT 10
@@ -168,6 +169,33 @@ enum __QuestFlags
     QUEST_FLAG_TRACKING_QUEST  = 0x02000000,
 
     // ... 4.x added flags up to 0x80000000 - all unknown for now
+};
+
+// last checked in 19802
+enum QuestFlagsEx
+{
+    QUEST_FLAGS_EX_NONE                                     = 0X000000,
+    QUEST_FLAGS_EX_KEEP_ADDITIONAL_ITEMS                    = 0X000001,
+    QUEST_FLAGS_EX_SUPPRESS_GOSSIP_COMPLETE                 = 0X000002,
+    QUEST_FLAGS_EX_SUPPRESS_GOSSIP_ACCEPT                   = 0X000004,
+    QUEST_FLAGS_EX_DISALLOW_PLAYER_AS_QUESTGIVER            = 0X000008,
+    QUEST_FLAGS_EX_DISPLAY_CLASS_CHOICE_REWARDS             = 0X000010,
+    QUEST_FLAGS_EX_DISPLAY_SPEC_CHOICE_REWARDS              = 0X000020,
+    QUEST_FLAGS_EX_REMOVE_FROM_LOG_ON_PERIDOIC_RESET        = 0X000040,
+    QUEST_FLAGS_EX_ACCOUNT_LEVEL_QUEST                      = 0X000080,
+    QUEST_FLAGS_EX_LEGENDARY_QUEST                          = 0X000100,
+    QUEST_FLAGS_EX_NO_GUILD_XP                              = 0X000200,
+    QUEST_FLAGS_EX_RESET_CACHE_ON_ACCEPT                    = 0X000400,
+    QUEST_FLAGS_EX_NO_ABANDON_ONCE_ANY_OBJECTIVE_COMPLETE   = 0X000800,
+    QUEST_FLAGS_EX_RECAST_ACCEPT_SPELL_ON_LOGIN             = 0X001000,
+    QUEST_FLAGS_EX_UPDATE_ZONE_AURAS                        = 0X002000,
+    QUEST_FLAGS_EX_NO_CREDIT_FOR_PROXY                      = 0X004000,
+    QUEST_FLAGS_EX_DISPLAY_AS_DAILY_QUEST                   = 0X008000,
+    QUEST_FLAGS_EX_PART_OF_QUEST_LINE                       = 0X010000,
+    QUEST_FLAGS_EX_QUEST_FOR_INTERNAL_BUILDS_ONLY           = 0X020000,
+    QUEST_FLAGS_EX_SUPPRESS_SPELL_LEARN_TEXT_LINE           = 0X040000,
+    QUEST_FLAGS_EX_DISPLAY_HEADER_AS_OBJECTIVE_FOR_TASKS    = 0X080000,
+    QUEST_FLAGS_EX_GARRISON_NON_OWNERS_ALLOWED              = 0X100000
 };
 
 enum __QuestSpecialFlags
@@ -305,7 +333,6 @@ class Quest
         float  GetPOIx() const { return POIx; }
         float  GetPOIy() const { return POIy; }
         uint32 GetPOIPriority() const { return POIPriority; }
-        uint32 GetRequiredSpell() const { return RequiredSpell; }
         uint32 GetSoundAccept() const { return SoundAccept; }
         uint32 GetSoundTurnIn() const { return SoundTurnIn; }
         uint32 GetIncompleteEmote() const { return EmoteOnIncomplete; }
@@ -338,14 +365,9 @@ class Quest
         uint32 GetRewChoiceItemDisplayId(uint8 index) const;
 
         // multiple values
-        std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
-        uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT];
-        uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT];
-        uint32 ItemDrop[QUEST_SOURCE_ITEM_IDS_COUNT];
-        uint32 ItemDropQuantity[QUEST_SOURCE_ITEM_IDS_COUNT];
-        int32  RequiredNpcOrGo[QUEST_OBJECTIVES_COUNT];   // >0 Creature <0 Gameobject
-        uint32 RequiredNpcOrGoCount[QUEST_OBJECTIVES_COUNT];
-        uint32 RequiredSpellCast[QUEST_SOURCE_ITEM_IDS_COUNT];
+        uint32 ItemDrop[QUEST_ITEM_DROP_COUNT];
+        uint32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT];
+
         uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
         uint32 RewardChoiceItemDisplayId[QUEST_REWARD_CHOICES_COUNT];
@@ -361,18 +383,7 @@ class Quest
         // 4.x
         uint32 RewardCurrencyId[QUEST_REWARD_CURRENCY_COUNT];
         uint32 RewardCurrencyCount[QUEST_REWARD_CURRENCY_COUNT];
-        uint32 RequiredCurrencyId[QUEST_REQUIRED_CURRENCY_COUNT];
-        uint32 RequiredCurrencyCount[QUEST_REQUIRED_CURRENCY_COUNT];
-        // 5.x
-        uint32 RequiredId[QUEST_OBJECTIVES_COUNT];
-        uint32 RequiredIdBack[QUEST_OBJECTIVES_COUNT];
-        uint32 RequiredIdCount[QUEST_OBJECTIVES_COUNT];
-        uint32 RequirementType[QUEST_OBJECTIVES_COUNT];
-        uint32 RequiredPOI[QUEST_OBJECTIVES_COUNT];
-        uint32 RequiredUnkFlag[QUEST_OBJECTIVES_COUNT];
 
-        uint32 GetReqItemsCount() const { return m_reqItemsCount; }
-        uint32 GetReqCreatureOrGOcount() const { return m_reqNpcOrGoCount; }
         uint32 GetRewChoiceItemsCount() const { return m_rewChoiceItemsCount; }
         uint32 GetRewItemsCount() const { return m_rewItemsCount; }
         uint32 GetRewCurrencyCount() const { return m_rewCurrencyCount; }
@@ -389,8 +400,6 @@ class Quest
         QuestObjectives Objectives;
         // cached data
     private:
-        uint32 m_reqItemsCount;
-        uint32 m_reqNpcOrGoCount;
         uint32 m_rewChoiceItemsCount;
         uint32 m_rewItemsCount;
         uint32 m_rewCurrencyCount;
@@ -459,7 +468,6 @@ class Quest
         uint32 RewardFactionFlags;
         uint32 QuestGiverPortrait;
         uint32 QuestTurnInPortrait;
-        uint32 RequiredSpell;
         std::string PortraitGiverText;
         std::string PortraitGiverName;
         std::string PortraitTurnInText;
@@ -479,33 +487,28 @@ class Quest
 
 struct QuestStatusData
 {
-    QuestStatusData(): Status(QUEST_STATUS_NONE), Timer(0), PlayerCount(0), Explored(false)
+    QuestStatusData(): Status(QUEST_STATUS_NONE), Timer(0)
     {
-        memset(ItemCount, 0, QUEST_ITEM_OBJECTIVES_COUNT * sizeof(uint16));
-        memset(CreatureOrGOCount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint16));
     }
 
     QuestStatus Status;
     uint32 Timer;
-    uint16 ItemCount[QUEST_ITEM_OBJECTIVES_COUNT];
-    uint16 CreatureOrGOCount[QUEST_OBJECTIVES_COUNT];
-    uint16 PlayerCount;
-    bool Explored;
+    std::vector<int32> ObjectiveData;
 };
 
 enum QuestObjectiveType
 {
-    QUEST_OBJECTIVE_CREATURE                = 0,
+    QUEST_OBJECTIVE_MONSTER                 = 0,
     QUEST_OBJECTIVE_ITEM                    = 1,
     QUEST_OBJECTIVE_GAMEOBJECT              = 2,
-    QUEST_OBJECTIVE_INTERACT                = 3,
+    QUEST_OBJECTIVE_TALKTO                  = 3,
     QUEST_OBJECTIVE_CURRENCY                = 4,
-    QUEST_OBJECTIVE_SPELL                   = 5,
+    QUEST_OBJECTIVE_LEARNSPELL              = 5,
     QUEST_OBJECTIVE_MIN_REPUTATION          = 6,
     QUEST_OBJECTIVE_MAX_REPUTATION          = 7,
     QUEST_OBJECTIVE_MONEY                   = 8,
-    QUEST_OBJECTIVE_PLAYER_KILLS            = 9,
-    QUEST_OBJECTIVE_EXPLORE_AREATRIGGER     = 10,
+    QUEST_OBJECTIVE_PLAYERKILLS             = 9,
+    QUEST_OBJECTIVE_AREATRIGGER             = 10,
     QUEST_OBJECTIVE_PET_TRAINER_DEFEAT      = 11,
     QUEST_OBJECTIVE_DEFEATBATTLEPET         = 12,
     QUEST_OBJECTIVE_PET_BATTLE_VICTORIES    = 13,

@@ -3398,10 +3398,11 @@ void ObjectMgr::LoadQuests()
     mExclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        //0      1           2              3         4           5          6             7           8              9               10              11  
-        "ID, QuestType, QuestLevel, QuestPackageID, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, "
+        //0  1          2           3               4         5            6            7                  8                9                   10       11           12
+        "ID, QuestType, QuestLevel, QuestPackageID, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, Float10, RewardMoney, RewardMoneyDifficulty, "
+
         //     20           21           22          23              24                    25         26            27                  28            29          30                   31            32          33
-        "RewardNextQuest, RewardXPDifficulty, Float10, RewardMoney, RewardMoneyDifficulty, Float13, RewardBonusMoney, RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
+        "Float13, RewardBonusMoney, RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
         //         34               35               36              37          38         39       40      41 
         "StartItem, Flags, FlagsEx, RewardItem1, RewardAmount1, RewardItem2, RewardAmount2, RewardItem3, RewardAmount3, RewardItem4, RewardAmount4, "
         //      50      51                  52             53          54                55          56                  57
@@ -3414,18 +3415,6 @@ void ObjectMgr::LoadQuests()
         "POIContinent, POIx, POIy, POIPriority, RewardTitle, RewardTalents, RewardArenaPoints, RewardSkillLineID, RewardNumSkillUps, PortraitGiver, PortraitTurnIn, "
         //      87                  88                  89                      90                  91                  92                  93                  94                  95                      96                  97                      98                      99              100                 101
         "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, "
-        //          102             103             104             105                 106             107                 108             109                 110             111                 112
-        "RewardFactionFlags, RequirementType1, RequirementType2, RequirementType3, RequirementType4, RequirementType5, RequirementType6, RequirementType7, RequirementType8, RequirementType9, RequirementType10, "
-        //    113           114         115         116         117             118         119         120         121         122
-        "RequiredId1, RequiredId2, RequiredId3, RequiredId4, RequiredId5, RequiredId6, RequiredId7, RequiredId8, RequiredId9, RequiredId10, "
-        //       123                124            125                 126             127                 128             129                 130             131                 132
-        "RequiredIdCount1, RequiredIdCount2, RequiredIdCount3, RequiredIdCount4, RequiredIdCount5, RequiredIdCount6, RequiredIdCount7, RequiredIdCount8, RequiredIdCount9, RequiredIdCount10, "
-        //      133         134         135           136             137            138         139         140             141             142              143             144                 145                 146             147                 148             149               150         151                 152
-        "RequiredPOI1, RequiredPOI2, RequiredPOI3, RequiredPOI4, RequiredPOI5, RequiredPOI6, RequiredPOI7, RequiredPOI8, RequiredPOI9, RequiredPOI10, RequiredUnkFlag1, RequiredUnkFlag2, RequiredUnkFlag3, RequiredUnkFlag4, RequiredUnkFlag5, RequiredUnkFlag6, RequiredUnkFlag7, RequiredUnkFlag8, RequiredUnkFlag9, RequiredUnkFlag10, "
-        //      153         154                   155             156                   157            
-        "RequiredSpell, RequiredSpellCast1, RequiredSpellCast2, RequiredSpellCast3, RequiredSpellCast4, "
-        //      158             159             160             161             162         163             164                 165         166                 167   
-        "ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4, ObjectiveText5, ObjectiveText6, ObjectiveText7, ObjectiveText8, ObjectiveText9, ObjectiveText10, "
         //     168                  169                  170                 171             172                 173                 174                 175 
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
         //  176                     177              178          179         180         181          
@@ -3719,14 +3708,14 @@ void ObjectMgr::LoadQuests()
             }
         }
         // AllowableRaces, can be 0/RACEMASK_ALL_PLAYABLE to allow any race
-        if (qinfo->AllowableRaces)
+        if (qinfo->AllowableRaces != -1)
         {
             uint32 RequiredRacesCheck = qinfo->AllowableRaces > 0 ? qinfo->AllowableRaces: -(qinfo->AllowableRaces);
 
             if (!(qinfo->AllowableRaces & RACEMASK_ALL_PLAYABLE))
             {
                 sLog->outError(LOG_FILTER_SQL, "Quest %u does not contain any playable races in `AllowableRaces` (%u), value set to 0 (all races).", qinfo->GetQuestId(), qinfo->AllowableRaces);
-                qinfo->AllowableRaces = 0;
+                qinfo->AllowableRaces = -1;
             }
         }
         // RequiredSkillId, can be 0
@@ -3869,7 +3858,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for (uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
+        for (uint8 j = 0; j < QUEST_ITEM_DROP_COUNT; ++j)
         {
             uint32 id = qinfo->ItemDrop[j];
             if (id)
@@ -3892,7 +3881,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for (uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
+        for (uint8 j = 0; j < QUEST_ITEM_DROP_COUNT; ++j)
         {
             uint32 id = qinfo->RequiredSpellCast[j];
             if (id)
@@ -3945,12 +3934,12 @@ void ObjectMgr::LoadQuests()
             {
                 switch (obj.Type)
                 {
-                case QUEST_OBJECTIVE_CREATURE:
+                case QUEST_OBJECTIVE_MONSTER:
                     case QUEST_OBJECTIVE_ITEM:
                     case QUEST_OBJECTIVE_GAMEOBJECT:
-                    case QUEST_OBJECTIVE_INTERACT:
-                    case QUEST_OBJECTIVE_PLAYER_KILLS:
-                    case QUEST_OBJECTIVE_EXPLORE_AREATRIGGER:
+                    case QUEST_OBJECTIVE_TALKTO:
+                    case QUEST_OBJECTIVE_PLAYERKILLS:
+                    case QUEST_OBJECTIVE_AREATRIGGER:
                         sLog->outError(LOG_FILTER_SQL, "Quest %u objective %u has invalid StorageIndex = %d for objective type %u", qinfo->GetQuestId(), obj.ID, obj.StorageIndex, obj.Type);
                         break;
                     default:
@@ -3966,7 +3955,7 @@ void ObjectMgr::LoadQuests()
                         sLog->outError(LOG_FILTER_SQL, "Quest %u objective %u has non existing item entry %u, quest can't be done.",
                             qinfo->GetQuestId(), obj.ID, obj.ObjectID);
                     break;
-                case QUEST_OBJECTIVE_CREATURE:
+                case QUEST_OBJECTIVE_MONSTER:
                     qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST);
                     if (!sObjectMgr->GetCreatureTemplate(obj.ObjectID))
                         sLog->outError(LOG_FILTER_SQL, "Quest %u objective %u has non existing creature entry %u, quest can't be done.",
@@ -3978,7 +3967,7 @@ void ObjectMgr::LoadQuests()
                         sLog->outError(LOG_FILTER_SQL, "Quest %u objective %u has non existing gameobject entry %u, quest can't be done.",
                             qinfo->GetQuestId(), obj.ID, uint32(obj.ObjectID));
                     break;
-                case QUEST_OBJECTIVE_INTERACT:
+                case QUEST_OBJECTIVE_TALKTO:
                     // Need checks (is it creature only?)
                     qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO);
                     break;
@@ -3987,7 +3976,7 @@ void ObjectMgr::LoadQuests()
                     if (!sFactionStore.LookupEntry(obj.ObjectID))
                         sLog->outError(LOG_FILTER_SQL, "Quest %u objective %u has non existing faction id %u", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
                     break;
-                case QUEST_OBJECTIVE_PLAYER_KILLS:
+                case QUEST_OBJECTIVE_PLAYERKILLS:
                     qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL);
                     if (obj.Amount <= 0)
                         sLog->outError(LOG_FILTER_SQL, "Quest %u objective %u has invalid player kills count %d", qinfo->GetQuestId(), obj.ID, obj.Amount);
@@ -4275,34 +4264,6 @@ void ObjectMgr::LoadQuests()
                     qinfo->GetQuestId(), qinfo->SoundTurnIn, qinfo->SoundTurnIn);
                 qinfo->SoundTurnIn = 0;                        // no sound will be played
             }
-        }
-
-        if (qinfo->RequiredSpell > 0)
-        {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(qinfo->RequiredSpell);
-
-            if (!spellInfo)
-            {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredSpell` = %u but spell %u does not exist, quest will not require a spell.",
-                    qinfo->GetQuestId(), qinfo->RequiredSpell, qinfo->RequiredSpell);
-                qinfo->RequiredSpell = 0;                    // no spell will be required
-            }
-
-            else if (!SpellMgr::IsSpellValid(spellInfo))
-            {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredSpell` = %u but spell %u is broken, quest will not require a spell.",
-                    qinfo->GetQuestId(), qinfo->RequiredSpell, qinfo->RequiredSpell);
-                qinfo->RequiredSpell = 0;                    // no spell will be required
-            }
-
-            /* Can we require talents?
-            else if (GetTalentSpellCost(qinfo->RewardSpell))
-            {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardDisplaySpell` = %u but spell %u is talent, quest will not have a spell reward.",
-                    qinfo->GetQuestId(), qinfo->RewardSpell, qinfo->RewardSpell);
-                qinfo->RewardSpell = 0;                    // no spell will be casted on player
-            }
-            }*/
         }
 
         if (qinfo->RewardSkillId)

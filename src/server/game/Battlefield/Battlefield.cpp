@@ -951,24 +951,21 @@ bool Battlefield::IncrementQuest(Player *player, uint32 quest, bool complete)
     }
     else
     {
-        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+        for (QuestObjective const& obj : pQuest->GetObjectives())
         {
-            int32 creature = pQuest->RequiredNpcOrGo[i];
-            if (uint32 spell_id = pQuest->GetRequiredSpell())
+            switch (obj.Type)
             {
-                player->CastedCreatureOrGO(creature, ObjectGuid::Empty, spell_id);
-                return true;
+                case QUEST_OBJECTIVE_MONSTER:
+                    player->KilledMonsterCredit(obj.ObjectID);
+                    return true;
+                case QUEST_OBJECTIVE_GAMEOBJECT:
+                    player->CastedCreatureOrGO(obj.ObjectID, ObjectGuid::Empty, 0);
+                    return true;;
+                case QUEST_OBJECTIVE_LEARNSPELL:
+                    player->CastedCreatureOrGO(0, ObjectGuid::Empty, obj.ObjectID);
+                    return true;;
             }
-            else if (creature > 0)
-            {
-                player->KilledMonsterCredit(creature);
-                return true;
-            }
-            else if (creature < 0)
-            {
-                player->CastedCreatureOrGO(creature, ObjectGuid::Empty, 0);
-                return true;
-            }
+
             return true;
         }
     }

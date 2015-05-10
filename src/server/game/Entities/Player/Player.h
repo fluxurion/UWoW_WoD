@@ -600,8 +600,15 @@ enum AtLoginFlags
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
 typedef std::set<uint32> RewardedQuestSet;
 
+enum QuestSaveType
+{
+    QUEST_DEFAULT_SAVE_TYPE = 0,
+    QUEST_DELETE_SAVE_TYPE,
+    QUEST_FORCE_DELETE_SAVE_TYPE
+};
+
 //               quest,  keep
-typedef std::map<uint32, bool> QuestStatusSaveMap;
+typedef std::map<uint32, QuestSaveType> QuestStatusSaveMap;
 
 enum QuestSlotOffsets
 {
@@ -935,6 +942,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_HONOR                        = 43,
     PLAYER_LOGIN_QUERY_LOAD_VISUAL                  = 44,
     PLAYER_LOGIN_QUERY_LOAD_LOOTCOOLDOWN            = 45,
+    PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES = 46,
 
     MAX_PLAYER_LOGIN_QUERY
 };
@@ -1964,6 +1972,8 @@ class Player : public Unit, public GridObject<Player>
         void UpdateForRaidMarkers(Group* group);
         bool CanShareQuest(uint32 quest_id) const;
 
+        int32 GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const;
+        void SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data);
         void SendQuestComplete(Quest const* quest);
         void SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver);
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
@@ -1971,7 +1981,7 @@ class Player : public Unit, public GridObject<Player>
         void SendCanTakeQuestResponse(uint32 msg) const;
         void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver);
         void SendPushToPartyResponse(Player* player, uint8 msg);
-        void SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid const& guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count);
+        void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, QuestObjective const& obj, uint16 count);
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint16 add_count);
 
         ObjectGuid GetDivider() { return m_divider; }
@@ -3291,6 +3301,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadMail();
         void _LoadMailedItems(Mail* mail);
         void _LoadQuestStatus(PreparedQueryResult result);
+        void _LoadQuestStatusObjectives(PreparedQueryResult result);
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
         void _LoadDailyQuestStatus(PreparedQueryResult result);
         void _LoadWeeklyQuestStatus(PreparedQueryResult result);
@@ -3565,7 +3576,7 @@ class Player : public Unit, public GridObject<Player>
         void AddKnownCurrency(uint32 itemId);
 
         int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest, bool noQuestBonus = false);
-        void AdjustQuestReqItemCount(Quest const* quest, QuestStatusData& questStatusData);
+        void AdjustQuestReqItemCount(Quest const* quest);
 
         bool IsCanDelayTeleport() const { return m_bCanDelayTeleport; }
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }

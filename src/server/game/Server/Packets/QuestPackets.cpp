@@ -85,7 +85,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.Flags;
         _worldPacket << Info.FlagsEx;
 
-        for (uint32 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
+        for (uint32 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
         {
             _worldPacket << Info.RewardItems[i];
             _worldPacket << Info.RewardAmount[i];
@@ -205,7 +205,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const
 
     data << questRewards.ItemCount;
 
-    for (uint32 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
+    for (uint32 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
     {
         data << questRewards.ItemID[i];
         data << questRewards.ItemQty[i];

@@ -55,7 +55,7 @@ Quest::Quest(Field* questRecord)
         RewardItemCount[i]  = questRecord[index++].GetUInt32();    
     }
 
-    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
+    for (int i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
     {
         ItemDrop[i]         = questRecord[index++].GetUInt32();
         ItemDropQuantity[i] = questRecord[index++].GetUInt32();
@@ -88,49 +88,6 @@ Quest::Quest(Field* questRecord)
     }
     RewardFactionFlags    = questRecord[index++].GetUInt32();
 
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        RequirementType[i] = questRecord[index++].GetUInt8();
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-    {
-        RequiredId[i] = questRecord[index++].GetUInt32();
-        RequiredIdBack[i] = RequiredId[i];
-    }
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        RequiredIdCount[i] = questRecord[index++].GetUInt32();
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        RequiredPOI[i] = questRecord[index++].GetUInt32();
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        RequiredUnkFlag[i] = questRecord[index++].GetUInt32();
-
-    RequiredSpell           = questRecord[index++].GetUInt32();
-
-    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i) // To be removed
-        RequiredSpellCast[i] = questRecord[index++].GetUInt32();
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        ObjectiveText[i] = questRecord[index++].GetString();
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-    {
-        if (!RequiredIdCount[i])
-            continue;
-        QuestObjective obj;
-        obj.ID = RequiredPOI[i];
-        obj.Type = RequirementType[i];
-        obj.StorageIndex = i;
-        obj.ObjectID = RequiredId[i];
-        obj.Amount = RequiredIdCount[i];
-        obj.Flags = RequiredUnkFlag[i];
-        obj.UnkFloat = 0.0f;
-        obj.Description = ObjectiveText[i];
-
-        Objectives.push_back(obj);
-    }
-
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
     {
         RewardCurrencyId[i] = questRecord[index++].GetUInt32();
@@ -162,48 +119,10 @@ Quest::Quest(Field* questRecord)
     if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
 
-    m_reqItemsCount = 0;
-    m_reqNpcOrGoCount = 0;
     m_rewItemsCount = 0;
     m_rewChoiceItemsCount = 0;
     m_rewCurrencyCount = 0;
     m_reqCurrencyCount = 0;
-
-    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-    {
-        RequiredNpcOrGo[i] = 0;
-        RequiredNpcOrGoCount[i] = 0;
-        RequiredItemId[i] = 0;
-        RequiredItemCount[i] = 0;
-        RequiredCurrencyId[i] = 0;
-        RequiredCurrencyCount[i] = 0;
-        if (RequiredId[i])
-        {
-            switch(RequirementType[i])
-            {
-                case 0:
-                    ++m_reqNpcOrGoCount;
-                    RequiredNpcOrGo[i] = RequiredId[i];
-                    RequiredNpcOrGoCount[i] = RequiredIdCount[i];
-                    break;
-                case 1:
-                    ++m_reqItemsCount;
-                    RequiredItemId[i] = RequiredId[i];
-                    RequiredItemCount[i] = RequiredIdCount[i];
-                    break;
-                case 2:
-                    ++m_reqNpcOrGoCount;
-                    RequiredNpcOrGo[i] = int32((-1)*RequiredId[i]);
-                    RequiredNpcOrGoCount[i] = RequiredIdCount[i];
-                    break;
-                case 4:
-                    ++m_reqCurrencyCount;
-                    RequiredCurrencyId[i] = RequiredId[i];
-                    RequiredCurrencyCount[i] = RequiredIdCount[i];
-                    break;
-            }
-        }
-    }
 
     for (int i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
         if (RewardItemId[i])

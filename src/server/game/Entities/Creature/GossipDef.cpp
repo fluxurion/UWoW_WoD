@@ -471,10 +471,6 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     std::string portraitTurnInText = quest->GetPortraitTurnInText();
     std::string portraitTurnInName = quest->GetPortraitTurnInName();
 
-    std::string questObjectiveText[QUEST_OBJECTIVES_COUNT];
-    for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        questObjectiveText[i] = quest->ObjectiveText[i];
-
     int32 locale = _session->GetSessionDbLocaleIndex();
     if (locale >= 0)
     {
@@ -489,9 +485,6 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
             ObjectMgr::GetLocaleString(localeData->PortraitGiverName, locale, portraitGiverName);
             ObjectMgr::GetLocaleString(localeData->PortraitTurnInText, locale, portraitTurnInText);
             ObjectMgr::GetLocaleString(localeData->PortraitTurnInName, locale, portraitTurnInName);
-
-            for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-                ObjectMgr::GetLocaleString(localeData->ObjectiveText[i], locale, questObjectiveText[i]);
         }
     }
 
@@ -575,8 +568,11 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     for (QuestObjective const& obj : quest->Objectives)
     {
         packet.Info.Objectives.push_back(obj);
-        // @todo update quets objective locales
-        //packet.Info.Objectives.back().Description = questObjectiveText[i];
+        //if (locale >= LOCALE_enUS)
+        //{
+        //    if (QuestObjectivesLocale const* questObjectivesLocale = sObjectMgr->GetQuestObjectivesLocale(questObjective.ID))
+        //        ObjectMgr::GetLocaleString(questObjectivesLocale->Description, locale, packet.Info.Objectives.back().Description);
+        //}
     }
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
@@ -677,7 +673,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         }
     }
 
-    if (!quest->GetReqItemsCount() && canComplete)
+    if (!quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER) && canComplete)
     {
         SendQuestGiverOfferReward(quest, npcGUID, true);
         return;
