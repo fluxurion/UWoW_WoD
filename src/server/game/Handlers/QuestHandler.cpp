@@ -213,9 +213,10 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
                     // destroy not required for quest finish quest starting item
                     bool destroyItem = true;
-                    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+                    for (QuestObjective const& obj : quest->GetObjectives())
                     {
-                        if ((quest->RequiredItemId[i] == ((Item*)object)->GetEntry()) && (((Item*)object)->GetTemplate()->MaxCount > 0))
+                        if (obj.Type == QUEST_OBJECTIVE_ITEM)
+                            if ((obj.ObjectID == ((Item*)object)->GetEntry()) && (((Item*)object)->GetTemplate()->MaxCount > 0))
                         {
                             destroyItem = false;
                             break;
@@ -498,16 +499,8 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
         if (!pOriginalPlayer)
             return;
 
-        if (quest->IsRaidQuest())
-        {
-            if (!_player->IsInSameRaidWith(pOriginalPlayer))
-                return;
-        }
-        else
-        {
-            if (!_player->IsInSameGroupWith(pOriginalPlayer))
-                return;
-        }
+        if (!_player->IsInSameRaidWith(pOriginalPlayer))
+            return;
 
         if (_player->CanAddQuest(quest, true))
             _player->AddQuest(quest, NULL);                // NULL, this prevent DB script from duplicate running
@@ -563,9 +556,9 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiver
         }
         else
         {
-            if (quest->GetReqItemsCount())                  // some items required
+            if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER))                  // some items required
                 _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, packet.QuestGiverGUID, _player->CanRewardQuest(quest, false), false);
-            else                                            // no items required
+            else                                                                    // no items required
                 _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, !autoCompleteMode);
         }
     }

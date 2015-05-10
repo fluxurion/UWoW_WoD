@@ -2012,7 +2012,7 @@ public:
             {
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
                 if (qInfo)
-                    player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], ObjectGuid::Empty);
+                    player->KilledMonsterCredit(qInfo->Objectives[0].ObjectID, ObjectGuid::Empty);
             }
         }
     };

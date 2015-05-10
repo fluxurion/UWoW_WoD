@@ -253,6 +253,9 @@ class npc_hot_rod : public CreatureScript
         {
             if (Player* player = who->ToPlayer())
             {
+                Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_ROLLING_WITH_MY_HOMIES);
+                ASSERT(qInfo);
+
                 // Enable radio. As our veh not yet has passanger we do it a little hacky.
                 if (apply)
                 {
@@ -267,7 +270,7 @@ class npc_hot_rod : public CreatureScript
                         for(int j = 1; j < 4; ++j)
                         {
                             //if we not complite we should add visibility state for finding them
-                            if(!itr->second.CreatureOrGOCount[j])
+                            if (!player->GetQuestObjectiveData(qInfo, j))
                             {
                                 SetVisibilityDetect(player, (InvisibilityType)QuestTemplateData[j][1], true);
                                 SetVisibilityDetect(me, (InvisibilityType)QuestTemplateData[j][1], true);
@@ -305,7 +308,7 @@ class npc_hot_rod : public CreatureScript
                         for(int j = 1; j < 4; ++j)
                         {
                             //if we not complite we should add visibility state for finding them
-                            if(itr->second.CreatureOrGOCount[j])
+                            if (player->GetQuestObjectiveData(qInfo, j))
                             {
                                 //player->RemoveAllMinionsByEntry(QuestTemplateData[j][0]);
                                 //TMP. In some cases call crash http://pastebin.com/vcnGS701

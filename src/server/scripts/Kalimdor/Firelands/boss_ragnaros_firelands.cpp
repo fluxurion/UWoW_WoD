@@ -412,9 +412,8 @@ class boss_ragnaros_firelands : public CreatureScript
 
                                 if (questId)
                                 {
-                                    QuestStatusMap::const_iterator itr = plr->getQuestStatusMap().find(questId);
-                                    if (itr != plr->getQuestStatusMap().end())
-                                        if (itr->second.CreatureOrGOCount[0] >= 250)
+                                    if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId))
+                                        if (plr->GetQuestObjectiveData(qInfo, 0) >= 250)
                                         {
                                             bRage = true;
                                             break;
@@ -490,9 +489,8 @@ class boss_ragnaros_firelands : public CreatureScript
 
                             if (questId)
                             {
-                                QuestStatusMap::const_iterator itr = plr->getQuestStatusMap().find(questId);
-                                if (itr != plr->getQuestStatusMap().end())
-                                    if (itr->second.CreatureOrGOCount[0] >= 250)
+                                if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId))
+                                    if (plr->GetQuestObjectiveData(qInfo, 0) >= 250)
                                     {
                                         plr->CastSpell(plr, SPELL_HEART_OF_RAGNAROS_CREATE, true);
                                         break;
@@ -1033,9 +1031,8 @@ class boss_ragnaros_firelands : public CreatureScript
 
                             if (questId)
                             {
-                                QuestStatusMap::const_iterator itr = plr->getQuestStatusMap().find(questId);
-                                if (itr != plr->getQuestStatusMap().end())
-                                    if (itr->second.CreatureOrGOCount[0] >= 250)
+                                if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId))
+                                    if (plr->GetQuestObjectiveData(qInfo, 0) >= 250)
                                     {
                                         plr->CastSpell(plr, SPELL_HEART_OF_RAGNAROS_CREATE, true);
                                         break;
@@ -2876,9 +2873,8 @@ class spell_ragnaros_firelands_rage_of_ragnaros_aoe : public SpellScriptLoader
 
                     if (questId)
                     {
-                        QuestStatusMap::const_iterator itr = plr->getQuestStatusMap().find(questId);
-                        if (itr != plr->getQuestStatusMap().end())
-                            if (itr->second.CreatureOrGOCount[0] >= 250)
+                        if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId))
+                            if (plr->GetQuestObjectiveData(qInfo, 0) >= 250)
                                 GetCaster()->CastSpell(plr, SPELL_RAGE_OF_RAGNAROS, true);
                     }
                 }

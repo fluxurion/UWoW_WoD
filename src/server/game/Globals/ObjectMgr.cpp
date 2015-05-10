@@ -3420,7 +3420,7 @@ void ObjectMgr::LoadQuests()
         //  176                     177              178          179         180         181          
         "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, "
         //  182             183         184             185                 186             187                 188             189                 190                 191                 192
-        "LogTitle, LogDescription, QuestDescription, AreaDescription, QuestCompletionLog, OfferRewardText, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, "
+        "LogTitle, LogDescription, QuestDescription, AreaDescription, QuestCompletionLog, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, "
         //   215            216             217
         "StartScript, CompleteScript, WDBVerified"
         " FROM quest_template");
@@ -3829,35 +3829,6 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for (uint8 j = 0; j < QUEST_ITEM_OBJECTIVES_COUNT; ++j)
-        {
-            uint32 id = qinfo->RequiredItemId[j];
-            if (id)
-            {
-                if (qinfo->RequiredItemCount[j] == 0)
-                {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredItemId%d` = %u but `RequiredItemCount%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, id, j+1);
-                    // no changes, quest can't be done for this requirement
-                }
-
-                qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER);
-
-                if (!sObjectMgr->GetItemTemplate(id))
-                {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredItemId%d` = %u but item with entry %u does not exist, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, id, id);
-                    qinfo->RequiredItemCount[j] = 0;             // prevent incorrect work of quest
-                }
-            }
-            else if (qinfo->RequiredItemCount[j] > 0)
-            {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredItemId%d` = 0 but `RequiredItemCount%d` = %u, quest can't be done.",
-                    qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredItemCount[j]);
-                qinfo->RequiredItemCount[j] = 0;                 // prevent incorrect work of quest
-            }
-        }
-
         for (uint8 j = 0; j < QUEST_ITEM_DROP_COUNT; ++j)
         {
             uint32 id = qinfo->ItemDrop[j];
@@ -3877,52 +3848,6 @@ void ObjectMgr::LoadQuests()
                     sLog->outError(LOG_FILTER_SQL, "Quest %u has `ItemDrop%d` = 0 but `ItemDropQuantity%d` = %u.",
                         qinfo->GetQuestId(), j+1, j+1, qinfo->ItemDropQuantity[j]);
                     // no changes, quest ignore this data
-                }
-            }
-        }
-
-        for (uint8 j = 0; j < QUEST_ITEM_DROP_COUNT; ++j)
-        {
-            uint32 id = qinfo->RequiredSpellCast[j];
-            if (id)
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
-                if (!spellInfo)
-                {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `ReqSpellCast%d` = %u but spell %u does not exist, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, id, id);
-                    continue;
-                }
-
-                if (!qinfo->RequiredNpcOrGo[j])
-                {
-                    bool found = false;
-                    for (uint8 k = 0; k < MAX_SPELL_EFFECTS; ++k)
-                    {
-                        if ((spellInfo->Effects[k].Effect == SPELL_EFFECT_QUEST_COMPLETE && uint32(spellInfo->Effects[k].MiscValue) == qinfo->Id) ||
-                            spellInfo->Effects[k].Effect == SPELL_EFFECT_SEND_EVENT)
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (found)
-                    {
-                        if (!qinfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT))
-                        {
-                            sLog->outError(LOG_FILTER_SQL, "Spell (id: %u) have SPELL_EFFECT_QUEST_COMPLETE or SPELL_EFFECT_SEND_EVENT for quest %u and RequiredNpcOrGo%d = 0, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT. Quest flags or RequiredNpcOrGo%d must be fixed, quest modified to enable objective.", spellInfo->Id, qinfo->Id, j+1, j+1);
-
-                            // this will prevent quest completing without objective
-                            const_cast<Quest*>(qinfo)->SetSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT);
-                        }
-                    }
-                    else
-                    {
-                        sLog->outError(LOG_FILTER_SQL, "Quest %u has `ReqSpellCast%d` = %u and RequiredNpcOrGo%d = 0 but spell %u does not have SPELL_EFFECT_QUEST_COMPLETE or SPELL_EFFECT_SEND_EVENT effect for this quest, quest can't be done.",
-                            qinfo->GetQuestId(), j+1, id, j+1, id);
-                        // no changes, quest can't be done for this requirement
-                    }
                 }
             }
         }
@@ -4178,32 +4103,6 @@ void ObjectMgr::LoadQuests()
                 sLog->outError(LOG_FILTER_SQL, "Quest %u has `RewardCurrencyId%d` = 0 but `RewardCurrencyCount%d` = %u, quest can't be done.",
                     qinfo->GetQuestId(), j+1, j+1, qinfo->RewardCurrencyCount[j]);
                 qinfo->RewardCurrencyCount[j] = 0;                 // prevent incorrect work of quest
-            }
-        }
-
-        for (uint8 j = 0; j < QUEST_REQUIRED_CURRENCY_COUNT; ++j)
-        {
-            if (qinfo->RequiredCurrencyId[j])
-            {
-                if (qinfo->RequiredCurrencyCount[j] == 0)
-                {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredCurrencyId%d` = %u but `RequiredCurrencyCount%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, qinfo->RequiredCurrencyId[j], j+1);
-                    // no changes, quest can't be done for this requirement
-                }
-
-                if (!sCurrencyTypesStore.LookupEntry(qinfo->RequiredCurrencyId[j]))
-                {
-                    sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredCurrencyId%d` = %u but currency with entry %u does not exist, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, qinfo->RequiredCurrencyId[j], qinfo->RequiredCurrencyId[j]);
-                    qinfo->RequiredCurrencyCount[j] = 0;             // prevent incorrect work of quest
-                }
-            }
-            else if (qinfo->RequiredCurrencyCount[j] > 0)
-            {
-                sLog->outError(LOG_FILTER_SQL, "Quest %u has `RequiredCurrencyId%d` = 0 but `RequiredCurrencyCount%d` = %u, quest can't be done.",
-                    qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredCurrencyCount[j]);
-                qinfo->RequiredCurrencyCount[j] = 0;                 // prevent incorrect work of quest
             }
         }
 

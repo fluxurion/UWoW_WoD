@@ -176,7 +176,7 @@ public:
         {
             go->SetGoState(GO_STATE_ACTIVE);
             stillpine->GetMotionMaster()->MovePoint(1, go->GetPositionX(), go->GetPositionY()-15, go->GetPositionZ());
-            player->CastedCreatureOrGO(NPC_PRINCESS_STILLPINE, ObjectGuid::Empty, SPELL_OPENING_PRINCESS_STILLPINE_CREDIT);
+            player->KillCreditGO(NPC_PRINCESS_STILLPINE, ObjectGuid::Empty);
         }
         return true;
     }

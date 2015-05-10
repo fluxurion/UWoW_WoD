@@ -442,9 +442,6 @@ public:
                            break;
                 }
 
-                if (itr->second.CreatureOrGOCount[i] != 0)
-                    continue;
-
                 caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), ObjectGuid::Empty);
                 caster->ToPlayer()->Say(SAY_OFFER, LANG_UNIVERSAL);
                 sayStep = 0;

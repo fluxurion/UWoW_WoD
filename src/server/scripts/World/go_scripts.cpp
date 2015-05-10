@@ -1036,7 +1036,7 @@ public:
         if (qInfo)
         {
             //TODO: prisoner should help player for a short period of time
-            player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], ObjectGuid::Empty);
+            player->KilledMonsterCredit(qInfo->Objectives[0].ObjectID, ObjectGuid::Empty);
             pPrisoner->DisappearAndDie();
         }
         return true;

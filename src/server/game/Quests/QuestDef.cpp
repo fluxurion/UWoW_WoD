@@ -105,7 +105,6 @@ Quest::Quest(Field* questRecord)
     LogDescription          = questRecord[index++].GetString();
     AreaDescription         = questRecord[index++].GetString();
     QuestCompletionLog      = questRecord[index++].GetString();
-    OfferRewardText         = questRecord[index++].GetString();
     PortraitGiverText       = questRecord[index++].GetString();
     PortraitGiverName       = questRecord[index++].GetString();
     PortraitTurnInText      = questRecord[index++].GetString();
@@ -262,73 +261,6 @@ uint32 Quest::GetRewMoney() const
         return 0;
 }
 
-void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
-{
-    data << uint32(GetRewChoiceItemsCount());
-    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-    {
-        data << uint32(RewardChoiceItemId[i]);
-        data << uint32(RewardChoiceItemCount[i]);
-        data << uint32(GetItemDisplayId(RewardChoiceItemId[i], 0));
-    }
-
-    data << uint32(GetReqItemsCount());
-    for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
-        data << uint32(RewardItemId[i]);
-    for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
-        data << uint32(RewardItemCount[i]);
-    for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
-        data << uint32(GetItemDisplayId(RewardItemId[i], 0));
-
-    data << int32(GetRewMoney());
-
-    float QuestXpRate = 1;
-    if(player->GetPersonnalXpRate())
-        QuestXpRate = player->GetPersonnalXpRate();
-    else
-        QuestXpRate = sWorld->getRate(RATE_XP_QUEST);
-
-    data << uint32(XPValue(player) * QuestXpRate);
-
-    data << uint32(0);                                      // unk
-    data << uint32(GetBonusTalents());
-    data << uint32(GetRewardFactionFlags());
-
-    /* Pre cata struct, some of these unks might be the missing values in cata:
-    // rewarded honor points. Multiply with 10 to satisfy client
-    data << uint32(10 * quest->CalculateHonorGain(_session->GetPlayer()->GetQuestLevel(quest)));
-    data << float(0.0f);                                    // unk, honor multiplier?
-    data << uint32(0x08);                                   // unused by client?
-    data << uint32(quest->GetRewDisplaySpell());                   // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
-    data << int32(quest->GetRewSpell());                // casted spell
-    data << uint32(0);                                      // unknown
-    data << uint32(quest->GetBonusTalents());               // bonus talents
-    data << uint32(quest->GetRewArenaPoints());             // arena points
-    data << uint32(0);
-    */
-
-    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)    // reward factions ids
-        data << uint32(RewardFactionId[i]);
-
-    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)    // columnid in QuestFactionReward.dbc (zero based)?
-        data << int32(RewardFactionValue[i]);
-
-    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)    // reward reputation override?
-        data << uint32(RewardFactionOverride[i]);
-
-    data << uint32(GetRewDisplaySpell());
-    data << uint32(GetRewSpell());
-
-    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        data << uint32(RewardCurrencyId[i]);
-
-    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-        data << uint32(RewardCurrencyCount[i]);
-
-    data << uint32(GetRewardSkillId());
-    data << uint32(GetRewardSkillPoints());
-}
-
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
 {
     rewards.ChoiceItemCount         = GetRewChoiceItemsCount();
@@ -395,9 +327,26 @@ bool Quest::IsAutoComplete() const
     return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && (Type == 0/* || HasFlag(QUEST_FLAGS_AUTOCOMPLETE)*/);
 }
 
-bool Quest::IsAllowedInRaid() const
+bool Quest::IsRaidQuest(Difficulty difficulty) const
 {
-    if (IsRaidQuest())
+    switch (Type)
+    {
+        case QUEST_INFO_RAID:
+            return true;
+        case QUEST_INFO_RAID_10:
+            return difficulty == DIFFICULTY_10_N || difficulty == DIFFICULTY_10_HC;
+        case QUEST_INFO_RAID_25:
+            return difficulty == DIFFICULTY_25_N || difficulty == DIFFICULTY_25_HC;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool Quest::IsAllowedInRaid(Difficulty difficulty) const
+{
+    if (IsRaidQuest(difficulty))
         return true;
 
     return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_RAID);
