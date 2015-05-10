@@ -1961,7 +1961,7 @@ class Player : public Unit, public GridObject<Player>
         void KilledMonster(CreatureTemplate const* cInfo, ObjectGuid guid);
         void KilledMonsterCredit(uint32 entry, ObjectGuid guid = ObjectGuid::Empty);
         void KilledPlayerCredit();
-        void CastedCreatureOrGO(uint32 entry, ObjectGuid guid, uint32 spell_id);
+        void KillCreditGO(uint32 entry, ObjectGuid const& guid);
         void TalkedToCreature(uint32 entry, ObjectGuid guid);
         void MoneyChanged(uint32 value);
         void ReputationChanged(FactionEntry const* factionEntry);

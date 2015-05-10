@@ -1320,7 +1320,7 @@ void GameObject::Use(Unit* user)
                 if (Battleground* bg = player->GetBattleground())
                     bg->EventPlayerUsedGO(player, this);
 
-                player->CastedCreatureOrGO(info->entry, GetGUID(), 0);
+                player->KillCreditGO(info->entry, GetGUID());
 
                 GetMap()->ScriptsStart(sGameObjectScripts, GetDBTableGUIDLow(), player, this);
             }

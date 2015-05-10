@@ -959,10 +959,7 @@ bool Battlefield::IncrementQuest(Player *player, uint32 quest, bool complete)
                     player->KilledMonsterCredit(obj.ObjectID);
                     return true;
                 case QUEST_OBJECTIVE_GAMEOBJECT:
-                    player->CastedCreatureOrGO(obj.ObjectID, ObjectGuid::Empty, 0);
-                    return true;;
-                case QUEST_OBJECTIVE_LEARNSPELL:
-                    player->CastedCreatureOrGO(0, ObjectGuid::Empty, obj.ObjectID);
+                    player->KillCreditGO(obj.ObjectID, ObjectGuid::Empty);
                     return true;;
             }
 

@@ -698,13 +698,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
             break;
-        case SMART_ACTION_SEND_CASTCREATUREORGO:
-            if (!IsQuestValid(e, e.action.castCreatureOrGO.quest))
-                return false;
-
-            if (!IsSpellValid(e, e.action.castCreatureOrGO.spell))
-                return false;
-            break;
         case SMART_ACTION_SET_EVENT_PHASE:
             if (e.action.setEventPhase.phase >= SMART_EVENT_PHASE_MAX)
             {
@@ -723,13 +716,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Entry %d SourceType %u Event %u Action %u attempts to increment phase by too large value, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
             }
-            break;
-        case SMART_ACTION_CALL_CASTEDCREATUREORGO:
-            if (!IsCreatureValid(e, e.action.castedCreatureOrGO.creature))
-                return false;
-
-            if (!IsSpellValid(e, e.action.castedCreatureOrGO.spell))
-                return false;
             break;
         case SMART_ACTION_REMOVEAURASFROMSPELL:
             if (e.action.removeAura.spell != 0 && !IsSpellValid(e, e.action.removeAura.spell))
