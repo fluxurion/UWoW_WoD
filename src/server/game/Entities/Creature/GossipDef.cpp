@@ -568,11 +568,11 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     for (QuestObjective const& obj : quest->Objectives)
     {
         packet.Info.Objectives.push_back(obj);
-        //if (locale >= LOCALE_enUS)
-        //{
-        //    if (QuestObjectivesLocale const* questObjectivesLocale = sObjectMgr->GetQuestObjectivesLocale(questObjective.ID))
-        //        ObjectMgr::GetLocaleString(questObjectivesLocale->Description, locale, packet.Info.Objectives.back().Description);
-        //}
+        if (locale >= LOCALE_enUS)
+        {
+            if (QuestLocale const* questObjectivesLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
+                ObjectMgr::GetLocaleString(questObjectivesLocale->ObjectiveText[obj.StorageIndex], locale, packet.Info.Objectives.back().Description);
+        }
     }
 
     for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
