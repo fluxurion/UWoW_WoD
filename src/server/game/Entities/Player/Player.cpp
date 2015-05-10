@@ -15971,6 +15971,9 @@ bool Player::CanCompleteQuest(uint32 quest_id)
 
         QuestStatusData &q_status = itr->second;
 
+        if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT) && q_status.Status != QUEST_STATUS_COMPLETE)
+            return false;
+
         if (q_status.Status == QUEST_STATUS_INCOMPLETE)
         {
             for (QuestObjective const& obj : qInfo->GetObjectives())
@@ -17142,7 +17145,7 @@ void Player::SetQuestCompletedBit(uint32 questBit, bool completed)
 
 void Player::AreaExploredOrEventHappens(uint32 questId)
 {
-    if (questId)
+    if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId))
     {
         uint16 log_slot = FindQuestSlot(questId);
         if (log_slot < MAX_QUEST_LOG_SIZE)
@@ -17152,16 +17155,16 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
             /** @todo
             This function was previously used for area triggers but now those are a part of quest objective system
             Currently this function is used to complete quests with no objectives (needs verifying) so probably rename it?
-
+            **/
             QuestStatusData& q_status = m_QuestStatus[questId];
 
-            if (!q_status.Explored)
+            if (q_status.Status != QUEST_STATUS_COMPLETE)
             {
-                q_status.Explored = true;
+                q_status.Status = QUEST_STATUS_COMPLETE;
                 m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
                 SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
-                SendQuestComplete(questId);
-            }**/
+                SendQuestComplete(qInfo);
+            }
         }
         if (CanCompleteQuest(questId))
             CompleteQuest(questId);

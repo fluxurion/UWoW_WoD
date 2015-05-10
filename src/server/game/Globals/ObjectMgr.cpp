@@ -3422,7 +3422,7 @@ void ObjectMgr::LoadQuests()
         //  182             183         184             185                 186             187                 188             189                 190                 191                 192
         "LogTitle, LogDescription, QuestDescription, AreaDescription, QuestCompletionLog, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, "
         //   215            216             217
-        "StartScript, CompleteScript, WDBVerified"
+        "StartScript, CompleteScript, VerifiedBuild"
         " FROM quest_template");
     if (!result)
     {

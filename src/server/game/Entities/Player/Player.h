@@ -615,7 +615,7 @@ enum QuestSlotOffsets
     QUEST_ID_OFFSET     = 0,
     QUEST_STATE_OFFSET  = 1,
     QUEST_COUNTS_OFFSET = 2,
-    QUEST_TIME_OFFSET   = 8 // ???
+    QUEST_TIME_OFFSET   = 4 // ???
 };
 
 #define MAX_QUEST_OFFSET 15
