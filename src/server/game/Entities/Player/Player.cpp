@@ -11039,20 +11039,19 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     SendBGWeekendWorldStates();
 }
 
+//! 6.1.2
 void Player::SendInitWorldTimers()
 {
-    WorldPacket data(SMSG_WORLD_STATE_TIMER_START_INIT, 11);
-    uint32 bpos = data.bitwpos();                           // Place Holder
+    WorldPacket data(SMSG_START_ELAPSED_TIMERS, 12);
+    data << uint32(0);
 
-    data.WriteBits(0, 21);                                  // count of uint64 blocks
-    data.FlushBits();
     size_t countPos = data.wpos();
 
     if (InstanceScript* instance = GetInstanceScript())
         instance->FillInitialWorldTimers(data);
 
     uint16 length = (data.wpos() - countPos) / 8;
-    data.PutBits<uint32>(bpos, length, 21);
+    data.put<uint32>(0, length);
 
     GetSession()->SendPacket(&data);
 }
@@ -17143,7 +17142,7 @@ uint32 Player::GetQuestSlotState(uint16 slot)   const
 
 uint16 Player::GetQuestSlotCounter(uint16 slot, uint8 counter) const
 {
-    return (uint16)(GetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET) >> (counter * 16));
+    return GetUInt16Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + uint8(counter / 2), counter % 2);
 }
 
 uint32 Player::GetQuestSlotTime(uint16 slot) const
@@ -17162,10 +17161,7 @@ void Player::SetQuestSlot(uint16 slot, uint32 quest_id, uint32 timer /*= 0*/)
 
 void Player::SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count)
 {
-    uint64 val = GetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET);
-    val &= ~((uint64)0xFFFF << (counter * 16));
-    val |= ((uint64)count << (counter * 16));
-    SetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET, val);
+    SetUInt16Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + uint8(counter / 2), counter % 2, count);
 }
 
 void Player::SetQuestSlotState(uint16 slot, uint32 state)
@@ -19614,6 +19610,10 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
             Field* fields = result->Fetch();
 
             uint32 questID = fields[0].GetUInt32();
+
+            slot = FindQuestSlot(questID);
+            if (slot >= MAX_QUEST_LOG_SIZE) // Player does not have any free slot in the quest log
+                continue;
 
             auto itr = m_QuestStatus.find(questID);
             if (itr != m_QuestStatus.end())
