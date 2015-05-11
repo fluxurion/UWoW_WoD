@@ -17131,6 +17131,70 @@ uint16 Player::FindQuestSlot(uint32 quest_id) const
     return MAX_QUEST_LOG_SIZE;
 }
 
+uint32 Player::GetQuestSlotQuestId(uint16 slot) const
+{
+    return GetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET);
+}
+
+uint32 Player::GetQuestSlotState(uint16 slot)   const
+{
+    return GetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET);
+}
+
+uint16 Player::GetQuestSlotCounter(uint16 slot, uint8 counter) const
+{
+    return (uint16)(GetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET) >> (counter * 16));
+}
+
+uint32 Player::GetQuestSlotTime(uint16 slot) const
+{
+    return GetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET);
+}
+
+void Player::SetQuestSlot(uint16 slot, uint32 quest_id, uint32 timer /*= 0*/)
+{
+    SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET, quest_id);
+    SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, 0);
+    SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET, 0);
+    SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + 1, 0);
+    SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, timer);
+}
+
+void Player::SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count)
+{
+    uint64 val = GetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET);
+    val &= ~((uint64)0xFFFF << (counter * 16));
+    val |= ((uint64)count << (counter * 16));
+    SetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET, val);
+}
+
+void Player::SetQuestSlotState(uint16 slot, uint32 state)
+{
+    SetFlag(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, state);
+}
+
+void Player::RemoveQuestSlotState(uint16 slot, uint32 state)
+{
+    RemoveFlag(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, state);
+}
+
+void Player::SetQuestSlotTimer(uint16 slot, uint32 timer)
+{
+    SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, timer);
+}
+
+void Player::SwapQuestSlot(uint16 slot1, uint16 slot2)
+{
+    for (int i = 0; i < MAX_QUEST_OFFSET; ++i)
+    {
+        uint32 temp1 = GetUInt32Value(PLAYER_FIELD_QUEST_LOG + MAX_QUEST_OFFSET * slot1 + i);
+        uint32 temp2 = GetUInt32Value(PLAYER_FIELD_QUEST_LOG + MAX_QUEST_OFFSET * slot2 + i);
+
+        SetUInt32Value(PLAYER_FIELD_QUEST_LOG + MAX_QUEST_OFFSET * slot1 + i, temp2);
+        SetUInt32Value(PLAYER_FIELD_QUEST_LOG + MAX_QUEST_OFFSET * slot2 + i, temp1);
+    }
+}
+
 void Player::SetQuestCompletedBit(uint32 questBit, bool completed)
 {
     if (!questBit)

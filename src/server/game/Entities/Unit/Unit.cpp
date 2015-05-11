@@ -5702,7 +5702,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
     AuraEffect const* aura = pInfo->auraEff;
 
     //! 6.0.3
-    WorldPacket data(SMSG_SPELL_PERIODIC_AURA_LOG, 30);
+    WorldPacket data(SMSG_SPELL_PERIODIC_AURA_LOG, 51);
     data << GetGUID();
     data << aura->GetCasterGUID();
 
@@ -5771,6 +5771,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
         }
     }
 
+    data.FlushBits();                   // really need it.
     data.WriteBit(0);                   // not has power data
 
 

@@ -1913,46 +1913,17 @@ class Player : public Unit, public GridObject<Player>
         void ResetSeasonalQuestStatus(uint16 event_id);
 
         uint16 FindQuestSlot(uint32 quest_id) const;
-        uint32 GetQuestSlotQuestId(uint16 slot) const { return GetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET); }
-        uint32 GetQuestSlotState(uint16 slot)   const { return GetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET); }
-        uint16 GetQuestSlotCounter(uint16 slot, uint8 counter) const
-        {
-            uint8 index = counter / 4;
-            uint8 offs = counter % 4;
-            return (uint16)(GetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + index * 2) >> (offs * 16));
-        }
-        uint32 GetQuestSlotTime(uint16 slot)    const { return GetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET); }
-        void SetQuestSlot(uint16 slot, uint32 quest_id, uint32 timer = 0)
-        {
-            SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET, quest_id);
-            SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, 0);
-            for (uint8 i = 0; i < 3; ++i)
-                SetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + i * 2, 0);
-            SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, timer);
-        }
-        void SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count)
-        {
-            uint8 index = counter / 4;
-            uint8 offs = counter % 4;
-            uint64 val = GetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + index * 2);
-            val &= ~((uint64)0xFFFF << (offs * 16));
-            val |= ((uint64)count << (offs * 16));
-            SetUInt64Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + index * 2, val);
-        }
-        void SetQuestSlotState(uint16 slot, uint32 state) { SetFlag(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, state); }
-        void RemoveQuestSlotState(uint16 slot, uint32 state) { RemoveFlag(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, state); }
-        void SetQuestSlotTimer(uint16 slot, uint32 timer) { SetUInt32Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, timer); }
-        void SwapQuestSlot(uint16 slot1, uint16 slot2)
-        {
-            for (int i = 0; i < MAX_QUEST_OFFSET; ++i)
-            {
-                uint32 temp1 = GetUInt32Value(PLAYER_FIELD_QUEST_LOG + MAX_QUEST_OFFSET * slot1 + i);
-                uint32 temp2 = GetUInt32Value(PLAYER_FIELD_QUEST_LOG + MAX_QUEST_OFFSET * slot2 + i);
+        uint32 GetQuestSlotQuestId(uint16 slot) const;
+        uint32 GetQuestSlotState(uint16 slot)   const;
+        uint16 GetQuestSlotCounter(uint16 slot, uint8 counter) const;
+        uint32 GetQuestSlotTime(uint16 slot)    const;
+        void SetQuestSlot(uint16 slot, uint32 quest_id, uint32 timer = 0);
+        void SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count);
+        void SetQuestSlotState(uint16 slot, uint32 state);
+        void RemoveQuestSlotState(uint16 slot, uint32 state);
+        void SetQuestSlotTimer(uint16 slot, uint32 timer);
+        void SwapQuestSlot(uint16 slot1, uint16 slot2);
 
-                SetUInt32Value(PLAYER_FIELD_QUEST_LOG + MAX_QUEST_OFFSET * slot1 + i, temp2);
-                SetUInt32Value(PLAYER_FIELD_QUEST_LOG + MAX_QUEST_OFFSET * slot2 + i, temp1);
-            }
-        }
         void SetQuestCompletedBit(uint32 questBit, bool completed);
         uint16 GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry);
         void AreaExploredOrEventHappens(uint32 questId);
