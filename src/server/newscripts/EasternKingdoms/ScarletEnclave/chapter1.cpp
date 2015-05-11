@@ -867,60 +867,82 @@ public:
 ## npc_scarlet_miner_cart
 ####*/
 
-#define SPELL_CART_CHECK     54173
-#define SPELL_CART_DRAG      52465
+enum ScarletMinerCart
+{
+    SPELL_CART_CHECK        = 54173,
+    SPELL_SUMMON_CART       = 52463,
+    SPELL_SUMMON_MINER      = 52464,
+    SPELL_CART_DRAG         = 52465,
+
+    NPC_MINER               = 28841
+};
 
 class npc_scarlet_miner_cart : public CreatureScript
 {
-public:
-    npc_scarlet_miner_cart() : CreatureScript("npc_scarlet_miner_cart") { }
+    public:
+        npc_scarlet_miner_cart() : CreatureScript("npc_scarlet_miner_cart") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_scarlet_miner_cartAI(creature);
-    }
-
-    struct npc_scarlet_miner_cartAI : public PassiveAI
-    {
-        npc_scarlet_miner_cartAI(Creature* creature) : PassiveAI(creature), minerGUID()
+        struct npc_scarlet_miner_cartAI : public PassiveAI
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetDisplayId(me->GetCreatureTemplate()->Modelid1); // Modelid2 is a horse.
-        }
-
-        ObjectGuid minerGUID;
-
-        void SetGUID(ObjectGuid const& guid, int32 /*id*/)
-        {
-            minerGUID = guid;
-        }
-
-        void DoAction(const int32 /*param*/)
-        {
-            if (Creature* miner = Unit::GetCreature(*me, minerGUID))
+            npc_scarlet_miner_cartAI(Creature* creature) : PassiveAI(creature)
             {
-                me->SetWalk(false);
-
-                //Not 100% correct, but movement is smooth. Sometimes miner walks faster
-                //than normal, this speed is fast enough to keep up at those times.
-                me->SetSpeed(MOVE_RUN, 1.25f);
-
-                me->GetMotionMaster()->MoveFollow(miner, 1.0f, 0);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1); // Modelid2 is a horse.
             }
-        }
 
-        void PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool apply)
-        {
-            if (!apply)
-                if (Creature* miner = Unit::GetCreature(*me, minerGUID))
+            void JustSummoned(Creature* summon) override
+            {
+                if (summon->GetEntry() == NPC_MINER)
                 {
-                    miner->DisappearAndDie();
-                    me->GetPlayer(*me, me->GetCreatorGUID())->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                    me->GetPlayer(*me, me->GetCreatorGUID())->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    _minerGUID = summon->GetGUID();
+                    summon->AI()->SetGUID(_playerGUID);
                 }
-        }
-    };
+            }
 
+            void SummonedCreatureDespawn(Creature* summon) override
+            {
+                if (summon->GetEntry() == NPC_MINER)
+                    _minerGUID.Clear();
+            }
+
+            void DoAction(const int32 /*param*/) override
+            {
+                if (Creature* miner = ObjectAccessor::GetCreature(*me, _minerGUID))
+                {
+                    me->SetWalk(false);
+
+                    // Not 100% correct, but movement is smooth. Sometimes miner walks faster
+                    // than normal, this speed is fast enough to keep up at those times.
+                    me->SetSpeed(MOVE_RUN, 1.25f);
+
+                    me->GetMotionMaster()->MoveFollow(miner, 1.0f, 0);
+                }
+            }
+
+            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+            {
+                if (apply)
+                {
+                    _playerGUID = who->GetGUID();
+                    me->CastSpell((Unit*)NULL, SPELL_SUMMON_MINER, true);
+                }
+                else
+                {
+                    _playerGUID.Clear();
+                    if (Creature* miner = ObjectAccessor::GetCreature(*me, _minerGUID))
+                        miner->DespawnOrUnsummon();
+                }
+            }
+
+        private:
+            ObjectGuid _minerGUID;
+            ObjectGuid _playerGUID;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_scarlet_miner_cartAI(creature);
+        }
 };
 
 /*####
@@ -991,11 +1013,15 @@ public:
             }
         }
 
-        void InitCartQuest(Player* who)
+        void IsSummonedBy(Unit* summoner) override
         {
-            carGUID = who->GetVehicleBase()->GetGUID();
+            carGUID = summoner->GetGUID();
+        }
+
+        void SetGUID(ObjectGuid const& guid, int32 /*id = 0*/) override
+        {
             InitWaypoint();
-            Start(false, false, who->GetGUID());
+            Start(false, false, guid);
             SetDespawnAtFar(false);
         }
 
@@ -1148,44 +1174,6 @@ public:
     };
 };
 
-/*######
-## go_inconspicuous_mine_car
-######*/
-
-#define SPELL_CART_SUMM   52463
-
-class go_inconspicuous_mine_car : public GameObjectScript
-{
-public:
-    go_inconspicuous_mine_car() : GameObjectScript("go_inconspicuous_mine_car") { }
-
-    bool OnGossipHello(Player* player, GameObject* /*go*/)
-    {
-        if (player->GetQuestStatus(12701) == QUEST_STATUS_INCOMPLETE)
-        {
-            // Hack Why Trinity Dont Support Custom Summon Location
-            if (Creature* miner = player->SummonCreature(28841, 2383.869629f, -5900.312500f, 107.996086f, player->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1))
-            {
-                player->CastSpell(player, SPELL_CART_SUMM, true);
-                if (Creature* car = player->GetVehicleCreatureBase())
-                {
-                    if (car->GetEntry() == 28817)
-                    {
-                        car->AI()->SetGUID(miner->GetGUID());
-                        car->GetPlayer(*car, car->GetCreatorGUID())->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                        car->GetPlayer(*car, car->GetCreatorGUID())->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                        CAST_AI(npc_scarlet_miner::npc_scarlet_minerAI, miner->AI())->InitCartQuest(player);
-                    } else sLog->outError(LOG_FILTER_TSCR, "OnGossipHello vehicle entry is not correct.");
-                } else sLog->outError(LOG_FILTER_TSCR, "OnGossipHello player is not on the vehicle.");
-            } else sLog->outError(LOG_FILTER_TSCR, "OnGossipHello Scarlet Miner cant be found by script.");
-        }
-        return true;
-    }
-
-};
-
-// npc 28912 quest 17217 boss 29001 mob 29007 go 191092
-
 void AddSC_the_scarlet_enclave_c1()
 {
     new npc_unworthy_initiate();
@@ -1200,5 +1188,4 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_scarlet_miner();
     new npc_scarlet_miner_cart();
     new npc_eye_of_acherus();
-    new go_inconspicuous_mine_car();
 }

@@ -20,3 +20,6 @@ REPLACE INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `bytes2`, `a
 (28542, 0, 0x0, 0x1, '51939'), -- 28542 - 51939 - 51939
 (28543, 0, 0x0, 0x1, '51939'), -- 28543 - 51939 - 51939
 (28525, 0, 0x0, 0x1, '51939'); -- 28525 - 51939 - 51939
+
+--
+UPDATE `quest_template` SET `QuestType` = '2' WHERE `quest_template`.`ID` = 12701;
