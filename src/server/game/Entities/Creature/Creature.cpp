@@ -834,6 +834,8 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_HOVER_HEIGHT, 1.0f);
 
+    loot.SetGUID(ObjectGuid::Create<HighGuid::LootObject>(map->GetId(), entry, sObjectMgr->GetGenerator<HighGuid::LootObject>()->Generate()));
+
     return true;
 }
 
@@ -1503,8 +1505,6 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType guid, Map* map, bool addTo
     m_defaultMovementType = MovementGeneratorType(data->movementType);
 
     m_creatureData = data;
-
-    loot.SetGUID(ObjectGuid::Create<HighGuid::LootObject>(data->mapid, data->id, sObjectMgr->GetGenerator<HighGuid::LootObject>()->Generate()));
 
     setActive(data->isActive);
 
