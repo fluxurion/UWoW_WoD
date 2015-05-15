@@ -2093,13 +2093,9 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
             return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
 
         // only spells with SPELL_ATTR3_ONLY_TARGET_GHOSTS can target ghosts
-        if (((AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS) != 0) != unitTarget->HasAuraType(SPELL_AURA_GHOST))
-        {
-            if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS)
-                return SPELL_FAILED_TARGET_NOT_GHOST;
-            else
-                return SPELL_FAILED_BAD_TARGETS;
-        }
+        // gnost playerst could be target by SPELL_ATTR6_CAN_TARGET_INVISIBLE.
+        if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS && !unitTarget->HasAuraType(SPELL_AURA_GHOST))
+            return SPELL_FAILED_TARGET_NOT_GHOST;
 
         if (caster != unitTarget)
         {

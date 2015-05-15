@@ -5492,6 +5492,18 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_RADIUS;
                     spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(10);
                     break;
+                case 54724: // Teleport to Hall of Command
+                case 54725:
+                case 54745:
+                case 54746:
+                case 54699: // Teleport to Heart of Acherus
+                case 54700:
+                case 54742:
+                case 54744:
+                    spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+                    spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
+                    break;
+
                 default:
                     break;
             }
