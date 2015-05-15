@@ -15213,11 +15213,8 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
     }
 
     // visualize enchantment at player and equipped items
-    if (slot == PERM_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (item->GetSlot() * 3), 0, apply ? item->GetEnchantmentId(slot) : 0);
-
-    if (slot == TEMP_ENCHANTMENT_SLOT)
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + 1 + (item->GetSlot() * 3), 1, apply ? item->GetEnchantmentId(slot) : 0);
+    if (item->GetSlot() < EQUIPMENT_SLOT_END)
+        SetVisibleItemSlot(item->GetSlot(), item);
 
     if (apply_dur)
     {
