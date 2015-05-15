@@ -553,7 +553,7 @@ class WorldSession
         void SendAuctionOwnerNotification(OpcodeServer opcode, AuctionEntry* auction, WorldPackets::Item::ItemInstance const& item, bool profit = false);
 
         //Item Enchantment
-        void SendEnchantmentLog(ObjectGuid const& Target, ObjectGuid const& Caster, uint32 ItemID, uint32 SpellID);
+        void SendEnchantmentLog(ObjectGuid const& Target, ObjectGuid const& Caster, ObjectGuid const& item, uint32 ItemID, uint32 SpellID);
         void SendItemEnchantTimeUpdate(ObjectGuid const& Playerguid, ObjectGuid const& Itemguid, uint32 slot, uint32 Duration);
 
         //Taxi

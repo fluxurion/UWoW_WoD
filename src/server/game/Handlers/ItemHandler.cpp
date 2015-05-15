@@ -800,13 +800,13 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::SendEnchantmentLog(ObjectGuid const& Target, ObjectGuid const& Caster, uint32 ItemID, uint32 SpellID)
+void WorldSession::SendEnchantmentLog(ObjectGuid const& Target, ObjectGuid const& Caster, ObjectGuid const& Item, uint32 ItemID, uint32 SpellID)
 {
     //! 6.0.3
     WorldPacket data(SMSG_ENCHANTMENT_LOG, 60);
     data << Caster;
     data << Target;
-    data << ObjectGuid::Empty;
+    data << Item;
     data << uint32(ItemID);
     data << uint32(SpellID);
     data << uint32(0);      //EnchantSlot

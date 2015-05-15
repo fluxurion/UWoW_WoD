@@ -4981,6 +4981,16 @@ void Spell::SendSpellGo()
     castData.CastTime = getMSTime();
 
     uint32 hit = 0;
+
+    for (std::list<TargetInfo>::iterator ihit = m_VisualHitTargetInfo.begin(); ihit != m_VisualHitTargetInfo.end() && ++hit <= 255; ++ihit)
+        castData.HitTargets.push_back(ihit->targetGUID);
+
+    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && ++hit <= 255; ++ighit)
+        castData.HitTargets.push_back(ighit->targetGUID);
+
+    for (std::list<ItemTargetInfo>::const_iterator ighit = m_UniqueItemInfo.begin(); ighit != m_UniqueItemInfo.end() && ++hit <= 255; ++ighit)
+        castData.HitTargets.push_back(ighit->item->GetGUID());
+
     for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end() && ++hit <= 255; ++ihit)
     {
         if (ihit->effectMask == 0)                      // No effect apply - all immuned add state
@@ -5001,12 +5011,6 @@ void Spell::SendSpellGo()
             castData.MissStatus.push_back(status);
         }
     }
-
-    for (std::list<TargetInfo>::iterator ihit = m_VisualHitTargetInfo.begin(); ihit != m_VisualHitTargetInfo.end() && ++hit <= 255; ++ihit)
-        castData.HitTargets.push_back(ihit->targetGUID);
-
-    for (std::list<GOTargetInfo>::const_iterator ighit = m_UniqueGOTargetInfo.begin(); ighit != m_UniqueGOTargetInfo.end() && ++hit <= 255; ++ighit)
-        castData.HitTargets.push_back(ighit->targetGUID);
 
     ///// @todo implement multiple targets
     //if (m_targets.GetUnitTarget())
