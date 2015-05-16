@@ -37,6 +37,7 @@ namespace WorldPackets
 {
     namespace Spells
     {
+        struct SpellCastRequest;
         struct SpellTargetData;
     }
 }
@@ -153,7 +154,7 @@ class SpellCastTargets
 
     public:
         SpellCastTargets();
-        SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellTargetData const& spellTargetData);
+        SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest);
         ~SpellCastTargets();
 
         void Read(ByteBuffer& data, Unit* caster);

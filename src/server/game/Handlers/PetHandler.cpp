@@ -453,7 +453,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
         return;
     }
 
-    SpellCastTargets targets(caster, cast.Cast.Target);
+    SpellCastTargets targets(caster, cast.Cast);
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cast.Cast.SpellID);
     if (!spellInfo)

@@ -96,38 +96,41 @@ SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
 {
 }
 
-SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellTargetData const& spellTargetData) :
-    m_targetMask(spellTargetData.Flags), m_objectTarget(nullptr), m_itemTarget(nullptr),
-    m_objectTargetGUID(spellTargetData.Unit), m_itemTargetGUID(spellTargetData.Item),
-    m_itemTargetEntry(0), m_elevation(0.0f), m_speed(0.0f), m_strTarget(spellTargetData.Name)
+SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest) :
+    m_targetMask(spellCastRequest.Target.Flags), m_objectTarget(nullptr), m_itemTarget(nullptr),
+    m_objectTargetGUID(spellCastRequest.Target.Unit), m_itemTargetGUID(spellCastRequest.Target.Item),
+    m_itemTargetEntry(0), m_elevation(0.0f), m_speed(0.0f), m_strTarget(spellCastRequest.Target.Name)
 {
-    if (spellTargetData.SrcLocation.HasValue)
+    if (spellCastRequest.Target.SrcLocation.HasValue)
     {
-        m_src._transportGUID = spellTargetData.SrcLocation.Value.Transport;
+        m_src._transportGUID = spellCastRequest.Target.SrcLocation.Value.Transport;
         Position* pos;
         if (!m_src._transportGUID.IsEmpty())
             pos = &m_src._transportOffset;
         else
             pos = &m_src._position;
 
-        pos->Relocate(spellTargetData.SrcLocation.Value.Location);
-        if (spellTargetData.Orientation.HasValue)
-            pos->SetOrientation(spellTargetData.Orientation.Value);
+        pos->Relocate(spellCastRequest.Target.SrcLocation.Value.Location);
+        if (spellCastRequest.Target.Orientation.HasValue)
+            pos->SetOrientation(spellCastRequest.Target.Orientation.Value);
     }
 
-    if (spellTargetData.DstLocation.HasValue)
+    if (spellCastRequest.Target.DstLocation.HasValue)
     {
-        m_dst._transportGUID = spellTargetData.DstLocation.Value.Transport;
+        m_dst._transportGUID = spellCastRequest.Target.DstLocation.Value.Transport;
         Position* pos;
         if (!m_dst._transportGUID.IsEmpty())
             pos = &m_dst._transportOffset;
         else
             pos = &m_dst._position;
 
-        pos->Relocate(spellTargetData.DstLocation.Value.Location);
-        if (spellTargetData.Orientation.HasValue)
-            pos->SetOrientation(spellTargetData.Orientation.Value);
+        pos->Relocate(spellCastRequest.Target.DstLocation.Value.Location);
+        if (spellCastRequest.Target.Orientation.HasValue)
+            pos->SetOrientation(spellCastRequest.Target.Orientation.Value);
     }
+
+    SetElevation(spellCastRequest.MissileTrajectory.Pitch);
+    SetSpeed(spellCastRequest.MissileTrajectory.Speed);
 
     Update(caster);
 }

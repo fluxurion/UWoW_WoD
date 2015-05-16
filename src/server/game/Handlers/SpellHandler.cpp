@@ -46,7 +46,7 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::ItemUse& cast)
         return;
 
     // client provided targets
-    SpellCastTargets targets(pUser, cast.Cast.Target);
+    SpellCastTargets targets(pUser, cast.Cast);
 
     if (cast.Cast.Misc >= MAX_GLYPH_SLOT_INDEX)
     {
@@ -334,7 +334,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     //spellInfo = caster->GetCastSpellInfo(spellInfo);
 
     // client provided targets
-    SpellCastTargets targets(mover, cast.Cast.Target);
+    SpellCastTargets targets(mover, cast.Cast);
     // auto-selection buff level base at target level (in spellInfo)
     if (targets.GetUnitTarget())
     {
