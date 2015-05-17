@@ -5030,14 +5030,17 @@ void Spell::SendSpellGo()
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
     {
         SpellPowerEntry power;
-        GetSpellInfo()->GetSpellPowerByCasterPower(m_caster, power) ? 1 : 0;
-        Powers powerType = Powers(power.PowerType);
+        if (GetSpellInfo()->GetSpellPowerByCasterPower(m_caster, power))
+        {
+            Powers powerType = Powers(power.PowerType);
 
-        /// @todo Implement multiple power types
-        WorldPackets::Spells::SpellPowerData powerData;
-        powerData.Type = powerType;
-        powerData.Cost = m_caster->GetPower(powerType);
-        castData.RemainingPower.push_back(powerData);
+            /// @todo Implement multiple power types
+            WorldPackets::Spells::SpellPowerData powerData;
+            powerData.Type = powerType;
+            powerData.Cost = m_caster->GetPower(powerType);
+            castData.RemainingPower.push_back(powerData);
+        }else
+            castData.CastFlags &= ~CAST_FLAG_POWER_LEFT_SELF;
     }
 
     if (castFlags & CAST_FLAG_RUNE_LIST) // rune cooldowns list
