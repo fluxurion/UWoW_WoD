@@ -1185,15 +1185,12 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targ
     else if (GetTypeId() == TYPEID_PLAYER)
         valCount = PLAYER_END_NOT_SELF;
     
-    bool check = false;
     for (uint16 index = 0; index < valCount; ++index)
     {
-        check = (_fieldNotifyFlags & flags[index] || ((flags[index] & visibleFlag) & UF_FLAG_SPECIAL_INFO) || (flags[index] & visibleFlag)) &&
-            (updateType == UPDATETYPE_VALUES ? _changedFields[index] : m_uint32Values[index]);
-        if (!check)
-            check = index == OBJECT_FIELD_DYNAMIC_FLAGS;    //OBJECT_FIELD_DYNAMIC_FLAGS changed dinamically where and should be always checked.
-
-        if (check)
+        if (_fieldNotifyFlags & flags[index] ||
+            ((flags[index] & visibleFlag) & UF_FLAG_SPECIAL_INFO) ||
+            ((updateType == UPDATETYPE_VALUES ? _changedFields[index] : m_uint32Values[index]) && (flags[index] & visibleFlag)) ||
+            (index == UNIT_FIELD_AURA_STATE && isType(TYPEMASK_UNIT) && HasFlag(UNIT_FIELD_AURA_STATE, PER_CASTER_AURA_STATE_MASK)))
         {
             updateMask.SetBit(index);
 
