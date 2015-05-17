@@ -484,6 +484,8 @@ class Quest
         uint32 EmoteOnIncompleteDelay   = 0;
 };
 
+typedef std::map<int32/*idx*/, int32/*data*/> QuestStatusDatas;
+
 struct QuestStatusData
 {
     QuestStatusData(): Status(QUEST_STATUS_NONE), Timer(0)
@@ -492,7 +494,7 @@ struct QuestStatusData
 
     QuestStatus Status;
     uint32 Timer;
-    std::vector<int32> ObjectiveData;
+    QuestStatusDatas ObjectiveData;
 };
 
 enum QuestObjectiveType
