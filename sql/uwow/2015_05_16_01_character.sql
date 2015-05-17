@@ -1,0 +1,1 @@
+ALTER TABLE `character_queststatus_objectives` CHANGE `objective` `objective` INT(11) UNSIGNED NOT NULL DEFAULT '0';

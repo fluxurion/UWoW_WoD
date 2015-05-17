@@ -16000,6 +16000,10 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                         if (!GetQuestObjectiveData(qInfo, obj.StorageIndex))
                             return false;
                         break;
+                    case QUEST_OBJECTIVE_LEARNSPELL:
+                        if (!HasSpell(obj.ObjectID))
+                            return false;
+                        break;
                     default:
                         sLog->outError(LOG_FILTER_PLAYER, "Player::CanCompleteQuest unknown objective type %u", obj.Type);
                         return false;
@@ -16149,8 +16153,6 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     // check for repeatable quests status reset
     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
     
-    questStatusData.ObjectiveData.resize(quest->Objectives.size(), 0);
-
     GiveQuestSourceItem(quest);
     AdjustQuestReqItemCount(quest);
 
@@ -17392,6 +17394,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid)
                             SetQuestObjectiveData(qInfo, obj.StorageIndex, curKillCount + addKillCount);
                             SendQuestUpdateAddCredit(qInfo, guid, obj, curKillCount + addKillCount);
                         }
+
                         if (CanCompleteQuest(questid))
                             CompleteQuest(questid);
 
@@ -17684,9 +17687,6 @@ bool Player::HasQuestForItem(uint32 itemid) const
 
 int32 Player::GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const
 {
-    if (storageIndex < 0)
-        sLog->outError(LOG_FILTER_PLAYER, "GetQuestObjectiveData: called for quest %u with invalid StorageIndex %d (objective data is not tracked)", quest->GetQuestId(), storageIndex);
-
     auto itr = m_QuestStatus.find(quest->GetQuestId());
 
     if (itr == m_QuestStatus.end())
@@ -17697,20 +17697,21 @@ int32 Player::GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const
 
     QuestStatusData const& status = itr->second;
 
-    if (uint8(storageIndex) >= status.ObjectiveData.size())
-    {
-        sLog->outError(LOG_FILTER_PLAYER, "GetQuestObjectiveData: player %s (%s) quest %u out of range StorageIndex %u", GetName(), GetGUID().ToString().c_str(), quest->GetQuestId(), storageIndex);
-        return 0;
-    }
+    //if (storageIndex >= (int8)status.ObjectiveData.size())
+    //{
+    //    sLog->outError(LOG_FILTER_PLAYER, "GetQuestObjectiveData: player %s (%s) quest %u out of range StorageIndex %u", GetName(), GetGUID().ToString().c_str(), quest->GetQuestId(), storageIndex);
+    //    return 0;
+    //}
 
-    return status.ObjectiveData[storageIndex];
+    auto sItr = status.ObjectiveData.find(storageIndex);
+    if (sItr == status.ObjectiveData.end())
+        return 0;
+
+    return sItr->second;
 }
 
 void Player::SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data)
 {
-    if (storageIndex < 0)
-        sLog->outError(LOG_FILTER_PLAYER, "SetQuestObjectiveData: called for quest %u with invalid StorageIndex %d (objective data is not tracked)", quest->GetQuestId(), storageIndex);
-
     auto itr = m_QuestStatus.find(quest->GetQuestId());
 
     if (itr == m_QuestStatus.end())
@@ -17721,11 +17722,11 @@ void Player::SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 
 
     QuestStatusData& status = itr->second;
 
-    if (uint8(storageIndex) >= status.ObjectiveData.size())
-    {
-        sLog->outError(LOG_FILTER_PLAYER, "SetQuestObjectiveData: player %s (%s) quest %u out of range StorageIndex %u", GetName(), GetGUID().ToString().c_str(), quest->GetQuestId(), storageIndex);
-        return;
-    }
+    //if (storageIndex >= (int8)status.ObjectiveData.size())
+    //{
+    //    sLog->outError(LOG_FILTER_PLAYER, "SetQuestObjectiveData: player %s (%s) quest %u out of range StorageIndex %u", GetName(), GetGUID().ToString().c_str(), quest->GetQuestId(), storageIndex);
+    //    return;
+    //}
 
     // No change
     if (status.ObjectiveData[storageIndex] == data)
@@ -17738,8 +17739,9 @@ void Player::SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 
     m_QuestStatusSave[quest->GetQuestId()] = QUEST_DEFAULT_SAVE_TYPE;
 
     // Update quest fields
+    // Negative index  - hiden
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
-    if (log_slot < MAX_QUEST_LOG_SIZE)
+    if (log_slot < MAX_QUEST_LOG_SIZE && storageIndex >= 0)
         SetQuestSlotCounter(log_slot, storageIndex, status.ObjectiveData[storageIndex]);
 }
 
@@ -19579,9 +19581,6 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                     ++slot;
                 }
 
-                // Resize quest objective data to proper size
-                questStatusData.ObjectiveData.resize(quest->GetObjectives().size());
-
                 sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Quest status is {%u} for quest {%u} for player (GUID: %u)", questStatusData.Status, quest_id, GetGUID().GetCounter());
             }
         }
@@ -19615,17 +19614,15 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
             auto itr = m_QuestStatus.find(questID);
             if (itr != m_QuestStatus.end())
             {
-                QuestStatusData& questStatusData = itr->second;
-                uint8 objectiveIndex = fields[1].GetUInt8();
+                Quest const* qInfo = sObjectMgr->GetQuestTemplate(questID);
+                if (!qInfo)
+                    continue;
 
-                if (objectiveIndex < questStatusData.ObjectiveData.size())
-                {
-                    int32 data = fields[2].GetInt32();
-                    questStatusData.ObjectiveData[objectiveIndex] = data;
-                    SetQuestSlotCounter(slot, objectiveIndex, data);
-                }
-                else
-                    sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player %s (%s) has quest %d out of range objective index %u.", GetName(), GetGUID().ToString().c_str(), questID, objectiveIndex);
+                QuestStatusData& questStatusData = itr->second;
+                int8 objectiveIndex = fields[1].GetInt8();
+                int32 data = fields[2].GetInt32();
+
+                SetQuestObjectiveData(qInfo, objectiveIndex, data);
             }
             else
                 sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player %s (%s) does not have quest %d but has objective data for it.", GetName(), GetGUID().ToString().c_str(), questID);
@@ -21446,13 +21443,13 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
                 trans->Append(stmt);
 
                 // Save objectives
-                for (uint32 i = 0; i < statusItr->second.ObjectiveData.size(); ++i)
+                for (QuestObjective const& obj : quest->GetObjectives())
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_QUESTSTATUS_OBJECTIVES);
                     stmt->setUInt64(0, guid);
                     stmt->setUInt32(1, statusItr->first);
-                    stmt->setUInt8(2, i);
-                    stmt->setInt32(3, statusItr->second.ObjectiveData[i]);
+                    stmt->setInt8(2, obj.StorageIndex);
+                    stmt->setInt32(3, GetQuestObjectiveData(quest, obj.StorageIndex));
                     stmt->setUInt32(4, GetSession()->GetAccountId());
                     trans->Append(stmt);
                 }
