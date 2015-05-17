@@ -57,3 +57,6 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 ('371147', '4', '-8275.08', '1489.451', '43.04533', '5000'), 
 ('371147', '5', '-8266.291', '1487.553', '42.5231', '5000'), 
 ('371147', '6', '-8260.721', '1486.349', '42.16659', '5000');
+
+-- Q: The Great Bank Heist 14122
+UPDATE `creature_template` SET `unit_flags2` = '0' WHERE `creature_template`.`entry` = 35486;

@@ -1049,6 +1049,8 @@ enum bank_text
 enum bank_data
 {
     SPELL_TIMER             = 67502,
+    SPELL_POWER_CORRECT     = 67493, //The Great Bank Heist: Power Correct
+    SPELL_POWER_INCORECT    = 67494,//The Great Bank Heist: Power Incorrect
 };
 
 // The Great Bank Heist: Vault Interact
@@ -1149,6 +1151,7 @@ class npc_hack_bank_controller : public CreatureScript
             events.Reset();
             _select = 0;
             _playerGUID.Clear();
+            //me->setPowerType(POWER_TYPE_VAULT_CRACKING_PROGRESS);
         }
 
         void generate()
@@ -1174,8 +1177,8 @@ class npc_hack_bank_controller : public CreatureScript
             if (hacking_spell[_select] == type)
             {
                 // Right
-                me->EnergizeBySpell(me, type, 10, POWER_TYPE_VAULT_CRACKING_PROGRESS);
-                if (me->GetPower(POWER_TYPE_VAULT_CRACKING_PROGRESS) < 100)
+                me->CastSpell(me, SPELL_POWER_CORRECT, true);
+                if (me->GetPower(me->getPowerType()) < 100)
                 {
                     events.ScheduleEvent(EVENT_BANK_GENERATE, urand(1000, 5000));
                     sCreatureTextMgr->SendChat(me, TEXT_RIGHT, _playerGUID);
@@ -1196,8 +1199,7 @@ class npc_hack_bank_controller : public CreatureScript
                 events.ScheduleEvent(EVENT_BANK_GENERATE, 5000);
                 sCreatureTextMgr->SendChat(me, TEXT_WRONG, _playerGUID);
                 sCreatureTextMgr->SendChat(me, TEXT_EMPTY_STRING, _playerGUID);
-                if (me->GetPower(POWER_TYPE_VAULT_CRACKING_PROGRESS) > 5)
-                    me->EnergizeBySpell(me, type, -5, POWER_TYPE_VAULT_CRACKING_PROGRESS);
+                me->CastSpell(me, SPELL_POWER_INCORECT, true);
             }
 
             // privent lagging casts.

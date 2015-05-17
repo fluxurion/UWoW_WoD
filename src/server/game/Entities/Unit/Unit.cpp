@@ -10503,9 +10503,14 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit* victim, DamageInfo* /*dmgInfo
     return true;
 }
 
-void Unit::setPowerType(Powers new_powertype)
+void Unit::setPowerType(Powers fieldPower)
 {
-    SetFieldPowerType(new_powertype);
+    if (getPowerType() == fieldPower)
+        return;
+
+    //! For expl. Vehicle power POWER_TYPE_VAULT_CRACKING_PROGRESS = 82 has field = 0;
+    //! Maybe it's index? but for vehicle send power category.
+    SetFieldPowerType(fieldPower);
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -10521,22 +10526,22 @@ void Unit::setPowerType(Powers new_powertype)
                 owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_POWER_TYPE);
         }
     }
-
+    Powers new_powertype = fieldPower;
     switch (new_powertype)
     {
-        default:
         case POWER_MANA:
             break;
+        default:
         case POWER_RAGE:
-            SetMaxPower(POWER_RAGE, GetCreatePowers(POWER_RAGE));
-            SetPower(POWER_RAGE, 0);
+            SetMaxPower(new_powertype, GetCreatePowers(new_powertype));
+            SetPower(new_powertype, GetPowerForReset(new_powertype, 0));
             break;
         case POWER_FOCUS:
-            SetMaxPower(POWER_FOCUS, GetCreatePowers(POWER_FOCUS));
-            SetPower(POWER_FOCUS, GetCreatePowers(POWER_FOCUS));
+            SetMaxPower(new_powertype, GetCreatePowers(new_powertype));
+            SetPower(new_powertype, GetCreatePowers(new_powertype));
             break;
         case POWER_ENERGY:
-            SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
+            SetMaxPower(new_powertype, GetCreatePowers(new_powertype));
             break;
     }
 }
@@ -16144,6 +16149,8 @@ int32 Unit::GetCreatePowers(Powers power) const
             return 4;
         case POWER_COMBO_POINTS:
             return 5;
+        case POWER_TYPE_VAULT_CRACKING_PROGRESS:
+            return 100;
         default:
             break;
     }
