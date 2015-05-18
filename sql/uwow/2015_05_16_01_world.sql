@@ -1,3 +1,37 @@
+--
+delete from creature where id in (34696, 34689, 34695, 48304) and phaseMask != 15;
+-- Mage Trainer
+SELECT `guid` FROM creature where id = 34696 LIMIT 1 INTO @warlock;
+UPDATE  `creature_template` SET  `AIName` =  'SmartAI' WHERE  `entry` =34689;
+UPDATE  `creature_equip_template` SET  `ItemEntry1` =  '11588' WHERE `entry` =34689;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 34689;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(34689, 0, 0, 0, 1, 0, 100, 0, 5000, 5000, 15000, 15000, 11, 69608, 0, 0, 0, 0, 0, 10, @warlock, 34696, 0, 0, 0, 0, 0, 'Cast Fireball OOC');
+
+-- Warlock Trainer
+SELECT `guid` FROM creature where id = 34689 LIMIT 1 INTO @mage;
+UPDATE  `creature_template` SET  `AIName` =  'SmartAI' WHERE  `entry` =34696;
+UPDATE  `creature_equip_template` SET  `ItemEntry1` =  '27923' WHERE `entry` =34696;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 34696;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(34696, 0, 0, 0, 1, 0, 100, 0, 10000, 10000, 20000, 20000, 11, 69607, 0, 0, 0, 0, 0, 10, @mage, 34689, 0, 0, 0, 0, 0, 'Cast Shadow bolt OOC');
+
+-- Shaman Trainer
+-- 69626. 69630
+UPDATE  `creature_template` SET  `AIName` =  'SmartAI' WHERE  `entry` =34695;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 34695;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(34695, 0, 0, 0, 1, 0, 100, 0, 500, 1000, 600000, 600000, 11, 78273, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Cast Flametongue Weapon on Spawn'),
+(34695, 0, 1, 0, 1, 0, 100, 0, 7500, 7500, 20000, 20000, 11, 69626, 0, 0, 0, 0, 0, 10, @mage, 34689, 0, 0, 0, 0, 0, 'Cast Lightning Bolt OOC');
+
+-- Hunter Trainer
+SELECT `guid` FROM creature where id = 48304 LIMIT 1 INTO @train;
+UPDATE  `creature_template` SET  `AIName` =  'SmartAI' WHERE  `entry` =34673;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 34673;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(34673, 0, 0, 0, 1, 0, 100, 0, 10000, 10000, 20000, 20000, 11, 69509, 0, 0, 0, 0, 0, 10, @train, 48304, 0, 0, 0, 0, 0, 'Cast Shoot Gun OOC');
+
+--
 DELETE FROM `waypoint_data` WHERE `id` = 371140;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `delay`) VALUES 
 ('371140', '1', '-8289.612', '1479.857', '43.79533', '0'), 
