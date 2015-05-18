@@ -2348,21 +2348,14 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
         case SMART_TARGET_CREATURE_GUID:
         {
             Creature* target = NULL;
-            if (e.target.unitGUID.entry)
-            {
-                ObjectGuid guid = ObjectGuid::Create<HighGuid::Creature>(trigger ? trigger->GetMapId() : GetBaseObject()->GetMapId(), e.target.unitGUID.entry, e.target.unitGUID.guid);
-                target = HashMapHolder<Creature>::Find(guid);
-            }
-            else
-            {
-                if (!trigger && !GetBaseObject())
-                {
-                    sLog->outError(LOG_FILTER_SQL, "SMART_TARGET_CREATURE_GUID can not be used without invoker and without entry");
-                    break;
-                }
 
-                target = FindCreatureNear(trigger ? trigger : GetBaseObject(), e.target.unitGUID.guid);
+            if (!trigger && !GetBaseObject())
+            {
+                sLog->outError(LOG_FILTER_SQL, "SMART_TARGET_CREATURE_GUID can not be used without invoker and without entry");
+                break;
             }
+
+            target = FindCreatureNear(trigger ? trigger : GetBaseObject(), e.target.unitGUID.guid);
 
             if (target)
                 l->push_back(target);
@@ -2371,21 +2364,14 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
         case SMART_TARGET_GAMEOBJECT_GUID:
         {
             GameObject* target = NULL;
-            if (e.target.unitGUID.entry)
-            {
-                ObjectGuid guid = ObjectGuid::Create<HighGuid::GameObject>(trigger ? trigger->GetMapId() : GetBaseObject()->GetMapId(), e.target.goGUID.entry, e.target.goGUID.guid);
-                target = HashMapHolder<GameObject>::Find(guid);
-            }
-            else
-            {
-                if (!trigger && !GetBaseObject())
-                {
-                    sLog->outError(LOG_FILTER_SQL, "SMART_TARGET_GAMEOBJECT_GUID can not be used without invoker and without entry");
-                    break;
-                }
 
-                target = FindGameObjectNear(trigger ? trigger : GetBaseObject(), e.target.goGUID.guid);
+            if (!trigger && !GetBaseObject())
+            {
+                sLog->outError(LOG_FILTER_SQL, "SMART_TARGET_GAMEOBJECT_GUID can not be used without invoker and without entry");
+                break;
             }
+
+            target = FindGameObjectNear(trigger ? trigger : GetBaseObject(), e.target.goGUID.guid);
 
             if (target)
                 l->push_back(target);

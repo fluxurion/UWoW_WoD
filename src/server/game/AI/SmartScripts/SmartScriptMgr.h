@@ -1036,7 +1036,7 @@ struct SmartTarget
 
         struct
         {
-            ObjectGuid::LowType guid;
+            uint32 guid;
             uint32 entry;
         } unitGUID;
 
@@ -1072,7 +1072,7 @@ struct SmartTarget
 
         struct
         {
-            ObjectGuid::LowType guid;
+            uint32 guid;
             uint32 entry;
         } goGUID;
 

@@ -1,1 +1,1 @@
-ALTER TABLE `character_queststatus_objectives` CHANGE `objective` `objective` INT(11) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE  `character_queststatus_objectives` CHANGE  `objective`  `objective` TINYINT( 3 ) NOT NULL DEFAULT  '0'
