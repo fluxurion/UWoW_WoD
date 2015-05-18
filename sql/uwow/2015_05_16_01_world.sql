@@ -94,3 +94,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 
 -- Q: The Great Bank Heist 14122
 UPDATE `creature_template` SET `unit_flags2` = '0' WHERE `creature_template`.`entry` = 35486;
+
+-- Q: 14125
+INSERT INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES ('14125', '0', '8', '37598', '0', '0', '0', '0', '0', '0');
+UPDATE `quest_template` SET `StartScript` = '14125' WHERE `quest_template`.`ID` = 14125;

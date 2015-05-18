@@ -365,24 +365,24 @@ class Quest
         uint32 GetRewChoiceItemDisplayId(uint8 index) const;
 
         // multiple values
-        uint32 ItemDrop[QUEST_ITEM_DROP_COUNT];
-        uint32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT];
+        uint32 ItemDrop[QUEST_ITEM_DROP_COUNT] = {};
+        uint32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT] = {};
 
-        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
-        uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
-        uint32 RewardChoiceItemDisplayId[QUEST_REWARD_CHOICES_COUNT];
-        uint32 RewardItemId[QUEST_REWARD_ITEM_COUNT];
-        uint32 RewardItemCount[QUEST_REWARD_ITEM_COUNT];
-        uint32 RewardFactionId[QUEST_REWARD_REPUTATIONS_COUNT];
-        int32  RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT];
-        int32  RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT];
-        uint32 DetailsEmote[QUEST_EMOTE_COUNT];
-        uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT];
-        uint32 OfferRewardEmote[QUEST_EMOTE_COUNT];
-        uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT];
+        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] = {};
+        uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT] = {};
+        uint32 RewardChoiceItemDisplayId[QUEST_REWARD_CHOICES_COUNT] = {};
+        uint32 RewardItemId[QUEST_REWARD_ITEM_COUNT] = {};
+        uint32 RewardItemCount[QUEST_REWARD_ITEM_COUNT] = {};
+        uint32 RewardFactionId[QUEST_REWARD_REPUTATIONS_COUNT] = {};
+        int32  RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = {};
+        int32  RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
+        uint32 DetailsEmote[QUEST_EMOTE_COUNT] = {};
+        uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT] = {};
+        uint32 OfferRewardEmote[QUEST_EMOTE_COUNT] = {};
+        uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT] = {};
         // 4.x
-        uint32 RewardCurrencyId[QUEST_REWARD_CURRENCY_COUNT];
-        uint32 RewardCurrencyCount[QUEST_REWARD_CURRENCY_COUNT];
+        uint32 RewardCurrencyId[QUEST_REWARD_CURRENCY_COUNT] = {};
+        uint32 RewardCurrencyCount[QUEST_REWARD_CURRENCY_COUNT] = {};
 
         uint32 GetRewChoiceItemsCount() const { return m_rewChoiceItemsCount; }
         uint32 GetRewItemsCount() const { return m_rewItemsCount; }
@@ -411,17 +411,9 @@ class Quest
         uint32 PackageID;
         int32  QuestSortID;
         uint32 MinLevel;
-        uint32 MaxLevel;
         int32  Level;
         uint32 QuestInfoID;
-        int32  AllowableClasses;
         int32  AllowableRaces;
-        uint32 RequiredSkillId;
-        uint32 RequiredSkillPoints;
-        uint32 RequiredMinRepFaction;
-        int32  RequiredMinRepValue;
-        uint32 RequiredMaxRepFaction;
-        int32  RequiredMaxRepValue;
         uint32 SuggestedPlayers;
         uint32 LimitTime;
         uint32 Flags;
@@ -429,15 +421,10 @@ class Quest
         uint32 RewardTitleId;
         uint32 RewardTalents;
         int32  RewardArenaPoints;
-        int32  PrevQuestID;
-        int32  NextQuestID;
-        int32  ExclusiveGroup;
         uint32 NextQuestIdChain;
         uint32 RewardXPDifficulty;
         float  Float10;
         uint32 SourceItemId;
-        uint32 SourceItemIdCount;
-        uint32 SourceSpellID;
         std::string LogTitle;
         std::string LogDescription;
         std::string QuestDescription;
@@ -453,8 +440,6 @@ class Quest
         uint32 RewardBonusMoney;
         uint32 RewardDisplaySpell;
         int32  RewardSpell;
-        uint32 RewardMailTemplateId;
-        uint32 RewardMailDelay;
         uint32 POIContinent;
         float  POIx;
         float  POIy;
@@ -475,13 +460,29 @@ class Quest
         uint32 SoundTurnIn;
         uint32 AreaGroupID;
 
-        uint32 SpecialFlags; // custom flags, not sniffed/WDB
-
         // quest_request_items table
         uint32 EmoteOnComplete          = 0;
         uint32 EmoteOnIncomplete        = 0;
         uint32 EmoteOnCompleteDelay     = 0;
         uint32 EmoteOnIncompleteDelay   = 0;
+
+        // quest_template_addon table (custom data)
+        uint32 MaxLevel             = 0;
+        uint32 AllowableClasses     = 0;
+        uint32 SourceSpellID        = 0;
+        int32  PrevQuestID          = 0;
+        int32  NextQuestID          = 0;
+        int32  ExclusiveGroup       = 0;
+        uint32 RewardMailTemplateId = 0;
+        uint32 RewardMailDelay      = 0;
+        uint32 RequiredSkillId      = 0;
+        uint32 RequiredSkillPoints  = 0;
+        uint32 RequiredMinRepFaction = 0;
+        int32  RequiredMinRepValue  = 0;
+        uint32 RequiredMaxRepFaction = 0;
+        int32  RequiredMaxRepValue  = 0;
+        uint32 SourceItemIdCount    = 0;
+        uint32 SpecialFlags         = 0; // custom flags, not sniffed/WDB
 };
 
 typedef std::map<int32/*idx*/, int32/*data*/> QuestStatusDatas;
