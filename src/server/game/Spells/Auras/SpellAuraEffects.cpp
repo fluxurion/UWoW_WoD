@@ -7756,6 +7756,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
             case 24791: // Summon Royal Air, Trigger
             case 24792: // Summon Royal Earth, Trigger
             case 24793: // Summon Royal Water, Trigger
+            case 68281: // Goblin quest: KTC Snapflash
             {
                 // All this spells trigger a spell that requires reagents; if the
                 // triggered spell is cast as "triggered", reagents are not consumed
