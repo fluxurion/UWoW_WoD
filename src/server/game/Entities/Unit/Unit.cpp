@@ -21480,11 +21480,11 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     data << GetGUID();
     data << uint32(m_movementCounter++);
 
-    data << float(vsin);
     data << float(vcos);
+    data << float(vsin);
 
-    data << float(speedZ);
     data << float(speedXY);
+    data << float(speedZ);
 
     player->GetSession()->SendPacket(&data);
 }
