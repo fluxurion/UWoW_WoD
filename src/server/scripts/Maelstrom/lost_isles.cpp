@@ -460,6 +460,7 @@ enum miner_text
     TEXT_MINER_5      = 5,
 };
 
+//! If something wrong loot ak SPELL_ATTR3_NO_INITIAL_AGGRO on spell.cpp
 class npc_frightened_miner : public CreatureScript
 {
 public:
@@ -509,6 +510,9 @@ public:
             summon->AddPlayerInPersonnalVisibilityList(plrGUID);
             summon->SetWalk(false);
             summon->SetSpeed(MOVE_RUN, 1.25f);
+            summon->setFaction(35);
+            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            summon->SetReactState(REACT_PASSIVE);
             SetFollowerGUID(summon->GetGUID());
             //summon->GetMotionMaster()->MoveFollow(me, 1.0f, 0);
             cartGUID = summon->GetGUID();
