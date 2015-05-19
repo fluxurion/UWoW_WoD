@@ -477,6 +477,8 @@ enum DifficultyFlags
     DIFFICULTY_FLAG_DISPLAY_MYTHIC  = 0x80  // Controls icon displayed on minimap when inside the instance
 };
 
+#define MAX_BOUND                  2
+
 enum ScenarioFlags
 {
     SCENARIO_FLAG_CHALLENGE             = 0x1,

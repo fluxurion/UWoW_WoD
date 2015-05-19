@@ -158,6 +158,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
                     pSave = groupBind->save;
             }
         }
+
         if (pSave)
         {
             // solo/perm/group
@@ -166,6 +167,8 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             // it is possible that the save exists but the map doesn't
             if (!map)
                 map = CreateInstance(newInstanceId, pSave, pSave->GetDifficultyID());
+            else if(map->GetDifficultyID() != pSave->GetDifficultyID())
+                map->SetSpawnMode(pSave->GetDifficultyID());
         }
         else
         {
@@ -179,6 +182,8 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             map = FindInstanceMap(newInstanceId);
             if (!map)
                 map = CreateInstance(newInstanceId, NULL, diff);
+            else if(map->GetDifficultyID() != diff)
+                map->SetSpawnMode(diff);
         }
     }
 

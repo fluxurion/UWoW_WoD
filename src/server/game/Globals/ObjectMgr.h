@@ -1394,6 +1394,20 @@ class ObjectMgr
             return 5;
         }
 
+        //Get boundType from difficulty
+        uint8 GetboundTypeFromDifficulty(uint8 difficulty)
+        {
+            switch (difficulty)
+            {
+                case DIFFICULTY_HEROIC:
+                    return 1;
+                default:
+                    return 0;
+            }
+
+            return 0;
+        }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;

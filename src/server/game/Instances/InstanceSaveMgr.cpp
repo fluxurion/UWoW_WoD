@@ -160,6 +160,7 @@ void InstanceSaveManager::UnloadInstanceSave(uint32 InstanceId)
 InstanceSave::InstanceSave(uint16 MapId, uint32 InstanceId, Difficulty difficulty, bool canReset)
 : m_instanceid(InstanceId), m_mapid(MapId), m_toDelete(false), m_difficulty(difficulty), m_canReset(canReset)
 {
+    m_canBeSave = difficulty != DIFFICULTY_LFR && difficulty != DIFFICULTY_HC_SCENARIO && difficulty != DIFFICULTY_N_SCENARIO && difficulty != FLEXIBLE_DIFFICULTY;
 }
 
 InstanceSave::~InstanceSave()
@@ -175,7 +176,6 @@ void InstanceSave::SaveToDB()
 {
     // save instance data too
     std::string data;
-    uint32 completedEncounters = 0;
     uint32 challenge = 0;
     Map* map = sMapMgr->FindMap(GetMapId(), m_instanceid);
     if (map)
@@ -184,7 +184,7 @@ void InstanceSave::SaveToDB()
         if (InstanceScript* instanceScript = ((InstanceMap*)map)->GetInstanceScript())
         {
             data = instanceScript->GetSaveData();
-            completedEncounters = instanceScript->GetCompletedEncounterMask();
+            m_completedEncounter = instanceScript->GetCompletedEncounterMask();
             challenge = instanceScript->GetChallengeProgresTime();
         }
     }
@@ -194,7 +194,7 @@ void InstanceSave::SaveToDB()
     stmt->setUInt16(1, GetMapId());
     stmt->setUInt8(2, uint8(GetDifficultyID()));
     stmt->setUInt32(3, challenge);
-    stmt->setUInt32(4, completedEncounters);
+    stmt->setUInt32(4, m_completedEncounter);
     stmt->setString(5, data);
     CharacterDatabase.Execute(stmt);
 }

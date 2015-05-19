@@ -90,7 +90,7 @@ Group::~Group()
     // it is undefined whether objectmgr (which stores the groups) or instancesavemgr
     // will be unloaded first so we must be prepared for both cases
     // this may unload some instance saves
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < MAX_BOUND; ++i)
         for (BoundInstancesMap::iterator itr2 = m_boundInstances[i].begin(); itr2 != m_boundInstances[i].end(); ++itr2)
             itr2->second.save->RemoveGroup(this);
 
@@ -157,7 +157,8 @@ bool Group::Create(Player* leader)
 
         ASSERT(AddMember(leader)); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
 
-        Player::ConvertInstancesToGroup(leader, this, false);
+        if (!isLFGGroup())
+            Player::ConvertInstancesToGroup(leader, this, false);
     }
     else if (!AddMember(leader))
         return false;
@@ -682,7 +683,7 @@ void Group::ChangeLeader(ObjectGuid guid)
     if (!isBGGroup() && !isBFGroup())
     {
         // Remove the groups permanent instance bindings
-        for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        for (uint8 i = 0; i < MAX_BOUND; ++i)
         {
             for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end();)
             {
@@ -706,7 +707,8 @@ void Group::ChangeLeader(ObjectGuid guid)
         CharacterDatabase.Execute(stmt);
 
         // Copy the permanent binds from the new leader to the group
-        Player::ConvertInstancesToGroup(player, this, true);
+        if (!isLFGGroup())
+            Player::ConvertInstancesToGroup(player, this, true);
 
         // Update the group leader
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_LEADER);
@@ -2355,6 +2357,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
 
     // we assume that when the difficulty changes, all instances that can be reset will be
     Difficulty diff = GetDungeonDifficultyID();
+    uint8 boundType = sObjectMgr->GetboundTypeFromDifficulty(diff);
     if (isRaid)
     {
         if (!isLegacy)
@@ -2363,7 +2366,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
             diff = GetLegacyRaidDifficultyID();
     }
 
-    for (BoundInstancesMap::iterator itr = m_boundInstances[diff].begin(); itr != m_boundInstances[diff].end();)
+    for (BoundInstancesMap::iterator itr = m_boundInstances[boundType].begin(); itr != m_boundInstances[boundType].end();)
     {
         InstanceSave* instanceSave = itr->second.save;
         const MapEntry* entry = sMapStore.LookupEntry(itr->first);
@@ -2418,8 +2421,8 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
 
 
             // i don't know for sure if hash_map iterators
-            m_boundInstances[diff].erase(itr);
-            itr = m_boundInstances[diff].begin();
+            m_boundInstances[boundType].erase(itr);
+            itr = m_boundInstances[boundType].begin();
             // this unloads the instance save unless online players are bound to it
             // (eg. permanent binds or GM solo binds)
             instanceSave->RemoveGroup(this);
@@ -2455,8 +2458,10 @@ InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)
     // some instances only have one difficulty
     GetDownscaledMapDifficultyData(mapId, difficulty);
 
-    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapId);
-    if (itr != m_boundInstances[difficulty].end())
+    uint8 boundType = sObjectMgr->GetboundTypeFromDifficulty(difficulty);
+
+    BoundInstancesMap::iterator itr = m_boundInstances[boundType].find(mapId);
+    if (itr != m_boundInstances[boundType].end())
         return &itr->second;
     else
         return NULL;
@@ -2467,16 +2472,23 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
     if (!save || isBGGroup() || isBFGroup())
         return NULL;
 
-    InstanceGroupBind& bind = m_boundInstances[save->GetDifficultyID()][save->GetMapId()];
-    if (!load && (!bind.save || permanent != bind.perm || save != bind.save))
+    if(!save->CanBeSave())
+        permanent = false;
+
+    uint8 boundType = sObjectMgr->GetboundTypeFromDifficulty(save->GetDifficultyID());
+    InstanceGroupBind& bind = m_boundInstances[boundType][save->GetMapId()];
+    if(save->CanBeSave())
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GROUP_INSTANCE);
+        if (!load && (!bind.save || permanent != bind.perm || save != bind.save))
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GROUP_INSTANCE);
 
-        stmt->setUInt32(0, m_dbStoreId);
-        stmt->setUInt32(1, save->GetInstanceId());
-        stmt->setBool(2, permanent);
+            stmt->setUInt32(0, m_dbStoreId);
+            stmt->setUInt32(1, save->GetInstanceId());
+            stmt->setBool(2, permanent);
 
-        CharacterDatabase.Execute(stmt);
+            CharacterDatabase.Execute(stmt);
+        }
     }
 
     if (bind.save != save)
@@ -2497,8 +2509,9 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
 
 void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
 {
-    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapid);
-    if (itr != m_boundInstances[difficulty].end())
+    uint8 boundType = sObjectMgr->GetboundTypeFromDifficulty(difficulty);
+    BoundInstancesMap::iterator itr = m_boundInstances[boundType].find(mapid);
+    if (itr != m_boundInstances[boundType].end())
     {
         if (!unload)
         {
@@ -2511,7 +2524,7 @@ void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
         }
 
         itr->second.save->RemoveGroup(this);                // save can become invalid
-        m_boundInstances[difficulty].erase(itr);
+        m_boundInstances[boundType].erase(itr);
     }
 }
 
@@ -2808,7 +2821,8 @@ void Group::DelinkMember(ObjectGuid guid)
 
 Group::BoundInstancesMap& Group::GetBoundInstances(Difficulty difficulty)
 {
-    return m_boundInstances[difficulty];
+    uint8 boundType = sObjectMgr->GetboundTypeFromDifficulty(difficulty);
+    return m_boundInstances[boundType];
 }
 
 void Group::_initRaidSubGroupsCounter()

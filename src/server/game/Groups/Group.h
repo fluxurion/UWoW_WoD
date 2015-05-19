@@ -393,7 +393,7 @@ class Group
         ItemQualities       m_lootThreshold;
         ObjectGuid          m_looterGuid;
         Rolls               RollId;
-        BoundInstancesMap   m_boundInstances[MAX_DIFFICULTY];
+        BoundInstancesMap   m_boundInstances[MAX_BOUND];
         uint8*              m_subGroupsCounts;
         ObjectGuid          m_guid;
         uint32              m_counter;                      // used only in SMSG_PARTY_UPDATE
