@@ -6236,6 +6236,46 @@ void ObjectMgr::LoadGameObjectTemplate()
     std::list<uint32> tempList = GetGameObjectsList();
 
     _gameObjectTemplateStore.rehash(result->GetRowCount() + tempList.size());
+
+    for (std::list<uint32>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
+    {
+        if (GameObjectsEntry const* goe = sGameObjectsStore.LookupEntry(*itr))
+        {
+            GameObjectTemplate& got = _gameObjectTemplateStore[goe->id];
+
+            got.entry          = goe->id;
+            got.type           = goe->type;
+            got.displayId      = goe->displayId;
+            got.name           = goe->name;
+            got.IconName       = "";
+            got.castBarCaption = "";
+            got.unk1           = "";
+            got.faction        = 0;
+            got.flags          = 0;
+            got.size           = goe->size;
+            got.raw.data[0]    = goe->data[0];
+            got.raw.data[1]    = goe->data[1];
+            got.raw.data[2]    = goe->data[2];
+            got.raw.data[3]    = goe->data[3];
+            //ToDo: more research
+            /*got.raw.data[4]    = goe->data[4];
+            got.raw.data[5]    = goe->data[5];
+            got.raw.data[6]    = goe->data[6];
+            got.raw.data[7]    = goe->data[7];*/
+            for (uint8 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+                got.questItems[i] = 0;
+
+            for (uint8 i = 4; i < MAX_GAMEOBJECT_DATA; ++i)
+                got.raw.data[i] = 0;
+
+            got.unkInt32 = 0;
+            got.AIName = "";
+            got.ScriptId = GetScriptId("");
+
+            //++count;
+        }
+    }
+
     uint32 count = 0;
     do
     {
@@ -6450,45 +6490,6 @@ void ObjectMgr::LoadGameObjectTemplate()
        ++count;
     }
     while (result->NextRow());
-
-    for (std::list<uint32>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
-    {
-        if (GameObjectsEntry const* goe = sGameObjectsStore.LookupEntry(*itr))
-        {
-            GameObjectTemplate& got = _gameObjectTemplateStore[goe->id];
-
-            got.entry          = goe->id;
-            got.type           = goe->type;
-            got.displayId      = goe->displayId;
-            got.name           = goe->name;
-            got.IconName       = "";
-            got.castBarCaption = "";
-            got.unk1           = "";
-            got.faction        = 0;
-            got.flags          = 0;
-            got.size           = goe->size;
-            got.raw.data[0]    = goe->data[0];
-            got.raw.data[1]    = goe->data[1];
-            got.raw.data[2]    = goe->data[2];
-            got.raw.data[3]    = goe->data[3];
-            //ToDo: more research
-            /*got.raw.data[4]    = goe->data[4];
-            got.raw.data[5]    = goe->data[5];
-            got.raw.data[6]    = goe->data[6];
-            got.raw.data[7]    = goe->data[7];*/
-            for (uint8 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-                got.questItems[i] = 0;
-
-            for (uint8 i = 4; i < MAX_GAMEOBJECT_DATA; ++i)
-                got.raw.data[i] = 0;
-
-            got.unkInt32 = 0;
-            got.AIName = "";
-            got.ScriptId = GetScriptId("");
-
-            ++count;
-        }
-    }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game object templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
