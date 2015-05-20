@@ -276,13 +276,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonster
 void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::Movement::MoveSpline const& moveSpline, ByteBuffer& data)
 {
     data << uint32(moveSpline.GetId());                                         // ID
+
     if (!moveSpline.isCyclic())                                                 // Destination
-    {
-        G3D::Vector3 dest = moveSpline.FinalDestination();
-        data << float(dest.z);
-        data << float(dest.x);
-        data << float(dest.y);
-    }
+        data << moveSpline.FinalDestination().xyz();
     else
         data << G3D::Vector3::zero();
 
