@@ -2058,7 +2058,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
                 case SPELL_AURA_FLY:
                 case SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED:
                 {
-                    if (!player->IsKnowHowFlyIn(map_id, zone_id))
+                    if (Id != 73427 && !player->IsKnowHowFlyIn(map_id, zone_id))
                         return SPELL_FAILED_FLYING_MOUNT_NOT_ALLOWED;
                     break;
                 }

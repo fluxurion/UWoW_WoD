@@ -1820,6 +1820,15 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         }
     }
 
+    switch(triggered_spell_id)
+    {
+        case 73603: //Kaja'Cola Gives You IDEAS! (TM): Summon Assistant Greely
+        case 73607:
+            return;
+        default:
+            break;
+    }
+
     // normal case
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(triggered_spell_id);
     if (!spellInfo)

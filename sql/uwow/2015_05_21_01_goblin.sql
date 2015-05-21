@@ -1,3 +1,4 @@
+/*!40101 SET NAMES utf8 */;
 --
 delete from creature where id in (34696, 34689, 34695, 48304) and phaseMask != 15;
 -- Mage Trainer
@@ -98,3 +99,17 @@ UPDATE `creature_template` SET `unit_flags2` = '0' WHERE `creature_template`.`en
 -- Q: 14125
 INSERT INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES ('14125', '0', '8', '37598', '0', '0', '0', '0', '0', '0');
 UPDATE `quest_template` SET `StartScript` = '14125' WHERE `quest_template`.`ID` = 14125;
+
+-- Q: 24671
+UPDATE `quest_template` SET `QuestType` = '2' WHERE `quest_template`.`ID` = 24671;
+
+--
+DELETE FROM `gossip_menu_option` WHERE `menu_id`=11146;
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
+(11146, 0, 0, 'Подними меня в небо, Хамми!', 1, 2, 0, 0, 0, 0, '');
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, npc_option_npcflag) VALUES
+(11146, 1, 0, 'Хамми, отправляемся в Оргриммар, пока этот остров окончательно не взорвался!', 1, 0, 0, '', 2);
+
+--
+INSERT INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES ('25184', '0', '8', '39335', '0', '0', '0', '0', '0', '0');
+UPDATE `quest_template` SET `StartScript` = '25184' WHERE `quest_template`.`ID` = 25184;
