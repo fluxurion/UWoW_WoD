@@ -2035,6 +2035,15 @@ class npc_king_genn_greymane_p4 : public CreatureScript
 public:
     npc_king_genn_greymane_p4() : CreatureScript("npc_king_genn_greymane_p4") {}
 
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    {
+        if (quest->GetQuestId() == QUEST_SAVE_KRENNAN_ARANAS)
+        {
+            player->CastSpell(player, 68221);
+        }
+        return true;
+    }
+
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_king_genn_greymane_p4AI (creature);
@@ -2372,9 +2381,7 @@ public:
             {
                 PlayerOn = true;
                 if (apply)
-                {
                     Start(false, true, who->GetGUID());
-                }
             }
             else if (who->GetTypeId() == TYPEID_UNIT)
             {
