@@ -4612,14 +4612,14 @@ void Spell::SendCastResult(SpellCastResult result)
     SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_cast_count, result, m_customError, m_misc.Data);
 }
 
-void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, uint32 misc/*=0*/)
+void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/, uint32 misc/*=0*/, bool pet /*=false*/)
 {
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SendCastResult  Spell: %u result %u.", spellInfo->Id, result);
 
     if (result == SPELL_CAST_OK)
         return;
 
-    WorldPackets::Spells::CastFailed packet(SMSG_CAST_FAILED);
+    WorldPackets::Spells::CastFailed packet(pet ? SMSG_PET_CAST_FAILED : SMSG_CAST_FAILED);
     packet.CastID = cast_count;
     packet.SpellID = spellInfo->Id;
     packet.Reason = result;
