@@ -32,14 +32,6 @@ DELETE FROM conditions WHERE sourcetypeorreferenceid=13 AND sourceentry=68228;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 68228, 0, 0, 31, 0, 3, 300247, 0, 0, 0, '', 'Effect _0 Needs to target Krennan Aranas');
 
-DELETE FROM conditions WHERE sourcetypeorreferenceid=17 AND sourceentry=68219;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(17, 0, 68219, 0, 0, 30, 0, 300247, 10, 0, 0, 22006, '', 'Needs to be near Krennan Aranas');
-
-DELETE FROM trinity_string WHERE entry=22006;
-INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `content_loc9`, `content_loc10`) VALUES
-(22006, 'You must be near Krennan Aranas!', '', '', '', '', '', '', '', '', '', '');
-
 DELETE FROM creature WHERE id=35753;
 INSERT INTO `creature` ( `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
 (35753, 654, 1, 7, 0, 0, -1672.8, 1345.26, 20.796, 0.415266, 300, 0, 0, 42, 0, 0, 0, 0, 0);
@@ -66,3 +58,27 @@ UPDATE creature SET phaseMask = phaseMask | 4 WHERE id = 35914;
 -- Q: 14218
 --------------
 UPDATE `quest_template` SET `QuestType` = '2' WHERE `quest_template`.`ID` = 14218;
+
+-- Phase start. 70696 use -654 byt where is it?
+DELETE FROM spell_area WHERE area = -654 AND spell in(68481, 67789, 68482, 68483, 70695, 74093);
+REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
+('68481', '4714', '0', '14396', '0', '0', '2', '1', '0', '66');
+
+--------------
+-- Q: 14395
+--------------
+REPLACE INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES 
+('14395', '0', '7', '14395', '0', '0', '0', '0', '0', '0');
+UPDATE `quest_template` SET `StartScript` = '14395' WHERE `quest_template`.`ID` = 14395;
+
+--------------
+-- Q: 24904
+--------------
+REPLACE INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES 
+('24904', '0', '7', '24904', '0', '0', '0', '0', '0', '0');
+UPDATE `quest_template` SET `StartScript` = '24904' WHERE `quest_template`.`ID` = 24904;
+
+--------------
+-- Q: 24681
+--------------
+UPDATE `quest_template` SET `QuestType` = '2' WHERE `quest_template`.`ID` = 24681;
