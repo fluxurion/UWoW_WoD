@@ -1035,7 +1035,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                         continue;
 
                     WorldPackets::Loot::LootItem lootItem;
-                    lootItem.LootListID = packet.Items.size()+1;
+                    lootItem.LootListID = i+1;
                     lootItem.LootItemType = slot_type;
                     lootItem.Quantity = items[i].count;
                     items[i].BuildItemInstance(lootItem.Loot);
@@ -1055,7 +1055,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                         continue;
 
                     WorldPackets::Loot::LootItem lootItem;
-                    lootItem.LootListID = packet.Items.size()+1;
+                    lootItem.LootListID = i+1;
                     lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                     lootItem.Quantity = items[i].count;
                     items[i].BuildItemInstance(lootItem.Loot);
@@ -1086,7 +1086,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                 if (!items[i].is_looted && !items[i].freeforall && !items[i].currency && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer))
                 {
                     WorldPackets::Loot::LootItem lootItem;
-                    lootItem.LootListID = packet.Items.size()+1;
+                    lootItem.LootListID = i+1;
                     lootItem.LootItemType = (permission == MASTER_PERMISSION && threshold > items[i].quality) ? LOOT_SLOT_TYPE_OWNER : slot_type/*LOOT_SLOT_TYPE_ALLOW_LOOT*/;
                     lootItem.Quantity = items[i].count;
                     items[i].BuildItemInstance(lootItem.Loot);
@@ -1097,53 +1097,6 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
         }
         default:
             return;
-    }
-
-    LootSlotType slotType = permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
-    QuestItemMap const& lootPlayerQuestItems = GetPlayerQuestItems();
-    QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(viewer->GetGUID().GetCounter());
-    if (q_itr != lootPlayerQuestItems.end())
-    {
-        QuestItemList* q_list = q_itr->second;
-        for (QuestItemList::const_iterator qi = q_list->begin(); qi != q_list->end(); ++qi)
-        {
-            const LootItem &item = quest_items[qi->index];
-            if (!qi->is_looted && !item.is_looted)
-            {
-                WorldPackets::Loot::LootItem lootItem;
-                lootItem.LootListID = packet.Items.size()+1;
-                lootItem.Quantity = item.count;
-                item.BuildItemInstance(lootItem.Loot);
-
-                if (item.follow_loot_rules)
-                {
-                    switch (permission)
-                    {
-                        case MASTER_PERMISSION:
-                            lootItem.LootItemType = LOOT_SLOT_TYPE_MASTER;
-                            break;
-                        case RESTRICTED_PERMISSION:
-                            lootItem.LootItemType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
-                            break;
-                        case GROUP_PERMISSION:
-                        case ROUND_ROBIN_PERMISSION:
-                            lootItem.LootItemType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
-                            if (!item.is_blocked)
-                                lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
-                            else
-                                lootItem.LootItemType = LOOT_SLOT_TYPE_ROLL_ONGOING;
-                            break;
-                        default:
-                            lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
-                            break;
-                    }
-                }
-                else
-                   lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
-
-                packet.Items.push_back(lootItem);
-            }
-        }
     }
 
     QuestItemMap const& lootPlayerFFAItems = GetPlayerFFAItems();
@@ -1157,7 +1110,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!fi->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItem lootItem;
-                lootItem.LootListID = packet.Items.size()+1;
+                lootItem.LootListID = fi->index+1;
                 lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                 lootItem.Quantity = item.count;
                 item.BuildItemInstance(lootItem.Loot);
@@ -1177,7 +1130,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!ci->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItem lootItem;
-                lootItem.LootListID = packet.Items.size()+1;
+                lootItem.LootListID = ci->index+1;
                 lootItem.Quantity = item.count;
                 item.BuildItemInstance(lootItem.Loot);
 
@@ -1225,10 +1178,57 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             {
                 lootCurrency.CurrencyID = item.itemid;
                 lootCurrency.Quantity = item.count;
-                lootCurrency.LootListID = ci->index;
+                lootCurrency.LootListID = ci->index+1;
                 lootCurrency.UIType = LOOT_SLOT_TYPE_UNK;
             }
             packet.Currencies.push_back(lootCurrency);
+        }
+    }
+
+    LootSlotType slotType = permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
+    QuestItemMap const& lootPlayerQuestItems = GetPlayerQuestItems();
+    QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(viewer->GetGUID().GetCounter());
+    if (q_itr != lootPlayerQuestItems.end())
+    {
+        QuestItemList* q_list = q_itr->second;
+        for (QuestItemList::const_iterator qi = q_list->begin(); qi != q_list->end(); ++qi)
+        {
+            const LootItem &item = quest_items[qi->index];
+            if (!qi->is_looted && !item.is_looted)
+            {
+                WorldPackets::Loot::LootItem lootItem;
+                lootItem.LootListID = items.size() + qi->index + 1;
+                lootItem.Quantity = item.count;
+                item.BuildItemInstance(lootItem.Loot);
+
+                if (item.follow_loot_rules)
+                {
+                    switch (permission)
+                    {
+                        case MASTER_PERMISSION:
+                            lootItem.LootItemType = LOOT_SLOT_TYPE_MASTER;
+                            break;
+                        case RESTRICTED_PERMISSION:
+                            lootItem.LootItemType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
+                            break;
+                        case GROUP_PERMISSION:
+                        case ROUND_ROBIN_PERMISSION:
+                            lootItem.LootItemType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
+                            if (!item.is_blocked)
+                                lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                            else
+                                lootItem.LootItemType = LOOT_SLOT_TYPE_ROLL_ONGOING;
+                            break;
+                        default:
+                            lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                            break;
+                    }
+                }
+                else
+                   lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+
+                packet.Items.push_back(lootItem);
+            }
         }
     }
 
