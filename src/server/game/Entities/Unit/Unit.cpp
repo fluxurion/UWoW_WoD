@@ -12708,7 +12708,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
                 break;
         }
     }
-    int32 DoneAdvertisedBenefit = GetSpellPowerHealing();
+    int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
     int32 bonusDone = GetSpellPowerDamage(spellProto->GetSchoolMask());
 
     if (HasUnitTypeMask(UNIT_MASK_GUARDIAN))
@@ -12718,37 +12718,20 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         DoneAdvertisedBenefit = bonusDone;
 
     // Check for table values
-    SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
-    float dbccoeff = spellProto->GetEffect(effIndex, m_diffMode).BonusCoefficient;
     float ApCoeffMod = spellProto->GetEffect(effIndex, m_diffMode).SpellAPBonusMultiplier;
-    float coeff = 0;
+    float coeff = spellProto->GetEffect(effIndex, m_diffMode).BonusCoefficient;
     float factorMod = 1.0f;
-    if (bonus)
-    {
-        if (damagetype == DOT)
-        {
-            coeff = bonus->dot_damage;
-            if (bonus->ap_dot_bonus > 0)
-                DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
-                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
-        }
-        else
-        {
-            coeff = bonus->direct_damage;
-            if (bonus->ap_bonus > 0)
-                DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(BASE_ATTACK));
-        }
-    }
-    else
-    {
-        if (dbccoeff/* && spellProto->SchoolMask & SPELL_SCHOOL_MASK_MAGIC*/)
-            coeff = dbccoeff; // 77478 use in SCHOOL_MASK_PHYSICAL
 
-        if (ApCoeffMod)
-        {
-            DoneTotal += int32(ApCoeffMod * stack * GetTotalAttackPowerValue(
-                (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
-        }
+    if (ApCoeffMod)
+    {
+        DoneTotal += int32(ApCoeffMod * stack * GetTotalAttackPowerValue(
+            (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+    }
+    else if (coeff <= 0.0f)
+    {
+        // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
+        if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
+            return healamount;
     }
 
     // Default calculation
@@ -12976,7 +12959,7 @@ float Unit::CalcPvPPower(Unit* target, float amount, bool isHeal)
     return amount;
 }
 
-int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask, int32 baseBonus)
+int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
 {
     int32 AdvertisedBenefit = 0;
 
@@ -12989,7 +12972,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask, int32 baseBonu
     if (GetTypeId() == TYPEID_PLAYER)
     {
         // Base value
-        AdvertisedBenefit += baseBonus;
+        AdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
         if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
@@ -13010,6 +12993,12 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask, int32 baseBonu
             Stats usedStat = Stats((*i)->GetMiscValue());
             AdvertisedBenefit += int32(CalculatePct(GetStat(usedStat), (*i)->GetAmount()));
         }
+
+        // ... and attack power
+        AuraEffectList const& mHealingDonebyAP = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER);
+        for (AuraEffectList::const_iterator i = mHealingDonebyAP.begin(); i != mHealingDonebyAP.end(); ++i)
+            if ((*i)->GetMiscValue() & schoolMask)
+                AdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
     }
     return AdvertisedBenefit;
 }
@@ -13320,6 +13309,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     {
         if (Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_DAMAGE, tmpDamage);
+
         CalculateFromDummy(victim, tmpDamage, spellProto, effectMask);
     }
 
