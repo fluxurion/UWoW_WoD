@@ -1,9 +1,9 @@
 /*!40101 SET NAMES utf8 */;
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES
  ('67503', '4762', '0', '0', '0', '0', '2', '1', '64', '11');
---------------
+-- ------------
 -- Q: 14293
---------------
+-- ------------
 
 -- Save Krennan Aranas Waypoints
 DELETE FROM script_waypoint WHERE entry=35905;
@@ -54,9 +54,9 @@ REPLACE INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `
 --
 UPDATE creature SET phaseMask = phaseMask | 4 WHERE id = 35914;
 
---------------
+-- ------------
 -- Q: 14218
---------------
+-- ------------
 UPDATE `quest_template` SET `QuestType` = '2' WHERE `quest_template`.`ID` = 14218;
 
 -- Phase start. 70696 use -654 byt where is it?
@@ -64,21 +64,21 @@ DELETE FROM spell_area WHERE area = -654 AND spell in(68481, 67789, 68482, 68483
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
 ('68481', '4714', '0', '14396', '0', '0', '2', '1', '0', '66');
 
---------------
+-- ------------
 -- Q: 14395
---------------
+-- ------------
 REPLACE INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES 
 ('14395', '0', '7', '14395', '0', '0', '0', '0', '0', '0');
 UPDATE `quest_template` SET `StartScript` = '14395' WHERE `quest_template`.`ID` = 14395;
 
---------------
+-- ------------
 -- Q: 24904
---------------
+-- ------------
 REPLACE INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES 
 ('24904', '0', '7', '24904', '0', '0', '0', '0', '0', '0');
 UPDATE `quest_template` SET `StartScript` = '24904' WHERE `quest_template`.`ID` = 24904;
 
---------------
+-- ------------
 -- Q: 24681
---------------
+-- ------------
 UPDATE `quest_template` SET `QuestType` = '2' WHERE `quest_template`.`ID` = 24681;

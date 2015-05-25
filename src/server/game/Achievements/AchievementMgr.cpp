@@ -1059,8 +1059,9 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
                 // we will remove already completed criteria
                 sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "Achievement %s with progress criteriaTree_id %u data removed from table `character_achievement_progress` ", achievement ? "completed" : "not exist", criteriaTree_id);
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEV_PROGRESS_CRITERIA);
                 stmt->setUInt32(0, criteriaTree_id);
+                stmt->setUInt64(1, GetOwner()->GetGUID().GetCounter());
                 CharacterDatabase.Execute(stmt);
             }
 
@@ -1122,8 +1123,9 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
                 // we will remove already completed criteria
                 sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "Achievement %s with progress acc_criteriaTree_id %u data removed from table `account_achievement_progress` ", achievement ? "completed" : "not exist", acc_criteriaTree_id);
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACC_ACHIEV_PROGRESS_CRITERIA);
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACC_ACHIEV_PROGRESS_CRITERIA);
                 stmt->setUInt32(0, acc_criteriaTree_id);
+                stmt->setUInt32(1, GetOwner()->GetSession()->GetAccountId());
                 CharacterDatabase.Execute(stmt);
             }
 
