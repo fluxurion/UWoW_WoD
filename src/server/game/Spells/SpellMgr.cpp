@@ -5256,10 +5256,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 66795: // Gather Lumber
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_MASTER;
                     break;
-                case 774: // Rejuvenation
-                    spellInfo->Effects[EFFECT_0].Effect = 0;
-                    spellInfo->Effects[EFFECT_0].ApplyAuraName = 0;
-                    break;
                 case 3411: // Intervene
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_RAID;
                     break;
