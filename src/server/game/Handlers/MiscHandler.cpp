@@ -1411,7 +1411,7 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
     uint32 realmId = recvData.read<uint32>();
 
     WorldPacket data(SMSG_REALM_QUERY_RESPONSE, 10 + 10 + 1 + 1 + 1 + 4);
-    if (realmId != realmHandle.Index)  // Cheater ?
+    if (realmId != realmHandle.Index && realmId != GetVirtualRealmAddress())  // Cheater ?
     {
         data << uint32(realmId);
         data << uint8(1);
@@ -1425,7 +1425,7 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
     data << uint32(realmId);
     data << uint8(0);   // ok, realmId exist server-side
 
-    data.WriteBit(0);   // IsLocal
+    data.WriteBit(1);   // IsLocal
     data.WriteBit(0);
 
     data.WriteBits(realmName.size(), 8);

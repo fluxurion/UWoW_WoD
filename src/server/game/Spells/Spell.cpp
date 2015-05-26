@@ -5359,7 +5359,7 @@ void Spell::SendResurrectRequest(Player* target)
     //! 6.0.3
     WorldPacket data(SMSG_RESURRECT_REQUEST, 8 + 1 + 1 + 4 + 4 + 4 + resurrectorName.size());
     data << m_caster->GetGUID();
-    data << uint32(realmHandle.Index);
+    data << uint32(GetVirtualRealmAddress());
     data << uint32(0);                                                      // pet counter
     data << uint32(m_spellInfo->Id);
     data.WriteBits(resurrectorName.size(), 6);

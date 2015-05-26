@@ -1347,7 +1347,7 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         for (uint8 i = 0; i < MAX_GUILD_PROFESSIONS; ++i)
             data << uint32(member->GetProfessionInfo(i).skillId) << uint32(member->GetProfessionInfo(i).skillRank) << uint32(member->GetProfessionInfo(i).skillValue);
 
-        data << uint32(realmHandle.Index);
+        data << uint32(GetVirtualRealmAddress());
         data << uint8(flags);                       //status
         data << uint8(player ? player->getLevel() : member->GetLevel());
         data << uint8(member->GetClass());
@@ -1394,7 +1394,7 @@ void Guild::HandleQuery(WorldSession* session)
     data.WriteBit(1);                                               // has data
 
     data << GetGUID();
-    data << uint32(realmHandle.Index);
+    data << uint32(GetVirtualRealmAddress());
     data << uint32(_GetRanksSize());
     m_emblemInfo.WritePacket(data);
 
@@ -1685,10 +1685,10 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     data.WriteBits(pInvitee->GetGuildName().length(), 7);
     data.WriteBits(m_name.length(), 7);
 
-    data << uint32(realmHandle.Index);          //InviterVirtualRealmAddress
-    data << uint32(realmHandle.Index);          //GuildVirtualRealmAddress
+    data << uint32(GetVirtualRealmAddress());          //InviterVirtualRealmAddress
+    data << uint32(GetVirtualRealmAddress());          //GuildVirtualRealmAddress
     data << GetGUID();
-    data << uint32(realmHandle.Index);          //OldGuildVirtualRealmAddress
+    data << uint32(GetVirtualRealmAddress());          //OldGuildVirtualRealmAddress
     data << oldGuildGuid;
 
     m_emblemInfo.WritePacket(data);
@@ -3533,7 +3533,7 @@ void Guild::SendGuildEventJoinMember(ObjectGuid const& guid, std::string name)
 {
     WorldPacket data(SMSG_GUILD_EVENT_PLAYER_JOINED, 8 + 1 + 4 + name.size() + 1);
     data << guid;
-    data << uint32(realmHandle.Index);
+    data << uint32(GetVirtualRealmAddress());
     data.WriteBits(name.size(), 6);
     data.WriteString(name);
 
@@ -3553,12 +3553,12 @@ void Guild::SendGuildEventRemoveMember(ObjectGuid const& guid, std::string name,
     {
         data.WriteBits(kickerName.size(), 6);
         data << kickerGuid;
-        data << uint32(realmHandle.Index);                  //RemoverVirtualRealmAddress
+        data << uint32(GetVirtualRealmAddress());                  //RemoverVirtualRealmAddress
         data.WriteString(kickerName);
     }
 
     data << guid;
-    data << uint32(realmHandle.Index);                      //LeaverVirtualRealmAddress
+    data << uint32(GetVirtualRealmAddress());                      //LeaverVirtualRealmAddress
     data.WriteString(name);
 
     BroadcastPacket(&data);
@@ -3573,9 +3573,9 @@ void Guild::SendGuildEventLeader(ObjectGuid const& guid, std::string name, Objec
     data.WriteBits(oldName.size(), 6);
 
     data << oldGuid;
-    data << uint32(realmHandle.Index);      // old leader realm id
+    data << uint32(GetVirtualRealmAddress());      // old leader realm id
     data << guid;
-    data << uint32(realmHandle.Index);      // new leader realm id
+    data << uint32(GetVirtualRealmAddress());      // new leader realm id
 
     data.WriteString(name);
     data.WriteString(oldName);
@@ -3610,7 +3610,7 @@ void Guild::SendGuildEventOnline(ObjectGuid const& guid, std::string name, bool 
 {
     WorldPacket data(SMSG_GUILD_EVENT_PRESENCE_CHANGE, 8 + 1 + name.size() + 1 + 1 + 4);
     data << guid;
-    data << uint32(realmHandle.Index);
+    data << uint32(GetVirtualRealmAddress());
     data.WriteBits(name.size(), 6);
     data.WriteBit(online);
     data.WriteBit(0);               // 0 - normal chat, 1 - remote chat

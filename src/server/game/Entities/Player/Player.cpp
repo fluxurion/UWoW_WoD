@@ -1074,7 +1074,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
         SetUInt64Value(PLAYER_FIELD_KNOWN_TITLES + i, 0);  // 0=disabled
     SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, 0);
 
-    SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, realmHandle.Index);
+    SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, GetVirtualRealmAddress());
 
     SetUInt32Value(PLAYER_FIELD_YESTERDAY_HONORABLE_KILLS, 0);
     SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 0);
@@ -8897,8 +8897,8 @@ void Player::DuelComplete(DuelCompleteType type)
         data.WriteBits(strlen(duel->opponent->GetName()), 6);
         data.WriteBit(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
 
-        data << uint32(realmHandle.Index);                  // winner or loser realmID
-        data << uint32(realmHandle.Index);                  // winner or loser realmID
+        data << uint32(GetVirtualRealmAddress());                  // winner or loser realmID
+        data << uint32(GetVirtualRealmAddress());                  // winner or loser realmID
 
         data.WriteString(GetName());
         data.WriteString(duel->opponent->GetName());
@@ -18637,7 +18637,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, curTitle);
 
-    SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, realmHandle.Index);
+    SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, GetVirtualRealmAddress());
 
     // has to be called after last Relocate() in Player::LoadFromDB
     SetFallInformation(0, GetPositionZ());
@@ -22297,6 +22297,7 @@ inline void Player::BuildPlayerChatData(Trinity::ChatData& c, uint8 msgtype, con
     c.chatTag = GetChatTag();
     c.chatType = msgtype;
     c.language = language;
+    c.sourceName = GetName();
 }
 
 void Player::Say(const std::string& text, const uint32 language)

@@ -6125,7 +6125,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     //data.WriteGuidBytes<4, 2>(guid);
     data << uint32(m_caster->GetZoneId());                  // summoner zone
     //data.WriteGuidBytes<0, 1, 5, 7, 6, 3>(guid);
-    data << uint32(realmHandle.Index);
+    data << uint32(GetVirtualRealmAddress());
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 

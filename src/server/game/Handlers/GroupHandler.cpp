@@ -78,7 +78,7 @@ void WorldSession::SendGroupInvite(Player* player, bool AlowEnter)
 
     data << player->GetGUID();
     data << player->GetSession()->GetBattlenetAccountGUID();
-    data << uint32(realmHandle.Index);
+    data << uint32(GetVirtualRealmAddress());
     data << uint16(0);                                  //unk
 
     data.FlushBits();

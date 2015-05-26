@@ -2911,8 +2911,8 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
         data << uint32(itr->first);
         data.AppendPackedTime(itr->second.date);
         data << GetOwner()->GetGUID();
-        data << uint32(realmHandle.Index);                                     // VirtualRealmAddress / NativeRealmAddress
-        data << uint32(realmHandle.Index);                                     // VirtualRealmAddress / NativeRealmAddress
+        data << uint32(GetVirtualRealmAddress());                                     // VirtualRealmAddress / NativeRealmAddress
+        data << uint32(GetVirtualRealmAddress());                                     // VirtualRealmAddress / NativeRealmAddress
     }
 
     receiver->GetSession()->SendPacket(&data);
