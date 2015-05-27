@@ -991,7 +991,7 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
                 continue;
 
             // already added on account
-            if (m_completedAchievements.find(achievementid) ==  m_completedAchievements.end())
+            if (m_completedAchievements.find(achievementid) !=  m_completedAchievements.end())
                 continue;
 
             CompletedAchievementData& ca = m_completedAchievements[achievementid];
