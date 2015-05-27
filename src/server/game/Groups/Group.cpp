@@ -1794,7 +1794,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
     Player* member = NULL;
 
-    uint8 const gStatusOfline = (isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0;
+    uint8 const gStatusOfline = (isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : MEMBER_STATUS_OFFLINE;
     uint8 const gStatusOnline = gStatusOfline | MEMBER_STATUS_ONLINE;
 
     ObjectGuid looterGuid = m_looterGuid;
@@ -1831,7 +1831,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         if (citr->guid == slot->guid)
             continue;
 
-        member = ObjectAccessor::FindPlayer(citr->guid);
+        member = ObjectAccessor::FindPlayer(citr->guid, false);
 
         data.WriteBits(citr->name.size(), 6);
         data << citr->guid;

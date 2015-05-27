@@ -165,17 +165,20 @@ Creature* ObjectAccessor::GetCreatureOrPetOrVehicle(WorldObject const& u, Object
     return NULL;
 }
 
-Pet* ObjectAccessor::FindPet(ObjectGuid guid)
+Pet* ObjectAccessor::FindPet(ObjectGuid const& guid)
 {
     return GetObjectInWorld(guid, (Pet*)NULL);
 }
 
-Player* ObjectAccessor::FindPlayer(ObjectGuid guid)
+Player* ObjectAccessor::FindPlayer(ObjectGuid const& guid, bool checInWorld/*=true*/)
 {
-    return GetObjectInWorld(guid, (Player*)NULL);
+    Player* res = GetObjectInWorld(guid, (Player*)NULL);
+    if (res && !res->IsInWorld())
+        return NULL;
+    return res;
 }
 
-Unit* ObjectAccessor::FindUnit(ObjectGuid guid)
+Unit* ObjectAccessor::FindUnit(ObjectGuid const& guid)
 {
     return GetObjectInWorld(guid, (Unit*)NULL);
 }

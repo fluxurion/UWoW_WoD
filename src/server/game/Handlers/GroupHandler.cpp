@@ -1050,7 +1050,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     ObjectGuid guid = player->GetGUID();
     uint32 mask = player->GetGroupUpdateFlag();
 
-    //! 6.0.3
+    //! 6.1.2
     data->Initialize(SMSG_PARTY_MEMBER_STATE, 200);
 
     if (full)
@@ -1069,85 +1069,74 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
             mask |= (GROUP_UPDATE_FLAG_PET_CUR_POWER | GROUP_UPDATE_FLAG_PET_MAX_POWER);
     }
 
-    data->WriteBit(0);          //ForEnemy
-    data->WriteBit(full);
-
-    data->WriteBit(0);                              //bit761
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_STATUS);
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_POWER_TYPE);
-    data->WriteBit(0);                              //HasUnk322
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_CUR_HP);
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_MAX_HP);
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_CUR_POWER);
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_MAX_POWER);
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_LEVEL);
-    data->WriteBit(0);                              //HasUnk326
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_ZONE);
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_SPECIALIZATION);
-    data->WriteBit(0);                              //HasUnk776
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_POSITION);
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_VEHICLE_SEAT);
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_AURAS);
-    data->WriteBit(mask & GROUP_UPDATE_PET);
-    data->WriteBit(mask & GROUP_UPDATE_FLAG_PHASE);
-
+    data->WriteBit(0);                              //ForEnemy
     data->FlushBits();
 
     *data << guid;
+    for(int32 i = 0; i < 2; ++i)                    //unk
+        *data << uint8(0);
 
-    if (mask & GROUP_UPDATE_FLAG_STATUS)
-    {
-        if (player->IsPvP())
-            *data << uint16(MEMBER_STATUS_ONLINE | MEMBER_STATUS_PVP);
-        else
-            *data << uint16(MEMBER_STATUS_ONLINE);
-    }
+    //GROUP_UPDATE_FLAG_STATUS
+    if (player->IsPvP())
+        *data << uint16(MEMBER_STATUS_ONLINE | MEMBER_STATUS_PVP);
+    else
+        *data << uint16(MEMBER_STATUS_ONLINE);
 
-    if (mask & GROUP_UPDATE_FLAG_POWER_TYPE)
-        *data << uint8(player->getPowerType());
+    //GROUP_UPDATE_FLAG_POWER_TYPE
+    *data << uint8(player->getPowerType());
 
-    if (mask & GROUP_UPDATE_FLAG_CUR_HP)
-        *data << uint32(player->GetHealth());
+    *data << uint16(0);                             //unk
 
-    if (mask & GROUP_UPDATE_FLAG_MAX_HP)
-        *data << uint32(player->GetMaxHealth());
+    //GROUP_UPDATE_FLAG_CUR_HP
+    *data << uint32(player->GetHealth());
 
-    if (mask & GROUP_UPDATE_FLAG_CUR_POWER)
-        *data << uint16(player->GetPower(player->getPowerType()));
+    //GROUP_UPDATE_FLAG_MAX_HP
+    *data << uint32(player->GetMaxHealth());
 
-    if (mask & GROUP_UPDATE_FLAG_MAX_POWER)
-        *data << uint16(player->GetMaxPower(player->getPowerType()));
+    //GROUP_UPDATE_FLAG_CUR_POWER
+    *data << uint16(player->GetPower(player->getPowerType()));
 
-    if (mask & GROUP_UPDATE_FLAG_LEVEL)
-        *data << uint16(player->getLevel());
+    //GROUP_UPDATE_FLAG_MAX_POWER
+    *data << uint16(player->GetMaxPower(player->getPowerType()));
 
-    if (mask & GROUP_UPDATE_FLAG_ZONE)
-        *data << uint16(player->GetZoneId());
+    //GROUP_UPDATE_FLAG_LEVEL
+    *data << uint16(player->getLevel());
 
-    if (mask & GROUP_UPDATE_FLAG_SPECIALIZATION)
-        *data << uint16(player->GetSpecializationId(player->GetActiveSpec()));
+    //Unk200000
+    *data << uint16(0);
 
-    //if (mask & GROUP_UPDATE_FLAG_UNK100)
-    //    *data << uint16(0);
+    //GROUP_UPDATE_FLAG_ZONE
+    *data << uint16(player->GetZoneId());
 
-    if (mask & GROUP_UPDATE_FLAG_POSITION)
-        *data << uint16(player->GetPositionX()) << uint16(player->GetPositionY()) << uint16(player->GetPositionZ());
+    //GROUP_UPDATE_FLAG_SPECIALIZATION
+    *data << uint16(player->GetSpecializationId(player->GetActiveSpec()));
 
-    if (mask & GROUP_UPDATE_FLAG_VEHICLE_SEAT)
-    {
-        if (Vehicle* veh = player->GetVehicle())
-            *data << uint32(veh->GetVehicleInfo()->SeatID[player->m_movementInfo.transport.seat]);
-        else
-            *data << uint32(0);
-    }
+    //Unk4000000
+    *data << uint32(0);
+
+    //GROUP_UPDATE_FLAG_POSITION
+    *data << uint16(player->GetPositionX()) << uint16(player->GetPositionY()) << uint16(player->GetPositionZ());
+
+    //GROUP_UPDATE_FLAG_VEHICLE_SEAT
+    if (Vehicle* veh = player->GetVehicle())
+        *data << uint32(veh->GetVehicleInfo()->SeatID[player->m_movementInfo.transport.seat]);
+    else
+        *data << uint32(0);
+
+    //GROUP_UPDATE_FLAG_AURAS
+    size_t countPos = data->wpos();
+    *data << uint32(0); // aura count
+
+    //GROUP_UPDATE_FLAG_PHASE
+    *data << uint32(0); // PhaseShiftFlags
+    *data << uint32(0); // PhaseCount
+    *data << ObjectGuid::Empty;
+    // for (count) *data << uint16(phaseId)
 
     if (mask & GROUP_UPDATE_FLAG_AURAS)
     {
-        //data << uint8(0);
+
         uint64 auramask = player->GetAuraUpdateMaskForRaid();
-        //data << uint64(auramask);
-        size_t countPos = data->wpos();
-        *data << uint32(MAX_AURAS); // count
         uint32 count = 0;
 
         for (uint32 i = 0; i < MAX_AURAS; ++i)
@@ -1189,40 +1178,20 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
             }
         }
         data->put<uint32>(countPos, count);
-    }
+    }        
 
+    data->WriteBit(mask & GROUP_UPDATE_PET);
     if (mask & GROUP_UPDATE_PET)
     {
         Pet* pet = player->GetPet();
 
-        data->WriteBit(mask & GROUP_UPDATE_FLAG_PET_GUID);
-        data->WriteBit(mask & GROUP_UPDATE_FLAG_PET_NAME);
-        data->WriteBit(mask & GROUP_UPDATE_FLAG_PET_MODEL_ID);
-        data->WriteBit(mask & GROUP_UPDATE_FLAG_PET_CUR_HP);
-        data->WriteBit(mask & GROUP_UPDATE_FLAG_PET_MAX_HP);
-        data->WriteBit(mask & GROUP_UPDATE_FLAG_PET_AURAS);
+        //GROUP_UPDATE_FLAG_PET_GUID
+        if (pet)
+            *data << pet->GetGUID();
+        else
+            *data << ObjectGuid::Empty;
 
-        data->FlushBits();
-        if (mask & GROUP_UPDATE_FLAG_PET_GUID)
-        {
-            if (pet)
-                *data << pet->GetGUID();
-            else
-                *data << ObjectGuid::Empty;
-        }
-
-        if (mask & GROUP_UPDATE_FLAG_PET_NAME)
-        {
-            if (pet)
-            {
-                data->WriteBits(strlen(pet->GetName()), 8);
-                data->WriteString(pet->GetName());
-            }
-            else
-                *data << uint8(0);
-        }
-
-        if (mask & GROUP_UPDATE_FLAG_PET_MODEL_ID)
+        //GROUP_UPDATE_FLAG_PET_MODEL_ID
         {
             if (pet)
                 *data << uint16(pet->GetDisplayId());
@@ -1230,7 +1199,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
                 *data << uint16(0);
         }
 
-        if (mask & GROUP_UPDATE_FLAG_PET_CUR_HP)
+        //GROUP_UPDATE_FLAG_PET_CUR_HP
         {
             if (pet)
                 *data << uint32(pet->GetHealth());
@@ -1238,7 +1207,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
                 *data << uint32(0);
         }
 
-        if (mask & GROUP_UPDATE_FLAG_PET_MAX_HP)
+        //GROUP_UPDATE_FLAG_PET_MAX_HP
         {
             if (pet)
                 *data << uint32(pet->GetMaxHealth());
@@ -1246,40 +1215,15 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
                 *data << uint32(0);
         }
 
-        /*if (mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)
-        {
-            if (pet)
-                *data << uint8(pet->getPowerType());
-            else
-                *data << uint8(0);
-        }
-
-        if (mask & GROUP_UPDATE_FLAG_PET_CUR_POWER)
-        {
-            if (pet)
-                *data << uint16(pet->GetPower(pet->getPowerType()));
-            else
-                *data << uint16(0);
-        }
-
-        if (mask & GROUP_UPDATE_FLAG_PET_MAX_POWER)
-        {
-            if (pet)
-                *data << uint16(pet->GetMaxPower(pet->getPowerType()));
-            else
-                *data << uint16(0);
-        }*/
+        countPos = data->wpos();
+        *data << uint32(0); // count
 
         if (mask & GROUP_UPDATE_FLAG_PET_AURAS)
         {
             if (pet)
             {
-                //*data << uint8(0);
                 uint64 auramask = pet->GetAuraUpdateMaskForRaid();
-                //*data << uint64(auramask);
-                size_t countPos = data->wpos();
                 uint32 count = 0;
-                *data << uint32(MAX_AURAS); // count
 
                 for (uint32 i = 0; i < MAX_AURAS; ++i)
                 {
@@ -1320,23 +1264,20 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
                 }
                 data->put<uint32>(countPos, count);
             }
-            else
-            {
-                *data << uint32(0);
-            }
         }
-    }
 
-    if (mask & GROUP_UPDATE_FLAG_PHASE)
-    {
-        *data << uint32(0); // PhaseShiftFlags
-        *data << uint32(0); // PhaseCount
-        *data << ObjectGuid::Empty;
-        // for (count) *data << uint16(phaseId)
+        //GROUP_UPDATE_FLAG_PET_NAME
+        if (pet)
+        {
+            data->WriteBits(strlen(pet->GetName()), 8);
+            data->WriteString(pet->GetName());
+        }
+        else
+            *data << uint8(0);
     }
 }
 
-//! 6.0.3
+//! 6.1.2
 /*this procedure handles clients CMSG_REQUEST_PARTY_MEMBER_STATS request*/
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 {
@@ -1348,37 +1289,42 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     Player* player = HashMapHolder<Player>::Find(Guid);
     if (!player)
     {
-        //! 6.0.3
         WorldPacket data(SMSG_PARTY_MEMBER_STATE, 3+4+2);
         data.WriteBit(0);                                   // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
-        data.WriteBit(1);                                   // full
-
-        data.WriteBit(0);                              //bit761
-        data.WriteBit(1/*mask & GROUP_UPDATE_FLAG_STATUS*/);
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_POWER_TYPE*/);
-        data.WriteBit(0);                              //HasUnk322
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_CUR_HP*/);
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_MAX_HP*/);
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_CUR_POWER*/);
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_MAX_POWER*/);
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_LEVEL*/);
-        data.WriteBit(0);                              //HasUnk326
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_ZONE)*/);
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_SPECIALIZATION*/);
-        data.WriteBit(0);                              //HasUnk776
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_POSITION*/);
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_VEHICLE_SEAT*/);
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_AURAS*/);
-        data.WriteBit(0/*mask & GROUP_UPDATE_PET*/);
-        data.WriteBit(0/*mask & GROUP_UPDATE_FLAG_PHASE*/);
 
         data.FlushBits();
 
         data << Guid;
+        for(int32 i = 0; i < 2; ++i)                    //unk
+            data << uint8(0);
 
-        //if (mask & GROUP_UPDATE_FLAG_STATUS)
-        data << (uint16) MEMBER_STATUS_OFFLINE;
+        data << (uint16) MEMBER_STATUS_OFFLINE;         //GROUP_UPDATE_FLAG_STATUS
+        data << uint8(0);                               //PowerType
+        data << uint16(0);                              //Unk322
+        data << uint32(0);                              //CurrentHealth
+        data << uint32(0);                              //MaxHealth
 
+        data << uint16(0);                              //CurrentPower
+        data << uint16(0);                              //MaxPower
+        data << uint16(0);                              //Level
+        data << uint16(0);                              //Unk200000
+        data << uint16(0);                              //ZoneId
+
+        data << uint16(0);                              //Unk2000000
+        data << uint32(0);                              //Unk4000000
+
+        data << uint16(0);                              //PositionX
+        data << uint16(0);                              //PositionY
+        data << uint16(0);                              //PositionZ
+
+        data << uint32(0);                              //VehicleSeat
+        data << uint32(0);                              //AuraCount
+
+        data << uint32(0);                              //PhaseShiftFlags
+        data << uint32(0);                              //PhaseCount
+        data << ObjectGuid::Empty;                      //PersonalGUID
+
+        data.WriteBit(0);                               //HasPet
         SendPacket(&data);
         return;
     }
