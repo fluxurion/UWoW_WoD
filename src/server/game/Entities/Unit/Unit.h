@@ -1466,7 +1466,7 @@ class Unit : public WorldObject
         bool IsVehicle() const  { return (m_unitTypeMask & UNIT_MASK_VEHICLE) != 0; }
         bool isMinion() const   { return (m_unitTypeMask & UNIT_MASK_MINION) != 0; }
         bool isTrainingDummy() const { return m_unitTypeMask & UNIT_MASK_TRAINING_DUMMY; }
-        bool isAnySummons() const   { return (m_unitTypeMask & (UNIT_MASK_SUMMON | UNIT_MASK_GUARDIAN | UNIT_MASK_PET | UNIT_MASK_HUNTER_PET | UNIT_MASK_TOTEM | UNIT_MASK_VEHICLE)) != 0; }
+        bool isAnySummons() const   { return (m_unitTypeMask & (UNIT_MASK_GUARDIAN | UNIT_MASK_PET | UNIT_MASK_HUNTER_PET | UNIT_MASK_TOTEM | UNIT_MASK_VEHICLE)) != 0; }
 
         uint8 getLevel() const { return uint8(GetUInt32Value(UNIT_FIELD_LEVEL)); }
         uint8 getLevelForTarget(WorldObject const* /*target*/) const { return getLevel(); }
