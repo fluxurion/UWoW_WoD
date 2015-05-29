@@ -503,7 +503,7 @@ bool Map::AddToMap(T *obj)
         EnsureGridCreated(GridCoord(cell.GridX(), cell.GridY()));
     AddToGrid(obj, cell);
     #ifdef TRINITY_DEBUG
-    sLog->outDebug(LOG_FILTER_MAPS, "Object %u enters grid[%u, %u]", GUID_LOPART(obj->GetGUID()), cell.GridX(), cell.GridY());
+    sLog->outDebug(LOG_FILTER_MAPS, "Object %u enters grid[%u, %u]", obj->GetGUID(), cell.GridX(), cell.GridY());
     #endif
 
     //Must already be set before AddToMap. Usually during obj->Create.
@@ -1674,7 +1674,7 @@ bool Map::IsOutdoors(float x, float y, float z) const
     if (wmoEntry)
     {
         #ifdef TRINITY_DEBUG
-        sLog->outDebug(LOG_FILTER_MAPS, "Got WMOAreaTableEntry! flag %u, areaid %u", wmoEntry->Flags, wmoEntry->areaId);
+        sLog->outDebug(LOG_FILTER_MAPS, "Got WMOAreaTableEntry! flag %u, AreaTableID %u", wmoEntry->Flags, wmoEntry->AreaTableID);
         #endif
         atEntry = GetAreaEntryByAreaID(wmoEntry->AreaTableID);
     }
