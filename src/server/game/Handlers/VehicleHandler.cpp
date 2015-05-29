@@ -159,8 +159,9 @@ void WorldSession::HandleSetVehicleRecId(WorldPacket& recvData)
     for (Unit::AuraEffectList::const_iterator i = transforms.begin(); i != transforms.end(); ++i)
         vehicleId = (*i)->GetMiscValue();
 
-    WorldPacket data(SMSG_SET_VEHICLE_REC_ID, 8 + 1 + 4);
+    WorldPacket data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16);
     data << _player->GetGUID();
+    data << uint32(_player->GetTimeSync()+1);          //CMSG_TIME_SYNC_RESPONSE incremenet counter
     data << uint32(vehicleId);
     SendPacket(&data);
 }
