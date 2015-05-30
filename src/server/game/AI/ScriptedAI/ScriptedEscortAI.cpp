@@ -339,6 +339,9 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
         sLog->outDebug(LOG_FILTER_TSCR, "EscortAI has returned to original position before combat");
 
         me->SetWalk(!m_bIsRunning);
+        if (Creature* follower = Unit::GetCreature(*me, m_uifollowerGUID))
+            follower->SetWalk(!m_bIsRunning);
+
         RemoveEscortState(STATE_ESCORT_RETURNING);
 
         if (!m_uiWPWaitTimer)

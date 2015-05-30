@@ -105,6 +105,9 @@ class npc_panda_announcer : public CreatureScript
             if (itr != m_player_for_event.end())
                 return;
 
+            if (!me->IsWithinDistInMap(who, 60.0f))
+                return;
+
             uint32 eTimer = 4000;
 
             switch(me->GetEntry())
@@ -1855,6 +1858,13 @@ class spell_grab_carriage: public SpellScriptLoader
     public:
         spell_grab_carriage() : SpellScriptLoader("spell_grab_carriage") { }
 
+        enum misc
+        {
+            _credit = 57710,    //Q: 29680
+            _credit2 = 59497,   //Q: 59497
+            _credit3 = 57741,   //Q: 29800
+        };
+
         class spell_grab_carriage_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_grab_carriage_SpellScript);
@@ -1873,21 +1883,37 @@ class spell_grab_carriage: public SpellScriptLoader
                 {
                     carriage = caster->SummonCreature(57208, 979.06f, 2863.87f, 87.88f, 4.7822f, TEMPSUMMON_MANUAL_DESPAWN, 0, caster->GetGUID());
                     yak      = caster->SummonCreature(57207, 979.37f, 2860.29f, 88.22f, 4.4759f, TEMPSUMMON_MANUAL_DESPAWN, 0, caster->GetGUID());
+                    if (Player* p = caster->ToPlayer())
+                        p->TalkedToCreature(_credit, ObjectGuid::Empty);
                 }
                 else if (caster->GetAreaId() == 5881) // Ferme Dai-Lo
                 {
                     carriage = caster->SummonCreature(57208, 588.70f, 3165.63f, 88.86f, 4.4156f, TEMPSUMMON_MANUAL_DESPAWN, 0, caster->GetGUID());
                     yak      = caster->SummonCreature(59499, 587.61f, 3161.91f, 89.31f, 4.3633f, TEMPSUMMON_MANUAL_DESPAWN, 0, caster->GetGUID());
+                    if (Player* p = caster->ToPlayer())
+                        p->TalkedToCreature(_credit2, ObjectGuid::Empty);
                 }
                 else if (caster->GetAreaId() == 5833) // Epave du Chercheciel
                 {
                     carriage = caster->SummonCreature(57208, 264.37f, 3867.60f, 73.56f, 0.9948f, TEMPSUMMON_MANUAL_DESPAWN, 0, caster->GetGUID());
                     // spell 108932
                     yak      = caster->SummonCreature(57742, 268.38f, 3872.36f, 74.50f, 0.8245f, TEMPSUMMON_MANUAL_DESPAWN, 0, caster->GetGUID());
+                    if (Player* p = caster->ToPlayer())
+                        p->TalkedToCreature(_credit3, ObjectGuid::Empty);
                 }
 
                 if (!carriage || !yak)
                     return;
+
+                yak->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                carriage->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                yak->SetReactState(REACT_PASSIVE);
+                carriage->SetReactState(REACT_PASSIVE);
+
+                sLog->outU(">>>>> speed %f|%u ---- | %f", yak->GetSpeed(MOVE_RUN), yak->IsWalking(), carriage->GetSpeed(MOVE_RUN));
+                //carriage->SetSpeed(MOVE_WALK, 5.0f, true);
+                //carriage->SetSpeed(MOVE_RUN, 1.5f, true);
+                //yak->SetSpeed(MOVE_WALK, yak->GetSpeed(MOVE_WALK), false);
 
                 //carriage->CastSpell(yak, 108627, true);   //visual
                 //carriage->GetMotionMaster()->MoveFollow(yak, 0.0f, M_PI);
@@ -1913,8 +1939,6 @@ class vehicle_carriage : public VehicleScript
 {
     public:
         vehicle_carriage() : VehicleScript("vehicle_carriage") {}
-
-
         void OnRemovePassenger(Vehicle* veh, Unit* passenger)
         {
             if(Unit* u = veh->GetBase())
@@ -4386,6 +4410,9 @@ public:
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
+            if (!me->IsWithinDistInMap(who, 60.0f))
+                return;
+
             GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
             if (itr != m_player_for_event.end())
                 return;
@@ -4740,13 +4767,13 @@ public:
 
         void SendState(Player* p, bool enable)
         {
+            //! 6.1.2
             WorldPacket data(SMSG_INIT_WORLD_STATES, 34);
+            data << uint32(860);                                    // mapid
             data << uint32(5736);                                   // zone id
             data << uint32(5833);                                   // area id
-            data << uint32(860);                                    // mapid
 
-            data.WriteBits(2, 21);                                  // count of ObjectGuid blocks
-            data.FlushBits();
+            data << uint32(2);                                      // count of ObjectGuid blocks
 
             FillInitialWorldState(data, WS_ENABLE, enable);
             FillInitialWorldState(data, WS_HEALER_COUNT, healerCount);
