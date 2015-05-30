@@ -748,7 +748,6 @@ enum OpcodeClient : uint32
     CMSG_PURCHASE_GET_PURCHASE_LIST                   = 0xBADD, // 5.4.1 17538
     CMSG_QUERY_PLAYER_RECIPES                         = 0xBADD, // 5.4.1 17538
     CMSG_REDIRECTION_AUTH_PROOF                       = 0xBADD, // 5.4.1 17538
-    CMSG_SELECT_FACTION                               = 0xBADD, // 5.4.1 17538
     CMSG_SET_PRIMARY_TALENT_TREE                      = 0xBADD,  // 5.0.5 16048 deprecated
     CMSG_SUMMON_BATTLEPET_COMPANION                   = 0xBADD, // 5.4.1 17538
     CMSG_GET_WEB_TICKET                               = 0xBADD, // 5.4.1 17538
@@ -1683,7 +1682,6 @@ enum OpcodeServer : uint32
     SMSG_TABARDVENDOR_ACTIVATE                        = 0xBADD,
     SMSG_SET_RAID_DIFFICULTY                          = 0xBADD,
     SMSG_ATTACKSWING_ERROR                            = 0xBADD,
-    SMSG_SHOW_NEURTRAL_PLAYER_FACTION_SELECT_UI       = 0xBADD,
     SMSG_SAVE_GUILD_EMBLEM                            = 0xBADD,
     SMSG_BATTLEFIELD_RATED_INFO                       = 0xBADD,
     SMSG_UPDATE_CAPTURE_POINT                         = 0xBADD,
