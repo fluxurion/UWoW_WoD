@@ -695,7 +695,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
         }
         break;
         case 4:
-        case 5:
+        default:
         {
             ASSERT(_charCreateCallback.GetParam().get() == createInfo);
 
@@ -714,9 +714,10 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
             _charCreateCallback.FreeResult();
             _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
             _charCreateCallback.NextStage();
+            _charCreateCallback.InitTimer();    //set timer for manual waithing
         }
         break;
-        case 6:
+        case 20:
             SendCharCreate(CHAR_CREATE_ERROR);
             _charCreateCallback.Reset();
             break;
