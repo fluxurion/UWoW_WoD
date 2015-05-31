@@ -188,6 +188,7 @@ WorldPacket const* WorldPackets::BattlePay::ProductListResponse::Write()
         _worldPacket << shopData.Flags;
         _worldPacket << shopData.BannerType;
 
+        _worldPacket.WriteBit(shopData.displayInfo.HasValue);
         _worldPacket.FlushBits();
 
         if (shopData.displayInfo.HasValue)

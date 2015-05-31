@@ -142,7 +142,7 @@ namespace WorldPackets
             uint32 EntryID = 0;
             uint32 GroupID = 0;
             uint32 ProductID = 0;
-            uint32 Ordering = 0;
+            int32 Ordering = 0;
             uint32 Flags = 0;
             uint8 BannerType = 0;
             Optional<DisplayInfo> displayInfo;

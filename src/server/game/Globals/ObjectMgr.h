@@ -44,6 +44,7 @@
 #include <functional>
 #include "PhaseMgr.h"
 #include <LockedMap.h>
+#include "Packets/BattlePayPackets.h"
 
 class Item;
 class PhaseMgr;
@@ -1344,6 +1345,7 @@ class ObjectMgr
         const std::vector<uint32>* GetPossibleBreedsForSpecies(uint32 speciesID) const;
         void LoadRaceAndClassExpansionRequirements();
         void LoadRealmNames();
+        void LoadBattlePay();
 
         std::string GetRealmName(uint32 realm) const;
 
@@ -1408,6 +1410,7 @@ class ObjectMgr
             return 0;
         }
 
+        WorldPackets::BattlePay::ProductListResponse productList;
     private:
         // first free id for selected id type
         uint32 _auctionId;

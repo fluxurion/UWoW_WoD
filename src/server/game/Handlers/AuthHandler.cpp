@@ -83,6 +83,7 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     features.CharUndeleteEnabled = true;
     features.CommerceSystemEnabled = true;
     features.Unk14 = true;
+    features.TokenPollTimeSeconds = 300;
     SendPacket(features.Write());
 }
 

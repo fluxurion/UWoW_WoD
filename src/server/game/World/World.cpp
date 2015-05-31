@@ -2085,6 +2085,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading realm names...");
     sObjectMgr->LoadRealmNames();
 
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Battle Pay...");
+    sObjectMgr->LoadBattlePay();
+
     sLog->outInfo(LOG_FILTER_GENERAL, "Initializing Opcodes...");
     opcodeTable.Initialize();
 

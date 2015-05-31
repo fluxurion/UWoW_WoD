@@ -49,6 +49,7 @@
 #include "Configuration/Config.h"
 #include "LFGMgr.h"
 #include <openssl/md5.h>
+#include "Packets/BattlePayPackets.h"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -9710,4 +9711,116 @@ std::string ObjectMgr::GetRealmName(uint32 realm) const
 {
     RealmNameContainer::const_iterator iter = _realmNameStore.find(realm);
     return iter != _realmNameStore.end() ? iter->second : "";
+}
+
+void ObjectMgr::LoadBattlePay()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                                  0            1              2               3           4
+    QueryResult result = WorldDatabase.Query("SELECT `GroupID`, `IconFileDataID`, `DisplayType`, `Ordering`, `Name` FROM `battlepay_group`");
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            WorldPackets::BattlePay::ProductGroup group;
+            group.GroupID = fields[0].GetInt32();
+            group.IconFileDataID = fields[1].GetInt32();
+            group.DisplayType = fields[2].GetInt8();
+            group.Ordering =  fields[3].GetInt32();
+            group.Name = fields[4].GetString();
+            productList.productGroup.push_back(group);
+        }
+        while (result->NextRow());
+    }
+
+    //                                                  0            1                          2                           3         4       5              6                          7                   8               9               10              11          12              13          14                  15              16
+    result = WorldDatabase.Query("SELECT `ProductID`, `NormalPriceFixedPoint`, `CurrentPriceFixedPoint`, `ChoiceType`, `Type`, `Flags`, `dInfo_CreatureDisplayInfoID`, `dInfo_FileDataID`, `dInfo_Name1`, `dInfo_Name2`, `dInfo_Name3`, `dInfo_Flags`, `pItem_ID`, `pItem_ItemID`, `pItem_Quantity`, `pItem_HasPet`, `pItem_PetResult` FROM `battlepay_product`");
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            WorldPackets::BattlePay::Product product;
+            product.ProductID = fields[0].GetInt32();
+            product.NormalPriceFixedPoint = fields[1].GetInt64();
+            product.CurrentPriceFixedPoint = fields[2].GetInt64();
+            product.ChoiceType = fields[3].GetInt8();
+            product.Type = fields[4].GetInt8();
+            product.Flags = fields[5].GetInt32();
+
+            WorldPackets::BattlePay::DisplayInfo displayInfo;
+            if (fields[6].GetInt32())
+                displayInfo.CreatureDisplayInfoID.Set(fields[6].GetInt32());
+            if (fields[7].GetInt32())
+                displayInfo.FileDataID.Set(fields[7].GetInt32());
+
+            displayInfo.Name1 = fields[8].GetString();
+            displayInfo.Name2 = fields[9].GetString();
+            displayInfo.Name3 = fields[10].GetString();
+
+            if (fields[11].GetInt32())
+                displayInfo.Flags.Set(fields[11].GetInt32());
+            product.displayInfo.Set(displayInfo);
+
+            if (fields[12].GetInt32() > 0)
+            {
+                WorldPackets::BattlePay::ProductItem pItem;
+                pItem.ID = fields[12].GetInt32();
+                pItem.ItemID = fields[13].GetInt32();
+                pItem.Quantity = fields[14].GetInt32();
+                pItem.HasPet = fields[15].GetBool();
+                if (fields[16].GetInt8())
+                    pItem.PetResult.Set(fields[16].GetInt8());
+                product.battlePayProduct.push_back(pItem);
+            }
+
+            productList.product.push_back(product);
+        }
+        while (result->NextRow());
+    }
+
+    //                                                  0            1           2          3           4       5                   6                           7                   8           9               10              11
+    result = WorldDatabase.Query("SELECT `EntryID`, `GroupID`, `ProductID`, `Ordering`, `Flags`, `BannerType`, `dInfo_CreatureDisplayInfoID`, `dInfo_FileDataID`, `dInfo_Name1`, `dInfo_Name2`, `dInfo_Name3`, `dInfo_Flags` FROM `battlepay_shopentry`");
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            WorldPackets::BattlePay::ShopEntry shop;
+            shop.EntryID = fields[0].GetInt32();
+            shop.GroupID = fields[1].GetInt32();
+            shop.ProductID = fields[2].GetInt32();
+            shop.Ordering = fields[3].GetInt32();
+            shop.Flags = fields[4].GetInt32();
+            shop.BannerType = fields[5].GetInt32();
+
+            WorldPackets::BattlePay::DisplayInfo info;
+
+            if (fields[6].GetInt32())
+                info.CreatureDisplayInfoID.Set(fields[6].GetInt32());
+            if (fields[7].GetInt32())
+                info.FileDataID.Set(fields[7].GetInt32());
+
+            if (info.FileDataID.HasValue || info.CreatureDisplayInfoID.HasValue)
+            {
+                info.Name1 = fields[8].GetString();
+                info.Name2 = fields[9].GetString();
+                info.Name3 = fields[10].GetString();
+                if (fields[11].GetInt32())
+                    info.Flags.Set(fields[11].GetInt32());
+                shop.displayInfo.Set(info);
+            }
+
+            productList.shop.push_back(shop);
+        }
+        while (result->NextRow());
+    }
 }
