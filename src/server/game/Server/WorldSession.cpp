@@ -94,10 +94,10 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter) :
+WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag) :
 m_muteTime(mute_time), m_timeOutTime(0), _player(NULL), m_Socket(sock),
 _security(sec), _accountId(id), _battlenetAccountId(battlenetAccountId), m_expansion(expansion), _logoutTime(0),
-m_inQueue(false), m_playerLoading(false), m_playerLogout(false),
+m_inQueue(false), m_playerLoading(false), m_playerLogout(false), atAuthFlag(flag),
 m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
 m_sessionDbLocaleIndex(locale),
@@ -1085,6 +1085,21 @@ void WorldSession::InitWarden(BigNumber* k, std::string os)
         // _warden->Init(this, k);
     }
 }
+
+void WorldSession::RemoveAuthFlag(AuthFlags f)
+{
+    atAuthFlag = AuthFlags(atAuthFlag & ~f);
+    SaveAuthFlag();
+}
+
+void WorldSession::SaveAuthFlag()
+{
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_AT_AUTH_FLAG);
+    stmt->setUInt16(0, atAuthFlag);
+    stmt->setUInt32(1, GetAccountId());
+    LoginDatabase.Execute(stmt);
+}
+
 ObjectGuid WorldSession::GetAccountGUID() const
 { 
     return ObjectGuid::Create<HighGuid::WowAccount>(GetAccountId());

@@ -67,6 +67,22 @@ struct LfgRoleCheck;
 struct LfgUpdateData;
 }
 
+enum AuthFlags
+{
+    AT_AUTH_FLAG_NONE                       = 0x0,
+    AT_AUTH_FLAG_90_LVL_UP                  = 0x1,
+    AT_AUTH_FLAG_RESTORE_DELETED_CHARACTER  = 0x2,
+};
+
+enum BattlePayDistribStatus
+{
+    BATTLE_PAY_DIST_STATUS_NONE             = 0,
+    BATTLE_PAY_DIST_STATUS_AVAILABLE        = 1,
+    BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS   = 2,
+    BATTLE_PAY_DIST_STATUS_PROCESS_COMPLETE = 3,    //send SMSG_CHARACTER_UPGRADE_CHARACTER_CHOSEN
+    BATTLE_PAY_DIST_STATUS_FINISHED         = 4
+};
+
 namespace WorldPackets
 {
     namespace Character
@@ -212,6 +228,11 @@ namespace WorldPackets
     namespace NPC
     {
         class Hello;
+    }
+
+    namespace BattlePay
+    {
+        class DistributionAssignToTarget;
     }
 
     namespace Query
@@ -424,7 +445,7 @@ public:
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -452,7 +473,9 @@ class WorldSession
 
         void SendAuthResponse(uint8 code, bool hasAccountData = true, bool queued = false, uint32 queuePos = 0);
         void SendClientCacheVersion(uint32 version);
-        void SendBattlePay();
+        void HandleBattlePayPurchaseListGet(WorldPacket& packet);
+        void HandleBattlePayProductList(WorldPacket& packet);
+        void SendBattlePayDistribution(uint8 status, ObjectGuid guid =ObjectGuid::Empty);
         void SendDisplayPromo(int32 promo);
         void SendFeatureSystemStatusGlueScreen();
 
@@ -1223,6 +1246,7 @@ class WorldSession
         void HandleForcedReactions(WorldPacket& recvPacket);
         void HandleSaveCUFProfiles(WorldPacket& recvPacket);
         void SendLoadCUFProfiles();
+        void HandleBattlePayDistributionAssign(WorldPackets::BattlePay::DistributionAssignToTarget& packet);
 
         // Scenarios
         void HandleScenarioPOIQuery(WorldPacket& recvPacket);
@@ -1238,8 +1262,15 @@ class WorldSession
 
         //
         void SuspendTokenResponse(WorldPacket& recvPacket);
+        void HandleUndeleteCharacterCooldownnStatus(WorldPacket& recvPacket);
 
         void LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy = NULL);
+
+        // Battle Pay
+        bool HasAuthFlag(AuthFlags f) const { return atAuthFlag & f; }
+        void RemoveAuthFlag(AuthFlags f);
+        void SaveAuthFlag();
+
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
@@ -1337,6 +1368,8 @@ class WorldSession
         uint32 _counttokick;
 
         ObjectGuid m_currentBankerGUID;
+
+        AuthFlags atAuthFlag = AT_AUTH_FLAG_NONE;
 };
 
 class PacketSendEvent : public BasicEvent

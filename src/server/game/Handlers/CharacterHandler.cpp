@@ -50,6 +50,7 @@
 #include "SystemPackets.h"
 #include "BattlegroundPackets.h"
 #include "MiscPackets.h"
+#include "BattlePayPackets.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {

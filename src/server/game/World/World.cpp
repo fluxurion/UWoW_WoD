@@ -305,11 +305,16 @@ void World::AddSession_(WorldSession* s)
     s->SendAuthResponse(AUTH_OK);
 
     s->SendTimeZoneInformation();
+
+    WorldPacket data(SMSG_0x1965);
+    data << uint32(0);
+    data << uint32(0);
+    s->SendPacket(&data);
+
     s->SendFeatureSystemStatusGlueScreen();
 
     s->SendAddonsInfo();
     s->SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-    s->SendBattlePay();
     s->SendTutorialsData();
     s->SendDisplayPromo(0);
 

@@ -22,9 +22,19 @@
 #include "AuthenticationPackets.h"
 #include "ClientConfigPackets.h"
 #include "SystemPackets.h"
+#include "BattlePayPackets.h"
 
 void WorldSession::SendAuthResponse(uint8 code, bool hasAccountData, bool queued, uint32 queuePos)
 {
+    //! WTF?
+    WorldPacket data(SMSG_DANCE_STUDIO_CREATE_RESULT, 9);
+    data << uint8(128);           //onebit
+    data << uint32(795877);
+    data << uint32(10848087);
+    data << uint32(1084761);
+    data << uint32(4665878);
+    SendPacket(&data);
+
     WorldPackets::Auth::AuthResponse response;
     response.SuccessInfo.HasValue = code == AUTH_OK;
     response.Result = code;
@@ -56,14 +66,6 @@ void WorldSession::SendClientCacheVersion(uint32 version)
     SendPacket(cache.Write());
 }
 
-void WorldSession::SendBattlePay()
-{
-    WorldPacket data(SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE, 7);
-    data << uint32(0);
-    data << uint32(0);
-    SendPacket(&data);
-}
-
 void WorldSession::SendDisplayPromo(int32 promo)
 {
     WorldPacket data(SMSG_DISPLAY_PROMOTION, 7);
@@ -74,10 +76,23 @@ void WorldSession::SendDisplayPromo(int32 promo)
 void WorldSession::SendFeatureSystemStatusGlueScreen()
 {
     WorldPackets::System::FeatureSystemStatusGlueScreen features;
-    features.BpayStoreAvailable = false;
+    features.BpayStoreAvailable = true;
     features.BpayStoreDisabledByParentalControls = false;
-    features.CharUndeleteEnabled = false/*sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED)*/;
-    features.BpayStoreEnabled = false/*sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED)*/;
-
+    features.CharUndeleteEnabled = true/*sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED)*/;
+    features.BpayStoreEnabled = true/*sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED)*/;
+    features.CharUndeleteEnabled = true;
+    features.CommerceSystemEnabled = true;
+    features.Unk14 = true;
     SendPacket(features.Write());
+}
+
+//! 6.1.2
+void WorldSession::HandleUndeleteCharacterCooldownnStatus(WorldPacket& /*recvPacket*/)
+{
+    //CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS
+    WorldPacket data(SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE, 9);
+    data << uint8(0);           //onebit
+    data << uint32(2592000);
+    data << uint32(0);
+    SendPacket(&data);
 }

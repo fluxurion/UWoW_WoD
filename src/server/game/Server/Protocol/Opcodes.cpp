@@ -40,6 +40,7 @@
 #include "Packets/TradePackets.h"
 #include "Packets/WhoPackets.h"
 #include "Packets/SocialPackets.h"
+#include "Packets/BattlePayPackets.h"
 
 template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
 class PacketHandler : public ClientOpcodeHandler
@@ -649,7 +650,11 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SET_RAID_DIFFICULTY,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetRaidDifficultyOpcode   );//603
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PET_MODIFY_NAME,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlePetModifyName);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PET_SET_BATTLE_SLOT,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlePetSetSlot);
-
+    DEFINE_HANDLER(CMSG_BATTLE_PAY_DISTRIBUTION_ASSIGN_TO_TARGET,           STATUS_AUTHED,    PROCESS_INPLACE,      WorldPackets::BattlePay::DistributionAssignToTarget, &WorldSession::HandleBattlePayDistributionAssign);//612
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS,  STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleUndeleteCharacterCooldownnStatus);//612
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PAY_GET_PURCHASE_LIST,            STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleBattlePayPurchaseListGet);//612
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PAY_GET_PRODUCT_LIST,             STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleBattlePayProductList);//612
+    
 #undef DEFINE_OPCODE_HANDLER_OLD
 #undef DEFINE_HANDLER
 
@@ -1430,7 +1435,12 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_MOVE_TELEPORT,                           STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SEND_RAID_TARGET_UPDATE_SINGLE,          STATUS_NEVER);//603
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RAID_TARGET_UPDATE_ALL,                  STATUS_NEVER);
-
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_0x1965,                                  STATUS_NEVER);//612
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE,          STATUS_NEVER);//612
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_DANCE_STUDIO_CREATE_RESULT,              STATUS_NEVER);//612
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE,       STATUS_NEVER);//612
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE,    STATUS_NEVER);//612
+    
     //------------                      M S G                   ------------//
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_MAIL_QUERY_NEXT_TIME_RESULT,             STATUS_NEVER);//612
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SET_RAID_DIFFICULTY,                     STATUS_NEVER);//603
