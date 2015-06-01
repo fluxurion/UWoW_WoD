@@ -35,6 +35,11 @@ void WorldSession::HandleBattlePayPurchaseListGet(WorldPacket& /*recvPacket*/)
     data << uint32(0);
     data << uint32(0);
     SendPacket(&data);
+
+    WorldPacket data2(SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE, 7);
+    data2 << uint32(0);
+    data2 << uint32(0);
+    SendPacket(&data2);
 }
 
 //! 6.1.2
