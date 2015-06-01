@@ -82,16 +82,8 @@ void WorldSession::HandleBattlePayDistributionAssign(WorldPackets::BattlePay::Di
 //! 6.1.2
 void WorldSession::HandleBattlePayProductList(WorldPacket& /*recvPacket*/)
 {
-    WorldPacket data(SMSG_REQUEST_WOW_TOKEN_MARKET_PRICE_RESPONSE, 20);
-    data << uint32(420890000);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(14400);
-    SendPacket(&data);
-
-    //CMSG_BATTLE_PAY_GET_PRODUCT_LIST
     WorldPackets::BattlePay::ProductListResponse response;
+    //CMSG_BATTLE_PAY_GET_PRODUCT_LIST
     response.Result = 0;
     response.CurrencyID = 5;
 

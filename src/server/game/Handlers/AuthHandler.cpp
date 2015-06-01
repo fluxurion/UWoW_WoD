@@ -46,6 +46,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool hasAccountData, bool queued
         response.SuccessInfo.Value.ActiveExpansionLevel = Expansion();
         response.SuccessInfo.Value.VirtualRealmAddress = GetVirtualRealmAddress();
         response.SuccessInfo.Value.CurrencyID = 5;
+        response.SuccessInfo.Value.TimeRemain = 0;
         std::string realmName = sObjectMgr->GetRealmName(realmHandle.Index);
 
         // Send current home realm. Also there is no need to send it later in realm queries.
@@ -95,5 +96,17 @@ void WorldSession::HandleUndeleteCharacterCooldownnStatus(WorldPacket& /*recvPac
     data << uint8(0);           //onebit
     data << uint32(2592000);
     data << uint32(0);
+    SendPacket(&data);
+}
+
+//! 6.1.2
+void WorldSession::HandleWowTokenMarketPrice(WorldPacket& /*recvPacket*/)
+{
+    WorldPacket data(SMSG_REQUEST_WOW_TOKEN_MARKET_PRICE_RESPONSE, 20);
+    data << uint32(420890000);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(0);
+    data << uint32(14400);
     SendPacket(&data);
 }

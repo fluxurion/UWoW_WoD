@@ -885,7 +885,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
         features.CharUndeleteEnabled = false/*sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED)*/;
         features.BpayStoreEnabled    = true/*sWorld->getBoolConfig(CONFIG_PURCHASE_SHOP_ENABLED)*/;
-
+        features.BpayStoreAvailable = true;
+        features.CommerceSystemEnabled = true;
         SendPacket(features.Write());
     }
 

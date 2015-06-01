@@ -1263,6 +1263,7 @@ class WorldSession
         //
         void SuspendTokenResponse(WorldPacket& recvPacket);
         void HandleUndeleteCharacterCooldownnStatus(WorldPacket& recvPacket);
+        void HandleWowTokenMarketPrice(WorldPacket& recvPacket);
 
         void LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy = NULL);
 

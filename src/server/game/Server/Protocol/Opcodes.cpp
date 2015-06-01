@@ -652,6 +652,7 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PET_SET_BATTLE_SLOT,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleBattlePetSetSlot);
     DEFINE_HANDLER(CMSG_BATTLE_PAY_DISTRIBUTION_ASSIGN_TO_TARGET,           STATUS_AUTHED,    PROCESS_INPLACE,      WorldPackets::BattlePay::DistributionAssignToTarget, &WorldSession::HandleBattlePayDistributionAssign);//612
     DEFINE_OPCODE_HANDLER_OLD(CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS,  STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleUndeleteCharacterCooldownnStatus);//612
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE,          STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleWowTokenMarketPrice);//612
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PAY_GET_PURCHASE_LIST,            STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleBattlePayPurchaseListGet);//612
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PAY_GET_PRODUCT_LIST,             STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleBattlePayProductList);//612
     
