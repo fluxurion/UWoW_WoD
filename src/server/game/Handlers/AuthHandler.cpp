@@ -103,10 +103,9 @@ void WorldSession::HandleUndeleteCharacterCooldownnStatus(WorldPacket& /*recvPac
 void WorldSession::HandleWowTokenMarketPrice(WorldPacket& /*recvPacket*/)
 {
     WorldPacket data(SMSG_REQUEST_WOW_TOKEN_MARKET_PRICE_RESPONSE, 20);
-    data << uint32(420890000);
+    data << uint64(416460000);                                          //CurrentMarketPrice
     data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
+    data << uint32(TOKEN_RESULT_SUCCESS);
     data << uint32(14400);
     SendPacket(&data);
 }

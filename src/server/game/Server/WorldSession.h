@@ -55,6 +55,7 @@ struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
 class ObjectGuid;
+class BattlePayMgr;
 
 namespace lfg
 {
@@ -233,6 +234,8 @@ namespace WorldPackets
     namespace BattlePay
     {
         class DistributionAssignToTarget;
+        class StartPurchase;
+        class ConfirmPurchaseResponse;
     }
 
     namespace Query
@@ -1247,6 +1250,8 @@ class WorldSession
         void HandleSaveCUFProfiles(WorldPacket& recvPacket);
         void SendLoadCUFProfiles();
         void HandleBattlePayDistributionAssign(WorldPackets::BattlePay::DistributionAssignToTarget& packet);
+        void HandleBattlePayStartPurchase(WorldPackets::BattlePay::StartPurchase& packet);
+        void HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::ConfirmPurchaseResponse& packet);
 
         // Scenarios
         void HandleScenarioPOIQuery(WorldPacket& recvPacket);
@@ -1320,6 +1325,9 @@ class WorldSession
 
         // Warden
         Warden* _warden;                                    // Remains NULL if Warden system is not enabled by config
+
+        // BattlePay
+        BattlePayMgr* _battlePay;
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue

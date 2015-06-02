@@ -23,6 +23,7 @@
 #include "ClientConfigPackets.h"
 #include "SystemPackets.h"
 #include "BattlePayPackets.h"
+#include "BattlePayMgr.h"
 
 void WorldSession::HandleBattlePayPurchaseListGet(WorldPacket& /*recvPacket*/)
 {
@@ -97,4 +98,14 @@ void WorldSession::HandleBattlePayProductList(WorldPacket& /*recvPacket*/)
     response.shop = sObjectMgr->productList.shop;
 
     SendPacket(response.Write());
+}
+
+void WorldSession::HandleBattlePayStartPurchase(WorldPackets::BattlePay::StartPurchase& packet)
+{
+    _battlePay->StartPurchase(packet);
+}
+
+void WorldSession::HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::ConfirmPurchaseResponse& packet)
+{
+    _battlePay->ConfirmPurchaseResponse(packet.ServerToken, packet.ConfirmPurchase);
 }

@@ -208,8 +208,8 @@ void WorldPackets::BattlePay::StartPurchase::Read()
 WorldPacket const* WorldPackets::BattlePay::StartPurchaseResponse::Write()
 {
     _worldPacket << PurchaseID;
-    _worldPacket << ClientToken;
     _worldPacket << PurchaseResult;
+    _worldPacket << ClientToken;
 
     return &_worldPacket;
 }

@@ -50,6 +50,7 @@
 #include "ClientConfigPackets.h"
 #include "MiscPackets.h"
 #include "SystemPackets.h"
+#include "BattlePayMgr.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -127,6 +128,7 @@ playerLoginCounter(0), m_currentBankerGUID()
     }
 
     InitializeQueryCallbackParameters();
+    _battlePay = new BattlePayMgr(this);
 }
 
 /// WorldSession destructor
@@ -145,6 +147,9 @@ WorldSession::~WorldSession()
 
     if (_warden)
         delete _warden;
+
+    if (_battlePay)
+        delete _battlePay;
 
     ///- empty incoming packet queue
     WorldPacket* packet = NULL;
@@ -288,7 +293,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     ///- Before we process anything:
     /// If necessary, kick the player from the character select screen
     if (IsConnectionIdle())
-        m_Socket->CloseSocket();
+        KickPlayer();
 
     //count pakage
     if(_second <= diff)
@@ -322,6 +327,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //! delayed packets that were re-enqueued due to improper timing. To prevent an infinite
     //! loop caused by re-enqueueing the same packets over and over again, we stop updating this session
     //! and continue updating others. The re-enqueued packets will be handled in the next Update call for this session.
+
+    //
+    if (m_Socket)
+        _battlePay->Update(diff);
 
     while (m_Socket && !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket && _recvQueue.next(packet, updater))
     {
