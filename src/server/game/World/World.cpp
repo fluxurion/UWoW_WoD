@@ -2929,12 +2929,18 @@ void World::ShutdownCancel()
 }
 
 /// Send a server message to the user(s)
+//! 6.1.2
 void World::SendServerMessage(ServerMessageType type, const char *text, Player* player)
 {
     WorldPacket data(SMSG_CHAT_SERVER_MESSAGE, 50);              // guess size
     data << uint32(type);
     if (type <= SERVER_MSG_STRING)
-        data << text;
+    {
+        size_t len = strlen(text);
+        data.WriteBits(len, 11);
+        data.FlushBits();
+        data.append(text, len);
+    }
 
     if (player)
         player->GetSession()->SendPacket(&data);
