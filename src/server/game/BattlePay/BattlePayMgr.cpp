@@ -36,6 +36,60 @@ bool BattlePayMgr::existClientToken(uint32 token) const
     return false;
 }
 
+int32 BattlePayMgr::GetCoinsFromDB()
+{
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLEPAY_COINS);
+    stmt->setUInt32(0, session->GetAccountId());
+    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
+        return (*result)[0].GetInt32();
+
+    return 0;
+}
+
+//! Negative value ADD coins.
+void BattlePayMgr::RemoveCoinsFromDB(int32 count)
+{
+    //UPDATE account SET coins = coins - ? WHERE id = ?
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BATTLEPAY_CHANGE_COINS_COUNT);
+    stmt->setInt32(0, count);
+    stmt->setUInt32(1, session->GetAccountId());
+    LoginDatabase.Execute(stmt);
+}
+
+//! ToDo: log for activation
+//! If add to inventory save player.
+bool BattlePayMgr::ActivateProduct(WorldPackets::BattlePay::Product product, uint64 productID)
+{
+    if (product.Type == PRODUCT_TYPE_ITEM)
+    {
+
+    }else if (product.Type == PRODUCT_TYPE_SERVICE)
+    {
+        //LevelUP
+        if (product.ProductID == PRODUCT_LEVEL_UP_90 && !session->HasAuthFlag(AT_AUTH_FLAG_90_LVL_UP))
+        {
+            session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_AVAILABLE, productID);
+            session->AddAuthFlag(AT_AUTH_FLAG_90_LVL_UP);
+            return true;
+        }
+    }
+    return false;
+}
+
+void BattlePayMgr::SendResult(uint64 pID, uint32 Product, uint32 Status, PurchaseResult erorResult/*=PURCHASE_RESULT_OK*/)
+{
+    WorldPackets::BattlePay::PurchaseUpdate result;
+    WorldPackets::BattlePay::Purchase p;
+    p.PurchaseID = pID;
+    p.Status = Status;
+    p.ResultCode = erorResult;
+    p.ProductID = Product;
+    //p.WalletName = "MasterCard";
+    result.purchase.push_back(p);
+    session->SendPacket(result.Write());
+}
+
 void BattlePayMgr::Update(uint32 const diff)
 {
     for (BattlePayPurshaseStore::iterator data = _store.begin(); data != _store.end(); ++data)
@@ -46,19 +100,10 @@ void BattlePayMgr::Update(uint32 const diff)
         {
             case 2:
             {
-                //Check if we have money ir true set 3 state, else send error.
-                bool noMoney = true;
-                if (noMoney)
+                //Check if we have money -> if true set 3 state, else send error.
+                if ((purchase.Product.CurrentPriceFixedPoint / 10000) > GetCoinsFromDB())
                 {
-                    WorldPackets::BattlePay::PurchaseUpdate result;
-                    WorldPackets::BattlePay::Purchase p;
-                    p.PurchaseID = purchase.PurchaseID;
-                    p.Status = purchase.Status;
-                    p.ResultCode = PURCHASE_RESULT_NOT_ENOUTH_MONEY;
-                    p.ProductID = purchase.ProductID;
-                    result.purchase.push_back(p);
-                    session->SendPacket(result.Write());
-
+                    SendResult(purchase.PurchaseID, purchase.ProductID, purchase.Status, PURCHASE_RESULT_NOT_ENOUTH_MONEY);
                     _store.erase(data);
                     return;
                 }
@@ -67,18 +112,11 @@ void BattlePayMgr::Update(uint32 const diff)
             }
             case 3: //Whaiting for purchase.
             {
-                WorldPackets::BattlePay::PurchaseUpdate result;
-                WorldPackets::BattlePay::Purchase p;
-                p.PurchaseID = purchase.PurchaseID;
-                p.Status = purchase.Status;
-                p.ResultCode = 0;
-                p.ProductID = purchase.ProductID;
-                result.purchase.push_back(p);
-                session->SendPacket(result.Write());
+                SendResult(purchase.PurchaseID, purchase.ProductID, purchase.Status);
 
                 WorldPackets::BattlePay::ConfirmPurchase confirm;
                 confirm.PurchaseID = purchase.PurchaseID;
-                confirm.CurrentPriceFixedPoint = 139718536857744;
+                confirm.CurrentPriceFixedPoint = 0;
                 confirm.ServerToken = purchase.PurchaseID;
                 session->SendPacket(confirm.Write());
 
@@ -100,12 +138,20 @@ void BattlePayMgr::StartPurchase(WorldPackets::BattlePay::StartPurchase const& p
         return;
     }
 
+    auto productitr  = sObjectMgr->BattlePayProductMap.find(packet.ProductID);
+    if (productitr == sObjectMgr->BattlePayProductMap.end())
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: BattlePayMgr::StartPurchase use not existen product = %u add %u", packet.ProductID,session->GetAccountId());
+        return;
+    }
+
     ++PurchaseID;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: BattlePayMgr::StartPurchase start for token = %u purchaseID %u", packet.ClientToken, PurchaseID);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: BattlePayMgr::StartPurchase start for token = %u productID %u purchaseID %u", packet.ClientToken, packet.ProductID, PurchaseID);
 
     _store[PurchaseID].PurchaseID = PurchaseID;
     _store[PurchaseID].ClientToken = packet.ClientToken;
     _store[PurchaseID].ProductID = packet.ProductID;
+    _store[PurchaseID].Product = productitr->second;
     _store[PurchaseID].TargetCharacter = packet.TargetCharacter;
     _store[PurchaseID].Status = 2;
 
@@ -115,14 +161,7 @@ void BattlePayMgr::StartPurchase(WorldPackets::BattlePay::StartPurchase const& p
     response.PurchaseResult = 0;            //! Statuses for 6.1.2: 25=0, 2=1, 12=2, 13-14=3, 28-29=4, 34=7, 1=8, 46=9, 47=10
     session->SendPacket(response.Write());
 
-    WorldPackets::BattlePay::PurchaseUpdate result;
-    WorldPackets::BattlePay::Purchase purchase;
-    purchase.PurchaseID = PurchaseID;
-    purchase.Status = _store[PurchaseID].Status;
-    purchase.ResultCode = 0;
-    purchase.ProductID = packet.ProductID;
-    result.purchase.push_back(purchase);
-    session->SendPacket(result.Write());
+    SendResult(PurchaseID, packet.ProductID, _store[PurchaseID].Status);
 }
 
 void BattlePayMgr::ConfirmPurchaseResponse(uint32 ServerToken, bool ConfirmPurchase)
@@ -136,27 +175,28 @@ void BattlePayMgr::ConfirmPurchaseResponse(uint32 ServerToken, bool ConfirmPurch
 
         if (!ConfirmPurchase)
         {
-            WorldPackets::BattlePay::PurchaseUpdate result;
-            WorldPackets::BattlePay::Purchase p;
-            p.PurchaseID = purchase.PurchaseID;
-            p.Status = 6;
-            p.ResultCode = 46;
-            p.ProductID = purchase.ProductID;
-            result.purchase.push_back(p);
-            session->SendPacket(result.Write());
-
+            SendResult(purchase.PurchaseID, purchase.ProductID, 6, PURCHASE_RESULT_EMPTY);
             _store.erase(data);
             return;
         }
 
-        WorldPackets::BattlePay::PurchaseUpdate result;
-        WorldPackets::BattlePay::Purchase p;
-        p.PurchaseID = purchase.PurchaseID;
-        p.Status = 6;    //5 - in process, 6 - finished.
-        p.ResultCode = 0;
-        p.ProductID = purchase.ProductID;
-        result.purchase.push_back(p);
-        session->SendPacket(result.Write());
+        if ((purchase.Product.CurrentPriceFixedPoint / 10000) > GetCoinsFromDB())
+        {
+            SendResult(purchase.PurchaseID, purchase.ProductID, 6, PURCHASE_RESULT_NOT_ENOUTH_MONEY);
+            _store.erase(data);
+            return;
+        }
+
+        if (ActivateProduct(purchase.Product, purchase.PurchaseID))
+        {
+
+            SendResult(purchase.PurchaseID, purchase.ProductID, 6);
+            RemoveCoinsFromDB(purchase.Product.CurrentPriceFixedPoint / 10000);
+        }else
+        {
+            SendResult(purchase.PurchaseID, purchase.ProductID, 0, PURCHASE_RESULT_COULNOT_BUY);
+            _store.erase(data);
+        }
         break;
     }
 }

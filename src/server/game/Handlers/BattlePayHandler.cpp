@@ -45,13 +45,21 @@ void WorldSession::HandleBattlePayPurchaseListGet(WorldPacket& /*recvPacket*/)
 
 //! 6.1.2
 //! Send status apgrade for 90 lvl
-void WorldSession::SendBattlePayDistribution(uint8 status, ObjectGuid TargetPlayer /*=ObjectGuid::Empty*/)
+void WorldSession::SendBattlePayDistribution(uint8 status, uint64 DistributionID, ObjectGuid TargetPlayer /*=ObjectGuid::Empty*/)
 {
+    auto productitr  = sObjectMgr->BattlePayProductMap.find(PRODUCT_LEVEL_UP_90);
+    if (productitr == sObjectMgr->BattlePayProductMap.end())
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: SendBattlePayDistribution use not existen product = %u add %u", PRODUCT_LEVEL_UP_90, GetAccountId());
+        return;
+    }
+    WorldPackets::BattlePay::Product product = productitr->second;
+
     //SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE
     WorldPackets::BattlePay::DistributionUpdate distributionBattlePay;
-    distributionBattlePay.object.DistributionID = 1;
+    distributionBattlePay.object.DistributionID = DistributionID;
     distributionBattlePay.object.Status = status;
-    distributionBattlePay.object.ProductID = 88;
+    distributionBattlePay.object.ProductID = PRODUCT_LEVEL_UP_90;
 
     if (TargetPlayer)
     {
@@ -59,20 +67,6 @@ void WorldSession::SendBattlePayDistribution(uint8 status, ObjectGuid TargetPlay
         distributionBattlePay.object.TargetVirtualRealm = GetVirtualRealmAddress();
         distributionBattlePay.object.TargetNativeRealm = GetVirtualRealmAddress();
     }
-
-    WorldPackets::BattlePay::Product product;
-    product.ProductID = 88;
-    product.NormalPriceFixedPoint = 999900;
-    product.CurrentPriceFixedPoint = 949905;
-    product.ChoiceType = 1;
-    product.Type = 2;
-    product.Flags = 975;
-
-    WorldPackets::BattlePay::DisplayInfo displayInfo;
-    displayInfo.FileDataID.Set(614740);
-    displayInfo.Name1 = "Up to 90 level!"; //Повышение до 90-го уровня
-    displayInfo.Name3 = "Process your character to 90 level!"; //Повысьте уровень вашего персонажа до 90!
-    product.displayInfo.Set(displayInfo);
 
     distributionBattlePay.object.product.Set(product);
 
@@ -82,7 +76,7 @@ void WorldSession::SendBattlePayDistribution(uint8 status, ObjectGuid TargetPlay
 //! 6.1.2
 void WorldSession::HandleBattlePayDistributionAssign(WorldPackets::BattlePay::DistributionAssignToTarget& packet)
 {
-    SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS, packet.TargetCharacter);
+    SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS, 1, packet.TargetCharacter);
 }
 
 //! 6.1.2
@@ -91,7 +85,7 @@ void WorldSession::HandleBattlePayProductList(WorldPacket& /*recvPacket*/)
     WorldPackets::BattlePay::ProductListResponse response;
     //CMSG_BATTLE_PAY_GET_PRODUCT_LIST
     response.Result = 0;
-    response.CurrencyID = 5;
+    response.CurrencyID = CURRENCY_RUB;
 
     response.product = sObjectMgr->productList.product;
     response.productGroup = sObjectMgr->productList.productGroup;

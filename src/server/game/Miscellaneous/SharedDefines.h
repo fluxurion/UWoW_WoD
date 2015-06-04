@@ -4866,4 +4866,22 @@ enum TokenResult
     TOKEN_RESULT_ERROR_AUCTIONABLE_TOKEN_OWNED  = 7,
     TOKEN_RESULT_ERROR_TRIAL_RESTRICTED         = 8
 };
+
+enum BattlePayCurrency
+{
+    CURRENCY_UNKNOWN    = 0,
+    CURRENCY_USD        = 1,
+    CURRENCY_GBP        = 2,
+    CURRENCY_KRW        = 3,
+    CURRENCY_EUR        = 4,
+    CURRENCY_RUB        = 5,
+    CURRENCY_ARS        = 8,
+    CURRENCY_CLP        = 9,
+    CURRENCY_MXN        = 10,
+    CURRENCY_BRL        = 11,
+    CURRENCY_AUD        = 12,
+    CURRENCY_CPT        = 14,
+    CURRENCY_TPT        = 15,
+    CURRENCY_BETA       = 16
+};
 #endif

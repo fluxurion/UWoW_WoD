@@ -9777,10 +9777,18 @@ void ObjectMgr::LoadBattlePay()
                 pItem.HasPet = fields[15].GetBool();
                 if (fields[16].GetInt8())
                     pItem.PetResult.Set(fields[16].GetInt8());
+
+                //! Little hack for WoW
+                if (pItem.ItemID == 122270)
+                    pItem.displayInfo.Set(displayInfo);
+
                 product.battlePayProduct.push_back(pItem);
+
             }
 
-            productList.product.push_back(product);
+            if (product.ProductID !=107) //WowToken kill game.
+                productList.product.push_back(product);
+            BattlePayProductMap[product.ProductID] = product;
         }
         while (result->NextRow());
     }
@@ -9819,7 +9827,8 @@ void ObjectMgr::LoadBattlePay()
                 shop.displayInfo.Set(info);
             }
 
-            productList.shop.push_back(shop);
+            if (shop.ProductID !=107) //WowToken kill game.
+                productList.shop.push_back(shop);
         }
         while (result->NextRow());
     }

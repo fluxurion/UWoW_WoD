@@ -1,0 +1,1 @@
+ALTER TABLE `account` ADD `coins` INT(11) NOT NULL DEFAULT '0' ;

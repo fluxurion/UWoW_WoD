@@ -1411,6 +1411,7 @@ class ObjectMgr
         }
 
         WorldPackets::BattlePay::ProductListResponse productList;
+        std::map<uint32, WorldPackets::BattlePay::Product> BattlePayProductMap;
     private:
         // first free id for selected id type
         uint32 _auctionId;

@@ -40,6 +40,8 @@ struct Purchase
     uint64 PurchaseID           = 0;
     uint32 Status               = 0;
 
+    WorldPackets::BattlePay::Product Product;
+
     uint32 ClientToken          = 0;
     uint32 ProductID            = 0;
     ObjectGuid TargetCharacter;
@@ -48,21 +50,29 @@ struct Purchase
 };
 
 //6.1.2
-enum PuchaseStatus
-{
-    PURCHESE_STATUS_NONE                    = 25,   //Real 0 - in progress.
-    PURCHESE_STATUS_READY_FOR_CONFIRM       = 2,    //Real 1
-    PURCHESE_STATUS_FAIL                    = 1,    //Real 8
-};
-
-//6.1.2
 enum PurchaseResult
 {
-    PURCHASE_RESULT_NO_PAY_METHOD           = 25,   //Real 0
-    PURCHASE_RESULT_NO_PAY_METHOD2          = 2,    //Real 1
+    PURCHASE_RESULT_OK                      = 0,    //Real 5
+    PURCHASE_RESULT_ERROR_WHILE_PURCHASE    = 25,   //Real 0
+    PURCHASE_RESULT_NO_PAY_METHOD           = 2,    //Real 1
+    PURCHASE_RESULT_ERROR_PLZ_LATER         = 13,   //Real 3
     PURCHASE_RESULT_NOT_ENOUTH_MONEY        = 28,   //Real 4
     PURCHASE_RESULT_DISABLE_PARENT_CONTROL  = 34,   //Real 7
+    PURCHASE_RESULT_COULNOT_BUY             = 1,    //Real 8
+    PURCHASE_RESULT_EMPTY                   = 46,   //Real 9
 };
+
+enum ProductType
+{
+    PRODUCT_TYPE_ITEM                       = 0,
+    PRODUCT_TYPE_SERVICE                    = 2,
+};
+
+enum ProductConstant
+{
+    PRODUCT_LEVEL_UP_90                     = 83,
+};
+
 typedef std::map<uint32/*PurchaseID*/, Purchase> BattlePayPurshaseStore;
 
 class BattlePayMgr
@@ -74,9 +84,15 @@ public:
 
     }
 
+    int32 GetCoinsFromDB();
+    void RemoveCoinsFromDB(int32 count);
+    bool ActivateProduct(WorldPackets::BattlePay::Product product, uint64 distrID);
+    void SendResult(uint64 pID, uint32 Product, uint32 Status, PurchaseResult erorResult=PURCHASE_RESULT_OK);
+
     void StartPurchase(WorldPackets::BattlePay::StartPurchase const&p);
     void ConfirmPurchaseResponse(uint32 ClientToken, bool ConfirmPurchase);
     bool existClientToken(uint32 token) const;
+
     BattlePayPurshaseStore const& GetStore() const { return _store; };
     void Update(uint32 const diff);
 private:

@@ -478,7 +478,7 @@ class WorldSession
         void SendClientCacheVersion(uint32 version);
         void HandleBattlePayPurchaseListGet(WorldPacket& packet);
         void HandleBattlePayProductList(WorldPacket& packet);
-        void SendBattlePayDistribution(uint8 status, ObjectGuid guid =ObjectGuid::Empty);
+        void SendBattlePayDistribution(uint8 status, uint64 purchaseID = 1, ObjectGuid guid =ObjectGuid::Empty);
         void SendDisplayPromo(int32 promo);
         void SendFeatureSystemStatusGlueScreen();
 
@@ -1274,6 +1274,7 @@ class WorldSession
 
         // Battle Pay
         bool HasAuthFlag(AuthFlags f) const { return atAuthFlag & f; }
+        void AddAuthFlag(AuthFlags f);
         void RemoveAuthFlag(AuthFlags f);
         void SaveAuthFlag();
 

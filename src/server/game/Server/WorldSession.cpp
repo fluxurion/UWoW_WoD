@@ -1101,6 +1101,12 @@ void WorldSession::RemoveAuthFlag(AuthFlags f)
     SaveAuthFlag();
 }
 
+void WorldSession::AddAuthFlag(AuthFlags f)
+{
+    atAuthFlag = AuthFlags(atAuthFlag | f);
+    SaveAuthFlag();
+}
+
 void WorldSession::SaveAuthFlag()
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_AT_AUTH_FLAG);

@@ -45,7 +45,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool hasAccountData, bool queued
         response.SuccessInfo.Value.AccountExpansionLevel = Expansion();
         response.SuccessInfo.Value.ActiveExpansionLevel = Expansion();
         response.SuccessInfo.Value.VirtualRealmAddress = GetVirtualRealmAddress();
-        response.SuccessInfo.Value.CurrencyID = 5;
+        response.SuccessInfo.Value.CurrencyID = CURRENCY_RUB;
         response.SuccessInfo.Value.TimeRemain = 0;
         std::string realmName = sObjectMgr->GetRealmName(realmHandle.Index);
 
