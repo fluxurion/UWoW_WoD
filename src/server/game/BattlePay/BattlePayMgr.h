@@ -86,7 +86,7 @@ public:
 
     int32 GetCoinsFromDB();
     void RemoveCoinsFromDB(int32 count);
-    bool ActivateProduct(WorldPackets::BattlePay::Product product, uint64 distrID);
+    bool ActivateProduct(WorldPackets::BattlePay::Product product, uint64 distrID, ObjectGuid const& guid);
     void SendResult(uint64 pID, uint32 Product, uint32 Status, PurchaseResult erorResult=PURCHASE_RESULT_OK);
 
     void StartPurchase(WorldPackets::BattlePay::StartPurchase const&p);

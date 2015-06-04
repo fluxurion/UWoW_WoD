@@ -59,10 +59,44 @@ void BattlePayMgr::RemoveCoinsFromDB(int32 count)
 
 //! ToDo: log for activation
 //! If add to inventory save player.
-bool BattlePayMgr::ActivateProduct(WorldPackets::BattlePay::Product product, uint64 productID)
+bool BattlePayMgr::ActivateProduct(WorldPackets::BattlePay::Product product, uint64 productID, ObjectGuid const& targetGuid)
 {
     if (product.Type == PRODUCT_TYPE_ITEM)
     {
+        Player* player = session->GetPlayer();
+        WorldPackets::BattlePay::ProductItem pItem = *product.battlePayProduct.begin();
+
+        //! If player online add to inventory
+        if (player)
+        {
+            ItemPosCountVec dest;
+            if (player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, pItem.ItemID, pItem.Quantity) == EQUIP_ERR_OK)
+            {
+                Item* item = player->StoreNewItem(dest, pItem.ItemID, true, Item::GenerateItemRandomPropertyId(pItem.ItemID));
+                player->SendNewItem(item, pItem.Quantity, true, false, true);
+                player->SaveToDB();
+                return true;
+            }
+        }
+
+        //! If no online or couldn't add item send mail.
+        Item *attachment = Item::CreateItem ( pItem.ItemID, pItem.Quantity, player );
+        if (!attachment)
+        {
+            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: BattlePayMgr::ActivateProduct item = %u couldn't create add %u", pItem.ItemID,session->GetAccountId());
+            return false;
+        }
+
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        attachment->SaveToDB(trans);
+
+        MailSender sender(MAIL_NORMAL, targetGuid.GetCounter(), MAIL_STATIONERY_GM);
+        MailDraft draft = MailDraft("BattlePay", "BattlePay");
+        draft.AddItem(attachment);
+        draft.SendMailTo(trans, MailReceiver(NULL, targetGuid.GetCounter()), sender);
+
+        CharacterDatabase.CommitTransaction(trans);
+        return true;
 
     }else if (product.Type == PRODUCT_TYPE_SERVICE)
     {
@@ -187,11 +221,18 @@ void BattlePayMgr::ConfirmPurchaseResponse(uint32 ServerToken, bool ConfirmPurch
             return;
         }
 
-        if (ActivateProduct(purchase.Product, purchase.PurchaseID))
+        if (ActivateProduct(purchase.Product, purchase.PurchaseID, purchase.TargetCharacter))
         {
-
             SendResult(purchase.PurchaseID, purchase.ProductID, 6);
             RemoveCoinsFromDB(purchase.Product.CurrentPriceFixedPoint / 10000);
+
+            if (Player* player = session->GetPlayer())
+            {
+                char buff[2048];
+                sprintf(buff, session->GetTrinityString(LANG_BATTLE_PAY_SUCCES_COINS_MESSAGE), GetCoinsFromDB());
+                sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
+            }
+
         }else
         {
             SendResult(purchase.PurchaseID, purchase.ProductID, 0, PURCHASE_RESULT_COULNOT_BUY);
