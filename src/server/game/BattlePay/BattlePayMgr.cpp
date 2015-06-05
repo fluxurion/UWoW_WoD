@@ -21,6 +21,7 @@
 #include "BattlePayMgr.h"
 #include "BattlePayPackets.h"
 #include "WorldSession.h"
+#include "Player.h"
 
 // g_purchaseID == __PAIR__(CGBattlePay::m_startedPurchaseID, CGBattlePay::ClientToken)
 BattlePayMgr::BattlePayMgr(WorldSession* s) : session(s)
@@ -63,6 +64,8 @@ bool BattlePayMgr::ActivateProduct(WorldPackets::BattlePay::Product product, uin
 {
     if (product.Type == PRODUCT_TYPE_ITEM)
     {
+        //ASSERT(!targetGuid.IsEmpty());
+
         Player* player = session->GetPlayer();
         WorldPackets::BattlePay::ProductItem pItem = *product.battlePayProduct.begin();
 
@@ -159,8 +162,113 @@ void BattlePayMgr::Update(uint32 const diff)
             }
             case 100: //after send 3 status whait if player comfirm it.
                 break;
+            case 1000:  //level90UP
+            {
+                //check every second
+                if (purchase.TimeOnProcess % 1000 == 0)
+                {
+                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
+                    stmt->setUInt64(0, purchase.TargetCharacter.GetCounter());
+                    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+                    {
+                        if ((*result)[0].GetUInt8() == 90)
+                        {
+                            //session->SendCharacterEnum(); //no need. query send after BATTLE_PAY_DIST_STATUS_PROCESS_COMPLETE
+                            session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_PROCESS_COMPLETE, purchase.PurchaseID, purchase.TargetCharacter);
+                            //SMSG_CHARACTER_UPGRADE_CHARACTER_CHOSEN
+                            session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_FINISHED, purchase.PurchaseID, purchase.TargetCharacter);
+                            session->RemoveAuthFlag(AT_AUTH_FLAG_90_LVL_UP);
+                            _store.erase(data);
+                            return;
+                        }
+                    }
+                }
+                break;
+            }
         }
     }
+}
+
+void BattlePayMgr::LevelUp(WorldPackets::BattlePay::DistributionAssignToTarget const& packet)
+{
+    //          0           1           2               3               4
+    //SELECT speccount, activespec, specialization1, specialization2, class FROM characters WHERE guid = ?
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SPEC_DATA);
+    stmt->setUInt64(0, packet.TargetCharacter.GetCounter());
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+    if (!result)
+        return;
+
+    Field* fields = result->Fetch();
+    uint8 speccount = fields[0].GetUInt8();
+    uint8 activespec = fields[1].GetUInt8();
+    uint32 specialization1 = fields[2].GetUInt8();
+    uint32 specialization2 = fields[3].GetUInt8();
+    uint8 plr_class = fields[4].GetUInt8();
+
+    ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(packet.SpecializationID);
+    if (!specialization || specialization->ClassID != plr_class)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: HandleBattlePayDistributionAssign non existen specializationID %u char %u", packet.SpecializationID, packet.TargetCharacter.GetCounter());
+        return;
+    }
+
+    if (specialization2 == packet.SpecializationID)
+    {
+        activespec = 2;
+    }else
+    {
+        specialization1 = packet.SpecializationID;
+        if (activespec == 2)
+            activespec = 1;
+    }
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+    stmt->setUInt16(0, uint16(AT_LOGIN_LVL90_UP));
+    stmt->setUInt64(1, packet.TargetCharacter.GetCounter());
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
+    stmt->setUInt16(0, uint16(90));
+    stmt->setUInt64(1, packet.TargetCharacter.GetCounter());
+    trans->Append(stmt);
+
+    // Relocato to darkportal
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
+
+    stmt->setFloat(0, -11840.64f);
+    stmt->setFloat(1, -3215.719f);
+    stmt->setFloat(2, -29.41927f);
+    stmt->setFloat(3, 2.84771f);
+    stmt->setUInt16(4, uint16(0));
+    stmt->setUInt16(5, uint16(4));
+    stmt->setUInt64(6, packet.TargetCharacter.GetCounter());
+    trans->Append(stmt);
+
+    // Set specialization
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_SPEC_DATA);
+    stmt->setUInt8(0, activespec);
+    stmt->setUInt32(1, specialization1);
+    stmt->setUInt32(2, specialization2);
+    stmt->setUInt64(3, packet.TargetCharacter.GetCounter());
+    trans->Append(stmt);
+
+    CharacterDatabase.CommitTransaction(trans);
+
+    //Add checker.
+    _store[PurchaseID].PurchaseID = packet.DistributionID;
+    _store[PurchaseID].ProductID = PRODUCT_LEVEL_UP_90;
+    _store[PurchaseID].TargetCharacter = packet.TargetCharacter;
+    _store[PurchaseID].Status = 1000;
+
+    session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS, packet.DistributionID, packet.TargetCharacter);
+
+    WorldPacket data(SMSG_CHARACTER_UPGRADE_STARTED);
+    data << packet.TargetCharacter;
+    session->SendPacket(&data);
 }
 
 //! By normal way StartPurchase register client purshase.

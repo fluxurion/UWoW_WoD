@@ -313,6 +313,11 @@ void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters&
     else
         timeCharEnumOpcode = now;
 
+    SendCharacterEnum();
+}
+
+void WorldSession::SendCharacterEnum()
+{
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
     CharacterDatabase.Execute(stmt);

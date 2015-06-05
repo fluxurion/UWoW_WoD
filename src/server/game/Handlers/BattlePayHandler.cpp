@@ -76,7 +76,10 @@ void WorldSession::SendBattlePayDistribution(uint8 status, uint64 DistributionID
 //! 6.1.2
 void WorldSession::HandleBattlePayDistributionAssign(WorldPackets::BattlePay::DistributionAssignToTarget& packet)
 {
-    SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS, 1, packet.TargetCharacter);
+    
+    _battlePay->LevelUp(packet);
+
+
 }
 
 //! 6.1.2

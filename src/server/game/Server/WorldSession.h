@@ -1278,6 +1278,7 @@ class WorldSession
         void RemoveAuthFlag(AuthFlags f);
         void SaveAuthFlag();
 
+        void SendCharacterEnum();
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();

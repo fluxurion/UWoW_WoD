@@ -89,6 +89,7 @@ public:
     bool ActivateProduct(WorldPackets::BattlePay::Product product, uint64 distrID, ObjectGuid const& guid);
     void SendResult(uint64 pID, uint32 Product, uint32 Status, PurchaseResult erorResult=PURCHASE_RESULT_OK);
 
+    void LevelUp(WorldPackets::BattlePay::DistributionAssignToTarget const& packet);
     void StartPurchase(WorldPackets::BattlePay::StartPurchase const&p);
     void ConfirmPurchaseResponse(uint32 ClientToken, bool ConfirmPurchase);
     bool existClientToken(uint32 token) const;
