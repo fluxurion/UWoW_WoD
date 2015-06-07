@@ -184,6 +184,10 @@ void BattlePayMgr::Update(uint32 const diff)
                             //session->SendCharacterEnum(); //no need. query send after BATTLE_PAY_DIST_STATUS_PROCESS_COMPLETE
                             session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_PROCESS_COMPLETE, purchase.PurchaseID, purchase.TargetCharacter);
 
+                            WorldPacket packet(SMSG_CHARACTER_UPGRADE_CHARACTER_CHOSEN);
+                            packet.append(tmpPacket);
+                            session->SendPacket(&packet);
+
                             session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_FINISHED, purchase.PurchaseID, purchase.TargetCharacter);
                             session->RemoveAuthFlag(AT_AUTH_FLAG_90_LVL_UP);
                             _store.erase(data);
@@ -305,6 +309,7 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
     ObjectGuid playerGuid = holder->GetGuid();
 
     Player* pCurrChar = new Player(session);
+    session->skip_send_packer = true;
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
     if (!pCurrChar->LoadFromDB(playerGuid, holder))
     {
@@ -312,6 +317,10 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
         delete holder;                                      // delete all unprocessed queries
         return;
     }
+    session->skip_send_packer = false;
+
+    //
+    pCurrChar->setCinematic(1);
 
     //
     PlayerLevelInfo info;
@@ -342,13 +351,75 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
         pCurrChar->SetSpecializationId(pCurrChar->GetActiveSpec(), _store[PurchaseID].specID);
     }
 
-    //SMSG_CHARACTER_UPGRADE_CHARACTER_CHOSEN
+    //New equipment
+    uint32 bagEntry = 0;
     std::vector<uint32> items = GetItemLoadOutItems(LoadOutIdByClass(pCurrChar->getClass()));
+    for (uint32 itemID : items)
+    {
+        if (ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemID))
+        {
+            if (pProto->GetInventoryType() == INVTYPE_BAG)
+            {
+                bagEntry = itemID;
+                break;
+            }
+        }
+    }
+    uint8 bcount = 0;
+    std::vector<Item*> mailer;
+    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_BAG_END; i++)
+    {
+        if (Item* pItem = pCurrChar->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (i < INVENTORY_SLOT_BAG_START)
+            {
+                ItemPosCountVec sDest;
+                InventoryResult msg = pCurrChar->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, pItem, false);
+                pCurrChar->RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
+
+                if (msg == EQUIP_ERR_OK)
+                    pItem = pCurrChar->StoreItem(sDest, pItem, true);
+                else
+                    mailer.push_back(pItem);
+            }
+            else if (bagEntry)
+            {
+                if (Item* bagItem = Item::CreateItem(bagEntry, 1, pCurrChar))
+                {
+                    ItemPosCountVec sDest;
+                    InventoryResult msg = pCurrChar->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, bagItem, false);
+                    if (msg == EQUIP_ERR_OK)
+                    {
+                        bagItem = pCurrChar->StoreItem(sDest, bagItem, true);
+                        pCurrChar->SwapItem(bagItem->GetPos(), pItem->GetPos());
+                        ++bcount;
+                    }
+                }
+            }
+        }
+    }
+
+
+    if (!mailer.empty())
+    {
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        MailSender sender(MAIL_NORMAL, playerGuid.GetCounter(), MAIL_STATIONERY_GM);
+        MailDraft draft = MailDraft("LevelUP", "LevelUP");
+                
+        for (Item* item : mailer)
+            draft.AddItem(item);
+
+        draft.SendMailTo(trans, MailReceiver(NULL, playerGuid.GetCounter()), sender);
+        CharacterDatabase.CommitTransaction(trans);
+    }
+
+    //SMSG_CHARACTER_UPGRADE_CHARACTER_CHOSEN
     uint32 count = 0;
-    WorldPacket packet(SMSG_CHARACTER_UPGRADE_CHARACTER_CHOSEN);
-    packet << playerGuid;
-    size_t wPos = packet.wpos();
-    packet << uint32(count);
+
+    tmpPacket.clear();
+    tmpPacket << playerGuid;
+    size_t wPos = tmpPacket.wpos();
+    tmpPacket << uint32(count);
     for (uint32 itemID : items)
     {
         if (ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemID))
@@ -356,17 +427,23 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
             if (pProto->GetInventoryType() > INVTYPE_NON_EQUIP &&
                 pProto->GetInventoryType() != INVTYPE_BAG)
             {
-                packet << uint32(itemID);
+                tmpPacket << uint32(itemID);
                 ++count;
 
             }
+            if (pProto->GetInventoryType() != INVTYPE_BAG || bcount < 4)
+            {
+                if (pProto->GetInventoryType() == INVTYPE_BAG)
+                    ++bcount;
+                pCurrChar->StoreNewItemInBestSlots(itemID, 1);
+            }
         }
     }
-    packet.put<uint32>(wPos, count);
-    session->SendPacket(&packet);
+    tmpPacket.put<uint32>(wPos, count);
 
     pCurrChar->CleanupsBeforeDelete();
     pCurrChar->SaveToDB();
+    session->SetPlayer(NULL);
 
     _store[PurchaseID].Status = 1000;       //Final Check
     delete pCurrChar;

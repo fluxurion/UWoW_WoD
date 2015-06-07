@@ -105,6 +105,8 @@ private:
 
     QueryResultHolderFuture _charLoginCallback;
 
+    ByteBuffer tmpPacket;
+
 };
 
 #endif

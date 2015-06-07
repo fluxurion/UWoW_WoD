@@ -1291,6 +1291,7 @@ class WorldSession
         void SaveAuthFlag();
 
         void SendCharacterEnum();
+        bool skip_send_packer = false;
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
