@@ -219,7 +219,8 @@ PetFamilySpellsStore sPetFamilySpellsStore;
 
 DBCStorage<SpellScalingEntry> sSpellScalingStore(SpellScalingEntryfmt);
 DBCStorage<SpellTargetRestrictionsEntry> sSpellTargetRestrictionsStore(SpellTargetRestrictionsEntryfmt);
-DBCStorage <PowerDisplayEntry> sPowerDisplayStore(PowerDisplayEntryfmt);
+DBCStorage<PowerDisplayEntry> sPowerDisplayStore(PowerDisplayEntryfmt);
+DBCStorage<CharacterLoadoutItemEntry> sCharacterLoadoutItemStore(CharacterLoadoutItemfmt);
 DBCStorage<SpellLevelsEntry> sSpellLevelsStore(SpellLevelsEntryfmt);
 DBCStorage<SpellInterruptsEntry> sSpellInterruptsStore(SpellInterruptsEntryfmt);
 DBCStorage<SpellEquippedItemsEntry> sSpellEquippedItemsStore(SpellEquippedItemsEntryfmt);
@@ -264,6 +265,8 @@ DBCStorage<WorldMapAreaEntry> sWorldMapAreaStore(WorldMapAreaEntryfmt);
 DBCStorage<WorldMapOverlayEntry> sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
 DBCStorage<WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
 DBCStorage<PhaseEntry> sPhaseStores(PhaseEntryfmt);
+
+CharacterLoadoutItemMap sCharacterLoadoutItemMap;
 
 typedef std::list<std::string> StoreProblemList;
 
@@ -512,6 +515,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sScenarioStore,               dbcPath, "Scenario.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sScenarioStepStore,           dbcPath, "ScenarioStep.dbc");//19342
     LoadDBC(availableDbcLocales, bad_dbc_files, sPowerDisplayStore,           dbcPath, "PowerDisplay.dbc");//17538
+    LoadDBC(availableDbcLocales, bad_dbc_files, sCharacterLoadoutItemStore,   dbcPath, "CharacterLoadoutItem.dbc");//19342
 
     LoadGameTable(bad_dbc_files, "BarberShopCostBase", sGtBarberShopCostBaseStore, dbcPath, "gtBarberShopCostBase.dbc");//15595
     LoadGameTable(bad_dbc_files, "CombatRatings", sGtCombatRatingsStore, dbcPath, "gtCombatRatings.dbc");//15595
@@ -809,6 +813,11 @@ void InitDBCCustomStores()
     for (uint32 i = 0; i < sItemSetSpellStore.GetNumRows(); ++i)
         if (ItemSetSpellEntry const* entry = sItemSetSpellStore.LookupEntry(i))
             sItemSetSpellsStore[entry->ItemSetID].push_back(entry);
+
+    for (uint32 i = 0; i < sCharacterLoadoutItemStore.GetNumRows(); ++i)
+        if (CharacterLoadoutItemEntry const* LoadOutItem = sCharacterLoadoutItemStore.LookupEntry(i))
+            sCharacterLoadoutItemMap[LoadOutItem->LoadOutID].push_back(LoadOutItem->ItemID);
+    
 }
 
 const std::string* GetRandomCharacterName(uint8 race, uint8 gender)
@@ -1272,3 +1281,7 @@ bool IsScenarioCriteriaTree(uint32 criteriaTreeId)
     return sScenarioCriteriaTreeStore.find(criteriaTreeId) != sScenarioCriteriaTreeStore.end();
 }
 
+std::vector<uint32> GetItemLoadOutItems(uint32 LoadOutID)
+{
+    return sCharacterLoadoutItemMap[LoadOutID];
+}

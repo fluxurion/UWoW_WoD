@@ -1458,6 +1458,7 @@ typedef UNORDERED_MAP<ObjectGuid/*owner*/, ObjectGuid/*lGUID*/> AoeMap;
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
+    friend class BattlePayMgr;
     friend void Item::AddToUpdateQueueOf(Player* player);
     friend void Item::RemoveFromUpdateQueueOf(Player* player);
     public:

@@ -162,6 +162,14 @@ void BattlePayMgr::Update(uint32 const diff)
             }
             case 100: //after send 3 status whait if player comfirm it.
                 break;
+            case 999:
+                //! HandlePlayerLoginOpcode Level Up Loading.
+                if (_charLoginCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                {
+                    SQLQueryHolder* param = _charLoginCallback.get();
+                    HandlePlayerLevelUp((LoginQueryHolder*)param);
+                }
+                break;
             case 1000:  //level90UP
             {
                 //check every second
@@ -175,7 +183,7 @@ void BattlePayMgr::Update(uint32 const diff)
                         {
                             //session->SendCharacterEnum(); //no need. query send after BATTLE_PAY_DIST_STATUS_PROCESS_COMPLETE
                             session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_PROCESS_COMPLETE, purchase.PurchaseID, purchase.TargetCharacter);
-                            //SMSG_CHARACTER_UPGRADE_CHARACTER_CHOSEN
+
                             session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_FINISHED, purchase.PurchaseID, purchase.TargetCharacter);
                             session->RemoveAuthFlag(AT_AUTH_FLAG_90_LVL_UP);
                             _store.erase(data);
@@ -191,78 +199,20 @@ void BattlePayMgr::Update(uint32 const diff)
 
 void BattlePayMgr::LevelUp(WorldPackets::BattlePay::DistributionAssignToTarget const& packet)
 {
-    //          0           1           2               3               4
-    //SELECT speccount, activespec, specialization1, specialization2, class FROM characters WHERE guid = ?
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SPEC_DATA);
-    stmt->setUInt64(0, packet.TargetCharacter.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (!result)
-        return;
-
-    Field* fields = result->Fetch();
-    uint8 speccount = fields[0].GetUInt8();
-    uint8 activespec = fields[1].GetUInt8();
-    uint32 specialization1 = fields[2].GetUInt8();
-    uint32 specialization2 = fields[3].GetUInt8();
-    uint8 plr_class = fields[4].GetUInt8();
-
-    ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(packet.SpecializationID);
-    if (!specialization || specialization->ClassID != plr_class)
+    LoginQueryHolder *holder = new LoginQueryHolder(session->GetAccountId(), packet.TargetCharacter);
+    if (!holder->Initialize())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: HandleBattlePayDistributionAssign non existen specializationID %u char %u", packet.SpecializationID, packet.TargetCharacter.GetCounter());
+        delete holder;                                      // delete all unprocessed queries
         return;
     }
-
-    if (specialization2 == packet.SpecializationID)
-    {
-        activespec = 2;
-    }else
-    {
-        specialization1 = packet.SpecializationID;
-        if (activespec == 2)
-            activespec = 1;
-    }
-
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-    stmt->setUInt16(0, uint16(AT_LOGIN_LVL90_UP));
-    stmt->setUInt64(1, packet.TargetCharacter.GetCounter());
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
-    stmt->setUInt16(0, uint16(90));
-    stmt->setUInt64(1, packet.TargetCharacter.GetCounter());
-    trans->Append(stmt);
-
-    // Relocato to darkportal
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
-
-    stmt->setFloat(0, -11840.64f);
-    stmt->setFloat(1, -3215.719f);
-    stmt->setFloat(2, -29.41927f);
-    stmt->setFloat(3, 2.84771f);
-    stmt->setUInt16(4, uint16(0));
-    stmt->setUInt16(5, uint16(4));
-    stmt->setUInt64(6, packet.TargetCharacter.GetCounter());
-    trans->Append(stmt);
-
-    // Set specialization
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_SPEC_DATA);
-    stmt->setUInt8(0, activespec);
-    stmt->setUInt32(1, specialization1);
-    stmt->setUInt32(2, specialization2);
-    stmt->setUInt64(3, packet.TargetCharacter.GetCounter());
-    trans->Append(stmt);
-
-    CharacterDatabase.CommitTransaction(trans);
+    _charLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)holder);
 
     //Add checker.
     _store[PurchaseID].PurchaseID = packet.DistributionID;
     _store[PurchaseID].ProductID = PRODUCT_LEVEL_UP_90;
     _store[PurchaseID].TargetCharacter = packet.TargetCharacter;
-    _store[PurchaseID].Status = 1000;
+    _store[PurchaseID].Status = 999;
+    _store[PurchaseID].specID = packet.SpecializationID;
 
     session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS, packet.DistributionID, packet.TargetCharacter);
 
@@ -348,4 +298,77 @@ void BattlePayMgr::ConfirmPurchaseResponse(uint32 ServerToken, bool ConfirmPurch
         }
         break;
     }
+}
+
+void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
+{
+    ObjectGuid playerGuid = holder->GetGuid();
+
+    Player* pCurrChar = new Player(session);
+    // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
+    if (!pCurrChar->LoadFromDB(playerGuid, holder))
+    {
+        delete pCurrChar;                                   // delete it manually
+        delete holder;                                      // delete all unprocessed queries
+        return;
+    }
+
+    //
+    PlayerLevelInfo info;
+    sObjectMgr->GetPlayerLevelInfo(pCurrChar->getRace(), pCurrChar->getClass(), 90, &info);
+
+    uint32 basehp = 0, basemana = 0;
+    sObjectMgr->GetPlayerClassLevelInfo(pCurrChar->getClass(), 90, basehp, basemana);
+
+    pCurrChar->SetLevel(90);
+    pCurrChar->SetCreateHealth(basehp);
+    pCurrChar->SetCreateMana(basemana);
+    pCurrChar->UpdateMaxHealth();
+
+    // Relocato to darkportal
+    pCurrChar->SetLocationMapId(0);
+    pCurrChar->Relocate(-11840.64f, -3215.719f, -29.41927f, 2.84771f);
+
+    //
+    if (pCurrChar->GetSpecializationId(2) == _store[PurchaseID].specID)
+    {
+        pCurrChar->SetActiveSpec(2);
+    }
+    else
+    {
+        if (pCurrChar->GetActiveSpec() == 2)
+            pCurrChar->SetActiveSpec(1);
+
+        pCurrChar->SetSpecializationId(pCurrChar->GetActiveSpec(), _store[PurchaseID].specID);
+    }
+
+    //SMSG_CHARACTER_UPGRADE_CHARACTER_CHOSEN
+    std::vector<uint32> items = GetItemLoadOutItems(LoadOutIdByClass(pCurrChar->getClass()));
+    uint32 count = 0;
+    WorldPacket packet(SMSG_CHARACTER_UPGRADE_CHARACTER_CHOSEN);
+    packet << playerGuid;
+    size_t wPos = packet.wpos();
+    packet << uint32(count);
+    for (uint32 itemID : items)
+    {
+        if (ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemID))
+        {
+            if (pProto->GetInventoryType() > INVTYPE_NON_EQUIP &&
+                pProto->GetInventoryType() != INVTYPE_BAG)
+            {
+                packet << uint32(itemID);
+                ++count;
+
+            }
+        }
+    }
+    packet.put<uint32>(wPos, count);
+    session->SendPacket(&packet);
+
+    pCurrChar->CleanupsBeforeDelete();
+    pCurrChar->SaveToDB();
+
+    _store[PurchaseID].Status = 1000;       //Final Check
+    delete pCurrChar;
+    delete holder;
 }

@@ -45,7 +45,7 @@ struct Purchase
     uint32 ClientToken          = 0;
     uint32 ProductID            = 0;
     ObjectGuid TargetCharacter;
-
+    uint32 specID               = 0;
     uint32 TimeOnProcess        = 0;
 };
 
@@ -97,9 +97,13 @@ public:
     BattlePayPurshaseStore const& GetStore() const { return _store; };
     void Update(uint32 const diff);
 private:
+    void HandlePlayerLevelUp(LoginQueryHolder * holder);
+
     WorldSession *session;
     uint32 PurchaseID = 0;
     BattlePayPurshaseStore _store;
+
+    QueryResultHolderFuture _charLoginCallback;
 
 };
 

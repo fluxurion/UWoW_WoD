@@ -2668,4 +2668,31 @@ struct ResearchSiteData
 typedef std::map<uint32 /*site_id*/, ResearchSiteData> ResearchSiteDataMap;
 ResearchSiteEntry const* GetResearchSiteEntryById(uint32 id);
 
+struct CharacterLoadoutItemEntry
+{
+    uint32 ID;
+    uint32 LoadOutID;
+    uint32 ItemID;
+};
+
+typedef std::map<uint32 /*LoadOutID*/, std::vector<uint32>> CharacterLoadoutItemMap;
+
+static uint32 LoadOutIdByClass(uint32 classID)
+{
+    switch(classID)
+    {
+        case CLASS_WARRIOR: return 539;
+        case CLASS_PALADIN: return 524;
+        case CLASS_HUNTER: return 533;
+        case CLASS_ROGUE: return 512;
+        case CLASS_PRIEST: return 536;
+        case CLASS_DEATH_KNIGHT: return 515;
+        case CLASS_SHAMAN: return 530;
+        case CLASS_MAGE: return 545;
+        case CLASS_WARLOCK: return 542;
+        case CLASS_MONK: return 527;
+        case CLASS_DRUID: return 549;
+    }
+    return 0;
+}
 #endif

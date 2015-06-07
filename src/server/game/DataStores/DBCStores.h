@@ -282,9 +282,13 @@ extern DBCStorage<WorldMapAreaEntry>            sWorldMapAreaStore; //-- use Zon
 extern DBCStorage<WorldMapOverlayEntry>         sWorldMapOverlayStore;
 extern DBCStorage<WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
+extern CharacterLoadoutItemMap                  sCharacterLoadoutItemMap;
+
 void LoadDBCStores(const std::string& dataPath);
 void InitDBCCustomStores();
 bool IsValidDifficulty(uint32 diff, bool isRaid);
 
 uint32 GetQuestUniqueBitFlag(uint32 questId);
+std::vector<uint32> GetItemLoadOutItems(uint32 LoadOutID);
+
 #endif
