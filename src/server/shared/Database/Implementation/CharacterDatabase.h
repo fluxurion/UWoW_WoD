@@ -62,6 +62,7 @@ enum CharacterDatabaseStatements
     CHAR_SEL_MAIL_LIST_INFO,
     CHAR_SEL_MAIL_LIST_ITEMS,
     CHAR_SEL_ENUM,
+    CHAR_SEL_ENUM_DELETED,
     CHAR_SEL_ENUM_DECLINED_NAME,
 
     // Pet

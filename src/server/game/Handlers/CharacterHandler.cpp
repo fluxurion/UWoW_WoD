@@ -262,11 +262,11 @@ bool LoginQueryHolder::Initialize()
 }
 
 //6.0.3
-void WorldSession::HandleCharEnum(PreparedQueryResult result)
+void WorldSession::HandleCharEnum(PreparedQueryResult result, bool isDeleted)
 {
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
-    charEnum.IsDeletedCharacters = false;
+    charEnum.IsDeletedCharacters = isDeleted;
 
     _allowedCharsToLogin.clear();
 
@@ -291,8 +291,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     SendPacket(charEnum.Write());
 }
 
-//6.0.3
-void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)
+//6.1.2
+void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& enumCharacters)
 {
     time_t now = time(NULL);
     if (now - timeCharEnumOpcode < 5)
@@ -300,10 +300,10 @@ void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters&
     else
         timeCharEnumOpcode = now;
 
-    SendCharacterEnum();
+    SendCharacterEnum(enumCharacters.GetOpcode() == CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT);
 }
 
-void WorldSession::SendCharacterEnum()
+void WorldSession::SendCharacterEnum(bool deleted /*= false*/)
 {
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
@@ -311,14 +311,18 @@ void WorldSession::SendCharacterEnum()
 
     /// get all the data necessary for loading all characters (along with their pets) on the account
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ENUM_DECLINED_NAME);
+    //if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
+    //    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ENUM_DECLINED_NAME);
+    //else
+    if (deleted)
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ENUM_DELETED);
     else
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ENUM);
 
     stmt->setUInt32(0, GetAccountId());
 
-    _charEnumCallback = CharacterDatabase.AsyncQuery(stmt);
+    _charEnumCallback.SetParam(deleted);
+    _charEnumCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
 //6.0.3

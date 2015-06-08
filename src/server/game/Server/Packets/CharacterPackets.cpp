@@ -66,11 +66,11 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     if (fields[20].GetUInt32())
         Flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
-    {
-        if (!fields[22].GetString().empty())
-            Flags |= CHARACTER_FLAG_DECLINED;
-    }else
+    //if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
+    //{
+    //    if (!fields[22].GetString().empty())
+    //        Flags |= CHARACTER_FLAG_DECLINED;
+    //}else
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)

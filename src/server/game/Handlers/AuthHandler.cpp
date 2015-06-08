@@ -79,9 +79,8 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     WorldPackets::System::FeatureSystemStatusGlueScreen features;
     features.BpayStoreAvailable = true;
     features.BpayStoreDisabledByParentalControls = false;
-    features.CharUndeleteEnabled = true/*sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED)*/;
+    features.CharUndeleteEnabled = HasAuthFlag(AT_AUTH_FLAG_RESTORE_DELETED_CHARACTER);
     features.BpayStoreEnabled = true/*sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED)*/;
-    features.CharUndeleteEnabled = true;
     features.CommerceSystemEnabled = true;
     features.Unk14 = true;
     features.TokenPollTimeSeconds = 300;

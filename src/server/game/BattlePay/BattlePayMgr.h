@@ -66,6 +66,7 @@ enum ProductType
 {
     PRODUCT_TYPE_ITEM                       = 0,
     PRODUCT_TYPE_SERVICE                    = 2,
+    PRODUCT_TYPE_RESTORE_DELETE_CHARACTER   = 3,
 };
 
 enum ProductConstant

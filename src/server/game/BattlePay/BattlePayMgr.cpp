@@ -111,6 +111,15 @@ bool BattlePayMgr::ActivateProduct(WorldPackets::BattlePay::Product product, uin
             return true;
         }
     }
+    else if (product.Type == PRODUCT_TYPE_RESTORE_DELETE_CHARACTER)
+    {
+        if (!session->HasAuthFlag(AT_AUTH_FLAG_RESTORE_DELETED_CHARACTER))
+        {
+            session->AddAuthFlag(AT_AUTH_FLAG_RESTORE_DELETED_CHARACTER);
+            session->SendFeatureSystemStatusGlueScreen();
+            return true;
+        }
+    }
     return false;
 }
 
@@ -356,7 +365,7 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
     pCurrChar->setCinematic(1);
 
     //Professions.
-    if (pCurrChar->GetLevel() >= 60)
+    if (pCurrChar->getLevel() >= 60)
     {       
         if (pCurrChar->GetSkillValue(SKILL_FIRST_AID) < 600)
         {

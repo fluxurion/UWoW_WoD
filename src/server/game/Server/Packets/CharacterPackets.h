@@ -25,10 +25,12 @@ namespace WorldPackets
 {
     namespace Character
     {
+        //CMSG_ENUM_CHARACTERS
+        //CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT
         class EnumCharacters final : public ClientPacket
         {
         public:
-            EnumCharacters(WorldPacket&& packet) : ClientPacket(CMSG_ENUM_CHARACTERS, std::move(packet)) { }
+            EnumCharacters(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override { }
         };

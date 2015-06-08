@@ -654,7 +654,7 @@ class WorldSession
         void HandleCharCreateCallback(PreparedQueryResult result, WorldPackets::Character::CharacterCreateInfo* createInfo);
         void HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin);
         void HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& loadingScreenNotify);
-        void HandleCharEnum(PreparedQueryResult result);
+        void HandleCharEnum(PreparedQueryResult result, bool isDelete);
         void HandlePlayerLogin(LoginQueryHolder * holder);
         void HandleCharFactionOrRaceChange(WorldPacket& recvData);
         void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
@@ -1285,18 +1285,19 @@ class WorldSession
         void LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy = NULL);
 
         // Battle Pay
+        AuthFlags GetAF() const { return atAuthFlag;  }
         bool HasAuthFlag(AuthFlags f) const { return atAuthFlag & f; }
         void AddAuthFlag(AuthFlags f);
         void RemoveAuthFlag(AuthFlags f);
         void SaveAuthFlag();
 
-        void SendCharacterEnum();
+        void SendCharacterEnum(bool deleted = false);
         bool skip_send_packer = false;
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
 
-        PreparedQueryResultFuture _charEnumCallback;
+        QueryCallback<PreparedQueryResult, bool> _charEnumCallback;
         PreparedQueryResultFuture _addIgnoreCallback;
         PreparedQueryResultFuture _stablePetCallback;
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;

@@ -1017,10 +1017,12 @@ void WorldSession::ProcessQueryCallbacks()
     PreparedQueryResult result;
 
     //! HandleCharEnumOpcode
-    if (_charEnumCallback.valid() && _charEnumCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    if (_charEnumCallback.IsReady())
     {
-        result = _charEnumCallback.get();
-        HandleCharEnum(result);
+        bool param = _charEnumCallback.GetParam();
+        _charEnumCallback.GetResult(result);
+        HandleCharEnum(result, param);
+        _charEnumCallback.FreeResult();
     }
 
     if (_charCreateCallback.IsReady(2))
