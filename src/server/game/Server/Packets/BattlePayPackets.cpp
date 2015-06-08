@@ -259,5 +259,5 @@ WorldPacket const* WorldPackets::BattlePay::UpgradeStarted::Write()
 
 void WorldPackets::BattlePay::DistributionAssignToTarget::Read()
 {
-    _worldPacket >> unk >> DistributionID >> TargetCharacter >> SpecializationID;
+    _worldPacket >> unk >> DistributionID >> TargetCharacter >> SpecializationID >> unk2;
 }

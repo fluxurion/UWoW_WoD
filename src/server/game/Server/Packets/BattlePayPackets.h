@@ -250,7 +250,8 @@ namespace WorldPackets
 
             uint32 unk = 0;
             uint64 DistributionID = 0;
-            uint32 SpecializationID = 0;
+            uint16 SpecializationID = 0;
+            uint16 unk2 = 0;
             ObjectGuid TargetCharacter;
         };
     }

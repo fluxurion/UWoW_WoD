@@ -106,7 +106,7 @@ bool BattlePayMgr::ActivateProduct(WorldPackets::BattlePay::Product product, uin
         //LevelUP
         if (product.ProductID == PRODUCT_LEVEL_UP_90 && !session->HasAuthFlag(AT_AUTH_FLAG_90_LVL_UP))
         {
-            session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_AVAILABLE, productID);
+            session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_AVAILABLE, 1);
             session->AddAuthFlag(AT_AUTH_FLAG_90_LVL_UP);
             return true;
         }
@@ -172,9 +172,12 @@ void BattlePayMgr::Update(uint32 const diff)
                 break;
             case 1000:  //level90UP
             {
+
                 //check every second
-                if (purchase.TimeOnProcess % 1000 == 0)
+                if (purchase.TimeOnProcess > 1000)
                 {
+                    purchase.TimeOnProcess = 0;
+
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
                     stmt->setUInt64(0, purchase.TargetCharacter.GetCounter());
                     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
@@ -203,6 +206,13 @@ void BattlePayMgr::Update(uint32 const diff)
 
 void BattlePayMgr::LevelUp(WorldPackets::BattlePay::DistributionAssignToTarget const& packet)
 {
+    if (!session->HasAuthFlag(AT_AUTH_FLAG_90_LVL_UP))
+        return;
+
+    ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(packet.SpecializationID);
+    if (!specialization)
+        return;
+
     LoginQueryHolder *holder = new LoginQueryHolder(session->GetAccountId(), packet.TargetCharacter);
     if (!holder->Initialize())
     {
@@ -212,12 +222,13 @@ void BattlePayMgr::LevelUp(WorldPackets::BattlePay::DistributionAssignToTarget c
     _charLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)holder);
 
     //Add checker.
+    ++PurchaseID;
     _store[PurchaseID].PurchaseID = packet.DistributionID;
     _store[PurchaseID].ProductID = PRODUCT_LEVEL_UP_90;
     _store[PurchaseID].TargetCharacter = packet.TargetCharacter;
     _store[PurchaseID].Status = 999;
     _store[PurchaseID].specID = packet.SpecializationID;
-
+    
     session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS, packet.DistributionID, packet.TargetCharacter);
 
     WorldPacket data(SMSG_CHARACTER_UPGRADE_STARTED);
@@ -313,26 +324,82 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
     if (!pCurrChar->LoadFromDB(playerGuid, holder))
     {
+        session->skip_send_packer = false;                  // Enable send packets.
         delete pCurrChar;                                   // delete it manually
         delete holder;                                      // delete all unprocessed queries
         return;
     }
-    session->skip_send_packer = false;
+
+    auto data = _store.find(PurchaseID);
+    if (data == _store.end())
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "BattlePayMgr::HandlePlayerLevelUp no PurchaseID %u", PurchaseID);
+        session->skip_send_packer = false;                  // Enable send packets.
+        delete pCurrChar;                                   // delete it manually
+        delete holder;                                      // delete all unprocessed queries
+        return;
+    }
+
+    Purchase const &purchase = data->second;
+
+    ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(purchase.specID);
+    if (!specialization || specialization->ClassID != pCurrChar->getClass())
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "BattlePayMgr::HandlePlayerLevelUp unsuported specID %u for class %u", purchase.specID, pCurrChar->getClass());
+        session->skip_send_packer = false;                  // Enable send packets.
+        delete pCurrChar;                                   // delete it manually
+        delete holder;                                      // delete all unprocessed queries
+        return;
+    }
 
     //
     pCurrChar->setCinematic(1);
 
+    //Professions.
+    if (pCurrChar->GetLevel() >= 60)
+    {       
+        if (pCurrChar->GetSkillValue(SKILL_FIRST_AID) < 600)
+        {
+            pCurrChar->learnSpell(110408, true);
+            pCurrChar->SetSkill(SKILL_FIRST_AID, 600, 600, 600);
+        }
+        uint32 primeCount = pCurrChar->GetFreePrimaryProfessionPoints();
+        uint32 skill_state = 0;
+
+        if (pCurrChar->GetSkillValue(SKILL_PLATE_MAIL))
+            skill_state = 2;
+        else if (pCurrChar->GetSkillValue(SKILL_LEATHER) || pCurrChar->GetSkillValue(SKILL_MAIL))
+            skill_state = 1;
+
+        static const uint32 prof[3][2] =
+        {
+            { 110401, 110427 }, //SKILL_CLOTH
+            { 110424, 102220 }, //SKILL_LEATHER
+            { 110398, 102161 }, //SKILL_PLATE_MAIL
+        };
+
+        while (primeCount)
+        {
+            --primeCount;
+            pCurrChar->learnSpell(prof[skill_state][primeCount], true);
+        }
+
+        for (auto data : pCurrChar->GetSpellMap())
+        {
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(data.first))
+                if (spellInfo->IsPrimaryProfessionFirstRank())
+                {
+                    --primeCount;
+                    pCurrChar->learnSpellHighRank(data.first);
+                    if (SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(data.first))
+                        pCurrChar->SetSkill(spellLearnSkill->skill, 600, 600, 600);
+                }
+        }
+    }
+
     //
-    PlayerLevelInfo info;
-    sObjectMgr->GetPlayerLevelInfo(pCurrChar->getRace(), pCurrChar->getClass(), 90, &info);
-
-    uint32 basehp = 0, basemana = 0;
-    sObjectMgr->GetPlayerClassLevelInfo(pCurrChar->getClass(), 90, basehp, basemana);
-
-    pCurrChar->SetLevel(90);
-    pCurrChar->SetCreateHealth(basehp);
-    pCurrChar->SetCreateMana(basemana);
-    pCurrChar->UpdateMaxHealth();
+    pCurrChar->GiveLevel(90);
+    pCurrChar->InitTalentForLevel();
 
     // Relocato to darkportal
     pCurrChar->SetLocationMapId(0);
@@ -348,6 +415,7 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
         if (pCurrChar->GetActiveSpec() == 2)
             pCurrChar->SetActiveSpec(1);
 
+        pCurrChar->ResetSpec(false);
         pCurrChar->SetSpecializationId(pCurrChar->GetActiveSpec(), _store[PurchaseID].specID);
     }
 
@@ -412,6 +480,7 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
         draft.SendMailTo(trans, MailReceiver(NULL, playerGuid.GetCounter()), sender);
         CharacterDatabase.CommitTransaction(trans);
     }
+    pCurrChar->SetFullHealth();
 
     //SMSG_CHARACTER_UPGRADE_CHARACTER_CHOSEN
     uint32 count = 0;
@@ -445,7 +514,8 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
     pCurrChar->SaveToDB();
     session->SetPlayer(NULL);
 
-    _store[PurchaseID].Status = 1000;       //Final Check
+    session->skip_send_packer = false;                  // Enable send packets.
+    _store[PurchaseID].Status = 1000;                   // Final Check
     delete pCurrChar;
     delete holder;
 }
