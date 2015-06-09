@@ -595,7 +595,6 @@ enum AtLoginFlags
     AT_LOGIN_CHANGE_RACE            = 0x080,
     AT_LOGIN_UNLOCK                 = 0x100,
     AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x200,
-    AT_LOGIN_LVL90_UP               = 0x400
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;

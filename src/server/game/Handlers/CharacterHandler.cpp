@@ -289,16 +289,15 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result, bool isDeleted)
     }
 
     SendPacket(charEnum.Write());
+    timeCharEnumOpcode = 0;
 }
 
 //6.1.2
 void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& enumCharacters)
 {
-    time_t now = time(NULL);
-    if (now - timeCharEnumOpcode < 5)
+    if (timeCharEnumOpcode)
         return;
-    else
-        timeCharEnumOpcode = now;
+    timeCharEnumOpcode = 1;
 
     SendCharacterEnum(enumCharacters.GetOpcode() == CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT);
 }
@@ -323,6 +322,51 @@ void WorldSession::SendCharacterEnum(bool deleted /*= false*/)
 
     _charEnumCallback.SetParam(deleted);
     _charEnumCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
+}
+
+//! 6.1.2
+void WorldSession::HandleCharUndelete(WorldPacket & recvData)
+{
+    //CMSG_UNDELETE_CHARACTER
+
+    uint32 token = recvData.read<uint32>();
+    ObjectGuid guid;
+    recvData >> guid;
+
+
+    WorldPacket data(SMSG_UNDELETE_CHARACTER_RESPONSE, 20);
+    data << uint32(token);
+
+    if (!HasAuthFlag(AT_AUTH_FLAG_RESTORE_DELETED_CHARACTER))
+    {
+        data << uint32(CHARACTER_UNDELETE_RESULT_ERROR_DISABLED);
+        data << guid;
+        SendPacket(&data);
+        return;
+    }
+
+    uint32 res = CHARACTER_UNDELETE_RESULT_ERROR_UNKNOWN;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_DELETED_CHARACTER);
+    stmt->setUInt64(0, guid.GetCounter());
+    stmt->setUInt32(1, GetAccountId());
+    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+    {
+        res = CHARACTER_UNDELETE_RESULT_OK;
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_RESTORE_DELETED_CHARACTER);
+        stmt->setUInt32(0, GetAccountId());
+        stmt->setUInt32(1, rand()); //rand int name send with future rename option.
+        stmt->setUInt64(2, guid.GetCounter());
+        CharacterDatabase.Execute(stmt);
+
+        RemoveAuthFlag(AT_AUTH_FLAG_RESTORE_DELETED_CHARACTER);
+        SendFeatureSystemStatusGlueScreen();
+    }
+
+    data << res;
+    data << guid;
+    SendPacket(&data);
 }
 
 //6.0.3

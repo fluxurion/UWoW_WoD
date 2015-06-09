@@ -93,7 +93,7 @@ void WorldSession::HandleUndeleteCharacterCooldownnStatus(WorldPacket& /*recvPac
     //CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS
     WorldPacket data(SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE, 9);
     data << uint8(0);           //onebit
-    data << uint32(2592000);
+    data << uint32(0);          //CD for free restore deleted character. 2592000
     data << uint32(0);
     SendPacket(&data);
 }

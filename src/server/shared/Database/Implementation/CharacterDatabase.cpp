@@ -675,4 +675,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     //Loot cooldown system
     PrepareStatement(CHAR_SEL_PLAYER_LOOTCOOLDOWN,       "SELECT entry, type, respawnTime FROM character_loot_cooldown WHERE guid = ?",  CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_PLAYER_LOOTCOOLDOWN,       "INSERT IGNORE INTO character_loot_cooldown (`guid`, `entry`, `type`, `respawnTime`) VALUES (?, ?, ?, ?)",  CONNECTION_ASYNC);
+
+    //
+    PrepareStatement(CHAR_SEL_CHECK_DELETED_CHARACTER, "SELECT account FROM characters WHERE guid = ? AND deleteInfos_Account = ?", CONNECTION_BOTH);
+    PrepareStatement(CHAR_UPD_RESTORE_DELETED_CHARACTER, "UPDATE characters SET account=?, name =?, at_login = at_login |1, deleteInfos_Account=NULL, deleteInfos_Name=NULL, deleteDate=NULL WHERE guid = ? ", CONNECTION_BOTH);
 }
