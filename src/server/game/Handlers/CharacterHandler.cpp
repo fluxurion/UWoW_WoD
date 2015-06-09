@@ -373,7 +373,6 @@ void WorldSession::HandleCharUndelete(WorldPacket & recvData)
 void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateChar& charCreate)
 {
     time_t now = time(NULL);
-    timeCharEnumOpcode = now - 5;
     if (now - timeAddIgnoreOpcode < 3)
         return;
     else

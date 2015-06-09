@@ -46,6 +46,7 @@ struct Purchase
     uint32 ProductID            = 0;
     ObjectGuid TargetCharacter;
     uint32 specID               = 0;
+    uint32 factionChose         = 0;
     uint32 TimeOnProcess        = 0;
 };
 

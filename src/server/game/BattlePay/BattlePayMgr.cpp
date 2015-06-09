@@ -269,7 +269,8 @@ void BattlePayMgr::LevelUp(WorldPackets::BattlePay::DistributionAssignToTarget c
     _store[PurchaseID].TargetCharacter = packet.TargetCharacter;
     _store[PurchaseID].Status = 999;
     _store[PurchaseID].specID = packet.SpecializationID;
-    
+    _store[PurchaseID].factionChose = packet.unk2;
+
     session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS, packet.DistributionID, packet.TargetCharacter);
 
     WorldPacket data(SMSG_CHARACTER_UPGRADE_STARTED);
@@ -438,7 +439,41 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
         }
     }
 
-    //
+    // Faction change for neutral pandaren
+    if (pCurrChar->getRace() == RACE_PANDAREN_NEUTRAL)
+    {
+        //FROM WorldSession::HandleSetFactionOpcode
+        if (!purchase.factionChose) //0 == HORDE
+        {
+            pCurrChar->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_HORDE);
+            pCurrChar->setFactionForRace(RACE_PANDAREN_HORDE);
+            WorldLocation location(1, 1349.72f, -4374.50f, 26.15f, M_PI);
+            pCurrChar->SetHomebind(location, 363);
+            pCurrChar->learnSpell(669, false); // Language Orcish
+            pCurrChar->learnSpell(108127, false); // Language Pandaren
+        }
+        else
+        {
+            pCurrChar->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_ALLI);
+            pCurrChar->setFactionForRace(RACE_PANDAREN_ALLI);
+            WorldLocation location(0, -9076.77f, 424.74f, 92.42f, M_PI);
+            pCurrChar->SetHomebind(location, 9);
+            pCurrChar->learnSpell(668, false); // Language Common
+            pCurrChar->learnSpell(108127, false); // Language Pandaren
+        }
+    }
+
+    // Riding
+    pCurrChar->learnSpell(34093, true);
+    pCurrChar->learnSpell(54197, false);
+    pCurrChar->learnSpell(90267, false);
+    pCurrChar->learnSpell(115913, false);
+    pCurrChar->learnSpell(pCurrChar->GetTeam() == HORDE ? 32243 : 32240, false);
+
+    // Money
+    pCurrChar->ModifyMoney(1500000, false);
+
+    // Level
     pCurrChar->GiveLevel(90);
     pCurrChar->InitTalentForLevel();
 
@@ -491,20 +526,20 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
                 else
                     mailer.push_back(pItem);
             }
-            else if (bagEntry)
-            {
-                if (Item* bagItem = Item::CreateItem(bagEntry, 1, pCurrChar))
-                {
-                    ItemPosCountVec sDest;
-                    InventoryResult msg = pCurrChar->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, bagItem, false);
-                    if (msg == EQUIP_ERR_OK)
-                    {
-                        bagItem = pCurrChar->StoreItem(sDest, bagItem, true);
-                        pCurrChar->SwapItem(bagItem->GetPos(), pItem->GetPos());
-                        ++bcount;
-                    }
-                }
-            }
+            //else if (bagEntry)
+            //{
+            //    if (Item* bagItem = Item::CreateItem(bagEntry, 1, pCurrChar))
+            //    {
+            //        ItemPosCountVec sDest;
+            //        InventoryResult msg = pCurrChar->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, bagItem, false);
+            //        if (msg == EQUIP_ERR_OK)
+            //        {
+            //            bagItem = pCurrChar->StoreItem(sDest, bagItem, true);
+            //            pCurrChar->SwapItem(bagItem->GetPos(), pItem->GetPos());
+            //            ++bcount;
+            //        }
+            //    }
+            //}
         }
     }
 
