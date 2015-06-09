@@ -120,6 +120,38 @@ bool BattlePayMgr::ActivateProduct(WorldPackets::BattlePay::Product product, uin
             return true;
         }
     }
+    else if (product.Type == PRODUCT_TYPE_FACTION_CHANGE)
+    {
+        if (Player* player = session->GetPlayer())
+        {
+            player->SetAtLoginFlag(AT_LOGIN_CHANGE_FACTION);
+            return true;
+        }
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+        stmt->setInt32(0, AT_LOGIN_CHANGE_FACTION);
+        stmt->setUInt64(1, targetGuid.GetCounter());
+        CharacterDatabase.DirectExecute(stmt);
+
+        session->SendCharacterEnum();
+        
+        return true;
+    }
+    else if (product.Type == PRODUCT_TYPE_RACE_CHAGE)
+    {
+        if (Player* player = session->GetPlayer())
+        {
+            player->SetAtLoginFlag(AT_LOGIN_CHANGE_RACE);
+            return true;
+        }
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+        stmt->setInt32(0, AT_LOGIN_CHANGE_RACE);
+        stmt->setUInt64(1, targetGuid.GetCounter());
+        CharacterDatabase.DirectExecute(stmt);
+
+        session->SendCharacterEnum();
+        return true;
+    }
     return false;
 }
 

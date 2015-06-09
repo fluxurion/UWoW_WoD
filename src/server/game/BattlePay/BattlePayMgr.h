@@ -67,6 +67,8 @@ enum ProductType
     PRODUCT_TYPE_ITEM                       = 0,
     PRODUCT_TYPE_SERVICE                    = 2,
     PRODUCT_TYPE_RESTORE_DELETE_CHARACTER   = 3,
+    PRODUCT_TYPE_FACTION_CHANGE             = 4,
+    PRODUCT_TYPE_RACE_CHAGE                 = 5,
 };
 
 enum ProductConstant

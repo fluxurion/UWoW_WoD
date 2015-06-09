@@ -413,7 +413,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     "watchedFaction=?,drunk=?,health=?,power1=?,power2=?,power3=?,power4=?,power5=?,power6=?,latency=?,speccount=?,activespec=?,specialization1=?,specialization2=?,exploredZones=?,"
     "equipmentCache=?,knownTitles=?,actionBars=?,currentpetnumber=?,petslot=?,grantableLevels=?,online=?, resetspecialization_cost = ?, resetspecialization_time = ?, lfgBonusFaction = ? WHERE guid=?", CONNECTION_ASYNC);
 
-    PrepareStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG, "UPDATE characters SET at_login = at_login | ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG, "UPDATE characters SET at_login = at_login | ? WHERE guid = ?", CONNECTION_BOTH);
     PrepareStatement(CHAR_UPD_REM_AT_LOGIN_FLAG, "UPDATE characters set at_login = at_login & ~ ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_ALL_AT_LOGIN_FLAGS, "UPDATE characters SET at_login = at_login | ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_BUG_REPORT, "INSERT INTO bugreport (type, content) VALUES(?, ?)", CONNECTION_ASYNC);
