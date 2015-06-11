@@ -138,22 +138,24 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << int32(Info.Objectives.size());
         _worldPacket << int32(Info.AllowableRaces);
 
-        for (uint32 i = 0; i < Info.Objectives.size(); ++i)
+        for (QuestObjective const& questObjective : Info.Objectives)
         {
-            _worldPacket << Info.Objectives[i].ID;
-            _worldPacket << Info.Objectives[i].Type;
-            _worldPacket << Info.Objectives[i].StorageIndex;
-            _worldPacket << Info.Objectives[i].ObjectID;
-            _worldPacket << Info.Objectives[i].Amount;
-            _worldPacket << Info.Objectives[i].Flags;
-            _worldPacket << Info.Objectives[i].UnkFloat;
+            _worldPacket << questObjective.ID;
+            _worldPacket << questObjective.Type;
+            _worldPacket << questObjective.StorageIndex;
+            _worldPacket << questObjective.ObjectID;
+            _worldPacket << questObjective.Amount;
+            _worldPacket << questObjective.Flags;
+            _worldPacket << questObjective.UnkFloat;
 
-            _worldPacket << int32(Info.Objectives[i].VisualEffects.size());
-            for (uint32 j = 0; j < Info.Objectives[i].VisualEffects.size(); ++j)
-                _worldPacket << Info.Objectives[i].VisualEffects[i];
+            _worldPacket << int32(questObjective.VisualEffects.size());
+            for (int32 visualEffect : questObjective.VisualEffects)
+                _worldPacket << visualEffect;
 
-            _worldPacket.WriteBits(Info.Objectives[i].Description.size(), 8);
-            _worldPacket.WriteString(Info.Objectives[i].Description);
+            _worldPacket.WriteBits(questObjective.Description.size(), 8);
+            _worldPacket.FlushBits();
+
+            _worldPacket.WriteString(questObjective.Description);
         }
 
         _worldPacket.WriteBits(Info.LogTitle.size(), 9);

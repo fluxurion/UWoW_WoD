@@ -1213,7 +1213,8 @@ public:
     static bool HandleReloadLocalesQuestCommand(ChatHandler* handler, const char* /*args*/)
     {
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Locales Quest ... ");
-        sObjectMgr->LoadQuestLocales();
+        sObjectMgr->LoadQuestTemplateLocale();
+        sObjectMgr->LoadQuestObjectivesLocale();
         handler->SendGlobalGMSysMessage("DB table `locales_quest` reloaded.");
         return true;
     }

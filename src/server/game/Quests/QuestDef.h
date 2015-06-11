@@ -221,23 +221,26 @@ enum __QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x800,   // Internal flag computed only
 };
 
-struct QuestLocale
+struct QuestTemplateLocale
 {
-    QuestLocale() { ObjectiveText.resize(QUEST_OBJECTIVES_COUNT); }
-
     StringVector LogTitle;
-    StringVector QuestDescription;
     StringVector LogDescription;
-    StringVector OfferRewardText;
-    StringVector RequestItemsText;
+    StringVector QuestDescription;
     StringVector AreaDescription;
-    StringVector QuestCompletionLog;
-    std::vector< StringVector > ObjectiveText;
-    // new on 4.x
     StringVector PortraitGiverText;
     StringVector PortraitGiverName;
     StringVector PortraitTurnInText;
     StringVector PortraitTurnInName;
+    StringVector QuestCompletionLog;
+
+    /// @todo: implemente this in new tables
+    StringVector OfferRewardText;
+    StringVector RequestItemsText;
+};
+
+struct QuestObjectivesLocale
+{
+    StringVector Description;
 };
 
 struct QuestObjective
