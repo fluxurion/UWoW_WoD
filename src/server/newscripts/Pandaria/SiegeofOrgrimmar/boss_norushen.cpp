@@ -1256,7 +1256,7 @@ public:
             events.ScheduleEvent(EVENT_SPELL_BOTTOMLESS_PIT, 17000);         //20:10:22.000
             events.ScheduleEvent(EVENT_SPELL_DISHEARTENING_LAUGH, 12000);    //20:10:17.000 20:10:29.000
             events.ScheduleEvent(EVENT_SPELL_LINGERING_CORRUPTION, 14000);   //20:10:19.000
-            if (me->GetPhaseId()) events.ScheduleEvent(EVENT_END, 60000);
+            if (me->HasPhaseId()) events.ScheduleEvent(EVENT_END, 60000);
         }
 
         void JustDied(Unit* killer)
@@ -1269,7 +1269,7 @@ public:
             if (!plr)
                 return;
 
-            if (!me->GetPhaseId())
+            if (!me->HasPhaseId())
             {
                 me->DespawnOrUnsummon();
                 return;
@@ -1291,7 +1291,7 @@ public:
 
         void EnterEvadeMode()
         {
-            if (me->GetPhaseId())
+            if (me->HasPhaseId())
                 spawnOnRealWorld();
         }
 

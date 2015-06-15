@@ -101,7 +101,8 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
 
     Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(caster->GetMapId(), 0, guidlow));
     SetPhaseMask(caster->GetPhaseMask(), false);
-    SetPhaseId(caster->GetPhaseId(), false);
+    for (auto PhaseID : caster->GetPhases())
+        SetPhaseId(PhaseID, false);
 
     _realEntry = triggerEntry;
     SetEntry(_realEntry);

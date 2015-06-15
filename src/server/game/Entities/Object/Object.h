@@ -808,10 +808,24 @@ class WorldObject : public Object, public WorldLocation
         bool InSamePhase(WorldObject const* obj) const { return InSamePhase(obj->GetPhaseMask()); }
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }
 
-        virtual void SetPhaseId(uint32 newPhaseId, bool update) { m_phaseId = newPhaseId; };
-        uint32 GetPhaseId() const { return m_phaseId; }
-        bool InSamePhaseId(WorldObject const* obj) const { return IgnorePhaseId() || obj->IgnorePhaseId()|| InSamePhaseId(obj->GetPhaseId()); }
-        bool InSamePhaseId(uint32 phase) const { return m_ignorePhaseIdCheck || (GetPhaseId() == phase); }
+        virtual void SetPhaseId(uint32 newPhaseId, bool update) { m_phaseId.insert(newPhaseId); };
+        bool HasPhaseId(uint32 PhaseID) const { return m_phaseId.find(PhaseID) != m_phaseId.end(); }
+        bool HasPhaseId() const { return m_phaseId.size(); }
+        std::set<uint32> GetPhases() const { return m_phaseId;  }
+        bool InSamePhaseId(WorldObject const* obj) const { return HasPhaseId() || obj->IgnorePhaseId() || InSamePhaseId(obj->GetPhases()); }
+        bool InSamePhaseId(std::set<uint32> const& phase) const 
+        {
+            if (m_ignorePhaseIdCheck)
+                return true;
+
+            for (auto PhaseID : phase)
+            {
+                if (m_phaseId.find(PhaseID) == m_phaseId.end())
+                    return false;
+            }
+            return true;
+        }
+
         void setIgnorePhaseIdCheck(bool apply)  { m_ignorePhaseIdCheck = apply; }
         bool IgnorePhaseId() const { return m_ignorePhaseIdCheck; }
 
@@ -1059,7 +1073,7 @@ class WorldObject : public Object, public WorldLocation
         //uint32 m_mapId;                                     // object at map with map_id
         uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
-        uint32 m_phaseId;                                   // special phase. It's new generation phase, when we should check id.
+        std::set<uint32> m_phaseId;                         // special phase. It's new generation phase, when we should check id.
         bool m_ignorePhaseIdCheck;                          // like gm mode.
 
         GuidList _visibilityPlayerList;

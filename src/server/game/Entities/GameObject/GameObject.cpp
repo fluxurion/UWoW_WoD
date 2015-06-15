@@ -189,6 +189,12 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
         return false;
     }
 
+    if (GameObjectData const* data = sObjectMgr->GetGOData(guidlow))
+    {
+        for (auto PhaseID : data->PhaseID)
+            SetPhaseId(PhaseID, false);
+    }
+
     SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION+0, rotation0);
     SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION+1, rotation1);
 

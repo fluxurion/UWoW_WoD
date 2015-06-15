@@ -1,0 +1,2 @@
+ALTER TABLE `creature` ADD `PhaseId` VARCHAR(255) NOT NULL DEFAULT '' AFTER `phaseMask`;
+ALTER TABLE `gameobject` ADD `PhaseId` VARCHAR(255) NOT NULL DEFAULT '' AFTER `phaseMask`;

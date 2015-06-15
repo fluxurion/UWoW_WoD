@@ -21296,8 +21296,10 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
 
 void Unit::SetPhaseId(uint32 newPhase, bool update)
 {
-    if (newPhase == GetPhaseId())
+    if (HasPhaseId(newPhase))
         return;
+
+    WorldObject::SetPhaseId(newPhase, false);
 
     if (IsInWorld())
     {
@@ -21311,7 +21313,7 @@ void Unit::SetPhaseId(uint32 newPhase, bool update)
             {
                 if (Unit* unit = ref->getSource()->getOwner())
                     if (Creature* creature = unit->ToCreature())
-                        refManager.setOnlineOfflineState(creature, creature->InSamePhaseId(newPhase));
+                        refManager.setOnlineOfflineState(creature, creature->InSamePhaseId(this));
 
                 ref = ref->next();
             }
@@ -21329,12 +21331,10 @@ void Unit::SetPhaseId(uint32 newPhase, bool update)
 
                 for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
                     if (Unit* unit = (*itr)->getTarget())
-                        unit->getHostileRefManager().setOnlineOfflineState(ToCreature(), unit->InSamePhaseId(newPhase));
+                        unit->getHostileRefManager().setOnlineOfflineState(ToCreature(), unit->InSamePhaseId(this));
             }
         }
     }
-
-    WorldObject::SetPhaseId(newPhase, false);
 
     if (!IsInWorld())
         return;

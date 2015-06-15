@@ -342,6 +342,7 @@ struct CreatureData
     uint32 dynamicflags;
     bool isActive;
     bool dbData;
+    std::list<uint32> PhaseID;
 };
 
 // `creature_addon` table
