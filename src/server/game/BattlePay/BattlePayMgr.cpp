@@ -586,6 +586,12 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
     }
     tmpPacket.put<uint32>(wPos, count);
 
+    // Draenor quest line
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(34398))
+    {
+        pCurrChar->AddQuest(quest, pCurrChar);
+    }
+
     pCurrChar->CleanupsBeforeDelete();
     pCurrChar->SaveToDB();
     session->SetPlayer(NULL);

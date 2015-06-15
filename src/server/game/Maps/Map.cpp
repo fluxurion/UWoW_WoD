@@ -265,6 +265,7 @@ i_scriptLock(false)
         case 648: // start goblin
         case 654: // start worgen
         case 860: // start pandaren
+        case 1265: // start Draenor
             m_VisibleDistance = 250.0f;
             break;
         default:

@@ -114,7 +114,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
                 stats.Name[0] = cl->Name[GetSessionDbLocaleIndex()];
 
             if (cl->SubName.size() > GetSessionDbLocaleIndex() && !cl->SubName[GetSessionDbLocaleIndex()].empty())
-                stats.NameAlt[0] = cl->SubName[GetSessionDbLocaleIndex()];
+                stats.Title = cl->SubName[GetSessionDbLocaleIndex()];
         }
 
         {
@@ -233,7 +233,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
     {
         for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
-            response.Probabilities[i] = i == 0 ? 0x3F800000 : 0/*gossip->Options[i].Probability*/;
+            response.Probabilities[i] = i == 0 ? 1 : 0/*gossip->Options[i].Probability*/;
             response.BroadcastTextID[i] = i == 0 ? packet.TextID : 0/*gossip->Options[i].BroadcastTextID*/;
         }
 
