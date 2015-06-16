@@ -61,10 +61,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (78423, 0, 1, 0, 62, 0, 100, 0, 16863, 0, 0, 0, 11, 167771, 18, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'At gossip select cast teleportation');
 
 --
-REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `terrainswapmap`, `wmAreaId`, `flags`, `comment`) VALUES 
-('7025', '1', '0', '0', '1307', '770', '16', 'Draenor Dark Portal Intro'),
-('7025', '2', '0', '0', '0', '992', '0', 'Draenor Dark Portal Intro'),
-('7025', '3', '0', '0', '0', '683', '0', 'Draenor Dark Portal Intro');
+REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
+('7025', '1', '0', '4200 4143 4142 3946 3880 3834 3833 3824 3764 3763 3712 3693 3605 3568 3563 3480 3263 3251 3250 3249 3248', '0', '770', '16', 'Draenor Dark Portal Intro'),
+('7025', '2', '0', '', '0', '992', '0', 'Draenor Dark Portal Intro'),
+('7025', '3', '0', '', '0', '683', '0', 'Draenor Dark Portal Intro');
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES

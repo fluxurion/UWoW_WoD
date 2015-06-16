@@ -756,8 +756,9 @@ struct npc_norushenChallengeAI : public ScriptedAI
     {
         if (!instance)
             return;
-
-        me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
+        std::set<uint32> phaseID;
+        phaseID.insert(summoner->GetGUID().GetCounter());
+        me->SetPhaseId(phaseID, true);
         me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
 
         if (challenge)
@@ -1144,7 +1145,10 @@ public:
             if (!instance)
                 return;
 
-            me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
+            std::set<uint32> phaseID;
+            phaseID.insert(summoner->GetGUID().GetCounter());
+
+            me->SetPhaseId(phaseID, true);
             me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
             me->DespawnOrUnsummon(60000);
             me->SetInCombatWithZone();
@@ -1246,7 +1250,10 @@ public:
 
         void IsSummonedBy(Unit* summoner)
         {
-            me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
+            std::set<uint32> phaseID;
+            phaseID.insert(summoner->GetGUID().GetCounter());
+
+            me->SetPhaseId(phaseID, true);
             me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
         }
 
@@ -1283,7 +1290,8 @@ public:
 
         void spawnOnRealWorld()
         {
-            me->SetPhaseId(0, true);
+            std::set<uint32> phaseID;
+            me->SetPhaseId(phaseID, true);
             me->ClearVisibleOnlyForSomePlayers();
             me->SetInCombatWithZone();
             me->SetFullHealth();
@@ -1370,7 +1378,10 @@ struct npc_norushen_heal_chAI : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner)
     {
-        me->SetPhaseId(summoner->GetGUID().GetCounter(), true);
+        std::set<uint32> phaseID;
+        phaseID.insert(summoner->GetGUID().GetCounter());
+
+        me->SetPhaseId(phaseID, true);
         me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
         if (Creature* corruption = me->FindNearestCreature(NPC_GREATER_CORRUPTION, 50.0f, true))
         {
@@ -1762,7 +1773,10 @@ class spell_norushen_challenge : public SpellScriptLoader
                 if (Creature* norush = instance->instance->GetCreature(instance->GetGuidData(NPC_NORUSHEN)))
                     norush->AI()->ZoneTalk(TEXT_GENERIC_10, target->GetGUID());
 
-                target->SetPhaseId(target->GetGUID().GetCounter(), true);
+                std::set<uint32> phaseID;
+                phaseID.insert(target->GetGUID().GetCounter());
+
+                target->SetPhaseId(phaseID, true);
 
                 //target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_ONLY_OWN_TEMP_CREATRES, ONLY_OWN_TEMP_CREATRES_VISIBILITY_TYPE);
 
@@ -1812,7 +1826,8 @@ class spell_norushen_challenge : public SpellScriptLoader
                     default:
                         break;                    
                 }
-                target->SetPhaseId(0, true);
+                std::set<uint32> phaseID;
+                target->SetPhaseId(phaseID, true);
                 //target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_ONLY_OWN_TEMP_CREATRES, 0);
             }
 

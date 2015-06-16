@@ -49,7 +49,7 @@ struct PhaseDefinition
     uint32 zoneId;
     uint32 entry;
     uint32 phasemask;
-    uint32 phaseId;
+    std::list<uint32> phaseId;
     uint32 terrainswapmap;
     uint32 wmAreaId;
     uint8 flags;
@@ -106,9 +106,9 @@ struct PhaseData
     void SendPhaseMaskToPlayer();
     void SendPhaseshiftToPlayer();
 
+    std::list<PhaseDefinition const*> activePhaseDefinitions;
 private:
     Player* player;
-    std::list<PhaseDefinition const*> activePhaseDefinitions;
     PhaseInfoContainer spellPhaseInfo;
 };
 

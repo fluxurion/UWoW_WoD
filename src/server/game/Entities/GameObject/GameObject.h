@@ -850,7 +850,7 @@ struct GameObjectData
     uint8 artKit;
     bool isActive;
     bool dbData;
-    std::list<uint32> PhaseID;
+    std::set<uint32> PhaseID;
 };
 
 struct TreasureData

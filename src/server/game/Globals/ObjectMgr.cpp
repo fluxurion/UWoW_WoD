@@ -1451,11 +1451,11 @@ void ObjectMgr::LoadCreatures()
         data.dynamicflags   = fields[index++].GetUInt32();
         data.isActive       = fields[index++].GetBool();
 
-        Tokenizer phasesToken(fields[26].GetString(), ' ', 100);
+        Tokenizer phasesToken(fields[index++].GetString(), ' ', 100);
         for (Tokenizer::const_iterator itr = phasesToken.begin(); itr != phasesToken.end(); ++itr)
         {
             if (PhaseEntry const* phase = sPhaseStores.LookupEntry(uint32(strtoull(*itr, nullptr, 10))))
-                data.PhaseID.push_back(phase->ID);
+                data.PhaseID.insert(phase->ID);
         }
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
@@ -1945,7 +1945,7 @@ void ObjectMgr::LoadGameobjects()
         for (Tokenizer::const_iterator itr = phasesToken.begin(); itr != phasesToken.end(); ++itr)
         {
             if (PhaseEntry const* phase = sPhaseStores.LookupEntry(uint32(strtoull(*itr, nullptr, 10))))
-                data.PhaseID.push_back(phase->ID);
+                data.PhaseID.insert(phase->ID);
         }
 
         if (data.phaseMask == 0)
@@ -8957,7 +8957,7 @@ void ObjectMgr::LoadPhaseDefinitions()
     uint32 oldMSTime = getMSTime();
 
     //                                                 0       1       2         3            4           5       6
-    QueryResult result = WorldDatabase.Query("SELECT zoneId, entry, phasemask, phaseId, terrainswapmap, wmAreaId, flags FROM `phase_definitions` ORDER BY `entry` ASC");
+    QueryResult result = WorldDatabase.Query("SELECT zoneId, entry, phasemask, phaseId, PreloadMapID, VisibleMapID, flags FROM `phase_definitions` ORDER BY `entry` ASC");
 
     if (!result)
     {
@@ -8976,10 +8976,16 @@ void ObjectMgr::LoadPhaseDefinitions()
         pd.zoneId                = fields[0].GetUInt32();
         pd.entry                 = fields[1].GetUInt16();
         pd.phasemask             = fields[2].GetUInt64();
-        pd.phaseId               = fields[3].GetUInt16();
         pd.terrainswapmap        = fields[4].GetUInt16();
         pd.wmAreaId              = fields[5].GetUInt16();
         pd.flags                 = fields[6].GetUInt8();
+
+        Tokenizer phasesToken(fields[3].GetString(), ' ', 100);
+        for (Tokenizer::const_iterator itr = phasesToken.begin(); itr != phasesToken.end(); ++itr)
+        {
+            if (PhaseEntry const* phase = sPhaseStores.LookupEntry(uint32(strtoull(*itr, nullptr, 10))))
+                pd.phaseId.push_back(phase->ID);
+        }
 
         // Checks
         if ((pd.flags & PHASE_FLAG_OVERWRITE_EXISTING) && (pd.flags & PHASE_FLAG_NEGATE_PHASE))

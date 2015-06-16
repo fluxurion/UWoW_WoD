@@ -21294,9 +21294,9 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
         UpdateObjectVisibility();
 }
 
-void Unit::SetPhaseId(uint32 newPhase, bool update)
+void Unit::SetPhaseId(std::set<uint32> const& newPhase, bool update)
 {
-    if (HasPhaseId(newPhase))
+    if (InSamePhaseId(newPhase))
         return;
 
     WorldObject::SetPhaseId(newPhase, false);

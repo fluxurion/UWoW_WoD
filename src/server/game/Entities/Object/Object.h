@@ -808,15 +808,18 @@ class WorldObject : public Object, public WorldLocation
         bool InSamePhase(WorldObject const* obj) const { return InSamePhase(obj->GetPhaseMask()); }
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }
 
-        virtual void SetPhaseId(uint32 newPhaseId, bool update) { m_phaseId.insert(newPhaseId); };
+        virtual void SetPhaseId(std::set<uint32> const& newPhaseId, bool update) { m_phaseId = newPhaseId; };
         bool HasPhaseId(uint32 PhaseID) const { return m_phaseId.find(PhaseID) != m_phaseId.end(); }
         bool HasPhaseId() const { return m_phaseId.size(); }
         std::set<uint32> GetPhases() const { return m_phaseId;  }
-        bool InSamePhaseId(WorldObject const* obj) const { return HasPhaseId() || obj->IgnorePhaseId() || InSamePhaseId(obj->GetPhases()); }
+        bool InSamePhaseId(WorldObject const* obj) const { return InSamePhaseId(obj->GetPhases()) || obj->InSamePhaseId(GetPhases()); }
         bool InSamePhaseId(std::set<uint32> const& phase) const 
         {
-            if (m_ignorePhaseIdCheck)
+            if (IgnorePhaseId())
                 return true;
+
+            if (phase.empty() && m_phaseId.size())
+                return false;
 
             for (auto PhaseID : phase)
             {

@@ -97,12 +97,21 @@ void PhaseMgr::Recalculate()
                 if (phase->phasemask)
                     _UpdateFlags |= PHASE_UPDATE_FLAG_SERVERSIDE_CHANGED;
 
-                if (phase->phaseId || phase->terrainswapmap || phase->wmAreaId)
+                if (phase->phaseId.size() || phase->terrainswapmap || phase->wmAreaId)
                     _UpdateFlags |= PHASE_UPDATE_FLAG_CLIENTSIDE_CHANGED;
 
                 if (phase->IsLastDefinition())
                     break;
             }
+
+    std::set<uint32> phaseIds;
+    for (std::list<PhaseDefinition const*>::const_iterator itr = phaseData.activePhaseDefinitions.begin(); itr != phaseData.activePhaseDefinitions.end(); ++itr)
+    {
+        for (auto phaseID : (*itr)->phaseId)
+            phaseIds.insert(phaseID);
+    }
+
+    player->SetPhaseId(phaseIds, true);
 }
 
 inline bool PhaseMgr::CheckDefinition(PhaseDefinition const* phaseDefinition)
@@ -265,8 +274,8 @@ void PhaseData::SendPhaseshiftToPlayer()
     // Phase Definitions
     for (std::list<PhaseDefinition const*>::const_iterator itr = activePhaseDefinitions.begin(); itr != activePhaseDefinitions.end(); ++itr)
     {
-        if ((*itr)->phaseId)
-            phaseIds.insert((*itr)->phaseId);
+        for (auto phaseID : (*itr)->phaseId)
+            phaseIds.insert(phaseID);
 
         if ((*itr)->terrainswapmap)
             terrainswaps.insert((*itr)->terrainswapmap);
