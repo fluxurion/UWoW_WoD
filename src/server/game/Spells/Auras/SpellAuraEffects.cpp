@@ -2203,6 +2203,10 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
                                 slow->ChangeAmount(newAmount);
                             }
                             break;
+                        case 167421:    //Khadgar's Watch
+                            if (!caster->HasAura(167410))
+                                caster->CastSpell(caster, 167410, true, NULL, this);
+                            break;
                         default:
                             break;
                     }
