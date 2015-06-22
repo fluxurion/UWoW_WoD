@@ -5822,7 +5822,7 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
-    sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Sending SMSG_ATTACKER_STATE_UPDATE");
+    //sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Sending SMSG_ATTACKER_STATE_UPDATE");
 
     WorldPackets::Combat::AttackerStateUpdate packet;
     packet.HitInfo = damageInfo->HitInfo;
@@ -22523,7 +22523,7 @@ void Unit::SendThreatListUpdate()
     {
         uint32 count = getThreatManager().getThreatList().size();
 
-        sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message");
+        //sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message");
 
         WorldPackets::Combat::ThreatUpdate packet;
         packet.UnitGUID = GetGUID();
@@ -22546,7 +22546,7 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
     {
         uint32 count = getThreatManager().getThreatList().size();
 
-        sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
+        //sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
 
         WorldPackets::Combat::HighestThreatUpdate packet;
         packet.UnitGUID = GetGUID();
