@@ -1904,6 +1904,8 @@ public:
                 handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name, zoneName.c_str(), areaName.c_str(), phase);
             else
                 handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name, areaName.c_str(), "<unknown>", phase);
+
+            handler->PSendSysMessage("PhaseIds: %s", target->GetPhaseMgr().GetPhaseIdString().c_str());
         }
         else
            handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name, areaName.c_str());

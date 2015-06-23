@@ -94,6 +94,8 @@ void PhaseMgr::Recalculate()
             {
                 phaseData.AddPhaseDefinition(&(*phase));
 
+                sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "PhaseMgr::recalculete enable id: %u zone %u: ", phase->entry, phase->zoneId);
+
                 if (phase->phasemask)
                     _UpdateFlags |= PHASE_UPDATE_FLAG_SERVERSIDE_CHANGED;
 
@@ -400,4 +402,15 @@ bool PhaseMgr::IsConditionTypeSupported(ConditionTypes const conditionType)
         default:
             return false;
     }
+}
+
+std::string PhaseMgr::GetPhaseIdString()
+{
+    std::ostringstream ss;
+    for (std::list<PhaseDefinition const*>::const_iterator itr = phaseData.activePhaseDefinitions.begin(); itr != phaseData.activePhaseDefinitions.end(); ++itr)
+    {
+        for (auto phaseID : (*itr)->phaseId)
+            ss << phaseID << " ";
+    }
+    return ss.str().c_str();
 }

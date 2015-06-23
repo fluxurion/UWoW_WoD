@@ -63,6 +63,7 @@ public:
             { "drunk",          SEC_MODERATOR,      false, &HandleModifyDrunkCommand,         "", NULL },
             { "standstate",     SEC_GAMEMASTER,     false, &HandleModifyStandStateCommand,    "", NULL },
             { "phase",          SEC_ADMINISTRATOR,  false, &HandleModifyPhaseCommand,         "", NULL },
+            { "phaseids",       SEC_ADMINISTRATOR,  false, &HandleModifyPhaseIDsCommand, "", NULL },
             { "gender",         SEC_GAMEMASTER,     false, &HandleModifyGenderCommand,        "", NULL },
             { "power",          SEC_GAMEMASTER,     false, &HandleModifyPowerCommand,         "", NULL },
             { "currency",       SEC_GAMEMASTER,     false, &HandleModifyCurrencyCommand,      "", NULL },
@@ -1290,6 +1291,33 @@ public:
         return true;
     }
 
+    
+    static bool HandleModifyPhaseIDsCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        std::set<uint32> phaseIds;
+        Tokenizer phasesToken((char*)args, ' ', 100);
+        for (Tokenizer::const_iterator itr = phasesToken.begin(); itr != phasesToken.end(); ++itr)
+        {
+            if (PhaseEntry const* phase = sPhaseStores.LookupEntry(uint32(strtoull(*itr, nullptr, 10))))
+                phaseIds.insert(phase->ID);
+        }
+
+        Unit* target = handler->getSelectedUnit();
+        if (target)
+        {
+            if (target->GetTypeId() == TYPEID_PLAYER)
+                target->ToPlayer()->SetPhaseId(phaseIds, true);
+            else
+                return false;
+        }
+        else
+            handler->GetSession()->GetPlayer()->SetPhaseId(phaseIds, true);
+
+        return true;
+    }
     //change standstate
     static bool HandleModifyStandStateCommand(ChatHandler* handler, const char* args)
     {

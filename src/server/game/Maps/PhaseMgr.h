@@ -155,6 +155,7 @@ public:
 
     static bool IsConditionTypeSupported(ConditionTypes const conditionType);
 
+    std::string GetPhaseIdString();
 private:
     void Recalculate();
 
