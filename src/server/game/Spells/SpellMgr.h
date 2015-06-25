@@ -775,7 +775,6 @@ struct SpellScene
     int32 ScenePackageId;
     int32 MiscValue;
     bool hasO;
-    int32 SceneInstanceID;
     int32 PlaybackFlags;
     bool bit16;
     float x;

@@ -1,0 +1,1 @@
+ALTER TABLE `spell_scene` DROP `SceneInstanceID`;

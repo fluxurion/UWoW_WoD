@@ -9099,7 +9099,7 @@ void AuraEffect::HandleAuraActivateScene(AuraApplication const* aurApp, uint8 mo
     Position pos;
     target->GetPosition(&pos);
 
-    target->SendSpellScene(GetMiscValue(), &pos);
+    target->SendSpellScene(GetMiscValue(), this, apply, &pos);
 }
 
 

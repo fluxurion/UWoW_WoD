@@ -8523,7 +8523,7 @@ void Spell::SendScene(SpellEffIndex effIndex)
     else
         m_caster->GetPosition(&pos);
 
-    m_caster->SendSpellScene(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue, &pos);
+    m_caster->SendSpellScene(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue, NULL, true, &pos);
 }
 
 void Spell::EffectBonusLoot(SpellEffIndex effIndex)

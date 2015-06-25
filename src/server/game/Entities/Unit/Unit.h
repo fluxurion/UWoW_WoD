@@ -2108,7 +2108,7 @@ class Unit : public WorldObject
         void SendSpellCreateVisual(SpellInfo const* spellInfo, Position* position = NULL, Unit* target = NULL);
         void SendFakeAuraUpdate(uint32 auraId, uint32 flags, uint32 diration, uint32 _slot, bool remove);
         bool GetFreeAuraSlot(uint32& slot);
-        void SendSpellScene(uint32 miscValue, Position* pos);
+        void SendSpellScene(uint32 miscValue, AuraEffect const* effect, bool apply, Position* pos);
         void SendMissileCancel(uint32 spellId, bool cancel = true);
         void SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uint32 rmDuraction, uint32 mechanic, uint32 schoolMask, LossOfControlType type, bool apply);
         void SendDisplayToast(uint32 entry, uint8 hasDisplayToastMethod, bool isBonusRoll, uint32 count, uint8 type, Item* item = NULL);
@@ -2570,6 +2570,8 @@ class Unit : public WorldObject
 
         typedef std::set<AuraEffect*> triggeredEffectList;
         triggeredEffectList m_triggeredEffect;
+        std::map<AuraEffect const*, uint32> m_sceneEffect;
+        uint32 sceneInstanceID = 0;
 
         Spell* m_currentSpells[CURRENT_MAX_SPELL];
         uint32 m_castCounter;                               // count casts chain of triggered spells for prevent infinity cast crashes

@@ -2567,8 +2567,8 @@ void SpellMgr::LoadSpellScene()
 
     mSpellSceneMap.clear();    // need for reload case
 
-    //                                                      0            1       2           3               4          5    6  7  8  9     10
-    QueryResult result = WorldDatabase.Query("SELECT ScenePackageId, MiscValue, hasO, SceneInstanceID, PlaybackFlags, bit16, x, y, z, o, transport FROM spell_scene");
+    //                                                      0            1       2           3         4    5  6  7  8      9
+    QueryResult result = WorldDatabase.Query("SELECT ScenePackageId, MiscValue, hasO, PlaybackFlags, bit16, x, y, z, o, transport FROM spell_scene");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 visual spells. DB table `spell_visual_send` is empty.");
@@ -2580,23 +2580,22 @@ void SpellMgr::LoadSpellScene()
     {
         Field* fields = result->Fetch();
 
-        int32 ScenePackageId = fields[0].GetInt32();
-        int32 MiscValue = fields[1].GetInt32();
-        bool hasO   = bool(fields[2].GetUInt8());
-        int32 SceneInstanceID = fields[3].GetInt32();
-        int32 PlaybackFlags = fields[4].GetInt32();
-        bool bit16 = bool(fields[5].GetUInt8());
-        float x = fields[6].GetFloat();
-        float y = fields[7].GetFloat();
-        float z = fields[8].GetFloat();
-        float o = fields[9].GetFloat();
-        int32 transport = fields[10].GetInt32();
+        int8 ind = 0;
+        int32 ScenePackageId = fields[ind++].GetInt32();
+        int32 MiscValue = fields[ind++].GetInt32();
+        bool hasO = bool(fields[ind++].GetUInt8());
+        int32 PlaybackFlags = fields[ind++].GetInt32();
+        bool bit16 = bool(fields[ind++].GetUInt8());
+        float x = fields[ind++].GetFloat();
+        float y = fields[ind++].GetFloat();
+        float z = fields[ind++].GetFloat();
+        float o = fields[ind++].GetFloat();
+        int32 transport = fields[ind++].GetInt32();
 
         SpellScene templink;
         templink.ScenePackageId = ScenePackageId;
         templink.MiscValue = MiscValue;
         templink.hasO = hasO;
-        templink.SceneInstanceID = SceneInstanceID;
         templink.PlaybackFlags = PlaybackFlags;
         templink.bit16 = bit16;
         templink.x = x;

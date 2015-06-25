@@ -23828,7 +23828,7 @@ uint32 Unit::GetDynamicPassiveSpells(uint32 slot)
 }
 
 //! 6.0.3
-void Unit::SendSpellScene(uint32 miscValue, Position* /*pos*/)
+void Unit::SendSpellScene(uint32 miscValue, AuraEffect const* effect, bool apply, Position* /*pos*/)
 {
     if (GetTypeId() != TYPEID_PLAYER)
         return;
@@ -23839,19 +23839,41 @@ void Unit::SendSpellScene(uint32 miscValue, Position* /*pos*/)
     {
         for (std::vector<SpellScene>::const_iterator i = spell_scene->begin(); i != spell_scene->end(); ++i)
         {
-            WorldPacket data(SMSG_PLAY_SCENE, 46);
-            data << uint32(miscValue);                                       // SceneID
-            data << uint32(i->PlaybackFlags);                                // PlaybackFlags
-            data << uint32(i->SceneInstanceID);                              // SceneInstanceID
-            data << uint32(i->ScenePackageId);                               // SceneScriptPackageID
-            data << TransportGUID;
-            data << float(i->x);                                             // X
-            data << float(i->y);                                             // Y
-            data << float(i->z);                                             // Z
-            data << float(i->o);      // Facing              
+            if (apply)
+            {
+                WorldPacket data(SMSG_PLAY_SCENE, 46);
+                data << uint32(miscValue);                                       // SceneID
+                data << uint32(i->PlaybackFlags);                                // PlaybackFlags
+                data << uint32(++sceneInstanceID);                               // SceneInstanceID
+                data << uint32(i->ScenePackageId);                               // SceneScriptPackageID
+                data << TransportGUID;
+                data << float(i->x);                                             // X
+                data << float(i->y);                                             // Y
+                data << float(i->z);                                             // Z
+                data << float(i->o);      // Facing              
 
-            ToPlayer()->GetSession()->SendPacket(&data);
-        }
+                ToPlayer()->GetSession()->SendPacket(&data);
+
+                // Link aura effect
+                if (effect)
+                    m_sceneEffect[effect] = sceneInstanceID;
+            }
+            else
+            {
+                auto instance = m_sceneEffect.find(effect);
+                if (instance == m_sceneEffect.end())
+                {
+                    ASSERT(false);
+                    return;
+                }
+
+                WorldPacket data(SMSG_CANCEL_SCENE, 4);
+                data << uint32(instance->second);
+                ToPlayer()->GetSession()->SendPacket(&data);
+
+                m_sceneEffect.erase(effect);
+            }
+        }        
     }
 }
 
