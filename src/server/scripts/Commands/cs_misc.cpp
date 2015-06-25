@@ -1905,7 +1905,11 @@ public:
             else
                 handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name, areaName.c_str(), "<unknown>", phase);
 
-            handler->PSendSysMessage("PhaseIds: %s", target->GetPhaseMgr().GetPhaseIdString().c_str());
+            std::ostringstream ss;
+            for (auto data : target->GetPhases())
+                ss << data << " ";
+
+            handler->PSendSysMessage("PhaseIds: %s", ss.str().c_str());
         }
         else
            handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name, areaName.c_str());

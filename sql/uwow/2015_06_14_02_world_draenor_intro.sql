@@ -61,22 +61,60 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (78423, 0, 1, 0, 62, 0, 100, 0, 16863, 0, 0, 0, 11, 167771, 18, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'At gossip select cast teleportation');
 
 --
+-- 3880 while not complete Q35933. but nothing linked whith it.
+-- 3764 brake portal door. id 234622
+-- 3948 new destroid portal. id 234623
+-- 4150 crystal L id 236913
+-- 4151 crystal R id 236914
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
-('7025', '1', '0', '4200 4143 4142 3946 3880 3834 3833 3824 3764 3763 3712 3693 3605 3568 3563 3480 3263 3251 3250 3249 3248', '0', '770', '16', 'Draenor Dark Portal Intro'),
+('7025', '1', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3880 3946 4142 4143 4200', '0', '0', '16', 'Draenor Dark Portal Intro'),
 ('7025', '2', '0', '', '0', '992', '0', 'Draenor Dark Portal Intro'),
-('7025', '3', '0', '', '0', '683', '0', 'Draenor Dark Portal Intro');
+('7025', '3', '0', '', '0', '683', '0', 'Draenor Dark Portal Intro'),
+-- remove 3880
+-- 3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3946 4142 4143 4200
+-- 4200 4143 4142 3946 3834 3833 3824 3764 3763 3712 3693 3605 3568 3563 3480 3263 3251 3250 3249 3248
+('7025', '4', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3946 4142 4143 4200', '0', '0', '16', 'DraenorIntro: Q35933 rewarded');
+
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(23, 7025, 1, 0, 0, 27, 0, 89, 1, 0, 0, 0, '', 'DARK_PORTAL_INTRO PHASE1.0'),
+(23, 7025, 1, 0, 0, 8, 0, 35933, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO PHASE not rewarded q35933'),
 (23, 7025, 2, 0, 0, 27, 0, 89, 1, 0, 0, 0, '', 'DARK_PORTAL_INTRO PHASE1.1'),
-(23, 7025, 3, 0, 0, 27, 0, 89, 1, 0, 0, 0, '', 'DARK_PORTAL_INTRO PHASE1.2');
+(23, 7025, 3, 0, 0, 27, 0, 89, 1, 0, 0, 0, '', 'DARK_PORTAL_INTRO PHASE1.2'),
+(23, 7025, 4, 0, 0, 8, 0, 35933, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded q35933');
 
 --
-aura 167410
+INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
+(NULL, '4066.5', '-2382.25', '94.8536', '1.570796', '1265', 'DarkPortalIntro');
 
+--
+
+-- scenID 4 end at q35933
 INSERT INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `SceneInstanceID`, `PlaybackFlags`, `bit16`, `x`, `y`, `z`, `o`, `transport`, `comment`) VALUES
-('937', '772', '1', '1', '16', '0', '4066.5', '-2382.25', '94.8536', '1.570796', '0', 'Темный портал: событие дворфов spell 164678'),
+('937', '772', '1', '1', '16', '0', '4066.5', '-2382.25', '94.8536', '1.570796', '0', 'Темный портал: событие дворфов spell 164678'),	-- Закрывает дверь в гробницу.
 ('923', '754', '1', '2', '16', '0', '4066.5', '-2382.25', '94.8536', '1.570796', '0', 'Темный портал: грозная армия spell 163799 '),
 ('1018', '733', '1', '3', '16', '0', '4066.5', '-2382.25', '94.8536', '1.570796', '0', 'Темный портал: обучение души spell 163341'), 
 ('961', '811', '1', '7', '16', '0', '4164.625', '-2283.817', '59.8731', '0.7783224', '0', '');
+
+-- Basic auras
+REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
+('164678', '7025', '0', '35933', '0', '0', '2', '1', '64', '65'), 
+('163799', '7025', '0', '0', '0', '0', '2', '1', '64', '11'),
+('163341', '7025', '0', '0', '0', '0', '2', '1', '64', '11'), 
+('167421', '7025', '0', '0', '0', '0', '2', '1', '64', '11');
+
+--
+UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
+UPDATE `quest_template` SET `RewardNextQuest` = '35933' WHERE `ID` in (34398, 36881);
+UPDATE `quest_template` SET `RewardNextQuest` = '34392' WHERE `ID` = 35933;
+
+
+REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`) VALUES 
+('35933', '34398'),
+('34392', '35933'),
+('34393', '34392'),
+('34420', '34393');
+
+INSERT INTO `area_queststart` (`id`, `quest`) VALUES ('7037', '34392');
+DELETE FROM `creature_questrelation` WHERE `creature_questrelation`.`id` = 78558 AND `creature_questrelation`.`quest` = 34392;
+

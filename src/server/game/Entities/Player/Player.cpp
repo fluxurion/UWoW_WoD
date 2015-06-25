@@ -15898,11 +15898,12 @@ Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* quest)
 
 bool Player::CanSeeStartQuest(Quest const* quest)
 {
-    if (SatisfyQuestClass(quest, false) && SatisfyQuestRace(quest, false) && SatisfyQuestSkill(quest, false) &&
-        SatisfyQuestExclusiveGroup(quest, false) && SatisfyQuestReputation(quest, false) &&
-        SatisfyQuestPreviousQuest(quest, false) && SatisfyQuestNextChain(quest, false) &&
-        SatisfyQuestPrevChain(quest, false) && SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
-        SatisfyQuestSeasonal(quest, false) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this))
+    bool msg = false;   //for debug
+    if (SatisfyQuestClass(quest, msg) && SatisfyQuestRace(quest, msg) && SatisfyQuestSkill(quest, msg) &&
+        SatisfyQuestExclusiveGroup(quest, msg) && SatisfyQuestReputation(quest, msg) &&
+        SatisfyQuestPreviousQuest(quest, msg) && SatisfyQuestNextChain(quest, msg) &&
+        SatisfyQuestPrevChain(quest, msg) && SatisfyQuestDay(quest, msg) && SatisfyQuestWeek(quest, msg) &&
+        SatisfyQuestSeasonal(quest, msg) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this))
     {
         return getLevel() + sWorld->getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF) >= quest->GetMinLevel();
     }
