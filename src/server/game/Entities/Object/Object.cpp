@@ -221,8 +221,14 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         }
     }
 
-    if (ToUnit() && ToUnit()->getVictim())
-        flags |= UPDATEFLAG_HAS_TARGET;
+    if (Unit const* unit = ToUnit())
+    {
+        if (unit->getVictim())
+            flags |= UPDATEFLAG_HAS_TARGET;
+
+        if (unit->GetAIAnimKitId() || unit->GetMovementAnimKitId() || unit->GetMeleeAnimKitId())
+            flags |= UPDATEFLAG_ANIMKITS;
+    }
 
     ByteBuffer buf(500);
     buf << uint8(updateType);
@@ -494,13 +500,9 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (AnimKitCreate)
     {
         Unit const* unit = ToUnit();
-        //ToDo
-        //*data << uint16(unit->GetAIAnimKitId());                        // AiID
-        //*data << uint16(unit->GetMovementAnimKitId());                  // MovementID
-        //*data << uint16(unit->GetMeleeAnimKitId());                     // MeleeID
-        *data << uint16(0);
-        *data << uint16(0);
-        *data << uint16(0);
+        *data << uint16(unit->GetAIAnimKitId());                        // AiID
+        *data << uint16(unit->GetMovementAnimKitId());                  // MovementID
+        *data << uint16(unit->GetMeleeAnimKitId());                     // MeleeID
     }
 
     if (Rotation)

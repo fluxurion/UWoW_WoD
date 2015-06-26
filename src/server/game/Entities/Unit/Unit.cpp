@@ -20124,16 +20124,54 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
     receiver->GetSession()->SendPacket(&data);
 }
 
-//Check for 5.4.1
-void Unit::PlayOneShotAnimKit(uint32 id)
+//6.1.2
+void Unit::SetAIAnimKitId(uint16 animKitId)
 {
-    ObjectGuid guidd(GetGUID());
+    if (_aiAnimKitId == animKitId)
+        return;
 
+    _aiAnimKitId = animKitId;
+
+    WorldPacket data(SMSG_SET_AI_ANIM_KIT, 8 + 2);
+    data << GetGUID();
+    data << uint16(animKitId);
+    SendMessageToSet(&data, true);
+}
+
+//6.1.2
+void Unit::SetMovementAnimKitId(uint16 animKitId)
+{
+    if (_movementAnimKitId == animKitId)
+        return;
+
+    _movementAnimKitId = animKitId;
+    
+    WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 8 + 2);
+    data << GetGUID();
+    data << uint16(animKitId);
+    SendMessageToSet(&data, true);
+}
+
+//6.1.2
+void Unit::SetMeleeAnimKitId(uint16 animKitId)
+{
+    if (_meleeAnimKitId == animKitId)
+        return;
+
+        _meleeAnimKitId = animKitId;
+
+    WorldPacket data(SMSG_SET_MELEE_ANIM_KIT, 8 + 2);
+    data << GetGUID();
+    data << uint16(animKitId);
+    SendMessageToSet(&data, true);
+}
+
+//6.1.2
+void Unit::PlayOneShotAnimKit(uint16 animKitId)
+{
     WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7 + 2);
-    //data.WriteGuidMask<2, 5, 7, 4, 0, 1, 6, 3>(guidd);
-    //data.WriteGuidBytes<3, 0, 7, 6, 5, 1, 4>(guidd);
-    data << uint16(id);
-    //data.WriteGuidBytes<2>(guidd);
+    data << GetGUID();
+    data << uint16(animKitId);
     SendMessageToSet(&data, true);
 }
 
