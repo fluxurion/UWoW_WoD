@@ -10,7 +10,7 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  #Draenor/tmp.cpp
+  Draenor/dark_portal.cpp
 )
 
 message("  -> Prepared: Draenor")

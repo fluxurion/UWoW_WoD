@@ -92,6 +92,10 @@ void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 
 #ifdef SCRIPTS
+
+//draenor
+void AddSC_wod_dark_portal();
+
 //world
 void AddSC_areatrigger_scripts();
 void AddSC_emerald_dragons();
@@ -852,6 +856,7 @@ void AddScripts()
     AddCommandScripts();
 #ifdef SCRIPTS
     AddWorldScripts();
+    AddDraenorScripts();
     AddEasternKingdomsScripts();
     AddKalimdorScripts();
     AddOutlandScripts();
@@ -951,6 +956,11 @@ void AddWorldScripts()
     AddSC_challenge_scripts();
     AddSC_chat_log();
 #endif
+}
+
+void AddDraenorScripts()
+{
+    AddSC_wod_dark_portal();
 }
 
 void AddEasternKingdomsScripts()
