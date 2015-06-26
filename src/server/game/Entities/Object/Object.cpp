@@ -285,7 +285,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     bool VehicleCreate = (flags & UPDATEFLAG_VEHICLE) != 0;
     bool AnimKitCreate = (flags & UPDATEFLAG_ANIMKITS) != 0;
     bool Rotation = (flags & UPDATEFLAG_ROTATION) != 0;
-    bool HasAreaTrigger = false;
+    bool HasAreaTrigger = (flags & UPDATEFLAG_AREA_TRIGGER) != 0;
     bool HasGameObject = false;
     bool ThisIsYou = (flags & UPDATEFLAG_SELF) != 0;
     bool ReplaceActive = false;
@@ -501,91 +501,88 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (Rotation)
         *data << uint64(ToGameObject()->GetRotation());                 // Rotation
 
-    //if (AreaTrigger)
-    //{
-    //    packet.ReadInt32("ElapsedMs", index);
+    if (HasAreaTrigger)
+    {
+        AreaTrigger const* t = ToAreaTrigger();
+        ASSERT(t);
 
-    //    packet.ReadVector3("RollPitchYaw1", index);
+        if(t->GetAreaTriggerInfo().ElapsedTime)
+            *data << uint32(t->GetAreaTriggerInfo().ElapsedTime);                     // Elapsed Time Ms
+        else
+            *data << uint32(1);                     // Elapsed Time Ms
 
-    //    packet.ResetBitReader();
+        *data << float(0.0f) << float(0.0f) << float(0.0f); //RollPitchYaw1
 
-    //    var HasAbsoluteOrientation = packet.ReadBit("HasAbsoluteOrientation", index);
-    //    var HasDynamicShape = packet.ReadBit("HasDynamicShape", index);
-    //    var HasAttached = packet.ReadBit("HasAttached", index);
-    //    var HasFaceMovementDir = packet.ReadBit("HasFaceMovementDir", index);
-    //    var HasFollowsTerrain = packet.ReadBit("HasFollowsTerrain", index);
-    //    var HasTargetRollPitchYaw = packet.ReadBit("HasTargetRollPitchYaw", index);
-    //    var HasScaleCurveID = packet.ReadBit("HasScaleCurveID", index);
-    //    var HasMorphCurveID = packet.ReadBit("HasMorphCurveID", index);
-    //    var HasFacingCurveID = packet.ReadBit("HasFacingCurveID", index);
-    //    var HasMoveCurveID = packet.ReadBit("HasMoveCurveID", index);
-    //    var HasAreaTriggerSphere = packet.ReadBit("HasAreaTriggerSphere", index);
-    //    var HasAreaTriggerBox = packet.ReadBit("HasAreaTriggerBox", index);
-    //    var HasAreaTriggerPolygon = packet.ReadBit("HasAreaTriggerPolygon", index);
-    //    var HasAreaTriggerCylinder = packet.ReadBit("HasAreaTriggerCylinder", index);
-    //    var HasAreaTriggerSpline = packet.ReadBit("HasAreaTriggerSpline", index);
+        data->WriteBit(0);                                      // HasAbsoluteOrientation
+        data->WriteBit(0);                                      // HasDynamicShape
+        data->WriteBit(0);                                      // HasAttached
+        data->WriteBit(0);                                      // HasFaceMovementDir
+        data->WriteBit(0);                                      // HasFollowsTerrain
+        data->WriteBit(0);                                      // HasTargetRollPitchYaw
+        data->WriteBit(0);                                      // HasScaleCurveID
+        data->WriteBit(0);                                      // HasMorphCurveID
+        data->WriteBit(0);                                      // HasFacingCurveID
+        data->WriteBit(t->GetAreaTriggerInfo().MoveCurveID);    // hasMoveCurveID
+        data->WriteBit(t->GetVisualScale());                    // HasAreaTriggerSphere
+        data->WriteBit(0);                                      // HasAreaTriggerBox
+        data->WriteBit(0);                                      // areaTriggerPolygon
+        data->WriteBit(t->GetAreaTriggerCylinder());            // areaTriggerCylinder
+        data->WriteBit(t->isMoving());                          // areaTriggerSpline
 
-    //    if (HasTargetRollPitchYaw)
-    //        packet.ReadVector3("TargetRollPitchYaw", index);
+        //if (HasTargetRollPitchYaw)
+        //    packet.ReadVector3("TargetRollPitchYaw", index);
 
-    //    if (HasScaleCurveID)
-    //        packet.ReadInt32("ScaleCurveID, index");
+        //if (HasScaleCurveID)
+        //    packet.ReadInt32("ScaleCurveID, index");
 
-    //    if (HasMorphCurveID)
-    //        packet.ReadInt32("MorphCurveID", index);
+        //if (HasMorphCurveID)
+        //    packet.ReadInt32("MorphCurveID", index);
 
-    //    if (HasFacingCurveID)
-    //        packet.ReadInt32("FacingCurveID", index);
+        //if (HasFacingCurveID)
+        //    packet.ReadInt32("FacingCurveID", index);
 
-    //    if (HasMoveCurveID)
-    //        packet.ReadInt32("MoveCurveID", index);
+        if (t->GetAreaTriggerInfo().MoveCurveID)
+            *data << uint32(t->GetAreaTriggerInfo().MoveCurveID);
 
-    //    if (HasAreaTriggerSphere)
-    //    {
-    //        packet.ReadSingle("Radius", index);
-    //        packet.ReadSingle("RadiusTarget", index);
-    //    }
+        if (t->GetVisualScale())                            // areaTriggerSphere
+        {
+            *data << t->GetVisualScale(true);               // Radius
+            *data << t->GetVisualScale();                   // RadiusTarget
+        }
 
-    //    if (HasAreaTriggerBox)
-    //    {
-    //        packet.ReadVector3("Extents", index);
-    //        packet.ReadVector3("ExtentsTarget", index);
-    //    }
+        //if (HasAreaTriggerBox)
+        //{
+        //    packet.ReadVector3("Extents", index);
+        //    packet.ReadVector3("ExtentsTarget", index);
+        //}
 
-    //    if (HasAreaTriggerPolygon)
-    //    {
-    //        var VerticesCount = packet.ReadInt32("VerticesCount", index);
-    //        var VerticesTargetCount = packet.ReadInt32("VerticesTargetCount", index);
-    //        packet.ReadSingle("Height", index);
-    //        packet.ReadSingle("HeightTarget", index);
+        //if (HasAreaTriggerPolygon)
+        //{
+        //    var VerticesCount = packet.ReadInt32("VerticesCount", index);
+        //    var VerticesTargetCount = packet.ReadInt32("VerticesTargetCount", index);
+        //    packet.ReadSingle("Height", index);
+        //    packet.ReadSingle("HeightTarget", index);
 
-    //        for (var i = 0; i < VerticesCount; ++i)
-    //            packet.ReadVector2("Vertices", index, i);
+        //    for (var i = 0; i < VerticesCount; ++i)
+        //        packet.ReadVector2("Vertices", index, i);
 
-    //        for (var i = 0; i < VerticesTargetCount; ++i)
-    //            packet.ReadVector2("VerticesTarget", index, i);
-    //    }
+        //    for (var i = 0; i < VerticesTargetCount; ++i)
+        //        packet.ReadVector2("VerticesTarget", index, i);
+        //}
 
-    //    if (HasAreaTriggerCylinder)
-    //    {
-    //        packet.ReadSingle("Radius", index);
-    //        packet.ReadSingle("RadiusTarget", index);
-    //        packet.ReadSingle("Height", index);
-    //        packet.ReadSingle("HeightTarget", index);
-    //        packet.ReadSingle("Float4", index);
-    //        packet.ReadSingle("Float5", index);
-    //    }
+        if (t->GetAreaTriggerCylinder())                    // areaTriggerCylinder
+        {
+            *data << t->GetAreaTriggerInfo().Radius;        // Radius (float240)
+            *data << t->GetAreaTriggerInfo().RadiusTarget;  // RadiusTarget (float244)
+            *data << t->GetAreaTriggerInfo().Height;        // Height (float248)
+            *data << t->GetAreaTriggerInfo().HeightTarget;  // HeightTarget (float24C)
+            *data << t->GetAreaTriggerInfo().Float4;        // Float4 (float250)
+            *data << t->GetAreaTriggerInfo().Float5;        // Float5 (float254)
+        }
 
-    //    if (HasAreaTriggerSpline)
-    //    {
-    //        packet.ReadInt32("TimeToTarget", index);
-    //        packet.ReadInt32("ElapsedTimeForMovement", index);
-    //        var int8 = packet.ReadInt32("VerticesCount", index);
-
-    //        for (var i = 0; i < int8; ++i)
-    //            packet.ReadVector3("Points", index, i);
-    //    }
-    //}
+        if (t->isMoving())                                  // areaTriggerSpline
+            t->PutObjectUpdateMovement(data);               // Points
+    }
 
     //if (GameObject)
     //{
