@@ -194,6 +194,11 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
             break;
     }
 
+    if (!(flags & UPDATEFLAG_LIVING))
+        if (WorldObject const* worldObject = dynamic_cast<WorldObject const*>(this))
+            if (!worldObject->m_movementInfo.transport.guid.IsEmpty())
+                flags |= UPDATEFLAG_GO_TRANSPORT_POSITION;
+
     if (flags & UPDATEFLAG_STATIONARY_POSITION)
     {
         // UPDATETYPE_CREATE_OBJECT2 for some gameobject types...
