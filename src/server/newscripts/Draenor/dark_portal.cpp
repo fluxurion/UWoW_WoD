@@ -20,6 +20,56 @@
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 
+
+class mob_wod_intro_guldan : public CreatureScript
+{
+public:
+    mob_wod_intro_guldan() : CreatureScript("mob_wod_intro_guldan") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_intro_guldanAI(creature);
+    }
+
+    struct mob_wod_intro_guldanAI : public ScriptedAI
+    {
+
+        enum data
+        {
+            SPELL_SCENE_INTRO       = 163807,
+            SPELL_PORTAL_CREDIT     = 166319,
+            QUEST_PORTAL_ENERGY     = 34393,
+            OBJECTIVE_PORTAL_CREDIT = 82573,
+        };
+
+        mob_wod_intro_guldanAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        void Reset()
+        {
+        }
+
+        void MoveInLineOfSight(Unit* who)
+        {
+            Player *player = who->ToPlayer();
+            if (!player || !me->IsWithinDistInMap(who, 51.0f) || who->GetPositionZ() > 79.0f)
+                return;
+
+            if (player->GetQuestStatus(QUEST_PORTAL_ENERGY) != QUEST_STATUS_INCOMPLETE)
+                return;
+
+            if (player->HasAura(SPELL_SCENE_INTRO) || player->GetQuestObjectiveData(QUEST_PORTAL_ENERGY, OBJECTIVE_PORTAL_CREDIT))
+                return;
+
+            player->CastSpell(player, SPELL_PORTAL_CREDIT, true);
+            player->CastSpell(player, SPELL_SCENE_INTRO, false);
+            return;
+        }
+    };
+};
+
 void AddSC_wod_dark_portal()
 {
+    new mob_wod_intro_guldan();
 }

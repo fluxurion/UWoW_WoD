@@ -100,7 +100,9 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('923', '754', '1', '16', '0', '0', '0', '0', '0', '0', 'Темный портал: грозная армия spell 163799 '),
 ('1018','733', '1', '16', '0', '0', '0', '0', '0', '0', 'Темный портал: обучение души spell 163341'), 
 ('961', '811', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34392 Free Cho\'gall Credit spell 166407'),
-('962', '812', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34392 Free Teron\'gor Credit spell 166408');
+('962', '812', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34392 Free Teron\'gor Credit spell 166408'),
+('925', '756', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34393 spell 163807 intro guldan'),
+('808', '630', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34393 spell 159260 freedom guildan');
 
 -- Basic area auras
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
@@ -108,8 +110,9 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('164678', '7025', '34393', '0', '0', '0', '2', '1', '88', '11'),
 ('163799', '7025', '0', '0', '0', '0', '2', '1', '64', '11'),
 ('163341', '7025', '0', '0', '0', '0', '2', '1', '64', '11'), 
-('167421', '7025', '0', '0', '0', '0', '2', '1', '64', '11');
-
+('167421', '7025', '0', '0', '0', '0', '2', '1', '64', '11'),
+('163807', '7025', '34393', '0', '0', '0', '2', '0', '10', '11'),
+('159260', '7025', '34393', '34393', '0', '0', '2', '1', '2', '64');
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
 UPDATE `quest_template` SET `RewardNextQuest` = '35933' WHERE `ID` in (34398, 36881);
@@ -125,7 +128,6 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`) VALUES
 INSERT INTO `area_queststart` (`id`, `quest`) VALUES ('7037', '34392');
 DELETE FROM `creature_questrelation` WHERE `creature_questrelation`.`id` = 78558 AND `creature_questrelation`.`quest` = 34392;
 
-
 -- Q34392
 UPDATE `creature_template` SET `InhabitType` = '4', `AIName`='SmartAI' WHERE `creature_template`.`entry` in (81695, 81696);
 REPLACE INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
@@ -138,3 +140,8 @@ REPLACE INTO `areatrigger_data` (`entry`, `sphereScale`, `sphereScaleMax`, `isMo
 REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`) VALUES 
 ('166392', '166407', '1', '3', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Q34392: Free Cho\'gall Credit'),
 ('166393', '166408', '1', '3', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Q34392: Free Teron\'gor Credit');
+
+-- Q34393
+UPDATE `creature_template` SET `InhabitType` = '4', `ScriptName` = 'mob_wod_intro_guldan' WHERE `creature_template`.`entry` = 78333;
+UPDATE `creature_template_addon` SET `emote` = '416' WHERE `creature_template_addon`.`entry` = 78333;
+DELETE FROM creature_addon WHERE guid in (select guid from creature where id = 78333);
