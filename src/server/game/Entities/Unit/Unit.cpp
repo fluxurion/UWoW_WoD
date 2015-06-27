@@ -21179,7 +21179,7 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
 void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
 {
     WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
-    data << GetGUID();;
+    data << GetGUID();
     data << uint32(id); // SpellVisualKit.db2 index
     data << uint32(unkParam);
     data << uint32(0);
@@ -23862,7 +23862,7 @@ uint32 Unit::GetDynamicPassiveSpells(uint32 slot)
 }
 
 //! 6.0.3
-void Unit::SendSpellScene(uint32 miscValue, AuraEffect const* effect, bool apply, Position* /*pos*/)
+void Unit::SendSpellScene(uint32 miscValue, AuraEffect const* effect, bool apply, Position* pos)
 {
     if (GetTypeId() != TYPEID_PLAYER)
         return;
@@ -23881,10 +23881,10 @@ void Unit::SendSpellScene(uint32 miscValue, AuraEffect const* effect, bool apply
                 data << uint32(++sceneInstanceID);                               // SceneInstanceID
                 data << uint32(i->ScenePackageId);                               // SceneScriptPackageID
                 data << TransportGUID;
-                data << float(i->x);                                             // X
-                data << float(i->y);                                             // Y
-                data << float(i->z);                                             // Z
-                data << float(i->o);      // Facing              
+                data << float(pos->GetPositionX()/*i->x*/);                      // X
+                data << float(pos->GetPositionY()/*i->y*/);                      // Y
+                data << float(pos->GetPositionZ()/*i->z* / );                  // Z
+                data << float(pos->GetOrientation()/*i->o*/);                    // Facing              
 
                 ToPlayer()->GetSession()->SendPacket(&data);
 
