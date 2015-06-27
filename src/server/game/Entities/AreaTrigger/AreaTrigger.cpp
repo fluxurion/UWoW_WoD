@@ -157,7 +157,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
             _moveSpeed = GetSpellInfo()->GetMaxRange() / duration;
     }
 
-    FillCustiomData();
+    FillCustomData(caster);
 
     setActive(true);
 
@@ -186,7 +186,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     return true;
 }
 
-void AreaTrigger::FillCustiomData()
+void AreaTrigger::FillCustomData(Unit* caster)
 {
     //custom visual case.
     if (GetCustomVisualId())
@@ -204,6 +204,17 @@ void AreaTrigger::FillCustiomData()
             _radius = 8.0f;
             //infrontof
             break;
+        case 166539:    //WOD: Q34392
+        {
+            m_movementInfo.transport.pos.Relocate(0, 0, 0);
+            m_movementInfo.transport.time = 0;
+            m_movementInfo.transport.seat = 64;
+            m_movementInfo.transport.guid = caster->GetGUID();
+            m_movementInfo.transport.vehicleId = 0;
+
+            caster->SetAIAnimKitId(6591);
+            break;
+        }
         default:
             break;
     }

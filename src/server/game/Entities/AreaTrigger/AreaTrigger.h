@@ -181,7 +181,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
 
     private:
         bool _HasActionsWithCharges(AreaTriggerActionMoment action = AT_ACTION_MOMENT_ENTER);
-        void FillCustiomData();
+        void FillCustomData(Unit* caster);
 
     protected:
         Unit* _caster;
