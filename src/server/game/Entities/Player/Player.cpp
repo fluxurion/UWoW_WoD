@@ -17687,6 +17687,21 @@ bool Player::HasQuestForItem(uint32 itemid) const
     return false;
 }
 
+int32 Player::GetQuestObjectiveData(uint32 QuestID, uint32 ObjectiveID) const
+{
+
+    Quest const* quest = sObjectMgr->GetQuestTemplate(QuestID);
+    if (!quest)
+        return 0;
+
+    for (QuestObjective const& obj : quest->GetObjectives())
+    {
+        if (obj.ObjectID == ObjectiveID)
+            return GetQuestObjectiveData(quest, obj.StorageIndex);
+    }
+    return 0;
+}
+
 int32 Player::GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const
 {
     auto itr = m_QuestStatus.find(quest->GetQuestId());
