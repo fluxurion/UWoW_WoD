@@ -128,6 +128,41 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`) VALUES
 INSERT INTO `area_queststart` (`id`, `quest`) VALUES ('7037', '34392');
 DELETE FROM `creature_questrelation` WHERE `creature_questrelation`.`id` = 78558 AND `creature_questrelation`.`quest` = 34392;
 
+--
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(78558, 0, 0, 'Мы рассчитываем на тебя.', 12, 0, 100, 1, 0, 0, 'Верховный маг Кадгар to Player'),
+(78558, 0, 1, 'Делай свое дело, герой! Я разберусь с танком!', 14, 0, 100, 22, 0, 0, 'Верховный маг Кадгар to Khadgar Shield Target'),
+(78558, 0, 2, 'Смотрите! Портал слабеет!', 14, 0, 100, 0, 0, 0, 'Верховный маг Кадгар to Player'),
+(78558, 0, 3, 'Так держать! Продолжайте!', 14, 0, 100, 0, 0, 0, 'Верховный маг Кадгар to Player'),
+(78558, 0, 4, 'Сделай все, что в твоих силах, герой. Ты — последняя надежда Азерота.', 12, 0, 100, 1, 0, 0, 'Верховный маг Кадгар to Player'),
+(78558, 0, 5, 'Держитесь за мной!', 12, 0, 100, 0, 0, 0, 'Верховный маг Кадгар to Khadgar Shield Target'),
+(78558, 0, 6, 'Не уходи далеко. Твоя помощь нужна здесь.', 12, 0, 100, 0, 0, 0, 'Верховный маг Кадгар to Player');
+
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=78558;
+DELETE FROM smart_scripts WHERE entryorguid = 78558;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(78558, 0, 0, 0, 60, 0, 100, 0, 20000, 30000, 20000, 30000, 27, 47133, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Play visual Kit'),
+(78558, 0, 1, 0, 47, 0, 100, 0, 35933, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'At start q: 35933'),
+(78558, 0, 2, 0, 47, 0, 100, 0, 34393, 0, 0, 0, 1, 4, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'At start q: 34393');
+
+
+--
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(78553, 0, 0, 'Маг, чтобы герой справился, передовой отряд должен устоять!', 12, 0, 100, 1, 0, 0, 'Тралл to Khadgar Shield Target'),
+(78553, 0, 1, 'Я не могу стоять и смотреть, как умирают другие!', 12, 0, 100, 1, 0, 0, 'Тралл to Khadgar Shield Target'),
+(78553, 1, 2, 'ГНЕВ БУРИ, УСЛЫШЬ МОЙ ЗОВ!', 14, 0, 100, 15, 0, 0, 'Тралл to Khadgar Shield Target'),
+(78553, 1, 3, 'ГНЕВ ЗЕМЛИ, ДАЙ МНЕ СВОЮ СИЛУ!', 14, 0, 100, 0, 0, 0, 'Тралл to Khadgar Shield Target'),
+(78553, 1, 4, 'Гнев воды, исцели наших раненых!', 14, 0, 100, 0, 0, 0, 'Тралл to 0'),
+(78553, 1, 5, 'Гнев огня, воспламени наши кулаки и оружие!', 14, 0, 100, 0, 0, 0, 'Тралл to 0'),
+(78553, 0, 6, 'Береги себя.', 12, 0, 100, 0, 0, 0, 'Тралл to Player');
+
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=78553;
+DELETE FROM smart_scripts WHERE entryorguid = 78553;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(78553, 0, 0, 0, 60, 0, 100, 0, 30000, 40000, 40000, 40000, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'rund text'),
+(78553, 0, 1, 0, 60, 0, 100, 0, 0, 0, 61000, 61000, 11, 166114, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'cast every min'),
+(78553, 0, 2, 0, 0, 0, 100, 0, 0, 0, 15000, 15000, 11, 165843, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'cast Месть земли on victim');
+
 -- Q34392
 UPDATE `creature_template` SET `InhabitType` = '4', `AIName`='SmartAI' WHERE `creature_template`.`entry` in (81695, 81696);
 REPLACE INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
