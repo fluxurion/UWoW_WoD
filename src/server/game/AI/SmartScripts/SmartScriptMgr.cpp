@@ -906,6 +906,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_BOSS_ANOUNCE:
         case SMART_ACTION_MOVE_Z:
         case SMART_ACTION_SET_KD:
+        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
             break;
         default:
             sLog->outError(LOG_FILTER_SQL, "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);

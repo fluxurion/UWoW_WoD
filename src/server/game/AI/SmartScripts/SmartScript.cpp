@@ -487,6 +487,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
+        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
+            if (!me)
+                break;
+            me->SendPlaySpellVisualKit(e.action.visualKit.id, e.action.visualKit.duration);
+            break;
         case SMART_ACTION_CAST:
         {
             if(go)
