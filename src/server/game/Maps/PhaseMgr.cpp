@@ -398,6 +398,8 @@ bool PhaseMgr::IsConditionTypeSupported(ConditionTypes const conditionType)
         case CONDITION_RACE:
         case CONDITION_INSTANCE_INFO:
         case CONDITION_LEVEL:
+        case CONDITION_AREA_EXPLORED:
+        case CONDITION_SCENE_SEEN:
             return true;
         default:
             return false;

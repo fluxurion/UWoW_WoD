@@ -1760,7 +1760,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_AREA_EXPLORED:
         {
-            AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(cond->ConditionValue1);
+            AreaTableEntry const* areaEntry = FindAreaEntry(cond->ConditionValue1);
             if (!areaEntry)
             {
                 sLog->outError(LOG_FILTER_SQL, "Area explored condition specifies non-existing area (%u), skipped", cond->ConditionValue1);

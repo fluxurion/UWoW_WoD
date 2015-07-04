@@ -29,6 +29,7 @@
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
 typedef std::map<uint32, uint32> AreaFlagByMapID;
+typedef std::map<uint32, AreaTableEntry const* > AreaEntryMap;
 
 struct WMOAreaTableTripple
 {
@@ -61,6 +62,7 @@ DBCStorage<AreaTableEntry> sAreaStore(AreaTableEntryfmt);
 DBCStorage<AreaPOIEntry> sAreaPOIStore(AreaPOIEntryfmt);
 static AreaFlagByAreaID sAreaFlagByAreaID;
 static AreaFlagByMapID sAreaFlagByMapID;                    // for instances without generated *.map files
+static AreaEntryMap sAreaEntry;
 
 static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
 
@@ -577,6 +579,8 @@ void InitDBCCustomStores()
     {
         if (AreaTableEntry const* area = sAreaStore.LookupEntry(i))
         {
+            sAreaEntry.insert(AreaEntryMap::value_type(area->ID, area));
+
             // fill AreaId->DBC records
             sAreaFlagByAreaID.insert(AreaFlagByAreaID::value_type(uint16(area->ID), area->AreaBit));
 
@@ -1284,4 +1288,12 @@ bool IsScenarioCriteriaTree(uint32 criteriaTreeId)
 std::vector<uint32> GetItemLoadOutItems(uint32 LoadOutID)
 {
     return sCharacterLoadoutItemMap[LoadOutID];
+}
+
+AreaTableEntry const* FindAreaEntry(uint32 area)
+{
+    auto data = sAreaEntry.find(area);
+    if (data == sAreaEntry.end())
+        return NULL;
+    return data->second;
 }

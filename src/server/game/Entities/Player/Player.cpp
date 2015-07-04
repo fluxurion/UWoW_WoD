@@ -7580,7 +7580,7 @@ void Player::SendMovieStart(uint32 MovieId)
 
 bool Player::HasAreaExplored(uint32 AreaID)
 {
-    AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(AreaID);
+    AreaTableEntry const* areaEntry = FindAreaEntry(AreaID);
     if (!areaEntry)
         return false;
 
@@ -7675,7 +7675,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 SendExplorationExperience(area, XP);
             }
             sLog->outInfo(LOG_FILTER_PLAYER, "Player %u discovered a new area: %u", GetGUID().GetCounter(), area);
-            phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
+            phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_ZONE_UPDATE);
         }
     }
 }
@@ -29847,10 +29847,14 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
     return difficulty;
 }
 
-void Player::SceneCompleted(uint32 sceneID)
+void Player::SceneCompleted(uint32 instanceID)
 {
-    m_sceneSeen.insert(sceneID);
-    phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
+    for (auto itr : m_sceneEffect)
+    {
+        if (itr.second == instanceID)
+            m_sceneSeen.insert(itr.first->GetMiscValue());
+    }
+    phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_ZONE_UPDATE);
 }
 
 bool Player::HasSceneCompleted(uint32 sceneID) const
