@@ -659,7 +659,8 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE,          STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleWowTokenMarketPrice);//612
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PAY_GET_PURCHASE_LIST,            STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleBattlePayPurchaseListGet);//612
     DEFINE_OPCODE_HANDLER_OLD(CMSG_BATTLE_PAY_GET_PRODUCT_LIST,             STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleBattlePayProductList);//612
-    
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_SCENE_PLAYBACK_COMPLETE,                 STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleSceneComplete);//612
+
 #undef DEFINE_OPCODE_HANDLER_OLD
 #undef DEFINE_HANDLER
 

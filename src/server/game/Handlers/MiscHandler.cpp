@@ -2002,6 +2002,13 @@ void WorldSession::HandleForcedReactions(WorldPacket& recvPacket)
     _player->GetReputationMgr().SendForceReactions();
 }
 
+//! 6.1.2
+void WorldSession::HandleSceneComplete(WorldPacket& recvPacket)
+{
+    //CMSG_SCENE_PLAYBACK_COMPLETE
+    _player->SceneCompleted(recvPacket.read<uint32>());
+}
+
 // WarGames
 
 void WorldSession::HandleWarGameStart(WorldPacket& recvPacket)

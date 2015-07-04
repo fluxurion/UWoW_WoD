@@ -3213,6 +3213,8 @@ class Player : public Unit, public GridObject<Player>
         //
         AreaTriggerEntry const* GetLastAreaTrigger() { return LastAreaTrigger; }
         void SetLastAreaTrigger(AreaTriggerEntry const* at) { LastAreaTrigger = at; }
+        void SceneCompleted(uint32 sceneID);
+        bool HasSceneCompleted(uint32 sceneID) const;
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -3627,6 +3629,7 @@ class Player : public Unit, public GridObject<Player>
         bool plrUpdate;
 
         AreaTriggerEntry const *LastAreaTrigger;
+        std::set<uint32> m_sceneSeen;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

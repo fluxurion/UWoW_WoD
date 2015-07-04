@@ -173,6 +173,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                 condMeets = player->HasAreaExplored(ConditionValue1);
             break;
         }
+        case CONDITION_SCENE_SEEN:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->HasSceneCompleted(ConditionValue1);
+            break;
+        }
         case CONDITION_ACTIVE_EVENT:
             condMeets = sGameEventMgr->IsActiveEvent(ConditionValue1);
             break;
@@ -497,6 +503,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         case CONDITION_AREA_EXPLORED:
+        case CONDITION_SCENE_SEEN:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:

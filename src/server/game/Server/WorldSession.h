@@ -1278,6 +1278,9 @@ class WorldSession
         void HandleWarGameStart(WorldPacket& recvPacket);
         void HandleWarGameAccept(WorldPacket& recvPacket);
 
+        // Scene
+        void HandleSceneComplete(WorldPacket& recvPacket);
+
         //
         void SuspendTokenResponse(WorldPacket& recvPacket);
         void HandleUndeleteCharacterCooldownnStatus(WorldPacket& recvPacket);

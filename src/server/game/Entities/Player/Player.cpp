@@ -29846,3 +29846,14 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
 
     return difficulty;
 }
+
+void Player::SceneCompleted(uint32 sceneID)
+{
+    m_sceneSeen.insert(sceneID);
+    phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
+}
+
+bool Player::HasSceneCompleted(uint32 sceneID) const
+{
+    return m_sceneSeen.find(sceneID) != m_sceneSeen.end();
+}
