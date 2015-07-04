@@ -23883,7 +23883,7 @@ void Unit::SendSpellScene(uint32 miscValue, AuraEffect const* effect, bool apply
                 data << TransportGUID;
                 data << float(pos->GetPositionX()/*i->x*/);                      // X
                 data << float(pos->GetPositionY()/*i->y*/);                      // Y
-                data << float(pos->GetPositionZ()/*i->z* / );                  // Z
+                data << float(pos->GetPositionZ()/*i->z*/);                  // Z
                 data << float(pos->GetOrientation()/*i->o*/);                    // Facing              
 
                 ToPlayer()->GetSession()->SendPacket(&data);
