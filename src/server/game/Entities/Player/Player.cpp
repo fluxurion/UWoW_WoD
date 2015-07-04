@@ -7578,6 +7578,22 @@ void Player::SendMovieStart(uint32 MovieId)
     setWatchinMovie(true);
 }
 
+bool Player::HasAreaExplored(uint32 AreaID)
+{
+    AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(AreaID);
+    if (!areaEntry)
+        return false;
+
+    int offset = areaEntry->AreaBit / 32;
+    if (offset >= PLAYER_EXPLORED_ZONES_SIZE)
+        return false;
+
+    uint32 val = (uint32)(1 << (areaEntry->AreaBit % 32));
+    uint32 currFields = GetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + offset);
+
+    return currFields & val;
+}
+
 void Player::CheckAreaExploreAndOutdoor()
 {
     if (!isAlive())
@@ -7659,6 +7675,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 SendExplorationExperience(area, XP);
             }
             sLog->outInfo(LOG_FILTER_PLAYER, "Player %u discovered a new area: %u", GetGUID().GetCounter(), area);
+            phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
         }
     }
 }

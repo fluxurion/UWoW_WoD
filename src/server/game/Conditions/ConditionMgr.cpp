@@ -167,6 +167,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             }
             break;
         }
+        case CONDITION_AREA_EXPLORED:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->HasAreaExplored(ConditionValue1);
+            break;
+        }
         case CONDITION_ACTIVE_EVENT:
             condMeets = sGameEventMgr->IsActiveEvent(ConditionValue1);
             break;
@@ -489,6 +495,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
             break;
         case CONDITION_SPAWNMASK:
             mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_AREA_EXPLORED:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -1741,6 +1750,15 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             if (cond->ConditionValue3)
                 sLog->outError(LOG_FILTER_SQL, "Quest condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
+        }
+        case CONDITION_AREA_EXPLORED:
+        {
+            AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(cond->ConditionValue1);
+            if (!areaEntry)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Area explored condition specifies non-existing area (%u), skipped", cond->ConditionValue1);
+                return false;
+            }
         }
         case CONDITION_ACTIVE_EVENT:
         {
