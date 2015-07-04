@@ -73,6 +73,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 4142 Cho'gall Credit
 -- 3248 - removed at complete Q34393
 -- 3605 - for Q34392
+-- 3569 - questers hide on 7 phase.
+-- 3263 - 233906 for gate
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
 ('7025', '1', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3880 3946 4142 4143 4200', '0', '0', '16', 'Draenor Dark Portal Intro'),
 ('7025', '2', '0', '', '0', '992', '0', 'Draenor Dark Portal Intro'),
@@ -85,8 +87,9 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 
 -- 3248 3249 3250 3251 3263 3480 3563 3568 3693 3712 3824 3833 3834 3948 4150 4151 4200 
 ('7025', '5', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3693 3712 3824 3833 3834 3948 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34393 started'),
-('7025', '6', '0', '3263 3480 3569 3604 3693 3712 3824 3833 3834 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34393 completed.');
- 
+('7025', '6', '0', '3263 3480 3569 3604 3693 3712 3824 3833 3834 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34393 completed.'),
+('7025', '7', '0', '3480 3604 3693 3712 3824 3833 3834 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34420 started or 34393 rewarded.');
+
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (23, 7025, 1, 0, 0, 8, 0, 35933, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO PHASE not rewarded q35933'),
@@ -96,7 +99,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 4, 0, 0, 8, 0, 34392, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO rewarded not Q34392'),
 (23, 7025, 5, 0, 0, 8, 0, 34392, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded Q34392'),
 (23, 7025, 5, 0, 0, 28, 0, 34393, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO completed not Q34393'),
-(23, 7025, 6, 0, 0, 28, 0, 34393, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO completed Q34393');
+(23, 7025, 5, 0, 0, 8, 0, 34393, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO rewarded not Q34393'),
+(23, 7025, 6, 0, 0, 28, 0, 34393, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO completed Q34393'),
+(23, 7025, 6, 0, 1, 8, 0, 34393, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded Q34393'),
+(23, 7025, 6, 0, 1, 14, 0, 34420, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO and 34420 is none'),
+(23, 7025, 7, 0, 0, 8, 0, 34393, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded Q34393');
+
 --
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
 (NULL, '4066.5', '-2382.25', '94.8536', '1.570796', '1265', 'DarkPortalIntro');
@@ -109,7 +117,8 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('961', '811', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34392 Free Cho\'gall Credit spell 166407'),
 ('962', '812', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34392 Free Teron\'gor Credit spell 166408'),
 ('925', '756', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34393 spell 163807 intro guldan'),
-('808', '630', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34393 spell 159260 freedom guildan');
+('808', '630', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34393 spell 159260 freedom guildan'),
+('806', '621', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34420 spell 158985 Run Away');
 
 -- Basic area auras
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
@@ -119,7 +128,9 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('163341', '7025', '0', '34393', '0', '0', '2', '1', '64', '66'), 
 ('167421', '7025', '0', '0', '0', '0', '2', '1', '64', '11'),
 ('163807', '7025', '34393', '0', '0', '0', '2', '0', '10', '11'),
-('159260', '7025', '34393', '34393', '0', '0', '2', '1', '2', '64');
+('159260', '7025', '34393', '34393', '0', '0', '2', '1', '2', '64'),
+('158985', '7025', '34420', '34420', '0', '0', '2', '1', '2', '64');
+
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
 UPDATE `quest_template` SET `RewardNextQuest` = '35933' WHERE `ID` in (34398, 36881);
