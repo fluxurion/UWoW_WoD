@@ -75,6 +75,20 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3605 - for Q34392
 -- 3569 - questers hide on 7 phase.
 -- 3263 - 233906 for gate
+-- 3264 - пак мобов тупо на фазу после сцены 621 которая пропадает сразу после принятия квеста.
+-- custom phase mask 2 for HORDE 4222 - npc 81761, 78573 quest 35241 34421 HORDE
+-- custom phase mask 4 for ALLIANCE 4221 -  npc 81763 81762 quest: 35242 35240 ALIANCE
+
+DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763);
+INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) VALUES
+-- HORDE
+(81761, 1265, 7025, 7041, 1, 2, '4200', 0, 0, 3991.51, -2552.36, 66.0035, 4.37685, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(78573, 1265, 7025, 7041, 1, 2, '4200', 0, 0, 3990.78, -2553.92, 66.092, 6.06297, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+-- ALIANCE
+(81762, 1265, 7025, 7041, 1, 4, '4200', 0, 0, 3991.51, -2552.36, 66.0035, 4.37685, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(81763, 1265, 7025, 7041, 1, 4, '4200', 0, 0, 3990.78, -2553.92, 66.092, 6.06297, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
 ('7025', '1', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3880 3946 4142 4143 4200', '0', '0', '16', 'Draenor Dark Portal Intro'),
 ('7025', '2', '0', '', '0', '992', '0', 'Draenor Dark Portal Intro'),
@@ -90,8 +104,17 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- ServerToClient: SMSG_EXPLORATION_EXPERIENCE (0x0692) Length: 8 ConnIdx: 0 Time: 05/02/2015 09:00:32.000 Number: 88481 Area ID: 7041 (7041)
 ('7025', '8', '0', '3236 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34420 at SMSG_EXPLORATION_EXPERIENCE 7041'),
 -- 
-('7025', '9', '0', '3236 3264 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34420 at CMSG_SCENE_PLAYBACK_COMPLETE sceneID 621');
+('7025', '9', '0', '3236 3264 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34420 at CMSG_SCENE_PLAYBACK_COMPLETE sceneID 621'),
+--
+('7025', '10', '0','3236 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34420 rewarded'),
 
+('7025', '11', 2+1,'', '0', '0', '0', 'DraenorIntro: cunstom for horde after Q34420 rewarded'),
+('7025', '12', 4+1,'', '0', '0', '0', 'DraenorIntro: custom for alliance Q34420 rewarded');
+
+-- at take quest 34421
+-- 3209 3210 3237 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200
+
+-- 3237 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4011 4150 4151 4200 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (23, 7025, 1, 0, 0, 8, 0, 35933, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO PHASE not rewarded q35933'),
@@ -109,8 +132,16 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 7, 0, 0, 39, 0, 7041, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO no area explored 7041'),
 (23, 7025, 8, 0, 0, 8, 0, 34393, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded Q34393'),
 (23, 7025, 8, 0, 0, 39, 0, 7041, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO area explored 7041'),
-(23, 7025, 9, 0, 0, 40, 0, 621, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene 621');
+(23, 7025, 8, 0, 0, 40, 0, 621, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not completed scene 621'),
+(23, 7025, 8, 0, 0, 8, 0, 34420, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34420'),
+(23, 7025, 9, 0, 0, 40, 0, 621, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene 621'),
+(23, 7025, 10, 0, 0, 8, 0, 34420, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34420'),
 
+-- custom phase for alliance and horde
+(23, 7025, 11, 0, 0, 8, 0, 34393, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded Q34393'),
+(23, 7025, 11, 0, 0, 6, 0, 67, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO and  for horde'),
+(23, 7025, 12, 0, 0, 8, 0, 34393, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded Q34393'),
+(23, 7025, 12, 0, 0, 6, 0, 469, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO and  alliance');
 --
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
 (NULL, '4066.5', '-2382.25', '94.8536', '1.570796', '1265', 'DarkPortalIntro');
@@ -131,7 +162,7 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('1029', '628', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34420 spell 159176 Blood Bowl Scene'),
 --
 ('934', '771', '1', '16', '0', '0', '0', '0', '0', '0', 'spell 164611'),
-('933', '770', '1', '16', '0', '0', '0', '0', '0', '0', 'spell 164609');
+('933', '770', '1', '16', '0', '0', '0', '0', '0', '0', 'spell 164609 Q34422 move out');
 
 -- Basic area auras
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
@@ -146,7 +177,10 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 --
 ('164877', '7041', '34420', '34420', '0', '0', '2', '1', '2', '64'),
 ('159177', '7041', '34420', '34420', '0', '0', '2', '1', '2', '64'),
-('159176', '7041', '34420', '34420', '0', '0', '2', '1', '2', '64');
+('159176', '7041', '34420', '34420', '0', '0', '2', '1', '2', '64'),
+--
+('164611', '7041', '34422', '34422', '0', '0', '2', '1', '10', '64'),
+('164609', '7041', '34422', '34422', '0', '0', '2', '1', '10', '64');
 
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
@@ -158,7 +192,8 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`) VALUES
 ('35933', '34398'),
 ('34392', '35933'),
 ('34393', '34392'),
-('34420', '34393');
+('34420', '34393'),
+('34422', '34420');
 
 INSERT INTO `area_queststart` (`id`, `quest`) VALUES ('7037', '34392');
 DELETE FROM `creature_questrelation` WHERE `creature_questrelation`.`id` = 78558 AND `creature_questrelation`.`quest` = 34392;
@@ -215,3 +250,8 @@ REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cas
 UPDATE `creature_template` SET `InhabitType` = '4', `ScriptName` = 'mob_wod_intro_guldan' WHERE `creature_template`.`entry` = 78333;
 UPDATE `creature_template_addon` SET `emote` = '416' WHERE `creature_template_addon`.`entry` = 78333;
 DELETE FROM creature_addon WHERE guid in (select guid from creature where id = 78333);
+
+--
+
+DELETE FROM creature_template_addon WHERE entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
+UPDATE creature_template SET `unit_flags` = `unit_flags` & ~(256 | 512 | 262144 | 536870912) where entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));

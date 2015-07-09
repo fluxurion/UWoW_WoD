@@ -6391,6 +6391,16 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 break;
             switch (GetId())
             {
+                // Permanent Feign Death
+                // Use it every time when we have port spawn
+                //DELETE FROM creature_template_addon WHERE entry in(SELECT id FROM `creature` WHERE guid in(SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
+                //UPDATE creature_template SET `unit_flags` = `unit_flags` & ~(256 | 512 | 262144 | 536870912) where entry in(SELECT id FROM `creature` WHERE guid in(SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
+                case 29266:
+                    if (apply)
+                        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                    else
+                        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                    break;
                 // Recently Bandaged
                 case 11196:
                     target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, GetMiscValue(), apply);
