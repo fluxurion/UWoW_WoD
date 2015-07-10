@@ -6162,14 +6162,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         {
             switch (GetId())
             {
-                case 96733: //Permanent Feign Death (Stun)
-                    if (target)
-                    {
-                        target->SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, 0x64);
-                        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
-                        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
-                    }
-                    break;
                 case 1515:                                      // Tame beast
                     // FIX_ME: this is 2.0.12 threat effect replaced in 2.1.x by dummy aura, must be checked for correctness
                     if (caster && target->CanHaveThreatList())
@@ -6295,14 +6287,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case SPELLFAMILY_GENERIC:
                     switch (GetId())
                     {
-                        case 96733: //Permanent Feign Death (Stun)
-                            if (target)
-                            {
-                                target->SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, 0);
-                                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
-                                target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
-                            }
-                            break;
                         case 2584: // Waiting to Resurrect
                             // Waiting to resurrect spell cancel, we must remove player from resurrect queue
                             if (target->GetTypeId() == TYPEID_PLAYER)
@@ -6392,14 +6376,26 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
             switch (GetId())
             {
                 // Permanent Feign Death
+                case 96733: //Permanent Feign Death (Stun)
                 // Use it every time when we have port spawn
                 //DELETE FROM creature_template_addon WHERE entry in(SELECT id FROM `creature` WHERE guid in(SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
                 //UPDATE creature_template SET `unit_flags` = `unit_flags` & ~(256 | 512 | 262144 | 536870912) where entry in(SELECT id FROM `creature` WHERE guid in(SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
                 case 29266:
+                    if (!target)
+                        break;
+                    
                     if (apply)
-                        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                    {
+                        target->SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, 0x64);
+                        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+                        target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+                    }
                     else
-                        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29 | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                    {
+                        target->SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, 0);
+                        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+                        target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+                    }
                     break;
                 // Recently Bandaged
                 case 11196:
