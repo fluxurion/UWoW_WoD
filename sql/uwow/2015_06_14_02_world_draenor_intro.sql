@@ -225,13 +225,13 @@ DELETE FROM `creature_questrelation` WHERE `creature_questrelation`.`id` = 78558
 
 --
 REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
-(78558, 0, 0, 'Мы рассчитываем на тебя.', 12, 0, 100, 1, 0, 0, 'Верховный маг Кадгар to Player'),
-(78558, 0, 1, 'Делай свое дело, герой! Я разберусь с танком!', 14, 0, 100, 22, 0, 0, 'Верховный маг Кадгар to Khadgar Shield Target'),
-(78558, 0, 2, 'Смотрите! Портал слабеет!', 14, 0, 100, 0, 0, 0, 'Верховный маг Кадгар to Player'),
-(78558, 0, 3, 'Так держать! Продолжайте!', 14, 0, 100, 0, 0, 0, 'Верховный маг Кадгар to Player'),
+(78558, 0, 0, 'Мы рассчитываем на тебя.', 12, 0, 100, 1, 0, 44868, 'Верховный маг Кадгар to Player'),
+(78558, 0, 1, 'Делай свое дело, герой! Я разберусь с танком!', 14, 0, 100, 22, 0, 44861, 'Верховный маг Кадгар to Khadgar Shield Target'),
+(78558, 0, 2, 'Смотрите! Портал слабеет!', 14, 0, 100, 0, 0, 44883, 'Верховный маг Кадгар to Player'),
+(78558, 0, 3, 'Так держать! Продолжайте!', 14, 0, 100, 0, 0, 44884, 'Верховный маг Кадгар to Player'),
 (78558, 0, 4, 'Сделай все, что в твоих силах, герой. Ты — последняя надежда Азерота.', 12, 0, 100, 1, 0, 0, 'Верховный маг Кадгар to Player'),
-(78558, 0, 5, 'Держитесь за мной!', 12, 0, 100, 0, 0, 0, 'Верховный маг Кадгар to Khadgar Shield Target'),
-(78558, 0, 6, 'Не уходи далеко. Твоя помощь нужна здесь.', 12, 0, 100, 0, 0, 0, 'Верховный маг Кадгар to Player');
+(78558, 0, 5, 'Держитесь за мной!', 12, 0, 100, 0, 0, 44859, 'Верховный маг Кадгар to Khadgar Shield Target'),
+(78558, 0, 6, 'Не уходи далеко. Твоя помощь нужна здесь.', 12, 0, 100, 0, 0, 44879, 'Верховный маг Кадгар to Player');
 
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=78558;
 DELETE FROM smart_scripts WHERE entryorguid = 78558;
@@ -243,13 +243,13 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 --
 REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
-(78553, 0, 0, 'Маг, чтобы герой справился, передовой отряд должен устоять!', 12, 0, 100, 1, 0, 0, 'Тралл to Khadgar Shield Target'),
+(78553, 0, 0, 'Маг, чтобы герой справился, передовой отряд должен устоять!', 12, 0, 100, 1, 0, 46402, 'Тралл to Khadgar Shield Target'),
 (78553, 0, 1, 'Я не могу стоять и смотреть, как умирают другие!', 12, 0, 100, 1, 0, 0, 'Тралл to Khadgar Shield Target'),
 (78553, 1, 2, 'ГНЕВ БУРИ, УСЛЫШЬ МОЙ ЗОВ!', 14, 0, 100, 15, 0, 0, 'Тралл to Khadgar Shield Target'),
 (78553, 1, 3, 'ГНЕВ ЗЕМЛИ, ДАЙ МНЕ СВОЮ СИЛУ!', 14, 0, 100, 0, 0, 0, 'Тралл to Khadgar Shield Target'),
 (78553, 1, 4, 'Гнев воды, исцели наших раненых!', 14, 0, 100, 0, 0, 0, 'Тралл to 0'),
 (78553, 1, 5, 'Гнев огня, воспламени наши кулаки и оружие!', 14, 0, 100, 0, 0, 0, 'Тралл to 0'),
-(78553, 0, 6, 'Береги себя.', 12, 0, 100, 0, 0, 0, 'Тралл to Player');
+(78553, 0, 6, 'Береги себя.', 12, 0, 100, 0, 0, 46397, 'Тралл to Player');
 
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=78553;
 DELETE FROM smart_scripts WHERE entryorguid = 78553;
@@ -275,3 +275,13 @@ REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cas
 UPDATE `creature_template` SET `InhabitType` = '4', `ScriptName` = 'mob_wod_intro_guldan' WHERE `creature_template`.`entry` = 78333;
 UPDATE `creature_template_addon` SET `emote` = '416' WHERE `creature_template_addon`.`entry` = 78333;
 DELETE FROM creature_addon WHERE guid in (select guid from creature where id = 78333);
+
+-- A: Q35240 & H: Q34421
+update `gameobject` set phaseMask = 7, PhaseId = '3209' WHERE `id` in (229352, 229353);
+UPDATE `gameobject_template` SET `ScriptName` = 'go_wod_slaves_cage' WHERE `gameobject_template`.`entry` in (229352, 229353);
+UPDATE `creature_template` SET `ScriptName` = 'mob_wod_frostwolf_slave' WHERE `creature_template`.`entry` in (78529, 82871, 85142, 85141);
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(78529, 0, 0, 'На помощь!', 14, 0, 100, 0, 0, 43876, 'Раб из клана Северного Волка to Player'),
+(82871, 0, 0, 'На помощь!', 14, 0, 100, 0, 0, 43876, ''),
+(85142, 0, 0, 'Освободи нас!', 14, 0, 100, 0, 0, 43877, ''), -- восточная
+(85141, 0, 0, 'Освободи нас!', 14, 0, 100, 0, 0, 43877, 'Раб из клана Северного Волка to Player'); -- восточная

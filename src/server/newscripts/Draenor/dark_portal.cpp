@@ -16,10 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "NewScriptPCH.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-
+#include "CreatureTextMgr.h"
+#include "GameObjectAI.h"
 
 class mob_wod_intro_guldan : public CreatureScript
 {
@@ -69,7 +71,101 @@ public:
     };
 };
 
+class mob_wod_frostwolf_slave : public CreatureScript
+{
+public:
+    mob_wod_frostwolf_slave() : CreatureScript("mob_wod_frostwolf_slave") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_frostwolf_slaveAI(creature);
+    }
+
+    struct mob_wod_frostwolf_slaveAI : public ScriptedAI
+    {
+
+        mob_wod_frostwolf_slaveAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        enum data
+        {
+            QUEST1 = 34421,
+            QUEST2 = 35240,
+        };
+
+        GuidSet players;
+
+        void Reset()
+        {
+        }
+
+        void SetGUID(ObjectGuid const& guid, int32 /*id*/ = 0)
+        {
+            players.insert(guid);
+        }
+
+        void MoveInLineOfSight(Unit* who)
+        {
+            Player *player = who->ToPlayer();
+            if (!player || !me->IsWithinDistInMap(who, 51.0f) || who->GetPositionZ() > 79.0f)
+                return;
+
+            if (player->GetQuestStatus(QUEST1) != QUEST_STATUS_INCOMPLETE && player->GetQuestStatus(QUEST2) != QUEST_STATUS_INCOMPLETE)
+                return;
+
+            auto data = players.find(who->GetGUID());
+            if (data != players.end())
+                return;
+
+            players.insert(who->GetGUID());
+            sCreatureTextMgr->SendChat(me, 0, who->GetGUID());
+
+            // already trigered player for nearest
+            std::list<Creature*> creatureList;
+            me->GetCreatureListWithEntryInGrid(creatureList, me->GetEntry(), 50);
+            for (auto c : creatureList)
+                c->AI()->SetGUID(who->GetGUID(), 0);
+        }
+    };
+};
+
+const uint32 npc[4] = { 82871, 85142, 78529, 85141 };
+
+class go_wod_slaves_cage : public GameObjectScript
+{
+public:
+    go_wod_slaves_cage() : GameObjectScript("go_wod_slaves_cage") { }
+
+    struct go_wod_slaves_cageAI : public GameObjectAI
+    {
+        go_wod_slaves_cageAI(GameObject* go) : GameObjectAI(go)
+        {
+
+        }
+        
+        bool GossipHello(Player* player) override
+        {
+            for (uint8 i = 0; i != 4; ++i)
+            {
+                if (Creature* target = go->FindNearestCreature(npc[i], 50.0f, true))
+                    player->KilledMonsterCredit(npc[i], ObjectGuid::Empty);
+            }
+
+            return true;
+        }
+
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const
+    {
+        return new go_wod_slaves_cageAI(go);
+    }
+};
+
 void AddSC_wod_dark_portal()
 {
     new mob_wod_intro_guldan();
+    new mob_wod_frostwolf_slave();
+    new go_wod_slaves_cage();
 }
