@@ -2,6 +2,15 @@
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
+-- Permanent Feign Death
+DELETE FROM creature_template_addon WHERE entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
+UPDATE creature_template SET `unit_flags` = `unit_flags` & ~(256 | 512 | 262144 | 536870912), unit_flags2 = unit_flags2 &~1 where entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
+
+DELETE FROM creature_template_addon WHERE entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%96733%'));
+UPDATE creature_template SET `unit_flags` = `unit_flags` & ~(256 | 512 | 262144 | 536870912), unit_flags2 = unit_flags2 &~1 where entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%96733%'));
+
+UPDATE `creature_template` SET `unit_flags2` = '2048', `unit_flags` = `unit_flags` &~ (256 | 512 | 262144 | 536870912)  WHERE `creature_template`.`entry` = 78507;
+
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 4;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (23, 4, 1, 0, 0, 1, 0, 176111, 0, 0, 1, 0, '', 'DARK_PORTAL_WOD no time back aura'),
@@ -78,15 +87,31 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3264 - пак мобов тупо на фазу после сцены 621 которая пропадает сразу после принятия квеста.
 -- custom phase mask 2 for HORDE 4222 - npc 81761, 78573 quest 35241 34421 HORDE
 -- custom phase mask 4 for ALLIANCE 4221 -  npc 81763 81762 quest: 35242 35240 ALIANCE
-
-DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763);
+-- 3209 A: 35240 & H:Q34421
+DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763, 82871, 85142);
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) VALUES
+-- ---------------------------------------------------
 -- HORDE
+-- ---------------------------------------------------
 (81761, 1265, 7025, 7041, 1, 2, '4200', 0, 0, 3991.51, -2552.36, 66.0035, 4.37685, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (78573, 1265, 7025, 7041, 1, 2, '4200', 0, 0, 3990.78, -2553.92, 66.092, 6.06297, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
--- ALIANCE
+-- ---------------------------------------------------
+-- ALIANCE / Спавн орды у меня по умолчанию есть. Для альянса заселяю руками.
+-- ---------------------------------------------------
 (81762, 1265, 7025, 7041, 1, 4, '4200', 0, 0, 3991.51, -2552.36, 66.0035, 4.37685, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(81763, 1265, 7025, 7041, 1, 4, '4200', 0, 0, 3990.78, -2553.92, 66.092, 6.06297, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+(81763, 1265, 7025, 7041, 1, 4, '4200', 0, 0, 3990.78, -2553.92, 66.092, 6.06297, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+-- q35240 Восточная клетка.
+(85142, 1265, 7025, 7041, 1, 4, '3209', 0, 0, 3973.63, -2638.92, 55.7361, 2.50382, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(85142, 1265, 7025, 7041, 1, 4, '3209', 0, 0, 3972.49, -2639.52, 55.7743, 2.37011, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(85142, 1265, 7025, 7041, 1, 4, '3209', 0, 0, 3975.06, -2638.66, 55.7309, 2.31942, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(85142, 1265, 7025, 7041, 1, 4, '3209', 0, 0, 3973.67, -2638.88, 55.7344, 2.60351, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(85142, 1265, 7025, 7041, 1, 4, '3209', 0, 0, 3974.27, -2640.45, 55.9097, 3.04755, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+-- q35240 Южная
+(82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3831.07, -2522.35, 67.842, 5.73177, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3832.51, -2522.04, 67.2714, 5.66393, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3831.49, -2523.18, 67.4658, 5.76322, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3830.21, -2522.03, 68.2795, 5.74193, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3831.49, -2521.28, 67.9045, 5.66201, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
@@ -107,14 +132,12 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 ('7025', '9', '0', '3236 3264 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34420 at CMSG_SCENE_PLAYBACK_COMPLETE sceneID 621'),
 --
 ('7025', '10', '0','3236 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34420 rewarded'),
-
+--
 ('7025', '11', 2+1,'', '0', '0', '0', 'DraenorIntro: cunstom for horde after Q34420 rewarded'),
-('7025', '12', 4+1,'', '0', '0', '0', 'DraenorIntro: custom for alliance Q34420 rewarded');
+('7025', '12', 4+1,'', '0', '0', '0', 'DraenorIntro: custom for alliance Q34420 rewarded'),
+-- Quest HORDE 34421 accept Quest Alliance 35240
+('7025', '13', '0','3209 3210 3237 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34421 take');
 
--- at take quest 34421
--- 3209 3210 3237 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200
-
--- 3237 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4011 4150 4151 4200 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (23, 7025, 1, 0, 0, 8, 0, 35933, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO PHASE not rewarded q35933'),
@@ -136,13 +159,15 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 8, 0, 0, 8, 0, 34420, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34420'),
 (23, 7025, 9, 0, 0, 40, 0, 621, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene 621'),
 (23, 7025, 10, 0, 0, 8, 0, 34420, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34420'),
-
 -- custom phase for alliance and horde
 (23, 7025, 11, 0, 0, 8, 0, 34393, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded Q34393'),
 (23, 7025, 11, 0, 0, 6, 0, 67, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO and  for horde'),
 (23, 7025, 12, 0, 0, 8, 0, 34393, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded Q34393'),
-(23, 7025, 12, 0, 0, 6, 0, 469, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO and  alliance');
+(23, 7025, 12, 0, 0, 6, 0, 469, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO and  alliance'),
 --
+(23, 7025, 13, 0, 0, 8, 0, 34421, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34421'),
+(23, 7025, 13, 0, 1, 8, 0, 34421, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 35240');
+
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
 (NULL, '4066.5', '-2382.25', '94.8536', '1.570796', '1265', 'DarkPortalIntro');
 
@@ -250,8 +275,3 @@ REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cas
 UPDATE `creature_template` SET `InhabitType` = '4', `ScriptName` = 'mob_wod_intro_guldan' WHERE `creature_template`.`entry` = 78333;
 UPDATE `creature_template_addon` SET `emote` = '416' WHERE `creature_template_addon`.`entry` = 78333;
 DELETE FROM creature_addon WHERE guid in (select guid from creature where id = 78333);
-
---
-
-DELETE FROM creature_template_addon WHERE entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
-UPDATE creature_template SET `unit_flags` = `unit_flags` & ~(256 | 512 | 262144 | 536870912) where entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
