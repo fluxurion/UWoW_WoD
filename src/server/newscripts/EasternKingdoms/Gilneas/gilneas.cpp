@@ -662,33 +662,27 @@ public:
 
         Paths LoadPaths()
         {
-            QueryResult result[PATHS_COUNT];
-            result[0] = WorldDatabase.Query("SELECT `id`, `point`, `position_x`, `position_y` FROM waypoint_data WHERE id = 349810 ORDER BY `point`");
-            result[1] = WorldDatabase.Query("SELECT `id`, `point`, `position_x`, `position_y` FROM waypoint_data WHERE id = 349811 ORDER BY `point`");
+            paths.pointsCount[0] = 7;
+            paths.paths[0][0].x = -1544.83f; paths.paths[0][0].y = 1429.68f;
+            paths.paths[0][1].x = -1554.44f; paths.paths[0][1].y = 1409.34f;
+            paths.paths[0][2].x = -1554.34f; paths.paths[0][2].y = 1388.02f;
+            paths.paths[0][3].x = -1557.97f; paths.paths[0][3].y = 1361.57f;
+            paths.paths[0][4].x = -1560.59f; paths.paths[0][4].y = 1333.97f;
+            paths.paths[0][5].x = -1568.32f; paths.paths[0][5].y = 1327.29f;
+            paths.paths[0][6].x = -1577.35f; paths.paths[0][6].y = 1317.59f;
 
-            if (result[0])
-                paths.pointsCount[0] = result[0]->GetRowCount();
-            else
-                return paths;  //- this needs correctly fixed! -truncation from double to float (warnings, that can be fixed)
+            paths.pointsCount[0] = 10;
+            paths.paths[1][0].x = -1463.96f; paths.paths[1][0].y = 1429.41f;
+            paths.paths[1][1].x = -1429.19f; paths.paths[1][1].y = 1422.41f;
+            paths.paths[1][2].x = -1419.33f; paths.paths[1][2].y = 1419.23f;
+            paths.paths[1][3].x = -1406.90f; paths.paths[1][3].y = 1416.03f;
+            paths.paths[1][4].x = -1403.28f; paths.paths[1][4].y = 1401.21f;
+            paths.paths[1][5].x = -1407.48f; paths.paths[1][5].y = 1375.36f;
+            paths.paths[1][6].x = -1502.08f; paths.paths[1][6].y = 1342.68f;
+            paths.paths[1][7].x = -1537.70f; paths.paths[1][7].y = 1330.3f;
+            paths.paths[1][8].x = -1562.15f; paths.paths[1][8].y = 1319.15f;
+            paths.paths[1][9].x = -1577.96f; paths.paths[1][9].y = 1316.79f;
 
-            if (result[1])
-                paths.pointsCount[1] = result[1]->GetRowCount();
-            else
-                return paths;
-
-            uint8 j;
-            for (uint8 i = 0; i < PATHS_COUNT; i ++)
-            {
-                j = 0;
-                do
-                {
-                    Field* Fields = result[i]->Fetch();
-                    paths.paths[i][j].x = Fields[2].GetFloat();
-                    paths.paths[i][j].y = Fields[3].GetFloat();
-                    j++;
-                }
-                while (result[i]->NextRow());
-            }
             return paths;
         }
 
