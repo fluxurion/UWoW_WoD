@@ -1945,7 +1945,7 @@ class Player : public Unit, public GridObject<Player>
         bool CanShareQuest(uint32 quest_id) const;
 
         int32 GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const;
-        int32 Player::GetQuestObjectiveData(uint32 QuestID, uint32 ObjectiveID) const;
+        int32 GetQuestObjectiveData(uint32 QuestID, uint32 ObjectiveID) const;
         void SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data);
         void SendQuestComplete(Quest const* quest);
         void SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver);
