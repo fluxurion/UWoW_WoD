@@ -332,7 +332,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText&
             response.Info.ID = pageID;
             response.Info.Text = pageText->Text;
 
-            int loc_idx = GetSessionDbLocaleIndex();
+            LocaleConstant loc_idx = GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
                 if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(pageID))
                     ObjectMgr::GetLocaleString(player->Text, loc_idx, response.Info.Text);

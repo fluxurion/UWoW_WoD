@@ -15467,7 +15467,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
             std::string strOptionText = itr->second.OptionText;
             std::string strBoxText = itr->second.BoxText;
 
-            int32 locale = GetSession()->GetSessionDbLocaleIndex();
+            LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
             if (locale >= 0)
             {
                 uint32 idxEntry = MAKE_PAIR32(menuId, itr->second.OptionIndex);
@@ -15858,7 +15858,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                 {
                     title = gossiptext->Options[0].Text_0;
 
-                    int loc_idx = GetSession()->GetSessionDbLocaleIndex();
+                    LocaleConstant loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
                         if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
                             ObjectMgr::GetLocaleString(nl->Text_0[0], loc_idx, title);
@@ -15867,7 +15867,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                 {
                     title = gossiptext->Options[0].Text_1;
 
-                    int loc_idx = GetSession()->GetSessionDbLocaleIndex();
+                    LocaleConstant loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
                         if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
                             ObjectMgr::GetLocaleString(nl->Text_1[0], loc_idx, title);
@@ -17885,7 +17885,7 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
     {
         std::string strTitle = quest->GetLogTitle();
 
-        int loc_idx = pReceiver->GetSession()->GetSessionDbLocaleIndex();
+        LocaleConstant loc_idx = pReceiver->GetSession()->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
             if (const QuestTemplateLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
                 ObjectMgr::GetLocaleString(pLocale->LogTitle, loc_idx, strTitle);

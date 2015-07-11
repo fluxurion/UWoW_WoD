@@ -2748,7 +2748,7 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* achievement
 
         Item* item = itemID ? Item::CreateItem(itemID, 1, GetOwner()) : NULL;
 
-        int loc_idx = GetOwner()->GetSession()->GetSessionDbLocaleIndex();
+        LocaleConstant loc_idx = GetOwner()->GetSession()->GetSessionDbLocaleIndex();
 
         // subject and text
         std::string subject = reward->subject;

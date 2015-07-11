@@ -552,8 +552,8 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     int32 inventoryType, int32 itemClass, int32 itemSubClass, int32 quality,
     uint32& count, uint32& totalcount)
 {
-    int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-    int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
+    LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
+    LocaleConstant locdbc_idx = player->GetSession()->GetSessionDbcLocale();
 
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {

@@ -111,7 +111,7 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
     // item name
     std::string name = proto->Name1;
     if (localeData)
-        ObjectMgr::GetLocaleString(localeData->Name, locale, name);
+        ObjectMgr::GetLocaleString(localeData->Name, (LocaleConstant)locale, name);
 
     buffer << uint16(name.length());
     if (name.length())
@@ -122,7 +122,7 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
 
     std::string desc = proto->Description;
     if (localeData)
-        ObjectMgr::GetLocaleString(localeData->Description, locale, desc);
+        ObjectMgr::GetLocaleString(localeData->Description, (LocaleConstant)locale, desc);
 
     buffer << uint16(desc.length());
     if (desc.length())
@@ -180,8 +180,8 @@ void DB2Utilities::WriteBroadcastTextDbReply(DB2Storage<BroadcastTextEntry> cons
         {
             if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(localeEntry))
             {
-                ObjectMgr::GetLocaleString(nl->Text_0[0], locale, Text_0);
-                ObjectMgr::GetLocaleString(nl->Text_1[1], locale, Text_1);
+                ObjectMgr::GetLocaleString(nl->Text_0[0], (LocaleConstant)locale, Text_0);
+                ObjectMgr::GetLocaleString(nl->Text_1[1], (LocaleConstant)locale, Text_1);
             }
         }
     }

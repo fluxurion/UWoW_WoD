@@ -293,14 +293,14 @@ std::list<CurrencyLoot> ObjectMgr::GetCurrencyLoot(uint32 entry, uint8 type, uin
     return temp;
 }
 
-void ObjectMgr::AddLocaleString(std::string const& s, LocaleConstant locale, StringVector& data)
+void ObjectMgr::AddLocaleString(std::string const& value, LocaleConstant localeConstant, StringVector& data)
 {
-    if (!s.empty())
+    if (!value.empty())
     {
-        if (data.size() <= size_t(locale))
-            data.resize(locale + 1);
+        if (data.size() <= size_t(localeConstant))
+            data.resize(localeConstant + 1);
 
-        data[locale] = s;
+        data[localeConstant] = value;
     }
 }
 
