@@ -2009,6 +2009,16 @@ void WorldSession::HandleSceneComplete(WorldPacket& recvPacket)
     _player->SceneCompleted(recvPacket.read<uint32>());
 }
 
+//! 6.1.2
+void WorldSession::HandleTrigerSceneEvent(WorldPacket& recvPacket)
+{
+    //CMSG_SCENE_TRIGGER_EVENT
+    uint16 typelen = recvPacket.ReadBits(6);
+    uint32 instanceID = recvPacket.read<uint32>();
+    std::string type = recvPacket.ReadString(typelen);
+    _player->TrigerScene(instanceID, type);
+}
+
 // WarGames
 
 void WorldSession::HandleWarGameStart(WorldPacket& recvPacket)

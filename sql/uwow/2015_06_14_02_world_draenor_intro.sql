@@ -2,6 +2,86 @@
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
+/*
+ClientToServer: CMSG_SCENE_TRIGGER_EVENT (0x0589) Length: 12 ConnIdx: 0 Time: 05/02/2015 08:50:14.000 Number: 37338
+SceneInstanceID: 1
+Event: Thaelin
+
+ServerToClient: SMSG_SPELL_GO (0x1CB9) Length: 107 ConnIdx: 0 Time: 05/02/2015 08:50:14.000 Number: 37349
+(Cast) CasterGUID: Full: 0x08195C00000000000000000006B7A12C Player/0 R1623/S0 Map: 0 Low: 112697644
+(Cast) CasterUnit: Full: 0x08195C00000000000000000006B7A12C Player/0 R1623/S0 Map: 0 Low: 112697644
+(Cast) CastID: 0
+(Cast) SpellID: 164692 (164692)
+(Cast) CastFlags: 777
+(Cast) CastTime: 332663692
+(Cast) HitTargetsCount: 1
+(Cast) MissTargetsCount: 0
+(Cast) MissStatusCount: 0
+(Cast) (Target) Flags: Unit (2)
+(Cast) (Target) HasSrcLocation: False
+(Cast) (Target) HasDstLocation: False
+(Cast) (Target) HasOrientation: False
+(Cast) (Target) Unit: Full: 0x0
+(Cast) (Target) Item: Full: 0x0
+(Cast) (Target) Name: 
+(Cast) RemainingPowerCount: 0
+(Cast) (MissileTrajectory) TravelTime: 0
+(Cast) (MissileTrajectory) Pitch: 0
+(Cast) (Ammo) DisplayID: 0
+(Cast) (Ammo) InventoryType: NonEquip (0)
+(Cast) DestLocSpellCastIndex: 0
+(Cast) TargetPointsCount: 0
+(Cast) (Immunities) School: 0
+(Cast) (Immunities) Value: 0
+(Cast) (Predict) Points: 0
+(Cast) (Predict) Type: 0
+(Cast) (Predict) BeaconGUID: Full: 0x0
+(Cast) [0] HitTarget: Full: 0x1C195C9E204CBA000000410001C1A3F1 Creature/0 R1623/S65 Map: 1265 Entry: 78568 Low: 29467633
+(Cast) CastFlagsEx: 16
+(Cast) HasRuneData: False
+(Cast) HasProjectileVisual: False
+
+ServerToClient: SMSG_SPELL_START (0x14BA) Length: 92 ConnIdx: 0 Time: 05/02/2015 08:50:14.000 Number: 37350
+(Cast) CasterGUID: Full: 0x08195C00000000000000000006B7A12C Player/0 R1623/S0 Map: 0 Low: 112697644
+(Cast) CasterUnit: Full: 0x08195C00000000000000000006B7A12C Player/0 R1623/S0 Map: 0 Low: 112697644
+(Cast) CastID: 0
+(Cast) SpellID: 164691 (164691)
+(Cast) CastFlags: 11
+(Cast) CastTime: 0
+(Cast) HitTargetsCount: 0
+(Cast) MissTargetsCount: 0
+(Cast) MissStatusCount: 0
+(Cast) (Target) Flags: Self (0)
+(Cast) (Target) HasSrcLocation: False
+(Cast) (Target) HasDstLocation: False
+(Cast) (Target) HasOrientation: False
+(Cast) (Target) Unit: Full: 0x0
+(Cast) (Target) Item: Full: 0x0
+(Cast) (Target) Name: 
+(Cast) RemainingPowerCount: 0
+(Cast) (MissileTrajectory) TravelTime: 0
+(Cast) (MissileTrajectory) Pitch: 0
+(Cast) (Ammo) DisplayID: 0
+(Cast) (Ammo) InventoryType: NonEquip (0)
+(Cast) DestLocSpellCastIndex: 0
+(Cast) TargetPointsCount: 0
+(Cast) (Immunities) School: 0
+(Cast) (Immunities) Value: 0
+(Cast) (Predict) Points: 0
+(Cast) (Predict) Type: 0
+(Cast) (Predict) BeaconGUID: Full: 0x0
+(Cast) CastFlagsEx: 0
+(Cast) HasRuneData: False
+(Cast) HasProjectileVisual: False
+
+ServerToClient: SMSG_PLAY_OBJECT_SOUND (0x16BF) Length: 39 ConnIdx: 0 Time: 05/02/2015 08:50:14.000 Number: 37353
+SoundId: 45747
+SourceObjectGUID: Full: 0x1C195C9E204CBA000000410001C1A3F1 Creature/0 R1623/S65 Map: 1265 Entry: 78568 Low: 29467633
+TargetObjectGUID: Full: 0x08195C00000000000000000006B7A12C Player/0 R1623/S0 Map: 0 Low: 112697644
+Position: X: 4032.154 Y: -2291.342 Z: 64.92102
+
+Этот тригер
+*/
 -- Permanent Feign Death
 DELETE FROM creature_template_addon WHERE entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
 UPDATE creature_template SET `unit_flags` = `unit_flags` & ~(256 | 512 | 262144 | 536870912), unit_flags2 = unit_flags2 &~1 where entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
@@ -172,22 +252,22 @@ INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orient
 (NULL, '4066.5', '-2382.25', '94.8536', '1.570796', '1265', 'DarkPortalIntro');
 
 --
-REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlags`, `bit16`, `x`, `y`, `z`, `o`, `transport`, `comment`) VALUES
-('937', '772', '1', '16', '0', '0', '0', '0', '0', '0', 'Темный портал: событие дворфов spell 164678'),	-- Закрывает дверь в гробницу.
-('923', '754', '1', '16', '0', '0', '0', '0', '0', '0', 'Темный портал: грозная армия spell 163799 '),
-('1018','733', '1', '16', '0', '0', '0', '0', '0', '0', 'Темный портал: обучение души spell 163341'), 
-('961', '811', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34392 Free Cho\'gall Credit spell 166407'),
-('962', '812', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34392 Free Teron\'gor Credit spell 166408'),
-('925', '756', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34393 spell 163807 intro guldan'),
-('808', '630', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34393 spell 159260 freedom guildan'),
-('806', '621', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34420 spell 158985 Run Away'),
+REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlags`, `trigerSpell`, MonsterCredit, `comment`) VALUES
+('937', '772', '1', '16', '0', '0', 'Темный портал: событие дворфов spell 164678'),	-- Закрывает дверь в гробницу.
+('923', '754', '1', '16', '0', '0', 'Темный портал: грозная армия spell 163799 '),
+('1018','733', '1', '16', '0', '0', 'Темный портал: обучение души spell 163341'), 
+('961', '811', '1', '16', '0', '0', 'Q34392 Free Cho\'gall Credit spell 166407'),
+('962', '812', '1', '16', '0', '0', 'Q34392 Free Teron\'gor Credit spell 166408'),
+('925', '756', '1', '16', '0', '0', 'Q34393 spell 163807 intro guldan'),
+('808', '630', '1', '16', '0', '0', 'Q34393 spell 159260 freedom guildan'),
+('806', '621', '1', '16', '0', '0', 'Q34420 spell 158985 Run Away'),
 --
-('938', '782', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34420 spell 164877 Eye of Kilrogg'),
-('817', '629', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34420 spell 159177 Rooftop Hatchet Scene'),
-('1029', '628', '1', '16', '0', '0', '0', '0', '0', '0', 'Q34420 spell 159176 Blood Bowl Scene'),
+('938', '782', '1', '16', '0', '0', 'Q34420 spell 164877 Eye of Kilrogg'),
+('817', '629', '1', '16', '0', '0', 'Q34420 spell 159177 Rooftop Hatchet Scene'),
+('1029', '628', '1', '16','0', '0', 'Q34420 spell 159176 Blood Bowl Scene'),
 --
-('934', '771', '1', '16', '0', '0', '0', '0', '0', '0', 'spell 164611'),
-('933', '770', '1', '16', '0', '0', '0', '0', '0', '0', 'spell 164609 Q34422 move out');
+('934', '771', '1', '16', '165991', '81760', 'spell 164611 Q34422 Пламя славы'),
+('933', '770', '1', '16', '0', '0', 'spell 164609 Q34422 move out');
 
 -- Basic area auras
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
@@ -285,3 +365,5 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 (82871, 0, 0, 'На помощь!', 14, 0, 100, 0, 0, 43876, ''),
 (85142, 0, 0, 'Освободи нас!', 14, 0, 100, 0, 0, 43877, ''), -- восточная
 (85141, 0, 0, 'Освободи нас!', 14, 0, 100, 0, 0, 43877, 'Раб из клана Северного Волка to Player'); -- восточная
+
+--

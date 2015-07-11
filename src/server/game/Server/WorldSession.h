@@ -1280,6 +1280,7 @@ class WorldSession
 
         // Scene
         void HandleSceneComplete(WorldPacket& recvPacket);
+        void HandleTrigerSceneEvent(WorldPacket& recvPacket);
 
         //
         void SuspendTokenResponse(WorldPacket& recvPacket);

@@ -781,7 +781,10 @@ struct SpellScene
     float y;
     float z;
     float o;
-    int32 transport;
+
+    // trigger system
+    uint32 trigerSpell;
+    uint32 MonsterCredit;
 };
 
 typedef std::map<int32, std::vector<SpellTriggered> > SpellTriggeredMap;

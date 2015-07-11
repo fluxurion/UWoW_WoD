@@ -2567,8 +2567,8 @@ void SpellMgr::LoadSpellScene()
 
     mSpellSceneMap.clear();    // need for reload case
 
-    //                                                      0            1       2           3         4    5  6  7  8      9
-    QueryResult result = WorldDatabase.Query("SELECT ScenePackageId, MiscValue, hasO, PlaybackFlags, bit16, x, y, z, o, transport FROM spell_scene");
+    //                                                      0            1           2            3          4          5          6    7  8  9  10
+    QueryResult result = WorldDatabase.Query("SELECT ScenePackageId, MiscValue, trigerSpell, MonsterCredit, hasO, PlaybackFlags, bit16, x, y, z, o FROM spell_scene");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 visual spells. DB table `spell_visual_send` is empty.");
@@ -2579,31 +2579,22 @@ void SpellMgr::LoadSpellScene()
     do
     {
         Field* fields = result->Fetch();
-
         int8 ind = 0;
-        int32 ScenePackageId = fields[ind++].GetInt32();
-        int32 MiscValue = fields[ind++].GetInt32();
-        bool hasO = bool(fields[ind++].GetUInt8());
-        int32 PlaybackFlags = fields[ind++].GetInt32();
-        bool bit16 = bool(fields[ind++].GetUInt8());
-        float x = fields[ind++].GetFloat();
-        float y = fields[ind++].GetFloat();
-        float z = fields[ind++].GetFloat();
-        float o = fields[ind++].GetFloat();
-        int32 transport = fields[ind++].GetInt32();
 
         SpellScene templink;
-        templink.ScenePackageId = ScenePackageId;
-        templink.MiscValue = MiscValue;
-        templink.hasO = hasO;
-        templink.PlaybackFlags = PlaybackFlags;
-        templink.bit16 = bit16;
-        templink.x = x;
-        templink.y = y;
-        templink.z = z;
-        templink.o = o;
-        templink.transport = transport;
-        mSpellSceneMap[MiscValue].push_back(templink);
+        templink.ScenePackageId = fields[ind++].GetInt32();
+        templink.MiscValue = fields[ind++].GetInt32();
+        templink.trigerSpell = fields[ind++].GetInt32();
+        templink.MonsterCredit = fields[ind++].GetInt32();
+        templink.hasO = bool(fields[ind++].GetUInt8());
+        templink.PlaybackFlags = fields[ind++].GetInt32();
+        templink.bit16 = bool(fields[ind++].GetUInt8());
+        templink.x = fields[ind++].GetFloat();
+        templink.y = fields[ind++].GetFloat();
+        templink.z = fields[ind++].GetFloat();
+        templink.o = fields[ind++].GetFloat();
+
+        mSpellSceneMap[templink.MiscValue].push_back(templink);
 
         ++count;
     } while (result->NextRow());

@@ -29861,3 +29861,38 @@ bool Player::HasSceneCompleted(uint32 sceneID) const
 {
     return m_sceneSeen.find(sceneID) != m_sceneSeen.end();
 }
+
+void Player::TrigerScene(uint32 instanceID, std::string const type)
+{
+    for (auto itr : m_sceneEffect)
+    {
+        if (itr.second == instanceID)
+        {
+            if (const std::vector<SpellScene> *spell_scene = sSpellMgr->GetSpellScene(itr.first->GetMiscValue()))
+                for (std::vector<SpellScene>::const_iterator i = spell_scene->begin(); i != spell_scene->end(); ++i)
+                {
+                    if (type == "Visual" || type == "Clear")
+                    {
+                        if (i->trigerSpell)
+                        {
+                            if (type == "Visual" && !HasAura(i->trigerSpell))
+                                CastSpell(this, i->trigerSpell, true);
+                            else if (type == "Clear" && HasAura(i->trigerSpell))
+                                RemoveAurasDueToSpell(i->trigerSpell);
+                        }
+                        else
+                            sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), i->ScenePackageId);
+                    }
+                    else if (type == "Credit")
+                    {
+                        if (i->MonsterCredit)
+                            KilledMonsterCredit(i->MonsterCredit, ObjectGuid::Empty);
+                        else
+                            sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), i->ScenePackageId);
+                    }
+                    else
+                        sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), i->ScenePackageId);
+                }
+        }
+    }
+}
