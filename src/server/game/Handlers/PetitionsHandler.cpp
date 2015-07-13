@@ -536,10 +536,20 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
 
     result = CharacterDatabase.Query(stmt);
 
+
+    //! 6.1.2
+    WorldPacket ss_data(SMSG_PETITION_SHOW_SIGNATURES, (8 + 8 + 4 + 1 + signs * 12));
+    ss_data << petitionguid;
+    ss_data << _player->GetGUID();                    // should be owner
+    ss_data << GetAccountGUID();
+
+    ss_data << uint32(petitionguid.GetCounter());     // CGPetitionInfo__m_petitionID
+
     // result == NULL also correct charter without signs
     if (result)
     {
         signs = uint8(result->GetRowCount());
+        ss_data << uint32(signs);                          // sign's count        
 
         // check already signed petition
         for (uint8 i = 0; i < signs; i++)
@@ -555,28 +565,15 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
                 SendPacket(&data);
                 return;
             }
+
+            ss_data << plSignGuid;
+            ss_data << uint32(0);
+
             result->NextRow();
         }
+
+        player->GetSession()->SendPacket(&ss_data);
     }
-
-    //! 6.0.3
-    WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8+8+4+1+signs*12));
-    data << petitionguid;
-    data << _player->GetGUID();                    // should be owner
-    data << GetAccountGUID();
-
-    data << uint32(petitionguid.GetCounter());     // CGPetitionInfo__m_petitionID
-
-    data << uint32(signs);                          // sign's count         
-    for (uint8 i = 0; i < signs; i++)
-    {
-        Field* fields2 = result->Fetch();
-        data << ObjectGuid::Create<HighGuid::Player>(fields2[0].GetUInt64());
-        data << uint32(0);
-        result->NextRow();
-    }
-
-    player->GetSession()->SendPacket(&data);
 }
 
 //! 6.0.3
