@@ -2761,7 +2761,7 @@ uint32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) 
             if (Player* modOwner = caster->GetSpellModOwner())
                 modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost);
 
-        if (!caster->IsControlledByPlayer() && G3D::fuzzyEq(power->ManaCostPercentage, 0.0f))
+        if (!caster->IsControlledByPlayer() && G3D::fuzzyEq(power.PowerCostPercentage, 0.0f))
         {
             if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
             {
