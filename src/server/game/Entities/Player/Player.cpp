@@ -24308,7 +24308,7 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
     WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8 + 1);
     //data << GetGUID();
     data << uint32(spellInfo->Id);
-    data.WriteBit(1);       //Unk16 self? pet?
+    data.WriteBit(0);       //Unk16 self? pet?
     SendDirectMessage(&data);
 }
 
@@ -28820,7 +28820,7 @@ void Player::SendMovementSetCollisionHeight(float height, uint32 mountDisplayID/
 
     data.FlushBits();
 
-    data.WriteBits(0, 2);   //reason
+    data.WriteBits(1, 2);   //reason
 
     SendDirectMessage(&data);
 }

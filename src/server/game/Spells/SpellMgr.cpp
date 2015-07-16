@@ -5489,7 +5489,9 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
                     spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
                     break;
-
+                case 1784:  //Wod:stealth
+                    spellInfo->Effects[EFFECT_2].BasePoints = 25;
+                    break;
                 default:
                     break;
             }

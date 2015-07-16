@@ -2768,7 +2768,7 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
         target->m_stealth.AddFlag(type);
         target->m_stealth.AddValue(type, GetAmount());
 
-        target->setStandStateFlag(UNIT_STAND_FLAGS_CREEP);
+        target->SetStandVisFlags(UNIT_STAND_FLAGS_CREEP);
         if (target->GetTypeId() == TYPEID_PLAYER)
             target->SetByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_STEALTH); // TODO : Check PLAYER_FIELD_AURA_VISION
     }
@@ -2780,7 +2780,7 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
         {
             target->m_stealth.DelFlag(type);
 
-            target->RemoveStandStateFlags(UNIT_STAND_FLAGS_CREEP);
+            target->RemoveStandVisFlags(UNIT_STAND_FLAGS_CREEP);
             if (target->GetTypeId() == TYPEID_PLAYER)
                 target->RemoveByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_STEALTH); // TODO : Check PLAYER_FIELD_AURA_VISION
         }
@@ -4369,6 +4369,9 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
         target->UpdateSpeed(MOVE_RUN_BACK, true);
         target->UpdateSpeed(MOVE_FLIGHT, true);
     }
+
+    if (Player *player = target->ToPlayer())
+        player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true), target->GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID));
 }
 
 void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
