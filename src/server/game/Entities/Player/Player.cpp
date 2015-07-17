@@ -29890,6 +29890,8 @@ void Player::TrigerScene(uint32 instanceID, std::string const type)
                         else
                             sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), i->ScenePackageId);
                     }
+                    else if (i->trigerSpell)
+                        CastSpell(this, i->trigerSpell, true);
                     else
                         sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), i->ScenePackageId);
                 }
