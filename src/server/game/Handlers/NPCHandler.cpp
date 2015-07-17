@@ -62,7 +62,7 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
     SendTabardVendorActivate(guid);
 }
 
-void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
+void WorldSession::SendTabardVendorActivate(ObjectGuid const& guid)
 {
     WorldPacket data(SMSG_TABARDVENDOR_ACTIVATE, 8 + 1);
     data << guid;
@@ -77,7 +77,6 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
 
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
 
-    m_currentBankerGUID = guid;
     if (!CanUseBank(guid))
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBankerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(guid.GetCounter()));
@@ -91,8 +90,10 @@ void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
     SendShowBank(guid);
 }
 
-void WorldSession::SendShowBank(ObjectGuid guid)
+void WorldSession::SendShowBank(ObjectGuid const& guid)
 {
+    m_currentBankerGUID = guid;
+
     WorldPacket data(SMSG_SHOW_BANK, 8 + 1);
     data << guid;
     SendPacket(&data);
@@ -106,13 +107,13 @@ void WorldSession::HandleTrainerListOpcode(WorldPacket & recvData)
     SendTrainerList(guid);
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid)
+void WorldSession::SendTrainerList(ObjectGuid const& guid)
 {
     std::string str = GetTrinityString(LANG_NPC_TAINER_HELLO);
     SendTrainerList(guid, str);
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
+void WorldSession::SendTrainerList(ObjectGuid const& guid, const std::string& strTitle)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList");
 
@@ -606,7 +607,7 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket & recvData)
     SendListInventory(guid);
 }
 
-void WorldSession::SendListInventory(ObjectGuid vendorGuid)
+void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_VENDOR_INVENTORY");
 

@@ -540,11 +540,11 @@ class WorldSession
         //void SendTestCreatureQueryOpcode(uint32 entry, ObjectGuid guid, uint32 testvalue);
         void SendNameQueryOpcode(ObjectGuid guid);
 
-        void SendTrainerList(ObjectGuid guid);
-        void SendTrainerList(ObjectGuid guid, const std::string& strTitle);
-        void SendListInventory(ObjectGuid guid);
-        void SendShowBank(ObjectGuid guid);
-        void SendTabardVendorActivate(ObjectGuid guid);
+        void SendTrainerList(ObjectGuid const& guid);
+        void SendTrainerList(ObjectGuid const& guid, const std::string& strTitle);
+        void SendListInventory(ObjectGuid const& guid);
+        void SendShowBank(ObjectGuid const& guid);
+        void SendTabardVendorActivate(ObjectGuid const& guid);
         void SendSpiritResurrect();
         void SendBindPoint(Creature* npc);
 
@@ -1298,6 +1298,8 @@ class WorldSession
 
         void SendCharacterEnum(bool deleted = false);
         bool skip_send_packer = false;
+
+        void SetBankerGuid(ObjectGuid const& g) { m_currentBankerGUID = g; }
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
