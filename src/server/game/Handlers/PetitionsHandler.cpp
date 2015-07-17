@@ -571,9 +571,8 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
 
             result->NextRow();
         }
-
-        player->GetSession()->SendPacket(&ss_data);
     }
+    player->GetSession()->SendPacket(&ss_data);
 }
 
 //! 6.0.3
