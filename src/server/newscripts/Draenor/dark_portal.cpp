@@ -131,7 +131,7 @@ public:
 };
 
 const uint32 npc[4] = { 82871, 85142, 78529, 85141 };
-
+// 159126 - eastern
 class go_wod_slaves_cage : public GameObjectScript
 {
 public:
@@ -144,8 +144,18 @@ public:
 
         }
         
+        enum data
+        {
+            SOUTH_SCENE = 159127,
+            EASTERN_SCENE = 159126
+        };
         bool GossipHello(Player* player) override
         {
+            if (go->GetEntry() == 229353)
+                player->CastSpell(player, EASTERN_SCENE, true);
+            else
+                player->CastSpell(player, SOUTH_SCENE, true);
+
             for (uint8 i = 0; i != 4; ++i)
             {
                 if (Creature* target = go->FindNearestCreature(npc[i], 50.0f, true))
