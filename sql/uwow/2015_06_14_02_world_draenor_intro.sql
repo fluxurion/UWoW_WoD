@@ -325,6 +325,13 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`) VALUES
 ('34420', '34393'),
 ('34422', '34420');
 
+REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`) VALUES 
+('35240', '34420', '34423'),
+('34421', '34420', '34423'),
+('35241', '34420', '34423'),
+('35242', '34420', '34423'),
+('34422', '34420', '34423');
+
 INSERT INTO `area_queststart` (`id`, `quest`) VALUES ('7037', '34392');
 DELETE FROM `creature_questrelation` WHERE `creature_questrelation`.`id` = 78558 AND `creature_questrelation`.`quest` = 34392;
 
