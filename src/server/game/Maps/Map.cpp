@@ -1595,17 +1595,24 @@ float Map::GetWaterOrGroundLevel(float x, float y, float z, float* ground /*= NU
     return VMAP_INVALID_HEIGHT_VALUE;
 }
 
+float Map::GetGridMapHeigh(float x, float y) const
+{
+    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
+        return gmap->getHeight(x, y);
+
+    return VMAP_INVALID_HEIGHT_VALUE;
+}
+
 float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
 {
     // find raw .map surface under Z coordinates
-    float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
-    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
-    {
-        float gridHeight = gmap->getHeight(x, y);
-        // look from a bit higher pos to find the floor, ignore under surface case
-        if (z + 2.0f > gridHeight)
-            mapHeight = gridHeight;
-    }
+    float mapHeight = GetGridMapHeigh(x, y);
+    if (!checkVMap)
+        return mapHeight;
+
+    // look from a bit higher pos to find the floor, ignore under surface case
+    //if (z + 2.0f > gridHeight)
+    //    mapHeight = gridHeight;
 
     float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
     if (checkVMap)

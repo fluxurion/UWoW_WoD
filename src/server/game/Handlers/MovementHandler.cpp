@@ -718,8 +718,14 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
         {
             plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
-            if (movementInfo.pos.GetPositionZ() < MAX_MAP_DEPTH)
+            if (plrMover->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR))
+            //if (movementInfo.pos.GetPositionZ() < MAX_MAP_DEPTH)
             {
+                float groundZ = plrMover->GetMap()->GetGridMapHeigh(plrMover->GetPositionX(), plrMover->GetPositionY());
+                if (groundZ == VMAP_INVALID_HEIGHT_VALUE)
+                    groundZ = MAX_MAP_DEPTH;
+
+                if ((groundZ - 500.0f) > movementInfo.pos.GetPositionZ())
                 if (!(plrMover->GetBattleground() && plrMover->GetBattleground()->HandlePlayerUnderMap(_player)))
                 {
                     // by CyberBrest: Nice! Best regards. Just kill man,  maybe return them to the grave??? 
