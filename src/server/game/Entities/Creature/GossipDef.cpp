@@ -326,17 +326,8 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
                 if (QuestTemplateLocale const* ql = sObjectMgr->GetQuestLocale(questID))
                     ObjectMgr::GetLocaleString(ql->LogTitle, loc_idx, title);
 
-            uint32 questStatus = plr ? plr->GetQuestStatus(questID) : 0;
-
-            if (questStatus == QUEST_STATUS_COMPLETE)
-                questStatus = 3;
-            else if (questStatus == QUEST_STATUS_NONE)
-                questStatus = 1;
-            else if (questStatus == QUEST_STATUS_INCOMPLETE)
-                questStatus = 2;
-
             data << uint32(questID);
-            data << uint32(questStatus);
+            data << uint32(qmi.QuestIcon);
             data << int32(quest->GetQuestLevel());
             data << uint32(quest->GetFlags());              // 3.3.3 quest flags
             data << uint32(quest->GetFlagsEx());            // quest flags 2
