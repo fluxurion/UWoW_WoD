@@ -92,10 +92,15 @@ public:
 
     void SetGameTableEntry(GameTablesEntry const* gtEntry) { _gtEntry = gtEntry; }
 
-    T const* EvaluateTable(uint32 row, uint32 column) const
+    T const* EvaluateTable(int32 row, int32 column) const
     {
-        ASSERT(row < _gtEntry->NumRows);
-        ASSERT(column < _gtEntry->NumColumns);
+        if (row > (int32)_gtEntry->NumRows || column > (int32)_gtEntry->NumColumns)
+        {
+            sLog->outU(" >> GameTable::EvaluateTable dbc %s request (row: %i, column: %i) max(row: %u, column: %u)", _gtEntry->Name, row, column, _gtEntry->NumRows, _gtEntry->NumColumns);
+            return NULL;
+        }
+        ASSERT(row < (int32)_gtEntry->NumRows);
+        ASSERT(column < (int32)_gtEntry->NumColumns);
 
         return _storage.LookupEntry(_gtEntry->NumRows * column + row);
     }
