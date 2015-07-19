@@ -1,9 +1,9 @@
 # output generic information about the core and buildtype chosen
 message("")
-message("* UWOWCore rev. hash  : ${rev_hash}")
-message("* UWOWCore rev. date  : ${rev_date}")
+message("* EpicWoW rev. hash  : ${rev_hash}")
+message("* EpicWoW rev. date  : ${rev_date}")
 if( UNIX )
-  message("* UWOWCore buildtype  : ${CMAKE_BUILD_TYPE}")
+  message("* EpicWoW buildtype  : ${CMAKE_BUILD_TYPE}")
 endif()
 message("")
 

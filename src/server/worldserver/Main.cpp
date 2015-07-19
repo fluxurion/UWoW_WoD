@@ -60,8 +60,8 @@ using namespace boost::program_options;
 #ifdef _WIN32
 #include "ServiceWin32.h"
 char serviceName[] = "worldserver";
-char serviceLongName[] = "UwowCore world service";
-char serviceDescription[] = "UwowCore World of Warcraft emulator world service";
+char serviceLongName[] = "EpicWoW world service";
+char serviceDescription[] = "EpicWoW World of Warcraft emulator world service";
 /*
  * -1 - not in service mode
  *  0 - stopped
