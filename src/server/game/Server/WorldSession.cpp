@@ -218,6 +218,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
         }
     }
 
+    uint32 start_time = getMSTime();
     const_cast<WorldPacket*>(packet)->FlushBits();
 
 #ifdef TRINITY_DEBUG
@@ -257,6 +258,8 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     sScriptMgr->OnPacketSend(this, *packet);
 
     m_Socket->SendPacket(*const_cast<WorldPacket*>(packet));
+    if ((getMSTime() - start_time) > 10)
+        sLog->outU(" >> SendPacket DIFF %u", getMSTime() - start_time);
 }
 
 /// Add an incoming packet to the queue
