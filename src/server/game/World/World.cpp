@@ -2336,7 +2336,7 @@ void World::Update(uint32 diff)
         LoginDatabase.Execute(stmt);
 
         if (!m_bool_configs[CONFIG_DISABLE_NEW_ONLINE])
-            LoginDatabase.PQuery("REPLACE INTO `online` (`realmHandle.Index`, `online`, `diff`, `uptime`) VALUES ('%u', '%u', '%u', '%u')", realmHandle.Index, GetActiveSessionCount(), GetUpdateTime(), GetUptime());
+            LoginDatabase.PQuery("REPLACE INTO `online` (`realmID`, `online`, `diff`, `uptime`) VALUES ('%u', '%u', '%u', '%u')", realmHandle.Index, GetActiveSessionCount(), GetUpdateTime(), GetUptime());
     }
 
     /// <li> Clean logs table
