@@ -671,7 +671,7 @@ public:
             paths.paths[0][5].x = -1568.32f; paths.paths[0][5].y = 1327.29f;
             paths.paths[0][6].x = -1577.35f; paths.paths[0][6].y = 1317.59f;
 
-            paths.pointsCount[0] = 10;
+            paths.pointsCount[1] = 10;
             paths.paths[1][0].x = -1463.96f; paths.paths[1][0].y = 1429.41f;
             paths.paths[1][1].x = -1429.19f; paths.paths[1][1].y = 1422.41f;
             paths.paths[1][2].x = -1419.33f; paths.paths[1][2].y = 1419.23f;
