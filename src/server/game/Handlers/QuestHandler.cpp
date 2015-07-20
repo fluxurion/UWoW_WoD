@@ -782,7 +782,7 @@ void WorldSession::SendQuestgiverStatusMultipleQuery()
     uint32 defstatus = DIALOG_STATUS_NONE;
 
     WorldPackets::Quest::QuestGiverStatusMultiple response;
-    for (GuidSet::const_iterator itr = _player->m_clientGUIDs.begin(); itr != _player->m_clientGUIDs.end(); ++itr)
+    for (auto itr = _player->m_clientGUIDs.begin(); itr != _player->m_clientGUIDs.end(); ++itr)
     {
         if ((*itr).IsCreatureOrPetOrVehicle())
         {

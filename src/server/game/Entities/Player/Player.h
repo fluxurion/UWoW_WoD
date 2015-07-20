@@ -2922,7 +2922,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool CanSummonPet(uint32 entry) const;
         // currently visible objects at player client
-        GuidSet m_clientGUIDs;
+        GuidUnorderedSet  m_clientGUIDs;
         GuidSet m_extraLookList;
 
         bool HaveAtClient(WorldObject const* u) const { return u == this || m_clientGUIDs.find(u->GetGUID()) != m_clientGUIDs.end(); }
