@@ -528,6 +528,8 @@ void Log::LoadFromConfig()
 {
     Close();
     AppenderId = 0;
+    lowestLogLevel = LOG_LEVEL_FATAL;
+
     m_logsDir = sConfigMgr->GetStringDefault("LogsDir", "");
     if (!m_logsDir.empty())
         if ((m_logsDir.at(m_logsDir.length() - 1) != '/') && (m_logsDir.at(m_logsDir.length() - 1) != '\\'))
@@ -537,7 +539,6 @@ void Log::LoadFromConfig()
     arenaLogFile = openLogFile("ArenaLogFile", NULL, "a");
     spammLogFile = openLogFile("SpammLogFile", NULL, "a");
     diffLogFile = openLogFile("diffLogFile", NULL, "a");
-    lowestLogLevel = LOG_LEVEL_FATAL;
 }
 
 void Log::outArena(const char * str, ...)
