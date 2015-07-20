@@ -194,16 +194,16 @@ bool WorldSocket::ReadDataHandler()
 
         OpcodeClient opcode = static_cast<OpcodeClient>(cmd);
 
-        std::string opcodeName = GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode));
-
         WorldPacket packet(opcode, std::move(_packetBuffer));
 
         if (sPacketLog->CanLogPacket())
             //sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
             sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
 
+        #ifdef WIN32
+        std::string opcodeName = GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode));
         sLog->outTrace(LOG_FILTER_NETWORKIO, "C->S: %s %s", (_worldSession ? _worldSession->GetPlayerName().c_str() : GetRemoteIpAddress().to_string()).c_str(), opcodeName.c_str());
-
+        #endif
         try
         {
             switch (opcode)
@@ -225,17 +225,23 @@ bool WorldSocket::ReadDataHandler()
                     break;
                 }
                 case CMSG_KEEP_ALIVE:
+                    #ifdef WIN32
                     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
+                    #endif
                     sScriptMgr->OnPacketReceive(_worldSession, packet);
                     break;
                 case CMSG_LOG_DISCONNECT:
                     packet.rfinish();   // contains uint32 disconnectReason;
+                    #ifdef WIN32
                     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
+                    #endif
                     sScriptMgr->OnPacketReceive(_worldSession, packet);
                     return true;
                 case CMSG_ENABLE_NAGLE:
                 {
+                    #ifdef WIN32
                     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
+                    #endif
                     sScriptMgr->OnPacketReceive(_worldSession, packet);
                     if (_worldSession)
                         _worldSession->HandleEnableNagleAlgorithm();
