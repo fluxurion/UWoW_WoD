@@ -817,6 +817,7 @@ class World
         static int32 GetVisibilityNotifyPeriodInBGArenas()  { return m_visibility_notify_periodInBGArenas;   }
 
         static float Visibility_RelocationLowerLimit;
+        static float Relocation_UpdateUnderwateLimit;
         static uint32 Visibility_AINotifyDelay;
 
         static float ZoneUpdateDistanceRangeLimit;

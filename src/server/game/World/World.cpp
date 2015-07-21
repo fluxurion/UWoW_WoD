@@ -102,6 +102,7 @@ int32 World::m_visibility_notify_periodInInstances  = DEFAULT_VISIBILITY_NOTIFY_
 int32 World::m_visibility_notify_periodInBGArenas   = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
 
 float World::Visibility_RelocationLowerLimit = 20.0f;
+float World::Relocation_UpdateUnderwateLimit = 20.0f;
 uint32 World::Visibility_AINotifyDelay = 1000;
 float World::ZoneUpdateDistanceRangeLimit = 5.0f;
 
@@ -1240,6 +1241,7 @@ void World::LoadConfigSettings(bool reload)
     }
 
     Visibility_RelocationLowerLimit = sConfigMgr->GetFloatDefault("Visibility.RelocationLowerLimit", 20.f);
+    Relocation_UpdateUnderwateLimit = sConfigMgr->GetFloatDefault("Relocation.UpdateUnderwateLimit", 20.f);
     Visibility_AINotifyDelay = sConfigMgr->GetFloatDefault("Visibility.AINotifyDelay", 1000);
 
     //visibility in instances

@@ -22530,7 +22530,11 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
         UpdateOrientation(orientation);
 
     // code block for underwater state update
-    UpdateUnderwaterState(GetMap(), x, y, z);
+    if (relocated && !m_lastUnderWatterPos.IsInDist(this, World::Relocation_UpdateUnderwateLimit))
+    {
+        m_lastUnderWatterPos = *this;
+        UpdateUnderwaterState(GetMap(), x, y, z);
+    }
 
     return (relocated || turn);
 }
