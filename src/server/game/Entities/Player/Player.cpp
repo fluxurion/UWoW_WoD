@@ -16613,6 +16613,11 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
                     if (exclude_Id == prevId)
                         continue;
 
+                    // skip enother team.
+                    if (Quest const* qexclude = sObjectMgr->GetQuestTemplate(exclude_Id))
+                        if (!SatisfyQuestRace(qexclude, msg))
+                            continue;
+
                     // alternative quest from group also must be completed and rewarded(reported)
                     if (m_RewardedQuests.find(exclude_Id) == m_RewardedQuests.end())
                     {
@@ -16832,6 +16837,10 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
 
             return false;
         }
+
+        // skip enother team.
+        if (!SatisfyQuestRace(Nquest, msg))
+            continue;
 
         // alternative quest already started or completed - but don't check rewarded states if both are repeatable
         if (GetQuestStatus(exclude_Id) != QUEST_STATUS_NONE || (!(qInfo->IsRepeatable() && Nquest->IsRepeatable()) && (m_RewardedQuests.find(exclude_Id) != m_RewardedQuests.end())))
