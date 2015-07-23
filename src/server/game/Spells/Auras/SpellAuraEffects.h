@@ -254,6 +254,7 @@ class AuraEffect
         void HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModAddEnergyPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleSummonController(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPetStatsModifier(AuraApplication const* aurApp, uint8 mode, bool apply) const;
