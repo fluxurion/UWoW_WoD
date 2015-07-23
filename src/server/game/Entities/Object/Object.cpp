@@ -3398,9 +3398,12 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
     uint32 phase = PHASEMASK_NORMAL;
     uint32 team = 0;
+    std::set<uint32> phaseIds;
+
     if (summoner)
     {
         phase = summoner->GetPhaseMask();
+        phaseIds = summoner->GetPhases();
         if (summoner->GetTypeId() == TYPEID_PLAYER)
             team = summoner->ToPlayer()->GetTeam();
     }
@@ -3432,6 +3435,8 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         delete summon;
         return NULL;
     }
+
+    summon->SetPhaseId(phaseIds, false);
 
     summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, spellId);
     if (summoner)
