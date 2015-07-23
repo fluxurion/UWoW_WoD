@@ -9132,13 +9132,10 @@ void AuraEffect::HandleSummonController(AuraApplication const* aurApp, uint8 mod
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    uint32 summonId = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).TriggerSpell;
+    uint32 summonSpellID = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).TriggerSpell;
 
     if (apply)
-        GetCaster()->CastSpell(GetCaster(), summonId, true);
+        GetCaster()->CastSpell(GetCaster(), summonSpellID, true);
     else
-    {
-        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(summonId))
-            GetCaster()->RemoveAllMinionsByEntry(GetMiscValue());
-    }
+        GetCaster()->RemoveAllMinionsByFilter(summonSpellID, 1); // remove by spellID
 }

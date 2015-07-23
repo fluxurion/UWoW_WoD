@@ -310,7 +310,7 @@ class npc_hot_rod : public CreatureScript
                             //if we not complite we should add visibility state for finding them
                             if (player->GetQuestObjectiveData(qInfo, j))
                             {
-                                //player->RemoveAllMinionsByEntry(QuestTemplateData[j][0]);
+                                //player->RemoveAllMinionsByFilter(QuestTemplateData[j][0]);
                                 //TMP. In some cases call crash http://pastebin.com/vcnGS701
                                 //player->CastSpell(player, QuestTemplateData[j][2], true);
                             }

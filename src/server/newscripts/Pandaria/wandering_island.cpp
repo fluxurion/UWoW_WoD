@@ -1919,7 +1919,7 @@ class spell_grab_carriage: public SpellScriptLoader
                 //carriage->GetMotionMaster()->MoveFollow(yak, 0.0f, M_PI);
                 yak->AI()->SetGUID(carriage->GetGUID(), 0); // enable following
                 caster->EnterVehicle(carriage, 0);
-                caster->RemoveAllMinionsByEntry(55213);
+                caster->RemoveAllMinionsByFilter(55213);
             }
 
             void Register()
@@ -2216,8 +2216,8 @@ class AreaTrigger_at_middle_temple_from_east : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool enter)
         {
-            player->RemoveAllMinionsByEntry(60916);
-            player->RemoveAllMinionsByEntry(55558);
+            player->RemoveAllMinionsByFilter(60916);
+            player->RemoveAllMinionsByFilter(55558);
             return true;
         }
 };
@@ -2650,7 +2650,7 @@ class spell_summon_ji_yung: public SpellScriptLoader
                 if (!target)
                     return;
 
-                target->RemoveAllMinionsByEntry(65558);
+                target->RemoveAllMinionsByFilter(65558);
             }
 
             void Register()

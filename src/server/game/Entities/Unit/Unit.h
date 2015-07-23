@@ -1877,7 +1877,7 @@ class Unit : public WorldObject
         void SetMinion(Minion *minion, bool apply, bool stampeded = false);
         Creature* GetMinionByEntry(uint32 entry);
         void GetAllMinionsByEntry(std::list<Creature*>& Minions, uint32 entry);
-        void RemoveAllMinionsByEntry(uint32 entry);
+        void RemoveAllMinionsByFilter(uint32 entry, uint8 filter = 0);
         void SetCharm(Unit* target, bool apply);
         Unit* GetNextRandomRaidMemberOrPet(float radius);
         bool SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* aurApp = NULL);

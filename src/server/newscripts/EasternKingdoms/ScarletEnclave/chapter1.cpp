@@ -774,7 +774,7 @@ public:
                         CAST_CRE(who)->DespawnOrUnsummon();
 
                         if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_COMPLETE)
-                            owner->RemoveAllMinionsByEntry(GHOULS);
+                            owner->RemoveAllMinionsByFilter(GHOULS);
                     }
                 }
             }

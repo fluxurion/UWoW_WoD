@@ -1819,9 +1819,9 @@ class spell_norushen_challenge : public SpellScriptLoader
                         CheckCorruptionForCleanse(target->ToPlayer());
                         break;
                     case SPELL_TEST_OF_RELIANCE:
-                        target->RemoveAllMinionsByEntry(NPC_NN_HEAL_EVENT_PROTECTOR_1);
-                        target->RemoveAllMinionsByEntry(NPC_NN_HEAL_EVENT_PROTECTOR_2);
-                        target->RemoveAllMinionsByEntry(NPC_NN_HEAL_EVENT_PROTECTOR_3);
+                        target->RemoveAllMinionsByFilter(NPC_NN_HEAL_EVENT_PROTECTOR_1);
+                        target->RemoveAllMinionsByFilter(NPC_NN_HEAL_EVENT_PROTECTOR_2);
+                        target->RemoveAllMinionsByFilter(NPC_NN_HEAL_EVENT_PROTECTOR_3);
                         break;
                     default:
                         break;                    

@@ -11246,23 +11246,23 @@ void Unit::SetMinion(Minion *minion, bool apply, bool stampeded)
                     if (spInfo->GetEffect(i, GetSpawnMode()).Effect != SPELL_EFFECT_SUMMON)
                         continue;
 
-                    RemoveAllMinionsByEntry(spInfo->GetEffect(i, GetSpawnMode()).MiscValue);
+                    RemoveAllMinionsByFilter(spInfo->GetEffect(i, GetSpawnMode()).MiscValue);
                 }
             }
 
             if (minion->GetEntry() == 15439 && minion->GetOwner())
             {
                 if(minion->GetOwner()->HasAura(117013))
-                    RemoveAllMinionsByEntry(61029);
+                    RemoveAllMinionsByFilter(61029);
                 else
-                    RemoveAllMinionsByEntry(15438);
+                    RemoveAllMinionsByFilter(15438);
             }
             else if (minion->GetEntry() == 15430 && minion->GetOwner())
             {
                 if(minion->GetOwner()->HasAura(117013))
-                    RemoveAllMinionsByEntry(61056);
+                    RemoveAllMinionsByFilter(61056);
                 else
-                    RemoveAllMinionsByEntry(15352);
+                    RemoveAllMinionsByFilter(15352);
             }
         }
 
@@ -11350,13 +11350,19 @@ void Unit::GetAllMinionsByEntry(std::list<Creature*>& Minions, uint32 entry)
     }
 }
 
-void Unit::RemoveAllMinionsByEntry(uint32 entry)
+void Unit::RemoveAllMinionsByFilter(uint32 ID, uint8 filter /*=0*/) //0 - by entry, 1 - by spell 
 {
     for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end();)
     {
         Unit* unit = *itr;
         ++itr;
-        if (unit->GetEntry() == entry && unit->GetTypeId() == TYPEID_UNIT
+
+        if (!filter && unit->GetEntry() != ID)
+            continue;
+        else if (unit->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != ID)
+            continue;
+
+        if (unit->GetTypeId() == TYPEID_UNIT
             && unit->ToCreature()->isSummon()) // minion, actually
             unit->ToTempSummon()->UnSummon();
         // i think this is safe because i have never heard that a despawned minion will trigger a same minion
