@@ -47,6 +47,7 @@ void VisibleNotifier::SendToSelf()
             }
         }
 
+    i_player.RemoveListners(vis_guids);
     for (auto it = vis_guids.begin(); it != vis_guids.end(); ++it)
     {
         //extralook shouldn't be removed by missing creature in grid where is curently player

@@ -3216,6 +3216,12 @@ class Player : public Unit, public GridObject<Player>
         void SceneCompleted(uint32 sceneID);
         bool HasSceneCompleted(uint32 sceneID) const;
         void TrigerScene(uint32 instanceID, std::string const type);
+
+        //Message
+        void AddListner(WorldObject* o);
+        void RemoveListner(WorldObject* o);
+        void RemoveListners(GuidUnorderedSet const& list);
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -3631,6 +3637,8 @@ class Player : public Unit, public GridObject<Player>
 
         AreaTriggerEntry const *LastAreaTrigger;
         std::set<uint32> m_sceneSeen;
+
+        boost::unordered::unordered_set<WorldObject*> listners;             // WorldObject who send us messages.
 };
 
 void AddItemsSetItem(Player*player, Item* item);
