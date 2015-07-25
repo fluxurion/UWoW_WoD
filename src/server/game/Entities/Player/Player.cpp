@@ -2520,6 +2520,16 @@ void Player::RemoveFromWorld()
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         m_zoneUpdateId = 0; //fix returning to wg
         m_extraLookList.clear();
+
+        for (auto object : listners)
+        {
+            if (!object)
+                continue;
+
+            if (list.find(object->GetGUID()) != list.end())
+                RemoveListner(object);
+        }
+        listners.clear();
     }
 
     ///- Do not add/remove the player from the object storage
