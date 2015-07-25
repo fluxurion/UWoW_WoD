@@ -114,6 +114,7 @@ INSERT IGNORE INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`,
 
 UPDATE `creature_template` SET `gossip_menu_id`=16863, `exp`=4, `MinLevel`=90, `MaxLevel`=90, `faction`=35, `npcflag`=3, `speed_run`=0.9920629, `speed_walk`=1, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_class`=8, `unit_flags`=33024, `unit_flags2`=34816, `unit_flags3`=0, `dynamicflags`=0, `VehicleId`=0, `HoverHeight`=1 WHERE `entry`=78423;
 UPDATE `creature_template` SET `gossip_menu_id`=16518, `exp`=4, `MinLevel`=90, `MaxLevel`=90, `faction`=2636, `npcflag`=4739, `speed_run`=1.142857, `speed_walk`=1, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_class`=1, `unit_flags`=33024, `unit_flags2`=34816, `unit_flags3`=0, `dynamicflags`=0, `VehicleId`=0, `HoverHeight`=1 WHERE `entry`=80521;
+UPDATE `creature_template` SET `gossip_menu_id`=16641 WHERE entry = 78556;
 
 DELETE FROM `gossip_menu` WHERE (`entry`=16376 AND `text_id`=23740) OR (`entry`=16863 AND `text_id`=24524) OR (`entry`=16641 AND `text_id`=24170) OR (`entry`=16428 AND `text_id`=23808) OR (`entry`=16858 AND `text_id`=24515) OR (`entry`=16433 AND `text_id`=23824) OR (`entry`=16518 AND `text_id`=23994);
 INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
@@ -171,7 +172,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3210 - eastern cage A: 35240 & H:Q34421
 -- 4011 - southeren complete something
 -- 3911 - eastern complete something
--- 3655 - привал
+-- 4011 - привал
+-- 3394 3395 hide some for 34423 npc 78556
 
 DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763, 82871, 85142);
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) VALUES
@@ -235,9 +237,11 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 --					3237 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4011 4150 4151 4200 
 
 -- tiger event Push of 770 : 3237 3265 3394 3395 3396 3480 3626 3655 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4011 4150 4151 4200
-('7025', '14', '0','3655', '0', '0', '16', 'DraenorIntro: at CMSG_SCENE_PLAYBACK_COMPLETE sceneID 770');
--- QuestID: 34423 -- ObjectID: 78556
+('7025', '14', '0','4011', '0', '0', '16', 'DraenorIntro: at CMSG_SCENE_PLAYBACK_COMPLETE sceneID 770'), -- только привальные
+('7025', '15', '0','3237 3265 3394 3395 3396 3480 3626 3655 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4150 4151 4200', '0', '0', '16', 'DraenorIntro: at reward 34422');
+-- QuestID: 34423 -- ObjectID: 78556 speak with 78568 for start
 -- 3237 3265 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4011 4150 4151 4200
+-- 3237 3265 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4011 4150 4151 4200
 
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
@@ -273,7 +277,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 13, 0, 1, 8, 0, 34421, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 35240'),
 --
 (23, 7025, 14, 0, 0, 40, 0, 770, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene  770'),
-(23, 7025, 14, 0, 1, 8, 0, 34422, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34422');
+(23, 7025, 14, 0, 1, 8, 0, 34422, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34422'),
+(23, 7025, 15, 0, 0, 8, 0, 34422, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34422');
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -316,7 +321,10 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('159176', '7041', '34420', '34420', '0', '0', '2', '1', '2', '64'),
 --
 ('164611', '7041', '34422', '34422', '0', '0', '2', '1', '10', '64'),
-('164609', '7041', '34422', '34422', '0', '0', '2', '1', '10', '64');
+('164609', '7041', '34422', '34422', '0', '0', '2', '1', '10', '64'),
+--
+('161625', '7041', '34423', '34423', '0', '0', '2', '0', '10', '64'),
+('161625', '7025', '34423', '34423', '0', '0', '2', '0', '10', '64');
 
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
@@ -337,6 +345,10 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('35241', '34420', '34423', '-34423'),
 ('35242', '34420', '34423', '-34423'),
 ('34422', '34420', '34423', '-34423');
+
+
+UPDATE `quest_template` SET AllowableRaces = 33555378 WHERE ID in (34421, 35241); -- SET HORDE
+UPDATE `quest_template` SET AllowableRaces =  (1101 + 2097152  + 16777216)WHERE ID in (35242, 34422); -- SET ALLIANCE
 
 INSERT INTO `area_queststart` (`id`, `quest`) VALUES ('7037', '34392');
 DELETE FROM `creature_questrelation` WHERE `creature_questrelation`.`id` = 78558 AND `creature_questrelation`.`quest` = 34392;
@@ -404,4 +416,15 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 (85142, 0, 0, 'Освободи нас!', 14, 0, 100, 0, 0, 43877, ''), -- восточная
 (85141, 0, 0, 'Освободи нас!', 14, 0, 100, 0, 0, 43877, 'Раб из клана Северного Волка to Player'); -- восточная
 
---
+-- Q34423
+UPDATE `creature_template` SET `ScriptName` = 'mob_wod_ariok' WHERE `creature_template`.`entry` = 78556;
+UPDATE `creature_template` SET `ScriptName` = 'mob_wod_ariok_mover' WHERE `creature_template`.`entry` = 80087;
+
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(80087, 0, 0, 'Ты и я – против целого клана? Это мне по нраву.', 12, 0, 100, 396, 0, 46156, 'Ариок to Player'),
+(80087, 0, 1, 'С помощью магии крови орки Кровавой Глазницы превращают воинов в огромных берсерков.', 12, 0, 100, 396, 0, 46157, 'Ариок to Player'),
+(80087, 0, 2, 'Если повезет, мы уберемся отсюда раньше, чем они завершат ритуал.', 12, 0, 100, 396, 0, 46158, 'Ариок to Player'),
+(80087, 0, 3, 'Мы здесь, трусы! Сюда! Бейтесь с нами!', 14, 0, 100, 0, 0, 46159, 'Ариок to Player'),
+(80087, 0, 4, 'Как бы их отвлечь от ритуала… Давай уничтожим кровавые сферы.', 12, 0, 100, 0, 0, 0, 'Ариок to Player'),
+(80087, 0, 5, 'Похоже, Кадгар и все остальные уже в пути. Наша работа почти завершена!', 12, 0, 100, 0, 0, 46162, 'Ариок to Player');
+

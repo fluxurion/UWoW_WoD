@@ -173,9 +173,110 @@ public:
     }
 };
 
+class mob_wod_ariok : public CreatureScript
+{
+public:
+    mob_wod_ariok() : CreatureScript("mob_wod_ariok") { }
+
+    enum data
+    {
+        QUEST = 34423,
+        SPELL_CREDIT = 159278,
+        SPELL_SUMMON = 161625,
+        PHASE_ARIOK_DB = 3394,
+    };
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        if (action == 1)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            if (player->GetQuestStatus(QUEST) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->CastSpell(player, SPELL_CREDIT, true);
+                player->CastSpell(player, SPELL_SUMMON, true);
+                std::set<uint32> phase = player->GetPhases();
+                phase.erase(PHASE_ARIOK_DB);
+                player->SetPhaseId(phase, true);
+            }
+        }
+
+        return true;
+    }
+};
+
+class mob_wod_ariok_mover : public CreatureScript
+{
+public:
+    mob_wod_ariok_mover() : CreatureScript("mob_wod_ariok_mover") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_ariok_moverAI(creature);
+    }
+
+    struct mob_wod_ariok_moverAI : public ScriptedAI
+    {
+        EventMap events;
+        ObjectGuid playerGuid;
+
+        mob_wod_ariok_moverAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        enum data
+        {
+            EVENT_1 = 1,
+            EVENT_2,
+            EVENT_3,
+        };
+
+        void OnCharmed(bool /*apply*/)
+        {
+        }
+
+        void IsSummonedBy(Unit* summoner)
+        {
+            Player *player = summoner->ToPlayer();
+            if (!player)
+            {
+                me->MonsterSay("SCRIPT::mob_wod_ariok_moverAI summoner is not player", LANG_UNIVERSAL, ObjectGuid::Empty);
+                return;
+            }
+
+            playerGuid = summoner->GetGUID();
+            me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
+
+            uint32 t = 0;                                        //
+            events.ScheduleEvent(EVENT_1, t += 2000);            //09:14:54.000
+            events.ScheduleEvent(EVENT_2, t += 6000);            //09:15:00.000
+            events.ScheduleEvent(EVENT_3, t += 7000);            //09:15:07.000
+            //09:16:18.000
+
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_1:
+                case EVENT_2:
+                case EVENT_3:
+                    sCreatureTextMgr->SendChat(me, /*TEXT_GENERIC_0*/eventId-1, playerGuid);
+                    break;
+                }
+            }
+        }
+    };
+};
 void AddSC_wod_dark_portal()
 {
     new mob_wod_intro_guldan();
     new mob_wod_frostwolf_slave();
     new go_wod_slaves_cage();
+    new mob_wod_ariok();
+    new mob_wod_ariok_mover();
 }
