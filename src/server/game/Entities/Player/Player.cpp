@@ -2526,8 +2526,7 @@ void Player::RemoveFromWorld()
             if (!object)
                 continue;
 
-            if (list.find(object->GetGUID()) != list.end())
-                RemoveListner(object);
+            RemoveListner(object);
         }
         listners.clear();
     }
