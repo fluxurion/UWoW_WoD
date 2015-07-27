@@ -463,12 +463,12 @@ class mob_soul_cutter : public CreatureScript
 
             void JustDied(Unit* attacker)
             {
-                GuidList playerList;
+                GuidUnorderedSet playerList;
                 me->GetMustBeVisibleForPlayersList(playerList);
 
-				for (GuidList::iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+				for (auto guid :  playerList)
                 {
-                    if (Player* player = ObjectAccessor::FindPlayer(*itr))
+                    if (Player* player = ObjectAccessor::FindPlayer(guid))
                     {
                         player->RemoveAurasDueToSpell(SPELL_BANISHMENT);
                         player->RemoveAurasDueToSpell(SPELL_SOUL_CUT_SUICIDE);
