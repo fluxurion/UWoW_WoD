@@ -182,6 +182,15 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_ACTIVE_EVENT:
             condMeets = sGameEventMgr->IsActiveEvent(ConditionValue1);
             break;
+        case CONDITION_QUEST_OBJECTIVE_DONE:
+        {
+            if (Player* player = object->ToPlayer())
+            {
+                uint32 count = player->GetQuestObjectiveData(ConditionValue1, ConditionValue2);
+                condMeets = ConditionValue3 ? count >= ConditionValue3 : count;
+            }
+            break;
+        }
         case CONDITION_INSTANCE_INFO:
         {
             Map* map = object->GetMap();
@@ -504,6 +513,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
             break;
         case CONDITION_AREA_EXPLORED:
         case CONDITION_SCENE_SEEN:
+        case CONDITION_QUEST_OBJECTIVE_DONE:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
@@ -1756,6 +1766,28 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outError(LOG_FILTER_SQL, "Quest condition has useless data in value2 (%u)!", cond->ConditionValue2);
             if (cond->ConditionValue3)
                 sLog->outError(LOG_FILTER_SQL, "Quest condition has useless data in value3 (%u)!", cond->ConditionValue3);
+            break;
+        }
+        case CONDITION_QUEST_OBJECTIVE_DONE:
+        {
+            Quest const* quest = sObjectMgr->GetQuestTemplate(cond->ConditionValue1);
+            if (!quest)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Quest condition specifies non-existing quest (%u), skipped", cond->ConditionValue1);
+                return false;
+            }
+
+            if (cond->ConditionValue2 > 0)
+            {
+                bool found = false;
+                for (QuestObjective const& obj : quest->GetObjectives())
+                {
+                    if (obj.ObjectID == cond->ConditionValue2)
+                        found = true;
+                }
+                if (!found)
+                    sLog->outError(LOG_FILTER_SQL, "Quest condition specifies non-existing quest (%u) non existen objective %u, skipped", cond->ConditionValue1, cond->ConditionValue2);
+            }
             break;
         }
         case CONDITION_AREA_EXPLORED:

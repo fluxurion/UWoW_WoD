@@ -74,7 +74,8 @@ enum ConditionTypes
     CONDITION_HP_PCT                = 38,                   // hpPct            ComparisonType 0                  true if unit's hp matches given pct
     CONDITION_AREA_EXPLORED         = 39,                   // AreaID
     CONDITION_SCENE_SEEN            = 40,                   // SceneID
-    CONDITION_MAX                   = 41                    // MAX
+    CONDITION_QUEST_OBJECTIVE_DONE  = 41,                   // QuestID          ObjectiveID    Count    
+    CONDITION_MAX                   = 42                    // MAX
 };
 
 /*! Documentation on implementing a new ConditionSourceType:

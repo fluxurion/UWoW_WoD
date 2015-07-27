@@ -17505,6 +17505,12 @@ void Player::KilledPlayerCredit()
 
                 if (CanCompleteQuest(questid))
                     CompleteQuest(questid);
+                else
+                {
+                    //Update phase or area spells by objective.
+                    SetQuestStatus(questid, QUEST_STATUS_INCOMPLETE);
+                }
+
 
                 // Quest can't have more than one player kill objective (code optimisation)
                 break;
