@@ -2801,18 +2801,27 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (this == obj)
         return true;
 
-    if (obj->MustBeVisibleOnlyForSomePlayers() && GetGUID().IsPlayer())
+    if (GetGUID().IsPlayer())
     {
-        Player const* thisPlayer = ToPlayer();
+        if (obj->MustBeVisibleOnlyForSomePlayers())
+        {
+            Player const* thisPlayer = ToPlayer();
 
-        if (!thisPlayer)
-            return false;
+            if (!thisPlayer)
+                return false;
 
-        Group const* group = thisPlayer->GetGroup();
+            Group const* group = thisPlayer->GetGroup();
 
-        if (!obj->IsPlayerInPersonnalVisibilityList(thisPlayer->GetGUID()) &&
-            (!group || !obj->IsGroupInPersonnalVisibilityList(group->GetGUID())))
-            return false;
+            if (!obj->IsInPersonnalVisibilityList(thisPlayer->GetGUID()) &&
+                (!group || !obj->IsInPersonnalVisibilityList(group->GetGUID())))
+                return false;
+        }
+
+        if (!obj->HideForSomePlayers())
+        {
+            if (obj->ShouldHideFor(GetGUID()))
+                return false;
+        }
     }
 
     if (GetGUID().IsPlayer() && obj->GetGUID().IsGameObject())
@@ -3022,38 +3031,19 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
     return true;
 }
 
-bool WorldObject::IsPlayerInPersonnalVisibilityList(ObjectGuid guid) const
+bool WorldObject::IsInPersonnalVisibilityList(ObjectGuid const& guid) const
 {
-    if (!guid.IsPlayer())
-        return false;
-
-    for (GuidList::const_iterator itr = _visibilityPlayerList.begin(); itr != _visibilityPlayerList.end(); ++itr)
-        if ((*itr) == guid)
-            return true;
-
-    return false;
+    return _visibilityPlayerList.find(guid) != _visibilityPlayerList.end();
 }
 
-bool WorldObject::IsGroupInPersonnalVisibilityList(ObjectGuid guid) const
+void WorldObject::AddPlayersInPersonnalVisibilityList(GuidUnorderedSet const& viewerList)
 {
-    if (!guid.IsParty())
-        return false;
-
-    for (GuidList::const_iterator itr = _visibilityPlayerList.begin(); itr != _visibilityPlayerList.end(); ++itr)
-        if ((*itr) == guid)
-            return true;
-
-    return false;
-}
-
-void WorldObject::AddPlayersInPersonnalVisibilityList(GuidList viewerList)
-{
-    for (GuidList::const_iterator guid = viewerList.begin(); guid != viewerList.end(); ++guid)
+    for (auto guid : viewerList)
     {
-        if (!(*guid).IsPlayer())
+        if (!guid.IsPlayer())
             continue;
 
-        _visibilityPlayerList.push_back(*guid);
+        _visibilityPlayerList.insert(guid);
     }
 }
 
@@ -3356,7 +3346,7 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= NULL*/, uint32 duration /*= 0*/, Unit* summoner /*= NULL*/, ObjectGuid targetGuid /*= 0*/, uint32 spellId /*= 0*/, int32 vehId /*= 0*/, ObjectGuid viewerGuid /*= 0*/, GuidList* viewersList /*= NULL*/)
+TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= NULL*/, uint32 duration /*= 0*/, Unit* summoner /*= NULL*/, ObjectGuid targetGuid /*= 0*/, uint32 spellId /*= 0*/, int32 vehId /*= 0*/, ObjectGuid viewerGuid /*= 0*/, GuidUnorderedSet* viewersList /*= NULL*/)
 {
     if(summoner)
     {
@@ -3533,7 +3523,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, Objec
     return NULL;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempSummonType spwtype, uint32 duration, int32 vehId, ObjectGuid viewerGuid, GuidList* viewersList) const
+TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempSummonType spwtype, uint32 duration, int32 vehId, ObjectGuid viewerGuid, GuidUnorderedSet* viewersList) const
 {
     if (Map* map = FindMap())
     {
@@ -3644,7 +3634,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     return pet;
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, ObjectGuid viewerGuid, GuidList* viewersList)
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, ObjectGuid viewerGuid, GuidUnorderedSet* viewersList)
 {
     if (!IsInWorld())
         return NULL;
