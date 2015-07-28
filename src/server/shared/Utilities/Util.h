@@ -578,4 +578,97 @@ template <typename T> inline bool isNanOrInf(T x)
     if (x<0 && x/x != x/x) return true;     // x is -inf
     return false;
 };
+
+template <class X>
+class cyber_ptr
+{
+
+public:
+
+    struct coun
+    {
+        int64 counter = 0;
+        bool ready = false;
+    };
+
+    //! Init from main class
+    cyber_ptr(X* p) : ptr(p)
+    {
+        numerator = new coun();
+        numerator->counter += 1;
+        numerator->ready = true;
+
+        parent = true;
+    }
+
+    cyber_ptr(coun* c) : numerator(c)
+    {
+
+    }
+
+    cyber_ptr(cyber_ptr<X> &right)
+    {
+        right.incrase();
+        numerator = right.numerator;
+        ptr = right.ptr;
+    }
+
+    cyber_ptr()
+    {}
+
+    ~cyber_ptr()
+    {
+        if (numerator)
+        {
+            numerator->counter -= 1;
+            if (!numerator->counter)
+                delete numerator;
+
+            if (parent)
+                numerator->ready = false;
+        }
+    }
+
+    X* get()
+    {
+        if (!numerator || !numerator->ready)
+            return NULL;
+        return ptr;
+    }
+
+    //! Link with main class
+    cyber_ptr<X> shared_from_this()
+    {
+        numerator->counter += 1;
+        return cyber_ptr<X>(numerator);
+    }
+    void incrase()
+    {
+        if (numerator)
+            numerator->counter += 1;
+    }
+
+    //
+    cyber_ptr<X>& operator=(cyber_ptr<X>& right) // copy assignment
+    {
+        right.incrase();
+        numerator = right.numerator;
+        ptr = right.ptr;
+        return *this;
+    }
+
+    cyber_ptr<X>& operator=(cyber_ptr<X>&& right) // move assignment
+    {
+        right.incrase();
+        numerator = right.numerator;
+        ptr = right.ptr;
+        return *this;
+    }
+
+public:
+    coun *numerator = NULL;
+    X* ptr = NULL;
+private:
+    bool parent = false;
+};
 #endif

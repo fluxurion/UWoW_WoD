@@ -1351,7 +1351,7 @@ enum
     MAX_DAMAGE_COUNTERS     = 3,
 };
 
-class Unit : public WorldObject
+class Unit : public WorldObject, public cyber_ptr<Unit>
 {
     public:
         typedef std::set<Unit*> AttackerSet;

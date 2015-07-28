@@ -167,6 +167,7 @@ _hitMask(hitMask), _spell(spell), _damageInfo(damageInfo), _healInfo(healInfo)
 #pragma warning(disable:4355)
 #endif
 Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
+    , cyber_ptr<Unit>(this)
     , m_movedPlayer(NULL)
     , m_lastSanctuaryTime(0)
     , m_TempSpeed(0.0f)
