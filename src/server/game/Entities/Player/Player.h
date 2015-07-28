@@ -3098,6 +3098,7 @@ class Player : public Unit, public GridObject<Player>
         AchievementMgr<Player>& GetAchievementMgr() { return m_achievementMgr; }
         AchievementMgr<Player> const& GetAchievementMgr() const { return m_achievementMgr; }
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL, bool ignoreGroup = false);
+        void _UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL, bool ignoreGroup = false);
         void CompletedAchievement(AchievementEntry const* entry);
         uint32 GetAchievementPoints() const;
         bool CanUpdateCriteria(uint32 criteriaTreeId, uint32 recursTree = 0) const { return true; }
@@ -3639,6 +3640,7 @@ class Player : public Unit, public GridObject<Player>
         std::set<uint32> m_sceneSeen;
 
         boost::unordered::unordered_set<WorldObject*> listners;             // WorldObject who send us messages.
+        uint32 upd_achieve_criteria_counter = 0;
 };
 
 void AddItemsSetItem(Player*player, Item* item);
@@ -3730,4 +3732,21 @@ public:
     bool Schedule();
 };
 
+class UpdateAchievementCriteriaEvent : public BasicEvent
+{
+public:
+    UpdateAchievementCriteriaEvent(Player* owner, AchievementCriteriaTypes _t, uint32 m1 = 0, uint32 m2 = 0, Unit* u = NULL, bool iGroup = false);
+    virtual ~UpdateAchievementCriteriaEvent() {};
+
+    virtual bool Execute(uint64 e_time, uint32 p_time);
+
+protected:
+    Player* m_owner = NULL;
+
+    AchievementCriteriaTypes type;
+    uint32 miscValue1 = 0;
+    uint32 miscValue2 = 0;
+    cyber_ptr<Unit> unit;
+    bool ignoreGroup =false;
+};
 #endif
