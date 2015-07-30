@@ -242,6 +242,8 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- QuestID: 34423 -- ObjectID: 78556 speak with 78568 for start
 -- 3237 3265 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4011 4150 4151 4200
 -- 3237 3265 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4011 4150 4151 4200
+-- QuestID: 34423 ObjectID: 78975
+-- 3237 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200
 
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
@@ -303,9 +305,13 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('933', '770', '1', '16', '165072', '0', 'spell 164609 Q34422 move out'), -- 35
 --
 ('813', '624', '1', '16', '0', '0', 'Eastern Cage Scene spell 159126 Q34421, Q35240'), -- 36
-('812', '625', '1', '16', '0', '0', 'Southern Cage Scene spell 159127 Q34421, Q35240'); -- 38
+('812', '625', '1', '16', '0', '0', 'Southern Cage Scene spell 159127 Q34421, Q35240'), -- 38
+-- ('938', '782', '1', '16', '0', '0', 'UNK spell 164877'), -- 40
+--
+('942', '788', '1', '16', '0', '0', 'Destroy Altar Credit - launch next run - spell 165061 Q34423'); -- 41
 
 -- Basic area auras
+DELETE FROM `spell_area` WHERE area in (7025, 7041);
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
 ('164678', '7025', '0', '35933', '0', '0', '2', '1', '64', '65'), 
 ('164678', '7025', '34393', '0', '0', '0', '2', '1', '88', '11'),
@@ -316,7 +322,8 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('159260', '7025', '34393', '34393', '0', '0', '2', '1', '2', '64'),
 ('158985', '7025', '34420', '34422', '0', '0', '2', '1', '74', '74'),
 --
-('164877', '7041', '34420', '34420', '0', '0', '2', '1', '2', '64'),
+('164877', '7041', '34420', '34423', '0', '0', '2', '1', '2', '64'),
+('164877', '7025', '34423', '34423', '0', '0', '2', '0', '10', '64'),
 ('159177', '7041', '34420', '34420', '0', '0', '2', '1', '2', '64'),
 ('159176', '7041', '34420', '34420', '0', '0', '2', '1', '2', '64'),
 --
@@ -420,11 +427,27 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 UPDATE `creature_template` SET `ScriptName` = 'mob_wod_ariok' WHERE `creature_template`.`entry` = 78556;
 UPDATE `creature_template` SET `ScriptName` = 'mob_wod_ariok_mover' WHERE `creature_template`.`entry` = 80087;
 
+DELETE FROM `creature_text` WHERE entry = 80087;
 REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (80087, 0, 0, 'Ты и я – против целого клана? Это мне по нраву.', 12, 0, 100, 396, 0, 46156, 'Ариок to Player'),
-(80087, 0, 1, 'С помощью магии крови орки Кровавой Глазницы превращают воинов в огромных берсерков.', 12, 0, 100, 396, 0, 46157, 'Ариок to Player'),
-(80087, 0, 2, 'Если повезет, мы уберемся отсюда раньше, чем они завершат ритуал.', 12, 0, 100, 396, 0, 46158, 'Ариок to Player'),
-(80087, 0, 3, 'Мы здесь, трусы! Сюда! Бейтесь с нами!', 14, 0, 100, 0, 0, 46159, 'Ариок to Player'),
-(80087, 0, 4, 'Как бы их отвлечь от ритуала… Давай уничтожим кровавые сферы.', 12, 0, 100, 0, 0, 0, 'Ариок to Player'),
-(80087, 0, 5, 'Похоже, Кадгар и все остальные уже в пути. Наша работа почти завершена!', 12, 0, 100, 0, 0, 46162, 'Ариок to Player');
+(80087, 1, 0, 'С помощью магии крови орки Кровавой Глазницы превращают воинов в огромных берсерков.', 12, 0, 100, 396, 0, 46157, 'Ариок to Player'),
+(80087, 2, 0, 'Если повезет, мы уберемся отсюда раньше, чем они завершат ритуал.', 12, 0, 100, 396, 0, 46158, 'Ариок to Player'),
+(80087, 3, 0, 'Мы здесь, трусы! Сюда! Бейтесь с нами!', 14, 0, 100, 0, 0, 46159, 'Ариок to Player'),
+(80087, 4, 0, 'Как бы их отвлечь от ритуала… Давай уничтожим кровавые сферы.', 12, 0, 100, 0, 0, 0, 'Ариок to Player'),
+(80087, 5, 0, 'Похоже, Кадгар и все остальные уже в пути. Наша работа почти завершена!', 12, 0, 100, 0, 0, 46162, 'Ариок to Player');
 
+UPDATE  `creature_template` SET  `npcflag` =  `npcflag` | 16777216 WHERE `entry` =83670;
+REPLACE INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
+ ('83670', '167955', '3', '0');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 18 AND `SourceEntry` = 66306;
+REPLACE INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ConditionTypeOrReference`, `ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`NegativeCondition`,`Comment`)
+VALUES (18, 83670, 167955, 9, 0, 34423, 0, 0, 'Required quest active for spellclick');
+78830
+REPLACE INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 2, 167955, 0, 0, 31, 0, 3, 83670, 0, 0, 0, '', NULL);
+
+REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('167955', 'spell_wod_destroying');
+
+ClientToServer: CMSG_SPELL_CLICK (0x1DB2) Length: 16 ConnIdx: 0 Time: 05/02/2015 09:16:48.000 Number: 102546
+SpellClickUnitGUID: Full: 0x1C195C9E2051B580000041000141A3F1 Creature/0 R1623/S65 Map: 1265 Entry: 83670 Low: 21079025
+TryAutoDismount: False

@@ -226,9 +226,17 @@ public:
 
         enum data
         {
+            SPELL_ON_ALTAR_CREDIT = 161637,
+            SPELL_SCENE_EYE_CILLROG = 164877,
+
+            NPC_ORB = 83670,
+
             EVENT_1 = 1,
             EVENT_2,
             EVENT_3,
+            EVENT_4,
+            EVENT_5,
+            EVENT_CHECK_PHASE_1
         };
 
         void OnCharmed(bool /*apply*/)
@@ -247,30 +255,96 @@ public:
             playerGuid = summoner->GetGUID();
             me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
 
-            uint32 t = 0;                                        //
-            events.ScheduleEvent(EVENT_1, t += 2000);            //09:14:54.000
-            events.ScheduleEvent(EVENT_2, t += 6000);            //09:15:00.000
-            events.ScheduleEvent(EVENT_3, t += 7000);            //09:15:07.000
-            //09:16:18.000
+            uint32 t = 0;                                                       //
+            events.ScheduleEvent(EVENT_1, t += 2000);               //09:14:54.000
+            events.ScheduleEvent(EVENT_2, t += 6000);               //09:15:00.000
+            events.ScheduleEvent(EVENT_3, t += 7000);               //09:15:07.000
 
+            events.ScheduleEvent(EVENT_CHECK_PHASE_1, t += 1000);
         }
 
         void UpdateAI(uint32 diff)
         {
+            UpdateVictim();
+
             events.Update(diff);
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
+                case EVENT_4:
+                    if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
+                    {
+                        player->CastSpell(player, SPELL_ON_ALTAR_CREDIT, true);
+                        player->CastSpell(player, SPELL_SCENE_EYE_CILLROG, true);
+                    }
+                    //break;    no break;
+                case EVENT_5:
                 case EVENT_1:
                 case EVENT_2:
                 case EVENT_3:
                     sCreatureTextMgr->SendChat(me, /*TEXT_GENERIC_0*/eventId-1, playerGuid);
                     break;
+                case EVENT_CHECK_PHASE_1:
+
+                    if (me->GetDistance(3979.26f, -2918.31f, 60.8725f) < 80.0f)
+                    {
+                        uint32 t = 0;
+                        events.ScheduleEvent(EVENT_4, t += 1000);               //09:16:18.000
+                        events.ScheduleEvent(EVENT_5, t += 5000);               //09:16:23.000
+                    }else
+                        events.ScheduleEvent(EVENT_CHECK_PHASE_1, 5000);
+                    break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
+// Destroy - 167955
+class spell_wod_destroying : public SpellScriptLoader
+{
+public:
+    spell_wod_destroying() : SpellScriptLoader("spell_wod_destroying") { }
+
+    class spell_wod_destroying_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_wod_destroying_SpellScript);
+
+        enum data
+        {
+            SPELL_SCENE = 165061,
+        };
+        void HandleScriptEffect(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(EFFECT_1);
+
+            if (Unit* caster = GetCaster())
+            {
+                Player *player = caster->ToPlayer();
+                if (!player)
+                    return;
+
+                if (Unit * target = GetHitUnit())
+                {
+                    target->AddToHideList(caster->GetGUID());
+                    caster->CastSpell(caster, SPELL_SCENE, true);
+                    target->DestroyForPlayer(player, false);
                 }
             }
         }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_wod_destroying_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
     };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_wod_destroying_SpellScript();
+    }
 };
 void AddSC_wod_dark_portal()
 {
@@ -279,4 +353,5 @@ void AddSC_wod_dark_portal()
     new go_wod_slaves_cage();
     new mob_wod_ariok();
     new mob_wod_ariok_mover();
+    new spell_wod_destroying();
 }
