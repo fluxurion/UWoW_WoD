@@ -3221,9 +3221,11 @@ class Player : public Unit, public GridObject<Player>
         //Message
         void AddListner(WorldObject* o);
         void RemoveListner(WorldObject* o);
-        void RemoveListners(GuidUnorderedSet const& list);
 
+        //!  Get or Init cyber ptr.
+        cyber_ptr<Player> get_ptr();
     protected:
+        cyber_ptr<Player> plr_ptr;
         // Gamemaster whisper whitelist
         GuidList WhisperList;
         uint32 m_regenTimerCount;
@@ -3639,7 +3641,6 @@ class Player : public Unit, public GridObject<Player>
         AreaTriggerEntry const *LastAreaTrigger;
         std::set<uint32> m_sceneSeen;
 
-        boost::unordered::unordered_set<WorldObject*> listners;             // WorldObject who send us messages.
         uint32 upd_achieve_criteria_counter = 0;
 };
 
