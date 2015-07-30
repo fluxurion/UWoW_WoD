@@ -2419,11 +2419,10 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-//! 6.0.3
+//! 6.1.2
 void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
 {
-    uint32 charactersCount;
-    recvData >> charactersCount;
+    uint32 charactersCount = recvData.ReadBits(9);
 
     std::vector<ObjectGuid> guids(charactersCount);
     uint8 position;
