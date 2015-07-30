@@ -167,7 +167,6 @@ _hitMask(hitMask), _spell(spell), _damageInfo(damageInfo), _healInfo(healInfo)
 #pragma warning(disable:4355)
 #endif
 Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
-    , cyber_ptr<Unit>(this)
     , m_movedPlayer(NULL)
     , m_lastSanctuaryTime(0)
     , m_TempSpeed(0.0f)
@@ -24118,4 +24117,14 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
             //sLog->outDebug(LOG_FILTER_LOOT, "Unit::GeneratePersonalLoot lootGUID %i", loot->GetGUID());
         }
     }
+}
+
+cyber_ptr<Unit> Unit::get_ptr()
+{
+    if (ptr.numerator && ptr.numerator->ready)
+        return ptr.shared_from_this();
+
+    ptr.InitParent(this);
+    ASSERT(ptr.numerator);  // It's very bad. If it hit nothing work.
+    return ptr.shared_from_this();
 }

@@ -27640,7 +27640,7 @@ UpdateAchievementCriteriaEvent::UpdateAchievementCriteriaEvent(Player* owner, Ac
 m_owner(owner), type(_t), miscValue1(m1), miscValue2(m2), unit(u), ignoreGroup(iGroup)
 {
     if (u)
-        unit = u->shared_from_this();
+        unit = u->get_ptr();
 };
 
 bool UpdateAchievementCriteriaEvent::Execute(uint64 e_time, uint32 p_time)

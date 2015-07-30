@@ -592,20 +592,18 @@ public:
     };
 
     //! Init from main class
-    cyber_ptr(X* p) : ptr(p)
+    cyber_ptr(X* p)
     {
-        numerator = new coun();
-        numerator->counter += 1;
-        numerator->ready = true;
-
-        parent = true;
+        ASSERT(p && "Trying create class with null object. Bad initialization.");
+        InitParent(p);
     }
 
-    cyber_ptr(coun* c) : numerator(c)
+    //! Child creation
+    cyber_ptr(coun* c, X* p) : numerator(c), ptr(p)
     {
-
     }
 
+    //! Copy
     cyber_ptr(cyber_ptr<X> &right)
     {
         right.incrase();
@@ -613,22 +611,27 @@ public:
         ptr = right.ptr;
     }
 
+    //! null init
     cyber_ptr()
     {}
 
-    ~cyber_ptr()
+    virtual ~cyber_ptr()
     {
+        // only for initiated objects
         if (numerator)
         {
-            numerator->counter -= 1;
-            if (!numerator->counter)
-                delete numerator;
-
+            // unlink ptr object from childs.
             if (parent)
                 numerator->ready = false;
+
+            numerator->counter -= 1;
+            // if all links already deleted - clean numerator from memory.
+            if (!numerator->counter)
+                delete numerator;
         }
     }
 
+    //! Get ptr object
     X* get()
     {
         if (!numerator || !numerator->ready)
@@ -636,34 +639,58 @@ public:
         return ptr;
     }
 
-    //! Link with main class
+    //! Init new parent ptr
+    void InitParent(X* object)
+    {
+        ASSERT(!ptr && "Already initiated");
+
+        ptr = object;
+
+        numerator = new coun();
+        numerator->counter += 1;
+        numerator->ready = true;
+
+        parent = true;
+    }
+
+    //! create child and link with main class
     cyber_ptr<X> shared_from_this()
     {
-        numerator->counter += 1;
-        return cyber_ptr<X>(numerator);
+        incrase();
+        return cyber_ptr<X>(numerator, ptr);
     }
+
+    //! increase number copy  of our ptr
     void incrase()
     {
         if (numerator)
             numerator->counter += 1;
     }
+    bool isParent() const { return parent; }
 
-    //
-    cyber_ptr<X>& operator=(cyber_ptr<X>& right) // copy assignment
+    //- operators
+    cyber_ptr<X>& operator=(const cyber_ptr<X>& right) // copy assignment
     {
-        right.incrase();
-        numerator = right.numerator;
-        ptr = right.ptr;
+        //if (this != &right)
+        {
+            right.incrase();
+            numerator = right.numerator;
+            ptr = right.ptr;
+        }
         return *this;
     }
 
     cyber_ptr<X>& operator=(cyber_ptr<X>&& right) // move assignment
     {
-        right.incrase();
-        numerator = right.numerator;
-        ptr = right.ptr;
+        //if (this != &right)
+        {
+            right.incrase();
+            numerator = right.numerator;
+            ptr = right.ptr;
+        }
         return *this;
     }
+
 
 public:
     coun *numerator = NULL;

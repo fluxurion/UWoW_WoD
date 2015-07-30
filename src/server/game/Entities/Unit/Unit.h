@@ -1351,7 +1351,7 @@ enum
     MAX_DAMAGE_COUNTERS     = 3,
 };
 
-class Unit : public WorldObject, public cyber_ptr<Unit>
+class Unit : public WorldObject
 {
     public:
         typedef std::set<Unit*> AttackerSet;
@@ -2536,6 +2536,9 @@ class Unit : public WorldObject, public cyber_ptr<Unit>
         void SetDynamicPassiveSpells(uint32 spellId, uint32 slot);
         uint32 GetDynamicPassiveSpells(uint32 slot);
 
+        //!  Get or Init cyber ptr.
+        cyber_ptr<Unit> get_ptr();
+
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -2669,6 +2672,8 @@ class Unit : public WorldObject, public cyber_ptr<Unit>
 
         uint32 m_movementCounter;       ///< Incrementing counter used in movement packets
     private:
+        cyber_ptr<Unit> ptr;
+
         class AINotifyTask;
         class VisibilityUpdateTask;
         Position m_lastVisibilityUpdPos;
