@@ -559,6 +559,7 @@ class Map : public GridRefManager<NGridType>
         std::mutex _mapLock;
         std::mutex _gridLock;
 
+        bool m_has_item_lvl_cap = false;
         MapEntry const* i_mapEntry;
         uint8 i_spawnMode;
         uint8 i_difficulty;
