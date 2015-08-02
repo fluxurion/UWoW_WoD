@@ -1118,7 +1118,7 @@ const std::vector<SpellVisual>* SpellMgr::GetSpellVisual(int32 spell_id) const
     return itr != mSpellVisualMap.end() ? &(itr->second) : NULL;
 }
 
-const std::vector<SpellScene>* SpellMgr::GetSpellScene(int32 miscValue) const
+const SpellScene* SpellMgr::GetSpellScene(int32 miscValue) const
 {
     SpellSceneMap::const_iterator itr = mSpellSceneMap.find(miscValue);
     return itr != mSpellSceneMap.end() ? &(itr->second) : NULL;
@@ -2594,7 +2594,7 @@ void SpellMgr::LoadSpellScene()
         templink.z = fields[ind++].GetFloat();
         templink.o = fields[ind++].GetFloat();
 
-        mSpellSceneMap[templink.MiscValue].push_back(templink);
+        mSpellSceneMap[templink.MiscValue] = templink;
 
         ++count;
     } while (result->NextRow());

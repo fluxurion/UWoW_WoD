@@ -23872,56 +23872,6 @@ uint32 Unit::GetDynamicPassiveSpells(uint32 slot)
 }
 
 //! 6.0.3
-void Unit::SendSpellScene(uint32 miscValue, AuraEffect const* effect, bool apply, Position* pos)
-{
-    if (GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    ObjectGuid TransportGUID;// = m_caster->GetGUID(); // not caster something else??? wrong val. could break scean.
-
-    if (const std::vector<SpellScene> *spell_scene = sSpellMgr->GetSpellScene(miscValue))
-    {
-        for (std::vector<SpellScene>::const_iterator i = spell_scene->begin(); i != spell_scene->end(); ++i)
-        {
-            if (apply)
-            {
-                WorldPacket data(SMSG_PLAY_SCENE, 46);
-                data << uint32(miscValue);                                       // SceneID
-                data << uint32(i->PlaybackFlags);                                // PlaybackFlags
-                data << uint32(++sceneInstanceID);                               // SceneInstanceID
-                data << uint32(i->ScenePackageId);                               // SceneScriptPackageID
-                data << TransportGUID;
-                data << float(pos->GetPositionX()/*i->x*/);                      // X
-                data << float(pos->GetPositionY()/*i->y*/);                      // Y
-                data << float(pos->GetPositionZ()/*i->z*/);                  // Z
-                data << float(pos->GetOrientation()/*i->o*/);                    // Facing              
-
-                ToPlayer()->GetSession()->SendPacket(&data);
-
-                // Link aura effect
-                if (effect)
-                    m_sceneEffect[effect] = sceneInstanceID;
-            }
-            else
-            {
-                auto instance = m_sceneEffect.find(effect);
-                if (instance == m_sceneEffect.end())
-                {
-                    ASSERT(false);
-                    return;
-                }
-
-                WorldPacket data(SMSG_CANCEL_SCENE, 4);
-                data << uint32(instance->second);
-                ToPlayer()->GetSession()->SendPacket(&data);
-
-                m_sceneEffect.erase(effect);
-            }
-        }        
-    }
-}
-
-//! 6.0.3
 void Unit::SendMissileCancel(uint32 spellId, bool cancel)
 {
     if (GetTypeId() != TYPEID_PLAYER)

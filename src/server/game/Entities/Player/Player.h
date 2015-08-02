@@ -168,6 +168,13 @@ struct PlayerCurrency
     CurrencyTypesEntry const * currencyEntry;
 };
 
+enum SceneEventStatus
+{
+    SCENE_NONE          = 0,
+    SCENE_LAUNCH        = 1,
+    SCENE_COMPLETE      = 2,
+};
+
 typedef UNORDERED_MAP<uint32, PlayerTalent*> PlayerTalentMap;
 typedef UNORDERED_MAP<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
@@ -3214,8 +3221,13 @@ class Player : public Unit, public GridObject<Player>
         //
         AreaTriggerEntry const* GetLastAreaTrigger() { return LastAreaTrigger; }
         void SetLastAreaTrigger(AreaTriggerEntry const* at) { LastAreaTrigger = at; }
+
+        /*********************************************************/
+        /***              SCENE SYSTEM                         ***/
+        /*********************************************************/
+        void SendSpellScene(uint32 miscValue, SpellInfo const* spellInfo, bool apply, Position* pos);
         void SceneCompleted(uint32 sceneID);
-        bool HasSceneCompleted(uint32 sceneID) const;
+        bool HasSceneStatus(uint32 sceneID, SceneEventStatus const& status) const;
         void TrigerScene(uint32 instanceID, std::string const type);
 
         //Message
@@ -3238,6 +3250,8 @@ class Player : public Unit, public GridObject<Player>
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
 
+        std::unordered_map<uint32, uint32> m_sceneInstanceID;
+        uint32 sceneInstanceID = 0;
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
@@ -3639,7 +3653,7 @@ class Player : public Unit, public GridObject<Player>
         bool plrUpdate;
 
         AreaTriggerEntry const *LastAreaTrigger;
-        std::set<uint32> m_sceneSeen;
+        std::unordered_map<uint32, SceneEventStatus> m_sceneStatus;
 
         uint32 upd_achieve_criteria_counter = 0;
 };

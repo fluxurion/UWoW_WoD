@@ -9102,13 +9102,13 @@ void AuraEffect::HandleAuraActivateScene(AuraApplication const* aurApp, uint8 mo
         return;
 
     Unit* target = aurApp->GetTarget();
-    if (!target)
+    if (!target || target->GetTypeId() != TYPEID_PLAYER)
         return;
 
     Position pos;
     target->GetPosition(&pos);
 
-    target->SendSpellScene(GetMiscValue(), this, apply, &pos);
+    target->ToPlayer()->SendSpellScene(GetMiscValue(), m_spellInfo, apply, &pos);
 }
 
 

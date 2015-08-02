@@ -29917,56 +29917,122 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
     return difficulty;
 }
 
-void Player::SceneCompleted(uint32 instanceID)
+//! 6.1.2
+void Player::SendSpellScene(uint32 miscValue, SpellInfo const* spellInfo, bool apply, Position* pos)
 {
-    for (auto itr : m_sceneEffect)
+    ObjectGuid TransportGUID;// = m_caster->GetGUID(); // not caster something else??? wrong val. could break scean.
+    uint32 ID = 0;
+    for (auto data : m_sceneInstanceID)
     {
-        if (itr.second == instanceID)
-            m_sceneSeen.insert(itr.first->GetMiscValue());
+        if (data.second == miscValue)
+        {
+            if (apply)
+            {
+                sLog->outError(LOG_FILTER_PLAYER, " >> SendSpellScene WARN! Already has opened sceneID %u spellID %u", miscValue, spellInfo->Id);
+                return;
+            }
+            ID = data.first;
+        }
     }
+
+    const SpellScene *spell_scene = sSpellMgr->GetSpellScene(miscValue);
+    if (!spell_scene)
+        return;
+
+    if (apply)
+    {
+        WorldPacket data(SMSG_PLAY_SCENE, 46);
+        data << uint32(miscValue);                                       // SceneID
+        data << uint32(spell_scene->PlaybackFlags);                      // PlaybackFlags
+        data << uint32(++sceneInstanceID);                               // SceneInstanceID
+        data << uint32(spell_scene->ScenePackageId);                     // SceneScriptPackageID
+        data << TransportGUID;
+        data << float(pos->GetPositionX()/*i->x*/);                      // X
+        data << float(pos->GetPositionY()/*i->y*/);                      // Y
+        data << float(pos->GetPositionZ()/*i->z*/);                      // Z
+        data << float(pos->GetOrientation()/*i->o*/);                    // Facing              
+
+        ToPlayer()->GetSession()->SendPacket(&data);
+
+        // Link aura effect
+        m_sceneInstanceID[sceneInstanceID] = miscValue;
+        m_sceneStatus[miscValue] = SCENE_LAUNCH;
+    }
+    else
+    {
+        ASSERT(ID);
+        m_sceneInstanceID.erase(ID);
+
+        WorldPacket data(SMSG_CANCEL_SCENE, 4);
+        data << ID;
+        ToPlayer()->GetSession()->SendPacket(&data);
+    }
+}
+
+/*
+struct SceneEventStatus
+{
+SCENE_NONE          = 0,
+SCENE_LAUNCH        = 1,
+SCENE_COMPLETE      = 2,
+};
+
+*/
+void Player::SceneCompleted(uint32 instance)
+{
+    auto data = m_sceneInstanceID.find(instance);
+    if (data == m_sceneInstanceID.end())
+        return;
+
+    m_sceneStatus[data->second] = SCENE_COMPLETE;
     phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_ZONE_UPDATE);
 }
 
-bool Player::HasSceneCompleted(uint32 sceneID) const
+//! If check SCENE_LAUNCH return true if SCENE_COMPLETE too
+bool Player::HasSceneStatus(uint32 sceneID, SceneEventStatus const& status) const
 {
-    return m_sceneSeen.find(sceneID) != m_sceneSeen.end();
+    auto data = m_sceneStatus.find(sceneID);
+    if (data == m_sceneStatus.end())
+        return false;
+
+    return data->second >= status;
 }
 
 void Player::TrigerScene(uint32 instanceID, std::string const type)
 {
-    for (auto itr : m_sceneEffect)
+    auto data = m_sceneInstanceID.find(instanceID);
+    if (data == m_sceneInstanceID.end())
+        return;
+
+    const SpellScene *spell_scene = sSpellMgr->GetSpellScene(data->second);
+    if (!spell_scene)
+        return;
+
+
+    if (type == "Visual" || type == "Clear")
     {
-        if (itr.second == instanceID)
+        if (spell_scene->trigerSpell)
         {
-            if (const std::vector<SpellScene> *spell_scene = sSpellMgr->GetSpellScene(itr.first->GetMiscValue()))
-                for (std::vector<SpellScene>::const_iterator i = spell_scene->begin(); i != spell_scene->end(); ++i)
-                {
-                    if (type == "Visual" || type == "Clear")
-                    {
-                        if (i->trigerSpell)
-                        {
-                            if (type == "Visual" && !HasAura(i->trigerSpell))
-                                CastSpell(this, i->trigerSpell, true);
-                            else if (type == "Clear" && HasAura(i->trigerSpell))
-                                RemoveAurasDueToSpell(i->trigerSpell);
-                        }
-                        else
-                            sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), i->ScenePackageId);
-                    }
-                    else if (type == "Credit")
-                    {
-                        if (i->MonsterCredit)
-                            KilledMonsterCredit(i->MonsterCredit, ObjectGuid::Empty);
-                        else
-                            sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), i->ScenePackageId);
-                    }
-                    else if (i->trigerSpell)
-                        CastSpell(this, i->trigerSpell, true);
-                    else
-                        sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), i->ScenePackageId);
-                }
+            if (type == "Visual" && !HasAura(spell_scene->trigerSpell))
+                CastSpell(this, spell_scene->trigerSpell, true);
+            else if (type == "Clear" && HasAura(spell_scene->trigerSpell))
+                RemoveAurasDueToSpell(spell_scene->trigerSpell);
         }
+        else
+            sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), spell_scene->ScenePackageId);
     }
+    else if (type == "Credit")
+    {
+        if (spell_scene->MonsterCredit)
+            KilledMonsterCredit(spell_scene->MonsterCredit, ObjectGuid::Empty);
+        else
+            sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), spell_scene->ScenePackageId);
+    }
+    else if (spell_scene->trigerSpell)
+        CastSpell(this, spell_scene->trigerSpell, true);
+    else
+        sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), spell_scene->ScenePackageId);
+
 }
 
 void Player::AddListner(WorldObject* o)

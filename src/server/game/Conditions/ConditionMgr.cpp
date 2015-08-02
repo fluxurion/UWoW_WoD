@@ -176,7 +176,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_SCENE_SEEN:
         {
             if (Player* player = object->ToPlayer())
-                condMeets = player->HasSceneCompleted(ConditionValue1);
+                condMeets = player->HasSceneStatus(ConditionValue1, SCENE_COMPLETE);
             break;
         }
         case CONDITION_ACTIVE_EVENT:

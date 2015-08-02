@@ -8514,7 +8514,8 @@ void Spell::EffectHealBattlePetPct(SpellEffIndex effIndex)
 //! Based on SPELL_EFFECT_ACTIVATE_SCENE3 spell 117790
 void Spell::SendScene(SpellEffIndex effIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET ||
+        m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
     Position pos;
@@ -8523,7 +8524,7 @@ void Spell::SendScene(SpellEffIndex effIndex)
     else
         m_caster->GetPosition(&pos);
 
-    m_caster->SendSpellScene(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue, NULL, true, &pos);
+    m_caster->ToPlayer()->SendSpellScene(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue, m_spellInfo, true, &pos);
 }
 
 void Spell::EffectBonusLoot(SpellEffIndex effIndex)

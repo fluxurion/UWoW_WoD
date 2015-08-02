@@ -797,7 +797,7 @@ typedef std::map<int32, std::vector<SpellPrcoCheck> > SpellPrcoCheckMap;
 typedef std::map<int32, std::vector<SpellVisual> > SpellVisualMap;
 typedef std::map<int32, std::vector<SpellPendingCast> > SpellPendingCastMap;
 typedef std::map<int32, SpellMountList* > SpellMountListMap;
-typedef std::map<int32, std::vector<SpellScene> > SpellSceneMap;
+typedef std::map<int32, SpellScene > SpellSceneMap;
 
 bool IsPrimaryProfessionSkill(uint32 skill);
 
@@ -923,7 +923,7 @@ class SpellMgr
         const std::vector<SpellTargetFilter> *GetSpellTargetFilter(int32 spell_id) const;
         const std::vector<SpellVisual> *GetSpellVisual(int32 spell_id) const;
         const std::vector<SpellPendingCast> *GetSpellPendingCast(int32 spell_id) const;
-        const std::vector<SpellScene> *GetSpellScene(int32 miscValue) const;
+        const SpellScene *GetSpellScene(int32 miscValue) const;
 
         PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const;
         PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const;
