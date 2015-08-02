@@ -174,7 +174,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3911 - eastern complete something
 -- 4011 - привал
 -- 3394 3395 hide some for 34423 npc 78556
-
+-- 3265 - orb - 83670 & npc = 81895 & 78830  & triger 81926
 DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763, 82871, 85142);
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) VALUES
 -- ---------------------------------------------------
@@ -238,14 +238,16 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 
 -- tiger event Push of 770 : 3237 3265 3394 3395 3396 3480 3626 3655 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4011 4150 4151 4200
 ('7025', '14', '0','4011', '0', '0', '16', 'DraenorIntro: at CMSG_SCENE_PLAYBACK_COMPLETE sceneID 770'), -- только привальные
-('7025', '15', '0','3237 3265 3394 3395 3396 3480 3626 3655 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4150 4151 4200', '0', '0', '16', 'DraenorIntro: at reward 34422');
+('7025', '15', '0','3237 3265 3394 3395 3396 3480 3626 3655 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4150 4151 4200', '0', '0', '16', 'DraenorIntro: at reward 34422'),
 -- QuestID: 34423 -- ObjectID: 78556 speak with 78568 for start
 -- 3237 3265 3394 3395 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4011 4150 4151 4200
 -- 3237 3265 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 3911 4011 4150 4151 4200
 -- QuestID: 34423 ObjectID: 78975
 -- 3237 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200
-
-
+-- Q34423 complete objective 273678 = 3
+-- 3237 3266 3396 3414 3480 3582 3626 3693 3712 3794 3824 3833 3834 3856 3857 4006 4150 4151 4200
+('7025', '16', '0','3237 3266 3394 3395 3396 3414 3480 3626 3693 3712 3794 3824 3833 3834 3856 3857 4006 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34423 complete objective 273678 = 3');
+--				    
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (23, 7025, 1, 0, 0, 8, 0, 35933, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO PHASE not rewarded q35933'),
@@ -280,7 +282,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 --
 (23, 7025, 14, 0, 0, 40, 0, 770, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene  770'),
 (23, 7025, 14, 0, 1, 8, 0, 34422, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34422'),
-(23, 7025, 15, 0, 0, 8, 0, 34422, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34422');
+(23, 7025, 15, 0, 0, 8, 0, 34422, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34422'),
+(23, 7025, 15, 0, 0, 41, 0, 34423, 78966, 3, 1, 0, '', 'DARK_PORTAL_INTRO and not objective 78966 = 3'),
+(23, 7025, 16, 0, 0, 41, 0, 34423, 78966, 3, 0, 0, '', 'DARK_PORTAL_INTRO Q34423 objective 78966 = 3');
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -307,11 +311,15 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('813', '624', '1', '16', '0', '0', 'Eastern Cage Scene spell 159126 Q34421, Q35240'), -- 36
 ('812', '625', '1', '16', '0', '0', 'Southern Cage Scene spell 159127 Q34421, Q35240'), -- 38
 -- ('938', '782', '1', '16', '0', '0', 'UNK spell 164877'), -- 40
---
-('942', '788', '1', '16', '0', '0', 'Destroy Altar Credit - launch next run - spell 165061 Q34423'); -- 41
+('942', '788', '1', '16', '0', '0', 'Destroy Altar - next run spell 165061 Q34423'), -- 41
+('940', '694', '1', '16', '0', '0', 'Kilrogg Reveal - spell 161771 Q34423'); -- 42
 
 -- Basic area auras
-DELETE FROM `spell_area` WHERE area in (7025, 7041);
+DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(17, 0, 161771, 0, 0, 41, 0, 34423, 78966, 3, 0, 0, '', 'DARK_PORTAL_INTRO  SPELL 161771 Q34423 objective 78966 = 3');
+
+DELETE FROM `spell_area` WHERE area in (7025, 7041, 7129);
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
 ('164678', '7025', '0', '35933', '0', '0', '2', '1', '64', '65'), 
 ('164678', '7025', '34393', '0', '0', '0', '2', '1', '88', '11'),
@@ -331,7 +339,11 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('164609', '7041', '34422', '34422', '0', '0', '2', '1', '10', '64'),
 --
 ('161625', '7041', '34423', '34423', '0', '0', '2', '0', '10', '64'),
-('161625', '7025', '34423', '34423', '0', '0', '2', '0', '10', '64');
+('161625', '7025', '34423', '34423', '0', '0', '2', '0', '10', '64'),
+--
+('161771', '7025', '34423', '34423', '0', '0', '2', '1', '10', '64'),
+('165061', '7025', '34423', '34423', '0', '0', '2', '0', '10', '64'),
+('169070', '7129', '34423', '34423', '0', '0', '2', '1', '10', '64');
 
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
@@ -351,7 +363,8 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34421', '34420', '34423', '-34423'),
 ('35241', '34420', '34423', '-34423'),
 ('35242', '34420', '34423', '-34423'),
-('34422', '34420', '34423', '-34423');
+('34422', '34420', '34423', '-34423'),
+('34425', '34423', '0', '0');
 
 
 UPDATE `quest_template` SET AllowableRaces = 33555378 WHERE ID in (34421, 35241); -- SET HORDE
@@ -448,6 +461,6 @@ REPLACE INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntr
 
 REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('167955', 'spell_wod_destroying');
 
-ClientToServer: CMSG_SPELL_CLICK (0x1DB2) Length: 16 ConnIdx: 0 Time: 05/02/2015 09:16:48.000 Number: 102546
-SpellClickUnitGUID: Full: 0x1C195C9E2051B580000041000141A3F1 Creature/0 R1623/S65 Map: 1265 Entry: 83670 Low: 21079025
-TryAutoDismount: False
+-- 34425
+ClientToServer: CMSG_TALK_TO_GOSSIP (0x1C22) Length: 13 ConnIdx: 0 Time: 05/02/2015 09:20:21.000 Number: 105164
+Guid: Full: 0x1C195C9E204CB8000000410000C1A3F1 Creature/0 R1623/S65 Map: 1265 Entry: 78560 Low: 12690417

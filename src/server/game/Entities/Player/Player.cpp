@@ -17748,7 +17748,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
     return false;
 }
 
-int32 Player::GetQuestObjectiveData(uint32 QuestID, uint32 ObjectiveID) const
+int32 Player::GetQuestObjectiveData(uint32 QuestID, uint32 ObjectID) const
 {
 
     Quest const* quest = sObjectMgr->GetQuestTemplate(QuestID);
@@ -17757,7 +17757,7 @@ int32 Player::GetQuestObjectiveData(uint32 QuestID, uint32 ObjectiveID) const
 
     for (QuestObjective const& obj : quest->GetObjectives())
     {
-        if (obj.ObjectID == ObjectiveID)
+        if (obj.ObjectID == ObjectID)
             return GetQuestObjectiveData(quest, obj.StorageIndex);
     }
     return 0;

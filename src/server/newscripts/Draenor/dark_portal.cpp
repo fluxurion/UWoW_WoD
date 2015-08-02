@@ -23,6 +23,11 @@
 #include "CreatureTextMgr.h"
 #include "GameObjectAI.h"
 
+enum misc
+{  
+    SPELL_UPDATE_PHASE_SHIFT = 82238,
+};
+
 class mob_wod_intro_guldan : public CreatureScript
 {
 public:
@@ -205,6 +210,8 @@ public:
     }
 };
 
+// phase spell - 165052
+// end quest - 165053
 class mob_wod_ariok_mover : public CreatureScript
 {
 public:
@@ -228,6 +235,7 @@ public:
         {
             SPELL_ON_ALTAR_CREDIT = 161637,
             SPELL_SCENE_EYE_CILLROG = 164877,
+            SPELL_SCENE = 165061,
 
             NPC_ORB = 83670,
 
@@ -236,6 +244,7 @@ public:
             EVENT_3,
             EVENT_4,
             EVENT_5,
+            EVENT_6,
             EVENT_CHECK_PHASE_1
         };
 
@@ -263,6 +272,12 @@ public:
             events.ScheduleEvent(EVENT_CHECK_PHASE_1, t += 1000);
         }
 
+        void DoAction(int32 const /*param*/)
+        {
+            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_5, playerGuid);
+            me->DespawnOrUnsummon(1000);
+        }
+
         void UpdateAI(uint32 diff)
         {
             UpdateVictim();
@@ -285,6 +300,10 @@ public:
                 case EVENT_3:
                     sCreatureTextMgr->SendChat(me, /*TEXT_GENERIC_0*/eventId-1, playerGuid);
                     break;
+                case EVENT_6:
+                    if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
+                        player->CastSpell(player, SPELL_SCENE, true);
+                    break;
                 case EVENT_CHECK_PHASE_1:
 
                     if (me->GetDistance(3979.26f, -2918.31f, 60.8725f) < 80.0f)
@@ -292,6 +311,7 @@ public:
                         uint32 t = 0;
                         events.ScheduleEvent(EVENT_4, t += 1000);               //09:16:18.000
                         events.ScheduleEvent(EVENT_5, t += 5000);               //09:16:23.000
+                        events.ScheduleEvent(EVENT_6, t += 60000);              //09:17:27.000
                     }else
                         events.ScheduleEvent(EVENT_CHECK_PHASE_1, 5000);
                     break;
@@ -314,8 +334,12 @@ public:
 
         enum data
         {
-            SPELL_SCENE = 165061,
+            SPELL_GUARD_SUMMON_SPELL = 161618,
+            NPC_SUMMON_ID = 80087,
+            QUEST = 34423,
+            OBJECTIVE_CREDIT = 78966,
         };
+
         void HandleScriptEffect(SpellEffIndex effIndex)
         {
             PreventHitDefaultEffect(EFFECT_1);
@@ -329,8 +353,13 @@ public:
                 if (Unit * target = GetHitUnit())
                 {
                     target->AddToHideList(caster->GetGUID());
-                    caster->CastSpell(caster, SPELL_SCENE, true);
                     target->DestroyForPlayer(player, false);
+                }
+
+                if (player->GetQuestObjectiveData(QUEST, OBJECTIVE_CREDIT) >= 3)
+                {
+                    if (Creature *c = player->GetMinionByEntry(NPC_SUMMON_ID))
+                        c->AI()->DoAction(0);
                 }
             }
         }

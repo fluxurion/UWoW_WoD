@@ -1334,8 +1334,6 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 return bf->IsWarTime();
             break;
         }
-
-
     }
 
     return true;
