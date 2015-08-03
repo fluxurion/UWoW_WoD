@@ -175,6 +175,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 4011 - привал
 -- 3394 3395 hide some for 34423 npc 78556
 -- 3265 - orb - 83670 & npc = 81895 & 78830  & triger 81926
+-- 3480 - old bridg 231137
+-- 3481 - new bridg 231136
 DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763, 82871, 85142);
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) VALUES
 -- ---------------------------------------------------
@@ -246,8 +248,14 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- 3237 3396 3480 3626 3670 3693 3712 3794 3824 3833 3834 3856 3857 4150 4151 4200
 -- Q34423 complete objective 273678 = 3
 -- 3237 3266 3396 3414 3480 3582 3626 3693 3712 3794 3824 3833 3834 3856 3857 4006 4150 4151 4200
-('7025', '16', '0','3237 3266 3394 3395 3396 3414 3480 3626 3693 3712 3794 3824 3833 3834 3856 3857 4006 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34423 complete objective 273678 = 3');
---				    
+('7025', '16', '0','3237 3266 3394 3395 3396 3414 3480 3626 3693 3712 3794 3824 3833 3834 3856 3857 4006 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34423 complete objective 273678 = 3'),
+-- 
+('7025', '17', '0','3266 3394 3395 3396 3480 3693 3694 3712 3824 3833 3834 4006 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34425'),
+-- 
+-- ClientToServer: CMSG_SCENE_TRIGGER_EVENT (0x0589) Length: 11 ConnIdx: 0 Time: 05/02/2015 09:20:33.000 Number: 105795
+-- SceneInstanceID: 44
+-- Event: Bridge
+--					3266 3394 3395 3396 3481 3693 3694 3712 3824 3833 3834 4006 4017 4150 4151 4200
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (23, 7025, 1, 0, 0, 8, 0, 35933, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO PHASE not rewarded q35933'),
@@ -282,9 +290,14 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 --
 (23, 7025, 14, 0, 0, 40, 0, 770, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene  770'),
 (23, 7025, 14, 0, 1, 8, 0, 34422, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34422'),
+(23, 7025, 14, 0, 1, 8, 0, 34425, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34425'),
 (23, 7025, 15, 0, 0, 8, 0, 34422, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34422'),
+(23, 7025, 15, 0, 0, 8, 0, 34425, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34425'),
 (23, 7025, 15, 0, 0, 41, 0, 34423, 78966, 3, 1, 0, '', 'DARK_PORTAL_INTRO and not objective 78966 = 3'),
-(23, 7025, 16, 0, 0, 41, 0, 34423, 78966, 3, 0, 0, '', 'DARK_PORTAL_INTRO Q34423 objective 78966 = 3');
+(23, 7025, 16, 0, 0, 41, 0, 34423, 78966, 3, 0, 0, '', 'DARK_PORTAL_INTRO Q34423 objective 78966 = 3'),
+(23, 7025, 16, 0, 1, 9, 0, 34425, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO Q34423 OR not taken 34425'),
+(23, 7025, 16, 0, 1, 8, 0, 34423, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO Q34423 and rewarded 34423'),
+(23, 7025, 17, 0, 0, 9, 0, 34425, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO taken 34425');
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -312,7 +325,8 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('812', '625', '1', '16', '0', '0', 'Southern Cage Scene spell 159127 Q34421, Q35240'), -- 38
 -- ('938', '782', '1', '16', '0', '0', 'UNK spell 164877'), -- 40
 ('942', '788', '1', '16', '0', '0', 'Destroy Altar - next run spell 165061 Q34423'), -- 41
-('940', '694', '1', '16', '0', '0', 'Kilrogg Reveal - spell 161771 Q34423'); -- 42
+('940', '694', '1', '16', '0', '0', 'Kilrogg Reveal - spell 161771 Q34423'), -- 42
+('903', '727', '1', '16', '165867', '0', 'Shattered Hand - spell 163023 Q34425'); -- 44 165867 -> 82238
 
 -- Basic area auras
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061);
@@ -343,8 +357,9 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 --
 ('161771', '7025', '34423', '34423', '0', '0', '2', '1', '10', '64'),
 ('165061', '7025', '34423', '34423', '0', '0', '2', '0', '10', '64'),
-('169070', '7129', '34423', '34423', '0', '0', '2', '1', '10', '64');
+('169070', '7129', '34423', '34423', '0', '0', '2', '1', '10', '64'),
 
+('163023', '7129', '34425', '34425', '0', '0', '2', '1', '10', '64');
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
 UPDATE `quest_template` SET `RewardNextQuest` = '35933' WHERE `ID` in (34398, 36881);
@@ -462,5 +477,11 @@ REPLACE INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntr
 REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('167955', 'spell_wod_destroying');
 
 -- 34425
+-- cast 163023
 ClientToServer: CMSG_TALK_TO_GOSSIP (0x1C22) Length: 13 ConnIdx: 0 Time: 05/02/2015 09:20:21.000 Number: 105164
 Guid: Full: 0x1C195C9E204CB8000000410000C1A3F1 Creature/0 R1623/S65 Map: 1265 Entry: 78560 Low: 12690417
+
+[0] Object GUID: Full: 0x28195C9E20E1B840000041000041A3E1 GameObject/0 R1623/S65 Map: 1265 Entry: 231137 Low: 4301793
+Data size: 193
+[0] UpdateType: CreateObject1
+[0] Object Guid: Full: 0x28195C9E20E1B800000041000041A3E1 GameObject/0 R1623/S65 Map: 1265 Entry: 231136 Low: 4301793

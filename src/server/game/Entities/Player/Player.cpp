@@ -29921,20 +29921,7 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
 void Player::SendSpellScene(uint32 miscValue, SpellInfo const* spellInfo, bool apply, Position* pos)
 {
     ObjectGuid TransportGUID;// = m_caster->GetGUID(); // not caster something else??? wrong val. could break scean.
-    uint32 ID = 0;
-    for (auto data : m_sceneInstanceID)
-    {
-        if (data.second == miscValue)
-        {
-            if (apply)
-            {
-                sLog->outError(LOG_FILTER_PLAYER, " >> SendSpellScene WARN! Already has opened sceneID %u spellID %u", miscValue, spellInfo->Id);
-                return;
-            }
-            ID = data.first;
-        }
-    }
-
+    
     const SpellScene *spell_scene = sSpellMgr->GetSpellScene(miscValue);
     if (!spell_scene)
         return;
@@ -29960,8 +29947,14 @@ void Player::SendSpellScene(uint32 miscValue, SpellInfo const* spellInfo, bool a
     }
     else
     {
+        uint32 ID = 0;
+        for (auto data : m_sceneInstanceID)
+        {
+            // no break. get last.
+            if (data.second == miscValue)
+                ID = data.first;
+        }
         ASSERT(ID);
-        m_sceneInstanceID.erase(ID);
 
         WorldPacket data(SMSG_CANCEL_SCENE, 4);
         data << ID;
@@ -30007,7 +30000,6 @@ void Player::TrigerScene(uint32 instanceID, std::string const type)
     const SpellScene *spell_scene = sSpellMgr->GetSpellScene(data->second);
     if (!spell_scene)
         return;
-
 
     if (type == "Visual" || type == "Clear")
     {
