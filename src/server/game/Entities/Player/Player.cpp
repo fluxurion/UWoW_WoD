@@ -9953,7 +9953,6 @@ void Player::_ApplyAllItemMods()
 
             ApplyItemEquipSpell(m_items[i], true);
             ApplyEnchantment(m_items[i], true);
-            m_items[i]->SetLevelCap(GetMap()->ItemLevelCap(), GetMap()->IsBattlegroundOrArena());
         }
     }
 
@@ -13539,6 +13538,7 @@ void Player::QuickEquipItem(uint16 pos, Item* pItem)
 {
     if (pItem)
     {
+        pItem->SetLevelCap(GetMap()->ItemLevelCap(), GetMap()->IsBattlegroundOrArena());
         AddEnchantmentDurations(pItem);
         AddItemDurations(pItem);
 
