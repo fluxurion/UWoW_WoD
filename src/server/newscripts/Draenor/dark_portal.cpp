@@ -375,6 +375,99 @@ public:
         return new spell_wod_destroying_SpellScript();
     }
 };
+
+class mob_khadgar_q34425 : public CreatureScript
+{
+public:
+    mob_khadgar_q34425() : CreatureScript("mob_khadgar_q34425") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_khadgar_q34425AI(creature);
+    }
+
+    struct mob_khadgar_q34425AI : public npc_escortAI
+    {
+        mob_khadgar_q34425AI(Creature* creature) : npc_escortAI(creature)
+        {}
+
+        ObjectGuid playerGuid;
+        EventMap events;
+
+        enum events
+        {
+            SPELL_SHOWER = 165864,
+
+            EVENT_1 = 1,
+            EVENT_2 = 2,
+            EVENT_JECK_DEAD = 3,
+        };
+
+        void Reset()
+        {
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        void SetGUID(ObjectGuid const& guid, int32)
+        {
+            playerGuid = guid;
+        }
+
+        void IsSummonedBy(Unit* summoner)
+        {
+            me->CastSpell(me, SPELL_SHOWER, false); //09:20:28.000
+            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_0, playerGuid);
+
+            me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
+            playerGuid = summoner->GetGUID();
+            events.ScheduleEvent(EVENT_1, 8000);    //09:20:36.000
+        }
+
+        void WaypointReached(uint32 waypointId)
+        {
+            /*switch (waypointId)
+            {
+            case 2:
+                sCreatureTextMgr->SendChat(me, TEXT_GENERIC_1, playerGuid);
+                SetEscortPaused(true);
+                me->SetFacingTo(2.38f);
+                break;
+            case 7:
+                sCreatureTextMgr->SendChat(me, TEXT_GENERIC_2, playerGuid);
+                SetEscortPaused(true);
+                // cast 104612 on owner
+                break;
+            case 11:
+                //if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                //    player->KilledMonsterCredit(55666);
+                me->DespawnOrUnsummon(5000);
+                break;
+            default:
+                break;
+            }*/
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            npc_escortAI::UpdateAI(diff);
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_1:
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_1, playerGuid);
+                        Start(false, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    };
+};
+
 void AddSC_wod_dark_portal()
 {
     new mob_wod_intro_guldan();
@@ -383,4 +476,5 @@ void AddSC_wod_dark_portal()
     new mob_wod_ariok();
     new mob_wod_ariok_mover();
     new spell_wod_destroying();
+    new mob_khadgar_q34425();
 }

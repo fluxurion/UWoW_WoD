@@ -326,6 +326,7 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 -- ('938', '782', '1', '16', '0', '0', 'UNK spell 164877'), -- 40
 ('942', '788', '1', '16', '0', '0', 'Destroy Altar - next run spell 165061 Q34423'), -- 41
 ('940', '694', '1', '16', '0', '0', 'Kilrogg Reveal - spell 161771 Q34423'), -- 42
+('838', '648', '1', '16', '0', '0', 'Ring of Fire Scene - spell 159942'), -- 43
 ('903', '727', '1', '16', '165867', '0', 'Shattered Hand - spell 163023 Q34425'); -- 44 165867 -> 82238
 
 -- Basic area auras
@@ -358,8 +359,9 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('161771', '7025', '34423', '34423', '0', '0', '2', '1', '10', '64'),
 ('165061', '7025', '34423', '34423', '0', '0', '2', '0', '10', '64'),
 ('169070', '7129', '34423', '34423', '0', '0', '2', '1', '10', '64'),
-
+('159942', '7129', '0', '0', '0', '0', '2', '1', '10', '64'), -- Ring of Fire Scene
 ('163023', '7129', '34425', '34425', '0', '0', '2', '1', '10', '64');
+
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
 UPDATE `quest_template` SET `RewardNextQuest` = '35933' WHERE `ID` in (34398, 36881);
@@ -470,7 +472,6 @@ REPLACE INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `us
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 18 AND `SourceEntry` = 66306;
 REPLACE INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ConditionTypeOrReference`, `ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`NegativeCondition`,`Comment`)
 VALUES (18, 83670, 167955, 9, 0, 34423, 0, 0, 'Required quest active for spellclick');
-78830
 REPLACE INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 2, 167955, 0, 0, 31, 0, 3, 83670, 0, 0, 0, '', NULL);
 
@@ -478,6 +479,14 @@ REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('167955', '
 
 -- 34425
 -- cast 163023
+-- Q34425
+UPDATE `creature_template` SET `ScriptName` = 'mob_khadgar_q34425' WHERE `creature_template`.`entry` = 80244;
+DELETE FROM `creature_text` WHERE entry = 80244;
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(80244, 0, 0, 'Сперва разберемся с мостом.', 12, 0, 100, 25, 0, 44849, 'Верховный маг Кадгар to Player'),
+(80244, 1, 0, 'Так, а теперь пошли!', 12, 0, 100, 273, 0, 44850, 'Верховный маг Кадгар to Player');
+
+
 ClientToServer: CMSG_TALK_TO_GOSSIP (0x1C22) Length: 13 ConnIdx: 0 Time: 05/02/2015 09:20:21.000 Number: 105164
 Guid: Full: 0x1C195C9E204CB8000000410000C1A3F1 Creature/0 R1623/S65 Map: 1265 Entry: 78560 Low: 12690417
 
