@@ -3651,7 +3651,9 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
             SendChannelUpdate(0);
             triggeredByAura->GetBase()->SetDuration(0);
         }
-
+        #ifdef WIN32
+        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare::CheckCast fail. spell id %u res %u source %u caster %d customCastFlags %u mask %u", m_spellInfo->Id, result, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask());
+        #endif
         SendCastResult(result);
 
         finish(false);
@@ -5988,7 +5990,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
         damage = saveDamageCalculate[i];
 
     #ifdef WIN32
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell: %u Effect : %u, damage %i, mode %i", m_spellInfo->Id, eff, damage, mode);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell: %u Effect : %u, damage %i, mode %i idx %i", m_spellInfo->Id, eff, damage, mode, i);
     #endif
 
     bool preventDefault = CallScriptEffectHandlers((SpellEffIndex)i, mode);
