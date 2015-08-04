@@ -1849,7 +1849,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         if (spellInfo->NeedsToBeTriggeredByCaster() && (m_spellInfo->GetEffect(effIndex, m_diffMode).GetProvidedTargetMask() & TARGET_FLAG_UNIT_MASK))
             return;
 
-        if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
+        if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION && targets.HasDst())
             targets.SetDst(m_targets);
 
         targets.SetUnitTarget(m_caster);
