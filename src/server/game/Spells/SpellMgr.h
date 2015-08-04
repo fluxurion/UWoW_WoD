@@ -785,6 +785,9 @@ struct SpellScene
     // trigger system
     uint32 trigerSpell;
     uint32 MonsterCredit;
+
+    //
+    uint32 scriptID;
 };
 
 typedef std::map<int32, std::vector<SpellTriggered> > SpellTriggeredMap;

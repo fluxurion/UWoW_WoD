@@ -2566,7 +2566,7 @@ void SpellMgr::LoadSpellScene()
     mSpellSceneMap.clear();    // need for reload case
 
     //                                                      0            1           2            3          4          5          6    7  8  9  10
-    QueryResult result = WorldDatabase.Query("SELECT ScenePackageId, MiscValue, trigerSpell, MonsterCredit, hasO, PlaybackFlags, bit16, x, y, z, o FROM spell_scene");
+    QueryResult result = WorldDatabase.Query("SELECT ScenePackageId, MiscValue, trigerSpell, MonsterCredit, hasO, PlaybackFlags, bit16, x, y, z, o, ScriptName FROM spell_scene");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 visual spells. DB table `spell_visual_send` is empty.");
@@ -2591,6 +2591,7 @@ void SpellMgr::LoadSpellScene()
         templink.y = fields[ind++].GetFloat();
         templink.z = fields[ind++].GetFloat();
         templink.o = fields[ind++].GetFloat();
+        templink.scriptID = sObjectMgr->GetScriptId(fields[ind++].GetString().c_str());
 
         mSpellSceneMap[templink.MiscValue] = templink;
 

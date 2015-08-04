@@ -507,6 +507,20 @@ class AreaTriggerScript : public ScriptObject
         virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/, bool /*enter*/) { return false; }
 };
 
+class SceneTriggerScript : public ScriptObject
+{
+protected:
+
+    SceneTriggerScript(const char* name);
+
+public:
+
+    bool IsDatabaseBound() const { return true; }
+
+    // Called when the scene event trigger by call CMSG_SCENE_TRIGGER_EVENT
+    virtual bool OnTrigger(Player* /*player*/, SpellScene const* /*trigger*/, std::string /*triggername*/) { return false; }
+};
+
 class BattlegroundScript : public ScriptObject
 {
     protected:
@@ -964,6 +978,9 @@ class ScriptMgr
     public: /* AreaTriggerScript */
 
         bool OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger, bool enter);
+
+    public: /* SceneTriggerScript */
+        bool OnSceneTrigger(Player* player, SpellScene const* trigger, std::string triggername);
 
     public: /* BattlegroundScript */
 

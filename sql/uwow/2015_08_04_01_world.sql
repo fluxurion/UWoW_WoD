@@ -1,0 +1,1 @@
+ALTER TABLE `spell_scene` ADD `ScriptName` VARCHAR(255) NULL DEFAULT NULL AFTER `o`;

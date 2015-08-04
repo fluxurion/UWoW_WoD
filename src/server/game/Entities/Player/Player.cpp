@@ -30002,6 +30002,9 @@ void Player::TrigerScene(uint32 instanceID, std::string const type)
     if (!spell_scene)
         return;
 
+    if (sScriptMgr->OnSceneTrigger(this, spell_scene, type))
+        return;
+
     if (type == "Visual" || type == "Clear")
     {
         if (spell_scene->trigerSpell)

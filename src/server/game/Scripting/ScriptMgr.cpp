@@ -301,6 +301,7 @@ void ScriptMgr::Unload()
     SCR_CLEAR(CreatureScript);
     SCR_CLEAR(GameObjectScript);
     SCR_CLEAR(AreaTriggerScript);
+    SCR_CLEAR(SceneTriggerScript);
     SCR_CLEAR(BattlegroundScript);
     SCR_CLEAR(OutdoorPvPScript);
     SCR_CLEAR(CommandScript);
@@ -1037,6 +1038,15 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger, b
     return tmpscript->OnTrigger(player, trigger, enter);
 }
 
+bool ScriptMgr::OnSceneTrigger(Player* player, SpellScene const* trigger, std::string triggername)
+{
+    ASSERT(player);
+    ASSERT(trigger);
+
+    GET_SCRIPT_RET(SceneTriggerScript, trigger->scriptID, tmpscript, false);
+    return tmpscript->OnTrigger(player, trigger, triggername);
+}
+
 Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*typeId*/)
 {
     // TODO: Implement script-side battlegrounds.
@@ -1555,6 +1565,12 @@ AreaTriggerScript::AreaTriggerScript(const char* name)
     ScriptRegistry<AreaTriggerScript>::AddScript(this);
 }
 
+SceneTriggerScript::SceneTriggerScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<SceneTriggerScript>::AddScript(this);
+}
+
 BattlegroundScript::BattlegroundScript(const char* name)
     : ScriptObject(name)
 {
@@ -1655,6 +1671,7 @@ template class ScriptRegistry<ItemScript>;
 template class ScriptRegistry<CreatureScript>;
 template class ScriptRegistry<GameObjectScript>;
 template class ScriptRegistry<AreaTriggerScript>;
+template class ScriptRegistry<SceneTriggerScript>;
 template class ScriptRegistry<BattlegroundScript>;
 template class ScriptRegistry<OutdoorPvPScript>;
 template class ScriptRegistry<CommandScript>;
