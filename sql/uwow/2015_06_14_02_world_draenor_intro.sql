@@ -258,7 +258,9 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- Event: Bridge
 ('7025', '18', '0','3266 3394 3395 3396 3481 3693 3694 3712 3824 3833 3834 4006 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34425 after CMSG_SCENE_TRIGGER_EVENT Bridge'),
 --
-('7025', '19', '0','3266 3317 3349 3358 3359 3394 3395 3396 3416 3481 3693 3694 3712 3824 3833 3834 4006 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34425 complete & rewarded.');
+('7025', '19', '0','3266 3317 3349 3358 3359 3394 3395 3396 3416 3481 3693 3694 3712 3824 3833 3834 4006 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34425 complete & rewarded.'),
+-- CMSG_SCENE_PLAYBACK_COMPLETE SceneInstanceID: 43 Ring of Fire Scene scene 
+('7025', '20', '0','3266 3278 3317 3349 3350 3358 3359 3394 3395 3396 3416 3481 3693 3694 3712 3824 3833 3834 4006 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34425 complete & rewarded.');
 
 --					
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
@@ -311,7 +313,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 18, 0, 0, 8, 0, 34425, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34425'),
 (23, 7025, 18, 0, 0, 28, 0, 34425, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not complete 34425'),
 (23, 7025, 19, 0, 0, 28, 0, 34425, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO complete 34425'),
-(23, 7025, 19, 0, 1, 8, 0, 34425, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34425');
+(23, 7025, 19, 0, 1, 8, 0, 34425, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34425'),
+(23, 7025, 20, 0, 0, 40, 0, 648, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene 648');
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -340,7 +343,7 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 -- ('938', '782', '1', '16', '0', '0', 'UNK spell 164877'), -- 40
 ('942', '788', '1', '16', '0', '0', 'Destroy Altar - next run spell 165061 Q34423'), -- 41
 ('940', '694', '1', '16', '0', '0', 'Kilrogg Reveal - spell 161771 Q34423'), -- 42
-('838', '648', '1', '16', '0', '0', 'Ring of Fire Scene - spell 159942'), -- 43
+('838', '648', '1', '16', '159993', '0', 'Ring of Fire Scene - spell 159942'), -- 43
 ('903', '727', '1', '16', '165867', '0', 'Shattered Hand - spell 163023 Q34425'); -- 44 165867 -> 82238
 
 -- Basic area auras
@@ -398,7 +401,9 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('35241', '34420', '34423', '-34423'),
 ('35242', '34420', '34423', '-34423'),
 ('34422', '34420', '34423', '-34423'),
-('34425', '34423', '0', '0');
+('34425', '34423', '0', '0'),
+('34478', '34425', '34429', '0'),
+('34427', '34425', '34429', '0');
 
 
 UPDATE `quest_template` SET AllowableRaces = 33555378 WHERE ID in (34421, 35241); -- SET HORDE
@@ -513,6 +518,10 @@ UPDATE spell_scene SET `ScriptName` = 'SceneTrigger_q34425' WHERE MiscValue = 72
 
 REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`)
  VALUES ('165867', '82238', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Q34425 update phase');
+
+-- Q: A:34478 H: 34427
+REPLACE INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES 
+('159904', '1265', '4298', '-2716', '9', '0');
 
 ClientToServer: CMSG_TALK_TO_GOSSIP (0x1C22) Length: 13 ConnIdx: 0 Time: 05/02/2015 09:20:21.000 Number: 105164
 Guid: Full: 0x1C195C9E204CB8000000410000C1A3F1 Creature/0 R1623/S65 Map: 1265 Entry: 78560 Low: 12690417
