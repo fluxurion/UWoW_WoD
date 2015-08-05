@@ -113,6 +113,12 @@ void PhaseMgr::Recalculate()
             phaseIds.insert(phaseID);
     }
 
+    for (PhaseInfoContainer::const_iterator itr = phaseData.spellPhaseInfo.begin(); itr != phaseData.spellPhaseInfo.end(); ++itr)
+    {
+        if (itr->second.phaseId)
+            phaseIds.insert(itr->second.phaseId);
+    }
+
     player->SetPhaseId(phaseIds, true);
 }
 
@@ -417,6 +423,13 @@ std::string PhaseMgr::GetPhaseIdString()
         for (auto phaseID : (*itr)->phaseId)
             ss << phaseID << " ";
         ss << "\n";
+    }
+
+    ss << "Spell PhaseIDs: ";
+    for (PhaseInfoContainer::const_iterator itr = phaseData.spellPhaseInfo.begin(); itr != phaseData.spellPhaseInfo.end(); ++itr)
+    {
+        if (itr->second.phaseId)
+            ss << itr->second.phaseId << " ";
     }
     return ss.str().c_str();
 }

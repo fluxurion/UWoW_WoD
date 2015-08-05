@@ -107,9 +107,9 @@ struct PhaseData
     void SendPhaseshiftToPlayer();
 
     std::list<PhaseDefinition const*> activePhaseDefinitions;
+    PhaseInfoContainer spellPhaseInfo;
 private:
     Player* player;
-    PhaseInfoContainer spellPhaseInfo;
 };
 
 struct PhaseUpdateData
