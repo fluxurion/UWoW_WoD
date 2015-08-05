@@ -414,6 +414,7 @@ class Spell
         void EffectCastButtons(SpellEffIndex effIndex);
         void EffectRechargeManaGem(SpellEffIndex effIndex);
         void EffectGiveCurrency(SpellEffIndex effIndex);
+        void EffectUpdatePlayerPhase(SpellEffIndex effIndex);
         void EffectUnlearnTalent(SpellEffIndex effIndex);
         void RemoveAllDynObjects(SpellEffIndex effIndex);
         void EffectDespawnAreatrigger(SpellEffIndex effIndex);
