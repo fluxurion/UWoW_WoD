@@ -413,8 +413,10 @@ std::string PhaseMgr::GetPhaseIdString()
     std::ostringstream ss;
     for (std::list<PhaseDefinition const*>::const_iterator itr = phaseData.activePhaseDefinitions.begin(); itr != phaseData.activePhaseDefinitions.end(); ++itr)
     {
+        ss << "Phase Zone: " << (*itr)->zoneId << " ID: " << (*itr)->entry << " PhaseIDs: ";
         for (auto phaseID : (*itr)->phaseId)
             ss << phaseID << " ";
+        ss << "\n";
     }
     return ss.str().c_str();
 }

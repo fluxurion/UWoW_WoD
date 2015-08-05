@@ -114,6 +114,7 @@ public:
             { "wchange",            SEC_ADMINISTRATOR,      false, &HandleChangeWeather,                "", NULL },
             { "setskill",           SEC_ADMINISTRATOR,      false, &HandleSetSkillCommand,              "", NULL },
             { "pinfo",              SEC_GAMEMASTER,         true,  &HandlePInfoCommand,                 "", NULL },
+            { "phaseinfo",          SEC_GAMEMASTER,         true,  &HandlePhaseInfoCommand,             "", NULL },
             { "respawn",            SEC_ADMINISTRATOR,      false, &HandleRespawnCommand,               "", NULL },
             { "send",               SEC_MODERATOR,          true,  NULL,                                "", sendCommandTable },
             { "pet",                SEC_GAMEMASTER,         false, NULL,                                "", petCommandTable },
@@ -1630,6 +1631,26 @@ public:
 
         return true;
     }
+    static bool HandlePhaseInfoCommand(ChatHandler* handler, char const* args)
+    {
+        Player* target;
+        ObjectGuid targetGuid;
+        std::string targetName;
+
+        ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(atol((char*)args));
+
+        if (ObjectMgr::GetPlayerNameByGUID(parseGUID, targetName))
+        {
+            target = sObjectMgr->GetPlayerByLowGUID(parseGUID.GetCounter());
+            targetGuid = parseGUID;
+        }
+        else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
+            return false;
+
+        if (target)
+            handler->PSendSysMessage(target->GetPhaseMgr().GetPhaseIdString().c_str());
+        return true;
+    }
     // show info of player
     static bool HandlePInfoCommand(ChatHandler* handler, char const* args)
     {
@@ -1904,12 +1925,6 @@ public:
                 handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name, zoneName.c_str(), areaName.c_str(), phase);
             else
                 handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name, areaName.c_str(), "<unknown>", phase);
-
-            std::ostringstream ss;
-            for (auto data : target->GetPhases())
-                ss << data << " ";
-
-            handler->PSendSysMessage("PhaseIds: %s", ss.str().c_str());
         }
         else
            handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name, areaName.c_str());
