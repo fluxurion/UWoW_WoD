@@ -1085,6 +1085,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                 {
                     if (focusObject)
                         m_targets.SetDst(*focusObject);
+                    else if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id))
+                        m_targets.SetDst(st->target_X, st->target_Y, st->target_Z, 0.0f, st->target_mapId);
                     return;
                 }
                 // A lot off new spells for dungeons not have target entry. Just use spell target position system.
@@ -7686,21 +7688,29 @@ SpellCastResult Spell::CheckItems()
     // check spell focus object
     if (m_spellInfo->RequiresSpellFocus)
     {
-        CellCoord p(Trinity::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
-        Cell cell(p);
+        if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id))
+        {
+            if (!m_caster->IsWithinDist3d(st->target_X, st->target_Y, st->target_Z, 20.0f) || m_caster->GetMapId() != st->target_mapId)
+                return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
+        }
+        else
+        {
+            CellCoord p(Trinity::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
+            Cell cell(p);
 
-        GameObject* ok = NULL;
-        Trinity::GameObjectFocusCheck go_check(m_caster, m_spellInfo->RequiresSpellFocus);
-        Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> checker(m_caster, ok, go_check);
+            GameObject* ok = NULL;
+            Trinity::GameObjectFocusCheck go_check(m_caster, m_spellInfo->RequiresSpellFocus);
+            Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> checker(m_caster, ok, go_check);
 
-        TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
-        Map& map = *m_caster->GetMap();
-        cell.Visit(p, object_checker, map, *m_caster, m_caster->GetVisibilityRange());
+            TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
+            Map& map = *m_caster->GetMap();
+            cell.Visit(p, object_checker, map, *m_caster, m_caster->GetVisibilityRange());
 
-        if (!ok)
-            return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
+            if (!ok)
+                return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
 
-        focusObject = ok;                                   // game object found in range
+            focusObject = ok;                                   // game object found in range
+        }
     }
 
     // do not take reagents for these item casts

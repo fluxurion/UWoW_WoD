@@ -1725,7 +1725,7 @@ void SpellMgr::LoadSpellTargetPositions()
                 break;
             }
         }
-        if (!found)
+        if (!found && !spellInfo->RequiresSpellFocus)
         {
             sLog->outError(LOG_FILTER_SQL, "Spell (Id: %u) listed in `spell_target_position` does not have target with Object Type = TARGET_OBJECT_TYPE_DEST .", Spell_ID);
             continue;
