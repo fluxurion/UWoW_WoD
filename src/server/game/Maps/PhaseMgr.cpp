@@ -173,10 +173,15 @@ void PhaseMgr::RegisterPhasingAuraEffect(AuraEffect const* auraEffect)
 
     phaseInfo.phaseId = auraEffect->GetMiscValueB();
 
+    phaseData.AddAuraInfo(auraEffect->GetId(), phaseInfo);
+
     if (phaseInfo.NeedsClientSideUpdate())
+    {
         _UpdateFlags |= PHASE_UPDATE_FLAG_CLIENTSIDE_CHANGED;
 
-    phaseData.AddAuraInfo(auraEffect->GetId(), phaseInfo);
+        if (phaseInfo.phaseId)
+            Recalculate();
+    }
 
     Update();
 }
