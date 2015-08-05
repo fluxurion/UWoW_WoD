@@ -30019,17 +30019,24 @@ void Player::TrigerScene(uint32 instanceID, std::string const type)
         else
             sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), spell_scene->ScenePackageId);
     }
-    else if (spell_scene->trigerSpell)
-        CastSpell(this, spell_scene->trigerSpell, true);
-    else if (type == "Credit")
+    else
     {
+        bool prock = false;
+        if (spell_scene->trigerSpell)
+        {
+            prock = true;
+            CastSpell(this, spell_scene->trigerSpell, true);
+        }
+
         if (spell_scene->MonsterCredit)
+        {
+            prock = true;
             KilledMonsterCredit(spell_scene->MonsterCredit, ObjectGuid::Empty);
-        else
+        }
+
+        if (!prock)
             sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), spell_scene->ScenePackageId);
     }
-    else
-        sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), spell_scene->ScenePackageId);
 
 }
 
