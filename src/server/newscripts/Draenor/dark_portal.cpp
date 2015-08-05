@@ -397,6 +397,7 @@ public:
         enum events
         {
             SPELL_SHOWER = 165864,
+            NPC_CREDIT = 80244,
 
             EVENT_1 = 1,
             EVENT_2 = 2,
@@ -425,26 +426,12 @@ public:
 
         void WaypointReached(uint32 waypointId)
         {
-            /*switch (waypointId)
+            if (waypointId == 3)
             {
-            case 2:
-                sCreatureTextMgr->SendChat(me, TEXT_GENERIC_1, playerGuid);
-                SetEscortPaused(true);
-                me->SetFacingTo(2.38f);
-                break;
-            case 7:
-                sCreatureTextMgr->SendChat(me, TEXT_GENERIC_2, playerGuid);
-                SetEscortPaused(true);
-                // cast 104612 on owner
-                break;
-            case 11:
-                //if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
-                //    player->KilledMonsterCredit(55666);
-                me->DespawnOrUnsummon(5000);
-                break;
-            default:
-                break;
-            }*/
+                if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                    player->KilledMonsterCredit(NPC_CREDIT);
+                me->DespawnOrUnsummon(1000);
+            }
         }
 
         void UpdateAI(uint32 diff)
@@ -468,6 +455,21 @@ public:
     };
 };
 
+//! enable phase_definitions for zone 7025 ID 18 phases - 3266 3394 3395 3396 3481 3693 3694 3712 3824 3833 3834 4006 4017 4150 4151 4200
+//! was done by spell 165867 withch prock with trigger and witch prock - 82238 with change phase. and by using condition CONDITION_SCENE_TRIGER_EVENT i did it.
+//! so. this script just like example for future possible scripting. But. I think. Blizz all has done by spell prock at triger scene.
+class SceneTrigger_q34425 : public SceneTriggerScript
+{
+public:
+    SceneTrigger_q34425() : SceneTriggerScript("SceneTrigger_q34425")
+    {}
+
+    bool OnTrigger(Player* player, SpellScene const* trigger, std::string type) override
+    {
+        return false;
+    }
+};
+
 void AddSC_wod_dark_portal()
 {
     new mob_wod_intro_guldan();
@@ -477,4 +479,5 @@ void AddSC_wod_dark_portal()
     new mob_wod_ariok_mover();
     new spell_wod_destroying();
     new mob_khadgar_q34425();
+    new SceneTrigger_q34425();
 }
