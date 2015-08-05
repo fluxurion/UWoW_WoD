@@ -30002,6 +30002,8 @@ void Player::TrigerScene(uint32 instanceID, std::string const type)
     if (!spell_scene)
         return;
 
+    m_sceneStatus[data->second] = SCENE_TRIGER;
+
     if (sScriptMgr->OnSceneTrigger(this, spell_scene, type))
         return;
 

@@ -172,7 +172,8 @@ enum SceneEventStatus
 {
     SCENE_NONE          = 0,
     SCENE_LAUNCH        = 1,
-    SCENE_COMPLETE      = 2,
+    SCENE_TRIGER        = 2,
+    SCENE_COMPLETE      = 3,
 };
 
 typedef UNORDERED_MAP<uint32, PlayerTalent*> PlayerTalentMap;
