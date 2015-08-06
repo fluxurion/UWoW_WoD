@@ -185,7 +185,7 @@ m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_o
     m_LOSCheck_player = false;
     m_LOSCheck_creature = false;
 
-    TriggerJustRespawned = false;
+    TriggerJustRespawned = true;
     m_isTempWorldObject = false;
     bossid = 0;
     m_difficulty = 0;
