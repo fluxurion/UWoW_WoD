@@ -17455,7 +17455,11 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid)
 
                         if (CanCompleteQuest(questid))
                             CompleteQuest(questid);
-
+                        else
+                        {
+                            //Update phase or area spells by objective.
+                            SetQuestStatus(questid, QUEST_STATUS_INCOMPLETE);
+                        }
                         // same objective target can be in many active quests, but not in 2 objectives for single quest (code optimization).
                         break;
                     }
@@ -17501,12 +17505,6 @@ void Player::KilledPlayerCredit()
 
                 if (CanCompleteQuest(questid))
                     CompleteQuest(questid);
-                else
-                {
-                    //Update phase or area spells by objective.
-                    SetQuestStatus(questid, QUEST_STATUS_INCOMPLETE);
-                }
-
 
                 // Quest can't have more than one player kill objective (code optimisation)
                 break;
