@@ -79,7 +79,7 @@ struct PhaseInfo
     uint32 terrainswapmap;
     uint32 phaseId;
 
-    bool NeedsServerSideUpdate() const { return phasemask; }
+    bool NeedsServerSideUpdate() const { return phasemask || phaseId; }
     bool NeedsClientSideUpdate() const { return terrainswapmap || phaseId; }
 };
 

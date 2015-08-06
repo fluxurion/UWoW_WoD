@@ -114,10 +114,8 @@ void PhaseMgr::Recalculate()
     }
 
     for (PhaseInfoContainer::const_iterator itr = phaseData.spellPhaseInfo.begin(); itr != phaseData.spellPhaseInfo.end(); ++itr)
-    {
         if (itr->second.phaseId)
             phaseIds.insert(itr->second.phaseId);
-    }
 
     player->SetPhaseId(phaseIds, true);
 }
@@ -172,7 +170,6 @@ void PhaseMgr::RegisterPhasingAuraEffect(AuraEffect const* auraEffect)
     }
 
     phaseInfo.phaseId = auraEffect->GetMiscValueB();
-
     phaseData.AddAuraInfo(auraEffect->GetId(), phaseInfo);
 
     if (phaseInfo.NeedsClientSideUpdate())
@@ -189,6 +186,9 @@ void PhaseMgr::RegisterPhasingAuraEffect(AuraEffect const* auraEffect)
 void PhaseMgr::UnRegisterPhasingAuraEffect(AuraEffect const* auraEffect)
 {
     _UpdateFlags |= phaseData.RemoveAuraInfo(auraEffect->GetId());
+
+    if (auraEffect->GetMiscValueB())
+        Recalculate();
 
     Update();
 }
@@ -336,7 +336,6 @@ void PhaseData::AddAuraInfo(uint32 const spellId, PhaseInfo phaseInfo)
 {
     if (phaseInfo.phasemask)
         _PhasemaskThroughAuras |= phaseInfo.phasemask;
-
     spellPhaseInfo[spellId] = phaseInfo;
 }
 
@@ -357,7 +356,6 @@ uint32 PhaseData::RemoveAuraInfo(uint32 const spellId)
             updateflag |= PHASE_UPDATE_FLAG_SERVERSIDE_CHANGED;
 
             spellPhaseInfo.erase(rAura);
-
             for (PhaseInfoContainer::const_iterator itr = spellPhaseInfo.begin(); itr != spellPhaseInfo.end(); ++itr)
                 _PhasemaskThroughAuras |= itr->second.phasemask;
         }
