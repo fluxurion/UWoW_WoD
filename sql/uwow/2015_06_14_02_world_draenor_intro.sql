@@ -177,7 +177,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3265 - orb - 83670 & npc = 81895 & 78830  & triger 81926
 -- 3480 - old bridge 231137
 -- 3481 - new bridge 231136
--- 4017 - new camp after finish Q34423
+-- 4006 - new camp after finish Q34423
+-- 3278 - 3 new npc for camp after finish quest Q: A:34478 H: 34427 
+-- 3712 - finish door on arena
 DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763, 82871, 85142);
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) VALUES
 -- ---------------------------------------------------
@@ -260,9 +262,12 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 --
 ('7025', '19', '0','3266 3317 3349 3358 3359 3394 3395 3396 3416 3481 3693 3694 3712 3824 3833 3834 4006 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34425 complete & rewarded.'),
 -- CMSG_SCENE_PLAYBACK_COMPLETE SceneInstanceID: 43 Ring of Fire Scene scene 
-('7025', '20', '0','3266 3278 3317 3349 3350 3358 3359 3394 3395 3396 3416 3481 3693 3694 3712 3824 3833 3834 4006 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: Q34425 complete & rewarded.');
-
---					
+('7025', '20', '0','3266 3278 3317 3349 3350 3358 3359 3394 3395 3396 3416 3481 3693 3694 3712 3824 3833 3834 4006 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: CMSG_SCENE_PLAYBACK_COMPLETE.'),
+-- start Q34429 | 4200 4151 4150 4017 3834 3833 3824 3712 3481 3396 3395 3394 3359 3358 3350 3349 3317
+('7025', '21', '0','3317 3349 3350 3358 3359 3394 3395 3396 3481 3712 3824 3833 3834 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: start 34429'),
+-- Q34429 complete objective 82066 = 99
+('7025', '22', '0','3317 3349 3350 3358 3359 3394 3395 3396 3481 3692 3693 3824 3833 3834 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: objectibe complet on q34429');
+--
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (23, 7025, 1, 0, 0, 8, 0, 35933, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO PHASE not rewarded q35933'),
@@ -314,7 +319,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 18, 0, 0, 28, 0, 34425, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not complete 34425'),
 (23, 7025, 19, 0, 0, 28, 0, 34425, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO complete 34425'),
 (23, 7025, 19, 0, 1, 8, 0, 34425, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34425'),
-(23, 7025, 20, 0, 0, 40, 0, 648, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene 648');
+(23, 7025, 19, 0, 1, 14, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO not taken, rewarded, completed 34429'),
+(23, 7025, 20, 0, 0, 40, 0, 648, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene 648'),
+(23, 7025, 20, 0, 0, 14, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO not taken, rewarded, completed 34429'),
+(23, 7025, 21, 0, 0, 9, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO taken 34429'),
+(23, 7025, 21, 0, 0, 41, 0, 34429, 82066, 99, 1, 0, '', 'DARK_PORTAL_INTRO and O: 82066 != 100'),
+(23, 7025, 22, 0, 0, 42, 0, 796, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO Q34429 after prock scene triger 796');
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -344,13 +354,18 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('942', '788', '1', '16', '0', '0', 'Destroy Altar - next run spell 165061 Q34423'), -- 41
 ('940', '694', '1', '16', '0', '0', 'Kilrogg Reveal - spell 161771 Q34423'), -- 42
 ('838', '648', '1', '16', '159993', '0', 'Ring of Fire Scene - spell 159942'), -- 43
-('903', '727', '1', '16', '165867', '0', 'Shattered Hand - spell 163023 Q34425'); -- 44 165867 -> 82238
+('903', '727', '1', '16', '165867', '0', 'Shattered Hand - spell 163023 Q34425'), -- 44 165867 -> 82238
+('945', '795', '1', '20', '166216', '82139', 'Enter Arena - spell 165271 Q34429'), -- 45
+('946', '796', '1', '20', '167960', '0', 'Escape Arena - spell 165549 Q34429'); -- 46
 
 -- Basic area auras
-DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023);
+DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023, 165549, 166216, 165271);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (17, 0, 161771, 0, 0, 41, 0, 34423, 78966, 3, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161771 Q34423 objective 78966 = 3'),
-(17, 0, 163023, 0, 0, 42, 0, 727, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163023 if not trigered scene');
+(17, 0, 163023, 0, 0, 42, 0, 727, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163023 if not trigered scene'),
+(17, 0, 165549, 0, 0, 41, 0, 34429, 82066, 99, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 165549 Q34429 objective 82066 = 3'),
+(17, 0, 166216, 0, 0, 41, 0, 34429, 82066, 99, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 166216 Q34429 not objective 82066 = 3'),
+(17, 0, 165271, 0, 0, 41, 0, 34429, 82066, 95, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 165271 Q34429 not objective 82066 = 3');
 
 DELETE FROM `spell_area` WHERE area in (7025, 7041, 7129, 7040);
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
@@ -377,11 +392,13 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('161771', '7025', '34423', '34423', '0', '0', '2', '1', '10', '64'),
 ('165061', '7025', '34423', '34423', '0', '0', '2', '0', '10', '64'),
 ('169070', '7129', '34423', '34423', '0', '0', '2', '1', '10', '64'),
-('159942', '7129', '0', '0', '0', '0', '2', '1', '10', '64'), -- Ring of Fire Scene
-('159942', '7040', '0', '0', '0', '0', '2', '1', '10', '64'), -- Ring of Fire Scene
+('159942', '7129', '0', '34429', '0', '0', '2', '1', '10', '74'), -- Ring of Fire Scene
+('159942', '7040', '0', '34429', '0', '0', '2', '1', '10', '74'), -- Ring of Fire Scene
 ('163023', '7129', '34425', '34425', '0', '0', '2', '1', '10', '64'),
-('163023', '7040', '34425', '34425', '0', '0', '2', '1', '10', '64'); -- should be 161899
-
+('163023', '7040', '34425', '34425', '0', '0', '2', '1', '10', '64'), -- should be 161899
+('165271', '7025', '34429', '34429', '0', '0', '2', '1', '10', '64'),
+('166216', '7025', '34429', '34429', '0', '0', '2', '0', '10', '64'),
+('165549', '7025', '34429', '34429', '0', '0', '2', '1', '10', '64');
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
 UPDATE `quest_template` SET `RewardNextQuest` = '35933' WHERE `ID` in (34398, 36881);
@@ -430,7 +447,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (78558, 0, 2, 0, 47, 0, 100, 0, 34393, 0, 0, 0, 1, 4, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'At start q: 34393');
 
 
---
+-- Thrall quest line script
 REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (78553, 0, 0, 'Маг, чтобы герой справился, передовой отряд должен устоять!', 12, 0, 100, 1, 0, 46402, 'Тралл to Khadgar Shield Target'),
 (78553, 0, 1, 'Я не могу стоять и смотреть, как умирают другие!', 12, 0, 100, 1, 0, 0, 'Тралл to Khadgar Shield Target'),
@@ -440,12 +457,9 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 (78553, 1, 5, 'Гнев огня, воспламени наши кулаки и оружие!', 14, 0, 100, 0, 0, 0, 'Тралл to 0'),
 (78553, 0, 6, 'Береги себя.', 12, 0, 100, 0, 0, 46397, 'Тралл to Player');
 
-UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=78553;
+UPDATE `creature_template` SET exp = 5, `mindmg` = '100', `maxdmg` = '200', `attackpower` = '1000', ScriptName = 'mob_wod_thrall', `AIName`='' WHERE `entry`=78553;
 DELETE FROM smart_scripts WHERE entryorguid = 78553;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(78553, 0, 0, 0, 60, 0, 100, 0, 30000, 40000, 40000, 40000, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'rund text'),
-(78553, 0, 1, 0, 60, 0, 100, 0, 0, 0, 61000, 61000, 11, 166114, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'cast every min'),
-(78553, 0, 2, 0, 0, 0, 100, 0, 0, 0, 15000, 15000, 11, 165843, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'cast Месть земли on victim');
+
 
 -- Q34392
 UPDATE `creature_template` SET `InhabitType` = '4', `AIName`='SmartAI' WHERE `creature_template`.`entry` in (81695, 81696);
@@ -514,7 +528,7 @@ INSERT INTO `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `
 (@entry, @id := @id+ 1, 4228.165, -2808.644, 17.32043, NULL),
 (@entry, @id := @id+ 1, 4229.694, -2812.865, 17.2561, NULL);
 
-UPDATE spell_scene SET `ScriptName` = 'SceneTrigger_q34425' WHERE MiscValue = 727;
+UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34425' WHERE MiscValue = 727;
 
 REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`)
  VALUES ('165867', '82238', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Q34425 update phase');
@@ -523,10 +537,21 @@ REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cas
 REPLACE INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES 
 ('159904', '1265', '4298', '-2716', '9', '0');
 
-ClientToServer: CMSG_TALK_TO_GOSSIP (0x1C22) Length: 13 ConnIdx: 0 Time: 05/02/2015 09:20:21.000 Number: 105164
-Guid: Full: 0x1C195C9E204CB8000000410000C1A3F1 Creature/0 R1623/S65 Map: 1265 Entry: 78560 Low: 12690417
+-- Q: 34429
+-- spells: 167314, 168182
+UPDATE `creature_template` SET `faction` = '14' WHERE `creature_template`.`entry` = 83539;
+UPDATE `creature_template` SET `ScriptName` = 'mob_arena_combatant_q34429', `KillCredit1` = '0' WHERE `creature_template`.`entry` in (82057, 82141, 83539);
+UPDATE `creature_template` SET `ScriptName` = 'mob_wod_cordona_welsong' WHERE `creature_template`.`entry` = 78430;
+UPDATE `creature_template` SET `ScriptName` = 'mob_wod_archimage_khadgar' WHERE `creature_template`.`entry` = 78560;
+UPDATE `creature_template` SET `ScriptName` = 'mob_wod_olin_oberhind' WHERE `creature_template`.`entry` = 79315;
 
-[0] Object GUID: Full: 0x28195C9E20E1B840000041000041A3E1 GameObject/0 R1623/S65 Map: 1265 Entry: 231137 Low: 4301793
-Data size: 193
-[0] UpdateType: CreateObject1
-[0] Object Guid: Full: 0x28195C9E20E1B800000041000041A3E1 GameObject/0 R1623/S65 Map: 1265 Entry: 231136 Low: 4301793
+REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`) VALUES
+('165549', '-165271', '3', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', ''),
+('165549', '-166216', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '');
+
+UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
+
+
+ClientToServer: CMSG_SCENE_TRIGGER_EVENT (0x0589) Length: 12 ConnIdx: 0 Time: 05/02/2015 09:27:15.000 Number: 133300
+SceneInstanceID: 46
+Event: Hundred

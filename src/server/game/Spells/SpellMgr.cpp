@@ -5491,6 +5491,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 1784:  //Wod:stealth
                     spellInfo->Effects[EFFECT_2].BasePoints = 25;
                     break;
+				case 166216: // Wod: Q34429
+					spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // -1s
+					break;
                 default:
                     break;
             }

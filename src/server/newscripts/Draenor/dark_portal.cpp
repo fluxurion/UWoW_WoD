@@ -24,8 +24,229 @@
 #include "GameObjectAI.h"
 
 enum misc
-{  
+{
     SPELL_UPDATE_PHASE_SHIFT = 82238,
+};
+
+enum __data
+{
+    SPELL_CHAIN_LIGHT = 15305,    //Chain Lightning
+    SPELL_COMMAND_EARTH = 167470,   //Command Earth
+    SPELL_COMMAND_LIGHT = 167014,   //Command Lightning
+    SPELL_SAVAGERY = 167432,   //Savagery
+    SPELL_PROTECTOR = 166114,
+};
+
+const uint32 spells[3] = { SPELL_CHAIN_LIGHT, SPELL_COMMAND_EARTH, SPELL_COMMAND_LIGHT };
+
+struct arena_friendly_classAI : public ScriptedAI
+{
+    EventMap events;
+
+    arena_friendly_classAI(Creature* creature) : ScriptedAI(creature)
+    {
+    }
+
+    enum data
+    {
+        EVENT_COMBAT_SPELL_1 = 1,
+        EVENT_COMBAT_SAVAGERY = 2,
+        EVENT_BEGIN_1,
+    };
+
+    void Reset() override
+    {
+
+    }
+
+    void JustRespawned() override
+    {
+        ScriptedAI::JustRespawned();
+        switch (me->GetAreaId())
+        {
+            case 7037:
+                events.ScheduleEvent(EVENT_BEGIN_1, 1000);
+                break;
+            case 7040:  //arena
+                me->setFaction(2580);
+                break;
+        }
+    }
+
+    void EnterEvadeMode() override
+    {
+        events.CancelEvent(EVENT_COMBAT_SPELL_1);
+        events.CancelEvent(EVENT_COMBAT_SAVAGERY);
+        ScriptedAI::EnterEvadeMode();
+    }
+
+    void EnterCombat(Unit* /*victim*/) override
+    {
+        events.ScheduleEvent(EVENT_COMBAT_SPELL_1, 5000);
+        events.ScheduleEvent(EVENT_COMBAT_SAVAGERY, 1000);
+    }
+};
+
+class mob_wod_thrall : public CreatureScript
+{
+public:
+    mob_wod_thrall() : CreatureScript("mob_wod_thrall") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_thrallAI(creature);
+    }
+
+    struct mob_wod_thrallAI : public arena_friendly_classAI
+    {
+        mob_wod_thrallAI(Creature* creature) : arena_friendly_classAI(creature)
+        {
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            UpdateVictim();
+
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_COMBAT_SPELL_1:
+                    {
+                        if (Unit* victim = me->getVictim())
+                            me->CastSpell(victim, spells[urand(0, 2)], false);
+                        events.ScheduleEvent(EVENT_COMBAT_SPELL_1, 5000);
+                        break;
+                    }
+                    case EVENT_COMBAT_SAVAGERY:
+                        me->CastSpell(me, SPELL_SAVAGERY, false);
+                        events.ScheduleEvent(EVENT_COMBAT_SAVAGERY, 30000);
+                        break;
+                    case EVENT_BEGIN_1:
+                        events.ScheduleEvent(EVENT_BEGIN_1, 60000);
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_1, ObjectGuid::Empty);
+                        me->CastSpell(me, SPELL_PROTECTOR, false);
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
+class mob_wod_cordona_welsong : public CreatureScript
+{
+public:
+    mob_wod_cordona_welsong() : CreatureScript("mob_wod_cordona_welsong") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_cordona_welsongAI(creature);
+    }
+
+    struct mob_wod_cordona_welsongAI : public arena_friendly_classAI
+    {
+        mob_wod_cordona_welsongAI(Creature* creature) : arena_friendly_classAI(creature)
+        {
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            UpdateVictim();
+
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_COMBAT_SPELL_1:
+                {
+                    if (Unit* victim = me->getVictim())
+                        me->CastSpell(victim, 166911, false);
+                    events.ScheduleEvent(EVENT_COMBAT_SPELL_1, 5000);
+                    break;
+                }
+                case EVENT_COMBAT_SAVAGERY:
+                    me->CastSpell(me, SPELL_SAVAGERY, false);
+                    events.ScheduleEvent(EVENT_COMBAT_SAVAGERY, 30000);
+                    break;
+
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
+class mob_wod_archimage_khadgar : public CreatureScript
+{
+public:
+    mob_wod_archimage_khadgar() : CreatureScript("mob_wod_archimage_khadgar") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_archimage_khadgarAI(creature);
+    }
+
+    struct mob_wod_archimage_khadgarAI : public arena_friendly_classAI
+    {
+        mob_wod_archimage_khadgarAI(Creature* creature) : arena_friendly_classAI(creature)
+        {
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
+class mob_wod_olin_oberhind : public CreatureScript
+{
+public:
+    mob_wod_olin_oberhind() : CreatureScript("mob_wod_olin_oberhind") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_olin_oberhindAI(creature);
+    }
+
+    struct mob_wod_olin_oberhindAI : public arena_friendly_classAI
+    {
+        mob_wod_olin_oberhindAI(Creature* creature) : arena_friendly_classAI(creature)
+        {
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            UpdateVictim();
+
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_COMBAT_SPELL_1:
+                {
+                    if (Unit* victim = me->getVictim())
+                        me->CastSpell(victim, 166969, false);
+                    events.ScheduleEvent(EVENT_COMBAT_SPELL_1, 5000);
+                    break;
+                }
+                case EVENT_COMBAT_SAVAGERY:
+                    me->CastSpell(me, SPELL_SAVAGERY, false);
+                    events.ScheduleEvent(EVENT_COMBAT_SAVAGERY, 30000);
+                    break;
+
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
 };
 
 class mob_wod_intro_guldan : public CreatureScript
@@ -458,10 +679,10 @@ public:
 //! enable phase_definitions for zone 7025 ID 18 phases - 3266 3394 3395 3396 3481 3693 3694 3712 3824 3833 3834 4006 4017 4150 4151 4200
 //! was done by spell 165867 withch prock with trigger and witch prock - 82238 with change phase. and by using condition CONDITION_SCENE_TRIGER_EVENT i did it.
 //! so. this script just like example for future possible scripting. But. I think. Blizz all has done by spell prock at triger scene.
-class SceneTrigger_q34425 : public SceneTriggerScript
+class sceneTrigger_q34425 : public SceneTriggerScript
 {
 public:
-    SceneTrigger_q34425() : SceneTriggerScript("SceneTrigger_q34425")
+    sceneTrigger_q34425() : SceneTriggerScript("sceneTrigger_q34425")
     {}
 
     bool OnTrigger(Player* player, SpellScene const* trigger, std::string type) override
@@ -470,8 +691,84 @@ public:
     }
 };
 
+class mob_arena_combatant_q34429 : public CreatureScript
+{
+public:
+    mob_arena_combatant_q34429() : CreatureScript("mob_arena_combatant_q34429") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_arena_combatant_q34429AI(creature);
+    }
+
+    struct mob_arena_combatant_q34429AI : public ScriptedAI
+    {
+
+        mob_arena_combatant_q34429AI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        enum data
+        {
+            QUEST = 34429,
+            NPC_CREDIT = 82066,
+            SPELL_SUMMON = 167314,
+            SPELL_CREDIT = 168182,
+        };
+
+        void JustDied(Unit* /*killer*/)
+        {
+            std::list<Player*> lList;
+            me->GetPlayerListInGrid(lList, 200.0f);
+            for (auto player : lList)
+            {
+                if (player->GetQuestStatus(QUEST) == QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveData(QUEST, NPC_CREDIT) < 99)
+                {
+                    player->CastSpell(player, SPELL_CREDIT, true);
+                    me->CastSpell(me, SPELL_SUMMON, false);
+                }
+            }
+        }
+    };
+};
+
+class sceneTrigger_q34429 : public SceneTriggerScript
+{
+public:
+    sceneTrigger_q34429() : SceneTriggerScript("sceneTrigger_q34429")
+    {}
+
+    enum data
+    {
+        SPELL_CREDIT_100 = 168182,
+        SPELL_PHASE = 167960,
+        SPELL_CREDIT_ESCAPE = 165265,
+    };
+
+    bool OnTrigger(Player* player, SpellScene const* trigger, std::string type) override
+    {
+        if (type == "Update")
+        {
+            player->CastSpell(player, SPELL_PHASE, false);
+        }
+        else if (type == "Hundred")
+        {
+            player->CastSpell(player, SPELL_CREDIT_100, true);
+        }
+        else if (type == "Credit")
+        {
+            player->CastSpell(player, SPELL_CREDIT_ESCAPE, false);
+        }
+        return true;
+    }
+};
+
 void AddSC_wod_dark_portal()
 {
+    new mob_wod_thrall();
+    new mob_wod_cordona_welsong();
+    new mob_wod_archimage_khadgar();
+    new mob_wod_olin_oberhind();
     new mob_wod_intro_guldan();
     new mob_wod_frostwolf_slave();
     new go_wod_slaves_cage();
@@ -479,5 +776,7 @@ void AddSC_wod_dark_portal()
     new mob_wod_ariok_mover();
     new spell_wod_destroying();
     new mob_khadgar_q34425();
-    new SceneTrigger_q34425();
+    new sceneTrigger_q34425();
+    new mob_arena_combatant_q34429();
+    new sceneTrigger_q34429();
 }
