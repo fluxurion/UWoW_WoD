@@ -471,7 +471,7 @@ class Quest
 
         // quest_template_addon table (custom data)
         uint32 MaxLevel             = 0;
-        uint32 AllowableClasses     = 0;
+        int32  AllowableClasses     = 0;
         uint32 SourceSpellID        = 0;
         int32  PrevQuestID          = 0;
         int32  NextQuestID          = 0;
