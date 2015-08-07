@@ -4405,3 +4405,31 @@ ObjectGuid WorldObject::GetTransGUID() const
         return GetTransport()->GetGUID();
     return ObjectGuid::Empty;
 }
+
+bool WorldObject::InSamePhaseId(std::set<uint32> const& phase) const
+{
+    if (IgnorePhaseId())
+        return true;
+
+    if (phase.empty() && m_phaseId.size())
+        return false;
+
+    //! check target phases
+    for (auto PhaseID : phase)
+    {
+        //- if not found
+        if (m_phaseId.find(PhaseID) == m_phaseId.end())
+        {
+            //- lets check our phases
+            for (auto _phase : m_phaseId)
+            {
+                //- if not foud
+                if (phase.find(_phase) == phase.end())
+                    return false;   //fail
+            }
+            //- else - one of targets has all phases - so it can see eatch other.
+            return true;
+        }
+    }
+    return true;
+}

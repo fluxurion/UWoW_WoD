@@ -813,22 +813,8 @@ class WorldObject : public Object, public WorldLocation
         bool HasPhaseId(uint32 PhaseID) const { return m_phaseId.find(PhaseID) != m_phaseId.end(); }
         bool HasPhaseId() const { return m_phaseId.size(); }
         std::set<uint32> GetPhases() const { return m_phaseId;  }
-        bool InSamePhaseId(WorldObject const* obj) const { return InSamePhaseId(obj->GetPhases()) || obj->InSamePhaseId(GetPhases()); }
-        bool InSamePhaseId(std::set<uint32> const& phase) const 
-        {
-            if (IgnorePhaseId())
-                return true;
-
-            if (phase.empty() && m_phaseId.size())
-                return false;
-
-            for (auto PhaseID : phase)
-            {
-                if (m_phaseId.find(PhaseID) == m_phaseId.end())
-                    return false;
-            }
-            return true;
-        }
+        bool InSamePhaseId(WorldObject const* obj) const { return obj->IgnorePhaseId() || InSamePhaseId(obj->GetPhases()); }
+        bool InSamePhaseId(std::set<uint32> const& phase) const;
 
         void setIgnorePhaseIdCheck(bool apply)  { m_ignorePhaseIdCheck = apply; }
         bool IgnorePhaseId() const { return m_ignorePhaseIdCheck; }
