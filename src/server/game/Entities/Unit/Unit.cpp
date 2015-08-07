@@ -21336,7 +21336,8 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
 
 void Unit::SetPhaseId(std::set<uint32> const& newPhase, bool update)
 {
-    if (InSamePhaseId(newPhase))
+    //- if differend size - we should do it.
+    if (newPhase.size() == GetPhases().size() && InSamePhaseId(newPhase))
         return;
 
     WorldObject::SetPhaseId(newPhase, false);

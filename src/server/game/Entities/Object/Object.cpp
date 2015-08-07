@@ -4406,12 +4406,23 @@ ObjectGuid WorldObject::GetTransGUID() const
     return ObjectGuid::Empty;
 }
 
+//! if someone has phaseID but enother has empty - not see any! YES! NOT SEE!
+//! If some have 1 2 enother has 1 = see each other.
+//! ir some have 1 2 enorther has 3 - not see.
+//! if some has ignorePhase id - see each.
 bool WorldObject::InSamePhaseId(std::set<uint32> const& phase) const
 {
     if (IgnorePhaseId())
         return true;
 
-    if (phase.empty() && m_phaseId.size())
+    //- speed up case.
+    if (phase.empty() && m_phaseId.empty())
+        return true;
+
+    //! speed up case. should be done in any way. 
+    // As iteration not check empty data but it should be done.
+    if (phase.empty() && !m_phaseId.empty() ||
+        !phase.empty() && m_phaseId.empty())
         return false;
 
     //! check target phases
