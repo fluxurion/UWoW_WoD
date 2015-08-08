@@ -266,7 +266,10 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- start Q34429 | 4200 4151 4150 4017 3834 3833 3824 3712 3481 3396 3395 3394 3359 3358 3350 3349 3317
 ('7025', '21', '0','3317 3349 3350 3358 3359 3394 3395 3396 3481 3712 3824 3833 3834 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: start 34429'),
 -- Q34429 complete objective 82066 = 99
-('7025', '22', '0','3317 3349 3350 3358 3359 3394 3395 3396 3481 3692 3693 3824 3833 3834 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: objectibe complet on q34429');
+('7025', '22', '0','3317 3349 3350 3358 3359 3394 3395 3396 3481 3692 3693 3824 3833 3834 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: objectibe complet on q34429'),
+--
+('7025', '23', '0','3267 3317 3330 3352 3394 3395 3396 3481 3693 3712 3720 3824 3833 3834 4015 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34429 complete');
+
 --
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -323,8 +326,14 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 20, 0, 0, 40, 0, 648, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene 648'),
 (23, 7025, 20, 0, 0, 14, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO not taken, rewarded, completed 34429'),
 (23, 7025, 21, 0, 0, 9, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO taken 34429'),
-(23, 7025, 21, 0, 0, 41, 0, 34429, 82066, 99, 1, 0, '', 'DARK_PORTAL_INTRO and O: 82066 != 100'),
-(23, 7025, 22, 0, 0, 42, 0, 796, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO Q34429 after prock scene triger 796');
+(23, 7025, 21, 0, 0, 42, 0, 796, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not event scene 796'),
+(23, 7025, 21, 0, 0, 28, 0, 34429, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not complete 34429'),
+(23, 7025, 21, 0, 0, 8, 0, 34429, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34429'),
+(23, 7025, 22, 0, 0, 42, 0, 796, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO Q34429 after prock scene triger 796'),
+(23, 7025, 22, 0, 0, 28, 0, 34429, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not complete 34429'),
+(23, 7025, 22, 0, 0, 8, 0, 34429, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34429'),
+(23, 7025, 23, 0, 0, 28, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO complete 34429'),
+(23, 7025, 23, 0, 1, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34429');
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -356,7 +365,10 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('838', '648', '1', '16', '159993', '0', 'Ring of Fire Scene - spell 159942'), -- 43
 ('903', '727', '1', '16', '165867', '0', 'Shattered Hand - spell 163023 Q34425'), -- 44 165867 -> 82238
 ('945', '795', '1', '20', '166216', '82139', 'Enter Arena - spell 165271 Q34429'), -- 45
-('946', '796', '1', '20', '167960', '0', 'Escape Arena - spell 165549 Q34429'); -- 46
+('946', '796', '1', '20', '167960', '0', 'Escape Arena - spell 165549 Q34429'), -- 46
+('844', '666', '1', '16', '0', '0', 'Сцена с порталами unk 160714'), -- 47
+('956', '803', '1', '25', '0', '0', 'Завал - spell 166223 Q34429'), -- 48
+('948', '798', '1', '16', '0', '0', 'Прибытие Лиадрин и Оулина - spell 165633 Q34429'); -- 49
 
 -- Basic area auras
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023, 165549, 166216, 165271);
@@ -396,9 +408,11 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('159942', '7040', '0', '34429', '0', '0', '2', '1', '10', '74'), -- Ring of Fire Scene
 ('163023', '7129', '34425', '34425', '0', '0', '2', '1', '10', '64'),
 ('163023', '7040', '34425', '34425', '0', '0', '2', '1', '10', '64'), -- should be 161899
-('165271', '7025', '34429', '34429', '0', '0', '2', '1', '10', '64'),
+('165271', '7025', '34429', '34429', '0', '0', '2', '1', '8', '66'),
 ('166216', '7025', '34429', '34429', '0', '0', '2', '0', '10', '64'),
-('165549', '7025', '34429', '34429', '0', '0', '2', '1', '10', '64');
+('165549', '7025', '34429', '34429', '0', '0', '2', '1', '10', '64'),
+('166223', '7025', '34429', '0', '0', '0', '2', '1', '2', '64');
+
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
 UPDATE `quest_template` SET `RewardNextQuest` = '35933' WHERE `ID` in (34398, 36881);

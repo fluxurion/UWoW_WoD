@@ -758,6 +758,16 @@ public:
         else if (type == "Credit")
         {
             player->CastSpell(player, SPELL_CREDIT_ESCAPE, false);
+
+            if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(34429))
+            {
+                for (QuestObjective const& obj : qInfo->GetObjectives())
+                {
+                    if (obj.ObjectID != 82142)
+                        continue;
+                    player->SetQuestObjectiveData(qInfo, obj.StorageIndex, 99);
+                }
+            }
         }
         return true;
     }
