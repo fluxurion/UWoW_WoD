@@ -368,24 +368,24 @@ class Quest
         uint32 GetRewChoiceItemDisplayId(uint8 index) const;
 
         // multiple values
-        uint32 ItemDrop[QUEST_ITEM_DROP_COUNT];
-        uint32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT];
+        uint32 ItemDrop[QUEST_ITEM_DROP_COUNT] = {};
+        uint32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT] = {};
 
-        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT];
-        uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT];
-        uint32 RewardChoiceItemDisplayId[QUEST_REWARD_CHOICES_COUNT];
-        uint32 RewardItemId[QUEST_REWARD_ITEM_COUNT];
-        uint32 RewardItemCount[QUEST_REWARD_ITEM_COUNT];
-        uint32 RewardFactionId[QUEST_REWARD_REPUTATIONS_COUNT];
-        int32  RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT];
-        int32  RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT];
-        uint32 DetailsEmote[QUEST_EMOTE_COUNT];
-        uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT];
-        uint32 OfferRewardEmote[QUEST_EMOTE_COUNT];
-        uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT];
+        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] = {};
+        uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT] = {};
+        uint32 RewardChoiceItemDisplayId[QUEST_REWARD_CHOICES_COUNT] = {};
+        uint32 RewardItemId[QUEST_REWARD_ITEM_COUNT] = {};
+        uint32 RewardItemCount[QUEST_REWARD_ITEM_COUNT] = {};
+        uint32 RewardFactionId[QUEST_REWARD_REPUTATIONS_COUNT] = {};
+        int32  RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = {};
+        int32  RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
+        uint32 DetailsEmote[QUEST_EMOTE_COUNT] = {};
+        uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT] = {};
+        uint32 OfferRewardEmote[QUEST_EMOTE_COUNT] = {};
+        uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT] = {};
         // 4.x
-        uint32 RewardCurrencyId[QUEST_REWARD_CURRENCY_COUNT];
-        uint32 RewardCurrencyCount[QUEST_REWARD_CURRENCY_COUNT];
+        uint32 RewardCurrencyId[QUEST_REWARD_CURRENCY_COUNT] = {};
+        uint32 RewardCurrencyCount[QUEST_REWARD_CURRENCY_COUNT] = {};
 
         uint32 GetRewChoiceItemsCount() const { return m_rewChoiceItemsCount; }
         uint32 GetRewItemsCount() const { return m_rewItemsCount; }
