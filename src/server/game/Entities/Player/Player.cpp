@@ -2520,6 +2520,15 @@ void Player::RemoveFromWorld()
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         m_zoneUpdateId = 0; //fix returning to wg
         m_extraLookList.clear();
+
+        for (auto object : listners)
+        {
+            if (!object)
+                continue;
+
+            RemoveListner(object);
+        }
+        listners.clear();
     }
 
     ///- Do not add/remove the player from the object storage
@@ -7544,10 +7553,6 @@ void Player::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcv
 
     for (auto target : visitors)
     {
-        Player *player = target.get();
-        if (!player)
-            continue;
-
         // Send packet to all who are sharing the player's vision
         /*if (!target->GetSharedVisionList().empty())
         {
@@ -7557,16 +7562,16 @@ void Player::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcv
                     SendPacket(*i);
         }*/
 
-        if (player->m_seer == player || player->GetVehicle())
+        if (target->m_seer == target || target->GetVehicle())
         {
             // never send packet to self
-            if (player == this || skipped_rcvr == player)
+            if (target == this || skipped_rcvr == target)
                 continue;
 
-            if (!player->HaveAtClient(this))
+            if (!target->HaveAtClient(this))
                 continue;
 
-            if (WorldSession* session = player->GetSession())
+            if (WorldSession* session = target->GetSession())
                 session->SendPacket(data);
         }
     }
@@ -27630,31 +27635,8 @@ void Player::HandleFall(MovementInfo const& movementInfo)
     RemoveAllAurasByType(SPELL_AURA_GLIDE);
 }
 
-UpdateAchievementCriteriaEvent::UpdateAchievementCriteriaEvent(Player* owner, AchievementCriteriaTypes _t, uint32 m1 /*= 0*/, uint32 m2 /*= 0*/, Unit* u /*= NULL*/, bool iGroup /*= false*/) :
-m_owner(owner), type(_t), miscValue1(m1), miscValue2(m2), ignoreGroup(iGroup)
-{
-    if (u)
-        unit = u->get_ptr();
-};
-
-bool UpdateAchievementCriteriaEvent::Execute(uint64 e_time, uint32 p_time)
-{
-    m_owner->_UpdateAchievementCriteria(type, miscValue1, miscValue2, unit.get(), ignoreGroup);
-    return true;
-}
-
 void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/, bool ignoreGroup /*=false*/)
 {
-    UpdateAchievementCriteriaEvent* e = new UpdateAchievementCriteriaEvent(this, type, miscValue1, miscValue2, unit, ignoreGroup);
-    m_Events.AddEvent(e, m_Events.CalculateTime(upd_achieve_criteria_counter * 50));
-
-    ++upd_achieve_criteria_counter;
-}
-
-void Player::_UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/, bool ignoreGroup /*=false*/)
-{
-    --upd_achieve_criteria_counter;
-
     GetAchievementMgr().UpdateAchievementCriteria(type, miscValue1, miscValue2, unit, this);
 
     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
@@ -30040,20 +30022,23 @@ void Player::TrigerScene(uint32 instanceID, std::string const type)
 
 void Player::AddListner(WorldObject* o)
 {
+    listners.insert(o);
     o->AddVisitor(this);
 }
 
 void Player::RemoveListner(WorldObject* o)
 {
+    listners.erase(o);
     o->RemoveVisitor(this);
 }
 
-cyber_ptr<Player> Player::get_ptr()
+//! out of range objects.
+//! What will be if u sit on ground and creature come on u range and move out of it?
+void Player::RemoveListners(GuidUnorderedSet const& list)
 {
-    if (plr_ptr.numerator && plr_ptr.numerator->ready)
-        return plr_ptr.shared_from_this();
-
-    plr_ptr.InitParent(this);
-    ASSERT(plr_ptr.numerator);  // It's very bad. If it hit nothing work.
-    return plr_ptr.shared_from_this();
+    for (auto object : listners)
+    {
+        if (list.find(object->GetGUID()) != list.end())
+            RemoveListner(object);
+    }
 }
