@@ -1032,8 +1032,9 @@ class WorldObject : public Object, public WorldLocation
         void AddToHideList(ObjectGuid  const& guid) { _hideForGuid.insert(guid); }
         bool ShouldHideFor(ObjectGuid const& guid) const { return _hideForGuid.find(guid) != _hideForGuid.end();  };
 
-        void AddVisitor(Player* p) { visitors.insert(p); }
-        void RemoveVisitor(Player*p) { visitors.erase(p); }
+        void AddVisitor(Player* p);
+        void RemoveVisitor(Player*p);
+
     protected:
         std::string m_name;
         bool m_isActive;
@@ -1055,7 +1056,7 @@ class WorldObject : public Object, public WorldLocation
         //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
         virtual bool IsAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
 
-        boost::unordered::unordered_set<Player*> visitors;             // Playrs who see us.
+        std::list<cyber_ptr<Player>> visitors;             // Playrs who see us.
     private:
         Map* m_currMap;                                    //current object's Map location
 
