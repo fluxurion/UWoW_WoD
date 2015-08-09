@@ -365,7 +365,7 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('838', '648', '1', '16', '159993', '0', 'Ring of Fire Scene - spell 159942'), -- 43
 ('903', '727', '1', '16', '165867', '0', 'Shattered Hand - spell 163023 Q34425'), -- 44 165867 -> 82238
 ('945', '795', '1', '20', '166216', '82139', 'Enter Arena - spell 165271 Q34429'), -- 45
-('946', '796', '1', '20', '167960', '0', 'Escape Arena - spell 165549 Q34429'), -- 46
+('946', '796', '1', '20', '0', '0', 'Escape Arena - spell 165549 Q34429'), -- 46
 ('844', '666', '1', '16', '0', '0', 'Сцена с порталами unk 160714'), -- 47
 ('956', '803', '1', '25', '0', '0', 'Завал - spell 166223 Q34429'), -- 48
 ('948', '798', '1', '16', '0', '0', 'Прибытие Лиадрин и Оулина - spell 165633 Q34429'); -- 49
@@ -564,7 +564,8 @@ REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cas
 ('165549', '-166216', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '');
 
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
-
+REPLACE INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES 
+('167960', '1265', '4406.44', '-2832.71', '4.72191', '1.637773');
 
 ClientToServer: CMSG_SCENE_TRIGGER_EVENT (0x0589) Length: 12 ConnIdx: 0 Time: 05/02/2015 09:27:15.000 Number: 133300
 SceneInstanceID: 46

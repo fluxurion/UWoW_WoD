@@ -29994,11 +29994,17 @@ void Player::TrigerScene(uint32 instanceID, std::string const type)
 {
     auto data = m_sceneInstanceID.find(instanceID);
     if (data == m_sceneInstanceID.end())
+    {
+        sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene can't find instance type: %s instance %u", type.c_str(), instanceID);
         return;
+    }
 
     const SpellScene *spell_scene = sSpellMgr->GetSpellScene(data->second);
     if (!spell_scene)
+    {
+        sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene can't find SpellScene instance type: %s instance %u Misc %u", type.c_str(), instanceID, data->second);
         return;
+    }
 
     m_sceneStatus[data->second] = SCENE_TRIGER;
 
