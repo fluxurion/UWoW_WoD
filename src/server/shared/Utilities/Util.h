@@ -604,11 +604,11 @@ public:
     }
 
     //! Copy
-    cyber_ptr(cyber_ptr<X> &right)
+    cyber_ptr(const cyber_ptr<X> &right)
     {
-        right.incrase();
         numerator = right.numerator;
         ptr = right.ptr;
+        incrase();
     }
 
     //! null init
