@@ -341,7 +341,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 22, 0, 0, 8, 0, 34429, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34429'),
 (23, 7025, 23, 0, 0, 28, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO complete 34429'),
 (23, 7025, 23, 0, 1, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34429'),
-(23, 7025, 24, 0, 1, 42, 0, 803, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp after event scene 803');
+(23, 7025, 24, 0, 0, 42, 0, 803, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp after event scene 803'),
+(23, 7025, 24, 0, 1, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34429');
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -443,8 +444,11 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34422', '34420', '34423', '-34423'),
 ('34425', '34423', '0', '0'),
 ('34478', '34425', '34429', '0'),
-('34427', '34425', '34429', '0');
-
+('34427', '34425', '34429', '0'),
+('34739', '34429', '0', '0'),
+('34432', '34429', '0', '0'),
+('34737', '34429', '0', '0'),
+('34431', '34429', '0', '0');
 
 UPDATE `quest_template` SET AllowableRaces = 33555378 WHERE ID in (34421, 35241); -- SET HORDE
 UPDATE `quest_template` SET AllowableRaces =  (1101 + 2097152  + 16777216)WHERE ID in (35242, 34422); -- SET ALLIANCE
@@ -579,6 +583,14 @@ REPLACE INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `
 REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`)
 VALUES ('167963', '82238', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Q34429 update phase');
 
-ClientToServer: CMSG_SCENE_TRIGGER_EVENT (0x0589) Length: 12 ConnIdx: 0 Time: 05/02/2015 09:27:15.000 Number: 133300
-SceneInstanceID: 46
-Event: Hundred
+DELETE FROM `creature_text` WHERE entry = 78561;
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(78561, 0, 0, 'Леди Лиадрин, вам с Оулином нужно осмотреть пещеру.', 12, 0, 100, 0, 0, 44858, 'Верховный маг Кадгар to Player'),
+(78561, 1, 0, 'Не уходи далеко. Твоя помощь нужна здесь.', 12, 0, 100, 0, 0, 44879, 'Верховный маг Кадгар to Player');
+
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=78561;
+DELETE FROM smart_scripts WHERE entryorguid = 78561;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(78561, 0, 0, 0, 50, 0, 100, 0, 34429, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'at complete q34429');
+
+--
