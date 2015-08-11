@@ -180,6 +180,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 4006 - new camp after finish Q34423
 -- 3278 - 3 new npc for camp after finish quest Q: A:34478 H: 34427 
 -- 3712 - finish door on arena
+-- 3752 - завал.
+-- 3790 - npc - 78561
 DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763, 82871, 85142);
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) VALUES
 -- ---------------------------------------------------
@@ -268,7 +270,12 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- Q34429 complete objective 82066 = 99
 ('7025', '22', '0','3317 3349 3350 3358 3359 3394 3395 3396 3481 3692 3693 3824 3833 3834 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: objectibe complet on q34429'),
 --
-('7025', '23', '0','3267 3317 3330 3352 3394 3395 3396 3481 3693 3712 3720 3824 3833 3834 4015 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34429 complete');
+('7025', '23', '0','3267 3317 3330 3352 3394 3395 3396 3481 3693 3712 3720 3824 3833 3834 4015 4017 4150 4151 4200 3790', '0', '0', '16', 'DraenorIntro: q34429 complete'),
+-- scent 48. trigger. gameobject - завалю
+-- по хорошему это состоит из 2х фаз. Но лень делать. Тут просто по тригеру каст спела смены фазу идет, а вот по комплиту каста нет и у близов он в отложенном видимо методе или еще что.
+-- так что ничего страшного, что моб этот будет висеть тут.
+-- хотя я 3790 перенес на 23 фазу - так красивее :)
+('7025', '24', '0','3752', '0', '0', '16', 'DraenorIntro: q34429 complete');
 
 --
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
@@ -333,7 +340,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 22, 0, 0, 28, 0, 34429, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not complete 34429'),
 (23, 7025, 22, 0, 0, 8, 0, 34429, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34429'),
 (23, 7025, 23, 0, 0, 28, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO complete 34429'),
-(23, 7025, 23, 0, 1, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34429');
+(23, 7025, 23, 0, 1, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34429'),
+(23, 7025, 24, 0, 1, 42, 0, 803, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp after event scene 803');
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -367,8 +375,9 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('945', '795', '1', '20', '166216', '82139', 'Enter Arena - spell 165271 Q34429'), -- 45
 ('946', '796', '1', '20', '0', '0', 'Escape Arena - spell 165549 Q34429'), -- 46
 ('844', '666', '1', '16', '0', '0', 'Сцена с порталами unk 160714'), -- 47
-('956', '803', '1', '25', '0', '0', 'Завал - spell 166223 Q34429'), -- 48
+('956', '803', '1', '25', '167963', '0', 'Завал - spell 166223 Q34429'), -- 48
 ('948', '798', '1', '16', '0', '0', 'Прибытие Лиадрин и Оулина - spell 165633 Q34429'); -- 49
+UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
 
 -- Basic area auras
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023, 165549, 166216, 165271);
@@ -566,6 +575,9 @@ REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cas
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
 REPLACE INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES 
 ('167960', '1265', '4406.44', '-2832.71', '4.72191', '1.637773');
+
+REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`)
+VALUES ('167963', '82238', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Q34429 update phase');
 
 ClientToServer: CMSG_SCENE_TRIGGER_EVENT (0x0589) Length: 12 ConnIdx: 0 Time: 05/02/2015 09:27:15.000 Number: 133300
 SceneInstanceID: 46
