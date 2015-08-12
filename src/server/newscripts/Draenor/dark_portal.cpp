@@ -773,6 +773,50 @@ public:
     }
 };
 
+//- NPC 78994
+class mob_wod_irel : public CreatureScript
+{
+public:
+    mob_wod_irel() : CreatureScript("mob_wod_irel") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_irelAI(creature);
+    }
+
+    struct mob_wod_irelAI : public ScriptedAI
+    {
+        enum data
+        {
+            SPELL_CREDIT = 160774,
+            OBJECTIVE_CREDIT = 79583,
+            QUEST_A = 34431,
+            QUEST_H = 34737,
+        };
+
+        mob_wod_intro_guldanAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        void Reset()
+        {
+        }
+
+        void MoveInLineOfSight(Unit* who)
+        {
+            Player *player = who->ToPlayer();
+            if (!player || !me->IsWithinDistInMap(who, 25.0f))
+                return;
+            
+            if (player->GetQuestObjectiveData(GetTeam() == ALLIANCE ? QUEST_A : QUEST_H, OBJECTIVE_CREDIT))
+                return;
+
+            player->CastSpell(player, SPELL_CREDIT, true);
+            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_0, player->GetGUID());
+            return;
+        }
+    };
+};
 void AddSC_wod_dark_portal()
 {
     new mob_wod_thrall();
@@ -789,4 +833,5 @@ void AddSC_wod_dark_portal()
     new sceneTrigger_q34425();
     new mob_arena_combatant_q34429();
     new sceneTrigger_q34429();
+    new mob_wod_irel();
 }
