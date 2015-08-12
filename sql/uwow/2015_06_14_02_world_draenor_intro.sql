@@ -184,7 +184,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3790 - npc - 78561
 -- 3267, 3720, 4015 - завал
 -- 3330 -> 3356 npc movement to enother plase 79315, 79675
-
+-- 3352 npc 78994 before take q34740
+-- 3351 npc 78994 after complete/reward 
+-- 4017 возможно трэшак в пещере
 DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763, 82871, 85142);
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) VALUES
 -- ---------------------------------------------------
@@ -273,7 +275,7 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- Q34429 complete objective 82066 = 99
 ('7025', '22', '0','3317 3349 3350 3358 3359 3394 3395 3396 3481 3692 3693 3824 3833 3834 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: objectibe complet on q34429'),
 -- after  complete 34429
-('7025', '23', '0','3267 3317 3330 3352 3394 3395 3396 3481 3693 3712 3720 3824 3833 3834 4015 4017 4150 4151 4200 3790', '0', '0', '16', 'DraenorIntro: q34429 complete'),
+('7025', '23', '0','3267 3317 3330 3394 3395 3396 3481 3693 3712 3720 3824 3833 3834 4015 4017 4150 4151 4200 3790', '0', '0', '16', 'DraenorIntro: q34429 complete'),
 -- scent 48. trigger. gameobject - завалю
 -- по хорошему это состоит из 2х фаз. Но лень делать. Тут просто по тригеру каст спела смены фазу идет, а вот по комплиту каста нет и у близов он в отложенном видимо методе или еще что.
 -- так что ничего страшного, что моб этот будет висеть тут.
@@ -281,10 +283,12 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- это можно держать или просто копипастьть все иды с офа. в любом случае будет правильно )
 ('7025', '24', '0','3752', '0', '0', '16', 'DraenorIntro: q34429 complete'),
 -- after reward 34429
-('7025', '25', '0','3267 3317 3334 3352 3356 3394 3395 3396 3481 3693 3712 3720 3752 3790 3824 3833 3834 3936 4015 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34429 rewarded');
+('7025', '25', '0','3267 3317 3334 3356 3394 3395 3396 3481 3693 3712 3720 3752 3790 3824 3833 3834 3936 4015 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34429 rewarded'),
+-- Q34740 at taking remove it. hide 78994 at take it.
+('7025', '26', '0','3352', '0', '0', '16', 'DraenorIntro: before 34434, 34740'),
+-- at 
+('7025', '27', '0','3351', '0', '0', '16', 'DraenorIntro: after 34434, 34740');
 
-
---
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (23, 7025, 1, 0, 0, 8, 0, 35933, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO PHASE not rewarded q35933'),
@@ -349,7 +353,18 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 23, 0, 0, 28, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO only complete 34429'),
 (23, 7025, 24, 0, 0, 42, 0, 803, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp after event scene 803'),
 (23, 7025, 24, 0, 1, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34429'),
-(23, 7025, 25, 0, 0, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34429');
+(23, 7025, 25, 0, 0, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34429'),
+(23, 7025, 26, 0, 0, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34429'),
+(23, 7025, 26, 0, 0, 8, 0, 34434, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34434'),
+(23, 7025, 26, 0, 0, 8, 0, 34740, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34740'),
+(23, 7025, 26, 0, 0, 9, 0, 34434, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not taken 34434'),
+(23, 7025, 26, 0, 0, 9, 0, 34740, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not taken 34740'),
+-- remove 27 when 23
+(23, 7025, 27, 0, 0, 8, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34434'),
+(23, 7025, 27, 0, 1, 8, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34740'),
+(23, 7025, 27, 0, 2, 28, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34434'),
+(23, 7025, 27, 0, 3, 28, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34740');
+
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
 (NULL, '4066.5', '-2382.25', '94.8536', '1.570796', '1265', 'DarkPortalIntro');
@@ -430,7 +445,9 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('165549', '7025', '34429', '34429', '0', '0', '2', '1', '10', '64'),
 ('166223', '7025', '34429', '0', '0', '0', '2', '1', '2', '64'),
 ('165633', '7042', '34429', '0', '0', '0', '2', '1', '64', '64'),
-('160714', '7042', '0', '0', '0', '0', '2', '1', '2', '64');
+('160714', '7042', '0', '0', '0', '0', '2', '1', '2', '64'),
+('161109', '7042', '34740', '34740', '0', '0', '2', '1', '10', '64'),
+('161109', '7042', '34434', '34434', '0', '0', '2', '1', '10', '64');
 
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
@@ -609,3 +626,13 @@ UPDATE `creature_template` SET `ScriptName` = 'mob_wod_irel' WHERE `creature_tem
 DELETE FROM `creature_text` WHERE entry = 78994;
 REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (78994, 0, 0, 'Кто здесь?! Ох, слава Свету, я не одна здесь сражаюсь с этими монстрами.', 12, 0, 100, 0, 0, 45551, 'Ирель to Player');
+REPLACE INTO `wod_world`.`creature_involvedrelation` (`id`, `quest`) VALUES ('79675', '34431'); -- little cheat
+REPLACE INTO `wod_world`.`creature_involvedrelation` (`id`, `quest`) VALUES ('79315', '34432');
+
+-- Q: 34434, 34740
+UPDATE `creature_template` SET `ScriptName` = 'mob_wod_q34434_q34740' WHERE `creature_template`.`entry` = 79795;
+DELETE FROM `creature_text` WHERE entry = 79795;
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(79795, 0, 0, 'Надо торопиться - орками Призрачной Луны командует некий Нер''зул.', 12, 0, 100, 396, 0, 45552, 'Ирель to Player'),
+(79795, 1, 0, 'После гибели своих командиров, Нер''зул начнет искать нас.', 12, 0, 100, 396, 0, 45553, 'Ирель to Player'),
+(79795, 2, 0, 'О, я вижу наверху твои друзья? Думаю, я смогу добраться туда.', 12, 0, 100, 0, 0, 45554, 'Ирель to Player');

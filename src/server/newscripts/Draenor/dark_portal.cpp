@@ -808,12 +808,107 @@ public:
             if (!player || !me->IsWithinDistInMap(who, 25.0f))
                 return;
             
+            if (player->GetQuestStatus(player->GetTeam() == ALLIANCE ? Q_A : Q_H) != QUEST_STATUS_INCOMPLETE)
+                return;
+
             if (player->GetQuestObjectiveData(player->GetTeam() == ALLIANCE ? Q_A : Q_H, OBJECTIVE_CREDIT))
                 return;
 
             player->CastSpell(player, SPELL_CREDIT, true);
             sCreatureTextMgr->SendChat(me, TEXT_GENERIC_0, player->GetGUID());
             return;
+        }
+    };
+};
+
+class mob_wod_q34434_q34740 : public CreatureScript
+{
+public:
+    mob_wod_q34434_q34740() : CreatureScript("mob_wod_q34434_q34740") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_q34434_q34740AI(creature);
+    }
+
+    struct mob_wod_q34434_q34740AI : public ScriptedAI
+    {
+        EventMap events;
+        ObjectGuid playerGuid;
+
+        mob_wod_q34434_q34740AI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        enum data
+        {
+            EVENT_1 = 1,
+            EVENT_2,
+            EVENT_3,
+
+            EVENT_CHECK_PHASE_1
+        };
+
+        void OnCharmed(bool /*apply*/)
+        {
+        }
+
+        void IsSummonedBy(Unit* summoner)
+        {
+            Player *player = summoner->ToPlayer();
+            if (!player)
+            {
+                me->MonsterSay("SCRIPT::mob_wod_q34434_q34740AI summoner is not player", LANG_UNIVERSAL, ObjectGuid::Empty);
+                return;
+            }
+
+            playerGuid = summoner->GetGUID();
+            me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
+
+            uint32 t = 0;                                                       //
+            events.ScheduleEvent(EVENT_1, t += 2000);               //09:34:23.000 
+            events.ScheduleEvent(EVENT_2, t += 6000);               //09:34:28.000
+
+            events.ScheduleEvent(EVENT_CHECK_PHASE_1, t += 1000);
+        }
+
+        void DoAction(int32 const /*param*/)
+        {
+
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            UpdateVictim();
+
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_1:
+                case EVENT_2:
+                case EVENT_3:
+                    sCreatureTextMgr->SendChat(me, /*TEXT_GENERIC_0*/eventId - 1, playerGuid);
+                    break;
+                case EVENT_CHECK_PHASE_1:
+                    if (me->GetDistance(4516.582f, -2495.618f, 25.87184f) < 40.0f && !me->getVictim())
+                    {
+                        if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
+                            player->KilledMonsterCredit(79794, ObjectGuid::Empty);
+
+                        me->GetMotionMaster()->MovePoint(1, 4516.582f, -2495.618f, 25.87184f);
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_2, playerGuid);
+                        me->DespawnOrUnsummon(15000);
+                    }
+                    else
+                        events.ScheduleEvent(EVENT_CHECK_PHASE_1, 5000);
+                    break;
+                default:
+                    break;
+                }
+            }
+            DoMeleeAttackIfReady();
         }
     };
 };
@@ -834,4 +929,5 @@ void AddSC_wod_dark_portal()
     new mob_arena_combatant_q34429();
     new sceneTrigger_q34429();
     new mob_wod_irel();
+    new mob_wod_q34434_q34740();
 }
