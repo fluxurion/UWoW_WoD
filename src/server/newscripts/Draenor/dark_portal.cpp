@@ -784,17 +784,17 @@ public:
         return new mob_wod_irelAI(creature);
     }
 
+    enum data
+    {
+        SPELL_CREDIT = 160774,
+        OBJECTIVE_CREDIT = 79593,
+        Q_H = 34737,
+        Q_A = 34431,
+    };
+
     struct mob_wod_irelAI : public ScriptedAI
     {
-        enum data
-        {
-            SPELL_CREDIT = 160774,
-            OBJECTIVE_CREDIT = 79583,
-            QUEST_A = 34431,
-            QUEST_H = 34737,
-        };
-
-        mob_wod_intro_guldanAI(Creature* creature) : ScriptedAI(creature)
+        mob_wod_irelAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -808,7 +808,7 @@ public:
             if (!player || !me->IsWithinDistInMap(who, 25.0f))
                 return;
             
-            if (player->GetQuestObjectiveData(GetTeam() == ALLIANCE ? QUEST_A : QUEST_H, OBJECTIVE_CREDIT))
+            if (player->GetQuestObjectiveData(player->GetTeam() == ALLIANCE ? Q_A : Q_H, OBJECTIVE_CREDIT))
                 return;
 
             player->CastSpell(player, SPELL_CREDIT, true);
