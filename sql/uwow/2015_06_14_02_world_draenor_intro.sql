@@ -187,6 +187,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3352 npc 78994 before take q34740
 -- 3351 npc 78994 after complete/reward 
 -- 4017 возможно трэшак в пещере
+
 DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763, 82871, 85142);
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) VALUES
 -- ---------------------------------------------------
@@ -210,8 +211,13 @@ INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask
 (82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3832.51, -2522.04, 67.2714, 5.66393, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3831.49, -2523.18, 67.4658, 5.76322, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3830.21, -2522.03, 68.2795, 5.74193, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3831.49, -2521.28, 67.9045, 5.66201, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+(82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3831.49, -2521.28, 67.9045, 5.66201, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 
+-- 79315 -> 79316| 79675 -> 79537 for phase 3356
+DELETE FROM creature WHERE id in (79316, 79537) and PhaseId LIKE '3356';
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
+(79316, 1265, 1, 4, '3356', 4521.452, -2498.33, 25.90163, 3.92693, 120, 0, 0), -- 79316 (Area: 7042)
+(79537, 1265, 1, 4, '3356', 4516.949, -2493.96, 25.89436, 1.700529, 120, 0, 0); -- 79537 (Area: 7042)
 
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
 ('7025', '1', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3880 3946 4142 4143 4200', '0', '0', '16', 'Draenor Dark Portal Intro'),
@@ -471,12 +477,15 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34425', '34423', '0', '0'),
 ('34478', '34425', '34429', '0'),
 ('34427', '34425', '34429', '0'),
-('34739', '34429', '0', '0'),
-('34432', '34429', '0', '0'),
-('34737', '34429', '0', '0'),
-('34431', '34429', '0', '0'),
-('34434', '34429', '0', '0'),
-('34740', '34429', '0', '0');
+('34739', '34429', '34741', '-34741'), -- h
+('34432', '34429', '34436', '-34436'), -- a
+('34737', '34429', '34741', '-34741'), -- h
+('34431', '34429', '34436', '-34436'), -- a
+('34740', '34429', '34741', '-34741'), -- h
+('34434', '34429', '34436', '-34436'), -- a
+('34741', '34429', '0', '0'), -- h
+('34436', '34429', '0', '0'); -- a
+
 
 UPDATE `quest_template` SET AllowableRaces = 33555378 WHERE ID in (34421, 35241); -- SET HORDE
 UPDATE `quest_template` SET AllowableRaces =  (1101 + 2097152  + 16777216)WHERE ID in (35242, 34422); -- SET ALLIANCE
@@ -626,8 +635,7 @@ UPDATE `creature_template` SET `ScriptName` = 'mob_wod_irel' WHERE `creature_tem
 DELETE FROM `creature_text` WHERE entry = 78994;
 REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (78994, 0, 0, 'Кто здесь?! Ох, слава Свету, я не одна здесь сражаюсь с этими монстрами.', 12, 0, 100, 0, 0, 45551, 'Ирель to Player');
-REPLACE INTO `wod_world`.`creature_involvedrelation` (`id`, `quest`) VALUES ('79675', '34431'); -- little cheat
-REPLACE INTO `wod_world`.`creature_involvedrelation` (`id`, `quest`) VALUES ('79315', '34432');
+
 
 -- Q: 34434, 34740
 UPDATE `creature_template` SET `ScriptName` = 'mob_wod_q34434_q34740' WHERE `creature_template`.`entry` = 79795;
