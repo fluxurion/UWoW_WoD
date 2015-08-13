@@ -211,7 +211,7 @@ INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask
 (82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3832.51, -2522.04, 67.2714, 5.66393, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3831.49, -2523.18, 67.4658, 5.76322, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3830.21, -2522.03, 68.2795, 5.74193, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3831.49, -2521.28, 67.9045, 5.66201, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(82871, 1265, 7025, 7038, 1, 4, '3209', 0, 0, 3831.49, -2521.28, 67.9045, 5.66201, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 -- 79315 -> 79316| 79675 -> 79537 for phase 3356
 DELETE FROM creature WHERE id in (79316, 79537) and PhaseId LIKE '3356';
@@ -293,7 +293,13 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- Q34740 at taking remove it. hide 78994 at take it.
 ('7025', '26', '0','3352', '0', '0', '16', 'DraenorIntro: before 34434, 34740'),
 -- at 
-('7025', '27', '0','3351', '0', '0', '16', 'DraenorIntro: after 34434, 34740');
+('7025', '27', '0','3351', '0', '0', '16', 'DraenorIntro: after 34434, 34740'),
+-- Q: 34741, 34436
+('7025', '28', '0','3267 3317 3334 3394 3395 3396 3481 3693 3712 3720 3752 3790 3824 3833 3834 3936 4015 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34741 34436'),
+-- 
+('7025', '29', '0','3268 3317 3334 3394 3395 3396 3481 3497 3498 3499 3693 3712 3752 3824 3833 3834 3936 4017 4019 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34436 q34741 completed');
+-- triger scene 801
+-- 3268 3317 3334 3394 3395 3396 3481 3497 3498 3499 3594 3693 3712 3752 3824 3833 3834 3936 4019 4150 4151 4200
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -366,10 +372,22 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 26, 0, 0, 9, 0, 34434, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not taken 34434'),
 (23, 7025, 26, 0, 0, 9, 0, 34740, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not taken 34740'),
 -- remove 27 when 23
-(23, 7025, 27, 0, 0, 8, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34434'),
-(23, 7025, 27, 0, 1, 8, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34740'),
-(23, 7025, 27, 0, 2, 28, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34434'),
-(23, 7025, 27, 0, 3, 28, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34740');
+(23, 7025, 27, 0, 0, 14, 0, 34741, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO AND quest none 34741'),
+(23, 7025, 27, 0, 0, 14, 0, 34436, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO AND quest none 34436'),
+(23, 7025, 27, 1, 0, 8, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34434'),
+(23, 7025, 27, 1, 1, 8, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34740'),
+(23, 7025, 27, 1, 2, 28, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34434'),
+(23, 7025, 27, 1, 3, 28, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34740'),
+(23, 7025, 28, 0, 0, 9, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO taken 34741'),
+(23, 7025, 28, 0, 0, 28, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not complete 34741'),
+(23, 7025, 28, 0, 0, 8, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34741'),
+(23, 7025, 28, 0, 1, 9, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR taken 34436'),
+(23, 7025, 28, 0, 1, 28, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not complete 34436'),
+(23, 7025, 28, 0, 1, 8, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34436'),
+(23, 7025, 29, 0, 0, 8, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO rewarded 34741'),
+(23, 7025, 29, 0, 0, 28, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO or completed 34741'),
+(23, 7025, 29, 0, 1, 8, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR rewarded 34436'),
+(23, 7025, 29, 0, 1, 28, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO or completed 34436');
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -404,9 +422,14 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('946', '796', '1', '20', '0', '0', 'Escape Arena - spell 165549 Q34429'), -- 46
 ('844', '666', '1', '16', '0', '0', 'Сцена с порталами unk 160714'), -- 47 50 51
 ('956', '803', '1', '25', '167963', '0', 'Завал - spell 166223 Q34429'), -- 48
-('948', '798', '1', '16', '0', '0', 'Прибытие Лиадрин и Оулина - spell 165633 Q34429'), -- 49
-('870', '686', '1', '16', '0', '0', 'Spell 161183 Лиадрин и Ирель уходят'); -- 52
+('948', '798', '1', '16', '0', '0', 'Прибытие Лиадрин и Оулина - spell 165633 Q34429'), -- 49 Horde
+('947', '797', '1', '16', '0', '0',  'Прибытие Маладаара и Кианы - spell 165632 Q34429'), -- 49 Alliance
+('870', '686', '1', '16', '0', '0', 'Spell 161183 Лиадрин и Ирель уходят HORDE'), -- 52 for Horde
+('861', '673', '1', '16', '0', '0', 'Spell 161140 Маладаар и Ирель уходят ALLIANCE'), -- alliance
+('858', '672', '1', '16', '0', '0', 'Spell 161119 Keli\'dan FX Scene Q: 34741, 34436'), -- 53
+('952', '801', '1', '25', '0', '0', 'Spell 163772 появление Нер\'зула Q: 34741, 34436'); -- 54
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
+UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34741_34436' WHERE MiscValue = 801;
 
 -- Basic area auras
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023, 165549, 166216, 165271);
@@ -450,11 +473,17 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('166216', '7025', '34429', '34429', '0', '0', '2', '0', '10', '64'),
 ('165549', '7025', '34429', '34429', '0', '0', '2', '1', '10', '64'),
 ('166223', '7025', '34429', '0', '0', '0', '2', '1', '2', '64'),
-('165633', '7042', '34429', '0', '0', '0', '2', '1', '64', '64'),
+('165633', '7042', '34737', '0', '0', '0', '2', '1', '2', '64'), -- horde
+('165632', '7042', '34431', '0', '0', '0', '2', '1', '2', '64'), -- alliance
 ('160714', '7042', '0', '0', '0', '0', '2', '1', '2', '64'),
 ('161109', '7042', '34740', '34740', '0', '0', '2', '1', '10', '64'),
-('161109', '7042', '34434', '34434', '0', '0', '2', '1', '10', '64');
-
+('161109', '7042', '34434', '34434', '0', '0', '2', '1', '10', '64'),
+('161183', '7042', '34741', '34741', '0', '0', '2', '1', '8', '66'), -- horde
+('161140', '7042', '34436', '34436', '0', '0', '2', '1', '8', '66'), -- alliance
+('161119', '7042', '34741', '34741', '0', '0', '2', '1', '8', '64'),
+('161119', '7042', '34436', '34436', '0', '0', '2', '1', '8', '64'),
+('163772', '7025', '34741', '34741', '0', '0', '2', '1', '2', '64'),
+('163772', '7025', '34436', '34436', '0', '0', '2', '1', '2', '64');
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
 UPDATE `quest_template` SET `RewardNextQuest` = '35933' WHERE `ID` in (34398, 36881);
@@ -644,3 +673,14 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 (79795, 0, 0, 'Надо торопиться - орками Призрачной Луны командует некий Нер''зул.', 12, 0, 100, 396, 0, 45552, 'Ирель to Player'),
 (79795, 1, 0, 'После гибели своих командиров, Нер''зул начнет искать нас.', 12, 0, 100, 396, 0, 45553, 'Ирель to Player'),
 (79795, 2, 0, 'О, я вижу наверху твои друзья? Думаю, я смогу добраться туда.', 12, 0, 100, 0, 0, 45554, 'Ирель to Player');
+
+-- Q: 34741, 34436
+UPDATE `creature_template` SET `ScriptName` = 'mob_wod_q34741_34436' WHERE `creature_template`.`entry` = 79702;
+DELETE FROM `creature_text` WHERE entry = 79702;
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(79702, 0, 0, 'Гость из портала! Из тебя выйдет отличная жертва.', 14, 0, 100, 0, 0, 45980, 'Кели''дан Разрушитель to Player'),
+(79702, 1, 0, 'Пустота поглотит тебя!', 14, 0, 100, 0, 0, 45982, 'Кели''дан Разрушитель to 0'),
+(79702, 2, 0, 'Подойди поближе… и сгори!', 14, 0, 100, 0, 0, 45981, 'Кели''дан Разрушитель to Кели''дан Разрушитель'),
+(79702, 3, 0, 'Нер''зул... Помоги мне…', 14, 0, 100, 20, 0, 45983, 'Кели''дан Разрушитель to 0');
+
+UPDATE `gameobject_template` SET `ScriptName` = 'go_wod_gate_q34741_34436' WHERE `gameobject_template`.`entry` = 233197;

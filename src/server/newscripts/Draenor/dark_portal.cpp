@@ -912,6 +912,167 @@ public:
         }
     };
 };
+//go - 233197 Q: 34741, 34436
+class go_wod_gate_q34741_34436 : public GameObjectScript
+{
+public:
+    go_wod_gate_q34741_34436() : GameObjectScript("go_wod_gate_q34741_34436") { }
+
+    struct go_wod_gate_q34741_34436_AI : public GameObjectAI
+    {
+        go_wod_gate_q34741_34436_AI(GameObject* go) : GameObjectAI(go)
+        {
+            events.ScheduleEvent(1, 5000);
+        }
+
+        enum data
+        {
+            Q_H = 34741,
+            Q_A = 34436,
+        };
+
+        void UpdateAI(uint32 diff)
+        {
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                events.ScheduleEvent(1, 1000);
+
+                std::list<Player*> playerList;
+                go->GetPlayerListInGrid(playerList, 10.0f);
+                for (std::list<Player*>::iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                {
+                    if ((*itr)->GetQuestStatus((*itr)->GetTeam() == ALLIANCE ? Q_A : Q_H) == QUEST_STATUS_NONE)
+                        continue;
+                    if (go->GetGoState() != GO_STATE_ACTIVE_ALTERNATIVE)
+                        go->EnableOrDisableGo(true, true);
+                    return;
+                }
+                if (go->GetGoState() == GO_STATE_ACTIVE_ALTERNATIVE)
+                    go->EnableOrDisableGo(false, false);                
+            }
+        }
+
+    private:
+        EventMap events;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const
+    {
+        return new go_wod_gate_q34741_34436_AI(go);
+    }
+};
+
+class mob_wod_q34741_34436 : public CreatureScript
+{
+public:
+    mob_wod_q34741_34436() : CreatureScript("mob_wod_q34741_34436") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_q34741_34436_AI(creature);
+    }
+
+    struct mob_wod_q34741_34436_AI : public ScriptedAI
+    {
+        EventMap events;
+        bool _event;
+        mob_wod_q34741_34436_AI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        enum data
+        {
+            SPELL_VOID_SHELL = 165880, //Void Shell
+            SPELL_VOID_BOLT_VOLLEY = 165875, //Void Bolt Volley
+            SPELL_VOID_VACUUM = 165871, //Void Vacuum
+
+            SPELL_VOID_COSMETIC_MISLE = 165316,
+
+            EVENT_COMBAT_SPELL_1 = 1,
+            EVENT_SHELL,
+            EVENT_3,
+            EVENT_4,
+            EVENT_5,
+            EVENT_6,
+
+        };
+
+        void Reset() override
+        {
+            
+        }
+
+        void JustDied(Unit* killer)
+        {
+            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_3, ObjectGuid::Empty);
+        }
+
+        void EnterEvadeMode() override
+        {
+            events.CancelEvent(EVENT_COMBAT_SPELL_1);
+            events.CancelEvent(EVENT_SHELL);
+            ScriptedAI::EnterEvadeMode();
+        }
+
+        void EnterCombat(Unit* /*victim*/) override
+        {
+            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_0, ObjectGuid::Empty);
+            events.ScheduleEvent(EVENT_COMBAT_SPELL_1, 5000);
+            events.ScheduleEvent(EVENT_SHELL, 8000);
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            UpdateVictim();
+
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_COMBAT_SPELL_1:
+                    {
+                        if (Unit* victim = me->getVictim())
+                            me->CastSpell(victim, 166911, false);
+                        events.ScheduleEvent(EVENT_COMBAT_SPELL_1, 5000);
+                        break;
+                    }
+                    case EVENT_SHELL:
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_2, ObjectGuid::Empty);
+                        me->CastSpell(me, SPELL_VOID_VACUUM, false);
+                        events.ScheduleEvent(EVENT_SHELL, 20000);
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
+class sceneTrigger_q34741_34436 : public SceneTriggerScript
+{
+public:
+    sceneTrigger_q34741_34436() : SceneTriggerScript("sceneTrigger_q34741_34436")
+    {}
+
+    enum data
+    {
+        SPELL_CREDIT_100 = 168182,
+        SPELL_PHASE = 167960,
+        SPELL_CREDIT_ESCAPE = 165265,
+    };
+
+    bool OnTrigger(Player* player, SpellScene const* trigger, std::string type) override
+    {
+        if (type == "Teleport")
+        {
+            player->TeleportTo(1265, 4519.2f, -2294.0f, 33.8118f, 1.343904f);
+        }
+        return true;
+    }
+};
+
 void AddSC_wod_dark_portal()
 {
     new mob_wod_thrall();
@@ -930,4 +1091,7 @@ void AddSC_wod_dark_portal()
     new sceneTrigger_q34429();
     new mob_wod_irel();
     new mob_wod_q34434_q34740();
+    new go_wod_gate_q34741_34436();
+    new mob_wod_q34741_34436();
+    new sceneTrigger_q34741_34436();
 }

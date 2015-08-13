@@ -5494,6 +5494,9 @@ void SpellMgr::LoadSpellCustomAttr()
 				case 166216: // Wod: Q34429
 					spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // -1s
 					break;
+                case 163772: // Wod: lost scene id.
+                    spellInfo->Effects[EFFECT_0].MiscValue = 801;
+                    break;
                 default:
                     break;
             }
