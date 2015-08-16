@@ -187,7 +187,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3352 npc 78994 before take q34740
 -- 3351 npc 78994 after complete/reward 
 -- 4017 возможно трэшак в пещере
-
+-- 4019 3594 3499 3498 3497 3481 3268 - новое после телепорта на завале.
 DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763, 82871, 85142);
 INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) VALUES
 -- ---------------------------------------------------
@@ -297,9 +297,11 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- Q: 34741, 34436
 ('7025', '28', '0','3267 3317 3334 3394 3395 3396 3481 3693 3712 3720 3752 3790 3824 3833 3834 3936 4015 4017 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34741 34436'),
 -- 
-('7025', '29', '0','3268 3317 3334 3394 3395 3396 3481 3497 3498 3499 3693 3712 3752 3824 3833 3834 3936 4017 4019 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34436 q34741 completed');
+('7025', '29', '0','3268 3317 3334 3394 3395 3396 3481 3497 3498 3499 3693 3712 3752 3824 3833 3834 3936 4017 4019 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34436 q34741 completed'),
 -- triger scene 801
 -- 3268 3317 3334 3394 3395 3396 3481 3497 3498 3499 3594 3693 3712 3752 3824 3833 3834 3936 4019 4150 4151 4200
+('7025', '30', '0','3317 3334 3394 3395 3396 3481 3498 3594 3693 3712 3752 3824 3833 3834 3936 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34436 q34741 completed');
+
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -387,7 +389,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 29, 0, 0, 8, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO rewarded 34741'),
 (23, 7025, 29, 0, 0, 28, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO or completed 34741'),
 (23, 7025, 29, 0, 1, 8, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR rewarded 34436'),
-(23, 7025, 29, 0, 1, 28, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO or completed 34436');
+(23, 7025, 29, 0, 1, 28, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO or completed 34436'),
+(23, 7025, 30, 0, 0, 40, 0, 753, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after prock scene triger teleport for 801');
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -427,7 +430,9 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('870', '686', '1', '16', '0', '0', 'Spell 161183 Лиадрин и Ирель уходят HORDE'), -- 52 for Horde
 ('861', '673', '1', '16', '0', '0', 'Spell 161140 Маладаар и Ирель уходят ALLIANCE'), -- alliance
 ('858', '672', '1', '16', '0', '0', 'Spell 161119 Keli\'dan FX Scene Q: 34741, 34436'), -- 53
-('952', '801', '1', '25', '0', '0', 'Spell 163772 появление Нер\'зула Q: 34741, 34436'); -- 54
+('952', '801', '1', '25', '0', '0', 'Spell 163772 появление Нер\'зула Q: 34741, 34436'), -- 54
+('922', '753', '1', '16', '0', '0', 'Spell 163770 подземный проход к хребту'); -- 55
+
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34741_34436' WHERE MiscValue = 801;
 
@@ -440,7 +445,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 166216, 0, 0, 41, 0, 34429, 82066, 99, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 166216 Q34429 not objective 82066 = 3'),
 (17, 0, 165271, 0, 0, 41, 0, 34429, 82066, 95, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 165271 Q34429 not objective 82066 = 3');
 
-DELETE FROM `spell_area` WHERE area in (7025, 7041, 7129, 7040, 7042);
+DELETE FROM `spell_area` WHERE area in (7025, 7041, 7129, 7040, 7042, 7043);
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
 ('164678', '7025', '0', '35933', '0', '0', '2', '1', '64', '65'), 
 ('164678', '7025', '34393', '0', '0', '0', '2', '1', '88', '11'),
@@ -482,8 +487,13 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('161140', '7042', '34436', '34436', '0', '0', '2', '1', '8', '66'), -- alliance
 ('161119', '7042', '34741', '34741', '0', '0', '2', '1', '8', '64'),
 ('161119', '7042', '34436', '34436', '0', '0', '2', '1', '8', '64'),
-('163772', '7025', '34741', '34741', '0', '0', '2', '1', '2', '64'),
-('163772', '7025', '34436', '34436', '0', '0', '2', '1', '2', '64');
+('163772', '7042', '34741', '34741', '0', '0', '2', '1', '2', '64'),
+('163772', '7042', '34436', '34436', '0', '0', '2', '1', '2', '64'),
+('163770', '7043', '34741', '34741', '0', '0', '2', '1', '2', '64'),
+('163770', '7043', '34436', '34436', '0', '0', '2', '1', '2', '64');
+
+
+-- 34741, 34436
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
 UPDATE `quest_template` SET `RewardNextQuest` = '35933' WHERE `ID` in (34398, 36881);
