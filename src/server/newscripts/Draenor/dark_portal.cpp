@@ -1073,6 +1073,32 @@ public:
     }
 };
 
+class sceneTrigger_q34439 : public SceneTriggerScript
+{
+public:
+    sceneTrigger_q34439() : SceneTriggerScript("sceneTrigger_q34439")
+    {}
+
+    enum data
+    {
+        SPELL_BIG = 167891,
+        SPELL_SMALL = 167890,
+    };
+
+    bool OnTrigger(Player* player, SpellScene const* trigger, std::string type) override
+    {
+        if (type == "Big")
+        {
+            player->CastSpell(player, SPELL_BIG, false);
+        }
+        else if (type == "Big")
+        {
+            player->CastSpell(player, SPELL_SMALL, false);
+        }
+        return true;
+    }
+};
+
 void AddSC_wod_dark_portal()
 {
     new mob_wod_thrall();
@@ -1094,4 +1120,5 @@ void AddSC_wod_dark_portal()
     new go_wod_gate_q34741_34436();
     new mob_wod_q34741_34436();
     new sceneTrigger_q34741_34436();
+    new sceneTrigger_q34439();
 }

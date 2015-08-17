@@ -5497,6 +5497,19 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 163772: // Wod: lost scene id.
                     spellInfo->Effects[EFFECT_0].MiscValue = 801;
                     break;
+                //Wod: Q: 34439 Blizz use script for change summon entry. But i did it by this.
+                case 161166:
+                    spellInfo->Effects[EFFECT_0].MiscValue = 79315;
+                    break;
+                case 161065:
+                    spellInfo->Effects[EFFECT_0].MiscValue = 78430;
+                    break;
+                case 161167:
+                    spellInfo->Effects[EFFECT_0].MiscValue = 79675;
+                    break;
+                case 158818:
+                    spellInfo->Effects[EFFECT_0].MiscValue = 79767;
+                    break;
                 default:
                     break;
             }
