@@ -368,12 +368,13 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 24, 0, 0, 42, 0, 803, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp after event scene 803'),
 (23, 7025, 24, 0, 1, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34429'),
 (23, 7025, 25, 0, 0, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34429'),
+(23, 7025, 25, 0, 0, 8, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34741'),
+(23, 7025, 25, 0, 0, 8, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO anod not rewarded 34436'),
 (23, 7025, 26, 0, 0, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34429'),
 (23, 7025, 26, 0, 0, 8, 0, 34434, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34434'),
 (23, 7025, 26, 0, 0, 8, 0, 34740, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34740'),
 (23, 7025, 26, 0, 0, 9, 0, 34434, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not taken 34434'),
 (23, 7025, 26, 0, 0, 9, 0, 34740, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not taken 34740'),
--- remove 27 when 23
 (23, 7025, 27, 0, 0, 14, 0, 34741, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO AND quest none 34741'),
 (23, 7025, 27, 0, 0, 14, 0, 34436, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO AND quest none 34436'),
 (23, 7025, 27, 1, 0, 8, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34434'),
@@ -386,10 +387,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 28, 0, 1, 9, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR taken 34436'),
 (23, 7025, 28, 0, 1, 28, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not complete 34436'),
 (23, 7025, 28, 0, 1, 8, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34436'),
-(23, 7025, 29, 0, 0, 8, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO rewarded 34741'),
-(23, 7025, 29, 0, 0, 28, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO or completed 34741'),
-(23, 7025, 29, 0, 1, 8, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR rewarded 34436'),
-(23, 7025, 29, 0, 1, 28, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO or completed 34436'),
+(23, 7025, 29, 0, 0, 8, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34741'),
+(23, 7025, 29, 0, 0, 28, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO or not completed 34741'),
+(23, 7025, 29, 0, 0, 8, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR rewarded 34436'),
+(23, 7025, 29, 0, 0, 28, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO or completed 34436'),
 (23, 7025, 30, 0, 0, 40, 0, 753, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after prock scene triger teleport for 801');
 
 -- 34422
@@ -489,8 +490,8 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('161119', '7042', '34436', '34436', '0', '0', '2', '1', '8', '64'),
 ('163772', '7042', '34741', '34741', '0', '0', '2', '1', '2', '64'),
 ('163772', '7042', '34436', '34436', '0', '0', '2', '1', '2', '64'),
-('163770', '7043', '34741', '34741', '0', '0', '2', '1', '2', '64'),
-('163770', '7043', '34436', '34436', '0', '0', '2', '1', '2', '64');
+('163770', '7043', '34741', '0', '0', '0', '2', '1', '66', '64'),
+('163770', '7043', '34436', '0', '0', '0', '2', '1', '66', '64');
 
 
 -- 34741, 34436
@@ -523,8 +524,9 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34740', '34429', '34741', '-34741'), -- h
 ('34434', '34429', '34436', '-34436'), -- a
 ('34741', '34429', '0', '0'), -- h
-('34436', '34429', '0', '0'); -- a
-
+('34436', '34429', '0', '0'), -- a
+('35005', '34741', '0', '0'), -- h
+('35019', '34436', '0', '0'); -- a
 
 UPDATE `quest_template` SET AllowableRaces = 33555378 WHERE ID in (34421, 35241); -- SET HORDE
 UPDATE `quest_template` SET AllowableRaces =  (1101 + 2097152  + 16777216)WHERE ID in (35242, 34422); -- SET ALLIANCE
@@ -694,3 +696,18 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 (79702, 3, 0, 'Нер''зул... Помоги мне…', 14, 0, 100, 20, 0, 45983, 'Кели''дан Разрушитель to 0');
 
 UPDATE `gameobject_template` SET `ScriptName` = 'go_wod_gate_q34741_34436' WHERE `gameobject_template`.`entry` = 233197;
+
+-- Q: 35005, 35019
+REPLACE INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `shared`) VALUES
+('53478', '112337', '-100', '1', '0', '1', '3', '0'), -- 231816
+('53479', '112337', '-100', '1', '0', '1', '3', '0'), -- 231817
+('53477', '112337', '-100', '1', '0', '1', '3', '0'), -- 231815
+('53479', '112337', '-100', '1', '0', '1', '3', '0'), -- 231164
+('53477', '112337', '-100', '1', '0', '1', '3', '0'), -- 231160
+('53478', '112337', '-100', '1', '0', '1', '3', '0'), -- 231163
+('53480', '112337', '-100', '1', '0', '1', '3', '0'), -- 231167
+('53480', '112337', '-100', '1', '0', '1', '3', '0'), -- 231820
+('53480', '112337', '-100', '1', '0', '1', '3', '0'), -- 231166
+('53480', '112337', '-100', '1', '0', '1', '3', '0'), -- 231168
+('53480', '112337', '-100', '1', '0', '1', '3', '0'), -- 231819
+('53480', '112337', '-100', '1', '0', '1', '3', '0'); -- 231818
