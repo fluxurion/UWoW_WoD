@@ -191,6 +191,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 4019 - это рабочие которые в квесте после завала получат оружие.
 -- 3498 - после завала привальщики.
 -- 3500 - это кадхар после обвала, который после сцены телепортирует к дамбе
+-- 3824 дамба до взрыва - глобальное.
 
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
 ('7025', '1', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3880 3946 4142 4143 4200', '0', '0', '16', 'Draenor Dark Portal Intro'),
@@ -279,7 +280,11 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 --
 ('7025', '32', '0','3334 3394 3395 3396 3481 3498 3500 3594 3693 3712 3752 3824 3833 3834 3936 4022 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34439'),
 --
-('7025', '33', '0','3500', '0', '0', '16', 'DraenorIntro: stsrt q34439 телепорт к платине мага');
+('7025', '33', '0','3500', '0', '0', '16', 'DraenorIntro: stsrt q34439 телепорт к платине мага'),
+-- 3269 3334 3394 3395 3396 3481 3498 3594 3693 3712 3752 3833 3834 3936 4150 4151 4200 
+--
+('7025', '34', '0','3269 3334 3394 3395 3396 3423 3481 3498 3505 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34439 телепорт к платине мага'),
+('7025', '35', '0','0', '1307', '0', '0', 'DraenorIntro: терран затопленная дамба.');
 
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
@@ -360,9 +365,11 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 27, 1, 1, 8, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34740'),
 (23, 7025, 27, 1, 2, 28, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34434'),
 (23, 7025, 27, 1, 3, 28, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34740'),
+(23, 7025, 28, 0, 0, 6, 0, 67, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO for horde'),
 (23, 7025, 28, 0, 0, 9, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO taken 34741'),
 (23, 7025, 28, 0, 0, 28, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not complete 34741'),
 (23, 7025, 28, 0, 0, 8, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34741'),
+(23, 7025, 28, 0, 1, 6, 0, 469, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO  for  alliance'),
 (23, 7025, 28, 0, 1, 9, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR taken 34436'),
 (23, 7025, 28, 0, 1, 28, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not complete 34436'),
 (23, 7025, 28, 0, 1, 8, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34436'),
@@ -378,9 +385,13 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 31, 0, 1, 8, 0, 35019, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR rewarded 35019'),
 (23, 7025, 31, 0, 1, 14, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO 34439 non'),
 (23, 7025, 32, 0, 0, 14, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not non 34439'),
+(23, 7025, 32, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rew 34439'),
 (23, 7025, 33, 0, 0, 40, 0, 719, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO if not complete scene'),
 (23, 7025, 33, 0, 0, 28, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 not complete 34439'),
-(23, 7025, 33, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 not rew 34439');
+(23, 7025, 33, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 not rew 34439'),
+(23, 7025, 34, 0, 0, 8, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rew 34439'),
+(23, 7025, 35, 0, 0, 42, 0, 732, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO after snece event 732');
+-- или квест взять надо через нон ему запилить.
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -424,8 +435,9 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('922', '753', '1', '16', '0', '0', 'Spell 163770 подземный проход к хребту'), -- 55
 ('906', '729', '1', '16', '0', '0', 'Spell 163246 вооружение пленных'), -- 56
 ('896', '719', '1', '16', '0', '0', 'Spell 162540 Blackhand Reveal'), -- 57
-('894', '724', '1', '16', '0', '0', 'Spell 162685 Blackhand Reveal'), -- 58
-('908', '730', '1', '16', '0', '0', 'Spell 163263 от Кадгара до плотины'); -- 59
+('894', '724', '1', '16', '0', '0', 'Spell 162685 Blackhand Reveal'), -- 58 60
+('908', '730', '1', '16', '0', '0', 'Spell 163263 от Кадгара до плотины'), -- 59
+('910', '732', '1', '25', '163783', '0', 'Spell 163319 взрыв дамбы');
 
 
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
@@ -495,7 +507,8 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('162685', '7043', '34439', '0', '0', '0', '2', '1', '8', '74'),
 ('161168', '7043', '34439', '0', '0', '33555378', '2', '1', '8', '74'), -- horde
 ('161074', '7043', '34439', '0', '0', '18875469', '2', '1', '8', '74'), -- alliance
-('163263', '7043', '34439', '0', '0', '0', '2', '1', '10', '74');
+('163263', '7043', '34439', '34439', '0', '0', '2', '1', '10', '64'),
+('163319', '7043', '34439', '0', '0', '0', '2', '1', '64', '74');
 
 -- 34741, 34436
 --
@@ -716,6 +729,8 @@ REPLACE INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`,
 ('53480', '112337', '-100', '1', '0', '1', '3', '0'); -- 231818
 
 -- Q: 34439
-
 REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`)
 VALUES ('162685', '162540', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Q34439 link phase');
+
+REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`)
+VALUES ('163783', '82238', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Q34439 update phase');
