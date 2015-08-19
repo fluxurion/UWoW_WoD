@@ -192,6 +192,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3498 - после завала привальщики.
 -- 3500 - это кадхар после обвала, который после сцены телепортирует к дамбе
 -- 3824 дамба до взрыва - глобальное.
+-- 3508 3551 после разрушения дамбы
+-- 3579 маг после разрушения дампы и эффекта телепортации.
 
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
 ('7025', '1', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3880 3946 4142 4143 4200', '0', '0', '16', 'Draenor Dark Portal Intro'),
@@ -282,10 +284,13 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 --
 ('7025', '33', '0','3500', '0', '0', '16', 'DraenorIntro: stsrt q34439 телепорт к платине мага'),
 -- 3269 3334 3394 3395 3396 3481 3498 3594 3693 3712 3752 3833 3834 3936 4150 4151 4200 
---
+-- 				   
 ('7025', '34', '0','3269 3334 3394 3395 3396 3423 3481 3498 3505 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34439 телепорт к платине мага'),
-('7025', '35', '0','0', '1307', '0', '0', 'DraenorIntro: терран затопленная дамба.');
-
+('7025', '35', '0','0', '1307', '0', '0', 'DraenorIntro: терран затопленная дамба.'),
+-- 
+('7025', '36', '0','3269 3334 3394 3395 3396 3423 3481 3498 3505 3508 3551 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34442 start'),
+--
+('7025', '37', '0','3579', '0', '0', '0', 'DraenorIntro: после кадгара появления.');
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -390,7 +395,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 33, 0, 0, 28, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 not complete 34439'),
 (23, 7025, 33, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 not rew 34439'),
 (23, 7025, 34, 0, 0, 8, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rew 34439'),
-(23, 7025, 35, 0, 0, 42, 0, 732, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO after snece event 732');
+(23, 7025, 34, 0, 0, 14, 0, 34442, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO non 34442'),
+(23, 7025, 35, 0, 0, 42, 0, 732, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO after snece event 732'),
+(23, 7025, 35, 0, 1, 14, 0, 34442, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR not non 34442'),
+(23, 7025, 36, 0, 0, 14, 0, 34442, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO non 34442'),
+(23, 7025, 37, 0, 0, 40, 0, 758, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO if complete scene 758');
+
 -- или квест взять надо через нон ему запилить.
 
 -- 34422
@@ -437,8 +447,8 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('896', '719', '1', '16', '0', '0', 'Spell 162540 Blackhand Reveal'), -- 57
 ('894', '724', '1', '16', '0', '0', 'Spell 162685 Blackhand Reveal'), -- 58 60
 ('908', '730', '1', '16', '0', '0', 'Spell 163263 от Кадгара до плотины'), -- 59
-('910', '732', '1', '25', '163783', '0', 'Spell 163319 взрыв дамбы');
-
+('910', '732', '1', '25', '163783', '0', 'Spell 163319 взрыв дамбы'), -- 61
+('928', '758', '1', '16', '0', '0', 'Spell 164031 портал воды Кадгара'); -- 62
 
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34741_34436' WHERE MiscValue = 801;
@@ -508,7 +518,8 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('161168', '7043', '34439', '0', '0', '33555378', '2', '1', '8', '74'), -- horde
 ('161074', '7043', '34439', '0', '0', '18875469', '2', '1', '8', '74'), -- alliance
 ('163263', '7043', '34439', '34439', '0', '0', '2', '1', '10', '64'),
-('163319', '7043', '34439', '0', '0', '0', '2', '1', '64', '74');
+('163319', '7043', '34439', '34442', '0', '0', '2', '1', '64', '74'),
+('164031', '7043', '34442', '0', '0', '0', '2', '1', '74', '74');
 
 -- 34741, 34436
 --
@@ -542,7 +553,10 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34741', '34429', '0', '0'), -- h
 ('34436', '34429', '0', '0'), -- a
 ('35005', '34741', '34439', '0'), -- h
-('35019', '34436', '34439', '0'); -- a
+('35019', '34436', '34439', '0'), -- a
+('34442', '34439', '0', '0'),
+('34958', '34439', '0', '0'),
+('34987', '34439', '0', '0');
 
 UPDATE `quest_template` SET AllowableRaces = 33555378 WHERE ID in (34421, 35241); -- SET HORDE
 UPDATE `quest_template` SET AllowableRaces =  (1101 + 2097152  + 16777216)WHERE ID in (35242, 34422); -- SET ALLIANCE
