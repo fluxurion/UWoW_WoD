@@ -194,6 +194,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3824 дамба до взрыва - глобальное.
 -- 3508 3551 после разрушения дамбы
 -- 3579 маг после разрушения дампы и эффекта телепортации.
+-- 3334 - гнар до спасения
+-- 3581 - гнар после спасения
 
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
 ('7025', '1', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3880 3946 4142 4143 4200', '0', '0', '16', 'Draenor Dark Portal Intro'),
@@ -290,7 +292,9 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- 
 ('7025', '36', '0','3269 3334 3394 3395 3396 3423 3481 3498 3505 3508 3551 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34442 start'),
 --
-('7025', '37', '0','3579', '0', '0', '0', 'DraenorIntro: после кадгара появления.');
+('7025', '37', '0','3579', '0', '0', '0', 'DraenorIntro: после кадгара появления.'),
+--  q 34437
+('7025', '38', '0','3269 3394 3395 3396 3423 3481 3498 3505 3508 3579 3581 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34437 start');
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -399,7 +403,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 35, 0, 0, 42, 0, 732, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO after snece event 732'),
 (23, 7025, 35, 0, 1, 14, 0, 34442, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR not non 34442'),
 (23, 7025, 36, 0, 0, 14, 0, 34442, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO non 34442'),
-(23, 7025, 37, 0, 0, 40, 0, 758, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO if complete scene 758');
+(23, 7025, 36, 0, 0, 14, 0, 34437, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO non 34437'),
+(23, 7025, 37, 0, 0, 40, 0, 758, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO if complete scene 758'),
+(23, 7025, 38, 0, 0, 14, 0, 34437, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not non 34437');
 
 -- или квест взять надо через нон ему запилить.
 
@@ -449,13 +455,13 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('908', '730', '1', '16', '0', '0', 'Spell 163263 от Кадгара до плотины'), -- 59
 ('910', '732', '1', '25', '163783', '0', 'Spell 163319 взрыв дамбы'), -- 61
 ('928', '758', '1', '16', '0', '0', 'Spell 164031 портал воды Кадгара'), -- 62
-('893', '723', '1', '20', '0', '0', 'Spell 162676 Пороховая бочка q34987'); -- 63
+('893', '723', '1', '20', '0', '0', 'Spell 162676 Пороховая бочка q34987'), -- 63
+('911', '736', '1', '16', '0', '0', 'Spell 163452 q34437 sceneObject');
 
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34741_34436' WHERE MiscValue = 801;
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34439' WHERE MiscValue = 724;
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34987' WHERE MiscValue = 723;
-
 
 -- Basic area auras
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023, 165549, 166216, 165271, 163263, 162676);
@@ -523,7 +529,8 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('163263', '7043', '34439', '34439', '0', '0', '2', '1', '10', '64'),
 ('163319', '7043', '34439', '34442', '0', '0', '2', '1', '64', '74'),
 ('164031', '7043', '34442', '0', '0', '0', '2', '1', '74', '74'),
-('162676', '7043', '34987', '34987', '0', '0', '2', '1', '2', '64');
+('162676', '7043', '34987', '34987', '0', '0', '2', '1', '2', '64'),
+('163452', '7043', '34437', '34437', '0', '0', '2', '1', '8', '66');
 
 -- 34741, 34436
 --
@@ -561,7 +568,8 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34442', '34439', '34925', '0'),
 ('34958', '34439', '0', '0'),
 ('34987', '34439', '0', '0'),
-('34437', '34925', '0', '0');
+('34437', '34925', '0', '0'),
+('35747', '34437', '0', '0');
 
 UPDATE `quest_template` SET AllowableRaces = 33555378 WHERE ID in (34421, 35241); -- SET HORDE
 UPDATE `quest_template` SET AllowableRaces =  (1101 + 2097152  + 16777216)WHERE ID in (35242, 34422); -- SET ALLIANCE
@@ -778,3 +786,5 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=79917;
 DELETE FROM smart_scripts WHERE entryorguid = 79917;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (79917, 0, 0, 0, 47, 0, 100, 0, 34925, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'At start q: 34925');
+
+-- Q: 34437
