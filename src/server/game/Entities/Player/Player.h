@@ -3235,10 +3235,7 @@ class Player : public Unit, public GridObject<Player>
         void AddListner(WorldObject* o);
         void RemoveListner(WorldObject* o);
 
-        //!  Get or Init cyber ptr.
-        cyber_ptr<Player> get_ptr();
     protected:
-        cyber_ptr<Player> plr_ptr;
         // Gamemaster whisper whitelist
         GuidList WhisperList;
         uint32 m_regenTimerCount;
@@ -3762,7 +3759,7 @@ protected:
     AchievementCriteriaTypes type;
     uint32 miscValue1 = 0;
     uint32 miscValue2 = 0;
-    cyber_ptr<Unit> unit;
+    cyber_ptr<Object> unit;
     bool ignoreGroup =false;
 };
 #endif

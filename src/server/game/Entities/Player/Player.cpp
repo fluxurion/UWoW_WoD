@@ -30053,13 +30053,3 @@ void Player::RemoveListner(WorldObject* o)
 {
     o->RemoveVisitor(this);
 }
-
-cyber_ptr<Player> Player::get_ptr()
-{
-    if (plr_ptr.numerator && plr_ptr.numerator->ready)
-        return plr_ptr.shared_from_this();
-
-    plr_ptr.InitParent(this);
-    ASSERT(plr_ptr.numerator);  // It's very bad. If it hit nothing work.
-    return plr_ptr.shared_from_this();
-}

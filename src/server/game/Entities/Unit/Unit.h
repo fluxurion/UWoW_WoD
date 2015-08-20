@@ -2535,8 +2535,6 @@ class Unit : public WorldObject
         void SetDynamicPassiveSpells(uint32 spellId, uint32 slot);
         uint32 GetDynamicPassiveSpells(uint32 slot);
 
-        //!  Get or Init cyber ptr.
-        cyber_ptr<Unit> get_ptr();
 
     protected:
         explicit Unit (bool isWorldObject);
@@ -2669,7 +2667,6 @@ class Unit : public WorldObject
 
         uint32 m_movementCounter;       ///< Incrementing counter used in movement packets
     private:
-        cyber_ptr<Unit> ptr;
 
         class AINotifyTask;
         class VisibilityUpdateTask;
