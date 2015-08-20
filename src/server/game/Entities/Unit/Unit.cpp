@@ -23012,7 +23012,7 @@ bool Unit::SetCanFly(bool enable)
     }
     else
     {
-        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY | MOVEMENTFLAG_DESCENDING); // descending: need CMSG_MOVE_SET_CAN_FLY_ACK
         if (!IsLevitating())
             SetFall(true);
     }
