@@ -1091,7 +1091,7 @@ public:
         {
             player->CastSpell(player, SPELL_BIG, false);
         }
-        else if (type == "Big")
+        else if (type == "Small")
         {
             player->CastSpell(player, SPELL_SMALL, false);
         }
@@ -1099,6 +1099,45 @@ public:
     }
 };
 
+class sceneTrigger_q34987 : public SceneTriggerScript
+{
+public:
+    sceneTrigger_q34987() : SceneTriggerScript("sceneTrigger_q34987")
+    {}
+
+    enum data
+    {
+        NPC__ = 78569,
+        SPELL_TALKA = 163678,
+        SPELL_SMALL = 167890,
+    };
+
+    bool OnTrigger(Player* player, SpellScene const* trigger, std::string type) override
+    {
+        if (type == "TalkA")
+        {
+            if (Creature *c = player->FindNearestCreature(NPC__, 100.0f))
+                sCreatureTextMgr->SendChat(c, TEXT_GENERIC_1, player->GetGUID());
+        }
+        else if (type == "TalkB")
+        {
+            if (Creature *c = player->FindNearestCreature(NPC__, 100.0f))
+                sCreatureTextMgr->SendChat(c, TEXT_GENERIC_2, player->GetGUID());
+            player->CastSpell(player, SPELL_SMALL, false);
+        }
+        else if (type == "TalkC")
+        {
+            if (Creature *c = player->FindNearestCreature(NPC__, 100.0f))
+                sCreatureTextMgr->SendChat(c, TEXT_GENERIC_3, player->GetGUID());
+        }
+        else if (type == "TalkD")
+        {
+            if (Creature *c = player->FindNearestCreature(NPC__, 100.0f))
+                sCreatureTextMgr->SendChat(c, TEXT_GENERIC_4, player->GetGUID());
+        }
+        return true;
+    }
+};
 void AddSC_wod_dark_portal()
 {
     new mob_wod_thrall();
@@ -1121,4 +1160,5 @@ void AddSC_wod_dark_portal()
     new mob_wod_q34741_34436();
     new sceneTrigger_q34741_34436();
     new sceneTrigger_q34439();
+    new sceneTrigger_q34987();
 }

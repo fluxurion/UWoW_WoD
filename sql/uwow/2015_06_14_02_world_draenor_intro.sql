@@ -448,14 +448,17 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('894', '724', '1', '16', '0', '0', 'Spell 162685 Blackhand Reveal'), -- 58 60
 ('908', '730', '1', '16', '0', '0', 'Spell 163263 от Кадгара до плотины'), -- 59
 ('910', '732', '1', '25', '163783', '0', 'Spell 163319 взрыв дамбы'), -- 61
-('928', '758', '1', '16', '0', '0', 'Spell 164031 портал воды Кадгара'); -- 62
+('928', '758', '1', '16', '0', '0', 'Spell 164031 портал воды Кадгара'), -- 62
+('893', '723', '1', '20', '0', '0', 'Spell 162676 Пороховая бочка q34987'); -- 63
 
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34741_34436' WHERE MiscValue = 801;
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34439' WHERE MiscValue = 724;
+UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34987' WHERE MiscValue = 723;
+
 
 -- Basic area auras
-DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023, 165549, 166216, 165271, 163263);
+DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023, 165549, 166216, 165271, 163263, 162676);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (17, 0, 161771, 0, 0, 41, 0, 34423, 78966, 3, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161771 Q34423 objective 78966 = 3'),
 (17, 0, 163023, 0, 0, 42, 0, 727, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163023 if not trigered scene'),
@@ -519,7 +522,8 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('161074', '7043', '34439', '0', '0', '18875469', '2', '1', '8', '74'), -- alliance
 ('163263', '7043', '34439', '34439', '0', '0', '2', '1', '10', '64'),
 ('163319', '7043', '34439', '34442', '0', '0', '2', '1', '64', '74'),
-('164031', '7043', '34442', '0', '0', '0', '2', '1', '74', '74');
+('164031', '7043', '34442', '0', '0', '0', '2', '1', '74', '74'),
+('162676', '7043', '34987', '34987', '0', '0', '2', '1', '2', '64');
 
 -- 34741, 34436
 --
@@ -554,9 +558,10 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34436', '34429', '0', '0'), -- a
 ('35005', '34741', '34439', '0'), -- h
 ('35019', '34436', '34439', '0'), -- a
-('34442', '34439', '0', '0'),
+('34442', '34439', '34925', '0'),
 ('34958', '34439', '0', '0'),
-('34987', '34439', '0', '0');
+('34987', '34439', '0', '0'),
+('34437', '34925', '0', '0');
 
 UPDATE `quest_template` SET AllowableRaces = 33555378 WHERE ID in (34421, 35241); -- SET HORDE
 UPDATE `quest_template` SET AllowableRaces =  (1101 + 2097152  + 16777216)WHERE ID in (35242, 34422); -- SET ALLIANCE
@@ -748,3 +753,28 @@ VALUES ('162685', '162540', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0
 
 REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`)
 VALUES ('163783', '82238', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Q34439 update phase');
+
+-- Q: 34987
+UPDATE `gameobject_template` SET `Data1` = '231119' WHERE `gameobject_template`.`entry` = 231119;
+REPLACE INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `shared`) VALUES
+('231119', '112323', '-100', '1', '0', '1', '1', '0'); -- 231119
+
+DELETE FROM `creature_text` WHERE entry = 78569;
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(78569, 0, 0, 'Быстрей сюда!', 12, 0, 100, 0, 0, 45699, 'Гензель Большерук to Player'),
+(78569, 1, 0, 'Искра пошла...', 12, 0, 100, 0, 0, 45702, 'Гензель Большерук to Player'),
+(78569, 2, 0, '...еще чуть-чуть...', 12, 0, 100, 0, 0, 45703, 'Гензель Большерук to Player'),
+(78569, 3, 0, 'БУМ! Ха-ха!', 12, 0, 100, 0, 0, 45704, 'Гензель Большерук to Player'),
+(78569, 4, 0, 'Ох… какая красотища, правда?', 12, 0, 100, 0, 0, 45705, 'Гензель Большерук to Player'),
+(78509, 5, 0, 'СОКРУШИТЬ, РАСТЕРЕТЬ!', 12, 0, 100, 0, 0, 0, 'Берсерк из клана Кровавой Глазницы to Player'),
+(78509, 6, 0, 'С ДОРОГИ, НИЧТОЖЕСТВО!', 12, 0, 100, 0, 0, 0, 'Берсерк из клана Кровавой Глазницы to Player');
+
+-- Q: 34925
+DELETE FROM `creature_text` WHERE entry = 79917;
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(79917, 0, 0, 'Просто освободи меня, и я убью сотню этих вонючих хряков одной лопатой.', 12, 0, 100, 0, 0, 45045, 'Га''нар to Player');
+
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=79917;
+DELETE FROM smart_scripts WHERE entryorguid = 79917;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(79917, 0, 0, 0, 47, 0, 100, 0, 34925, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'At start q: 34925');
