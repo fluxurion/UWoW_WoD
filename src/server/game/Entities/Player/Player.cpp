@@ -7544,7 +7544,7 @@ void Player::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcv
 
     for (auto target : visitors)
     {
-        Player *player = target.get();
+        Player *player = target.get() ? target.get()->ToPlayer() : NULL;
         if (!player)
             continue;
 
@@ -27639,7 +27639,7 @@ m_owner(owner), type(_t), miscValue1(m1), miscValue2(m2), ignoreGroup(iGroup)
 
 bool UpdateAchievementCriteriaEvent::Execute(uint64 e_time, uint32 p_time)
 {
-    m_owner->_UpdateAchievementCriteria(type, miscValue1, miscValue2, unit.get(), ignoreGroup);
+    m_owner->_UpdateAchievementCriteria(type, miscValue1, miscValue2, unit.get() ? unit.get()->ToUnit() : NULL, ignoreGroup);
     return true;
 }
 

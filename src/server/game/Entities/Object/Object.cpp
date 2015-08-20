@@ -3036,18 +3036,18 @@ bool WorldObject::IsInPersonnalVisibilityList(ObjectGuid const& guid) const
     return _visibilityPlayerList.find(guid) != _visibilityPlayerList.end();
 }
 
-void WorldObject::AddVisitor(Player* p)
+void WorldObject::AddVisitor(Object* p)
 {
-    for (std::list<cyber_ptr<Player>>::iterator itr = visitors.begin(); itr != visitors.end(); ++itr)
+    for (std::list<C_PTR>::iterator itr = visitors.begin(); itr != visitors.end(); ++itr)
         if ((*itr).get() == p)
             return;
 
     visitors.push_back(p->get_ptr());
 }
 
-void WorldObject::RemoveVisitor(Player*p)
+void WorldObject::RemoveVisitor(Object*p)
 {
-    for (std::list<cyber_ptr<Player>>::iterator itr = visitors.begin(); itr != visitors.end(); ++itr)
+    for (std::list<C_PTR>::iterator itr = visitors.begin(); itr != visitors.end(); ++itr)
         if ((*itr).get() == p)
         {
             visitors.erase(itr);
@@ -3269,7 +3269,7 @@ void WorldObject::SendMessageToSet(WorldPacket const* data, bool self)
     {
         for (auto target : visitors)
         {
-            Player *player = target.get();
+            Player *player = target.get() ? target.get()->ToPlayer() : NULL;
             if (!player)
                 continue;
             // Send packet to all who are sharing the player's vision
@@ -4444,7 +4444,8 @@ bool WorldObject::InSamePhaseId(std::set<uint32> const& phase) const
     }
     return true;
 }
-cyber_ptr<Object> Object::get_ptr()
+
+C_PTR Object::get_ptr()
 {
     if (ptr.numerator && ptr.numerator->ready)
         return ptr.shared_from_this();

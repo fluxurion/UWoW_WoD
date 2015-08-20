@@ -93,7 +93,7 @@ class Unit;
 class Transport;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
-
+typedef cyber_ptr<Object> C_PTR;
 class Object
 {
     public:
@@ -340,7 +340,7 @@ class Object
         AreaTrigger const* ToAreaTrigger() const { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger const*>(this); else return NULL; }
 
         //!  Get or Init cyber ptr.
-        cyber_ptr<Object> get_ptr();
+        C_PTR get_ptr();
     protected:
         Object();
 
@@ -380,7 +380,7 @@ class Object
         UpdateMask* _dynamicChangesArrayMask;
         uint16 _dynamicValuesCount;
     private:
-        cyber_ptr<Object> ptr;
+        C_PTR ptr;
         bool m_inWorld;
 
         PackedGuid m_PackGUID;
@@ -1035,8 +1035,8 @@ class WorldObject : public Object, public WorldLocation
         void AddToHideList(ObjectGuid  const& guid) { _hideForGuid.insert(guid); }
         bool ShouldHideFor(ObjectGuid const& guid) const { return _hideForGuid.find(guid) != _hideForGuid.end();  };
 
-        void AddVisitor(Player* p);
-        void RemoveVisitor(Player*p);
+        void AddVisitor(Object* p);
+        void RemoveVisitor(Object*p);
 
     protected:
         std::string m_name;
@@ -1059,7 +1059,7 @@ class WorldObject : public Object, public WorldLocation
         //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
         virtual bool IsAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
 
-        std::list<cyber_ptr<Player>> visitors;             // Playrs who see us.
+        std::list<C_PTR> visitors;             // Playrs who see us.
     private:
         Map* m_currMap;                                    //current object's Map location
 
