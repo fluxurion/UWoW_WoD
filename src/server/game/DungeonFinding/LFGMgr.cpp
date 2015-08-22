@@ -1605,11 +1605,11 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId)
             sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: dungeonDone %i not found or CanBeRewarded %i", dungeonId, dungeonDone->dbc->CanBeRewarded());
             continue;
         }
-        if(!dungeonDone->dbc->CanBeRewarded())
+        /*if(!dungeonDone->dbc->CanBeRewarded())
         {
             sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: dungeonDone %i not CanBeRewarded %i", dungeonId, dungeonDone->dbc->CanBeRewarded());
             continue;
-        }
+        }*/
 
         // there can be more that 1 non-random dungeon selected, so fall back to current dungeon id
         rDungeonId = dungeonDone->random_id;
