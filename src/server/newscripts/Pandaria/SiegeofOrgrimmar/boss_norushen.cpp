@@ -1690,45 +1690,6 @@ class spell_icy_fear_dmg : public SpellScriptLoader
         }
 };
 
-//145074 Residual Corruption
-class spell_norushen_residual_corruption : public SpellScriptLoader
-{
-    public:
-        spell_norushen_residual_corruption() : SpellScriptLoader("spell_norushen_residual_corruption") { }
-
-        class spell_norushen_residual_corruption_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_norushen_residual_corruption_AuraScript);
-
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                PreventDefaultAction();
-
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return;
-
-                AreaTrigger * areaTrigger = new AreaTrigger;
-                if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), 5022, caster, GetSpellInfo(), *caster, *caster))
-                {
-                    delete areaTrigger;
-                    return;
-                }
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_norushen_residual_corruption_AuraScript::OnApply, EFFECT_0, SPELL_AURA_CREATE_AREATRIGGER, AURA_EFFECT_HANDLE_REAL);
-            }
-
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_norushen_residual_corruption_AuraScript();
-        }
-};
-
 //144849 144850 144851
 class spell_norushen_challenge : public SpellScriptLoader
 {
@@ -1941,7 +1902,6 @@ void AddSC_boss_norushen()
     new spell_norushen_blind_hatred_prock();
     new spell_unleashed_anger();
     new spell_icy_fear_dmg();
-    new spell_norushen_residual_corruption();
     new spell_norushen_challenge();
     new spell_norushen_heal_test_dd();
     new spell_essence_expel_corruption();
