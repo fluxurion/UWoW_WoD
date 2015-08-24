@@ -3479,7 +3479,8 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     if (summoner)
         summon->SetGuidValue(UNIT_FIELD_DEMON_CREATOR, summoner->GetGUID());
 
-    summon->SetTargetGUID(targetGuid);
+    if (!properties || properties->Category != SUMMON_CATEGORY_ALLY)
+        summon->SetTargetGUID(targetGuid);
 
     summon->SetHomePosition(pos);
 
