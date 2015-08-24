@@ -5510,10 +5510,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 158818:
                     spellInfo->Effects[EFFECT_0].MiscValue = 79767;
                     break;
-                    //Wod: Q: 35747
-                case 163387:
-                    spellInfo->Effects[EFFECT_0].MiscValue = 78568;
-                    break;
                 default:
                     break;
             }

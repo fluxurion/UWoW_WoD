@@ -1167,6 +1167,93 @@ public:
     }
 };
 
+class mob_wod_q35747 : public CreatureScript
+{
+public:
+    mob_wod_q35747() : CreatureScript("mob_wod_q35747") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_q35747AI(creature);
+    }
+
+    struct mob_wod_q35747AI : public ScriptedAI
+    {
+        EventMap events;
+        ObjectGuid playerGuid;
+        uint8 state = 0;
+
+        mob_wod_q35747AI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        enum data
+        {
+            EVENT_1 = 1,
+            EVENT_2,
+            EVENT_3,
+
+            EVENT_CHECK_PHASE_1
+        };
+
+        void OnCharmed(bool /*apply*/)
+        {
+        }
+
+        void IsSummonedBy(Unit* summoner)
+        {
+            Player *player = summoner->ToPlayer();
+            if (!player)
+            {
+                me->MonsterSay("SCRIPT::mob_wod_q35747 summoner is not player", LANG_UNIVERSAL, ObjectGuid::Empty);
+                return;
+            }
+
+            playerGuid = summoner->GetGUID();
+            me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
+
+            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_0, playerGuid);
+
+            me->SetEntry(78568);
+            me->SetDisplayId(52540);
+            me->SetNativeDisplayId(54576);
+
+            uint32 t = 0;                                                       //
+            events.ScheduleEvent(EVENT_1, t += 1);
+            events.ScheduleEvent(EVENT_CHECK_PHASE_1, t += 1000);
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            UpdateVictim();
+
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_CHECK_PHASE_1:
+                    if (me->GetDistance(4516.582f, -2495.618f, 25.87184f) < 40.0f && !me->getVictim())
+                    {
+                        if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
+                            player->KilledMonsterCredit(79794, ObjectGuid::Empty);
+
+                        me->GetMotionMaster()->MovePoint(1, 4516.582f, -2495.618f, 25.87184f);
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_2, playerGuid);
+                        me->DespawnOrUnsummon(15000);
+                    }
+                    else
+                        events.ScheduleEvent(EVENT_CHECK_PHASE_1, 5000);
+                    break;
+                default:
+                    break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
 void AddSC_wod_dark_portal()
 {
     new mob_wod_thrall();
@@ -1191,4 +1278,5 @@ void AddSC_wod_dark_portal()
     new sceneTrigger_q34439();
     new sceneTrigger_q34987();
     new mob_wod_thaelin_darkanvil();
+    new mob_wod_q35747();
 }
