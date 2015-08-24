@@ -132,9 +132,7 @@ ALTER TABLE `gossip_menu_option` CHANGE `npc_option_npcflag` `npc_option_npcflag
 DELETE FROM `gossip_menu_option` WHERE (`menu_id`=16863 AND `id`=0) OR (`menu_id`=16641 AND `id`=0) OR (`menu_id`=16518 AND `id`=1) OR (`menu_id`=16518 AND `id`=0);
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `box_coded`, `box_money`, `box_text`) VALUES
 (16863, 0, 0, 'ЗА АЗЕРОТ!', 0, 0, 'Вы собираетесь отправиться на опасное задание и не сможете тотчас вернуться. Вы уверены?'), -- 78423
-(16641, 0, 0, 'Кадгар попросил нас отвлечь внимание Ока Килрогга.', 0, 0, ''), -- 78556
-(16518, 1, 0, 'Мне бы хотелось купить что-нибудь у вас.', 0, 0, ''), -- 78568
-(16518, 0, 0, 'Да. Помоги-ка мне управиться с этим огромным танком.', 0, 0, ''); -- 78568
+(16641, 0, 0, 'Кадгар попросил нас отвлечь внимание Ока Килрогга.', 0, 0, ''); -- 78556
 
 INSERT INTO `npc_text` (`ID`, `text0_0`, `text0_1`, `lang0`, `prob0`, `em0_0`, `em0_1`, `em0_2`, `em0_3`, `em0_4`, `em0_5`, `text1_0`, `text1_1`, `lang1`, `prob1`, `em1_0`, `em1_1`, `em1_2`, `em1_3`, `em1_4`, `em1_5`, `text2_0`, `text2_1`, `lang2`, `prob2`, `em2_0`, `em2_1`, `em2_2`, `em2_3`, `em2_4`, `em2_5`, `text3_0`, `text3_1`, `lang3`, `prob3`, `em3_0`, `em3_1`, `em3_2`, `em3_3`, `em3_4`, `em3_5`, `text4_0`, `text4_1`, `lang4`, `prob4`, `em4_0`, `em4_1`, `em4_2`, `em4_3`, `em4_4`, `em4_5`, `text5_0`, `text5_1`, `lang5`, `prob5`, `em5_0`, `em5_1`, `em5_2`, `em5_3`, `em5_4`, `em5_5`, `text6_0`, `text6_1`, `lang6`, `prob6`, `em6_0`, `em6_1`, `em6_2`, `em6_3`, `em6_4`, `em6_5`, `text7_0`, `text7_1`, `lang7`, `prob7`, `em7_0`, `em7_1`, `em7_2`, `em7_3`, `em7_4`, `em7_5`, `WDBVerified`) VALUES 
 ('24524', '<Верховный маг пристально смотрит на портал.>$b$bСмотри, их число уменьшилось, пусть и ненадолго. Возможно, это наш шанс.$b$bТы $gготов:готова; сразиться с тем, что ждет нас по ту сторону портала?', NULL, '0', '0', '0', '0', '0', '0', '0', '0', NULL, NULL, '0', '0', '0', '0', '0', '0', '0', '0', NULL, NULL, '0', '0', '0', '0', '0', '0', '0', '0', NULL, NULL, '0', '0', '0', '0', '0', '0', '0', '0', NULL, NULL, '0', '0', '0', '0', '0', '0', '0', '0', NULL, NULL, '0', '0', '0', '0', '0', '0', '0', '0', NULL, NULL, '0', '0', '0', '0', '0', '0', '0', '0', NULL, NULL, '0', '0', '0', '0', '0', '0', '0', '0', '1');
@@ -196,6 +194,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3579 маг после разрушения дампы и эффекта телепортации.
 -- 3334 - гнар до спасения
 -- 3581 - гнар после спасения
+-- 3508 - npc 78568 q35747 hide at 80880 credit complete
 
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
 ('7025', '1', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3880 3946 4142 4143 4200', '0', '0', '16', 'Draenor Dark Portal Intro'),
@@ -290,11 +289,13 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 ('7025', '34', '0','3269 3334 3394 3395 3396 3423 3481 3498 3505 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34439 телепорт к платине мага'),
 ('7025', '35', '0','0', '1307', '0', '0', 'DraenorIntro: терран затопленная дамба.'),
 -- 
-('7025', '36', '0','3269 3334 3394 3395 3396 3423 3481 3498 3505 3508 3551 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34442 start'),
+('7025', '36', '0','3269 3334 3394 3395 3396 3423 3481 3498 3505 3551 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34442 start'),
 --
 ('7025', '37', '0','3579', '0', '0', '0', 'DraenorIntro: после кадгара появления.'),
 --  q 34437
-('7025', '38', '0','3269 3394 3395 3396 3423 3481 3498 3505 3508 3579 3581 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34437 start');
+('7025', '38', '0','3269 3394 3395 3396 3423 3481 3498 3505 3579 3581 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34437 start'),
+--             
+('7025', '39', '0','3508', '0', '0', '0', 'DraenorIntro: q35747 активно пока не реварт или 80880 обджект =1.');
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -405,7 +406,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 36, 0, 0, 14, 0, 34442, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO non 34442'),
 (23, 7025, 36, 0, 0, 14, 0, 34437, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO non 34437'),
 (23, 7025, 37, 0, 0, 40, 0, 758, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO if complete scene 758'),
-(23, 7025, 38, 0, 0, 14, 0, 34437, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not non 34437');
+(23, 7025, 38, 0, 0, 14, 0, 34437, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not non 34437'),
+(23, 7025, 39, 0, 0, 14, 0, 34442, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR not non 34442'),
+(23, 7025, 39, 0, 0, 8, 0, 35747, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR not rew 35747'),
+(23, 7025, 39, 0, 0, 41, 0, 35747, 80880, 1, 1, 0, '', 'DARK_PORTAL_INTRO OR not q35747 obj:80880');
 
 -- или квест взять надо через нон ему запилить.
 
@@ -464,7 +468,7 @@ UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34439' WHERE MiscValue = 72
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34987' WHERE MiscValue = 723;
 
 -- Basic area auras
-DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023, 165549, 166216, 165271, 163263, 162676);
+DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023, 165549, 166216, 165271, 163263, 162676, 163388);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (17, 0, 161771, 0, 0, 41, 0, 34423, 78966, 3, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161771 Q34423 objective 78966 = 3'),
 (17, 0, 163023, 0, 0, 42, 0, 727, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163023 if not trigered scene'),
@@ -472,7 +476,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 166216, 0, 0, 41, 0, 34429, 82066, 99, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 166216 Q34429 not objective 82066 = 3'),
 (17, 0, 165271, 0, 0, 41, 0, 34429, 82066, 95, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 165271 Q34429 not objective 82066 = 3'),
 (17, 0, 163263, 0, 0, 40, 0, 719, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 if complete scene'),
-(17, 0, 163263, 0, 1, 28, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 or complete 34439');
+(17, 0, 163263, 0, 1, 28, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 or complete 34439'),
+(17, 0, 163388, 0, 0, 41, 0, 35747, 80880, 1, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163388 Q35747  objective 80880 = 1');
 
 DELETE FROM `spell_area` WHERE area in (7025, 7041, 7129, 7040, 7042, 7043);
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
@@ -530,7 +535,8 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('163319', '7043', '34439', '34442', '0', '0', '2', '1', '64', '74'),
 ('164031', '7043', '34442', '0', '0', '0', '2', '1', '74', '74'),
 ('162676', '7043', '34987', '34987', '0', '0', '2', '1', '2', '64'),
-('163452', '7043', '34437', '34437', '0', '0', '2', '1', '8', '66');
+('163452', '7043', '34437', '34437', '0', '0', '2', '1', '8', '66'),
+('163388', '7043', '35747', '35747', '0', '0', '2', '1', '8', '66');
 
 -- 34741, 34436
 --
@@ -788,9 +794,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (79917, 0, 0, 0, 47, 0, 100, 0, 34925, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'At start q: 34925');
 
 -- Q: 35747
+UPDATE `creature_template` SET `KillCredit1` = '80880', `npcflag` = 4739, `gossip_menu_id`=16518, `ScriptName` = 'mob_wod_thaelin_darkanvil' WHERE entry = 78568; -- Thaelin Darkanvil 
 REPLACE INTO `gossip_menu` (`entry`, `text_id`) VALUES
 (16518, 23994); -- 78568
 REPLACE INTO `npc_text` (`ID`, `text0_0`) VALUES ('23994', 'Мм-м?.. Нужно что-нибудь?');
-INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `box_coded`, `box_money`, `box_text`) VALUES
-(16518, 1, 0, 'Мне бы хотелось купить что-нибудь у вас.', 0, 0, ''), -- 78568
-(16518, 0, 0, 'Да. Помоги-ка мне управиться с этим огромным танком.', 0, 0, ''); -- 78568
+REPLACE INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `box_coded`, `box_money`, `box_text`, option_id) VALUES
+(16518, 0, 1, 'Мне бы хотелось купить что-нибудь у вас.', 0, 0, '', 3), -- 78568
+(16518, 1, 0, 'Да. Помоги-ка мне управиться с этим огромным танком.', 0, 0, '', 1); -- 78568

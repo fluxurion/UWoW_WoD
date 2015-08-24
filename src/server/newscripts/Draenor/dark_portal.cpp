@@ -1138,6 +1138,35 @@ public:
         return true;
     }
 };
+
+class mob_wod_thaelin_darkanvil : public CreatureScript
+{
+public:
+    mob_wod_thaelin_darkanvil() : CreatureScript("mob_wod_thaelin_darkanvil") { }
+
+    enum data
+    {
+        QUEST = 35747,
+        CREDIT = 80880,
+    };
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        if (action == 1)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            if (player->GetQuestStatus(QUEST) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->KilledMonsterCredit(CREDIT, ObjectGuid::Empty);
+                player->GetPhaseMgr().RemoveUpdateFlag(PHASE_UPDATE_FLAG_ZONE_UPDATE);
+                return true;
+            }
+        }
+        return false;        
+    }
+};
+
 void AddSC_wod_dark_portal()
 {
     new mob_wod_thrall();
@@ -1161,4 +1190,5 @@ void AddSC_wod_dark_portal()
     new sceneTrigger_q34741_34436();
     new sceneTrigger_q34439();
     new sceneTrigger_q34987();
+    new mob_wod_thaelin_darkanvil();
 }
