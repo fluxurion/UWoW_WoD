@@ -1181,10 +1181,11 @@ public:
     {
         EventMap events;
         ObjectGuid playerGuid;
-        uint8 state = 0;
+        uint8 state;
 
         mob_wod_q35747AI(Creature* creature) : ScriptedAI(creature)
         {
+            state = 0;
         }
 
         enum data
@@ -1218,9 +1219,7 @@ public:
             me->SetDisplayId(52540);
             me->SetNativeDisplayId(54576);
 
-            uint32 t = 0;                                                       //
-            events.ScheduleEvent(EVENT_1, t += 1);
-            events.ScheduleEvent(EVENT_CHECK_PHASE_1, t += 1000);
+            events.ScheduleEvent(EVENT_CHECK_PHASE_1, 5000);
         }
 
         void UpdateAI(uint32 diff)
@@ -1233,17 +1232,22 @@ public:
                 switch (eventId)
                 {
                 case EVENT_CHECK_PHASE_1:
-                    if (me->GetDistance(4516.582f, -2495.618f, 25.87184f) < 40.0f && !me->getVictim())
+                    if (me->GetDistance(4065.0f, -1955.0f, 27.0f) < 40.0f && !state)
+                    {
+                        state = 1;
+                        sCreatureTextMgr->SendChat(me, TEXT_GENERIC_1, playerGuid);      
+                    }
+
+                    if (state == 1 && me->GetDistance(4063.77f, -2020.122f, 75.47333f) < 5.0f)
                     {
                         if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
-                            player->KilledMonsterCredit(79794, ObjectGuid::Empty);
-
-                        me->GetMotionMaster()->MovePoint(1, 4516.582f, -2495.618f, 25.87184f);
+                            player->KilledMonsterCredit(80887, ObjectGuid::Empty);
                         sCreatureTextMgr->SendChat(me, TEXT_GENERIC_2, playerGuid);
-                        me->DespawnOrUnsummon(15000);
+                        me->GetMotionMaster()->MovePoint(1, 4063.77f, -2020.122f, 75.47333f);
+                        me->DespawnOrUnsummon(1000);
+                        return;
                     }
-                    else
-                        events.ScheduleEvent(EVENT_CHECK_PHASE_1, 5000);
+                    events.ScheduleEvent(EVENT_CHECK_PHASE_1, 5000);
                     break;
                 default:
                     break;

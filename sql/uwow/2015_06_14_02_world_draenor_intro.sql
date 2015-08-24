@@ -296,6 +296,8 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 ('7025', '38', '0','3269 3394 3395 3396 3423 3481 3498 3505 3579 3581 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34437 start'),
 --             
 ('7025', '39', '0','3508', '0', '0', '0', 'DraenorIntro: q35747 активно пока не реварт или 80880 обджект =1.');
+-- at obj = 80887
+-- 3269 3394 3395 3396 3481 3498 3519 3542 3583 3604 3693 3712 3752 3833 3834 3936 4150 4151 4200
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -536,7 +538,7 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('164031', '7043', '34442', '0', '0', '0', '2', '1', '74', '74'),
 ('162676', '7043', '34987', '34987', '0', '0', '2', '1', '2', '64'),
 ('163452', '7043', '34437', '34437', '0', '0', '2', '1', '8', '66'),
-('163388', '7043', '35747', '35747', '0', '0', '2', '1', '8', '66');
+('163388', '7025', '35747', '35747', '0', '0', '2', '1', '8', '66');
 
 -- 34741, 34436
 --
