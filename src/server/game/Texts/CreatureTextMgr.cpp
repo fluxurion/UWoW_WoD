@@ -166,7 +166,8 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, ObjectGuid w
     if (!source)
         return 0;
 
-    CreatureTextMap::const_iterator sList = mTextMap.find(source->GetEntry());
+    //! Use entry from guid. as we could overvrite it by new texnology from Blizzzzzzzzzz
+    CreatureTextMap::const_iterator sList = mTextMap.find(source->GetGUID().GetEntry());
     if (sList == mTextMap.end())
     {
         sLog->outError(LOG_FILTER_SQL, "CreatureTextMgr: Could not find Text for Creature(%s) Entry %u in 'creature_text' table. Ignoring.", source->GetName(), source->GetEntry());
