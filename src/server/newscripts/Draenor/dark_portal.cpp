@@ -1213,11 +1213,12 @@ public:
             playerGuid = summoner->GetGUID();
             me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
 
-            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_0, playerGuid);
-
             me->SetEntry(78568);
             me->SetDisplayId(52540);
             me->SetNativeDisplayId(54576);
+
+            //! after entry set.
+            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_0, playerGuid);
 
             events.ScheduleEvent(EVENT_CHECK_PHASE_1, 5000);
         }

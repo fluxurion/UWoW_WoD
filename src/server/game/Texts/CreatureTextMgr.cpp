@@ -38,7 +38,8 @@ class CreatureTextBuilder
                 targetGuid = _targetGUID;
 
             Trinity::ChatData c;
-            c.message = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _textGroup, _textId, locale);
+            //! Use entry from guid. as we could overvrite it by new texnology from Blizzzzzzzzzz
+            c.message = sCreatureTextMgr->GetLocalizedChatString(_source->GetGUID().GetEntry(), _textGroup, _textId, locale);
             c.sourceName = _source->GetNameForLocaleIdx(locale);
             c.sourceGuid = _source->GetGUID();
             c.targetGuid = targetGuid;
