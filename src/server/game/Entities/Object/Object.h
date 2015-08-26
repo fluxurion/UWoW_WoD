@@ -339,6 +339,8 @@ class Object
         AreaTrigger* ToAreaTrigger() { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger*>(this); else return NULL; }
         AreaTrigger const* ToAreaTrigger() const { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger const*>(this); else return NULL; }
 
+        WorldObject* ToWorldObject() { return reinterpret_cast<WorldObject*>(this); }
+        WorldObject const* ToWorldObject() const { return reinterpret_cast<WorldObject const*>(this); }
         //!  Get or Init cyber ptr.
         C_PTR get_ptr();
     protected:
@@ -1038,6 +1040,12 @@ class WorldObject : public Object, public WorldLocation
         void AddVisitor(Object* p);
         void RemoveVisitor(Object*p);
 
+        uint16 GetAIAnimKitId() const { return _aiAnimKitId; }
+        void SetAIAnimKitId(uint16 animKitId);
+        uint16 GetMovementAnimKitId() const { return _movementAnimKitId; }
+        void SetMovementAnimKitId(uint16 animKitId);
+        uint16 GetMeleeAnimKitId() const { return _meleeAnimKitId; }
+        void SetMeleeAnimKitId(uint16 animKitId);
     protected:
         std::string m_name;
         bool m_isActive;
@@ -1061,6 +1069,10 @@ class WorldObject : public Object, public WorldLocation
 
         std::list<C_PTR> visitors;             // Playrs who see us.
     private:
+        uint16 _aiAnimKitId = 0;
+        uint16 _movementAnimKitId = 0;
+        uint16 _meleeAnimKitId = 0;
+
         Map* m_currMap;                                    //current object's Map location
 
         //uint32 m_mapId;                                     // object at map with map_id

@@ -225,10 +225,10 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     {
         if (unit->getVictim())
             flags |= UPDATEFLAG_HAS_TARGET;
-
-        if (unit->GetAIAnimKitId() || unit->GetMovementAnimKitId() || unit->GetMeleeAnimKitId())
-            flags |= UPDATEFLAG_ANIMKITS;
     }
+
+    if (ToWorldObject()->GetAIAnimKitId() || ToWorldObject()->GetMovementAnimKitId() || ToWorldObject()->GetMeleeAnimKitId())
+        flags |= UPDATEFLAG_ANIMKITS;
 
     ByteBuffer buf(500);
     buf << uint8(updateType);
@@ -499,10 +499,10 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
     if (AnimKitCreate)
     {
-        Unit const* unit = ToUnit();
-        *data << uint16(unit->GetAIAnimKitId());                        // AiID
-        *data << uint16(unit->GetMovementAnimKitId());                  // MovementID
-        *data << uint16(unit->GetMeleeAnimKitId());                     // MeleeID
+        WorldObject const* obj = ToWorldObject();
+        *data << uint16(obj->GetAIAnimKitId());                        // AiID
+        *data << uint16(obj->GetMovementAnimKitId());                  // MovementID
+        *data << uint16(obj->GetMeleeAnimKitId());                     // MeleeID
     }
 
     if (Rotation)
@@ -4444,6 +4444,58 @@ bool WorldObject::InSamePhaseId(std::set<uint32> const& phase) const
     }
     return true;
 }
+
+//6.1.2
+void WorldObject::SetAIAnimKitId(uint16 animKitId)
+{
+    if (_aiAnimKitId == animKitId)
+        return;
+
+    _aiAnimKitId = animKitId;
+
+    if (!IsInWorld())
+        return;
+
+    WorldPacket data(SMSG_SET_AI_ANIM_KIT, 8 + 2);
+    data << GetGUID();
+    data << uint16(animKitId);
+    SendMessageToSet(&data, true);
+}
+
+//6.1.2
+void WorldObject::SetMovementAnimKitId(uint16 animKitId)
+{
+    if (_movementAnimKitId == animKitId)
+        return;
+
+    _movementAnimKitId = animKitId;
+
+    if (!IsInWorld())
+        return;
+
+    WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 8 + 2);
+    data << GetGUID();
+    data << uint16(animKitId);
+    SendMessageToSet(&data, true);
+}
+
+//6.1.2
+void WorldObject::SetMeleeAnimKitId(uint16 animKitId)
+{
+    if (_meleeAnimKitId == animKitId)
+        return;
+
+    _meleeAnimKitId = animKitId;
+
+    if (!IsInWorld())
+        return;
+
+    WorldPacket data(SMSG_SET_MELEE_ANIM_KIT, 8 + 2);
+    data << GetGUID();
+    data << uint16(animKitId);
+    SendMessageToSet(&data, true);
+}
+
 
 C_PTR Object::get_ptr()
 {

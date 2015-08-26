@@ -20131,48 +20131,6 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
 }
 
 //6.1.2
-void Unit::SetAIAnimKitId(uint16 animKitId)
-{
-    if (_aiAnimKitId == animKitId)
-        return;
-
-    _aiAnimKitId = animKitId;
-
-    WorldPacket data(SMSG_SET_AI_ANIM_KIT, 8 + 2);
-    data << GetGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
-}
-
-//6.1.2
-void Unit::SetMovementAnimKitId(uint16 animKitId)
-{
-    if (_movementAnimKitId == animKitId)
-        return;
-
-    _movementAnimKitId = animKitId;
-    
-    WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 8 + 2);
-    data << GetGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
-}
-
-//6.1.2
-void Unit::SetMeleeAnimKitId(uint16 animKitId)
-{
-    if (_meleeAnimKitId == animKitId)
-        return;
-
-        _meleeAnimKitId = animKitId;
-
-    WorldPacket data(SMSG_SET_MELEE_ANIM_KIT, 8 + 2);
-    data << GetGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
-}
-
-//6.1.2
 void Unit::PlayOneShotAnimKit(uint16 animKitId)
 {
     WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7 + 2);
