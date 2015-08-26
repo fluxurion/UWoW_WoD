@@ -197,6 +197,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3508 - npc 78568 q35747 hide at 80880 credit complete (3423 posible)
 -- 3423 - видимо это горила для квевста q35747
 -- 3604 - странная фаза то включаетсяя то выключается
+-- 3519 - пульт управления танком го 232506, 232502, 232505
 
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
 ('7025', '1', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3880 3946 4142 4143 4200', '0', '0', '16', 'Draenor Dark Portal Intro'),
@@ -299,8 +300,9 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 --             
 ('7025', '39', '0','3508', '0', '0', '0', 'DraenorIntro: q35747 активно пока не реварт или 80880 обджект =1.'),
 -- at obj = 80887
-('7025', '40', '0','3269 3394 3395 3396 3481 3498 3519 3542 3583 3604 3693 3712 3752 3833 3834 3936 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q35747 o:80887 or reward');
-
+('7025', '40', '0','3269 3394 3395 3396 3481 3498 3519 3542 3583 3604 3693 3712 3752 3833 3834 3936 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q35747 o:80887 or reward'),
+--
+('7025', '41', '0','3519', '0', '0', '0', 'DraenorIntro: q35747 not non and non Q34445');
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -415,8 +417,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 39, 0, 0, 8, 0, 35747, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR not rew 35747'),
 (23, 7025, 39, 0, 0, 41, 0, 35747, 80880, 1, 1, 0, '', 'DARK_PORTAL_INTRO OR not q35747 obj:80880'),
 (23, 7025, 40, 0, 0, 41, 0, 35747, 80887, 1, 0, 0, '', 'DARK_PORTAL_INTRO q35747 obj:80887'),
-(23, 7025, 40, 0, 1, 8, 0, 35747, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR rew q35747');
-
+(23, 7025, 40, 0, 1, 14, 0, 34445, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not non 34445'),
+(23, 7025, 41, 0, 0, 14, 0, 35747, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not non 34437'),
+(23, 7025, 41, 0, 0, 14, 0, 34445, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO and non 34445');
 -- или квест взять надо через нон ему запилить.
 
 -- 34422
@@ -466,7 +469,8 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('910', '732', '1', '25', '163783', '0', 'Spell 163319 взрыв дамбы'), -- 61
 ('928', '758', '1', '16', '0', '0', 'Spell 164031 портал воды Кадгара'), -- 62
 ('893', '723', '1', '20', '0', '0', 'Spell 162676 Пороховая бочка q34987'), -- 63
-('911', '736', '1', '16', '0', '0', 'Spell 163452 q34437 sceneObject');
+('911', '736', '1', '16', '0', '0', 'Spell 163452 q34437 sceneObject'),
+('871', '689', '1', '20', '0', '0', 'Spell 163452 q34437 sceneObject'); -- 64
 
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34741_34436' WHERE MiscValue = 801;
@@ -510,6 +514,7 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('161771', '7025', '34423', '34423', '0', '0', '2', '1', '10', '64'),
 ('165061', '7025', '34423', '34423', '0', '0', '2', '0', '10', '64'),
 ('169070', '7129', '34423', '34423', '0', '0', '2', '1', '10', '64'),
+('161637', '7129', '34423', '34423', '0', '0', '2', '1', '10', '64'),
 ('159942', '7129', '0', '34429', '0', '0', '2', '1', '10', '74'), -- Ring of Fire Scene
 ('159942', '7040', '0', '34429', '0', '0', '2', '1', '10', '74'), -- Ring of Fire Scene
 ('163023', '7129', '34425', '34425', '0', '0', '2', '1', '10', '64'),
@@ -542,7 +547,9 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('164031', '7043', '34442', '0', '0', '0', '2', '1', '74', '74'),
 ('162676', '7043', '34987', '34987', '0', '0', '2', '1', '2', '64'),
 ('163452', '7043', '34437', '34437', '0', '0', '2', '1', '8', '66'),
-('163388', '7025', '35747', '35747', '0', '0', '2', '1', '8', '66');
+('163388', '7025', '35747', '35747', '0', '0', '2', '1', '8', '66'),
+('161523', '7025', '34445', '34445', '0', '0', '2', '1', '8', '66');
+
 
 -- 34741, 34436
 --
@@ -581,7 +588,10 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34958', '34439', '0', '0'),
 ('34987', '34439', '0', '0'),
 ('34437', '34925', '0', '0'),
-('35747', '34437', '0', '0');
+('35747', '34437', '0', '0'),
+('34445', '35747', '0', '0'),
+('34446', '34445', '0', '0'),
+('35884', '34445', '0', '0');
 
 UPDATE `quest_template` SET AllowableRaces = 33555378 WHERE ID in (34421, 35241); -- SET HORDE
 UPDATE `quest_template` SET AllowableRaces =  (1101 + 2097152  + 16777216)WHERE ID in (35242, 34422); -- SET ALLIANCE
@@ -814,3 +824,10 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 (80886, 0, 0, 'Ты сражайся, а я буду чинить. Давай, забирайся на танк!', 12, 0, 100, 0, 0, 46831, 'Телин Темная Наковальня to Player'),
 (80886, 1, 0, 'Смотри. По тем цепям можно забраться наверх.', 12, 0, 100, 0, 0, 46838, 'Телин Темная Наковальня to Player'),
 (80886, 2, 0, 'Я нашел рычаги!', 12, 0, 100, 0, 0, 46839, 'Телин Темная Наковальня to Player');
+
+-- Q: 34445
+-- spell 164040 
+-- spell 161523
+-- spell at go use.
+REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`)
+VALUES ('161523', '164040', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Q34445 triger summon');

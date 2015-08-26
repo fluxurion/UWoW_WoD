@@ -1241,11 +1241,11 @@ public:
 
                     if (state == 1 && me->GetDistance(4063.77f, -2020.122f, 75.47333f) < 5.0f)
                     {
-                        if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
-                            player->KilledMonsterCredit(80887, ObjectGuid::Empty);
                         sCreatureTextMgr->SendChat(me, TEXT_GENERIC_2, playerGuid);
                         me->GetMotionMaster()->MovePoint(1, 4063.77f, -2020.122f, 75.47333f);
                         me->DespawnOrUnsummon(1000);
+                        if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
+                            player->KilledMonsterCredit(80887, ObjectGuid::Empty);
                         return;
                     }
                     events.ScheduleEvent(EVENT_CHECK_PHASE_1, 5000);
