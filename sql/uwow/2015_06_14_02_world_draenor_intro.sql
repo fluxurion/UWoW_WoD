@@ -305,9 +305,11 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 --
 ('7025', '41', '0','3519', '0', '0', '0', 'DraenorIntro: q35747 not non and non Q34445'),
 -- complete or reward.
-('7025', '42', '0','3269 3394 3395 3396 3481 3498 3582 3604 3693 3712 3752 3833 3834 3936 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34445 complete or rew');
+('7025', '42', '0','3394 3395 3396 3481 3498 3519 3583 3604 3693 3712 3752 3833 3834 3936 4028 4150 4151 4201', '0', '0', '16', 'DraenorIntro: q34445 complete or rew'),
+--
+('7025', '43', '0','3394 3395 3396 3481 3498 3693 3712 3752 3833 3834 3889 3936 4028 4072 4150 4151 4201', '0', '0', '16', 'DraenorIntro: q34446 35884 complete or scene complete');
 
-
+                    
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (23, 7025, 1, 0, 0, 8, 0, 35933, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO PHASE not rewarded q35933'),
@@ -423,10 +425,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 39, 0, 0, 41, 0, 35747, 80880, 1, 1, 0, '', 'DARK_PORTAL_INTRO OR not q35747 obj:80880'),
 (23, 7025, 40, 0, 0, 41, 0, 35747, 80887, 1, 0, 0, '', 'DARK_PORTAL_INTRO q35747 obj:80887'),
 (23, 7025, 40, 0, 1, 28, 0, 34445, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not complete 34445'),
+(23, 7025, 40, 0, 1, 8, 0, 34445, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rew 34445'),
 (23, 7025, 41, 0, 0, 14, 0, 35747, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not non 34437'),
 (23, 7025, 41, 0, 0, 14, 0, 34445, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO and non 34445'),
 (23, 7025, 42, 0, 0, 28, 0, 34445, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO complete 34445'),
-(23, 7025, 42, 0, 1, 8, 0, 34445, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR rew 34445');
+(23, 7025, 42, 0, 1, 8, 0, 34445, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR rew 34445'),
+(23, 7025, 43, 0, 0, 40, 0, 740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO if complete scene 740');
 
 -- или квест взять надо через нон ему запилить.
 
@@ -478,7 +482,8 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('928', '758', '1', '16', '0', '0', 'Spell 164031 портал воды Кадгара'), -- 62
 ('893', '723', '1', '20', '0', '0', 'Spell 162676 Пороховая бочка q34987'), -- 63
 ('911', '736', '1', '16', '0', '0', 'Spell 163452 q34437 sceneObject'),
-('871', '689', '1', '20', '0', '0', 'Spell 163452 q34437 sceneObject'); -- 64
+('871', '689', '1', '20', '0', '0', 'Spell 161523 q34437'), -- 64
+('912', '740', '1', '16', '0', '0', 'Spell 163618 q34446 q35884'); -- 65
 
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34741_34436' WHERE MiscValue = 801;
@@ -496,7 +501,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 165271, 0, 0, 41, 0, 34429, 82066, 95, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 165271 Q34429 not objective 82066 = 3'),
 (17, 0, 163263, 0, 0, 40, 0, 719, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 if complete scene'),
 (17, 0, 163263, 0, 1, 28, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 or complete 34439'),
-(17, 0, 163388, 0, 0, 41, 0, 35747, 80880, 1, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163388 Q35747  objective 80880 = 1');
+(17, 0, 163388, 0, 0, 41, 0, 35747, 80880, 1, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163388 Q35747  objective 80880 = 1'),
+(17, 0, 161523, 0, 0, 14, 0, 34446, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161523 non 34446'),
+(17, 0, 161523, 0, 0, 14, 0, 35884, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161523 non 35884');
 
 DELETE FROM `spell_area` WHERE area in (7025, 7041, 7129, 7040, 7042, 7043);
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
@@ -557,9 +564,12 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('162676', '7043', '34987', '34987', '0', '0', '2', '1', '2', '64'),
 ('163452', '7043', '34437', '34437', '0', '0', '2', '1', '8', '66'),
 ('163388', '7025', '35747', '35747', '0', '0', '2', '1', '8', '66'),
-('161523', '7025', '34445', '34445', '0', '0', '2', '1', '10', '64'),
-('161527', '7025', '34445', '34445', '0', '0', '2', '0', '10', '64');
-
+('161523', '7025', '34445', '0', '0', '0', '2', '1', '74', '64'),
+('161527', '7025', '34445', '34445', '0', '0', '2', '0', '10', '64'),
+('163618', '7025', '34446', '0', '0', '0', '2', '1', '10', '64'),
+('163618', '7025', '35884', '0', '0', '0', '2', '1', '10', '64'),
+('178256', '7025', '34446', '0', '0', '0', '2', '1', '10', '64'),
+('178256', '7025', '35884', '0', '0', '0', '2', '1', '10', '64');
 
 -- 34741, 34436
 --
@@ -842,7 +852,6 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`)
 VALUES ('161523', '164040', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Q34445 triger summon');
 
-
 DELETE FROM `creature_text` WHERE entry = 80521;
 REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (80521, 0, 0, 'Орки по правому борту!', 14, 0, 100, 0, 0, 46840, 0, 'Телин Темная Наковальня to Player'),
@@ -850,3 +859,6 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 
 -- cast at complete 176159 go 232538
 UPDATE `gameobject_template` SET `ScriptName` = 'go_wod_q34445' WHERE `gameobject_template`.`entry` = 232538;
+
+-- Q: 34446 35884
+REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('167421', 'spell_wod_khadgar_watch');

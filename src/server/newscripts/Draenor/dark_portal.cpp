@@ -1330,6 +1330,85 @@ public:
     }
 };
 
+//! 167421 Khadgar's Watch
+//! Q: 34446 35884
+class spell_wod_khadgar_watch : public SpellScriptLoader
+{
+public:
+    spell_wod_khadgar_watch() : SpellScriptLoader("spell_wod_khadgar_watch") { }
+
+    class spell_wod_khadgar_watch_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_wod_khadgar_watch_AuraScript);
+
+        enum data
+        {
+            SPELL_A = 163524,
+            SPELL_B = 163525,
+            SPELL_C = 163526,
+            SPELL_D = 163527,
+            SPELL_E = 163528,
+            SPELL_F = 163529,
+            SPELL_G = 163530,
+
+            QUEST_A = 34446,
+            QUEST_B = 35884,
+
+            CREDIT_ = 81024,
+        };
+
+        void OnTick(AuraEffect const* aurEff)
+        {
+            if (!GetCaster())
+                return;
+
+            if (Player* player = GetCaster()->ToPlayer())
+            {
+                if (player->GetQuestStatus(QUEST_A) == QUEST_STATUS_INCOMPLETE ||
+                    player->GetQuestStatus(QUEST_B) == QUEST_STATUS_INCOMPLETE)
+                {
+                    if (!player->IsInWorld())
+                        return;
+
+                    if (player->GetDistance(4021.0f, -2000.0f, 30.0f) < 20.0f && !player->HasAura(SPELL_A))
+                        player->CastSpell(player, SPELL_A, true);
+
+                    if (player->GetDistance(3970.787f, -2010.345f, 28.65494f) < 20.0f && !player->HasAura(SPELL_B))
+                        player->CastSpell(player, SPELL_B, true);
+
+                    if (player->GetDistance(3888.591f, -2025.13f, 19.50598f) < 20.0f && !player->HasAura(SPELL_C))
+                        player->CastSpell(player, SPELL_C, true);
+
+                    if (player->GetDistance(3888.591f, -2025.13f, 19.50598f) < 20.0f && !player->HasAura(SPELL_D))
+                        player->CastSpell(player, SPELL_D, true);
+
+                    if (player->GetDistance(3792.147f, -2065.47f, 14.06284f) < 20.0f && !player->HasAura(SPELL_E))
+                        player->CastSpell(player, SPELL_E, true);
+
+                    if (player->GetDistance(3792.147f, -2065.47f, 14.06284f) < 20.0f && !player->HasAura(SPELL_F))
+                        player->CastSpell(player, SPELL_F, true);
+
+                    if (player->GetDistance(3704.125f, -2049.134f, 9.72922f) < 20.0f && !player->HasAura(SPELL_G))
+                        player->CastSpell(player, SPELL_G, true);
+
+                    if (player->GetDistance(3554.205f, -2120.661f, 19.31005f) < 20.0f)
+                        player->KilledMonsterCredit(CREDIT_, ObjectGuid::Empty);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_wod_khadgar_watch_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_wod_khadgar_watch_AuraScript();
+    }
+};
+
 void AddSC_wod_dark_portal()
 {
     new mob_wod_thrall();
@@ -1357,4 +1436,5 @@ void AddSC_wod_dark_portal()
     new mob_wod_q35747();
     new sceneTrigger_q34445();
     new go_wod_q34445();
+    new spell_wod_khadgar_watch();
 }
