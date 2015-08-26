@@ -850,6 +850,8 @@ struct GameObjectData
     uint8 artKit;
     bool isActive;
     bool dbData;
+
+    uint32 AiID;
     std::set<uint32> PhaseID;
 };
 
@@ -887,7 +889,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void RemoveFromWorld();
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
-        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0, uint32 aid = 0);
         void Update(uint32 p_time);
         static GameObject* GetGameObject(WorldObject& object, ObjectGuid guid);
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }

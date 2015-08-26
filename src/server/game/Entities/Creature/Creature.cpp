@@ -859,6 +859,16 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
 
     LoadCreaturesAddon();
 
+    if (data)
+    {
+        if (data->AiID)
+            SetAIAnimKitId(data->AiID);
+        if (data->MovementID)
+            SetMovementAnimKitId(data->MovementID);
+        if (data->MeleeID)
+            SetMeleeAnimKitId(data->MeleeID);
+    }
+
     //! Need to be called after LoadCreaturesAddon - MOVEMENTFLAG_HOVER is set there
     if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
     {

@@ -146,7 +146,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
+bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit, uint32 aid /*= 0*/)
 {
     ASSERT(map);
     SetMap(map);
@@ -215,6 +215,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     SetGoType(GameobjectTypes(goinfo->type));
     SetGoState(go_state);
     SetGoArtKit(artKit);
+    SetAIAnimKitId(aid);
 
     if(m_goInfo->WorldEffectID)
         m_updateFlag |= UPDATEFLAG_HAS_WORLDEFFECTID;
@@ -749,25 +750,14 @@ bool GameObject::LoadGameObjectFromDB(ObjectGuid::LowType guid, Map* map, bool a
 
     uint32 entry = data->id;
     //uint32 map_id = data->mapid;                          // already used before call
-    uint32 phaseMask = data->phaseMask;
-    float x = data->posX;
-    float y = data->posY;
-    float z = data->posZ;
-    float ang = data->orientation;
-
-    float rotation0 = data->rotation0;
-    float rotation1 = data->rotation1;
-    float rotation2 = data->rotation2;
-    float rotation3 = data->rotation3;
-
-    uint32 animprogress = data->animprogress;
-    GOState go_state = data->go_state;
-    uint32 artKit = data->artKit;
 
     m_DBTableGuid = guid;
     if (map->GetInstanceId() != 0) guid = sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate();
 
-    if (!Create(guid, entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
+    if (!Create(guid, entry, map, data->phaseMask,
+        data->posX, data->posY, data->posZ, data->orientation,
+        data->rotation0, data->rotation1, data->rotation2, data->rotation3,
+        data->animprogress, (GOState)data->go_state, data->artKit, data->AiID))
         return false;
 
     if (data->spawntimesecs >= 0)

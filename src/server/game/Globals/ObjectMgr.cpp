@@ -1388,8 +1388,8 @@ void ObjectMgr::LoadCreatures()
 
     //                                               0              1   2       3      4       5           6           7           8            9            10            11          12
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, zoneId, areaId, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
-    //        13            14         15       16            17         18         19          20          21                22                   23                     24                    25                  26
-        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.npcflag2, creature.unit_flags, creature.dynamicflags, creature.isActive, creature.PhaseId "
+    //        13            14         15       16            17         18         19          20          21                22                   23                     24                    25                  26            27        28      29
+        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.npcflag2, creature.unit_flags, creature.dynamicflags, creature.isActive, creature.PhaseId, AiID, MovementID, MeleeID "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1457,6 +1457,10 @@ void ObjectMgr::LoadCreatures()
             if (PhaseEntry const* phase = sPhaseStores.LookupEntry(uint32(strtoull(*itr, nullptr, 10))))
                 data.PhaseID.insert(phase->ID);
         }
+
+        data.AiID = fields[index++].GetUInt32();
+        data.MovementID = fields[index++].GetUInt32();
+        data.MeleeID = fields[index++].GetUInt32();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -1670,7 +1674,7 @@ void ObjectMgr::RemoveCreatureFromGrid(ObjectGuid::LowType const& guid, Creature
     }
 }
 
-ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay, float rotation0, float rotation1, float rotation2, float rotation3)
+ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay, float rotation0, float rotation1, float rotation2, float rotation3, uint32 aid /*= 0*/)
 {
     GameObjectTemplate const* goinfo = GetGameObjectTemplate(entry);
     if (!goinfo)
@@ -1699,7 +1703,7 @@ ObjectGuid::LowType ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, fl
     data.phaseMask      = PHASEMASK_NORMAL;
     data.artKit         = goinfo->type == GAMEOBJECT_TYPE_CONTROL_ZONE ? 21 : 0;
     data.dbData = false;
-
+    data.AiID = aid;
     AddGameobjectToGrid(guid, &data);
 
     // Spawn if necessary (loaded grids only)
@@ -1815,8 +1819,8 @@ void ObjectMgr::LoadGameobjects()
 
     //                                                0                1   2    3         4           5           6        7           8
     QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, zoneId, areaId, position_x, position_y, position_z, orientation, "
-    //      9          10         11          12         13          14             15      16         17         18        19          20          21
-        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, isActive, spawnMask, phaseMask, eventEntry, pool_entry, PhaseId "
+    //      9          10         11          12         13          14             15      16         17         18        19          20          21      22
+        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, isActive, spawnMask, phaseMask, eventEntry, pool_entry, PhaseId, AiID "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
         "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
 
@@ -1882,6 +1886,7 @@ void ObjectMgr::LoadGameobjects()
         data.rotation2      = fields[11].GetFloat();
         data.rotation3      = fields[12].GetFloat();
         data.spawntimesecs  = fields[13].GetInt32();
+        data.AiID           = fields[22].GetInt32();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)

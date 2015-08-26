@@ -1209,7 +1209,7 @@ class ObjectMgr
         void RemoveCreatureFromGrid(ObjectGuid::LowType const& guid, CreatureData const* data);
         void AddGameobjectToGrid(ObjectGuid::LowType const& guid, GameObjectData const* data);
         void RemoveGameobjectFromGrid(ObjectGuid::LowType const& guid, GameObjectData const* data);
-        ObjectGuid::LowType AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
+        ObjectGuid::LowType AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0, uint32 aid = 0);
         ObjectGuid::LowType AddCreData(uint32 entry, uint32 team, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
         bool MoveCreData(ObjectGuid::LowType const& guid, uint32 map, Position pos);
 

@@ -343,6 +343,10 @@ struct CreatureData
     bool isActive;
     bool dbData;
     std::set<uint32> PhaseID;
+
+    uint32 AiID;
+    uint32 MovementID;
+    uint32 MeleeID;
 };
 
 // `creature_addon` table
