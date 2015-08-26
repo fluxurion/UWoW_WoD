@@ -194,7 +194,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3579 маг после разрушения дампы и эффекта телепортации.
 -- 3334 - гнар до спасения
 -- 3581 - гнар после спасения
--- 3508 - npc 78568 q35747 hide at 80880 credit complete
+-- 3508 - npc 78568 q35747 hide at 80880 credit complete (3423 posible)
+-- 3423 - видимо это горила для квевста q35747
+-- 3604 - странная фаза то включаетсяя то выключается
 
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
 ('7025', '1', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3880 3946 4142 4143 4200', '0', '0', '16', 'Draenor Dark Portal Intro'),
@@ -295,9 +297,10 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 --  q 34437
 ('7025', '38', '0','3269 3394 3395 3396 3423 3481 3498 3505 3579 3581 3594 3693 3712 3752 3833 3834 3936 4026 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34437 start'),
 --             
-('7025', '39', '0','3508', '0', '0', '0', 'DraenorIntro: q35747 активно пока не реварт или 80880 обджект =1.');
+('7025', '39', '0','3508', '0', '0', '0', 'DraenorIntro: q35747 активно пока не реварт или 80880 обджект =1.'),
 -- at obj = 80887
--- 3269 3394 3395 3396 3481 3498 3519 3542 3583 3604 3693 3712 3752 3833 3834 3936 4150 4151 4200
+('7025', '40', '0','3269 3394 3395 3396 3481 3498 3519 3542 3583 3604 3693 3712 3752 3833 3834 3936 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q35747 o:80887 or reward');
+
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -332,7 +335,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 --
 (23, 7025, 13, 0, 0, 8, 0, 34421, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34421'),
 (23, 7025, 13, 0, 1, 8, 0, 35240, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 35240'),
---
 (23, 7025, 14, 0, 0, 40, 0, 770, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene  770'),
 (23, 7025, 14, 0, 1, 8, 0, 34422, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34422'),
 (23, 7025, 14, 0, 1, 8, 0, 34423, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34423'),
@@ -411,7 +413,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 38, 0, 0, 14, 0, 34437, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not non 34437'),
 (23, 7025, 39, 0, 0, 14, 0, 34442, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR not non 34442'),
 (23, 7025, 39, 0, 0, 8, 0, 35747, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO OR not rew 35747'),
-(23, 7025, 39, 0, 0, 41, 0, 35747, 80880, 1, 1, 0, '', 'DARK_PORTAL_INTRO OR not q35747 obj:80880');
+(23, 7025, 39, 0, 0, 41, 0, 35747, 80880, 1, 1, 0, '', 'DARK_PORTAL_INTRO OR not q35747 obj:80880'),
+(23, 7025, 40, 0, 0, 41, 0, 35747, 80887, 1, 0, 0, '', 'DARK_PORTAL_INTRO q35747 obj:80887'),
+(23, 7025, 40, 0, 1, 8, 0, 35747, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR rew q35747');
 
 -- или квест взять надо через нон ему запилить.
 
