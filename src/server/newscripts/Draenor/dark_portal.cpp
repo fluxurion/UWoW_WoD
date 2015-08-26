@@ -1259,6 +1259,77 @@ public:
     };
 };
 
+class sceneTrigger_q34445 : public SceneTriggerScript
+{
+public:
+    sceneTrigger_q34445() : SceneTriggerScript("sceneTrigger_q34445")
+    {}
+
+    enum data
+    {
+        NPC__ = 80521,
+        CREDIT_ = 80016,
+        SPEL_INST = 176104,
+        SPELL_BLOOD = 161527,
+        SPELL_GO = 164043,
+        //167976 
+    };
+
+    bool OnTrigger(Player* player, SpellScene const* trigger, std::string type) override
+    {
+        if (type == "Instructions")
+        {
+            player->CastSpell(player, SPEL_INST, false);
+            if (Creature *c = player->FindNearestCreature(NPC__, 100.0f))
+                sCreatureTextMgr->SendChat(c, TEXT_GENERIC_1, player->GetGUID());
+        }
+        else if (type == "Credit")
+        {
+            player->KilledMonsterCredit(CREDIT_, ObjectGuid::Empty);
+        }
+        else if (type == "Bloodlust")
+        {
+            player->CastSpell(player, SPELL_BLOOD, false);
+        }
+        else if (type == "CancelGame")
+        {
+            player->CastSpell(player, SPELL_GO, false);
+        }
+        return true;
+    }
+};
+
+class go_wod_q34445 : public GameObjectScript
+{
+public:
+    go_wod_q34445() : GameObjectScript("go_wod_q34445") { }
+
+    struct go_wod_q34445AI : public GameObjectAI
+    {
+        go_wod_q34445AI(GameObject* go) : GameObjectAI(go)
+        {
+
+        }
+
+        enum data
+        {
+            SPELL_CINEMA = 176159,
+
+        };
+        bool GossipHello(Player* player) override
+        {
+            player->CastSpell(player, SPELL_CINEMA, true);
+            return false;
+        }
+
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const
+    {
+        return new go_wod_q34445AI(go);
+    }
+};
+
 void AddSC_wod_dark_portal()
 {
     new mob_wod_thrall();
@@ -1284,4 +1355,6 @@ void AddSC_wod_dark_portal()
     new sceneTrigger_q34987();
     new mob_wod_thaelin_darkanvil();
     new mob_wod_q35747();
+    new sceneTrigger_q34445();
+    new go_wod_q34445();
 }

@@ -2666,7 +2666,8 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
     if (apply)
     {
         // apply glow vision
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        //! spell 164042 used for Q34445. Is glow apply on alll or not?
+        if (target->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Id != 164042)
            target->SetByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW); // TODO : Check PLAYER_FIELD_AURA_VISION
 
         target->m_invisibility.AddFlag(type);
