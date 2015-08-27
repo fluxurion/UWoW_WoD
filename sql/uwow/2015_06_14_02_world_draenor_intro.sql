@@ -199,6 +199,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- 3604 - странная фаза то включаетсяя то выключается
 -- 3519 - пульт управления танком го 232506, 232502, 232505
 -- 3604 - инженер на танке 80521
+-- 3833 - Корабли отьезда
 
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
 ('7025', '1', '0', '3248 3249 3250 3251 3263 3480 3563 3568 3605 3693 3712 3763 3764 3824 3833 3834 3880 3946 4142 4143 4200', '0', '0', '16', 'Draenor Dark Portal Intro'),
@@ -307,7 +308,9 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- complete or reward.
 ('7025', '42', '0','3394 3395 3396 3481 3498 3519 3583 3604 3693 3712 3752 3833 3834 3936 4028 4150 4151 4201', '0', '0', '16', 'DraenorIntro: q34445 complete or rew'),
 --
-('7025', '43', '0','3394 3395 3396 3481 3498 3693 3712 3752 3833 3834 3889 3936 4028 4072 4150 4151 4201', '0', '0', '16', 'DraenorIntro: q34446 35884 complete or scene complete');
+('7025', '43', '0','3394 3395 3396 3481 3498 3693 3712 3752 3833 3834 3889 3936 4028 4072 4150 4151 4201', '0', '0', '16', 'DraenorIntro: q34446 35884 complete or scene complete'),
+--
+('7025', '44', '0','3394 3395 3396 3481 3498 3693 3712 3752 3834 3936 4028 4072 4150 4151 4201', '0', '0', '16', 'DraenorIntro: q34446 35884 complete or scene complete');
 
                     
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7025;
@@ -430,9 +433,15 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 41, 0, 0, 14, 0, 34445, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO and non 34445'),
 (23, 7025, 42, 0, 0, 28, 0, 34445, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO complete 34445'),
 (23, 7025, 42, 0, 1, 8, 0, 34445, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR rew 34445'),
-(23, 7025, 43, 0, 0, 40, 0, 740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO if complete scene 740');
-
--- или квест взять надо через нон ему запилить.
+(23, 7025, 42, 0, 1, 8, 0, 35884, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and non rew 35884'),
+(23, 7025, 42, 0, 1, 8, 0, 34446, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and non rew 34446'),
+(23, 7025, 43, 0, 0, 40, 0, 740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO if complete scene 740'),
+(23, 7025, 43, 0, 0, 8, 0, 35884, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and non rew 35884'),
+(23, 7025, 43, 0, 0, 8, 0, 34446, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and non rew 34446'),
+(23, 7025, 43, 0, 1, 28, 0, 35884, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR complete 35884'),
+(23, 7025, 43, 0, 2, 28, 0, 34446, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR complete 34446'),
+(23, 7025, 44, 0, 0, 8, 0, 35884, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rew 35884'),
+(23, 7025, 44, 0, 1, 8, 0, 34446, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rew 34446');
 
 -- 34422
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
@@ -483,7 +492,9 @@ REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlag
 ('893', '723', '1', '20', '0', '0', 'Spell 162676 Пороховая бочка q34987'), -- 63
 ('911', '736', '1', '16', '0', '0', 'Spell 163452 q34437 sceneObject'),
 ('871', '689', '1', '20', '0', '0', 'Spell 161523 q34437'), -- 64
-('912', '740', '1', '16', '0', '0', 'Spell 163618 q34446 q35884'); -- 65
+('912', '740', '1', '16', '0', '0', 'Spell 163618 q34446 q35884'), -- 65
+('986', '818', '1', '25', '167221', '0', 'Spell 167213 q35884'), -- alliance 
+('953', '817', '1', '25', '167220', '0', 'Spell 167212 q34446');
 
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34429' WHERE MiscValue = 796;
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34741_34436' WHERE MiscValue = 801;
@@ -566,12 +577,13 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('163388', '7025', '35747', '35747', '0', '0', '2', '1', '8', '66'),
 ('161523', '7025', '34445', '0', '0', '0', '2', '1', '74', '64'),
 ('161527', '7025', '34445', '34445', '0', '0', '2', '0', '10', '64'),
-('163618', '7025', '34446', '0', '0', '0', '2', '1', '10', '64'),
-('163618', '7025', '35884', '0', '0', '0', '2', '1', '10', '64'),
-('178256', '7025', '34446', '0', '0', '0', '2', '1', '10', '64'),
-('178256', '7025', '35884', '0', '0', '0', '2', '1', '10', '64');
+('163618', '7025', '34446', '34446', '0', '0', '2', '1', '8', '66'),
+('163618', '7025', '35884', '35884', '0', '0', '2', '1', '8', '66'),
+('178256', '7025', '34446', '34446', '0', '0', '2', '1', '8', '66'),
+('178256', '7025', '35884', '35884', '0', '0', '2', '1', '8', '66'),
+('167212', '7025', '34446', '0', '0', '0', '2', '1', '64', '64'),
+('167213', '7025', '35884', '0', '0', '0', '2', '1', '64', '64');
 
--- 34741, 34436
 --
 UPDATE `quest_template_addon` SET `NextQuestID` = '35933' WHERE `quest_template_addon`.`ID` in (34398, 36881);
 UPDATE `quest_template` SET `RewardNextQuest` = '35933' WHERE `ID` in (34398, 36881);
@@ -862,3 +874,7 @@ UPDATE `gameobject_template` SET `ScriptName` = 'go_wod_q34445' WHERE `gameobjec
 
 -- Q: 34446 35884
 REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('167421', 'spell_wod_khadgar_watch');
+
+REPLACE INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES 
+('167221', '1116', '2308.57', '447.469', '5.11977', '2.199202'), -- alliance
+('167220', '1116', '5535.01', '5019.88', '12.6375', '5.174203');
