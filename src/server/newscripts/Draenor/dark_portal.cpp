@@ -408,7 +408,6 @@ public:
     };
 };
 
-const uint32 npc[4] = { 82871, 85142, 78529, 85141 };
 // 159126 - eastern
 class go_wod_slaves_cage : public GameObjectScript
 {
@@ -430,14 +429,16 @@ public:
         bool GossipHello(Player* player) override
         {
             if (go->GetEntry() == 229353)
-                player->CastSpell(player, EASTERN_SCENE, true);
-            else
-                player->CastSpell(player, SOUTH_SCENE, true);
-
-            for (uint8 i = 0; i != 4; ++i)
             {
-                if (Creature* target = go->FindNearestCreature(npc[i], 50.0f, true))
-                    player->KilledMonsterCredit(npc[i], ObjectGuid::Empty);
+                player->CastSpell(player, EASTERN_SCENE, true);
+                player->KilledMonsterCredit(85142, ObjectGuid::Empty);
+                player->KilledMonsterCredit(78529, ObjectGuid::Empty);
+            }
+            else
+            {
+                player->CastSpell(player, SOUTH_SCENE, true);
+                player->KilledMonsterCredit(82871, ObjectGuid::Empty);
+                player->KilledMonsterCredit(85141, ObjectGuid::Empty);
             }
 
             return true;
