@@ -603,7 +603,7 @@ public:
     static bool HandleDebugSendQuestInvalidMsgCommand(ChatHandler* handler, char const* args)
     {
         uint32 msg = atol((char*)args);
-        handler->GetSession()->GetPlayer()->SendCanTakeQuestResponse(msg);
+        handler->GetSession()->GetPlayer()->SendCanTakeQuestResponse(msg, NULL);
         return true;
     }
 
