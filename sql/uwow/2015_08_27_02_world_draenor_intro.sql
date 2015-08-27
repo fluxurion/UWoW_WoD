@@ -107,6 +107,7 @@ INSERT IGNORE INTO `gameobject_questrelation` (`id`, `quest`) VALUES
 (207320, 34398),
 (207323, 34398);
 
+UPDATE `creature_template` SET ScriptName = 'mob_wod_intro_enemy_at_portal', `AIName`='' WHERE `entry` in (78883, 81711);
 --
 INSERT IGNORE INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`) VALUES 
 ('36881', '0', '0', '0', '0', '0', '34398', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
@@ -446,9 +447,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
 (NULL, '4066.5', '-2382.25', '94.8536', '1.570796', '1265', 'DarkPortalIntro');
 
---
+-- 
 REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlags`, `trigerSpell`, MonsterCredit, `comment`) VALUES
-('937', '772', '1', '16', '0', '0', 'Темный портал: событие дворфов spell 164678'),	-- Закрывает дверь в гробницу.
+('937', '772', '1', '16', '167698', '0', 'Темный портал: событие дворфов spell 164678'),	-- Закрывает дверь в гробницу.
 ('923', '754', '1', '16', '0', '0', 'Темный портал: грозная армия spell 163799 '),
 ('1018','733', '1', '16', '0', '0', 'Темный портал: обучение души spell 163341'), 
 ('961', '811', '1', '16', '0', '0', 'Q34392 Free Cho\'gall Credit spell 166407'),

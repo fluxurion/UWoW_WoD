@@ -66,7 +66,6 @@ struct arena_friendly_classAI : public ScriptedAI
         {
             case 7037:
                 events.ScheduleEvent(EVENT_BEGIN_1, 1000);
-                break;
             case 7040:  //arena
                 me->setFaction(2580);
                 break;
@@ -245,6 +244,59 @@ public:
                 }
             }
             DoMeleeAttackIfReady();
+        }
+    };
+};
+
+class mob_wod_intro_enemy_at_portal : public CreatureScript
+{
+public:
+    mob_wod_intro_enemy_at_portal() : CreatureScript("mob_wod_intro_enemy_at_portal") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_wod_intro_enemy_at_portalAI(creature);
+    }
+
+    struct mob_wod_intro_enemy_at_portalAI : public ScriptedAI
+    {
+        mob_wod_intro_enemy_at_portalAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        void Reset()
+        {
+            if (me->getVictim())
+                return;
+
+            std::list<Unit*> list;
+            me->GetAttackableUnitListInRange(list, 70.0f);
+            for (auto enemy : list)
+            {
+                if (enemy->ToPlayer())
+                    continue;
+                me->AI()->AttackStart(enemy);
+                break;
+            }
+        }
+
+        void MoveInLineOfSight(Unit* /*who*/) override {};
+        void DamageDealt(Unit* victim, uint32& damage, DamageEffectType /*damageType*/) override
+        {
+            if (victim->ToPlayer())
+                damage /= 10;
+            else
+                damage = 0;
+        }
+
+        void DamageTaken(Unit* attacker, uint32& damage) override
+        {
+            if (attacker->ToPlayer())
+            {
+                damage *= 2;
+                return;
+            }
+            damage /= 2;
         }
     };
 };
@@ -1415,6 +1467,7 @@ void AddSC_wod_dark_portal()
     new mob_wod_cordona_welsong();
     new mob_wod_archimage_khadgar();
     new mob_wod_olin_oberhind();
+    new mob_wod_intro_enemy_at_portal();
     new mob_wod_intro_guldan();
     new mob_wod_frostwolf_slave();
     new go_wod_slaves_cage();
