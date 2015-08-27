@@ -40,6 +40,9 @@ enum spells
 
     MOVIE_HORDE             = 185,
     MOVIE_ALLIANCE          = 187,
+
+    QUEST_A = 35884,
+    QUEST_H = 34446,
 };
 
 class at_wod_dark_portal : public AreaTriggerScript
@@ -52,12 +55,12 @@ public:
         if (player->getLevel() < 90 || player->HasAura(SPELL_TIME_SHIFT))
             return false;       //tele to outlend
 
-        //if (questcomplete)
-        //{
-        //    tele ashran.
-        //}
-        player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_TELE_OUT_HORDE : SPELL_TELE_OUT_ALLIANCE);
-        player->SendMovieStart(player->GetTeam() == HORDE ? MOVIE_HORDE : MOVIE_ALLIANCE);    //alliance
+        if (player->GetQuestStatus(QUEST_A) == QUEST_STATUS_COMPLETE ||
+            player->GetQuestStatus(QUEST_H) == QUEST_STATUS_COMPLETE)
+        {
+            player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_TELE_OUT_HORDE : SPELL_TELE_OUT_ALLIANCE);
+            player->SendMovieStart(player->GetTeam() == HORDE ? MOVIE_HORDE : MOVIE_ALLIANCE);    //alliance
+        }
         return true;
     }
 };
