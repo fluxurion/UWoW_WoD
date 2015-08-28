@@ -303,13 +303,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 26, 0, 0, 8, 0, 34740, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34740'),
 (23, 7025, 26, 0, 0, 9, 0, 34434, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not taken 34434'),
 (23, 7025, 26, 0, 0, 9, 0, 34740, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not taken 34740'),
-(23, 7025, 27, 0, 0, 14, 0, 34741, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO AND quest none 34741'),
-(23, 7025, 27, 0, 0, 14, 0, 34436, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO AND quest none 34436'),
-(23, 7025, 27, 1, 0, 8, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34434'),
-(23, 7025, 27, 1, 1, 8, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34740'),
-(23, 7025, 27, 1, 2, 28, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34434'),
-(23, 7025, 27, 1, 3, 28, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34740'),
-
+(23, 7025, 27, 0, 0, 8, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34434'),
+(23, 7025, 27, 0, 1, 8, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rewarded 34740'),
+(23, 7025, 27, 0, 2, 28, 0, 34434, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34434'),
+(23, 7025, 27, 0, 3, 28, 0, 34740, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or complete 34740'),
 (23, 7025, 28, 0, 0, 6, 0, 67, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO for horde'),
 (23, 7025, 28, 0, 0, 9, 0, 34741, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO taken 34741'),
 (23, 7025, 28, 0, 0, 28, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not complete 34741'),
@@ -318,7 +315,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 28, 0, 1, 9, 0, 34436, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR taken 34436'),
 (23, 7025, 28, 0, 1, 28, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not complete 34436'),
 (23, 7025, 28, 0, 1, 8, 0, 34436, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34436'),
-
 (23, 7025, 29, 0, 0, 8, 0, 34429, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34429'),
 (23, 7025, 29, 0, 0, 8, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34741'),
 (23, 7025, 29, 0, 0, 28, 0, 34741, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO or not completed 34741'),
@@ -333,9 +329,11 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 31, 0, 1, 14, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO 34439 non'),
 (23, 7025, 32, 0, 0, 14, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not non 34439'),
 (23, 7025, 32, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rew 34439'),
+
 (23, 7025, 33, 0, 0, 40, 0, 719, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO if not complete scene'),
 (23, 7025, 33, 0, 0, 28, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 not complete 34439'),
 (23, 7025, 33, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 not rew 34439'),
+
 (23, 7025, 34, 0, 0, 8, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rew 34439'),
 (23, 7025, 34, 0, 0, 14, 0, 34442, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO non 34442'),
 (23, 7025, 35, 0, 0, 42, 0, 732, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO after snece event 732'),
@@ -473,8 +471,8 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('166216', '7025', '34429', '34429', '0', '0', '2', '0', '10', '64'),
 ('165549', '7025', '34429', '34429', '0', '0', '2', '1', '10', '64'),
 ('166223', '7025', '34429', '0', '0', '0', '2', '1', '2', '64'),
-('165633', '7042', '34737', '0', '0', '0', '2', '1', '2', '64'), -- horde
-('165632', '7042', '34431', '0', '0', '0', '2', '1', '2', '64'), -- alliance
+('165633', '7042', '34737', '0', '0', '0', '2', '1', '8', '64'), -- horde
+('165632', '7042', '34431', '0', '0', '0', '2', '1', '8', '64'), -- alliance
 ('160714', '7042', '0', '0', '0', '0', '2', '1', '2', '64'),
 ('161109', '7042', '34740', '34740', '0', '0', '2', '1', '10', '64'),
 ('161109', '7042', '34434', '34434', '0', '0', '2', '1', '10', '64'),
@@ -536,8 +534,8 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34431', '34429', '34436', '-34436'), -- a
 ('34740', '34429', '34741', '-34741'), -- h
 ('34434', '34429', '34436', '-34436'), -- a
-('34741', '34429', '0', '0'), -- h
-('34436', '34429', '0', '0'), -- a
+('34741', '0', '0', '0'), -- h  def by NextQuestID &  exc group
+('34436', '0', '0', '0'), -- a def by NextQuestID &  exc group
 ('35005', '34741', '34439', '0'), -- h
 ('35019', '34436', '34439', '0'), -- a
 ('34442', '34439', '34925', '0'),
