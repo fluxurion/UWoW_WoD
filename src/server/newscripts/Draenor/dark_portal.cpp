@@ -769,6 +769,41 @@ public:
             SPELL_CREDIT = 168182,
         };
 
+        void Reset()
+        {
+            if (me->getVictim())
+                return;
+
+            std::list<Unit*> list;
+            me->GetAttackableUnitListInRange(list, 70.0f);
+            for (auto enemy : list)
+            {
+                if (enemy->ToPlayer())
+                    continue;
+                me->AI()->AttackStart(enemy);
+                break;
+            }
+        }
+
+        void MoveInLineOfSight(Unit* /*who*/) override {};
+        void DamageDealt(Unit* victim, uint32& damage, DamageEffectType /*damageType*/) override
+        {
+            if (victim->ToPlayer())
+                damage /= 10;
+            else
+                damage = 0;
+        }
+
+        void DamageTaken(Unit* attacker, uint32& damage) override
+        {
+            if (attacker->ToPlayer())
+            {
+                damage *= 2;
+                return;
+            }
+            damage /= 2;
+        }
+
         void JustDied(Unit* /*killer*/)
         {
             std::list<Player*> lList;
@@ -776,11 +811,14 @@ public:
             for (auto player : lList)
             {
                 if (player->GetQuestStatus(QUEST) == QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveData(QUEST, NPC_CREDIT) < 99)
-                {
                     player->CastSpell(player, SPELL_CREDIT, true);
-                    me->CastSpell(me, SPELL_SUMMON, false);
-                }
             }
+
+            std::list<Creature*> creatureList;
+            me->GetAliveCreatureListWithEntryInGrid(creatureList, me->GetEntry(), 20.0f);
+            if (creatureList.size() < 20)
+                me->CastSpell(me, SPELL_SUMMON, false);
+
         }
     };
 };
@@ -819,6 +857,9 @@ public:
                     if (obj.ObjectID != 82142)
                         continue;
                     player->SetQuestObjectiveData(qInfo, obj.StorageIndex, 99);
+                    if (player->CanCompleteQuest(34429))
+                        player->CompleteQuest(34429);
+                    break;
                 }
             }
         }
