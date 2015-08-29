@@ -1,4 +1,4 @@
-SET @CGUID = 1036156;
+SET @CGUID = 995856;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+68976;
 DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+68976;
 DELETE FROM `waypoint_data` WHERE `id` BETWEEN @CGUID+0 AND @CGUID+68976;
@@ -1362,7 +1362,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `phaseId`
 (@CGUID+1412, 79675, 1265, 1, 2, '3356', 4516.949, -2493.96, 25.89436, 1.700529, 120, 0, 0), -- 79675 (Area: 7042)
 (@CGUID+1413, 79590, 1265, 1, 1, '4017', 4516.948, -2490.932, 25.89501, 4.259188, 120, 0, 0), -- 79590 (Area: 7042) (Auras: 29266 - 29266)
 (@CGUID+1414, 79590, 1265, 1, 1, '4017', 4435.656, -2491.175, 13.69861, 1.51507, 120, 0, 0), -- 79590 (Area: 7042) (Auras: 165877 - 165877, 160677 - 160677)
-(@CGUID+1415, 79585, 1265, 1, 1, '4017', 4598.76, -2517.138, 29.10851, 2.416278, 120, 5, 1), -- 79585 (Area: 7042) (Auras: ) (possible waypoints or random movement)
+(@CGUID+1415, 79585, 1265, 1, 1, '4017', 4598.76, -2517.138, 29.10851, 2.416278, 120, 5, 0), -- 79585 (Area: 7042) (Auras: ) (possible waypoints or random movement)
 (@CGUID+1416, 82373, 1265, 1, 1, '4017', 4525.09, -2472.141, 25.13017, 0.08385031, 120, 5, 1), -- 82373 (Area: 7042) (Auras: 165999 - 165999) (possible waypoints or random movement)
 (@CGUID+1417, 79590, 1265, 1, 1, '4017', 4424.095, -2505.773, 13.58577, 2.309927, 120, 0, 0), -- 79590 (Area: 7042) (Auras: 165877 - 165877, 160677 - 160677)
 (@CGUID+1418, 79589, 1265, 1, 1, '4017', 4456.417, -2469.103, 25.38857, 6.149218, 120, 0, 0), -- 79589 (Area: 7042) (Auras: 157589 - 157589)
@@ -7596,7 +7596,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (@CGUID+2235, 0, 0, 0x0, 0x1, 0x0, ''); -- 79451 - Full: 0x1C195C8B804D96C0000003000041A417 Creature/0 R1623/S3 Map: 1116 Entry: 79451 Low: 4301847
 
 DELETE FROM  `gameobject` WHERE `map` = 1265;
-SET @OGUID = 477588;
+SET @OGUID = 495459;
 
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+192;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES

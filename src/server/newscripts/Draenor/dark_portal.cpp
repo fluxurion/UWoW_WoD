@@ -576,7 +576,10 @@ public:
                     break;
                 case EVENT_6:
                     if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
+                    {
+                        player->CastSpell(player, SPELL_ON_ALTAR_CREDIT, true); // double if plr complete faster... gm for example.
                         player->CastSpell(player, SPELL_SCENE, true);
+                    }
                     break;
                 case EVENT_CHECK_PHASE_1:
 
