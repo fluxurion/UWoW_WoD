@@ -202,8 +202,8 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- 
 ('7025', '29', '0','3268 3317 3334 3394 3395 3396 3481 3497 3498 3499 3693 3712 3752 3824 3833 3834 3936 4017 4019 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34436 q34741 completed'),
 -- triger scene 801
--- 3268 3317 3334 3394 3395 3396 3481 3497 3498 3499 3594 3693 3712 3752 3824 3833 3834 3936 4019 4150 4151 4200
-('7025', '30', '0','3317 3334 3394 3395 3396 3481 3498 3594 3693 3712 3752 3824 3833 3834 3936 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34436 q34741 completed'),
+-- 3317 3334 3394 3395 3396 3481 3498 3594 3693 3712 3752 3824 3833 3834 3936 4150 4151 4200 4019
+('7025', '30', '0','3268 3317 3334 3394 3395 3396 3481 3497 3498 3499 3594 3693 3712 3752 3824 3833 3834 3936 4019 4150 4151 4200', '0', '0', '16', 'DraenorIntro: q34436 q34741 completed'),
 --
 ('7025', '31', '0','3268 3334 3394 3395 3396 3481 3498 3499 3594 3597 3693 3712 3752 3824 3833 3834 3936 4150 4151 4200', '0', '0', '16', 'DraenorIntro: '),
 --
@@ -323,17 +323,18 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 30, 0, 0, 40, 0, 753, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after prock scene triger teleport for 801'),
 (23, 7025, 30, 0, 0, 8, 0, 35005, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 35005'),
 (23, 7025, 30, 0, 0, 8, 0, 35019, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 35019'),
+
 (23, 7025, 31, 0, 0, 8, 0, 35005, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 35005'),
-(23, 7025, 31, 0, 0, 9, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not taken 34439'),
+(23, 7025, 31, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34439'),
 (23, 7025, 31, 0, 1, 8, 0, 35019, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR rewarded 35019'),
-(23, 7025, 31, 0, 1, 14, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO 34439 non'),
+(23, 7025, 31, 0, 1, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34439'),
+
 (23, 7025, 32, 0, 0, 14, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not non 34439'),
 (23, 7025, 32, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rew 34439'),
-
+(23, 7025, 33, 0, 0, 40, 0, 753, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after prock scene triger teleport for 801'),
 (23, 7025, 33, 0, 0, 40, 0, 719, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO if not complete scene'),
-(23, 7025, 33, 0, 0, 28, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 not complete 34439'),
-(23, 7025, 33, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 not rew 34439'),
-
+(23, 7025, 33, 0, 0, 28, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not complete 34439'),
+(23, 7025, 33, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO  not rew 34439'),
 (23, 7025, 34, 0, 0, 8, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rew 34439'),
 (23, 7025, 34, 0, 0, 14, 0, 34442, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO non 34442'),
 (23, 7025, 35, 0, 0, 42, 0, 732, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO after snece event 732'),
@@ -435,7 +436,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 163263, 0, 1, 28, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 or complete 34439'),
 (17, 0, 163388, 0, 0, 41, 0, 35747, 80880, 1, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163388 Q35747  objective 80880 = 1'),
 (17, 0, 161523, 0, 0, 14, 0, 34446, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161523 non 34446'),
-(17, 0, 161523, 0, 0, 14, 0, 35884, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161523 non 35884');
+(17, 0, 161523, 0, 0, 14, 0, 35884, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161523 non 35884'),
+(17, 0, 163770, 0, 0, 40, 0, 753, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO spell 163770 not triger teleport for 801');
 
 DELETE FROM `spell_area` WHERE area in (7025, 7041, 7129, 7040, 7042, 7043);
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
@@ -517,8 +519,6 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`) VALUES
 ('34393', '34392'),
 ('34420', '34393');
 
-UPDATE `quest_template` SET `AllowableRaces` = '0' WHERE `quest_template`.`ID` = 34422;
-
 REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`) VALUES 
 ('35240', '34420', '34423', '-34423'),
 ('34421', '34420', '34423', '-34423'),
@@ -548,7 +548,7 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('35884', '34445', '0', '0');
 
 UPDATE `quest_template` SET AllowableRaces = 33555378 WHERE ID in (34421, 35241); -- SET HORDE
-UPDATE `quest_template` SET AllowableRaces =  (1101 + 2097152  + 16777216)WHERE ID in (35242, 34422); -- SET ALLIANCE
+UPDATE `quest_template` SET AllowableRaces =  (1101 + 2097152  + 16777216)WHERE ID in (35242, 35240); -- SET ALLIANCE
 
 REPLACE INTO `area_queststart` (`id`, `quest`) VALUES ('7037', '34392');
 DELETE FROM `creature_questrelation` WHERE `creature_questrelation`.`id` = 78558 AND `creature_questrelation`.`quest` = 34392;
