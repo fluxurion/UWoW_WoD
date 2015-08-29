@@ -1408,11 +1408,14 @@ public:
         enum data
         {
             SPELL_CINEMA = 176159,
+            SPELL_SCENE = 161523,
 
         };
         bool GossipHello(Player* player) override
         {
+            
             player->CastSpell(player, SPELL_CINEMA, true);
+            player->RemoveAurasDueToSpell(SPELL_SCENE); // could't remove by my conditions system.
             return false;
         }
 
