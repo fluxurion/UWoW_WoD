@@ -576,10 +576,7 @@ public:
                     break;
                 case EVENT_6:
                     if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
-                    {
-                        player->CastSpell(player, SPELL_ON_ALTAR_CREDIT, true); // double if plr complete faster... gm for example.
                         player->CastSpell(player, SPELL_SCENE, true);
-                    }
                     break;
                 case EVENT_CHECK_PHASE_1:
 
@@ -1411,14 +1408,11 @@ public:
         enum data
         {
             SPELL_CINEMA = 176159,
-            SPELL_SCENE = 161523,
 
         };
         bool GossipHello(Player* player) override
         {
-            
             player->CastSpell(player, SPELL_CINEMA, true);
-            player->RemoveAurasDueToSpell(SPELL_SCENE); // could't remove by my conditions system.
             return false;
         }
 

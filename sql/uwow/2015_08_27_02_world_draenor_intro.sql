@@ -207,7 +207,7 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 --
 ('7025', '31', '0','3268 3334 3394 3395 3396 3481 3498 3499 3594 3597 3693 3712 3752 3824 3833 3834 3936 4150 4151 4200', '0', '0', '16', 'DraenorIntro: '),
 --
-('7025', '32', '0','3334 3394 3395 3396 3481 3498 3500 3594 3693 3712 3752 3824 3833 3834 3936 4022 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34439'),
+('7025', '32', '0','3334 3394 3395 3396 3481 3498 3594 3693 3712 3752 3824 3833 3834 3936 4022 4150 4151 4200', '0', '0', '16', 'DraenorIntro: stsrt q34439'),
 --
 ('7025', '33', '0','3500', '0', '0', '16', 'DraenorIntro: stsrt q34439 телепорт к платине мага'),
 -- 3269 3334 3394 3395 3396 3481 3498 3594 3693 3712 3752 3833 3834 3936 4150 4151 4200 
@@ -325,9 +325,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 30, 0, 0, 8, 0, 35019, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 35019'),
 
 (23, 7025, 31, 0, 0, 8, 0, 35005, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 35005'),
-(23, 7025, 31, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34439'),
+(23, 7025, 31, 0, 0, 14, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO non 34439'),
 (23, 7025, 31, 0, 1, 8, 0, 35019, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR rewarded 35019'),
-(23, 7025, 31, 0, 1, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34439'),
+(23, 7025, 31, 0, 1, 14, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO non 34439'),
+
 
 (23, 7025, 32, 0, 0, 14, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not non 34439'),
 (23, 7025, 32, 0, 0, 8, 0, 34439, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rew 34439'),
@@ -366,8 +367,11 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 44, 0, 1, 8, 0, 34446, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO or rew 34446');
 
 -- 34422
+DELETE FROM `game_tele` WHERE name LIKE 'DarkPortalIntro';
+DELETE FROM `game_tele` WHERE name LIKE 'DarkPortalWod';
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES 
-(NULL, '4066.5', '-2382.25', '94.8536', '1.570796', '1265', 'DarkPortalIntro');
+(NULL, '4066.5', '-2382.25', '94.8536', '1.570796', '1265', 'DarkPortalIntro'),
+(NULL, '-11840.64', '-3215.719', '-29.41927', '2.84771', '0', 'DarkPortalWod');
 
 -- 
 REPLACE INTO `spell_scene` (`ScenePackageId`, `MiscValue`, `hasO`, `PlaybackFlags`, `trigerSpell`, MonsterCredit, `comment`) VALUES
@@ -425,18 +429,17 @@ UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34987' WHERE MiscValue = 72
 UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q34445' WHERE MiscValue = 689;
 
 -- Basic area auras
-DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023, 165549, 166216, 165271, 163263, 162676, 163388, 161523);
+DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 17 AND SourceEntry in (161771, 165061, 163023, 165549, 166216, 165271, 163263, 162676, 163388, 161523, 163770);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (17, 0, 161771, 0, 0, 41, 0, 34423, 78966, 3, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161771 Q34423 objective 78966 = 3'),
 (17, 0, 163023, 0, 0, 42, 0, 727, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 163023 if not trigered scene'),
-(17, 0, 165549, 0, 0, 41, 0, 34429, 82066, 99, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 165549 Q34429 objective 82066 = 3'),
-(17, 0, 166216, 0, 0, 41, 0, 34429, 82066, 99, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 166216 Q34429 not objective 82066 = 3'),
-(17, 0, 165271, 0, 0, 41, 0, 34429, 82066, 95, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 165271 Q34429 not objective 82066 = 3'),
-(17, 0, 163263, 0, 0, 40, 0, 719, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 if complete scene'),
-(17, 0, 163263, 0, 1, 28, 0, 34439, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163263 or complete 34439'),
+(17, 0, 165549, 0, 0, 41, 0, 34429, 82066, 99, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 165549 Q34429 objective 82066 = 99'),
+(17, 0, 165549, 0, 0, 42, 0, 796, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 165549 Q34429 not triger scen 796'),
+(17, 0, 166216, 0, 0, 41, 0, 34429, 82066, 99, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 166216 Q34429 not objective 82066 = 99'),
+(17, 0, 165271, 0, 0, 41, 0, 34429, 82066, 95, 1, 0, '', 'DARK_PORTAL_INTRO SPELL 165271 Q34429 not objective 82066 = 99'),
 (17, 0, 163388, 0, 0, 41, 0, 35747, 80880, 1, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 163388 Q35747  objective 80880 = 1'),
-(17, 0, 161523, 0, 0, 14, 0, 34446, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161523 non 34446'),
-(17, 0, 161523, 0, 0, 14, 0, 35884, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161523 non 35884'),
+-- (17, 0, 161523, 0, 0, 14, 0, 34446, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161523 non 34446'),
+-- (17, 0, 161523, 0, 0, 14, 0, 35884, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO SPELL 161523 non 35884'),
 (17, 0, 163770, 0, 0, 40, 0, 753, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO spell 163770 not triger teleport for 801');
 
 DELETE FROM `spell_area` WHERE area in (7025, 7041, 7129, 7040, 7042, 7043);
@@ -464,7 +467,7 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('161771', '7025', '34423', '34423', '0', '0', '2', '1', '10', '64'),
 ('165061', '7025', '34423', '34423', '0', '0', '2', '0', '10', '64'),
 ('169070', '7129', '34423', '34423', '0', '0', '2', '1', '10', '64'),
-('161637', '7129', '34423', '34423', '0', '0', '2', '1', '10', '64'),
+('161637', '7025', '34423', '34423', '0', '0', '2', '1', '10', '64'),
 ('159942', '7129', '0', '34429', '0', '0', '2', '1', '10', '74'), -- Ring of Fire Scene
 ('159942', '7040', '0', '34429', '0', '0', '2', '1', '10', '74'), -- Ring of Fire Scene
 ('163023', '7129', '34425', '34425', '0', '0', '2', '1', '10', '64'),
@@ -498,7 +501,7 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 ('162676', '7043', '34987', '34987', '0', '0', '2', '1', '2', '64'),
 ('163452', '7043', '34437', '34437', '0', '0', '2', '1', '8', '66'),
 ('163388', '7025', '35747', '35747', '0', '0', '2', '1', '8', '66'),
-('161523', '7025', '34445', '0', '0', '0', '2', '1', '74', '64'),
+('161523', '7025', '34445', '34445', '0', '0', '2', '1', '10', '64'),
 ('161527', '7025', '34445', '34445', '0', '0', '2', '0', '10', '64'),
 ('163618', '7025', '34446', '34446', '0', '0', '2', '1', '8', '66'),
 ('163618', '7025', '35884', '35884', '0', '0', '2', '1', '8', '66'),
