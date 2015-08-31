@@ -255,6 +255,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 8, 0, 0, 14, 0, 34422, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not status 34422'), --
 (23, 7025, 8, 0, 0, 8, 0, 34422, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34422'), --
 (23, 7025, 9, 0, 0, 40, 0, 621, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after complete scene 621'),
+(23, 7025, 9, 0, 0, 8, 0, 34423, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO not rewarded 34423'),
 (23, 7025, 10, 0, 0, 8, 0, 34420, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO rewarded 34420'),
 (23, 7025, 10, 0, 0, 9, 0, 34422, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO taken 34422'),
 (23, 7025, 10, 0, 1, 28, 0, 34422, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO complete 34422'),
@@ -275,8 +276,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 7025, 16, 0, 0, 41, 0, 34423, 78966, 3, 0, 0, '', 'DARK_PORTAL_INTRO Q34423 objective 78966 = 3'),
 (23, 7025, 16, 0, 1, 8, 0, 34423, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO OR rewarded 34423'),
 (23, 7025, 16, 0, 1, 14, 0, 34425, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO Q34423 and none status 34425'),
+
 (23, 7025, 17, 0, 0, 9, 0, 34425, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO taken 34425'),
 (23, 7025, 17, 0, 0, 42, 0, 727, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not tmp phase 727'),
+
 (23, 7025, 18, 0, 0, 42, 0, 727, 0, 0, 0, 0, '', 'DARK_PORTAL_INTRO tmp phase after prock scene triger Bridge for 727'),
 (23, 7025, 18, 0, 0, 8, 0, 34425, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not rewarded 34425'),
 (23, 7025, 18, 0, 0, 28, 0, 34425, 0, 0, 1, 0, '', 'DARK_PORTAL_INTRO and not complete 34425'),

@@ -806,7 +806,10 @@ void Item::AddToUpdateQueueOf(Player* player)
     if (IsInUpdateQueue())
         return;
 
-    ASSERT(player != NULL);
+    //ASSERT(player != NULL);
+    // this come whet we levelup chaar from battlepay
+    if (!player)
+        return;
 
     if (player->GetGUID() != GetOwnerGUID())
     {
@@ -826,7 +829,9 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
     if (!IsInUpdateQueue())
         return;
 
-    ASSERT(player != NULL);
+    //ASSERT(player != NULL);
+    if (!player)
+        return;
 
     if (player->GetGUID() != GetOwnerGUID())
     {
