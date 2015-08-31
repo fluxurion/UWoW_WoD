@@ -2153,35 +2153,49 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
         // Delete record of the faction old completed quests
         {
-            std::ostringstream quests;
-            ObjectMgr::QuestMap const& qTemplates = sObjectMgr->GetQuestTemplates();
-            for (ObjectMgr::QuestMap::const_iterator iter = qTemplates.begin(); iter != qTemplates.end(); ++iter)
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_QUESTSTATUSREW_NON_ACC);
+            stmt->setUInt32(0, GetAccountId());
+            stmt->setUInt64(1, lowGuid);
+            PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+            if (result)
             {
-                Quest *qinfo = iter->second;
-                uint32 requiredRaces = qinfo->GetAllowableRaces();
-                if (team == BG_TEAM_ALLIANCE)
+                std::ostringstream quests;
+                do
                 {
-                    if (requiredRaces & RACEMASK_ALLIANCE)
+                    Field* fields = result->Fetch();
+                    if (Quest const* qinfo = sObjectMgr->GetQuestTemplate(fields[0].GetUInt32()))
                     {
-                        quests << uint32(qinfo->GetQuestId());
-                        quests << ',';
+                        uint32 requiredRaces = qinfo->GetAllowableRaces();
+                        if (!requiredRaces)
+                            continue;
+
+                        if (team == BG_TEAM_ALLIANCE)
+                        {
+                            if (requiredRaces & RACEMASK_ALLIANCE && (requiredRaces & RACEMASK_HORDE) == 0)
+                            {
+                                quests << uint32(qinfo->GetQuestId());
+                                quests << ',';
+                            }
+                        }
+                        else // if (team == BG_TEAM_HORDE)
+                        {
+                            if (requiredRaces & RACEMASK_HORDE && (requiredRaces & RACEMASK_ALLIANCE) == 0)
+                            {
+                                quests << uint32(qinfo->GetQuestId());
+                                quests << ',';
+                            }
+                        }
                     }
-                }
-                else // if (team == BG_TEAM_HORDE)
-                {
-                    if (requiredRaces & RACEMASK_HORDE)
-                    {
-                        quests << uint32(qinfo->GetQuestId());
-                        quests << ',';
-                    }
-                }
+
+                } while (result->NextRow());
+
+                std::string questsStr = quests.str();
+                questsStr = questsStr.substr(0, questsStr.length() - 1);
+
+                if (!questsStr.empty())
+                    trans->PAppend("DELETE FROM `character_queststatus_rewarded` WHERE guid='%u' AND quest IN (%s)", lowGuid, questsStr.c_str());
             }
-
-            std::string questsStr = quests.str();
-            questsStr = questsStr.substr(0, questsStr.length() - 1);
-
-            if (!questsStr.empty())
-                trans->PAppend("DELETE FROM `character_queststatus_rewarded` WHERE guid='%u' AND quest IN (%s)", lowGuid, questsStr.c_str());
         }
 
         if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
