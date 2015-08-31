@@ -943,6 +943,7 @@ void WorldSession::HandleCompleteMovie(WorldPacket& /*recvData*/)
         return;
 
     _player->setWatchinMovie(false);
+    _player->SetCanDelayTeleport(false);
 }
 
 

@@ -2061,7 +2061,7 @@ void Player::Update(uint32 p_time)
 
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
-    if (IsHasDelayedTeleport() && isAlive())
+    if (IsHasDelayedTeleport() && !IsCanDelayTeleport() && isAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
     plrUpdate = false; 
 }
@@ -7596,15 +7596,43 @@ void Player::SendCinematicStart(uint32 CinematicSequenceId)
     SendDirectMessage(&data);
 }
 
+class MovieEvent : public BasicEvent
+{
+    uint32 movie = 0;
+    Player* m_owner = NULL;
+
+public:
+    explicit MovieEvent(Player* owner, uint32 m) :
+        m_owner(owner), movie(m) { }
+
+    ~MovieEvent() { }
+
+    virtual bool Execute(uint64, uint32)
+    {
+        if (m_owner->IsBeingTeleported() || m_owner->IsInWorld())
+            return false;
+        m_owner->SendMovieStart(movie);
+        return true;
+    }
+};
+
 //! 6.0.3
 void Player::SendMovieStart(uint32 MovieId)
 {
+    if (IsBeingTeleported() || !IsInWorld())
+    {
+        MovieEvent* e = new MovieEvent(this, MovieId);
+        m_Events.AddEvent(e, m_Events.CalculateTime(m_Events.CalculateTime(100)));
+        return;
+    }
+
     WorldPacket data(SMSG_TRIGGER_MOVIE, 4);
     data << uint32(MovieId);
     SendDirectMessage(&data);
 
     // used for chacking plr state.
     setWatchinMovie(true);
+    SetCanDelayTeleport(true);
 }
 
 bool Player::HasAreaExplored(uint32 AreaID)
