@@ -2125,9 +2125,7 @@ void LoadLootTemplates_Disenchant()
     {
         if (uint32 lootid = itr->second.DisenchantID)
         {
-            if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Disenchant.ReportNotExistedId(lootid);
-            else
+            if (lootIdSet.find(lootid) != lootIdSet.end())
                 lootIdSetUsed.insert(lootid);
         }
     }
