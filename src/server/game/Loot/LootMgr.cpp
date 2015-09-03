@@ -2120,7 +2120,7 @@ void LoadLootTemplates_Disenchant()
     uint32 count = LootTemplates_Disenchant.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
+    /*ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
     for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
         if (uint32 lootid = itr->second.DisenchantID)
@@ -2134,7 +2134,7 @@ void LoadLootTemplates_Disenchant()
         lootIdSet.erase(*itr);
 
     // output error for any still listed (not referenced from appropriate table) ids
-    LootTemplates_Disenchant.ReportUnusedIds(lootIdSet);
+    LootTemplates_Disenchant.ReportUnusedIds(lootIdSet);*/
 
     if (count)
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u disenchanting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
@@ -2401,6 +2401,7 @@ void LoadLootTemplates_Spell()
             if (!(spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT) || (spellInfo->Effects[0].ItemType == 0))
             {
                 LootTemplates_Spell.ReportNotExistedId(spell_id);
+                WorldDatabase.PExecute("DELETE FROM `spell_loot_template` WHERE entry = %u", spell_id);
             }
         }
         else
