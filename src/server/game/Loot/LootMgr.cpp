@@ -2119,17 +2119,17 @@ void LoadLootTemplates_Disenchant()
     LootIdSet lootIdSet, lootIdSetUsed;
     uint32 count = LootTemplates_Disenchant.LoadAndCollectLootIds(lootIdSet);
 
-    for (uint32 i = 0; i < sItemDisenchantLootStore.GetNumRows(); ++i)
+    // remove real entries and check existence loot
+    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
-        ItemDisenchantLootEntry const* disenchant = sItemDisenchantLootStore.LookupEntry(i);
-        if (!disenchant)
-            continue;
-
-        uint32 lootid = disenchant->Id;
-        if (lootIdSet.find(lootid) == lootIdSet.end())
-            LootTemplates_Disenchant.ReportNotExistedId(lootid);
-        else
-            lootIdSetUsed.insert(lootid);
+        if (uint32 lootid = itr->second.DisenchantID)
+        {
+            if (lootIdSet.find(lootid) == lootIdSet.end())
+                LootTemplates_Disenchant.ReportNotExistedId(lootid);
+            else
+                lootIdSetUsed.insert(lootid);
+        }
     }
 
     for (LootIdSet::const_iterator itr = lootIdSetUsed.begin(); itr != lootIdSetUsed.end(); ++itr)

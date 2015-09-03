@@ -1690,7 +1690,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
                     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(roll->itemid);
-                    player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, 0, true);
+                    player->AutoStoreLoot(pProto->ItemId, LootTemplates_Disenchant, 0, true);
                     player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 13262); // Disenchant
                 }
             }
