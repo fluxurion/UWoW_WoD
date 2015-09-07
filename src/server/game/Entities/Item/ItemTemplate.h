@@ -60,6 +60,9 @@ enum ItemModType
     ITEM_MOD_EXPERTISE_RATING         = 37,
     ITEM_MOD_ATTACK_POWER             = 38,
     ITEM_MOD_RANGED_ATTACK_POWER      = 39,
+    ITEM_MOD_VERSATILITY              = 40,
+    ITEM_MOD_SPELL_HEALING_DONE       = 41,
+    ITEM_MOD_SPELL_DAMAGE_DONE        = 42,
     ITEM_MOD_MANA_REGENERATION        = 43,
     ITEM_MOD_ARMOR_PENETRATION_RATING = 44,
     ITEM_MOD_SPELL_POWER              = 45,
@@ -75,9 +78,26 @@ enum ItemModType
     ITEM_MOD_NATURE_RESISTANCE        = 55,
     ITEM_MOD_ARCANE_RESISTANCE        = 56,
     ITEM_MOD_PVP_POWER                = 57,
+    ITEM_MOD_CR_AMPLIFY               = 58,
+    ITEM_MOD_CR_MULTISTRIKE           = 59,
+    ITEM_MOD_CR_READINESS             = 60,
+    ITEM_MOD_CR_SPEED                 = 61,
+    ITEM_MOD_CR_LIFESTEAL             = 62,
+    ITEM_MOD_CR_AVOIDANCE             = 63,
+    ITEM_MOD_CR_STURDINESS            = 64,
+    ITEM_MOD_CR_UNUSED_7              = 65,
+    ITEM_MOD_CR_CLEAVE                = 66,
+    ITEM_MOD_CR_UNUSED_9              = 67,
+    ITEM_MOD_CR_UNUSED_10             = 68,
+    ITEM_MOD_CR_UNUSED_11             = 69,
+    ITEM_MOD_CR_UNUSED_12             = 70,
+    ITEM_MOD_AGI_STR_INT              = 71,
+    ITEM_MOD_AGI_STR                  = 72,
+    ITEM_MOD_AGI_INT                  = 73,
+    ITEM_MOD_STR_INT                  = 74
 };
 
-#define MAX_ITEM_MOD                    58
+#define MAX_ITEM_MOD                    75
 
 enum ItemSpelltriggerType
 {
@@ -238,6 +258,7 @@ enum BAG_FAMILY_MASK
     BAG_FAMILY_MASK_CURRENCY_TOKENS           = 0x00002000,
     BAG_FAMILY_MASK_QUEST_ITEMS               = 0x00004000,
     BAG_FAMILY_MASK_FISHING_SUPP              = 0x00008000,
+    BAG_FAMILY_MASK_COOKING_SUPP              = 0x00010000,
 };
 
 enum SocketColor
@@ -755,6 +776,19 @@ struct ItemTemplate
             case ITEM_CLASS_PROJECTILE:
                 return true;
         }
+
+        return false;
+    }
+
+    bool IsPvPItem() const
+    {
+        for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+            if (ItemStat[i].ItemStatType == ITEM_MOD_PVP_POWER)
+                return true;
+
+        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+            if (Spells[i].SpellId == 132586)
+                return true;
 
         return false;
     }

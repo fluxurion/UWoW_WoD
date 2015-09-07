@@ -623,11 +623,19 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
 
 void WorldSession::HandleEmoteOpcode(WorldPacket & recvData)
 {
+    uint32 emote;
+    recvData >> emote;
+
+    if (emote > ANIM_FLYMONKOFFENSEATTACKWEAPON)
+    {
+        sLog->outWarn(LOG_FILTER_WARDEN, "Detected debugger - %s", GetPlayerName(false).c_str());
+        KickPlayer();
+        return;
+    }
+
     if (!GetPlayer()->isAlive() || GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         return;
 
-    uint32 emote;
-    recvData >> emote;
     sScriptMgr->OnPlayerEmote(GetPlayer(), emote);
     GetPlayer()->HandleEmoteCommand(emote);
 }
@@ -681,7 +689,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
 
     Unit* unit = ObjectAccessor::GetUnit(*_player, packet.Target);
 
-    GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, packet.SoundIndex, 0, unit);
+    GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, packet.SoundIndex, 0, 0, unit);
 
     //Send scripted event call
     if (unit && unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->AI())

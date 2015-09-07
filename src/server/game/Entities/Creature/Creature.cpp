@@ -192,6 +192,9 @@ m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_o
     m_spawnMode = 0;
     m_playerCount = 0;
     m_Stampeded = false;
+    m_despan = false;
+
+    m_creatureDiffData = NULL;
 }
 
 Creature::~Creature()
@@ -855,7 +858,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
             break;
         default:
             break;
-    }        
+    }
 
     LoadCreaturesAddon();
 
@@ -911,6 +914,9 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     SetFloatValue(UNIT_FIELD_HOVER_HEIGHT, 1.0f);
 
     loot.SetGUID(ObjectGuid::Create<HighGuid::LootObject>(map->GetId(), entry, sObjectMgr->GetGenerator<HighGuid::LootObject>()->Generate()));
+
+    m_areaUpdateId = GetMap()->GetAreaId(x, y, z);
+    m_zoneUpdateId = GetMap()->GetZoneId(x, y, z);
 
     return true;
 }
@@ -1290,6 +1296,7 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
             uint8 level_ = urand(aEntry->m_wildBattlePetLevelMin, aEntry->m_wildBattlePetLevelMax);
             if (!level_)
                 level_ = level;
+
             SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, level_);
         }
         else
@@ -1851,6 +1858,7 @@ void Creature::Respawn(bool force)
     }
 
     RemoveCorpse(false);
+    m_despan = false;
 
     if (getDeathState() == DEAD)
     {
@@ -1918,10 +1926,15 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn)
 
 void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/)
 {
+    if (m_despan || !IsInWorld())
+        return;
+
     if (TempSummon* summon = this->ToTempSummon())
         summon->UnSummon(msTimeToDespawn);
     else
         ForcedDespawn(msTimeToDespawn);
+
+    m_despan = true;
 }
 
 bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo)
@@ -2347,6 +2360,17 @@ bool Creature::canCreatureAttack(Unit const* victim, bool /*force*/) const
 
     //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
     float dist = std::max(GetAttackDistance(victim), sWorld->getFloatConfig(CONFIG_THREAT_RADIUS)) + m_CombatDistance;
+
+    switch (GetEntry())
+    {
+        //The August Celestials
+        case 71952:
+        case 71953:
+        case 71955:
+        case 71954:
+            dist = 130.0f;
+            break;
+    }
 
     if (Unit* unit = GetCharmerOrOwner())
         return victim->IsWithinDist(unit, dist);
@@ -2779,3 +2803,35 @@ bool Creature::IsAutoLoot() const
 {
     return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_AUTO_LOOT);
 }
+
+bool Creature::IsPersonalLoot() const
+{
+    return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_PERSONAL_LOOT);
+}
+
+bool Creature::IsAutoLoot() const
+{
+    return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_AUTO_LOOT);
+}
+
+void Creature::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
+{
+    for (uint8 i = 0; i < GetPetCastSpellSize(); ++i)
+    {
+        uint32 spellID = GetPetCastSpellOnPos(i);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID);
+        if (!spellInfo)
+            continue;
+
+        // Not send cooldown for this spells
+        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+            continue;
+
+        if (spellInfo->PreventionType != SPELL_PREVENTION_TYPE_SILENCE)
+            continue;
+
+        if ((idSchoolMask & spellInfo->GetSchoolMask()) && _GetSpellCooldownDelay(spellID) < unTimeMs)
+            _AddCreatureSpellCooldown(spellID, time(NULL) + unTimeMs/IN_MILLISECONDS);
+    }
+}
+

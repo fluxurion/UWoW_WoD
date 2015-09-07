@@ -245,6 +245,16 @@ class Field
             }
 
             return std::string((char*)data.value, data.length);
+
+        std::vector<uint8> GetBinary() const
+        {
+            std::vector<uint8> result;
+            if (!data.value || !data.length)
+                return result;
+
+            result.resize(data.length);
+            memcpy(result.data(), data.value, data.length);
+            return result;
         }
 
         std::vector<uint8> GetBinary() const
@@ -256,6 +266,11 @@ class Field
             result.resize(data.length);
             memcpy(result.data(), data.value, data.length);
             return result;
+        }
+
+        bool IsNull() const
+        {
+            return data.value == NULL;
         }
 
         bool IsNull() const

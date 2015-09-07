@@ -48,7 +48,6 @@ Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry, 
             }
     }
 
-    // Set or remove correct flags based on available seats. Will overwrite db data (if wrong).
     if (UsableSeatNum)
         _me->SetFlag(UNIT_FIELD_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
     else
@@ -168,6 +167,12 @@ void Vehicle::Reset(bool evading /*= false*/)
 
     ApplyAllImmunities();
     InstallAllAccessories(evading);
+
+    // Set or remove correct flags based on available seats. Will overwrite db data (if wrong).
+    if (UsableSeatNum)
+        _me->SetFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
+    else
+        _me->RemoveFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
 
     sScriptMgr->OnReset(this);
 }
@@ -427,13 +432,11 @@ bool Vehicle::CheckCustomCanEnter()
     switch (GetCreatureEntry())
     {
         case 56682: // Keg in Stormstout Brewery
-            return true;
         case 46185: // Sanitron
-            return true;
         case 25460: //Amazing Flying Carpet. VehID 317
-            return true;
         case 33513: //368
         case 33386: //360
+        case 63872: //2341
             return true;
     }
 
@@ -492,7 +495,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         }
 
         e->Seat = seat;
-        _pendingJoinEvents.push_back(e);
+        AddPendingEvent(e);
     }
     else
     {
@@ -504,7 +507,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         }
 
         e->Seat = seat;
-        _pendingJoinEvents.push_back(e);
+        AddPendingEvent(e);
         if (seat->second.Passenger)
         {
             Unit* passenger = ObjectAccessor::GetUnit(*GetBase(), seat->second.Passenger);
@@ -517,6 +520,10 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         if(seat->second.Passenger)
             return false;
     }
+    if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING))
+        if (!(_me->ToCreature() && _me->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_VEHICLE_ATTACKABLE_PASSENGERS) &&
+              !(unit->ToCreature() && unit->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_VEHICLE_ATTACKABLE_PASSENGERS))
+            unit->AddUnitState(UNIT_STATE_ONVEHICLE);
 
     return true;
 }
@@ -732,14 +739,14 @@ void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
 
 void Vehicle::RemovePendingEvent(VehicleJoinEvent* e)
 {
-    for (PendingJoinEventContainer::iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end(); ++itr)
-    {
-        if (*itr == e)
-        {
-            _pendingJoinEvents.erase(itr);
-            break;
-        }
-    }
+    TRINITY_GUARD(ACE_Thread_Mutex, _lock);
+    _pendingJoinEvents.remove(e);
+}
+
+void Vehicle::AddPendingEvent(VehicleJoinEvent* e)
+{
+    TRINITY_GUARD(ACE_Thread_Mutex, _lock);
+    _pendingJoinEvents.push_back(e);
 }
 
 /**
@@ -892,7 +899,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
             return false;
             //ASSERT(false);
         }
-        else if (Seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_UNK2)
+        else if (Seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_UNK2 && Seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         {
             Passenger->Dismount();
             Passenger->ToPlayer()->SetClientControl(Target->GetBase(), 1);
@@ -957,7 +964,8 @@ void VehicleJoinEvent::Abort(uint64)
     if(!Passenger)
         return;
     /// Check if the Vehicle was already uninstalled, in which case all auras were removed already
-    if (Target)
+    //if (Target)
+    if (Unit* targetBase = ObjectAccessor::GetUnit(*Passenger, targetGuid))
     {
         //sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on vehicle GuidLow: %u, Entry: %u SeatId: %d cancelled",
             //Passenger->GetGUID().GetCounter(), Passenger->GetEntry(), Target->GetBase()->GetGUID().GetCounter(), Target->GetBase()->GetEntry(), (int32)Seat->first);
@@ -965,8 +973,8 @@ void VehicleJoinEvent::Abort(uint64)
         /// @SPELL_AURA_CONTROL_VEHICLE auras can be applied even when the passenger is not (yet) on the vehicle.
         /// When this code is triggered it means that something went wrong in @Vehicle::AddPassenger, and we should remove
         /// the aura manually.
-        if(Unit* targetBase = Target->GetBase())
-            if (targetBase->IsInWorld())
+        //if(Unit* targetBase = Target->GetBase())
+            //if (targetBase->IsInWorld())
                 targetBase->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID());
     }
     else

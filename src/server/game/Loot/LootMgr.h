@@ -25,6 +25,7 @@
 #include "SharedDefines.h"
 #include "ConditionMgr.h"
 #include "Object.h"
+#include <ace/Singleton.h>
 
 #include <map>
 #include <vector>
@@ -350,12 +351,15 @@ struct Loot
 
     uint32 objEntry;
     ObjectGuid objGuid;
+    uint64 m_guid;
     uint8 objType;
     uint8 spawnMode;
     uint32 itemLevel;
     bool personal;
     bool bonusLoot;
     bool isBoss;
+    bool isBoss;
+    bool isClear;
 
     explicit Loot(uint32 _gold = 0);
     ~Loot() { clear(); }
@@ -378,6 +382,9 @@ struct Loot
     void NotifyMoneyRemoved(uint64);
     void AddLooter(ObjectGuid GUID) { PlayersLooting.insert(GUID); }
     void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
+    uint64 GetGUID() { return m_guid; }
+    uint32 GetGUIDLow() { return GUID_LOPART(m_guid); }
+    void GenerateLootGuid();
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool noGroup, bool noEmptyError = false, WorldObject const* lootFrom = NULL);

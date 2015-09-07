@@ -334,6 +334,18 @@ extern ScriptMapMap sGameObjectScripts;
 extern ScriptMapMap sEventScripts;
 extern ScriptMapMap sWaypointScripts;
 
+enum VisibleDistanceType
+{
+    TYPE_VISIBLE_MAP  = 0,
+    TYPE_VISIBLE_ZONE = 1,
+    TYPE_VISIBLE_AREA = 2,
+    TYPE_VISIBLE_MAX  = 3,
+};
+
+typedef std::unordered_map<uint32 /*id*/, float /*distance*/> VisibleDistanceMap;
+extern VisibleDistanceMap sVisibleDistance[TYPE_VISIBLE_MAX];
+float GetVisibleDistance(uint32 type, uint32 id);
+
 std::string GetScriptsTableNameByType(ScriptsType type);
 ScriptMapMap* GetScriptsMapByType(ScriptsType type);
 std::string GetScriptCommandName(ScriptCommands command);
@@ -390,6 +402,25 @@ struct TrinityStringLocale
 typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
 typedef UNORDERED_MAP<ObjectGuid::LowType, CreatureData> CreatureDataContainer;
 typedef UNORDERED_MAP<ObjectGuid::LowType, GameObjectData> GameObjectDataContainer;
+struct PersonalLootData
+{
+    uint32 entry;
+    uint8 type;
+    uint8 chance;
+    uint32 lootspellId;
+    uint32 bonusspellId;
+    uint32 cooldownid;
+    uint8 cooldowntype;
+    uint8 respawn;
+};
+
+enum PersonalRespawnType
+{
+    TYPE_NORESPAWN      = 0,
+    TYPE_RESPAWN        = 1,
+    TYPE_NODESPAWN      = 2
+};
+
 typedef UNORDERED_MAP<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef UNORDERED_MAP<uint32, GameObjectLocale> GameObjectLocaleContainer;
 typedef UNORDERED_MAP<uint32, ItemLocale> ItemLocaleContainer;
@@ -400,7 +431,7 @@ typedef UNORDERED_MAP<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef UNORDERED_MAP<int32, TrinityStringLocale> TrinityStringLocaleContainer;
 typedef UNORDERED_MAP<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef UNORDERED_MAP<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
-typedef UNORDERED_MAP<uint32, TreasureData> TreasureDataContainer;
+typedef UNORDERED_MAP<uint32, PersonalLootData> PersonalLootContainer;
 
 typedef std::multiset<uint32> QuestObject;
 typedef std::map<uint32, QuestObject> QuestStarter;
@@ -421,6 +452,7 @@ struct PetStats
     float damage;
     int32 type;
     int32 maxspdorap;
+    int32 haste;
 };
 
 struct MailLevelReward
@@ -553,16 +585,16 @@ struct ScenarioPOI
     uint32 Id;
     uint32 MapId;
     uint32 WorldMapAreaId;
-    uint32 Unk12;
+    uint32 Floor;
     uint32 Unk16;
     uint32 Unk20;
-    uint32 Unk24;
+    uint32 WorldEffectID;
     uint32 Unk28;
     std::vector<ScenarioPOIPoint> points;
 
-    ScenarioPOI() : Id(0), MapId(0), WorldMapAreaId(0), Unk12(0), Unk16(0), Unk20(0), Unk24(0), Unk28(0) {}
-    ScenarioPOI(uint32 _Id, uint32 _MapId, uint32 _WorldMapAreaId, uint32 _Unk12, uint32 _Unk16, uint32 _Unk20, uint32 _Unk24, uint32 _Unk28) :
-        Id(_Id), MapId(_MapId), WorldMapAreaId(_WorldMapAreaId), Unk12(_Unk12), Unk16(_Unk16), Unk20(_Unk20), Unk24(_Unk24), Unk28(_Unk28) { }
+    ScenarioPOI() : Id(0), MapId(0), WorldMapAreaId(0), Floor(0), Unk16(0), Unk20(0), WorldEffectID(0), Unk28(0) {}
+    ScenarioPOI(uint32 _Id, uint32 _MapId, uint32 _WorldMapAreaId, uint32 _Floor, uint32 _Unk16, uint32 _Unk20, uint32 _WorldEffectID, uint32 _Unk28) :
+        Id(_Id), MapId(_MapId), WorldMapAreaId(_WorldMapAreaId), Floor(_Floor), Unk16(_Unk16), Unk20(_Unk20), WorldEffectID(_WorldEffectID), Unk28(_Unk28) { }
 };
 
 typedef std::vector<ScenarioPOI> ScenarioPOIVector;
@@ -640,6 +672,206 @@ typedef std::map<uint32, AreaTriggerInfo > AreaTriggerInfoMap;
 
 class PlayerDumpReader;
 
+struct ItemSpecStats
+{
+    uint32 ItemType;
+    uint32 ItemSpecStatTypes[MAX_ITEM_PROTO_STATS];
+    uint32 ItemSpecStatCount;
+    int32 ItemSpecPrimaryStat;
+
+    ItemSpecStats(ItemEntry const* item, ItemSparseEntry const* sparse) : ItemType(0), ItemSpecStatCount(0), ItemSpecPrimaryStat(-1)
+    {
+        memset(ItemSpecStatTypes, -1, sizeof(ItemSpecStatTypes));
+        ItemSpecPrimaryStat = GetPrimaryStat(sparse);
+
+        if (item->Class == ITEM_CLASS_WEAPON)
+        {
+            ItemType = 5;
+            switch (item->SubClass)
+            {
+                case ITEM_SUBCLASS_WEAPON_AXE:
+                    AddStat(ITEM_SPEC_STAT_ONE_HANDED_AXE);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_AXE2:
+                    AddStat(ITEM_SPEC_STAT_TWO_HANDED_AXE);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_BOW:
+                    AddStat(ITEM_SPEC_STAT_BOW);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_GUN:
+                    AddStat(ITEM_SPEC_STAT_GUN);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_MACE:
+                    AddStat(ITEM_SPEC_STAT_ONE_HANDED_MACE);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_MACE2:
+                    AddStat(ITEM_SPEC_STAT_TWO_HANDED_MACE);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_POLEARM:
+                    AddStat(ITEM_SPEC_STAT_POLEARM);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_SWORD:
+                    AddStat(ITEM_SPEC_STAT_ONE_HANDED_SWORD);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_SWORD2:
+                    AddStat(ITEM_SPEC_STAT_TWO_HANDED_SWORD);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_STAFF:
+                    AddStat(ITEM_SPEC_STAT_STAFF);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
+                    AddStat(ITEM_SPEC_STAT_FIST_WEAPON);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_DAGGER:
+                    AddStat(ITEM_SPEC_STAT_DAGGER);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_THROWN:
+                    AddStat(ITEM_SPEC_STAT_THROWN);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                    AddStat(ITEM_SPEC_STAT_CROSSBOW);
+                    break;
+                case ITEM_SUBCLASS_WEAPON_WAND:
+                    AddStat(ITEM_SPEC_STAT_WAND);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if (item->Class == ITEM_CLASS_ARMOR && item->SubClass > 5 && item->SubClass <= 11)
+        {
+            switch (item->SubClass)
+            {
+                case ITEM_SUBCLASS_ARMOR_CLOTH:
+                    if (sparse->InventoryType != INVTYPE_CLOAK)
+                    {
+                        ItemType = 1;
+                        break;
+                    }
+
+                    ItemType = 0;
+                    AddStat(ITEM_SPEC_STAT_CLOAK);
+                    break;
+                case ITEM_SUBCLASS_ARMOR_LEATHER:
+                    ItemType = 2;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_MAIL:
+                    ItemType = 3;
+                    break;
+                case ITEM_SUBCLASS_ARMOR_PLATE:
+                    ItemType = 4;
+                    break;
+                default:
+                    ItemType = 6;
+                    if (item->SubClass == ITEM_SUBCLASS_ARMOR_SHIELD)
+                        AddStat(ITEM_SPEC_STAT_SHIELD);
+                    else if (item->SubClass > ITEM_SUBCLASS_ARMOR_SHIELD && item->SubClass <= ITEM_SUBCLASS_ARMOR_RELIC)
+                        AddStat(ITEM_SPEC_STAT_RELIC);
+                    break;
+            }
+        }
+        else
+            ItemType = 0;
+
+        for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+            if (sparse->ItemStatType[i] != -1)
+                AddModStat(sparse->ItemStatType[i]);
+    }
+
+    int32 GetPrimaryStat(ItemSparseEntry const* sparse)
+    {
+        for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+        {
+            if (sparse->ItemStatType[i] != -1)
+            {
+                switch (sparse->ItemStatType[i])
+                {
+                    case ITEM_MOD_AGILITY:
+                        return ITEM_SPEC_STAT_AGILITY;
+                    case ITEM_MOD_STRENGTH:
+                        return ITEM_SPEC_STAT_STRENGTH;
+                    case ITEM_MOD_INTELLECT:
+                        return ITEM_SPEC_STAT_INTELLECT;
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    void AddStat(ItemSpecStat statType)
+    {
+        if (ItemSpecStatCount >= MAX_ITEM_PROTO_STATS)
+            return;
+
+        for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
+            if (ItemSpecStatTypes[i] == uint32(statType))
+                return;
+
+        ItemSpecStatTypes[ItemSpecStatCount++] = statType;
+    }
+
+    void AddModStat(int32 itemStatType)
+    {
+        switch (itemStatType)
+        {
+            /*case ITEM_MOD_AGILITY:
+                AddStat(ITEM_SPEC_STAT_AGILITY);
+                break;
+            case ITEM_MOD_STRENGTH:
+                AddStat(ITEM_SPEC_STAT_STRENGTH);
+                break;
+            case ITEM_MOD_INTELLECT:
+                AddStat(ITEM_SPEC_STAT_INTELLECT);
+                break;*/
+            case ITEM_MOD_SPIRIT:
+                AddStat(ITEM_SPEC_STAT_SPIRIT);
+                break;
+            case ITEM_MOD_DODGE_RATING:
+                AddStat(ITEM_SPEC_STAT_DODGE);
+                break;
+            case ITEM_MOD_PARRY_RATING:
+                AddStat(ITEM_SPEC_STAT_PARRY);
+                break;
+            case ITEM_MOD_CRIT_MELEE_RATING:
+            case ITEM_MOD_CRIT_RANGED_RATING:
+            case ITEM_MOD_CRIT_SPELL_RATING:
+            case ITEM_MOD_CRIT_RATING:
+                AddStat(ITEM_SPEC_STAT_CRIT);
+                break;
+            case ITEM_MOD_HASTE_MELEE_RATING:
+            case ITEM_MOD_HASTE_RANGED_RATING:
+            case ITEM_MOD_HASTE_SPELL_RATING:
+            case ITEM_MOD_HASTE_RATING:
+                AddStat(ITEM_SPEC_STAT_HASTE);
+                break;
+            case ITEM_MOD_HIT_RATING:
+                AddStat(ITEM_SPEC_STAT_HIT);
+                break;
+            case ITEM_MOD_EXTRA_ARMOR:
+                AddStat(ITEM_SPEC_STAT_BONUS_ARMOR);
+                break;
+            case ITEM_MOD_AGI_STR_INT:
+                AddStat(ITEM_SPEC_STAT_AGILITY);
+                AddStat(ITEM_SPEC_STAT_STRENGTH);
+                AddStat(ITEM_SPEC_STAT_INTELLECT);
+                break;
+            case ITEM_MOD_AGI_STR:
+                AddStat(ITEM_SPEC_STAT_AGILITY);
+                AddStat(ITEM_SPEC_STAT_STRENGTH);
+                break;
+            case ITEM_MOD_AGI_INT:
+                AddStat(ITEM_SPEC_STAT_AGILITY);
+                AddStat(ITEM_SPEC_STAT_INTELLECT);
+                break;
+            case ITEM_MOD_STR_INT:
+                AddStat(ITEM_SPEC_STAT_STRENGTH);
+                AddStat(ITEM_SPEC_STAT_INTELLECT);
+                break;
+       }
+    }
+};
+
 class ObjectMgr
 {
     friend class PlayerDumpReader;
@@ -674,6 +906,14 @@ class ObjectMgr
         typedef std::vector<std::string> ScriptNameContainer;
 
         typedef std::map<uint32, uint32> CharacterConversionMap;
+
+        typedef std::set<uint64> DupeLogMap;
+        DupeLogMap m_dupeLogMap;
+
+        void AddCharToDupeLog(uint64 guid);
+        bool IsPlayerInLogList(Player *player);
+        void RemoveCharFromDupeList(uint64 guid);
+        void DumpDupeConstant(Player *player);
 
         typedef std::list<CurrencyLoot> CurrencysLoot;
         std::list<CurrencyLoot> GetCurrencyLoot(uint32 entry, uint8 type, uint8 spawnMode);
@@ -952,6 +1192,7 @@ class ObjectMgr
         bool LoadTrinityStrings() { return LoadTrinityStrings("trinity_string", MIN_TRINITY_STRING_ID, MAX_TRINITY_STRING_ID); }
         void LoadDbScriptStrings();
         void LoadCreatureClassLevelStats();
+        void LoadWorldVisibleDistance();
         void LoadCreatureLocales();
         void LoadCreatureDifficultyStat();
         void LoadCreatureTemplates();
@@ -983,7 +1224,7 @@ class ObjectMgr
         void LoadMailLevelRewards();
         void LoadVehicleTemplateAccessories();
         void LoadVehicleAccessories();
-        void LoadTreasureData();
+        void LoadPersonalLootTemplate();
 
         void LoadGossipText();
 
@@ -1038,6 +1279,7 @@ class ObjectMgr
         // Battle Pet System
         void LoadBattlePetXPForLevel();
         void LoadBattlePetBreedsToSpecies();
+        void LoadBattlePetNpcTeamMember();
 
         PhaseDefinitionStore const* GetPhaseDefinitionStore() { return &_PhaseDefinitionStore; }
         SpellPhaseStore const* GetSpellPhaseStore() { return &_SpellPhaseStore; }
@@ -1115,6 +1357,20 @@ class ObjectMgr
         CreatureData& NewOrExistCreatureData(ObjectGuid::LowType const& guid) { return _creatureDataStore[guid]; }
         void DeleteCreatureData(ObjectGuid::LowType const& guid);
         ObjectGuid GetLinkedRespawnGuid(ObjectGuid const& guid) const
+        PersonalLootData const* GetPersonalLootData(uint32 id, uint32 type = 0) const
+        {
+            PersonalLootContainer::const_iterator itr = _PersonalLootStore[type].find(id);
+            if (itr == _PersonalLootStore[type].end()) return NULL;
+            return &itr->second;
+        }
+
+        PersonalLootData const* GetPersonalLootDataBySpell(uint32 spellId) const
+        {
+            PersonalLootContainer::const_iterator itr = _PersonalLootBySpellStore.find(spellId);
+            if (itr == _PersonalLootBySpellStore.end()) return NULL;
+            return &itr->second;
+        }
+
         {
             LinkedRespawnContainer::const_iterator itr = _linkedRespawnStore.find(guid);
             if (itr == _linkedRespawnStore.end()) return ObjectGuid::Empty;
@@ -1351,6 +1607,7 @@ class ObjectMgr
 
         // Battle Pets
         const std::vector<uint32>* GetPossibleBreedsForSpecies(uint32 speciesID) const;
+        const std::vector<uint32>* GetBattlePetTeamMembers(uint32 creatureEntry) const;
         void LoadRaceAndClassExpansionRequirements();
         void LoadRealmNames();
         void LoadBattlePay();
@@ -1511,6 +1768,9 @@ class ObjectMgr
         typedef std::map<uint32, std::vector<uint32> > BattlePetPossibleBreedsToSpecies;
         BattlePetPossibleBreedsToSpecies _battlePetPossibleBreedsToSpecies;
 
+        typedef std::map<uint32, std::vector<uint32> > BattlePetNpcTeamMembers;
+        BattlePetNpcTeamMembers _battlePetNpcTeamMembers;
+
         uint32 _skipUpdateCount;
 
     private:
@@ -1559,7 +1819,8 @@ class ObjectMgr
         //GameObjectDataContainer _gameObjectDataStore;
         GameObjectLocaleContainer _gameObjectLocaleStore;
         GameObjectTemplateContainer _gameObjectTemplateStore;
-        TreasureDataContainer _TreasureDataStore;
+        PersonalLootContainer _PersonalLootStore[MAX_LOOT_COOLDOWN_TYPE];
+        PersonalLootContainer _PersonalLootBySpellStore;
 
         ItemTemplateContainer _itemTemplateStore;
         ItemLocaleContainer _itemLocaleStore;

@@ -57,6 +57,7 @@ ScriptMapMap sSpellScripts;
 ScriptMapMap sGameObjectScripts;
 ScriptMapMap sEventScripts;
 ScriptMapMap sWaypointScripts;
+VisibleDistanceMap sVisibleDistance[TYPE_VISIBLE_MAX];
 
 std::string GetScriptsTableNameByType(ScriptsType type)
 {
@@ -238,6 +239,15 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
     return true;
 }
 
+float GetVisibleDistance(uint32 type, uint32 id)
+{
+    VisibleDistanceMap::const_iterator itr = sVisibleDistance[type].find(id);
+    if (itr != sVisibleDistance[type].end())
+        return itr->second;
+
+    return 0.0f;
+}
+
 template<> ObjectGuidGenerator<HighGuid::Player>* ObjectMgr::GetGenerator() { return &_playerGuidGenerator; }
 template<> ObjectGuidGenerator<HighGuid::Creature>* ObjectMgr::GetGenerator() { return &_creatureGuidGenerator; }
 template<> ObjectGuidGenerator<HighGuid::Pet>* ObjectMgr::GetGenerator() { return &_petGuidGenerator; }
@@ -303,6 +313,41 @@ void ObjectMgr::AddLocaleString(std::string const& value, LocaleConstant localeC
         data[localeConstant] = value;
     }
 }
+
+void ObjectMgr::LoadWorldVisibleDistance()
+{
+    uint32 oldMSTime = getMSTime();
+
+    for (uint8 i = 0; i < TYPE_VISIBLE_MAX; ++i)
+        sVisibleDistance[i].clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT `type`, `id`, `distance` FROM `world_visible_distance`");
+
+    if (!result)
+        return;
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 type = fields[0].GetUInt32();
+        uint32 id = fields[1].GetUInt32();
+        float distance = fields[2].GetFloat();
+        if(type > TYPE_VISIBLE_MAX)
+        {
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded world visible distance type %u error", type);
+            continue;
+        }
+
+        sVisibleDistance[type][id] = distance;
+
+        count++;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u world visible distance in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 
 void ObjectMgr::LoadCreatureLocales()
 {
@@ -518,7 +563,6 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.MechanicImmuneMask = fields[index++].GetUInt32();
         creatureTemplate.flags_extra        = fields[index++].GetUInt32();
         creatureTemplate.ScriptID           = GetScriptId(fields[index++].GetCString());
-
         if(creatureTemplate.type_flags & CREATURE_TYPEFLAGS_BOSS)
         {
             //Save loot spell
@@ -1616,37 +1660,78 @@ void ObjectMgr::LoadCreatureAIInstance()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature AI instance in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadTreasureData()
+void ObjectMgr::LoadPersonalLootTemplate()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT treasureID, type FROM treasure_template");
+    QueryResult result = WorldDatabase.Query("SELECT entry, `type`, `chance`, lootspellId, bonusspellId, cooldownid, cooldowntype, respawn  FROM personal_loot_template");
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 treasure. DB table `treasure_template` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 personal loot. DB table `personal_loot_template` is empty.");
         return;
     }
 
-    _TreasureDataStore.rehash(result->GetRowCount());
     uint32 count = 0;
 
     do
     {
         Field* fields = result->Fetch();
-        uint32 treasureID = fields[0].GetUInt32();
+        uint32 entry = fields[0].GetUInt32();
+        uint32 type = fields[1].GetUInt8();
+        uint32 chance = fields[2].GetUInt8();
+        uint32 lootspellId = fields[3].GetUInt32();
+        uint32 bonusspellId = fields[4].GetUInt32();
+        uint32 cooldownid = fields[5].GetUInt32();
+        uint32 ccooldowntype = fields[6].GetUInt8();
+        uint32 respawn = fields[7].GetUInt8();
 
-        TreasureData& treasure = _TreasureDataStore[treasureID];
-        treasure.treasureID = treasureID;
-        treasure.type = fields[1].GetUInt8();
+        PersonalLootData& personalloot = _PersonalLootStore[type][entry];
+        personalloot.entry = entry;
+        personalloot.type = type;
+        personalloot.chance = chance;
+        personalloot.lootspellId = lootspellId;
+        personalloot.bonusspellId = bonusspellId;
+        personalloot.cooldownid = cooldownid;
+        personalloot.cooldowntype = ccooldowntype;
+        personalloot.respawn = respawn;
+
+        if(lootspellId)
+        {
+            PersonalLootData& personallootForSpell = _PersonalLootBySpellStore[lootspellId];
+            personallootForSpell.entry = entry;
+            personallootForSpell.type = type;
+            personallootForSpell.chance = chance;
+            personallootForSpell.lootspellId = lootspellId;
+            personallootForSpell.bonusspellId = bonusspellId;
+            personallootForSpell.cooldownid = cooldownid;
+            personallootForSpell.cooldowntype = ccooldowntype;
+            personallootForSpell.respawn = respawn;
+        }
+        if(bonusspellId)
+        {
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(bonusspellId);
+            if(!spellInfo || !spellInfo->Effects[0].TriggerSpell)
+                continue;
+
+            PersonalLootData& personallootForSpell = _PersonalLootBySpellStore[spellInfo->Effects[0].TriggerSpell];
+            personallootForSpell.entry = entry;
+            personallootForSpell.type = type;
+            personallootForSpell.chance = chance;
+            personallootForSpell.lootspellId = lootspellId;
+            personallootForSpell.bonusspellId = bonusspellId;
+            personallootForSpell.cooldownid = cooldownid;
+            personallootForSpell.cooldowntype = ccooldowntype;
+            personallootForSpell.respawn = respawn;
+        }
         ++count;
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u treasure in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u personal loot in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType const& guid, CreatureData const* data)
+void ObjectMgr::AddCreatureToGrid(uint32 guid, CreatureData const* data)
 {
     uint32 mask = data->spawnMask;
     for (uint32 i = 0; mask != 0; i++, mask >>= 1)
@@ -2367,9 +2452,39 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
         itemTemplate.MaxMoneyLoot = 0;
-        itemTemplate.ItemSpecExist = GetItemSpecsList(itemId).empty() ? 0 : 1;
         itemTemplate.FlagsCu = 0;
         ++sparseCount;
+
+        /*ItemSpecStats itemSpecStats(db2Data, sparse);
+        if (itemSpecStats.ItemSpecStatCount)
+        {
+            for (uint32 i = 0; i < sItemSpecStore.GetNumRows(); ++i)
+            {
+                if (ItemSpecEntry const* itemSpec = sItemSpecStore.LookupEntry(i))
+                {
+                    if (itemSpecStats.ItemType != itemSpec->ItemType)
+                        continue;
+
+                    bool hasPrimary = false;
+                    bool hasSecondary = itemSpec->SecondaryStat == ITEM_SPEC_STAT_NONE;
+                    for (uint32 i = 0; i < itemSpecStats.ItemSpecStatCount; ++i)
+                    {
+                        if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->PrimaryStat)
+                            hasPrimary = true;
+                        if (itemSpecStats.ItemSpecStatTypes[i] == itemSpec->SecondaryStat)
+                            hasSecondary = true;
+                    }
+
+                    if (!hasPrimary || !hasSecondary)
+                        continue;
+
+                    if (ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(itemSpec->SpecID))
+                        if ((1 << specialization->classId) & sparse->AllowableClass)
+                            AddSpecdtoItem(itemId, itemSpec->SpecID);
+                }
+            }
+        }*/
+        itemTemplate.ItemSpecExist = GetItemSpecsList(itemId).empty() ? 0 : 1;
 
         // Mantid Amber Sliver
         if (itemTemplate.ItemId == 95373)
@@ -2770,8 +2885,8 @@ void ObjectMgr::LoadPetStats()
     uint32 oldMSTime = getMSTime();
     _petStatsStore.clear();
 
-    //                                                 0      1     2       3        4          5           6        7            8           9       10      11           12
-    QueryResult result = WorldDatabase.Query("SELECT entry, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `state`, `energy`, `energy_type`, `armor`, `type`, `damage`, `maxspdorap` FROM pet_stats");
+    //                                                 0      1     2       3        4          5           6        7            8           9       10      11           12         13
+    QueryResult result = WorldDatabase.Query("SELECT entry, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `state`, `energy`, `energy_type`, `armor`, `type`, `damage`, `maxspdorap`, `haste` FROM pet_stats");
 
     if (!result)
     {
@@ -2804,6 +2919,7 @@ void ObjectMgr::LoadPetStats()
         stats.type  = fields[10].GetInt32();
         stats.damage  = fields[11].GetFloat();
         stats.maxspdorap  = fields[12].GetInt32();
+        stats.haste  = fields[13].GetInt32();
         _petStatsStore[entry] = stats;
 
         ++count;
@@ -6162,6 +6278,11 @@ uint32 ObjectMgr::GenerateMailID()
     return _mailId++;
 }
 
+        case HIGHGUID_LOOT:
+        {
+            ASSERT(_hiLootGuid < 0xFFFFFFFE && "MO Transport guid overflow!");
+            return _hiLootGuid++;
+        }
 void ObjectMgr::LoadGameObjectLocales()
 {
     uint32 oldMSTime = getMSTime();
@@ -8105,6 +8226,10 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
         {
             spell = learnSpell;
             spellinfo = spellinfoNew;
+
+            // Hack. The recipe does not have to be studied by the test spell
+            if (spellinfo->Id == 125761)
+                spell = 104298;
         }
     }
 
@@ -8530,6 +8655,8 @@ void ObjectMgr::LoadScriptNames()
     _scriptNamesStore.push_back("");
     QueryResult result = WorldDatabase.Query(
       "SELECT DISTINCT(ScriptName) FROM achievement_criteria_data WHERE ScriptName <> '' AND type = 11 "
+      "UNION "
+      "SELECT DISTINCT(ScriptName) FROM achievement_reward WHERE ScriptName <> '' "
       "UNION "
       "SELECT DISTINCT(ScriptName) FROM battleground_template WHERE ScriptName <> '' "
       "UNION "
@@ -9026,8 +9153,8 @@ void ObjectMgr::LoadSpellPhaseInfo()
 
     uint32 oldMSTime = getMSTime();
 
-    //                                               0       1            2
-    QueryResult result = WorldDatabase.Query("SELECT id, phasemask, terrainswapmap FROM `spell_phase`");
+    //                                               0       1            2            3
+    QueryResult result = WorldDatabase.Query("SELECT id, phasemask, terrainswapmap, phaseId FROM `spell_phase`");
 
     if (!result)
     {
@@ -9047,12 +9174,6 @@ void ObjectMgr::LoadSpellPhaseInfo()
         if (!spell)
         {
             sLog->outError(LOG_FILTER_SQL, "Spell %u defined in `spell_phase` does not exists, skipped.", spellPhaseInfo.spellId);
-            continue;
-        }
-
-        if (!spell->HasAura(SPELL_AURA_PHASE))
-        {
-            sLog->outError(LOG_FILTER_SQL, "Spell %u defined in `spell_phase` does not have aura effect type SPELL_AURA_PHASE, useless value.", spellPhaseInfo.spellId);
             continue;
         }
 
@@ -9351,7 +9472,7 @@ void ObjectMgr::LoadResearchSiteToZoneData()
 
 void ObjectMgr::LoadDigSitePositions()
 {
-    QueryResult result = WorldDatabase.Query("SELECT map, x, y FROM archaeology_digsites");
+    QueryResult result = WorldDatabase.Query("SELECT idx, map, x, y FROM archaeology_digsites");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 dig site positions. DB table `archaeology_digsites` is empty.");
@@ -9364,9 +9485,10 @@ void ObjectMgr::LoadDigSitePositions()
     {
         Field* fields = result->Fetch();
 
-        uint32 map = fields[0].GetUInt32();
-        float x = fields[1].GetFloat();
-        float y = fields[2].GetFloat();
+        uint32 idx = fields[0].GetUInt32();
+        uint32 map = fields[1].GetUInt32();
+        float x = fields[2].GetFloat();
+        float y = fields[3].GetFloat();
 
         bool added = false;
         for (ResearchSiteDataMap::iterator itr = sResearchSiteDataMap.begin(); itr != sResearchSiteDataMap.end(); ++itr)
@@ -9389,8 +9511,8 @@ void ObjectMgr::LoadDigSitePositions()
 
         if (!added)
         {
-            sLog->outError(LOG_FILTER_SQL, "DB table `archaeology_digsites` has data for point x:%f y:%f at map %u that does not belong to any digsite!",
-                x, y, map);
+            sLog->outError(LOG_FILTER_SQL, "DB table `archaeology_digsites` has data for point idx:%u x:%f y:%f at map %u that does not belong to any digsite!",
+                idx, x, y, map);
             continue;
         }
 
@@ -9543,12 +9665,61 @@ const std::vector<uint32>* ObjectMgr::GetPossibleBreedsForSpecies(uint32 species
     return itr != _battlePetPossibleBreedsToSpecies.end() ? &(itr->second) : NULL;
 }
 
+void ObjectMgr::LoadBattlePetNpcTeamMember()
+{
+    // Loading xp per level data
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Battle Pet Npc Team Members Data...");
+
+    // clear container
+    _battlePetNpcTeamMembers.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT npcEntry, slot0, slot1, slot2 FROM battle_pet_npc_team_member");
+
+    if (!result)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 possible npc team members definitions. DB table `battle_pet_npc_team_member` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 npcEntry = fields[0].GetUInt32();
+        std::vector<uint32> slots;
+
+        for (uint8 i = 0; i < MAX_ACTIVE_BATTLE_PETS; ++i)
+        {
+            uint32 slot = fields[i+1].GetUInt32();
+            slots.push_back(slot);
+        }
+
+        _battlePetNpcTeamMembers[npcEntry] = slots;
+        ++count;
+
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u possible npc team members definitions.", count);
+}
+
+const std::vector<uint32>* ObjectMgr::GetBattlePetTeamMembers(uint32 creatureEntry) const
+{
+    BattlePetNpcTeamMembers::const_iterator itr = _battlePetNpcTeamMembers.find(creatureEntry);
+    return itr != _battlePetNpcTeamMembers.end() ? &(itr->second) : NULL;
+}
+
 void ObjectMgr::LoadAreaTriggerActionsAndData()
 {
     _areaTriggerData.clear();
 
-    //                                                  0            1                2              3                   4                5            6             7             8         9        10          11         12           13           14        15        16         17                18            19
-    QueryResult result = WorldDatabase.Query("SELECT `entry`, `customVisualId`, `sphereScale`, `sphereScaleMax`, `activationDelay`, `updateDelay`, `maxCount`, `customEntry`, `isMoving`, `speed`, `moveType`, `hitType`, `Height`, `RadiusTarget`, `Float5`, `Float4`, `Radius`, `HeightTarget`, `MoveCurveID`, `ElapsedTime` FROM areatrigger_data");
+    //                                                  0         1            2                3            4            5            6            7            8          9
+    QueryResult result = WorldDatabase.Query("SELECT `entry`, `spellId`, `customEntry`, `customVisualId`, `Radius`, `RadiusTarget`, `Height`, `HeightTarget`, `Float4`, `Float5`,"
+    //    9          10        11            12                13           14         15           16             17           18      19       20         21           22         23
+    "`isMoving`, `moveType`, `speed`, `activationDelay`, `updateDelay`, `maxCount`, `hitType`, `MoveCurveID`, `ElapsedTime`, `windX`, `windY`, `windZ`, `windSpeed`, `windType`, `polygon`,"
+    "`MorphCurveID`, `FacingCurveID`, `ScaleCurveID`, `HasFollowsTerrain`, `HasAttached`, `HasAbsoluteOrientation`, `HasDynamicShape`, `HasFaceMovementDir`, `waitTime` FROM areatrigger_data");
+
     if (result)
     {
         uint32 counter = 0;
@@ -9559,25 +9730,86 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
             uint8 i = 0;
             uint32 id = fields[i++].GetUInt32();
             AreaTriggerInfo& info = _areaTriggerData[id];
+            info.spellId = fields[i++].GetUInt32();
+            info.customEntry = fields[i++].GetUInt32();
             info.visualId = fields[i++].GetUInt32();
-            info.sphereScale = fields[i++].GetFloat();
-            info.sphereScaleMax = fields[i++].GetFloat();
+            info.Radius = fields[i++].GetFloat();
+            info.RadiusTarget = fields[i++].GetFloat();
+            info.Height = fields[i++].GetFloat();
+            info.HeightTarget = fields[i++].GetFloat();
+            info.Float4 = fields[i++].GetFloat();
+            info.Float5 = fields[i++].GetFloat();
+            info.isMoving = fields[i++].GetBool();
+            info.moveType = fields[i++].GetUInt32();
+            info.speed = fields[i++].GetFloat();
             info.activationDelay = fields[i++].GetUInt32();
             info.updateDelay = fields[i++].GetUInt32();
             info.maxCount = fields[i++].GetUInt8();
-            info.customEntry = fields[i++].GetUInt32();
-            info.isMoving = fields[i++].GetBool();
-            info.speed = fields[i++].GetFloat();
-            info.moveType = fields[i++].GetUInt32();
             info.hitType = fields[i++].GetUInt32();
-            info.Height = fields[i++].GetFloat();
-            info.RadiusTarget = fields[i++].GetFloat();
-            info.Float5 = fields[i++].GetFloat();
-            info.Float4 = fields[i++].GetFloat();
-            info.Radius = fields[i++].GetFloat();
-            info.HeightTarget = fields[i++].GetFloat();
             info.MoveCurveID = fields[i++].GetUInt32();
             info.ElapsedTime = fields[i++].GetUInt32();
+            info.windX = fields[i++].GetFloat();
+            info.windY = fields[i++].GetFloat();
+            info.windZ = fields[i++].GetFloat();
+            info.windSpeed = fields[i++].GetFloat();
+            info.windType = fields[i++].GetUInt32();
+            info.polygon = fields[i++].GetUInt32();
+            info.MorphCurveID = fields[i++].GetUInt32();
+            info.FacingCurveID = fields[i++].GetUInt32();
+            info.ScaleCurveID = fields[i++].GetUInt32();
+            info.HasFollowsTerrain = fields[i++].GetUInt32();
+            info.HasAttached = fields[i++].GetUInt32();
+            info.HasAbsoluteOrientation = fields[i++].GetUInt32();
+            info.HasDynamicShape = fields[i++].GetUInt32();
+            info.HasFaceMovementDir = fields[i++].GetUInt32();
+            info.waitTime = fields[i++].GetUInt32();
+            if(info.polygon && info.customEntry)
+            {
+                QueryResult resultPolygon = WorldDatabase.PQuery("SELECT `id`, `x`, `y` FROM areatrigger_polygon WHERE `entry` = '%u' AND `spellId` = '%u'", info.customEntry, info.spellId);
+                if (resultPolygon)
+                {
+                    do
+                    {
+                        Field* fieldP = resultPolygon->Fetch();
+                        PolygonPOI polygonPOI;
+                        polygonPOI.id = fieldP[0].GetUInt32();
+                        polygonPOI.x = fieldP[1].GetFloat();
+                        polygonPOI.y = fieldP[2].GetFloat();
+                        info.polygonPoints[polygonPOI.id] = polygonPOI;
+                    }
+                    while (resultPolygon->NextRow());
+                }
+            }
+            if(info.windSpeed)
+            {
+                AreaTriggerAction actionEnter;
+                actionEnter.id = 0;
+                actionEnter.moment = AT_ACTION_MOMENT_ENTER;
+                actionEnter.actionType = AT_ACTION_TYPE_APPLY_MOVEMENT_FORCE;
+                actionEnter.targetFlags = AreaTriggerTargetFlags(AT_TARGET_FLAG_PLAYER | AT_TARGET_FLAG_HOSTILE);
+                actionEnter.spellId = info.spellId;
+                actionEnter.maxCharges = 0;
+                actionEnter.chargeRecoveryTime = 0;
+                actionEnter.aura = 0;
+                actionEnter.hasspell = 0;
+                actionEnter.scale = 0;
+                actionEnter.hitMaxCount = 0;
+                info.actions.push_back(actionEnter);
+
+                AreaTriggerAction actionLeave;
+                actionLeave.id = 1;
+                actionLeave.moment = AreaTriggerActionMoment(AT_ACTION_MOMENT_LEAVE | AT_ACTION_MOMENT_DESPAWN | AT_ACTION_MOMENT_REMOVE);
+                actionLeave.actionType = AT_ACTION_TYPE_REMOVE_MOVEMENT_FORCE;
+                actionLeave.targetFlags = AreaTriggerTargetFlags(0);
+                actionLeave.spellId = info.spellId;
+                actionLeave.maxCharges = 0;
+                actionLeave.chargeRecoveryTime = 0;
+                actionLeave.aura = 0;
+                actionLeave.hasspell = 0;
+                actionLeave.scale = 0;
+                actionLeave.hitMaxCount = 0;
+                info.actions.push_back(actionLeave);
+            }
             ++counter;
         }
         while (result->NextRow());
@@ -9587,8 +9819,8 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
     else
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 areatrigger data. DB table `areatrigger_data` is empty.");
 
-    //                                                0      1     2         3           4           5         6                7           8       9       10      11
-    QueryResult result2 = WorldDatabase.Query("SELECT entry, id, moment, actionType, targetFlags, spellId, maxCharges, chargeRecoveryTime, aura, hasspell, scale, hitMaxCount FROM areatrigger_actions");
+    //                                                0      1     2         3           4           5         6                7           8       9       10        11         12
+    QueryResult result2 = WorldDatabase.Query("SELECT entry, id, moment, actionType, targetFlags, spellId, maxCharges, chargeRecoveryTime, aura, hasspell, scale, hitMaxCount, amount FROM areatrigger_actions");
     if (result2)
     {
         uint32 counter = 0;
@@ -9610,6 +9842,7 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
             action.hasspell = fields[i++].GetInt32();
             action.scale = fields[i++].GetFloat();
             action.hitMaxCount = fields[i++].GetInt32();
+            action.amount = fields[i++].GetInt32();
 
             if (action.actionType >= AT_ACTION_TYPE_MAX)
             {
@@ -9617,6 +9850,9 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
                     action.actionType, entry);
                 continue;
             }
+
+            if (action.actionType == AT_ACTION_TYPE_CHANGE_AMOUNT_FROM_HEALT && !(action.targetFlags & AT_TARGET_FLAG_NOT_FULL_HP))
+                action.targetFlags = AreaTriggerTargetFlags(action.targetFlags | AT_TARGET_FLAG_NOT_FULL_HP);
 
             if (!sSpellMgr->GetSpellInfo(action.spellId))
             {
@@ -9879,4 +10115,33 @@ void ObjectMgr::LoadBattlePay()
         }
         while (result->NextRow());
     }
+}
+
+void ObjectMgr::AddCharToDupeLog(uint64 guid)
+{
+    m_dupeLogMap.insert(guid);
+}
+
+bool ObjectMgr::IsPlayerInLogList(Player *player)
+{
+    if(m_dupeLogMap.empty())
+        return false;
+
+    uint64 guid = player->GetGUID();
+    DupeLogMap::iterator itr = m_dupeLogMap.find(guid);
+    if (itr != m_dupeLogMap.end())
+        return true;
+
+    return false;
+}
+
+void ObjectMgr::RemoveCharFromDupeList(uint64 guid)
+{
+    m_dupeLogMap.erase(guid);
+}
+
+void ObjectMgr::DumpDupeConstant(Player *player)
+{
+    sLog->outDebug(LOG_FILTER_DUPE, "Name: %s. Items: %u; Pos: map - %u; %f; %f; %f;", player->GetName(), player->GetItemCount(38186, true),
+                  player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 }

@@ -35,7 +35,7 @@ enum eSpells
     SPELL_BORER_DRILL_B_VISUAL    = 144296,
     SPELL_BORER_DRILL_DMG         = 144218,
     //HM
-    SPELL_MORTAR_BLAST_HM         = 148871,
+    SPELL_MORTAR_BARRAGE          = 144555,
     SPELL_RICOCHET_TR_VISUAL      = 144375,
     SPELL_RICOCHET_DMG            = 144327,
     SPELL_RICOCHET_AT             = 144356,
@@ -49,6 +49,7 @@ enum eSpells
     SPELL_EXPLOSIVE_TAR_SUMMON    = 144496,
     SPELL_EXPLOSIVE_TAR_DMG       = 144498,
     SPELL_EXPLOSIVE_TAR_VISUAL    = 146191,
+    SPELL_EXPLOSIVE_TAR_AT        = 144525,
     SPELL_TAR_EXPLOSION           = 144919,
 
     SPELL_BERSERK                 = 26662,
@@ -66,11 +67,12 @@ enum eEvents
     EVENT_SHOCK_PULSE             = 7,
     EVENT_DEMOLISHER_CANNON       = 8,
     EVENT_BORER_DRILL             = 9,
+    EVENT_MORTAR_BARRAGE          = 10,
     //Mines
-    EVENT_ACTIVE_DETONATE         = 10,
-    EVENT_ENGULFED_EXPLOSE        = 11,
+    EVENT_ACTIVE_DETONATE         = 11,
+    EVENT_ENGULFED_EXPLOSE        = 12,
     //Cutter Laser
-    EVENT_FIND_PLAYERS            = 12,
+    EVENT_FIND_CUTTER_LASER       = 13,
 };
 
 Position const modpos[3] = 
@@ -106,12 +108,13 @@ class boss_iron_juggernaut : public CreatureScript
             }
 
             InstanceScript* instance;
-            uint32 PowerTimer, enrage;
+            uint32 PowerTimer, enrage, checkvictim;
             Phases phase;
 
             void Reset()
             {
                 _Reset();
+                checkvictim = 0;
                 PowerTimer = 0;
                 phase = PHASE_ONE;
                 events.SetPhase(PHASE_ONE);
@@ -122,11 +125,35 @@ class boss_iron_juggernaut : public CreatureScript
                 SendActionForAllPassenger(false);
             }
 
+            void JustReachedHome()
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetReactState(REACT_DEFENSIVE);
+            }
+
+            bool CheckPullPlayerPos(Unit* who)
+            {
+                if (who->GetPositionX() < 1258.00f)
+                    return false;
+
+                return true;
+            }
+
             void EnterCombat(Unit* who)
             {
+                if (instance)
+                {
+                    if (instance->GetBossState(DATA_GALAKRAS) != DONE || !CheckPullPlayerPos(who))
+                    {
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
                 _EnterCombat();
                 SendActionForAllPassenger(true);
                 PowerTimer = 1100;
+                checkvictim = 1500;
                 enrage = 600000;
                 events.ScheduleEvent(EVENT_SUMMON_MINE, 30000);
                 events.ScheduleEvent(EVENT_DEMOLISHER_CANNON, 9000);
@@ -217,6 +244,28 @@ class boss_iron_juggernaut : public CreatureScript
                         PowerTimer -= diff;
                 }
 
+                if (checkvictim && instance)
+                {
+                    if (checkvictim <= diff)
+                    {
+                        if (me->getVictim())
+                        {
+                            if (!CheckPullPlayerPos(me->getVictim()))
+                            {
+                                me->AttackStop();
+                                me->SetReactState(REACT_PASSIVE);
+                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                                EnterEvadeMode();
+                                checkvictim = 0;
+                            }
+                            else
+                                checkvictim = 1500;
+                        }
+                    }
+                    else
+                        checkvictim -= diff;
+                }
+
                 if (enrage)
                 {
                     if (enrage <= diff)
@@ -228,10 +277,11 @@ class boss_iron_juggernaut : public CreatureScript
                         enrage -= diff;
                 }
 
+                EnterEvadeIfOutOfCombatArea(diff);
+                events.Update(diff);
+
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-
-                events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -335,7 +385,12 @@ class boss_iron_juggernaut : public CreatureScript
                         break;
                     case EVENT_SHOCK_PULSE:
                         DoCast(me, SPELL_SHOCK_PULSE);
+                        if (me->GetMap()->IsHeroic())
+                            events.ScheduleEvent(EVENT_MORTAR_BARRAGE, 4000);
                         events.ScheduleEvent(EVENT_SHOCK_PULSE, 16500, 0, PHASE_TWO);
+                        break;
+                    case EVENT_MORTAR_BARRAGE:
+                        DoCast(me, SPELL_MORTAR_BARRAGE);
                         break;
                     default:
                         break;
@@ -451,61 +506,57 @@ class npc_crawler_mine : public CreatureScript
 public:
     npc_crawler_mine() : CreatureScript("npc_crawler_mine") {}
 
-    struct npc_crawler_mineAI : public CreatureAI
+    struct npc_crawler_mineAI : public ScriptedAI
     {
-        npc_crawler_mineAI(Creature* creature) : CreatureAI(creature)
+        npc_crawler_mineAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            me->SetReactState(REACT_PASSIVE);
+            me->setFaction(35);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
         InstanceScript* instance;
         EventMap events;
         ObjectGuid targetGuid;
-        bool done;
 
         void Reset()
         {
             events.Reset();
-            done = true;
-            targetGuid.Clear();
+            targetGuid = 0;
+            events.ScheduleEvent(EVENT_ACTIVE_DETONATE, urand(3000, 5000)); //test only
+        }
+
+        void OnSpellClick(Unit* clicker)
+        {
+            if (clicker->ToPlayer() && me->HasAura(SPELL_DETONATION_SEQUENCE))
+            {
+                me->RemoveAurasDueToSpell(SPELL_DETONATION_SEQUENCE);
+                targetGuid = clicker->GetGUID();
+                clicker->CastSpell(me, SPELL_GROUND_POUND, true);
+                events.ScheduleEvent(EVENT_ENGULFED_EXPLOSE, 1250);
+            }
         }
 
         void DamageTaken(Unit* attacker, uint32 &damage)
         {
             damage = 0;
         }
-
-        void MoveInLineOfSight(Unit* who)
-        {
-            if (!done)
-            {
-                if (who->ToPlayer() && me->GetDistance(who) <= 1.0f && !who->HasAura(SPELL_ENGULFED_EXPLOSE))
-                {
-                    done = true;
-                    me->RemoveAurasDueToSpell(SPELL_DETONATION_SEQUENCE);
-                    targetGuid = who->GetGUID();
-                    who->CastSpell(me, SPELL_GROUND_POUND, true);
-                    events.ScheduleEvent(EVENT_ENGULFED_EXPLOSE, 1250);
-                }
-            }
-        }
-
+        
         void MovementInform(uint32 type, uint32 pointId)
         {
             if (type == POINT_MOTION_TYPE)
-            {
                 if (pointId == 0)
                     events.ScheduleEvent(EVENT_ACTIVE_DETONATE, urand(3000, 5000));
-            }
         }
 
         void SpellHit(Unit* caster, SpellInfo const *spell)
         {   //after detonate
-            if (spell->Id == SPELL_CRAWLER_MINE_BLAST && !done)
+            if (spell->Id == SPELL_CRAWLER_MINE_BLAST)
             {
-                done = true;
-                me->DespawnOrUnsummon(1000);
+                me->Kill(me, true);
+                me->DespawnOrUnsummon();
             }
         }
 
@@ -518,13 +569,12 @@ public:
                 switch (eventId)
                 {
                 case EVENT_ACTIVE_DETONATE:
-                    DoCast(me, SPELL_DETONATION_SEQUENCE);
-                    done = false;
+                    DoCast(me, SPELL_DETONATION_SEQUENCE, true);
                     break;
                 case EVENT_ENGULFED_EXPLOSE:
                     if (Player *pl = me->GetPlayer(*me, targetGuid))
                         pl->CastSpell(pl, SPELL_ENGULFED_EXPLOSE);
-                    me->DespawnOrUnsummon(1000);
+                    me->DespawnOrUnsummon();
                     break;
                 }
             }
@@ -552,49 +602,14 @@ public:
         }
 
         InstanceScript* instance;
-        EventMap events;
 
-        void Reset()
-        {
-            events.Reset();
-        }
-
-        void SpellHit(Unit* caster, SpellInfo const *spell)
-        {
-            if (spell->Id == SPELL_CUTTER_LASER_VISUAL)
-                events.ScheduleEvent(EVENT_FIND_PLAYERS, 1000);
-        }
-        
-        void FindPlayers()
-        {
-            std::list<Player*> pllist;
-            pllist.clear();
-            GetPlayerListInGrid(pllist, me, 3.0f);
-            if (!pllist.empty())
-            {
-                for (std::list < Player* >::const_iterator itr = pllist.begin(); itr != pllist.end(); itr++)
-                {
-                    if ((*itr)->isAlive())
-                        (*itr)->AddAura(SPELL_CUTTER_LASER_DMG, (*itr));
-                }
-            }
-            events.ScheduleEvent(EVENT_FIND_PLAYERS, 1000);
-        }
+        void Reset(){}         
 
         void EnterCombat(Unit* who){}
         
         void EnterEvadeMode(){}
         
-        void UpdateAI(uint32 diff)
-        {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                if (eventId == EVENT_FIND_PLAYERS)
-                    FindPlayers();
-            }
-        }
+        void UpdateAI(uint32 diff){}     
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -616,6 +631,7 @@ public:
             instance = creature->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->AddAura(SPELL_EXPLOSIVE_TAR_AT, me);
             me->AddAura(SPELL_EXPLOSIVE_TAR_VISUAL, me);
         }
 
@@ -624,32 +640,19 @@ public:
 
         void Reset()
         {
-            events.Reset();
-            events.ScheduleEvent(EVENT_FIND_PLAYERS, 3000);
+            events.ScheduleEvent(EVENT_FIND_CUTTER_LASER, 3000);
         }
 
-        void FindPlayers()
+        void FindCutterLaser()
         {
             if (Creature* laser = me->FindNearestCreature(NPC_CUTTER_LASER, 5.0f, true))
             {
                 me->RemoveAurasDueToSpell(SPELL_EXPLOSIVE_TAR_VISUAL);
                 DoCastAOE(SPELL_TAR_EXPLOSION, true);
                 me->DespawnOrUnsummon(2000);
-                return;
             }
-
-            std::list<Player*> pllist;
-            pllist.clear();
-            GetPlayerListInGrid(pllist, me, 4.0f);
-            if (!pllist.empty())
-            {
-                for (std::list < Player* >::const_iterator itr = pllist.begin(); itr != pllist.end(); itr++)
-                {
-                    if ((*itr)->isAlive())
-                        (*itr)->AddAura(SPELL_EXPLOSIVE_TAR_DMG, (*itr));
-                }
-            }
-            events.ScheduleEvent(EVENT_FIND_PLAYERS, 1000);
+            else
+                events.ScheduleEvent(EVENT_FIND_CUTTER_LASER, 1000);
         }
 
         void EnterCombat(Unit* who){}
@@ -662,8 +665,8 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                if (eventId == EVENT_FIND_PLAYERS)
-                    FindPlayers();
+                if (eventId == EVENT_FIND_CUTTER_LASER)
+                    FindCutterLaser();
             }
         }
     };
@@ -690,82 +693,19 @@ public:
         }
 
         InstanceScript* instance;
-        EventMap events;
 
-        void Reset()
-        {
-            events.Reset();
-            events.ScheduleEvent(EVENT_FIND_PLAYERS, 1000);
-        }
-
-        void FindPlayers()
-        {
-            std::list<Player*> pllist;
-            pllist.clear();
-            GetPlayerListInGrid(pllist, me, 2.0f);
-            if (!pllist.empty())
-            {
-                for (std::list < Player* >::const_iterator itr = pllist.begin(); itr != pllist.end(); itr++)
-                {
-                    if ((*itr)->isAlive())
-                        (*itr)->AddAura(SPELL_BORER_DRILL_DMG, (*itr));
-                }
-            }
-            events.ScheduleEvent(EVENT_FIND_PLAYERS, 1000);
-        }
+        void Reset(){}
 
         void EnterCombat(Unit* who){}
 
         void EnterEvadeMode(){}
 
-        void UpdateAI(uint32 diff)
-        {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                if (eventId == EVENT_FIND_PLAYERS)
-                    FindPlayers();
-            }
-        }
+        void UpdateAI(uint32 diff){}
     };
 
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_borer_drillAI(creature);
-    }
-};
-
-//144918
-class spell_cutter_laser : public SpellScriptLoader
-{
-public:
-    spell_cutter_laser() : SpellScriptLoader("spell_cutter_laser") { }
-
-    class spell_cutter_laser_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_cutter_laser_AuraScript);
-
-        void HandlePeriodic(AuraEffect const* aurEff)
-        {
-            if (GetTarget())
-            {
-                if (Creature* npc_ct = GetTarget()->FindNearestCreature(NPC_CUTTER_LASER, 4.0f, true))
-                    return;
-
-                GetTarget()->RemoveAurasDueToSpell(SPELL_CUTTER_LASER_DMG);
-            }
-        }
-
-        void Register()
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_cutter_laser_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_cutter_laser_AuraScript();
     }
 };
 
@@ -829,69 +769,40 @@ public:
     }
 };
 
-//144498
-class spell_explosive_tar : public SpellScriptLoader
+//144554
+class spell_mortar_barrage : public SpellScriptLoader
 {
 public:
-    spell_explosive_tar() : SpellScriptLoader("spell_explosive_tar") { }
+    spell_mortar_barrage() : SpellScriptLoader("spell_mortar_barrage") { }
 
-    class spell_explosive_tar_AuraScript : public AuraScript
+    class spell_mortar_barrage_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_explosive_tar_AuraScript);
+        PrepareAuraScript(spell_mortar_barrage_AuraScript);
 
-        void HandlePeriodic(AuraEffect const* aurEff)
+        void OnTick(AuraEffect const* aurEff)
         {
-            if (GetTarget())
+            if (GetCaster())
             {
-                if (Creature* npc_et = GetTarget()->FindNearestCreature(NPC_EXPLOSIVE_TAR, 4.0f, true))
-                    return;
-
-                GetTarget()->RemoveAurasDueToSpell(SPELL_EXPLOSIVE_TAR_DMG);
+                float x, y;
+                uint8 val = urand(3, 4);
+                for (uint8 n = 0; n < val; n++)
+                {
+                    GetPositionWithDistInOrientation(GetCaster(), urand(15, 30), urand(0, 6), x, y);
+                    if (Creature* mb = GetCaster()->SummonCreature(90002, x, y, GetCaster()->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 4000))
+                        GetCaster()->CastSpell(mb, SPELL_MORTAR_BLAST, true);
+                }
             }
         }
 
         void Register()
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_explosive_tar_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_mortar_barrage_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         }
     };
 
     AuraScript* GetAuraScript() const
     {
-        return new spell_explosive_tar_AuraScript();
-    }
-};
-
-//144218
-class spell_borer_drill : public SpellScriptLoader
-{
-public:
-    spell_borer_drill() : SpellScriptLoader("spell_borer_drill") { }
-
-    class spell_borer_drill_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_borer_drill_AuraScript);
-
-        void HandlePeriodic(AuraEffect const* aurEff)
-        {
-            if (GetTarget())
-            {
-                if (Creature* npc_br = GetTarget()->FindNearestCreature(NPC_BORER_DRILL, 2.0f, true))
-                    return;
-
-                GetTarget()->RemoveAurasDueToSpell(SPELL_BORER_DRILL_DMG);
-            }
-        }
-
-        void Register()
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_borer_drill_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_borer_drill_AuraScript();
+        return new spell_mortar_barrage_AuraScript();
     }
 };
 
@@ -904,9 +815,7 @@ void AddSC_boss_iron_juggernaut()
     new npc_cutter_laser();
     new npc_explosive_tar();
     new npc_borer_drill();
-    new spell_cutter_laser();
     new spell_cutter_laser_target();
     new spell_seismic_activity();
-    new spell_explosive_tar();
-    new spell_borer_drill();
+    new spell_mortar_barrage();
 }

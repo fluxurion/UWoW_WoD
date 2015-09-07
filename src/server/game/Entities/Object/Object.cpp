@@ -514,47 +514,47 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         ASSERT(t);
 
         if(t->GetAreaTriggerInfo().ElapsedTime)
-            *data << uint32(t->GetAreaTriggerInfo().ElapsedTime);                     // Elapsed Time Ms
+            *data << uint32(t->GetAreaTriggerInfo().ElapsedTime);       // Elapsed Time Ms
         else
-            *data << uint32(1);                     // Elapsed Time Ms
+            *data << uint32(1);                                         // Elapsed Time Ms
 
-        *data << float(0.0f) << float(0.0f) << float(0.0f); //RollPitchYaw1
+        *data << float(0.0f) << float(0.0f) << float(0.0f);             //RollPitchYaw1
 
-        data->WriteBit(0);                                      // HasAbsoluteOrientation
-        data->WriteBit(0);                                      // HasDynamicShape
-        data->WriteBit(0);                                      // HasAttached
-        data->WriteBit(0);                                      // HasFaceMovementDir
-        data->WriteBit(0);                                      // HasFollowsTerrain
-        data->WriteBit(0);                                      // HasTargetRollPitchYaw
-        data->WriteBit(0);                                      // HasScaleCurveID
-        data->WriteBit(0);                                      // HasMorphCurveID
-        data->WriteBit(0);                                      // HasFacingCurveID
-        data->WriteBit(t->GetAreaTriggerInfo().MoveCurveID);    // hasMoveCurveID
-        data->WriteBit(t->GetVisualScale());                    // HasAreaTriggerSphere
-        data->WriteBit(0);                                      // HasAreaTriggerBox
-        data->WriteBit(0);                                      // areaTriggerPolygon
-        data->WriteBit(t->GetAreaTriggerCylinder());            // areaTriggerCylinder
-        data->WriteBit(t->isMoving());                          // areaTriggerSpline
+        data->WriteBit(t->GetAreaTriggerInfo().HasAbsoluteOrientation); // HasAbsoluteOrientation
+        data->WriteBit(t->GetAreaTriggerInfo().HasDynamicShape);        // HasDynamicShape
+        data->WriteBit(t->GetAreaTriggerInfo().HasAttached);            // HasAttached
+        data->WriteBit(t->GetAreaTriggerInfo().HasFaceMovementDir);     // HasFaceMovementDir
+        data->WriteBit(t->GetAreaTriggerInfo().HasFollowsTerrain);      // HasFollowsTerrain
+        data->WriteBit(0);                                              // HasTargetRollPitchYaw
+        data->WriteBit(t->GetAreaTriggerInfo().ScaleCurveID);           // HasScaleCurveID
+        data->WriteBit(t->GetAreaTriggerInfo().MorphCurveID);           // HasMorphCurveID
+        data->WriteBit(t->GetAreaTriggerInfo().FacingCurveID);          // HasFacingCurveID
+        data->WriteBit(t->GetAreaTriggerInfo().MoveCurveID);            // hasMoveCurveID
+        data->WriteBit(t->GetVisualScale());                            // HasAreaTriggerSphere
+        data->WriteBit(0);                                              // HasAreaTriggerBox
+        data->WriteBit(t->isPolygon());                                 // areaTriggerPolygon
+        data->WriteBit(t->GetAreaTriggerCylinder());                    // areaTriggerCylinder
+        data->WriteBit(t->isMoving());                                  // areaTriggerSpline
 
         //if (HasTargetRollPitchYaw)
         //    packet.ReadVector3("TargetRollPitchYaw", index);
 
-        //if (HasScaleCurveID)
-        //    packet.ReadInt32("ScaleCurveID, index");
+        if (t->GetAreaTriggerInfo().ScaleCurveID)
+            *data << uint32(t->GetAreaTriggerInfo().ScaleCurveID);
 
-        //if (HasMorphCurveID)
-        //    packet.ReadInt32("MorphCurveID", index);
+        if (t->GetAreaTriggerInfo().MorphCurveID)
+            *data << uint32(t->GetAreaTriggerInfo().MorphCurveID);
 
-        //if (HasFacingCurveID)
-        //    packet.ReadInt32("FacingCurveID", index);
+        if (t->GetAreaTriggerInfo().FacingCurveID)
+            *data << uint32(t->GetAreaTriggerInfo().FacingCurveID);
 
         if (t->GetAreaTriggerInfo().MoveCurveID)
             *data << uint32(t->GetAreaTriggerInfo().MoveCurveID);
 
-        if (t->GetVisualScale())                            // areaTriggerSphere
+        if (t->GetVisualScale())                                        // areaTriggerSphere
         {
-            *data << t->GetVisualScale(true);               // Radius
-            *data << t->GetVisualScale();                   // RadiusTarget
+            *data << t->GetVisualScale(true);                           // Radius
+            *data << t->GetVisualScale();                               // RadiusTarget
         }
 
         //if (HasAreaTriggerBox)
@@ -563,32 +563,42 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         //    packet.ReadVector3("ExtentsTarget", index);
         //}
 
-        //if (HasAreaTriggerPolygon)
-        //{
-        //    var VerticesCount = packet.ReadInt32("VerticesCount", index);
-        //    var VerticesTargetCount = packet.ReadInt32("VerticesTargetCount", index);
-        //    packet.ReadSingle("Height", index);
-        //    packet.ReadSingle("HeightTarget", index);
-
-        //    for (var i = 0; i < VerticesCount; ++i)
-        //        packet.ReadVector2("Vertices", index, i);
-
-        //    for (var i = 0; i < VerticesTargetCount; ++i)
-        //        packet.ReadVector2("VerticesTarget", index, i);
-        //}
-
-        if (t->GetAreaTriggerCylinder())                    // areaTriggerCylinder
+        if (t->isPolygon())
         {
-            *data << t->GetAreaTriggerInfo().Radius;        // Radius (float240)
-            *data << t->GetAreaTriggerInfo().RadiusTarget;  // RadiusTarget (float244)
-            *data << t->GetAreaTriggerInfo().Height;        // Height (float248)
-            *data << t->GetAreaTriggerInfo().HeightTarget;  // HeightTarget (float24C)
-            *data << t->GetAreaTriggerInfo().Float4;        // Float4 (float250)
-            *data << t->GetAreaTriggerInfo().Float5;        // Float5 (float254)
+            *data << uint32(t->GetAreaTriggerInfo().polygonPoints.size()); // VerticesCount
+            *data << uint32(t->GetAreaTriggerInfo().polygon > 1 ? size : 0); // VerticesTargetCount
+
+            *data << t->GetAreaTriggerInfo().Height;                    // Height
+            *data << t->GetAreaTriggerInfo().HeightTarget;              // HeightTarget
+
+            for (uint16 i = 0; i < t->GetAreaTriggerInfo().polygonPoints.size(); ++i) // Vertices
+            {
+                *data << t->GetAreaTriggerInfo().polygonPoints[i].x;    // X
+                *data << t->GetAreaTriggerInfo().polygonPoints[i].y;    // Y
+            }
+
+            if (t->GetAreaTriggerInfo().polygon > 1)                    // VerticesTarget
+            {
+                for (uint16 i = 0; i < t->GetAreaTriggerInfo().polygonPoints.size(); ++i)
+                {
+                    *data << t->GetAreaTriggerInfo().polygonPoints[i].x; // X
+                    *data << t->GetAreaTriggerInfo().polygonPoints[i].y; // Y
+                }
+            }
         }
 
-        if (t->isMoving())                                  // areaTriggerSpline
-            t->PutObjectUpdateMovement(data);               // Points
+        if (t->GetAreaTriggerCylinder())                                // areaTriggerCylinder
+        {
+            *data << t->GetAreaTriggerInfo().Radius;                    // Radius (float240)
+            *data << t->GetAreaTriggerInfo().RadiusTarget;              // RadiusTarget (float244)
+            *data << t->GetAreaTriggerInfo().Height;                    // Height (float248)
+            *data << t->GetAreaTriggerInfo().HeightTarget;              // HeightTarget (float24C)
+            *data << t->GetAreaTriggerInfo().Float4;                    // Float4 (float250)
+            *data << t->GetAreaTriggerInfo().Float5;                    // Float5 (float254)
+        }
+
+        if (t->isMoving())                                              // areaTriggerSpline
+            t->PutObjectUpdateMovement(data);                           // Points
     }
 
     //if (GameObject)
@@ -793,26 +803,27 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         AreaTrigger const* t = ToAreaTrigger();
         ASSERT(t);
 
-        data->WriteBit(0);  // areaTriggerPolygon
-        //if (areaTriggerPolygon)
-        //{
-        //    dword25C = p.ReadBits(21); // VerticesCount
-        //    dword26C = p.ReadBits(21); // VerticesTargetCount
-        //}
-        data->WriteBit(0);              // HasAbsoluteOrientation?
-        data->WriteBit(0);              // HasFollowsTerrain?
-        data->WriteBit(t->GetVisualScale()); // areaTriggerSphere
-        data->WriteBit(t->isMoving());  // areaTriggerSpline
-        data->WriteBit(0);              // HasFaceMovementDir?
-        data->WriteBit(0);              // HasAttached?
-        data->WriteBit(0);              // hasScaleCurveID?
-        data->WriteBit(0);              // hasMorphCurveID?
+        data->WriteBit(t->isPolygon());  // areaTriggerPolygon
+        if (t->isPolygon())
+        {
+            uint32 size = t->GetAreaTriggerInfo().polygonPoints.size();
+            data->WriteBits(size, 21); // VerticesCount dword25C
+            data->WriteBits(t->GetAreaTriggerInfo().polygon > 1 ? size : 0, 21); // VerticesTargetCount dword26C
+        }
+        data->WriteBit(t->GetAreaTriggerInfo().HasAbsoluteOrientation);   // HasAbsoluteOrientation?
+        data->WriteBit(t->GetAreaTriggerInfo().HasFollowsTerrain);        // HasFollowsTerrain?
+        data->WriteBit(t->GetVisualScale());                              // areaTriggerSphere
+        data->WriteBit(t->isMoving());                                    // areaTriggerSpline
+        data->WriteBit(t->GetAreaTriggerInfo().HasFaceMovementDir);       // HasFaceMovementDir?
+        data->WriteBit(t->GetAreaTriggerInfo().HasAttached);              // HasAttached?
+        data->WriteBit(t->GetAreaTriggerInfo().ScaleCurveID);             // hasScaleCurveID?
+        data->WriteBit(t->GetAreaTriggerInfo().MorphCurveID);             // hasMorphCurveID?
         if (t->isMoving())
-            data->WriteBits(t->GetObjectMovementParts(), 20); // splinePointsCount
-        data->WriteBit(0);              // hasFacingCurveID?
-        data->WriteBit(0);              // HasDynamicShape?
-        data->WriteBit(t->GetAreaTriggerInfo().MoveCurveID);      // hasMoveCurveID
-        data->WriteBit(t->GetAreaTriggerCylinder());              // areaTriggerCylinder
+            data->WriteBits(t->GetObjectMovementParts(), 20);             // splinePointsCount
+        data->WriteBit(t->GetAreaTriggerInfo().FacingCurveID);            // hasFacingCurveID?
+        data->WriteBit(t->GetAreaTriggerInfo().HasDynamicShape);          // HasDynamicShape?
+        data->WriteBit(t->GetAreaTriggerInfo().MoveCurveID);              // hasMoveCurveID
+        data->WriteBit(t->GetAreaTriggerCylinder());                      // areaTriggerCylinder
     }
 
     if (flags & UPDATEFLAG_LIVING)
@@ -919,38 +930,41 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
         if (t->GetAreaTriggerCylinder())                // areaTriggerCylinder
         {
-            *data << t->GetAreaTriggerInfo().Float4; // Float4 (float250)
-            *data << t->GetAreaTriggerInfo().Float5; // Float5 (float254)
-            *data << t->GetAreaTriggerInfo().Height; // Height (float248)
-            *data << t->GetAreaTriggerInfo().HeightTarget; // HeightTarget (float24C)
-            *data << t->GetAreaTriggerInfo().Radius; // Radius (float240)
-            *data << t->GetAreaTriggerInfo().RadiusTarget; // RadiusTarget (float244)
+            *data << t->GetAreaTriggerInfo().Height; // Height (float250)
+            *data << t->GetAreaTriggerInfo().Float4; // Float4 (float254)
+            *data << t->GetAreaTriggerInfo().Float5; // Float5 (float248)
+            *data << t->GetAreaTriggerInfo().Radius; // Radius (float24C)
+            *data << t->GetAreaTriggerInfo().RadiusTarget; // RadiusTarget (float240)
+            *data << t->GetAreaTriggerInfo().HeightTarget; // HeightTarget (float244)
         }
 
-        /*if (areaTriggerPolygon)
+        if (t->isPolygon())
         {
-            data << float(1.0f); // HeightTarget? (float280)
+            *data << t->GetAreaTriggerInfo().HeightTarget; // HeightTarget (float280)
 
-            for (uint8 i = 0; i < dword26C; ++i)
+            for (uint16 i = 0; i < t->GetAreaTriggerInfo().polygonPoints.size(); ++i)
             {
-                data << float(1.0f); // Y
-                data << float(1.0f); // X
+                *data << t->GetAreaTriggerInfo().polygonPoints[i].y; // Y
+                *data << t->GetAreaTriggerInfo().polygonPoints[i].x; // X
             }
 
-            data << float(1.0f); // Height? (float27C)
+            *data << t->GetAreaTriggerInfo().Height; // Height (float27C)
 
-            for (uint8 i = 0; i < dword25C; ++i)
+            if(t->GetAreaTriggerInfo().polygon > 1)
             {
-                data << float(1.0f); // X
-                data << float(1.0f); // Y
+                for (uint16 i = 0; i < t->GetAreaTriggerInfo().polygonPoints.size(); ++i)
+                {
+                    *data << t->GetAreaTriggerInfo().polygonPoints[i].x; // X
+                    *data << t->GetAreaTriggerInfo().polygonPoints[i].y; // Y
+                }
             }
-        }*/
+        }
 
         //if (t->GetAreaTriggerInfo().MoveCurveID)
         //    *data << uint32(t->GetAreaTriggerInfo().MoveCurveID);
 
-        //if (hasMorphCurveID)
-            //data << uint32(0);
+        if (t->GetAreaTriggerInfo().MorphCurveID)
+            *data << uint32(t->GetAreaTriggerInfo().MorphCurveID);
 
         //if (t->GetVisualScale())                // areaTriggerSphere
         //{
@@ -966,11 +980,11 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         //else
         //    *data << uint32(1);                     // Elapsed Time Ms
 
-        /*if (hasFacingCurveID)
-            data << uint32(0);
+        if (t->GetAreaTriggerInfo().FacingCurveID)
+            *data << uint32(t->GetAreaTriggerInfo().FacingCurveID);
 
-        if (hasScaleCurveID)
-            data << uint32(0);
+        if (t->GetAreaTriggerInfo().ScaleCurveID)
+            *data << uint32(t->GetAreaTriggerInfo().ScaleCurveID);
     }
 
     if (flags & UPDATEFLAG_LIVING)
@@ -2175,6 +2189,29 @@ void Position::SimplePosXYRelocationByAngle(Position &pos, float dist, float ang
     pos.SetOrientation(GetOrientation());
 }
 
+void Position::SimplePosXYRelocationByAngle(float &x, float &y, float &z, float dist, float angle, bool relative) const
+{
+    if(!relative)
+        angle += GetOrientation();
+
+    x = m_positionX + dist * std::cos(angle);
+    y = m_positionY + dist * std::sin(angle);
+    z = m_positionZ;
+
+    // Prevent invalid coordinates here, position is unchanged
+    if (!Trinity::IsValidMapCoord(x, y))
+    {
+        x = m_positionX;
+        y = m_positionY;
+        z = m_positionZ;
+        sLog->outFatal(LOG_FILTER_GENERAL, "Position::SimplePosXYRelocationByAngle invalid coordinates X: %f and Y: %f were passed!", x, y);
+        return;
+    }
+
+    Trinity::NormalizeMapCoord(x);
+    Trinity::NormalizeMapCoord(y);
+}
+
 std::string Position::ToString() const
 {
     std::stringstream sstr;
@@ -2743,8 +2780,8 @@ bool Position::IsPositionValid() const
 
 float WorldObject::GetGridActivationRange() const
 {
-    if (ToPlayer())
-        return GetMap()->GetVisibilityRange();
+    if (Player const* thisPlayer = ToPlayer())
+        return GetMap()->GetVisibilityRange(thisPlayer->getCurrentUpdateZoneID(), thisPlayer->getCurrentUpdateAreaID());
     else if (ToCreature())
         return ToCreature()->m_SightDistance;
     else
@@ -2757,7 +2794,14 @@ float WorldObject::GetVisibilityRange() const
         return MAX_VISIBILITY_DISTANCE;
     else
         if (GetMap())
-            return GetMap()->GetVisibilityRange();
+        {
+            if (Player const* thisPlayer = ToPlayer())
+                return GetMap()->GetVisibilityRange(thisPlayer->getCurrentUpdateZoneID(), thisPlayer->getCurrentUpdateAreaID());
+            else if (Creature const* creature = ToCreature())
+                return GetMap()->GetVisibilityRange(creature->getCurrentUpdateZoneID(), creature->getCurrentUpdateAreaID());
+            else
+                return GetMap()->GetVisibilityRange();
+        }
 
     return MAX_VISIBILITY_DISTANCE;
 }
@@ -2766,16 +2810,12 @@ float WorldObject::GetSightRange(const WorldObject* target) const
 {
     if (ToUnit())
     {
-        if (ToPlayer())
+        if (Player const* thisPlayer = ToPlayer())
         {
             if (target && target->isActiveObject() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
-            else if (GetMapId() == 967) // Dragon Soul
-                return 500.0f;
-            else if (GetMapId() == 754) // Throne of the Four Winds
-                return MAX_VISIBILITY_DISTANCE;
             else
-                return GetMap()->GetVisibilityRange();
+                return GetMap()->GetVisibilityRange(thisPlayer->getCurrentUpdateZoneID(), thisPlayer->getCurrentUpdateAreaID());
         }
         else if (ToCreature())
             return ToCreature()->m_SightDistance;
@@ -2825,6 +2865,13 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     }
 
     if (GetGUID().IsPlayer() && obj->GetGUID().IsGameObject())
+    {
+        Player const* thisPlayer = ToPlayer();
+        if (thisPlayer && thisPlayer->IsPlayerLootCooldown(obj->GetEntry()))
+            return false;
+    }
+
+    if (IS_PLAYER_GUID(GetGUID()) && IS_GAMEOBJECT_GUID(obj->GetGUID()))
     {
         Player const* thisPlayer = ToPlayer();
         if (thisPlayer && thisPlayer->IsPlayerLootCooldown(obj->GetEntry()))
@@ -3389,7 +3436,10 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
                 mask = UNIT_MASK_PUPPET;
                 break;
             case SUMMON_CATEGORY_VEHICLE:
-                mask = UNIT_MASK_MINION;
+                if (properties->Id == 3384) //hardfix despawn npc 63872
+                    mask = UNIT_MASK_SUMMON;
+                else
+                    mask = UNIT_MASK_MINION;
                 break;
             case SUMMON_CATEGORY_WILD:
             case SUMMON_CATEGORY_ALLY:
@@ -3423,7 +3473,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
                             properties->Id == 3459 ||
                             properties->Id == 3097) // Mirror Image, Summon Gargoyle
                             mask = UNIT_MASK_GUARDIAN;
-                        break;
+                            break;
                     }
                 }
                 break;
@@ -3793,6 +3843,19 @@ void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureL
     Trinity::AllCreaturesOfEntryInRange check(this, entry, maxSearchRange);
     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(this, creatureList, check);
     TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
+
+    cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
+}
+
+void WorldObject::GetAreaTriggerListWithEntryInGrid(std::list<AreaTrigger*>& atList, uint32 entry, float maxSearchRange) const
+{
+    CellCoord pair(Trinity::ComputeCellCoord(this->GetPositionX(), this->GetPositionY()));
+    Cell cell(pair);
+    cell.SetNoCreate();
+
+    Trinity::AllAreaTriggeresOfEntryInRange check(this, entry, maxSearchRange);
+    Trinity::AreaTriggerListSearcher<Trinity::AllAreaTriggeresOfEntryInRange> searcher(this, atList, check);
+    TypeContainerVisitor<Trinity::AreaTriggerListSearcher<Trinity::AllAreaTriggeresOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
 
     cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
 }
@@ -4497,6 +4560,15 @@ void WorldObject::SetMeleeAnimKitId(uint16 animKitId)
 }
 
 
+C_PTR Object::get_ptr()
+{
+    if (ptr.numerator && ptr.numerator->ready)
+        return ptr.shared_from_this();
+
+    ptr.InitParent(this);
+    ASSERT(ptr.numerator);  // It's very bad. If it hit nothing work.
+    return ptr.shared_from_this();
+}
 C_PTR Object::get_ptr()
 {
     if (ptr.numerator && ptr.numerator->ready)

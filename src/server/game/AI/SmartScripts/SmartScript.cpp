@@ -269,7 +269,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                                 {
                                     (*itr)->ToCreature()->setFaction(ci->faction);
                                     sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SET_FACTION: Creature entry %u, GuidLow %u set faction to %u",
-                                        (*itr)->GetEntry(), (*itr)->GetGUID().GetCounter(), ci->faction);
+                                        (*itr)->GetEntry(), (*itr)->GetGUID().GetCounter(), ci->faction_A);
                                 }
                             }
                         }
@@ -2068,6 +2068,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!me || me->GetTypeId() != TYPEID_UNIT)
                 break;
             me->setRegeneratingHealth(e.action.setHealthRegen.regenHealth ? true : false);
+            break;
+        }
+        case SMART_ACTION_SET_ROOT:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsCreature(*itr))
+                    (*itr)->ToCreature()->SetControlled(e.action.setRoot.root != 0, UNIT_STATE_ROOT);
+
+            delete targets;
             break;
         }
         default:

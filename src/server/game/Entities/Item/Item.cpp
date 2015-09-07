@@ -212,6 +212,10 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
                     if (!(pProto->BagFamily & BAG_FAMILY_MASK_FISHING_SUPP))
                         return false;
                     return true;
+                case ITEM_SUBCLASS_COOKING_BAG:
+                    if (!(pProto->BagFamily & BAG_FAMILY_MASK_COOKING_SUPP))
+                        return false;
+                    return true;
                 default:
                     return false;
             }
@@ -344,7 +348,15 @@ void Item::SaveToDB(SQLTransaction& trans)
 
             std::ostringstream ssSpells;
             for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+            {
+                if(GetEntry() == 38186 && GetSpellCharges(i)) //Efir not have charges
+                {
+                    sWorld->BanAccount(BAN_CHARACTER, GetOwner()->GetName(), "-1", "Dupe efir", "System");
+                    delete this;
+                    return;
+                }
                 ssSpells << GetSpellCharges(i) << ' ';
+            }
             stmt->setString(++index, ssSpells.str());
 
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS));
@@ -464,10 +476,14 @@ bool Item::LoadFromDB(ObjectGuid::LowType const& guid, ObjectGuid const& owner_g
         need_save = true;
     }
 
-    Tokenizer tokens(fields[4].GetString(), ' ', MAX_ITEM_PROTO_SPELLS);
-    if (tokens.size() == MAX_ITEM_PROTO_SPELLS)
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-            SetSpellCharges(i, atoi(tokens[i]));
+    std::string charges = fields[4].GetString();
+    if (charges.size() > MAX_ITEM_PROTO_SPELLS)
+    {
+        Tokenizer tokens(charges.c_str(), ' ', MAX_ITEM_PROTO_SPELLS);
+        if (tokens.size() == MAX_ITEM_PROTO_SPELLS)
+            for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+                SetSpellCharges(i, atoi(tokens[i]));
+    }
 
     SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, fields[5].GetUInt32());
     // Remove bind flag for items vs NO_BIND set
@@ -659,7 +675,7 @@ uint32 Item::GetSkill()
     }
 }
 
-int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
+int32 Item::GenerateItemRandomPropertyId(uint32 item_id, uint32 spec_id)
 {
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
 
@@ -680,7 +696,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
     // RandomProperty case
     if (itemProto->RandomProperty)
     {
-        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomProperty, ENCHANTMENT_RANDOM_PROPERTY);
+        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomProperty, ENCHANTMENT_RANDOM_PROPERTY, spec_id);
         ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (!random_id)
         {
@@ -693,7 +709,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
     // RandomSuffix case
     else
     {
-        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomSuffix, ENCHANTMENT_RANDOM_SUFFIX);
+        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomSuffix, ENCHANTMENT_RANDOM_SUFFIX, spec_id);
         ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
         if (!random_id)
         {
@@ -1588,13 +1604,17 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
                 break;
             }
             case INVTYPE_WEAPONMAINHAND:
-                wepType = 0;             // unk enum, fall back
+                //wepType = 0;             // unk enum, fall back .... 0 seems incorrect value... we use here 0-4, should not here be 1-5?
+                //break;
             case INVTYPE_WEAPONOFFHAND:
-                wepType = 1;             // unk enum, fall back
+                //wepType = 1;             // unk enum, fall back
+                //break;
             case INVTYPE_WEAPON:
-                wepType = 2;             // unk enum, fall back
+                //wepType = 2;             // unk enum, fall back
+                //break;
             case INVTYPE_2HWEAPON:
-                wepType = 3;             // unk enum, fall back
+                //wepType = 3;             // unk enum, fall back
+                //break;
             case INVTYPE_RANGED:
             case INVTYPE_RANGEDRIGHT:
             case INVTYPE_RELIC:
@@ -1708,12 +1728,8 @@ void Item::SetLevelCap(uint32 cap, bool pvp)
     //    return;
 
     //// Not for items with pvp power at pvp
-    //if (pvp)
-    //{
-    //    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-    //        if (proto->ItemStat[i].ItemStatType == ITEM_MOD_PVP_POWER)
-    //            return;
-    //}
+    //if (pvp && proto->IsPvPItem())
+        //return;
 
     //ItemLevelBeforeCap = GetLevel();
     //SetLevel(cap);

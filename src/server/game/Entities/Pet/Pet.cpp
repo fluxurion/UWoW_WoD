@@ -106,6 +106,9 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool s
         if (owner->HasAura(108503))
             owner->RemoveAura(108503);
 
+    if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned())
+        owner->SetLastPetEntry(petentry);
+
     m_loading = true;
     m_Stampeded = stampeded;
     ObjectGuid::LowType ownerid = owner->GetGUID().GetCounter();
@@ -173,6 +176,10 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool s
 
     PetType pet_type = PetType(fields[14].GetUInt8());
     setPetType(pet_type);
+
+    if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned())
+        owner->SetLastPetEntry(petentry);
+
     if (pet_type == HUNTER_PET)
     {
         CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petentry);
@@ -831,6 +838,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     UpdateMeleeHastMod();
     UpdateHastMod();
     UpdateRangeHastMod();
+    UpdateCastHastMods();
 
     SetUInt32Value(UNIT_FIELD_FLAGS_2, cinfo->unit_flags2);
 
@@ -1686,40 +1694,42 @@ void TempSummon::CastPetAuras(bool apply, uint32 spellId)
                             break;
                         }
                         default:
-                            _target->RemoveAurasDueToSpell(itr->spellId);
                             break;
                     }
                     continue;
                 }
-                switch (itr->option)
+                else
                 {
-                    case 0: //cast spell without option
-                        _caster->CastSpell(_target, itr->spellId, true);
-                        break;
-                    case 1: //cast custom spell option
-                        _caster->CastCustomSpell(_target, itr->spellId, &bp0, &bp1, &bp2, true);
-                        break;
-                    case 2: //add aura
-                        if(Aura* aura = _caster->AddAura(itr->spellId, _target))
-                        {
-                            if(bp0 && aura->GetEffect(0))
-                                aura->GetEffect(0)->SetAmount(bp0);
-                            if(bp1 && aura->GetEffect(1))
-                                aura->GetEffect(1)->SetAmount(bp1);
-                            if(bp2 && aura->GetEffect(2))
-                                aura->GetEffect(2)->SetAmount(bp2);
-                        }
-                        break;
-                    case 3: //cast spell not triggered
-                        _caster->CastSpell(_target, itr->spellId, false);
-                        break;
-                    case 4: //learn spell
+                    switch (itr->option)
                     {
-                        if(Player* _lplayer = _target->ToPlayer())
-                            _lplayer->learnSpell(itr->spellId, false);
-                        else
-                            learnSpell(itr->spellId);
-                        break;
+                        case 0: //cast spell without option
+                            _caster->CastSpell(_target, itr->spellId, true);
+                            break;
+                        case 1: //cast custom spell option
+                            _caster->CastCustomSpell(_target, itr->spellId, &bp0, &bp1, &bp2, true);
+                            break;
+                        case 2: //add aura
+                            if (Aura* aura = _caster->AddAura(itr->spellId, _target))
+                            {
+                                if (bp0 && aura->GetEffect(0))
+                                    aura->GetEffect(0)->SetAmount(bp0);
+                                if (bp1 && aura->GetEffect(1))
+                                    aura->GetEffect(1)->SetAmount(bp1);
+                                if (bp2 && aura->GetEffect(2))
+                                    aura->GetEffect(2)->SetAmount(bp2);
+                            }
+                            break;
+                        case 3: //cast spell not triggered
+                            _caster->CastSpell(_target, itr->spellId, false);
+                            break;
+                        case 4: //learn spell
+                        {
+                            if (Player* _lplayer = _target->ToPlayer())
+                                _lplayer->learnSpell(itr->spellId, false);
+                            else
+                                learnSpell(itr->spellId);
+                            break;
+                        }
                     }
                 }
             }
@@ -1982,4 +1992,52 @@ void Pet::UnlearnSpecializationSpell()
 
         unlearnSpell(specializationEntry->LearnSpell);
     }
+}
+
+void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
+{
+    ObjectGuid guid = GetGUID();
+    time_t curTime = time(NULL);
+    uint32 count = 0;
+
+    //! 5.4.1
+    WorldPacket data(SMSG_SPELL_COOLDOWN, size_t(8+1+m_spells.size()*8));
+    data.WriteGuidMask<4, 7, 6>(guid);
+    size_t count_pos = data.bitwpos();
+    data.WriteBits(0, 21);
+    data.WriteGuidMask<2, 3, 1, 0>(guid);
+    data.WriteBit(1);
+    data.WriteGuidMask<5>(guid);
+    data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
+
+    for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+    {
+        if (itr->second.state == PETSPELL_REMOVED)
+            continue;
+        uint32 unSpellId = itr->first;
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(unSpellId);
+        if (!spellInfo)
+            continue;
+
+        // Not send cooldown for this spells
+        if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
+            continue;
+
+        if (spellInfo->PreventionType != SPELL_PREVENTION_TYPE_SILENCE)
+            continue;
+
+        if ((idSchoolMask & spellInfo->GetSchoolMask()) && _GetSpellCooldownDelay(unSpellId) < unTimeMs)
+        {
+            data << uint32(unTimeMs);                       // in m.secs
+            data << uint32(unSpellId);
+            _AddCreatureSpellCooldown(unSpellId, curTime + unTimeMs/IN_MILLISECONDS);
+            count++;
+        }
+    }
+
+    data.FlushBits();
+    data.PutBits(count_pos, count, 21);
+
+    if (count > 0 && GetOwner())
+        ((Player*)GetOwner())->GetSession()->SendPacket(&data);
 }

@@ -223,7 +223,6 @@ void GroupMgr::LoadGroups()
             DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(diff);
             if (!difficultyEntry || difficultyEntry->InstanceType != mapEntry->InstanceType)
                 continue;
-
             InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->MapID, fields[2].GetUInt32(), Difficulty(diff), fields[5].GetUInt64() != 0, true);
             group->BindToInstance(save, fields[3].GetBool(), true);
             ++count;

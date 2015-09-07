@@ -749,6 +749,8 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
                     if(ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(vendorItem->ExtendedCost))
                         price = uint32(iece->RequiredItemCount[0] * 10000 * sWorld->getRate(RATE_DONATE));
                 }
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "WorldSession::HandleStableChangeSlotCallback: slot %i new_slot %i pet_entry %u pet_number %u", slot, new_slot, pet_entry, pet_number);
+
             }
 
             item.MuID = slot + 1; // client expects counting to start at 1

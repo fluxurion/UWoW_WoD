@@ -473,11 +473,11 @@ struct CriteriaEntry
             // uint32  duelCount;                           // treeCount in CriteriaTree
         } win_duel;
 
-        // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_POWER          = 96
+        // ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL = 96
         struct
         {
-            uint32  powerType;                              // 2 mana=0, 1=rage, 3=energy, 6=runic power
-        } highest_power;
+            uint32  add_pet;
+        } battle_pet_journal;
 
         // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_STAT           = 97
         struct
@@ -517,6 +517,12 @@ struct CriteriaEntry
             uint32  unused;                                 // 2
             // uint32  killCount;                           // treeCount in CriteriaTree
         } honorable_kill;
+        
+        // ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP     = 160
+        struct
+        {
+            uint32  level_up;
+        } battlepet_level;
 
         struct
         {
@@ -1459,9 +1465,20 @@ typedef std::unordered_map<uint32, ItemSetSpells> ItemSetSpellsStore;
 
 struct ItemSpecEntry
 {
-    uint32      ID;                                         // 0        m_ID
-    uint32      m_itemID;                                   // 1,       m_itemID
-    uint32      m_specID;                                   // 2,       m_specID
+    uint32      ID;                                         // 0
+    uint32      MinLevel;                                   // 1
+    uint32      MaxLevel;                                   // 2
+    uint32      ItemType;                                   // 3
+    uint32      PrimaryStat;                                // 4
+    uint32      SecondaryStat;                              // 5
+    uint32      SpecID;                                     // 6
+};
+
+struct ItemSpecOverrideEntry
+{
+    uint32      ID;                                         // 0
+    uint32      ItemID;                                     // 1
+    uint32      SpecID;                                     // 2
 };
 
 
@@ -1478,7 +1495,7 @@ struct LFGDungeonEntry
     uint32  difficulty;                                     // 8
     uint32  flags;                                          // 9
     uint32  type;                                           // 10
-    int32 m_faction;                                        // 11
+    int32   faction;                                        // 11
     //char*   textureFileName;                              // 12 Name lite
     uint32  expansion;                                      // 13
     //uint32 orderIndex;                                    // 14
@@ -1507,21 +1524,13 @@ struct LFGDungeonEntry
     uint32 GetMaxGroupSize() const { return tankNeeded + healerNeeded + dpsNeeded; }
     bool IsValid() const
     {
-        switch (type)
-        {
-            case LFG_TYPE_DUNGEON:
-            case LFG_TYPE_RAID:
-            case LFG_TYPE_RANDOM:
-                break;
-            default:
-                return false;
-        }
-
         switch (ID)
         {
             case 540:           // Temple of Kotmogu
             case 541:           // Test Scenario PS
             case 645:           // Greenstone Village
+            case 697:           // Scenario: Prototype
+            case 699:
                 return false;
             default:
                 break;
@@ -1555,9 +1564,9 @@ struct LFGDungeonEntry
 
     bool FitsTeam(uint32 team) const
     {
-        if (m_faction == -1)
+        if (faction == -1)
             return true;
-        else if (m_faction == 0)
+        else if (faction == 0)
             return team == HORDE;
         else
             return team == ALLIANCE;
@@ -2210,7 +2219,7 @@ struct SpellScalingEntry
     //uint32    Id;                                         // 0        m_ID
     int32     CastTimeMin;                                  // 1
     int32     CastTimeMax;                                  // 2
-    int32     CastTimeMaxLevel;                             // 3
+    uint32    CastTimeMaxLevel;                             // 3
     int32     ScalingClass;                                 // 4        (index * 100) + charLevel - 1 => gtSpellScaling.dbc
     float     NerfFactor;                                   // 5
     uint32    NerfMaxLevel;                                 // 6
@@ -2347,6 +2356,27 @@ struct TransportRotationEntry
     float       W;                                          // 6
 };
 
+struct UnitPowerBarEntry
+{
+    uint32 ID;                     // 0
+    uint32 minPower;               // 1
+    uint32 maxPower;               // 2
+    uint32 startPower;             // 3
+    uint32 centerPower;            // 4
+    float regenerationPeace;       // 5
+    float regenerationCombat;      // 6
+    uint32 barType;                // 7
+    //uint32 fileDataID[6];        // 8-13
+    //uint32 color[6];             // 14-19
+    uint32 flags;                  // 20
+    //char* name;
+    //char* costString;
+    //char* errorString;
+    //char* tooltipString;
+    // float
+    // float
+};
+ 
 #define MAX_VEHICLE_SEATS 8
 
 struct VehicleEntry
@@ -2654,7 +2684,7 @@ typedef std::vector<DigSitePosition> DigSitePositionVector;
 
 struct ResearchSiteData
 {
-    ResearchSiteData() : zone(0), level(0xFF), branch_id(0) { }
+    ResearchSiteData() : zone(0), level(0xFF), branch_id(0), entry(NULL) { }
 
     ResearchSiteEntry const* entry;
     uint16 zone;

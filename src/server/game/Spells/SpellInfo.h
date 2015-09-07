@@ -102,6 +102,7 @@ enum SpellTargetObjectTypes
     TARGET_OBJECT_TYPE_DEST,
     TARGET_OBJECT_TYPE_UNIT,
     TARGET_OBJECT_TYPE_UNIT_AND_DEST,
+    TARGET_OBJECT_TYPE_OBJ_AND_DEST,
     TARGET_OBJECT_TYPE_GOBJ,
     TARGET_OBJECT_TYPE_GOBJ_ITEM,
     TARGET_OBJECT_TYPE_ITEM,
@@ -196,6 +197,8 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_IGNORE_ARMOR                  = 0x00008000,
     SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
+    SPELL_ATTR0_CU_NEGATIVE_EFF3                 = 0x00040000,
+    SPELL_ATTR0_CU_NEGATIVE_EFF4                 = 0x00080000,
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2,
 };
@@ -291,7 +294,7 @@ public:
     bool IsFarDestTargetEffect() const;
     bool IsUnitOwnedAuraEffect() const;
 
-    int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL, Item* m_castitem = NULL, float* variance = nullptr) const;
+    int32 CalcValue(Unit const* caster = NULL, int32 const* basePoints = NULL, Unit const* target = NULL, Item* m_castitem = NULL, bool lockBasePoints = false, float* variance = nullptr) const;
     int32 CalcBaseValue(int32 value) const;
     float CalcValueMultiplier(Unit* caster, Spell* spell = NULL) const;
     float CalcDamageMultiplier(Unit* caster, Spell* spell = NULL) const;
@@ -532,6 +535,7 @@ public:
     bool IsRangedWeaponSpell() const;
     bool IsRangedSpell() const;
     bool IsAutoRepeatRangedSpell() const;
+    bool IsNonNeedDelay() const;
 
     bool IsAffectedBySpellMods() const;
     bool IsAffectedBySpellMod(SpellModifier* mod) const;

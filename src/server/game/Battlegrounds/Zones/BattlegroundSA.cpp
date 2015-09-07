@@ -165,7 +165,7 @@ bool BattlegroundSA::ResetObjs()
 
     //Cannons and demolishers - NPCs are spawned
     //By capturing GYs.
-    for (uint8 i = 0; i < BG_SA_NPC_SPARKLIGHT; i++)
+    for (uint8 i = 0; i < BG_SA_DEMOLISHER_5; i++)
     {
         if (!AddCreature(BG_SA_NpcEntries[i], i, (Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE),
               BG_SA_NpcSpawnlocs[i][0], BG_SA_NpcSpawnlocs[i][1],
@@ -528,7 +528,7 @@ void BattlegroundSA::TeleportPlayers()
             }
 
             player->RemoveAurasWithMechanic(IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK);
-            player->ResetAllPowers();
+            player->ResetAllPowers(true);
             player->CombatStopWithPets(true);
 
             if (player->GetTeamId() == Attackers)
@@ -755,6 +755,16 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
             AddCreature(BG_SA_NpcEntries[npc], npc, Attackers,
               BG_SA_NpcSpawnlocs[npc][0], BG_SA_NpcSpawnlocs[npc][1],
               BG_SA_NpcSpawnlocs[npc][2], BG_SA_NpcSpawnlocs[npc][3]);
+              
+            for (uint8 j = BG_SA_DEMOLISHER_7; j <= BG_SA_DEMOLISHER_8; j++)
+            {
+                AddCreature(BG_SA_NpcEntries[j], j, (Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE),
+                    BG_SA_NpcSpawnlocs[j][0], BG_SA_NpcSpawnlocs[j][1],
+                    BG_SA_NpcSpawnlocs[j][2], BG_SA_NpcSpawnlocs[j][3], 600);
+                    
+                if (Creature* dem = GetBGCreature(j))
+                    dem->setFaction(BG_SA_Factions[Attackers]);
+            }
 
             UpdateWorldState(BG_SA_LEFT_GY_ALLIANCE, (GraveyardStatus[i] == TEAM_ALLIANCE? 1:0));
             UpdateWorldState(BG_SA_LEFT_GY_HORDE, (GraveyardStatus[i] == TEAM_ALLIANCE? 0:1));
@@ -884,7 +894,7 @@ void BattlegroundSA::EndBattleground(uint32 winner)
 
 void BattlegroundSA::UpdateDemolisherSpawns()
 {
-    for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4; i++)
+    for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_8; i++)
     {
         if (!BgCreatures[i].IsEmpty())
         {
@@ -893,21 +903,16 @@ void BattlegroundSA::UpdateDemolisherSpawns()
                 if (Demolisher->isDead())
                 {
                     // Demolisher is not in list
-                    if (DemoliserRespawnList.find(i)==DemoliserRespawnList.end())
+                    if (DemoliserRespawnList.find(i) == DemoliserRespawnList.end())
                     {
-                          DemoliserRespawnList[i]=getMSTime()+30000;
+                        DemoliserRespawnList[i] = getMSTime()+30000;
                     }
                     else
                     {
                         if (DemoliserRespawnList[i] < getMSTime())
                         {
-                            uint8 gy = (i >= BG_SA_DEMOLISHER_3 ? 3 : 2);
-                            if (GraveyardStatus[gy] == Attackers)
-                                Demolisher->Relocate(BG_SA_NpcSpawnlocs[i + 11][0], BG_SA_NpcSpawnlocs[i + 11][1],
-                                  BG_SA_NpcSpawnlocs[i + 11][2], BG_SA_NpcSpawnlocs[i + 11][3]);
-                            else
-                                Demolisher->Relocate(BG_SA_NpcSpawnlocs[i][0], BG_SA_NpcSpawnlocs[i][1],
-                                  BG_SA_NpcSpawnlocs[i][2], BG_SA_NpcSpawnlocs[i][3]);
+                            Demolisher->Relocate(BG_SA_NpcSpawnlocs[i][0], BG_SA_NpcSpawnlocs[i][1],
+                                BG_SA_NpcSpawnlocs[i][2], BG_SA_NpcSpawnlocs[i][3]);
 
                             Demolisher->Respawn();
                             DemoliserRespawnList.erase(i);

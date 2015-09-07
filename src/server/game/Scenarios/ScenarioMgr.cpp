@@ -24,7 +24,7 @@
 
 ScenarioProgress::ScenarioProgress(uint32 _instanceId, lfg::LFGDungeonData const* _dungeonData)
     : instanceId(_instanceId), dungeonData(_dungeonData),
-    m_achievementMgr(this), currentStep(0), currentTree(0)
+    m_achievementMgr(this), currentStep(0), currentTree(0), bonusRewarded(false), rewarded(false)
 {
     type = ScenarioMgr::GetScenarioType(GetScenarioId());
     ScenarioSteps const* _steps = sScenarioMgr->GetScenarioSteps(GetScenarioId());
@@ -34,29 +34,6 @@ ScenarioProgress::ScenarioProgress(uint32 _instanceId, lfg::LFGDungeonData const
     currentTree = GetScenarioCriteriaByStep(currentStep);
 }
 
-void ScenarioProgress::LoadFromDB()
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SCENARIO_CRITERIAPROGRESS);
-    stmt->setUInt32(0, instanceId);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    m_achievementMgr.LoadFromDB(NULL, result);
-    UpdateCurrentStep(true);
-
-    rewarded = IsCompleted(false);
-    bonusRewarded = IsCompleted(true);
-}
-
-void ScenarioProgress::SaveToDB(SQLTransaction& trans)
-{
-    m_achievementMgr.SaveToDB(trans);
-}
-
-void ScenarioProgress::DeleteFromDB()
-{
-    m_achievementMgr.DeleteFromDB(ObjectGuid::Create<HighGuid::Scenario>(0, instanceId, 1), 0);
-}
-
 Map* ScenarioProgress::GetMap()
 {
     return sMapMgr->FindMap(dungeonData->map, instanceId);
@@ -64,7 +41,13 @@ Map* ScenarioProgress::GetMap()
 
 uint32 ScenarioProgress::GetScenarioId() const
 {
-    return dungeonData->dbc->scenarioId;
+    uint32 ID = dungeonData->dbc->scenarioId;
+    //< YES - it's fucking evil shit.. but atm there's no way to get right scenarioID if we have multilple scenarios with same mapID:
+    //> add new table with conditions like: player should have quest -> get scenarioID to db
+    if (ID == 208 || ID == 207 || ID == 209 || ID == 207 || ID == 206 || ID == 205 || ID == 204 || ID == 212)
+        ID = 211;
+
+    return ID;
 }
 
 bool ScenarioProgress::IsCompleted(bool bonus) const
@@ -127,9 +110,6 @@ uint8 ScenarioProgress::UpdateCurrentStep(bool loading)
     if (currentStep != oldStep && !loading)
     {
         SendStepUpdate();
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        SaveToDB(trans);
-        CharacterDatabase.CommitTransaction(trans);
 
         if (IsCompleted(false))
             Reward(false);
@@ -231,9 +211,9 @@ void ScenarioProgress::Reward(bool bonus)
 
 void ScenarioProgress::SendStepUpdate(Player* player, bool full)
 {
-    WorldPacket data(SMSG_SCENARIO_PROGRESS_UPDATE, 3 + 7 * 4);
-    data.WriteBit(0);                                           // unk not used
-    data.WriteBit(IsCompleted(true));                           // bonus step completed
+    WorldPacket data(SMSG_SCENARIO_STATE, 3 + 7 * 4);
+    data.WriteBit(IsCompleted(true));                           // hasBonusStepComplete
+    data.WriteBit(HasBonusStep());                              // hasBonusStep
     uint32 bitpos = data.bitwpos();
     data.WriteBits(0, 19);                                      // criteria data
 
@@ -241,7 +221,7 @@ void ScenarioProgress::SendStepUpdate(Player* player, bool full)
     {
         ByteBuffer buff;
         uint32 count = 0;
-        if (CriteriaProgressMap const* progressMap = GetAchievementMgr().GetCriteriaProgressMap())
+        if (CriteriaProgressMap const* progressMap = GetAchievementMgr().GetCriteriaProgressMap(0))
         {
             for (CriteriaProgressMap::const_iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
             {
@@ -288,12 +268,12 @@ void ScenarioProgress::SendStepUpdate(Player* player, bool full)
         data.PutBits(bitpos, count, 19);
     }
 
-    data << uint32(0);                          // proving grounds max wave
-    data << uint32(0);                          // proving grounds diff id
+    data << uint32(0);                          // waveMax (only for ProvingGrounds)
+    data << uint32(0);                          // difficultyID (only for ProvingGrounds)
     data << uint32(GetScenarioId());
-    data << uint32(GetBonusStepCount());
-    data << uint32(0);                          // proving grounds curr wave
-    data << uint32(0);                          // proving grounds duration
+    data << uint32(IsCompleted(false));         // scenarioCompleted?
+    data << uint32(0);                          // waveCurrent (only for ProvingGrounds)
+    data << uint32(0);                          // timerDuration (only for ProvingGrounds)
     data << uint32(currentStep);
 
     if (player)
@@ -351,14 +331,14 @@ void ScenarioProgress::BroadCastPacket(WorldPacket& data)
 
 bool ScenarioProgress::CanUpdateCriteria(uint32 criteriaId, uint32 recursTree /*=0*/) const
 {
-    std::list<uint32> const* cTreeList = GetCriteriaTreeList(recursTree ? recursTree : currentTree);
-    for (std::list<uint32>::const_iterator itr = cTreeList->begin(); itr != cTreeList->end(); ++itr)
+    std::vector<CriteriaTreeEntry const*> const* cTreeList = GetCriteriaTreeList(recursTree ? recursTree : currentTree);
+    for (std::vector<CriteriaTreeEntry const*>::const_iterator itr = cTreeList->begin(); itr != cTreeList->end(); ++itr)
     {
-        if(CriteriaTreeEntry const* criteriaTree = sCriteriaTreeStore.LookupEntry(*itr))
+        if(CriteriaTreeEntry const* criteriaTree = *itr)
         {
             if(criteriaTree->criteria == 0)
             {
-                if(CanUpdateCriteria(criteriaId, *itr))
+                if(CanUpdateCriteria(criteriaId, criteriaTree->ID))
                     return true;
             }
             else if(criteriaTree->ID == criteriaId)
@@ -386,15 +366,13 @@ ScenarioProgress* ScenarioMgr::GetScenarioProgress(uint32 instanceId)
     return itr != m_scenarioProgressMap.end() ? itr->second : NULL;
 }
 
-void ScenarioMgr::AddScenarioProgress(uint32 instanceId, lfg::LFGDungeonData const* dungeonData, bool loading)
+void ScenarioMgr::AddScenarioProgress(uint32 instanceId, lfg::LFGDungeonData const* dungeonData, bool /*loading*/)
 {
     if (m_scenarioProgressMap.find(instanceId) != m_scenarioProgressMap.end())
         return;
 
     ScenarioProgress* progress = new ScenarioProgress(instanceId, dungeonData);
     m_scenarioProgressMap[instanceId] = progress;
-    if (loading)
-        progress->LoadFromDB();
 }
 
 void ScenarioMgr::RemoveScenarioProgress(uint32 instanceId)
@@ -403,25 +381,8 @@ void ScenarioMgr::RemoveScenarioProgress(uint32 instanceId)
     if (itr == m_scenarioProgressMap.end())
         return;
 
-    itr->second->DeleteFromDB();
     delete itr->second;
     m_scenarioProgressMap.erase(itr);
-}
-
-void ScenarioMgr::SaveToDB(SQLTransaction& trans)
-{
-    bool commit = false;
-    if (!trans)
-    {
-        trans = CharacterDatabase.BeginTransaction();
-        commit = true;
-    }
-
-    for (ScenarioProgressMap::iterator itr = m_scenarioProgressMap.begin(); itr != m_scenarioProgressMap.end(); ++itr)
-        itr->second->SaveToDB(trans);
-
-    if (commit)
-        CharacterDatabase.CommitTransaction(trans);
 }
 
 ScenarioType ScenarioMgr::GetScenarioType(uint32 scenarioId)
@@ -456,8 +417,6 @@ void ScenarioMgr::Update(uint32 diff)
         return;
 
     updateDiff -= 5 * MINUTE * IN_MILLISECONDS;
-
-    /*SaveToDB(SQLTransaction(NULL));*/
 }
 
 ScenarioSteps const* ScenarioMgr::GetScenarioSteps(uint32 scenarioId)
@@ -497,8 +456,8 @@ void WorldSession::HandleScenarioPOIQuery(WorldPacket& recvData)
         {
             buff << uint32(itr->Id);                // POI index
             buff << uint32(itr->MapId);             // mapid
-            buff << uint32(itr->Unk24);
-            buff << uint32(itr->Unk12);
+            buff << uint32(itr->WorldEffectID);
+            buff << uint32(itr->Floor);
             buff << uint32(itr->Unk16);
 
             data.WriteBits(itr->points.size(), 21); // POI points count
@@ -509,7 +468,7 @@ void WorldSession::HandleScenarioPOIQuery(WorldPacket& recvData)
             }
 
             buff << uint32(itr->WorldMapAreaId);
-            buff << uint32(itr->Unk28);
+            buff << uint32(itr->Unk28);             // PlayerConditionID?
             buff << uint32(itr->Unk20);
         }
 

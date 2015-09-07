@@ -847,6 +847,8 @@ bool Guild::MoveItemData::CloneItem(uint32 count)
         m_pPlayer->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, m_pItem);
         return false;
     }
+    if(m_pItem->GetEntry() == 38186)
+        sLog->outDebug(LOG_FILTER_EFIR, "BankMoveItemData - CloneItem of item %u; count = %u playerGUID %u, guild %u", m_pItem->GetEntry(), count, m_pGuild->GetId(), m_pItem->GetGUID());
     return true;
 }
 
@@ -907,6 +909,10 @@ void Guild::PlayerMoveItemData::RemoveItem(SQLTransaction& trans, MoveItemData* 
 Item* Guild::PlayerMoveItemData::StoreItem(SQLTransaction& trans, Item* pItem)
 {
     ASSERT(pItem);
+
+    if(pItem->GetEntry() == 38186)
+        sLog->outDebug(LOG_FILTER_EFIR, "PlayerMoveItemData::StoreItem - item %u; count = %u playerGUID %u, itemGUID %u", pItem->GetEntry(), pItem->GetCount(), m_pPlayer->GetGUID(), pItem->GetGUID());
+
     m_pPlayer->MoveItemToInventory(m_vec, pItem, true);
     m_pPlayer->SaveInventoryAndGoldToDB(trans);
     return pItem;
@@ -1038,6 +1044,9 @@ Item* Guild::BankMoveItemData::_StoreItem(SQLTransaction& trans, BankTab* pTab, 
         pItem = pItem->CloneItem(count);
     else
         pItem->SetCount(count);
+
+    if(pItem->GetEntry() == 38186)
+        sLog->outDebug(LOG_FILTER_EFIR, "BankMoveItemData - CloneItem %i of item %u; count = %u playerGUID %u, guild %u", clone, pItem->GetEntry(), count, m_pGuild->GetId(), pItem->GetGUID());
 
     if (pItem && pTab->SetItem(trans, slotId, pItem))
         return pItem;
@@ -1509,7 +1518,7 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
 
         HandleQuery(session);
 
-        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_EMBLEM, 1, 0, 0, player);
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_EMBLEM, 1, 0, 0, 0, player);
     }
 }
 
@@ -1626,7 +1635,7 @@ void Guild::HandleSpellEffectBuyBankTab(WorldSession* session, uint8 tabId)
     WorldPacket data(SMSG_GUILD_EVENT_TAB_ADDED, 0);
     BroadcastPacket(&data);
 
-    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS, tabId + 1, 0, 0, player);
+    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS, tabId + 1, 0, 0, 0, player);
 }
 
 void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
@@ -3086,6 +3095,9 @@ void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAm
         if (!pSrc->CloneItem(splitedAmount))
             return; // Item could not be cloned
 
+        if(pSrc->GetItem()->GetEntry() == 38186)
+            sLog->outDebug(LOG_FILTER_EFIR, "_MoveItems - CloneItem of item %u; splitedAmount = %u playerGUID %u, guild %u", pSrc->GetItem()->GetEntry(), splitedAmount, GetId(), pSrc->GetItem()->GetGUID());
+
         // 5.2. Move splited item to destination
         _DoItemsMove(pSrc, pDest, true, splitedAmount);
     }
@@ -3334,7 +3346,7 @@ void Guild::GiveXP(uint32 xp, Player* source)
         }
     
         GetNewsLog().AddNewEvent(GUILD_NEWS_LEVEL_UP, time(NULL), ObjectGuid::Empty, 0, _level);
-        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL, GetLevel(), 0, NULL, source);
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL, GetLevel(), 0, 0, NULL, source);
 
         ++oldLevel;
     }
@@ -3495,7 +3507,7 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
     data.Initialize(SMSG_GUILD_NEWS, 7 + 32);
     data << uint32(_newsLog.size()); // size, we are only sending 1 news here
 
-    for (GuildNewsLogMap::const_iterator it = _newsLog.begin(); it != _newsLog.end(); it++)
+    for (GuildNewsLogMap::const_iterator it = _newsLog.begin(); it != _newsLog.end(); ++it)
     {
         data << uint32(it->first);
         data << uint32(secsToTimeBitFields(it->second.Date));

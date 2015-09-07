@@ -354,8 +354,12 @@ class spell_pal_hand_of_protection : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* target = GetExplTargetUnit())
+                {
                     if (target->HasAura(SPELL_FORBEARANCE))
                         return SPELL_FAILED_TARGET_AURASTATE;
+                    if (!caster || (caster->HasUnitState(UNIT_STATE_CONTROLLED) && caster != target))
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
 
                 return SPELL_CAST_OK;
             }
@@ -1127,7 +1131,7 @@ class spell_pal_stay_of_execution : public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_stay_of_execution_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                DoEffectBeforeCalcAmount += AuraEffectCalcAmountFn(spell_pal_stay_of_execution_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 DoEffectChangeTickDamage += AuraEffectChangeTickDamageFn(spell_pal_stay_of_execution_AuraScript::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_pal_stay_of_execution_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
             }
@@ -1194,7 +1198,7 @@ class spell_pal_execution_sentence_damage : public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_execution_sentence_damage_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                DoEffectBeforeCalcAmount += AuraEffectCalcAmountFn(spell_pal_execution_sentence_damage_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 DoEffectChangeTickDamage += AuraEffectChangeTickDamageFn(spell_pal_execution_sentence_damage_AuraScript::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectRemove += AuraEffectRemoveFn(spell_pal_execution_sentence_damage_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
@@ -1323,7 +1327,7 @@ class spell_pal_divine_protection : public SpellScriptLoader
                         if(_heal)
                             caster->CastCustomSpell(caster, 144581, &_heal, NULL, NULL, true, NULL, aurEff);
                     }
-                    if(Aura* aura = caster->GetAura(138244))
+                    if (Aura* aura = caster->GetAura(144580))
                         aura->GetEffect(0)->SetAmount(0);
                 }
             }
@@ -1563,6 +1567,39 @@ class spell_pal_exorcism : public SpellScriptLoader
         }
 };
 
+// Shield of Glory - 138242
+class spell_pal_shield_of_glory : public SpellScriptLoader
+{
+    public:
+        spell_pal_shield_of_glory() : SpellScriptLoader("spell_pal_shield_of_glory") { }
+
+        class spell_pal_shield_of_glory_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_shield_of_glory_AuraScript);
+
+            void CalculateMaxDuration(int32& duration)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if(caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE))
+                        duration *= 3;
+                    else
+                        duration *= caster->GetPower(POWER_HOLY_POWER);
+                }
+            }
+
+            void Register()
+            {
+                DoCalcMaxDuration += AuraCalcMaxDurationFn(spell_pal_shield_of_glory_AuraScript::CalculateMaxDuration);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_shield_of_glory_AuraScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_glyph_of_avenging_wrath();
@@ -1600,4 +1637,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_glyph_of_double_jeopardy();
     new spell_pal_judgment();
     new spell_pal_exorcism();
+    new spell_pal_shield_of_glory();
 }

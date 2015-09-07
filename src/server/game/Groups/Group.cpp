@@ -341,7 +341,8 @@ void Group::RemoveInvite(Player* player)
 {
     if (player)
     {
-        m_invitees.erase(player);
+        if(!m_invitees.empty())
+            m_invitees.erase(player);
         player->SetGroupInvite(NULL);
     }
 }
@@ -373,6 +374,37 @@ Player* Group::GetInvited(const std::string& name) const
             return (*itr);
     }
     return NULL;
+}
+
+bool Group::AddCreatureMember(Creature* creature)
+{
+    uint8 subGroup = 0;
+    if (m_subGroupsCounts)
+    {
+        bool groupFound = false;
+        for (; subGroup < MAX_RAID_SUBGROUPS; ++subGroup)
+        {
+            if (m_subGroupsCounts[subGroup] < MAXGROUPSIZE)
+            {
+                groupFound = true;
+                break;
+            }
+        }
+        if (!groupFound)
+            return false;
+    }
+
+    MemberSlot member;
+    member.guid      = creature->GetGUID();
+    member.name      = creature->GetName();
+    member.group     = subGroup;
+    member.flags     = 0;
+    member.roles     = 0;
+    m_memberSlots.push_back(member);
+
+    SubGroupCounterIncrease(subGroup);
+    SendUpdate();
+    return true;
 }
 
 bool Group::AddMember(Player* player)
@@ -446,10 +478,11 @@ bool Group::AddMember(Player* player)
     }
 
     SendUpdate();
-    sScriptMgr->OnGroupAddMember(this, player->GetGUID());
 
     if (player)
     {
+        sScriptMgr->OnGroupAddMember(this, player->GetGUID());
+
         if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
         {
             // reset the new member's instances, unless he is currently in one of them
@@ -537,7 +570,26 @@ bool Group::AddMember(Player* player)
     return true;
 }
 
-bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod &method /*= GROUP_REMOVEMETHOD_DEFAULT*/, ObjectGuid kicker /*= 0*/, const char* reason /*= NULL*/)
+bool Group::RemoveCreatureMember(ObjectGuid const& guid)
+{
+    if (!guid)
+        return false;
+
+    BroadcastGroupUpdate();
+
+    member_witerator slot = _getMemberWSlot(guid);
+    if (slot != m_memberSlots.end())
+    {
+        SubGroupCounterDecrease(slot->group);
+        m_memberSlots.erase(slot);
+    }
+
+    SendUpdate();
+
+    return true;
+}
+
+bool Group::RemoveMember(ObjectGuid const& guid, const RemoveMethod &method /*= GROUP_REMOVEMETHOD_DEFAULT*/, ObjectGuid kicker /*= 0*/, const char* reason /*= NULL*/)
 {
     BroadcastGroupUpdate();
 
@@ -665,7 +717,7 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod &method /*= GROUP_R
     }
 }
 
-void Group::ChangeLeader(ObjectGuid guid)
+void Group::ChangeLeader(ObjectGuid const& guid)
 {
     member_witerator slot = _getMemberWSlot(guid);
 
@@ -1849,14 +1901,14 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
 
     if (m_groupType & GROUPTYPE_LFG)
     {
-        lfg::LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(sLFGMgr->GetDungeon(m_guid, true));
+        lfg::LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(sLFGMgr->GetDungeon(m_guid, true), player->GetTeam());
         lfg::LFGDungeonData const* rDungeon = NULL;
         if (dungeon)
         {
             lfg::LfgDungeonSet const& dungeons = sLFGMgr->GetSelectedDungeons(m_guid);
             if (!dungeons.empty())
             {
-                 rDungeon = sLFGMgr->GetLFGDungeon(*dungeons.begin());
+                 rDungeon = sLFGMgr->GetLFGDungeon(*dungeons.begin(), player->GetTeam());
                  if (rDungeon && rDungeon->type != LFG_TYPE_RANDOM)
                      rDungeon = NULL;
             }
@@ -2213,6 +2265,9 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // offline member? don't let join
         if (!member)
             return ERR_BATTLEGROUND_JOIN_FAILED;
+
+        if (member->HasAura(125761) && isRated)
+            return ERR_BATTLEGROUND_JOIN_FAILED;
         // don't allow cross-faction join as group
         if (member->GetTeam() != team)
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
@@ -2567,7 +2622,7 @@ void Group::SetLootMethod(LootMethod method)
     m_lootMethod = method;
 }
 
-void Group::SetLooterGuid(ObjectGuid guid)
+void Group::SetLooterGuid(ObjectGuid const& guid)
 {
     m_looterGuid = guid;
 }

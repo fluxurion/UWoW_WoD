@@ -121,7 +121,15 @@ void WorldSession::HandlePetAction(WorldPacket & recvData)
         std::vector<Unit*> controlled;
         for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
             if ((*itr)->GetEntry() == pet->GetEntry() && (*itr)->isAlive())
-                controlled.push_back(*itr);
+            {
+                if((*itr)->ToCreature())
+                {
+                    if(!(*itr)->ToCreature()->m_Stampeded && (*itr)->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
+                        controlled.push_back(*itr);
+                }
+                else
+                    controlled.push_back(*itr);
+            }
         for (std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
             HandlePetActionHelper(*itr, guid1, spellid, flag, guid2, x, y, z);
     }
@@ -716,8 +724,7 @@ void WorldSession::HandleStableChangeSlotCallback(PreparedQueryResult result, ui
     if (new_slot != 100)
     {
         // We need to remove and add the new pet to there diffrent slots
-        GetPlayer()->cleanPetSlotForMove((PetSlot)slot, pet_number);
-        GetPlayer()->setPetSlotWithStableMoveOrRealDelete((PetSlot)new_slot, pet_number, isHunter);
+        GetPlayer()->SwapPetSlot(slot, (PetSlot)new_slot);
         timeAddIgnoreOpcode = 0;
     }
 

@@ -316,7 +316,11 @@ class boss_valithria_dreamwalker : public CreatureScript
 
             void JustSummoned(Creature* summon)
             {
-                if (summon && !summon->HasAura(SPELL_DREAM_PORTAL_VISUAL_PRE))
+                summons.Summon(summon);
+                if (!summon)
+                    return;
+
+                if (!summon->HasAura(SPELL_DREAM_PORTAL_VISUAL_PRE))
                     summon->AI()->AttackStart(me);
 
                 if (summon->GetEntry() == NPC_DREAM_PORTAL_PRE_EFFECT)
@@ -329,8 +333,6 @@ class boss_valithria_dreamwalker : public CreatureScript
                     summon->m_Events.AddEvent(new DelayedCastEvent(summon, SPELL_SUMMON_NIGHTMARE_PORTAL, me->GetGUID(), 6000), summon->m_Events.CalculateTime(15000));
                     summon->m_Events.AddEvent(new AuraRemoveEvent(summon, SPELL_NIGHTMARE_PORTAL_VISUAL_PRE), summon->m_Events.CalculateTime(15000));
                 }
-
-                summons.Summon(summon);
             }
 
             void SummonedCreatureDespawn(Creature* summon)
@@ -515,7 +517,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                         Talk(SAY_VALITHRIA_SUCCESS);
 
                         if (_openPortals == _missedPortals)
-                            instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEVEMENT_CHECK, 0, me);
+                            instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEVEMENT_CHECK, 0, 0, me);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                         me->SetReactState(REACT_PASSIVE);
                         me->RemoveAurasDueToSpell(SPELL_CORRUPTION);

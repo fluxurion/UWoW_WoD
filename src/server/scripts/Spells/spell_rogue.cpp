@@ -184,7 +184,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
                     damage = int32((damage * percent) / 100);
 
                     if (Unit* target = _player->SelectNearbyTarget(eventInfo.GetActionTarget()))
-                        _player->CastCustomSpell(target, ROGUE_SPELL_BLADE_FLURRY_DAMAGE, &damage, NULL, NULL, true);
+                        _player->CastCustomSpell(target, ROGUE_SPELL_BLADE_FLURRY_DAMAGE, &damage, NULL, NULL, false);
                 }
             }
 
@@ -414,16 +414,16 @@ class spell_rog_nightstalker : public SpellScriptLoader
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
             {
-                if (GetCaster())
+                if (Unit* caster = GetCaster())
                 {
-                    if (GetCaster()->HasAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE))
-                        GetCaster()->RemoveAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE);
+                    if (Aura* aura = caster->GetAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE))
+                        aura->SetAuraTimer(200);
                 }
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_rog_nightstalker_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_nightstalker_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

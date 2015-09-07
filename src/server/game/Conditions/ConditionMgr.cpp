@@ -83,7 +83,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_ACHIEVEMENT:
         {
             if (Player* player = object->ToPlayer())
-                condMeets = player->GetAchievementMgr().HasAchieved(ConditionValue1);
+                condMeets = player->HasAchieved(ConditionValue1);
             break;
         }
         case CONDITION_TEAM:
@@ -120,8 +120,19 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         {
             if (Player* player = object->ToPlayer())
             {
-                QuestStatus status = player->GetQuestStatus(ConditionValue1);
-                condMeets = (status == QUEST_STATUS_REWARDED);
+                if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(ConditionValue1))
+                {
+                    if (!qInfo->IsRepeatable())
+                    {
+                        QuestStatus status = player->GetQuestStatus(ConditionValue1);
+                        condMeets = (status == QUEST_STATUS_REWARDED);
+                    }
+                    else
+                    {
+                        QuestStatus statusDaily = player->GetDailyQuestStatus(ConditionValue1);
+                        condMeets = (statusDaily == QUEST_STATUS_REWARDED);
+                    }
+                }
             }
             break;
         }
@@ -286,13 +297,13 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                             condMeets = unit->IsInRaidWith(toUnit);
                             break;
                         case RELATION_OWNED_BY:
-                            condMeets = unit->GetOwnerGUID() == toUnit->GetGUID();
+                            condMeets = unit->GetSummonedByGUID() == toUnit->GetGUID();
                             break;
                         case RELATION_PASSENGER_OF:
                             condMeets = unit->IsOnVehicle(toUnit);
                             break;
                         case RELATION_CREATED_BY:
-                            condMeets = unit->GetCreatorGUID() == toUnit->GetGUID();
+                            condMeets = unit->GetOwnerGUID() == toUnit->GetGUID();
                             break;
                     }
                 }
@@ -1488,6 +1499,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                     case TARGET_SELECT_CATEGORY_NEARBY:
                     case TARGET_SELECT_CATEGORY_CONE:
                     case TARGET_SELECT_CATEGORY_AREA:
+                    case TARGET_SELECT_CATEGORY_DEFAULT:
                         continue;
                     default:
                         break;
@@ -1498,6 +1510,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                     case TARGET_SELECT_CATEGORY_NEARBY:
                     case TARGET_SELECT_CATEGORY_CONE:
                     case TARGET_SELECT_CATEGORY_AREA:
+                    case TARGET_SELECT_CATEGORY_DEFAULT:
                         continue;
                     default:
                         break;

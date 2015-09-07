@@ -210,10 +210,12 @@ class Group
         void   RemoveAllInvites();
         bool   AddLeaderInvite(Player* player);
         bool   AddMember(Player* player);
-        bool   RemoveMember(ObjectGuid guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = NULL);
-        void   ChangeLeader(ObjectGuid guid);
+        bool   RemoveMember(ObjectGuid const& guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = NULL);
+        bool   AddCreatureMember(Creature* creature);
+        void   ChangeLeader(ObjectGuid const& guid);
+        bool   RemoveCreatureMember(ObjectGuid const& guid);
         void   SetLootMethod(LootMethod method);
-        void   SetLooterGuid(ObjectGuid guid);
+        void   SetLooterGuid(ObjectGuid const& guid);
         void   UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed = false);
         void   SetLootThreshold(ItemQualities threshold);
         void   Disband(bool hideDestroy=false);

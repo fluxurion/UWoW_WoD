@@ -260,7 +260,8 @@ class boss_lorewalker_stonestep : public CreatureScript
                                 if (!temp)
                                     break;
                                 temp->setFaction(14);
-                                temp->Attack(SelectTarget(SELECT_TARGET_RANDOM), true);
+                                if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                    temp->Attack(target, true);
                                 temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 temp->SetFacingTo(1.239f);
                                 sCreatureTextMgr->SendChat(temp, 0, ObjectGuid::Empty);
@@ -324,8 +325,7 @@ class mob_sun : public CreatureScript
                     switch (eventId)
                     {
                     case 1:
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM);
-                        if (target != NULL)
+                        if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             me->CastSpell(target, SPELL_SUNFIRE_RAYS, true);
                         events.ScheduleEvent(1, 5000);
                         break;
@@ -418,8 +418,7 @@ class mob_zao : public CreatureScript
                     case EVENT_ZAO_ATTACK:
                         if (isCorrupted)
                         {
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM);
-                            if (target != NULL)
+                            if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 me->CastSpell(target, SPELL_HELLFIRE_ARROW, true);
                             events.ScheduleEvent(EVENT_ZAO_ATTACK, 3000);
                         }
@@ -495,22 +494,8 @@ class mob_haunting_sha : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!me->getVictim())
-                {
-                    Map::PlayerList const& PlayerList = me->GetInstanceScript()->instance->GetPlayers();
-
-                    if (!PlayerList.isEmpty())
-                    {
-                        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                        {
-                            Player* plr = i->getSource();
-                            if( !plr)
-                                continue;
-                            me->getThreatManager().addThreat(plr, 1.0f);
-                        }
-                    }
-                    me->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
-                }
+                if (!UpdateVictim())
+                    return;
 
                 events.Update(diff);
 
@@ -519,14 +504,12 @@ class mob_haunting_sha : public CreatureScript
                     switch (eventId)
                     {
                     case 1:
-                        if (!me->getVictim())
-                            return;
-                        me->CastSpell(me->getVictim(), 114646, false);
+                        if (me->getVictim())
+                            DoCastVictim(114646, false);
                         events.ScheduleEvent(1, 2000);
                         break;
                     }
                 }
-
                 DoMeleeAttackIfReady();
             }
         };

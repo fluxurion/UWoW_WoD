@@ -402,7 +402,8 @@ LootItem::LootItem(LootStoreItem const& li, Loot* loot)
             count = uint32(count * mult + 0.5f);
         }
         randomSuffix = proto && proto->RandomSuffix ? GenerateEnchSuffixFactor(proto) : 0;
-        randomPropertyId = Item::GenerateItemRandomPropertyId(itemid);
+        if (loot)
+            randomPropertyId = Item::GenerateItemRandomPropertyId(itemid, loot->personal ? loot->GetLootOwner()->GetLootSpecID() : 0);
         quality = proto ? ItemQualities(proto->Quality) : ITEM_QUALITY_POOR;
     }
 }
@@ -481,9 +482,17 @@ Loot::Loot(uint32 _gold)
     itemLevel = 0;
     objGuid.Clear();
     objEntry = 0;
+    chance = 10; //Default chance for bonus roll
     personal = false;
     isBoss = false;
     bonusLoot = false;
+    isClear = true;
+    m_guid = 0;
+}
+
+void Loot::GenerateLootGuid()
+{
+    m_guid = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_LOOT), 0, HIGHGUID_LOOT);
 }
 
 // Inserts the item into the loot (called by LootTemplate processors)
@@ -588,7 +597,9 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
                         if (!lootOwner->HasActiveSpell(*spellId))
                             lootOwner->learnSpell(*spellId, false);
     }
-    sLootMgr->AddLoot(this);
+    if(!personal)
+        sLootMgr->AddLoot(this);
+    isClear = false;
 
     return true;
 }
@@ -636,30 +647,53 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
 
 void Loot::clear()
 {
-    for (QuestItemMap::const_iterator itr = PlayerCurrencies.begin(); itr != PlayerCurrencies.end(); ++itr)
-        delete itr->second;
-    PlayerCurrencies.clear();
+    //If loot not generate or already clear
+    if(isClear)
+        return;
 
-    for (QuestItemMap::const_iterator itr = PlayerQuestItems.begin(); itr != PlayerQuestItems.end(); ++itr)
-        delete itr->second;
-    PlayerQuestItems.clear();
+    if(!PlayerCurrencies.empty())
+    {
+        for (QuestItemMap::const_iterator itr = PlayerCurrencies.begin(); itr != PlayerCurrencies.end(); ++itr)
+            delete itr->second;
+        PlayerCurrencies.clear();
+    }
 
-    for (QuestItemMap::const_iterator itr = PlayerFFAItems.begin(); itr != PlayerFFAItems.end(); ++itr)
-        delete itr->second;
-    PlayerFFAItems.clear();
+    if(!PlayerQuestItems.empty())
+    {
+        for (QuestItemMap::const_iterator itr = PlayerQuestItems.begin(); itr != PlayerQuestItems.end(); ++itr)
+            delete itr->second;
+        PlayerQuestItems.clear();
+    }
 
-    for (QuestItemMap::const_iterator itr = PlayerNonQuestNonFFANonCurrencyConditionalItems.begin(); itr != PlayerNonQuestNonFFANonCurrencyConditionalItems.end(); ++itr)
-        delete itr->second;
-    PlayerNonQuestNonFFANonCurrencyConditionalItems.clear();
+    if(!PlayerFFAItems.empty())
+    {
+        for (QuestItemMap::const_iterator itr = PlayerFFAItems.begin(); itr != PlayerFFAItems.end(); ++itr)
+            delete itr->second;
+        PlayerFFAItems.clear();
+    }
+
+    if(!PlayerNonQuestNonFFANonCurrencyConditionalItems.empty())
+    {
+        for (QuestItemMap::const_iterator itr = PlayerNonQuestNonFFANonCurrencyConditionalItems.begin(); itr != PlayerNonQuestNonFFANonCurrencyConditionalItems.end(); ++itr)
+            delete itr->second;
+        PlayerNonQuestNonFFANonCurrencyConditionalItems.clear();
+    }
 
     PlayersLooting.clear();
     items.clear();
     quest_items.clear();
     gold = 0;
     unlootedCount = 0;
-    roundRobinPlayer.Clear();
+    roundRobinPlayer = 0;
+    objType = 0;
     i_LootValidatorRefManager.clearReferences();
-    sLootMgr->RemoveLoot(GetGUID());
+    if(m_guid && !personal)
+        sLootMgr->RemoveLoot(GetGUIDLow());
+    chance = 20;
+    personal = false;
+    isBoss = false;
+    bonusLoot = false;
+    isClear = true;
 }
 
 QuestItemList* Loot::FillCurrencyLoot(Player* player)
@@ -878,6 +912,8 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem* *qite
     else
     {
         item = &items[lootSlot];
+        if (!item)
+            return NULL;
         is_looted = item->is_looted;
         if (item->currency)
         {
@@ -1816,14 +1852,12 @@ void LootTemplate::Process(Loot& loot, bool rate, uint8 groupId) const
 // Rolls for every item in the template and adds the rolled items the the loot
 void LootTemplate::ProcessPersonal(Loot& loot) const
 {
-    InstanceTemplate const* mInstance = sObjectMgr->GetInstanceTemplate(loot.GetLootOwner()->GetMapId());
-    uint32 uchance = mInstance ? mInstance->bonusChance : 25;//Base chance
-    bool chance = roll_chance_i(uchance);
+    bool chance = roll_chance_i(loot.chance);
     bool canGetInstItem = (chance && loot.isBoss) ? true : false; //Can get item or get gold
 
-    uint16 diffMask = (1 << (CreatureTemplate::GetDiffFromSpawn(loot.spawnMode)));
+    uint16 diffMask = (1 << (sObjectMgr->GetDiffFromSpawn(loot.spawnMode)));
 
-    //sLog->outDebug(LOG_FILTER_LOOT, "LootTemplate::ProcessPersonal isBoss %i canGetInstItem %i diffMask %i chance %i uchance %u", loot.isBoss, canGetInstItem, diffMask, chance, uchance);
+    //sLog->outDebug(LOG_FILTER_LOOT, "LootTemplate::ProcessPersonal isBoss %i canGetInstItem %i diffMask %i chance %i loot.chance %u bonusLoot %i", loot.isBoss, canGetInstItem, diffMask, chance, loot.chance, loot.bonusLoot);
 
     // Now processing groups
     if(canGetInstItem)
@@ -1869,9 +1903,9 @@ void LootTemplate::ProcessPersonal(Loot& loot) const
                     if (_item->itemid == i->itemid)                               // search through the items that have already dropped
                     {
                         ++_item_counter;
-                        if (_proto->GetInventoryType() == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
+                        if (_proto->InventoryType == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
                             continue;
-                        else if (_proto->GetInventoryType() != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
+                        else if (_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
                             continue;
                     }
                 if (_item != loot.items.end())
@@ -1886,6 +1920,8 @@ void LootTemplate::ProcessPersonal(Loot& loot) const
 
         //sLog->outDebug(LOG_FILTER_LOOT, "LootTemplate::ProcessPersonal AddItem itemid %i", i->itemid);
     }
+}
+
 }
 
 // True if template includes at least 1 quest drop entry

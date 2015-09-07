@@ -98,6 +98,7 @@ enum SpellLinkedType
     SPELL_LINK_AURA         = 2 * 200000,   // +: aura; -: immune
     SPELL_LINK_BEFORE_HIT   = 3 * 200000,
     SPELL_LINK_AURA_HIT     = 4 * 200000,
+    SPELL_LINK_BEFORE_CAST  = 5 * 200000,
     SPELL_LINK_REMOVE       = 0,
 };
 
@@ -123,7 +124,7 @@ enum SpellTriggeredType
     SPELL_TRIGGER_ADD_STACK                     = 17,           // add spell stack
     SPELL_TRIGGER_ADD_CHARGES                   = 18,           // add spell charges
     SPELL_TRIGGER_ADD_CHARGES_STACK             = 19,           // add spell charges and stack
-    SPELL_TRIGGER_CAST_SPELL                    = 20,           // cast spell without option
+    SPELL_TRIGGER_CAST_OR_REMOVE                = 20,           // cast spell without option
     SPELL_TRIGGER_UPDATE_DUR_TO_IGNORE_MAX      = 21,           // Update duration for select spell to ignore max duration
     SPELL_TRIGGER_ADD_DURATION                  = 22,           // Add duration for select spell
     SPELL_TRIGGER_MODIFY_COOLDOWN               = 23,           // Modify cooldown for trigger spell
@@ -140,6 +141,8 @@ enum SpellTriggeredType
     SPELL_TRIGGER_ADD_BLOCK_PCT                 = 34,           // set basepoint from block percent
     SPELL_TRIGGER_NEED_COMBOPOINTS              = 35,           // Proc from spell that need compopoiunts
     SPELL_TRIGGER_HOLYPOWER_BONUS               = 36,           // Holypower bonus
+    SPELL_TRIGGER_CAST_AFTER_MAX_STACK          = 37,           // Cast after max stack
+    SPELL_TRIGGER_DAM_MAXHEALTH                 = 38,           // set basepoint to spell damage or max heal percent
 };
 
 enum SpellAuraDummyType
@@ -272,7 +275,9 @@ enum ProcFlags
 
     REQ_SPELL_PHASE_PROC_FLAG_MASK             = SPELL_PROC_FLAG_MASK & DONE_HIT_PROC_FLAG_MASK,
 
-    SPELL_PROC_FROM_CAST_MASK                  = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS,
+    SPELL_PROC_FROM_CAST_MASK                  = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS 
+                                                 | PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS
+                                                 | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS | PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG,
 };
 
 #define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_DONE_MELEE_AUTO_ATTACK      | \
@@ -377,7 +382,7 @@ struct SpellProcEventEntry
     uint32      effectMask;                                 // Effect Mask for aply to effect
 };
 
-typedef std::map<int32, std::vector<SpellProcEventEntry> > SpellProcEventMap;
+typedef std::unordered_map<int32, std::vector<SpellProcEventEntry> > SpellProcEventMap;
 
 struct SpellProcEntry
 {
@@ -396,7 +401,7 @@ struct SpellProcEntry
     uint32      modcharges;                                 // if nonzero - procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
 };
 
-typedef UNORDERED_MAP<uint32, SpellProcEntry> SpellProcMap;
+typedef std::unordered_map<uint32, SpellProcEntry> SpellProcMap;
 
 struct SpellEnchantProcEntry
 {
@@ -405,7 +410,7 @@ struct SpellEnchantProcEntry
     uint32      procEx;
 };
 
-typedef UNORDERED_MAP<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
+typedef std::unordered_map<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
 
 struct SpellBonusEntry
 {
@@ -417,7 +422,7 @@ struct SpellBonusEntry
     float  heal_bonus;
 };
 
-typedef UNORDERED_MAP<uint32, SpellBonusEntry>     SpellBonusMap;
+typedef std::unordered_map<uint32, SpellBonusEntry>     SpellBonusMap;
 
 enum SpellGroup
 {
@@ -457,7 +462,7 @@ struct SpellThreatEntry
     float       apPctMod;                                   // Pct of AP that is added as Threat - default: 0.0f
 };
 
-typedef std::map<uint32, SpellThreatEntry> SpellThreatMap;
+typedef std::unordered_map<uint32, SpellThreatEntry> SpellThreatMap;
 
 // coordinates for spells (accessed using SpellMgr functions)
 struct SpellTargetPosition
@@ -531,7 +536,7 @@ enum EffectRadiusIndex
     EFFECT_RADIUS_80_YARDS_2    = 65
 };
 
-typedef UNORDERED_MAP<uint32, SpellTargetPosition> SpellTargetPositionMap;
+typedef std::unordered_map<uint32, SpellTargetPosition> SpellTargetPositionMap;
 
 // Spell pet auras
 struct PetAura
@@ -550,7 +555,7 @@ struct PetAura
     int32 fromspell;
 };
 
-typedef UNORDERED_MAP<int32, std::vector<PetAura> > SpellPetAuraMap;
+typedef std::unordered_map<int32, std::vector<PetAura> > SpellPetAuraMap;
 
 struct SpellArea
 {
@@ -588,7 +593,7 @@ struct SpellChainNode
     uint8  rank;
 };
 
-typedef UNORDERED_MAP<uint32, SpellChainNode> SpellChainMap;
+typedef std::unordered_map<uint32, SpellChainNode> SpellChainMap;
 
 //                   spell_id  req_spell
 typedef std::multimap<uint32, uint32> SpellRequiredMap;
@@ -607,7 +612,7 @@ struct SpellLearnSkillNode
     uint16 maxvalue;                                        // 0  - max skill value for player level
 };
 
-typedef std::map<uint32, SpellLearnSkillNode> SpellLearnSkillMap;
+typedef std::unordered_map<uint32, SpellLearnSkillNode> SpellLearnSkillMap;
 
 struct SpellLearnSpellNode
 {
@@ -624,9 +629,9 @@ typedef std::multimap<uint32, SkillLineAbilityEntry const*> SkillLineAbilityMap;
 typedef std::pair<SkillLineAbilityMap::const_iterator, SkillLineAbilityMap::const_iterator> SkillLineAbilityMapBounds;
 
 typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
-typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
+typedef std::unordered_map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
-typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
+typedef std::unordered_map<uint32, uint32> SpellDifficultySearcherMap;
 
 struct PetDefaultSpellsEntry
 {
@@ -634,7 +639,7 @@ struct PetDefaultSpellsEntry
 };
 
 // < 0 for petspelldata id, > 0 for creature_id
-typedef std::map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
+typedef std::unordered_map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
 
 typedef std::vector<uint32> SpellCustomAttribute;
 typedef std::vector<bool> EnchantCustomAttribute;
@@ -683,6 +688,7 @@ struct SpellPrcoCheck
     int32 spelltypeMask;
     int32 combopoints;
     int32 deathstateMask;
+    int32 hasDuration;
 };
 
 struct SpellTriggered
@@ -706,6 +712,8 @@ struct SpellTriggered
     int32 check_spell_id;
     int32 addptype;
     int32 schoolMask;
+    int32 dummyId;
+    int32 dummyEffect;
 };
 
 struct SpellMountList
@@ -716,6 +724,12 @@ struct SpellMountList
     int32 sideS;
 };
 
+enum SpellVisualType
+{
+    SPELL_VISUAL_TYPE_ON_CAST = 0,
+    SPELL_VISUAL_TYPE_CUSTOM  = 1,
+};
+
 struct SpellVisual
 {
     int32 spell_id;
@@ -724,6 +738,7 @@ struct SpellVisual
     int16 unk2;
     float speed;
     bool position;
+    int16 type;
 };
 
 struct SpellPendingCast
@@ -790,16 +805,16 @@ struct SpellScene
     uint32 scriptID;
 };
 
-typedef std::map<int32, std::vector<SpellTriggered> > SpellTriggeredMap;
-typedef std::map<int32, std::vector<SpellTriggered> > SpellTriggeredDummyMap;
-typedef std::map<int32, std::vector<SpellAuraDummy> > SpellAuraDummyMap;
-typedef std::map<int32, std::vector<SpellTargetFilter> > SpellTargetFilterMap;
-typedef std::map<int32, std::vector<SpellLinked> > SpellLinkedMap;
-typedef std::map<int32, std::vector<SpellTalentLinked> > SpellTalentLinkedMap;
-typedef std::map<int32, std::vector<SpellPrcoCheck> > SpellPrcoCheckMap;
-typedef std::map<int32, std::vector<SpellVisual> > SpellVisualMap;
-typedef std::map<int32, std::vector<SpellPendingCast> > SpellPendingCastMap;
-typedef std::map<int32, SpellMountList* > SpellMountListMap;
+typedef std::unordered_map<int32, std::vector<SpellTriggered> > SpellTriggeredMap;
+typedef std::unordered_map<int32, std::vector<SpellTriggered> > SpellTriggeredDummyMap;
+typedef std::unordered_map<int32, std::vector<SpellAuraDummy> > SpellAuraDummyMap;
+typedef std::unordered_map<int32, std::vector<SpellTargetFilter> > SpellTargetFilterMap;
+typedef std::unordered_map<int32, std::vector<SpellLinked> > SpellLinkedMap;
+typedef std::unordered_map<int32, std::vector<SpellTalentLinked> > SpellTalentLinkedMap;
+typedef std::unordered_map<int32, std::vector<SpellPrcoCheck> > SpellPrcoCheckMap;
+typedef std::unordered_map<int32, std::vector<SpellVisual> > SpellVisualMap;
+typedef std::unordered_map<int32, std::vector<SpellPendingCast> > SpellPendingCastMap;
+typedef std::unordered_map<int32, SpellMountList* > SpellMountListMap;
 typedef std::map<int32, SpellScene > SpellSceneMap;
 
 bool IsPrimaryProfessionSkill(uint32 skill);
@@ -828,7 +843,7 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 bool IsCCSpell(SpellInfo const *spellInfo, uint8 EffMask= 0, bool nodamage = false);
 
 typedef std::vector<std::set<uint32> > SpellClassList;
-typedef std::map<uint32, std::list<uint32> > SpellOverrideInfo;
+typedef std::unordered_map<uint32, std::list<uint32> > SpellOverrideInfo;
 typedef std::set<uint32> TalentSpellSet;
 typedef std::vector<std::list<uint32> > SpellPowerVector;
 

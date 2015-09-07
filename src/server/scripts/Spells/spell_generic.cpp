@@ -34,6 +34,52 @@
 #include "Group.h"
 #include "LFGMgr.h"
 
+// Position const sumprpos[4] =
+// {
+//     {-13209.37f, 284.98f, 21.85f},
+//     {-13213.52f, 278.17f, 21.85f},
+//     {-13214.94f, 283.93f, 21.85f},
+//     {-13207.78f, 278.98f, 21.85f},
+// };
+// 
+// class spell_gen_protect : public SpellScriptLoader
+// {
+// public:
+//     spell_gen_protect() : SpellScriptLoader("spell_gen_protect") { }
+// 
+//     class spell_gen_protect_SpellScript : public SpellScript
+//     {
+//         PrepareSpellScript(spell_gen_protect_SpellScript);
+// 
+//         void HandleAfterHit()
+//         {
+//             if (Unit* caster = GetCaster())
+//                 if (Player* plr = caster->ToPlayer())
+//                 {
+//                     for (uint8 n = 0; n < 4; n++)
+//                     {
+//                         if (Creature* pr = plr->SummonCreature(48416, sumprpos[n]))
+//                         {
+//                             pr->SetObjectScale(0.1f);
+//                             pr->SetFloatValue(UNIT_FIELD_COMBATREACH, 0.1f);
+//                             pr->AI()->DoZoneInCombat(pr, 100.0f);
+//                         }
+//                     }
+//                 }
+//         }
+// 
+//         void Register()
+//         {
+//             AfterHit += SpellHitFn(spell_gen_protect_SpellScript::HandleAfterHit);
+//         }
+//     };
+// 
+//     SpellScript* GetSpellScript() const
+//     {
+//         return new spell_gen_protect_SpellScript();
+//     }
+// };
+
 // Battle Fatigue - 134735
 class spell_gen_battle_fatigue : public SpellScriptLoader
 {
@@ -44,32 +90,18 @@ class spell_gen_battle_fatigue : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_battle_fatigue_AuraScript);
 
-            uint32 _timer;
-
-            bool Load()
+            void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                _timer = 0;
-                return true;
-            }
-
-            void OnUpdate(uint32 diff, AuraEffect* aurEff)
-            {
-                _timer += diff;
-
-                if (_timer >= 19000)
-                {
-                    _timer = 0;
-                    if (Unit* caster = GetUnitOwner())
-                        if (Player* plr = caster->ToPlayer())
-                            if (plr->InArena() || plr->InRBG())
-                                if (Aura* aura = aurEff->GetBase())
-                                    aura->RefreshTimers();
-                }
+                if (Unit* caster = GetUnitOwner())
+                    if (Player* plr = caster->ToPlayer())
+                        if (plr->InArena() || plr->InRBG())
+                            if (Aura* aura = aurEff->GetBase())
+                                aura->SetDuration(7200000);
             }
 
             void Register()
             {
-                OnEffectUpdate += AuraEffectUpdateFn(spell_gen_battle_fatigue_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
+                AfterEffectApply += AuraEffectApplyFn(spell_gen_battle_fatigue_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -309,6 +341,33 @@ class spell_gen_cannibalize : public SpellScriptLoader
         }
 };
 
+class spell_sha_cloud : public SpellScriptLoader
+{
+public:
+    spell_sha_cloud() : SpellScriptLoader("spell_sha_cloud") { }
+
+    class spell_sha_cloud_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_cloud_SpellScript);
+
+        void HandleOnCast()
+        {
+            if (Unit* caster = GetCaster())
+                caster->GetMotionMaster()->MoveJump(1273.716f, 1039.498f, 434.867f, 20.0f, 15.0f, GetSpellInfo()->Id, 0.966f, 0); 
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_sha_cloud_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_cloud_SpellScript();
+    }
+};
+
 // 45472 Parachute
 enum ParachuteSpells
 {
@@ -378,35 +437,31 @@ class spell_gen_pet_summoned : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Player* player = GetCaster()->ToPlayer();
-                if (player->GetLastPetNumber())
+                PetType newPetType = (player->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
+
+                Pet* newPet = new Pet(player, newPetType);
+                if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber()))
                 {
-                    PetType newPetType = (player->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
-                    if (Pet* newPet = new Pet(player, newPetType))
+                    // revive the pet if it is dead
+                    if (newPet->getDeathState() == DEAD || newPet->getDeathState() == CORPSE)
+                        newPet->setDeathState(ALIVE);
+
+                    newPet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
+                    newPet->SetFullHealth();
+                    newPet->SetPower(newPet->getPowerType(), newPet->GetMaxPower(newPet->getPowerType()));
+
+                    switch (newPet->GetEntry())
                     {
-                        if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
-                        {
-                            // revive the pet if it is dead
-                            if (newPet->getDeathState() == DEAD || newPet->getDeathState() == CORPSE)
-                                newPet->setDeathState(ALIVE);
-
-                            newPet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
-                            newPet->SetFullHealth();
-                            newPet->SetPower(newPet->getPowerType(), newPet->GetMaxPower(newPet->getPowerType()));
-
-                            switch (newPet->GetEntry())
-                            {
-                                case NPC_DOOMGUARD:
-                                case NPC_INFERNAL:
-                                    newPet->SetEntry(NPC_IMP);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        else
-                            delete newPet;
+                        case NPC_DOOMGUARD:
+                        case NPC_INFERNAL:
+                            newPet->SetEntry(NPC_IMP);
+                            break;
+                        default:
+                            break;
                     }
                 }
+                else
+                    delete newPet;
             }
 
             void Register()
@@ -661,9 +716,17 @@ class spell_creature_permanent_feign_death : public SpellScriptLoader
                     target->ToCreature()->SetReactState(REACT_PASSIVE);
             }
 
+            void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                target->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+            }
+
             void Register()
             {
                 OnEffectApply += AuraEffectApplyFn(spell_creature_permanent_feign_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_creature_permanent_feign_death_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2338,7 +2401,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     case NPC_ARGENT_STEED_ASPIRANT:
                     case NPC_STORMWIND_STEED:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_STORMWIND))
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_STORMWIND))
                             return SPELL_PENNANT_STORMWIND_CHAMPION;
                         else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_STORMWIND) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_STORMWIND))
                             return SPELL_PENNANT_STORMWIND_VALIANT;
@@ -2347,7 +2410,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     }
                     case NPC_GNOMEREGAN_MECHANOSTRIDER:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_GNOMEREGAN))
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_GNOMEREGAN))
                             return SPELL_PENNANT_GNOMEREGAN_CHAMPION;
                         else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_GNOMEREGAN) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_GNOMEREGAN))
                             return SPELL_PENNANT_GNOMEREGAN_VALIANT;
@@ -2356,7 +2419,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     }
                     case NPC_DARK_SPEAR_RAPTOR:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_SEN_JIN))
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_SEN_JIN))
                             return SPELL_PENNANT_SEN_JIN_CHAMPION;
                         else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_SEN_JIN) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_SEN_JIN))
                             return SPELL_PENNANT_SEN_JIN_VALIANT;
@@ -2366,7 +2429,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     case NPC_ARGENT_HAWKSTRIDER_ASPIRANT:
                     case NPC_SILVERMOON_HAWKSTRIDER:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_SILVERMOON))
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_SILVERMOON))
                             return SPELL_PENNANT_SILVERMOON_CHAMPION;
                         else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_SILVERMOON) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_SILVERMOON))
                             return SPELL_PENNANT_SILVERMOON_VALIANT;
@@ -2375,7 +2438,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     }
                     case NPC_DARNASSIAN_NIGHTSABER:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_DARNASSUS))
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_DARNASSUS))
                             return SPELL_PENNANT_DARNASSUS_CHAMPION;
                         else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_DARNASSUS) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_DARNASSUS))
                             return SPELL_PENNANT_DARNASSUS_VALIANT;
@@ -2384,7 +2447,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     }
                     case NPC_EXODAR_ELEKK:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_THE_EXODAR))
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_THE_EXODAR))
                             return SPELL_PENNANT_EXODAR_CHAMPION;
                         else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_THE_EXODAR) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_THE_EXODAR))
                             return SPELL_PENNANT_EXODAR_VALIANT;
@@ -2393,7 +2456,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     }
                     case NPC_IRONFORGE_RAM:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_IRONFORGE))
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_IRONFORGE))
                             return SPELL_PENNANT_IRONFORGE_CHAMPION;
                         else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_IRONFORGE) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_IRONFORGE))
                             return SPELL_PENNANT_IRONFORGE_VALIANT;
@@ -2402,7 +2465,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     }
                     case NPC_FORSAKEN_WARHORSE:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_UNDERCITY))
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_UNDERCITY))
                             return SPELL_PENNANT_UNDERCITY_CHAMPION;
                         else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_UNDERCITY) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_UNDERCITY))
                             return SPELL_PENNANT_UNDERCITY_VALIANT;
@@ -2411,7 +2474,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     }
                     case NPC_ORGRIMMAR_WOLF:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_ORGRIMMAR))
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_ORGRIMMAR))
                             return SPELL_PENNANT_ORGRIMMAR_CHAMPION;
                         else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_ORGRIMMAR) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_ORGRIMMAR))
                             return SPELL_PENNANT_ORGRIMMAR_VALIANT;
@@ -2420,7 +2483,7 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     }
                     case NPC_THUNDER_BLUFF_KODO:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_THUNDER_BLUFF))
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_THUNDER_BLUFF))
                             return SPELL_PENNANT_THUNDER_BLUFF_CHAMPION;
                         else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_THUNDER_BLUFF) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_THUNDER_BLUFF))
                             return SPELL_PENNANT_THUNDER_BLUFF_VALIANT;
@@ -2429,9 +2492,9 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     }
                     case NPC_ARGENT_WARHORSE:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_ALLIANCE) || player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_HORDE))
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_ALLIANCE) || player->HasAchieved(ACHIEVEMENT_CHAMPION_HORDE))
                             return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_CHAMPION : SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION;
-                        else if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_ARGENT_VALOR))
+                        else if (player->HasAchieved(ACHIEVEMENT_ARGENT_VALOR))
                             return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_VALIANT : SPELL_PENNANT_ARGENT_CRUSADE_VALIANT;
                         else
                             return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_ASPIRANT : SPELL_PENNANT_ARGENT_CRUSADE_ASPIRANT;
@@ -3670,6 +3733,14 @@ class spell_gen_orb_of_power : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_orb_of_powerAuraScript);
 
+            uint8 ticks;
+
+            bool Load()
+            {
+                ticks = 0;
+                return true;
+            }
+
             void HandleEffectPeriodicUpdate(AuraEffect* aurEff)
             {
                 if (AuraEffect* aurEff0 = aurEff->GetBase()->GetEffect(EFFECT_0))
@@ -3687,13 +3758,28 @@ class spell_gen_orb_of_power : public SpellScriptLoader
                         aurEff2->HandleEffect(aurApp, AURA_EFFECT_HANDLE_REAL, true);
                     }
                 }
+            }
 
-                
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+            {
+                if (Player* caster = GetCaster()->ToPlayer())
+                {
+                    if (caster->GetPositionX() > 1749 && caster->GetPositionX() < 1816 && caster->GetPositionY() > 1287 && caster->GetPositionY() < 1379)
+                    {
+                        ticks++;
+
+                        if (ticks == 6)
+                            caster->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 128768); // Credit Achieve - Powerball
+                    }
+                    else
+                        ticks = 0;
+                }
             }
 
             void Register()
             {
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_gen_orb_of_powerAuraScript::HandleEffectPeriodicUpdate, EFFECT_3, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_orb_of_powerAuraScript::HandlePeriodicTick, EFFECT_3, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
@@ -3731,8 +3817,16 @@ class spell_gen_drums_of_rage : public SpellScriptLoader
 
             void ApplyDebuff()
             {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, SPELL_SHAMAN_EXHAUSTED, true);
+                if (Player* caster = GetCaster()->ToPlayer())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (caster->GetTeam() == HORDE)
+                            target->CastSpell(target, SPELL_SHAMAN_SATED, true);
+                        else
+                            target->CastSpell(target, SPELL_SHAMAN_EXHAUSTED, true);
+                    }
+                }
             }
 
             void Register()
@@ -4023,8 +4117,70 @@ class spell_gen_cooking_way : public SpellScriptLoader
         }
 };
 
+class spell_gen_bg_inactive : public SpellScriptLoader
+{
+    public:
+        spell_gen_bg_inactive() : SpellScriptLoader("spell_gen_bg_inactive") { }
+
+        class spell_gen_bg_inactive_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_bg_inactive_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* pCaster = GetCaster()->ToPlayer())
+                {
+                    if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                        return;
+
+                    if (pCaster->GetMap()->IsBattleground())
+                        pCaster->LeaveBattleground();
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_bg_inactive_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_CURRENCY_GAIN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_bg_inactive_AuraScript();
+        }
+};
+
+class spell_gen_bounce_achievement : public SpellScriptLoader
+{
+    public:
+        spell_gen_bounce_achievement() : SpellScriptLoader("spell_gen_bounce_achievement") { }
+
+        class spell_gen_bounce_achievement_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_bounce_achievement_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* pCaster = GetCaster()->ToPlayer())
+                    pCaster->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, ACHIEVEMENT_CRITERIA_CONDITION_NOT_LOSE_AURA, 95529);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_bounce_achievement_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_bounce_achievement_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+//    new spell_gen_protect();
+    new spell_sha_cloud();
     new spell_gen_battle_fatigue();
     new spell_endurance_of_niuzao();
     new spell_gen_absorb0_hitlimit1();
@@ -4110,4 +4266,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_landmine_knockback();
     new spell_gen_ic_seaforium_blast();
     new spell_gen_cooking_way();
+    new spell_gen_bg_inactive();
+    new spell_gen_bounce_achievement();
 }

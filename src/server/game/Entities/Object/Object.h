@@ -445,6 +445,10 @@ struct Position
         if (pos)
             pos->Relocate(m_positionX, m_positionY, m_positionZ, m_orientation);
     }
+    void PositionToVector(Vector3& pos) const
+        { pos.x = m_positionX; pos.y = m_positionY; pos.z = m_positionZ; }
+    void VectorToPosition(Vector3 pos)
+        { m_positionX = pos.x; m_positionY = pos.y; m_positionZ = pos.z; }
 
     Position::PositionXYZStreamer PositionXYZStream()
     {
@@ -492,6 +496,7 @@ struct Position
 
     Position GetRandPointBetween(const Position &B) const;
     void SimplePosXYRelocationByAngle(Position &pos, float dist, float angle, bool relative = false) const;
+    void SimplePosXYRelocationByAngle(float &x, float &y, float &z, float dist, float angle, bool relative = false) const;
 
     bool IsInDist2d(float x, float y, float dist) const
         { return GetExactDist2dSq(x, y) < dist * dist; }
@@ -987,6 +992,7 @@ class WorldObject : public Object, public WorldLocation
 
         void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
+        void GetAreaTriggerListWithEntryInGrid(std::list<AreaTrigger*>& atList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetPlayerListInGrid(std::list<Player*>& lList, float fMaxSearchRange) const;
         void GetAliveCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCorpseCreatureInGrid(std::list<Creature*>& lList, float fMaxSearchRange) const;

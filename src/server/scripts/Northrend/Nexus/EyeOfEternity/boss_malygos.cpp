@@ -366,6 +366,7 @@ public:
             _firstCyclicMovementStarted = false;
             _performingSurgeOfPower = false;
             _performingDestroyPlatform = false;
+            finalEvent = false;
 
             me->SetDisableGravity(true);
             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
@@ -753,6 +754,14 @@ public:
             }
         }
 
+        void DamageTaken(Unit* /*attacker*/, uint32 &damage)
+        {
+            if (damage >= me->GetHealth() && !finalEvent)
+            {
+                damage = 0;
+            }
+        }
+
         void UpdateAI(uint32 diff)
         {
             if (!instance || (!UpdateVictim() && _phase != PHASE_NOT_STARTED && _phase != PHASE_TWO))
@@ -951,6 +960,7 @@ public:
                         UpdateVictim();
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         SetPhase(PHASE_THREE, true);
+                        finalEvent = true;
                         break;
                     case EVENT_SURGE_OF_POWER_P_THREE:
                         if (GetDifficultyID() == DIFFICULTY_10_N)
@@ -1068,6 +1078,7 @@ public:
         bool _firstCyclicMovementStarted; // At first movement start he throws one shield asap, so this check is needed for it only.
         bool _performingSurgeOfPower; // Used to prevent starting Cyclic Movement called in Arcane Bomb event.
         bool _performingDestroyPlatform; // Used to prevent starting some movements right when Destroy Platfrom event starts.
+        bool finalEvent;
 
         float _flySpeed; // Used to store base fly speed to prevent stacking on each evade.
     };
@@ -1274,18 +1285,20 @@ public:
             if (type != POINT_MOTION_TYPE)
                 return;
 
-            if (_wpCount < 3)
+            if (_wpCount < 3 && _wpCount > 0)
             {
                 _events.ScheduleEvent(id + 1, 1);
                 ++_wpCount;
             }
             else if (Vehicle* hoverDisk = me->GetVehicleKit())
                 if (Unit* lordPassenger = hoverDisk->GetPassenger(0))
-                    lordPassenger->ToCreature()->AI()->DoAction(ACTION_SET_DISK_VICTIM_CHASE);
+                    if (Creature* _passenger = lordPassenger->ToCreature())
+                        if(_passenger->AI())
+                            _passenger->AI()->DoAction(ACTION_SET_DISK_VICTIM_CHASE);
         }
 
     private:
-        uint8 _wpCount; // how many points are triggered
+        int32 _wpCount; // how many points are triggered
         InstanceScript* _instance;
         EventMap _events;
     };
@@ -1622,7 +1635,7 @@ public:
             }
         }
 
-        void PassengerBoarded(Unit* /*unit*/, int8 /*seat*/, bool apply)
+        void PassengerBoarded(Unit* player, int8 /*seat*/, bool apply)
         {
             if (!apply)
             {
@@ -1636,6 +1649,7 @@ public:
                 pos.m_positionZ += 12.0f;
                 me->GetMotionMaster()->MovePoint(1, pos);
             }
+            player->ClearUnitState(UNIT_STATE_ONVEHICLE);
         }
 
     private:
@@ -2506,6 +2520,7 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
                 if (Creature* target = GetTarget()->ToCreature())
                     if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                     {
+                        if(_alexstraszaGift)
                         _alexstraszaGift->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         if (GameObject* heartMagic = target->GetMap()->GetGameObject(instance->GetGuidData(DATA_HEART_OF_MAGIC_GUID)))
                         {

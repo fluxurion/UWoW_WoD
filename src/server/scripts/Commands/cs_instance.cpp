@@ -152,6 +152,10 @@ public:
         player->ResetLootCooldown();
         handler->PSendSysMessage("Reset personal loot cooldown");
 
+        player->ResetLootCooldown();
+        CharacterDatabase.PExecute("DELETE FROM character_loot_cooldown WHERE guid = %u", player->GetGUID());
+        handler->PSendSysMessage("Reset personal loot cooldown");
+
         return true;
     }
 

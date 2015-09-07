@@ -704,10 +704,10 @@ enum SpellAttr8
     SPELL_ATTR8_USE_COMBO_POINTS_ON_ANY_TARGET   = 0x00080000, // 19 allows to consume combo points from dead targets
     SPELL_ATTR8_ARMOR_SPECIALIZATION             = 0x00100000, // 20
     SPELL_ATTR8_UNK21                            = 0x00200000, // 21
-    SPELL_ATTR8_UNK22                            = 0x00400000, // 22
+    SPELL_ATTR8_HASTE_AFFECT_DURATION            = 0x00400000, // 22
     SPELL_ATTR8_BATTLE_RESURRECTION              = 0x00800000, // 23 Used to limit the Amount of Resurrections in Boss Encounters
     SPELL_ATTR8_HEALING_SPELL                    = 0x01000000, // 24
-    SPELL_ATTR8_UNK25                            = 0x02000000, // 25
+    SPELL_ATTR8_USABLE_WHILE_SILENCED            = 0x02000000, // 25
     SPELL_ATTR8_RAID_MARKER                      = 0x04000000, // 26 probably spell no need learn to cast
     SPELL_ATTR8_UNK27                            = 0x08000000, // 27
     SPELL_ATTR8_NOT_IN_BG_OR_ARENA               = 0x10000000, // 28 not allow to cast or deactivate currently active effect, not sure about Fast Track
@@ -783,7 +783,7 @@ enum SpellAttr10
     SPELL_ATTR10_UNK26                            = 0x04000000, // 26
     SPELL_ATTR10_UNK27                            = 0x08000000, // 27
     SPELL_ATTR10_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR10_SOME_MOUNT                       = 0x20000000, // 29 some mount spell
+    SPELL_ATTR10_MOUNT_IS_NOT_ACCOUNT_WIDE        = 0x20000000, // 29 This mount is stored per-character
     SPELL_ATTR10_UNK30                            = 0x40000000, // 30
     SPELL_ATTR10_UNK31                            = 0x80000000  // 31
 };
@@ -806,7 +806,7 @@ enum SpellAttr11
     SPELL_ATTR11_UNK13                            = 0x00002000, // 13
     SPELL_ATTR11_UNK14                            = 0x00004000, // 14   Player Farm Quest Invisibility 27
     SPELL_ATTR11_UNK15                            = 0x00008000, // 15
-    SPELL_ATTR11_UNK16                            = 0x00010000, // 16   set bonuses
+    SPELL_ATTR11_NOT_USABLE_IN_CHALLENGE_MODE     = 0x00010000, // 16
     SPELL_ATTR11_UNK17                            = 0x00020000, // 17   Headbutt
     SPELL_ATTR11_UNK18                            = 0x00040000, // 18
     SPELL_ATTR11_UNK19                            = 0x00080000, // 19
@@ -852,12 +852,12 @@ enum SpellAttr12
     SPELL_ATTR12_UNK23                            = 0x00800000, // 23
     SPELL_ATTR12_UNK24                            = 0x01000000, // 24
     SPELL_ATTR12_UNK25                            = 0x02000000, // 25
-    SPELL_ATTR12_UNK26                            = 0x04000000, // 26
-    SPELL_ATTR12_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR12_HAVE_STABLE_FLYTIME              = 0x04000000, // 26
+    SPELL_ATTR12_CAN_BE_SAVED                     = 0x08000000, // 27
     SPELL_ATTR12_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR12_UNK29                            = 0x20000000, // 29
-    SPELL_ATTR12_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR12_UNK31                            = 0x80000000  // 31
+    SPELL_ATTR12_PROC_ONLY_ON_CAST                = 0x20000000, // 29
+    SPELL_ATTR12_CANT_CAST_ROOTED                 = 0x40000000, // 30
+    SPELL_ATTR12_DOESENT_INTERRUPT_CHANNELING     = 0x80000000  // 31
 };
 
 enum SpellAttr13
@@ -893,7 +893,6 @@ enum SpellAttr13
 #define MIN_TALENT_SPECS        1
 #define MAX_TALENT_SPECS        2
 #define MAX_GLYPH_SLOT_INDEX    6
-#define REQ_PRIMARY_TREE_TALENTS 31
 
 // Custom values
 enum SpellClickUserTypes
@@ -1240,7 +1239,7 @@ enum SpellEffects
     SPELL_EFFECT_RANDOMIZE_DIGSITES                 = 187, // 126957 only
     SPELL_EFFECT_STAMPEDE                           = 188, // Stampede 121818
     SPELL_EFFECT_LOOT_BONUS                         = 189, // Boss loot bonus ?
-    SPELL_EFFECT_JOIN_PLAYER_PARTY                  = 190,
+    SPELL_EFFECT_JOIN_LEAVE_PLAYER_PARTY            = 190,
     SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191, // Teleport player to an random digsite (Archaeology)
     SPELL_EFFECT_UNCAGE_PET                         = 192, // Battle pet exchange (123302)
     SPELL_EFFECT_193                                = 193, // 0 spells
@@ -1861,6 +1860,7 @@ enum Mechanics
     MECHANIC_INCAPACITATE     = 14,
     MECHANIC_BLEED            = 15,
     MECHANIC_PROVOKE          = 16,
+    MECHANIC_BANDAGE          = 16,
     MECHANIC_POLYMORPH        = 17,
     MECHANIC_BANISH           = 18,
     MECHANIC_SHIELD           = 19,
@@ -1876,7 +1876,9 @@ enum Mechanics
     MECHANIC_MAGICAL_IMMUNITY = 29,                         // Divine (Blessing) Shield/Protection and Ice Block
     MECHANIC_SAPPED           = 30,
     MECHANIC_ENRAGED          = 31,
-    MECHANIC_WOUNDED          = 32
+    MECHANIC_WOUNDED          = 32,
+
+    MAX_MECHANIC
 };
 
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967ca6)
@@ -1928,6 +1930,7 @@ enum SpellImmunity
 // TARGET_[OBJECT_TYPE]_[REFERENCE_TYPE(skipped for caster)]_[SELECTION_TYPE(skipped for default)]_[additional specifiers(friendly, BACK_LEFT, etc.]
 enum Targets
 {
+    TARGET_NONE                        = 0,
     TARGET_UNIT_CASTER                 = 1,
     TARGET_UNIT_NEARBY_ENEMY           = 2,
     TARGET_UNIT_NEARBY_PARTY           = 3,
@@ -3470,7 +3473,8 @@ enum LockKeyType
 {
     LOCK_KEY_NONE  = 0,
     LOCK_KEY_ITEM  = 1,
-    LOCK_KEY_SKILL = 2
+    LOCK_KEY_SKILL = 2,
+    LOCK_KEY_SPELL = 3
 };
 
 enum LockType

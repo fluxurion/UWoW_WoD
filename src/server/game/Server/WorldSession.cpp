@@ -292,6 +292,7 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
     #ifdef WIN32
     sLog->outError(LOG_FILTER_OPCODES, "Unprocessed tail data (read stop at %u from %u) Opcode %s from %s",
         uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerName(false).c_str());
+    #endif
     packet->print_storage();
     #endif
 }
@@ -437,10 +438,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     #ifdef WIN32
                     sLog->outError(LOG_FILTER_OPCODES, "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerName(false).c_str());
                     #endif
+                    #endif
                     break;
                 case STATUS_UNHANDLED:
                     #ifdef WIN32
                     sLog->outError(LOG_FILTER_OPCODES, "Received not handled opcode %s from %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerName(false).c_str());
+                    #endif
                     #endif
                     break;
             }
@@ -564,6 +567,11 @@ void WorldSession::LogoutPlayer(bool Save)
             _player->SetPendingBind(0, 0);
         }
 
+        if (Battleground* bg = _player->GetBattleground())
+            if (bg->isArena())
+                if (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN)
+                    _player->HandleArenaDeserter();
+
         sBattlefieldMgr->EventPlayerLoggedOut(_player);
 
         //drop a flag if player is carrying it
@@ -580,6 +588,11 @@ void WorldSession::LogoutPlayer(bool Save)
         {
             if (BattlegroundQueueTypeId bgQueueTypeId = _player->GetBattlegroundQueueTypeId(i))
             {
+                if (bgQueueTypeId > BATTLEGROUND_QUEUE_RB && bgQueueTypeId < BATTLEGROUND_QUEUE_KT)
+                {
+                    if (_player->IsInvitedForBattlegroundQueueType(bgQueueTypeId) && !_player->HasAura(125761))
+                        _player->HandleArenaDeserter();
+                }
                 _player->RemoveBattlegroundQueueId(bgQueueTypeId);
                 sBattlegroundMgr->m_BattlegroundQueues[ bgQueueTypeId ].RemovePlayer(_player->GetGUID(), true);
             }
@@ -647,6 +660,7 @@ void WorldSession::LogoutPlayer(bool Save)
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map
         // calls to GetMap in this case may cause crashes
+        volatile uint32 guidDebug = _player->GetGUIDLow();
         _player->CleanupsBeforeDelete();
         sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUID().GetCounter(), _player->getLevel());
 

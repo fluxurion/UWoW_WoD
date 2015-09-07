@@ -708,11 +708,18 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         SpellSchoolMask GetMeleeDamageSchoolMask() const { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }
 
+        void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
         void _AddCreatureSpellCooldown(uint32 spell_id, time_t end_time);
         void _AddCreatureCategoryCooldown(uint32 category, time_t apply_time);
         void AddCreatureSpellCooldown(uint32 spellid);
         bool HasSpellCooldown(uint32 spell_id) const;
         bool HasCategoryCooldown(uint32 spell_id) const;
+        uint32 _GetSpellCooldownDelay(uint32 spell_id) const
+        {
+            CreatureSpellCooldowns::const_iterator itr = m_CreatureSpellCooldowns.find(spell_id);
+            time_t t = time(NULL);
+            return uint32(itr != m_CreatureSpellCooldowns.end() && itr->second > t ? itr->second - t : 0);
+        }
 
         bool HasSpell(uint32 spellID) const;
 
@@ -928,6 +935,12 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         bool onVehicleAccessoryInit() const { return m_onVehicleAccessory; }
         void SetVehicleAccessoryInit(bool r) { m_onVehicleAccessory = r; }
+
+        uint32 getCurrentUpdateAreaID() const { return m_areaUpdateId; }
+        uint32 getCurrentUpdateZoneID() const { return m_zoneUpdateId; }
+
+        bool IsDespawn() const { return m_despan; }
+
     protected:
         bool m_onVehicleAccessory;
 
@@ -985,6 +998,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint8 m_spawnMode;
         uint32 m_playerCount;
         float m_followAngle;
+        bool m_despan;
 
         bool IsInvisibleDueToDespawn() const;
         bool CanAlwaysSee(WorldObject const* obj) const;
@@ -994,6 +1008,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         //WaypointMovementGenerator vars
         uint32 m_waypointID;
         uint32 m_path_id;
+
+        uint16 m_zoneUpdateId;
+        uint16 m_areaUpdateId;
 
         //Formation var
         CreatureGroup* m_formation;

@@ -411,10 +411,10 @@ public:
             switch (type)
             {
                 case DATA_ADD_TRASH_MOB:
-                    trashMobs.insert(data);
+                    trashMobs.push_back(data);
                     break;
                 case DATA_DEL_TRASH_MOB:
-                    trashMobs.erase(data);
+                    trashMobs.remove(data);
                     break;
             }
         }

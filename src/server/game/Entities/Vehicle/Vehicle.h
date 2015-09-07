@@ -99,6 +99,7 @@ class Vehicle : public TransportBase
         void CalculatePassengerOffset(float& x, float& y, float& z, float& o);
 
         void RemovePendingEvent(VehicleJoinEvent* e);
+        void AddPendingEvent(VehicleJoinEvent* e);
         void RemovePendingEventsForSeat(int8 seatId);
 
     private:
@@ -116,13 +117,15 @@ class Vehicle : public TransportBase
 
         typedef std::list<VehicleJoinEvent*> PendingJoinEventContainer;
         PendingJoinEventContainer _pendingJoinEvents;       ///< Collection of delayed join events for prospective passengers
+
+        ACE_Thread_Mutex _lock;
 };
 
 class VehicleJoinEvent : public BasicEvent
 {
     friend class Vehicle;
     protected:
-        VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) {}
+        VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()), targetGuid(Target->GetBase() ? Target->GetBase()->GetGUID() : NULL) {}
         ~VehicleJoinEvent();
         bool Execute(uint64, uint32);
         void Abort(uint64);
@@ -130,6 +133,7 @@ class VehicleJoinEvent : public BasicEvent
         Vehicle* Target;
         Unit* Passenger;
         SeatMap::iterator Seat;
+        uint64 targetGuid;
 };
 
 #endif

@@ -229,7 +229,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
 
         if(i != 0 && (items[0]->GetEntry() != item->GetEntry() || items[0]->GetGUID().GetCounter() == item->GetGUID().GetCounter()))
         {
-            sWorld->BanAccount(BAN_CHARACTER, _player->GetName(), "1282400845", "Dupe Auction mop","System");
+            sWorld->BanAccount(BAN_CHARACTER, _player->GetName(), "45d", "Dupe Auction mop","System");
             return;
         }
 
@@ -305,7 +305,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
             sAuctionMgr->AddAItem(item);
             auctionHouse->AddAuction(AH);
 
-            _player->MoveItemFromInventory(item->GetBagSlot(), item->GetSlot(), true);
+            _player->MoveItemFromInventory(item, true);
 
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
             item->DeleteFromInventoryDB(trans);
@@ -328,6 +328,8 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
                 SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
                 return;
             }
+            if(newItem->GetEntry() == 38186)
+                sLog->outDebug(LOG_FILTER_EFIR, "HandleAuctionSellItem - CloneItem of item %u; finalCount = %u playerGUID %u, itemGUID %u", newItem->GetEntry(), finalCount, _player->GetGUID(), newItem->GetGUID());
 
             if (GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
             {
@@ -360,7 +362,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
                 // Item stack count equals required count, ready to delete item - cloned item will be used for auction
                 if (item2->GetCount() == stackCount[j])
                 {
-                    _player->MoveItemFromInventory(item2->GetBagSlot(), item2->GetSlot(), true);
+                    _player->MoveItemFromInventory(item2, true);
                     item2->DeleteFromInventoryDB(trans);
                     item2->DeleteFromDB(trans);
                     delete item2;

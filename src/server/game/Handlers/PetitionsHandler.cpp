@@ -225,7 +225,6 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
         Field* fields2 = result->Fetch();
         data << ObjectGuid::Create<HighGuid::Player>(fields2[0].GetUInt64());
         data << uint32(0);
-        result->NextRow();
     }
 
     SendPacket(&data);
@@ -569,7 +568,6 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
             ss_data << plSignGuid;
             ss_data << uint32(0);
 
-            result->NextRow();
         }
     }
     player->GetSession()->SendPacket(&ss_data);

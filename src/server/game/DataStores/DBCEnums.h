@@ -110,18 +110,20 @@ enum
     MAX_CRITERIA_REQUIREMENTS          = 1,
     MAX_ADDITIONAL_CRITERIA_CONDITIONS = 3
 };
+
 enum AchievementCriteriaCondition
 {
-    ACHIEVEMENT_CRITERIA_CONDITION_NONE            = 0,
-    ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH        = 1,    // reset progress on death
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK2            = 2,    // only used in "Complete a daily quest every day for five consecutive days"
-    ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP          = 3,    // requires you to be on specific map, reset at change
-    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE         = 4,    // only used in "Win 10 arenas without losing"
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK5            = 5,    // Have spell?
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK8            = 8,
-    ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT    = 9,    // requires the player not to be hit by specific spell
-    ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP    = 10,   // requires the player not to be in group
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK13           = 13    // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_NONE                 = 0,
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH             = 1,    // reset progress on death
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK2                 = 2,    // only used in "Complete a daily quest every day for five consecutive days"
+    ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP               = 3,    // requires you to be on specific map, reset at change
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE              = 4,    // only used in "Win 10 arenas without losing"
+    ACHIEVEMENT_CRITERIA_CONDITION_NOT_LOSE_AURA        = 5,    // reset progress on removed aura
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK8                 = 8,
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT         = 9,    // requires the player not to be hit by specific spell
+    ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP         = 10,   // requires the player not to be in group
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE_PET_BATTLE   = 11,   // only used in "Win 10 consecutive pet battles."
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK13                = 13    // unk
 };
 
 enum AchievementCriteriaAdditionalCondition
@@ -216,19 +218,19 @@ enum AchievementCriteriaFlags
 enum AchievementCriteriaTimedTypes
 {
     ACHIEVEMENT_TIMED_TYPE_EVENT            = 1,    // Timer is started by internal event with id in timerStartEvent
-    ACHIEVEMENT_TIMED_TYPE_QUEST            = 2,    // Timer is started by accepting quest with entry in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_UNK2             = 2,    // Unknown
     ACHIEVEMENT_TIMED_TYPE_SPELL_CASTER     = 5,    // Timer is started by casting a spell with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET     = 6,    // Timer is started by being target of spell with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_CREATURE         = 7,    // Timer is started by killing creature with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET2    = 8,    // Timer is started by being target of spell with entry in timerStartEvent
-    ACHIEVEMENT_TIMED_TYPE_ITEM             = 9,    // Timer is started by using item with entry in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_QUEST            = 9,    // Timer is started by accepting quest with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_CREATURE2        = 10,   // Timer is started by killing creature with entry in timerStartEvent
-    ACHIEVEMENT_TIMED_TYPE_UNK11            = 11,   // Unknown
+    ACHIEVEMENT_TIMED_TYPE_BATTLEPET        = 11,   // Timer is started by win in battlepet to first lose
     ACHIEVEMENT_TIMED_TYPE_ITEM2            = 12,   // Timer is started by using item with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_EVENT2           = 13,   // Timer is started by internal event with id in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_SCENARIO_STAGE   = 14,   // Timer is started by changing stages in a scenario
 
-    ACHIEVEMENT_TIMED_TYPE_MAX,
+    ACHIEVEMENT_TIMED_TYPE_MAX
 };
 
 enum AchievementCriteriaTypes
@@ -318,6 +320,7 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_SCRIPT_EVENT_2                = 92,  // should be thrown by scripts
     ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED                     = 93,
     ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED                    = 94,
+    ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL        = 96,
     ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT             = 101,
     ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED          = 102,
     ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED         = 103,
@@ -363,7 +366,7 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_INITIATED_KICK_IN_LFR         = 147, // Number of times the player kicked someone in LFR, initiating the kick
     ACHIEVEMENT_CRITERIA_TYPE_VOTED_KICK_IN_LFR             = 148, // Number of times the player kicked someone in LFR voting, but not initiating
     ACHIEVEMENT_CRITERIA_TYPE_BEING_KICKED_IN_LFR           = 149, // Number of times the player has been kicked by someone in LFR
-    ACHIEVEMENT_CRITERIA_TYPE_UNK150                        = 150, // Number of times the player joined an LFR dungeon with a tank that leaves early
+    ACHIEVEMENT_CRITERIA_TYPE_COUNT_OF_LFR_QUEUE_BOOSTS_BY_TANK = 150,
     ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_SCENARIOS            = 151,
     ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_SCENARIOS_SATURDAY   = 152,
     ACHIEVEMENT_CRITERIA_TYPE_REACH_SCENARIO_BOSS           = 153,
@@ -373,11 +376,11 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_PET_IN_BATTLE         = 157,
     ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN                 = 158,
     ACHIEVEMENT_CRITERIA_TYPE_UNK159                        = 159,
-    ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVLE_UP            = 160,
-    ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET            = 161,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK162                        = 162,
-    // 0..162 => 163 criteria types total
-    ACHIEVEMENT_CRITERIA_TYPE_TOTAL                         = 163
+    ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP            = 160,
+    ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT     = 161,
+    ACHIEVEMENT_CRITERIA_TYPE_LEVEL_BATTLE_PET_CREDIT       = 162,
+
+    ACHIEVEMENT_CRITERIA_TYPE_TOTAL
 };
 
 enum AchievementCriteriaTreeOperator
@@ -586,6 +589,40 @@ enum ItemLimitCategoryMode
 {
     ITEM_LIMIT_CATEGORY_MODE_HAVE       = 0,                      // limit applied to amount items in inventory/bank
     ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1                       // limit applied to amount equipped items (including used gems)
+};
+
+enum ItemSpecStat
+{
+    ITEM_SPEC_STAT_INTELLECT        = 0,
+    ITEM_SPEC_STAT_AGILITY          = 1,
+    ITEM_SPEC_STAT_STRENGTH         = 2,
+    ITEM_SPEC_STAT_SPIRIT           = 3,
+    ITEM_SPEC_STAT_HIT              = 4,
+    ITEM_SPEC_STAT_DODGE            = 5,
+    ITEM_SPEC_STAT_PARRY            = 6,
+    ITEM_SPEC_STAT_ONE_HANDED_AXE   = 7,
+    ITEM_SPEC_STAT_TWO_HANDED_AXE   = 8,
+    ITEM_SPEC_STAT_ONE_HANDED_SWORD = 9,
+    ITEM_SPEC_STAT_TWO_HANDED_SWORD = 10,
+    ITEM_SPEC_STAT_ONE_HANDED_MACE  = 11,
+    ITEM_SPEC_STAT_TWO_HANDED_MACE  = 12,
+    ITEM_SPEC_STAT_DAGGER           = 13,
+    ITEM_SPEC_STAT_FIST_WEAPON      = 14,
+    ITEM_SPEC_STAT_GUN              = 15,
+    ITEM_SPEC_STAT_BOW              = 16,
+    ITEM_SPEC_STAT_CROSSBOW         = 17,
+    ITEM_SPEC_STAT_STAFF            = 18,
+    ITEM_SPEC_STAT_POLEARM          = 19,
+    ITEM_SPEC_STAT_THROWN           = 20,
+    ITEM_SPEC_STAT_WAND             = 21,
+    ITEM_SPEC_STAT_SHIELD           = 22,
+    ITEM_SPEC_STAT_RELIC            = 23,
+    ITEM_SPEC_STAT_CRIT             = 24,
+    ITEM_SPEC_STAT_HASTE            = 25,
+    ITEM_SPEC_STAT_BONUS_ARMOR      = 26,
+    ITEM_SPEC_STAT_CLOAK            = 27,
+
+    ITEM_SPEC_STAT_NONE             = 28
 };
 
 enum LfgFlags

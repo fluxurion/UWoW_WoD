@@ -288,7 +288,7 @@ public:
             _JustDied();
             me->setFaction(35);
             if (instance) // Kill credit
-                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65074, 0, me);
+                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65074, 0, 0, me);
             // Hard mode chest
             uint32 chest;
             switch (EldersCount)
@@ -305,8 +305,11 @@ public:
                 case 3:
                     chest = RAID_MODE(194327, 194331);
                     break;
+                default:
+                    break;
             }
-            me->SummonGameObject(chest, 2387.8076f, -53.4829f, 424.4779f, 3.0598f, 0, 0, 1, 1, 604800); //Static pos for chest
+            if (chest)
+                me->SummonGameObject(chest, 2387.8076f, -53.4829f, 424.4779f, 3.0598f, 0, 0, 1, 1, 604800); //Static pos for chest
         }
 
         void EnterCombat(Unit* /*pWho*/)
@@ -380,8 +383,8 @@ public:
                     {
                         me->MonsterTextEmote("Deforestation is Done", ObjectGuid::Empty, true);
                         DeforesTimer = 0;
-                        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 65015, 0, me);
-                        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65015, 0, me);
+                        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, 65015, 0, 0, me);
+                        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65015, 0, 0, me);
                     }
                     else
                     {
@@ -413,18 +416,13 @@ public:
                     }
                     checkElementalAlive = true;
                 }
-                else
+                else if (Elemental[0]->isDead() && Elemental[1]->isDead() && Elemental[2]->isDead())
                 {
-                    if (Elemental[0]->isDead())
-                        if (Elemental[1]->isDead())
-                            if (Elemental[2]->isDead())
-                            {
-                                for (uint32 i = 0; i < 3; i++)
-                                    Elemental[i]->DespawnOrUnsummon(3000);
-                                
+                    for (uint32 i = 0; i < 3; i++)
+                        Elemental[i]->DespawnOrUnsummon(3000);
+
                                 if (Creature* Freya = me->GetCreature(*me, instance->GetGuidData(DATA_FREYA)))
-                                    Freya->AI()->DoAction(ACTION_ELEMENTAL);
-                            }
+                        Freya->AI()->DoAction(ACTION_ELEMENTAL);
                 }
             }
                            

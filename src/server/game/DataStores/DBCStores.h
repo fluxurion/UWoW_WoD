@@ -29,13 +29,14 @@
 typedef std::list<uint32> SimpleFactionsList;
 SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 std::list<uint32> GetItemSpecsList(uint32 ItemID);
+void AddSpecdtoItem(uint32 ItemID, uint32 SpecID);
 uint32 GetLearnSpell(uint32 trigerSpell);
 uint32 GetSpellByTrigger(uint32 trigerSpell);
 
-std::list<uint32> const* GetCriteriaTreeList(uint32 parent);
-std::list<uint32> const* GetModifierTreeList(uint32 parent);
+std::vector<CriteriaTreeEntry const*> const* GetCriteriaTreeList(uint32 parent);
+std::vector<ModifierTreeEntry const*> const* GetModifierTreeList(uint32 parent);
 std::list<uint32> const* GetSpellProcsPerMinuteModList(uint32 PerMinId);
-uint32 GetsAchievementEntryByTreeList(uint32 criteriaTree);
+AchievementEntry const* GetsAchievementByTreeList(uint32 criteriaTree);
 
 char const* GetPetName(uint32 petfamily, uint32 dbclang);
 SpellEffectEntry const* GetSpellEffectEntry(uint32 spellId, uint32 effect, uint8 difficulty);
@@ -216,6 +217,7 @@ extern DBCStorage<ItemSetEntry>                 sItemSetStore;
 extern DBCStorage <ItemSetSpellEntry>            sItemSetSpellStore;
 extern ItemSetSpellsStore                        sItemSetSpellsStore;
 extern DBCStorage<ItemSpecEntry>                sItemSpecStore;
+extern DBCStorage <ItemSpecOverrideEntry>        sItemSpecOverrideStore;
 extern DBCStorage<LFGDungeonEntry>              sLFGDungeonStore;
 extern DBCStorage<LiquidTypeEntry>              sLiquidTypeStore;
 extern DBCStorage<LockEntry>                    sLockStore;

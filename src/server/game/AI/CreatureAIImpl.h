@@ -332,6 +332,58 @@ enum c_events
     EVENT_17,
     EVENT_18,
     EVENT_19,
+    EVENT_20,
+    EVENT_21,
+    EVENT_22,
+    EVENT_23,
+    EVENT_24,
+    EVENT_25,
+    EVENT_26,
+    EVENT_27,
+    EVENT_28,
+    EVENT_29,
+    EVENT_30,
+    EVENT_31,
+    EVENT_32,
+    EVENT_33,
+    EVENT_34,
+    EVENT_35,
+    EVENT_36,
+    EVENT_37,
+    EVENT_38,
+    EVENT_39,
+    EVENT_40,
+    EVENT_41,
+    EVENT_42,
+    EVENT_43,
+    EVENT_44,
+    EVENT_45,
+    EVENT_46,
+    EVENT_47,
+    EVENT_48,
+    EVENT_49,
+    EVENT_50
+};
+
+enum c_actions
+{
+    ACTION_NONE,
+
+    ACTION_1,
+    ACTION_2,
+    ACTION_3,
+    ACTION_4,
+    ACTION_5,
+    ACTION_6,
+    ACTION_7,
+    ACTION_8,
+    ACTION_9,
+    ACTION_10,
+    ACTION_11,
+    ACTION_12,
+    ACTION_13,
+    ACTION_14,
+    ACTION_15
 };
 
 class EventMap : private std::map<uint32, uint32>

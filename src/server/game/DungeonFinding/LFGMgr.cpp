@@ -176,6 +176,20 @@ LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
     return NULL;
 }
 
+LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id, uint32 team)
+{
+    LFGDungeonContainer::const_iterator itr = LfgDungeonStore.find(id);
+    if (itr != LfgDungeonStore.end())
+    {
+        LFGDungeonEntry const* dungeonEntry = itr->second.dbc;
+
+        if (dungeonEntry && dungeonEntry->FitsTeam(team))
+            return &itr->second;
+    }
+
+    return NULL;
+}
+
 LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 mapId, Difficulty diff, uint32 team)
 {
     for (LFGDungeonContainer::const_iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
@@ -200,7 +214,8 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
         LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i);
-        if (!dungeon || !dungeon->IsValid())
+
+        if (!dungeon || dungeon->type == LFG_TYPE_ZONE)
             continue;
 
         LfgDungeonStore[dungeon->ID] = LFGDungeonData(dungeon);
@@ -251,18 +266,16 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         // No teleport coords in database, load from areatriggers
         if (dungeon.type != LFG_TYPE_RANDOM && dungeon.x == 0.0f && dungeon.y == 0.0f && dungeon.z == 0.0f)
         {
-            AreaTriggerStruct const* at = sObjectMgr->GetMapEntranceTrigger(dungeon.map);
-            if (!at)
+            if (AreaTriggerStruct const* at = sObjectMgr->GetMapEntranceTrigger(dungeon.map))
             {
-                sLog->outError(LOG_FILTER_LFG, "LFGMgr::LoadLFGDungeons: Failed to load dungeon %s, cant find areatrigger for map %u", dungeon.name.c_str(), dungeon.map);
-                continue;
+                dungeon.map = at->target_mapId;
+                dungeon.x = at->target_X;
+                dungeon.y = at->target_Y;
+                dungeon.z = at->target_Z;
+                dungeon.o = at->target_Orientation;
             }
-
-            dungeon.map = at->target_mapId;
-            dungeon.x = at->target_X;
-            dungeon.y = at->target_Y;
-            dungeon.z = at->target_Z;
-            dungeon.o = at->target_Orientation;
+            else
+                sLog->outError(LOG_FILTER_LFG, "LFGMgr::LoadLFGDungeons: Failed to load teleport positions for dungeon %s, cant find areatrigger for map %u", dungeon.name.c_str(), dungeon.map);
         }
 
         if (dungeon.type != LFG_TYPE_RANDOM)
@@ -410,7 +423,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         LfgDungeonSet const& selectedDungeons = GetSelectedDungeons(player->GetGUID());
         if (!selectedDungeons.empty())
         {
-            LFGDungeonData const* rDungeonData = GetLFGDungeon(*selectedDungeons.begin() & 0xFFFFF);
+            LFGDungeonData const* rDungeonData = GetLFGDungeon(*selectedDungeons.begin() & 0xFFFFF, player->GetTeam());
             if (rDungeonData && rDungeonData->type == LFG_TYPE_RANDOM)
                 oldrDungeonId = rDungeonData->id;
         }
@@ -430,7 +443,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         // currently core cannot queue in LFG/Flex/Scenarios at the same time
         if (!dungeons.empty())
         {
-            LFGDungeonData const* entry = sLFGMgr->GetLFGDungeon(*dungeons.begin() & 0xFFFFF);
+            LFGDungeonData const* entry = sLFGMgr->GetLFGDungeon(*dungeons.begin() & 0xFFFFF, player->GetTeam());
             if (entry && queue.GetQueueType(groupGuid) != entry->internalType)
             {
                 ChatHandler(player).PSendSysMessage("You cannot queue in different type queues at the same time.");
@@ -482,7 +495,8 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         bool isRaid = false;
         for (LfgDungeonSet::const_iterator it = dungeons.begin(); it != dungeons.end() && joinData.result == LFG_JOIN_OK; ++it)
         {
-            LFGDungeonData const* entry = sLFGMgr->GetLFGDungeon(*it & 0xFFFFF);
+            LFGDungeonData const* entry = sLFGMgr->GetLFGDungeon(*it & 0xFFFFF, player->GetTeam());
+
             if(!entry)
             {
                 joinData.result = LFG_JOIN_DUNGEON_INVALID;
@@ -1360,7 +1374,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
     Group* group = player->GetGroup();
 
     if (group && group->isLFGGroup())
-        dungeon = GetLFGDungeon(GetDungeon(group->GetGUID()));
+        dungeon = GetLFGDungeon(GetDungeon(group->GetGUID()), player->GetTeam());
 
     if (!dungeon)
     {
@@ -1578,8 +1592,15 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId)
 
         SetState(guid, LFG_STATE_FINISHED_DUNGEON);
 
+        Player* player = ObjectAccessor::FindPlayer(guid);
+        if (!player || !player->IsInWorld())
+        {
+            sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: [" UI64FMTD "] not found in world", guid);
+            continue;
+        }
+
         // Give rewards only if its a rewardable dungeon
-        LFGDungeonData const* rDungeon = GetLFGDungeon(rDungeonId);
+        LFGDungeonData const* rDungeon = GetLFGDungeon(rDungeonId, player->GetTeam());
         if (!rDungeon)
         {
             sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: %s dungeon %u does not exist", guid.ToString().c_str(), rDungeonId);
@@ -1592,17 +1613,10 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId)
             continue;
         }
 
-        Player* player = ObjectAccessor::FindPlayer(guid);
-        if (!player || !player->IsInWorld())
-        {
-            sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: %s not found in world", guid.ToString().c_str());
-            continue;
-        }
-
-        LFGDungeonData const* dungeonDone = GetLFGDungeon(dungeonId);
+        LFGDungeonData const* dungeonDone = GetLFGDungeon(dungeonId, player->GetTeam());
         if(!dungeonDone)
         {
-            sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: dungeonDone %i not found or CanBeRewarded %i", dungeonId, dungeonDone->dbc->CanBeRewarded());
+            sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::FinishDungeon: dungeonDone %i not found", dungeonId);
             continue;
         }
         /*if(!dungeonDone->dbc->CanBeRewarded())
@@ -1788,8 +1802,6 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
         LockData lockData;
         if (dungeon->expansion > expansion)
             lockData.status = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
-        else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
-            lockData.status = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->difficulty > DIFFICULTY_NORMAL && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)) && 
             !dungeon->dbc->IsScenario() && !dungeon->dbc->IsRaidFinder() && !dungeon->dbc->IsFlex())
             lockData.status = LFG_LOCKSTATUS_RAID_LOCKED;
@@ -1799,6 +1811,11 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
             lockData.status = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
         else if (dungeon->seasonal && !IsSeasonActive(dungeon->id))
             lockData.status = LFG_LOCKSTATUS_NOT_IN_SEASON;
+        // merge faction check with check on invalid TP pos and check on test invalid maps (BUT we still have to send it! LOL, in WoD blizz deleted invalid maps from client DBC)
+        else if (!dungeon->dbc->FitsTeam(player->GetTeam()) || DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player)
+            || (dungeon->type != LFG_TYPE_RANDOM && dungeon->x == 0.0f && dungeon->y == 0.0f && dungeon->z == 0.0f) || !dungeon->dbc->IsValid())
+            // TODO: for non-faction check find correct reason
+            lockData.status = LFG_LOCKSTATUS_WRONG_FACTION;
         else if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
         {
             uint32 avgItemLevel = player->GetAverageItemLevel();
@@ -1808,7 +1825,7 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
                 lockData.reqItemLevel = ar->item_level;
                 lockData.status = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
             }
-            else if (ar->achievement && !player->GetAchievementMgr().HasAchieved(ar->achievement))
+            else if (ar->achievement && !player->HasAchieved(ar->achievement))
                 lockData.status = LFG_LOCKSTATUS_MISSING_ACHIEVEMENT;
             else if (player->GetTeam() == ALLIANCE && ar->quest_A && !player->GetQuestRewardStatus(ar->quest_A))
                 lockData.status = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;

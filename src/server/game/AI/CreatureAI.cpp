@@ -209,7 +209,12 @@ void CreatureAI::EnterEvadeMode()
             me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
         }
         else
+        {
+            if (!me->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED) || !me->isInCombat())
+                me->AddUnitState(UNIT_STATE_EVADE);
+
             me->GetMotionMaster()->MoveTargetedHome();
+        }
     }
 
     Reset();

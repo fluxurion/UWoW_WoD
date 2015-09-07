@@ -1202,7 +1202,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ARENA_START_MATCHMAKER_RATING]              = sConfigMgr->GetIntDefault ("Arena.ArenaStartMatchmakerRating", 1500);
     m_bool_configs[CONFIG_ARENA_SEASON_IN_PROGRESS]                  = sConfigMgr->GetBoolDefault("Arena.ArenaSeason.InProgress", true);
     m_bool_configs[CONFIG_ARENA_LOG_EXTENDED_INFO]                   = sConfigMgr->GetBoolDefault("ArenaLog.ExtendedInfo", false);
-    m_int_configs[CONFIG_PVP_ITEM_LEVEL_CAP]                         = sConfigMgr->GetIntDefault ("PVP.ItemLevelCap", 542);
+    m_int_configs[CONFIG_PVP_ITEM_LEVEL_CAP]                         = ConfigMgr->GetIntDefault("PVP.ItemLevelCap", 540);
 
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfigMgr->GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 
@@ -1539,6 +1539,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GameObject models...");
     LoadGameObjectModelList();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading World Visible Distance...");
+    sObjectMgr->LoadWorldVisibleDistance();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Script Names...");
     sObjectMgr->LoadScriptNames();
 
@@ -1683,7 +1686,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Treasure Data...");
-    sObjectMgr->LoadTreasureData();
+    sObjectMgr->LoadPersonalLootTemplate();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Gameobject Data...");
     sObjectMgr->LoadGameobjects();
@@ -1746,7 +1749,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadAreaTriggerScripts();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading LFG entrance positions..."); // Must be after areatriggers
-    sLFGMgr->LoadLFGDungeons();
+    sLFGMgr->LoadLFGDungeons(true);
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Dungeon boss data...");
     sObjectMgr->LoadInstanceEncounters();
@@ -3337,6 +3340,15 @@ void World::InstanceWeeklyResetTime()
 
     m_NextInstanceWeeklyReset = time_t(m_NextInstanceWeeklyReset + DAY * getIntConfig(CONFIG_INSTANCE_WEEKLY_RESET));
     sWorld->setWorldState(WS_INSTANCE_WEEKLY_RESET_TIME, uint64(m_NextInstanceWeeklyReset));
+}
+
+void World::ResetLootCooldown()
+{
+    CharacterDatabase.Execute("DELETE FROM character_loot_cooldown WHERE respawnTime != 0");
+
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+        if (itr->second->GetPlayer())
+            itr->second->GetPlayer()->ResetLootCooldown();
 }
 
 void World::ResetLootCooldown()

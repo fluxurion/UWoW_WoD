@@ -22,9 +22,13 @@
 // x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
 // n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
 
-const char Achievementfmt[]="niiisxiixixxiii";
-const std::string CustomAchievementfmt="pppaaaapapaappa";
+const std::string CustomAchievementfmt="pppaaaapapaappp";
 const std::string CustomAchievementIndex = "ID";
+const std::string CustomCriteriafmt = "pppppppppppp";
+const std::string CustomCriteriaIndex = "ID";
+const std::string CustomCriteriaTreefmt = "pppapppa";
+const std::string CustomCriteriaTreeIndex = "ID";
+const char Achievementfmt[] = "niiisxiixixxiii";
 //const char AchievementCriteriafmt[] = "niiiiiiiisiiiiixxiiiiii";
 const char AchievementCriteriafmt[] = "niiiiiiiixxx";
 const char Criteriafmt[]="niiiiiiiiiii";
@@ -113,9 +117,10 @@ const char ItemRandomPropertiesfmt[] = "nxiiixxs";
 const char ItemRandomSuffixfmt[] = "nsxiiiiiiiiii";
 const char ItemSetEntryfmt[] = "nsiiiiiiiiiiiiiiiiiii";
 char const ItemSetSpellEntryfmt[] = "niiii";
-const char ItemSpecEntryfmt[] = "nii";
-const std::string CustomItemSpecEntryfmt="ppp";
-const std::string CustomItemSpecEntryIndex = "Id";
+const char ItemSpecEntryfmt[]="niiiiii";
+const char ItemSpecOverrideEntryfmt[]="nii";
+const std::string CustomItemSpecOverrideEntryfmt="ppp";
+const std::string CustomItemSpecOverrideEntryIndex = "Id";
 const char LFGDungeonEntryfmt[]="nsiiiiiiiiiixixixiiiiiiiiiixx";
 char const LiquidTypefmt[] = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 const char LockEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
@@ -186,6 +191,7 @@ const char TeamContributionPointsfmt[] = "df";
 const char TotemCategoryEntryfmt[] = "nxii";
 char const UnitPowerBarfmt[] = "niixxxxxxxxxxxxxxxxxxxxxxxx";
 char const TransportAnimationfmt[] = "diifffx";
+const char UnitPowerBarEntryfmt[] = "niiiiffixxxxxxxxxxxxixxxxxx";
 char const TransportRotationfmt[] = "diiffff";
 char const VehicleEntryfmt[] = "niiffffiiiiiiiifffffffffffffffxxxxfifiiii";
 char const VehicleSeatEntryfmt[] = "niiffffffffffiiiiiifffffffiiifffiiiiiiiffiiiiffffffffffffiiiiiiiii";

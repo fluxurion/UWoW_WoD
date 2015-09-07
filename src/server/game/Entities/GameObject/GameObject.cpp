@@ -220,6 +220,9 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     if(m_goInfo->WorldEffectID)
         m_updateFlag |= UPDATEFLAG_HAS_WORLDEFFECTID;
 
+    if(m_goInfo->WorldEffectID)
+        m_updateFlag |= UPDATEFLAG_HAS_WORLDEFFECTID;
+
     switch (goinfo->type)
     {
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
@@ -1133,6 +1136,10 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
+        // We do not allow players to use the hidden objects.
+        if (playerUser && (!isSpawned() || HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE)))
+            return;
+
         if (sScriptMgr->OnGossipHello(playerUser, this))
             return;
     }
@@ -1818,8 +1825,16 @@ void GameObject::SendCustomAnim(uint32 anim)
     SendMessageToSet(&data, true);
 }
 
-void GameObject::SendActivateAnim(uint32 anim)
+void GameObject::SendGameObjectActivateAnimKit(uint32 animKitID, bool maintain)
 {
+    ObjectGuid objectGUID = GetGUID();
+    WorldPacket data(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4);
+
+    data.WriteBit(maintain);
+    data << objectGUID;
+    data << animKitID;
+
+    SendMessageToSet(&data, true);
 }
 
 bool GameObject::IsInRange(float x, float y, float z, float radius) const
@@ -2217,9 +2232,8 @@ uint32 GameObject::CalculateAnimDuration(GOState oldState, GOState newState) con
 bool GameObject::IsPersonalLoot() const
 {
     if(GetGOInfo()->chest.chestPersonalLoot)
-        if(TreasureData const* pData = sObjectMgr->GetTreasureData(GetGOInfo()->chest.chestPersonalLoot))
-            if(pData->type == GO_TYPE_RESPAWN || pData->type == GO_TYPE_DONTSPAWN)
-                return true;
+        if(sObjectMgr->GetPersonalLootData(GetEntry()))
+            return true;
 
     return false;
 }

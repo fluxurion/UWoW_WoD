@@ -46,7 +46,7 @@ bool ReputationMgr::IsAtWar(uint32 faction_id) const
 
     if (!factionEntry)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "ReputationMgr::IsAtWar: Can't get AtWar flag of %s for unknown faction (faction id) #%u.", _player->GetName(), faction_id);
+        sLog->outDebug(LOG_FILTER_GENERAL, "ReputationMgr::IsAtWar: Can't get AtWar flag of %s for unknown faction (faction id) #%u.", _player->GetName(), faction_id);
         return 0;
     }
 
@@ -69,7 +69,7 @@ int32 ReputationMgr::GetReputation(uint32 faction_id) const
 
     if (!factionEntry)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "ReputationMgr::GetReputation: Can't get reputation of %s for unknown faction (faction id) #%u.", _player->GetName(), faction_id);
+        sLog->outDebug(LOG_FILTER_GENERAL, "ReputationMgr::GetReputation: Can't get reputation of %s for unknown faction (faction id) #%u.", _player->GetName(), faction_id);
         return 0;
     }
 
@@ -208,7 +208,11 @@ void ReputationMgr::SendInitialReputations()
         initFactions.FactionFlags[itr->first] = itr->second.Flags;
         initFactions.FactionStandings[itr->first] = itr->second.Standing;
         /// @todo faction bonus
+            if(a >= 256)
+                break;
         itr->second.needSend = false;
+        if(a >= 256)
+            break;
     }
 
     _player->SendDirectMessage(initFactions.Write());
@@ -450,7 +454,7 @@ void ReputationMgr::SetAtWar(RepListID repListID, bool on)
 
 void ReputationMgr::SetAtWar(FactionState* faction, bool atWar) const
 {
-    // not allow declare war to own faction
+    // not allow declare war to own faction.
     if (atWar && (faction->Flags & FACTION_FLAG_PEACE_FORCED))
         return;
 
@@ -542,6 +546,10 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
                 // set atWar for hostile
                 if (GetRank(factionEntry) <= REP_HOSTILE)
                     SetAtWar(faction, true);
+
+                // enable war on faction Oracles/Frenzyheart Tribe
+                if (GetRank(factionEntry) <= REP_HOSTILE && (factionEntry->ID == 1104 || factionEntry->ID == 1105))
+                    faction->Flags |= FACTION_FLAG_AT_WAR;
 
                 // reset changed flag if values similar to saved in DB
                 if (faction->Flags == dbFactionFlags)

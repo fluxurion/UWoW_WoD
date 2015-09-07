@@ -401,7 +401,7 @@ enum AuraType
     SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER       = 340,  // Increases health gained when resurrected by a guild member by X
     SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN                  = 341,  // NYI
     SPELL_AURA_MOD_MELEE_RANGED_HASTE_2                     = 342,
-    SPELL_AURA_343                                          = 343,  // unk
+    SPELL_AURA_MOD_AUTOATTACK_DAMAGE_TARGET                 = 343,  // unk
     SPELL_AURA_MOD_AUTOATTACK_DAMAGE                        = 344,  // NYI
     SPELL_AURA_BYPASS_ARMOR_FOR_CASTER                      = 345,
     SPELL_AURA_ENABLE_ALT_POWER                             = 346,  // NYI
@@ -419,13 +419,13 @@ enum AuraType
     SPELL_AURA_WORGEN_ALTERED_FORM                          = 358,
     SPELL_AURA_MOD_HEALING_DONE2                            = 359,
     SPELL_AURA_PROC_TRIGGER_SPELL_COPY                      = 360,   // Procs the same spell that caused this proc (Dragonwrath, Tarecgosa's Rest)
-    SPELL_AURA_PROC_TRIGGER_SPELL_2                         = 361,
+    SPELL_AURA_PROC_MELEE_TRIGGER_SPELL                     = 361,
     SPELL_AURA_DUMMY2                                       = 362,  // used in 143400
     SPELL_AURA_MOD_NEXT_SPELL                               = 363,  // Used by 101601 Throw Totem - causes the client to initialize spell cast with specified spell
     SPELL_AURA_364                                          = 364,  // Not used in 4.3.4
     SPELL_AURA_MAX_FAR_CLIP_PLANE                           = 365,  // Overrides client's View Distance setting to max("Fair", current_setting) and turns off terrain display
     SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT               = 366,  // Sets spellpower equal to % of attack power, discarding all other bonuses (from gear and buffs)
-    SPELL_AURA_367                                          = 367,
+    SPELL_AURA_OVERRIDE_AUTOATTACK                          = 367,
     SPELL_AURA_MOD_DISARM2                                  = 368,  // May be two weapon affected?
     SPELL_AURA_ENABLE_POWER_BAR_TIMER                       = 369,
     SPELL_AURA_SET_FAIR_FAR_CLIP                            = 370,  // Overrides client's View Distance setting to max("Fair", current_setting)
@@ -435,7 +435,7 @@ enum AuraType
     SPELL_AURA_MOD_FALL_DAMAGE                              = 374,
     SPELL_AURA_375                                          = 375,  // 0 auras
     SPELL_AURA_MOD_CURRENCY_GAIN_FROM_CREATURE              = 376,  // ????
-    SPELL_AURA_377                                          = 377,  // Casting spell in walking
+    SPELL_AURA_CAST_WHILE_WALKING2                          = 377,
     SPELL_AURA_378                                          = 378,  // 0 auras
     SPELL_AURA_MOD_BASE_MANA_REGEN_PERCENT                  = 379,
     SPELL_AURA_380                                          = 380,  // 0 auras
@@ -479,7 +479,7 @@ enum AuraType
     SPELL_AURA_MOD_MAX_POWER                                = 418,
     SPELL_AURA_MOD_ADD_ENERGY_PERCENT                       = 419,
     SPELL_AURA_MOD_BATTLE_PET_XP_GAIN                       = 420,
-    SPELL_AURA_MOD_ABSORB                                   = 421,  // healing done related
+    SPELL_AURA_MOD_ABSORB_AMOUNT                            = 421,
     SPELL_AURA_MOD_ABSORBTION_PERCENT                       = 422,
     SPELL_AURA_423                                          = 423,  // Heart of the Wild (Talent)
     SPELL_AURA_424                                          = 424,  // Heart of the Wild (Talent)

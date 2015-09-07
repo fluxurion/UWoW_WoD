@@ -16,6 +16,17 @@ enum globalSpells
     SPELL_TP_ORGRIMMAR_2            = 148034, //Aliance
 };
 
+enum ssActions
+{
+    ACTION_RESET                    = 255,
+    ACTION_IN_PROGRESS              = 256,
+    ACTION_SSOPS_IN_PROGRESS        = 257,
+    ACTION_SSOPS_DONE               = 258,
+    ACTION_SSOPS_SECOND_ROOM        = 259,
+    ACTION_KLAXXI_IN_PROGRESS       = 260,
+    ACTION_KLAXXI_DONE              = 270,
+};
+
 enum eData
 {
     // Encounter States/Boss GUIDs
@@ -28,7 +39,7 @@ enum eData
     DATA_KORKRON_D_SHAMAN           = 6,
     DATA_GENERAL_NAZGRIM            = 7,
     DATA_MALKOROK                   = 8,
-    DATA_SPOLLS_OF_PANDARIA         = 9,
+    DATA_SPOILS_OF_PANDARIA         = 9,
     DATA_THOK                       = 10,
     DATA_BLACKFUSE                  = 11,
     DATA_KLAXXI                     = 12,
@@ -38,6 +49,9 @@ enum eData
     DATA_FIELD_OF_SHA,
     DATA_FP_EVADE,
     DATA_SHA_PRE_EVENT,
+    DATA_BUFF_NEXT_KLAXXI,
+    DATA_SEND_KLAXXI_DIE_COUNT,
+    DATA_INTRO_NEXT_KLAXXI,
 
     //Galakras
     DATA_GALAKRAS_PRE_EVENT,
@@ -55,6 +69,8 @@ enum eData
 
     // Additional data
     DATA_IMMERSEUS_INTRO,
+    DATA_SPOIL_MANTIS,
+    DATA_SPOIL_MOGU,
 };
 
 enum eCreatures
@@ -75,12 +91,19 @@ enum eCreatures
     NPC_EXPLOSIVE_TAR               = 71950,
     NPC_BORER_DRILL                 = 71906,
     NPC_ASH_ELEMENTAL               = 71827,
+    NPC_IRON_TOMB                   = 71941,
     NPC_KORKRON_BANNER              = 71626,
     NPC_AFTER_SHOCK                 = 71697,
     NPC_HEALING_TIDE_TOTEM          = 72563,
     NPC_ARCING_SMASH                = 71455,
     NPC_ANCIENT_MIASMA              = 71513,
     NPC_IMPLOSION                   = 71470,
+    NPC_ESSENCE_OF_YSHAARJ          = 63420,
+    NPC_LIVING_CORRUPTION           = 71644,
+    NPC_BODY_STALKER                = 71787, //in center room
+    NPC_SHOCK_COLLAR                = 71645, //dest dummy
+    NPC_STARVED_YETI                = 73184,
+    NPC_CAPTIVE_CAVE_BAT            = 73522,
 
     NPC_IMMERSEUS                   = 71543,
 
@@ -207,22 +230,92 @@ enum eCreatures
     NPC_ARCHWEAVER                  = 71771,
     NPC_ASSASIN                     = 71518,
     NPC_WARSHAMAN                   = 71773,
+    NPC_SNIPER                      = 71656,
     //
 
     NPC_MALKOROK                    = 71454,
+
+    //Spoils of Pandaria
+    NPC_SSOP_SPOILS                 = 71889, //Secured Stockpile of Pandaren Spoils
+
+    //Spoils 
+    NPC_MOGU_SPOILS                 = 73720,
+    NPC_MOGU_SPOILS2                = 73722,
+    NPC_MANTIS_SPOILS               = 71512,
+    NPC_MANTIS_SPOILS2              = 73721,
+    
+    //Big 
+    //Mogu
+    NPC_JUN_WEI                     = 73723,
+    NPC_ZU_YIN                      = 73724,
+    NPC_XIANG_LIN                   = 73725,
+    NPC_KUN_DA                      = 71408,
+    //Mantis
+    NPC_COMMANDER_ZAKTAR            = 71409,
+    NPC_COMMANDER_IKTAL             = 73948,
+    NPC_COMMANDER_NAKAZ             = 73949,
+    NPC_COMMANDER_TIK               = 73951,
+    //
+
+    //Medium 
+    //Mogu
+    NPC_MODIFIED_ANIMA_GOLEM        = 71395,
+    NPC_MOGU_SHADOW_RITUALIST       = 71393,
+    NPC_SHADOW_RITUALIST_PHYLACTERY = 71392,
+    //Mantis
+    NPC_ZARTHIK_AMBER_PRIEST        = 71397,
+    NPC_SETTHIK_WIND_WIELDER        = 71405,
+    //
+
+    //Small 
+    //Mogu
+    NPC_ANIMATED_STONE_MOGU         = 71380,
+    NPC_BURIAL_URN                  = 71382,
+    NPC_QUILEN_GUARDIANS            = 71378, 
+    //Mantis
+    NPC_SRITHIK_BOMBARDIER          = 71385,
+    NPC_AMBER_ENCASED_KUNCHONG      = 71388,
+    NPC_KORTHIK_WARCALLER           = 71383,
+    //
+
+    //Summons
+    NPC_ZARTHIK_SWARMER             = 71398,
+
+    //Pandaren Relic box                     //display id and name from - entry, needed update in DB
+    NPC_NAMELESS_WINDWALKER_SPIRIT  = 72828, //dd       71430
+    NPC_WISE_MISTWEAVER_SPIRIT      = 72810, //Healers  71428
+    NPC_ANCIENT_BREWMASTER_SPIRIT   = 72787, //Tank     71427
+    //
+
+    //Special
+    NPC_LEVER                       = 72281,
+    NPC_LIFT_HOOK                   = 72972,
+    //
+
     NPC_THOK                        = 71529,
+    //Jailer
+    NPC_KORKRON_JAILER              = 71658,
+    //Prisoners
+    NPC_AKOLIK                      = 71742, //GO_SAUROK_JAIL
+    NPC_MONTAK                      = 71763, //GO_YAUNGOLIAN_JAIL
+    NPC_WATERSPEAKER_GORAI          = 71749, //GO_JINUI_JAIL
+    
     NPC_BLACKFUSE                   = 71504,
 
-    //Paragons of the Klaxxi
-    NPC_KILRUK                      = 71161,
-    NPC_XARIL                       = 71157,
-    NPC_KAZTIK                      = 71156,
-    NPC_KORVEN                      = 71155,
-    NPC_IYYOKYK                     = 71160,
-    NPC_KAROZ                       = 71154,
-    NPC_SKEER                       = 71152,
-    NPC_RIKKAL                      = 71158,
-    NPC_HISEK                       = 71153,
+    //Paragons of the Klaxxi                 
+    NPC_KILRUK                      = 71161, //       6
+    NPC_XARIL                       = 71157, //porch, 4
+    NPC_KAZTIK                      = 71156, //porch  5
+    NPC_KORVEN                      = 71155, //porch, 2
+    NPC_IYYOKYK                     = 71160, //       3
+    NPC_KAROZ                       = 71154, //porch, 1 
+
+    NPC_SKEER                       = 71152, //porch, pull
+    NPC_RIKKAL                      = 71158, //porch, pull
+    NPC_HISEK                       = 71153, //porch, pull
+
+    NPC_AMBER_PIECE                 = 71628,
+    NPC_KLAXXI_CONTROLLER           = 71592,
 
     //
     NPC_GARROSH                     = 71865,
@@ -311,6 +404,64 @@ enum eGameObjects
     GO_NAZGRIM_EX_DOOR              = 221793,
     GO_MALKOROK_FENCH               = 221784,
     GO_MALKOROK_FENCH_2             = 221785,
+
+    //Spoils of Pandaria
+    GO_SSOP_SPOILS                  = 220823, 
+    GO_ENT_GATE                     = 223056,
+    GO_ENT_DOOR_LEFT                = 221800,
+    GO_ENT_DOOR_RIGHT               = 221801,
+    GO_EX_DOOR_RIGHT                = 221798,
+    GO_EX_DOOR_LEFT                 = 221799,
+
+    //Entrance to room
+    GO_ROOM_GATE                    = 221794, //NPC_MOGU_SPOILS
+    GO_ROOM_GATE2                   = 221795, //NPC_MOGU_SPOILS2, pull
+    GO_ROOM_GATE3                   = 221796, //NPC_MANTIS_SPOILS
+    GO_ROOM_GATE4                   = 221797, //NPC_MANTIS_SPOILS2, pull
+
+    //Right
+    GO_IRON_DOOR_R                  = 223032, 
+    GO_LEVER_R                      = 221771,  
+
+    //Left
+    GO_IRON_DOOR_L                  = 223033,
+    GO_LEVER_L                      = 221773,
+
+    //Boxes
+    //Mogu
+    GO_SMALL_MOGU_BOX               = 221906,
+    GO_MEDIUM_MOGU_BOX              = 221893,
+    GO_BIG_MOGU_BOX                 = 221885,
+    //Mantis
+    GO_SMALL_MANTIS_BOX             = 221822, 
+    GO_MEDIUM_MANTIS_BOX            = 221820,
+    GO_BIG_MANTIS_BOX               = 221804,
+    //Pandaren
+    GO_PANDAREN_RELIC_BOX           = 221878,
+    //
+
+    GO_SP_EX_DOOR                   = 223058, //Pre Enter Thok
+
+    //Thok
+    GO_THOK_ENT_DOOR               = 223805,
+    GO_ICE_TOMB                    = 218627,
+    //Jails
+    GO_JINUI_JAIL                  = 222010, //right
+    GO_JINUI_JAIL2                 = 222011, 
+
+    GO_SAUROK_JAIL                 = 222046, //left
+    GO_SAUROK_JAIL2                = 222047,
+
+    GO_YAUNGOLIAN_JAIL             = 223005,
+    GO_YAUNGOLIAN_JAIL2            = 223006,
+
+    //Paragons of the Klaxxi
+    GO_ARENA_WALL                 = 221264,
+};
+
+enum esSpells
+{
+    SPELL_SWIRL_SEARCHER           = 113762, //Cone Searcher
 };
 
 enum GalakrasEvent

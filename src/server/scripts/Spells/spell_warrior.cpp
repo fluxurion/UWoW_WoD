@@ -168,8 +168,13 @@ class spell_warr_shield_block : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->CastSpell(_player, WARRIOR_SPELL_SHIELD_BLOCKC_TRIGGERED, true);
+                if (Unit* caster = GetCaster())
+                {
+                    if (Aura* aura = caster->GetAura(WARRIOR_SPELL_SHIELD_BLOCKC_TRIGGERED))
+                        aura->SetDuration(aura->GetDuration() + 6 * IN_MILLISECONDS);
+                    else
+                        caster->CastSpell(caster, WARRIOR_SPELL_SHIELD_BLOCKC_TRIGGERED, true);
+                }
             }
 
             void Register()
@@ -519,8 +524,6 @@ class spell_warr_heroic_leap : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_heroic_leap_SpellScript);
 
-            std::list<Unit*> targetList;
-
             SpellCastResult CheckElevation()
             {
                 Unit* caster = GetCaster();
@@ -775,7 +778,7 @@ class spell_warr_deep_wounds : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_deep_wounds_SpellScript);
 
-            void HandleOnHit()
+            void HandleAfterHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
@@ -791,7 +794,7 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warr_deep_wounds_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_warr_deep_wounds_SpellScript::HandleAfterHit);
             }
         };
 
@@ -828,36 +831,6 @@ class spell_war_avatar : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_war_avatar_SpellScript();
-        }
-};
-
-class spell_war_intimidating_shout : public SpellScriptLoader
-{
-    public:
-        spell_war_intimidating_shout() : SpellScriptLoader("spell_war_intimidating_shout") { }
-
-        class spell_war_intimidating_shout_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_war_intimidating_shout_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                if(!GetCaster() || !GetCaster()->HasAura(63327))
-                    targets.clear();
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_war_intimidating_shout_SpellScript::FilterTargets, EFFECT_3, TARGET_UNIT_SRC_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_war_intimidating_shout_SpellScript();
         }
 };
 
@@ -1125,8 +1098,25 @@ class spell_war_intervene : public SpellScriptLoader
                     targets.resize(1);
             }
 
+            SpellCastResult CheckCast()
+            {
+                Player* _player = GetCaster()->ToPlayer();
+                if (!_player)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                Unit* target = _player->GetSelectedUnit();
+                if (!target)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!_player->IsFriendlyTo(target) || (!_player->IsInPartyWith(target) && !_player->IsInRaidWith(target)))
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                return SPELL_CAST_OK;
+            }
+
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_war_intervene_SpellScript::CheckCast);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_war_intervene_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
 
@@ -1175,9 +1165,9 @@ class spell_warr_charge_drop_fire : public SpellScriptLoader
                     float angle = caster->GetAngle(&savePos);
                     if(count > 0)
                     {
-                        for(int32 j = 1; j < count + 1; ++j)
+                        for(uint32 j = 1; j < count + 1; ++j)
                         {
-                            int32 distanceNext = j;
+                            uint32 distanceNext = j;
                             float destx = caster->GetPositionX() + distanceNext * std::cos(angle);
                             float desty = caster->GetPositionY() + distanceNext * std::sin(angle);
                             savePos.Relocate(destx, desty, caster->GetPositionZ());
@@ -1206,6 +1196,91 @@ class spell_warr_charge_drop_fire : public SpellScriptLoader
         }
 };
 
+// Dragon Roar - 118000
+class spell_warr_dragon_roar : public SpellScriptLoader
+{
+    public:
+        spell_warr_dragon_roar() : SpellScriptLoader("spell_warr_dragon_roar") { }
+
+        class spell_warr_dragon_roar_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_dragon_roar_SpellScript);
+
+            void HandleOnHit()
+            {
+                uint32 count = GetSpell()->GetTargetCount();
+                int32 damage = GetHitDamage();
+                if(count >= 10)
+                    damage = damage * 5 / count;
+                else if(count >= 5)
+                    damage = damage * 0.5f;
+                else if(count >= 4)
+                    damage = damage * 0.55f;
+                else if(count >= 3)
+                    damage = damage * 0.65f;
+                else if(count >= 2)
+                    damage = damage * 0.75f;
+                SetHitDamage(damage);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_dragon_roar_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_dragon_roar_SpellScript();
+        }
+};
+
+// Defensive Stance - 7376
+class spell_warr_defensive_stance : public SpellScriptLoader
+{
+public:
+    spell_warr_defensive_stance() : SpellScriptLoader("spell_warr_defensive_stance") { }
+
+    class spell_warr_defensive_stance_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_defensive_stance_AuraScript);
+
+        uint32 timer;
+
+        bool Load()
+        {
+            if (!GetCaster())
+                return false;
+
+            timer = 0;
+            return true;
+        }
+
+        void OnUpdate(uint32 diff, AuraEffect* aurEff)
+        {
+            timer += diff;
+            if (timer >= 3000)
+            {
+                timer = 0;
+                if (Unit* caster = GetCaster())
+                    if (caster->isInCombat())
+                        caster->ModifyPower(POWER_RAGE, 10);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectUpdate += AuraEffectUpdateFn(spell_warr_defensive_stance_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_defensive_stance_AuraScript();
+    }
+};
+
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_stampeding_shout();
@@ -1229,7 +1304,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_thunder_clap();
     new spell_warr_deep_wounds();
     new spell_war_avatar();
-    new spell_war_intimidating_shout();
     new spell_war_glyph_of_die_by_the_sword();
     new spell_glyph_of_gag_order();
     new spell_warr_t16_dps_2p();
@@ -1238,4 +1312,6 @@ void AddSC_warrior_spell_scripts()
     new spell_war_slam_aoe();
     new spell_war_intervene();
     new spell_warr_charge_drop_fire();
+    new spell_warr_dragon_roar();
+    new spell_warr_defensive_stance();
 }

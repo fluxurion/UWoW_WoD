@@ -132,22 +132,29 @@ public:
         bool comeonhome;
         bool startattack;
         uint32 jump;
+        uint32 canSeeCheck;
         uint32 entryId;
         ObjectGuid firsttarget;
-        Unit *owner;
+        Unit* owner;
+        Unit* target;
         float oldHast;
 
         void InitializeAI()
         {
-            owner = me->ToTempSummon()->GetSummoner();
+            owner = NULL; 
+            if (TempSummon* tempSum = me->ToTempSummon())
+                owner = tempSum->GetSummoner();
+            target = NULL;
             firsttarget = me->GetTargetGUID();
             addaura = true;
             jumpontarget = true;
             comeonhome = false;
             startattack = false;
             jump = 0;
+            canSeeCheck = 0;
             entryId = me->GetEntry();
             oldHast = 0;
+            me->SetReactState(REACT_PASSIVE);
         }
 
         void CheckWayOfTheMonkAura()
@@ -167,9 +174,9 @@ public:
                 bool greenClone = entryId == 69792;
 
                 float finaldmg = 0;
-                float mainattackspeed = 0;
+                float mainattackspeed = 2.0f;
                 float adddmg = 0;
-                float offattackspeed = 0;
+                float offattackspeed = 2.0f;
 
                 if (mainItem)
                 {
@@ -180,23 +187,21 @@ public:
                 {
                     adddmg = offItem->GetTemplate()->GetDPS(offItem->GetItemLevel());
                     offattackspeed = mainItem->GetTemplate()->Delay / 1000.0f;
-
-                    if (greenClone)
-                        adddmg /= 2;
                 }
 
                 finaldmg += adddmg;
+                float damagePctDone = me->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, SPELL_SCHOOL_MASK_NORMAL);
+                float offfinaldmg = finaldmg / 2;
+                finaldmg -= offfinaldmg;
+
+                offfinaldmg = (offfinaldmg + me->GetTotalAttackPowerValue(BASE_ATTACK) / 14.0f) * (offattackspeed ? offattackspeed: mainattackspeed);
+                offfinaldmg *= me->GetModifierValue(UNIT_MOD_DAMAGE_OFFHAND, BASE_PCT);
+                offfinaldmg += me->GetModifierValue(UNIT_MOD_DAMAGE_OFFHAND, TOTAL_VALUE);
+                offfinaldmg *= damagePctDone;
+                offfinaldmg = CalculatePct(offfinaldmg, 50);
 
                 if (!greenClone)
                 {
-                    float offfinaldmg = finaldmg / 2;
-                    finaldmg -= offfinaldmg;
-
-                    offfinaldmg = (offfinaldmg + me->GetTotalAttackPowerValue(BASE_ATTACK) / 14.0f) * (offattackspeed ? offattackspeed: mainattackspeed);
-                    offfinaldmg *= me->GetModifierValue(UNIT_MOD_DAMAGE_OFFHAND, BASE_PCT);
-                    offfinaldmg += me->GetModifierValue(UNIT_MOD_DAMAGE_OFFHAND, TOTAL_VALUE);
-                    offfinaldmg *= me->GetModifierValue(UNIT_MOD_DAMAGE_OFFHAND, TOTAL_PCT);
-
                     me->SetStatFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, offfinaldmg);
                     me->SetStatFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, offfinaldmg);
                 }
@@ -204,7 +209,10 @@ public:
                 finaldmg = (finaldmg + me->GetTotalAttackPowerValue(BASE_ATTACK) / 14.0f) * mainattackspeed;
                 finaldmg *= me->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, BASE_PCT);
                 finaldmg += me->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_VALUE);
-                finaldmg *= me->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT);
+                finaldmg *= damagePctDone;
+
+                if (greenClone)
+                    finaldmg += offfinaldmg;
 
                 me->SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, finaldmg);
                 me->SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, finaldmg);
@@ -241,6 +249,8 @@ public:
                     me->SetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME+OFF_ATTACK, offattackspeed ? offattackspeed: mainattackspeed);
 
                 me->SetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME+BASE_ATTACK, mainattackspeed);
+                me->SetFloatValue(UNIT_MOD_CAST_HASTE, owner->GetFloatValue(UNIT_MOD_CAST_HASTE));
+                me->SetFloatValue(UNIT_MOD_CAST_SPEED, owner->GetFloatValue(UNIT_MOD_CAST_SPEED));
             }
         }
 
@@ -291,15 +301,35 @@ public:
                 return;
 
             comeonhome = true;
+            uint8 num = 0;
+
+            switch (me->GetEntry())
+            {
+                case 69792: num = 13; break; // Earth
+                case 69680: num = 14; break; // Storm
+                case 69791: num = 15; break; // Fire
+                default:
+                    return;
+            }
+
+            if (!owner->IsInWorld())
+            {
+                owner->m_SummonSlot[num] = 0;
+                me->DespawnOrUnsummon();
+                return;
+            }
 
             if (me->isAlive())
             {
                 me->CastSpell(owner, 124002, true);
-                owner->m_Controlled.erase(me);
                 me->DespawnOrUnsummon(500);
             }
             else
+            {
+                owner->m_SummonSlot[num] = 0;
                 me->DespawnOrUnsummon();
+            }
+
 
             if (Aura *aura = owner->GetAura(137639))
             {
@@ -315,7 +345,7 @@ public:
         {
             if (!comeonhome)
             {
-                if (!me->getVictim())
+                if (!me->getVictim() || !target)
                 {
                     if (addaura)
                     {
@@ -345,26 +375,34 @@ public:
                     }
 
                     if (!jumpontarget)
+                    {
                         ComonOnHome();
+                        return;
+                    }
 
                     if (jumpontarget)
                     {
                         jump += diff;
                         if (jump >= 500)
                         {
-                            if(Unit* gettarget = ObjectAccessor::GetUnit(*me, firsttarget))
+                            if (target = ObjectAccessor::GetUnit(*me, firsttarget))
                             {
-                                me->CastSpell(gettarget, 124002, true);
-                                AttackStart(gettarget);
+                                me->CastSpell(target, 124002, true);
+                                AttackStart(target);
+                                me->SetReactState(REACT_AGGRESSIVE);
                                 jumpontarget = false;
                             }
                         }
                     }
+                    return;
                 }
 
                 if (me->getVictim() && me->getVictim()->GetGUID() != firsttarget)
                     if (!jumpontarget && !comeonhome)
+                    {
                         ComonOnHome();
+                        return;
+                    }
 
                 if (owner)
                 {
@@ -378,24 +416,40 @@ public:
                     }
                 }
 
-                Unit *victim = me->getVictim();
-
-                if (me->isAttackReady() && me->IsWithinMeleeRange(victim))
+                canSeeCheck += diff;
+                if (canSeeCheck >= 1000 && target)
                 {
-                    me->AttackerStateUpdate(victim);
-                    me->resetAttackTimer();
-
-                    if (entryId != 69792 && !startattack)
+                    if (!me->canSeeOrDetect(target) && !comeonhome)
                     {
-                        me->setAttackTimer(OFF_ATTACK, 1000);
-                        startattack = true;
+                        ComonOnHome();
+                        return;
                     }
+                    canSeeCheck = 0;
                 }
 
-                if (entryId != 69792 && me->isAttackReady(OFF_ATTACK) && me->IsWithinMeleeRange(victim))
+                if (Unit *victim = me->getVictim())
                 {
-                    me->AttackerStateUpdate(victim, OFF_ATTACK);
-                    me->resetAttackTimer(OFF_ATTACK);
+                    if (me->IsWithinMeleeRange(victim))
+                    {
+                        if (me->isAttackReady())
+                        {
+                            me->AttackerStateUpdate(victim);
+                            me->resetAttackTimer();
+                        }
+                        if (entryId != 69792 && me->isAttackReady(OFF_ATTACK))
+                        {
+                            if (!startattack)
+                            {
+                                me->setAttackTimer(OFF_ATTACK, 1000);
+                                startattack = true;
+                            }
+                            me->AttackerStateUpdate(victim, OFF_ATTACK);
+                            me->resetAttackTimer(OFF_ATTACK);
+                        }
+                    }
+
+                    if (!me->IsWithinMeleeRange(victim, me->GetAttackDist() - 2.0f))
+                        me->GetMotionMaster()->MoveChase(victim, me->GetAttackDist() - 2.0f);
                 }
             }
         }
@@ -2400,26 +2454,21 @@ class npc_ebon_gargoyle : public CreatureScript
             npc_ebon_gargoyleAI(Creature* creature) : CasterAI(creature) {}
 
             uint32 despawnTimer;
+            bool checkTarget;
+            uint64 ownerGuid;
+            uint64 mainTargetGUID;
+            uint32 targetCheckTime;
 
             void InitializeAI()
             {
+                checkTarget = false;
+                mainTargetGUID = 0;
                 CasterAI::InitializeAI();
-                ObjectGuid ownerGuid = me->GetOwnerGUID();
+                ownerGuid = me->GetOwnerGUID();
                 if (!ownerGuid)
                     return;
                 // Not needed to be despawned now
                 despawnTimer = 0;
-                // Find victim of Summon Gargoyle spell
-                std::list<Unit*> targets;
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(30, searcher);
-                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                    if ((*iter)->GetAura(49206, ownerGuid))
-                    {
-                        me->Attack((*iter), false);
-                        break;
-                    }
             }
 
             void JustDied(Unit* /*killer*/)
@@ -2472,6 +2521,37 @@ class npc_ebon_gargoyle : public CreatureScript
                     return;
                 }
                 CasterAI::UpdateAI(diff);
+
+                targetCheckTime += diff;
+                if (targetCheckTime > 2000)
+                {
+                    if (mainTargetGUID)
+                        if (me->getVictim() && !me->getVictim()->GetGUID() != mainTargetGUID)
+                            checkTarget = false;
+
+                    targetCheckTime = 0;
+                }
+
+                if (!checkTarget)
+                {
+                    std::list<Unit*> targets;
+                    Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
+                    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+                    me->VisitNearbyObject(30, searcher);
+                    for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                        if (Unit* unit = (*iter)->ToUnit())
+                            if (unit->HasAura(49206, ownerGuid))
+                            {
+                                if (!mainTargetGUID)
+                                    mainTargetGUID = unit->GetGUID();
+
+                                if (me->IsValidAttackTarget(unit))
+                                    me->Attack((unit), false);
+                                break;
+                            }
+
+                    checkTarget = true;
+                }
             }
         };
 
@@ -2479,6 +2559,48 @@ class npc_ebon_gargoyle : public CreatureScript
         {
             return new npc_ebon_gargoyleAI(creature);
         }
+};
+
+class npc_mage_mirror_image : public CreatureScript
+{
+public:
+    npc_mage_mirror_image() : CreatureScript("npc_mage_mirror_image") { }
+
+    struct npc_mage_mirror_imageAI : CasterAI
+    {
+        npc_mage_mirror_imageAI(Creature* creature) : CasterAI(creature) {}
+
+        uint32 targetCheckTime;
+        bool firstCheck;
+
+        void InitializeAI()
+        {
+            CasterAI::InitializeAI();
+            targetCheckTime = 0;
+            firstCheck = false;
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            targetCheckTime += diff;
+            if (targetCheckTime > 2000 || !firstCheck)
+            {
+                if (Unit* owner = me->GetOwner())
+                    if (Unit* victim = owner->getVictim())
+                        me->Attack(victim, false);
+
+                firstCheck = true;
+                targetCheckTime = 0;
+            }
+
+            CasterAI::UpdateAI(diff);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_mage_mirror_imageAI(creature);
+    }
 };
 
 class npc_lightwell : public CreatureScript
@@ -2583,6 +2705,7 @@ public:
                 me->AddAura(113368, me);
 
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
+            me->SetReactState(REACT_PASSIVE);
         }
 
         void DamageTaken(Unit* attacker, uint32 &damage)
@@ -2620,18 +2743,25 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            if (!UpdateVictim())
-                return;
-
             std::list<HostileReference*> threatlist = me->getThreatManager().getThreatList();
             if (!threatlist.empty())
             {
                 for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); itr++)
                 {
+                    if (!(*itr))
+                        continue;
+
                     if (Player* pl = me->GetPlayer(*me, (*itr)->getUnitGuid()))
                     {
                         if (!pl->GetCombatTimer())
+                        {
                             pl->CombatStop(false);
+                            (*itr)->removeReference();
+                        }
+                    }
+                    else
+                    {
+                        (*itr)->removeReference();
                     }
                 }
             }
@@ -3498,20 +3628,30 @@ class npc_frozen_orb : public CreatureScript
                         owner->CastSpell(owner, 126084, true);
                     owner->CastSpell(owner, 44544, true);
 
-                    float distance = 100.0f;
+                    
+                    float distance = 0.0f;
                     owner->GetNearPoint2D(x, y, distance, owner->GetOrientation());
-                    z = me->GetMap()->GetHeight(x,y, me->GetPositionZ(), true, MAX_FALL_DISTANCE);
-                    if(!me->IsWithinLOS(x, y, z))
+                    z = me->GetMap()->GetHeight(x, y, me->GetPositionZ(), true, MAX_FALL_DISTANCE);
+                    float moveX = x;
+                    float moveY = y;
+                    float moveZ = z;
+                    for (uint8 j = 0; distance < 100.0f; ++j)
                     {
-                        for (uint8 j = 0; distance > 5.0f; ++j)
+                        distance += 5.0f;
+                        owner->GetNearPoint2D(x, y, distance, owner->GetOrientation());
+                        z = me->GetMap()->GetHeight(x,y, me->GetPositionZ(), true, MAX_FALL_DISTANCE);
+                        if (me->IsWithinLOS(x, y, z))
                         {
-                            distance -= 5.0f;
-                            owner->GetNearPoint2D(x, y, distance, owner->GetOrientation());
-                            z = me->GetMap()->GetHeight(x,y, me->GetPositionZ(), true, MAX_FALL_DISTANCE);
-                            if(me->IsWithinLOS(x, y, z))
-                                break;
+                            moveX = x;
+                            moveY = y;
+                            moveZ = z;
                         }
+                        else
+                            break;
                     }
+                    x = moveX;
+                    y = moveY;
+                    z = moveZ;
                     me->GetMotionMaster()->MovePoint(0, x, y, z);
                 }
 
@@ -3541,15 +3681,18 @@ class npc_frozen_orb : public CreatureScript
 
                     owner->CastSpell(me, 84721, true);
 
-                    UnitList targets;
-                    Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 10.0f);
-                    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                    me->VisitNearbyObject(10.0f, searcher);
-                    for (UnitList::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                    if (me->GetSpeed(MOVE_RUN) != 0.2f)
                     {
-                        me->SetSpeed(MOVE_WALK, 0.2f);
-                        me->SetSpeed(MOVE_RUN, 0.2f);
-                        break;
+                        UnitList targets;
+                        Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 10.0f);
+                        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+                        me->VisitNearbyObject(10.0f, searcher);
+                        for (UnitList::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                        {
+                            me->SetSpeed(MOVE_WALK, 0.2f);
+                            me->SetSpeed(MOVE_RUN, 0.2f);
+                            break;
+                        }
                     }
                     frozenOrbTimer = 1000;
                 }
@@ -4351,6 +4494,94 @@ class npc_riggle_bassbait : public CreatureScript
     }
 };
 
+class npc_mirror_image : public CreatureScript
+{
+    public:
+        npc_mirror_image() : CreatureScript("npc_mirror_image") { }
+
+        struct npc_mirror_imageAI : public Scripted_NoMovementAI
+        {
+            npc_mirror_imageAI(Creature* c) : Scripted_NoMovementAI(c)
+            {
+                me->SetReactState(REACT_PASSIVE);
+            }
+
+            void Reset()
+            {
+                if (Unit* owner = me->GetOwner())
+                {
+                    owner->CastSpell(me, SPELL_CLONE_CASTER, true);
+                    owner->CastSpell(me, 41055, true);
+                    owner->CastSpell(me, 45206, true);
+                    me->SetFacingToObject(owner);
+                }
+            }
+
+            void UpdateAI(uint32 diff) {}
+
+            void EnterCombat(Unit* /*who*/) {}
+
+            void EnterEvadeMode() {}
+        };
+
+        CreatureAI* GetAI(Creature *creature) const
+        {
+            return new npc_mirror_imageAI(creature);
+        }
+};
+
+enum eSpells
+{
+    SPELL_TRAMPOLINE_BOUNCE_1 = 79040,
+    SPELL_TRAMPOLINE_BOUNCE_2 = 79044,
+};
+
+class npc_hyjal_soft_target : public CreatureScript
+{
+    public:
+        npc_hyjal_soft_target() : CreatureScript("npc_hyjal_soft_target") { }
+
+        struct npc_hyjal_soft_targetAI : public ScriptedAI
+        {
+            npc_hyjal_soft_targetAI(Creature* creature) : ScriptedAI(creature)
+            {
+                me->SetReactState(REACT_PASSIVE);
+            }
+
+            uint32 JumpTimer;
+
+            void Reset()
+            {
+                JumpTimer = 1000;
+            }
+
+            void UpdateAI(uint32 diff)
+            {
+                if (JumpTimer <= diff)
+                {
+                    JumpTimer = 1000;
+                    if (Player* pTarget = me->SelectNearestPlayer(1.5f))
+                    {
+                        uint32 spell;
+                        if (urand(0, 1) == 0)
+                            spell = SPELL_TRAMPOLINE_BOUNCE_1;
+                        else
+                            spell = SPELL_TRAMPOLINE_BOUNCE_2;
+
+                        DoCast(pTarget, spell);
+                    }
+                }
+                else
+                    JumpTimer -= diff;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_hyjal_soft_targetAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_storm_earth_and_fire();
@@ -4371,6 +4602,7 @@ void AddSC_npcs_special()
     new npc_brewfest_reveler();
     new npc_snake_trap();
     new npc_ebon_gargoyle();
+    new npc_mage_mirror_image();
     new npc_lightwell();
     new npc_lightwell_mop();
     new mob_mojo();
@@ -4401,4 +4633,6 @@ void AddSC_npcs_special()
     new npc_past_self();
     new npc_guild_battle_standard();
     new npc_riggle_bassbait();
+    new npc_mirror_image();
+    new npc_hyjal_soft_target();
 }

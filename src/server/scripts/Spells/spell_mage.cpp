@@ -747,14 +747,31 @@ class spell_mage_nether_tempest : public SpellScriptLoader
 
                     for (std::list<Unit*>::const_iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                     {
-                        GetCaster()->CastSpell(*itr, SPELL_MAGE_NETHER_TEMPEST_DIRECT_DAMAGE, true);
-                        GetCaster()->CastSpell(*itr, SPELL_MAGE_NETHER_TEMPEST_VISUAL, true);
+                        pCaster->CastSpell(*itr, SPELL_MAGE_NETHER_TEMPEST_DIRECT_DAMAGE, true);
+                        pCaster->CastSpell(*itr, SPELL_MAGE_NETHER_TEMPEST_VISUAL, true);
                         GetTarget()->CastSpell(*itr, SPELL_MAGE_NETHER_TEMPEST_MISSILE, true);
                     }
 
-                    if (GetCaster()->HasAura(SPELL_MAGE_BRAIN_FREEZE))
-                        if (roll_chance_i(10))
-                            GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                    if (pCaster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
+                    {
+                        uint64 procTarget = 0;
+                        int32 maxDuration = 0;
+
+                        for (std::set<uint64>::iterator iter = pCaster->m_unitsHasCasterAura.begin(); iter != pCaster->m_unitsHasCasterAura.end(); ++iter)
+                        {
+                            if (Unit* _target = ObjectAccessor::GetUnit(*pCaster, *iter))
+                                if (Aura* aura = _target->GetAura(114923, pCaster->GetGUID()))
+                                    if (aura->GetDuration() >= maxDuration)
+                                    {
+                                        maxDuration = aura->GetDuration();
+                                        procTarget = *iter;
+                                    }
+                        }
+
+                        if (procTarget == GetTarget()->GetGUID())
+                            if (irand(0, 10000) < 833)
+                                pCaster->CastSpell(pCaster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                    }
                 }
             }
 
@@ -917,7 +934,7 @@ class CheckInfernoBlastImpactPredicate
         Unit* _mainTarget;
 };
 
-// Inferno Blast - 108853
+// Inferno Blast - 118280
 class spell_mage_inferno_blast : public SpellScriptLoader
 {
     public:
@@ -927,79 +944,91 @@ class spell_mage_inferno_blast : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_inferno_blast_SpellScript);
 
-            void HandleOnHit()
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
+                uint32 count = 3;
+
+                if (Unit* caster = GetCaster())
+                    if (Aura* aura = caster->GetAura(89926))
                     {
-                        std::list<Unit*> targetList;
-
-                        if (target->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()) 
-                        || target->HasAura(SPELL_MAGE_PYROBLAST, _player->GetGUID())
-                        || target->HasAura(SPELL_MAGE_COMBUSTION_DOT, _player->GetGUID()))
-                            _player->CastSpell(target, SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
-
-                        // Spreads any Pyroblast, Ignite, and Combustion effects to up to 2 nearby enemy targets within 10 yards
-
-                        target->GetAttackableUnitListInRange(targetList, 10.0f);
-
-                        targetList.remove_if(CheckInfernoBlastImpactPredicate(_player, target));
-
-                        if (targetList.size() > 2)
-                            Trinity::Containers::RandomResizeList(targetList, 2);
-
-                        for (std::list<Unit*>::const_iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
-                        {
-                            Unit* unit = *itr;
-                            // 1 : Ignite
-                            if (target->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
-                            {
-                                float value = _player->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f / 100.0f;
-
-                                int32 igniteBp = 0;
-
-                                if (unit->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
-                                    igniteBp += unit->GetRemainingPeriodicAmount(_player->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
-
-                                igniteBp += int32(GetHitDamage() * value / 2);
-
-                                _player->CastCustomSpell(unit, SPELL_MAGE_IGNITE, &igniteBp, NULL, NULL, true);
-                            }
-
-                            // 2 : Pyroblast
-                            if (target->HasAura(SPELL_MAGE_PYROBLAST, _player->GetGUID()))
-                                _player->AddAura(SPELL_MAGE_PYROBLAST, unit);
-
-                            // 3 : Combustion
-                            if (target->HasAura(SPELL_MAGE_COMBUSTION_DOT, _player->GetGUID()))
-                            {
-                                int32 combustionBp = 0;
-                                if (unit->HasAura(SPELL_MAGE_IGNITE, _player->GetGUID()))
-                                    combustionBp += unit->GetRemainingPeriodicAmount(_player->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
-
-                                if (combustionBp)
-                                {
-                                    //combustionBp = int32(combustionBp / targetList.size());
-                                    _player->CastCustomSpell(unit, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
-                                }
-                            }
-                            // 4 : Living Bomb
-                            if (_player->HasAura(89926))
-                            {
-                                if (target->HasAura(44457, _player->GetGUID()))
-                                {
-                                    _player->AddAura(44457, unit);
-                                }
-                            }
-                        }
+                        if (aura->GetEffect(EFFECT_0))
+                            count += aura->GetEffect(EFFECT_0)->GetAmount();
                     }
-                }
+                if (targets.size() > count)
+                    Trinity::Containers::RandomResizeList(targets, count);
+            }
+
+            void HandleAfterHit()
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* originalTarget = GetOriginalTarget())
+                        if (Unit* target = GetHitUnit())
+                        {
+                            if (target->GetGUID() == originalTarget->GetGUID())
+                                return;
+
+                            if (Aura* aura = originalTarget->GetAura(SPELL_MAGE_IGNITE, caster->GetGUID()))
+                                if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
+                                {
+                                    if (target->HasAura(SPELL_MAGE_IGNITE, caster->GetGUID()))
+                                    {
+                                        int32 bp = eff->GetAmount();
+                                        caster->CastCustomSpell(target, SPELL_MAGE_IGNITE, &bp, NULL, NULL, true);
+                                    }
+                                    else
+                                    {
+                                        caster->AddAura(SPELL_MAGE_IGNITE, target);
+
+                                        if (Aura* newAura = target->GetAura(SPELL_MAGE_IGNITE, caster->GetGUID()))
+                                            if (AuraEffect* newEff = newAura->GetEffect(EFFECT_0))
+                                            {
+                                                newAura->SetMaxDuration(aura->GetDuration());
+                                                newAura->SetDuration(aura->GetDuration());
+                                                newEff->SetPeriodicTimer(eff->GetPeriodicTimer());
+                                                newEff->SetCritAmount(eff->GetCritAmount());
+                                                newEff->SetAmount(eff->GetAmount());
+                                            }
+                                    }
+                                }
+
+                            if (Aura* aura = originalTarget->GetAura(SPELL_MAGE_PYROBLAST, caster->GetGUID()))
+                                if (AuraEffect* eff = aura->GetEffect(EFFECT_1))
+                                {
+                                    caster->AddAura(SPELL_MAGE_PYROBLAST, target);
+
+                                    if (Aura* newAura = target->GetAura(SPELL_MAGE_PYROBLAST, caster->GetGUID()))
+                                        if (AuraEffect* newEff = newAura->GetEffect(EFFECT_1))
+                                        {
+                                            newAura->SetMaxDuration(aura->GetDuration());
+                                            newAura->SetDuration(aura->GetDuration());
+                                            newEff->SetPeriodicTimer(eff->GetPeriodicTimer());
+                                            newEff->SetCritAmount(eff->GetCritAmount());
+                                            newEff->SetAmount(eff->GetAmount());
+                                        }
+                                }
+
+                            if (Aura* aura = originalTarget->GetAura(SPELL_MAGE_COMBUSTION_DOT, caster->GetGUID()))
+                                if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
+                                {
+                                    caster->AddAura(SPELL_MAGE_COMBUSTION_DOT, target);
+
+                                    if (Aura* newAura = target->GetAura(SPELL_MAGE_COMBUSTION_DOT, caster->GetGUID()))
+                                        if (AuraEffect* newEff = newAura->GetEffect(EFFECT_0))
+                                        {
+                                            newAura->SetMaxDuration(aura->GetDuration());
+                                            newAura->SetDuration(aura->GetDuration());
+                                            newEff->SetPeriodicTimer(eff->GetPeriodicTimer());
+                                            newEff->SetCritAmount(eff->GetCritAmount());
+                                            newEff->SetAmount(eff->GetAmount());
+                                        }
+                                }
+                        }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mage_inferno_blast_SpellScript::HandleOnHit);
+                OnHit += SpellHitFn(spell_mage_inferno_blast_SpellScript::HandleAfterHit);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_inferno_blast_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
@@ -1495,30 +1524,53 @@ class spell_mage_living_bomb : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                GuidDeque::iterator curr = std::find(caster->m_livingBombTargets.begin(), caster->m_livingBombTargets.end(), target->GetGUID());
-                if (curr != caster->m_livingBombTargets.end())
-                    caster->m_livingBombTargets.erase(curr);
+                Unit* firsttarget = NULL;
+                uint8 targetCount = 0;
+                int32 minDuration = 12000;
 
-                // Living Bomb can only be at 3 targets at once
-                while (caster->m_livingBombTargets.size() >= 3)
+                for (std::set<uint64>::iterator iter = caster->m_unitsHasCasterAura.begin(); iter != caster->m_unitsHasCasterAura.end(); ++iter)
                 {
-                    if (Unit* toRemove = Unit::GetUnit(*caster, caster->m_livingBombTargets[0]))
-                        toRemove->RemoveAurasDueToSpell(aurEff->GetId(), caster->GetGUID());
-
-                    caster->m_livingBombTargets.pop_front();
+                    if (Unit* _target = ObjectAccessor::GetUnit(*caster, *iter))
+                        if (Aura* aura = _target->GetAura(44457, caster->GetGUID()))
+                        {
+                            if (aura->GetDuration() < minDuration)
+                            {
+                                minDuration = aura->GetDuration();
+                                firsttarget = _target;
+                            }
+                            targetCount++;
+                        }
                 }
 
-                caster->m_livingBombTargets.push_back(target->GetGUID());
+                if (targetCount > 3 && firsttarget)
+                    firsttarget->RemoveAurasDueToSpell(44457, caster->GetGUID());
+
             }
             
             void OnTick(AuraEffect const* aurEff)
             {
                 if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
-                        if (roll_chance_i(10))
-                            caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
-                }
+                    if (Unit* target = GetTarget())
+                        if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
+                        {
+                            uint64 procTarget = 0;
+                            int32 maxDuration = 0;
+
+                            for (std::set<uint64>::iterator iter = caster->m_unitsHasCasterAura.begin(); iter != caster->m_unitsHasCasterAura.end(); ++iter)
+                            {
+                                if (Unit* _target = ObjectAccessor::GetUnit(*caster, *iter))
+                                    if (Aura* aura = _target->GetAura(44457, caster->GetGUID()))
+                                        if (aura->GetDuration() >= maxDuration)
+                                        {
+                                            maxDuration = aura->GetDuration();
+                                            procTarget = *iter;
+                                        }
+                            }
+
+                            if (procTarget == target->GetGUID())
+                                if (roll_chance_i(25))
+                                    caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                        }
             }
 
             void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -2214,41 +2266,6 @@ class spell_mage_glyph_of_conjure_familiar : public SpellScriptLoader
         }
 };
 
-// Inferno Blast - 118280
-class spell_mage_inferno_blast_impact : public SpellScriptLoader
-{
-    public:
-        spell_mage_inferno_blast_impact() : SpellScriptLoader("spell_mage_inferno_blast_impact") { }
-
-        class spell_mage_inferno_blast_impact_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mage_inferno_blast_impact_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                uint32 count = 3;
-                if (Unit* caster = GetCaster())
-                    if (Aura* aura = caster->GetAura(89926))
-                    {
-                        if(aura->GetEffect(EFFECT_0))
-                            count += aura->GetEffect(EFFECT_0)->GetAmount();
-                    }
-                if(targets.size() > count)
-                    Trinity::Containers::RandomResizeList(targets, count);
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_inferno_blast_impact_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mage_inferno_blast_impact_SpellScript();
-        }
-};
-
 // Icicle - 148022
 class spell_mage_icicle_damage : public SpellScriptLoader
 {
@@ -2351,7 +2368,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_flameglow();
     new spell_mage_glyph_of_icy_veins();
     new spell_mage_glyph_of_conjure_familiar();
-    new spell_mage_inferno_blast_impact();
     new spell_mage_icicle_damage();
     new spell_mage_glyph_of_icy_veins_damage();
 }

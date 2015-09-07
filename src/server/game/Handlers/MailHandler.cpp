@@ -273,7 +273,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
                 }
 
                 item->SetNotRefundable(GetPlayer()); // makes the item no longer refundable
-                player->MoveItemFromInventory(item->GetBagSlot(), item->GetSlot(), true);
+                player->MoveItemFromInventory(item, true);
 
                 item->DeleteFromInventoryDB(trans);     // deletes item from character's inventory
                 item->SetOwnerGUID(receiverGuid);
@@ -438,6 +438,10 @@ void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& packet)
     Item* item = player->GetMItem(packet.AttachID);
     if(!item)
         return;
+
+    if(item->GetEntry() == 38186)
+        sLog->outDebug(LOG_FILTER_EFIR, "HandleMailTakeItem - item %u; count = %u playerGUID %u, itemGUID %u", item->GetEntry(), item->GetCount(), player->GetGUID(), item->GetGUID());
+
     item->SetOwnerGUID(player->GetGUID());
     ItemPosCountVec dest;
     uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, item, false);

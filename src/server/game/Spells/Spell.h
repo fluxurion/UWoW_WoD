@@ -246,6 +246,7 @@ struct SpellValue
 {
     explicit  SpellValue(SpellInfo const* proto, uint8 diff);
     int32     EffectBasePoints[MAX_SPELL_EFFECTS];
+    bool      LockBasePoints[MAX_SPELL_EFFECTS];
     uint32    MaxAffectedTargets;
     float     RadiusMod;
     uint8     AuraStackAmount;
@@ -432,6 +433,7 @@ class Spell
         void EffectHealBattlePetPct(SpellEffIndex effIndex);
         void SendScene(SpellEffIndex effIndex);
         void EffectBonusLoot(SpellEffIndex effIndex);
+        void EffectJoinOrLeavePlayerParty(SpellEffIndex effIndex);
 
         typedef std::set<Aura *> UsedSpellMods;
 
@@ -497,7 +499,7 @@ class Spell
         SpellCastResult CheckCasterAuras() const;
         SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
 
-        int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_CastItem, var); }
+        int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_CastItem, m_spellValue->LockBasePoints[i], var); }
 
         bool HaveTargetsForEffect(uint8 effect) const;
         void Delayed();
@@ -559,6 +561,8 @@ class Spell
         bool m_replaced;
         WorldLocation destAtTarget;
         WorldLocation* destTarget;
+        Position visualPos;
+        std::vector<Position> _positions;
 
         UsedSpellMods m_appliedMods;
 
@@ -611,7 +615,7 @@ class Spell
 
         void CleanupTargetList();
 
-        void SetSpellValue(SpellValueMod mod, int32 value);
+        void SetSpellValue(SpellValueMod mod, int32 value, bool lockValue = false);
         uint32 GetCountDispel() const { return m_count_dispeling; }
         bool GetInterupted() const { return m_interupted; }
         void WriteProjectile(int8 &ammoInventoryType, int32 &ammoDisplayID);
@@ -625,6 +629,7 @@ class Spell
         void ClearEffectTarget () { m_effect_targets.clear(); }
         ObjectGuid GetRndEffectTarget () { return Trinity::Containers::SelectRandomContainerElement(m_effect_targets); }
         AuraEffect const* GetTriggeredAuraEff() const { return m_triggeredByAura; }
+        void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
 
         // Spell mod
         void AddSpellModId (uint32 spellId) { m_spell_mods.push_back(spellId); }
@@ -632,6 +637,10 @@ class Spell
 
         uint32 GetTargetCount() const { return m_UniqueTargetInfo.size(); }
         std::list<TargetInfo>* GetUniqueTargetInfo() { return &m_UniqueTargetInfo; }
+
+        int32 GetDamage() const { return m_damage; }
+
+        void AddDst(Position const* pos) { _positions.push_back(*pos); }
     protected:
         bool HasGlobalCooldown();
         void TriggerGlobalCooldown();
@@ -648,7 +657,8 @@ class Spell
                                                             // e.g. damage around area spell trigered by victim aura and damage enemies of aura caster
         Unit* m_originalCaster;                             // cached pointer for m_originalCaster, updated at Spell::UpdatePointers()
         Unit* m_originalTarget;
-         
+        uint64 m_originalTargetGUID;
+
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
 
         //Spell data
@@ -754,7 +764,6 @@ class Spell
         void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true, bool implicit = true);
         void AddGOTarget(GameObject* target, uint32 effectMask);
         void AddItemTarget(Item* item, uint32 effectMask);
-        void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
         void AddTargetVisualHit(Unit* target);
         WorldLocation* GetDestTarget(uint32 effIndex) { return &m_destTargets[effIndex]._position; }
 
@@ -791,6 +800,7 @@ class Spell
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex);
         void CustomTargetSelector(std::list<WorldObject*>& targets, SpellEffIndex effIndex, Targets targetId);
         std::list<SpellScript*> m_loadedScripts;
+        void CallScriptBeforeStartCastHandlers();
 
         struct HitTriggerSpell
         {

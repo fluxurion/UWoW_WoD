@@ -405,6 +405,16 @@ class spell_sha_spirit_link : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_spirit_link_SpellScript);
 
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                std::list<WorldObject*> removeList;
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    if ((*itr) && (*itr)->GetTypeId() != TYPEID_PLAYER)
+                        removeList.push_back(*itr);
+
+                for (std::list<WorldObject*>::iterator iter = removeList.begin(); iter != removeList.end(); ++iter)
+                    targets.remove(*iter);
+            }
             void HandleAfterCast()
             {
                 if (Unit* caster = GetCaster())
@@ -430,6 +440,7 @@ class spell_sha_spirit_link : public SpellScriptLoader
 
             void Register()
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_spirit_link_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterCast += SpellCastFn(spell_sha_spirit_link_SpellScript::HandleAfterCast);
             }
         };
@@ -582,7 +593,7 @@ class spell_sha_unleash_elements : public SpellScriptLoader
                             }
 
                             if (hostileSpell && !hostileTarget)
-                                return; // don't allow to attack non-hostile targets. TODO: check this before cast
+                                continue; // don't allow to attack non-hostile targets. TODO: check this before cast
 
                             if (!hostileSpell && hostileTarget)
                                 target = _player;   // heal ourselves instead of the enemy
@@ -591,45 +602,6 @@ class spell_sha_unleash_elements : public SpellScriptLoader
                                 _player->CastSpell(target, unleashSpell, true);
 
                             target = GetExplTargetUnit();
-
-                            // If weapons are enchanted by same enchantment, only one should be unleashed
-                            if (i == 0 && weapons[0] && weapons[1])
-                                if (weapons[0]->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT) == weapons[1]->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT))
-                                    return;
-                        }
-                    }
-                    if (_player->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
-                    {
-                        Item *weapons[2];
-                        weapons[0] = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                        weapons[1] = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-                        for (int i = 0; i < 2; i++)
-                        {
-                            if(!weapons[i])
-                                continue;
-
-                            uint32 furySpell = 0;
-                            switch (weapons[i]->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT))
-                            {
-                                case 3345: // Earthliving Weapon
-                                    furySpell = SPELL_SHA_UNLEASHED_FURY_EARTHLIVING;
-                                    break;
-                                case 5: // Flametongue Weapon
-                                    furySpell = SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE;
-                                    break;
-                                case 2: // Frostbrand Weapon
-                                    furySpell = SPELL_SHA_UNLEASHED_FURY_FROSTBRAND;
-                                    break;
-                                case 3021: // Rockbiter Weapon
-                                    furySpell = SPELL_SHA_UNLEASHED_FURY_ROCKBITER;
-                                    break;
-                                case 283: // Windfury Weapon
-                                    furySpell = SPELL_SHA_UNLEASHED_FURY_WINDFURY;
-                                    break;
-                            }
-                            if (furySpell)
-                                _player->CastSpell(_player, furySpell, true);
 
                             // If weapons are enchanted by same enchantment, only one should be unleashed
                             if (i == 0 && weapons[0] && weapons[1])
@@ -798,7 +770,6 @@ class spell_sha_lava_surge : public SpellScriptLoader
                             if (roll_chance_i(20))
                             {
                                 _player->CastSpell(_player, SPELL_SHA_LAVA_SURGE_CAST_TIME, true);
-                                _player->RemoveSpellCooldown(51505, true);
                             }
                         }
                     }
@@ -1528,6 +1499,7 @@ class spell_shaman_totemic_projection : public SpellScriptLoader
                     Position pos;
                     summon->GetFirstCollisionPosition(pos, 2.5f, static_cast<float>(-M_PI/4));
                     //totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    totem->UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation(), false);
                     totem->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false, 60.0f);
                     //totem->SendMovementFlagUpdate();
                 }
@@ -1536,6 +1508,7 @@ class spell_shaman_totemic_projection : public SpellScriptLoader
                     Position pos;
                     summon->GetFirstCollisionPosition(pos, 2.5f, static_cast<float>(-3*M_PI/4));
                     //totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    totem->UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation(), false);
                     totem->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false, 60.0f);
                     //totem->SendMovementFlagUpdate();
                 }
@@ -1544,6 +1517,7 @@ class spell_shaman_totemic_projection : public SpellScriptLoader
                     Position pos;
                     summon->GetFirstCollisionPosition(pos, 2.5f, static_cast<float>(3*M_PI/4));
                     //totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    totem->UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation(), false);
                     totem->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false, 60.0f);
                     //totem->SendMovementFlagUpdate();
                 }
@@ -1552,6 +1526,7 @@ class spell_shaman_totemic_projection : public SpellScriptLoader
                     Position pos;
                     summon->GetFirstCollisionPosition(pos, 2.5f, static_cast<float>(M_PI/4));
                     //totem->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation());
+                    totem->UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), totem->GetOrientation(), false);
                     totem->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false, 60.0f);
                     //totem->SendMovementFlagUpdate();
                 }

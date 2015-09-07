@@ -28,6 +28,7 @@ if(SCRIPTS)
   include(Draenor/CMakeLists.txt)
   include(Pandaria/CMakeLists.txt)
   include(EasternKingdoms/CMakeLists.txt)
+  include(Scenario/CMakeLists.txt)
 endif()
 
 message(STATUS "SCRIPT PREPARATION COMPLETE")
@@ -138,6 +139,8 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
 )
+
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(newscripts STATIC
   ${scripts_STAT_SRCS}

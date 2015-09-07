@@ -48,6 +48,13 @@ enum eSpells
     SPELL_IMPLODING_ENERGYV       = 144069, 
     SPELL_IMPLODING_ENERGYD       = 142988, 
     SPELL_EXPEL_MIASMA            = 143199,
+    //HM
+    SPELL_ESSENCE_OF_YSHAARJ_AT   = 143850,
+    SPELL_ESSENCE_OF_YSHAARJ_DMG  = 143857,
+    SPELL_ESSENCE_OF_YSHAARJ_D    = 143848,
+    SPELL_LANGUISH                = 143919,
+    SPELL_LANGUISH_AT             = 142989,
+    SPELL_AREA_RAF                = 148790, //Root effect, not visible in aura bar
 };
 
 enum Events
@@ -60,6 +67,7 @@ enum Events
     EVENT_BREATH_OF_YSHAARJ       = 6,
     EVENT_EXPLOSE                 = 7,
     EVENT_BLOOD_RAGE              = 8,
+    EVENT_ESSENCE_OF_YSHAARJ      = 9,
 };
 
 enum Actions
@@ -68,6 +76,9 @@ enum Actions
     ACTION_PHASE_TWO,
     ACTION_RE_ATTACK,
     ACTION_BREATH_OF_YSHAARJ,
+    ACTION_ESSENCE_OF_YSHAARJ_START,
+    ACTION_ESSENCE_OF_YSHAARJ_STOP,
+    ACTION_ESSENCE_OF_YSHAARJ_REMOVE,
 };
 
 enum Phase
@@ -92,13 +103,6 @@ struct _ang
     float maxang;
 };
 
-_ang modang[3]
-{
-    {0.0f, 1.5f},
-    {2.0f, 3.5f},
-    {4.0f, 6.0f},
-};
-
 uint32 ancientbarrierbar[3] = 
 {
     SPEEL_WEAK_ANCIENT_BARRIER,
@@ -119,8 +123,8 @@ class boss_malkorok : public CreatureScript
             }
 
             InstanceScript* instance;
-            GuidVector asGuids;
-            uint32 powercheck, displacedenergy;
+            std::vector<uint64> asGuids;
+            uint32 powercheck, displacedenergy, checkvictim;
             Phase phase;
 
             void Reset()
@@ -137,18 +141,45 @@ class boss_malkorok : public CreatureScript
                 phase = PHASE_ONE;
                 displacedenergy = 0;
                 powercheck = 0;
+                checkvictim = 0;
+                if (instance)
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LANGUISH);
+            }
+
+            void JustReachedHome()
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetReactState(REACT_DEFENSIVE);
+            }
+
+            bool CheckPullPlayerPos(Unit* who)
+            {
+                if (Creature* am = me->GetCreature(*me, instance->GetData64(NPC_ANCIENT_MIASMA)))
+                    if (am->GetDistance(who) > 42.0f)
+                        return false;
+
+                return true;
             }
 
             void EnterCombat(Unit* who)
             {
+                if (instance)
+                {
+                    if (!CheckPullPlayerPos(who))
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
                 _EnterCombat();
                 Talk(SAY_PULL);
                 SetGasStateAndBuffPlayers(true);
-                powercheck = 1300;
+                powercheck = 1600;
+                checkvictim = 1500;
                 DoCast(me, SPELL_FATAL_STRIKE, true);
                 events.ScheduleEvent(EVENT_SEISMIC_SLAM, 5000);
-                events.ScheduleEvent(EVENT_PREPARE, 13000);
-                events.ScheduleEvent(EVENT_ERADICATE, 300000);
+                events.ScheduleEvent(EVENT_PREPARE, 12000);
+                events.ScheduleEvent(EVENT_ERADICATE, 360000);
             }
 
             void MovementInform(uint32 type, uint32 pointId)
@@ -169,6 +200,34 @@ class boss_malkorok : public CreatureScript
                     }
                 }
             }
+
+            float _GetRandomAngle(uint8 pos)
+            {
+                switch (pos)
+                {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                {
+                    float mod = float(urand(0, 5)) / 10;
+                    return pos + mod;
+                }
+                case 5:
+                {
+                    float mod = float(urand(0, 3)) / 10;
+                    return pos + mod;
+                }
+                case 6:
+                {
+                    float mod = float(urand(6, 10)) / 10;
+                    return (pos - 1) + mod;
+                }
+                default:
+                    return 0;
+                }
+            }
             
             void DoAction(int32 const action)
             {
@@ -179,11 +238,10 @@ class boss_malkorok : public CreatureScript
                     DoCast(me, SPELL_RELENTLESS_ASSAULT, true);
                     DoCast(me, SPELL_EXPEL_MIASMA);
                     asGuids.clear();
-                    powercheck = 1300;
                     DoCast(me, SPELL_FATAL_STRIKE, true);
                     SetGasStateAndBuffPlayers(true);
-                    events.ScheduleEvent(EVENT_SEISMIC_SLAM, 5000);
-                    events.ScheduleEvent(EVENT_PREPARE, 13000);
+                    powercheck = 1600;
+                    events.ScheduleEvent(EVENT_PREPARE, 12000);
                     break;
                 case ACTION_PHASE_TWO:
                     me->RemoveAurasDueToSpell(SPELL_FATAL_STRIKE);
@@ -197,26 +255,33 @@ class boss_malkorok : public CreatureScript
                     displacedenergy = 4000;
                     break;
                 case ACTION_RE_ATTACK:
-                    if (!asGuids.empty())
-                        if (asGuids.size() == 3)
-                            events.ScheduleEvent(EVENT_BREATH_OF_YSHAARJ, 10000);
-                    if (Creature* am = me->GetCreature(*me, instance->GetGuidData(NPC_ANCIENT_MIASMA)))
+                    if (Creature* am = me->GetCreature(*me, instance->GetData64(NPC_ANCIENT_MIASMA)))
                     {
                         float x, y;
-                        for (uint8 n = 0; n < 3; n++)
+                        uint8 num = me->GetMap()->Is25ManRaid() ? 7 : 3;
+                        for (uint8 n = 0; n < num; n++)
                         {
-                            GetPositionWithDistInOrientation(am, float(urand(15, 30)), urand(modang[n].minang, modang[n].maxang), x, y);
+                            float ang = _GetRandomAngle(n);
+                            GetPositionWithDistInOrientation(am, float(urand(15, 30)), ang, x, y);
                             me->SummonCreature(NPC_IMPLOSION, x, y, am->GetPositionZ());
                         }
                     }
-                    events.ScheduleEvent(EVENT_RE_ATTACK, 1000);
-                    events.ScheduleEvent(EVENT_PREPARE, 20000);
+                    if (!asGuids.empty())
+                        if (asGuids.size() == 3)
+                            events.ScheduleEvent(EVENT_BREATH_OF_YSHAARJ, 10000);
+                        else
+                        {
+                            events.ScheduleEvent(EVENT_SEISMIC_SLAM, 10000);
+                            events.ScheduleEvent(EVENT_PREPARE, 17000);
+                        }
+                        events.ScheduleEvent(EVENT_RE_ATTACK, 1000);               
                     break;
                 case ACTION_BREATH_OF_YSHAARJ:
-                    for (GuidVector::const_iterator itr = asGuids.begin(); itr != asGuids.end(); itr++)
+                    for (std::vector<uint64>::const_iterator itr = asGuids.begin(); itr != asGuids.end(); itr++)
                         if (Creature* as = me->GetCreature(*me, *itr))
                             as->AI()->DoAction(ACTION_BREATH_OF_YSHAARJ);
                     asGuids.clear();
+                    events.ScheduleEvent(EVENT_PREPARE,  12000);
                     events.ScheduleEvent(EVENT_RE_ATTACK, 1500);
                     break;
                 }
@@ -227,18 +292,27 @@ class boss_malkorok : public CreatureScript
                 if (!instance)
                     return;
 
-                if (Creature* am = me->GetCreature(*me, instance->GetGuidData(NPC_ANCIENT_MIASMA)))
+                if (Creature* am = me->GetCreature(*me, instance->GetData64(NPC_ANCIENT_MIASMA)))
                 {
                     if (state)
                     {
                         am->AddAura(SPELL_ANCIENT_MIASMA, am);
                         DoCast(me, SPELL_ANCIENT_MIASMA_H_A, true);
+                        if (me->GetMap()->IsHeroic())
+                            am->AI()->DoAction(ACTION_ESSENCE_OF_YSHAARJ_START);
                     }
                     else
                     {
                         am->RemoveAurasDueToSpell(SPELL_ANCIENT_MIASMA);
                         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ANCIENT_MIASMA_H_A);
-                    }                
+                        if (me->GetMap()->IsHeroic())
+                        {
+                            if (me->isInCombat()) //Phase two
+                                am->AI()->DoAction(ACTION_ESSENCE_OF_YSHAARJ_STOP);
+                            else                  //Evade
+                                am->AI()->DoAction(ACTION_ESSENCE_OF_YSHAARJ_REMOVE);
+                        }
+                    }   
                 }
             }
 
@@ -257,7 +331,7 @@ class boss_malkorok : public CreatureScript
                             if (me->GetPower(POWER_ENERGY) <= 99)
                             {
                                 me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) + 1);
-                                powercheck = 1300;
+                                powercheck = 1600;
                                 if (me->GetPower(POWER_ENERGY) == 100)
                                 {
                                     phase = PHASE_TWO;
@@ -283,8 +357,27 @@ class boss_malkorok : public CreatureScript
                         powercheck -= diff;
                 }
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
+                if (checkvictim && instance)
+                {
+                    if (checkvictim <= diff)
+                    {
+                        if (me->getVictim())
+                        {
+                            if (!CheckPullPlayerPos(me->getVictim()))
+                            {
+                                me->AttackStop();
+                                me->SetReactState(REACT_PASSIVE);
+                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                                EnterEvadeMode();
+                                checkvictim = 0;
+                            }
+                            else
+                                checkvictim = 1500;
+                        }
+                    }
+                    else
+                        checkvictim -= diff;
+                }
 
                 if (displacedenergy)
                 {
@@ -298,6 +391,9 @@ class boss_malkorok : public CreatureScript
                 }
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -329,14 +425,43 @@ class boss_malkorok : public CreatureScript
                     case EVENT_ERADICATE:
                         DoCastAOE(SPELL_ERADICATE);
                         break;
+                    case EVENT_SEISMIC_SLAM:
+                    {
+                        std::list<HostileReference*> tlist = me->getThreatManager().getThreatList();
+                        if (!tlist.empty())
+                        {
+                            uint8 num = 0;
+                            uint8 maxnum = me->GetMap()->Is25ManRaid() ? 3 : 1;
+                            for (std::list<HostileReference*>::const_iterator itr = tlist.begin(); itr != tlist.end(); itr++)
+                            {
+                                if (itr != tlist.begin())
+                                {
+                                    if (Player* pl = me->GetPlayer(*me, (*itr)->getUnitGuid()))
+                                    {
+                                        if (me->GetDistance(pl) >= 20.0f)
+                                        {
+                                            DoCast(pl, SPELL_SEISMIC_SLAM, true);
+                                            if (me->GetMap()->IsHeroic())
+                                            {
+                                                if (Creature* lc = me->SummonCreature(NPC_LIVING_CORRUPTION, pl->GetPositionX(), pl->GetPositionY(), -198.5297f))
+                                                {
+                                                    lc->CastSpell(lc, SPELL_LANGUISH_AT);
+                                                    lc->AI()->DoZoneInCombat(lc, 100.0f);
+                                                }
+                                            }
+                                            num++;
+                                            if (num == maxnum)
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    }
                     case EVENT_BLOOD_RAGE:
                         DoCast(me, SPELL_BLOOD_RAGE_DMG, true);
                         events.ScheduleEvent(EVENT_BLOOD_RAGE, 2000);
-                        break;
-                    case EVENT_SEISMIC_SLAM:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
-                            DoCast(target, SPELL_SEISMIC_SLAM, true);
-                        events.ScheduleEvent(EVENT_SEISMIC_SLAM, 15000);
                         break;
                     }
                 }
@@ -349,6 +474,8 @@ class boss_malkorok : public CreatureScript
                 Talk(SAY_DIED);
                 _JustDied();
                 SetGasStateAndBuffPlayers(false);
+                if (instance)
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LANGUISH);
             }
         };
 
@@ -385,6 +512,11 @@ public:
                 DoCast(me, SPELL_BREATH_OF_YSHAARJ, true);
                 me->DespawnOrUnsummon(1500);
             }
+        }
+
+        void DamageTaken(Unit* attacker, uint32 &damage)
+        {
+            damage = 0;
         }
 
         void IsSummonedBy(Unit* summoner)
@@ -434,7 +566,7 @@ public:
 
     struct npc_ancient_miasmaAI : public ScriptedAI
     {
-        npc_ancient_miasmaAI(Creature* creature) : ScriptedAI(creature)
+        npc_ancient_miasmaAI(Creature* creature) : ScriptedAI(creature), summon(me)
         {
             instance = creature->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
@@ -443,6 +575,8 @@ public:
         }
 
         InstanceScript* instance;
+        SummonList summon;
+        EventMap events;
 
         void Reset(){}
         
@@ -450,12 +584,114 @@ public:
 
         void EnterEvadeMode(){}
 
-        void UpdateAI(uint32 diff){}
+        void JustSummoned(Creature* sum)
+        {
+            summon.Summon(sum);
+        }
+
+        void DoAction(int32 const action)
+        {
+            switch (action)
+            {
+            case ACTION_ESSENCE_OF_YSHAARJ_START:
+                events.ScheduleEvent(EVENT_ESSENCE_OF_YSHAARJ, 3000);
+                break;
+            case ACTION_ESSENCE_OF_YSHAARJ_STOP:
+                events.Reset();
+                break;
+            case ACTION_ESSENCE_OF_YSHAARJ_REMOVE:
+                events.Reset();
+                summon.DespawnAll();
+                std::list<AreaTrigger*> atlist;
+                me->GetAreaTriggersWithEntryInRange(atlist, 1048, me->GetGUID(), 40.0f);
+                if (!atlist.empty())
+                    for (std::list<AreaTrigger*>::const_iterator itr = atlist.begin(); itr != atlist.end(); itr++)
+                        (*itr)->RemoveFromWorld();
+                break;
+            }
+        }
+
+        float GetRandomAngle()
+        {
+            float pos = urand(0, 6);
+            float ang = pos <= 5 ? pos + float(urand(1, 9))/10 : pos;
+            return ang;
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                if (eventId == EVENT_ESSENCE_OF_YSHAARJ)
+                {
+                    float x, y;
+                    GetPositionWithDistInOrientation(me, float(urand(15, 35)), GetRandomAngle(), x, y);
+                    me->SummonCreature(NPC_ESSENCE_OF_YSHAARJ, x, y, me->GetPositionZ());
+                    events.ScheduleEvent(EVENT_ESSENCE_OF_YSHAARJ, 3000);
+                }
+            }
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_ancient_miasmaAI(creature);
+    }
+};
+
+//63420
+class npc_essence_of_yshaarj : public CreatureScript
+{
+public:
+    npc_essence_of_yshaarj() : CreatureScript("npc_essence_of_yshaarj") {}
+
+    struct npc_essence_of_yshaarjAI : public ScriptedAI
+    {
+        npc_essence_of_yshaarjAI(Creature* creature) : ScriptedAI(creature)
+        {
+            instance = creature->GetInstanceScript();
+            me->SetReactState(REACT_PASSIVE);
+            me->SetDisplayId(11686);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+        }
+
+        InstanceScript* instance;
+        EventMap events;
+
+        void Reset(){}
+        
+        void IsSummonedBy(Unit* summoner)
+        {
+            DoCastAOE(SPELL_ESSENCE_OF_YSHAARJ_D);
+            events.ScheduleEvent(EVENT_ESSENCE_OF_YSHAARJ, 4000);
+        }
+
+        void EnterCombat(Unit* who){}
+
+        void EnterEvadeMode(){}
+
+        void UpdateAI(uint32 diff)
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                if (eventId == EVENT_ESSENCE_OF_YSHAARJ)
+                {
+                    if (me->ToTempSummon())
+                        if (Unit* am = me->ToTempSummon()->GetSummoner())
+                            am->CastSpell(me, SPELL_ESSENCE_OF_YSHAARJ_AT, true);
+                    me->DespawnOrUnsummon(1000);
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_essence_of_yshaarjAI(creature);
     }
 };
 
@@ -518,6 +754,34 @@ public:
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_implosionAI(creature);
+    }
+};
+
+//143857
+class spell_essence_of_yshaarj : public SpellScriptLoader
+{
+public:
+    spell_essence_of_yshaarj() : SpellScriptLoader("spell_essence_of_yshaarj") { }
+
+    class spell_essence_of_yshaarj_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_essence_of_yshaarj_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (GetHitUnit())
+                GetHitUnit()->RemoveAurasDueToSpell(SPELL_ANCIENT_BARRIER);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_essence_of_yshaarj_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_essence_of_yshaarj_SpellScript();
     }
 };
 
@@ -703,14 +967,25 @@ public:
     {
         PrepareAuraScript(spell_displased_energy_AuraScript);
 
+        void HandleOnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        {
+            if (GetTarget())
+                if (GetTarget()->GetMap()->IsHeroic())
+                    GetTarget()->AddAura(SPELL_AREA_RAF, GetTarget());
+        }
+
         void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (GetTarget())
+            {
+                GetTarget()->RemoveAurasDueToSpell(SPELL_AREA_RAF);
                 GetTarget()->CastSpell(GetTarget(), SPELL_DISPLACED_ENERGY_DMG, true);
+            }
         }
 
         void Register()
         {
+            AfterEffectApply += AuraEffectApplyFn(spell_displased_energy_AuraScript::HandleOnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             OnEffectRemove += AuraEffectRemoveFn(spell_displased_energy_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
         }
     };
@@ -726,8 +1001,10 @@ void AddSC_boss_malkorok()
     new boss_malkorok();
     new npc_arcing_smash();
     new npc_ancient_miasma();
-    new spell_ancient_barrier();
+    new npc_essence_of_yshaarj();
     new npc_implosion();
+    new spell_essence_of_yshaarj();
+    new spell_ancient_barrier();
     new spell_ancient_miasma();
     new spell_breath_of_yshaarj_dummy();
     new spell_displased_energy();

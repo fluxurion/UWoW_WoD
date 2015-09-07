@@ -256,10 +256,10 @@ class boss_norushen : public CreatureScript
                             me->SetFacingTo(1.791488f);
                             instance->SetBossState(DATA_NORUSHEN, IN_PROGRESS);
                             ZoneTalk(eventId + 6, me->GetGUID());
-                            me->CastSpell(Amalgan.GetPositionX(), Amalgan.GetPositionY(), Amalgan.GetPositionZ(), SPELL_EXTRACT_CORRUPTION);
+                            DoCast(me, SPELL_EXTRACT_CORRUPTION);
                             break;
                         case EVENT_3:
-                            me->CastSpell(Amalgan.GetPositionX(), Amalgan.GetPositionY(), Amalgan.GetPositionZ(), SPELL_EXTRACT_CORRUPTION_S);
+                            DoCast(me, SPELL_EXTRACT_CORRUPTION_S);
                             break;
                         case EVENT_4:
                             ZoneTalk(TEXT_GENERIC_9, me->GetGUID());
@@ -519,6 +519,7 @@ class boss_amalgam_of_corruption : public CreatureScript
                 _JustDied();
                 ApplyOrRemoveBar(false);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PURIFIED);
             }
 
             void UpdateAI(uint32 diff)
@@ -698,10 +699,17 @@ public:
     {
         npc_norushen_residual_corruptionAI(Creature* creature) : ScriptedAI(creature)
         {
+            instance = creature->GetInstanceScript();
             SetCombatMovement(false);
         }
 
-        void Reset() { }
+        InstanceScript* instance;
+        uint32 checkTimer;
+
+        void Reset() 
+        { 
+            checkTimer = 2000;
+        }
 
         void MoveInLineOfSight(Unit* target)
         {
@@ -717,6 +725,24 @@ public:
             onAddCorruption(target->ToPlayer());
             target->SetPower(POWER_ALTERNATE_POWER, power);
             me->DespawnOrUnsummon();
+        }
+
+        void DamageTaken(Unit* attacker, uint32 &damage)
+        {
+            if (damage >= me->GetHealth())
+                damage = 0;
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            if (checkTimer <= diff)
+            {
+                if (instance->GetBossState(DATA_NORUSHEN) != IN_PROGRESS)
+                    me->DespawnOrUnsummon();
+                checkTimer = 5000;
+            }
+            else
+                checkTimer -= diff;
         }
     };
 
@@ -1002,12 +1028,14 @@ public:
         {
             //Summon NPC_RESIDUAL_CORRUPTION by not existent spell 145522
             Unit* owner = me->GetAnyOwner();
+
             if (!owner)
                 return;
 
-            if (Creature* rc = owner->SummonCreature(NPC_RESIDUAL_CORRUPTION, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature* n = me->FindNearestCreature(NPC_NORUSHEN, 150.0f, true))
             {
-                rc->CastSpell(rc, 145074, true);
+                if (Creature* rc = n->SummonCreature(NPC_RESIDUAL_CORRUPTION, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN))
+                    rc->CastSpell(rc, 145074, true);
             }
         }
        
@@ -1160,6 +1188,20 @@ public:
             events.ScheduleEvent(EVENT_TITANIC_SMASH, 16000);
             events.ScheduleEvent(EVENT_HURL_CORRUPTION, 20000);
             events.ScheduleEvent(EVENT_BURST_OF_CORRUPTION, 35000);
+        }
+
+        void JustDied(Unit* killer)
+        {
+            if (!killer->ToPlayer())
+                return;
+
+            if (!me->GetPhaseId())
+            {
+                me->DespawnOrUnsummon();
+                return;
+            }
+            killer->RemoveAurasDueToSpell(SPELL_TEST_OF_CONFIDENCE);
+            me->DespawnOrUnsummon();
         }
         
         void UpdateAI(uint32 diff)

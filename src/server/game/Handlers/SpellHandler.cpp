@@ -349,21 +349,19 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     // are most of these still needed?
     switch (spellInfo->Id)
     {
-//         case 15407: // Mind Flay
-//         {
-//             if (Unit * target = targets.GetUnitTarget())
-//             {
-//                 if (_player->HasAura(139139) && target->HasAura(2944, _player->GetGUID()))
-//                 {
-//                     if (SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(129197))
-//                     {
-//                         spellInfo = newSpellInfo;
-//                         spellId = newSpellInfo->Id;
-//                     }
-//                 }
-//             }
-//             break;
-//         }
+        case 15407: // Mind Flay
+        {
+            if (Unit * target = targets.GetUnitTarget())
+            {
+                if (_player->HasAura(139139) && target->HasAura(2944, _player->GetGUID()))
+                {
+                    recvPacket.rfinish();
+                    _player->CastSpell(target, 129197, true);
+                    return;
+                }
+            }
+            break;
+        }
         case 686: //Shadow Bolt
         {
             if (_player->HasSpell(112092)) //Shadow Bolt (Glyphed)
@@ -629,7 +627,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 
 void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
 {
-    uint32 spellId;
+    uint32 spellId = 0;
 
     bool hasSpell = !recvPacket.ReadBit();
     bool hasCastCount = !recvPacket.ReadBit();

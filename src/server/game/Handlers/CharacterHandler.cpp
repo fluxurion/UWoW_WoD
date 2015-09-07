@@ -226,11 +226,11 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BATTLE_PET_JOURNAL);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BATTLE_PET_LIST);
     stmt->setUInt32(0, m_accountId);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PETS, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BATTLE_PET_SLOTS);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BATTLE_PET_SLOTS);
     stmt->setUInt32(0, m_accountId);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PET_SLOTS, stmt);
 
@@ -252,11 +252,11 @@ bool LoginQueryHolder::Initialize()
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_LOOTCOOLDOWN);
     stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_HONOR, stmt);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_LOOTCOOLDOWN, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_KILL);
     stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_LOOTCOOLDOWN, stmt);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_HONOR, stmt);
 
     return res;
 }
@@ -1640,6 +1640,12 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
     }
 
     recvData.rfinish();
+
+    if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
+    {
+        sObjectMgr->DumpDupeConstant(GetPlayer());
+        sLog->outDebug(LOG_FILTER_DUPE, "---WorldSession::HandleEquipmentSetUse");
+    }
 
     ObjectGuid ignoredItemGuid;
     ignoredItemGuid.SetRawValue(0, 1);

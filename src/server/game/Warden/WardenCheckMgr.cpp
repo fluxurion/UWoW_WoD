@@ -145,7 +145,7 @@ void WardenCheckMgr::LoadWardenChecks()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_WARDEN, ">> Loaded %u warden checks.", count);
+    sLog->outWarn(LOG_FILTER_WARDEN, ">> Loaded %u warden checks.", count);
 
 }
 
@@ -160,12 +160,11 @@ void WardenCheckMgr::LoadWardenOverrides()
     }
 
     //                                                      0        1
-    QueryResult result = CharacterDatabase.Query("SELECT wardenId, action FROM warden_action");
+    QueryResult result = WorldDatabase.Query("SELECT wardenId, action FROM warden_action");
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Warden action overrides. DB table `warden_action` is empty!");
-
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Warden actions. DB table `warden_action` is empty!");
         return;
     }
 
@@ -194,7 +193,7 @@ void WardenCheckMgr::LoadWardenOverrides()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_WARDEN, ">> Loaded %u warden action overrides.", count);
+    sLog->outWarn(LOG_FILTER_WARDEN, ">> Loaded %u warden actions", count);
 
 }
 

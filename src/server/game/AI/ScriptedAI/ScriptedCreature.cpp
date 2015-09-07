@@ -169,8 +169,8 @@ void ScriptedAI::DoStartNoMovement(Unit* victim)
 
 void ScriptedAI::DoStopAttack()
 {
-    if (me->getVictim())
-        me->AttackStop();
+    me->AttackStop();
+    me->SetReactState(REACT_PASSIVE);
 }
 
 void ScriptedAI::DoCastSpell(Unit* target, SpellInfo const* spellInfo, bool triggered)
@@ -419,10 +419,13 @@ void ScriptedAI::SetCombatMovement(bool allowMovement)
 
 enum eNPCs
 {
-    NPC_BROODLORD   = 12017,
-    NPC_VOID_REAVER = 19516,
-    NPC_JAN_ALAI    = 23578,
-    NPC_SARTHARION  = 28860
+    NPC_BROODLORD       = 12017,
+    NPC_VOID_REAVER     = 19516,
+    NPC_JAN_ALAI        = 23578,
+    NPC_SARTHARION      = 28860,
+    NPC_ROOK_STONETOE   = 71475,
+    NPC_HE_SOFTFOOT     = 71479,
+    NPC_SUN_TENDERHEART = 71480,
 };
 
 // Hacklike storage used for misc creatures that are expected to evade of outside of a certain area.
@@ -460,6 +463,12 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
             break;
         case NPC_SARTHARION:                                         // sartharion (calculate box)
             if (x > 3218.86f && x < 3275.69f && y < 572.40f && y > 484.68f)
+                return false;
+            break;
+        case NPC_ROOK_STONETOE:
+        case NPC_HE_SOFTFOOT:
+        case NPC_SUN_TENDERHEART:
+            if (x > 1162.0f && x < 1258.0f && y > 992.0f && y < 1080.0f && z > 410.0f && z < 425.0f)
                 return false;
             break;
         default: // For most of creatures that certain area is their home area.
@@ -522,6 +531,35 @@ void BossAI::_JustDied()
         instance->SetBossState(_bossId, DONE);
         instance->SaveToDB();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_RESET_COMBAT_RES_LIMIT, me);
+
+        Map* map = me->GetMap();
+        if (!map->IsDungeon() || map->IsNonRaidDungeon())
+            return;
+
+        Map::PlayerList const& PlayerList = map->GetPlayers();
+        for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+        {
+            if (Player* player = itr->getSource())
+            {
+                SpellCooldowns cd_list = player->GetSpellCooldowns();
+                for (SpellCooldowns::const_iterator itr = cd_list.begin(); itr != cd_list.end(); ++itr)
+                {
+                    SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr->first);
+                    if (spell && spell->AttributesEx5 & SPELL_ATTR5_UNK8 && spell->AttributesEx10 & SPELL_ATTR10_UNK13)
+                        player->RemoveSpellCooldown(itr->first, true);
+                }
+
+                Unit::AuraApplicationMap& Auras = player->GetAppliedAuras();
+                for (Unit::AuraApplicationMap::iterator itr = Auras.begin(); itr != Auras.end();)
+                {
+                    SpellInfo const* aura = itr->second->GetBase()->GetSpellInfo();
+                    if (aura && aura->Attributes & 0x24000000 && aura->AttributesEx5 & 0x00000004)
+                        player->RemoveAura(itr);
+                    else
+                        ++itr;
+                }
+            }
+        }
     }
 }
 

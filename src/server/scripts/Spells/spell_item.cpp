@@ -2375,6 +2375,102 @@ public:
     }
 };
 
+class spell_item_potion_of_illusion : public SpellScriptLoader
+{
+public:
+    spell_item_potion_of_illusion() : SpellScriptLoader("spell_item_potion_of_illusion") { }
+
+    class spell_item_potion_of_illusion_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_potion_of_illusion_SpellScript);
+
+        void FilterTargets(std::list<WorldObject*>& targets)
+        {
+            Trinity::Containers::RandomResizeList(targets, 1);
+        }
+
+        void HandleOnHit()
+        {
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            if (Unit* target = GetHitUnit())
+            {
+                if (target == caster)
+                    return; // need info - morph random model
+                else
+                    target->CastSpell(caster, GetSpellInfo()->Effects[0].BasePoints, false);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_item_potion_of_illusion_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_potion_of_illusion_SpellScript();
+    }
+};
+
+// Essence of Wrathion - 146428
+class spell_item_essence_of_wrathion : public SpellScriptLoader
+{
+public:
+    spell_item_essence_of_wrathion() : SpellScriptLoader("spell_item_essence_of_wrathion") { }
+
+    class spell_item_essence_of_wrathion_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_essence_of_wrathion_SpellScript);
+
+        void HandleOnCast()
+        {
+            if (Player* player = GetCaster()->ToPlayer())
+            {
+                if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_BACK))
+                {
+                    switch (item->GetEntry())
+                    {
+                        case 98149:
+                            player->CastSpell(player, 146564);
+                            break;
+                        case 98147:
+                            player->CastSpell(player, 146562);
+                            break;
+                        case 98146:
+                            player->CastSpell(player, 146560);
+                            break;
+                        case 98335:
+                            player->CastSpell(player, 146566);
+                            break;
+                        case 98148:
+                            player->CastSpell(player, 146563);
+                            break;
+                        case 98150:
+                            player->CastSpell(player, 146565);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnCast += SpellCastFn(spell_item_essence_of_wrathion_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_essence_of_wrathion_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2433,4 +2529,6 @@ void AddSC_item_spell_scripts()
     new spell_item_eye_of_the_black_prince();
     new spell_item_book_of_the_ages();
     new spell_item_chocolate_cookie();
+    new spell_item_potion_of_illusion();
+    new spell_item_essence_of_wrathion();
 }

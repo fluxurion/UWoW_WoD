@@ -144,6 +144,9 @@ void Map::LoadVMap(int gx, int gy)
 
 void Map::LoadMMap(int gx, int gy)
 {
+    //if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MMAP, GetId(), NULL, MMAP_DISABLE_PATHFINDING))
+        //return;
+
     // DONT CHANGE "gy" and "gx" - Its necessary !
     int mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gy, gx);
     switch (mmapLoadResult)
@@ -259,18 +262,9 @@ i_scriptLock(false), m_has_item_lvl_cap(m_has_item_lvl_cap)
 
     sScriptMgr->OnCreateMap(this);
 
-    switch(id)
-    {
-        case 609: // start DK
-        case 648: // start goblin
-        case 654: // start worgen
-        case 860: // start pandaren
+    if(float _distMap = GetVisibleDistance(TYPE_VISIBLE_MAP, id))
+        m_VisibleDistance = _distMap;
         case 1265: // start Draenor
-            m_VisibleDistance = 250.0f;
-            break;
-        default:
-            break;
-    }
     if (i_spawnMode == DIFFICULTY_CHALLENGE)
         m_has_item_lvl_cap = true;
 }
@@ -280,6 +274,22 @@ void Map::InitVisibilityDistance()
     //init visibility for continents
     m_VisibleDistance = World::GetMaxVisibleDistanceOnContinents();
     m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodOnContinents();
+}
+
+float Map::GetVisibilityRange(uint32 zoneId, uint32 areaId) const
+{
+    if(areaId)
+    {
+        if(float _distArea = GetVisibleDistance(TYPE_VISIBLE_AREA, areaId))
+            return _distArea;
+    }
+    if(zoneId)
+    {
+        if(float _distZone = GetVisibleDistance(TYPE_VISIBLE_ZONE, zoneId))
+            return _distZone;
+    }
+
+    return m_VisibleDistance;
 }
 
 // Template specialization of utility methods
@@ -454,7 +464,6 @@ bool Map::AddPlayerToMap(Player* player)
     ASSERT (player->GetMap() == this);
     player->SetMap(this);
     player->AddToWorld();
-    player->CheckItemCapLevel(ItemLevelCap());
 
     SendInitSelf(player);
     SendInitTransports(player);
@@ -2152,6 +2161,9 @@ void Map::RemoveAllObjectsInRemoveList()
     {
         std::set<WorldObject*>::iterator itr = i_objectsToRemove.begin();
         WorldObject* obj = *itr;
+        //volatile uint32 entryorguid = obj->GetTypeId() == TYPEID_PLAYER ? obj->GetGUIDLow() : obj->GetEntry();
+        //volatile uint32 mapId = GetId();
+        //volatile uint32 instanceId = GetInstanceId();
 
         switch (obj->GetTypeId())
         {
@@ -2174,11 +2186,15 @@ void Map::RemoveAllObjectsInRemoveList()
             RemoveFromMap((GameObject*)obj, true);
             break;
         case TYPEID_UNIT:
+        {
             // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
             // make sure that like sources auras/etc removed before destructor start
             obj->ToCreature()->CleanupsBeforeDelete();
             RemoveFromMap(obj->ToCreature(), true);
+            //volatile uint32 appliedAurasCount = obj->ToUnit()->GetAppliedAuras().size();
+            //volatile uint32 ownedAurasCount = obj->ToUnit()->GetOwnedAuras().size();
             break;
+        }
         default:
             sLog->outError(LOG_FILTER_MAPS, "Non-grid object (TypeId: %u) is in grid object remove list, ignored.", obj->GetTypeId());
             break;
@@ -2332,7 +2348,7 @@ bool InstanceMap::CanEnter(Player* player)
     if (player->GetMapRef().getTarget() == this)
     {
         sLog->outError(LOG_FILTER_MAPS, "InstanceMap::CanEnter - player %s(%u) already in map %d, %d, %d!", player->GetName(), player->GetGUID().GetCounter(), GetId(), GetInstanceId(), GetSpawnMode());
-        ASSERT(false);
+        //ASSERT(false);
         return false;
     }
 
@@ -2407,9 +2423,6 @@ bool InstanceMap::AddPlayerToMap(Player* player)
 
     {
         std::lock_guard<std::mutex> lock(_mapLock);
-        // Check moved to void WorldSession::HandleMoveWorldportAckOpcode()
-        //if (!CanEnter(player))
-            //return false;
 
         // Dungeon only code
         if (IsDungeon())
@@ -2499,9 +2512,13 @@ bool InstanceMap::AddPlayerToMap(Player* player)
                     // set up a solo bind or continue using it
                     if (!playerBind)
                         player->BindToInstance(mapSave, false);
-                    else
+                    else if(playerBind->save != mapSave)
+                    {
                         // cannot jump to a different instance without resetting it
-                        ASSERT(playerBind->save == mapSave);
+                        //ASSERT(playerBind->save == mapSave);
+                        sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is permanently bound to instance %d, %d, %d, %d, %d, %d but he is being put into instance %d, %d, %d, %d, %d, %d", player->GetName(), player->GetGUIDLow(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficulty(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset());
+                        return false;
+                    }
                 }
             }
         }
@@ -2660,7 +2677,7 @@ void InstanceMap::PermBindAllPlayers(Player* source)
             data << uint8(0);       //debug bit
             player->GetSession()->SendPacket(&data);
 
-            player->GetSession()->SendCalendarRaidLockout(save, true);
+            player->GetSession()->SendCalendarRaidLockoutAdded(save);
         }
 
         // if the leader is not in the instance the group will not get a perm bind

@@ -202,6 +202,15 @@ void TempSummon::InitStats(uint32 duration)
 
         switch(GetEntry())
         {
+            case 69792: // Earth
+                slot = 13;
+                break;
+            case 69680: // Storm
+                slot = 14;
+                break;
+            case 69791: // Fire
+                slot = 15;
+                break;
             case 59271:     //Warlock purge gateway
                 slot = MAX_SUMMON_SLOT - 1;
                 break;
@@ -219,7 +228,7 @@ void TempSummon::InitStats(uint32 duration)
                 if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
                 {
                     Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
-                    if (oldSummon && oldSummon->isSummon() && oldSummon->IsInWorld() && oldSummon->isAlive())
+                    if (oldSummon && oldSummon->isSummon())
                         oldSummon->ToTempSummon()->UnSummon();
                 }
                 owner->m_SummonSlot[slot] = GetGUID();
@@ -264,7 +273,7 @@ void TempSummon::InitStats(uint32 duration)
                     if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
                     {
                         Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
-                        if (oldSummon && oldSummon->isSummon() && oldSummon->IsInWorld() && oldSummon->isAlive())
+                        if (oldSummon && oldSummon->isSummon())
                             oldSummon->ToTempSummon()->UnSummon();
                     }
                     owner->m_SummonSlot[slot] = GetGUID();
@@ -275,7 +284,7 @@ void TempSummon::InitStats(uint32 duration)
                     if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
                     {
                         Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
-                        if (oldSummon && oldSummon->isSummon() && oldSummon->IsInWorld() && oldSummon->isAlive())
+                        if (oldSummon && oldSummon->isSummon())
                             oldSummon->ToTempSummon()->UnSummon();
                     }
                     owner->m_SummonSlot[slot] = GetGUID();
@@ -378,6 +387,15 @@ bool TempSummon::InitBaseStat(uint32 creatureId, bool& damageSet)
         }
         if(pStats->type)
             SetCasterPet(true);
+        //Not scale haste for any pets
+        if(!pStats->haste)
+        {
+            SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
+            SetFloatValue(UNIT_MOD_CAST_HASTE, 1.0f);
+            SetFloatValue(UNIT_MOD_HASTE, 1.0f);
+            SetFloatValue(UNIT_MOD_HASTE_REGEN, 1.0f);
+            SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
+        }
 
         return true;
     }
@@ -420,6 +438,7 @@ void TempSummon::UnSummon(uint32 msTime)
     {
         owner->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, ObjectGuid::Empty);
         owner->SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, 0);
+        owner->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, 0);
     }
 
     if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)

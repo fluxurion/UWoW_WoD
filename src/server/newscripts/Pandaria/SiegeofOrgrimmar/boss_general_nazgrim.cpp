@@ -21,72 +21,57 @@
 
 enum Spells
 {
-    //General Nazgrim
-    //Stances
     SPELL_BATTLE_STANCE        = 143589,
     SPELL_BERSERKER_STANCE     = 143594,
     SPELL_DEFENSIVE_STANCE     = 143593,
-    //
-    //30 rage
     SPELL_HEROIC_SHOCKWAVE     = 143500,
-    //50 rage
     SPELL_KORKRON_BANNER_SUM   = 143591,
     SPELL_KORKRON_BANNER       = 143536,
-    //70 rage
     SPELL_WAR_SONG             = 143503,
-    //100 rage
     SPELL_RAVAGER_SUM          = 143872,
     SPELL_RAVAGER_AURA         = 143874,
-    //Default spells
     SPELL_SUNDERING_BLOW       = 143494,
     SPELL_BONECRACKER          = 143638,
     SPELL_COOLING_OFF          = 143484,
     SPELL_BERSERK              = 26662,
-    //
     SPELL_AFTERSHOCK           = 143712,
-    //His summons
-    //Warrior
+    SPELL_EXECUTE              = 143502,
     SPELL_IRONSTORM            = 143420,
     SPELL_LASTSTAND            = 143427,
-    //Archweaver
     SPELL_ARCANE_SHOCK         = 143432,
     SPELL_MAGI_STRIKE          = 143431,
     SPELL_UNSTABLE_BLINK       = 143433,
-    //Assasin
     SPELL_STEALTH              = 118969,
     SPELL_ASSASINS_MARK        = 143480,
     SPELL_BACKSTAB             = 143481,
-    //Warshaman
     SPELL_EARTH_SHIELD         = 143475,
     SPELL_EMPOWERED_CHAIN_HEAL = 143473,
     SPELL_HEALING_TIDE         = 143477,
     SPELL_HEALING_TOTEM_SUM    = 145558,
+    SPELL_HUNTERS_MARK         = 143882,
+    SPELL_SHOOT                = 143884,
+    SPELL_MULTI_SHOT           = 143887,
 };
 
 enum Events
 {
-    //General Nazgrim
-    //Default events
     EVENT_SUNDERING_BLOW      = 1,
     EVENT_BONECRACKER         = 2,
-    //Other events
     EVENT_RE_ATTACK           = 3,
     EVENT_SUMMON              = 4,
     EVENT_BERSERK             = 5,
-    //
     EVENT_IN_POINT            = 6,
-    //His summons
-    //Archweaver
     EVENT_ARCANE_SHOCK        = 7,
     EVENT_MAGI_STRIKE         = 8,
     EVENT_UNSTABLE_BLINK      = 9,
-    //Warshaman
     EVENT_EARTH_SHIELD        = 10,
     EVENT_CHAIN_HEAL          = 11,
     EVENT_HEALING_TOTEM       = 12,
-    //Assasin
     EVENT_CHECK_DIST          = 13,
     EVENT_BACKSTAB            = 14,
+    EVENT_EXECUTE             = 15,
+    EVENT_SHOOT               = 16,
+    EVENT_MULTI_SHOT          = 17,
 };
 
 enum Actions
@@ -102,14 +87,6 @@ enum CreatureText
     SAY_SUMMON_2              = 3,
     SAY_SUMMON_3              = 4,
     SAY_DIED                  = 5,
-};
-
-uint32 summonsentry[4] =
-{
-    NPC_IRONBLADE,
-    NPC_ARCHWEAVER,
-    NPC_ASSASIN,
-    NPC_WARSHAMAN,
 };
 
 Position sumpos[3] =
@@ -146,7 +123,7 @@ class boss_general_nazgrim : public CreatureScript
 
             InstanceScript* instance;
             uint8 laststance;
-            uint32 checkpower;
+            uint32 checkpower, checkvictim;
             uint8 wavenum;
             bool lowhp;
 
@@ -155,11 +132,13 @@ class boss_general_nazgrim : public CreatureScript
                 _Reset();
                 for (uint8 n = 0; n < 3; n++)
                     me->RemoveAurasDueToSpell(stances[n]);
+                me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->setPowerType(POWER_ENERGY);
                 me->SetMaxPower(POWER_ENERGY, 100);
                 me->SetPower(POWER_ENERGY, 0);
                 laststance = 4; //default
                 checkpower = 1000;
+                checkvictim = 0;
                 lowhp = false;
             }
 
@@ -167,54 +146,115 @@ class boss_general_nazgrim : public CreatureScript
             {
                 std::vector<uint32>sumlist;
                 sumlist.clear();
-                switch (count)
+                if (me->GetMap()->IsHeroic())
                 {
-                case 0:
-                    sumlist.push_back(NPC_IRONBLADE);
-                    sumlist.push_back(NPC_ARCHWEAVER);
-                    break;
-                case 1:
-                    sumlist.push_back(NPC_ASSASIN);
-                    sumlist.push_back(NPC_WARSHAMAN);
-                    break;
-                case 2:
-                    sumlist.push_back(NPC_IRONBLADE);
-                    sumlist.push_back(NPC_ASSASIN);
-                    break;
-                case 3:
-                    sumlist.push_back(NPC_ARCHWEAVER);
-                    sumlist.push_back(NPC_WARSHAMAN);
-                    break;
-                case 4:
-                    sumlist.push_back(NPC_IRONBLADE);
-                    sumlist.push_back(NPC_WARSHAMAN);
-                    break;
-                case 5:
-                    sumlist.push_back(NPC_ARCHWEAVER);
-                    sumlist.push_back(NPC_ASSASIN);
-                    break;
-                case 6:
-                    sumlist.push_back(NPC_ARCHWEAVER);
-                    sumlist.push_back(NPC_ASSASIN);
-                    sumlist.push_back(NPC_WARSHAMAN);
-                    break;
-                case 7:
-                    sumlist.push_back(NPC_IRONBLADE);
-                    sumlist.push_back(NPC_ASSASIN);
-                    sumlist.push_back(NPC_WARSHAMAN);
-                    break;
-                case 8:
-                    sumlist.push_back(NPC_IRONBLADE);
-                    sumlist.push_back(NPC_ARCHWEAVER);
-                    sumlist.push_back(NPC_WARSHAMAN);
-                    break;
-                case 9:
-                    sumlist.push_back(NPC_IRONBLADE);
-                    sumlist.push_back(NPC_ARCHWEAVER);
-                    sumlist.push_back(NPC_ASSASIN);
-                    break;
-                default:
-                    break;
+                    switch (count)
+                    {
+                    case 0:
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        sumlist.push_back(NPC_ASSASIN);
+                        sumlist.push_back(NPC_IRONBLADE);
+                        break;
+                    case 1:
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        sumlist.push_back(NPC_ASSASIN);
+                        sumlist.push_back(NPC_SNIPER);
+                        break;
+                    case 2:
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        sumlist.push_back(NPC_IRONBLADE);
+                        break;
+                    case 3:
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        sumlist.push_back(NPC_ASSASIN);
+                        sumlist.push_back(NPC_SNIPER);
+                        break;
+                    case 4:
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        sumlist.push_back(NPC_ASSASIN);
+                        sumlist.push_back(NPC_IRONBLADE);
+                        break;
+                    case 5:
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        sumlist.push_back(NPC_SNIPER);
+                        break;
+                    case 6:
+                        sumlist.push_back(NPC_ASSASIN);
+                        sumlist.push_back(NPC_SNIPER);
+                        sumlist.push_back(NPC_IRONBLADE);
+                        break;
+                    case 7:
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        sumlist.push_back(NPC_ASSASIN);
+                        break;
+                    case 8:
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        sumlist.push_back(NPC_SNIPER);
+                        sumlist.push_back(NPC_IRONBLADE);
+                        break;
+                    case 9:
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        sumlist.push_back(NPC_SNIPER);
+                        sumlist.push_back(NPC_IRONBLADE);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+                else
+                { 
+                    switch (count)
+                    {
+                    case 0:
+                        sumlist.push_back(NPC_IRONBLADE);
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        break;
+                    case 1:
+                        sumlist.push_back(NPC_ASSASIN);
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        break;
+                    case 2:
+                        sumlist.push_back(NPC_IRONBLADE);
+                        sumlist.push_back(NPC_ASSASIN);
+                        break;
+                    case 3:
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        break;
+                    case 4:
+                        sumlist.push_back(NPC_IRONBLADE);
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        break;
+                    case 5:
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        sumlist.push_back(NPC_ASSASIN);
+                        break;
+                    case 6:
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        sumlist.push_back(NPC_ASSASIN);
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        break;
+                    case 7:
+                        sumlist.push_back(NPC_IRONBLADE);
+                        sumlist.push_back(NPC_ASSASIN);
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        break;
+                    case 8:
+                        sumlist.push_back(NPC_IRONBLADE);
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        sumlist.push_back(NPC_WARSHAMAN);
+                        break;
+                    case 9:
+                        sumlist.push_back(NPC_IRONBLADE);
+                        sumlist.push_back(NPC_ARCHWEAVER);
+                        sumlist.push_back(NPC_ASSASIN);
+                        break;
+                    default:
+                        break;
+                    }
                 }
                 if (!sumlist.empty())
                 {
@@ -226,10 +266,19 @@ class boss_general_nazgrim : public CreatureScript
                         mod = itr == sumlist.begin() ? 0 : urand(1, 2);
                         if (Creature* s = me->SummonCreature(*itr, sumpos[mod].GetPositionX(), sumpos[mod].GetPositionY(), sumpos[mod].GetPositionZ(), sumpos[mod].GetOrientation()))
                         {
-                            if (s->GetEntry() == NPC_ASSASIN)
+                            switch (s->GetEntry())
+                            {
+                            case NPC_ASSASIN:
                                 s->AI()->SetGUID(GetTargetGUIDForRogue(), 1);
-                            else
+                                break;
+                            case NPC_SNIPER:
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 80.0f, true))
+                                    s->AI()->SetGUID(target->GetGUID(), 2);
+                                break;
+                            default:
                                 s->AI()->DoZoneInCombat(s, 150.0f);
+                                break;
+                            }
                         }
                     }
                 }
@@ -277,16 +326,41 @@ class boss_general_nazgrim : public CreatureScript
                 }
             }
 
+            void JustReachedHome()
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetReactState(REACT_AGGRESSIVE);
+            }
+
+            bool CheckPullPlayerPos(Unit* who)
+            {
+                if (who->GetPositionY() >= -4586.20f)
+                    return false;
+
+                return true;
+            }
+
             void EnterCombat(Unit* who)
             {
+                if (instance)
+                {
+                    if (!CheckPullPlayerPos(who))
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+                }
                 Talk(SAY_PULL);
                 _EnterCombat();
                 SetStance(0);
                 wavenum = 0;
+                checkvictim = 1500;
                 events.ScheduleEvent(EVENT_SUMMON, 45000);
                 events.ScheduleEvent(EVENT_SUNDERING_BLOW, 10000);
                 events.ScheduleEvent(EVENT_BONECRACKER, 15000);
-                events.ScheduleEvent(EVENT_BERSERK, 6000000);
+                events.ScheduleEvent(EVENT_BERSERK, 600000);
+                if (me->GetMap()->IsHeroic())
+                    events.ScheduleEvent(EVENT_EXECUTE, 20000);
             }
 
             void SetStance(uint8 stance)
@@ -347,7 +421,7 @@ class boss_general_nazgrim : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim())
                     return;
 
                 if (checkpower <= diff)
@@ -367,7 +441,32 @@ class boss_general_nazgrim : public CreatureScript
                 else
                     checkpower -= diff;
 
+                if (checkvictim && instance)
+                {
+                    if (checkvictim <= diff)
+                    {
+                        if (me->getVictim())
+                        {
+                            if (!CheckPullPlayerPos(me->getVictim()))
+                            {
+                                me->AttackStop();
+                                me->SetReactState(REACT_PASSIVE);
+                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                                EnterEvadeMode();
+                                checkvictim = 0;
+                            }
+                            else
+                                checkvictim = 1500;
+                        }
+                    }
+                    else
+                        checkvictim -= diff;
+                }
+
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -394,6 +493,11 @@ class boss_general_nazgrim : public CreatureScript
                         break;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK);
+                        break;
+                    case EVENT_EXECUTE:
+                        if (me->getVictim())
+                            DoCastVictim(SPELL_EXECUTE);
+                        events.ScheduleEvent(EVENT_EXECUTE, urand(20000, 30000));
                         break;
                     }
                 }
@@ -761,6 +865,130 @@ public:
     }
 };
 
+//71656
+class npc_korkron_sniper : public CreatureScript
+{
+public:
+    npc_korkron_sniper() : CreatureScript("npc_korkron_sniper") {}
+
+    struct npc_korkron_sniperAI : public ScriptedAI
+    {
+        npc_korkron_sniperAI(Creature* creature) : ScriptedAI(creature), summon(me)
+        {
+            instance = creature->GetInstanceScript();
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        InstanceScript* instance;
+        EventMap events;
+        SummonList summon;
+        uint64 targetGuid;
+
+        void Reset()
+        {
+            events.Reset();
+            targetGuid = 0;
+        }
+
+        Unit* GetTarget()
+        {
+            if (Unit* target = me->GetUnit(*me, targetGuid))
+                if (target->isAlive())
+                    return target;
+            return 0;
+        }
+
+        void SetGUID(uint64 tGuid, int32 type)
+        {
+            if (type == 2)
+            {
+                if (Unit* target = me->GetUnit(*me, tGuid))
+                {
+                    if (target->isAlive())
+                    {
+                        targetGuid = tGuid;
+                        me->AddAura(SPELL_HUNTERS_MARK, target);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->AddThreat(target, 5000000.0f);
+                        events.ScheduleEvent(EVENT_SHOOT, 2000);
+                        events.ScheduleEvent(EVENT_MULTI_SHOT, 5000);
+                    }
+                }
+            }
+        }
+
+        void MovementInform(uint32 type, uint32 pointId)
+        {
+            if (type == POINT_MOTION_TYPE)
+            {
+                if (pointId == 3)
+                {
+                    me->GetMotionMaster()->Clear(false);
+                    events.ScheduleEvent(EVENT_SHOOT, 2000);
+                    events.ScheduleEvent(EVENT_MULTI_SHOT, 5000);
+                }
+            }
+        }
+        
+        void JustDied(Unit* killer)
+        {
+            if (Unit* target = GetTarget())
+                target->RemoveAurasDueToSpell(SPELL_HUNTERS_MARK);
+            me->DespawnOrUnsummon();
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_SHOOT:
+                {
+                    Unit* target = GetTarget() ? GetTarget() : SelectTarget(SELECT_TARGET_FARTHEST, 0, 80.0f, true);
+                    if (me->GetDistance(target) > 30.0f)
+                    {
+                        events.Reset();
+                        float x, y;
+                        GetPositionWithDistInOrientation(target, 30.0f, me->GetFollowAngle(), x, y);
+                        me->GetMotionMaster()->MoveCharge(x, y, me->GetPositionZ(), 15.0f, 3);
+                        return;
+                    }
+                    DoCast(target, SPELL_SHOOT);
+                    events.ScheduleEvent(EVENT_SHOOT, 4000);
+                }
+                break;
+                case EVENT_MULTI_SHOT:
+                {
+                    Unit* target = GetTarget() ? GetTarget() : SelectTarget(SELECT_TARGET_FARTHEST, 0, 80.0f, true);
+                    if (me->GetDistance(target) > 40.0f)
+                    {
+                        events.Reset();
+                        float x, y;
+                        GetPositionWithDistInOrientation(target, 30.0f, me->GetFollowAngle(), x, y);
+                        me->GetMotionMaster()->MoveCharge(x, y, me->GetPositionZ(), 15.0f, 3);
+                        return;
+                    }
+                    DoCast(target, SPELL_MULTI_SHOT);
+                    events.ScheduleEvent(EVENT_MULTI_SHOT, 10000);
+                }
+                break;
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_korkron_sniperAI(creature);
+    }
+};
+
 //71697
 class npc_after_shock : public CreatureScript
 {
@@ -973,8 +1201,11 @@ public:
 
         void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (GetCaster() && GetCaster()->ToCreature())
-                GetCaster()->ToCreature()->AI()->DoAction(ACTION_SET_NEXT_STANCE);
+            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+            {
+                if (GetCaster() && GetCaster()->ToCreature())
+                    GetCaster()->ToCreature()->AI()->DoAction(ACTION_SET_NEXT_STANCE);
+            }
         }
 
         void Register()
@@ -1029,6 +1260,7 @@ void AddSC_boss_general_nazgrim()
     new npc_korkron_archweaver();
     new npc_korkron_assasin();
     new npc_korkron_warshaman();
+    new npc_korkron_sniper();
     new npc_after_shock();
     new npc_korkron_banner();
     new npc_ravager();

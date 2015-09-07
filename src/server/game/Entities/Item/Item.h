@@ -335,7 +335,7 @@ class Item : public Object
         uint32 GetItemSuffixFactor() const { return GetUInt32Value(ITEM_FIELD_PROPERTY_SEED); }
         void SetItemRandomProperties(int32 randomPropId);
         void UpdateItemSuffixFactor();
-        static int32 GenerateItemRandomPropertyId(uint32 item_id);
+        static int32 GenerateItemRandomPropertyId(uint32 item_id, uint32 spec_id = 0);
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid = ObjectGuid::Empty);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
         void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);
@@ -343,6 +343,7 @@ class Item : public Object
         uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
         uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
         uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
+        uint32 GetLevelBeforeCap() const { return ItemLevelBeforeCap; }
 
         std::string const& GetText() const { return m_text; }
         void SetText(std::string const& text) { m_text = text; }
@@ -414,7 +415,7 @@ class Item : public Object
         bool CanTransmogrify() const;
         static bool CanTransmogrifyItemWithItem(Item const* transmogrified, Item const* transmogrifier);
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
-        uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
+        uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return GetSpecialPrice(GetTemplate(), minimumPrice); }
 
         uint32 GetVisibleEntry() const;
         uint32 GetVisibleAppearanceModId() const;

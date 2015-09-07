@@ -48,10 +48,10 @@ struct WMOAreaTableTripple
     int32 adtId;
 };
 
-static UNORDERED_MAP<uint32, std::list<uint32> > sCriteriaTreeEntryList;
-static UNORDERED_MAP<uint32, std::list<uint32> > sModifierTreeEntryList;
+static UNORDERED_MAP<uint32, std::vector<CriteriaTreeEntry const*> > sCriteriaTreeList;
+static UNORDERED_MAP<uint32, std::vector<ModifierTreeEntry const*> > sModifierTreeList;
 static UNORDERED_MAP<uint32, std::list<uint32> > sSpellProcsPerMinuteModEntryList;
-static UNORDERED_MAP<uint32, uint32 > sAchievementEntryParentList;
+static UNORDERED_MAP<uint32, AchievementEntry const* > sAchievementParentList;
 static UNORDERED_MAP<uint32, std::list<uint32> > sItemSpecsList;
 static UNORDERED_MAP<uint32, uint32 > sRevertLearnSpellList;
 static UNORDERED_MAP<uint32, uint32 > sReversTriggerSpellList;
@@ -167,6 +167,7 @@ DBCStorage<ItemSetEntry>                 sItemSetStore(ItemSetEntryfmt);
 DBCStorage <ItemSetSpellEntry>           sItemSetSpellStore(ItemSetSpellEntryfmt);
 ItemSetSpellsStore                       sItemSetSpellsStore;
 DBCStorage<ItemSpecEntry>                sItemSpecStore(ItemSpecEntryfmt);
+DBCStorage <ItemSpecOverrideEntry>       sItemSpecOverrideStore(ItemSpecOverrideEntryfmt);
 //std::map<uint32, 
 
 DBCStorage<LFGDungeonEntry> sLFGDungeonStore(LFGDungeonEntryfmt);
@@ -384,8 +385,8 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaStore,                   dbcPath, "AreaTable.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore,            dbcPath, "Achievement.dbc"/*, &CustomAchievementfmt, &CustomAchievementIndex*/);//14545
     //LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementCriteriaStore,    dbcPath, "Achievement_Criteria.dbc", &CustomAchievementCriteriafmt, &CustomAchievementCriteriaIndex);//14545
-    LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaStore,               dbcPath, "Criteria.dbc");//16048
-    LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaTreeStore,           dbcPath, "CriteriaTree.dbc");//16048
+    LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaStore,               dbcPath, "Criteria.dbc", &CustomCriteriafmt, &CustomCriteriaIndex);//16048
+    LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaTreeStore,           dbcPath, "CriteriaTree.dbc", &CustomCriteriaTreefmt, &CustomCriteriaTreeIndex);//16048
     LoadDBC(availableDbcLocales, bad_dbc_files, sModifierTreeStore,           dbcPath, "ModifierTree.dbc");//16048
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");//19342
     //LoadDBC(availableDbcLocales, bad_dbc_files, sAreaPOIStore,                dbcPath, "AreaPOI.dbc");//14545
@@ -438,7 +439,9 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemRandomSuffixStore,       dbcPath, "ItemRandomSuffix.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemSetStore,                dbcPath, "ItemSet.dbc");//19342
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemSetSpellStore,           dbcPath, "ItemSetSpell.dbc");//19342
-    LoadDBC(availableDbcLocales, bad_dbc_files, sItemSpecStore,               dbcPath, "ItemSpecOverride.dbc", &CustomItemSpecEntryfmt, &CustomItemSpecEntryIndex);//17538
+    LoadDBC(availableDbcLocales, bad_dbc_files, sItemSpecStore,               dbcPath, "ItemSpec.dbc");//19342
+    LoadDBC(availableDbcLocales, bad_dbc_files, sItemSpecOverrideStore,       dbcPath, "ItemSpecOverride.dbc", &CustomItemSpecOverrideEntryfmt, &CustomItemSpecOverrideEntryIndex);//17538
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemArmorQualityStore,       dbcPath, "ItemArmorQuality.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemArmorShieldStore,        dbcPath, "ItemArmorShield.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemArmorTotalStore,         dbcPath, "ItemArmorTotal.dbc");//14545
@@ -594,21 +597,21 @@ void InitDBCCustomStores()
     {
         if(AchievementEntry const* as = sAchievementStore.LookupEntry(i))
             if(as->criteriaTree > 0)
-            sAchievementEntryParentList[as->criteriaTree] = i;
+                sAchievementParentList[as->criteriaTree] = as;
     }
 
     for (uint32 i = 0; i < sCriteriaTreeStore.GetNumRows(); ++i)
     {
         if(CriteriaTreeEntry const* ct = sCriteriaTreeStore.LookupEntry(i))
             if(ct->parent > 0)
-            sCriteriaTreeEntryList[ct->parent].push_back(i);
+                sCriteriaTreeList[ct->parent].push_back(ct);
     }
 
     for (uint32 i = 0; i < sModifierTreeStore.GetNumRows(); ++i)
     {
         if(ModifierTreeEntry const* mt = sModifierTreeStore.LookupEntry(i))
             if(mt->parent > 0)
-            sModifierTreeEntryList[mt->parent].push_back(i);
+                sModifierTreeList[mt->parent].push_back(mt);
     }
 
     for (uint32 i=0; i<sFactionStore.GetNumRows(); ++i)
@@ -634,10 +637,10 @@ void InitDBCCustomStores()
         }
     }
 
-    for (uint32 i = 0; i < sItemSpecStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sItemSpecOverrideStore.GetNumRows(); ++i)
     {
-        if (ItemSpecEntry const* isp = sItemSpecStore.LookupEntry(i))
-            sItemSpecsList[isp->m_itemID].push_back(isp->m_specID);
+        if (ItemSpecOverrideEntry const* isp = sItemSpecOverrideStore.LookupEntry(i))
+            sItemSpecsList[isp->ItemID].push_back(isp->SpecID);
     }
 
     for (uint32 i = 0; i < sMapDifficultyStore.GetNumRows(); ++i)
@@ -802,6 +805,9 @@ void InitDBCCustomStores()
             sTransportAnimationsByEntry[entry->TransportID][entry->TimeIndex] = entry;
 
     for (uint32 i = 0; i < sTransportRotationStore.GetNumRows(); ++i)
+                    if (!dest_i->second.price)
+                        continue;
+
     {
         TransportRotationEntry const* rot = sTransportRotationStore.LookupEntry(i);
         if (!rot)
@@ -810,6 +816,8 @@ void InitDBCCustomStores()
         //WoD::ToDo
         //sTransportMgr->AddPathRotationToTransport(rot->TransportID, rot->TimeIndex, rot);
     }
+    LoadDBC(availableDbcLocales, bad_dbc_files, sUnitPowerBarStore, dbcPath, "UnitPowerBar.dbc");//17538
+
     for (uint32 i = 0; i < sWMOAreaTableStore.GetNumRows(); ++i)
         if (WMOAreaTableEntry const* entry = sWMOAreaTableStore.LookupEntry(i))
             sWMOAreaInfoByTripple.insert(WMOAreaInfoByTripple::value_type(WMOAreaTableTripple(entry->WMOID, entry->NameSet, entry->WMOGroupID), entry));
@@ -846,13 +854,19 @@ std::list<uint32> GetItemSpecsList(uint32 ItemID)
     return sItemSpecsList[ItemID];
 }
 
-uint32 GetsAchievementEntryByTreeList(uint32 criteriaTree)
+void AddSpecdtoItem(uint32 ItemID, uint32 SpecID)
 {
-    UNORDERED_MAP<uint32, uint32 >::const_iterator itr = sAchievementEntryParentList.find(criteriaTree);
-    if(itr != sAchievementEntryParentList.end())
+    sItemSpecsList[ItemID].push_back(SpecID);
+}
+
+AchievementEntry const* GetsAchievementByTreeList(uint32 criteriaTree)
+{
+    UNORDERED_MAP<uint32, AchievementEntry const* >::const_iterator itr = sAchievementParentList.find(criteriaTree);
+    if(itr != sAchievementParentList.end())
         return itr->second;
     return 0;
 }
+
 
 uint32 GetLearnSpell(uint32 trigerSpell)
 {
@@ -870,18 +884,25 @@ uint32 GetSpellByTrigger(uint32 trigerSpell)
     return 0;
 }
 
-std::list<uint32> const* GetCriteriaTreeList(uint32 parent)
 {
-    UNORDERED_MAP<uint32, std::list<uint32> >::const_iterator itr = sCriteriaTreeEntryList.find(parent);
-    if(itr != sCriteriaTreeEntryList.end())
+    UNORDERED_MAP<uint32, uint32 >::const_iterator itr = sReversTriggerSpellList.find(trigerSpell);
+    if(itr != sReversTriggerSpellList.end())
+        return itr->second;
+    return 0;
+}
+
+std::vector<CriteriaTreeEntry const*> const* GetCriteriaTreeList(uint32 parent)
+{
+    UNORDERED_MAP<uint32, std::vector<CriteriaTreeEntry const*> >::const_iterator itr = sCriteriaTreeList.find(parent);
+    if(itr != sCriteriaTreeList.end())
         return &itr->second;
     return NULL;
 }
 
-std::list<uint32> const* GetModifierTreeList(uint32 parent)
+std::vector<ModifierTreeEntry const*> const* GetModifierTreeList(uint32 parent)
 {
-    UNORDERED_MAP<uint32, std::list<uint32> >::const_iterator itr = sModifierTreeEntryList.find(parent);
-    if(itr != sModifierTreeEntryList.end())
+    UNORDERED_MAP<uint32, std::vector<ModifierTreeEntry const*> >::const_iterator itr = sModifierTreeList.find(parent);
+    if(itr != sModifierTreeList.end())
         return &itr->second;
     return NULL;
 }

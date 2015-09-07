@@ -24,6 +24,7 @@ DoorData const doorData[] =
 {
     {GO_THALNOS_DOOR,     DATA_THALNOS,       DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
     {GO_KORLOFF_DOOR,     DATA_KORLOFF,       DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    {GO_WHITEMANE_DOOR,   DATA_WHITEMANE,     DOOR_TYPE_SPAWN_HOLE, BOUNDARY_NONE},
     {0,                   0,                  DOOR_TYPE_ROOM,       BOUNDARY_NONE}, // END
 };
 
@@ -49,6 +50,9 @@ public:
         ObjectGuid HeadGUID;
         ObjectGuid thalnosGUID;
         GuidSet HorsemanAdds;
+        uint64 durandGUID;
+        uint64 whitemaneGUID;
+        uint64 zombieGUID;
 
         uint32 encounter[MAX_ENCOUNTER];
 
@@ -61,6 +65,8 @@ public:
             HorsemanGUID.Clear();
             HeadGUID.Clear();
             thalnosGUID.Clear();
+            durandGUID = 0;
+            whitemaneGUID = 0;
             HorsemanAdds.clear();
         }
 
@@ -81,6 +87,7 @@ public:
                     break;
                 case GO_THALNOS_DOOR:
                 case GO_KORLOFF_DOOR:
+                case GO_WHITEMANE_DOOR:
                     AddDoor(go, true);
                     break;
                 default:
@@ -103,6 +110,15 @@ public:
                     break;
                 case NPC_THALNOS:
                     thalnosGUID = creature->GetGUID();
+                    break;
+                case NPC_DURAND:
+                    durandGUID = creature->GetGUID();
+                    break;
+                case NPC_WHITEMANE:
+                    whitemaneGUID = creature->GetGUID();
+                    break;
+                case NPC_EMPOWERED_ZOMBIE:
+                    zombieGUID = creature->GetGUID();
                     break;
             }
         }
@@ -141,8 +157,14 @@ public:
                     return HorsemanGUID;
                 case NPC_HEAD:
                     return HeadGUID;
-                case NPC_THALNOS:
+                case NPC_EMPOWERED_ZOMBIE:
+                    return zombieGUID;
+                case DATA_THALNOS:
                     return thalnosGUID;
+                case DATA_DURAND:
+                    return durandGUID;
+                case DATA_WHITEMANE:
+                    return whitemaneGUID;
             }
             return ObjectGuid::Empty;
         }
@@ -152,6 +174,12 @@ public:
             if (type == DATA_HORSEMAN_EVENT)
                 return encounter[0];
             return 0;
+        }
+
+        void Update(uint32 diff) 
+        {
+            // Challenge
+            InstanceScript::Update(diff);
         }
     };
 };

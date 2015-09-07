@@ -603,6 +603,8 @@ class Battleground
         void HandleTriggerBuff(ObjectGuid go_guid);
         void SetHoliday(bool is_holiday);
 
+        void AddNameInNameList(uint32 team, const char* Name) { m_nameList[team].push_back(Name); }
+
         // TODO: make this protected:
         typedef std::vector<ObjectGuid> BGObjects;
         typedef std::vector<ObjectGuid> BGCreatures;
@@ -643,6 +645,7 @@ class Battleground
 
         void SendFlagsPositionsUpdate(uint32 diff);
         void SendOpponentSpecialization(uint32 team);
+        void UpdateArenaVision();
 
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
@@ -697,6 +700,8 @@ class Battleground
         bool   m_InBGFreeSlotQueue;                         // used to make sure that BG is only once inserted into the BattlegroundMgr.BGFreeSlotQueue[bgTypeId] deque
         bool   m_SetDeleteThis;                             // used for safe deletion of the bg after end / all players leave
         bool   m_IsArena;
+        bool   m_needFirstUpdateVision;
+        bool   m_needSecondUpdateVision;
         uint8  m_Winner;                                    // 0=alliance, 1=horde, 2=none
         int32  m_StartDelayTime;
         int32  m_flagCarrierTime;
@@ -753,6 +758,8 @@ class Battleground
 
         // Players count by team
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
+
+        std::map<uint32, std::list<const char*>> m_nameList;
 
         // Arena team ids by team
         uint32 m_GroupIds[BG_TEAMS_COUNT];

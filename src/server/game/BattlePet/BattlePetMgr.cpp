@@ -16,30 +16,8 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Common.h"
-#include "DBCEnums.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "World.h"
 #include "WorldPacket.h"
-#include "DatabaseEnv.h"
-#include "AchievementMgr.h"
-#include "CellImpl.h"
-#include "GameEventMgr.h"
-#include "GridNotifiersImpl.h"
-#include "Guild.h"
-#include "Language.h"
 #include "Player.h"
-#include "SpellMgr.h"
-#include "DisableMgr.h"
-#include "ScriptMgr.h"
-#include "MapManager.h"
-#include "Battleground.h"
-#include "BattlegroundAB.h"
-#include "Map.h"
-#include "InstanceScript.h"
-#include "Group.h"
-#include "Item.h"
 #include "BattlePetMgr.h"
 
 BattlePetMgr::BattlePetMgr(Player* owner) : m_player(owner), m_petBattleWild(NULL)
@@ -52,7 +30,7 @@ BattlePetMgr::BattlePetMgr(Player* owner) : m_player(owner), m_petBattleWild(NUL
 
 void BattlePetMgr::AddPetToList(ObjectGuid guid, uint32 speciesID, uint32 creatureEntry, uint8 level, uint32 display, uint16 power, uint16 speed, uint32 health, uint32 maxHealth, uint8 quality, uint16 xp, uint16 flags, uint32 spellID, std::string customName, int16 breedID, uint8 state)
 {
-    m_PetJournal[guid] = new PetJournalInfo(speciesID, creatureEntry, level, display, power, speed, health, maxHealth, quality, xp, flags, spellID, customName, breedID);
+    m_PetJournal[guid] = new PetJournalInfo(speciesID, creatureEntry, level, display, power, speed, health, maxHealth, quality, xp, flags, spellID, customName, breedID, state);
 }
 
 void BattlePetMgr::InitBattleSlot(ObjectGuid guid, uint8 index)
@@ -67,8 +45,8 @@ bool BattlePetMgr::SlotIsLocked(uint8 index)
     switch (index)
     {
         case 0: locked = !m_player->HasSpell(119467); break;
-        case 1: locked = /*!m_player->GetAchievementMgr().HasAchieved(7433)*/false; break;
-        case 2: locked = /*!m_player->GetAchievementMgr().HasAchieved(6566)*/false; break;
+        case 1: locked = !m_player->HasAchieved(7433), false; break;
+        case 2: locked = !m_player->HasAchieved(6566), false; break;
         default: break;
     }
 
@@ -83,6 +61,16 @@ bool BattlePetMgr::BuildPetJournal(WorldPacket *data)
 
     data->Initialize(SMSG_BATTLE_PET_JOURNAL);
     *data << uint16(0);                                        // trapLevel
+        bitData.WriteBit(!petInfo->GetBreedID());     // hasBreed, inverse
+        bitData.WriteGuidMask<1, 5, 3>(guid);
+        bitData.WriteBit(0);                          // hasOwnerGuidInfo
+        bitData.WriteBit(!petInfo->GetQuality());     // hasQuality, inverse
+        bitData.WriteGuidMask<6, 7>(guid);
+        bitData.WriteBit(!petInfo->GetFlags());       // hasFlags, inverse
+        bitData.WriteGuidMask<0, 4>(guid);
+        bitData.WriteBits(len, 7);                    // custom name length
+        bitData.WriteGuidMask<2>(guid);
+        bitData.WriteBit(1);                          // hasUnk (bool noRename?), inverse
 
     uint32 pos = data->wpos();
     *data << uint32(MAX_ACTIVE_BATTLE_PETS);
@@ -246,6 +234,15 @@ void BattlePetMgr::SendUpdatePets(std::list<ObjectGuid> &updates, bool added)
         data << uint32(petInfo->GetPower());                  // power
     }
 
+    bitData.FlushBits();
+    // prevent damage update packet
+    if (updates.size() != realCount)
+        bitData.PutBits<uint32>(countPos, realCount, 19);
+
+    WorldPacket data(SMSG_BATTLE_PET_UPDATES);
+    data.append(bitData);
+    data.append(byteData);
+
     m_player->GetSession()->SendPacket(&data);
 }
 
@@ -324,8 +321,17 @@ uint16 BattlePetMgr::GetRandomBreedID(uint32 speciesID)
 
 void BattlePetMgr::CreateWildBattle(Player* initiator, ObjectGuid wildCreatureGuid)
 {
+    delete m_petBattleWild;
     m_petBattleWild = new PetBattleWild(initiator);
     m_petBattleWild->Init(wildCreatureGuid);
+}
+
+void BattlePetMgr::SendPetBattleRequestFailed(uint8 reason)
+{
+    WorldPacket data(SMSG_PET_BATTLE_REQUEST_FAILED);
+    data.WriteBit(0);
+    data << uint8(reason);
+    m_player->GetSession()->SendPacket(&data);
 }
 
 // BattlePetStatAccumulator
@@ -377,7 +383,7 @@ bool PetBattleWild::PrepareBattleInfo(ObjectGuid creatureGuid)
                 if (PetJournalInfo* petInfo = m_player->GetBattlePetMgr()->GetPetInfoByPetGUID(_slot->GetPet()))
                 {
                     // dead or deleted pets are not valid
-                    if (petInfo->IsDead() || petInfo->GetInternalState() == STATE_DELETED)
+                    if (petInfo->IsDead() || petInfo->GetState() == STATE_DELETED)
                         continue;
 
                     PetBattleInfo* pbInfo = new PetBattleInfo();
@@ -445,7 +451,7 @@ bool PetBattleWild::PrepareBattleInfo(ObjectGuid creatureGuid)
         delete accumulator;
 
         PetBattleSlot* slot = new PetBattleSlot(ObjectGuid::Empty);
-        PetJournalInfo* petInfo = new PetJournalInfo(s->ID, wildPet->GetEntry(), wildPetLevel, t->Modelid1, power, speed, health, health, quality, 0, 0, s->spellId, "", breedID);
+        PetJournalInfo* petInfo = new PetJournalInfo(s->ID, wildPet->GetEntry(), wildPetLevel, t->Modelid1, power, speed, health, health, quality, 0, 0, s->spellId, "", breedID, STATE_NORMAL);
         PetBattleInfo* pbInfo = new PetBattleInfo();
 
         pbInfo->SetPetID(petID);
@@ -1599,15 +1605,13 @@ void PetBattleWild::UpdatePetsAfterBattle()
                 loadoutInfo->SetPower(power);
                 loadoutInfo->SetSpeed(speed);
                 loadoutInfo->SetMaxHealth(health);
+                loadoutInfo->SetState(STATE_UPDATED);
 
                 updates.push_back(pb->GetGUID());
             }
             // update trapped pets and added in journal
             else
             {
-                if (!pb->Captured())
-                    continue;
-
                 ObjectGuid petguid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>()->Generate());
 
                 BattlePetStatAccumulator* accumulator = new BattlePetStatAccumulator(pb->GetSpeciesID(), pb->GetBreedID());
@@ -1617,7 +1621,7 @@ void PetBattleWild::UpdatePetsAfterBattle()
                 uint32 speed = accumulator->CalculateSpeed();
                 delete accumulator;
 
-                m_player->GetBattlePetMgr()->AddPetToList(petguid, pb->GetSpeciesID(), pb->GetCreatureEntry(), pb->GetLevel(), pb->GetDisplayID(), power, speed, pb->GetHealth(), health, pb->GetQuality(), 0, 0, pb->GetSummonSpell(), "", pb->GetBreedID());
+                m_player->GetBattlePetMgr()->AddPetToList(petguid, pb->GetSpeciesID(), pb->GetCreatureEntry(), pb->GetLevel(), pb->GetDisplayID(), power, speed, pb->GetHealth(), health, pb->GetQuality(), 0, 0, pb->GetSummonSpell(), "", pb->GetBreedID(), STATE_UPDATED);
                 // hack, fix it!
                 if (pb->GetSummonSpell())
                     m_player->learnSpell(pb->GetSummonSpell(), false);
@@ -1627,11 +1631,25 @@ void PetBattleWild::UpdatePetsAfterBattle()
                 newPets.push_back(petguid);
 
                 m_player->GetBattlePetMgr()->SendUpdatePets(newPets, true);
+                m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, pb->GetCreatureEntry());
+                m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_BATTLEPET);
+                m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_PET_IN_BATTLE, pb->GetSpeciesID(), pb->GetQuality(), pb->GetType());
+                m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT);
             }
+
+            if (GetWinner() == TEAM_ALLY)
+            {
+                m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN, 0, 0, pb->GetType());
+
+                if (pb->GetNewLevel() > pb->GetLevel())
+                    m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP, pb->GetNewLevel());
+            }
+            else
+                m_player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE_PET_BATTLE);
         }
     }
 
-    if (updates.size() > 0)
+    if (!updates.empty())
         m_player->GetBattlePetMgr()->SendUpdatePets(updates, false);
 }
 

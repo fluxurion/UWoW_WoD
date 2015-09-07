@@ -40,7 +40,7 @@ void CalendarInvite::Init()
     _eventId = 0;
     _invitee.Clear();
     _senderGUID.Clear();
-    _statusTime = 0;
+    _responseTime = 0;
     _status = CALENDAR_STATUS_INVITED; // default (0)?
     _rank = CALENDAR_RANK_PLAYER;
     _text = "";

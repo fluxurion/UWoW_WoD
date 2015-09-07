@@ -36,6 +36,7 @@
 #include "GuildMgr.h"
 #include "Bracket.h"
 #include "BracketMgr.h"
+#include "GroupMgr.h"
 
 namespace Trinity
 {
@@ -140,6 +141,8 @@ Battleground::Battleground()
     m_InvitedHorde      = 0;
     m_JoinType         = 0;
     m_IsArena           = false;
+    m_needFirstUpdateVision  = true;
+    m_needSecondUpdateVision = true;
     m_Winner            = 2;
     m_StartTime         = 0;
     m_ResetStatTimer    = 0;
@@ -265,23 +268,40 @@ void Battleground::Update(uint32 diff)
     switch (GetStatus())
     {
         case STATUS_WAIT_JOIN:
+        {
             if (GetPlayersSize())
                 _ProcessJoin(diff);
             break;
+        }
         case STATUS_IN_PROGRESS:
+        {
+            uint8 dumpeningTime = m_JoinType == 2 ? 6 : 11;
+
             _ProcessOfflineQueue();
             // after 47 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
+                if (m_StartTime >= 60200 && m_needSecondUpdateVision)
+                {
+                    UpdateArenaVision();
+                    m_needSecondUpdateVision = false;
+                }
+                if (m_needFirstUpdateVision)
+                {
+                    UpdateArenaVision();
+                    m_needFirstUpdateVision = false;
+                }
+
                 //! Patch 5.4: If neither team has won after 20 minutes, the Arena match will end in a draw.
-                if (GetElapsedTime() >= 20*MINUTE*IN_MILLISECONDS)
+                if (GetElapsedTime() >= 20 * MINUTE*IN_MILLISECONDS)
                 {
                     UpdateArenaWorldState();
                     CheckArenaAfterTimerConditions();
                     return;
-                //! Patch 5.4: For Arena matches that last more than 10 minutes, all players in the Arena will begin to receive Dampening.
-                //! Patch 5.4.7: Dampening is now applied to an Arena match starting at the 5 minute mark (down from 10 minutes).
-                }else if (GetElapsedTime() >= 6*MINUTE*IN_MILLISECONDS)
+                    //! Patch 5.4: For Arena matches that last more than 10 minutes, all players in the Arena will begin to receive Dampening.
+                    //! Patch 5.4.7: Dampening is now applied to an Arena match starting at the 5 minute mark (down from 10 minutes).
+                }
+                else if (GetElapsedTime() >= uint32(dumpeningTime * MINUTE * IN_MILLISECONDS))
                 {
                     ModifyStartDelayTime(diff);
                     if (GetStartDelayTime() <= 0 || GetStartDelayTime() > 10000)
@@ -304,6 +324,7 @@ void Battleground::Update(uint32 diff)
                     m_PrematureCountDown = false;
             }
             break;
+        }
         case STATUS_WAIT_LEAVE:
             _ProcessLeave(diff);
             break;
@@ -458,7 +479,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         m_ResetStatTimer = 0;
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                player->ResetAllPowers();
+                player->ResetAllPowers(true);
     }
 
     if (!(m_Events & BG_STARTING_EVENT_1))
@@ -523,17 +544,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
                     // After getting status plr should get updates for all players in any way
                     // Remove preparation send plr updates, but on some cases it not work
-                    for (BattlegroundPlayerMap::const_iterator itr2 = GetPlayers().begin(); itr2 != GetPlayers().end(); ++itr2)
-                    {
-                        if (itr2->first == itr->first)
-                            continue;
-                        if (Player* _player = ObjectAccessor::FindPlayer(itr2->first))
-                        {
-                            _player->SendUpdateToPlayer(player);
-                            _player->SendInitialVisiblePackets(player);
-                            player->AddClient(_player);
-                        }
-                    }
+                    
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                     player->ResetAllPowers();
@@ -554,9 +565,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                             ++iter;
                     }
                 }
-
-            SendOpponentSpecialization(ALLIANCE);
-            SendOpponentSpecialization(HORDE);
 
             CheckArenaWinConditions();
         }
@@ -798,6 +806,7 @@ void Battleground::EndBattleground(uint32 winner)
     bool guildAwarded = false;
     uint8 aliveWinners = GetAlivePlayersCountByTeam(winner);
     std::ostringstream info;
+    
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         uint32 team = itr->second.Team;
@@ -891,11 +900,11 @@ void Battleground::EndBattleground(uint32 winner)
                 if (ObjectGuid::LowType guildId = GetBgMap()->GetOwnerGuildId(player->GetTeam()))
                     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
                     {
-                        guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, NULL, player);
+                        guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, player);
                         if (isArena() && isRated() && winner != WINNER_NONE)
                         {
                             ASSERT(bracket);
-                            guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(bracket->getRating(), 1), 0, NULL, player);
+                            guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(bracket->getRating(), 1), 0, 0, NULL, player);
                         }
                     }
             }
@@ -935,8 +944,63 @@ void Battleground::EndBattleground(uint32 winner)
 
     if (isArena() && isRated() && winner != WINNER_NONE)
     {
-        sLog->outArena("match Type: %u --- Winner: old rating: %u  --- Loser: old rating: %u| DETAIL: %s", 
-            m_JoinType, GetMatchmakerRating(winner), GetMatchmakerRating(GetOtherTeam(winner)), info.str().c_str());
+        const char* winnerTeam[5];
+        const char*  loserTeam[5];
+        for (uint8 i=0; i < 5; ++i)
+        {
+            winnerTeam[i] = "";
+            loserTeam[i] = "";
+        }
+        uint8 w = 0;
+        uint8 l = 0;
+
+        for (std::list<const char*>::iterator itr = m_nameList[winner].begin(); itr != m_nameList[winner].end(); ++itr)
+            if (const char* winnerName = (*itr))
+            {
+                winnerTeam[w] = winnerName;
+                w++;
+            }
+
+        for (std::list<const char*>::iterator itr = m_nameList[GetOtherTeam(winner)].begin(); itr != m_nameList[GetOtherTeam(winner)].end(); ++itr)
+            if (const char* loserName = (*itr))
+            {
+                loserTeam[l] = loserName;
+                l++;
+            }
+
+        uint32 _arenaTimer = m_StartTime / 1000;
+        uint32 _min = _arenaTimer / 60;
+        uint32 _sec = _arenaTimer - (_min * 60);
+        const char* att = "";
+        if (m_StartTime < 75000)
+            att = "--- ATTENTION!";
+
+        switch (m_JoinType)
+        {
+            case 2:
+            {
+                sLog->outArena("FINISH: Arena match Type: 2v2 --- Winner[%s, %s]: old rating: %u --- Loser[%s, %s]: old rating: %u --- Duration: %u min. %u sec. %s",
+                    winnerTeam[0], winnerTeam[1], GetMatchmakerRating(winner), loserTeam[0], loserTeam[1], GetMatchmakerRating(GetOtherTeam(winner)), _min, _sec, att);
+                break;
+            }
+            case 3:
+            {
+                sLog->outArena("FINISH: Arena match Type: 3v3 --- Winner[%s, %s, %s]: old rating: %u --- Loser[%s, %s, %s]: old rating: %u --- Duration: %u min. %u sec. %s",
+                    winnerTeam[0], winnerTeam[1], winnerTeam[2], GetMatchmakerRating(winner), loserTeam[0], loserTeam[1], loserTeam[2], GetMatchmakerRating(GetOtherTeam(winner)), _min, _sec, att);
+                break;
+            }
+            case 5:
+            {
+                sLog->outArena("FINISH: Arena match Type: 5v5 --- Winner[%s, %s, %s, %s, %s]: old rating: %u --- Loser[%s, %s, %s, %s, %s]: old rating: %u --- Duration: %u min. %u sec. %s",
+                    winnerTeam[0], winnerTeam[1], winnerTeam[2], winnerTeam[3], winnerTeam[4], GetMatchmakerRating(winner), loserTeam[0], loserTeam[1], loserTeam[2], loserTeam[3], loserTeam[4], GetMatchmakerRating(GetOtherTeam(winner)), _min, _sec, att);
+                break;
+            }
+            default:
+                sLog->outArena("match Type: %u --- Winner: old rating: %u  --- Loser: old rating: %u| DETAIL: %s",
+                    m_JoinType, GetMatchmakerRating(winner), GetMatchmakerRating(GetOtherTeam(winner)), info.str().c_str());
+                break;
+        }
+        
     }
 
     sBattlegroundMgr->BuildPvpLogDataPacket(&data, this);
@@ -994,6 +1058,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             if (realTeam != team)
                 player->setFactionForRace(player->getRace());
         }
+        player->RemoveAura(SPELL_BATTLE_FATIGUE);
     }
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
@@ -1132,8 +1197,6 @@ void Battleground::StartBattleground()
     // This must be done here, because we need to have already invited some players when first BG::Update() method is executed
     // and it doesn't matter if we call StartBattleground() more times, because m_Battlegrounds is a map and instance id never changes
     sBattlegroundMgr->AddBattleground(GetInstanceID(), GetTypeID(), this);
-    if (m_IsRated)
-        sLog->outArena("Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_JoinType, m_GroupIds[BG_TEAM_ALLIANCE], m_GroupIds[BG_TEAM_HORDE]);
 }
 
 void Battleground::AddPlayer(Player* player)
@@ -1224,7 +1287,7 @@ void Battleground::AddPlayer(Player* player)
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
             player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
-            player->ResetAllPowers();
+            player->ResetAllPowers(true);
         }
 
         // Set arena faction client-side to display arena unit frame
@@ -1232,11 +1295,6 @@ void Battleground::AddPlayer(Player* player)
 
         Pet* pet = player->GetPet();
         ObjectGuid petGUID = pet ? pet->GetGUID() : ObjectGuid::Empty;
-
-        //On MOP SMSG_ARENA_OPPONENT_UPDATE event destroy fraim
-        //WorldPacket op1(SMSG_ARENA_OPPONENT_UPDATE, 8);             //send opponents info about us
-        //op1.WriteGuidMask<5, 4, 7, 0, 6, 1, 2, 3>(petGUID);
-        //op1.WriteGuidBytes<6, 7, 0, 1, 3, 2, 4, 5>(petGUID);
 
         //not shure if we should to it at join.
         SendOpponentSpecialization(team);
@@ -1258,21 +1316,12 @@ void Battleground::AddPlayer(Player* player)
         SendPacketToAll(&data);
     }
 
-    player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
-    player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
-    player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
-    player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
-    player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
-    player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
-    player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
-    player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
-    player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
-    player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
-    player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
-
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
+
+    //Recal amaunt in auras
+    player->ScheduleDelayedOperation(DELAYED_UPDATE_AFTER_TO_BG);
 
     // Log
     sLog->outInfo(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Player %s joined the battle.", player->GetName());
@@ -1288,6 +1337,7 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
         group = new Group;
         SetBgRaid(team, group);
         group->Create(player);
+        sGroupMgr->AddGroup(group);
     }
     else                                            // raid already exist
     {
@@ -2102,4 +2152,14 @@ void Battleground::SendOpponentSpecialization(uint32 team)
     spec.put<uint32>(0, opCoun);
 
     SendPacketToTeam(GetOtherTeam(team), &spec);
+}
+
+void Battleground::UpdateArenaVision()
+{
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+        if (Player* player = sObjectAccessor->FindPlayer(itr->first))
+        {
+            player->AddAura(108887, player);
+            player->CastSpell(player, 108888, true);
+        }
 }

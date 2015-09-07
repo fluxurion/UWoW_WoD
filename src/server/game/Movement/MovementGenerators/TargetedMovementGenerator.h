@@ -55,6 +55,7 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
         bool IsReachable() const { return (i_path) ? (i_path->getPathType() & PATHFIND_NORMAL) : true; }
     protected:
         void _setTargetLocation(T &);
+        void _updateSpeed(T &u);
 
         TimeTrackerSmall i_recheckDistance;
         uint32 i_targetSearchingTimer;

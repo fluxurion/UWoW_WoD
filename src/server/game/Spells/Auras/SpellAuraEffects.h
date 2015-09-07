@@ -94,7 +94,7 @@ class AuraEffect
 
         uint32 GetTickNumber() const { return m_tickNumber; }
         void SetTickNumber(uint32 tick) { m_tickNumber = tick; }
-        int32 GetTotalTicks() const { return m_period ? (GetBase()->GetMaxDuration() / m_period) : 1;}
+        uint32 GetTotalTicks() const { return m_period ? (GetBase()->GetMaxDuration() / m_period) : 1;}
         void ResetPeriodic(bool resetPeriodicTimer = false) { if (resetPeriodicTimer) m_periodicTimer = m_period; m_tickNumber = 0;}
 
         bool IsPeriodic() const { return m_isPeriodic; }
@@ -326,6 +326,9 @@ class AuraEffect
         void HandleAuraModSpellVisual(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraActivateScene(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraeEablePowerType(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleLootBonus(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleSummonController(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModNextSpell(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const;

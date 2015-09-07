@@ -243,7 +243,7 @@ void SocialMgr::SendFriendStatus(Player* player, FriendsResult result, ObjectGui
 
 void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket const* packet)
 {
-    if (!player)
+    if (!player || m_socialMap.empty())
         return;
 
     uint32 team = player->GetTeam();

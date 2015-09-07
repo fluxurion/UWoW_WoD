@@ -135,7 +135,6 @@ struct boss_fallen_protectors : public BossAI
     void EnterCombat(Unit* who)
     {
         InitBattle();
-
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         instance->SetBossState(DATA_F_PROTECTORS, IN_PROGRESS);
         DoZoneInCombat(me, 150.0f);
@@ -151,6 +150,8 @@ struct boss_fallen_protectors : public BossAI
                 DoZoneInCombat(prot, 150.0f);
             }
         }
+        if (!instance->CheckRequiredBosses(DATA_F_PROTECTORS, 0))
+            EnterEvadeMode();
     }
 
     virtual void InitBattle() { 
@@ -213,18 +214,21 @@ struct boss_fallen_protectors : public BossAI
             return;
         }
 
-        if ((_healthPhase == 0 && GetHealthPct(damage) <= 66.0f) ||
-            (_healthPhase == 1 && GetHealthPct(damage) <= 33.0f))
+        if (!me->IsInEvadeMode())
         {
-            ++_healthPhase;
-            me->SetInCombatWithZone();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetReactState(REACT_PASSIVE);
-            me->AttackStop();
-            me->GetMotionMaster()->MovementExpired();
-            events.SetPhase(PHASE_DESPERATE_MEASURES);
-            events.RescheduleEvent(EVENT_DESPERATE_MEASURES, 1*IN_MILLISECONDS, 0, PHASE_DESPERATE_MEASURES);   //BreakIfAny
-            me->InterruptNonMeleeSpells(false);
+            if ((_healthPhase == 0 && GetHealthPct(damage) <= 66.0f) ||
+                (_healthPhase == 1 && GetHealthPct(damage) <= 33.0f))
+            {
+                ++_healthPhase;
+                me->SetInCombatWithZone();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetReactState(REACT_PASSIVE);
+                me->AttackStop();
+                me->GetMotionMaster()->MovementExpired();
+                events.SetPhase(PHASE_DESPERATE_MEASURES);
+                events.RescheduleEvent(EVENT_DESPERATE_MEASURES, 1 * IN_MILLISECONDS, 0, PHASE_DESPERATE_MEASURES);   //BreakIfAny
+                me->InterruptNonMeleeSpells(false);
+            }
         }
     }
 
@@ -798,17 +802,17 @@ class ExitVexMeasure : public BasicEvent
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
         {
             uint8 _idx = 0;
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
-                case NPC_EMBODIED_DESPIRE_OF_SUN:       _idx = 0; break;
-                case NPC_EMBODIED_DESPERATION_OF_SUN:   _idx = 1; break;
-                case NPC_EMBODIED_ANGUISH_OF_HE:        _idx = 2; break;
-                case NPC_EMBODIED_MISERY_OF_ROOK:       _idx = 3; break;
-                case NPC_EMBODIED_GLOOM_OF_ROOK:        _idx = 4; break;
-                case NPC_EMBODIED_SORROW_OF_ROOK:       _idx = 5; break;
-                default:
-                    sLog->outError(LOG_FILTER_GENERAL, " >> Script: OO:ExitVexMeasure no position for fall down for entry %u", creature->GetEntry());
-                    return true;
+            case NPC_EMBODIED_DESPIRE_OF_SUN:       _idx = 0; break;
+            case NPC_EMBODIED_DESPERATION_OF_SUN:   _idx = 1; break;
+            case NPC_EMBODIED_ANGUISH_OF_HE:        _idx = 2; break;
+            case NPC_EMBODIED_MISERY_OF_ROOK:       _idx = 3; break;
+            case NPC_EMBODIED_GLOOM_OF_ROOK:        _idx = 4; break;
+            case NPC_EMBODIED_SORROW_OF_ROOK:       _idx = 5; break;
+            default:
+                sLog->outError(LOG_FILTER_GENERAL, " >> Script: OO:ExitVexMeasure no position for fall down for entry %u", creature->GetEntry());
+                return true;
             }
             creature->GetMotionMaster()->MoveJump(LotusJumpPosition[_idx].m_positionX, LotusJumpPosition[_idx].m_positionY, LotusJumpPosition[_idx].m_positionZ, 20.0f, 20.0f);
             creature->AI()->DoAction(EVENT_1);
@@ -956,6 +960,13 @@ struct npc_measure : public ScriptedAI
     }
 };
 
+#define MIN_X 1162.0f
+#define MAX_X 1258.0f
+#define MIN_Y 992.0f   
+#define MAX_Y 1080.0f
+#define MIN_Z 415.0f
+#define MAX_Z 425.0f
+
 class npc_measure_of_sun : public CreatureScript
 {
 public:
@@ -1016,9 +1027,11 @@ public:
                             return;
                         }
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                            if (Player* player = i->getSource())
+                            if (Player* plr = i->getSource())
                             {
-                                if (player->GetAreaId() != BATTLE_AREA)
+                                if (plr->GetPositionX() < MIN_X || plr->GetPositionX() > MAX_X ||
+                                    plr->GetPositionY() < MIN_Y || plr->GetPositionY() > MAX_Y ||
+                                    plr->GetPositionZ() < MIN_Z || plr->GetPositionZ() > MAX_Z)
                                 {
                                     EnterEvadeMode();
                                     return;
@@ -1132,6 +1145,9 @@ public:
         {
             ownVehicle = NPC_GOLD_LOTOS_ROOK;
             ownSummoner = NPC_ROOK_STONETOE;
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
+
             switch(creature->GetEntry())
             {
                 case NPC_EMBODIED_MISERY_OF_ROOK: _spell = SPELL_DEFILED_GROUND; break;
@@ -1382,9 +1398,9 @@ class spell_fallen_protectors_calamity : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
-                        target->CastSpell(target, SPELL_PROCK, false);
+                        caster->CastSpell(target, SPELL_PROCK, false);
 
-                    if(caster->GetAI())
+                    if (caster->GetAI())
                         caster->GetAI()->SetData(DATA_CALAMITY_HIT, true);
                 }
             }
@@ -1600,10 +1616,16 @@ class spell_fallen_protectors_inferno_strike : public SpellScriptLoader
 
                 unitList.resize(count);
             }
+            
+            void RecalculateDamage()
+            {
+                SetHitDamage(GetHitDamage() * GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+            }
 
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_fallen_protectors_inferno_strike_SpellScript::SelectTarget, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnHit += SpellHitFn(spell_fallen_protectors_inferno_strike_SpellScript::RecalculateDamage);
             }
         };
 

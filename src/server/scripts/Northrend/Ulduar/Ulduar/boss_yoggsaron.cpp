@@ -883,7 +883,8 @@ class boss_yoggsaron : public CreatureScript
                             {
                                 Map::PlayerList const &players = instance->instance->GetPlayers();
                                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                    DoScriptText(EMOTE_EMPOWERING, me, itr->getSource());                                me->AddAura(SPELL_SHADOW_BEACON, pImmortal);
+                                    DoScriptText(EMOTE_EMPOWERING, me, itr->getSource());
+                                me->AddAura(SPELL_SHADOW_BEACON, pImmortal);
                             }
                             events.ScheduleEvent(EVENT_SHADOW_BEACON, 45000, 0, PHASE_3);
                             break;
@@ -958,7 +959,7 @@ class boss_yoggsaron : public CreatureScript
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_CHAMBER_ILLUSION);
-                            for (int i = 0; i < RAID_MODE(4, 10); ++i)
+                            for (int32 i = 0; i < RAID_MODE(4, 10); ++i)
                                 me->SummonCreature(NPC_PORTAL_CHAMBER, PortalPos[i], TEMPSUMMON_TIMED_DESPAWN, 10000);
                         }
                         break;
@@ -967,7 +968,7 @@ class boss_yoggsaron : public CreatureScript
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_ICECROWN_ILLUSION);
-                            for (int i = 0; i < RAID_MODE(4, 10); ++i)
+                            for (int32 i = 0; i < RAID_MODE(4, 10); ++i)
                                 me->SummonCreature(NPC_PORTAL_ICECROWN, PortalPos[i], TEMPSUMMON_TIMED_DESPAWN, 10000);
 
                         }
@@ -977,7 +978,7 @@ class boss_yoggsaron : public CreatureScript
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_STORMWIND_ILLUSION);
-                            for (int i = 0; i < RAID_MODE(4, 10); ++i)
+                            for (int32 i = 0; i < RAID_MODE(4, 10); ++i)
                                 me->SummonCreature(NPC_PORTAL_STORMWIND, PortalPos[i], TEMPSUMMON_TIMED_DESPAWN, 10000);
                         }
                         break;
@@ -1270,7 +1271,7 @@ class npc_guardian_yoggsaron : public CreatureScript
             if (instance)
             {
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_CREATURE, 33136);
-                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, 33136, 0, me);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, 33136, 0, 0, me);
                 DoCast(me, RAID_MODE(SPELL_SHADOW_NOVA_10, SPELL_SHADOW_NOVA_25), true);
                 me->DespawnOrUnsummon(3000);
             }

@@ -175,6 +175,14 @@ void CasterAI::UpdateAI(uint32 diff)
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
+    if (events.GetEvent())
+        if (!me->IsWithinLOSInMap(me->getVictim()))
+            if (MotionMaster* mMaster = me->GetMotionMaster())
+            {
+                mMaster->MoveChase(me->getVictim(), 0.001f);
+                return;
+            }
+
     if (uint32 spellId = events.ExecuteEvent())
     {
         DoCast(spellId);
@@ -417,7 +425,7 @@ void AnyPetAI::UpdateAI(uint32 diff)
 
             //sLog->outDebug(LOG_FILTER_PETS, "AnyPetAI::UpdateAI AttackStart");
         }
-        else if (me->getVictim())
+        else if (me->getVictim() && !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
         {
             // is only necessary to stop casting, the pet must not exit combat
             if (me->getVictim()->HasCrowdControlAura(me))
