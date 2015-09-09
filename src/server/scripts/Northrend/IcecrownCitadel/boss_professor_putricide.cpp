@@ -493,7 +493,7 @@ class boss_professor_putricide : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 ASSERT(false, "boss_professor_putricide USED GetModifyedData");
             }

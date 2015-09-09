@@ -889,7 +889,7 @@ class npc_dream_portal : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 return (type == MISSED_PORTALS && _used) ? 1 : 0;
             }

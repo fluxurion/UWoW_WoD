@@ -24338,8 +24338,8 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
     cLoot->unlootedCount = creature->GetSizeSaveThreat();
     //sLog->outDebug(LOG_FILTER_LOOT, "Unit::GeneratePersonalLoot unlootedCount %i", cLoot->unlootedCount);
 
-    std::list<uint64>* savethreatlist = creature->GetSaveThreatList();
-    for (std::list<uint64>::const_iterator itr = savethreatlist->begin(); itr != savethreatlist->end(); ++itr)
+    GuidList* savethreatlist = creature->GetSaveThreatList();
+    for (GuidList::const_iterator itr = savethreatlist->begin(); itr != savethreatlist->end(); ++itr)
     {
         if (Player* looter = ObjectAccessor::GetPlayer(*creature, (*itr)))
         {

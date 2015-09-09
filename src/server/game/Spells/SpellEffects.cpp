@@ -2254,7 +2254,7 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     destTarget->GetPosition(x, y, z, orientation);
     if (!orientation && m_targets.GetUnitTarget())
         orientation = m_targets.GetUnitTarget()->GetOrientation();
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectTeleportUnits - teleport unit to %u %f %f %f %f targetGuid %u\n", mapid, x, y, z, orientation, unitTarget->GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectTeleportUnits - teleport unit to %u %f %f %f %f targetGuid %u\n", mapid, x, y, z, orientation, unitTarget->GetGUID().GetCounter());
 
     if (mapid == unitTarget->GetMapId())
         unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
@@ -3861,13 +3861,13 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                         summon->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, petInfo->GetLevel());
                         // some pet data
                         summon->SetLevel(summon->GetCreatureTemplate()->maxlevel);       // some summoned creaters have different from 1 DB data for level/hp
-                        summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
+                        summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
 
                         summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
 
                         // not flag for summons battle pets
                         if (summon->GetCreatureTemplate()->type == CREATURE_TYPE_WILD_PET)
-                            summon->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+                            summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
                         summon->SetHealth(petInfo->GetHealth());
                         summon->SetMaxHealth(petInfo->GetMaxHealth());

@@ -50,9 +50,9 @@ public:
         ObjectGuid HeadGUID;
         ObjectGuid thalnosGUID;
         GuidSet HorsemanAdds;
-        uint64 durandGUID;
-        uint64 whitemaneGUID;
-        uint64 zombieGUID;
+        ObjectGuid durandGUID;
+        ObjectGuid whitemaneGUID;
+        ObjectGuid zombieGUID;
 
         uint32 encounter[MAX_ENCOUNTER];
 
@@ -65,8 +65,8 @@ public:
             HorsemanGUID.Clear();
             HeadGUID.Clear();
             thalnosGUID.Clear();
-            durandGUID = 0;
-            whitemaneGUID = 0;
+            durandGUID.Clear();
+            whitemaneGUID.Clear();
             HorsemanAdds.clear();
         }
 
@@ -169,7 +169,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_HORSEMAN_EVENT)
                 return encounter[0];

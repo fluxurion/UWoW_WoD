@@ -62,11 +62,11 @@ void Bag::AddToWorld()
 
 void Bag::RemoveFromWorld()
 {
-    volatile uint32 bagDebug = GetGUIDLow();
+    volatile uint32 bagDebug = GetGUID().GetCounter();
     for (uint32 i = 0; i < GetBagSize(); ++i)
         if (m_bagslot[i] && m_bagslot[i]->IsInWorld())
         {
-            volatile uint32 itemDebug = m_bagslot[i]->GetGUIDLow();
+            volatile uint32 itemDebug = m_bagslot[i]->GetGUID().GetCounter();
             m_bagslot[i]->RemoveFromWorld();
         }
 

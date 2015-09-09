@@ -45,10 +45,10 @@ public:
             stage2Data = 0;
             allowedStage = STAGE_1;
 
-            akamaGUID = 0;
-            jubekaGUID = 0;
-            doorGUID = 0;
-            secondDoorGUID = 0;
+            akamaGUID.Clear();
+            jubekaGUID.Clear();
+            doorGUID.Clear();
+            secondDoorGUID.Clear();
             trashP2GUIDs.clear();
             trapGUIDs.clear();
             soulGUIDs.clear();
@@ -166,18 +166,18 @@ public:
                     essenceData = data;
                     if (data == DONE)
                     {
-                        for (std::vector<uint64>::const_iterator itr = trashP2GUIDs.begin(); itr != trashP2GUIDs.end(); itr++)
+                        for (GuidVector::const_iterator itr = trashP2GUIDs.begin(); itr != trashP2GUIDs.end(); itr++)
                             if (Creature* trash = instance->GetCreature(*itr))
                             {
                                 trash->SetVisible(true);
                                 trash->SetReactState(REACT_AGGRESSIVE);
                             }
 
-                        for (std::vector<uint64>::const_iterator itr = soulGUIDs.begin(); itr != soulGUIDs.end(); itr++)
+                        for (GuidVector::const_iterator itr = soulGUIDs.begin(); itr != soulGUIDs.end(); itr++)
                             if (Creature* soul = instance->GetCreature(*itr))
                                 soul->RemoveFromWorld();
 
-                        for (std::vector<uint64>::const_iterator itr = trapGUIDs.begin(); itr != trapGUIDs.end(); itr++)
+                        for (GuidVector::const_iterator itr = trapGUIDs.begin(); itr != trapGUIDs.end(); itr++)
                             if (GameObject* trap = instance->GetGameObject(*itr))
                                 trap->RemoveFromWorld();
                     }
@@ -200,7 +200,7 @@ public:
                 case DATA_PLUNDER_EVENT:
                     plunderData = data;
                     if (data == DONE)
-                        for (std::vector<uint64>::const_iterator itr = treasuresGUIDs.begin(); itr != treasuresGUIDs.end(); itr++)
+                        for (GuidVector::const_iterator itr = treasuresGUIDs.begin(); itr != treasuresGUIDs.end(); itr++)
                             if (GameObject* trap = instance->GetGameObject(*itr))
                                 trap->SetVisible(true);
                     break;
@@ -212,7 +212,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const
         {
             switch (type)
             {
@@ -223,11 +223,11 @@ public:
                 case DATA_SECOND_DOOR:
                     return secondDoorGUID;
                 default:
-                    return 0;
+                    return ObjectGuid::Empty;
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {
@@ -257,14 +257,14 @@ public:
         uint32 stage2Data;
         uint32 allowedStage;
 
-        uint64 akamaGUID;
-        uint64 jubekaGUID;
-        uint64 doorGUID;
-        uint64 secondDoorGUID;
-        std::vector<uint64> trashP2GUIDs;
-        std::vector<uint64> trapGUIDs;
-        std::vector<uint64> soulGUIDs;
-        std::vector<uint64> treasuresGUIDs;
+        ObjectGuid akamaGUID;
+        ObjectGuid jubekaGUID;
+        ObjectGuid doorGUID;
+        ObjectGuid secondDoorGUID;
+        GuidVector trashP2GUIDs;
+        GuidVector trapGUIDs;
+        GuidVector soulGUIDs;
+        GuidVector treasuresGUIDs;
     };
 };
 
@@ -276,7 +276,7 @@ bool IsNextStageAllowed(InstanceScript* instance, uint8 stage)
             if (instance->GetData(DATA_ALLOWED_STAGE) == STAGE_1)
             {
                 instance->SetData(DATA_ALLOWED_STAGE, STAGE_2);
-                instance->HandleGameObject(instance->GetData64(DATA_MAIN_DOORS), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_MAIN_DOORS), true);
                 return true;
             }
             return false;

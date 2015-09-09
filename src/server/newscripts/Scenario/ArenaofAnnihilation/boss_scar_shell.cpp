@@ -96,7 +96,7 @@ public:
 
             else if (type == POINT_MOTION_TYPE && id == 1)
             {
-                if (GameObject* pGo = instance->instance->GetGameObject(instance->GetData64(DATA_DOOR)))
+                if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_DOOR)))
                     pGo->SetGoState(GO_STATE_READY);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -118,7 +118,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_POINT_HOME:
-                        if (GameObject* pGo = instance->instance->GetGameObject(instance->GetData64(DATA_DOOR)))
+                        if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_DOOR)))
                             pGo->SetGoState(GO_STATE_ACTIVE);
                         me->GetMotionMaster()->MovePoint(1, centerPos[0]);
                         break;

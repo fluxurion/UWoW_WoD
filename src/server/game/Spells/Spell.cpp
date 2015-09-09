@@ -2391,7 +2391,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
 //     }
 
     // max dist which spell can reach
-    std::list<uint64> tempGUIDs;
+    GuidList tempGUIDs;
     WorldObject* nextTarget = target;
     while (chainTargets)
     {
@@ -2402,7 +2402,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
 
         std::list<WorldObject*> removeTargets;
 
-        for (std::list<uint64>::iterator itr = tempGUIDs.begin(); itr != tempGUIDs.end(); ++itr)
+        for (GuidList::iterator itr = tempGUIDs.begin(); itr != tempGUIDs.end(); ++itr)
             for (std::list<WorldObject*>::iterator i = tempTargets.begin(); i != tempTargets.end(); ++i)
                 if (Unit* unitTarget = (*i)->ToUnit())
                     if (*itr == unitTarget->GetGUID())
@@ -3860,7 +3860,7 @@ void Spell::cast(bool skipCheck)
     {
         if (m_targets.GetObjectTarget()->ToGameObject())
         {
-            if (m_targets.GetObjectTarget()->ToGameObject()->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE))
+            if (m_targets.GetObjectTarget()->ToGameObject()->HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE))
             {
                 SendInterrupted(0);
                 SendCastResult(SPELL_FAILED_INTERRUPTED);
@@ -3868,7 +3868,7 @@ void Spell::cast(bool skipCheck)
                 return;
             }
             else
-                m_targets.GetObjectTarget()->ToGameObject()->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                m_targets.GetObjectTarget()->ToGameObject()->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
     }
 

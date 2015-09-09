@@ -71,7 +71,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {

@@ -59,7 +59,7 @@ class instance_ruby_sanctum : public InstanceMapScript
 
             void OnPlayerEnter(Player* /*player*/)
             {
-                if (!GetData64(DATA_HALION_CONTROLLER) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
+                if (!GetGuidData(DATA_HALION_CONTROLLER) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                 {
                     instance->LoadGrid(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY());
                     if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
@@ -286,7 +286,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 BaltharusSharedHealth = data;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type != DATA_BALTHARUS_SHARED_HEALTH)
                     return 0;

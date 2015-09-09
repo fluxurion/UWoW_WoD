@@ -454,6 +454,7 @@ class Item : public Object
         uint32 m_paidExtendedCost;
         GuidSet allowedGUIDs;
         uint32 _modifiers[MAX_ITEM_MODIFIERS];
+        uint32 ItemLevelBeforeCap;
 };
 
 WorldPackets::Item::ItemInstance& operator<<(WorldPackets::Item::ItemInstance& data, Item const* item);

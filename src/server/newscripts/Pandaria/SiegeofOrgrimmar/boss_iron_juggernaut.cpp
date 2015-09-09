@@ -514,7 +514,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             me->setFaction(35);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
         InstanceScript* instance;
@@ -524,7 +524,7 @@ public:
         void Reset()
         {
             events.Reset();
-            targetGuid = 0;
+            targetGuid.Clear();
             events.ScheduleEvent(EVENT_ACTIVE_DETONATE, urand(3000, 5000)); //test only
         }
 

@@ -121,7 +121,7 @@ class boss_eregos : public CreatureScript
                     _amberVoid = false;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                switch (type)
                {

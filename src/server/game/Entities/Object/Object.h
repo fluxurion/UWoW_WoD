@@ -32,6 +32,9 @@
 #include <string>
 #include <sstream>
 #include <boost/unordered_set.hpp>
+#include "G3D/Vector3.h"
+
+using G3D::Vector3;
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
@@ -445,9 +448,9 @@ struct Position
         if (pos)
             pos->Relocate(m_positionX, m_positionY, m_positionZ, m_orientation);
     }
-    void PositionToVector(Vector3& pos) const
+    void PositionToVector(G3D::Vector3& pos) const
         { pos.x = m_positionX; pos.y = m_positionY; pos.z = m_positionZ; }
-    void VectorToPosition(Vector3 pos)
+    void VectorToPosition(G3D::Vector3 pos)
         { m_positionX = pos.x; m_positionY = pos.y; m_positionZ = pos.z; }
 
     Position::PositionXYZStreamer PositionXYZStream()

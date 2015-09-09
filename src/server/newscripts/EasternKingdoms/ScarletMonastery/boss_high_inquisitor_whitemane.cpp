@@ -125,7 +125,7 @@ public:
             events.ScheduleEvent(EVENT_HOLYSMITE, 5000);
             events.ScheduleEvent(EVENT_POWERWORDSHIELD, 26000);
             events.ScheduleEvent(EVENT_MASS_RESURRECTION, 12000);
-            if (instance->instance->GetDifficulty() == CHALLENGE_MODE_DIFFICULTY)
+            if (instance->instance->GetDifficultyID() == DIFFICULTY_CHALLENGE)
                 events.ScheduleEvent(EVENT_DOMINATE_MIND, 14000);
             _EnterCombat();
         }
@@ -141,7 +141,7 @@ public:
                 ResurrectCheck = true;
                 DoStopAttack();
                 DoCast(me, SPELL_DEEPSLEEP, true);
-                if (Creature* durand = instance->instance->GetCreature(instance->GetData64(DATA_DURAND)))
+                if (Creature* durand = instance->instance->GetCreature(instance->GetGuidData(DATA_DURAND)))
                 {
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(1, durand->GetPositionX(), durand->GetPositionY(), durand->GetPositionZ());
@@ -165,8 +165,8 @@ public:
         {
             instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEV_CREDIT, 0, 0, me);
             Talk(SAY_WH_DEATH);
-            if (instance->instance->GetDifficulty() != CHALLENGE_MODE_DIFFICULTY)
-                if (Creature* durand = instance->instance->GetCreature(instance->GetData64(DATA_DURAND)))
+            if (instance->instance->GetDifficultyID() != DIFFICULTY_CHALLENGE)
+                if (Creature* durand = instance->instance->GetCreature(instance->GetGuidData(DATA_DURAND)))
                     durand->AI()->DoCast(SPELL_SUICIDE_NO_BLOOD);
             _JustDied();
         }
@@ -297,7 +297,7 @@ public:
                         sayDeath = true;
                         Talk(SAY_D_DEATH);
 
-                        if (Creature* Wh = instance->instance->GetCreature(instance->GetData64(DATA_WHITEMANE)))
+                        if (Creature* Wh = instance->instance->GetCreature(instance->GetGuidData(DATA_WHITEMANE)))
                             Wh->AI()->DoAction(1);
                     }
                 }
@@ -422,7 +422,7 @@ public:
         
         if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
         {
-            if (Creature* durand = pInstance->instance->GetCreature(pInstance->GetData64(DATA_DURAND)))
+            if (Creature* durand = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_DURAND)))
                 durand->AI()->DoAction(true);
         }
         return true;

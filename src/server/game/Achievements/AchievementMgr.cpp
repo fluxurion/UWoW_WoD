@@ -487,7 +487,7 @@ void AchievementMgr<T>::ResetAchievementCriteria(AchievementCriteriaTypes type, 
             continue;
 
         // don't update already completed criteria if not forced or achievement already complete
-        if ((IsCompletedCriteria(criteriaTree, achievement, criteria) && !evenIfCriteriaComplete)/* || HasAchieved(achievement->ID, GetOwner()->GetGUIDLow())*/)
+        if ((IsCompletedCriteria(criteriaTree, achievement, criteria) && !evenIfCriteriaComplete)/* || HasAchieved(achievement->ID, GetOwner()->GetGUID().GetCounter())*/)
             continue;
 
         if (criteria->timedCriteriaStartType == miscValue1 &&
@@ -606,7 +606,7 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 
             // new/changed record data
             ssAccIns << '(' << GetOwner()->GetSession()->GetAccountId() << ',' << iter->second.first_guid << ',' << iter->first << ',' << iter->second.date << ')';
-            ssCharIns << '(' << GetOwner()->GetGUIDLow() << ',' << iter->first << ',' << iter->second.date << ')';
+            ssCharIns << '(' << GetOwner()->GetGUID().GetCounter() << ',' << iter->first << ',' << iter->second.date << ')';
 
             /// mark as saved in db
             iter->second.changed = false;
@@ -638,7 +638,7 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
             std::ostringstream ssAccins;
             std::ostringstream ssCharins;
 
-            uint64 guid      = GetOwner()->GetGUIDLow();
+            uint64 guid      = GetOwner()->GetGUID().GetCounter();
             uint32 accountId = GetOwner()->GetSession()->GetAccountId();
 
             for (CriteriaProgressMap::iterator iter = progressMap->begin(); iter != progressMap->end(); ++iter)
@@ -660,7 +660,7 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
                     isAccountAchievement = false;
 
                 // store data only for real progress
-                bool hasAchieve = HasAchieved(achievement->ID, GetOwner()->GetGUIDLow()) || (achievement->parent && !HasAchieved(achievement->parent, GetOwner()->GetGUIDLow()));
+                bool hasAchieve = HasAchieved(achievement->ID, GetOwner()->GetGUID().GetCounter()) || (achievement->parent && !HasAchieved(achievement->parent, GetOwner()->GetGUID().GetCounter()));
                 if (iter->second.counter != 0 && !hasAchieve)
                 {
                     uint32 achievID = iter->second.achievement ? iter->second.achievement->ID : 0;
@@ -852,7 +852,7 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
             {
                 CompletedAchievementData& ca = m_completedAchievements[achievementid];
                 ca.changed = true;
-                ca.first_guid = GetOwner()->GetGUIDLow();
+                ca.first_guid = GetOwner()->GetGUID().GetCounter();
                 ca.date = time_t(fields[1].GetUInt32());
                 _achievementPoints += achievement->points;
             }
@@ -860,7 +860,7 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
             {
                 CompletedAchievementData& ca = m_completedAchievements[achievementid];
                 ca.changed = false;
-                ca.first_guid = GetOwner()->GetGUIDLow();
+                ca.first_guid = GetOwner()->GetGUID().GetCounter();
                 ca.date = time_t(fields[1].GetUInt32());
             }
 
@@ -922,14 +922,14 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
             else
                 achievement = sAchievementMgr->GetAchievement(achievementID);
 
-            bool hasAchieve = !achievement || HasAchieved(achievement->ID, GetOwner()->GetGUIDLow());
+            bool hasAchieve = !achievement || HasAchieved(achievement->ID, GetOwner()->GetGUID().GetCounter());
             if (hasAchieve)
             {
                 // we will remove already completed criteria
                 //sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "Achievement %s with progress char_criteria_id %u data removed from table `character_achievement_progress` ", achievement ? "completed" : "not exist", char_criteria_id);
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEV_PROGRESS_CRITERIA);
                 stmt->setUInt32(0, char_criteria_id);
-                stmt->setUInt32(1, GetOwner()->GetGUIDLow());
+                stmt->setUInt32(1, GetOwner()->GetGUID().GetCounter());
                 CharacterDatabase.Execute(stmt);
                 continue;
             }
@@ -1231,7 +1231,7 @@ void AchievementMgr<Player>::Reset()
 
     m_completedAchievements.clear();
     _achievementPoints = 0;
-    DeleteFromDB(GetOwner()->GetGUIDLow());
+    DeleteFromDB(GetOwner()->GetGUID());
 
     if (m_achievementProgress.empty())
         return;
@@ -1273,7 +1273,7 @@ void AchievementMgr<Guild>::Reset()
     }
 
     m_completedAchievements.clear();
-    DeleteFromDB(GetOwner()->GetId());
+    DeleteFromDB(GetOwner()->GetGUID());
 
     if (m_achievementProgress.empty())
         return;
@@ -2616,7 +2616,7 @@ template<class T>
 bool AchievementMgr<T>::IsCompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer, CriteriaProgressMap* progressMap)
 {
     // counter can never complete
-    if (!progressMap || (achievement->flags & ACHIEVEMENT_FLAG_COUNTER) || HasAchieved(achievement->ID, referencePlayer->GetGUIDLow()))
+    if (!progressMap || (achievement->flags & ACHIEVEMENT_FLAG_COUNTER) || HasAchieved(achievement->ID, referencePlayer->GetGUID().GetCounter()))
         return false;
 
     // For SUMM achievements, we have to count the progress of each criteria of the achievement.
@@ -2756,7 +2756,7 @@ bool AchievementMgr<T>::SetCriteriaProgress(AchievementEntry const* achievement,
     if (progress->completed && achievement && achievement->flags & ACHIEVEMENT_FLAG_SHOW_CRITERIA_MEMBERS && !progress->CompletedGUID)
         progress->CompletedGUID = referencePlayer->GetGUID();
 
-    if (achievement && achievement->parent && !HasAchieved(achievement->parent, referencePlayer->GetGUIDLow())) //Don`t send update criteria to client if parent achievment not complete
+    if (achievement && achievement->parent && !HasAchieved(achievement->parent, referencePlayer->GetGUID().GetCounter())) //Don`t send update criteria to client if parent achievment not complete
         return false;
 
     if (achievement && achievement->flags & ACHIEVEMENT_FLAG_ACCOUNT)
@@ -3149,7 +3149,16 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* receiver, uint32 /*achi
     VisibleAchievementPred isVisible;
     WorldPackets::Achievement::AllAchievements achievementData;
     achievementData.Earned.reserve(m_completedAchievements.size());
-    achievementData.Progress.reserve(m_criteriaProgress.size());
+
+    uint32 _size = 0;
+    for (AchievementProgressMap::const_iterator iter = m_achievementProgress.begin(); iter != m_achievementProgress.end(); ++iter)
+    {
+        CriteriaProgressMap const* progressMap = &iter->second;
+        if (!progressMap)
+            return;
+        _size += progressMap->size();
+    }
+    achievementData.Progress.reserve(_size);
 
     for (auto itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
@@ -3222,7 +3231,7 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
 
     uint32 numCriteria = 0;
 
-    WorldPacket data(SMSG_GUILD_CRITERIA_UPDATE, 3 + cTree->size());
+    WorldPacket data(SMSG_GUILD_CRITERIA_UPDATE);
     data << uint32(numCriteria);
 
     for (CriteriaProgressMap::const_iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
@@ -3235,7 +3244,7 @@ void AchievementMgr<Guild>::SendAchievementInfo(Player* receiver, uint32 achieve
         data << uint32(itr->second.date);                       // DateCreated
         data << uint32(itr->second.date);                       // DateStarted
         data.AppendPackedTime(::time(NULL) - itr->second.date); // DateUpdated
-        data << uint64(progress->counter);
+        data << uint64(itr->second.counter);
         data << itr->second.CompletedGUID;
         data << uint32(0);                                     // flags?
     }

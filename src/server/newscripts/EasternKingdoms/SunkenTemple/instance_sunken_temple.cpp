@@ -193,7 +193,7 @@ public:
                 State = data;
          }
 
-         uint32 GetData(uint32 type) const
+         uint32 GetData(uint32 type) const override
          {
             if (type == EVENT_STATE)
                 return State;

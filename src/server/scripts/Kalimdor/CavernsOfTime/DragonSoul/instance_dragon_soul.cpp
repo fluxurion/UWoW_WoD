@@ -669,7 +669,7 @@ class instance_dragon_soul : public InstanceMapScript
                 }
             }
             
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {

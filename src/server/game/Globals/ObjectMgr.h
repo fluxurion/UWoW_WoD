@@ -1356,7 +1356,7 @@ class ObjectMgr
 
         CreatureData& NewOrExistCreatureData(ObjectGuid::LowType const& guid) { return _creatureDataStore[guid]; }
         void DeleteCreatureData(ObjectGuid::LowType const& guid);
-        ObjectGuid GetLinkedRespawnGuid(ObjectGuid const& guid) const
+
         PersonalLootData const* GetPersonalLootData(uint32 id, uint32 type = 0) const
         {
             PersonalLootContainer::const_iterator itr = _PersonalLootStore[type].find(id);
@@ -1371,17 +1371,13 @@ class ObjectMgr
             return &itr->second;
         }
 
+        ObjectGuid GetLinkedRespawnGuid(ObjectGuid const& guid) const
         {
             LinkedRespawnContainer::const_iterator itr = _linkedRespawnStore.find(guid);
             if (itr == _linkedRespawnStore.end()) return ObjectGuid::Empty;
             return itr->second;
         }
-        TreasureData const* GetTreasureData(uint32 id) const
-        {
-            TreasureDataContainer::const_iterator itr = _TreasureDataStore.find(id);
-            if (itr == _TreasureDataStore.end()) return NULL;
-            return &itr->second;
-        }
+
         CreatureLocale const* GetCreatureLocale(uint32 entry) const
         {
             CreatureLocaleContainer::const_iterator itr = _creatureLocaleStore.find(entry);

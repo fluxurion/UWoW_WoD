@@ -662,7 +662,7 @@ class boss_the_lich_king : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {

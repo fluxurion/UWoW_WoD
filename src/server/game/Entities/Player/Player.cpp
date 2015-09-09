@@ -4258,7 +4258,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                             GetBattlePetMgr()->AddPetToList(petguid, spEntry->ID, petEntry, level, creature->Modelid1, power, speed, health, health, quality, 0, 0, spellInfo->Id, "", breedID, STATE_UPDATED);
                             if (learning)
                             {
-                                std::list<uint64> newPets;
+                                GuidList newPets;
                                 newPets.clear();
                                 newPets.push_back(petguid);
 
@@ -19950,7 +19950,7 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
     uint16 slot = 0;
 
     ////                                                       0        1       2
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, objective, data WHERE guid = '%u'", GetGUIDLow());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, objective, data WHERE guid = '%u'", GetGUID().GetCounter());
 
     if (result)
     {
@@ -20382,61 +20382,7 @@ void Player::_LoadGroup(PreparedQueryResult result)
 
 void Player::_LoadLootCooldown(PreparedQueryResult result)
 {
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT entry, bonus, respawnTime FROM character_creature WHERE guid = %u", GetGUIDLow());
-    if (!result)
-        return;
-    do
-    {
-        Field* fields = result->Fetch();
-        playerLootCooldown lootCooldown;
-        lootCooldown.entry = fields[0].GetInt32();
-        lootCooldown.type = fields[1].GetInt8();
-        lootCooldown.respawnTime = fields[2].GetInt32();
-        lootCooldown.state = false;
-        m_playerLootCooldown[lootCooldown.type][lootCooldown.entry] = lootCooldown;
-    }
-    while (result->NextRow());
-}
-
-void Player::_SaveLootCooldown(SQLTransaction& trans)
-{
-    PreparedStatement* stmt = NULL;
-
-    for(int i = 0; i < MAX_LOOT_COOLDOWN_TYPE; i++)
-    {
-        for (PlayerLootCooldownMap::iterator itr = m_playerLootCooldown[i].begin(); itr != m_playerLootCooldown[i].end(); ++itr)
-        {
-            if(!itr->second.state)
-                continue;
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_LOOTCOOLDOWN);
-            stmt->setUInt64(0, GetGUID().GetCounter());
-            stmt->setUInt32(1, itr->second.entry);
-            stmt->setUInt32(2, itr->second.type);
-            stmt->setUInt32(3, itr->second.respawnTime);
-            itr->second.state = false;
-            trans->Append(stmt);
-        }
-    }
-}
-
-void Player::ResetLootCooldown()
-{
-    for(int i = 0; i < MAX_LOOT_COOLDOWN_TYPE; i++)
-    {
-        for (PlayerLootCooldownMap::iterator itr = m_playerLootCooldown[i].begin(); itr != m_playerLootCooldown[i].end();)
-        {
-            if(itr->second.respawnTime)
-                m_playerLootCooldown[i].erase(itr++);
-            else
-                ++itr;
-        }
-    }
-}
-
-void Player::_LoadLootCooldown(PreparedQueryResult result)
-{
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT entry, bonus, respawnTime FROM character_creature WHERE guid = %u", GetGUIDLow());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT entry, bonus, respawnTime FROM character_creature WHERE guid = %u", GetGUID().GetCounter());
     if (!result)
         return;
     do
@@ -20465,7 +20411,7 @@ void Player::_SaveLootCooldown(SQLTransaction& trans)
                 continue;
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_LOOTCOOLDOWN);
-            stmt->setUInt64(0, GetGUIDLow());
+            stmt->setUInt64(0, GetGUID().GetCounter());
             stmt->setUInt32(1, itr->second.entry);
             stmt->setUInt32(2, itr->second.type);
             stmt->setUInt32(3, itr->second.difficultyMask);
@@ -21756,7 +21702,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
                 if (sObjectMgr->IsPlayerInLogList(this))
                 {
                     sObjectMgr->DumpDupeConstant(this);
-                    sLog->outDebug(LOG_FILTER_DUPE, "---_SaveInventory item Guid %u Slot %u Entry %u State %u BagSlot %u", item->GetGUIDLow(), item->GetSlot(), item->GetEntry(), item->GetState(), item->GetBagSlot());
+                    sLog->outDebug(LOG_FILTER_DUPE, "---_SaveInventory item Guid %u Slot %u Entry %u State %u BagSlot %u", item->GetGUID().GetCounter(), item->GetSlot(), item->GetEntry(), item->GetState(), item->GetBagSlot());
                 }
                 break;
             case ITEM_REMOVED:
@@ -28134,7 +28080,7 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 
 bool Player::HasAchieved(uint32 achievementId) const
 {
-    return GetAchievementMgr().HasAchieved(achievementId, GetGUIDLow());
+    return GetAchievementMgr().HasAchieved(achievementId, GetGUID().GetCounter());
 }
 
 uint32 Player::GetAchievementPoints() const

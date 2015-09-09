@@ -166,7 +166,7 @@ class instance_firelands : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_RHYOLITH_HEALTH_SHARED)
                     return uiRhyolithHealth;

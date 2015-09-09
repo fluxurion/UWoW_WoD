@@ -1836,6 +1836,7 @@ class Unit : public WorldObject
 
         ObjectGuid GetSummonedByGUID() const { return GetGuidValue(UNIT_FIELD_SUMMONED_BY); }
         void SetOwnerGUID(ObjectGuid owner);
+        ObjectGuid GetOwnerGUID() const { return GetGuidValue(UNIT_FIELD_CREATED_BY); }
         ObjectGuid GetCreatorGUID() const { return GetGuidValue(UNIT_FIELD_CREATED_BY); }
         void SetCreatorGUID(ObjectGuid creator) { SetGuidValue(UNIT_FIELD_CREATED_BY, creator); }
         ObjectGuid GetMinionGUID() const { return GetGuidValue(UNIT_FIELD_SUMMON); }

@@ -199,7 +199,7 @@ class instance_deadmines : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_VANESSA_EVENT)
                     return uiVanessaEvent;

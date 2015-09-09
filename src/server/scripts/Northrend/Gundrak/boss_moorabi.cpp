@@ -144,7 +144,7 @@ public:
             DoMeleeAttackIfReady();
          }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_LESS_RABI)
                 return bPhase ? 0 : 1;

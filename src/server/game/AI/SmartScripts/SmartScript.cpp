@@ -269,7 +269,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                                 {
                                     (*itr)->ToCreature()->setFaction(ci->faction);
                                     sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SET_FACTION: Creature entry %u, GuidLow %u set faction to %u",
-                                        (*itr)->GetEntry(), (*itr)->GetGUID().GetCounter(), ci->faction_A);
+                                        (*itr)->GetEntry(), (*itr)->GetGUID().GetCounter(), ci->faction);
                                 }
                             }
                         }

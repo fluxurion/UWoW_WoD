@@ -201,7 +201,7 @@ void ObjectGridUnloader::Visit(GridRefManager<T> &m)
         //Example: Flame Leviathan Turret 33139 is summoned when a creature is deleted
         //TODO: Check if that script has the correct logic. Do we really need to summons something before deleting?
         obj->CleanupsBeforeDelete();
-        volatile uint32 entryorguid = obj->GetTypeId() == TYPEID_PLAYER ? obj->GetGUIDLow() : obj->GetEntry();
+        volatile uint32 entryorguid = obj->GetTypeId() == TYPEID_PLAYER ? obj->GetGUID().GetCounter() : obj->GetEntry();
         volatile uint32 appliedAurasCount = obj->ToUnit() ? obj->ToUnit()->GetAppliedAuras().size() : 0;
         volatile uint32 ownedAurasCount = obj->ToUnit() ? obj->ToUnit()->GetOwnedAuras().size() : 0;
         ///- object will get delinked from the manager when deleted

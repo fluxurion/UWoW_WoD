@@ -958,7 +958,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_PERSONAL_RATE           = 42,
     PLAYER_LOGIN_QUERY_HONOR                        = 43,
     PLAYER_LOGIN_QUERY_LOAD_VISUAL                  = 44,
-    PLAYER_LOGIN_QUERY_LOAD_LOOTCOOLDOWN            = 44,
     PLAYER_LOGIN_QUERY_LOAD_LOOTCOOLDOWN            = 45,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES = 46,
 
@@ -1184,7 +1183,7 @@ struct VoidStorageItem
         deleted = false;
     }
 
-    VoidStorageItem(ObjectGuid const& id, uint32 entry, uint32 creator, uint32 randomPropertyId, uint32 suffixFactor, bool _change)
+    VoidStorageItem(ObjectGuid const& id, uint32 entry, ObjectGuid const& creator, uint32 randomPropertyId, uint32 suffixFactor, bool _change)
     {
         ItemId = id;
         ItemEntry = entry;
@@ -2074,11 +2073,11 @@ class Player : public Unit, public GridObject<Player>
         }
 
         ObjectGuid GetSelection() const { return m_curSelection; }
-        uint64 GetLastSelection() const { return m_lastSelection; }
+        ObjectGuid GetLastSelection() const { return m_lastSelection; }
         Unit* GetSelectedUnit() const;
         Unit* GetLastSelectedUnit() const;
         Player* GetSelectedPlayer() const;
-        void SetSelection(ObjectGuid const& guid) { if (m_curSelection) m_lastSelection = m_curSelection; m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
+        void SetSelection(ObjectGuid const& guid) { if (m_curSelection) m_lastSelection = m_curSelection; m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() const { if(HasAura(138148)) return m_comboPoints + 1; else return m_comboPoints; }
         void SaveAddComboPoints(int8 count) { m_comboSavePoints += count; }
@@ -3366,7 +3365,6 @@ class Player : public Unit, public GridObject<Player>
         void _LoadHonor(PreparedQueryResult resultUnread);
         void _LoadBattlePetSlots(PreparedQueryResult result);
         void _LoadLootCooldown(PreparedQueryResult result);
-        void _LoadLootCooldown(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -3439,7 +3437,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_ExtraFlags;
         ObjectGuid m_curSelection;
-        uint64 m_lastSelection;
+        ObjectGuid m_lastSelection;
         DigSiteInfo m_digsite;
 
         int8 m_comboPoints;

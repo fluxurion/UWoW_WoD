@@ -180,14 +180,14 @@ public:
                         Talk(0);
                         break;
                     case EVENT_4:
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         events.CancelEventGroup(1);
                         break;
                     case EVENT_5:
                         events.ScheduleEvent(EVENT_6, 4 * IN_MILLISECONDS);
                         Talk(1);
                         timer = 5;
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         break;
                     case EVENT_6:
                         events.ScheduleEvent(EVENT_7, timer += 0 * IN_MILLISECONDS);
@@ -993,7 +993,7 @@ public:
                         break;
                     case EVENT_27:
                         me->setFaction(35);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
 
                         if (Player* plr = me->FindNearestPlayer(150.0f))
                             plr->RemoveAura(SPELL_DEMONIC_GRASP);
@@ -1352,7 +1352,7 @@ public:
                         phaseIds.insert(2387);
                         player->GetSession()->SendSetPhaseShift(phaseIds, terrainswaps, WorldMapAreaIds, 16);
                         player->AddAura(SPELL_UPDATE_PHASE_SHIFT, player);
-                        instance->HandleGameObject(instance->GetData64(DATA_SECOND_DOOR), true);
+                        instance->HandleGameObject(instance->GetGuidData(DATA_SECOND_DOOR), true);
                         player->AddAura(SPELL_PLUNDER, player);
                         player->PlayerTalkClass->SendQuestQueryResponse(32340); //< i hope it's right way... SMSG_QUEST_GIVER_QUEST_DETAILS in sniffs
                         return true;

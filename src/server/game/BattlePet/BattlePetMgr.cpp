@@ -61,16 +61,6 @@ bool BattlePetMgr::BuildPetJournal(WorldPacket *data)
 
     data->Initialize(SMSG_BATTLE_PET_JOURNAL);
     *data << uint16(0);                                        // trapLevel
-        bitData.WriteBit(!petInfo->GetBreedID());     // hasBreed, inverse
-        bitData.WriteGuidMask<1, 5, 3>(guid);
-        bitData.WriteBit(0);                          // hasOwnerGuidInfo
-        bitData.WriteBit(!petInfo->GetQuality());     // hasQuality, inverse
-        bitData.WriteGuidMask<6, 7>(guid);
-        bitData.WriteBit(!petInfo->GetFlags());       // hasFlags, inverse
-        bitData.WriteGuidMask<0, 4>(guid);
-        bitData.WriteBits(len, 7);                    // custom name length
-        bitData.WriteGuidMask<2>(guid);
-        bitData.WriteBit(1);                          // hasUnk (bool noRename?), inverse
 
     uint32 pos = data->wpos();
     *data << uint32(MAX_ACTIVE_BATTLE_PETS);
@@ -105,7 +95,7 @@ bool BattlePetMgr::BuildPetJournal(WorldPacket *data)
             return false;
 
         // prevent loading deleted pet
-        if (petInfo->GetInternalState() == STATE_DELETED)
+        if (petInfo->GetState() == STATE_DELETED)
             continue;
 
         ObjectGuid guid = itr->first;
@@ -173,7 +163,7 @@ void BattlePetMgr::SendUpdatePets(std::list<ObjectGuid> &updates, bool added)
     {
         PetJournalInfo* petInfo = GetPetInfoByPetGUID((*i));
 
-        if (!petInfo || petInfo->GetInternalState() == STATE_DELETED)
+        if (!petInfo || petInfo->GetState() == STATE_DELETED)
             continue;
 
         ObjectGuid guid = (*i);
@@ -198,7 +188,7 @@ void BattlePetMgr::SendUpdatePets(std::list<ObjectGuid> &updates, bool added)
     {
         PetJournalInfo* petInfo = GetPetInfoByPetGUID((*i));
 
-        if (!petInfo || petInfo->GetInternalState() == STATE_DELETED)
+        if (!petInfo || petInfo->GetState() == STATE_DELETED)
             continue;
 
         ObjectGuid guid = (*i);
@@ -233,15 +223,6 @@ void BattlePetMgr::SendUpdatePets(std::list<ObjectGuid> &updates, bool added)
         //data.WriteGuidBytes<0, 1>(guid);
         data << uint32(petInfo->GetPower());                  // power
     }
-
-    bitData.FlushBits();
-    // prevent damage update packet
-    if (updates.size() != realCount)
-        bitData.PutBits<uint32>(countPos, realCount, 19);
-
-    WorldPacket data(SMSG_BATTLE_PET_UPDATES);
-    data.append(bitData);
-    data.append(byteData);
 
     m_player->GetSession()->SendPacket(&data);
 }

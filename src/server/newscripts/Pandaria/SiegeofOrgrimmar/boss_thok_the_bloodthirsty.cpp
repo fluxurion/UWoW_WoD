@@ -163,7 +163,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
             }
             
             InstanceScript* instance;
-            uint64 fplGuid, jGuid, pGuid;
+            ObjectGuid fplGuid, jGuid, pGuid;
             uint32 enrage;
             uint32 findtargets;
             uint8 phasecount;
@@ -183,9 +183,9 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                 me->SetMaxPower(POWER_ENERGY, 100);
                 me->SetPower(POWER_ENERGY, 0);
                 findtargets = 0;
-                fplGuid = 0;  
-                jGuid = 0;   
-                pGuid = 0;    
+                fplGuid.Clear();  
+                jGuid.Clear();
+                pGuid.Clear();
                 phasecount = 0;
                 phasetwo = false;
                 enrage = 0;
@@ -231,7 +231,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                 events.ScheduleEvent(EVENT_FEARSOME_ROAR, 15000);
             }
 
-            void SetGUID(uint64 Guid, int32 type)
+            void SetGUID(ObjectGuid const& Guid, int32 type) override
             {
                 if (type == 2 && instance)
                 {
@@ -500,7 +500,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                                 DoAction(ACTION_PHASE_ONE_FROST);
                                 break;
                             }
-                            pGuid = 0;
+                            pGuid.Clear();
                         }
                         break;
                     case EVENT_FIXATE:
@@ -531,23 +531,23 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                     DoMeleeAttackIfReady();
             }
 
-            uint64 GetJailerVictimGuid()
+            ObjectGuid GetJailerVictimGuid()
             {
                 if (Creature* kj = me->GetCreature(*me, jGuid))
                     if (kj->isAlive() && kj->isInCombat())
-                        return kj->getVictim() ? kj->getVictim()->GetGUID() : 0;
+                        return kj->getVictim() ? kj->getVictim()->GetGUID() : ObjectGuid::Empty;
 
-                return 0;
+                return ObjectGuid::Empty;
             }
 
-            uint64 GetFixateTargetGuid()
+            ObjectGuid GetFixateTargetGuid()
             {
                 std::list<Player*> pllist;
                 std::list<Player*> fpllist;
                 pllist.clear();
                 fpllist.clear();
                 GetPlayerListInGrid(pllist, me, 150.0f);
-                uint64 jvGuid = GetJailerVictimGuid();
+                ObjectGuid jvGuid = GetJailerVictimGuid();
                 if (!pllist.empty())
                 {
                     for (std::list<Player*>::const_iterator itr = pllist.begin(); itr != pllist.end(); itr++)
@@ -562,7 +562,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                         return (*Itr)->GetGUID();
                     }
                 }
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void JustDied(Unit* /*killer*/)
@@ -617,7 +617,7 @@ public:
 
         void JustDied(Unit* killer)
         {
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
         void UpdateAI(uint32 diff)
@@ -672,7 +672,7 @@ public:
             switch (action)
             {
             case ACTION_FREEDOM:
-                if (Creature* thok = me->GetCreature(*me, instance->GetData64(NPC_THOK)))
+                if (Creature* thok = me->GetCreature(*me, instance->GetGuidData(NPC_THOK)))
                     thok->AI()->SetGUID(me->GetGUID(), 2);
                 if (me->GetEntry() == NPC_WATERSPEAKER_GORAI)
                 {
@@ -729,12 +729,12 @@ public:
 
         InstanceScript* instance;
         EventMap events;
-        uint64 sGuid;
+        ObjectGuid sGuid;
 
         void Reset()
         {
             events.Reset();
-            sGuid = 0;
+            sGuid.Clear();
         }
 
         void IsSummonedBy(Unit* summoner)

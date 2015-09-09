@@ -429,7 +429,7 @@ public:
                 brannSparklinNews = false;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_BRANN_SPARKLIN_NEWS)
                 return brannSparklinNews ? 1 : 0;

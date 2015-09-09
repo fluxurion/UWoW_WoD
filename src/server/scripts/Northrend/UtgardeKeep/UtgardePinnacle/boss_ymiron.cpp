@@ -201,7 +201,7 @@ public:
                 kingsBane = false;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_KINGS_BANE)
                 return kingsBane ? 1 : 0;

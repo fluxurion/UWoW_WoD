@@ -83,7 +83,7 @@ public:
             switch (creature->GetEntry())
             {
                 case NPC_WRATHION:
-                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     wrathionGUID = creature->GetGUID();
                     break;
                 case NPC_SHADO_PAN_WARRIOR:
@@ -158,7 +158,7 @@ public:
                             break;
                         case DONE:
                         {
-                            // HandleGameObject(GetData64(doorGUID), true); EVIL
+                            // HandleGameObject(GetGuidData(doorGUID), true); EVIL
                             Map::PlayerList const& players = instance->GetPlayers();
                             if (Player* plr = players.begin()->getSource())
                             {
@@ -202,7 +202,7 @@ public:
                         if (Creature* cre = instance->GetCreature(wrathionGUID))
                         {
                             cre->AI()->DoAction(ACTION_9);
-                            cre->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                            cre->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         }
 
                         if (GameObject* obj = instance->GetGameObject(portal))
@@ -214,7 +214,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {
@@ -232,7 +232,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {

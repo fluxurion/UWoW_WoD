@@ -193,7 +193,7 @@ public:
             SetData_xin_the_weaponmaster(type, data);
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             if (type == TYPE_JADECOUNT)
                 return JadeCount;

@@ -53,7 +53,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type)
         {
             switch (type)
             {
@@ -63,7 +63,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {

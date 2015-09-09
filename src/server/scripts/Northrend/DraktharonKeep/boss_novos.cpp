@@ -166,7 +166,7 @@ public:
                 ohNovos = false;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_NOVOS_ACHIEV)
                 return ohNovos ? 1 : 0;

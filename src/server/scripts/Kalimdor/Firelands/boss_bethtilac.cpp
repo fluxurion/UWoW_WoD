@@ -198,7 +198,7 @@ class boss_bethtilac : public CreatureScript
                     }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_PHASE)
                     return uiPhase;

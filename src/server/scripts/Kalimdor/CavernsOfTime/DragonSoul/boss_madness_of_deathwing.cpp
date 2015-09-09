@@ -558,7 +558,7 @@ class boss_madness_of_deathwing : public CreatureScript
                     m_destroyed_platform |= (1 << data);
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_DESTROY_PLATFORM)
                     return m_destroyed_platform;
@@ -2657,7 +2657,7 @@ class npc_madness_of_deathwing_jump_pad : public CreatureScript
 
                         if (!otherJumpPad)
                         {
-                            //sLog->outError(LOG_FILTER_TSCR, "OtherJumpPad not found for GUID %u", me->GetGUIDLow());
+                            //sLog->outError(LOG_FILTER_TSCR, "OtherJumpPad not found for GUID %u", me->GetGUID().GetCounter());
                             checkTimer = 1000;
                             return;
                         }

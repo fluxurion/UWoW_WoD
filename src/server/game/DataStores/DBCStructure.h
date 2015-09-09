@@ -2315,26 +2315,6 @@ struct TotemCategoryEntry
     uint32    categoryMask;                                 // 3        m_totemCategoryMask (compatibility mask for same type: different for totems, compatible from high to low for rods)
 };
 
-struct UnitPowerBarEntry
-{
-    uint32      ID;                                         // 0
-    uint32      MinPower;                                   // 1
-    uint32      MaxPower;                                   // 2
-    //uint32    StartPower;                                 // 3
-    //uint32    CenterPower;                                // 4
-    //float     RegenerationPeace;                          // 5
-    //float     RegenerationCombat;                         // 6
-    //uint32    BarType;                                    // 7
-    //uint32    FileDataID[6];                              // 8-13
-    //uint32    Color[6];                                   // 14-19
-    //uint32    Flags;                                      // 20
-    //char*     Name_lang;                                  // 21
-    //char*     Cost_lang;                                  // 22
-    //char*     OutOfError_lang;                            // 23
-    //char*     ToolTip_lang;                               // 24
-    //float     StartInset;                                 // 25
-    //float     EndInset;                                   // 26
-};
 
 struct TransportAnimationEntry
 {
@@ -2359,8 +2339,8 @@ struct TransportRotationEntry
 struct UnitPowerBarEntry
 {
     uint32 ID;                     // 0
-    uint32 minPower;               // 1
-    uint32 maxPower;               // 2
+    uint32 MinPower;               // 1
+    uint32 MaxPower;               // 2
     uint32 startPower;             // 3
     uint32 centerPower;            // 4
     float regenerationPeace;       // 5

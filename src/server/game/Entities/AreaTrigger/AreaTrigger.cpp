@@ -576,7 +576,7 @@ void AreaTrigger::DoAction(Unit* unit, ActionInfo& action)
     if (action.action->hitMaxCount < 0)
     {
         if (!affectedPlayersForAllTime.empty())
-            for (std::list<uint64>::iterator itr = affectedPlayersForAllTime.begin(); itr != affectedPlayersForAllTime.end(); ++itr)
+            for (GuidList::iterator itr = affectedPlayersForAllTime.begin(); itr != affectedPlayersForAllTime.end(); ++itr)
                 if (unit->GetGUID() == (*itr))
                     return;
     }

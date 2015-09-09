@@ -2210,7 +2210,7 @@ class npc_ragnaros_firelands_cloudburst : public CreatureScript
                     _clicks = data;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_CLICKS)
                     return _clicks;

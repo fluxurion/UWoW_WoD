@@ -305,7 +305,7 @@ public:
                 if (SpectralBlastTimer <= diff)
                 {
                     std::list<HostileReference*> &m_threatlist = me->getThreatManager().getThreatList();
-                    std::list<uint64> targetList;
+                    GuidList targetList;
                     for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
                         if (me->getVictim() && (*itr)->getTarget() && (*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->GetGUID() != me->getVictim()->GetGUID() && !(*itr)->getTarget()->HasAura(AURA_SPECTRAL_EXHAUSTION) && (*itr)->getTarget()->GetPositionZ() > me->GetPositionZ()-5)
                             if(Unit* target = (*itr)->getTarget())
@@ -315,7 +315,7 @@ public:
                         SpectralBlastTimer = 1000;
                         return;
                     }
-                    std::list<uint64>::const_iterator i = targetList.begin();
+                    GuidList::const_iterator i = targetList.begin();
                     advance(i, rand()%targetList.size());
                     if (Unit* unit = Unit::GetUnit(*me, (*i)))
                     {

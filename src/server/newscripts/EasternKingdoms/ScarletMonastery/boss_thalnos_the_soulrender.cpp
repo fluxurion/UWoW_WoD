@@ -111,7 +111,7 @@ public:
         void JustDied(Unit* /*Killer*/)
         {
             Talk(SAY_DEATH);
-            if (Creature* zombie = instance->instance->GetCreature(instance->GetData64(NPC_EMPOWERED_ZOMBIE)))
+            if (Creature* zombie = instance->instance->GetCreature(instance->GetGuidData(NPC_EMPOWERED_ZOMBIE)))
                 zombie->DespawnOrUnsummon();
             _JustDied();
         }
@@ -331,13 +331,13 @@ public:
         {
             DoZoneInCombat(me, 100.0f);
 
-            if (Creature* thalnos = instance->instance->GetCreature(instance->GetData64(DATA_THALNOS)))
+            if (Creature* thalnos = instance->instance->GetCreature(instance->GetGuidData(DATA_THALNOS)))
                 thalnos->AI()->DoAction(1);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Creature* thalnos = instance->instance->GetCreature(instance->GetData64(DATA_THALNOS)))
+            if (Creature* thalnos = instance->instance->GetCreature(instance->GetGuidData(DATA_THALNOS)))
                 thalnos->AI()->DoAction(2);
         }
 

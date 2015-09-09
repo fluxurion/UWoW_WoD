@@ -360,7 +360,7 @@ public:
 
         void SetData(uint32 type, uint32 data){}
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             return 0;
         }

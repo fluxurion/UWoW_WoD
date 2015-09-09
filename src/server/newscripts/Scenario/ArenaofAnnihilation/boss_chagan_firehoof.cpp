@@ -157,7 +157,7 @@ public:
         {
             if (type == POINT_MOTION_TYPE && id == 1)
             {
-                if (GameObject* pGo = instance->instance->GetGameObject(instance->GetData64(DATA_DOOR)))
+                if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_DOOR)))
                     pGo->SetGoState(GO_STATE_READY);
 
                 if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
@@ -184,7 +184,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_POINT_HOME:
-                        if (GameObject* pGo = instance->instance->GetGameObject(instance->GetData64(DATA_DOOR)))
+                        if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_DOOR)))
                             pGo->SetGoState(GO_STATE_ACTIVE);
                         me->GetMotionMaster()->MovePoint(1, centerPos[0]);
                         break;
@@ -225,7 +225,7 @@ public:
             FireTimer = 0;
             orient = me->GetOrientation();
             
-            switch (me->GetUInt32Value(UNIT_CREATED_BY_SPELL))
+            switch (me->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL))
             {
                 case 123968: //Front
                     me->SetOrientation(0 + orient);

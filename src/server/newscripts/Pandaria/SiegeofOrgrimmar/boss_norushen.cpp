@@ -436,7 +436,7 @@ class boss_amalgam_of_corruption : public CreatureScript
                     ++challengeCounter[guid.GetCounter()];
             }
 
-            uint64 GetData64(uint64 guid) const
+            uint64 GetData64(uint64 guid) const override
             {  
                 std::map<ObjectGuid::LowType, uint64>::const_iterator itr = challengeCounter.find(guid);
                 if (itr == challengeCounter.end())
@@ -1195,7 +1195,7 @@ public:
             if (!killer->ToPlayer())
                 return;
 
-            if (!me->GetPhaseId())
+            if (me->GetPhases().empty())
             {
                 me->DespawnOrUnsummon();
                 return;

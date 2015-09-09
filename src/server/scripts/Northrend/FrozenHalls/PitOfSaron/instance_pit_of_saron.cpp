@@ -234,7 +234,7 @@ class instance_pit_of_saron : public InstanceMapScript
                 return true;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {

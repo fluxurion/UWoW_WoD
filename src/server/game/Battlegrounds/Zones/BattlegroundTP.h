@@ -202,12 +202,12 @@ class BattlegroundTP : public Battleground
         {
             if (team == TEAM_ALLIANCE || team == TEAM_HORDE)
                 return _flagKeepers[team];
-            return 0;
+            return ObjectGuid::Empty;
         }
-        void SetAllianceFlagPicker(uint64 guid)                 { _flagKeepers[TEAM_ALLIANCE] = guid; }
-        void SetHordeFlagPicker(uint64 guid)                    { _flagKeepers[TEAM_HORDE] = guid; }
-        bool IsAllianceFlagPickedup() const                     { return _flagKeepers[TEAM_ALLIANCE] != 0; }
-        bool IsHordeFlagPickedup() const                        { return _flagKeepers[TEAM_HORDE] != 0; }
+        void SetAllianceFlagPicker(ObjectGuid const& guid)                 { _flagKeepers[TEAM_ALLIANCE] = guid; }
+        void SetHordeFlagPicker(ObjectGuid const& guid)                    { _flagKeepers[TEAM_HORDE] = guid; }
+        bool IsAllianceFlagPickedup() const                     { return !_flagKeepers[TEAM_ALLIANCE].IsEmpty(); }
+        bool IsHordeFlagPickedup() const                        { return !_flagKeepers[TEAM_HORDE].IsEmpty(); }
 
         /// Called when a player hits an area. (Like when is within distance to capture the flag (mainly used for this))
         void HandleAreaTrigger(Player* Source, uint32 Trigger);

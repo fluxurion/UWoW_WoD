@@ -385,7 +385,7 @@ class boss_sinestra : public CreatureScript
                 Talk(SAY_SINESTRA_KILL);
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {

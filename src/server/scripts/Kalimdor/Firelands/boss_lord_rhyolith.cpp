@@ -661,7 +661,7 @@ class npc_lord_rhyolith_right_foot : public CreatureScript
                     DoZoneInCombat(pLeftFoot);
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_HITS)
                     return GetHits();
@@ -762,7 +762,7 @@ class npc_lord_rhyolith_left_foot : public CreatureScript
                     DoZoneInCombat(pRightFoot);
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_HITS)
                     return GetHits();

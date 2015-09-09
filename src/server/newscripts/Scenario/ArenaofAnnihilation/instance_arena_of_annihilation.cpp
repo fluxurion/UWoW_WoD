@@ -38,13 +38,13 @@ public:
         }
 
         uint32 encounter[MAX_ENCOUNTER];
-        uint64 scarshellGUID;
-        uint64 jolgrumGUID;
-        uint64 liuyangGUID;
-        uint64 chaganGUID;
-        uint64 finalbossGUID;
-        uint64 go_doors;
-        uint64 gurgthockGUID;
+        ObjectGuid scarshellGUID;
+        ObjectGuid jolgrumGUID;
+        ObjectGuid liuyangGUID;
+        ObjectGuid chaganGUID;
+        ObjectGuid finalbossGUID;
+        ObjectGuid go_doors;
+        ObjectGuid gurgthockGUID;
         uint8 startevent;
         uint8 finaldata;
 
@@ -52,14 +52,14 @@ public:
         {
             memset(&encounter, 0, sizeof(encounter));
             startevent = 0;
-            gurgthockGUID = 0;
-            scarshellGUID = 0;
-            jolgrumGUID = 0;
-            liuyangGUID = 0;
-            chaganGUID = 0;
-            finalbossGUID = 0;
+            gurgthockGUID.Clear();
+            scarshellGUID.Clear();
+            jolgrumGUID.Clear();
+            liuyangGUID.Clear();
+            chaganGUID.Clear();
+            finalbossGUID.Clear();
             finaldata = 0;
-            go_doors = 0;
+            go_doors.Clear();
         }
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -74,11 +74,11 @@ public:
                     switch (state)
                     {
                         case IN_PROGRESS:
-                            if (Creature* gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 gurgthock->AI()->Talk(SAY_SCAR_SHELL_START);
                             break;
                         case DONE:
-                            if (Creature* gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 gurgthock->AI()->Talk(SAY_SCAR_SHELL_END);
                             break;
                     }
@@ -89,11 +89,11 @@ public:
                     switch (state)
                     {
                         case IN_PROGRESS:
-                            if (Creature* gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 gurgthock->AI()->Talk(SAY_JOLGRUM_START);
                             break;
                         case DONE:
-                            if (Creature* gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 gurgthock->AI()->Talk(SAY_JOLGRUM_END);
                             break;
                     }
@@ -104,11 +104,11 @@ public:
                     switch (state)
                     {
                         case IN_PROGRESS:
-                            if (Creature* gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 gurgthock->AI()->Talk(SAY_LIUYANG_START);
                             break;
                         case DONE:
-                            if (Creature* gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 gurgthock->AI()->Talk(SAY_LIUYANG_END);
                             break;
                     }
@@ -119,11 +119,11 @@ public:
                     switch (state)
                     {
                         case IN_PROGRESS:
-                            if (Creature* gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 gurgthock->AI()->Talk(SAY_CHAGAN_START);
                             break;
                         case DONE:
-                            if (Creature* gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                            if (Creature* gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                                 gurgthock->AI()->Talk(SAY_CHAGAN_END);
                             break;
                     }
@@ -131,7 +131,7 @@ public:
                 }
                 case DATA_FINAL_STAGE:
                     if (state == DONE)
-                        if (Creature* gurgthock = instance->GetCreature(GetData64(NPC_GURGTHOCK)))
+                        if (Creature* gurgthock = instance->GetCreature(GetGuidData(NPC_GURGTHOCK)))
                             gurgthock->AI()->DoAction(ACTION_2);
                     break;
             }
@@ -187,7 +187,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const override
         {
             switch (type)
             {
@@ -195,14 +195,6 @@ public:
                     return go_doors;
                 case NPC_GURGTHOCK:
                     return gurgthockGUID;
-            }
-            return 0;
-        }
-
-        uint32 GetData(uint32 type)
-        {
-            switch (type)
-            {
                 case DATA_SCAR_SHELL:
                     return scarshellGUID;
                 case DATA_JOLGRUM:
@@ -211,14 +203,22 @@ public:
                     return liuyangGUID;
                 case DATA_CHAGAN:
                     return chaganGUID;
-                case DATA_START_EVENT:
-                    return startevent;
                 case DATA_FINAL_STAGE:
                     return finalbossGUID;
+            }
+            return ObjectGuid::Empty;
+        }
+
+        uint32 GetData(uint32 type) const override
+        {
+            switch (type)
+            {
                 case DATA_SATAY:
                 case DATA_KOBO:
                 case DATA_MAKI:
                     return finaldata;
+                case DATA_START_EVENT:
+                    return startevent;
             }
             return 0;
         }

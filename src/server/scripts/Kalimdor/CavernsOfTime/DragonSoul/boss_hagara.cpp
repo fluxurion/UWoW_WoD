@@ -452,7 +452,7 @@ class boss_hagara_the_stormbinder: public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_PHASE)
                     return (uint32)phase;
@@ -1653,7 +1653,7 @@ class npc_hagara_the_stormbinder_crystal_conductor : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_CRYSTAL_OVERLOADED)
                     return (uint32)bOverloaded;

@@ -882,12 +882,12 @@ public:
         InstanceScript* instance;
         EventMap events;
         SummonList summon;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
 
         void Reset()
         {
             events.Reset();
-            targetGuid = 0;
+            targetGuid.Clear();
         }
 
         Unit* GetTarget()
@@ -898,7 +898,7 @@ public:
             return 0;
         }
 
-        void SetGUID(uint64 tGuid, int32 type)
+        void SetGUID(ObjectGuid const& tGuid, int32 type) override
         {
             if (type == 2)
             {

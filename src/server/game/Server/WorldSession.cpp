@@ -188,7 +188,7 @@ std::string WorldSession::GetPlayerName(bool simple /* = true */) const
 }
 
 /// Get player guid if available. Use for logging purposes only
-uint32 WorldSession::GetGuidLow() const
+uint32 WorldSession::GetGUID().GetCounter() const
 {
     return GetPlayer() ? GetPlayer()->GetGUID().GetCounter() : 0;
 }
@@ -660,7 +660,7 @@ void WorldSession::LogoutPlayer(bool Save)
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map
         // calls to GetMap in this case may cause crashes
-        volatile uint32 guidDebug = _player->GetGUIDLow();
+        volatile uint32 guidDebug = _player->GetGUID().GetCounter();
         _player->CleanupsBeforeDelete();
         sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUID().GetCounter(), _player->getLevel());
 

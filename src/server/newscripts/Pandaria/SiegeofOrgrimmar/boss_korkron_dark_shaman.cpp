@@ -276,9 +276,13 @@ public:
                     oshaman->Kill(oshaman, true);
                 else
                     oshaman->SetHealth(oshaman->GetHealth() - damage);
+            }
+        }
         
         void SetExtraEvents(uint8 phase)
+        {
             switch (phase)
+            {
             case 85: //95pct HM
             {
                 switch (me->GetEntry())
@@ -553,7 +557,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_GET_PULL_STATE)
                 return firstpull ? 1 : 0;

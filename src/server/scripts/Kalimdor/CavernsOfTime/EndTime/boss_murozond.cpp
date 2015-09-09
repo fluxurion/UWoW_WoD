@@ -124,7 +124,7 @@ class boss_murozond : public CreatureScript
                 _JustDied();
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == TYPE_HOURGLASS)
                     return hourglass;

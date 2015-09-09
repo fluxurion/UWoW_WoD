@@ -341,7 +341,7 @@ public:
             SetData_sha_of_doubt(type, data);
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {

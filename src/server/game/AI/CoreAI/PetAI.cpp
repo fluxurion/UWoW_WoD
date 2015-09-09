@@ -153,7 +153,7 @@ void PetAI::UpdateAI(uint32 diff)
     }
     else if (owner && me->GetCharmInfo()) //no victim
     {
-        //sLog->outDebug(LOG_FILTER_PETS, "PetAI::UpdateAI [guid=%u] no victim GetCasterPet %i", me->GetGUIDLow(), me->GetCasterPet());
+        //sLog->outDebug(LOG_FILTER_PETS, "PetAI::UpdateAI [guid=%u] no victim GetCasterPet %i", me->GetGUID().GetCounter(), me->GetCasterPet());
         // Only aggressive pets do target search every update.
         // Defensive pets do target search only in these cases:
         //  * Owner attacks something - handled by OwnerAttacked()
@@ -195,7 +195,7 @@ void PetAI::UpdateAI(uint32 diff)
                 continue;
 
             //sLog->outDebug(LOG_FILTER_PETS, "PetAI::UpdateAI spellID %i, Cooldown %i IsPositive %i CanBeUsedInCombat %i GUID %u",
-            //spellID, me->HasSpellCooldown(spellID), spellInfo->IsPositive(), spellInfo->CanBeUsedInCombat(), me->GetGUIDLow());
+            //spellID, me->HasSpellCooldown(spellID), spellInfo->IsPositive(), spellInfo->CanBeUsedInCombat(), me->GetGUID().GetCounter());
 
             if (me->GetCharmInfo() && me->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
                 continue;
@@ -450,7 +450,7 @@ Unit* PetAI::SelectNextTarget()
 void PetAI::HandleReturnMovement()
 {
     // Handles moving the pet back to stay or owner
-    //sLog->outDebug(LOG_FILTER_PETS, "PetAI::HandleReturnMovement [guid=%u] GetCommandState %i", me->GetGUIDLow(), me->GetCharmInfo()->GetCommandState());
+    //sLog->outDebug(LOG_FILTER_PETS, "PetAI::HandleReturnMovement [guid=%u] GetCommandState %i", me->GetGUID().GetCounter(), me->GetCharmInfo()->GetCommandState());
 
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
     {

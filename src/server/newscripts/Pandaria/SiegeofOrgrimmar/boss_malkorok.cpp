@@ -123,7 +123,7 @@ class boss_malkorok : public CreatureScript
             }
 
             InstanceScript* instance;
-            std::vector<uint64> asGuids;
+            GuidVector asGuids;
             uint32 powercheck, displacedenergy, checkvictim;
             Phase phase;
 
@@ -154,7 +154,7 @@ class boss_malkorok : public CreatureScript
 
             bool CheckPullPlayerPos(Unit* who)
             {
-                if (Creature* am = me->GetCreature(*me, instance->GetData64(NPC_ANCIENT_MIASMA)))
+                if (Creature* am = me->GetCreature(*me, instance->GetGuidData(NPC_ANCIENT_MIASMA)))
                     if (am->GetDistance(who) > 42.0f)
                         return false;
 
@@ -255,7 +255,7 @@ class boss_malkorok : public CreatureScript
                     displacedenergy = 4000;
                     break;
                 case ACTION_RE_ATTACK:
-                    if (Creature* am = me->GetCreature(*me, instance->GetData64(NPC_ANCIENT_MIASMA)))
+                    if (Creature* am = me->GetCreature(*me, instance->GetGuidData(NPC_ANCIENT_MIASMA)))
                     {
                         float x, y;
                         uint8 num = me->GetMap()->Is25ManRaid() ? 7 : 3;
@@ -277,7 +277,7 @@ class boss_malkorok : public CreatureScript
                         events.ScheduleEvent(EVENT_RE_ATTACK, 1000);               
                     break;
                 case ACTION_BREATH_OF_YSHAARJ:
-                    for (std::vector<uint64>::const_iterator itr = asGuids.begin(); itr != asGuids.end(); itr++)
+                    for (GuidVector::const_iterator itr = asGuids.begin(); itr != asGuids.end(); itr++)
                         if (Creature* as = me->GetCreature(*me, *itr))
                             as->AI()->DoAction(ACTION_BREATH_OF_YSHAARJ);
                     asGuids.clear();
@@ -292,7 +292,7 @@ class boss_malkorok : public CreatureScript
                 if (!instance)
                     return;
 
-                if (Creature* am = me->GetCreature(*me, instance->GetData64(NPC_ANCIENT_MIASMA)))
+                if (Creature* am = me->GetCreature(*me, instance->GetGuidData(NPC_ANCIENT_MIASMA)))
                 {
                     if (state)
                     {

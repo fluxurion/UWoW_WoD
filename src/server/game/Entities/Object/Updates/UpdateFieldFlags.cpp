@@ -3577,7 +3577,7 @@ uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END] =
     UF_FLAG_PUBLIC,                                         // GAMEOBJECT_FIELD_CREATED_BY+2
     UF_FLAG_PUBLIC,                                         // GAMEOBJECT_FIELD_CREATED_BY+3
     UF_FLAG_DYNAMIC | UF_FLAG_URGENT,                       // GAMEOBJECT_DISPLAYID
-    UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // GAMEOBJECT_FLAGS
+    UF_FLAG_PUBLIC | UF_FLAG_URGENT,                        // GAMEOBJECT_FIELD_FLAGS
     UF_FLAG_PUBLIC,                                         // GAMEOBJECT_PARENTROTATION
     UF_FLAG_PUBLIC,                                         // GAMEOBJECT_PARENTROTATION+1
     UF_FLAG_PUBLIC,                                         // GAMEOBJECT_PARENTROTATION+2

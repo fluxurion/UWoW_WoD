@@ -489,7 +489,7 @@ public:
             creature->AI()->DoAction(ACTION_4);
         }
 
-        creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
         player->CLOSE_GOSSIP_MENU();
 
@@ -572,7 +572,7 @@ public:
                 case EVENT_2:
                     events.ScheduleEvent(EVENT_3, 2 * IN_MILLISECONDS);
                     Talk(1);
-                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MOGU_CRUCIBLE)))
+                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_MOGU_CRUCIBLE)))
                         me->SetFacingToObject(go);
                     break;
                 case EVENT_7:
@@ -602,8 +602,8 @@ public:
                         me->GetMotionMaster()->MovePoint(EVENT_2, WrathionWP[2]);
                         break;
                     case EVENT_3:
-                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_MOGU_CRUCIBLE)))
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_MOGU_CRUCIBLE)))
+                            go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         break;
                     case EVENT_4:
                         me->SetFacingTo(0.7853982f);
@@ -622,21 +622,21 @@ public:
                         if (!plr)
                             break;
 
-                        if (Creature* warrior = Creature::GetCreature(*me, instance->GetData64(DATA_WARRIOR_1)))
+                        if (Creature* warrior = Creature::GetCreature(*me, instance->GetGuidData(DATA_WARRIOR_1)))
                         {
                             warrior->GetMotionMaster()->MoveJump(7210.65f, 5247.51f, 65.9844f, 15.0f, 25.0f);
                             if (Group* group = plr->GetGroup())
                                 group->AddCreatureMember(warrior);
                         }
 
-                        if (Creature* warrior = Creature::GetCreature(*me, instance->GetData64(DATA_WARRIOR_2)))
+                        if (Creature* warrior = Creature::GetCreature(*me, instance->GetGuidData(DATA_WARRIOR_2)))
                         {
                             warrior->GetMotionMaster()->MoveJump(7195.13f, 5266.81f, 65.9844f, 15.0f, 25.0f);
                             if (Group* group = plr->GetGroup())
                                 group->AddCreatureMember(warrior);
                         }
 
-                        if (Creature* defender = Creature::GetCreature(*me, instance->GetData64(DATA_DEFENDER)))
+                        if (Creature* defender = Creature::GetCreature(*me, instance->GetGuidData(DATA_DEFENDER)))
                         {
                             defender->GetMotionMaster()->MoveJump(7213.67f, 5266.37f, 65.9844f, 15.0f, 25.0f);
                             if (Group* group = plr->GetGroup())
@@ -672,13 +672,13 @@ public:
                         events.CancelEvent(EVENT_41);
                         break;
                     case EVENT_8:
-                        if (Creature* warrior = Creature::GetCreature(*me, instance->GetData64(DATA_WARRIOR_1)))
+                        if (Creature* warrior = Creature::GetCreature(*me, instance->GetGuidData(DATA_WARRIOR_1)))
                             warrior->GetMotionMaster()->MovePoint(EVENT_8, 7223.458f, 5262.069f, 65.98731f);
 
-                        if (Creature* warrior = Creature::GetCreature(*me, instance->GetData64(DATA_WARRIOR_2)))
+                        if (Creature* warrior = Creature::GetCreature(*me, instance->GetGuidData(DATA_WARRIOR_2)))
                             warrior->GetMotionMaster()->MovePoint(EVENT_8, 7209.367f, 5279.108f, 66.05622f);
 
-                        if (Creature* defender = Creature::GetCreature(*me, instance->GetData64(DATA_DEFENDER)))
+                        if (Creature* defender = Creature::GetCreature(*me, instance->GetGuidData(DATA_DEFENDER)))
                             defender->GetMotionMaster()->MovePoint(EVENT_8, 7221.26f, 5276.239f, 66.05622f);
                         break;
                     case EVENT_7:
@@ -716,19 +716,19 @@ public:
                         events.ScheduleEvent(EVENT_12, 55 * IN_MILLISECONDS);
                         Talk(4);
 
-                        if (Creature* cre = Creature::GetCreature(*me, instance->GetData64(DATA_WARRIOR_2)))
+                        if (Creature* cre = Creature::GetCreature(*me, instance->GetGuidData(DATA_WARRIOR_2)))
                         {
                             cre->GetMotionMaster()->MoveJump(helpersLastJumpPos[0].m_positionX, helpersLastJumpPos[0].m_positionY, helpersLastJumpPos[0].m_positionZ, 20.0f, 20.0f);
                             cre->ForcedDespawn(1 * IN_MILLISECONDS);
                         }
 
-                        if (Creature* cre = Creature::GetCreature(*me, instance->GetData64(DATA_WARRIOR_1)))
+                        if (Creature* cre = Creature::GetCreature(*me, instance->GetGuidData(DATA_WARRIOR_1)))
                         {
                             cre->GetMotionMaster()->MoveJump(helpersLastJumpPos[1].m_positionX, helpersLastJumpPos[1].m_positionY, helpersLastJumpPos[1].m_positionZ, 20.0f, 20.0f);
                             cre->ForcedDespawn(1 * IN_MILLISECONDS);
                         }
 
-                        if (Creature* cre = Creature::GetCreature(*me, instance->GetData64(DATA_DEFENDER)))
+                        if (Creature* cre = Creature::GetCreature(*me, instance->GetGuidData(DATA_DEFENDER)))
                         {
                             cre->AI()->Talk(2);
                             cre->GetMotionMaster()->MoveJump(helpersLastJumpPos[2].m_positionX, helpersLastJumpPos[2].m_positionY, helpersLastJumpPos[2].m_positionZ, 20.0f, 20.0f);
@@ -741,9 +741,9 @@ public:
                             if (Player* plr = players.begin()->getSource())
                                 if (Group* group = plr->GetGroup())
                                 {
-                                    group->RemoveCreatureMember(instance->GetData64(DATA_WARRIOR_1));
-                                    group->RemoveCreatureMember(instance->GetData64(DATA_WARRIOR_2));
-                                    group->RemoveCreatureMember(instance->GetData64(DATA_DEFENDER));
+                                    group->RemoveCreatureMember(instance->GetGuidData(DATA_WARRIOR_1));
+                                    group->RemoveCreatureMember(instance->GetGuidData(DATA_WARRIOR_2));
+                                    group->RemoveCreatureMember(instance->GetGuidData(DATA_DEFENDER));
                                 }
                         }
 
@@ -783,7 +783,7 @@ public:
                         if (!plr)
                             break;
 
-                        if (Creature* cre = Creature::GetCreature(*me, instance->GetData64(DATA_CELESTIAL_BLACKSMITH)))
+                        if (Creature* cre = Creature::GetCreature(*me, instance->GetGuidData(DATA_CELESTIAL_BLACKSMITH)))
                             if (Group* group = plr->GetGroup())
                                 group->AddCreatureMember(cre);
                         break;
@@ -791,7 +791,7 @@ public:
                     case EVENT_15:
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                         Talk(8);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         me->SetDynamicWorldEffects(505, 0);
                         break;
                     case EVENT_16: // called from gossip
@@ -804,7 +804,7 @@ public:
                         if (!plr)
                             break;
 
-                        if (Creature* cre = Creature::GetCreature(*me, instance->GetData64(DATA_CELESTIAL_DEFENDER)))
+                        if (Creature* cre = Creature::GetCreature(*me, instance->GetGuidData(DATA_CELESTIAL_DEFENDER)))
                         {
                             if (Group* group = plr->GetGroup())
                                 group->AddCreatureMember(cre);
@@ -812,7 +812,7 @@ public:
                             cre->AI()->DoAction(ACTION_1);
                         }
 
-                        if (Creature* cre = Creature::GetCreature(*me, instance->GetData64(DATA_CELESTIAL_BLACKSMITH)))
+                        if (Creature* cre = Creature::GetCreature(*me, instance->GetGuidData(DATA_CELESTIAL_BLACKSMITH)))
                             cre->AI()->DoAction(ACTION_1);
 
                         break;
@@ -1043,7 +1043,7 @@ public:
             {
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SCRIPT_EVENT_2, 35588, 1);
                 go->SendGameObjectActivateAnimKit(3809, true);
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 return true;
             }
         }
@@ -2180,7 +2180,7 @@ public:
                         break;
                     case EVENT_23:
                     {
-                        if (Creature* cre = Creature::GetCreature(*me, instance->GetData64(DATA_WRATHION)))
+                        if (Creature* cre = Creature::GetCreature(*me, instance->GetGuidData(DATA_WRATHION)))
                             cre->AI()->DoAction(ACTION_5);
 
                         instance->SetData(DATA_SECOND_STAGE_FIRST_STEP, DONE);
@@ -2243,7 +2243,7 @@ public:
             }
 
             if (GameObject* forge5 = me->FindNearestGameObject(goEntry, 20.0f))
-                forge5->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                forge5->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
         void InitCast(float facing)
@@ -2574,7 +2574,7 @@ public:
                     return false;
 
                 stalker->AI()->DoAction(ACTION_2);
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 go->CastSpell(stalker, SPELL_ANVIL_CLICK_DUMMY);
                 return true;
             }
@@ -2872,7 +2872,7 @@ public:
             {
                 if (Creature* cre = me->FindNearestCreature(NPC_LIGHTING_SPEAR_FLOAT_STALKER, 100.0f))
                 {
-                    if (Creature* cre = Creature::GetCreature(*me, instance->GetData64(DATA_WRATHION)))
+                    if (Creature* cre = Creature::GetCreature(*me, instance->GetGuidData(DATA_WRATHION)))
                         cre->AI()->DoAction(ACTION_7);
 
                     cre->AI()->DoAction(ACTION_2);
@@ -2882,7 +2882,7 @@ public:
 
             if (me->HealthBelowPctDamaged(50, damage) && !stalker)
             {
-                if (Creature* cre = Creature::GetCreature(*me, instance->GetData64(DATA_WRATHION)))
+                if (Creature* cre = Creature::GetCreature(*me, instance->GetGuidData(DATA_WRATHION)))
                 {
                     cre->AI()->DoAction(ACTION_8);
                     stalker = true;

@@ -58,7 +58,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF + 2)
             player->TeleportTo(1064, 6889.38f, 5517.79f, 2.08655f, 2.407245f); //< via 140010 but core dont support this :(
 
-        creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        creature->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         player->CLOSE_GOSSIP_MENU();
 
         return true;

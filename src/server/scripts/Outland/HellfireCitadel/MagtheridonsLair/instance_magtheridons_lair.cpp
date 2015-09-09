@@ -211,7 +211,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_MAGTHERIDON_EVENT)
                     return m_auiEncounter[0];

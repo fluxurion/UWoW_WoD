@@ -403,8 +403,8 @@ public:
         InstanceScript* instance;
         SummonList summons;
         EventMap events;
-        uint64 mspoilGuid;      //main spoil 
-        uint64 othermspoilguid; //other main spoil 
+        ObjectGuid mspoilGuid;      //main spoil 
+        ObjectGuid othermspoilguid; //other main spoil 
         uint8 power;
         uint8 newssc;               //
         uint8 lastssc;              //spirit summon count 
@@ -414,7 +414,7 @@ public:
             newssc = 0;
             lastssc = 0; 
             power = 0;
-            mspoilGuid = 0;
+            mspoilGuid.Clear();
         }
 
         void EnterCombat(Unit* who){}
@@ -451,17 +451,17 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_GET_SPIRIT_SUM_COUNT)
             {
                 if (!lastssc)
-                    newssc = urand(0, 2);
+                    static_cast<uint8>(newssc) = urand(0, 2);
                 else if (lastssc >= 2)
-                    newssc = 0;
+                    static_cast<uint8>(newssc) = 0;
                 else
-                    newssc++;
-                lastssc = newssc;
+                    static_cast<uint8>(newssc)++;
+                static_cast<uint8>(lastssc) = newssc;
                 return (uint32(newssc));
             }
             return 0;
@@ -484,9 +484,9 @@ public:
                     for (std::list<GameObject*>::const_iterator itr = boxlist.begin(); itr != boxlist.end(); itr++)
                     {
                         if (state)
-                            (*itr)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            (*itr)->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         else
-                            (*itr)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            (*itr)->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
 
                 }
@@ -502,16 +502,16 @@ public:
                     for (std::list<GameObject*>::const_iterator itr = boxlist.begin(); itr != boxlist.end(); itr++)
                     {
                         if (state)
-                            (*itr)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            (*itr)->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         else
-                            (*itr)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            (*itr)->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                 }
                 break;
             }
         }
 
-        void SetGUID(uint64 guid, int32 type)
+        void SetGUID(ObjectGuid const&  guid, int32 type) override
         {
             if (type == 1)
             {
@@ -520,11 +520,11 @@ public:
                 {
                 case NPC_MOGU_SPOILS:
                 case NPC_MOGU_SPOILS2:
-                    othermspoilguid = instance->GetData64(DATA_SPOIL_MANTIS);
+                    othermspoilguid = instance->GetGuidData(DATA_SPOIL_MANTIS);
                     break;
                 case NPC_MANTIS_SPOILS:
                 case NPC_MANTIS_SPOILS2:
-                    othermspoilguid = instance->GetData64(DATA_SPOIL_MOGU);
+                    othermspoilguid = instance->GetGuidData(DATA_SPOIL_MOGU);
                     break;
                 }
                 ActivateOrOfflineBoxes(true);
@@ -552,13 +552,13 @@ public:
                     if (uint32(me->GetPositionZ()) == -271)
                         me->CastSpell(me, SPELL_AURA_BAR_S, true);
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                    if (Creature* spoiltrigger = me->GetCreature(*me, instance->GetData64(me->GetEntry())))
+                    if (Creature* spoiltrigger = me->GetCreature(*me, instance->GetGuidData(me->GetEntry())))
                         spoiltrigger->AI()->SetGUID(me->GetGUID(), 1);
                     break;
                 case ACTION_SECOND_ROOM:
                     ActivateOrOfflineBoxes(false);
-                    if (GameObject* go = me->GetMap()->GetGameObject(instance->GetData64(me->GetEntry() == NPC_MOGU_SPOILS2 ? GO_LEVER_R : GO_LEVER_L)))
-                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    if (GameObject* go = me->GetMap()->GetGameObject(instance->GetGuidData(me->GetEntry() == NPC_MOGU_SPOILS2 ? GO_LEVER_R : GO_LEVER_L)))
+                        go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 }
             }
@@ -1188,7 +1188,7 @@ public:
     {
         if (InstanceScript* instance = go->GetInstanceScript())
         {
-            instance->HandleGameObject(instance->GetData64(go->GetEntry() == GO_LEVER_R ? GO_IRON_DOOR_R : GO_IRON_DOOR_L), true);
+            instance->HandleGameObject(instance->GetGuidData(go->GetEntry() == GO_LEVER_R ? GO_IRON_DOOR_R : GO_IRON_DOOR_L), true);
             if (instance->GetBossState(DATA_SPOILS_OF_PANDARIA) == IN_PROGRESS)
                 instance->SetBossState(DATA_SPOILS_OF_PANDARIA, SPECIAL);
         }
@@ -1204,12 +1204,12 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
-        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
         Position pos;
         go->GetPosition(&pos);
         if (InstanceScript* instance = go->GetInstanceScript())
         {
-            if (Creature* summoner = instance->instance->GetCreature(instance->GetData64(go->GetEntry())))
+            if (Creature* summoner = instance->instance->GetCreature(instance->GetGuidData(go->GetEntry())))
             {
                 switch (go->GetEntry())
                 {
@@ -1243,13 +1243,13 @@ public:
                     break;
                 case GO_PANDAREN_RELIC_BOX:
                 {
-                    std::vector<uint64> activespoil;
+                    GuidVector activespoil;
                     activespoil.clear();
-                    activespoil.push_back(instance->GetData64(GO_SMALL_MANTIS_BOX));
-                    activespoil.push_back(instance->GetData64(GO_SMALL_MOGU_BOX));
+                    activespoil.push_back(instance->GetGuidData(GO_SMALL_MANTIS_BOX));
+                    activespoil.push_back(instance->GetGuidData(GO_SMALL_MOGU_BOX));
                     if (!activespoil.empty())
                     {
-                        for (std::vector<uint64>::const_iterator itr = activespoil.begin(); itr != activespoil.end(); itr++)
+                        for (GuidVector::const_iterator itr = activespoil.begin(); itr != activespoil.end(); itr++)
                         {
                             if (Creature* spoil = instance->instance->GetCreature(*itr))
                             { 

@@ -590,7 +590,7 @@ class npc_scourge_hulk : public CreatureScript
                 killedByRitualStrike = false;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 return type == DATA_INCREDIBLE_HULK ? killedByRitualStrike : 0;
             }

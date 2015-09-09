@@ -401,7 +401,7 @@ class instance_stratholme : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                   switch (type)
                   {

@@ -688,7 +688,7 @@ void Loot::clear()
     objType = 0;
     i_LootValidatorRefManager.clearReferences();
     if(m_guid && !personal)
-        sLootMgr->RemoveLoot(GetGUIDLow());
+        sLootMgr->RemoveLoot(GetGUID().GetCounter());
     chance = 20;
     personal = false;
     isBoss = false;

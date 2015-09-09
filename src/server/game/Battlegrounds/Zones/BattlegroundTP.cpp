@@ -490,7 +490,7 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player* Source)
 
             if (GetFlagPickerGUID(TEAM_HORDE) == Source->GetGUID())
             {
-                SetHordeFlagPicker(0);
+                SetHordeFlagPicker(ObjectGuid::Empty);
                 Source->RemoveAurasDueToSpell(BG_TP_SPELL_HORDE_FLAG);
             }
         }
@@ -501,7 +501,7 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player* Source)
 
             if (GetFlagPickerGUID(TEAM_ALLIANCE) == Source->GetGUID())
             {
-                SetAllianceFlagPicker(0);
+                SetAllianceFlagPicker(ObjectGuid::Empty);
                 Source->RemoveAurasDueToSpell(BG_TP_SPELL_ALLIANCE_FLAG);
             }
         }
@@ -517,7 +517,7 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player* Source)
 
         if (GetFlagPickerGUID(TEAM_HORDE) == Source->GetGUID())
         {
-            SetHordeFlagPicker(0);
+            SetHordeFlagPicker(ObjectGuid::Empty);
             Source->RemoveAurasDueToSpell(BG_TP_SPELL_HORDE_FLAG);
             _flagState[TEAM_HORDE] = BG_TP_FLAG_STATE_ON_GROUND;
             Source->CastSpell(Source, BG_TP_SPELL_HORDE_FLAG_DROPPED, true);
@@ -530,7 +530,7 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player* Source)
             return;
         if (GetFlagPickerGUID(TEAM_ALLIANCE) == Source->GetGUID())
         {
-            SetAllianceFlagPicker(0);
+            SetAllianceFlagPicker(ObjectGuid::Empty);
             Source->RemoveAurasDueToSpell(BG_TP_SPELL_ALLIANCE_FLAG);
             _flagState[TEAM_ALLIANCE] = BG_TP_FLAG_STATE_ON_GROUND;
             Source->CastSpell(Source, BG_TP_SPELL_ALLIANCE_FLAG_DROPPED, true);

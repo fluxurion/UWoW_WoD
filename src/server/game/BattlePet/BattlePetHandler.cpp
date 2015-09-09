@@ -27,8 +27,7 @@
 void WorldSession::HandleBattlePetSummon(WorldPacket& recvData)
 {
     ObjectGuid guid;
-    //recvData.ReadGuidMask<6, 0, 1, 5, 3, 4, 7, 2>(guid);
-    //recvData.ReadGuidBytes<2, 5, 3, 7, 1, 0, 6, 4>(guid);
+    recvData >> guid;
 
     // find pet
     PetJournalInfo* petInfo = _player->GetBattlePetMgr()->GetPetInfoByPetGUID(guid);
@@ -52,13 +51,13 @@ void WorldSession::HandleBattlePetSummon(WorldPacket& recvData)
             oldSummon->ToTempSummon()->UnSummon();
         else
         {
-            _player->SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, guid);
+            _player->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, guid);
             _player->CastSpell(_player, spellId, true);
         }
     }
     else
     {
-        _player->SetUInt64Value(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, guid);
+        _player->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, guid);
         _player->CastSpell(_player, spellId, true);
     }
 }

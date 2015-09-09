@@ -155,7 +155,7 @@ public:
                 volunteerWork = false;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_VOLUNTEER_WORK)
                 return volunteerWork ? 1 : 0;

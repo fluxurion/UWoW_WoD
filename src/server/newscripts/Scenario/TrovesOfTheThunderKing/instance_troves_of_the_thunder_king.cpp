@@ -82,7 +82,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {
@@ -95,7 +95,7 @@ public:
 
     private:
         uint32 start;
-        std::vector<uint64> pilarMasterGUIDs;
+        GuidVector pilarMasterGUIDs;
     };
 };
 

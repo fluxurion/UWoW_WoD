@@ -292,7 +292,7 @@ class boss_immerseus : public CreatureScript
             {
                 _Reset();
                 me->SetFloatValue(OBJECT_FIELD_SCALE, 1.0f);
-                if (Creature* pp = me->GetCreature(*me, instance->GetData64(NPC_PUDDLE_POINT)))
+                if (Creature* pp = me->GetCreature(*me, instance->GetGuidData(NPC_PUDDLE_POINT)))
                     pp->RemoveAurasDueToSpell(SPELL_SEEPING_SHA_AT);
                 me->SetReactState(REACT_DEFENSIVE);
                 me->RemoveAurasDueToSpell(SPELL_SHA_POOL);
@@ -344,7 +344,7 @@ class boss_immerseus : public CreatureScript
             {
                 _EnterCombat();
                 berserk = 600000;
-                if (Creature* pp = me->GetCreature(*me, instance->GetData64(NPC_PUDDLE_POINT)))
+                if (Creature* pp = me->GetCreature(*me, instance->GetGuidData(NPC_PUDDLE_POINT)))
                     pp->CastSpell(pp, SPELL_SEEPING_SHA_AT, true);
                 if (me->GetMap()->IsHeroic())
                     events.ScheduleEvent(EVENT_SWELLING_CORRUPTION, 12000);
@@ -424,7 +424,7 @@ class boss_immerseus : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_SEND_F_P_COUNT)
                     return maxpcount;
@@ -501,7 +501,7 @@ class boss_immerseus : public CreatureScript
             void JustDied(Unit* killer)
             {
                 me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                if (Creature* pp = me->GetCreature(*me, instance->GetData64(NPC_PUDDLE_POINT)))
+                if (Creature* pp = me->GetCreature(*me, instance->GetGuidData(NPC_PUDDLE_POINT)))
                     pp->RemoveAurasDueToSpell(SPELL_SEEPING_SHA_AT);
                 instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEV_CREDIT, 0, 0, me);
                 if (killer == me)

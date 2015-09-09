@@ -2813,7 +2813,7 @@ class npc_wormhole : public CreatureScript
                 _showUnderground = urand(0, 100) == 0; // Guessed value, it is really rare though
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 return (type == DATA_SHOW_UNDERGROUND && _showUnderground) ? 1 : 0;
             }
@@ -4448,7 +4448,7 @@ class npc_riggle_bassbait : public CreatureScript
                 count = data;
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_CHECK)
                 return count;

@@ -286,7 +286,7 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_MYSTIC_BUFFET_STACK)
                     return _mysticBuffetStack;
@@ -1035,7 +1035,7 @@ class npc_sindragosa_trash : public CreatureScript
                     _isTaunted = data != 0;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_FROSTWYRM_OWNER)
                     return _frostwyrmId;

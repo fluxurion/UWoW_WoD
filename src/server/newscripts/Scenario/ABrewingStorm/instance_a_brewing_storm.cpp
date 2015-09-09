@@ -53,17 +53,19 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const override
         {
             switch (type)
             {
                 case 0:
+                    return ObjectGuid::Empty;
                 default:
-                    return 0;
+                    break;
             }
+            return ObjectGuid::Empty;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {

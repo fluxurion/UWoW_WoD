@@ -521,6 +521,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sScenarioStepStore,           dbcPath, "ScenarioStep.dbc");//19342
     LoadDBC(availableDbcLocales, bad_dbc_files, sPowerDisplayStore,           dbcPath, "PowerDisplay.dbc");//17538
     LoadDBC(availableDbcLocales, bad_dbc_files, sCharacterLoadoutItemStore,   dbcPath, "CharacterLoadoutItem.dbc");//19342
+    LoadDBC(availableDbcLocales, bad_dbc_files, sUnitPowerBarStore,           dbcPath, "UnitPowerBar.dbc");//17538
 
     LoadGameTable(bad_dbc_files, "BarberShopCostBase", sGtBarberShopCostBaseStore, dbcPath, "gtBarberShopCostBase.dbc");//15595
     LoadGameTable(bad_dbc_files, "CombatRatings", sGtCombatRatingsStore, dbcPath, "gtCombatRatings.dbc");//15595
@@ -805,9 +806,6 @@ void InitDBCCustomStores()
             sTransportAnimationsByEntry[entry->TransportID][entry->TimeIndex] = entry;
 
     for (uint32 i = 0; i < sTransportRotationStore.GetNumRows(); ++i)
-                    if (!dest_i->second.price)
-                        continue;
-
     {
         TransportRotationEntry const* rot = sTransportRotationStore.LookupEntry(i);
         if (!rot)
@@ -816,7 +814,6 @@ void InitDBCCustomStores()
         //WoD::ToDo
         //sTransportMgr->AddPathRotationToTransport(rot->TransportID, rot->TimeIndex, rot);
     }
-    LoadDBC(availableDbcLocales, bad_dbc_files, sUnitPowerBarStore, dbcPath, "UnitPowerBar.dbc");//17538
 
     for (uint32 i = 0; i < sWMOAreaTableStore.GetNumRows(); ++i)
         if (WMOAreaTableEntry const* entry = sWMOAreaTableStore.LookupEntry(i))

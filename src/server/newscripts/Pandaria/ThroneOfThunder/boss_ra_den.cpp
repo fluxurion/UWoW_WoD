@@ -175,7 +175,7 @@ class boss_ra_den : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_SEND_DMG)
                     return dmg;

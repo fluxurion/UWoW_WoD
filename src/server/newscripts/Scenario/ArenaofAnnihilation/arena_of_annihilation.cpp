@@ -193,7 +193,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Creature* gurgthock = instance->instance->GetCreature(instance->GetData64(NPC_GURGTHOCK)))
+            if (Creature* gurgthock = instance->instance->GetCreature(instance->GetGuidData(NPC_GURGTHOCK)))
                 gurgthock->AI()->Talk(SAY_SATAY_END);
             _JustDied();
         }
@@ -202,7 +202,7 @@ public:
         {
             if (type == POINT_MOTION_TYPE && id == 1)
             {
-                if (GameObject* pGo = instance->instance->GetGameObject(instance->GetData64(DATA_DOOR)))
+                if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_DOOR)))
                     pGo->SetGoState(GO_STATE_READY);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -224,7 +224,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_POINT_HOME:
-                        if (GameObject* pGo = instance->instance->GetGameObject(instance->GetData64(DATA_DOOR)))
+                        if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_DOOR)))
                             pGo->SetGoState(GO_STATE_ACTIVE);
                         me->GetMotionMaster()->MovePoint(1, centerPos[0]);
                         break;
@@ -287,7 +287,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Creature* gurgthock = instance->instance->GetCreature(instance->GetData64(NPC_GURGTHOCK)))
+            if (Creature* gurgthock = instance->instance->GetCreature(instance->GetGuidData(NPC_GURGTHOCK)))
                 gurgthock->AI()->Talk(SAY_KOBO_END);
             _JustDied();
             summons.DespawnAll();
@@ -301,7 +301,7 @@ public:
             switch (id)
             {
                 case 1:
-                    if (GameObject* pGo = instance->instance->GetGameObject(instance->GetData64(DATA_DOOR)))
+                    if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_DOOR)))
                         pGo->SetGoState(GO_STATE_READY);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetReactState(REACT_AGGRESSIVE);
@@ -345,7 +345,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_POINT_HOME:
-                        if (GameObject* pGo = instance->instance->GetGameObject(instance->GetData64(DATA_DOOR)))
+                        if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_DOOR)))
                             pGo->SetGoState(GO_STATE_ACTIVE);
                         me->GetMotionMaster()->MovePoint(1, centerPos[0]);
                         break;
@@ -428,7 +428,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Creature* gurgthock = instance->instance->GetCreature(instance->GetData64(NPC_GURGTHOCK)))
+            if (Creature* gurgthock = instance->instance->GetCreature(instance->GetGuidData(NPC_GURGTHOCK)))
                 gurgthock->AI()->Talk(SAY_MAKI_END);
             _JustDied();
         }
@@ -442,7 +442,7 @@ public:
         {
             if (type == POINT_MOTION_TYPE && id == 1)
             {
-                if (GameObject* pGo = instance->instance->GetGameObject(instance->GetData64(DATA_DOOR)))
+                if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_DOOR)))
                     pGo->SetGoState(GO_STATE_READY);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -471,7 +471,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_POINT_HOME:
-                        if (GameObject* pGo = instance->instance->GetGameObject(instance->GetData64(DATA_DOOR)))
+                        if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_DOOR)))
                             pGo->SetGoState(GO_STATE_ACTIVE);
                         me->GetMotionMaster()->MovePoint(1, centerPos[0]);
                         break;
@@ -577,21 +577,21 @@ public:
             if (chance == 0)
             {
                 pInstance->SetData(DATA_SATAY, IN_PROGRESS);
-                if (Creature* gurgthock = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GURGTHOCK)))
+                if (Creature* gurgthock = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_GURGTHOCK)))
                     gurgthock->AI()->Talk(SAY_SATAY_START);
                 pGo->SummonCreature(NPC_SATAY_BYU, spawnPos[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
             }
             if (chance == 1)
             {
                 pInstance->SetData(DATA_KOBO, IN_PROGRESS);
-                if (Creature* gurgthock = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GURGTHOCK)))
+                if (Creature* gurgthock = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_GURGTHOCK)))
                     gurgthock->AI()->Talk(SAY_KOBO_START);
                 pGo->SummonCreature(NPC_KOBO, spawnPos[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
             }
             if (chance == 2)
             {
                 pInstance->SetData(DATA_MAKI, IN_PROGRESS);
-                if (Creature* gurgthock = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GURGTHOCK)))
+                if (Creature* gurgthock = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_GURGTHOCK)))
                     gurgthock->AI()->Talk(SAY_MAKI_START);
                 pGo->SummonCreature(NPC_MAKI, spawnPos[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
             }
@@ -615,7 +615,7 @@ public:
             if (pInstance->GetData(DATA_START_EVENT) != DONE)
             {
                 pInstance->SetData(DATA_START_EVENT, DONE);
-                if (Creature* gurgthock = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GURGTHOCK)))
+                if (Creature* gurgthock = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_GURGTHOCK)))
                     gurgthock->AI()->DoAction(ACTION_1);
             }
         }

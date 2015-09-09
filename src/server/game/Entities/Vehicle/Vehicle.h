@@ -118,7 +118,7 @@ class Vehicle : public TransportBase
         typedef std::list<VehicleJoinEvent*> PendingJoinEventContainer;
         PendingJoinEventContainer _pendingJoinEvents;       ///< Collection of delayed join events for prospective passengers
 
-        ACE_Thread_Mutex _lock;
+        std::mutex _lock;
 };
 
 class VehicleJoinEvent : public BasicEvent

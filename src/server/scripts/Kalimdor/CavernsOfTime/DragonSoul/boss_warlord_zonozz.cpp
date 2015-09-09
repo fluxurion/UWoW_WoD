@@ -305,7 +305,7 @@ class boss_warlord_zonozz: public CreatureScript
                 return bAchieve;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 if (type == DATA_PHASE_COUNT)
                     return phaseCount;

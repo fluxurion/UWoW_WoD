@@ -325,7 +325,7 @@ void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generate
     else
     {
         //sLog->outDebug(LOG_FILTER_GENERAL, "Creature (Entry: %u GUID: %u) targeted point (ID: %u X: %f Y: %f Z: %f)",
-        //    _owner->GetEntry(), _owner->GetGUIDLow(), id, x, y, z);
+        //    _owner->GetEntry(), _owner->GetGUID().GetCounter(), id, x, y, z);
         Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath, speed), MOTION_SLOT_ACTIVE);
     }
 }

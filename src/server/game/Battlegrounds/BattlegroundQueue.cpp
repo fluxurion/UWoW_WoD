@@ -1079,7 +1079,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
                     team2[i] = "";
                 }
                 uint8 i = 0;
-                for (std::map<uint64, PlayerQueueInfo*>::iterator itr = aTeam->Players.begin(); itr != aTeam->Players.end(); ++itr)
+                for (std::map<ObjectGuid, PlayerQueueInfo*>::iterator itr = aTeam->Players.begin(); itr != aTeam->Players.end(); ++itr)
                 {
                     if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                     {
@@ -1091,7 +1091,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
 
                 i = 0;
 
-                for (std::map<uint64, PlayerQueueInfo*>::iterator itr = hTeam->Players.begin(); itr != hTeam->Players.end(); ++itr)
+                for (std::map<ObjectGuid, PlayerQueueInfo*>::iterator itr = hTeam->Players.begin(); itr != hTeam->Players.end(); ++itr)
                 {
                     if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                     {

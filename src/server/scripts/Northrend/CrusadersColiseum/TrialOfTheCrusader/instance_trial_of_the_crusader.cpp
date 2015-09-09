@@ -522,7 +522,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
