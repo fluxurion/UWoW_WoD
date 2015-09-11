@@ -1183,7 +1183,7 @@ struct VoidStorageItem
         deleted = false;
     }
 
-    VoidStorageItem(ObjectGuid const& id, uint32 entry, ObjectGuid const& creator, uint32 randomPropertyId, uint32 suffixFactor, bool _change)
+    VoidStorageItem(ObjectGuid const& id, uint32 entry, const ObjectGuid creator, uint32 randomPropertyId, uint32 suffixFactor, bool _change)
     {
         ItemId = id;
         ItemEntry = entry;

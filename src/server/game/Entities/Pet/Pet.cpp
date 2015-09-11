@@ -1996,19 +1996,15 @@ void Pet::UnlearnSpecializationSpell()
 
 void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
-    ObjectGuid guid = GetGUID();
     time_t curTime = time(NULL);
     uint32 count = 0;
 
-    //! 5.4.1
+    //! 6.1.2
     WorldPacket data(SMSG_SPELL_COOLDOWN, size_t(8+1+m_spells.size()*8));
-    data.WriteGuidMask<4, 7, 6>(guid);
-    size_t count_pos = data.bitwpos();
-    data.WriteBits(0, 21);
-    data.WriteGuidMask<2, 3, 1, 0>(guid);
-    data.WriteBit(1);
-    data.WriteGuidMask<5>(guid);
-    data.WriteGuidBytes<7, 2, 1, 6, 5, 4, 3, 0>(guid);
+    data << GetGUID();
+    data << uint8(0);
+    size_t count_pos = data.wpos();
+    data << uint32(0);
 
     for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
     {
@@ -2028,15 +2024,14 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 
         if ((idSchoolMask & spellInfo->GetSchoolMask()) && _GetSpellCooldownDelay(unSpellId) < unTimeMs)
         {
-            data << uint32(unTimeMs);                       // in m.secs
             data << uint32(unSpellId);
+            data << uint32(unTimeMs);                       // in m.secs
             _AddCreatureSpellCooldown(unSpellId, curTime + unTimeMs/IN_MILLISECONDS);
             count++;
         }
     }
 
-    data.FlushBits();
-    data.PutBits(count_pos, count, 21);
+    data.put<uint32>(count_pos, count);
 
     if (count > 0 && GetOwner())
         ((Player*)GetOwner())->GetSession()->SendPacket(&data);

@@ -217,18 +217,6 @@ void Quest::LoadQuestObjectiveVisualEffect(Field* fields)
                 obj.VisualEffects.resize(effectIndex+1, 0);
 
             obj.VisualEffects[effectIndex] = fields[4].GetInt32();
-            }
-        }
-    }
-
-    for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
-    {
-        RequiredCurrencyId[i] = 0;
-        RequiredCurrencyCount[i] = 0;
-        if (RequiredId[i])
-        {
-            switch(RequirementType[i])
-            {
             break;
         }
     }

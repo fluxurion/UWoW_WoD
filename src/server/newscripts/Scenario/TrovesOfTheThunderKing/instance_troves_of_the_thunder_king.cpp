@@ -66,14 +66,14 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
                 case DATA_EVENT_STARTED:
                     start = data;
                     if (data == DONE)
-                        for (std::vector<uint64>::const_iterator itr = pilarMasterGUIDs.begin(); itr != pilarMasterGUIDs.end(); ++itr)
+                        for (GuidVector::const_iterator itr = pilarMasterGUIDs.begin(); itr != pilarMasterGUIDs.end(); ++itr)
                             if (Creature* cre = instance->GetCreature(*itr))
                                 cre->AI()->DoAction(ACTION_1);
                     break;

@@ -188,7 +188,7 @@ std::string WorldSession::GetPlayerName(bool simple /* = true */) const
 }
 
 /// Get player guid if available. Use for logging purposes only
-uint32 WorldSession::GetGUID().GetCounter() const
+ObjectGuid::LowType WorldSession::GetGuidLow() const
 {
     return GetPlayer() ? GetPlayer()->GetGUID().GetCounter() : 0;
 }
@@ -292,7 +292,6 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
     #ifdef WIN32
     sLog->outError(LOG_FILTER_OPCODES, "Unprocessed tail data (read stop at %u from %u) Opcode %s from %s",
         uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerName(false).c_str());
-    #endif
     packet->print_storage();
     #endif
 }
@@ -438,12 +437,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     #ifdef WIN32
                     sLog->outError(LOG_FILTER_OPCODES, "Received not allowed opcode %s from %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerName(false).c_str());
                     #endif
-                    #endif
                     break;
                 case STATUS_UNHANDLED:
                     #ifdef WIN32
                     sLog->outError(LOG_FILTER_OPCODES, "Received not handled opcode %s from %s", GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerName(false).c_str());
-                    #endif
                     #endif
                     break;
             }

@@ -566,7 +566,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (t->isPolygon())
         {
             *data << uint32(t->GetAreaTriggerInfo().polygonPoints.size()); // VerticesCount
-            *data << uint32(t->GetAreaTriggerInfo().polygon > 1 ? size : 0); // VerticesTargetCount
+            *data << uint32(t->GetAreaTriggerInfo().polygon > 1 ? t->GetAreaTriggerInfo().polygon : 0); // VerticesTargetCount
 
             *data << t->GetAreaTriggerInfo().Height;                    // Height
             *data << t->GetAreaTriggerInfo().HeightTarget;              // HeightTarget
@@ -2871,13 +2871,6 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
             return false;
     }
 
-    if (IS_PLAYER_GUID(GetGUID()) && IS_GAMEOBJECT_GUID(obj->GetGUID()))
-    {
-        Player const* thisPlayer = ToPlayer();
-        if (thisPlayer && thisPlayer->IsPlayerLootCooldown(obj->GetEntry()))
-            return false;
-    }
-
     if (obj->IsNeverVisible() || CanNeverSee(obj))
         return false;
 
@@ -4560,15 +4553,6 @@ void WorldObject::SetMeleeAnimKitId(uint16 animKitId)
 }
 
 
-C_PTR Object::get_ptr()
-{
-    if (ptr.numerator && ptr.numerator->ready)
-        return ptr.shared_from_this();
-
-    ptr.InitParent(this);
-    ASSERT(ptr.numerator);  // It's very bad. If it hit nothing work.
-    return ptr.shared_from_this();
-}
 C_PTR Object::get_ptr()
 {
     if (ptr.numerator && ptr.numerator->ready)

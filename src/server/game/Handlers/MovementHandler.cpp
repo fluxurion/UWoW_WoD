@@ -612,7 +612,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
 
                     if(World::GetEnableMvAnticheatDebug())
                         sLog->outError(LOG_FILTER_NETWORKIO, "AC444 out m_anti_JupmTime %u current_speed %f allowed_delta %f real_delta %f fly_auras %u fly_flags %u _vmapHeight %f, _Height %f, ZLiquidStatus %u, opcode[%s]",
-                        mover->m_anti_JupmTime, current_speed, allowed_delta, real_delta, fly_auras, fly_flags, _vmapHeight, _Height, status, GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str());
+                        mover->m_anti_JupmTime, current_speed, allowed_delta, real_delta, fly_auras, fly_flags, _vmapHeight, _Height, plrMover->Zliquid_status, GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)).c_str());
 
                 if (movementInfo.time > plrMover->m_anti_LastSpeedChangeTime)
                 {

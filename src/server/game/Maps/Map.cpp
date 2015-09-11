@@ -264,7 +264,7 @@ i_scriptLock(false), m_has_item_lvl_cap(m_has_item_lvl_cap)
 
     if(float _distMap = GetVisibleDistance(TYPE_VISIBLE_MAP, id))
         m_VisibleDistance = _distMap;
-        case 1265: // start Draenor
+
     if (i_spawnMode == DIFFICULTY_CHALLENGE)
         m_has_item_lvl_cap = true;
 }
@@ -2516,7 +2516,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
                     {
                         // cannot jump to a different instance without resetting it
                         //ASSERT(playerBind->save == mapSave);
-                        sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is permanently bound to instance %d, %d, %d, %d, %d, %d but he is being put into instance %d, %d, %d, %d, %d, %d", player->GetName(), player->GetGUID().GetCounter(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficulty(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset());
+                        sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is permanently bound to instance %d, %d, %d, %d, %d, %d but he is being put into instance %d, %d, %d, %d, %d, %d", player->GetName(), player->GetGUID().GetCounter(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficultyID(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset());
                         return false;
                     }
                 }

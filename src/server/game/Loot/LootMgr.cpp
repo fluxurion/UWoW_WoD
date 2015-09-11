@@ -1855,7 +1855,7 @@ void LootTemplate::ProcessPersonal(Loot& loot) const
     bool chance = roll_chance_i(loot.chance);
     bool canGetInstItem = (chance && loot.isBoss) ? true : false; //Can get item or get gold
 
-    uint16 diffMask = (1 << (sObjectMgr->GetDiffFromSpawn(loot.spawnMode)));
+    uint16 diffMask = (1 << (CreatureTemplate::GetDiffFromSpawn(loot.spawnMode)));
 
     //sLog->outDebug(LOG_FILTER_LOOT, "LootTemplate::ProcessPersonal isBoss %i canGetInstItem %i diffMask %i chance %i loot.chance %u bonusLoot %i", loot.isBoss, canGetInstItem, diffMask, chance, loot.chance, loot.bonusLoot);
 
@@ -1903,9 +1903,9 @@ void LootTemplate::ProcessPersonal(Loot& loot) const
                     if (_item->itemid == i->itemid)                               // search through the items that have already dropped
                     {
                         ++_item_counter;
-                        if (_proto->InventoryType == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
+                        if (_proto->GetInventoryType() == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
                             continue;
-                        else if (_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
+                        else if (_proto->GetInventoryType() != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
                             continue;
                     }
                 if (_item != loot.items.end())
@@ -1920,8 +1920,6 @@ void LootTemplate::ProcessPersonal(Loot& loot) const
 
         //sLog->outDebug(LOG_FILTER_LOOT, "LootTemplate::ProcessPersonal AddItem itemid %i", i->itemid);
     }
-}
-
 }
 
 // True if template includes at least 1 quest drop entry

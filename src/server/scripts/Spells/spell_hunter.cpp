@@ -1635,7 +1635,7 @@ class spell_hun_toss : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                uint64 targetGUID = GetAura()->GetRndEffectTarget();
+                ObjectGuid targetGUID = GetAura()->GetRndEffectTarget();
                 if (!targetGUID)
                     return;
 
@@ -1699,7 +1699,7 @@ class spell_hun_toss_damage : public SpellScriptLoader
 
                 if (Aura* toss = caster->GetAura(117050))
                 {
-                    uint64 targetGUID = toss->GetRndEffectTarget();
+                    ObjectGuid targetGUID = toss->GetRndEffectTarget();
                     if (targetGUID == target->GetGUID())
                         SetHitDamage(GetHitDamage() * 4);
                 }
@@ -1717,7 +1717,7 @@ class spell_hun_toss_damage : public SpellScriptLoader
                 AuraEffect const* aurEff = GetSpell()->GetTriggeredAuraEff();
                 if (!aurEff || !aurEff->GetBase())
                     return;
-                uint64 targetGUID = aurEff->GetBase()->GetRndEffectTarget();
+                ObjectGuid targetGUID = aurEff->GetBase()->GetRndEffectTarget();
                 if (!targetGUID)
                 {
                     targets.clear();

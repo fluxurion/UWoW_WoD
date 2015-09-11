@@ -1649,8 +1649,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         case 49998: // Death Strike
         {
             int32 countDamage = int32(m_caster->GetDamageCounterInPastSecs(5, DAMAGE_TAKEN_COUNTER) * 0.20f);
+            int32 countHealth = m_caster->CountPctFromMaxHealth(7);
 
-            if ((int32)m_caster->CountPctFromMaxHealth(7) > countDamage)
+            if (countHealth > countDamage)
                 bp = countHealth;
             else
                 bp = countDamage;
@@ -4371,7 +4372,7 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
                 item_owner->GetName(), item_owner->GetSession()->GetAccountId());
         }
 
-        EnchantmentSlot slot = pEnchant->requiredSkill == SKILL_ENGINEERING? ENGINEERING_ENCHANTMENT_SLOT: PERM_ENCHANTMENT_SLOT;
+        EnchantmentSlot slot = pEnchant->RequiredSkillID == SKILL_ENGINEERING ? USE_ENCHANTMENT_SLOT : PERM_ENCHANTMENT_SLOT;
 
         // remove old enchanting before applying new if equipped
         item_owner->ApplyEnchantment(itemTarget, slot, false);

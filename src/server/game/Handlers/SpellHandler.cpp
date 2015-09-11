@@ -355,7 +355,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
             {
                 if (_player->HasAura(139139) && target->HasAura(2944, _player->GetGUID()))
                 {
-                    recvPacket.rfinish();
                     _player->CastSpell(target, 129197, true);
                     return;
                 }

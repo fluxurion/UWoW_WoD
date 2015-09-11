@@ -231,7 +231,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
 
     #ifdef WIN32
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::Create AreaTrigger caster %s spellID %u spell rage %f dist %f dest - X:%f,Y:%f,Z:%f _nextMoveTime %i _moveSpeed %f duration %i", 
-    caster->GetString().c_str(), info->Id, _radius, GetSpellInfo()->GetMaxRange(), m_movePath.empty() ? 0.0f : m_movePath[m_currentNode].x, m_movePath.empty() ? 0.0f : m_movePath[m_currentNode].y, m_movePath.empty() ? 0.0f : m_movePath[m_currentNode].z, _nextMoveTime, _moveSpeed, duration);
+    caster->GetGUID().ToString().c_str(), info->Id, _radius, GetSpellInfo()->GetMaxRange(), m_movePath.empty() ? 0.0f : m_movePath[m_currentNode].x, m_movePath.empty() ? 0.0f : m_movePath[m_currentNode].y, m_movePath.empty() ? 0.0f : m_movePath[m_currentNode].z, _nextMoveTime, _moveSpeed, duration);
     #endif
 
     if (atInfo.maxCount)

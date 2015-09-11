@@ -2804,16 +2804,6 @@ bool Creature::IsAutoLoot() const
     return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_AUTO_LOOT);
 }
 
-bool Creature::IsPersonalLoot() const
-{
-    return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_PERSONAL_LOOT);
-}
-
-bool Creature::IsAutoLoot() const
-{
-    return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_AUTO_LOOT);
-}
-
 void Creature::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
     for (uint8 i = 0; i < GetPetCastSpellSize(); ++i)

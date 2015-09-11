@@ -3013,7 +3013,16 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
     VisibleAchievementPred isVisible;
     WorldPackets::Achievement::AllAchievements achievementData;
     achievementData.Earned.reserve(m_completedAchievements.size());
-    achievementData.Progress.reserve(m_criteriaProgress.size());
+
+    uint32 _size = 0;
+    for (AchievementProgressMap::const_iterator iter = m_achievementProgress.begin(); iter != m_achievementProgress.end(); ++iter)
+    {
+        CriteriaProgressMap const* progressMap = &iter->second;
+        if (!progressMap)
+            return;
+        _size += progressMap->size();
+    }
+    achievementData.Progress.reserve(_size);
 
     for (auto itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
     {
@@ -3465,11 +3474,9 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementEntry const* achievemen
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
         case ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS:
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
-        case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
         case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
         case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
         case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
-        case ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL:
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS:
         case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_EMBLEM:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
@@ -4199,12 +4206,6 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                 case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_BATTLEPET_SPECIES: // 91
                 {
                     if (!miscValue1 || miscValue1 != reqValue)
-                        check = false;
-                    break;
-                }
-                case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_EXPANSION_LESS: // 92
-                {
-                    if (reqValue >= (int32)sWorld->getIntConfig(CONFIG_EXPANSION))
                         check = false;
                     break;
                 }

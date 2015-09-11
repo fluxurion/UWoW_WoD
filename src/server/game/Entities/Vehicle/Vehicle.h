@@ -125,7 +125,7 @@ class VehicleJoinEvent : public BasicEvent
 {
     friend class Vehicle;
     protected:
-        VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()), targetGuid(Target->GetBase() ? Target->GetBase()->GetGUID() : NULL) {}
+        VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()), targetGuid(Target->GetBase() ? Target->GetBase()->GetGUID() : ObjectGuid::Empty) {}
         ~VehicleJoinEvent();
         bool Execute(uint64, uint32);
         void Abort(uint64);
@@ -133,7 +133,7 @@ class VehicleJoinEvent : public BasicEvent
         Vehicle* Target;
         Unit* Passenger;
         SeatMap::iterator Seat;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
 };
 
 #endif

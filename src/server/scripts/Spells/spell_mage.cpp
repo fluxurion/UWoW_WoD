@@ -754,10 +754,10 @@ class spell_mage_nether_tempest : public SpellScriptLoader
 
                     if (pCaster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
                     {
-                        uint64 procTarget = 0;
+                        ObjectGuid procTarget;
                         int32 maxDuration = 0;
 
-                        for (std::set<uint64>::iterator iter = pCaster->m_unitsHasCasterAura.begin(); iter != pCaster->m_unitsHasCasterAura.end(); ++iter)
+                        for (GuidSet::iterator iter = pCaster->m_unitsHasCasterAura.begin(); iter != pCaster->m_unitsHasCasterAura.end(); ++iter)
                         {
                             if (Unit* _target = ObjectAccessor::GetUnit(*pCaster, *iter))
                                 if (Aura* aura = _target->GetAura(114923, pCaster->GetGUID()))
@@ -1528,7 +1528,7 @@ class spell_mage_living_bomb : public SpellScriptLoader
                 uint8 targetCount = 0;
                 int32 minDuration = 12000;
 
-                for (std::set<uint64>::iterator iter = caster->m_unitsHasCasterAura.begin(); iter != caster->m_unitsHasCasterAura.end(); ++iter)
+                for (GuidSet::iterator iter = caster->m_unitsHasCasterAura.begin(); iter != caster->m_unitsHasCasterAura.end(); ++iter)
                 {
                     if (Unit* _target = ObjectAccessor::GetUnit(*caster, *iter))
                         if (Aura* aura = _target->GetAura(44457, caster->GetGUID()))
@@ -1553,10 +1553,10 @@ class spell_mage_living_bomb : public SpellScriptLoader
                     if (Unit* target = GetTarget())
                         if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
                         {
-                            uint64 procTarget = 0;
+                            ObjectGuid procTarget;
                             int32 maxDuration = 0;
 
-                            for (std::set<uint64>::iterator iter = caster->m_unitsHasCasterAura.begin(); iter != caster->m_unitsHasCasterAura.end(); ++iter)
+                            for (GuidSet::iterator iter = caster->m_unitsHasCasterAura.begin(); iter != caster->m_unitsHasCasterAura.end(); ++iter)
                             {
                                 if (Unit* _target = ObjectAccessor::GetUnit(*caster, *iter))
                                     if (Aura* aura = _target->GetAura(44457, caster->GetGUID()))

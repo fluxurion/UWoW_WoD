@@ -1526,7 +1526,7 @@ class spell_dk_blood_boil : public SpellScriptLoader
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
                     // Roiling Blood
-                    if(uint64 targetGuid = GetSpell()->GetRndEffectTarget())
+                    if(ObjectGuid targetGuid = GetSpell()->GetRndEffectTarget())
                     {
                         if(Unit* target = ObjectAccessor::GetUnit(*_player, targetGuid))
                         {

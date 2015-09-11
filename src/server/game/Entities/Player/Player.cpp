@@ -2303,7 +2303,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             Position newPos;
             if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-                z += GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                z += GetFloatValue(UNIT_FIELD_HOVER_HEIGHT);
             newPos.Relocate(x, y, z, orientation);
             SendTeleportPacket(newPos); // this automatically relocates to oldPos in order to broadcast the packet in the right place
         }
@@ -2782,7 +2782,7 @@ void Player::Regenerate(Powers power, uint32 saveTimer)
     // Powers now benefit from haste.
     float meleeHaste = GetFloatValue(UNIT_FIELD_MOD_HASTE);
     float spellHaste = GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED);
-    float hastRegen = GetFloatValue(UNIT_MOD_HASTE_REGEN);
+    float hastRegen = GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     switch (power)
     {
@@ -10512,7 +10512,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
                 {
                     if(plData->respawn == TYPE_RESPAWN)
                         AddPlayerLootCooldown(go->GetGOInfo()->entry);
-                    else if(pData->type == GO_TYPE_DONTSPAWN)
+                    else if (plData->type == GO_TYPE_DONTSPAWN)
                         AddPlayerLootCooldown(go->GetGOInfo()->entry, TYPE_GO, false);
                 }
             }
@@ -13837,7 +13837,7 @@ void Player::RemoveItem(Item* pItem, bool update)
             }
 
             m_items[slot] = NULL;
-            SetUInt64Value(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), 0);
+            SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 2), 0);
 
             UpdateExpertise();
 
@@ -13847,7 +13847,7 @@ void Player::RemoveItem(Item* pItem, bool update)
         else if (Bag* pBag = GetBagByPos(bag))
             pBag->RemoveItem(slot, update);
 
-        pItem->SetUInt64Value(ITEM_FIELD_CONTAINED, 0);
+        pItem->SetUInt64Value(ITEM_FIELD_CONTAINED_IN, 0);
         // pItem->SetUInt64Value(ITEM_FIELD_OWNER, 0); not clear owner at remove (it will be set at store). This used in mail and auction code
         pItem->SetSlot(NULL_SLOT);
         if (IsInWorld() && update)
@@ -17674,7 +17674,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid)
 
         if(killed)
         {
-            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE, killed->GetCreatureType(), addkillcount, 0, guid ? GetMap()->GetCreature(guid) : NULL);
+            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE, killed->GetCreatureType(), addKillCount, 0, guid ? GetMap()->GetCreature(guid) : NULL);
             if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
                 guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, killed->GetCreatureType(), addkillcount, 0, guid ? GetMap()->GetCreature(guid) : NULL, this);
         }
@@ -17682,7 +17682,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid)
 
     GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_CREATURE, real_entry);   // MUST BE CALLED FIRST
     GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_CREATURE2, real_entry);   // MUST BE CALLED FIRST
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, real_entry, addkillcount, 0, guid ? GetMap()->GetCreature(guid) : NULL);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, real_entry, addKillCount, 0, guid ? GetMap()->GetCreature(guid) : NULL);
 
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
@@ -20444,13 +20444,13 @@ void Player::AddPlayerLootCooldown(uint32 entry, uint8 type/* = 0*/, bool respaw
         playerLootCooldown lootCooldown;
         lootCooldown.entry = entry;
         lootCooldown.type = type;
-        lootCooldown.difficultyMask |= (1 << (sObjectMgr->GetDiffFromSpawn(diff)));
+        lootCooldown.difficultyMask |= (1 << (CreatureTemplate::GetDiffFromSpawn(diff)));
         lootCooldown.respawnTime = respawn ? time(NULL) + WEEK : 0;
         lootCooldown.state = true;
         m_playerLootCooldown[type][entry] = lootCooldown;
     }
     else
-        itr->second.difficultyMask |= (1 << (sObjectMgr->GetDiffFromSpawn(diff)));
+        itr->second.difficultyMask |= (1 << (CreatureTemplate::GetDiffFromSpawn(diff)));
 }
 
 bool Player::IsPlayerLootCooldown(uint32 entry, uint8 type/* = 0*/, uint8 diff/* = 0*/) const
@@ -20459,7 +20459,7 @@ bool Player::IsPlayerLootCooldown(uint32 entry, uint8 type/* = 0*/, uint8 diff/*
     if(itr == m_playerLootCooldown[type].end())
         return false;
 
-    if(itr->second.difficultyMask & (1 << (sObjectMgr->GetDiffFromSpawn(diff))))
+    if(itr->second.difficultyMask & (1 << (CreatureTemplate::GetDiffFromSpawn(diff))))
         return true;
 
     return false;
@@ -21915,7 +21915,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
 
         if (saveItr->second == QUEST_DEFAULT_SAVE_TYPE)
         {
-            if (quest && quest->GetType() == QUEST_TYPE_ACCOUNT)
+            if (quest && quest->GetQuestType() == QUEST_INFO_ACCOUNT)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_QUESTSTATUS);
                 stmt->setUInt32(0, 0);
@@ -24612,7 +24612,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
     double recTime;
 
     if (!spellInfo->IsChanneled() && (spellInfo->AttributesEx8 & SPELL_ATTR8_HASTE_AFFECT_DURATION_RECOVERY))
-        rec *= GetFloatValue(UNIT_MOD_CAST_HASTE);
+        rec *= GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE);
 
     // overwrite time for selected category
     if (infinityCooldown)
@@ -25587,7 +25587,7 @@ void Player::SendInitialPacketsAfterAddToMap()
         RestoreAllBaseRunes();
         SetPower(POWER_RUNIC_POWER, 0);
     }
-    GetSession()->SendStablePet(0);
+    GetSession()->SendStablePet(ObjectGuid::Empty);
 
     // send step data when entering scenarios
     if (uint32 instanceId = inst ? inst->GetInstanceId() : 0)
@@ -28070,7 +28070,7 @@ void Player::_UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 mi
 
     // Quest "A Test of Valor"
     if (HasAchieved(8030) || HasAchieved(8031))
-        KilledMonsterCredit(69145, 0);
+        KilledMonsterCredit(69145, ObjectGuid::Empty);
 }
 
 void Player::CompletedAchievement(AchievementEntry const* entry)
@@ -30318,7 +30318,7 @@ void Player::UpdateSpellHastDurationRecovery()
         modApply->type = SPELLMOD_PCT;
         modApply->spellId = 60000;
         modApply->mask = _mask;
-        modApply->value = -(100.0f - (GetFloatValue(UNIT_MOD_CAST_HASTE) * 100.0f));
+        modApply->value = -(100.0f - (GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE) * 100.0f));
         AddSpellMod(modApply, true);
     }
 }

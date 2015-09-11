@@ -39,15 +39,15 @@ public:
         {
             playerRole = ROLES_DEFAULT;
 
-            crucibleGUID = 0;
-            doorGUID = 0;
-            wrathionGUID = 0;
-            forgemasterGUID = 0;
-            celectialBlacksmithGUID = 0;
-            celectialDefenderGUID = 0;
-            portal = 0;
-            warriorGUIDs[0] = 0;
-            warriorGUIDs[1] = 0;
+            crucibleGUID.Clear();
+            doorGUID.Clear();
+            wrathionGUID.Clear();
+            forgemasterGUID.Clear();
+            celectialBlacksmithGUID.Clear();
+            celectialDefenderGUID.Clear();
+            portal.Clear();
+            warriorGUIDs[0].Clear();
+            warriorGUIDs[1].Clear();
 
             stageData = STAGE_1;
             waveCounter = 0;
@@ -87,25 +87,25 @@ public:
                     wrathionGUID = creature->GetGUID();
                     break;
                 case NPC_SHADO_PAN_WARRIOR:
-                    creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 60.f);
+                    creature->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 60.f);
                     if(!warriorGUIDs[0])
                         warriorGUIDs[0] = creature->GetGUID();
                     else if(!warriorGUIDs[1])
                         warriorGUIDs[1] = creature->GetGUID();
                     break;
                 case NPC_SHADO_PAN_DEFENDER:
-                    creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 60.f);
+                    creature->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 60.f);
                     defenderGUID = creature->GetGUID();
                     break;
                 case NPC_FORGEMASTER_VULKON:
-                    creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 60.f);
+                    creature->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 60.f);
                     forgemasterGUID = creature->GetGUID();
                     break;
                 case NPC_CELESTIAL_BLACKSMITH:
                     celectialBlacksmithGUID = creature->GetGUID();
                     break;
                 case NPC_CELESTIAL_DEFENDER:
-                    creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 60.f);
+                    creature->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 60.f);
                     celectialDefenderGUID = creature->GetGUID();
                     break;
                 default:
@@ -196,7 +196,7 @@ public:
                         if (Player* plr = players.begin()->getSource())
                         {
                             plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_SCRIPT_EVENT_2, 35754, 1);
-                            plr->KilledMonsterCredit(70094, 0); //< set quest 32593 completed
+                            plr->KilledMonsterCredit(70094, ObjectGuid::Empty); //< set quest 32593 completed
                         }
 
                         if (Creature* cre = instance->GetCreature(wrathionGUID))
@@ -232,7 +232,7 @@ public:
             return 0;
         }
 
-        ObjectGuid GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const override
         {
             switch (type)
             {
@@ -255,23 +255,23 @@ public:
                 default:
                     break;
             }
-            return 0;
+            return ObjectGuid::Empty;
         }
 
     private:
         uint32 playerRole;
 
-        uint64 doorGUID;
-        uint64 invisibleWallGUID;
-        uint64 crucibleGUID;
-        uint64 wrathionGUID;
-        uint64 defenderGUID;
-        uint64 forgemasterGUID;
-        uint64 celectialBlacksmithGUID;
-        uint64 celectialDefenderGUID;
-        uint64 portal;
+        ObjectGuid doorGUID;
+        ObjectGuid invisibleWallGUID;
+        ObjectGuid crucibleGUID;
+        ObjectGuid wrathionGUID;
+        ObjectGuid defenderGUID;
+        ObjectGuid forgemasterGUID;
+        ObjectGuid celectialBlacksmithGUID;
+        ObjectGuid celectialDefenderGUID;
+        ObjectGuid portal;
 
-        uint64 warriorGUIDs[2];
+        ObjectGuid warriorGUIDs[2];
 
         uint32 stageData;
         uint32 waveCounter;

@@ -62,7 +62,7 @@ class spell_mastery_shield_discipline : public SpellScriptLoader
 
                 if (caster->HasAura(47515)) // Divine Aegis (Passive)
                 {
-                    float critChance = caster->ToPlayer()->GetFloatValue(PLAYER_CRIT_PERCENTAGE);
+                    float critChance = caster->ToPlayer()->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
                     if(roll_chance_f(critChance))
                         amount *= 2;
                 }

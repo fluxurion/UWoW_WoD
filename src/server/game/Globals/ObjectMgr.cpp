@@ -1731,7 +1731,7 @@ void ObjectMgr::LoadPersonalLootTemplate()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u personal loot in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddCreatureToGrid(uint32 guid, CreatureData const* data)
+void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType const& guid, CreatureData const* data)
 {
     uint32 mask = data->spawnMask;
     for (uint32 i = 0; mask != 0; i++, mask >>= 1)
@@ -6278,11 +6278,6 @@ uint32 ObjectMgr::GenerateMailID()
     return _mailId++;
 }
 
-        case HIGHGUID_LOOT:
-        {
-            ASSERT(_hiLootGuid < 0xFFFFFFFE && "MO Transport guid overflow!");
-            return _hiLootGuid++;
-        }
 void ObjectMgr::LoadGameObjectLocales()
 {
     uint32 oldMSTime = getMSTime();
@@ -10117,7 +10112,7 @@ void ObjectMgr::LoadBattlePay()
     }
 }
 
-void ObjectMgr::AddCharToDupeLog(uint64 guid)
+void ObjectMgr::AddCharToDupeLog(ObjectGuid const& guid)
 {
     m_dupeLogMap.insert(guid);
 }
@@ -10127,15 +10122,15 @@ bool ObjectMgr::IsPlayerInLogList(Player *player)
     if(m_dupeLogMap.empty())
         return false;
 
-    uint64 guid = player->GetGUID();
-    DupeLogMap::iterator itr = m_dupeLogMap.find(guid);
+    ObjectGuid guid = player->GetGUID();
+    auto itr = m_dupeLogMap.find(guid);
     if (itr != m_dupeLogMap.end())
         return true;
 
     return false;
 }
 
-void ObjectMgr::RemoveCharFromDupeList(uint64 guid)
+void ObjectMgr::RemoveCharFromDupeList(ObjectGuid const& guid)
 {
     m_dupeLogMap.erase(guid);
 }

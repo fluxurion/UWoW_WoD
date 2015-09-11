@@ -53,13 +53,13 @@ public:
             }
         }
 
-        ObjectGuid GetGuidData(uint32 type)
+        ObjectGuid GetGuidData(uint32 type) const
         {
             switch (type)
             {
                 case 0:
                 default:
-                    return 0;
+                    return ObjectGuid::Empty;
             }
         }
 

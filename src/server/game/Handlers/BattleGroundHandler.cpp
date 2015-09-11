@@ -249,7 +249,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
 }
 
 //! 6.0.3
-    if (allianceFlagCarrier)
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
 {
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");

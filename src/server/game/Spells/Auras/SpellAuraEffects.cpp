@@ -1537,7 +1537,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
         case SPELL_AURA_LOOT_BONUS:
         {
             if (target && target->GetMap())
-                amount = target->GetMap()->GetDifficulty();
+                amount = target->GetMap()->GetDifficultyID();
             break;
         }
         default:
@@ -1947,7 +1947,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
                 }
             }
             if (m_spellInfo->AttributesEx8 & SPELL_ATTR8_HASTE_AFFECT_DURATION)
-                m_amplitude = int32(m_amplitude * caster->GetFloatValue(UNIT_MOD_CAST_HASTE));
+                m_period = int32(m_period * caster->GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE));
         }
 
         //! If duration nod defined should we change duration? this remove aura.
@@ -7967,7 +7967,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
         else
         {
             if(triggeredSpellInfo->NeedsToBeTriggeredByCaster())
-                target->CastSpell(target, triggeredSpellInfo, true, NULL, this, caster ? caster->GetGUID() : 0);
+                target->CastSpell(target, triggeredSpellInfo, true, NULL, this, caster ? caster->GetGUID() : ObjectGuid::Empty);
             else
                 caster->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), triggerSpellId, true, NULL, this);
         }
@@ -8924,7 +8924,7 @@ void AuraEffect::HandleProgressBar(AuraApplication const* aurApp, uint8 mode, bo
         return;
 
     uint32 startPower = entry->startPower;
-    uint32 maxPower = entry->maxPower;
+    uint32 maxPower = entry->MaxPower;
 
     // unique strange behavoir - with value 100 bar is lost
     if (GetMiscValue() == 258)

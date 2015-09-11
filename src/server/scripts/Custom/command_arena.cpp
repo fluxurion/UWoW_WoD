@@ -603,7 +603,7 @@ public:
     static bool HandleAddCharCommand(ChatHandler* handler, const char* args)
     {
         std::string name = args;
-        if (uint64 guid = sObjectMgr->GetPlayerGUIDByName(name))
+        if (ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(name))
         {
             sObjectMgr->AddCharToDupeLog(guid);
             handler->PSendSysMessage("Added.");
@@ -615,7 +615,7 @@ public:
     static bool HandleRemoveCharCommand(ChatHandler* handler, const char* args)
     {
         std::string name = args;
-        if (uint64 guid = sObjectMgr->GetPlayerGUIDByName(name))
+        if (ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(name))
         {
             sObjectMgr->RemoveCharFromDupeList(guid);
             handler->PSendSysMessage("Removed.");

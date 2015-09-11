@@ -881,13 +881,6 @@ uint32 GetSpellByTrigger(uint32 trigerSpell)
     return 0;
 }
 
-{
-    UNORDERED_MAP<uint32, uint32 >::const_iterator itr = sReversTriggerSpellList.find(trigerSpell);
-    if(itr != sReversTriggerSpellList.end())
-        return itr->second;
-    return 0;
-}
-
 std::vector<CriteriaTreeEntry const*> const* GetCriteriaTreeList(uint32 parent)
 {
     UNORDERED_MAP<uint32, std::vector<CriteriaTreeEntry const*> >::const_iterator itr = sCriteriaTreeList.find(parent);

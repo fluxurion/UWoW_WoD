@@ -520,7 +520,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         if(seat->second.Passenger)
             return false;
     }
-    if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING))
+    if (seat->second.SeatInfo->Flags && !(seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING))
         if (!(_me->ToCreature() && _me->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_VEHICLE_ATTACKABLE_PASSENGERS) &&
               !(unit->ToCreature() && unit->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_VEHICLE_ATTACKABLE_PASSENGERS))
             unit->AddUnitState(UNIT_STATE_ONVEHICLE);
@@ -739,14 +739,16 @@ void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
 
 void Vehicle::RemovePendingEvent(VehicleJoinEvent* e)
 {
-    TRINITY_GUARD(ACE_Thread_Mutex, _lock);
+    _lock.lock();
     _pendingJoinEvents.remove(e);
+    _lock.unlock();
 }
 
 void Vehicle::AddPendingEvent(VehicleJoinEvent* e)
 {
-    TRINITY_GUARD(ACE_Thread_Mutex, _lock);
+    _lock.lock();
     _pendingJoinEvents.push_back(e);
+    _lock.unlock();
 }
 
 /**

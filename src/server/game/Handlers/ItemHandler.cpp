@@ -67,7 +67,7 @@ void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitIte
     if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
     {
         sObjectMgr->DumpDupeConstant(GetPlayer());
-        sLog->outDebug(LOG_FILTER_DUPE, "---HandleSplitItemOpcode; srcbag %u, srcslot %u, dstbag %u, dstslot %u, src %u, dst %u, count %u", srcbag, srcslot, dstbag, dstslot, src, dst, count);
+        sLog->outDebug(LOG_FILTER_DUPE, "---HandleSplitItemOpcode; srcbag %u, srcslot %u, dstbag %u, dstslot %u, src %u, dst %u, count %u", splitItem.FromPackSlot, splitItem.FromSlot, splitItem.ToPackSlot, splitItem.ToSlot, src, dst, splitItem.Quantity);
     }
 
     _player->SplitItem(src, dst, splitItem.Quantity);
@@ -118,7 +118,7 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swap
     if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
     {
         sObjectMgr->DumpDupeConstant(GetPlayer());
-        sLog->outDebug(LOG_FILTER_DUPE, "---HandleSwapInvItemOpcode; src %u, dst %u, srcslot %u, dstslot %u count %u", src, dst, srcslot, dstslot, count);
+        sLog->outDebug(LOG_FILTER_DUPE, "---HandleSwapInvItemOpcode; src %u, dst %u, srcslot %u, dstslot %u inv %u", src, dst, swapInvItem.Slot1, swapInvItem.Slot2, swapInvItem.Inv);
     }
 
     _player->SwapItem(src, dst);
@@ -235,8 +235,8 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
     }
 
     if(pSrcItem->GetEntry() == 38186)
-        sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoEquipItemOpcode - item %u; count = %u playerGUID %u, itemGUID %u srcbag %u srcslot %u",
-            pSrcItem->GetEntry(), count, _player->GetGUID(), pSrcItem->GetGUID(), srcbag, srcslot);
+        sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoEquipItemOpcode - item %u; inv = %u playerGUID %u, itemGUID %u srcbag %u srcslot %u",
+        pSrcItem->GetEntry(), autoEquipItem.Inv, _player->GetGUID(), pSrcItem->GetGUID(), autoEquipItem.PackSlot, autoEquipItem.Slot);
 
     uint16 src = pSrcItem->GetPos();
     if (dest == src)                                           // prevent equip in same slot, only at cheat
@@ -255,8 +255,8 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
         uint8 dstslot = pDstItem->GetSlot();
 
         if(pDstItem->GetEntry() == 38186)
-            sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoEquipItemOpcode - item %u; count = %u playerGUID %u, itemGUID %u dstbag %u dstslot %u",
-                pDstItem->GetEntry(), count, _player->GetGUID(), pDstItem->GetGUID(), dstbag, dstslot);
+            sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoEquipItemOpcode - item %u; inv = %u playerGUID %u, itemGUID %u dstbag %u dstslot %u",
+            pDstItem->GetEntry(), autoEquipItem.Inv, _player->GetGUID(), pDstItem->GetGUID(), autoEquipItem.PackSlot, autoEquipItem.Slot);
 
         msg = _player->CanUnequipItem(dest, !pSrcItem->IsBag());
         if (msg != EQUIP_ERR_OK)
@@ -431,7 +431,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
     if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
     {
         sObjectMgr->DumpDupeConstant(GetPlayer());
-        sLog->outDebug(LOG_FILTER_DUPE, "---HandleSellItemOpcode; vendor: %llu; item: %u; count %u", GUID_LOPART(vendorguid), GUID_LOPART(itemguid), count);
+        sLog->outDebug(LOG_FILTER_DUPE, "---HandleSellItemOpcode; vendor: %llu; item: %u; count %u", packet.VendorGUID.GetCounter(), packet.ItemGUID.GetEntry(), packet.Amount);
     }
 
     // remove fake death
@@ -472,7 +472,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
         }
 
         if(pItem->GetEntry() == 38186)
-            sLog->outDebug(LOG_FILTER_EFIR, "HandleBuyItemInSlotOpcode item %u; count = %u playerGUID %u vendorguid %u", pItem->GetEntry(), count, _player->GetGUID(), creature->GetGUID());
+            sLog->outDebug(LOG_FILTER_EFIR, "HandleBuyItemInSlotOpcode item %u; count = %u playerGUID %u vendorguid %u", pItem->GetEntry(), packet.Amount, _player->GetGUID(), creature->GetGUID());
 
         // special case at auto sell (sell all)
         if (packet.Amount == 0)
@@ -502,7 +502,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                         return;
                     }
                     if(pItem->GetEntry() == 38186)
-                        sLog->outDebug(LOG_FILTER_EFIR, "HandleSellItemOpcode - CloneItem of item %u; count = %u playerGUID %u, itemGUID %u", pItem->GetEntry(), count, _player->GetGUID(), pItem->GetGUID());
+                        sLog->outDebug(LOG_FILTER_EFIR, "HandleSellItemOpcode - CloneItem of item %u; count = %u playerGUID %u, itemGUID %u", pItem->GetEntry(), packet.Amount, _player->GetGUID(), pItem->GetGUID());
 
                     pItem->SetCount(pItem->GetCount() - packet.Amount);
                     _player->ItemRemovedQuestCheck(pItem->GetEntry(), packet.Amount);
@@ -552,7 +552,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
     if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
     {
         sObjectMgr->DumpDupeConstant(GetPlayer());
-        sLog->outDebug(LOG_FILTER_DUPE, "---HandleBuybackItem; vendor: %llu; slot %u", GUID_LOPART(vendorguid), slot);
+        sLog->outDebug(LOG_FILTER_DUPE, "---HandleBuybackItem; vendor: %llu; slot %u", packet.VendorGUID.GetCounter(), packet.Slot);
     }
 
     // remove fake death
@@ -646,18 +646,13 @@ void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
     if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
     {
         sObjectMgr->DumpDupeConstant(GetPlayer());
-        sLog->outDebug(LOG_FILTER_DUPE, "---HandleBuyItemOpcode; vendor: %llu; item: %u; count: %u;", GUID_LOPART(vendorguid), item, count);
+        sLog->outDebug(LOG_FILTER_DUPE, "---HandleBuyItemOpcode; vendor: %llu; item: %u; count: %u;", packet.VendorGUID.GetCounter(), packet.Item.ItemID, packet.Quantity);
     }
+
+    if (packet.Item.ItemID == 38186)
+        sLog->outDebug(LOG_FILTER_EFIR, "HandleBuyItemOpcode item %u; count = %u playerGUID %u", packet.Item.ItemID, packet.Quantity, _player->GetGUID());
 
     if (packet.ItemType == ITEM_VENDOR_TYPE_ITEM)
-    {
-        sObjectMgr->DumpDupeConstant(GetPlayer());
-        sLog->outDebug(LOG_FILTER_DUPE, "---HandleBuyItemOpcode; vendor: %llu; item: %u; count: %u;", GUID_LOPART(vendorguid), item, count);
-    }
-
-    if(item == 38186)
-        sLog->outDebug(LOG_FILTER_EFIR, "HandleBuyItemOpcode item %u; count = %u playerGUID %u", item, count, _player->GetGUID());
-
     {
         uint8 bag = NULL_BAG;
 
@@ -731,7 +726,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBag
 
     if(pItem->GetEntry() == 38186)
         sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoStoreBagItemOpcode - item %u; count = %u playerGUID %u, itemGUID %u dstbag %u srcslot %u srcbag %u",
-            pItem->GetEntry(), count, _player->GetGUID(), pItem->GetGUID(), dstbag, srcslot, srcbag);
+        pItem->GetEntry(), packet.Inv.Items.size(), _player->GetGUID(), pItem->GetGUID(), packet.ContainerSlotB, packet.SlotA, packet.ContainerSlotA);
 
     _player->RemoveItem(packet.ContainerSlotA, packet.SlotA, true);
     _player->StoreItem(dest, pItem, true);

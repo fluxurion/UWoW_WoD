@@ -74,6 +74,8 @@ enum LogFilterType
     LOG_FILTER_IPC                 = 46,
     LOG_FILTER_BNET_SESSION        = 47,
     LOG_FILTER_PROC                = 48,
+    LOG_FILTER_DUPE                = 49,
+    LOG_FILTER_EFIR                = 50,
     LOG_FILTER_MAX
 };
 

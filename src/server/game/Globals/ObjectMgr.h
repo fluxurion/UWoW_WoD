@@ -907,12 +907,11 @@ class ObjectMgr
 
         typedef std::map<uint32, uint32> CharacterConversionMap;
 
-        typedef std::set<uint64> DupeLogMap;
-        DupeLogMap m_dupeLogMap;
+        GuidSet m_dupeLogMap;
 
-        void AddCharToDupeLog(uint64 guid);
+        void AddCharToDupeLog(ObjectGuid const& guid);
         bool IsPlayerInLogList(Player *player);
-        void RemoveCharFromDupeList(uint64 guid);
+        void RemoveCharFromDupeList(ObjectGuid const& guid);
         void DumpDupeConstant(Player *player);
 
         typedef std::list<CurrencyLoot> CurrencysLoot;

@@ -249,8 +249,8 @@ public:
                     me->SetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME+OFF_ATTACK, offattackspeed ? offattackspeed: mainattackspeed);
 
                 me->SetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME+BASE_ATTACK, mainattackspeed);
-                me->SetFloatValue(UNIT_MOD_CAST_HASTE, owner->GetFloatValue(UNIT_MOD_CAST_HASTE));
-                me->SetFloatValue(UNIT_MOD_CAST_SPEED, owner->GetFloatValue(UNIT_MOD_CAST_SPEED));
+                me->SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, owner->GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE));
+                me->SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, owner->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
             }
         }
 
@@ -314,7 +314,7 @@ public:
 
             if (!owner->IsInWorld())
             {
-                owner->m_SummonSlot[num] = 0;
+                owner->m_SummonSlot[num].Clear();
                 me->DespawnOrUnsummon();
                 return;
             }
@@ -326,7 +326,7 @@ public:
             }
             else
             {
-                owner->m_SummonSlot[num] = 0;
+                owner->m_SummonSlot[num].Clear();
                 me->DespawnOrUnsummon();
             }
 
@@ -2455,14 +2455,14 @@ class npc_ebon_gargoyle : public CreatureScript
 
             uint32 despawnTimer;
             bool checkTarget;
-            uint64 ownerGuid;
-            uint64 mainTargetGUID;
+            ObjectGuid ownerGuid;
+            ObjectGuid mainTargetGUID;
             uint32 targetCheckTime;
 
             void InitializeAI()
             {
                 checkTarget = false;
-                mainTargetGUID = 0;
+                mainTargetGUID.Clear();
                 CasterAI::InitializeAI();
                 ownerGuid = me->GetOwnerGUID();
                 if (!ownerGuid)
@@ -2485,7 +2485,6 @@ class npc_ebon_gargoyle : public CreatureScript
                     return;
 
                 Unit* owner = me->GetOwner();
-
                 if (!owner || owner != source)
                     return;
 
@@ -2526,7 +2525,7 @@ class npc_ebon_gargoyle : public CreatureScript
                 if (targetCheckTime > 2000)
                 {
                     if (mainTargetGUID)
-                        if (me->getVictim() && !me->getVictim()->GetGUID() != mainTargetGUID)
+                        if (me->getVictim() && me->getVictim()->GetGUID() != mainTargetGUID)
                             checkTarget = false;
 
                     targetCheckTime = 0;

@@ -211,7 +211,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
             continue;
         }
 
-        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor());
+        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(),item->GetGuidValue(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor(), false);
 
         uint8 slot = player->AddVoidStorageItem(itemVS);
 

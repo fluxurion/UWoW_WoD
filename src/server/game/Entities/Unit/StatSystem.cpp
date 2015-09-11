@@ -1026,7 +1026,7 @@ void Unit::UpdateMeleeHastMod()
     else
         ApplyPercentModFloatVar(value, -amount, true);
 
-    SetFloatValue(UNIT_MOD_HASTE, value);
+    SetFloatValue(UNIT_FIELD_MOD_HASTE, value);
 
     for (uint8 i = BASE_ATTACK; i < RANGED_ATTACK; ++i)
         CalcAttackTimePercentMod(WeaponAttackType(i), value);
@@ -1087,7 +1087,7 @@ void Unit::UpdateHastMod()
     else
         ApplyPercentModFloatVar(value, -amount, true);
 
-    SetFloatValue(UNIT_MOD_CAST_SPEED, value);
+    SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, value);
 
     if(isAnySummons())
     {

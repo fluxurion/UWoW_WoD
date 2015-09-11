@@ -760,7 +760,9 @@ public:
             case 102785:
             case 103364:
             case 103405:
-            case 103519:            {
+            case 103519:
+            {
+                QueryResult result = CharacterDatabase.PQuery("SELECT itemEntry FROM character_donate WHERE itemguid = '%u'", _item->GetGUID().GetCounter());
                 if(!result)
                 {
                     ChatHandler chH = ChatHandler(player);

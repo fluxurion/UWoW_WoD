@@ -757,7 +757,7 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
     if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
     {
         sObjectMgr->DumpDupeConstant(GetPlayer());
-        sLog->outDebug(LOG_FILTER_DUPE, "---HandleSetTradeItemOpcode; item: %u; iGUID %u", item->GetEntry(), iGUID);
+        sLog->outDebug(LOG_FILTER_DUPE, "---HandleSetTradeItemOpcode; item: %u; iGUID %u", item->GetEntry(), item->GetGUID());
     }
 
     my_trade->SetItem(TradeSlots(tradeSlot), item);

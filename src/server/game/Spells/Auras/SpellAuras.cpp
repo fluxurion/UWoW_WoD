@@ -604,7 +604,7 @@ m_diffMode(caster ? caster->GetSpawnMode() : 0), m_spellDynObjGuid(), m_spellAre
     if((m_spellInfo->AttributesEx11 & SPELL_ATTR11_SEND_ITEM_LEVEL) && castItem)
         m_casterLevel = castItem->GetItemLevel();
 
-    if (castItem && castItem->GetLevelBeforeCap() && castItem->GetLevel() > 502)
+    if (castItem && castItem->GetLevelBeforeCap() && castItem->GetItemLevel() > 502)
     {
         m_inArenaNerf = true;
     }

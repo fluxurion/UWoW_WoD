@@ -9843,7 +9843,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
 
             float targetCount = 0.0f;
 
-            for (std::set<uint64>::iterator iter = m_unitsHasCasterAura.begin(); iter != m_unitsHasCasterAura.end(); ++iter)
+            for (GuidSet::iterator iter = m_unitsHasCasterAura.begin(); iter != m_unitsHasCasterAura.end(); ++iter)
                 if (Unit* _target = ObjectAccessor::GetUnit(*this, *iter))
                     if (_target->HasAura(8921, GetGUID()) || _target->HasAura(93402, GetGUID()))
                         targetCount++;
@@ -18481,7 +18481,7 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                     if (Player* plr = ToPlayer())
                     {
                         if (dummySpell->AttributesEx8 & SPELL_ATTR8_MASTERY_SPECIALIZATION)
-                            percent = plr->GetFloatValue(PLAYER_MASTERY) * dummySpell->GetEffect(effIndex, m_diffMode).BonusMultiplier;
+                            percent = plr->GetFloatValue(PLAYER_FIELD_MASTERY) * dummySpell->GetEffect(effIndex, m_diffMode).BonusCoefficient;
                     }
 
                     if (!percent)
@@ -22770,6 +22770,9 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
             GetMap()->PlayerRelocation(ToPlayer(), x, y, z, orientation);
         else
             GetMap()->CreatureRelocation(ToCreature(), x, y, z, orientation);
+    }
+    else if (turn)
+        UpdateOrientation(orientation);
 
         // code block for underwater state update
     if (!m_lastUnderWatterPos.IsInDist(this, World::Relocation_UpdateUnderwateLimit))
@@ -22777,8 +22780,6 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
         m_lastUnderWatterPos = *this;
         UpdateUnderwaterState(GetMap(), x, y, z);
     }
-    else if (turn)
-        UpdateOrientation(orientation);
 
     return (relocated || turn);
 }
@@ -23784,7 +23785,7 @@ std::string Trinity::CodeChatMessage(std::string text, uint32 lang_id)
     return convertedMessage;
 }
 
-void Unit::SendDispelFailed(ObjectGuid targetGuid, uint32 spellId, std::list<uint32>& spellList)
+void Unit::SendDispelFailed(ObjectGuid const& targetGuid, uint32 spellId, std::list<uint32>& spellList)
 {
     ObjectGuid sourceGuid = GetGUID();
 
@@ -23802,7 +23803,7 @@ void Unit::SendDispelFailed(ObjectGuid targetGuid, uint32 spellId, std::list<uin
     SendMessageToSet(&data, true);
 }
 
-void Unit::SendDispelLog(ObjectGuid unitTargetGuid, uint32 spellId, std::list<uint32>& spellList, bool broke, bool stolen)
+void Unit::SendDispelLog(ObjectGuid const& unitTargetGuid, uint32 spellId, std::list<uint32>& spellList, bool broke, bool stolen)
 {
     //! 6.0.3
     WorldPacket data(SMSG_SPELL_DISPELL_LOG, 4 + 4 + spellList.size() * 5 + 3 + 1);
@@ -24130,7 +24131,7 @@ void Unit::SetDynamicPassiveSpells(uint32 spellId, uint32 slot)
 
 void Unit::SetDynamicWorldEffects(uint32 effect, uint32 slot)
 {
-    SetDynamicUInt32Value(UNIT_DYNAMIC_WORLD_EFFECTS, slot, effect);
+    SetDynamicUInt32Value(UNIT_DYNAMIC_FIELD_WORLD_EFFECTS, slot, effect);
 }
 
 uint32 Unit::GetDynamicPassiveSpells(uint32 slot)
@@ -24261,10 +24262,10 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
                 if (Player* player = itr->getSource())
                 {
                     if(spellForBonusLoot) //Bonus roll
-                        if(!player->IsPlayerLootCooldown(spellForBonusLoot, TYPE_SPELL, creature->GetMap()->GetDifficulty())) //Bonus loot
+                        if(!player->IsPlayerLootCooldown(spellForBonusLoot, TYPE_SPELL, creature->GetMap()->GetDifficultyID())) //Bonus loot
                             player->CastSpell(player, spellForBonusLoot, false);
 
-                    if(player->IsPlayerLootCooldown(cooldownid, cooldowntype, creature->GetMap()->GetDifficulty()))
+                    if (player->IsPlayerLootCooldown(cooldownid, cooldowntype, creature->GetMap()->GetDifficultyID()))
                         continue;
 
                     if(spellForRep) //Gain reputation
@@ -24274,8 +24275,6 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
                     loot->clear();
                     loot->personal = true;
                     loot->objType = 1;
-                    if(plData)
-                        loot->chance = plData->chance;
 
                     //sLog->outDebug(LOG_FILTER_LOOT, "Unit::GeneratePersonalLoot GetEntry %i GetGUID %i player %i", creature->GetEntry(), loot->GetGUID(), player->GetGUID());
 
@@ -24295,7 +24294,7 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
                     if(creature->IsAutoLoot())
                         loot->AutoStoreItems();
 
-                    player->AddPlayerLootCooldown(cooldownid, cooldowntype, true, creature->GetMap()->GetDifficulty());
+                    player->AddPlayerLootCooldown(cooldownid, cooldowntype, true, creature->GetMap()->GetDifficultyID());
                 }
             }
             return;
@@ -24312,7 +24311,7 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
                 if (Player* player = itr->getSource())
                 {
                     if(spellForBonusLoot) //Bonus roll
-                        if(!player->IsPlayerLootCooldown(spellForBonusLoot, TYPE_SPELL, creature->GetMap()->GetDifficulty())) //Bonus loot
+                        if (!player->IsPlayerLootCooldown(spellForBonusLoot, TYPE_SPELL, creature->GetMap()->GetDifficultyID())) //Bonus loot
                             player->CastSpell(player, spellForBonusLoot, false);
                 }
             }
@@ -24343,7 +24342,7 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
     {
         if (Player* looter = ObjectAccessor::GetPlayer(*creature, (*itr)))
         {
-            if(looter->IsPlayerLootCooldown(cooldownid, cooldowntype, creature->GetMap()->GetDifficulty()) || creature->GetZoneId() != looter->GetZoneId())
+            if (looter->IsPlayerLootCooldown(cooldownid, cooldowntype, creature->GetMap()->GetDifficultyID()) || creature->GetZoneId() != looter->GetZoneId())
             {
                 --cLoot->unlootedCount;
                 continue;
@@ -24353,8 +24352,6 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
             loot->clear();
             loot->personal = true;
             loot->objType = 1;
-            if(plData)
-                loot->chance = plData->chance;
 
             if (lootid)
             {
@@ -24377,56 +24374,47 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
             }
 
             if(creature->isWorldBoss())
-                looter->AddPlayerLootCooldown(cooldownid, cooldowntype, true, creature->GetMap()->GetDifficulty());
+                looter->AddPlayerLootCooldown(cooldownid, cooldowntype, true, creature->GetMap()->GetDifficultyID());
 
             //sLog->outDebug(LOG_FILTER_LOOT, "Unit::GeneratePersonalLoot lootGUID %i", loot->GetGUID());
         }
     }
 }
 
+//! 6.1.2
 void Unit::SendMovementForce(WorldObject* at, float windX, float windY, float windZ, float windSpeed, uint32 windType, bool apply)
 {
     if (GetTypeId() != TYPEID_PLAYER)
         return;
-
-    ObjectGuid guid = GetObjectGuid();
-    uint32 TriggerGUID = MAKE_PAIR32(at->GetGUID(), 0x1000);
 
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::SendMovementForce x %f, y %f, z %f o %f apply %i", windX, windY, windZ, windSpeed, apply);
 
     if(apply)
     {
         WorldPacket data(SMSG_MOVE_APPLY_MOVEMENT_FORCE);
-        data.WriteGuidMask<6, 0, 1, 4, 3>(guid);
-        data.WriteBits(windType, 2); // Type
-        data.WriteGuidMask<5, 2, 7>(guid);
-        data << uint32(TriggerGUID); //guid AT
-        data << uint32(0); //Unk1 may TransportID
+        data << GetGUID();
+
+        data << at->GetGUID(); //guid AT
         data << float(windType ? at->GetPositionX() : windX);
-        data.WriteGuidBytes<3>(guid);
-        data << uint32(0); // Unk2 may be SequenceIndex
-        data.WriteGuidBytes<6, 4>(guid);
-        data << float(windType ? at->GetPositionZ() : windZ);
         data << float(windType ? at->GetPositionY() : windY);
-        data.WriteGuidBytes<0, 7, 5, 1>(guid);
+        data << float(windType ? at->GetPositionZ() : windZ);
+        data << uint32(0); //Unk1 may TransportID
         data << float(windSpeed);
-        data.WriteGuidBytes<2>(guid);
+        data.WriteBits(windType, 2); // Type
+
         ToPlayer()->GetSession()->SendPacket(&data);
     }
     else
     {
         WorldPacket data(SMSG_MOVE_REMOVE_MOVEMENT_FORCE);
-        data.WriteGuidMask<0, 6, 1, 3, 2, 5, 7, 4>(guid);
-        data.WriteGuidBytes<0, 5, 4>(guid);
-        data << uint32(TriggerGUID); // guid AT
-        data.WriteGuidBytes<2>(guid);
-        data << uint32(1); //Unk2 may be SequenceIndex
-        data.WriteGuidBytes<3, 6, 1, 7>(guid);
+        data << GetGUID();
+        data << uint32(m_movementCounter++); // SequenceIndex
+        data << at->GetGUID(); //guid AT
         ToPlayer()->GetSession()->SendPacket(&data);
     }
 }
 
-bool Unit::HasSomeCasterAura(uint64 guid)
+bool Unit::HasSomeCasterAura(ObjectGuid const& guid) const
 {
     for (AuraApplicationMap::const_iterator itr = m_appliedAuras.begin(); itr != m_appliedAuras.end(); ++itr)
     {

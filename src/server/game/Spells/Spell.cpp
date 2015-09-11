@@ -571,7 +571,7 @@ m_comboPointGain(0), m_delayStart(0), m_delayAtDamageCount(0), m_count_dispeling
 m_CastItem(NULL), m_castItemGUID(), unitTarget(NULL), m_originalTarget(NULL), itemTarget(NULL), gameObjTarget(NULL), focusObject(NULL),
 m_cast_count(0), m_preCastSpell(0), m_triggeredByAuraSpell(NULL), m_spellAura(NULL), find_target(false), m_spellState(SPELL_STATE_NULL),
 m_runesState(0), m_powerCost(0), m_casttime(0), m_timer(0), m_channelTargetEffectMask(0), _triggeredCastFlags(triggerFlags), m_spellValue(NULL), m_currentExecutedEffect(SPELL_EFFECT_NONE),
-m_absorb(0), m_resist(0), m_blocked(0), m_interupted(false), m_effect_targets(NULL), m_replaced(replaced), m_triggeredByAura(NULL), m_originalTargetGUID(0)
+m_absorb(0), m_resist(0), m_blocked(0), m_interupted(false), m_effect_targets(NULL), m_replaced(replaced), m_triggeredByAura(NULL), m_originalTargetGUID()
 {
     m_diffMode = m_caster->GetMap() ? m_caster->GetMap()->GetSpawnMode() : 0;
     m_spellValue = new SpellValue(m_spellInfo, m_diffMode);
@@ -693,7 +693,7 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
 {
     m_targets = targets;
     m_originalTarget = targets.GetUnitTarget();
-    m_originalTargetGUID = m_originalTarget ? m_originalTarget->GetGUID() : 0;
+    m_originalTargetGUID = m_originalTarget ? m_originalTarget->GetGUID() : ObjectGuid::Empty;
     // this function tries to correct spell explicit targets for spell
     // client doesn't send explicit targets correctly sometimes - we need to fix such spells serverside
     // this also makes sure that we correctly send explicit targets to client (removes redundant data)
@@ -1171,7 +1171,7 @@ void Spell::SelectImplicitTargetsFromThreadList(SpellEffIndex effIndex, SpellImp
     {
         if (Player* target = ObjectAccessor::GetPlayer(*m_caster, (*itr)))
         {
-            if(target->IsPlayerLootCooldown(m_spellInfo->Id, TYPE_SPELL, target->GetMap()->GetDifficulty())) //Don`t add player if exist CD
+            if (target->IsPlayerLootCooldown(m_spellInfo->Id, TYPE_SPELL, target->GetMap()->GetDifficultyID())) //Don`t add player if exist CD
                 continue;
 
             if(m_caster->GetZoneId() == target->GetZoneId()) //Check target if this zone
@@ -3383,7 +3383,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                             if (AttributesCustomEx5 & SPELL_ATTR5_HASTE_AFFECT_TICK_AND_CASTTIME)
                                 m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
                             else if (AttributesCustomEx8 & SPELL_ATTR8_HASTE_AFFECT_DURATION)
-                                duration = int32(duration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_HASTE));
+                                duration = int32(duration * m_originalCaster->GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE));
                         }
                         else if (AttributesCustomEx5 & SPELL_ATTR5_HASTE_AFFECT_TICK_AND_CASTTIME)
                         {
@@ -6256,7 +6256,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (!spell)
                     continue;
 
-                if (spell->talentId != m_glyphIndex)
+                if (spell->talentId != m_misc.GlyphSlot)
                     continue;
 
                 if (plr->HasSpellCooldown(spell->Id))
@@ -9514,7 +9514,7 @@ void Spell::TriggerGlobalCooldown()
     if (m_spellInfo->StartRecoveryTime >= MIN_GCD && m_spellInfo->StartRecoveryTime <= MAX_GCD)
     {
         // Apply haste rating
-        gcd = int32(float(gcd) * m_caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
+        gcd = int32(float(gcd) * m_caster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
         if (gcd < MIN_GCD)
             gcd = MIN_GCD;
         else if (gcd > MAX_GCD)

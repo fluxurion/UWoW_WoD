@@ -203,15 +203,13 @@ void ReputationMgr::SendInitialReputations()
 {
     WorldPackets::Reputation::InitializeFactions initFactions;
 
+    uint32 a = 0;
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
         initFactions.FactionFlags[itr->first] = itr->second.Flags;
         initFactions.FactionStandings[itr->first] = itr->second.Standing;
-        /// @todo faction bonus
-            if(a >= 256)
-                break;
         itr->second.needSend = false;
-        if(a >= 256)
+        if(++a >= 256)  //Is it needed?
             break;
     }
 

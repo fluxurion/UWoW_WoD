@@ -3911,7 +3911,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 86213:  // Soul Swap Exhale
                     spellInfo->Speed = 0;
-                    spellInfo->spellPower->powerCostPercentage = 0;
+                    spellInfo->spellPower->PowerCostPercentage = 0;
                     break;
                 case 122470: // Touch of Karma
                     spellInfo->AttributesEx6 &= ~SPELL_ATTR6_NOT_LIMIT_ABSORB;
@@ -4135,9 +4135,9 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 119072: // Holy Wrath
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
-                    spellInfo->Effects[EFFECT_1].ScalingMultiplier = 0;
-                    spellInfo->Effects[EFFECT_1].DeltaScalingMultiplier = 0;
-                    spellInfo->Effects[EFFECT_1].BonusMultiplier = 0.91f;
+                    spellInfo->Effects[EFFECT_1].Scaling.Coefficient = 0;
+                    spellInfo->Effects[EFFECT_1].Scaling.Variance = 0;
+                    spellInfo->Effects[EFFECT_1].BonusCoefficient = 0.91f;
                     break;
                 case 24340: // Meteor
                 case 26558: // Meteor
@@ -5555,8 +5555,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(567); //135s
                     break;
                 case 143343: // Deafening Screech
-                    spellInfo->CastTimeMin = 0.7f;
-                    spellInfo->CastTimeMax = 0.7f;
+                    spellInfo->Scaling.CastTimeMin = 0.7f;
+                    spellInfo->Scaling.CastTimeMax = 0.7f;
                     break;
                 case 89496: // Gnomish Gravity Well
                     spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAST_ONLY_IN_OUTLAND;
