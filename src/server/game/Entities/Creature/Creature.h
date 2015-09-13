@@ -931,7 +931,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool onVehicleAccessoryInit() const { return m_onVehicleAccessory; }
         void SetVehicleAccessoryInit(bool r) { m_onVehicleAccessory = r; }
 
-        uint32 GetVignetteId() const { return m_creatureInfo->VignetteId; }
+        uint32 GetVignetteId() const { return m_creatureInfo ? m_creatureInfo->VignetteId : 0; }
 
     protected:
         bool m_onVehicleAccessory;
