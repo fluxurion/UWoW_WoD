@@ -494,8 +494,8 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     packet.Info.SuggestedGroupNum = quest->GetSuggestedPlayers();
     packet.Info.RewardNextQuest = quest->GetNextQuestInChain();
     packet.Info.RewardXPDifficulty = quest->GetXPDifficulty();
-    packet.Info.Float10 = quest->Float10; // Unk
-    packet.Info.Float13 = quest->Float13; // Unk
+    packet.Info.RevardXPMultiplier = quest->RevardXPMultiplier;
+    packet.Info.RewardMoneyMultiplier = quest->RewardMoneyMultiplier;
 
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
         packet.Info.RewardMoney = quest->RewardMoney;

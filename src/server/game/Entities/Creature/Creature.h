@@ -169,6 +169,8 @@ struct CreatureTemplate
     uint32  ScriptID;
     uint32  GetRandomValidModelId() const;
     uint32  GetFirstValidModelId() const;
+    uint32  personalloot;
+    uint32  VignetteId;
 
     //Get difficulty from spawnmode
     static uint8 GetDiffFromSpawn(uint8 spawnmode)
@@ -928,6 +930,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         bool onVehicleAccessoryInit() const { return m_onVehicleAccessory; }
         void SetVehicleAccessoryInit(bool r) { m_onVehicleAccessory = r; }
+
+        uint32 GetVignetteId() const { return m_creatureInfo->VignetteId; }
+
     protected:
         bool m_onVehicleAccessory;
 

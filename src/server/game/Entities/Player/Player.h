@@ -168,6 +168,17 @@ struct PlayerCurrency
     CurrencyTypesEntry const * currencyEntry;
 };
 
+struct PlayerVignette
+{
+    ObjectGuid guid;
+    uint32 vignetteId;
+    uint32 zoneId;
+    bool add;
+    bool remove;
+    bool update;
+    Position position;
+};
+
 enum SceneEventStatus
 {
     SCENE_NONE          = 0,
@@ -180,6 +191,7 @@ typedef UNORDERED_MAP<uint32, PlayerTalent*> PlayerTalentMap;
 typedef UNORDERED_MAP<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
 typedef UNORDERED_MAP<uint32, PlayerCurrency> PlayerCurrenciesMap;
+typedef UNORDERED_MAP<ObjectGuid, PlayerVignette> PlayerVignettesMap;
 
 struct SpellCooldown
 {
@@ -2696,7 +2708,6 @@ class Player : public Unit, public GridObject<Player>
         void SendBGWeekendWorldStates();
 
         void SendAurasForTarget(Unit* target);
-        void SendVegnette(Creature *target);
         void SendSpellHistoryData();
         void SendSpellChargeData();
         void SendCategoryCooldownMods();
@@ -2934,7 +2945,12 @@ class Player : public Unit, public GridObject<Player>
         GuidSet m_extraLookList;
 
         bool HaveAtClient(WorldObject const* u) const { return u == this || m_clientGUIDs.find(u->GetGUID()) != m_clientGUIDs.end(); }
-        void AddClient(WorldObject *u) { m_clientGUIDs.insert(u->GetGUID()); } 
+        void AddClient(WorldObject *u) { m_clientGUIDs.insert(u->GetGUID()); }
+
+        void AddVignette(WorldObject *u);
+        bool CanSeeVignette(WorldObject *u);
+        void RemoveVignette(WorldObject *u);
+        void SendVignette(bool force = false);
 
         ///! Extra look method not alow remove some creatures from player visibility by grid VisibleNotifier
         void AddToExtraLook(WorldObject *u) { m_extraLookList.insert(u->GetGUID()); } 
@@ -3232,8 +3248,8 @@ class Player : public Unit, public GridObject<Player>
         void TrigerScene(uint32 instanceID, std::string const type);
 
         //Message
-        void AddListner(WorldObject* o);
-        void RemoveListner(WorldObject* o);
+        void AddListner(WorldObject* o, bool update = false);
+        void RemoveListner(WorldObject* o, bool update = false);
 
     protected:
         // Gamemaster whisper whitelist
@@ -3387,6 +3403,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_currentBuybackSlot;
 
         PlayerCurrenciesMap _currencyStorage;
+        PlayerVignettesMap m_vignettes;
 
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
         CUFProfile* _CUFProfiles[MAX_CUF_PROFILES];

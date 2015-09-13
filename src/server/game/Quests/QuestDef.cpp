@@ -36,10 +36,10 @@ Quest::Quest(Field* questRecord)
     SuggestedPlayers        = questRecord[index++].GetUInt8();
     NextQuestIdChain        = questRecord[index++].GetUInt32(); //RewardNextQuest on DB
     RewardXPDifficulty      = questRecord[index++].GetUInt8();
-    Float10                 = questRecord[index++].GetFloat();
+    RevardXPMultiplier      = questRecord[index++].GetFloat();
     RewardMoney             = questRecord[index++].GetInt32();
     RewardMoneyDifficulty   = questRecord[index++].GetUInt32();
-    Float13                 = questRecord[index++].GetFloat();
+    RewardMoneyMultiplier   = questRecord[index++].GetFloat();
     RewardBonusMoney        = questRecord[index++].GetUInt32();
     RewardDisplaySpell      = questRecord[index++].GetUInt32();
     RewardSpell             = questRecord[index++].GetInt32();

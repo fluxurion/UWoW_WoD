@@ -588,11 +588,15 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
 
     // Draenor quest line
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(34398))
-    {
         pCurrChar->AddQuest(quest, pCurrChar);
-    }
 
-    pCurrChar->CleanupsBeforeDelete();
+    //pCurrChar->CleanupsBeforeDelete(); //crashed on Motion Clear
+    // Some custom clear
+    if (pCurrChar->IsInWorld())
+        pCurrChar->RemoveFromWorld();
+    pCurrChar->RemoveAllAuras();
+    pCurrChar->RemoveAllGameObjects();
+
     pCurrChar->SaveToDB();
     session->SetPlayer(NULL);
 

@@ -125,6 +125,8 @@ void Object::_Create(ObjectGuid const& guid)
     SetGuidValue(OBJECT_FIELD_GUID, guid);
     SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
     m_PackGUID.Set(guid);
+    if (GetVignetteId())
+        vignetteGuid = ObjectGuid::Create<HighGuid::Vignette>(guid.GetMapId(), 0, guid.GetCounter());
 }
 
 std::string Object::_ConcatFields(uint16 startIndex, uint16 size) const
@@ -3054,6 +3056,7 @@ void WorldObject::RemoveVisitor(Object*p)
             break;
         }
 }
+
 void WorldObject::AddPlayersInPersonnalVisibilityList(GuidUnorderedSet const& viewerList)
 {
     for (auto guid : viewerList)
@@ -4306,6 +4309,32 @@ void WorldObject::DestroyForNearbyPlayers()
         player->m_clientGUIDs.erase(GetGUID());
     }
     visitors.clear();
+}
+
+void WorldObject::DestroyVignetteForNearbyPlayers()
+{
+    if (!IsInWorld() || !GetVignetteId())
+        return;
+
+    std::list<Player*> targets;
+    Trinity::AnyPlayerInObjectRangeCheck check(this, GetVisibilityRange(), false);
+    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, targets, check);
+    VisitNearbyWorldObject(GetVisibilityRange(), searcher);
+    for (std::list<Player*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+    {
+        Player* player = (*iter);
+
+        if (player == this)
+            continue;
+
+        if (!player->HaveAtClient(this))
+            continue;
+
+        if (isType(TYPEMASK_UNIT) && ((Unit*)this)->GetCharmerGUID() == player->GetGUID()) // TODO: this is for puppet
+            continue;
+
+        player->RemoveVignette(this, true);
+    }
 }
 
 void WorldObject::UpdateObjectVisibility(bool /*forced*/)

@@ -108,6 +108,7 @@ class Object
         PackedGuid const& GetPackGUID() const { return m_PackGUID; }
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY_ID); }
         void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY_ID, entry); }
+        ObjectGuid const& GetVignetteGUID() const { return vignetteGuid; }
 
         void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE, scale); }
 
@@ -307,6 +308,8 @@ class Object
         virtual void BuildUpdate(UpdateDataMapType&) {}
         virtual void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer *data, Player* target) const;
 
+        virtual uint32 GetVignetteId() const { return 0; }
+
         void BuildFieldsUpdate(Player*, UpdateDataMapType &) const;
 
         void SetFieldNotifyFlag(uint16 flag) { _fieldNotifyFlags |= flag; }
@@ -381,6 +384,8 @@ class Object
         UpdateMask _dynamicChangesMask;
         UpdateMask* _dynamicChangesArrayMask;
         uint16 _dynamicValuesCount;
+
+        ObjectGuid vignetteGuid;
     private:
         C_PTR ptr;
         bool m_inWorld;
@@ -995,6 +1000,7 @@ class WorldObject : public Object, public WorldLocation
         void GetCreatureListWithEntryInGridAppend(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
 
         void DestroyForNearbyPlayers();
+        void DestroyVignetteForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);
         void BuildUpdate(UpdateDataMapType&);
 

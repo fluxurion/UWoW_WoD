@@ -44,7 +44,7 @@ union u_map_magic
 };
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
-u_map_magic MapVersionMagic = { {'v','1','.','4'} };
+u_map_magic MapVersionMagic = { {'v','1','.','5'} };
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
 u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
 u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
@@ -2424,7 +2424,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
             InstanceSave* mapSave = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
             if (!mapSave)
             {
-                if (IsScenario())
+                if (IsScenario() || sObjectMgr->HasScenarioInMap(GetId()))
                     if (lfg::LFGDungeonData const* data = sLFGMgr->GetLFGDungeon(GetId(), GetDifficultyID(), player->GetTeam()))
                         sScenarioMgr->AddScenarioProgress(GetInstanceId(), data, false);
 

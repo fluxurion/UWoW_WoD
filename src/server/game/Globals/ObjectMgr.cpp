@@ -415,8 +415,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                             69          70          71         72            73            74          75           76          77          78           79          80
                                              "InhabitType, HoverHeight, HealthModifier, ManaModifier, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            81           82            83         84               85                  86          87
-                                             " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
+    //                                            81           82            83         84               85                  86          87           88           89
+                                             " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName, personalloot, VignetteId "
                                              "FROM creature_template;");
 
     if (!result)
@@ -518,6 +518,8 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.MechanicImmuneMask = fields[index++].GetUInt32();
         creatureTemplate.flags_extra        = fields[index++].GetUInt32();
         creatureTemplate.ScriptID           = GetScriptId(fields[index++].GetCString());
+        creatureTemplate.personalloot       = fields[index++].GetUInt32();
+        creatureTemplate.VignetteId         = fields[index++].GetUInt32();
 
         if(creatureTemplate.type_flags & CREATURE_TYPEFLAGS_BOSS)
         {
@@ -3418,11 +3420,11 @@ void ObjectMgr::LoadQuests()
     mExclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        //0  1          2           3               4         5            6            7                  8                9                   10       11           12
-        "ID, QuestType, QuestLevel, QuestPackageID, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, Float10, RewardMoney, RewardMoneyDifficulty, "
+        //0  1          2           3               4         5            6            7                  8                9                   10                  11           12
+        "ID, QuestType, QuestLevel, QuestPackageID, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RevardXPMultiplier, RewardMoney, RewardMoneyDifficulty, "
 
-        //     20           21           22          23              24                    25         26            27                  28            29          30                   31            32          33
-        "Float13, RewardBonusMoney, RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
+        //     20                21               22                   23              24                    25         26            27                  28            29          30                   31            32          33
+        "RewardMoneyMultiplier, RewardBonusMoney, RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
         //         34               35               36              37          38         39       40      41 
         "StartItem, Flags, FlagsEx, RewardItem1, RewardAmount1, RewardItem2, RewardAmount2, RewardItem3, RewardAmount3, RewardItem4, RewardAmount4, "
         //      50      51                  52             53          54                55          56                  57
@@ -7123,8 +7125,8 @@ void ObjectMgr::LoadScenarioPOI()
 
     uint32 count = 0;
 
-    //                                               0               1   2      3               4      5      6      7      8
-    QueryResult result = WorldDatabase.Query("SELECT criteriaTreeId, id, mapid, WorldMapAreaId, unk12, unk16, unk20, unk24, unk28 FROM scenario_poi order by criteriaTreeId");
+    //                                                      0           1      2          3            4         5       6          7                8
+    QueryResult result = WorldDatabase.Query("SELECT criteriaTreeId, BlobID, MapID, WorldMapAreaID, `Floor`, Priority, Flags, WorldEffectID, PlayerConditionID FROM scenario_poi order by criteriaTreeId");
 
     if (!result)
     {
@@ -7167,19 +7169,19 @@ void ObjectMgr::LoadScenarioPOI()
         Field* fields = result->Fetch();
 
         uint32 criteriaTreeId     = fields[0].GetUInt32();
-        uint32 id                 = fields[1].GetUInt32();
-        uint32 mapid              = fields[2].GetUInt32();
-        uint32 WorldMapAreaId     = fields[3].GetUInt32();
-        uint32 unk12              = fields[4].GetUInt32();
-        uint32 unk16              = fields[5].GetUInt32();
-        uint32 unk20              = fields[6].GetUInt32();
-        uint32 unk24              = fields[7].GetUInt32();
-        uint32 unk28              = fields[8].GetUInt32();
+        uint32 BlobID             = fields[1].GetUInt32();
+        uint32 MapID              = fields[2].GetUInt32();
+        uint32 WorldMapAreaID     = fields[3].GetUInt32();
+        uint32 Floor              = fields[4].GetUInt32();
+        uint32 Priority           = fields[5].GetUInt32();
+        uint32 Flags              = fields[6].GetUInt32();
+        uint32 WorldEffectID      = fields[7].GetUInt32();
+        uint32 PlayerConditionID  = fields[8].GetUInt32();
 
         if(POIs[criteriaTreeId].size() > 0)
         {
-            ScenarioPOI POI(id, mapid, WorldMapAreaId, unk12, unk16, unk20, unk24, unk28);
-            POI.points = POIs[criteriaTreeId][id];
+            ScenarioPOI POI(BlobID, MapID, WorldMapAreaID, Floor, Priority, Flags, WorldEffectID, PlayerConditionID);
+            POI.points = POIs[criteriaTreeId][BlobID];
             _scenarioPOIStore[criteriaTreeId].push_back(POI);
         }
 
@@ -9635,6 +9637,41 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
     }
     else
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 areatrigger actions. DB table `areatrigger_actions` is empty.");
+}
+
+void ObjectMgr::LoadScenarioData()
+{
+    _scenarioData.clear();
+    _scenarioDataList.clear();
+
+    //                                                     0          1            2              3            4             5                    6                         7
+    QueryResult result = WorldDatabase.Query("SELECT `ScenarioID`, `mapId`, `DifficultyID`, `WaveCurrent`, `WaveMax`, `TimerDuration`, `CriteriaProgressCount`, `BonusObjectiveDataCount` FROM `scenario_data`");
+    if (result)
+    {
+        uint32 counter = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint8 i = 0;
+            uint32 ScenarioID = fields[i++].GetUInt32();
+            ScenarioData& data = _scenarioData[ScenarioID];
+            data.mapId = fields[i++].GetUInt32();
+            data.DifficultyID = fields[i++].GetUInt32();
+            data.WaveCurrent = fields[i++].GetUInt32();
+            data.WaveMax = fields[i++].GetUInt32();
+            data.TimerDuration = fields[i++].GetUInt32();
+            data.CriteriaProgressCount = fields[i++].GetUInt32();
+            data.BonusObjectiveDataCount = fields[i++].GetUInt32();
+            _scenarioDataList[data.mapId].push_back(_scenarioData[ScenarioID]);
+            ++counter;
+        }
+        while (result->NextRow());
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Scenario data.", counter);
+    }
+    else
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Scenario data. DB table `scenario_data` is empty.");
 }
 
 AreaTriggerInfo const* ObjectMgr::GetAreaTriggerInfo(uint32 entry)

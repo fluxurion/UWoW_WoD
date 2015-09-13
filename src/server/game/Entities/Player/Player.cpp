@@ -24790,7 +24790,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             if (target->GetTypeId() == TYPEID_UNIT)
                 BeforeVisibilityDestroy<Creature>(target->ToCreature(), this);
 
-            RemoveListner(target);
+            RemoveListner(target, true);
             target->DestroyForPlayer(this);
             m_clientGUIDs.erase(target->GetGUID());
 
@@ -24806,7 +24806,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             //if (target->isType(TYPEMASK_UNIT) && ((Unit*)target)->m_Vehicle)
             //    UpdateVisibilityOf(((Unit*)target)->m_Vehicle);
 
-            AddListner(target);
+            AddListner(target, true);
             target->SendUpdateToPlayer(this);
             m_clientGUIDs.insert(target->GetGUID());
 
@@ -24853,7 +24853,6 @@ void Player::UpdateTriggerVisibility()
 void Player::SendInitialVisiblePackets(Unit* target)
 {
     SendAurasForTarget(target);
-    //SendVegnette(target->ToCreature());
     if (target->isAlive())
     {
         if (target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && target->getVictim())
@@ -29782,28 +29781,83 @@ void Player::CheckItemCapLevel(bool hasCap)
 // Just for test. 
 // ToDo: add field with corect vignitte id for bosses.
 // ToDo2: system should work not at creature udapte, but at zone entering.
-void Player::SendVegnette(Creature *target)
+void Player::SendVignette(bool force)
 {
-    if (!target || !target->isWorldBoss())
+    if(m_vignettes.empty())
         return;
 
-    ObjectGuid targetGUID = target->GetGUID();
-    ObjectGuid unk = targetGUID/*0x81101000F*/;
+    uint32 removedCount = 0;
+    uint32 addedCount = 0;
+    uint32 updatedCount = 0;
+
+    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end(); ++itr)
+    {
+        if (itr->second.remove)
+            removedCount++;
+        if (itr->second.add)
+            addedCount++;
+        if (itr->second.update)
+            updatedCount++;
+    }
+
+    if(!removedCount && !addedCount && !updatedCount)
+        return;
 
     WorldPacket data(SMSG_VIGNETTE_UPDATE, 20);
-    data.WriteBit(1);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(1);
-    data << uint32(0);
-    data << uint32(0);//or this
+    data.WriteBit(force);
 
+    data << uint32(removedCount);
+    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end();)
     {
-        data << float(target->GetPositionX()) << float(target->GetPositionY()) << float(target->GetPositionZ());
-        data << targetGUID;
-        data << uint32(4);      //Vegnette.dbc2 ID
-        data << uint32(0);      //unk???
+        if (itr->second.remove)
+        {
+            data << itr->second.guid;
+            m_vignettes.erase(itr++);
+            continue;
+        }
+        ++itr;
     }
+
+    data << uint32(addedCount);
+    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end(); ++itr)
+    {
+        if (itr->second.add)
+            data << itr->second.guid;
+    }
+
+    data << uint32(addedCount);
+    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end(); ++itr)
+    {
+        if (itr->second.add)
+        {
+            data << float(itr->second.position.GetPositionX()) << float(itr->second.position.GetPositionY()) << float(itr->second.position.GetPositionZ());
+            data << itr->first;
+            data << itr->second.vignetteId;
+            data << itr->second.zoneId;
+            itr->second.add = false;
+        }
+    }
+
+    data << uint32(updatedCount);
+    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end(); ++itr)
+    {
+        if (itr->second.update)
+            data << itr->second.guid;
+    }
+
+    data << uint32(updatedCount);
+    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end(); ++itr)
+    {
+        if (itr->second.update)
+        {
+            data << float(itr->second.position.GetPositionX()) << float(itr->second.position.GetPositionY()) << float(itr->second.position.GetPositionZ());
+            data << itr->first;
+            data << itr->second.vignetteId;
+            data << itr->second.zoneId;
+            itr->second.update = false;
+        }
+    }
+
     GetSession()->SendPacket(&data);
 }
 
@@ -30070,12 +30124,56 @@ void Player::TrigerScene(uint32 instanceID, std::string const type)
 
 }
 
-void Player::AddListner(WorldObject* o)
+void Player::AddListner(WorldObject* o, bool /*update*/)
 {
+    if(CanSeeVignette(o))
+        AddVignette(o);
     o->AddVisitor(this);
 }
 
-void Player::RemoveListner(WorldObject* o)
+void Player::RemoveListner(WorldObject* o, bool update)
 {
+    if(o->GetVignetteId())
+    {
+        RemoveVignette(o);
+        if(update)
+            SendVignette();
+    }
     o->RemoveVisitor(this);
+}
+
+bool Player::CanSeeVignette(WorldObject *o)
+{
+    if(!o->GetVignetteId())
+        return false;
+
+    if (Creature const* creature = o->ToCreature())
+    {
+        uint32 questId = creature->GetCreatureTemplate()->personalloot;
+        if(questId && GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
+            return false;
+    }
+    return true;
+}
+
+void Player::AddVignette(WorldObject *o)
+{
+    PlayerVignette vignette;
+    vignette.guid = o->GetVignetteGUID();
+    vignette.vignetteId = o->GetVignetteId();
+    vignette.zoneId = o->GetZoneId();
+    vignette.add = true;
+    vignette.remove = false;
+    vignette.update = false;
+    vignette.position.Relocate(o);
+    m_vignettes.insert(PlayerVignettesMap::value_type(o->GetGUID(), vignette));
+}
+
+void Player::RemoveVignette(WorldObject *o)
+{
+    PlayerVignettesMap::iterator itr = m_vignettes.find(o->GetGUID());
+    if (itr == m_vignettes.end())
+        return;
+
+    itr->second.remove = true;
 }

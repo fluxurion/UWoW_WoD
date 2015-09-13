@@ -1739,7 +1739,7 @@ enum OpcodeServer : uint32
     SMSG_UNSET_MOVEFLAG2_0x1000                       = 0xBADD, // 5.4.1 17538
     SMSG_SPELL_0x00E9                                 = 0xBADD, // 5.4.1 17538
     SMSG_PET_BATTLE_FULL_UPDATE                       = 0xBADD,
-    SMSG_SCENARIO_POI                                 = 0xBADD,
+    SMSG_SCENARIO_POIS                                = 0xBADD,
     SMSG_0x1965                                       = 0x1965, // 6.1.2
 };
 
