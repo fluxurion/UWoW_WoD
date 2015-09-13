@@ -474,7 +474,7 @@ void WorldSession::HandleScenarioPOIQuery(WorldPacket& recvData)
     if (!count)
         return;
 
-    WorldPacket data(SMSG_SCENARIO_POI, 200);
+    WorldPacket data(SMSG_SCENARIO_POIS, 200);
     data.WriteBits(count, 21);
 
     ByteBuffer buff;
