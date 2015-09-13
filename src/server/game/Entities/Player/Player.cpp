@@ -17676,7 +17676,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid)
         {
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE, killed->GetCreatureType(), addKillCount, 0, guid ? GetMap()->GetCreature(guid) : NULL);
             if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-                guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, killed->GetCreatureType(), addkillcount, 0, guid ? GetMap()->GetCreature(guid) : NULL, this);
+                guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, killed->GetCreatureType(), addKillCount, 0, guid ? GetMap()->GetCreature(guid) : NULL, this);
         }
     }
 

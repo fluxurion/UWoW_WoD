@@ -341,6 +341,7 @@ struct Loot
     QuestItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }
     QuestItemMap const& GetPlayerNonQuestNonFFANonCurrencyConditionalItems() const { return PlayerNonQuestNonFFANonCurrencyConditionalItems; }
 
+
     std::vector<LootItem> items;
     std::vector<LootItem> quest_items;
     uint32 gold;
@@ -350,19 +351,22 @@ struct Loot
 
     uint32 objEntry;
     ObjectGuid objGuid;
+    ObjectGuid m_guid;
     uint8 objType;
     uint8 spawnMode;
     uint32 itemLevel;
+    uint32 chance;
     bool personal;
     bool bonusLoot;
     bool isBoss;
     bool isClear;
 
+
     explicit Loot(uint32 _gold = 0);
     ~Loot() { clear(); }
 
-    ObjectGuid const& GetGUID() const { return _GUID; }
-    void SetGUID(ObjectGuid const& guid) { _GUID = guid; }
+    ObjectGuid const& GetGUID() const { return m_guid; }
+    void SetGUID(ObjectGuid const& guid) { m_guid = guid; }
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)
@@ -379,7 +383,6 @@ struct Loot
     void NotifyMoneyRemoved(uint64);
     void AddLooter(ObjectGuid GUID) { PlayersLooting.insert(GUID); }
     void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
-    void GenerateLootGuid();
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool noGroup, bool noEmptyError = false, WorldObject const* lootFrom = NULL);
@@ -414,9 +417,6 @@ private:
     LootValidatorRefManager i_LootValidatorRefManager;
 
     Player* m_lootOwner;
-
-    // Loot GUID
-    ObjectGuid _GUID;
 };
 
 extern LootStore LootTemplates_Creature;

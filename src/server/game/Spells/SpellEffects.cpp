@@ -8746,6 +8746,19 @@ void Spell::EffectBonusLoot(SpellEffIndex effIndex)
     }
 }
 
+void Spell::EffectUpdatePlayerPhase(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Player* player = unitTarget->ToPlayer();
+    // force recalculate & update.
+    player->GetPhaseMgr().RemoveUpdateFlag(PHASE_UPDATE_FLAG_ZONE_UPDATE);
+}
+
 void Spell::EffectJoinOrLeavePlayerParty(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)

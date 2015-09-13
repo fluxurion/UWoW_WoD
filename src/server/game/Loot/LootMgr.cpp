@@ -487,12 +487,7 @@ Loot::Loot(uint32 _gold)
     isBoss = false;
     bonusLoot = false;
     isClear = true;
-    m_guid = 0;
-}
-
-void Loot::GenerateLootGuid()
-{
-    m_guid = MAKE_NEW_GUID(sObjectMgr->GenerateLowGuid(HIGHGUID_LOOT), 0, HIGHGUID_LOOT);
+    m_guid.Clear();
 }
 
 // Inserts the item into the loot (called by LootTemplate processors)
@@ -684,11 +679,11 @@ void Loot::clear()
     quest_items.clear();
     gold = 0;
     unlootedCount = 0;
-    roundRobinPlayer = 0;
+    roundRobinPlayer.Clear();
     objType = 0;
     i_LootValidatorRefManager.clearReferences();
-    if(m_guid && !personal)
-        sLootMgr->RemoveLoot(GetGUID().GetCounter());
+    if (!GetGUID().IsEmpty() && !personal)
+        sLootMgr->RemoveLoot(GetGUID());
     chance = 20;
     personal = false;
     isBoss = false;
@@ -2483,18 +2478,26 @@ void LoadLootTemplates_Reference()
 
 Loot* LootMgr::GetLoot(ObjectGuid const& guid)
 {
-    Loot* loot = NULL;
     LootsMap::iterator itr = m_Loots.find(guid);
     if (itr != m_Loots.end())
-        loot = itr->second;
+        return itr->second;
 
     //sLog->outDebug(LOG_FILTER_LOOT, "LootMgr::GetLoot loot %i guid %i size %i", loot ? loot->GetGUID() : 0, guid, m_Loots.size());
-    return loot;
+    return NULL;
 }
 
 void LootMgr::AddLoot(Loot* loot)
 {
-    m_Loots[loot->GetGUID()] = loot;
+    //if (!loot->GetGUID())
+    //    loot->GenerateLootGuid();
+    ASSERT(!loot->GetGUID().IsEmpty());
+
+    LootsMap::iterator itr = m_Loots.find(loot->GetGUID());
+    if (itr == m_Loots.end())
+        m_Loots.emplace(loot->GetGUID(), loot);
+    else
+        itr->second = loot;
+    //m_Loots[loot->GetGUID()] = loot;
     //sLog->outDebug(LOG_FILTER_LOOT, "LootMgr::AddLoot loot %i guid %i size %i", loot->GetGUID(), loot->GetGUID(), m_Loots.size());
 }
 
