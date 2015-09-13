@@ -6243,7 +6243,7 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         _voidItemId = (*result)[0].GetUInt64()+1;
 
-    result = CharacterDatabase.Query("SELECT MAX(guid) FROM character_battle_pet_journal");
+    result = CharacterDatabase.Query("SELECT MAX(guid) FROM account_battle_pet_journal");
     if (result)
         _BattlePetGuidGenerator.Set((*result)[0].GetUInt64() + 1);
 }
