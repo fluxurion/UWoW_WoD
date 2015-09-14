@@ -461,6 +461,12 @@ class DatabaseWorkerPool
             return _connectionInfo.database.c_str();
         }
 
+        void WaitExecution()
+        {
+            while (!_queue->Empty())
+            {
+            }
+        }
     private:
         bool OpenConnections(InternalIndex type, uint8 numConnections)
         {

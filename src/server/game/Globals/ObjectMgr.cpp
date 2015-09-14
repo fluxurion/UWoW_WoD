@@ -9262,18 +9262,22 @@ void ObjectMgr::RestructCreatureGUID()
         Field *fields = result->Fetch();
         uint32 oldGUID = fields[0].GetUInt32();
 
-        // World Database
-        WorldDatabase.PExecute("UPDATE creature SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE creature_addon SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE creature_addon SET path_id = %u WHERE guid = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE waypoint_data SET id = %u WHERE id = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE creature_formations SET leaderGUID = %u WHERE leaderGUID = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE creature_formations SET memberGUID = %u WHERE memberGUID = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE creature_transport SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE game_event_creature SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE pool_creature SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE smart_scripts SET target_param1 = %u WHERE `target_type` = 10 AND target_param1 = %u;", newGUID, oldGUID);
+        SQLTransaction worldTrans = WorldDatabase.BeginTransaction();
 
+        // World Database
+        worldTrans->PAppend("UPDATE creature SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE creature_addon SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE creature_addon SET path_id = %u WHERE guid = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE waypoint_data SET id = %u WHERE id = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE creature_formations SET leaderGUID = %u WHERE leaderGUID = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE creature_formations SET memberGUID = %u WHERE memberGUID = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE creature_transport SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE game_event_creature SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE pool_creature SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE smart_scripts SET target_param1 = %u WHERE `target_type` = 10 AND target_param1 = %u;", newGUID, oldGUID);
+
+        WorldDatabase.CommitTransaction(worldTrans);
+        WorldDatabase.WaitExecution();
         newGUID++;
     } while (result->NextRow());
 
@@ -9298,11 +9302,15 @@ void ObjectMgr::RestructGameObjectGUID()
         Field *fields = result->Fetch();
         uint32 oldGUID = fields[0].GetUInt32();
 
+        SQLTransaction worldTrans = WorldDatabase.BeginTransaction();
         // World Database
-        WorldDatabase.PExecute("UPDATE gameobject SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE game_event_gameobject SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE pool_gameobject SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
-        WorldDatabase.PExecute("UPDATE smart_scripts SET target_param1 = %u WHERE `target_type` = 14 AND target_param1 = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE gameobject SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE game_event_gameobject SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE pool_gameobject SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
+        worldTrans->PAppend("UPDATE smart_scripts SET target_param1 = %u WHERE `target_type` = 14 AND target_param1 = %u;", newGUID, oldGUID);
+
+        WorldDatabase.CommitTransaction(worldTrans);
+        WorldDatabase.WaitExecution();
 
         newGUID++;
     } while (result->NextRow());
