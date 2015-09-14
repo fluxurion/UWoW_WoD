@@ -1268,13 +1268,13 @@ public:
             switch (type)
             {
                 case DATA_TEAM_IN_INSTANCE:
-                    if (!_teamInInstance)
-                    {
-                        Map::PlayerList const& players = instance->GetPlayers();
-                        if (!players.isEmpty())
-                            if (Player* player = players.begin()->getSource())
-                                _teamInInstance = player->GetTeam();
-                    }
+                    //if (!_teamInInstance)
+                    //{
+                    //    Map::PlayerList const& players = instance->GetPlayers();
+                    //    if (!players.isEmpty())
+                    //        if (Player* player = players.begin()->getSource())
+                    //            _teamInInstance = player->GetTeam();
+                    //}
                     return _teamInInstance;
 
                 case DATA_GALAKRAS_PRE_EVENT:
