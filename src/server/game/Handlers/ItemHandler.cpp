@@ -118,7 +118,7 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPackets::Item::SwapInvItem& swap
     if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
     {
         sObjectMgr->DumpDupeConstant(GetPlayer());
-        sLog->outDebug(LOG_FILTER_DUPE, "---HandleSwapInvItemOpcode; src %u, dst %u, srcslot %u, dstslot %u inv %u", src, dst, swapInvItem.Slot1, swapInvItem.Slot2, swapInvItem.Inv);
+        sLog->outDebug(LOG_FILTER_DUPE, "---HandleSwapInvItemOpcode; src %u, dst %u, srcslot %u, dstslot %u size %u", src, dst, swapInvItem.Slot1, swapInvItem.Slot2, swapInvItem.Inv.Items.size());
     }
 
     _player->SwapItem(src, dst);
@@ -255,8 +255,8 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
         uint8 dstslot = pDstItem->GetSlot();
 
         if(pDstItem->GetEntry() == 38186)
-            sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoEquipItemOpcode - item %u; inv = %u playerGUID %u, itemGUID %u dstbag %u dstslot %u",
-            pDstItem->GetEntry(), autoEquipItem.Inv, _player->GetGUID(), pDstItem->GetGUID(), autoEquipItem.PackSlot, autoEquipItem.Slot);
+            sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoEquipItemOpcode - item %u; size = %u playerGUID %u, itemGUID %u dstbag %u dstslot %u",
+            pDstItem->GetEntry(), autoEquipItem.Inv.Items.size(), _player->GetGUID(), pDstItem->GetGUID(), autoEquipItem.PackSlot, autoEquipItem.Slot);
 
         msg = _player->CanUnequipItem(dest, !pSrcItem->IsBag());
         if (msg != EQUIP_ERR_OK)
