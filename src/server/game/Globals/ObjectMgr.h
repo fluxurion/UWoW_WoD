@@ -372,6 +372,21 @@ struct AreaTriggerStruct
     float  target_Orientation;
 };
 
+struct ScenarioData
+{
+    uint32 ScenarioID;
+    uint32 mapId;
+    uint32 DifficultyID;
+    uint32 WaveCurrent;
+    uint32 WaveMax;
+    uint32 TimerDuration;
+    uint32 CriteriaProgressCount;
+    uint32 BonusObjectiveDataCount;
+};
+
+typedef UNORDERED_MAP<uint32/*ScenarioID*/, ScenarioData> ScenarioDataMap;
+typedef UNORDERED_MAP<uint32/*mapId*/, std::list<ScenarioData> > ScenarioDataListMap;
+
 typedef std::set<ObjectGuid::LowType> CellGuidSet;
 typedef std::map<ObjectGuid/*player guid*/, uint32/*instance*/> CellCorpseSet;
 struct CellObjectGuids
@@ -582,19 +597,19 @@ struct ScenarioPOIPoint
 
 struct ScenarioPOI
 {
-    uint32 Id;
-    uint32 MapId;
-    uint32 WorldMapAreaId;
+    uint32 BlobID;
+    uint32 MapID;
+    uint32 WorldMapAreaID;
     uint32 Floor;
-    uint32 Unk16;
-    uint32 Unk20;
+    uint32 Priority;
+    uint32 Flags;
     uint32 WorldEffectID;
-    uint32 Unk28;
+    uint32 PlayerConditionID;
     std::vector<ScenarioPOIPoint> points;
 
-    ScenarioPOI() : Id(0), MapId(0), WorldMapAreaId(0), Floor(0), Unk16(0), Unk20(0), WorldEffectID(0), Unk28(0) {}
-    ScenarioPOI(uint32 _Id, uint32 _MapId, uint32 _WorldMapAreaId, uint32 _Floor, uint32 _Unk16, uint32 _Unk20, uint32 _WorldEffectID, uint32 _Unk28) :
-        Id(_Id), MapId(_MapId), WorldMapAreaId(_WorldMapAreaId), Floor(_Floor), Unk16(_Unk16), Unk20(_Unk20), WorldEffectID(_WorldEffectID), Unk28(_Unk28) { }
+    ScenarioPOI() : BlobID(0), MapID(0), WorldMapAreaID(0), Floor(0), Priority(0), Flags(0), WorldEffectID(0), PlayerConditionID(0) {}
+    ScenarioPOI(uint32 _BlobID, uint32 _MapID, uint32 _WorldMapAreaID, uint32 _Floor, uint32 _Priority, uint32 _Flags, uint32 _WorldEffectID, uint32 _PlayerConditionID) :
+        BlobID(_BlobID), MapID(_MapID), WorldMapAreaID(_WorldMapAreaID), Floor(_Floor), Priority(_Priority), Flags(_Flags), WorldEffectID(_WorldEffectID), PlayerConditionID(_PlayerConditionID) { }
 };
 
 typedef std::vector<ScenarioPOI> ScenarioPOIVector;
@@ -1273,6 +1288,8 @@ class ObjectMgr
         void LoadAreaTriggerActionsAndData();
         AreaTriggerInfo const* GetAreaTriggerInfo(uint32 entry);
 
+        void LoadScenarioData();
+
         void LoadBannedAddons();
 
         // Battle Pet System
@@ -1670,6 +1687,11 @@ class ObjectMgr
             return 0;
         }
 
+        bool HasScenarioInMap(uint32 mapId) const
+        {
+            return _scenarioDataList.find(mapId) != _scenarioDataList.end();
+        }
+
         WorldPackets::BattlePay::ProductListResponse productList;
         std::map<uint32, WorldPackets::BattlePay::Product> BattlePayProductMap;
     private:
@@ -1844,6 +1866,8 @@ class ObjectMgr
         HotfixData _hotfixData;
 
         AreaTriggerInfoMap _areaTriggerData;
+        ScenarioDataMap _scenarioData;
+        ScenarioDataListMap _scenarioDataList;
 };
 
 #define sObjectMgr ObjectMgr::instance()

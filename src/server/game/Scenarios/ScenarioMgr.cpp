@@ -427,13 +427,13 @@ ScenarioSteps const* ScenarioMgr::GetScenarioSteps(uint32 scenarioId)
 
 void WorldSession::HandleScenarioPOIQuery(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SCENARIO_POI_QUERY");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_SCENARIO_POI");
 
     uint32 count = recvData.ReadBits(22);
     if (!count)
         return;
 
-    WorldPacket data(SMSG_SCENARIO_POI, 200);
+    WorldPacket data(SMSG_SCENARIO_POIS, 200);
     data.WriteBits(count, 21);
 
     ByteBuffer buff;
@@ -454,11 +454,11 @@ void WorldSession::HandleScenarioPOIQuery(WorldPacket& recvData)
 
         for (ScenarioPOIVector::const_iterator itr = POI->begin(); itr != POI->end(); ++itr)
         {
-            buff << uint32(itr->Id);                // POI index
-            buff << uint32(itr->MapId);             // mapid
+            buff << uint32(itr->BlobID);                // POI index
+            buff << uint32(itr->MapID);             // MapID
             buff << uint32(itr->WorldEffectID);
             buff << uint32(itr->Floor);
-            buff << uint32(itr->Unk16);
+            buff << uint32(itr->Priority);
 
             data.WriteBits(itr->points.size(), 21); // POI points count
             for (std::vector<ScenarioPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
@@ -467,9 +467,9 @@ void WorldSession::HandleScenarioPOIQuery(WorldPacket& recvData)
                 buff << int32(itr2->x);             // POI point x
             }
 
-            buff << uint32(itr->WorldMapAreaId);
-            buff << uint32(itr->Unk28);             // PlayerConditionID?
-            buff << uint32(itr->Unk20);
+            buff << uint32(itr->WorldMapAreaID);
+            buff << uint32(itr->PlayerConditionID);
+            buff << uint32(itr->Flags);
         }
 
         buff << uint32(criteriaTreeId);             // criteria tree id

@@ -164,8 +164,8 @@ namespace WorldPackets
             int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
 
             // Non JAM data
-            float Float10 = 1.0f;
-            float Float13 = 1.0f;
+            float RevardXPMultiplier = 1.0f;
+            float RewardMoneyMultiplier = 1.0f;
             int32 AllowableRaces = -1;
         };
 

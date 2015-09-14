@@ -228,6 +228,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sSpellVisualStore,          db2Path,    "SpellVisual.db2");
     LoadDB2(bad_db2_files, sItemUpgradeStore,          db2Path,    "ItemUpgrade.db2");
     LoadDB2(bad_db2_files, sRuleSetItemUpgradeEntryStore,db2Path,  "RulesetItemUpgrade.db2");
+    LoadDB2(bad_db2_files, sCurrencyTypesStore,        db2Path,    "CurrencyTypes.db2");
 
     for (uint32 i = 0; i < sAreaGroupMemberStore.GetNumRows(); ++i)
         if (AreaGroupMemberEntry const* areaGroupMember = sAreaGroupMemberStore.LookupEntry(i))

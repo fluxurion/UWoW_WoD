@@ -198,10 +198,8 @@ bool Transport::Create(ObjectGuid::LowType const& guidlow, uint32 entry, uint32 
         return false;
     }
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Transport>(guidlow));
 
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
-
     if (!goinfo)
     {
         sLog->outError(LOG_FILTER_SQL, "Transport not created: entry in `gameobject_template` not found, guidlow: %u map: %u  (X: %f Y: %f Z: %f) ang: %f", guidlow, mapid, x, y, z, ang);
@@ -209,6 +207,8 @@ bool Transport::Create(ObjectGuid::LowType const& guidlow, uint32 entry, uint32 
     }
 
     m_goInfo = goinfo;
+
+    Object::_Create(ObjectGuid::Create<HighGuid::Transport>(guidlow));
 
     SetObjectScale(goinfo->size);
 

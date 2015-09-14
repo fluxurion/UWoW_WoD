@@ -643,7 +643,7 @@ struct GameObjectTemplate
             default: return false; 
         }
     }
-    
+
     uint32 GetLockId() const
     {
         switch (type)
@@ -662,6 +662,16 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_NEW_FLAG:      return newflag.open;
             case GAMEOBJECT_TYPE_NEW_FLAG_DROP: return newflagdrop.open;
             case GAMEOBJECT_TYPE_CAPTURE_POINT: return capturePoint.open;
+            default: return 0;
+        }
+    }
+
+    uint32 GetVignetteId() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_CHEST:         return chest.SpawnVignette;
+            case GAMEOBJECT_TYPE_GOOBER:        return goober.SpawnVignette;
             default: return 0;
         }
     }
@@ -1075,6 +1085,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectModel * m_model;
 
         void EnableOrDisableGo(bool activate, bool alternative = false);
+
+        uint32 GetVignetteId() const { return m_goInfo ? m_goInfo->GetVignetteId() : 0; }
     protected:
         bool AIM_Initialize();
         uint32      m_spellId;
