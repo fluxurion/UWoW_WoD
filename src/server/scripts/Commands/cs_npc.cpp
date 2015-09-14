@@ -716,7 +716,7 @@ public:
 
         uint32 faction = target->getFaction();
         uint32 npcflags = target->GetUInt32Value(UNIT_FIELD_NPC_FLAGS);
-        uint32 npcflags2 = target->GetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1);
+        uint32 npcflags2 = target->GetUInt32Value(UNIT_FIELD_NPC_FLAGS2);
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();
         uint32 Entry = target->GetEntry();

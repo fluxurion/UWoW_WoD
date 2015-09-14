@@ -97,6 +97,8 @@ inline unsigned long long atoull(char const* str) { return strtoull(str, nullptr
 
 enum TimeConstants
 {
+    FIVE_SECONDS    = 5,
+    HALF_MINUTE     = 30,
     MINUTE          = 60,
     HOUR            = MINUTE*60,
     DAY             = HOUR*24,

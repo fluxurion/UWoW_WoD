@@ -3110,7 +3110,7 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask, u
     // appropriate npc type
     if (npcflagmask && !creature->HasFlag(UNIT_FIELD_NPC_FLAGS, npcflagmask))
         return NULL;
-    if (npcflagmask2 && !creature->HasFlag(UNIT_FIELD_NPC_FLAGS + 1, npcflagmask2))
+    if (npcflagmask2 && !creature->HasFlag(UNIT_FIELD_NPC_FLAGS2, npcflagmask2))
         return NULL;
 
     // not allow interaction under control, but allow with own pets

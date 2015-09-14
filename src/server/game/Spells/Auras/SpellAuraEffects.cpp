@@ -7575,6 +7575,16 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
             {
                 switch (auraId)
                 {
+                    // Cannon Barrage, Skulloc
+                    case 168129:
+                    {
+                        float x = frand(6752, 6857);
+                        float y = frand(-1015, -953);
+
+                        caster->CastSpell(x, y, caster->GetPositionZ(), 168384, true);
+                        caster->CastSpell(x, y, caster->GetPositionZ(), 168385, true);
+                        return;
+                    }
                     // Earth's Vengeance, Morchok, Dragon Soul
                     case 103176:
                     {

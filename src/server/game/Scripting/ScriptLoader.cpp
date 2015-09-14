@@ -96,6 +96,12 @@ void AddSC_wp_commandscript();
 //draenor
 void AddSC_wod_dark_portal();
 
+void AddSC_instance_iron_docks();       // Iron Docks
+void AddSC_boss_fleshrender_nokgar();
+void AddSC_boss_grimrail_enforcers();
+void AddSC_boss_oshir();
+void AddSC_boss_skulloc();
+
 //world
 void AddSC_areatrigger_scripts();
 void AddSC_emerald_dragons();
@@ -1051,6 +1057,12 @@ void AddWorldScripts()
 void AddDraenorScripts()
 {
     AddSC_wod_dark_portal();
+
+    AddSC_instance_iron_docks();       // Iron Docks
+    AddSC_boss_fleshrender_nokgar();
+    AddSC_boss_grimrail_enforcers();
+    AddSC_boss_oshir();
+    AddSC_boss_skulloc();
 }
 
 void AddEasternKingdomsScripts()

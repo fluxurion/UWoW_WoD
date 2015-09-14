@@ -2123,6 +2123,10 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     if (uint32 triggered_spell_id = m_spellInfo->GetEffect(effIndex, m_diffMode).TriggerSpell)
         delayCast = new DelayCastEvent(ObjectGuid::Empty, unitTarget->GetGUID(), triggered_spell_id);
 
+    //Fix creature to move back old pos
+    if (m_caster->ToCreature())
+        m_caster->GetMotionMaster()->Clear(false);
+
     float x, y, z;
     unitTarget->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
 
@@ -2149,6 +2153,10 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
         Unit* pTarget = m_targets.GetUnitTarget();
         delayCast = new DelayCastEvent(ObjectGuid::Empty, pTarget ? pTarget->GetGUID() : ObjectGuid::Empty, triggered_spell_id);
     }
+
+    //Fix creature to move back old pos
+    if (m_caster->ToCreature())
+        m_caster->GetMotionMaster()->Clear(false);
 
     // Init dest coordinates
     float x, y, z, o;
