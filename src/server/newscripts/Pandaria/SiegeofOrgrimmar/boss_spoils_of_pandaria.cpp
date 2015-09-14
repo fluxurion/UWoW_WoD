@@ -451,17 +451,17 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const override
+        uint32 GetModifyedData(uint32 type) override
         {
             if (type == DATA_GET_SPIRIT_SUM_COUNT)
             {
                 if (!lastssc)
-                    static_cast<uint8>(newssc) = urand(0, 2);
+                    newssc = urand(0, 2);
                 else if (lastssc >= 2)
-                    static_cast<uint8>(newssc) = 0;
+                    newssc = 0;
                 else
-                    static_cast<uint8>(newssc)++;
-                static_cast<uint8>(lastssc) = newssc;
+                    newssc++;
+                lastssc = newssc;
                 return (uint32(newssc));
             }
             return 0;
@@ -1255,7 +1255,7 @@ public:
                             { 
                                 if (spoil->GetDistance(go) <= 50.0f)
                                 {
-                                    uint8 val = spoil->AI()->GetData(DATA_GET_SPIRIT_SUM_COUNT);
+                                    uint8 val = spoil->AI()->GetModifyedData(DATA_GET_SPIRIT_SUM_COUNT);
                                     spoil->SummonCreature(pandarenrelicentry[val], pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
                                     break;
                                 }
