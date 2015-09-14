@@ -914,8 +914,6 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, 1.0f);
     SetFloatValue(UNIT_FIELD_HOVER_HEIGHT, 1.0f);
 
-    loot.SetGUID(ObjectGuid::Create<HighGuid::LootObject>(map->GetId(), entry, sObjectMgr->GetGenerator<HighGuid::LootObject>()->Generate()));
-
     m_areaUpdateId = GetMap()->GetAreaId(x, y, z);
     m_zoneUpdateId = GetMap()->GetZoneId(x, y, z);
 

@@ -490,6 +490,11 @@ Loot::Loot(uint32 _gold)
     m_guid.Clear();
 }
 
+void Loot::GenerateLootGuid(ObjectGuid objGuid)
+{
+    m_guid = ObjectGuid::Create<HighGuid::LootObject>(objGuid ? objGuid.GetMapId() : 0, 0, sObjectMgr->GetGenerator<HighGuid::LootObject>()->Generate());
+}
+
 // Inserts the item into the loot (called by LootTemplate processors)
 void Loot::AddItem(LootStoreItem const & item)
 {
@@ -2487,9 +2492,9 @@ Loot* LootMgr::GetLoot(ObjectGuid const& guid)
 
 void LootMgr::AddLoot(Loot* loot)
 {
-    //if (!loot->GetGUID())
-    //    loot->GenerateLootGuid();
-    ASSERT(!loot->GetGUID().IsEmpty());
+    if (!loot->GetGUID())
+        loot->GenerateLootGuid(loot->objGuid);
+    //ASSERT(!loot->GetGUID().IsEmpty());
 
     LootsMap::iterator itr = m_Loots.find(loot->GetGUID());
     if (itr == m_Loots.end())
