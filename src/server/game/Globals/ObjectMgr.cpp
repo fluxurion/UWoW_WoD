@@ -9271,7 +9271,7 @@ void ObjectMgr::RestructCreatureGUID()
         worldTrans->PAppend("UPDATE waypoint_data SET id = %u WHERE id = %u;", newGUID, oldGUID);
         worldTrans->PAppend("UPDATE creature_formations SET leaderGUID = %u WHERE leaderGUID = %u;", newGUID, oldGUID);
         worldTrans->PAppend("UPDATE creature_formations SET memberGUID = %u WHERE memberGUID = %u;", newGUID, oldGUID);
-        worldTrans->PAppend("UPDATE creature_transport SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
+        //worldTrans->PAppend("UPDATE creature_transport SET guid = %u WHERE guid = %u;", newGUID, oldGUID); not the same guid it has.
         worldTrans->PAppend("UPDATE game_event_creature SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
         worldTrans->PAppend("UPDATE pool_creature SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
         worldTrans->PAppend("UPDATE smart_scripts SET target_param1 = %u WHERE `target_type` = 10 AND target_param1 = %u;", newGUID, oldGUID);
@@ -9288,7 +9288,7 @@ void ObjectMgr::RestructCreatureGUID()
 
 void ObjectMgr::RestructGameObjectGUID()
 {
-    QueryResult result = WorldDatabase.Query("SELECT guid FROM gameobject ORDER BY guid DESC LIMIT %u;");
+    QueryResult result = WorldDatabase.Query("SELECT guid FROM gameobject ORDER BY guid;");
 
     if (!result)
     {
