@@ -236,7 +236,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
 
     if(pSrcItem->GetEntry() == 38186)
         sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoEquipItemOpcode - item %u; inv = %u playerGUID %u, itemGUID %u srcbag %u srcslot %u",
-        pSrcItem->GetEntry(), autoEquipItem.Inv, _player->GetGUID(), pSrcItem->GetGUID(), autoEquipItem.PackSlot, autoEquipItem.Slot);
+        pSrcItem->GetEntry(), autoEquipItem.Inv.Items.size(), _player->GetGUID(), pSrcItem->GetGUID(), autoEquipItem.PackSlot, autoEquipItem.Slot);
 
     uint16 src = pSrcItem->GetPos();
     if (dest == src)                                           // prevent equip in same slot, only at cheat
