@@ -2521,8 +2521,8 @@ void SpellMgr::LoadSpellVisual()
 
     mSpellVisualMap.clear();    // need for reload case
 
-    //                                                  0        1      2     3       4      5        6
-    QueryResult result = WorldDatabase.Query("SELECT spell_id, visual, unk1, unk2, speed, position, type FROM spell_visual_send");
+    //                                                  0            1            2            3             4            5        6
+    QueryResult result = WorldDatabase.Query("SELECT spellId, SpellVisualID, MissReason, ReflectStatus, TravelSpeed, SpeedAsTime, type FROM spell_visual_send");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 visual spells. DB table `spell_visual_send` is empty.");
@@ -2534,30 +2534,30 @@ void SpellMgr::LoadSpellVisual()
     {
         Field* fields = result->Fetch();
 
-        int32 spell_id = fields[0].GetInt32();
-        int32 visual = fields[1].GetInt32();
-        int32 unk1   = fields[2].GetUInt16();
-        int32 unk2 = fields[3].GetUInt16();
-        float speed = fields[4].GetFloat();
-        bool position = bool(fields[5].GetUInt8());
+        int32 spellId = fields[0].GetInt32();
+        int32 SpellVisualID = fields[1].GetInt32();
+        int32 MissReason   = fields[2].GetUInt16();
+        int32 ReflectStatus = fields[3].GetUInt16();
+        float TravelSpeed = fields[4].GetFloat();
+        bool SpeedAsTime = bool(fields[5].GetUInt8());
         int32 type = fields[6].GetUInt8();
 
-        SpellInfo const* spellInfo = GetSpellInfo(abs(spell_id));
+        SpellInfo const* spellInfo = GetSpellInfo(abs(spellId));
         if (!spellInfo)
         {
-            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_visual_send` does not exist", abs(spell_id));
+            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_visual_send` does not exist", abs(spellId));
             continue;
         }
 
         SpellVisual templink;
-        templink.spell_id = spell_id;
-        templink.visual = visual;
-        templink.unk1   = unk1;
-        templink.unk2 = unk2;
-        templink.speed = speed;
-        templink.position = position;
+        templink.spellId = spellId;
+        templink.SpellVisualID = SpellVisualID;
+        templink.MissReason = MissReason;
+        templink.ReflectStatus = ReflectStatus;
+        templink.TravelSpeed = TravelSpeed;
+        templink.SpeedAsTime = SpeedAsTime;
         templink.type = type;
-        mSpellVisualMap[spell_id].push_back(templink);
+        mSpellVisualMap[spellId].push_back(templink);
 
         ++count;
     } while (result->NextRow());
@@ -2571,8 +2571,8 @@ void SpellMgr::LoadSpellScene()
 
     mSpellSceneMap.clear();    // need for reload case
 
-    //                                                      0            1           2            3          4          5          6    7  8  9  10
-    QueryResult result = WorldDatabase.Query("SELECT ScenePackageId, MiscValue, trigerSpell, MonsterCredit, hasO, PlaybackFlags, bit16, x, y, z, o, ScriptName FROM spell_scene");
+    //                                                        0                1           2            3                4           5
+    QueryResult result = WorldDatabase.Query("SELECT SceneScriptPackageID, MiscValue, trigerSpell, MonsterCredit, PlaybackFlags, ScriptName FROM spell_scene");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 visual spells. DB table `spell_visual_send` is empty.");
@@ -2586,17 +2586,11 @@ void SpellMgr::LoadSpellScene()
         int8 ind = 0;
 
         SpellScene templink;
-        templink.ScenePackageId = fields[ind++].GetInt32();
+        templink.SceneScriptPackageID = fields[ind++].GetInt32();
         templink.MiscValue = fields[ind++].GetInt32();
         templink.trigerSpell = fields[ind++].GetInt32();
         templink.MonsterCredit = fields[ind++].GetInt32();
-        templink.hasO = bool(fields[ind++].GetUInt8());
         templink.PlaybackFlags = fields[ind++].GetInt32();
-        templink.bit16 = bool(fields[ind++].GetUInt8());
-        templink.x = fields[ind++].GetFloat();
-        templink.y = fields[ind++].GetFloat();
-        templink.z = fields[ind++].GetFloat();
-        templink.o = fields[ind++].GetFloat();
         templink.scriptID = sObjectMgr->GetScriptId(fields[ind++].GetString().c_str());
 
         mSpellSceneMap[templink.MiscValue] = templink;

@@ -23945,10 +23945,10 @@ void DelayCastEvent::Execute(Unit *caster)
 void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position const* position, Unit* target, uint32 type, uint32 visualId)
 {
     bool exist = false;
-    uint32 visual = 0;
-    uint16 unk1 = 0;
-    uint16 unk2 = 0;
-    float speed = spellInfo->Speed;
+    uint32 SpellVisualID = 0;
+    uint16 MissReason = 0;
+    uint16 ReflectStatus = 0;
+    float TravelSpeed = spellInfo->Speed;
     float positionX = 0.0f;
     float positionY = 0.0f;
     float positionZ = 0.0f;
@@ -23960,15 +23960,15 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position const* pos
         {
             if(i->type != type)
                 continue;
-            if(i->type == SPELL_VISUAL_TYPE_CUSTOM && i->visual != visualId)
+            if(i->type == SPELL_VISUAL_TYPE_CUSTOM && i->SpellVisualID != visualId)
                 continue;
 
-            visual = i->visual;
-            unk1 = i->unk1;
-            unk2 = i->unk2;
-            if(i->speed)
-                speed = i->speed;
-            positionFind = i->position;
+            SpellVisualID = i->SpellVisualID;
+            MissReason = i->MissReason;
+            ReflectStatus = i->ReflectStatus;
+            if(i->TravelSpeed)
+                TravelSpeed = i->TravelSpeed;
+            positionFind = i->SpeedAsTime;
             exist = true;
             if(!type && roll_chance_f(chance))
                 break;
@@ -23978,7 +23978,7 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position const* pos
     if(!exist)
         return;
 
-    if(speed)
+    if(TravelSpeed)
     {
         if (target && target != this)
         {
@@ -23997,37 +23997,14 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position const* pos
     ObjectGuid casterGuid = GetGUID();
     ObjectGuid targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
     WorldPacket data(SMSG_SPELL_CREATE_VISUAL, 50);
-    //data.WriteGuidMask<3, 0>(targetGuid);
-    //data.WriteGuidMask<2, 0>(casterGuid);
-    //data.WriteGuidMask<4>(targetGuid);
-    //data.WriteGuidMask<4, 3>(casterGuid);
-    //data.WriteGuidMask<7>(targetGuid);
-    //data.WriteGuidMask<6>(casterGuid);
-    //data.WriteGuidMask<5>(targetGuid);
     data.WriteBit(positionFind);            // hasPosition
-    //data.WriteGuidMask<5>(casterGuid);
-    //data.WriteGuidMask<2, 6, 1>(targetGuid);
-    //data.WriteGuidMask<7, 1>(casterGuid);
-
-    //data.WriteGuidBytes<3, 6>(casterGuid);
-    //data.WriteGuidBytes<5>(targetGuid);
-    //data.WriteGuidBytes<2>(casterGuid);
-    //data.WriteGuidBytes<4>(targetGuid);
-    data << uint16(unk1);               // word10
-    //data.WriteGuidBytes<1>(casterGuid);
-    //data.WriteGuidBytes<0>(targetGuid);
-    data << uint32(visual);             //Spell Visual dword14
+    data << uint16(MissReason);               // word10
+    data << uint32(SpellVisualID);             //Spell Visual dword14
     data << float(positionZ);           // z
-    data << float(speed);               // speed
-    //data.WriteGuidBytes<3, 2>(targetGuid);
-    data << uint16(unk2);               // word34
-    //data.WriteGuidBytes<0>(casterGuid);
-    //data.WriteGuidBytes<1, 7>(targetGuid);
+    data << float(TravelSpeed);               // speed
+    data << uint16(ReflectStatus);               // word34
     data << float(positionX);           // x
-    //data.WriteGuidBytes<6>(targetGuid);
-    //data.WriteGuidBytes<7, 4>(casterGuid);
     data << float(positionY);           // y
-    //data.WriteGuidBytes<5>(casterGuid);
     SendMessageToSet(&data, true);
 }
 

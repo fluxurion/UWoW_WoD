@@ -732,12 +732,12 @@ enum SpellVisualType
 
 struct SpellVisual
 {
-    int32 spell_id;
-    int32 visual;
-    int16 unk1;
-    int16 unk2;
-    float speed;
-    bool position;
+    int32 spellId;
+    int32 SpellVisualID;
+    int16 MissReason;
+    int16 ReflectStatus;
+    float TravelSpeed;
+    bool SpeedAsTime;
     int16 type;
 };
 
@@ -787,15 +787,9 @@ struct SpellTargetFilter
 
 struct SpellScene
 {
-    int32 ScenePackageId;
+    int32 SceneScriptPackageID;
     int32 MiscValue;
-    bool hasO;
     int32 PlaybackFlags;
-    bool bit16;
-    float x;
-    float y;
-    float z;
-    float o;
 
     // trigger system
     uint32 trigerSpell;

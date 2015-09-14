@@ -59,10 +59,6 @@ ALTER TABLE `quest_template`
   CHANGE `Float10` `RevardXPMultiplier` FLOAT DEFAULT 1  NOT NULL,
   CHANGE `Float13` `RewardMoneyMultiplier` FLOAT DEFAULT 1  NOT NULL;
 
--- ALTER TABLE `quest_template`   
---   CHANGE `RevardXPMultiplier` `Float10` FLOAT DEFAULT 1  NOT NULL,
---   CHANGE `RewardMoneyMultiplier` `Float13` FLOAT DEFAULT 1  NOT NULL;
-
 ALTER TABLE `scenario_poi`   
   CHANGE `id` `BlobID` INT(10) UNSIGNED DEFAULT 0  NOT NULL,
   CHANGE `mapid` `MapID` INT(10) UNSIGNED DEFAULT 0  NOT NULL,
@@ -84,4 +80,8 @@ ALTER TABLE `spell_visual_send`
 ALTER TABLE `spell_scene`   
   DROP COLUMN `hasO`, 
   DROP COLUMN `bit16`, 
+  DROP COLUMN `x`, 
+  DROP COLUMN `y`, 
+  DROP COLUMN `z`, 
+  DROP COLUMN `o`, 
   CHANGE `ScenePackageId` `SceneScriptPackageID` INT(11) DEFAULT 0  NOT NULL;

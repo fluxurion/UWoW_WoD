@@ -30220,7 +30220,7 @@ void Player::SendSpellScene(uint32 miscValue, SpellInfo const* spellInfo, bool a
         data << uint32(miscValue);                                       // SceneID
         data << uint32(spell_scene->PlaybackFlags);                      // PlaybackFlags
         data << uint32(++sceneInstanceID);                               // SceneInstanceID
-        data << uint32(spell_scene->ScenePackageId);                     // SceneScriptPackageID
+        data << uint32(spell_scene->SceneScriptPackageID);                     // SceneScriptPackageID
         data << TransportGUID;
         data << float(pos->GetPositionX()/*i->x*/);                      // X
         data << float(pos->GetPositionY()/*i->y*/);                      // Y
@@ -30310,7 +30310,7 @@ void Player::TrigerScene(uint32 instanceID, std::string const type)
                 RemoveAurasDueToSpell(spell_scene->trigerSpell);
         }
         else
-            sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), spell_scene->ScenePackageId);
+            sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s SceneScriptPackageID %u", type.c_str(), spell_scene->SceneScriptPackageID);
     }
     else
     {
@@ -30328,7 +30328,7 @@ void Player::TrigerScene(uint32 instanceID, std::string const type)
         }
 
         if (!prock)
-            sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s ScenePackageId %u", type.c_str(), spell_scene->ScenePackageId);
+            sLog->outDebug(LOG_FILTER_PLAYER, " >> TrigerScene unhandle type: %s SceneScriptPackageID %u", type.c_str(), spell_scene->SceneScriptPackageID);
     }
 
 }
