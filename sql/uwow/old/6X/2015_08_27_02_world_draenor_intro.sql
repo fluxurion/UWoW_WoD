@@ -2,6 +2,8 @@
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
+REPLACE INTO `world_visible_distance` (`type`, `id`, `distance`, `comment`) VALUES ('0', '1265', '500', 'Dark Portal');
+
 -- Permanent Feign Death
 DELETE FROM creature_template_addon WHERE entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
 UPDATE creature_template SET `unit_flags` = `unit_flags` & ~(256 | 512 | 262144 | 536870912), unit_flags2 = unit_flags2 &~1 where entry in (SELECT id FROM `creature` WHERE guid in (SELECT guid FROM `creature_addon` WHERE `auras` LIKE '%29266%'));
