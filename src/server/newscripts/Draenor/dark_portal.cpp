@@ -266,7 +266,7 @@ public:
 
         void Reset()
         {
-            if (me->getVictim())
+            if (me->getVictim() || me->IsInEvadeMode())
                 return;
 
             std::list<Unit*> list;
@@ -771,7 +771,7 @@ public:
 
         void Reset()
         {
-            if (me->getVictim())
+            if (me->getVictim() || me->IsInEvadeMode())
                 return;
 
             std::list<Unit*> list;
