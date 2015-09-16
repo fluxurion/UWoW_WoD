@@ -213,9 +213,6 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
         bool nosendEffect = false;
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (!(_effectsToApply & (1 << i)))
-                continue;
-
             if (aura->GetSpellInfo()->Effects[i].IsEffect())
             {
                 if (AuraEffect const* effect = aura->GetEffect(i))
@@ -239,18 +236,21 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
                 }
             }
         }
-        auraData.EstimatedPoints.reserve(MAX_SPELL_EFFECTS);
-        if(sendEffect && !nosendEffect)
-            auraData.Points.reserve(MAX_SPELL_EFFECTS);
+
         uint32 count = 0;
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (!(_effectsToApply & (1 << i)))
-                continue;
-
             if (aura->GetSpellInfo()->Effects[i].IsEffect())
             {
                 ++count;
+                if (!(_effectsToApply & (1 << i)))
+                {
+                    if(sendEffect && !nosendEffect)
+                        auraData.Points.push_back(0.0f);
+                    auraData.EstimatedPoints.push_back(0.0f);
+                    continue;
+                }
+
                 if (AuraEffect const* effect = aura->GetEffect(i))
                 {
                     if(sendEffect && !nosendEffect)
@@ -269,9 +269,6 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
                 }
             }
         }
-        auraData.EstimatedPoints.resize(count);
-        if(sendEffect && !nosendEffect)
-            auraData.Points.reserve(count);
     }
 
     auraInfo.AuraData.Set(auraData);
