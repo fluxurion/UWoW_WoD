@@ -49,12 +49,17 @@ public:
 
     struct boss_oshirAI : public BossAI
     {
-        boss_oshirAI(Creature* creature) : BossAI(creature, DATA_OSHIR), summons(me) {}
+        boss_oshirAI(Creature* creature) : BossAI(creature, DATA_OSHIR), summons(me) 
+        {
+            into = true;
+        }
 
         SummonList summons;
         uint8 rand;
         uint32 DamageCount;
         uint32 HealthPct;
+
+        bool into;
 
         void Reset()
         {
@@ -85,6 +90,18 @@ public:
         {
             _JustDied();
             summons.DespawnAll();
+        }
+
+        void DoAction(const int32 action)
+        {
+            if (action == 1 && into)
+            {
+                into = false;
+                if (GameObject* cage = me->FindNearestGameObject(239227, 5.0f))
+                    cage->SetGoState(GO_STATE_ACTIVE);
+                me->SetHomePosition(6956.0f, -1101.0f, 4.7f, 4.0f);
+                me->GetMotionMaster()->MoveTargetedHome();
+            }
         }
 
         void MovementInform(uint32 type, uint32 id)
@@ -212,7 +229,24 @@ public:
     }
 };
 
+class at_oshir_intro : public AreaTriggerScript
+{
+public:
+    at_oshir_intro() : AreaTriggerScript("at_oshir_intro") { }
+
+    bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/, bool /*enter*/)
+    {
+        if (InstanceScript* instance = pPlayer->GetInstanceScript())
+        {
+            if (Creature* oshir = instance->instance->GetCreature(instance->GetGuidData(NPC_OSHIR)))
+                oshir->AI()->DoAction(1);
+        }
+        return true;
+    }
+};
+
 void AddSC_boss_oshir()
 {
     new boss_oshir();
+    new at_oshir_intro();
 }

@@ -7,12 +7,6 @@
 #include "ScriptedCreature.h"
 #include "iron_docks.h"
 
-DoorData const doorData[] =
-{
-    //{GO_,       DATA_,         DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
-    {0,                   0,                  DOOR_TYPE_ROOM,       BOUNDARY_NONE}, // END
-};
-
 class instance_iron_docks : public InstanceMapScript
 {
 public:
@@ -32,14 +26,15 @@ public:
         std::map<uint32, ObjectGuid> goCage;
         std::map<uint32, std::list<ObjectGuid> > goCageMobs;
         ObjectGuid enforcerGUID[3];
+        ObjectGuid oshirGUID;
         uint8 enforCount;
 
         void Initialize()
         {
             SetBossNumber(MAX_ENCOUNTER);
-            LoadDoorData(doorData);
-            
+
             enforCount = 0;
+            oshirGUID.Clear();
 
             for (uint8 i = 0; i < 3; ++i)
                 enforcerGUID[i].Clear();
@@ -64,6 +59,9 @@ public:
                 case NPC_RAVENOUS_WOLF:
                     oshirGUIDconteiner.push_back(creature->GetGUID());
                     break;
+                case NPC_OSHIR:
+                    oshirGUID = creature->GetGUID();
+                    break;
                 case NPC_SKULLOC:
                 case NPC_KORAMAR:
                 case NPC_BLACKHAND_TURRET:
@@ -78,13 +76,6 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            /* switch (go->GetEntry())
-            {
-                case GO_:
-                    break;
-                default:
-                    break;
-            } */
             for (uint8 i = 0; i < 19; ++i)
                 if(go->GetDistance(cageSpawn[i]) < 1.0f)
                     goCage[i] = go->GetGUID();
@@ -202,8 +193,10 @@ public:
                     return enforcerGUID[1];
                 case NPC_AHRIOK_DUGRU:
                     return enforcerGUID[2];
+                case NPC_OSHIR:
+                    return oshirGUID;
             }
-            
+
             std::map<uint32, ObjectGuid>::const_iterator itr = skullocGUIDconteiner.find(type);
             if (itr != skullocGUIDconteiner.end())
                 return itr->second;

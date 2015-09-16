@@ -16,8 +16,6 @@ enum eData
 
     DATA_G_ENFOR_DIED,
     DATA_OSHIR_CAGE,
-    DATA_SKULLOC_EVADE,
-    DATA_SKULLOC_DIED,
 };
 
 enum eCreatures
@@ -31,6 +29,7 @@ enum eCreatures
     NPC_AHRIOK_DUGRU          = 80816,
     NPC_BOMBSQUAD             = 80875,
     //Oshir
+    NPC_OSHIR                 = 79852,
     NPC_RYLAK_CAGE            = 89021,
     NPC_WOLF_CAGE             = 89022,
     NPC_RYLAK_SKYTERROR       = 89011,

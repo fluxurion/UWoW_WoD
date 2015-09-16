@@ -37,6 +37,7 @@ enum Spells
     SPELL_BLOODLETTING_HOWL     = 164835,
     SPELL_SHREDDING_SWIPES      = 164730,
     SPELL_SHREDDING_SWIPES_AT   = 164733,
+    SPELL_SHREDDING_SWIP_REMOVE = 164735,
 };
 
 enum eEvents
@@ -49,9 +50,8 @@ enum eEvents
 
     //Dreadfang
     EVENT_SAVAGE_MAULING            = 1,
-    EVENT_SHREDDING_SWIPES_START    = 2,
-    EVENT_SHREDDING_SWIPES_END      = 3,
-    EVENT_BLOODLETTING_HOWL         = 4,
+    EVENT_SHREDDING_SWIPES          = 2,
+    EVENT_BLOODLETTING_HOWL         = 3,
 };
 
 class boss_fleshrender_nokgar : public CreatureScript
@@ -220,7 +220,7 @@ public:
                 nokgar->ToCreature()->AI()->DoZoneInCombat();
 
             events.ScheduleEvent(EVENT_SAVAGE_MAULING, 28000);
-            events.ScheduleEvent(EVENT_SHREDDING_SWIPES_START, 36000);
+            events.ScheduleEvent(EVENT_SHREDDING_SWIPES, 36000);
             events.ScheduleEvent(EVENT_BLOODLETTING_HOWL, 44000);
         }
 
@@ -244,9 +244,25 @@ public:
             }
         }
 
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type == POINT_MOTION_TYPE)
+            {
+                if (id == 1)
+                {
+                    summons.DespawnEntry(NPC_SHREDDING_SWIPES);
+                    DoCast(SPELL_SHREDDING_SWIP_REMOVE);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                }
+            }
+        }
+
         void JustSummoned(Creature* summon)
         {
             summons.Summon(summon);
+
+            if (summon->GetEntry() == NPC_SHREDDING_SWIPES)
+                me->GetMotionMaster()->MovePoint(1, summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ());
         }
 
         void IsSummonedBy(Unit* summoner)
@@ -286,16 +302,12 @@ public:
                         }
                         events.ScheduleEvent(EVENT_SAVAGE_MAULING, 10000);
                         break;
-                    case EVENT_SHREDDING_SWIPES_START:
+                    case EVENT_SHREDDING_SWIPES:
                         DoStopAttack();
+                        DoCast(SPELL_SHREDDING_SWIPES_AT);
                         DoCast(SPELL_SHREDDING_SWIPES);
-                        me->GetMotionMaster()->Clear(false);
-                        events.ScheduleEvent(EVENT_SHREDDING_SWIPES_START, 36000);
-                        events.ScheduleEvent(EVENT_SHREDDING_SWIPES_END, 3000);
+                        events.ScheduleEvent(EVENT_SHREDDING_SWIPES, 36000);
                         break;
-                    case EVENT_SHREDDING_SWIPES_END:
-                        summons.DespawnEntry(NPC_SHREDDING_SWIPES);
-                        me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     case EVENT_BLOODLETTING_HOWL:
                         DoCast(SPELL_BLOODLETTING_HOWL);
