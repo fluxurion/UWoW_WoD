@@ -824,7 +824,7 @@ uint32 AreaTrigger::GetObjectMovementParts() const
 
 void AreaTrigger::PutObjectUpdateMovement(ByteBuffer* data) const
 {
-    *data << uint32(0);                             //TimeToTarget
+    *data << uint32(m_movePath.empty() ? 0 : GetDuration());                             //TimeToTarget
     *data << uint32(0);                             //ElapsedTimeForMovement
     *data << uint32(GetObjectMovementParts());      //VerticesCount
 
