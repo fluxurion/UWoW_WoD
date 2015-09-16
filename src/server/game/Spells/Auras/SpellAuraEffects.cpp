@@ -921,11 +921,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                 default:
                     break;
             }
-            if(m_aura_amount && !m_baseAmount)
-            {
-                amount = m_aura_amount;
-                return amount;
-            }
             break;
         }
         case SPELL_AURA_PERIODIC_DUMMY:
@@ -940,11 +935,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                 }
                 default:
                     break;
-            }
-            if(m_aura_amount)
-            {
-                amount = m_aura_amount;
-                return amount;
             }
             break;
         }
