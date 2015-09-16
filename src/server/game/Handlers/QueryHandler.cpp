@@ -121,7 +121,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
             if (stats.Name[0].empty())
                 stats.Name[0] = creatureInfo->Name;
             if (stats.NameAlt[0].empty())
-                stats.NameAlt[0] = creatureInfo->SubName;
+                stats.NameAlt[0] = creatureInfo->Name;
         }
     }
     else

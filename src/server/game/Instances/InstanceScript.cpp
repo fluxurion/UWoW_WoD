@@ -515,21 +515,38 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
 
 void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8 param1 /*= 0*/, uint8 param2 /*= 0*/)
 {
-    // size of this packet is at most 15 (usually less)
-    WorldPacket data(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 15);
-    data << uint32(type);
-
     switch (type)
     {
         case ENCOUNTER_FRAME_ENGAGE:
-        case ENCOUNTER_FRAME_DISENGAGE:
-        case ENCOUNTER_FRAME_UPDATE_PRIORITY:
+        {
             if (!unit)
                 return;
+            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT);
             data << unit->GetPackGUID();
             data << uint8(param1);
+            instance->SendToPlayers(&data);
             break;
-        case ENCOUNTER_FRAME_ADD_TIMER:
+        }
+        case ENCOUNTER_FRAME_DISENGAGE:
+        {
+            if (!unit)
+                return;
+            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT);
+            data << unit->GetPackGUID();
+            instance->SendToPlayers(&data);
+            break;
+        }
+        case ENCOUNTER_FRAME_UPDATE_PRIORITY:
+        {
+            if (!unit)
+                return;
+            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY);
+            data << unit->GetPackGUID();
+            data << uint8(param1);
+            instance->SendToPlayers(&data);
+            break;
+        }
+        /*case ENCOUNTER_FRAME_ADD_TIMER:
         case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:
         case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:
         case ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT:
@@ -539,14 +556,28 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
             data << uint8(param1);
             data << uint8(param2);
             break;
-        case ENCOUNTER_FRAME_UNK7:
+        case ENCOUNTER_FRAME_UNK7:*/
         case ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT:
-        case ENCOUNTER_FRAME_RESET_COMBAT_RES_LIMIT:
+        {
+            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_START);
+            data << uint8(param1);
+            data << uint8(param1);
+            data << uint8(param1);
+            data << uint8(param1);
+            instance->SendToPlayers(&data);
+            break;
+        }
+        case ENCOUNTER_FRAME_UPDATE_COMBAT_RES_LIMIT:
+        {
+            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE);
+            data << uint8(param1);
+            data << uint8(param1);
+            instance->SendToPlayers(&data);
+            break;
+        }
         default:
             break;
     }
-
-    instance->SendToPlayers(&data);
 }
 
 bool InstanceScript::IsWipe() const

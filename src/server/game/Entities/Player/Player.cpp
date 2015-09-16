@@ -28462,8 +28462,8 @@ void Player::SendClearCooldown(uint32 spell_id, Unit* target)
     WorldPacket data(SMSG_CLEAR_COOLDOWN);
     //data << target->GetGUID();
     data << spell_id;
-    data.WriteBit(0/*notPet*/);
-    data.WriteBit(1/*self*/);
+    data.WriteBit(target == this/*self*/);
+    data.WriteBit(target->isPet()/*notPet*/);
     SendDirectMessage(&data);
 }
 
