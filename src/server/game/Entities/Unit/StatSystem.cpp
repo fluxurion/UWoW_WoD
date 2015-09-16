@@ -585,6 +585,9 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
     value += (int32(GetMaxSkillValueForLevel()) - int32(GetMaxSkillValueForLevel())) * 0.04f;
     value = value < 0.0f ? 0.0f : value;
     SetStatFloatValue(index, value);
+
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Player::UpdateCritPercentage  modGroup %i index %i cr %i value %f GetMeleeCritFromAgility %f GetRatingBonusValue %f GetTotalAuraModifier %f",
+    modGroup, index, cr, value, GetMeleeCritFromAgility(), GetRatingBonusValue(cr), GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT, true));
 }
 
 void Player::UpdateAllCritPercentages()

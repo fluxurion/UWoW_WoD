@@ -6749,12 +6749,27 @@ float Player::GetMeleeCritFromAgility()
     if (critBase == NULL || critRatio == NULL)
         return 0.0f;
 
-    float crit = ((GetStat(STAT_AGILITY) - 1) / (critRatio->ratio * 100) + critBase->base);
+    float crit = critBase->base + GetStat(STAT_AGILITY)*critRatio->ratio;
     return crit*100.0f;
 }
 
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
 {
+    // Table for base dodge values
+    const float dodge_base[MAX_CLASSES] =
+    {
+         0.037580f, // Warrior
+         0.036520f, // Paladin
+        -0.054500f, // Hunter
+        -0.005900f, // Rogue
+         0.031830f, // Priest
+         0.036640f, // DK
+         0.016750f, // Shaman
+         0.034575f, // Mage
+         0.020350f, // Warlock
+         0.0f,      // ??
+         0.049510f  // Druid
+    };
     // Crit/agility to dodge/agility coefficient multipliers; 3.2.0 increased required agility by 15%
     const float crit_to_dodge[MAX_CLASSES] =
     {
@@ -6788,8 +6803,8 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
     float bonus_agility = GetTotalStatValue(STAT_AGILITY) - base_agility;
 
     // calculate diminishing (green in char screen) and non-diminishing (white) contribution
-    diminishing = 100.0f * (bonus_agility / (100.0f * dodgeRatio->ratio) * crit_to_dodge[pclass-1]);
-    nondiminishing = (((base_agility - 1) / (dodgeRatio->ratio * 100)) * crit_to_dodge[pclass-1] + critBase->ratio) * 100.0f;
+    diminishing = 100.0f * bonus_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1];
+    nondiminishing = 100.0f * (dodge_base[pclass-1] + base_agility * dodgeRatio->ratio * crit_to_dodge[pclass-1]);
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
@@ -6838,7 +6853,7 @@ void Player::UpdateRating(CombatRating cr)
     for (AuraEffectList::const_iterator i = modIncreaseHasteFromItemsByPct.begin(); i != modIncreaseHasteFromItemsByPct.end(); ++i)
         if ((*i)->GetMiscValue() & (1<<cr))
             AddPct(amount, (*i)->GetAmount());
-    
+
     amount += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_RATING, (1 << cr));
 
     if (amount < 0)
