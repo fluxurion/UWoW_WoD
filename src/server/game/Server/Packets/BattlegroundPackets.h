@@ -70,7 +70,7 @@ namespace WorldPackets
         class RatedInfo final : public ServerPacket
         {
         public:
-            RatedInfo() : ServerPacket(SMSG_BATTLEFIELD_RATED_INFO, 32 * BRACKET_TYPE_MAX) { }
+            RatedInfo() : ServerPacket(SMSG_RATED_BATTLEFIELD_INFO, 32 * BRACKET_TYPE_MAX) { }
 
             WorldPacket const* Write() override;
 

@@ -671,19 +671,14 @@ void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-//! 6.0.3
 void WorldSession::HandleRequestPvpReward(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_REWARDS");
-
     _player->SendPvpRewards();
 }
 
-//! This is const data used for calc some field for SMSG_BATTLEFIELD_RATED_INFO 
-//! 6.0.3
+//! This is const data used for calc some field for SMSG_RATED_BATTLEFIELD_INFO 
 void WorldSession::HandlePersonalRatedInfoRequest(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS");
     WorldPacket data(SMSG_CONQUEST_FORMULA_CONSTANTS, 20);
     data << uint32(1500);
     data << uint32(3000);

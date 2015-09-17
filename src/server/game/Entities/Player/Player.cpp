@@ -92,6 +92,7 @@
 #include "MovementPackets.h"
 #include "TalentPackets.h"
 #include "LootPackets.h"
+#include "BattlegroundPackets.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -29651,26 +29652,24 @@ Bracket* Player::getBracket(BracketType slot) const
     return itr->second;
 }
 
-//! 6.0.3
 void Player::SendPvpRatedStats()
 {
-    WorldPacket data(SMSG_BATTLEFIELD_RATED_INFO, 128);
+    WorldPackets::Battleground::RatedInfo ratedInfo;
     for (BracketType i = BRACKET_TYPE_ARENA_2; i < BRACKET_TYPE_MAX; ++i)
     {
         Bracket* bracket = getBracket(i);
         ASSERT(bracket);
 
-        data << uint32(bracket->getRating());
-        data << uint32(0);                                                       // not used Ranking
-        data << uint32(bracket->GetBracketInfo(BRACKET_SEASON_GAMES));           // games season
-        data << uint32(bracket->GetBracketInfo(BRACKET_WEEK_WIN));               // wins_week   
-        data << uint32(bracket->GetBracketInfo(BRACKET_WEEK_GAMES));             // games week
-        data << uint32(bracket->GetBracketInfo(BRACKET_WEEK_BEST));              // weeklyBest
-        data << uint32(bracket->GetBracketInfo(BRACKET_SEASON_WIN));             // Season Win
-        data << uint32(bracket->GetBracketInfo(BRACKET_BEST));                   // seasonBest
+        ratedInfo.Info[i].PersonalRating = bracket->getRating();
+        //ratedInfo.Info[i].Ranking =
+        ratedInfo.Info[i].SeasonPlayed = bracket->GetBracketInfo(BRACKET_SEASON_GAMES);
+        ratedInfo.Info[i].SeasonWon = bracket->GetBracketInfo(BRACKET_SEASON_WIN);
+        ratedInfo.Info[i].WeeklyPlayed = bracket->GetBracketInfo(BRACKET_WEEK_GAMES);
+        ratedInfo.Info[i].WeeklyWon = bracket->GetBracketInfo(BRACKET_WEEK_WIN);
+        ratedInfo.Info[i].BestWeeklyRating = bracket->GetBracketInfo(BRACKET_WEEK_BEST);
+        ratedInfo.Info[i].BestSeasonRating = bracket->GetBracketInfo(BRACKET_BEST);
     }
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(ratedInfo.Write());
 }
 
 void Player::LoadPetSlot(std::string const &data)
