@@ -266,16 +266,6 @@ void WorldSession::HandleCalendarGuildFilter(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Calendar: CMSG_CALENDAR_GUILD_FILTER - unk1: %d unk2: %d unk3: %d", unk1, unk2, unk3);
 }
 
-void WorldSession::HandleCalendarArenaTeam(WorldPacket& recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_ARENA_TEAM [" UI64FMTD "]", _player->GetGUID());
-
-    int32 unk1;
-    recvData >> unk1;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Calendar: CMSG_CALENDAR_ARENA_TEAM - unk1: %d", unk1);
-}
-
 //! 5.4.1
 void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
 {
@@ -572,11 +562,6 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket& recvData)
 
     recvData >> invitee;
     recvData >> inviteId >> owninviteId >> eventId;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_EVENT_REMOVE_INVITE ["
-        UI64FMTD "] EventId [" UI64FMTD "], OwnInviteId ["
-        UI64FMTD "], Invitee ([" UI64FMTD "] id: [" UI64FMTD "])",
-        guid.GetCounter(), eventId, owninviteId, invitee.GetCounter(), inviteId);
 
     CalendarAction action;
     action.SetAction(CALENDAR_ACTION_REMOVE_EVENT_INVITE);

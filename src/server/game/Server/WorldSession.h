@@ -32,6 +32,7 @@
 #include "Cryptography/BigNumber.h"
 #include "Opcodes.h"
 #include "EventProcessor.h"
+#include "Packet.h"
 
 class CalendarEvent;
 class CalendarInvite;
@@ -298,6 +299,14 @@ namespace WorldPackets
         class WhoIsRequest;
         class WhoRequestPkt;
     }
+
+    class Null final : public ClientPacket
+    {
+    public:
+        Null(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+        void Read() override { _worldPacket.rfinish(); }
+    };
 }
 
 enum AccountDataType
@@ -643,10 +652,9 @@ class WorldSession
 
     public:                                                 // opcodes handlers
 
+        void Handle_NULL(WorldPackets::Null& null);
         void Handle_NULL(WorldPacket& recvPacket);          // not used
         void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
-        void Handle_ServerSide(WorldPacket& recvPacket);    // sever side only, can't be accepted from client
-        void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
         void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
         void HandleCharDeleteOpcode(WorldPackets::Character::DeleteChar& charDelete);
@@ -726,7 +734,6 @@ class WorldSession
 
         void HandleTogglePvP(WorldPacket& recvPacket);
 
-        void HandleZoneUpdateOpcode(WorldPacket& recvPacket);
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
         void HandleEmoteOpcode(WorldPacket& recvPacket);
@@ -1166,7 +1173,6 @@ class WorldSession
         void HandleCalendarGetCalendar(WorldPacket& recvData);
         void HandleCalendarGetEvent(WorldPacket& recvData);
         void HandleCalendarGuildFilter(WorldPacket& recvData);
-        void HandleCalendarArenaTeam(WorldPacket& recvData);
         void HandleCalendarAddEvent(WorldPacket& recvData);
         void HandleCalendarUpdateEvent(WorldPacket& recvData);
         void HandleCalendarRemoveEvent(WorldPacket& recvData);

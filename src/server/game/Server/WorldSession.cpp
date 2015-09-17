@@ -738,9 +738,15 @@ void WorldSession::SendNotification(uint32 string_id, ...)
     }
 }
 
-const char *WorldSession::GetTrinityString(int32 entry) const
+const char* WorldSession::GetTrinityString(int32 entry) const
 {
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
+}
+
+void WorldSession::Handle_NULL(WorldPackets::Null& null)
+{
+    sLog->outError(LOG_FILTER_OPCODES, "Received unhandled opcode %s from %s",
+        GetOpcodeNameForLogging(null.GetOpcode()).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_NULL(WorldPacket& recvPacket)
@@ -752,18 +758,6 @@ void WorldSession::Handle_NULL(WorldPacket& recvPacket)
 void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 {
     sLog->outError(LOG_FILTER_OPCODES, "Received opcode %s that must be processed in WorldSocket::OnRead from %s",
-        GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerName(false).c_str());
-}
-
-void WorldSession::Handle_ServerSide(WorldPacket& recvPacket)
-{
-    sLog->outError(LOG_FILTER_OPCODES, "Received server-side opcode %s from %s",
-        GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerName(false).c_str());
-}
-
-void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
-{
-    sLog->outError(LOG_FILTER_OPCODES, "Received deprecated opcode %s from %s",
         GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerName(false).c_str());
 }
 
