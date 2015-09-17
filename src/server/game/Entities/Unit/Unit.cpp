@@ -16327,7 +16327,7 @@ float Unit::GetSpellCritFromIntellect()
     if (critBase == NULL || critRatio == NULL)
         return 0.0f;
 
-    float crit = ((GetStat(STAT_INTELLECT) - 1) / (critRatio->ratio * 100) + critBase->base);
+    float crit = critBase->base + GetStat(STAT_INTELLECT) * critRatio->ratio;
     return crit * 100.0f;
 }
 

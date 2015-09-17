@@ -209,38 +209,66 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
 
     if (auraData.Flags & AFLAG_SCALABLE)
     {
-        auraData.Points.reserve(MAX_SPELL_EFFECTS);
-        uint32 size = 0;
+        bool sendEffect = false;
+        bool nosendEffect = false;
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (!(_effectsToApply & (1 << i)))
-                continue;
-
             if (aura->GetSpellInfo()->Effects[i].IsEffect())
             {
                 if (AuraEffect const* effect = aura->GetEffect(i))
                 {
                     switch (effect->GetAuraType())
                     {
-                    case SPELL_AURA_SCHOOL_ABSORB:
-                    case SPELL_AURA_SCHOOL_HEAL_ABSORB:
-                    case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
-                    case SPELL_AURA_ADD_FLAT_MODIFIER:
-                    case SPELL_AURA_ADD_PCT_MODIFIER:
-                        continue;
-                    default:
-                        //if (effect->GetAmount() != effect->GetBaseSendAmount())
-                    {
-                        auraData.Points.push_back(float(effect->GetAmount()));
-                        ++size;
+                        case SPELL_AURA_SCHOOL_ABSORB:
+                        case SPELL_AURA_SCHOOL_HEAL_ABSORB:
+                        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
+                        case SPELL_AURA_ADD_FLAT_MODIFIER:
+                        case SPELL_AURA_ADD_PCT_MODIFIER:
+                            nosendEffect = true;
+                            break;
+                        default:
+                        {
+                            if (effect->GetAmount() != effect->GetBaseSendAmount())
+                                sendEffect = true;
+                        }
+                        break;
                     }
-                    break;
-                    }
-
                 }
             }
         }
-        auraData.Points.resize(size);
+
+        uint32 count = 0;
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (aura->GetSpellInfo()->Effects[i].IsEffect())
+            {
+                ++count;
+                if (!(_effectsToApply & (1 << i)))
+                {
+                    if(sendEffect && !nosendEffect)
+                        auraData.Points.push_back(0.0f);
+                    auraData.EstimatedPoints.push_back(0.0f);
+                    continue;
+                }
+
+                if (AuraEffect const* effect = aura->GetEffect(i))
+                {
+                    if(sendEffect && !nosendEffect)
+                    {
+                        auraData.EstimatedPoints.push_back(float(effect->GetBaseSendAmount()));
+                        auraData.Points.push_back(float(effect->GetAmount()));
+                    }
+                    else
+                        auraData.EstimatedPoints.push_back(float(effect->GetAmount()));
+                }
+                else
+                {
+                    if(sendEffect && !nosendEffect)
+                        auraData.Points.push_back(0.0f);
+                    auraData.EstimatedPoints.push_back(0.0f);
+                }
+            }
+        }
     }
 
     auraInfo.AuraData.Set(auraData);
