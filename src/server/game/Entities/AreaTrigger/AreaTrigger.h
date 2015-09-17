@@ -116,7 +116,8 @@ struct AreaTriggerInfo
         Height(0.0f), RadiusTarget(0.0f), Float5(0.0f), Float4(0.0f), Radius(0.0f), HeightTarget(0.0f),
         MoveCurveID(0), ElapsedTime(0), windX(0.0f), windY(0.0f), windZ(0.0f), windSpeed(0.0f), windType(0),
         MorphCurveID(0), FacingCurveID(0), ScaleCurveID(0), HasFollowsTerrain(0), HasAttached(0), HasAbsoluteOrientation(0),
-        HasDynamicShape(0), HasFaceMovementDir(0)        {}
+        HasDynamicShape(0), HasFaceMovementDir(0), hasAreaTriggerBox(0), RollPitchYaw1X(0.0f), RollPitchYaw1Y(0.0f), RollPitchYaw1Z(0.0f),
+        TargetRollPitchYawX(0.0f), TargetRollPitchYawY(0.0f), TargetRollPitchYawZ(0.0f)        {}
 
     bool isMoving;
     uint32 spellId;
@@ -146,11 +147,18 @@ struct AreaTriggerInfo
     uint32 HasAbsoluteOrientation;
     uint32 HasDynamicShape;
     uint32 HasFaceMovementDir;
+    uint32 hasAreaTriggerBox;
     uint32 windType;
     float windX;
     float windY;
     float windZ;
     float windSpeed;
+    float RollPitchYaw1X;
+    float RollPitchYaw1Y;
+    float RollPitchYaw1Z;
+    float TargetRollPitchYawX;
+    float TargetRollPitchYawY;
+    float TargetRollPitchYawZ;
     uint32 polygon;
     PolygonPOIMap polygonPoints;
 };
@@ -207,6 +215,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         bool CheckActionConditions(AreaTriggerAction const& action, Unit* unit);
         void UpdateActionCharges(uint32 p_time);
         bool GetAreaTriggerCylinder() const { return _areaTriggerCylinder; }
+        bool HasTargetRollPitchYaw() const { return atInfo.TargetRollPitchYawX != 0.0f || atInfo.TargetRollPitchYawY != 0.0f; }
         bool isPolygon() const { return atInfo.polygon && !atInfo.polygonPoints.empty(); }
         AreaTriggerInfo GetAreaTriggerInfo() const { return atInfo; }
 

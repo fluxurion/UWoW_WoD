@@ -520,26 +520,26 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         else
             *data << uint32(1);                                         // Elapsed Time Ms
 
-        *data << float(0.0f) << float(0.0f) << float(0.0f);             //RollPitchYaw1
+        *data << t->GetAreaTriggerInfo().RollPitchYaw1X << t->GetAreaTriggerInfo().RollPitchYaw1Y << t->GetAreaTriggerInfo().RollPitchYaw1Z;             //RollPitchYaw1
 
         data->WriteBit(t->GetAreaTriggerInfo().HasAbsoluteOrientation); // HasAbsoluteOrientation
         data->WriteBit(t->GetAreaTriggerInfo().HasDynamicShape);        // HasDynamicShape
         data->WriteBit(t->GetAreaTriggerInfo().HasAttached);            // HasAttached
         data->WriteBit(t->GetAreaTriggerInfo().HasFaceMovementDir);     // HasFaceMovementDir
         data->WriteBit(t->GetAreaTriggerInfo().HasFollowsTerrain);      // HasFollowsTerrain
-        data->WriteBit(0);                                              // HasTargetRollPitchYaw
+        data->WriteBit(t->HasTargetRollPitchYaw());                     // HasTargetRollPitchYaw
         data->WriteBit(t->GetAreaTriggerInfo().ScaleCurveID);           // HasScaleCurveID
         data->WriteBit(t->GetAreaTriggerInfo().MorphCurveID);           // HasMorphCurveID
         data->WriteBit(t->GetAreaTriggerInfo().FacingCurveID);          // HasFacingCurveID
         data->WriteBit(t->GetAreaTriggerInfo().MoveCurveID);            // hasMoveCurveID
         data->WriteBit(t->GetVisualScale());                            // HasAreaTriggerSphere
-        data->WriteBit(0);                                              // HasAreaTriggerBox
+        data->WriteBit(t->GetAreaTriggerInfo().hasAreaTriggerBox);      // HasAreaTriggerBox
         data->WriteBit(t->isPolygon());                                 // areaTriggerPolygon
         data->WriteBit(t->GetAreaTriggerCylinder());                    // areaTriggerCylinder
         data->WriteBit(t->isMoving());                                  // areaTriggerSpline
 
-        //if (HasTargetRollPitchYaw)
-        //    packet.ReadVector3("TargetRollPitchYaw", index);
+        if (t->HasTargetRollPitchYaw())
+            *data << t->GetAreaTriggerInfo().TargetRollPitchYawX << t->GetAreaTriggerInfo().TargetRollPitchYawY << t->GetAreaTriggerInfo().TargetRollPitchYawZ;             //RollPitchYaw1
 
         if (t->GetAreaTriggerInfo().ScaleCurveID)
             *data << uint32(t->GetAreaTriggerInfo().ScaleCurveID);
@@ -559,11 +559,15 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             *data << t->GetVisualScale();                               // RadiusTarget
         }
 
-        //if (HasAreaTriggerBox)
-        //{
-        //    packet.ReadVector3("Extents", index);
-        //    packet.ReadVector3("ExtentsTarget", index);
-        //}
+        if (t->GetAreaTriggerInfo().hasAreaTriggerBox)
+        {
+            *data << t->GetAreaTriggerInfo().Radius;                    // Radius
+            *data << t->GetAreaTriggerInfo().Height;                    // Height
+            *data << t->GetAreaTriggerInfo().Float4;                    // Float4
+            *data << t->GetAreaTriggerInfo().RadiusTarget;              // RadiusTarget
+            *data << t->GetAreaTriggerInfo().HeightTarget;              // HeightTarget
+            *data << t->GetAreaTriggerInfo().Float5;                    // Float5
+        }
 
         if (t->isPolygon())
         {
@@ -591,12 +595,12 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
         if (t->GetAreaTriggerCylinder())                                // areaTriggerCylinder
         {
-            *data << t->GetAreaTriggerInfo().Radius;                    // Radius (float240)
-            *data << t->GetAreaTriggerInfo().RadiusTarget;              // RadiusTarget (float244)
-            *data << t->GetAreaTriggerInfo().Height;                    // Height (float248)
-            *data << t->GetAreaTriggerInfo().HeightTarget;              // HeightTarget (float24C)
-            *data << t->GetAreaTriggerInfo().Float4;                    // Float4 (float250)
-            *data << t->GetAreaTriggerInfo().Float5;                    // Float5 (float254)
+            *data << t->GetAreaTriggerInfo().Radius;                    // Radius
+            *data << t->GetAreaTriggerInfo().RadiusTarget;              // RadiusTarget
+            *data << t->GetAreaTriggerInfo().Height;                    // Height
+            *data << t->GetAreaTriggerInfo().HeightTarget;              // HeightTarget
+            *data << t->GetAreaTriggerInfo().Float4;                    // Float4
+            *data << t->GetAreaTriggerInfo().Float5;                    // Float5
         }
 
         if (t->isMoving())                                              // areaTriggerSpline

@@ -9627,7 +9627,8 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
     QueryResult result = WorldDatabase.Query("SELECT `entry`, `spellId`, `customEntry`, `customVisualId`, `Radius`, `RadiusTarget`, `Height`, `HeightTarget`, `Float4`, `Float5`,"
     //    9          10        11            12                13           14         15           16             17           18      19       20         21           22         23
     "`isMoving`, `moveType`, `speed`, `activationDelay`, `updateDelay`, `maxCount`, `hitType`, `MoveCurveID`, `ElapsedTime`, `windX`, `windY`, `windZ`, `windSpeed`, `windType`, `polygon`,"
-    "`MorphCurveID`, `FacingCurveID`, `ScaleCurveID`, `HasFollowsTerrain`, `HasAttached`, `HasAbsoluteOrientation`, `HasDynamicShape`, `HasFaceMovementDir`, `waitTime` FROM areatrigger_data");
+    "`MorphCurveID`, `FacingCurveID`, `ScaleCurveID`, `HasFollowsTerrain`, `HasAttached`, `HasAbsoluteOrientation`, `HasDynamicShape`, `HasFaceMovementDir`, `waitTime`,"
+    "`hasAreaTriggerBox`, `RollPitchYaw1X`, `RollPitchYaw1Y`, `RollPitchYaw1Z`, `TargetRollPitchYawX`, `TargetRollPitchYawY`, `TargetRollPitchYawZ` FROM areatrigger_data");
 
     if (result)
     {
@@ -9672,6 +9673,13 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
             info.HasDynamicShape = fields[i++].GetUInt32();
             info.HasFaceMovementDir = fields[i++].GetUInt32();
             info.waitTime = fields[i++].GetUInt32();
+            info.hasAreaTriggerBox = fields[i++].GetUInt32();
+            info.RollPitchYaw1X = fields[i++].GetFloat();
+            info.RollPitchYaw1Y = fields[i++].GetFloat();
+            info.RollPitchYaw1Z = fields[i++].GetFloat();
+            info.TargetRollPitchYawX = fields[i++].GetFloat();
+            info.TargetRollPitchYawY = fields[i++].GetFloat();
+            info.TargetRollPitchYawZ = fields[i++].GetFloat();
             if(info.polygon && info.customEntry)
             {
                 QueryResult resultPolygon = WorldDatabase.PQuery("SELECT `id`, `x`, `y` FROM areatrigger_polygon WHERE `entry` = '%u' AND `spellId` = '%u'", info.customEntry, info.spellId);
