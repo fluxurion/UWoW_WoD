@@ -528,6 +528,93 @@ private:
     };
 };
 
+// Lava Swipe - 164956
+class spell_boss_grimrail_lava_swipe1 : public SpellScriptLoader
+{
+public:
+    spell_boss_grimrail_lava_swipe1() : SpellScriptLoader("spell_boss_grimrail_lava_swipe1") { }
+
+    class spell_boss_grimrail_lava_swipe1_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_boss_grimrail_lava_swipe1_SpellScript);
+
+        void HandleBeforeCast()
+        {
+            if(Unit* caster = GetOriginalCaster())
+            {
+                Unit* target = GetExplTargetUnit();
+                float x, y, o;
+                if(target)
+                {
+                    o = caster->GetAngle(target);
+                    caster->CastSpell(target, 164901, true);
+                }
+                else
+                    o = caster->GetOrientation();
+                WorldLocation loc;
+                caster->GetNearPoint2D(x, y, 43.55f, o + 0.25f);
+                loc.Relocate(x, y, caster->GetPositionZ());
+                GetSpell()->destAtTarget = loc;
+            }
+        }
+
+        void HandleTriggerEffect(SpellEffIndex /*effIndex*/)
+        {
+            PreventHitDefaultEffect(EFFECT_2);
+        }
+
+        void Register()
+        {
+            OnEffectLaunch += SpellEffectFn(spell_boss_grimrail_lava_swipe1_SpellScript::HandleTriggerEffect, EFFECT_2, SPELL_EFFECT_TRIGGER_SPELL);
+            BeforeCast += SpellCastFn(spell_boss_grimrail_lava_swipe1_SpellScript::HandleBeforeCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_boss_grimrail_lava_swipe1_SpellScript();
+    }
+};
+
+// Lava Swipe - 164901
+class spell_boss_grimrail_lava_swipe2 : public SpellScriptLoader
+{
+public:
+    spell_boss_grimrail_lava_swipe2() : SpellScriptLoader("spell_boss_grimrail_lava_swipe2") { }
+
+    class spell_boss_grimrail_lava_swipe2_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_boss_grimrail_lava_swipe2_SpellScript);
+
+        void HandleBeforeCast()
+        {
+            if(Unit* caster = GetOriginalCaster())
+            {
+                Unit* target = GetExplTargetUnit();
+                float x, y, o;
+                if(target)
+                    o = caster->GetAngle(target);
+                else
+                    o = caster->GetOrientation();
+                WorldLocation loc;
+                caster->GetNearPoint2D(x, y, 43.55f, o - 0.25f);
+                loc.Relocate(x, y, caster->GetPositionZ());
+                GetSpell()->destAtTarget = loc;
+            }
+        }
+
+        void Register()
+        {
+            BeforeCast += SpellCastFn(spell_boss_grimrail_lava_swipe2_SpellScript::HandleBeforeCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_boss_grimrail_lava_swipe2_SpellScript();
+    }
+};
+
 void AddSC_boss_grimrail_enforcers()
 {
     new boss_makogg_emberblade();
@@ -536,4 +623,6 @@ void AddSC_boss_grimrail_enforcers()
     new npc_ogre_trap();
     new spell_neesa_ogre_traps();
     new spell_sanguine_sphere();
+    new spell_boss_grimrail_lava_swipe1();
+    new spell_boss_grimrail_lava_swipe2();
 }
