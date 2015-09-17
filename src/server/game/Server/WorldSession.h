@@ -796,7 +796,7 @@ class WorldSession
         void HandleOptOutOfLootOpcode(WorldPacket& recvData);
         void HandleLootMethodOpcode(WorldPacket& recvPacket);
         void HandleLootRoll(WorldPacket& recvData);
-        void HandleLootMasterAskForRoll(WorldPacket& recvData);
+        void HandleDoMasterLootRoll(WorldPacket& recvData);
         void HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData);
         void HandleRaidConfirmReadyCheck(WorldPacket& recvData);
         void HandleRaidLeaderReadyCheck(WorldPacket& recvData);
@@ -1073,7 +1073,6 @@ class WorldSession
         void HandleSetRaidDifficultyOpcode(WorldPacket& recvData);
         void HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData);
         void HandleSetTitleOpcode(WorldPacket& recvData);
-        void HandleRealmSplitOpcode(WorldPacket& recvData);
         void HandleRealmQueryNameOpcode(WorldPacket& recvData);
         void HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& packet);
         void HandleWhoisOpcode(WorldPackets::Who::WhoIsRequest& packet);
@@ -1158,7 +1157,6 @@ class WorldSession
         void HandleGuildBankBuyTab(WorldPacket& recvData);
         void HandleQueryGuildBankTabText(WorldPacket& recvData);
         void HandleSetGuildBankTabText(WorldPacket& recvData);
-        void HandleGuildQueryXPOpcode(WorldPacket& recvData);
 
         // Refer-a-Friend
         void HandleGrantLevel(WorldPacket& recvData);
@@ -1271,8 +1269,8 @@ class WorldSession
         void HandleScenarioPOIQuery(WorldPacket& recvPacket);
 
         // Challenge Mode
-        void HandleChallengeModeRequestRewardInfoOpcode(WorldPacket& recvPacket);
-        void HandleChallengeModeRequestCompletionInfoOpcode(WorldPacket& recvPacket);
+        void HandleGetChallengeModeRewards(WorldPacket& recvPacket);
+        void HandleChallengeModeRequestMapStats(WorldPacket& recvPacket);
         void HandleChallengeModeRequestOpcode(WorldPacket& recvPacket);
 
         // WarGames

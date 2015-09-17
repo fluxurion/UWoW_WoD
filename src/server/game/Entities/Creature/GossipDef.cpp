@@ -297,7 +297,6 @@ void QuestMenu::ClearMenu()
     _questMenuItems.clear();
 }
 
-//6.0.3
 void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title, ObjectGuid npcGUID)
 {
     WorldPacket data(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 200);      // guess size

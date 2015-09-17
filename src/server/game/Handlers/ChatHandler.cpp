@@ -108,7 +108,7 @@ void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& pack
         case CMSG_CHAT_MESSAGE_RAID_WARNING:
             type = CHAT_MSG_RAID_WARNING;
             break;
-        case CMSG_MESSAGECHAT_INSTANCE:
+        case CMSG_CHAT_MESSAGE_INSTANCE_CHAT:
             type = CHAT_MSG_INSTANCE;
             break;
         default:
@@ -518,7 +518,7 @@ void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMes
         case CMSG_CHAT_ADDON_MESSAGE_GUILD:
             type = CHAT_MSG_GUILD;
             break;
-        case CMSG_MESSAGECHAT_ADDON_INSTANCE:
+        case CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT:
             type = CHAT_MSG_INSTANCE;
             break;
         case CMSG_CHAT_ADDON_MESSAGE_OFFICER:

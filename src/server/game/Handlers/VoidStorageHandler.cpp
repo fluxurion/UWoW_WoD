@@ -294,8 +294,6 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleVoidSwapItem(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_VOID_SWAP_ITEM");
-
     Player* player = GetPlayer();
     uint32 newSlot;
     ObjectGuid npcGuid;

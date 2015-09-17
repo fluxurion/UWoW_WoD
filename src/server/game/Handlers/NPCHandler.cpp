@@ -64,7 +64,7 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
 
 void WorldSession::SendTabardVendorActivate(ObjectGuid const& guid)
 {
-    WorldPacket data(SMSG_TABARDVENDOR_ACTIVATE, 8 + 1);
+    WorldPacket data(SMSG_PLAYER_TABARD_VENDOR_ACTIVATE, 8 + 1);
     data << guid;
     SendPacket(&data);
 }
@@ -601,8 +601,6 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket & recvData)
 
     if (!GetPlayer()->isAlive())
         return;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LIST_INVENTORY");
 
     SendListInventory(guid);
 }

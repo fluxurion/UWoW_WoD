@@ -153,8 +153,6 @@ void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
     //recvPacket.ReadGuidMask<6, 0, 2, 3, 5, 7, 1, 4>(guid);
     //recvPacket.ReadGuidBytes<5, 6, 1, 3, 4, 0, 7, 2>(guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PLAYER_RECIPES player: %s spell: %u skill: %u guid: %u", _player->GetName(), spellId, skillId, guid.GetCounter());
-
     if (!sSkillLineStore.LookupEntry(skillId) || !sSpellMgr->GetSpellInfo(spellId))
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PLAYER_RECIPES player: no such spell or skill.");
@@ -213,13 +211,10 @@ void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
     //data.WriteGuidMask<0, 4, 6, 2, 5, 1>(guid);
 
     data << uint32(spellId);
-    //data.WriteGuidBytes<3, 1, 0, 7, 5>(guid);
     for (std::set<uint32>::const_iterator itr = profSpells.begin(); itr != profSpells.end(); ++itr)
         data << uint32(*itr);
-    //data.WriteGuidBytes<2, 6>(guid);
     for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)
         data << uint32(player->GetMaxSkillValue(*itr));
-    //data.WriteGuidBytes<4>(guid);
     for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)
         data << uint32(player->GetSkillValue(*itr));
     for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)

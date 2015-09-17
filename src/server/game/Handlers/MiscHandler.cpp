@@ -67,8 +67,6 @@
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REPOP_REQUEST Message");
-
     if (GetPlayer()->isAlive() || GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
 
@@ -94,8 +92,6 @@ void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet)
 
 void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_WHO Message");
-
     time_t now = time(NULL);
     if (now - timeLastWhoCommand < 15)
         return;
@@ -267,14 +263,10 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
     }
 
     SendPacket(response.Write());
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Send SMSG_WHO Message");
 }
 
 void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LOGOUT_REQUEST Message, security - %u", GetSecurity());
-
     if (ObjectGuid lguid = GetPlayer()->GetLootGUID())
         DoLootRelease(lguid);
     GetPlayer()->ClearAoeLootList();
@@ -317,7 +309,6 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LOGOUT_REQUEST Message");
     bool bit = !recvData.ReadBit();
     if (bit)
         recvData >> Unused<uint32>();
@@ -325,8 +316,6 @@ void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LOGOUT_CANCEL Message");
-
     // Player have already logged out serverside, too late to cancel
     if (!GetPlayer())
         return;
@@ -389,8 +378,6 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recvData)
 {
     uint32 newZone;
     recvData >> newZone;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd ZONE_UPDATE: %u", newZone);
 
     // use server size data
     uint32 newzone, newarea;
@@ -1380,30 +1367,6 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "REPORT SPAM: type %u, guid %u, unk1 %u, unk2 %u, unk3 %u, unk4 %u, message %s", spam_type, spammer_guid.GetCounter(), unk1, unk2, unk3, unk4, description.c_str());
 }
 
-void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REALM_SPLIT");
-
-    // On retail before send realm_split always send time zone
-    SendTimeZoneInformation();
-
-    uint32 unk;
-    std::string split_date = "01/01/01";
-    recvData >> unk;
-
-    WorldPacket data(SMSG_REALM_SPLIT, 4+4+split_date.size()+1);
-    data << uint32(0x00000000);                             // realm split state
-    data << unk;
-    // split states:
-    // 0x0 realm normal
-    // 0x1 realm split
-    // 0x2 realm split pending
-    data.WriteBits(split_date.size(), 7);
-    data.WriteString(split_date);
-    SendPacket(&data);
-    //sLog->outDebug("response sent %u", unk);
-}
-
 //! 6.0.3
 void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
 {
@@ -2003,163 +1966,19 @@ void WorldSession::HandleForcedReactions(WorldPacket& recvPacket)
     _player->GetReputationMgr().SendForceReactions();
 }
 
-//! 6.1.2
 void WorldSession::HandleSceneComplete(WorldPacket& recvPacket)
 {
-    //CMSG_SCENE_PLAYBACK_COMPLETE
     _player->SceneCompleted(recvPacket.read<uint32>());
 }
 
-//! 6.1.2
 void WorldSession::HandleTrigerSceneEvent(WorldPacket& recvPacket)
 {
-    //CMSG_SCENE_TRIGGER_EVENT
     uint16 typelen = recvPacket.ReadBits(6);
     uint32 instanceID = recvPacket.read<uint32>();
     std::string type = recvPacket.ReadString(typelen);
     _player->TrigerScene(instanceID, type);
 }
 
-// WarGames
+void WorldSession::HandleWarGameStart(WorldPacket& recvPacket) { }
 
-void WorldSession::HandleWarGameStart(WorldPacket& recvPacket)
-{
-    ObjectGuid guid, guid2;
-    //recvPacket.ReadGuidMask<6, 5, 2>(guid2);
-    //recvPacket.ReadGuidMask<3>(guid);
-    //recvPacket.ReadGuidMask<1>(guid2);
-    //recvPacket.ReadGuidMask<1, 7>(guid);
-    //recvPacket.ReadGuidMask<0, 4, 3>(guid2);
-    //recvPacket.ReadGuidMask<6>(guid);
-    //recvPacket.ReadGuidMask<7>(guid2);
-    //recvPacket.ReadGuidMask<4, 2, 5, 0>(guid);
-
-    //recvPacket.ReadGuidBytes<4>(guid);
-    //recvPacket.ReadGuidBytes<3>(guid2);
-    //recvPacket.ReadGuidBytes<2>(guid);
-    //recvPacket.ReadGuidBytes<1>(guid2);
-    //recvPacket.ReadGuidBytes<5>(guid);
-    //recvPacket.ReadGuidBytes<5>(guid2);
-    //recvPacket.ReadGuidBytes<7, 3>(guid);
-    //recvPacket.ReadGuidBytes<7>(guid2);
-    //recvPacket.ReadGuidBytes<1>(guid);
-    //recvPacket.ReadGuidBytes<6>(guid2);
-    //recvPacket.ReadGuidBytes<6>(guid);
-    //recvPacket.ReadGuidBytes<0, 2>(guid2);
-    //recvPacket.ReadGuidBytes<0>(guid);
-    //recvPacket.ReadGuidBytes<4>(guid2);
-}
-
-void WorldSession::HandleWarGameAccept(WorldPacket& recvPacket)
-{
-    ObjectGuid guid, guid2;
-
-    //recvPacket.ReadGuidMask<4>(guid);
-    //recvPacket.ReadGuidMask<7>(guid2);
-    //recvPacket.ReadGuidMask<3>(guid);
-    //recvPacket.ReadGuidMask<5, 3>(guid2);
-    //recvPacket.ReadGuidMask<6>(guid);
-    //recvPacket.ReadGuidMask<4, 2>(guid2);
-    //recvPacket.ReadGuidMask<2, 5, 7>(guid);
-    //recvPacket.ReadGuidMask<0>(guid2);
-    bool accept = recvPacket.ReadBit();
-    //recvPacket.ReadGuidMask<1, 0>(guid);
-    //recvPacket.ReadGuidMask<6, 1>(guid2);
-
-    //recvPacket.ReadGuidBytes<4>(guid2);
-    //recvPacket.ReadGuidBytes<3>(guid);
-    //recvPacket.ReadGuidBytes<1, 2>(guid2);
-    //recvPacket.ReadGuidBytes<4>(guid);
-    //recvPacket.ReadGuidBytes<5>(guid2);
-    //recvPacket.ReadGuidBytes<7>(guid);
-    //recvPacket.ReadGuidBytes<7>(guid2);
-    //recvPacket.ReadGuidBytes<1>(guid);
-    //recvPacket.ReadGuidBytes<0, 3, 6>(guid2);
-    //recvPacket.ReadGuidBytes<2, 5, 0, 6>(guid);
-
-    // if (accept)
-    //
-}
-
-// SMSG_WARGAME_CHECK_ENTRY - maybe sent to other party leader after accept? need data of Cata implementations
-/*{
-    ObjectGuid guid, guid2;
-    WorldPacket data(SMSG_WARGAME_CHECK_ENTRY);
-
-    //data.WriteGuidMask<3, 4>(guid);
-    //data.WriteGuidMask<0>(guid2);
-    //data.WriteGuidMask<1>(guid);
-    //data.WriteGuidMask<5, 1, 7, 4, 2>(guid2);
-    //data.WriteGuidMask<0>(guid);
-    //data.WriteGuidMask<6>(guid2);
-    //data.WriteGuidMask<2, 7>(guid);
-    //data.WriteGuidMask<3>(guid2);
-    //data.WriteGuidMask<6, 5>(guid);
-
-    data << uint32(0); 
-
-    //data.WriteGuidBytes<2, 7, 5>(guid);
-    //data.WriteGuidBytes<7, 5>(guid2);
-    //data.WriteGuidBytes<6, 4>(guid);
-    //data.WriteGuidBytes<6, 2, 0>(guid2);
-    //data.WriteGuidBytes<1, 3>(guid);
-    //data.WriteGuidBytes<4, 3>(guid2);
-    //data.WriteGuidBytes<0>(guid);
-    //data.WriteGuidBytes<1>(guid2);
-}*/
-
-// SMSG_WARGAME_REQUEST_SENT - maybe sent to initiator if wargame request sucessfully sended to other party leader
-/*{
-    // public ulong Opponent
-    ObjectGuid guid;
-    WorldPacket data(SMSG_WARGAME_REQUEST_SENT);
-
-    //data.WriteGuidMask<0, 6, 7, 2, 4, 3, 1, 5>(guid);
-    //data.WriteGuidBytes<0, 2, 1, 6, 3, 7, 5, 4>(guid);
-}*/
-
-// Loss of Control
-
-/*SMSG_ADD_LOSS_OF_CONTROL - added LossOfControl frame
-{
-    WorldPacket data(SMSG_ADD_LOSS_OF_CONTROL);
-    ObjectGuid guid;          // CasterGUID
-    data.WriteBits(x, 8);     // Mechanic
-    data.WriteBits(x, 8);     // Type (interrupt or some other)
-    //data.WriteGuidMask<2, 1, 4, 3, 5, 6, 7, 0>(guid);
-    //data.WriteGuidBytes<3, 1, 4>(guid);
-    data << uint32(x);        // RemainingDuration (контролирует блокировку баров, скажем если duration = 40000, а это число 10000, то как только останется 10 секунд, на барах пойдет прокрутка, иначе просто затеменено)
-    data << uint32(x);        // Duration (время действия)
-    //data.WriteGuidBytes<0>(guid);
-    data << uint32(val4);     // SpellID
-    //data.WriteGuidBytes<2, 5, 6, 7>(guid);
-    data << uint32(val5);     // SchoolMask (для type == interrupt and other)
-}
-
-SMSG_REMOVE_LOSS_OF_CONTROL
-{
-    WorldPacket data(SMSG_REMOVE_LOSS_OF_CONTROL);
-    ObjectGuid guid;
-    //data.WriteGuidMask<1, 7, 0, 6, 2, 4, 5>(guid);
-    data.WriteBits(x, 8); // Type
-    //data.WriteGuidMask<3>(guid);
-    //data.WriteGuidBytes<1, 0, 4, 6, 7>(guid);
-    data << uint32(x); // SpellID
-    //data.WriteGuidBytes<3, 5, 2>(guid);
-}
-
-SMSG_LOSS_OF_CONTROL_AURA_UPDATE
-{
-    WorldPacket data(SMSG_LOSS_OF_CONTROL_AURA_UPDATE);
-    data.WriteBits(y, 22); // LossOfControl effects count
-    for (int i = 0; i < y; i++)
-    {
-        data.WriteBits(x, 8); // Mechanic
-        data.WriteBits(x, 8); // Type
-    }
-    for (int i = 0; i < y; i++)
-    {
-        data << uint8(x); // effectIndex
-        data << uint8(x); // auraSlot
-    }
-}*/
+void WorldSession::HandleWarGameAccept(WorldPacket& recvPacket) { }

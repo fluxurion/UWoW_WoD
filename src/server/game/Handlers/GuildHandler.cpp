@@ -547,20 +547,6 @@ void WorldSession::HandleSetGuildBankTabText(WorldPacket& recvData)
         guild->SetBankTabText(tabId, text);
 }
 
-//! remove it
-void WorldSession::HandleGuildQueryXPOpcode(WorldPacket& recvPacket)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_GUILD_XP");
-
-    ObjectGuid guildGuid;
-    //recvPacket.ReadGuidMask<7, 0, 6, 3, 2, 1, 4, 5>(guildGuid);
-    //recvPacket.ReadGuidBytes<6, 5, 2, 0, 7, 1, 3, 4>(guildGuid);
-
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
-        if (guild->IsMember(_player->GetGUID()))
-            guild->SendGuildXP(this);
-}
-
 //! 6.0.3
 void WorldSession::HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket)
 {

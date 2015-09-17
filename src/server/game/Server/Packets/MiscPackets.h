@@ -266,7 +266,7 @@ namespace WorldPackets
         class RaidDifficultySet final : public ServerPacket
         {
         public:
-            RaidDifficultySet() : ServerPacket(SMSG_SET_RAID_DIFFICULTY, 4 + 1) { }
+            RaidDifficultySet() : ServerPacket(SMSG_RAID_DIFFICULTY_SET, 4 + 1) { }
 
             WorldPacket const* Write() override;
 

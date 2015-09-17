@@ -525,7 +525,7 @@ void PetBattleWild::SetFrontPet(uint8 team, uint8 petNumber)
 
 void PetBattleWild::SendFullUpdate(ObjectGuid creatureGuid)
 {
-    WorldPacket data(SMSG_PET_BATTLE_FULL_UPDATE);
+    WorldPacket data(SMSG_PET_BATTLE_INITIAL_UPDATE); // it's right opcode?
     // BITPACK
     // enviro states and auras count and bitpack handle (weather?) (some enviroment variables?)
     for (uint8 i = 0; i < 3; ++i)
@@ -846,7 +846,7 @@ void PetBattleWild::ForceReplacePetHandler(uint32 roundID, uint8 newFrontPet, ui
 void PetBattleWild::SendForceReplacePet(PetBattleRoundResults* round)
 {
     // send packet (testing!)
-    WorldPacket data(SMSG_BATTLE_PET_REPLACEMENTS_MADE);
+    WorldPacket data(SMSG_PET_BATTLE_REPLACEMENTS_MADE);
 
     for (uint8 i = 0; i < 2; ++i)
     {

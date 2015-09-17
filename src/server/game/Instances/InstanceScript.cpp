@@ -711,7 +711,7 @@ void InstanceScript::Update(uint32 diff)
             {
                 challenge_timer = getMSTime();
 
-                WorldPacket data(SMSG_WORLD_STATE_TIMER_START, 8);
+                WorldPacket data(SMSG_INSTANCE_ENCOUNTER_TIMER_START, 8);
                 data << uint32(LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE);
                 data << uint32(0);                                                          //time elapsed in sec
                 BroadcastPacket(data);
@@ -725,7 +725,7 @@ void InstanceScript::Update(uint32 diff)
             }
             case EVENT_CONTINUE_CHALLENGE:
             {
-                WorldPacket data(SMSG_WORLD_STATE_TIMER_START, 8);
+                WorldPacket data(SMSG_INSTANCE_ENCOUNTER_TIMER_START, 8);
                 data << uint32(LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE);
                 data << uint32((getMSTime() - challenge_timer)/IN_MILLISECONDS);         //time elapsed in sec
                 BroadcastPacket(data);

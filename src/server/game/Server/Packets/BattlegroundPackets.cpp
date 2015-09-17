@@ -386,21 +386,6 @@ WorldPacket const* WorldPackets::Battleground::BFMgrQueueRequestResponse::Write(
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Battleground::UpdateCapturePoint::Write()
-{
-    _worldPacket << CapturePointInfo.Guid;
-    _worldPacket << CapturePointInfo.Pos.x;
-    _worldPacket << CapturePointInfo.Pos.y;
-    _worldPacket << CapturePointInfo.State;
-    if (CapturePointInfo.State == 2 || CapturePointInfo.State == 3)
-    {
-        _worldPacket << CapturePointInfo.CaptureTime;
-        _worldPacket << CapturePointInfo.CaptureTotalDuration;
-    }
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::Battleground::MapObjectivesInit::Write()
 {
     _worldPacket << uint32(CapturePointInfo.size());

@@ -26,8 +26,6 @@
 
 void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_MOVE_DISMISS_VEHICLE");
-
     ObjectGuid vehicleGUID = _player->GetCharmGUID();
 
     if (!vehicleGUID)                                       // something wrong here...
@@ -59,8 +57,6 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
 
 void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_MOVE_CHANGE_VEHICLE_SEATS");
-
     Unit* vehicle_base = GetPlayer()->GetVehicleBase();
     if (!vehicle_base)
     {
@@ -233,8 +229,6 @@ void WorldSession::HandleEjectPassenger(WorldPacket& data)
 
 void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
-
     if (Vehicle* vehicle = GetPlayer()->GetVehicle())
     {
         if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(GetPlayer()))
