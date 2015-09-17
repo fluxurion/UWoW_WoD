@@ -1792,7 +1792,7 @@ void Group::SendTargetIconList(WorldSession* session)
     if (!session)
         return;
 
-    WorldPacket data(SMSG_RAID_TARGET_UPDATE_ALL, (1+TARGETICONCOUNT*9));
+    WorldPacket data(SMSG_SEND_RAID_TARGET_UPDATE_ALL, (1+TARGETICONCOUNT*9));
     data << uint8(IsHomeGroup() ? 0 : 1);
     size_t count = 0;
     size_t pos = data.wpos();

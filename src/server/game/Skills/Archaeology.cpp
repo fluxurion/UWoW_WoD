@@ -820,15 +820,12 @@ void Player::SendCompletedProjects()
 
 void WorldSession::HandleRequestResearchHistory(WorldPacket& recv_data)
 {
-    // null opcode
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "World: received CMSG_REQUEST_RESEARCH_HISTORY from %s (account %u)", GetPlayerName().c_str(), GetAccountId());
-
     _player->SendCompletedProjects();
 }
 
 void Player::SendSurveyCast(uint32 count, uint32 max, uint32 branchId, bool completed)
 {
-    WorldPacket data(SMSG_SURVEY_CAST, 4 * 3 + 1);
+    WorldPacket data(SMSG_ARCHAEOLOGY_SURVERY_CAST, 4 * 3 + 1);
     data << uint32(count) << uint32(max) << uint32(branchId);
     data.WriteBit(completed);
     SendDirectMessage(&data);

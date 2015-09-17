@@ -29,8 +29,6 @@
 
 void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_ATTACK_SWING Message %s", packet.Victim.ToString().c_str());
-
     Unit* pEnemy = ObjectAccessor::GetUnit(*_player, packet.Victim);
 
     if (!pEnemy)
@@ -74,8 +72,6 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
     uint32 sheathed;
     recvData >> sheathed;
     recvData.rfinish(); //could send 1 bit in some cases
-
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Recvd CMSG_SET_SHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUID().GetCounter(), sheathed);
 
     if (sheathed >= MAX_SHEATH_STATE)
     {

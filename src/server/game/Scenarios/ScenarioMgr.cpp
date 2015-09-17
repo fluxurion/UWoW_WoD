@@ -427,13 +427,11 @@ ScenarioSteps const* ScenarioMgr::GetScenarioSteps(uint32 scenarioId)
 
 void WorldSession::HandleScenarioPOIQuery(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_SCENARIO_POI");
-
     uint32 count = recvData.ReadBits(22);
     if (!count)
         return;
 
-    WorldPacket data(SMSG_SCENARIO_POIS, 200);
+    WorldPacket data(SMSG_SCENARIO_PO_IS, 200);
     data.WriteBits(count, 21);
 
     ByteBuffer buff;

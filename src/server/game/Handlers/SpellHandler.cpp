@@ -149,8 +149,6 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAME_OBJ_USE Message [guid=%u]", guid.GetCounter());
-
     // ignore for remote control state
     if (_player->m_mover != _player)
         return;
@@ -163,8 +161,6 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
     recvPacket >> guid;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAME_OBJ_REPORT_USE Message [in game guid: %u]", guid.GetCounter());
 
     if (GameObject* go = GetPlayer()->GetMap()->GetGameObject(guid))
     {

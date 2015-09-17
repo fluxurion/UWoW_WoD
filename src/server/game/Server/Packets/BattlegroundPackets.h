@@ -422,16 +422,6 @@ namespace WorldPackets
             uint32 CaptureTotalDuration = 0;
         };
 
-        class UpdateCapturePoint final : public ServerPacket
-        {
-        public:
-            UpdateCapturePoint() : ServerPacket(SMSG_UPDATE_CAPTURE_POINT, 25) { }
-
-            WorldPacket const* Write() override;
-
-            BattlegroundCapturePointInfo CapturePointInfo;
-        };
-
         class MapObjectivesInit final : public ServerPacket
         {
         public:

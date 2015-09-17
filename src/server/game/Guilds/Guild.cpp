@@ -62,11 +62,9 @@ void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, Guil
 //! 6.0.3
 void Guild::SendSaveEmblemResult(WorldSession* session, GuildEmblemError errCode)
 {
-    WorldPacket data(SMSG_SAVE_GUILD_EMBLEM, 4);
+    WorldPacket data(SMSG_PLAYER_SAVE_GUILD_EMBLEM, 4);
     data << uint32(errCode);
     session->SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_SAVE_GUILD_EMBLEM)");
 }
 
 // LogHolder

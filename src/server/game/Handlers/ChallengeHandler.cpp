@@ -30,8 +30,6 @@
 
 void WorldSession::HandleChallengeModeRequestOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_CHALLENGE_MODE_REQUEST_LEADERS");
-
     uint32 mapID, unk, time;
     recvPacket >> mapID >> unk >> time;
 
@@ -112,13 +110,11 @@ void WorldSession::HandleChallengeModeRequestOpcode(WorldPacket& recvPacket)
     SendPacket(&data);
 }
 
-void WorldSession::HandleChallengeModeRequestRewardInfoOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGetChallengeModeRewards(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO");
-
     ByteBuffer dataBuffer;
 
-    WorldPacket data(SMSG_CHALLENGE_MODE_REWARD_INFO, 1000);
+    WorldPacket data(SMSG_CHALLEGE_MODE_REWARDS, 1000);
     data.WriteBits(0, 20);                                           //Guild
     data.WriteBits(sMapChallengeModeStore.GetFieldCount()-1, 21);    //Self
 
@@ -148,11 +144,9 @@ void WorldSession::HandleChallengeModeRequestRewardInfoOpcode(WorldPacket& recvP
     SendPacket(&data);
 }
 
-void WorldSession::HandleChallengeModeRequestCompletionInfoOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleChallengeModeRequestMapStats(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_CHALLENGE_MODE_REQUEST_COMPLETION_INFO");
-
-    WorldPacket data(SMSG_CHALLENGE_MODE_COMPLETION_INFO, 100);
+    WorldPacket data(SMSG_CHALLENGE_MODE_ALL_MAP_STATS, 100);
 
     ChallengeByMap * best = sChallengeMgr->BestForMember(_player->GetGUID());
 

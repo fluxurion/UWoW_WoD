@@ -261,7 +261,6 @@ bool LoginQueryHolder::Initialize()
     return res;
 }
 
-//6.0.3
 void WorldSession::HandleCharEnum(PreparedQueryResult result, bool isDeleted)
 {
     WorldPackets::Character::EnumCharactersResult charEnum;
@@ -369,7 +368,6 @@ void WorldSession::HandleCharUndelete(WorldPacket & recvData)
     SendPacket(&data);
 }
 
-//6.0.3
 void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateChar& charCreate)
 {
     time_t now = time(NULL);
@@ -764,7 +762,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, WorldPac
     }
 }
 
-//6.0.3
 void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::DeleteChar& charDelete)
 {
     // can't delete loaded character
@@ -818,7 +815,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::DeleteChar& c
     timeCharEnumOpcode = 0;
 }
 
-//6.0.3
 void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin)
 {
     time_t now = time(NULL);
@@ -843,7 +839,6 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
 
     m_playerLoading = true;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd Player Logon Message");
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Character (Guid: %s) logging in", playerLogin.Guid.ToString().c_str());
 
     if (!CharCanLogin(playerLogin.Guid.GetCounter()))
@@ -864,13 +859,8 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
     _charLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)holder);
 }
 
-//6.0.3
-void WorldSession::HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& /*loadingScreenNotify*/)
-{
-    sLog->outInfo(LOG_FILTER_GENERAL, "WORLD: Recvd CMSG_LOADING_SCREEN_NOTIFY");
-}
+void WorldSession::HandleLoadScreenOpcode(WorldPackets::Character::LoadingScreenNotify& /*loadingScreenNotify*/) { }
 
-//6.0.3
 void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 {
     ObjectGuid playerGuid = holder->GetGuid();
@@ -1140,8 +1130,6 @@ void WorldSession::HandleSetFactionAtWar(WorldPacket & recvData)
 
 void WorldSession::HandleSetLfgBonusFaction(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_LFG_BONUS_FACTION");
-
     uint32 factionID;
     recvData >> factionID;
 
@@ -2463,7 +2451,6 @@ void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-//6.0.3
 void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvData)
 {
     uint32 profilesCount;
@@ -2528,7 +2515,6 @@ void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvData)
         _player->SaveCUFProfile(i, NULL);
 }
 
-//6.0.3
 void WorldSession::SendLoadCUFProfiles()
 {
     uint8 profilesCount = _player->GetCUFProfilesCount();

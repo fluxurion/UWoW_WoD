@@ -39,7 +39,6 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recvData)
 {
     ObjectGuid guid;
     recvData >> guid;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_HELLO Message from (GUID: %u TypeId:%u)", guid.GetCounter(), guid.GetHigh());
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
@@ -95,8 +94,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
     }
 
     BattlegroundTypeId bgTypeId = BattlegroundTypeId(bgTypeId_);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from (GUID: %s TypeId:%u)", _player->GetGUID().ToString().c_str(), bgTypeId_);
 
     // can do this, since it's battleground, not arena
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, 0);
@@ -251,8 +248,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
 //! 6.0.3
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");
-
     Battleground* bg = _player->GetBattleground();
     if (!bg)
         return;
@@ -271,8 +266,6 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
 //! 6.0.3
 void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_LIST Message");
-
     uint32 bgTypeId;
     recvData >> bgTypeId;                                  // id from DBC
 
@@ -291,8 +284,6 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_PORT Message");
-
     WorldPackets::Battleground::RideTicket queueInfo;
     recvData >> queueInfo;
 
@@ -459,11 +450,8 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     }
 }
 
-//! 6.0.3
 void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& /*recvData*/)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_LEAVE Message");
-
     // not allow leave battleground in combat
     if (Battleground* bg = _player->GetBattleground())
         if (_player->isInCombat() || bg->isArena())
@@ -473,12 +461,8 @@ void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& /*recvData*/)
     _player->LeaveBattleground();
 }
 
-//! 6.0.3
 void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
 {
-    // empty opcode
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REQUEST_BATTLEFIELD_STATUS Message");
-
     WorldPacket data;
     // we must update all queues here
     Battleground* bg = NULL;

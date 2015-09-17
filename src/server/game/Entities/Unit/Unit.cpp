@@ -23996,7 +23996,7 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position const* pos
 
     ObjectGuid casterGuid = GetGUID();
     ObjectGuid targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
-    WorldPacket data(SMSG_SPELL_CREATE_VISUAL, 50);
+    WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 50);
     data.WriteBit(positionFind);            // hasPosition
     data << uint16(MissReason);               // word10
     data << uint32(SpellVisualID);             //Spell Visual dword14

@@ -62,7 +62,6 @@ void WorldSession::HandleBattlePetSummon(WorldPacket& recvData)
     }
 }
 
-// CMSG_BATTLE_PET_NAME_QUERY
 void WorldSession::HandleBattlePetNameQuery(WorldPacket& recvData)
 {
     ObjectGuid creatureGuid, battlepetGuid;

@@ -4937,7 +4937,6 @@ void Spell::SendSpellStart()
 
     if(m_spellInfo->Id == 125084)
         castFlags = 262913;
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SMSG_SPELL_START, castCount: %u, spellId: %u, castFlags: %u", m_cast_count, m_spellInfo->Id, castFlags);
 
     WorldPackets::Spells::SpellStart packet;
     WorldPackets::Spells::SpellCastData& castData = packet.Cast;
@@ -5216,8 +5215,6 @@ void Spell::SendSpellGo()
         castData.MissileTrajectory.TravelTime = m_delayMoment;
         castData.MissileTrajectory.Pitch = m_targets.GetElevation();
     }
-
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SMSG_SPELL_GO, castCount: %u, spellId: %u, castFlags: %u", m_cast_count, m_spellInfo->Id, castFlags);
 
     m_caster->SendMessageToSet(packet.Write(), true);
 

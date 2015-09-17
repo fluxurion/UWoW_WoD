@@ -22433,7 +22433,7 @@ void Player::Customize(ObjectGuid guid, uint8 gender, uint8 skin, uint8 face, ui
 //! 6.0.3
 void Player::SendAttackSwingResult(AttackSwing error)
 {
-    WorldPacket data(SMSG_ATTACKSWING_ERROR, 1);
+    WorldPacket data(SMSG_ATTACK_SWING_ERROR, 1);
     data.WriteBits(error, 2);
     GetSession()->SendPacket(&data);
 }
@@ -22466,10 +22466,10 @@ void Player::SendDungeonDifficulty()
 //! 6.0.3
 void Player::SendRaidDifficulty(bool legacy, int32 forcedDifficulty /*= -1*/)
 {
-    WorldPacket data(SMSG_SET_RAID_DIFFICULTY, 4);
-    data << uint32(forcedDifficulty == -1 ? GetRaidDifficultyID() : forcedDifficulty);
-    data << uint8(legacy);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Misc::RaidDifficultySet raidDifficultySet;
+    raidDifficultySet.DifficultyID = forcedDifficulty == -1 ? (legacy ? GetLegacyRaidDifficultyID() : GetRaidDifficultyID()) : forcedDifficulty;
+    raidDifficultySet.Legacy = legacy;
+    GetSession()->SendPacket(raidDifficultySet.Write());
 }
 
 //! 6.0.3

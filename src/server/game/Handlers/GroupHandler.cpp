@@ -484,14 +484,12 @@ void WorldSession::HandleGroupDisbandOpcode(WorldPacket& recvData)
 }
 
 //! 5.4.1
-void WorldSession::HandleLootMasterAskForRoll(WorldPacket& recvData)
+void WorldSession::HandleDoMasterLootRoll(WorldPacket& recvData)
 {
     ObjectGuid guid;
     uint8 slot = 0;
 
     recvData >> slot;
-    //recvData.ReadGuidMask<0, 4, 2, 1, 5, 3, 7, 6>(guid);
-    //recvData.ReadGuidBytes<4, 7, 6, 0, 5, 1, 2, 3>(guid);
 
     if (!_player->GetGroup() || _player->GetGroup()->GetLooterGuid() != _player->GetGUID())
     {

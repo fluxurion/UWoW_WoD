@@ -828,8 +828,6 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
 //! 6.0.3
 void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
-
     ObjectGuid guid;
     recvPacket >> guid;
 
@@ -842,8 +840,6 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
-
     ObjectGuid old_mover_guid;
     recvData >> old_mover_guid;
 

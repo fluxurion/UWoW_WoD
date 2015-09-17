@@ -31,8 +31,6 @@
 //! 6.0.3
 void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TAXI_NODE_STATUS_QUERY");
-
     ObjectGuid guid;
     recvData >> guid;
 
@@ -64,15 +62,11 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
     data << guid;
     data.WriteBits(statu, 2);
     SendPacket(&data);
-
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_TAXI_NODE_STATUS");
 }
 
 //! 6.0.3
 void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TAXI_QUERY_AVAILABLE_NODES");
-
     ObjectGuid guid;
     recvData >> guid;
 
@@ -118,8 +112,6 @@ void WorldSession::SendTaxiMenu(Creature* unit)
 
     GetPlayer()->m_taxi.AppendTaximaskTo(data, GetPlayer()->isTaxiCheater());
     SendPacket(&data);
-
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SHOW_TAXI_NODES");
 
     GetPlayer()->SetTaxiCheater(lastTaxiCheaterState);
 }
@@ -201,15 +193,12 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket & recvData)
     if (nodes.empty())
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATE_TAXI_EXPRESS from %d to %d", nodes.front(), nodes.back());
-
     GetPlayer()->ActivateTaxiPathTo(nodes, npc);
 }
 
 //! 6.0.3
 void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_SPLINE_DONE");
     recvData.rfinish();
 
     // in taxi flight packet received in 2 case:
@@ -281,8 +270,6 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleActivateTaxiOpcode(WorldPacket & recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATE_TAXI");
-
     ObjectGuid guid;
     std::vector<uint32> nodes;
     nodes.resize(2);
@@ -304,16 +291,12 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket & recvData)
     if (list == sTaxiPathDestList[nodes[0]].end())
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATE_TAXI from %d to %d", nodes[0], nodes[1]);
-
     GetPlayer()->ActivateTaxiPathTo(sTaxiPathDestList[nodes[0]][nodes[1]], npc);
 }
 
 //! 6.1.2
 void WorldSession::HandleTaxiRequestEarlyLandingOpcode(WorldPacket & recvData)
-{
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent CMSG_TAXI_REQUEST_EARLY_LANDING");
-    GetPlayer()->m_taxi.ClearTaxiDestinations();
+{    GetPlayer()->m_taxi.ClearTaxiDestinations();
 }
 
 //! 6.0.3
@@ -322,6 +305,4 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
     WorldPacket data(SMSG_ACTIVATE_TAXI_REPLY, 4);
     data.WriteBits(reply, 4);
     SendPacket(&data);
-
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ACTIVATE_TAXI_REPLY");
 }

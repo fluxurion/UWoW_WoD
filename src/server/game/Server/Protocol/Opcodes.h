@@ -727,38 +727,9 @@ enum OpcodeClient : uint32
     CMSG_WORLD_TELEPORT                               = 0x0E97,
     CMSG_WRAP_ITEM                                    = 0x0528,
 
-    //UWOW
-    CMSG_TABARDVENDOR_ACTIVATE                        = 0xBADD,
-    CMSG_SET_LFG_BONUS_FACTION                        = 0xBADD,
-    CMSG_PET_SET_SPECIALIZATION                       = 0xBADD,
-
-    //MOP
-    CMSG_CHALLENGE_MODE_REQUEST_REWARD_INFO           = 0xBADD, // 5.4.1 17538
-    CMSG_CHALLENGE_MODE_REQUEST_COMPLETION_INFO       = 0xBADD, // 5.4.1 17538
-    CMSG_LFD_PLAYER_LOCK_INFO_REQUEST                 = 0xBADD, // 5.4.1 17538
-    CMSG_LFG_GET_PLAYER_INFO                          = 0xBADD,  // Unused 434
-    CMSG_LFG_PARTY_LOCK_INFO_REQUEST                  = 0xBADD,  // Unused 434
-    CMSG_LOOT_MASTER_ASK_FOR_ROLL                     = 0xBADD, // 5.4.1 17538
-    CMSG_MESSAGECHAT_ADDON_BATTLEGROUND               = 0xBADD,      // 5.4.1 17538 obsolete
-    CMSG_MESSAGECHAT_ADDON_INSTANCE                   = 0xBADD, // 5.4.1 17538
-    CMSG_MESSAGECHAT_BATTLEGROUND                     = 0xBADD,      // 5.4.1 17538 obsolete
-    CMSG_MESSAGECHAT_INSTANCE                         = 0xBADD, // 5.4.1 17538
-    CMSG_PARTY_ASSIGNMENT                             = 0xBADD, // 5.4.1 17538
-    CMSG_PURCHASE_GET_PRODUCT_LIST                    = 0xBADD, // 5.4.1 17538
-    CMSG_PURCHASE_GET_PURCHASE_LIST                   = 0xBADD, // 5.4.1 17538
-    CMSG_QUERY_PLAYER_RECIPES                         = 0xBADD, // 5.4.1 17538
-    CMSG_REDIRECTION_AUTH_PROOF                       = 0xBADD, // 5.4.1 17538
-    CMSG_SET_PRIMARY_TALENT_TREE                      = 0xBADD,  // 5.0.5 16048 deprecated
-    CMSG_SUMMON_BATTLEPET_COMPANION                   = 0xBADD, // 5.4.1 17538
-    CMSG_GET_WEB_TICKET                               = 0xBADD, // 5.4.1 17538
-    CMSG_BATTLE_PET_166F                              = 0xBADD, // 5.4.1 17538
-    CMSG_BATTLE_PET_1ACF                              = 0xBADD, // 5.4.1 17538
-    CMSG_BATTLE_PET_READY_FOR_BATTLE                  = 0xBADD, // 5.4.1 17538
-    CMSG_BATTLE_PET_USE_ACTION                        = 0xBADD, // 5.4.1 17538
-    CMSG_BATTLE_PET_SET_DATA                          = 0xBADD, // 5.4.1 17538 maybe only favorite flag???
-    CMSG_BATTLE_PET_RENAME                            = 0xBADD, // 5.4.1 17538
-    CMSG_BATTLE_PET_PUT_IN_CAGE                       = 0xBADD, // 5.4.1 17538
-    CMSG_BATTLE_PET_NAME_QUERY                        = 0xBADD,
+    CMSG_PURCHASE_GET_PRODUCT_LIST = 0xBADD,
+    CMSG_PURCHASE_GET_PURCHASE_LIST = 0xBADD,
+    CMSG_QUERY_PLAYER_RECIPES = 0xBADD,
 };
 
 // SMSGs 6.1.2.19802
@@ -1673,74 +1644,16 @@ enum OpcodeServer : uint32
     SMSG_XP_GAIN_ABORTED                              = 0x19F5,
     SMSG_XP_GAIN_ENABLED                              = 0x0EB7,
     SMSG_ZONE_UNDER_ATTACK                            = 0x14CF,
-
-    // Deleted opcodes, here only to allow compile
-    SMSG_ARENA_TEAM_STATS                             = 0xBADD,
-    SMSG_BUY_BANK_SLOT_RESULT                         = 0xBADD,
-
-    //UWOW
-    SMSG_TABARDVENDOR_ACTIVATE                        = 0xBADD,
-    SMSG_SET_RAID_DIFFICULTY                          = 0xBADD,
-    SMSG_ATTACKSWING_ERROR                            = 0xBADD,
-    SMSG_SAVE_GUILD_EMBLEM                            = 0xBADD,
-    SMSG_BATTLEFIELD_RATED_INFO                       = 0xBADD,
-    SMSG_UPDATE_CAPTURE_POINT                         = 0xBADD,
-
-    //MOP
-    SMSG_CHALLENGE_UNK                                = 0xBADD, // 5.4.1 17538 SMSG_ITEM_SEND_PASSIVE on wpp
-    SMSG_CHALLENGE_MODE_COMPLETION_INFO               = 0xBADD, // 5.4.1 17538
-    SMSG_CHALLENGE_MODE_REWARD_INFO                   = 0xBADD, // 5.4.1 17538
-    SMSG_RAID_TARGET_UPDATE_ALL                       = 0xBADD, // 5.4.1 17538
-    SMSG_AREA_TRIGGER_RESET                           = 0xBADD,  // 5.0.5 16048
-    SMSG_ARENA_OPPONENT_UPDATE                        = 0xBADD, // 5.4.1 17538
-    SMSG_ARENA_SEASON_WORLDSTATE                      = 0xBADD, // 5.4.1 17538
-    SMSG_BATTLEPAY_PRODUCT_ITEM                       = 0xBADD, // 5.4.1 17538
-    SMSG_BATTLE_PET_BATTLE_FINISHED                   = 0xBADD, // 5.4.1 17538
-    SMSG_BATTLE_PET_CHAT_RESTRICTED                   = 0xBADD,  // 5.0.5 16048
-    SMSG_BATTLE_PET_FINALIZE_LOCATION                 = 0xBADD, // 5.4.1 17538
-    SMSG_BATTLE_PET_FINAL_ROUND                       = 0xBADD, // 5.4.1 17538
-    SMSG_BATTLE_PET_FIRST_ROUND                       = 0xBADD,  // 5.4.1 17538
-    SMSG_BATTLE_PET_FULL_UPDATE                       = 0xBADD, // 5.4.1 17538
-    SMSG_BATTLE_PET_HEALED                            = 0xBADD,  // 5.0.5 16048
-    SMSG_BATTLE_PET_MAX_GAME_LENGTH_WARNING           = 0xBADD,  // 5.0.5 16048
-    SMSG_BATTLE_PET_PVP_CHALLENGE                     = 0xBADD,  // 5.0.5 16048
-    SMSG_BATTLE_PET_QUEUE_PROPOSE_MATCH               = 0xBADD,  // 5.0.5 16048
-    SMSG_BATTLE_PET_QUEUE_STATUS                      = 0xBADD,  // 5.0.5 16048
-    SMSG_BATTLE_PET_REPLACEMENTS_MADE                 = 0xBADD,  // 5.0.5 16048
-    SMSG_BATTLE_PET_REQUEST_FAILED                    = 0xBADD,  // 5.0.5 16048
-    SMSG_BATTLE_PET_ROUND_RESULT                      = 0xBADD, // 5.4.1 17538
-    SMSG_BATTLE_PET_SLOT_UPDATE                       = 0xBADD,  // 5.0.5 16048
-    SMSG_COMPRESSED_ACHIEVEMENT_DATA                  = 0xBADD,      // Not found in 4.3.4
-    SMSG_COMPRESSED_CHAR_ENUM                         = 0xBADD,      // Not found in 4.3.4
-    SMSG_COMPRESSED_GUILD_ROSTER                      = 0xBADD,      // Not found in 4.3.4
-    SMSG_COMPRESSED_UPDATE_OBJECT                     = 0xBADD,      // Not found in 4.3.4
-    SMSG_FORCE_SEND_QUEUED_PACKETS                    = 0xBADD,  // 5.0.5 16048
-    SMSG_GROUP_JOINED_BATTLEGROUND                    = 0xBADD,      // Not found in TC
-    SMSG_GUILD_EVENT_TAB_REMOVED                      = 0xBADD, // 5.4.1 17538
-    SMSG_INITIAL_COOLDOWNS                            = 0xBADD, // 5.4.1 17538
-    SMSG_INSTANCE_DIFFICULTY                          = 0xBADD,      // Not found in 4.3.4
-    SMSG_LFG_UPDATE_PARTY                             = 0xBADD,      // Not found in 4.3.4
-    SMSG_LFG_UPDATE_PLAYER                            = 0xBADD,      // Not found in 4.3.4
-    SMSG_LFG_UPDATE_STATUS_NONE                       = 0xBADD,  // 5.0.5 16048
-    SMSG_LF_GUILD_SEARCH_RESULT                       = 0xBADD,      // Not found in TC
-    SMSG_PLAYER_UNK_DEAD_ALIVE                        = 0xBADD,      // Not found in 4.3.4
-    SMSG_PLAYER_RECIPES                               = 0xBADD, // 5.4.1 17538
-    SMSG_PURCHASE_STORE_PRODUCTS_UPDATED              = 0xBADD, // 5.4.1 17538
-    SMSG_PURCHASE_STORE_PURCHASE_LIST_UPDATED         = 0xBADD, // 5.4.1 17538
-    SMSG_SERVER_SCENE_PLAYBACK                        = 0xBADD, // 5.4.1 17538
-    SMSG_SPELL_CREATE_VISUAL                          = 0xBADD, // 5.4.1 17538
-    SMSG_SURVEY_CAST                                  = 0xBADD, // 5.4.1 17538
-    SMSG_UPDATE_ACCOUNT_DATA_COMPLETE                 = 0xBADD,  // 5.0.5 16048
-    SMSG_UPDATE_ITEM_ENCHANTMENTS                     = 0xBADD,  // 5.0.5 16048
-    SMSG_WORLD_STATE_TIMER_START_INIT                 = 0xBADD, // 5.4.1 17538
-    SMSG_WORLD_STATE_TIMER_START                      = 0xBADD, // 5.4.1 17538
-    SMSG_WORLD_STATE_TIMER_STOP                       = 0xBADD, // 5.4.1 17538
-    SMSG_SET_MOVEFLAG2_0x1000                         = 0xBADD, // 5.4.1 17538
-    SMSG_UNSET_MOVEFLAG2_0x1000                       = 0xBADD, // 5.4.1 17538
-    SMSG_SPELL_0x00E9                                 = 0xBADD, // 5.4.1 17538
-    SMSG_PET_BATTLE_FULL_UPDATE                       = 0xBADD,
-    SMSG_SCENARIO_POIS                                = 0xBADD,
     SMSG_0x1965                                       = 0x1965, // 6.1.2
+
+
+    SMSG_BATTLEFIELD_RATED_INFO = 0xBADD,
+    SMSG_PLAYER_RECIPES = 0xBADD,
+    SMSG_PURCHASE_STORE_PRODUCTS_UPDATED = 0xBADD,
+    SMSG_PURCHASE_STORE_PURCHASE_LIST_UPDATED = 0xBADD,
+    SMSG_SET_MOVEFLAG2_0x1000 = 0xBADD,
+    SMSG_WORLD_STATE_TIMER_STOP = 0xBADD,
+    SMSG_UNSET_MOVEFLAG2_0x1000 = 0xBADD,
 };
 
 #define MAX_OPCODE 0x7FFF
