@@ -162,7 +162,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
         if (atInfo.speed)
             _moveSpeed = atInfo.speed;
         else
-            _moveSpeed = GetSpellInfo()->GetMaxRange() / duration;
+            _moveSpeed = (GetSpellInfo()->GetMaxRange() / duration) * 1000.0f;
 
         switch (atInfo.moveType)
         {
@@ -895,7 +895,6 @@ void AreaTrigger::UpdateMovement(uint32 diff)
         tempPos.SimplePosXYRelocationByAngle(*this, (speed * _moveTime) / 1000.0f, angle, true);
 
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::UpdateMovement %f %f %f %f %i angle %f _nextMoveTime %i m_currentNode %i speed %f", GetPositionX(), GetPositionY(), GetPositionZ(), getMoveSpeed(), _moveTime, angle, _nextMoveTime, m_currentNode, speed);
-
 }
 
 bool AreaTrigger::IsInPolygon(Unit* unit, WorldObject const* obj)
