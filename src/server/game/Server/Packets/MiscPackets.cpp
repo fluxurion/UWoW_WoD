@@ -301,3 +301,213 @@ WorldPacket const* WorldPackets::Misc::ArchaeologySurveryCast::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::PlayerBound::Write()
+{
+    _worldPacket << BinderID;
+    _worldPacket << uint32(AreaID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::BinderConfirm::Write()
+{
+    _worldPacket << Unit;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StartMirrorTimer::Write()
+{
+    _worldPacket << int32(Timer);
+    _worldPacket << int32(Value);
+    _worldPacket << int32(MaxValue);
+    _worldPacket << int32(Scale);
+    _worldPacket << int32(SpellID);
+    _worldPacket.WriteBit(Paused);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PauseMirrorTimer::Write()
+{
+    _worldPacket << int32(Timer);
+    _worldPacket.WriteBit(Paused);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StopMirrorTimer::Write()
+{
+    _worldPacket << int32(Timer);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::ExplorationExperience::Write()
+{
+    _worldPacket << int32(AreaID);
+    _worldPacket << int32(Experience);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::LevelUpInfo::Write()
+{
+    _worldPacket << int32(Level);
+    _worldPacket << int32(HealthDelta);
+
+    for (int32 power : PowerDelta)
+        _worldPacket << power;
+
+    for (int32 stat : StatDelta)
+        _worldPacket << stat;
+
+    _worldPacket << int32(Cp);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlayMusic::Write()
+{
+    _worldPacket << uint32(SoundKitID);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::RandomRollClient::Read()
+{
+    _worldPacket >> Min;
+    _worldPacket >> Max;
+    _worldPacket >> PartyIndex;
+}
+
+WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
+{
+    _worldPacket << Roller;
+    _worldPacket << RollerWowAccount;
+    _worldPacket << int32(Min);
+    _worldPacket << int32(Max);
+    _worldPacket << int32(Result);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PhaseShift::Write()
+{
+    _worldPacket << ClientGUID;                                 // CLientGUID
+    _worldPacket << uint32(PhaseShifts.size() ? 0 : 8);         // PhaseShiftFlags
+    _worldPacket << uint32(PhaseShifts.size());                 // PhaseShiftCount
+    _worldPacket << PersonalGUID;                               // PersonalGUID
+    for (uint32 phase : PhaseShifts)
+    {
+        _worldPacket << uint16(1);                              // PhaseFlags
+        _worldPacket << uint16(phase);                          // PhaseID
+    }
+
+    _worldPacket << uint32(VisibleMapIDs.size() * 2);           // Active terrain swaps size
+    for (uint32 map : VisibleMapIDs)
+        _worldPacket << uint16(map);                            // Active terrain swap map id
+
+    _worldPacket << uint32(PreloadMapIDs.size() * 2);           // Inactive terrain swaps size
+    for (uint32 map : PreloadMapIDs)
+        _worldPacket << uint16(map);                            // Inactive terrain swap map id
+
+    _worldPacket << uint32(UiWorldMapAreaIDSwaps.size() * 2);   // UI map swaps size
+    for (uint32 map : UiWorldMapAreaIDSwaps)
+        _worldPacket << uint16(map);                            // UI map id, WorldMapArea.dbc, controls map display
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::ZoneUnderAttack::Write()
+{
+    _worldPacket << int32(AreaID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::DurabilityDamageDeath::Write()
+{
+    _worldPacket << int32(Percent);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::ObjectUpdateFailed::Read()
+{
+    _worldPacket >> ObjectGUID;
+}
+
+void WorldPackets::Misc::ObjectUpdateRescued::Read()
+{
+    _worldPacket >> ObjectGUID;
+}
+
+WorldPacket const* WorldPackets::Misc::PlaySound::Write()
+{
+    _worldPacket << int32(SoundKitID);
+    _worldPacket << SourceObjectGuid;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::FarSight::Read()
+{
+    Enable = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Misc::Dismount::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetAIAnimKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetMovementAnimKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetMeleeAnimKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << uint16(AnimKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetPlayHoverAnim::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket.WriteBit(PlayHoverAnim);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Misc::SetPvP::Read()
+{
+    EnablePVP = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Misc::WorldTeleport::Read()
+{
+    _worldPacket >> MapID;
+    _worldPacket >> TransportGUID;
+    _worldPacket >> Pos;
+    _worldPacket >> Facing;
+}

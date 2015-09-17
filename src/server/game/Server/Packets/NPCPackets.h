@@ -59,7 +59,7 @@ namespace WorldPackets
             int32 QuestLevel = 0;
             bool Repeatable = false;
             std::string QuestTitle;
-            int32 QuestFlags[2];
+            int32 QuestFlags[2] = { };
         };
 
         class GossipMessage final : public ServerPacket
@@ -105,15 +105,11 @@ namespace WorldPackets
 
         struct TrainerListSpell
         {
-            TrainerListSpell()
-            {
-                memset(&ReqAbility, 0, sizeof(ReqAbility));
-            }
             int32 SpellID = 0;
             int32 MoneyCost = 0;
             int32 ReqSkillLine = 0;
             int32 ReqSkillRank = 0;
-            int32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS];
+            int32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS] = { };
             uint8 Usable = 0;
             uint8 ReqLevel = 0;
         };
@@ -130,6 +126,18 @@ namespace WorldPackets
             ObjectGuid TrainerGUID;
             int32 TrainerID = 1;
             std::vector<TrainerListSpell> Spells;
+        };
+
+        class TrainerBuyFailed final : public ServerPacket
+        {
+        public:
+            TrainerBuyFailed() : ServerPacket(SMSG_TRAINER_BUY_FAILED, 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid TrainerGUID;
+            int32 SpellID = 0;
+            int32 TrainerFailedReason = 0;
         };
     }
 }

@@ -26,3 +26,25 @@ void WorldPackets::GameObject::GameObjectReportUse::Read()
 {
     _worldPacket >> Guid;
 }
+
+WorldPacket const* WorldPackets::GameObject::GameObjectDespawn::Write()
+{
+    _worldPacket << ObjectGUID;
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::GameObject::PageText::Write()
+{
+    _worldPacket << GameObjectGUID;
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::GameObject::GameObjectActivateAnimKit::Write()
+{
+    _worldPacket << ObjectGUID;
+    _worldPacket << uint32(AnimKitID);
+    _worldPacket.WriteBit(Maintain);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

@@ -15,31 +15,41 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ReferAFriendPackets.h"
+#include "ToyPackets.h"
 
-void WorldPackets::ReferAFriend::AcceptLevelGrant::Read()
+void WorldPackets::Toy::AddToy::Read()
 {
-    _worldPacket >> Granter;
+    _worldPacket >> Guid;
 }
 
-void WorldPackets::ReferAFriend::GrantLevel::Read()
+void WorldPackets::Toy::UseToy::Read()
 {
-    _worldPacket >> Target;
+    _worldPacket >> ItemID;
+    _worldPacket >> Cast;
 }
 
-WorldPacket const* WorldPackets::ReferAFriend::ProposeLevelGrant::Write()
+WorldPacket const* WorldPackets::Toy::AccountToysUpdate::Write()
 {
-    _worldPacket << Sender;
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::ReferAFriend::ReferAFriendFailure::Write()
-{
-    _worldPacket << int32(Reason);
-    _worldPacket.WriteBits(Str.length(), 6);
+    _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket.FlushBits();
-    _worldPacket.WriteString(Str);
+
+    // both lists have to have the same size
+    _worldPacket << int32(Toys->size());
+    _worldPacket << int32(Toys->size());
+
+    for (auto const& item : *Toys)
+        _worldPacket << uint32(item.first);
+
+    for (auto const& favourite : *Toys)
+        _worldPacket.WriteBit(favourite.second);
+
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
+}
+
+void WorldPackets::Toy::ToySetFavorite::Read()
+{
+    _worldPacket >> ItemID;
+    Favorite = _worldPacket.ReadBit();
 }

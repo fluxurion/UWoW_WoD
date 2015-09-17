@@ -129,52 +129,95 @@ namespace WorldPackets
             uint32 Reaction = 0;
         };
 
-        struct SubDamage
-        {
-            int32 SchoolMask = 0;
-            float FDamage = 0.0f;
-            int32 Damage = 0;
-            int32 Absorbed = 0;
-            int32 Resisted = 0;
-        };
-
-        struct UnkAttackerState
-        {
-            int32 State1 = 0;
-            float State2 = 0.0f;
-            float State3 = 0.0f;
-            float State4 = 0.0f;
-            float State5 = 0.0f;
-            float State6 = 0.0f;
-            float State7 = 0.0f;
-            float State8 = 0.0f;
-            float State9 = 0.0f;
-            float State10 = 0.0f;
-            float State11 = 0.0f;
-            int32 State12 = 0;
-        };
-
-        class AttackerStateUpdate final : public ServerPacket
+        class CancelCombat final : public ServerPacket
         {
         public:
-            AttackerStateUpdate() : ServerPacket(SMSG_ATTACKER_STATE_UPDATE, 70) { }
+            CancelCombat() : ServerPacket(SMSG_CANCEL_COMBAT, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        struct PowerUpdatePower
+        {
+            PowerUpdatePower(int32 power, uint8 powerType) : Power(power), PowerType(powerType) { }
+
+            int32 Power = 0;
+            uint8 PowerType = 0;
+        };
+
+        class PowerUpdate final : public ServerPacket
+        {
+        public:
+            PowerUpdate() : ServerPacket(SMSG_POWER_UPDATE, 16 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
-            Optional<WorldPackets::Spells::SpellCastLogData> LogData;
-            uint32 HitInfo = 0;
-            ObjectGuid AttackerGUID;
-            ObjectGuid VictimGUID;
-            int32 Damage = 0;
-            int32 OverDamage = -1;
-            Optional<SubDamage> SubDmg;
-            uint8 VictimState = 0;
-            int32 AttackerState = -1;
-            int32 MeleeSpellID = 0;
-            int32 BlockAmount = 0;
-            int32 RageGained = 0;
-            UnkAttackerState UnkState;
-            float Unk = 0.0f;
+            ObjectGuid Guid;
+            std::vector<PowerUpdatePower> Powers;
+        };
+
+        class SetSheathed final : public ClientPacket
+        {
+        public:
+            SetSheathed(WorldPacket&& packet) : ClientPacket(CMSG_SET_SHEATHED, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 CurrentSheathState = 0;
+            bool Animate = true;
+        };
+
+        class CancelAutoRepeat final : public ServerPacket
+        {
+        public:
+            CancelAutoRepeat() : ServerPacket(SMSG_CANCEL_AUTO_REPEAT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class HealthUpdate final : public ServerPacket
+        {
+        public:
+            HealthUpdate() : ServerPacket(SMSG_HEALTH_UPDATE, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            int32 Health = 0;
+        };
+
+        class ThreatClear final : public ServerPacket
+        {
+        public:
+            ThreatClear() : ServerPacket(SMSG_THREAT_CLEAR, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+        };
+
+        class PvPCredit final : public ServerPacket
+        {
+        public:
+            PvPCredit() : ServerPacket(SMSG_PVP_CREDIT, 4 + 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target;
+            int32 Honor = 0;
+            int32 Rank = 0;
+        };
+
+        class BreakTarget final : public ServerPacket
+        {
+        public:
+            BreakTarget() : ServerPacket(SMSG_BREAK_TARGET, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
         };
     }
 }

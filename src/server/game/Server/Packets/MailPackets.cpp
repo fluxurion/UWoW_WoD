@@ -274,3 +274,10 @@ WorldPacket const* WorldPackets::Mail::NotifyRecievedMail::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Mail::ShowMailbox::Write()
+{
+    _worldPacket << PostmasterGUID;
+
+    return &_worldPacket;
+}

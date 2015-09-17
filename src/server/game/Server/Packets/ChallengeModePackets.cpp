@@ -16,3 +16,116 @@
  */
 
 #include "ChallengeModePackets.h"
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::ChallengeMode::ModeAttempt const& modeAttempt)
+{
+    data << modeAttempt.InstanceRealmAddress;
+    data << modeAttempt.AttemptID;
+    data << modeAttempt.CompletionTime;
+    data.AppendPackedTime(modeAttempt.CompletionDate);
+    data << modeAttempt.MedalEarned;
+    data << uint32(modeAttempt.Members.size());
+    for (auto const& map : modeAttempt.Members)
+    {
+        data << map.VirtualRealmAddress;
+        data << map.NativeRealmAddress;
+        data << map.Guid;
+        data << map.SpecializationID;
+    }
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::ChallengeMode::ItemReward const& itemReward)
+{
+    data << itemReward.ItemID;
+    data << itemReward.ItemDisplayID;
+    data << itemReward.Quantity;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::ChallengeMode::MapChallengeModeReward const& mapChallengeModeReward)
+{
+    data << uint32(mapChallengeModeReward.Rewards.size());
+    for (auto const& map : mapChallengeModeReward.Rewards)
+    {
+        data << uint32(map.ItemRewards.size());
+        data << uint32(map.CurrencyRewards.size());
+        data << map.Money;
+
+        for (auto const& item : map.ItemRewards)
+            data << item;
+
+        for (auto const& currency : map.CurrencyRewards)
+        {
+            data << currency.CurrencyID;
+            data << currency.Quantity;
+        }
+    }
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::ChallengeMode::ChallengeModeMap const& challengeModeMap)
+{
+    data << challengeModeMap.MapId;
+    data << challengeModeMap.BestCompletionMilliseconds;
+    data << challengeModeMap.LastCompletionMilliseconds;
+    data << challengeModeMap.BestMedal;
+    data.AppendPackedTime(challengeModeMap.BestMedalDate);
+
+    data << uint32(challengeModeMap.BestSpecID.size());
+    for (auto const& map : challengeModeMap.BestSpecID)
+        data << map;
+
+    return data;
+}
+
+void WorldPackets::ChallengeMode::RequestLeaders::Read()
+{
+    _worldPacket >> MapId;
+    LastGuildUpdate = _worldPacket.read<uint32>();
+    LastRealmUpdate = _worldPacket.read<uint32>();
+}
+
+WorldPacket const* WorldPackets::ChallengeMode::RequestLeadersResult::Write()
+{
+    _worldPacket << MapID;
+    _worldPacket.AppendPackedTime(LastGuildUpdate);
+    _worldPacket.AppendPackedTime(LastRealmUpdate);
+
+    _worldPacket << uint32(GuildLeaders.size());
+    _worldPacket << uint32(RealmLeaders.size());
+
+    for (auto const& guildLeaders : GuildLeaders)
+        _worldPacket << guildLeaders;
+
+    for (auto const& realmLeaders : RealmLeaders)
+        _worldPacket << realmLeaders;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::ChallengeMode::Rewards::Write()
+{
+    _worldPacket << uint32(MapChallengeModeRewards.size());
+    _worldPacket << uint32(ItemRewards.size());
+
+    for (auto const& map : MapChallengeModeRewards)
+        _worldPacket << map;
+
+    for (auto const& item : ItemRewards)
+        _worldPacket << item;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::ChallengeMode::AllMapStats::Write()
+{
+    _worldPacket << uint32(ChallengeModeMaps.size());
+    for (auto const& map : ChallengeModeMaps)
+        _worldPacket << map;
+
+    return &_worldPacket;
+}

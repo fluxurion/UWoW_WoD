@@ -52,6 +52,8 @@
 #include "SystemPackets.h"
 #include "BattlePayMgr.h"
 #include "PacketUtilities.h"
+#include "CollectionMgr.h"
+#include "ChatPackets.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -116,7 +118,7 @@ timeLastChannelUnmoderCommand(0),
 timeLastChannelUnmuteCommand(0),
 timeLastChannelKickCommand(0), timeLastHandleSendMail(0), timeLastHandleSellItem(0), timeLastHandlePlayerLogin(0), timeLastHandleSpellClick(0),
 timeCharEnumOpcode(0), timeAddIgnoreOpcode(0), timeMoveTeleportAck(0),
-playerLoginCounter(0), m_currentBankerGUID()
+playerLoginCounter(0), m_currentBankerGUID(), _collectionMgr(Trinity::make_unique<CollectionMgr>(this))
 {
     _warden = NULL;
     _pakagepersecond = 0;
@@ -712,14 +714,7 @@ void WorldSession::SendNotification(const char *format, ...)
         vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
-        size_t len = strlen(szStr);
-
-        //! 5.4.1
-        WorldPacket data(SMSG_PRINT_NOTIFICATION, 2 + len);
-        data.WriteBits(len, 12);
-        data.FlushBits();
-        data.append(szStr, len);
-        SendPacket(&data);
+        SendPacket(WorldPackets::Chat::PrintNotification(szStr).Write());
     }
 }
 
@@ -735,12 +730,7 @@ void WorldSession::SendNotification(uint32 string_id, ...)
         vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
-        size_t len = strlen(szStr);
-        WorldPacket data(SMSG_PRINT_NOTIFICATION, 2 + len);
-        data.WriteBits(len, 12);
-        data.FlushBits();
-        data.append(szStr, len);
-        SendPacket(&data);
+        SendPacket(WorldPackets::Chat::PrintNotification(szStr).Write());
     }
 }
 
@@ -1071,7 +1061,7 @@ void WorldSession::ProcessQueryCallbacks()
         HandlePlayerLogin((LoginQueryHolder*)param);
     }
 
-    //! HandleAddFriendOpcode
+    //! HandleAddFriend
     if (_addFriendCallback.IsReady())
     {
         std::string param = _addFriendCallback.GetParam();

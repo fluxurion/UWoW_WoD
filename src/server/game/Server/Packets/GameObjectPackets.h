@@ -46,6 +46,38 @@ namespace WorldPackets
 
             ObjectGuid Guid;
         };
+
+        class GameObjectDespawn final : public ServerPacket
+        {
+        public:
+            GameObjectDespawn(ObjectGuid guid) : ServerPacket(SMSG_GAME_OBJECT_DESPAWN, 16), ObjectGUID(guid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+        };
+
+        class PageText final : public ServerPacket
+        {
+        public:
+            PageText(ObjectGuid guid) : ServerPacket(SMSG_PAGE_TEXT, 16), GameObjectGUID(guid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GameObjectGUID;
+        };
+
+        class GameObjectActivateAnimKit final : public ServerPacket
+        {
+        public:
+            GameObjectActivateAnimKit() : ServerPacket(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            int32 AnimKitID = 0;
+            bool Maintain = false;
+        };
     }
 }
 #endif // GOPackets_h__

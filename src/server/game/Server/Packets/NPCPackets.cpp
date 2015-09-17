@@ -118,3 +118,12 @@ WorldPacket const* WorldPackets::NPC::TrainerList::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::NPC::TrainerBuyFailed::Write()
+{
+    _worldPacket << TrainerGUID;
+    _worldPacket << SpellID;
+    _worldPacket << TrainerFailedReason;
+
+    return &_worldPacket;
+}

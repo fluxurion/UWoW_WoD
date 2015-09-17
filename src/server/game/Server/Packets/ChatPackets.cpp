@@ -190,3 +190,40 @@ WorldPacket const* WorldPackets::Chat::STextEmote::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Chat::PrintNotification::Write()
+{
+    _worldPacket.WriteBits(NotifyText.size(), 12);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(NotifyText);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Chat::ChatPlayerNotfound::Write()
+{
+    _worldPacket.WriteBits(Name.length(), 9);
+    _worldPacket.WriteString(Name);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Chat::ChatServerMessage::Write()
+{
+    _worldPacket << MessageID;
+
+    _worldPacket.WriteBits(StringParam.length(), 11);
+    _worldPacket.WriteString(StringParam);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Chat::DefenseMessage::Write()
+{
+    _worldPacket << int32(ZoneID);
+    _worldPacket.WriteBits(MessageText.length(), 12);
+    _worldPacket.WriteString(MessageText);
+
+    return &_worldPacket;
+}

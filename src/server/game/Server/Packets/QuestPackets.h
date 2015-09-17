@@ -127,6 +127,7 @@ namespace WorldPackets
             uint32 Flags = 0;
             uint32 FlagsEx = 0;
             int32 POIContinent = 0;
+            float RewardXPMultiplier = 1.0f;
             float POIx = 0.0f;
             float POIy = 0.0f;
             int32 POIPriority = 0;
@@ -162,9 +163,6 @@ namespace WorldPackets
             int32 RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = { };
             int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = { };
             int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = { };
-
-            // Non JAM data
-            float RevardXPMultiplier = 1.0f;
             float RewardMoneyMultiplier = 1.0f;
             int32 AllowableRaces = -1;
         };
@@ -404,6 +402,151 @@ namespace WorldPackets
             ObjectGuid QuestGiverGUID;
             int32 QuestID = 0;
             bool RespondToGiver = false;
+        };
+
+        class QuestGiverAcceptQuest final : public ClientPacket
+        {
+        public:
+            QuestGiverAcceptQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_ACCEPT_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID = 0;
+            bool StartCheat = false;
+        };
+
+        class QuestLogRemoveQuest final : public ClientPacket
+        {
+        public:
+            QuestLogRemoveQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_LOG_REMOVE_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Entry = 0;
+        };
+
+        struct GossipTextData
+        {
+            GossipTextData(uint32 questID, uint32 questType, uint32 questLevel, uint32 questFlags, uint32 questFlagsEx, bool repeatable, std::string questTitle) :
+                QuestID(questID), QuestType(questType), QuestLevel(questLevel), QuestFlags(questFlags), QuestFlagsEx(questFlagsEx), Repeatable(repeatable), QuestTitle(questTitle) { }
+            uint32 QuestID;
+            uint32 QuestType;
+            uint32 QuestLevel;
+            uint32 QuestFlags;
+            uint32 QuestFlagsEx;
+            bool Repeatable;
+            std::string QuestTitle;
+        };
+
+        class QuestGiverQuestList final : public ServerPacket
+        {
+        public:
+            QuestGiverQuestList() : ServerPacket(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 100) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid QuestGiverGUID;
+            uint32 GreetEmoteDelay      = 0;
+            uint32 GreetEmoteType       = 0;
+            std::vector<GossipTextData> GossipTexts;
+            std::string Greeting;
+        };
+
+        class QuestUpdateComplete final : public ServerPacket
+        {
+        public:
+            QuestUpdateComplete() : ServerPacket(SMSG_QUEST_UPDATE_COMPLETE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 QuestID = 0;
+        };
+
+        class QuestConfirmAcceptResponse final : public ServerPacket
+        {
+        public:
+            QuestConfirmAcceptResponse() : ServerPacket(SMSG_QUEST_CONFIRM_ACCEPT, 21) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid InitiatedBy;
+            int32 QuestID = 0;
+            std::string QuestTitle;
+        };
+
+        class QuestConfirmAccept final : public ClientPacket
+        {
+        public:
+            QuestConfirmAccept(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_CONFIRM_ACCEPT, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 QuestID = 0;
+        };
+
+        class QuestPushResultResponse final : public ServerPacket
+        {
+        public:
+            QuestPushResultResponse() : ServerPacket(SMSG_QUEST_PUSH_RESULT, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SenderGUID;
+            uint8 Result = 0;
+        };
+
+        class QuestLogFull final : public ServerPacket
+        {
+        public:
+            QuestLogFull() : ServerPacket(SMSG_QUEST_LOG_FULL, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class QuestPushResult final : public ClientPacket
+        {
+        public:
+            QuestPushResult(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_PUSH_RESULT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid SenderGUID;
+            uint32 QuestID = 0;
+            uint8 Result = 0;
+        };
+
+        class QuestGiverInvalidQuest final : public ServerPacket
+        {
+        public:
+            QuestGiverInvalidQuest() : ServerPacket(SMSG_QUEST_GIVER_INVALID_QUEST, 6) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Reason = 0;
+            bool SendErrorMessage = false;
+            std::string ReasonText;
+        };
+
+        class QuestUpdateFailedTimer final : public ServerPacket
+        {
+        public:
+            QuestUpdateFailedTimer(uint32 ID) : ServerPacket(SMSG_QUEST_UPDATE_FAILED_TIMER, 4), QuestID(ID) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+        };
+
+        class QuestGiverQuestFailed final : public ServerPacket
+        {
+        public:
+            QuestGiverQuestFailed() : ServerPacket(SMSG_QUEST_GIVER_QUEST_FAILED, 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+            uint32 Reason  = 0;
         };
     }
 }

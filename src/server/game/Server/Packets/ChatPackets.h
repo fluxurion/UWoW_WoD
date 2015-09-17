@@ -196,6 +196,48 @@ namespace WorldPackets
             int32 SoundIndex = -1;
             int32 EmoteID = 0;
         };
+
+        class PrintNotification final : public ServerPacket
+        {
+        public:
+            PrintNotification(std::string const& notifyText) : ServerPacket(SMSG_PRINT_NOTIFICATION, 2 + notifyText.size()), NotifyText(notifyText) { }
+
+            WorldPacket const* Write() override;
+
+            std::string NotifyText;
+        };
+
+        class ChatPlayerNotfound final : public ServerPacket
+        {
+        public:
+            ChatPlayerNotfound(std::string const& name) : ServerPacket(SMSG_CHAT_PLAYER_NOTFOUND, 2 + name.size()), Name(name) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+        };
+
+        class ChatServerMessage final : public ServerPacket
+        {
+        public:
+            ChatServerMessage() : ServerPacket(SMSG_CHAT_SERVER_MESSAGE, 4 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            int32 MessageID = 0;
+            std::string StringParam;
+        };
+
+        class DefenseMessage final : public ServerPacket
+        {
+        public:
+            DefenseMessage() : ServerPacket(SMSG_DEFENSE_MESSAGE, 4 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            int32 ZoneID = 0;
+            std::string MessageText;
+        };
     }
 }
 

@@ -551,3 +551,8 @@ WorldPacket const* WorldPackets::Battleground::ArenaPrepOpponentSpecializations:
 
     return &_worldPacket;
 }
+
+void WorldPackets::Battleground::QueueRequest::Read()
+{
+    _worldPacket >> QueueID;
+}

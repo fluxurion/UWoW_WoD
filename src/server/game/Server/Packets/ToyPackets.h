@@ -15,57 +15,61 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ReferAFriendPackets_h__
-#define ReferAFriendPackets_h__
+#ifndef ToyPackets_h__
+#define ToyPackets_h__
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "SpellPackets.h"
+#include "CollectionMgr.h"
 
 namespace WorldPackets
 {
-    namespace ReferAFriend
+    namespace Toy
     {
-        class AcceptLevelGrant final : public ClientPacket
+        class AddToy final : public ClientPacket
         {
         public:
-            AcceptLevelGrant(WorldPacket&& packet) : ClientPacket(CMSG_ACCEPT_LEVEL_GRANT, std::move(packet)) { }
+            AddToy(WorldPacket&& packet) : ClientPacket(CMSG_ADD_TOY, std::move(packet)) { }
 
             void Read() override;
 
-            ObjectGuid Granter;
+            ObjectGuid Guid;
         };
 
-        class GrantLevel final : public ClientPacket
+        class UseToy final : public ClientPacket
         {
         public:
-            GrantLevel(WorldPacket&& packet) : ClientPacket(CMSG_GRANT_LEVEL, std::move(packet)) { }
+            UseToy(WorldPacket&& packet) : ClientPacket(CMSG_USE_TOY, std::move(packet)) { }
 
             void Read() override;
 
-            ObjectGuid Target;
+            WorldPackets::Spells::SpellCastRequest Cast;
+            uint32 ItemID = 0;
         };
 
-        class ProposeLevelGrant final : public ServerPacket
+        class AccountToysUpdate final : public ServerPacket
         {
         public:
-            ProposeLevelGrant() : ServerPacket(SMSG_PROPOSE_LEVEL_GRANT, 16) { }
+            AccountToysUpdate() : ServerPacket(SMSG_ACCOUNT_TOYS_UPDATE, 1 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid Sender;
+            bool IsFullUpdate = false;
+            ToyBoxContainer const* Toys = nullptr;
         };
 
-        class ReferAFriendFailure final : public ServerPacket
+        class ToySetFavorite final : public ClientPacket
         {
         public:
-            ReferAFriendFailure() : ServerPacket(SMSG_REFER_A_FRIEND_FAILURE, 1 + 4) { }
+            ToySetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_TOY_SET_FAVORITE, std::move(packet)) { }
 
-            WorldPacket const* Write() override;
+            void Read() override;
 
-            std::string Str;
-            int32 Reason = 0;
+            uint32 ItemID = 0;
+            bool Favorite = false;
         };
     }
 }
 
-#endif // ReferAFriendPackets_h__
+#endif // ToyPackets_h__
