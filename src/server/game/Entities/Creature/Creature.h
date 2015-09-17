@@ -171,6 +171,7 @@ struct CreatureTemplate
     uint32  GetFirstValidModelId() const;
     uint32  personalloot;
     uint32  VignetteId;
+    uint32  WorldEffectID;
 
     //Get difficulty from spawnmode
     static uint8 GetDiffFromSpawn(uint8 spawnmode)
@@ -638,7 +639,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void SelectLevel(const CreatureTemplate* cinfo);
         void LoadEquipment(uint32 equip_entry, bool force=false);
 
-        ObjectGuid::LowType GetDBTableGUIDLow() const { return m_DBTableGuid; }
+        uint64 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
         void Update(uint32 time);                         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
@@ -939,6 +940,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void SetVehicleAccessoryInit(bool r) { m_onVehicleAccessory = r; }
 
         uint32 GetVignetteId() const { return m_creatureInfo ? m_creatureInfo->VignetteId : 0; }
+        uint32 GetPersonalLootId() const { return m_creatureInfo ? m_creatureInfo->personalloot : 0; }
 
         uint32 getCurrentUpdateAreaID() const { return m_areaUpdateId; }
         uint32 getCurrentUpdateZoneID() const { return m_zoneUpdateId; }
@@ -975,7 +977,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint32 m_regenTimerCount;
         uint32 m_petregenTimer;
         MovementGeneratorType m_defaultMovementType;
-        ObjectGuid::LowType m_DBTableGuid;                  ///< For new or temporary creatures is 0 for saved it is lowguid
+        uint64 m_DBTableGuid;                  ///< For new or temporary creatures is 0 for saved it is lowguid
         uint32 m_equipmentId;
 
         bool m_AlreadyCallAssistance;

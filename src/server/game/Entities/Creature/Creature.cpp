@@ -160,7 +160,7 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapCreature(),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(),
 m_PlayerDamageReq(0), m_lootRecipient(), m_lootRecipientGroup(), m_LootOtherRecipient(), m_corpseRemoveTime(0), m_respawnTime(0),
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
-m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(UI64LIT(0)), m_equipmentId(0), m_AlreadyCallAssistance(false),
+m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_onVehicleAccessory(false)
 {
@@ -921,6 +921,12 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     m_areaUpdateId = GetMap()->GetAreaId(x, y, z);
     m_zoneUpdateId = GetMap()->GetZoneId(x, y, z);
 
+    // code block for underwater state update
+    if (!m_lastUnderWatterPos.IsInDist(this, World::Relocation_UpdateUnderwateLimit))
+    {
+        m_lastUnderWatterPos = *this;
+        UpdateUnderwaterState(GetMap(), x, y, z);
+    }
     return true;
 }
 
@@ -1160,7 +1166,8 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
 {
     // update in loaded data
     if (!m_DBTableGuid)
-        m_DBTableGuid = GetGUID().GetCounter();
+        m_DBTableGuid = GetGUID().GetGUIDLow();
+
     CreatureData& data = sObjectMgr->NewOrExistCreatureData(m_DBTableGuid);
 
     uint32 displayId = GetNativeDisplayId();
@@ -1393,7 +1400,7 @@ float Creature::_GetHealthModPersonal(uint32 &count)
         case CREATURE_ELITE_RARE:
         {
             count -= 1; //first player
-            return 0.0f; //From WOD hp increment 70% by player
+            return 0.7f; //From WOD hp increment 70% by player
         }
         case CREATURE_ELITE_WORLDBOSS:
         {
@@ -1486,6 +1493,9 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, int32 
     if (vehId)
         CreateVehicleKit(vehId, entry, true);
 
+    if(m_creatureInfo->WorldEffectID)
+        SetUInt32Value(UNIT_FIELD_STATE_WORLD_EFFECT_ID, m_creatureInfo->WorldEffectID);
+
     return true;
 }
 
@@ -1500,6 +1510,7 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType guid, Map* map, bool addTo
     }
 
     m_DBTableGuid = guid;
+
     if (map->GetInstanceId() == 0)
     {
         if (map->GetCreature(ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, guid)))
@@ -2801,7 +2812,7 @@ bool Creature::IsDungeonBoss() const
 
 bool Creature::IsPersonalLoot() const
 {
-    return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_PERSONAL_LOOT);
+    return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_PERSONAL_LOOT) || GetPersonalLootId();
 }
 
 bool Creature::IsAutoLoot() const

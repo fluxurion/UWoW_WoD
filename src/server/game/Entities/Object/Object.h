@@ -108,6 +108,8 @@ class Object
         virtual void RemoveFromWorld();
 
         ObjectGuid const& GetGUID() const { return GetGuidValue(OBJECT_FIELD_GUID); }
+        uint32 GetGUIDLow() const { return GetGUID().GetGUIDLow(); }
+        uint32 GetGUIDHigh() const { return GetGUID().GetGUIDHigh(); }
         PackedGuid const& GetPackGUID() const { return m_PackGUID; }
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY_ID); }
         void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY_ID, entry); }

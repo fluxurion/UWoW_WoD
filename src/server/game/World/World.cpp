@@ -1917,6 +1917,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger data...");
     sObjectMgr->LoadAreaTriggerActionsAndData();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Conversation data...");
+    sObjectMgr->LoadConversationData();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Conditions...");
     sConditionMgr->LoadConditions();
 

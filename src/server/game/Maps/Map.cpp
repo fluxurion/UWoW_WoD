@@ -2186,6 +2186,9 @@ void Map::RemoveAllObjectsInRemoveList()
         case TYPEID_GAMEOBJECT:
             RemoveFromMap((GameObject*)obj, true);
             break;
+        case TYPEID_CONVERSATION:
+            RemoveFromMap((Conversation*)obj, true);
+            break;
         case TYPEID_UNIT:
         {
             // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
@@ -2306,12 +2309,14 @@ template bool Map::AddToMap(Creature*);
 template bool Map::AddToMap(GameObject*);
 template bool Map::AddToMap(DynamicObject*);
 template bool Map::AddToMap(AreaTrigger*);
+template bool Map::AddToMap(Conversation*);
 
 template void Map::RemoveFromMap(Corpse*, bool);
 template void Map::RemoveFromMap(Creature*, bool);
 template void Map::RemoveFromMap(GameObject*, bool);
 template void Map::RemoveFromMap(DynamicObject*, bool);
 template void Map::RemoveFromMap(AreaTrigger*, bool);
+template void Map::RemoveFromMap(Conversation*, bool);
 
 /* ******* Dungeon Instance Maps ******* */
 
@@ -2727,6 +2732,14 @@ bool Map::IsHeroic() const
         return difficulty->Flags & DIFFICULTY_FLAG_HEROIC;
     return false;
 }
+
+bool Map::IsNeedRecalc() const
+{
+    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
+        return difficulty->m_minPlayers != difficulty->m_maxPlayers;
+    return false;
+}
+
 
 uint32 InstanceMap::GetMaxPlayers() const
 {

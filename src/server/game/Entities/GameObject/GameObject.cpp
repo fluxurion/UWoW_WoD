@@ -221,9 +221,16 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     if(m_goInfo->WorldEffectID)
         m_updateFlag |= UPDATEFLAG_HAS_WORLDEFFECTID;
-
-    if(m_goInfo->WorldEffectID)
-        m_updateFlag |= UPDATEFLAG_HAS_WORLDEFFECTID;
+    if(m_goInfo->SpellVisualID)
+        SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, m_goInfo->SpellVisualID);
+    if(m_goInfo->SpellStateVisualID)
+        SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, m_goInfo->SpellStateVisualID);
+    if(m_goInfo->SpellStateAnimID)
+        SetUInt32Value(GAMEOBJECT_FIELD_STATE_ANIM_ID, m_goInfo->SpellStateAnimID);
+    if(m_goInfo->SpellStateAnimKitID)
+        SetUInt32Value(GAMEOBJECT_FIELD_STATE_ANIM_KIT_ID, m_goInfo->SpellStateAnimKitID);
+    if(m_goInfo->StateWorldEffectID)
+        SetUInt32Value(GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID, m_goInfo->StateWorldEffectID);
 
     switch (goinfo->type)
     {
@@ -681,7 +688,7 @@ void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
         return;
 
     if (!m_DBTableGuid)
-        m_DBTableGuid = GetGUID().GetCounter();
+        m_DBTableGuid = GetGUID().GetGUIDLow();
     // update in loaded data (changing data only in this place)
     GameObjectData& data = sObjectMgr->NewGOData(m_DBTableGuid);
 
@@ -963,6 +970,14 @@ bool GameObject::ActivateToQuest(Player* target) const
     if (target->HasQuestForGO(GetEntry()))
         return true;
 
+    for (auto i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+    {
+        if (!GetGOInfo()->questItems[i])
+            break;
+        if (target->HasQuestForItem(GetGOInfo()->questItems[i]))
+            return true;
+    }
+
     if (!sObjectMgr->IsGameObjectForQuests(GetEntry()))
         return false;
 
@@ -1138,11 +1153,11 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
-        // We do not allow players to use the hidden objects.
-        if (playerUser && (!isSpawned() || HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE)))
+        if (sScriptMgr->OnGossipHello(playerUser, this))
             return;
 
-        if (sScriptMgr->OnGossipHello(playerUser, this))
+        // We do not allow players to use the hidden objects.
+        if (playerUser && (!isSpawned() || HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE)))
             return;
     }
 

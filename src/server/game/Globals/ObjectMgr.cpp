@@ -260,6 +260,7 @@ template<> ObjectGuidGenerator<HighGuid::AreaTrigger>* ObjectMgr::GetGenerator()
 template<> ObjectGuidGenerator<HighGuid::LootObject>* ObjectMgr::GetGenerator() { return &_lootObjectGuidGenerator; }
 template<> ObjectGuidGenerator<HighGuid::Transport>* ObjectMgr::GetGenerator() { return &_moTransportGuidGenerator; }
 template<> ObjectGuidGenerator<HighGuid::BattlePet>* ObjectMgr::GetGenerator() { return &_BattlePetGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::Conversation>* ObjectMgr::GetGenerator() { return &_conversationGuidGenerator; }
 
 template<HighGuid type>
 ObjectGuidGenerator<type>* ObjectMgr::GetGenerator()
@@ -460,8 +461,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                             69          70          71         72            73            74          75           76          77          78           79          80
                                              "InhabitType, HoverHeight, HealthModifier, ManaModifier, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            81           82            83         84               85                  86          87           88           89
-                                             " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName, personalloot, VignetteId "
+    //                                            81           82            83         84               85                  86          87           88           89            90
+                                             " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName, personalloot, VignetteId, WorldEffectID "
                                              "FROM creature_template;");
 
     if (!result)
@@ -565,6 +566,7 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.ScriptID           = GetScriptId(fields[index++].GetCString());
         creatureTemplate.personalloot       = fields[index++].GetUInt32();
         creatureTemplate.VignetteId         = fields[index++].GetUInt32();
+        creatureTemplate.WorldEffectID      = fields[index++].GetUInt32();
         if(creatureTemplate.type_flags & CREATURE_TYPEFLAGS_BOSS)
         {
             //Save loot spell
@@ -6412,8 +6414,8 @@ void ObjectMgr::LoadGameObjectTemplate()
                                              "questItem4, questItem5, questItem6, Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
     //                                          29      30      31      32      33      34      35      36      37      38      39      40      41      42      43      44
                                              "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, Data24, Data25, Data26, Data27, Data28, "
-    //                                          45      46      47      48       49       50        51          52              53
-                                             "Data29, Data30, Data31, Data32, unkInt32, AIName, ScriptName, WorldEffectID, SpellVisualID "
+    //                                          45      46      47      48       49       50        51          52              53                 54                55                  56                  57
+                                             "Data29, Data30, Data31, Data32, unkInt32, AIName, ScriptName, WorldEffectID, SpellVisualID, SpellStateVisualID, SpellStateAnimID, SpellStateAnimKitID, StateWorldEffectID  "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -6496,6 +6498,10 @@ void ObjectMgr::LoadGameObjectTemplate()
         got.ScriptId = GetScriptId(fields[51].GetCString());
         got.WorldEffectID = fields[52].GetInt32();
         got.SpellVisualID = fields[53].GetInt32();
+        got.SpellStateVisualID = fields[54].GetInt32();
+        got.SpellStateAnimID = fields[55].GetInt32();
+        got.SpellStateAnimKitID = fields[56].GetInt32();
+        got.StateWorldEffectID = fields[57].GetInt32();
 
         // Checks
 
@@ -9854,6 +9860,76 @@ void ObjectMgr::LoadScenarioData()
     }
     else
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Scenario data. DB table `scenario_data` is empty.");
+}
+
+void ObjectMgr::LoadConversationData()
+{
+    _conversationDataList.clear();
+    _conversationCreatureList.clear();
+
+    //                                                  0       1       2       3       4        5
+    QueryResult result = WorldDatabase.Query("SELECT `entry`, `id`, `textId`, `unk1`, `unk2`, `flags` FROM `conversation_data` ORDER BY id");
+    if (result)
+    {
+        uint32 counter = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint8 i = 0;
+            ConversationData data;
+            data.entry = fields[i++].GetUInt32();
+            data.id = fields[i++].GetUInt32();
+            data.textId = fields[i++].GetUInt32();
+            data.unk1 = fields[i++].GetUInt32();
+            data.unk2 = fields[i++].GetUInt32();
+            data.flags = fields[i++].GetUInt32();
+            _conversationDataList[data.entry].push_back(data);
+            ++counter;
+        }
+        while (result->NextRow());
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u conversation data.", counter);
+    }
+    else
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 conversation data. DB table `conversation_data` is empty.");
+
+    //                                      0      1         2               3
+    result = WorldDatabase.Query("SELECT `entry`, `id`, `creatureId`, `creatureGuid` FROM `conversation_creature` ORDER BY id");
+    if (result)
+    {
+        uint32 counter = 0;
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint8 i = 0;
+            ConversationCreature data;
+            data.entry = fields[i++].GetUInt32();
+            data.id = fields[i++].GetUInt32();
+            data.creatureId = fields[i++].GetUInt32();
+            data.creatureGuid = fields[i++].GetUInt32();
+            _conversationCreatureList[data.entry].push_back(data);
+            ++counter;
+        }
+        while (result->NextRow());
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u conversation creature data.", counter);
+    }
+    else
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 conversation creature data. DB table `conversation_creature` is empty.");
+}
+
+const std::vector<ConversationData>* ObjectMgr::GetConversationData(uint32 entry) const
+{
+    ConversationDataMap::const_iterator itr = _conversationDataList.find(entry);
+    return itr != _conversationDataList.end() ? &(itr->second) : NULL;
+}
+
+const std::vector<ConversationCreature>* ObjectMgr::GetConversationCreature(uint32 entry) const
+{
+    ConversationCreatureMap::const_iterator itr = _conversationCreatureList.find(entry);
+    return itr != _conversationCreatureList.end() ? &(itr->second) : NULL;
 }
 
 AreaTriggerInfo const* ObjectMgr::GetAreaTriggerInfo(uint32 entry)

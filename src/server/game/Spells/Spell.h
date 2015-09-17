@@ -495,6 +495,7 @@ class Spell
         void SendScene(SpellEffIndex effIndex);
         void EffectBonusLoot(SpellEffIndex effIndex);
         void EffectJoinOrLeavePlayerParty(SpellEffIndex effIndex);
+        void EffectSummonConversation(SpellEffIndex effIndex);
 
         typedef std::set<Aura *> UsedSpellMods;
 

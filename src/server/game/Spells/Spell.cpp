@@ -475,7 +475,7 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
     {
         data.SrcLocation = boost::in_place();
         data.SrcLocation->Transport = m_src._transportGUID; // relative position guid here - transport for example
-        if (m_src._transportGUID)
+        if (m_src._transportGUID.IsEmpty())
             data.SrcLocation->Location = m_src._position;
         else
             data.SrcLocation->Location = m_src._transportOffset;
@@ -485,7 +485,7 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
     {
         data.DstLocation = boost::in_place();
         data.DstLocation->Transport = m_dst._transportGUID; // relative position guid here - transport for example
-        if (m_dst._transportGUID)
+        if (m_dst._transportGUID.IsEmpty())
             data.DstLocation->Location = m_dst._position;
         else
             data.DstLocation->Location = m_dst._transportOffset;
@@ -1022,7 +1022,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
 
 void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask)
 {
-    if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
+    if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER && targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_DEST)
     {
         ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented target reference type");
         return;
@@ -1065,6 +1065,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                 }
                 break;
             case TARGET_OBJECT_TYPE_DEST:
+            case TARGET_OBJECT_TYPE_OBJ_AND_DEST:
                 if (m_spellInfo->RequiresSpellFocus)
                 {
                     if (focusObject)
@@ -1083,23 +1084,39 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                     else if (st->target_mapId == m_caster->GetMapId())
                         m_targets.SetDst(st->target_X, st->target_Y, st->target_Z, st->target_Orientation);
                     return;
-                }else
+                }
+                else if (Unit* referer = m_targets.GetUnitTarget())
+                {
+                    m_targets.SetDst(*referer);
+                    return;
+                }
+                else
+                {
+#ifdef WIN32
                     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitNearbyTargets: no target destination on db: spell_target_position of spell ID %u, effect %u - selecting default targets", m_spellInfo->Id, effIndex);
+#endif
+                }
                 break;
             default:
+#ifdef WIN32
+                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitNearbyTargets: no conditions entry for target with TARGET_CHECK_ENTRY of spell ID %u, effect %u - selecting default targets", m_spellInfo->Id, effIndex);
+#endif
                 break;
         }
-        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitNearbyTargets: no conditions entry for target with TARGET_CHECK_ENTRY of spell ID %u, effect %u - selecting default targets", m_spellInfo->Id, effIndex);
     }
 
     WorldObject* target = SearchNearbyTarget(range, targetType.GetObjectType(), targetType.GetCheckType(), condList);
     if (!target)
     {
+        #ifdef WIN32
         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitNearbyTargets: cannot find nearby target for spell ID %u, effect %u", m_spellInfo->Id, effIndex);
+        #endif
         return;
     }
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitNearbyTargets spell id %u caster %u target %u entry %i", m_spellInfo->Id,  m_caster->GetGUID(), target->GetGUID(), target->GetEntry());
+    #ifdef WIN32
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitNearbyTargets spell id %u caster %s target %s ", m_spellInfo->Id, m_caster->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str());
+    #endif
 
     CallScriptObjectTargetSelectHandlers(target, effIndex);
 
@@ -1117,6 +1134,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                 AddGOTarget(gobjTarget, effMask);
             break;
         case TARGET_OBJECT_TYPE_DEST:
+        case TARGET_OBJECT_TYPE_OBJ_AND_DEST:
             m_targets.SetDst(*target);
             break;
         default:
@@ -3663,9 +3681,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     SpellCastResult result = CheckCast(true);
     if (result != SPELL_CAST_OK && !IsAutoRepeat())          //always cast autorepeat dummy for triggering
     {
-        //#ifdef WIN32
-        //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare::checkcast fail. spell id %u res %u source %u caster %d customCastFlags %u mask %u", m_spellInfo->Id, result, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask());
-        //#endif
         // Periodic auras should be interrupted when aura triggers a spell which can't be cast
         // for example bladestorm aura should be removed on disarm as of patch 3.3.5
         // channeled periodic spells should be affected by this (arcane missiles, penance, etc)
@@ -7854,29 +7869,28 @@ SpellCastResult Spell::CheckItems()
     // check spell focus object
     if (m_spellInfo->RequiresSpellFocus)
     {
-        if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id))
+        CellCoord p(Trinity::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
+        Cell cell(p);
+
+        GameObject* ok = NULL;
+        Trinity::GameObjectFocusCheck go_check(m_caster, m_spellInfo->RequiresSpellFocus);
+        Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> checker(m_caster, ok, go_check);
+
+        TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
+        Map& map = *m_caster->GetMap();
+        cell.Visit(p, object_checker, map, *m_caster, m_caster->GetVisibilityRange());
+
+        if (!ok)
         {
-            if (!m_caster->IsWithinDist3d(st->target_X, st->target_Y, st->target_Z, 20.0f) || m_caster->GetMapId() != st->target_mapId)
+            if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id))
+            {
+                if (!m_caster->IsWithinDist3d(st->target_X, st->target_Y, st->target_Z, 20.0f) || m_caster->GetMapId() != st->target_mapId)
+                    return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
+            }else
                 return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
         }
-        else
-        {
-            CellCoord p(Trinity::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
-            Cell cell(p);
 
-            GameObject* ok = NULL;
-            Trinity::GameObjectFocusCheck go_check(m_caster, m_spellInfo->RequiresSpellFocus);
-            Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> checker(m_caster, ok, go_check);
-
-            TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
-            Map& map = *m_caster->GetMap();
-            cell.Visit(p, object_checker, map, *m_caster, m_caster->GetVisibilityRange());
-
-            if (!ok)
-                return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
-
-            focusObject = ok;                                   // game object found in range
-        }
+        focusObject = ok;                                   // game object found in range
     }
 
     // do not take reagents for these item casts
@@ -8837,7 +8851,9 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
                 return SPELL_CAST_OK;
             }
             case LOCK_KEY_SPELL:
-                if ((lockInfo->Index[j] == 143917 && m_caster->HasAura(146589)) || lockInfo->Index[j] == 144229)
+                if (lockInfo->Index[j] == 143917 && m_caster->HasAura(146589))
+                    return SPELL_CAST_OK;
+                if (lockInfo->Index[j] == m_spellInfo->Id && !lockInfo->Action[j]) // May be bug? analyse this
                     return SPELL_CAST_OK;
                 reqKey = true;
                 break;

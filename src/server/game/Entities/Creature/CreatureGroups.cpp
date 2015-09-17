@@ -41,7 +41,7 @@ void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType const& groupId, Creatu
     //Add member to an existing group
     if (itr != map->CreatureGroupHolder.end())
     {
-        sLog->outDebug(LOG_FILTER_UNITS, "Group found: %u, inserting creature GUID: %u, Group InstanceID %u", groupId, member->GetGUID().GetCounter(), member->GetInstanceId());
+        sLog->outDebug(LOG_FILTER_UNITS, "Group found: %u, inserting creature GUID: %u, Group InstanceID %u", groupId, member->GetGUID().GetGUIDLow(), member->GetInstanceId());
         itr->second->AddMember(member);
     }
     //Create new group
@@ -153,12 +153,12 @@ FormationInfo* FormationMgr::CreateCustomFormation(Creature* c)
 
 void CreatureGroup::AddMember(Creature* member, FormationInfo* f)
 {
-    sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::AddMember: Adding unit GUID: %u.", member->GetGUID().GetCounter());
+    sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::AddMember: Adding unit GetDBTableGUIDLow %u GUID: %u", member->GetDBTableGUIDLow(), member->GetGUID().GetGUIDLow());
 
     //Check if it is a leader
     if (member->GetDBTableGUIDLow() == m_groupID || member->GetGUID().GetCounter() == m_groupID)
     {
-        sLog->outDebug(LOG_FILTER_UNITS, "Unit GUID: %u is formation leader. Adding group.", member->GetGUID().GetCounter());
+        sLog->outDebug(LOG_FILTER_UNITS, "Unit GUID: %u is formation leader. Adding group.", member->GetGUID().GetGUIDLow());
         m_leader = member;
     }
 
@@ -173,6 +173,8 @@ void CreatureGroup::AddMember(Creature* member, FormationInfo* f)
 
 void CreatureGroup::RemoveMember(Creature* member)
 {
+    sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::RemoveMember: Removing unit GetDBTableGUIDLow %u GUID: %u entry %u", member->GetDBTableGUIDLow(), member->GetGUID().GetGUIDLow(), member->GetEntry());
+
     if (m_leader == member)
         m_leader = NULL;
 
@@ -182,9 +184,17 @@ void CreatureGroup::RemoveMember(Creature* member)
 
 void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
 {
+    sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::MemberAttackStart: GetDBTableGUIDLow %u GetGUIDLow %u entry %u m_leader %u %u", member->GetDBTableGUIDLow(), member->GetGUID().GetGUIDLow(), member->GetEntry(), m_leader->GetEntry(), m_leader->GetGUID().GetGUIDLow());
+
     uint8 groupAI = 0;
     if(member->GetDBTableGUIDLow())
-        groupAI = sFormationMgr->CreatureGroupMap[member->GetDBTableGUIDLow()]->groupAI;
+    {
+        CreatureGroupInfoType::iterator itr = sFormationMgr->CreatureGroupMap.find(member->GetDBTableGUIDLow());
+        if (itr != sFormationMgr->CreatureGroupMap.end())
+            groupAI = itr->second->groupAI;
+        else
+            groupAI = 2;
+    }
     else
         groupAI = 2;
 

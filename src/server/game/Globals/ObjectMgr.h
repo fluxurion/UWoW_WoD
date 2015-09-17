@@ -20,6 +20,7 @@
 #define _OBJECTMGR_H
 
 #include "AreaTrigger.h"
+#include "Conversation.h"
 #include "Log.h"
 #include "Object.h"
 #include "Bag.h"
@@ -386,6 +387,27 @@ struct ScenarioData
 
 typedef UNORDERED_MAP<uint32/*ScenarioID*/, ScenarioData> ScenarioDataMap;
 typedef UNORDERED_MAP<uint32/*mapId*/, std::list<ScenarioData> > ScenarioDataListMap;
+
+struct ConversationCreature
+{
+    uint32 entry;
+    uint32 id;
+    uint32 creatureId;
+    uint32 creatureGuid;
+};
+
+struct ConversationData
+{
+    uint32 entry;
+    uint32 id;
+    uint32 textId;
+    uint32 unk1;
+    uint32 unk2;
+    uint32 flags;
+};
+
+typedef UNORDERED_MAP<uint32/*entry*/, std::vector<ConversationData> > ConversationDataMap;
+typedef UNORDERED_MAP<uint32/*entry*/, std::vector<ConversationCreature> > ConversationCreatureMap;
 
 typedef std::set<ObjectGuid::LowType> CellGuidSet;
 typedef std::map<ObjectGuid/*player guid*/, uint32/*instance*/> CellCorpseSet;
@@ -1290,6 +1312,8 @@ class ObjectMgr
 
         void LoadScenarioData();
 
+        void LoadConversationData();
+
         void LoadBannedAddons();
 
         // Battle Pet System
@@ -1468,6 +1492,9 @@ class ObjectMgr
         const char *GetTrinityStringForDBCLocale(int32 entry) const { return GetTrinityString(entry, DBCLocaleIndex); }
         LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
         void SetDBCLocaleIndex(LocaleConstant locale) { DBCLocaleIndex = locale; }
+
+        const std::vector<ConversationData>* GetConversationData(uint32 entry) const;
+        const std::vector<ConversationCreature>* GetConversationCreature(uint32 entry) const;
 
         void AddCorpseCellData(uint32 mapid, uint32 cellid, ObjectGuid player_guid, uint32 instance);
         void DeleteCorpseCellData(uint32 mapid, uint32 cellid, ObjectGuid player_guid);
@@ -1716,6 +1743,7 @@ class ObjectMgr
         ObjectGuidGenerator<HighGuid::AreaTrigger> _areaTriggerGuidGenerator;
         ObjectGuidGenerator<HighGuid::Transport> _moTransportGuidGenerator;
         ObjectGuidGenerator<HighGuid::BattlePet> _BattlePetGuidGenerator;
+        ObjectGuidGenerator<HighGuid::Conversation> _conversationGuidGenerator;
 
         QuestMap _questTemplates;
 
@@ -1868,6 +1896,9 @@ class ObjectMgr
         AreaTriggerInfoMap _areaTriggerData;
         ScenarioDataMap _scenarioData;
         ScenarioDataListMap _scenarioDataList;
+
+        ConversationDataMap _conversationDataList;
+        ConversationCreatureMap _conversationCreatureList;
 };
 
 #define sObjectMgr ObjectMgr::instance()

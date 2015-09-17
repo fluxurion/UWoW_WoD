@@ -293,7 +293,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218
-    &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219
+    &Spell::EffectSummonConversation,                       //219 SPELL_EFFECT_SUMMON_CONVERSATION
     &Spell::EffectNULL,                                     //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
     &Spell::EffectNULL,                                     //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
@@ -8763,4 +8763,27 @@ void Spell::EffectJoinOrLeavePlayerParty(SpellEffIndex effIndex)
     //    group->AddCreatureMember(creature);
     //else
     //    group->RemoveCreatureMember(creature->GetGUID());
+}
+
+void Spell::EffectSummonConversation(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    Position pos;
+    if (!m_targets.HasDst())
+        GetCaster()->GetPosition(&pos);
+    else
+        destTarget->GetPosition(&pos);
+
+    // trigger entry/miscvalue relation is currently unknown, for now use MiscValue as trigger entry
+    uint32 triggerEntry = GetSpellInfo()->Effects[effIndex].MiscValue;
+    if (!triggerEntry)
+        return;
+
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectSummonConversation pos (%f %f %f) HasDst %i", pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), m_targets.HasDst());
+
+    Conversation* conversation = new Conversation;
+    if (!conversation->CreateConversation(sObjectMgr->GetGenerator<HighGuid::Conversation>()->Generate(), triggerEntry, GetCaster(), GetSpellInfo(), pos))
+        delete conversation;
 }

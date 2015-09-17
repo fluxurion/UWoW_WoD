@@ -186,6 +186,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         case HighGuid::Corpse:
         case HighGuid::DynamicObject:
         case HighGuid::AreaTrigger:
+        case HighGuid::Conversation:
             updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
         case HighGuid::Creature:
@@ -301,7 +302,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     bool AnimKitCreate = (flags & UPDATEFLAG_ANIMKITS) != 0;
     bool Rotation = (flags & UPDATEFLAG_ROTATION) != 0;
     bool HasAreaTrigger = (flags & UPDATEFLAG_AREA_TRIGGER) != 0;
-    bool HasGameObject = false;
+    bool HasGameObject = (flags & UPDATEFLAG_HAS_WORLDEFFECTID) != 0;;
     bool ThisIsYou = (flags & UPDATEFLAG_SELF) != 0;
     bool ReplaceActive = false;
     bool SceneObjCreate = false;
@@ -609,16 +610,17 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             t->PutObjectUpdateMovement(data);                           // Points
     }
 
-    //if (GameObject)
-    //{
-    //    packet.ReadInt32("WorldEffectID", index);
+    if (HasGameObject)
+    {
+        if(GameObject const* go = ToGameObject())
+            *data << uint32(go->GetGOInfo()->WorldEffectID);
+        else
+            *data << uint32(0);
 
-    //    packet.ResetBitReader();
-
-    //    var bit8 = packet.ReadBit("bit8", index);
-    //    if (bit8)
-    //        packet.ReadInt32("Int1", index);
-    //}
+        data->WriteBit(false); // bit8
+        //if (bit8)
+            //*data << uint32(Int1);
+    }
 
     //if (SceneObjCreate)
     //{
@@ -1670,6 +1672,9 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             flags = AreaTriggerUpdateFieldFlags;
             if (ToAreaTrigger()->GetCasterGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
+            break;
+        case TYPEID_CONVERSATION:
+            flags = ConversationUpdateFieldFlags;
             break;
         case TYPEID_OBJECT:
             break;

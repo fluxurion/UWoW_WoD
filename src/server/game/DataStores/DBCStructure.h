@@ -1606,7 +1606,7 @@ struct LockEntry
     uint32      Type[MAX_LOCK_CASE];                        // 1-8      m_Type
     uint32      Index[MAX_LOCK_CASE];                       // 9-16     m_Index
     uint32      Skill[MAX_LOCK_CASE];                       // 17-24    m_Skill
-    //uint32      Action[MAX_LOCK_CASE];                    // 25-32    m_Action
+    uint32      Action[MAX_LOCK_CASE];                      // 25-32    m_Action
 };
 
 struct PhaseEntry

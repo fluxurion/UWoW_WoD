@@ -2645,6 +2645,8 @@ class Unit : public WorldObject
 
         uint8 m_diffMode;
 
+        Position m_lastUnderWatterPos;
+
         bool m_IsInKillingProcess;
 
         bool IsAlwaysVisibleFor(WorldObject const* seer) const;
@@ -2693,7 +2695,6 @@ class Unit : public WorldObject
         class AINotifyTask;
         class VisibilityUpdateTask;
         Position m_lastVisibilityUpdPos;
-        Position m_lastUnderWatterPos;
         bool m_VisibilityUpdScheduled;
         bool m_VisibilityUpdateTask;
         uint32 m_rootTimes;
