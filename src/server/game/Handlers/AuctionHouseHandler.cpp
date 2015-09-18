@@ -182,11 +182,11 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
             return;
         }
 
-        if (packet.Items.size() != 0 && (packetItem.Guid.GetEntry() != item->GetEntry() || packetItem.Guid.GetCounter() == item->GetGUID().GetCounter()))
-        {
-            sWorld->BanAccount(BAN_CHARACTER, _player->GetName(), "45d", "Dupe Auction mop", "System");
-            return;
-        }
+        //if (packet.Items.size() != 0 && (packetItem.Guid.GetEntry() != item->GetEntry() || packetItem.Guid.GetCounter() == item->GetGUID().GetCounter()))
+        //{
+        //    sWorld->BanAccount(BAN_CHARACTER, _player->GetName(), "45d", "Dupe Auction mop", "System");
+        //    return;
+        //}
 
         finalCount += packetItem.UseCount;
     }
