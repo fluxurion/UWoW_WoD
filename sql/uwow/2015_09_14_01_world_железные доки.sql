@@ -11,9 +11,9 @@ delete from instance_template where map = 1195;
 INSERT INTO `instance_template` (`map`, `parent`, `script`, `allowMount`, `bonusChance`) VALUES
 (1195, 0, 'instance_iron_docks', 0, 0);
 
-delete from world_visible_distance where id = 6951;
+delete from world_visible_distance where id = 7309;
 INSERT INTO `world_visible_distance` (`type`, `id`, `distance`, `comment`) VALUES 
-(2, 6951, 300, 'IronDocks');
+(2, 7309, 300, 'IronDocks');
 
 delete from creature where id = 86565;
 

@@ -102,6 +102,13 @@ void AddSC_boss_grimrail_enforcers();
 void AddSC_boss_oshir();
 void AddSC_boss_skulloc();
 
+void AddSC_instance_upper_blackrock_spire();   // Upper Blackrock Spire
+void AddSC_boss_orebender_gorashan();
+void AddSC_boss_kyrak();
+void AddSC_boss_commander_tharbek();
+void AddSC_boss_ragewing_untamed();
+void AddSC_boss_warlord_zaela();
+
 //world
 void AddSC_areatrigger_scripts();
 void AddSC_emerald_dragons();
@@ -1063,6 +1070,13 @@ void AddDraenorScripts()
     AddSC_boss_grimrail_enforcers();
     AddSC_boss_oshir();
     AddSC_boss_skulloc();
+
+    AddSC_instance_upper_blackrock_spire();   // Upper Blackrock Spire
+    AddSC_boss_orebender_gorashan();
+    AddSC_boss_kyrak();
+    AddSC_boss_commander_tharbek();
+    AddSC_boss_ragewing_untamed();
+    AddSC_boss_warlord_zaela();
 }
 
 void AddEasternKingdomsScripts()

@@ -3027,6 +3027,9 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     uint32 modelid = 0;
     Powers PowerType = POWER_MANA;
     ShapeshiftForm form = ShapeshiftForm(GetMiscValue());
+    
+    // Remove aura from invisible model
+    target->RemoveAurasByType(SPELL_AURA_CLONE_CASTER);
 
     switch (form)
     {

@@ -29,7 +29,7 @@ enum Spells
 {
     //Makogg
     SPELL_FLAMING_SLASH      = 163665,
-    SPELL_LAVA_SWEEP         = 164956, //need fix spell!
+    SPELL_LAVA_SWEEP         = 164956,
     //Neesa
     SPELL_GUTSHOT            = 163334,
     SPELL_OGRE_TRAPS         = 163390,
@@ -162,7 +162,8 @@ public:
                         events.ScheduleEvent(EVENT_FLAMING_SLASH, 28000);
                         break;
                     case EVENT_LAVA_SWEEP:
-                        DoCast(SPELL_LAVA_SWEEP);
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                            DoCast(pTarget, SPELL_LAVA_SWEEP);
                         events.ScheduleEvent(EVENT_LAVA_SWEEP, 28000);
                         break;
                 }
@@ -547,7 +548,7 @@ public:
                 if(target)
                 {
                     o = caster->GetAngle(target);
-                    caster->CastSpell(target, 164901, true);
+                    caster->CastSpell(target, 164901);
                 }
                 else
                     o = caster->GetOrientation();
