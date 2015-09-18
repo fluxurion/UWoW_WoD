@@ -10582,11 +10582,20 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
         }
     }
 
+    //From WOD when exist personal loot send 2 package looting
+    /*if(pLoot)
+    {
+        //Personal loot send first
+        WorldPacket data(SMSG_LOOT_RESPONSE);
+        data << LootView(*pLoot, this, loot_type, guid, ALL_PERMISSION, groupThreshold, pool);
+        SendDirectMessage(&data);
+    }*/
+
     //! 6.0.3
     if (permission != NONE_PERMISSION)
     {
         WorldPackets::Loot::LootResponse packet;
-        packet.LootObj = loot->GetGUID();
+        packet.LootObj = loot->personal ? GetGUID() : loot->GetGUID();
         packet.Owner = guid;
         packet.LootMethod = loot_type;
         if (!GetGroup())
@@ -25517,6 +25526,9 @@ void Player::SendInitialPacketsAfterAddToMap()
     else if (GetMap()->IsNonRaidDungeon())
         SendDungeonDifficulty();
 
+    // send garrison info there...
+    //GetGarrisonMgr()->SendToClient();
+
     WorldPacket data;
     if (GetBattlePetMgr()->BuildPetJournal(&data))
         GetSession()->SendPacket(&data);
@@ -27603,7 +27615,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         currency->is_looted = true;
         --loot->unlootedCount;
         if(loot->personal)
-            SendDisplayToast(item->itemid, 3, 0/*loot->bonusLoot*/, item->count, 2);
+            SendDisplayToast(item->itemid, 3, 0/*loot->bonusLoot*/, item->count, 1);
         return;
     }
 
@@ -27656,7 +27668,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
                         guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->itemid);
 
             if (loot->personal && proto->Quality >= uint32(ITEM_QUALITY_UNCOMMON))
-                SendDisplayToast(item->itemid, 1, 0/*loot->bonusLoot*/, item->count, 1, newitem);
+                SendDisplayToast(item->itemid, 1, 0/*loot->bonusLoot*/, item->count, 2, newitem);
         }
 
         SendNewItem(newitem, uint32(item->count), false, false, true, NULL, loot->bonusLoot);
@@ -29574,14 +29586,14 @@ void Player::_SaveHonor()
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_KILL);
                     stmt->setUInt64(0, GetGUID().GetCounter());
                     stmt->setUInt64(1, itr->first);
-                    stmt->setUInt32(1, itr->second.count);
+                    stmt->setUInt32(2, itr->second.count);
                     CharacterDatabase.Execute(stmt);
                     break;
                 case KILL_CHANGED:
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_KILL);
                     stmt->setUInt32(0, itr->second.count);
                     stmt->setUInt64(1, GetGUID().GetCounter());
-                    stmt->setUInt64(1, itr->first);
+                    stmt->setUInt64(2, itr->first);
                     CharacterDatabase.Execute(stmt);
                     break;
             }
@@ -30320,8 +30332,8 @@ bool Player::CanSeeVignette(WorldObject *o)
 
     if (Creature const* creature = o->ToCreature())
     {
-        uint32 questId = creature->GetCreatureTemplate()->personalloot;
-        if(questId && GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
+        uint32 questId = creature->GetPersonalLootId();
+        if(questId && IsQuestRewarded(questId))
             return false;
     }
     return true;

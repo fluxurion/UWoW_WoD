@@ -136,6 +136,7 @@ public:
             { "bindsight",          SEC_ADMINISTRATOR,      false, &HandleBindSightCommand,              "", NULL },
             { "unbindsight",        SEC_ADMINISTRATOR,      false, &HandleUnbindSightCommand,            "", NULL },
             { "playall",            SEC_GAMEMASTER,         false, &HandlePlayAllCommand,                "", NULL },
+            { "abortReason",        SEC_GAMEMASTER,         false, &HandleTransferAbortReasonCommand,    "", NULL },
             { "selectfaction",      SEC_ADMINISTRATOR,      false, &HandleSelectFactionCommand,          "", NULL },
             { "outItemTemplate",    SEC_ADMINISTRATOR,      false, &HandleOutItemTemplateCommand,        "", NULL },
             { "wordfilter",         SEC_ADMINISTRATOR,      false, NULL,                                "", wordFilterCommandTable },
@@ -3449,6 +3450,17 @@ public:
         }
 
         handler->PSendSysMessage("end");
+        return true;
+    }
+    
+    static bool HandleTransferAbortReasonCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint8 reasonId = atoi((char*)args);
+
+        handler->GetSession()->GetPlayer()->SendTransferAborted(0, reasonId);
         return true;
     }
 };
