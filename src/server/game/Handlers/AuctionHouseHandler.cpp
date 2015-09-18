@@ -35,12 +35,12 @@
 //please DO NOT use iterator++, because it is slower than ++iterator!!!
 //post-incrementation is always slower than pre-incrementation !
 
-void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& packet)
+void WorldSession::HandleAuctionHelloRequest(WorldPackets::AuctionHouse::AuctionHelloRequest& packet)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionHelloOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Guid.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionHelloRequest - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Guid.GetCounter()));
         return;
     }
 
@@ -126,6 +126,13 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
     if (!packet.MinBid || !packet.RunTime)
         return;
 
+    if (packet.MinBid > MAX_MONEY_AMOUNT || packet.BuyoutPrice > MAX_MONEY_AMOUNT)
+    {
+        SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+        return;
+    }
+
+
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
@@ -175,13 +182,19 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
             return;
         }
 
-        if (packet.Items.size() != 0 && (packetItem.Guid.GetEntry() != item->GetEntry() || packetItem.Guid.GetCounter() == item->GetGUID().GetCounter()))
-        {
-            sWorld->BanAccount(BAN_CHARACTER, _player->GetName(), "45d", "Dupe Auction mop", "System");
-            return;
-        }
+        //if (packet.Items.size() != 0 && (packetItem.Guid.GetEntry() != item->GetEntry() || packetItem.Guid.GetCounter() == item->GetGUID().GetCounter()))
+        //{
+        //    sWorld->BanAccount(BAN_CHARACTER, _player->GetName(), "45d", "Dupe Auction mop", "System");
+        //    return;
+        //}
 
         finalCount += packetItem.UseCount;
+    }
+
+    if (packet.Items.empty())
+    {
+        SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+        return;
     }
 
     if (!finalCount)

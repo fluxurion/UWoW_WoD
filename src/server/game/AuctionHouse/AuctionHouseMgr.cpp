@@ -230,10 +230,10 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint64 con
     if (!oldBidder)
         oldBidder_accId = ObjectMgr::GetPlayerAccountIdByGUID(oldBidder_guid);
 
-    // old bidder exist
-    if ((oldBidder || oldBidder_accId) && item)
+    if (oldBidder || oldBidder_accId)
     {
-        oldBidder->GetSession()->SendAuctionOutBidNotification(auction, item);
+        if (oldBidder && item)
+            oldBidder->GetSession()->SendAuctionOutBidNotification(auction, item);
 
         MailDraft(auction->BuildAuctionMailSubject(AUCTION_OUTBIDDED), AuctionEntry::BuildAuctionMailBody(auction->owner, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut()))
             .AddMoney(auction->bid)
