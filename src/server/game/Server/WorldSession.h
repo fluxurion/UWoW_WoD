@@ -35,6 +35,7 @@
 #include "Packet.h"
 
 class CalendarEvent;
+class CollectionMgr;
 class CalendarInvite;
 class Creature;
 class GameObject;
@@ -357,6 +358,14 @@ namespace WorldPackets
         class EjectPassenger;
         class RequestVehicleExit;
         class MoveSetVehicleRecIdAck;
+    }
+
+    namespace Toy
+    {
+        class AccountToysUpdate;
+        class AddToy;
+        class ToySetFavorite;
+        class UseToy;
     }
 
     class Null final : public ClientPacket
@@ -707,6 +716,8 @@ class WorldSession
         uint32 GetRecruiterId() const { return recruiterId; }
         bool IsARecruiter() const { return isRecruiter; }
 
+        CollectionMgr* GetCollectionMgr() const { return _collectionMgr.get(); }
+
     public:                                                 // opcodes handlers
 
         void Handle_NULL(WorldPackets::Null& null);
@@ -731,9 +742,6 @@ class WorldSession
         // played time
         void HandlePlayedTime(WorldPacket& recvPacket);
 
-        // new
-        void HandleMoveUnRootAck(WorldPacket& recvPacket);
-        void HandleMoveRootAck(WorldPacket& recvPacket);
         void HandleLookingForGroup(WorldPacket& recvPacket);
 
         // cemetery/graveyard related
@@ -747,9 +755,6 @@ class WorldSession
         void HandleInspectPVP(WorldPackets::Inspect::InspectPVPRequest& packet);
 
         void HandleMoveWaterWalkAck(WorldPacket& recvPacket);
-        void HandleFeatherFallAck(WorldPacket& recvData);
-
-        void HandleMoveHoverAck(WorldPacket& recvData);
 
         void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
 
@@ -840,7 +845,6 @@ class WorldSession
 
         void HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet);
         void HandleSetActiveMoverOpcode(WorldPacket& recvData);
-        void HandleMoveNotActiveMover(WorldPacket& recvData);
         void HandleMoveDismissVehicle(WorldPackets::Vehicle::MoveDismissVehicle& packet);
         void HandleRequestVehiclePrevSeat(WorldPackets::Vehicle::RequestVehiclePrevSeat& packet);
         void HandleRequestVehicleNextSeat(WorldPackets::Vehicle::RequestVehicleNextSeat& packet);
@@ -1334,6 +1338,10 @@ class WorldSession
         void HandleBattlePayStartPurchase(WorldPackets::BattlePay::StartPurchase& packet);
         void HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::ConfirmPurchaseResponse& packet);
 
+        void HandleAddToy(WorldPackets::Toy::AddToy& packet);
+        void HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet);
+        void HandleUseToy(WorldPackets::Toy::UseToy& packet);
+
         // Scenarios
         void HandleScenarioPOIQuery(WorldPacket& recvPacket);
 
@@ -1470,6 +1478,8 @@ class WorldSession
         ObjectGuid m_currentBankerGUID;
 
         AuthFlags atAuthFlag = AT_AUTH_FLAG_NONE;
+
+        std::unique_ptr<CollectionMgr> _collectionMgr;
 };
 
 class PacketSendEvent : public BasicEvent

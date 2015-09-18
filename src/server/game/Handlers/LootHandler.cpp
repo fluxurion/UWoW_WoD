@@ -35,7 +35,6 @@
 //! 6.0.3
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLootItem& packet)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_ITEM");
     Player* player = GetPlayer();
     Loot* loot = NULL;
     Loot* tmp_loot = NULL;
@@ -51,7 +50,6 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
         if (!lootObjectGUID)
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_ITEM can't find owner of loot %u", lguid.GetCounter());
             player->SendLootRelease(lguid);
             return;
         }
@@ -147,8 +145,6 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
-
     Player* player = GetPlayer();
     ObjectGuid guid = player->GetLootGUID();
     AoeMap* listloot = player->GetAoeLootList();
@@ -308,8 +304,6 @@ void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
     if (!_creature)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_UNIT corpsGUID %u", corpsGUID);
-
     std::list<Creature*> corpesList;
     _looted->GetCorpseCreatureInGrid(corpesList, LOOT_DISTANCE);
 
@@ -349,8 +343,6 @@ void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
 //! 6.0.3
 void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_RELEASE");
-
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
     ObjectGuid guid;
@@ -592,8 +584,6 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
 
 void WorldSession::HandleLootSpecIdOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_METHOD_FOR_SPECIALIZATION");
-
     uint32 specID;
     recvData >> specID;
 

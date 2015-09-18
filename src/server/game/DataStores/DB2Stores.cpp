@@ -65,6 +65,7 @@ DB2Storage<ItemUpgradeEntry>                sItemUpgradeStore(ItemUpgradeEntryfm
 DB2Storage<RuleSetItemUpgradeEntry>         sRuleSetItemUpgradeEntryStore(RuleSetItemUpgradeEntryfmt);
 DB2Storage<GameObjectsEntry>                sGameObjectsStore(GameObjectsEntryfmt);
 DB2Storage<MapChallengeModeEntry>           sMapChallengeModeStore(MapChallengeModeEntryfmt);
+DB2Storage<ToyEntry>                        sToyStore(ToyFormat);
 DB2Storage<SpellVisualEntry>                sSpellVisualStore(SpellVisualEntryfmt);
 DB2Storage<KeyChainEntry>                   sKeyChainStore(KeyChainfmt);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore(OverrideSpellDataEntryfmt);
@@ -225,6 +226,12 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sQuestPackageItemStore,     db2Path,    "QuestPackageItem.db2");
     LoadDB2(bad_db2_files, sGameObjectsStore,          db2Path,    "GameObjects.db2");//19342
     LoadDB2(bad_db2_files, sMapChallengeModeStore,     db2Path,    "MapChallengeMode.db2");
+    LoadDB2(bad_db2_files, sToyStore,                  db2Path,    "Toy.db2");
+
+    //for (uint32 i = 0; i < sToyStore.GetNumRows(); ++i)
+    //    if (ToyEntry const* toy = sToyStore.LookupEntry(i))
+    //        _toys.push_back(toy->ItemID);
+
     LoadDB2(bad_db2_files, sSpellVisualStore,          db2Path,    "SpellVisual.db2");
     LoadDB2(bad_db2_files, sItemUpgradeStore,          db2Path,    "ItemUpgrade.db2");
     LoadDB2(bad_db2_files, sRuleSetItemUpgradeEntryStore,db2Path,  "RulesetItemUpgrade.db2");

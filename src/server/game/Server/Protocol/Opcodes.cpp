@@ -46,6 +46,7 @@
 #include "Packets/AuctionHousePackets.h"
 #include "Packets/InspectPackets.h"
 #include "Packets/VehiclePackets.h"
+#include "Packets/ToyPackets.h"
 
 template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
 class PacketHandler : public ClientOpcodeHandler
@@ -136,7 +137,6 @@ void OpcodeTable::Initialize()
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_GM_REPORT_LAG,                           STATUS_UNHANDLED,  PROCESS_THREADUNSAFE, &WorldSession::HandleReportLag                 );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_ADDON_BATTLEGROUND,          STATUS_UNHANDLED,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatAddonMessage, &WorldSession::HandleChatAddonMessageOpcode    );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_MESSAGECHAT_BATTLEGROUND,               STATUS_UNHANDLED,  PROCESS_THREADUNSAFE, WorldPackets::Chat::ChatMessage, &WorldSession::HandleChatMessageOpcode         );
-    //DEFINE_OPCODE_HANDLER_OLD(CMSG_MOVE_NOT_ACTIVE_MOVER,                   STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleMoveNotActiveMover        );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_SUMMON_BATTLEPET_COMPANION,              STATUS_UNHANDLED,  PROCESS_THREADUNSAFE, &WorldSession::HandleSummonBattlePet           );
     //DEFINE_OPCODE_HANDLER_OLD(CMSG_UPDATE_PROJECTILE_POSITION,              STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateProjectilePosition  );
 
@@ -148,7 +148,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_ADD_BATTLENET_FRIEND,                               STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_ADD_FRIEND,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Social::AddFriend, &WorldSession::HandleAddFriendOpcode);
     DEFINE_HANDLER(CMSG_ADD_IGNORE,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Social::AddIgnore, &WorldSession::HandleAddIgnoreOpcode);
-    DEFINE_HANDLER(CMSG_ADD_TOY,                                            STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_ADD_TOY,                                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Toy::AddToy, &WorldSession::HandleAddToy);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ALTER_APPEARANCE,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAlterAppearance           );
     DEFINE_HANDLER(CMSG_AREA_SPIRIT_HEALER_QUERY,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::AreaSpiritHealerQuery, &WorldSession::HandleAreaSpiritHealerQuery);
     DEFINE_HANDLER(CMSG_AREA_SPIRIT_HEALER_QUEUE,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::AreaSpiritHealerQueue, &WorldSession::HandleAreaSpiritHealerQueue);
@@ -777,7 +777,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_TOGGLE_DIFFICULTY,                                  STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_TOGGLE_PVP,                                         STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TOTEM_DESTROYED,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTotemDestroyed            );
-    DEFINE_HANDLER(CMSG_TOY_SET_FAVORITE,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_TOY_SET_FAVORITE,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Toy::ToySetFavorite, &WorldSession::HandleToySetFavorite);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TRAINER_BUY_SPELL,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTrainerBuySpellOpcode     );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_TRAINER_LIST,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTrainerListOpcode         );
     DEFINE_HANDLER(CMSG_TRANSMOGRIFY_ITEMS,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::TransmogrigyItem, &WorldSession::HandleTransmogrifyItems);
@@ -804,7 +804,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_USE_CRITTER_ITEM,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_USE_EQUIPMENT_SET,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetUse           );
     DEFINE_HANDLER(CMSG_USE_ITEM,                                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::ItemUse, &WorldSession::HandleUseItemOpcode             );
-    DEFINE_HANDLER(CMSG_USE_TOY,                                            STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_USE_TOY,                                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Toy::UseToy, &WorldSession::HandleUseToy);
     DEFINE_HANDLER(CMSG_USED_FOLLOW,                                        STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_VIOLENCE_LEVEL,                                     STATUS_AUTHED,    PROCESS_INPLACE,      WorldPackets::Misc::ViolenceLevel, &WorldSession::HandleViolenceLevel);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_VOICE_ADD_IGNORE,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -837,7 +837,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_CRITERIA_UPDATE,                 STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_DATA_TIMES,                      STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_MOUNT_UPDATE,                    STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_TOYS_UPDATE,                     STATUS_UNHANDLED);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACCOUNT_TOYS_UPDATE,                     STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACHIEVEMENT_DELETED,                     STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACHIEVEMENT_EARNED,                      STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACTIVATE_TAXI_REPLY,                     STATUS_NEVER);

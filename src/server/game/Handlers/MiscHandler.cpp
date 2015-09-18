@@ -551,7 +551,6 @@ void WorldSession::HandleDelIgnoreOpcode(WorldPackets::Social::DelIgnore& packet
 
 void WorldSession::HandleSetContactNotesOpcode(WorldPackets::Social::SetContactNotes& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_CONTACT_NOTES");
     _player->GetSocial()->SetFriendNote(packet.Player.Guid, packet.Notes);
 }
 
@@ -641,8 +640,6 @@ void WorldSession::HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse
 //! 6.0.3
 void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_AREA_TRIGGER. Trigger ID: %u enter %u, FromClient %u", packet.AreaTriggerID, packet.Entered, packet.FromClient);
-
     Player* player = GetPlayer();
     if (player->isInFlight())
     {
@@ -921,99 +918,6 @@ void WorldSession::HandleCompleteMovie(WorldPacket& /*recvData*/)
     _player->SetCanDelayTeleport(false);
 }
 
-
-void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
-
-    ObjectGuid guid;
-    uint32 time;
-    recvData >> time;
-
-    uint8 bitOrder[8] = {7, 1, 2, 6, 3, 4, 5, 0};
-    //recvData.ReadBitInOrder(guid, bitOrder);
-
-    uint8 byteOrder[8] = {1, 4, 2, 7, 0, 5, 6, 3};
-    //recvData.ReadBytesSeq(guid, byteOrder);
-
-    if (_player && _player->m_mover->m_movementInfo.flags & MOVEMENTFLAG_WALKING)
-        _player->m_anti_MistiCount = 1;
-
-    //TODO!
-
-    /*
-    uint64 guid;
-    uint32 time_skipped;
-    recvData >> guid;
-    recvData >> time_skipped;
-    sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_MOVE_TIME_SKIPPED");
-
-    /// TODO
-    must be need use in Trinity
-    We substract server Lags to move time (AntiLags)
-    for exmaple
-    GetPlayer()->ModifyLastMoveTime(-int32(time_skipped));
-    */
-}
-
-void WorldSession::HandleFeatherFallAck(WorldPacket& recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_MOVE_FEATHER_FALL_ACK");
-
-    // no used
-    recvData.rfinish();                       // prevent warnings spam
-}
-
-void WorldSession::HandleMoveUnRootAck(WorldPacket& recvData)
-{
-    // no used
-    recvData.rfinish();                       // prevent warnings spam
-    /*
-    uint64 guid;
-    recvData >> guid;
-
-    // now can skip not our packet
-    if (_player->GetGUID() != guid)
-    {
-    recvData.rfinish();                   // prevent warnings spam
-    return;
-    }
-
-    sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_FORCE_MOVE_UNROOT_ACK");
-
-    recvData.read_skip<uint32>();                          // unk
-
-    MovementInfo movementInfo;
-    movementInfo.guid = guid;
-    ValidateMovementInfo(&movementInfo);
-    recvData.read_skip<float>();                           // unk2
-    */
-}
-
-void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
-{
-    // no used
-    recvData.rfinish();                       // prevent warnings spam
-    /*
-    uint64 guid;
-    recvData >> guid;
-
-    // now can skip not our packet
-    if (_player->GetGUID() != guid)
-    {
-    recvData.rfinish();                   // prevent warnings spam
-    return;
-    }
-
-    sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_FORCE_MOVE_ROOT_ACK");
-
-    recvData.read_skip<uint32>();                          // unk
-
-    MovementInfo movementInfo;
-    ValidateMovementInfo(&movementInfo);
-    */
-}
-
 //! 6.0.3
 void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
 {
@@ -1042,41 +946,6 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
     data << uint32(_player->GetLevelPlayedTime());
     data << uint8(TriggerEvent);                                    // 0 - will not show in chat frame
     SendPacket(&data);
-}
-
-//! 5.4.1
-void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    uint32 mapid;
-    float PositionX;
-    float PositionY;
-    float PositionZ;
-    float Orientation;
-
-    recvData >> mapid;
-    recvData >> PositionZ;
-    recvData >> PositionX;
-    recvData >> PositionY;
-    recvData >> Orientation;                // o (3.141593 = 180 degrees)
-    
-    //recvData.ReadGuidMask<7, 5, 0, 6, 1, 3, 4, 2>(guid);
-    //recvData.ReadGuidBytes<3, 6, 1, 2, 0, 7, 5, 4>(guid);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_WORLD_TELEPORT");
-
-    if (GetPlayer()->isInFlight())
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) in flight, ignore worldport command.", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
-        return;
-    }
-
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_WORLD_TELEPORT: Player = %s, Time = %u, map = %u, x = %f, y = %f, z = %f, o = %f", GetPlayer()->GetName(), time, mapid, PositionX, PositionY, PositionZ, Orientation);
-
-    if (AccountMgr::IsAdminAccount(GetSecurity()))
-        GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
-    else
-        SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
 }
 
 void WorldSession::HandleWhoisOpcode(WorldPackets::Who::WhoIsRequest& packet)
@@ -1137,8 +1006,6 @@ void WorldSession::HandleWhoisOpcode(WorldPackets::Who::WhoIsRequest& packet)
 
 void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_COMPLAIN");
-
     uint8 spam_type;                                        // 0 - mail, 1 - chat
     ObjectGuid spammer_guid;
     uint32 unk1 = 0;
@@ -1179,8 +1046,6 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REALM_QUERY_NAME");
-
     uint32 realmId = recvData.read<uint32>();
 
     WorldPacket data(SMSG_REALM_QUERY_RESPONSE, 10 + 10 + 1 + 1 + 1 + 4);
@@ -1211,8 +1076,6 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_FAR_SIGHT");
-
     bool apply = recvData.ReadBit();
     if (!apply)
     {
@@ -1234,8 +1097,6 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_TITLE");
-
     int32 title;
     recvData >> title;
 
@@ -1254,8 +1115,6 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_TIME_SYNC_RESPONSE");
-
     // Prevent crashing server if queue is empty
     if (_player->m_timeSyncQueue.empty())
     {
@@ -1280,8 +1139,6 @@ void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& pack
 //! 6.0.3
 void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_RESET_INSTANCES");
-
     if (Group* group = _player->GetGroup())
     {
         if (group->IsLeader(_player->GetGUID()))
@@ -1465,9 +1322,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CANCEL_MOUNT_AURA");
-
-    //If player is not mounted, so go out :)
     if (!_player->IsMounted())                              // not blizz like; no any messages on blizz
     {
         ChatHandler(this).SendSysMessage(LANG_CHAR_NON_MOUNTED);
@@ -1483,13 +1337,7 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
     _player->RemoveAurasByType(SPELL_AURA_MOUNTED); // Calls Dismount()
 }
 
-void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
-{
-    /*
-    sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_REQUEST_PET_INFO");
-    recvData.hexlike();
-    */
-}
+void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */) { }
 
 void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
 {
@@ -1510,9 +1358,6 @@ void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& recvData)
 
 void WorldSession::HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*request*/)
 {
-    // empty opcode
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_UI_TIME_REQUEST");
-
     WorldPackets::Misc::UITime response;
     response.Time = time(NULL);
     SendPacket(response.Write());
@@ -1757,3 +1602,25 @@ void WorldSession::HandleTrigerSceneEvent(WorldPacket& recvPacket)
 void WorldSession::HandleWarGameStart(WorldPacket& recvPacket) { }
 
 void WorldSession::HandleWarGameAccept(WorldPacket& recvPacket) { }
+
+void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
+{
+    ObjectGuid guid = _player->GetGUID();
+
+    WorldPacket data(SMSG_SPECIAL_MOUNT_ANIM, 8 + 1);
+
+    GetPlayer()->SendMessageToSet(&data, false);
+}
+
+void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
+{
+    if (!_player->isAlive() || _player->isInCombat())
+        return;
+
+    ObjectGuid summonerGuid;
+    bool agree;
+
+    agree = recvData.ReadBit();
+
+    _player->SummonIfPossible(agree);
+}

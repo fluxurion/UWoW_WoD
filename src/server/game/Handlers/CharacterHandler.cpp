@@ -1206,14 +1206,12 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket & recvData)
 
 void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_HELM for %s", _player->GetName());
     recvData.ReadBit(); // on / off
     _player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
 }
 
 void WorldSession::HandleShowingCloakOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_CLOAK for %s", _player->GetName());
     recvData.ReadBit(); // on / off
     _player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
 }
@@ -1459,8 +1457,6 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
 
 void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ALTER_APPEARANCE");
-
     uint32 Hair, Color, FacialHair, SkinColor, unk;
     recvData >> Hair >> Color >> FacialHair >> SkinColor >> unk;
 
@@ -1555,8 +1551,6 @@ void WorldSession::HandleRemoveGlyph(WorldPacket & recvData)
 //! 6.0.3
 void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SAVE_EQUIPMENT_SET");
-
     uint32 index;
     ObjectGuid itemGuids[EQUIPMENT_SLOT_END];
     EquipmentSetInfo eqSet;
@@ -1601,8 +1595,6 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 
 void WorldSession::HandleEquipmentSetDelete(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_DELETE_EQUIPMENT_SET");
-
     uint64 setGuid;
     recvData >> setGuid;
 
@@ -1612,8 +1604,6 @@ void WorldSession::HandleEquipmentSetDelete(WorldPacket &recvData)
 //! 6.0.3
 void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_USE_EQUIPMENT_SET");
-
     ObjectGuid itemGuid[EQUIPMENT_SLOT_END];
 
     uint32 dword10 = recvData.ReadBits(2);

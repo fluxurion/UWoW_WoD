@@ -260,9 +260,6 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
             AH->deposit = deposit;
             AH->auctionHouseEntry = auctionHouseEntry;
 
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
-                _player->GetName(), _player->GetGUID().GetCounter(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetGUID().GetCounter(), AH->auctioneer, item->GetCount(), packet.MinBid, packet.BuyoutPrice, auctionTime, AH->GetHouseId());
-
             sAuctionMgr->AddAItem(item);
             auctionHouse->AddAuction(AH);
 
@@ -285,7 +282,6 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
             Item* newItem = item->CloneItem(finalCount, _player);
             if (!newItem)
             {
-                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_AUCTION_SELL_ITEM: Could not create clone of item %u", item->GetEntry());
                 SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
                 return;
             }
@@ -309,9 +305,6 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
             AH->expire_time = time(NULL) + auctionTime;
             AH->deposit = deposit;
             AH->auctionHouseEntry = auctionHouseEntry;
-
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
-                _player->GetName(), _player->GetGUID().GetCounter(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetGUID().GetCounter(), AH->auctioneer, newItem->GetCount(), packet.MinBid, packet.BuyoutPrice, auctionTime, AH->GetHouseId());
 
             sAuctionMgr->AddAItem(newItem);
             auctionHouse->AddAuction(AH);

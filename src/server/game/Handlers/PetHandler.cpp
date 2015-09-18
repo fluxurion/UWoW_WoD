@@ -401,7 +401,6 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 {
-    //sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_PET_SPELL_AUTOCAST");
     ObjectGuid guid;
     uint32 spellid;
     uint32  state;                                           //1 for on, 0 for off
@@ -445,11 +444,6 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 //! 6.0.3
 void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& cast)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL");
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL, castCount: %u, spellId %u, castFlags %u", cast.Cast.CastID, cast.Cast.SpellID, cast.Cast.SendCastFlags);
-
-    // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!_player->GetGuardianPet() && !_player->GetCharm())
         return;
 

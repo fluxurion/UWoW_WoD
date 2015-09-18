@@ -68,5 +68,6 @@ const char RuleSetItemUpgradeEntryfmt[] = "niii";
 const char GameObjectsEntryfmt[] = "niiffffffffiiiiiiiiiiiis";
 const char MapChallengeModeEntryfmt[] = "niiiiiiiii";
 const char SpellVisualEntryfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxixxxx";
+const char ToyFormat[] = "niisi";
 
 #endif

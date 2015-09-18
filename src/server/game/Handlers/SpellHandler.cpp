@@ -67,8 +67,6 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::ItemUse& cast)
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_USE_ITEM packet, bagIndex: %u, slot: %u, castCount: %u, spellId: %u, Item: %u, glyphIndex: %u", cast.bagIndex, cast.slot, cast.Cast.CastID, cast.Cast.SpellID, pItem->GetEntry(), cast.Cast.Misc);
-
     ItemTemplate const* proto = pItem->GetTemplate();
     if (!proto)
     {
@@ -774,8 +772,6 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
 
 void WorldSession::HandleSelfResOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SELF_RES");                  // empty opcode
-
     if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         return; // silent return, client should display error by itself and not send this opcode
 
@@ -827,7 +823,6 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
 
 void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRROR_IMAGE_DATA");
     ObjectGuid guid;
     uint32 displayId;
 
@@ -846,10 +841,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     // Get creator of the unit (SPELL_AURA_CLONE_CASTER does not stack)
     Unit* creator = unit->GetAuraEffectsByType(SPELL_AURA_CLONE_CASTER).front()->GetCaster();
     if (!creator)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRROR_IMAGE_DATA displayId %u, creator not found", displayId);
         creator = unit;
-    }
 
     Player* player = creator->ToPlayer();
     ObjectGuid guildGuid;
@@ -936,8 +928,6 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 
 void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_UPDATE_PROJECTILE_POSITION");
-
     ObjectGuid casterGuid;
     uint32 spellId;
     uint8 castCount;
@@ -973,8 +963,6 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
 
 void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_UPDATE_MISSILE_TRAJECTORY");
-
     ObjectGuid guid;
     uint32 spellId;
     float elevation, speed;
