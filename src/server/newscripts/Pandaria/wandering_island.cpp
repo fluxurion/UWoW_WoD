@@ -1030,7 +1030,7 @@ public:
             // used by spell 102445
             if (Creature* tempSummon = creature->SummonCreature(54734, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000, player->GetGUID()))
             {
-                player->CastSpell(player, 108149);  //visib
+                //player->CastSpell(player, 108149);  //visib
                 //player->CastSpell(player, 108150);  //invis
                 
                 tempSummon->AddPlayerInPersonnalVisibilityList(player->GetGUID());
@@ -1085,7 +1085,7 @@ public:
             events.ScheduleEvent(EVENT_SHADOW_KICK,  1000);
         }
 
-        void SetGUID(ObjectGuid const& guid, int32 /*type*/)
+        void SetGUID(ObjectGuid const& guid, int32 /*type*/) override
         {
             playerGuid = guid;
         }
@@ -1140,7 +1140,7 @@ public:
                             playerGuid.Clear();
                             break;
                         }
-                        
+
                         if (player->GetQuestStatus(QUEST_PARCHEMIN_VOLANT) != QUEST_STATUS_INCOMPLETE)
                         {
                             me->DespawnOrUnsummon(1000);
@@ -1668,7 +1668,7 @@ public:
             _events.ScheduleEvent(EVENT_CHANGE_PLACE, 5000);
         }
 
-        void MovementInform(uint32 typeId, uint32 pointId)
+        void MovementInform(uint32 typeId, uint32 pointId) override
         {
             if (typeId != EFFECT_MOTION_TYPE)
                 return;
@@ -1910,7 +1910,7 @@ class spell_grab_carriage: public SpellScriptLoader
                 yak->SetReactState(REACT_PASSIVE);
                 carriage->SetReactState(REACT_PASSIVE);
 
-                sLog->outU(">>>>> speed %f|%u ---- | %f", yak->GetSpeed(MOVE_RUN), yak->IsWalking(), carriage->GetSpeed(MOVE_RUN));
+                //sLog->outU(">>>>> speed %f|%u ---- | %f", yak->GetSpeed(MOVE_RUN), yak->IsWalking(), carriage->GetSpeed(MOVE_RUN));
                 //carriage->SetSpeed(MOVE_WALK, 5.0f, true);
                 //carriage->SetSpeed(MOVE_RUN, 1.5f, true);
                 //yak->SetSpeed(MOVE_WALK, yak->GetSpeed(MOVE_WALK), false);
@@ -2299,6 +2299,11 @@ class mob_master_shang_xi_temple : public CreatureScript
         {
             case QUEST_SPIRIT_AND_BODY:
                 sCreatureTextMgr->SendChat(creature, TEXT_GENERIC_7);
+                break;
+            case QUEST_SPIRIT_AND_BODY:
+                player->RemoveAurasDueToSpell(SPELL_CREDIT_NOT_IN_FACE);
+                player->RemoveAllMinionsByFilter(118036, 1);
+                player->RemoveAllMinionsByFilter(SPELL_CREDIT_NOT_IN_FACE, 1);
                 break;
         }
         return true;
