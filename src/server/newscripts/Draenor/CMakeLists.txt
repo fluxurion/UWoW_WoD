@@ -17,6 +17,13 @@ set(scripts_STAT_SRCS
   Draenor/IronDocks/boss_grimrail_enforcers.cpp
   Draenor/IronDocks/boss_oshir.cpp
   Draenor/IronDocks/boss_skulloc.cpp
+
+  Draenor/UpperBlackrockSpire/instance_upper_blackrock_spire.cpp
+  Draenor/UpperBlackrockSpire/boss_orebender_gorashan.cpp
+  Draenor/UpperBlackrockSpire/boss_kyrak.cpp
+  Draenor/UpperBlackrockSpire/boss_commander_tharbek.cpp
+  Draenor/UpperBlackrockSpire/boss_ragewing_untamed.cpp
+  Draenor/UpperBlackrockSpire/boss_warlord_zaela.cpp
 )
 
 message("  -> Prepared: Draenor")
