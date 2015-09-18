@@ -24,25 +24,27 @@ void WorldPackets::Guild::QueryGuildInfo::Read()
 }
 
 WorldPackets::Guild::QueryGuildInfoResponse::QueryGuildInfoResponse()
-    : ServerPacket(SMSG_QUERY_GUILD_INFO_RESPONSE) { }
+    : ServerPacket(SMSG_QUERY_GUILD_INFO_RESPONSE)
+{ }
 
 WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
 {
     _worldPacket << GuildGuid;
-    _worldPacket.WriteBit(Info.HasValue);
+    _worldPacket.WriteBit(Info.is_initialized());
+    _worldPacket.FlushBits();
 
-    if (Info.HasValue)
+    if (Info)
     {
-        _worldPacket << Info.Value.GuildGUID;
-        _worldPacket << uint32(Info.Value.VirtualRealmAddress);
-        _worldPacket << uint32(Info.Value.Ranks.size());
-        _worldPacket << uint32(Info.Value.EmblemStyle);
-        _worldPacket << uint32(Info.Value.EmblemColor);
-        _worldPacket << uint32(Info.Value.BorderStyle);
-        _worldPacket << uint32(Info.Value.BorderColor);
-        _worldPacket << uint32(Info.Value.BackgroundColor);
+        _worldPacket << Info->GuildGUID;
+        _worldPacket << uint32(Info->VirtualRealmAddress);
+        _worldPacket << uint32(Info->Ranks.size());
+        _worldPacket << uint32(Info->EmblemStyle);
+        _worldPacket << uint32(Info->EmblemColor);
+        _worldPacket << uint32(Info->BorderStyle);
+        _worldPacket << uint32(Info->BorderColor);
+        _worldPacket << uint32(Info->BackgroundColor);
 
-        for (GuildInfo::GuildInfoRank const& rank : Info.Value.Ranks)
+        for (GuildInfo::GuildInfoRank const& rank : Info->Ranks)
         {
             _worldPacket << uint32(rank.RankID);
             _worldPacket << uint32(rank.RankOrder);
@@ -51,9 +53,54 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
             _worldPacket.WriteString(rank.RankName);
         }
 
-        _worldPacket.WriteBits(Info.Value.GuildName.size(), 7);
-        _worldPacket.WriteString(Info.Value.GuildName);
+        _worldPacket.WriteBits(Info->GuildName.size(), 7);
+        _worldPacket.WriteString(Info->GuildName);
     }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
+{
+    _worldPacket << Money;
+    _worldPacket << Tab;
+    _worldPacket << WithdrawalsRemaining;
+    _worldPacket << uint32(TabInfo.size());
+    _worldPacket << uint32(ItemInfo.size());
+
+    for (GuildBankTabInfo const& tab : TabInfo)
+    {
+        _worldPacket << tab.TabIndex;
+        _worldPacket.WriteBits(tab.Name.length(), 7);
+        _worldPacket.WriteBits(tab.Icon.length(), 9);
+        _worldPacket.FlushBits();
+
+        _worldPacket.WriteString(tab.Name);
+        _worldPacket.WriteString(tab.Icon);
+    }
+
+    for (GuildBankItemInfo const& item : ItemInfo)
+    {
+        _worldPacket << item.Slot;
+        _worldPacket << item.Item;
+        _worldPacket << item.Count;
+        _worldPacket << item.EnchantmentID;
+        _worldPacket << item.Charges;
+        _worldPacket << item.OnUseEnchantmentID;
+        _worldPacket << uint32(item.SocketEnchant.size());
+        _worldPacket << item.Flags;
+
+        for (GuildBankItemInfo::GuildBankSocketEnchant const& socketEnchant : item.SocketEnchant)
+        {
+            _worldPacket << socketEnchant.SocketIndex;
+            _worldPacket << socketEnchant.SocketEnchantID;
+        }
+
+        _worldPacket.WriteBit(item.Locked);
+        _worldPacket.FlushBits();
+    }
+
+    _worldPacket.WriteBit(FullUpdate);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

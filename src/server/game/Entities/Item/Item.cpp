@@ -1375,7 +1375,7 @@ bool Item::IsRefundExpired()
     return (GetPlayedTime() > 2*HOUR);
 }
 
-void Item::SetSoulboundTradeable(GuidSet& allowedLooters)
+void Item::SetSoulboundTradeable(GuidSet const& allowedLooters)
 {
     SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
     allowedGUIDs = allowedLooters;
@@ -1872,28 +1872,4 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             RequiredLevel += values[0];
             break;
     }
-}
-
-WorldPackets::Item::ItemInstance& operator<<(WorldPackets::Item::ItemInstance& data, Item const* item)
-{
-    data.ItemID = item->GetEntry();
-    data.RandomPropertiesID = item->GetItemRandomPropertyId();
-    data.RandomPropertiesSeed = item->GetItemSuffixFactor();
-
-    std::vector<uint32> const bList = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
-    if (bList.size())
-    {
-        WorldPackets::Item::ItemBonusInstanceData bonus;
-        data.Modifications.resize(bList.size());
-        for (uint32 bonusID : bList)
-            bonus.BonusListIDs.push_back(bonusID);
-        bonus.Context = 0;  //ToDo. WTF??
-        data.ItemBonus.Set(bonus);
-    }
-    
-    data.Modifications.resize(MAX_ITEM_MODIFIERS);
-    for (uint8 i = 0; i < MAX_ITEM_MODIFIERS; ++i)
-        data.Modifications.push_back(item->GetModifier((ItemModifier)i));
-
-    return data;
 }

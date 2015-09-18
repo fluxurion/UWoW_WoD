@@ -51,6 +51,7 @@
 #include "MiscPackets.h"
 #include "SystemPackets.h"
 #include "BattlePayMgr.h"
+#include "PacketUtilities.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -444,6 +445,11 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     #endif
                     break;
             }
+        }
+        catch (WorldPackets::PacketArrayMaxCapacityException const& pamce)
+        {
+            sLog->outError(LOG_FILTER_NETWORKIO, "PacketArrayMaxCapacityException: %s while parsing %s from %s.",
+                pamce.what(), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerName(false).c_str());
         }
         catch(ByteBufferException &)
         {

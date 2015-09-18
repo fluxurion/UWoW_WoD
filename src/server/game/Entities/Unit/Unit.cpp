@@ -65,6 +65,7 @@
 #include "CombatPackets.h"
 #include "MovementPackets.h"
 #include "MiscPackets.h"
+#include "VehiclePackets.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -5898,13 +5899,12 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
     packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
-    WorldPackets::Combat::SubDamage& subDmg = packet.SubDmg.Value;
-    subDmg.SchoolMask = damageInfo->damageSchoolMask;   // School of sub damage
-    subDmg.FDamage = damageInfo->damage;                // sub damage
-    subDmg.Damage = damageInfo->damage;                 // Sub Damage
-    subDmg.Absorbed = damageInfo->absorb;
-    subDmg.Resisted = damageInfo->resist;
-    packet.SubDmg.HasValue = true;
+    packet.SubDmg = WorldPackets::Combat::SubDamage();
+    packet.SubDmg->SchoolMask = damageInfo->damageSchoolMask;
+    packet.SubDmg->FDamage = damageInfo->damage;
+    packet.SubDmg->Damage = damageInfo->damage;
+    packet.SubDmg->Absorbed = damageInfo->absorb;
+    packet.SubDmg->Resisted = damageInfo->resist;
 
     packet.VictimState = damageInfo->TargetState;
     packet.BlockAmount = damageInfo->blocked_amount;
@@ -13747,16 +13747,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         {
             if (CreateVehicleKit(VehicleId, creatureEntry))
             {
-                // Send others that we now have a vehicle
-                WorldPacket data(SMSG_SET_VEHICLE_REC_ID, 8 + 1 + 4);
-                data << GetGUID();
-                data << uint32(VehicleId);
-                SendMessageToSet(&data, true);
-
-                data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-                player->GetSession()->SendPacket(&data);
-
-                // mounts can also have accessories
+                player->SendOnCancelExpectedVehicleRideAura();
                 GetVehicleKit()->InstallAllAccessories(false);
             }
         }
@@ -13790,12 +13781,7 @@ void Unit::Dismount()
     // dismount as a vehicle
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
     {
-        // Send other players that we are no longer a vehicle
-        data.Initialize(SMSG_SET_VEHICLE_REC_ID, 8 + 4 + 1);
-        data << GetGUID();
-        data << uint32(0);
-        ToPlayer()->SendMessageToSet(&data, true);
-        // Remove vehicle from player
+        SendSetVehicleRecId(0);
         RemoveVehicleKit();
     }
 
@@ -15012,7 +14998,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 pet->SetSpeed(mtype, m_speed_rate[mtype], forced);
     }
 
-    if (/*forced && */GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER)
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER)
     {
         // Send notification to self
         WorldPackets::Movement::MoveSetSpeed selfpacket(moveTypeToOpcode[mtype][1]);
@@ -16368,7 +16354,7 @@ void Unit::RemoveFromWorld()
         m_VisibilityUpdScheduled = false;
         m_duringRemoveFromWorld = true;
         if (IsVehicle())
-            RemoveVehicleKit();
+            RemoveVehicleKit(true);
 
         RemoveCharmAuras();
         RemoveBindSightAuras();
@@ -17688,7 +17674,7 @@ void Unit::SendMovementFlagUpdate(bool self /* = false */)
 {
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        WorldPackets::Movement::ServerPlayerMovement playerMovement;
+        WorldPackets::Movement::MoveUpdate playerMovement;
         playerMovement.movementInfo = &m_movementInfo;
         SendMessageToSet(playerMovement.Write(), self);
         return;
@@ -21219,7 +21205,7 @@ void Unit::RestoreFaction()
     }
 }
 
-bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry, uint32 RecAura)
+bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry, uint32 RecAura, bool loading /*= false*/)
 {
     VehicleEntry const* vehInfo = sVehicleStore.LookupEntry(id);
     if (!vehInfo)
@@ -21228,13 +21214,20 @@ bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry, uint32 RecAura)
     m_vehicleKit = new Vehicle(this, vehInfo, creatureEntry, RecAura);
     m_updateFlag |= UPDATEFLAG_VEHICLE;
     m_unitTypeMask |= UNIT_MASK_VEHICLE;
+    
+    if (!loading)
+        SendSetVehicleRecId(id);
+
     return true;
 }
 
-void Unit::RemoveVehicleKit()
+void Unit::RemoveVehicleKit(bool onRemoveFromWorld /*= false*/)
 {
     if (!m_vehicleKit)
         return;
+
+    if (!onRemoveFromWorld)
+        SendSetVehicleRecId(0);
 
     m_vehicleKit->Uninstall(true);
     delete m_vehicleKit;
@@ -23463,9 +23456,21 @@ bool Unit::IsSplineEnabled() const
     return !movespline->Finalized();
 }
 
-void Unit::WriteMovementUpdate(WorldPacket &data) const
+void Unit::SendSetVehicleRecId(uint32 vehicleID)
 {
-    WorldSession::WriteMovementInfo(data, const_cast<MovementInfo*>(&m_movementInfo), const_cast<Unit*>(this));
+    if (Player* player = ToPlayer())
+    {
+        WorldPackets::Vehicle::MoveSetVehicleRecID moveSetVehicleRec;
+        moveSetVehicleRec.MoverGUID = GetGUID();
+        moveSetVehicleRec.SequenceIndex = m_movementCounter++;
+        moveSetVehicleRec.VehicleRecID = vehicleID;
+        player->SendDirectMessage(moveSetVehicleRec.Write());
+    }
+
+    WorldPackets::Vehicle::SetVehicleRecID setVehicleRec;
+    setVehicleRec.VehicleGUID = GetGUID();
+    setVehicleRec.VehicleRecID = vehicleID;
+    SendMessageToSet(setVehicleRec.Write(), true);
 }
 
 void Unit::RemoveSoulSwapDOT(Unit* target)
@@ -23541,7 +23546,7 @@ void Unit::SendTeleportPacket(Position &destPos)
 
         ObjectGuid transGuid = GetTransGUID();
         if (!transGuid.IsEmpty())
-            selfPacket.TransportGUID.Set(transGuid);
+            selfPacket.TransportGUID = transGuid;
 
         selfPacket.Pos.Relocate(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ());
         selfPacket.Facing = destPos.GetOrientation();
@@ -24009,7 +24014,7 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position const* pos
 }
 
 //! 6.0.3 ToDo: Check IT
-void Unit::SendFakeAuraUpdate(uint32 auraId, uint32 flags, uint32 diration, uint32 _slot, bool remove)
+void Unit::SendFakeAuraUpdate(uint32 auraId, uint32 flags, uint32 duration, uint32 _slot, bool remove)
 {
     WorldPackets::Spells::AuraUpdate update;
     update.UpdateAll = false;
@@ -24026,14 +24031,14 @@ void Unit::SendFakeAuraUpdate(uint32 auraId, uint32 flags, uint32 diration, uint
         auraData.CastLevel = getLevel();
 
         if (!(auraData.Flags & AFLAG_NOCASTER))
-            auraData.CastUnit.Set(GetGUID());
+            auraData.CastUnit = GetGUID();
 
         if (auraData.Flags & AFLAG_DURATION)
         {
-            auraData.Duration.Set(diration);
-            auraData.Remaining.Set(diration);
+            auraData.Duration = duration;
+            auraData.Remaining = duration;
         }
-        auraInfo.AuraData.Set(auraData);
+        auraInfo.AuraData = auraData;
     }
 
     update.Auras.push_back(auraInfo);

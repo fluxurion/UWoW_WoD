@@ -25,26 +25,41 @@ namespace WorldPackets
 {
     namespace CombatLog
     {
-        class SpellNonMeleeDamageLog final : public ServerPacket
+        class SpellNonMeleeDmgLog final : public ServerPacket
         {
         public:
-            SpellNonMeleeDamageLog() : ServerPacket(SMSG_SPELL_NON_MELEE_DAMAGE_LOG, 60) { }
+            SpellNonMeleeDmgLog() : ServerPacket(SMSG_SPELL_NON_MELEE_DAMAGE_LOG, 60) { }
 
             WorldPacket const* Write() override;
 
-            int32 Absorbed = 0;
-            int32 ShieldBlock = 0;
+            struct SpellNonMeleeDamageLogDebugInfo
+            {
+                float CritRoll = 0.f;
+                float CritNeeded = 0.f;
+                float HitRoll = 0.f;
+                float HitNeeded = 0.f;
+                float MissChance = 0.f;
+                float DodgeChance = 0.f;
+                float ParryChance = 0.f;
+                float BlockChance = 0.f;
+                float GlanceChance = 0.f;
+                float CrushChance = 0.f;
+            };
+
             ObjectGuid Me;
-            int32 SpellID = 0;
-            int32 Resisted = 0;
-            bool Periodic = 0.0f;
-            uint8 SchoolMask = 0;
             ObjectGuid CasterGUID;
+            uint32 SpellID = 0;
+            uint32 Damage = 0;
+            uint32 OverKill = 0;
+            uint8 SchoolMask = 0;
+            uint32 ShieldBlock = 0;
+            uint32 Resisted = 0;
+            uint32 Absorbed = 0;
+            bool Periodic = false;
+            uint16 Flags = 0;
+
             Optional<Spells::SpellCastLogData> LogData;
-            int32 Damage = 0;
-            // Optional<SpellNonMeleeDamageLogDebugInfo> Debug Info;
-            int32 Flags = 0;
-            int32 Overkill = 0;
+            Optional<SpellNonMeleeDamageLogDebugInfo> DebugInfo;
         };
     }
 }

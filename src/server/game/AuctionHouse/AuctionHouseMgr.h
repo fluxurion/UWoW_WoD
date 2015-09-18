@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
+#include "Packets/AuctionHousePackets.h"
 
 class Item;
 class Player;
@@ -83,7 +84,7 @@ struct AuctionEntry
     uint32 GetHouseFaction() const { return auctionHouseEntry->faction; }
     uint64 GetAuctionCut() const;
     uint64 GetAuctionOutBid() const;
-    bool BuildAuctionInfo(WorldPacket & data) const;
+    void BuildAuctionInfo(std::vector<WorldPackets::AuctionHouse::AuctionItem>& items, bool listAuctionItems) const;
     void DeleteFromDB(SQLTransaction& trans) const;
     void SaveToDB(SQLTransaction& trans) const;
     bool LoadFromDB(Field* fields);
@@ -124,12 +125,11 @@ class AuctionHouseObject
 
     void Update();
 
-    void BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
-    void BuildListOwnerItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
-    void BuildListAuctionItems(WorldPacket& data, Player* player,
-        std::wstring const& searchedname, uint32 page, uint8 levelmin, uint8 levelmax, uint8 canUse,
-        int32 inventoryType, int32 itemClass, int32 itemSubClass, int32 quality,
-        uint32& count, uint32& totalcount);
+    void BuildListBidderItems(WorldPackets::AuctionHouse::AuctionListBidderItemsResult& packet, Player* player, uint32& totalcount);
+    void BuildListOwnerItems(WorldPackets::AuctionHouse::AuctionListOwnerItemsResult& packet, Player* player, uint32& totalcount);
+    void BuildListAuctionItems(WorldPackets::AuctionHouse::AuctionListItemsResult& packet, Player* player,
+        std::wstring const& wsearchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable,
+        uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint32& totalcount);
 
   private:
     AuctionEntryMap AuctionsMap;

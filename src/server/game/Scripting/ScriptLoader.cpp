@@ -1063,6 +1063,7 @@ void AddWorldScripts()
 
 void AddDraenorScripts()
 {
+#ifdef SCRIPTS
     AddSC_wod_dark_portal();
 
     AddSC_instance_iron_docks();       // Iron Docks
@@ -1077,6 +1078,7 @@ void AddDraenorScripts()
     AddSC_boss_commander_tharbek();
     AddSC_boss_ragewing_untamed();
     AddSC_boss_warlord_zaela();
+#endif
 }
 
 void AddEasternKingdomsScripts()

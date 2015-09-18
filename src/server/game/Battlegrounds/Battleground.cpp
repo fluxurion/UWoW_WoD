@@ -37,6 +37,7 @@
 #include "Bracket.h"
 #include "BracketMgr.h"
 #include "GroupMgr.h"
+#include "BattlegroundPackets.h"
 
 namespace Trinity
 {
@@ -128,7 +129,7 @@ void Battleground::BroadcastWorker(Do& _do)
 
 Battleground::Battleground()
 {
-    m_Guid              = 0;
+    m_QueueID              = 0;
     m_TypeID            = BATTLEGROUND_TYPE_NONE;
     m_RandomTypeID      = BATTLEGROUND_TYPE_NONE;
     m_InstanceID        = 0;
@@ -684,14 +685,14 @@ void Battleground::SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, flo
     m_TeamStartLocO[idx] = O;
 }
 
-void Battleground::SendPacketToAll(WorldPacket* packet)
+void Battleground::SendPacketToAll(WorldPacket const* packet)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayer(itr, "SendPacketToAll"))
             player->GetSession()->SendPacket(packet);
 }
 
-void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender, bool self)
+void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender, bool self)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayerForTeam(TeamID, itr, "SendPacketToTeam"))
@@ -1132,10 +1133,8 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             AddToBGFreeSlotQueue();
             sBattlegroundMgr->ScheduleQueueUpdate(0, 0, bgQueueTypeId, bgTypeId, GetBracketId());
         }
-        // Let others know
-        WorldPacket data;
-        sBattlegroundMgr->BuildPlayerLeftBattlegroundPacket(&data, guid);
-        SendPacketToTeam(team, &data, player, false);
+
+        SendPacketToTeam(team, WorldPackets::Battleground::PlayerLeft(guid).Write(), player, false);
     }
 
     if (player)
@@ -1220,11 +1219,8 @@ void Battleground::AddPlayer(Player* player)
     PlayerScores[guid]->Team = team;
 
     UpdatePlayersCountByTeam(team, false);                  // +1 player
-
     WorldPacket data;
-    sBattlegroundMgr->BuildPlayerJoinedBattlegroundPacket(&data, guid);
-    SendPacketToTeam(team, &data, player, false);
-
+    SendPacketToTeam(team, WorldPackets::Battleground::PlayerJoined(guid).Write(), player, false);
     // BG Status packet
     BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetJoinType());
     uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
@@ -2094,6 +2090,7 @@ void Battleground::SendFlagsPositionsUpdate(uint32 diff)
         m_flagCarrierTime -= diff;
         return;
     }
+
     m_flagCarrierTime = FLAGS_UPDATE;
 
     uint32 flagCarrierCount = 0;
@@ -2111,47 +2108,43 @@ void Battleground::SendFlagsPositionsUpdate(uint32 diff)
         }
     }
 
-    //! 6.0.3
-    WorldPacket packet(SMSG_BATTLEGROUND_PLAYER_POSITIONS);
-    packet << flagCarrierCount;
-
+    WorldPackets::Battleground::PlayerPositions playerPositions;
+    playerPositions.FlagCarriers.reserve(flagCarrierCount);
+    WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition position;
     for (uint8 i = 0; i < 2; ++i)
     {
         Player* player = FlagCarrier[i];
         if (!player)
             continue;
 
-        packet << player->GetGUID();
-        packet << player->GetPositionX();
-        packet << player->GetPositionY();
-        packet << uint8(player->GetTeamId() == TEAM_ALLIANCE ? 1 : 2);      //IconID
-        packet << uint8(player->GetTeamId() == TEAM_ALLIANCE ? 3 : 2);      //ArenaSlot
+        position.Pos = {player->GetPositionX(), player->GetPositionY()};
+        position.Guid = player->GetGUID();
+        position.IconID = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 2;
+        position.ArenaSlot = player->GetTeamId() == TEAM_ALLIANCE ? 3 : 2;
     }
 
-    SendPacketToAll(&packet);
+    playerPositions.FlagCarriers.push_back(position);
+
+    SendPacketToAll(playerPositions.Write());
 }
 
 //! 6.0.3
 void Battleground::SendOpponentSpecialization(uint32 team)
 {
-    uint32 opCoun = 0;
-    WorldPacket spec(SMSG_ARENA_PREP_OPPONENT_SPECIALIZATIONS, 65);  //send us info about opponents specID
-    spec << opCoun;
-
+    WorldPackets::Battleground::ArenaPrepOpponentSpecializations spec;
+    WorldPackets::Battleground::ArenaPrepOpponentSpecializations::OpponentSpecData data;
+    
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         if (Player* opponent = _GetPlayerForTeam(team, itr, "SendOponentSpecialization"))
         {
-            spec << uint32(opponent->GetSpecializationId(opponent->GetActiveSpec()));
-            spec << uint32(0);
-            spec << opponent->GetGUID();
-            ++opCoun;
+            data.Guid = opponent->GetGUID();
+            data.SpecializationID = opponent->GetSpecializationId(opponent->GetActiveSpec());
+            data.Unk = 0;
         }
     }
 
-    spec.put<uint32>(0, opCoun);
-
-    SendPacketToTeam(GetOtherTeam(team), &spec);
+    SendPacketToTeam(GetOtherTeam(team), spec.Write());
 }
 
 void Battleground::UpdateArenaVision()

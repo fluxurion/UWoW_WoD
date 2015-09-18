@@ -36,6 +36,7 @@
 #include <math.h>
 #include <type_traits>
 #include <boost/asio/buffer.hpp>
+#include <cmath>
 
 class MessageBuffer;
 
@@ -159,40 +160,35 @@ struct ObjectGuidSteam
         } _data;
 };
 
-class ByteBufferException
+class ByteBufferException : public std::exception
 {
-    public:
-        ByteBufferException(size_t pos, size_t size, size_t valueSize)
-            : Pos(pos), Size(size), ValueSize(valueSize)
-        {
-        }
+public:
+    ~ByteBufferException() throw() { }
 
-    protected:
-        size_t Pos;
-        size_t Size;
-        size_t ValueSize;
+    char const* what() const throw() override { return msg_.c_str(); }
+
+protected:
+    std::string & message() throw() { return msg_; }
+
+private:
+    std::string msg_;
 };
 
 // Root of ByteBuffer exception hierarchy
 class ByteBufferPositionException : public ByteBufferException
 {
-    public:
-        ByteBufferPositionException(bool add, size_t pos, size_t size, size_t valueSize);
+public:
+    ByteBufferPositionException(bool add, size_t pos, size_t size, size_t valueSize);
 
-    protected:
-        void PrintError() const;
-
-    private:
-        bool _add;
+    ~ByteBufferPositionException() throw() { }
 };
 
 class ByteBufferSourceException : public ByteBufferException
 {
-    public:
-        ByteBufferSourceException(size_t pos, size_t size, size_t valueSize);
+public:
+    ByteBufferSourceException(size_t pos, size_t size, size_t valueSize);
 
-    protected:
-        void PrintError() const;
+    ~ByteBufferSourceException() throw() { }
 };
 
 template<class T>

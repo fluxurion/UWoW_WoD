@@ -60,7 +60,7 @@ WorldPacket const* WorldPackets::ClientConfig::AddonInfo::Write()
             }
 
             if (KeyProvided)
-                _worldPacket.append(PublicKey, sizeof(PublicKey));              // KeyData
+                _worldPacket.append(PublicKey, sizeof(PublicKey));
         }
     }
 
@@ -68,11 +68,11 @@ WorldPacket const* WorldPackets::ClientConfig::AddonInfo::Write()
     {
         for (BannedAddon const& addon : *BannedAddons)
         {
-            _worldPacket << uint32(addon.Id);                                   // Id
-            _worldPacket.append(addon.MD5_name, MD5_DIGEST_LENGTH);              // NameMD5 - MD5 of addon .toc filename without extension
-            _worldPacket.append(addon.MD5_version, MD5_DIGEST_LENGTH);           // VersionMD5 - MD5 of version string declared in addon .toc file
-            _worldPacket << uint32(addon.timestamp);                            // LastModified
-            _worldPacket << uint32(1);                                          // Flags
+            _worldPacket << uint32(addon.Id);
+            _worldPacket.append(addon.MD5_name, MD5_DIGEST_LENGTH);
+            _worldPacket.append(addon.MD5_version, MD5_DIGEST_LENGTH);
+            _worldPacket << uint32(addon.timestamp);
+            _worldPacket << uint32(1);
         }
     }
 

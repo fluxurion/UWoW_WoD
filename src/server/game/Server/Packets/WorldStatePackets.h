@@ -30,7 +30,8 @@ namespace WorldPackets
             struct WorldStateInfo
             {
                 WorldStateInfo(uint32 variableID, int32 value)
-                    : VariableID(variableID), Value(value) { }
+                    : VariableID(variableID), Value(value)
+                { }
 
                 uint32 VariableID;
                 int32 Value;
@@ -40,9 +41,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 AreaID    = 0; ///< ZoneId
-            uint32 SubareaID = 0; ///< AreaId
-            uint32 MapID     = 0; ///< MapId
+            uint32 AreaID = 0;
+            uint32 SubareaID = 0;
+            uint32 MapID = 0;
 
             std::list<WorldStateInfo> Worldstates;
         };
@@ -54,8 +55,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 Value       = 0;
-            bool Hidden   = false; ///< @todo: research
+            int32 Value = 0;
+            bool Hidden = false;
             uint32 VariableID = 0;
         };
     }

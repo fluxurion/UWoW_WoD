@@ -1965,7 +1965,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
     CharacterDatabase.CommitTransaction(trans);
 
     if (!cashFlow)
-        SendBankList(session, 0, false, false, false);
+        SendBankList(session, 0, false);
 }
 
 bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool repair)
@@ -2007,7 +2007,7 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
     SendMoneyInfo(session);
 
     if (!repair)
-        SendBankList(session, 0, false, false, false);
+        SendBankList(session, 0, false);
 
     return true;
 }
@@ -2099,36 +2099,38 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
     }
 }
 
-//! 6.0.3
-void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo, bool fullUpdate) const
+void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) const
 {
-    WorldPacket data(SMSG_GUILD_BANK_QUERY_RESULTS, 500);
+    WorldPackets::Guild::GuildBankQueryResults packet;
 
-    data << uint64(m_bankMoney);
-    data << uint32(tabId);
-    data << int32(_GetMemberRemainingSlots(session->GetPlayer()->GetGUID(), 0));
+    packet.Money = uint64(m_bankMoney);
+    packet.WithdrawalsRemaining = int32(_GetMemberRemainingSlots(session->GetPlayer()->GetGUID(), 0));
+    packet.Tab = int32(tabId);
+    packet.FullUpdate = fullUpdate;
 
-    data << uint32(withTabInfo ? GetPurchasedTabsSize() : 0);
-    uint32 itemCount = 0;
-    uint32 pos = data.wpos();
-    data << uint32(itemCount);
-
-    if (withTabInfo)
+    if (fullUpdate)
     {
+        packet.TabInfo.reserve(GetPurchasedTabsSize());
         for (uint8 i = 0; i < GetPurchasedTabsSize(); ++i)
         {
-            data << uint32(i);
-
-            data.WriteBits(m_bankTabs[i]->GetName().length(), 7);
-            data.WriteBits(m_bankTabs[i]->GetIcon().length(), 9);
-
-            data.WriteString(m_bankTabs[i]->GetName());
-            data.WriteString(m_bankTabs[i]->GetIcon());
+            WorldPackets::Guild::GuildBankTabInfo tabInfo;
+            tabInfo.TabIndex = i;
+            tabInfo.Name = m_bankTabs[i]->GetName();
+            tabInfo.Icon = m_bankTabs[i]->GetIcon();
+            packet.TabInfo.push_back(tabInfo);
         }
     }
 
+    uint32 itemCount = 0;
+    if (fullUpdate && _MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
+        if (BankTab const* tab = GetBankTab(tabId))
+            for (uint8 slotId = 0; slotId < GUILD_BANK_MAX_SLOTS; ++slotId)
+                if (tab->GetItem(slotId))
+                    ++itemCount;
 
-    if (withContent && _MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
+    packet.ItemInfo.reserve(itemCount);
+
+    if (fullUpdate && _MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
     {
         if (BankTab const* tab = GetBankTab(tabId))
         {
@@ -2136,51 +2138,42 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, b
             {
                 if (Item* tabItem = tab->GetItem(slotId))
                 {
-                    ++itemCount;
+                    WorldPackets::Guild::GuildBankItemInfo itemInfo;
 
-                    data << uint32(slotId);
+                    itemInfo.Slot = int32(slotId);
+                    itemInfo.Item.ItemID = tabItem->GetEntry();
+                    itemInfo.Count = int32(tabItem->GetCount());
+                    itemInfo.Charges = int32(abs(tabItem->GetSpellCharges()));
+                    itemInfo.EnchantmentID = int32(tabItem->GetItemRandomPropertyId()); // verify that...
+                    itemInfo.OnUseEnchantmentID = 0/*int32(tabItem->GetItemSuffixFactor())*/;
+                    itemInfo.Flags = 0;
 
-                    WorldPackets::Item::ItemInstance itemInstanse;
-                    itemInstanse << tabItem;
-                    data << itemInstanse;
+                    uint32 enchants = 0;
+                    for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
+                        if (tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
+                            ++enchants;
 
-                    data << uint32(tabItem->GetCount());                 // ITEM_FIELD_STACK_COUNT
-                    data << uint32(0);                                   // EnchantmentID
-                    data << uint32(abs(tabItem->GetSpellCharges()));     // Spell charges
-                    data << uint32(0);                                   // OnUseEnchantmentID
-                    uint32 epos = data.wpos();
-                    data << uint32(0);                                   // SocketEnchant
-                    data << uint32(0);                                   // Flags
-
-                    uint32 socketEnchants = 0;
-                    uint32 socketIndex = 0;
-                    // only sockets
-                    for (uint32 enchSlot = SOCK_ENCHANTMENT_SLOT; enchSlot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchSlot)
+                    itemInfo.SocketEnchant.reserve(enchants);
+                    for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
                     {
-                        if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(enchSlot)))
+                        if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
                         {
-                            data << uint32(socketIndex);
-                            data << uint32(enchantId);
-                            ++socketEnchants;
+                            WorldPackets::Guild::GuildBankItemInfo::GuildBankSocketEnchant socketEnchant;
+                            socketEnchant.SocketEnchantID = int32(enchantId);
+                            socketEnchant.SocketIndex = int32(ench);
+                            itemInfo.SocketEnchant.push_back(socketEnchant);
                         }
-
-                        ++socketIndex;
                     }
-                    data.put<uint32>(epos, socketEnchants);
 
-                    data.WriteBit(0);                                     // Locked
+                    itemInfo.Locked = false;
+
+                    packet.ItemInfo.push_back(itemInfo);
                 }
             }
         }
     }
 
-    data.WriteBit(fullUpdate);                                           // FullUpdate
-
-    data.put<uint32>(pos, itemCount);
-
-    session->SendPacket(&data);
-
-    //sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_QUERY_RESULTS)");
+    session->SendPacket(packet.Write());
 }
 
 void Guild::SendBankTabText(WorldSession* session, uint8 tabId) const
@@ -2189,7 +2182,6 @@ void Guild::SendBankTabText(WorldSession* session, uint8 tabId) const
         tab->SendText(this, session);
 }
 
-//! 6.0.3
 void Guild::SendPermissions(WorldSession* session) const
 {
     ObjectGuid guid = session->GetPlayer()->GetGUID();
@@ -3205,72 +3197,57 @@ void Guild::_SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) cons
 //! 6.0.3
 void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
 {
-    if (BankTab const* tab = GetBankTab(tabId))
+        if (BankTab const* tab = GetBankTab(tabId))
     {
-        WorldPacket data(SMSG_GUILD_BANK_QUERY_RESULTS, 1200);
-        data << uint64(m_bankMoney);
-        data << uint32(tabId);
-
-        size_t rempos = data.wpos();
-        data << uint32(-1);                                                         // Item withdraw amount, will be filled later personally for every player
-
-        data << uint32(0);                                                          // Tab count
-        data << uint32(slots.size());                                               // Item count
+        WorldPackets::Guild::GuildBankQueryResults packet;
+        packet.FullUpdate = true;          // @todo
+        packet.Tab = int32(tabId);
+        packet.Money = m_bankMoney;
 
         for (SlotIds::const_iterator itr = slots.begin(); itr != slots.end(); ++itr)
         {
             Item const* tabItem = tab->GetItem(*itr);
 
-            data << uint32(*itr);
+            WorldPackets::Guild::GuildBankItemInfo itemInfo;
 
-            WorldPackets::Item::ItemInstance itemInstanse;
-
-            if (tabItem)
-                itemInstanse << tabItem;
-            data << itemInstanse;
-
-            data << uint32(tabItem ? tabItem->GetCount() : 0);                   // ITEM_FIELD_STACK_COUNT
-            data << uint32(0);                                                   // EnchantmentID
-            data << uint32(tabItem ? abs(tabItem->GetSpellCharges()) : 0);       // Spell charges
-            data << uint32(0);                                                   // OnUseEnchantmentID
-
-            size_t enchantPos = data.wpos();
-            data << uint32(0);                                                   // SocketEnchant
-            data << uint32(0);                                                   // Flags
-
-            uint32 enchantCount = 0;
+            itemInfo.Slot = int32(*itr);
+            itemInfo.Item.ItemID = int32(tabItem ? tabItem->GetEntry() : 0);
+            itemInfo.Count = int32(tabItem ? tabItem->GetCount() : 0);
+            itemInfo.Charges = int32(tabItem ? abs(tabItem->GetSpellCharges()) : 0);
+            itemInfo.OnUseEnchantmentID = 0/*int32(tabItem->GetItemSuffixFactor())*/;
+            itemInfo.Flags = 0;
+            itemInfo.Locked = false;
 
             if (tabItem)
             {
-                uint32 socketIndex = 0;
-                // only sockets
-                for (uint32 enchSlot = SOCK_ENCHANTMENT_SLOT; enchSlot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchSlot)
-                {
-                    if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(enchSlot)))
-                    {
-                        data << uint32(socketIndex);
-                        data << uint32(enchantId);
-                        ++enchantCount;
-                    }
+                uint32 enchants = 0;
+                for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
+                    if (tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
+                        ++enchants;
 
-                    ++socketIndex;
+                itemInfo.SocketEnchant.reserve(enchants);
+                for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
+                {
+                    if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
+                    {
+                        WorldPackets::Guild::GuildBankItemInfo::GuildBankSocketEnchant socketEnchant;
+                        socketEnchant.SocketEnchantID = int32(enchantId);
+                        socketEnchant.SocketIndex = int32(ench);
+                        itemInfo.SocketEnchant.push_back(socketEnchant);
+                    }
                 }
             }
-            data.put<int32>(enchantPos, enchantCount);
-            data.WriteBit(0);                                                       // Locked
-        }
 
-        data.WriteBit(0);                                                           // FullUpdate
+            packet.ItemInfo.push_back(itemInfo);
+        }
 
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (_MemberHasTabRights(itr->second->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
                 if (Player* player = itr->second->FindPlayer())
                 {
-                    data.put<int32>(rempos, _GetMemberRemainingSlots(player->GetGUID(), tabId));
-                    player->GetSession()->SendPacket(&data);
+                    packet.WithdrawalsRemaining = int32(_GetMemberRemainingSlots(player->GetGUID(), tabId));
+                    player->GetSession()->SendPacket(packet.Write());
                 }
-
-        //sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_QUERY_RESULTS)");
     }
 }
 

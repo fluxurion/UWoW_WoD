@@ -15,26 +15,150 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#ifndef PacketUtilities_h__
+#define PacketUtilities_h__
+
+#include "ByteBuffer.h"
+#include <G3D/Vector2.h>
+#include <G3D/Vector3.h>
+#include <sstream>
+
+inline ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector2 const& v)
+{
+    data << v.x << v.y;
+    return data;
+}
+
+inline ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector2& v)
+{
+    data >> v.x >> v.y;
+    return data;
+}
+
+inline ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v)
+{
+    data << v.x << v.y << v.z;
+    return data;
+}
+
+inline ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v)
+{
+    data >> v.x >> v.y >> v.z;
+    return data;
+}
 
 namespace WorldPackets
 {
-    inline ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v)
-    {
-        data << v.x << v.y << v.z;
-        return data;
-    }
-
-    inline ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v)
-    {
-        data >> v.x >> v.y >> v.z;
-        return data;
-    }
-
-    template <typename T>
-    struct CompactArray
+    class PacketArrayMaxCapacityException : public ByteBufferException
     {
     public:
+        PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit)
+        {
+            std::ostringstream builder;
+            builder << "Attempted to read more array elements from packet " << requestedSize << " than allowed " << sizeLimit;
+            message().assign(builder.str());
+        }
+    };
+
+    /**
+     * Utility class for automated prevention of loop counter spoofing in client packets
+     */
+    template<typename T, std::size_t N = 1000 /*select a sane default limit*/>
+    class Array
+    {
+        typedef std::vector<T> storage_type;
+
+        typedef typename storage_type::value_type value_type;
+        typedef typename storage_type::size_type size_type;
+        typedef typename storage_type::reference reference;
+        typedef typename storage_type::const_reference const_reference;
+        typedef typename storage_type::iterator iterator;
+        typedef typename storage_type::const_iterator const_iterator;
+
+    public:
+        Array() : _limit(N) { }
+        Array(size_type limit) : _limit(limit) { }
+
+        iterator begin() { return _storage.begin(); }
+        const_iterator begin() const { return _storage.begin(); }
+
+        iterator end() { return _storage.end(); }
+        const_iterator end() const { return _storage.end(); }
+
+        size_type size() const { return _storage.size(); }
+        bool empty() const { return _storage.empty(); }
+
+        reference operator[](size_type i) { return _storage[i]; }
+        const_reference operator[](size_type i) const { return _storage[i]; }
+
+        void resize(size_type newSize)
+        {
+            if (newSize > _limit)
+                throw PacketArrayMaxCapacityException(newSize, _limit);
+
+            _storage.resize(newSize);
+        }
+
+        void reserve(size_type newSize)
+        {
+            if (newSize > _limit)
+                throw PacketArrayMaxCapacityException(newSize, _limit);
+
+            _storage.reserve(newSize);
+        }
+
+        void push_back(value_type const& value)
+        {
+            if (_storage.size() >= _limit)
+                throw PacketArrayMaxCapacityException(_storage.size() + 1, _limit);
+
+            _storage.push_back(value);
+        }
+
+        void push_back(value_type&& value)
+        {
+            if (_storage.size() >= _limit)
+                throw PacketArrayMaxCapacityException(_storage.size() + 1, _limit);
+
+            _storage.push_back(std::forward<value_type>(value));
+        }
+
+    private:
+        storage_type _storage;
+        size_type _limit;
+    };
+
+    template <typename T>
+    class CompactArray
+    {
+    public:
+        CompactArray() : _mask(0) { }
+
+        CompactArray(CompactArray const& right)
+            : _mask(right._mask), _contents(right._contents)
+        { }
+
+        CompactArray(CompactArray&& right)
+            : _mask(right._mask), _contents(std::move(right._contents))
+        {
+            right._mask = 0;
+        }
+
+        CompactArray& operator= (CompactArray const& right)
+        {
+            _mask = right._mask;
+            _contents = right._contents;
+            return *this;
+        }
+
+        CompactArray& operator= (CompactArray&& right)
+        {
+            _mask = right._mask;
+            right._mask = 0;
+            _contents = std::move(right._contents);
+            return *this;
+        }
+
         uint32 GetMask() const { return _mask; }
         T const& operator[](size_t index) const { return _contents.at(index); }
         size_t GetSize() const { return _contents.size(); }
@@ -55,8 +179,18 @@ namespace WorldPackets
             _contents.clear();
         }
 
+        bool operator==(CompactArray const& r) const
+        {
+            if (_mask != r._mask)
+                return false;
+
+            return _contents == r._contents;
+        }
+
+        bool operator!=(CompactArray const& r) const { return !(*this == r); }
+
     private:
-        uint32 _mask = 0;
+        uint32 _mask;
         std::vector<T> _contents;
     };
 
@@ -73,4 +207,25 @@ namespace WorldPackets
 
         return data;
     }
+
+    template <typename T>
+    ByteBuffer& operator>>(ByteBuffer& data, CompactArray<T>& v)
+    {
+        uint32 mask;
+        data >> mask;
+
+        for (size_t index = 0; mask != 0; mask >>= 1, ++index)
+        {
+            if ((mask & 1) != 0)
+            {
+                T value;
+                data >> value;
+                v.Insert(index, value);
+            }
+        }
+
+        return data;
+    }
 }
+
+#endif // PacketUtilities_h__

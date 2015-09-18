@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#ifndef ReputationPackets_h__
+#define ReputationPackets_h__
 
 #include "Packet.h"
 
@@ -41,8 +42,10 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 FactionStandings[FactionCount];
-            bool FactionHasBonus[FactionCount]; ///< @todo: implement faction bonus
-            uint8 FactionFlags[FactionCount]; ///< @see enum FactionFlags
+            bool FactionHasBonus[FactionCount];
+            uint8 FactionFlags[FactionCount];
         };
     }
 }
+
+#endif // ReputationPackets_h__

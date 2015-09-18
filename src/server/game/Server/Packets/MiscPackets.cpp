@@ -50,15 +50,15 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     _worldPacket << uint32(Type);
     _worldPacket << uint32(Quantity);
     _worldPacket << uint32(Flags);
-    _worldPacket.WriteBit(WeeklyQuantity.HasValue);
-    _worldPacket.WriteBit(TrackedQuantity.HasValue);
+    _worldPacket.WriteBit(WeeklyQuantity.is_initialized());
+    _worldPacket.WriteBit(TrackedQuantity.is_initialized());
     _worldPacket.WriteBit(SuppressChatLog);
 
-    if (WeeklyQuantity.HasValue)
-        _worldPacket << uint32(WeeklyQuantity.Value);
+    if (WeeklyQuantity)
+        _worldPacket << *WeeklyQuantity;
 
-    if (TrackedQuantity.HasValue)
-        _worldPacket << uint32(TrackedQuantity.Value);
+    if (TrackedQuantity)
+        _worldPacket << *TrackedQuantity;
 
     _worldPacket.FlushBits();
 
@@ -79,18 +79,20 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
         _worldPacket << uint32(data.Type);
         _worldPacket << uint32(data.Quantity);
 
-        _worldPacket.WriteBit(data.WeeklyQuantity.HasValue);
-        _worldPacket.WriteBit(data.MaxWeeklyQuantity.HasValue);
-        _worldPacket.WriteBit(data.TrackedQuantity.HasValue);
+        _worldPacket.WriteBit(data.WeeklyQuantity.is_initialized());
+        _worldPacket.WriteBit(data.MaxWeeklyQuantity.is_initialized());
+        _worldPacket.WriteBit(data.TrackedQuantity.is_initialized());
 
         _worldPacket.WriteBits(data.Flags, 5);
 
-        if (data.WeeklyQuantity.HasValue)
-            _worldPacket << uint32(data.WeeklyQuantity.Value);
-        if (data.MaxWeeklyQuantity.HasValue)
-            _worldPacket << uint32(data.MaxWeeklyQuantity.Value);
-        if (data.TrackedQuantity.HasValue)
-            _worldPacket << uint32(data.TrackedQuantity.Value);
+        if (data.WeeklyQuantity)
+            _worldPacket << *data.WeeklyQuantity;
+
+        if (data.MaxWeeklyQuantity)
+            _worldPacket << *data.MaxWeeklyQuantity;
+
+        if (data.TrackedQuantity)
+            _worldPacket << *data.TrackedQuantity;
     }
 
     _worldPacket.FlushBits();
@@ -155,22 +157,22 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     _worldPacket << uint32(DifficultyID);
     _worldPacket << uint8(IsTournamentRealm);
     _worldPacket << uint32(WeeklyReset);
-    _worldPacket.WriteBit(RestrictedAccountMaxLevel.HasValue);
-    _worldPacket.WriteBit(RestrictedAccountMaxMoney.HasValue);
-    _worldPacket.WriteBit(IneligibleForLootMask.HasValue);
-    _worldPacket.WriteBit(InstanceGroupSize.HasValue);
+    _worldPacket.WriteBit(RestrictedAccountMaxLevel.is_initialized());
+    _worldPacket.WriteBit(RestrictedAccountMaxMoney.is_initialized());
+    _worldPacket.WriteBit(IneligibleForLootMask.is_initialized());
+    _worldPacket.WriteBit(InstanceGroupSize.is_initialized());
 
-    if (RestrictedAccountMaxLevel.HasValue)
-        _worldPacket << uint32(RestrictedAccountMaxLevel.Value);
+    if (RestrictedAccountMaxLevel)
+        _worldPacket << *RestrictedAccountMaxLevel;
 
-    if (RestrictedAccountMaxMoney.HasValue)
-        _worldPacket << uint32(RestrictedAccountMaxMoney.Value);
+    if (RestrictedAccountMaxMoney)
+        _worldPacket << *RestrictedAccountMaxMoney;
 
-    if (IneligibleForLootMask.HasValue)
-        _worldPacket << uint32(IneligibleForLootMask.Value);
+    if (IneligibleForLootMask)
+        _worldPacket << *IneligibleForLootMask;
 
-    if (InstanceGroupSize.HasValue)
-        _worldPacket << uint32(InstanceGroupSize.Value);
+    if (InstanceGroupSize)
+        _worldPacket << *InstanceGroupSize;
 
     _worldPacket.FlushBits();
 
@@ -261,7 +263,8 @@ void WorldPackets::Misc::ResurrectResponse::Read()
 WorldPackets::Misc::Weather::Weather() : ServerPacket(SMSG_WEATHER, 4 + 4 + 1) { }
 
 WorldPackets::Misc::Weather::Weather(WeatherState weatherID, float intensity /*= 0.0f*/, bool abrupt /*= false*/)
-    : ServerPacket(SMSG_WEATHER, 4 + 4 + 1), Abrupt(abrupt), Intensity(intensity), WeatherID(weatherID) { }
+    : ServerPacket(SMSG_WEATHER, 4 + 4 + 1), Abrupt(abrupt), Intensity(intensity), WeatherID(weatherID)
+{ }
 
 WorldPacket const* WorldPackets::Misc::Weather::Write()
 {
@@ -284,6 +287,17 @@ void WorldPackets::Misc::StandStateChange::Read()
 WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
 {
     _worldPacket << uint8(State);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::ArchaeologySurveryCast::Write()
+{
+    _worldPacket << uint32(ResearchBranchID);
+    _worldPacket << uint32(TotalFinds);
+    _worldPacket << uint32(NumFindsCompleted);
+    _worldPacket.WriteBit(SuccessfulFind);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

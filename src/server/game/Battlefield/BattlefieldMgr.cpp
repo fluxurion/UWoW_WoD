@@ -119,10 +119,10 @@ Battlefield *BattlefieldMgr::GetBattlefieldByBattleId(uint32 battleid)
     return NULL;
 }
 
-Battlefield* BattlefieldMgr::GetBattlefieldByGUID(uint64 const& guid)
+Battlefield* BattlefieldMgr::GetBattlefieldByQueueID(uint64 const& queueID)
 {
     for (BattlefieldSet::iterator itr = m_BattlefieldSet.begin(); itr != m_BattlefieldSet.end(); ++itr)
-        if ((*itr)->GetGUID() == guid)
+        if ((*itr)->GetQueueID() == queueID)
             return (*itr);
 
     return NULL;

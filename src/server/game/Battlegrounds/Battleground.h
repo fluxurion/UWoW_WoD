@@ -389,7 +389,7 @@ class Battleground
         /* Battleground */
         // Get methods:
         char const* GetName() const         { return m_Name; }
-        uint64 GetGUID() const { return m_Guid; }
+        uint64 GetQueueID() const { return m_QueueID; }
         BattlegroundTypeId GetTypeID(bool GetRandom = false) const { return GetRandom ? m_RandomTypeID : m_TypeID; }
         BattlegroundBracketId GetBracketId() const { return m_BracketId; }
         uint32 GetInstanceID() const        { return m_InstanceID; }
@@ -416,7 +416,7 @@ class Battleground
         bool IsRandom() const { return m_IsRandom; }
 
         // Set methods:
-        void SetGuid(uint64 newGuid)        { m_Guid = newGuid; }
+        void SetQueueID(uint64 newID)        { m_QueueID = newID; }
         void SetName(char const* Name)      { m_Name = Name; } 
         void SetTypeID(BattlegroundTypeId TypeID) { m_TypeID = TypeID; }
         void SetRandomTypeID(BattlegroundTypeId TypeID) { m_RandomTypeID = TypeID; }
@@ -514,8 +514,8 @@ class Battleground
         // Packet Transfer
         // method that should fill worldpacket with actual world states (not yet implemented for all battlegrounds!)
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
-        void SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender = NULL, bool self = true);
-        void SendPacketToAll(WorldPacket* packet);
+        void SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender = NULL, bool self = true);
+        void SendPacketToAll(WorldPacket const* packet);
         void YellToAll(Creature* creature, const char* text, uint32 language);
 
         template<class Do>
@@ -709,7 +709,7 @@ class Battleground
         bool   m_PrematureCountDown;
         uint32 m_PrematureCountDownTimer;
         char const* m_Name;
-        uint64 m_Guid;
+        uint64 m_QueueID;
 
         uint32 m_sameBgTeamId;
 

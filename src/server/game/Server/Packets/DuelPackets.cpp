@@ -22,4 +22,3 @@ void WorldPackets::Duel::DuelResponse::Read()
     _worldPacket >> ArbiterGUID;
     Accepted = _worldPacket.ReadBit();
 }
-

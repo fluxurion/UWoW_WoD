@@ -1003,7 +1003,7 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
     pos.Relocate(targetX, targetY, targetZ);
     spell->m_targets.ModDst(pos);
 
-    spell->m_targets.SetElevation(elevation);
+    spell->m_targets.SetPitch(elevation);
     spell->m_targets.SetSpeed(speed);
 
     if (moveStop)

@@ -88,7 +88,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            ObjectGuid Selection; ///< Target
+            ObjectGuid Selection;
         };
 
         class SetupCurrency final : public ServerPacket
@@ -96,12 +96,12 @@ namespace WorldPackets
         public:
             struct Record
             {
-                int32 Type = 0;                       // ID from CurrencyTypes.dbc
+                int32 Type = 0;
                 int32 Quantity = 0;
-                Optional<int32> WeeklyQuantity;       // Currency count obtained this Week.
-                Optional<int32> MaxWeeklyQuantity;    // Weekly Currency cap.
+                Optional<int32> WeeklyQuantity;
+                Optional<int32> MaxWeeklyQuantity;
                 Optional<int32> TrackedQuantity;
-                uint8 Flags = 0;                      // 0 = none,
+                uint8 Flags = 0;
             };
 
             SetupCurrency() : ServerPacket(SMSG_SETUP_CURRENCY, 22) { }
@@ -118,7 +118,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int8 ViolenceLvl = -1; ///< 0 - no combat effects, 1 - display some combat effects, 2 - blood, 3 - bloody, 4 - bloodier, 5 - bloodiest
+            int8 ViolenceLvl = -1;
         };
 
         class TimeSyncRequest final : public ServerPacket
@@ -138,8 +138,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 ClientTime = 0; // Client ticks in ms
-            uint32 SequenceIndex = 0; // Same index as in request
+            uint32 ClientTime = 0;
+            uint32 SequenceIndex = 0;
         };
 
         class TriggerCinematic final : public ServerPacket
@@ -177,7 +177,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Time = 0; ///< UnixTime
+            uint32 Time = 0;
         };
 
         class TutorialFlags : public ServerPacket
@@ -211,13 +211,13 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Optional<uint32> IneligibleForLootMask; ///< Encountermask?
-            uint32 WeeklyReset      = 0; ///< UnixTime of last Weekly Reset Time
+            Optional<uint32> IneligibleForLootMask;
+            uint32 WeeklyReset = 0;
             Optional<uint32> InstanceGroupSize;
             uint8 IsTournamentRealm = 0;
             Optional<uint32> RestrictedAccountMaxLevel;
             Optional<uint32> RestrictedAccountMaxMoney;
-            uint32 DifficultyID     = 0;
+            uint32 DifficultyID = 0;
         };
 
         class AreaTrigger final : public ClientPacket
@@ -272,6 +272,19 @@ namespace WorldPackets
 
             int32 DifficultyID = 0;
             uint8 Legacy = 0;
+        };
+
+        class ArchaeologySurveryCast : public ServerPacket
+        {
+        public:
+            ArchaeologySurveryCast() : ServerPacket(SMSG_ARCHAEOLOGY_SURVERY_CAST, 13) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 ResearchBranchID = 0;
+            uint32 TotalFinds = 0;
+            uint32 NumFindsCompleted = 0;
+            bool SuccessfulFind = false;
         };
 
         class CorpseReclaimDelay : public ServerPacket

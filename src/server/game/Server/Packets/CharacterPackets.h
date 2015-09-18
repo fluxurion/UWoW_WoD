@@ -37,23 +37,20 @@ namespace WorldPackets
 
         struct CharacterCreateInfo
         {
-            /// User specified variables
-            uint8 Race            = RACE_NONE;
-            uint8 Class           = CLASS_NONE;
-            uint8 Sex             = GENDER_NONE;
-            uint8 Skin            = 0;
-            uint8 Face            = 0;
-            uint8 HairStyle       = 0;
-            uint8 HairColor       = 0;
+            uint8 Race = RACE_NONE;
+            uint8 Class = CLASS_NONE;
+            uint8 Sex = GENDER_NONE;
+            uint8 Skin = 0;
+            uint8 Face = 0;
+            uint8 HairStyle = 0;
+            uint8 HairColor = 0;
             uint8 FacialHairStyle = 0;
-            uint8 OutfitId        = 0;
+            uint8 OutfitId = 0;
             Optional<int32> TemplateSet;
             std::string Name;
 
             /// Server side data
-            uint8 CharCount  = 0;
-
-            //
+            uint8 CharCount = 0;
             ObjectGuid guid;
         };
 
@@ -65,25 +62,25 @@ namespace WorldPackets
 
         struct CharCustomizeInfo
         {
-            uint8 HairStyleID       = 0;
-            uint8 FaceID            = 0;
+            uint8 HairStyleID = 0;
+            uint8 FaceID = 0;
             ObjectGuid CharGUID;
-            uint8 SexID             = GENDER_NONE;
+            uint8 SexID = GENDER_NONE;
             std::string CharName;
-            uint8 HairColorID       = 0;
+            uint8 HairColorID = 0;
             uint8 FacialHairStyleID = 0;
-            uint8 SkinID            = 0;
+            uint8 SkinID = 0;
         };
 
         struct CharRaceOrFactionChangeInfo
         {
             Optional<uint8> HairColorID;
-            uint8 RaceID            = RACE_NONE;
-            uint8 SexID             = GENDER_NONE;
+            uint8 RaceID = RACE_NONE;
+            uint8 SexID = GENDER_NONE;
             Optional<uint8> SkinID;
             Optional<uint8> FacialHairStyleID;
             ObjectGuid Guid;
-            bool FactionChange      = false;
+            bool FactionChange = false;
             std::string Name;
             Optional<uint8> FaceID;
             Optional<uint8> HairStyleID;
@@ -91,9 +88,8 @@ namespace WorldPackets
 
         struct CharacterUndeleteInfo
         {
-            /// User specified variables
-            ObjectGuid CharacterGuid; ///< Guid of the character to restore
-            int32 ClientToken    = 0; ///< @todo: research
+            ObjectGuid CharacterGuid;
+            int32 ClientToken = 0;
 
             /// Server side data
             std::string Name;
@@ -104,52 +100,45 @@ namespace WorldPackets
         public:
             struct CharacterInfo
             {
-                /**
-                 * @fn  void WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields);
-                 *
-                 * @brief   Initialize the struct with values from QueryResult
-                 *
-                 * @param   fields         Field set of CharacterDatabaseStatements::CHAR_SEL_ENUM
-                 */
                 CharacterInfo(Field* fields);
 
                 ObjectGuid Guid;
                 std::string Name;
-                uint8 ListPosition       = 0; ///< Order of the characters in list
-                uint8 Race               = 0;
-                uint8 Class              = 0;
-                uint8 Sex                = 0;
-                uint8 Skin               = 0;
-                uint8 Face               = 0;
-                uint8 HairStyle          = 0;
-                uint8 HairColor          = 0;
-                uint8 FacialHair         = 0;
-                uint8 Level              = 0;
-                int32 ZoneId             = 0;
-                int32 MapId              = 0;
+                uint8 ListPosition = 0;
+                uint8 Race = 0;
+                uint8 Class = 0;
+                uint8 Sex = 0;
+                uint8 Skin = 0;
+                uint8 Face = 0;
+                uint8 HairStyle = 0;
+                uint8 HairColor = 0;
+                uint8 FacialHair = 0;
+                uint8 Level = 0;
+                int32 ZoneId = 0;
+                int32 MapId = 0;
                 G3D::Vector3 PreLoadPosition;
                 ObjectGuid GuildGuid;
-                uint32 Flags             = 0; ///< Character flag @see enum CharacterFlags
-                uint32 CustomizationFlag = 0; ///< Character customization flags @see enum CharacterCustomizeFlags
-                uint32 Flags3            = 0; ///< Character flags 3 @todo research
-                bool FirstLogin      = false;
-                uint8 unkWod61x          = 0;
+                uint32 Flags = 0;
+                uint32 CustomizationFlag = 0;
+                uint32 Flags3 = 0;
+                bool FirstLogin = false;
+                uint8 unkWod61x = 0;
 
                 struct PetInfo
                 {
-                    uint32 CreatureDisplayId = 0; ///< PetCreatureDisplayID
-                    uint32 Level             = 0; ///< PetExperienceLevel
-                    uint32 CreatureFamily    = 0; ///< PetCreatureFamilyID
+                    uint32 CreatureDisplayId = 0;
+                    uint32 Level = 0;
+                    uint32 CreatureFamily = 0;
                 } Pet;
 
-                bool BoostInProgress = false; ///< @todo
-                int32 ProfessionIds[2];       ///< @todo
+                bool BoostInProgress = false;
+                int32 ProfessionIds[2] = { };
 
                 struct VisualItemInfo
                 {
-                    uint32 DisplayId        = 0;
+                    uint32 DisplayId = 0;
                     uint32 DisplayEnchantId = 0;
-                    uint8 InventoryType     = 0;
+                    uint8 InventoryType = 0;
                 };
 
                 VisualItemInfo VisualItems[INVENTORY_SLOT_BAG_END];
@@ -158,7 +147,8 @@ namespace WorldPackets
             struct RestrictedFactionChangeRuleInfo
             {
                 RestrictedFactionChangeRuleInfo(int32 mask, uint8 race)
-                    : Mask(mask), Race(race) { }
+                    : Mask(mask), Race(race)
+                { }
 
                 int32 Mask = 0;
                 uint8 Race = 0;
@@ -168,11 +158,11 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool Success                = false; ///<
-            bool IsDeletedCharacters    = false; ///< used for character undelete list
+            bool Success = false;
+            bool IsDeletedCharacters = false;
 
-            std::list<CharacterInfo> Characters; ///< all characters on the list
-            std::list<RestrictedFactionChangeRuleInfo> FactionChangeRestrictions; ///< @todo: research
+            std::list<CharacterInfo> Characters;
+            std::list<RestrictedFactionChangeRuleInfo> FactionChangeRestrictions;
         };
 
         class CreateChar final : public ClientPacket
@@ -182,19 +172,6 @@ namespace WorldPackets
 
             void Read() override;
 
-            /**
-             * @var uint8 Race
-             * @var uint8 Class
-             * @var uint8 Sex
-             * @var uint8 Skin
-             * @var uint8 Face
-             * @var uint8 HairStyle
-             * @var uint8 HairColor
-             * @var uint8 FacialHairStyle
-             * @var uint8 OutfitId
-             * @var Optional<int32> TemplateSet
-             * @var std::string Name
-             */
             std::shared_ptr<CharacterCreateInfo> CreateInfo;
         };
 
@@ -205,27 +182,27 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Code = 0; ///< Result code @see enum ResponseCodes
+            uint8 Code = 0;
         };
 
         class DeleteChar final : public ClientPacket
         {
         public:
-            DeleteChar(WorldPacket&& packet): ClientPacket(CMSG_CHAR_DELETE, std::move(packet)) { }
+            DeleteChar(WorldPacket&& packet) : ClientPacket(CMSG_CHAR_DELETE, std::move(packet)) { }
 
             void Read() override;
 
-            ObjectGuid Guid; ///< Guid of the character to delete
+            ObjectGuid Guid;
         };
 
         class CharacterDeleteResponse final : public ServerPacket
         {
         public:
-            CharacterDeleteResponse(): ServerPacket(SMSG_DELETE_CHAR, 1) { }
+            CharacterDeleteResponse() : ServerPacket(SMSG_DELETE_CHAR, 1) { }
 
             WorldPacket const* Write() override;
 
-            uint8 Code = 0; ///< Result code @see enum ResponseCodes
+            uint8 Code = 0;
         };
 
         class CharacterRenameRequest final : public ClientPacket
@@ -235,10 +212,6 @@ namespace WorldPackets
 
             void Read() override;
 
-            /**
-             * @var std::string NewName
-             * @var ObjectGuid Guid
-             */
             std::shared_ptr<CharacterRenameInfo> RenameInfo;
         };
 
@@ -261,20 +234,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            /**
-             * @var uint8 HairStyleID
-             * @var uint8 FaceID
-             * @var ObjectGuid CharGUID
-             * @var uint8 SexID
-             * @var std::string CharName
-             * @var uint8 HairColorID
-             * @var uint8 FacialHairStyleID
-             * @var uint8 SkinID
-             */
             std::shared_ptr<CharCustomizeInfo> CustomizeInfo;
         };
-
-        /// @todo: CharCustomizeResult
 
         class CharRaceOrFactionChange final : public ClientPacket
         {
@@ -283,18 +244,6 @@ namespace WorldPackets
 
             void Read() override;
 
-            /**
-             * @var Optional<uint8> HairColorID
-             * @var uint8 RaceID
-             * @var uint8 SexID
-             * @var Optional<uint8> SkinID
-             * @var Optional<uint8> FacialHairStyleID
-             * @var ObjectGuid Guid
-             * @var bool FactionChange
-             * @var std::string Name
-             * @var Optional<uint8> FaceID
-             * @var Optional<uint8> HairStyleID
-             */
             std::shared_ptr<CharRaceOrFactionChangeInfo> RaceOrFactionChangeInfo;
         };
 
@@ -304,20 +253,20 @@ namespace WorldPackets
             struct CharFactionChangeDisplayInfo
             {
                 std::string Name;
-                uint8 SexID             = 0;
-                uint8 SkinID            = 0;
-                uint8 HairColorID       = 0;
-                uint8 HairStyleID       = 0;
+                uint8 SexID = 0;
+                uint8 SkinID = 0;
+                uint8 HairColorID = 0;
+                uint8 HairStyleID = 0;
                 uint8 FacialHairStyleID = 0;
-                uint8 FaceID            = 0;
-                uint8 RaceID            = RACE_NONE;
+                uint8 FaceID = 0;
+                uint8 RaceID = RACE_NONE;
             };
 
             CharFactionChangeResult() : ServerPacket(SMSG_CHAR_FACTION_CHANGE_RESULT, 20 + sizeof(CharFactionChangeDisplayInfo)) { }
 
             WorldPacket const* Write() override;
 
-            uint8 Result = 0; ///< @see enum ResponseCodes
+            uint8 Result = 0;
             ObjectGuid Guid;
             Optional<CharFactionChangeDisplayInfo> Display;
         };
@@ -367,10 +316,6 @@ namespace WorldPackets
 
             void Read() override;
 
-            /**
-             * @var ObjectGuid CharacterGuid
-             * @var int32 ClientToken
-             */
             std::shared_ptr<CharacterUndeleteInfo> UndeleteInfo;
         };
 
@@ -381,12 +326,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            /**
-             * @var ObjectGuid CharacterGuid
-             * @var int32 ClientToken
-             */
             CharacterUndeleteInfo const* UndeleteInfo = nullptr;
-            uint32 Result = 0; ///< @see enum CharacterUndeleteResult
+            uint32 Result = 0;
         };
 
         class UndeleteCooldownStatusResponse final : public ServerPacket
@@ -396,9 +337,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool OnCooldown    = false; ///<
-            uint32 MaxCooldown     = 0; ///< Max. cooldown until next free character restoration. Displayed in undelete confirm message. (in sec)
-            uint32 CurrentCooldown = 0; ///< Current cooldown until next free character restoration. (in sec)
+            bool OnCooldown = false;
+            uint32 MaxCooldown = 0;
+            uint32 CurrentCooldown = 0;
         };
 
         class PlayerLogin final : public ClientPacket
@@ -408,8 +349,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            ObjectGuid Guid;      ///< Guid of the player that is logging in
-            float FarClip = 0.0f; ///< Visibility distance (for terrain)
+            ObjectGuid Guid;
+            float FarClip = 0.0f;
         };
 
         class LoginVerifyWorld final : public ServerPacket
@@ -484,8 +425,7 @@ namespace WorldPackets
         {
         public:
             InitialSetup() : ServerPacket(SMSG_INITIAL_SETUP, 1 + 1 + 4 + 4)
-            {
-            }
+            { }
 
             WorldPacket const* Write() override;
 

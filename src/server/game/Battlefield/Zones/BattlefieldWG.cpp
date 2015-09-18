@@ -50,12 +50,12 @@ bool BattlefieldWG::SetupBattlefield()
 
     m_TypeId = BATTLEFIELD_WG;                              // See enum BattlefieldTypes
     m_BattleId = BATTLEFIELD_BATTLEID_WG;
-    m_ZoneId = BATTLEFIELD_WG_ZONEID;
+    m_AreaID = BATTLEFIELD_WG_ZONEID;
     m_MapId = BATTLEFIELD_WG_MAPID;
 
     //Mop
-    //m_Guid = MAKE_NEW_GUID(m_TypeId, 0, HIGHGUID_TYPE_BATTLEGROUND);
-    //m_Guid |= 0x20000; // BATTLEFIELD_TYPE_WORLD_PVP 5.0.5
+    //m_QueueID = MAKE_NEW_GUID(m_TypeId, 0, HIGHGUID_TYPE_BATTLEGROUND);
+    //m_QueueID |= 0x20000; // BATTLEFIELD_TYPE_WORLD_PVP 5.0.5
     InitGUID();
 
     m_MaxPlayer = sWorld->getIntConfig(CONFIG_WINTERGRASP_PLR_MAX);
@@ -75,7 +75,7 @@ bool BattlefieldWG::SetupBattlefield()
     KickPosition.Relocate(5728.117f, 2714.346f, 697.733f, 0);
     KickPosition.m_mapId = m_MapId;
 
-    RegisterZone(m_ZoneId);
+    RegisterZone(m_AreaID);
 
     m_Data32.resize(BATTLEFIELD_WG_DATA_MAX);
 
@@ -872,7 +872,7 @@ void BattlefieldWG::OnPlayerJoinWar(Player* player)
     player->CastSpell(player, SPELL_RECRUIT, true);
     player->CastSpell(player, SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA, true);
 
-    bool onWg = player->GetZoneId() == m_ZoneId; 
+    bool onWg = player->GetZoneId() == m_AreaID; 
     player->PlayDirectSound(OutdoorPvP_WG_SOUND_START_BATTLE); // START Battle
 
     // resurect dead plr

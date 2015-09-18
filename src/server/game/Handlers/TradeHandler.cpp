@@ -85,72 +85,72 @@ void WorldSession::HandleBusyTradeOpcode(WorldPacket& /*recvPacket*/)
 //! 6.0.3
 void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
 {
-    TradeData* view_trade = trader_data ? _player->GetTradeData()->GetTraderData() : _player->GetTradeData();
+    //TradeData* view_trade = trader_data ? _player->GetTradeData()->GetTraderData() : _player->GetTradeData();
 
-    uint8 count = 0;
-    for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
-        if (view_trade->GetItem(TradeSlots(i)))
-            ++count;
+    //uint8 count = 0;
+    //for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
+    //    if (view_trade->GetItem(TradeSlots(i)))
+    //        ++count;
 
-    if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
-    {
-        sObjectMgr->DumpDupeConstant(GetPlayer());
-        sLog->outDebug(LOG_FILTER_DUPE, "---SendUpdateTrade;");
-    }
+    //if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
+    //{
+    //    sObjectMgr->DumpDupeConstant(GetPlayer());
+    //    sLog->outDebug(LOG_FILTER_DUPE, "---SendUpdateTrade;");
+    //}
 
-    WorldPacket data(SMSG_TRADE_UPDATED);
-    data << uint8(trader_data);                             // 1 means traders data, 0 means own
+    //WorldPacket data(SMSG_TRADE_UPDATED);
+    //data << uint8(trader_data);                             // 1 means traders data, 0 means own
 
-    data << uint32(0);                                      // ID - same as in TRADE_STATUS_BEGIN_TRADE
-    data << uint32(TRADE_SLOT_COUNT);                       // CurrentStateIndex / trade slots count/number?, = next field in most cases
-    data << uint32(TRADE_SLOT_COUNT);                       // ClientStateIndex / trade slots count/number?, = prev field in most cases
+    //data << uint32(0);                                      // ID - same as in TRADE_STATUS_BEGIN_TRADE
+    //data << uint32(TRADE_SLOT_COUNT);                       // CurrentStateIndex / trade slots count/number?, = next field in most cases
+    //data << uint32(TRADE_SLOT_COUNT);                       // ClientStateIndex / trade slots count/number?, = prev field in most cases
 
-    data << uint64(view_trade->GetMoney());                 // trader gold
+    //data << uint64(view_trade->GetMoney());                 // trader gold
 
-    data << uint32(0);                                      // trade currency related / CurrencyType
-    data << uint32(0);                                      // trade currency related / CurrencyQuantity
-    data << uint32(view_trade->GetSpell());                 // ProposedEnchantment
+    //data << uint32(0);                                      // trade currency related / CurrencyType
+    //data << uint32(0);                                      // trade currency related / CurrencyQuantity
+    //data << uint32(view_trade->GetSpell());                 // ProposedEnchantment
 
-    data << uint32(count);
+    //data << uint32(count);
 
-    for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
-    {
-        Item* item = view_trade->GetItem(TradeSlots(i));
-        if (!item)
-            continue;
+    //for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
+    //{
+    //    Item* item = view_trade->GetItem(TradeSlots(i));
+    //    if (!item)
+    //        continue;
 
-        bool notWrapped = !item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED);
+    //    bool notWrapped = !item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED);
 
-        data << uint8(i);
-        data << uint32(item->GetTemplate()->ItemId);
-        data << uint32(item->GetCount());
+    //    data << uint8(i);
+    //    data << uint32(item->GetTemplate()->ItemId);
+    //    data << uint32(item->GetCount());
 
-        data << item->GetGuidValue(ITEM_FIELD_GIFT_CREATOR);
+    //    data << item->GetGuidValue(ITEM_FIELD_GIFT_CREATOR);
 
-        data.WriteBit(notWrapped);
+    //    data.WriteBit(notWrapped);
 
-        if (notWrapped)
-        {
-            WorldPackets::Item::ItemInstance itemInstance;
-            itemInstance << item;
-            data << itemInstance;
+    //    if (notWrapped)
+    //    {
+    //        WorldPackets::Item::ItemInstance itemInstance;
+    //        itemInstance << item;
+    //        data << itemInstance;
 
-            data << uint32(0);      // EnchantID
-            data << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT)); //OnUseEnchantmentID - is PERM_ENCHANTMENT_SLOT right or it's enchantID?
-            for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
-                data << uint32(item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
+    //        data << uint32(0);      // EnchantID
+    //        data << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT)); //OnUseEnchantmentID - is PERM_ENCHANTMENT_SLOT right or it's enchantID?
+    //        for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
+    //            data << uint32(item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
 
-            data << item->GetGuidValue(ITEM_FIELD_CREATOR);
+    //        data << item->GetGuidValue(ITEM_FIELD_CREATOR);
 
-            data << uint32(item->GetUInt32Value(ITEM_FIELD_MAX_DURABILITY));
-            data << uint32(item->GetUInt32Value(ITEM_FIELD_DURABILITY));
-            data << uint32(item->GetSpellCharges());
+    //        data << uint32(item->GetUInt32Value(ITEM_FIELD_MAX_DURABILITY));
+    //        data << uint32(item->GetUInt32Value(ITEM_FIELD_DURABILITY));
+    //        data << uint32(item->GetSpellCharges());
 
-            data.WriteBit(item->GetTemplate()->LockID != 0);
-        }
-    }
+    //        data.WriteBit(item->GetTemplate()->LockID != 0);
+    //    }
+    //}
 
-    SendPacket(&data);
+    //SendPacket(&data);
 }
 
 //==============================================================

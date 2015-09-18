@@ -75,8 +75,8 @@ namespace WorldPackets
 
         struct PlayerGuidLookupHint
         {
-            Optional<uint32> VirtualRealmAddress; ///< current realm (?) (identifier made from the Index, BattleGroup and Region)
-            Optional<uint32> NativeRealmAddress; ///< original realm (?) (identifier made from the Index, BattleGroup and Region)
+            Optional<uint32> VirtualRealmAddress;
+            Optional<uint32> NativeRealmAddress;
         };
 
         class QueryPlayerName final : public ClientPacket
@@ -114,7 +114,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Player;
-            uint8 Result = 0; // 0 - full packet, != 0 - only guid
+            uint8 Result = 0;
             PlayerGuidLookupData Data;
         };
 
@@ -131,8 +131,8 @@ namespace WorldPackets
 
         struct PageTextInfo
         {
-            uint32 ID           = 0;
-            uint32 NextPageID   = 0;
+            uint32 ID = 0;
+            uint32 NextPageID = 0;
             std::string Text;
         };
 
@@ -198,7 +198,7 @@ namespace WorldPackets
 
             uint32 TableHash = 0;
             uint32 Timestamp = 0;
-            int32 RecordID   = 0;
+            int32 RecordID = 0;
 
             // These are not sent directly
             uint32 Locale = 0;
@@ -283,7 +283,7 @@ namespace WorldPackets
         class QueryCorpseTransport final : public ClientPacket
         {
         public:
-            QueryCorpseTransport(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_CORPSE_TRANSPORT , std::move(packet)) { }
+            QueryCorpseTransport(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_CORPSE_TRANSPORT, std::move(packet)) { }
 
             void Read() override;
 

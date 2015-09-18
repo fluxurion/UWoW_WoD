@@ -93,6 +93,7 @@
 #include "TalentPackets.h"
 #include "LootPackets.h"
 #include "BattlegroundPackets.h"
+#include "CombatPackets.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -2400,9 +2401,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 transferPending.MapID = mapid;
                 if (Transport* transport = GetTransport())
                 {
-                    transferPending.Ship.HasValue = true;
-                    transferPending.Ship.Value.ID = transport->GetEntry();
-                    transferPending.Ship.Value.OriginMapID = GetMapId();
+                    transferPending.Ship = WorldPackets::Movement::TransferPending::ShipTransferPending();
+                    transferPending.Ship->ID = transport->GetEntry();
+                    transferPending.Ship->OriginMapID = GetMapId();
                 }
 
                 GetSession()->SendPacket(transferPending.Write());
@@ -13286,14 +13287,8 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     return EQUIP_ERR_OK;
 }
 
-Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update, int32 randomPropertyId)
-{
-    GuidSet allowedLooters;
-    return StoreNewItem(dest, item, update, randomPropertyId, allowedLooters);
-}
-
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
-Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update, int32 randomPropertyId, GuidSet& allowedLooters)
+Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update, int32 randomPropertyId /*= 0*/, GuidSet const& allowedLooters /*= GuidSet()*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
@@ -13309,6 +13304,10 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM, item, 1);
         if (randomPropertyId)
             pItem->SetItemRandomProperties(randomPropertyId);
+        
+        for (int32 bonusListID : bonusListIDs)
+            pItem->AddBonuses(bonusListID);
+
         /*if (petData)
             pItem->SetItemBattlePet(petData, true);*/
         pItem = StoreItem(dest, pItem, update);
@@ -15580,8 +15579,8 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
 
     packet.Slot = item->GetBagSlot();
     packet.SlotInBag = (item->GetCount() == count) ? item->GetSlot() : -1;
-    packet.Item << item;    //WorldPackets::Item::ItemInstance& operator<<(WorldPackets::Item::ItemInstance& data, Item* item) in Item.cpp
-    packet.WodUnk = 0;
+    packet.Item.Initialize(item);
+    packet.QuestLogItemID = 0;
     packet.Quantity = count;
     packet.QuantityInInventory = GetItemCount(item->GetEntry());
     packet.BattlePetBreedID = petInfo ? petInfo->GetBreedID() : 0;
@@ -15589,7 +15588,7 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     packet.BattlePetSpeciesID = petInfo ? petInfo->GetSpeciesID() : 0;
     packet.BattlePetLevel = petInfo ? petInfo->GetLevel() : 0;
     packet.Pushed = received;
-    packet.DisplayText = true;
+    packet.IsEncounterLoot = false;
     packet.Created = created;
     packet.IsBonusRoll = bonusRoll;
 
@@ -19574,29 +19573,29 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 
         if (!itemId)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid id (item id: %s, entry: %u).", GetGUID().GetCounter(), GetName(), itemId.ToString().c_str(), itemEntry);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid id (item id: %u, entry: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry);
             continue;
         }
 
         if (!sObjectMgr->GetItemTemplate(itemEntry))
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid entry (item id: %s, entry: %u).", GetGUID().GetCounter(), GetName(), itemId.ToString().c_str(), itemEntry);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid entry (item id: %u, entry: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry);
             continue;
         }
 
         if (slot >= VOID_STORAGE_MAX_SLOT)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid slot (item id: %s, entry: %u, slot: %u).", GetGUID().GetCounter(), GetName(), itemId.ToString().c_str(), itemEntry, slot);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid slot (item id: %u, entry: %u, slot: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry, slot);
             continue;
         }
 
         if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid.GetCounter()))
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: %s, entry: %u, creatorGuid: %u).", GetGUID().GetCounter(), GetName(), itemId.ToString().c_str(), itemEntry, creatorGuid);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: %u, entry: %u, creatorGuid: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry, creatorGuid);
             creatorGuid.Clear();
         }
 
-        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor, false);
+        _voidStorageItems[slot] = new VoidStorageItem(itemId.GetCounter(), itemEntry, creatorGuid, randomProperty, suffixFactor, false);
     }
     while (result->NextRow());
 }
@@ -21720,7 +21719,7 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
             {
                 // DELETE FROM void_storage WHERE ItemId = ?
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_VOID_STORAGE_ITEM);
-                stmt->setUInt64(0, _voidStorageItems[i]->ItemId.GetCounter());
+                stmt->setUInt64(0, _voidStorageItems[i]->ItemId);
                 trans->Append(stmt);
 
                 delete _voidStorageItems[i];
@@ -21732,7 +21731,7 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
 
             // REPLACE INTO character_inventory (itemId, playerGuid, itemEntry, slot, creatorGuid) VALUES (?, ?, ?, ?, ?)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_VOID_STORAGE_ITEM);
-            stmt->setUInt64(0, _voidStorageItems[i]->ItemId.GetCounter());
+            stmt->setUInt64(0, _voidStorageItems[i]->ItemId);
             stmt->setUInt64(1, lowGuid);
             stmt->setUInt32(2, _voidStorageItems[i]->ItemEntry);
             stmt->setUInt32(3, i);
@@ -22446,12 +22445,9 @@ void Player::Customize(ObjectGuid guid, uint8 gender, uint8 skin, uint8 face, ui
     CharacterDatabase.Execute(stmt);
 }
 
-//! 6.0.3
-void Player::SendAttackSwingResult(AttackSwing error)
+void Player::SendAttackSwingResult(AttackSwingReason error)
 {
-    WorldPacket data(SMSG_ATTACK_SWING_ERROR, 1);
-    data.WriteBits(error, 2);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Combat::AttackSwingError(error).Write());
 }
 
 //! 6.0.3
@@ -25493,16 +25489,15 @@ void Player::SendInitialPacketsAfterAddToMap()
     UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
 
     InstanceMap* inst = GetMap()->ToInstanceMap();
-    uint32 instancePlayers = inst ? inst->GetMaxPlayers() : 0;
 
     /// SMSG_WORLD_SERVER_INFO
     WorldPackets::Misc::WorldServerInfo worldServerInfo;
-    worldServerInfo.IneligibleForLootMask.Clear();     /// @todo
+    //worldServerInfo.IneligibleForLootMask;
     worldServerInfo.WeeklyReset = sWorld->GetNextWeeklyQuestsResetTime() - WEEK;
-    worldServerInfo.InstanceGroupSize.Set(instancePlayers);
-    worldServerInfo.IsTournamentRealm = 0;             /// @todo
-    worldServerInfo.RestrictedAccountMaxLevel.Clear(); /// @todo
-    worldServerInfo.RestrictedAccountMaxMoney.Clear(); /// @todo
+    worldServerInfo.InstanceGroupSize = inst ? inst->GetMaxPlayers() : 0;
+    //worldServerInfo.IsTournamentRealm = 0;
+    //worldServerInfo.RestrictedAccountMaxLevel;
+    //worldServerInfo.RestrictedAccountMaxMoney;
     worldServerInfo.DifficultyID = GetMap()->GetDifficultyID();
     SendDirectMessage(worldServerInfo.Write());
 
@@ -29220,7 +29215,7 @@ uint32 Player::GetNumOfVoidStorageFreeSlots() const
     return count;
 }
 
-uint32 Player::AddVoidStorageItem(const VoidStorageItem& item)
+uint32 Player::AddVoidStorageItem(VoidStorageItem const& item)
 {
     int32 slot = GetNextVoidStorageFreeSlot();
 
@@ -29235,25 +29230,6 @@ uint32 Player::AddVoidStorageItem(const VoidStorageItem& item)
     return slot;
 }
 
-void Player::AddVoidStorageItemAtSlot(uint32 slot, const VoidStorageItem& item)
-{
-    if (slot >= VOID_STORAGE_MAX_SLOT)
-    {
-        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
-        return;
-    }
-
-    if (_voidStorageItems[slot])
-    {
-        sLog->outError(LOG_FILTER_GENERAL, "Player::AddVoidStorageItemAtSlot - Player (GUID: %u, name: %s) tried to add an item to an used slot (item id: " UI64FMTD ", entry: %u, slot: %u).", GetGUID().GetCounter(), GetName(), _voidStorageItems[slot]->ItemId, _voidStorageItems[slot]->ItemEntry, slot);
-        GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_INTERNAL_ERROR_1);
-        return;
-    }
-
-    _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemEntry,
-        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor, true);
-}
-
 void Player::DeleteVoidStorageItem(uint32 slot)
 {
     if (slot >= VOID_STORAGE_MAX_SLOT || _voidStorageItems[slot]->deleted)
@@ -29264,8 +29240,6 @@ void Player::DeleteVoidStorageItem(uint32 slot)
 
     _voidStorageItems[slot]->change = true;
     _voidStorageItems[slot]->deleted = true;
-    //delete _voidStorageItems[slot];
-    //_voidStorageItems[slot] = NULL;
 }
 
 bool Player::SwapVoidStorageItem(uint32 oldSlot, uint32 newSlot)
@@ -29292,7 +29266,7 @@ VoidStorageItem* Player::GetVoidStorageItem(uint32 slot) const
     return _voidStorageItems[slot];
 }
 
-VoidStorageItem* Player::GetVoidStorageItem(ObjectGuid const& id, uint32& slot) const
+VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint32& slot) const
 {
     for (uint16 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
     {
@@ -29304,6 +29278,90 @@ VoidStorageItem* Player::GetVoidStorageItem(ObjectGuid const& id, uint32& slot) 
     }
 
     return NULL;
+}
+
+void Player::ValidateMovementInfo(MovementInfo* mi)
+{
+
+    //! Anti-cheat checks. Please keep them in seperate if() blocks to maintain a clear overview.
+    //! Might be subject to latency, so just remove improper flags.
+    #ifdef TRINITY_DEBUG
+    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
+    { \
+        if (check) \
+        { \
+            sLog->outDebug(LOG_FILTER_UNITS, "WorldSession::ValidateMovementInfo: Violation of MovementFlags found (%s). " \
+                "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Mask %u will be removed.", \
+                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetGUID().GetCounter(), maskToRemove); \
+            mi->RemoveMovementFlag((maskToRemove)); \
+        } \
+    }
+    #else
+    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
+        if (check) \
+            mi->RemoveMovementFlag((maskToRemove));
+    #endif
+
+    /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
+        in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
+        It will freeze clients that receive this player's movement info.
+    */
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
+        MOVEMENTFLAG_ROOT);
+
+    //! Cannot hover without SPELL_AURA_HOVER
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !HasAuraType(SPELL_AURA_HOVER),
+        MOVEMENTFLAG_HOVER);
+
+    //! Cannot ascend and descend at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING),
+        MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
+
+    //! Cannot move left and right at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT),
+        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
+
+    //! Cannot strafe left and right at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT),
+        MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
+
+    //! Cannot pitch up and down at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN),
+        MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
+
+    //! Cannot move forwards and backwards at the same time
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD),
+        MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
+
+    //! Cannot walk on water without SPELL_AURA_WATER_WALK
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) && !HasAuraType(SPELL_AURA_WATER_WALK),
+        MOVEMENTFLAG_WATERWALKING);
+
+    //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !HasAuraType(SPELL_AURA_FEATHER_FALL),
+        MOVEMENTFLAG_FALLING_SLOW);
+
+    /*! Cannot fly if no fly auras present. Exception is being a GM.
+        Note that we check for account level instead of Player::IsGameMaster() because in some
+        situations it may be feasable to use .gm fly on as a GM without having .gm on,
+        e.g. aerial combat.
+    */
+
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSession()->GetSecurity() == SEC_PLAYER &&
+        !m_mover->HasAuraType(SPELL_AURA_FLY) &&
+        !m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
+        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
+
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY) && mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
+        MOVEMENTFLAG_FALLING);
+
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING) && (!mi->hasFallData || !mi->hasFallDirection), MOVEMENTFLAG_FALLING);
+    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION) && G3D::fuzzyEq(mi->splineElevation, 0.0f), MOVEMENTFLAG_SPLINE_ELEVATION);
+
+    if (G3D::fuzzyNe(mi->splineElevation, 0.0f))
+        mi->AddMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION);
+
+    #undef REMOVE_VIOLATING_FLAGS
 }
 
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)

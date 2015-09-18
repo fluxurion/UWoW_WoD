@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "SpellAuras.h"
 #include "Spell.h"
+#include "Packets/ItemPackets.h"
 
 namespace WorldPackets
 {
@@ -44,10 +45,11 @@ namespace WorldPackets
             struct CategoryCooldownInfo
             {
                 CategoryCooldownInfo(uint32 category, int32 cooldown)
-                    : Category(category), ModCooldown(cooldown) { }
+                    : Category(category), ModCooldown(cooldown)
+                { }
 
-                uint32 Category   = 0; ///< SpellCategory Id
-                int32 ModCooldown = 0; ///< Reduced Cooldown in ms
+                uint32 Category = 0;
+                int32 ModCooldown = 0;
             };
 
             CategoryCooldown() : ServerPacket(SMSG_CATEGORY_COOLDOWN, 4) { }
@@ -80,22 +82,16 @@ namespace WorldPackets
 
             uint64 ActionButtons[MAX_ACTION_BUTTONS];
             uint8 Reason = 0;
-            /*
-                Reason can be 0, 1, 2
-                0 - Sends initial action buttons, client does not validate if we have the spell or not
-                1 - Used used after spec swaps, client validates if a spell is known.
-                2 - Clears the action bars client sided. This is sent during spec swap before unlearning and before sending the new buttons
-            */
         };
 
         class SetActionButton final : public ClientPacket
         {
         public:
-            SetActionButton(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTION_BUTTON, std::move(packet)) {}
+            SetActionButton(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTION_BUTTON, std::move(packet)) { }
 
             void Read() override;
 
-            uint64 Action = 0; ///< two packed uint32 (action and type)
+            uint64 Action = 0;
             uint8 Index = 0;
         };
 
@@ -112,14 +108,14 @@ namespace WorldPackets
         struct SpellLogPowerData
         {
             int32 PowerType = 0;
-            int32 Amount    = 0;
+            int32 Amount = 0;
         };
 
         struct SpellCastLogData
         {
-            int32 Health        = 0;
-            int32 AttackPower   = 0;
-            int32 SpellPower    = 0;
+            int32 Health = 0;
+            int32 AttackPower = 0;
+            int32 SpellPower = 0;
             std::vector<SpellLogPowerData> PowerData;
         };
 
@@ -188,8 +184,8 @@ namespace WorldPackets
         struct SpellCastRequest
         {
             uint8 CastID = 0;
-            uint32 SpellID = 0;
-            uint32 Misc = 0;
+            int32 SpellID = 0;
+            int32 Misc = 0;
             uint8 SendCastFlags = 0;
             SpellTargetData Target;
             MissileTrajectoryRequest MissileTrajectory;
@@ -287,11 +283,11 @@ namespace WorldPackets
         {
             ObjectGuid CasterGUID;
             ObjectGuid CasterUnit;
-            uint8 CastID        = 0;
-            int32 SpellID       = 0;
-            uint32 CastFlags    = 0;
-            uint32 CastFlagsEx  = 0;
-            uint32 CastTime     = 0;
+            uint8 CastID = 0;
+            int32 SpellID = 0;
+            uint32 CastFlags = 0;
+            uint32 CastFlagsEx = 0;
+            uint32 CastTime = 0;
             std::vector<ObjectGuid> HitTargets;
             std::vector<ObjectGuid> MissTargets;
             std::vector<SpellMissStatus> MissStatus;
@@ -342,41 +338,41 @@ namespace WorldPackets
         class SpellFailure final : public ServerPacket
         {
         public:
-            SpellFailure() : ServerPacket(SMSG_SPELL_FAILURE, 16+4+1+1) { }
+            SpellFailure() : ServerPacket(SMSG_SPELL_FAILURE, 16 + 4 + 1 + 1) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid CasterUnit;
-            uint32 SpellID  = 0;
-            uint16 Reason   = 0;
-            uint8 CastID    = 0;
+            uint32 SpellID = 0;
+            uint16 Reason = 0;
+            uint8 CastID = 0;
         };
 
         class SpellFailedOther final : public ServerPacket
         {
         public:
-            SpellFailedOther() : ServerPacket(SMSG_SPELL_FAILED_OTHER, 16+4+1+1) { }
+            SpellFailedOther() : ServerPacket(SMSG_SPELL_FAILED_OTHER, 16 + 4 + 1 + 1) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid CasterUnit;
-            uint32 SpellID  = 0;
-            uint8 Reason    = 0;
-            uint8 CastID    = 0;
+            uint32 SpellID = 0;
+            uint8 Reason = 0;
+            uint8 CastID = 0;
         };
 
         class CastFailed final : public ServerPacket
         {
         public:
-            CastFailed(OpcodeServer opcode) : ServerPacket(opcode, 4+4+4+4+1) { }
+            CastFailed(OpcodeServer opcode) : ServerPacket(opcode, 4 + 4 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
-            int32 Reason        = 0;
-            int32 FailedArg1    = -1;
-            int32 FailedArg2    = -1;
-            int32 SpellID       = 0;
-            uint8 CastID        = 0;
+            int32 Reason = 0;
+            int32 FailedArg1 = -1;
+            int32 FailedArg2 = -1;
+            int32 SpellID = 0;
+            uint8 CastID = 0;
         };
 
         struct SpellModifierData

@@ -985,7 +985,7 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recvData)
 
     MovementInfo movementInfo;
     movementInfo.guid = guid;
-    ReadMovementInfo(recvData, &movementInfo);
+    ValidateMovementInfo(&movementInfo);
     recvData.read_skip<float>();                           // unk2
     */
 }
@@ -1010,7 +1010,7 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                          // unk
 
     MovementInfo movementInfo;
-    ReadMovementInfo(recvData, &movementInfo);
+    ValidateMovementInfo(&movementInfo);
     */
 }
 
@@ -1041,185 +1041,6 @@ void WorldSession::HandlePlayedTime(WorldPacket& recvData)
     data << uint32(_player->GetTotalPlayedTime());
     data << uint32(_player->GetLevelPlayedTime());
     data << uint8(TriggerEvent);                                    // 0 - will not show in chat frame
-    SendPacket(&data);
-}
-
-//! 6.0.3
-void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    recvData >> guid;
-
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_INSPECT");
-
-    _player->SetSelection(guid);
-
-    Player* player = ObjectAccessor::FindPlayer(guid);
-    if (!player)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_INSPECT: No player found from GUID: " UI64FMTD, guid.GetCounter());
-        return;
-    }
-
-    uint8 activeSpec = player->GetActiveSpec();
-    uint32 talent_points = 41;
-
-    Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId());
-
-    uint32 equipmentCount = 0;
-    uint32 glyphCount = 0;
-    uint32 talentCount = 0;
-
-    WorldPacket data(SMSG_INSPECT_RESULT, 8 + 4 + 1 + 1 + talent_points + 8 + 4 + 8 + 4);
-    data << player->GetGUID();
-
-    size_t equipmentPos = data.wpos();
-    data << uint32(equipmentCount);
-
-    size_t glyphPos = data.wpos();
-    data << uint32(glyphCount);
-
-    size_t talentPos = data.wpos();
-    data << uint32(talentCount);
-    
-    data << uint32(player->getClass());
-    data << uint32(player->GetSpecializationId(activeSpec));
-    data << uint32(player->getGender());
-
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (!item)
-            continue;
-
-        WorldPackets::Item::ItemInstance itemInstance;
-        itemInstance << item;
-
-        ObjectGuid itemCreator = item->GetGuidValue(ITEM_FIELD_CREATOR);
-
-        uint32 enchantmentCount = 0;
-
-        data << itemCreator;
-        data << itemInstance;
-        data << uint8(i);
-
-        size_t entPos = data.wpos();
-        data << uint32(enchantmentCount);
-        for (uint32 j = 0; j < MAX_ENCHANTMENT_SLOT; ++j)
-        {
-            uint32 enchId = item->GetEnchantmentId(EnchantmentSlot(j));
-            if (!enchId)
-                continue;
-
-            data << uint32(enchId);
-            data << uint8(j);
-
-            ++enchantmentCount;
-        }
-        data.put<uint32>(entPos, enchantmentCount);
-
-        data.WriteBit(1);       //Usable
-
-        ++equipmentCount;
-    }
-    data.put<uint32>(equipmentPos, equipmentCount);
-
-    for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
-    {
-        uint32 glyph = player->GetGlyph(activeSpec, i);
-        if (!glyph)
-            continue;
-
-        data << uint16(glyph);                  // GlyphProperties.dbc
-        ++glyphCount;
-    }
-    data.put<uint32>(glyphPos, glyphCount);
-
-    PlayerTalentMap* Talents = player->GetTalentMap(activeSpec);
-    for (PlayerTalentMap::iterator itr = Talents->begin(); itr != Talents->end(); ++itr)
-    {
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr->first);
-        if (spell && spell->talentId)
-        {
-            data << uint16(spell->talentId);
-            ++talentCount;
-        }
-    }
-    data.put<uint32>(talentPos, talentCount);
-
-    data.WriteBit(bool(guild));
-    if (guild)
-    {
-        data << guild->GetGUID();
-        data << uint32(guild->GetMembersCount());
-        data << uint32(guild->GetAchievementMgr().GetAchievementPoints());
-    }
-
-    SendPacket(&data);
-}
-
-//! 6.0.3
-void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    recvData >> guid;
-
-    Player* player = ObjectAccessor::FindPlayer(guid);
-
-    if (!player)
-    {
-        //sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HONOR_STATS: No player found from GUID: " UI64FMTD, guid);
-        return;
-    }
-
-    WorldPacket data(SMSG_INSPECT_HONOR_STATS, 8+1+4+4);
-    data << guid;
-    data << uint8(0);                                                                   // LifetimeMaxRank
-    data << uint16(player->GetUInt16Value(PLAYER_FIELD_YESTERDAY_HONORABLE_KILLS, 1));
-    data << uint16(player->GetUInt16Value(PLAYER_FIELD_YESTERDAY_HONORABLE_KILLS, 0));
-    data << uint32(player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));      //lifetime
-    SendPacket(&data);
-}
-
-//! 6.0.3
-void WorldSession::HandleInspectRatedBGStats(WorldPacket &recvData)
-{
-    ObjectGuid playerGuid;
-    uint32 RealmID;
-
-    recvData >> playerGuid >> RealmID;
-
-    Player* player = ObjectAccessor::FindPlayer(playerGuid);
-    if (!player)
-        return;
-
-    uint8 count = 0;
-    WorldPacket data(SMSG_INSPECT_PVP);
-    data << playerGuid;
-    uint32 bpos = data.bitwpos();                       //placeholder
-    data.WriteBits(count, 3);                           //Arena brackets count data, 3 - rated bg
-
-    data.FlushBits();
-
-    for (BracketType i = BRACKET_TYPE_ARENA_2; i < BRACKET_TYPE_MAX; ++i)
-    {
-        Bracket* bracket = player->getBracket(i);
-        ASSERT(bracket);
-
-        data << uint32(bracket->getRating());
-        data << uint32(0);                          //Rank
-        data << uint32(bracket->GetBracketInfo(BRACKET_WEEK_GAMES));
-        data << uint32(bracket->GetBracketInfo(BRACKET_WEEK_WIN));
-        data << uint32(bracket->GetBracketInfo(BRACKET_SEASON_GAMES));
-        data << uint32(bracket->GetBracketInfo(BRACKET_SEASON_WIN));
-        data << uint32(0);                          //WeeklyBestRating
-        data << uint8(i);
-
-        ++count;
-    }
-
-    data.PutBits<uint32>(bpos, count, 3);
-
     SendPacket(&data);
 }
 
@@ -1678,19 +1499,6 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Client used \"/timetest %d\" command", mode);
 }
 
-//! 6.0.3
-void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    recvData >> guid;
-
-    Player* player = ObjectAccessor::FindPlayer(guid);
-    if (!player)
-        return;
-
-    player->GetAchievementMgr().SendAchievementInfo(_player);
-}
-
 void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& recvData)
 {
     uint32 achievementId;
@@ -1743,53 +1551,38 @@ void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<
     SendPacket(&data);
 }
 
-// Battlefield and Battleground
-void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recv_data)
+void WorldSession::HandleAreaSpiritHealerQuery(WorldPackets::Battleground::AreaSpiritHealerQuery& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUERY");
-
-    Battleground* bg = _player->GetBattleground();
-
-    ObjectGuid guid;
-    recv_data >> guid.ReadAsPacked();
-
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
+    Creature* unit = GetPlayer()->GetMap()->GetCreature(packet.HealerGuid);
     if (!unit)
         return;
 
     if (!unit->isSpiritService())                            // it's not spirit service
         return;
 
-    if (bg)
-        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
+    if (Battleground* bg = _player->GetBattleground())
+        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, packet.HealerGuid);
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
-        bf->SendAreaSpiritHealerQueryOpcode(_player,guid);
+        bf->SendAreaSpiritHealerQueryOpcode(_player, packet.HealerGuid);
 }
 
-void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recv_data)
+void WorldSession::HandleAreaSpiritHealerQueue(WorldPackets::Battleground::AreaSpiritHealerQueue& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUEUE");
-
-    Battleground* bg = _player->GetBattleground();
-
-    ObjectGuid guid;
-    recv_data >> guid.ReadAsPacked();
-
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
+    Creature* unit = GetPlayer()->GetMap()->GetCreature(packet.HealerGuid);
     if (!unit)
         return;
 
     if (!unit->isSpiritService())                            // it's not spirit service
         return;
 
-    if (bg)
-        bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
+    if (Battleground* bg = _player->GetBattleground())
+        bg->AddPlayerToResurrectQueue(packet.HealerGuid, _player->GetGUID());
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
     {
-        bf->RemovePlayerFromResurrectQueue(_player->GetGUID()); //remove as we already add me one time on HandleRepopRequestOpcode
-        bf->AddPlayerToResurrectQueue(guid, _player->GetGUID());
+        bf->RemovePlayerFromResurrectQueue(_player->GetGUID());
+        bf->AddPlayerToResurrectQueue(packet.HealerGuid, _player->GetGUID());
     }
 }
 
@@ -1830,13 +1623,7 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
     _player->SetPendingBind(0, 0);
 }
 
-void WorldSession::HandleViolenceLevel(WorldPacket& recvPacket)
-{
-    uint8 violenceLevel;
-    recvPacket >> violenceLevel;
-
-    // do something?
-}
+void WorldSession::HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& /*packet*/) { }
 
 void WorldSession::HandleObjectUpdateFailedOpcode(WorldPacket& recvData)
 {

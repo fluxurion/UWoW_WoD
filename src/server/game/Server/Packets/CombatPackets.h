@@ -20,12 +20,23 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "Player.h"
 #include "SpellPackets.h"
 
 namespace WorldPackets
 {
     namespace Combat
     {
+        class AttackSwingError final : public ServerPacket
+        {
+        public:
+            AttackSwingError(AttackSwingReason reason) : ServerPacket(SMSG_ATTACK_SWING_ERROR, 4), Reason(reason) { }
+
+            WorldPacket const* Write() override;
+
+            AttackSwingReason Reason = ATTACK_SWING_ERROR_CANT_ATTACK;
+        };
+
         class AttackSwing final : public ClientPacket
         {
         public:
@@ -99,12 +110,12 @@ namespace WorldPackets
         class ThreatRemove final : public ServerPacket
         {
         public:
-            ThreatRemove() : ServerPacket(SMSG_THREAT_REMOVE, 16) { }
+            ThreatRemove() : ServerPacket(SMSG_THREAT_REMOVE, 32) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid AboutGUID; // Unit to remove threat from (e.g. player, pet, guardian)
-            ObjectGuid UnitGUID; // Unit being attacked (e.g. creature, boss)
+            ObjectGuid AboutGUID;
+            ObjectGuid UnitGUID;
         };
 
         class AIReaction final : public ServerPacket
@@ -120,11 +131,11 @@ namespace WorldPackets
 
         struct SubDamage
         {
-            int32 SchoolMask    = 0;
-            float FDamage       = 0.0f; // Float damage (Most of the time equals to Damage)
-            int32 Damage        = 0;
-            int32 Absorbed      = 0;
-            int32 Resisted      = 0;
+            int32 SchoolMask = 0;
+            float FDamage = 0.0f;
+            int32 Damage = 0;
+            int32 Absorbed = 0;
+            int32 Resisted = 0;
         };
 
         struct UnkAttackerState
@@ -151,19 +162,19 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             Optional<WorldPackets::Spells::SpellCastLogData> LogData;
-            uint32 HitInfo          = 0; // Flags
+            uint32 HitInfo = 0;
             ObjectGuid AttackerGUID;
             ObjectGuid VictimGUID;
-            int32 Damage            = 0;
-            int32 OverDamage        = -1; // (damage - health) or -1 if unit is still alive
+            int32 Damage = 0;
+            int32 OverDamage = -1;
             Optional<SubDamage> SubDmg;
-            uint8 VictimState       = 0;
-            int32 AttackerState     = -1;
-            int32 MeleeSpellID      = 0;
-            int32 BlockAmount       = 0;
-            int32 RageGained        = 0;
+            uint8 VictimState = 0;
+            int32 AttackerState = -1;
+            int32 MeleeSpellID = 0;
+            int32 BlockAmount = 0;
+            int32 RageGained = 0;
             UnkAttackerState UnkState;
-            float Unk               = 0.0f;
+            float Unk = 0.0f;
         };
     }
 }

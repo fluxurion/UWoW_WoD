@@ -27,27 +27,25 @@ ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(Ini
 }
 
 ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos, size_t size, size_t valueSize)
-: ByteBufferException(pos, size, valueSize), _add(add)
 {
-    PrintError();
-}
+    std::ostringstream ss;
 
-void ByteBufferPositionException::PrintError() const
-{
-    sLog->outError(LOG_FILTER_GENERAL, "Attempted to %s value with size: %u in ByteBuffer (pos: %u size: %u)",
-        (_add ? "put" : "get"), ValueSize, Pos, Size);
+    ss << "Attempted to " << (add ? "put" : "get") << " value with size: "
+       << valueSize << " in ByteBuffer (pos: " << pos << " size: " << size
+       << ")";
+
+    message().assign(ss.str());
 }
 
 ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size, size_t valueSize)
-    : ByteBufferException(pos, size, valueSize)
 {
-    PrintError();
-}
+    std::ostringstream ss;
 
-void ByteBufferSourceException::PrintError() const
-{
-    sLog->outError(LOG_FILTER_GENERAL, "Attempted to put a %s in ByteBuffer (pos: %u size: %u)",
-        (ValueSize > 0 ? "NULL-pointer" : "zero-sized value"), Pos, Size);
+    ss << "Attempted to put a "
+       << (valueSize > 0 ? "NULL-pointer" : "zero-sized value")
+       << " in ByteBuffer (pos: " << pos << " size: " << size << ")";
+
+    message().assign(ss.str());
 }
 
 void ByteBuffer::print_storage() const

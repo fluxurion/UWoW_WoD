@@ -21,12 +21,12 @@ bool BattlefieldTB::SetupBattlefield()
 {
     m_TypeId = BATTLEFIELD_TB;                                                           //View enum BattlefieldTypes
     m_BattleId = BATTLEFIELD_BATTLEID_TB;
-    m_ZoneId = 5095;                                                                     // Tol Barad
+    m_AreaID = 5095;                                                                     // Tol Barad
     m_MapId = 732;                                                                       // Map X
 
     //Mop
-    //m_Guid = MAKE_NEW_GUID(m_TypeId, 0, HIGHGUID_TYPE_BATTLEGROUND);
-    //m_Guid |= 0x20000; // BATTLEFIELD_TYPE_WORLD_PVP 5.0.5
+    //m_QueueID = MAKE_NEW_GUID(m_TypeId, 0, HIGHGUID_TYPE_BATTLEGROUND);
+    //m_QueueID |= 0x20000; // BATTLEFIELD_TYPE_WORLD_PVP 5.0.5
     InitGUID();
 
     m_MaxPlayer = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MAX);
@@ -41,7 +41,7 @@ bool BattlefieldTB::SetupBattlefield()
     m_StartGrouping=false;
     KickPosition.Relocate(5728.117f, 2714.346f, 697.733f, 0);
     KickPosition.m_mapId = m_MapId;
-    RegisterZone(m_ZoneId);
+    RegisterZone(m_AreaID);
     m_Data32.resize(BATTLEFIELD_TB_DATA_MAX);
     m_saveTimer = 60000;
     
@@ -237,7 +237,7 @@ void BattlefieldTB::OnPlayerJoinWar(Player* player)
     player->RemoveAurasDueToSpell(SPELL_PHASE_HORDE_CONTROL);
     player->RemoveAurasDueToSpell(SPELL_PHASE_ALLIANCE_CONTROL);
 
-    bool onTb = player->GetZoneId() == m_ZoneId; 
+    bool onTb = player->GetZoneId() == m_AreaID; 
     // resurect dead plr
     if(!player->isAlive())
         player->ResurrectPlayer(1.0f);

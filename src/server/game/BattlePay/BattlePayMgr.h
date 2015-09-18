@@ -21,17 +21,7 @@
 
 #include <map>
 #include <string>
-
-namespace WorldPackets
-{
-
-    namespace BattlePay
-    {
-        class DistributionAssignToTarget;
-        class StartPurchase;
-        class ConfirmPurchaseResponse;
-    }
-}
+#include "Packets/BattlePayPackets.h"
 
 class WorldSession;
 
@@ -83,10 +73,7 @@ class BattlePayMgr
 {
 public:
     explicit BattlePayMgr(WorldSession* s);
-    ~BattlePayMgr()
-    {
-
-    }
+    ~BattlePayMgr() { }
 
     int32 GetCoinsFromDB();
     void RemoveCoinsFromDB(int32 count);

@@ -23,6 +23,7 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "MiscPackets.h"
 
 #define MAX_RESEARCH_PROJECTS 12
 
@@ -825,8 +826,10 @@ void WorldSession::HandleRequestResearchHistory(WorldPacket& recv_data)
 
 void Player::SendSurveyCast(uint32 count, uint32 max, uint32 branchId, bool completed)
 {
-    WorldPacket data(SMSG_ARCHAEOLOGY_SURVERY_CAST, 4 * 3 + 1);
-    data << uint32(count) << uint32(max) << uint32(branchId);
-    data.WriteBit(completed);
-    SendDirectMessage(&data);
+    WorldPackets::Misc::ArchaeologySurveryCast packet;
+    packet.ResearchBranchID = count;
+    packet.TotalFinds = max;
+    packet.NumFindsCompleted = branchId;
+    packet.SuccessfulFind = completed;
+    SendDirectMessage(packet.Write());
 }

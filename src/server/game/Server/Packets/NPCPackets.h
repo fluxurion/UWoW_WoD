@@ -44,20 +44,20 @@ namespace WorldPackets
 
         struct ClientGossipOptions
         {
-            int32 ClientOption  = 0;
-            uint8 OptionNPC     = 0;
-            uint8 OptionFlags   = 0;
-            int32 OptionCost    = 0;
+            int32 ClientOption = 0;
+            uint8 OptionNPC = 0;
+            uint8 OptionFlags = 0;
+            int32 OptionCost = 0;
             std::string Text;
             std::string Confirm;
         };
 
         struct ClientGossipText
         {
-            int32 QuestID       = 0;
-            int32 QuestType     = 0;
-            int32 QuestLevel    = 0;
-            bool Repeatable     = false;
+            int32 QuestID = 0;
+            int32 QuestType = 0;
+            int32 QuestLevel = 0;
+            bool Repeatable = false;
             std::string QuestTitle;
             int32 QuestFlags[2];
         };
@@ -79,16 +79,16 @@ namespace WorldPackets
 
         struct VendorItem
         {
-            int32 MuID                      = 0;
-            int32 Type                      = 0;
+            int32 MuID = 0;
+            int32 Type = 0;
             WorldPackets::Item::ItemInstance Item;
-            int32 Quantity                  = -1;
-            int32 Price                     = 0;
-            int32 Durability                = 0;
-            int32 StackCount                = 0;
-            int32 ExtendedCostID            = 0;
-            int32 PlayerConditionFailed     = 0;
-            bool DoNotFilterOnVendor        = false;
+            int32 Quantity = -1;
+            int32 Price = 0;
+            int32 Durability = 0;
+            int32 StackCount = 0;
+            int32 ExtendedCostID = 0;
+            int32 PlayerConditionFailed = 0;
+            bool DoNotFilterOnVendor = false;
         };
 
         class VendorInventory final : public ServerPacket
@@ -109,13 +109,13 @@ namespace WorldPackets
             {
                 memset(&ReqAbility, 0, sizeof(ReqAbility));
             }
-            int32 SpellID       = 0;
-            int32 MoneyCost     = 0;
-            int32 ReqSkillLine  = 0;
-            int32 ReqSkillRank  = 0;
+            int32 SpellID = 0;
+            int32 MoneyCost = 0;
+            int32 ReqSkillLine = 0;
+            int32 ReqSkillRank = 0;
             int32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS];
-            uint8 Usable        = 0;
-            uint8 ReqLevel      = 0;
+            uint8 Usable = 0;
+            uint8 ReqLevel = 0;
         };
 
         class TrainerList final : public ServerPacket
@@ -126,9 +126,9 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::string Greeting;
-            int32 TrainerType   = 0;
+            int32 TrainerType = 0;
             ObjectGuid TrainerGUID;
-            int32 TrainerID     = 1;
+            int32 TrainerID = 1;
             std::vector<TrainerListSpell> Spells;
         };
     }

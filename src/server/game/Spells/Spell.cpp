@@ -91,7 +91,7 @@ SpellDestination::SpellDestination(WorldObject const& wObj)
 }
 
 
-SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget(), m_itemTargetEntry(0),
+SpellCastTargets::SpellCastTargets() : m_pitch(0), m_speed(0), m_strTarget(), m_itemTargetEntry(0),
     m_targetMask(0), m_objectTarget(NULL), m_itemTarget(NULL), m_objectTargetGUID(), m_itemTargetGUID()
 {
 }
@@ -99,37 +99,37 @@ SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
 SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest) :
     m_targetMask(spellCastRequest.Target.Flags), m_objectTarget(nullptr), m_itemTarget(nullptr),
     m_objectTargetGUID(spellCastRequest.Target.Unit), m_itemTargetGUID(spellCastRequest.Target.Item),
-    m_itemTargetEntry(0), m_elevation(0.0f), m_speed(0.0f), m_strTarget(spellCastRequest.Target.Name)
+    m_itemTargetEntry(0), m_pitch(0.0f), m_speed(0.0f), m_strTarget(spellCastRequest.Target.Name)
 {
-    if (spellCastRequest.Target.SrcLocation.HasValue)
+    if (spellCastRequest.Target.SrcLocation)
     {
-        m_src._transportGUID = spellCastRequest.Target.SrcLocation.Value.Transport;
+        m_src._transportGUID = spellCastRequest.Target.SrcLocation->Transport;
         Position* pos;
         if (!m_src._transportGUID.IsEmpty())
             pos = &m_src._transportOffset;
         else
             pos = &m_src._position;
 
-        pos->Relocate(spellCastRequest.Target.SrcLocation.Value.Location);
-        if (spellCastRequest.Target.Orientation.HasValue)
-            pos->SetOrientation(spellCastRequest.Target.Orientation.Value);
+        pos->Relocate(spellCastRequest.Target.SrcLocation->Location);
+        if (spellCastRequest.Target.Orientation)
+            pos->SetOrientation(*spellCastRequest.Target.Orientation);
     }
 
-    if (spellCastRequest.Target.DstLocation.HasValue)
+    if (spellCastRequest.Target.DstLocation)
     {
-        m_dst._transportGUID = spellCastRequest.Target.DstLocation.Value.Transport;
+        m_dst._transportGUID = spellCastRequest.Target.DstLocation->Transport;
         Position* pos;
         if (!m_dst._transportGUID.IsEmpty())
             pos = &m_dst._transportOffset;
         else
             pos = &m_dst._position;
 
-        pos->Relocate(spellCastRequest.Target.DstLocation.Value.Location);
-        if (spellCastRequest.Target.Orientation.HasValue)
-            pos->SetOrientation(spellCastRequest.Target.Orientation.Value);
+        pos->Relocate(spellCastRequest.Target.DstLocation->Location);
+        if (spellCastRequest.Target.Orientation)
+            pos->SetOrientation(*spellCastRequest.Target.Orientation);
     }
 
-    SetElevation(spellCastRequest.MissileTrajectory.Pitch);
+    SetPitch(spellCastRequest.MissileTrajectory.Pitch);
     SetSpeed(spellCastRequest.MissileTrajectory.Speed);
 
     Update(caster);
@@ -472,62 +472,28 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
 
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
     {
-        WorldPackets::Spells::TargetLocation& target = data.SrcLocation.Value;
-        target.Transport = m_src._transportGUID; // relative position guid here - transport for example
-        if (!m_src._transportGUID.IsEmpty())
-            target.Location = m_src._transportOffset;
+        data.SrcLocation = boost::in_place();
+        data.SrcLocation->Transport = m_src._transportGUID; // relative position guid here - transport for example
+        if (m_src._transportGUID)
+            data.SrcLocation->Location = m_src._position;
         else
-            target.Location = m_src._position;
-        data.SrcLocation.HasValue = true;
+            data.SrcLocation->Location = m_src._transportOffset;
     }
 
     if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
-        WorldPackets::Spells::TargetLocation& target = data.DstLocation.Value;
-        target.Transport = m_dst._transportGUID; // relative position guid here - transport for example
-        if (!m_dst._transportGUID.IsEmpty())
-            target.Location = m_dst._transportOffset;
+        data.DstLocation = boost::in_place();
+        data.DstLocation->Transport = m_dst._transportGUID; // relative position guid here - transport for example
+        if (m_dst._transportGUID)
+            data.DstLocation->Location = m_dst._position;
         else
-            target.Location = m_dst._position;
-        data.DstLocation.HasValue = true;
+            data.DstLocation->Location = m_dst._transportOffset;
     }
 
     if (m_targetMask & TARGET_FLAG_STRING)
         data.Name = m_strTarget;
-    /*data << uint32(m_targetMask);
-
-    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_MINIPET))
-        data << m_objectTargetGUID.WriteAsPacked();
-
-    if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
-    {
-        if (m_itemTarget)
-            data << m_itemTarget->GetPackGUID();
-        else
-            data << uint8(0);
-    }
-
-    if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
-    {
-        data << m_src._transportGUID.WriteAsPacked(); // relative position guid here - transport for example
-        if (!m_src._transportGUID.IsEmpty())
-            data << m_src._transportOffset.PositionXYZStream();
-        else
-            data << m_src._position.PositionXYZStream();
-    }
-
-    if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
-    {
-        data << m_dst._transportGUID.WriteAsPacked(); // relative position guid here - transport for example
-        if (!m_dst._transportGUID.IsEmpty())
-            data << m_dst._transportOffset.PositionXYZStream();
-        else
-            data << m_dst._position.PositionXYZStream();
-    }
-
-    if (m_targetMask & TARGET_FLAG_STRING)
-        data << m_strTarget;*/
 }
+
 void SpellCastTargets::OutDebug() const
 {
     if (!m_targetMask)
@@ -547,7 +513,7 @@ void SpellCastTargets::OutDebug() const
     if (m_targetMask & TARGET_FLAG_STRING)
         sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "String: %s", m_strTarget.c_str());
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "speed: %f", m_speed);
-    sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "elevation: %f", m_elevation);
+    sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "elevation: %f", m_pitch);
 }
 
 SpellValue::SpellValue(SpellInfo const* proto, uint8 diff)
@@ -2061,7 +2027,7 @@ void Spell::SelectImplicitTrajTargets()
 
     targets.sort(Trinity::ObjectDistanceOrderPred(m_caster));
 
-    float b = tangent(m_targets.GetElevation());
+    float b = tangent(m_targets.GetPitch());
     float a = (srcToDestDelta - dist2d * b) / (dist2d * dist2d);
     if (a > -0.0001f)
         a = 0;
@@ -4999,29 +4965,28 @@ void Spell::SendSpellStart()
 
     if (castFlags & CAST_FLAG_RUNE_LIST) // rune cooldowns list
     {
-        WorldPackets::Spells::RuneData& runeData = castData.RemainingRunes.Value;
+        castData.RemainingRunes = boost::in_place();
+
         //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
         //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
         if (Player* player = m_caster->ToPlayer())
         {
-            runeData.Start = m_runesState; // runes state before
-            runeData.Count = player->GetRunesState(); // runes state after
+            castData.RemainingRunes->Start = m_runesState; // runes state before
+            castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
             for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
                 float baseCd = float(RUNE_BASE_COOLDOWN);
-                runeData.Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+                castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
         else
         {
-            runeData.Start = 0;
-            runeData.Count = 0;
+            castData.RemainingRunes->Start = 0;
+            castData.RemainingRunes->Count = 0;
             for (uint8 i = 0; i < MAX_RUNES; ++i)
-                runeData.Cooldowns.push_back(0);
+                castData.RemainingRunes->Cooldowns.push_back(0);
         }
-
-        castData.RemainingRunes.HasValue = true;
     }
 
     m_caster->SendMessageToSet(packet.Write(), true);
@@ -5071,8 +5036,6 @@ void Spell::SendSpellGo()
     // not send invisible spell casting
     if (!IsNeedSendToClient())
         return;
-
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Sending SMSG_SPELL_GO id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_UNKNOWN_9;
     // triggered spells with spell visual != 0
@@ -5185,35 +5148,34 @@ void Spell::SendSpellGo()
 
     if (castFlags & CAST_FLAG_RUNE_LIST) // rune cooldowns list
     {
-        WorldPackets::Spells::RuneData& runeData = castData.RemainingRunes.Value;
+        castData.RemainingRunes = boost::in_place();
+
         //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
         //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
         if (Player* player = m_caster->ToPlayer())
         {
-            runeData.Start = m_runesState; // runes state before
-            runeData.Count = player->GetRunesState(); // runes state after
+            castData.RemainingRunes->Start = m_runesState; // runes state before
+            castData.RemainingRunes->Count = player->GetRunesState(); // runes state after
             for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
                 float baseCd = float(RUNE_BASE_COOLDOWN);
-                runeData.Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
+                castData.RemainingRunes->Cooldowns.push_back((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
         else
         {
-            runeData.Start = 0;
-            runeData.Count = 0;
+            castData.RemainingRunes->Start = 0;
+            castData.RemainingRunes->Count = 0;
             for (uint8 i = 0; i < MAX_RUNES; ++i)
-                runeData.Cooldowns.push_back(0);
+                castData.RemainingRunes->Cooldowns.push_back(0);
         }
-
-        castData.RemainingRunes.HasValue = true;
     }
 
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
     {
         castData.MissileTrajectory.TravelTime = m_delayMoment;
-        castData.MissileTrajectory.Pitch = m_targets.GetElevation();
+        castData.MissileTrajectory.Pitch = m_targets.GetPitch();
     }
 
     m_caster->SendMessageToSet(packet.Write(), true);

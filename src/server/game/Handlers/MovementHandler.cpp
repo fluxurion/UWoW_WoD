@@ -30,7 +30,6 @@
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
-#include "MovementStructures.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
 #include "MovementPackets.h"
@@ -39,13 +38,11 @@
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAckOpcode();
 }
 
 void WorldSession::HandleMoveWorldportAckOpcode()
 {
-    // ignore unexpected far teleports
     if (!GetPlayer()->IsBeingTeleportedFar())
         return;
 
@@ -53,21 +50,16 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if(Unit* mover = _player->m_mover)
         mover->ClearUnitState(UNIT_STATE_JUMPING);
 
-    // get the teleport destination
     WorldLocation const loc = GetPlayer()->GetTeleportDest();
-
-    // possible errors in the coordinate validity check
     if (!MapManager::IsValidMapCoord(loc))
     {
         LogoutPlayer(false);
         return;
     }
 
-    // get the destination map entry, not the current one, this will fix homebind and reset greeting
     MapEntry const* mEntry = sMapStore.LookupEntry(loc.GetMapId());
     InstanceTemplate const* mInstance = sObjectMgr->GetInstanceTemplate(loc.GetMapId());
 
-    // reset instance validity, except if going to an instance inside an instance
     if (GetPlayer()->m_InstanceValid == false && !mInstance)
         GetPlayer()->m_InstanceValid = true;
 
@@ -78,10 +70,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         oldMap->RemovePlayerFromMap(GetPlayer(), false);
     }
 
-    // relocate the player to the teleport destination
     Map* newMap = sMapMgr->CreateMap(loc.GetMapId(), GetPlayer());
-    // the CanEnter checks are done in TeleporTo but conditions may change
-    // while the player is in transit, for example the map may get full
     if (!newMap || !newMap->CanEnter(GetPlayer()))
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "Map %d could not be created for player %d, porting player to homebind", loc.GetMapId(), GetPlayer()->GetGUID().GetCounter());
@@ -104,22 +93,16 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         return;
     }
 
-    // battleground state prepare (in case join to BG), at relogin/tele player not invited
-    // only add to bg group and object, if the player was invited (else he entered through command)
     if (_player->InBattleground())
     {
-        // cleanup setting if outdated
         if (!mEntry->IsBattlegroundOrArena())
         {
             if (Battleground* bg = _player->GetBattleground())
                 _player->LeaveBattleground(false);
 
-            // We're not in BG
             _player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);
-            // reset destination bg team
             _player->SetBGTeam(0);
         }
-        // join to bg case
         else if (Battleground* bg = _player->GetBattleground())
         {
             if (_player->IsInvitedForBattlegroundInstance(_player->GetBattlegroundId()))
@@ -129,34 +112,29 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     GetPlayer()->SendInitialPacketsAfterAddToMap();
 
-    // Update position client-side to avoid undermap
     _player->m_movementInfo.time = getMSTime();
     _player->m_movementInfo.pos.m_positionX = loc.m_positionX;
     _player->m_movementInfo.pos.m_positionY = loc.m_positionY;
     _player->m_movementInfo.pos.m_positionZ = loc.m_positionZ;
     _player->m_movementInfo.pos.m_orientation = loc.m_orientation;
 
-    WorldPackets::Movement::ServerPlayerMovement playerMovement;
+    WorldPackets::Movement::MoveUpdate playerMovement;
     playerMovement.movementInfo = &_player->m_movementInfo;
     _player->SendMessageToSet(playerMovement.Write(), _player);
 
-    // flight fast teleport case
     if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
     {
         if (!_player->InBattleground())
         {
-            // short preparations to continue flight
             FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
             flight->Initialize(*GetPlayer());
             return;
         }
 
-        // battleground state prepare, stop flight
         GetPlayer()->GetMotionMaster()->MovementExpired();
         GetPlayer()->CleanupAfterTaxiFlight();
     }
 
-    // resurrect character at enter into instance where his corpse exist after add to map
     Corpse* corpse = GetPlayer()->GetCorpse();
     if (corpse && corpse->GetType() != CORPSE_BONES && corpse->GetMapId() == GetPlayer()->GetMapId())
     {
@@ -185,35 +163,24 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         allowMount = mInstance->AllowMount;
     }
 
-    // mount allow check
     if (!allowMount || (GetPlayer()->GetMapId() == 530 && GetPlayer()->GetZoneId() == 0)) //530 - uwow event map
         _player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
-    // update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 newzone, newarea;
     GetPlayer()->GetZoneAndAreaId(newzone, newarea);
     GetPlayer()->UpdateZone(newzone, newarea);
 
-    // honorless target
     if (GetPlayer()->pvpInfo.inHostileArea)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
-
-    // in friendly area
     else if (GetPlayer()->IsPvP() && !GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
         GetPlayer()->UpdatePvP(false, false);
 
-    // resummon pet
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
-
-    //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_TELEPORT_ACK");
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid %s Flags %u, time %u", packet.MoverGUID.ToString().c_str(), packet.AckIndex, packet.MoveTime/IN_MILLISECONDS);
-
     Player* plMover = _player->m_mover->ToPlayer();
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
@@ -234,22 +201,16 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
     plMover->GetZoneAndAreaId(newzone, newarea);
     plMover->UpdateZone(newzone, newarea);
 
-    // new zone
     if (old_zone != newzone)
     {
-        // honorless target
         if (plMover->pvpInfo.inHostileArea)
             plMover->CastSpell(plMover, 2479, true);
 
-        // in friendly area
         else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
             plMover->UpdatePvP(false, false);
     }
 
-    // resummon pet
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
-
-    //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
 
     if(Unit* mover = _player->m_mover)
@@ -259,7 +220,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
         mover->m_movementInfo.pos.m_positionY = mover->GetPositionY();
         mover->m_movementInfo.pos.m_positionZ = mover->GetPositionZ();
 
-        WorldPackets::Movement::ServerPlayerMovement playerMovement;
+        WorldPackets::Movement::MoveUpdate playerMovement;
         playerMovement.movementInfo = &mover->m_movementInfo;
         mover->SendMessageToSet(playerMovement.Write(), mover);
 
@@ -274,7 +235,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     uint32 diff = sWorld->GetUpdateTime();
     Unit* mover = _player->m_mover;
 
-    if(!mover || mover == NULL)                                  // there must always be a mover
+    if(!mover || mover == NULL)
         return;
 
     Player* plrMover = mover->ToPlayer();
@@ -292,28 +253,17 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
             if(VehUnit->HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY) || VehUnit->HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
                 forvehunit = 1;
 
-    // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plrMover && plrMover->IsBeingTeleported())
         return;
 
-    // only this was on HandleMoveKnockBackAck handler so move here.
-    if (opcode == CMSG_MOVE_KNOCK_BACK_ACK)
-        mover->AddUnitState(UNIT_STATE_JUMPING);
-
-    // stop some emotes at player move
     if (plrMover && (plrMover->GetUInt32Value(UNIT_NPC_EMOTESTATE) != 0))
         plrMover->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
 
-    /* extract packet */
     MovementInfo& movementInfo = packet.movementInfo;
-    CheckMovementInfo(&movementInfo);
+    GetPlayer()->ValidateMovementInfo(&movementInfo);
 
-    // prevent tampered movement data
     if (movementInfo.guid != mover->GetGUID() || !mover->IsInWorld())
-    {
-        //sLog->outError(LOG_FILTER_NETWORKIO, "HandleMovementOpcodes: guid error");
         return;
-    }
 
     if (!movementInfo.pos.IsPositionValid())
     {
@@ -321,38 +271,28 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
         return;
     }
 
-    // Disable walk mode in charmer
     if(mover->HasAuraType(SPELL_AURA_MOD_POSSESS) || (plrMover && plrMover->HasAuraType(SPELL_AURA_MOD_POSSESS)))
     {
         if (movementInfo.flags & MOVEMENTFLAG_WALKING)
             movementInfo.flags &= ~MOVEMENTFLAG_WALKING;
     }
 
-    /* handle special cases */
     if (movementInfo.transport.guid)
     {
         if(World::GetEnableMvAnticheatDebug())
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleMovementOpcodes t_guid %s, opcode[%s]", movementInfo.transport.guid.ToString().c_str(), GetOpcodeNameForLogging(opcode).c_str());
 
-        // transports size limited
-        // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
         if (movementInfo.transport.pos.GetPositionX() > 50 || movementInfo.transport.pos.GetPositionY() > 50 || movementInfo.transport.pos.GetPositionZ() > 50)
-        {
             return;
-        }
 
         if (!Trinity::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.transport.pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.transport.pos.GetPositionY(),
             movementInfo.pos.GetPositionZ() + movementInfo.transport.pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.transport.pos.GetOrientation()))
-        {
             return;
-        }
 
-        // if we boarded a transport, add us to it
         if (plrMover)
         {
             if (!plrMover->GetTransport())
             {
-                // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just dismount if the guid can be found in the transport list
                 for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
                 {
                     if ((*iter)->GetGUID() == movementInfo.transport.guid)
@@ -399,7 +339,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
                 movementInfo.transport.guid.Clear();
         }
     }
-    else if (plrMover && (plrMover->m_transport || plrMover->m_temp_transport))                // if we were on a transport, leave
+    else if (plrMover && (plrMover->m_transport || plrMover->m_temp_transport))
     {
         if (plrMover->m_transport)
         {
@@ -410,10 +350,8 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
         movementInfo.transport.Reset();
     }
 
-    // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
     if (plrMover && plrMover->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR) && !movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR) && plrMover && !plrMover->isInFlight())
     {
-        // movement anticheat
         plrMover->m_anti_JumpCount = 0;
         plrMover->m_anti_JumpBaseZ = 0;
         if(!plrMover->Zliquid_status)
@@ -421,12 +359,8 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     }
 
     if (plrMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plrMover->IsInWater())
-    {
-        // now client not include swimming flag in case jumping under water
         plrMover->SetInWater(!plrMover->IsInWater() || plrMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
-    }
 
-    // check for swimming vehicles 
     if (plrMover && mover)
     {
         Vehicle *veh = mover->GetVehicleKit();
@@ -680,7 +614,6 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
         }
     }
 
-    /* process position-change */
     if (check_passed)
     {
         movementInfo.time = movementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
@@ -688,7 +621,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
         movementInfo.guid = mover->GetGUID();
         mover->m_movementInfo = movementInfo;
 
-        WorldPackets::Movement::ServerPlayerMovement playerMovement;
+        WorldPackets::Movement::MoveUpdate playerMovement;
         playerMovement.movementInfo = &mover->m_movementInfo;
         mover->SendMessageToSet(const_cast<WorldPacket*>(playerMovement.Write()), _player);
 
@@ -698,7 +631,6 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
             mover->m_TempSpeed = 0.0f;
         }
 
-        // this is almost never true (not sure why it is sometimes, but it is), normally use mover->IsVehicle()
         if (mover->GetVehicle())
         {
             mover->SetOrientation(movementInfo.pos.GetOrientation());
@@ -712,7 +644,6 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
             plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
             if (plrMover->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR))
-            //if (movementInfo.pos.GetPositionZ() < MAX_MAP_DEPTH)
             {
                 float groundZ = plrMover->GetMap()->GetGridMapHeigh(plrMover->GetPositionX(), plrMover->GetPositionY());
                 if (groundZ == VMAP_INVALID_HEIGHT_VALUE)
@@ -731,9 +662,6 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
                     if (plrMover->isAlive())
                     {
                         plrMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
-                        // player can be alive if GM/etc
-                        // change the death state to CORPSE to prevent the death timer from
-                        // starting in the next player update
                         if (!plrMover->isAlive())
                             plrMover->KillPlayer();
                     }
@@ -751,9 +679,8 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
         plrMover->m_temp_transport = NULL;
         ++(plrMover->m_anti_AlarmCount);
         plrMover->SetUnitMovementFlags(0);
-        //plrMover->SendTeleportPacket();
 
-        WorldPackets::Movement::ServerPlayerMovement playerMovement;
+        WorldPackets::Movement::MoveUpdate playerMovement;
         playerMovement.movementInfo = &plrMover->m_movementInfo;
         plrMover->SendMessageToSet(playerMovement.Write(), true);
 
@@ -763,69 +690,79 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     }
 }
 
-void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
+void WorldSession::HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet)
 {
-    uint32 opcode = recvData.GetOpcode();
-
-    /* extract packet */
-    ObjectGuid guid;
-    uint32 unk1;
-    float  newspeed;
-
-    recvData >> guid;
-
-    // now can skip not our packet
-    if (_player->GetGUID() != guid)
-    {
-        recvData.rfinish();                   // prevent warnings spam
+    Player* player = GetPlayer();
+    if (!player)
         return;
-    }
 
-    // continue parse packet
+    player->ValidateMovementInfo(&packet.Ack.movementInfo);
 
-    recvData >> unk1;                                      // counter or moveEvent
+    if (player->GetGUID() != packet.Ack.movementInfo.guid)
+        return;
 
-    MovementInfo movementInfo;
-    movementInfo.guid = guid;
-    ReadMovementInfo(recvData, &movementInfo);
+    UnitMoveType move_type;
 
-    recvData >> newspeed;
-    /*----------------*/
-
-    // client ACK send one packet for mounted/run case and need skip all except last from its
-    // in other cases anti-cheat check can be fail in false case
-    UnitMoveType move_type       = MOVE_WALK;
-    UnitMoveType force_move_type = MOVE_WALK;
-
-    static char const* move_type_name[MAX_MOVE_TYPE] = {  "Walk", "Run", "RunBack", "Swim", "SwimBack", "TurnRate", "Flight", "FlightBack", "PitchRate" };
-
-    // skip all forced speed changes except last and unexpected
-    // in run/mounted case used one ACK and it must be skipped.m_forced_speed_changes[MOVE_RUN} store both.
-    if (_player->m_forced_speed_changes[force_move_type] > 0)
+    OpcodeClient opcode = packet.GetOpcode();
+    switch (opcode)
     {
-        --_player->m_forced_speed_changes[force_move_type];
-        if (_player->m_forced_speed_changes[force_move_type] > 0)
+        case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:        move_type = MOVE_WALK;        break;
+        case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:         move_type = MOVE_RUN;         break;
+        case CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK:    move_type = MOVE_RUN_BACK;    break;
+        case CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK:        move_type = MOVE_SWIM;        break;
+        case CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:   move_type = MOVE_SWIM_BACK;   break;
+        case CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK:         move_type = MOVE_TURN_RATE;   break;
+        case CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK:      move_type = MOVE_FLIGHT;      break;
+        case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK: move_type = MOVE_FLIGHT_BACK; break;
+        case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:        move_type = MOVE_PITCH_RATE;  break;
+        default:
             return;
     }
 
-    if (!_player->GetTransport() && fabs(_player->GetSpeed(move_type) - newspeed) > 0.01f)
+    if (player->m_forced_speed_changes[move_type] > 0)
     {
-        if (_player->GetSpeed(move_type) > newspeed)         // must be greater - just correct
-        {
-            sLog->outError(LOG_FILTER_NETWORKIO, "%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
-                move_type_name[move_type], _player->GetName(), _player->GetSpeed(move_type), newspeed);
-            _player->SetSpeed(move_type, _player->GetSpeedRate(move_type), true);
-        }
-        else                                                // must be lesser - cheating
-        {
-            sLog->outDebug(LOG_FILTER_GENERAL, "Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
-                _player->GetName(), _player->GetSession()->GetAccountId(), _player->GetSpeed(move_type), newspeed);
-            _player->GetSession()->KickPlayer();
-        }
+        --player->m_forced_speed_changes[move_type];
+        if (player->m_forced_speed_changes[move_type] > 0)
+            return;
+    }
+
+    if (!player->GetTransport() && std::fabs(player->GetSpeed(move_type) - packet.Speed) > 0.01f)
+    {
+        if (player->GetSpeed(move_type) > packet.Speed)
+            player->SetSpeed(move_type, player->GetSpeedRate(move_type), true);
+        else
+            player->GetSession()->KickPlayer();
     }
 }
 
-//! 6.0.3
+void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& packet)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    player->ValidateMovementInfo(&packet.Ack.movementInfo);
+
+    if (player->m_mover->GetGUID() != packet.Ack.movementInfo.guid)
+        return;
+
+    player->m_movementInfo = packet.Ack.movementInfo;
+
+    WorldPackets::Movement::MoveUpdateKnockBack updateKnockBack;
+    updateKnockBack.movementInfo = &player->m_movementInfo;
+    player->SendMessageToSet(updateKnockBack.Write(), false);
+}
+
+void WorldSession::HandleMovementAckMessage(WorldPackets::Movement::MovementAckMessage& packet)
+{
+    GetPlayer()->ValidateMovementInfo(&packet.Ack.movementInfo);
+}
+
+void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& packet)
+{
+    GetPlayer()->ValidateMovementInfo(&packet.Data.movementInfo);
+}
+
 void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
 {
     ObjectGuid guid;
@@ -844,7 +781,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
     recvData >> old_mover_guid;
 
     MovementInfo mi;
-    ReadMovementInfo(recvData, &mi);
+    GetPlayer()->ValidateMovementInfo(&mi);
 
     mi.guid = old_mover_guid;
 
@@ -856,8 +793,6 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
     ObjectGuid guid = _player->GetGUID();
 
     WorldPacket data(SMSG_SPECIAL_MOUNT_ANIM, 8 + 1);
-    //data.WriteGuidMask<2, 4, 3, 7, 1, 0, 5, 6>(guid);
-    //data.WriteGuidBytes<4, 1, 3, 0, 7, 2, 5, 6>(guid);
 
     GetPlayer()->SendMessageToSet(&data, false);
 }
@@ -872,7 +807,7 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                          // unk
 
     MovementInfo movementInfo;
-    ReadMovementInfo(recvData, &movementInfo);
+    GetPlayer()->ValidateMovementInfo(&movementInfo);
 
     recvData.read_skip<uint32>();                          // unk2
 }
@@ -892,520 +827,4 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     //recvData.ReadGuidBytes<2, 0, 4, 5, 7, 1, 3, 6>(summonerGuid);
 
     _player->SummonIfPossible(agree);
-}
-
-void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
-{
-    MovementStatusElements* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
-    if (sequence == NULL)
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::ReadMovementInfo: No movement sequence found for opcode 0x%04X", uint32(data.GetOpcode()));
-        return;
-    }
-
-    ObjectGuid guid;
-    ObjectGuid tguid;
-    bool hasTransportData = false;
-    bool hasMovementFlags = false;
-    bool hasMovementFlags2 = false;
-    bool hasOrientation = false;
-    bool hasTimeStamp = false;
-    uint32 counter = 0;
-
-    for (uint32 i = 0; i < MSE_COUNT; ++i)
-    {
-        MovementStatusElements element = sequence[i];
-        if (element == MSEEnd)
-            break;
-
-        if (element >= MSEHasGuidByte0 && element <= MSEHasGuidByte7)
-        {
-            guid[element - MSEHasGuidByte0] = data.ReadBit();
-            continue;
-        }
-
-        if (element >= MSEHasTransportGuidByte0 &&
-            element <= MSEHasTransportGuidByte7)
-        {
-            if (hasTransportData)
-                tguid[element - MSEHasTransportGuidByte0] = data.ReadBit();
-            continue;
-        }
-
-        if (element >= MSEGuidByte0 && element <= MSEGuidByte7)
-        {
-            data.ReadByteSeq(guid[element - MSEGuidByte0]);
-            continue;
-        }
-
-        if (element >= MSETransportGuidByte0 &&
-            element <= MSETransportGuidByte7)
-        {
-            if (hasTransportData)
-                data.ReadByteSeq(tguid[element - MSETransportGuidByte0]);
-            continue;
-        }
-
-        switch (element)
-        {
-            case MSEBitCounter:
-                counter = data.ReadBits(22);
-                break;
-            case MSEBitCounterValues:
-                for (uint32 i = 0; i < counter; ++i)
-                    mi->unkCounter.push_back(data.read<uint32>());
-                break;
-            case MSEFlushBits:
-                data.FlushBits();
-                break;
-            case MSEHasMovementFlags:
-                hasMovementFlags = !data.ReadBit();
-                break;
-            case MSEHasMovementFlags2:
-                hasMovementFlags2 = !data.ReadBit();
-                break;
-            case MSEHasTimestamp:
-                hasTimeStamp = !data.ReadBit();
-                break;
-            case MSEHasOrientation:
-                hasOrientation = !data.ReadBit();
-                break;
-            case MSEHasTransportData:
-                hasTransportData = data.ReadBit();
-                break;
-            case MSEHasTransportTime2:
-                if (hasTransportData)
-                    mi->transport.hasTrevTime = data.ReadBit();
-                break;
-            case MSEHasTransportTime3:
-                if (hasTransportData)
-                    mi->transport.hasVehicleId = data.ReadBit();
-                break;
-            case MSEHasPitch:
-                mi->hasPitch = !data.ReadBit();
-                break;
-            case MSEHasFallData:
-                mi->hasFallData = data.ReadBit();
-                break;
-            case MSEHasFallDirection:
-                if (mi->hasFallData)
-                    mi->hasFallDirection = data.ReadBit();
-                break;
-            case MSEHasSplineElevation:
-                mi->hasSplineElevation = !data.ReadBit();
-                break;
-            case MSEHasSpline:
-                mi->hasSpline = data.ReadBit();
-                break;
-            case MSEMovementFlags:
-                if (hasMovementFlags)
-                    mi->flags = data.ReadBits(30);
-                break;
-            case MSEMovementFlags2:
-                if (hasMovementFlags2)
-                    mi->flags2 = data.ReadBits(13);
-                break;
-            case MSETimestamp:
-                if (hasTimeStamp)
-                    data >> mi->time;
-                break;
-            case MSEPositionX:
-                data >> mi->pos.m_positionX;
-                break;
-            case MSEPositionY:
-                data >> mi->pos.m_positionY;
-                break;
-            case MSEPositionZ:
-                data >> mi->pos.m_positionZ;
-                break;
-            case MSEOrientation:
-                if (hasOrientation)
-                    mi->pos.SetOrientation(data.read<float>());
-                break;
-            case MSETransportPositionX:
-                if (hasTransportData)
-                    data >> mi->transport.pos.m_positionX;
-                break;
-            case MSETransportPositionY:
-                if (hasTransportData)
-                    data >> mi->transport.pos.m_positionY;
-                break;
-            case MSETransportPositionZ:
-                if (hasTransportData)
-                    data >> mi->transport.pos.m_positionZ;
-                break;
-            case MSETransportOrientation:
-                if (hasTransportData)
-                    mi->pos.SetOrientation(data.read<float>());
-                break;
-            case MSETransportSeat:
-                if (hasTransportData)
-                    data >> mi->transport.seat;
-                break;
-            case MSETransportTime:
-                if (hasTransportData)
-                    data >> mi->transport.time;
-                break;
-            case MSETransportTime2:
-                if (hasTransportData && mi->transport.hasTrevTime)
-                    data >> mi->transport.prevTime;
-                break;
-            case MSETransportTime3:
-                if (hasTransportData && mi->transport.hasVehicleId)
-                    data >> mi->transport.vehicleId;
-                break;
-            case MSEPitch:
-                if (mi->hasPitch)
-                    data >> mi->pitch;
-                break;
-            case MSEFallTime:
-                if (mi->hasFallData)
-                    data >> mi->fallTime;
-                break;
-            case MSEFallVerticalSpeed:
-                if (mi->hasFallData)
-                    data >> mi->jump.zspeed;
-                break;
-            case MSEFallCosAngle:
-                if (mi->hasFallData && mi->hasFallDirection)
-                    data >> mi->jump.cosAngle;
-                break;
-            case MSEFallSinAngle:
-                if (mi->hasFallData && mi->hasFallDirection)
-                    data >> mi->jump.sinAngle;
-                break;
-            case MSEFallHorizontalSpeed:
-                if (mi->hasFallData && mi->hasFallDirection)
-                    data >> mi->jump.xyspeed;
-                break;
-            case MSESplineElevation:
-                if (mi->hasSplineElevation)
-                    data >> mi->splineElevation;
-                break;
-            case MSEBit95:
-                mi->byte95 = data.ReadBit();
-                break;
-            case MSEBitAC:
-                mi->byteAC = data.ReadBit();
-                break;
-            case MSEHasUnkInt32:
-                mi->hasUnkInt32 = !data.ReadBit();
-                break;
-            case MSEUnkInt32:
-                if (mi->hasUnkInt32)
-                    data >> mi->unkInt32;
-                break;
-            case MSECounter:
-                data.read_skip<uint32>();
-                break;
-            default:
-                ASSERT(false && "Incorrect sequence element detected at ReadMovementInfo");
-                break;
-        }
-    }
-
-    mi->guid = guid;
-    mi->transport.guid = tguid;
-    CheckMovementInfo(mi);
-}
-
-void WorldSession::CheckMovementInfo(MovementInfo* mi)
-{
-    if (mi->transport.guid && mi->pos.m_positionX != mi->transport.pos.m_positionX)
-       if (GetPlayer()->GetTransport())
-           GetPlayer()->GetTransport()->UpdatePosition(mi);
-
-    //! Anti-cheat checks. Please keep them in seperate if() blocks to maintain a clear overview.
-    //! Might be subject to latency, so just remove improper flags.
-    #ifdef TRINITY_DEBUG
-    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
-    { \
-        if (check) \
-        { \
-            sLog->outDebug(LOG_FILTER_UNITS, "WorldSession::ReadMovementInfo: Violation of MovementFlags found (%s). " \
-                "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Mask %u will be removed.", \
-                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUID().GetCounter(), maskToRemove); \
-            mi->RemoveMovementFlag((maskToRemove)); \
-        } \
-    }
-    #else
-    #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
-        if (check) \
-            mi->RemoveMovementFlag((maskToRemove));
-    #endif
-
-
-    /*! This must be a packet spoofing attempt. MOVEMENTFLAG_ROOT sent from the client is not valid
-        in conjunction with any of the moving movement flags such as MOVEMENTFLAG_FORWARD.
-        It will freeze clients that receive this player's movement info.*/
-    
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
-        MOVEMENTFLAG_ROOT);
-
-    //! Cannot hover without SPELL_AURA_HOVER
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetPlayer()->HasAuraType(SPELL_AURA_HOVER),
-        MOVEMENTFLAG_HOVER);
-
-    //! Cannot ascend and descend at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING),
-        MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
-
-    //! Cannot move left and right at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT),
-        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
-
-    //! Cannot strafe left and right at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT),
-        MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
-
-    //! Cannot pitch up and down at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN),
-        MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
-
-    //! Cannot move forwards and backwards at the same time
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD),
-        MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
-
-    //! Cannot walk on water without SPELL_AURA_WATER_WALK
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) && !GetPlayer()->HasAuraType(SPELL_AURA_WATER_WALK),
-        MOVEMENTFLAG_WATERWALKING);
-
-    //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !GetPlayer()->HasAuraType(SPELL_AURA_FEATHER_FALL),
-        MOVEMENTFLAG_FALLING_SLOW);
-
-    /*! Cannot fly if no fly auras present. Exception is being a GM.
-        Note that we check for account level instead of Player::IsGameMaster() because in some
-        situations it may be feasable to use .gm fly on as a GM without having .gm on,
-        e.g. aerial combat.
-    */
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
-        !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_FLY) &&
-        !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
-        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY) && mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
-        MOVEMENTFLAG_FALLING);
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING) && (!mi->hasFallData || !mi->hasFallDirection), MOVEMENTFLAG_FALLING);
-
-    REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION) &&
-        (!mi->hasSplineElevation || G3D::fuzzyEq(mi->splineElevation, 0.0f)), MOVEMENTFLAG_SPLINE_ELEVATION);
-
-    if (mi->hasSplineElevation)
-        mi->AddMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION);
-
-    #undef REMOVE_VIOLATING_FLAGS
-}
-
-void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi, Unit* unit /* = NULL*/)
-{
-    bool hasMovementFlags = mi->GetMovementFlags() != 0;
-    bool hasMovementFlags2 = mi->GetExtraMovementFlags() != 0;
-    bool hasTimestamp = mi->time != 0;
-    bool hasOrientation = !G3D::fuzzyEq(mi->pos.GetOrientation(), 0.0f);
-    bool hasTransportData = mi->transport.guid;
-
-    MovementStatusElements* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
-    if (!sequence)
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::WriteMovementInfo: No movement sequence found for opcode 0x%04X", uint32(data.GetOpcode()));
-        return;
-    }
-
-    ObjectGuid guid = mi->guid;
-    ObjectGuid tguid = mi->transport.guid;
-
-    for(uint32 i = 0; i < MSE_COUNT; ++i)
-    {
-        MovementStatusElements element = sequence[i];
-        if (element == MSEEnd)
-            break;
-
-        if (element >= MSEHasGuidByte0 && element <= MSEHasGuidByte7)
-        {
-            data.WriteBit(guid[element - MSEHasGuidByte0]);
-            continue;
-        }
-
-        if (element >= MSEHasTransportGuidByte0 &&
-            element <= MSEHasTransportGuidByte7)
-        {
-            if (hasTransportData)
-                data.WriteBit(tguid[element - MSEHasTransportGuidByte0]);
-            continue;
-        }
-
-        if (element >= MSEGuidByte0 && element <= MSEGuidByte7)
-        {
-            data.WriteByteSeq(guid[element - MSEGuidByte0]);
-            continue;
-        }
-
-        if (element >= MSETransportGuidByte0 &&
-            element <= MSETransportGuidByte7)
-        {
-            if (hasTransportData)
-                data.WriteByteSeq(tguid[element - MSETransportGuidByte0]);
-            continue;
-        }
-
-        switch (element)
-        {
-            case MSEBitCounter:
-                data.WriteBits(mi->unkCounter.size(), 22);
-                break;
-            case MSEBitCounterValues:
-                for (uint32 i = 0; i < mi->unkCounter.size(); ++i)
-                    data << uint32(mi->unkCounter[i]);
-                break;
-            case MSEFlushBits:
-                data.FlushBits();
-                break;
-            case MSEHasMovementFlags:
-                data.WriteBit(!hasMovementFlags);
-                break;
-            case MSEHasMovementFlags2:
-                data.WriteBit(!hasMovementFlags2);
-                break;
-            case MSEHasTimestamp:
-                data.WriteBit(!hasTimestamp);
-                break;
-            case MSEHasOrientation:
-                data.WriteBit(!hasOrientation);
-                break;
-            case MSEHasTransportData:
-                data.WriteBit(hasTransportData);
-                break;
-            case MSEHasTransportTime2:
-                if (hasTransportData)
-                    data.WriteBit(mi->transport.hasTrevTime);
-                break;
-            case MSEHasTransportTime3:
-                if (hasTransportData)
-                    data.WriteBit(mi->transport.hasVehicleId);
-                break;
-            case MSEHasPitch:
-                data.WriteBit(!mi->hasPitch);
-                break;
-            case MSEHasFallData:
-                data.WriteBit(mi->hasFallData);
-                break;
-            case MSEHasFallDirection:
-                if (mi->hasFallData)
-                    data.WriteBit(mi->hasFallDirection);
-                break;
-            case MSEHasSplineElevation:
-                data.WriteBit(!mi->hasSplineElevation);
-                break;
-            case MSEHasSpline:
-                data.WriteBit(mi->hasSpline);
-                break;
-            case MSEMovementFlags:
-                if (hasMovementFlags)
-                    data.WriteBits(mi->flags, 30);
-                break;
-            case MSEMovementFlags2:
-                if (hasMovementFlags2)
-                    data.WriteBits(mi->flags2, 13);
-                break;
-            case MSETimestamp:
-                if (hasTimestamp)
-                    data << mi->time;
-                break;
-            case MSEPositionX:
-                data << mi->pos.m_positionX;
-                break;
-            case MSEPositionY:
-                data << mi->pos.m_positionY;
-                break;
-            case MSEPositionZ:
-                data << mi->pos.m_positionZ;
-                break;
-            case MSEOrientation:
-                if (hasOrientation)
-                    data << Position::NormalizeOrientation(mi->pos.GetOrientation());
-                break;
-            case MSETransportPositionX:
-                if (hasTransportData)
-                    data << mi->transport.pos.m_positionX;
-                break;
-            case MSETransportPositionY:
-                if (hasTransportData)
-                    data << mi->transport.pos.m_positionY;
-                break;
-            case MSETransportPositionZ:
-                if (hasTransportData)
-                    data << mi->transport.pos.m_positionZ;
-                break;
-            case MSETransportOrientation:
-                if (hasTransportData)
-                    data << Position::NormalizeOrientation(mi->transport.pos.GetOrientation());
-                break;
-            case MSETransportSeat:
-                if (hasTransportData)
-                    data << mi->transport.seat;
-                break;
-            case MSETransportTime:
-                if (hasTransportData)
-                    data << mi->transport.time;
-                break;
-            case MSETransportTime2:
-                if (hasTransportData && mi->transport.hasTrevTime)
-                    data << mi->transport.prevTime;
-                break;
-            case MSETransportTime3:
-                if (hasTransportData && mi->transport.hasVehicleId)
-                    data << mi->transport.vehicleId;
-                break;
-            case MSEPitch:
-                if (mi->hasPitch)
-                    data << Position::NormalizePitch(mi->pitch);
-                break;
-            case MSEFallTime:
-                if (mi->hasFallData)
-                    data << mi->fallTime;
-                break;
-            case MSEFallVerticalSpeed:
-                if (mi->hasFallData)
-                    data << mi->jump.zspeed;
-                break;
-            case MSEFallCosAngle:
-                if (mi->hasFallData && mi->hasFallDirection)
-                    data << mi->jump.cosAngle;
-                break;
-            case MSEFallSinAngle:
-                if (mi->hasFallData && mi->hasFallDirection)
-                    data << mi->jump.sinAngle;
-                break;
-            case MSEFallHorizontalSpeed:
-                if (mi->hasFallData && mi->hasFallDirection)
-                    data << mi->jump.xyspeed;
-                break;
-            case MSESplineElevation:
-                if (mi->hasSplineElevation)
-                    data << mi->splineElevation;
-                break;
-            case MSEBit95:
-                data.WriteBit(mi->byte95);
-                break;
-            case MSEBitAC:
-                data.WriteBit(mi->byteAC);
-                break;
-            case MSEHasUnkInt32:
-                data.WriteBit(!mi->hasUnkInt32);
-                break;
-            case MSEUnkInt32:
-                if (mi->hasUnkInt32)
-                    data << mi->unkInt32;
-                break;
-            case MSECounter:
-                data << uint32(0);
-                break;
-            default:
-                ASSERT(false && "Incorrect sequence element detected at WriteMovementInfo");
-                break;
-        }
-    }
 }

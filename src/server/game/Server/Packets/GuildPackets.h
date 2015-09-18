@@ -43,14 +43,15 @@ namespace WorldPackets
             {
                 ObjectGuid GuildGUID;
 
-                uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
+                uint32 VirtualRealmAddress = 0;
 
                 std::string GuildName;
 
                 struct GuildInfoRank
                 {
                     GuildInfoRank(uint32 id, uint32 order, std::string const& name)
-                        : RankID(id), RankOrder(order), RankName(name) { }
+                        : RankID(id), RankOrder(order), RankName(name)
+                    { }
 
                     uint32 RankID;
                     uint32 RankOrder;
@@ -77,6 +78,47 @@ namespace WorldPackets
 
             ObjectGuid GuildGuid;
             Optional<GuildInfo> Info;
+        };
+
+        struct GuildBankItemInfo
+        {
+            struct GuildBankSocketEnchant
+            {
+                int32 SocketIndex = 0;
+                int32 SocketEnchantID = 0;
+            };
+
+            WorldPackets::Item::ItemInstance Item;
+            int32 Slot = 0;
+            int32 Count = 0;
+            int32 EnchantmentID = 0;
+            int32 Charges = 0;
+            int32 OnUseEnchantmentID = 0;
+            int32 Flags = 0;
+            bool Locked = false;
+            std::vector<GuildBankSocketEnchant> SocketEnchant;
+        };
+
+        struct GuildBankTabInfo
+        {
+            int32 TabIndex = 0;
+            std::string Name;
+            std::string Icon;
+        };
+
+        class GuildBankQueryResults final : public ServerPacket
+        {
+        public:
+            GuildBankQueryResults() : ServerPacket(SMSG_GUILD_BANK_QUERY_RESULTS, 25) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildBankItemInfo> ItemInfo;
+            std::vector<GuildBankTabInfo> TabInfo;
+            int32 WithdrawalsRemaining = 0;
+            int32 Tab = 0;
+            uint64 Money = 0;
+            bool FullUpdate = false;
         };
     }
 }
