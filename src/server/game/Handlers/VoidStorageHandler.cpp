@@ -62,7 +62,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPackets::VoidStorage::QueryVoidSt
     if (!player)
         return;
 
-    Creature* unit = player->GetNPCIfCanInteractWith(packet.Npc, UNIT_NPC_FLAG_VAULTKEEPER);
+    Creature* unit = player->GetNPCIfCanInteractWith(packet.Npc, UNIT_NPC_FLAG_TRANSMOGRIFIER | UNIT_NPC_FLAG_VAULTKEEPER);
     if (!unit)
     {
         SendVoidStorageFailed(1);

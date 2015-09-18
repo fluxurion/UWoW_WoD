@@ -155,7 +155,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_AREA_TRIGGER,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::AreaTrigger, &WorldSession::HandleAreaTriggerOpcode);
     DEFINE_HANDLER(CMSG_ATTACK_STOP,                                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Combat::AttackStop, &WorldSession::HandleAttackStopOpcode);
     DEFINE_HANDLER(CMSG_ATTACK_SWING,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Combat::AttackSwing, &WorldSession::HandleAttackSwingOpcode);
-    DEFINE_HANDLER(CMSG_AUCTION_HELLO_REQUEST,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::AuctionHouse::AuctionHelloRequest, &WorldSession::HandleAuctionHelloOpcode);
+    DEFINE_HANDLER(CMSG_AUCTION_HELLO_REQUEST,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::AuctionHouse::AuctionHelloRequest, &WorldSession::HandleAuctionHelloRequest);
     DEFINE_HANDLER(CMSG_AUCTION_LIST_BIDDER_ITEMS,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::AuctionHouse::AuctionListBidderItems, &WorldSession::HandleAuctionListBidderItems);
     DEFINE_HANDLER(CMSG_AUCTION_LIST_ITEMS,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::AuctionHouse::AuctionListItems, &WorldSession::HandleAuctionListItems);
     DEFINE_HANDLER(CMSG_AUCTION_LIST_OWNER_ITEMS,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::AuctionHouse::AuctionListOwnerItems, &WorldSession::HandleAuctionListOwnerItems);

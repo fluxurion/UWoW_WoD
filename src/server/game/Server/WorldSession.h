@@ -972,7 +972,7 @@ class WorldSession
         void HandleSetTradeItemOpcode(WorldPacket& recvPacket);
         void HandleUnacceptTradeOpcode(WorldPacket& recvPacket);
 
-        void HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& packet);
+        void HandleAuctionHelloRequest(WorldPackets::AuctionHouse::AuctionHelloRequest& packet);
         void HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionListItems& packet);
         void HandleAuctionListBidderItems(WorldPackets::AuctionHouse::AuctionListBidderItems& packet);
         void HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSellItem& packet);
