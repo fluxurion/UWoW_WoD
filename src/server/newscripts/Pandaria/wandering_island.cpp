@@ -2299,8 +2299,6 @@ class mob_master_shang_xi_temple : public CreatureScript
         {
             case QUEST_SPIRIT_AND_BODY:
                 sCreatureTextMgr->SendChat(creature, TEXT_GENERIC_7);
-                break;
-            case QUEST_SPIRIT_AND_BODY:
                 player->RemoveAurasDueToSpell(SPELL_CREDIT_NOT_IN_FACE);
                 player->RemoveAllMinionsByFilter(118036, 1);
                 player->RemoveAllMinionsByFilter(SPELL_CREDIT_NOT_IN_FACE, 1);
