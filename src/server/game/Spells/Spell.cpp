@@ -625,6 +625,8 @@ m_absorb(0), m_resist(0), m_blocked(0), m_interupted(false), m_effect_targets(NU
     m_blocked = 0;
     m_addpower = 0;
     m_addptype = -1;
+    m_castItemEntry = 0;
+    m_castFlagsEx = 0;
 
     m_caster->GetPosition(&visualPos);
 }
@@ -3606,7 +3608,10 @@ bool Spell::UpdateChanneledTargetList()
 void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura)
 {
     if (m_CastItem)
+    {
         m_castItemGUID = m_CastItem->GetGUID();
+        m_castItemEntry = m_CastItem->GetEntry();
+    }
     else
         m_castItemGUID.Clear();
 
@@ -4452,15 +4457,14 @@ void Spell::SendSpellCooldown()
 
     Player* _player = (Player*)m_caster;
 
-    // mana/health/etc potions, disabled by client (until combat out as declarate)
     if (m_CastItem && (m_CastItem->IsPotion() || m_CastItem->GetEntry() == 77589))
     {
-        // need in some way provided data for Spell::finish SendCooldownEvent
         _player->SetLastPotionId(m_CastItem->GetEntry());
         return;
     }
+    //else
+    //    m_caster->GetSpellHistory()->HandleCooldowns(m_spellInfo, m_castItemEntry, this); // TODO
 
-    // have infinity cooldown but set at aura apply                  // do not set cooldown for triggered spells (needed by reincarnation)
     if (AttributesCustom & (SPELL_ATTR0_DISABLED_WHILE_ACTIVE | SPELL_ATTR0_PASSIVE) || (_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD))
         return;
 
@@ -4927,6 +4931,7 @@ void Spell::SendSpellStart()
     castData.CastID = m_cast_count; // pending spell cast?
     castData.SpellID = m_spellInfo->Id;
     castData.CastFlags = castFlags;
+    castData.CastFlagsEx = m_castFlagsEx;
     castData.CastTime = m_casttime;
 
     //Is it need on cast?
@@ -5099,6 +5104,7 @@ void Spell::SendSpellGo()
     castData.CastID = m_cast_count; // pending spell cast?
     castData.SpellID = m_spellInfo->Id;
     castData.CastFlags = castFlags;
+    castData.CastFlagsEx = m_castFlagsEx;
     castData.CastTime = getMSTime();
 
     uint32 hit = 0;
@@ -5546,6 +5552,8 @@ void Spell::TakeCastItem()
             m_targets.SetItemTarget(NULL);
 
         m_CastItem = NULL;
+        m_castItemEntry = 0;
+        m_castItemGUID.Clear();
     }
 }
 
@@ -6052,6 +6060,8 @@ void Spell::TakeReagents()
             }
 
             m_CastItem = NULL;
+            m_castItemGUID.Clear();
+            m_castItemEntry = 0;
         }
 
         // if GetItemTarget is also spell reagent
@@ -8395,8 +8405,15 @@ void Spell::UpdatePointers()
             m_originalCaster = NULL;
     }
 
-    if (m_castItemGUID && m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (!m_castItemGUID.IsEmpty() && m_caster->GetTypeId() == TYPEID_PLAYER)
+    {
         m_CastItem = m_caster->ToPlayer()->GetItemByGuid(m_castItemGUID);
+        if (!m_CastItem)
+            return;
+
+        if (m_castItemEntry != m_CastItem->GetEntry())
+            return;
+    }
 
     m_targets.Update(m_caster);
 

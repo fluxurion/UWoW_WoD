@@ -33,6 +33,7 @@
 #include "VMapFactory.h"
 #include "Vehicle.h"
 #include "MovementPackets.h"
+#include "AccountMgr.h"
 
 #define MOVEMENT_PACKET_TIME_DELAY 0
 
@@ -775,56 +776,39 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
+void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
 {
-    ObjectGuid old_mover_guid;
-    recvData >> old_mover_guid;
+    ObjectGuid guid;
+    uint32 time;
+    recvData >> time;
 
-    MovementInfo mi;
-    GetPlayer()->ValidateMovementInfo(&mi);
-
-    mi.guid = old_mover_guid;
-
-    _player->m_movementInfo = mi;
+    if (_player && _player->m_mover->m_movementInfo.flags & MOVEMENTFLAG_WALKING)
+        _player->m_anti_MistiCount = 1;
 }
 
-void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
 {
-    ObjectGuid guid = _player->GetGUID();
+    ObjectGuid guid;
+    uint32 mapid;
+    float PositionX;
+    float PositionY;
+    float PositionZ;
+    float Orientation;
 
-    WorldPacket data(SMSG_SPECIAL_MOUNT_ANIM, 8 + 1);
+    recvData >> mapid;
+    recvData >> PositionZ;
+    recvData >> PositionX;
+    recvData >> PositionY;
+    recvData >> Orientation;
 
-    GetPlayer()->SendMessageToSet(&data, false);
-}
-
-void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_HOVER_ACK");
-
-    uint64 guid;                                            // guid - unused
-    recvData.ReadPackedUInt64(guid);
-
-    recvData.read_skip<uint32>();                          // unk
-
-    MovementInfo movementInfo;
-    GetPlayer()->ValidateMovementInfo(&movementInfo);
-
-    recvData.read_skip<uint32>();                          // unk2
-}
-
-void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
-{
-    if (!_player->isAlive() || _player->isInCombat())
+    if (GetPlayer()->isInFlight())
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) in flight, ignore worldport command.", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
         return;
+    }
 
-    ObjectGuid summonerGuid;
-    bool agree;
-
-    //recvData.ReadGuidMask<0, 7, 3, 1, 6, 2, 4>(summonerGuid);
-    agree = recvData.ReadBit();
-    //recvData.ReadGuidMask<5>(summonerGuid);
-
-    //recvData.ReadGuidBytes<2, 0, 4, 5, 7, 1, 3, 6>(summonerGuid);
-
-    _player->SummonIfPossible(agree);
+    if (AccountMgr::IsAdminAccount(GetSecurity()))
+        GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
+    else
+        SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
 }

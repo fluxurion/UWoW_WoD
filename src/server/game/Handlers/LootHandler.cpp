@@ -35,7 +35,6 @@
 //! 6.0.3
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLootItem& packet)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_ITEM");
     Player* player = GetPlayer();
     Loot* loot = NULL;
 
@@ -46,7 +45,6 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
         if (lguid.IsGameObject())
         {
             GameObject* go = player->GetMap()->GetGameObject(lguid);
-
             // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
             if (!go || ((go->GetOwnerGUID() != _player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(_player, INTERACTION_DISTANCE)))
             {
@@ -134,8 +132,6 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
-
     Player* player = GetPlayer();
     ObjectGuid guid = player->GetLootGUID();
     AoeMap* listloot = player->GetAoeLootList();
@@ -295,8 +291,6 @@ void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
     if (!_creature)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_UNIT corpsGUID %u", corpsGUID);
-
     std::list<Creature*> corpesList;
     _looted->GetCorpseCreatureInGrid(corpesList, LOOT_DISTANCE);
 
@@ -336,8 +330,6 @@ void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
 //! 6.0.3
 void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_RELEASE");
-
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
     ObjectGuid guid;
@@ -579,8 +571,6 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
 
 void WorldSession::HandleLootSpecIdOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_METHOD_FOR_SPECIALIZATION");
-
     uint32 specID;
     recvData >> specID;
 

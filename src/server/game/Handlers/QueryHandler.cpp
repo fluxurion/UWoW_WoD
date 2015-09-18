@@ -225,8 +225,6 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
 
 void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_QUERY_NPC_TEXT ID '%u'", packet.TextID);
-
     GossipText const* gossip = sObjectMgr->GetGossipText(packet.TextID);
 
     WorldPackets::Query::QueryNPCTextResponse response;
@@ -449,10 +447,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
 {
     DB2StorageBase const* store = GetDB2Storage(packet.TableHash);
     if (!store)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_DB_QUERY_BULK: Received unknown hotfix type: %u", packet.TableHash);
         return;
-    }
 
     for (WorldPackets::Query::DBQueryBulk::DBQueryRecord const& rec : packet.Queries)
     {
@@ -468,7 +463,6 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
         }
         else
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_DB_QUERY_BULK: Entry %u does not exist in datastore: %u", rec.RecordID, packet.TableHash);
             response.RecordID = -int32(rec.RecordID);
             response.Timestamp = time(NULL);
         }

@@ -746,6 +746,15 @@ struct SpellRuneCostEntry
     bool NoRunicPowerGain() const { return RunePowerGain == 0; }
 };
 
+struct ToyEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 ItemID;                                                  // 1
+    uint32 Flags;                                                   // 2
+    LocalizedString* Description;                                   // 3
+    uint32 CategoryFilter;                                          // 4
+};
+
 #define MAX_SPELL_TOTEMS 2
 
 struct SpellTotemsEntry

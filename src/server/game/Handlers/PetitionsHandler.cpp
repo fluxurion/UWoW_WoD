@@ -208,8 +208,6 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     if (result)
         signs = uint8(result->GetRowCount());
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_SHOW_SIGNATURES petition entry: '%u'", petitionGuidLow);
-
     ObjectGuid playerGUID = _player->GetGUID();
 
     //! 6.0.3
@@ -238,8 +236,6 @@ void WorldSession::HandlePetitionQueryOpcode(WorldPacket & recvData)
     uint32 guildguid;
     ObjectGuid petitionguid;
     recvData >> guildguid >> petitionguid;                                 // in Trinity always same as GUID_LOPART(petitionguid)
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PETITION Petition GUID %u Guild GUID %u", petitionguid.GetCounter(), guildguid);
 
     SendPetitionQueryOpcode(petitionguid);
 }
@@ -307,10 +303,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
         type = fields[0].GetUInt8();
     }
     else
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PETITION failed for petition (GUID: %u)", petitionGuid.GetCounter());
         return;
-    }
 
     if (sGuildMgr->GetGuildByName(newName))
     {

@@ -94,6 +94,7 @@
 #include "LootPackets.h"
 #include "BattlegroundPackets.h"
 #include "CombatPackets.h"
+#include "ToyPackets.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -21309,6 +21310,10 @@ void Player::SaveToDB(bool create /*=false*/)
 
     CharacterDatabase.CommitTransaction(trans);
 
+    trans = LoginDatabase.BeginTransaction();
+    GetSession()->GetCollectionMgr()->SaveAccountToys(trans);
+    LoginDatabase.CommitTransaction(trans);
+
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
         pet->SavePetToDB();
@@ -25472,7 +25477,11 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_WEEKLY_SPELL_USAGE
 
     // SMSG_ACCOUNT_MOUNT_UPDATE
-    // SMSG_ACCOUNT_TOYS_UPDATE
+
+    WorldPackets::Toy::AccountToysUpdate toysUpdate;
+    toysUpdate.IsFullUpdate = true;
+    toysUpdate.Toys = &GetSession()->GetCollectionMgr()->GetAccountToys();
+    SendDirectMessage(toysUpdate.Write());
 
     WorldPackets::Character::InitialSetup initialSetup;
     initialSetup.ServerExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);

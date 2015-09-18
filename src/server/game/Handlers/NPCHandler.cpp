@@ -367,8 +367,6 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
 
 void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GOSSIP_SELECT_OPTION");
-
     ObjectGuid guid;
     uint32 gossipListId;
     uint32 menuId;
@@ -451,8 +449,6 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
-
     ObjectGuid guid;
     recvData >> guid;
 
@@ -558,8 +554,6 @@ void WorldSession::SendBindPoint(Creature* npc)
 
 void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REPAIR_ITEM");
-
     ObjectGuid npcGUID, itemGUID;
     bool guildBank;                                         // new in 2.3.2, bool that means from guild bank money
     recvData >> npcGUID >> itemGUID;

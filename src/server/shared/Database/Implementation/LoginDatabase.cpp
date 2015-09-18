@@ -119,4 +119,8 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_BATTLEPAY_COINS, "SELECT coins FROM account WHERE id = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_UPD_BATTLEPAY_COINS, "UPDATE account SET coins = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_BATTLEPAY_CHANGE_COINS_COUNT, "UPDATE account SET coins = coins - ? WHERE id = ?", CONNECTION_ASYNC);
+
+    PrepareStatement(LOGIN_SEL_ACCOUNT_TOYS, "SELECT itemId, isFavourite FROM battlenet_account_toys WHERE accountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_REP_ACCOUNT_TOYS, "REPLACE INTO battlenet_account_toys (accountId, itemId, isFavourite) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+
 }

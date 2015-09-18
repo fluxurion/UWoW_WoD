@@ -34,13 +34,7 @@
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
 {
     if (!splitItem.Inv.Items.empty())
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleSplitItemOpcode - Invalid ItemCount (%u)", splitItem.Inv.Items.size());
         return;
-    }
-
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_SPLIT_ITEM");
-    //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u, count = %u", srcbag, srcslot, dstbag, dstslot, count);
 
     uint16 src = ((splitItem.FromPackSlot << 8) | splitItem.FromSlot);
     uint16 dst = ((splitItem.ToPackSlot << 8) | splitItem.ToSlot);
@@ -162,13 +156,7 @@ void WorldSession::HandleAutoEquipItemSlotOpcode(WorldPacket& recvData)
 void WorldSession::HandleSwapItem(WorldPackets::Item::SwapItem& swapItem)
 {
     if (swapItem.Inv.Items.size() != 2)
-    {
-        //sLog->outDebug(LOG_FILTER_PACKETIO, "HandleSwapItem - Invalid itemCount (" SZFMTD ")", swapItem.Inv.Items.size());
         return;
-    }
-
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_SWAP_ITEM");
-    //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u", srcbag, srcslot, dstbag, dstslot);
 
     uint16 src = ((swapItem.ContainerSlotA << 8) | swapItem.SlotA);
     uint16 dst = ((swapItem.ContainerSlotB << 8) | swapItem.SlotB);
@@ -214,13 +202,7 @@ void WorldSession::HandleSwapItem(WorldPackets::Item::SwapItem& swapItem)
 void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem)
 {
     if (autoEquipItem.Inv.Items.size() != 1)
-    {
-        //sLog->outDebug(LOG_FILTER_PACKETIO, "HandleAutoEquipItemOpcode - Invalid itemCount (" SZFMTD ")", autoEquipItem.Inv.Items.size());
         return;
-    }
-
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTO_EQUIP_ITEM");
-    //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
 
     Item* pSrcItem  = _player->GetItemByPos(autoEquipItem.PackSlot, autoEquipItem.Slot);
     if (!pSrcItem)
@@ -319,9 +301,6 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
 //! 6.0.3
 void WorldSession::HandleDestroyItemOpcode(WorldPackets::Item::DestroyItem& destroyItem)
 {
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_DESTROY_ITEM");
-    //sLog->outDebug("STORAGE: receive bag = %u, slot = %u, count = %u", bag, slot, count);
-
     uint16 pos = (destroyItem.ContainerId << 8) | destroyItem.SlotNum;
 
     // prevent drop unequipable items (in combat, for example) and non-empty bags
@@ -677,13 +656,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
 void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBagItem& packet)
 {
     if (!packet.Inv.Items.empty())
-    {
-        //sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAutoStoreBagItemOpcode - Invalid itemCount (" SZFMTD ")", packet.Inv.Items.size());
         return;
-    }
-
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTO_STORE_BAG_ITEM");
-    //sLog->outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u", srcbag, srcslot, dstbag);
 
     Item* pItem = _player->GetItemByPos(packet.ContainerSlotA, packet.SlotA);
     if (!pItem)
@@ -735,8 +708,6 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBag
 //! 6.0.3
 void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BUY_BANK_SLOT");
-
     ObjectGuid guid;
     recvPacket >> guid;
 
@@ -789,7 +760,6 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
 //! 6.0.3
 void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOBANK_ITEM");
     uint8 srcbag, srcslot;
 
     uint32 count = recvPacket.ReadBits(2);
@@ -828,7 +798,6 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
 //! 6.0.3
 void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_BANK_ITEM");
     uint8 srcbag, srcslot;
 
     uint32 count = recvPacket.ReadBits(2);
@@ -1022,8 +991,6 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SOCKET_GEMS");
-
     ObjectGuid item_guid;
     ObjectGuid gem_guids[MAX_GEM_SOCKETS];
 
@@ -1234,8 +1201,6 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CANCEL_TEMP_ENCHANTMENT");
-
     uint32 slot;
 
     recvData >> slot;
@@ -1259,8 +1224,6 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleGetItemPurchaseData(WorldPackets::Item::ItemRefundInfo& packet)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_ITEM_PURCHASE_DATA");
-
     Item* item = _player->GetItemByGuid(packet.ItemGUID);
     if (!item)
     {
@@ -1274,7 +1237,6 @@ void WorldSession::HandleGetItemPurchaseData(WorldPackets::Item::ItemRefundInfo&
 //! 6.0.3
 void WorldSession::HandleItemRefund(WorldPacket &recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_PURCHASE_REFUND");
     ObjectGuid guid;
     recvData >> guid;
 
@@ -1420,8 +1382,6 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrigyItem&
 //! 6.0.3
 void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_OPEN_ITEM packet, data length = %i", (uint32)recvPacket.size());
-
     Player* pUser = _player;
 
     // ignore for remote control state

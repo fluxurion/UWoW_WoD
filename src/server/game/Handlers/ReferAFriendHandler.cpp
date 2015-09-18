@@ -23,8 +23,6 @@
 
 void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GRANT_LEVEL");
-
     ObjectGuid guid;
     recvData >> guid.ReadAsPacked();
 
@@ -67,8 +65,6 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 
 void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ACCEPT_LEVEL_GRANT");
-
     ObjectGuid guid;
     recvData >> guid.ReadAsPacked();
 

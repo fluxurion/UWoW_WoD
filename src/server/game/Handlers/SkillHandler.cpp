@@ -95,8 +95,6 @@ void WorldSession::HandleLearnTalents(WorldPacket& recvData)
 //! 6.0.3
 void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CONFIRM_RESPEC_WIPE");
-
     ObjectGuid guid;
     recvData >> guid;
     uint8 specializationReset = recvData.read<uint8>();
@@ -154,17 +152,11 @@ void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
     //recvPacket.ReadGuidBytes<5, 6, 1, 3, 4, 0, 7, 2>(guid);
 
     if (!sSkillLineStore.LookupEntry(skillId) || !sSpellMgr->GetSpellInfo(spellId))
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PLAYER_RECIPES player: no such spell or skill.");
         return;
-    }
 
     Player* player = sObjectAccessor->FindPlayer(guid);
     if (!player)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_QUERY_PLAYER_RECIPES player %u is not in world.", guid.GetCounter());
         return;
-    }
 
     std::set<uint32> relatedSkills;
     relatedSkills.insert(skillId);

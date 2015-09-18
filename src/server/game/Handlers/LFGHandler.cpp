@@ -81,8 +81,6 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
         */
     }
 
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_JOIN %s roles: %u, Dungeons: %u, Comment: %s",
-        GetPlayerName().c_str(), roles, uint8(newDungeons.size()), comment.c_str());
     sLFGMgr->JoinLfg(GetPlayer(), uint8(roles), newDungeons, comment);
 }
 
@@ -94,10 +92,6 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket&  recvData)
     ObjectGuid guid = GetPlayer()->GetGUID();
     ObjectGuid gguid = group ? group->GetGUID() : guid;
 
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_LEAVE %s in group: %u",
-        GetPlayerName().c_str(), group ? 1 : 0);
-
-    // Check cheating - only leader can leave the queue
     if (!group || group->GetLeaderGUID() == GetPlayer()->GetGUID())
         sLFGMgr->LeaveLfg(gguid);
 }
@@ -131,8 +125,6 @@ void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
     //recvData.ReadGuidBytes<3>(playerGuid);
     //recvData.ReadGuidBytes<0>(instanceGuid);
 
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_PROPOSAL_RESPONSE %s proposal: %u accept: %u",
-        GetPlayerName().c_str(), proposalId, accept ? 1 : 0);
     sLFGMgr->UpdateProposal(proposalId, GetPlayer()->GetGUID(), accept);
 }
 
@@ -146,15 +138,9 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
     ObjectGuid guid = GetPlayer()->GetGUID();
     Group* group = GetPlayer()->GetGroup();
     if (!group)
-    {
-        sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_SET_ROLES %s Not in group",
-            GetPlayerName().c_str());
         return;
-    }
-    ObjectGuid gguid = group->GetGUID();
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_SET_ROLES: Group %u, Player %s, Roles: %u",
-        gguid.GetCounter(), GetPlayerName().c_str(), roles);
-    sLFGMgr->UpdateRoleCheck(gguid, guid, roles);
+
+    sLFGMgr->UpdateRoleCheck(group->GetGUID(), guid, roles);
 }
 
 void WorldSession::HandleLfgSetCommentOpcode(WorldPacket&  recvData)
@@ -171,9 +157,6 @@ void WorldSession::HandleLfgSetCommentOpcode(WorldPacket&  recvData)
     std::string comment = recvData.ReadString(len);
     //recvData.ReadGuidBytes<0, 5, 4, 6, 1, 2>(guid);
 
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_SET_COMMENT %s comment: %s",
-        GetPlayerName().c_str(), comment.c_str());
-
     sLFGMgr->SetComment(GetPlayer()->GetGUID(), comment);
 }
 
@@ -182,8 +165,7 @@ void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket& recvData)
     bool agree = recvData.ReadBit();                            // Agree to kick player
 
     ObjectGuid guid = GetPlayer()->GetGUID();
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_BOOT_PLAYER_VOTE %s agree: %u",
-        GetPlayerName().c_str(), agree ? 1 : 0);
+
     sLFGMgr->UpdateBoot(guid, agree);
 }
 
@@ -191,8 +173,6 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
 {
     bool out = recvData.ReadBit();
 
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_TELEPORT %s out: %u",
-        GetPlayerName().c_str(), out ? 1 : 0);
     sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
 }
 
@@ -200,8 +180,6 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recvData)
 {
     recvData.rfinish();
     ObjectGuid guid = GetPlayer()->GetGUID();
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_PLAYER_LOCK_INFO_REQUEST %s",
-        GetPlayerName().c_str());
 
     // Get Random dungeons that can be done at a certain level and expansion
     uint8 level = GetPlayer()->getLevel();
@@ -337,8 +315,7 @@ void WorldSession::HandleLfrJoinOpcode(WorldPacket& recv_data)
 {
     uint32 entry;                                          // Raid id to search
     recv_data >> entry;
-     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_LFR_JOIN %s dungeon entry: %u",
-        GetPlayerName().c_str(), entry);
+
     //SendLfrUpdateListOpcode(entry);
 }
 
@@ -346,17 +323,13 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recvData)
 {
     uint32 dungeonId;                                      // Raid id queue to leave
     recvData >> dungeonId;
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_LFR_LEAVE %s dungeonId: %u",
-        GetPlayerName().c_str(), dungeonId);
+
     //sLFGMgr->LeaveLfr(GetPlayer(), dungeonId);
 }
 
 void WorldSession::HandleLfgGetStatus(WorldPacket& /*recvData*/)
 {
     ObjectGuid guid = GetPlayer()->GetGUID();
-    sLog->outDebug(LOG_FILTER_LFG, "CMSG_DF_GET_JOIN_STATUS %s", GetPlayerName().c_str());
-
-    sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_GET_STATUS %s", GetPlayerName().c_str());
     lfg::LfgUpdateData updateData = sLFGMgr->GetLfgStatus(guid);
 
     if (GetPlayer()->GetGroup())

@@ -1350,8 +1350,6 @@ sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got CMSG_GROUP_CANCEL.");
 //! 5.4.1
 void WorldSession::HandleOptOutOfLootOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_OPT_OUT_OF_LOOT");
-
     bool passOnLoot;
     recvData >> passOnLoot; // 1 always pass, 0 do not pass
 
