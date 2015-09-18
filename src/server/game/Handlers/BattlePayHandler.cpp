@@ -55,7 +55,6 @@ void WorldSession::SendBattlePayDistribution(uint8 status, uint64 DistributionID
     }
     WorldPackets::BattlePay::Product product = productitr->second;
 
-    //SMSG_BATTLE_PAY_DISTRIBUTION_UPDATE
     WorldPackets::BattlePay::DistributionUpdate distributionBattlePay;
     distributionBattlePay.object.DistributionID = DistributionID;
     distributionBattlePay.object.Status = status;
@@ -68,32 +67,24 @@ void WorldSession::SendBattlePayDistribution(uint8 status, uint64 DistributionID
         distributionBattlePay.object.TargetNativeRealm = GetVirtualRealmAddress();
     }
 
-    distributionBattlePay.object.product.Set(product);
+    distributionBattlePay.object.product = product;
 
     SendPacket(distributionBattlePay.Write());
 }
 
-//! 6.1.2
 void WorldSession::HandleBattlePayDistributionAssign(WorldPackets::BattlePay::DistributionAssignToTarget& packet)
 {
-    
     _battlePay->LevelUp(packet);
-
-
 }
 
-//! 6.1.2
 void WorldSession::HandleBattlePayProductList(WorldPacket& /*recvPacket*/)
 {
     WorldPackets::BattlePay::ProductListResponse response;
-    //CMSG_BATTLE_PAY_GET_PRODUCT_LIST
     response.Result = 0;
     response.CurrencyID = CURRENCY_RUB;
-
     response.product = sObjectMgr->productList.product;
     response.productGroup = sObjectMgr->productList.productGroup;
     response.shop = sObjectMgr->productList.shop;
-
     SendPacket(response.Write());
 }
 

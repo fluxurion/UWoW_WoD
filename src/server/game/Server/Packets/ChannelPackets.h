@@ -32,11 +32,12 @@ namespace WorldPackets
             struct ChannelPlayer
             {
                 ChannelPlayer(ObjectGuid const& guid, uint32 realm, uint8 flags) :
-                    Guid(guid), VirtualRealmAddress(realm), Flags(flags) { }
+                    Guid(guid), VirtualRealmAddress(realm), Flags(flags)
+                { }
 
-                ObjectGuid Guid; ///< Player Guid
+                ObjectGuid Guid;
                 uint32 VirtualRealmAddress;
-                uint8 Flags;     ///< @see enum ChannelMemberFlags
+                uint8 Flags;
             };
 
             ChannelListResponse() : ServerPacket(SMSG_CHANNEL_LIST) { }
@@ -44,8 +45,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<ChannelPlayer> _Members;
-            std::string _Channel; ///< Channel Name
-            uint8 _ChannelFlags = 0; ///< @see enum ChannelFlags
+            std::string _Channel;
+            uint8 _ChannelFlags = 0;
             bool _Display = false;
         };
 
@@ -59,14 +60,14 @@ namespace WorldPackets
             std::string Sender;
             ObjectGuid SenderGuid;
             ObjectGuid SenderAccountID;
-            uint8 Type                = 0; ///< @see enum ChatNotify
-            uint8 OldFlags            = 0; ///< @see enum ChannelMemberFlags
-            uint8 NewFlags            = 0; ///< @see enum ChannelMemberFlags
-            std::string _Channel;          ///< Channel Name
+            uint8 Type = 0;
+            uint8 OldFlags = 0;
+            uint8 NewFlags = 0;
+            std::string _Channel;
             uint32 SenderVirtualRealm = 0;
             ObjectGuid TargetGuid;
             uint32 TargetVirtualRealm = 0;
-            int32 ChatChannelID       = 0;
+            int32 ChatChannelID = 0;
         };
 
         class ChannelNotifyJoined final : public ServerPacket
@@ -78,21 +79,21 @@ namespace WorldPackets
 
             std::string ChannelWelcomeMsg;
             int32 ChatChannelID = 0;
-            int32 InstanceID    = 0;
-            uint8 _ChannelFlags = 0; ///< @see enum ChannelFlags
-            std::string _Channel;     ///< Channel Name
+            int32 InstanceID = 0;
+            uint8 _ChannelFlags = 0;
+            std::string _Channel;
         };
 
         class ChannelNotifyLeft final : public ServerPacket
         {
-            public:
+        public:
             ChannelNotifyLeft() : ServerPacket(SMSG_CHANNEL_NOTIFY_LEFT, 30) { }
 
             WorldPacket const* Write() override;
 
-            std::string Channel;    ///< Channel Name
+            std::string Channel;
             int32 ChatChannelID = 0;
-            bool Suspended = false; ///< User Leave - false, On Zone Change - true
+            bool Suspended = false;
         };
 
         class ChannelPlayerCommand final : public ClientPacket
@@ -146,8 +147,8 @@ namespace WorldPackets
             std::string Password;
             std::string ChannelName;
             bool CreateVoiceSession = false;
-            int32 ChatChannelId         = 0;
-            bool Internal           = false;
+            int32 ChatChannelId = 0;
+            bool Internal = false;
         };
 
         class LeaveChannel final : public ClientPacket

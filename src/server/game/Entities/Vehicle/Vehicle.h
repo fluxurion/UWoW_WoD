@@ -31,10 +31,10 @@ class VehicleJoinEvent;
 class Vehicle : public TransportBase
 {
     protected:
-        friend bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry, uint32 RecAura);
+        friend bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry, uint32 RecAura, bool);
         Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry, uint32 recAura);
 
-        friend void Unit::RemoveVehicleKit();
+        friend void Unit::RemoveVehicleKit(bool);
         ~Vehicle();
 
     public:

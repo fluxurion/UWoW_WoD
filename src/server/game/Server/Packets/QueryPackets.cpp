@@ -100,15 +100,15 @@ void WorldPackets::Query::QueryPlayerName::Read()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint)
 {
-    data.WriteBit(lookupHint.VirtualRealmAddress.HasValue);
-    data.WriteBit(lookupHint.NativeRealmAddress.HasValue);
+    data.WriteBit(lookupHint.VirtualRealmAddress.is_initialized());
+    data.WriteBit(lookupHint.NativeRealmAddress.is_initialized());
     data.FlushBits();
 
-    if (lookupHint.VirtualRealmAddress.HasValue)
-        data << uint32(lookupHint.VirtualRealmAddress.Value);
+    if (lookupHint.VirtualRealmAddress)
+        data << *lookupHint.VirtualRealmAddress;
 
-    if (lookupHint.NativeRealmAddress.HasValue)
-        data << uint32(lookupHint.NativeRealmAddress.Value);
+    if (lookupHint.NativeRealmAddress)
+        data << *lookupHint.NativeRealmAddress;
 
     return data;
 }
@@ -119,13 +119,13 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
     {
         ASSERT(player->GetGUID() == guid);
 
-        AccountID     = player->GetSession()->GetAccountGUID();
+        AccountID = player->GetSession()->GetAccountGUID();
         BnetAccountID = player->GetSession()->GetBattlenetAccountGUID();
-        Name          = player->GetName();
-        Race          = player->getRace();
-        Sex           = player->getGender();
-        ClassID       = player->getClass();
-        Level         = player->getLevel();
+        Name = player->GetName();
+        Race = player->getRace();
+        Sex = player->getGender();
+        ClassID = player->getClass();
+        Level = player->getLevel();
 
         if (DeclinedName const* names = player->GetDeclinedNames())
             DeclinedNames = *names;
@@ -141,13 +141,13 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
         uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(guid);
         uint32 bnetAccountId = Battlenet::AccountMgr::GetIdByGameAccount(accountId);
 
-        AccountID     = ObjectGuid::Create<HighGuid::WowAccount>(accountId);
+        AccountID = ObjectGuid::Create<HighGuid::WowAccount>(accountId);
         BnetAccountID = ObjectGuid::Create<HighGuid::BNetAccount>(bnetAccountId);
-        Name          = characterInfo->Name;
-        Race          = characterInfo->Race;
-        Sex           = characterInfo->Sex;
-        ClassID       = characterInfo->Class;
-        Level         = characterInfo->Level;
+        Name = characterInfo->Name;
+        Race = characterInfo->Race;
+        Sex = characterInfo->Sex;
+        ClassID = characterInfo->Class;
+        Level = characterInfo->Level;
 
         IsDeleted = characterInfo->IsDeleted;
     }

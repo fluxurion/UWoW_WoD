@@ -7199,7 +7199,6 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
         return;
 
     Unit* target = aurApp->GetTarget();
-
     if (!target)
         return;
 
@@ -7215,24 +7214,14 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode,
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data;
     if (apply)
     {
-        //send before init vehicle
-        //! 6.1.2
-        WorldPacket data2(SMSG_SET_VEHICLE_REC_ID, 8 + 1 + 4);
-        data2 << target->GetGUID();
-        data2 << uint32(vehicleId);
-        target->ToPlayer()->GetSession()->SendPacket(&data2);
-
-        // Initialize vehicle
+        target->SendSetVehicleRecId(vehicleId);
         if (Vehicle * veh = target->GetVehicleKit())
             veh->Reset();
         else 
             return;
     }
-
-    //SMSG_SET_VEHICLE_REC_ID semd on HandleSetVehicleRecId
 
     if (apply)
         target->ToPlayer()->SendOnCancelExpectedVehicleRideAura();

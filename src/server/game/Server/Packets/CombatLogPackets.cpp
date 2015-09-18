@@ -18,26 +18,44 @@
 #include "CombatLogPackets.h"
 #include "SpellPackets.h"
 
-WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
+WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDmgLog::Write()
 {
     _worldPacket << Me;
     _worldPacket << CasterGUID;
+
     _worldPacket << SpellID;
     _worldPacket << Damage;
-    _worldPacket << Overkill;
+    _worldPacket << OverKill;
+
     _worldPacket << SchoolMask;
+
     _worldPacket << ShieldBlock;
     _worldPacket << Resisted;
     _worldPacket << Absorbed;
 
     _worldPacket.WriteBit(Periodic);
     _worldPacket.WriteBits(Flags, 9);
-    _worldPacket.WriteBit(false); // Debug info
-    _worldPacket.WriteBit(LogData.HasValue);
+    _worldPacket.WriteBit(LogData.is_initialized());
+    _worldPacket.WriteBit(DebugInfo.is_initialized());
+
     _worldPacket.FlushBits();
 
-    if (LogData.HasValue)
-        _worldPacket << LogData.Value;
+    if (DebugInfo)
+    {
+        _worldPacket << DebugInfo->CritRoll;
+        _worldPacket << DebugInfo->CritNeeded;
+        _worldPacket << DebugInfo->HitRoll;
+        _worldPacket << DebugInfo->HitNeeded;
+        _worldPacket << DebugInfo->MissChance;
+        _worldPacket << DebugInfo->DodgeChance;
+        _worldPacket << DebugInfo->ParryChance;
+        _worldPacket << DebugInfo->BlockChance;
+        _worldPacket << DebugInfo->GlanceChance;
+        _worldPacket << DebugInfo->CrushChance;
+    }
+
+    if (LogData)
+        _worldPacket << *LogData;
 
     return &_worldPacket;
 }

@@ -172,11 +172,8 @@ WorldPacket const* WorldPackets::Petition::OfferPetitionError::Write()
 void WorldPackets::Petition::PetitionRenameGuild::Read()
 {
     _worldPacket >> PetitionGuid;
-
     _worldPacket.ResetBitPos();
-    uint32 nameLen = _worldPacket.ReadBits(7);
-
-    NewGuildName = _worldPacket.ReadString(nameLen);
+    NewGuildName = _worldPacket.ReadString(_worldPacket.ReadBits(7));
 }
 
 WorldPacket const* WorldPackets::Petition::PetitionRenameGuildResponse::Write()
@@ -184,8 +181,6 @@ WorldPacket const* WorldPackets::Petition::PetitionRenameGuildResponse::Write()
     _worldPacket << PetitionGuid;
 
     _worldPacket.WriteBits(NewGuildName.length(), 7);
-    _worldPacket.FlushBits();
-
     _worldPacket.WriteString(NewGuildName);
 
     return &_worldPacket;

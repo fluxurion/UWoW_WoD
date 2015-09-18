@@ -36,7 +36,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 Flags = 0; ///< @see enum SocialFlag
+            uint32 Flags = 0;
         };
 
         struct ContactInfo
@@ -46,13 +46,13 @@ namespace WorldPackets
             ObjectGuid Guid;
             ObjectGuid WowAccountGuid;
             uint32 VirtualRealmAddr = 0;
-            uint32 NativeRealmAddr  = 0;
-            uint32 TypeFlags        = 0; ///< @see enum SocialFlag
+            uint32 NativeRealmAddr = 0;
+            uint32 TypeFlags = 0;
             std::string Notes;
-            uint8 Status            = 0; ///< @see enum FriendStatus
-            uint32 AreaID           = 0;
-            uint32 Level            = 0;
-            uint32 ClassID          = CLASS_NONE;
+            uint8 Status = 0;
+            uint32 AreaID = 0;
+            uint32 Level = 0;
+            uint32 ClassID = CLASS_NONE;
         };
 
         class ContactList final : public ServerPacket
@@ -63,7 +63,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<ContactInfo> Contacts;
-            uint32 Flags = 0; ///< @see enum SocialFlag
+            uint32 Flags = 0;
         };
 
         class FriendStatus final : public ServerPacket
@@ -77,13 +77,13 @@ namespace WorldPackets
 
             uint32 VirtualRealmAddress = 0;
             std::string Notes;
-            uint32 ClassID             = CLASS_NONE;
-            uint8 Status               = 0; ///< @see enum FriendStatus
+            uint32 ClassID = CLASS_NONE;
+            uint8 Status = 0;
             ObjectGuid Guid;
             ObjectGuid WowAccountGuid;
-            uint32 Level               = 0;
-            uint32 AreaID              = 0;
-            uint8 FriendResult         = 0; ///< @see enum FriendsResult
+            uint32 Level = 0;
+            uint32 AreaID = 0;
+            uint8 FriendResult = 0;
         };
 
         struct QualifiedGUID

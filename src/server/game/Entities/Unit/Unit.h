@@ -2380,7 +2380,7 @@ class Unit : public WorldObject
         void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
         bool IsSplineEnabled() const;
 
-        void WriteMovementUpdate(WorldPacket &data) const;
+        void SendSetVehicleRecId(uint32 vehicleID);
 
         float GetPositionZMinusOffset() const
         {
@@ -2437,8 +2437,8 @@ class Unit : public WorldObject
         friend class VehicleJoinEvent;
         bool IsAIEnabled, NeedChangeAI;
         ObjectGuid LastCharmerGUID;
-        bool CreateVehicleKit(uint32 id, uint32 creatureEntry, uint32 RecAura = 0);
-        void RemoveVehicleKit();
+        bool CreateVehicleKit(uint32 id, uint32 creatureEntry, uint32 RecAura = 0, bool loading = false);
+        void RemoveVehicleKit(bool onRemoveFromWorld = false);
         Vehicle* GetVehicleKit()const { return m_vehicleKit; }
         Vehicle* GetVehicle()   const { return m_vehicle; }
         bool IsOnVehicle() const { return m_vehicle != NULL; }

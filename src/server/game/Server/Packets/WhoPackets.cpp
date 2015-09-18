@@ -26,7 +26,6 @@ WorldPacket const* WorldPackets::Who::WhoIsResponse::Write()
 {
     _worldPacket.WriteBits(AccountName.length(), 11);
     _worldPacket.WriteString(AccountName);
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -39,11 +38,13 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Who::WhoWord& word)
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Who::WhoRequestServerInfo& serverInfo)
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Who::WhoRequestServerInfo>& serverInfo)
 {
-    data >> serverInfo.FactionGroup;
-    data >> serverInfo.Locale;
-    data >> serverInfo.RequesterVirtualRealmAddress;
+    serverInfo = boost::in_place();
+
+    data >> serverInfo->FactionGroup;
+    data >> serverInfo->Locale;
+    data >> serverInfo->RequesterVirtualRealmAddress;
 
     return data;
 }
@@ -64,7 +65,8 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Who::WhoRequest& request)
     request.ShowEnemies = data.ReadBit();
     request.ShowArenaPlayers = data.ReadBit();
     request.ExactName = data.ReadBit();
-    request.ServerInfo.HasValue = data.ReadBit();
+
+    bool const hasWhoRequest = data.ReadBit();
 
     request.Name = data.ReadString(nameLength);
     request.VirtualRealmName = data.ReadString(virtualRealmNameLength);
@@ -73,9 +75,8 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Who::WhoRequest& request)
 
     for (size_t i = 0; i < request.Words.size(); ++i)
         data >> request.Words[i];
-
-    if (request.ServerInfo.HasValue)
-        data >> request.ServerInfo.Value;
+    if (hasWhoRequest)
+        data >> request.ServerInfo;
 
     return data;
 }
@@ -101,8 +102,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Who::WhoEntry const& entr
     data.WriteBits(entry.GuildName.length(), 7);
     data.WriteBit(entry.IsGM);
     data.WriteString(entry.GuildName);
-
-    data.FlushBits();
 
     return data;
 }

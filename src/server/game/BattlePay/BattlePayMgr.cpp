@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "ObjectMgr.h"
 #include "BattlePayMgr.h"
-#include "BattlePayPackets.h"
 #include "WorldSession.h"
 #include "Player.h"
 

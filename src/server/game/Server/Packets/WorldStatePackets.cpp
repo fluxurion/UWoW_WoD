@@ -18,7 +18,8 @@
 #include "WorldStatePackets.h"
 
 WorldPackets::WorldState::InitWorldStates::InitWorldStates()
-    : ServerPacket(SMSG_INIT_WORLD_STATES, 16) { }
+    : ServerPacket(SMSG_INIT_WORLD_STATES, 16)
+{ }
 
 WorldPacket const* WorldPackets::WorldState::InitWorldStates::Write()
 {
@@ -39,7 +40,8 @@ WorldPacket const* WorldPackets::WorldState::InitWorldStates::Write()
 }
 
 WorldPackets::WorldState::UpdateWorldState::UpdateWorldState()
-    : ServerPacket(SMSG_UPDATE_WORLD_STATE, 9) { }
+    : ServerPacket(SMSG_UPDATE_WORLD_STATE, 9)
+{ }
 
 WorldPacket const* WorldPackets::WorldState::UpdateWorldState::Write()
 {

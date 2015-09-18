@@ -44,6 +44,8 @@
 #include <queue>
 #include <sstream>
 #include <algorithm>
+#include <boost/optional.hpp>
+#include <boost/utility/in_place_factory.hpp>
 
 #include "Debugging/Errors.h"
 
@@ -205,5 +207,9 @@ extern LockedQueue<ArenaLog*> ArenaLogQueue;
 #endif
 
 #define MAX_QUERY_LEN 32*1024
+
+//! Optional helper class to wrap optional values within.
+template <typename T>
+using Optional = boost::optional<T>;
 
 #endif

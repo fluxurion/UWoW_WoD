@@ -29,17 +29,17 @@ namespace WorldPackets
         public:
             struct SavedThrottleObjectState
             {
-                uint32 MaxTries               = 0;
-                uint32 PerMilliseconds        = 0;
-                uint32 TryCount               = 0;
+                uint32 MaxTries = 0;
+                uint32 PerMilliseconds = 0;
+                uint32 TryCount = 0;
                 uint32 LastResetTimeBeforeNow = 0;
             };
 
             struct EuropaTicketConfig
             {
-                bool TicketsEnabled     = false;
-                bool BugsEnabled        = false;
-                bool ComplaintsEnabled  = false;
+                bool TicketsEnabled = false;
+                bool BugsEnabled = false;
+                bool ComplaintsEnabled = false;
                 bool SuggestionsEnabled = false;
 
                 SavedThrottleObjectState ThrottleState;
@@ -47,8 +47,8 @@ namespace WorldPackets
 
             struct SessionAlertConfig
             {
-                int32 Delay       = 0;
-                int32 Period      = 0;
+                int32 Delay = 0;
+                int32 Period = 0;
                 int32 DisplayTime = 0;
             };
 
@@ -56,35 +56,35 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool VoiceEnabled                        = false;
-            bool BrowserEnabled                      = false;
-            bool BpayStoreAvailable                  = false;
-            bool RecruitAFriendSendingEnabled        = false;
-            bool BpayStoreEnabled                    = false;
+            bool VoiceEnabled = false;
+            bool BrowserEnabled = false;
+            bool BpayStoreAvailable = false;
+            bool RecruitAFriendSendingEnabled = false;
+            bool BpayStoreEnabled = false;
             Optional<SessionAlertConfig> SessionAlert;
             uint32 ScrollOfResurrectionMaxRequestsPerDay = 0;
-            bool ScrollOfResurrectionEnabled         = false;
+            bool ScrollOfResurrectionEnabled = false;
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             uint32 ScrollOfResurrectionRequestsRemaining = 0;
-            uint32 CfgRealmID                            = 0;
-            uint8 ComplaintStatus                        = 0;
-            int32 CfgRealmRecID                          = 0;
-            int32 UnkInt27                               = 0;
-            int32 TwitterMsTillCanPost                   = 0;
-            int32 TokenPollTimeSeconds                   = 0;
-            int32 TokenRedeemIndex                       = 0;
-            bool ItemRestorationButtonEnabled        = false;
-            bool CharUndeleteEnabled                 = false; ///< Implemented
+            uint32 CfgRealmID = 0;
+            uint8 ComplaintStatus = 0;
+            int32 CfgRealmRecID = 0;
+            int32 UnkInt27 = 0;
+            int32 TwitterMsTillCanPost = 0;
+            int32 TokenPollTimeSeconds = 0;
+            int32 TokenRedeemIndex = 0;
+            bool ItemRestorationButtonEnabled = false;
+            bool CharUndeleteEnabled = false;
             bool BpayStoreDisabledByParentalControls = false;
-            bool TwitterEnabled                      = false;
-            bool CommerceSystemEnabled               = false;
-            bool Unk67                               = false;
-            bool WillKickFromWorld                   = false;
+            bool TwitterEnabled = false;
+            bool CommerceSystemEnabled = false;
+            bool Unk67 = false;
+            bool WillKickFromWorld = false;
 
-            bool RestrictedAccount                   = false;
-            bool TutorialsEnabled                    = false;
-            bool UnkBit90                            = false;
-            bool UnkBit61                            = false;
+            bool RestrictedAccount = false;
+            bool TutorialsEnabled = false;
+            bool NPETutorialsEnabled = false;
+            bool UnkBit61 = false;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
@@ -94,15 +94,15 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool BpayStoreAvailable                  = false; // NYI
-            bool BpayStoreDisabledByParentalControls = false; // NYI
-            bool CharUndeleteEnabled                 = false;
-            bool BpayStoreEnabled                    = false; // NYI
-            bool CommerceSystemEnabled               = false; // NYI
-            bool Unk14                               = false; // NYI
-            bool WillKickFromWorld                   = false; // NYI
-            int32 TokenPollTimeSeconds               = 0;     // NYI
-            int32 TokenRedeemIndex                   = 0;     // NYI
+            bool BpayStoreAvailable = false;
+            bool BpayStoreDisabledByParentalControls = false;
+            bool CharUndeleteEnabled = false;
+            bool BpayStoreEnabled = false;
+            bool CommerceSystemEnabled = false; 
+            bool Unk14 = false;
+            bool WillKickFromWorld = false;
+            int32 TokenPollTimeSeconds = 0;
+            int32 TokenRedeemIndex = 0;
         };
 
         class MOTD final : public ServerPacket

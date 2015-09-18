@@ -39,7 +39,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 Challenge = 0;
-            uint32 DosChallenge[8]; ///< Encryption seeds
+            uint32 DosChallenge[8];
             uint8 DosZeroBits = 0;
         };
 
@@ -54,7 +54,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 BattlegroupID = 0;
-            int8 LoginServerType = 0;           ///< Auth type used - 0 GRUNT, 1 battle.net
+            int8 LoginServerType = 0;
             int8 BuildType = 0;
             uint32 RealmID = 0;
             uint16 Build = 0;
@@ -74,13 +74,14 @@ namespace WorldPackets
             struct RealmInfo
             {
                 RealmInfo(uint32 realmAddress, bool isHomeRealm, bool isInternalRealm, std::string const& realmNameActual, std::string const& realmNameNormalized) :
-                    RealmAddress(realmAddress), IsLocal(isHomeRealm), IsInternalRealm(isInternalRealm), RealmNameActual(realmNameActual), RealmNameNormalized(realmNameNormalized) { }
+                    RealmAddress(realmAddress), IsLocal(isHomeRealm), IsInternalRealm(isInternalRealm), RealmNameActual(realmNameActual), RealmNameNormalized(realmNameNormalized)
+                { }
 
-                uint32 RealmAddress;             ///< the virtual address of this realm, constructed as RealmHandle::Region << 24 | RealmHandle::Battlegroup << 16 | RealmHandle::Index
-                bool IsLocal;                    ///< true if the realm is the same as the account's home realm
-                bool IsInternalRealm;            ///< @todo research
-                std::string RealmNameActual;     ///< the name of the realm
-                std::string RealmNameNormalized; ///< the name of the realm without spaces
+                uint32 RealmAddress;
+                bool IsLocal;
+                bool IsInternalRealm;
+                std::string RealmNameActual;
+                std::string RealmNameNormalized;
             };
 
             struct CharacterTemplate
@@ -88,65 +89,65 @@ namespace WorldPackets
                 struct TemplateClass
                 {
                     uint8 Class;
-                    uint8 FactionGroup; ///< @todo research
+                    uint8 FactionGroup;
                 };
 
-                uint32 TemplateSetId;   ///< @todo research
-                std::list<TemplateClass> TemplateClasses;
+                uint32 TemplateSetId;
+                std::list<TemplateClass> Classes;
                 std::string Name;
                 std::string Description;
             };
 
             struct AuthSuccessInfo
             {
-                uint32 TimeRemain = 0; ///< the remaining game time that the account has in seconds. It is not currently implemented and probably won't ever be.
-                uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
-                uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
-                uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
-                uint8 TimeOptions = 0; ///< controls the behavior of the client regarding billing, used in Asia realms, as they don't have monthly subscriptions, possible values are in @ref BillingPlanFlags. It is not currently implemented and will probably never be.
+                uint32 TimeRemain = 0;
+                uint8 AccountExpansionLevel = 0;
+                uint8 ActiveExpansionLevel = 0;
+                uint32 TimeRested = 0;
+                uint8 TimeOptions = 0;
 
-                uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
-                uint32 RealmNamesCount = 0; ///< the number of realms connected to this one (inclusive). @todo implement
-                uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
-                uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
+                uint32 VirtualRealmAddress = 0;
+                uint32 RealmNamesCount = 0;
+                uint32 TimeSecondsUntilPCKick = 0;
+                uint32 CurrencyID = 0;
 
-                std::vector<RealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
-                std::vector<CharacterTemplate> Templates; ///< list of pre-made character templates.
+                std::vector<RealmInfo> VirtualRealms;
+                std::vector<CharacterTemplate> Templates;
 
-                ExpansionRequirementContainer const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select the classes
-                ExpansionRequirementContainer const* AvailableRaces = nullptr; ///< the minimum AccountExpansion required to select the races
+                ExpansionRequirementContainer const* AvailableClasses = nullptr;
+                ExpansionRequirementContainer const* AvailableRaces = nullptr;
 
                 bool IsExpansionTrial = false;
-                bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
-                Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
-                Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
-                bool IsVeteranTrial = false; ///< @todo research
+                bool ForceCharacterTemplate = false;
+                Optional<uint16> NumPlayersHorde;
+                Optional<uint16> NumPlayersAlliance;
+                bool IsVeteranTrial = false;
             };
 
             struct AuthWaitInfo
             {
-                uint32 WaitCount = 0; ///< position of the account in the login queue
-                bool HasFCM = false; ///< true if the account has a forced character migration pending. @todo implement
+                uint32 WaitCount = 0;
+                bool HasFCM = false;
             };
 
             AuthResponse();
 
             WorldPacket const* Write() override;
 
-            Optional<AuthSuccessInfo> SuccessInfo; ///< contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
-            Optional<AuthWaitInfo> WaitInfo; ///< contains the queue wait information in case the account is in the login queue.
-            uint8 Result = 0; ///< the result of the authentication process, it is AUTH_OK if it succeeded and the account is ready to log in. It can also be AUTH_WAIT_QUEUE if the account entered the login queue (Queued, QueuePos), possible values are @ref ResponseCodes
+            Optional<AuthSuccessInfo> SuccessInfo;
+            Optional<AuthWaitInfo> WaitInfo;
+            uint8 Result = 0;
         };
 
         enum class ConnectToSerial : uint32
         {
-            None            = 0,
-            Realm           = 14,
-            WorldAttempt1   = 17,
-            WorldAttempt2   = 35,
-            WorldAttempt3   = 53,
-            WorldAttempt4   = 71,
-            WorldAttempt5   = 89
+            None = 0,
+            Realm = 14,
+            WorldAttempt1 = 17,
+            WorldAttempt2 = 35,
+            WorldAttempt3 = 53,
+            WorldAttempt4 = 71,
+            WorldAttempt5 = 89
         };
 
         class ConnectTo final : public ServerPacket

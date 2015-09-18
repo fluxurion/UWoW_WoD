@@ -36,24 +36,28 @@ void WorldSession::SendAuthResponse(uint8 code, bool hasAccountData, bool queued
     SendPacket(&data);
 
     WorldPackets::Auth::AuthResponse response;
-    response.SuccessInfo.HasValue = code == AUTH_OK;
     response.Result = code;
-    response.WaitInfo.HasValue = queued;
-    response.WaitInfo.Value.WaitCount = queuePos;
+
+    if (queued)
+    {
+        response.WaitInfo = WorldPackets::Auth::AuthResponse::AuthWaitInfo();
+        response.WaitInfo->WaitCount = queuePos;
+    }
+
     if (code == AUTH_OK)
     {
-        response.SuccessInfo.Value.AccountExpansionLevel = Expansion();
-        response.SuccessInfo.Value.ActiveExpansionLevel = Expansion();
-        response.SuccessInfo.Value.VirtualRealmAddress = GetVirtualRealmAddress();
-        response.SuccessInfo.Value.CurrencyID = CURRENCY_RUB;
-        response.SuccessInfo.Value.TimeRemain = 0;
+        response.SuccessInfo = WorldPackets::Auth::AuthResponse::AuthSuccessInfo();
+
+        response.SuccessInfo->AccountExpansionLevel = Expansion();
+        response.SuccessInfo->ActiveExpansionLevel = Expansion();
+        response.SuccessInfo->VirtualRealmAddress = GetVirtualRealmAddress();
+        response.SuccessInfo->CurrencyID = CURRENCY_RUB;
+        response.SuccessInfo->TimeRemain = 0;
+
         std::string realmName = sObjectMgr->GetRealmName(realmHandle.Index);
-
-        // Send current home realm. Also there is no need to send it later in realm queries.
-        response.SuccessInfo.Value.VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);
-
-        response.SuccessInfo.Value.AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
-        response.SuccessInfo.Value.AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
+        response.SuccessInfo->VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);
+        response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
+        response.SuccessInfo->AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();
     }
 
     SendPacket(response.Write());
@@ -63,7 +67,6 @@ void WorldSession::SendClientCacheVersion(uint32 version)
 {
     WorldPackets::ClientConfig::ClientCacheVersion cache;
     cache.CacheVersion = version;
-
     SendPacket(cache.Write());
 }
 

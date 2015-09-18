@@ -87,8 +87,8 @@ namespace WorldPackets
             uint32 ListID = 0;
         };
 
-        ///< SMSG_BF_MGR_ENTRY_INVITE
-        ///< SMSG_BF_MGR_QUEUE_INVITE
+        ///< CMSG_BF_MGR_ENTRY_INVITE_RESPONSE
+        ///< CMSG_BF_MGR_QUEUE_INVITE_RESPONSE
         class EntryOrQueueInviteResponse final : public ClientPacket
         {
         public:
@@ -121,6 +121,12 @@ namespace WorldPackets
             bool AcceptedInvite = false;
         };
 
+        struct IgnorMapInfo
+        {
+            IgnorMapInfo() { map[0] = 0, map[1] = 0; }
+            uint32 map[2];
+        };
+
         class Join final : public ClientPacket
         {
         public:
@@ -130,7 +136,7 @@ namespace WorldPackets
 
             uint64 QueueID = 0;
             uint8 Roles = 0;
-            uint32 BlacklistMap[2];
+            IgnorMapInfo BlacklistMap;
             bool JoinAsGroup = false;
         };
 
@@ -144,48 +150,49 @@ namespace WorldPackets
             uint8 TeamSizeIndex = 0;
         };
 
-        struct RatingData
+        class PVPLogData final : public ServerPacket
         {
-            uint32 Prematch[BG_TEAMS_COUNT];
-            uint32 Postmatch[BG_TEAMS_COUNT];
-            uint32 PrematchMMR[BG_TEAMS_COUNT];
-        };
+        public:
+            PVPLogData() : ServerPacket(SMSG_PVP_LOG_DATA, 0) { }
 
-        struct PVPLogDataPlayer
-        {
-            struct Honor
+            WorldPacket const* Write() override;
+
+            struct RatingData
+            {
+                int32 Prematch[2] = { };
+                int32 Postmatch[2] = { };
+                int32 PrematchMMR[2] = { };
+            };
+
+            struct HonorData
             {
                 uint32 HonorKills = 0;
                 uint32 Deaths = 0;
                 uint32 ContributionPoints = 0;
             };
 
-            ObjectGuid PlayerGUID;
-            uint32 Kills = 0;
-            uint32 DamageDone = 0;
-            uint32 HealingDone = 0;
-            std::vector<uint32> Stats;
-            uint32 PrimaryTalentTree = 0;
-            bool Faction = false;
-            bool IsInWorld = false;
-            Optional<Honor> HonorData;
-            Optional<uint32> PreMatchRating;
-            Optional<uint32> RatingChange;
-            Optional<uint32> PreMatchMMR;
-            Optional<uint32> MmrChange;
-        };
+            struct PlayerData
+            {
+                ObjectGuid PlayerGUID;
+                uint32 Kills = 0;
+                uint8 Faction = 0;
+                bool IsInWorld = false;
+                Optional<HonorData> Honor;
+                uint32 DamageDone = 0;
+                uint32 HealingDone = 0;
+                Optional<uint32> PreMatchRating;
+                Optional<int32> RatingChange;
+                Optional<uint32> PreMatchMMR;
+                Optional<int32> MmrChange;
+                std::vector<int32> Stats;
+                int32 PrimaryTalentTree = 0;
+                uint32 PrimaryTalentTreeNameIndex = 0;
+            };
 
-        class PvPLogData final : public ServerPacket
-        {
-        public:
-            PvPLogData() : ServerPacket(SMSG_PVP_LOG_DATA, 32 * BRACKET_TYPE_MAX) { }
-
-            WorldPacket const* Write() override;
-
-            uint8 PlayerCount[BG_TEAMS_COUNT];
-            Optional<RatingData> RatingsData;
             Optional<uint8> Winner;
-            Optional<std::vector<PVPLogDataPlayer>> Players;
+            std::vector<PlayerData> Players;
+            Optional<RatingData> Ratings;
+            int8 PlayerCount[2] = { };
         };
 
         class AreaSpiritHealerQuery final : public ClientPacket
@@ -289,20 +296,20 @@ namespace WorldPackets
             uint32 RatedRewardPoints = 0;
         };
 
-        struct BattlegroundPlayerPosition
-        {
-            G3D::Vector2 Pos;
-            ObjectGuid Guid;
-            uint8 IconID = 0;
-            uint8 ArenaSlot = 0;
-        };
-
         class PlayerPositions final : public ServerPacket
         {
         public:
             PlayerPositions() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_POSITIONS, 25) { }
 
             WorldPacket const* Write() override;
+
+            struct BattlegroundPlayerPosition
+            {
+                G3D::Vector2 Pos;
+                ObjectGuid Guid;
+                uint8 IconID = 0;
+                uint8 ArenaSlot = 0;
+            };
 
             std::vector<BattlegroundPlayerPosition> FlagCarriers;
         };
@@ -346,7 +353,7 @@ namespace WorldPackets
         class PlayerJoined final : public ServerPacket
         {
         public:
-            PlayerJoined() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_JOINED, 25) { }
+            PlayerJoined(ObjectGuid guid) : ServerPacket(SMSG_BATTLEGROUND_PLAYER_JOINED, 20), Guid(guid) { }
 
             WorldPacket const* Write() override;
 
@@ -356,7 +363,7 @@ namespace WorldPackets
         class PlayerLeft final : public ServerPacket
         {
         public:
-            PlayerLeft() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_LEFT, 25) { }
+            PlayerLeft(ObjectGuid guid) : ServerPacket(SMSG_BATTLEGROUND_PLAYER_LEFT, 20), Guid(guid) { }
 
             WorldPacket const* Write() override;
 
@@ -366,7 +373,7 @@ namespace WorldPackets
         class Points final : public ServerPacket
         {
         public:
-            Points() : ServerPacket(SMSG_BATTLEGROUND_POINTS, 25) { }
+            Points() : ServerPacket(SMSG_BATTLEGROUND_POINTS, 3) { }
 
             WorldPacket const* Write() override;
 
@@ -401,14 +408,14 @@ namespace WorldPackets
         class BFMgrQueueRequestResponse final : public ServerPacket
         {
         public:
-            BFMgrQueueRequestResponse() : ServerPacket(SMSG_BF_MGR_QUEUE_REQUEST_RESPONSE, 25) { }
+            BFMgrQueueRequestResponse() : ServerPacket(SMSG_BF_MGR_QUEUE_REQUEST_RESPONSE, 16 + 8 + 4 + 1 + 1 + 1) { }
 
             WorldPacket const* Write() override;
 
+            ObjectGuid FailedPlayerGUID;
             uint64 QueueID = 0;
             uint32 AreaID = 0;
             uint8 BattleState = 0;
-            ObjectGuid FailedPlayerGUID;
             uint8 Result = 0;
             bool LoggingIn = false;
         };
@@ -446,7 +453,7 @@ namespace WorldPackets
         class BFMgrEntryInvite final : public ServerPacket
         {
         public:
-            BFMgrEntryInvite() : ServerPacket(SMSG_BF_MGR_ENTRY_INVITE, 25) { }
+            BFMgrEntryInvite() : ServerPacket(SMSG_BF_MGR_ENTRY_INVITE, 8 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -589,6 +596,7 @@ namespace WorldPackets
         //< CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS
         //< CMSG_REQUEST_RATED_BATTLEFIELD_INFO
         //< CMSG_GET_PVP_OPTIONS_ENABLED
+        //< CMSG_BATTLEFIELD_LEAVE
         class NullCmsg final : public ClientPacket
         {
         public:

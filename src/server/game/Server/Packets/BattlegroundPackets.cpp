@@ -127,7 +127,7 @@ void WorldPackets::Battleground::Join::Read()
     _worldPacket >> Roles;
 
     for (uint8 i = 0; i < 2; i++)
-        _worldPacket >> BlacklistMap[i];
+        _worldPacket >> BlacklistMap.map[i];
 
     JoinAsGroup = _worldPacket.ReadBit();
 }
@@ -137,75 +137,78 @@ void WorldPackets::Battleground::JoinArena::Read()
     _worldPacket >> TeamSizeIndex;
 }
 
-WorldPacket const* WorldPackets::Battleground::PvPLogData::Write()
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData::RatingData const& ratingData)
 {
-    _worldPacket.WriteBit(RatingsData.HasValue);
-    _worldPacket.WriteBit(Winner.HasValue);
-    _worldPacket.FlushBits();
+    data.append(ratingData.Prematch, 2);
+    data.append(ratingData.Postmatch, 2);
+    data.append(ratingData.PrematchMMR, 2);
+    return data;
+}
 
-    _worldPacket << uint32(Players.Value.size());
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData::HonorData const& honorData)
+{
+    data << uint32(honorData.HonorKills);
+    data << uint32(honorData.Deaths);
+    data << uint32(honorData.ContributionPoints);
+    return data;
+}
 
-    for (uint8 i = 0; i < BG_TEAMS_COUNT; i++)
-        _worldPacket << PlayerCount[i];
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData::PlayerData const& playerData)
+{
+    data << playerData.PlayerGUID;
+    data << uint32(playerData.Kills);
+    data << uint32(playerData.DamageDone);
+    data << uint32(playerData.HealingDone);
+    data << uint32(playerData.Stats.size());
+    data << int32(playerData.PrimaryTalentTree);
+    data << uint32(playerData.PrimaryTalentTreeNameIndex);
+    if (!playerData.Stats.empty())
+        data.append(playerData.Stats.data(), playerData.Stats.size());
 
-    if (RatingsData.HasValue)
-    {
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; i++)
-            _worldPacket << RatingsData.Value.Prematch[i];
+    data.WriteBit(playerData.Faction);
+    data.WriteBit(playerData.IsInWorld);
+    data.WriteBit(playerData.Honor.is_initialized());
+    data.WriteBit(playerData.PreMatchRating.is_initialized());
+    data.WriteBit(playerData.RatingChange.is_initialized());
+    data.WriteBit(playerData.PreMatchMMR.is_initialized());
+    data.WriteBit(playerData.MmrChange.is_initialized());
+    data.FlushBits();
 
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; i++)
-            _worldPacket << RatingsData.Value.Postmatch[i];
+    if (playerData.Honor)
+        data << *playerData.Honor;
 
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; i++)
-            _worldPacket << RatingsData.Value.PrematchMMR[i];
-    }
+    if (playerData.PreMatchRating)
+        data << uint32(*playerData.PreMatchRating);
 
-    if (Winner.HasValue)
-        _worldPacket << Winner.Value;
+    if (playerData.RatingChange)
+        data << uint32(*playerData.RatingChange);
 
-    for (PVPLogDataPlayer const& map : Players.Value)
-    {
-        _worldPacket << map.PlayerGUID;
-        _worldPacket << map.Kills;
-        _worldPacket << map.DamageDone;
-        _worldPacket << map.HealingDone;
-        _worldPacket << uint32(map.Stats.size());
-        _worldPacket << map.PrimaryTalentTree;
-        _worldPacket << uint32(0); //< Unk1
+    if (playerData.PreMatchMMR)
+        data << uint32(*playerData.PreMatchMMR);
 
-        for (uint32 const& stat : map.Stats)
-            _worldPacket << stat;
+    if (playerData.MmrChange)
+        data << uint32(*playerData.MmrChange);
 
-        _worldPacket.WriteBit(map.Faction);
-        _worldPacket.WriteBit(map.IsInWorld);
+    return data;
+}
 
-        _worldPacket.WriteBit(map.HonorData.HasValue);
-        _worldPacket.WriteBit(map.PreMatchRating.HasValue);
-        _worldPacket.WriteBit(map.RatingChange.HasValue);
-        _worldPacket.WriteBit(map.PreMatchMMR.HasValue);
-        _worldPacket.WriteBit(map.MmrChange.HasValue);
+WorldPacket const* WorldPackets::Battleground::PVPLogData::Write()
+{
+    _worldPacket.reserve(Players.size() * sizeof(PlayerData) + sizeof(PVPLogData));
 
-        _worldPacket.FlushBits();
+    _worldPacket.WriteBit(Ratings.is_initialized());
+    _worldPacket.WriteBit(Winner.is_initialized());
+    _worldPacket << uint32(Players.size());
+    _worldPacket.append(PlayerCount, 2);
 
-        if (map.HonorData.HasValue)
-        {
-            _worldPacket << map.HonorData.Value.HonorKills;
-            _worldPacket << map.HonorData.Value.Deaths;
-            _worldPacket << map.HonorData.Value.ContributionPoints;
-        }
+    if (Ratings.is_initialized())
+        _worldPacket << *Ratings;
 
-        if (map.PreMatchRating.HasValue)
-            _worldPacket << map.PreMatchRating.Value;
+    if (Winner)
+        _worldPacket << uint8(*Winner);
 
-        if (map.RatingChange.HasValue)
-            _worldPacket << map.RatingChange.Value;
-
-        if (map.PreMatchMMR.HasValue)
-            _worldPacket << map.PreMatchMMR.Value;
-
-        if (map.MmrChange.HasValue)
-            _worldPacket << map.MmrChange.Value;
-    }
+    for (PlayerData const& player : Players)
+        _worldPacket << player;
 
     return &_worldPacket;
 }

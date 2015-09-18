@@ -31,8 +31,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint64 GUID  = 0; ///< Set Identifier
-            uint32 SetID = 0; ///< Index
+            uint64 GUID = 0;
+            uint32 SetID = 0;
         };
 
         class LoadEquipmentSet final : public ServerPacket

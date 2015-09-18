@@ -1056,6 +1056,7 @@ void AddWorldScripts()
 
 void AddDraenorScripts()
 {
+#ifdef SCRIPTS
     AddSC_wod_dark_portal();
 
     AddSC_instance_iron_docks();       // Iron Docks
@@ -1063,6 +1064,7 @@ void AddDraenorScripts()
     AddSC_boss_grimrail_enforcers();
     AddSC_boss_oshir();
     AddSC_boss_skulloc();
+#endif
 }
 
 void AddEasternKingdomsScripts()

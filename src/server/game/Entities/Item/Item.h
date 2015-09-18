@@ -402,7 +402,7 @@ class Item : public Object
         bool IsRefundExpired();
 
         // Soulbound trade system
-        void SetSoulboundTradeable(GuidSet& allowedLooters);
+        void SetSoulboundTradeable(GuidSet const& allowedLooters);
         void ClearSoulboundTradeable(Player* currentOwner);
         bool CheckSoulboundTradeExpire();
 
@@ -456,7 +456,5 @@ class Item : public Object
         uint32 _modifiers[MAX_ITEM_MODIFIERS];
         uint32 ItemLevelBeforeCap;
 };
-
-WorldPackets::Item::ItemInstance& operator<<(WorldPackets::Item::ItemInstance& data, Item const* item);
 
 #endif

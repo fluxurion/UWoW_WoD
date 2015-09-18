@@ -408,7 +408,7 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, const char* text,
         }
 
         if (table[i].SecurityLevel != security)
-            sLog->outInfo(LOG_FILTER_GENERAL, "Table `command` overwrite for command '%s' default security (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, security);
+            sLog->outDebug(LOG_FILTER_GENERAL, "Table `command` overwrite for command '%s' default security (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, security);
 
         table[i].SecurityLevel = security;
         table[i].Help          = help;

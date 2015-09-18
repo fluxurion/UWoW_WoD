@@ -3729,10 +3729,10 @@ void World::ProcessMailboxQueue()
 
         } while (result->NextRow());
 
-        sLog->outError(LOG_FILTER_WORLDSERVER, "MailboxQueue: Complete");
+        sLog->outDebug(LOG_FILTER_WORLDSERVER, "MailboxQueue: Complete");
     }
     else
-        sLog->outError(LOG_FILTER_WORLDSERVER, "MailboxQueue: No pending mail");
+        sLog->outDebug(LOG_FILTER_WORLDSERVER, "MailboxQueue: No pending mail");
 }
 
 void World::InitServerAutoRestartTime()

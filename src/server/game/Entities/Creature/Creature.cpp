@@ -1480,7 +1480,7 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, int32 
         SetPhaseId(data->PhaseID, false);
 
     if (vehId)
-        CreateVehicleKit(vehId, entry);
+        CreateVehicleKit(vehId, entry, true);
 
     return true;
 }

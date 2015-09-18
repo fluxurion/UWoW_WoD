@@ -20,6 +20,9 @@
 
 #include "Packet.h"
 #include "Item.h"
+#include "PacketUtilities.h"
+
+struct VoidStorageItem;
 
 namespace WorldPackets
 {
@@ -94,17 +97,27 @@ namespace WorldPackets
 
         struct ItemBonusInstanceData
         {
-            uint8 Context                   = 0;
+            uint8 Context = 0;
             std::vector<int32> BonusListIDs;
+
+            bool operator==(ItemBonusInstanceData const& r) const;
+            bool operator!=(ItemBonusInstanceData const& r) const { return !(*this == r); }
         };
 
         struct ItemInstance
         {
-            uint32 ItemID                   = 0;
-            uint32 RandomPropertiesSeed     = 0;
-            uint32 RandomPropertiesID       = 0;
+            void Initialize(::Item const* item);
+            void Initialize(::LootItem const& lootItem);
+            void Initialize(::VoidStorageItem const* voidItem);
+
+            uint32 ItemID = 0;
+            uint32 RandomPropertiesSeed = 0;
+            uint32 RandomPropertiesID = 0;
             Optional<ItemBonusInstanceData> ItemBonus;
-            std::vector<int32> Modifications;
+            Optional<CompactArray<int32>> Modifications;
+
+            bool operator==(ItemInstance const& r) const;
+            bool operator!=(ItemInstance const& r) const { return !(*this == r); }
         };
 
         struct InvUpdate
@@ -125,7 +138,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int8 BagResult = EQUIP_ERR_OK; /// @see enum InventoryResult
+            int8 BagResult = EQUIP_ERR_OK;
             uint8 ContainerBSlot = 0;
             ObjectGuid SrcContainer;
             ObjectGuid DstContainer;
@@ -142,12 +155,12 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint8 ToSlot       = 0;
-            uint8 ToPackSlot   = 0;
+            uint8 ToSlot = 0;
+            uint8 ToPackSlot = 0;
             uint8 FromPackSlot = 0;
-            int32 Quantity     = 0;
+            int32 Quantity = 0;
             InvUpdate Inv;
-            uint8 FromSlot     = 0;
+            uint8 FromSlot = 0;
         };
 
         class SwapInvItem final : public ClientPacket
@@ -158,8 +171,8 @@ namespace WorldPackets
             void Read() override;
 
             InvUpdate Inv;
-            uint8 Slot1 = 0; /// Source Slot
-            uint8 Slot2 = 0; /// Destination Slot
+            uint8 Slot1 = 0;
+            uint8 Slot2 = 0;
         };
 
         class SwapItem final : public ClientPacket
@@ -170,9 +183,9 @@ namespace WorldPackets
             void Read() override;
 
             InvUpdate Inv;
-            uint8 SlotA          = 0;
+            uint8 SlotA = 0;
             uint8 ContainerSlotB = 0;
-            uint8 SlotB          = 0;
+            uint8 SlotB = 0;
             uint8 ContainerSlotA = 0;
         };
 
@@ -254,27 +267,6 @@ namespace WorldPackets
             uint32 Slot;
         };
 
-        class VoidStorageContents final : public ServerPacket
-        {
-        public:
-            VoidStorageContents() : ServerPacket(SMSG_VOID_STORAGE_CONTENTS) { }
-
-            WorldPacket const* Write() override;
-
-            std::vector<VoidStorageContentStruct> Data;
-        };
-
-        class VoidStorageTransferChanges final : public ServerPacket
-        {
-        public:
-            VoidStorageTransferChanges() : ServerPacket(SMSG_VOID_STORAGE_TRANSFER_CHANGES) { }
-
-            WorldPacket const* Write() override;
-
-            std::vector<VoidStorageContentStruct> Data;
-            std::vector<ObjectGuid> RemovedItemsGuid;
-        };
-
         class ItemPushResult final : public ServerPacket
         {
         public:
@@ -283,21 +275,21 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid PlayerGUID;
-            uint8 Slot;
-            uint32 SlotInBag;
+            uint8 Slot = 0;
+            int32 SlotInBag = 0;
             ItemInstance Item;
-            uint32 WodUnk;
-            uint32 Quantity;
-            uint32 QuantityInInventory;
-            uint32 BattlePetBreedID;
-            uint32 BattlePetBreedQuality;
-            uint32 BattlePetSpeciesID;
-            uint32 BattlePetLevel;
+            uint32 QuestLogItemID = 0;
+            int32 Quantity = 0;
+            int32 QuantityInInventory = 0;
+            int32 BattlePetBreedID = 0;
+            uint32 BattlePetBreedQuality = 0;
+            int32 BattlePetSpeciesID = 0;
+            int32 BattlePetLevel = 0;
             ObjectGuid ItemGUID;
-            bool Pushed;
-            bool DisplayText;
-            bool Created;
-            bool IsBonusRoll;
+            bool Pushed = false;
+            bool Created = false;
+            bool IsBonusRoll = false;
+            bool IsEncounterLoot = false;
         };
     }
 }

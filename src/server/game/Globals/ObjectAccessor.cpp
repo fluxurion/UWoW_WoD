@@ -16,9 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/locks.hpp>
-
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 

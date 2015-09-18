@@ -40,6 +40,7 @@
 #include "PhaseMgr.h"
 #include "Object.h"
 #include "Opcodes.h"
+#include "Packets/VehiclePackets.h"
 
 // for template
 #include "SpellMgr.h"
@@ -896,7 +897,7 @@ enum EnviromentalDamage
     DAMAGE_FALL_TO_VOID = 6                                 // custom case for fall without durability loss
 };
 
-enum AttackSwing
+enum AttackSwingReason
 {
     ATTACK_SWING_ERROR_BAD_FACING       = 0,
     ATTACK_SWING_ERROR_NOT_IN_RANGE     = 1,
@@ -1184,35 +1185,27 @@ struct BGData
 
 struct VoidStorageItem
 {
-    VoidStorageItem()
-    {
-        ItemId.Clear();
-        ItemEntry = 0;
-        CreatorGuid.Clear();
-        ItemRandomPropertyId = 0;
-        ItemSuffixFactor = 0;
-        change = false;
-        deleted = false;
-    }
+    VoidStorageItem() : ItemId(0), ItemEntry(0), ItemRandomPropertyId(0), ItemSuffixFactor(0), ItemUpgradeId(0), change(false), deleted(false) { }
+    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, uint32 randomPropertyId, uint32 suffixFactor, uint32 upgradeId, std::vector<uint32> const& bonuses, bool _change)
+        : ItemId(id), ItemEntry(entry), CreatorGuid(creator), ItemRandomPropertyId(randomPropertyId),
+        ItemSuffixFactor(suffixFactor), ItemUpgradeId(upgradeId), change(_change) { BonusListIDs.insert(BonusListIDs.end(), bonuses.begin(), bonuses.end()); }
 
-    VoidStorageItem(ObjectGuid const& id, uint32 entry, const ObjectGuid creator, uint32 randomPropertyId, uint32 suffixFactor, bool _change)
-    {
-        ItemId = id;
-        ItemEntry = entry;
-        CreatorGuid = creator;
-        ItemRandomPropertyId = randomPropertyId;
-        ItemSuffixFactor = suffixFactor;
-        change = _change;
-        deleted = false;
-    }
+    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, uint32 randomPropertyId, uint32 suffixFactor, bool _change)
+        : ItemId(id), ItemEntry(entry), CreatorGuid(creator), ItemRandomPropertyId(randomPropertyId),
+        ItemSuffixFactor(suffixFactor), change(_change) { }
 
-    ObjectGuid ItemId;
+    VoidStorageItem(VoidStorageItem&& vsi, bool _change) : ItemId(vsi.ItemId), ItemEntry(vsi.ItemEntry), CreatorGuid(vsi.CreatorGuid), ItemRandomPropertyId(vsi.ItemRandomPropertyId),
+        ItemSuffixFactor(vsi.ItemSuffixFactor), ItemUpgradeId(vsi.ItemUpgradeId), BonusListIDs(std::move(vsi.BonusListIDs)), change(_change) { }
+
+    uint64 ItemId;
     uint32 ItemEntry;
     ObjectGuid CreatorGuid;
     uint32 ItemRandomPropertyId;
     uint32 ItemSuffixFactor;
     bool change;
     bool deleted;
+    uint32 ItemUpgradeId;
+    std::vector<int32> BonusListIDs;
 };
 
 #define MAX_CUF_PROFILES 5
@@ -1709,8 +1702,7 @@ class Player : public Unit, public GridObject<Player>
         InventoryResult CanUseItem(ItemTemplate const* pItem) const;
         InventoryResult CanUseAmmo(uint32 item) const;
         InventoryResult CanRollForItemInLFG(ItemTemplate const* item, WorldObject const* lootedObject) const;
-        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 item, bool update, int32 randomPropertyId = 0);
-        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 item, bool update, int32 randomPropertyId, GuidSet &allowedLooters);
+        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 item, bool update, int32 randomPropertyId = 0, GuidSet const& allowedLooters = GuidSet(), std::vector<int32> const& bonusListIDs = std::vector<int32>());
         Item* StoreItem(ItemPosCountVec const& pos, Item* pItem, bool update);
         Item* EquipNewItem(uint16 pos, uint32 item, bool update);
         Item* EquipItem(uint16 pos, Item* pItem, bool update);
@@ -2145,11 +2137,8 @@ class Player : public Unit, public GridObject<Player>
             return mMitems.erase(id) ? true : false;
         }
 
-        void SendOnCancelExpectedVehicleRideAura()
-        {
-            WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-            GetSession()->SendPacket(&data);
-        }
+        void SendOnCancelExpectedVehicleRideAura() {  GetSession()->SendPacket(WorldPackets::Vehicle::OnCancelExpectedRideVehicleAura().Write()); }
+
         void PetSpellInitialize();
         void CharmSpellInitialize();
         void PossessSpellInitialize();
@@ -2565,7 +2554,7 @@ class Player : public Unit, public GridObject<Player>
         void SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend = false, float group_rate=1.0f);
 
         // notifiers
-        void SendAttackSwingResult(AttackSwing error);
+        void SendAttackSwingResult(AttackSwingReason error);
         void SendAutoRepeatCancel(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
@@ -3186,6 +3175,8 @@ class Player : public Unit, public GridObject<Player>
         void AddWhisperWhiteList(ObjectGuid guid) { WhisperList.push_back(guid); }
         bool IsInWhisperWhiteList(ObjectGuid guid);
 
+        void ValidateMovementInfo(MovementInfo* mi);
+
         /*! These methods send different packets to the client in apply and unapply case.
             These methods are only sent to the current unit.
         */
@@ -3204,11 +3195,10 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetNextVoidStorageFreeSlot() const;
         uint32 GetNumOfVoidStorageFreeSlots() const;
         uint32 AddVoidStorageItem(const VoidStorageItem& item);
-        void AddVoidStorageItemAtSlot(uint32 slot, const VoidStorageItem& item);
         void DeleteVoidStorageItem(uint32 slot);
         bool SwapVoidStorageItem(uint32 oldSlot, uint32 newSlot);
         VoidStorageItem* GetVoidStorageItem(uint32 slot) const;
-        VoidStorageItem* GetVoidStorageItem(ObjectGuid const& id, uint32& slot) const;
+        VoidStorageItem* GetVoidStorageItem(uint64 id, uint32& slot) const;
 
         void SaveCUFProfile(uint8 id, CUFProfile * profile) { delete _CUFProfiles[id]; _CUFProfiles[id] = profile; }
         CUFProfile * GetCUFProfile(uint8 id) { return _CUFProfiles[id]; }

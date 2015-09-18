@@ -243,8 +243,8 @@ class Battlefield : public ZoneScript
         void InitGUID();
 
         uint32 GetTypeId() const   { return m_TypeId; }
-        uint32 GetZoneId() const   { return m_ZoneId; }
-        uint64 GetGUID() const     { return m_Guid; }
+        uint32 GetZoneId() const   { return m_AreaID; }
+        uint64 GetQueueID() const  { return m_QueueID; }
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
@@ -365,7 +365,7 @@ class Battlefield : public ZoneScript
 
         void InitStalker(uint32 entry, float x, float y, float z, float o);
 
-        void SetGuid(uint64 const& guid) { m_Guid = guid; };
+        void SetQueueID(uint64 const& id) { m_QueueID = id; };
 
         bool IsOnStartGrouping() const { return m_StartGrouping; }
     protected:
@@ -374,7 +374,7 @@ class Battlefield : public ZoneScript
         bool m_IsEnabled;
         bool m_isActive;
         TeamId m_DefenderTeam;
-        uint64 m_Guid;
+        uint64 m_QueueID;
 
         // Map of the objectives belonging to this OutdoorPvP
         BfCapturePointMap m_capturePoints;
@@ -389,7 +389,7 @@ class Battlefield : public ZoneScript
         // Variables that must exist for each battlefield
         uint32 m_TypeId;                                        // See enum BattlefieldTypes
         uint32 m_BattleId;                                      // BattleID (for packet)
-        uint32 m_ZoneId;                                        // ZoneID of Wintergrasp = 4197
+        uint32 m_AreaID;                                        // ZoneID of Wintergrasp = 4197
         uint32 m_MapId;                                         // MapId where is Battlefield
         uint32 m_MaxPlayer;                                     // Maximum number of player that participated to Battlefield
         uint32 m_MinPlayer;                                     // Minimum number of player for Battlefield start

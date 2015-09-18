@@ -153,7 +153,7 @@ namespace WorldPackets
 
             ObjectGuid Item;
             ObjectGuid Player;
-            int32 Error = 0; // PetitionError
+            int32 Error = 0;
         };
 
         class PetitionAlreadySigned final : public ServerPacket
@@ -193,7 +193,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 Result = 0; // PetitionError
+            int32 Result = 0;
         };
 
         class OfferPetition final : public ClientPacket

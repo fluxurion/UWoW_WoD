@@ -591,8 +591,6 @@ void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession
 void WorldSocket::SendAuthResponseError(uint8 code)
 {
     WorldPackets::Auth::AuthResponse response;
-    response.SuccessInfo.HasValue = false;
-    response.WaitInfo.HasValue = false;
     response.Result = code;
     SendPacket(*response.Write());
 }

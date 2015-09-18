@@ -177,7 +177,7 @@ void BattlegroundMgr::Update(uint32 diff)
 }
 
 //! ToDo: arenatype -> JoinType
-void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battleground* bg, Player * pPlayer, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint8 arenatype, uint8 uiFrame)
+void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battleground* bg, Player* pPlayer, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint8 arenatype, uint8 uiFrame)
 {
     // we can be in 2 queues in same time...
     if (!bg)
@@ -186,22 +186,24 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
     WorldPackets::Battleground::StatusHeader sHeader;
 
     sHeader.TicketData.RequesterGuid = pPlayer->GetGUID();
-    sHeader.QueueID = bg ? bg->GetGUID() : 0;
+    sHeader.QueueID = bg ? bg->GetQueueID() : 0;
 
     switch (StatusID)
     {
         case STATUS_NONE:
         {
-            //! 6.0.3
-            data->Initialize(SMSG_BATTLEFIELD_STATUS_NONE, 50);
-            sHeader.TicketData.Time = Time1;
-            sHeader.TicketData.Id = QueueSlot;
+            WorldPackets::Battleground::StatusNone statusNone;
+            statusNone.Ticket.Id = QueueSlot;
+            statusNone.Ticket.RequesterGuid = pPlayer->GetGUID();
+            statusNone.Ticket.Time = Time1;
+            statusNone.Ticket.Type = 0;
 
             if (bg)
-                sHeader.TicketData.Type = (bg->isArena() || bg->IsRBG()) ? arenatype : 1;
+                statusNone.Ticket.Type = (bg->isArena() || bg->IsRBG()) ? arenatype : 1;
             else
-                sHeader.TicketData.Type = 1;
-            *data << sHeader.TicketData;
+                statusNone.Ticket.Type = 1;
+
+            *data << statusNone.Ticket;
             break;
         }
         case STATUS_WAIT_QUEUE:
@@ -536,8 +538,7 @@ void BattlegroundMgr::BuildStatusFailedPacket(WorldPacket* data, Battleground* b
     packet.Ticket.Id = QueueSlot;
     packet.Ticket.Type = (bg->isArena() || bg->IsRBG()) ? bg->GetJoinType() : 1;         // should be max
     packet.Ticket.Time = player->GetBattlegroundQueueJoinTime(bg->GetTypeID());  // Time of the join
-
-    packet.QueueID = bg->GetGUID(); 
+    packet.QueueID = bg->GetQueueID(); 
     packet.Reason = result;
   
     *data = *packet.Write();
@@ -560,24 +561,8 @@ void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
     *data << ObjectGuid::Empty;
 }
 
-//! 6.0.3
-void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, ObjectGuid const& guid)
-{
-    data->Initialize(SMSG_BATTLEGROUND_PLAYER_LEFT, 16);
-    *data << guid;
-}
-
-//! 6.0.3
-void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, ObjectGuid const& guid)
-{
-    data->Initialize(SMSG_BATTLEGROUND_PLAYER_JOINED, 16);
-    *data << guid;
-}
-
 Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
-    //cause at HandleBattlegroundJoinOpcode the clients sends the instanceid he gets from
-    //SMSG_BATTLEFIELD_LIST we need to find the battleground with this clientinstance-id
     Battleground* bg = GetBattlegroundTemplate(bgTypeId);
     if (!bg)
         return NULL;
@@ -786,7 +771,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId
     bg->SetTypeID(isRandom ? oldbgTypeId : bgTypeId);       //oldbgTypeId can be BATTLEGROUND_RATED_10_VS_10 || BATTLEGROUND_RB
     bg->SetRBG(oldbgTypeId == BATTLEGROUND_RATED_10_VS_10);
     bg->SetRandomTypeID(bgTypeId);
-    bg->SetGuid(uint64(bgTypeId) | UI64LIT(0x1F10000000000000));
+    bg->SetQueueID(uint64(bgTypeId) | UI64LIT(0x1F10000000000000));
 
     return bg;
 }
@@ -839,7 +824,7 @@ uint32 BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
     bg->SetLevelRange(data.LevelMin, data.LevelMax);
     bg->SetHolidayId(data.holiday);
     bg->SetScriptId(data.scriptId);
-    bg->SetGuid(uint64(data.bgTypeId) | UI64LIT(0x1F10000000000000));
+    bg->SetQueueID(uint64(data.bgTypeId) | UI64LIT(0x1F10000000000000));
 
     // add bg to update list
     AddBattleground(bg->GetInstanceID(), bg->GetTypeID(), bg);
@@ -980,52 +965,38 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     if (!player)
         return;
 
-    data->Initialize(SMSG_BATTLEFIELD_LIST, 83);
-    *data << _guid;
-    *data << uint32(bgTypeId);                  // battleground id
-    *data << uint8(0);                          // min level
-    *data << uint8(0);                          // max level
+    Battleground* bgTemplate = GetBattlegroundTemplate(bgTypeId);
+    if (!bgTemplate)
+        return;
 
-    size_t countPos = data->wpos();
-    uint32 count = 0;
-     *data << count;
+    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgTemplate->GetMapId(), player->getLevel());
+    if (!bracketEntry)
+        return;
 
-    if (bgTypeId != BATTLEGROUND_AA)                                        // battleground
+    WorldPackets::Battleground::BattlefieldList battlefieldList;
+    battlefieldList.BattlemasterGuid = _guid;
+    battlefieldList.BattlemasterListID = bgTypeId;
+    battlefieldList.MinLevel = bracketEntry->minLevel;
+    battlefieldList.MaxLevel = bracketEntry->maxLevel;
+    battlefieldList.PvpAnywhere = _guid.IsEmpty();
+    battlefieldList.HasRandomWinToday = player->GetRandomWinner();
+    battlefieldList.HasHolidayWinToday = player->GetRandomWinner();
+    battlefieldList.IsRandomBG = bgTypeId == BATTLEGROUND_RB;
+
+    if (bgTypeId != BATTLEGROUND_AA)
     {
-
         if (Battleground* bgTemplate = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId))
         {
-            // expected bracket entry
             if (PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgTemplate->GetMapId(), player->getLevel()))
             {
                 BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
                 for (std::set<uint32>::iterator itr = m_ClientBattlegroundIds[bgTypeId][bracketId].begin(); itr != m_ClientBattlegroundIds[bgTypeId][bracketId].end();++itr)
-                {
-                    *data << uint32(*itr);
-                    ++count;
-                }
+                    battlefieldList.Battlefields.push_back(*itr);
             }
         }
-        data->put<uint32>(countPos, count);
     }
 
-    //was on MOP
-    //uint32 winner_conquest = (player->GetRandomWinner() ? BG_REWARD_WINNER_CONQUEST_LAST : BG_REWARD_WINNER_CONQUEST_FIRST) / 100;
-    //uint32 winner_honor = (player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST) / 100;
-    //uint32 loser_honor = (player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST) / 100;
-    //*data << uint32(winner_honor);              // holiday
-    //*data << uint32(winner_honor);              // random
-    //*data << uint32(winner_conquest);           // holiday
-    //*data << uint32(loser_honor);               // random
-    //*data << uint32(winner_conquest);           // random
-    //*data << uint32(loser_honor);               // holiday
-
-    data->WriteBit(_guid.IsEmpty());            // from where | PvpAnywhere
-    data->WriteBit(player->GetRandomWinner());  // holiday
-    data->WriteBit(player->GetRandomWinner());  // random
-    data->WriteBit(1);                          // IsRandomBG
-
-    data->FlushBits();
+    *data = *battlefieldList.Write();
 }
 
 void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, BattlegroundTypeId bgTypeId)
@@ -1049,16 +1020,12 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     }
 }
 
-//! 6.0.3
 void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, ObjectGuid const& guid)
 {
-    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    data << guid;
-    uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
-    if (time_ == uint32(-1))
-        time_ = 0;
-    data << uint32(time_);
-    player->GetSession()->SendPacket(&data);
+    WorldPackets::Battleground::AreaSpiritHealerTime healerTime;
+    healerTime.HealerGuid = guid;
+    healerTime.TimeLeft = 30000 - bg->GetLastResurrectTime() == -1 ? 0 : 30000 - bg->GetLastResurrectTime();
+    player->GetSession()->SendPacket(healerTime.Write());
 }
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)

@@ -24,20 +24,12 @@
 #include "Battleground.h"
 #include "EventProcessor.h"
 #include "LockedMap.h"
+#include "Packets/BattlegroundPackets.h"
 
 //this container can't be deque, because deque doesn't like removing the last element - if you remove it, it invalidates next iterator and crash appears
 typedef std::list<Battleground*> BGFreeSlotQueueType;
 
 #define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10
-
-struct IgnorMapInfo
-{
-    IgnorMapInfo()
-    { 
-        map[0] = map[1] = 0;
-    }
-    uint32 map[2];
-};
 
 struct GroupQueueInfo;                                      // type predefinition
 struct PlayerQueueInfo                                      // stores information for players in queue
@@ -61,7 +53,7 @@ struct GroupQueueInfo                                       // stores informatio
     uint32  OpponentsMatchmakerRating;                      // for rated arena matches
     uint16  RbgMMV;
     uint16  OponentsRbgMMV;
-    IgnorMapInfo ignore;
+    WorldPackets::Battleground::IgnorMapInfo ignore;
 };
 
 enum BattlegroundQueueGroupTypes
@@ -90,7 +82,7 @@ class BattlegroundQueue
         ///@ used for generate rbg and arena maps.
         BattlegroundTypeId GenerateRandomMap(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
         bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint32 minPlayersPerTeam);
-        GroupQueueInfo* AddGroup(Player* leader, Group* group, BattlegroundTypeId bgTypeId, PvPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, IgnorMapInfo ignore, uint32 mmr = 0);
+        GroupQueueInfo* AddGroup(Player* leader, Group* group, BattlegroundTypeId bgTypeId, PvPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, WorldPackets::Battleground::IgnorMapInfo ignore, uint32 mmr = 0);
         void RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount);
         bool IsPlayerInvited(ObjectGuid pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime);
         bool GetPlayerGroupInfoData(ObjectGuid guid, GroupQueueInfo* ginfo);

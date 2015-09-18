@@ -249,10 +249,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestGiverOfferRew
     data << offer.QuestGiverGUID;
     data << offer.QuestGiverCreatureID;
     data << offer.QuestID;
-    data << offer.QuestFlags[0]; // Flags
-    data << offer.QuestFlags[1]; // FlagsEx
+    data << offer.QuestFlags[0];
+    data << offer.QuestFlags[1];
     data << offer.SuggestedPartyMembers;
-    data << offer.Rewards; // WorldPackets::Quest::QuestRewards
+    data << offer.Rewards;
 
     data << int32(offer.Emotes.size());
     for (WorldPackets::Quest::QuestDescEmote const& emote : offer.Emotes)
@@ -269,7 +269,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestGiverOfferRew
 
 WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 {
-    _worldPacket << QuestData; // WorldPackets::Quest::QuestGiverOfferReward
+    _worldPacket << QuestData;
     _worldPacket << QuestPackageID;
     _worldPacket << PortraitTurnIn;
     _worldPacket << PortraitGiver;
@@ -306,7 +306,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestComplete::Write()
     _worldPacket << NumSkillUpsReward;
     _worldPacket << XPReward;
     _worldPacket << TalentReward;
-    _worldPacket << ItemReward; // WorldPackets::Item::ItemInstance
+    _worldPacket << ItemReward;
 
     _worldPacket.WriteBit(UseQuestReward);
     _worldPacket.WriteBit(LaunchGossip);
@@ -330,11 +330,11 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket << QuestPackageID;
     _worldPacket << PortraitGiver;
     _worldPacket << SuggestedPartyMembers;
-    _worldPacket << QuestFlags[0]; // Flags
-    _worldPacket << QuestFlags[1]; // FlagsEx
+    _worldPacket << QuestFlags[0];
+    _worldPacket << QuestFlags[1];
     _worldPacket << PortraitTurnIn;
     _worldPacket << int32(LearnSpells.size());
-    _worldPacket << Rewards; // WorldPackets::Quest::QuestRewards
+    _worldPacket << Rewards;
     _worldPacket << int32(DescEmotes.size());
     _worldPacket << int32(Objectives.size());
 

@@ -27,118 +27,76 @@
 #include "Opcodes.h"
 
 #include "Bracket.h"
+#include "Packets/BattlegroundPackets.h"
 
-//This send to player windows for invite player to join the war
-//Param1:(m_Guid) the BattleId of Bf
-//Param2:(ZoneId) the zone where the battle is (4197 for wg)
-//Param3:(time) Time in second that the player have for accept
-//! 6.0.3
-void WorldSession::SendBfInvitePlayerToWar(uint64 const& guid, uint32 zoneId, uint32 pTime)
+void WorldSession::SendBfInvitePlayerToWar(uint64 const& queueID, uint32 areaID, uint32 pTime)
 {
-    //Send packet
-    WorldPacket data(SMSG_BF_MGR_ENTRY_INVITE);
-    data << guid;
-    data << uint32(zoneId);         // Zone Id
-    data << uint32(time(NULL) + pTime); // Invite lasts until
-
-    //Sending the packet to player
-    SendPacket(&data);
+    WorldPackets::Battleground::BFMgrEntryInvite invite;
+    invite.QueueID = queueID;
+    invite.AreaID = areaID;
+    invite.ExpireTime = time(NULL) + pTime;
+    invite.Remove = false;
+    SendPacket(invite.Write());
 }
 
-//This send invitation to player to join the queue
-//Param1:(guid) the guid of Bf
-//! 6.0.3
-void WorldSession::SendBfInvitePlayerToQueue(uint64 const& guid)
+void WorldSession::SendBfInvitePlayerToQueue(uint64 const& queueID)
 {
-    bool warmup = true;
-
-    WorldPacket data(SMSG_BF_MGR_QUEUE_INVITE);
-    data << guid;
-    data << uint8(1);  //warmup. 1 - WG, 2 - TB
-    
-    data << int32(-1);  //Timeout
-    data << int32(0);   //MinLevel
-    data << int32(0);   //MaxLevel
-    data << int32(0);   //InstanceID
-    data << int32(0);   //MapID
-
-    data.WriteBit(0); // index
-
-    //Sending packet to player
-    SendPacket(&data);
+    WorldPackets::Battleground::BFMgrQueueInvite queueInvite;
+    queueInvite.QueueID = queueID;
+    queueInvite.BattleState = 1;
+    queueInvite.Timeout = -1;
+    queueInvite.MinLevel = 0;
+    queueInvite.MaxLevel = 0;
+    queueInvite.InstanceID = 0;
+    queueInvite.MapID = 0;
+    queueInvite.Index = false;
+    SendPacket(queueInvite.Write());
 }
 
-//This send packet for inform player that he join queue
-//Param1:(guid) the guid of Bf
-//Param2:(ZoneId) the zone where the battle is (4197 for wg)
-//Param3:(CanQueue) if able to queue
-//Param4:(Full) on log in is full
-//! 6.0.3
-void WorldSession::SendBfQueueInviteResponse(uint64 const& guid, uint32 ZoneId, bool CanQueue, bool Full)
+void WorldSession::SendBfQueueInviteResponse(uint64 const& queueID, uint32 areaID, bool CanQueue, bool Full)
 {
-    ObjectGuid FailedPlayerGuid;
-
-    WorldPacket data(SMSG_BF_MGR_QUEUE_REQUEST_RESPONSE);
-    data << guid;
-    data << uint32(ZoneId);
-    data << uint8(1); // Warmup
-    data << FailedPlayerGuid;
-    data << uint8((CanQueue ? 1 : 0));  //Accepted          //0 you cannot queue wg     //1 you are queued
-
-    data.WriteBit((Full ? 0 : 1)); // //Logging In        //0 wg full                 //1 queue for upcoming (we may need to swap it)
-
-    SendPacket(&data);
+    WorldPackets::Battleground::BFMgrQueueRequestResponse response;
+    response.FailedPlayerGUID;
+    response.QueueID = queueID;
+    response.AreaID = areaID;
+    response.BattleState = 1;
+    response.Result = CanQueue ? true : false;
+    response.LoggingIn = Full ? false : true;
+    SendPacket(response.Write());
 }
 
-//This is call when player accept to join war
-//Param1:(guid) the guid of Bf
-//! 6.0.3
-void WorldSession::SendBfEntered(uint64 const& guid)
+void WorldSession::SendBfEntered(uint64 const& queueID)
 {
-//    m_PlayerInWar[player->GetTeamId()].insert(player->GetGUID());
+    //m_PlayerInWar[player->GetTeamId()].insert(player->GetGUID());
 
-    WorldPacket data(SMSG_BF_MGR_ENTERING);
-
-    data.WriteBit(_player->isAFK() ? 1 : 0); //Clear AFK
-    data.WriteBit(1); // unk
-    data.WriteBit(1); // unk
-
-    data << guid;
-    SendPacket(&data);
+    WorldPackets::Battleground::BFMgrEntering entering;
+    entering.ClearedAFK = _player->isAFK() ? 1 : 0;
+    entering.OnOffense = true;
+    entering.Relocated = true;
+    entering.QueueID = queueID;
+    SendPacket(entering.Write());
 }
 
-//! 6.0.3
-void WorldSession::SendBfLeaveMessage(uint64 const& guid, BFLeaveReason reason)
+void WorldSession::SendBfLeaveMessage(uint64 const& queueID, BFLeaveReason reason)
 {
-    WorldPacket data(SMSG_BF_MGR_EJECTED);
-    data << guid;
-    data << uint8(2); // byte BattleStatus
-    data << uint8(reason); // byte Reason
-
-    data.WriteBit(0); // relocated
-
-    SendPacket(&data);
+    WorldPackets::Battleground::BFMgrEjected packet;
+    packet.QueueID = queueID;
+    packet.BattleState = 2;
+    packet.Reason = reason;
+    packet.Relocated = false;
+    SendPacket(packet.Write());
 }
 
-//Send by client when he click on accept for queue
-//! 6.0.3
-void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
+void WorldSession::HandleBfQueueInviteResponse(WorldPackets::Battleground::EntryOrQueueInviteResponse& packet)
 {
-    uint8 accepted;
-    uint64 guid;
-    recvData >> guid;
-    accepted = recvData.ReadBit();
-
-    //sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:" UI64FMTD " Accepted:%u", guid, accepted);
-
-    if(!accepted)
+    if (!packet.AcceptedInvite)
         return;
 
-    Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
+    Battlefield* bf = sBattlefieldMgr->GetBattlefieldByQueueID(packet.QueueID);
     if (!bf)
         return;
     
-    if (accepted)
+    if (packet.AcceptedInvite)
         bf->PlayerAcceptInviteToQueue(_player);
     else if (bf->IsWarTime() || bf->IsOnStartGrouping())
     {
@@ -147,37 +105,25 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
     }
 }
 
-//Send by client on clicking in accept or refuse of invitation windows for join game
-//! 6.0.3
-void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recvData)
+void WorldSession::HandleBfEntryInviteResponse(WorldPackets::Battleground::EntryOrQueueInviteResponse& packet)
 {
-    uint8 accepted;
-    uint64 guid;
-    recvData >> guid;
-    accepted = recvData.ReadBit();
-
-    //sLog->outError(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: GUID:" UI64FMTD " Accepted:%u", guid, accepted);
-
-    Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
+    Battlefield* bf = sBattlefieldMgr->GetBattlefieldByQueueID(packet.QueueID);
     if (!bf)
         return;
 
-    if (accepted)
+    if (packet.AcceptedInvite)
         bf->PlayerAcceptInviteToWar(_player);
     else
         if (_player->GetZoneId() == bf->GetZoneId())
             bf->KickPlayerFromBattlefield(_player->GetGUID());
 }
 
-//! 6.0.6
 void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;
 
-    //sLog->outError(LOG_FILTER_GENERAL, "HandleBfQueueRequest: GUID:" UI64FMTD " ", guid.GetCounter());
-
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid))
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByQueueID(guid))
     {
         if (bf->IsWarTime())
             bf->InvitePlayerToWar(_player);
@@ -190,25 +136,17 @@ void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
     }
 }
 
-//! 6.0.3
-void WorldSession::HandleBfExitQueueRequest(WorldPacket & recvData)
+void WorldSession::HandleBfExitQueueRequest(WorldPackets::Battleground::ExitRequest& packet)
 {
-    uint64 guid;
-    recvData >> guid;
+    SendBfLeaveMessage(packet.QueueID);
 
-    //sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitQueueRequest: GUID:" UI64FMTD " ", guid.GetCounter());
-
-    SendBfLeaveMessage(guid);
-
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid))
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByQueueID(packet.QueueID))
         bf->AskToLeaveQueue(_player);
 }
 
 void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
 {
-    sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitRequest");
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId());
-
     if (!bf)
         return;
 
@@ -217,28 +155,17 @@ void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
     bf->KickPlayerFromBattlefield(_player->GetGUID());
 }
 
-//! 6.0.3
 void WorldSession::HandleReportPvPAFK(WorldPacket & recvData)
 {
     ObjectGuid playerGuid;
     recvData >> playerGuid;
 
-    Player* reportedPlayer = ObjectAccessor::FindPlayer(playerGuid);
-
-    if (!reportedPlayer)
-    {
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleReportPvPAFK: player not found");
-        return;
-    }
-
-    //sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleReportPvPAFK: %s reported %s", _player->GetName(), reportedPlayer->GetName());
-
-    reportedPlayer->ReportedAfkBy(_player);
+    if (Player* reportedPlayer = ObjectAccessor::FindPlayer(playerGuid))
+        reportedPlayer->ReportedAfkBy(_player);
 }
 
 void WorldSession::HandleBfSetPreferedCemetry(WorldPacket & recvData)
 {
     uint32 graveID = 0;
     recvData >> graveID;
-    //sLog->outError(LOG_FILTER_GENERAL, "HandleBfSetPreferedCemetry: GraveID: %u", graveID);
 }

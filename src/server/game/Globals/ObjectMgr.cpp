@@ -6760,9 +6760,9 @@ uint32 ObjectMgr::GeneratePetNumber()
     return ++_hiPetNumber;
 }
 
-ObjectGuid ObjectMgr::GenerateVoidStorageItemId()
+uint64 ObjectMgr::GenerateVoidStorageItemId()
 {
-    return ObjectGuid::Create<HighGuid::Item>(++_voidItemId);
+    return ++_voidItemId;
 }
 
 void ObjectMgr::LoadCurrencysLoot()
@@ -9983,17 +9983,17 @@ void ObjectMgr::LoadBattlePay()
 
             WorldPackets::BattlePay::DisplayInfo displayInfo;
             if (fields[6].GetInt32())
-                displayInfo.CreatureDisplayInfoID.Set(fields[6].GetInt32());
+                displayInfo.CreatureDisplayInfoID = fields[6].GetInt32();
             if (fields[7].GetInt32())
-                displayInfo.FileDataID.Set(fields[7].GetInt32());
+                displayInfo.FileDataID = fields[7].GetInt32();
 
             displayInfo.Name1 = fields[8].GetString();
             displayInfo.Name2 = fields[9].GetString();
             displayInfo.Name3 = fields[10].GetString();
 
             if (fields[11].GetInt32())
-                displayInfo.Flags.Set(fields[11].GetInt32());
-            product.displayInfo.Set(displayInfo);
+                displayInfo.Flags = fields[11].GetInt32();
+            product.displayInfo = displayInfo;
 
             if (fields[12].GetInt32() > 0)
             {
@@ -10003,11 +10003,11 @@ void ObjectMgr::LoadBattlePay()
                 pItem.Quantity = fields[14].GetInt32();
                 pItem.HasPet = fields[15].GetBool();
                 if (fields[16].GetInt8())
-                    pItem.PetResult.Set(fields[16].GetInt8());
+                    pItem.PetResult = fields[16].GetInt8();
 
                 //! Little hack for WoW
                 if (pItem.ItemID == 122270)
-                    pItem.displayInfo.Set(displayInfo);
+                    pItem.displayInfo = displayInfo;
 
                 product.battlePayProduct.push_back(pItem);
 
@@ -10040,18 +10040,18 @@ void ObjectMgr::LoadBattlePay()
             WorldPackets::BattlePay::DisplayInfo info;
 
             if (fields[6].GetInt32())
-                info.CreatureDisplayInfoID.Set(fields[6].GetInt32());
+                info.CreatureDisplayInfoID = fields[6].GetInt32();
             if (fields[7].GetInt32())
-                info.FileDataID.Set(fields[7].GetInt32());
+                info.FileDataID = fields[7].GetInt32();
 
-            if (info.FileDataID.HasValue || info.CreatureDisplayInfoID.HasValue)
+            if (info.FileDataID || info.CreatureDisplayInfoID)
             {
                 info.Name1 = fields[8].GetString();
                 info.Name2 = fields[9].GetString();
                 info.Name3 = fields[10].GetString();
                 if (fields[11].GetInt32())
-                    info.Flags.Set(fields[11].GetInt32());
-                shop.displayInfo.Set(info);
+                    info.Flags = fields[11].GetInt32();
+                shop.displayInfo = info;
             }
 
             if (shop.ProductID !=107) //WowToken kill game.

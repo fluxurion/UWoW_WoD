@@ -38,21 +38,21 @@ namespace WorldPackets
 
         struct LootItem
         {
-            uint8 Type              = 0;
-            uint8 UIType            = 1;
-            uint32 Quantity         = 0;
-            uint8 LootItemType      = 0;
-            uint8 LootListID        = 0;
-            bool CanTradeToTapList  = false;
+            uint8 Type = 0;
+            uint8 UIType = 1;
+            uint32 Quantity = 0;
+            uint8 LootItemType = 0;
+            uint8 LootListID = 0;
+            bool CanTradeToTapList = false;
             WorldPackets::Item::ItemInstance Loot;
         };
 
         struct LootCurrency
         {
-            uint32 CurrencyID   = 0;
-            uint32 Quantity     = 0;
-            uint8 LootListID    = 0;
-            uint8 UIType        = 0;
+            uint32 CurrencyID = 0;
+            uint32 Quantity = 0;
+            uint8 LootListID = 0;
+            uint8 UIType = 0;
         };
 
         class LootResponse final : public ServerPacket
@@ -64,16 +64,16 @@ namespace WorldPackets
 
             ObjectGuid LootObj;
             ObjectGuid Owner;
-            uint8 Threshold     = 17; // Most common value
-            uint8 LootMethod    = 0;
+            uint8 Threshold = 17; // Most common value
+            uint8 LootMethod = 0;
             uint8 AcquireReason = 0;
             uint8 FailureReason = 2; // Most common value
-            uint32 Coins        = 0;
+            uint32 Coins = 0;
             std::vector<LootItem> Items;
             std::vector<LootCurrency> Currencies;
             bool PersonalLooting = false;
-            bool Acquired        = false;
-            bool AELooting      = false;
+            bool Acquired = false;
+            bool AELooting = false;
         };
 
         struct LootRequest
@@ -82,7 +82,6 @@ namespace WorldPackets
             uint8 LootListID = 0;
         };
 
-        // PlayerCliLootItem
         class AutoStoreLootItem final : public ClientPacket
         {
         public:

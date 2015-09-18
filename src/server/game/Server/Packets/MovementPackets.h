@@ -42,10 +42,10 @@ namespace WorldPackets
             MovementInfo movementInfo;
         };
 
-        class ServerPlayerMovement final : public ServerPacket
+        class MoveUpdate final : public ServerPacket
         {
         public:
-            ServerPlayerMovement() : ServerPacket(SMSG_MOVE_UPDATE) { }
+            MoveUpdate() : ServerPacket(SMSG_MOVE_UPDATE) { }
 
             WorldPacket const* Write() override;
 
@@ -54,38 +54,38 @@ namespace WorldPackets
 
         struct MonsterSplineFilterKey
         {
-            int16 Idx   = 0;
+            int16 Idx = 0;
             int16 Speed = 0;
         };
 
         struct MonsterSplineFilter
         {
             std::vector<MonsterSplineFilterKey> FilterKeys;
-            uint8 FilterFlags           = 0;
-            float BaseSpeed             = 0.0f;
-            int16 StartOffset           = 0;
-            float DistToPrevFilterKey   = 0.0f;
-            int16 AddedToStart          = 0;
+            uint8 FilterFlags = 0;
+            float BaseSpeed = 0.0f;
+            int16 StartOffset = 0;
+            float DistToPrevFilterKey = 0.0f;
+            int16 AddedToStart = 0;
         };
 
         struct MovementSpline
         {
-            uint32 Flags                = 0;    // Spline flags
-            uint8 Face                  = 0;    // Movement direction (see MonsterMoveType enum)
-            uint8 AnimTier              = 0;
-            uint32 TierTransStartTime   = 0;
-            uint32 Elapsed              = 0;
-            uint32 MoveTime             = 0;
-            float JumpGravity           = 0.0f;
-            uint32 SpecialTime          = 0;
-            std::vector<G3D::Vector3> Points;        // Spline path
-            uint8 Mode                  = 0;
-            uint8 VehicleExitVoluntary  = 0;
+            uint32 Flags = 0;
+            uint8 Face = 0;
+            uint8 AnimTier = 0;
+            uint32 TierTransStartTime = 0;
+            uint32 Elapsed = 0;
+            uint32 MoveTime = 0;
+            float JumpGravity = 0.0f;
+            uint32 SpecialTime = 0;
+            std::vector<G3D::Vector3> Points;
+            uint8 Mode = 0;
+            uint8 VehicleExitVoluntary = 0;
             ObjectGuid TransportGUID;
-            uint8 VehicleSeat           = 255;
+            uint8 VehicleSeat = 255;
             std::vector<G3D::Vector3> PackedDeltas;
             Optional<MonsterSplineFilter> SplineFilter;
-            float FaceDirection         = 0.0f;
+            float FaceDirection = 0.0f;
             ObjectGuid FaceGUID;
             G3D::Vector3 FaceSpot;
         };
@@ -137,7 +137,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid MoverGUID;
-            uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
+            uint32 SequenceIndex = 0;
             float Speed = 1.0f;
         };
 
@@ -170,18 +170,18 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid MoverGUID;
-            uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
+            uint32 SequenceIndex = 0;
         };
 
         class TransferPending final : public ServerPacket
         {
+        public:
             struct ShipTransferPending
             {
-                uint32 ID = 0;              ///< gameobject_template.entry of the transport the player is teleporting on
-                int32 OriginMapID = -1;     ///< Map id the player is currently on (before teleport)
+                uint32 ID = 0;
+                int32 OriginMapID = -1;
             };
 
-        public:
             TransferPending() : ServerPacket(SMSG_TRANSFER_PENDING, 16) { }
 
             WorldPacket const* Write() override;
@@ -225,15 +225,15 @@ namespace WorldPackets
 
         struct VehicleTeleport
         {
-            uint8 VehicleSeatIndex      = 0;
-            bool VehicleExitVoluntary   = false;
-            bool VehicleExitTeleport    = false;
+            uint8 VehicleSeatIndex = 0;
+            bool VehicleExitVoluntary = false;
+            bool VehicleExitTeleport = false;
         };
 
         class MoveTeleport final : public ServerPacket
         {
         public:
-            MoveTeleport() : ServerPacket(SMSG_MOVE_TELEPORT, 12+4+16+16+4) { }
+            MoveTeleport() : ServerPacket(SMSG_MOVE_TELEPORT, 12 + 4 + 16 + 16 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -249,9 +249,9 @@ namespace WorldPackets
         {
             ObjectGuid ID;
             G3D::Vector3 Direction;
-            uint32 TransportID  = 0;
-            float Magnitude     = 0;
-            uint8 Type          = 0;
+            uint32 TransportID = 0;
+            float Magnitude = 0;
+            uint8 Type = 0;
         };
 
         class MoveUpdateTeleport final : public ServerPacket
@@ -285,11 +285,65 @@ namespace WorldPackets
             int32 AckIndex = 0;
             int32 MoveTime = 0;
         };
+
+        struct MovementAck
+        {
+            MovementInfo movementInfo;
+            int32 AckIndex = 0;
+        };
+
+        class MovementAckMessage final : public ClientPacket
+        {
+        public:
+            MovementAckMessage(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+        };
+
+        class MovementSpeedAck final : public ClientPacket
+        {
+        public:
+            MovementSpeedAck(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+            float Speed = 0.0f;
+        };
+
+        class MoveUpdateKnockBack final : public ServerPacket
+        {
+        public:
+            MoveUpdateKnockBack() : ServerPacket(SMSG_MOVE_UPDATE_KNOCK_BACK) { }
+
+            WorldPacket const* Write() override;
+
+            MovementInfo* movementInfo = nullptr;
+        };
+
+        enum UpdateCollisionHeightReason : uint8
+        {
+            UPDATE_COLLISION_HEIGHT_SCALE = 0,
+            UPDATE_COLLISION_HEIGHT_MOUNT = 1,
+            UPDATE_COLLISION_HEIGHT_FORCE = 2
+        };
+
+        class MoveSetCollisionHeightAck final : public ClientPacket
+        {
+        public:
+            MoveSetCollisionHeightAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_SET_COLLISION_HEIGHT_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Data;
+            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
+            uint32 MountDisplayID = 0;
+            float Height = 1.0f;
+        };
     }
 }
-
-ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v);
-ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v);
 
 ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo);
 ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo);
@@ -301,5 +355,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFi
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFilter const& monsterSplineFilter);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline const& movementSpline);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonsterSpline const& movementMonsterSpline);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Movement::MovementAck& movementAck);
 
 #endif // MovementPackets_h__

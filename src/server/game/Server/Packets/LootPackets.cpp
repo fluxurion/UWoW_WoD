@@ -44,7 +44,7 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
         _worldPacket << item.Quantity;
         _worldPacket << item.LootItemType;
         _worldPacket << item.LootListID;
-        _worldPacket << item.Loot; // WorldPackets::Item::ItemInstance
+        _worldPacket << item.Loot;
     }
 
     for (LootCurrency const& currency : Currencies)
