@@ -25665,14 +25665,14 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
 }
 
 //! 6.0.3
-void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg)
+void Player::SendTransferAborted(uint32 mapid, uint16 reasonId, uint8 arg)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Player::SendTransferAborted  mapid %i, reason %i, arg %i", mapid, reason, arg);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Player::SendTransferAborted  mapid %i, reasonId %i, arg %i", mapid, reasonId, arg);
     WorldPacket data(SMSG_TRANSFER_ABORTED, 4+2);
     data << uint32(mapid);
     data << uint8(arg);
-    data.WriteBits(reason, 5);      // transfer abort reason
-        
+    data.WriteBits(reasonId, 5);      // transfer abort reason
+
     GetSession()->SendPacket(&data);
 }
 
