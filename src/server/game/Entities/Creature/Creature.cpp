@@ -185,7 +185,7 @@ m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_o
     m_LOSCheck_player = false;
     m_LOSCheck_creature = false;
 
-    TriggerJustRespawned = true;
+    TriggerJustRespawned = false;
     m_isTempWorldObject = false;
     bossid = 0;
     m_difficulty = 0;
@@ -776,8 +776,11 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     i_AI = ai ? ai : FactorySelector::selectAI(this);
     delete oldAI;
     IsAIEnabled = true;
-    if(i_AI)
+    if (i_AI)
+    {
         i_AI->InitializeAI();
+        AI()->JustRespawned();
+    }
     // Initialize vehicle
     if (GetVehicleKit() && !m_onVehicleAccessory)
         GetVehicleKit()->Reset();
