@@ -182,12 +182,6 @@ extern int main(int argc, char **argv)
         return 1;
     }
 
-    //if (sConfigMgr->GetBoolDefault("Log.Async.Enable", false))
-    {
-        // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
-        Log::instance(&_ioService);
-    }
-
     // Set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmHandle.Index);
 
@@ -238,6 +232,12 @@ extern int main(int argc, char **argv)
     sIpcContext->Initialize();
 
     sBattlenetServer.InitializeConnection();
+
+    //if (sConfigMgr->GetBoolDefault("Log.Async.Enable", false))
+    {
+        // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
+        Log::instance(&_ioService);
+    }
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon) ready...", _FULLVERSION);
 
