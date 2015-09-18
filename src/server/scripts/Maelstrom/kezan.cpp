@@ -857,9 +857,9 @@ class npc_steamwheedle_shark : public CreatureScript
     public:
         npc_steamwheedle_shark() : CreatureScript("npc_steamwheedle_shark") { }
 
-    struct npc_steamwheedle_sharkAI : public ScriptedAI
+        struct npc_steamwheedle_sharkAI : public npc_escortAI
     {
-        npc_steamwheedle_sharkAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_steamwheedle_sharkAI(Creature* creature) : npc_escortAI(creature) {}
 
         uint8 _ID;
         EventMap events;
@@ -899,11 +899,8 @@ class npc_steamwheedle_shark : public CreatureScript
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void WaypointReached(uint32 id)
         {
-            if(type != WAYPOINT_MOTION_TYPE)
-                return;
-
             if(final_point[_ID]==id)
             {
                 //quest event failed
@@ -918,6 +915,7 @@ class npc_steamwheedle_shark : public CreatureScript
 
         void UpdateAI(uint32 diff)
         {
+            npc_escortAI::UpdateAI(diff);
             events.Update(diff);
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -927,19 +925,76 @@ class npc_steamwheedle_shark : public CreatureScript
                     {
                         switch(me->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL))
                         {
-                            case SPELL_SUMMON:      _ID = 0; break;
-                            case SPELL_SUMMON_2:    _ID = 1; break;
-                            case SPELL_SUMMON_3:    _ID = 2; break;
-                            case SPELL_SUMMON_4:    _ID = 3; break;
-                            case SPELL_SUMMON_5:    _ID = 4; break;
-                            case SPELL_SUMMON_6:    _ID = 5; break;
-                            case SPELL_SUMMON_7:    _ID = 6; break;
-                            case SPELL_SUMMON_8:    _ID = 7; break;
+                            case SPELL_SUMMON:
+                                _ID = 0;
+                                AddWaypoint(0, -8289.612f, 1479.857f, 43.79533f, 0);
+                                AddWaypoint(1, -8288.619f, 1479.970f, 43.79533f, 5000);
+                                AddWaypoint(2, -8278.678f, 1481.103f, 43.17033f, 5000);
+                                AddWaypoint(3, -8268.736f, 1482.235f, 42.54533f, 5000);
+                                AddWaypoint(4, -8260.878f, 1483.131f, 42.17003f, 5000);
+                                break;
+                            case SPELL_SUMMON_2:
+                                _ID = 1;
+                                AddWaypoint(0, -8274.75f, 1484.469f, 42.92033f, 0);
+                                AddWaypoint(1, -8273.75f, 1484.46f, 42.92033f, 5000);
+                                AddWaypoint(2, -8264.75f, 1484.381f, 42.3981f, 5000);
+                                AddWaypoint(3, -8260.942f, 1484.347f, 42.1601f, 10000);
+                                break;
+                            case SPELL_SUMMON_3:
+                                _ID = 2;
+                                AddWaypoint(0, -8289.076f, 1487.813f, 43.92033f, 0);
+                                AddWaypoint(1, -8288.08f, 1487.72f, 43.92033f, 5000);
+                                AddWaypoint(2, -8281.107f, 1487.07f, 43.29533f, 5000);
+                                AddWaypoint(3, -8269.154f, 1485.957f, 42.67033f, 5000);
+                                AddWaypoint(4, -8261.186f, 1485.215f, 42.1481f, 5000);
+                                break;
+                            case SPELL_SUMMON_4:
+                                _ID = 3;
+                                AddWaypoint(0, -8282.017f, 1477.271f, 43.29533f, 0);
+                                AddWaypoint(1, -8281.041f, 1477.49f, 43.29533f, 5000);
+                                AddWaypoint(2, -8270.32f, 1479.907f, 42.67033f, 5000);
+                                AddWaypoint(3, -8261.549f, 1481.885f, 42.1481f, 5000);
+                                AddWaypoint(4, -8260.705f, 1482.075f, 42.1481f, 5000);
+                                break;
+                            case SPELL_SUMMON_5:
+                                _ID = 4;
+                                AddWaypoint(0, -8282.311f, 1490.609f, 43.54533f, 0);
+                                AddWaypoint(1, -8281.33f, 1490.41f, 43.54533f, 5000);
+                                AddWaypoint(2, -8273.486f, 1488.824f, 42.92033f, 5000);
+                                AddWaypoint(3, -8264.662f, 1487.04f, 42.3981f, 5000);
+                                AddWaypoint(4, -8260.743f, 1486.248f, 42.14829f, 5000);
+                                break;
+                            case SPELL_SUMMON_6:
+                                _ID = 5;
+                                AddWaypoint(0, -8296.1f, 1484.925f, 44.29533f, 0);
+                                AddWaypoint(1, -8295.1f, 1484.91f, 44.29533f, 5000);
+                                AddWaypoint(2, -8284.1f, 1484.749f, 43.54533f, 5000);
+                                AddWaypoint(3, -8274.1f, 1484.603f, 42.92033f, 5000);
+                                AddWaypoint(4, -8265.1f, 1484.471f, 42.3981f, 5000);
+                                AddWaypoint(5, -8260.942f, 1484.41f, 42.1481f, 5000);
+                                break;
+                            case SPELL_SUMMON_7:
+                                _ID = 6;
+                                AddWaypoint(0, -8295.637f, 1474.465f, 44.17033f, 0);
+                                AddWaypoint(1, -8294.66f, 1474.68f, 44.17033f, 5000);
+                                AddWaypoint(2, -8284.895f, 1476.818f, 43.54533f, 5000);
+                                AddWaypoint(3, -8274.152f, 1479.171f, 42.92033f, 5000);
+                                AddWaypoint(4, -8266.34f, 1480.882f, 42.3981f, 5000);
+                                AddWaypoint(5, -8260.713f, 1482.114f, 42.1481f, 5000);
+                                break;
+                            case SPELL_SUMMON_8:
+                                _ID = 7;
+                                AddWaypoint(0, -8295.589f, 1493.881f, 44.29533f, 0);
+                                AddWaypoint(1, -8294.611f, 1493.67f, 44.29533f, 5000);
+                                AddWaypoint(2, -8284.846f, 1491.561f, 43.67033f, 5000);
+                                AddWaypoint(3, -8275.08f, 1489.451f, 43.04533f, 5000);
+                                AddWaypoint(4, -8266.291f, 1487.553f, 42.5231f, 5000);
+                                AddWaypoint(5, -8260.721f, 1486.349f, 42.16659f, 5000);
+                                break;
                             default:
                                 return;
                         }
-                        me->LoadPath(wp_steamwheedle_shark[_ID]);
-                        me->GetMotionMaster()->MovePath(wp_steamwheedle_shark[_ID], false);
+                        Start(false, false);
                         break;
                     }
                     default:
