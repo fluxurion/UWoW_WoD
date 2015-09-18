@@ -142,7 +142,7 @@ INSERT INTO `db_script_string` (`entry`, `content_default`, `content_loc8`) VALU
 UPDATE  `quest_template` SET  `StartScript` =  '14071' WHERE  `Id` =14071;
 DELETE FROM `db_script_string` WHERE `entry` = 2000005500;
 INSERT INTO `db_script_string` (`entry`, `content_default`, `content_loc8`) VALUES 
-('2000005500', 'Используйте ключи к хотроду|TInterface\Icons\inv_misc_key_12.blp:32|t, чтобы сесть в автомобиль. Заедьте за своими друзьями: Иззи, Тузом и Гоббером.', 'Используйте ключи к хотроду|TInterface\\Icons\\inv_misc_key_12.blp:32|t, чтобы сесть в автомобиль. Заедьте за своими друзьями: Иззи, Тузом и Гоббером.');
+('2000005500', 'Используйте ключи к хотроду|TInterface/\Icons/\inv_misc_key_12.blp:32|t, чтобы сесть в автомобиль. Заедьте за своими друзьями: Иззи, Тузом и Гоббером.', 'Используйте ключи к хотроду|TInterface\\Icons\\inv_misc_key_12.blp:32|t, чтобы сесть в автомобиль. Заедьте за своими друзьями: Иззи, Тузом и Гоббером.');
 DELETE FROM `quest_start_scripts` WHERE `id` = 14071;
 INSERT INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES
 ('14071', '5', '0', '42', '0', '2000005500', '0', '0', '0', '0');
@@ -276,64 +276,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 UPDATE `creature_template` SET  `ScriptName` =  'npc_bilgewater_buccaneer' WHERE `entry` =37179;
 UPDATE `creature_template` SET  `ScriptName` =  'npc_steamwheedle_shark' WHERE `entry` =37114;
 -- wp for sharks
-DELETE FROM `waypoint_data` WHERE `id` = 371140;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `delay`) VALUES 
-('371140', '1', '-8289.612', '1479.857', '43.79533', '0'), 
-('371140', '2', '-8288.619', '1479.970', '43.79533', '5000'), 
-('371140', '3', '-8278.678', '1481.103', '43.17033', '5000'), 
-('371140', '4', '-8268.736', '1482.235', '42.54533', '5000'), 
-('371140', '5', '-8260.878', '1483.131', '42.17003', '5000');
-DELETE FROM `waypoint_data` WHERE `id` = 371141;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `delay`) VALUES 
-('371141', '1', '-8274.75', '1484.469', '42.92033', '0'), 
-('371141', '2', '-8273.75', '1484.46', '42.92033', '5000'), 
-('371141', '3', '-8264.75', '1484.381', '42.3981', '5000'), 
-('371141', '4', '-8260.942', '1484.347', '42.1601', '10000');
-DELETE FROM `waypoint_data` WHERE `id` = 371142;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `delay`) VALUES 
-('371142', '1', '-8289.076', '1487.813', '43.92033', '0'), 
-('371142', '2', '-8288.08', '1487.72', '43.92033', '5000'), 
-('371142', '3', '-8281.107', '1487.07', '43.29533', '5000'), 
-('371142', '4', '-8269.154', '1485.957', '42.67033', '5000'), 
-('371142', '5', '-8261.186', '1485.215', '42.1481', '5000');
-DELETE FROM `waypoint_data` WHERE `id` = 371143;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `delay`) VALUES 
-('371143', '1', '-8282.017', '1477.271', '43.29533', '0'), 
-('371143', '2', '-8281.041', '1477.49', '43.29533', '5000'), 
-('371143', '3', '-8270.32', '1479.907', '42.67033', '5000'), 
-('371143', '4', '-8261.549', '1481.885', '42.1481', '5000'), 
-('371143', '5', '-8260.705', '1482.075', '42.1481', '5000');
-DELETE FROM `waypoint_data` WHERE `id` = 371144;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `delay`) VALUES 
-('371144', '1', '-8282.311', '1490.609', '43.54533', '0'), 
-('371144', '2', '-8281.33', '1490.41', '43.54533', '5000'), 
-('371144', '3', '-8273.486', '1488.824', '42.92033', '5000'), 
-('371144', '4', '-8264.662', '1487.04', '42.3981', '5000'), 
-('371144', '5', '-8260.743', '1486.248', '42.14829', '5000');
-DELETE FROM `waypoint_data` WHERE `id` = 371145;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `delay`) VALUES 
-('371145', '1', '-8296.1', '1484.925', '44.29533', '0'), 
-('371145', '2', '-8295.1', '1484.91', '44.29533', '5000'), 
-('371145', '3', '-8284.1', '1484.749', '43.54533', '5000'), 
-('371145', '4', '-8274.1', '1484.603', '42.92033', '5000'), 
-('371145', '5', '-8265.1', '1484.471', '42.3981', '5000'), 
-('371145', '6', '-8260.942', '1484.41', '42.1481', '5000');
-DELETE FROM `waypoint_data` WHERE `id` = 371146;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `delay`) VALUES 
-('371146', '1', '-8295.637', '1474.465', '44.17033', '0'), 
-('371146', '2', '-8294.66', '1474.68', '44.17033', '5000'), 
-('371146', '3', '-8284.895', '1476.818', '43.54533', '5000'), 
-('371146', '4', '-8274.152', '1479.171', '42.92033', '5000'), 
-('371146', '5', '-8266.34', '1480.882', '42.3981', '5000'), 
-('371146', '6', '-8260.713', '1482.114', '42.1481', '5000');
-DELETE FROM `waypoint_data` WHERE `id` = 371147;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `delay`) VALUES 
-('371147', '1', '-8295.589', '1493.881', '44.29533', '0'), 
-('371147', '2', '-8294.611', '1493.67', '44.29533', '5000'), 
-('371147', '3', '-8284.846', '1491.561', '43.67033', '5000'), 
-('371147', '4', '-8275.08', '1489.451', '43.04533', '5000'), 
-('371147', '5', '-8266.291', '1487.553', '42.5231', '5000'), 
-('371147', '6', '-8260.721', '1486.349', '42.16659', '5000');
+
 -- sepll coords. for hack target type.
 DELETE FROM `spell_target_position` where id in (69971, 69976, 69977, 69978, 69979, 69980, 69981, 69982);
 INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES 
