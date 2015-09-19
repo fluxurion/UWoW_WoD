@@ -111,7 +111,10 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         if (CreatureLocale const* cl = sObjectMgr->GetCreatureLocale(response.CreatureID))
         {
             if (cl->Name.size() > GetSessionDbLocaleIndex() && !cl->Name[GetSessionDbLocaleIndex()].empty())
+            {
                 stats.Name[0] = cl->Name[GetSessionDbLocaleIndex()];
+                stats.NameAlt[0] = stats.Name[0];
+            }
 
             if (cl->SubName.size() > GetSessionDbLocaleIndex() && !cl->SubName[GetSessionDbLocaleIndex()].empty())
                 stats.Title = cl->SubName[GetSessionDbLocaleIndex()];
