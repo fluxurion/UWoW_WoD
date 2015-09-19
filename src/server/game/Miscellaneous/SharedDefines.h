@@ -1268,7 +1268,7 @@ enum SpellEffects
     SPELL_EFFECT_216                                = 216,
     SPELL_EFFECT_217                                = 217,
     SPELL_EFFECT_218                                = 218,
-    SPELL_EFFECT_219                                = 219,
+    SPELL_EFFECT_SUMMON_CONVERSATION                = 219,
     SPELL_EFFECT_220                                = 220,
     SPELL_EFFECT_221                                = 221,
     SPELL_EFFECT_222                                = 222,

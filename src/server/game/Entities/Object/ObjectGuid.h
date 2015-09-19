@@ -158,6 +158,9 @@ class ObjectGuid
         uint32 GetEntry() const { return uint32((_high >> 6) & 0x7FFFFF); }
         LowType GetCounter() const { return _low & UI64LIT(0x000000FFFFFFFFFF); }
 
+        uint64 GetHighPart() const { return _high; }
+        uint64 GetLowPart() const { return _low; }
+
         static LowType GetMaxCounter(HighGuid /*high*/)
         {
             return UI64LIT(0xFFFFFFFFFF);

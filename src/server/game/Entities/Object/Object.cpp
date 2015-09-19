@@ -184,6 +184,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         case HighGuid::Corpse:
         case HighGuid::DynamicObject:
         case HighGuid::AreaTrigger:
+        case HighGuid::Conversation:
             updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
         case HighGuid::Creature:
@@ -1668,6 +1669,9 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
             flags = AreaTriggerUpdateFieldFlags;
             if (ToAreaTrigger()->GetCasterGUID() == target->GetGUID())
                 visibleFlag |= UF_FLAG_OWNER;
+            break;
+        case TYPEID_CONVERSATION:
+            flags = ConversationUpdateFieldFlags;
             break;
         case TYPEID_OBJECT:
             break;

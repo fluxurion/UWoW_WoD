@@ -26,6 +26,7 @@
 #include "Corpse.h"
 #include "Object.h"
 #include "AreaTrigger.h"
+#include "Conversation.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
 #include "Player.h"
@@ -61,6 +62,7 @@ namespace Trinity
         void Visit(CreatureMapType &);
         void Visit(DynamicObjectMapType &);
         void Visit(AreaTriggerMapType &);
+        void Visit(ConversationMapType &);
     };
 
     struct PlayerRelocationNotifier : public VisibleNotifier
@@ -121,6 +123,7 @@ namespace Trinity
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
         void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
         void Visit(AreaTriggerMapType &m) { updateObjects<AreaTrigger>(m); }
+        void Visit(ConversationMapType &m) { updateObjects<Conversation>(m); }
     };
 
     struct MessageDistDeliverer
@@ -220,6 +223,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
@@ -241,6 +245,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
@@ -262,6 +267,7 @@ namespace Trinity
         void Visit(GameObjectMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
@@ -325,6 +331,15 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
                 return;
             for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+                if (itr->getSource()->InSamePhase(i_phaseMask))
+                    i_do(itr->getSource());
+        }
+
+        void Visit(ConversationMapType &m)
+        {
+            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
+                return;
+            for (ConversationMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
                 if (itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }

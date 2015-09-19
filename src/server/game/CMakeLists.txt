@@ -165,6 +165,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/AreaTrigger
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Creature
+  ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Conversation
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Corpse
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/DynamicObject
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/GameObject

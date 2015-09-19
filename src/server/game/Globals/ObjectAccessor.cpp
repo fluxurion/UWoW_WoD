@@ -60,6 +60,7 @@ WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid gui
         case HighGuid::DynamicObject: return GetDynamicObject(p, guid);
         case HighGuid::AreaTrigger:   return GetAreaTrigger(p, guid);
         case HighGuid::Corpse:        return GetCorpse(p, guid);
+        case HighGuid::Conversation:  return GetConversation(p, guid);
         default:                     return NULL;
     }
 }
@@ -97,6 +98,9 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid gui
         case HighGuid::AreaTrigger:
             if (typemask & TYPEMASK_AREATRIGGER)
                 return GetAreaTrigger(p, guid);
+        case HighGuid::Conversation:
+            if (typemask & TYPEMASK_CONVERSATION)
+                return GetConversation(p, guid);
         case HighGuid::Corpse:
             break;
         default:
@@ -124,6 +128,11 @@ DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, ObjectGuid
 AreaTrigger* ObjectAccessor::GetAreaTrigger(WorldObject const& u, ObjectGuid guid)
 {
     return GetObjectInMap(guid, u.GetMap(), (AreaTrigger*)NULL);
+}
+
+Conversation* ObjectAccessor::GetConversation(WorldObject const& u, ObjectGuid guid)
+{
+    return GetObjectInMap(guid, u.GetMap(), (Conversation*)NULL);
 }
 
 Unit* ObjectAccessor::GetUnit(WorldObject const& u, ObjectGuid guid)
@@ -424,6 +433,7 @@ template class HashMapHolder<DynamicObject>;
 template class HashMapHolder<Creature>;
 template class HashMapHolder<Corpse>;
 template class HashMapHolder<Transport>;
+template class HashMapHolder<Conversation>;
 
 template Player* ObjectAccessor::GetObjectInWorld<Player>(uint32 mapid, float x, float y, ObjectGuid guid, Player* /*fake*/);
 template Pet* ObjectAccessor::GetObjectInWorld<Pet>(uint32 mapid, float x, float y, ObjectGuid guid, Pet* /*fake*/);

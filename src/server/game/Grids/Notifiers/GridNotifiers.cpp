@@ -137,6 +137,15 @@ void VisibleChangesNotifier::Visit(AreaTriggerMapType &m)
                     caster->UpdateVisibilityOf(&i_object);
 }
 
+void VisibleChangesNotifier::Visit(ConversationMapType &m)
+{
+    for (ConversationMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        if (iter->getSource()->GetCasterGUID().IsPlayer())
+            if (Player* caster = (Player*)iter->getSource()->GetCaster())
+                if (caster->m_seer == iter->getSource())
+                    caster->UpdateVisibilityOf(&i_object);
+}
+
 inline void CreatureUnitRelocationWorker(Creature* c, Unit* u)
 {
     if (!u->isAlive() || !c->isAlive() || c == u || u->isInFlight())
@@ -405,3 +414,4 @@ bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Creature* u)
 template void ObjectUpdater::Visit<GameObject>(GameObjectMapType &);
 template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType &);
 template void ObjectUpdater::Visit<AreaTrigger>(AreaTriggerMapType &);
+template void ObjectUpdater::Visit<Conversation>(ConversationMapType &);

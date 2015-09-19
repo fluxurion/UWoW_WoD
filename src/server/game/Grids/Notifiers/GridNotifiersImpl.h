@@ -187,6 +187,29 @@ void Trinity::WorldObjectSearcher<Check>::Visit(AreaTriggerMapType &m)
 }
 
 template<class Check>
+void Trinity::WorldObjectSearcher<Check>::Visit(ConversationMapType &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
+        return;
+
+    // already found
+    if (i_object)
+        return;
+
+    for (ConversationMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+    {
+        if (!itr->getSource()->InSamePhase(i_phaseMask))
+            continue;
+
+        if (i_check(itr->getSource()))
+        {
+            i_object = itr->getSource();
+            return;
+        }
+    }
+}
+
+template<class Check>
 void Trinity::WorldObjectLastSearcher<Check>::Visit(GameObjectMapType &m)
 {
     if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_GAMEOBJECT))
@@ -283,6 +306,22 @@ void Trinity::WorldObjectLastSearcher<Check>::Visit(AreaTriggerMapType &m)
 }
 
 template<class Check>
+void Trinity::WorldObjectLastSearcher<Check>::Visit(ConversationMapType &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
+        return;
+
+    for (ConversationMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+    {
+        if (!itr->getSource()->InSamePhase(i_phaseMask))
+            continue;
+
+        if (i_check(itr->getSource()))
+            i_object = itr->getSource();
+    }
+}
+
+template<class Check>
 void Trinity::WorldObjectListSearcher<Check>::Visit(PlayerMapType &m)
 {
     if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_PLAYER))
@@ -344,6 +383,17 @@ void Trinity::WorldObjectListSearcher<Check>::Visit(AreaTriggerMapType &m)
         return;
 
     for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+        if (i_check(itr->getSource()))
+            i_objects.push_back(itr->getSource());
+}
+
+template<class Check>
+void Trinity::WorldObjectListSearcher<Check>::Visit(ConversationMapType &m)
+{
+    if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
+        return;
+
+    for (ConversationMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if (i_check(itr->getSource()))
             i_objects.push_back(itr->getSource());
 }

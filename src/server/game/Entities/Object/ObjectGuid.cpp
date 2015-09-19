@@ -254,3 +254,4 @@ template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::LootObject>::Generate
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::AreaTrigger>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Transport>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::BattlePet>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Conversation>::Generate();

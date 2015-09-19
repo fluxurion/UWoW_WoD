@@ -1,0 +1,17 @@
+CREATE TABLE `conversation_creature`(  
+  `entry` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+  `id` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `creatureId` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+  `creatureGuid` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`entry`, `id`)
+) ENGINE=MYISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE `conversation_data` (
+  `entry` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `id` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `textId` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `unk1` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `unk2` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `flags` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  PRIMARY KEY (`entry`,`id`)
+) ENGINE=MYISAM DEFAULT CHARSET=utf8;
