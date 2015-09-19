@@ -1143,11 +1143,11 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
-        // We do not allow players to use the hidden objects.
-        if (playerUser && (!isSpawned() || HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE)))
+        if (sScriptMgr->OnGossipHello(playerUser, this))
             return;
 
-        if (sScriptMgr->OnGossipHello(playerUser, this))
+        // We do not allow players to use the hidden objects.
+        if (playerUser && (!isSpawned() || HasFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE)))
             return;
     }
 
