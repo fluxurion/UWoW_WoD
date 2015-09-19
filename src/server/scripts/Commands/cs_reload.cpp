@@ -80,6 +80,7 @@ public:
             { "command",                      SEC_ADMINISTRATOR, true,  &HandleReloadCommandCommand,                    "", NULL },
             { "conditions",                   SEC_ADMINISTRATOR, true,  &HandleReloadConditions,                        "", NULL },
             { "config",                       SEC_ADMINISTRATOR, true,  &HandleReloadConfigCommand,                     "", NULL },
+            { "conversation",                 SEC_ADMINISTRATOR, true,  &HandleReloadConversation,                      "", NULL },
             { "creature_area",                SEC_ADMINISTRATOR, true,  &HandleReloadCreatureArea,                      "", NULL },
             { "creature_text",                SEC_ADMINISTRATOR, true,  &HandleReloadCreatureText,                      "", NULL },
             { "creature_involvedrelation",    SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestInvRelationsCommand,  "", NULL },
@@ -1376,6 +1377,13 @@ public:
     {
         sObjectMgr->LoadWorldVisibleDistance();
         handler->SendGlobalGMSysMessage("DB tables `world_visible_distance` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadConversation(ChatHandler* handler, const char* /*args*/)
+    {
+        sObjectMgr->LoadConversationData();
+        handler->SendGlobalGMSysMessage("DB tables `conversation_data` and `conversation_creature` reloaded.");
         return true;
     }
 };
