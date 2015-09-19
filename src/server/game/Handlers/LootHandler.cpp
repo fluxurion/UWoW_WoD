@@ -38,27 +38,14 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_ITEM");
     Player* player = GetPlayer();
     Loot* loot = NULL;
-    Loot* tmp_loot = NULL;
-    ObjectGuid lootObjectGUID;
 
     for (WorldPackets::Loot::LootRequest const& req : packet.Loot)
     {
-        tmp_loot = sLootMgr->GetLoot(req.Object);
         ObjectGuid lguid = req.Object;
-        lootObjectGUID.Clear();
-        if (tmp_loot)
-            lootObjectGUID = tmp_loot->objGuid;
 
-        if (!lootObjectGUID)
+        if (lguid.IsGameObject())
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_ITEM can't find owner of loot %u", lguid.GetCounter());
-            player->SendLootRelease(lguid);
-            return;
-        }
-
-        if (lootObjectGUID.IsGameObject())
-        {
-            GameObject* go = player->GetMap()->GetGameObject(lootObjectGUID);
+            GameObject* go = player->GetMap()->GetGameObject(lguid);
 
             // not check distance for GO in case owned GO (fishing bobber case, for example) or Fishing hole GO
             if (!go || ((go->GetOwnerGUID() != _player->GetGUID() && go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE) && !go->IsWithinDistInMap(_player, INTERACTION_DISTANCE)))
@@ -74,9 +61,9 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
             //sLog->outDebug(LOG_FILTER_LOOT, "HandleAutostoreLootItemOpcode lguid %u, pguid %u lguid %u", lguid, player->personalLoot.GetGUID(), loot->GetGUID());
         }
-        else if (lootObjectGUID.IsItem())
+        else if (lguid.IsItem())
         {
-            Item* pItem = player->GetItemByGuid(lootObjectGUID);
+            Item* pItem = player->GetItemByGuid(lguid);
 
             if (!pItem)
             {
@@ -86,9 +73,9 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
             loot = &pItem->loot;
         }
-        else if (lootObjectGUID.IsCorpse())
+        else if (lguid.IsCorpse())
         {
-            Corpse* bones = ObjectAccessor::GetCorpse(*player, lootObjectGUID);
+            Corpse* bones = ObjectAccessor::GetCorpse(*player, lguid);
             if (!bones)
             {
                 player->SendLootRelease(lguid);
@@ -112,7 +99,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
         }
         else
         {
-            Creature* creature = GetPlayer()->GetMap()->GetCreature(lootObjectGUID);
+            Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
             bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
 
@@ -122,7 +109,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
 
             if (!lootAllowed || !creature->IsWithinDistInMap(looter, LOOT_DISTANCE))
             {
-                player->SendLootError(lootObjectGUID, lguid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
+                player->SendLootError(lguid, lguid, lootAllowed ? LOOT_ERROR_TOO_FAR : LOOT_ERROR_DIDNT_KILL);
                 return;
             }
 

@@ -10521,11 +10521,20 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
         }
     }
 
+    //From WOD when exist personal loot send 2 package looting
+    /*if(pLoot)
+    {
+        //Personal loot send first
+        WorldPacket data(SMSG_LOOT_RESPONSE);
+        data << LootView(*pLoot, this, loot_type, guid, ALL_PERMISSION, groupThreshold, pool);
+        SendDirectMessage(&data);
+    }*/
+
     //! 6.0.3
     if (permission != NONE_PERMISSION)
     {
         WorldPackets::Loot::LootResponse packet;
-        packet.LootObj = loot->GetGUID();
+        packet.LootObj = loot->personal ? GetGUID() : loot->GetGUID();
         packet.Owner = guid;
         packet.LootMethod = loot_type;
         if (!GetGroup())
@@ -27663,7 +27672,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         currency->is_looted = true;
         --loot->unlootedCount;
         if(loot->personal)
-            SendDisplayToast(item->itemid, 3, 0/*loot->bonusLoot*/, item->count, 2);
+            SendDisplayToast(item->itemid, 3, 0/*loot->bonusLoot*/, item->count, 1);
         return;
     }
 
@@ -27715,7 +27724,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
                     guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->itemid);
 
             if (loot->personal && proto->Quality >= uint32(ITEM_QUALITY_UNCOMMON))
-                SendDisplayToast(item->itemid, 1, 0/*loot->bonusLoot*/, item->count, 1, newitem);
+                SendDisplayToast(item->itemid, 1, 0/*loot->bonusLoot*/, item->count, 2, newitem);
         }
 
         SendNewItem(newitem, uint32(item->count), false, false, true, NULL, loot->bonusLoot);

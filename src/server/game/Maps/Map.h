@@ -382,7 +382,7 @@ class Map : public GridRefManager<NGridType>
         bool IsLfr() const { return i_difficulty == DIFFICULTY_LFR || i_difficulty == FLEXIBLE_DIFFICULTY || i_difficulty == DIFFICULTY_HC_SCENARIO || i_difficulty == DIFFICULTY_N_SCENARIO; }
         bool isChallenge() const { return i_difficulty == DIFFICULTY_CHALLENGE; }
         bool IsLfrFlex() const { return i_difficulty == DIFFICULTY_LFR || i_difficulty == FLEXIBLE_DIFFICULTY; }
-        bool IsNeedRecalc() const { return i_difficulty == FLEXIBLE_DIFFICULTY; }
+        bool IsNeedRecalc() const;
         bool IsScenario() const { return i_mapEntry && i_mapEntry->IsScenario(); }
         bool IsRaidOrHeroicDungeon() const { return IsRaid() || IsHeroic(); }
         bool IsHeroic() const;

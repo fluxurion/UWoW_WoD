@@ -2736,6 +2736,14 @@ bool Map::IsHeroic() const
     return false;
 }
 
+bool Map::IsNeedRecalc() const
+{
+    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
+        return difficulty->m_minPlayers != difficulty->m_maxPlayers;
+    return false;
+}
+
+
 uint32 InstanceMap::GetMaxPlayers() const
 {
     if (MapDifficulty const* mapDiff = GetMapDifficulty())

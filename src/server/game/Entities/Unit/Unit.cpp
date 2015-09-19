@@ -24174,26 +24174,41 @@ void Unit::SendDisplayToast(uint32 entry, uint8 hasDisplayToastMethod, bool isBo
 
     ObjectGuid guid = GetGUID();
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::SendDisplayToast entry %i, hasDisplayToastMethod %i, isBonusRoll %i count %i type %i", entry, hasDisplayToastMethod, isBonusRoll, count, type);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::SendDisplayToast entry %i, hasDisplayToastMethod %i, isBonusRoll %i count %i type %i", entry, hasDisplayToastMethod, isBonusRoll, count, type);
 
     WorldPacket data(SMSG_DISPLAY_TOAST);
+    data << uint32(count); // count
+    data << uint8(hasDisplayToastMethod); // DisplayToastMethod - это принимает значения 1,2,3, 1 и 3 клиент запускает эвенты на лут и бонус лут ролл (EVENT_SHOW_LOOT_TOAST/EVENT_BONUS_ROLL_RESULT, на 2 - запускает чето связанное с батлпетами (EVENT_PET_BATTLE_LOOT_RECEIVED)
     data.WriteBit(isBonusRoll);
     data.WriteBits(type, 2);
-    data.WriteBit(!hasDisplayToastMethod);
-    if (type == 1)
+
+    if (type == 2)
     {
         data.WriteBit(0); // Mailed?
-        data << uint32(0); // lootSpecID
-        data << uint32(item->GetUpgradeId()); // upgradeId
-        data << uint32(0); // Unk Int32_3
-        data << uint32(GetItemDisplayId(entry, 0)); // displayid
-        data << uint32(item->GetItemSuffixFactor()); // Suffix factor
-        data << uint32(entry); // itemId
+
+        data << uint32(entry); // ItemID
+        data << uint32(0); // RandomPropertiesSeed
+        data << uint32(item->GetItemSuffixFactor()); // RandomPropertiesID
+        data.WriteBit(false); // HasItemBonus
+        /*{
+            packet.ReadByte("Context", indexes);
+
+            var bonusCount = packet.ReadUInt32();
+            for (var j = 0; j < bonusCount; ++j)
+                packet.ReadUInt32("BonusListID", indexes, j);
+        }*/
+        data.WriteBit(false); // HasModifications
+        /*{
+            var mask = packet.ReadUInt32();
+            for (var j = 0; mask != 0; mask >>= 1, ++j)
+                if ((mask & 1) != 0)
+                     packet.ReadInt32(((ItemModifier)j).ToString(), indexes);
+        }*/
+
+        data << uint32(0); // SpecializationID
+        data << uint32(0); // ItemQuantity
     }
-    data << uint32(count); // count
-    if (hasDisplayToastMethod)
-        data << uint8(hasDisplayToastMethod); // DisplayToastMethod - это принимает значения 1,2,3, 1 и 3 клиент запускает эвенты на лут и бонус лут ролл (EVENT_SHOW_LOOT_TOAST/EVENT_BONUS_ROLL_RESULT, на 2 - запускает чето связанное с батлпетами (EVENT_PET_BATTLE_LOOT_RECEIVED)
-    if (type == 2)
+    if (type == 1)
         data << uint32(entry); // CurrencyID
 
     ToPlayer()->GetSession()->SendPacket(&data);

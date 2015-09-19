@@ -1392,7 +1392,7 @@ float Creature::_GetHealthModPersonal(uint32 &count)
         case CREATURE_ELITE_RARE:
         {
             count -= 1; //first player
-            return 0.0f; //From WOD hp increment 70% by player
+            return 0.7f; //From WOD hp increment 70% by player
         }
         case CREATURE_ELITE_WORLDBOSS:
         {
@@ -2801,7 +2801,7 @@ bool Creature::IsDungeonBoss() const
 
 bool Creature::IsPersonalLoot() const
 {
-    return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_PERSONAL_LOOT);
+    return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_PERSONAL_LOOT) || GetPersonalLootId();
 }
 
 bool Creature::IsAutoLoot() const

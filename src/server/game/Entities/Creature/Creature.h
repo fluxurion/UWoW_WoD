@@ -939,6 +939,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void SetVehicleAccessoryInit(bool r) { m_onVehicleAccessory = r; }
 
         uint32 GetVignetteId() const { return m_creatureInfo ? m_creatureInfo->VignetteId : 0; }
+        uint32 GetPersonalLootId() const { return m_creatureInfo ? m_creatureInfo->personalloot : 0; }
 
         uint32 getCurrentUpdateAreaID() const { return m_areaUpdateId; }
         uint32 getCurrentUpdateZoneID() const { return m_zoneUpdateId; }
