@@ -8876,7 +8876,9 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
                 return SPELL_CAST_OK;
             }
             case LOCK_KEY_SPELL:
-                if ((lockInfo->Index[j] == 143917 && m_caster->HasAura(146589)) || lockInfo->Index[j] == 144229)
+                if (lockInfo->Index[j] == 143917 && m_caster->HasAura(146589))
+                    return SPELL_CAST_OK;
+                if (lockInfo->Index[j] == m_spellInfo->Id && !lockInfo->Action[j]) // May be bug? analyse this
                     return SPELL_CAST_OK;
                 reqKey = true;
                 break;
