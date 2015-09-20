@@ -89,6 +89,8 @@ enum WorldTimers
     WUPDATE_DELETECHARS,
     WUPDATE_PINGDB,
     WUPDATE_GUILDSAVE,
+    WUPDATE_BLACKMARKET,
+
     WUPDATE_COUNT
 };
 
@@ -196,6 +198,8 @@ enum WorldBoolConfigs
     CONFIG_FUN_OPTION_ENABLED,
     CONFIG_PET_BATTLES_ENABLED,
     CONFIG_CHECK_MT_SESSION,
+    CONFIG_BLACKMARKET_ENABLED,
+
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -390,6 +394,9 @@ enum WorldIntConfigs
     CONFIG_WORD_FILTER_MUTE_DURATION,
     CONFIG_MAX_SKILL_VALUE,
     CONFIG_TRANSFER_GOLD_LIMIT,
+    CONFIG_BLACKMARKET_MAXAUCTIONS,
+    CONFIG_BLACKMARKET_UPDATE_PERIOD,
+
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -729,10 +736,10 @@ class World
         void SendWorldText(int32 string_id, ...);
         void SendGlobalText(const char* text, WorldSession* self);
         void SendGMText(int32 string_id, ...);
-        void SendGlobalMessage(WorldPacket* packet, WorldSession* self = 0, uint32 team = 0);
-        void SendGlobalGMMessage(WorldPacket* packet, WorldSession* self = 0, uint32 team = 0);
-        void SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self = 0, uint32 team = 0);
-        void SendZoneText(uint32 zone, const char *text, WorldSession* self = 0, uint32 team = 0);
+        void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
+        void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
+        void SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
+        void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, uint32 team = 0);
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
 
         /// Are we in the middle of a shutdown?
@@ -921,6 +928,7 @@ class World
         IntervalTimer m_timers[WUPDATE_COUNT];
         time_t mail_timer;
         time_t mail_timer_expires;
+        time_t blackmarket_timer;
         uint32 m_updateTime, m_updateTimeSum;
         uint32 m_updateTimeCount;
         uint32 m_currentTime;

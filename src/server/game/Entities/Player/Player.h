@@ -1277,7 +1277,7 @@ class TradeData
     public:                                                 // constructors
         TradeData(Player* player, Player* trader) :
             m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false),
-            m_money(0), m_spell(0), m_spellCastItem() { memset(m_items, 0, TRADE_SLOT_COUNT * sizeof(uint64)); }
+            m_money(0), m_spell(0), m_spellCastItem(), m_clientStateIndex(1), m_serverStateIndex(1) { memset(m_items, 0, TRADE_SLOT_COUNT * sizeof(uint64)); }
 
         Player* GetTrader() const { return m_trader; }
         TradeData* GetTraderData() const;
@@ -1302,6 +1302,12 @@ class TradeData
         bool IsInAcceptProcess() const { return m_acceptProccess; }
         void SetInAcceptProcess(bool state) { m_acceptProccess = state; }
 
+        uint32 GetClientStateIndex() const { return m_clientStateIndex; }
+        void UpdateClientStateIndex() { ++m_clientStateIndex; }
+
+        uint32 GetServerStateIndex() const { return m_serverStateIndex; }
+        void UpdateServerStateIndex() { m_serverStateIndex = rand32(); }
+
     private:                                                // internal functions
 
         void Update(bool for_trader = true);
@@ -1320,6 +1326,9 @@ class TradeData
         ObjectGuid m_spellCastItem;                         // applied spell casted by item use
 
         ObjectGuid m_items[TRADE_SLOT_COUNT];               // traded items from m_player side including non-traded slot
+
+        uint32     m_clientStateIndex;
+        uint32     m_serverStateIndex;
 };
 
 struct ResurrectionData
@@ -2513,7 +2522,12 @@ class Player : public Unit, public GridObject<Player>
         void UpdateMasteryAuras();
         void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
-        void UpdatePvPPower();
+        void UpdateVersality();
+        void UpdateMultistrike();
+        void UpdateReadiness();
+        void UpdateCRSpeed();
+        void UpdateLifesteal();
+        void UpdateAvoidance();
 
         void SetLootSpecID(uint32 spec) { SetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID, spec); }
         uint32 GetFieldLootSpecID() const { return GetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID); }
@@ -2563,7 +2577,7 @@ class Player : public Unit, public GridObject<Player>
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
         void SendResetInstanceFailed(uint32 reason, uint32 MapId);
-        void SendResetFailedNotify(uint32 mapid);
+        void SendResetFailedNotify();
 
         bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false, bool stop = false);
         bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }

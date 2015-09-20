@@ -1072,7 +1072,7 @@ void WorldSession::ProcessQueryCallbacks()
         HandlePlayerLogin((LoginQueryHolder*)param);
     }
 
-    //! HandleAddFriendOpcode
+    //! HandleAddFriend
     if (_addFriendCallback.IsReady())
     {
         std::string param = _addFriendCallback.GetParam();

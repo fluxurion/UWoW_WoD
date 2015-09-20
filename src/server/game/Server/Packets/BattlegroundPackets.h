@@ -621,6 +621,16 @@ namespace WorldPackets
 
             std::vector<OpponentSpecData> Data;
         };
+
+        class QueueRequest final : public ClientPacket
+        {
+        public:
+            QueueRequest(WorldPacket&& packet) : ClientPacket(CMSG_BF_MGR_QUEUE_REQUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint64 QueueID = 0;
+        };
     }
 }
 

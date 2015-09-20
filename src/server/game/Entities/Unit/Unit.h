@@ -470,7 +470,6 @@ enum UnitMods
     UNIT_MOD_RAGE,
     UNIT_MOD_FOCUS,
     UNIT_MOD_ENERGY,
-    UNIT_MOD_UNUSED,                                        // Old UNIT_MOD_HAPPINESS
     UNIT_MOD_RUNE,
     UNIT_MOD_RUNIC_POWER,
     UNIT_MOD_SOUL_SHARDS,
@@ -489,6 +488,7 @@ enum UnitMods
     UNIT_MOD_DAMAGE_MAINHAND,
     UNIT_MOD_DAMAGE_OFFHAND,
     UNIT_MOD_DAMAGE_RANGED,
+
     UNIT_MOD_END,
     // synonyms
     UNIT_MOD_STAT_START = UNIT_MOD_STAT_STRENGTH,
@@ -598,8 +598,7 @@ enum WeaponAttackType
 // Last check : 5.0.5
 enum CombatRating
 {
-    CR_WEAPON_SKILL                     = 0,
-    CR_DEFENSE_SKILL                    = 1,    // Removed in 4.0.1
+    CR_DEFENSE_SKILL                    = 1,
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
     CR_BLOCK                            = 4,
@@ -609,25 +608,25 @@ enum CombatRating
     CR_CRIT_MELEE                       = 8,
     CR_CRIT_RANGED                      = 9,
     CR_CRIT_SPELL                       = 10,
-    CR_HIT_TAKEN_MELEE                  = 11,   // Deprecated since Cataclysm
-    CR_HIT_TAKEN_RANGED                 = 12,   // Deprecated since Cataclysm
-    CR_HIT_TAKEN_SPELL                  = 13,   // Deprecated since Cataclysm
+    CR_MULTISTRIKE                      = 11,
+    CR_READINESS                        = 12,
+    CR_SPEED                            = 13,
     CR_RESILIENCE_CRIT_TAKEN            = 14,
     CR_RESILIENCE_PLAYER_DAMAGE_TAKEN   = 15,
-    CR_CRIT_TAKEN_SPELL                 = 16,   // Deprecated since Cataclysm
+    CR_LIFESTEAL                        = 16,
     CR_HASTE_MELEE                      = 17,
     CR_HASTE_RANGED                     = 18,
     CR_HASTE_SPELL                      = 19,
-    CR_WEAPON_SKILL_MAINHAND            = 20,
-    CR_WEAPON_SKILL_OFFHAND             = 21,
+    CR_AVOIDANCE                        = 20,
     CR_WEAPON_SKILL_RANGED              = 22,
     CR_EXPERTISE                        = 23,
-    CM_ARMOR_PENETRATION                = 24,
+    CR_ARMOR_PENETRATION                = 24,
     CR_MASTERY                          = 25,
-    CR_PVP_POWER                        = 26,
-};
+    CR_VERSATILITY_DAMAGE_DONE          = 28,
+    CR_VERSATILITY_DAMAGE_TAKEN         = 30,
 
-#define MAX_COMBAT_RATING         27
+    MAX_COMBAT_RATING
+};
 
 enum DamageEffectType
 {
@@ -739,7 +738,7 @@ enum NPCFlags
     UNIT_NPC_FLAG_TRANSMOGRIFIER        = 0x10000000,       // 28 transmogrification
     UNIT_NPC_FLAG_VAULTKEEPER           = 0x20000000,       // 29 void storage
     UNIT_NPC_FLAG_WILD_BATTLE_PET       = 0x40000000,       // 30 wild battle pet
-    UNIT_NPC_FLAG_UNK_31                = 0x80000000,       // 31 cause client to send 0x077E opcode on rightclick
+    UNIT_NPC_FLAG_BLACK_MARKET          = 0x80000000,       // 31 black market
 };
 
 enum NPCFlags2
@@ -2298,7 +2297,7 @@ class Unit : public WorldObject
         int32 SpellBaseHealingBonusTaken(SpellSchoolMask schoolMask);
         uint32 SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, uint32 healamount, DamageEffectType damagetype, SpellEffIndex effIndex = EFFECT_0, uint32 stack = 1);
         uint32 SpellHealingBonusTaken(Unit* caster, SpellInfo const *spellProto, uint32 healamount, DamageEffectType damagetype, SpellEffIndex effIndex = EFFECT_0, uint32 stack = 1);
-        float CalcPvPPower(Unit* target, float amount, bool isHeal = false);
+        float CalcVersalityBonus(Unit* target, float amount);
 
         uint32 MeleeDamageBonusDone(Unit *pVictim, uint32 damage, WeaponAttackType attType, SpellInfo const *spellProto = NULL, uint32 effectMask = 0);
         uint32 MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage,WeaponAttackType attType, SpellInfo const *spellProto = NULL);

@@ -30,9 +30,9 @@
 #include "ObjectMgr.h"
 #include "DuelPackets.h"
 
-void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse)
+void WorldSession::HandleDuelResponse(WorldPackets::Duel::DuelResponse& packet)
 {
-    if (duelResponse.Accepted)
+    if (packet.Accepted)
         HandleDuelAccepted();
     else
         HandleDuelCancelled();
@@ -81,35 +81,35 @@ void WorldSession::HandleDuelAccepted()
 
 void WorldSession::HandleDuelCancelled()
 {
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
     // no duel requested
-    if (!GetPlayer()->duel)
+    if (!player->duel)
         return;
 
     // player surrendered in a duel using /forfeit
-    if (GetPlayer()->duel->startTime != 0)
+    if (player->duel->startTime != 0)
     {
-        GetPlayer()->CombatStopWithPets(true);
-        if (GetPlayer()->duel->opponent)
-            GetPlayer()->duel->opponent->CombatStopWithPets(true);
+        player->CombatStopWithPets(true);
+        if (player->duel->opponent)
+            player->duel->opponent->CombatStopWithPets(true);
 
-        GetPlayer()->CastSpell(GetPlayer(), 7267, true);    // beg
-        GetPlayer()->DuelComplete(DUEL_WON);
+        player->CastSpell(GetPlayer(), 7267, true);    // beg
+        player->DuelComplete(DUEL_WON);
         return;
     }
 
-    GetPlayer()->DuelComplete(DUEL_INTERRUPTED);
+    player->DuelComplete(DUEL_INTERRUPTED);
 }
 
-//! 6.0.3
-void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
+void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
 {
-    ObjectGuid guid;
-    recvPacket >> guid;
-
     Player* caster = GetPlayer();
     Unit* unitTarget = NULL;
 
-    unitTarget = sObjectAccessor->GetUnit(*caster, guid);
+    unitTarget = sObjectAccessor->GetUnit(*caster, packet.TargetGUID);
 
     if (!unitTarget || caster->GetTypeId() != TYPEID_PLAYER || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -163,14 +163,12 @@ void WorldSession::HandleSendDuelRequest(WorldPacket& recvPacket)
     map->AddToMap(pGameObj);
     //END
 
-    // Send request
-    WorldPacket data(SMSG_DUEL_REQUESTED);
-    data << pGameObj->GetGUID();
-    data << caster->GetGUID();
-    data << GetBattlenetAccountGUID();
-
-    caster->GetSession()->SendPacket(&data);
-    target->GetSession()->SendPacket(&data);
+    WorldPackets::Duel::DuelRequested duelRequested;
+    duelRequested.ArbiterGUID = pGameObj->GetGUID();
+    duelRequested.RequestedByGUID = caster->GetGUID();
+    duelRequested.RequestedByWowAccount = GetBattlenetAccountGUID();
+    caster->GetSession()->SendPacket(duelRequested.Write());
+    target->GetSession()->SendPacket(duelRequested.Write());
 
     // create duel-info
     DuelInfo* duel   = new DuelInfo;

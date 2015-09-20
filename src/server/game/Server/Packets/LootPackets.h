@@ -142,6 +142,51 @@ namespace WorldPackets
 
             ObjectGuid LootObj;
         };
+
+        class LootRoll final : public ClientPacket
+        {
+        public:
+            LootRoll(WorldPacket&& packet) : ClientPacket(CMSG_LOOT_ROLL, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid LootObj;
+            uint8 LootListID = 0;
+            uint8 RollType = 0;
+        };
+
+        class LootReleaseResponse final : public ServerPacket
+        {
+        public:
+            LootReleaseResponse() : ServerPacket(SMSG_LOOT_RELEASE, 32) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            ObjectGuid Owner;
+        };
+
+        class LootList final : public ServerPacket
+        {
+        public:
+            LootList() : ServerPacket(SMSG_LOOT_LIST, 3 * 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Owner;
+            Optional<ObjectGuid> Master;
+            Optional<ObjectGuid> RoundRobinWinner;
+        };
+
+        class SetLootSpecialization final : public ClientPacket
+        {
+        public:
+            SetLootSpecialization(WorldPacket&& packet) : ClientPacket(CMSG_SET_LOOT_SPECIALIZATION, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SpecID = 0;
+        };
     }
 }
 

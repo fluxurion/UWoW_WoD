@@ -33,6 +33,7 @@
 #include "GameObjectModel.h"
 #include "DynamicTree.h"
 #include "SpellAuraEffects.h"
+#include "GameObjectPackets.h"
 
 GameObject::GameObject() : WorldObject(false), m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL), 
     m_manual_anim(false), m_respawnTime(0), m_respawnDelayTime(300),
@@ -1292,12 +1293,7 @@ void GameObject::Use(Unit* user)
                 Player* player = user->ToPlayer();
 
                 if (info->goober.pageID)                    // show page...
-                {
-                    //! 6.0.3
-                    WorldPacket data(SMSG_PAGE_TEXT, 8 + 1);
-                    data << GetGUID();
-                    player->GetSession()->SendPacket(&data);
-                }
+                    player->GetSession()->SendPacket(WorldPackets::GameObject::PageText(GetGUID()).Write());
                 else if (info->goober.gossipID)
                 {
                     player->PrepareGossipMenu(this, info->goober.gossipID);
@@ -1827,14 +1823,11 @@ void GameObject::SendCustomAnim(uint32 anim)
 
 void GameObject::SendGameObjectActivateAnimKit(uint32 animKitID, bool maintain)
 {
-    ObjectGuid objectGUID = GetGUID();
-    WorldPacket data(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4);
-
-    data.WriteBit(maintain);
-    data << objectGUID;
-    data << animKitID;
-
-    SendMessageToSet(&data, true);
+    WorldPackets::GameObject::GameObjectActivateAnimKit animKit;
+    animKit.ObjectGUID = GetGUID();
+    animKit.AnimKitID = animKitID;
+    animKit.Maintain = maintain;
+    SendMessageToSet(animKit.Write(), true);
 }
 
 bool GameObject::IsInRange(float x, float y, float z, float radius) const

@@ -135,7 +135,7 @@ public:
 
         uint32 id = atoi((char*)args);
 
-        handler->GetSession()->SendTradeStatus(TradeStatus(id));
+        //handler->GetSession()->SendTradeStatus(TradeStatus(id));
         return true;
     }
 

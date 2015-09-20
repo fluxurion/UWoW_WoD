@@ -683,36 +683,6 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
     group->SendUpdate();
 }
 
-//! 5.4.1
-void WorldSession::HandleLootRoll(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    uint8 itemSlot;
-    uint8  rollType;
-
-    recvData >> rollType;              // 0: pass, 1: need, 2: greed
-    recvData >> itemSlot;              // always 0
-
-    //recvData.ReadGuidMask<7, 1, 2, 4, 5, 6, 3, 0>(guid);
-    //recvData.ReadGuidBytes<0, 7, 1, 3, 4, 6, 2, 5>(guid);
-
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
-        return;
-
-    group->CountRollVote(GetPlayer()->GetGUID(), itemSlot, rollType);
-
-    switch (rollType)
-    {
-    case ROLL_NEED:
-        GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED, 1);
-        break;
-    case ROLL_GREED:
-        GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED, 1);
-        break;
-    }
-}
-
 //! 6.0.3
 void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
 {

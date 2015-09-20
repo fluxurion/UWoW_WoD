@@ -16,22 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
------ Opcodes Not Used yet -----
-
-SMSG_CALENDAR_CLEAR_PENDING_ACTION SendCalendarClearPendingAction()
-SMSG_CALENDAR_RAID_LOCKOUT_UPDATED SendCalendarRaidLockoutUpdated(InstanceSave const* save)
-
------ Opcodes without Sniffs -----
-SMSG_CALENDAR_FILTER_GUILD              [ for (... uint32(count) { packguid(???), uint8(???) } ]
-SMSG_CALENDAR_ARENA_TEAM                [ for (... uint32(count) { packguid(???), uint8(???) } ]
-CMSG_CALENDAR_EVENT_INVITE_NOTES        [ packguid(Invitee), uint64(inviteId), string(Text), Boolean(Unk) ]
-SMSG_CALENDAR_EVENT_INVITE_NOTES        [ uint32(unk1), uint32(unk2), uint32(unk3), uint32(unk4), uint32(unk5) ]
-SMSG_CALENDAR_EVENT_INVITE_NOTES_ALERT  [ uint64(inviteId), string(Text) ]
-SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT [ Structure unkown ]
-
-*/
-
 #include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -44,6 +28,7 @@ SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT [ Structure unkown ]
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
+#include "CalendarPackets.h"
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 {
@@ -446,13 +431,13 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
 
     if (!invitee)
     {
-        SendCalendarCommandResult(CALENDAR_ERROR_PLAYER_NOT_FOUND);
+        SendCalendarCommandResult(guid, CALENDAR_ERROR_PLAYER_NOT_FOUND);
         return;
     }
 
     if (_player->GetTeam() != team && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CALENDAR))
     {
-        SendCalendarCommandResult(CALENDAR_ERROR_NOT_ALLIED);
+        SendCalendarCommandResult(guid, CALENDAR_ERROR_NOT_ALLIED);
         return;
     }
 
@@ -568,31 +553,21 @@ void WorldSession::HandleCalendarEventStatus(WorldPacket& recvData)
     sCalendarMgr->AddAction(action, eventId);
 }
 
-void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket& recvData)
+void WorldSession::HandleCalendarEventModeratorStatus(WorldPackets::Calendar::CalendarEventModeratorStatus& packet)
 {
-    ObjectGuid guid = _player->GetGUID();
-    ObjectGuid invitee;
-    uint64 eventId;
-    uint64 inviteId;
-    uint64 owninviteId;
-    uint8 status;
+    //CalendarAction action;
+    //action.SetAction(CALENDAR_ACTION_MODIFY_MODERATOR_EVENT_INVITE);
+    //action.SetPlayer(_player);
+    //action.SetActionInviteId(packet.ModeratorID);
 
-    recvData >> invitee;
-    recvData >> eventId >>  inviteId >> owninviteId >> status;
+    //CalendarInvite Invite(packet.InviteID);
+    //Invite.SetInviteId(packet.InviteID);
+    //Invite.SetEventId(packet.EventID);
+    //Invite.SetInvitee(packet.Guid);
+    //Invite.SetStatus((CalendarInviteStatus) packet.Status);
+    //action.SetInvite(Invite);
 
-    CalendarAction action;
-    action.SetAction(CALENDAR_ACTION_MODIFY_MODERATOR_EVENT_INVITE);
-    action.SetPlayer(_player);
-    action.SetActionInviteId(owninviteId);
-
-    CalendarInvite Invite(inviteId);
-    Invite.SetInviteId(inviteId);
-    Invite.SetEventId(eventId);
-    Invite.SetInvitee(invitee);
-    Invite.SetStatus((CalendarInviteStatus) status);
-    action.SetInvite(Invite);
-
-    sCalendarMgr->AddAction(action, eventId);
+    //sCalendarMgr->AddAction(action, packet.EventID);
 }
 
 void WorldSession::HandleCalendarComplain(WorldPacket& recvData)
@@ -942,29 +917,27 @@ void WorldSession::SendCalendarClearPendingAction()
     SendPacket(&data);
 }
 
-void WorldSession::SendCalendarCommandResult(CalendarError err, char const* param /*= NULL*/)
+void WorldSession::SendCalendarCommandResult(ObjectGuid guid, CalendarError err, char const* param/*= NULL*/)
 {
-    ObjectGuid guid = _player->GetGUID();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_COMMAND_RESULT [" UI64FMTD "] Value: %u", guid.GetCounter(), err);
+   //if (Player* player = ObjectAccessor::FindPlayer(guid))
+   // {
+   //     WorldPackets::Calendar::CalendarCommandResult packet;
+   //     packet.Command = 1; // FIXME
+   //     packet.Result = err;
 
-    /*WorldPacket data(SMSG_CALENDAR_COMMAND_RESULT);
-    data << uint32(0);
-    data << uint8(0);
-    switch (err)
-    {
-        case CALENDAR_ERROR_OTHER_INVITES_EXCEEDED:
-        case CALENDAR_ERROR_ALREADY_INVITED_TO_EVENT_S:
-        case CALENDAR_ERROR_IGNORING_YOU_S:
-            data << param;
-            break;
-        default:
-            data << uint8(0);
-            break;
-    }
+   //     switch (err)
+   //     {
+   //         case CALENDAR_ERROR_OTHER_INVITES_EXCEEDED:
+   //         case CALENDAR_ERROR_ALREADY_INVITED_TO_EVENT_S:
+   //         case CALENDAR_ERROR_IGNORING_YOU_S:
+   //             packet.Name = param;
+   //             break;
+   //         default:
+   //             break;
+   //     }
 
-    data << uint32(err);
-
-    SendPacket(&data);*/
+   //     player->SendDirectMessage(packet.Write());
+   // }
 }
 
 //! 6.1.2 test need
@@ -999,20 +972,17 @@ void WorldSession::SendCalendarRaidLockoutRemoved(InstanceSave* save)
 
 void WorldSession::SendCalendarRaidLockoutUpdated(InstanceSave* save)
 {
-    if (!save)
-        return;
+    //if (!save)
+    //    return;
 
-    ObjectGuid guid = _player->GetGUID();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_RAID_LOCKOUT_UPDATED [" UI64FMTD
-        "] Map: %u, Difficulty %u", guid.GetCounter(), save->GetMapId(), save->GetDifficultyID());
+    //time_t cur_time = time_t(time(NULL));
 
-    time_t cur_time = time_t(time(NULL));
+    //WorldPackets::Calendar::CalendarRaidLockoutUpdated updated;
 
-    WorldPacket data(SMSG_CALENDAR_RAID_LOCKOUT_UPDATED);
-    data << uint32(secsToTimeBitFields(cur_time));
-    data << uint32(save->GetMapId());
-    data << uint32(save->GetDifficultyID());
-    data << uint32(0); // Amount of seconds that has changed to the reset time
-    data << uint32(save->GetResetTime() - cur_time);
-    SendPacket(&data);
+    //updated.MapID = save->GetMapId();
+    //updated.OldTimeRemaining = 0;
+    //updated.ServerTime = cur_time;
+    //updated.DifficultyID = save->GetDifficultyID();
+    //updated.NewTimeRemaining = save->GetResetTime() - cur_time;
+    //SendPacket(updated.Write());
 }

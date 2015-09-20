@@ -279,7 +279,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 }
 
 //! 6.0.3
-void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
+void WorldSession::HandleLootUnit(WorldPackets::Loot::LootUnit& packet)
 {
     // Check possible cheat
     if (!GetPlayer()->isAlive() || !packet.Unit.IsCreatureOrVehicle())
@@ -582,19 +582,41 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
     loot->RemoveLooter(player->GetGUID());
 }
 
-void WorldSession::HandleLootSpecIdOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetLootSpecialization(WorldPackets::Loot::SetLootSpecialization& packet)
 {
-    uint32 specID;
-    recvData >> specID;
-
-    if (specID == 0)
+    if (packet.SpecID == 0)
     {
         _player->SetLootSpecID(0);
         return;
     }
 
     uint8 classId = _player->getClass();
-    ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(specID);
+    ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(packet.SpecID);
     if (specialization && specialization->ClassID == classId)
-        _player->SetLootSpecID(specID);   
+        _player->SetLootSpecID(packet.SpecID);   
+}
+
+void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    Group* group = player->GetGroup();
+    if (!group)
+        return;
+
+    group->CountRollVote(player->GetGUID(), packet.LootListID, packet.RollType);
+
+    switch (packet.RollType)
+    {
+        case ROLL_NEED:
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED, 1);
+            break;
+        case ROLL_GREED:
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED, 1);
+            break;
+        default:
+            break;
+    }
 }

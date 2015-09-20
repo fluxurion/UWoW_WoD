@@ -95,6 +95,10 @@
 #include "BattlegroundPackets.h"
 #include "CombatPackets.h"
 #include "ToyPackets.h"
+#include "InstancePackets.h"
+#include "ScenePackets.h"
+#include "TradePackets.h"
+#include "DuelPackets.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -345,6 +349,7 @@ void TradeData::SetItem(TradeSlots slot, Item* item)
 
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
+    UpdateServerStateIndex();
 
     Update();
 
@@ -368,6 +373,7 @@ void TradeData::SetSpell(uint32 spell_id, Item* castItem /*= NULL*/)
 
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
+    UpdateServerStateIndex();
 
     Update(true);                                           // send spell info to item owner
     Update(false);                                          // send spell info to caster self
@@ -380,8 +386,18 @@ void TradeData::SetMoney(uint64 money)
 
     m_money = money;
 
+    if (!m_player->HasEnoughMoney(money))
+    {
+        WorldPackets::Trade::TradeStatus info;
+        info.Status = TRADE_STATUS_FAILED;
+        info.BagResult = EQUIP_ERR_NOT_ENOUGH_MONEY;
+        m_player->GetSession()->SendTradeStatus(info);
+        return;
+    }
+
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
+    UpdateServerStateIndex();
 
     Update(true);
 }
@@ -400,10 +416,12 @@ void TradeData::SetAccepted(bool state, bool crosssend /*= false*/)
 
     if (!state)
     {
+        WorldPackets::Trade::TradeStatus info;
+        info.Status = TRADE_STATUS_UNACCEPTED;
         if (crosssend)
-            m_trader->GetSession()->SendTradeStatus(TRADE_STATUS_BACK_TO_TRADE);
+            m_trader->GetSession()->SendTradeStatus(info);
         else
-            m_player->GetSession()->SendTradeStatus(TRADE_STATUS_BACK_TO_TRADE);
+            m_player->GetSession()->SendTradeStatus(info);
     }
 }
 
@@ -1480,7 +1498,8 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
         if (type == DAMAGE_FALL)                               // DealDamage not apply item durability loss at self damage
         {
             sLog->outDebug(LOG_FILTER_PLAYER, "We are fall to death, loosing 10 percents durability");
-            DurabilityLossAll(0.10f, false, true);
+            if (!GetUInt32Value(PLAYER_FIELD_STURDINESS))
+                DurabilityLossAll(0.10f, false, true);
             // durability lost message
             SendDurabilityLoss(this, 10);
         }
@@ -5433,7 +5452,7 @@ void Player::SetSpecializationId(uint8 spec, uint32 id)
     if (spec == GetActiveSpec())
         SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, id);
 
-    UpdatePvPPower();
+    UpdateVersality();
 }
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)
@@ -6868,9 +6887,6 @@ void Player::UpdateRating(CombatRating cr)
 
     switch (cr)
     {
-        case CR_WEAPON_SKILL:
-        case CR_DEFENSE_SKILL:
-            break;
         case CR_DODGE:
             UpdateDodgePercentage();
             break;
@@ -6904,13 +6920,6 @@ void Player::UpdateRating(CombatRating cr)
             if (affectStats)
                 UpdateAllSpellCritChances();
             break;
-        case CR_HIT_TAKEN_MELEE:                            // Deprecated since Cataclysm
-        case CR_HIT_TAKEN_RANGED:                           // Deprecated since Cataclysm
-        case CR_HIT_TAKEN_SPELL:                            // Deprecated since Cataclysm
-        case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
-        case CR_RESILIENCE_CRIT_TAKEN:
-        case CR_CRIT_TAKEN_SPELL:                           // Deprecated since Cataclysm
-            break;
         case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
             SetNeedUpdateMeleeHastMod();
             SetNeedUpdateCastHastMods();
@@ -6923,10 +6932,6 @@ void Player::UpdateRating(CombatRating cr)
             SetNeedUpdateHastMod();
             SetNeedUpdateCastHastMods();
             break;
-        case CR_WEAPON_SKILL_MAINHAND:                      // Implemented in Unit::RollMeleeOutcomeAgainst
-        case CR_WEAPON_SKILL_OFFHAND:
-        case CR_WEAPON_SKILL_RANGED:
-            break;
         case CR_EXPERTISE:
             if (affectStats)
                 UpdateExpertise();
@@ -6934,8 +6939,30 @@ void Player::UpdateRating(CombatRating cr)
         case CR_MASTERY:                                    // Implemented in Player::UpdateMasteryPercentage
             UpdateMasteryAuras();
             break;
-        case CR_PVP_POWER:
-            UpdatePvPPower();
+        case CR_VERSATILITY_DAMAGE_DONE:
+        case CR_VERSATILITY_DAMAGE_TAKEN:
+            UpdateVersality();
+            break;
+        case CR_MULTISTRIKE:
+            UpdateMultistrike();
+            break;
+        case CR_READINESS:
+            UpdateReadiness();
+            break;
+        case CR_SPEED:
+            UpdateCRSpeed();
+            break;
+        case CR_LIFESTEAL:
+            UpdateLifesteal();
+            break;
+        case CR_AVOIDANCE:
+            UpdateAvoidance();
+            break;
+            // deprecated
+        case CR_DEFENSE_SKILL:
+        case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
+        case CR_RESILIENCE_CRIT_TAKEN:
+        case CR_WEAPON_SKILL_RANGED:
             break;
         default:
             break;
@@ -9020,9 +9047,7 @@ void Player::CheckDuelDistance(time_t currTime)
         if (!IsWithinDistInMap(obj, 50))
         {
             duel->outOfBound = currTime;
-
-            WorldPacket data(SMSG_DUEL_OUT_OF_BOUNDS, 0);
-            GetSession()->SendPacket(&data);
+            GetSession()->SendPacket(WorldPackets::Duel::DuelOutOfBounds().Write());
         }
     }
     else
@@ -9030,9 +9055,7 @@ void Player::CheckDuelDistance(time_t currTime)
         if (IsWithinDistInMap(obj, 40))
         {
             duel->outOfBound = 0;
-
-            WorldPacket data(SMSG_DUEL_IN_BOUNDS, 0);
-            GetSession()->SendPacket(&data);
+            GetSession()->SendPacket(WorldPackets::Duel::DuelInBounds().Write());
         }
         else if (currTime >= (duel->outOfBound+10))
             DuelComplete(DUEL_FLED);
@@ -9054,18 +9077,13 @@ void Player::DuelComplete(DuelCompleteType type)
 
     if (type != DUEL_INTERRUPTED)
     {
-        //! 6.0.3 ToDo check names.
-        WorldPacket data(SMSG_DUEL_WINNER, 25);
-        data.WriteBits(strlen(GetName()), 6);
-        data.WriteBits(strlen(duel->opponent->GetName()), 6);
-        data.WriteBit(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
-
-        data << uint32(GetVirtualRealmAddress());                  // winner or loser realmID
-        data << uint32(GetVirtualRealmAddress());                  // winner or loser realmID
-
-        data.WriteString(GetName());
-        data.WriteString(duel->opponent->GetName());
-        SendMessageToSet(&data, true);
+        WorldPackets::Duel::DuelWinner winner;
+        winner.BeatenName = GetName();
+        winner.WinnerName = duel->opponent->GetName();
+        winner.BeatenVirtualRealmAddress = GetVirtualRealmAddress();
+        winner.WinnerVirtualRealmAddress = GetVirtualRealmAddress();
+        winner.Fled = type == DUEL_WON ? false : true;
+        SendMessageToSet(winner.Write(), true);
     }
 
     sScriptMgr->OnPlayerDuelEnd(duel->opponent, this, type);
@@ -9112,12 +9130,12 @@ void Player::DuelComplete(DuelCompleteType type)
     if (obj)
         duel->initiator->RemoveGameObject(obj, true);
 
-    WorldPacket data(SMSG_DUEL_COMPLETE);
-    data.WriteBit(type == DUEL_WON ? 0 : 1);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Duel::DuelComplete duelComplete;
+    duelComplete.Started = type == DUEL_WON ? 0 : 1;
+    GetSession()->SendPacket(duelComplete.Write());
 
     if (duel->opponent->GetSession())
-        duel->opponent->GetSession()->SendPacket(&data);
+        duel->opponent->GetSession()->SendPacket(duelComplete.Write());
 
     /* remove auras */
     AuraApplicationMap &itsAuras = duel->opponent->GetAppliedAuras();
@@ -9270,13 +9288,8 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
                 break;
             // case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
-            //     ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(val), apply);
-            //     break;
             // case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
-            //    ApplyRatingMod(CR_HIT_TAKEN_RANGED, int32(val), apply);
-            //    break;
             //case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
-            //    ApplyRatingMod(CR_HIT_TAKEN_SPELL, int32(val), apply);
             //    break;
             //case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
             //    ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(val), apply);
@@ -9285,7 +9298,6 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(val), apply);
                 break;
             // case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
-            // ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
             // break;
             case ITEM_MOD_HASTE_MELEE_RATING:
                 ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
@@ -9307,20 +9319,12 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
                 break;
             //case ITEM_MOD_HIT_TAKEN_RATING:
-            //    ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(val), apply);
-            //   ApplyRatingMod(CR_HIT_TAKEN_RANGED, int32(val), apply);
-            //    ApplyRatingMod(CR_HIT_TAKEN_SPELL, int32(val), apply);
-            //    break;
             //case ITEM_MOD_CRIT_TAKEN_RATING:
-            //    ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(val), apply);
-            //    ApplyRatingMod(CR_CRIT_TAKEN_RANGED, int32(val), apply);
-            //    ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
             //    break;
             case ITEM_MOD_RESILIENCE_RATING:
                 ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, int32(val), apply);
                 break;
             case ITEM_MOD_PVP_POWER:
-                ApplyRatingMod(CR_PVP_POWER, int32(val), apply);
                 break;
             case ITEM_MOD_HASTE_RATING:
                 ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
@@ -9370,6 +9374,34 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
                 break;
             case ITEM_MOD_ARCANE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(val), apply);
+                break;
+            case ITEM_MOD_VERSATILITY:
+                ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(val), apply);
+                ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(val), apply);
+                break;
+            case ITEM_MOD_CR_MULTISTRIKE:
+                ApplyRatingMod(CR_MULTISTRIKE, int32(val), apply);
+                break;
+            case ITEM_MOD_CR_READINESS:
+                ApplyRatingMod(CR_READINESS, int32(val), apply);
+                break;
+            case ITEM_MOD_CR_SPEED:
+                ApplyRatingMod(CR_SPEED, int32(val), apply);
+                break;
+            case ITEM_MOD_CR_LIFESTEAL:
+                ApplyRatingMod(CR_LIFESTEAL, int32(val), apply);
+                break;
+            case ITEM_MOD_CR_AVOIDANCE:
+                ApplyRatingMod(CR_AVOIDANCE, int32(val), apply);
+                break;
+            case ITEM_MOD_CR_AMPLIFY:
+                ApplyModSignedFloatValue(PLAYER_FIELD_AMPLIFY, val, apply);
+                break;
+            case ITEM_MOD_CR_STURDINESS: // items with this should not lose durability on player death - dynamic stat?
+                ApplyModSignedFloatValue(PLAYER_FIELD_STURDINESS, val, apply);
+                break;
+            case ITEM_MOD_CR_CLEAVE: // apply spellAura on player and modify value with this rating ( from UF )
+                ApplyModSignedFloatValue(PLAYER_FIELD_CLEAVE, val, apply);
                 break;
         }
     }
@@ -10123,12 +10155,12 @@ void Player::RemovedInsignia(Player* looterPlr)
     looterPlr->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
 }
 
-//! 6.0.3
-void Player::SendLootRelease(ObjectGuid guid, ObjectGuid lGuid)
+void Player::SendLootRelease(ObjectGuid object, ObjectGuid owner)
 {
-    WorldPacket data(SMSG_LOOT_RELEASE);
-    data << guid << lGuid;
-    SendDirectMessage(&data);
+    WorldPackets::Loot::LootReleaseResponse response;
+    response.LootObj = object;
+    response.Owner = owner;
+    SendDirectMessage(response.Write());
 }
 
 void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 pool)
@@ -14884,38 +14916,45 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
     }
 }
 
-//! 6.0.3
 void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint32 itemid)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_INVENTORY_CHANGE_FAILURE (%u)", msg);
-    WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, 60);
+    WorldPackets::Item::InventoryChangeFailure failure;
+    failure.BagResult = msg;
 
-    ObjectGuid itemGuid1 = pItem ? pItem->GetGUID() : ObjectGuid::Empty;
-    ObjectGuid itemGuid2 = pItem2 ? pItem2->GetGUID() : ObjectGuid::Empty;
-
-    data << uint8(msg);
-    data << itemGuid1;
-    data << itemGuid2;
-    data << uint8(0);                                   // bag type subclass, used with EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM and EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG2
-
-    if (msg == EQUIP_ERR_CANT_EQUIP_LEVEL_I || msg == EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW)
+    if (msg != EQUIP_ERR_OK)
     {
-        ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
-        data << uint32(proto ? proto->RequiredLevel : 0);
+        if (pItem)
+            failure.Item[0] = pItem->GetGUID();
+
+        if (pItem2)
+            failure.Item[1] = pItem2->GetGUID();
+
+        failure.ContainerBSlot = 0; 
+
+        switch (msg)
+        {
+            case EQUIP_ERR_CANT_EQUIP_LEVEL_I:
+            case EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW:
+                if (ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid))
+                    failure.Level = proto->RequiredLevel;
+                break;
+            case EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM:    // no idea about this one...
+                //failure.SrcContainer
+                //failure.SrcSlot
+                //failure.DstContainer
+                break;
+            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS:
+            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS:
+            case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS:
+                if (ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid))
+                    failure.LimitCategory = proto->ItemLimitCategory;
+                break;
+            default:
+                break;
+        }
     }
 
-    if (msg == EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS ||
-        msg == EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS ||
-        msg == EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS)
-    {
-        ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
-        data << uint32(proto ? proto->ItemLimitCategory : 0);
-    }
-
-    if (msg == EQUIP_ERR_NO_OUTPUT)
-        data << uint32(0); // slot
-
-    GetSession()->SendPacket(&data);
+    SendDirectMessage(failure.Write());
 }
 
 //! 6.0.3
@@ -15280,104 +15319,61 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                     switch (enchant_spell_id)
                     {
                         case ITEM_MOD_MANA:
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u MANA", enchant_amount);
                             HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(enchant_amount), apply);
                             break;
                         case ITEM_MOD_HEALTH:
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u HEALTH", enchant_amount);
                             HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(enchant_amount), apply);
                             break;
                         case ITEM_MOD_AGILITY:
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u AGILITY", enchant_amount);
                             HandleStatModifier(UNIT_MOD_STAT_AGILITY, TOTAL_VALUE, float(enchant_amount), apply);
                             ApplyStatBuffMod(STAT_AGILITY, (float)enchant_amount, apply);
                             break;
                         case ITEM_MOD_STRENGTH:
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u STRENGTH", enchant_amount);
                             HandleStatModifier(UNIT_MOD_STAT_STRENGTH, TOTAL_VALUE, float(enchant_amount), apply);
                             ApplyStatBuffMod(STAT_STRENGTH, (float)enchant_amount, apply);
                             break;
                         case ITEM_MOD_INTELLECT:
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u INTELLECT", enchant_amount);
                             HandleStatModifier(UNIT_MOD_STAT_INTELLECT, TOTAL_VALUE, float(enchant_amount), apply);
                             ApplyStatBuffMod(STAT_INTELLECT, (float)enchant_amount, apply);
                             break;
                         case ITEM_MOD_SPIRIT:
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u SPIRIT", enchant_amount);
                             HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, float(enchant_amount), apply);
                             ApplyStatBuffMod(STAT_SPIRIT, (float)enchant_amount, apply);
                             break;
                         case ITEM_MOD_STAMINA:
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u STAMINA", enchant_amount);
                             HandleStatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, float(enchant_amount), apply);
                             ApplyStatBuffMod(STAT_STAMINA, (float)enchant_amount, apply);
                             break;
                         case ITEM_MOD_DEFENSE_SKILL_RATING:
                             ApplyRatingMod(CR_DEFENSE_SKILL, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u DEFENCE", enchant_amount);
                             break;
                         case  ITEM_MOD_DODGE_RATING:
                             ApplyRatingMod(CR_DODGE, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u DODGE", enchant_amount);
                             break;
                         case ITEM_MOD_PARRY_RATING:
                             ApplyRatingMod(CR_PARRY, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u PARRY", enchant_amount);
                             break;
                         case ITEM_MOD_BLOCK_RATING:
                             ApplyRatingMod(CR_BLOCK, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u SHIELD_BLOCK", enchant_amount);
                             break;
                         case ITEM_MOD_HIT_MELEE_RATING:
                             ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u MELEE_HIT", enchant_amount);
                             break;
                         case ITEM_MOD_HIT_RANGED_RATING:
                             ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u RANGED_HIT", enchant_amount);
                             break;
                         case ITEM_MOD_HIT_SPELL_RATING:
                             ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u SPELL_HIT", enchant_amount);
                             break;
                         case ITEM_MOD_CRIT_MELEE_RATING:
                             ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u MELEE_CRIT", enchant_amount);
                             break;
                         case ITEM_MOD_CRIT_RANGED_RATING:
                             ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u RANGED_CRIT", enchant_amount);
                             break;
                         case ITEM_MOD_CRIT_SPELL_RATING:
                             ApplyRatingMod(CR_CRIT_SPELL, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u SPELL_CRIT", enchant_amount);
                             break;
-//                        Values from ITEM_STAT_MELEE_HA_RATING to ITEM_MOD_HASTE_RANGED_RATING are never used
-//                        in Enchantments
-//                        case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
-//                            ApplyRatingMod(CR_HIT_TAKEN_MELEE, enchant_amount, apply);
-//                            break;
-//                        case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
-//                            ApplyRatingMod(CR_HIT_TAKEN_RANGED, enchant_amount, apply);
-//                            break;
-//                        case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
-//                            ApplyRatingMod(CR_HIT_TAKEN_SPELL, enchant_amount, apply);
-//                            break;
-//                        case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
-//                            ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
-//                            break;
-//                        case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
-//                            ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
-//                            break;
-//                        case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
-//                            ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
-//                            break;
-//                        case ITEM_MOD_HASTE_MELEE_RATING:
-//                            ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
-//                            break;
-//                        case ITEM_MOD_HASTE_RANGED_RATING:
-//                            ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
-//                            break;
                         case ITEM_MOD_HASTE_SPELL_RATING:
                             ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
                             break;
@@ -15385,75 +15381,84 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
                             ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
                             ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u HIT", enchant_amount);
                             break;
                         case ITEM_MOD_CRIT_RATING:
                             ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
                             ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
                             ApplyRatingMod(CR_CRIT_SPELL, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u CRITICAL", enchant_amount);
                             break;
-//                        Values ITEM_MOD_HIT_TAKEN_RATING and ITEM_MOD_CRIT_TAKEN_RATING are never used in Enchantment
-//                        case ITEM_MOD_HIT_TAKEN_RATING:
-//                            ApplyRatingMod(CR_HIT_TAKEN_MELEE, enchant_amount, apply);
-//                            ApplyRatingMod(CR_HIT_TAKEN_RANGED, enchant_amount, apply);
-//                            ApplyRatingMod(CR_HIT_TAKEN_SPELL, enchant_amount, apply);
-//                            break;
-//                        case ITEM_MOD_CRIT_TAKEN_RATING:
-//                            ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
-//                            ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
-//                            ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
-//                            break;
                         case ITEM_MOD_RESILIENCE_RATING:
                             ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u RESILIENCE", enchant_amount);
-                            break;
-                        case ITEM_MOD_PVP_POWER:
-                            ApplyRatingMod(CR_PVP_POWER, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u POWER JCJ", enchant_amount);
                             break;
                         case ITEM_MOD_HASTE_RATING:
                             ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
                             ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
                             ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u HASTE", enchant_amount);
                             break;
                         case ITEM_MOD_EXPERTISE_RATING:
                             ApplyRatingMod(CR_EXPERTISE, enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u EXPERTISE", enchant_amount);
                             break;
                         case ITEM_MOD_ATTACK_POWER:
                             HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(enchant_amount), apply);
                             HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(enchant_amount), apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u ATTACK_POWER", enchant_amount);
                             break;
                         case ITEM_MOD_RANGED_ATTACK_POWER:
                             HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(enchant_amount), apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u RANGED_ATTACK_POWER", enchant_amount);
                             break;
                         case ITEM_MOD_MANA_REGENERATION:
                             ApplyManaRegenBonus(enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u MANA_REGENERATION", enchant_amount);
                             break;
                         case ITEM_MOD_SPELL_POWER:
                             ApplySpellPowerBonus(enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u SPELL_POWER", enchant_amount);
                             break;
                         case ITEM_MOD_HEALTH_REGEN:
                             ApplyHealthRegenBonus(enchant_amount, apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u HEALTH_REGENERATION", enchant_amount);
                             break;
                         case ITEM_MOD_SPELL_PENETRATION:
                             ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, enchant_amount, apply);
                             m_spellPenetrationItemMod += apply ? int32(enchant_amount) : -int32(enchant_amount);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u SPELL_PENETRATION", enchant_amount);
                             break;
                         case ITEM_MOD_BLOCK_VALUE:
                             HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(enchant_amount), apply);
-                            sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u BLOCK_VALUE", enchant_amount);
                             break;
                         case ITEM_MOD_MASTERY_RATING:
                             ApplyRatingMod(CR_MASTERY, int32(enchant_amount), apply);
+                            break;
+                        case ITEM_MOD_VERSATILITY:
+                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_DONE, int32(enchant_amount), apply);
+                            ApplyRatingMod(CR_VERSATILITY_DAMAGE_TAKEN, int32(enchant_amount), apply);
+                            break;
+                        case ITEM_MOD_CR_MULTISTRIKE:
+                            ApplyRatingMod(CR_MULTISTRIKE, int32(enchant_amount), apply);
+                            break;
+                        case ITEM_MOD_CR_READINESS:
+                            ApplyRatingMod(CR_READINESS, int32(enchant_amount), apply);
+                            break;
+                        case ITEM_MOD_CR_SPEED:
+                            ApplyRatingMod(CR_SPEED, int32(enchant_amount), apply);
+                            break;
+                        case ITEM_MOD_CR_LIFESTEAL:
+                            ApplyRatingMod(CR_LIFESTEAL, int32(enchant_amount), apply);
+                            break;
+                        case ITEM_MOD_CR_AVOIDANCE:
+                            ApplyRatingMod(CR_AVOIDANCE, int32(enchant_amount), apply);
+                            break;
+                        case ITEM_MOD_CR_AMPLIFY: // items with this should not lose durability on player death - dynamic stat?
+                        case ITEM_MOD_CR_STURDINESS:
+                        case ITEM_MOD_CR_CLEAVE: // apply spellAura on player and modify value with this rating ( from UF )
+                            break;
+                        // deprecated
+                        case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
+                        case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
+                        case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
+                        case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
+                        case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
+                        case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
+                        case ITEM_MOD_HASTE_MELEE_RATING:
+                        case ITEM_MOD_HASTE_RANGED_RATING:
+                        case ITEM_MOD_PVP_POWER:
+                        case ITEM_MOD_HIT_TAKEN_RATING:
+                        case ITEM_MOD_CRIT_TAKEN_RATING:
                             break;
                         default:
                             break;
@@ -20644,32 +20649,21 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
         return NULL;
 }
 
-//! 6.0.3
 void Player::BindToInstance()
 {
     InstanceSave* mapSave = sInstanceSaveMgr->GetInstanceSave(_pendingBindId);
     if (!mapSave) //it seems sometimes mapSave is NULL, but I did not check why
         return;
 
-    WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 1);
-    data << uint8(0);           //Gm
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Instance::InstanceSaveCreated(false).Write());
     BindToInstance(mapSave, true);
-
     GetSession()->SendCalendarRaidLockoutAdded(mapSave);
 }
 
-//! 6.0.3
 void Player::SendRaidInfo()
 {
-    uint32 counter = 0;
-    uint64 instanceID = 0;
-    InstanceSave* save = NULL;
-
-    WorldPacket data(SMSG_INSTANCE_INFO/*SMSG_RAID_INSTANCE_INFO*/, 200);
-    data << uint32(counter);                                     // placeholder
-
     time_t now = time(NULL);
+    WorldPackets::Instance::InstanceInfo instanceInfo;
 
     for (uint8 i = 0; i < MAX_BOUND; ++i)
     {
@@ -20677,27 +20671,29 @@ void Player::SendRaidInfo()
         {
             if (itr->second.perm)
             {
-                save = itr->second.save;
-                instanceID = save->GetInstanceId();
+                InstanceSave* save = itr->second.save;
 
-                data << uint32(save->GetMapId());                 // map id
-                data << uint32(save->GetDifficultyID());            // difficulty
-                data << uint64(instanceID);
-                data << uint32(save->GetResetTime() - now);       // reset time
-                data << uint32(save->GetCompletedEncounterMask());// Completed_mask
+                WorldPackets::Instance::InstanceLockInfos lockInfos;
 
-                data.WriteBit(1);                                 // expired?
-                data.WriteBit(0);                                 // extended?
+                lockInfos.InstanceID = save->GetInstanceId();
+                lockInfos.MapID = save->GetMapId();
+                lockInfos.DifficultyID = save->GetDifficultyID();
+                lockInfos.TimeRemaining = save->GetResetTime() - now;
 
-                ++counter;
+                lockInfos.CompletedMask = 0;
+                if (Map* map = sMapMgr->FindMap(save->GetMapId(), save->GetInstanceId()))
+                    if (InstanceScript* instanceScript = ((InstanceMap*)map)->GetInstanceScript())
+                        lockInfos.CompletedMask = instanceScript->GetCompletedEncounterMask();
+
+                lockInfos.Locked = lockInfos.TimeRemaining <= 0;
+                lockInfos.Extended = false;
+
+                instanceInfo.LockList.push_back(lockInfos);
             }
         }
     }
 
-    data.FlushBits();
-
-    data.put<uint32>(0, counter);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(instanceInfo.Write());
 }
 
 /*
@@ -20720,11 +20716,9 @@ void Player::SendSavedInstances()
         }
     }
 
-    //Send opcode SMSG_UPDATE_INSTANCE_OWNERSHIP. true or false means, whether you have current raid/heroic instances
-    //! 6.0.3
-    data.Initialize(SMSG_UPDATE_INSTANCE_OWNERSHIP, 4);
-    data << uint32(hasBeenSaved);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Instance::UpdateInstanceOwnership instanceOwnerShip;
+    instanceOwnerShip.IOwnInstance = hasBeenSaved;
+    GetSession()->SendPacket(instanceOwnerShip.Write());
 
     if (!hasBeenSaved)
         return;
@@ -20732,15 +20726,8 @@ void Player::SendSavedInstances()
     for (uint8 i = 0; i < MAX_BOUND; ++i)
     {
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
-        {
             if (itr->second.perm)
-            {
-                //! 6.0.3
-                data.Initialize(SMSG_UPDATE_LAST_INSTANCE, 4);
-                data << uint32(itr->second.save->GetMapId());
-                GetSession()->SendPacket(&data);
-            }
-        }
+                GetSession()->SendPacket(WorldPackets::Instance::UpdateLastInstance(itr->second.save->GetMapId()).Write());
     }
 }
 
@@ -22489,12 +22476,9 @@ void Player::SendRaidDifficulty(bool legacy, int32 forcedDifficulty /*= -1*/)
     GetSession()->SendPacket(raidDifficultySet.Write());
 }
 
-//! 6.0.3
-void Player::SendResetFailedNotify(uint32 mapid)
+void Player::SendResetFailedNotify()
 {
-    WorldPacket data(SMSG_RESET_FAILED_NOTIFY, 0);
-    //data << uint32(mapid);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Instance::ResetFailedNotify().Write());
 }
 
 /// Reset all solo instances and optionally send a message on success for each
@@ -22554,27 +22538,22 @@ void Player::ResetInstances(uint8 method, bool isRaid, bool isLegacy)
     }
 }
 
-//! 6.0.3
 void Player::SendResetInstanceSuccess(uint32 MapId)
 {
-    WorldPacket data(SMSG_INSTANCE_RESET, 4);
-    data << uint32(MapId);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Instance::InstanceReset(MapId).Write());
 }
 
-//! 6.0.3
 void Player::SendResetInstanceFailed(uint32 reason, uint32 MapId)
 {
-    /*reasons for instance reset failure:
-    // 0: There are players inside the instance.
-    // 1: There are players offline in your party.
-    // 2>: There are players in your party attempting to zone into an instance.
-    */
-    WorldPacket data(SMSG_INSTANCE_RESET_FAILED, 8);
-    data << uint32(MapId);
-    data.WriteBits(reason, 2);
-    
-    GetSession()->SendPacket(&data);
+    // reasons for instance reset failure:
+    //  0: There are players inside the instance.
+    //  1: There are players offline in your party.
+    //  2: There are players in your party attempting to zone into an instance.
+
+    WorldPackets::Instance::InstanceResetFailed failed;
+    failed.MapID = MapId;
+    failed.ResetFailedReason = reason;
+    GetSession()->SendPacket(failed.Write());
 }
 
 /*********************************************************/
@@ -24476,13 +24455,8 @@ void Player::UpdateHomebindTime(uint32 time)
     if (m_InstanceValid || isGameMaster())
     {
         if (m_HomebindTimer)                                 // instance valid, but timer not reset
-        {
-            // hide reminder
-            WorldPacket data(SMSG_RAID_GROUP_ONLY, 4+4);
-            data << uint32(0);
-            data << uint32(0);
-            GetSession()->SendPacket(&data);
-        }
+            GetSession()->SendPacket(WorldPackets::Instance::RaidGroupOnly().Write());
+
         // instance is valid, reset homebind timer
         m_HomebindTimer = 0;
     }
@@ -24500,11 +24474,12 @@ void Player::UpdateHomebindTime(uint32 time)
     {
         // instance is invalid, start homebind timer
         m_HomebindTimer = 0;
-        // send message to player
-        WorldPacket data(SMSG_RAID_GROUP_ONLY, 4+4);
-        data << uint32(m_HomebindTimer);
-        data << uint32(1);
-        GetSession()->SendPacket(&data);
+
+        WorldPackets::Instance::RaidGroupOnly raidOnly;
+        raidOnly.Delay = m_HomebindTimer;
+        raidOnly.Reason = 1;
+        GetSession()->SendPacket(raidOnly.Write());
+
         sLog->outDebug(LOG_FILTER_MAPS, "PLAYER: Player '%s' (GUID: %u) will be teleported to homebind in 60 seconds", GetName(), GetGUID().GetCounter());
         RepopAtGraveyard();
     }
@@ -28858,12 +28833,9 @@ Guild* Player::GetGuild()
     return GetGuildId() ? sGuildMgr->GetGuildById(GetGuildId()) : NULL;
 }
 
-//! 6.0.3
 void Player::SendDuelCountdown(uint32 counter)
 {
-    WorldPacket data(SMSG_DUEL_COUNTDOWN, 4);
-    data << uint32(counter);                                // seconds
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Duel::DuelCountdown(counter).Write());
 }
 
 void Player::AddRefundReference(ObjectGuid it)
@@ -30259,48 +30231,36 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
     return difficulty;
 }
 
-//! 6.1.2
-void Player::SendSpellScene(uint32 miscValue, SpellInfo const* spellInfo, bool apply, Position* pos)
-{
-    ObjectGuid TransportGUID;// = m_caster->GetGUID(); // not caster something else??? wrong val. could break scean.
-    
-    const SpellScene *spell_scene = sSpellMgr->GetSpellScene(miscValue);
-    if (!spell_scene)
+void Player::SendSpellScene(uint32 sceneID, SpellInfo const* spellInfo, bool apply, Position* pos)
+{    
+    SpellScene const* spellScene = sSpellMgr->GetSpellScene(sceneID);
+    if (!spellScene)
         return;
 
     if (apply)
     {
-        WorldPacket data(SMSG_PLAY_SCENE, 46);
-        data << uint32(miscValue);                                       // SceneID
-        data << uint32(spell_scene->PlaybackFlags);                      // PlaybackFlags
-        data << uint32(++sceneInstanceID);                               // SceneInstanceID
-        data << uint32(spell_scene->SceneScriptPackageID);                     // SceneScriptPackageID
-        data << TransportGUID;
-        data << float(pos->GetPositionX()/*i->x*/);                      // X
-        data << float(pos->GetPositionY()/*i->y*/);                      // Y
-        data << float(pos->GetPositionZ()/*i->z*/);                      // Z
-        data << float(pos->GetOrientation()/*i->o*/);                    // Facing              
-
-        ToPlayer()->GetSession()->SendPacket(&data);
+        WorldPackets::Scene::PlayScene scene;
+        scene.SceneID = sceneID;
+        scene.PlaybackFlags = spellScene->PlaybackFlags;
+        scene.SceneInstanceID = ++sceneInstanceID;
+        scene.SceneScriptPackageID = spellScene->SceneScriptPackageID;
+        scene.Pos = {pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), pos->GetOrientation()};
+        ToPlayer()->GetSession()->SendPacket(scene.Write());
 
         // Link aura effect
-        m_sceneInstanceID[sceneInstanceID] = miscValue;
-        m_sceneStatus[miscValue] = SCENE_LAUNCH;
+        m_sceneInstanceID[sceneInstanceID] = sceneID;
+        m_sceneStatus[sceneID] = SCENE_LAUNCH;
     }
     else
     {
         uint32 ID = 0;
         for (auto data : m_sceneInstanceID)
-        {
-            // no break. get last.
-            if (data.second == miscValue)
+            if (data.second == sceneID) // no break. get last.
                 ID = data.first;
-        }
+
         ASSERT(ID);
 
-        WorldPacket data(SMSG_CANCEL_SCENE, 4);
-        data << ID;
-        ToPlayer()->GetSession()->SendPacket(&data);
+        ToPlayer()->GetSession()->SendPacket(WorldPackets::Scene::CancelScene(ID).Write());
     }
 }
 

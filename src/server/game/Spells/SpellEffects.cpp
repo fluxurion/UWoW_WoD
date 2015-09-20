@@ -68,6 +68,7 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "AreaTrigger.h"
+#include "DuelPackets.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -2864,11 +2865,7 @@ void Spell::EffectHealPct(SpellEffIndex effIndex)
     switch (m_spellInfo->Id)
     {
         case 149254: // Spirit Bond
-        {
-            if (Map* m_map = m_originalCaster->GetMap())
-                if (!m_map->IsDungeon())
-                    heal = m_originalCaster->CalcPvPPower(unitTarget, heal, true);
-        }
+            heal = m_originalCaster->CalcVersalityBonus(unitTarget, heal);
         default:
             break;
     }
@@ -6139,33 +6136,13 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
 
     m_caster->AddGameObject(pGameObj);
     map->AddToMap(pGameObj);
-    //END
 
-    // Send request
-    ObjectGuid goGuid = pGameObj->GetGUID();
-    ObjectGuid playerGuid = caster->GetGUID();
-    WorldPacket data(SMSG_DUEL_REQUESTED, 8 + 8 + 1 + 1);
-    //data.WriteGuidMask<5>(goGuid);
-    //data.WriteGuidMask<5, 2>(playerGuid);
-    //data.WriteGuidMask<7>(goGuid);
-    //data.WriteGuidMask<7>(playerGuid);
-    //data.WriteGuidMask<2, 0, 6, 1, 3>(goGuid);
-    //data.WriteGuidMask<6, 4, 3, 0>(playerGuid);
-    //data.WriteGuidMask<4>(goGuid);
-    //data.WriteGuidMask<1>(playerGuid);
-
-    //data.WriteGuidBytes<1, 4>(playerGuid);
-    //data.WriteGuidBytes<0>(goGuid);
-    //data.WriteGuidBytes<6, 7>(playerGuid);
-    //data.WriteGuidBytes<7, 5>(goGuid);
-    //data.WriteGuidBytes<3>(playerGuid);
-    //data.WriteGuidBytes<6>(goGuid);
-    //data.WriteGuidBytes<2>(playerGuid);
-    //data.WriteGuidBytes<3>(goGuid);
-    //data.WriteGuidBytes<0, 5>(playerGuid);
-    //data.WriteGuidBytes<2, 4, 1>(goGuid);
-    caster->GetSession()->SendPacket(&data);
-    target->GetSession()->SendPacket(&data);
+    WorldPackets::Duel::DuelRequested duelRequested;
+    duelRequested.ArbiterGUID = pGameObj->GetGUID();
+    duelRequested.RequestedByGUID = caster->GetGUID();
+    duelRequested.RequestedByWowAccount = caster->GetSession()->GetBattlenetAccountGUID();
+    caster->GetSession()->SendPacket(duelRequested.Write());
+    target->GetSession()->SendPacket(duelRequested.Write());
 
     // create duel-info
     DuelInfo* duel   = new DuelInfo;

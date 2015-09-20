@@ -18,8 +18,10 @@
 #ifndef CalendarPackets_h_
 #define CalendarPackets_h_
 
+#include "ObjectGuid.h"
 #include "Packet.h"
-#include "SharedDefines.h"
+#include "PacketUtilities.h"
+#include "CalendarMgr.h"
 
 namespace WorldPackets
 {

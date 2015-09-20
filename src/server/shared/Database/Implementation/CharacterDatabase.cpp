@@ -664,4 +664,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     //
     PrepareStatement(CHAR_SEL_CHECK_DELETED_CHARACTER, "SELECT account FROM characters WHERE guid = ? AND deleteInfos_Account = ?", CONNECTION_BOTH);
     PrepareStatement(CHAR_UPD_RESTORE_DELETED_CHARACTER, "UPDATE characters SET account=?, name =?, at_login = at_login |1, deleteInfos_Account=NULL, deleteInfos_Name=NULL, deleteDate=NULL WHERE guid = ? ", CONNECTION_BOTH);
+
+    // Black Market
+    PrepareStatement(CHAR_SEL_BLACKMARKET_AUCTIONS, "SELECT marketId, currentBid, time, numBids, bidder FROM blackmarket_auctions", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_DEL_BLACKMARKET_AUCTIONS, "DELETE FROM blackmarket_auctions WHERE marketId = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_BLACKMARKET_AUCTIONS, "UPDATE blackmarket_auctions SET currentBid = ?, time = ?, numBids = ?, bidder = ? WHERE marketId = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_BLACKMARKET_AUCTIONS, "INSERT INTO blackmarket_auctions (marketId, currentBid, time, numBids, bidder) VALUES (?, ?, ?, ? ,?)", CONNECTION_ASYNC);
 }

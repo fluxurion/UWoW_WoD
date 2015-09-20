@@ -4600,36 +4600,32 @@ enum PetSlot
 
 enum TradeStatus
 {
-    TRADE_STATUS_ONLY_CONJURED          = 0,
-    TRADE_STATUS_NOT_ELIGIBLE           = 1,
-    TRADE_STATUS_TRADE_ACCEPT           = 2, // ??
-    TRADE_STATUS_TARGET_STUNNED         = 3,
-    TRADE_STATUS_BEGIN_TRADE            = 4,
-    TRADE_STATUS_TARGET_TO_FAR          = 5,
-    TRADE_STATUS_UNK1                   = 6,
-    TRADE_STATUS_WRONG_FACTION          = 7,
-    TRADE_STATUS_CURRENCY               = 8,
-    TRADE_STATUS_YOU_DEAD               = 9,
-    //выпредложили обмен
-    TRADE_STATUS_TRADE_COMPLETE         = 11,
-    TRADE_STATUS_UNK2                   = 12,
-    TRADE_STATUS_CLOSE_WINDOW           = 13,
-    //преложил обмен
-    TRADE_STATUS_YOU_LOGOUT             = 15,
-    TRADE_STATUS_IGNORE_YOU             = 16,
-    TRADE_STATUS_TARGET_LOGOUT          = 17,
-    TRADE_STATUS_YOU_STUNNED            = 18,
-    TRADE_STATUS_BUSY                   = 20,
-    TRADE_STATUS_CURRENCY_NOT_TRADEABLE = 21,
-    TRADE_STATUS_TRIAL_ACCOUNT          = 22,
-    TRADE_STATUS_BUSY_2                 = 26,
-    TRADE_STATUS_TRADE_CANCELED         = 27,
-    TRADE_STATUS_TARGET_DEAD            = 29,
-    TRADE_STATUS_NO_TARGET              = 30,
-    TRADE_STATUS_OPEN_WINDOW            = 31,
-
-
-    TRADE_STATUS_BACK_TO_TRADE          = 28, //??
+    TRADE_STATUS_STUNNED               = 0,
+    TRADE_STATUS_TARGET_DEAD           = 2,
+    TRADE_STATUS_PLAYER_IGNORED        = 3,
+    TRADE_STATUS_STATE_CHANGED         = 4,
+    TRADE_STATUS_PETITION              = 5,
+    TRADE_STATUS_FAILED                = 6,
+    TRADE_STATUS_NOT_ENOUGH_CURRENCY   = 7,
+    TRADE_STATUS_TARGET_LOGGING_OUT    = 8,
+    TRADE_STATUS_PROPOSED              = 9,
+    TRADE_STATUS_RESTRICTED_ACCOUNT    = 10,
+    TRADE_STATUS_WRONG_REALM           = 12,
+    TRADE_STATUS_ALREADY_TRADING       = 14,
+    TRADE_STATUS_COMPLETE              = 15,
+    TRADE_STATUS_TARGET_STUNNED        = 16,
+    TRADE_STATUS_ACCEPTED              = 17,
+    TRADE_STATUS_NO_TARGET             = 18,
+    TRADE_STATUS_CURRENCY_NOT_TRADABLE = 19,
+    TRADE_STATUS_WRONG_FACTION         = 20,
+    TRADE_STATUS_NOT_ON_TAPLIST        = 21,
+    TRADE_STATUS_UNACCEPTED            = 23,
+    TRADE_STATUS_LOGGING_OUT           = 24,
+    TRADE_STATUS_CANCELLED             = 26,
+    TRADE_STATUS_TOO_FAR_AWAY          = 27,
+    TRADE_STATUS_DEAD                  = 28,
+    TRADE_STATUS_INITIATED             = 29,
+    TRADE_STATUS_PLAYER_BUSY           = 30
 
 };
 

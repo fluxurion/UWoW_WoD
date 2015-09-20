@@ -206,7 +206,7 @@ CalendarEvent* CalendarMgr::CheckPermisions(uint64 eventId, Player* player, Cale
     CalendarEvent* calendarEvent = GetEvent(eventId);
     if (!calendarEvent)
     {
-        player->GetSession()->SendCalendarCommandResult(CALENDAR_ERROR_EVENT_INVALID);
+        player->GetSession()->SendCalendarCommandResult(player->GetGUID(), CALENDAR_ERROR_EVENT_INVALID);
         return NULL;
     }
 
@@ -215,19 +215,19 @@ CalendarEvent* CalendarMgr::CheckPermisions(uint64 eventId, Player* player, Cale
 
     if (!invite)
     {
-        player->GetSession()->SendCalendarCommandResult(CALENDAR_ERROR_NO_INVITE);
+        player->GetSession()->SendCalendarCommandResult(player->GetGUID(), CALENDAR_ERROR_NO_INVITE);
         return NULL;
     }
 
     if (invite->GetEventId() != calendarEvent->GetEventId() || invite->GetInvitee() != player->GetGUID())
     {
-        player->GetSession()->SendCalendarCommandResult(CALENDAR_ERROR_INTERNAL);
+        player->GetSession()->SendCalendarCommandResult(player->GetGUID(), CALENDAR_ERROR_INTERNAL);
         return NULL;
     }
 
     if (invite->GetRank() < minRank)
     {
-        player->GetSession()->SendCalendarCommandResult(CALENDAR_ERROR_PERMISSIONS);
+        player->GetSession()->SendCalendarCommandResult(player->GetGUID(), CALENDAR_ERROR_PERMISSIONS);
         return NULL;
     }
 
@@ -437,7 +437,7 @@ void CalendarMgr::AddAction(CalendarAction const& action, uint64 eventId)
 
             if (calendarEvent->GetCreatorGUID() == invite->GetInvitee())
             {
-                action.GetPlayer()->GetSession()->SendCalendarCommandResult(CALENDAR_ERROR_DELETE_CREATOR_FAILED);
+                action.GetPlayer()->GetSession()->SendCalendarCommandResult(action.GetPlayer()->GetGUID(), CALENDAR_ERROR_DELETE_CREATOR_FAILED);
                 return;
             }
 

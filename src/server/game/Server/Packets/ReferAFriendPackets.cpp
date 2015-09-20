@@ -17,3 +17,29 @@
 
 #include "ReferAFriendPackets.h"
 
+void WorldPackets::ReferAFriend::AcceptLevelGrant::Read()
+{
+    _worldPacket >> Granter;
+}
+
+void WorldPackets::ReferAFriend::GrantLevel::Read()
+{
+    _worldPacket >> Target;
+}
+
+WorldPacket const* WorldPackets::ReferAFriend::ProposeLevelGrant::Write()
+{
+    _worldPacket << Sender;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::ReferAFriend::ReferAFriendFailure::Write()
+{
+    _worldPacket << int32(Reason);
+    _worldPacket.WriteBits(Str.length(), 6);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(Str);
+
+    return &_worldPacket;
+}

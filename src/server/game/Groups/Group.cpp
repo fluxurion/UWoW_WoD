@@ -37,6 +37,7 @@
 #include "UpdateFieldFlags.h"
 #include "GuildMgr.h"
 #include "Bracket.h"
+#include "LootPackets.h"
 
 Roll::Roll(ObjectGuid _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
     itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -1147,28 +1148,15 @@ void Group::SendLootAllPassed(Roll const& roll)
     }
 }
 
-// notify group members which player is the allowed looter for the given creature
-//! 6.0.3
 void Group::SendLooter(Creature* creature, Player* groupLooter)
 {
     ASSERT(creature);
 
-    ObjectGuid gGroupLooter = groupLooter ? groupLooter->GetGUID() : ObjectGuid::Empty;
-    ObjectGuid RoundRobinWinner;
-
-    WorldPacket data(SMSG_LOOT_LIST, (25));
-    data << creature->GetGUID();
-
-    data.WriteBit(!gGroupLooter.IsEmpty());
-    data.WriteBit(!RoundRobinWinner.IsEmpty());
-
-    if (gGroupLooter)
-        data << gGroupLooter;
-
-    if (RoundRobinWinner)
-        data << RoundRobinWinner;
-
-    BroadcastPacket(&data, false);
+    WorldPackets::Loot::LootList lootList;
+    lootList.Owner = creature->GetGUID();
+    lootList.Master = groupLooter ? groupLooter->GetGUID() : ObjectGuid::Empty;
+    //lootList.RoundRobinWinner;
+    BroadcastPacket(lootList.Write(), false);
 }
 
 void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)

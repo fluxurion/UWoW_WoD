@@ -41,6 +41,7 @@ enum TypeID
     TYPEID_CONVERSATION  = 10
 };
 
+#define TRADE_DISTANCE                      11.11f
 #define NUM_CLIENT_OBJECT_TYPES             11
 
 enum TypeMask

@@ -64,6 +64,8 @@
 #include "WhoPackets.h"
 #include "SocialPackets.h"
 #include "ItemPackets.h"
+#include "InstancePackets.h"
+#include "ReputationPackets.h"
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet)
 {
@@ -400,7 +402,7 @@ void WorldSession::HandleContactListOpcode(WorldPackets::Social::SendContactList
     _player->GetSocial()->SendSocialList(_player, packet.Flags);
 }
 
-void WorldSession::HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet)
+void WorldSession::HandleAddFriend(WorldPackets::Social::AddFriend& packet)
 {
     time_t now = time(NULL);
     if (now - timeAddIgnoreOpcode < 3)
@@ -483,7 +485,7 @@ void WorldSession::HandleDelFriendOpcode(WorldPackets::Social::DelFriend& packet
     sSocialMgr->SendFriendStatus(GetPlayer(), FRIEND_REMOVED, packet.Player.Guid, false);
 }
 
-void WorldSession::HandleAddIgnoreOpcode(WorldPackets::Social::AddIgnore& packet)
+void WorldSession::HandleAddIgnore(WorldPackets::Social::AddIgnore& packet)
 {
     time_t now = time(NULL);
     if (now - timeAddIgnoreOpcode < 3)
@@ -638,12 +640,12 @@ void WorldSession::HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse
 }
 
 //! 6.0.3
-void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& packet)
+void WorldSession::HandleAreaTrigger(WorldPackets::Misc::AreaTrigger& packet)
 {
     Player* player = GetPlayer();
     if (player->isInFlight())
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) in flight, ignore Area Trigger ID:%u",
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTrigger: Player '%s' (GUID: %u) in flight, ignore Area Trigger ID:%u",
             player->GetName(), player->GetGUID().GetCounter(), packet.AreaTriggerID);
         return;
     }
@@ -651,14 +653,14 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
     AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(packet.AreaTriggerID);
     if (!atEntry)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) send unknown (by DBC) Area Trigger ID:%u",
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTrigger: Player '%s' (GUID: %u) send unknown (by DBC) Area Trigger ID:%u",
             player->GetName(), player->GetGUID().GetCounter(), packet.AreaTriggerID);
         return;
     }
 
     if (player->GetMapId() != atEntry->mapid)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTrigger: Player '%s' (GUID: %u) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
             player->GetName(), atEntry->mapid, player->GetMapId(), player->GetGUID().GetCounter(), packet.AreaTriggerID);
         return;
     }
@@ -672,7 +674,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
         float dist = player->GetDistance(atEntry->x, atEntry->y, atEntry->z);
         if (dist > atEntry->radius + delta)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far (radius: %f distance: %f), ignore Area Trigger ID: %u",
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTrigger: Player '%s' (GUID: %u) too far (radius: %f distance: %f), ignore Area Trigger ID: %u",
                 player->GetName(), player->GetGUID().GetCounter(), atEntry->radius, dist, packet.AreaTriggerID);
             return;
         }
@@ -703,7 +705,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::Misc::AreaTrigger& pack
             (fabs(dy) > atEntry->box_y / 2 + delta) ||
             (fabs(dz) > atEntry->box_z / 2 + delta))
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTrigger: Player '%s' (GUID: %u) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
                 player->GetName(), player->GetGUID().GetCounter(), atEntry->box_x/2, atEntry->box_y/2, atEntry->box_z/2, rotPlayerX, rotPlayerY, dz, packet.AreaTriggerID);
             return;
         }
@@ -1136,16 +1138,19 @@ void WorldSession::HandleTimeSyncResp(WorldPackets::Misc::TimeSyncResponse& pack
     _player->m_timeSyncQueue.pop();
 }
 
-//! 6.0.3
-void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleResetInstances(WorldPackets::Instance::ResetInstances& /*packet*/)
 {
-    if (Group* group = _player->GetGroup())
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    if (Group* group = player->GetGroup())
     {
-        if (group->IsLeader(_player->GetGUID()))
-            group->ResetInstances(INSTANCE_RESET_ALL, false, false, _player);
+        if (group->IsLeader(player->GetGUID()))
+            group->ResetInstances(INSTANCE_RESET_ALL, false, false, player);
     }
     else
-        _player->ResetInstances(INSTANCE_RESET_ALL, false, false);
+        player->ResetInstances(INSTANCE_RESET_ALL, false, false);
 }
 
 //! 6.0.3
@@ -1449,23 +1454,21 @@ void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
     _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
 }
 
-void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
+void WorldSession::HandleInstanceLockResponse(WorldPackets::Instance::InstanceLockResponse& packet)
 {
-    uint8 accept;
-    recvPacket >> accept;
-
-    if (!_player->HasPendingBind())
-    {
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "InstanceLockResponse: Player %s (guid %u) tried to bind himself/teleport to graveyard without a pending bind!", _player->GetName(), _player->GetGUID().GetCounter());
+    Player* player = GetPlayer();
+    if (!player)
         return;
-    }
 
-    if (accept)
-        _player->BindToInstance();
+    if (!player->HasPendingBind())
+        return;
+
+    if (packet.AcceptLock)
+        player->BindToInstance();
     else
-        _player->RepopAtGraveyard();
+        player->RepopAtGraveyard();
 
-    _player->SetPendingBind(0, 0);
+    player->SetPendingBind(0, 0);
 }
 
 void WorldSession::HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& /*packet*/) { }
@@ -1581,22 +1584,9 @@ void WorldSession::SuspendTokenResponse(WorldPacket& recvPacket)
     SendPacket(&data);
 }
 
-void WorldSession::HandleForcedReactions(WorldPacket& recvPacket)
+void WorldSession::HandleForcedReactions(WorldPackets::Reputation::RequestForcedReactions& /*packet*/)
 {
     _player->GetReputationMgr().SendForceReactions();
-}
-
-void WorldSession::HandleSceneComplete(WorldPacket& recvPacket)
-{
-    _player->SceneCompleted(recvPacket.read<uint32>());
-}
-
-void WorldSession::HandleTrigerSceneEvent(WorldPacket& recvPacket)
-{
-    uint16 typelen = recvPacket.ReadBits(6);
-    uint32 instanceID = recvPacket.read<uint32>();
-    std::string type = recvPacket.ReadString(typelen);
-    _player->TrigerScene(instanceID, type);
 }
 
 void WorldSession::HandleWarGameStart(WorldPacket& recvPacket) { }

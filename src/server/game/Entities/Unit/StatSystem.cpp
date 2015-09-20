@@ -1859,71 +1859,116 @@ void Player::UpdateMasteryAuras()
     }
 }
 
-void Player::UpdatePvPPower()
+void Player::UpdateVersality()
 {
-    float  PowerPct  = GetRatingBonusValue(CR_PVP_POWER);
-    float  Damage    = 0;
-    float  Heal      = 0;
-    uint16 DamagePct = 0;
-    uint16 HealPct   = 0;
-    
-    switch (GetSpecializationId(GetActiveSpec()))
-    {
-        case SPEC_MAGE_ARCANE:
-        case SPEC_MAGE_FIRE:
-        case SPEC_MAGE_FROST:
-        case SPEC_WARRIOR_ARMS:
-        case SPEC_WARRIOR_FURY:
-        case SPEC_WARRIOR_PROTECTION:
-        case SPEC_PALADIN_PROTECTION:
-        case SPEC_DRUID_BEAR:
-        case SPEC_DK_BLOOD:
-        case SPEC_DK_FROST:
-        case SPEC_DK_UNHOLY:
-        case SPEC_HUNTER_BEASTMASTER:
-        case SPEC_HUNTER_MARKSMAN:
-        case SPEC_HUNTER_SURVIVAL:
-        case SPEC_ROGUE_ASSASSINATION:
-        case SPEC_ROGUE_COMBAT:
-        case SPEC_ROGUE_SUBTLETY:
-        case SPEC_WARLOCK_AFFLICTION:
-        case SPEC_WARLOCK_DEMONOLOGY:
-        case SPEC_WARLOCK_DESTRUCTION:
-        case SPEC_MONK_BREWMASTER:
-        {
-            DamagePct = 100;
-            HealPct   =  40;
-            break;
-        }
-        case SPEC_SHAMAN_ELEMENTAL:
-        case SPEC_SHAMAN_ENHANCEMENT:
-        case SPEC_PALADIN_RETRIBUTION:
-        case SPEC_DRUID_BALANCE:
-        case SPEC_DRUID_CAT:
-        case SPEC_PRIEST_SHADOW:
-        case SPEC_MONK_WINDWALKER:
-        {
-            DamagePct = 100;
-            HealPct   =  70;
-            break;
-        }
-        case SPEC_PALADIN_HOLY:
-        case SPEC_DRUID_RESTORATION:
-        case SPEC_PRIEST_DISCIPLINE:
-        case SPEC_PRIEST_HOLY:
-        case SPEC_SHAMAN_RESTORATION:
-        case SPEC_MONK_MISTWEAVER:
-        {
-            HealPct   = 100;
-            break;
-        }
-        default:
-            break;
-    }
+    // need some informations about calc this for different specs
+    //switch (GetSpecializationId(GetActiveSpec()))
+    //{
+    //    case SPEC_MAGE_ARCANE:
+    //    case SPEC_MAGE_FIRE:
+    //    case SPEC_MAGE_FROST:
+    //    case SPEC_WARRIOR_ARMS:
+    //    case SPEC_WARRIOR_FURY:
+    //    case SPEC_WARRIOR_PROTECTION:
+    //    case SPEC_PALADIN_PROTECTION:
+    //    case SPEC_DRUID_BEAR:
+    //    case SPEC_DK_BLOOD:
+    //    case SPEC_DK_FROST:
+    //    case SPEC_DK_UNHOLY:
+    //    case SPEC_HUNTER_BEASTMASTER:
+    //    case SPEC_HUNTER_MARKSMAN:
+    //    case SPEC_HUNTER_SURVIVAL:
+    //    case SPEC_ROGUE_ASSASSINATION:
+    //    case SPEC_ROGUE_COMBAT:
+    //    case SPEC_ROGUE_SUBTLETY:
+    //    case SPEC_WARLOCK_AFFLICTION:
+    //    case SPEC_WARLOCK_DEMONOLOGY:
+    //    case SPEC_WARLOCK_DESTRUCTION:
+    //    case SPEC_MONK_BREWMASTER:
+    //        DamagePct = 100;
+    //        HealPct   =  40;
+    //        break;
+    //    case SPEC_SHAMAN_ELEMENTAL:
+    //    case SPEC_SHAMAN_ENHANCEMENT:
+    //    case SPEC_PALADIN_RETRIBUTION:
+    //    case SPEC_DRUID_BALANCE:
+    //    case SPEC_DRUID_CAT:
+    //    case SPEC_PRIEST_SHADOW:
+    //    case SPEC_MONK_WINDWALKER:
+    //        DamagePct = 100;
+    //        HealPct   =  70;
+    //        break;
+    //    case SPEC_PALADIN_HOLY:
+    //    case SPEC_DRUID_RESTORATION:
+    //    case SPEC_PRIEST_DISCIPLINE:
+    //    case SPEC_PRIEST_HOLY:
+    //    case SPEC_SHAMAN_RESTORATION:
+    //    case SPEC_MONK_MISTWEAVER:
+    //        HealPct   = 100;
+    //        break;
+    //    default:
+    //        break;
+    //}
 
-    Damage = CalculatePct(PowerPct, DamagePct);
-    Heal   = CalculatePct(PowerPct,   HealPct);
+    //Done = CalculatePct(damageDone, DamagePct);
+    //Taken  = CalculatePct(taken,   HealPct);
 
-    SetFloatValue(PLAYER_FIELD_PVP_POWER_DAMAGE,  Damage);
-    SetFloatValue(PLAYER_FIELD_PVP_POWER_HEALING,   Heal);
+    float ValueD = 0.f;
+    float ValueT = 0.f;
+
+    ValueD += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
+    ValueT += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN);
+
+    SetFloatValue(PLAYER_FIELD_VERSATILITY, ValueD);
+    SetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS, ValueT);
+}
+
+void Player::UpdateMultistrike()
+{
+    float Value = 0.f;
+
+    Value += GetRatingBonusValue(CR_MULTISTRIKE);
+
+    if (Value)
+        SetFloatValue(PLAYER_FIELD_MULTISTRIKE, Value);
+    SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, 0.3f); // const data
+}
+
+void Player::UpdateReadiness()
+{
+    float val = 0.f;
+
+    val += GetRatingBonusValue(CR_READINESS);
+    if (val)
+        SetFloatValue(PLAYER_FIELD_READINESS, val);
+}
+
+void Player::UpdateCRSpeed()
+{
+    float val = 0.f;
+
+    val += GetRatingBonusValue(CR_SPEED);
+
+    if (val)
+        SetFloatValue(PLAYER_FIELD_SPEED, val);
+}
+
+void Player::UpdateLifesteal()
+{
+    float val = 0.f;
+
+    val += GetRatingBonusValue(CR_LIFESTEAL);
+
+    if (val)
+        SetFloatValue(PLAYER_FIELD_LIFESTEAL, val);
+}
+
+void Player::UpdateAvoidance()
+{
+    float val = 0.f;
+
+    val += GetRatingBonusValue(CR_AVOIDANCE);
+
+    if (val)
+        SetFloatValue(PLAYER_FIELD_AVOIDANCE, val);
 }
