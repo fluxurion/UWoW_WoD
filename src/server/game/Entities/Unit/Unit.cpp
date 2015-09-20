@@ -24332,6 +24332,7 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
     }
 
     cLoot->unlootedCount = creature->GetSizeSaveThreat();
+    uint32 questId = creature->GetPersonalLootId();
     //sLog->outDebug(LOG_FILTER_LOOT, "Unit::GeneratePersonalLoot unlootedCount %i", cLoot->unlootedCount);
 
     GuidList* savethreatlist = creature->GetSaveThreatList();
@@ -24339,6 +24340,9 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
     {
         if (Player* looter = ObjectAccessor::GetPlayer(*creature, (*itr)))
         {
+            if(questId && looter->IsQuestRewarded(questId))
+                continue;
+
             if (looter->IsPlayerLootCooldown(cooldownid, cooldowntype, creature->GetMap()->GetDifficultyID()) || creature->GetZoneId() != looter->GetZoneId())
             {
                 --cLoot->unlootedCount;
@@ -24370,6 +24374,12 @@ void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)
                 --cLoot->unlootedCount;
             }
 
+            if(questId)
+            {
+                if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+                    if (looter->CanTakeQuest(quest, false))
+                        looter->CompleteQuest(questId);
+            }
             if(creature->isWorldBoss())
                 looter->AddPlayerLootCooldown(cooldownid, cooldowntype, true, creature->GetMap()->GetDifficultyID());
 

@@ -30412,8 +30412,8 @@ bool Player::CanSeeVignette(WorldObject *o)
 
     if (Creature const* creature = o->ToCreature())
     {
-        uint32 questId = creature->GetCreatureTemplate()->personalloot;
-        if(questId && GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
+        uint32 questId = creature->GetPersonalLootId();
+        if(questId && IsQuestRewarded(questId))
             return false;
     }
     return true;
