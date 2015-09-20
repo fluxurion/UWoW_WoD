@@ -461,8 +461,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                             69          70          71         72            73            74          75           76          77          78           79          80
                                              "InhabitType, HoverHeight, HealthModifier, ManaModifier, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            81           82            83         84               85                  86          87           88           89
-                                             " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName, personalloot, VignetteId "
+    //                                            81           82            83         84               85                  86          87           88           89            90
+                                             " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName, personalloot, VignetteId, WorldEffectID "
                                              "FROM creature_template;");
 
     if (!result)
@@ -566,6 +566,7 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.ScriptID           = GetScriptId(fields[index++].GetCString());
         creatureTemplate.personalloot       = fields[index++].GetUInt32();
         creatureTemplate.VignetteId         = fields[index++].GetUInt32();
+        creatureTemplate.WorldEffectID      = fields[index++].GetUInt32();
         if(creatureTemplate.type_flags & CREATURE_TYPEFLAGS_BOSS)
         {
             //Save loot spell
@@ -6382,8 +6383,8 @@ void ObjectMgr::LoadGameObjectTemplate()
                                              "questItem4, questItem5, questItem6, Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
     //                                          29      30      31      32      33      34      35      36      37      38      39      40      41      42      43      44
                                              "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, Data24, Data25, Data26, Data27, Data28, "
-    //                                          45      46      47      48       49       50        51          52              53
-                                             "Data29, Data30, Data31, Data32, unkInt32, AIName, ScriptName, WorldEffectID, SpellVisualID "
+    //                                          45      46      47      48       49       50        51          52              53                 54                55                  56                  57
+                                             "Data29, Data30, Data31, Data32, unkInt32, AIName, ScriptName, WorldEffectID, SpellVisualID, SpellStateVisualID, SpellStateAnimID, SpellStateAnimKitID, StateWorldEffectID  "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -6466,6 +6467,10 @@ void ObjectMgr::LoadGameObjectTemplate()
         got.ScriptId = GetScriptId(fields[51].GetCString());
         got.WorldEffectID = fields[52].GetInt32();
         got.SpellVisualID = fields[53].GetInt32();
+        got.SpellStateVisualID = fields[54].GetInt32();
+        got.SpellStateAnimID = fields[55].GetInt32();
+        got.SpellStateAnimKitID = fields[56].GetInt32();
+        got.StateWorldEffectID = fields[57].GetInt32();
 
         // Checks
 

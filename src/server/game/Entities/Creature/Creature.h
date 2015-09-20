@@ -171,6 +171,7 @@ struct CreatureTemplate
     uint32  GetFirstValidModelId() const;
     uint32  personalloot;
     uint32  VignetteId;
+    uint32  WorldEffectID;
 
     //Get difficulty from spawnmode
     static uint8 GetDiffFromSpawn(uint8 spawnmode)

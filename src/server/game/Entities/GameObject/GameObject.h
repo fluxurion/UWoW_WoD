@@ -54,6 +54,10 @@ struct GameObjectTemplate
     int32   unkInt32;
     uint32  WorldEffectID;
     uint32  SpellVisualID;
+    uint32  SpellStateVisualID;
+    uint32  SpellStateAnimID;
+    uint32  SpellStateAnimKitID;
+    uint32  StateWorldEffectID;
     union                                                   // different GO types have different data field
     {
         // 0 GAMEOBJECT_TYPE_DOOR

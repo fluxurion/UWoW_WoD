@@ -1485,6 +1485,9 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, int32 
     if (vehId)
         CreateVehicleKit(vehId, entry, true);
 
+    if(m_creatureInfo->WorldEffectID)
+        SetUInt32Value(UNIT_FIELD_STATE_WORLD_EFFECT_ID, m_creatureInfo->WorldEffectID);
+
     return true;
 }
 

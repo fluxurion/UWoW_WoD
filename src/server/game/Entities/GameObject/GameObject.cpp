@@ -219,9 +219,16 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     if(m_goInfo->WorldEffectID)
         m_updateFlag |= UPDATEFLAG_HAS_WORLDEFFECTID;
-
-    if(m_goInfo->WorldEffectID)
-        m_updateFlag |= UPDATEFLAG_HAS_WORLDEFFECTID;
+    if(m_goInfo->SpellVisualID)
+        SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, m_goInfo->SpellVisualID);
+    if(m_goInfo->SpellStateVisualID)
+        SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, m_goInfo->SpellStateVisualID);
+    if(m_goInfo->SpellStateAnimID)
+        SetUInt32Value(GAMEOBJECT_FIELD_STATE_ANIM_ID, m_goInfo->SpellStateAnimID);
+    if(m_goInfo->SpellStateAnimKitID)
+        SetUInt32Value(GAMEOBJECT_FIELD_STATE_ANIM_KIT_ID, m_goInfo->SpellStateAnimKitID);
+    if(m_goInfo->StateWorldEffectID)
+        SetUInt32Value(GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID, m_goInfo->StateWorldEffectID);
 
     switch (goinfo->type)
     {
