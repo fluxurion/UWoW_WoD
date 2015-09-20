@@ -357,6 +357,185 @@ struct BattlePetBreedStateEntry
     int32 stateModifier;
 };
 
+struct GarrisonAbilityEntry
+{
+    uint32 ID;                  // 0
+    //uint32 unk (flags?);      // 1
+    //string name;              // 2
+    //string description;       // 3
+    //uint32 fileDataEntry;     // 4
+    //uint32 unk2               // 5
+    //uint32 unk3               // 6
+};
+
+struct GarrisonAbilityEffectEntry
+{
+    uint32 ID;                  // 0
+    //uint32 unk (flags?);      // 1
+    uint32 garrAbilityID;       // 2
+    //uint32 unk1;              // 3
+    //uint32 unk2               // 4
+    //uint32 unk3               // 5
+    //float                     // 6
+    //float                     // 7
+    //float                     // 8
+    //uint32 unk5;              // 9
+    //uint32 unk6               // 10
+};
+
+struct GarrisonBuildingEntry
+{
+    uint32 ID;                  // 0
+    //uint32                    // 1
+    //uint32                    // 2
+    //uint32                    // 3
+    //uint32                    // 4
+    uint32 level;               // 5
+    char* name[2];              // 6-7
+    //string tooltip            // 8
+    //string description        // 9
+    uint32 buildingTime;        // 10
+    uint32 currencyID;          // 11
+    uint32 currencyValue;       // 12
+    //uint32                    // 13
+    //uint32                    // 14
+    //uint32                    // 15
+    //uint32                    // 16
+    //uint32                    // 17
+    //uint32                    // 18
+    //uint32                    // 19
+    uint32 workOrdersCount;     // 20
+    //uint32                    // 21
+    //uint32                    // 22
+    uint32 goldPrice;           // 23
+};
+
+struct GarrisonEncounterEntry
+{
+    uint32 ID;                  // 0
+    uint32 creatureID;          // 1
+    char* name;                 // 2
+    float modifier;             // 3
+    float modifier1;            // 4
+    //uint32                    // 5
+};
+
+struct GarrisonEncounterXMechanicEntry
+{
+    uint32 ID;                  // 0
+    uint32 encounterID;         // 1
+    uint32 mechaincID;          // 2
+};
+
+struct GarrisonFollowerEntry
+{
+    uint32 ID;                  // 0
+    uint32 creatureEntry[2];    // 1-2
+    //uint32                    // 3
+    //uint32                    // 4
+    //uint32                    // 5
+    //uint32                    // 6
+    //uint32                    // 7
+    //uint32                    // 8
+    //uint32                    // 9
+    uint32 level;               // 10
+    uint32 weaponItemLevel;     // 11
+    uint32 armorItemLevel;      // 12
+    //uint32                    // 13
+    //uint32                    // 14
+    //string tooltip[2]         // 15-16
+    //uint32                    // 17
+    //uint32                    // 18
+    //uint32                    // 19
+    //uint32                    // 20
+};
+
+struct GarrisonFollowerXAbilityEntry
+{
+    uint32 ID;                  // 0
+    uint32 followerID;          // 1
+    uint32 garrAbilityID;       // 2
+    //uint32                    // 3
+};
+
+struct GarrisonMechanicEntry
+{
+    uint32 ID;                  // 0
+    uint32 mechanicType;        // 1
+    float mod;                  // 2
+};
+
+struct GarrisonMissionEntry
+{
+    uint32 ID;                  // 0
+    uint32 requiredLevel;       // 1
+    uint32 requiredItemLevel;   // 2
+    //uint32                    // 3
+    uint32 reqFollowersCount;   // 4
+    //uint32                    // 5
+    uint32 missionTime;         // 6
+    uint32 vaildTime;           // 7
+    //uint32                    // 8
+    uint32 type;                // 9
+    //string name               // 10
+    //string description        // 11
+    //string location           // 12
+    //uint32                    // 13
+    //uint32                    // 14
+    uint32 reqResourcesCount;   // 15
+    //uint32                    // 16
+    uint32 bonusXP;             // 17
+    uint32 baseChance;          // 18
+};
+
+struct GarrisonMissionRewardEntry
+{
+    uint32 ID;                  // 0
+    uint32 missionID;           // 1
+    uint32 rewardXP;            // 2
+    uint32 rewardItemID;        // 3
+    //uint32                    // 4
+    uint32 currencyID;          // 5
+    uint32 currencyValue;       // 6
+    //uint32                    // 7
+    //uint32                    // 8
+    //uint32                    // 9
+};
+
+struct GarrisonMissionXEncounterEntry
+{
+    uint32 ID;                  // 0
+    uint32 missionID;           // 1
+    uint32 encounterID;         // 2
+};
+
+struct GarrisonPlotEntry
+{
+    uint32 ID;                  // 0
+    //uint32                    // 1
+    //uint32                    // 2
+    //uint32                    // 3
+    //string name               // 4
+    uint32 baseCount;           // 5
+    uint32 extendedCount;       // 6
+    //uint32                    // 7
+    //uint32                    // 8
+};
+
+struct GarrisonPlotBuildingEntry
+{
+    uint32 ID;                  // 0
+    uint32 plotID;              // 1
+    uint32 buildingID;          // 2
+};
+
+struct GarrisonPlotInstanceEntry
+{
+    uint32 ID;                  // 0
+    uint32 plotID;              // 1
+    //string name               // 2
+};
+
 struct CurrencyTypesEntry
 {
     uint32      ID;                                                 // 0
