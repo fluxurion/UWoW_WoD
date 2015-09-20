@@ -453,8 +453,8 @@ void BattlePayMgr::HandlePlayerLevelUp(LoginQueryHolder * holder)
         }
         else
         {
-            pCurrChar->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_ALLI);
-            pCurrChar->setFactionForRace(RACE_PANDAREN_ALLI);
+            pCurrChar->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_ALLIANCE);
+            pCurrChar->setFactionForRace(RACE_PANDAREN_ALLIANCE);
             WorldLocation location(0, -9076.77f, 424.74f, 92.42f, M_PI);
             pCurrChar->SetHomebind(location, 9);
             pCurrChar->learnSpell(668, false); // Language Common

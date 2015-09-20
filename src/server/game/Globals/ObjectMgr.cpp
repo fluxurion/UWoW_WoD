@@ -188,9 +188,9 @@ LanguageDesc lang_description[LANGUAGE_DESC_COUNT] =
     { LANG_GOBLIN_BINARY,   0, 0                       },
     { LANG_WORGEN,      69270, SKILL_LANG_WORGEN       },
     { LANG_GOBLIN,      69269, SKILL_LANG_GOBLIN       },
-    { LANG_PANDAREN_N,  108127,  SKILL_LANG_PANDAREN_N },
-    { LANG_PANDAREN_H,  108130,  SKILL_LANG_PANDAREN_A },
-    { LANG_PANDAREN_A,  108131,  SKILL_LANG_PANDAREN_H },
+    { LANG_PANDAREN_N,  108127,SKILL_LANG_PANDAREN_NEUTRAL },
+    { LANG_PANDAREN_H,  108130,SKILL_LANG_PANDAREN_HORDE },
+    { LANG_PANDAREN_A,  108131,SKILL_LANG_PANDAREN_ALLIANCE },
 };
 
 LanguageDesc const* GetLanguageDescByID(uint32 lang)
@@ -802,6 +802,18 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if ((cInfo->npcflag & UNIT_NPC_FLAG_TRAINER) && cInfo->trainer_type >= MAX_TRAINER_TYPE)
         sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has wrong trainer type %u.", cInfo->Entry, cInfo->trainer_type);
 
+    if (cInfo->speed_walk == 0.0f)
+    {
+        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has wrong value (%f) in speed_walk, set to 1.", cInfo->Entry, cInfo->speed_walk);
+        const_cast<CreatureTemplate*>(cInfo)->speed_walk = 1.0f;
+    }
+
+    if (cInfo->speed_run == 0.0f)
+    {
+        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has wrong value (%f) in speed_run, set to 1.14286.", cInfo->Entry, cInfo->speed_run);
+        const_cast<CreatureTemplate*>(cInfo)->speed_run = 1.14286f;
+    }
+
     if (cInfo->type && !sCreatureTypeStore.LookupEntry(cInfo->type))
     {
         sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has invalid creature type (%u) in `type`.", cInfo->Entry, cInfo->type);
@@ -878,7 +890,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
             const_cast<CreatureTemplate*>(cInfo)->scale = 1.0f;
     }
 
-    if (cInfo->expansion > MAX_EXPANSIONS)
+    if (cInfo->expansion > (MAX_EXPANSIONS - 1))
     {
         sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with `exp` %u. Ignored and set to 0.", cInfo->Entry, cInfo->expansion);
         const_cast<CreatureTemplate*>(cInfo)->expansion = 0;
@@ -894,6 +906,25 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     {
         sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with disallowed `flags_extra` %u, removing incorrect flag.", cInfo->Entry, badFlags);
         const_cast<CreatureTemplate*>(cInfo)->flags_extra &= CREATURE_FLAG_EXTRA_DB_ALLOWED;
+    }
+
+    if (cInfo->expansion == -1)
+    {
+        const_cast<CreatureTemplate*>(cInfo)->minlevel = (MAX_LEVEL + cInfo->minlevel);
+        const_cast<CreatureTemplate*>(cInfo)->maxlevel = (MAX_LEVEL + cInfo->maxlevel);
+        const_cast<CreatureTemplate*>(cInfo)->expansion = CURRENT_EXPANSION;
+    }
+
+    if (cInfo->minlevel < 1 || cInfo->minlevel > STRONG_MAX_LEVEL)
+    {
+        sLog->outError(LOG_FILTER_SQL, "Creature (ID: %u): MinLevel %i is not within [1, 255], value has been set to 1.", cInfo->Entry, cInfo->minlevel);
+        const_cast<CreatureTemplate*>(cInfo)->minlevel = 1;
+    }
+
+    if (cInfo->maxlevel < 1 || cInfo->maxlevel > STRONG_MAX_LEVEL)
+    {
+        sLog->outError(LOG_FILTER_SQL, "Creature (ID: %u): MaxLevel %i is not within [1, 255], value has been set to 1.", cInfo->Entry, cInfo->maxlevel);
+        const_cast<CreatureTemplate*>(cInfo)->maxlevel = 1;
     }
 
     const_cast<CreatureTemplate*>(cInfo)->dmg_multiplier *= Creature::_GetDamageMod(cInfo->rank);

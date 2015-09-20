@@ -639,6 +639,10 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     if ((type != CHAT_MSG_CHANNEL && type != CHAT_MSG_WHISPER) || language == LANG_ADDON)
         c.language = uint8(language);
 
+    Player* player = nullptr;
+    if (session)
+        player = session->GetPlayer();
+
     switch (type)
     {
         case CHAT_MSG_RAID:
@@ -646,18 +650,18 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
         case CHAT_MSG_RAID_WARNING:
         case CHAT_MSG_PARTY:
         case CHAT_MSG_PARTY_LEADER:
-        case CHAT_MSG_INSTANCE:
-        case CHAT_MSG_INSTANCE_LEADER:
-            if (session && session->GetPlayer()->GetGroup())
-                c.groupGuid = session->GetPlayer()->GetGroup()->GetGUID();
-            c.targetGuid = session ? session->GetPlayer()->GetGUID() : ObjectGuid::Empty;
+        case CHAT_MSG_INSTANCE_CHAT:
+        case CHAT_MSG_INSTANCE_CHAT_LEADER:
+            if (session && player->GetGroup())
+                c.groupGuid = player->GetGroup()->GetGUID();
+            c.targetGuid = session ? player->GetGUID() : ObjectGuid::Empty;
             c.sourceGuid = c.targetGuid;
             break;
         case CHAT_MSG_GUILD:
         case CHAT_MSG_OFFICER:
             if (session)
-                c.guildGuid = session->GetPlayer()->GetGuidValue(OBJECT_FIELD_DATA);
-            c.targetGuid = session ? session->GetPlayer()->GetGUID() : ObjectGuid::Empty;
+                c.guildGuid = player->GetGuidValue(OBJECT_FIELD_DATA);
+            c.targetGuid = session ? player->GetGUID() : ObjectGuid::Empty;
             c.sourceGuid = c.targetGuid;
             break;
         case CHAT_MSG_SAY:
@@ -667,7 +671,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
         case CHAT_MSG_BG_SYSTEM_NEUTRAL:
         case CHAT_MSG_BG_SYSTEM_ALLIANCE:
         case CHAT_MSG_BG_SYSTEM_HORDE:
-            c.targetGuid = session ? session->GetPlayer()->GetGUID() : ObjectGuid::Empty;
+            c.targetGuid = session ? player->GetGUID() : ObjectGuid::Empty;
             break;
         case CHAT_MSG_MONSTER_SAY:
         case CHAT_MSG_MONSTER_PARTY:
@@ -689,7 +693,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     }
 
     if (session && type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
-        c.chatTag = session->GetPlayer()->GetChatTag();
+        c.chatTag = player->GetChatTag();
 
     Trinity::BuildChatPacket(*data, c);
 }

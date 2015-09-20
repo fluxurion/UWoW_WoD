@@ -1514,8 +1514,8 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
     }
     else if (choice == JOIN_THE_ALLIANCE)
     {
-        _player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_ALLI);
-        _player->setFactionForRace(RACE_PANDAREN_ALLI);
+        _player->SetByteValue(UNIT_FIELD_BYTES_0, 0, RACE_PANDAREN_ALLIANCE);
+        _player->setFactionForRace(RACE_PANDAREN_ALLIANCE);
         _player->SaveToDB();
         WorldLocation location(0, -9076.77f, 424.74f, 92.42f, M_PI);
         _player->TeleportTo(location);

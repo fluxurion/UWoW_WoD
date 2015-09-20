@@ -298,14 +298,6 @@ class spell_dk_necrotic_strike : public SpellScriptLoader
                 if(Unit* caster = GetCaster())
                 {
                     amount = CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 225);
-
-                    if (Unit* target = aurEff->GetBase()->GetUnitOwner())
-                    {
-                        amount = caster->CalcPvPPower(target, amount);
-
-                        if (target->GetTypeId() == TYPEID_PLAYER)
-                            caster->ApplyResilience(target, &amount, false);
-                    }
                     amount += aurEff->GetOldBaseAmount();
                 }
             }

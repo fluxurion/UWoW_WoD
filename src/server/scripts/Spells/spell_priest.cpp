@@ -819,12 +819,12 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                     {
                         if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
-                            int32 currentPower = _player->GetPower(POWER_SHADOW_ORB) + 1; // Don't forget PowerCost
+                            int32 currentPower = _player->GetPower(POWER_SHADOW_ORBS) + 1; // Don't forget PowerCost
 
                             if(Aura* aura = _player->GetAura(145179)) // Item - Priest T16 Shadow 4P Bonus
                                 aura->GetEffect(0)->SetAmount(20 * currentPower);
 
-                            _player->ModifyPower(POWER_SHADOW_ORB, -currentPower, true);
+                            _player->ModifyPower(POWER_SHADOW_ORBS, -currentPower, true);
                             // Shadow Orb visual
                             if (_player->HasAura(77487))
                                 _player->RemoveAura(77487);
@@ -860,7 +860,7 @@ class spell_pri_devouring_plague : public SpellScriptLoader
             bool Load()
             {
                 if(Unit* caster = GetCaster())
-                    orbCount = caster->GetPower(POWER_SHADOW_ORB) + 1;
+                    orbCount = caster->GetPower(POWER_SHADOW_ORBS) + 1;
                 GetAura()->SetCustomData(orbCount);
                 return true;
             }
@@ -1615,8 +1615,8 @@ class spell_pri_psychic_horror : public SpellScriptLoader
                         Player* _player = caster->ToPlayer();
                         if (_player && _player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
-                            int32 currentPower = caster->GetPower(POWER_SHADOW_ORB) + 1;
-                            caster->ModifyPower(POWER_SHADOW_ORB, -currentPower, true);
+                            int32 currentPower = caster->GetPower(POWER_SHADOW_ORBS) + 1;
+                            caster->ModifyPower(POWER_SHADOW_ORBS, -currentPower, true);
 
                             // +1s per Shadow Orb consumed
                             if (Aura* psychicHorror = target->GetAura(64044))

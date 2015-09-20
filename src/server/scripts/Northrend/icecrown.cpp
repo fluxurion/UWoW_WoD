@@ -1782,7 +1782,7 @@ class npc_tg_tirion_fordring : public CreatureScript
                                 (*itr)->SetStandState(UNIT_STAND_STATE_STAND);
                                 (*itr)->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                 (*itr)->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
-                                (*itr)->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_READYUNARMED);
+                                (*itr)->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_READY_UNARMED);
                             }
                             Events.ScheduleEvent(EVENT_SPAWN_KNIGHTS, 6000);
                             }

@@ -1849,9 +1849,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     if (race == RACE_PANDAREN_NEUTRAL)
     {
     	if (used_loginFlag == AT_LOGIN_CHANGE_RACE)
-    		race = oldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_ALLI : RACE_PANDAREN_HORDE;
+    		race = oldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_ALLIANCE : RACE_PANDAREN_HORDE;
     	else
-    		race = oldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_HORDE : RACE_PANDAREN_ALLI;
+    		race = oldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_HORDE : RACE_PANDAREN_ALLIANCE;
     }
 
     if (!sObjectMgr->GetPlayerInfo(race, playerClass))
@@ -2034,7 +2034,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             case RACE_GOBLIN:
                 stmt->setUInt16(1, 792);
                 break;
-            case RACE_PANDAREN_ALLI:
+            case RACE_PANDAREN_ALLIANCE:
                 stmt->setUInt16(1, 906);
                 break;
             case RACE_PANDAREN_HORDE:
