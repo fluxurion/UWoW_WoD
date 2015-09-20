@@ -109,7 +109,7 @@ void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& pack
             type = CHAT_MSG_RAID_WARNING;
             break;
         case CMSG_CHAT_MESSAGE_INSTANCE_CHAT:
-            type = CHAT_MSG_INSTANCE;
+            type = CHAT_MSG_INSTANCE_CHAT;
             break;
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleMessagechatOpcode : Unknown chat opcode (%u)", packet.GetOpcode());
@@ -424,7 +424,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
             group->BroadcastPacket(&data, false);
             break;
         }
-        case CHAT_MSG_INSTANCE:
+        case CHAT_MSG_INSTANCE_CHAT:
         {
             // battleground raid is always in Player->GetGroup(), never in GetOriginalGroup()
             Group* group = GetPlayer()->GetGroup();
@@ -433,7 +433,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
                 return;
 
             if (group->IsLeader(GetPlayer()->GetGUID()))
-                type = CHAT_MSG_INSTANCE_LEADER;
+                type = CHAT_MSG_INSTANCE_CHAT_LEADER;
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
@@ -519,7 +519,7 @@ void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMes
             type = CHAT_MSG_GUILD;
             break;
         case CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT:
-            type = CHAT_MSG_INSTANCE;
+            type = CHAT_MSG_INSTANCE_CHAT;
             break;
         case CMSG_CHAT_ADDON_MESSAGE_OFFICER:
             type = CHAT_MSG_OFFICER;
@@ -569,7 +569,7 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
 
     switch (type)
     {
-        case CHAT_MSG_INSTANCE:
+        case CHAT_MSG_INSTANCE_CHAT:
         {
             Group* group = sender->GetGroup();
             if (!group)
@@ -626,7 +626,7 @@ void WorldSession::HandleEmoteOpcode(WorldPacket & recvData)
     uint32 emote;
     recvData >> emote;
 
-    if (emote > ANIM_FLYMONKOFFENSEATTACKWEAPON)
+    if (emote > ANIM_FLY_MONK_OFFENSE_ATTACK_WEAPON)
     {
         sLog->outWarn(LOG_FILTER_WARDEN, "Detected debugger - %s", GetPlayerName(false).c_str());
         KickPlayer();

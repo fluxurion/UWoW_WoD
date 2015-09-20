@@ -1851,7 +1851,7 @@ public:
             case RACE_WORGEN:
                 raceStr = "Worgen";
                 break;
-            case RACE_PANDAREN_ALLI:
+            case RACE_PANDAREN_ALLIANCE:
                 raceStr = "Pandaren alliance";
                 break;
             case RACE_PANDAREN_HORDE:

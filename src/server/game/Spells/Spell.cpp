@@ -5588,7 +5588,7 @@ void Spell::TakePower()
                         {
                         case POWER_CHI:
                         case POWER_HOLY_POWER:
-                        case POWER_SHADOW_ORB:
+                        case POWER_SHADOW_ORBS:
                         case POWER_SOUL_SHARDS:
                             ifMissedPowerCost = 0;
                             break;

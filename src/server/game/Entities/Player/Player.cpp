@@ -148,7 +148,7 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
         //case RACE_WORGEN:  SetTaximaskNode(); break;        // Worgen
         //case RACE_GOBLIN:  SetTaximaskNode(); break;        // Goblin
         //case RACE_PANDAREN_HORDE:  SetTaximaskNode(); break;     // Pandaren Horde
-        //case RACE_PANDAREN_ALLI:  SetTaximaskNode(); break;     // Pandaren Alliance
+        //case RACE_PANDAREN_ALLIANCE:  SetTaximaskNode(); break;     // Pandaren Alliance
     }
 
     // new continent starting masks (It will be accessible only at new map)
@@ -3061,7 +3061,7 @@ void Player::ResetAllPowers(bool preparation)
             SetPower(POWER_CHI, preparation ? GetMaxPower(POWER_CHI) : 0);
             break;
         case CLASS_PRIEST:
-            SetPower(POWER_SHADOW_ORB, 0);
+            SetPower(POWER_SHADOW_ORBS, 0);
             break;
         case CLASS_WARLOCK:
             SetPower(POWER_SOUL_SHARDS, 400, false);
@@ -6141,7 +6141,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
         SetPower(POWER_BURNING_EMBERS, 10, false);
         SetPower(POWER_SOUL_SHARDS, 100, false);
         SetPower(POWER_CHI, 0);
-        SetPower(POWER_SHADOW_ORB, 0);
+        SetPower(POWER_SHADOW_ORBS, 0);
     }
 
     // trigger update zone for alive state zone updates
@@ -26666,7 +26666,7 @@ void Player::ResurectUsingRequestData()
     SetPower(POWER_BURNING_EMBERS, 10, false);
     SetPower(POWER_SOUL_SHARDS, 100, false);
     SetPower(POWER_DEMONIC_FURY, 200, false);
-    SetPower(POWER_SHADOW_ORB, 0);
+    SetPower(POWER_SHADOW_ORBS, 0);
     SetPower(POWER_CHI, 0);
 
     if (uint32 aura = _resurrectionData->Aura)

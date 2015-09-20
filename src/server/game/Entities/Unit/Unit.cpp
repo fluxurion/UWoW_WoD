@@ -3784,7 +3784,7 @@ void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask)
 
     // Epicurean
     if (GetTypeId() == TYPEID_PLAYER &&
-        getRace() == RACE_PANDAREN_ALLI ||
+        getRace() == RACE_PANDAREN_ALLIANCE ||
         getRace() == RACE_PANDAREN_HORDE ||
         getRace() == RACE_PANDAREN_NEUTRAL)
     {
@@ -5746,7 +5746,7 @@ void Unit::SendSpellNonMeleeDamageLog(Unit* target, uint32 SpellID, uint32 Damag
     log.resist = Resist;
     log.physicalLog = PhysicalDamage;
     log.blocked = Blocked;
-    log.HitInfo = SPELL_HIT_TYPE_UNK1 | SPELL_HIT_TYPE_UNK3 | SPELL_HIT_TYPE_UNK6;
+    log.HitInfo = SPELL_HIT_TYPE_CRIT_DEBUG | SPELL_HIT_TYPE_HIT_DEBUG | SPELL_HIT_TYPE_ATTACK_TABLE_DEBUG;
     if (CriticalHit)
         log.HitInfo |= SPELL_HIT_TYPE_CRIT;
     SendSpellNonMeleeDamageLog(&log);
@@ -14702,7 +14702,7 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal)
             }
             break;
         }
-        case POWER_SHADOW_ORB:
+        case POWER_SHADOW_ORBS:
         {
             if(specId != SPEC_PRIEST_SHADOW)
             {
@@ -16309,7 +16309,7 @@ int32 Unit::GetCreatePowers(Powers power) const
             return 1000;
         case POWER_RUNES:
             return 0;
-        case POWER_SHADOW_ORB:
+        case POWER_SHADOW_ORBS:
             return 3;
         case POWER_BURNING_EMBERS:
             return 40;
@@ -22411,7 +22411,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
             break;
         }
         case RACE_PANDAREN_NEUTRAL:
-        case RACE_PANDAREN_ALLI:
+        case RACE_PANDAREN_ALLIANCE:
         case RACE_PANDAREN_HORDE:
         {
             switch (totemType)

@@ -164,7 +164,7 @@ public:
                 {
                     passenger->ToCreature()->SetReactState(REACT_AGGRESSIVE);
                     passenger->ExitVehicle();
-                    passenger->HandleEmoteCommand(EMOTE_ONESHOT_BATTLEROAR);
+                    passenger->HandleEmoteCommand(EMOTE_ONESHOT_BATTLE_ROAR);
                     passenger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 }
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);

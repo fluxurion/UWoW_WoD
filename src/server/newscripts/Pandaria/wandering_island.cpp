@@ -250,7 +250,7 @@ class mob_tushui_trainee : public CreatureScript
                             events.ScheduleEvent(EVENT_1, 5000);
                             break;
                         case EVENT_2:
-                            me->HandleEmoteCommand(EMOTE_MONK_TRAIN);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_MONKOFFENSE_ATTACKUNARMEDOFF);
                             events.ScheduleEvent(EVENT_2, 5000);
                             break;
                     }
@@ -2146,7 +2146,7 @@ public:
                 case 3:
                     if (Creature* wugou = GetClosestCreatureWithEntry(me, 60916, 20.0f))
                         me->SetFacingToObject(wugou);
-                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READYUNARMED);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY_UNARMED);
                     eventTimer = 2000;
                     ++eventProgress;
                     break;
@@ -4102,7 +4102,7 @@ class mob_mandori_escort : public CreatureScript
                         me->DespawnOrUnsummon(120000);
                         break;
                     case EVENT_JOJO_1:
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READYBOW);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY_BOW);
                         break;
                     case EVENT_JOJO_2:
                         me->HandleEmoteCommand(15);

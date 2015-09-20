@@ -286,41 +286,41 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_211
     &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212
     &Spell::EffectJumpDest,                                 //213 SPELL_EFFECT_JUMP_DEST2
-    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_214
-    &Spell::EffectNULL,                                     //215 SPELL_EFFECT_215
-    &Spell::EffectNULL,                                     //216 SPELL_EFFECT_216
-    &Spell::EffectNULL,                                     //217 SPELL_EFFECT_217
+    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_CREATE_GARRISON
+    &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS
+    &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
+    &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218
     &Spell::EffectSummonConversation,                       //219 SPELL_EFFECT_SUMMON_CONVERSATION
-    &Spell::EffectNULL,                                     //220 SPELL_EFFECT_220
+    &Spell::EffectNULL,                                     //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
-    &Spell::EffectNULL,                                     //222 SPELL_EFFECT_222
-    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_223
-    &Spell::EffectNULL,                                     //224 SPELL_EFFECT_224
-    &Spell::EffectNULL,                                     //225 SPELL_EFFECT_225
+    &Spell::EffectNULL,                                     //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
+    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
+    &Spell::EffectNULL,                                     //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
+    &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
     &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226
     &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227
     &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228
-    &Spell::EffectNULL,                                     //229 SPELL_EFFECT_229
-    &Spell::EffectNULL,                                     //230 SPELL_EFFECT_230
-    &Spell::EffectNULL,                                     //231 SPELL_EFFECT_231
-    &Spell::EffectNULL,                                     //232 SPELL_EFFECT_232
-    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_233
+    &Spell::EffectNULL,                                     //229 SPELL_EFFECT_SET_FOLLOWER_QUALITY
+    &Spell::EffectNULL,                                     //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL
+    &Spell::EffectNULL,                                     //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
+    &Spell::EffectNULL,                                     //232 SPELL_EFFECT_REMOVE_PHASE
+    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234
     &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235
-    &Spell::EffectNULL,                                     //236 SPELL_EFFECT_236
-    &Spell::EffectNULL,                                     //237 SPELL_EFFECT_237
-    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_238
-    &Spell::EffectNULL,                                     //239 SPELL_EFFECT_239
+    &Spell::EffectNULL,                                     //236 SPELL_EFFECT_GIVE_EXPERIENCE
+    &Spell::EffectNULL,                                     //237 SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS
+    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_INCREASE_SKILL
+    &Spell::EffectNULL,                                     //239 SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION
     &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242
-    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_243
-    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_244
-    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_245
-    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_246
-    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_247
-    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_248
+    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_UPGRADE_HEIRLOOM
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_FINISH_GARRISON_MISSION
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_ADD_GARRISON_MISSION
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //244 SPELL_EFFECT_249
     &Spell::EffectNULL,                                     //244 SPELL_EFFECT_250
 };

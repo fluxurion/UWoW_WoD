@@ -87,7 +87,7 @@ public:
             {
                 if (GameObject* pGo = instance->instance->GetGameObject(instance->GetGuidData(DATA_DOOR)))
                     pGo->SetGoState(GO_STATE_READY);
-                me->HandleEmoteCommand(EMOTE_ONESHOT_BATTLEROAR);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_BATTLE_ROAR);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_AGGRESSIVE);
             }

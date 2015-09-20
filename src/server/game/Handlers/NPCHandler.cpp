@@ -668,13 +668,13 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
                     continue;
 
                 // Custom MoP Script for Pandarens Mounts (Alliance)
-                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && _player->getRace() != RACE_PANDAREN_ALLI
+                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && _player->getRace() != RACE_PANDAREN_ALLIANCE
                     && _player->getRace() != RACE_PANDAREN_HORDE && _player->getRace() != RACE_PANDAREN_NEUTRAL
                     && vendor->GetEntry() == 65068 && _player->GetReputationRank(1353) != REP_EXALTED)
                     continue;
 
                 // Custom MoP Script for Pandarens Mounts (Horde)
-                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && _player->getRace() != RACE_PANDAREN_ALLI
+                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && _player->getRace() != RACE_PANDAREN_ALLIANCE
                     && _player->getRace() != RACE_PANDAREN_HORDE && _player->getRace() != RACE_PANDAREN_NEUTRAL
                     && vendor->GetEntry() == 66022 && _player->GetReputationRank(1352) != REP_EXALTED)
                     continue;
