@@ -914,7 +914,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool IsDynTransport() const;
         bool IsDestructibleBuilding() const;
 
-        ObjectGuid::LowType GetDBTableGUIDLow() const { return m_DBTableGuid; }
+        uint64 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
         void UpdateRotationFields(float rotation2 = 0.0f, float rotation3 = 0.0f);
 
@@ -1109,7 +1109,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         typedef std::map<uint32, ObjectGuid> ChairSlotAndUser;
         ChairSlotAndUser ChairListSlots;
 
-        ObjectGuid::LowType m_DBTableGuid;                   ///< For new or temporary gameobjects is 0 for saved it is lowguid
+        uint64 m_DBTableGuid;                   ///< For new or temporary gameobjects is 0 for saved it is lowguid
         GameObjectTemplate const* m_goInfo;
         GameObjectData const* m_goData;
         GameObjectValue * const m_goValue;
