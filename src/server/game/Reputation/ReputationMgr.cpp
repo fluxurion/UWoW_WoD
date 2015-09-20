@@ -152,15 +152,16 @@ uint32 ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) con
 
 void ReputationMgr::SendForceReactions()
 {
-    //! 6.0.3
-    WorldPacket data(SMSG_SET_FORCED_REACTIONS, 1 + _forcedReactions.size() * (4 + 4));
-    data.WriteBits(_forcedReactions.size(), 6);
-    for (ForcedReactions::const_iterator itr = _forcedReactions.begin(); itr != _forcedReactions.end(); ++itr)
+    WorldPackets::Reputation::SetForcedReactions reactions;
+    reactions.Reactions.resize(_forcedReactions.size());
+    for (const auto& itr : _forcedReactions)
     {
-        data << uint32(itr->first);                         // faction_id (Faction.dbc)
-        data << uint32(itr->second);                        // reputation rank
+        WorldPackets::Reputation::ForcedReaction& fReaction = reactions.Reactions[_forcedReactions.size()];
+        fReaction.Faction = itr.first;
+        fReaction.Reaction = uint32(itr.second);
     }
-    _player->SendDirectMessage(&data);
+
+    _player->SendDirectMessage(reactions.Write());
 }
 
 //! 6.1.2

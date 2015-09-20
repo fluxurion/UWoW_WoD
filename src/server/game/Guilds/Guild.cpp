@@ -2223,7 +2223,6 @@ void Guild::SendLoginInfo(WorldSession* session)
           SMSG_GUILD_EVENT - GE_SIGNED_ON
           -- learn perks
           SMSG_GUILD_REPUTATION_WEEKLY_CAP
-          SMSG_ALL_GUILD_ACHIEVEMENTS
           SMSG_GUILD_MEMBER_DAILY_RESET // bank withdrawal reset
     */
 

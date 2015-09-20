@@ -20,16 +20,18 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Log.h"
+#include "ReferAFriendPackets.h"
 
-void WorldSession::HandleGrantLevel(WorldPacket& recvData)
+void WorldSession::HandleGrantLevel(WorldPackets::ReferAFriend::GrantLevel& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    Player* target = ObjectAccessor::GetObjectInWorld(guid, _player);
+    Player* target = ObjectAccessor::GetObjectInWorld(packet.Target, player);
 
     // check cheating
-    uint8 levels = _player->GetGrantableLevels();
+    uint8 levels = player->GetGrantableLevels();
     uint8 error = 0;
     if (!target)
         error = ERR_REFER_A_FRIEND_NO_TARGET;
@@ -37,38 +39,37 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
         error = ERR_REFER_A_FRIEND_INSUFFICIENT_GRANTABLE_LEVELS;
     else if (GetRecruiterId() != target->GetSession()->GetAccountId())
         error = ERR_REFER_A_FRIEND_NOT_REFERRED_BY;
-    else if (target->GetTeamId() != _player->GetTeamId())
+    else if (target->GetTeamId() != player->GetTeamId())
         error = ERR_REFER_A_FRIEND_DIFFERENT_FACTION;
-    else if (target->getLevel() >= _player->getLevel())
+    else if (target->getLevel() >= player->getLevel())
         error = ERR_REFER_A_FRIEND_TARGET_TOO_HIGH;
     else if (target->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
         error = ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I;
-    else if (target->GetGroup() != _player->GetGroup())
+    else if (target->GetGroup() != player->GetGroup())
         error = ERR_REFER_A_FRIEND_NOT_IN_GROUP;
 
-    if (error) {
-        //603
-        WorldPacket data(SMSG_REFER_A_FRIEND_FAILURE, 24);
-        data << uint32(error);
+    if (error) 
+    {
+        WorldPackets::ReferAFriend::ReferAFriendFailure failure;
         if (error == ERR_REFER_A_FRIEND_NOT_IN_GROUP)
-            data << target->GetName();
-
-        SendPacket(&data);
+            failure.Str =  target->GetName();
+        failure.Reason = error;
+        SendPacket(failure.Write());
         return;
     }
 
-    //603
-    WorldPacket data2(SMSG_PROPOSE_LEVEL_GRANT, 8);
-    data2 << _player->GetPackGUID();
-    target->GetSession()->SendPacket(&data2);
+    WorldPackets::ReferAFriend::ProposeLevelGrant grant;
+    grant.Sender = player->GetGUID();
+    target->GetSession()->SendPacket(grant.Write());
 }
 
-void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
+void WorldSession::HandleAcceptGrantLevel(WorldPackets::ReferAFriend::AcceptLevelGrant& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    Player* other = ObjectAccessor::GetObjectInWorld(guid, _player);
+    Player* other = ObjectAccessor::GetObjectInWorld(packet.Granter, player);
     if (!(other && other->GetSession()))
         return;
 
@@ -80,5 +81,5 @@ void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
     else
         return;
 
-    _player->GiveLevel(_player->getLevel() + 1);
+    player->GiveLevel(player->getLevel() + 1);
 }

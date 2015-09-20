@@ -21,6 +21,7 @@
 #include "LFGMgr.h"
 #include "InstanceSaveMgr.h"
 #include "WorldSession.h"
+#include "ScenePackets.h"
 
 ScenarioProgress::ScenarioProgress(uint32 _instanceId, lfg::LFGDungeonData const* _dungeonData)
     : instanceId(_instanceId), dungeonData(_dungeonData),
@@ -211,75 +212,54 @@ void ScenarioProgress::Reward(bool bonus)
 
 void ScenarioProgress::SendStepUpdate(Player* player, bool full)
 {
-    WorldPacket data(SMSG_SCENARIO_STATE, 3 + 7 * 4);
-    data.WriteBit(IsCompleted(true));                           // hasBonusStepComplete
-    data.WriteBit(HasBonusStep());                              // hasBonusStep
-    uint32 bitpos = data.bitwpos();
-    data.WriteBits(0, 19);                                      // criteria data
+    WorldPackets::Scene::ScenarioState state;
+    WorldPackets::Scene::ScenarioState::BonusObjective objective = state.Objectives[0];
+    {
+        objective.BonusObjectiveID = 0;
+        objective.ObjectiveComplete = 0;
+    }
+
+    CriteriaProgressMap* progressMap = GetAchievementMgr().GetCriteriaProgressMap(0);
+    
+    WorldPackets::Achievement::CriteriaTreeProgress progress = state.Progress[progressMap ? progressMap->size() : 0];
+
+    state.ScenarioID = GetScenarioId();
+    state.CurrentStep = currentStep;
+    state.DifficultyID = 0;
+    state.WaveCurrent = 0;
+    state.WaveMax = 0;
+    state.TimerDuration = 0;
+    state.ScenarioComplete = IsCompleted(false);    
 
     if (full)
     {
-        ByteBuffer buff;
-        uint32 count = 0;
-        if (CriteriaProgressMap const* progressMap = GetAchievementMgr().GetCriteriaProgressMap(0))
+        if (progressMap)
         {
             for (CriteriaProgressMap::const_iterator itr = progressMap->begin(); itr != progressMap->end(); ++itr)
             {
-                CriteriaTreeProgress const& progress = itr->second;
+                CriteriaTreeProgress const& treeProgress = itr->second;
                 CriteriaTreeEntry const* criteriaTreeEntry = sCriteriaTreeStore.LookupEntry(itr->first);
                 if (!criteriaTreeEntry)
                     continue;
 
-                ObjectGuid criteriaGuid = ObjectGuid::Create<HighGuid::Scenario>(0, GetScenarioId(), 1);
-                uint64 counter = progress.counter;
-
-                //data.WriteGuidMask<7, 6, 0, 4>(criteriaGuid);
-                //data.WriteGuidMask<7>(counter);
-                //data.WriteGuidMask<5, 1>(criteriaGuid);
-                //data.WriteGuidMask<1, 3, 0, 2>(counter);
-                //data.WriteGuidMask<3>(criteriaGuid);
-                //data.WriteGuidMask<5>(counter);
-                data.WriteBits(0, 4);           // criteria flags
-                //data.WriteGuidMask<4>(counter);
-                //data.WriteGuidMask<2>(criteriaGuid);
-                //data.WriteGuidMask<6>(counter);
-
-                buff.WriteGuidBytes<1>(counter);
-                buff << uint32(time(NULL) - progress.date);
-                buff.WriteGuidBytes<3>(counter);
-                //buff.WriteGuidBytes<3, 4, 0, 1>(criteriaGuid);
-                buff << secsToTimeBitFields(progress.date);
-                //buff.WriteGuidBytes<6, 7>(criteriaGuid);
-                //buff.WriteGuidBytes<0>(counter);
-                //buff.WriteGuidBytes<5>(criteriaGuid);
-                //buff.WriteGuidBytes<4, 5>(counter);
-                buff << uint32(criteriaTreeEntry->criteria);
-                //buff.WriteGuidBytes<2>(counter);
-                buff << uint32(time(NULL) - progress.date);
- /*               buff.WriteGuidBytes<6, 7>(counter);
-                buff.WriteGuidBytes<2>(criteriaGuid);*/
-
-                ++count;
+                progress.Id = criteriaTreeEntry->criteria;
+                progress.Quantity = treeProgress.counter;
+                progress.Player = ObjectGuid::Create<HighGuid::Scenario>(0, GetScenarioId(), 1); // whats the fuck ?
+                progress.Flags = 0;
+                progress.Date = time(NULL) - treeProgress.date;
+                progress.TimeFromStart = time(NULL) - treeProgress.date;
+                progress.TimeFromCreate = time(NULL) - treeProgress.date;
             }
         }
-
-        data.FlushBits();
-        data.append(buff);
-        data.PutBits(bitpos, count, 19);
     }
 
-    data << uint32(0);                          // waveMax (only for ProvingGrounds)
-    data << uint32(0);                          // difficultyID (only for ProvingGrounds)
-    data << uint32(GetScenarioId());
-    data << uint32(IsCompleted(false));         // scenarioCompleted?
-    data << uint32(0);                          // waveCurrent (only for ProvingGrounds)
-    data << uint32(0);                          // timerDuration (only for ProvingGrounds)
-    data << uint32(currentStep);
-
     if (player)
-        player->SendDirectMessage(&data);
+        player->SendDirectMessage(state.Write());
     else
-        BroadCastPacket(data);
+    {
+        if (Map* map = GetMap())
+            map->SendToPlayers(state.Write());
+    }
 }
 
 void ScenarioProgress::SendCriteriaUpdate(uint32 criteriaId, uint32 counter, time_t date)
@@ -424,59 +404,3 @@ ScenarioSteps const* ScenarioMgr::GetScenarioSteps(uint32 scenarioId)
     ScenarioStepsByScenarioMap::const_iterator itr = m_stepMap.find(scenarioId);
     return itr != m_stepMap.end() ? &itr->second : NULL;
 }
-
-void WorldSession::HandleScenarioPOIQuery(WorldPacket& recvData)
-{
-    uint32 count = recvData.ReadBits(22);
-    if (!count)
-        return;
-
-    WorldPacket data(SMSG_SCENARIO_PO_IS, 200);
-    data.WriteBits(count, 21);
-
-    ByteBuffer buff;
-    for (uint32 i = 0; i < count; ++i)
-    {
-        uint32 criteriaTreeId;
-        recvData >> criteriaTreeId;
-
-        ScenarioPOIVector const* POI = sObjectMgr->GetScenarioPOIVector(criteriaTreeId);
-        if (!POI)
-        {
-            data.WriteBits(0, 19);
-            buff << uint32(criteriaTreeId);
-            continue;
-        }
-
-        data.WriteBits(POI->size(), 19);
-
-        for (ScenarioPOIVector::const_iterator itr = POI->begin(); itr != POI->end(); ++itr)
-        {
-            buff << uint32(itr->BlobID);                // POI index
-            buff << uint32(itr->MapID);             // MapID
-            buff << uint32(itr->WorldEffectID);
-            buff << uint32(itr->Floor);
-            buff << uint32(itr->Priority);
-
-            data.WriteBits(itr->points.size(), 21); // POI points count
-            for (std::vector<ScenarioPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
-            {
-                buff << int32(itr2->y);             // POI point y
-                buff << int32(itr2->x);             // POI point x
-            }
-
-            buff << uint32(itr->WorldMapAreaID);
-            buff << uint32(itr->PlayerConditionID);
-            buff << uint32(itr->Flags);
-        }
-
-        buff << uint32(criteriaTreeId);             // criteria tree id
-    }
-
-    data.FlushBits();
-    if (!buff.empty())
-        data.append(buff);
-
-    SendPacket(&data);
-}
-

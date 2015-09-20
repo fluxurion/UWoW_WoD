@@ -66,6 +66,7 @@
 #include "MovementPackets.h"
 #include "MiscPackets.h"
 #include "VehiclePackets.h"
+#include "LootPackets.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -2325,8 +2326,6 @@ uint32 Unit::CalcAbsorb(Unit* victim, SpellInfo const* spellProto, uint32 amount
     AuraEffectList const& mAbsorbReducedDamage = victim->GetAuraEffectsByType(SPELL_AURA_MOD_ABSORB_AMOUNT);
     for (AuraEffectList::const_iterator i = mAbsorbReducedDamage.begin(); i != mAbsorbReducedDamage.end(); ++i)
         AddPct(amount, (*i)->GetAmount());
-
-    amount *= CalcPvPPower(victim, 1.0f, true);
 
     return amount;
 }
@@ -11893,7 +11892,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 
     {
         // Apply PowerPvP damage bonus
-        DoneTotalMod = CalcPvPPower(victim, DoneTotalMod);
+        DoneTotalMod = CalcVersalityBonus(victim, DoneTotalMod);
 
         // Chaos Bolt - 116858 and Soul Fire - 6353
         // damage is increased by your critical strike chance
@@ -12818,9 +12817,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         }
     }
 
-    if (Map* m_map = GetMap())
-        if (!m_map->IsDungeon())
-            DoneTotalMod = CalcPvPPower(victim, DoneTotalMod, true);
+    DoneTotalMod = CalcVersalityBonus(victim, DoneTotalMod);
 
     // done scripted mod (take it from owner)
     Unit* owner = GetOwner() ? GetOwner() : this;
@@ -13062,7 +13059,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     return uint32(std::max(heal, 0.0f));
 }
 
-float Unit::CalcPvPPower(Unit* target, float amount, bool isHeal)
+float Unit::CalcVersalityBonus(Unit* target, float amount)
 {
     if (!target)
         return amount;
@@ -13078,21 +13075,76 @@ float Unit::CalcPvPPower(Unit* target, float amount, bool isHeal)
         else return amount;
 
     if (GetTypeId() != TYPEID_PLAYER)
+    {
         if (Unit* owner = GetOwner())
         {
             if (owner->GetTypeId() == TYPEID_PLAYER)
-            {
                 caster = owner;
-            }
             else return amount;
         }
         else return amount;
+    }
 
+    float value = 0.f;
     if (Player* plr = caster->ToPlayer())
     {
-        float PowerPvP = plr->GetFloatValue(isHeal ? PLAYER_FIELD_PVP_POWER_HEALING: PLAYER_FIELD_PVP_POWER_DAMAGE);
-        AddPct(amount, PowerPvP);
+        value += plr->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS);
+
+        switch (plr->GetSpecializationId(plr->GetActiveSpec()))
+        {
+            case SPEC_MAGE_ARCANE:
+            case SPEC_MAGE_FIRE:
+            case SPEC_MAGE_FROST:
+            case SPEC_WARRIOR_ARMS:
+            case SPEC_WARRIOR_FURY:
+            case SPEC_WARRIOR_PROTECTION:
+            case SPEC_PALADIN_PROTECTION:
+            case SPEC_DRUID_BEAR:
+            case SPEC_DK_BLOOD:
+            case SPEC_DK_FROST:
+            case SPEC_DK_UNHOLY:
+            case SPEC_HUNTER_BEASTMASTER:
+            case SPEC_HUNTER_MARKSMAN:
+            case SPEC_HUNTER_SURVIVAL:
+            case SPEC_ROGUE_ASSASSINATION:
+            case SPEC_ROGUE_COMBAT:
+            case SPEC_ROGUE_SUBTLETY:
+            case SPEC_WARLOCK_AFFLICTION:
+            case SPEC_WARLOCK_DEMONOLOGY:
+            case SPEC_WARLOCK_DESTRUCTION:
+            case SPEC_MONK_BREWMASTER:
+                //DamagePct = 100;
+                //HealPct = 40;
+                break;
+            case SPEC_SHAMAN_ELEMENTAL:
+            case SPEC_SHAMAN_ENHANCEMENT:
+            case SPEC_PALADIN_RETRIBUTION:
+            case SPEC_DRUID_BALANCE:
+            case SPEC_DRUID_CAT:
+            case SPEC_PRIEST_SHADOW:
+            case SPEC_MONK_WINDWALKER:
+                //DamagePct = 100;
+                //HealPct = 70;
+                break;
+            case SPEC_PALADIN_HOLY:
+            case SPEC_DRUID_RESTORATION:
+            case SPEC_PRIEST_DISCIPLINE:
+            case SPEC_PRIEST_HOLY:
+            case SPEC_SHAMAN_RESTORATION:
+            case SPEC_MONK_MISTWEAVER:
+                //HealPct = 100;
+                break;
+            default:
+                break;
+        }
+
+        //Done = CalculatePct(damageDone, DamagePct);
+        //Taken  = CalculatePct(taken,   HealPct);
     }
+
+
+    if (Player* plr = caster->ToPlayer())
+        AddPct(amount, value);
 
     return amount;
 }
@@ -13376,7 +13428,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     float DoneTotalMod = 1.0f;
 
     // Apply PowerPvP damage bonus
-    DoneTotalMod = CalcPvPPower(victim, DoneTotalMod);
+    DoneTotalMod = CalcVersalityBonus(victim, DoneTotalMod);
 
     // Some spells don't benefit from pct done mods
     if (spellProto)
@@ -20464,11 +20516,11 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
 
             if (creature)
             {
-                //! 6.0.3
-                WorldPacket data2(SMSG_LOOT_LIST, 8 + 1 + 1);
-                data2 << creature->GetGUID();
-                data2 << uint8(0); // 2 bits
-                player->SendMessageToSet(&data2, true);
+                WorldPackets::Loot::LootList lootList;
+                lootList.Owner = creature->GetGUID();
+                //lootList.Master;
+                //lootList.RoundRobinWinner;
+                player->SendMessageToSet(lootList.Write(), true);
             }
         }
 

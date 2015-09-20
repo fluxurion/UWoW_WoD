@@ -51,6 +51,7 @@
 #include "BattlegroundPackets.h"
 #include "MiscPackets.h"
 #include "BattlePayPackets.h"
+#include "EquipmentSetPackets.h"
 
 bool LoginQueryHolder::Initialize()
 {
@@ -1593,56 +1594,27 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
     _player->SetEquipmentSet(index, eqSet);
 }
 
-void WorldSession::HandleEquipmentSetDelete(WorldPacket &recvData)
+void WorldSession::HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEquipmentSet& packet)
 {
-    uint64 setGuid;
-    recvData >> setGuid;
-
-    _player->DeleteEquipmentSet(setGuid);
+    _player->DeleteEquipmentSet(packet.ID);
 }
 
-//! 6.0.3
-void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
+void WorldSession::HandleEquipmentSetUse(WorldPackets::EquipmentSet::UseEquipmentSet& packet)
 {
-    ObjectGuid itemGuid[EQUIPMENT_SLOT_END];
-
-    uint32 dword10 = recvData.ReadBits(2);
-    for (uint8 i = 0; i < dword10; ++i)
-    {
-        recvData >> Unused<uint8>() >> Unused<uint8>();     // bag, slot
-    }
-
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        recvData >> itemGuid[i] >> Unused<uint8>() >> Unused<uint8>();
-    }
-
-    recvData.rfinish();
-
-    if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
-    {
-        sObjectMgr->DumpDupeConstant(GetPlayer());
-        sLog->outDebug(LOG_FILTER_DUPE, "---WorldSession::HandleEquipmentSetUse");
-    }
-
     ObjectGuid ignoredItemGuid;
     ignoredItemGuid.SetRawValue(0, 1);
 
-    EquipmentSlots startSlot = _player->isInCombat() ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_START;
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        if (i == EQUIPMENT_SLOT_RANGED || i < uint32(startSlot))
+        if (packet.Items[i].Item == ignoredItemGuid)
             continue;
 
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item " UI64FMTD ": srcbag %u, srcslot %u", itemGuid[i].GetCounter());
-
-        // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (itemGuid[i] == ignoredItemGuid)
+        if (_player->isInCombat() && i != EQUIPMENT_SLOT_MAINHAND && i != EQUIPMENT_SLOT_OFFHAND)
             continue;
 
-        Item* item = _player->GetItemByGuid(itemGuid[i]);
+        Item* item = _player->GetItemByGuid(packet.Items[i].Item);
 
-        uint16 dstpos = i | (INVENTORY_SLOT_BAG_0 << 8);
+        uint16 dstPos = i | (INVENTORY_SLOT_BAG_0 << 8);
 
         if (!item)
         {
@@ -1650,28 +1622,28 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
             if (!uItem)
                 continue;
 
-            ItemPosCountVec sDest;
-            InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, uItem, false);
-            if (msg == EQUIP_ERR_OK)
+            ItemPosCountVec itemPosCountVec;
+            InventoryResult inventoryResult = _player->CanStoreItem(NULL_BAG, NULL_SLOT, itemPosCountVec, uItem, false);
+            if (inventoryResult == EQUIP_ERR_OK)
             {
                 _player->RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
-                _player->StoreItem(sDest, uItem, true);
+                _player->StoreItem(itemPosCountVec, uItem, true);
             }
             else
-                _player->SendEquipError(msg, uItem, NULL);
-
+                _player->SendEquipError(inventoryResult, uItem,  NULL);
+            
             continue;
         }
 
-        if (item->GetPos() == dstpos)
+        if (item->GetPos() == dstPos)
             continue;
 
-        _player->SwapItem(item->GetPos(), dstpos);
+        _player->SwapItem(item->GetPos(), dstPos);
     }
 
-    WorldPacket data(SMSG_USE_EQUIPMENT_SET_RESULT, 1);
-    data << uint8(0);                                       // 4 - inventory is full, 0 - ok, else failed
-    SendPacket(&data);
+    WorldPackets::EquipmentSet::UseEquipmentSetResult result;
+    result.Reason = 0; // 4 - inventory is full, 0 - ok, else failed                                     
+    SendPacket(result.Write());
 }
 
 //! 6.0.3

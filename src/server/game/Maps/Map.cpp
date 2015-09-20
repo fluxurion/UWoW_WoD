@@ -36,6 +36,7 @@
 #include "LFGMgr.h"
 #include "ChallengeMgr.h"
 #include "ScenarioMgr.h"
+#include "InstancePackets.h"
 
 union u_map_magic
 {
@@ -2422,7 +2423,7 @@ bool InstanceMap::CanEnter(Player* player)
 */
 bool InstanceMap::AddPlayerToMap(Player* player)
 {
-    // TODO: Not sure about checking player level: already done in HandleAreaTriggerOpcode
+    // TODO: Not sure about checking player level: already done in HandleAreaTrigger
     // GMs still can teleport player in instance.
     // Is it needed?
 
@@ -2629,7 +2630,7 @@ bool InstanceMap::Reset(uint8 method)
         {
             // notify the players to leave the instance so it can be reset
             for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-                itr->getSource()->SendResetFailedNotify(GetId());
+                itr->getSource()->SendResetFailedNotify();
         }
         else
         {
@@ -2677,11 +2678,7 @@ void InstanceMap::PermBindAllPlayers(Player* source)
         if (!bind || !bind->perm)
         {
             player->BindToInstance(save, true);
-            //! 5.4.1
-            WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 1);
-            data << uint8(0);       //debug bit
-            player->GetSession()->SendPacket(&data);
-
+            player->GetSession()->SendPacket(WorldPackets::Instance::InstanceSaveCreated(false).Write());
             player->GetSession()->SendCalendarRaidLockoutAdded(save);
         }
 

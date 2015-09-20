@@ -118,12 +118,9 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPackets::Battleground::Entry
             bf->KickPlayerFromBattlefield(_player->GetGUID());
 }
 
-void WorldSession::HandleBfQueueRequest(WorldPacket& recvData)
+void WorldSession::HandleBfQueueRequest(WorldPackets::Battleground::QueueRequest& packet)
 {
-    uint64 guid;
-    recvData >> guid;
-
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByQueueID(guid))
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByQueueID(packet.QueueID))
     {
         if (bf->IsWarTime())
             bf->InvitePlayerToWar(_player);

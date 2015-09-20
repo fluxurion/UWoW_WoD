@@ -27,7 +27,7 @@
 #include "VehicleDefines.h"
 #include "CombatPackets.h"
 
-void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet)
+void WorldSession::HandleAttackSwing(WorldPackets::Combat::AttackSwing& packet)
 {
     Unit* pEnemy = ObjectAccessor::GetUnit(*_player, packet.Victim);
 
@@ -62,7 +62,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& pa
     _player->Attack(pEnemy, true);
 }
 
-void WorldSession::HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& /*recvData*/)
+void WorldSession::HandleAttackStop(WorldPackets::Combat::AttackStop& /*recvData*/)
 {
     GetPlayer()->AttackStop();
 }

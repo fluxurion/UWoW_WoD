@@ -236,9 +236,9 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
         {
             response.Probabilities[i] = i == 0 ? 1 : 0/*gossip->Options[i].Probability*/;
             response.BroadcastTextID[i] = i == 0 ? packet.TextID : 0/*gossip->Options[i].BroadcastTextID*/;
+            if (!response.Allow && (i == 0 ? packet.TextID : 0))
+                response.Allow = true;
         }
-
-        response.Allow = true;
     }
 
     SendPacket(response.Write());

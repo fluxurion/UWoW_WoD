@@ -29,6 +29,7 @@
 #include "SpellInfo.h"
 #include <vector>
 #include "ItemPackets.h"
+#include "BankPackets.h"
 
 //! 6.0.3
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
@@ -199,7 +200,7 @@ void WorldSession::HandleSwapItem(WorldPackets::Item::SwapItem& swapItem)
 }
 
 //! 6.0.3
-void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& autoEquipItem)
+void WorldSession::HandleAutoEquipItem(WorldPackets::Item::AutoEquipItem& autoEquipItem)
 {
     if (autoEquipItem.Inv.Items.size() != 1)
         return;
@@ -217,7 +218,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
     }
 
     if(pSrcItem->GetEntry() == 38186)
-        sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoEquipItemOpcode - item %u; inv = %u playerGUID %u, itemGUID %u srcbag %u srcslot %u",
+        sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoEquipItem - item %u; inv = %u playerGUID %u, itemGUID %u srcbag %u srcslot %u",
         pSrcItem->GetEntry(), autoEquipItem.Inv.Items.size(), _player->GetGUID(), pSrcItem->GetGUID(), autoEquipItem.PackSlot, autoEquipItem.Slot);
 
     uint16 src = pSrcItem->GetPos();
@@ -237,7 +238,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPackets::Item::AutoEquipItem& 
         uint8 dstslot = pDstItem->GetSlot();
 
         if(pDstItem->GetEntry() == 38186)
-            sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoEquipItemOpcode - item %u; size = %u playerGUID %u, itemGUID %u dstbag %u dstslot %u",
+            sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoEquipItem - item %u; size = %u playerGUID %u, itemGUID %u dstbag %u dstslot %u",
             pDstItem->GetEntry(), autoEquipItem.Inv.Items.size(), _player->GetGUID(), pDstItem->GetGUID(), autoEquipItem.PackSlot, autoEquipItem.Slot);
 
         msg = _player->CanUnequipItem(dest, !pSrcItem->IsBag());
@@ -653,7 +654,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
 }
 
 //! 6.0.3
-void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBagItem& packet)
+void WorldSession::HandleAutoStoreBagItem(WorldPackets::Item::AutoStoreBagItem& packet)
 {
     if (!packet.Inv.Items.empty())
         return;
@@ -698,7 +699,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPackets::Item::AutoStoreBag
     }
 
     if(pItem->GetEntry() == 38186)
-        sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoStoreBagItemOpcode - item %u; count = %u playerGUID %u, itemGUID %u dstbag %u srcslot %u srcbag %u",
+        sLog->outDebug(LOG_FILTER_EFIR, "HandleAutoStoreBagItem - item %u; count = %u playerGUID %u, itemGUID %u dstbag %u srcslot %u srcbag %u",
         pItem->GetEntry(), packet.Inv.Items.size(), _player->GetGUID(), pItem->GetGUID(), packet.ContainerSlotB, packet.SlotA, packet.ContainerSlotA);
 
     _player->RemoveItem(packet.ContainerSlotA, packet.SlotA, true);
@@ -757,89 +758,71 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
 }
 
-//! 6.0.3
-void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleAutoBankItem(WorldPackets::Bank::AutoBankItem& packet)
 {
-    uint8 srcbag, srcslot;
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    uint32 count = recvPacket.ReadBits(2);
-    for (uint32 i = 0; i < count; ++i)
-    {
-        recvPacket.read_skip<uint8>();
-        recvPacket.read_skip<uint8>();
-    }
-    recvPacket >> srcslot >> srcbag;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
-
-    Item* pItem = _player->GetItemByPos(srcbag, srcslot);
-    if (!pItem)
+    Item* item = player->GetItemByPos(packet.Bag, packet.Slot);
+    if (!item)
         return;
 
     ItemPosCountVec dest;
-    InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+    InventoryResult msg = player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false);
     if (msg != EQUIP_ERR_OK)
     {
-        _player->SendEquipError(msg, pItem, NULL);
+        player->SendEquipError(msg, item, NULL);
         return;
     }
 
-    if (dest.size() == 1 && dest[0].pos == pItem->GetPos())
+    if (dest.size() == 1 && dest[0].pos == item->GetPos())
     {
-        _player->SendEquipError(EQUIP_ERR_CANT_SWAP, pItem, NULL);
+        player->SendEquipError(EQUIP_ERR_CANT_SWAP, item, NULL);
         return;
     }
 
-    _player->RemoveItem(srcbag, srcslot, true);
-    _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-    _player->BankItem(dest, pItem, true);
+    player->RemoveItem(packet.Bag, packet.Slot, true);
+    player->ItemRemovedQuestCheck(item->GetEntry(), item->GetCount());
+    player->BankItem(dest, item, true);
 }
 
-//! 6.0.3
-void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleAutoStoreBankItem(WorldPackets::Bank::AutoStoreBankItem& packet)
 {
-    uint8 srcbag, srcslot;
-
-    uint32 count = recvPacket.ReadBits(2);
-    for (uint32 i = 0; i < count; ++i)
-    {
-        recvPacket.read_skip<uint8>();
-        recvPacket.read_skip<uint8>();
-    }
-    recvPacket >> srcslot >> srcbag;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
-
-    Item* pItem = _player->GetItemByPos(srcbag, srcslot);
-    if (!pItem)
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    if (_player->IsBankPos(srcbag, srcslot))                 // moving from bank to inventory
+    Item* item = player->GetItemByPos(packet.Bag, packet.Slot);
+    if (!item)
+        return;
+
+    if (player->IsBankPos(packet.Bag, packet.Slot))                 // moving from bank to inventory
     {
         ItemPosCountVec dest;
-        InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+        InventoryResult msg = player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, item, false);
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pItem, NULL);
+            player->SendEquipError(msg, item, NULL);
             return;
         }
 
-        _player->RemoveItem(srcbag, srcslot, true);
-        _player->StoreItem(dest, pItem, true);
-        _player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
+        player->RemoveItem(packet.Bag, packet.Slot, true);
+        player->StoreItem(dest, item, true);
+        player->ItemAddedQuestCheck(item->GetEntry(), item->GetCount());
     }
     else                                                    // moving from inventory to bank
     {
         ItemPosCountVec dest;
-        InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
+        InventoryResult msg = player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false);
         if (msg != EQUIP_ERR_OK)
         {
-            _player->SendEquipError(msg, pItem, NULL);
+            player->SendEquipError(msg, item, NULL);
             return;
         }
 
-        _player->RemoveItem(srcbag, srcslot, true);
-        _player->BankItem(dest, pItem, true);
+        player->RemoveItem(packet.Bag, packet.Slot, true);
+        player->BankItem(dest, item, true);
     }
 }
 

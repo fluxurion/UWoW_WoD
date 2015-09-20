@@ -51,6 +51,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "MovementPackets.h"
+#include "GameObjectPackets.h"
 
 Object::Object() : m_objectTypeId(TYPEID_OBJECT), m_objectType(TYPEMASK_OBJECT), m_uint32Values(NULL),
     _changedFields(NULL), m_valuesCount(0), _dynamicValuesCount(0), _fieldNotifyFlags(UF_FLAG_DYNAMIC), m_inWorld(false),
@@ -3364,9 +3365,7 @@ void WorldObject::SendMessageToSet(WorldPacket const* data, Player const* skippe
 
 void WorldObject::SendObjectDeSpawnAnim(ObjectGuid guid)
 {
-    WorldPacket data(SMSG_GAME_OBJECT_DESPAWN, 8 + 1);
-    data << guid;
-    SendMessageToSet(&data, true);
+    SendMessageToSet(WorldPackets::GameObject::GameObjectDespawn(guid).Write(), true);
 }
 
 void WorldObject::SetMap(Map* map)

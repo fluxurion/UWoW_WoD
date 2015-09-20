@@ -27,6 +27,7 @@
 #include "Guild.h"
 #include "GossipDef.h"
 #include "SocialMgr.h"
+#include "AchievementPackets.h"
 
 // Helper for getting guild object of session's player.
 // If guild does not exist, sends error (if necessary).
@@ -743,4 +744,10 @@ void WorldSession::HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket)
 {
     if (Guild* guild = _player->GetGuild())
         guild->SendGuildChallengesInfo(this);
+}
+
+void WorldSession::HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& packet)
+{
+    if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
+        guild->GetAchievementMgr().SendAchievementInfo(_player, packet.AchievementID);
 }
