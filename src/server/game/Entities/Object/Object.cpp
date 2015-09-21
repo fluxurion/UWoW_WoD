@@ -52,6 +52,7 @@
 #include "BattlefieldMgr.h"
 #include "MovementPackets.h"
 #include "GameObjectPackets.h"
+#include "MiscPackets.h"
 
 Object::Object() : m_objectTypeId(TYPEID_OBJECT), m_objectType(TYPEMASK_OBJECT), m_uint32Values(NULL),
     _changedFields(NULL), m_valuesCount(0), _dynamicValuesCount(0), _fieldNotifyFlags(UF_FLAG_DYNAMIC), m_inWorld(false),
@@ -3118,17 +3119,16 @@ void WorldObject::AddPlayersInPersonnalVisibilityList(GuidUnorderedSet const& vi
     }
 }
 
-//! 6.0.3
-void WorldObject::SendPlaySound(uint32 Sound, bool OnlySelf)
+void WorldObject::SendPlaySound(uint32 soundKitID, bool OnlySelf)
 {
-    WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data << uint32(Sound);
-    data << GetGUID();
+    WorldPackets::Misc::PlaySound  sound;
+    sound.SoundKitID = soundKitID;
+    sound.SourceObjectGuid = GetGUID();
 
     if (OnlySelf && GetTypeId() == TYPEID_PLAYER)
-        this->ToPlayer()->GetSession()->SendPacket(&data);
+        this->ToPlayer()->GetSession()->SendPacket(sound.Write());
     else
-        SendMessageToSet(&data, true); // ToSelf ignored in this case
+        SendMessageToSet(sound.Write(), true); // ToSelf ignored in this case
 }
 
 void Object::ForceValuesUpdateAtIndex(uint32 i)
@@ -4334,17 +4334,16 @@ void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
         SendMessageToSet(&data, true);
 }
 
-//! 6.0.3
-void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= NULL*/)
+void WorldObject::PlayDirectSound(uint32 soundKitID, Player* target /*= NULL*/)
 {
-    WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data << uint32(sound_id);
-    data << GetGUID();
+    WorldPackets::Misc::PlaySound  sound;
+    sound.SoundKitID = soundKitID;
+    sound.SourceObjectGuid = GetGUID();
 
     if (target)
-        target->SendDirectMessage(&data);
+        target->SendDirectMessage(sound.Write());
     else
-        SendMessageToSet(&data, true);
+        SendMessageToSet(sound.Write(), true);
 }
 
 void WorldObject::DestroyForNearbyPlayers()
@@ -4539,57 +4538,53 @@ bool WorldObject::InSamePhaseId(std::set<uint32> const& phase) const
     return true;
 }
 
-//6.1.2
-void WorldObject::SetAIAnimKitId(uint16 animKitId)
+void WorldObject::SetAIAnimKitId(uint16 animKitID)
 {
-    if (_aiAnimKitId == animKitId)
+    if (_aiAnimKitId == animKitID)
         return;
 
-    _aiAnimKitId = animKitId;
+    _aiAnimKitId = animKitID;
 
     if (!IsInWorld())
         return;
 
-    WorldPacket data(SMSG_SET_AI_ANIM_KIT, 8 + 2);
-    data << GetGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::SetAIAnimKit aiAnimKit;
+    aiAnimKit.AnimKitID = animKitID;
+    aiAnimKit.Unit = GetGUID();
+    SendMessageToSet(aiAnimKit.Write(), true);
 }
 
-//6.1.2
-void WorldObject::SetMovementAnimKitId(uint16 animKitId)
+void WorldObject::SetMovementAnimKitId(uint16 animKitID)
 {
-    if (_movementAnimKitId == animKitId)
+    if (_movementAnimKitId == animKitID)
         return;
 
-    _movementAnimKitId = animKitId;
+    _movementAnimKitId = animKitID;
 
     if (!IsInWorld())
         return;
 
-    WorldPacket data(SMSG_SET_MOVEMENT_ANIM_KIT, 8 + 2);
-    data << GetGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::SetMovementAnimKit movementAnimKit;
+    movementAnimKit.AnimKitID = animKitID;
+    movementAnimKit.Unit = GetGUID();
+    SendMessageToSet(movementAnimKit.Write(), true);
 }
 
-//6.1.2
-void WorldObject::SetMeleeAnimKitId(uint16 animKitId)
+void WorldObject::SetMeleeAnimKitId(uint16 animKitID)
 {
-    if (_meleeAnimKitId == animKitId)
+    if (_meleeAnimKitId == animKitID)
         return;
 
-    _meleeAnimKitId = animKitId;
+    _meleeAnimKitId = animKitID;
 
     if (!IsInWorld())
         return;
 
-    WorldPacket data(SMSG_SET_MELEE_ANIM_KIT, 8 + 2);
-    data << GetGUID();
-    data << uint16(animKitId);
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::SetMeleeAnimKit meleeAnimKit;
+    meleeAnimKit.AnimKitID = animKitID;
+    meleeAnimKit.Unit = GetGUID();
+    SendMessageToSet(meleeAnimKit.Write(), true);
 }
-
 
 C_PTR Object::get_ptr()
 {

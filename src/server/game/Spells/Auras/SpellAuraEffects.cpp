@@ -508,23 +508,23 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //448
     &AuraEffect::HandleNULL,                                      //449
     &AuraEffect::HandleNULL,                                      //450
-    &AuraEffect::HandleNULL,                                      //451
+    &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_OVERRIDE_PET_SPECS
     &AuraEffect::HandleNULL,                                      //452
     &AuraEffect::HandleNULL,                                      //453
     &AuraEffect::HandleNULL,                                      //454
     &AuraEffect::HandleNULL,                                      //455
-    &AuraEffect::HandleNULL,                                      //456
-    &AuraEffect::HandleNULL,                                      //457
-    &AuraEffect::HandleNULL,                                      //458
+    &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE
+    &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN
+    &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY
     &AuraEffect::HandleNULL,                                      //459
     &AuraEffect::HandleNULL,                                      //460
     &AuraEffect::HandleNULL,                                      //461
     &AuraEffect::HandleNULL,                                      //462
-    &AuraEffect::HandleNULL,                                      //463
+    &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_CONVER_CRIT_RATING_PCT_TO_PARRY_RATING
     &AuraEffect::HandleNULL,                                      //464
     &AuraEffect::HandleNULL,                                      //465
-    &AuraEffect::HandleNULL,                                      //466
-    &AuraEffect::HandleNULL,                                      //467
+    &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
+    &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_MOD_STAT_BONUS_PCT
     &AuraEffect::HandleNULL,                                      //468
     &AuraEffect::HandleNULL,                                      //469
     &AuraEffect::HandleNULL,                                      //470
@@ -2344,7 +2344,7 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
 void AuraEffect::SendTickImmune(Unit* target, Unit* caster) const
 {
     if (caster)
-        caster->SendSpellDamageImmune(target, m_spellInfo->Id);
+        caster->SendSpellDamageImmune(target, m_spellInfo->Id, true);
 }
 
 void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster, SpellEffIndex effIndex) const
@@ -4469,7 +4469,7 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
     }
 
     if (Player *player = target->ToPlayer())
-        player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true), target->GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID));
+        player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
 }
 
 void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const

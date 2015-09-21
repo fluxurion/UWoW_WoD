@@ -71,7 +71,7 @@ class InstanceSave
 
         /* for normal instances this corresponds to max(creature respawn time) + X hours
            for raid/heroic instances this caches the global respawn time for the map */
-        time_t GetResetTime();
+        time_t GetResetTime() const;
 
         InstanceTemplate const* GetTemplate();
         MapEntry const* GetMapEntry();

@@ -99,6 +99,7 @@
 #include "ScenePackets.h"
 #include "TradePackets.h"
 #include "DuelPackets.h"
+#include "CombatLogPackets.h"
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -953,6 +954,8 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
 
     m_watching_movie = false;
     plrUpdate = false;
+
+    _advancedCombatLoggingEnabled = false;
 }
 
 Player::~Player()
@@ -1439,23 +1442,20 @@ void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 Curre
         return;
     }
 
-    WorldPacket data(SMSG_START_MIRROR_TIMER, 5 * 4 + 1);
-    data << uint32(Type);
-    data << uint32(CurrentValue);
-    data << uint32(MaxValue);
-    data << uint32(Regen);
-    data << uint32(0);                                      // spell id
-    data.WriteBit(0);                                       // paused - 1
-    GetSession()->SendPacket(&data);
+    WorldPackets::Misc::StartMirrorTimer timer;
+    timer.Scale = Type;
+    timer.MaxValue = MaxValue;
+    timer.Timer = Regen;
+    timer.SpellID = 0;
+    timer.Value = CurrentValue;
+    timer.Paused = false;
+    GetSession()->SendPacket(timer.Write());
 }
 
-//! 6.0.3
-void Player::StopMirrorTimer(MirrorTimerType Type)
+void Player::StopMirrorTimer(MirrorTimerType timer)
 {
-    m_MirrorTimer[Type] = DISABLED_MIRROR_TIMER;
-    WorldPacket data(SMSG_STOP_MIRROR_TIMER, 4);
-    data << uint32(Type);
-    GetSession()->SendPacket(&data);
+    m_MirrorTimer[timer] = DISABLED_MIRROR_TIMER;
+    GetSession()->SendPacket(WorldPackets::Misc::PauseMirrorTimer(timer, false).Write());
 }
 
 bool Player::IsImmuneToEnvironmentalDamage()
@@ -1481,15 +1481,14 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
 
     DealDamageMods(this, damage, &absorb);
 
-    //! 6.0.3
-    WorldPacket data(SMSG_ENVIRONMENTAL_DAMAGE_LOG, 8 + 1 + 1 + 4 + 4 + 4 + 1);
-    data << GetGUID();
-    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
-    data << uint32(damage);
-    data << uint32(resist);
-    data << uint32(absorb);
-    data.WriteBit(0);           // not has power data
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::EnvironmentalDamageLog packet;
+    packet.Victim = GetGUID();
+    packet.Type = type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL;
+    packet.Amount = damage;
+    packet.Absorbed = absorb;
+    packet.Resisted = resist;
+    packet.LogData.Initialize(this);
+    SendCombatLogMessage(&packet);
 
     uint32 final_damage = DealDamage(this, damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 
@@ -1842,7 +1841,7 @@ void Player::Update(uint32 p_time)
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 1)               // send single time (client auto repeat)
                     {
-                        SendAttackSwingResult(ATTACK_SWING_ERROR_NOT_IN_RANGE);
+                        SendAttackSwingError(ATTACK_SWING_ERROR_NOT_IN_RANGE);
                         m_swingErrorMsg = 1;
                     }
                 }
@@ -1852,7 +1851,7 @@ void Player::Update(uint32 p_time)
                     setAttackTimer(BASE_ATTACK, 100);
                     if (m_swingErrorMsg != 2)               // send single time (client auto repeat)
                     {
-                        SendAttackSwingResult(ATTACK_SWING_ERROR_BAD_FACING);
+                        SendAttackSwingError(ATTACK_SWING_ERROR_BAD_FACING);
                         m_swingErrorMsg = 2;
                     }
                 }
@@ -3482,29 +3481,22 @@ void Player::GiveLevel(uint8 level)
     uint32 basehp = 0, basemana = 0;
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, basehp, basemana);
 
-    // send levelup info to client
-    //! 6.1.2
-    WorldPacket data(SMSG_LEVEL_UP_INFO, 4 + 4 + MAX_POWERS_PER_CLASS * 4 + MAX_STATS * 4);
-    data << uint32(level);
-    data << uint32(int32(basehp) - int32(GetCreateHealth()));
+    WorldPackets::Misc::LevelUpInfo packet;
+    packet.Level = level;
+    packet.HealthDelta = int32(basehp) - int32(GetCreateHealth());
+    packet.PowerDelta[0] = int32(basemana) - int32(GetCreateMana());
+    packet.PowerDelta[1] = 0;
+    packet.PowerDelta[2] = 0;
+    packet.PowerDelta[3] = 0;
+    packet.PowerDelta[4] = 0;
+    packet.PowerDelta[5] = 0;
 
-    for (uint8 i = 0; i < MAX_POWERS_PER_CLASS; ++i)
-    {
-        if (i == 0)
-            data << uint32(int32(basemana) - int32(GetCreateMana()));
-        else
-            data << uint32(0);
-    }
+    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+        packet.StatDelta[i] = int32(info.stats[i]) - GetCreateStat(Stats(i));
 
-    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)       // Stats loop (0-4)
-        data << uint32(int32(info.stats[i]) - GetCreateStat(Stats(i)));
+    packet.Cp = (level % 15) == 0 ? 1 : 0;
 
-    if ((level % 15) == 0)  // bonus talents
-        data << uint32(1);
-    else
-        data << uint32(0);
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(packet.Write());
 
     SetUInt32Value(PLAYER_FIELD_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(level));
 
@@ -8283,10 +8275,13 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [1..4]  HK: <dishonored rank>
     // victim_rank [5..19] HK: <alliance\horde rank>
     // victim_rank [0, 20+] HK: <>
-    //! 6.0.3
-    WorldPacket data(SMSG_PVP_CREDIT, 4 + 8 + 4 + 1);
-    data << uint32(honor) << victim_guid << uint32(victim_rank);
-    GetSession()->SendPacket(&data);
+    //! 6.0.
+
+    WorldPackets::Combat::PvPCredit credit;
+    credit.Honor = honor;
+    credit.Rank = victim_rank;
+    credit.Target = victim_guid;
+    GetSession()->SendPacket(credit.Write());
 
     // add honor points
     ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, int32(honor));
@@ -11292,12 +11287,9 @@ uint32 Player::GetXPRestBonus(uint32 xp)
     return rested_bonus;
 }
 
-//! 6.0.3
 void Player::SetBindPoint(ObjectGuid guid)
 {
-    WorldPacket data(SMSG_BINDER_CONFIRM, 8);
-    data << guid;
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Misc::BinderConfirm(guid).Write());
 }
 
 //! 6.0.3
@@ -13867,7 +13859,7 @@ void Player::RemoveItem(Item* pItem, bool update)
             }
 
             m_items[slot] = NULL;
-            SetUInt64Value(PLAYER_FIELD_INV_SLOTS + (slot * 2), 0);
+            SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), ObjectGuid::Empty);
 
             UpdateExpertise();
 
@@ -13877,8 +13869,7 @@ void Player::RemoveItem(Item* pItem, bool update)
         else if (Bag* pBag = GetBagByPos(bag))
             pBag->RemoveItem(slot, update);
 
-        pItem->SetUInt64Value(ITEM_FIELD_CONTAINED_IN, 0);
-        // pItem->SetUInt64Value(ITEM_FIELD_OWNER, 0); not clear owner at remove (it will be set at store). This used in mail and auction code
+        pItem->SetGuidValue(ITEM_FIELD_CONTAINED_IN, ObjectGuid::Empty);
         pItem->SetSlot(NULL_SLOT);
         if (IsInWorld() && update)
             pItem->SendUpdateToPlayer(this);
@@ -16855,11 +16846,8 @@ bool Player::SatisfyQuestLog(bool msg)
         return true;
 
     if (msg)
-    {
-        WorldPacket data(SMSG_QUEST_LOG_FULL, 0);
-        GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_LOG_FULL");
-    }
+        GetSession()->SendPacket(WorldPackets::Quest::QuestLogFull().Write());
+
     return false;
 }
 
@@ -18088,15 +18076,13 @@ void Player::SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 
         SetQuestSlotCounter(log_slot, storageIndex, status.ObjectiveData[storageIndex]);
 }
 
-//! 6.0.3
 void Player::SendQuestComplete(Quest const* quest)
 {
     if (quest)
     {
-        WorldPacket data(SMSG_QUEST_UPDATE_COMPLETE, 4);
-        data << uint32(quest->GetQuestId());
-        GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_UPDATE_COMPLETE quest = %u", quest->GetQuestId());
+        WorldPackets::Quest::QuestUpdateComplete data;
+        data.QuestID = quest->GetQuestId();
+        GetSession()->SendPacket(data.Write());
     }
 }
 
@@ -18145,84 +18131,63 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
         questGiver->ToCreature()->AI()->OnQuestReward(this, quest);
 }
 
-//! 6.0.3
 void Player::SendQuestFailed(uint32 questId, InventoryResult reason)
 {
     if (questId)
     {
-        WorldPacket data(SMSG_QUEST_GIVER_QUEST_FAILED, 4 + 4);
-        data << uint32(questId);
-        data << uint32(reason);                             // failed reason (valid reasons: 4, 16, 50, 17, 74, other values show default message)
-        GetSession()->SendPacket(&data);
+        WorldPackets::Quest::QuestGiverQuestFailed failed;
+        failed.QuestID = questId;
+        failed.Reason = reason;
+        GetSession()->SendPacket(failed.Write());
     }
 }
 
-//! 6.0.3
-void Player::SendQuestTimerFailed(uint32 quest_id)
+void Player::SendQuestTimerFailed(uint32 questID)
 {
-    if (quest_id)
-    {
-        WorldPacket data(SMSG_QUEST_UPDATE_FAILED_TIMER, 4);
-        data << uint32(quest_id);
-        GetSession()->SendPacket(&data);
-    }
+    if (questID)
+        GetSession()->SendPacket(WorldPackets::Quest::QuestUpdateFailedTimer(questID).Write());
 }
 
-//! 6.0.3
 void Player::SendCanTakeQuestResponse(uint32 msg, Quest const* qInfo, std::string str) const
 {
-    bool hasString = false;
-    WorldPacket data(SMSG_QUEST_GIVER_INVALID_QUEST, 4);
-    data << uint32(msg);
-    data.WriteBit(str.size());      // used with INVALIDREASON_DONT_HAVE_REQ
-    if (hasString)
-    {
-        data.WriteBits(str.size(), 8);
-        data.WriteString(str);
-    }
-
-    GetSession()->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_GIVER_INVALID_QUEST QUIEST %u ERRNO %i - %s", qInfo ? qInfo->Id : 0, msg, str.c_str());
+    WorldPackets::Quest::QuestGiverInvalidQuest invalidQuest;
+    invalidQuest.Reason = msg;
+    invalidQuest.SendErrorMessage = str.size();
+    invalidQuest.ReasonText = str;
+    GetSession()->SendPacket(invalidQuest.Write());
 }
 
-//! 6.0.3
-void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
+void Player::SendQuestConfirmAccept(Quest const* quest, Player* receiver)
 {
-    if (pReceiver)
+    if (receiver)
     {
-        std::string strTitle = quest->GetLogTitle();
+        std::string questTitle = quest->GetLogTitle();
 
-        LocaleConstant loc_idx = pReceiver->GetSession()->GetSessionDbLocaleIndex();
+        LocaleConstant loc_idx = receiver->GetSession()->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
             if (const QuestTemplateLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-                ObjectMgr::GetLocaleString(pLocale->LogTitle, loc_idx, strTitle);
+                ObjectMgr::GetLocaleString(pLocale->LogTitle, loc_idx, questTitle);
 
-        WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, 4 + strTitle.size() + 8 + 1 + 2);
-        data << uint32(quest->GetQuestId());
-        data << GetGUID();
-        data.WriteBits(strTitle.size(), 10);
-        data.WriteString(strTitle);
 
-        pReceiver->GetSession()->SendPacket(&data);
-
-        //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
+        WorldPackets::Quest::QuestConfirmAcceptResponse packet;
+        packet.QuestID = quest->GetQuestId();
+        packet.InitiatedBy = GetGUID();
+        packet.QuestTitle = questTitle;
+        receiver->GetSession()->SendPacket(packet.Write());
     }
 }
 
-//! 6.0.3
-void Player::SendPushToPartyResponse(Player* player, uint8 msg)
+void Player::SendPushToPartyResponse(Player* player, uint8 reason)
 {
     if (player)
     {
-        WorldPacket data(SMSG_QUEST_PUSH_RESULT, 8 + 1 + 1);
-        data << player->GetGUID();
-        data << uint8(msg);
-        GetSession()->SendPacket(&data);
-        //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_PUSH_RESULT");
+        WorldPackets::Quest::QuestPushResultResponse data;
+        data.SenderGUID = player->GetGUID();
+        data.Result = reason;
+        SendDirectMessage(data.Write());
     }
 }
 
-//! 6.1.2
 void Player::SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, QuestObjective const& obj, uint16 count)
 {
     WorldPackets::Quest::QuestUpdateAddCredit packet;
@@ -20591,7 +20556,7 @@ void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficu
         }
 
         if (itr->second.perm)
-            GetSession()->SendCalendarRaidLockoutRemoved(itr->second.save);
+            GetSession()->SendCalendarRaidLockout(itr->second.save, false);
 
         itr->second.save->RemovePlayer(this);               // save can become invalid
         m_boundInstances[boundType].erase(itr++);
@@ -20666,7 +20631,7 @@ void Player::BindToInstance()
 
     GetSession()->SendPacket(WorldPackets::Instance::InstanceSaveCreated(false).Write());
     BindToInstance(mapSave, true);
-    GetSession()->SendCalendarRaidLockoutAdded(mapSave);
+    GetSession()->SendCalendarRaidLockout(mapSave, true);
 }
 
 void Player::SendRaidInfo()
@@ -20683,20 +20648,13 @@ void Player::SendRaidInfo()
                 InstanceSave* save = itr->second.save;
 
                 WorldPackets::Instance::InstanceLockInfos lockInfos;
-
                 lockInfos.InstanceID = save->GetInstanceId();
                 lockInfos.MapID = save->GetMapId();
                 lockInfos.DifficultyID = save->GetDifficultyID();
                 lockInfos.TimeRemaining = save->GetResetTime() - now;
-
-                lockInfos.CompletedMask = 0;
-                if (Map* map = sMapMgr->FindMap(save->GetMapId(), save->GetInstanceId()))
-                    if (InstanceScript* instanceScript = ((InstanceMap*)map)->GetInstanceScript())
-                        lockInfos.CompletedMask = instanceScript->GetCompletedEncounterMask();
-
+                lockInfos.CompletedMask = save->GetCompletedEncounterMask();
                 lockInfos.Locked = lockInfos.TimeRemaining <= 0;
                 lockInfos.Extended = false;
-
                 instanceInfo.LockList.push_back(lockInfos);
             }
         }
@@ -20711,8 +20669,6 @@ void Player::SendRaidInfo()
 void Player::SendSavedInstances()
 {
     bool hasBeenSaved = false;
-    WorldPacket data;
-
     for (uint8 i = 0; i < MAX_BOUND; ++i)
     {
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
@@ -22446,26 +22402,21 @@ void Player::Customize(ObjectGuid guid, uint8 gender, uint8 skin, uint8 face, ui
     CharacterDatabase.Execute(stmt);
 }
 
-void Player::SendAttackSwingResult(AttackSwingReason error)
+void Player::SendAttackSwingError(AttackSwingReason error)
 {
     GetSession()->SendPacket(WorldPackets::Combat::AttackSwingError(error).Write());
 }
 
-//! 6.0.3
-void Player::SendAutoRepeatCancel(Unit* target)
+void Player::SendCancelAutoRepeat(Unit* target)
 {
-    WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, 9);
-    data << target->GetGUID();
-    GetSession()->SendPacket(&data);
+    WorldPackets::Combat::CancelAutoRepeat cancelAutoRepeat;
+    cancelAutoRepeat.Guid = target->GetGUID();
+    GetSession()->SendPacket(cancelAutoRepeat.Write());
 }
 
-//! 6.0.3
-void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
+void Player::SendExplorationExperience(uint32 areaID, uint32 exp)
 {
-    WorldPacket data(SMSG_EXPLORATION_EXPERIENCE, 8);
-    data << uint32(Area);
-    data << uint32(Experience);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Misc::ExplorationExperience(exp, areaID).Write());
 }
 
 //! 6.0.3
@@ -23790,11 +23741,9 @@ void Player::ContinueTaxiFlight()
  //! 6.0.3
 void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
-    WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+m_spells.size()*8);
-    data << GetGUID();
-    data << uint8(0);
-    size_t count_pos = data.wpos();
-    data << uint32(0);
+    WorldPackets::Spells::SpellCooldown cooldowns;
+    cooldowns.Caster = GetGUID();
+    cooldowns.Flags = 0;
 
     Unit::AuraEffectList swaps = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
     Unit::AuraEffectList const& swaps2 = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2);
@@ -23802,7 +23751,6 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         swaps.insert(swaps.end(), swaps2.begin(), swaps2.end());
 
     double curTime = getPreciseTime();
-    uint32 count = 0;
     for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
     {
         if (itr->second->state == PLAYERSPELL_REMOVED)
@@ -23810,10 +23758,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         uint32 unSpellId = itr->first;
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(unSpellId);
         if (!spellInfo)
-        {
-            //ASSERT(spellInfo);
             continue;
-        }
 
         if (!swaps.empty())
         {
@@ -23843,15 +23788,12 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 
         if ((_SchoolMask == 0) && GetSpellCooldownDelay(unSpellId) < unTimeMs * 1.0 / IN_MILLISECONDS)
         {
-            data << uint32(unSpellId);
-            data << uint32(unTimeMs);                       // in m.secs
+            cooldowns.SpellCooldowns.emplace_back(unSpellId, unTimeMs);
             AddSpellCooldown(unSpellId, 0, curTime + unTimeMs * 1.0 /IN_MILLISECONDS);
-            ++count;
         }
     }
-    data.put<uint32>(count_pos, count);
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(cooldowns.Write());
 }
 
 void Player::InitDataForForm(bool reapplyMods)
@@ -25576,71 +25518,56 @@ void Player::SendInitialPacketsAfterAddToMap()
     SetMover(this);
 }
 
-//! 6.0.3
 void Player::SendSpellHistoryData()
 {
     time_t curTime = time(NULL);
     time_t infTime = curTime + infinityCooldownDelayCheck;
-    uint32 spellCount = 0;
 
-    WorldPacket data(SMSG_SEND_SPELL_HISTORY/*SMSG_SPELL_HISTORY_DATA*/);
-    data << uint32(0);
+    WorldPackets::Spells::SendSpellHistory history;
+    history.Entries.reserve(m_spellCooldowns.size());
+    WorldPackets::Spells::SpellHistoryEntry entryData;
 
     for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
     {
         SpellInfo const *info = sSpellMgr->GetSpellInfo(itr->first);
-
-        if(!info)
+        if (!info)
             continue;
 
-        bool onHold = itr->second.end >= infTime;
         time_t cooldown = itr->second.end > curTime ? (itr->second.end - curTime) * IN_MILLISECONDS : 0;
 
-        data << uint32(itr->first);                         // SpellID
-        data << uint32(itr->second.itemid);                 // ItemID
-        data << uint32(info->Category);                     // Category
-        data << uint32(cooldown);                           // RecoveryTime
-        if (info->Category)
-            data << uint32(cooldown);                       // CategoryRecoveryTime
-        else
-            data << uint32(0);
-
-        data.WriteBit(onHold);                              // onHold
-
-        // send infinity cooldown in special format
-        //if (onHold)
-        //{
-        //    buff << uint32(1);                              // RecoveryTime
-        //    buff << uint32(itr->first);                     // SpellID
-        //    buff << uint32(0);                              // CategoryRecoveryTime
-        //    continue;
-        //}
-
-        ++spellCount;
+        entryData.SpellID = itr->first;
+        entryData.ItemID = itr->second.itemid;
+        entryData.Category = info->Category;
+        entryData.RecoveryTime = cooldown;
+        entryData.CategoryRecoveryTime = cooldown;
+        entryData.OnHold = itr->second.end >= infTime;
+        history.Entries.push_back(entryData);
     }
 
-    data.put(0, spellCount);
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(history.Write());
 }
 
-//! 6.0.3
 void Player::SendSpellChargeData()
 {
-    WorldPacket data(SMSG_SEND_SPELL_CHARGES, m_spellChargeData.size() * 9 + 3);
-    data << uint32(m_spellChargeData.size());
+    WorldPackets::Spells::SendSpellCharges charges;
+    WorldPackets::Spells::SpellChargeEntry entry;
+    charges.Entries.reserve(m_spellChargeData.size());
+
     for (SpellChargeDataMap::const_iterator itr = m_spellChargeData.begin(); itr != m_spellChargeData.end(); ++itr)
     {
         SpellChargeData const& chargeData = itr->second;
-        data << uint32(itr->first);                                             // Category
         int32 diff = int32(chargeData.categoryEntry->chargeRegenTime) - int32(chargeData.timer);
         if (diff < 0)
             diff = 0;
-        data << uint32(chargeData.charges != chargeData.maxCharges ? diff : 0); // NextRecoveryTime
-        data << uint8(chargeData.maxCharges - chargeData.charges);              // ConsumedCharges (on cd)
+
+        entry.Category = itr->first;
+        entry.NextRecoveryTime = chargeData.charges != chargeData.maxCharges ? diff : 0;
+        entry.ConsumedCharges = chargeData.maxCharges - chargeData.charges;
+
+        charges.Entries.push_back(entry);
     }
 
-    SendDirectMessage(&data);
+    SendDirectMessage(charges.Write());
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -26675,13 +26602,12 @@ void Player::ResurectUsingRequestData()
     SpawnCorpseBones();
 }
 
-//! 6.0.3
 void Player::SetClientControl(Unit* target, uint8 allowMove)
 {
-    WorldPacket data(SMSG_CONTROL_UPDATE, 8 + 1 + 1);
-    data << target->GetGUID();
-    data.WriteBit(allowMove);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Movement::ControlUpdate update;
+    update.Guid = target->GetGUID();
+    update.On = allowMove;
+    GetSession()->SendPacket(update.Write());
 
     if (target == this && allowMove)
         SetMover(this);
@@ -27481,43 +27407,41 @@ void Player::RestoreBaseRune(uint8 index)
     SetConvertIn(index, GetBaseRune(index));
 }
 
-//! 6.1.2
 void Player::ConvertRune(uint8 index, RuneType newType)
 {
     SetCurrentRune(index, newType);
 
-    WorldPacket data(SMSG_CONVERT_RUNE, 2);
-    data << uint8(index);
-    data << uint8(newType);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Spells::ConvertRune data;
+    data.Index = index;
+    data.Rune = newType;
+    GetSession()->SendPacket(data.Write());
 }
 
-//! 6.1.2
 void Player::ResyncRunes(uint8 count)
 {
-    WorldPacket data(SMSG_RESYNC_RUNES, 3 + count * 2);
-    data << uint32(count);
+    WorldPackets::Spells::ResyncRunes data(count);
+
     for (uint32 i = 0; i < count; ++i)
     {
-        data << uint8(GetCurrentRune(i));                   // rune type
-        data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
+        WorldPackets::Spells::ResyncRunes::ResyncRune rune;
+        rune.RuneType = GetCurrentRune(i);
+        rune.Cooldown = uint8(255 - (GetRuneCooldown(i) * 51));
+        data.Runes.push_back(rune);
     }
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(data.Write());
 }
 
-//! 6.1.2
 void Player::SendDeathRuneUpdate(uint8 index)
 {
-    RuneType rune = GetBaseRune(index);
-    WorldPacket data(SMSG_CONVERT_RUNE, 2);
-    data << uint8(index);
-    data << uint8(rune);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Spells::ConvertRune data1;
+    data1.Index = index;
+    data1.Rune = GetBaseRune(index);
+    GetSession()->SendPacket(data1.Write());
 
-    WorldPacket data1(SMSG_CONVERT_RUNE, 2);
-    data1 << uint8(index);
-    data1 << uint8(RUNE_DEATH);
-    GetSession()->SendPacket(&data1);
+    WorldPackets::Spells::ConvertRune data2;
+    data2.Index = index;
+    data2.Rune = RUNE_DEATH;
+    GetSession()->SendPacket(data2.Write());
 }
 
 //! 6.1.2
@@ -29369,23 +29293,22 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
     SendDirectMessage(&data);
 }
 
-void Player::SendMovementSetCollisionHeight(float height, uint32 mountDisplayID/* = 0*/)
+void Player::SendMovementSetCollisionHeight(float height)
 {
-    ObjectGuid guid = GetGUID();
+    WorldPackets::Movement::MoveSetCollisionHeight setCollisionHeight;
+    setCollisionHeight.MoverGUID = GetGUID();
+    setCollisionHeight.SequenceIndex = m_movementCounter++;
+    setCollisionHeight.Height = height;
+    setCollisionHeight.Scale = GetFloatValue(OBJECT_FIELD_SCALE);
+    setCollisionHeight.MountDisplayID = GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID);
+    setCollisionHeight.Reason = WorldPackets::Movement::UPDATE_COLLISION_HEIGHT_MOUNT;
+    SendDirectMessage(setCollisionHeight.Write());
 
-    //! 6.0.3
-    WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
-    data << guid;
-    data << uint32(m_movementCounter++);          //! movement counter
-    data << float(height);
-    data << float(GetFloatValue(OBJECT_FIELD_SCALE));     // scale
-    data << uint32(mountDisplayID);
-
-    data.FlushBits();
-
-    data.WriteBits(1, 2);   //reason
-
-    SendDirectMessage(&data);
+    WorldPackets::Movement::MoveUpdateCollisionHeight updateCollisionHeight;
+    updateCollisionHeight.movementInfo = &m_movementInfo;
+    updateCollisionHeight.Height = height;
+    updateCollisionHeight.Scale = GetFloatValue(OBJECT_FIELD_SCALE);
+    SendMessageToSet(updateCollisionHeight.Write(), false);
 }
 
 void Player::SetMover(Unit* target)
@@ -29396,10 +29319,9 @@ void Player::SetMover(Unit* target)
 
     if (m_mover)
     {
-        //! 6.0.3
-        WorldPacket data(SMSG_MOVE_SET_ACTIVE_MOVER);
-        data << m_mover->GetGUID();
-        SendDirectMessage(&data);
+        WorldPackets::Movement::MoveSetActiveMover packet;
+        packet.MoverGUID = m_mover->GetGUID();
+        SendDirectMessage(packet.Write());
     }
 }
 
@@ -29558,21 +29480,14 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
     }
 }
 
-//! 6.0.3
-void Player::SendMusic(uint32 musicId)
+void Player::SendMusic(uint32 soundKitID)
 {
-    WorldPacket data(SMSG_PLAY_MUSIC, 12);
-    data << uint32(musicId);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Misc::PlayMusic(soundKitID).Write());
 }
 
-//! 6.0.3
-void Player::SendSound(uint32 soundId, ObjectGuid source)
+void Player::SendSound(uint32 soundKitID, ObjectGuid source)
 {
-    WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data << uint32(soundId);
-    data << source;
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Misc::PlaySound(source, soundKitID).Write());
 }
 
 void Player::SendSoundToAll(uint32 soundId, ObjectGuid source)

@@ -23,6 +23,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CreatureTextMgr.h"
+#include "MiscPackets.h"
 
 class CreatureTextBuilder
 {
@@ -281,20 +282,15 @@ float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
     return dist;
 }
 
-//! 6.0.3
-void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, ObjectGuid whisperGuid, TextRange range, Team team, bool gmOnly)
+void CreatureTextMgr::SendSound(Creature* source, uint32 soundKitID, ChatMsg msgType, ObjectGuid whisperGuid, TextRange range, Team team, bool gmOnly)
 {
-    if (!sound || !source)
+    if (!soundKitID || !source)
         return;
 
-    ObjectGuid guid = source->GetGUID();
-    WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data << uint32(sound);
-    data << source->GetGUID();
-    SendNonChatPacket(source, &data, msgType, whisperGuid, range, team, gmOnly);
+    SendNonChatPacket(source, WorldPackets::Misc::PlaySound(source->GetGUID(), soundKitID).Write(), msgType, whisperGuid, range, team, gmOnly);
 }
 
-void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, ObjectGuid whisperGuid, TextRange range, Team team, bool gmOnly) const
+void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, ObjectGuid whisperGuid, TextRange range, Team team, bool gmOnly) const
 {
     float dist = GetRangeForChatType(msgType);
 

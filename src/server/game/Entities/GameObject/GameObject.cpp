@@ -34,6 +34,7 @@
 #include "DynamicTree.h"
 #include "SpellAuraEffects.h"
 #include "GameObjectPackets.h"
+#include "MiscPackets.h"
 
 GameObject::GameObject() : WorldObject(false), m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL), 
     m_manual_anim(false), m_respawnTime(0), m_respawnDelayTime(300),
@@ -1708,10 +1709,7 @@ void GameObject::Use(Unit* user)
 
             // fallback, will always work
             player->TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
-
-            WorldPacket data(SMSG_ENABLE_BARBER_SHOP, 0);
-            player->GetSession()->SendPacket(&data);
-
+            player->GetSession()->SendPacket(WorldPackets::Misc::EnableBarberShop().Write());
             player->SetStandState(UNIT_STAND_STATE_SIT_LOW_CHAIR+info->barberChair.chairheight);
             return;
         }

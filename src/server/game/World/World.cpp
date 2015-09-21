@@ -87,6 +87,7 @@
 #include "ChallengeMgr.h"
 #include "ScenarioMgr.h"
 #include "BlackMarketMgr.h"
+#include "ChatPackets.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -2975,24 +2976,16 @@ void World::ShutdownCancel()
     sScriptMgr->OnShutdownCancel();
 }
 
-/// Send a server message to the user(s)
-//! 6.1.2
-void World::SendServerMessage(ServerMessageType type, const char *text, Player* player)
+void World::SendServerMessage(ServerMessageType type, char const* text, Player* player)
 {
-    WorldPacket data(SMSG_CHAT_SERVER_MESSAGE, 50);              // guess size
-    data << uint32(type);
-    if (type <= SERVER_MSG_STRING)
-    {
-        size_t len = strlen(text);
-        data.WriteBits(len, 11);
-        data.FlushBits();
-        data.append(text, len);
-    }
+    WorldPackets::Chat::ChatServerMessage message;
+    message.MessageID = type;
+    message.StringParam = text;
 
     if (player)
-        player->GetSession()->SendPacket(&data);
+        player->GetSession()->SendPacket(message.Write());
     else
-        SendGlobalMessage(&data);
+        SendGlobalMessage(message.Write());
 }
 
 void World::UpdateSessions(uint32 diff)
@@ -3058,23 +3051,11 @@ void World::SendAutoBroadcast()
         sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 
     else if (abcenter == 1)
-    {
-        WorldPacket data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
-        data.WriteBits(msg.length(), 12);
-        data.FlushBits();
-        data.WriteString(msg);
-        sWorld->SendGlobalMessage(&data);
-    }
-
+        sWorld->SendGlobalMessage(WorldPackets::Chat::PrintNotification(msg).Write());
     else if (abcenter == 2)
     {
         sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-
-        WorldPacket data(SMSG_PRINT_NOTIFICATION, 2 + msg.length());
-        data.WriteBits(msg.length(), 12);
-        data.FlushBits();
-        data.WriteString(msg);
-        sWorld->SendGlobalMessage(&data);
+        sWorld->SendGlobalMessage(WorldPackets::Chat::PrintNotification(msg).Write());
     }
 
     sLog->outDebug(LOG_FILTER_GENERAL, "AutoBroadcast: '%s'", msg.c_str());

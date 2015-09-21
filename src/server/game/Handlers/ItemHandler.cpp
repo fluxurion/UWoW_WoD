@@ -30,6 +30,7 @@
 #include <vector>
 #include "ItemPackets.h"
 #include "BankPackets.h"
+#include "SpellPackets.h"
 
 //! 6.0.3
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
@@ -1362,42 +1363,33 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrigyItem&
         player->ModifyMoney(-cost);
 }
 
-//! 6.0.3
-void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleOpenItem(WorldPackets::Spells::OpenItem& packet)
 {
-    Player* pUser = _player;
+    Player* player = GetPlayer();
 
-    // ignore for remote control state
-    if (pUser->m_mover != pUser)
+    if (player->m_mover != player)
         return;
 
-    uint8 bagIndex, slot;
-    ObjectGuid itemGUID;
-
-    recvPacket >> bagIndex >> slot /* >> itemGUID*/;
-
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "bagIndex: %u, slot: %u", bagIndex, slot);
-
-    Item* item = pUser->GetItemByPos(bagIndex, slot);
+    Item* item = player->GetItemByPos(packet.Slot, packet.PackSlot);
     if (!item/* || item->GetGUID() != itemGUID*/)
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+        player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
     ItemTemplate const* proto = item->GetTemplate();
     if (!proto)
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, NULL);
+        player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, NULL);
         return;
     }
 
     // Verify that the bag is an actual bag or wrapped item that can be used "normally"
     if (!(proto->Flags & ITEM_PROTO_FLAG_OPENABLE) && !item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_WRAPPED))
     {
-        pUser->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
+        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
         sLog->outError(LOG_FILTER_NETWORKIO, "Possible hacking attempt: Player %s [guid: %u] tried to open item [guid: %u, entry: %u] which is not openable!",
-                pUser->GetName(), pUser->GetGUID().GetCounter(), item->GetGUID().GetCounter(), proto->ItemId);
+                player->GetName(), player->GetGUID().GetCounter(), item->GetGUID().GetCounter(), proto->ItemId);
         return;
     }
 
@@ -1409,7 +1401,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 
         if (!lockInfo)
         {
-            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, item, NULL);
+            player->SendEquipError(EQUIP_ERR_ITEM_LOCKED, item, NULL);
             sLog->outError(LOG_FILTER_NETWORKIO, "WORLD::OpenItem: item [guid = %u] has an unknown lockId: %u!", item->GetGUID().GetCounter(), lockId);
             return;
         }
@@ -1417,7 +1409,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
         // was not unlocked yet
         if (item->IsLocked())
         {
-            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, item, NULL);
+            player->SendEquipError(EQUIP_ERR_ITEM_LOCKED, item, NULL);
             return;
         }
     }
@@ -1439,12 +1431,12 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
             item->SetGuidValue(ITEM_FIELD_GIFT_CREATOR, ObjectGuid::Empty);
             item->SetEntry(entry);
             item->SetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS, flags);
-            item->SetState(ITEM_CHANGED, pUser);
+            item->SetState(ITEM_CHANGED, player);
         }
         else
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Wrapped item %u don't have record in character_gifts table and will deleted", item->GetGUID().GetCounter());
-            pUser->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+            player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
             return;
         }
 
@@ -1455,7 +1447,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
         CharacterDatabase.Execute(stmt);
     }
     else
-        pUser->SendLoot(item->GetGUID(), LOOT_CORPSE);
+        player->SendLoot(item->GetGUID(), LOOT_CORPSE);
 }
 
 void WorldSession::HandleUpgradeItem(WorldPacket& recvData)

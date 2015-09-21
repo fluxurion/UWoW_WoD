@@ -34,6 +34,7 @@
 #include "GameObjectAI.h"
 #include "SpellAuraEffects.h"
 #include "SpellPackets.h"
+#include "Chat.h"
 
 //! 6.0.3
 void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::ItemUse& cast)
@@ -618,22 +619,10 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     spell->prepare(&targets);
 }
 
-void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleCancelCast(WorldPackets::Spells::CancelCast& packet)
 {
-    uint32 spellId = 0;
-
-    bool hasSpell = !recvPacket.ReadBit();
-    bool hasCastCount = !recvPacket.ReadBit();
-    if (hasCastCount)
-        recvPacket.read_skip<uint8>();                      // counter, increments with every CANCEL packet, don't use for now
-    if (hasSpell)
-        recvPacket >> spellId;
-
-    if (!spellId)
-        return;
-
     if (_player->IsNonMeleeSpellCasted(false))
-        _player->InterruptNonMeleeSpells(false, spellId, false);
+        _player->InterruptNonMeleeSpells(false, packet.SpellID, false);
 }
 
 void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
@@ -716,7 +705,7 @@ void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
     pet->AddCreatureSpellCooldown(spellId);
 }
 
-void WorldSession::HandleCancelGrowthAuraOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleCancelGrowthAura(WorldPacket& /*recvPacket*/)
 {
 }
 
@@ -770,40 +759,35 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleSelfResOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleSelfRes(WorldPackets::Spells::SelfRes& /*packet*/)
 {
-    if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
-        return; // silent return, client should display error by itself and not send this opcode
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    if (_player->GetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL))
+    if (player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+        return;
+
+    if (player->GetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL))
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_player->GetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL));
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(player->GetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL));
         if (spellInfo)
-            _player->CastSpell(_player, spellInfo, false, 0);
+            player->CastSpell(player, spellInfo, false, 0);
 
-        _player->SetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL, 0);
+        player->SetUInt32Value(PLAYER_FIELD_SELF_RES_SPELL, 0);
     }
 }
 
-//! 6.1.2
-void WorldSession::HandleSpellClick(WorldPacket& recvData)
+void WorldSession::HandleSpellClick(WorldPackets::Spells::SpellClick& packet)
 {
     time_t now = time(NULL);
     if (now - timeLastHandleSpellClick < 2)
-    {
-        recvData.rfinish();
         return;
-    }
     else
        timeLastHandleSpellClick = now;
 
-    ObjectGuid guid;
-    recvData >> guid;
-    recvData.ReadBit();
-
     // this will get something not in world. crash
-    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
-
+    Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.SpellClickUnitGuid);
     if (!unit)
         return;
 
@@ -821,17 +805,10 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
     unit->HandleSpellClick(_player);
 }
 
-void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
+void WorldSession::HandleGetMirrorImageData(WorldPackets::Spells::GetMirrorImageData& packet)
 {
-    ObjectGuid guid;
-    uint32 displayId;
-
-    recvData >> displayId;
-    //recvData.ReadGuidMask<0, 2, 5, 6, 4, 3, 1, 7>(guid);
-    //recvData.ReadGuidBytes<2, 0, 1, 3, 7, 6, 5, 4>(guid);
-
     // Get unit for which data is needed by client
-    Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
+    Unit* unit = ObjectAccessor::GetObjectInWorld(packet.UnitGUID, (Unit*)NULL);
     if (!unit)
         return;
 
@@ -841,89 +818,67 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     // Get creator of the unit (SPELL_AURA_CLONE_CASTER does not stack)
     Unit* creator = unit->GetAuraEffectsByType(SPELL_AURA_CLONE_CASTER).front()->GetCaster();
     if (!creator)
-        creator = unit;
+        return;
 
-    Player* player = creator->ToPlayer();
-    ObjectGuid guildGuid;
-    if (uint32 guildId = player ? player->GetGuildId() : 0)
-        if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-            guildGuid = guild->GetGUID();
-
-    WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 80);
-    //data.WriteGuidMask<5>(guildGuid);
-    //data.WriteGuidMask<0, 5>(guid);
-    //data.WriteGuidMask<4>(guildGuid);
-    //data.WriteGuidMask<7, 1, 4>(guid);
-    //data.WriteGuidMask<3, 7, 2>(guildGuid);
-    //data.WriteGuidMask<6>(guid);
-    //data.WriteGuidMask<1, 6>(guildGuid);
-    //data.WriteGuidMask<3>(guid);
-
-    uint32 slotCount = 0;
-    uint32 bitpos = data.bitwpos();
-    data.WriteBits(slotCount, 22);
-
-    //data.WriteGuidMask<2>(guid);
-    //data.WriteGuidMask<0>(guildGuid);
-
-    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID) : 0);   // face
-    //data.WriteGuidBytes<2, 7>(guid);
-    //data.WriteGuidBytes<6, 1>(guildGuid);
-    data << uint8(creator->getGender());
-    data << uint8(creator->getClass());
-    //data.WriteGuidBytes<1>(guid);
-    //data.WriteGuidBytes<0>(guildGuid);
-    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID) : 0);   // hair
-    //data.WriteGuidBytes<5, 0>(guid);
-    //data.WriteGuidBytes<4, 2>(guildGuid);
-
-    static EquipmentSlots const itemSlots[] =
+    if (Player* player = creator->ToPlayer())
     {
-        EQUIPMENT_SLOT_HEAD,
-        EQUIPMENT_SLOT_SHOULDERS,
-        EQUIPMENT_SLOT_BODY,
-        EQUIPMENT_SLOT_CHEST,
-        EQUIPMENT_SLOT_WAIST,
-        EQUIPMENT_SLOT_LEGS,
-        EQUIPMENT_SLOT_FEET,
-        EQUIPMENT_SLOT_WRISTS,
-        EQUIPMENT_SLOT_HANDS,
-        EQUIPMENT_SLOT_TABARD,
-        EQUIPMENT_SLOT_BACK,
-        EQUIPMENT_SLOT_END
-    };
+        WorldPackets::Spells::MirrorImageComponentedData mirrorImageComponentedData;
+        mirrorImageComponentedData.UnitGUID = packet.UnitGUID;
+        mirrorImageComponentedData.DisplayID = creator->GetDisplayId();
+        mirrorImageComponentedData.RaceID = creator->getRace();
+        mirrorImageComponentedData.Gender = creator->getGender();
+        mirrorImageComponentedData.ClassID = creator->getClass();
 
-    // Display items in visible slots
-    for (EquipmentSlots const* itr = &itemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
-    {
-        if (!player)
-            data << uint32(0);
-        else if (*itr == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
-            data << uint32(0);
-        else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
-            data << uint32(0);
-        else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
-            data << uint32(item->GetDisplayId());
-        else
-            data << uint32(0);
-        ++slotCount;
+        Guild* guild = player->GetGuild();
+
+        mirrorImageComponentedData.SkinColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
+        mirrorImageComponentedData.FaceVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID);
+        mirrorImageComponentedData.HairVariation = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
+        mirrorImageComponentedData.HairColor = player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
+        mirrorImageComponentedData.BeardVariation = player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
+        mirrorImageComponentedData.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
+
+        mirrorImageComponentedData.ItemDisplayID.reserve(11);
+
+        static EquipmentSlots const itemSlots[] =
+        {
+            EQUIPMENT_SLOT_HEAD,
+            EQUIPMENT_SLOT_SHOULDERS,
+            EQUIPMENT_SLOT_BODY,
+            EQUIPMENT_SLOT_CHEST,
+            EQUIPMENT_SLOT_WAIST,
+            EQUIPMENT_SLOT_LEGS,
+            EQUIPMENT_SLOT_FEET,
+            EQUIPMENT_SLOT_WRISTS,
+            EQUIPMENT_SLOT_HANDS,
+            EQUIPMENT_SLOT_TABARD,
+            EQUIPMENT_SLOT_BACK,
+            EQUIPMENT_SLOT_END
+        };
+
+        // Display items in visible slots
+        for (auto const& slot : itemSlots)
+        {
+            uint32 itemDisplayId;
+            if ((slot == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM)) ||
+                (slot == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK)))
+                itemDisplayId = 0;
+            else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                itemDisplayId = item->GetDisplayId();
+            else
+                itemDisplayId = 0;
+
+            mirrorImageComponentedData.ItemDisplayID.push_back(itemDisplayId);
+        }
+        SendPacket(mirrorImageComponentedData.Write());
     }
-
-    data << uint8(creator->getRace());
-    //data.WriteGuidBytes<4>(guid);
-    //data.WriteGuidBytes<7>(guildGuid);
-    data << uint8(player ? player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE) : 0); // facialhair
-    //data.WriteGuidBytes<6>(guid);
-    data << uint32(creator->GetDisplayId());
-    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID) : 0);          // skin
-    //data.WriteGuidBytes<3>(guid);
-    //data.WriteGuidBytes<3>(guildGuid);
-    data << uint8(player ? player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID) : 0);   // haircolor
-    //data.WriteGuidBytes<5>(guildGuid);
-
-    data.PutBits<uint32>(bitpos, slotCount, 22);
-
-    SendPacket(&data);
+    else
+    {
+        WorldPackets::Spells::MirrorImageCreatureData mirrorImageCreatureData;
+        mirrorImageCreatureData.UnitGUID = packet.UnitGUID;
+        mirrorImageCreatureData.DisplayID = creator->GetDisplayId();
+        SendPacket(mirrorImageCreatureData.Write());
+    }
 }
 
 void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
@@ -1003,7 +958,31 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandlerCategoryCooldownOpocde(WorldPacket& recvPacket)
+void WorldSession::HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& /*packet*/)
 {
     _player->SendCategoryCooldownMods();
+}
+
+void WorldSession::HandleUnlearnSkill(WorldPackets::Spells::UnlearnSkill& packet)
+{
+    if (IsPrimaryProfessionSkill(packet.SkillLine))
+        GetPlayer()->SetSkill(packet.SkillLine, 0, 0, 0);
+}
+
+void WorldSession::HandleCancelMountAura(WorldPackets::Spells::CancelMountAura& /*packet*/)
+{
+    _player->RemoveAurasByType(SPELL_AURA_MOUNTED, [](AuraApplication const* aurApp)
+    {
+        SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
+        return !spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive();
+    });
+}
+
+void WorldSession::HandleCancelGrowthAura(WorldPackets::Spells::CancelGrowthAura& /*packet*/)
+{
+    _player->RemoveAurasByType(SPELL_AURA_MOD_SCALE, [](AuraApplication const* aurApp)
+    {
+        SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
+        return !spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive();
+    });
 }

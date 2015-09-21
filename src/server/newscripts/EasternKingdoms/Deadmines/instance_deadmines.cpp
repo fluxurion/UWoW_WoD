@@ -1,5 +1,6 @@
 #include "NewScriptPCH.h"
 #include "deadmines.h"
+#include "Packets/MiscPackets.h"
 
 #define MAX_ENCOUNTER 6
 
@@ -172,11 +173,9 @@ class instance_deadmines : public InstanceMapScript
                 }
             }
 
-            void DoPlaySound(GameObject* unit, uint32 sound)
+            void DoPlaySound(GameObject* unit, uint32 soundKitID)
             {
-                WorldPacket data(SMSG_PLAY_SOUND, 4);
-                data << uint32(sound);
-                unit->SendMessageToSet(&data, false);
+                unit->SendMessageToSet(WorldPackets::Misc::PlaySound(unit->GetGUID(), soundKitID).Write(), false);
             }
 
             void SetData(uint32 type, uint32 data)

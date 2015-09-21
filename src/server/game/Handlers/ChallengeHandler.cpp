@@ -27,152 +27,114 @@
 #include "ObjectMgr.h"
 #include "WorldSession.h"
 #include "ChallengeMgr.h"
+#include "ChallengeModePackets.h"
 
-void WorldSession::HandleChallengeModeRequestOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleRequestLeaders(WorldPackets::ChallengeMode::RequestLeaders& packet)
 {
-    uint32 mapID, unk, time;
-    recvPacket >> mapID >> unk >> time;
+    WorldPackets::ChallengeMode::RequestLeadersResult result;
 
-    ObjectGuid guid = _player->GetGUID();
+    result.MapID = packet.MapId;
+    result.LastGuildUpdate = 624653;
+    result.LastRealmUpdate = getMSTime();
 
-    Challenge * bestServer = sChallengeMgr->BestServerChallenge(mapID);
-    Challenge * bestGuild = sChallengeMgr->BestGuildChallenge(_player->GetGuildId(), mapID);
-
-    WorldPacket data(SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT);
-    data.WriteBits(bestGuild ? 1 : 0, 19);      //guild
-    data.WriteBits(bestServer ? 1 : 0, 19);      //server
-
-    if (bestGuild)
+    if (Challenge* bestGuild = sChallengeMgr->BestGuildChallenge(_player->GetGuildId(), packet.MapId))
     {
-        data.WriteBits(bestGuild->member.size(), 20);
+        WorldPackets::ChallengeMode::ModeAttempt guildLeaders = result.GuildLeaders[bestGuild->member.size()];
+
         for(ChallengeMemberList::iterator itr = bestGuild->member.begin(); itr != bestGuild->member.end(); ++itr)
         {
-            ChallengeMember member = *itr;
-            //data.WriteGuidMask<5, 1, 4, 2, 6, 3, 0, 7>(member.guid);
+            WorldPackets::ChallengeMode::ModeAttempt::Member memberData = guildLeaders.Members[bestGuild->member.size()];
+            for(ChallengeMemberList::iterator itr = bestGuild->member.begin(); itr != bestGuild->member.end(); ++itr)
+            {
+                ChallengeMember member = *itr;
+
+                memberData.VirtualRealmAddress = GetVirtualRealmAddress();
+                memberData.NativeRealmAddress = GetVirtualRealmAddress();
+                memberData.Guid = member.guid;
+                memberData.SpecializationID = member.specId;
+            }
+
+            guildLeaders.InstanceRealmAddress = GetVirtualRealmAddress();
+            guildLeaders.AttemptID = bestGuild->guildId;
+            guildLeaders.CompletionTime = bestGuild->recordTime;
+            guildLeaders.CompletionDate = bestGuild->date;
+            guildLeaders.MedalEarned = bestGuild->medal;
         }
     }
 
-    if (bestServer)
+    if (Challenge* bestServer = sChallengeMgr->BestServerChallenge(packet.MapId))
     {
-        data.WriteBits(bestServer->member.size(), 20);
+        WorldPackets::ChallengeMode::ModeAttempt realmLeaders = result.RealmLeaders[bestServer ? bestServer->member.size() : 0];
+
         for(ChallengeMemberList::iterator itr = bestServer->member.begin(); itr != bestServer->member.end(); ++itr)
         {
-            ChallengeMember member = *itr;
-            //data.WriteGuidMask<6, 0, 2, 3, 1, 4, 7, 5>(member.guid);
+            WorldPackets::ChallengeMode::ModeAttempt::Member memberData = realmLeaders.Members[bestServer->member.size()];
+            for(ChallengeMemberList::iterator itr = bestServer->member.begin(); itr != bestServer->member.end(); ++itr)
+            {
+                ChallengeMember member = *itr;
+
+                memberData.VirtualRealmAddress = GetVirtualRealmAddress();
+                memberData.NativeRealmAddress = GetVirtualRealmAddress();
+                memberData.Guid = member.guid;
+                memberData.SpecializationID = member.specId;
+            }
+
+            realmLeaders.InstanceRealmAddress = GetVirtualRealmAddress();
+            realmLeaders.AttemptID = bestServer->guildId;
+            realmLeaders.CompletionTime = bestServer->recordTime;
+            realmLeaders.CompletionDate = bestServer->date;
+            realmLeaders.MedalEarned = bestServer->medal;
         }
     }
 
-
-    data.FlushBits();
-
-    if (bestServer)
-    {
-        for(ChallengeMemberList::iterator itr = bestServer->member.begin(); itr != bestServer->member.end(); ++itr)
-        {
-            ChallengeMember member = *itr;
-            //data.WriteGuidBytes<2>(member.guid);
-            data << uint32(GetVirtualRealmAddress());
-            data << uint32(member.specId);
-            //data.WriteGuidBytes<4, 7, 6, 3, 5, 1>(member.guid);
-            data << uint32(GetVirtualRealmAddress());
-            //data.WriteGuidBytes<0>(member.guid);
-        }
-        data << uint32(bestServer->guildId);    // 246155
-        data << uint32(GetVirtualRealmAddress());      // 50659408
-        data << uint32(3);                      // seasonID
-        data.AppendPackedTime(bestServer->date);
-        data << uint32(bestServer->recordTime);  //recorde time on ms
-    }
-
-    if (bestGuild)
-    {
-        data << uint32(3);                      // seasonID
-        data << uint32(bestGuild->guildId);     // 246155
-        for(ChallengeMemberList::iterator itr = bestGuild->member.begin(); itr != bestGuild->member.end(); ++itr)
-        {
-            ChallengeMember member = *itr;
-
-            //data.WriteGuidBytes<7, 0>(member.guid);
-            data << uint32(GetVirtualRealmAddress());
-            //data.WriteGuidBytes<4, 1, 3, 5, 2>(member.guid);
-            data << uint32(member.specId);
-            data << uint32(GetVirtualRealmAddress());
-            //data.WriteGuidBytes<6>(member.guid);
-        }
-        data.AppendPackedTime(bestServer->date);
-        data << uint32(GetVirtualRealmAddress());      // 50659408
-        data << uint32(bestServer->recordTime); //recorde time on ms
-    }
-
-    data << uint32(getMSTime());
-    data << mapID;
-    data << uint32(624653);
-    SendPacket(&data);
+    SendPacket(result.Write());
 }
 
-void WorldSession::HandleGetChallengeModeRewards(WorldPacket& recvPacket)
+void WorldSession::HandleGetChallengeModeRewards(WorldPackets::ChallengeMode::Misc& /*packet*/)
 {
-    ByteBuffer dataBuffer;
-
-    WorldPacket data(SMSG_CHALLEGE_MODE_REWARDS, 1000);
-    data.WriteBits(0, 20);                                           //Guild
-    data.WriteBits(sMapChallengeModeStore.GetFieldCount()-1, 21);    //Self
-
+    WorldPackets::ChallengeMode::Rewards rewards;
+    WorldPackets::ChallengeMode::MapChallengeModeReward mapRewards = rewards.MapChallengeModeRewards[sMapChallengeModeStore.GetFieldCount() - 1]; // -1 really needed?
+    WorldPackets::ChallengeMode::ItemReward itemReward = rewards.ItemRewards[0];
+    
     for (uint32 i = 0; i < sMapChallengeModeStore.GetNumRows(); ++i)
     {
-        if (MapChallengeModeEntry const* mChallenge = sMapChallengeModeStore.LookupEntry(i))
+        if (MapChallengeModeEntry const* challenge = sMapChallengeModeStore.LookupEntry(i))
         {
-            data.WriteBits(4, 20);
-            for(int32 i = CHALLENGE_MEDAL_NONE; i < CHALLENGE_MEDAL_PLAT; ++i)
-            {
-                data.WriteBits(1, 21);
-                data.WriteBits(0, 20);
+            mapRewards.MapId = challenge->map;
 
-                //count14_d0::dword8
-                {
-                    dataBuffer << uint32(CURRENCY_TYPE_VALOR_POINTS);              //Currency Reward ID
-                    dataBuffer << uint32(sChallengeMgr->GetValorPointsReward(i));  //Reward Count
-                }
-                dataBuffer << uint32(198450);   //best time in seconds.
+            WorldPackets::ChallengeMode::MapChallengeModeReward::ChallengeModeReward mapReward = mapRewards.Rewards[CHALLENGE_MEDAL_PLAT];
+
+            for (int32 i = CHALLENGE_MEDAL_NONE; i < CHALLENGE_MEDAL_PLAT; ++i)
+            {
+                mapReward.Money = 198450; // "best time in seconds." - wat? what is it ? best time? 
+                //for (bla bla bla)
+                    mapReward.CurrencyRewards.emplace_back(uint32(CURRENCY_TYPE_VALOR_POINTS), sChallengeMgr->GetValorPointsReward(i));
             }
-            dataBuffer << uint32(mChallenge->map);
         }
     }
-    data.FlushBits();
-    data.append(dataBuffer);
-    
-    SendPacket(&data);
+
+    SendPacket(rewards.Write());
 }
 
-void WorldSession::HandleChallengeModeRequestMapStats(WorldPacket& recvPacket)
+void WorldSession::HandleChallengeModeRequestMapStats(WorldPackets::ChallengeMode::Misc& /*packet*/)
 {
-    WorldPacket data(SMSG_CHALLENGE_MODE_ALL_MAP_STATS, 100);
-
-    ChallengeByMap * best = sChallengeMgr->BestForMember(_player->GetGUID());
-
-    data.WriteBits(best ? best->size() : 0, 19);
-    if(best)
+    WorldPackets::ChallengeMode::AllMapStats stats;
+    if (ChallengeByMap* best = sChallengeMgr->BestForMember(_player->GetGUID()))
     {
-        for(ChallengeByMap::iterator itr = best->begin(); itr != best->end(); ++itr)
-            data.WriteBits(itr->second->member.size(), 23);                  //num membeers 
-
-        data.FlushBits();
-
+        WorldPackets::ChallengeMode::ChallengeModeMap modeMap = stats.ChallengeModeMaps[best ? best->size() : 0];
         for(ChallengeByMap::iterator itr = best->begin(); itr != best->end(); ++itr)
         {
-            data << uint32(itr->second->recordTime);                         //Record Time
-            data.AppendPackedTime(itr->second->date);                        //completionTime
-            data << uint32(itr->second->mapID);
-
             for(ChallengeMemberList::iterator i = itr->second->member.begin(); i != itr->second->member.end(); ++i)
-            {
-                ChallengeMember member = *i;
-                data << uint16(member.specId);
-            }
-            data << uint32(itr->second->medal);                              //medal
-            //ToDo: need create one more holder on challenge mgr with last record. Is it trully need?
-            data << uint32(itr->second->recordTime);                         //Last Record Time
+                modeMap.BestSpecID.emplace_back(i->specId);
+
+            modeMap.BestMedalDate = itr->second->date;
+            
+            modeMap.MapId = itr->second->mapID;
+            modeMap.BestCompletionMilliseconds = itr->second->recordTime;
+            modeMap.LastCompletionMilliseconds = itr->second->recordTime; //ToDo: need create one more holder on challenge mgr with last record. Is it trully need?
+            modeMap.BestMedal = itr->second->medal;
         }
     }
-    SendPacket(&data);
+
+    SendPacket(stats.Write());
 }

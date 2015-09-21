@@ -523,7 +523,7 @@ void ThreatManager::setCurrentVictim(HostileReference* pHostileReference)
 {
     if (pHostileReference && pHostileReference != iCurrentVictim)
     {
-        iOwner->SendChangeCurrentVictimOpcode(pHostileReference);
+        iOwner->SendHighestThreatUpdate(pHostileReference);
     }
     iCurrentVictim = pHostileReference;
 }
@@ -553,7 +553,7 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent* threatRefStat
                     setCurrentVictim(NULL);
                     setDirty(true);
                 }
-                iOwner->SendRemoveFromThreatListOpcode(hostilRef);
+                iOwner->SendThreatRemove(hostilRef);
                 iThreatContainer.remove(hostilRef);
                 iThreatOfflineContainer.addReference(hostilRef);
             }
@@ -571,7 +571,7 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent* threatRefStat
                 setCurrentVictim(NULL);
                 setDirty(true);
             }
-            iOwner->SendRemoveFromThreatListOpcode(hostilRef);
+            iOwner->SendThreatRemove(hostilRef);
             if (hostilRef->isOnline())
                 iThreatContainer.remove(hostilRef);
             else

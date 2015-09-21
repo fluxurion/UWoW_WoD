@@ -553,14 +553,6 @@ void BattlegroundMgr::BuildUpdateWorldStatePacket(WorldPacket* data, uint32 fiel
     *data << uint8(0);   //zero bit
 }
 
-//! 6.0.3
-void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
-{
-    data->Initialize(SMSG_PLAY_SOUND, 10);
-    *data << uint32(soundid);
-    *data << ObjectGuid::Empty;
-}
-
 Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
     Battleground* bg = GetBattlegroundTemplate(bgTypeId);

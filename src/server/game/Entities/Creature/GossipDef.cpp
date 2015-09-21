@@ -297,54 +297,37 @@ void QuestMenu::ClearMenu()
     _questMenuItems.clear();
 }
 
-void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title, ObjectGuid npcGUID)
+void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, std::string const& Title, ObjectGuid npcGUID)
 {
-    WorldPacket data(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 200);      // guess size
-    data << npcGUID;
-    data << uint32(eEmote._Delay);                         // player emote
-    data << uint32(eEmote._Emote);                         // NPC emote
+    WorldPackets::Quest::QuestGiverQuestList questList;
+    questList.QuestGiverGUID = npcGUID;
 
-    uint32 menuCount = 0;
-    size_t writePos = data.wpos();
-    data << menuCount;
+    questList.GreetEmoteDelay = eEmote._Delay;
+    questList.GreetEmoteType = eEmote._Emote;
+    questList.Greeting = Title;
 
     for (uint32 i = 0; i < _questMenu.GetMenuItemCount(); ++i)
     {
-        QuestMenuItem const& qmi = _questMenu.GetItem(i);
+        QuestMenuItem const& questMenuItem = _questMenu.GetItem(i);
 
-        uint32 questID = qmi.QuestId;
+        uint32 questID = questMenuItem.QuestId;
 
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
         {
             std::string title = quest->GetLogTitle();
-
-            Player* plr = _session->GetPlayer();
 
             LocaleConstant loc_idx = _session->GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
                 if (QuestTemplateLocale const* ql = sObjectMgr->GetQuestLocale(questID))
                     ObjectMgr::GetLocaleString(ql->LogTitle, loc_idx, title);
 
-            data << uint32(questID);
-            data << uint32(qmi.QuestIcon);
-            data << int32(quest->GetQuestLevel());
-            data << uint32(quest->GetFlags());              // 3.3.3 quest flags
-            data << uint32(quest->GetFlagsEx());            // quest flags 2
+            bool repeatable = false; // NYI
 
-            data.WriteBit(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
-            data.WriteBits(title.size(), 9);
-            data.WriteString(title);
-
-            ++menuCount;
+            questList.GossipTexts.push_back(WorldPackets::Quest::GossipTextData(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), quest->GetFlagsEx(), repeatable, title));
         }
     }
-    data.put<uint32>(writePos, menuCount);
 
-    data.WriteBits(Title.size(), 11);
-    data.WriteString(Title);
-
-    _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE NPC Guid=%u", npcGUID.GetCounter());
+    _session->SendPacket(questList.Write());
 }
 
 void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const
@@ -493,7 +476,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     packet.Info.SuggestedGroupNum = quest->GetSuggestedPlayers();
     packet.Info.RewardNextQuest = quest->GetNextQuestInChain();
     packet.Info.RewardXPDifficulty = quest->GetXPDifficulty();
-    packet.Info.RevardXPMultiplier = quest->RevardXPMultiplier;
+    packet.Info.RewardXPMultiplier = quest->RewardXPMultiplier;
     packet.Info.RewardMoneyMultiplier = quest->RewardMoneyMultiplier;
 
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))

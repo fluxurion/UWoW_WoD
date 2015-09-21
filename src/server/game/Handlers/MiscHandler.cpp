@@ -344,36 +344,46 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
-//! ToDo: Check 6.0.3
-void WorldSession::HandleTogglePvP(WorldPacket& recvData)
+void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
 {
-    uint8 newPvPStatus = recvData.ReadBit();
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    // this opcode can be used in two ways: Either set explicit new status or toggle old status
-    if (newPvPStatus)
+    bool inPvP = player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
+
+    player->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, inPvP ? PLAYER_FLAGS_PVP_TIMER : PLAYER_FLAGS_IN_PVP, inPvP);
+
+    if (player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
     {
-        GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, newPvPStatus);
-        GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !newPvPStatus);
+        if (!player->IsPvP() || player->pvpInfo.endTimer)
+            player->UpdatePvP(true, true);
     }
     else
     {
-        GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP);
-        GetPlayer()->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
+        if (!player->pvpInfo.inHostileArea && player->IsPvP())
+            player->pvpInfo.endTimer = time(nullptr);
     }
+}
 
-    if (GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
+void WorldSession::HandleSetPvP(WorldPackets::Misc::SetPvP& packet)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    player->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, packet.EnablePVP ? PLAYER_FLAGS_IN_PVP: PLAYER_FLAGS_PVP_TIMER, packet.EnablePVP);
+
+    if (player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
     {
-        if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.endTimer != 0)
-            GetPlayer()->UpdatePvP(true, true);
+        if (!player->IsPvP() || player->pvpInfo.endTimer)
+            player->UpdatePvP(true, true);
     }
     else
     {
-        if (!GetPlayer()->pvpInfo.inHostileArea && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.endTimer = time(NULL);     // start toggle-off
+        if (!player->pvpInfo.inHostileArea && player->IsPvP())
+            player->pvpInfo.endTimer = time(nullptr);
     }
-
-    //if (OutdoorPvP* pvp = _player->GetOutdoorPvP())
-    //    pvp->HandlePlayerActivityChanged(_player);
 }
 
 void WorldSession::HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& /*packet*/)
@@ -899,15 +909,9 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionBu
     }
 }
 
-void WorldSession::HandleCompleteCinematic(WorldPacket& /*recvData*/)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_COMPLETE_CINEMATIC");
-}
+void WorldSession::HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& /*packet*/) { }
 
-void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
-}
+void WorldSession::HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& /*packet*/) { }
 
 void WorldSession::HandleCompleteMovie(WorldPacket& /*recvData*/)
 {
@@ -1075,25 +1079,19 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-//! 6.0.3
-void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
+void WorldSession::HandleFarSight(WorldPackets::Misc::FarSight& packet)
 {
-    bool apply = recvData.ReadBit();
-    if (!apply)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player %u set vision to self", _player->GetGUID().GetCounter());
-        _player->SetSeer(_player);
-    }
-    else
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Added FarSight " UI64FMTD " to player %u", _player->GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT), _player->GetGUID().GetCounter());
-        if (WorldObject* target = _player->GetViewpoint())
-            _player->SetSeer(target);
-        else
-            sLog->outError(LOG_FILTER_NETWORKIO, "Player %s requests non-existing seer " UI64FMTD, _player->GetName(), _player->GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT));
-    }
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    GetPlayer()->UpdateVisibilityForPlayer();
+    if (!packet.Enable)
+        player->SetSeer(player);
+    else
+        if (WorldObject* target = player->GetViewpoint())
+            player->SetSeer(target);
+
+    player->UpdateVisibilityForPlayer();
 }
 
 //! 6.0.3
@@ -1324,24 +1322,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
     }
 }
 
-//! 6.0.3
-void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
-{
-    if (!_player->IsMounted())                              // not blizz like; no any messages on blizz
-    {
-        ChatHandler(this).SendSysMessage(LANG_CHAR_NON_MOUNTED);
-        return;
-    }
-
-    if (_player->isInFlight())                               // not blizz like; no any messages on blizz
-    {
-        ChatHandler(this).SendSysMessage(LANG_YOU_IN_FLIGHT);
-        return;
-    }
-
-    _player->RemoveAurasByType(SPELL_AURA_MOUNTED); // Calls Dismount()
-}
-
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */) { }
 
 void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
@@ -1368,37 +1348,15 @@ void WorldSession::HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*requ
     SendPacket(response.Write());
 }
 
-void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaIds, uint32 flag /*=0x1F*/)
+void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaSwaps, uint32 flag /*=0x1F*/)
 {
-    ObjectGuid guid = _player->GetGUID();
-    ObjectGuid PersonalGUID;
-
-    WorldPacket data(SMSG_PHASE_SHIFT_CHANGE, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
-    data << guid;
-    // 0x8 or 0x10 is related to areatrigger, if we send flags 0x00 areatrigger doesn't work in some case
-    data << uint32(!flag ? 0x1F : flag); // flags, 0x18 most of time on retail sniff
-
-    data << uint32(phaseIds.size());        // Phase.dbc ids
-    data << PersonalGUID;
-    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
-    {
-        data << uint16(1);     // Flags
-        data << uint16(*itr); // Most of phase id on retail sniff have 0x8000 mask
-    }
-
-    data << uint32(terrainswaps.size()) * 2;    // Active terrain swaps -  PreloadMapIDsCount
-    for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
-        data << uint16(*itr);
-
-    data << uint32(0);                          // Inactive terrain swaps - UiWorldMapAreaIDSwap
-    //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
-    //    data << uint16(0);
-
-    data << uint32(worldMapAreaIds.size()) * 2;    // WorldMapAreaIds - VisibleMapID
-    for (std::set<uint32>::const_iterator itr = worldMapAreaIds.begin(); itr != worldMapAreaIds.end(); ++itr)
-        data << uint16(*itr);
-
-    SendPacket(&data);
+    WorldPackets::Misc::PhaseShift phaseShift;
+    phaseShift.ClientGUID = _player->GetGUID();
+    phaseShift.PersonalGUID = _player->GetGUID();
+    phaseShift.PhaseShifts = phaseIds;
+    phaseShift.VisibleMapIDs = terrainswaps;
+    phaseShift.UiWorldMapAreaIDSwaps = worldMapAreaSwaps;
+    SendPacket(phaseShift.Write());
 }
 
 void WorldSession::HandleAreaSpiritHealerQuery(WorldPackets::Battleground::AreaSpiritHealerQuery& packet)
@@ -1473,21 +1431,20 @@ void WorldSession::HandleInstanceLockResponse(WorldPackets::Instance::InstanceLo
 
 void WorldSession::HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& /*packet*/) { }
 
-void WorldSession::HandleObjectUpdateFailedOpcode(WorldPacket& recvData)
+void WorldSession::HandleObjectUpdateFailed(WorldPackets::Misc::ObjectUpdateFailed& packet)
 {
-    sLog->outError(LOG_FILTER_NETWORKIO, "Received CMSG_OBJECT_UPDATE_FAILED from player %s (%u). Not patched client - kick him", GetPlayerName().c_str(), GetPlayer()->GetGUID().GetCounter());
-    //KickPlayer();
-    recvData.rfinish();
-    /*ObjectGuid guid;
+    if (_player->GetGUID() == packet.ObjectGUID)
+    {
+        LogoutPlayer(true);
+        return;
+    }
 
-    //recvData.ReadGuidMask<2, 3, 5, 0, 4, 7, 6, 1>(guid);
-    //recvData.ReadGuidBytes<1, 2, 5, 0, 3, 4, 6, 7>(guid);
+    _player->m_clientGUIDs.erase(packet.ObjectGUID);
+}
 
-    WorldObject* obj = ObjectAccessor::GetWorldObject(*GetPlayer(), guid);
-    if(obj)
-        obj->SendUpdateToPlayer(GetPlayer());
-
-    sLog->outError(LOG_FILTER_NETWORKIO, "Object update failed for object " UI64FMTD " (%s) for player %s (%u)", uint64(guid), obj ? obj->GetName() : "object-not-found", GetPlayerName().c_str(), GetGUID().GetCounter());*/
+void WorldSession::HandleObjectUpdateRescued(WorldPackets::Misc::ObjectUpdateRescued& packet)
+{
+    _player->m_clientGUIDs.insert(packet.ObjectGUID);
 }
 
 // DestrinyFrame.xml : lua function NeutralPlayerSelectFaction
@@ -1602,15 +1559,61 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
     GetPlayer()->SendMessageToSet(&data, false);
 }
 
-void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
+void WorldSession::HandleSummonResponse(WorldPackets::Movement::SummonResponse& packet)
 {
-    if (!_player->isAlive() || _player->isInCombat())
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    ObjectGuid summonerGuid;
-    bool agree;
+    if (!player->isAlive() || player->isInCombat())
+        return;
 
-    agree = recvData.ReadBit();
+    player->SummonIfPossible(packet.Accept);
+}
 
-    _player->SummonIfPossible(agree);
+void WorldSession::HandleRandomRollClient(WorldPackets::Misc::RandomRollClient& packet)
+{
+    Player* player = GetPlayer();
+    if (packet.Min > packet.Max || packet.Max > 10000 || !player)
+        return;
+
+    WorldPackets::Misc::RandomRoll randomRoll;
+    randomRoll.Min = packet.Min;
+    randomRoll.Max = packet.Max;
+    randomRoll.Result = urand(packet.Min, packet.Max);
+    randomRoll.Roller = player->GetGUID();
+    randomRoll.RollerWowAccount = GetBattlenetAccountGUID();
+    if (player->GetGroup())
+        player->GetGroup()->BroadcastPacket(randomRoll.Write(), false);
+    else
+        SendPacket(randomRoll.Write());
+}
+
+void WorldSession::HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& /*packet*/)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    if (player->GetUInt32Value(PLAYER_FIELD_XP))
+        return;
+
+    if (ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(player->getClass()))
+    {
+        if (classEntry->CinematicSequenceID)
+            player->SendCinematicStart(classEntry->CinematicSequenceID);
+        else if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(player->getRace()))
+            player->SendCinematicStart(raceEntry->CinematicSequenceID);
+    }
+}
+
+void WorldSession::HandleWorldTeleport(WorldPackets::Misc::WorldTeleport& packet)
+{
+    if (GetPlayer()->isInFlight())
+        return;
+
+    if (AccountMgr::IsAdminAccount(GetSecurity()))
+        GetPlayer()->TeleportTo(packet.MapID, packet.Pos.x, packet.Pos.y, packet.Pos.z, packet.Facing);
+    else
+        SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
 }

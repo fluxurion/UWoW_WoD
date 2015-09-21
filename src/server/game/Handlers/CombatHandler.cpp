@@ -67,17 +67,10 @@ void WorldSession::HandleAttackStop(WorldPackets::Combat::AttackStop& /*recvData
     GetPlayer()->AttackStop();
 }
 
-void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetSheathed(WorldPackets::Combat::SetSheathed& packet)
 {
-    uint32 sheathed;
-    recvData >> sheathed;
-    recvData.rfinish(); //could send 1 bit in some cases
-
-    if (sheathed >= MAX_SHEATH_STATE)
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Unknown sheath state %u ??", sheathed);
+    if (packet.CurrentSheathState >= MAX_SHEATH_STATE)
         return;
-    }
 
-    GetPlayer()->SetSheath(SheathState(sheathed));
+    GetPlayer()->SetSheath(SheathState(packet.CurrentSheathState));
 }

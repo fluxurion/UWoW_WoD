@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "ChannelMgr.h"
+#include "Packets/ChatPackets.h"
 
 class message_commandscript : public CommandScript
 {
@@ -154,10 +155,7 @@ public:
         std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
         str += args;
 
-        WorldPacket data(SMSG_PRINT_NOTIFICATION, (str.size()+1));
-        data.WriteBits(str.size(), 12);
-        data.WriteString(str);
-        sWorld->SendGlobalMessage(&data);
+        sWorld->SendGlobalMessage(WorldPackets::Chat::PrintNotification(str).Write());
 
         return true;
     }
@@ -170,10 +168,7 @@ public:
         std::string str = handler->GetTrinityString(LANG_GM_NOTIFY);
         str += args;
 
-        WorldPacket data(SMSG_PRINT_NOTIFICATION, (str.size()+1));
-        data.WriteBits(str.size(), 12);
-        data.WriteString(str);
-        sWorld->SendGlobalGMMessage(&data);
+        sWorld->SendGlobalGMMessage(WorldPackets::Chat::PrintNotification(str).Write());
 
         return true;
     }

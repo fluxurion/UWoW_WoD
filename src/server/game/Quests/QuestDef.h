@@ -426,7 +426,7 @@ class Quest
         int32  RewardArenaPoints;
         uint32 NextQuestIdChain;
         uint32 RewardXPDifficulty;
-        float  RevardXPMultiplier;
+        float  RewardXPMultiplier;
         uint32 SourceItemId;
         std::string LogTitle;
         std::string LogDescription;

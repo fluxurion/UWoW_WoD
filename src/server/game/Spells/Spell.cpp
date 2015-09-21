@@ -59,6 +59,7 @@
 #include "GuildMgr.h"
 #include "ScenarioMgr.h"
 #include "SpellPackets.h"
+#include "CombatLogPackets.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -607,7 +608,7 @@ m_absorb(0), m_resist(0), m_blocked(0), m_interupted(false), m_effect_targets(NU
         && !m_spellInfo->IsPassive() && !m_spellInfo->IsPositive();
 
     CleanupTargetList();
-    memset(m_effectExecuteData, 0, MAX_SPELL_EFFECTS * sizeof(EffectExecuteData*));
+    CleanupExecuteLogList();
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
@@ -654,7 +655,7 @@ Spell::~Spell()
         ASSERT(m_caster->ToPlayer()->m_spellModTakingSpell != this);
     delete m_spellValue;
 
-    CheckEffectExecuteData();
+    CleanupExecuteLogList();
 }
 
 void Spell::InitExplicitTargets(SpellCastTargets const& targets)
@@ -4908,6 +4909,10 @@ void Spell::SendSpellStart()
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
+    uint32 schoolImmunityMask = m_caster->GetSchoolImmunityMask();
+    uint32 mechanicImmunityMask = m_caster->GetMechanicImmunityMask();
+    if (schoolImmunityMask || mechanicImmunityMask)
+        castFlags |= CAST_FLAG_IMMUNITY;
 
     if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell() && !(AttributesCustomEx4 & SPELL_ATTR4_TRIGGERED) && !(AttributesCustomEx12 & SPELL_ATTR12_DOESENT_INTERRUPT_CHANNELING)) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
@@ -5007,6 +5012,12 @@ void Spell::SendSpellStart()
             for (uint8 i = 0; i < MAX_RUNES; ++i)
                 castData.RemainingRunes->Cooldowns.push_back(0);
         }
+    }
+
+    if (castFlags & CAST_FLAG_IMMUNITY)
+    {
+        castData.Immunities.School = schoolImmunityMask;
+        castData.Immunities.Value = mechanicImmunityMask;
     }
 
     m_caster->SendMessageToSet(packet.Write(), true);
@@ -5203,208 +5214,125 @@ void Spell::SendSpellGo()
 
 }
 
-void Spell::SendLogExecute()
+void Spell::SendSpellExecuteLog()
 {
-    //! 6.0.3
-    WorldPacket data(SMSG_SPELL_EXECUTE_LOG);
-    data << m_caster->GetGUID();
+    WorldPackets::CombatLog::SpellExecuteLog spellExecuteLog;
 
-    data << uint32(m_spellInfo->Id);
+    spellExecuteLog.Caster = m_caster->GetGUID();
+    spellExecuteLog.SpellID = m_spellInfo->Id;
 
-    uint32 effectCount = 0;
-    size_t wPos = data.wpos();
-    data << uint32(effectCount);
+    if (_powerDrainTargets->empty() && _extraAttacksTargets->empty() &&
+        _durabilityDamageTargets->empty() && _genericVictimTargets->empty() &&
+        _tradeSkillTargets->empty() && _feedPetTargets->empty())
+        return;
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (!m_effectExecuteData[i])
-            continue;
+        WorldPackets::CombatLog::SpellExecuteLog::SpellLogEffect spellLogEffect;
 
-        uint32 effect = m_spellInfo->GetEffect(i, m_diffMode).Effect;
-        data << uint32(effect);             // spell effect
+        spellLogEffect.Effect = m_spellInfo->GetEffect(i, m_diffMode).Effect;
 
-        switch (effect)
-        {
-            case SPELL_EFFECT_POWER_DRAIN:
-            case SPELL_EFFECT_POWER_BURN:
-            {
-                uint32 count = m_effectExecuteData[i]->guids.size();
+        for (SpellLogEffectPowerDrainParams const& powerDrainParam : _powerDrainTargets[i])
+            spellLogEffect.PowerDrainTargets.push_back(powerDrainParam);
 
-                data << uint32(count);      // PowerDrainTargetsCount
-                data << uint32(0);          // ExtraAttacksTargetsCount
-                data << uint32(0);          // DurabilityDamageTargetsCount
-                data << uint32(0);          // GenericVictimTargetsCount
-                data << uint32(0);          // TradeSkillTargetsCount
-                data << uint32(0);          // FeedPetTargetsCount
+        for (SpellLogEffectExtraAttacksParams const& extraAttacksTarget : _extraAttacksTargets[i])
+            spellLogEffect.ExtraAttacksTargets.push_back(extraAttacksTarget);
 
-                for (uint32 j = 0; j < count; ++j)
-                {
-                    data << m_effectExecuteData[i]->guids[j];
-                    data << uint32(m_effectExecuteData[i]->param1[j]);
-                    data << uint32(m_effectExecuteData[i]->param2[j]);
-                    data << float(m_effectExecuteData[i]->floatParam[j]);
-                }
-                break;
-            }
-            case SPELL_EFFECT_ADD_EXTRA_ATTACKS:
-            {
-                uint32 count = m_effectExecuteData[i]->guids.size();
-                data << uint32(0);          // PowerDrainTargetsCount
-                data << uint32(count);      // ExtraAttacksTargetsCount
-                data << uint32(0);          // DurabilityDamageTargetsCount
-                data << uint32(0);          // GenericVictimTargetsCount
-                data << uint32(0);          // TradeSkillTargetsCount
-                data << uint32(0);          // FeedPetTargetsCount
+        for (SpellLogEffectDurabilityDamageParams const& durabilityDamageTarget : _durabilityDamageTargets[i])
+            spellLogEffect.DurabilityDamageTargets.push_back(durabilityDamageTarget);
 
-                for (uint32 j = 0; j < count; ++j)
-                {
-                    data << m_effectExecuteData[i]->guids[j];
-                    data << uint32(m_effectExecuteData[i]->param1[j]);
-                }
-                break;
-            }
-            case SPELL_EFFECT_DURABILITY_DAMAGE:
-            {
-                uint32 count = m_effectExecuteData[i]->guids.size();
+        for (SpellLogEffectGenericVictimParams const& genericVictimTarget : _genericVictimTargets[i])
+            spellLogEffect.GenericVictimTargets.push_back(genericVictimTarget);
 
-                data << uint32(0);          // PowerDrainTargetsCount
-                data << uint32(0);          // ExtraAttacksTargetsCount
-                data << uint32(count);      // DurabilityDamageTargetsCount
-                data << uint32(0);          // GenericVictimTargetsCount
-                data << uint32(0);          // TradeSkillTargetsCount
-                data << uint32(0);          // FeedPetTargetsCount
-                for (uint32 j = 0; j < count; ++j)
-                {
-                    data << m_effectExecuteData[i]->guids[j];
-                    data << uint32(m_effectExecuteData[i]->param2[j]);
-                    data << uint32(m_effectExecuteData[i]->param1[j]);
-                }
-                break;
-            }
-            case SPELL_EFFECT_RESURRECT:
-            case SPELL_EFFECT_SUMMON:
-            case SPELL_EFFECT_OPEN_LOCK:
-            case SPELL_EFFECT_TRANS_DOOR:
-            case SPELL_EFFECT_SUMMON_PET:
-            case SPELL_EFFECT_SUMMON_OBJECT_WILD:
-            case SPELL_EFFECT_CREATE_HOUSE:
-            case SPELL_EFFECT_DUEL:
-            case SPELL_EFFECT_DISMISS_PET:
-            case SPELL_EFFECT_SUMMON_OBJECT_SLOT:
-            case SPELL_EFFECT_OBJECT_WITH_PERSONAL_VISIBILITY:
-            case SPELL_EFFECT_RESURRECT_WITH_AURA:
-            case SPELL_EFFECT_RESURRECT_NEW:
-            {
-                uint32 count = m_effectExecuteData[i]->guids.size();
-                data << uint32(0);          // PowerDrainTargetsCount
-                data << uint32(0);          // ExtraAttacksTargetsCount
-                data << uint32(0);          // DurabilityDamageTargetsCount
-                data << uint32(count);      // GenericVictimTargetsCount
-                data << uint32(0);          // TradeSkillTargetsCount
-                data << uint32(0);          // FeedPetTargetsCount
+        for (SpellLogEffectTradeSkillItemParams const& tradeSkillTarget : _tradeSkillTargets[i])
+            spellLogEffect.TradeSkillTargets.push_back(tradeSkillTarget);
 
-                for (uint32 j = 0; j < count; ++j)
-                    data << m_effectExecuteData[i]->guids[j];
-                break;
-            }
-            case SPELL_EFFECT_CREATE_ITEM:
-            case SPELL_EFFECT_CREATE_RANDOM_ITEM:
-            case SPELL_EFFECT_CREATE_ITEM_2:
-            case SPELL_EFFECT_LOOT_BONUS:
-            {
-                uint32 count = m_effectExecuteData[i]->param1.size();
-                data << uint32(0);          // PowerDrainTargetsCount
-                data << uint32(0);          // ExtraAttacksTargetsCount
-                data << uint32(0);          // DurabilityDamageTargetsCount
-                data << uint32(0);          // GenericVictimTargetsCount
-                data << uint32(count);      // TradeSkillTargetsCount
-                data << uint32(0);          // FeedPetTargetsCount
+        for (SpellLogEffectFeedPetParams const& feedPetTarget : _feedPetTargets[i])
+            spellLogEffect.FeedPetTargets.push_back(feedPetTarget);
 
-                for (uint32 j = 0; j < count; ++j)
-                    data << uint32(m_effectExecuteData[i]->param1[j]);
-                break;
-            }
-            case SPELL_EFFECT_FEED_PET:
-            {
-                uint32 count = m_effectExecuteData[i]->param1.size();
-                data << uint32(0);          // PowerDrainTargetsCount
-                data << uint32(0);          // ExtraAttacksTargetsCount
-                data << uint32(0);          // DurabilityDamageTargetsCount
-                data << uint32(0);          // GenericVictimTargetsCount
-                data << uint32(0);          // TradeSkillTargetsCount
-                data << uint32(count);      // FeedPetTargetsCount
-
-                for (uint32 j = 0; j < count; ++j)
-                    data << uint32(m_effectExecuteData[i]->param1[j]);
-                break;
-            }
-            default:
-            {
-                sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::SendLogExecute: Effect %u should not have data, skipping", effect);
-                delete m_effectExecuteData[i];
-                m_effectExecuteData[i] = NULL;
-                continue;
-            }
-        }
-
-        ++effectCount;
-
-        delete m_effectExecuteData[i];
-        m_effectExecuteData[i] = NULL;
+        spellExecuteLog.Effects.push_back(spellLogEffect);
     }
 
-    data.put<uint32>(wPos, effectCount);
-    data.WriteBit(0);   ///HasLogData
-
-    m_caster->SendMessageToSet(&data, true);
+    m_caster->SendCombatLogMessage(&spellExecuteLog);
 }
 
-void Spell::ExecuteLogEffectGeneric(uint8 effIndex, ObjectGuid const& guid)
+void Spell::ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32 powerType, uint32 points, float amplitude)
 {
-    InitEffectExecuteData(effIndex);
-
-    m_effectExecuteData[effIndex]->guids.push_back(guid);
+    SpellLogEffectPowerDrainParams spellLogEffectPowerDrainParams;
+    spellLogEffectPowerDrainParams.Victim = target->GetGUID();
+    spellLogEffectPowerDrainParams.Points = points;
+    spellLogEffectPowerDrainParams.PowerType = powerType;
+    spellLogEffectPowerDrainParams.Amplitude = amplitude;
+    _powerDrainTargets[effIndex].push_back(spellLogEffectPowerDrainParams);
 }
 
-void Spell::ExecuteLogEffectPowerDrain(uint8 effIndex, ObjectGuid const& guid, uint32 powerType, uint32 powerTaken, float gainMultiplier)
+void Spell::ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 numAttacks)
 {
-    InitEffectExecuteData(effIndex);
-
-    m_effectExecuteData[effIndex]->guids.push_back(guid);
-    m_effectExecuteData[effIndex]->param1.push_back(powerTaken);    // v may be swapped
-    m_effectExecuteData[effIndex]->param2.push_back(powerType);     // ^
-    m_effectExecuteData[effIndex]->floatParam.push_back(gainMultiplier);
+    SpellLogEffectExtraAttacksParams spellLogEffectExtraAttacksParams;
+    spellLogEffectExtraAttacksParams.Victim = victim->GetGUID();
+    spellLogEffectExtraAttacksParams.NumAttacks = numAttacks;
+    _extraAttacksTargets[effIndex].push_back(spellLogEffectExtraAttacksParams);
 }
 
-void Spell::ExecuteLogEffectExtraAttacks(uint8 effIndex, ObjectGuid const& guid, uint32 attCount)
+void Spell::ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, int32 itemId, int32 amount)
 {
-    InitEffectExecuteData(effIndex);
-
-    m_effectExecuteData[effIndex]->guids.push_back(guid);
-    m_effectExecuteData[effIndex]->param1.push_back(attCount);
+    SpellLogEffectDurabilityDamageParams spellLogEffectDurabilityDamageParams;
+    spellLogEffectDurabilityDamageParams.Victim = victim->GetGUID();
+    spellLogEffectDurabilityDamageParams.ItemID = itemId;
+    spellLogEffectDurabilityDamageParams.Amount = amount;
+    _durabilityDamageTargets[effIndex].push_back(spellLogEffectDurabilityDamageParams);
 }
 
-void Spell::ExecuteLogEffectDurabilityDamage(uint8 effIndex, ObjectGuid const& guid, uint32 /*itemslot*/, uint32 damage)
+void Spell::ExecuteLogEffectOpenLock(uint8 effIndex, Object* obj)
 {
-    InitEffectExecuteData(effIndex);
-
-    m_effectExecuteData[effIndex]->guids.push_back(guid);
-    m_effectExecuteData[effIndex]->param1.push_back(damage);
-    m_effectExecuteData[effIndex]->param2.push_back(-1);
+    SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
+    spellLogEffectGenericVictimParams.Victim = obj->GetGUID();
+    _genericVictimTargets[effIndex].push_back(spellLogEffectGenericVictimParams);
 }
 
-void Spell::ExecuteLogEffectTradeSkillItem(uint8 effIndex, uint32 entry)
+void Spell::ExecuteLogEffectCreateItem(uint8 effIndex, uint32 entry)
 {
-    InitEffectExecuteData(effIndex);
-
-    m_effectExecuteData[effIndex]->param1.push_back(entry);
+    SpellLogEffectTradeSkillItemParams spellLogEffectTradeSkillItemParams;
+    spellLogEffectTradeSkillItemParams.ItemID = entry;
+    _tradeSkillTargets[effIndex].push_back(spellLogEffectTradeSkillItemParams);
 }
 
-void Spell::ExecuteLogEffectFeedPet(uint8 effIndex, uint32 entry)
+void Spell::ExecuteLogEffectDestroyItem(uint8 effIndex, uint32 entry)
 {
-    InitEffectExecuteData(effIndex);
+    SpellLogEffectFeedPetParams spellLogEffectFeedPetParams;
+    spellLogEffectFeedPetParams.ItemID = entry;
+    _feedPetTargets[effIndex].push_back(spellLogEffectFeedPetParams);
+}
 
-    m_effectExecuteData[effIndex]->param1.push_back(entry);
+void Spell::ExecuteLogEffectSummonObject(uint8 effIndex, WorldObject* obj)
+{
+    SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
+    spellLogEffectGenericVictimParams.Victim = obj->GetGUID();
+    _genericVictimTargets[effIndex].push_back(spellLogEffectGenericVictimParams);
+}
+
+void Spell::ExecuteLogEffectUnsummonObject(uint8 effIndex, WorldObject* obj)
+{
+    SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
+    spellLogEffectGenericVictimParams.Victim = obj->GetGUID();
+    _genericVictimTargets[effIndex].push_back(spellLogEffectGenericVictimParams);
+}
+
+void Spell::ExecuteLogEffectResurrect(uint8 effect, Unit* target)
+{
+    SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
+    spellLogEffectGenericVictimParams.Victim = target->GetGUID();
+    _genericVictimTargets[effect].push_back(spellLogEffectGenericVictimParams);
+}
+
+void Spell::CleanupExecuteLogList()
+{
+    _durabilityDamageTargets->clear();
+    _extraAttacksTargets->clear();
+    _feedPetTargets->clear();
+    _genericVictimTargets->clear();
+    _powerDrainTargets->clear();
+    _tradeSkillTargets->clear();
 }
 
 void Spell::SendInterrupted(uint8 result)
@@ -5424,6 +5352,16 @@ void Spell::SendInterrupted(uint8 result)
     m_caster->SendMessageToSet(failedPacket.Write(), true);
 }
 
+void Spell::ExecuteLogEffectInterruptCast(uint8 /*effIndex*/, Unit* victim, uint32 spellId)
+{
+    WorldPackets::CombatLog::SpellInterruptLog data;
+    data.Caster = m_caster->GetGUID();
+    data.Victim = victim->GetGUID();
+    data.InterruptedSpellID = m_spellInfo->Id;
+    data.SpellID = spellId;
+    m_caster->SendMessageToSet(data.Write(), true);
+}
+
 void Spell::SendChannelUpdate(uint32 time)
 {
     if (time == 0)
@@ -5432,11 +5370,10 @@ void Spell::SendChannelUpdate(uint32 time)
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
     }
 
-    //! 6.3.0
-    WorldPacket data(SMSG_SPELL_CHANNEL_UPDATE, 8+4);
-    data << m_caster->GetPackGUID();
-    data << uint32(time);
-    m_caster->SendMessageToSet(&data, true);
+    WorldPackets::Spells::SpellChannelUpdate spellChannelUpdate;
+    spellChannelUpdate.CasterGUID = m_caster->GetGUID();
+    spellChannelUpdate.TimeRemaining = time;
+    m_caster->SendMessageToSet(spellChannelUpdate.Write(), true);
 }
 
 void Spell::SendChannelStart(uint32 duration)
@@ -5450,18 +5387,27 @@ void Spell::SendChannelStart(uint32 duration)
             if (!m_UniqueTargetInfo.empty())
                 channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
 
-    //! 6.0.3
-    WorldPacket data(SMSG_SPELL_CHANNEL_START, (8+4+4));
-    data << m_caster->GetPackGUID();
-    data << uint32(m_spellInfo->Id);
-    data << uint32(duration);
-    data << uint8(0);   // bit HasInterruptImmunities & HasHealPrediction
-    m_caster->SendMessageToSet(&data, true);
+    WorldPackets::Spells::SpellChannelStart spellChannelStart;
+    spellChannelStart.CasterGUID = m_caster->GetGUID();
+    spellChannelStart.SpellID = m_spellInfo->Id;
+    spellChannelStart.ChannelDuration = duration;
+    
+    uint32 schoolImmunityMask = m_caster->GetSchoolImmunityMask();
+    uint32 mechanicImmunityMask = m_caster->GetMechanicImmunityMask();
+
+    if (schoolImmunityMask || mechanicImmunityMask)
+    {
+        spellChannelStart.InterruptImmunities = boost::in_place();
+        spellChannelStart.InterruptImmunities->SchoolImmunities = schoolImmunityMask;
+        spellChannelStart.InterruptImmunities->Immunities = mechanicImmunityMask;
+    }
+    m_caster->SendMessageToSet(spellChannelStart.Write(), true);
 
     m_timer = duration;
-    if(!channelGuid)
+
+    if (!channelGuid)
     {
-        if(dynObjGuid)
+        if (dynObjGuid)
             m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, dynObjGuid);
         else if (channelTarget)
             m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, channelTarget);
@@ -5475,22 +5421,20 @@ void Spell::SendResurrectRequest(Player* target)
 {
     // get ressurector name for creature resurrections, otherwise packet will be not accepted
     // for player resurrections the name is looked up by guid
-    std::string resurrectorName = m_caster->GetTypeId() == TYPEID_PLAYER ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex());
+    std::string sentName = m_caster->GetTypeId() == TYPEID_PLAYER ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex());
 
-    //! 6.0.3
-    WorldPacket data(SMSG_RESURRECT_REQUEST, 8 + 1 + 1 + 4 + 4 + 4 + resurrectorName.size());
-    data << m_caster->GetGUID();
-    data << uint32(GetVirtualRealmAddress());
-    data << uint32(0);                                                      // pet counter
-    data << uint32(m_spellInfo->Id);
-    data.WriteBits(resurrectorName.size(), 6);
-    data.WriteBit(0);                                                       // use timer according to client symbols
-    data.WriteBit(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1);          // "you'll be afflicted with resurrection sickness"
-                                                                            // override delay sent with SMSG_CORPSE_RECLAIM_DELAY, set instant resurrection for spells with this attribute
-                                                                            // 4.2.2 edit : id of the spell used to resurect. (used client-side for Mass Resurect)
-    data.WriteString(resurrectorName);
+    WorldPackets::Spells::ResurrectRequest resurrectRequest;
+    resurrectRequest.ResurrectOffererGUID =  m_caster->GetGUID();
+    resurrectRequest.ResurrectOffererVirtualRealmAddress = GetVirtualRealmAddress();
+    resurrectRequest.SpellID = m_spellInfo->Id;
+    resurrectRequest.Sickness = m_caster->GetTypeId() != TYPEID_PLAYER;
+    resurrectRequest.Name = sentName;
 
-    target->GetSession()->SendPacket(&data);
+    if (Pet* pet = target->GetPet())
+        if (CharmInfo* charmInfo = pet->GetCharmInfo())
+            resurrectRequest.PetNumber = charmInfo->GetPetNumber();
+
+    target->GetSession()->SendPacket(resurrectRequest.Write());
 }
 
 void Spell::TakeCastItem()
@@ -8964,25 +8908,11 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value, bool lockValue)
 
 void Spell::PrepareTargetProcessing()
 {
-    CheckEffectExecuteData();
 }
 
 void Spell::FinishTargetProcessing()
 {
-    SendLogExecute();
-}
-
-void Spell::InitEffectExecuteData(uint8 effIndex)
-{
-    ASSERT(effIndex < MAX_SPELL_EFFECTS);
-    if (!m_effectExecuteData[effIndex])
-        m_effectExecuteData[effIndex] = new EffectExecuteData();
-}
-
-void Spell::CheckEffectExecuteData()
-{
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        ASSERT(!m_effectExecuteData[i]);
+    SendSpellExecuteLog();
 }
 
 void Spell::LoadScripts()

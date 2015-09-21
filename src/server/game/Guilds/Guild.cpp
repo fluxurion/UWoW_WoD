@@ -28,6 +28,7 @@
 #include "AccountMgr.h"
 #include "GuildPackets.h"
 #include "ItemPackets.h"
+#include "CalendarPackets.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -2559,6 +2560,29 @@ void Guild::BroadcastPacket(WorldPacket const* packet) const
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (Player* player = itr->second->FindPlayer())
             player->GetSession()->SendPacket(packet);
+}
+
+void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank)
+{
+    WorldPackets::Calendar::CalendarEventInitialInvites packet;
+
+    for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+    {
+        if (packet.Invites.size() >= CALENDAR_MAX_INVITES)
+        {
+            if (Player* player = session->GetPlayer())
+                sCalendarMgr->SendCalendarCommandResult(player->GetGUID(), CALENDAR_ERROR_INVITES_EXCEEDED);
+            return;
+        }
+
+        Member* member = itr->second;
+        uint32 level = Player::GetLevelFromDB(member->GetGUID());
+
+        if (member->GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member->IsRankNotLower(minRank))
+            packet.Invites.emplace_back(member->GetGUID(), level);
+    }
+
+    session->SendPacket(packet.Write());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

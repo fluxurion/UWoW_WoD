@@ -497,7 +497,7 @@ uint32 InstanceSaveManager::GetNumBoundGroupsTotal()
     return ret;
 }
 
-time_t InstanceSave::GetResetTime()
+time_t InstanceSave::GetResetTime() const
 {
     if(MapDifficulty const* mapDiff = GetMapDifficultyData(GetMapId(), GetDifficultyID()))
         if (mapDiff->resetTime)

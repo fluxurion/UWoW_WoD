@@ -266,6 +266,11 @@ uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 }; /*@todo: upda
 
 typedef std::map<uint32, GuildNewsEntry> GuildNewsLogMap;
 
+#define GUILD_CHALLENGES_TYPES 6
+const uint32 GuildChallengeGoldReward[GUILD_CHALLENGES_TYPES]         = { 0, 250,    1000,    500,   250,   500 };
+const uint32 GuildChallengeMaxLevelGoldReward[GUILD_CHALLENGES_TYPES] = { 0, 125,    500,     250,   125,   250 };
+const uint32 GuildChallengesMaxCount[GUILD_CHALLENGES_TYPES]          = { 0, 7,      1,       3,     0,     3 };
+
 #define GUILD_EXPERIENCE_UNCAPPED_LEVEL 20  ///> Hardcoded in client, starting from this level, guild daily experience 
 #define GUILD_WEEKLY_REP_CAP            4375                        // Amount of personal guild rep members can earn per day.
 
@@ -875,6 +880,8 @@ public:
     void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, const std::string& msg, const std::string& prefix) const;
     void BroadcastPacketToRank(WorldPacket const* packet, uint8 rankId) const;
     void BroadcastPacket(WorldPacket const* packet) const;
+
+    void MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank);
 
     template<class Do>
     void BroadcastWorker(Do& _do, Player* except = NULL)
